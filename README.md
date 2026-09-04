@@ -8,14 +8,14 @@ The model is deliberately similar to Memories for photographs and Music for audi
 
 ## Current status
 
-Early bootstrap / v0.1 concept. The repository currently contains a minimal installable Nextcloud app skeleton plus planning documents.
+Early bootstrap / v0.1 concept. The repository currently contains a minimal installable Nextcloud app skeleton, a verified reader-handoff spike and a focused concept/roadmap documentation spine.
 
-The first working milestone is intentionally small:
+The next working milestone is intentionally small:
 
-- install as a normal Nextcloud navigation app;
-- appear in the Nextcloud app navigation;
-- prove the local development loop against a real Nextcloud instance;
-- then spike reader/viewer handoff for existing files.
+- configure one or more Library roots;
+- manually scan a root for supported publication files;
+- store a stable Nextcloud file-ID-based index;
+- show the indexed files in a basic Library view before adding rich metadata or cover polish.
 
 ## v0.1 direction
 
@@ -44,7 +44,9 @@ Explicit non-goals for v0.1:
 
 ## Documents
 
-- [Concept summary](docs/concept.md)
+- [Product concept](docs/product-concept.md)
+- [Active roadmap](docs/roadmap.md)
+- [Original concept summary](docs/concept.md)
 - [v0.1 technical specification draft](docs/v0.1-technical-spec.md)
 - [Reader handoff spike](docs/reader-handoff-spike.md)
 - [Alice reader compatibility notes](docs/alice-reader-compatibility.md)
