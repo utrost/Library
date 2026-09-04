@@ -31,6 +31,7 @@ What exists now:
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue list with basic metadata edit forms and user-edit preservation across rescans.
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
+- Minimal Nextcloud system tag assignment from Library item cards for existing or creatable public/assignable tags.
 - Read-only recent Nextcloud file comments on publication item cards as file-level notes/discussion.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - Alice Nextcloud sandbox compatibility evidence for PDF, EPUB and CBZ inline opening.
@@ -149,7 +150,7 @@ Exit criteria:
 
 Goal: make Library a better Nextcloud citizen before adding deeper extractor-specific metadata.
 
-Status: first read-only tag and comment exposure slices landed and smoke-tested on Alice.
+Status: first read-only tag/comment exposure and minimal tag assignment slices landed and smoke-tested on Alice.
 
 User outcome:
 
@@ -161,7 +162,7 @@ Backend/frontend slices:
 
 1. Add a small service that reads visible Nextcloud system tags for the primary file IDs of listed Library items. **Landed.**
 2. Show those tags on the catalogue item cards/detail area. **Landed for item cards.**
-3. Keep tag editing deferred until the read path and permission behaviour are smoke-tested.
+3. Keep tag editing deferred until the read path and permission behaviour are smoke-tested. **Minimal add-tag flow landed; tag removal remains deferred.**
 4. Add comments as a later adjacent slice after tags. **Read-only recent comments landed for item cards.**
 
 Tests/smokes:

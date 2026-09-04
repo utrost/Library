@@ -6,6 +6,7 @@ $items = $_['items'] ?? [];
 $fileTagsByFileId = $_['fileTagsByFileId'] ?? [];
 $fileCommentsByFileId = $_['fileCommentsByFileId'] ?? [];
 $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
+$itemTagBaseUrl = $_['itemTagBaseUrl'] ?? '';
 ?>
 <div id="library-app" class="library-app">
     <section class="library-hero">
@@ -107,6 +108,7 @@ $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
             <div class="library-index-list">
                 <?php foreach ($items as $item): ?>
                     <?php $itemUpdateUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemUpdateBaseUrl); ?>
+                    <?php $itemTagUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemTagBaseUrl); ?>
                     <?php $nextcloudTags = $fileTagsByFileId[(int)$item['fileId']] ?? []; ?>
                     <?php $nextcloudComments = $fileCommentsByFileId[(int)$item['fileId']] ?? ['count' => 0, 'recent' => []]; ?>
                     <article class="library-index-row library-item-row">
@@ -126,6 +128,13 @@ $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
                                     <span class="library-tag"><?php p($tag['name']); ?></span>
                                 <?php endforeach; ?>
                             <?php endif; ?>
+                            <form method="post" action="<?php p($itemTagUrl); ?>" class="library-tag-form">
+                                <label>
+                                    Add Nextcloud tag
+                                    <input type="text" name="tagName" placeholder="photography, project-library..." />
+                                </label>
+                                <button type="submit">Add tag</button>
+                            </form>
                         </div>
                         <div class="library-nextcloud-comments" aria-label="nextcloudComments">
                             <strong>Nextcloud comments</strong> <span class="library-muted">(file-level notes)</span>:

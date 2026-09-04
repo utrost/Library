@@ -19,10 +19,10 @@ The current development slice can:
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans;
 - show indexed files and publication items with basic edit forms.
-- treat Nextcloud system tags as cross-archive classification metadata exposed in Library item cards.
+- treat Nextcloud system tags as cross-archive classification metadata exposed and addable from Library item cards.
 - show recent Nextcloud file comments as file-level notes/discussion on Library item cards.
 
-The next milestone is tag/comment editing or richer metadata extraction/covers once the read-only Nextcloud integration has settled.
+The next milestone is tag removal/comment writing or richer metadata extraction/covers once the small Nextcloud integration path has settled.
 
 ## v0.1 direction
 

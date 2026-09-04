@@ -8,5 +8,6 @@ return [
         ['name' => 'root#save', 'url' => '/roots', 'verb' => 'POST'],
         ['name' => 'scan#run', 'url' => '/scan', 'verb' => 'POST'],
         ['name' => 'item#update', 'url' => '/items/{itemId}', 'verb' => 'POST'],
+        ['name' => 'tag#assign', 'url' => '/items/{itemId}/tags', 'verb' => 'POST'],
     ],
 ];
