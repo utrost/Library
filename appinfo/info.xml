@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>library</id>
+    <name>Library</name>
+    <summary>Publication catalogue for files stored in Nextcloud</summary>
+    <description><![CDATA[Library adds a publication-specific catalogue, metadata model, search and browsing interface on top of ordinary Nextcloud files. Nextcloud Files remain canonical; Library stores indexes and derived metadata.]]></description>
+    <version>0.1.0-alpha.1</version>
+    <licence>agpl</licence>
+    <author mail="utrost@users.noreply.github.com">Uwe Trostheide</author>
+    <namespace>Library</namespace>
+    <category>files</category>
+    <category>multimedia</category>
+    <bugs>https://github.com/utrost/Library/issues</bugs>
+    <website>https://github.com/utrost/Library</website>
+    <dependencies>
+        <nextcloud min-version="34" max-version="34" />
+    </dependencies>
+    <navigations>
+        <navigation>
+            <name>Library</name>
+            <route>library.page.index</route>
+            <icon>app.svg</icon>
+            <order>8</order>
+        </navigation>
+    </navigations>
+</info>
