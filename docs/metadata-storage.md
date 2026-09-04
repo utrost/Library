@@ -97,10 +97,10 @@ Nextcloud tags
   system tags currently assigned to the primary source file
 
 Comments
-  file-level Nextcloud comments later
+  recent file-level Nextcloud comments as notes/discussion
 ```
 
-For the first integration slice, Library should only read and display system tags. Tag editing and comment writing can follow after the read path is stable.
+The first integration slices read and display existing system tags and recent comments. Tag editing and comment writing can follow after the read paths are stable.
 
 ## Future canonical schema direction
 

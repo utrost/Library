@@ -12,6 +12,7 @@ def test_readme_links_product_concept_and_active_roadmap():
     assert "[Product concept](docs/product-concept.md)" in readme
     assert "[Active roadmap](docs/roadmap.md)" in readme
     assert "[Metadata storage and Nextcloud integration](docs/metadata-storage.md)" in readme
+    assert "comments" in readme
     assert "roots" in readme
     assert "file-ID-based index" in readme
 
@@ -51,10 +52,10 @@ def test_roadmap_starts_with_roots_file_index_and_nextcloud_tags_before_metadata
     assert phase1 < phase2 < phase25 < phase3
 
     immediate = roadmap[roadmap.index("## Immediate next implementation slice") :]
-    assert "read-only Nextcloud tag exposure" in immediate
-    assert "file comments" in immediate
-    assert "Comments API" in immediate
-    assert "discussion/notes" in immediate
+    assert "read-only Nextcloud tags/comments exposure" in immediate
+    assert "tag assignment flow" in immediate
+    assert "SystemTag APIs" in immediate
+    assert "must not alter publication form/title/creator fields" in immediate
     assert "Library-native tag tables" in immediate
 
 
@@ -72,6 +73,7 @@ def test_metadata_storage_doc_defines_nextcloud_integration_boundaries():
     assert "Library stores canonical publication metadata in its own app tables" in doc
     assert "Nextcloud system tags are used as a shared cross-archive classification layer" in doc
     assert "Nextcloud comments are exposed as file-level discussion/notes" in doc
+    assert "recent comments" in doc
     assert "Nextcloud FilesMetadata can mirror selected Library summary fields later" in doc
     assert "Format adapters such as EPUB, PDF and CBZ must map into this general model" in doc
 

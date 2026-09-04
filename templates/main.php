@@ -4,6 +4,7 @@ $roots = $_['roots'] ?? [];
 $files = $_['files'] ?? [];
 $items = $_['items'] ?? [];
 $fileTagsByFileId = $_['fileTagsByFileId'] ?? [];
+$fileCommentsByFileId = $_['fileCommentsByFileId'] ?? [];
 $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
 ?>
 <div id="library-app" class="library-app">
@@ -107,6 +108,7 @@ $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
                 <?php foreach ($items as $item): ?>
                     <?php $itemUpdateUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemUpdateBaseUrl); ?>
                     <?php $nextcloudTags = $fileTagsByFileId[(int)$item['fileId']] ?? []; ?>
+                    <?php $nextcloudComments = $fileCommentsByFileId[(int)$item['fileId']] ?? ['count' => 0, 'recent' => []]; ?>
                     <article class="library-index-row library-item-row">
                         <h3><?php p($item['title']); ?></h3>
                         <p>
@@ -123,6 +125,22 @@ $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
                                 <?php foreach ($nextcloudTags as $tag): ?>
                                     <span class="library-tag"><?php p($tag['name']); ?></span>
                                 <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                        <div class="library-nextcloud-comments" aria-label="nextcloudComments">
+                            <strong>Nextcloud comments</strong> <span class="library-muted">(file-level notes)</span>:
+                            <?php if ((int)$nextcloudComments['count'] === 0): ?>
+                                <span class="library-muted">No Nextcloud comments</span>
+                            <?php else: ?>
+                                <span><?php p((string)$nextcloudComments['count']); ?> total</span>
+                                <ul class="library-comment-list">
+                                    <?php foreach ($nextcloudComments['recent'] as $comment): ?>
+                                        <li>
+                                            <span class="library-muted"><?php p($comment['actorId']); ?> · <?php p($comment['createdAt']); ?></span>
+                                            <span><?php p($comment['message']); ?></span>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
                             <?php endif; ?>
                         </div>
                         <form method="post" action="<?php p($itemUpdateUrl); ?>" class="library-item-form">
