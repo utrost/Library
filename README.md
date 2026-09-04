@@ -8,7 +8,7 @@ The model is deliberately similar to Memories for photographs and Music for audi
 
 ## Current status
 
-Early bootstrap / v0.1 concept. The repository currently contains a minimal installable Nextcloud app skeleton, a verified reader-handoff spike, the concept/roadmap documentation spine, a roots → scan → file-index slice, the first editable publication-item slice, and the agreed metadata-storage direction for Nextcloud-native tags/comments.
+Early bootstrap / v0.1 concept. The repository currently contains a minimal installable Nextcloud app skeleton, a verified reader-handoff spike, the concept/roadmap documentation spine, a roots → scan → file-index slice, editable publication items, a first cover gallery/search and filter presentation slice, and the agreed metadata-storage direction for Nextcloud-native tags/comments.
 
 The current development slice can:
 
@@ -18,7 +18,8 @@ The current development slice can:
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans;
-- show indexed files and publication items with basic edit forms;
+- show indexed files and publication items with a responsive cover gallery, placeholder covers and collapsible metadata detail/edit sections;
+- search and filter the catalogue by title/author text, publication type, exact Nextcloud tag and root-derived shelf;
 - treat Nextcloud system tags as cross-archive classification metadata exposed and addable from Library item cards;
 - show recent Nextcloud file comments as file-level notes/discussion on Library item cards;
 - add new Nextcloud file comments from Library item cards;
@@ -41,7 +42,7 @@ Included later in v0.1:
 - discover EPUB, PDF and CBZ files first;
 - store a file-ID-based index;
 - extract basic metadata and covers where practical;
-- browse/search/edit publication metadata;
+- browse/search/edit publication metadata through a cover gallery, shelf filters and detail/edit panels;
 - open files through compatible existing Nextcloud viewers/readers;
 - show the original file in Nextcloud Files.
 
@@ -57,6 +58,7 @@ Explicit non-goals for v0.1:
 ## Documents
 
 - [Product concept](docs/product-concept.md)
+- [UX concept and user stories](docs/ux-concept.md)
 - [Active roadmap](docs/roadmap.md)
 - [Original concept summary](docs/concept.md)
 - [v0.1 technical specification draft](docs/v0.1-technical-spec.md)

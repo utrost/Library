@@ -8,6 +8,9 @@ $fileCommentsByFileId = $_['fileCommentsByFileId'] ?? [];
 $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
 $itemTagBaseUrl = $_['itemTagBaseUrl'] ?? '';
 $itemCommentBaseUrl = $_['itemCommentBaseUrl'] ?? '';
+$itemOpenBaseUrl = $_['itemOpenBaseUrl'] ?? '';
+$shelves = $_['shelves'] ?? [];
+$activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'tag' => '', 'shelf' => ''];
 ?>
 <div id="library-app" class="library-app">
     <section class="library-hero">
@@ -16,15 +19,15 @@ $itemCommentBaseUrl = $_['itemCommentBaseUrl'] ?? '';
             Library is a catalogue layer for publications already stored in Nextcloud.
         </p>
         <p>
-            Nextcloud Files remain canonical. Library will add discovery, metadata,
-            covers, browsing, search and reader handoff without importing or owning the files.
+            Nextcloud Files remain canonical. Library adds discovery, metadata,
+            cover-style browsing, search/filtering and reader handoff without importing or owning the files.
         </p>
     </section>
 
     <section class="library-card-grid" aria-label="Library bootstrap status">
         <article class="library-card">
             <h2>v0.1 Catalogue</h2>
-            <p>Current slice: user-specific Library roots, manual scan and a stable file-ID index.</p>
+            <p>Current slice: user-specific Library roots, manual scan, file-ID index and editable catalogue items.</p>
         </article>
         <article class="library-card">
             <h2>Reader handoff spike</h2>
@@ -39,7 +42,7 @@ $itemCommentBaseUrl = $_['itemCommentBaseUrl'] ?? '';
 
     <section class="library-panel" aria-label="Library roots">
         <h2>Library roots</h2>
-        <p>The first UI is intentionally small, but the backend stores a user-specific list of roots.</p>
+        <p>The first shelf model is intentionally pragmatic: configured roots become shelves, and later releases can add virtual/user-defined shelves.</p>
         <form method="post" action="<?php p($_['rootSaveUrl']); ?>" class="library-form">
             <label>
                 Folder path
@@ -103,94 +106,165 @@ $itemCommentBaseUrl = $_['itemCommentBaseUrl'] ?? '';
 
     <section class="library-panel" aria-label="Publication catalogue">
         <h2>Publication catalogue</h2>
+        <p class="library-muted">Browse as a shelf/gallery first; open the details panel when metadata matters.</p>
+
+        <form method="get" class="library-filter-bar" aria-label="Catalogue search and filters">
+            <label>
+                Search title / author
+                <input type="search" name="q" value="<?php p($activeFilters['q'] ?? ''); ?>" placeholder="Camera, Eco, Rolleiflex..." />
+            </label>
+            <label>
+                Type
+                <select name="type">
+                    <option value="">All types</option>
+                    <?php foreach (['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'] as $type): ?>
+                        <option value="<?php p($type); ?>" <?php if (($activeFilters['type'] ?? '') === $type) { print_unescaped('selected'); } ?>><?php p($type); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label>
+                Nextcloud tag
+                <input type="text" name="tag" value="<?php p($activeFilters['tag'] ?? ''); ?>" placeholder="photography" />
+            </label>
+            <label>
+                Shelf
+                <select name="shelf">
+                    <option value="">All shelves</option>
+                    <?php foreach ($shelves as $shelf): ?>
+                        <option value="<?php p($shelf); ?>" <?php if (($activeFilters['shelf'] ?? '') === $shelf) { print_unescaped('selected'); } ?>><?php p($shelf); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <button type="submit">Apply filters</button>
+            <a class="library-reset-link" href="?">Clear</a>
+        </form>
+
         <?php if (count($items) === 0): ?>
-            <p class="library-muted">No catalogue items yet. Scan enabled roots to create one publication item for each indexed file.</p>
+            <p class="library-muted">No catalogue items match. Scan enabled roots or clear the active filters.</p>
         <?php else: ?>
-            <div class="library-index-list">
+            <div class="library-cover-gallery">
                 <?php foreach ($items as $item): ?>
                     <?php $itemUpdateUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemUpdateBaseUrl); ?>
                     <?php $itemTagUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemTagBaseUrl); ?>
                     <?php $itemCommentUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemCommentBaseUrl); ?>
+                    <?php $itemOpenUrl = str_replace('__FILE_ID__', (string)$item['fileId'], $itemOpenBaseUrl); ?>
                     <?php $nextcloudTags = $fileTagsByFileId[(int)$item['fileId']] ?? []; ?>
                     <?php $nextcloudComments = $fileCommentsByFileId[(int)$item['fileId']] ?? ['count' => 0, 'recent' => []]; ?>
-                    <article class="library-index-row library-item-row">
-                        <h3><?php p($item['title']); ?></h3>
-                        <p>
-                            <strong>publicationType</strong>: <?php p($item['publicationType']); ?> ·
-                            <strong>metadataSource</strong>: <?php p($item['metadataSource']); ?> ·
-                            <strong>userEdited</strong>: <?php p($item['userEdited'] ? 'yes' : 'no'); ?>
-                        </p>
-                        <p class="library-muted"><?php p($item['cachedPath']); ?></p>
-                        <div class="library-nextcloud-tags" aria-label="nextcloudTags">
-                            <strong>Nextcloud tags</strong>:
-                            <?php if (count($nextcloudTags) === 0): ?>
-                                <span class="library-muted">No Nextcloud tags</span>
-                            <?php else: ?>
-                                <?php foreach ($nextcloudTags as $tag): ?>
-                                    <span class="library-tag"><?php p($tag['name']); ?></span>
-                                <?php endforeach; ?>
+                    <?php $coverText = mb_strtoupper(mb_substr(trim((string)$item['title']), 0, 2)); ?>
+                    <article class="library-cover-card">
+                        <a class="library-cover-link" href="<?php p($itemOpenUrl); ?>" aria-label="Read <?php p($item['title']); ?>">
+                            <div class="library-cover-placeholder" aria-hidden="true">
+                                <span><?php p($coverText !== '' ? $coverText : 'LIB'); ?></span>
+                            </div>
+                        </a>
+                        <div class="library-cover-summary">
+                            <h3><?php p($item['title']); ?></h3>
+                            <?php if ($item['creators'] !== ''): ?>
+                                <p class="library-creator"><?php p($item['creators']); ?></p>
                             <?php endif; ?>
-                            <form method="post" action="<?php p($itemTagUrl); ?>" class="library-tag-form">
-                                <label>
-                                    Add Nextcloud tag
-                                    <input type="text" name="tagName" placeholder="photography, project-library..." />
-                                </label>
-                                <button type="submit">Add tag</button>
-                            </form>
-                        </div>
-                        <div class="library-nextcloud-comments" aria-label="nextcloudComments">
-                            <strong>Nextcloud comments</strong> <span class="library-muted">(file-level notes)</span>:
-                            <?php if ((int)$nextcloudComments['count'] === 0): ?>
-                                <span class="library-muted">No Nextcloud comments</span>
-                            <?php else: ?>
-                                <span><?php p((string)$nextcloudComments['count']); ?> total</span>
-                                <ul class="library-comment-list">
-                                    <?php foreach ($nextcloudComments['recent'] as $comment): ?>
-                                        <li>
-                                            <span class="library-muted"><?php p($comment['actorId']); ?> · <?php p($comment['createdAt']); ?></span>
-                                            <span><?php p($comment['message']); ?></span>
-                                        </li>
+                            <p class="library-muted">
+                                <span><?php p($item['publicationType']); ?></span>
+                                <?php if (($item['shelf'] ?? '') !== ''): ?> · <span>Shelf: <?php p($item['shelf']); ?></span><?php endif; ?>
+                            </p>
+                            <div class="library-nextcloud-tags" aria-label="nextcloudTags">
+                                <?php if (count($nextcloudTags) === 0): ?>
+                                    <span class="library-muted">No Nextcloud tags</span>
+                                <?php else: ?>
+                                    <?php foreach ($nextcloudTags as $tag): ?>
+                                        <span class="library-tag"><?php p($tag['name']); ?></span>
                                     <?php endforeach; ?>
-                                </ul>
-                            <?php endif; ?>
-                            <form method="post" action="<?php p($itemCommentUrl); ?>" class="library-comment-form">
-                                <label>
-                                    Add Nextcloud comment
-                                    <textarea name="commentMessage" rows="2" placeholder="file-level note..."></textarea>
-                                </label>
-                                <button type="submit">Add comment</button>
-                            </form>
+                                <?php endif; ?>
+                            </div>
+                            <p><a href="<?php p($itemOpenUrl); ?>">Read</a></p>
                         </div>
-                        <form method="post" action="<?php p($itemUpdateUrl); ?>" class="library-item-form">
-                            <label>
-                                Title
-                                <input type="text" name="title" value="<?php p($item['title']); ?>" />
-                            </label>
-                            <label>
-                                Type
-                                <select name="publicationType">
-                                    <?php foreach (['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'] as $type): ?>
-                                        <option value="<?php p($type); ?>" <?php if ($item['publicationType'] === $type) { print_unescaped('selected'); } ?>><?php p($type); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </label>
-                            <label>
-                                Creators
-                                <input type="text" name="creators" value="<?php p($item['creators']); ?>" />
-                            </label>
-                            <label>
-                                Publication
-                                <input type="text" name="publication" value="<?php p($item['publication']); ?>" />
-                            </label>
-                            <label>
-                                Date
-                                <input type="text" name="publicationDate" value="<?php p($item['publicationDate']); ?>" />
-                            </label>
-                            <input type="hidden" name="subtitle" value="<?php p($item['subtitle']); ?>" />
-                            <input type="hidden" name="language" value="<?php p($item['language']); ?>" />
-                            <input type="hidden" name="publisher" value="<?php p($item['publisher']); ?>" />
-                            <button type="submit">Save metadata</button>
-                        </form>
+
+                        <details>
+                            <summary>Details / edit metadata</summary>
+                            <dl class="library-item-metadata">
+                                <dt>publicationType</dt>
+                                <dd><?php p($item['publicationType']); ?></dd>
+                                <dt>metadataSource</dt>
+                                <dd><?php p($item['metadataSource']); ?></dd>
+                                <dt>userEdited</dt>
+                                <dd><?php p($item['userEdited'] ? 'yes' : 'no'); ?></dd>
+                                <dt>path</dt>
+                                <dd><?php p($item['cachedPath']); ?></dd>
+                                <dt>publication</dt>
+                                <dd><?php p($item['publication'] ?: '—'); ?></dd>
+                                <dt>date</dt>
+                                <dd><?php p($item['publicationDate'] ?: '—'); ?></dd>
+                                <dt>language</dt>
+                                <dd><?php p($item['language'] ?: '—'); ?></dd>
+                                <dt>publisher</dt>
+                                <dd><?php p($item['publisher'] ?: '—'); ?></dd>
+                            </dl>
+
+                            <div class="library-nextcloud-tags" aria-label="nextcloudTagEditor">
+                                <strong>Nextcloud tags</strong>
+                                <form method="post" action="<?php p($itemTagUrl); ?>" class="library-tag-form">
+                                    <label>
+                                        Add Nextcloud tag
+                                        <input type="text" name="tagName" placeholder="photography, project-library..." />
+                                    </label>
+                                    <button type="submit">Add tag</button>
+                                </form>
+                            </div>
+
+                            <div class="library-nextcloud-comments" aria-label="nextcloudComments">
+                                <strong>Nextcloud comments</strong> <span class="library-muted">(file-level notes)</span>:
+                                <?php if ((int)$nextcloudComments['count'] === 0): ?>
+                                    <span class="library-muted">No Nextcloud comments</span>
+                                <?php else: ?>
+                                    <span><?php p((string)$nextcloudComments['count']); ?> total</span>
+                                    <ul class="library-comment-list">
+                                        <?php foreach ($nextcloudComments['recent'] as $comment): ?>
+                                            <li>
+                                                <span class="library-muted"><?php p($comment['actorId']); ?> · <?php p($comment['createdAt']); ?></span>
+                                                <span><?php p($comment['message']); ?></span>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
+                                <form method="post" action="<?php p($itemCommentUrl); ?>" class="library-comment-form">
+                                    <label>
+                                        Add Nextcloud comment
+                                        <textarea name="commentMessage" rows="2" placeholder="file-level note..."></textarea>
+                                    </label>
+                                    <button type="submit">Add comment</button>
+                                </form>
+                            </div>
+
+                            <form method="post" action="<?php p($itemUpdateUrl); ?>" class="library-item-form">
+                                <label>
+                                    Title
+                                    <input type="text" name="title" value="<?php p($item['title']); ?>" />
+                                </label>
+                                <label>
+                                    Type
+                                    <select name="publicationType">
+                                        <?php foreach (['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'] as $type): ?>
+                                            <option value="<?php p($type); ?>" <?php if ($item['publicationType'] === $type) { print_unescaped('selected'); } ?>><?php p($type); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </label>
+                                <label>
+                                    Creators
+                                    <input type="text" name="creators" value="<?php p($item['creators']); ?>" />
+                                </label>
+                                <label>
+                                    Publication
+                                    <input type="text" name="publication" value="<?php p($item['publication']); ?>" />
+                                </label>
+                                <label>
+                                    Date
+                                    <input type="text" name="publicationDate" value="<?php p($item['publicationDate']); ?>" />
+                                </label>
+                                <input type="hidden" name="subtitle" value="<?php p($item['subtitle']); ?>" />
+                                <input type="hidden" name="language" value="<?php p($item['language']); ?>" />
+                                <input type="hidden" name="publisher" value="<?php p($item['publisher']); ?>" />
+                                <button type="submit">Save metadata</button>
+                            </form>
+                        </details>
                     </article>
                 <?php endforeach; ?>
             </div>
