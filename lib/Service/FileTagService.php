@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace OCA\Library\Service;
 
+use OCP\IDBConnection;
 use OCP\IUserSession;
 use OCP\SystemTag\ISystemTagManager;
 use OCP\SystemTag\ISystemTagObjectMapper;
+use OCP\SystemTag\TagAlreadyExistsException;
+use OCP\SystemTag\TagCreationForbiddenException;
 use OCP\SystemTag\TagNotFoundException;
 
 final class FileTagService {
@@ -14,6 +17,7 @@ final class FileTagService {
         private ISystemTagObjectMapper $tagObjectMapper,
         private ISystemTagManager $tagManager,
         private IUserSession $userSession,
+        private IDBConnection $db,
     ) {
     }
 
@@ -78,6 +82,59 @@ final class FileTagService {
         }
 
         return $result;
+    }
+
+    public function assignTagToItem(string $userId, int $itemId, string $tagName): void {
+        $tagName = trim($tagName);
+        if ($tagName === '') {
+            return;
+        }
+
+        $fileId = $this->findFileIdForItem($userId, $itemId);
+        if ($fileId === null) {
+            return;
+        }
+
+        $user = $this->userSession->getUser();
+        try {
+            $tag = $this->tagManager->getTag($tagName, true, true);
+        } catch (TagNotFoundException) {
+            if (!$this->tagManager->canUserCreateTag($user)) {
+                return;
+            }
+
+            try {
+                $tag = $this->tagManager->createTag($tagName, true, true, $user);
+            } catch (TagAlreadyExistsException) {
+                $tag = $this->tagManager->getTag($tagName, true, true);
+            } catch (TagCreationForbiddenException) {
+                return;
+            }
+        }
+
+        if (!$this->tagManager->canUserAssignTag($tag, $user)) {
+            return;
+        }
+
+        $this->tagObjectMapper->assignTags((string)$fileId, 'files', $tag->getId());
+    }
+
+    private function findFileIdForItem(string $userId, int $itemId): ?int {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('f.file_id')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->where($qb->expr()->eq('i.id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->executeQuery();
+
+        $row = $result->fetch();
+        $result->closeCursor();
+        if ($row === false) {
+            return null;
+        }
+
+        return (int)$row['file_id'];
     }
 
     /**
