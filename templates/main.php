@@ -21,6 +21,7 @@
         <article class="library-card">
             <h2>Reader handoff spike</h2>
             <p>Next technical risk: open existing Nextcloud files through compatible viewer/reader apps.</p>
+            <p><a href="<?php p($_['fixtureOpenUrl']); ?>">Open reader-handoff.pdf fixture</a></p>
         </article>
         <article class="library-card">
             <h2>No import silo</h2>
