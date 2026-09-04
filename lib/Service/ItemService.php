@@ -56,6 +56,15 @@ final class ItemService {
             ->executeStatement();
     }
 
+    public function deleteItemForLibraryFile(string $userId, int $libraryFileId): void {
+        $qb = $this->db->getQueryBuilder();
+        $qb->delete('library_items')
+            ->where($qb->expr()->eq('library_file_id', $qb->createNamedParameter($libraryFileId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('user_edited', $qb->createNamedParameter(0)))
+            ->executeStatement();
+    }
+
     public function updateItem(string $userId, int $itemId, array $metadata): void {
         $now = time();
         $publicationType = $this->normalizePublicationType((string)($metadata['publicationType'] ?? 'other'));
@@ -88,6 +97,7 @@ final class ItemService {
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
             ->orderBy('i.title', 'ASC')
             ->executeQuery();
 

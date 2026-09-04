@@ -81,6 +81,7 @@ final class LibraryScanner {
             }
 
             if ($this->isSuppressedOpfSidecar($node)) {
+                $this->cleanupSuppressedOpfSidecar($userId, $rootId, $node);
                 continue;
             }
 
@@ -99,6 +100,20 @@ final class LibraryScanner {
         }
 
         return $indexed;
+    }
+
+    private function cleanupSuppressedOpfSidecar(string $userId, int $rootId, File $file): void {
+        $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
+            'fileId' => $file->getId(),
+            'cachedPath' => $this->displayPath($file, $userId),
+            'mimeType' => $file->getMimetype(),
+            'extension' => strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION)),
+            'etag' => $file->getEtag(),
+            'mtime' => $file->getMTime(),
+            'size' => $file->getSize(),
+        ]);
+        $this->fileIndexService->markAsSidecar($userId, (int)$indexedFile['id']);
+        $this->itemService->deleteItemForLibraryFile($userId, (int)$indexedFile['id']);
     }
 
     private function isSupported(File $file): bool {

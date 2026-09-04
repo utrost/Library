@@ -66,6 +66,16 @@ final class FileIndexService {
         ];
     }
 
+    public function markAsSidecar(string $userId, int $libraryFileId): void {
+        $qb = $this->db->getQueryBuilder();
+        $qb->update('library_files')
+            ->set('scan_status', $qb->createNamedParameter('sidecar'))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($libraryFileId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+    }
+
     /**
      * @return array<int, array<string, mixed>>
      */
