@@ -108,3 +108,15 @@
         grid-template-columns: 1fr;
     }
 }
+
+.library-item-form {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.library-item-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}

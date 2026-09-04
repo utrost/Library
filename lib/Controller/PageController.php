@@ -7,6 +7,7 @@ namespace OCA\Library\Controller;
 use OCA\Library\AppInfo\Application;
 use OCA\Library\Reader\DefaultNextcloudFileProvider;
 use OCA\Library\Service\FileIndexService;
+use OCA\Library\Service\ItemService;
 use OCA\Library\Service\RootService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -26,6 +27,7 @@ class PageController extends Controller {
         private DefaultNextcloudFileProvider $readerProvider,
         private RootService $rootService,
         private FileIndexService $fileIndexService,
+        private ItemService $itemService,
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
     ) {
@@ -44,8 +46,10 @@ class PageController extends Controller {
             'fixtureOpenUrl' => $this->readerProvider->getOpenUrl(self::READER_FIXTURE_FILE_ID),
             'roots' => $userId !== '' ? $this->rootService->listRoots($userId) : [],
             'files' => $userId !== '' ? $this->fileIndexService->listFiles($userId) : [],
+            'items' => $userId !== '' ? $this->itemService->listItems($userId) : [],
             'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
+            'itemUpdateBaseUrl' => $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => '__ITEM_ID__']),
         ]);
     }
 }

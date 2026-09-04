@@ -15,12 +15,12 @@ final class FileIndexService {
     /**
      * @param array<string, mixed> $file
      */
-    public function upsertFile(string $userId, int $rootId, array $file): void {
+    public function upsertFile(string $userId, int $rootId, array $file): array {
         $now = time();
         $fileId = (int)$file['fileId'];
 
-        $existingId = $this->findIdByFileId($userId, $fileId);
-        if ($existingId !== null) {
+        $existing = $this->findByFileId($userId, $fileId);
+        if ($existing !== null) {
             $qb = $this->db->getQueryBuilder();
             $qb->update('library_files')
                 ->set('root_id', $qb->createNamedParameter($rootId))
@@ -33,9 +33,9 @@ final class FileIndexService {
                 ->set('scan_status', $qb->createNamedParameter('indexed'))
                 ->set('last_scanned_at', $qb->createNamedParameter($now))
                 ->set('updated_at', $qb->createNamedParameter($now))
-                ->where($qb->expr()->eq('id', $qb->createNamedParameter($existingId)))
+                ->where($qb->expr()->eq('id', $qb->createNamedParameter($existing['id'])))
                 ->executeStatement();
-            return;
+            return $this->findByFileId($userId, $fileId) ?? $existing;
         }
 
         $qb = $this->db->getQueryBuilder();
@@ -56,6 +56,14 @@ final class FileIndexService {
                 'updated_at' => $qb->createNamedParameter($now),
             ])
             ->executeStatement();
+
+        return $this->findByFileId($userId, $fileId) ?? [
+            'id' => 0,
+            'fileId' => $fileId,
+            'cachedPath' => (string)$file['cachedPath'],
+            'mimeType' => (string)$file['mimeType'],
+            'extension' => (string)$file['extension'],
+        ];
     }
 
     /**
@@ -107,9 +115,9 @@ final class FileIndexService {
         return $labels;
     }
 
-    private function findIdByFileId(string $userId, int $fileId): ?int {
+    public function findByFileId(string $userId, int $fileId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('id')
+        $result = $qb->select('id', 'root_id', 'file_id', 'cached_path', 'mime_type', 'extension', 'scan_status', 'last_scanned_at')
             ->from('library_files')
             ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('file_id', $qb->createNamedParameter($fileId)))
@@ -121,6 +129,15 @@ final class FileIndexService {
             return null;
         }
 
-        return (int)$row['id'];
+        return [
+            'id' => (int)$row['id'],
+            'rootId' => (int)$row['root_id'],
+            'fileId' => (int)$row['file_id'],
+            'cachedPath' => (string)$row['cached_path'],
+            'mimeType' => (string)$row['mime_type'],
+            'extension' => $row['extension'] !== null ? (string)$row['extension'] : '',
+            'scanStatus' => (string)$row['scan_status'],
+            'lastScannedAt' => (int)$row['last_scanned_at'],
+        ];
     }
 }

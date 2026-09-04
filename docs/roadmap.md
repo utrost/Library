@@ -24,14 +24,16 @@ What exists now:
 - Navigation entry and bootstrap page.
 - Default reader handoff provider that generates `/f/{fileId}` links.
 - User-specific `library_roots` and `library_files` tables.
+- `library_items` table for one editable publication item per indexed file.
 - Bootstrap UI for saving an initial root path and manually scanning enabled roots.
-- Scanner that indexes PDF, EPUB and CBZ files by stable Nextcloud file ID.
+- Scanner that indexes PDF, EPUB and CBZ files by stable Nextcloud file ID, then creates/refreshes inferred catalogue items.
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
+- Publication catalogue list with basic metadata edit forms and user-edit preservation across rescans.
 - Alice Nextcloud sandbox compatibility evidence for PDF, EPUB and CBZ inline opening.
 - Concept, technical-spec and reader-handoff notes.
-- Lightweight repository tests protecting the current skeleton, docs contracts and first roots/file-index slice.
+- Lightweight repository tests protecting the current skeleton, docs contracts, roots/file-index slice and catalogue-item slice.
 
-This is now a development catalogue spine, not a polished usable catalogue. The next milestone is editable publication items with metadata precedence.
+This is now a development catalogue spine, not a polished usable catalogue. The next milestone is richer local metadata/covers or a cleaner UI around the catalogue list.
 
 ## Phase 0 — Concept and spike baseline
 
@@ -102,6 +104,8 @@ Exit criteria:
 ## Phase 2 — Catalogue item model and metadata precedence
 
 Goal: turn indexed files into editable publication catalogue items.
+
+Status: first development slice landed and smoke-tested on Alice. It currently uses filename inference only; richer embedded metadata extraction remains Phase 3.
 
 User outcome:
 
