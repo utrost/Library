@@ -44,7 +44,7 @@ def test_scanner_passes_extracted_metadata_to_item_service_after_indexing_file()
     scanner = (ROOT / "lib" / "Service" / "LibraryScanner.php").read_text()
     assert "use OCA\\Library\\Metadata\\PublicationMetadataService" in scanner
     assert "PublicationMetadataService $metadataService" in scanner
-    assert "$metadata = $this->metadataService->extract($node)" in scanner
+    assert "$metadata = $this->metadataService->extractWithSidecar($node)" in scanner
     assert "ensureItemForFile($userId, $indexedFile, $metadata)" in scanner
     assert "'opf'" in scanner
 
