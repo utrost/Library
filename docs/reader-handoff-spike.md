@@ -48,10 +48,20 @@ This is promising because Library only needs the stable Nextcloud file ID. Nextc
 
 ## Bootstrap implementation
 
-The current bootstrap page generates one temporary fixture link through Nextcloud's URL generator:
+The current bootstrap page generates one temporary fixture link through a small reader-provider boundary:
 
 ```php
-$this->urlGenerator->linkTo('', '/f/' . self::READER_FIXTURE_FILE_ID)
+$this->readerProvider->getOpenUrl(self::READER_FIXTURE_FILE_ID)
+```
+
+The default provider is intentionally tiny:
+
+```php
+final class DefaultNextcloudFileProvider {
+    public function getOpenUrl(int $fileId): string {
+        return $this->urlGenerator->linkTo('', '/f/' . $fileId);
+    }
+}
 ```
 
 This intentionally avoids coupling to the Viewer app's private routes. It also avoids implementing a Library-owned renderer.
