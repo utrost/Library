@@ -93,9 +93,10 @@ final class ItemService {
      */
     public function listItems(string $userId): array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
             ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
             ->orderBy('i.title', 'ASC')
@@ -120,6 +121,7 @@ final class ItemService {
                 'publisher' => $row['publisher'] !== null ? (string)$row['publisher'] : '',
                 'metadataSource' => (string)$row['metadata_source'],
                 'userEdited' => (bool)$row['user_edited'],
+                'shelf' => trim((string)($row['label'] ?? '')) !== '' ? (string)$row['label'] : (string)($row['path'] ?? ''),
             ];
         }
         $result->closeCursor();

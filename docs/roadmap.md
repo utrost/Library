@@ -2,7 +2,7 @@
 
 Status: active planning roadmap  
 Last updated: 2026-09-04  
-Companion documents: [Product concept](product-concept.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md)
+Companion documents: [Product concept](product-concept.md), [UX concept and user stories](ux-concept.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md)
 
 ## Roadmap stance
 
@@ -30,7 +30,8 @@ What exists now:
 - Scanner that indexes PDF, EPUB, CBZ and standalone OPF files by stable Nextcloud file ID, then creates/refreshes inferred catalogue items.
 - First local metadata extraction for EPUB package OPF, standalone OPF files and basic PDF info dictionaries.
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
-- Publication catalogue list with basic metadata edit forms and user-edit preservation across rescans.
+- Publication catalogue gallery with placeholder covers, card-level title/creator/type/shelf/tag metadata, direct Read links and collapsible detail/edit sections.
+- Server-side catalogue search/filter controls for title/author text, publication type, exact Nextcloud tag and root-derived shelf.
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
 - Minimal Nextcloud system tag assignment from Library item cards for existing or creatable public/assignable tags.
 - Read-only recent Nextcloud file comments on publication item cards as file-level notes/discussion.
@@ -40,7 +41,7 @@ What exists now:
 - Concept, technical-spec and reader-handoff notes.
 - Lightweight repository tests protecting the current skeleton, docs contracts, roots/file-index slice and catalogue-item slice.
 
-This is now a development catalogue spine, not a polished usable catalogue. The next milestone is either comments/tag editing, a cleaner UI around the catalogue list or deeper local metadata/covers.
+This is now a development catalogue spine with a first usable shelf/gallery presentation, not a polished media server. The next milestone is real cover extraction, deeper local metadata, or a dedicated detail route if the card-level UI becomes too dense.
 
 ## Phase 0 — Concept and spike baseline
 
@@ -180,6 +181,34 @@ Exit criteria:
 - Existing Nextcloud file tags are visible in Library without duplicating them into Library-specific tag tables.
 - Existing Nextcloud file comments are visible as file-level notes/discussion.
 - Library can add a simple file-level Nextcloud comment without treating it as canonical publication metadata.
+
+## Phase 2.75 — Presentation, shelves and catalogue finding
+
+Goal: answer the first real product UX questions before adding deeper extraction: what does browsing feel like, where is metadata visible, and how does a mixed archive become findable?
+
+Status: first UX concept and implementation slice landed. The current implementation uses placeholder covers rather than extracted images, root-derived shelves rather than virtual collections, and simple server-side filters rather than a rich Vue client.
+
+User outcome:
+
+- The user sees a gallery of publication cards instead of only a raw table.
+- High-signal metadata is visible on each card: title, creator/author, type, shelf and Nextcloud tags.
+- Secondary metadata and editing are available in a collapsible detail panel.
+- Search and filters can narrow by title/author text, semantic publication type, exact Nextcloud tag and shelf.
+
+Backend/frontend slices:
+
+1. Add a checked-in UX concept/user-story document for gallery, metadata visibility, shelves and search/filtering. **Landed.**
+2. Derive a v0.1 Shelf from the configured Library root label/path. **Landed.**
+3. Render a responsive cover gallery with stable placeholder covers. **Landed.**
+4. Move noisy metadata/edit/tag/comment controls behind per-card details. **Landed.**
+5. Add GET-based filters for query, type, tag and shelf. **Landed.**
+6. Replace placeholders with extracted/generated cover images. **Deferred to Phase 3 cover work.**
+7. Add virtual/user-defined shelves or collections without changing file ownership. **Deferred.**
+
+Exit criteria:
+
+- A user can explain whether Library is a shelf/gallery product, where metadata appears, and how to find items in a mixed publication archive.
+- The implementation keeps shelves as catalogue presentation, not a new storage location.
 
 ## Phase 3 — Format metadata and cover extraction
 
