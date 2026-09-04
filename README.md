@@ -47,6 +47,7 @@ Explicit non-goals for v0.1:
 - [Concept summary](docs/concept.md)
 - [v0.1 technical specification draft](docs/v0.1-technical-spec.md)
 - [Reader handoff spike](docs/reader-handoff-spike.md)
+- [Alice reader compatibility notes](docs/alice-reader-compatibility.md)
 
 ## Development target
 
