@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Library\Service;
 
+use OCA\Library\Metadata\PublicationMetadataService;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
@@ -16,12 +17,14 @@ final class LibraryScanner {
         'application/epub+zip',
         'application/comicbook+zip',
         'application/x-cbz',
+        'application/oebps-package+xml',
     ];
 
     public function __construct(
         private RootService $rootService,
         private FileIndexService $fileIndexService,
         private ItemService $itemService,
+        private PublicationMetadataService $metadataService,
         private IRootFolder $rootFolder,
     ) {
     }
@@ -86,7 +89,8 @@ final class LibraryScanner {
                 'mtime' => $node->getMTime(),
                 'size' => $node->getSize(),
             ]);
-            $this->itemService->ensureItemForFile($userId, $indexedFile);
+            $metadata = $this->metadataService->extract($node);
+            $this->itemService->ensureItemForFile($userId, $indexedFile, $metadata);
             $indexed++;
         }
 
@@ -99,7 +103,7 @@ final class LibraryScanner {
             return true;
         }
 
-        return in_array(strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION)), ['epub', 'pdf', 'cbz'], true);
+        return in_array(strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION)), ['epub', 'pdf', 'cbz', 'opf'], true);
     }
 
     private function displayPath(Node $node, string $userId): string {

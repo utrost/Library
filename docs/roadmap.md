@@ -27,7 +27,8 @@ What exists now:
 - User-specific `library_roots` and `library_files` tables.
 - `library_items` table for one editable publication item per indexed file.
 - Bootstrap UI for saving an initial root path and manually scanning enabled roots.
-- Scanner that indexes PDF, EPUB and CBZ files by stable Nextcloud file ID, then creates/refreshes inferred catalogue items.
+- Scanner that indexes PDF, EPUB, CBZ and standalone OPF files by stable Nextcloud file ID, then creates/refreshes inferred catalogue items.
+- First local metadata extraction for EPUB package OPF, standalone OPF files and basic PDF info dictionaries.
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue list with basic metadata edit forms and user-edit preservation across rescans.
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
@@ -184,6 +185,8 @@ Exit criteria:
 
 Goal: populate catalogue items with useful initial metadata and covers without external services.
 
+Status: first extraction slice landed and smoke-tested on Alice. EPUB package OPF, standalone OPF and basic PDF info fields now populate catalogue item candidates. Cover extraction, sidecar precedence and richer real-world PDF handling remain open.
+
 User outcome:
 
 - EPUBs can show embedded title/creator where available.
@@ -193,13 +196,14 @@ User outcome:
 
 Backend slices:
 
-1. Add metadata adapter interface.
-2. Implement EPUB metadata extraction from package metadata.
-3. Implement CBZ ZIP inspection, first-image detection and optional `ComicInfo.xml` parsing.
-4. Decide whether CBR is included in v0.1 based on available extraction dependencies in the Nextcloud app environment.
-5. Implement PDF basic metadata extraction using a low-risk dependency path or Nextcloud capabilities.
-6. Add cover cache references without duplicating original media.
-7. Add error isolation: one corrupt file must not abort the whole scan.
+1. Add metadata adapter interface. **First `PublicationMetadataService` seam landed; it should still split into narrower adapters as extraction grows.**
+2. Implement EPUB metadata extraction from package metadata. **First OPF title/creator/language/publisher/date slice landed.**
+3. Implement standalone OPF metadata extraction for OPF files/sidecar experiments. **First OPF title/creator/language/publisher/date slice landed for indexed `.opf` files.**
+4. Implement CBZ ZIP inspection, first-image detection and optional `ComicInfo.xml` parsing.
+5. Decide whether CBR is included in v0.1 based on available extraction dependencies in the Nextcloud app environment.
+6. Implement PDF basic metadata extraction using a low-risk dependency path or Nextcloud capabilities. **First `/Title` and `/Author` info dictionary slice landed; PDF still stays publication type `other`.**
+7. Add cover cache references without duplicating original media.
+8. Add error isolation: one corrupt file must not abort the whole scan.
 
 Frontend slices:
 
@@ -210,8 +214,8 @@ Frontend slices:
 Tests/smokes:
 
 - Fixture-based extraction tests for EPUB, PDF and CBZ.
+- Alice smoke with tiny EPUB/PDF/OPF fixtures for title/creator/source mapping.
 - Corrupt/unsupported archive test.
-- Alice smoke with tiny fixtures.
 
 Exit criteria:
 

@@ -126,7 +126,9 @@ library_extracted_metadata
   raw/candidate metadata with source and extractor version
 ```
 
-Format adapters such as EPUB, PDF and CBZ must map into this general model. EPUB metadata, PDF document metadata, ComicInfo.xml and filename/folder inference are candidate sources, not separate catalogue schemas.
+Format adapters such as EPUB, PDF and CBZ must map into this general model. EPUB package OPF, standalone OPF files, PDF document metadata, ComicInfo.xml and filename/folder inference are candidate sources, not separate catalogue schemas.
+
+The first local extraction slice maps EPUB package OPF (`metadata_source=epub-opf`), standalone OPF (`metadata_source=opf`) and basic PDF info dictionary fields (`metadata_source=pdf-info`) into the same `library_items` columns. PDF remains conservatively `other` unless stronger evidence says otherwise.
 
 ## Nextcloud FilesMetadata mirror
 
