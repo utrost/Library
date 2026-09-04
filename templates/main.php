@@ -7,6 +7,7 @@ $fileTagsByFileId = $_['fileTagsByFileId'] ?? [];
 $fileCommentsByFileId = $_['fileCommentsByFileId'] ?? [];
 $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
 $itemTagBaseUrl = $_['itemTagBaseUrl'] ?? '';
+$itemCommentBaseUrl = $_['itemCommentBaseUrl'] ?? '';
 ?>
 <div id="library-app" class="library-app">
     <section class="library-hero">
@@ -109,6 +110,7 @@ $itemTagBaseUrl = $_['itemTagBaseUrl'] ?? '';
                 <?php foreach ($items as $item): ?>
                     <?php $itemUpdateUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemUpdateBaseUrl); ?>
                     <?php $itemTagUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemTagBaseUrl); ?>
+                    <?php $itemCommentUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemCommentBaseUrl); ?>
                     <?php $nextcloudTags = $fileTagsByFileId[(int)$item['fileId']] ?? []; ?>
                     <?php $nextcloudComments = $fileCommentsByFileId[(int)$item['fileId']] ?? ['count' => 0, 'recent' => []]; ?>
                     <article class="library-index-row library-item-row">
@@ -151,6 +153,13 @@ $itemTagBaseUrl = $_['itemTagBaseUrl'] ?? '';
                                     <?php endforeach; ?>
                                 </ul>
                             <?php endif; ?>
+                            <form method="post" action="<?php p($itemCommentUrl); ?>" class="library-comment-form">
+                                <label>
+                                    Add Nextcloud comment
+                                    <textarea name="commentMessage" rows="2" placeholder="file-level note..."></textarea>
+                                </label>
+                                <button type="submit">Add comment</button>
+                            </form>
                         </div>
                         <form method="post" action="<?php p($itemUpdateUrl); ?>" class="library-item-form">
                             <label>

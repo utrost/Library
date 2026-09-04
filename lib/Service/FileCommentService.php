@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace OCA\Library\Service;
 
 use OCP\Comments\ICommentsManager;
+use OCP\IDBConnection;
 
 final class FileCommentService {
     private const COMMENT_LIMIT_PER_FILE = 3;
 
     public function __construct(
         private ICommentsManager $commentsManager,
+        private IDBConnection $db,
     ) {
     }
 
@@ -55,5 +57,40 @@ final class FileCommentService {
         }
 
         return $result;
+    }
+
+    public function addCommentToItem(string $userId, int $itemId, string $message): void {
+        $message = trim($message);
+        if ($message === '') {
+            return;
+        }
+
+        $fileId = $this->findFileIdForItem($userId, $itemId);
+        if ($fileId === null) {
+            return;
+        }
+
+        $comment = $this->commentsManager->create('users', $userId, 'files', (string)$fileId);
+        $comment->setMessage($message);
+        $comment->setVerb('comment');
+        $this->commentsManager->save($comment);
+    }
+
+    private function findFileIdForItem(string $userId, int $itemId): ?int {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('f.file_id')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->where($qb->expr()->eq('i.id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->executeQuery();
+
+        $row = $result->fetch();
+        $result->closeCursor();
+        if ($row === false) {
+            return null;
+        }
+
+        return (int)$row['file_id'];
     }
 }
