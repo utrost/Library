@@ -9,5 +9,6 @@ return [
         ['name' => 'scan#run', 'url' => '/scan', 'verb' => 'POST'],
         ['name' => 'item#update', 'url' => '/items/{itemId}', 'verb' => 'POST'],
         ['name' => 'tag#assign', 'url' => '/items/{itemId}/tags', 'verb' => 'POST'],
+        ['name' => 'comment#add', 'url' => '/items/{itemId}/comments', 'verb' => 'POST'],
     ],
 ];

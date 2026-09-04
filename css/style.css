@@ -114,7 +114,8 @@
     margin: 0.75rem 0;
 }
 
-.library-tag-form {
+.library-tag-form,
+.library-comment-form {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -122,9 +123,14 @@
     margin-top: 0.5rem;
 }
 
-.library-tag-form label {
+.library-tag-form label,
+.library-comment-form label {
     display: grid;
     gap: 0.25rem;
+}
+
+.library-comment-form textarea {
+    min-width: 18rem;
 }
 
 .library-comment-list {

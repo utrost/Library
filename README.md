@@ -18,11 +18,12 @@ The current development slice can:
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans;
-- show indexed files and publication items with basic edit forms.
-- treat Nextcloud system tags as cross-archive classification metadata exposed and addable from Library item cards.
-- show recent Nextcloud file comments as file-level notes/discussion on Library item cards.
+- show indexed files and publication items with basic edit forms;
+- treat Nextcloud system tags as cross-archive classification metadata exposed and addable from Library item cards;
+- show recent Nextcloud file comments as file-level notes/discussion on Library item cards;
+- add new Nextcloud file comments from Library item cards.
 
-The next milestone is tag removal/comment writing or richer metadata extraction/covers once the small Nextcloud integration path has settled.
+The next milestone is tag removal or richer metadata extraction/covers once the small Nextcloud integration path has settled.
 
 ## v0.1 direction
 

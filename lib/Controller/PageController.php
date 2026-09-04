@@ -59,6 +59,7 @@ class PageController extends Controller {
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
             'itemUpdateBaseUrl' => $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => '__ITEM_ID__']),
             'itemTagBaseUrl' => $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => '__ITEM_ID__']),
+            'itemCommentBaseUrl' => $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => '__ITEM_ID__']),
         ]);
     }
 }

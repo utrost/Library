@@ -33,6 +33,7 @@ What exists now:
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
 - Minimal Nextcloud system tag assignment from Library item cards for existing or creatable public/assignable tags.
 - Read-only recent Nextcloud file comments on publication item cards as file-level notes/discussion.
+- Minimal Nextcloud file comment writing from Library item cards.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - Alice Nextcloud sandbox compatibility evidence for PDF, EPUB and CBZ inline opening.
 - Concept, technical-spec and reader-handoff notes.
@@ -150,7 +151,7 @@ Exit criteria:
 
 Goal: make Library a better Nextcloud citizen before adding deeper extractor-specific metadata.
 
-Status: first read-only tag/comment exposure and minimal tag assignment slices landed and smoke-tested on Alice.
+Status: first tag/comment exposure, minimal tag assignment and minimal comment writing slices landed and smoke-tested on Alice.
 
 User outcome:
 
@@ -163,17 +164,21 @@ Backend/frontend slices:
 1. Add a small service that reads visible Nextcloud system tags for the primary file IDs of listed Library items. **Landed.**
 2. Show those tags on the catalogue item cards/detail area. **Landed for item cards.**
 3. Keep tag editing deferred until the read path and permission behaviour are smoke-tested. **Minimal add-tag flow landed; tag removal remains deferred.**
-4. Add comments as a later adjacent slice after tags. **Read-only recent comments landed for item cards.**
+4. Add comments as a later adjacent slice after tags. **Read-only recent comments and minimal add-comment flow landed for item cards.**
 
 Tests/smokes:
 
 - Contract tests for `ISystemTagManager`/`ISystemTagObjectMapper` use.
 - Template test proving item cards expose `nextcloudTags`.
+- Contract tests for Nextcloud comment read/write API use.
 - Alice smoke: assign a `photography` system tag to a fixture file and verify Library displays it.
+- Alice smoke: post a file-level comment through Library and verify it appears through both Library and Nextcloud's comment API.
 
 Exit criteria:
 
 - Existing Nextcloud file tags are visible in Library without duplicating them into Library-specific tag tables.
+- Existing Nextcloud file comments are visible as file-level notes/discussion.
+- Library can add a simple file-level Nextcloud comment without treating it as canonical publication metadata.
 
 ## Phase 3 — Format metadata and cover extraction
 
