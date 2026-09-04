@@ -1,0 +1,35 @@
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_file_comment_service_reads_recent_comments_for_file_ids():
+    service_path = ROOT / "lib" / "Service" / "FileCommentService.php"
+    assert service_path.exists()
+    service = service_path.read_text()
+    assert "namespace OCA\\Library\\Service" in service
+    assert "final class FileCommentService" in service
+    assert "ICommentsManager" in service
+    assert "getForObject('files'" in service
+    assert "getNumberOfCommentsForObjects('files'" in service
+    assert "public function commentsForItems(array $items): array" in service
+    assert "getMessage()" in service
+    assert "getActorType()" in service
+    assert "getActorId()" in service
+    assert "getCreationDateTime()" in service
+
+
+def test_page_controller_passes_nextcloud_comments_to_template():
+    page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    assert "FileCommentService $fileCommentService" in page
+    assert "commentsForItems($items)" in page
+    assert "fileCommentsByFileId" in page
+
+
+def test_template_renders_nextcloud_comments_as_discussion_not_metadata():
+    template = (ROOT / "templates" / "main.php").read_text()
+    assert "$fileCommentsByFileId" in template
+    assert "Nextcloud comments" in template
+    assert "nextcloudComments" in template
+    assert "No Nextcloud comments" in template
+    assert "file-level notes" in template

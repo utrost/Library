@@ -109,8 +109,22 @@
     }
 }
 
-.library-nextcloud-tags {
+.library-nextcloud-tags,
+.library-nextcloud-comments {
     margin: 0.75rem 0;
+}
+
+.library-comment-list {
+    margin: 0.5rem 0 0;
+    padding-left: 1.25rem;
+}
+
+.library-comment-list li {
+    margin: 0.25rem 0;
+}
+
+.library-comment-list span {
+    display: block;
 }
 
 .library-tag {

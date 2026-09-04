@@ -31,6 +31,7 @@ What exists now:
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue list with basic metadata edit forms and user-edit preservation across rescans.
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
+- Read-only recent Nextcloud file comments on publication item cards as file-level notes/discussion.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - Alice Nextcloud sandbox compatibility evidence for PDF, EPUB and CBZ inline opening.
 - Concept, technical-spec and reader-handoff notes.
@@ -148,7 +149,7 @@ Exit criteria:
 
 Goal: make Library a better Nextcloud citizen before adding deeper extractor-specific metadata.
 
-Status: first read-only tag exposure slice landed and smoke-tested on Alice.
+Status: first read-only tag and comment exposure slices landed and smoke-tested on Alice.
 
 User outcome:
 
@@ -161,7 +162,7 @@ Backend/frontend slices:
 1. Add a small service that reads visible Nextcloud system tags for the primary file IDs of listed Library items. **Landed.**
 2. Show those tags on the catalogue item cards/detail area. **Landed for item cards.**
 3. Keep tag editing deferred until the read path and permission behaviour are smoke-tested.
-4. Add comments as a later adjacent slice after tags.
+4. Add comments as a later adjacent slice after tags. **Read-only recent comments landed for item cards.**
 
 Tests/smokes:
 
@@ -334,11 +335,11 @@ Exit criteria:
 
 ## Immediate next implementation slice
 
-Recommended next slice after read-only Nextcloud tag exposure:
+Recommended next slice after read-only Nextcloud tags/comments exposure:
 
-1. Decide whether to continue the Nextcloud-native path with file comments and/or tag editing, or switch back to local format metadata extraction.
-2. If continuing Nextcloud-native integration, add read-only file comments to item cards/detail using the public Comments API.
-3. Keep comments as discussion/notes and do not map them into structured publication metadata.
-4. Smoke it against Alice with a fixture comment on a `/LibrarySpike` file.
+1. Decide whether to add editing for Nextcloud system tags/comments or switch back to local format metadata extraction.
+2. If continuing Nextcloud-native integration, add a minimal tag assignment flow for existing/creatable system tags through the public SystemTag APIs.
+3. Keep Library structured fields separate: assigning `photography` or `project-library` tags must not alter publication form/title/creator fields.
+4. Smoke it against Alice by adding/removing a fixture tag through Library and verifying the same tag is visible in Files/Nextcloud tag state.
 
-This slice deliberately stops before Library-native tag tables, rich embedded metadata and covers. It would round out the first read-only Nextcloud collaboration metadata pass.
+This slice deliberately stops before Library-native tag tables, rich embedded metadata and covers. It would turn the current read-only collaboration metadata display into a small useful editing path.
