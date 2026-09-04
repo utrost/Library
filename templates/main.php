@@ -3,6 +3,7 @@
 $roots = $_['roots'] ?? [];
 $files = $_['files'] ?? [];
 $items = $_['items'] ?? [];
+$fileTagsByFileId = $_['fileTagsByFileId'] ?? [];
 $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
 ?>
 <div id="library-app" class="library-app">
@@ -105,6 +106,7 @@ $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
             <div class="library-index-list">
                 <?php foreach ($items as $item): ?>
                     <?php $itemUpdateUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemUpdateBaseUrl); ?>
+                    <?php $nextcloudTags = $fileTagsByFileId[(int)$item['fileId']] ?? []; ?>
                     <article class="library-index-row library-item-row">
                         <h3><?php p($item['title']); ?></h3>
                         <p>
@@ -113,6 +115,16 @@ $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
                             <strong>userEdited</strong>: <?php p($item['userEdited'] ? 'yes' : 'no'); ?>
                         </p>
                         <p class="library-muted"><?php p($item['cachedPath']); ?></p>
+                        <div class="library-nextcloud-tags" aria-label="nextcloudTags">
+                            <strong>Nextcloud tags</strong>:
+                            <?php if (count($nextcloudTags) === 0): ?>
+                                <span class="library-muted">No Nextcloud tags</span>
+                            <?php else: ?>
+                                <?php foreach ($nextcloudTags as $tag): ?>
+                                    <span class="library-tag"><?php p($tag['name']); ?></span>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
                         <form method="post" action="<?php p($itemUpdateUrl); ?>" class="library-item-form">
                             <label>
                                 Title

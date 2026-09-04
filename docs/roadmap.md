@@ -2,7 +2,7 @@
 
 Status: active planning roadmap  
 Last updated: 2026-09-04  
-Companion documents: [Product concept](product-concept.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md)
+Companion documents: [Product concept](product-concept.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md)
 
 ## Roadmap stance
 
@@ -14,6 +14,7 @@ The roadmap is intentionally conservative:
 - Library starts as an index/catalogue, not a renderer.
 - Per-user behaviour comes before shared/global library management.
 - External metadata, OCR, OPDS and device sync are later additions, not prerequisites.
+- Nextcloud system tags are the preferred cross-archive classification layer for interests, projects, collections and statuses.
 
 ## Current baseline
 
@@ -29,11 +30,13 @@ What exists now:
 - Scanner that indexes PDF, EPUB and CBZ files by stable Nextcloud file ID, then creates/refreshes inferred catalogue items.
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue list with basic metadata edit forms and user-edit preservation across rescans.
+- Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
+- Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - Alice Nextcloud sandbox compatibility evidence for PDF, EPUB and CBZ inline opening.
 - Concept, technical-spec and reader-handoff notes.
 - Lightweight repository tests protecting the current skeleton, docs contracts, roots/file-index slice and catalogue-item slice.
 
-This is now a development catalogue spine, not a polished usable catalogue. The next milestone is richer local metadata/covers or a cleaner UI around the catalogue list.
+This is now a development catalogue spine, not a polished usable catalogue. The next milestone is either comments/tag editing, a cleaner UI around the catalogue list or deeper local metadata/covers.
 
 ## Phase 0 — Concept and spike baseline
 
@@ -140,6 +143,35 @@ Exit criteria:
 
 - Library can present and manually correct a small mixed folder as a publication catalogue.
 - Rescans improve empty metadata but do not destroy user corrections.
+
+## Phase 2.5 — Nextcloud-native tags and comments
+
+Goal: make Library a better Nextcloud citizen before adding deeper extractor-specific metadata.
+
+Status: first read-only tag exposure slice landed and smoke-tested on Alice.
+
+User outcome:
+
+- The user can see the system-wide Nextcloud tags already assigned to each source file.
+- Tags can tie publications into interests, projects and collections such as photography, simiono, manuals or music.
+- Library keeps structured publication metadata separate from cross-archive tags.
+
+Backend/frontend slices:
+
+1. Add a small service that reads visible Nextcloud system tags for the primary file IDs of listed Library items. **Landed.**
+2. Show those tags on the catalogue item cards/detail area. **Landed for item cards.**
+3. Keep tag editing deferred until the read path and permission behaviour are smoke-tested.
+4. Add comments as a later adjacent slice after tags.
+
+Tests/smokes:
+
+- Contract tests for `ISystemTagManager`/`ISystemTagObjectMapper` use.
+- Template test proving item cards expose `nextcloudTags`.
+- Alice smoke: assign a `photography` system tag to a fixture file and verify Library displays it.
+
+Exit criteria:
+
+- Existing Nextcloud file tags are visible in Library without duplicating them into Library-specific tag tables.
 
 ## Phase 3 — Format metadata and cover extraction
 
@@ -302,12 +334,11 @@ Exit criteria:
 
 ## Immediate next implementation slice
 
-Recommended next slice after this concept/roadmap baseline:
+Recommended next slice after read-only Nextcloud tag exposure:
 
-1. Add `library_roots` and `library_files` migrations, with user-specific multi-root schema even if the first UI starts with one path.
-2. Add a minimal root configuration flow backed by list-based root APIs.
-3. Add manual scan for all enabled roots of the current user.
-4. List discovered EPUB/PDF/CBZ files with file ID, root and status.
-5. Smoke it against Alice with `/LibrarySpike`.
+1. Decide whether to continue the Nextcloud-native path with file comments and/or tag editing, or switch back to local format metadata extraction.
+2. If continuing Nextcloud-native integration, add read-only file comments to item cards/detail using the public Comments API.
+3. Keep comments as discussion/notes and do not map them into structured publication metadata.
+4. Smoke it against Alice with a fixture comment on a `/LibrarySpike` file.
 
-This slice deliberately stops before rich metadata, covers and Vue polish. It proves the catalogue spine: roots -> scan -> file-ID index -> visible list.
+This slice deliberately stops before Library-native tag tables, rich embedded metadata and covers. It would round out the first read-only Nextcloud collaboration metadata pass.

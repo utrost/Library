@@ -8,7 +8,7 @@ The model is deliberately similar to Memories for photographs and Music for audi
 
 ## Current status
 
-Early bootstrap / v0.1 concept. The repository currently contains a minimal installable Nextcloud app skeleton, a verified reader-handoff spike, the concept/roadmap documentation spine, a roots → scan → file-index slice, and the first editable publication-item slice.
+Early bootstrap / v0.1 concept. The repository currently contains a minimal installable Nextcloud app skeleton, a verified reader-handoff spike, the concept/roadmap documentation spine, a roots → scan → file-index slice, the first editable publication-item slice, and the agreed metadata-storage direction for Nextcloud-native tags/comments.
 
 The current development slice can:
 
@@ -19,8 +19,9 @@ The current development slice can:
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans;
 - show indexed files and publication items with basic edit forms.
+- treat Nextcloud system tags as cross-archive classification metadata exposed in Library item cards.
 
-The next milestone is richer metadata extraction/covers or a cleaner UI around the catalogue list.
+The next milestone is comments/tag editing or richer metadata extraction/covers once the read-only tag exposure has settled.
 
 ## v0.1 direction
 
@@ -53,6 +54,7 @@ Explicit non-goals for v0.1:
 - [Active roadmap](docs/roadmap.md)
 - [Original concept summary](docs/concept.md)
 - [v0.1 technical specification draft](docs/v0.1-technical-spec.md)
+- [Metadata storage and Nextcloud integration](docs/metadata-storage.md)
 - [Reader handoff spike](docs/reader-handoff-spike.md)
 - [Alice reader compatibility notes](docs/alice-reader-compatibility.md)
 
