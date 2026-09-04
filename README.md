@@ -24,9 +24,10 @@ The current development slice can:
 - add new Nextcloud file comments from Library item cards;
 - extract first local metadata candidates from EPUB package OPF, standalone OPF files and basic PDF info dictionaries;
 - prefer OPF sidecars for PDF/EPUB catalogue defaults when a same-basename `.opf` or folder-level `metadata.opf` is present;
-- suppress OPF sidecars as separate catalogue items when they accompany a primary PDF/EPUB/CBZ, while still allowing standalone OPF records.
+- suppress OPF sidecars as separate catalogue items when they accompany a primary PDF/EPUB/CBZ, while still allowing standalone OPF records;
+- clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items.
 
-The next milestone is to harden PDF/EPUB/OPF metadata extraction with real-collection fixtures, stale sidecar cleanup for already-indexed OPFs, and cover generation.
+The next milestone is to harden PDF/EPUB/OPF metadata extraction with real-collection fixtures, user-edited sidecar cleanup policy, and cover generation.
 
 ## v0.1 direction
 

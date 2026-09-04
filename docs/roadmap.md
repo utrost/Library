@@ -185,7 +185,7 @@ Exit criteria:
 
 Goal: populate catalogue items with useful initial metadata and covers without external services.
 
-Status: first extraction slices landed and smoke-tested on Alice. EPUB package OPF, standalone OPF, same-basename OPF sidecars, folder-level `metadata.opf` sidecars and basic PDF info fields now populate catalogue item candidates. Sidecar OPFs are suppressed as separate catalogue items when paired with primary publication files. Cover extraction, stale sidecar cleanup for already-indexed OPFs and richer real-world PDF handling remain open.
+Status: first extraction slices landed and smoke-tested on Alice. EPUB package OPF, standalone OPF, same-basename OPF sidecars, folder-level `metadata.opf` sidecars and basic PDF info fields now populate catalogue item candidates. Sidecar OPFs are suppressed as separate catalogue items when paired with primary publication files, and stale sidecar cleanup removes scanner-created duplicate OPF items on rescan. Cover extraction, user-edited sidecar cleanup policy and richer real-world PDF handling remain open.
 
 User outcome:
 
