@@ -6,11 +6,15 @@ namespace OCA\Library\Controller;
 
 use OCA\Library\AppInfo\Application;
 use OCA\Library\Reader\DefaultNextcloudFileProvider;
+use OCA\Library\Service\FileIndexService;
+use OCA\Library\Service\RootService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
+use OCP\IURLGenerator;
+use OCP\IUserSession;
 use OCP\Util;
 
 class PageController extends Controller {
@@ -20,6 +24,10 @@ class PageController extends Controller {
         string $appName,
         IRequest $request,
         private DefaultNextcloudFileProvider $readerProvider,
+        private RootService $rootService,
+        private FileIndexService $fileIndexService,
+        private IUserSession $userSession,
+        private IURLGenerator $urlGenerator,
     ) {
         parent::__construct($appName, $request);
     }
@@ -28,8 +36,16 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function index(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
+
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+
         return new TemplateResponse(Application::APP_ID, 'main', [
             'fixtureOpenUrl' => $this->readerProvider->getOpenUrl(self::READER_FIXTURE_FILE_ID),
+            'roots' => $userId !== '' ? $this->rootService->listRoots($userId) : [],
+            'files' => $userId !== '' ? $this->fileIndexService->listFiles($userId) : [],
+            'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
+            'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
         ]);
     }
 }

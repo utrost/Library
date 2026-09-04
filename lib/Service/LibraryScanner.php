@@ -1,0 +1,111 @@
+<?php
+
+declare(strict_types=1);
+
+namespace OCA\Library\Service;
+
+use OCP\Files\File;
+use OCP\Files\Folder;
+use OCP\Files\IRootFolder;
+use OCP\Files\Node;
+use Throwable;
+
+final class LibraryScanner {
+    private const SUPPORTED_MIME_TYPES = [
+        'application/pdf',
+        'application/epub+zip',
+        'application/comicbook+zip',
+        'application/x-cbz',
+    ];
+
+    public function __construct(
+        private RootService $rootService,
+        private FileIndexService $fileIndexService,
+        private IRootFolder $rootFolder,
+    ) {
+    }
+
+    /**
+     * @return array{roots:int,indexed:int,errors:array<int,string>}
+     */
+    public function scan(string $userId): array {
+        $indexed = 0;
+        $errors = [];
+        $roots = $this->rootService->listEnabledRoots($userId);
+        $userFolder = $this->rootFolder->getUserFolder($userId);
+
+        foreach ($roots as $root) {
+            try {
+                $folder = $this->resolveRootFolder($userFolder, (string)$root['path']);
+                $indexed += $this->scanFolder($userId, (int)$root['id'], $folder);
+                $this->rootService->markScanned((int)$root['id']);
+            } catch (Throwable $e) {
+                $errors[] = sprintf('%s: %s', (string)$root['path'], $e->getMessage());
+            }
+        }
+
+        return [
+            'roots' => count($roots),
+            'indexed' => $indexed,
+            'errors' => $errors,
+        ];
+    }
+
+    private function resolveRootFolder(Folder $userFolder, string $path): Folder {
+        if ($path === '/' || $path === '') {
+            return $userFolder;
+        }
+
+        $node = $userFolder->get(ltrim($path, '/'));
+        if (!$node instanceof Folder) {
+            throw new \RuntimeException('Configured root is not a folder');
+        }
+
+        return $node;
+    }
+
+    private function scanFolder(string $userId, int $rootId, Folder $folder): int {
+        $indexed = 0;
+        foreach ($folder->getDirectoryListing() as $node) {
+            if ($node instanceof Folder) {
+                $indexed += $this->scanFolder($userId, $rootId, $node);
+                continue;
+            }
+
+            if (!$node instanceof File || !$this->isSupported($node)) {
+                continue;
+            }
+
+            $this->fileIndexService->upsertFile($userId, $rootId, [
+                'fileId' => $node->getId(),
+                'cachedPath' => $this->displayPath($node, $userId),
+                'mimeType' => $node->getMimetype(),
+                'extension' => strtolower(pathinfo($node->getName(), PATHINFO_EXTENSION)),
+                'etag' => $node->getEtag(),
+                'mtime' => $node->getMTime(),
+                'size' => $node->getSize(),
+            ]);
+            $indexed++;
+        }
+
+        return $indexed;
+    }
+
+    private function isSupported(File $file): bool {
+        $mimeType = $file->getMimetype();
+        if (in_array($mimeType, self::SUPPORTED_MIME_TYPES, true)) {
+            return true;
+        }
+
+        return in_array(strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION)), ['epub', 'pdf', 'cbz'], true);
+    }
+
+    private function displayPath(Node $node, string $userId): string {
+        $prefix = '/' . $userId . '/files';
+        $path = $node->getPath();
+        if (str_starts_with($path, $prefix)) {
+            return substr($path, strlen($prefix)) ?: '/';
+        }
+        return $path;
+    }
+}

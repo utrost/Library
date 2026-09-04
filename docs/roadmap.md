@@ -23,11 +23,15 @@ What exists now:
 - App ID: `library`.
 - Navigation entry and bootstrap page.
 - Default reader handoff provider that generates `/f/{fileId}` links.
+- User-specific `library_roots` and `library_files` tables.
+- Bootstrap UI for saving an initial root path and manually scanning enabled roots.
+- Scanner that indexes PDF, EPUB and CBZ files by stable Nextcloud file ID.
+- Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Alice Nextcloud sandbox compatibility evidence for PDF, EPUB and CBZ inline opening.
 - Concept, technical-spec and reader-handoff notes.
-- Lightweight repository tests protecting the current skeleton and docs contracts.
+- Lightweight repository tests protecting the current skeleton, docs contracts and first roots/file-index slice.
 
-This is not yet a usable catalogue. The next milestone is roots plus an indexed file list.
+This is now a development catalogue spine, not a polished usable catalogue. The next milestone is editable publication items with metadata precedence.
 
 ## Phase 0 — Concept and spike baseline
 
@@ -52,6 +56,8 @@ Exit criteria:
 ## Phase 1 — Roots and operational file index
 
 Goal: let a user choose Library roots and produce a durable index of supported publication files.
+
+Status: first development slice landed and smoke-tested on Alice. Further hardening remains before v0.1 release quality.
 
 User outcome:
 
