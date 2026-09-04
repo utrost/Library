@@ -21,9 +21,10 @@ The current development slice can:
 - show indexed files and publication items with basic edit forms;
 - treat Nextcloud system tags as cross-archive classification metadata exposed and addable from Library item cards;
 - show recent Nextcloud file comments as file-level notes/discussion on Library item cards;
-- add new Nextcloud file comments from Library item cards.
+- add new Nextcloud file comments from Library item cards;
+- extract first local metadata candidates from EPUB package OPF, standalone OPF files and basic PDF info dictionaries.
 
-The next milestone is tag removal or richer metadata extraction/covers once the small Nextcloud integration path has settled.
+The next milestone is to harden PDF/EPUB/OPF metadata extraction with sidecar precedence, fixtures from real collections, and cover generation.
 
 ## v0.1 direction
 

@@ -20,7 +20,7 @@ def test_item_service_creates_items_for_indexed_files_and_preserves_user_edits()
     service = service_path.read_text()
     assert "namespace OCA\\Library\\Service" in service
     assert "final class ItemService" in service
-    assert "public function ensureItemForFile(string $userId, array $file): void" in service
+    assert "public function ensureItemForFile(string $userId, array $file, array $metadata = []): void" in service
     assert "public function updateItem(string $userId, int $itemId, array $metadata): void" in service
     assert "public function listItems(string $userId): array" in service
     assert "user_edited" in service
@@ -33,7 +33,7 @@ def test_item_service_creates_items_for_indexed_files_and_preserves_user_edits()
 def test_scanner_ensures_catalogue_items_after_file_index_upsert():
     scanner = (ROOT / "lib" / "Service" / "LibraryScanner.php").read_text()
     assert "ItemService $itemService" in scanner
-    assert "ensureItemForFile($userId, $indexedFile)" in scanner
+    assert "ensureItemForFile($userId, $indexedFile, $metadata)" in scanner
     assert "upsertFile" in scanner
 
     file_index = (ROOT / "lib" / "Service" / "FileIndexService.php").read_text()

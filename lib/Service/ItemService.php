@@ -22,14 +22,15 @@ final class ItemService {
     ) {
     }
 
-    public function ensureItemForFile(string $userId, array $file): void {
+    public function ensureItemForFile(string $userId, array $file, array $metadata = []): void {
+        $metadataCandidate = $this->metadataCandidate($file, $metadata);
         $existing = $this->findByLibraryFileId($userId, (int)$file['id']);
         if ($existing !== null) {
             if ((bool)$existing['user_edited']) {
                 return;
             }
 
-            $this->refreshInferredItem($userId, (int)$existing['id'], $file);
+            $this->refreshInferredItem($userId, (int)$existing['id'], $file, $metadata);
             return;
         }
 
@@ -39,15 +40,15 @@ final class ItemService {
             ->values([
                 'user_id' => $qb->createNamedParameter($userId),
                 'library_file_id' => $qb->createNamedParameter((int)$file['id']),
-                'publication_type' => $qb->createNamedParameter($this->inferPublicationType($file)),
-                'title' => $qb->createNamedParameter($this->inferTitle($file)),
-                'subtitle' => $qb->createNamedParameter(null),
-                'creators' => $qb->createNamedParameter(null),
+                'publication_type' => $qb->createNamedParameter($metadataCandidate['publicationType']),
+                'title' => $qb->createNamedParameter($metadataCandidate['title']),
+                'subtitle' => $qb->createNamedParameter($metadataCandidate['subtitle']),
+                'creators' => $qb->createNamedParameter($metadataCandidate['creators']),
                 'publication' => $qb->createNamedParameter(null),
-                'publication_date' => $qb->createNamedParameter(null),
-                'language' => $qb->createNamedParameter(null),
-                'publisher' => $qb->createNamedParameter(null),
-                'metadata_source' => $qb->createNamedParameter('filename'),
+                'publication_date' => $qb->createNamedParameter($metadataCandidate['publicationDate']),
+                'language' => $qb->createNamedParameter($metadataCandidate['language']),
+                'publisher' => $qb->createNamedParameter($metadataCandidate['publisher']),
+                'metadata_source' => $qb->createNamedParameter($metadataCandidate['metadataSource']),
                 'user_edited' => $qb->createNamedParameter(0),
                 'created_at' => $qb->createNamedParameter($now),
                 'updated_at' => $qb->createNamedParameter($now),
@@ -133,12 +134,18 @@ final class ItemService {
         return $row;
     }
 
-    private function refreshInferredItem(string $userId, int $itemId, array $file): void {
+    private function refreshInferredItem(string $userId, int $itemId, array $file, array $metadata = []): void {
+        $metadataCandidate = $this->metadataCandidate($file, $metadata);
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items')
-            ->set('publication_type', $qb->createNamedParameter($this->inferPublicationType($file)))
-            ->set('title', $qb->createNamedParameter($this->inferTitle($file)))
-            ->set('metadata_source', $qb->createNamedParameter('filename'))
+            ->set('publication_type', $qb->createNamedParameter($metadataCandidate['publicationType']))
+            ->set('title', $qb->createNamedParameter($metadataCandidate['title']))
+            ->set('subtitle', $qb->createNamedParameter($metadataCandidate['subtitle']))
+            ->set('creators', $qb->createNamedParameter($metadataCandidate['creators']))
+            ->set('publication_date', $qb->createNamedParameter($metadataCandidate['publicationDate']))
+            ->set('language', $qb->createNamedParameter($metadataCandidate['language']))
+            ->set('publisher', $qb->createNamedParameter($metadataCandidate['publisher']))
+            ->set('metadata_source', $qb->createNamedParameter($metadataCandidate['metadataSource']))
             ->set('updated_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
@@ -150,6 +157,29 @@ final class ItemService {
         $name = pathinfo(basename($path), PATHINFO_FILENAME);
         $title = trim(str_replace(['_', '-'], ' ', $name));
         return $title === '' ? 'Untitled publication' : $title;
+    }
+
+    /**
+     * @param array<string, mixed> $file
+     * @param array<string, string> $metadata
+     * @return array{publicationType:string,title:string,subtitle:?string,creators:?string,publicationDate:?string,language:?string,publisher:?string,metadataSource:string}
+     */
+    private function metadataCandidate(array $file, array $metadata): array {
+        $source = (string)($metadata['metadataSource'] ?? 'filename');
+        if (!in_array($source, ['epub-opf', 'pdf-info', 'opf', 'filename'], true)) {
+            $source = 'filename';
+        }
+
+        return [
+            'publicationType' => $this->normalizePublicationType((string)($metadata['publicationType'] ?? $this->inferPublicationType($file))),
+            'title' => trim((string)($metadata['title'] ?? '')) ?: $this->inferTitle($file),
+            'subtitle' => $this->nullableString($metadata['subtitle'] ?? null),
+            'creators' => $this->nullableString($metadata['creators'] ?? null),
+            'publicationDate' => $this->nullableString($metadata['publicationDate'] ?? null),
+            'language' => $this->nullableString($metadata['language'] ?? null),
+            'publisher' => $this->nullableString($metadata['publisher'] ?? null),
+            'metadataSource' => $source,
+        ];
     }
 
     private function inferPublicationType(array $file): string {
