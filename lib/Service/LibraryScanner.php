@@ -21,6 +21,7 @@ final class LibraryScanner {
     public function __construct(
         private RootService $rootService,
         private FileIndexService $fileIndexService,
+        private ItemService $itemService,
         private IRootFolder $rootFolder,
     ) {
     }
@@ -76,7 +77,7 @@ final class LibraryScanner {
                 continue;
             }
 
-            $this->fileIndexService->upsertFile($userId, $rootId, [
+            $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
                 'fileId' => $node->getId(),
                 'cachedPath' => $this->displayPath($node, $userId),
                 'mimeType' => $node->getMimetype(),
@@ -85,6 +86,7 @@ final class LibraryScanner {
                 'mtime' => $node->getMTime(),
                 'size' => $node->getSize(),
             ]);
+            $this->itemService->ensureItemForFile($userId, $indexedFile);
             $indexed++;
         }
 

@@ -8,7 +8,7 @@ The model is deliberately similar to Memories for photographs and Music for audi
 
 ## Current status
 
-Early bootstrap / v0.1 concept. The repository currently contains a minimal installable Nextcloud app skeleton, a verified reader-handoff spike, the concept/roadmap documentation spine, and the first roots → scan → file-index development slice.
+Early bootstrap / v0.1 concept. The repository currently contains a minimal installable Nextcloud app skeleton, a verified reader-handoff spike, the concept/roadmap documentation spine, a roots → scan → file-index slice, and the first editable publication-item slice.
 
 The current development slice can:
 
@@ -16,9 +16,11 @@ The current development slice can:
 - configure an initial root path through the bootstrap UI;
 - manually scan all enabled roots for the current user;
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
-- show indexed files with root, path, format and scan status.
+- create one editable publication item for each indexed file;
+- preserve user-edited metadata across rescans;
+- show indexed files and publication items with basic edit forms.
 
-The next milestone is to turn indexed files into editable publication catalogue items before adding rich metadata or cover polish.
+The next milestone is richer metadata extraction/covers or a cleaner UI around the catalogue list.
 
 ## v0.1 direction
 

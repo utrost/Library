@@ -2,6 +2,8 @@
 /** @var array $_ */
 $roots = $_['roots'] ?? [];
 $files = $_['files'] ?? [];
+$items = $_['items'] ?? [];
+$itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
 ?>
 <div id="library-app" class="library-app">
     <section class="library-hero">
@@ -89,6 +91,58 @@ $files = $_['files'] ?? [];
                             <dt>scanStatus</dt>
                             <dd><?php p($file['scanStatus']); ?></dd>
                         </dl>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </section>
+
+    <section class="library-panel" aria-label="Publication catalogue">
+        <h2>Publication catalogue</h2>
+        <?php if (count($items) === 0): ?>
+            <p class="library-muted">No catalogue items yet. Scan enabled roots to create one publication item for each indexed file.</p>
+        <?php else: ?>
+            <div class="library-index-list">
+                <?php foreach ($items as $item): ?>
+                    <?php $itemUpdateUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemUpdateBaseUrl); ?>
+                    <article class="library-index-row library-item-row">
+                        <h3><?php p($item['title']); ?></h3>
+                        <p>
+                            <strong>publicationType</strong>: <?php p($item['publicationType']); ?> ·
+                            <strong>metadataSource</strong>: <?php p($item['metadataSource']); ?> ·
+                            <strong>userEdited</strong>: <?php p($item['userEdited'] ? 'yes' : 'no'); ?>
+                        </p>
+                        <p class="library-muted"><?php p($item['cachedPath']); ?></p>
+                        <form method="post" action="<?php p($itemUpdateUrl); ?>" class="library-item-form">
+                            <label>
+                                Title
+                                <input type="text" name="title" value="<?php p($item['title']); ?>" />
+                            </label>
+                            <label>
+                                Type
+                                <select name="publicationType">
+                                    <?php foreach (['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'] as $type): ?>
+                                        <option value="<?php p($type); ?>" <?php if ($item['publicationType'] === $type) { print_unescaped('selected'); } ?>><?php p($type); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                            <label>
+                                Creators
+                                <input type="text" name="creators" value="<?php p($item['creators']); ?>" />
+                            </label>
+                            <label>
+                                Publication
+                                <input type="text" name="publication" value="<?php p($item['publication']); ?>" />
+                            </label>
+                            <label>
+                                Date
+                                <input type="text" name="publicationDate" value="<?php p($item['publicationDate']); ?>" />
+                            </label>
+                            <input type="hidden" name="subtitle" value="<?php p($item['subtitle']); ?>" />
+                            <input type="hidden" name="language" value="<?php p($item['language']); ?>" />
+                            <input type="hidden" name="publisher" value="<?php p($item['publisher']); ?>" />
+                            <button type="submit">Save metadata</button>
+                        </form>
                     </article>
                 <?php endforeach; ?>
             </div>
