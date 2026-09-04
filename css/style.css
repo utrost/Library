@@ -109,6 +109,19 @@
     }
 }
 
+.library-nextcloud-tags {
+    margin: 0.75rem 0;
+}
+
+.library-tag {
+    display: inline-block;
+    margin: 0.125rem 0.25rem 0.125rem 0;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    background: var(--color-background-darker);
+    border: 1px solid var(--color-border);
+}
+
 .library-item-form {
     display: grid;
     gap: 10px;
