@@ -5,10 +5,32 @@ declare(strict_types=1);
 namespace OCA\Library\Metadata;
 
 use OCP\Files\File;
+use OCP\Files\Folder;
 use Throwable;
 use ZipArchive;
 
 final class PublicationMetadataService {
+    /**
+     * Extract best-effort local metadata from publication files, preferring local OPF sidecars
+     * over embedded/PDF candidates for editable catalogue defaults.
+     *
+     * @return array<string, string>
+     */
+    public function extractWithSidecar(File $file): array {
+        $embeddedMetadata = $this->extract($file);
+        $sidecar = $this->findOpfSidecar($file);
+        if ($sidecar === null) {
+            return $embeddedMetadata;
+        }
+
+        $sidecarMetadata = $this->parseOpfMetadata($sidecar->getContent(), 'sidecar-opf');
+        if ($sidecarMetadata === []) {
+            return $embeddedMetadata;
+        }
+
+        return array_merge($embeddedMetadata, $sidecarMetadata);
+    }
+
     /**
      * Extract best-effort local metadata from publication files.
      *
@@ -112,6 +134,35 @@ final class PublicationMetadataService {
         }
 
         return count($metadata) > 2 ? $metadata : [];
+    }
+
+    private function findOpfSidecar(File $file): ?File {
+        $extension = strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION));
+        if ($extension === 'opf') {
+            return null;
+        }
+
+        $parent = $file->getParent();
+        if (!$parent instanceof Folder) {
+            return null;
+        }
+
+        $sameBasenameOpf = pathinfo($file->getName(), PATHINFO_FILENAME) . '.opf';
+        if ($parent->nodeExists($sameBasenameOpf)) {
+            $node = $parent->get($sameBasenameOpf);
+            if ($node instanceof File) {
+                return $node;
+            }
+        }
+
+        if ($parent->nodeExists('metadata.opf')) {
+            $node = $parent->get('metadata.opf');
+            if ($node instanceof File) {
+                return $node;
+            }
+        }
+
+        return null;
     }
 
     private function findRootfilePath(string $containerXml): ?string {

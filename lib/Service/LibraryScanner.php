@@ -89,7 +89,7 @@ final class LibraryScanner {
                 'mtime' => $node->getMTime(),
                 'size' => $node->getSize(),
             ]);
-            $metadata = $this->metadataService->extract($node);
+            $metadata = $this->metadataService->extractWithSidecar($node);
             $this->itemService->ensureItemForFile($userId, $indexedFile, $metadata);
             $indexed++;
         }

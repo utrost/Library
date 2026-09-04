@@ -22,9 +22,10 @@ The current development slice can:
 - treat Nextcloud system tags as cross-archive classification metadata exposed and addable from Library item cards;
 - show recent Nextcloud file comments as file-level notes/discussion on Library item cards;
 - add new Nextcloud file comments from Library item cards;
-- extract first local metadata candidates from EPUB package OPF, standalone OPF files and basic PDF info dictionaries.
+- extract first local metadata candidates from EPUB package OPF, standalone OPF files and basic PDF info dictionaries;
+- prefer OPF sidecars for PDF/EPUB catalogue defaults when a same-basename `.opf` or folder-level `metadata.opf` is present.
 
-The next milestone is to harden PDF/EPUB/OPF metadata extraction with sidecar precedence, fixtures from real collections, and cover generation.
+The next milestone is to harden PDF/EPUB/OPF metadata extraction with real-collection fixtures, sidecar item suppression/deduplication decisions, and cover generation.
 
 ## v0.1 direction
 
