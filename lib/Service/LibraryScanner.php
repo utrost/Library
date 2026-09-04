@@ -80,6 +80,10 @@ final class LibraryScanner {
                 continue;
             }
 
+            if ($this->isSuppressedOpfSidecar($node)) {
+                continue;
+            }
+
             $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
                 'fileId' => $node->getId(),
                 'cachedPath' => $this->displayPath($node, $userId),
@@ -104,6 +108,39 @@ final class LibraryScanner {
         }
 
         return in_array(strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION)), ['epub', 'pdf', 'cbz', 'opf'], true);
+    }
+
+    private function isSuppressedOpfSidecar(File $file): bool {
+        if (strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION)) !== 'opf') {
+            return false;
+        }
+
+        $parent = $file->getParent();
+        if (!$parent instanceof Folder) {
+            return false;
+        }
+
+        if ($file->getName() === 'metadata.opf') {
+            foreach ($parent->getDirectoryListing() as $node) {
+                if (!$node instanceof File) {
+                    continue;
+                }
+
+                $extension = strtolower(pathinfo($node->getName(), PATHINFO_EXTENSION));
+                if (in_array($extension, ['pdf', 'epub', 'cbz'], true)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        $basename = pathinfo($file->getName(), PATHINFO_FILENAME);
+        if ($parent->nodeExists($basename . '.pdf') || $parent->nodeExists($basename . '.epub') || $parent->nodeExists($basename . '.cbz')) {
+            return true;
+        }
+
+        return false;
     }
 
     private function displayPath(Node $node, string $userId): string {
