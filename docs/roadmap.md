@@ -56,19 +56,22 @@ Goal: let a user choose Library roots and produce a durable index of supported p
 User outcome:
 
 - The user can configure one or more folders as Library roots.
-- A manual scan discovers supported files under those roots.
-- The app shows a basic list of discovered items with file name, path, format and status.
+- The first screen may start with one path for simplicity, but the data model and scanner are multi-root from day one.
+- Roots are user-specific: each user owns their own configured root list and scan state.
+- A manual scan discovers supported files under enabled roots.
+- The app shows a basic list of discovered items with file name, path, format, root and status.
 - Moving/renaming a file should preserve identity when the Nextcloud file ID is unchanged.
 
 Backend slices:
 
-1. Add database migrations for `library_roots` and `library_files`.
-2. Add per-user root storage service.
-3. Add a settings/root-management controller endpoint.
-4. Add a scanner service that recursively walks configured roots.
+1. Add database migrations for `library_roots` and `library_files`; `library_roots` must include `user_id`, `path`, optional `label`, `enabled` and timestamps.
+2. Add per-user root storage service that returns a list of roots, not a singleton.
+3. Add a settings/root-management controller endpoint; the first UI can restrict itself to one configured path while still calling list-based backend APIs.
+4. Add a scanner service that recursively walks every enabled root for the current user.
 5. Detect initial supported formats: EPUB, PDF, CBZ; leave CBR behind a documented dependency decision.
-6. Store file ID, storage ID if needed, cached path, MIME type, extension, etag/mtime, size, scan status and scan timestamps.
-7. Mark missing files conservatively instead of deleting index rows immediately.
+6. Store file ID, root ID, storage ID if needed, cached path, MIME type, extension, etag/mtime, size, scan status and scan timestamps.
+7. Deduplicate overlapping root discoveries by file ID.
+8. Mark missing files conservatively instead of deleting index rows immediately.
 
 Frontend slices:
 
@@ -291,10 +294,10 @@ Exit criteria:
 
 Recommended next slice after this concept/roadmap baseline:
 
-1. Add `library_roots` and `library_files` migration.
-2. Add a minimal root configuration flow.
-3. Add manual scan for one root.
-4. List discovered EPUB/PDF/CBZ files with file ID and status.
+1. Add `library_roots` and `library_files` migrations, with user-specific multi-root schema even if the first UI starts with one path.
+2. Add a minimal root configuration flow backed by list-based root APIs.
+3. Add manual scan for all enabled roots of the current user.
+4. List discovered EPUB/PDF/CBZ files with file ID, root and status.
 5. Smoke it against Alice with `/LibrarySpike`.
 
 This slice deliberately stops before rich metadata, covers and Vue polish. It proves the catalogue spine: roots -> scan -> file-ID index -> visible list.

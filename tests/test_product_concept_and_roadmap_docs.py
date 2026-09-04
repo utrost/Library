@@ -50,4 +50,16 @@ def test_roadmap_starts_with_roots_and_file_index_before_metadata_polish():
     immediate = roadmap[roadmap.index("## Immediate next implementation slice") :]
     assert "library_roots" in immediate
     assert "library_files" in immediate
+    assert "user-specific multi-root schema" in immediate
+    assert "all enabled roots of the current user" in immediate
+    assert "file ID, root and status" in immediate
     assert "Smoke it against Alice" in immediate
+
+
+def test_v01_spec_requires_extendable_user_specific_root_configuration():
+    spec = read_doc("v0.1-technical-spec.md")
+    assert "schema and services must support multiple roots from the beginning" in spec
+    assert "roots are user-specific in v0.1" in spec
+    assert "backend must not assume a singleton" in spec
+    assert "scanners should iterate all enabled roots for the current user" in spec
+    assert "deduplicated by file ID" in spec
