@@ -14,7 +14,7 @@ The current development slice can:
 
 - store user-specific Library roots in an extendable multi-root table;
 - configure an initial root path through the bootstrap UI;
-- manually scan all enabled roots for the current user through a queued background scan and record live-ish scan progress, status, counts, duration and summary for progress/history visibility;
+- manually scan all enabled roots for the current user through a queued background scan and record auto-refreshing scan progress, live-ish scan progress, status, counts, duration and summary for progress/history visibility;
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans;
