@@ -30,12 +30,12 @@ def test_page_controller_passes_cover_base_url_to_template():
     assert "library.cover.show" in controller
 
 
-def test_template_prefers_real_cover_img_and_keeps_placeholder_fallback():
+def test_template_prefers_real_cover_img_and_uses_cover_route_fallback():
     template = (ROOT / "templates" / "main.php").read_text()
     assert "$itemCoverUrl" in template
     assert "library-cover-image" in template
     assert "src=\"<?php p($itemCoverUrl); ?>\"" in template
-    assert "class=\"library-cover-placeholder" in template
+    assert "class=\"library-cover-placeholder" not in template
 
 
 def test_styles_define_real_cover_image_state():

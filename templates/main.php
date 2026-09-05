@@ -133,13 +133,9 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
                     <?php $itemFilesUrl = str_replace('/0?openfile=true', '/' . (string)$item['fileId'] . '?openfile=true', $itemFilesBaseUrl); ?>
                     <?php $nextcloudTags = $fileTagsByFileId[(int)$item['fileId']] ?? []; ?>
                     <?php $nextcloudComments = $fileCommentsByFileId[(int)$item['fileId']] ?? ['count' => 0, 'recent' => []]; ?>
-                    <?php $coverText = mb_strtoupper(mb_substr(trim((string)$item['title']), 0, 2)); ?>
                     <article class="library-cover-card">
                         <a class="library-cover-link" href="<?php p($itemOpenUrl); ?>" aria-label="Read <?php p($item['title']); ?>">
                             <img class="library-cover-image" src="<?php p($itemCoverUrl); ?>" alt="Cover for <?php p($item['title']); ?>" loading="lazy" />
-                            <div class="library-cover-placeholder" aria-hidden="true">
-                                <span><?php p($coverText !== '' ? $coverText : 'LIB'); ?></span>
-                            </div>
                         </a>
                         <div class="library-cover-summary">
                             <h3><?php p($item['title']); ?></h3>
