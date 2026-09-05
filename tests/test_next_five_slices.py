@@ -36,12 +36,12 @@ def test_catalogue_grid_supports_server_side_sort_modes():
 def test_scanner_marks_missing_files_after_root_scan_without_deleting_items():
     scanner = (ROOT / "lib" / "Service" / "LibraryScanner.php").read_text()
     file_index = (ROOT / "lib" / "Service" / "FileIndexService.php").read_text()
-    template = (ROOT / "templates" / "main.php").read_text()
+    settings = (ROOT / "templates" / "settings-personal.php").read_text()
     assert "$seenLibraryFileIds" in scanner
     assert "markMissingExcept($userId, $rootId, $seenLibraryFileIds)" in scanner
     assert "public function markMissingExcept(string $userId, int $rootId, array $seenLibraryFileIds): void" in file_index
     assert "scan_status', $qb->createNamedParameter('missing')" in file_index
-    assert "missing" in template
+    assert "missing" in settings
 
 
 def test_realistic_metadata_fixture_contract_documents_messy_inputs():

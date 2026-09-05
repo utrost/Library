@@ -14,12 +14,12 @@ def test_scan_progress_route_returns_latest_job_json():
     assert "$this->scanJobService->latestJob($user->getUID())" in controller
 
 
-def test_page_loads_scan_progress_script_and_passes_endpoint_url():
-    page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    template = (ROOT / "templates" / "main.php").read_text()
+def test_settings_loads_scan_progress_script_and_passes_endpoint_url():
+    settings = (ROOT / "lib" / "Settings" / "Personal.php").read_text()
+    template = (ROOT / "templates" / "settings-personal.php").read_text()
 
-    assert "Util::addScript(Application::APP_ID, 'scan-progress');" in page
-    assert "'scanProgressUrl' => $this->urlGenerator->linkToRoute('library.scan.progress')" in page
+    assert "Util::addScript(Application::APP_ID, 'scan-progress');" in settings
+    assert "'scanProgressUrl' => $this->urlGenerator->linkToRoute('library.scan.progress')" in settings
     assert "data-library-scan-progress-url=\"<?php p($_['scanProgressUrl']); ?>\"" in template
     assert "data-library-scan-status" in template
     assert "data-library-scan-files-indexed" in template

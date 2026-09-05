@@ -37,12 +37,12 @@ def test_scan_controller_creates_visible_job_before_queueing_background_scan():
     assert "$this->jobList->add(ScanJob::class, ['userId' => $user->getUID(), 'jobId' => (int)$job['id']]);" in controller
 
 
-def test_page_template_exposes_latest_scan_job_progress_summary():
-    page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    template = (ROOT / "templates" / "main.php").read_text()
+def test_settings_template_exposes_latest_scan_job_progress_summary():
+    settings = (ROOT / "lib" / "Settings" / "Personal.php").read_text()
+    template = (ROOT / "templates" / "settings-personal.php").read_text()
 
-    assert "ScanJobService $scanJobService" in page
-    assert "latestScanJob" in page
+    assert "ScanJobService $scanJobService" in settings
+    assert "latestScanJob" in settings
     assert "Scan progress" in template
     assert "scanJobStatus" in template
     assert "filesIndexed" in template

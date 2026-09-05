@@ -44,7 +44,6 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function index(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
-        Util::addScript(Application::APP_ID, 'scan-progress');
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -79,8 +78,6 @@ class PageController extends Controller {
 
         return new TemplateResponse(Application::APP_ID, 'main', [
             'fixtureOpenUrl' => $this->readerProvider->getOpenUrl(self::READER_FIXTURE_FILE_ID),
-            'roots' => $userId !== '' ? $this->rootService->listRoots($userId) : [],
-            'files' => $userId !== '' ? $this->fileIndexService->listFiles($userId) : [],
             'items' => $items,
             'fileTagsByFileId' => $fileTagsByFileId,
             'fileCommentsByFileId' => $this->fileCommentService->commentsForItems($items),
@@ -88,12 +85,8 @@ class PageController extends Controller {
             'formats' => $formats,
             'scanStatuses' => $scanStatuses,
             'cataloguePagination' => $pagination,
-            'latestScanJob' => $userId !== '' ? $this->scanJobService->latestJob($userId) : null,
-            'scanJobHistory' => $userId !== '' ? $this->scanJobService->recentJobs($userId, 5) : [],
             'activeFilters' => $activeFilters,
-            'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
-            'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
-            'scanProgressUrl' => $this->urlGenerator->linkToRoute('library.scan.progress'),
+            'settingsUrl' => $this->urlGenerator->linkTo('', '/settings/user/library'),
             'itemUpdateBaseUrl' => $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => '__ITEM_ID__']),
             'itemCoverBaseUrl' => $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => '__ITEM_ID__']),
             'itemTagBaseUrl' => $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => '__ITEM_ID__']),

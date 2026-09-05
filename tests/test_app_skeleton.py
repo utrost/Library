@@ -41,4 +41,5 @@ def test_landing_template_states_scope_boundary():
     assert "Library" in template
     assert "catalogue layer" in template
     assert "Nextcloud Files remain canonical" in template
-    assert "Reader handoff spike" in template
+    assert "Publication catalogue" in template
+    assert "Library settings" in template
