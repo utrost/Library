@@ -18,7 +18,7 @@ The current development slice can:
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans;
-- show indexed files and publication items with a responsive cover gallery, placeholder covers and collapsible metadata detail/edit sections;
+- show indexed files and publication items with a responsive cover gallery, preview-backed covers, placeholder fallbacks and collapsible metadata detail/edit sections;
 - search and filter the catalogue by title/author text, publication type, exact Nextcloud tag and root-derived shelf;
 - treat Nextcloud system tags as cross-archive classification metadata exposed and addable from Library item cards;
 - show recent Nextcloud file comments as file-level notes/discussion on Library item cards;
@@ -28,7 +28,7 @@ The current development slice can:
 - suppress OPF sidecars as separate catalogue items when they accompany a primary PDF/EPUB/CBZ, while still allowing standalone OPF records;
 - clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items.
 
-The next milestone is to harden PDF/EPUB/OPF metadata extraction with real-collection fixtures, user-edited sidecar cleanup policy, and cover generation.
+The next milestone is to harden PDF/EPUB/OPF metadata extraction and preview-backed covers with real-collection fixtures and user-edited sidecar cleanup policy.
 
 ## v0.1 direction
 
