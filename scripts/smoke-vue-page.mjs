@@ -86,7 +86,8 @@ try {
     console.log(`first_has_openUrl=${'openUrl' in first}`)
     console.log(`first_has_filesUrl=${'filesUrl' in first}`)
     console.log(`first_filesUrl_has_dir=${String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')}`)
-    console.log(`first_filesUrl_openfile=${String(first.filesUrl || '').includes('openfile=true')}`)
+    console.log(`first_filesUrl_opens_reader=${String(first.filesUrl || '').includes('openfile=true')}`)
+    console.log(`first_filesUrl_shows_folder=${String(first.filesUrl || '').includes('openfile=false')}`)
     console.log(`script_http=${script.status}`)
     console.log(`css_http=${css.status}`)
     console.log(`bundle_process_env=${script.text.includes('process.env')}`)
@@ -95,7 +96,7 @@ try {
     console.log(`source_has_compact_mobile_hero=${sourceComponent.includes('library-hero-actions') && sourceStyle.includes('font-size: 28px;') && !sourceComponent.includes('without importing or owning the files')}`)
     console.log(`bad_host_hrefs=${(page.text.match(/href="http:\/\/(?:f|settings)\//g) || []).length}`)
 
-    if (page.status !== 200 || !state || items.length === 0 || !('coverUrl' in first) || !('openUrl' in first) || !('filesUrl' in first) || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=true')) {
+    if (page.status !== 200 || !state || items.length === 0 || !('coverUrl' in first) || !('openUrl' in first) || !('filesUrl' in first) || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
       fail('catalogue_initial_state_invalid')
     } else if (script.status !== 200 || css.status !== 200 || script.text.includes('process.env')) {
       fail('vue_assets_invalid')

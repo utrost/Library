@@ -18,7 +18,8 @@ def test_nextcloud_internal_links_use_absolute_url_generator_not_empty_app_linkt
     assert "getShowInFilesUrl(int $fileId, string $cachedPath = '')" in provider
     assert "str_replace('%2F', '/', rawurlencode($dir))" in provider
     assert "?dir=" in provider
-    assert "&openfile=true" in provider
+    assert "&openfile=false" in provider
+    assert "&openfile=true" not in provider
 
 
 def test_scroll_css_targets_nextcloud_app_shell_and_keeps_body_scrollable():
