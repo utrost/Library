@@ -16,6 +16,7 @@ $shelves = $_['shelves'] ?? [];
 $formats = $_['formats'] ?? [];
 $scanStatuses = $_['scanStatuses'] ?? [];
 $cataloguePagination = $_['cataloguePagination'] ?? ['page' => 1, 'limit' => 100, 'total' => count($items), 'visible' => count($items), 'from' => count($items) > 0 ? 1 : 0, 'to' => count($items), 'previousUrl' => '', 'nextUrl' => ''];
+$latestScanJob = $_['latestScanJob'] ?? null;
 $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => '', 'tag' => '', 'shelf' => '', 'status' => '', 'sort' => 'title'];
 ?>
 <div id="library-app" class="library-app">
@@ -81,6 +82,29 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
         <form method="post" action="<?php p($_['scanRunUrl']); ?>">
             <button type="submit">Scan enabled roots</button>
         </form>
+
+        <section class="library-scan-progress" aria-label="Scan progress">
+            <h3>Scan progress</h3>
+            <?php if ($latestScanJob === null): ?>
+                <p class="library-muted">No scan job has run yet.</p>
+            <?php else: ?>
+                <dl>
+                    <dt>scanJobStatus</dt>
+                    <dd><?php p((string)$latestScanJob['status']); ?></dd>
+                    <dt>rootsTotal</dt>
+                    <dd><?php p((string)$latestScanJob['rootsTotal']); ?></dd>
+                    <dt>filesIndexed</dt>
+                    <dd><?php p((string)$latestScanJob['filesIndexed']); ?></dd>
+                    <dt>errorCount</dt>
+                    <dd><?php p((string)$latestScanJob['errorCount']); ?></dd>
+                    <dt>durationSeconds</dt>
+                    <dd><?php p((string)$latestScanJob['durationSeconds']); ?></dd>
+                </dl>
+                <?php if (($latestScanJob['summary'] ?? '') !== ''): ?>
+                    <p class="library-muted"><?php p((string)$latestScanJob['summary']); ?></p>
+                <?php endif; ?>
+            <?php endif; ?>
+        </section>
     </section>
 
     <section class="library-panel" aria-label="Indexed files">

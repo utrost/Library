@@ -11,6 +11,7 @@ use OCA\Library\Service\FileIndexService;
 use OCA\Library\Service\FileTagService;
 use OCA\Library\Service\ItemService;
 use OCA\Library\Service\RootService;
+use OCA\Library\Service\ScanJobService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -32,6 +33,7 @@ class PageController extends Controller {
         private FileTagService $fileTagService,
         private FileCommentService $fileCommentService,
         private ItemService $itemService,
+        private ScanJobService $scanJobService,
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
     ) {
@@ -85,6 +87,7 @@ class PageController extends Controller {
             'formats' => $formats,
             'scanStatuses' => $scanStatuses,
             'cataloguePagination' => $pagination,
+            'latestScanJob' => $userId !== '' ? $this->scanJobService->latestJob($userId) : null,
             'activeFilters' => $activeFilters,
             'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
