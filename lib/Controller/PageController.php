@@ -89,6 +89,7 @@ class PageController extends Controller {
             'scanStatuses' => $scanStatuses,
             'cataloguePagination' => $pagination,
             'latestScanJob' => $userId !== '' ? $this->scanJobService->latestJob($userId) : null,
+            'scanJobHistory' => $userId !== '' ? $this->scanJobService->recentJobs($userId, 5) : [],
             'activeFilters' => $activeFilters,
             'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),

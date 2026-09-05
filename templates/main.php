@@ -17,6 +17,7 @@ $formats = $_['formats'] ?? [];
 $scanStatuses = $_['scanStatuses'] ?? [];
 $cataloguePagination = $_['cataloguePagination'] ?? ['page' => 1, 'limit' => 100, 'total' => count($items), 'visible' => count($items), 'from' => count($items) > 0 ? 1 : 0, 'to' => count($items), 'previousUrl' => '', 'nextUrl' => ''];
 $latestScanJob = $_['latestScanJob'] ?? null;
+$scanJobHistory = $_['scanJobHistory'] ?? [];
 $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => '', 'tag' => '', 'shelf' => '', 'status' => '', 'sort' => 'title'];
 ?>
 <div id="library-app" class="library-app">
@@ -106,6 +107,33 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
                 <?php else: ?>
                     <p class="library-muted" data-library-scan-summary></p>
                 <?php endif; ?>
+            <?php endif; ?>
+        </section>
+
+        <section class="library-scan-history" aria-label="Scan history" data-library-scan-history>
+            <h3>Scan history</h3>
+            <?php if (count($scanJobHistory) === 0): ?>
+                <p class="library-muted">No recent scan history yet.</p>
+            <?php else: ?>
+                <ol class="library-scan-history-list">
+                    <?php foreach ($scanJobHistory as $historyJob): ?>
+                        <li>
+                            <dl>
+                                <dt>historyScanJobStatus</dt>
+                                <dd><?php p((string)$historyJob['status']); ?></dd>
+                                <dt>historyFilesIndexed</dt>
+                                <dd><?php p((string)$historyJob['filesIndexed']); ?></dd>
+                                <dt>historyErrorCount</dt>
+                                <dd><?php p((string)$historyJob['errorCount']); ?></dd>
+                                <dt>historyDurationSeconds</dt>
+                                <dd><?php p((string)$historyJob['durationSeconds']); ?></dd>
+                            </dl>
+                            <?php if (($historyJob['summary'] ?? '') !== ''): ?>
+                                <p class="library-muted"><?php p((string)$historyJob['summary']); ?></p>
+                            <?php endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ol>
             <?php endif; ?>
         </section>
     </section>
