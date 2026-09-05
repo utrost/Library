@@ -41,7 +41,7 @@ What exists now:
 - Concept, technical-spec and reader-handoff notes.
 - Lightweight repository tests protecting the current skeleton, docs contracts, roots/file-index slice and catalogue-item slice.
 
-This is now a development catalogue spine with a first usable shelf/gallery presentation, not a polished media server. Phase 3.1 adds preview-backed covers through Nextcloud's preview pipeline while keeping placeholders for unsupported files.
+This is now a development catalogue spine with a first usable shelf/gallery presentation, not a polished media server. Phase 3.1 adds preview-backed covers through Nextcloud's preview pipeline and CBZ first-image covers while keeping placeholders for unsupported files.
 
 ## Phase 0 — Concept and spike baseline
 
@@ -216,14 +216,14 @@ Goal: populate catalogue items with useful initial metadata and covers without e
 
 ### Phase 3.1 — Preview-backed covers
 
-Status: first slice landed. Catalogue cards now request item covers from a Library route that resolves the owned catalogue item to its Nextcloud file and asks the public Nextcloud preview manager for a cover-sized preview. Unsupported files still return the existing stable placeholder artwork, so the gallery remains usable while deeper EPUB/CBZ/PDF cover extraction evolves.
+Status: first slice landed. Catalogue cards now request item covers from a Library route that resolves the owned catalogue item to its Nextcloud file and asks the public Nextcloud preview manager for a cover-sized preview. The route also does first-image cover extraction for CBZ archives when the generic preview path is unavailable. Unsupported files still return the existing stable placeholder artwork, so the gallery remains usable while deeper EPUB/CBZ/PDF cover extraction evolves.
 
-Status: first extraction slices landed and smoke-tested on Alice. EPUB package OPF, standalone OPF, same-basename OPF sidecars, folder-level `metadata.opf` sidecars, basic PDF info fields and CBZ ComicInfo.xml metadata now populate catalogue item candidates. Sidecar OPFs are suppressed as separate catalogue items when paired with primary publication files, and stale sidecar cleanup removes scanner-created duplicate OPF items on rescan. User-edited sidecar cleanup policy and richer real-world PDF/CBZ handling remain open.
+Status: first extraction slices landed and smoke-tested on Alice. EPUB package OPF, standalone OPF, same-basename OPF sidecars, folder-level `metadata.opf` sidecars, basic PDF info fields, CBZ ComicInfo.xml metadata and CBZ first-image covers now populate catalogue item candidates/presentation. Sidecar OPFs are suppressed as separate catalogue items when paired with primary publication files, and stale sidecar cleanup removes scanner-created duplicate OPF items on rescan. User-edited sidecar cleanup policy and richer real-world PDF/CBZ handling remain open.
 
 User outcome:
 
 - EPUBs can show embedded title/creator where available.
-- CBZs can show ComicInfo.xml metadata and first-image covers where available.
+- CBZs can show ComicInfo.xml metadata and first-image covers where available. **First-image cover extraction landed.**
 - PDFs can show basic document metadata and a preview-backed cover where practical.
 - Items without cover still render as usable placeholders.
 
