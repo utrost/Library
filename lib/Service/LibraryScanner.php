@@ -32,27 +32,33 @@ final class LibraryScanner {
     /**
      * @return array{roots:int,indexed:int,errors:array<int,string>}
      */
-    public function scan(string $userId): array {
+    public function scan(string $userId, ?callable $progress = null): array {
         $indexed = 0;
         $errors = [];
         $roots = $this->rootService->listEnabledRoots($userId);
+        $rootsTotal = count($roots);
         $userFolder = $this->rootFolder->getUserFolder($userId);
+        $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Scanning enabled roots…');
 
         foreach ($roots as $root) {
             try {
                 $rootId = (int)$root['id'];
                 $folder = $this->resolveRootFolder($userFolder, (string)$root['path']);
                 $seenLibraryFileIds = [];
-                $indexed += $this->scanFolder($userId, $rootId, $folder, $seenLibraryFileIds);
+                $indexed += $this->scanFolder($userId, $rootId, $folder, $seenLibraryFileIds, function (int $filesIndexed) use (&$indexed, $progress, $rootsTotal, &$errors, $root): void {
+                    $this->reportProgress($progress, $rootsTotal, $indexed + $filesIndexed, count($errors), 'Scanning ' . (string)$root['path']);
+                });
                 $this->fileIndexService->markMissingExcept($userId, $rootId, $seenLibraryFileIds);
                 $this->rootService->markScanned($rootId);
+                $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Finished ' . (string)$root['path']);
             } catch (Throwable $e) {
                 $errors[] = sprintf('%s: %s', (string)$root['path'], $e->getMessage());
+                $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Scan error: ' . (string)$root['path']);
             }
         }
 
         return [
-            'roots' => count($roots),
+            'roots' => $rootsTotal,
             'indexed' => $indexed,
             'errors' => $errors,
         ];
@@ -71,11 +77,11 @@ final class LibraryScanner {
         return $node;
     }
 
-    private function scanFolder(string $userId, int $rootId, Folder $folder, array &$seenLibraryFileIds): int {
+    private function scanFolder(string $userId, int $rootId, Folder $folder, array &$seenLibraryFileIds, ?callable $progress = null): int {
         $indexed = 0;
         foreach ($folder->getDirectoryListing() as $node) {
             if ($node instanceof Folder) {
-                $indexed += $this->scanFolder($userId, $rootId, $node, $seenLibraryFileIds);
+                $indexed += $this->scanFolder($userId, $rootId, $node, $seenLibraryFileIds, $progress);
                 continue;
             }
 
@@ -90,10 +96,26 @@ final class LibraryScanner {
 
             if ($this->scanFile($userId, $rootId, $node, $seenLibraryFileIds)) {
                 $indexed++;
+                if ($progress !== null) {
+                    $progress($indexed);
+                }
             }
         }
 
         return $indexed;
+    }
+
+    private function reportProgress(?callable $progress, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary): void {
+        if ($progress === null) {
+            return;
+        }
+
+        $progress([
+            'roots' => $rootsTotal,
+            'indexed' => $filesIndexed,
+            'errors' => $errorCount,
+            'summary' => $summary,
+        ]);
     }
 
     private function scanFile(string $userId, int $rootId, File $node, array &$seenLibraryFileIds): bool {

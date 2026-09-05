@@ -13,7 +13,8 @@ def test_scan_background_job_class_runs_existing_scanner_and_marks_job_lifecycle
     assert "LibraryScanner $scanner" in job
     assert "ScanJobService $scanJobService" in job
     assert "$this->scanJobService->markRunning($userId, $jobId);" in job
-    assert "$result = $this->scanner->scan($userId);" in job
+    assert "$result = $this->scanner->scan($userId, function (array $progress) use ($userId, $jobId): void" in job
+    assert "$this->scanJobService->updateProgress($userId, $jobId, $progress);" in job
     assert "$this->scanJobService->finishJob($userId, $jobId, $result);" in job
     assert "$this->scanJobService->failJob($userId, $jobId, $e->getMessage());" in job
 

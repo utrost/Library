@@ -29,6 +29,19 @@ final class ScanJobService {
             ->executeStatement();
     }
 
+    public function updateProgress(string $userId, int $jobId, array $progress): void {
+        $qb = $this->db->getQueryBuilder();
+        $qb->update('library_scan_jobs')
+            ->set('status', $qb->createNamedParameter('running'))
+            ->set('roots_total', $qb->createNamedParameter((int)($progress['roots'] ?? 0)))
+            ->set('files_indexed', $qb->createNamedParameter((int)($progress['indexed'] ?? 0)))
+            ->set('error_count', $qb->createNamedParameter((int)($progress['errors'] ?? 0)))
+            ->set('summary', $qb->createNamedParameter(mb_substr((string)($progress['summary'] ?? 'Scanning…'), 0, 4000)))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+    }
+
     public function finishJob(string $userId, int $jobId, array $result): void {
         $errors = $result['errors'] ?? [];
         $summary = $errors !== [] ? implode("\n", array_map('strval', $errors)) : 'Scan completed';
