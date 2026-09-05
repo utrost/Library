@@ -51,10 +51,12 @@ class PageController extends Controller {
         $activeFilters = [
             'q' => trim((string)$this->request->getParam('q', '')),
             'type' => trim((string)$this->request->getParam('type', '')),
+            'format' => trim((string)$this->request->getParam('format', '')),
             'tag' => trim((string)$this->request->getParam('tag', '')),
             'shelf' => trim((string)$this->request->getParam('shelf', '')),
         ];
         $shelves = $this->buildShelves($items);
+        $formats = $this->buildFormats($items);
         $items = $this->filterItemsForPresentation($items, $fileTagsByFileId, $activeFilters);
 
         return new TemplateResponse(Application::APP_ID, 'main', [
@@ -65,6 +67,7 @@ class PageController extends Controller {
             'fileTagsByFileId' => $fileTagsByFileId,
             'fileCommentsByFileId' => $this->fileCommentService->commentsForItems($items),
             'shelves' => $shelves,
+            'formats' => $formats,
             'activeFilters' => $activeFilters,
             'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
@@ -94,13 +97,33 @@ class PageController extends Controller {
 
     /**
      * @param array<int, array<string, mixed>> $items
+     * @return array<int, string>
+     */
+    private function buildFormats(array $items): array {
+        $formats = [];
+        foreach ($items as $item) {
+            $format = mb_strtolower(trim((string)($item['extension'] ?? '')));
+            if ($format !== '') {
+                $formats[$format] = $format;
+            }
+        }
+        ksort($formats, SORT_NATURAL | SORT_FLAG_CASE);
+        return array_values($formats);
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $items
      * @param array<int, array<int, array{name:string}>> $fileTagsByFileId
-     * @param array{q:string,type:string,tag:string,shelf:string} $activeFilters
+     * @param array{q:string,type:string,tag:string,shelf:string,format:string} $activeFilters
      * @return array<int, array<string, mixed>>
      */
     private function filterItemsForPresentation(array $items, array $fileTagsByFileId, array $activeFilters): array {
         return array_values(array_filter($items, function (array $item) use ($fileTagsByFileId, $activeFilters): bool {
             if ($activeFilters['type'] !== '' && $item['publicationType'] !== $activeFilters['type']) {
+                return false;
+            }
+
+            if ($activeFilters['format'] !== '' && mb_strtolower((string)($item['extension'] ?? '')) !== mb_strtolower($activeFilters['format'])) {
                 return false;
             }
 

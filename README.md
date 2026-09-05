@@ -19,7 +19,7 @@ The current development slice can:
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans;
 - show indexed files and publication items with a responsive cover gallery, preview-backed covers, placeholder fallbacks and collapsible metadata detail/edit sections;
-- search and filter the catalogue by title/author text, publication type, exact Nextcloud tag and root-derived shelf;
+- search and filter the catalogue by title/author text, publication type, file format, exact Nextcloud tag and root-derived shelf;
 - treat Nextcloud system tags as cross-archive classification metadata exposed and addable from Library item cards;
 - show recent Nextcloud file comments as file-level notes/discussion on Library item cards;
 - add new Nextcloud file comments from Library item cards;
