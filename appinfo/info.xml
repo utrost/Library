@@ -5,7 +5,7 @@
     <name>Library</name>
     <summary>Publication catalogue for files stored in Nextcloud</summary>
     <description><![CDATA[Library adds a publication-specific catalogue, metadata model, search and browsing interface on top of ordinary Nextcloud files. Nextcloud Files remain canonical; Library stores indexes and derived metadata.]]></description>
-    <version>0.1.0-alpha.28</version>
+    <version>0.1.0-alpha.29</version>
     <licence>agpl</licence>
     <author mail="utrost@users.noreply.github.com">Uwe Trostheide</author>
     <namespace>Library</namespace>
@@ -24,4 +24,8 @@
             <order>8</order>
         </navigation>
     </navigations>
+    <settings>
+        <personal>OCA\Library\Settings\Personal</personal>
+        <personal-section>OCA\Library\Settings\PersonalSection</personal-section>
+    </settings>
 </info>

@@ -58,15 +58,15 @@ def test_page_routes_expose_root_save_and_manual_scan_actions():
     assert "/roots" in routes
     assert "/scan" in routes
 
-    page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    assert "RootService $rootService" in page
-    assert "FileIndexService $fileIndexService" in page
-    assert "listRoots($userId)" in page
-    assert "listFiles($userId)" in page
+    settings = (ROOT / "lib" / "Settings" / "Personal.php").read_text()
+    assert "RootService $rootService" in settings
+    assert "FileIndexService $fileIndexService" in settings
+    assert "listRoots($this->userId)" in settings
+    assert "listFiles($this->userId)" in settings
 
 
-def test_template_shows_extendable_root_configuration_and_file_index():
-    template = (ROOT / "templates" / "main.php").read_text()
+def test_personal_settings_template_shows_extendable_root_configuration_and_file_index():
+    template = (ROOT / "templates" / "settings-personal.php").read_text()
     assert "Library roots" in template
     assert "name=\"path\"" in template
     assert "Scan enabled roots" in template
