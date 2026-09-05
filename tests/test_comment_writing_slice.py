@@ -31,14 +31,13 @@ def test_comment_controller_and_route_are_wired():
 
 def test_page_controller_passes_comment_post_url_to_template():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    assert "itemCommentBaseUrl" in page
+    assert "commentUrl" in page
     assert "library.comment.add" in page
 
 
 def test_template_has_add_nextcloud_comment_form_separate_from_metadata_edit():
-    template = (ROOT / "templates" / "main.php").read_text()
-    assert "itemCommentBaseUrl" in template
-    assert "$itemCommentUrl" in template
-    assert "Add Nextcloud comment" in template
-    assert "name=\"commentMessage\"" in template
-    assert "placeholder=\"file-level note...\"" in template
+    vue = (ROOT / "src" / "App.vue").read_text()
+    assert "item.commentUrl" in vue
+    assert "Add Nextcloud comment" in vue
+    assert "name=\"commentMessage\"" in vue
+    assert "placeholder=\"file-level note...\"" in vue

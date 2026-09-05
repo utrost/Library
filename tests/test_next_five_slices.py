@@ -15,22 +15,22 @@ def test_cover_route_exposes_placeholder_diagnostic_headers():
 def test_catalogue_has_show_in_files_action_separate_from_read():
     provider = (ROOT / "lib" / "Reader" / "DefaultNextcloudFileProvider.php").read_text()
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    template = (ROOT / "templates" / "main.php").read_text()
+    vue = (ROOT / "src" / "App.vue").read_text()
     assert "public function getShowInFilesUrl(int $fileId): string" in provider
-    assert "itemFilesBaseUrl" in page
-    assert "Show in Files" in template
-    assert "$itemFilesUrl" in template
+    assert "filesUrl" in page
+    assert "Show in Files" in vue
+    assert "item.filesUrl" in vue
 
 
 def test_catalogue_grid_supports_server_side_sort_modes():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    template = (ROOT / "templates" / "main.php").read_text()
+    vue = (ROOT / "src" / "App.vue").read_text()
     assert "'sort' => trim((string)$this->request->getParam('sort', 'title'))" in page
     assert "sortItemsForPresentation" in page
     for mode in ["title", "recent", "publicationDate", "format"]:
         assert mode in page
-        assert f'value="{mode}"' in template
-    assert "Sort" in template
+        assert f'value="{mode}"' in vue
+    assert "Sort" in vue
 
 
 def test_scanner_marks_missing_files_after_root_scan_without_deleting_items():

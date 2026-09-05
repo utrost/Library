@@ -59,13 +59,13 @@ def test_template_shows_publication_items_and_edit_form():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     assert "ItemService $itemService" in page
     assert "listItems($userId)" in page
-    assert "itemUpdateBaseUrl" in page
+    assert "updateUrl" in page
 
-    template = (ROOT / "templates" / "main.php").read_text()
-    assert "Publication catalogue" in template
-    assert "publicationType" in template
-    assert "metadataSource" in template
-    assert "userEdited" in template
-    assert "name=\"title\"" in template
-    assert "name=\"publicationType\"" in template
-    assert "Save metadata" in template
+    vue = (ROOT / "src" / "App.vue").read_text()
+    assert "Publication catalogue" in vue
+    assert "publicationType" in vue
+    assert "metadataSource" in vue
+    assert "userEdited" in vue
+    assert "name=\"title\"" in vue
+    assert "name=\"publicationType\"" in vue
+    assert "Save metadata" in vue

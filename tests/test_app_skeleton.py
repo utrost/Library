@@ -38,8 +38,10 @@ def test_php_app_routes_and_controller_are_wired():
 
 def test_landing_template_states_scope_boundary():
     template = (ROOT / "templates" / "main.php").read_text()
-    assert "Library" in template
-    assert "catalogue layer" in template
-    assert "Nextcloud Files remain canonical" in template
-    assert "Publication catalogue" in template
-    assert "Library settings" in template
+    vue = (ROOT / "src" / "App.vue").read_text()
+    assert "library-vue-root" in template
+    assert "Library" in vue
+    assert "catalogue layer" in vue
+    assert "Nextcloud Files remain canonical" in vue
+    assert "Publication catalogue" in vue
+    assert "Library settings" in vue

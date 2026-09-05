@@ -35,7 +35,7 @@ def test_metadata_service_reports_corrupt_archives_as_non_fatal_errors():
 
 
 def test_template_shows_file_scan_error_state_for_diagnosis():
-    template = (ROOT / "templates" / "main.php").read_text()
-    assert "scanError" in template
-    assert "library-scan-error" in template
+    vue = (ROOT / "src" / "App.vue").read_text()
+    assert "scanError" in vue
+    assert "library-scan-error" in vue
     assert "scanError" in (ROOT / "lib" / "Service" / "FileIndexService.php").read_text()

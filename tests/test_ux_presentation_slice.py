@@ -33,19 +33,19 @@ def test_page_controller_passes_filter_state_and_shelves_to_template():
 
 
 def test_template_renders_cover_gallery_metadata_detail_and_filter_controls():
-    template = (ROOT / "templates" / "main.php").read_text()
-    assert "aria-label=\"Catalogue search and filters\"" in template
-    assert "name=\"q\"" in template
-    assert "name=\"type\"" in template
-    assert "name=\"tag\"" in template
-    assert "name=\"shelf\"" in template
-    assert "class=\"library-cover-gallery\"" in template
-    assert "class=\"library-cover-card\"" in template
-    assert "class=\"library-cover-image\"" in template
-    assert "class=\"library-cover-placeholder\"" not in template
-    assert "class=\"library-item-metadata\"" in template
-    assert "Details / edit metadata" in template
-    assert "Shelf" in template
+    vue = (ROOT / "src" / "App.vue").read_text()
+    assert "aria-label=\"Catalogue search and filters\"" in vue
+    assert "name=\"q\"" in vue
+    assert "name=\"type\"" in vue
+    assert "name=\"tag\"" in vue
+    assert "name=\"shelf\"" in vue
+    assert "class=\"library-cover-gallery\"" in vue
+    assert "class=\"library-cover-card\"" in vue
+    assert "class=\"library-cover-image\"" in vue
+    assert "class=\"library-cover-placeholder\"" not in vue
+    assert "class=\"library-item-metadata\"" in vue
+    assert "Details / edit metadata" in vue
+    assert "Shelf" in vue
 
 
 def test_styles_define_responsive_cover_gallery_and_filter_bar():

@@ -27,9 +27,8 @@ def test_page_controller_passes_nextcloud_comments_to_template():
 
 
 def test_template_renders_nextcloud_comments_as_discussion_not_metadata():
-    template = (ROOT / "templates" / "main.php").read_text()
-    assert "$fileCommentsByFileId" in template
-    assert "Nextcloud comments" in template
-    assert "nextcloudComments" in template
-    assert "No Nextcloud comments" in template
-    assert "file-level notes" in template
+    vue = (ROOT / "src" / "App.vue").read_text()
+    assert "nextcloudComments" in vue
+    assert "Nextcloud comments" in vue
+    assert "No Nextcloud comments" in vue
+    assert "file-level notes" in vue

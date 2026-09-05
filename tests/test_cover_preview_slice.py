@@ -26,16 +26,16 @@ def test_cover_controller_uses_nextcloud_preview_api_and_owned_item_lookup():
 
 def test_page_controller_passes_cover_base_url_to_template():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    assert "itemCoverBaseUrl" in controller
+    assert "coverUrl" in controller
     assert "library.cover.show" in controller
 
 
 def test_template_prefers_real_cover_img_and_uses_cover_route_fallback():
-    template = (ROOT / "templates" / "main.php").read_text()
-    assert "$itemCoverUrl" in template
-    assert "library-cover-image" in template
-    assert "src=\"<?php p($itemCoverUrl); ?>\"" in template
-    assert "class=\"library-cover-placeholder" not in template
+    vue = (ROOT / "src" / "App.vue").read_text()
+    assert "item.coverUrl" in vue
+    assert "library-cover-image" in vue
+    assert ":src=\"item.coverUrl\"" in vue
+    assert "class=\"library-cover-placeholder" not in vue
 
 
 def test_styles_define_real_cover_image_state():

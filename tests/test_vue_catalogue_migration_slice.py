@@ -1,0 +1,65 @@
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_package_uses_modern_nextcloud_vue_vite_stack():
+    package = (ROOT / "package.json").read_text()
+
+    assert '"type": "module"' in package
+    assert '"build": "vite --mode production build"' in package
+    assert '"vue"' in package
+    assert '"@vitejs/plugin-vue"' in package
+    assert '"@nextcloud/initial-state"' in package
+
+    vite = (ROOT / "vite.config.js").read_text()
+    assert "@vitejs/plugin-vue" in vite
+    assert "library-main.mjs" in vite
+    assert "outDir: 'js'" in vite
+
+
+def test_page_controller_provides_catalogue_initial_state_and_loads_vue_entrypoint():
+    controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+
+    assert "use OCP\\AppFramework\\Services\\IInitialState;" in controller
+    assert "private IInitialState $initialState" in controller
+    assert "$this->initialState->provideInitialState('catalogue'" in controller
+    assert "Util::addScript(Application::APP_ID, 'library-main');" in controller
+    assert "'items' => $items" in controller
+    assert "'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library')" in controller
+
+
+def test_main_template_is_vue_mount_only_inside_nextcloud_app_content():
+    template = (ROOT / "templates" / "main.php").read_text()
+
+    assert '<div id="app-content" class="library-app-content">' in template
+    assert '<main id="library-app" class="library-app" tabindex="-1">' in template
+    assert '<div id="library-vue-root"></div>' in template
+    assert 'class="library-cover-card"' not in template
+    assert '<form method="get" class="library-filter-bar"' not in template
+
+
+def test_vue_entrypoint_loads_nextcloud_initial_state_and_mounts_app():
+    main = (ROOT / "src" / "main.js").read_text()
+
+    assert "createApp" in main
+    assert "loadState" in main
+    assert "loadState('library', 'catalogue'" in main
+    assert "mount('#library-vue-root')" in main
+
+
+def test_vue_app_renders_catalogue_filters_covers_links_and_edit_forms():
+    app = (ROOT / "src" / "App.vue").read_text()
+
+    assert "Publication catalogue" in app
+    assert "library-filter-bar" in app
+    assert "v-for=\"item in items\"" in app
+    assert "library-cover-card" in app
+    assert "library-cover-image" in app
+    assert ":src=\"item.coverUrl\"" in app
+    assert ":href=\"item.openUrl\"" in app
+    assert "Show in Files" in app
+    assert "Details / edit metadata" in app
+    assert "Save metadata" in app
+    assert "Add Nextcloud tag" in app
+    assert "Add Nextcloud comment" in app

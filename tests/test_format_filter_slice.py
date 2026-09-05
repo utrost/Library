@@ -19,12 +19,12 @@ def test_page_controller_filters_catalogue_items_by_file_extension():
 
 
 def test_template_renders_format_filter_and_card_format_label():
-    template = (ROOT / "templates" / "main.php").read_text()
-    assert "$formats = $_['formats'] ?? []" in template
-    assert "name=\"format\"" in template
-    assert "All formats" in template
-    assert "foreach ($formats as $format)" in template
-    assert "Format:" in template
+    vue = (ROOT / "src" / "App.vue").read_text()
+    assert "formats" in vue
+    assert "name=\"format\"" in vue
+    assert "All formats" in vue
+    assert "v-for=\"format in formats\"" in vue
+    assert "Format:" in vue
 
 
 def test_docs_name_format_filter_slice_as_landed():
