@@ -41,7 +41,8 @@ def test_template_renders_cover_gallery_metadata_detail_and_filter_controls():
     assert "name=\"shelf\"" in template
     assert "class=\"library-cover-gallery\"" in template
     assert "class=\"library-cover-card\"" in template
-    assert "class=\"library-cover-placeholder\"" in template
+    assert "class=\"library-cover-image\"" in template
+    assert "class=\"library-cover-placeholder\"" not in template
     assert "class=\"library-item-metadata\"" in template
     assert "Details / edit metadata" in template
     assert "Shelf" in template
@@ -52,7 +53,8 @@ def test_styles_define_responsive_cover_gallery_and_filter_bar():
     assert ".library-filter-bar" in css
     assert ".library-cover-gallery" in css
     assert "grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))" in css
-    assert ".library-cover-placeholder" in css
+    assert ".library-cover-image" in css
+    assert ".library-cover-placeholder" not in css
     assert ".library-cover-card details" in css
 
 
