@@ -10,7 +10,7 @@ def test_nextcloud_internal_links_use_absolute_url_generator_not_empty_app_linkt
     assert "linkTo('', '/settings/user/library')" not in page
     assert "linkTo('', '/f/__FILE_ID__')" not in page
     assert "getAbsoluteURL('/settings/user/library')" in page
-    assert "getAbsoluteURL('/f/__FILE_ID__')" in page
+    assert "getAbsoluteURL('/f/' . $fileId)" in page
 
     assert "linkTo('', '/f/' . $fileId)" not in provider
     assert "linkTo('', '/apps/files/files/' . $fileId)" not in provider
@@ -52,6 +52,6 @@ def test_existing_route_docs_mention_verified_link_scroll_regression():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text().lower()
 
     assert "absolute nextcloud urls" in readme
-    assert "conventional nextcloud `#app-content` shell" in readme
+    assert "vue/vite-backed catalogue page" in readme
     assert "absolute nextcloud urls" in roadmap
-    assert "conventional scrollable `#app-content` shell" in roadmap
+    assert "vue/vite catalogue mounted" in roadmap

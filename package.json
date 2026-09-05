@@ -1,0 +1,36 @@
+{
+  "name": "library",
+  "version": "0.1.0-alpha.33",
+  "private": true,
+  "description": "Nextcloud publication catalogue for files stored in Nextcloud",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "build": "vite --mode production build",
+    "dev": "vite --mode development build",
+    "watch": "vite --mode development build --watch",
+    "test": "vitest run"
+  },
+  "browserslist": [
+    "extends @nextcloud/browserslist-config"
+  ],
+  "dependencies": {
+    "@nextcloud/initial-state": "^3.0.0",
+    "@nextcloud/router": "^3.1.0",
+    "@nextcloud/vue": "^9.8.2",
+    "vue": "^3.5.33"
+  },
+  "devDependencies": {
+    "@nextcloud/browserslist-config": "^3.1.2",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "@vitest/coverage-v8": "^4.1.9",
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^20.0.10",
+    "vite": "^7.3.6",
+    "vitest": "^4.1.9"
+  },
+  "engines": {
+    "node": "^24.0.0",
+    "npm": "^11.3.0"
+  }
+}

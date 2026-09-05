@@ -13,23 +13,23 @@ def test_item_service_exposes_scan_status_for_catalogue_filters():
 
 def test_catalogue_supports_scan_status_filter():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    template = (ROOT / "templates" / "main.php").read_text()
+    vue = (ROOT / "src" / "App.vue").read_text()
     assert "'status' => trim((string)$this->request->getParam('status', ''))" in page
     assert "buildScanStatuses" in page
     assert "'scanStatuses' => $scanStatuses" in page
     assert "scanStatus" in page
-    assert "name=\"status\"" in template
-    assert "All scan statuses" in template
+    assert "name=\"status\"" in vue
+    assert "All scan statuses" in vue
     for status in ["indexed", "metadata_error", "missing"]:
         assert status in page
 
 
 def test_catalogue_cards_show_scan_diagnostics_for_unhealthy_items():
-    template = (ROOT / "templates" / "main.php").read_text()
-    assert "library-item-scan-status" in template
-    assert "scanStatus:" in template
-    assert "scanError:" in template
-    assert "library-scan-error" in template
+    vue = (ROOT / "src" / "App.vue").read_text()
+    assert "library-item-scan-status" in vue
+    assert "scanStatus:" in vue
+    assert "scanError:" in vue
+    assert "library-scan-error" in vue
 
 
 def test_docs_record_scan_status_filter_slice():

@@ -4,12 +4,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_cover_cards_render_one_cover_surface_not_mock_placeholder_plus_image():
-    template = (ROOT / "templates" / "main.php").read_text()
+    vue = (ROOT / "src" / "App.vue").read_text()
 
-    assert 'class="library-cover-image"' in template
-    assert 'class="library-cover-placeholder"' not in template
-    assert 'library-cover-frame' not in template
-    assert 'mb_substr(trim((string)$item[\'title\']), 0, 2)' not in template
+    assert 'class="library-cover-image"' in vue
+    assert 'class="library-cover-placeholder"' not in vue
+    assert 'library-cover-frame' not in vue
+    assert 'mb_substr(trim((string)$item[\'title\']), 0, 2)' not in vue
 
 
 def test_cover_css_does_not_reserve_second_placeholder_cover_block():

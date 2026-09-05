@@ -31,9 +31,8 @@ def test_tag_controller_and_route_are_wired():
 
 
 def test_template_has_add_nextcloud_tag_form_separate_from_metadata_edit():
-    template = (ROOT / "templates" / "main.php").read_text()
-    assert "itemTagBaseUrl" in template
-    assert "$itemTagUrl" in template
-    assert "Add Nextcloud tag" in template
-    assert "name=\"tagName\"" in template
-    assert "placeholder=\"photography, project-library...\"" in template
+    vue = (ROOT / "src" / "App.vue").read_text()
+    assert "item.tagUrl" in vue
+    assert "Add Nextcloud tag" in vue
+    assert "name=\"tagName\"" in vue
+    assert "placeholder=\"photography, project-library...\"" in vue

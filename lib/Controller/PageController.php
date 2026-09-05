@@ -13,6 +13,7 @@ use OCA\Library\Service\ItemService;
 use OCA\Library\Service\RootService;
 use OCA\Library\Service\ScanJobService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Services\IInitialState;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -34,6 +35,7 @@ class PageController extends Controller {
         private FileCommentService $fileCommentService,
         private ItemService $itemService,
         private ScanJobService $scanJobService,
+        private IInitialState $initialState,
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
     ) {
@@ -45,6 +47,7 @@ class PageController extends Controller {
     public function index(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
         Util::addScript(Application::APP_ID, 'library-shell');
+        Util::addScript(Application::APP_ID, 'library-main');
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -77,25 +80,43 @@ class PageController extends Controller {
         $pagination['previousUrl'] = $pagination['page'] > 1 ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] - 1) : '';
         $pagination['nextUrl'] = $pagination['to'] < $pagination['total'] ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] + 1) : '';
 
-        return new TemplateResponse(Application::APP_ID, 'main', [
-            'fixtureOpenUrl' => $this->readerProvider->getOpenUrl(self::READER_FIXTURE_FILE_ID),
+        $fileCommentsByFileId = $this->fileCommentService->commentsForItems($items);
+        $items = $this->enrichItemsForVue($items, $fileTagsByFileId, $fileCommentsByFileId);
+
+        $this->initialState->provideInitialState('catalogue', [
             'items' => $items,
-            'fileTagsByFileId' => $fileTagsByFileId,
-            'fileCommentsByFileId' => $this->fileCommentService->commentsForItems($items),
             'shelves' => $shelves,
             'formats' => $formats,
             'scanStatuses' => $scanStatuses,
             'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
             'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library'),
-            'itemUpdateBaseUrl' => $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => '__ITEM_ID__']),
-            'itemCoverBaseUrl' => $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => '__ITEM_ID__']),
-            'itemTagBaseUrl' => $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => '__ITEM_ID__']),
-            'itemTagRemoveBaseUrl' => $this->urlGenerator->linkToRoute('library.tag.remove', ['itemId' => '__ITEM_ID__', 'tagId' => '__TAG_ID__']),
-            'itemCommentBaseUrl' => $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => '__ITEM_ID__']),
-            'itemOpenBaseUrl' => $this->urlGenerator->getAbsoluteURL('/f/__FILE_ID__'),
-            'itemFilesBaseUrl' => $this->readerProvider->getShowInFilesUrl(0),
         ]);
+
+        return new TemplateResponse(Application::APP_ID, 'main');
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $items
+     * @param array<int, array<int, array{id:int,name:string}>> $fileTagsByFileId
+     * @param array<int, array{count:int,recent:array<int, array<string, string>>}> $fileCommentsByFileId
+     * @return array<int, array<string, mixed>>
+     */
+    private function enrichItemsForVue(array $items, array $fileTagsByFileId, array $fileCommentsByFileId): array {
+        return array_map(function (array $item) use ($fileTagsByFileId, $fileCommentsByFileId): array {
+            $itemId = (string)$item['id'];
+            $fileId = (int)$item['fileId'];
+            $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $itemId]);
+            $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $itemId]);
+            $item['tagUrl'] = $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => $itemId]);
+            $item['tagRemoveBaseUrl'] = $this->urlGenerator->linkToRoute('library.tag.remove', ['itemId' => $itemId, 'tagId' => '__TAG_ID__']);
+            $item['commentUrl'] = $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => $itemId]);
+            $item['openUrl'] = $this->urlGenerator->getAbsoluteURL('/f/' . $fileId);
+            $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId);
+            $item['nextcloudTags'] = $fileTagsByFileId[$fileId] ?? [];
+            $item['nextcloudComments'] = $fileCommentsByFileId[$fileId] ?? ['count' => 0, 'recent' => []];
+            return $item;
+        }, $items);
     }
 
     /**
