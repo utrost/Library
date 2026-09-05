@@ -38,4 +38,15 @@ final class TagController extends Controller {
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
     }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function remove(int $itemId, string $tagId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $this->fileTagService->removeTagFromItem($user->getUID(), $itemId, $tagId);
+        }
+
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
 }

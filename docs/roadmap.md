@@ -33,7 +33,7 @@ What exists now:
 - Publication catalogue gallery with placeholder covers, card-level title/creator/type/shelf/tag metadata, direct Read links and collapsible detail/edit sections.
 - Server-side catalogue search/filter controls for title/author text, publication type, file format filter, exact Nextcloud tag and root-derived shelf.
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
-- Minimal Nextcloud system tag assignment from Library item cards for existing or creatable public/assignable tags.
+- Minimal Nextcloud system tag assignment/removal from Library item cards for visible/assignable tags.
 - Read-only recent Nextcloud file comments on publication item cards as file-level notes/discussion.
 - Minimal Nextcloud file comment writing from Library item cards.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
@@ -153,7 +153,7 @@ Exit criteria:
 
 Goal: make Library a better Nextcloud citizen before adding deeper extractor-specific metadata.
 
-Status: first tag/comment exposure, minimal tag assignment and minimal comment writing slices landed and smoke-tested on Alice.
+Status: first tag/comment exposure, minimal tag assignment/removal and minimal comment writing slices landed and smoke-tested on Alice.
 
 User outcome:
 
@@ -165,7 +165,7 @@ Backend/frontend slices:
 
 1. Add a small service that reads visible Nextcloud system tags for the primary file IDs of listed Library items. **Landed.**
 2. Show those tags on the catalogue item cards/detail area. **Landed for item cards.**
-3. Keep tag editing deferred until the read path and permission behaviour are smoke-tested. **Minimal add-tag flow landed; tag removal remains deferred.**
+3. Keep tag editing minimal until richer permission behaviour is needed. **Minimal add/remove tag flows landed.**
 4. Add comments as a later adjacent slice after tags. **Read-only recent comments and minimal add-comment flow landed for item cards.**
 
 Tests/smokes:
@@ -383,11 +383,11 @@ Exit criteria:
 
 ## Immediate next implementation slice
 
-Recommended next slice after read-only Nextcloud tags/comments exposure:
+Recommended next slice after minimal Nextcloud tag/comment editing:
 
-1. Decide whether to add editing for Nextcloud system tags/comments or switch back to local format metadata extraction.
-2. If continuing Nextcloud-native integration, add a minimal tag assignment flow for existing/creatable system tags through the public SystemTag APIs.
-3. Keep Library structured fields separate: assigning `photography` or `project-library` tags must not alter publication form/title/creator fields.
-4. Smoke it against Alice by adding/removing a fixture tag through Library and verifying the same tag is visible in Files/Nextcloud tag state.
+1. Harden error isolation for metadata/cover extraction so one corrupt PDF/EPUB/CBZ/OPF cannot abort a whole scan or catalogue page.
+2. Keep Library structured fields separate: assigning or removing `photography` or `project-library` Nextcloud tags must not alter publication form/title/creator fields.
+3. Smoke it against Alice with a deliberately bad/corrupt fixture and verify healthy catalogue items still render.
+4. Document the visible failure state before adding richer review queues or Library-native tag tables.
 
-This slice deliberately stops before Library-native tag tables, rich embedded metadata and covers. It would turn the current read-only collaboration metadata display into a small useful editing path.
+This slice deliberately stops before Library-native tag tables, Internet enrichment and OCR. It should make the existing local extraction/cover work safer against real-collection messiness.

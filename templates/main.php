@@ -8,6 +8,7 @@ $fileCommentsByFileId = $_['fileCommentsByFileId'] ?? [];
 $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
 $itemCoverBaseUrl = $_['itemCoverBaseUrl'] ?? '';
 $itemTagBaseUrl = $_['itemTagBaseUrl'] ?? '';
+$itemTagRemoveBaseUrl = $_['itemTagRemoveBaseUrl'] ?? '';
 $itemCommentBaseUrl = $_['itemCommentBaseUrl'] ?? '';
 $itemOpenBaseUrl = $_['itemOpenBaseUrl'] ?? '';
 $shelves = $_['shelves'] ?? [];
@@ -158,6 +159,7 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
                     <?php $itemUpdateUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemUpdateBaseUrl); ?>
                     <?php $itemCoverUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemCoverBaseUrl); ?>
                     <?php $itemTagUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemTagBaseUrl); ?>
+                    <?php $itemTagRemoveUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemTagRemoveBaseUrl); ?>
                     <?php $itemCommentUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemCommentBaseUrl); ?>
                     <?php $itemOpenUrl = str_replace('__FILE_ID__', (string)$item['fileId'], $itemOpenBaseUrl); ?>
                     <?php $nextcloudTags = $fileTagsByFileId[(int)$item['fileId']] ?? []; ?>
@@ -215,6 +217,19 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
 
                             <div class="library-nextcloud-tags" aria-label="nextcloudTagEditor">
                                 <strong>Nextcloud tags</strong>
+                                <?php if (count($nextcloudTags) > 0): ?>
+                                    <ul class="library-tag-remove-list" aria-label="Remove Nextcloud tag">
+                                        <?php foreach ($nextcloudTags as $tag): ?>
+                                            <?php $tagRemoveUrl = str_replace('__TAG_ID__', (string)$tag['id'], $itemTagRemoveUrl); ?>
+                                            <li>
+                                                <span class="library-tag"><?php p($tag['name']); ?></span>
+                                                <form method="post" action="<?php p($tagRemoveUrl); ?>" class="library-inline-form">
+                                                    <button type="submit">Remove tag</button>
+                                                </form>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
                                 <form method="post" action="<?php p($itemTagUrl); ?>" class="library-tag-form">
                                     <label>
                                         Add Nextcloud tag

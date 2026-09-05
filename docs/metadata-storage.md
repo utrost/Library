@@ -100,7 +100,7 @@ Comments
   recent file-level Nextcloud comments as notes/discussion
 ```
 
-The first integration slices read and display existing system tags and recent comments. Library can also add an existing or newly created user-visible/assignable system tag to the primary source file, and can add a plain Nextcloud file comment as a file-level note. Tag removal remains deferred.
+The first integration slices read and display existing system tags and recent comments. Library can also add an existing or newly created user-visible/assignable system tag to the primary source file, remove an assigned visible/assignable tag from that source file, and add a plain Nextcloud file comment as a file-level note.
 
 ## Future canonical schema direction
 
