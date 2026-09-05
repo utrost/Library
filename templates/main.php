@@ -15,6 +15,7 @@ $itemFilesBaseUrl = $_['itemFilesBaseUrl'] ?? '';
 $shelves = $_['shelves'] ?? [];
 $formats = $_['formats'] ?? [];
 $scanStatuses = $_['scanStatuses'] ?? [];
+$cataloguePagination = $_['cataloguePagination'] ?? ['page' => 1, 'limit' => 100, 'total' => count($items), 'visible' => count($items), 'from' => count($items) > 0 ? 1 : 0, 'to' => count($items), 'previousUrl' => '', 'nextUrl' => ''];
 $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => '', 'tag' => '', 'shelf' => '', 'status' => '', 'sort' => 'title'];
 ?>
 <div id="library-app" class="library-app">
@@ -171,9 +172,34 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
                     <option value="format" <?php if (($activeFilters['sort'] ?? 'title') === 'format') { print_unescaped('selected'); } ?>>Format</option>
                 </select>
             </label>
+            <label>
+                Page size
+                <select name="limit">
+                    <?php foreach ([25, 50, 100, 250, 500] as $limit): ?>
+                        <option value="<?php p((string)$limit); ?>" <?php if ((int)($cataloguePagination['limit'] ?? 100) === $limit) { print_unescaped('selected'); } ?>><?php p((string)$limit); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
             <button type="submit">Apply filters</button>
             <a class="library-reset-link" href="?">Clear</a>
         </form>
+
+        <nav class="library-pagination" aria-label="Catalogue pagination">
+            <span>
+                Showing <?php p((string)($cataloguePagination['from'] ?? 0)); ?>–<?php p((string)($cataloguePagination['to'] ?? 0)); ?>
+                of <?php p((string)($cataloguePagination['total'] ?? 0)); ?> catalogue items
+            </span>
+            <?php if (($cataloguePagination['previousUrl'] ?? '') !== ''): ?>
+                <a href="<?php p($cataloguePagination['previousUrl']); ?>">Previous</a>
+            <?php else: ?>
+                <span class="library-muted">Previous</span>
+            <?php endif; ?>
+            <?php if (($cataloguePagination['nextUrl'] ?? '') !== ''): ?>
+                <a href="<?php p($cataloguePagination['nextUrl']); ?>">Next</a>
+            <?php else: ?>
+                <span class="library-muted">Next</span>
+            <?php endif; ?>
+        </nav>
 
         <?php if (count($items) === 0): ?>
             <p class="library-muted">No catalogue items match. Scan enabled roots or clear the active filters.</p>

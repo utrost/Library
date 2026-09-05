@@ -191,7 +191,7 @@
     align-items: end;
     display: grid;
     gap: 12px;
-    grid-template-columns: minmax(220px, 2fr) repeat(6, minmax(120px, 1fr)) auto auto;
+    grid-template-columns: minmax(220px, 2fr) repeat(7, minmax(120px, 1fr)) auto auto;
     margin: 16px 0 24px;
 }
 
@@ -203,6 +203,20 @@
 
 .library-reset-link {
     align-self: center;
+}
+
+.library-pagination {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: space-between;
+    margin: 0 0 1rem;
+}
+
+.library-pagination a,
+.library-pagination span {
+    display: inline-block;
 }
 
 .library-cover-gallery {
