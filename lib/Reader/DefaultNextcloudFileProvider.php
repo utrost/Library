@@ -16,7 +16,17 @@ final class DefaultNextcloudFileProvider {
         return $this->urlGenerator->getAbsoluteURL('/f/' . $fileId);
     }
 
-    public function getShowInFilesUrl(int $fileId): string {
-        return $this->urlGenerator->getAbsoluteURL('/apps/files/files/' . $fileId . '?openfile=true');
+    public function getShowInFilesUrl(int $fileId, string $cachedPath = ''): string {
+        $dir = '/';
+        if ($cachedPath !== '') {
+            $normalizedPath = '/' . ltrim($cachedPath, '/');
+            $candidate = dirname($normalizedPath);
+            if ($candidate !== '.' && $candidate !== '') {
+                $dir = $candidate;
+            }
+        }
+
+        $encodedDir = str_replace('%2F', '/', rawurlencode($dir));
+        return $this->urlGenerator->getAbsoluteURL('/apps/files/files/' . $fileId . '?dir=' . $encodedDir . '&openfile=true');
     }
 }

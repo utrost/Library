@@ -53,6 +53,11 @@ def test_vue_entrypoint_loads_nextcloud_initial_state_and_mounts_app():
     assert ".mount(mountTarget)" in main
     assert "fallbackCatalogue" in main
     assert "Vue mount failed; rendering fallback catalogue" in main
+    assert "library-filter-bar" in main
+    assert "Search title / author" in main
+    assert "All formats" in main
+    assert "Apply filters" in main
+    assert "Clear" in main
 
 
 def test_vue_app_renders_catalogue_filters_covers_links_and_edit_forms():

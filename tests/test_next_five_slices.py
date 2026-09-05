@@ -16,8 +16,9 @@ def test_catalogue_has_show_in_files_action_separate_from_read():
     provider = (ROOT / "lib" / "Reader" / "DefaultNextcloudFileProvider.php").read_text()
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
-    assert "public function getShowInFilesUrl(int $fileId): string" in provider
+    assert "public function getShowInFilesUrl(int $fileId, string $cachedPath = ''): string" in provider
     assert "filesUrl" in page
+    assert "getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''))" in page
     assert "Show in Files" in vue
     assert "item.filesUrl" in vue
 
