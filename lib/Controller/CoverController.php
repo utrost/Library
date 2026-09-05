@@ -15,6 +15,7 @@ use OCP\IPreview;
 use OCP\IRequest;
 use OCP\IUserSession;
 use Throwable;
+use ZipArchive;
 
 class CoverController extends Controller {
     public function __construct(
@@ -48,20 +49,105 @@ class CoverController extends Controller {
         }
 
         try {
-            if (!$this->previewManager->isAvailable($file)) {
-                return $this->placeholderResponse($this->coverInitials($file->getName()));
+            if ($this->previewManager->isAvailable($file)) {
+                $preview = $this->previewManager->getPreview($file, 360, 520, true, IPreview::MODE_COVER);
+                return new DataDownloadResponse(
+                    $preview->getContent(),
+                    'library-cover-' . $itemId . '.' . ($preview->getExtension() ?: 'jpg'),
+                    $preview->getMimeType(),
+                    200,
+                    ['Cache-Control' => 'private, max-age=3600']
+                );
             }
-            $preview = $this->previewManager->getPreview($file, 360, 520, true, IPreview::MODE_COVER);
+        } catch (Throwable) {
+            // Fall through to CBZ first-image cover or SVG placeholder.
+        }
+
+        $cbzCover = $this->extractCbzFirstImageCover($file, $itemId);
+        if ($cbzCover !== null) {
+            return $cbzCover;
+        }
+        return $this->placeholderResponse($this->coverInitials($file->getName()));
+    }
+
+    private function isCbzFile(File $file): bool {
+        $extension = strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION));
+        $mimeType = strtolower($file->getMimetype());
+        return $extension === 'cbz' || $mimeType === 'application/comicbook+zip' || $mimeType === 'application/x-cbz';
+    }
+
+    private function extractCbzFirstImageCover(File $file, int $itemId): ?DataDownloadResponse {
+        // CBZ first-image cover fallback: use the first page image when Nextcloud has no preview provider.
+        if (!$this->isCbzFile($file) || !class_exists(ZipArchive::class)) {
+            return null;
+        }
+
+        $temporaryPath = tempnam(sys_get_temp_dir(), 'library-cbz-cover-');
+        if ($temporaryPath === false) {
+            return null;
+        }
+
+        try {
+            file_put_contents($temporaryPath, $file->getContent());
+            $zip = new ZipArchive();
+            if ($zip->open($temporaryPath) !== true) {
+                return null;
+            }
+
+            $imageEntries = [];
+            for ($index = 0; $index < $zip->numFiles; $index++) {
+                $name = $zip->getNameIndex($index);
+                if (!is_string($name) || str_ends_with($name, '/')) {
+                    continue;
+                }
+                $mimeType = $this->coverMimeType($name);
+                if ($mimeType !== null) {
+                    $imageEntries[$name] = ['index' => $index, 'mimeType' => $mimeType];
+                }
+            }
+
+            if ($imageEntries === []) {
+                $zip->close();
+                return null;
+            }
+
+            uksort($imageEntries, 'strnatcasecmp');
+            $first = reset($imageEntries);
+            $content = $zip->getFromIndex((int)$first['index']);
+            $zip->close();
+            if (!is_string($content) || $content === '') {
+                return null;
+            }
+
             return new DataDownloadResponse(
-                $preview->getContent(),
-                'library-cover-' . $itemId . '.' . ($preview->getExtension() ?: 'jpg'),
-                $preview->getMimeType(),
+                $content,
+                'library-cover-' . $itemId . '.' . $this->coverExtension((string)$first['mimeType']),
+                (string)$first['mimeType'],
                 200,
                 ['Cache-Control' => 'private, max-age=3600']
             );
         } catch (Throwable) {
-            return $this->placeholderResponse($this->coverInitials($file->getName()));
+            return null;
+        } finally {
+            @unlink($temporaryPath);
         }
+    }
+
+    private function coverMimeType(string $name): ?string {
+        return match (strtolower(pathinfo($name, PATHINFO_EXTENSION))) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+            default => null,
+        };
+    }
+
+    private function coverExtension(string $mimeType): string {
+        return match ($mimeType) {
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            default => 'jpg',
+        };
     }
 
     private function findFileIdForItem(string $userId, int $itemId): ?int {

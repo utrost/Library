@@ -28,8 +28,9 @@ The current development slice can:
 - suppress OPF sidecars as separate catalogue items when they accompany a primary PDF/EPUB/CBZ, while still allowing standalone OPF records;
 - clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items.
 - extract first CBZ ComicInfo.xml metadata for comic title, series, creators, publisher and date.
+- serve CBZ first-image covers when the general Nextcloud preview pipeline cannot generate a cover.
 
-The next milestone is to harden PDF/EPUB/OPF metadata extraction and preview-backed covers with real-collection fixtures and user-edited sidecar cleanup policy.
+The next milestone is to harden PDF/EPUB/OPF/CBZ metadata extraction, CBZ first-image covers and preview-backed covers with real-collection fixtures and user-edited sidecar cleanup policy.
 
 ## v0.1 direction
 
