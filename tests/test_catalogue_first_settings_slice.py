@@ -18,10 +18,11 @@ def test_main_library_page_is_catalogue_first_without_admin_panels():
 def test_css_makes_library_app_content_scrollable():
     css = (ROOT / "css" / "style.css").read_text()
 
-    assert "#app-content #library-app.library-app" in css
+    assert "#app-content.library-app-content" in css
+    assert "height: 100%" in css
     assert "overflow-y: auto" in css
-    assert "min-height: calc(100vh - var(--header-height))" in css
-    assert "padding-bottom: 96px" in css
+    assert "overflow-x: hidden" in css
+    assert "padding: 0 24px 96px" in css
 
 
 def test_personal_settings_classes_register_library_under_user_settings():
