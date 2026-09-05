@@ -181,7 +181,7 @@ final class ItemService {
      */
     private function metadataCandidate(array $file, array $metadata): array {
         $source = (string)($metadata['metadataSource'] ?? 'filename');
-        if (!in_array($source, ['epub-opf', 'pdf-info', 'opf', 'sidecar-opf', 'cbz-comicinfo', 'filename'], true)) {
+        if (!in_array($source, ['epub-opf', 'pdf-info', 'opf', 'sidecar-opf', 'cbz-comicinfo', 'filename-pattern', 'filename'], true)) {
             $source = 'filename';
         }
 

@@ -159,6 +159,21 @@ File-first portability matters, but v0.1 should not write sidecars by default. A
 
 or per-file sidecars if the user explicitly opts in.
 
+## Filename and folder parsing
+
+Real magazine and comic archives often have no OPF/ComicInfo metadata, or the metadata appears only in scanner-friendly file and folder names. Library therefore treats filename/folder parsing as a first-class low-precedence metadata source (`metadata_source=filename-pattern`). It currently recognizes conservative patterns such as:
+
+```text
+Camera 1957-04.pdf
+The New Yorker - 2023-11-20.pdf
+c't 2024-17.pdf
+Aperture No. 251 Spring 2023.pdf
+Tintin 010 - The Shooting Star.cbz
+Camera/1957/04.pdf
+```
+
+Filename/folder candidates may populate `publication`, `title`, `subtitle`, `publication_date` and `publication_type` (`magazine` for periodical-like date/issue patterns, `comic` for numbered CBZ title patterns). Embedded PDF/EPUB/ComicInfo metadata and OPF sidecars still override filename-derived candidates, and user-edited Library metadata still overrides all scanner candidates on rescan.
+
 ## Real-world-ish metadata fixture matrix
 
 The extractor hardening track preserves a small real-world-ish metadata fixture matrix. It covers EPUB with sparse OPF metadata, PDF with missing or encoded Info fields, CBZ without ComicInfo.xml, nested ComicInfo.xml, and sidecar OPF collisions. These cases should produce best-effort filename or embedded candidates, not scanner aborts, and failures should surface through `metadata_error`/`scan_error` diagnostics.

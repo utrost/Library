@@ -10,7 +10,7 @@ def test_publication_metadata_service_prefers_same_basename_opf_sidecar_for_pdf_
     assert "pathinfo($file->getName(), PATHINFO_FILENAME) . '.opf'" in service
     assert "nodeExists($sameBasenameOpf)" in service
     assert "sidecar-opf" in service
-    assert "array_merge($embeddedMetadata, $sidecarMetadata)" in service
+    assert "array_merge($filenameMetadata, $embeddedMetadata, $sidecarMetadata)" in service
 
 
 def test_publication_metadata_service_uses_folder_metadata_opf_when_same_basename_missing():
