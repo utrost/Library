@@ -119,6 +119,32 @@ final class FileTagService {
         $this->tagObjectMapper->assignTags((string)$fileId, 'files', $tag->getId());
     }
 
+    public function removeTagFromItem(string $userId, int $itemId, string $tagId): void {
+        $tagId = trim($tagId);
+        if ($tagId === '') {
+            return;
+        }
+
+        $fileId = $this->findFileIdForItem($userId, $itemId);
+        if ($fileId === null) {
+            return;
+        }
+
+        $user = $this->userSession->getUser();
+        try {
+            $tagsById = $this->tagManager->getTagsByIds([$tagId], $user);
+        } catch (TagNotFoundException|\InvalidArgumentException) {
+            return;
+        }
+
+        $tag = $tagsById[$tagId] ?? null;
+        if ($tag === null || !$this->tagManager->canUserAssignTag($tag, $user)) {
+            return;
+        }
+
+        $this->tagObjectMapper->unassignTags((string)$fileId, 'files', $tagId);
+    }
+
     private function findFileIdForItem(string $userId, int $itemId): ?int {
         $qb = $this->db->getQueryBuilder();
         $result = $qb->select('f.file_id')

@@ -10,6 +10,7 @@ return [
         ['name' => 'item#update', 'url' => '/items/{itemId}', 'verb' => 'POST'],
         ['name' => 'cover#show', 'url' => '/items/{itemId}/cover', 'verb' => 'GET'],
         ['name' => 'tag#assign', 'url' => '/items/{itemId}/tags', 'verb' => 'POST'],
+        ['name' => 'tag#remove', 'url' => '/items/{itemId}/tags/{tagId}', 'verb' => 'POST'],
         ['name' => 'comment#add', 'url' => '/items/{itemId}/comments', 'verb' => 'POST'],
     ],
 ];

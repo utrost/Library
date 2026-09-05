@@ -20,7 +20,7 @@ The current development slice can:
 - preserve user-edited metadata across rescans;
 - show indexed files and publication items with a responsive cover gallery, preview-backed covers, placeholder fallbacks and collapsible metadata detail/edit sections;
 - search and filter the catalogue by title/author text, publication type, file format, exact Nextcloud tag and root-derived shelf;
-- treat Nextcloud system tags as cross-archive classification metadata exposed and addable from Library item cards;
+- treat Nextcloud system tags as cross-archive classification metadata exposed, addable and removable from Library item cards;
 - show recent Nextcloud file comments as file-level notes/discussion on Library item cards;
 - add new Nextcloud file comments from Library item cards;
 - extract first local metadata candidates from EPUB package OPF, standalone OPF files and basic PDF info dictionaries;
@@ -30,7 +30,7 @@ The current development slice can:
 - extract first CBZ ComicInfo.xml metadata for comic title, series, creators, publisher and date.
 - serve CBZ first-image covers when the general Nextcloud preview pipeline cannot generate a cover.
 
-The next milestone is to harden PDF/EPUB/OPF/CBZ metadata extraction, CBZ first-image covers and preview-backed covers with real-collection fixtures and user-edited sidecar cleanup policy.
+The next milestone is to harden PDF/EPUB/OPF/CBZ metadata extraction, CBZ first-image covers, preview-backed covers and tag/comment flows with real-collection fixtures and user-edited sidecar cleanup policy.
 
 ## v0.1 direction
 
