@@ -1,5 +1,7 @@
 <script setup>
 import { computed, reactive } from 'vue'
+import NcButton from '@nextcloud/vue/components/NcButton'
+import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 
 const props = defineProps({
   state: {
@@ -65,7 +67,11 @@ function removeTagUrl(item, tag) {
     </p>
   </section>
 
-  <p><a class="button" :href="settingsUrl">Library settings</a></p>
+  <p>
+    <NcButton :href="settingsUrl" variant="secondary" aria-label="Open Library settings">
+      Library settings
+    </NcButton>
+  </p>
 
   <section class="library-panel" aria-label="Publication catalogue">
     <h2>Publication catalogue</h2>
@@ -123,8 +129,12 @@ function removeTagUrl(item, tag) {
           <option v-for="limit in pageSizes" :key="limit" :value="limit">{{ limit }}</option>
         </select>
       </label>
-      <button type="submit">Apply filters</button>
-      <a class="library-reset-link" href="?">Clear</a>
+      <NcButton type="submit" variant="primary" aria-label="Apply catalogue filters">
+        Apply filters
+      </NcButton>
+      <NcButton href="?" variant="tertiary" aria-label="Clear catalogue filters">
+        Clear
+      </NcButton>
     </form>
 
     <nav class="library-pagination" aria-label="Catalogue pagination">
@@ -135,7 +145,10 @@ function removeTagUrl(item, tag) {
       <span v-else class="library-muted">Next</span>
     </nav>
 
-    <p v-if="items.length === 0" class="library-muted">No catalogue items match. Scan enabled roots or clear the active filters.</p>
+    <NcEmptyContent
+      v-if="items.length === 0"
+      name="No catalogue items match"
+      description="Scan enabled roots or clear the active filters." />
 
     <div v-else class="library-cover-gallery">
       <article v-for="item in items" :key="item.id" class="library-cover-card">
