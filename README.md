@@ -27,7 +27,8 @@ The current development slice can:
 - prefer OPF sidecars for PDF/EPUB catalogue defaults when a same-basename `.opf` or folder-level `metadata.opf` is present;
 - suppress OPF sidecars as separate catalogue items when they accompany a primary PDF/EPUB/CBZ, while still allowing standalone OPF records;
 - clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items.
-- extract first CBZ ComicInfo.xml metadata for comic title, series, creators, publisher and date.
+- extract first CBZ ComicInfo.xml metadata for comic title, series, creators, publisher and date;
+- extract filename/folder metadata patterns for magazine dates/issues and comic number/title names when OPF/embedded metadata is absent;
 - serve CBZ first-image covers when the general Nextcloud preview pipeline cannot generate a cover.
 - return cover placeholder diagnostics when previews or CBZ first-image covers are unavailable.
 - provide separate Read and Show in Files actions for each catalogue item.

@@ -28,7 +28,7 @@ What exists now:
 - `library_items` table for one editable publication item per indexed file.
 - Bootstrap UI for saving an initial root path and manually scanning enabled roots.
 - Scanner that indexes PDF, EPUB, CBZ and standalone OPF files by stable Nextcloud file ID, then creates/refreshes inferred catalogue items.
-- First local metadata extraction for EPUB package OPF, standalone OPF files and basic PDF info dictionaries.
+- First local metadata extraction for EPUB package OPF, standalone OPF files, filename/folder patterns and basic PDF info dictionaries.
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue gallery with placeholder covers, card-level title/creator/type/shelf/tag metadata, direct Read links and collapsible detail/edit sections.
 - Server-side catalogue search/filter controls for title/author text, publication type, file format filter, scan status, exact Nextcloud tag and root-derived shelf.
@@ -237,10 +237,11 @@ Backend slices:
 4. Prefer OPF sidecars for PDF/EPUB catalogue defaults. **Same-basename `.opf` wins over folder-level `metadata.opf`; both override embedded/PDF candidates while user edits still win.**
 5. Suppress OPF sidecars as separate catalogue items when they accompany primary PDF/EPUB/CBZ files. **Landed for same-basename `.opf` and folder-level `metadata.opf`; standalone OPF still indexes.**
 6. Implement CBZ ZIP inspection, first-image detection and optional `ComicInfo.xml` parsing. **First CBZ ComicInfo metadata slice landed for title, series, creators, publisher and date.**
-7. Decide whether CBR is included in v0.1 based on available extraction dependencies in the Nextcloud app environment.
-8. Implement PDF basic metadata extraction using a low-risk dependency path or Nextcloud capabilities. **First `/Title` and `/Author` info dictionary slice landed; PDF still stays publication type `other`.**
-9. Add cover cache references without duplicating original media.
-10. Add error isolation: one corrupt file must not abort the whole scan. **First per-file metadata error isolation landed with `metadata_error` scan status and visible `scanError` diagnostics.**
+7. Add robust filename/folder parsing for magazines and comics that lack OPF/ComicInfo metadata. **First conservative patterns landed: dated magazine filenames, year+issue filenames, folder serial/year month files and numbered comic CBZ names.**
+8. Decide whether CBR is included in v0.1 based on available extraction dependencies in the Nextcloud app environment.
+9. Implement PDF basic metadata extraction using a low-risk dependency path or Nextcloud capabilities. **First `/Title` and `/Author` info dictionary slice landed; PDF still stays publication type `other`.**
+10. Add cover cache references without duplicating original media.
+11. Add error isolation: one corrupt file must not abort the whole scan. **First per-file metadata error isolation landed with `metadata_error` scan status and visible `scanError` diagnostics.**
 
 Frontend slices:
 
