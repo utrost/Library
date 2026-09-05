@@ -27,6 +27,6 @@ final class DefaultNextcloudFileProvider {
         }
 
         $encodedDir = str_replace('%2F', '/', rawurlencode($dir));
-        return $this->urlGenerator->getAbsoluteURL('/apps/files/files/' . $fileId . '?dir=' . $encodedDir . '&openfile=true');
+        return $this->urlGenerator->getAbsoluteURL('/apps/files/files/' . $fileId . '?dir=' . $encodedDir . '&openfile=false');
     }
 }
