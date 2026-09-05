@@ -30,9 +30,12 @@ etag
 mtime
 size
 scan_status
+scan_error
 ```
 
 This answers: which Nextcloud file backs this catalogue item?
+
+Metadata extraction is best-effort. If a supported file is corrupt or a local extractor fails, Library keeps the file-index row, records `scan_status=metadata_error` plus a short `scan_error`, and still attempts a filename-derived catalogue item. A bad file should be diagnostic noise, not a root-scan stopper.
 
 ### 2. Library publication metadata
 

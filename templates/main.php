@@ -100,6 +100,10 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
                             <dd><?php p($file['extension']); ?> / <?php p($file['mimeType']); ?></dd>
                             <dt>scanStatus</dt>
                             <dd><?php p($file['scanStatus']); ?></dd>
+                            <?php if (($file['scanError'] ?? '') !== ''): ?>
+                                <dt>scanError</dt>
+                                <dd class="library-scan-error"><?php p($file['scanError']); ?></dd>
+                            <?php endif; ?>
                         </dl>
                     </article>
                 <?php endforeach; ?>
