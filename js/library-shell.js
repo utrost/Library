@@ -1,26 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const appContent = document.getElementById('app-content');
     const app = document.getElementById('library-app');
-    if (!app) {
+
+    if (!appContent || !app) {
         return;
     }
 
-    const containers = [
-        document.documentElement,
-        document.body,
-        document.getElementById('content'),
-        document.getElementById('app-content'),
-    ];
+    appContent.style.height = '100%';
+    appContent.style.minHeight = '0';
+    appContent.style.overflowX = 'hidden';
+    appContent.style.overflowY = 'auto';
 
-    for (const container of containers) {
-        if (!container) {
-            continue;
-        }
-        container.style.height = 'auto';
-        container.style.minHeight = 'calc(100vh - var(--header-height))';
-        container.style.overflowY = 'auto';
-    }
-
-    app.style.height = 'auto';
-    app.style.minHeight = 'calc(100vh - var(--header-height))';
-    app.style.overflow = 'visible';
+    app.style.minHeight = '0';
 });

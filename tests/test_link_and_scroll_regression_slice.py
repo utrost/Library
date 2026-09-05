@@ -21,20 +21,21 @@ def test_nextcloud_internal_links_use_absolute_url_generator_not_empty_app_linkt
 def test_scroll_css_targets_nextcloud_app_shell_and_keeps_body_scrollable():
     css = (ROOT / "css" / "style.css").read_text()
 
-    assert "body:has(#library-app.library-app)" in css
-    assert "#content:has(#library-app.library-app)" in css
-    assert "#app-content:has(#library-app.library-app)" in css
-    assert "overflow-y: auto !important" in css
-    assert "overflow: visible" in css
-    assert "min-height: calc(100vh - var(--header-height))" in css
-    assert "height: auto" in css
+    assert "body:has(#library-app.library-app)" not in css
+    assert "#content:has(#library-app.library-app)" not in css
+    assert "#app-content:has(#library-app.library-app)" not in css
+    assert "#app-content.library-app-content" in css
+    assert "height: 100%" in css
+    assert "overflow-y: auto" in css
+    assert "overflow-x: hidden" in css
 
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     shell = (ROOT / "js" / "library-shell.js").read_text()
     assert "Util::addScript(Application::APP_ID, 'library-shell');" in page
     assert "document.getElementById('app-content')" in shell
-    assert "container.style.overflowY = 'auto'" in shell
-    assert "app.style.overflow = 'visible'" in shell
+    assert "document.getElementById('content')" not in shell
+    assert "appContent.style.overflowY = 'auto'" in shell
+    assert "appContent.style.height = '100%'" in shell
 
 
 def test_filter_bar_and_gallery_wrap_instead_of_forcing_horizontal_overflow():
@@ -51,6 +52,6 @@ def test_existing_route_docs_mention_verified_link_scroll_regression():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text().lower()
 
     assert "absolute nextcloud urls" in readme
-    assert "scrollable nextcloud app shell" in readme
+    assert "conventional nextcloud `#app-content` shell" in readme
     assert "absolute nextcloud urls" in roadmap
-    assert "scrollable nextcloud app shell" in roadmap
+    assert "conventional scrollable `#app-content` shell" in roadmap

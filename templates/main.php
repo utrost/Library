@@ -17,7 +17,8 @@ $scanStatuses = $_['scanStatuses'] ?? [];
 $cataloguePagination = $_['cataloguePagination'] ?? ['page' => 1, 'limit' => 100, 'total' => count($items), 'visible' => count($items), 'from' => count($items) > 0 ? 1 : 0, 'to' => count($items), 'previousUrl' => '', 'nextUrl' => ''];
 $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => '', 'tag' => '', 'shelf' => '', 'status' => '', 'sort' => 'title'];
 ?>
-<div id="library-app" class="library-app">
+<div id="app-content" class="library-app-content">
+<main id="library-app" class="library-app" tabindex="-1">
     <section class="library-hero">
         <h1>Library</h1>
         <p class="library-lede">
@@ -273,4 +274,5 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
             </div>
         <?php endif; ?>
     </section>
+</main>
 </div>
