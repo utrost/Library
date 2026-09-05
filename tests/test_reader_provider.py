@@ -18,7 +18,7 @@ def test_page_controller_uses_default_reader_provider_not_inline_file_url_logic(
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     assert "use OCA\\Library\\Reader\\DefaultNextcloudFileProvider" in page
     assert "DefaultNextcloudFileProvider $readerProvider" in page
-    assert "$this->readerProvider->getShowInFilesUrl($fileId)" in page
+    assert "$this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''))" in page
     assert "linkTo('', '/f/'" not in page
 
 
