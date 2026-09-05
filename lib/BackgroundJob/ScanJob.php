@@ -30,7 +30,9 @@ class ScanJob extends QueuedJob {
 
         $this->scanJobService->markRunning($userId, $jobId);
         try {
-            $result = $this->scanner->scan($userId);
+            $result = $this->scanner->scan($userId, function (array $progress) use ($userId, $jobId): void {
+                $this->scanJobService->updateProgress($userId, $jobId, $progress);
+            });
             $this->scanJobService->finishJob($userId, $jobId, $result);
         } catch (Throwable $e) {
             $this->scanJobService->failJob($userId, $jobId, $e->getMessage());

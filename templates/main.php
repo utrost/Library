@@ -86,8 +86,9 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
         <section class="library-scan-progress" aria-label="Scan progress">
             <h3>Scan progress</h3>
             <?php if ($latestScanJob === null): ?>
-                <p class="library-muted">No scan job has run yet. New scans are queued background scan jobs.</p>
+                <p class="library-muted">No scan job has run yet. New scans are queued background scan jobs with live-ish scan progress.</p>
             <?php else: ?>
+                <p class="library-muted">Scan counts update while the background job is running; scan progress updates while the background job is running. Refresh this page to see the latest values; this is live-ish scan progress without a client poller yet.</p>
                 <dl>
                     <dt>scanJobStatus</dt>
                     <dd><?php p((string)$latestScanJob['status']); ?></dd>
