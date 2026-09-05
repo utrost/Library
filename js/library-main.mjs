@@ -4286,51 +4286,51 @@ const Xo = ["aria-labelledby"], Zo = {
       ])) : Re("", !0)
     ], 8, Xo));
   }
-}), su = /* @__PURE__ */ pi(nu, [["__scopeId", "data-v-8609a4c1"]]), ru = {
+}), su = /* @__PURE__ */ pi(nu, [["__scopeId", "data-v-8609a4c1"]]), ru = { class: "library-hero" }, iu = { class: "library-hero-actions" }, lu = {
   class: "library-panel",
   "aria-label": "Publication catalogue"
-}, iu = {
+}, ou = {
   method: "get",
   class: "library-filter-bar",
   "aria-label": "Catalogue search and filters"
-}, lu = ["value"], ou = ["value"], uu = ["value"], fu = ["value"], cu = ["value"], au = ["value"], du = {
+}, uu = ["value"], fu = ["value"], cu = ["value"], au = ["value"], du = ["value"], pu = ["value"], hu = {
   class: "library-pagination",
   "aria-label": "Catalogue pagination"
-}, pu = ["href"], hu = {
+}, gu = ["href"], mu = {
   key: 1,
   class: "library-muted"
-}, gu = ["href"], mu = {
+}, bu = ["href"], _u = {
   key: 3,
   class: "library-muted"
-}, bu = {
+}, yu = {
   key: 1,
   class: "library-cover-gallery"
-}, _u = ["href", "aria-label"], yu = ["src", "alt"], vu = { class: "library-cover-summary" }, xu = {
+}, vu = ["href", "aria-label"], xu = ["src", "alt"], Su = { class: "library-cover-summary" }, wu = {
   key: 0,
   class: "library-creator"
-}, Su = { class: "library-muted" }, wu = { key: 0 }, Cu = { key: 1 }, Tu = {
+}, Cu = { class: "library-muted" }, Tu = { key: 0 }, Eu = { key: 1 }, Au = {
   key: 1,
   class: "library-item-scan-status library-scan-error"
-}, Eu = { key: 0 }, Au = {
+}, Ou = { key: 0 }, Pu = {
   class: "library-nextcloud-tags",
   "aria-label": "nextcloudTags"
-}, Ou = {
+}, Iu = {
   key: 0,
   class: "library-muted"
-}, Pu = ["href"], Iu = ["href"], Mu = { class: "library-item-metadata" }, Ru = {
+}, Mu = ["href"], Ru = ["href"], Fu = { class: "library-item-metadata" }, Nu = {
   class: "library-nextcloud-tags",
   "aria-label": "nextcloudTagEditor"
-}, Fu = {
+}, $u = {
   key: 0,
   class: "library-tag-remove-list",
   "aria-label": "Remove Nextcloud tag"
-}, Nu = { class: "library-tag" }, $u = ["action"], Vu = ["action"], Du = {
+}, Vu = { class: "library-tag" }, Du = ["action"], ju = ["action"], Uu = {
   class: "library-nextcloud-comments",
   "aria-label": "nextcloudComments"
-}, ju = {
+}, Lu = {
   key: 0,
   class: "library-muted"
-}, Uu = { class: "library-comment-list" }, Lu = { class: "library-muted" }, Hu = ["action"], Bu = ["action"], Ku = ["value"], Wu = ["value"], ku = ["value"], qu = ["value"], zu = ["value"], Gu = ["value"], Ju = ["value"], Yu = ["value"], Xu = ["value"], Zu = {
+}, Hu = { class: "library-comment-list" }, Bu = { class: "library-muted" }, Ku = ["action"], Wu = ["action"], ku = ["value"], qu = ["value"], zu = ["value"], Gu = ["value"], Ju = ["value"], Yu = ["value"], Xu = ["value"], Zu = ["value"], Qu = ["value"], ef = {
   __name: "App",
   props: {
     state: {
@@ -4370,29 +4370,30 @@ const Xo = ["aria-labelledby"], Zo = {
       return String(O.tagRemoveBaseUrl || "").replace("__TAG_ID__", String(p.id));
     }
     return (O, p) => (V(), D(X, null, [
-      p[49] || (p[49] = b("section", { class: "library-hero" }, [
-        b("h1", null, "Library"),
-        b("p", { class: "library-lede" }, " Library is a catalogue layer for publications already stored in Nextcloud. "),
-        b("p", null, " Nextcloud Files remain canonical. Library adds discovery, metadata, cover-style browsing, search/filtering and reader handoff without importing or owning the files. ")
-      ], -1)),
-      b("p", null, [
-        be(Ne(Wn), {
-          href: a.value,
-          variant: "secondary",
-          "aria-label": "Open Library settings"
-        }, {
-          default: Nt(() => [...p[7] || (p[7] = [
-            J(" Library settings ", -1)
-          ])]),
-          _: 1
-        }, 8, ["href"])
-      ]),
       b("section", ru, [
-        p[47] || (p[47] = b("h2", null, "Publication catalogue", -1)),
-        p[48] || (p[48] = b("p", { class: "library-muted" }, "Browse as a shelf/gallery first; open the details panel when metadata matters.", -1)),
-        b("form", iu, [
+        p[8] || (p[8] = b("div", null, [
+          b("h1", null, "Library"),
+          b("p", { class: "library-lede" }, " Browse publications already stored in Nextcloud. ")
+        ], -1)),
+        b("div", iu, [
+          be(Ne(Wn), {
+            href: a.value,
+            variant: "secondary",
+            "aria-label": "Open Library settings"
+          }, {
+            default: Nt(() => [...p[7] || (p[7] = [
+              J(" Library settings ", -1)
+            ])]),
+            _: 1
+          }, 8, ["href"])
+        ])
+      ]),
+      b("section", lu, [
+        p[48] || (p[48] = b("h2", null, "Publication catalogue", -1)),
+        p[49] || (p[49] = b("p", { class: "library-muted" }, "Browse as a shelf/gallery first; open the details panel when metadata matters.", -1)),
+        b("form", ou, [
           b("label", null, [
-            p[8] || (p[8] = J(" Search title / author ", -1)),
+            p[9] || (p[9] = J(" Search title / author ", -1)),
             nt(b("input", {
               "onUpdate:modelValue": p[0] || (p[0] = (m) => d.q = m),
               type: "search",
@@ -4403,22 +4404,22 @@ const Xo = ["aria-labelledby"], Zo = {
             ])
           ]),
           b("label", null, [
-            p[10] || (p[10] = J(" Type ", -1)),
+            p[11] || (p[11] = J(" Type ", -1)),
             nt(b("select", {
               "onUpdate:modelValue": p[1] || (p[1] = (m) => d.type = m),
               name: "type"
             }, [
-              p[9] || (p[9] = b("option", { value: "" }, "All types", -1)),
+              p[10] || (p[10] = b("option", { value: "" }, "All types", -1)),
               (V(), D(X, null, Oe(n, (m) => b("option", {
                 key: m,
                 value: m
-              }, j(m), 9, lu)), 64))
+              }, j(m), 9, uu)), 64))
             ], 512), [
               [Ot, d.type]
             ])
           ]),
           b("label", null, [
-            p[11] || (p[11] = J(" Nextcloud tag ", -1)),
+            p[12] || (p[12] = J(" Nextcloud tag ", -1)),
             nt(b("input", {
               "onUpdate:modelValue": p[2] || (p[2] = (m) => d.tag = m),
               type: "text",
@@ -4429,56 +4430,56 @@ const Xo = ["aria-labelledby"], Zo = {
             ])
           ]),
           b("label", null, [
-            p[13] || (p[13] = J(" Format ", -1)),
+            p[14] || (p[14] = J(" Format ", -1)),
             nt(b("select", {
               "onUpdate:modelValue": p[3] || (p[3] = (m) => d.format = m),
               name: "format"
             }, [
-              p[12] || (p[12] = b("option", { value: "" }, "All formats", -1)),
+              p[13] || (p[13] = b("option", { value: "" }, "All formats", -1)),
               (V(!0), D(X, null, Oe(l.value, (m) => (V(), D("option", {
                 key: m,
                 value: m
-              }, j(g(m)), 9, ou))), 128))
+              }, j(g(m)), 9, fu))), 128))
             ], 512), [
               [Ot, d.format]
             ])
           ]),
           b("label", null, [
-            p[15] || (p[15] = J(" Shelf ", -1)),
+            p[16] || (p[16] = J(" Shelf ", -1)),
             nt(b("select", {
               "onUpdate:modelValue": p[4] || (p[4] = (m) => d.shelf = m),
               name: "shelf"
             }, [
-              p[14] || (p[14] = b("option", { value: "" }, "All shelves", -1)),
+              p[15] || (p[15] = b("option", { value: "" }, "All shelves", -1)),
               (V(!0), D(X, null, Oe(i.value, (m) => (V(), D("option", {
                 key: m,
                 value: m
-              }, j(m), 9, uu))), 128))
+              }, j(m), 9, cu))), 128))
             ], 512), [
               [Ot, d.shelf]
             ])
           ]),
           b("label", null, [
-            p[17] || (p[17] = J(" Scan status ", -1)),
+            p[18] || (p[18] = J(" Scan status ", -1)),
             nt(b("select", {
               "onUpdate:modelValue": p[5] || (p[5] = (m) => d.status = m),
               name: "status"
             }, [
-              p[16] || (p[16] = b("option", { value: "" }, "All scan statuses", -1)),
+              p[17] || (p[17] = b("option", { value: "" }, "All scan statuses", -1)),
               (V(!0), D(X, null, Oe(o.value, (m) => (V(), D("option", {
                 key: m,
                 value: m
-              }, j(m), 9, fu))), 128))
+              }, j(m), 9, au))), 128))
             ], 512), [
               [Ot, d.status]
             ])
           ]),
           b("label", null, [
-            p[19] || (p[19] = J(" Sort ", -1)),
+            p[20] || (p[20] = J(" Sort ", -1)),
             nt(b("select", {
               "onUpdate:modelValue": p[6] || (p[6] = (m) => d.sort = m),
               name: "sort"
-            }, [...p[18] || (p[18] = [
+            }, [...p[19] || (p[19] = [
               b("option", { value: "title" }, "Title", -1),
               b("option", { value: "recent" }, "Recently added", -1),
               b("option", { value: "publicationDate" }, "Publication date", -1),
@@ -4488,7 +4489,7 @@ const Xo = ["aria-labelledby"], Zo = {
             ])
           ]),
           b("label", null, [
-            p[20] || (p[20] = J(" Page size ", -1)),
+            p[21] || (p[21] = J(" Page size ", -1)),
             b("select", {
               value: u.value.limit,
               name: "limit"
@@ -4496,15 +4497,15 @@ const Xo = ["aria-labelledby"], Zo = {
               (V(), D(X, null, Oe(s, (m) => b("option", {
                 key: m,
                 value: m
-              }, j(m), 9, au)), 64))
-            ], 8, cu)
+              }, j(m), 9, pu)), 64))
+            ], 8, du)
           ]),
           be(Ne(Wn), {
             type: "submit",
             variant: "primary",
             "aria-label": "Apply catalogue filters"
           }, {
-            default: Nt(() => [...p[21] || (p[21] = [
+            default: Nt(() => [...p[22] || (p[22] = [
               J(" Apply filters ", -1)
             ])]),
             _: 1
@@ -4514,28 +4515,28 @@ const Xo = ["aria-labelledby"], Zo = {
             variant: "tertiary",
             "aria-label": "Clear catalogue filters"
           }, {
-            default: Nt(() => [...p[22] || (p[22] = [
+            default: Nt(() => [...p[23] || (p[23] = [
               J(" Clear ", -1)
             ])]),
             _: 1
           })
         ]),
-        b("nav", du, [
+        b("nav", hu, [
           b("span", null, "Showing " + j(u.value.from) + "–" + j(u.value.to) + " of " + j(u.value.total) + " catalogue items", 1),
           u.value.previousUrl ? (V(), D("a", {
             key: 0,
             href: u.value.previousUrl
-          }, "Previous", 8, pu)) : (V(), D("span", hu, "Previous")),
+          }, "Previous", 8, gu)) : (V(), D("span", mu, "Previous")),
           u.value.nextUrl ? (V(), D("a", {
             key: 2,
             href: u.value.nextUrl
-          }, "Next", 8, gu)) : (V(), D("span", mu, "Next"))
+          }, "Next", 8, bu)) : (V(), D("span", _u, "Next"))
         ]),
         r.value.length === 0 ? (V(), Ht(Ne(su), {
           key: 0,
           name: "No catalogue items match",
           description: "Scan enabled roots or clear the active filters."
-        })) : (V(), D("div", bu, [
+        })) : (V(), D("div", yu, [
           (V(!0), D(X, null, Oe(r.value, (m) => (V(), D("article", {
             key: m.id,
             class: "library-cover-card"
@@ -4550,22 +4551,22 @@ const Xo = ["aria-labelledby"], Zo = {
                 src: m.coverUrl,
                 alt: `Cover for ${m.title}`,
                 loading: "lazy"
-              }, null, 8, yu)
-            ], 8, _u),
-            b("div", vu, [
+              }, null, 8, xu)
+            ], 8, vu),
+            b("div", Su, [
               b("h3", null, j(m.title), 1),
-              m.creators ? (V(), D("p", xu, j(m.creators), 1)) : Re("", !0),
-              b("p", Su, [
+              m.creators ? (V(), D("p", wu, j(m.creators), 1)) : Re("", !0),
+              b("p", Cu, [
                 b("span", null, j(m.publicationType), 1),
-                m.extension ? (V(), D("span", wu, " · Format: " + j(g(m.extension)), 1)) : Re("", !0),
-                m.shelf ? (V(), D("span", Cu, " · Shelf: " + j(m.shelf), 1)) : Re("", !0)
+                m.extension ? (V(), D("span", Tu, " · Format: " + j(g(m.extension)), 1)) : Re("", !0),
+                m.shelf ? (V(), D("span", Eu, " · Shelf: " + j(m.shelf), 1)) : Re("", !0)
               ]),
-              m.scanStatus !== "indexed" || m.scanError ? (V(), D("p", Tu, [
+              m.scanStatus !== "indexed" || m.scanError ? (V(), D("p", Au, [
                 J(" scanStatus: " + j(m.scanStatus || "unknown"), 1),
-                m.scanError ? (V(), D("span", Eu, " · scanError: " + j(m.scanError), 1)) : Re("", !0)
+                m.scanError ? (V(), D("span", Ou, " · scanError: " + j(m.scanError), 1)) : Re("", !0)
               ])) : Re("", !0),
-              b("div", Au, [
-                T(m).length === 0 ? (V(), D("span", Ou, "No Nextcloud tags")) : (V(!0), D(X, { key: 1 }, Oe(T(m), (I) => (V(), D("span", {
+              b("div", Pu, [
+                T(m).length === 0 ? (V(), D("span", Iu, "No Nextcloud tags")) : (V(!0), D(X, { key: 1 }, Oe(T(m), (I) => (V(), D("span", {
                   key: I.id,
                   class: "library-tag"
                 }, j(I.name), 1))), 128))
@@ -4573,54 +4574,54 @@ const Xo = ["aria-labelledby"], Zo = {
               b("p", null, [
                 b("a", {
                   href: m.openUrl
-                }, "Read", 8, Pu),
-                p[23] || (p[23] = J(" · ", -1)),
+                }, "Read", 8, Mu),
+                p[24] || (p[24] = J(" · ", -1)),
                 b("a", {
                   href: m.filesUrl
-                }, "Show in Files", 8, Iu)
+                }, "Show in Files", 8, Ru)
               ])
             ]),
             b("details", null, [
-              p[46] || (p[46] = b("summary", null, "Details / edit metadata", -1)),
-              b("dl", Mu, [
-                p[24] || (p[24] = b("dt", null, "publicationType", -1)),
+              p[47] || (p[47] = b("summary", null, "Details / edit metadata", -1)),
+              b("dl", Fu, [
+                p[25] || (p[25] = b("dt", null, "publicationType", -1)),
                 b("dd", null, j(m.publicationType), 1),
-                p[25] || (p[25] = b("dt", null, "metadataSource", -1)),
+                p[26] || (p[26] = b("dt", null, "metadataSource", -1)),
                 b("dd", null, j(m.metadataSource), 1),
-                p[26] || (p[26] = b("dt", null, "userEdited", -1)),
+                p[27] || (p[27] = b("dt", null, "userEdited", -1)),
                 b("dd", null, j(m.userEdited ? "yes" : "no"), 1),
-                p[27] || (p[27] = b("dt", null, "path", -1)),
+                p[28] || (p[28] = b("dt", null, "path", -1)),
                 b("dd", null, j(m.cachedPath), 1),
-                p[28] || (p[28] = b("dt", null, "publication", -1)),
+                p[29] || (p[29] = b("dt", null, "publication", -1)),
                 b("dd", null, j(m.publication || "—"), 1),
-                p[29] || (p[29] = b("dt", null, "date", -1)),
+                p[30] || (p[30] = b("dt", null, "date", -1)),
                 b("dd", null, j(m.publicationDate || "—"), 1),
-                p[30] || (p[30] = b("dt", null, "language", -1)),
+                p[31] || (p[31] = b("dt", null, "language", -1)),
                 b("dd", null, j(m.language || "—"), 1),
-                p[31] || (p[31] = b("dt", null, "publisher", -1)),
+                p[32] || (p[32] = b("dt", null, "publisher", -1)),
                 b("dd", null, j(m.publisher || "—"), 1)
               ]),
-              b("div", Ru, [
-                p[34] || (p[34] = b("strong", null, "Nextcloud tags", -1)),
-                T(m).length > 0 ? (V(), D("ul", Fu, [
+              b("div", Nu, [
+                p[35] || (p[35] = b("strong", null, "Nextcloud tags", -1)),
+                T(m).length > 0 ? (V(), D("ul", $u, [
                   (V(!0), D(X, null, Oe(T(m), (I) => (V(), D("li", {
                     key: I.id
                   }, [
-                    b("span", Nu, j(I.name), 1),
+                    b("span", Vu, j(I.name), 1),
                     b("form", {
                       method: "post",
                       action: L(m, I),
                       class: "library-inline-form"
-                    }, [...p[32] || (p[32] = [
+                    }, [...p[33] || (p[33] = [
                       b("button", { type: "submit" }, "Remove tag", -1)
-                    ])], 8, $u)
+                    ])], 8, Du)
                   ]))), 128))
                 ])) : Re("", !0),
                 b("form", {
                   method: "post",
                   action: m.tagUrl,
                   class: "library-tag-form"
-                }, [...p[33] || (p[33] = [
+                }, [...p[34] || (p[34] = [
                   b("label", null, [
                     J(" Add Nextcloud tag "),
                     b("input", {
@@ -4630,20 +4631,20 @@ const Xo = ["aria-labelledby"], Zo = {
                     })
                   ], -1),
                   b("button", { type: "submit" }, "Add tag", -1)
-                ])], 8, Vu)
+                ])], 8, ju)
               ]),
-              b("div", Du, [
-                p[36] || (p[36] = b("strong", null, "Nextcloud comments", -1)),
-                p[37] || (p[37] = J()),
-                p[38] || (p[38] = b("span", { class: "library-muted" }, "(file-level notes)", -1)),
-                p[39] || (p[39] = J(": ", -1)),
-                A(m).count === 0 ? (V(), D("span", ju, "No Nextcloud comments")) : (V(), D(X, { key: 1 }, [
+              b("div", Uu, [
+                p[37] || (p[37] = b("strong", null, "Nextcloud comments", -1)),
+                p[38] || (p[38] = J()),
+                p[39] || (p[39] = b("span", { class: "library-muted" }, "(file-level notes)", -1)),
+                p[40] || (p[40] = J(": ", -1)),
+                A(m).count === 0 ? (V(), D("span", Lu, "No Nextcloud comments")) : (V(), D(X, { key: 1 }, [
                   b("span", null, j(A(m).count) + " total", 1),
-                  b("ul", Uu, [
+                  b("ul", Hu, [
                     (V(!0), D(X, null, Oe(A(m).recent, (I) => (V(), D("li", {
                       key: `${I.actorId}-${I.createdAt}-${I.message}`
                     }, [
-                      b("span", Lu, j(I.actorId) + " · " + j(I.createdAt), 1),
+                      b("span", Bu, j(I.actorId) + " · " + j(I.createdAt), 1),
                       b("span", null, j(I.message), 1)
                     ]))), 128))
                   ])
@@ -4652,7 +4653,7 @@ const Xo = ["aria-labelledby"], Zo = {
                   method: "post",
                   action: m.commentUrl,
                   class: "library-comment-form"
-                }, [...p[35] || (p[35] = [
+                }, [...p[36] || (p[36] = [
                   b("label", null, [
                     J(" Add Nextcloud comment "),
                     b("textarea", {
@@ -4662,7 +4663,7 @@ const Xo = ["aria-labelledby"], Zo = {
                     })
                   ], -1),
                   b("button", { type: "submit" }, "Add comment", -1)
-                ])], 8, Hu)
+                ])], 8, Ku)
               ]),
               b("form", {
                 method: "post",
@@ -4670,15 +4671,15 @@ const Xo = ["aria-labelledby"], Zo = {
                 class: "library-item-form"
               }, [
                 b("label", null, [
-                  p[40] || (p[40] = J(" Title ", -1)),
+                  p[41] || (p[41] = J(" Title ", -1)),
                   b("input", {
                     type: "text",
                     name: "title",
                     value: m.title
-                  }, null, 8, Ku)
+                  }, null, 8, ku)
                 ]),
                 b("label", null, [
-                  p[41] || (p[41] = J(" Type ", -1)),
+                  p[42] || (p[42] = J(" Type ", -1)),
                   b("select", {
                     name: "publicationType",
                     value: m.publicationType
@@ -4686,56 +4687,56 @@ const Xo = ["aria-labelledby"], Zo = {
                     (V(), D(X, null, Oe(n, (I) => b("option", {
                       key: I,
                       value: I
-                    }, j(I), 9, ku)), 64))
-                  ], 8, Wu)
+                    }, j(I), 9, zu)), 64))
+                  ], 8, qu)
                 ]),
                 b("label", null, [
-                  p[42] || (p[42] = J(" Creators ", -1)),
+                  p[43] || (p[43] = J(" Creators ", -1)),
                   b("input", {
                     type: "text",
                     name: "creators",
                     value: m.creators
-                  }, null, 8, qu)
+                  }, null, 8, Gu)
                 ]),
                 b("label", null, [
-                  p[43] || (p[43] = J(" Publication ", -1)),
+                  p[44] || (p[44] = J(" Publication ", -1)),
                   b("input", {
                     type: "text",
                     name: "publication",
                     value: m.publication
-                  }, null, 8, zu)
+                  }, null, 8, Ju)
                 ]),
                 b("label", null, [
-                  p[44] || (p[44] = J(" Date ", -1)),
+                  p[45] || (p[45] = J(" Date ", -1)),
                   b("input", {
                     type: "text",
                     name: "publicationDate",
                     value: m.publicationDate
-                  }, null, 8, Gu)
+                  }, null, 8, Yu)
                 ]),
                 b("input", {
                   type: "hidden",
                   name: "subtitle",
                   value: m.subtitle
-                }, null, 8, Ju),
+                }, null, 8, Xu),
                 b("input", {
                   type: "hidden",
                   name: "language",
                   value: m.language
-                }, null, 8, Yu),
+                }, null, 8, Zu),
                 b("input", {
                   type: "hidden",
                   name: "publisher",
                   value: m.publisher
-                }, null, 8, Xu),
-                p[45] || (p[45] = b("button", { type: "submit" }, "Save metadata", -1))
-              ], 8, Bu)
+                }, null, 8, Qu),
+                p[46] || (p[46] = b("button", { type: "submit" }, "Save metadata", -1))
+              ], 8, Wu)
             ])
           ]))), 128))
         ]))
       ])
     ], 64));
   }
-}, Qu = Uo("library", "catalogue", {});
-Vo(Zu, { state: Qu }).mount("#library-vue-root");
+}, tf = Uo("library", "catalogue", {});
+Vo(ef, { state: tf }).mount("#library-vue-root");
 //# sourceMappingURL=library-main.mjs.map

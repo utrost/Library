@@ -49,3 +49,22 @@ def test_catalogue_uses_nextcloud_vue_components_for_common_actions_and_empty_st
     assert "Library settings" in app
     assert "Apply filters" in app
     assert "No catalogue items match" in app
+
+
+def test_vue_page_stays_catalogue_first_on_mobile():
+    app = (ROOT / "src" / "App.vue").read_text()
+    stylesheet = (ROOT / "css" / "style.css").read_text()
+
+    hero_index = app.index('class="library-hero"')
+    panel_index = app.index('class="library-panel"')
+    assert hero_index < panel_index
+    assert 'class="library-hero-actions"' in app
+    assert 'class="library-settings-link"' not in app
+    assert 'without importing or owning the files' not in app
+
+    assert '@media (max-width: 700px)' in stylesheet
+    assert '.library-hero {' in stylesheet
+    assert 'grid-template-columns: 1fr;' in stylesheet
+    assert 'padding: 16px;' in stylesheet
+    assert '.library-hero h1 {' in stylesheet
+    assert 'font-size: 28px;' in stylesheet
