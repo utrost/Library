@@ -44,7 +44,7 @@ final class ItemService {
                 'title' => $qb->createNamedParameter($metadataCandidate['title']),
                 'subtitle' => $qb->createNamedParameter($metadataCandidate['subtitle']),
                 'creators' => $qb->createNamedParameter($metadataCandidate['creators']),
-                'publication' => $qb->createNamedParameter(null),
+                'publication' => $qb->createNamedParameter($metadataCandidate['publication']),
                 'publication_date' => $qb->createNamedParameter($metadataCandidate['publicationDate']),
                 'language' => $qb->createNamedParameter($metadataCandidate['language']),
                 'publisher' => $qb->createNamedParameter($metadataCandidate['publisher']),
@@ -154,6 +154,7 @@ final class ItemService {
             ->set('title', $qb->createNamedParameter($metadataCandidate['title']))
             ->set('subtitle', $qb->createNamedParameter($metadataCandidate['subtitle']))
             ->set('creators', $qb->createNamedParameter($metadataCandidate['creators']))
+            ->set('publication', $qb->createNamedParameter($metadataCandidate['publication']))
             ->set('publication_date', $qb->createNamedParameter($metadataCandidate['publicationDate']))
             ->set('language', $qb->createNamedParameter($metadataCandidate['language']))
             ->set('publisher', $qb->createNamedParameter($metadataCandidate['publisher']))
@@ -174,11 +175,11 @@ final class ItemService {
     /**
      * @param array<string, mixed> $file
      * @param array<string, string> $metadata
-     * @return array{publicationType:string,title:string,subtitle:?string,creators:?string,publicationDate:?string,language:?string,publisher:?string,metadataSource:string}
+     * @return array{publicationType:string,title:string,subtitle:?string,creators:?string,publication:?string,publicationDate:?string,language:?string,publisher:?string,metadataSource:string}
      */
     private function metadataCandidate(array $file, array $metadata): array {
         $source = (string)($metadata['metadataSource'] ?? 'filename');
-        if (!in_array($source, ['epub-opf', 'pdf-info', 'opf', 'sidecar-opf', 'filename'], true)) {
+        if (!in_array($source, ['epub-opf', 'pdf-info', 'opf', 'sidecar-opf', 'cbz-comicinfo', 'filename'], true)) {
             $source = 'filename';
         }
 
@@ -187,6 +188,7 @@ final class ItemService {
             'title' => trim((string)($metadata['title'] ?? '')) ?: $this->inferTitle($file),
             'subtitle' => $this->nullableString($metadata['subtitle'] ?? null),
             'creators' => $this->nullableString($metadata['creators'] ?? null),
+            'publication' => $this->nullableString($metadata['publication'] ?? null),
             'publicationDate' => $this->nullableString($metadata['publicationDate'] ?? null),
             'language' => $this->nullableString($metadata['language'] ?? null),
             'publisher' => $this->nullableString($metadata['publisher'] ?? null),
