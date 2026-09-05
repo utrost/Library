@@ -39,25 +39,25 @@ def test_built_vue_bundle_is_browser_safe_without_node_process_global():
     assert "process.env" not in text
 
 
-def test_catalogue_uses_nextcloud_vue_components_for_common_actions_and_empty_state():
+def test_catalogue_uses_plain_fail_safe_controls_until_browser_harness_covers_nextcloud_vue_components():
     app = (ROOT / "src" / "App.vue").read_text()
-    assert "@nextcloud/vue" in app
-    assert "NcButton" in app
-    assert "NcEmptyContent" in app
-    assert "<NcButton" in app
-    assert "<NcEmptyContent" in app
-    assert "Library settings" in app
-    assert "Apply filters" in app
+    assert "@nextcloud/vue" not in app
+    assert "NcButton" not in app
+    assert "NcEmptyContent" not in app
+    assert "button type=\"submit\"" in app
     assert "No catalogue items match" in app
+    assert "Apply filters" in app
+    assert "Library settings" in app
 
 
 def test_vue_page_stays_catalogue_first_on_mobile():
     app = (ROOT / "src" / "App.vue").read_text()
     stylesheet = (ROOT / "css" / "style.css").read_text()
 
-    hero_index = app.index('class="library-hero"')
+    wrapper_index = app.index('class="library-vue-catalogue"')
     panel_index = app.index('class="library-panel"')
-    assert hero_index < panel_index
+    hero_index = app.index('class="library-hero library-secondary-panel"')
+    assert wrapper_index < panel_index < hero_index
     assert 'class="library-hero-actions"' in app
     assert 'class="library-settings-link"' not in app
     assert 'without importing or owning the files' not in app
@@ -66,5 +66,6 @@ def test_vue_page_stays_catalogue_first_on_mobile():
     assert '.library-hero {' in stylesheet
     assert 'grid-template-columns: 1fr;' in stylesheet
     assert 'padding: 16px;' in stylesheet
-    assert '.library-hero h1 {' in stylesheet
+    assert '.library-hero h1,' in stylesheet
+    assert '.library-hero h2 {' in stylesheet
     assert 'font-size: 28px;' in stylesheet

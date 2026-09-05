@@ -49,7 +49,10 @@ def test_vue_entrypoint_loads_nextcloud_initial_state_and_mounts_app():
     assert "createApp" in main
     assert "loadState" in main
     assert "loadState('library', 'catalogue'" in main
-    assert "mount('#library-vue-root')" in main
+    assert "document.querySelector('#library-vue-root')" in main
+    assert ".mount(mountTarget)" in main
+    assert "fallbackCatalogue" in main
+    assert "Vue mount failed; rendering fallback catalogue" in main
 
 
 def test_vue_app_renders_catalogue_filters_covers_links_and_edit_forms():

@@ -1,7 +1,5 @@
 <script setup>
 import { computed, reactive } from 'vue'
-import NcButton from '@nextcloud/vue/components/NcButton'
-import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 
 const props = defineProps({
   state: {
@@ -56,20 +54,7 @@ function removeTagUrl(item, tag) {
 </script>
 
 <template>
-  <section class="library-hero">
-    <div>
-      <h1>Library</h1>
-      <p class="library-lede">
-        Browse publications already stored in Nextcloud.
-      </p>
-    </div>
-    <div class="library-hero-actions">
-      <NcButton :href="settingsUrl" variant="secondary" aria-label="Open Library settings">
-        Library settings
-      </NcButton>
-    </div>
-  </section>
-
+  <div class="library-vue-catalogue">
   <section class="library-panel" aria-label="Publication catalogue">
     <h2>Publication catalogue</h2>
     <p class="library-muted">Browse as a shelf/gallery first; open the details panel when metadata matters.</p>
@@ -126,12 +111,8 @@ function removeTagUrl(item, tag) {
           <option v-for="limit in pageSizes" :key="limit" :value="limit">{{ limit }}</option>
         </select>
       </label>
-      <NcButton type="submit" variant="primary" aria-label="Apply catalogue filters">
-        Apply filters
-      </NcButton>
-      <NcButton href="?" variant="tertiary" aria-label="Clear catalogue filters">
-        Clear
-      </NcButton>
+      <button type="submit" class="button primary" aria-label="Apply catalogue filters">Apply filters</button>
+      <a href="?" class="button secondary" aria-label="Clear catalogue filters">Clear</a>
     </form>
 
     <nav class="library-pagination" aria-label="Catalogue pagination">
@@ -142,10 +123,10 @@ function removeTagUrl(item, tag) {
       <span v-else class="library-muted">Next</span>
     </nav>
 
-    <NcEmptyContent
-      v-if="items.length === 0"
-      name="No catalogue items match"
-      description="Scan enabled roots or clear the active filters." />
+    <div v-if="items.length === 0" class="library-empty-content" role="status">
+      <h3>No catalogue items match</h3>
+      <p class="library-muted">Scan enabled roots or clear the active filters.</p>
+    </div>
 
     <div v-else class="library-cover-gallery">
       <article v-for="item in items" :key="item.id" class="library-cover-card">
@@ -255,4 +236,15 @@ function removeTagUrl(item, tag) {
       </article>
     </div>
   </section>
+
+  <section class="library-hero library-secondary-panel" aria-label="Library settings">
+    <div>
+      <h2>Library</h2>
+      <p class="library-lede">Browse publications already stored in Nextcloud.</p>
+    </div>
+    <div class="library-hero-actions">
+      <a :href="settingsUrl" class="button secondary" aria-label="Open Library settings">Library settings</a>
+    </div>
+  </section>
+  </div>
 </template>

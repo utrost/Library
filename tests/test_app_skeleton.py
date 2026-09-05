@@ -44,4 +44,4 @@ def test_landing_template_states_scope_boundary():
     assert "Browse publications already stored in Nextcloud" in vue
     assert "Publication catalogue" in vue
     assert "Library settings" in vue
-    assert vue.index('class="library-hero"') < vue.index('class="library-panel"')
+    assert vue.index('class="library-vue-catalogue"') < vue.index('class="library-panel"') < vue.index('class="library-hero library-secondary-panel"')
