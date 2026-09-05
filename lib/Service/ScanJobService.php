@@ -53,21 +53,26 @@ final class ScanJobService {
     }
 
     public function latestJob(string $userId): ?array {
+        $jobs = $this->recentJobs($userId, 1);
+        return $jobs[0] ?? null;
+    }
+
+    public function recentJobs(string $userId, int $limit = 5): array {
         $qb = $this->db->getQueryBuilder();
         $result = $qb->select('*')
             ->from('library_scan_jobs')
             ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->orderBy('started_at', 'DESC')
-            ->setMaxResults(1)
+            ->setMaxResults(max(1, min(20, $limit)))
             ->executeQuery();
 
-        $row = $result->fetch();
-        $result->closeCursor();
-        if ($row === false) {
-            return null;
+        $rows = [];
+        while ($row = $result->fetch()) {
+            $rows[] = $row;
         }
+        $result->closeCursor();
 
-        return $this->normalizeRow($row);
+        return array_map(fn (array $row): array => $this->normalizeRow($row), $rows);
     }
 
     private function createJob(string $userId, string $status): array {
