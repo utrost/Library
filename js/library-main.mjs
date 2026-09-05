@@ -4391,7 +4391,7 @@ const Do = { class: "library-vue-catalogue" }, Uo = {
                     ee(" Add Nextcloud tag "),
                     b("input", {
                       type: "text",
-                      name: "tagName",
+                      name: "nextcloudTagName",
                       placeholder: "photography, project-library..."
                     })
                   ], -1),

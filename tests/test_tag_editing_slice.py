@@ -34,5 +34,13 @@ def test_template_has_add_nextcloud_tag_form_separate_from_metadata_edit():
     vue = (ROOT / "src" / "App.vue").read_text()
     assert "item.tagUrl" in vue
     assert "Add Nextcloud tag" in vue
-    assert "name=\"tagName\"" in vue
+    assert "name=\"nextcloudTagName\"" in vue
+    assert "name=\"tagName\"" not in vue
     assert "placeholder=\"photography, project-library...\"" in vue
+
+
+def test_add_tag_form_avoids_native_form_property_names_that_break_vue_dom_runtime():
+    vue = (ROOT / "src" / "App.vue").read_text()
+    forbidden = {"tagName", "nodeName", "nodeType", "children", "elements", "action", "method"}
+    for name in forbidden:
+        assert f'name=\"{name}\"' not in vue

@@ -177,7 +177,7 @@ function removeTagUrl(item, tag) {
             <form method="post" :action="item.tagUrl" class="library-tag-form">
               <label>
                 Add Nextcloud tag
-                <input type="text" name="tagName" placeholder="photography, project-library...">
+                <input type="text" name="nextcloudTagName" placeholder="photography, project-library...">
               </label>
               <button type="submit">Add tag</button>
             </form>
