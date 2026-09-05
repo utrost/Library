@@ -46,6 +46,7 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function index(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
+        Util::addStyle(Application::APP_ID, 'library-vue');
         Util::addScript(Application::APP_ID, 'library-shell');
         Util::addScript(Application::APP_ID, 'library-main');
 

@@ -1,15 +1,16 @@
 {
   "name": "library",
-  "version": "0.1.0-alpha.33",
+  "version": "0.1.0-alpha.34",
   "private": true,
   "description": "Nextcloud publication catalogue for files stored in Nextcloud",
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "scripts": {
-    "build": "vite --mode production build",
+    "build": "node scripts/build-vue.mjs",
     "dev": "vite --mode development build",
     "watch": "vite --mode development build --watch",
-    "test": "vitest run"
+    "test": "vitest run",
+    "smoke:vue": "node scripts/smoke-vue-page.mjs"
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"

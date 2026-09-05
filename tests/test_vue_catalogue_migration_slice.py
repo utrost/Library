@@ -7,7 +7,7 @@ def test_package_uses_modern_nextcloud_vue_vite_stack():
     package = (ROOT / "package.json").read_text()
 
     assert '"type": "module"' in package
-    assert '"build": "vite --mode production build"' in package
+    assert '"build": "node scripts/build-vue.mjs"' in package
     assert '"vue"' in package
     assert '"@vitejs/plugin-vue"' in package
     assert '"@nextcloud/initial-state"' in package
@@ -15,7 +15,11 @@ def test_package_uses_modern_nextcloud_vue_vite_stack():
     vite = (ROOT / "vite.config.js").read_text()
     assert "@vitejs/plugin-vue" in vite
     assert "library-main.mjs" in vite
-    assert "outDir: 'js'" in vite
+    assert "outDir: 'build/vue'" in vite
+
+    build_script = (ROOT / "scripts" / "build-vue.mjs").read_text()
+    assert "jsDir = 'js'" in build_script
+    assert "cssDir = 'css'" in build_script
 
 
 def test_page_controller_provides_catalogue_initial_state_and_loads_vue_entrypoint():
