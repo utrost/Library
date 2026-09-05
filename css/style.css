@@ -24,24 +24,34 @@
 }
 
 .library-hero {
+    align-items: center;
     background: var(--color-main-background);
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius-large);
     box-shadow: 0 2px 10px var(--color-box-shadow);
-    padding: 32px;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 24px;
 }
 
 .library-hero h1 {
     font-size: 40px;
     font-weight: 700;
-    margin: 0 0 12px;
+    margin: 0 0 8px;
+}
+
+.library-hero-actions {
+    align-items: center;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .library-lede {
     color: var(--color-main-text);
-    font-size: 20px;
-    line-height: 1.45;
-    margin-bottom: 16px;
+    font-size: 18px;
+    line-height: 1.35;
+    margin: 0;
 }
 
 .library-card-grid {
@@ -318,7 +328,39 @@
 }
 
 @media (max-width: 700px) {
+    #library-app.library-app {
+        margin: 16px auto;
+        max-width: min(100vw, calc(100vw - 24px));
+        padding: 0 12px 72px;
+    }
+
+    .library-hero {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
+    .library-hero h1 {
+        font-size: 28px;
+    }
+
+    .library-hero-actions {
+        justify-content: flex-start;
+    }
+
+    .library-lede {
+        font-size: 15px;
+    }
+
+    .library-panel {
+        margin-top: 16px;
+        padding: 16px;
+    }
+
     .library-filter-bar {
         grid-template-columns: 1fr;
+    }
+
+    .library-cover-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     }
 }

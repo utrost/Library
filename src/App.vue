@@ -57,21 +57,18 @@ function removeTagUrl(item, tag) {
 
 <template>
   <section class="library-hero">
-    <h1>Library</h1>
-    <p class="library-lede">
-      Library is a catalogue layer for publications already stored in Nextcloud.
-    </p>
-    <p>
-      Nextcloud Files remain canonical. Library adds discovery, metadata,
-      cover-style browsing, search/filtering and reader handoff without importing or owning the files.
-    </p>
+    <div>
+      <h1>Library</h1>
+      <p class="library-lede">
+        Browse publications already stored in Nextcloud.
+      </p>
+    </div>
+    <div class="library-hero-actions">
+      <NcButton :href="settingsUrl" variant="secondary" aria-label="Open Library settings">
+        Library settings
+      </NcButton>
+    </div>
   </section>
-
-  <p>
-    <NcButton :href="settingsUrl" variant="secondary" aria-label="Open Library settings">
-      Library settings
-    </NcButton>
-  </p>
 
   <section class="library-panel" aria-label="Publication catalogue">
     <h2>Publication catalogue</h2>

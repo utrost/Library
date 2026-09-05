@@ -41,7 +41,7 @@ def test_landing_template_states_scope_boundary():
     vue = (ROOT / "src" / "App.vue").read_text()
     assert "library-vue-root" in template
     assert "Library" in vue
-    assert "catalogue layer" in vue
-    assert "Nextcloud Files remain canonical" in vue
+    assert "Browse publications already stored in Nextcloud" in vue
     assert "Publication catalogue" in vue
     assert "Library settings" in vue
+    assert vue.index('class="library-hero"') < vue.index('class="library-panel"')

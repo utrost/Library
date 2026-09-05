@@ -71,6 +71,7 @@ try {
     const scriptMatch = page.text.match(/src="([^"]*library-main\.mjs[^"]*)"/)
     const cssMatch = page.text.match(/href="([^"]*library-vue\.css[^"]*)"/)
     const sourceComponent = readFileSync('src/App.vue', 'utf8')
+    const sourceStyle = readFileSync('css/style.css', 'utf8')
 
     const script = scriptMatch ? await fetchText(scriptMatch[1], token) : { status: 0, text: '' }
     const css = cssMatch ? await fetchText(cssMatch[1], token) : { status: 0, text: '' }
@@ -89,13 +90,14 @@ try {
     console.log(`bundle_process_env=${script.text.includes('process.env')}`)
     console.log(`source_has_library-cover-card=${sourceComponent.includes('library-cover-card')}`)
     console.log(`source_has_library-cover-image=${sourceComponent.includes('library-cover-image')}`)
+    console.log(`source_has_compact_mobile_hero=${sourceComponent.includes('library-hero-actions') && sourceStyle.includes('font-size: 28px;') && !sourceComponent.includes('without importing or owning the files')}`)
     console.log(`bad_host_hrefs=${(page.text.match(/href="http:\/\/(?:f|settings)\//g) || []).length}`)
 
     if (page.status !== 200 || !state || items.length === 0 || !('coverUrl' in first) || !('openUrl' in first) || !('filesUrl' in first)) {
       fail('catalogue_initial_state_invalid')
     } else if (script.status !== 200 || css.status !== 200 || script.text.includes('process.env')) {
       fail('vue_assets_invalid')
-    } else if (!sourceComponent.includes('library-cover-card') || !sourceComponent.includes('library-cover-image')) {
+    } else if (!sourceComponent.includes('library-cover-card') || !sourceComponent.includes('library-cover-image') || sourceComponent.includes('without importing or owning the files') || !sourceComponent.includes('library-hero-actions') || !sourceStyle.includes('font-size: 28px;')) {
       fail('vue_source_contract_invalid')
     } else {
       console.log('vue_smoke_ok=true')
