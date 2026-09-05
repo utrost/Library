@@ -36,12 +36,13 @@ What exists now:
 - Minimal Nextcloud system tag assignment/removal from Library item cards for visible/assignable tags.
 - Read-only recent Nextcloud file comments on publication item cards as file-level notes/discussion.
 - Minimal Nextcloud file comment writing from Library item cards.
+- Per-file metadata extraction error isolation with visible indexed-file diagnostics for corrupt EPUB/CBZ/OPF inputs.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - Alice Nextcloud sandbox compatibility evidence for PDF, EPUB and CBZ inline opening.
 - Concept, technical-spec and reader-handoff notes.
 - Lightweight repository tests protecting the current skeleton, docs contracts, roots/file-index slice and catalogue-item slice.
 
-This is now a development catalogue spine with a first usable shelf/gallery presentation, not a polished media server. Phase 3.1 adds preview-backed covers through Nextcloud's preview pipeline and CBZ first-image covers while keeping placeholders for unsupported files.
+This is now a development catalogue spine with a first usable shelf/gallery presentation, not a polished media server. Phase 3.1 adds preview-backed covers through Nextcloud's preview pipeline and CBZ first-image covers while keeping placeholders for unsupported files. Scanner hardening now records per-file metadata errors without aborting the rest of the root scan.
 
 ## Phase 0 — Concept and spike baseline
 
@@ -239,7 +240,7 @@ Backend slices:
 7. Decide whether CBR is included in v0.1 based on available extraction dependencies in the Nextcloud app environment.
 8. Implement PDF basic metadata extraction using a low-risk dependency path or Nextcloud capabilities. **First `/Title` and `/Author` info dictionary slice landed; PDF still stays publication type `other`.**
 9. Add cover cache references without duplicating original media.
-10. Add error isolation: one corrupt file must not abort the whole scan.
+10. Add error isolation: one corrupt file must not abort the whole scan. **First per-file metadata error isolation landed with `metadata_error` scan status and visible `scanError` diagnostics.**
 
 Frontend slices:
 
@@ -383,11 +384,11 @@ Exit criteria:
 
 ## Immediate next implementation slice
 
-Recommended next slice after minimal Nextcloud tag/comment editing:
+Recommended next slice after scanner-side metadata error isolation:
 
-1. Harden error isolation for metadata/cover extraction so one corrupt PDF/EPUB/CBZ/OPF cannot abort a whole scan or catalogue page.
+1. Harden cover-route error diagnostics and unsupported preview visibility now that one corrupt PDF/EPUB/CBZ/OPF no longer aborts a whole scan or catalogue page.
 2. Keep Library structured fields separate: assigning or removing `photography` or `project-library` Nextcloud tags must not alter publication form/title/creator fields.
-3. Smoke it against Alice with a deliberately bad/corrupt fixture and verify healthy catalogue items still render.
+3. Smoke it against Alice with deliberately unsupported preview/cover fixtures and verify healthy catalogue items still render.
 4. Document the visible failure state before adding richer review queues or Library-native tag tables.
 
-This slice deliberately stops before Library-native tag tables, Internet enrichment and OCR. It should make the existing local extraction/cover work safer against real-collection messiness.
+This slice deliberately stops before Library-native tag tables, Internet enrichment and OCR. It should make the existing cover/preview path safer and more transparent against real-collection messiness.

@@ -10,6 +10,12 @@ use Throwable;
 use ZipArchive;
 
 final class PublicationMetadataService {
+    private ?string $lastError = null;
+
+    public function getLastError(): ?string {
+        return $this->lastError;
+    }
+
     /**
      * Extract best-effort local metadata from publication files, preferring local OPF sidecars
      * over embedded/PDF candidates for editable catalogue defaults.
@@ -17,18 +23,25 @@ final class PublicationMetadataService {
      * @return array<string, string>
      */
     public function extractWithSidecar(File $file): array {
-        $embeddedMetadata = $this->extract($file);
-        $sidecar = $this->findOpfSidecar($file);
-        if ($sidecar === null) {
-            return $embeddedMetadata;
-        }
+        $this->lastError = null;
 
-        $sidecarMetadata = $this->parseOpfMetadata($sidecar->getContent(), 'sidecar-opf');
-        if ($sidecarMetadata === []) {
-            return $embeddedMetadata;
-        }
+        try {
+            $embeddedMetadata = $this->extract($file);
+            $sidecar = $this->findOpfSidecar($file);
+            if ($sidecar === null) {
+                return $embeddedMetadata;
+            }
 
-        return array_merge($embeddedMetadata, $sidecarMetadata);
+            $sidecarMetadata = $this->parseOpfMetadata($sidecar->getContent(), 'sidecar-opf');
+            if ($sidecarMetadata === []) {
+                return $embeddedMetadata;
+            }
+
+            return array_merge($embeddedMetadata, $sidecarMetadata);
+        } catch (Throwable $e) {
+            $this->lastError = 'metadata extraction failed: ' . $e->getMessage();
+            return [];
+        }
     }
 
     /**
@@ -37,6 +50,7 @@ final class PublicationMetadataService {
      * @return array<string, string>
      */
     public function extract(File $file): array {
+        $this->lastError = null;
         $extension = strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION));
         $mimeType = strtolower($file->getMimetype());
 
@@ -53,7 +67,8 @@ final class PublicationMetadataService {
             if ($extension === 'cbz' || $mimeType === 'application/comicbook+zip' || $mimeType === 'application/x-cbz') {
                 return $this->extractCbzMetadata($file);
             }
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            $this->lastError = 'metadata extraction failed: ' . $e->getMessage();
             return [];
         }
 
@@ -77,6 +92,7 @@ final class PublicationMetadataService {
             file_put_contents($temporaryPath, $file->getContent());
             $zip = new ZipArchive();
             if ($zip->open($temporaryPath) !== true) {
+                $this->lastError = 'Unsupported or corrupt EPUB archive';
                 return [];
             }
 
@@ -159,6 +175,7 @@ final class PublicationMetadataService {
             file_put_contents($temporaryPath, $file->getContent());
             $zip = new ZipArchive();
             if ($zip->open($temporaryPath) !== true) {
+                $this->lastError = 'Unsupported or corrupt CBZ archive';
                 return [];
             }
 

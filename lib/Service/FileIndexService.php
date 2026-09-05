@@ -31,6 +31,7 @@ final class FileIndexService {
                 ->set('mtime', $qb->createNamedParameter($file['mtime']))
                 ->set('size', $qb->createNamedParameter($file['size']))
                 ->set('scan_status', $qb->createNamedParameter('indexed'))
+                ->set('scan_error', $qb->createNamedParameter(null))
                 ->set('last_scanned_at', $qb->createNamedParameter($now))
                 ->set('updated_at', $qb->createNamedParameter($now))
                 ->where($qb->expr()->eq('id', $qb->createNamedParameter($existing['id'])))
@@ -51,6 +52,7 @@ final class FileIndexService {
                 'mtime' => $qb->createNamedParameter($file['mtime']),
                 'size' => $qb->createNamedParameter($file['size']),
                 'scan_status' => $qb->createNamedParameter('indexed'),
+                'scan_error' => $qb->createNamedParameter(null),
                 'last_scanned_at' => $qb->createNamedParameter($now),
                 'created_at' => $qb->createNamedParameter($now),
                 'updated_at' => $qb->createNamedParameter($now),
@@ -70,6 +72,19 @@ final class FileIndexService {
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_files')
             ->set('scan_status', $qb->createNamedParameter('sidecar'))
+            ->set('scan_error', $qb->createNamedParameter(null))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($libraryFileId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+    }
+
+    public function markScanError(string $userId, int $libraryFileId, string $message): void {
+        $qb = $this->db->getQueryBuilder();
+        $qb->update('library_files')
+            ->set('scan_status', $qb->createNamedParameter('metadata_error'))
+            ->set('scan_error', $qb->createNamedParameter(mb_substr($message, 0, 1024)))
+            ->set('last_scanned_at', $qb->createNamedParameter(time()))
             ->set('updated_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($libraryFileId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
@@ -83,7 +98,7 @@ final class FileIndexService {
         $rootLabels = $this->rootLabelsById($userId);
 
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('id', 'root_id', 'file_id', 'cached_path', 'mime_type', 'extension', 'scan_status', 'last_scanned_at')
+        $result = $qb->select('id', 'root_id', 'file_id', 'cached_path', 'mime_type', 'extension', 'scan_status', 'scan_error', 'last_scanned_at')
             ->from('library_files')
             ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->orderBy('cached_path', 'ASC')
@@ -101,6 +116,7 @@ final class FileIndexService {
                 'mimeType' => (string)$row['mime_type'],
                 'extension' => $row['extension'] !== null ? (string)$row['extension'] : '',
                 'scanStatus' => (string)$row['scan_status'],
+                'scanError' => $row['scan_error'] !== null ? (string)$row['scan_error'] : '',
                 'lastScannedAt' => (int)$row['last_scanned_at'],
             ];
         }
@@ -127,7 +143,7 @@ final class FileIndexService {
 
     public function findByFileId(string $userId, int $fileId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('id', 'root_id', 'file_id', 'cached_path', 'mime_type', 'extension', 'scan_status', 'last_scanned_at')
+        $result = $qb->select('id', 'root_id', 'file_id', 'cached_path', 'mime_type', 'extension', 'scan_status', 'scan_error', 'last_scanned_at')
             ->from('library_files')
             ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('file_id', $qb->createNamedParameter($fileId)))
@@ -147,6 +163,7 @@ final class FileIndexService {
             'mimeType' => (string)$row['mime_type'],
             'extension' => $row['extension'] !== null ? (string)$row['extension'] : '',
             'scanStatus' => (string)$row['scan_status'],
+            'scanError' => $row['scan_error'] !== null ? (string)$row['scan_error'] : '',
             'lastScannedAt' => (int)$row['last_scanned_at'],
         ];
     }

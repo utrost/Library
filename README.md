@@ -29,6 +29,7 @@ The current development slice can:
 - clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items.
 - extract first CBZ ComicInfo.xml metadata for comic title, series, creators, publisher and date.
 - serve CBZ first-image covers when the general Nextcloud preview pipeline cannot generate a cover.
+- isolate local metadata extraction failures per file so corrupt EPUB/CBZ/OPF fixtures do not abort an otherwise healthy root scan, and show the scan error in the indexed-file diagnostics.
 
 The next milestone is to harden PDF/EPUB/OPF/CBZ metadata extraction, CBZ first-image covers, preview-backed covers and tag/comment flows with real-collection fixtures and user-edited sidecar cleanup policy.
 

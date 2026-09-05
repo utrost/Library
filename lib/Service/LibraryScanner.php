@@ -85,21 +85,38 @@ final class LibraryScanner {
                 continue;
             }
 
-            $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
-                'fileId' => $node->getId(),
-                'cachedPath' => $this->displayPath($node, $userId),
-                'mimeType' => $node->getMimetype(),
-                'extension' => strtolower(pathinfo($node->getName(), PATHINFO_EXTENSION)),
-                'etag' => $node->getEtag(),
-                'mtime' => $node->getMTime(),
-                'size' => $node->getSize(),
-            ]);
-            $metadata = $this->metadataService->extractWithSidecar($node);
-            $this->itemService->ensureItemForFile($userId, $indexedFile, $metadata);
-            $indexed++;
+            if ($this->scanFile($userId, $rootId, $node)) {
+                $indexed++;
+            }
         }
 
         return $indexed;
+    }
+
+    private function scanFile(string $userId, int $rootId, File $node): bool {
+        $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
+            'fileId' => $node->getId(),
+            'cachedPath' => $this->displayPath($node, $userId),
+            'mimeType' => $node->getMimetype(),
+            'extension' => strtolower(pathinfo($node->getName(), PATHINFO_EXTENSION)),
+            'etag' => $node->getEtag(),
+            'mtime' => $node->getMTime(),
+            'size' => $node->getSize(),
+        ]);
+
+        try {
+            $metadata = $this->metadataService->extractWithSidecar($node);
+            $this->itemService->ensureItemForFile($userId, $indexedFile, $metadata);
+
+            $metadataError = $this->metadataService->getLastError();
+            if ($metadataError !== null) {
+                $this->fileIndexService->markScanError($userId, (int)$indexedFile['id'], $metadataError);
+            }
+        } catch (Throwable $e) {
+            $this->fileIndexService->markScanError($userId, (int)$indexedFile['id'], 'metadata extraction failed: ' . $e->getMessage());
+        }
+
+        return true;
     }
 
     private function cleanupSuppressedOpfSidecar(string $userId, int $rootId, File $file): void {

@@ -99,6 +99,10 @@
     margin: 0;
 }
 
+.library-scan-error {
+    color: var(--color-error);
+}
+
 .library-index-row dt {
     color: var(--color-text-maxcontrast);
 }
