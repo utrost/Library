@@ -60,8 +60,19 @@ class PageController extends Controller {
         $shelves = $this->buildShelves($items);
         $formats = $this->buildFormats($items);
         $scanStatuses = $this->buildScanStatuses($items);
+        $pagination = $this->buildPagination(
+            (int)$this->request->getParam('page', 1),
+            (int)$this->request->getParam('limit', 100),
+        );
         $items = $this->filterItemsForPresentation($items, $fileTagsByFileId, $activeFilters);
         $items = $this->sortItemsForPresentation($items, $activeFilters['sort']);
+        $pagination['total'] = count($items);
+        $items = $this->sliceItemsForPresentation($items, $pagination);
+        $pagination['visible'] = count($items);
+        $pagination['from'] = $pagination['total'] === 0 ? 0 : (($pagination['page'] - 1) * $pagination['limit']) + 1;
+        $pagination['to'] = $pagination['from'] === 0 ? 0 : $pagination['from'] + $pagination['visible'] - 1;
+        $pagination['previousUrl'] = $pagination['page'] > 1 ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] - 1) : '';
+        $pagination['nextUrl'] = $pagination['to'] < $pagination['total'] ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] + 1) : '';
 
         return new TemplateResponse(Application::APP_ID, 'main', [
             'fixtureOpenUrl' => $this->readerProvider->getOpenUrl(self::READER_FIXTURE_FILE_ID),
@@ -73,6 +84,7 @@ class PageController extends Controller {
             'shelves' => $shelves,
             'formats' => $formats,
             'scanStatuses' => $scanStatuses,
+            'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
             'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
@@ -84,6 +96,50 @@ class PageController extends Controller {
             'itemOpenBaseUrl' => $this->urlGenerator->linkTo('', '/f/__FILE_ID__'),
             'itemFilesBaseUrl' => $this->readerProvider->getShowInFilesUrl(0),
         ]);
+    }
+
+    /**
+     * @return array{page:int,limit:int,total:int,visible:int,from:int,to:int,previousUrl:string,nextUrl:string}
+     */
+    private function buildPagination(int $page, int $limit): array {
+        $limit = max(1, min(500, $limit));
+        return [
+            'page' => max(1, $page),
+            'limit' => $limit,
+            'total' => 0,
+            'visible' => 0,
+            'from' => 0,
+            'to' => 0,
+            'previousUrl' => '',
+            'nextUrl' => '',
+        ];
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $items
+     * @param array{page:int,limit:int} $pagination
+     * @return array<int, array<string, mixed>>
+     */
+    private function sliceItemsForPresentation(array $items, array $pagination): array {
+        $offset = max(0, ((int)$pagination['page'] - 1) * (int)$pagination['limit']);
+        return array_slice($items, $offset, (int)$pagination['limit']);
+    }
+
+    /**
+     * @param array{q:string,type:string,tag:string,shelf:string,format:string,status:string,sort:string} $activeFilters
+     * @param array{limit:int} $pagination
+     */
+    private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
+        $query = [];
+        foreach (['q', 'type', 'format', 'tag', 'shelf', 'status', 'sort'] as $param) {
+            $value = trim((string)($activeFilters[$param] ?? ''));
+            if ($value !== '' && !($param === 'sort' && $value === 'title')) {
+                $query[$param] = $value;
+            }
+        }
+        $query['limit'] = (string)$pagination['limit'];
+        $query['page'] = (string)max(1, $page);
+        return '?' . http_build_query($query);
     }
 
     /**

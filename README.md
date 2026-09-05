@@ -18,7 +18,7 @@ The current development slice can:
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans;
-- show indexed files and publication items with a responsive cover gallery, preview-backed covers, placeholder fallbacks and collapsible metadata detail/edit sections;
+- show indexed files and publication items with a responsive, paginated cover gallery, preview-backed covers, placeholder fallbacks and collapsible metadata detail/edit sections;
 - search and filter the catalogue by title/author text, publication type, file format, scan status, exact Nextcloud tag and root-derived shelf;
 - treat Nextcloud system tags as cross-archive classification metadata exposed, addable and removable from Library item cards;
 - show recent Nextcloud file comments as file-level notes/discussion on Library item cards;
@@ -51,7 +51,7 @@ Included later in v0.1:
 - discover EPUB, PDF and CBZ files first;
 - store a file-ID-based index;
 - extract basic metadata and covers where practical;
-- browse/search/edit publication metadata through a cover gallery, shelf filters and detail/edit panels;
+- browse/search/edit publication metadata through a paginated cover gallery, shelf filters and detail/edit panels;
 - open files through compatible existing Nextcloud viewers/readers;
 - show the original file in Nextcloud Files.
 

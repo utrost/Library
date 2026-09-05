@@ -31,6 +31,7 @@ What exists now:
 - First local metadata extraction for EPUB package OPF, standalone OPF files, filename/folder patterns and basic PDF info dictionaries.
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue gallery with placeholder covers, card-level title/creator/type/shelf/tag metadata, direct Read links and collapsible detail/edit sections.
+- Bounded catalogue pagination with page-size controls for staged 10 → 100 → 1000 → 10000 file scale pilots against the Alice production replica.
 - Server-side catalogue search/filter controls for title/author text, publication type, file format filter, scan status, exact Nextcloud tag and root-derived shelf.
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
 - Minimal Nextcloud system tag assignment/removal from Library item cards for visible/assignable tags.
@@ -42,7 +43,7 @@ What exists now:
 - Concept, technical-spec and reader-handoff notes.
 - Lightweight repository tests protecting the current skeleton, docs contracts, roots/file-index slice and catalogue-item slice.
 
-This is now a development catalogue spine with a first usable shelf/gallery presentation, not a polished media server. Phase 3.1 adds preview-backed covers through Nextcloud's preview pipeline and CBZ first-image covers while keeping placeholders for unsupported files. Scanner hardening now records per-file metadata errors without aborting the rest of the root scan; browsing now includes Show in Files links, sort modes, scan status filtering, missing-file status, cover placeholder diagnostics and a real-world-ish metadata fixture matrix.
+This is now a development catalogue spine with a first usable shelf/gallery presentation, not a polished media server. Phase 3.1 adds preview-backed covers through Nextcloud's preview pipeline and CBZ first-image covers while keeping placeholders for unsupported files. Scanner hardening now records per-file metadata errors without aborting the rest of the root scan; browsing now includes Show in Files links, sort modes, scan status filtering, pagination, missing-file status, cover placeholder diagnostics and a real-world-ish metadata fixture matrix.
 
 ## Phase 0 — Concept and spike baseline
 
