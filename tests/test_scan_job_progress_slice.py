@@ -29,13 +29,12 @@ def test_scan_job_service_tracks_start_finish_and_recent_user_job():
     assert "failed" in service
 
 
-def test_scan_controller_wraps_existing_scan_in_job_status():
+def test_scan_controller_creates_visible_job_before_queueing_background_scan():
     controller = (ROOT / "lib" / "Controller" / "ScanController.php").read_text()
 
     assert "ScanJobService $scanJobService" in controller
-    assert "$job = $this->scanJobService->startJob($user->getUID());" in controller
-    assert "$this->scanJobService->finishJob($user->getUID(), (int)$job['id'], $result);" in controller
-    assert "$this->scanJobService->failJob($user->getUID(), (int)$job['id'], $e->getMessage());" in controller
+    assert "$job = $this->scanJobService->queueJob($user->getUID());" in controller
+    assert "$this->jobList->add(ScanJob::class, ['userId' => $user->getUID(), 'jobId' => (int)$job['id']]);" in controller
 
 
 def test_page_template_exposes_latest_scan_job_progress_summary():

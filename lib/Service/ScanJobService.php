@@ -12,34 +12,21 @@ final class ScanJobService {
     ) {
     }
 
-    public function startJob(string $userId): array {
-        $now = time();
-        $qb = $this->db->getQueryBuilder();
-        $qb->insert('library_scan_jobs')
-            ->values([
-                'user_id' => $qb->createNamedParameter($userId),
-                'status' => $qb->createNamedParameter('running'),
-                'roots_total' => $qb->createNamedParameter(0),
-                'files_indexed' => $qb->createNamedParameter(0),
-                'error_count' => $qb->createNamedParameter(0),
-                'summary' => $qb->createNamedParameter(null),
-                'started_at' => $qb->createNamedParameter($now),
-                'finished_at' => $qb->createNamedParameter(null),
-            ])
-            ->executeStatement();
+    public function queueJob(string $userId): array {
+        return $this->createJob($userId, 'queued');
+    }
 
-        return $this->latestJob($userId) ?? [
-            'id' => 0,
-            'userId' => $userId,
-            'status' => 'running',
-            'rootsTotal' => 0,
-            'filesIndexed' => 0,
-            'errorCount' => 0,
-            'summary' => '',
-            'startedAt' => $now,
-            'finishedAt' => null,
-            'durationSeconds' => 0,
-        ];
+    public function startJob(string $userId): array {
+        return $this->createJob($userId, 'running');
+    }
+
+    public function markRunning(string $userId, int $jobId): void {
+        $qb = $this->db->getQueryBuilder();
+        $qb->update('library_scan_jobs')
+            ->set('status', $qb->createNamedParameter('running'))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
     }
 
     public function finishJob(string $userId, int $jobId, array $result): void {
@@ -68,6 +55,36 @@ final class ScanJobService {
         }
 
         return $this->normalizeRow($row);
+    }
+
+    private function createJob(string $userId, string $status): array {
+        $now = time();
+        $qb = $this->db->getQueryBuilder();
+        $qb->insert('library_scan_jobs')
+            ->values([
+                'user_id' => $qb->createNamedParameter($userId),
+                'status' => $qb->createNamedParameter($status),
+                'roots_total' => $qb->createNamedParameter(0),
+                'files_indexed' => $qb->createNamedParameter(0),
+                'error_count' => $qb->createNamedParameter(0),
+                'summary' => $qb->createNamedParameter(null),
+                'started_at' => $qb->createNamedParameter($now),
+                'finished_at' => $qb->createNamedParameter(null),
+            ])
+            ->executeStatement();
+
+        return $this->latestJob($userId) ?? [
+            'id' => 0,
+            'userId' => $userId,
+            'status' => $status,
+            'rootsTotal' => 0,
+            'filesIndexed' => 0,
+            'errorCount' => 0,
+            'summary' => '',
+            'startedAt' => $now,
+            'finishedAt' => null,
+            'durationSeconds' => 0,
+        ];
     }
 
     private function updateJob(string $userId, int $jobId, string $status, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary): void {
