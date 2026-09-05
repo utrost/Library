@@ -44,6 +44,7 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function index(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
+        Util::addScript(Application::APP_ID, 'library-shell');
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -86,13 +87,13 @@ class PageController extends Controller {
             'scanStatuses' => $scanStatuses,
             'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
-            'settingsUrl' => $this->urlGenerator->linkTo('', '/settings/user/library'),
+            'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library'),
             'itemUpdateBaseUrl' => $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => '__ITEM_ID__']),
             'itemCoverBaseUrl' => $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => '__ITEM_ID__']),
             'itemTagBaseUrl' => $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => '__ITEM_ID__']),
             'itemTagRemoveBaseUrl' => $this->urlGenerator->linkToRoute('library.tag.remove', ['itemId' => '__ITEM_ID__', 'tagId' => '__TAG_ID__']),
             'itemCommentBaseUrl' => $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => '__ITEM_ID__']),
-            'itemOpenBaseUrl' => $this->urlGenerator->linkTo('', '/f/__FILE_ID__'),
+            'itemOpenBaseUrl' => $this->urlGenerator->getAbsoluteURL('/f/__FILE_ID__'),
             'itemFilesBaseUrl' => $this->readerProvider->getShowInFilesUrl(0),
         ]);
     }

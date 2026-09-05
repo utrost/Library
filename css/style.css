@@ -1,12 +1,23 @@
+body:has(#library-app.library-app),
+#content:has(#library-app.library-app),
+#app-content:has(#library-app.library-app) {
+    height: auto !important;
+    min-height: calc(100vh - var(--header-height));
+    overflow-y: auto !important;
+}
+
 #app-content #library-app.library-app {
-    height: calc(100vh - var(--header-height));
-    overflow-y: auto;
+    height: auto;
+    min-height: calc(100vh - var(--header-height));
+    overflow: visible;
 }
 
 #library-app.library-app,
 #library-settings.library-app {
+    box-sizing: border-box;
     margin: 32px auto;
-    max-width: 980px;
+    max-width: min(1180px, calc(100vw - 48px));
+    min-width: 0;
     padding: 0 24px 0;
     padding-bottom: 96px;
 }
@@ -198,8 +209,10 @@
     align-items: end;
     display: grid;
     gap: 12px;
-    grid-template-columns: minmax(220px, 2fr) repeat(7, minmax(120px, 1fr)) auto auto;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     margin: 16px 0 24px;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .library-filter-bar label {

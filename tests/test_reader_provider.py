@@ -11,7 +11,7 @@ def test_default_nextcloud_file_provider_exists_and_builds_short_file_urls():
     assert "final class DefaultNextcloudFileProvider" in provider
     assert "IURLGenerator" in provider
     assert "public function getOpenUrl(int $fileId): string" in provider
-    assert "linkTo('', '/f/' . $fileId)" in provider
+    assert "getAbsoluteURL('/f/' . $fileId)" in provider
 
 
 def test_page_controller_uses_default_reader_provider_not_inline_file_url_logic():

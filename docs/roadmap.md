@@ -40,7 +40,7 @@ What exists now:
 - Minimal Nextcloud file comment writing from Library item cards.
 - Per-file metadata extraction error isolation with visible indexed-file diagnostics for corrupt EPUB/CBZ/OPF inputs.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
-- Scan/admin controls are separated into the personal settings surface at `/settings/user/library`; the app page is catalogue-first.
+- Scan/admin controls are separated into the personal settings surface at `/settings/user/library`; the app page is catalogue-first with absolute Nextcloud URLs and a scrollable Nextcloud app shell.
 - Concept, technical-spec and reader-handoff notes.
 - Lightweight repository tests protecting the current skeleton, docs contracts, roots/file-index slice and catalogue-item slice.
 

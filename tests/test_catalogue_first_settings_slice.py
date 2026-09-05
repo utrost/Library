@@ -20,7 +20,7 @@ def test_css_makes_library_app_content_scrollable():
 
     assert "#app-content #library-app.library-app" in css
     assert "overflow-y: auto" in css
-    assert "height: calc(100vh - var(--header-height))" in css
+    assert "min-height: calc(100vh - var(--header-height))" in css
     assert "padding-bottom: 96px" in css
 
 
@@ -59,7 +59,7 @@ def test_user_settings_template_contains_root_scan_and_history_admin_tools():
 def test_page_controller_links_to_user_settings_and_no_longer_loads_admin_data():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
 
-    assert "'settingsUrl' => $this->urlGenerator->linkTo('', '/settings/user/library')" in page
+    assert "'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library')" in page
     assert "'roots' =>" not in page
     assert "'files' =>" not in page
     assert "'latestScanJob' =>" not in page

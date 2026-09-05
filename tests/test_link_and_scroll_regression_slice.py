@@ -1,0 +1,56 @@
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_nextcloud_internal_links_use_absolute_url_generator_not_empty_app_linkto():
+    page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    provider = (ROOT / "lib" / "Reader" / "DefaultNextcloudFileProvider.php").read_text()
+
+    assert "linkTo('', '/settings/user/library')" not in page
+    assert "linkTo('', '/f/__FILE_ID__')" not in page
+    assert "getAbsoluteURL('/settings/user/library')" in page
+    assert "getAbsoluteURL('/f/__FILE_ID__')" in page
+
+    assert "linkTo('', '/f/' . $fileId)" not in provider
+    assert "linkTo('', '/apps/files/files/' . $fileId)" not in provider
+    assert "getAbsoluteURL('/f/' . $fileId)" in provider
+    assert "getAbsoluteURL('/apps/files/files/' . $fileId . '?openfile=true')" in provider
+
+
+def test_scroll_css_targets_nextcloud_app_shell_and_keeps_body_scrollable():
+    css = (ROOT / "css" / "style.css").read_text()
+
+    assert "body:has(#library-app.library-app)" in css
+    assert "#content:has(#library-app.library-app)" in css
+    assert "#app-content:has(#library-app.library-app)" in css
+    assert "overflow-y: auto !important" in css
+    assert "overflow: visible" in css
+    assert "min-height: calc(100vh - var(--header-height))" in css
+    assert "height: auto" in css
+
+    page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    shell = (ROOT / "js" / "library-shell.js").read_text()
+    assert "Util::addScript(Application::APP_ID, 'library-shell');" in page
+    assert "document.getElementById('app-content')" in shell
+    assert "container.style.overflowY = 'auto'" in shell
+    assert "app.style.overflow = 'visible'" in shell
+
+
+def test_filter_bar_and_gallery_wrap_instead_of_forcing_horizontal_overflow():
+    css = (ROOT / "css" / "style.css").read_text()
+
+    assert ".library-filter-bar" in css
+    assert "grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))" in css
+    assert "max-width: 100%" in css
+    assert "min-width: 0" in css
+
+
+def test_existing_route_docs_mention_verified_link_scroll_regression():
+    readme = (ROOT / "README.md").read_text().lower()
+    roadmap = (ROOT / "docs" / "roadmap.md").read_text().lower()
+
+    assert "absolute nextcloud urls" in readme
+    assert "scrollable nextcloud app shell" in readme
+    assert "absolute nextcloud urls" in roadmap
+    assert "scrollable nextcloud app shell" in roadmap
