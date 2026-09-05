@@ -23,7 +23,7 @@ The current development slice can:
 - treat Nextcloud system tags as cross-archive classification metadata exposed, addable and removable from Library item cards;
 - show recent Nextcloud file comments as file-level notes/discussion on Library item cards;
 - add new Nextcloud file comments from Library item cards;
-- extract first local metadata candidates from EPUB package OPF, standalone OPF files and basic PDF info dictionaries;
+- extract first local metadata candidates from EPUB package OPF, standalone OPF files and basic PDF info dictionaries, including UTF-16 BOM encoded PDF Info strings from real PDFs;
 - prefer OPF sidecars for PDF/EPUB catalogue defaults when a same-basename `.opf` or folder-level `metadata.opf` is present;
 - suppress OPF sidecars as separate catalogue items when they accompany a primary PDF/EPUB/CBZ, while still allowing standalone OPF records;
 - clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items.
@@ -74,6 +74,7 @@ Explicit non-goals for v0.1:
 - [Metadata storage and Nextcloud integration](docs/metadata-storage.md)
 - [Reader handoff spike](docs/reader-handoff-spike.md)
 - [Alice reader compatibility notes](docs/alice-reader-compatibility.md)
+- [Alice scale pilot notes](docs/alice-scale-pilot.md)
 
 ## Development target
 
