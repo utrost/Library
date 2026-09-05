@@ -604,8 +604,19 @@ final class PublicationMetadataService {
         }
 
         $value = preg_replace('/\\\\([nrtbf()\\\\])/', '$1', $matches[1]);
+        $value = $this->decodePdfInfoString((string)$value);
         $value = trim((string)$value);
         return $value === '' ? null : $value;
+    }
+
+    private function decodePdfInfoString(string $value): string {
+        if (str_starts_with($value, "\xFE\xFF")) {
+            $value = mb_convert_encoding(substr($value, 2), 'UTF-8', 'UTF-16BE');
+        } elseif (str_starts_with($value, "\xFF\xFE")) {
+            $value = mb_convert_encoding(substr($value, 2), 'UTF-8', 'UTF-16LE');
+        }
+
+        return (string)preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $value);
     }
 
     private function firstXmlValue(mixed $nodes): ?string {
