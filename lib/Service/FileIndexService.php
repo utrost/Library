@@ -92,6 +92,47 @@ final class FileIndexService {
     }
 
     /**
+     * @param array<int, int> $seenLibraryFileIds
+     */
+    public function markMissingExcept(string $userId, int $rootId, array $seenLibraryFileIds): void {
+        $seen = array_flip(array_map('intval', $seenLibraryFileIds));
+        foreach ($this->libraryFileIdsForRoot($userId, $rootId) as $libraryFileId) {
+            if (isset($seen[$libraryFileId])) {
+                continue;
+            }
+
+            $qb = $this->db->getQueryBuilder();
+            $qb->update('library_files')
+                ->set('scan_status', $qb->createNamedParameter('missing'))
+                ->set('scan_error', $qb->createNamedParameter('File was not found during the latest root scan'))
+                ->set('updated_at', $qb->createNamedParameter(time()))
+                ->where($qb->expr()->eq('id', $qb->createNamedParameter($libraryFileId)))
+                ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+                ->andWhere($qb->expr()->neq('scan_status', $qb->createNamedParameter('sidecar')))
+                ->executeStatement();
+        }
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function libraryFileIdsForRoot(string $userId, int $rootId): array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('id')
+            ->from('library_files')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+            ->executeQuery();
+
+        $ids = [];
+        while ($row = $result->fetch()) {
+            $ids[] = (int)$row['id'];
+        }
+        $result->closeCursor();
+        return $ids;
+    }
+
+    /**
      * @return array<int, array<string, mixed>>
      */
     public function listFiles(string $userId): array {

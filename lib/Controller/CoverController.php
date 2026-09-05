@@ -35,17 +35,17 @@ class CoverController extends Controller {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
         if ($userId === '') {
-            return $this->placeholderResponse('LIB');
+            return $this->placeholderResponse('LIB', 'not-authenticated');
         }
 
         $fileId = $this->findFileIdForItem($userId, $itemId);
         if ($fileId === null) {
-            return $this->placeholderResponse('LIB');
+            return $this->placeholderResponse('LIB', 'item-not-found');
         }
 
         $file = $this->findUserFileById($userId, $fileId);
         if (!$file instanceof File) {
-            return $this->placeholderResponse('LIB');
+            return $this->placeholderResponse('LIB', 'file-not-found');
         }
 
         try {
@@ -59,15 +59,16 @@ class CoverController extends Controller {
                     ['Cache-Control' => 'private, max-age=3600']
                 );
             }
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             // Fall through to CBZ first-image cover or SVG placeholder.
+            $previewError = 'preview-error: ' . $e->getMessage();
         }
 
         $cbzCover = $this->extractCbzFirstImageCover($file, $itemId);
         if ($cbzCover !== null) {
             return $cbzCover;
         }
-        return $this->placeholderResponse($this->coverInitials($file->getName()));
+        return $this->placeholderResponse($this->coverInitials($file->getName()), $previewError ?? ($this->isCbzFile($file) ? 'cbz-cover-unavailable' : 'preview-unavailable'));
     }
 
     private function isCbzFile(File $file): bool {
@@ -178,7 +179,7 @@ class CoverController extends Controller {
         return null;
     }
 
-    private function placeholderResponse(string $label): DataDownloadResponse {
+    private function placeholderResponse(string $label, string $reason = 'preview-unavailable'): DataDownloadResponse {
         $safeLabel = htmlspecialchars(mb_substr($label, 0, 3), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="360" height="520" viewBox="0 0 360 520" role="img" aria-label="Library cover placeholder">'
             . '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e8edf7"/><stop offset="1" stop-color="#ccd8ea"/></linearGradient></defs>'
@@ -192,7 +193,11 @@ class CoverController extends Controller {
             'library-cover-placeholder.svg',
             'image/svg+xml',
             200,
-            ['Cache-Control' => 'private, max-age=300']
+            [
+                'Cache-Control' => 'private, max-age=300',
+                'X-Library-Cover-Status' => 'placeholder',
+                'X-Library-Cover-Reason' => mb_substr($reason, 0, 160),
+            ]
         );
     }
 

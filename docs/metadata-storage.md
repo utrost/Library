@@ -158,3 +158,7 @@ File-first portability matters, but v0.1 should not write sidecars by default. A
 ```
 
 or per-file sidecars if the user explicitly opts in.
+
+## Real-world-ish metadata fixture matrix
+
+The extractor hardening track preserves a small real-world-ish metadata fixture matrix. It covers EPUB with sparse OPF metadata, PDF with missing or encoded Info fields, CBZ without ComicInfo.xml, nested ComicInfo.xml, and sidecar OPF collisions. These cases should produce best-effort filename or embedded candidates, not scanner aborts, and failures should surface through `metadata_error`/`scan_error` diagnostics.

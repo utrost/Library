@@ -15,4 +15,8 @@ final class DefaultNextcloudFileProvider {
     public function getOpenUrl(int $fileId): string {
         return $this->urlGenerator->linkTo('', '/f/' . $fileId);
     }
+
+    public function getShowInFilesUrl(int $fileId): string {
+        return $this->urlGenerator->linkTo('', '/apps/files/files/' . $fileId) . '?openfile=true';
+    }
 }

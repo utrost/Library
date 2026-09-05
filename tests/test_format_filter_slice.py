@@ -8,7 +8,7 @@ def test_page_controller_accepts_format_filter_and_builds_available_formats():
     assert "getParam('format'" in controller
     assert "buildFormats" in controller
     assert "formats" in controller
-    assert "array{q:string,type:string,tag:string,shelf:string,format:string}" in controller
+    assert "array{q:string,type:string,tag:string,shelf:string,format:string" in controller
 
 
 def test_page_controller_filters_catalogue_items_by_file_extension():

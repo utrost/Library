@@ -40,9 +40,12 @@ final class LibraryScanner {
 
         foreach ($roots as $root) {
             try {
+                $rootId = (int)$root['id'];
                 $folder = $this->resolveRootFolder($userFolder, (string)$root['path']);
-                $indexed += $this->scanFolder($userId, (int)$root['id'], $folder);
-                $this->rootService->markScanned((int)$root['id']);
+                $seenLibraryFileIds = [];
+                $indexed += $this->scanFolder($userId, $rootId, $folder, $seenLibraryFileIds);
+                $this->fileIndexService->markMissingExcept($userId, $rootId, $seenLibraryFileIds);
+                $this->rootService->markScanned($rootId);
             } catch (Throwable $e) {
                 $errors[] = sprintf('%s: %s', (string)$root['path'], $e->getMessage());
             }
@@ -68,11 +71,11 @@ final class LibraryScanner {
         return $node;
     }
 
-    private function scanFolder(string $userId, int $rootId, Folder $folder): int {
+    private function scanFolder(string $userId, int $rootId, Folder $folder, array &$seenLibraryFileIds): int {
         $indexed = 0;
         foreach ($folder->getDirectoryListing() as $node) {
             if ($node instanceof Folder) {
-                $indexed += $this->scanFolder($userId, $rootId, $node);
+                $indexed += $this->scanFolder($userId, $rootId, $node, $seenLibraryFileIds);
                 continue;
             }
 
@@ -85,7 +88,7 @@ final class LibraryScanner {
                 continue;
             }
 
-            if ($this->scanFile($userId, $rootId, $node)) {
+            if ($this->scanFile($userId, $rootId, $node, $seenLibraryFileIds)) {
                 $indexed++;
             }
         }
@@ -93,7 +96,7 @@ final class LibraryScanner {
         return $indexed;
     }
 
-    private function scanFile(string $userId, int $rootId, File $node): bool {
+    private function scanFile(string $userId, int $rootId, File $node, array &$seenLibraryFileIds): bool {
         $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
             'fileId' => $node->getId(),
             'cachedPath' => $this->displayPath($node, $userId),
@@ -103,6 +106,7 @@ final class LibraryScanner {
             'mtime' => $node->getMTime(),
             'size' => $node->getSize(),
         ]);
+        $seenLibraryFileIds[] = (int)$indexedFile['id'];
 
         try {
             $metadata = $this->metadataService->extractWithSidecar($node);

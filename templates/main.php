@@ -11,9 +11,10 @@ $itemTagBaseUrl = $_['itemTagBaseUrl'] ?? '';
 $itemTagRemoveBaseUrl = $_['itemTagRemoveBaseUrl'] ?? '';
 $itemCommentBaseUrl = $_['itemCommentBaseUrl'] ?? '';
 $itemOpenBaseUrl = $_['itemOpenBaseUrl'] ?? '';
+$itemFilesBaseUrl = $_['itemFilesBaseUrl'] ?? '';
 $shelves = $_['shelves'] ?? [];
 $formats = $_['formats'] ?? [];
-$activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => '', 'tag' => '', 'shelf' => ''];
+$activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => '', 'tag' => '', 'shelf' => '', 'sort' => 'title'];
 ?>
 <div id="library-app" class="library-app">
     <section class="library-hero">
@@ -99,7 +100,7 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
                             <dt>format</dt>
                             <dd><?php p($file['extension']); ?> / <?php p($file['mimeType']); ?></dd>
                             <dt>scanStatus</dt>
-                            <dd><?php p($file['scanStatus']); ?></dd>
+                            <dd class="<?php p($file['scanStatus'] === 'missing' ? 'library-scan-error' : ''); ?>"><?php p($file['scanStatus']); ?></dd>
                             <?php if (($file['scanError'] ?? '') !== ''): ?>
                                 <dt>scanError</dt>
                                 <dd class="library-scan-error"><?php p($file['scanError']); ?></dd>
@@ -151,6 +152,15 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
                     <?php endforeach; ?>
                 </select>
             </label>
+            <label>
+                Sort
+                <select name="sort">
+                    <option value="title" <?php if (($activeFilters['sort'] ?? 'title') === 'title') { print_unescaped('selected'); } ?>>Title</option>
+                    <option value="recent" <?php if (($activeFilters['sort'] ?? 'title') === 'recent') { print_unescaped('selected'); } ?>>Recently added</option>
+                    <option value="publicationDate" <?php if (($activeFilters['sort'] ?? 'title') === 'publicationDate') { print_unescaped('selected'); } ?>>Publication date</option>
+                    <option value="format" <?php if (($activeFilters['sort'] ?? 'title') === 'format') { print_unescaped('selected'); } ?>>Format</option>
+                </select>
+            </label>
             <button type="submit">Apply filters</button>
             <a class="library-reset-link" href="?">Clear</a>
         </form>
@@ -166,6 +176,7 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
                     <?php $itemTagRemoveUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemTagRemoveBaseUrl); ?>
                     <?php $itemCommentUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemCommentBaseUrl); ?>
                     <?php $itemOpenUrl = str_replace('__FILE_ID__', (string)$item['fileId'], $itemOpenBaseUrl); ?>
+                    <?php $itemFilesUrl = str_replace('/0?openfile=true', '/' . (string)$item['fileId'] . '?openfile=true', $itemFilesBaseUrl); ?>
                     <?php $nextcloudTags = $fileTagsByFileId[(int)$item['fileId']] ?? []; ?>
                     <?php $nextcloudComments = $fileCommentsByFileId[(int)$item['fileId']] ?? ['count' => 0, 'recent' => []]; ?>
                     <?php $coverText = mb_strtoupper(mb_substr(trim((string)$item['title']), 0, 2)); ?>
@@ -195,7 +206,7 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
-                            <p><a href="<?php p($itemOpenUrl); ?>">Read</a></p>
+                            <p><a href="<?php p($itemOpenUrl); ?>">Read</a> · <a href="<?php p($itemFilesUrl); ?>">Show in Files</a></p>
                         </div>
 
                         <details>
