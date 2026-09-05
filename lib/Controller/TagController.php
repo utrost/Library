@@ -32,7 +32,7 @@ final class TagController extends Controller {
             $this->fileTagService->assignTagToItem(
                 $user->getUID(),
                 $itemId,
-                (string)$this->request->getParam('tagName', ''),
+                (string)($this->request->getParam('nextcloudTagName', '') ?: $this->request->getParam('tagName', '')),
             );
         }
 
