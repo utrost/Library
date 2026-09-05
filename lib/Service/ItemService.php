@@ -93,7 +93,7 @@ final class ItemService {
      */
     public function listItems(string $userId): array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -111,6 +111,8 @@ final class ItemService {
                 'cachedPath' => (string)$row['cached_path'],
                 'mimeType' => (string)$row['mime_type'],
                 'extension' => $row['extension'] !== null ? (string)$row['extension'] : '',
+                'scanStatus' => (string)$row['scan_status'],
+                'scanError' => $row['scan_error'] !== null ? (string)$row['scan_error'] : '',
                 'publicationType' => (string)$row['publication_type'],
                 'title' => (string)$row['title'],
                 'subtitle' => $row['subtitle'] !== null ? (string)$row['subtitle'] : '',

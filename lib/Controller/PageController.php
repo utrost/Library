@@ -54,10 +54,12 @@ class PageController extends Controller {
             'format' => trim((string)$this->request->getParam('format', '')),
             'tag' => trim((string)$this->request->getParam('tag', '')),
             'shelf' => trim((string)$this->request->getParam('shelf', '')),
+            'status' => trim((string)$this->request->getParam('status', '')),
             'sort' => trim((string)$this->request->getParam('sort', 'title')),
         ];
         $shelves = $this->buildShelves($items);
         $formats = $this->buildFormats($items);
+        $scanStatuses = $this->buildScanStatuses($items);
         $items = $this->filterItemsForPresentation($items, $fileTagsByFileId, $activeFilters);
         $items = $this->sortItemsForPresentation($items, $activeFilters['sort']);
 
@@ -70,6 +72,7 @@ class PageController extends Controller {
             'fileCommentsByFileId' => $this->fileCommentService->commentsForItems($items),
             'shelves' => $shelves,
             'formats' => $formats,
+            'scanStatuses' => $scanStatuses,
             'activeFilters' => $activeFilters,
             'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
@@ -117,6 +120,26 @@ class PageController extends Controller {
 
     /**
      * @param array<int, array<string, mixed>> $items
+     * @return array<int, string>
+     */
+    private function buildScanStatuses(array $items): array {
+        $statuses = [
+            'indexed' => 'indexed',
+            'metadata_error' => 'metadata_error',
+            'missing' => 'missing',
+        ];
+        foreach ($items as $item) {
+            $status = trim((string)($item['scanStatus'] ?? ''));
+            if ($status !== '') {
+                $statuses[$status] = $status;
+            }
+        }
+        ksort($statuses, SORT_NATURAL | SORT_FLAG_CASE);
+        return array_values($statuses);
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $items
      * @return array<int, array<string, mixed>>
      */
     private function sortItemsForPresentation(array $items, string $sort): array {
@@ -133,7 +156,7 @@ class PageController extends Controller {
 
     /**
      * @param array<int, array<int, array{name:string}>> $fileTagsByFileId
-     * @param array{q:string,type:string,tag:string,shelf:string,format:string,sort:string} $activeFilters
+     * @param array{q:string,type:string,tag:string,shelf:string,format:string,status:string,sort:string} $activeFilters
      * @return array<int, array<string, mixed>>
      */
     private function filterItemsForPresentation(array $items, array $fileTagsByFileId, array $activeFilters): array {
@@ -143,6 +166,10 @@ class PageController extends Controller {
             }
 
             if ($activeFilters['format'] !== '' && mb_strtolower((string)($item['extension'] ?? '')) !== mb_strtolower($activeFilters['format'])) {
+                return false;
+            }
+
+            if ($activeFilters['status'] !== '' && (string)($item['scanStatus'] ?? '') !== $activeFilters['status']) {
                 return false;
             }
 

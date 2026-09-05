@@ -19,7 +19,7 @@ The current development slice can:
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans;
 - show indexed files and publication items with a responsive cover gallery, preview-backed covers, placeholder fallbacks and collapsible metadata detail/edit sections;
-- search and filter the catalogue by title/author text, publication type, file format, exact Nextcloud tag and root-derived shelf;
+- search and filter the catalogue by title/author text, publication type, file format, scan status, exact Nextcloud tag and root-derived shelf;
 - treat Nextcloud system tags as cross-archive classification metadata exposed, addable and removable from Library item cards;
 - show recent Nextcloud file comments as file-level notes/discussion on Library item cards;
 - add new Nextcloud file comments from Library item cards;
@@ -33,6 +33,7 @@ The current development slice can:
 - provide separate Read and Show in Files actions for each catalogue item.
 - sort the catalogue grid by title, recently added, publication date or format.
 - mark previously indexed files as missing when a root scan no longer sees them, without deleting catalogue metadata.
+- filter the catalogue by scan status (`indexed`, `metadata_error`, `missing`) and show per-card scan diagnostics for unhealthy items.
 - isolate local metadata extraction failures per file so corrupt EPUB/CBZ/OPF fixtures do not abort an otherwise healthy root scan, and show the scan error in the indexed-file diagnostics.
 
 The next milestone is to harden PDF/EPUB/OPF/CBZ metadata extraction, CBZ first-image covers, preview-backed covers and tag/comment flows with real-collection fixtures and user-edited sidecar cleanup policy.

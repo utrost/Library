@@ -14,7 +14,8 @@ $itemOpenBaseUrl = $_['itemOpenBaseUrl'] ?? '';
 $itemFilesBaseUrl = $_['itemFilesBaseUrl'] ?? '';
 $shelves = $_['shelves'] ?? [];
 $formats = $_['formats'] ?? [];
-$activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => '', 'tag' => '', 'shelf' => '', 'sort' => 'title'];
+$scanStatuses = $_['scanStatuses'] ?? [];
+$activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => '', 'tag' => '', 'shelf' => '', 'status' => '', 'sort' => 'title'];
 ?>
 <div id="library-app" class="library-app">
     <section class="library-hero">
@@ -153,6 +154,15 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
                 </select>
             </label>
             <label>
+                Scan status
+                <select name="status">
+                    <option value="">All scan statuses</option>
+                    <?php foreach ($scanStatuses as $status): ?>
+                        <option value="<?php p($status); ?>" <?php if (($activeFilters['status'] ?? '') === $status) { print_unescaped('selected'); } ?>><?php p($status); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label>
                 Sort
                 <select name="sort">
                     <option value="title" <?php if (($activeFilters['sort'] ?? 'title') === 'title') { print_unescaped('selected'); } ?>>Title</option>
@@ -197,6 +207,12 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
                                 <?php if (($item['extension'] ?? '') !== ''): ?> · <span>Format: <?php p(mb_strtoupper($item['extension'])); ?></span><?php endif; ?>
                                 <?php if (($item['shelf'] ?? '') !== ''): ?> · <span>Shelf: <?php p($item['shelf']); ?></span><?php endif; ?>
                             </p>
+                            <?php if (($item['scanStatus'] ?? 'indexed') !== 'indexed' || ($item['scanError'] ?? '') !== ''): ?>
+                                <p class="library-item-scan-status library-scan-error">
+                                    scanStatus: <?php p($item['scanStatus'] ?? 'unknown'); ?>
+                                    <?php if (($item['scanError'] ?? '') !== ''): ?> · scanError: <?php p($item['scanError']); ?><?php endif; ?>
+                                </p>
+                            <?php endif; ?>
                             <div class="library-nextcloud-tags" aria-label="nextcloudTags">
                                 <?php if (count($nextcloudTags) === 0): ?>
                                     <span class="library-muted">No Nextcloud tags</span>
