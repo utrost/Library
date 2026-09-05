@@ -172,7 +172,7 @@
     align-items: end;
     display: grid;
     gap: 12px;
-    grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(140px, 1fr)) auto auto;
+    grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(120px, 1fr)) auto auto;
     margin: 16px 0 24px;
 }
 

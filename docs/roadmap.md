@@ -31,7 +31,7 @@ What exists now:
 - First local metadata extraction for EPUB package OPF, standalone OPF files and basic PDF info dictionaries.
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue gallery with placeholder covers, card-level title/creator/type/shelf/tag metadata, direct Read links and collapsible detail/edit sections.
-- Server-side catalogue search/filter controls for title/author text, publication type, exact Nextcloud tag and root-derived shelf.
+- Server-side catalogue search/filter controls for title/author text, publication type, file format filter, exact Nextcloud tag and root-derived shelf.
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
 - Minimal Nextcloud system tag assignment from Library item cards for existing or creatable public/assignable tags.
 - Read-only recent Nextcloud file comments on publication item cards as file-level notes/discussion.
@@ -193,7 +193,7 @@ User outcome:
 - The user sees a gallery of publication cards instead of only a raw table.
 - High-signal metadata is visible on each card: title, creator/author, type, shelf and Nextcloud tags.
 - Secondary metadata and editing are available in a collapsible detail panel.
-- Search and filters can narrow by title/author text, semantic publication type, exact Nextcloud tag and shelf.
+- Search and filters can narrow by title/author text, semantic publication type, file format, exact Nextcloud tag and shelf.
 
 Backend/frontend slices:
 
@@ -201,7 +201,7 @@ Backend/frontend slices:
 2. Derive a v0.1 Shelf from the configured Library root label/path. **Landed.**
 3. Render a responsive cover gallery with stable placeholder covers. **Landed.**
 4. Move noisy metadata/edit/tag/comment controls behind per-card details. **Landed.**
-5. Add GET-based filters for query, type, tag and shelf. **Landed.**
+5. Add GET-based filters for query, type, tag and shelf. **Landed; extended with file format filter.**
 6. Replace placeholders with extracted/generated cover images. **Deferred to Phase 3 cover work.**
 7. Add virtual/user-defined shelves or collections without changing file ownership. **Deferred.**
 
@@ -209,6 +209,7 @@ Exit criteria:
 
 - A user can explain whether Library is a shelf/gallery product, where metadata appears, and how to find items in a mixed publication archive.
 - The implementation keeps shelves as catalogue presentation, not a new storage location.
+- Filter by PDF, EPUB, CBZ or OPF through the file format filter without changing the semantic publication type.
 
 ## Phase 3 — Format metadata and cover extraction
 

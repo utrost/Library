@@ -11,7 +11,8 @@ $itemTagBaseUrl = $_['itemTagBaseUrl'] ?? '';
 $itemCommentBaseUrl = $_['itemCommentBaseUrl'] ?? '';
 $itemOpenBaseUrl = $_['itemOpenBaseUrl'] ?? '';
 $shelves = $_['shelves'] ?? [];
-$activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'tag' => '', 'shelf' => ''];
+$formats = $_['formats'] ?? [];
+$activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => '', 'tag' => '', 'shelf' => ''];
 ?>
 <div id="library-app" class="library-app">
     <section class="library-hero">
@@ -128,6 +129,15 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'tag' => '', '
                 <input type="text" name="tag" value="<?php p($activeFilters['tag'] ?? ''); ?>" placeholder="photography" />
             </label>
             <label>
+                Format
+                <select name="format">
+                    <option value="">All formats</option>
+                    <?php foreach ($formats as $format): ?>
+                        <option value="<?php p($format); ?>" <?php if (($activeFilters['format'] ?? '') === $format) { print_unescaped('selected'); } ?>><?php p(mb_strtoupper($format)); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label>
                 Shelf
                 <select name="shelf">
                     <option value="">All shelves</option>
@@ -167,6 +177,7 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'tag' => '', '
                             <?php endif; ?>
                             <p class="library-muted">
                                 <span><?php p($item['publicationType']); ?></span>
+                                <?php if (($item['extension'] ?? '') !== ''): ?> · <span>Format: <?php p(mb_strtoupper($item['extension'])); ?></span><?php endif; ?>
                                 <?php if (($item['shelf'] ?? '') !== ''): ?> · <span>Shelf: <?php p($item['shelf']); ?></span><?php endif; ?>
                             </p>
                             <div class="library-nextcloud-tags" aria-label="nextcloudTags">
