@@ -6,6 +6,7 @@ $items = $_['items'] ?? [];
 $fileTagsByFileId = $_['fileTagsByFileId'] ?? [];
 $fileCommentsByFileId = $_['fileCommentsByFileId'] ?? [];
 $itemUpdateBaseUrl = $_['itemUpdateBaseUrl'] ?? '';
+$itemCoverBaseUrl = $_['itemCoverBaseUrl'] ?? '';
 $itemTagBaseUrl = $_['itemTagBaseUrl'] ?? '';
 $itemCommentBaseUrl = $_['itemCommentBaseUrl'] ?? '';
 $itemOpenBaseUrl = $_['itemOpenBaseUrl'] ?? '';
@@ -145,6 +146,7 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'tag' => '', '
             <div class="library-cover-gallery">
                 <?php foreach ($items as $item): ?>
                     <?php $itemUpdateUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemUpdateBaseUrl); ?>
+                    <?php $itemCoverUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemCoverBaseUrl); ?>
                     <?php $itemTagUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemTagBaseUrl); ?>
                     <?php $itemCommentUrl = str_replace('__ITEM_ID__', (string)$item['id'], $itemCommentBaseUrl); ?>
                     <?php $itemOpenUrl = str_replace('__FILE_ID__', (string)$item['fileId'], $itemOpenBaseUrl); ?>
@@ -153,6 +155,7 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'tag' => '', '
                     <?php $coverText = mb_strtoupper(mb_substr(trim((string)$item['title']), 0, 2)); ?>
                     <article class="library-cover-card">
                         <a class="library-cover-link" href="<?php p($itemOpenUrl); ?>" aria-label="Read <?php p($item['title']); ?>">
+                            <img class="library-cover-image" src="<?php p($itemCoverUrl); ?>" alt="Cover for <?php p($item['title']); ?>" loading="lazy" />
                             <div class="library-cover-placeholder" aria-hidden="true">
                                 <span><?php p($coverText !== '' ? $coverText : 'LIB'); ?></span>
                             </div>

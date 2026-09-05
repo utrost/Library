@@ -41,7 +41,7 @@ What exists now:
 - Concept, technical-spec and reader-handoff notes.
 - Lightweight repository tests protecting the current skeleton, docs contracts, roots/file-index slice and catalogue-item slice.
 
-This is now a development catalogue spine with a first usable shelf/gallery presentation, not a polished media server. The next milestone is real cover extraction, deeper local metadata, or a dedicated detail route if the card-level UI becomes too dense.
+This is now a development catalogue spine with a first usable shelf/gallery presentation, not a polished media server. Phase 3.1 adds preview-backed covers through Nextcloud's preview pipeline while keeping placeholders for unsupported files.
 
 ## Phase 0 — Concept and spike baseline
 
@@ -213,6 +213,10 @@ Exit criteria:
 ## Phase 3 — Format metadata and cover extraction
 
 Goal: populate catalogue items with useful initial metadata and covers without external services.
+
+### Phase 3.1 — Preview-backed covers
+
+Status: first slice landed. Catalogue cards now request item covers from a Library route that resolves the owned catalogue item to its Nextcloud file and asks the public Nextcloud preview manager for a cover-sized preview. Unsupported files still return the existing stable placeholder artwork, so the gallery remains usable while deeper EPUB/CBZ/PDF cover extraction evolves.
 
 Status: first extraction slices landed and smoke-tested on Alice. EPUB package OPF, standalone OPF, same-basename OPF sidecars, folder-level `metadata.opf` sidecars and basic PDF info fields now populate catalogue item candidates. Sidecar OPFs are suppressed as separate catalogue items when paired with primary publication files, and stale sidecar cleanup removes scanner-created duplicate OPF items on rescan. Cover extraction, user-edited sidecar cleanup policy and richer real-world PDF handling remain open.
 
