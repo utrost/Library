@@ -10,6 +10,7 @@ use Throwable;
 use ZipArchive;
 
 final class PublicationMetadataService {
+    // realistic fixture notes: encoded PDF info dictionaries, CBZ without ComicInfo.xml, nested ComicInfo.xml, sidecar collisions.
     private ?string $lastError = null;
 
     public function getLastError(): ?string {

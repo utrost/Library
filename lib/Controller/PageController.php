@@ -54,10 +54,12 @@ class PageController extends Controller {
             'format' => trim((string)$this->request->getParam('format', '')),
             'tag' => trim((string)$this->request->getParam('tag', '')),
             'shelf' => trim((string)$this->request->getParam('shelf', '')),
+            'sort' => trim((string)$this->request->getParam('sort', 'title')),
         ];
         $shelves = $this->buildShelves($items);
         $formats = $this->buildFormats($items);
         $items = $this->filterItemsForPresentation($items, $fileTagsByFileId, $activeFilters);
+        $items = $this->sortItemsForPresentation($items, $activeFilters['sort']);
 
         return new TemplateResponse(Application::APP_ID, 'main', [
             'fixtureOpenUrl' => $this->readerProvider->getOpenUrl(self::READER_FIXTURE_FILE_ID),
@@ -77,6 +79,7 @@ class PageController extends Controller {
             'itemTagRemoveBaseUrl' => $this->urlGenerator->linkToRoute('library.tag.remove', ['itemId' => '__ITEM_ID__', 'tagId' => '__TAG_ID__']),
             'itemCommentBaseUrl' => $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => '__ITEM_ID__']),
             'itemOpenBaseUrl' => $this->urlGenerator->linkTo('', '/f/__FILE_ID__'),
+            'itemFilesBaseUrl' => $this->readerProvider->getShowInFilesUrl(0),
         ]);
     }
 
@@ -114,8 +117,23 @@ class PageController extends Controller {
 
     /**
      * @param array<int, array<string, mixed>> $items
+     * @return array<int, array<string, mixed>>
+     */
+    private function sortItemsForPresentation(array $items, string $sort): array {
+        usort($items, function (array $left, array $right) use ($sort): int {
+            return match ($sort) {
+                'recent' => ((int)($right['libraryFileId'] ?? 0) <=> (int)($left['libraryFileId'] ?? 0)),
+                'publicationDate' => strcasecmp((string)($right['publicationDate'] ?? ''), (string)($left['publicationDate'] ?? '')) ?: strcasecmp((string)$left['title'], (string)$right['title']),
+                'format' => strcasecmp((string)($left['extension'] ?? ''), (string)($right['extension'] ?? '')) ?: strcasecmp((string)$left['title'], (string)$right['title']),
+                default => strcasecmp((string)$left['title'], (string)$right['title']),
+            };
+        });
+        return $items;
+    }
+
+    /**
      * @param array<int, array<int, array{name:string}>> $fileTagsByFileId
-     * @param array{q:string,type:string,tag:string,shelf:string,format:string} $activeFilters
+     * @param array{q:string,type:string,tag:string,shelf:string,format:string,sort:string} $activeFilters
      * @return array<int, array<string, mixed>>
      */
     private function filterItemsForPresentation(array $items, array $fileTagsByFileId, array $activeFilters): array {

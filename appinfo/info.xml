@@ -5,7 +5,7 @@
     <name>Library</name>
     <summary>Publication catalogue for files stored in Nextcloud</summary>
     <description><![CDATA[Library adds a publication-specific catalogue, metadata model, search and browsing interface on top of ordinary Nextcloud files. Nextcloud Files remain canonical; Library stores indexes and derived metadata.]]></description>
-    <version>0.1.0-alpha.18</version>
+    <version>0.1.0-alpha.19</version>
     <licence>agpl</licence>
     <author mail="utrost@users.noreply.github.com">Uwe Trostheide</author>
     <namespace>Library</namespace>

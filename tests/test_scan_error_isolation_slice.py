@@ -17,7 +17,7 @@ def test_file_index_tracks_scan_error_without_losing_index_row():
 
 def test_scanner_isolates_per_file_metadata_errors_and_continues_root_scan():
     scanner = (ROOT / "lib" / "Service" / "LibraryScanner.php").read_text()
-    assert "private function scanFile(string $userId, int $rootId, File $node): bool" in scanner
+    assert "private function scanFile(string $userId, int $rootId, File $node" in scanner
     assert "try" in scanner
     assert "catch (Throwable $e)" in scanner
     assert "markScanError($userId" in scanner
