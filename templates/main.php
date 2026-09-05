@@ -83,26 +83,28 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
             <button type="submit">Scan enabled roots</button>
         </form>
 
-        <section class="library-scan-progress" aria-label="Scan progress">
+        <section class="library-scan-progress" aria-label="Scan progress" data-library-scan-progress-url="<?php p($_['scanProgressUrl']); ?>">
             <h3>Scan progress</h3>
             <?php if ($latestScanJob === null): ?>
                 <p class="library-muted">No scan job has run yet. New scans are queued background scan jobs with live-ish scan progress.</p>
             <?php else: ?>
-                <p class="library-muted">Scan counts update while the background job is running; scan progress updates while the background job is running. Refresh this page to see the latest values; this is live-ish scan progress without a client poller yet.</p>
+                <p class="library-muted">Scan counts update automatically while the background job is running; scan progress updates while the background job is running.</p>
                 <dl>
                     <dt>scanJobStatus</dt>
-                    <dd><?php p((string)$latestScanJob['status']); ?></dd>
+                    <dd data-library-scan-status><?php p((string)$latestScanJob['status']); ?></dd>
                     <dt>rootsTotal</dt>
-                    <dd><?php p((string)$latestScanJob['rootsTotal']); ?></dd>
+                    <dd data-library-scan-roots-total><?php p((string)$latestScanJob['rootsTotal']); ?></dd>
                     <dt>filesIndexed</dt>
-                    <dd><?php p((string)$latestScanJob['filesIndexed']); ?></dd>
+                    <dd data-library-scan-files-indexed><?php p((string)$latestScanJob['filesIndexed']); ?></dd>
                     <dt>errorCount</dt>
-                    <dd><?php p((string)$latestScanJob['errorCount']); ?></dd>
+                    <dd data-library-scan-error-count><?php p((string)$latestScanJob['errorCount']); ?></dd>
                     <dt>durationSeconds</dt>
-                    <dd><?php p((string)$latestScanJob['durationSeconds']); ?></dd>
+                    <dd data-library-scan-duration-seconds><?php p((string)$latestScanJob['durationSeconds']); ?></dd>
                 </dl>
                 <?php if (($latestScanJob['summary'] ?? '') !== ''): ?>
-                    <p class="library-muted"><?php p((string)$latestScanJob['summary']); ?></p>
+                    <p class="library-muted" data-library-scan-summary><?php p((string)$latestScanJob['summary']); ?></p>
+                <?php else: ?>
+                    <p class="library-muted" data-library-scan-summary></p>
                 <?php endif; ?>
             <?php endif; ?>
         </section>

@@ -44,6 +44,7 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function index(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
+        Util::addScript(Application::APP_ID, 'scan-progress');
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -91,6 +92,7 @@ class PageController extends Controller {
             'activeFilters' => $activeFilters,
             'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
+            'scanProgressUrl' => $this->urlGenerator->linkToRoute('library.scan.progress'),
             'itemUpdateBaseUrl' => $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => '__ITEM_ID__']),
             'itemCoverBaseUrl' => $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => '__ITEM_ID__']),
             'itemTagBaseUrl' => $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => '__ITEM_ID__']),

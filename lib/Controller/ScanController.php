@@ -9,6 +9,7 @@ use OCA\Library\Service\ScanJobService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\BackgroundJob\IJobList;
 use OCP\IRequest;
@@ -37,5 +38,14 @@ final class ScanController extends Controller {
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function progress(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $job = $user !== null ? $this->scanJobService->latestJob($user->getUID()) : null;
+
+        return new JSONResponse(['job' => $job]);
     }
 }
