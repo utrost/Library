@@ -86,7 +86,7 @@ $activeFilters = $_['activeFilters'] ?? ['q' => '', 'type' => '', 'format' => ''
         <section class="library-scan-progress" aria-label="Scan progress">
             <h3>Scan progress</h3>
             <?php if ($latestScanJob === null): ?>
-                <p class="library-muted">No scan job has run yet.</p>
+                <p class="library-muted">No scan job has run yet. New scans are queued background scan jobs.</p>
             <?php else: ?>
                 <dl>
                     <dt>scanJobStatus</dt>
