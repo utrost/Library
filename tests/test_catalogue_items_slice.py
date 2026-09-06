@@ -55,17 +55,23 @@ def test_item_edit_route_and_controller_are_wired():
     assert "publicationType" in controller
 
 
-def test_template_shows_publication_items_and_edit_form():
+def test_catalogue_shows_items_and_detail_page_owns_edit_form():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     assert "ItemService $itemService" in page
     assert "listItems($userId)" in page
-    assert "updateUrl" in page
+    assert "detailsUrl" in page
 
     vue = (ROOT / "src" / "App.vue").read_text()
     assert "Publication catalogue" in vue
     assert "publicationType" in vue
-    assert "metadataSource" in vue
-    assert "userEdited" in vue
-    assert "name=\"title\"" in vue
-    assert "name=\"publicationType\"" in vue
-    assert "Save metadata" in vue
+    assert "Details" in vue
+    assert "metadataSource" not in vue
+    assert "userEdited" not in vue
+    assert "Save metadata" not in vue
+
+    detail = (ROOT / "templates" / "item-detail.php").read_text()
+    assert "metadataSource" in detail
+    assert "userEdited" in detail
+    assert "name=\"title\"" in detail
+    assert "name=\"publicationType\"" in detail
+    assert "Save metadata" in detail

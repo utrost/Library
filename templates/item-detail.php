@@ -183,6 +183,15 @@ $fileRows = [
                         <?php endforeach; ?>
                     </ul>
                 <?php endif; ?>
+                <form method="post" action="<?php p($item['commentUrl'] ?? ''); ?>" class="library-detail-comment-form">
+                    <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                    <input type="hidden" name="returnTo" value="details" />
+                    <label>
+                        <?php p($l->t('Add Nextcloud comment')); ?>
+                        <textarea name="commentMessage" rows="2" placeholder="<?php p($l->t('file-level note...')); ?>"></textarea>
+                    </label>
+                    <button type="submit"><?php p($l->t('Add comment')); ?></button>
+                </form>
             </div>
         </section>
     </main>

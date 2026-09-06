@@ -34,6 +34,11 @@ final class CommentController extends Controller {
             );
         }
 
+        $returnTo = (string)$this->request->getParam('returnTo', '');
+        if ($returnTo === 'details') {
+            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+        }
+
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
     }
 }

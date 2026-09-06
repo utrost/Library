@@ -60,7 +60,7 @@ def test_vue_entrypoint_loads_nextcloud_initial_state_and_mounts_app():
     assert "Clear" in main
 
 
-def test_vue_app_renders_catalogue_filters_covers_links_and_edit_forms():
+def test_vue_app_renders_catalogue_filters_covers_and_detail_links():
     app = (ROOT / "src" / "App.vue").read_text()
 
     assert "Publication catalogue" in app
@@ -71,11 +71,14 @@ def test_vue_app_renders_catalogue_filters_covers_links_and_edit_forms():
     assert ":src=\"item.coverUrl\"" in app
     assert ":href=\"item.openUrl\"" in app
     assert "Show in Files" in app
-    assert "Details / edit metadata" in app
-    assert "Save metadata" in app
+    assert "Details" in app
+    assert "Details / edit metadata" not in app
+    assert "library-item-form" not in app
+    assert "library-comment-form" not in app
+    assert "Save metadata" not in app
     assert "Add Nextcloud tag" not in app
     assert "nextcloudTagEditor" not in app
-    assert "Add Nextcloud comment" in app
+    assert "Add Nextcloud comment" not in app
 
     detail = (ROOT / "templates" / "item-detail.php").read_text()
     assert "Add Nextcloud tag" in detail
