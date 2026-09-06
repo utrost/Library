@@ -5,12 +5,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_page_controller_accepts_limit_page_and_slices_catalogue_items():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
     assert "page" in page
     assert "limit" in page
     assert "buildPagination" in page
-    assert "sliceItemsForPresentation" in page
-    assert "array_slice($items" in page
-    assert "max(1, min(500" in page
+    assert "queryCatalogue($userId, $activeFilters, $pagination)" in page
+    assert "->setFirstResult($offset)" in service
+    assert "->setMaxResults($limit)" in service
+    assert "max(1, min(500" in service
 
 
 def test_template_renders_catalogue_pagination_controls_and_summary():

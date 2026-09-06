@@ -33,7 +33,7 @@ What exists now:
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue gallery with placeholder/preview covers, card-level title/creator/type/shelf/tag metadata, direct Read/Show in Files/Details links and browse-only catalogue cards.
 - Bounded catalogue pagination with page-size controls, smoke-tested through a 1000-real-file / 16.52 GiB staged Alice scale pilot after the planned 10 → 100 → 1000 → 10000 guardrail path.
-- Server-side catalogue search/filter controls for title/author text, publication type, file format filter, scan status, exact Nextcloud tag and root-derived shelf.
+- Database-backed catalogue search/filter controls for title/author text, publication type, file format filter, scan status, exact Nextcloud tag and root-derived shelf.
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
 - Dedicated item details page where the details page owns metadata, tag and comment editing while catalogue cards stay browse-only.
 - Minimal Nextcloud system tag assignment/removal from item details for visible/assignable tags.
@@ -458,19 +458,19 @@ Recommended vertical slices:
 6. **Scoped folder/subtree rescan.** After per-root scan lands, consider optional folder-path scan under a configured root. This should validate the path is inside a user-owned Library root and should not mark unrelated root files missing.
 7. **Metadata retry filters.** Add “retry metadata errors” and “check missing files” flows once scoped scanning exists, so repair jobs do not require a full library scan.
 8. **Cover lifecycle only after cache.** Keep current on-demand preview/CBZ/placeholder covers as the v0.1 baseline. Add cover cache, per-item cover refresh, per-root cover refresh and manual cover override only when real usage proves cover quality is a blocker.
-9. **DB-backed catalogue query path.** Move filtering/sorting/pagination from app-layer arrays to database queries before treating 10k+ real libraries as safe, especially once root-scoped operations and missing-item retention grow the tables.
+9. **DB-backed catalogue query path.** First slice landed: text/type/format/tag/shelf/status filtering, sort modes, counts, facets and page slicing now run through database-backed catalogue queries instead of loading the full catalogue into app-layer arrays.
 10. **Metadata portability.** Metadata export foundation.** First slice landed: user-edited catalogue rows can be downloaded as side-effect-free JSON with stable file identity, root/shelf labels, publication metadata and provenance. Import/write-back to OPF or JSON sidecars remains future work.
 
 ### Immediate next implementation slice
 
-Recommended next slice: **DB-backed catalogue query path**.
+Recommended next slice: **real-collection metadata hardening**.
 
 Minimum first cut:
 
-1. Move catalogue filtering/sorting/pagination from in-memory arrays to database queries.
-2. Preserve all existing filters: text, publication type, format, tag, shelf/root, scan status and sort.
-3. Keep page-size clamping and pagination URLs compatible with the current Vue/fallback surface.
-4. Smoke on Alice with generated 1k/10k fixtures and at least one real staged sample.
+1. Expand PDF/EPUB/OPF/CBZ fixture coverage with real Alice samples that currently produce weak, missing or wrong metadata.
+2. Keep user-edited metadata precedence and sidecar OPF cleanup policy intact while improving scanner candidates.
+3. Preserve the database-backed catalogue query path under text/type/format/tag/shelf/status filters during every smoke.
+4. Smoke on Alice with generated scale fixtures and at least one real staged sample.
 5. Keep metadata export/import write-back as a later portability slice; the current export route is read-only.
 
 Non-goals for this slice:
@@ -481,4 +481,4 @@ Non-goals for this slice:
 - OCR/full-text search;
 - shared global library administration.
 
-The root/update/delete/scoped-rescan, missing-item forget and corrected-metadata export boundaries are now in place. The next risk is scale: the catalogue query path should move to the database before larger real libraries are treated as safe.
+The root/update/delete/scoped-rescan, missing-item forget, corrected-metadata export and DB-backed catalogue-query boundaries are now in place. The next risk is metadata quality on real collections: extraction should be hardened without weakening user-edit precedence or sidecar cleanup safety.

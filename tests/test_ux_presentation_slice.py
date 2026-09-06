@@ -23,11 +23,13 @@ def test_user_story_ux_concept_covers_gallery_metadata_shelves_and_filtering():
 
 def test_page_controller_passes_filter_state_and_shelves_to_template():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
     assert "getParam('q'" in controller
     assert "getParam('type'" in controller
     assert "getParam('tag'" in controller
     assert "getParam('shelf'" in controller
-    assert "filterItemsForPresentation" in controller
+    assert "queryCatalogue($userId, $activeFilters, $pagination)" in controller
+    assert "applyCatalogueFilters" in service
     assert "shelves" in controller
     assert "activeFilters" in controller
 

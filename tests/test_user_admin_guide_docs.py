@@ -101,7 +101,8 @@ def test_roadmap_recommends_root_lifecycle_and_per_root_scan_next():
     assert "scan job rows track scope" in roadmap
     assert "Deletion/forget policy.** First slice landed" in roadmap
     assert "Metadata export foundation.** First slice landed" in roadmap
-    assert "Recommended next slice: **DB-backed catalogue query path**" in roadmap
+    assert "DB-backed catalogue query path.** First slice landed" in roadmap
+    assert "Recommended next slice: **real-collection metadata hardening**" in roadmap
     assert "forget missing item" in roadmap
     assert "cover cache or cover refresh" in roadmap
     assert "deleting source files from Nextcloud Files" in roadmap

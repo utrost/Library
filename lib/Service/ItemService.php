@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Library\Service;
 
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 final class ItemService {
@@ -125,14 +126,24 @@ final class ItemService {
      * @return array<int, array<string, mixed>>
      */
     public function listItems(string $userId): array {
-        $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
-            ->from('library_items', 'i')
-            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
-            ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
-            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
-            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
-            ->orderBy('i.title', 'ASC')
+        return $this->queryCatalogue($userId, [], ['page' => 1, 'limit' => 500])['items'];
+    }
+
+    /**
+     * @param array{q?:string,type?:string,format?:string,tag?:string,shelf?:string,status?:string,sort?:string,taggedFileIds?:array<int, int>} $filters
+     * @param array{page:int,limit:int} $pagination
+     * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,scanStatuses:array<int, string>}}
+     */
+    public function queryCatalogue(string $userId, array $filters, array $pagination): array {
+        $page = max(1, (int)($pagination['page'] ?? 1));
+        $limit = max(1, min(500, (int)($pagination['limit'] ?? 100)));
+        $offset = ($page - 1) * $limit;
+
+        $qb = $this->catalogueQueryBuilder($userId, $filters);
+        $this->applyCatalogueSort($qb, (string)($filters['sort'] ?? 'title'));
+        $result = $qb
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
             ->executeQuery();
 
         $items = [];
@@ -141,7 +152,11 @@ final class ItemService {
         }
         $result->closeCursor();
 
-        return $items;
+        return [
+            'items' => $items,
+            'total' => $this->countCatalogueItems($userId, $filters),
+            'facets' => $this->catalogueFacets($userId),
+        ];
     }
 
     public function findItem(string $userId, int $itemId): ?array {
@@ -191,6 +206,140 @@ final class ItemService {
             'itemCount' => count($items),
             'items' => $items,
         ];
+    }
+
+    private function catalogueQueryBuilder(string $userId, array $filters): IQueryBuilder {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
+            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')));
+
+        $this->applyCatalogueFilters($qb, $filters);
+        return $qb;
+    }
+
+    private function countCatalogueItems(string $userId, array $filters): int {
+        $qb = $this->db->getQueryBuilder();
+        $qb->selectAlias($qb->createFunction('COUNT(*)'), 'item_count')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
+            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')));
+        $this->applyCatalogueFilters($qb, $filters);
+
+        $result = $qb->executeQuery();
+        $row = $result->fetch();
+        $result->closeCursor();
+        return $row === false ? 0 : (int)$row['item_count'];
+    }
+
+    /**
+     * @return array{shelves:array<int, string>,formats:array<int, string>,scanStatuses:array<int, string>}
+     */
+    private function catalogueFacets(string $userId): array {
+        return [
+            'shelves' => $this->distinctCatalogueValues($userId, "COALESCE(NULLIF(r.label, ''), r.path)", 'shelf'),
+            'formats' => $this->distinctCatalogueValues($userId, 'LOWER(f.extension)', 'value'),
+            'scanStatuses' => $this->scanStatusFacetValues($userId),
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function distinctCatalogueValues(string $userId, string $expression, string $alias): array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->selectAlias($qb->createFunction($expression), $alias)
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
+            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
+            ->groupBy($alias)
+            ->orderBy($alias, 'ASC')
+            ->executeQuery();
+
+        $values = [];
+        while ($row = $result->fetch()) {
+            $value = trim((string)($row[$alias] ?? ''));
+            if ($value !== '') {
+                $values[] = $value;
+            }
+        }
+        $result->closeCursor();
+        return $values;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function scanStatusFacetValues(string $userId): array {
+        $values = array_fill_keys(['indexed', 'metadata_error', 'missing'], true);
+        foreach ($this->distinctCatalogueValues($userId, 'f.scan_status', 'value') as $status) {
+            $values[$status] = true;
+        }
+        ksort($values, SORT_NATURAL | SORT_FLAG_CASE);
+        return array_keys($values);
+    }
+
+    private function applyCatalogueFilters(IQueryBuilder $qb, array $filters): void {
+        $type = trim((string)($filters['type'] ?? ''));
+        if ($type !== '') {
+            $qb->andWhere($qb->expr()->eq('i.publication_type', $qb->createNamedParameter($this->normalizePublicationType($type))));
+        }
+
+        $format = mb_strtolower(trim((string)($filters['format'] ?? '')));
+        if ($format !== '') {
+            $qb->andWhere($qb->expr()->eq($qb->createFunction('LOWER(f.extension)'), $qb->createNamedParameter($format)));
+        }
+
+        $status = trim((string)($filters['status'] ?? ''));
+        if ($status !== '') {
+            $qb->andWhere($qb->expr()->eq('f.scan_status', $qb->createNamedParameter($status)));
+        }
+
+        $shelf = trim((string)($filters['shelf'] ?? ''));
+        if ($shelf !== '') {
+            $qb->andWhere($qb->expr()->eq($qb->createFunction("COALESCE(NULLIF(r.label, ''), r.path)"), $qb->createNamedParameter($shelf)));
+        }
+
+        if (array_key_exists('taggedFileIds', $filters)) {
+            $taggedFileIds = array_values(array_unique(array_map('intval', (array)$filters['taggedFileIds'])));
+            if ($taggedFileIds === []) {
+                $qb->andWhere('1 = 0');
+            } else {
+                $qb->andWhere($qb->expr()->in('f.file_id', $qb->createNamedParameter($taggedFileIds, IQueryBuilder::PARAM_INT_ARRAY)));
+            }
+        }
+
+        $query = mb_strtolower(trim((string)($filters['q'] ?? '')));
+        if ($query !== '') {
+            $like = $qb->createNamedParameter('%' . $this->escapeLikeParameter($query) . '%');
+            $qb->andWhere($qb->expr()->orX(
+                $qb->expr()->like($qb->createFunction('LOWER(i.title)'), $like),
+                $qb->expr()->like($qb->createFunction('LOWER(i.subtitle)'), $like),
+                $qb->expr()->like($qb->createFunction('LOWER(i.creators)'), $like),
+                $qb->expr()->like($qb->createFunction('LOWER(i.publication)'), $like),
+                $qb->expr()->like($qb->createFunction('LOWER(f.cached_path)'), $like)
+            ));
+        }
+    }
+
+    private function applyCatalogueSort(IQueryBuilder $qb, string $sort): void {
+        match ($sort) {
+            'recent' => $qb->orderBy('i.library_file_id', 'DESC')->addOrderBy('i.id', 'DESC'),
+            'publicationDate' => $qb->orderBy('i.publication_date', 'DESC')->addOrderBy('i.title', 'ASC'),
+            'format' => $qb->orderBy('f.extension', 'ASC')->addOrderBy('i.title', 'ASC'),
+            default => $qb->orderBy('i.title', 'ASC'),
+        };
+    }
+
+    private function escapeLikeParameter(string $value): string {
+        return addcslashes($value, '%_');
     }
 
     private function normalizeJoinedItemRow(array $row): array {

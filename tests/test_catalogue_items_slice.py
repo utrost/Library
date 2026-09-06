@@ -58,7 +58,7 @@ def test_item_edit_route_and_controller_are_wired():
 def test_catalogue_shows_items_and_detail_page_owns_edit_form():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     assert "ItemService $itemService" in page
-    assert "listItems($userId)" in page
+    assert "queryCatalogue($userId, $activeFilters, $pagination)" in page
     assert "detailsUrl" in page
 
     vue = (ROOT / "src" / "App.vue").read_text()

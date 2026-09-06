@@ -84,6 +84,45 @@ final class FileTagService {
         return $result;
     }
 
+    /**
+     * @return array<int, int> Nextcloud file IDs that have an exact visible tag name.
+     */
+    public function fileIdsForExactVisibleTag(string $tagName): array {
+        $tagName = trim($tagName);
+        if ($tagName === '') {
+            return [];
+        }
+
+        $user = $this->userSession->getUser();
+        try {
+            $tag = $this->tagManager->getTag($tagName, true, true);
+        } catch (TagNotFoundException) {
+            return [];
+        }
+
+        if (!$this->tagManager->canUserSeeTag($tag, $user)) {
+            return [];
+        }
+
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('objectid')
+            ->from('systemtag_object_mapping')
+            ->where($qb->expr()->eq('objecttype', $qb->createNamedParameter('files')))
+            ->andWhere($qb->expr()->eq('systemtagid', $qb->createNamedParameter($tag->getId())))
+            ->executeQuery();
+
+        $fileIds = [];
+        while ($row = $result->fetch()) {
+            $fileId = (int)($row['objectid'] ?? 0);
+            if ($fileId > 0) {
+                $fileIds[$fileId] = $fileId;
+            }
+        }
+        $result->closeCursor();
+
+        return array_values($fileIds);
+    }
+
     public function assignTagToItem(string $userId, int $itemId, string $tagName): void {
         $tagName = trim($tagName);
         if ($tagName === '') {
