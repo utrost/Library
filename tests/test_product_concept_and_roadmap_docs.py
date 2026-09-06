@@ -52,11 +52,11 @@ def test_roadmap_starts_with_roots_file_index_and_nextcloud_tags_before_metadata
     assert phase1 < phase2 < phase25 < phase3
 
     immediate = roadmap[roadmap.index("## Immediate next implementation slice") :]
-    assert "details-owned editing" in immediate
-    assert "detail workbench layout" in immediate
-    assert "browser accessibility smoke" in immediate
-    assert "must not alter publication form/title/creator fields" in immediate
-    assert "Library-native tag tables" in immediate
+    assert "root lifecycle plus per-root scan foundation" in immediate
+    assert "edit label/path, enable/disable, delete" in immediate
+    assert "scan job scoped to one root" in immediate
+    assert "deleting source files from Nextcloud Files" in immediate
+    assert "cover cache or cover refresh" in immediate
 
 
 def test_v01_spec_requires_extendable_user_specific_root_configuration():

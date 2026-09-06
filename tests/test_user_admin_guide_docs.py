@@ -67,3 +67,36 @@ def test_user_guide_lists_reviewable_missing_feature_candidates():
         "Export/import of corrected metadata",
     ]:
         assert gap in guide
+
+
+def test_roadmap_combines_user_review_questions_with_guide_gaps():
+    roadmap = (ROOT / "docs" / "roadmap.md").read_text()
+
+    assert "## Combined missing operational processes, 2026-09-06" in roadmap
+    assert "[User and admin guide](user-guide.md)" in roadmap
+    for phrase in [
+        "deletion/update processes",
+        "Library removal",
+        "cover rescans",
+        "folder/root scoped rescans",
+        "Cover extraction optionality",
+        "Root lifecycle UI and routes",
+        "Per-root scan",
+        "Deletion/forget policy",
+        "Library removal/uninstall guide",
+        "Scoped folder/subtree rescan",
+        "Cover lifecycle only after cache",
+        "DB-backed catalogue query path",
+        "Metadata portability",
+    ]:
+        assert phrase in roadmap
+
+
+def test_roadmap_recommends_root_lifecycle_and_per_root_scan_next():
+    roadmap = (ROOT / "docs" / "roadmap.md").read_text()
+
+    assert "Recommended next slice: **root lifecycle plus per-root scan foundation**" in roadmap
+    assert "delete affects Library catalogue/index data, not Nextcloud Files" in roadmap
+    assert "scan job scoped to one root" in roadmap
+    assert "cover cache or cover refresh" in roadmap
+    assert "deleting source files from Nextcloud Files" in roadmap
