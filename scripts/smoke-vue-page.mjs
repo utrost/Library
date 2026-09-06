@@ -93,6 +93,10 @@ try {
     console.log(`detail_has_file_metadata=${detail.text.includes('File metadata')}`)
     console.log(`detail_has_provenance=${detail.text.includes('Provenance')}`)
     console.log(`detail_has_nextcloud_metadata=${detail.text.includes('Nextcloud metadata')}`)
+    console.log(`detail_has_edit_form=${detail.text.includes('library-detail-edit-form')}`)
+    console.log(`detail_has_requesttoken=${detail.text.includes('name="requesttoken"')}`)
+    console.log(`detail_has_return_to_details=${detail.text.includes('name="returnTo"') && detail.text.includes('value="details"')}`)
+    console.log(`detail_mentions_userEdited=${detail.text.includes('userEdited')}`)
     console.log(`first_filesUrl_has_dir=${String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')}`)
     console.log(`first_filesUrl_opens_reader=${String(first.filesUrl || '').includes('openfile=true')}`)
     console.log(`first_filesUrl_shows_folder=${String(first.filesUrl || '').includes('openfile=false')}`)
@@ -104,7 +108,7 @@ try {
     console.log(`source_has_compact_mobile_hero=${sourceComponent.includes('library-hero-actions') && sourceStyle.includes('font-size: 28px;') && !sourceComponent.includes('without importing or owning the files')}`)
     console.log(`bad_host_hrefs=${(page.text.match(/href="http:\/\/(?:f|settings)\//g) || []).length}`)
 
-    if (page.status !== 200 || !state || items.length === 0 || !('coverUrl' in first) || !('openUrl' in first) || !('filesUrl' in first) || !('detailsUrl' in first) || !String(first.detailsUrl || '').includes('/apps/library/items/') || detail.status !== 200 || !detail.text.includes('Publication metadata') || !detail.text.includes('File metadata') || !detail.text.includes('Provenance') || !detail.text.includes('Nextcloud metadata') || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
+    if (page.status !== 200 || !state || items.length === 0 || !('coverUrl' in first) || !('openUrl' in first) || !('filesUrl' in first) || !('detailsUrl' in first) || !String(first.detailsUrl || '').includes('/apps/library/items/') || detail.status !== 200 || !detail.text.includes('Publication metadata') || !detail.text.includes('File metadata') || !detail.text.includes('Provenance') || !detail.text.includes('Nextcloud metadata') || !detail.text.includes('library-detail-edit-form') || !detail.text.includes('name="requesttoken"') || !detail.text.includes('name="returnTo"') || !detail.text.includes('value="details"') || !detail.text.includes('userEdited') || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
       fail('catalogue_initial_state_invalid')
     } else if (script.status !== 200 || css.status !== 200 || script.text.includes('process.env')) {
       fail('vue_assets_invalid')

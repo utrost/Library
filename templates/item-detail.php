@@ -3,6 +3,7 @@
 $item = $_['item'] ?? [];
 $comments = $item['nextcloudComments'] ?? ['count' => 0, 'recent' => []];
 $tags = $item['nextcloudTags'] ?? [];
+$publicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'];
 $metadataRows = [
     'Title' => $item['title'] ?? '',
     'Subtitle' => $item['subtitle'] ?? '',
@@ -64,6 +65,49 @@ $fileRows = [
                     <dd><?php p(trim((string)$value) !== '' ? (string)$value : '—'); ?></dd>
                 <?php endforeach; ?>
             </dl>
+
+            <form method="post" action="<?php p($item['updateUrl'] ?? ''); ?>" class="library-item-form library-detail-edit-form" aria-labelledby="library-publication-edit-heading">
+                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                <input type="hidden" name="returnTo" value="details" />
+                <h4 id="library-publication-edit-heading"><?php p($l->t('Edit publication metadata')); ?></h4>
+                <label>
+                    <?php p($l->t('Title')); ?>
+                    <input type="text" name="title" value="<?php p((string)($item['title'] ?? '')); ?>" />
+                </label>
+                <label>
+                    <?php p($l->t('Subtitle')); ?>
+                    <input type="text" name="subtitle" value="<?php p((string)($item['subtitle'] ?? '')); ?>" />
+                </label>
+                <label>
+                    <?php p($l->t('Type')); ?>
+                    <select name="publicationType">
+                        <?php foreach ($publicationTypes as $type): ?>
+                            <option value="<?php p($type); ?>" <?php if (($item['publicationType'] ?? 'other') === $type) { print_unescaped('selected'); } ?>><?php p($type); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+                <label>
+                    <?php p($l->t('Creators')); ?>
+                    <input type="text" name="creators" value="<?php p((string)($item['creators'] ?? '')); ?>" />
+                </label>
+                <label>
+                    <?php p($l->t('Publication')); ?>
+                    <input type="text" name="publication" value="<?php p((string)($item['publication'] ?? '')); ?>" />
+                </label>
+                <label>
+                    <?php p($l->t('Publication date')); ?>
+                    <input type="text" name="publicationDate" value="<?php p((string)($item['publicationDate'] ?? '')); ?>" />
+                </label>
+                <label>
+                    <?php p($l->t('Publisher')); ?>
+                    <input type="text" name="publisher" value="<?php p((string)($item['publisher'] ?? '')); ?>" />
+                </label>
+                <label>
+                    <?php p($l->t('Language')); ?>
+                    <input type="text" name="language" value="<?php p((string)($item['language'] ?? '')); ?>" />
+                </label>
+                <button type="submit" class="button primary"><?php p($l->t('Save metadata')); ?></button>
+            </form>
         </section>
 
         <section class="library-panel" aria-labelledby="library-file-metadata-heading">
