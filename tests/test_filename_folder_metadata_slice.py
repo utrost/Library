@@ -27,6 +27,34 @@ def test_filename_parser_handles_comic_number_title_patterns():
     assert "publicationType' => 'comic'" in metadata
 
 
+def test_filename_parser_hardens_real_staging_and_archive_suffixes():
+    metadata = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
+
+    assert "stripStagingPrefix" in metadata
+    assert "Real-00107-Revelation_Space_Alastair_Reynolds_z-library.sk_1lib.sk_z-lib.sk_" in metadata
+    assert "Revelation Space" in metadata
+    assert "Alastair Reynolds" in metadata
+    assert "stripArchiveSourceSuffix" in metadata
+
+
+def test_filename_parser_extracts_simple_title_creator_fallbacks():
+    metadata = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
+
+    assert "parseTitleCreatorPattern" in metadata
+    assert "Photography__Night_Sky__A_Field_Guide_for_Shooting_After_Dark_-_Jennifer_Wu_James_Martin" in metadata
+    assert "Photography Night Sky A Field Guide for Shooting After Dark" in metadata
+    assert "Jennifer Wu; James Martin" in metadata
+
+
+def test_filename_parser_keeps_volume_issue_labels_out_of_creators():
+    metadata = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
+
+    assert "Make_Magazine_-_Volume_71_Dale_Dougherty" in metadata
+    assert "Volume 71" in metadata
+    assert "volumeIssuePattern" in metadata
+    assert "parseTitleCreatorPattern" in metadata
+
+
 def test_item_service_accepts_filename_pattern_source():
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
     assert "filename-pattern" in service

@@ -410,8 +410,26 @@ final class ItemService {
     private function inferTitle(array $file): string {
         $path = (string)($file['cachedPath'] ?? '');
         $name = pathinfo(basename($path), PATHINFO_FILENAME);
-        $title = trim(str_replace(['_', '-'], ' ', $name));
+        $title = $this->cleanFilenameFallbackTitle($name);
         return $title === '' ? 'Untitled publication' : $title;
+    }
+
+    private function cleanFilenameFallbackTitle(string $name): string {
+        // Real 1k staging sample: Real-00001-Durst_M707_Werbung should display as Durst M707 Werbung.
+        $title = preg_replace('/^Real-\d{5}-/u', '', $name) ?? $name;
+        $title = $this->stripArchiveSourceSuffix($title);
+        $title = str_replace(['_', '-'], ' ', $title);
+        $title = preg_replace('/\s+ocr$/iu', '', $title) ?? $title;
+        $title = preg_replace('/\s+/', ' ', $title) ?? $title;
+        return trim($title);
+    }
+
+    private function stripArchiveSourceSuffix(string $value): string {
+        $value = preg_replace('/(?:[_\s-]+\(?z[-_\s]?library[^)]*\)?)+$/iu', '', $value) ?? $value;
+        $value = preg_replace('/[_\s-]+Anna[_\s]+s[_\s]+Archive$/iu', '', $value) ?? $value;
+        $value = preg_replace('/[_\s-]+[a-f0-9]{24,}$/iu', '', $value) ?? $value;
+        $value = preg_replace('/[_\s-]+\d{10,13}$/u', '', $value) ?? $value;
+        return trim($value, " \t\n\r\0\x0B-_–—");
     }
 
     /**
