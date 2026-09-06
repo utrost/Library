@@ -129,3 +129,45 @@ limit=500 page=1: 0.19 s
 ```
 
 Interpretation: paginated catalogue rendering is not the first blocker for 10k generated lightweight documents. The synchronous Library scan remains roughly linear in this synthetic case, about 91 s for 10k. Real documents with heavier PDF/EPUB/CBZ metadata and preview behaviour may be slower; keep real-data pilots separate from generated stress.
+
+## Real-sample pilot harness, 2026-09-06
+
+Generated stress is intentionally separate from real-document pilots. Real samples exercise the metadata paths that synthetic tiny PDFs do not: EPUB package metadata, large/scanned PDFs, UTF-16 PDF Info strings and future CBZ fixtures.
+
+The reusable harness is checked in as:
+
+```text
+npm run smoke:real-scale -- <count>
+```
+
+Default source roots on Alice host:
+
+```text
+/mnt/compute/Nextcloud/Books
+/mnt/compute/Nextcloud/Projects/Scanned books
+```
+
+The source folders are host-visible but not mounted inside the Nextcloud container. The harness therefore selects supported real files smallest-first on the host, copies them into a temporary `/LibraryRealScale-<count>-<timestamp>` user folder inside the container data tree, runs `occ files:scan`, disables other Library roots, adds a temporary Library root, runs the Library scanner, verifies that every selected supported file produced a catalogue item, verifies paginated catalogue initial state, then removes temporary files, DB rows, root and app password.
+
+Override sources with:
+
+```text
+REAL_SCALE_SOURCES="/path/one::/path/two" npm run smoke:real-scale -- 20
+```
+
+First checked result after adding the harness:
+
+```text
+100 real smallest-first sample
+selected: 100 files / 29.91 MiB
+formats: 44 PDF, 56 EPUB
+Nextcloud files:scan: 0.60 s
+Library scan: 1.34 s
+indexed files: 100
+catalogue items: 100
+missing item rows: 0
+pagination: 25/page 1, 25/page 2 and 100/page 1 all OK
+cleanup: 100 items, 100 file-index rows, 1 temp root, temp token removed
+```
+
+The first 100-file run exposed another real PDF Info encoding case: `Splitgrade Prospekt - Jürgen Heiland.pdf` had a single-byte high character in `/Author`, producing an invalid UTF-8 insert for `creators`. The PDF Info decoder now keeps the earlier UTF-16 BOM handling and falls back to ISO-8859-1 conversion when a non-BOM string is not valid UTF-8.
