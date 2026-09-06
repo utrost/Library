@@ -52,9 +52,11 @@ language
 publisher
 metadata_source
 user_edited
+scanner_field_sources_json
+scanner_candidates_json
 ```
 
-This answers: what publication-like object should Library display?
+This answers: what publication-like object should Library display? The current implementation also stores scanner field sources and scanner candidate values as JSON maps so user-edited rows can compare current values with refreshed scanner candidates and reset one field or the whole item when wanted.
 
 `publication_type` is the current implementation column name. The product language should move toward `publication_form` because this field describes the form of the publication, not the binary file format.
 
@@ -149,15 +151,15 @@ library-item-id
 
 That mirror is useful for WebDAV/search/app integration, but Library's own normalized tables remain authoritative.
 
-## Sidecars/export
+## Sidecars/export/import preview
 
-File-first portability matters, but v0.1 should not write sidecars by default. A later export/import feature can create reviewable files such as:
+File-first portability matters, but v0.1 should not write sidecars by default. The current app can export user-edited corrected metadata as side-effect-free JSON and preview such an export against the current catalogue without writing changes. The preview reports matches, missing items and differing fields so restore matching can be evaluated before a future apply step. A later export/apply/write-back feature can create reviewable files such as:
 
 ```text
 .Library/metadata.json
 ```
 
-or per-file sidecars if the user explicitly opts in.
+or per-file sidecars if the user explicitly opts in. Applying imports, writing OPF/JSON sidecars and reconstructing a catalogue in a fresh install remain future work.
 
 ## Filename and folder parsing
 

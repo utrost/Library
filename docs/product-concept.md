@@ -53,7 +53,7 @@ The Alice compatibility spike supports this default: `/f/{fileId}` hands EPUB, P
 
 ### Metadata has provenance
 
-Metadata should be editable and should remember where it came from. User edits outrank extracted metadata; extracted metadata outranks sidecars and filename guesses; internet providers are future optional enrichment, not a core dependency.
+Metadata should be editable and should remember where it came from. User edits outrank every scanner candidate. For scanner-created defaults, OPF sidecars outrank embedded PDF/EPUB/CBZ metadata, and embedded metadata outranks filename/folder guesses. Current item details keep refreshed scanner candidates visible beside user-edited values so conflicts can be reviewed or reset without silently overwriting corrections. Internet providers are future optional enrichment, not a core dependency.
 
 ## Publication model
 
@@ -89,12 +89,14 @@ Minimum useful flow:
 ```text
 Install app
   -> choose roots
-  -> scan supported files
-  -> see cover grid/list
-  -> search and filter
-  -> edit wrong metadata
+  -> queue scans for all roots or one root
+  -> see compact cover grid/list
+  -> search, filter and sort
+  -> edit wrong metadata on details
+  -> compare/reset scanner candidates when useful
   -> open publication inline through existing viewer
   -> show original file in Nextcloud Files
+  -> export corrected metadata or preview an export before a future import/apply step
 ```
 
 ## What v0.1 should include
@@ -109,10 +111,13 @@ Install app
 - Cover-grid/list browsing.
 - Item detail view.
 - Basic search.
-- Basic grouping by author, series, publication and year.
+- Basic discovery by exact creator, series/periodical/publication and year filters.
 - Manual metadata editing.
+- Field-level scanner-candidate provenance and reset workflow.
+- Read-only corrected-metadata export and no-write import preview.
 - Default reader handoff through `/f/{fileId}`.
 - Show original in Files.
+- Download original source file.
 
 ## Explicit v0.1 non-goals
 

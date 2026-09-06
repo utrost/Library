@@ -8,7 +8,7 @@ The model is deliberately similar to Memories for photographs and Music for audi
 
 ## Current status
 
-Early bootstrap / v0.1 concept. The repository currently contains a minimal installable Nextcloud app skeleton, a verified reader-handoff spike, the concept/roadmap documentation spine, a roots → scan → file-index slice, editable publication items, a first cover gallery/search and filter presentation slice, and the agreed metadata-storage direction for Nextcloud-native tags/comments.
+Current v0.1 development catalogue. The repository contains a conventional Nextcloud 34 app with a Vue/Vite catalogue, per-user roots, queued scans, file indexing, editable publication metadata, field-level scanner provenance, corrected-metadata export/import preview, database-backed search/filter/sort/pagination, compact cover-first browse cards and a detail workbench for editing metadata, tags and comments.
 
 The current development slice can:
 
@@ -17,24 +17,25 @@ The current development slice can:
 - manually scan all enabled roots or one selected root for the current user from `/settings/user/library` through a queued background scan and record auto-refreshing scan progress, live-ish scan progress, scan scope, recent scan history, status, counts, duration and summary for progress/history visibility;
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;
-- preserve user-edited metadata across rescans;
+- preserve user-edited metadata across rescans while refreshing stored scanner candidates;
+- show field-level scanner provenance, **Differs from scanner** labels, single-field reset and whole-item reset-to-scanner actions on item details;
 - generate absolute Nextcloud URLs for reader handoff, Files handoff and Library settings links so browser hrefs stay under the Nextcloud host;
 - show indexed files and publication items with a catalogue-first Vue/Vite-backed catalogue page mounted in a conventional Nextcloud `#app-content` shell, responsive, paginated cover gallery, preview-backed covers, placeholder fallbacks and browse-only catalogue cards;
-- search and filter the catalogue by title/author text, publication type, file format, scan status, exact Nextcloud tag and root-derived shelf;
-- catalogue cards are browse-only while the details page owns publication metadata, tag and comment editing;
+- search and filter the catalogue by title/author text, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, exact Nextcloud tag and root-derived shelf;
+- catalogue cards are browse-only, compact and cover-first on mobile and desktop: the default card surface is cover, title, **Read** and **Details**, while secondary metadata/actions stay behind the Details disclosure; the details page owns publication metadata, tag and comment editing;
 - treat Nextcloud system tags as cross-archive classification metadata exposed on catalogue cards and addable/removable from item details;
 - show recent Nextcloud file comments as file-level notes/discussion on catalogue cards and item details;
 - add new Nextcloud file comments from item details;
 - extract first local metadata candidates from EPUB package OPF, standalone OPF files and basic PDF info dictionaries, including UTF-16 BOM, PDF hex Info strings, literal octal escapes, nested PDF literal parentheses, non-BOM single-byte PDF Info strings, PDF Subject-as-subtitle and normalized PDF CreationDate/ModDate values from real PDFs;
 - prefer OPF sidecars for PDF/EPUB catalogue defaults when a same-basename `.opf` or folder-level `metadata.opf` is present;
 - suppress OPF sidecars as separate catalogue items when they accompany a primary PDF/EPUB/CBZ, while still allowing standalone OPF records;
-- clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items while keeping manually edited OPF sidecar items visible as standalone records until an explicit merge/migration exists.
+- clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items while keeping manually edited OPF sidecar items visible as standalone records until an explicit merge/migration exists;
 - extract first CBZ ComicInfo.xml metadata for comic title, series, creators, publisher and date;
 - extract filename/folder metadata patterns for magazine dates/issues and comic number/title names when OPF/embedded metadata is absent;
-- serve CBZ first-image covers when the general Nextcloud preview pipeline cannot generate a cover.
-- return cover diagnostics on every cover response, including preview-backed, CBZ first-image and placeholder covers.
-- provide separate Read, Show in Files and Download source actions for each catalogue item.
-- sort the catalogue grid by title, recently added, publication date or format.
+- serve CBZ first-image covers when the general Nextcloud preview pipeline cannot generate a cover;
+- return cover diagnostics on every cover response, including preview-backed, CBZ first-image and placeholder covers;
+- provide separate Read, Show in Files and Download source actions for each catalogue item;
+- sort the catalogue grid by title, recently added, publication date, series/periodical or format;
 - mark previously indexed files as missing when a root scan no longer sees them, without deleting catalogue metadata.
 - forget missing item catalogue entries from the details page after their backing file is no longer seen, without deleting source files.
 - edit, enable/disable and delete Library roots from the personal settings surface without deleting source files from Nextcloud Files.
@@ -44,7 +45,7 @@ The current development slice can:
 - query catalogue search, filters, sort modes and pagination through database-backed item queries instead of loading the full catalogue into app-layer arrays.
 - isolate local metadata extraction failures per file so corrupt EPUB/CBZ/OPF fixtures do not abort an otherwise healthy root scan, and show the scan error in the indexed-file diagnostics.
 
-The next milestone is to keep hardening PDF/EPUB/OPF/CBZ metadata extraction, CBZ first-image covers, preview-backed covers and tag/comment flows with real-collection fixtures.
+The next milestone is release hardening around real collection use: metadata repair/review flows, scan repair controls, cover quality, first-run onboarding, and publication/creator/year landing pages.
 
 ## v0.1 direction
 
@@ -52,15 +53,15 @@ Library v0.1 should prove this proposition:
 
 > Publications already stored in Nextcloud can be presented as a useful media library without moving or restructuring them.
 
-Included later in v0.1:
+Current v0.1 proof includes or is converging on:
 
 - configure one or more Library roots;
 - discover EPUB, PDF and CBZ files first;
 - store a file-ID-based index;
-- extract basic metadata and covers where practical;
-- browse/search/edit publication metadata through a paginated cover gallery, shelf filters and detail/edit panels;
+- extract basic metadata and covers where practical, with extractor failures isolated per file;
+- browse/search/filter/sort publication metadata through a database-backed paginated cover gallery with compact cards, shelf filters, publication filters and detail/edit pages;
 - open files through compatible existing Nextcloud viewers/readers;
-- show the original file in Nextcloud Files.
+- show the original file in Nextcloud Files and download the original source file.
 
 Explicit non-goals for v0.1:
 

@@ -4,12 +4,12 @@ This document turns the current question — covers, visible metadata, shelves, 
 
 ## Product answer
 
-Yes, Library should present a **gallery of covers**. The gallery is the primary browsing mode because publications are visual and collection-like. Real extracted covers will come later; v0.1 uses stable cover placeholders so the layout, interactions and data flow can be exercised before cover extraction is finished.
+Yes, Library should present a **gallery of covers**. The gallery is the primary browsing mode because publications are visual and collection-like. Covers are now served through Library's cover route: Nextcloud previews when available, first-image CBZ extraction when preview is unavailable, and stable placeholders otherwise.
 
 Metadata is visible in two layers. In plain terms, metadata is visible where it helps browsing first, and editable in details when correction matters:
 
-1. **Card metadata**: title, creator/author, publication type, shelf and tags are visible immediately in the gallery.
-2. **Detail metadata**: source path, metadata provenance, publication/date/language/publisher, Nextcloud comments, tag editing and Library metadata editing are visible behind a per-item details panel.
+1. **Card metadata**: compact cards show cover, title, **Read** and **Details** first so browsing works on phones and desktops without dense metadata blocks.
+2. **Details disclosure/workbench metadata**: secondary metadata, source path, metadata provenance, scanner candidates, reset actions, Nextcloud comments, tag editing and Library metadata editing are available behind the card Details disclosure and the dedicated item details page.
 
 A **Shelf** is useful, but it should not become another import silo. For v0.1, shelves are derived from configured Library roots. A root labeled `Photography magazines` or `Manuals` becomes a browse/filter shelf. Later releases can add virtual shelves/collections while keeping Nextcloud Files as canonical storage.
 
@@ -17,8 +17,11 @@ Search and filter should be simple and direct in v0.1:
 
 - search text across title, subtitle, author/creator, publication and path;
 - filter by publication type;
+- filter by file format and scan status;
+- filter by exact creator, publication/series/periodical title and publication year;
 - filter by Nextcloud tag;
-- filter by shelf/root label.
+- filter by shelf/root label;
+- show active filter chips so one filter can be removed without clearing the whole search.
 
 ## User stories
 
@@ -29,8 +32,8 @@ Search and filter should be simple and direct in v0.1:
 Acceptance:
 
 - items appear as cards in a responsive gallery;
-- every card has a visual cover area, even before real cover extraction exists;
-- the card shows the title and creator/author when known;
+- every card has a visual cover area using preview, CBZ first image or placeholder fallback;
+- the default card surface stays compact: cover, title, Read and Details;
 - the card has a direct Read action that hands the file to Nextcloud's viewer/reader route.
 
 ### Metadata visibility
@@ -39,10 +42,10 @@ Acceptance:
 
 Acceptance:
 
-- card view shows the high-signal fields: title, creators, publication type, shelf and tags;
-- detail view shows provenance (`metadataSource`), `userEdited`, source path and secondary metadata;
-- edit fields remain available without leaving the catalogue;
-- scanner-derived and user-edited data stay visibly distinct.
+- card view shows the high-signal browse controls without crowding the grid;
+- Details disclosure/detail view shows provenance (`metadataSource`), `userEdited`, scanner candidates, source path and secondary metadata;
+- edit fields live on the dedicated item details page, not inline on catalogue cards;
+- scanner-derived, scanner-candidate and user-edited data stay visibly distinct, including **Differs from scanner** labels.
 
 ### Shelves without ownership confusion
 
@@ -72,15 +75,12 @@ Acceptance:
 ```text
 Library
 
-[Search title / author...] [Type] [Nextcloud tag] [Shelf] [Apply]
+[Search...] [Type] [Format] [Creator] [Series/periodical] [Year] [Tag] [Shelf] [Apply]
 
 Shelf/gallery
 ┌────────────┐ ┌────────────┐ ┌────────────┐
 │ cover area │ │ cover area │ │ cover area │
 │ Title      │ │ Title      │ │ Title      │
-│ Creator    │ │ Creator    │ │ Creator    │
-│ type/shelf │ │ type/shelf │ │ type/shelf │
-│ tags       │ │ tags       │ │ tags       │
 │ Read       │ │ Read       │ │ Read       │
 │ Details ▸  │ │ Details ▸  │ │ Details ▸  │
 └────────────┘ └────────────┘ └────────────┘
@@ -88,15 +88,15 @@ Shelf/gallery
 
 ## Deliberate v0.1 limits
 
-- Cover extraction/storage is not implemented yet; placeholder covers prove the gallery layout now.
+- Persistent app-owned cover storage/cache is not implemented yet; covers are generated on request through preview/CBZ/placeholder fallbacks.
 - Shelf is currently root-derived only; virtual shelves/collections are future work.
 - Tag filtering uses Nextcloud system tags attached to backing files.
 - Full-text document search is still out of scope for v0.1.
-- Search is server-side and simple; a richer Vue client can replace it later without changing the product contract.
+- Search/filter/sort/pagination are server-side and database-backed; Vue renders the catalogue but should not become the permission/query source of truth.
 
 ## Next presentation slices
 
-1. Extract or generate real covers and persist cover references.
-2. Split detail/edit into a dedicated detail route when the card becomes too dense.
+1. Add dedicated creator/series/publication/year landing pages beyond the current filters and top-series shortcuts.
+2. Add saved filters such as `Unread manuals`, `Photography magazines`, or `Needs metadata review`.
 3. Add virtual shelves/collections separate from root folders.
-4. Add saved filters such as `Unread manuals`, `Photography magazines`, or `Needs metadata review`.
+4. Add cover cache/refresh/manual override only if on-demand preview/CBZ/placeholder covers prove insufficient.

@@ -31,9 +31,9 @@ What exists now:
 - Scan-job progress/history table and UI summary for the latest queued background scan plus recent scan history: auto-refreshing scan progress and live-ish scan progress, status, root count, indexed file count, error count and duration.
 - First local metadata extraction for EPUB package OPF, standalone OPF files, filename/folder patterns and basic PDF info dictionaries including UTF-16 BOM encoded PDF Info strings, PDF hex Info strings, PDF literal octal escapes, nested PDF literal parentheses, PDF Subject-as-subtitle and normalized PDF CreationDate/ModDate values.
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
-- Publication catalogue gallery with placeholder/preview covers, card-level title/creator/type/shelf/tag metadata, direct Read/Show in Files/Details links and browse-only catalogue cards.
+- Publication catalogue gallery with preview/CBZ/placeholder covers and compact cover-first cards on mobile and desktop; the default card surface is cover, title, Read and Details, with secondary metadata/actions behind a Details disclosure.
 - Bounded catalogue pagination with page-size controls, smoke-tested through a 1000-real-file / 16.52 GiB staged Alice scale pilot after the planned 10 → 100 → 1000 → 10000 guardrail path.
-- Database-backed catalogue search/filter controls for title/author text, publication type, file format filter, scan status, exact Nextcloud tag and root-derived shelf.
+- Database-backed catalogue search/filter controls for title/author text, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, exact Nextcloud tag and root-derived shelf, plus active filter chips.
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
 - Dedicated item details page where the details page owns metadata, tag and comment editing while catalogue cards stay browse-only.
 - Minimal Nextcloud system tag assignment/removal from item details for visible/assignable tags.
@@ -191,7 +191,7 @@ Exit criteria:
 
 Goal: keep the catalogue fast to scan while giving each publication a proper workbench for metadata, Nextcloud integration metadata and file diagnostics.
 
-Status: active. The dedicated detail route, metadata edit form, Nextcloud tag add/remove and comment add flows have landed and are smoke-tested. The current slice improves the detail workbench layout and browser accessibility checks.
+Status: landed for the current v0.1 development baseline. The dedicated detail route, metadata edit form, Nextcloud tag add/remove, comment add flows, scanner-candidate provenance, reset-to-scanner actions, conflict labels and summary counts have landed and are smoke-tested.
 
 User outcome:
 
@@ -207,8 +207,9 @@ Backend/frontend slices:
 3. Move Nextcloud tag editing to details. **Landed and add/remove smoked.**
 4. Move Nextcloud comment writing to details. **Landed and add/delete smoked.**
 5. Simplify catalogue cards to read-only browse cards. **Landed and browser-smoked with zero catalogue POST forms.**
-6. Add a scannable two-column detail workbench layout with explicit labelled primary/secondary sections. **Current implementation slice.**
-7. Later: add section-level affordances such as collapse, recent activity and richer validation messages only after real usage shows the page is too busy.
+6. Add a scannable two-column detail workbench layout with explicit labelled primary/secondary sections. **Landed.**
+7. Add field-level scanner provenance, reset-to-scanner actions, conflict labels and correction summary counts. **Landed.**
+8. Later: add section-level affordances such as collapse, recent activity, hard validation and richer review queues only after real usage shows the page is too busy.
 
 Tests/smokes:
 
@@ -231,8 +232,8 @@ Status: first UX concept and implementation slice landed. The current implementa
 User outcome:
 
 - The user sees a gallery of publication cards instead of only a raw table.
-- High-signal metadata is visible on each card: title, creator/author, type, shelf and Nextcloud tags.
-- Secondary metadata and editing are available on the dedicated details page.
+- High-signal browsing starts with compact cover-first cards: cover, title, Read and Details.
+- Secondary metadata, tags, source actions and editing are available behind card Details disclosure and on the dedicated details page.
 - Search and filters can narrow by title/author text, semantic publication type, file format, exact Nextcloud tag and shelf.
 
 Backend/frontend slices:
@@ -240,7 +241,7 @@ Backend/frontend slices:
 1. Add a checked-in UX concept/user-story document for gallery, metadata visibility, shelves and search/filtering. **Landed.**
 2. Derive a v0.1 Shelf from the configured Library root label/path. **Landed.**
 3. Render a responsive cover gallery with stable placeholder covers. **Landed.**
-4. Move noisy metadata/edit/tag/comment controls out of catalogue cards and onto dedicated details pages. **Landed through Phase 2.6.**
+4. Move noisy metadata/edit/tag/comment controls out of catalogue cards and onto dedicated details pages, leaving compact cards cover-first on all widths. **Landed through Phase 2.6/2.75.**
 5. Add GET-based filters for query, type, tag and shelf. **Landed; extended with file format filter.**
 6. Replace placeholders with extracted/generated cover images. **Deferred to Phase 3 cover work.**
 7. Add virtual/user-defined shelves or collections without changing file ownership. **Deferred.**
@@ -479,7 +480,7 @@ Recommended vertical slices:
 
 ### Immediate next implementation slice
 
-Recommended next slice: **real-collection metadata hardening**.
+Recommended next slice: **release-facing metadata repair and review polish**.
 
 Minimum first cut:
 
@@ -497,4 +498,4 @@ Non-goals for this slice:
 - OCR/full-text search;
 - shared global library administration.
 
-The root/update/delete/scoped-rescan, missing-item forget, corrected-metadata export and DB-backed catalogue-query boundaries are now in place. The next risk is metadata quality on real collections: extraction should be hardened without weakening user-edit precedence or sidecar cleanup safety.
+The root/update/delete/scoped-rescan, missing-item forget, corrected-metadata export/import-preview, DB-backed catalogue-query and compact catalogue boundaries are now in place. The next risk is whether real users can repair, review and trust messy metadata at collection scale without a bulk/review workflow, scan repair controls or better onboarding.

@@ -24,6 +24,7 @@ Library owns:
 - a scan/index of supported files under those roots;
 - one catalogue item per indexed primary publication file;
 - editable publication metadata;
+- field-level scanner candidates and provenance for reset/review workflows;
 - provenance and scan diagnostics;
 - a database-backed item query for catalogue search, filters, sorting, facets and pagination;
 - cover URLs with preview/CBZ/placeholder diagnostics;
@@ -87,6 +88,9 @@ Current details capabilities:
 - view cover, title, creator, type, format and shelf;
 - use **Read**, **Show in Files** and **Download source** actions;
 - inspect publication metadata;
+- inspect a metadata correction summary with scanner-candidate and differing-field counts;
+- compare current field values with stored scanner candidates, including **Differs from scanner** labels when they disagree;
+- reset one field or all fields to the stored scanner candidates when candidates are available;
 - edit publication metadata fields:
   - title;
   - subtitle;
@@ -106,12 +110,13 @@ Current details capabilities:
 - inspect provenance:
   - metadata source;
   - whether the item has user-edited metadata;
+  - scanner field sources and scanner candidate values;
 - add or remove assignable visible Nextcloud system tags on the backing file;
 - see recent Nextcloud comments for the backing file;
 - add a new Nextcloud file comment;
 - forget a missing item when the backing file row has already been marked `missing`.
 
-Manual Library metadata edits set provenance to `user` and are preserved across rescans. Tag and comment changes are Nextcloud file-level changes; they do not mutate Library publication metadata.
+Manual Library metadata edits set provenance to `user` and are preserved across rescans. Stored scanner candidates continue to refresh in the background on later scans, so a user can compare or reset fields without losing current manual values. Tag and comment changes are Nextcloud file-level changes; they do not mutate Library publication metadata.
 
 ### Personal Library settings
 
@@ -233,7 +238,9 @@ Library does not implement a reader in v0.1.
 2. Edit publication metadata.
 3. Save metadata.
 4. Confirm provenance shows the item is user-edited.
-5. Rescan later without fear that scanner metadata will overwrite your correction.
+5. Use the scanner-candidate table to see where the scanner agrees or differs.
+6. Use **Reset to scanner** on a single field, or the whole-item reset action, only when the stored scanner candidate is preferable.
+7. Rescan later without fear that scanner metadata will overwrite your correction; scanner candidates refresh separately.
 
 ### Using Nextcloud tags from Library
 
@@ -397,7 +404,7 @@ Acceptance checks:
 - Scanner candidates refresh on rescan, while current user-edited values stay untouched.
 - PDF Info extraction handles current hardened cases including PDF Subject-as-subtitle, normalized PDF CreationDate/ModDate, hex strings, octal escapes and nested PDF literal parentheses.
 
-Visible gaps:
+Implemented correction helpers:
 
 - field-level scanner candidates are stored, and a manual edit keeps scanner candidates available for later reset;
 - Reset to scanner remains available after editing when a stored scanner candidate differs from the current value;
@@ -405,7 +412,10 @@ Visible gaps:
 - The edit form shows hints for dates, language codes and creator separators; these hints do not block saving;
 - rows where the current value differs from the scanner candidate show a **Differs from scanner** label;
 - the details page includes a read-only metadata correction summary with a scanner candidate count and differing-field count;
-- **Preview metadata import** accepts a Library corrected metadata JSON export and reports matches/field changes; **No changes are written during preview**;
+- **Preview metadata import** accepts a Library corrected metadata JSON export and reports matches/field changes; **No changes are written during preview**.
+
+Visible gaps:
+
 - no bulk edit or multi-select correction workflow;
 - hard validation rules remain future work;
 - review queue remains future work for scanner/sidecar/user metadata conflicts.
@@ -466,7 +476,7 @@ Acceptance checks:
 Visible gaps:
 
 - no full-text search inside documents;
-- no grouping/browse pages for creator, series, publication or year;
+- no dedicated landing pages for creator, series, publication or year beyond current filters, chips and top-series shortcuts;
 - no saved views or smart collections;
 - no user-facing explanation of query performance limits for very large libraries.
 
@@ -558,7 +568,7 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 
 1. Keep metadata-quality work safe by splitting the extractor seam. `PublicationMetadataService` should remain the façade, but filename, PDF, OPF/EPUB and CBZ parsing should move into narrower adapters before more real-corpus rules accumulate. This refactor is now complete for the current extractor families: filename/folder parsing lives in `FilenameMetadataExtractor`, PDF Info parsing/decoding lives in `PdfInfoMetadataExtractor`, EPUB package/standalone OPF parsing lives in `OpfEpubMetadataExtractor`, and CBZ ComicInfo parsing lives in `CbzComicInfoMetadataExtractor`.
 2. Improve the metadata correction workflow. Details editing exists, field-level scanner candidates are recorded and shown on item details, manual edit keeps scanner candidates available for later reset, and rescans refresh scanner candidates while current user-edited values stay untouched. Individual fields can show a **Reset to scanner** action when a stored scanner candidate differs from the current value, and whole-item reset to scanner candidates can apply all stored candidates at once. The edit form shows hints for dates, language codes and creator separators; these hints do not block saving. Rows where the current value differs from the scanner candidate show a **Differs from scanner** label. The details page includes a read-only metadata correction summary with scanner candidate count and differing-field count. Conflict review and hard validation remain future work.
-3. Make corrected metadata portable back into a fresh install or files. Read-only export exists; import/write-back to JSON or OPF sidecars does not.
+3. Make corrected metadata portable back into a fresh install or files. Read-only export and no-write import preview exist; apply/import and write-back to JSON or OPF sidecars do not.
 4. Add repair-oriented scan lifecycle controls. Queued scans and progress exist; retry metadata errors, check missing files, cancellation and notifications do not.
 5. Improve the cover quality path. Preview, CBZ first image and placeholders work; EPUB cover extraction, cover cache/refresh and manual override do not.
 6. Add discovery by publication structure. Search/filter/pagination exist; creator, series, publication/year pages and saved views do not.
@@ -574,12 +584,12 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 4. **Tag UX** — tag add/remove works, but lacks autocomplete, picker, bulk tagging and clear permission feedback.
 5. **Cover quality path** — preview/CBZ/placeholder covers work, but EPUB covers, cover cache and manual overrides remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
-7. **Discovery by publication structure** — search/filter exists, but there are no creator/series/publication/year landing pages, smart collections or saved views.
+7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips and top-series shortcuts exist, but there are no dedicated creator/series/publication/year landing pages, smart collections or saved views.
 8. **User-facing onboarding and empty states** — the current app is smoke-testable and usable by a technical tester, but a first-time user still needs clearer guidance.
-9. **Metadata portability beyond read-only export** — corrected Library metadata can be exported as JSON, but there is no import, OPF write-back, sidecar writer or migration story that makes corrections file-first durable.
+9. **Metadata portability beyond export/preview** — corrected Library metadata can be exported as JSON and previewed for restore matches/field changes, but there is no applying import, OPF write-back, sidecar writer or migration story that makes corrections file-first durable.
 10. **Real-collection metadata hardening** — PDF hardening has improved, but more real EPUB/OPF/CBZ/PDF samples are needed to find weak metadata, cover and sidecar cases before release.
 
-DB-backed catalogue query path is implemented and is no longer a missing-feature candidate. The read-only corrected-metadata JSON export is implemented, but import/write-back remains missing.
+DB-backed catalogue query path is implemented and is no longer a missing-feature candidate. Corrected-metadata JSON export and no-write import preview are implemented, but applying imports and OPF/JSON write-back remain missing.
 
 ## Practical review script
 
