@@ -78,3 +78,54 @@ missing item rows: 0
 The catalogue render path is no longer the first scale blocker for the tested range: paginated pages returned in roughly 40–90 ms for 25-card and 500-card views after scans.
 
 The next bottleneck is the synchronous Library scan route. On the 1000-file / 16.52 GiB sample it took about 43 s. Before larger or repeated full-replica runs, the scanner should gain progress visibility and/or an asynchronous job path.
+## Generated stress pilot, 2026-09-06
+
+Uwe asked for a larger generated-document ladder: 100 documents, then 1k, then 10k. This run used temporary generated minimal PDF fixtures under `/LibraryScale-<count>-<timestamp>`, temporarily disabled existing Library roots so the scan only measured the generated root, decoded catalogue initial state for pagination checks, then removed fixture files, Library DB rows, temporary root and app password after each stage.
+
+The reusable harness is checked in as:
+
+```text
+npm run smoke:scale -- <count>
+```
+
+Results:
+
+```text
+100 generated PDFs
+generate files: 0.20 s
+Nextcloud files:scan: 0.43 s
+Library scan: 1.23 s
+indexed files: 100
+catalogue items: 100
+pagination: 25/page 1, 25/page 2, 100/page 1 and 500/page 1 all OK
+cleanup: 100 items, 100 file-index rows, 1 temp root, temp token removed
+
+1000 generated PDFs
+generate files: 1.67 s
+Nextcloud files:scan: 1.08 s
+Library scan: 9.12 s
+indexed files: 1000
+catalogue items: 1000
+pagination: 25/page 1, 25/page 2, 100/page 1 and 500/page 1 all OK
+cleanup: 1000 items, 1000 file-index rows, 1 temp root, temp token removed
+
+10000 generated PDFs
+generate files: 13.00 s
+Nextcloud files:scan: 7.50 s
+Library scan: 91.19 s
+indexed files: 10000
+catalogue items: 10000
+pagination: 25/page 1, 25/page 2, 100/page 1 and 500/page 1 all OK
+cleanup: 10000 items, 10000 file-index rows, 1 temp root, temp token removed
+```
+
+Observed page latencies on the 10k stage stayed under a quarter second for the sampled paginated pages:
+
+```text
+limit=25 page=1: 0.21 s
+limit=25 page=2: 0.16 s
+limit=100 page=1: 0.16 s
+limit=500 page=1: 0.19 s
+```
+
+Interpretation: paginated catalogue rendering is not the first blocker for 10k generated lightweight documents. The synchronous Library scan remains roughly linear in this synthetic case, about 91 s for 10k. Real documents with heavier PDF/EPUB/CBZ metadata and preview behaviour may be slower; keep real-data pilots separate from generated stress.
