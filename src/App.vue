@@ -143,7 +143,7 @@ function tagsFor(item) {
             <span v-if="tagsFor(item).length === 0" class="library-muted">No Nextcloud tags</span>
             <span v-for="tag in tagsFor(item)" v-else :key="tag.id" class="library-tag">{{ tag.name }}</span>
           </div>
-          <p><a :href="item.openUrl">{{ t('library', 'Read') }}</a> · <a :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a> · <a :href="item.detailsUrl">{{ t('library', 'Details') }}</a></p>
+          <p><a :href="item.openUrl">{{ t('library', 'Read') }}</a> · <a :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a> · <a :href="item.downloadUrl">{{ t('library', 'Download source') }}</a> · <a :href="item.detailsUrl">{{ t('library', 'Details') }}</a></p>
         </div>
       </article>
     </div>

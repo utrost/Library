@@ -57,6 +57,7 @@ final class ItemPageController extends Controller {
         $item['commentUrl'] = $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => (string)$item['id']]);
         $item['openUrl'] = $this->urlGenerator->getAbsoluteURL('/f/' . $fileId);
         $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
+        $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($user->getUID(), (string)($item['cachedPath'] ?? ''));
         $item['nextcloudTags'] = array_map(function (array $tag) use ($item): array {
             $tag['removeUrl'] = $this->urlGenerator->linkToRoute('library.tag.remove', [
                 'itemId' => (string)$item['id'],

@@ -354,7 +354,7 @@ Backend/frontend slices:
 1. Keep `/f/{fileId}` as the default provider.
 2. Add capability labels such as “Open in Nextcloud viewer”.
 3. Add direct Files location action if practical.
-4. Add fallback download/open externally action.
+4. Add fallback Download source action. **Landed as a WebDAV source-file link.**
 5. Optionally add an explicit EPUB Viewer provider only if `/f/{fileId}` proves insufficient.
 
 Tests/smokes:
