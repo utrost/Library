@@ -18,6 +18,7 @@ const formats = computed(() => props.state.formats || [])
 const publications = computed(() => props.state.publications || [])
 const publicationSummaries = computed(() => props.state.publicationSummaries || [])
 const publicationYears = computed(() => props.state.publicationYears || [])
+const creators = computed(() => props.state.creators || [])
 const scanStatuses = computed(() => props.state.scanStatuses || [])
 const pagination = computed(() => props.state.cataloguePagination || {
   page: 1,
@@ -34,6 +35,7 @@ const activeFilters = reactive({
   type: props.state.activeFilters?.type || '',
   publication: props.state.activeFilters?.publication || '',
   year: props.state.activeFilters?.year || '',
+  creator: props.state.activeFilters?.creator || '',
   format: props.state.activeFilters?.format || '',
   tag: props.state.activeFilters?.tag || '',
   shelf: props.state.activeFilters?.shelf || '',
@@ -91,6 +93,13 @@ function publicationFilterUrl(publication) {
         <select v-model="activeFilters.year" name="year">
           <option value="">{{ t('library', 'All years') }}</option>
           <option v-for="year in publicationYears" :key="year" :value="year">{{ year }}</option>
+        </select>
+      </label>
+      <label>
+        {{ t('library', 'Creator') }}
+        <select v-model="activeFilters.creator" name="creator" title="Exact full-field creator matches only">
+          <option value="">{{ t('library', 'All creators') }}</option>
+          <option v-for="creator in creators" :key="creator" :value="creator">{{ creator }}</option>
         </select>
       </label>
       <label>

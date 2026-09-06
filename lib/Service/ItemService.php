@@ -242,9 +242,9 @@ final class ItemService {
     }
 
     /**
-     * @param array{q?:string,type?:string,publication?:string,year?:string,format?:string,tag?:string,shelf?:string,status?:string,sort?:string,taggedFileIds?:array<int, int>} $filters
+     * @param array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string,tag?:string,shelf?:string,status?:string,sort?:string,taggedFileIds?:array<int, int>} $filters
      * @param array{page:int,limit:int} $pagination
-     * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,scanStatuses:array<int, string>}}
+     * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,creators:array<int, string>,scanStatuses:array<int, string>}}
      */
     public function queryCatalogue(string $userId, array $filters, array $pagination): array {
         $page = max(1, (int)($pagination['page'] ?? 1));
@@ -458,7 +458,7 @@ final class ItemService {
     }
 
     /**
-     * @return array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,scanStatuses:array<int, string>}
+     * @return array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,creators:array<int, string>,scanStatuses:array<int, string>}
      */
     private function catalogueFacets(string $userId): array {
         return [
@@ -467,6 +467,7 @@ final class ItemService {
             'publications' => $this->distinctCatalogueValues($userId, 'i.publication', 'publication'),
             'publicationSummaries' => $this->topPublicationSummaries($userId),
             'publicationYears' => $this->publicationYearFacetValues($userId),
+            'creators' => $this->distinctCatalogueValues($userId, 'i.creators', 'creator'),
             'scanStatuses' => $this->scanStatusFacetValues($userId),
         ];
     }
@@ -582,6 +583,12 @@ final class ItemService {
         if (preg_match('/^\\d{4}$/', $year) === 1) {
             // Publication year filter uses LIKE prefix matching for YYYY / YYYY-MM / YYYY-MM-DD values.
             $qb->andWhere($qb->expr()->like('i.publication_date', $qb->createNamedParameter($year . '%')));
+        }
+
+        $creator = trim((string)($filters['creator'] ?? ''));
+        if ($creator !== '') {
+            // Exact creator filter intentionally matches the full creators field; identity splitting remains future work.
+            $qb->andWhere($qb->expr()->eq('i.creators', $qb->createNamedParameter($creator)));
         }
 
         $format = mb_strtolower(trim((string)($filters['format'] ?? '')));
