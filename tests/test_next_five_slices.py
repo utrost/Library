@@ -48,9 +48,12 @@ def test_scanner_marks_missing_files_after_root_scan_without_deleting_items():
 
 def test_realistic_metadata_fixture_contract_documents_messy_inputs():
     metadata = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
+    opf = (ROOT / "lib" / "Metadata" / "OpfEpubMetadataExtractor.php").read_text()
+    cbz = (ROOT / "lib" / "Metadata" / "CbzComicInfoMetadataExtractor.php").read_text()
     docs = (ROOT / "docs" / "metadata-storage.md").read_text()
     tests = (ROOT / "tests" / "test_realistic_metadata_fixture_slice.py")
     assert tests.exists()
     assert "parseOpfMetadata" in metadata
-    assert "parseComicInfoMetadata" in metadata
+    assert "parseOpfMetadata" in opf
+    assert "parseComicInfoMetadata" in cbz
     assert "real-world-ish metadata fixture" in docs
