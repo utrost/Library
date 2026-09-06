@@ -122,6 +122,14 @@ $fileRows = [
                     <dd class="<?php p($label === 'scanError' && trim((string)$value) !== '' ? 'library-scan-error' : ''); ?>"><?php p(trim((string)$value) !== '' ? (string)$value : '—'); ?></dd>
                 <?php endforeach; ?>
             </dl>
+            <?php if (($item['scanStatus'] ?? '') === 'missing'): ?>
+                <form method="post" action="<?php p($item['forgetMissingUrl'] ?? ''); ?>" class="library-forget-missing-form">
+                    <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                    <input type="hidden" name="returnTo" value="details" />
+                    <p class="library-muted"><?php p($l->t('This removes this Library catalogue entry for a missing file. It does not delete source files from Nextcloud Files.')); ?></p>
+                    <button type="submit" class="button secondary"><?php p($l->t('Forget missing item')); ?></button>
+                </form>
+            <?php endif; ?>
         </section>
 
         <section class="library-panel library-detail-section-provenance" aria-labelledby="library-provenance-heading">

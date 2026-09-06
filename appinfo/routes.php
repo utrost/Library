@@ -14,6 +14,7 @@ return [
         ['name' => 'scan#progress', 'url' => '/scan/progress', 'verb' => 'GET'],
         ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET'],
         ['name' => 'item#update', 'url' => '/items/{itemId}', 'verb' => 'POST'],
+        ['name' => 'item#forgetMissing', 'url' => '/items/{itemId}/forget-missing', 'verb' => 'POST'],
         ['name' => 'cover#show', 'url' => '/items/{itemId}/cover', 'verb' => 'GET'],
         ['name' => 'tag#assign', 'url' => '/items/{itemId}/tags', 'verb' => 'POST'],
         ['name' => 'tag#remove', 'url' => '/items/{itemId}/tags/{tagId}', 'verb' => 'POST'],

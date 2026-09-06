@@ -36,6 +36,7 @@ The current development slice can:
 - provide separate Read and Show in Files actions for each catalogue item.
 - sort the catalogue grid by title, recently added, publication date or format.
 - mark previously indexed files as missing when a root scan no longer sees them, without deleting catalogue metadata.
+- forget missing item catalogue entries from the details page after their backing file is no longer seen, without deleting source files.
 - edit, enable/disable and delete Library roots from the personal settings surface without deleting source files from Nextcloud Files.
 - filter the catalogue by scan status (`indexed`, `metadata_error`, `missing`) and show per-card scan diagnostics for unhealthy items.
 - isolate local metadata extraction failures per file so corrupt EPUB/CBZ/OPF fixtures do not abort an otherwise healthy root scan, and show the scan error in the indexed-file diagnostics.

@@ -46,4 +46,22 @@ final class ItemController extends Controller {
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
     }
+
+    #[NoAdminRequired]
+    public function forgetMissing(int $itemId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $this->itemService->forgetMissingItem($user->getUID(), $itemId);
+        }
+
+        $returnTo = (string)$this->request->getParam('returnTo', '');
+        if ($returnTo === 'details') {
+            $item = $user !== null ? $this->itemService->findItem($user->getUID(), $itemId) : null;
+            if ($item !== null) {
+                return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+            }
+        }
+
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
 }
