@@ -49,10 +49,10 @@ def test_personal_settings_classes_register_library_under_user_settings():
 def test_user_settings_template_contains_root_scan_and_history_admin_tools():
     settings = (ROOT / "templates" / "settings-personal.php").read_text()
 
-    assert 'aria-label="Library roots"' in settings
-    assert 'aria-label="Scan progress"' in settings
-    assert 'aria-label="Scan history"' in settings
-    assert 'aria-label="Indexed files"' in settings
+    assert 'aria-labelledby="library-settings-heading"' in settings
+    assert 'aria-labelledby="library-scan-progress-heading"' in settings
+    assert 'aria-labelledby="library-scan-history-heading"' in settings
+    assert 'aria-labelledby="library-indexed-files-heading"' in settings
     assert "data-library-scan-progress-url" in settings
     assert "Scan enabled roots" in settings
     assert "Save root" in settings

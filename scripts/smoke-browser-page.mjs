@@ -199,6 +199,54 @@ async function runBrowserSmoke(proxyBase) {
     if (!dom) {
       throw new Error(`Chrome Runtime.evaluate returned no DOM value: ${JSON.stringify(result).slice(0, 1000)}`)
     }
+
+    await client.send('Page.navigate', { url: `${proxyBase}/settings/user/library?browser-smoke=${Date.now()}` })
+    await new Promise((resolve) => setTimeout(resolve, 2500))
+    const settingsResult = await client.send('Runtime.evaluate', {
+      returnByValue: true,
+      awaitPromise: true,
+      expression: `(() => {
+        const root = document.querySelector('#library-settings')
+        if (!root) {
+          return {
+            present: false,
+            authBlocked: true,
+          }
+        }
+        const requiredHeadings = [
+          'library-settings-heading',
+          'library-scan-progress-heading',
+          'library-scan-history-heading',
+          'library-indexed-files-heading',
+        ]
+        const controls = [...root.querySelectorAll('input:not([type=hidden]), select, textarea, button')]
+        const unlabelledControls = controls.filter((el) => {
+          const id = el.getAttribute('id')
+          const hasExplicitLabel = id && root.querySelector('label[for="' + CSS.escape(id) + '"]')
+          const hasWrappedLabel = Boolean(el.closest('label'))
+          const hasAria = Boolean(el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'))
+          const hasButtonText = el.tagName === 'BUTTON' && el.textContent.trim() !== ''
+          return !(hasExplicitLabel || hasWrappedLabel || hasAria || hasButtonText)
+        }).length
+        return {
+          present: true,
+          labelledSections: requiredHeadings.every((id) => Boolean(root.querySelector('#' + id)))
+            && Boolean(root.querySelector('[aria-labelledby="library-settings-heading"]'))
+            && Boolean(root.querySelector('[aria-labelledby="library-scan-progress-heading"]'))
+            && Boolean(root.querySelector('[aria-labelledby="library-scan-history-heading"]'))
+            && Boolean(root.querySelector('[aria-labelledby="library-indexed-files-heading"]')),
+          controls: controls.length,
+          unlabelledControls,
+          postForms: root.querySelectorAll('form[method="post"]').length,
+          requestTokenFields: root.querySelectorAll('form[method="post"] input[name="requesttoken"]').length,
+        }
+      })()`,
+    })
+
+    const settingsDom = settingsResult.result?.value ?? settingsResult.value
+    if (!settingsDom) {
+      throw new Error(`Chrome Runtime.evaluate returned no settings DOM value: ${JSON.stringify(settingsResult).slice(0, 1000)}`)
+    }
     const consoleErrors = client.events.filter((event) => {
       const text = JSON.stringify(event)
       const isLibraryError = text.includes('/custom_apps/library/') || text.includes('[library]') || text.includes('library-main.mjs')
@@ -224,6 +272,13 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_bad_host_hrefs', dom.badHostHrefs)
     print('browser_catalogue_labelled', dom.catalogueLabelled)
     print('browser_unlabelled_controls', dom.unlabelledControls)
+    print('settings_present', settingsDom.present)
+    print('settings_auth_blocked', settingsDom.authBlocked === true)
+    print('settings_labelled_sections', settingsDom.labelledSections)
+    print('settings_controls', settingsDom.controls ?? 0)
+    print('settings_unlabelled_controls', settingsDom.unlabelledControls ?? 0)
+    print('settings_post_forms', settingsDom.postForms ?? 0)
+    print('settings_request_token_fields', settingsDom.requestTokenFields ?? 0)
     print('browser_console_errors', consoleErrors.length)
 
     const ok = dom.vueApp === true
@@ -240,6 +295,14 @@ async function runBrowserSmoke(proxyBase) {
       && dom.badHostHrefs === 0
       && dom.catalogueLabelled === true
       && dom.unlabelledControls === 0
+      && (settingsDom.authBlocked === true || (
+        settingsDom.present === true
+        && settingsDom.labelledSections === true
+        && settingsDom.controls > 0
+        && settingsDom.unlabelledControls === 0
+        && settingsDom.postForms > 0
+        && settingsDom.requestTokenFields === settingsDom.postForms
+      ))
       && consoleErrors.length === 0
 
     if (!ok) {

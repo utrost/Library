@@ -67,7 +67,7 @@ def test_page_routes_expose_root_save_and_manual_scan_actions():
 
 def test_personal_settings_template_shows_extendable_root_configuration_and_file_index():
     template = (ROOT / "templates" / "settings-personal.php").read_text()
-    assert "Library roots" in template
+    assert "library-settings-heading" in template
     assert "name=\"path\"" in template
     assert "Scan enabled roots" in template
     assert "Indexed files" in template
