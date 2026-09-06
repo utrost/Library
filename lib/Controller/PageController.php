@@ -73,7 +73,7 @@ class PageController extends Controller {
         $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination) : [
             'items' => [],
             'total' => 0,
-            'facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'publications' => []],
+            'facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'publications' => [], 'publicationSummaries' => []],
         ];
         $items = $catalogue['items'];
         $pagination['total'] = (int)$catalogue['total'];
@@ -92,6 +92,7 @@ class PageController extends Controller {
             'shelves' => $catalogue['facets']['shelves'],
             'formats' => $catalogue['facets']['formats'],
             'publications' => $catalogue['facets']['publications'],
+            'publicationSummaries' => $catalogue['facets']['publicationSummaries'],
             'scanStatuses' => $catalogue['facets']['scanStatuses'],
             'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
