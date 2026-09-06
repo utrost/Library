@@ -7,7 +7,7 @@ def test_main_library_page_is_catalogue_first_without_admin_panels():
     template = (ROOT / "templates" / "main.php").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
 
-    catalogue_pos = vue.index('aria-label="Publication catalogue"')
+    catalogue_pos = vue.index('aria-labelledby="library-catalogue-heading"')
     assert 'aria-label="Library roots"' not in template
     assert 'aria-label="Indexed files"' not in template
     assert 'aria-label="Scan history"' not in template

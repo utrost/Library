@@ -1,5 +1,6 @@
 <script setup>
 import { computed, reactive } from 'vue'
+import { t } from '@nextcloud/l10n'
 
 const props = defineProps({
   state: {
@@ -56,77 +57,77 @@ function removeTagUrl(item, tag) {
 
 <template>
   <div class="library-vue-catalogue">
-  <section class="library-panel" aria-label="Publication catalogue">
-    <h2>Publication catalogue</h2>
-    <p class="library-muted">Browse as a shelf/gallery first; open the details panel when metadata matters.</p>
+  <section class="library-panel" aria-labelledby="library-catalogue-heading">
+    <h2 id="library-catalogue-heading">{{ t('library', 'Publication catalogue') }}</h2>
+    <p class="library-muted">{{ t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.') }}</p>
 
-    <form method="get" class="library-filter-bar" aria-label="Catalogue search and filters">
+    <form method="get" class="library-filter-bar" :aria-label="t('library', 'Catalogue search and filters')">
       <label>
-        Search title / author
+        {{ t('library', 'Search title / author') }}
         <input v-model="activeFilters.q" type="search" name="q" placeholder="Camera, Eco, Rolleiflex...">
       </label>
       <label>
-        Type
+        {{ t('library', 'Type') }}
         <select v-model="activeFilters.type" name="type">
-          <option value="">All types</option>
+          <option value="">{{ t('library', 'All types') }}</option>
           <option v-for="type in publicationTypes" :key="type" :value="type">{{ type }}</option>
         </select>
       </label>
       <label>
-        Nextcloud tag
+        {{ t('library', 'Nextcloud tag') }}
         <input v-model="activeFilters.tag" type="text" name="tag" placeholder="photography">
       </label>
       <label>
-        Format
+        {{ t('library', 'Format') }}
         <select v-model="activeFilters.format" name="format">
-          <option value="">All formats</option>
+          <option value="">{{ t('library', 'All formats') }}</option>
           <option v-for="format in formats" :key="format" :value="format">{{ upper(format) }}</option>
         </select>
       </label>
       <label>
-        Shelf
+        {{ t('library', 'Shelf') }}
         <select v-model="activeFilters.shelf" name="shelf">
-          <option value="">All shelves</option>
+          <option value="">{{ t('library', 'All shelves') }}</option>
           <option v-for="shelf in shelves" :key="shelf" :value="shelf">{{ shelf }}</option>
         </select>
       </label>
       <label>
-        Scan status
+        {{ t('library', 'Scan status') }}
         <select v-model="activeFilters.status" name="status">
-          <option value="">All scan statuses</option>
+          <option value="">{{ t('library', 'All scan statuses') }}</option>
           <option v-for="status in scanStatuses" :key="status" :value="status">{{ status }}</option>
         </select>
       </label>
       <label>
-        Sort
+        {{ t('library', 'Sort') }}
         <select v-model="activeFilters.sort" name="sort">
-          <option value="title">Title</option>
-          <option value="recent">Recently added</option>
-          <option value="publicationDate">Publication date</option>
-          <option value="format">Format</option>
+          <option value="title">{{ t('library', 'Title') }}</option>
+          <option value="recent">{{ t('library', 'Recently added') }}</option>
+          <option value="publicationDate">{{ t('library', 'Publication date') }}</option>
+          <option value="format">{{ t('library', 'Format') }}</option>
         </select>
       </label>
       <label>
-        Page size
+        {{ t('library', 'Page size') }}
         <select :value="pagination.limit" name="limit">
           <option v-for="limit in pageSizes" :key="limit" :value="limit">{{ limit }}</option>
         </select>
       </label>
-      <button type="submit" class="button primary" aria-label="Apply catalogue filters">Apply filters</button>
-      <a href="?" class="button secondary" aria-label="Clear catalogue filters">Clear</a>
+      <button type="submit" class="button primary" :aria-label="t('library', 'Apply catalogue filters')">{{ t('library', 'Apply filters') }}</button>
+      <a href="?" class="button secondary" :aria-label="t('library', 'Clear catalogue filters')">{{ t('library', 'Clear') }}</a>
     </form>
 
-    <nav class="library-pagination" aria-label="Catalogue pagination">
+    <nav class="library-pagination" :aria-label="t('library', 'Catalogue pagination')">
       <span>Showing {{ pagination.from }}–{{ pagination.to }} of {{ pagination.total }} catalogue items</span>
-      <a v-if="pagination.previousUrl" :href="pagination.previousUrl">Previous</a>
-      <span v-else class="library-muted">Previous</span>
-      <a v-if="pagination.nextUrl" :href="pagination.nextUrl">Next</a>
-      <span v-else class="library-muted">Next</span>
+      <a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a>
+      <span v-else class="library-muted">{{ t('library', 'Previous') }}</span>
+      <a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a>
+      <span v-else class="library-muted">{{ t('library', 'Next') }}</span>
     </nav>
 
     <div v-if="items.length === 0" class="library-empty-content" role="status">
-      <h3>No catalogue items match</h3>
-      <p class="library-muted">Scan enabled roots or clear the active filters.</p>
+      <h3>{{ t('library', 'No catalogue items match') }}</h3>
+      <p class="library-muted">{{ t('library', 'Scan enabled roots or clear the active filters.') }}</p>
     </div>
 
     <div v-else class="library-cover-gallery">

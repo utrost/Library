@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { loadState } from '@nextcloud/initial-state'
+import { t } from '@nextcloud/l10n'
 import App from './App.vue'
 
 const initialState = loadState('library', 'catalogue', {})
@@ -70,27 +71,27 @@ function fallbackFilterForm(state, pagination) {
   const form = document.createElement('form')
   form.method = 'get'
   form.className = 'library-filter-bar'
-  form.setAttribute('aria-label', 'Catalogue search and filters')
+  form.setAttribute('aria-label', t('library', 'Catalogue search and filters'))
 
-  appendTextInput(form, 'Search title / author', 'q', activeFilters.q, 'Camera, Eco, Rolleiflex...')
-  appendSelect(form, 'Type', 'type', activeFilters.type, 'All types', ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'])
-  appendTextInput(form, 'Nextcloud tag', 'tag', activeFilters.tag, 'photography')
-  appendSelect(form, 'Format', 'format', activeFilters.format, 'All formats', state.formats || [], upper)
-  appendSelect(form, 'Shelf', 'shelf', activeFilters.shelf, 'All shelves', state.shelves || [])
-  appendSelect(form, 'Scan status', 'status', activeFilters.status, 'All scan statuses', state.scanStatuses || [])
-  appendSelect(form, 'Sort', 'sort', activeFilters.sort || 'title', 'Sort by', ['title', 'recent', 'publicationDate', 'format'])
-  appendSelect(form, 'Page size', 'limit', pagination.limit || 100, 'Page size', [25, 50, 100, 250, 500])
+  appendTextInput(form, t('library', 'Search title / author'), 'q', activeFilters.q, 'Camera, Eco, Rolleiflex...')
+  appendSelect(form, t('library', 'Type'), 'type', activeFilters.type, t('library', 'All types'), ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'])
+  appendTextInput(form, t('library', 'Nextcloud tag'), 'tag', activeFilters.tag, 'photography')
+  appendSelect(form, t('library', 'Format'), 'format', activeFilters.format, t('library', 'All formats'), state.formats || [], upper)
+  appendSelect(form, t('library', 'Shelf'), 'shelf', activeFilters.shelf, t('library', 'All shelves'), state.shelves || [])
+  appendSelect(form, t('library', 'Scan status'), 'status', activeFilters.status, t('library', 'All scan statuses'), state.scanStatuses || [])
+  appendSelect(form, t('library', 'Sort'), 'sort', activeFilters.sort || 'title', t('library', 'Sort by'), ['title', 'recent', 'publicationDate', 'format'])
+  appendSelect(form, t('library', 'Page size'), 'limit', pagination.limit || 100, t('library', 'Page size'), [25, 50, 100, 250, 500])
 
   const submit = document.createElement('button')
   submit.type = 'submit'
   submit.className = 'button primary'
-  submit.setAttribute('aria-label', 'Apply catalogue filters')
-  submit.textContent = 'Apply filters'
+  submit.setAttribute('aria-label', t('library', 'Apply catalogue filters'))
+  submit.textContent = t('library', 'Apply filters')
   const clear = document.createElement('a')
   clear.href = '?'
   clear.className = 'button secondary'
-  clear.setAttribute('aria-label', 'Clear catalogue filters')
-  clear.textContent = 'Clear'
+  clear.setAttribute('aria-label', t('library', 'Clear catalogue filters'))
+  clear.textContent = t('library', 'Clear')
   form.append(submit, clear)
   return form
 }
@@ -112,21 +113,22 @@ function fallbackCatalogue(state, error) {
 
   const panel = document.createElement('section')
   panel.className = 'library-panel'
-  panel.setAttribute('aria-label', 'Publication catalogue')
+  panel.setAttribute('aria-labelledby', 'library-catalogue-heading')
 
   const heading = document.createElement('h2')
-  heading.textContent = 'Publication catalogue'
+  heading.id = 'library-catalogue-heading'
+  heading.textContent = t('library', 'Publication catalogue')
   panel.appendChild(heading)
 
   const note = document.createElement('p')
   note.className = 'library-muted'
-  note.textContent = 'Browse as a shelf/gallery first; open the details panel when metadata matters.'
+  note.textContent = t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.')
   panel.appendChild(note)
   panel.appendChild(fallbackFilterForm(state, pagination))
 
   const nav = document.createElement('nav')
   nav.className = 'library-pagination'
-  nav.setAttribute('aria-label', 'Catalogue pagination')
+  nav.setAttribute('aria-label', t('library', 'Catalogue pagination'))
   const range = document.createElement('span')
   range.textContent = `Showing ${pagination.from ?? 0}–${pagination.to ?? items.length} of ${pagination.total ?? items.length} catalogue items`
   nav.appendChild(range)
@@ -137,10 +139,10 @@ function fallbackCatalogue(state, error) {
     empty.className = 'library-empty-content'
     empty.setAttribute('role', 'status')
     const emptyHeading = document.createElement('h3')
-    emptyHeading.textContent = 'No catalogue items match'
+    emptyHeading.textContent = t('library', 'No catalogue items match')
     const emptyText = document.createElement('p')
     emptyText.className = 'library-muted'
-    emptyText.textContent = 'Scan enabled roots or clear the active filters.'
+    emptyText.textContent = t('library', 'Scan enabled roots or clear the active filters.')
     empty.append(emptyHeading, emptyText)
     panel.appendChild(empty)
   } else {
