@@ -181,6 +181,16 @@ async function runBrowserSmoke(proxyBase) {
           tagNameField: Boolean(document.querySelector('input[name="tagName"]')),
           firstShowFiles: showFiles ? showFiles.href : '',
           badHostHrefs: [...document.querySelectorAll('a[href]')].filter((a) => a.href.startsWith('http://f/') || a.href.startsWith('http://settings/')).length,
+          catalogueLabelled: document.querySelector('.library-panel')?.getAttribute('aria-labelledby') === 'library-catalogue-heading'
+            && Boolean(document.querySelector('#library-catalogue-heading')),
+          unlabelledControls: [...document.querySelectorAll('input:not([type=hidden]), select, textarea, button')].filter((el) => {
+            const id = el.getAttribute('id')
+            const hasExplicitLabel = id && document.querySelector('label[for="' + CSS.escape(id) + '"]')
+            const hasWrappedLabel = Boolean(el.closest('label'))
+            const hasAria = Boolean(el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'))
+            const hasButtonText = el.tagName === 'BUTTON' && el.textContent.trim() !== ''
+            return !(hasExplicitLabel || hasWrappedLabel || hasAria || hasButtonText)
+          }).length,
         }
       })()`,
     })
@@ -212,6 +222,8 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_firstShowFiles_has_dir', dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
     print('browser_firstShowFiles_openfile_false', dom.firstShowFiles.includes('openfile=false'))
     print('browser_bad_host_hrefs', dom.badHostHrefs)
+    print('browser_catalogue_labelled', dom.catalogueLabelled)
+    print('browser_unlabelled_controls', dom.unlabelledControls)
     print('browser_console_errors', consoleErrors.length)
 
     const ok = dom.vueApp === true
@@ -226,6 +238,8 @@ async function runBrowserSmoke(proxyBase) {
       && (dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
       && dom.firstShowFiles.includes('openfile=false')
       && dom.badHostHrefs === 0
+      && dom.catalogueLabelled === true
+      && dom.unlabelledControls === 0
       && consoleErrors.length === 0
 
     if (!ok) {

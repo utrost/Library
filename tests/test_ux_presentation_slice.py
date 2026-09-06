@@ -34,7 +34,7 @@ def test_page_controller_passes_filter_state_and_shelves_to_template():
 
 def test_template_renders_cover_gallery_metadata_detail_and_filter_controls():
     vue = (ROOT / "src" / "App.vue").read_text()
-    assert "aria-label=\"Catalogue search and filters\"" in vue
+    assert "t('library', 'Catalogue search and filters')" in vue
     assert "name=\"q\"" in vue
     assert "name=\"type\"" in vue
     assert "name=\"tag\"" in vue
