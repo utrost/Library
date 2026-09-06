@@ -4,6 +4,7 @@ import App from './App.vue'
 
 const state = {
   settingsUrl: '/settings/user/library',
+  metadataExportUrl: '/apps/library/export/metadata',
   shelves: ['Books'],
   formats: ['epub'],
   scanStatuses: ['indexed'],
@@ -53,5 +54,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).toContain('Show in Files')
     expect(wrapper.findAll('form[method="post"]')).toHaveLength(0)
     expect(wrapper.text()).toContain('Details')
+    expect(wrapper.text()).toContain('Export corrected metadata')
+    expect(wrapper.find('a[aria-label="Export corrected metadata"]').attributes('href')).toBe('/apps/library/export/metadata')
   })
 })

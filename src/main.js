@@ -106,6 +106,7 @@ function fallbackCatalogue(state, error) {
     nextUrl: '',
   }
   const settingsUrl = text(state.settingsUrl || '')
+  const metadataExportUrl = text(state.metadataExportUrl || '')
 
   const root = document.createElement('div')
   root.className = 'library-vue-catalogue library-vue-fallback'
@@ -203,7 +204,7 @@ function fallbackCatalogue(state, error) {
   }
 
   root.appendChild(panel)
-  if (settingsUrl) {
+  if (settingsUrl || metadataExportUrl) {
     const settings = document.createElement('section')
     settings.className = 'library-hero library-secondary-panel'
     settings.setAttribute('aria-label', 'Library settings')
@@ -216,12 +217,22 @@ function fallbackCatalogue(state, error) {
     box.append(h, p)
     const actions = document.createElement('div')
     actions.className = 'library-hero-actions'
-    const link = document.createElement('a')
-    link.href = settingsUrl
-    link.className = 'button secondary'
-    link.setAttribute('aria-label', 'Open Library settings')
-    link.textContent = 'Library settings'
-    actions.appendChild(link)
+    if (settingsUrl) {
+      const link = document.createElement('a')
+      link.href = settingsUrl
+      link.className = 'button secondary'
+      link.setAttribute('aria-label', 'Open Library settings')
+      link.textContent = 'Library settings'
+      actions.appendChild(link)
+    }
+    if (metadataExportUrl) {
+      const exportLink = document.createElement('a')
+      exportLink.href = metadataExportUrl
+      exportLink.className = 'button secondary'
+      exportLink.setAttribute('aria-label', 'Export corrected metadata')
+      exportLink.textContent = 'Export corrected metadata'
+      actions.appendChild(exportLink)
+    }
     settings.append(box, actions)
     root.appendChild(settings)
   }
