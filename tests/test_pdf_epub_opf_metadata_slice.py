@@ -7,27 +7,30 @@ def test_publication_metadata_service_extracts_epub_package_opf_fields():
     service_path = ROOT / "lib" / "Metadata" / "PublicationMetadataService.php"
     assert service_path.exists()
     service = service_path.read_text()
+    opf = (ROOT / "lib" / "Metadata" / "OpfEpubMetadataExtractor.php").read_text()
     assert "namespace OCA\\Library\\Metadata" in service
     assert "final class PublicationMetadataService" in service
     assert "public function extract(File $file): array" in service
-    assert "extractEpubMetadata" in service
-    assert "META-INF/container.xml" in service
-    assert "rootfile" in service
-    assert "parseOpfMetadata" in service
-    assert "epub-opf" in service
+    assert "new OpfEpubMetadataExtractor()" in service
+    assert "extractEpub($file)" in service
+    assert "META-INF/container.xml" in opf
+    assert "rootfile" in opf
+    assert "parseOpfMetadata" in opf
+    assert "epub-opf" in opf
 
 
 def test_publication_metadata_service_extracts_standalone_opf_metadata():
     service = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
-    assert "extractStandaloneOpfMetadata" in service
+    opf = (ROOT / "lib" / "Metadata" / "OpfEpubMetadataExtractor.php").read_text()
+    assert "extractStandaloneOpf($file)" in service
     assert "application/oebps-package+xml" in service
-    assert "opf" in service
-    assert "dc:title" in service
-    assert "dc:creator" in service
-    assert "dc:language" in service
-    assert "dc:publisher" in service
-    assert "dc:date" in service
-    assert "metadataSource' => 'opf'" in service
+    assert "opf" in opf
+    assert "dc:title" in opf
+    assert "dc:creator" in opf
+    assert "dc:language" in opf
+    assert "dc:publisher" in opf
+    assert "dc:date" in opf
+    assert "metadataSource' => 'opf'" in opf
 
 
 def test_publication_metadata_service_extracts_basic_pdf_info_without_reclassifying_pdf_as_book():

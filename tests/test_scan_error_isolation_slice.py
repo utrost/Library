@@ -27,9 +27,11 @@ def test_scanner_isolates_per_file_metadata_errors_and_continues_root_scan():
 
 def test_metadata_service_reports_corrupt_archives_as_non_fatal_errors():
     metadata = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
+    opf = (ROOT / "lib" / "Metadata" / "OpfEpubMetadataExtractor.php").read_text()
     assert "private ?string $lastError = null" in metadata
     assert "public function getLastError(): ?string" in metadata
-    assert "Unsupported or corrupt EPUB archive" in metadata
+    assert "$this->lastError = $extractor->getLastError();" in metadata
+    assert "Unsupported or corrupt EPUB archive" in opf
     assert "Unsupported or corrupt CBZ archive" in metadata
     assert "metadata extraction failed" in metadata
 
