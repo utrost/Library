@@ -57,7 +57,9 @@ $fileRows = [
             </div>
         </article>
 
-        <section class="library-panel" aria-labelledby="library-publication-metadata-heading">
+        <div class="library-detail-workbench">
+            <div class="library-detail-primary">
+        <section class="library-panel library-detail-section-meta" aria-labelledby="library-publication-metadata-heading">
             <h3 id="library-publication-metadata-heading"><?php p($l->t('Publication metadata')); ?></h3>
             <dl class="library-item-metadata">
                 <?php foreach ($metadataRows as $label => $value): ?>
@@ -66,7 +68,7 @@ $fileRows = [
                 <?php endforeach; ?>
             </dl>
 
-            <form method="post" action="<?php p($item['updateUrl'] ?? ''); ?>" class="library-item-form library-detail-edit-form" aria-labelledby="library-publication-edit-heading">
+            <form method="post" action="<?php p($item['updateUrl'] ?? ''); ?>" class="library-item-form library-detail-edit-form library-detail-section-edit" aria-labelledby="library-publication-edit-heading">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <input type="hidden" name="returnTo" value="details" />
                 <h4 id="library-publication-edit-heading"><?php p($l->t('Edit publication metadata')); ?></h4>
@@ -109,8 +111,10 @@ $fileRows = [
                 <button type="submit" class="button primary"><?php p($l->t('Save metadata')); ?></button>
             </form>
         </section>
+            </div>
+            <div class="library-detail-secondary">
 
-        <section class="library-panel" aria-labelledby="library-file-metadata-heading">
+        <section class="library-panel library-detail-section-file" aria-labelledby="library-file-metadata-heading">
             <h3 id="library-file-metadata-heading"><?php p($l->t('File metadata')); ?></h3>
             <dl class="library-item-metadata">
                 <?php foreach ($fileRows as $label => $value): ?>
@@ -120,7 +124,7 @@ $fileRows = [
             </dl>
         </section>
 
-        <section class="library-panel" aria-labelledby="library-provenance-heading">
+        <section class="library-panel library-detail-section-provenance" aria-labelledby="library-provenance-heading">
             <h3 id="library-provenance-heading"><?php p($l->t('Provenance')); ?></h3>
             <dl class="library-item-metadata">
                 <dt>metadataSource</dt>
@@ -131,7 +135,7 @@ $fileRows = [
             <p class="library-muted"><?php p($l->t('User-edited publication metadata is preserved across rescans. Scanner values remain provenance-labelled.')); ?></p>
         </section>
 
-        <section class="library-panel" aria-labelledby="library-nextcloud-metadata-heading">
+        <section class="library-panel library-detail-section-nextcloud" aria-labelledby="library-nextcloud-metadata-heading">
             <h3 id="library-nextcloud-metadata-heading"><?php p($l->t('Nextcloud metadata')); ?></h3>
             <div class="library-nextcloud-tags" aria-label="nextcloudTags">
                 <strong><?php p($l->t('Nextcloud tags')); ?></strong>
@@ -194,5 +198,7 @@ $fileRows = [
                 </form>
             </div>
         </section>
+            </div>
+        </div>
     </main>
 </div>

@@ -19,11 +19,12 @@ The current development slice can:
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans;
 - generate absolute Nextcloud URLs for reader handoff, Files handoff and Library settings links so browser hrefs stay under the Nextcloud host;
-- show indexed files and publication items with a catalogue-first Vue/Vite-backed catalogue page mounted in a conventional Nextcloud `#app-content` shell, responsive, paginated cover gallery, preview-backed covers, placeholder fallbacks and collapsible metadata detail/edit sections;
+- show indexed files and publication items with a catalogue-first Vue/Vite-backed catalogue page mounted in a conventional Nextcloud `#app-content` shell, responsive, paginated cover gallery, preview-backed covers, placeholder fallbacks and browse-only catalogue cards;
 - search and filter the catalogue by title/author text, publication type, file format, scan status, exact Nextcloud tag and root-derived shelf;
-- treat Nextcloud system tags as cross-archive classification metadata exposed, addable and removable from Library item cards;
-- show recent Nextcloud file comments as file-level notes/discussion on Library item cards;
-- add new Nextcloud file comments from Library item cards;
+- catalogue cards are browse-only while the details page owns publication metadata, tag and comment editing;
+- treat Nextcloud system tags as cross-archive classification metadata exposed on catalogue cards and addable/removable from item details;
+- show recent Nextcloud file comments as file-level notes/discussion on catalogue cards and item details;
+- add new Nextcloud file comments from item details;
 - extract first local metadata candidates from EPUB package OPF, standalone OPF files and basic PDF info dictionaries, including UTF-16 BOM encoded PDF Info strings from real PDFs;
 - prefer OPF sidecars for PDF/EPUB catalogue defaults when a same-basename `.opf` or folder-level `metadata.opf` is present;
 - suppress OPF sidecars as separate catalogue items when they accompany a primary PDF/EPUB/CBZ, while still allowing standalone OPF records;

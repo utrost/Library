@@ -48,6 +48,7 @@ function startAuthProxy(token) {
     delete headers.host
     delete headers.connection
     delete headers['accept-encoding']
+    delete headers.cookie
 
     const chunks = []
     req.on('data', (chunk) => chunks.push(chunk))
@@ -203,6 +204,61 @@ async function runBrowserSmoke(proxyBase) {
       throw new Error(`Chrome Runtime.evaluate returned no DOM value: ${JSON.stringify(result).slice(0, 1000)}`)
     }
 
+    const firstDetailsUrl = new URL(dom.firstDetails, proxyBase)
+    const detailUrl = `${proxyBase}${firstDetailsUrl.pathname}${firstDetailsUrl.search}`
+    print('browser_detail_target', detailUrl)
+    const detailPreflight = await fetch(detailUrl, { redirect: 'manual' })
+    print('browser_detail_preflight_status', detailPreflight.status)
+    print('browser_detail_preflight_location', detailPreflight.headers.get('location') || '')
+    const detailNavigate = await client.send('Page.navigate', { url: detailUrl })
+    print('browser_detail_navigate_error', detailNavigate.errorText || '')
+    await new Promise((resolve) => setTimeout(resolve, 2500))
+    const detailResult = await client.send('Runtime.evaluate', {
+      returnByValue: true,
+      awaitPromise: true,
+      expression: `(() => {
+        const root = document.querySelector('#library-app.library-item-detail')
+        const workbench = document.querySelector('.library-detail-workbench')
+        const requiredLabelledSections = [
+          ['.library-detail-section-meta', 'library-publication-metadata-heading'],
+          ['.library-detail-section-edit', 'library-publication-edit-heading'],
+          ['.library-detail-section-nextcloud', 'library-nextcloud-metadata-heading'],
+          ['.library-detail-section-file', 'library-file-metadata-heading'],
+          ['.library-detail-section-provenance', 'library-provenance-heading'],
+        ]
+        const controls = [...document.querySelectorAll('input:not([type=hidden]), select, textarea, button')]
+        const detailUnlabelledControls = controls.filter((el) => {
+          const id = el.getAttribute('id')
+          const hasExplicitLabel = id && document.querySelector('label[for="' + CSS.escape(id) + '"]')
+          const hasWrappedLabel = Boolean(el.closest('label'))
+          const hasAria = Boolean(el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'))
+          const hasButtonText = el.tagName === 'BUTTON' && el.textContent.trim() !== ''
+          return !(hasExplicitLabel || hasWrappedLabel || hasAria || hasButtonText)
+        }).length
+        return {
+          detailUrl: location.href,
+          detailTitle: document.title,
+          detailHasAppContent: Boolean(document.querySelector('#app-content')),
+          detailPage: Boolean(root),
+          detailWorkbench: Boolean(workbench),
+          detailPrimary: Boolean(document.querySelector('.library-detail-primary')),
+          detailSecondary: Boolean(document.querySelector('.library-detail-secondary')),
+          detailSectionsLabelled: requiredLabelledSections.every(([selector, id]) => {
+            const section = document.querySelector(selector)
+            return Boolean(section) && section.getAttribute('aria-labelledby') === id && Boolean(document.querySelector('#' + id))
+          }),
+          detailPostForms: document.querySelectorAll('#library-app.library-item-detail form[method="post"]').length,
+          detailRequestTokenFields: document.querySelectorAll('#library-app.library-item-detail form[method="post"] input[name="requesttoken"]').length,
+          detailUnlabelledControls,
+        }
+      })()`,
+    })
+
+    const detailDom = detailResult.result?.value ?? detailResult.value
+    if (!detailDom) {
+      throw new Error(`Chrome Runtime.evaluate returned no detail DOM value: ${JSON.stringify(detailResult).slice(0, 1000)}`)
+    }
+
     await client.send('Page.navigate', { url: `${proxyBase}/settings/user/library?browser-smoke=${Date.now()}` })
     await new Promise((resolve) => setTimeout(resolve, 2500))
     const settingsResult = await client.send('Runtime.evaluate', {
@@ -278,6 +334,17 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_bad_host_hrefs', dom.badHostHrefs)
     print('browser_catalogue_labelled', dom.catalogueLabelled)
     print('browser_unlabelled_controls', dom.unlabelledControls)
+    print('browser_detail_page', detailDom.detailPage)
+    print('browser_detail_url', detailDom.detailUrl)
+    print('browser_detail_title', detailDom.detailTitle)
+    print('browser_detail_has_app_content', detailDom.detailHasAppContent)
+    print('browser_detail_workbench', detailDom.detailWorkbench)
+    print('browser_detail_primary', detailDom.detailPrimary)
+    print('browser_detail_secondary', detailDom.detailSecondary)
+    print('browser_detail_sections_labelled', detailDom.detailSectionsLabelled)
+    print('browser_detail_post_forms', detailDom.detailPostForms)
+    print('browser_detail_request_token_fields', detailDom.detailRequestTokenFields)
+    print('browser_detail_unlabelled_controls', detailDom.detailUnlabelledControls)
     print('settings_present', settingsDom.present)
     print('settings_auth_blocked', settingsDom.authBlocked === true)
     print('settings_labelled_sections', settingsDom.labelledSections)
@@ -303,6 +370,14 @@ async function runBrowserSmoke(proxyBase) {
       && dom.badHostHrefs === 0
       && dom.catalogueLabelled === true
       && dom.unlabelledControls === 0
+      && detailDom.detailPage === true
+      && detailDom.detailWorkbench === true
+      && detailDom.detailPrimary === true
+      && detailDom.detailSecondary === true
+      && detailDom.detailSectionsLabelled === true
+      && detailDom.detailPostForms > 0
+      && detailDom.detailRequestTokenFields === detailDom.detailPostForms
+      && detailDom.detailUnlabelledControls === 0
       && (settingsDom.authBlocked === true || (
         settingsDom.present === true
         && settingsDom.labelledSections === true

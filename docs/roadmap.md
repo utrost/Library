@@ -1,7 +1,7 @@
 # Library Roadmap
 
 Status: active planning roadmap  
-Last updated: 2026-09-04  
+Last updated: 2026-09-06
 Companion documents: [Product concept](product-concept.md), [UX concept and user stories](ux-concept.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md), [Alice scale pilot notes](alice-scale-pilot.md)
 
 ## Roadmap stance
@@ -31,13 +31,14 @@ What exists now:
 - Scan-job progress/history table and UI summary for the latest queued background scan plus recent scan history: auto-refreshing scan progress and live-ish scan progress, status, root count, indexed file count, error count and duration.
 - First local metadata extraction for EPUB package OPF, standalone OPF files, filename/folder patterns and basic PDF info dictionaries including UTF-16 BOM encoded PDF Info strings.
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
-- Publication catalogue gallery with placeholder covers, card-level title/creator/type/shelf/tag metadata, direct Read links and collapsible detail/edit sections.
+- Publication catalogue gallery with placeholder/preview covers, card-level title/creator/type/shelf/tag metadata, direct Read/Show in Files/Details links and browse-only catalogue cards.
 - Bounded catalogue pagination with page-size controls, smoke-tested through a 1000-real-file / 16.52 GiB staged Alice scale pilot after the planned 10 → 100 → 1000 → 10000 guardrail path.
 - Server-side catalogue search/filter controls for title/author text, publication type, file format filter, scan status, exact Nextcloud tag and root-derived shelf.
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
-- Minimal Nextcloud system tag assignment/removal from Library item cards for visible/assignable tags.
-- Read-only recent Nextcloud file comments on publication item cards as file-level notes/discussion.
-- Minimal Nextcloud file comment writing from Library item cards.
+- Dedicated item details page where the details page owns metadata, tag and comment editing while catalogue cards stay browse-only.
+- Minimal Nextcloud system tag assignment/removal from item details for visible/assignable tags.
+- Read-only recent Nextcloud file comments on publication item cards and item details as file-level notes/discussion.
+- Minimal Nextcloud file comment writing from item details.
 - Per-file metadata extraction error isolation with visible indexed-file diagnostics for corrupt EPUB/CBZ/OPF inputs.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - Scan/admin controls are separated into the personal settings surface at `/settings/user/library`; the app page is catalogue-first with absolute Nextcloud URLs and a Vue/Vite catalogue mounted in the conventional scrollable `#app-content` shell.
@@ -185,17 +186,52 @@ Exit criteria:
 - Existing Nextcloud file comments are visible as file-level notes/discussion.
 - Library can add a simple file-level Nextcloud comment without treating it as canonical publication metadata.
 
+## Phase 2.6 — Details-owned editing workbench
+
+Goal: keep the catalogue fast to scan while giving each publication a proper workbench for metadata, Nextcloud integration metadata and file diagnostics.
+
+Status: active. The dedicated detail route, metadata edit form, Nextcloud tag add/remove and comment add flows have landed and are smoke-tested. The current slice improves the detail workbench layout and browser accessibility checks.
+
+User outcome:
+
+- The catalogue cards are browse-only and stay visually light.
+- The details page owns metadata, tag and comment editing.
+- The detail workbench layout separates publication editing from Nextcloud/file/provenance diagnostics.
+- Every details-page form keeps CSRF protection and returns to the detail page after save.
+
+Backend/frontend slices:
+
+1. Add dedicated item detail route with publication/file/provenance/Nextcloud sections. **Landed.**
+2. Move Library publication metadata editing to details. **Landed and edit/restore smoked.**
+3. Move Nextcloud tag editing to details. **Landed and add/remove smoked.**
+4. Move Nextcloud comment writing to details. **Landed and add/delete smoked.**
+5. Simplify catalogue cards to read-only browse cards. **Landed and browser-smoked with zero catalogue POST forms.**
+6. Add a scannable two-column detail workbench layout with explicit labelled primary/secondary sections. **Current implementation slice.**
+7. Later: add section-level affordances such as collapse, recent activity and richer validation messages only after real usage shows the page is too busy.
+
+Tests/smokes:
+
+- Static contract proving catalogue cards have no POST/request-token fields.
+- HTTP smoke proving details page contains edit, tag and comment forms with `returnTo=details`.
+- Browser smoke proving catalogue remains browse-only and detail workbench has labelled sections and no unlabelled controls.
+
+Exit criteria:
+
+- A user can browse from the catalogue without inline form clutter.
+- All mutating item actions are available on the detail page and return there after completion.
+- The details page is readable enough to become the durable home for future richer metadata work.
+
 ## Phase 2.75 — Presentation, shelves and catalogue finding
 
 Goal: answer the first real product UX questions before adding deeper extraction: what does browsing feel like, where is metadata visible, and how does a mixed archive become findable?
 
-Status: first UX concept and implementation slice landed. The current implementation uses placeholder covers rather than extracted images, root-derived shelves rather than virtual collections, and simple server-side filters rather than a rich Vue client.
+Status: first UX concept and implementation slice landed. The current implementation uses placeholder/preview covers, root-derived shelves rather than virtual collections, and server-side filters presented through a Vue catalogue.
 
 User outcome:
 
 - The user sees a gallery of publication cards instead of only a raw table.
 - High-signal metadata is visible on each card: title, creator/author, type, shelf and Nextcloud tags.
-- Secondary metadata and editing are available in a collapsible detail panel.
+- Secondary metadata and editing are available on the dedicated details page.
 - Search and filters can narrow by title/author text, semantic publication type, file format, exact Nextcloud tag and shelf.
 
 Backend/frontend slices:
@@ -203,7 +239,7 @@ Backend/frontend slices:
 1. Add a checked-in UX concept/user-story document for gallery, metadata visibility, shelves and search/filtering. **Landed.**
 2. Derive a v0.1 Shelf from the configured Library root label/path. **Landed.**
 3. Render a responsive cover gallery with stable placeholder covers. **Landed.**
-4. Move noisy metadata/edit/tag/comment controls behind per-card details. **Landed.**
+4. Move noisy metadata/edit/tag/comment controls out of catalogue cards and onto dedicated details pages. **Landed through Phase 2.6.**
 5. Add GET-based filters for query, type, tag and shelf. **Landed; extended with file format filter.**
 6. Replace placeholders with extracted/generated cover images. **Deferred to Phase 3 cover work.**
 7. Add virtual/user-defined shelves or collections without changing file ownership. **Deferred.**
@@ -387,11 +423,11 @@ Exit criteria:
 
 ## Immediate next implementation slice
 
-Recommended next slice after scanner-side metadata error isolation:
+Recommended next slice after details-owned editing:
 
-1. Harden cover-route error diagnostics and unsupported preview visibility now that one corrupt PDF/EPUB/CBZ/OPF no longer aborts a whole scan or catalogue page.
-2. Keep Library structured fields separate: assigning or removing `photography` or `project-library` Nextcloud tags must not alter publication form/title/creator fields.
-3. Smoke it against Alice with deliberately unsupported preview/cover fixtures and verify healthy catalogue items still render.
-4. Document the visible failure state before adding richer review queues or Library-native tag tables.
+1. Finish the detail workbench layout and browser accessibility smoke so the new editing home is readable before adding richer fields.
+2. Then harden cover-route error diagnostics and unsupported preview visibility against deliberately unsupported preview/cover fixtures.
+3. Then smoke metadata/tag/comment separation against Alice: assigning/removing `photography` or `project-library` Nextcloud tags must not alter publication form/title/creator fields.
+4. Then document the visible failure state before adding richer review queues, Library-native tag tables, Internet enrichment or OCR.
 
-This slice deliberately stops before Library-native tag tables, Internet enrichment and OCR. It should make the existing cover/preview path safer and more transparent against real-collection messiness.
+This immediate slice deliberately stops before new metadata tables or external enrichment. It improves the solution by making the now-central detail page a stable, accessible workbench for the existing verified flows.
