@@ -10,7 +10,7 @@ def test_page_controller_accepts_format_filter_and_builds_available_formats():
     assert "queryCatalogue($userId, $activeFilters, $pagination)" in controller
     assert "catalogueFacets" in service
     assert "formats" in controller
-    assert "array{q?:string,type?:string,publication?:string,format?:string" in service
+    assert "array{q?:string,type?:string,publication?:string,year?:string,format?:string" in service
 
 
 def test_page_controller_filters_catalogue_items_by_file_extension():

@@ -61,6 +61,7 @@ Current catalogue capabilities:
 - open the item workbench through **Details**;
 - search by title, subtitle, creator, publication/series/periodical and path text;
 - filter by series or periodical title for magazines, journals and recurring publications;
+- filter by publication year as read-only discovery for dated books, magazines, journals and comics;
 - use the **Top series and periodicals** panel to jump to recurring publications with item counts;
 - see **No series or periodicals found yet** when the shortcut panel has no publication metadata yet; this is only guidance, with no new series schema;
 - filter by publication type, file format, scan status, exact Nextcloud tag and shelf;
