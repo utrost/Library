@@ -164,6 +164,35 @@ final class ItemService {
         return $this->normalizeJoinedItemRow($row);
     }
 
+    public function exportCorrectedMetadata(string $userId): array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
+            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('i.user_edited', $qb->createNamedParameter(1)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
+            ->orderBy('i.title', 'ASC')
+            ->executeQuery();
+
+        $items = [];
+        while ($row = $result->fetch()) {
+            $item = $this->normalizeJoinedItemRow($row);
+            $item['rootPath'] = (string)($row['path'] ?? '');
+            $items[] = $item;
+        }
+        $result->closeCursor();
+
+        return [
+            'schemaVersion' => 1,
+            'exportedAt' => gmdate(DATE_ATOM),
+            'exportKind' => 'library-corrected-metadata',
+            'itemCount' => count($items),
+            'items' => $items,
+        ];
+    }
+
     private function normalizeJoinedItemRow(array $row): array {
         return [
             'id' => (int)$row['id'],

@@ -431,7 +431,7 @@ This section combines the role-facing gaps from the [User and admin guide](user-
 - **Item metadata update:** present. The details page owns publication metadata editing and user-edited items are preserved across rescans.
 - **Root add/update:** first lifecycle slice landed. Users can save roots, edit label/path, enable/disable, delete roots and scan one selected root from settings.
 - **Deletion:** first item-forget slice landed. Root deletion removes Library catalogue/index data for that root without deleting source files; missing files are marked `missing` on rescan; the details page can forget missing item rows. Source-file deletion remains deliberately deferred to Nextcloud Files.
-- **Library removal/uninstall:** first guide slice landed. Original Nextcloud files remain canonical, disable/remove commands and consequences are documented, and the guide explicitly says corrected metadata still requires DB backup until metadata export exists.
+- **Library removal/uninstall:** first guide/export slice landed. Original Nextcloud files remain canonical, disable/remove commands and consequences are documented, and corrected user-edited metadata can be downloaded as side-effect-free JSON before removal. Restore/import still requires DB backup or future import work.
 - **Folder/root-based rescan:** partly present. The scan route can queue all enabled roots or one selected root for the current user; arbitrary folder/subtree scans are still absent.
 - **Cover rescan:** not present as a separate process because covers are generated on request through Nextcloud preview/CBZ/placeholder responses; there is no app-owned cover cache yet.
 - **Cover extraction optionality:** present by behaviour. Cover failure must not block catalogue indexing or browsing; placeholders remain the safe fallback.
@@ -459,19 +459,19 @@ Recommended vertical slices:
 7. **Metadata retry filters.** Add “retry metadata errors” and “check missing files” flows once scoped scanning exists, so repair jobs do not require a full library scan.
 8. **Cover lifecycle only after cache.** Keep current on-demand preview/CBZ/placeholder covers as the v0.1 baseline. Add cover cache, per-item cover refresh, per-root cover refresh and manual cover override only when real usage proves cover quality is a blocker.
 9. **DB-backed catalogue query path.** Move filtering/sorting/pagination from app-layer arrays to database queries before treating 10k+ real libraries as safe, especially once root-scoped operations and missing-item retention grow the tables.
-10. **Metadata portability.** Add export/import for corrected metadata, likely OPF sidecars or a JSON sidecar, before recommending uninstall/reinstall or long-term file-first use.
+10. **Metadata portability.** Metadata export foundation.** First slice landed: user-edited catalogue rows can be downloaded as side-effect-free JSON with stable file identity, root/shelf labels, publication metadata and provenance. Import/write-back to OPF or JSON sidecars remains future work.
 
 ### Immediate next implementation slice
 
-Recommended next slice: **metadata export foundation**.
+Recommended next slice: **DB-backed catalogue query path**.
 
 Minimum first cut:
 
-1. Add a read-only metadata export route or CLI helper for user-corrected catalogue rows.
-2. Include stable file identity, cached path, publication metadata, provenance flags and root/shelf labels.
-3. Keep export side-effect free: no writes to source folders yet.
-4. Smoke on Alice with an edited item and verify the export contains the corrected metadata and can be saved outside the app DB.
-5. Decide whether a later write-back target should be same-basename OPF sidecars, JSON sidecars, or both.
+1. Move catalogue filtering/sorting/pagination from in-memory arrays to database queries.
+2. Preserve all existing filters: text, publication type, format, tag, shelf/root, scan status and sort.
+3. Keep page-size clamping and pagination URLs compatible with the current Vue/fallback surface.
+4. Smoke on Alice with generated 1k/10k fixtures and at least one real staged sample.
+5. Keep metadata export/import write-back as a later portability slice; the current export route is read-only.
 
 Non-goals for this slice:
 
@@ -481,4 +481,4 @@ Non-goals for this slice:
 - OCR/full-text search;
 - shared global library administration.
 
-The root/update/delete/scoped-rescan and missing-item forget boundaries are now in place. The next risk is metadata portability: users need a side-effect-free export before Library can be judged as a durable file-first archive app.
+The root/update/delete/scoped-rescan, missing-item forget and corrected-metadata export boundaries are now in place. The next risk is scale: the catalogue query path should move to the database before larger real libraries are treated as safe.

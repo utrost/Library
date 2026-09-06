@@ -92,6 +92,7 @@ class PageController extends Controller {
             'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
             'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library'),
+            'metadataExportUrl' => $this->urlGenerator->linkToRoute('library.export.metadata'),
         ]);
 
         return new TemplateResponse(Application::APP_ID, 'main');

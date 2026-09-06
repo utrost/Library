@@ -69,6 +69,10 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <button type="submit"><?php p($l->t('Scan enabled roots')); ?></button>
         </form>
 
+        <p class="library-detail-actions">
+            <a href="<?php p($_['metadataExportUrl']); ?>" class="button secondary"><?php p($l->t('Export corrected metadata')); ?></a>
+        </p>
+
         <section class="library-scan-progress" aria-labelledby="library-scan-progress-heading" data-library-scan-progress-url="<?php p($_['scanProgressUrl']); ?>">
             <h3 id="library-scan-progress-heading"><?php p($l->t('Scan progress')); ?></h3>
             <?php if ($latestScanJob === null): ?>
