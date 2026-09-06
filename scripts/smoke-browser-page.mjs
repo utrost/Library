@@ -168,6 +168,7 @@ async function runBrowserSmoke(proxyBase) {
       awaitPromise: true,
       expression: `(() => {
         const showFiles = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Show in Files')
+        const details = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Details')
         return {
           title: document.title,
           fallback: Boolean(document.querySelector('[data-vue-fallback="true"]')),
@@ -180,6 +181,7 @@ async function runBrowserSmoke(proxyBase) {
           postForms: document.querySelectorAll('form[method="post"]').length,
           tagNameField: Boolean(document.querySelector('input[name="tagName"]')),
           firstShowFiles: showFiles ? showFiles.href : '',
+          firstDetails: details ? details.href : '',
           badHostHrefs: [...document.querySelectorAll('a[href]')].filter((a) => a.href.startsWith('http://f/') || a.href.startsWith('http://settings/')).length,
           catalogueLabelled: document.querySelector('.library-panel')?.getAttribute('aria-labelledby') === 'library-catalogue-heading'
             && Boolean(document.querySelector('#library-catalogue-heading')),
@@ -269,6 +271,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_tagNameField', dom.tagNameField)
     print('browser_firstShowFiles_has_dir', dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
     print('browser_firstShowFiles_openfile_false', dom.firstShowFiles.includes('openfile=false'))
+    print('browser_firstDetails_is_item_page', dom.firstDetails.includes('/apps/library/items/'))
     print('browser_bad_host_hrefs', dom.badHostHrefs)
     print('browser_catalogue_labelled', dom.catalogueLabelled)
     print('browser_unlabelled_controls', dom.unlabelledControls)
@@ -292,6 +295,7 @@ async function runBrowserSmoke(proxyBase) {
       && dom.tagNameField === false
       && (dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
       && dom.firstShowFiles.includes('openfile=false')
+      && dom.firstDetails.includes('/apps/library/items/')
       && dom.badHostHrefs === 0
       && dom.catalogueLabelled === true
       && dom.unlabelledControls === 0

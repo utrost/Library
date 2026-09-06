@@ -330,6 +330,35 @@
     overflow-wrap: anywhere;
 }
 
+.library-item-detail {
+    max-width: 1120px;
+}
+
+.library-detail-nav {
+    margin: 20px 0 12px;
+}
+
+.library-detail-hero {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: minmax(140px, 220px) minmax(0, 1fr);
+    align-items: start;
+}
+
+.library-detail-cover {
+    width: 100%;
+    min-height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    background: var(--color-background-darker);
+}
+
+.library-detail-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 @media (max-width: 900px) {
     .library-filter-bar {
         grid-template-columns: repeat(2, minmax(160px, 1fr));

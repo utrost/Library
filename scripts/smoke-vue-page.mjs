@@ -77,6 +77,7 @@ try {
     const css = cssMatch ? await fetchText(cssMatch[1], token) : { status: 0, text: '' }
     const items = state?.items || []
     const first = items[0] || {}
+    const detail = first.detailsUrl ? await fetchText(first.detailsUrl, token) : { status: 0, text: '' }
 
     console.log(`page_http=${page.status}`)
     console.log(`has_vue_mount=${page.text.includes('library-vue-root')}`)
@@ -85,6 +86,13 @@ try {
     console.log(`first_has_coverUrl=${'coverUrl' in first}`)
     console.log(`first_has_openUrl=${'openUrl' in first}`)
     console.log(`first_has_filesUrl=${'filesUrl' in first}`)
+    console.log(`first_has_detailsUrl=${'detailsUrl' in first}`)
+    console.log(`first_detailsUrl_is_item_page=${String(first.detailsUrl || '').includes('/apps/library/items/')}`)
+    console.log(`detail_http=${detail.status}`)
+    console.log(`detail_has_publication_metadata=${detail.text.includes('Publication metadata')}`)
+    console.log(`detail_has_file_metadata=${detail.text.includes('File metadata')}`)
+    console.log(`detail_has_provenance=${detail.text.includes('Provenance')}`)
+    console.log(`detail_has_nextcloud_metadata=${detail.text.includes('Nextcloud metadata')}`)
     console.log(`first_filesUrl_has_dir=${String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')}`)
     console.log(`first_filesUrl_opens_reader=${String(first.filesUrl || '').includes('openfile=true')}`)
     console.log(`first_filesUrl_shows_folder=${String(first.filesUrl || '').includes('openfile=false')}`)
@@ -96,7 +104,7 @@ try {
     console.log(`source_has_compact_mobile_hero=${sourceComponent.includes('library-hero-actions') && sourceStyle.includes('font-size: 28px;') && !sourceComponent.includes('without importing or owning the files')}`)
     console.log(`bad_host_hrefs=${(page.text.match(/href="http:\/\/(?:f|settings)\//g) || []).length}`)
 
-    if (page.status !== 200 || !state || items.length === 0 || !('coverUrl' in first) || !('openUrl' in first) || !('filesUrl' in first) || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
+    if (page.status !== 200 || !state || items.length === 0 || !('coverUrl' in first) || !('openUrl' in first) || !('filesUrl' in first) || !('detailsUrl' in first) || !String(first.detailsUrl || '').includes('/apps/library/items/') || detail.status !== 200 || !detail.text.includes('Publication metadata') || !detail.text.includes('File metadata') || !detail.text.includes('Provenance') || !detail.text.includes('Nextcloud metadata') || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
       fail('catalogue_initial_state_invalid')
     } else if (script.status !== 200 || css.status !== 200 || script.text.includes('process.env')) {
       fail('vue_assets_invalid')
