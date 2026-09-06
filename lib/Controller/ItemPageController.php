@@ -51,6 +51,7 @@ final class ItemPageController extends Controller {
         $comments = $this->fileCommentService->commentsForItems([$item]);
 
         $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => (string)$item['id']]);
+        $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => (string)$item['id']]);
         $item['openUrl'] = $this->urlGenerator->getAbsoluteURL('/f/' . $fileId);
         $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
         $item['nextcloudTags'] = $tags[$fileId] ?? [];
