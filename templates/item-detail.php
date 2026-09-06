@@ -156,6 +156,14 @@ $fileRows = [
             <p class="library-muted"><?php p($l->t('User-edited publication metadata is preserved across rescans. Scanner values remain provenance-labelled.')); ?></p>
             <div class="library-field-provenance" aria-label="fieldSources">
                 <h4><?php p($l->t('Field-level provenance')); ?></h4>
+                <?php $resetFieldsUrl = (string)($item['resetFieldsUrl'] ?? ''); ?>
+                <?php if ($resetFieldsUrl !== '' && count($fieldValues) > 0): ?>
+                    <form method="post" action="<?php p($resetFieldsUrl); ?>" class="library-fields-reset-form">
+                        <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                        <input type="hidden" name="returnTo" value="details" />
+                        <button type="submit" class="button secondary"><?php p($l->t('Reset all fields to scanner')); ?></button>
+                    </form>
+                <?php endif; ?>
                 <table>
                     <thead>
                         <tr>

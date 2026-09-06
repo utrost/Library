@@ -64,6 +64,21 @@ final class ItemController extends Controller {
     }
 
     #[NoAdminRequired]
+    public function resetfields(int $itemId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $this->itemService->resetAllFieldsToScannerCandidates($user->getUID(), $itemId);
+        }
+
+        $returnTo = (string)$this->request->getParam('returnTo', '');
+        if ($returnTo === 'details') {
+            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+        }
+
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
+
+    #[NoAdminRequired]
     public function forgetMissing(int $itemId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
