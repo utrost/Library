@@ -85,6 +85,7 @@ $fileRows = [
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <input type="hidden" name="returnTo" value="details" />
                 <h4 id="library-publication-edit-heading"><?php p($l->t('Edit publication metadata')); ?></h4>
+                <p class="library-muted library-metadata-guidance"><?php p($l->t('Non-blocking guidance: these hints document useful metadata shapes, but they do not block saving.')); ?></p>
                 <label>
                     <?php p($l->t('Title')); ?>
                     <input type="text" name="title" value="<?php p((string)($item['title'] ?? '')); ?>" />
@@ -103,7 +104,8 @@ $fileRows = [
                 </label>
                 <label>
                     <?php p($l->t('Creators')); ?>
-                    <input type="text" name="creators" value="<?php p((string)($item['creators'] ?? '')); ?>" />
+                    <input type="text" name="creators" aria-describedby="library-creators-guidance" value="<?php p((string)($item['creators'] ?? '')); ?>" />
+                    <span id="library-creators-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Separate multiple creators with semicolons.')); ?></span>
                 </label>
                 <label>
                     <?php p($l->t('Publication')); ?>
@@ -111,7 +113,8 @@ $fileRows = [
                 </label>
                 <label>
                     <?php p($l->t('Publication date')); ?>
-                    <input type="text" name="publicationDate" value="<?php p((string)($item['publicationDate'] ?? '')); ?>" />
+                    <input type="text" name="publicationDate" aria-describedby="library-publication-date-guidance" value="<?php p((string)($item['publicationDate'] ?? '')); ?>" />
+                    <span id="library-publication-date-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Use YYYY, YYYY-MM, or YYYY-MM-DD.')); ?></span>
                 </label>
                 <label>
                     <?php p($l->t('Publisher')); ?>
@@ -119,7 +122,8 @@ $fileRows = [
                 </label>
                 <label>
                     <?php p($l->t('Language')); ?>
-                    <input type="text" name="language" value="<?php p((string)($item['language'] ?? '')); ?>" />
+                    <input type="text" name="language" aria-describedby="library-language-guidance" value="<?php p((string)($item['language'] ?? '')); ?>" />
+                    <span id="library-language-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Use short language codes such as de, en, fr.')); ?></span>
                 </label>
                 <button type="submit" class="button primary"><?php p($l->t('Save metadata')); ?></button>
             </form>

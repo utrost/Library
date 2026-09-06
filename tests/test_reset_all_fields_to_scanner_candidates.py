@@ -66,4 +66,4 @@ def test_smoke_and_docs_cover_whole_item_reset_slice():
     assert "Reset all fields to scanner" in smoke
     assert "Whole-item reset to scanner candidates" in roadmap
     assert "whole-item reset to scanner candidates" in guide
-    assert "Conflict review and validation guidance remain future work" in guide
+    assert "Conflict review and hard validation remain future work" in guide
