@@ -55,7 +55,7 @@ def test_styles_define_responsive_cover_gallery_and_filter_bar():
     css = (ROOT / "css" / "style.css").read_text()
     assert ".library-filter-bar" in css
     assert ".library-cover-gallery" in css
-    assert "grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))" in css
+    assert "grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))" in css
     assert ".library-cover-image" in css
     assert ".library-cover-placeholder" not in css
     assert ".library-cover-details" in css

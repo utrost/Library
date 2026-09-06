@@ -62,7 +62,7 @@ Current catalogue capabilities:
 - search by title, subtitle, creator, publication/series/periodical and path text;
 - filter by exact creator field as read-only discovery; creator identity splitting remains future work;
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
-- browse cover-first mobile cards where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure;
+- browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure;
 - filter by series or periodical title for magazines, journals and recurring publications;
 - filter by publication year as read-only discovery for dated books, magazines, journals and comics;
 - use the **Top series and periodicals** panel to jump to recurring publications with item counts;

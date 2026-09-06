@@ -252,3 +252,45 @@ function publicationFilterUrl(publication) {
   </section>
   </div>
 </template>
+
+<style>
+.library-cover-gallery {
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+
+.library-cover-card {
+  gap: 8px;
+  padding: 8px;
+}
+
+.library-cover-image {
+  min-height: 0;
+}
+
+.library-cover-primary {
+  gap: 6px;
+}
+
+.library-cover-details {
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.library-cover-details-summary,
+.library-cover-actions,
+.library-cover-meta {
+  font-size: 13px;
+}
+
+.library-cover-meta {
+  gap: 6px;
+  padding-top: 6px;
+}
+
+@media (max-width: 520px) {
+  .library-cover-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+</style>
