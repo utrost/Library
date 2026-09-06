@@ -398,6 +398,7 @@ Visible gaps:
 - The edit form shows hints for dates, language codes and creator separators; these hints do not block saving;
 - rows where the current value differs from the scanner candidate show a **Differs from scanner** label;
 - the details page includes a read-only metadata correction summary with a scanner candidate count and differing-field count;
+- **Preview metadata import** accepts a Library corrected metadata JSON export and reports matches/field changes; **No changes are written during preview**;
 - no bulk edit or multi-select correction workflow;
 - hard validation rules remain future work;
 - review queue remains future work for scanner/sidecar/user metadata conflicts.

@@ -320,6 +320,114 @@ final class ItemService {
         ];
     }
 
+    public function previewCorrectedMetadataImport(string $userId, string $metadataJson): array {
+        try {
+            $payload = json_decode($metadataJson, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return $this->emptyImportPreview(false, 'invalid_json');
+        }
+        if (!is_array($payload) || (string)($payload['exportKind'] ?? '') !== 'library-corrected-metadata' || !is_array($payload['items'] ?? null)) {
+            return $this->emptyImportPreview(false, 'unsupported_export');
+        }
+
+        $previewItems = [];
+        $matchedItems = 0;
+        $missingItems = 0;
+        $invalidItems = 0;
+        $changedFields = 0;
+        foreach ($payload['items'] as $importItem) {
+            if (!is_array($importItem)) {
+                $invalidItems++;
+                continue;
+            }
+            $current = $this->findItemForImportPreview($userId, $importItem);
+            if ($current === null) {
+                $missingItems++;
+                $previewItems[] = [
+                    'status' => 'missing',
+                    'cachedPath' => (string)($importItem['cachedPath'] ?? ''),
+                    'changedFields' => [],
+                ];
+                continue;
+            }
+
+            $itemChangedFields = [];
+            foreach (self::PUBLICATION_FIELDS as $field) {
+                if (array_key_exists($field, $importItem) && (string)($importItem[$field] ?? '') !== (string)($current[$field] ?? '')) {
+                    $itemChangedFields[] = $field;
+                }
+            }
+            $matchedItems++;
+            $changedFields += count($itemChangedFields);
+            $previewItems[] = [
+                'status' => 'matched',
+                'itemId' => (int)$current['id'],
+                'libraryFileId' => (int)$current['libraryFileId'],
+                'cachedPath' => (string)($current['cachedPath'] ?? ''),
+                'changedFields' => $itemChangedFields,
+            ];
+        }
+
+        return [
+            'schemaVersion' => 1,
+            'previewKind' => 'library-metadata-import-preview',
+            'valid' => true,
+            'error' => '',
+            'totalItems' => count($payload['items']),
+            'matchedItems' => $matchedItems,
+            'missingItems' => $missingItems,
+            'invalidItems' => $invalidItems,
+            'changedFields' => $changedFields,
+            'items' => $previewItems,
+        ];
+    }
+
+    private function emptyImportPreview(bool $valid, string $error): array {
+        return [
+            'schemaVersion' => 1,
+            'previewKind' => 'library-metadata-import-preview',
+            'valid' => $valid,
+            'error' => $error,
+            'totalItems' => 0,
+            'matchedItems' => 0,
+            'missingItems' => 0,
+            'invalidItems' => 0,
+            'changedFields' => 0,
+            'items' => [],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $importItem
+     */
+    private function findItemForImportPreview(string $userId, array $importItem): ?array {
+        $libraryFileId = (int)($importItem['libraryFileId'] ?? 0);
+        $fileId = (int)($importItem['fileId'] ?? 0);
+        $cachedPath = trim((string)($importItem['cachedPath'] ?? ''));
+
+        $qb = $this->db->getQueryBuilder();
+        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
+            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->setMaxResults(1);
+        if ($libraryFileId > 0) {
+            $qb->andWhere($qb->expr()->eq('i.library_file_id', $qb->createNamedParameter($libraryFileId)));
+        } elseif ($fileId > 0) {
+            $qb->andWhere($qb->expr()->eq('f.file_id', $qb->createNamedParameter($fileId)));
+        } elseif ($cachedPath !== '') {
+            $qb->andWhere($qb->expr()->eq('f.cached_path', $qb->createNamedParameter($cachedPath)));
+        } else {
+            return null;
+        }
+
+        $result = $qb->executeQuery();
+        $row = $result->fetch();
+        $result->closeCursor();
+        return $row === false ? null : $this->normalizeJoinedItemRow($row);
+    }
+
     private function catalogueQueryBuilder(string $userId, array $filters): IQueryBuilder {
         $qb = $this->db->getQueryBuilder();
         $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
