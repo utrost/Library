@@ -14,6 +14,7 @@ return [
         ['name' => 'scan#progress', 'url' => '/scan/progress', 'verb' => 'GET'],
         ['name' => 'export#metadata', 'url' => '/export/metadata', 'verb' => 'GET'],
         ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET'],
+        ['name' => 'item#resetfield', 'url' => '/items/{itemId}/reset-field', 'verb' => 'POST'],
         ['name' => 'item#update', 'url' => '/items/{itemId}', 'verb' => 'POST'],
         ['name' => 'item#forgetMissing', 'url' => '/items/{itemId}/forget-missing', 'verb' => 'POST'],
         ['name' => 'cover#show', 'url' => '/items/{itemId}/cover', 'verb' => 'GET'],

@@ -169,11 +169,22 @@ $fileRows = [
                         <?php foreach ($fieldProvenanceRows as $field => $label): ?>
                             <?php $currentValue = (string)($item[$field] ?? ''); ?>
                             <?php $candidateValue = (string)($fieldValues[$field] ?? ''); ?>
+                            <?php $resetUrl = (string)($item['resetFieldUrl'] ?? ''); ?>
                             <tr>
                                 <th scope="row"><?php p($l->t($label)); ?></th>
                                 <td><?php p((string)($fieldSources[$field] ?? ($item['metadataSource'] ?? ''))); ?></td>
                                 <td><?php p(trim($currentValue) !== '' ? $currentValue : '—'); ?></td>
-                                <td><?php p(trim($candidateValue) !== '' ? $candidateValue : '—'); ?></td>
+                                <td>
+                                    <?php p(trim($candidateValue) !== '' ? $candidateValue : '—'); ?>
+                                    <?php if ($resetUrl !== '' && trim($candidateValue) !== '' && $candidateValue !== $currentValue): ?>
+                                        <form method="post" action="<?php p($resetUrl); ?>" class="library-field-reset-form">
+                                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                                            <input type="hidden" name="returnTo" value="details" />
+                                            <input type="hidden" name="field" value="<?php p((string)$field); ?>" />
+                                            <button type="submit" class="button secondary"><?php p($l->t('Reset to scanner')); ?></button>
+                                        </form>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

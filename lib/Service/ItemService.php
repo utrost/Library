@@ -151,6 +151,48 @@ final class ItemService {
             ->executeStatement();
     }
 
+    public function resetFieldToScannerCandidate(string $userId, int $itemId, string $field): bool {
+        $column = $this->databaseColumnForField($field);
+        if ($column === null) {
+            return false;
+        }
+
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('field_sources', 'field_values')
+            ->from('library_items')
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeQuery();
+        $row = $result->fetch();
+        $result->closeCursor();
+        if ($row === false) {
+            return false;
+        }
+
+        $candidateValues = $this->decodeJsonMap($row['field_values'] ?? null);
+        $candidateSources = $this->decodeJsonMap($row['field_sources'] ?? null);
+        if (!array_key_exists($field, $candidateValues)) {
+            return false;
+        }
+
+        $candidateSources[$field] = $candidateSources[$field] ?? 'scanner';
+        $candidateValues[$field] = (string)$candidateValues[$field];
+
+        $qb = $this->db->getQueryBuilder();
+        $affected = $qb->update('library_items')
+            ->set($column, $qb->createNamedParameter($this->databaseValueForField($field, $candidateValues[$field])))
+            ->set('metadata_source', $qb->createNamedParameter('mixed'))
+            ->set('user_edited', $qb->createNamedParameter(1))
+            ->set('field_sources', $qb->createNamedParameter(json_encode($candidateSources, JSON_THROW_ON_ERROR)))
+            ->set('field_values', $qb->createNamedParameter(json_encode($candidateValues, JSON_THROW_ON_ERROR)))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+
+        return $affected > 0;
+    }
+
     /**
      * @return array<int, array<string, mixed>>
      */
@@ -562,6 +604,31 @@ final class ItemService {
 
     private function normalizePublicationType(string $publicationType): string {
         return in_array($publicationType, self::PUBLICATION_TYPES, true) ? $publicationType : 'other';
+    }
+
+    private function databaseColumnForField(string $field): ?string {
+        return match ($field) {
+            'publicationType' => 'publication_type',
+            'title' => 'title',
+            'subtitle' => 'subtitle',
+            'creators' => 'creators',
+            'publication' => 'publication',
+            'publicationDate' => 'publication_date',
+            'language' => 'language',
+            'publisher' => 'publisher',
+            default => null,
+        };
+    }
+
+    private function databaseValueForField(string $field, string $value): ?string {
+        $trimmed = trim($value);
+        if ($field === 'publicationType') {
+            return $this->normalizePublicationType($trimmed);
+        }
+        if ($field === 'title') {
+            return $trimmed === '' ? 'Untitled publication' : $trimmed;
+        }
+        return $trimmed === '' ? null : $trimmed;
     }
 
     private function nullableString(mixed $value): ?string {

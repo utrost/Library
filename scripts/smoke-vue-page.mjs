@@ -13,6 +13,13 @@ function runDocker(args) {
   })
 }
 
+function runDockerPhp(code) {
+  return execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', '-r', code], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+}
+
 function parseToken(output) {
   const patterns = [/app password is:\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
   for (const pattern of patterns) {
@@ -92,6 +99,7 @@ function fail(reason, extra = {}) {
 }
 
 let token = ''
+let restoreFieldProvenance = null
 try {
   token = parseToken(runDocker(['user:add-app-password', '--name', tokenName, user]))
   if (!token) {
@@ -108,6 +116,12 @@ try {
     const css = cssMatch ? await fetchText(cssMatch[1], token) : { status: 0, text: '' }
     const items = state?.items || []
     const first = items[0] || {}
+    if (first.id && first.title) {
+      const itemId = Number.parseInt(String(first.id), 10)
+      const candidateTitle = `${first.title} · scanner candidate`
+      const seedOutput = runDockerPhp(`require_once "/var/www/html/lib/base.php"; $itemId=${itemId}; $candidateTitle=${JSON.stringify(candidateTitle)}; $db=\\OC::$server->get(\\OCP\\IDBConnection::class); $qb=$db->getQueryBuilder(); $res=$qb->select("field_sources", "field_values")->from("library_items")->where($qb->expr()->eq("id", $qb->createNamedParameter($itemId)))->executeQuery(); $row=$res->fetch(); $res->closeCursor(); echo base64_encode(json_encode($row === false ? [] : $row))."\\n"; $sources=$row !== false && is_string($row["field_sources"] ?? null) && trim($row["field_sources"]) !== "" ? json_decode($row["field_sources"], true) : []; $values=$row !== false && is_string($row["field_values"] ?? null) && trim($row["field_values"]) !== "" ? json_decode($row["field_values"], true) : []; if (!is_array($sources)) { $sources=[]; } if (!is_array($values)) { $values=[]; } $sources["title"]="filename"; $values["title"]=$candidateTitle; $qb=$db->getQueryBuilder(); $qb->update("library_items")->set("field_sources", $qb->createNamedParameter(json_encode($sources)))->set("field_values", $qb->createNamedParameter(json_encode($values)))->where($qb->expr()->eq("id", $qb->createNamedParameter($itemId)))->executeStatement();`)
+      restoreFieldProvenance = { itemId, encoded: seedOutput.trim().split(/\r?\n/).at(0) || '' }
+    }
     const detail = first.detailsUrl ? await fetchText(first.detailsUrl, token) : { status: 0, text: '' }
     const cover = first.coverUrl ? await fetchBinaryHeaders(first.coverUrl, token) : { status: 0, contentType: '', coverStatus: '', coverReason: '' }
     const download = first.downloadUrl ? await fetchBinaryStatus(first.downloadUrl, token) : { status: 0, bytes: 0, contentType: '' }
@@ -145,6 +159,7 @@ try {
     console.log(`detail_has_comment_return_to_details=${detail.text.includes('name="returnTo"') && detail.text.includes('value="details"') && detail.text.includes('name="commentMessage"')}`)
     console.log(`detail_mentions_userEdited=${detail.text.includes('userEdited')}`)
     console.log(`detail_has_field_provenance=${detail.text.includes('library-field-provenance') && detail.text.includes('Field-level provenance') && detail.text.includes('Scanner candidate')}`)
+    console.log(`detail_has_field_reset_form=${detail.text.includes('library-field-reset-form') && detail.text.includes('Reset to scanner')}`)
     console.log(`first_filesUrl_has_dir=${String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')}`)
     console.log(`first_filesUrl_opens_reader=${String(first.filesUrl || '').includes('openfile=true')}`)
     console.log(`first_filesUrl_shows_folder=${String(first.filesUrl || '').includes('openfile=false')}`)
@@ -156,7 +171,7 @@ try {
     console.log(`source_has_compact_mobile_hero=${sourceComponent.includes('library-hero-actions') && sourceStyle.includes('font-size: 28px;') && !sourceComponent.includes('without importing or owning the files')}`)
     console.log(`bad_host_hrefs=${(page.text.match(/href="http:\/\/(?:f|settings)\//g) || []).length}`)
 
-    if (page.status !== 200 || !state || items.length === 0 || !String(state?.metadataExportUrl || '').includes('/apps/library/export/metadata') || !('coverUrl' in first) || cover.status !== 200 || !cover.contentType.startsWith('image/') || !['preview', 'cbz-first-image', 'placeholder'].includes(cover.coverStatus) || cover.coverReason === '' || !('openUrl' in first) || !('filesUrl' in first) || !('downloadUrl' in first) || !String(first.downloadUrl || '').includes('/remote.php/dav/files/') || download.status !== 200 || download.bytes <= 0 || !('detailsUrl' in first) || !String(first.detailsUrl || '').includes('/apps/library/items/') || detail.status !== 200 || !detail.text.includes('Publication metadata') || !detail.text.includes('File metadata') || !detail.text.includes('Provenance') || !detail.text.includes('Nextcloud metadata') || !detail.text.includes('library-detail-edit-form') || !detail.text.includes('name="requesttoken"') || !detail.text.includes('name="returnTo"') || !detail.text.includes('value="details"') || !detail.text.includes('userEdited') || !detail.text.includes('library-field-provenance') || !detail.text.includes('Field-level provenance') || !detail.text.includes('Scanner candidate') || !detail.text.includes('library-detail-tag-editor') || !detail.text.includes('name="nextcloudTagName"') || !detail.text.includes('library-detail-comment-form') || !detail.text.includes('name="commentMessage"') || !detail.text.includes('Download source') || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
+    if (page.status !== 200 || !state || items.length === 0 || !String(state?.metadataExportUrl || '').includes('/apps/library/export/metadata') || !('coverUrl' in first) || cover.status !== 200 || !cover.contentType.startsWith('image/') || !['preview', 'cbz-first-image', 'placeholder'].includes(cover.coverStatus) || cover.coverReason === '' || !('openUrl' in first) || !('filesUrl' in first) || !('downloadUrl' in first) || !String(first.downloadUrl || '').includes('/remote.php/dav/files/') || download.status !== 200 || download.bytes <= 0 || !('detailsUrl' in first) || !String(first.detailsUrl || '').includes('/apps/library/items/') || detail.status !== 200 || !detail.text.includes('Publication metadata') || !detail.text.includes('File metadata') || !detail.text.includes('Provenance') || !detail.text.includes('Nextcloud metadata') || !detail.text.includes('library-detail-edit-form') || !detail.text.includes('name="requesttoken"') || !detail.text.includes('name="returnTo"') || !detail.text.includes('value="details"') || !detail.text.includes('userEdited') || !detail.text.includes('library-field-provenance') || !detail.text.includes('Field-level provenance') || !detail.text.includes('Scanner candidate') || !detail.text.includes('library-field-reset-form') || !detail.text.includes('Reset to scanner') || !detail.text.includes('library-detail-tag-editor') || !detail.text.includes('name="nextcloudTagName"') || !detail.text.includes('library-detail-comment-form') || !detail.text.includes('name="commentMessage"') || !detail.text.includes('Download source') || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
       fail('catalogue_initial_state_invalid')
     } else if (script.status !== 200 || css.status !== 200 || script.text.includes('process.env')) {
       fail('vue_assets_invalid')
@@ -168,6 +183,10 @@ try {
   }
 } finally {
   try {
+    if (restoreFieldProvenance?.itemId && restoreFieldProvenance.encoded) {
+      runDockerPhp(`require_once "/var/www/html/lib/base.php"; $itemId=${restoreFieldProvenance.itemId}; $row=json_decode(base64_decode(${JSON.stringify(restoreFieldProvenance.encoded)}), true); $db=\\OC::$server->get(\\OCP\\IDBConnection::class); $qb=$db->getQueryBuilder(); $qb->update("library_items")->set("field_sources", $qb->createNamedParameter($row["field_sources"] ?? null))->set("field_values", $qb->createNamedParameter($row["field_values"] ?? null))->where($qb->expr()->eq("id", $qb->createNamedParameter($itemId)))->executeStatement();`)
+      console.log('field_provenance_smoke_restored=true')
+    }
     const tokenList = runDocker(['user:auth-tokens:list', user])
     for (const id of parseTokenIds(tokenList)) {
       runDocker(['user:auth-tokens:delete', user, id])
