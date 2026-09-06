@@ -6,6 +6,8 @@ Scope: what the app does today, how the main processes work, and which missing f
 
 Library is a Nextcloud-native catalogue for publication-like files that already live in Nextcloud Files. It does not import, move or render the original documents. Nextcloud Files remains the canonical storage layer; Library adds discovery, metadata, covers, browsing, search, diagnostics and reader handoff.
 
+This guide describes the implemented state of the app, not the long-term design.
+
 ## Who this guide is for
 
 - **Reader / collector:** wants to browse and open books, scans, manuals, comics, magazines or catalogues already stored in Nextcloud.
@@ -23,11 +25,12 @@ Library owns:
 - one catalogue item per indexed primary publication file;
 - editable publication metadata;
 - provenance and scan diagnostics;
-- catalogue search, filters, sorting and pagination;
+- a database-backed item query for catalogue search, filters, sorting, facets and pagination;
 - cover URLs with preview/CBZ/placeholder diagnostics;
-- handoff links to read/open files and show them in Nextcloud Files;
+- handoff links to read/open files, show them in Nextcloud Files and download the original source file;
 - exposure and editing of Nextcloud system tags on the backing file;
-- exposure and adding of Nextcloud file comments.
+- exposure and adding of Nextcloud file comments;
+- read-only corrected-metadata JSON export for user-edited catalogue rows.
 
 Library does **not** own:
 
@@ -39,7 +42,8 @@ Library does **not** own:
 - internet metadata lookup;
 - OPDS, Kobo or Kindle sync;
 - AI classification;
-- a shared global collection manager.
+- a shared global collection manager;
+- a complete import/write-back workflow for corrected metadata.
 
 ## Current app surfaces
 
@@ -53,14 +57,19 @@ Current catalogue capabilities:
 - see title, creator, publication type, file format, shelf/root and Nextcloud tags;
 - open the publication through **Read**;
 - open the original file context through **Show in Files**;
+- fetch the original source file through **Download source**;
 - open the item workbench through **Details**;
-- search by title/creator/path text;
+- search by title, subtitle, creator, publication/series/periodical and path text;
 - filter by publication type, file format, scan status, exact Nextcloud tag and shelf;
 - sort by title, recently added, publication date or format;
 - choose page size up to the current 500-item clamp;
-- see scan diagnostics on unhealthy catalogue cards only.
+- see page counts and previous/next links;
+- see scan diagnostics on unhealthy catalogue cards only;
+- open **Library settings** and **Export corrected metadata** from the secondary catalogue action area.
 
-The catalogue cards are intentionally browse-only. Editing happens on the detail page so the grid stays fast to scan.
+The catalogue cards are intentionally browse-only. Editing happens on the detail page so the grid stays fast to scan. The no-Vue fallback renderer is also expected to preserve the same core browse actions.
+
+Implementation note for reviewers: the catalogue is no longer an app-layer filter over a fully loaded item list. The DB-backed catalogue query path is implemented in `ItemService::queryCatalogue()`, including total counts, facets, filters, sort modes and page slicing. Exact Nextcloud tag filtering is implemented by resolving visible tag names to file IDs, then applying the database query to those file IDs.
 
 ### Item details page
 
@@ -69,7 +78,7 @@ Open **Details** from a catalogue card. This is the item workbench.
 Current details capabilities:
 
 - view cover, title, creator, type, format and shelf;
-- use **Read** and **Show in Files** actions;
+- use **Read**, **Show in Files** and **Download source** actions;
 - inspect publication metadata;
 - edit publication metadata fields:
   - title;
@@ -92,9 +101,10 @@ Current details capabilities:
   - whether the item has user-edited metadata;
 - add or remove assignable visible Nextcloud system tags on the backing file;
 - see recent Nextcloud comments for the backing file;
-- add a new Nextcloud file comment.
+- add a new Nextcloud file comment;
+- forget a missing item when the backing file row has already been marked `missing`.
 
-Manual Library metadata edits set provenance to `user` and are preserved across rescans.
+Manual Library metadata edits set provenance to `user` and are preserved across rescans. Tag and comment changes are Nextcloud file-level changes; they do not mutate Library publication metadata.
 
 ### Personal Library settings
 
@@ -104,13 +114,15 @@ Current settings capabilities:
 
 - add/update a per-user root path and label;
 - edit, enable/disable or delete a configured Library root without deleting source files from Nextcloud Files;
-- queue a scan for one selected root;
+- queue a scan for one selected root through **Scan this root**;
+- queue a scan for all enabled roots through **Scan enabled roots**;
 - list configured roots with enabled state and last scan timestamp;
-- queue a background scan of enabled roots;
 - inspect latest scan progress and recent scan history;
-- inspect indexed file rows with file ID, root label, cached path, format, scan status and scan error.
+- see scan scope as `all` or a specific root ID;
+- inspect indexed file rows with file ID, root label, cached path, format, scan status and scan error;
+- open **Export corrected metadata**.
 
-Deleting a Library root removes Library catalogue/index data for that root, but never deletes the source files from Nextcloud Files.
+Deleting a Library root removes Library catalogue/index data for that root, but never deletes the source files from Nextcloud Files. The current confirmation is still minimal: the settings form includes a delete action and explanatory copy, but there is not yet a richer typed confirmation or recovery wizard.
 
 ## Supported file and metadata behaviour
 
@@ -123,21 +135,46 @@ The scanner currently considers these publication files:
 - CBZ;
 - standalone OPF.
 
-Paired OPF sidecars are treated specially: a same-basename `.opf` or folder-level `metadata.opf` can provide metadata for a primary PDF/EPUB/CBZ and is suppressed as a separate catalogue item when paired.
+Paired OPF sidecars are treated specially: a same-basename `.opf` or folder-level `metadata.opf` can provide metadata for a primary PDF/EPUB/CBZ and is suppressed as a separate catalogue item when paired. Scanner-created sidecar items can be removed on rescan. Manually edited OPF sidecar items stay visible as standalone records until a deliberate merge/migration workflow exists. In normal catalogue browsing, sidecar OPFs are hidden from the catalogue query by `scan_status = sidecar` filtering.
 
 ### Metadata sources
 
-Library creates initial catalogue metadata from these local sources, in practical order of usefulness:
+Library creates initial catalogue metadata from these local sources:
 
-- OPF package metadata from EPUB files;
+- EPUB package OPF metadata;
 - same-basename or folder-level OPF sidecars;
 - standalone OPF files;
-- PDF Info dictionary fields such as title and author;
+- PDF Info dictionary fields;
 - CBZ `ComicInfo.xml` fields;
 - conservative filename/folder patterns for magazines, dated issues and numbered comics;
 - filename fallback when no richer source is available.
 
-Publication type is deliberately separate from file format. A PDF defaults conservatively unless metadata or a user edit gives it a better type. A CBZ can default to comic.
+Current PDF Info hardening includes:
+
+- `/Title` mapped to title;
+- `/Author` mapped to creators;
+- `/Subject` mapped as PDF Subject-as-subtitle;
+- normalized PDF CreationDate/ModDate values mapped to publication date;
+- UTF-16 BOM strings;
+- PDF hex Info strings;
+- PDF literal octal escapes;
+- nested PDF literal parentheses, such as `Camera (Special Issue)`;
+- non-BOM single-byte strings that need conversion before MariaDB insert.
+
+PDF `/Creator`, `/Producer` and `/Keywords` are not promoted into canonical publication metadata yet. Creator/Producer usually describe generating software, and keywords need a reviewable keyword/tag model before they become catalogue truth.
+
+Publication type is deliberately separate from file format. A PDF stays conservative and defaults to `other` unless metadata or a user edit gives it a better type. A CBZ can default to `comic`.
+
+### Scan states
+
+The file index can expose these important scan states:
+
+- `indexed`: the file was seen and indexed normally.
+- `metadata_error`: the file was seen, but metadata extraction failed. The scan continues and the error is attached to the file row.
+- `missing`: the file was indexed before but was not seen during a later scan of that root.
+- `sidecar`: an OPF was retained in the file index as a sidecar rather than shown as a normal catalogue item.
+
+The catalogue exposes `indexed`, `metadata_error` and `missing` as scan-status filters. Sidecar rows are implementation diagnostics and are hidden from normal catalogue results.
 
 ### Covers
 
@@ -148,6 +185,18 @@ Library serves covers through its own item cover route:
 - returns a stable SVG placeholder when no cover provider succeeds;
 - includes diagnostic response headers so smokes can distinguish preview, CBZ first-image and placeholder outcomes.
 
+There is no app-owned cover cache yet, no dedicated EPUB cover extraction path, and no manual cover override.
+
+### Reader and source-file actions
+
+Library exposes three separate source-file actions:
+
+- **Read:** opens Nextcloud's stable short file route `/f/{fileId}` and lets the installed Nextcloud viewer/reader stack decide how to render the file.
+- **Show in Files:** opens the source file's containing folder context in the Files app, with `openfile=false` so the user sees the folder/file context rather than forcing the reader.
+- **Download source:** uses the user's WebDAV path under `/remote.php/dav/files/{user}/{path}` to download the original file.
+
+Library does not implement a reader in v0.1.
+
 ## Everyday user processes
 
 ### First-time setup as a user
@@ -156,7 +205,7 @@ Library serves covers through its own item cover route:
 2. Open **Library settings**.
 3. Add a root path such as `/Books`, `/Manuals` or `/Shared/Photography Library`.
 4. Give the root a human label if the folder name is not the shelf name you want.
-5. Click **Scan enabled roots**.
+5. Click **Scan enabled roots** or **Scan this root**.
 6. Wait for scan progress/history to show completion.
 7. Return to the **Library** app catalogue.
 8. Use filters/search to inspect the first scan result.
@@ -165,10 +214,11 @@ Library serves covers through its own item cover route:
 ### Browsing and opening publications
 
 1. Open **Library**.
-2. Search or filter by shelf, type, format, tag or scan status.
+2. Search or filter by shelf, type, format, exact Nextcloud tag or scan status.
 3. Use **Read** to hand the file to Nextcloud's viewer stack via the stable file route.
 4. Use **Show in Files** when you need the source folder context, sharing UI, file actions or ordinary Nextcloud metadata.
-5. Use **Details** when the visible card metadata is wrong or incomplete.
+5. Use **Download source** when you need the original file bytes.
+6. Use **Details** when the visible card metadata is wrong or incomplete.
 
 ### Correcting a bad catalogue item
 
@@ -182,8 +232,9 @@ Library serves covers through its own item cover route:
 
 1. Open an item's **Details** page.
 2. Add a visible/assignable Nextcloud tag such as `photography`, `project-library`, `manuals` or `to-review`.
-3. Return to the catalogue.
-4. Filter by the exact tag name.
+3. Remove a tag from the details page when needed.
+4. Return to the catalogue.
+5. Filter by the exact tag name.
 
 Tags remain Nextcloud file-level metadata. They are useful for cross-archive classification across Files and Library, not just Library-only categories.
 
@@ -194,16 +245,19 @@ Tags remain Nextcloud file-level metadata. They are useful for cross-archive cla
 3. Use comments for discussion, review notes or provenance hints.
 4. Do not use comments as structured catalogue fields; use the publication metadata form for that.
 
+Library can add comments but does not yet provide a Library-specific comment management surface such as edit/delete controls.
+
 ### Investigating scan problems
 
 1. Open **Library settings**.
-2. Check latest scan status, indexed count and error count.
+2. Check latest scan status, scan scope, indexed count and error count.
 3. Inspect indexed file diagnostics for `metadata_error` or `missing`.
 4. In the catalogue, filter by scan status:
    - `metadata_error` for files where extraction failed but the scan continued;
    - `missing` for previously indexed files no longer seen under the root;
    - `indexed` for normal rows.
 5. Open **Show in Files** for a problem item to inspect the underlying file.
+6. If a root-specific problem is suspected, use **Scan this root** rather than scanning every enabled root.
 
 ### Forgetting missing catalogue entries
 
@@ -221,8 +275,11 @@ Forgetting a missing item removes this Library catalogue entry and its app-owned
 
 Use **Export corrected metadata** from the catalogue or Library settings to download a side-effect-free JSON download of user-edited catalogue rows.
 
-The export includes stable file identity and Library metadata needed for a first recovery/import story:
+The read-only corrected-metadata JSON export is implemented. It includes stable file identity and Library metadata needed for a first recovery/import story:
 
+- schema version and export kind;
+- export timestamp;
+- item count;
 - Library item ID and library file row ID;
 - Nextcloud file ID;
 - cached file path;
@@ -243,10 +300,11 @@ A Nextcloud administrator should:
 
 1. place the app under `custom_apps/library`;
 2. enable it through normal Nextcloud app management or `occ app:enable library`;
-3. make sure the app's database migrations have run;
+3. run or allow app database migrations through the normal Nextcloud upgrade flow;
 4. make sure Nextcloud background jobs execute regularly, because Library scan requests are queued as background jobs;
 5. verify that the Library navigation entry appears;
-6. verify that `/settings/user/library` opens for a normal user.
+6. verify that `/settings/user/library` opens for a normal user;
+7. verify that the catalogue loads through the Vue app or fallback without browser console errors.
 
 ### Preparing folders and permissions
 
@@ -261,13 +319,16 @@ Each user configures their own Library roots. There is no polished global root p
 
 ### Running and monitoring scans
 
-1. Ask the user to open **Library settings** and click **Scan enabled roots**.
+1. Ask the user to open **Library settings** and click **Scan enabled roots** or **Scan this root**.
 2. Ensure background jobs are actually running on the server.
 3. Watch scan progress/history in the settings page.
 4. Use indexed file diagnostics to distinguish:
    - unsupported files, which simply do not enter the index;
    - metadata errors, where an indexed file may need parser hardening;
-   - missing files, where a previously indexed file was not seen on a later scan.
+   - missing files, where a previously indexed file was not seen on a later scan;
+   - OPF sidecar rows, which can support another item while staying out of normal catalogue browsing.
+
+Library scan jobs currently expose progress/history, status, scope, indexed counts, error counts, duration and summary. There is no cancellation, retry, scheduled scan UI or notification flow yet.
 
 ### Preview and reader dependencies
 
@@ -307,10 +368,11 @@ Acceptance checks:
 - A scan discovers supported files.
 - The catalogue shows cards with titles, formats and shelves.
 - I can open items through Nextcloud.
+- I can download the source file when viewer handoff is not what I need.
 
 Visible gaps:
 
-- root management needs disable/delete/edit polish;
+- root management needs stronger confirmation and recovery guidance;
 - first-run empty state could guide non-technical users more explicitly;
 - no bulk rescan scheduling or scan cancellation UI.
 
@@ -325,13 +387,15 @@ Acceptance checks:
 - Details page exposes publication metadata editing.
 - Saved edits set provenance to user-edited.
 - Rescan does not overwrite user-edited metadata.
+- PDF Info extraction handles current hardened cases including PDF Subject-as-subtitle, normalized PDF CreationDate/ModDate, hex strings, octal escapes and nested PDF literal parentheses.
 
 Visible gaps:
 
 - no field-level provenance: one user edit protects the item as a whole;
 - no reset/revert-to-scanner action;
 - no bulk edit or multi-select correction workflow;
-- no validation guidance for dates, language codes or creator formatting.
+- no validation guidance for dates, language codes or creator formatting;
+- no review queue for scanner/sidecar/user metadata conflicts.
 
 ### Story 3: Classifying across projects
 
@@ -343,7 +407,8 @@ Acceptance checks:
 
 - visible assignable Nextcloud tags appear on cards/details;
 - details can add/remove assignable tags;
-- catalogue can filter by exact tag.
+- catalogue can filter by exact tag;
+- tag/comment changes do not mutate Library publication metadata.
 
 Visible gaps:
 
@@ -382,14 +447,15 @@ Acceptance checks:
 - paginated catalogue renders with bounded page sizes;
 - filters combine across text, type, format, tag, shelf and scan status;
 - sorting options cover title, recently added, publication date and format;
-- generated 10k stress and the current real 100-file sample have verified the basic shape; earlier staged real pilots remain useful scale evidence but should be rerun after parser changes before treating them as release evidence.
+- database-backed item queries provide filtered totals and page slices;
+- generated 10k stress and staged real-pilot evidence have verified the basic shape, but real pilots should be rerun after parser changes before treating them as release evidence.
 
 Visible gaps:
 
-- filtering currently happens after loading the user's item list into the app layer, so larger real libraries may need database-level query/pagination;
 - no full-text search inside documents;
 - no grouping/browse pages for creator, series, publication or year;
-- no saved views or smart collections.
+- no saved views or smart collections;
+- no user-facing explanation of query performance limits for very large libraries.
 
 ### Story 6: Trusting scan health
 
@@ -402,14 +468,16 @@ Acceptance checks:
 - scans are queued as background jobs;
 - settings page shows progress and history;
 - file rows retain scan status and error text;
-- one bad metadata file does not abort the whole root scan.
+- one bad metadata file does not abort the whole root scan;
+- one selected root can be scanned without scanning every enabled root.
 
 Visible gaps:
 
 - no scan cancellation/retry control;
 - no notification when a long scan completes or fails;
 - no per-root progress percentage or estimated remaining time;
-- no scheduled/resumable incremental scan policy.
+- no scheduled/resumable incremental scan policy;
+- no explicit repair flow for “retry metadata errors” or “check missing files”.
 
 ### Story 7: Covers make the library feel browsable
 
@@ -422,7 +490,8 @@ Acceptance checks:
 - cover route returns an image for every item;
 - Nextcloud preview covers appear when available;
 - CBZ first-image covers work when generic previews do not;
-- placeholder covers keep unsupported items usable.
+- placeholder covers keep unsupported items usable;
+- diagnostic headers explain whether a response came from preview, CBZ first image or placeholder.
 
 Visible gaps:
 
@@ -441,28 +510,51 @@ Acceptance checks:
 
 - same-basename and folder-level OPF sidecars can override extracted metadata;
 - paired sidecar OPFs are hidden as separate catalogue items;
-- scanner-created stale sidecar items can be cleaned on rescan.
+- scanner-created stale sidecar items can be cleaned on rescan;
+- manually edited OPF sidecar records are preserved as visible standalone records until a merge workflow exists.
 
 Visible gaps:
 
-- no user-facing explanation of sidecar precedence;
+- no user-facing explanation of sidecar precedence in the UI;
 - no tool to create/export sidecars from corrected Library metadata;
 - no conflict UI when scanner/sidecar/user metadata disagree.
+
+### Story 9: Removing or migrating Library safely
+
+As an admin, I want to disable or remove Library without risking source files and with at least a portable snapshot of important corrections.
+
+Current support: partial but much safer than the early prototype.
+
+Acceptance checks:
+
+- source files remain ordinary Nextcloud files;
+- root deletion and missing-item forgetting delete app rows, not source files;
+- read-only corrected-metadata JSON export is implemented for user-edited rows;
+- docs explain that a full restore still needs the Nextcloud database or future importer.
+
+Visible gaps:
+
+- no import from the corrected-metadata JSON export;
+- no write-back to OPF or JSON sidecars;
+- no guided uninstall/export checklist inside the UI;
+- no automated validation that an export can recreate a catalogue in a fresh install.
 
 ## Crucial missing-feature candidates exposed by the guide
 
 These are the highest-signal gaps to judge before pushing v0.1 further:
 
-1. **Root management polish beyond the first lifecycle slice** — users can now edit, enable/disable, delete and scan one root, but the workflow still needs stronger confirmation, clearer consequences and richer validation before release.
-2. **Database-level catalogue querying** — current app-layer filtering/pagination is adequate for pilots, but real 10k+ archives will likely need DB-backed filters, sort and pagination.
-3. **Scan lifecycle controls** — queued scans exist, but cancellation, retry, scheduled scans and completion notifications are absent.
-4. **Metadata correction workflow** — details editing works, but there is no bulk edit, reset-to-scanner, field-level provenance or validation guidance.
-5. **Tag UX** — tag add/remove works, but lacks autocomplete, picker, bulk tagging and clear permission feedback.
-6. **Cover quality path** — preview/CBZ/placeholder covers work, but EPUB covers, cover cache and manual overrides remain missing.
-7. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
-8. **Discovery by publication structure** — search/filter exists, but there are no creator/series/publication/year landing pages, smart collections or saved views.
-9. **User-facing onboarding and empty states** — the current app is smoke-testable and usable by a technical tester, but a first-time user still needs clearer guidance.
-10. **Export/import of corrected metadata** — corrected Library metadata is in the app DB only; metadata export is documented as missing, but there is no sidecar export or migration story for durable file-first metadata portability.
+1. **Root management polish beyond the first lifecycle slice** — users can edit, enable/disable, delete and scan one root, but the workflow still needs stronger confirmation, clearer consequences and richer validation before release.
+2. **Scan lifecycle controls** — queued scans exist, but cancellation, retry, scheduled scans, metadata-error retry, missing-file checks and completion notifications are absent.
+3. **Metadata correction workflow** — details editing works, but there is no bulk edit, reset-to-scanner, field-level provenance, conflict review or validation guidance.
+4. **Tag UX** — tag add/remove works, but lacks autocomplete, picker, bulk tagging and clear permission feedback.
+5. **Cover quality path** — preview/CBZ/placeholder covers work, but EPUB covers, cover cache and manual overrides remain missing.
+6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
+7. **Discovery by publication structure** — search/filter exists, but there are no creator/series/publication/year landing pages, smart collections or saved views.
+8. **User-facing onboarding and empty states** — the current app is smoke-testable and usable by a technical tester, but a first-time user still needs clearer guidance.
+9. **Metadata portability beyond read-only export** — corrected Library metadata can be exported as JSON, but there is no import, OPF write-back, sidecar writer or migration story that makes corrections file-first durable.
+10. **Real-collection metadata hardening** — PDF hardening has improved, but more real EPUB/OPF/CBZ/PDF samples are needed to find weak metadata, cover and sidecar cases before release.
+
+DB-backed catalogue query path is implemented and is no longer a missing-feature candidate. The read-only corrected-metadata JSON export is implemented, but import/write-back remains missing.
 
 ## Practical review script
 
@@ -470,15 +562,16 @@ Use this script when deciding what to build next:
 
 1. Install/enable Library on a Nextcloud 34 sandbox.
 2. Add one small root with 20-100 mixed real files.
-3. Run a scan and wait for completion.
+3. Run **Scan this root** and wait for completion.
 4. Browse the catalogue without touching settings.
 5. Find one PDF, one EPUB and one CBZ if available.
-6. Open each with **Read** and **Show in Files**.
+6. Open each with **Read**, **Show in Files** and **Download source**.
 7. Correct metadata on three items.
 8. Add one Nextcloud tag and one comment.
-9. Rescan.
-10. Confirm edits survived and diagnostics are understandable.
-11. Try to remove or temporarily disable a root.
-12. Try to answer: “what should I fix next if I had 5,000 files?”
+9. Export corrected metadata and inspect the JSON.
+10. Rescan.
+11. Confirm edits survived and diagnostics are understandable.
+12. Try to remove or temporarily disable a root.
+13. Try to answer: “what should I fix next if I had 5,000 files?”
 
-If step 11 feels unsafe or unclear, continue root lifecycle polish. If step 12 feels blocked, prioritize DB-backed browsing/querying and scan lifecycle controls.
+If step 12 feels unsafe or unclear, continue root lifecycle polish. If step 13 feels blocked by organization rather than performance, prioritize grouping/saved views. If metadata looks weak across real files, continue real-collection metadata hardening.

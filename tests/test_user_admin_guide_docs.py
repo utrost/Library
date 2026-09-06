@@ -56,7 +56,6 @@ def test_user_guide_lists_reviewable_missing_feature_candidates():
 
     for gap in [
         "Root management polish beyond the first lifecycle slice",
-        "Database-level catalogue querying",
         "Scan lifecycle controls",
         "Metadata correction workflow",
         "Tag UX",
@@ -64,9 +63,34 @@ def test_user_guide_lists_reviewable_missing_feature_candidates():
         "Shared-library administration",
         "Discovery by publication structure",
         "User-facing onboarding and empty states",
-        "Export/import of corrected metadata",
+        "Metadata portability beyond read-only export",
     ]:
         assert gap in guide
+
+
+def test_user_guide_reflects_current_implemented_query_export_download_and_pdf_hardening():
+    guide = (ROOT / "docs" / "user-guide.md").read_text()
+
+    for phrase in [
+        "Download source",
+        "database-backed item query",
+        "DB-backed catalogue query path is implemented",
+        "read-only corrected-metadata JSON export is implemented",
+        "PDF Subject-as-subtitle",
+        "normalized PDF CreationDate/ModDate",
+        "nested PDF literal parentheses",
+        "metadata_error",
+        "sidecar OPFs are hidden from the catalogue query",
+    ]:
+        assert phrase in guide
+
+    stale_phrases = [
+        "filtering currently happens after loading the user's item list into the app layer",
+        "Database-level catalogue querying — current app-layer filtering/pagination",
+        "metadata export is documented as missing",
+    ]
+    for phrase in stale_phrases:
+        assert phrase not in guide
 
 
 def test_roadmap_combines_user_review_questions_with_guide_gaps():
