@@ -422,6 +422,22 @@ Exit criteria:
 - Article-level indexing.
 - Page-level search.
 
+## Prioritized v0.1 gap stack after the 1k real-corpus pilot
+
+The 1k real-corpus pilot moved the biggest uncertainty from “can Library browse a large-ish mixed shelf?” to “can Library keep improving messy metadata without making the scanner unsafe or unmaintainable?” Real-corpus filename hardening landed after the pilot: staging prefixes and archive suffixes are stripped, conservative title/creator filename patterns are promoted, and volume labels such as `Volume 71` are kept as issue context instead of creators.
+
+Current priority order:
+
+1. **P0 — Keep metadata quality work safe: split the extractor seam.** `PublicationMetadataService` has become the main hotspot because it owns OPF, EPUB, PDF, CBZ and filename parsing. Before adding more real-corpus rules, split it into narrower extractor adapters behind the existing service façade while preserving behaviour and tests.
+2. **P1 — Metadata correction workflow.** Details editing works, but one user edit protects the whole item. Add field-level provenance, reset/revert-to-scanner actions, date/language/creator validation guidance and eventually a review queue for scanner/sidecar/user conflicts.
+3. **P2 — Metadata portability.** Corrected metadata export exists, but import/write-back does not. Add a way to restore corrected metadata into a fresh install, then consider OPF/JSON sidecar write-back so corrections become File-First durable.
+4. **P3 — Scan lifecycle repair controls.** Queued per-root scans and progress/history exist. Missing pieces are retry metadata errors, check missing files, cancellation, scheduled/resumable scans and completion/failure notifications.
+5. **P4 — Cover quality path.** Preview/CBZ/placeholder covers are good enough for browsing. Missing pieces are dedicated EPUB cover extraction, app-owned cache, refresh controls, manual cover override and user-friendly preview-failure explanations.
+6. **P5 — Discovery by publication structure.** Search/filter/pagination are implemented. The next discovery layer is creator, series, publication and year pages plus saved views or smart collections.
+7. **P6 — Root/onboarding/shared-library polish.** Root lifecycle works, but release polish needs stronger destructive-action confirmation, first-run guidance, recovery copy and eventually admin-managed shared-root provisioning.
+
+Immediate implementation stance: start with P0 as a no-behaviour-change refactor, then use the cleaner extractor boundary for further real-corpus metadata hardening or P1 field-level correction work.
+
 ## Combined missing operational processes, 2026-09-06
 
 This section combines the role-facing gaps from the [User and admin guide](user-guide.md) with the latest product review questions: deletion/update processes, Library removal, cover rescans, folder/root scoped rescans and whether cover extraction remains optional.
