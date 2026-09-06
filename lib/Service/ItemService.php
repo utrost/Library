@@ -39,6 +39,7 @@ final class ItemService {
         $existing = $this->findByLibraryFileId($userId, (int)$file['id']);
         if ($existing !== null) {
             if ((bool)$existing['user_edited']) {
+                $this->refreshScannerCandidatesForUserEditedItem($userId, (int)$existing['id'], $metadataCandidate);
                 return;
             }
 
@@ -446,6 +447,18 @@ final class ItemService {
         }
 
         return $row;
+    }
+
+    private function refreshScannerCandidatesForUserEditedItem(string $userId, int $itemId, array $metadataCandidate): void {
+        $qb = $this->db->getQueryBuilder();
+        $qb->update('library_items')
+            ->set('field_sources', $qb->createNamedParameter(json_encode($metadataCandidate['fieldSources'], JSON_THROW_ON_ERROR)))
+            ->set('field_values', $qb->createNamedParameter(json_encode($metadataCandidate['fieldValues'], JSON_THROW_ON_ERROR)))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('user_edited', $qb->createNamedParameter(1)))
+            ->executeStatement();
     }
 
     private function refreshInferredItem(string $userId, int $itemId, array $file, array $metadata = []): void {
