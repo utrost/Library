@@ -8,6 +8,11 @@ const user = process.env.NC_USER || 'uwe'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const upstream = process.env.NC_URL || 'http://100.123.149.120:8088'
 const sourceRoots = (process.env.REAL_SCALE_SOURCES || '/mnt/compute/Nextcloud/Books::/mnt/compute/Nextcloud/Projects/Scanned books').split('::').filter(Boolean)
+const allowedExtensions = (process.env.REAL_SCALE_EXTENSIONS || 'pdf,epub,cbz')
+  .split(',')
+  .map((ext) => ext.trim().toLowerCase().replace(/^\./, ''))
+  .filter(Boolean)
+const keepStage = process.env.REAL_SCALE_KEEP_STAGE === '1'
 const rootName = `LibraryRealScale-${count}-${Date.now()}`
 const rootPath = `/${rootName}`
 const dataDir = `/var/www/html/data/${user}/files/${rootName}`
@@ -64,7 +69,7 @@ for src_root in roots:
     for root, _dirs, files in os.walk(src_root):
         for name in files:
             ext = os.path.splitext(name)[1].lower()
-            if ext not in ('.pdf', '.epub', '.cbz'):
+            if ext not in {'.' + value for value in json.loads(os.environ['REAL_SCALE_EXTENSIONS_JSON'])}:
                 continue
             path = os.path.join(root, name)
             try:
@@ -75,7 +80,11 @@ for src_root in roots:
 rows.sort(key=lambda row: (row['size'], row['path'].lower()))
 print(json.dumps(rows))
 `
-  return JSON.parse(execFileSync('python3', ['-c', py, ...sourceRoots], { encoding: 'utf8', timeout: 600000 }))
+  return JSON.parse(execFileSync('python3', ['-c', py, ...sourceRoots], {
+    encoding: 'utf8',
+    timeout: 600000,
+    env: { ...process.env, REAL_SCALE_EXTENSIONS_JSON: JSON.stringify(allowedExtensions) },
+  }))
 }
 function safeName(index, sourcePath) {
   const base = basename(sourcePath).replace(/[^A-Za-z0-9._-]+/g, '_').slice(-120)
@@ -217,6 +226,8 @@ try {
   console.log(`stage_count=${count}`)
   console.log(`stage_root=${rootPath}`)
   console.log(`source_roots=${sourceRoots.join('::')}`)
+  console.log(`allowed_extensions=${allowedExtensions.join(',')}`)
+  console.log(`keep_stage=${keepStage}`)
   const manifest = sourceManifest()
   if (manifest.length < count) throw new Error(`only ${manifest.length} supported source files found for requested count ${count}`)
   const selected = manifest.slice(0, count)
@@ -290,15 +301,30 @@ try {
       console.error(error?.message || error)
     }
   }
-  try { process.stdout.write(cleanupDb()) } catch (error) { console.log('cleanup_db_error=true'); console.error(error?.message || error) }
+  if (keepStage) {
+    console.log(`kept_stage_root=${rootPath}`)
+    console.log(`kept_stage_data_dir=${dataDir}`)
+  } else {
+    try { process.stdout.write(cleanupDb()) } catch (error) { console.log('cleanup_db_error=true'); console.error(error?.message || error) }
+  }
   try { restoreRoots(rootSnapshot) } catch (error) { console.log('restore_roots_error=true'); console.error(error?.message || error) }
-  try {
-    dockerRootShell(`rm -rf ${dataDir}`)
-    dockerWww(['php', 'occ', 'files:scan', '--path', `${user}/files`], 1800000)
-    rmSync(hostStageDir, { recursive: true, force: true })
-    console.log('fixture_files_removed=true')
-  } catch (error) {
-    console.log('fixture_file_cleanup_error=true')
-    console.error(error?.message || error)
+  if (!keepStage) {
+    try {
+      dockerRootShell(`rm -rf ${dataDir}`)
+      dockerWww(['php', 'occ', 'files:scan', '--path', `${user}/files`], 1800000)
+      rmSync(hostStageDir, { recursive: true, force: true })
+      console.log('fixture_files_removed=true')
+    } catch (error) {
+      console.log('fixture_file_cleanup_error=true')
+      console.error(error?.message || error)
+    }
+  } else {
+    try {
+      rmSync(hostStageDir, { recursive: true, force: true })
+      console.log('host_stage_removed=true')
+    } catch (error) {
+      console.log('host_stage_cleanup_error=true')
+      console.error(error?.message || error)
+    }
   }
 }
