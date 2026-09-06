@@ -30,6 +30,16 @@ def test_item_service_creates_items_for_indexed_files_and_preserves_user_edits()
     assert "publication_type" in service
 
 
+def test_filename_fallback_title_cleans_real_scale_staging_noise():
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
+
+    assert "cleanFilenameFallbackTitle" in service
+    assert "Real-00001-Durst_M707_Werbung" in service
+    assert "Durst M707 Werbung" in service
+    assert "stripArchiveSourceSuffix" in service
+    assert "preg_replace('/\\s+ocr$/iu'" in service
+
+
 def test_scanner_ensures_catalogue_items_after_file_index_upsert():
     scanner = (ROOT / "lib" / "Service" / "LibraryScanner.php").read_text()
     assert "ItemService $itemService" in scanner

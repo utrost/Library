@@ -235,6 +235,7 @@ final class PublicationMetadataService {
             $this->parseComicNumberTitlePattern($basename, $extension),
             $this->parseMagazineDatePattern($basename, $folderNames, $defaultPublicationType),
             $this->parseYearIssuePattern($basename, $folderNames, $defaultPublicationType),
+            $this->parseTitleCreatorPattern($basename, $defaultPublicationType),
         ];
 
         foreach ($parsers as $metadata) {
@@ -276,6 +277,15 @@ final class PublicationMetadataService {
             preg_match('/(\d{4})/', $label, $yearMatch);
             $date = $yearMatch[1] ?? '';
             return $this->filenameCandidate($publication . ' ' . $label, $publication, $date, $label, 'magazine');
+        }
+
+        // Real staged sample: Make_Magazine_-_Volume_71_Dale_Dougherty should keep Volume 71 as issue context,
+        // not misread "Volume 71" as a creator name.
+        $volumeIssuePattern = '/^(?<publication>.+?)\s*[-–—]?\s*(?<label>Volume\s*\d+[A-Za-z]?|Vol\.?\s*\d+[A-Za-z]?)(?:\s+.+)?$/iu';
+        if (preg_match($volumeIssuePattern, $normalized, $matches)) {
+            $publication = $this->cleanTitle((string)$matches['publication']);
+            $label = $this->cleanTitle((string)$matches['label']);
+            return $this->filenameCandidate($publication . ' ' . $label, $publication, '', $label, 'magazine');
         }
 
         $folderPublication = $this->nearestTextFolder($folderNames);
@@ -331,6 +341,46 @@ final class PublicationMetadataService {
     }
 
     /**
+     * @return array<string, string>
+     */
+    private function parseTitleCreatorPattern(string $basename, string $defaultPublicationType): array {
+        // Real staged sample that drove this hardening:
+        // Real-00107-Revelation_Space_Alastair_Reynolds_z-library.sk_1lib.sk_z-lib.sk_
+        // => Revelation Space / Alastair Reynolds
+        $normalized = $this->normalizeFilename($basename);
+
+        if (preg_match('/^(?<title>.+?)\s+[-–—]\s+(?<creator>[^-–—]+)$/u', $normalized, $matches)) {
+            $title = $this->cleanTitle((string)$matches['title']);
+            $creator = $this->normalizeCreatorList((string)$matches['creator']);
+            if ($title !== '' && $creator !== '') {
+                // Regression sample: Photography__Night_Sky__A_Field_Guide_for_Shooting_After_Dark_-_Jennifer_Wu_James_Martin
+                // => Photography Night Sky A Field Guide for Shooting After Dark / Jennifer Wu; James Martin
+                return [
+                    'metadataSource' => 'filename-pattern',
+                    'publicationType' => $defaultPublicationType,
+                    'title' => $title,
+                    'creators' => $creator,
+                ];
+            }
+        }
+
+        if (preg_match('/^(?<title>.+?)\s+(?<creator>[A-ZÄÖÜ][\p{L}\'’.-]+\s+[A-ZÄÖÜ][\p{L}\'’.-]+)$/u', $normalized, $matches)) {
+            $title = $this->cleanTitle((string)$matches['title']);
+            $creator = $this->normalizeCreatorList((string)$matches['creator']);
+            if ($title !== '' && $creator !== '') {
+                return [
+                    'metadataSource' => 'filename-pattern',
+                    'publicationType' => $defaultPublicationType,
+                    'title' => $title,
+                    'creators' => $creator,
+                ];
+            }
+        }
+
+        return [];
+    }
+
+    /**
      * @param array<int, string> $folderNames
      */
     private function nearestTextFolder(array $folderNames): ?string {
@@ -382,9 +432,38 @@ final class PublicationMetadataService {
     }
 
     private function normalizeFilename(string $basename): string {
-        $value = str_replace(['_', '.'], ' ', $basename);
+        $value = $this->stripStagingPrefix($basename);
+        $value = $this->stripArchiveSourceSuffix($value);
+        $value = str_replace(['_', '.'], ' ', $value);
         $value = preg_replace('/\s+/', ' ', $value) ?? $value;
         return trim($value);
+    }
+
+    private function stripStagingPrefix(string $basename): string {
+        return preg_replace('/^Real-\d{5}-/u', '', $basename) ?? $basename;
+    }
+
+    private function stripArchiveSourceSuffix(string $basename): string {
+        $value = preg_replace('/(?:[_\s-]+\(?z[-_\s]?library[^)]*\)?)+$/iu', '', $basename) ?? $basename;
+        $value = preg_replace('/[_\s-]+Anna[_\s]+s[_\s]+Archive$/iu', '', $value) ?? $value;
+        $value = preg_replace('/[_\s-]+[a-f0-9]{24,}$/iu', '', $value) ?? $value;
+        $value = preg_replace('/[_\s-]+\d{10,13}$/u', '', $value) ?? $value;
+        return trim($value, " \t\n\r\0\x0B-_–—");
+    }
+
+    private function normalizeCreatorList(string $creator): string {
+        $creator = $this->stripArchiveSourceSuffix($creator);
+        $creator = $this->cleanTitle($creator);
+        if ($creator === '') {
+            return '';
+        }
+
+        $words = preg_split('/\s+/', $creator) ?: [];
+        if (count($words) === 4) {
+            return $words[0] . ' ' . $words[1] . '; ' . $words[2] . ' ' . $words[3];
+        }
+
+        return $creator;
     }
 
     private function normalizeDateIfValid(string $date): ?string {
