@@ -5,17 +5,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_page_controller_accepts_format_filter_and_builds_available_formats():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
     assert "getParam('format'" in controller
-    assert "buildFormats" in controller
+    assert "queryCatalogue($userId, $activeFilters, $pagination)" in controller
+    assert "catalogueFacets" in service
     assert "formats" in controller
-    assert "array{q:string,type:string,tag:string,shelf:string,format:string" in controller
+    assert "array{q?:string,type?:string,format?:string" in service
 
 
 def test_page_controller_filters_catalogue_items_by_file_extension():
-    controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    assert "$activeFilters['format']" in controller
-    assert "mb_strtolower((string)($item['extension'] ?? ''))" in controller
-    assert "!== mb_strtolower($activeFilters['format'])" in controller
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
+    assert "$filters['format']" in service
+    assert "LOWER(f.extension)" in service
+    assert "createNamedParameter($format)" in service
 
 
 def test_template_renders_format_filter_and_card_format_label():

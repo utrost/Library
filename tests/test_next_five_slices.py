@@ -25,11 +25,12 @@ def test_catalogue_has_show_in_files_action_separate_from_read():
 
 def test_catalogue_grid_supports_server_side_sort_modes():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
     assert "'sort' => trim((string)$this->request->getParam('sort', 'title'))" in page
-    assert "sortItemsForPresentation" in page
+    assert "applyCatalogueSort" in service
     for mode in ["title", "recent", "publicationDate", "format"]:
-        assert mode in page
+        assert mode in page or mode in service
         assert f'value="{mode}"' in vue
     assert "Sort" in vue
 

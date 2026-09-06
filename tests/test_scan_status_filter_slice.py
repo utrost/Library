@@ -13,11 +13,12 @@ def test_item_service_exposes_scan_status_for_catalogue_filters():
 
 def test_catalogue_supports_scan_status_filter():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
     assert "'status' => trim((string)$this->request->getParam('status', ''))" in page
-    assert "buildScanStatuses" in page
-    assert "'scanStatuses' => $scanStatuses" in page
-    assert "scanStatus" in page
+    assert "scanStatusFacetValues" in service
+    assert "'scanStatuses' => $catalogue['facets']['scanStatuses']" in page
+    assert "f.scan_status" in service
     assert "name=\"status\"" in vue
     assert "All scan statuses" in vue
     for status in ["indexed", "metadata_error", "missing"]:

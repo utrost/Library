@@ -52,9 +52,9 @@ def test_roadmap_starts_with_roots_file_index_and_nextcloud_tags_before_metadata
     assert phase1 < phase2 < phase25 < phase3
 
     immediate = roadmap[roadmap.index("## Immediate next implementation slice") :]
-    assert "DB-backed catalogue query path" in immediate
-    assert "filtering/sorting/pagination from in-memory arrays to database queries" in immediate
-    assert "text, publication type, format, tag, shelf/root, scan status and sort" in immediate
+    assert "real-collection metadata hardening" in immediate
+    assert "PDF/EPUB/OPF/CBZ fixture coverage" in immediate
+    assert "database-backed catalogue query path" in immediate
     assert "metadata export/import write-back as a later portability slice" in immediate
     assert "deleting source files from Nextcloud Files" in immediate
     assert "cover cache or cover refresh" in immediate
