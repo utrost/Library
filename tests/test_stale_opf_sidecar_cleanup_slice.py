@@ -5,10 +5,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_scanner_marks_suppressed_opf_sidecars_and_deletes_existing_catalogue_item():
     scanner = (ROOT / "lib" / "Service" / "LibraryScanner.php").read_text()
-    assert "private function cleanupSuppressedOpfSidecar(string $userId, int $rootId, File $file): void" in scanner
-    assert "$this->cleanupSuppressedOpfSidecar($userId, $rootId, $node)" in scanner
+    assert "private function cleanupSuppressedOpfSidecar(string $userId, int $rootId, File $file): ?int" in scanner
+    assert "$preservedSidecarId = $this->cleanupSuppressedOpfSidecar($userId, $rootId, $node)" in scanner
     assert "markAsSidecar" in scanner
     assert "deleteItemForLibraryFile" in scanner
+    assert "return null;" in scanner
 
 
 def test_file_index_service_can_mark_previously_indexed_files_as_sidecar():
