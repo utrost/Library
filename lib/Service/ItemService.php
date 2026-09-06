@@ -242,9 +242,9 @@ final class ItemService {
     }
 
     /**
-     * @param array{q?:string,type?:string,format?:string,tag?:string,shelf?:string,status?:string,sort?:string,taggedFileIds?:array<int, int>} $filters
+     * @param array{q?:string,type?:string,publication?:string,format?:string,tag?:string,shelf?:string,status?:string,sort?:string,taggedFileIds?:array<int, int>} $filters
      * @param array{page:int,limit:int} $pagination
-     * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,scanStatuses:array<int, string>}}
+     * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,scanStatuses:array<int, string>}}
      */
     public function queryCatalogue(string $userId, array $filters, array $pagination): array {
         $page = max(1, (int)($pagination['page'] ?? 1));
@@ -458,12 +458,13 @@ final class ItemService {
     }
 
     /**
-     * @return array{shelves:array<int, string>,formats:array<int, string>,scanStatuses:array<int, string>}
+     * @return array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,scanStatuses:array<int, string>}
      */
     private function catalogueFacets(string $userId): array {
         return [
             'shelves' => $this->distinctCatalogueValues($userId, "COALESCE(NULLIF(r.label, ''), r.path)", 'shelf'),
             'formats' => $this->distinctCatalogueValues($userId, 'LOWER(f.extension)', 'value'),
+            'publications' => $this->distinctCatalogueValues($userId, 'i.publication', 'publication'),
             'scanStatuses' => $this->scanStatusFacetValues($userId),
         ];
     }
@@ -512,6 +513,11 @@ final class ItemService {
             $qb->andWhere($qb->expr()->eq('i.publication_type', $qb->createNamedParameter($this->normalizePublicationType($type))));
         }
 
+        $publication = trim((string)($filters['publication'] ?? ''));
+        if ($publication !== '') {
+            $qb->andWhere($qb->expr()->eq('i.publication', $qb->createNamedParameter($publication)));
+        }
+
         $format = mb_strtolower(trim((string)($filters['format'] ?? '')));
         if ($format !== '') {
             $qb->andWhere($qb->expr()->eq($qb->createFunction('LOWER(f.extension)'), $qb->createNamedParameter($format)));
@@ -553,6 +559,7 @@ final class ItemService {
         match ($sort) {
             'recent' => $qb->orderBy('i.library_file_id', 'DESC')->addOrderBy('i.id', 'DESC'),
             'publicationDate' => $qb->orderBy('i.publication_date', 'DESC')->addOrderBy('i.title', 'ASC'),
+            'publication' => $qb->orderBy('i.publication', 'ASC')->addOrderBy('i.publication_date', 'DESC')->addOrderBy('i.title', 'ASC'),
             'format' => $qb->orderBy('f.extension', 'ASC')->addOrderBy('i.title', 'ASC'),
             default => $qb->orderBy('i.title', 'ASC'),
         };

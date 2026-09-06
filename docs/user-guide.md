@@ -60,8 +60,9 @@ Current catalogue capabilities:
 - fetch the original source file through **Download source**;
 - open the item workbench through **Details**;
 - search by title, subtitle, creator, publication/series/periodical and path text;
+- filter by series or periodical title for magazines, journals and recurring publications;
 - filter by publication type, file format, scan status, exact Nextcloud tag and shelf;
-- sort by title, recently added, publication date or format;
+- sort by title, recently added, publication date, series/periodical or format;
 - choose page size up to the current 500-item clamp;
 - see page counts and previous/next links;
 - see scan diagnostics on unhealthy catalogue cards only;
