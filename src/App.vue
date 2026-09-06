@@ -36,7 +36,6 @@ const activeFilters = reactive({
   sort: props.state.activeFilters?.sort || 'title',
 })
 const settingsUrl = computed(() => props.state.settingsUrl || '')
-const requestToken = computed(() => props.state.requestToken || '')
 
 function upper(value) {
   return String(value || '').toUpperCase()
@@ -46,9 +45,6 @@ function tagsFor(item) {
   return item.nextcloudTags || []
 }
 
-function commentsFor(item) {
-  return item.nextcloudComments || { count: 0, recent: [] }
-}
 </script>
 
 <template>
@@ -148,72 +144,6 @@ function commentsFor(item) {
           </div>
           <p><a :href="item.openUrl">{{ t('library', 'Read') }}</a> · <a :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a> · <a :href="item.detailsUrl">{{ t('library', 'Details') }}</a></p>
         </div>
-
-        <details>
-          <summary>Details / edit metadata</summary>
-          <dl class="library-item-metadata">
-            <dt>publicationType</dt><dd>{{ item.publicationType }}</dd>
-            <dt>metadataSource</dt><dd>{{ item.metadataSource }}</dd>
-            <dt>userEdited</dt><dd>{{ item.userEdited ? 'yes' : 'no' }}</dd>
-            <dt>path</dt><dd>{{ item.cachedPath }}</dd>
-            <dt>publication</dt><dd>{{ item.publication || '—' }}</dd>
-            <dt>date</dt><dd>{{ item.publicationDate || '—' }}</dd>
-            <dt>language</dt><dd>{{ item.language || '—' }}</dd>
-            <dt>publisher</dt><dd>{{ item.publisher || '—' }}</dd>
-          </dl>
-
-          <div class="library-nextcloud-comments" aria-label="nextcloudComments">
-            <strong>Nextcloud comments</strong> <span class="library-muted">(file-level notes)</span>:
-            <span v-if="commentsFor(item).count === 0" class="library-muted">No Nextcloud comments</span>
-            <template v-else>
-              <span>{{ commentsFor(item).count }} total</span>
-              <ul class="library-comment-list">
-                <li v-for="comment in commentsFor(item).recent" :key="`${comment.actorId}-${comment.createdAt}-${comment.message}`">
-                  <span class="library-muted">{{ comment.actorId }} · {{ comment.createdAt }}</span>
-                  <span>{{ comment.message }}</span>
-                </li>
-              </ul>
-            </template>
-            <form method="post" :action="item.commentUrl" class="library-comment-form">
-              <input v-if="requestToken" type="hidden" name="requesttoken" :value="requestToken">
-              <label>
-                Add Nextcloud comment
-                <textarea name="commentMessage" rows="2" placeholder="file-level note..."></textarea>
-              </label>
-              <button type="submit">Add comment</button>
-            </form>
-          </div>
-
-          <form method="post" :action="item.updateUrl" class="library-item-form">
-            <input v-if="requestToken" type="hidden" name="requesttoken" :value="requestToken">
-            <label>
-              Title
-              <input type="text" name="title" :value="item.title">
-            </label>
-            <label>
-              Type
-              <select name="publicationType" :value="item.publicationType">
-                <option v-for="type in publicationTypes" :key="type" :value="type">{{ type }}</option>
-              </select>
-            </label>
-            <label>
-              Creators
-              <input type="text" name="creators" :value="item.creators">
-            </label>
-            <label>
-              Publication
-              <input type="text" name="publication" :value="item.publication">
-            </label>
-            <label>
-              Date
-              <input type="text" name="publicationDate" :value="item.publicationDate">
-            </label>
-            <input type="hidden" name="subtitle" :value="item.subtitle">
-            <input type="hidden" name="language" :value="item.language">
-            <input type="hidden" name="publisher" :value="item.publisher">
-            <button type="submit">Save metadata</button>
-          </form>
-        </details>
       </article>
     </div>
   </section>

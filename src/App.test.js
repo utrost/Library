@@ -51,6 +51,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-cover-image').attributes('src')).toBe('/apps/library/items/7/cover')
     expect(wrapper.find('.library-cover-link').attributes('href')).toBe('/f/178')
     expect(wrapper.text()).toContain('Show in Files')
-    expect(wrapper.find('form.library-item-form').attributes('action')).toBe('/apps/library/items/7')
+    expect(wrapper.findAll('form[method="post"]')).toHaveLength(0)
+    expect(wrapper.text()).toContain('Details')
   })
 })

@@ -36,8 +36,11 @@ def test_page_controller_passes_comment_post_url_to_template():
 
 
 def test_template_has_add_nextcloud_comment_form_separate_from_metadata_edit():
-    vue = (ROOT / "src" / "App.vue").read_text()
-    assert "item.commentUrl" in vue
-    assert "Add Nextcloud comment" in vue
-    assert "name=\"commentMessage\"" in vue
-    assert "placeholder=\"file-level note...\"" in vue
+    template = (ROOT / "templates" / "item-detail.php").read_text()
+    detail_controller = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
+    assert "$item['commentUrl']" in template
+    assert "library-detail-comment-form" in template
+    assert "Add Nextcloud comment" in template
+    assert "name=\"commentMessage\"" in template
+    assert "file-level note..." in template
+    assert "library.comment.add" in detail_controller

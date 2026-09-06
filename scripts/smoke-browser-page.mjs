@@ -175,7 +175,7 @@ async function runBrowserSmoke(proxyBase) {
           vueApp: Boolean(document.querySelector('#library-vue-root[data-v-app]')),
           cards: document.querySelectorAll('.library-cover-card').length,
           filters: Boolean(document.querySelector('.library-filter-bar')),
-          details: document.querySelectorAll('details').length,
+          details: document.querySelectorAll('.library-cover-card a').length > 0 ? [...document.querySelectorAll('.library-cover-card a')].filter((a) => a.textContent === 'Details').length : 0,
           nextcloudTagNameField: Boolean(document.querySelector('input[name="nextcloudTagName"]')),
           catalogueTagEditor: Boolean(document.querySelector('[aria-label="nextcloudTagEditor"]')),
           requestTokenFields: document.querySelectorAll('form[method="post"] input[name="requesttoken"]').length,
@@ -268,6 +268,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_details', dom.details)
     print('browser_nextcloudTagNameField', dom.nextcloudTagNameField)
     print('browser_catalogue_tag_editor', dom.catalogueTagEditor)
+    print('browser_catalogue_post_forms_zero', dom.postForms === 0)
     print('browser_post_forms', dom.postForms)
     print('browser_request_token_fields', dom.requestTokenFields)
     print('browser_tagNameField', dom.tagNameField)
@@ -293,8 +294,8 @@ async function runBrowserSmoke(proxyBase) {
       && dom.details === dom.cards
       && dom.nextcloudTagNameField === false
       && dom.catalogueTagEditor === false
-      && dom.postForms > 0
-      && dom.requestTokenFields === dom.postForms
+      && dom.postForms === 0
+      && dom.requestTokenFields === 0
       && dom.tagNameField === false
       && (dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
       && dom.firstShowFiles.includes('openfile=false')
