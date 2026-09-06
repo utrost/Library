@@ -52,9 +52,10 @@ def test_roadmap_starts_with_roots_file_index_and_nextcloud_tags_before_metadata
     assert phase1 < phase2 < phase25 < phase3
 
     immediate = roadmap[roadmap.index("## Immediate next implementation slice") :]
-    assert "root lifecycle plus per-root scan foundation" in immediate
-    assert "edit label/path, enable/disable, delete" in immediate
-    assert "scan job scoped to one root" in immediate
+    assert "deletion/forget policy plus uninstall/export documentation" in immediate
+    assert "forget missing item" in immediate
+    assert "uninstall/removal consequences" in immediate
+    assert "export path for user-corrected metadata" in immediate
     assert "deleting source files from Nextcloud Files" in immediate
     assert "cover cache or cover refresh" in immediate
 

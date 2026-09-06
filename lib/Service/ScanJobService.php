@@ -12,12 +12,12 @@ final class ScanJobService {
     ) {
     }
 
-    public function queueJob(string $userId): array {
-        return $this->createJob($userId, 'queued');
+    public function queueJob(string $userId, string $scopeType = 'all', ?int $rootId = null): array {
+        return $this->createJob($userId, 'queued', $scopeType, $rootId);
     }
 
-    public function startJob(string $userId): array {
-        return $this->createJob($userId, 'running');
+    public function startJob(string $userId, string $scopeType = 'all', ?int $rootId = null): array {
+        return $this->createJob($userId, 'running', $scopeType, $rootId);
     }
 
     public function markRunning(string $userId, int $jobId): void {
@@ -75,13 +75,17 @@ final class ScanJobService {
         return array_map(fn (array $row): array => $this->normalizeRow($row), $rows);
     }
 
-    private function createJob(string $userId, string $status): array {
+    private function createJob(string $userId, string $status, string $scopeType = 'all', ?int $rootId = null): array {
         $now = time();
+        $scopeType = $scopeType === 'root' && $rootId !== null && $rootId > 0 ? 'root' : 'all';
+        $rootId = $scopeType === 'root' ? $rootId : null;
         $qb = $this->db->getQueryBuilder();
         $qb->insert('library_scan_jobs')
             ->values([
                 'user_id' => $qb->createNamedParameter($userId),
                 'status' => $qb->createNamedParameter($status),
+                'scope_type' => $qb->createNamedParameter($scopeType),
+                'root_id' => $qb->createNamedParameter($rootId),
                 'roots_total' => $qb->createNamedParameter(0),
                 'files_indexed' => $qb->createNamedParameter(0),
                 'error_count' => $qb->createNamedParameter(0),
@@ -95,6 +99,8 @@ final class ScanJobService {
             'id' => 0,
             'userId' => $userId,
             'status' => $status,
+            'scopeType' => $scopeType,
+            'rootId' => $rootId,
             'rootsTotal' => 0,
             'filesIndexed' => 0,
             'errorCount' => 0,
@@ -127,6 +133,8 @@ final class ScanJobService {
             'id' => (int)$row['id'],
             'userId' => (string)$row['user_id'],
             'status' => (string)$row['status'],
+            'scopeType' => isset($row['scope_type']) ? (string)$row['scope_type'] : 'all',
+            'rootId' => isset($row['root_id']) && $row['root_id'] !== null ? (int)$row['root_id'] : null,
             'rootsTotal' => (int)$row['roots_total'],
             'filesIndexed' => (int)$row['files_indexed'],
             'errorCount' => (int)$row['error_count'],

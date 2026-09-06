@@ -28,12 +28,37 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <ul class="library-root-list">
                 <?php foreach ($roots as $root): ?>
                     <li>
-                        <strong><?php p($root['label'] ?: $root['path']); ?></strong>
-                        <span><?php p($root['path']); ?></span>
-                        <span><?php p($root['enabled'] ? $l->t('enabled') : $l->t('disabled')); ?></span>
-                        <?php if ($root['lastScanAt']): ?>
-                            <span><?php p($l->t('last scan:')); ?> <?php p(date('Y-m-d H:i', $root['lastScanAt'])); ?></span>
-                        <?php endif; ?>
+                        <form method="post" action="<?php p($root['rootUpdateUrl']); ?>" class="library-form library-root-edit-form">
+                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                            <label>
+                                <?php p($l->t('Folder path')); ?>
+                                <input type="text" name="path" value="<?php p((string)$root['path']); ?>" />
+                            </label>
+                            <label>
+                                <?php p($l->t('Label')); ?>
+                                <input type="text" name="label" value="<?php p((string)($root['label'] ?? '')); ?>" />
+                            </label>
+                            <span><?php p($root['enabled'] ? $l->t('enabled') : $l->t('disabled')); ?></span>
+                            <?php if ($root['lastScanAt']): ?>
+                                <span><?php p($l->t('last scan:')); ?> <?php p(date('Y-m-d H:i', $root['lastScanAt'])); ?></span>
+                            <?php endif; ?>
+                            <button type="submit"><?php p($l->t('Update root')); ?></button>
+                        </form>
+                        <form method="post" action="<?php p($root['rootScanUrl']); ?>" class="library-inline-form">
+                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                            <button type="submit"><?php p($l->t('Scan this root')); ?></button>
+                        </form>
+                        <form method="post" action="<?php p($root['rootToggleUrl']); ?>" class="library-inline-form">
+                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                            <input type="hidden" name="enabled" value="<?php p($root['enabled'] ? '0' : '1'); ?>" />
+                            <button type="submit"><?php p($root['enabled'] ? $l->t('Disable root') : $l->t('Enable root')); ?></button>
+                        </form>
+                        <form method="post" action="<?php p($root['rootDeleteUrl']); ?>" class="library-inline-form">
+                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                            <input type="hidden" name="confirmDelete" value="1" />
+                            <button type="submit"><?php p($l->t('Delete root')); ?></button>
+                        </form>
+                        <p class="library-muted"><?php p($l->t('Deleting a Library root removes Library catalogue/index data for that root, but never deletes source files from Nextcloud Files.')); ?></p>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -53,6 +78,8 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                 <dl>
                     <dt>scanJobStatus</dt>
                     <dd data-library-scan-status><?php p((string)$latestScanJob['status']); ?></dd>
+                    <dt>scanScope</dt>
+                    <dd data-library-scan-scope><?php p((string)($latestScanJob['scopeType'] ?? 'all')); ?><?php if (($latestScanJob['rootId'] ?? null) !== null): ?> #<?php p((string)$latestScanJob['rootId']); ?><?php endif; ?></dd>
                     <dt>rootsTotal</dt>
                     <dd data-library-scan-roots-total><?php p((string)$latestScanJob['rootsTotal']); ?></dd>
                     <dt>filesIndexed</dt>
@@ -77,6 +104,8 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                             <dl>
                                 <dt>historyScanJobStatus</dt>
                                 <dd><?php p((string)$historyJob['status']); ?></dd>
+                                <dt>historyScanScope</dt>
+                                <dd><?php p((string)($historyJob['scopeType'] ?? 'all')); ?><?php if (($historyJob['rootId'] ?? null) !== null): ?> #<?php p((string)$historyJob['rootId']); ?><?php endif; ?></dd>
                                 <dt>historyFilesIndexed</dt>
                                 <dd><?php p((string)$historyJob['filesIndexed']); ?></dd>
                                 <dt>historyErrorCount</dt>

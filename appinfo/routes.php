@@ -6,7 +6,11 @@ return [
     'routes' => [
         ['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
         ['name' => 'root#save', 'url' => '/roots', 'verb' => 'POST'],
+        ['name' => 'root#update', 'url' => '/roots/{rootId}', 'verb' => 'POST'],
+        ['name' => 'root#toggle', 'url' => '/roots/{rootId}/toggle', 'verb' => 'POST'],
+        ['name' => 'root#delete', 'url' => '/roots/{rootId}/delete', 'verb' => 'POST'],
         ['name' => 'scan#run', 'url' => '/scan', 'verb' => 'POST'],
+        ['name' => 'scan#runRoot', 'url' => '/scan/roots/{rootId}', 'verb' => 'POST'],
         ['name' => 'scan#progress', 'url' => '/scan/progress', 'verb' => 'GET'],
         ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET'],
         ['name' => 'item#update', 'url' => '/items/{itemId}', 'verb' => 'POST'],

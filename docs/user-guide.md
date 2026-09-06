@@ -103,12 +103,14 @@ Open **Library settings** from the catalogue page or directly at `/settings/user
 Current settings capabilities:
 
 - add/update a per-user root path and label;
+- edit, enable/disable or delete a configured Library root without deleting source files from Nextcloud Files;
+- queue a scan for one selected root;
 - list configured roots with enabled state and last scan timestamp;
 - queue a background scan of enabled roots;
 - inspect latest scan progress and recent scan history;
 - inspect indexed file rows with file ID, root label, cached path, format, scan status and scan error.
 
-The current UI can save roots, but it does not yet provide polished root disable/delete controls. The backend model supports enabled roots; operational deletion/disable remains a missing admin UX feature.
+Deleting a Library root removes Library catalogue/index data for that root, but never deletes the source files from Nextcloud Files.
 
 ## Supported file and metadata behaviour
 
@@ -414,7 +416,7 @@ Visible gaps:
 
 These are the highest-signal gaps to judge before pushing v0.1 further:
 
-1. **Root management polish** — users can add/update roots and scan them, but cannot comfortably disable, delete or edit roots from the UI.
+1. **Root management polish beyond the first lifecycle slice** — users can now edit, enable/disable, delete and scan one root, but the workflow still needs stronger confirmation, clearer consequences and richer validation before release.
 2. **Database-level catalogue querying** — current app-layer filtering/pagination is adequate for pilots, but real 10k+ archives will likely need DB-backed filters, sort and pagination.
 3. **Scan lifecycle controls** — queued scans exist, but cancellation, retry, scheduled scans and completion notifications are absent.
 4. **Metadata correction workflow** — details editing works, but there is no bulk edit, reset-to-scanner, field-level provenance or validation guidance.
@@ -442,4 +444,4 @@ Use this script when deciding what to build next:
 11. Try to remove or temporarily disable a root.
 12. Try to answer: “what should I fix next if I had 5,000 files?”
 
-If step 11 feels blocked, prioritize root management. If step 12 feels blocked, prioritize DB-backed browsing/querying and scan lifecycle controls.
+If step 11 feels unsafe or unclear, continue root lifecycle polish. If step 12 feels blocked, prioritize DB-backed browsing/querying and scan lifecycle controls.

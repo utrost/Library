@@ -40,6 +40,17 @@ final class ScanController extends Controller {
     }
 
     #[NoAdminRequired]
+    public function runRoot(int $rootId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $job = $this->scanJobService->queueJob($user->getUID(), 'root', $rootId);
+            $this->jobList->add(ScanJob::class, ['userId' => $user->getUID(), 'jobId' => (int)$job['id'], 'rootId' => $rootId]);
+        }
+
+        return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/settings/user/library'));
+    }
+
+    #[NoAdminRequired]
     #[NoCSRFRequired]
     public function progress(): JSONResponse {
         $user = $this->userSession->getUser();

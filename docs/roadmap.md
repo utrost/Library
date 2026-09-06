@@ -429,10 +429,10 @@ This section combines the role-facing gaps from the [User and admin guide](user-
 ### Current answers
 
 - **Item metadata update:** present. The details page owns publication metadata editing and user-edited items are preserved across rescans.
-- **Root add/update:** partly present. Users can save a root path/label, and saving the same path updates the row, but there is no comfortable per-root edit/disable/delete UI.
-- **Deletion:** not present as a complete product process. Missing files are marked `missing` on rescan; Library does not yet expose ordinary item/root deletion, “forget missing item”, or source-file deletion flows.
+- **Root add/update:** first lifecycle slice landed. Users can save roots, edit label/path, enable/disable, delete roots and scan one selected root from settings.
+- **Deletion:** partly present. Root deletion removes Library catalogue/index data for that root without deleting source files; missing files are marked `missing` on rescan. Item-level “forget missing item” and source-file deletion flows are still absent.
 - **Library removal/uninstall:** only a product boundary, not an operational process. Original Nextcloud files remain canonical, but corrected Library metadata currently lives in app DB rows unless backed up or exported.
-- **Folder/root-based rescan:** not present. The scan route currently queues a scan for all enabled roots for the current user.
+- **Folder/root-based rescan:** partly present. The scan route can queue all enabled roots or one selected root for the current user; arbitrary folder/subtree scans are still absent.
 - **Cover rescan:** not present as a separate process because covers are generated on request through Nextcloud preview/CBZ/placeholder responses; there is no app-owned cover cache yet.
 - **Cover extraction optionality:** present by behaviour. Cover failure must not block catalogue indexing or browsing; placeholders remain the safe fallback.
 
@@ -450,8 +450,8 @@ User/admin outcome:
 
 Recommended vertical slices:
 
-1. **Root lifecycle UI and routes.** Add per-root edit label/path, enable/disable and delete actions in `/settings/user/library`. Keep source files untouched. Add explicit copy explaining delete affects Library catalogue/index data, not Nextcloud Files.
-2. **Per-root scan.** Let the settings page queue a scan for one root ID as well as “scan all enabled roots”. Update scan job rows with scope (`all` vs `root`) and render the scope in progress/history.
+1. **Root lifecycle UI and routes.** First slice landed: per-root edit label/path, enable/disable and delete actions in `/settings/user/library`; source files are untouched and settings copy explains that delete affects Library catalogue/index data, not Nextcloud Files. Remaining polish: stronger confirmation, validation and clearer recovery story.
+2. **Per-root scan.** First slice landed: the settings page can queue a scan for one root ID as well as “scan all enabled roots”; scan job rows track scope (`all` vs `root`) and render scope in progress/history.
 3. **Deletion/forget policy.** Add a safe “forget missing item” flow for rows whose backing file is already `missing`. Decide whether normal item deletion means “hide/forget from Library only” or is deferred to Nextcloud Files.
 4. **Root removal policy.** For root deletion, choose one conservative v0.1 behaviour and document it in the UI: either remove root plus scanner-created index/items, or require disabling first and keep delete behind a stronger confirmation. Avoid deleting source files from Library.
 5. **Library removal/uninstall guide.** Document exact admin commands and data implications: app disable/remove leaves original files, but app DB metadata is lost unless the database is backed up or metadata is exported.
@@ -463,15 +463,15 @@ Recommended vertical slices:
 
 ### Immediate next implementation slice
 
-Recommended next slice: **root lifecycle plus per-root scan foundation**.
+Recommended next slice: **deletion/forget policy plus uninstall/export documentation**.
 
 Minimum first cut:
 
-1. Add root row actions in personal settings: edit label/path, enable/disable, delete.
-2. Add controller/service tests for root update, enable/disable and delete policy.
-3. Add a per-root scan POST route that queues a scan job scoped to one root.
-4. Record and display scan scope in latest progress/history.
-5. Smoke on Alice: create a temporary root, scan only that root, disable it, verify all-root scans skip it, delete it, verify original files remain and cleanup is explicit.
+1. Add a “forget missing item” action that only appears for `missing` catalogue items.
+2. Document exact uninstall/removal consequences and admin commands.
+3. Decide and document whether normal item deletion is Library-only hide/forget or deferred entirely to Nextcloud Files.
+4. Add an export path for user-corrected metadata before uninstall confidence, or explicitly mark it deferred.
+5. Smoke on Alice: create a temporary root, scan it, delete one source file, rescan, forget the missing item, and verify the remaining source files and unrelated roots remain untouched.
 
 Non-goals for this slice:
 
@@ -481,4 +481,4 @@ Non-goals for this slice:
 - OCR/full-text search;
 - shared global library administration.
 
-This slice directly addresses the highest-risk operational gap surfaced by the guide and by the latest review: users need safe root/update/delete/scoped-rescan processes before Library can be judged as an administrable personal archive app.
+The root/update/delete/scoped-rescan foundation is now in place. The next risk is the finer deletion/removal boundary: users need a safe way to forget stale catalogue entries and admins need a trustworthy uninstall/export story before Library can be judged as a durable file-first archive app.

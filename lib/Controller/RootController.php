@@ -35,6 +35,46 @@ final class RootController extends Controller {
             );
         }
 
-        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+        return $this->redirectToSettings();
+    }
+
+    #[NoAdminRequired]
+    public function update(int $rootId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $this->rootService->updateRoot(
+                $user->getUID(),
+                $rootId,
+                (string)$this->request->getParam('path', '/'),
+                (string)$this->request->getParam('label', ''),
+            );
+        }
+
+        return $this->redirectToSettings();
+    }
+
+    #[NoAdminRequired]
+    public function toggle(int $rootId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $enabled = (string)$this->request->getParam('enabled', '1') === '1';
+            $this->rootService->setRootEnabled($user->getUID(), $rootId, $enabled);
+        }
+
+        return $this->redirectToSettings();
+    }
+
+    #[NoAdminRequired]
+    public function delete(int $rootId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null && (string)$this->request->getParam('confirmDelete', '') === '1') {
+            $this->rootService->deleteRoot($user->getUID(), $rootId);
+        }
+
+        return $this->redirectToSettings();
+    }
+
+    private function redirectToSettings(): RedirectResponse {
+        return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/settings/user/library'));
     }
 }

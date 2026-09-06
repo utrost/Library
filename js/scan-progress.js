@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         setText('[data-library-scan-status]', job.status);
+        setText('[data-library-scan-scope]', `${job.scopeType || 'all'}${job.rootId ? ` #${job.rootId}` : ''}`);
         setText('[data-library-scan-roots-total]', job.rootsTotal);
         setText('[data-library-scan-files-indexed]', job.filesIndexed);
         setText('[data-library-scan-error-count]', job.errorCount);
