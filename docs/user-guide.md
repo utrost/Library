@@ -539,6 +539,18 @@ Visible gaps:
 - no guided uninstall/export checklist inside the UI;
 - no automated validation that an export can recreate a catalogue in a fresh install.
 
+## Prioritized next gaps after the 1k real-corpus pilot
+
+The 1k real-corpus pilot proved that the catalogue can handle a realistic staged shelf, but it also showed where the next work should concentrate. Real-corpus filename hardening landed after the pilot, so the next gap order is now:
+
+1. Keep metadata-quality work safe by splitting the extractor seam. `PublicationMetadataService` should remain the façade, but filename, PDF, OPF/EPUB and CBZ parsing should move into narrower adapters before more real-corpus rules accumulate.
+2. Improve the metadata correction workflow. Details editing exists, but field-level provenance, reset-to-scanner, conflict review and validation guidance are still missing.
+3. Make corrected metadata portable back into a fresh install or files. Read-only export exists; import/write-back to JSON or OPF sidecars does not.
+4. Add repair-oriented scan lifecycle controls. Queued scans and progress exist; retry metadata errors, check missing files, cancellation and notifications do not.
+5. Improve the cover quality path. Preview, CBZ first image and placeholders work; EPUB cover extraction, cover cache/refresh and manual override do not.
+6. Add discovery by publication structure. Search/filter/pagination exist; creator, series, publication/year pages and saved views do not.
+7. Polish root/onboarding/shared-library workflows. Root lifecycle exists; stronger confirmations, first-run guidance and admin-managed shared roots remain future work.
+
 ## Crucial missing-feature candidates exposed by the guide
 
 These are the highest-signal gaps to judge before pushing v0.1 further:
