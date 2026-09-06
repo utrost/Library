@@ -75,4 +75,4 @@ def test_docs_mark_metadata_export_foundation_landed_and_next_priority():
     assert "user-edited catalogue rows" in guide
     assert "Metadata export foundation.** First slice landed" in roadmap
     assert "DB-backed catalogue query path.** First slice landed" in roadmap
-    assert "Recommended next slice: **real-collection metadata hardening**" in roadmap
+    assert "Recommended next slice: **release-facing metadata repair and review polish**" in roadmap
