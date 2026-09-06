@@ -210,23 +210,31 @@ function publicationFilterUrl(publication) {
           <img class="library-cover-image" :src="item.coverUrl" :alt="`Cover for ${item.title}`" loading="lazy">
         </a>
         <div class="library-cover-summary">
-          <h3>{{ item.title }}</h3>
-          <p v-if="item.creators" class="library-creator">{{ item.creators }}</p>
-          <p class="library-muted">
-            <span>{{ item.publicationType }}</span>
-            <span v-if="item.publication"> · {{ item.publication }}</span>
-            <span v-if="item.publicationDate"> · {{ item.publicationDate }}</span>
-            <span v-if="item.extension"> · Format: {{ upper(item.extension) }}</span>
-            <span v-if="item.shelf"> · Shelf: {{ item.shelf }}</span>
-          </p>
-          <p v-if="item.scanStatus !== 'indexed' || item.scanError" class="library-item-scan-status library-scan-error">
-            scanStatus: {{ item.scanStatus || 'unknown' }}<span v-if="item.scanError"> · scanError: {{ item.scanError }}</span>
-          </p>
-          <div class="library-nextcloud-tags" aria-label="nextcloudTags">
-            <span v-if="tagsFor(item).length === 0" class="library-muted">No Nextcloud tags</span>
-            <span v-for="tag in tagsFor(item)" v-else :key="tag.id" class="library-tag">{{ tag.name }}</span>
+          <div class="library-cover-primary">
+            <h3>{{ item.title }}</h3>
+            <a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Read') }}</a>
           </div>
-          <p><a :href="item.openUrl">{{ t('library', 'Read') }}</a> · <a :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a> · <a :href="item.downloadUrl">{{ t('library', 'Download source') }}</a> · <a :href="item.detailsUrl">{{ t('library', 'Details') }}</a></p>
+          <details class="library-cover-details">
+            <summary class="library-cover-details-summary" :aria-label="`${t('library', 'Show details and actions')}: ${item.title}`">{{ t('library', 'Details') }}</summary>
+            <div class="library-cover-meta">
+              <p v-if="item.creators" class="library-creator">{{ item.creators }}</p>
+              <p class="library-muted">
+                <span>{{ item.publicationType }}</span>
+                <span v-if="item.publication"> · {{ item.publication }}</span>
+                <span v-if="item.publicationDate"> · {{ item.publicationDate }}</span>
+                <span v-if="item.extension"> · Format: {{ upper(item.extension) }}</span>
+                <span v-if="item.shelf"> · Shelf: {{ item.shelf }}</span>
+              </p>
+              <p v-if="item.scanStatus !== 'indexed' || item.scanError" class="library-item-scan-status library-scan-error">
+                scanStatus: {{ item.scanStatus || 'unknown' }}<span v-if="item.scanError"> · scanError: {{ item.scanError }}</span>
+              </p>
+              <div class="library-nextcloud-tags library-cover-tags" aria-label="nextcloudTags">
+                <span v-if="tagsFor(item).length === 0" class="library-muted">No Nextcloud tags</span>
+                <span v-for="tag in tagsFor(item)" v-else :key="tag.id" class="library-tag">{{ tag.name }}</span>
+              </div>
+              <p class="library-cover-actions"><a :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a> · <a :href="item.downloadUrl">{{ t('library', 'Download source') }}</a> · <a :href="item.detailsUrl">{{ t('library', 'Details') }}</a></p>
+            </div>
+          </details>
         </div>
       </article>
     </div>
