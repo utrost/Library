@@ -51,12 +51,13 @@ class CoverController extends Controller {
         try {
             if ($this->previewManager->isAvailable($file)) {
                 $preview = $this->previewManager->getPreview($file, 360, 520, true, IPreview::MODE_COVER);
-                return new DataDownloadResponse(
+                return $this->coverResponse(
                     $preview->getContent(),
                     'library-cover-' . $itemId . '.' . ($preview->getExtension() ?: 'jpg'),
                     $preview->getMimeType(),
-                    200,
-                    ['Cache-Control' => 'private, max-age=3600']
+                    'preview',
+                    'preview-manager',
+                    3600
                 );
             }
         } catch (Throwable $e) {
@@ -120,12 +121,13 @@ class CoverController extends Controller {
                 return null;
             }
 
-            return new DataDownloadResponse(
+            return $this->coverResponse(
                 $content,
                 'library-cover-' . $itemId . '.' . $this->coverExtension((string)$first['mimeType']),
                 (string)$first['mimeType'],
-                200,
-                ['Cache-Control' => 'private, max-age=3600']
+                'cbz-first-image',
+                'cbz-first-image',
+                3600
             );
         } catch (Throwable) {
             return null;
@@ -188,14 +190,25 @@ class CoverController extends Controller {
             . '<text x="180" y="276" text-anchor="middle" font-family="sans-serif" font-size="64" font-weight="700" fill="#46627f">' . $safeLabel . '</text>'
             . '</svg>';
 
-        return new DataDownloadResponse(
+        return $this->coverResponse(
             $svg,
             'library-cover-placeholder.svg',
             'image/svg+xml',
+            'placeholder',
+            $reason,
+            300
+        );
+    }
+
+    private function coverResponse(string $content, string $filename, string $mimeType, string $status, string $reason, int $maxAge): DataDownloadResponse {
+        return new DataDownloadResponse(
+            $content,
+            $filename,
+            $mimeType,
             200,
             [
-                'Cache-Control' => 'private, max-age=300',
-                'X-Library-Cover-Status' => 'placeholder',
+                'Cache-Control' => 'private, max-age=' . $maxAge,
+                'X-Library-Cover-Status' => $status,
                 'X-Library-Cover-Reason' => mb_substr($reason, 0, 160),
             ]
         );
