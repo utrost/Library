@@ -624,12 +624,56 @@ final class PublicationMetadataService {
     }
 
     private function extractPdfInfoLiteralString(string $content, string $key): ?string {
-        if (!preg_match('/\/' . preg_quote($key, '/') . '\s*\(((?:\\\\.|[^\\\\)])*)\)/s', $content, $matches)) {
+        $literal = $this->extractPdfInfoLiteralBytes($content, $key);
+        if ($literal === null) {
             return null;
         }
 
-        $value = $this->decodePdfLiteralEscapes((string)$matches[1]);
+        $value = $this->decodePdfLiteralEscapes($literal);
         return $this->decodePdfInfoString($value);
+    }
+
+    private function extractPdfInfoLiteralBytes(string $content, string $key): ?string {
+        // Walk balanced PDF literal strings so real titles such as /Title (Camera (Special Issue))
+        // are not truncated by a simple regex. Also preserve escaped parentheses inside PDF literal strings.
+        $offset = 0;
+        while (($keyPosition = strpos($content, '/' . $key, $offset)) !== false) {
+            $start = $keyPosition + strlen('/' . $key);
+            while ($start < strlen($content) && ctype_space($content[$start])) {
+                $start++;
+            }
+            if ($start >= strlen($content) || $content[$start] !== '(') {
+                $offset = $start + 1;
+                continue;
+            }
+
+            $depth = 1;
+            $escaped = false;
+            for ($i = $start + 1; $i < strlen($content); $i++) {
+                $char = $content[$i];
+                if ($escaped) {
+                    $escaped = false;
+                    continue;
+                }
+                if ($char === '\\') {
+                    $escaped = true;
+                    continue;
+                }
+                if ($char === '(') {
+                    $depth++;
+                    continue;
+                }
+                if ($char === ')') {
+                    $depth--;
+                    if ($depth === 0) {
+                        return substr($content, $start + 1, $i - $start - 1);
+                    }
+                }
+            }
+            return null;
+        }
+
+        return null;
     }
 
     private function extractPdfInfoHexString(string $content, string $key): ?string {
