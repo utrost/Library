@@ -18,6 +18,8 @@ def test_roadmap_prioritizes_gaps_after_real_1k_pilot():
     assert "FilenameMetadataExtractor" in roadmap
     assert "PdfInfoMetadataExtractor" in roadmap
     assert "OpfEpubMetadataExtractor" in roadmap
+    assert "CbzComicInfoMetadataExtractor" in roadmap
+    assert "This refactor is now complete" in roadmap
 
 
 def test_user_guide_exposes_prioritized_next_gaps():
