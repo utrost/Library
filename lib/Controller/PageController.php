@@ -151,7 +151,7 @@ class PageController extends Controller {
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
         $query = [];
-        foreach (['q', 'type', 'format', 'tag', 'shelf', 'status', 'sort'] as $param) {
+        foreach (['q', 'type', 'publication', 'format', 'tag', 'shelf', 'status', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title')) {
                 $query[$param] = $value;
