@@ -147,6 +147,10 @@ function publicationFilterUrl(publication) {
         </li>
       </ul>
     </section>
+    <section v-else-if="publicationSummaries.length === 0" class="library-periodical-groups library-periodical-groups-empty" aria-labelledby="library-periodical-groups-empty-heading">
+      <h3 id="library-periodical-groups-empty-heading">{{ t('library', 'No series or periodicals found yet') }}</h3>
+      <p class="library-muted">{{ t('library', 'Add publication or series names in item details to build this shortcut panel.') }}</p>
+    </section>
 
     <div v-if="items.length === 0" class="library-empty-content" role="status">
       <h3>{{ t('library', 'No catalogue items match') }}</h3>
