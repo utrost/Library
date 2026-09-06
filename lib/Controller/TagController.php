@@ -34,7 +34,7 @@ final class TagController extends Controller {
             );
         }
 
-        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+        return $this->redirectAfterTagChange($itemId);
     }
 
     #[NoAdminRequired]
@@ -42,6 +42,15 @@ final class TagController extends Controller {
         $user = $this->userSession->getUser();
         if ($user !== null) {
             $this->fileTagService->removeTagFromItem($user->getUID(), $itemId, $tagId);
+        }
+
+        return $this->redirectAfterTagChange($itemId);
+    }
+
+    private function redirectAfterTagChange(int $itemId): RedirectResponse {
+        $returnTo = (string)$this->request->getParam('returnTo', '');
+        if ($returnTo === 'details') {
+            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));

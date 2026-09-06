@@ -177,6 +177,7 @@ async function runBrowserSmoke(proxyBase) {
           filters: Boolean(document.querySelector('.library-filter-bar')),
           details: document.querySelectorAll('details').length,
           nextcloudTagNameField: Boolean(document.querySelector('input[name="nextcloudTagName"]')),
+          catalogueTagEditor: Boolean(document.querySelector('[aria-label="nextcloudTagEditor"]')),
           requestTokenFields: document.querySelectorAll('form[method="post"] input[name="requesttoken"]').length,
           postForms: document.querySelectorAll('form[method="post"]').length,
           tagNameField: Boolean(document.querySelector('input[name="tagName"]')),
@@ -266,6 +267,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_filters', dom.filters)
     print('browser_details', dom.details)
     print('browser_nextcloudTagNameField', dom.nextcloudTagNameField)
+    print('browser_catalogue_tag_editor', dom.catalogueTagEditor)
     print('browser_post_forms', dom.postForms)
     print('browser_request_token_fields', dom.requestTokenFields)
     print('browser_tagNameField', dom.tagNameField)
@@ -289,7 +291,8 @@ async function runBrowserSmoke(proxyBase) {
       && dom.cards > 0
       && dom.filters === true
       && dom.details === dom.cards
-      && dom.nextcloudTagNameField === true
+      && dom.nextcloudTagNameField === false
+      && dom.catalogueTagEditor === false
       && dom.postForms > 0
       && dom.requestTokenFields === dom.postForms
       && dom.tagNameField === false

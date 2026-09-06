@@ -73,5 +73,10 @@ def test_vue_app_renders_catalogue_filters_covers_links_and_edit_forms():
     assert "Show in Files" in app
     assert "Details / edit metadata" in app
     assert "Save metadata" in app
-    assert "Add Nextcloud tag" in app
+    assert "Add Nextcloud tag" not in app
+    assert "nextcloudTagEditor" not in app
     assert "Add Nextcloud comment" in app
+
+    detail = (ROOT / "templates" / "item-detail.php").read_text()
+    assert "Add Nextcloud tag" in detail
+    assert "nextcloudTagEditor" in detail

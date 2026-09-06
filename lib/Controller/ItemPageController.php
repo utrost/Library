@@ -52,9 +52,16 @@ final class ItemPageController extends Controller {
 
         $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => (string)$item['id']]);
         $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => (string)$item['id']]);
+        $item['tagUrl'] = $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => (string)$item['id']]);
         $item['openUrl'] = $this->urlGenerator->getAbsoluteURL('/f/' . $fileId);
         $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
-        $item['nextcloudTags'] = $tags[$fileId] ?? [];
+        $item['nextcloudTags'] = array_map(function (array $tag) use ($item): array {
+            $tag['removeUrl'] = $this->urlGenerator->linkToRoute('library.tag.remove', [
+                'itemId' => (string)$item['id'],
+                'tagId' => (string)$tag['id'],
+            ]);
+            return $tag;
+        }, $tags[$fileId] ?? []);
         $item['nextcloudComments'] = $comments[$fileId] ?? ['count' => 0, 'recent' => []];
 
         Util::addStyle(Application::APP_ID, 'style');
