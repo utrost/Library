@@ -259,6 +259,36 @@
     display: inline-block;
 }
 
+.library-periodical-groups {
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    margin: 0 0 1rem;
+    padding: 1rem;
+}
+
+.library-periodical-groups h3 {
+    margin-top: 0;
+}
+
+.library-periodical-groups ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+}
+
+.library-periodical-groups li {
+    align-items: center;
+    background: var(--color-background-hover);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+}
+
 .library-cover-gallery {
     display: grid;
     gap: 18px;

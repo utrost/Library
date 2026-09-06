@@ -244,7 +244,7 @@ final class ItemService {
     /**
      * @param array{q?:string,type?:string,publication?:string,format?:string,tag?:string,shelf?:string,status?:string,sort?:string,taggedFileIds?:array<int, int>} $filters
      * @param array{page:int,limit:int} $pagination
-     * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,scanStatuses:array<int, string>}}
+     * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,scanStatuses:array<int, string>}}
      */
     public function queryCatalogue(string $userId, array $filters, array $pagination): array {
         $page = max(1, (int)($pagination['page'] ?? 1));
@@ -458,15 +458,48 @@ final class ItemService {
     }
 
     /**
-     * @return array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,scanStatuses:array<int, string>}
+     * @return array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,scanStatuses:array<int, string>}
      */
     private function catalogueFacets(string $userId): array {
         return [
             'shelves' => $this->distinctCatalogueValues($userId, "COALESCE(NULLIF(r.label, ''), r.path)", 'shelf'),
             'formats' => $this->distinctCatalogueValues($userId, 'LOWER(f.extension)', 'value'),
             'publications' => $this->distinctCatalogueValues($userId, 'i.publication', 'publication'),
+            'publicationSummaries' => $this->topPublicationSummaries($userId),
             'scanStatuses' => $this->scanStatusFacetValues($userId),
         ];
+    }
+
+    /**
+     * @return array<int, array{publication:string,itemCount:int}>
+     */
+    private function topPublicationSummaries(string $userId): array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->selectAlias($qb->createFunction('i.publication'), 'publication')
+            ->selectAlias($qb->createFunction('COUNT(*)'), 'item_count')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
+            ->andWhere($qb->expr()->neq('i.publication', $qb->createNamedParameter('')))
+            ->groupBy('i.publication')
+            ->orderBy('item_count', 'DESC')
+            ->addOrderBy('publication', 'ASC')
+            ->setMaxResults(12)
+            ->executeQuery();
+
+        $summaries = [];
+        while ($row = $result->fetch()) {
+            $publication = trim((string)($row['publication'] ?? ''));
+            if ($publication !== '') {
+                $summaries[] = [
+                    'publication' => $publication,
+                    'itemCount' => (int)($row['item_count'] ?? 0),
+                ];
+            }
+        }
+        $result->closeCursor();
+        return $summaries;
     }
 
     /**

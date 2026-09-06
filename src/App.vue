@@ -16,6 +16,7 @@ const items = computed(() => props.state.items || [])
 const shelves = computed(() => props.state.shelves || [])
 const formats = computed(() => props.state.formats || [])
 const publications = computed(() => props.state.publications || [])
+const publicationSummaries = computed(() => props.state.publicationSummaries || [])
 const scanStatuses = computed(() => props.state.scanStatuses || [])
 const pagination = computed(() => props.state.cataloguePagination || {
   page: 1,
@@ -46,6 +47,14 @@ function upper(value) {
 
 function tagsFor(item) {
   return item.nextcloudTags || []
+}
+
+function publicationFilterUrl(publication) {
+  const params = new URLSearchParams(window.location.search)
+  params.set('publication', publication)
+  params.set('sort', 'publication')
+  params.delete('page')
+  return `?${params.toString()}`
 }
 
 </script>
@@ -127,6 +136,17 @@ function tagsFor(item) {
       <a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a>
       <span v-else class="library-muted">{{ t('library', 'Next') }}</span>
     </nav>
+
+    <section v-if="publicationSummaries.length > 0" class="library-periodical-groups" aria-labelledby="library-periodical-groups-heading">
+      <h3 id="library-periodical-groups-heading">{{ t('library', 'Top series and periodicals') }}</h3>
+      <p class="library-muted">{{ t('library', 'Jump into recurring publications with one click.') }}</p>
+      <ul>
+        <li v-for="summary in publicationSummaries" :key="summary.publication">
+          <a :href="publicationFilterUrl(summary.publication)">{{ summary.publication }}</a>
+          <span class="library-muted">{{ summary.itemCount }} items</span>
+        </li>
+      </ul>
+    </section>
 
     <div v-if="items.length === 0" class="library-empty-content" role="status">
       <h3>{{ t('library', 'No catalogue items match') }}</h3>

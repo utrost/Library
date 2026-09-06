@@ -8,7 +8,7 @@ def test_page_controller_accepts_publication_filter_and_provides_publication_fac
 
     assert "'publication' => trim((string)$this->request->getParam('publication', ''))" in page
     assert "'publications' => $catalogue['facets']['publications']" in page
-    assert "facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'publications' => []]" in page
+    assert "facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'publications' => [], 'publicationSummaries' => []]" in page
 
 
 def test_item_service_filters_and_sorts_by_publication_series_periodical_title():
