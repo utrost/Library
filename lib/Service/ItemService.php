@@ -65,6 +65,39 @@ final class ItemService {
             ->executeStatement();
     }
 
+    public function forgetMissingItem(string $userId, int $itemId): bool {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('i.library_file_id', 'f.scan_status')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->where($qb->expr()->eq('i.id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->executeQuery();
+
+        $row = $result->fetch();
+        $result->closeCursor();
+        if ($row === false || (string)$row['scan_status'] !== 'missing') {
+            return false;
+        }
+
+        $libraryFileId = (int)$row['library_file_id'];
+
+        $qb = $this->db->getQueryBuilder();
+        $qb->delete('library_items')
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+
+        $qb = $this->db->getQueryBuilder();
+        $qb->delete('library_files')
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($libraryFileId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('scan_status', $qb->createNamedParameter('missing')))
+            ->executeStatement();
+
+        return true;
+    }
+
     public function updateItem(string $userId, int $itemId, array $metadata): void {
         $now = time();
         $publicationType = $this->normalizePublicationType((string)($metadata['publicationType'] ?? 'other'));

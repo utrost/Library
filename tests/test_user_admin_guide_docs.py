@@ -99,7 +99,8 @@ def test_roadmap_recommends_root_lifecycle_and_per_root_scan_next():
     assert "Per-root scan.** First slice landed" in roadmap
     assert "delete affects Library catalogue/index data, not Nextcloud Files" in roadmap
     assert "scan job rows track scope" in roadmap
-    assert "Recommended next slice: **deletion/forget policy plus uninstall/export documentation**" in roadmap
+    assert "Deletion/forget policy.** First slice landed" in roadmap
+    assert "Recommended next slice: **metadata export foundation**" in roadmap
     assert "forget missing item" in roadmap
     assert "cover cache or cover refresh" in roadmap
     assert "deleting source files from Nextcloud Files" in roadmap

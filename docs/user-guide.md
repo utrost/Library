@@ -205,6 +205,18 @@ Tags remain Nextcloud file-level metadata. They are useful for cross-archive cla
    - `indexed` for normal rows.
 5. Open **Show in Files** for a problem item to inspect the underlying file.
 
+### Forgetting missing catalogue entries
+
+The **Forget missing item** action only appears for missing catalogue entries on the item details page.
+
+Use it when:
+
+- a file was deliberately removed, renamed or moved outside the configured root;
+- a rescan already marked the backing file as `missing`;
+- you want to remove the stale Library catalogue row instead of keeping it as a diagnostic.
+
+Forgetting a missing item removes this Library catalogue entry and its app-owned file-index row. It does not delete source files from Nextcloud Files. Ordinary item deletion for still-present files remains deferred to Nextcloud Files: delete or move the file there, rescan the root, then use **Forget missing item** if you do not want to keep the stale diagnostic.
+
 ## Admin processes
 
 ### Installing or enabling the app
@@ -255,6 +267,14 @@ If reading or covers look wrong, verify the relevant Nextcloud viewer/preview ap
 Library stores app-owned database rows for roots, indexed files, catalogue items and scan jobs. The original files stay in Nextcloud Files.
 
 Removing Library should not delete publication files. It will, however, remove the catalogue layer unless the app tables are backed up/restored with the Nextcloud database.
+
+Current uninstall/removal boundaries:
+
+1. **Disable the app** with `occ app:disable library` when you want to stop Library without deleting app code or source files.
+2. **Remove the app** through normal Nextcloud app management or by deleting `custom_apps/library` only after disabling it. This removes the app code, not the original publications in Nextcloud Files.
+3. Keep a Nextcloud database backup if you need to preserve Library roots, scan history, file index rows and corrected catalogue metadata.
+4. Treat metadata export as not yet implemented: there is currently no sidecar/JSON metadata export that can reconstruct user-corrected Library metadata after app removal.
+5. Before uninstalling a real archive, either keep the database backup or wait for the metadata export foundation slice.
 
 ## User stories for judging v0.1 usefulness
 
@@ -425,7 +445,7 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 7. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
 8. **Discovery by publication structure** — search/filter exists, but there are no creator/series/publication/year landing pages, smart collections or saved views.
 9. **User-facing onboarding and empty states** — the current app is smoke-testable and usable by a technical tester, but a first-time user still needs clearer guidance.
-10. **Export/import of corrected metadata** — corrected Library metadata is in the app DB only; there is no sidecar export or migration story for durable file-first metadata portability.
+10. **Export/import of corrected metadata** — corrected Library metadata is in the app DB only; metadata export is documented as missing, but there is no sidecar export or migration story for durable file-first metadata portability.
 
 ## Practical review script
 

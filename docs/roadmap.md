@@ -430,8 +430,8 @@ This section combines the role-facing gaps from the [User and admin guide](user-
 
 - **Item metadata update:** present. The details page owns publication metadata editing and user-edited items are preserved across rescans.
 - **Root add/update:** first lifecycle slice landed. Users can save roots, edit label/path, enable/disable, delete roots and scan one selected root from settings.
-- **Deletion:** partly present. Root deletion removes Library catalogue/index data for that root without deleting source files; missing files are marked `missing` on rescan. Item-level “forget missing item” and source-file deletion flows are still absent.
-- **Library removal/uninstall:** only a product boundary, not an operational process. Original Nextcloud files remain canonical, but corrected Library metadata currently lives in app DB rows unless backed up or exported.
+- **Deletion:** first item-forget slice landed. Root deletion removes Library catalogue/index data for that root without deleting source files; missing files are marked `missing` on rescan; the details page can forget missing item rows. Source-file deletion remains deliberately deferred to Nextcloud Files.
+- **Library removal/uninstall:** first guide slice landed. Original Nextcloud files remain canonical, disable/remove commands and consequences are documented, and the guide explicitly says corrected metadata still requires DB backup until metadata export exists.
 - **Folder/root-based rescan:** partly present. The scan route can queue all enabled roots or one selected root for the current user; arbitrary folder/subtree scans are still absent.
 - **Cover rescan:** not present as a separate process because covers are generated on request through Nextcloud preview/CBZ/placeholder responses; there is no app-owned cover cache yet.
 - **Cover extraction optionality:** present by behaviour. Cover failure must not block catalogue indexing or browsing; placeholders remain the safe fallback.
@@ -452,9 +452,9 @@ Recommended vertical slices:
 
 1. **Root lifecycle UI and routes.** First slice landed: per-root edit label/path, enable/disable and delete actions in `/settings/user/library`; source files are untouched and settings copy explains that delete affects Library catalogue/index data, not Nextcloud Files. Remaining polish: stronger confirmation, validation and clearer recovery story.
 2. **Per-root scan.** First slice landed: the settings page can queue a scan for one root ID as well as “scan all enabled roots”; scan job rows track scope (`all` vs `root`) and render scope in progress/history.
-3. **Deletion/forget policy.** Add a safe “forget missing item” flow for rows whose backing file is already `missing`. Decide whether normal item deletion means “hide/forget from Library only” or is deferred to Nextcloud Files.
+3. **Deletion/forget policy.** First slice landed: missing items can be forgotten from the details page, and normal source-file deletion remains deferred to Nextcloud Files.
 4. **Root removal policy.** For root deletion, choose one conservative v0.1 behaviour and document it in the UI: either remove root plus scanner-created index/items, or require disabling first and keep delete behind a stronger confirmation. Avoid deleting source files from Library.
-5. **Library removal/uninstall guide.** Document exact admin commands and data implications: app disable/remove leaves original files, but app DB metadata is lost unless the database is backed up or metadata is exported.
+5. **Library removal/uninstall guide.** First slice landed: exact admin commands and data implications are documented; app disable/remove leaves original files, but app DB metadata is lost unless the database is backed up or metadata is exported.
 6. **Scoped folder/subtree rescan.** After per-root scan lands, consider optional folder-path scan under a configured root. This should validate the path is inside a user-owned Library root and should not mark unrelated root files missing.
 7. **Metadata retry filters.** Add “retry metadata errors” and “check missing files” flows once scoped scanning exists, so repair jobs do not require a full library scan.
 8. **Cover lifecycle only after cache.** Keep current on-demand preview/CBZ/placeholder covers as the v0.1 baseline. Add cover cache, per-item cover refresh, per-root cover refresh and manual cover override only when real usage proves cover quality is a blocker.
@@ -463,15 +463,15 @@ Recommended vertical slices:
 
 ### Immediate next implementation slice
 
-Recommended next slice: **deletion/forget policy plus uninstall/export documentation**.
+Recommended next slice: **metadata export foundation**.
 
 Minimum first cut:
 
-1. Add a “forget missing item” action that only appears for `missing` catalogue items.
-2. Document exact uninstall/removal consequences and admin commands.
-3. Decide and document whether normal item deletion is Library-only hide/forget or deferred entirely to Nextcloud Files.
-4. Add an export path for user-corrected metadata before uninstall confidence, or explicitly mark it deferred.
-5. Smoke on Alice: create a temporary root, scan it, delete one source file, rescan, forget the missing item, and verify the remaining source files and unrelated roots remain untouched.
+1. Add a read-only metadata export route or CLI helper for user-corrected catalogue rows.
+2. Include stable file identity, cached path, publication metadata, provenance flags and root/shelf labels.
+3. Keep export side-effect free: no writes to source folders yet.
+4. Smoke on Alice with an edited item and verify the export contains the corrected metadata and can be saved outside the app DB.
+5. Decide whether a later write-back target should be same-basename OPF sidecars, JSON sidecars, or both.
 
 Non-goals for this slice:
 
@@ -481,4 +481,4 @@ Non-goals for this slice:
 - OCR/full-text search;
 - shared global library administration.
 
-The root/update/delete/scoped-rescan foundation is now in place. The next risk is the finer deletion/removal boundary: users need a safe way to forget stale catalogue entries and admins need a trustworthy uninstall/export story before Library can be judged as a durable file-first archive app.
+The root/update/delete/scoped-rescan and missing-item forget boundaries are now in place. The next risk is metadata portability: users need a side-effect-free export before Library can be judged as a durable file-first archive app.
