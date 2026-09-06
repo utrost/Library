@@ -29,4 +29,18 @@ final class DefaultNextcloudFileProvider {
         $encodedDir = str_replace('%2F', '/', rawurlencode($dir));
         return $this->urlGenerator->getAbsoluteURL('/apps/files/files/' . $fileId . '?dir=' . $encodedDir . '&openfile=false');
     }
+
+    public function getDownloadUrl(string $userId, string $cachedPath): string {
+        $path = '/' . ltrim($cachedPath, '/');
+        return $this->urlGenerator->getAbsoluteURL('/remote.php/dav/files/' . rawurlencode($userId) . $this->encodePathSegments($path));
+    }
+
+    private function encodePathSegments(string $path): string {
+        $segments = array_filter(explode('/', $path), static fn (string $segment): bool => $segment !== '');
+        if ($segments === []) {
+            return '/';
+        }
+
+        return '/' . implode('/', array_map(static fn (string $segment): string => rawurlencode($segment), $segments));
+    }
 }

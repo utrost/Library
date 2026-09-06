@@ -169,6 +169,7 @@ async function runBrowserSmoke(proxyBase) {
       awaitPromise: true,
       expression: `(() => {
         const showFiles = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Show in Files')
+        const download = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Download source')
         const details = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Details')
         return {
           title: document.title,
@@ -183,6 +184,7 @@ async function runBrowserSmoke(proxyBase) {
           postForms: document.querySelectorAll('form[method="post"]').length,
           tagNameField: Boolean(document.querySelector('input[name="tagName"]')),
           firstShowFiles: showFiles ? showFiles.href : '',
+          firstDownload: download ? download.href : '',
           firstDetails: details ? details.href : '',
           badHostHrefs: [...document.querySelectorAll('a[href]')].filter((a) => a.href.startsWith('http://f/') || a.href.startsWith('http://settings/')).length,
           catalogueLabelled: document.querySelector('.library-panel')?.getAttribute('aria-labelledby') === 'library-catalogue-heading'
@@ -330,6 +332,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_tagNameField', dom.tagNameField)
     print('browser_firstShowFiles_has_dir', dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
     print('browser_firstShowFiles_openfile_false', dom.firstShowFiles.includes('openfile=false'))
+    print('browser_firstDownload_is_webdav', dom.firstDownload.includes('/remote.php/dav/files/'))
     print('browser_firstDetails_is_item_page', dom.firstDetails.includes('/apps/library/items/'))
     print('browser_bad_host_hrefs', dom.badHostHrefs)
     print('browser_catalogue_labelled', dom.catalogueLabelled)
@@ -366,6 +369,7 @@ async function runBrowserSmoke(proxyBase) {
       && dom.tagNameField === false
       && (dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
       && dom.firstShowFiles.includes('openfile=false')
+      && dom.firstDownload.includes('/remote.php/dav/files/')
       && dom.firstDetails.includes('/apps/library/items/')
       && dom.badHostHrefs === 0
       && dom.catalogueLabelled === true

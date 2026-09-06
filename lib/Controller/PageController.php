@@ -84,7 +84,7 @@ class PageController extends Controller {
 
         $fileTagsByFileId = $this->fileTagService->tagsForItems($items);
         $fileCommentsByFileId = $this->fileCommentService->commentsForItems($items);
-        $items = $this->enrichItemsForVue($items, $fileTagsByFileId, $fileCommentsByFileId);
+        $items = $this->enrichItemsForVue($userId, $items, $fileTagsByFileId, $fileCommentsByFileId);
 
         $this->initialState->provideInitialState('catalogue', [
             'items' => $items,
@@ -106,8 +106,8 @@ class PageController extends Controller {
      * @param array<int, array{count:int,recent:array<int, array<string, string>>}> $fileCommentsByFileId
      * @return array<int, array<string, mixed>>
      */
-    private function enrichItemsForVue(array $items, array $fileTagsByFileId, array $fileCommentsByFileId): array {
-        return array_map(function (array $item) use ($fileTagsByFileId, $fileCommentsByFileId): array {
+    private function enrichItemsForVue(string $userId, array $items, array $fileTagsByFileId, array $fileCommentsByFileId): array {
+        return array_map(function (array $item) use ($fileTagsByFileId, $fileCommentsByFileId, $userId): array {
             $itemId = (string)$item['id'];
             $fileId = (int)$item['fileId'];
             $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $itemId]);
@@ -118,6 +118,7 @@ class PageController extends Controller {
             $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]);
             $item['openUrl'] = $this->urlGenerator->getAbsoluteURL('/f/' . $fileId);
             $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
+            $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($userId, (string)($item['cachedPath'] ?? ''));
             $item['nextcloudTags'] = $fileTagsByFileId[$fileId] ?? [];
             $item['nextcloudComments'] = $fileCommentsByFileId[$fileId] ?? ['count' => 0, 'recent' => []];
             return $item;
