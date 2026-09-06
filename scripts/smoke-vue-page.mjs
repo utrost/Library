@@ -52,6 +52,22 @@ async function fetchText(pathOrUrl, token) {
   return { status: response.status, text: await response.text() }
 }
 
+async function fetchBinaryHeaders(pathOrUrl, token) {
+  const url = pathOrUrl.startsWith('http') ? pathOrUrl : new URL(pathOrUrl, upstream).toString()
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`,
+    },
+  })
+  await response.arrayBuffer()
+  return {
+    status: response.status,
+    contentType: response.headers.get('content-type') || '',
+    coverStatus: response.headers.get('X-Library-Cover-Status') || '',
+    coverReason: response.headers.get('X-Library-Cover-Reason') || '',
+  }
+}
+
 function fail(reason, extra = {}) {
   console.log(`vue_smoke_ok=false reason=${reason}`)
   for (const [key, value] of Object.entries(extra)) {
@@ -78,6 +94,7 @@ try {
     const items = state?.items || []
     const first = items[0] || {}
     const detail = first.detailsUrl ? await fetchText(first.detailsUrl, token) : { status: 0, text: '' }
+    const cover = first.coverUrl ? await fetchBinaryHeaders(first.coverUrl, token) : { status: 0, contentType: '', coverStatus: '', coverReason: '' }
 
     console.log(`page_http=${page.status}`)
     console.log(`has_vue_mount=${page.text.includes('library-vue-root')}`)
@@ -88,6 +105,10 @@ try {
     console.log(`first_has_filesUrl=${'filesUrl' in first}`)
     console.log(`first_has_detailsUrl=${'detailsUrl' in first}`)
     console.log(`first_detailsUrl_is_item_page=${String(first.detailsUrl || '').includes('/apps/library/items/')}`)
+    console.log(`cover_http=${cover.status}`)
+    console.log(`cover_content_type=${cover.contentType}`)
+    console.log(`cover_header_status=${cover.coverStatus}`)
+    console.log(`cover_header_reason=${cover.coverReason}`)
     console.log(`detail_http=${detail.status}`)
     console.log(`detail_has_publication_metadata=${detail.text.includes('Publication metadata')}`)
     console.log(`detail_has_file_metadata=${detail.text.includes('File metadata')}`)
@@ -112,7 +133,7 @@ try {
     console.log(`source_has_compact_mobile_hero=${sourceComponent.includes('library-hero-actions') && sourceStyle.includes('font-size: 28px;') && !sourceComponent.includes('without importing or owning the files')}`)
     console.log(`bad_host_hrefs=${(page.text.match(/href="http:\/\/(?:f|settings)\//g) || []).length}`)
 
-    if (page.status !== 200 || !state || items.length === 0 || !('coverUrl' in first) || !('openUrl' in first) || !('filesUrl' in first) || !('detailsUrl' in first) || !String(first.detailsUrl || '').includes('/apps/library/items/') || detail.status !== 200 || !detail.text.includes('Publication metadata') || !detail.text.includes('File metadata') || !detail.text.includes('Provenance') || !detail.text.includes('Nextcloud metadata') || !detail.text.includes('library-detail-edit-form') || !detail.text.includes('name="requesttoken"') || !detail.text.includes('name="returnTo"') || !detail.text.includes('value="details"') || !detail.text.includes('userEdited') || !detail.text.includes('library-detail-tag-editor') || !detail.text.includes('name="nextcloudTagName"') || !detail.text.includes('library-detail-comment-form') || !detail.text.includes('name="commentMessage"') || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
+    if (page.status !== 200 || !state || items.length === 0 || !('coverUrl' in first) || cover.status !== 200 || !cover.contentType.startsWith('image/') || !['preview', 'cbz-first-image', 'placeholder'].includes(cover.coverStatus) || cover.coverReason === '' || !('openUrl' in first) || !('filesUrl' in first) || !('detailsUrl' in first) || !String(first.detailsUrl || '').includes('/apps/library/items/') || detail.status !== 200 || !detail.text.includes('Publication metadata') || !detail.text.includes('File metadata') || !detail.text.includes('Provenance') || !detail.text.includes('Nextcloud metadata') || !detail.text.includes('library-detail-edit-form') || !detail.text.includes('name="requesttoken"') || !detail.text.includes('name="returnTo"') || !detail.text.includes('value="details"') || !detail.text.includes('userEdited') || !detail.text.includes('library-detail-tag-editor') || !detail.text.includes('name="nextcloudTagName"') || !detail.text.includes('library-detail-comment-form') || !detail.text.includes('name="commentMessage"') || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
       fail('catalogue_initial_state_invalid')
     } else if (script.status !== 200 || css.status !== 200 || script.text.includes('process.env')) {
       fail('vue_assets_invalid')
