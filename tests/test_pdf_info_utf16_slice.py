@@ -24,5 +24,8 @@ def test_pdf_info_string_decoder_falls_back_for_single_byte_author_names():
 def test_pdf_info_extraction_uses_decoder_for_title_and_author_values():
     service = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
 
-    assert "$value = $this->decodePdfInfoString((string)$value);" in service
+    assert "extractPdfInfoLiteralString" in service
+    assert "extractPdfInfoHexString" in service
+    assert "return $this->decodePdfInfoString($value);" in service
+    assert "return $this->decodePdfInfoString($bytes);" in service
     assert "return $value === '' ? null : $value;" in service

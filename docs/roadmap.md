@@ -29,7 +29,7 @@ What exists now:
 - Bootstrap UI for saving an initial root path and manually scanning enabled roots.
 - Scanner that indexes PDF, EPUB, CBZ and standalone OPF files by stable Nextcloud file ID, then creates/refreshes inferred catalogue items.
 - Scan-job progress/history table and UI summary for the latest queued background scan plus recent scan history: auto-refreshing scan progress and live-ish scan progress, status, root count, indexed file count, error count and duration.
-- First local metadata extraction for EPUB package OPF, standalone OPF files, filename/folder patterns and basic PDF info dictionaries including UTF-16 BOM encoded PDF Info strings.
+- First local metadata extraction for EPUB package OPF, standalone OPF files, filename/folder patterns and basic PDF info dictionaries including UTF-16 BOM encoded PDF Info strings, PDF hex Info strings and PDF literal octal escapes.
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue gallery with placeholder/preview covers, card-level title/creator/type/shelf/tag metadata, direct Read/Show in Files/Details links and browse-only catalogue cards.
 - Bounded catalogue pagination with page-size controls, smoke-tested through a 1000-real-file / 16.52 GiB staged Alice scale pilot after the planned 10 → 100 → 1000 → 10000 guardrail path.
@@ -467,7 +467,7 @@ Recommended next slice: **real-collection metadata hardening**.
 
 Minimum first cut:
 
-1. Expand PDF/EPUB/OPF/CBZ fixture coverage with real Alice samples that currently produce weak, missing or wrong metadata.
+1. Expand PDF/EPUB/OPF/CBZ fixture coverage with real Alice samples that currently produce weak, missing or wrong metadata. First PDF hardening landed for PDF hex Info strings and PDF literal octal escapes.
 2. Keep user-edited metadata precedence and sidecar OPF cleanup policy intact while improving scanner candidates.
 3. Preserve the database-backed catalogue query path under text/type/format/tag/shelf/status filters during every smoke.
 4. Smoke on Alice with generated scale fixtures and at least one real staged sample.

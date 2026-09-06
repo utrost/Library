@@ -137,7 +137,8 @@ final class PublicationMetadataService {
      * @return array<string, string>
      */
     private function extractPdfMetadata(File $file): array {
-        // PDF info dictionary keys: /Title and /Author.
+        // PDF info dictionary keys: /Title and /Author. Real PDFs may use literal strings
+        // such as /Author (J\374rgen) or UTF-16 hex strings such as /Title <FEFF...>.
         $content = substr($file->getContent(), 0, 262144);
         $metadata = [
             'metadataSource' => 'pdf-info',
@@ -599,14 +600,62 @@ final class PublicationMetadataService {
     }
 
     private function extractPdfInfoString(string $content, string $key): ?string {
-        if (!preg_match('/\/' . preg_quote($key, '/') . '\s*\((.*?)\)/s', $content, $matches)) {
+        $value = $this->extractPdfInfoLiteralString($content, $key) ?? $this->extractPdfInfoHexString($content, $key);
+        if ($value === null) {
             return null;
         }
 
-        $value = preg_replace('/\\\\([nrtbf()\\\\])/', '$1', $matches[1]);
-        $value = $this->decodePdfInfoString((string)$value);
-        $value = trim((string)$value);
+        $value = trim($value);
         return $value === '' ? null : $value;
+    }
+
+    private function extractPdfInfoLiteralString(string $content, string $key): ?string {
+        if (!preg_match('/\/' . preg_quote($key, '/') . '\s*\(((?:\\\\.|[^\\\\)])*)\)/s', $content, $matches)) {
+            return null;
+        }
+
+        $value = $this->decodePdfLiteralEscapes((string)$matches[1]);
+        return $this->decodePdfInfoString($value);
+    }
+
+    private function extractPdfInfoHexString(string $content, string $key): ?string {
+        // Examples seen in real collections: '/Title <FEFF...>' and '/Author <FEFF...>'.
+        if (!preg_match('/\/' . preg_quote($key, '/') . '\s*<([0-9A-Fa-f\s]+)>/s', $content, $matches)) {
+            return null;
+        }
+
+        $hex = preg_replace('/\s+/', '', (string)$matches[1]) ?? '';
+        if ($hex === '' || !ctype_xdigit($hex)) {
+            return null;
+        }
+        if ((strlen($hex) % 2) === 1) {
+            $hex .= '0';
+        }
+
+        $bytes = hex2bin($hex);
+        if ($bytes === false) {
+            return null;
+        }
+
+        return $this->decodePdfInfoString($bytes);
+    }
+
+    private function decodePdfLiteralEscapes(string $value): string {
+        $value = preg_replace_callback('/\\\\([0-7]{1,3})/', static function (array $matches): string {
+            return chr(octdec($matches[1]));
+        }, $value) ?? $value;
+
+        $map = [
+            '\\n' => "\n",
+            '\\r' => "\r",
+            '\\t' => "\t",
+            '\\b' => "\x08",
+            '\\f' => "\x0C",
+            '\\(' => '(',
+            '\\)' => ')',
+            '\\\\' => '\\',
+        ];
+        return strtr($value, $map);
     }
 
     private function decodePdfInfoString(string $value): string {
