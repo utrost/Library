@@ -36,6 +36,7 @@ const activeFilters = reactive({
   sort: props.state.activeFilters?.sort || 'title',
 })
 const settingsUrl = computed(() => props.state.settingsUrl || '')
+const metadataExportUrl = computed(() => props.state.metadataExportUrl || '')
 
 function upper(value) {
   return String(value || '').toUpperCase()
@@ -155,6 +156,7 @@ function tagsFor(item) {
     </div>
     <div class="library-hero-actions">
       <a :href="settingsUrl" class="button secondary" aria-label="Open Library settings">Library settings</a>
+      <a v-if="metadataExportUrl" :href="metadataExportUrl" class="button secondary" aria-label="Export corrected metadata">Export corrected metadata</a>
     </div>
   </section>
   </div>

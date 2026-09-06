@@ -217,6 +217,22 @@ Use it when:
 
 Forgetting a missing item removes this Library catalogue entry and its app-owned file-index row. It does not delete source files from Nextcloud Files. Ordinary item deletion for still-present files remains deferred to Nextcloud Files: delete or move the file there, rescan the root, then use **Forget missing item** if you do not want to keep the stale diagnostic.
 
+### Export corrected metadata
+
+Use **Export corrected metadata** from the catalogue or Library settings to download a side-effect-free JSON download of user-edited catalogue rows.
+
+The export includes stable file identity and Library metadata needed for a first recovery/import story:
+
+- Library item ID and library file row ID;
+- Nextcloud file ID;
+- cached file path;
+- root path and shelf label;
+- publication title, subtitle, type, creators, publication, publication date, publisher and language;
+- metadata provenance and user-edited flags;
+- scan status and scan diagnostics.
+
+The export is read-only. It does not write OPF files, JSON sidecars or any other source-folder files. It is not a complete restore/import feature yet, but it gives admins a portable snapshot of corrected metadata before disabling or removing the app.
+
 ## Admin processes
 
 ### Installing or enabling the app
@@ -273,8 +289,9 @@ Current uninstall/removal boundaries:
 1. **Disable the app** with `occ app:disable library` when you want to stop Library without deleting app code or source files.
 2. **Remove the app** through normal Nextcloud app management or by deleting `custom_apps/library` only after disabling it. This removes the app code, not the original publications in Nextcloud Files.
 3. Keep a Nextcloud database backup if you need to preserve Library roots, scan history, file index rows and corrected catalogue metadata.
-4. Treat metadata export as not yet implemented: there is currently no sidecar/JSON metadata export that can reconstruct user-corrected Library metadata after app removal.
-5. Before uninstalling a real archive, either keep the database backup or wait for the metadata export foundation slice.
+4. Use **Export corrected metadata** to keep a JSON snapshot of user-edited catalogue rows before removal.
+5. Treat import/write-back as not yet implemented: there is currently no sidecar/JSON importer that can reconstruct user-corrected Library metadata after app removal.
+6. Before uninstalling a real archive, keep both the database backup and the corrected-metadata export until a restore/import flow exists.
 
 ## User stories for judging v0.1 usefulness
 

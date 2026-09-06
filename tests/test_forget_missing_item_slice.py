@@ -64,4 +64,5 @@ def test_docs_describe_forget_missing_and_uninstall_export_boundary():
     assert "metadata export" in guide
     assert "Deletion/forget policy.** First slice landed" in roadmap
     assert "Library removal/uninstall guide.** First slice landed" in roadmap
-    assert "Recommended next slice: **metadata export foundation" in roadmap
+    assert "Metadata export foundation.** First slice landed" in roadmap
+    assert "Recommended next slice: **DB-backed catalogue query path**" in roadmap
