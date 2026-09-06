@@ -7,7 +7,6 @@ namespace OCA\Library\Controller;
 use OCA\Library\Service\FileCommentService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
-use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
@@ -25,7 +24,6 @@ final class CommentController extends Controller {
     }
 
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function add(int $itemId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {

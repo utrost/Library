@@ -2,8 +2,12 @@ import { createApp } from 'vue'
 import { loadState } from '@nextcloud/initial-state'
 import App from './App.vue'
 
-const state = loadState('library', 'catalogue', {})
+const initialState = loadState('library', 'catalogue', {})
 const mountTarget = document.querySelector('#library-vue-root')
+const state = {
+  ...initialState,
+  requestToken: mountTarget?.dataset.requestToken || initialState.requestToken || '',
+}
 
 function text(value) {
   return String(value ?? '')
@@ -49,6 +53,16 @@ function appendSelect(form, labelText, name, value, emptyLabel, options, labelFo
   appendOptions(select, options, value, labelFor)
   label.appendChild(select)
   form.appendChild(label)
+}
+
+function fallbackHiddenRequestToken(state) {
+  const token = text(state.requestToken || '')
+  if (token === '') return null
+  const input = document.createElement('input')
+  input.type = 'hidden'
+  input.name = 'requesttoken'
+  input.value = token
+  return input
 }
 
 function fallbackFilterForm(state, pagination) {

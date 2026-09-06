@@ -7,7 +7,6 @@ namespace OCA\Library\Controller;
 use OCA\Library\Service\RootService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
-use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
@@ -25,7 +24,6 @@ final class RootController extends Controller {
     }
 
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function save(): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {

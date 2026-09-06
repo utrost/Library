@@ -29,7 +29,6 @@ final class ScanController extends Controller {
     }
 
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function run(): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {

@@ -38,7 +38,7 @@ def test_main_template_is_vue_mount_only_inside_nextcloud_app_content():
 
     assert '<div id="app-content" class="library-app-content">' in template
     assert '<main id="library-app" class="library-app" tabindex="-1">' in template
-    assert '<div id="library-vue-root"></div>' in template
+    assert '<div id="library-vue-root" data-request-token="<?php p($_[\'requesttoken\'] ?? \'\'); ?>"></div>' in template
     assert 'class="library-cover-card"' not in template
     assert '<form method="get" class="library-filter-bar"' not in template
 
