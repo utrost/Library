@@ -68,4 +68,4 @@ def test_docs_record_p1_field_provenance_foundation_and_reset_is_still_future_wo
     assert "P1 field-level provenance foundation" in roadmap
     assert "field-level provenance is recorded" in guide
     assert "reset-to-scanner" in roadmap
-    assert "reset-to-scanner is still future work" in guide
+    assert "whole-item reset" in guide
