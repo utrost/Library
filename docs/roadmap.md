@@ -427,7 +427,7 @@ Recommended next slice after details-owned editing:
 
 1. Finish the detail workbench layout and browser accessibility smoke so the new editing home is readable before adding richer fields.
 2. Then harden cover-route error diagnostics and unsupported preview visibility against deliberately unsupported preview/cover fixtures.
-3. Then smoke metadata/tag/comment separation against Alice: assigning/removing `photography` or `project-library` Nextcloud tags must not alter publication form/title/creator fields.
+3. Add and keep a metadata/tag/comment separation smoke against Alice: Nextcloud tag/comment actions do not mutate Library publication metadata, and assigning/removing `photography` or `project-library` Nextcloud tags must not alter publication form/title/creator fields.
 4. Then document the visible failure state before adding richer review queues, Library-native tag tables, Internet enrichment or OCR.
 
 This immediate slice deliberately stops before new metadata tables or external enrichment. It improves the solution by making the now-central detail page a stable, accessible workbench for the existing verified flows.
