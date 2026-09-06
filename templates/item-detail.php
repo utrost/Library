@@ -182,10 +182,16 @@ $fileRows = [
                             <?php $currentValue = (string)($item[$field] ?? ''); ?>
                             <?php $candidateValue = (string)($fieldValues[$field] ?? ''); ?>
                             <?php $resetUrl = (string)($item['resetFieldUrl'] ?? ''); ?>
-                            <tr>
+                            <?php $fieldDiffersFromScanner = trim($candidateValue) !== '' && $candidateValue !== $currentValue; ?>
+                            <tr class="<?php p($fieldDiffersFromScanner ? 'library-field-conflict' : ''); ?>">
                                 <th scope="row"><?php p($l->t($label)); ?></th>
                                 <td><?php p((string)($fieldSources[$field] ?? ($item['metadataSource'] ?? ''))); ?></td>
-                                <td><?php p(trim($currentValue) !== '' ? $currentValue : '—'); ?></td>
+                                <td>
+                                    <?php p(trim($currentValue) !== '' ? $currentValue : '—'); ?>
+                                    <?php if ($fieldDiffersFromScanner): ?>
+                                        <span class="library-field-conflict-badge" aria-label="<?php p($l->t('Current value differs from scanner candidate')); ?>"><?php p($l->t('Differs from scanner')); ?></span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <?php p(trim($candidateValue) !== '' ? $candidateValue : '—'); ?>
                                     <?php if ($resetUrl !== '' && trim($candidateValue) !== '' && $candidateValue !== $currentValue): ?>
