@@ -24,7 +24,7 @@ def test_migration_adds_field_level_metadata_provenance_storage_without_replacin
     assert "metadata_source" in migrations
 
 
-def test_item_service_populates_field_provenance_for_scanner_and_user_updates():
+def test_item_service_populates_field_provenance_for_scanner_and_preserves_it_on_user_updates():
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
 
     assert "private const PUBLICATION_FIELDS" in service
@@ -35,12 +35,12 @@ def test_item_service_populates_field_provenance_for_scanner_and_user_updates():
     assert "fieldSources" in service
     assert "fieldValues" in service
     assert "buildInferredFieldSources" in service
-    assert "buildUserFieldSources" in service
     assert "buildCurrentFieldValues" in service
+    assert "existingFieldProvenance" in service
     assert "json_encode($metadataCandidate['fieldSources']" in service
     assert "json_encode($metadataCandidate['fieldValues']" in service
-    assert "json_encode($this->buildUserFieldSources()" in service
-    assert "json_encode($this->buildCurrentFieldValues(" in service
+    assert "json_encode($existingProvenance['fieldSources']" in service
+    assert "json_encode($existingProvenance['fieldValues']" in service
     assert "if ((bool)$existing['user_edited'])" in service
 
 
@@ -66,6 +66,6 @@ def test_docs_record_p1_field_provenance_foundation_and_reset_is_still_future_wo
     guide = (ROOT / "docs" / "user-guide.md").read_text()
 
     assert "P1 field-level provenance foundation" in roadmap
-    assert "field-level provenance is recorded" in guide
+    assert "field-level scanner candidates are recorded" in guide
     assert "reset-to-scanner" in roadmap
     assert "whole-item reset" in guide
