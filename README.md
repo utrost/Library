@@ -28,7 +28,7 @@ The current development slice can:
 - extract first local metadata candidates from EPUB package OPF, standalone OPF files and basic PDF info dictionaries, including UTF-16 BOM, PDF hex Info strings, literal octal escapes and non-BOM single-byte PDF Info strings from real PDFs;
 - prefer OPF sidecars for PDF/EPUB catalogue defaults when a same-basename `.opf` or folder-level `metadata.opf` is present;
 - suppress OPF sidecars as separate catalogue items when they accompany a primary PDF/EPUB/CBZ, while still allowing standalone OPF records;
-- clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items.
+- clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items while keeping manually edited OPF sidecar items visible as standalone records until an explicit merge/migration exists.
 - extract first CBZ ComicInfo.xml metadata for comic title, series, creators, publisher and date;
 - extract filename/folder metadata patterns for magazine dates/issues and comic number/title names when OPF/embedded metadata is absent;
 - serve CBZ first-image covers when the general Nextcloud preview pipeline cannot generate a cover.
@@ -43,7 +43,7 @@ The current development slice can:
 - query catalogue search, filters, sort modes and pagination through database-backed item queries instead of loading the full catalogue into app-layer arrays.
 - isolate local metadata extraction failures per file so corrupt EPUB/CBZ/OPF fixtures do not abort an otherwise healthy root scan, and show the scan error in the indexed-file diagnostics.
 
-The next milestone is to harden PDF/EPUB/OPF/CBZ metadata extraction, CBZ first-image covers, preview-backed covers and tag/comment flows with real-collection fixtures and user-edited sidecar cleanup policy.
+The next milestone is to keep hardening PDF/EPUB/OPF/CBZ metadata extraction, CBZ first-image covers, preview-backed covers and tag/comment flows with real-collection fixtures.
 
 ## v0.1 direction
 

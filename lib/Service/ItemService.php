@@ -66,6 +66,11 @@ final class ItemService {
             ->executeStatement();
     }
 
+    public function hasUserEditedItemForLibraryFile(string $userId, int $libraryFileId): bool {
+        $existing = $this->findByLibraryFileId($userId, $libraryFileId);
+        return $existing !== null && (bool)$existing['user_edited'];
+    }
+
     public function forgetMissingItem(string $userId, int $itemId): bool {
         $qb = $this->db->getQueryBuilder();
         $result = $qb->select('i.library_file_id', 'f.scan_status')
