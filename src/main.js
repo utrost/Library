@@ -186,11 +186,14 @@ function fallbackCatalogue(state, error) {
       const actions = document.createElement('p')
       const read = document.createElement('a')
       read.href = text(item.openUrl || '#')
-      read.textContent = 'Read'
+      read.textContent = t('library', 'Read')
       const files = document.createElement('a')
       files.href = text(item.filesUrl || '#')
-      files.textContent = 'Show in Files'
-      actions.append(read, document.createTextNode(' · '), files)
+      files.textContent = t('library', 'Show in Files')
+      const details = document.createElement('a')
+      details.href = text(item.detailsUrl || '#')
+      details.textContent = t('library', 'Details')
+      actions.append(read, document.createTextNode(' · '), files, document.createTextNode(' · '), details)
       summary.appendChild(actions)
 
       card.append(coverLink, summary)

@@ -104,31 +104,55 @@ final class ItemService {
 
         $items = [];
         while ($row = $result->fetch()) {
-            $items[] = [
-                'id' => (int)$row['id'],
-                'libraryFileId' => (int)$row['library_file_id'],
-                'fileId' => (int)$row['file_id'],
-                'cachedPath' => (string)$row['cached_path'],
-                'mimeType' => (string)$row['mime_type'],
-                'extension' => $row['extension'] !== null ? (string)$row['extension'] : '',
-                'scanStatus' => (string)$row['scan_status'],
-                'scanError' => $row['scan_error'] !== null ? (string)$row['scan_error'] : '',
-                'publicationType' => (string)$row['publication_type'],
-                'title' => (string)$row['title'],
-                'subtitle' => $row['subtitle'] !== null ? (string)$row['subtitle'] : '',
-                'creators' => $row['creators'] !== null ? (string)$row['creators'] : '',
-                'publication' => $row['publication'] !== null ? (string)$row['publication'] : '',
-                'publicationDate' => $row['publication_date'] !== null ? (string)$row['publication_date'] : '',
-                'language' => $row['language'] !== null ? (string)$row['language'] : '',
-                'publisher' => $row['publisher'] !== null ? (string)$row['publisher'] : '',
-                'metadataSource' => (string)$row['metadata_source'],
-                'userEdited' => (bool)$row['user_edited'],
-                'shelf' => trim((string)($row['label'] ?? '')) !== '' ? (string)$row['label'] : (string)($row['path'] ?? ''),
-            ];
+            $items[] = $this->normalizeJoinedItemRow($row);
         }
         $result->closeCursor();
 
         return $items;
+    }
+
+    public function findItem(string $userId, int $itemId): ?array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
+            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('i.id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
+            ->executeQuery();
+
+        $row = $result->fetch();
+        $result->closeCursor();
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->normalizeJoinedItemRow($row);
+    }
+
+    private function normalizeJoinedItemRow(array $row): array {
+        return [
+            'id' => (int)$row['id'],
+            'libraryFileId' => (int)$row['library_file_id'],
+            'fileId' => (int)$row['file_id'],
+            'cachedPath' => (string)$row['cached_path'],
+            'mimeType' => (string)$row['mime_type'],
+            'extension' => $row['extension'] !== null ? (string)$row['extension'] : '',
+            'scanStatus' => (string)$row['scan_status'],
+            'scanError' => $row['scan_error'] !== null ? (string)$row['scan_error'] : '',
+            'publicationType' => (string)$row['publication_type'],
+            'title' => (string)$row['title'],
+            'subtitle' => $row['subtitle'] !== null ? (string)$row['subtitle'] : '',
+            'creators' => $row['creators'] !== null ? (string)$row['creators'] : '',
+            'publication' => $row['publication'] !== null ? (string)$row['publication'] : '',
+            'publicationDate' => $row['publication_date'] !== null ? (string)$row['publication_date'] : '',
+            'language' => $row['language'] !== null ? (string)$row['language'] : '',
+            'publisher' => $row['publisher'] !== null ? (string)$row['publisher'] : '',
+            'metadataSource' => (string)$row['metadata_source'],
+            'userEdited' => (bool)$row['user_edited'],
+            'shelf' => trim((string)($row['label'] ?? '')) !== '' ? (string)$row['label'] : (string)($row['path'] ?? ''),
+        ];
     }
 
     private function findByLibraryFileId(string $userId, int $libraryFileId): ?array {

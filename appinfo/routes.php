@@ -8,6 +8,7 @@ return [
         ['name' => 'root#save', 'url' => '/roots', 'verb' => 'POST'],
         ['name' => 'scan#run', 'url' => '/scan', 'verb' => 'POST'],
         ['name' => 'scan#progress', 'url' => '/scan/progress', 'verb' => 'GET'],
+        ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET'],
         ['name' => 'item#update', 'url' => '/items/{itemId}', 'verb' => 'POST'],
         ['name' => 'cover#show', 'url' => '/items/{itemId}/cover', 'verb' => 'GET'],
         ['name' => 'tag#assign', 'url' => '/items/{itemId}/tags', 'verb' => 'POST'],
