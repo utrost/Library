@@ -2,7 +2,7 @@
 
 Status: active planning roadmap  
 Last updated: 2026-09-06
-Companion documents: [Product concept](product-concept.md), [UX concept and user stories](ux-concept.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [development instance reader compatibility notes](development instance-reader-compatibility.md), [development instance scale pilot notes](development instance-scale-pilot.md)
+Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [development instance reader compatibility notes](development instance-reader-compatibility.md), [development instance scale pilot notes](development instance-scale-pilot.md)
 
 ## Roadmap stance
 
