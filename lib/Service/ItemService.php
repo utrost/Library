@@ -242,9 +242,9 @@ final class ItemService {
     }
 
     /**
-     * @param array{q?:string,type?:string,publication?:string,format?:string,tag?:string,shelf?:string,status?:string,sort?:string,taggedFileIds?:array<int, int>} $filters
+     * @param array{q?:string,type?:string,publication?:string,year?:string,format?:string,tag?:string,shelf?:string,status?:string,sort?:string,taggedFileIds?:array<int, int>} $filters
      * @param array{page:int,limit:int} $pagination
-     * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,scanStatuses:array<int, string>}}
+     * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,scanStatuses:array<int, string>}}
      */
     public function queryCatalogue(string $userId, array $filters, array $pagination): array {
         $page = max(1, (int)($pagination['page'] ?? 1));
@@ -458,7 +458,7 @@ final class ItemService {
     }
 
     /**
-     * @return array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,scanStatuses:array<int, string>}
+     * @return array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,scanStatuses:array<int, string>}
      */
     private function catalogueFacets(string $userId): array {
         return [
@@ -466,6 +466,7 @@ final class ItemService {
             'formats' => $this->distinctCatalogueValues($userId, 'LOWER(f.extension)', 'value'),
             'publications' => $this->distinctCatalogueValues($userId, 'i.publication', 'publication'),
             'publicationSummaries' => $this->topPublicationSummaries($userId),
+            'publicationYears' => $this->publicationYearFacetValues($userId),
             'scanStatuses' => $this->scanStatusFacetValues($userId),
         ];
     }
@@ -531,6 +532,32 @@ final class ItemService {
     /**
      * @return array<int, string>
      */
+    private function publicationYearFacetValues(string $userId): array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->selectAlias($qb->createFunction('SUBSTR(i.publication_date, 1, 4)'), 'year')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
+            ->andWhere($qb->expr()->like('i.publication_date', $qb->createNamedParameter('____%')))
+            ->groupBy('year')
+            ->orderBy('year', 'DESC')
+            ->executeQuery();
+
+        $years = [];
+        while ($row = $result->fetch()) {
+            $year = trim((string)($row['year'] ?? ''));
+            if (preg_match('/^\\d{4}$/', $year) === 1) {
+                $years[] = $year;
+            }
+        }
+        $result->closeCursor();
+        return $years;
+    }
+
+    /**
+     * @return array<int, string>
+     */
     private function scanStatusFacetValues(string $userId): array {
         $values = array_fill_keys(['indexed', 'metadata_error', 'missing'], true);
         foreach ($this->distinctCatalogueValues($userId, 'f.scan_status', 'value') as $status) {
@@ -549,6 +576,12 @@ final class ItemService {
         $publication = trim((string)($filters['publication'] ?? ''));
         if ($publication !== '') {
             $qb->andWhere($qb->expr()->eq('i.publication', $qb->createNamedParameter($publication)));
+        }
+
+        $year = trim((string)($filters['year'] ?? ''));
+        if (preg_match('/^\\d{4}$/', $year) === 1) {
+            // Publication year filter uses LIKE prefix matching for YYYY / YYYY-MM / YYYY-MM-DD values.
+            $qb->andWhere($qb->expr()->like('i.publication_date', $qb->createNamedParameter($year . '%')));
         }
 
         $format = mb_strtolower(trim((string)($filters['format'] ?? '')));

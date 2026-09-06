@@ -17,6 +17,7 @@ const shelves = computed(() => props.state.shelves || [])
 const formats = computed(() => props.state.formats || [])
 const publications = computed(() => props.state.publications || [])
 const publicationSummaries = computed(() => props.state.publicationSummaries || [])
+const publicationYears = computed(() => props.state.publicationYears || [])
 const scanStatuses = computed(() => props.state.scanStatuses || [])
 const pagination = computed(() => props.state.cataloguePagination || {
   page: 1,
@@ -32,6 +33,7 @@ const activeFilters = reactive({
   q: props.state.activeFilters?.q || '',
   type: props.state.activeFilters?.type || '',
   publication: props.state.activeFilters?.publication || '',
+  year: props.state.activeFilters?.year || '',
   format: props.state.activeFilters?.format || '',
   tag: props.state.activeFilters?.tag || '',
   shelf: props.state.activeFilters?.shelf || '',
@@ -82,6 +84,13 @@ function publicationFilterUrl(publication) {
         <select v-model="activeFilters.publication" name="publication">
           <option value="">{{ t('library', 'All series and periodicals') }}</option>
           <option v-for="publication in publications" :key="publication" :value="publication">{{ publication }}</option>
+        </select>
+      </label>
+      <label>
+        {{ t('library', 'Publication year') }}
+        <select v-model="activeFilters.year" name="year">
+          <option value="">{{ t('library', 'All years') }}</option>
+          <option v-for="year in publicationYears" :key="year" :value="year">{{ year }}</option>
         </select>
       </label>
       <label>
