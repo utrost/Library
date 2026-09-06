@@ -18,6 +18,17 @@ final class ItemService {
         'other',
     ];
 
+    private const PUBLICATION_FIELDS = [
+        'publicationType',
+        'title',
+        'subtitle',
+        'creators',
+        'publication',
+        'publicationDate',
+        'language',
+        'publisher',
+    ];
+
     public function __construct(
         private IDBConnection $db,
     ) {
@@ -50,6 +61,8 @@ final class ItemService {
                 'language' => $qb->createNamedParameter($metadataCandidate['language']),
                 'publisher' => $qb->createNamedParameter($metadataCandidate['publisher']),
                 'metadata_source' => $qb->createNamedParameter($metadataCandidate['metadataSource']),
+                'field_sources' => $qb->createNamedParameter(json_encode($metadataCandidate['fieldSources'], JSON_THROW_ON_ERROR)),
+                'field_values' => $qb->createNamedParameter(json_encode($metadataCandidate['fieldValues'], JSON_THROW_ON_ERROR)),
                 'user_edited' => $qb->createNamedParameter(0),
                 'created_at' => $qb->createNamedParameter($now),
                 'updated_at' => $qb->createNamedParameter($now),
@@ -120,6 +133,17 @@ final class ItemService {
             ->set('language', $qb->createNamedParameter($this->nullableString($metadata['language'] ?? null)))
             ->set('publisher', $qb->createNamedParameter($this->nullableString($metadata['publisher'] ?? null)))
             ->set('metadata_source', $qb->createNamedParameter('user'))
+            ->set('field_sources', $qb->createNamedParameter(json_encode($this->buildUserFieldSources(), JSON_THROW_ON_ERROR)))
+            ->set('field_values', $qb->createNamedParameter(json_encode($this->buildCurrentFieldValues([
+                'publicationType' => $publicationType,
+                'title' => $title,
+                'subtitle' => $this->nullableString($metadata['subtitle'] ?? null),
+                'creators' => $this->nullableString($metadata['creators'] ?? null),
+                'publication' => $this->nullableString($metadata['publication'] ?? null),
+                'publicationDate' => $this->nullableString($metadata['publicationDate'] ?? null),
+                'language' => $this->nullableString($metadata['language'] ?? null),
+                'publisher' => $this->nullableString($metadata['publisher'] ?? null),
+            ]), JSON_THROW_ON_ERROR)))
             ->set('user_edited', $qb->createNamedParameter(1))
             ->set('updated_at', $qb->createNamedParameter($now))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
@@ -166,7 +190,7 @@ final class ItemService {
 
     public function findItem(string $userId, int $itemId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -186,7 +210,7 @@ final class ItemService {
 
     public function exportCorrectedMetadata(string $userId): array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -215,7 +239,7 @@ final class ItemService {
 
     private function catalogueQueryBuilder(string $userId, array $filters): IQueryBuilder {
         $qb = $this->db->getQueryBuilder();
-        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -366,6 +390,8 @@ final class ItemService {
             'language' => $row['language'] !== null ? (string)$row['language'] : '',
             'publisher' => $row['publisher'] !== null ? (string)$row['publisher'] : '',
             'metadataSource' => (string)$row['metadata_source'],
+            'fieldSources' => $this->decodeJsonMap($row['field_sources'] ?? null),
+            'fieldValues' => $this->decodeJsonMap($row['field_values'] ?? null),
             'userEdited' => (bool)$row['user_edited'],
             'shelf' => trim((string)($row['label'] ?? '')) !== '' ? (string)$row['label'] : (string)($row['path'] ?? ''),
         ];
@@ -401,6 +427,8 @@ final class ItemService {
             ->set('language', $qb->createNamedParameter($metadataCandidate['language']))
             ->set('publisher', $qb->createNamedParameter($metadataCandidate['publisher']))
             ->set('metadata_source', $qb->createNamedParameter($metadataCandidate['metadataSource']))
+            ->set('field_sources', $qb->createNamedParameter(json_encode($metadataCandidate['fieldSources'], JSON_THROW_ON_ERROR)))
+            ->set('field_values', $qb->createNamedParameter(json_encode($metadataCandidate['fieldValues'], JSON_THROW_ON_ERROR)))
             ->set('updated_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
@@ -435,7 +463,7 @@ final class ItemService {
     /**
      * @param array<string, mixed> $file
      * @param array<string, string> $metadata
-     * @return array{publicationType:string,title:string,subtitle:?string,creators:?string,publication:?string,publicationDate:?string,language:?string,publisher:?string,metadataSource:string}
+     * @return array{publicationType:string,title:string,subtitle:?string,creators:?string,publication:?string,publicationDate:?string,language:?string,publisher:?string,metadataSource:string,fieldSources:array<string, string>,fieldValues:array<string, string>}
      */
     private function metadataCandidate(array $file, array $metadata): array {
         $source = (string)($metadata['metadataSource'] ?? 'filename');
@@ -443,7 +471,7 @@ final class ItemService {
             $source = 'filename';
         }
 
-        return [
+        $candidate = [
             'publicationType' => $this->normalizePublicationType((string)($metadata['publicationType'] ?? $this->inferPublicationType($file))),
             'title' => trim((string)($metadata['title'] ?? '')) ?: $this->inferTitle($file),
             'subtitle' => $this->nullableString($metadata['subtitle'] ?? null),
@@ -454,6 +482,73 @@ final class ItemService {
             'publisher' => $this->nullableString($metadata['publisher'] ?? null),
             'metadataSource' => $source,
         ];
+
+        $candidate['fieldSources'] = $this->buildInferredFieldSources($candidate);
+        $candidate['fieldValues'] = $this->buildCurrentFieldValues($candidate);
+        return $candidate;
+    }
+
+
+    /**
+     * @param array<string, mixed> $metadataCandidate
+     * @return array<string, string>
+     */
+    private function buildInferredFieldSources(array $metadataCandidate): array {
+        $source = (string)($metadataCandidate['metadataSource'] ?? 'filename');
+        $sources = [];
+        foreach (self::PUBLICATION_FIELDS as $field) {
+            $value = $metadataCandidate[$field] ?? null;
+            if ($value !== null && trim((string)$value) !== '') {
+                $sources[$field] = $source;
+            }
+        }
+        return $sources;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function buildUserFieldSources(): array {
+        return array_fill_keys(self::PUBLICATION_FIELDS, 'user');
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     * @return array<string, string>
+     */
+    private function buildCurrentFieldValues(array $values): array {
+        $fieldValues = [];
+        foreach (self::PUBLICATION_FIELDS as $field) {
+            $value = $values[$field] ?? null;
+            if ($value !== null && trim((string)$value) !== '') {
+                $fieldValues[$field] = (string)$value;
+            }
+        }
+        return $fieldValues;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function decodeJsonMap(mixed $json): array {
+        if (!is_string($json) || trim($json) === '') {
+            return [];
+        }
+        try {
+            $decoded = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return [];
+        }
+        if (!is_array($decoded)) {
+            return [];
+        }
+        $map = [];
+        foreach ($decoded as $key => $value) {
+            if (is_string($key) && (is_string($value) || is_numeric($value) || is_bool($value))) {
+                $map[$key] = (string)$value;
+            }
+        }
+        return $map;
     }
 
     private function inferPublicationType(array $file): string {

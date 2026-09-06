@@ -14,6 +14,18 @@ $metadataRows = [
     'Publisher' => $item['publisher'] ?? '',
     'Language' => $item['language'] ?? '',
 ];
+$fieldSources = is_array($item['fieldSources'] ?? null) ? $item['fieldSources'] : [];
+$fieldValues = is_array($item['fieldValues'] ?? null) ? $item['fieldValues'] : [];
+$fieldProvenanceRows = [
+    'publicationType' => 'Publication type',
+    'title' => 'Title',
+    'subtitle' => 'Subtitle',
+    'creators' => 'Creators',
+    'publication' => 'Publication',
+    'publicationDate' => 'Publication date',
+    'language' => 'Language',
+    'publisher' => 'Publisher',
+];
 $fileRows = [
     'fileId' => $item['fileId'] ?? '',
     'libraryFileId' => $item['libraryFileId'] ?? '',
@@ -142,6 +154,31 @@ $fileRows = [
                 <dd><?php p(($item['userEdited'] ?? false) ? $l->t('yes') : $l->t('no')); ?></dd>
             </dl>
             <p class="library-muted"><?php p($l->t('User-edited publication metadata is preserved across rescans. Scanner values remain provenance-labelled.')); ?></p>
+            <div class="library-field-provenance" aria-label="fieldSources">
+                <h4><?php p($l->t('Field-level provenance')); ?></h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th><?php p($l->t('Field')); ?></th>
+                            <th><?php p($l->t('Source')); ?></th>
+                            <th><?php p($l->t('Current value')); ?></th>
+                            <th><?php p($l->t('Scanner candidate')); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($fieldProvenanceRows as $field => $label): ?>
+                            <?php $currentValue = (string)($item[$field] ?? ''); ?>
+                            <?php $candidateValue = (string)($fieldValues[$field] ?? ''); ?>
+                            <tr>
+                                <th scope="row"><?php p($l->t($label)); ?></th>
+                                <td><?php p((string)($fieldSources[$field] ?? ($item['metadataSource'] ?? ''))); ?></td>
+                                <td><?php p(trim($currentValue) !== '' ? $currentValue : '—'); ?></td>
+                                <td><?php p(trim($candidateValue) !== '' ? $candidateValue : '—'); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <section class="library-panel library-detail-section-nextcloud" aria-labelledby="library-nextcloud-metadata-heading">
