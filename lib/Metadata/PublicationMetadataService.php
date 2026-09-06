@@ -155,6 +155,20 @@ final class PublicationMetadataService {
             $metadata['creators'] = $author;
         }
 
+        $subject = $this->extractPdfInfoString($content, 'Subject');
+        if ($subject !== null) {
+            // PDF subject maps to Library subtitle: useful context, but not a new metadata model.
+            $metadata['subtitle'] = $subject;
+        }
+
+        $date = $this->extractPdfInfoDate($content, 'CreationDate') ?? $this->extractPdfInfoDate($content, 'ModDate');
+        if ($date !== null) {
+            $metadata['publicationDate'] = $date;
+        }
+
+        // Creator/Producer/Keywords stay out of the canonical publication item for now:
+        // PDF Creator/Producer usually name generating software, and Keywords need a future
+        // reviewable tag/keyword model rather than silent publication-metadata promotion.
         return count($metadata) > 2 ? $metadata : [];
     }
 
@@ -638,6 +652,39 @@ final class PublicationMetadataService {
         }
 
         return $this->decodePdfInfoString($bytes);
+    }
+
+    private function extractPdfInfoDate(string $content, string $key): ?string {
+        $value = $this->extractPdfInfoString($content, $key);
+        if ($value === null) {
+            return null;
+        }
+        return $this->normalizePdfInfoDate($value);
+    }
+
+    private function normalizePdfInfoDate(string $value): ?string {
+        // PDF date form is D:YYYYMMDDHHmmSS with optional timezone suffix; partial dates exist.
+        if (!preg_match('/^D?:(?<year>\d{4})(?<month>\d{2})?(?<day>\d{2})?/u', trim($value), $matches)) {
+            return null;
+        }
+
+        $year = (int)$matches['year'];
+        $month = isset($matches['month']) && $matches['month'] !== '' ? (int)$matches['month'] : null;
+        $day = isset($matches['day']) && $matches['day'] !== '' ? (int)$matches['day'] : null;
+
+        if ($month === null) {
+            return sprintf('%04d', $year);
+        }
+        if ($month < 1 || $month > 12) {
+            return null;
+        }
+        if ($day === null) {
+            return sprintf('%04d-%02d', $year, $month);
+        }
+        if ($day < 1 || $day > 31) {
+            return null;
+        }
+        return sprintf('%04d-%02d-%02d', $year, $month, $day);
     }
 
     private function decodePdfLiteralEscapes(string $value): string {
