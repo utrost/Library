@@ -41,6 +41,7 @@ What exists now:
 - Minimal Nextcloud file comment writing from item details.
 - Per-file metadata extraction error isolation with visible indexed-file diagnostics for corrupt EPUB/CBZ/OPF inputs.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
+- metadata/tag/comment separation smoke is checked in: Nextcloud tag/comment actions do not mutate Library publication metadata.
 - Scan/admin controls are separated into the personal settings surface at `/settings/user/library`; the app page is catalogue-first with absolute Nextcloud URLs and a Vue/Vite catalogue mounted in the conventional scrollable `#app-content` shell.
 - Concept, technical-spec and reader-handoff notes.
 - Lightweight repository tests protecting the current skeleton, docs contracts, roots/file-index slice and catalogue-item slice.
@@ -421,13 +422,63 @@ Exit criteria:
 - Article-level indexing.
 - Page-level search.
 
-## Immediate next implementation slice
+## Combined missing operational processes, 2026-09-06
 
-Recommended next slice after details-owned editing:
+This section combines the role-facing gaps from the [User and admin guide](user-guide.md) with the latest product review questions: deletion/update processes, Library removal, cover rescans, folder/root scoped rescans and whether cover extraction remains optional.
 
-1. Finish the detail workbench layout and browser accessibility smoke so the new editing home is readable before adding richer fields.
-2. Then harden cover-route error diagnostics and unsupported preview visibility against deliberately unsupported preview/cover fixtures.
-3. Add and keep a metadata/tag/comment separation smoke against Alice: Nextcloud tag/comment actions do not mutate Library publication metadata, and assigning/removing `photography` or `project-library` Nextcloud tags must not alter publication form/title/creator fields.
-4. Then document the visible failure state before adding richer review queues, Library-native tag tables, Internet enrichment or OCR.
+### Current answers
 
-This immediate slice deliberately stops before new metadata tables or external enrichment. It improves the solution by making the now-central detail page a stable, accessible workbench for the existing verified flows.
+- **Item metadata update:** present. The details page owns publication metadata editing and user-edited items are preserved across rescans.
+- **Root add/update:** partly present. Users can save a root path/label, and saving the same path updates the row, but there is no comfortable per-root edit/disable/delete UI.
+- **Deletion:** not present as a complete product process. Missing files are marked `missing` on rescan; Library does not yet expose ordinary item/root deletion, “forget missing item”, or source-file deletion flows.
+- **Library removal/uninstall:** only a product boundary, not an operational process. Original Nextcloud files remain canonical, but corrected Library metadata currently lives in app DB rows unless backed up or exported.
+- **Folder/root-based rescan:** not present. The scan route currently queues a scan for all enabled roots for the current user.
+- **Cover rescan:** not present as a separate process because covers are generated on request through Nextcloud preview/CBZ/placeholder responses; there is no app-owned cover cache yet.
+- **Cover extraction optionality:** present by behaviour. Cover failure must not block catalogue indexing or browsing; placeholders remain the safe fallback.
+
+### Phase 3.5 — Operational lifecycle and scoped scans
+
+Goal: make Library safe to administer before expanding metadata enrichment or reader features.
+
+User/admin outcome:
+
+- A user can manage roots without direct DB or test-harness help.
+- A user can scan one root/folder when they change a known part of the archive instead of scanning everything.
+- A maintainer can remove stale/missing catalogue entries deliberately without risking source files.
+- An admin can explain what happens when Library is disabled, uninstalled or removed.
+- Cover extraction remains optional, but failed/stale covers have an understandable refresh path once a cache exists.
+
+Recommended vertical slices:
+
+1. **Root lifecycle UI and routes.** Add per-root edit label/path, enable/disable and delete actions in `/settings/user/library`. Keep source files untouched. Add explicit copy explaining delete affects Library catalogue/index data, not Nextcloud Files.
+2. **Per-root scan.** Let the settings page queue a scan for one root ID as well as “scan all enabled roots”. Update scan job rows with scope (`all` vs `root`) and render the scope in progress/history.
+3. **Deletion/forget policy.** Add a safe “forget missing item” flow for rows whose backing file is already `missing`. Decide whether normal item deletion means “hide/forget from Library only” or is deferred to Nextcloud Files.
+4. **Root removal policy.** For root deletion, choose one conservative v0.1 behaviour and document it in the UI: either remove root plus scanner-created index/items, or require disabling first and keep delete behind a stronger confirmation. Avoid deleting source files from Library.
+5. **Library removal/uninstall guide.** Document exact admin commands and data implications: app disable/remove leaves original files, but app DB metadata is lost unless the database is backed up or metadata is exported.
+6. **Scoped folder/subtree rescan.** After per-root scan lands, consider optional folder-path scan under a configured root. This should validate the path is inside a user-owned Library root and should not mark unrelated root files missing.
+7. **Metadata retry filters.** Add “retry metadata errors” and “check missing files” flows once scoped scanning exists, so repair jobs do not require a full library scan.
+8. **Cover lifecycle only after cache.** Keep current on-demand preview/CBZ/placeholder covers as the v0.1 baseline. Add cover cache, per-item cover refresh, per-root cover refresh and manual cover override only when real usage proves cover quality is a blocker.
+9. **DB-backed catalogue query path.** Move filtering/sorting/pagination from app-layer arrays to database queries before treating 10k+ real libraries as safe, especially once root-scoped operations and missing-item retention grow the tables.
+10. **Metadata portability.** Add export/import for corrected metadata, likely OPF sidecars or a JSON sidecar, before recommending uninstall/reinstall or long-term file-first use.
+
+### Immediate next implementation slice
+
+Recommended next slice: **root lifecycle plus per-root scan foundation**.
+
+Minimum first cut:
+
+1. Add root row actions in personal settings: edit label/path, enable/disable, delete.
+2. Add controller/service tests for root update, enable/disable and delete policy.
+3. Add a per-root scan POST route that queues a scan job scoped to one root.
+4. Record and display scan scope in latest progress/history.
+5. Smoke on Alice: create a temporary root, scan only that root, disable it, verify all-root scans skip it, delete it, verify original files remain and cleanup is explicit.
+
+Non-goals for this slice:
+
+- deleting source files from Nextcloud Files;
+- cover cache or cover refresh;
+- internet metadata enrichment;
+- OCR/full-text search;
+- shared global library administration.
+
+This slice directly addresses the highest-risk operational gap surfaced by the guide and by the latest review: users need safe root/update/delete/scoped-rescan processes before Library can be judged as an administrable personal archive app.
