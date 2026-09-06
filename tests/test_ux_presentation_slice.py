@@ -58,7 +58,7 @@ def test_styles_define_responsive_cover_gallery_and_filter_bar():
     assert "grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))" in css
     assert ".library-cover-image" in css
     assert ".library-cover-placeholder" not in css
-    assert ".library-cover-card details" in css
+    assert ".library-cover-details" in css
 
 
 def test_readme_links_ux_concept_and_names_current_presentation_slice():
