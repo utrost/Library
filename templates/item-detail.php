@@ -143,6 +143,31 @@ $fileRows = [
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
+            <div class="library-detail-tag-editor" aria-label="nextcloudTagEditor">
+                <?php if (count($tags) > 0): ?>
+                    <ul class="library-tag-remove-list" aria-label="<?php p($l->t('Remove Nextcloud tag')); ?>">
+                        <?php foreach ($tags as $tag): ?>
+                            <li>
+                                <span class="library-tag"><?php p((string)$tag['name']); ?></span>
+                                <form method="post" action="<?php p((string)($tag['removeUrl'] ?? '')); ?>" class="library-inline-form">
+                                    <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                                    <input type="hidden" name="returnTo" value="details" />
+                                    <button type="submit"><?php p($l->t('Remove tag')); ?></button>
+                                </form>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+                <form method="post" action="<?php p($item['tagUrl'] ?? ''); ?>" class="library-tag-form">
+                    <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                    <input type="hidden" name="returnTo" value="details" />
+                    <label>
+                        <?php p($l->t('Add Nextcloud tag')); ?>
+                        <input type="text" name="nextcloudTagName" placeholder="<?php p($l->t('photography, project-library...')); ?>" />
+                    </label>
+                    <button type="submit"><?php p($l->t('Add tag')); ?></button>
+                </form>
+            </div>
             <div class="library-nextcloud-comments" aria-label="nextcloudComments">
                 <strong><?php p($l->t('Nextcloud comments')); ?></strong>
                 <?php if (($comments['count'] ?? 0) === 0): ?>

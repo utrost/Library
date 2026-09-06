@@ -49,10 +49,6 @@ function tagsFor(item) {
 function commentsFor(item) {
   return item.nextcloudComments || { count: 0, recent: [] }
 }
-
-function removeTagUrl(item, tag) {
-  return String(item.tagRemoveBaseUrl || '').replace('__TAG_ID__', String(tag.id))
-}
 </script>
 
 <template>
@@ -165,27 +161,6 @@ function removeTagUrl(item, tag) {
             <dt>language</dt><dd>{{ item.language || '—' }}</dd>
             <dt>publisher</dt><dd>{{ item.publisher || '—' }}</dd>
           </dl>
-
-          <div class="library-nextcloud-tags" aria-label="nextcloudTagEditor">
-            <strong>Nextcloud tags</strong>
-            <ul v-if="tagsFor(item).length > 0" class="library-tag-remove-list" aria-label="Remove Nextcloud tag">
-              <li v-for="tag in tagsFor(item)" :key="tag.id">
-                <span class="library-tag">{{ tag.name }}</span>
-                <form method="post" :action="removeTagUrl(item, tag)" class="library-inline-form">
-                  <input v-if="requestToken" type="hidden" name="requesttoken" :value="requestToken">
-                  <button type="submit">Remove tag</button>
-                </form>
-              </li>
-            </ul>
-            <form method="post" :action="item.tagUrl" class="library-tag-form">
-              <input v-if="requestToken" type="hidden" name="requesttoken" :value="requestToken">
-              <label>
-                Add Nextcloud tag
-                <input type="text" name="nextcloudTagName" placeholder="photography, project-library...">
-              </label>
-              <button type="submit">Add tag</button>
-            </form>
-          </div>
 
           <div class="library-nextcloud-comments" aria-label="nextcloudComments">
             <strong>Nextcloud comments</strong> <span class="library-muted">(file-level notes)</span>:

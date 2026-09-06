@@ -24,9 +24,11 @@ def test_tag_controller_and_delete_route_are_wired():
 
 
 def test_template_renders_remove_nextcloud_tag_forms_without_metadata_coupling():
+    template = (ROOT / "templates" / "item-detail.php").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
-    assert "item.tagRemoveBaseUrl" in vue
-    assert "removeTagUrl(item, tag)" in vue
-    assert "Remove Nextcloud tag" in vue
-    assert "__TAG_ID__" in vue
-    assert "Remove tag" in vue
+    assert "tag['removeUrl']" in template
+    assert "Remove Nextcloud tag" in template
+    assert "Remove tag" in template
+    assert "returnTo" in template
+    assert "item.tagRemoveBaseUrl" not in vue
+    assert "removeTagUrl(item, tag)" not in vue
