@@ -176,6 +176,8 @@ async function runBrowserSmoke(proxyBase) {
           filters: Boolean(document.querySelector('.library-filter-bar')),
           details: document.querySelectorAll('details').length,
           nextcloudTagNameField: Boolean(document.querySelector('input[name="nextcloudTagName"]')),
+          requestTokenFields: document.querySelectorAll('form[method="post"] input[name="requesttoken"]').length,
+          postForms: document.querySelectorAll('form[method="post"]').length,
           tagNameField: Boolean(document.querySelector('input[name="tagName"]')),
           firstShowFiles: showFiles ? showFiles.href : '',
           badHostHrefs: [...document.querySelectorAll('a[href]')].filter((a) => a.href.startsWith('http://f/') || a.href.startsWith('http://settings/')).length,
@@ -204,6 +206,8 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_filters', dom.filters)
     print('browser_details', dom.details)
     print('browser_nextcloudTagNameField', dom.nextcloudTagNameField)
+    print('browser_post_forms', dom.postForms)
+    print('browser_request_token_fields', dom.requestTokenFields)
     print('browser_tagNameField', dom.tagNameField)
     print('browser_firstShowFiles_has_dir', dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
     print('browser_firstShowFiles_openfile_false', dom.firstShowFiles.includes('openfile=false'))
@@ -216,6 +220,8 @@ async function runBrowserSmoke(proxyBase) {
       && dom.filters === true
       && dom.details === dom.cards
       && dom.nextcloudTagNameField === true
+      && dom.postForms > 0
+      && dom.requestTokenFields === dom.postForms
       && dom.tagNameField === false
       && (dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
       && dom.firstShowFiles.includes('openfile=false')

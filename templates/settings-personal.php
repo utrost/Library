@@ -10,6 +10,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
         <h2>Library settings</h2>
         <p class="library-muted">Configure the folders that become Library shelves, run scans, and inspect scan/index diagnostics.</p>
         <form method="post" action="<?php p($_['rootSaveUrl']); ?>" class="library-form">
+            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
             <label>
                 Folder path
                 <input type="text" name="path" value="/LibrarySpike" placeholder="/Media/Books" />
@@ -39,6 +40,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
         <?php endif; ?>
 
         <form method="post" action="<?php p($_['scanRunUrl']); ?>">
+            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
             <button type="submit">Scan enabled roots</button>
         </form>
 

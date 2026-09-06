@@ -19,6 +19,8 @@ def test_browser_smoke_script_checks_real_vue_dom_and_cleans_tokens():
     assert "Runtime.exceptionThrown" in script
     assert "data-vue-fallback" in script
     assert "#library-vue-root[data-v-app]" in script
+    assert "requestTokenFields" in script
+    assert "form[method=\"post\"] input[name=\"requesttoken\"]" in script
     assert ".library-filter-bar" in script
     assert ".library-cover-card" in script
     assert "openfile=false" in script

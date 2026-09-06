@@ -3,7 +3,7 @@
 ?>
 <div id="app-content" class="library-app-content">
 <main id="library-app" class="library-app" tabindex="-1">
-    <div id="library-vue-root"></div>
+    <div id="library-vue-root" data-request-token="<?php p($_['requesttoken'] ?? ''); ?>"></div>
     <noscript>
         <section class="library-panel" aria-label="Publication catalogue">
             <h2>Publication catalogue</h2>

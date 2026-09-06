@@ -35,6 +35,7 @@ const activeFilters = reactive({
   sort: props.state.activeFilters?.sort || 'title',
 })
 const settingsUrl = computed(() => props.state.settingsUrl || '')
+const requestToken = computed(() => props.state.requestToken || '')
 
 function upper(value) {
   return String(value || '').toUpperCase()
@@ -170,11 +171,13 @@ function removeTagUrl(item, tag) {
               <li v-for="tag in tagsFor(item)" :key="tag.id">
                 <span class="library-tag">{{ tag.name }}</span>
                 <form method="post" :action="removeTagUrl(item, tag)" class="library-inline-form">
+                  <input v-if="requestToken" type="hidden" name="requesttoken" :value="requestToken">
                   <button type="submit">Remove tag</button>
                 </form>
               </li>
             </ul>
             <form method="post" :action="item.tagUrl" class="library-tag-form">
+              <input v-if="requestToken" type="hidden" name="requesttoken" :value="requestToken">
               <label>
                 Add Nextcloud tag
                 <input type="text" name="nextcloudTagName" placeholder="photography, project-library...">
@@ -196,6 +199,7 @@ function removeTagUrl(item, tag) {
               </ul>
             </template>
             <form method="post" :action="item.commentUrl" class="library-comment-form">
+              <input v-if="requestToken" type="hidden" name="requesttoken" :value="requestToken">
               <label>
                 Add Nextcloud comment
                 <textarea name="commentMessage" rows="2" placeholder="file-level note..."></textarea>
@@ -205,6 +209,7 @@ function removeTagUrl(item, tag) {
           </div>
 
           <form method="post" :action="item.updateUrl" class="library-item-form">
+            <input v-if="requestToken" type="hidden" name="requesttoken" :value="requestToken">
             <label>
               Title
               <input type="text" name="title" :value="item.title">
