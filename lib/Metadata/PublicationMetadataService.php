@@ -614,6 +614,10 @@ final class PublicationMetadataService {
             $value = mb_convert_encoding(substr($value, 2), 'UTF-8', 'UTF-16BE');
         } elseif (str_starts_with($value, "\xFF\xFE")) {
             $value = mb_convert_encoding(substr($value, 2), 'UTF-8', 'UTF-16LE');
+        } elseif (!mb_check_encoding($value, 'UTF-8')) {
+            // Real-world PDF Info dictionaries often contain PDFDocEncoding/Latin-1-like bytes
+            // without a BOM. Convert these to valid UTF-8 before inserting into MariaDB.
+            $value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
         }
 
         return (string)preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $value);

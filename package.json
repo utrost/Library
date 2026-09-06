@@ -13,7 +13,8 @@
     "smoke:vue": "node scripts/smoke-vue-page.mjs",
     "smoke:browser": "node scripts/smoke-browser-page.mjs",
     "smoke:separation": "node scripts/smoke-metadata-separation.mjs",
-    "smoke:scale": "node scripts/smoke-scale-pilot.mjs"
+    "smoke:scale": "node scripts/smoke-scale-pilot.mjs",
+    "smoke:real-scale": "node scripts/smoke-real-scale-pilot.mjs"
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"
