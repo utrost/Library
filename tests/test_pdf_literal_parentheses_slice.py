@@ -4,7 +4,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_pdf_info_literal_extractor_walks_balanced_parentheses_instead_of_regex_only():
-    service = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
+    service = (ROOT / "lib" / "Metadata" / "PdfInfoMetadataExtractor.php").read_text()
 
     assert "extractPdfInfoLiteralBytes" in service
     assert "balanced PDF literal strings" in service
@@ -16,7 +16,7 @@ def test_pdf_info_literal_extractor_walks_balanced_parentheses_instead_of_regex_
 
 
 def test_pdf_info_literal_extractor_preserves_escaped_parentheses():
-    service = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
+    service = (ROOT / "lib" / "Metadata" / "PdfInfoMetadataExtractor.php").read_text()
 
     assert "escaped parentheses inside PDF literal strings" in service
     assert "if ($char === '\\\\')" in service

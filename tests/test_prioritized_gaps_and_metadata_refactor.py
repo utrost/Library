@@ -15,6 +15,8 @@ def test_roadmap_prioritizes_gaps_after_real_1k_pilot():
     assert "P5 — Discovery by publication structure" in roadmap
     assert "P6 — Root/onboarding/shared-library polish" in roadmap
     assert "Real-corpus filename hardening landed" in roadmap
+    assert "FilenameMetadataExtractor" in roadmap
+    assert "PdfInfoMetadataExtractor" in roadmap
 
 
 def test_user_guide_exposes_prioritized_next_gaps():
