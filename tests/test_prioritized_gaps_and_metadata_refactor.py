@@ -9,10 +9,10 @@ def test_roadmap_prioritizes_gaps_after_real_1k_pilot():
     assert "## Prioritized v0.1 gap stack after the 1k real-corpus pilot" in roadmap
     assert "P0 — Keep metadata quality work safe: split the extractor seam" in roadmap
     assert "P1 — Metadata correction workflow" in roadmap
-    assert "P2 — Metadata portability" in roadmap
+    assert "P2 — Discovery by publication structure" in roadmap
     assert "P3 — Scan lifecycle repair controls" in roadmap
     assert "P4 — Cover quality path" in roadmap
-    assert "P5 — Discovery by publication structure" in roadmap
+    assert "P5 — Metadata portability" in roadmap
     assert "P6 — Root/onboarding/shared-library polish" in roadmap
     assert "Real-corpus filename hardening landed" in roadmap
     assert "FilenameMetadataExtractor" in roadmap

@@ -15,6 +15,7 @@ const pageSizes = [25, 50, 100, 250, 500]
 const items = computed(() => props.state.items || [])
 const shelves = computed(() => props.state.shelves || [])
 const formats = computed(() => props.state.formats || [])
+const publications = computed(() => props.state.publications || [])
 const scanStatuses = computed(() => props.state.scanStatuses || [])
 const pagination = computed(() => props.state.cataloguePagination || {
   page: 1,
@@ -29,6 +30,7 @@ const pagination = computed(() => props.state.cataloguePagination || {
 const activeFilters = reactive({
   q: props.state.activeFilters?.q || '',
   type: props.state.activeFilters?.type || '',
+  publication: props.state.activeFilters?.publication || '',
   format: props.state.activeFilters?.format || '',
   tag: props.state.activeFilters?.tag || '',
   shelf: props.state.activeFilters?.shelf || '',
@@ -67,6 +69,13 @@ function tagsFor(item) {
         </select>
       </label>
       <label>
+        {{ t('library', 'Series / periodical') }}
+        <select v-model="activeFilters.publication" name="publication">
+          <option value="">{{ t('library', 'All series and periodicals') }}</option>
+          <option v-for="publication in publications" :key="publication" :value="publication">{{ publication }}</option>
+        </select>
+      </label>
+      <label>
         {{ t('library', 'Nextcloud tag') }}
         <input v-model="activeFilters.tag" type="text" name="tag" placeholder="photography">
       </label>
@@ -97,6 +106,7 @@ function tagsFor(item) {
           <option value="title">{{ t('library', 'Title') }}</option>
           <option value="recent">{{ t('library', 'Recently added') }}</option>
           <option value="publicationDate">{{ t('library', 'Publication date') }}</option>
+          <option value="publication">{{ t('library', 'Series / periodical') }}</option>
           <option value="format">{{ t('library', 'Format') }}</option>
         </select>
       </label>
@@ -133,6 +143,8 @@ function tagsFor(item) {
           <p v-if="item.creators" class="library-creator">{{ item.creators }}</p>
           <p class="library-muted">
             <span>{{ item.publicationType }}</span>
+            <span v-if="item.publication"> · {{ item.publication }}</span>
+            <span v-if="item.publicationDate"> · {{ item.publicationDate }}</span>
             <span v-if="item.extension"> · Format: {{ upper(item.extension) }}</span>
             <span v-if="item.shelf"> · Shelf: {{ item.shelf }}</span>
           </p>

@@ -56,6 +56,7 @@ class PageController extends Controller {
         $activeFilters = [
             'q' => trim((string)$this->request->getParam('q', '')),
             'type' => trim((string)$this->request->getParam('type', '')),
+            'publication' => trim((string)$this->request->getParam('publication', '')),
             'format' => trim((string)$this->request->getParam('format', '')),
             'tag' => trim((string)$this->request->getParam('tag', '')),
             'shelf' => trim((string)$this->request->getParam('shelf', '')),
@@ -72,7 +73,7 @@ class PageController extends Controller {
         $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination) : [
             'items' => [],
             'total' => 0,
-            'facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing']],
+            'facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'publications' => []],
         ];
         $items = $catalogue['items'];
         $pagination['total'] = (int)$catalogue['total'];
@@ -90,6 +91,7 @@ class PageController extends Controller {
             'items' => $items,
             'shelves' => $catalogue['facets']['shelves'],
             'formats' => $catalogue['facets']['formats'],
+            'publications' => $catalogue['facets']['publications'],
             'scanStatuses' => $catalogue['facets']['scanStatuses'],
             'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
@@ -143,7 +145,7 @@ class PageController extends Controller {
     }
 
     /**
-     * @param array{q:string,type:string,tag:string,shelf:string,format:string,status:string,sort:string} $activeFilters
+     * @param array{q:string,type:string,publication:string,tag:string,shelf:string,format:string,status:string,sort:string} $activeFilters
      * @param array{limit:int} $pagination
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
