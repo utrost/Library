@@ -428,7 +428,7 @@ The 1k real-corpus pilot moved the biggest uncertainty from “can Library brows
 
 Current priority order:
 
-1. **P0 — Keep metadata quality work safe: split the extractor seam.** `PublicationMetadataService` has become the main hotspot because it owns OPF, EPUB, PDF, CBZ and filename parsing. Before adding more real-corpus rules, split it into narrower extractor adapters behind the existing service façade while preserving behaviour and tests.
+1. **P0 — Keep metadata quality work safe: split the extractor seam.** `PublicationMetadataService` has become the main hotspot because it owns OPF, EPUB, PDF, CBZ and filename parsing. Before adding more real-corpus rules, split it into narrower extractor adapters behind the existing service façade while preserving behaviour and tests. First refactor slices landed: filename/folder parsing now lives in `FilenameMetadataExtractor`, and PDF Info parsing/decoding now lives in `PdfInfoMetadataExtractor`.
 2. **P1 — Metadata correction workflow.** Details editing works, but one user edit protects the whole item. Add field-level provenance, reset/revert-to-scanner actions, date/language/creator validation guidance and eventually a review queue for scanner/sidecar/user conflicts.
 3. **P2 — Metadata portability.** Corrected metadata export exists, but import/write-back does not. Add a way to restore corrected metadata into a fresh install, then consider OPF/JSON sidecar write-back so corrections become File-First durable.
 4. **P3 — Scan lifecycle repair controls.** Queued per-root scans and progress/history exist. Missing pieces are retry metadata errors, check missing files, cancellation, scheduled/resumable scans and completion/failure notifications.

@@ -32,12 +32,14 @@ def test_publication_metadata_service_extracts_standalone_opf_metadata():
 
 def test_publication_metadata_service_extracts_basic_pdf_info_without_reclassifying_pdf_as_book():
     service = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
-    assert "extractPdfMetadata" in service
+    pdf = (ROOT / "lib" / "Metadata" / "PdfInfoMetadataExtractor.php").read_text()
+
+    assert "new PdfInfoMetadataExtractor()" in service
     assert "application/pdf" in service
-    assert "/Title" in service
-    assert "/Author" in service
-    assert "pdf-info" in service
-    assert "publicationType' => 'other'" in service
+    assert "/Title" in pdf
+    assert "/Author" in pdf
+    assert "pdf-info" in pdf
+    assert "publicationType' => 'other'" in pdf
 
 
 def test_scanner_passes_extracted_metadata_to_item_service_after_indexing_file():

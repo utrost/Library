@@ -4,7 +4,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_pdf_info_extractor_maps_subject_to_subtitle_without_reclassifying_pdf():
-    service = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
+    service = (ROOT / "lib" / "Metadata" / "PdfInfoMetadataExtractor.php").read_text()
 
     assert "extractPdfInfoString($content, 'Subject')" in service
     assert "metadata['subtitle'] = $subject" in service
@@ -13,7 +13,7 @@ def test_pdf_info_extractor_maps_subject_to_subtitle_without_reclassifying_pdf()
 
 
 def test_pdf_info_extractor_normalizes_creation_and_mod_dates_for_publication_date():
-    service = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
+    service = (ROOT / "lib" / "Metadata" / "PdfInfoMetadataExtractor.php").read_text()
 
     assert "extractPdfInfoDate($content, 'CreationDate')" in service
     assert "extractPdfInfoDate($content, 'ModDate')" in service
@@ -24,7 +24,7 @@ def test_pdf_info_extractor_normalizes_creation_and_mod_dates_for_publication_da
 
 
 def test_pdf_info_extractor_does_not_promote_software_or_keywords_as_publication_truth():
-    service = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
+    service = (ROOT / "lib" / "Metadata" / "PdfInfoMetadataExtractor.php").read_text()
 
     assert "Creator/Producer/Keywords stay out of the canonical publication item" in service
     assert "extractPdfInfoString($content, 'Creator')" not in service
