@@ -44,6 +44,28 @@ const activeFilters = reactive({
 })
 const settingsUrl = computed(() => props.state.settingsUrl || '')
 const metadataExportUrl = computed(() => props.state.metadataExportUrl || '')
+const filterLabels = {
+  q: 'Search',
+  type: 'Type',
+  publication: 'Series / periodical',
+  year: 'Publication year',
+  creator: 'Creator',
+  format: 'Format',
+  tag: 'Nextcloud tag',
+  shelf: 'Shelf',
+  status: 'Scan status',
+}
+const activeFilterChips = computed(() => Object.entries(filterLabels)
+  .map(([key, label]) => ({ key, label, value: activeFilters[key] || '' }))
+  .filter((chip) => String(chip.value).trim() !== ''))
+
+function filterChipRemoveUrl(key) {
+  const params = new URLSearchParams(window.location.search)
+  params.delete(key)
+  params.delete('page')
+  const query = params.toString()
+  return query ? `?${query}` : '?'
+}
 
 function upper(value) {
   return String(value || '').toUpperCase()
@@ -146,6 +168,13 @@ function publicationFilterUrl(publication) {
       <button type="submit" class="button primary" :aria-label="t('library', 'Apply catalogue filters')">{{ t('library', 'Apply filters') }}</button>
       <a href="?" class="button secondary" :aria-label="t('library', 'Clear catalogue filters')">{{ t('library', 'Clear') }}</a>
     </form>
+
+    <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
+      <span>{{ t('library', 'Active filters') }}</span>
+      <a v-for="chip in activeFilterChips" :key="chip.key" :href="filterChipRemoveUrl(chip.key)" class="library-filter-chip" :aria-label="`${t('library', 'Remove filter')}: ${chip.label}`">
+        <strong>{{ chip.label }}:</strong> {{ chip.value }} <span aria-hidden="true">×</span>
+      </a>
+    </nav>
 
     <nav class="library-pagination" :aria-label="t('library', 'Catalogue pagination')">
       <span>Showing {{ pagination.from }}–{{ pagination.to }} of {{ pagination.total }} catalogue items</span>
