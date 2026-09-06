@@ -73,6 +73,16 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <a href="<?php p($_['metadataExportUrl']); ?>" class="button secondary"><?php p($l->t('Export corrected metadata')); ?></a>
         </p>
 
+        <form method="post" action="<?php p($_['metadataImportPreviewUrl']); ?>" class="library-form library-metadata-import-preview-form">
+            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+            <label>
+                <?php p($l->t('Preview metadata import')); ?>
+                <textarea name="metadataJson" rows="6" placeholder="<?php p($l->t('Paste a Library corrected metadata JSON export here.')); ?>"></textarea>
+            </label>
+            <p class="library-muted"><?php p($l->t('No changes are written during preview. Apply imported metadata remains future work.')); ?></p>
+            <button type="submit" class="button secondary"><?php p($l->t('Preview metadata import')); ?></button>
+        </form>
+
         <section class="library-scan-progress" aria-labelledby="library-scan-progress-heading" data-library-scan-progress-url="<?php p($_['scanProgressUrl']); ?>">
             <h3 id="library-scan-progress-heading"><?php p($l->t('Scan progress')); ?></h3>
             <?php if ($latestScanJob === null): ?>

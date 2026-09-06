@@ -39,6 +39,7 @@ The current development slice can:
 - forget missing item catalogue entries from the details page after their backing file is no longer seen, without deleting source files.
 - edit, enable/disable and delete Library roots from the personal settings surface without deleting source files from Nextcloud Files.
 - export corrected metadata as a side-effect-free JSON download for user-edited catalogue rows.
+- preview corrected metadata imports without writing changes, so restore matching can be checked before a future apply step.
 - filter the catalogue by scan status (`indexed`, `metadata_error`, `missing`) and show per-card scan diagnostics for unhealthy items.
 - query catalogue search, filters, sort modes and pagination through database-backed item queries instead of loading the full catalogue into app-layer arrays.
 - isolate local metadata extraction failures per file so corrupt EPUB/CBZ/OPF fixtures do not abort an otherwise healthy root scan, and show the scan error in the indexed-file diagnostics.

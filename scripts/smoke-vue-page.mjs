@@ -49,14 +49,17 @@ function decodeInitialState(page) {
   return JSON.parse(Buffer.from(escaped, 'base64').toString('utf8'))
 }
 
-async function fetchText(pathOrUrl, token) {
+async function fetchText(pathOrUrl, token, options = {}) {
   const url = pathOrUrl.startsWith('http') ? pathOrUrl : new URL(pathOrUrl, upstream).toString()
   const response = await fetch(url, {
+    method: options.method || 'GET',
+    body: options.body,
     headers: {
       Authorization: `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`,
+      ...(options.headers || {}),
     },
   })
-  return { status: response.status, text: await response.text() }
+  return { status: response.status, text: await response.text(), headers: response.headers }
 }
 
 async function fetchBinaryHeaders(pathOrUrl, token) {
@@ -122,7 +125,27 @@ try {
       const seedOutput = runDockerPhp(`require_once "/var/www/html/lib/base.php"; $itemId=${itemId}; $candidateTitle=${JSON.stringify(candidateTitle)}; $db=\\OC::$server->get(\\OCP\\IDBConnection::class); $qb=$db->getQueryBuilder(); $res=$qb->select("field_sources", "field_values")->from("library_items")->where($qb->expr()->eq("id", $qb->createNamedParameter($itemId)))->executeQuery(); $row=$res->fetch(); $res->closeCursor(); echo base64_encode(json_encode($row === false ? [] : $row))."\\n"; $sources=$row !== false && is_string($row["field_sources"] ?? null) && trim($row["field_sources"]) !== "" ? json_decode($row["field_sources"], true) : []; $values=$row !== false && is_string($row["field_values"] ?? null) && trim($row["field_values"]) !== "" ? json_decode($row["field_values"], true) : []; if (!is_array($sources)) { $sources=[]; } if (!is_array($values)) { $values=[]; } $sources["title"]="filename"; $values["title"]=$candidateTitle; $qb=$db->getQueryBuilder(); $qb->update("library_items")->set("field_sources", $qb->createNamedParameter(json_encode($sources)))->set("field_values", $qb->createNamedParameter(json_encode($values)))->where($qb->expr()->eq("id", $qb->createNamedParameter($itemId)))->executeStatement();`)
       restoreFieldProvenance = { itemId, encoded: seedOutput.trim().split(/\r?\n/).at(0) || '' }
     }
-    const detail = first.detailsUrl ? await fetchText(first.detailsUrl, token) : { status: 0, text: '' }
+    const detail = first.detailsUrl ? await fetchText(first.detailsUrl, token) : { status: 0, text: '', headers: new Headers() }
+    const settingsPage = await fetchText('/settings/user/library', token)
+    const metadataImportPreviewUrl = '/apps/library/import/metadata/preview'
+    const importPreviewPayload = {
+      schemaVersion: 1,
+      exportKind: 'library-corrected-metadata',
+      itemCount: first.id ? 1 : 0,
+      items: first.id ? [{
+        ...first,
+        title: `${first.title || 'Untitled publication'} · import preview`,
+      }] : [],
+    }
+    const importPreview = await fetchText(metadataImportPreviewUrl, token, {
+      method: 'POST',
+      body: new URLSearchParams({ metadataJson: JSON.stringify(importPreviewPayload) }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    })
+    let importPreviewJson = null
+    try {
+      importPreviewJson = JSON.parse(importPreview.text)
+    } catch {}
     const cover = first.coverUrl ? await fetchBinaryHeaders(first.coverUrl, token) : { status: 0, contentType: '', coverStatus: '', coverReason: '' }
     const download = first.downloadUrl ? await fetchBinaryStatus(first.downloadUrl, token) : { status: 0, bytes: 0, contentType: '' }
 
@@ -163,6 +186,12 @@ try {
     console.log(`detail_has_fields_reset_form=${detail.text.includes('library-fields-reset-form') && detail.text.includes('Reset all fields to scanner')}`)
     console.log(`detail_has_metadata_guidance=${detail.text.includes('library-metadata-guidance') && detail.text.includes('Use YYYY, YYYY-MM, or YYYY-MM-DD') && detail.text.includes('Use short language codes such as de, en, fr') && detail.text.includes('Separate multiple creators with semicolons')}`)
     console.log(`detail_has_field_conflict_marker=${detail.text.includes('library-field-conflict') && detail.text.includes('Differs from scanner')}`)
+    console.log(`detail_has_metadata_import_preview_form=${settingsPage.text.includes('library-metadata-import-preview-form') && settingsPage.text.includes('metadataJson') && settingsPage.text.includes('Preview metadata import')}`)
+    console.log(`metadataImportPreviewUrl=${metadataImportPreviewUrl}`)
+    console.log(`import_preview_http=${importPreview.status}`)
+    console.log(`import_preview_mode=${importPreview.headers.get('X-Library-Import-Mode') || ''}`)
+    console.log(`import_preview_matched_items=${importPreviewJson?.matchedItems ?? -1}`)
+    console.log(`import_preview_changed_fields=${importPreviewJson?.changedFields ?? -1}`)
     const scannerConflictCountMatch = detail.text.match(/Fields differing from scanner:\s*([0-9]+)/)
     const scannerConflictCount = scannerConflictCountMatch ? Number.parseInt(scannerConflictCountMatch[1], 10) : 0
     console.log(`detail_has_metadata_correction_summary=${detail.text.includes('library-metadata-correction-summary') && detail.text.includes('Scanner candidates') && detail.text.includes('Fields differing from scanner')}`)
@@ -179,7 +208,7 @@ try {
     console.log(`source_has_compact_mobile_hero=${sourceComponent.includes('library-hero-actions') && sourceStyle.includes('font-size: 28px;') && !sourceComponent.includes('without importing or owning the files')}`)
     console.log(`bad_host_hrefs=${(page.text.match(/href="http:\/\/(?:f|settings)\//g) || []).length}`)
 
-    if (page.status !== 200 || !state || items.length === 0 || !String(state?.metadataExportUrl || '').includes('/apps/library/export/metadata') || !('coverUrl' in first) || cover.status !== 200 || !cover.contentType.startsWith('image/') || !['preview', 'cbz-first-image', 'placeholder'].includes(cover.coverStatus) || cover.coverReason === '' || !('openUrl' in first) || !('filesUrl' in first) || !('downloadUrl' in first) || !String(first.downloadUrl || '').includes('/remote.php/dav/files/') || download.status !== 200 || download.bytes <= 0 || !('detailsUrl' in first) || !String(first.detailsUrl || '').includes('/apps/library/items/') || detail.status !== 200 || !detail.text.includes('Publication metadata') || !detail.text.includes('File metadata') || !detail.text.includes('Provenance') || !detail.text.includes('Nextcloud metadata') || !detail.text.includes('library-detail-edit-form') || !detail.text.includes('name="requesttoken"') || !detail.text.includes('name="returnTo"') || !detail.text.includes('value="details"') || !detail.text.includes('userEdited') || !detail.text.includes('library-field-provenance') || !detail.text.includes('Field-level provenance') || !detail.text.includes('Scanner candidate') || !detail.text.includes('library-field-reset-form') || !detail.text.includes('Reset to scanner') || !detail.text.includes('library-fields-reset-form') || !detail.text.includes('Reset all fields to scanner') || !detail.text.includes('library-metadata-guidance') || !detail.text.includes('Use YYYY, YYYY-MM, or YYYY-MM-DD') || !detail.text.includes('Use short language codes such as de, en, fr') || !detail.text.includes('Separate multiple creators with semicolons') || !detail.text.includes('library-field-conflict') || !detail.text.includes('Differs from scanner') || !detail.text.includes('library-metadata-correction-summary') || !detail.text.includes('Scanner candidates') || !detail.text.includes('Fields differing from scanner') || scannerConflictCount < 1 || scannerConflictCount > 8 || !detail.text.includes('library-detail-tag-editor') || !detail.text.includes('name="nextcloudTagName"') || !detail.text.includes('library-detail-comment-form') || !detail.text.includes('name="commentMessage"') || !detail.text.includes('Download source') || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
+    if (page.status !== 200 || !state || items.length === 0 || !String(state?.metadataExportUrl || '').includes('/apps/library/export/metadata') || !('coverUrl' in first) || cover.status !== 200 || !cover.contentType.startsWith('image/') || !['preview', 'cbz-first-image', 'placeholder'].includes(cover.coverStatus) || cover.coverReason === '' || !('openUrl' in first) || !('filesUrl' in first) || !('downloadUrl' in first) || !String(first.downloadUrl || '').includes('/remote.php/dav/files/') || download.status !== 200 || download.bytes <= 0 || !('detailsUrl' in first) || !String(first.detailsUrl || '').includes('/apps/library/items/') || detail.status !== 200 || !detail.text.includes('Publication metadata') || !detail.text.includes('File metadata') || !detail.text.includes('Provenance') || !detail.text.includes('Nextcloud metadata') || !detail.text.includes('library-detail-edit-form') || !detail.text.includes('name="requesttoken"') || !detail.text.includes('name="returnTo"') || !detail.text.includes('value="details"') || !detail.text.includes('userEdited') || !detail.text.includes('library-field-provenance') || !detail.text.includes('Field-level provenance') || !detail.text.includes('Scanner candidate') || !detail.text.includes('library-field-reset-form') || !detail.text.includes('Reset to scanner') || !detail.text.includes('library-fields-reset-form') || !detail.text.includes('Reset all fields to scanner') || !detail.text.includes('library-metadata-guidance') || !detail.text.includes('Use YYYY, YYYY-MM, or YYYY-MM-DD') || !detail.text.includes('Use short language codes such as de, en, fr') || !detail.text.includes('Separate multiple creators with semicolons') || !detail.text.includes('library-field-conflict') || !detail.text.includes('Differs from scanner') || !detail.text.includes('library-metadata-correction-summary') || !detail.text.includes('Scanner candidates') || !detail.text.includes('Fields differing from scanner') || scannerConflictCount < 1 || scannerConflictCount > 8 || !settingsPage.text.includes('library-metadata-import-preview-form') || !settingsPage.text.includes('metadataJson') || importPreview.status !== 200 || importPreview.headers.get('X-Library-Import-Mode') !== 'preview-only' || !importPreviewJson?.valid || importPreviewJson.matchedItems < 1 || importPreviewJson.changedFields < 1 || !detail.text.includes('library-detail-tag-editor') || !detail.text.includes('name="nextcloudTagName"') || !detail.text.includes('library-detail-comment-form') || !detail.text.includes('name="commentMessage"') || !detail.text.includes('Download source') || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
       fail('catalogue_initial_state_invalid')
     } else if (script.status !== 200 || css.status !== 200 || script.text.includes('process.env')) {
       fail('vue_assets_invalid')
