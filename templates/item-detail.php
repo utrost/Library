@@ -26,6 +26,15 @@ $fieldProvenanceRows = [
     'language' => 'Language',
     'publisher' => 'Publisher',
 ];
+$scannerCandidateCount = count(array_filter($fieldValues, static fn ($value) => trim((string)$value) !== ''));
+$scannerConflictCount = 0;
+foreach ($fieldProvenanceRows as $field => $_label) {
+    $currentValue = (string)($item[$field] ?? '');
+    $candidateValue = (string)($fieldValues[$field] ?? '');
+    if (trim($candidateValue) !== '' && $candidateValue !== $currentValue) {
+        $scannerConflictCount++;
+    }
+}
 $fileRows = [
     'fileId' => $item['fileId'] ?? '',
     'libraryFileId' => $item['libraryFileId'] ?? '',
@@ -160,6 +169,11 @@ $fileRows = [
             <p class="library-muted"><?php p($l->t('User-edited publication metadata is preserved across rescans. Scanner values remain provenance-labelled.')); ?></p>
             <div class="library-field-provenance" aria-label="fieldSources">
                 <h4><?php p($l->t('Field-level provenance')); ?></h4>
+                <div class="library-metadata-correction-summary" aria-label="<?php p($l->t('Metadata correction summary')); ?>">
+                    <strong><?php p($l->t('Read-only summary')); ?></strong>
+                    <span><?php p($l->t('Scanner candidates')); ?>: <?php p((string)$scannerCandidateCount); ?></span>
+                    <span><?php p($l->t('Fields differing from scanner')); ?>: <?php p((string)$scannerConflictCount); ?></span>
+                </div>
                 <?php $resetFieldsUrl = (string)($item['resetFieldsUrl'] ?? ''); ?>
                 <?php if ($resetFieldsUrl !== '' && count($fieldValues) > 0): ?>
                     <form method="post" action="<?php p($resetFieldsUrl); ?>" class="library-fields-reset-form">
