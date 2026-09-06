@@ -60,6 +60,7 @@ Current catalogue capabilities:
 - fetch the original source file through **Download source**;
 - open the item workbench through **Details**;
 - search by title, subtitle, creator, publication/series/periodical and path text;
+- filter by exact creator field as read-only discovery; creator identity splitting remains future work;
 - filter by series or periodical title for magazines, journals and recurring publications;
 - filter by publication year as read-only discovery for dated books, magazines, journals and comics;
 - use the **Top series and periodicals** panel to jump to recurring publications with item counts;

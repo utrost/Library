@@ -58,6 +58,7 @@ class PageController extends Controller {
             'type' => trim((string)$this->request->getParam('type', '')),
             'publication' => trim((string)$this->request->getParam('publication', '')),
             'year' => trim((string)$this->request->getParam('year', '')),
+            'creator' => trim((string)$this->request->getParam('creator', '')),
             'format' => trim((string)$this->request->getParam('format', '')),
             'tag' => trim((string)$this->request->getParam('tag', '')),
             'shelf' => trim((string)$this->request->getParam('shelf', '')),
@@ -74,7 +75,7 @@ class PageController extends Controller {
         $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination) : [
             'items' => [],
             'total' => 0,
-            'facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'publications' => [], 'publicationSummaries' => [], 'publicationYears' => []],
+            'facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'publications' => [], 'publicationSummaries' => [], 'publicationYears' => [], 'creators' => []],
         ];
         $items = $catalogue['items'];
         $pagination['total'] = (int)$catalogue['total'];
@@ -95,6 +96,7 @@ class PageController extends Controller {
             'publications' => $catalogue['facets']['publications'],
             'publicationSummaries' => $catalogue['facets']['publicationSummaries'],
             'publicationYears' => $catalogue['facets']['publicationYears'],
+            'creators' => $catalogue['facets']['creators'],
             'scanStatuses' => $catalogue['facets']['scanStatuses'],
             'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
@@ -148,12 +150,12 @@ class PageController extends Controller {
     }
 
     /**
-     * @param array{q:string,type:string,publication:string,year:string,tag:string,shelf:string,format:string,status:string,sort:string} $activeFilters
+     * @param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,sort:string} $activeFilters
      * @param array{limit:int} $pagination
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
         $query = [];
-        foreach (['q', 'type', 'publication', 'year', 'format', 'tag', 'shelf', 'status', 'sort'] as $param) {
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title')) {
                 $query[$param] = $value;
