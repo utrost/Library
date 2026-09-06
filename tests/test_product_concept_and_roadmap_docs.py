@@ -52,9 +52,9 @@ def test_roadmap_starts_with_roots_file_index_and_nextcloud_tags_before_metadata
     assert phase1 < phase2 < phase25 < phase3
 
     immediate = roadmap[roadmap.index("## Immediate next implementation slice") :]
-    assert "scanner-side metadata error isolation" in immediate
-    assert "error isolation" in immediate
-    assert "corrupt PDF/EPUB/CBZ/OPF" in immediate
+    assert "details-owned editing" in immediate
+    assert "detail workbench layout" in immediate
+    assert "browser accessibility smoke" in immediate
     assert "must not alter publication form/title/creator fields" in immediate
     assert "Library-native tag tables" in immediate
 
