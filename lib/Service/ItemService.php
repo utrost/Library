@@ -186,6 +186,54 @@ final class ItemService {
         return $affected > 0;
     }
 
+    public function resetAllFieldsToScannerCandidates(string $userId, int $itemId): bool {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('field_sources', 'field_values')
+            ->from('library_items')
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeQuery();
+        $row = $result->fetch();
+        $result->closeCursor();
+        if ($row === false) {
+            return false;
+        }
+
+        $candidateValues = $this->decodeJsonMap($row['field_values'] ?? null);
+        $candidateSources = $this->decodeJsonMap($row['field_sources'] ?? null);
+        $qb = $this->db->getQueryBuilder();
+        $update = $qb->update('library_items');
+        $hasCandidate = false;
+        foreach (self::PUBLICATION_FIELDS as $field) {
+            if (!array_key_exists($field, $candidateValues)) {
+                continue;
+            }
+            $column = $this->databaseColumnForField($field);
+            if ($column === null) {
+                continue;
+            }
+            $candidateSources[$field] = $candidateSources[$field] ?? 'scanner';
+            $candidateValues[$field] = (string)$candidateValues[$field];
+            $update->set($column, $qb->createNamedParameter($this->databaseValueForField($field, $candidateValues[$field])));
+            $hasCandidate = true;
+        }
+        if (!$hasCandidate) {
+            return false;
+        }
+
+        $affected = $update
+            ->set('metadata_source', $qb->createNamedParameter('mixed'))
+            ->set('user_edited', $qb->createNamedParameter(1))
+            ->set('field_sources', $qb->createNamedParameter(json_encode($candidateSources, JSON_THROW_ON_ERROR)))
+            ->set('field_values', $qb->createNamedParameter(json_encode($candidateValues, JSON_THROW_ON_ERROR)))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+
+        return $affected > 0;
+    }
+
     /**
      * @return array<int, array<string, mixed>>
      */
