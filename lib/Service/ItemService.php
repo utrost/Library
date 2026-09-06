@@ -121,6 +121,7 @@ final class ItemService {
         $now = time();
         $publicationType = $this->normalizePublicationType((string)($metadata['publicationType'] ?? 'other'));
         $title = trim((string)($metadata['title'] ?? '')) ?: 'Untitled publication';
+        $existingProvenance = $this->existingFieldProvenance($userId, $itemId);
 
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items')
@@ -133,17 +134,8 @@ final class ItemService {
             ->set('language', $qb->createNamedParameter($this->nullableString($metadata['language'] ?? null)))
             ->set('publisher', $qb->createNamedParameter($this->nullableString($metadata['publisher'] ?? null)))
             ->set('metadata_source', $qb->createNamedParameter('user'))
-            ->set('field_sources', $qb->createNamedParameter(json_encode($this->buildUserFieldSources(), JSON_THROW_ON_ERROR)))
-            ->set('field_values', $qb->createNamedParameter(json_encode($this->buildCurrentFieldValues([
-                'publicationType' => $publicationType,
-                'title' => $title,
-                'subtitle' => $this->nullableString($metadata['subtitle'] ?? null),
-                'creators' => $this->nullableString($metadata['creators'] ?? null),
-                'publication' => $this->nullableString($metadata['publication'] ?? null),
-                'publicationDate' => $this->nullableString($metadata['publicationDate'] ?? null),
-                'language' => $this->nullableString($metadata['language'] ?? null),
-                'publisher' => $this->nullableString($metadata['publisher'] ?? null),
-            ]), JSON_THROW_ON_ERROR)))
+            ->set('field_sources', $qb->createNamedParameter(json_encode($existingProvenance['fieldSources'], JSON_THROW_ON_ERROR)))
+            ->set('field_values', $qb->createNamedParameter(json_encode($existingProvenance['fieldValues'], JSON_THROW_ON_ERROR)))
             ->set('user_edited', $qb->createNamedParameter(1))
             ->set('updated_at', $qb->createNamedParameter($now))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
@@ -548,10 +540,24 @@ final class ItemService {
     }
 
     /**
-     * @return array<string, string>
+     * @return array{fieldSources:array<string, string>,fieldValues:array<string, string>}
      */
-    private function buildUserFieldSources(): array {
-        return array_fill_keys(self::PUBLICATION_FIELDS, 'user');
+    private function existingFieldProvenance(string $userId, int $itemId): array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('field_sources', 'field_values')
+            ->from('library_items')
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeQuery();
+        $row = $result->fetch();
+        $result->closeCursor();
+        if ($row === false) {
+            return ['fieldSources' => [], 'fieldValues' => []];
+        }
+        return [
+            'fieldSources' => $this->decodeJsonMap($row['field_sources'] ?? null),
+            'fieldValues' => $this->decodeJsonMap($row['field_values'] ?? null),
+        ];
     }
 
     /**

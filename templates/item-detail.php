@@ -160,7 +160,7 @@ $fileRows = [
                     <thead>
                         <tr>
                             <th><?php p($l->t('Field')); ?></th>
-                            <th><?php p($l->t('Source')); ?></th>
+                            <th><?php p($l->t('Scanner source')); ?></th>
                             <th><?php p($l->t('Current value')); ?></th>
                             <th><?php p($l->t('Scanner candidate')); ?></th>
                         </tr>

@@ -391,8 +391,8 @@ Acceptance checks:
 
 Visible gaps:
 
-- no field-level provenance: one user edit protects the item as a whole;
-- no reset/revert-to-scanner action;
+- field-level scanner candidates are stored, and a manual edit keeps scanner candidates available for later reset;
+- Reset to scanner remains available after editing when a stored scanner candidate differs from the current value;
 - no bulk edit or multi-select correction workflow;
 - no validation guidance for dates, language codes or creator formatting;
 - no review queue for scanner/sidecar/user metadata conflicts.
@@ -544,7 +544,7 @@ Visible gaps:
 The 1k real-corpus pilot proved that the catalogue can handle a realistic staged shelf, but it also showed where the next work should concentrate. Real-corpus filename hardening landed after the pilot, so the next gap order is now:
 
 1. Keep metadata-quality work safe by splitting the extractor seam. `PublicationMetadataService` should remain the façade, but filename, PDF, OPF/EPUB and CBZ parsing should move into narrower adapters before more real-corpus rules accumulate. This refactor is now complete for the current extractor families: filename/folder parsing lives in `FilenameMetadataExtractor`, PDF Info parsing/decoding lives in `PdfInfoMetadataExtractor`, EPUB package/standalone OPF parsing lives in `OpfEpubMetadataExtractor`, and CBZ ComicInfo parsing lives in `CbzComicInfoMetadataExtractor`.
-2. Improve the metadata correction workflow. Details editing exists, field-level provenance is recorded and shown read-only on item details, and individual fields can show a **Reset to scanner** action when a stored scanner candidate differs from the current value. The whole-item reset path is still future work; conflict review and validation guidance are also still missing.
+2. Improve the metadata correction workflow. Details editing exists, field-level scanner candidates are recorded and shown on item details, manual edit keeps scanner candidates available for later reset, and individual fields can show a **Reset to scanner** action when a stored scanner candidate differs from the current value. The whole-item reset path is still future work; conflict review and validation guidance are also still missing.
 3. Make corrected metadata portable back into a fresh install or files. Read-only export exists; import/write-back to JSON or OPF sidecars does not.
 4. Add repair-oriented scan lifecycle controls. Queued scans and progress exist; retry metadata errors, check missing files, cancellation and notifications do not.
 5. Improve the cover quality path. Preview, CBZ first image and placeholders work; EPUB cover extraction, cover cache/refresh and manual override do not.
@@ -557,7 +557,7 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 
 1. **Root management polish beyond the first lifecycle slice** — users can edit, enable/disable, delete and scan one root, but the workflow still needs stronger confirmation, clearer consequences and richer validation before release.
 2. **Scan lifecycle controls** — queued scans exist, but cancellation, retry, scheduled scans, metadata-error retry, missing-file checks and completion notifications are absent.
-3. **Metadata correction workflow** — details editing works, but there is no bulk edit, reset-to-scanner, field-level provenance, conflict review or validation guidance.
+3. **Metadata correction workflow** — details editing, field-level scanner candidates and single-field reset-to-scanner exist, but there is no whole-item reset, bulk edit, conflict review or validation guidance.
 4. **Tag UX** — tag add/remove works, but lacks autocomplete, picker, bulk tagging and clear permission feedback.
 5. **Cover quality path** — preview/CBZ/placeholder covers work, but EPUB covers, cover cache and manual overrides remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
