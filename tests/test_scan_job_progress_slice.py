@@ -20,7 +20,7 @@ def test_scan_job_service_tracks_start_finish_and_recent_user_job():
     service = (ROOT / "lib" / "Service" / "ScanJobService.php").read_text()
 
     assert "final class ScanJobService" in service
-    assert "public function startJob(string $userId): array" in service
+    assert "public function startJob(string $userId, string $scopeType = 'all', ?int $rootId = null): array" in service
     assert "public function finishJob(string $userId, int $jobId, array $result): void" in service
     assert "public function failJob(string $userId, int $jobId, string $error): void" in service
     assert "public function latestJob(string $userId): ?array" in service

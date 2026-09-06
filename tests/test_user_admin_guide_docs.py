@@ -55,7 +55,7 @@ def test_user_guide_lists_reviewable_missing_feature_candidates():
     guide = (ROOT / "docs" / "user-guide.md").read_text()
 
     for gap in [
-        "Root management polish",
+        "Root management polish beyond the first lifecycle slice",
         "Database-level catalogue querying",
         "Scan lifecycle controls",
         "Metadata correction workflow",
@@ -95,8 +95,11 @@ def test_roadmap_combines_user_review_questions_with_guide_gaps():
 def test_roadmap_recommends_root_lifecycle_and_per_root_scan_next():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 
-    assert "Recommended next slice: **root lifecycle plus per-root scan foundation**" in roadmap
+    assert "Root lifecycle UI and routes.** First slice landed" in roadmap
+    assert "Per-root scan.** First slice landed" in roadmap
     assert "delete affects Library catalogue/index data, not Nextcloud Files" in roadmap
-    assert "scan job scoped to one root" in roadmap
+    assert "scan job rows track scope" in roadmap
+    assert "Recommended next slice: **deletion/forget policy plus uninstall/export documentation**" in roadmap
+    assert "forget missing item" in roadmap
     assert "cover cache or cover refresh" in roadmap
     assert "deleting source files from Nextcloud Files" in roadmap

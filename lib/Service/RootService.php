@@ -81,6 +81,78 @@ final class RootService {
         ];
     }
 
+    public function updateRoot(string $userId, int $rootId, string $path, ?string $label = null): void {
+        $qb = $this->db->getQueryBuilder();
+        $qb->update('library_roots')
+            ->set('path', $qb->createNamedParameter($this->normalizePath($path)))
+            ->set('label', $qb->createNamedParameter($this->normalizeLabel($label)))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+    }
+
+    public function setRootEnabled(string $userId, int $rootId, bool $enabled): void {
+        $qb = $this->db->getQueryBuilder();
+        $qb->update('library_roots')
+            ->set('enabled', $qb->createNamedParameter($enabled ? 1 : 0))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+    }
+
+    public function deleteRoot(string $userId, int $rootId): void {
+        $libraryFileIds = [];
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('id')
+            ->from('library_files')
+            ->where($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeQuery();
+        while ($row = $result->fetch()) {
+            $libraryFileIds[] = (int)$row['id'];
+        }
+        $result->closeCursor();
+
+        foreach ($libraryFileIds as $libraryFileId) {
+            $qb = $this->db->getQueryBuilder();
+            $qb->delete('library_items')
+                ->where($qb->expr()->eq('library_file_id', $qb->createNamedParameter($libraryFileId)))
+                ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+                ->executeStatement();
+        }
+
+        $qb = $this->db->getQueryBuilder();
+        $qb->delete('library_files')
+            ->where($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+
+        $qb = $this->db->getQueryBuilder();
+        $qb->delete('library_roots')
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+    }
+
+    public function findRoot(string $userId, int $rootId): ?array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('*')
+            ->from('library_roots')
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeQuery();
+
+        $row = $result->fetch();
+        $result->closeCursor();
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->normalizeRow($row);
+    }
+
     public function markScanned(int $rootId): void {
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_roots')

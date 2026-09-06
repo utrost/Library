@@ -131,7 +131,7 @@ function runLibraryScan() {
   return php(`
 require_once "/var/www/html/lib/base.php";
 $scanner = \\OC::$server->get(\\OCA\\Library\\Service\\LibraryScanner::class);
-$result = $scanner->scan(getenv('USER_ID'), function(array $progress): void {});
+$result = $scanner->scan(getenv('USER_ID'), null, function(array $progress): void {});
 echo "library_scan_result=" . json_encode($result) . "\n";
 `, { USER_ID: user }, 1800000)
 }

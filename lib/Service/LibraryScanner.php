@@ -32,10 +32,11 @@ final class LibraryScanner {
     /**
      * @return array{roots:int,indexed:int,errors:array<int,string>}
      */
-    public function scan(string $userId, ?callable $progress = null): array {
+    public function scan(string $userId, ?int $onlyRootId = null, ?callable $progress = null): array {
         $indexed = 0;
         $errors = [];
-        $roots = $this->rootService->listEnabledRoots($userId);
+        $scopeRootId = $onlyRootId;
+        $roots = $this->filterRootsForScope($userId, $scopeRootId);
         $rootsTotal = count($roots);
         $userFolder = $this->rootFolder->getUserFolder($userId);
         $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Scanning enabled roots…');
@@ -62,6 +63,24 @@ final class LibraryScanner {
             'indexed' => $indexed,
             'errors' => $errors,
         ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function filterRootsForScope(string $userId, ?int $scopeRootId): array {
+        $roots = $this->rootService->listEnabledRoots($userId);
+        if ($scopeRootId === null || $scopeRootId <= 0) {
+            return $roots;
+        }
+
+        foreach ($roots as $root) {
+            if ((int)$root['id'] === $scopeRootId) {
+                return [$root];
+            }
+        }
+
+        throw new \RuntimeException('Scoped root not found or disabled');
     }
 
     private function resolveRootFolder(Folder $userFolder, string $path): Folder {

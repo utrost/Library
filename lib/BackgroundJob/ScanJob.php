@@ -24,13 +24,14 @@ class ScanJob extends QueuedJob {
     public function run($argument): void {
         $userId = (string)($argument['userId'] ?? '');
         $jobId = (int)($argument['jobId'] ?? 0);
+        $rootId = isset($argument['rootId']) ? (int)$argument['rootId'] : null;
         if ($userId === '' || $jobId <= 0) {
             return;
         }
 
         $this->scanJobService->markRunning($userId, $jobId);
         try {
-            $result = $this->scanner->scan($userId, function (array $progress) use ($userId, $jobId): void {
+            $result = $this->scanner->scan($userId, $rootId, function (array $progress) use ($userId, $jobId): void {
                 $this->scanJobService->updateProgress($userId, $jobId, $progress);
             });
             $this->scanJobService->finishJob($userId, $jobId, $result);

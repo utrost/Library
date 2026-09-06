@@ -29,7 +29,7 @@ class Personal implements ISettings {
         Util::addScript(Application::APP_ID, 'scan-progress');
 
         return new TemplateResponse(Application::APP_ID, 'settings-personal', [
-            'roots' => $this->rootService->listRoots($this->userId),
+            'roots' => $this->rootsWithActionUrls($this->rootService->listRoots($this->userId)),
             'files' => $this->fileIndexService->listFiles($this->userId),
             'latestScanJob' => $this->scanJobService->latestJob($this->userId),
             'scanJobHistory' => $this->scanJobService->recentJobs($this->userId, 5),
@@ -37,6 +37,21 @@ class Personal implements ISettings {
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
             'scanProgressUrl' => $this->urlGenerator->linkToRoute('library.scan.progress'),
         ], '');
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $roots
+     * @return array<int, array<string, mixed>>
+     */
+    private function rootsWithActionUrls(array $roots): array {
+        return array_map(function (array $root): array {
+            $rootId = (int)$root['id'];
+            $root['rootUpdateUrl'] = $this->urlGenerator->linkToRoute('library.root.update', ['rootId' => $rootId]);
+            $root['rootToggleUrl'] = $this->urlGenerator->linkToRoute('library.root.toggle', ['rootId' => $rootId]);
+            $root['rootDeleteUrl'] = $this->urlGenerator->linkToRoute('library.root.delete', ['rootId' => $rootId]);
+            $root['rootScanUrl'] = $this->urlGenerator->linkToRoute('library.scan.runRoot', ['rootId' => $rootId]);
+            return $root;
+        }, $roots);
     }
 
     #[\Override]
