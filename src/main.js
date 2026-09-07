@@ -236,6 +236,22 @@ function fallbackCatalogue(state, error) {
       exportLink.textContent = 'Export corrected metadata'
       actions.appendChild(exportLink)
     }
+    if (state.metadataSidecarManifestUrl) {
+      const manifestLink = document.createElement('a')
+      manifestLink.href = state.metadataSidecarManifestUrl
+      manifestLink.className = 'button secondary'
+      manifestLink.setAttribute('aria-label', 'Export sidecar manifest')
+      manifestLink.textContent = 'Export sidecar manifest'
+      actions.appendChild(manifestLink)
+    }
+    if (state.metadataSidecarBundleUrl) {
+      const sidecarZipLink = document.createElement('a')
+      sidecarZipLink.href = state.metadataSidecarBundleUrl
+      sidecarZipLink.className = 'button secondary'
+      sidecarZipLink.setAttribute('aria-label', 'Export sidecar ZIP')
+      sidecarZipLink.textContent = 'Export sidecar ZIP'
+      actions.appendChild(sidecarZipLink)
+    }
     settings.append(box, actions)
     root.appendChild(settings)
   }

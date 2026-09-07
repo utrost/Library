@@ -17,6 +17,7 @@ return [
         ['name' => 'scan#progress', 'url' => '/scan/progress', 'verb' => 'GET'],
         ['name' => 'export#metadata', 'url' => '/export/metadata', 'verb' => 'GET'],
         ['name' => 'export#sidecarManifest', 'url' => '/export/metadata/sidecar-manifest', 'verb' => 'GET'],
+        ['name' => 'export#sidecarBundle', 'url' => '/export/metadata/sidecars.zip', 'verb' => 'GET'],
         ['name' => 'import#preview', 'url' => '/import/metadata/preview', 'verb' => 'POST'],
         ['name' => 'import#apply', 'url' => '/import/metadata/apply', 'verb' => 'POST'],
         ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET'],
