@@ -69,7 +69,7 @@ Current v0.1 proof includes or is converging on:
 Explicit non-goals for v0.1:
 
 - custom EPUB/PDF/comic renderer;
-- annotations, bookmarks or Library-owned reading position;
+- page-position bookmarks, annotations or reader-owned reading position; Library-native stars/bookmarks and last-opened activity are now planned personal-library features;
 - OCR and full-text document search;
 - Internet metadata lookup;
 - OPDS/Kobo/Kindle integration;
@@ -81,6 +81,7 @@ Explicit non-goals for v0.1:
 - [User and admin guide](docs/user-guide.md)
 - [UX concept and user stories](docs/ux-concept.md)
 - [Active roadmap](docs/roadmap.md)
+- [Personal top features scope](docs/personal-top-features.md)
 - [Original concept summary](docs/concept.md)
 - [v0.1 technical specification draft](docs/v0.1-technical-spec.md)
 - [Metadata storage and Nextcloud integration](docs/metadata-storage.md)

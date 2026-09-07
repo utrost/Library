@@ -2,7 +2,7 @@
 
 Status: active planning roadmap  
 Last updated: 2026-09-06
-Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md), [Alice scale pilot notes](alice-scale-pilot.md)
+Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md), [Alice scale pilot notes](alice-scale-pilot.md)
 
 ## Roadmap stance
 
@@ -422,6 +422,21 @@ Exit criteria:
 - Magazine table-of-contents extraction.
 - Article-level indexing.
 - Page-level search.
+
+## Personal top features, 2026-09-07
+
+Uwe's current personal top features are scoped in [Personal top features](personal-top-features.md). This list shifts the next product direction from mostly release hardening toward daily-library usefulness: finish multi-root confidence, add starring/bookmarking, record last read/opened activity, search descriptions, add custom per-publication status, and model genres and classifications.
+
+Recommended order from that scope:
+
+1. **P0 — finish multi-root confidence.** Multiple roots exist, but this should be proven with a two-root real smoke, shelf filter checks and explicit overlapping-root behavior before more item metadata is layered on top.
+2. **P1 — starring/bookmarking.** Add a personal Library-native star because it is small, visible and more structured than a generic tag.
+3. **P2 — last read/opened.** Track `last_opened_at` when Library's **Read** action is used; defer true page-position “last read” to reader integrations.
+4. **P3 — search with description.** Add an editable/exportable description field and include it in the database-backed text search.
+5. **P4 — custom status per publication.** Add a Library-native reading/workflow status distinct from operational scan status; tags can approximate status today but should not be the whole model.
+6. **P5 — genres and classifications.** Add multi-value Library-native genres and classifications after the smaller personal fields prove the storage/filter/export pattern.
+
+Feedback: Nextcloud tags are useful as cross-app labels, but stars, Library-owned reading activity, workflow status, and genres/classifications should become canonical Library-native fields when they affect catalogue UX, filters, export/import or future sidecar write-back.
 
 ## Prioritized v0.1 gap stack after the 1k real-corpus pilot
 
