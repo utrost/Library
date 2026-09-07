@@ -76,7 +76,7 @@ final class ScanController extends Controller {
     public function cancel(int $jobId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
-            $this->scanJobService->cancelQueuedJob($user->getUID(), $jobId);
+            $this->scanJobService->cancelJob($user->getUID(), $jobId);
         }
 
         return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/settings/user/library'));

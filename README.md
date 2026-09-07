@@ -8,13 +8,13 @@ The model is deliberately similar to Memories for photographs and Music for audi
 
 ## Current status
 
-Current v0.1 development catalogue. The repository contains a conventional Nextcloud 34 app with a Vue/Vite catalogue, per-user roots, queued scans, file indexing, editable publication metadata, field-level scanner provenance, corrected-metadata export/import preview, database-backed search/filter/sort/pagination, compact cover-first browse cards and a detail workbench for editing metadata, tags and comments.
+Current v0.1 development catalogue. The repository contains a conventional Nextcloud 34 app with a Vue/Vite catalogue, per-user roots, queued scans with cooperative running-job cancellation, file indexing, editable publication metadata, field-level scanner provenance, corrected-metadata export/import preview, database-backed search/filter/sort/pagination, compact cover-first browse cards and a detail workbench for editing metadata, tags and comments.
 
 The current development slice can:
 
 - store user-specific Library roots in an extendable multi-root table;
 - configure an initial root path through the bootstrap UI;
-- manually scan all enabled roots or one selected root for the current user from `/settings/user/library` through a queued background scan, cancel queued scan jobs before they start, and record auto-refreshing scan progress, live-ish scan progress, scan scope, recent scan history, status, counts, duration and summary for progress/history visibility;
+- manually scan all enabled roots or one selected root for the current user from `/settings/user/library` through a queued background scan, use **Cancel queued scan** before a job starts or cancel queued/running scan jobs cooperatively, and record auto-refreshing scan progress, live-ish scan progress, scan scope, recent scan history, status, counts, duration and summary for progress/history visibility;
 - retry rows currently marked `metadata_error` from Library settings and **Recheck missing files** from the same surface without running a full library scan or marking unrelated indexed files missing;
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;
