@@ -158,7 +158,8 @@
 
 .library-tag-form,
 .library-comment-form,
-.library-inline-form {
+.library-inline-form,
+.library-tag-suggestion-picker {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;

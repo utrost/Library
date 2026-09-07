@@ -453,7 +453,7 @@ Current priority order:
 6. **P5 — Metadata portability.** Corrected metadata export exists, **Metadata import preview** landed, and the first apply flow applies matched corrected metadata to existing Library items. OPF/JSON sidecar write-back and fresh-install restore remain future work so corrections become fully File-First durable.
 7. **P6 — Root/onboarding/shared-library polish.** Root lifecycle works, but release polish needs stronger destructive-action confirmation, first-run guidance, recovery copy and eventually admin-managed shared-root provisioning.
 
-Tag result feedback has landed for the existing detail-page Nextcloud tag workflow: after add attempts, Library reports added, already assigned, empty and not-assignable outcomes while keeping catalogue cards browse-only and tags separate from Library-native genres/classifications.
+Tag result feedback has landed, and one-click suggested tag buttons have landed for the existing detail-page Nextcloud tag workflow: after add attempts, Library reports added, already assigned, empty and not-assignable outcomes while keeping catalogue cards browse-only and tags separate from Library-native genres/classifications. The picker only offers currently unassigned visible/assignable tags; bulk tagging remains future work.
 
 Immediate implementation stance: use the cleaner extractor boundary to support common browsing UX first. Series and periodicals should get practical catalogue affordances before more import/export work: filters, grouping, issue/date context and eventually dedicated publication pages.
 

@@ -55,5 +55,5 @@ def test_docs_mark_tag_feedback_landed_but_richer_picker_future():
 
     assert "tag result feedback" in guide.lower()
     assert "tag result feedback has landed" in roadmap.lower()
-    assert "richer picker" in guide.lower()
+    assert "one-click suggested tag buttons" in guide.lower()
     assert "bulk tagging" in guide.lower()

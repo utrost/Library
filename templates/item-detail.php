@@ -342,6 +342,21 @@ $fileRows = [
                     <p class="library-muted library-tag-feedback-help"><?php p($l->t('Tag result feedback can report: Tag already assigned, Tag is not assignable, or Empty tag ignored.')); ?></p>
                     <button type="submit"><?php p($l->t('Add tag')); ?></button>
                 </form>
+                <div class="library-tag-suggestion-picker" aria-label="<?php p($l->t('Suggested Nextcloud tags')); ?>">
+                    <strong><?php p($l->t('Suggested Nextcloud tags')); ?></strong>
+                    <?php if (count($tagSuggestions) === 0): ?>
+                        <span class="library-muted"><?php p($l->t('No assignable tag suggestions')); ?></span>
+                    <?php else: ?>
+                        <?php foreach ($tagSuggestions as $tagName): ?>
+                            <form method="post" action="<?php p($item['tagUrl'] ?? ''); ?>" class="library-inline-form">
+                                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                                <input type="hidden" name="returnTo" value="details" />
+                                <input type="hidden" name="nextcloudTagName" value="<?php p((string)$tagName); ?>" />
+                                <button type="submit" title="<?php p($l->t('Add suggested tag')); ?>: <?php p((string)$tagName); ?>"><?php p((string)$tagName); ?></button>
+                            </form>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
             </div>
             <div class="library-nextcloud-comments" aria-label="nextcloudComments">
                 <strong><?php p($l->t('Nextcloud comments')); ?></strong>
