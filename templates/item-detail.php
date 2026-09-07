@@ -91,36 +91,35 @@ $fileRows = [
                             · <?php p($l->t('Shelf: %s', [(string)$item['shelf']])); ?>
                         <?php endif; ?>
                     </p>
-                    <div class="library-detail-actions">
-                        <form method="post" action="<?php p($item['starUrl'] ?? ''); ?>" class="library-inline-form library-star-form">
-                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                            <input type="hidden" name="returnTo" value="details" />
-                            <input type="hidden" name="starred" value="<?php p(($item['starred'] ?? false) ? '0' : '1'); ?>" />
-                            <button type="submit" class="button secondary"><?php p(($item['starred'] ?? false) ? $l->t('Unstar this publication') : $l->t('Star this publication')); ?></button>
-                        </form>
-                        <form method="post" action="<?php p($item['workflowStatusUrl'] ?? ''); ?>" class="library-inline-form library-workflow-status-form">
-                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                            <input type="hidden" name="returnTo" value="details" />
-                            <label>
-                                <?php p($l->t('Workflow status')); ?>
-                                <select name="workflowStatus">
-                                    <?php foreach ($workflowStatuses as $status => $label): ?>
-                                        <option value="<?php p($status); ?>" <?php if (($item['workflowStatus'] ?? '') === $status) { print_unescaped('selected'); } ?>><?php p($l->t($label)); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </label>
-                            <button type="submit" class="button secondary"><?php p($l->t('Save status')); ?></button>
-                        </form>
-                        <a href="<?php p($item['openUrl'] ?? '#'); ?>" class="button primary"><?php p($l->t('Read')); ?></a>
-                        <a href="<?php p($item['filesUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Show in Files')); ?></a>
-                        <a href="<?php p($item['downloadUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Download source')); ?></a>
-                        <a href="<?php p($item['coverRefreshPageUrl'] ?? ($item['coverUrl'] ?? '#')); ?>" class="button secondary library-cover-refresh-action"><?php p($l->t('Refresh cover preview')); ?></a>
+                    <div class="library-detail-actionbar">
+                        <div class="library-detail-primary-actions">
+                            <a href="<?php p($item['openUrl'] ?? '#'); ?>" class="button primary"><?php p($l->t('Read')); ?></a>
+                            <a href="<?php p($item['filesUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Show in Files')); ?></a>
+                            <a href="<?php p($item['downloadUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Download source')); ?></a>
+                            <a href="<?php p($item['coverRefreshPageUrl'] ?? ($item['coverUrl'] ?? '#')); ?>" class="button secondary library-cover-refresh-action" title="<?php p((string)($item['coverQualityExplanation'] ?? $l->t('Library asks Nextcloud preview first, then format-specific cover fallbacks, and finally shows a stable placeholder.'))); ?>" aria-label="<?php p($l->t('Refresh cover preview. How Library chose this cover: %s', [(string)($item['coverQualityExplanation'] ?? '')])); ?>"><?php p($l->t('Refresh cover preview')); ?></a>
+                        </div>
+                        <div class="library-detail-secondary-actions">
+                            <form method="post" action="<?php p($item['starUrl'] ?? ''); ?>" class="library-inline-form library-star-form">
+                                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                                <input type="hidden" name="returnTo" value="details" />
+                                <input type="hidden" name="starred" value="<?php p(($item['starred'] ?? false) ? '0' : '1'); ?>" />
+                                <button type="submit" class="library-star-button <?php p(($item['starred'] ?? false) ? 'library-star-button--starred' : ''); ?>" aria-pressed="<?php p(($item['starred'] ?? false) ? 'true' : 'false'); ?>" title="<?php p(($item['starred'] ?? false) ? $l->t('Unstar this publication') : $l->t('Star this publication')); ?>" aria-label="<?php p(($item['starred'] ?? false) ? $l->t('Unstar this publication') : $l->t('Star this publication')); ?>">★</button>
+                            </form>
+                            <form method="post" action="<?php p($item['workflowStatusUrl'] ?? ''); ?>" class="library-inline-form library-workflow-status-form">
+                                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                                <input type="hidden" name="returnTo" value="details" />
+                                <label>
+                                    <?php p($l->t('Workflow status')); ?>
+                                    <select name="workflowStatus" onchange="this.form.submit()">
+                                        <?php foreach ($workflowStatuses as $status => $label): ?>
+                                            <option value="<?php p($status); ?>" <?php if (($item['workflowStatus'] ?? '') === $status) { print_unescaped('selected'); } ?>><?php p($l->t($label)); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </label>
+                                <button type="submit" class="button secondary library-workflow-status-submit-fallback"><?php p($l->t('Save status')); ?></button>
+                            </form>
+                        </div>
                     </div>
-                    <aside class="library-cover-quality-explanation" aria-labelledby="library-cover-quality-heading">
-                        <h3 id="library-cover-quality-heading"><?php p($l->t('How Library chose this cover')); ?></h3>
-                        <p><?php p((string)($item['coverQualityExplanation'] ?? $l->t('Library asks Nextcloud preview first, then format-specific cover fallbacks, and finally shows a stable placeholder.'))); ?></p>
-                        <p class="library-muted"><?php p($l->t('If you see a placeholder or a stale image, use Refresh cover preview to retry without browser caching. App-owned cover cache and manual cover override are still future work.')); ?></p>
-                    </aside>
                 </div>
             </div>
         </article>
