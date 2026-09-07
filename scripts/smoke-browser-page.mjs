@@ -300,6 +300,47 @@ async function runBrowserSmoke(proxyBase) {
     })
     const quickFilterDom = quickFilterResult.result?.value ?? quickFilterResult.value
 
+    const keyboardShortcutResult = await client.send('Runtime.evaluate', {
+      returnByValue: true,
+      awaitPromise: true,
+      expression: `new Promise((resolve) => {
+        const form = document.querySelector('.library-quick-filter-bar')
+        const search = form?.querySelector('[data-library-quick-search]') || form?.querySelector('input[name="q"]')
+        const startUrl = location.href
+        const realFetch = window.fetch
+        const calls = []
+        window.fetch = async (...args) => {
+          calls.push(String(args[0] || ''))
+          return {
+            ok: true,
+            json: async () => ({
+              items: [],
+              cataloguePagination: { page: 1, limit: 100, total: 0, visible: 0, from: 0, to: 0, previousUrl: '', nextUrl: '' },
+              activeFilters: { q: '', sort: 'title' },
+            }),
+          }
+        }
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true }))
+        const focused = document.activeElement === search
+        if (search) {
+          search.value = 'keyboard-smoke'
+          search.dispatchEvent(new Event('input', { bubbles: true }))
+        }
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        window.setTimeout(() => {
+          window.fetch = realFetch
+          resolve({
+            focused,
+            cleared: search?.value === '',
+            fetches: calls.length,
+            endpoint: calls[0] || '',
+            noNavigation: location.href === startUrl || !location.search.includes('keyboard-smoke'),
+          })
+        }, 500)
+      })`,
+    })
+    const keyboardShortcutDom = keyboardShortcutResult.result?.value ?? keyboardShortcutResult.value
+
     const firstDetailsUrl = new URL(dom.firstDetails, proxyBase)
     const detailUrl = `${proxyBase}${firstDetailsUrl.pathname}${firstDetailsUrl.search}`
     print('browser_detail_target', detailUrl)
@@ -470,6 +511,10 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_ajax_filter_endpoint', quickFilterDom?.endpoint || '')
     print('browser_ajax_filter_no_navigation', quickFilterDom?.noNavigation === true)
     print('browser_quick_filter_auto_submit', quickFilterDom?.fetchCalls >= 1 && quickFilterDom?.noNavigation === true && String(quickFilterDom?.endpoint || '').includes('/apps/library/catalogue'))
+    print('browser_keyboard_search_focus', keyboardShortcutDom?.focused === true)
+    print('browser_keyboard_search_escape_clears', keyboardShortcutDom?.cleared === true)
+    print('browser_keyboard_search_escape_fetches', keyboardShortcutDom?.fetches >= 1 && String(keyboardShortcutDom?.endpoint || '').includes('/apps/library/catalogue'))
+    print('browser_keyboard_search_no_navigation', keyboardShortcutDom?.noNavigation === true)
     print('browser_fallback', dom.fallback)
     print('browser_cards', dom.cards)
     print('browser_filters', dom.filters)
@@ -548,6 +593,11 @@ async function runBrowserSmoke(proxyBase) {
       && quickFilterDom?.fetchCalls >= 1
       && quickFilterDom?.noNavigation === true
       && String(quickFilterDom?.endpoint || '').includes('/apps/library/catalogue')
+      && keyboardShortcutDom?.focused === true
+      && keyboardShortcutDom?.cleared === true
+      && keyboardShortcutDom?.fetches >= 1
+      && String(keyboardShortcutDom?.endpoint || '').includes('/apps/library/catalogue')
+      && keyboardShortcutDom?.noNavigation === true
       && dom.cards > 0
       && dom.filters === true
       && dom.filterResultSummary === true

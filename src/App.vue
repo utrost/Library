@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { t } from '@nextcloud/l10n'
 
 const props = defineProps({
@@ -87,10 +87,16 @@ const quickHiddenFilters = computed(() => Object.entries(activeFilters)
   .filter(([key, value]) => !['q', 'sort', 'starred'].includes(key) && String(value || '').trim() !== '')
   .map(([key, value]) => ({ key, value })))
 const openCoverDetails = reactive({})
+const quickSearchInput = ref(null)
 let filterSubmitTimer = null
 
 function buildFilterParams(form) {
   const params = new URLSearchParams(new FormData(form))
+  for (const key of Array.from(params.keys())) {
+    if (String(params.get(key) || '').trim() === '') {
+      params.delete(key)
+    }
+  }
   params.delete('page')
   return params
 }
@@ -160,6 +166,44 @@ function setCoverDetailsOpen(itemId, event) {
   openCoverDetails[itemId] = Boolean(event?.currentTarget?.open)
 }
 
+function isEditableShortcutTarget(target) {
+  const tagName = String(target?.tagName || '').toLowerCase()
+  return target?.isContentEditable || ['input', 'select', 'textarea', 'button'].includes(tagName)
+}
+
+function focusQuickSearchShortcut(event) {
+  if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || isEditableShortcutTarget(event.target)) {
+    return
+  }
+  event.preventDefault()
+  quickSearchInput.value?.focus()
+  quickSearchInput.value?.select?.()
+}
+
+function clearQuickSearchShortcut(event) {
+  if (event.key !== 'Escape' || document.activeElement !== quickSearchInput.value || activeFilters.q === '') {
+    return
+  }
+  event.preventDefault()
+  activeFilters.q = ''
+  quickSearchInput.value.value = ''
+  window.clearTimeout(filterSubmitTimer)
+  submitFiltersNow({ currentTarget: quickSearchInput.value })
+}
+
+function handleCatalogueKeyboardShortcuts(event) {
+  focusQuickSearchShortcut(event)
+  clearQuickSearchShortcut(event)
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleCatalogueKeyboardShortcuts)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleCatalogueKeyboardShortcuts)
+})
+
 async function toggleStar(item, event) {
   const form = event?.currentTarget?.closest?.('form') || event?.currentTarget
   if (!form || !item?.starUrl) return
@@ -200,8 +244,8 @@ async function toggleStar(item, event) {
     <form method="get" class="library-quick-filter-bar" :aria-label="t('library', 'Quick catalogue filters')" @submit.prevent="submitFiltersAjax">
       <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
       <label class="library-quick-filter-search">
-        {{ t('library', 'Search') }}
-        <input v-model="activeFilters.q" type="search" name="q" placeholder="Camera, Eco, Rolleiflex..." @input="scheduleFilterSubmit">
+        {{ t('library', 'Search') }} <kbd class="library-keyboard-hint">/</kbd>
+        <input ref="quickSearchInput" v-model="activeFilters.q" data-library-quick-search type="search" name="q" placeholder="Camera, Eco, Rolleiflex..." @input="scheduleFilterSubmit">
       </label>
       <label>
         {{ t('library', 'Sort') }}
@@ -474,6 +518,16 @@ async function toggleStar(item, event) {
 
 .library-quick-filter-search input {
   min-width: 0;
+}
+
+.library-keyboard-hint {
+  border: 1px solid var(--color-border, #d0d0d0);
+  border-radius: 4px;
+  color: var(--color-text-maxcontrast, #6b6b6b);
+  display: inline-block;
+  font-size: 0.8em;
+  line-height: 1;
+  padding: 2px 5px;
 }
 
 .library-filter-panel[open] {

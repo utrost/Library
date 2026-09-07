@@ -33,7 +33,7 @@ What exists now:
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue gallery with preview/CBZ/placeholder covers and compact cover-first cards on mobile and desktop; the default card surface is cover, title, Read and Details, with secondary metadata/actions behind a Details disclosure.
 - Bounded catalogue pagination with page-size controls, smoke-tested through a 1000-real-file / 16.52 GiB staged Alice scale pilot after the planned 10 → 100 → 1000 → 10000 guardrail path.
-- Database-backed catalogue search/filter controls for title/author text, description, folder path, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, starred state, exact Nextcloud tag and root-derived shelf, plus active filter chips and a compact always-visible quick-filter row with no-refresh search/sort/star/page-size updates.
+- Database-backed catalogue search/filter controls for title/author text, description, folder path, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, starred state, exact Nextcloud tag and root-derived shelf, plus active filter chips and a compact always-visible quick-filter row with no-refresh search/sort/star/page-size updates and keyboard shortcuts for focus (`/`) and clear (`Escape`).
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
 - Dedicated item details page where the details page owns metadata, tag and comment editing while catalogue cards stay browse-only.
 - Minimal Nextcloud system tag assignment/removal from item details for visible/assignable tags.

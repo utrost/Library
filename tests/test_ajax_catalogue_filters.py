@@ -40,3 +40,11 @@ def test_browser_smoke_proves_ajax_filter_without_navigation():
     assert "browser_ajax_filter_fetch_calls" in smoke
     assert "browser_ajax_filter_no_navigation" in smoke
     assert "browser_ajax_filter_endpoint" in smoke
+
+
+def test_browser_smoke_proves_keyboard_search_shortcuts():
+    smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
+
+    assert "browser_keyboard_search_focus" in smoke
+    assert "browser_keyboard_search_escape_clears" in smoke
+    assert "browser_keyboard_search_escape_fetches" in smoke
