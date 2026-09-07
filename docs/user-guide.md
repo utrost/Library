@@ -67,7 +67,7 @@ Current catalogue capabilities:
 - use the always-visible quick-filter row for search, sort, starred-only and page-size changes without opening the full filter panel; search fetches updated results after a short debounce and select changes update immediately without a whole-page refresh; press `/` to focus catalogue search and `Escape` to clear it;
 - filter by exact creator field as read-only discovery; creator identity splitting remains future work;
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
-- use **Batch actions for current results** to apply a Nextcloud tag to every item matching the current catalogue filters; this is the first filter-result batch tagging workflow and keeps tags separate from Library metadata;
+- use **Batch actions for current results** to apply or remove a Nextcloud tag from current filter results; this filter-result batch tagging workflow keeps tags separate from Library metadata;
 - use the same batch panel for a filter-result metadata reset: Library resets only current scanner-conflict results to stored scanner candidates, preserving current filters and reporting requested/reset/skipped counts;
 - use filter-result cover refresh to request fresh cover previews for the current result set; this reloads the filtered catalogue with no-store cover URLs and does not change source files or metadata;
 - see first-run guidance when no Library root exists, disabled-root guidance when roots are saved but disabled, and filter-specific recovery actions when a search returns no matches;

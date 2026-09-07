@@ -22,6 +22,7 @@ return [
         ['name' => 'import#preview', 'url' => '/import/metadata/preview', 'verb' => 'POST'],
         ['name' => 'import#apply', 'url' => '/import/metadata/apply', 'verb' => 'POST'],
         ['name' => 'tag#batchassign', 'url' => '/bulk/tags', 'verb' => 'POST'],
+        ['name' => 'tag#batchremove', 'url' => '/bulk/tags/remove', 'verb' => 'POST'],
         ['name' => 'item#batchresetfilteredfields', 'url' => '/bulk/items/reset-filtered-fields', 'verb' => 'POST'],
         ['name' => 'item#bulkresetfields', 'url' => '/bulk/items/reset-fields', 'verb' => 'POST'],
         ['name' => 'cover#batchrefresh', 'url' => '/bulk/covers/refresh', 'verb' => 'POST'],

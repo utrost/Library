@@ -78,6 +78,6 @@ def test_ui_polish_version_bump_is_tracked_for_nextcloud_asset_refresh():
     package = (ROOT / "package.json").read_text()
     lock = (ROOT / "package-lock.json").read_text()
 
-    assert "<version>0.1.0-alpha.99</version>" in info
-    assert '"version": "0.1.0-alpha.99"' in package
-    assert '"version": "0.1.0-alpha.99"' in lock
+    assert "<version>0.1.0-alpha.100</version>" in info
+    assert '"version": "0.1.0-alpha.100"' in package
+    assert '"version": "0.1.0-alpha.100"' in lock

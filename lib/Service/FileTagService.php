@@ -220,6 +220,77 @@ final class FileTagService {
         ];
     }
 
+    /**
+     * @param array<int, int|string> $itemIds
+     * @return array{requestedItems:int,removedItems:int,notTaggedItems:int,skippedItems:int,tagName:string,tagId:string}
+     */
+    public function removeTagFromItems(string $userId, array $itemIds, string $tagName): array {
+        $tagName = trim($tagName);
+        $ids = array_values(array_unique(array_filter(array_map('intval', $itemIds), static fn (int $id): bool => $id > 0)));
+        $removedItems = 0;
+        $notTaggedItems = 0;
+        $skippedItems = 0;
+        $tagId = '';
+        if ($tagName === '') {
+            return [
+                'requestedItems' => count($ids),
+                'removedItems' => 0,
+                'notTaggedItems' => 0,
+                'skippedItems' => count($ids),
+                'tagName' => '',
+                'tagId' => '',
+            ];
+        }
+
+        $user = $this->userSession->getUser();
+        try {
+            $tag = $this->tagManager->getTag($tagName, true, true);
+        } catch (TagNotFoundException) {
+            return [
+                'requestedItems' => count($ids),
+                'removedItems' => 0,
+                'notTaggedItems' => count($ids),
+                'skippedItems' => 0,
+                'tagName' => $tagName,
+                'tagId' => '',
+            ];
+        }
+        $tagId = (string)$tag->getId();
+        if (!$this->tagManager->canUserAssignTag($tag, $user)) {
+            return [
+                'requestedItems' => count($ids),
+                'removedItems' => 0,
+                'notTaggedItems' => 0,
+                'skippedItems' => count($ids),
+                'tagName' => $tagName,
+                'tagId' => $tagId,
+            ];
+        }
+
+        foreach ($ids as $itemId) {
+            $fileId = $this->findFileIdForItem($userId, $itemId);
+            if ($fileId === null) {
+                $skippedItems++;
+                continue;
+            }
+            if (!$this->tagAlreadyAssigned($fileId, $tagId)) {
+                $notTaggedItems++;
+                continue;
+            }
+            $this->tagObjectMapper->unassignTags((string)$fileId, 'files', $tagId);
+            $removedItems++;
+        }
+
+        return [
+            'requestedItems' => count($ids),
+            'removedItems' => $removedItems,
+            'notTaggedItems' => $notTaggedItems,
+            'skippedItems' => $skippedItems,
+            'tagName' => $tagName,
+            'tagId' => $tagId,
+        ];
+    }
+
     private function tagAlreadyAssigned(int $fileId, string $tagId): bool {
         $tagIdsByObject = $this->tagObjectMapper->getTagIdsForObjects([(string)$fileId], 'files');
         return in_array($tagId, array_map('strval', $tagIdsByObject[(string)$fileId] ?? []), true);

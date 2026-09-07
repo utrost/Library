@@ -183,6 +183,7 @@ async function runBrowserSmoke(proxyBase) {
           filterResultSummary: Boolean(document.querySelector('.library-filter-result-summary')),
           batchActions: Boolean(document.querySelector('.library-batch-actions')),
           batchTagForm: Boolean(document.querySelector('.library-batch-tag-form[action*="/bulk/tags"] input[name="nextcloudTagName"]')),
+          batchTagRemoveForm: Boolean(document.querySelector('.library-batch-tag-remove-form[action*="/bulk/tags/remove"] input[name="nextcloudTagName"]')),
           batchMetadataResetForm: Boolean(document.querySelector('.library-batch-metadata-reset-form[action*="/bulk/items/reset-filtered-fields"] input[name="scannerConflicts"][value="1"]')),
           batchCoverRefreshForm: Boolean(document.querySelector('.library-batch-cover-refresh-form[action*="/bulk/covers/refresh"]')),
           singleCatalogueResultSummary: document.body.textContent.match(/Showing [0-9]+[–-][0-9]+ of [0-9]+ catalogue items/g)?.length === 1,
@@ -527,6 +528,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_filter_result_summary', dom.filterResultSummary)
     print('browser_batch_actions', dom.batchActions)
     print('browser_batch_tag_form', dom.batchTagForm)
+    print('browser_batch_tag_remove_form', dom.batchTagRemoveForm)
     print('browser_batch_metadata_reset_form', dom.batchMetadataResetForm)
     print('browser_batch_cover_refresh_form', dom.batchCoverRefreshForm)
     print('browser_single_catalogue_result_summary', dom.singleCatalogueResultSummary)
@@ -539,7 +541,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_catalogue_tag_editor', dom.catalogueTagEditor)
     print('browser_catalogue_star_forms', dom.catalogueStarForms)
     print('browser_catalogue_star_buttons', dom.catalogueStarButtons)
-    print('browser_catalogue_post_forms_are_star_forms', dom.postForms === dom.catalogueStarForms + 3)
+    print('browser_catalogue_post_forms_are_star_forms', dom.postForms === dom.catalogueStarForms + 4)
     print('browser_catalogue_star_no_reload', starToggleDom?.noReload === true)
     print('browser_catalogue_star_changed', starToggleDom?.changed === true)
     print('browser_catalogue_star_restored', starToggleDom?.restored === true)
@@ -613,6 +615,7 @@ async function runBrowserSmoke(proxyBase) {
       && dom.filterResultSummary === true
       && dom.batchActions === true
       && dom.batchTagForm === true
+      && dom.batchTagRemoveForm === true
       && dom.batchMetadataResetForm === true
       && dom.batchCoverRefreshForm === true
       && dom.singleCatalogueResultSummary === true
@@ -625,7 +628,7 @@ async function runBrowserSmoke(proxyBase) {
       && dom.catalogueTagEditor === false
       && dom.catalogueStarForms === dom.cards
       && dom.catalogueStarButtons === dom.cards
-      && dom.postForms === dom.catalogueStarForms + 3
+      && dom.postForms === dom.catalogueStarForms + 4
       && dom.requestTokenFields === dom.postForms
       && starToggleDom?.noReload === true
       && starToggleDom?.changed === true
