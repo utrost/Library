@@ -24,6 +24,7 @@ return [
         ['name' => 'item#open', 'url' => '/items/{itemId}/open', 'verb' => 'GET'],
         ['name' => 'item#update', 'url' => '/items/{itemId}', 'verb' => 'POST'],
         ['name' => 'item#star', 'url' => '/items/{itemId}/star', 'verb' => 'POST'],
+        ['name' => 'item#workflowStatus', 'url' => '/items/{itemId}/workflow-status', 'verb' => 'POST'],
         ['name' => 'item#forgetMissing', 'url' => '/items/{itemId}/forget-missing', 'verb' => 'POST'],
         ['name' => 'cover#show', 'url' => '/items/{itemId}/cover', 'verb' => 'GET'],
         ['name' => 'tag#assign', 'url' => '/items/{itemId}/tags', 'verb' => 'POST'],

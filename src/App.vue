@@ -20,6 +20,7 @@ const publicationSummaries = computed(() => props.state.publicationSummaries || 
 const publicationYears = computed(() => props.state.publicationYears || [])
 const creators = computed(() => props.state.creators || [])
 const scanStatuses = computed(() => props.state.scanStatuses || [])
+const workflowStatuses = computed(() => props.state.workflowStatuses || [])
 const pagination = computed(() => props.state.cataloguePagination || {
   page: 1,
   limit: 100,
@@ -40,6 +41,7 @@ const activeFilters = reactive({
   tag: props.state.activeFilters?.tag || '',
   shelf: props.state.activeFilters?.shelf || '',
   status: props.state.activeFilters?.status || '',
+  workflowStatus: props.state.activeFilters?.workflowStatus || '',
   starred: props.state.activeFilters?.starred || '',
   sort: props.state.activeFilters?.sort || 'title',
 })
@@ -55,6 +57,7 @@ const filterLabels = {
   tag: 'Nextcloud tag',
   shelf: 'Shelf',
   status: 'Scan status',
+  workflowStatus: 'Workflow status',
   starred: 'Starred',
 }
 const activeFilterChips = computed(() => Object.entries(filterLabels)
@@ -152,6 +155,13 @@ function publicationFilterUrl(publication) {
         </select>
       </label>
       <label>
+        {{ t('library', 'Workflow status') }}
+        <select v-model="activeFilters.workflowStatus" name="workflowStatus">
+          <option value="">{{ t('library', 'All workflow statuses') }}</option>
+          <option v-for="status in workflowStatuses" :key="status" :value="status">{{ status }}</option>
+        </select>
+      </label>
+      <label>
         {{ t('library', 'Starred') }}
         <select v-model="activeFilters.starred" name="starred">
           <option value="">{{ t('library', 'All publications') }}</option>
@@ -232,6 +242,7 @@ function publicationFilterUrl(publication) {
                 <span>{{ item.publicationType }}</span>
                 <span v-if="item.publication"> · {{ item.publication }}</span>
                 <span v-if="item.publicationDate"> · {{ item.publicationDate }}</span>
+                <span v-if="item.workflowStatus"> · Workflow status: {{ item.workflowStatus }}</span>
                 <span v-if="item.lastOpenedAt"> · Last opened: {{ item.lastOpenedAt }}</span>
                 <span v-if="item.extension"> · Format: {{ upper(item.extension) }}</span>
                 <span v-if="item.shelf"> · Shelf: {{ item.shelf }}</span>

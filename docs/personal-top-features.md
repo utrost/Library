@@ -56,21 +56,9 @@ The catalogue already searches title, subtitle, creators, publication/series/per
 
 ### custom status per publication
 
-Current support: partial via existing scan status and tags, but missing as a user-owned catalogue field.
+Current support: workflow status is implemented as a Library-native personal catalogue field.
 
-Existing scan status is operational (`indexed`, `metadata_error`, `missing`) and should not be overloaded for personal reading/workflow status. Tags can approximate status today, e.g. `read`, `processed`, `ocr-missing`, but tags mix freeform classification with workflow state and lack status-specific UX.
-
-Recommended model: add a Library-native personal status field with a small initial vocabulary plus optional tags for nuance.
-
-Good initial statuses:
-
-- `unread`
-- `reading`
-- `read`
-- `processed`
-- `needs_ocr`
-- `reference`
-- `archived`
+Workflow status is app-owned and separate from operational `library_files.scan_status`. The first vocabulary is intentionally small: `to-read`, `reading`, `finished`, `reference`, `paused`, `abandoned` and `needs-action`, with an empty default for no status. Details pages expose the editor, the catalogue has a dedicated `workflowStatus` filter/facet, card **Details** can show the status, and corrected-metadata export/import preserves it. Nextcloud tags still coexist as freeform cross-app labels.
 
 ### genres and classifications
 
@@ -170,21 +158,25 @@ Acceptance checks:
 
 ### P4 — custom reading/workflow status
 
-Why fifth: important, but needs careful vocabulary so it does not fight tags or operational scan status.
+Status: landed as a personal catalogue status checkpoint.
+
+Why fifth: important, but needed careful vocabulary so it does not fight tags or operational scan status.
 
 Scope:
 
 - add a user-editable Library-native status field separate from `library_files.scan_status`;
 - expose it on details;
 - add a catalogue status filter/facet distinct from operational scan-status filter;
-- decide labels and defaults before implementation.
+- carry workflow status through corrected-metadata export/import.
 
 Acceptance checks:
 
 - Library-native status can be set independently of scanner status;
-- status survives rescan;
-- filtering by status works;
+- status is filterable with `workflowStatus`;
+- status is included in export/import;
 - tags can still be used for extra ad-hoc labels.
+
+Result: workflow status is implemented as a small personal-field slice.
 
 ### P5 — genres and classifications
 

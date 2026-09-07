@@ -63,6 +63,7 @@ class PageController extends Controller {
             'tag' => trim((string)$this->request->getParam('tag', '')),
             'shelf' => trim((string)$this->request->getParam('shelf', '')),
             'status' => trim((string)$this->request->getParam('status', '')),
+            'workflowStatus' => trim((string)$this->request->getParam('workflowStatus', '')),
             'starred' => trim((string)$this->request->getParam('starred', '')),
             'sort' => trim((string)$this->request->getParam('sort', 'title')),
         ];
@@ -79,7 +80,7 @@ class PageController extends Controller {
         $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination) : [
             'items' => [],
             'total' => 0,
-            'facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'publications' => [], 'publicationSummaries' => [], 'publicationYears' => [], 'creators' => []],
+            'facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'workflowStatuses' => [], 'publications' => [], 'publicationSummaries' => [], 'publicationYears' => [], 'creators' => []],
         ];
         $items = $catalogue['items'];
         $pagination['total'] = (int)$catalogue['total'];
@@ -102,6 +103,7 @@ class PageController extends Controller {
             'publicationYears' => $catalogue['facets']['publicationYears'],
             'creators' => $catalogue['facets']['creators'],
             'scanStatuses' => $catalogue['facets']['scanStatuses'],
+            'workflowStatuses' => $catalogue['facets']['workflowStatuses'],
             'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
             'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library'),
@@ -123,6 +125,7 @@ class PageController extends Controller {
             $fileId = (int)$item['fileId'];
             $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $itemId]);
             $item['starUrl'] = $this->urlGenerator->linkToRoute('library.item.star', ['itemId' => $itemId]);
+            $item['workflowStatusUrl'] = $this->urlGenerator->linkToRoute('library.item.workflowStatus', ['itemId' => $itemId]);
             $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $itemId]);
             $item['tagUrl'] = $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => $itemId]);
             $item['tagRemoveBaseUrl'] = $this->urlGenerator->linkToRoute('library.tag.remove', ['itemId' => $itemId, 'tagId' => '__TAG_ID__']);
@@ -155,12 +158,12 @@ class PageController extends Controller {
     }
 
     /**
-     * @param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,starred:string,sort:string} $activeFilters
+     * @param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,starred:string,sort:string} $activeFilters
      * @param array{limit:int} $pagination
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
         $query = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'starred', 'sort'] as $param) {
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'starred', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title')) {
                 $query[$param] = $value;
