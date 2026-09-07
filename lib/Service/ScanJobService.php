@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Library\Service;
 
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 final class ScanJobService {
@@ -39,28 +40,41 @@ final class ScanJobService {
             ->set('summary', $qb->createNamedParameter(mb_substr((string)($progress['summary'] ?? 'Scanning…'), 0, 4000)))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->neq('status', $qb->createNamedParameter('cancelled')))
             ->executeStatement();
     }
 
     public function finishJob(string $userId, int $jobId, array $result): void {
+        if ($this->isCancelled($userId, $jobId)) {
+            return;
+        }
+
         $errors = $result['errors'] ?? [];
         $summary = $errors !== [] ? implode("\n", array_map('strval', $errors)) : 'Scan completed';
         $this->updateJob($userId, $jobId, 'completed', (int)($result['roots'] ?? 0), (int)($result['indexed'] ?? 0), count($errors), $summary);
     }
 
     public function failJob(string $userId, int $jobId, string $error): void {
+        if ($this->isCancelled($userId, $jobId)) {
+            return;
+        }
+
         $this->updateJob($userId, $jobId, 'failed', 0, 0, 1, $error);
     }
 
     public function cancelQueuedJob(string $userId, int $jobId): bool {
+        return $this->cancelJob($userId, $jobId);
+    }
+
+    public function cancelJob(string $userId, int $jobId): bool {
         $qb = $this->db->getQueryBuilder();
         $affected = $qb->update('library_scan_jobs')
             ->set('status', $qb->createNamedParameter('cancelled'))
-            ->set('summary', $qb->createNamedParameter('Scan cancelled before it started'))
+            ->set('summary', $qb->createNamedParameter('Scan cancellation requested'))
             ->set('finished_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
-            ->andWhere($qb->expr()->eq('status', $qb->createNamedParameter('queued')))
+            ->andWhere($qb->expr()->in('status', $qb->createNamedParameter(['queued', 'running'], IQueryBuilder::PARAM_STR_ARRAY)))
             ->executeStatement();
 
         return $affected > 0;

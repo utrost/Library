@@ -39,6 +39,9 @@ class ScanJob extends QueuedJob {
         $this->scanJobService->markRunning($userId, $jobId);
         try {
             $progress = function (array $progress) use ($userId, $jobId): void {
+                if ($this->scanJobService->isCancelled($userId, $jobId)) {
+                    throw new ScanCancelledException();
+                }
                 $this->scanJobService->updateProgress($userId, $jobId, $progress);
             };
             $result = match (true) {
@@ -47,8 +50,13 @@ class ScanJob extends QueuedJob {
                 default => $this->scanner->scan($userId, $rootId, $progress),
             };
             $this->scanJobService->finishJob($userId, $jobId, $result);
+        } catch (ScanCancelledException) {
+            return;
         } catch (Throwable $e) {
             $this->scanJobService->failJob($userId, $jobId, $e->getMessage());
         }
     }
+}
+
+final class ScanCancelledException extends \RuntimeException {
 }

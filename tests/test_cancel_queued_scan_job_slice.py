@@ -7,7 +7,7 @@ def read(path: str) -> str:
     return (ROOT / path).read_text()
 
 
-def test_scan_cancel_route_cancels_only_queued_scan_jobs():
+def test_scan_cancel_route_cancels_queued_and_running_scan_jobs():
     routes = read("appinfo/routes.php")
     controller = read("lib/Controller/ScanController.php")
     service = read("lib/Service/ScanJobService.php")
@@ -15,12 +15,13 @@ def test_scan_cancel_route_cancels_only_queued_scan_jobs():
     assert "scan#cancel" in routes
     assert "/scan/jobs/{jobId}/cancel" in routes
     assert "public function cancel(int $jobId): RedirectResponse" in controller
-    assert "cancelQueuedJob($user->getUID(), $jobId)" in controller
-    assert "public function cancelQueuedJob(string $userId, int $jobId): bool" in service
-    cancel_body = service.split("public function cancelQueuedJob", 1)[1].split("public function", 1)[0]
+    assert "cancelJob($user->getUID(), $jobId)" in controller
+    assert "public function cancelJob(string $userId, int $jobId): bool" in service
+    cancel_body = service.split("public function cancelJob", 1)[1].split("public function", 1)[0]
     assert "createNamedParameter('cancelled')" in cancel_body
-    assert "createNamedParameter('queued')" in cancel_body
-    assert "Scan cancelled before it started" in cancel_body
+    assert "'queued'" in cancel_body
+    assert "'running'" in cancel_body
+    assert "Scan cancellation requested" in cancel_body
     assert "finished_at" in cancel_body
 
 
@@ -55,5 +56,5 @@ def test_smoke_docs_and_version_track_cancel_queued_scans_as_landed():
     assert "cancel queued scan" in readme.lower()
     assert "Cancel queued scan" in guide
     assert "cancel queued scan" in roadmap.lower()
-    assert "0.1.0-alpha.69" in info
-    assert '"version": "0.1.0-alpha.69"' in package
+    assert "0.1.0-alpha.70" in info
+    assert '"version": "0.1.0-alpha.70"' in package

@@ -126,10 +126,11 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                     <dd data-library-scan-duration-seconds><?php p((string)$latestScanJob['durationSeconds']); ?></dd>
                 </dl>
                 <p class="library-muted" data-library-scan-summary><?php p((string)($latestScanJob['summary'] ?? '')); ?></p>
-                <?php if (($latestScanJob['status'] ?? '') === 'queued'): ?>
+                <?php if (in_array(($latestScanJob['status'] ?? ''), ['queued', 'running'], true)): ?>
                     <form method="post" action="<?php p((string)$latestScanJob['cancelUrl']); ?>" class="library-inline-form library-scan-cancel-form">
                         <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                        <button type="submit"><?php p($l->t('Cancel queued scan')); ?></button>
+                        <button type="submit"><?php p(($latestScanJob['status'] ?? '') === 'queued' ? $l->t('Cancel queued scan') : $l->t('Cancel scan')); ?></button>
+                        <span class="library-muted"><?php p($l->t('Cancel scan is available for queued or running jobs; running scans stop cooperatively at progress checkpoints.')); ?></span>
                     </form>
                 <?php endif; ?>
             <?php endif; ?>
@@ -158,10 +159,10 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                             <?php if (($historyJob['summary'] ?? '') !== ''): ?>
                                 <p class="library-muted"><?php p((string)$historyJob['summary']); ?></p>
                             <?php endif; ?>
-                            <?php if (($historyJob['status'] ?? '') === 'queued'): ?>
+                            <?php if (in_array(($historyJob['status'] ?? ''), ['queued', 'running'], true)): ?>
                                 <form method="post" action="<?php p((string)$historyJob['cancelUrl']); ?>" class="library-inline-form library-scan-cancel-form">
                                     <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                                    <button type="submit"><?php p($l->t('Cancel queued scan')); ?></button>
+                                    <button type="submit"><?php p(($historyJob['status'] ?? '') === 'queued' ? $l->t('Cancel queued scan') : $l->t('Cancel scan')); ?></button>
                                 </form>
                             <?php endif; ?>
                         </li>
