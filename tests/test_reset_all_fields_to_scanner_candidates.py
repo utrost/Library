@@ -23,7 +23,8 @@ def test_route_and_controller_reset_all_metadata_fields_to_scanner_candidates():
     assert "public function resetfields(int $itemId): RedirectResponse" in controller
     assert "resetAllFieldsToScannerCandidates($user->getUID(), $itemId)" in controller
     assert "linkToRoute('library.item_page.show'" in controller
-    assert "NoCSRFRequired" not in controller
+    reset_method_attributes = controller.split("public function resetfields", 1)[0].rsplit("public function resetfield", 1)[1]
+    assert "NoCSRFRequired" not in reset_method_attributes
 
 
 def test_item_service_resets_all_available_candidates_and_keeps_item_user_edited():

@@ -21,6 +21,7 @@ return [
         ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET'],
         ['name' => 'item#resetfield', 'url' => '/items/{itemId}/reset-field', 'verb' => 'POST'],
         ['name' => 'item#resetfields', 'url' => '/items/{itemId}/reset-fields', 'verb' => 'POST'],
+        ['name' => 'item#open', 'url' => '/items/{itemId}/open', 'verb' => 'GET'],
         ['name' => 'item#update', 'url' => '/items/{itemId}', 'verb' => 'POST'],
         ['name' => 'item#star', 'url' => '/items/{itemId}/star', 'verb' => 'POST'],
         ['name' => 'item#forgetMissing', 'url' => '/items/{itemId}/forget-missing', 'verb' => 'POST'],

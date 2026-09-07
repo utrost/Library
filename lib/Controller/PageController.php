@@ -66,6 +66,9 @@ class PageController extends Controller {
             'starred' => trim((string)$this->request->getParam('starred', '')),
             'sort' => trim((string)$this->request->getParam('sort', 'title')),
         ];
+        if (!in_array($activeFilters['sort'], ['title', 'recent', 'publicationDate', 'publication', 'lastOpened', 'format'], true)) {
+            $activeFilters['sort'] = 'title';
+        }
         if ($activeFilters['tag'] !== '') {
             $activeFilters['taggedFileIds'] = $this->fileTagService->fileIdsForExactVisibleTag($activeFilters['tag']);
         }
@@ -125,7 +128,7 @@ class PageController extends Controller {
             $item['tagRemoveBaseUrl'] = $this->urlGenerator->linkToRoute('library.tag.remove', ['itemId' => $itemId, 'tagId' => '__TAG_ID__']);
             $item['commentUrl'] = $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => $itemId]);
             $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]);
-            $item['openUrl'] = $this->urlGenerator->getAbsoluteURL('/f/' . $fileId);
+            $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $itemId]);
             $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
             $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($userId, (string)($item['cachedPath'] ?? ''));
             $item['nextcloudTags'] = $fileTagsByFileId[$fileId] ?? [];

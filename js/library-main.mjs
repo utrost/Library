@@ -128,7 +128,7 @@ function Lt(e, t) {
 function Wl(e, t) {
   return e.findIndex((n) => Lt(n, t));
 }
-const po = (e) => !!(e && e.__v_isRef === !0), D = (e) => _e(e) ? e : e == null ? "" : B(e) || le(e) && (e.toString === lo || !Z(e.toString)) ? po(e) ? D(e.value) : JSON.stringify(e, ho, 2) : String(e), ho = (e, t) => po(t) ? ho(e, t.value) : Mt(t) ? {
+const po = (e) => !!(e && e.__v_isRef === !0), P = (e) => _e(e) ? e : e == null ? "" : B(e) || le(e) && (e.toString === lo || !Z(e.toString)) ? po(e) ? P(e.value) : JSON.stringify(e, ho, 2) : String(e), ho = (e, t) => po(t) ? ho(e, t.value) : Mt(t) ? {
   [`Map(${t.size})`]: [...t.entries()].reduce(
     (n, [r, s], i) => (n[Yr(r, i) + " =>"] = s, n),
     {}
@@ -967,11 +967,11 @@ const Ot = (e) => le(e) ? /* @__PURE__ */ Or(e) : e, _n = (e) => le(e) ? /* @__P
 function Ue(e) {
   return e ? e.__v_isRef === !0 : !1;
 }
-function j(e) {
+function H(e) {
   return /* @__PURE__ */ Ue(e) ? e.value : e;
 }
 const pa = {
-  get: (e, t, n) => t === "__v_raw" ? e : j(Reflect.get(e, t, n)),
+  get: (e, t, n) => t === "__v_raw" ? e : H(Reflect.get(e, t, n)),
   set: (e, t, n, r) => {
     const s = e[t];
     return /* @__PURE__ */ Ue(s) && !/* @__PURE__ */ Ue(n) ? (s.value = n, !0) : Reflect.set(e, t, n, r);
@@ -1043,22 +1043,22 @@ function _a(e, t, n = ae) {
     const M = _, te = s === !0 ? 1 / 0 : s;
     _ = () => At(M(), te);
   }
-  const K = Gl(), H = () => {
+  const K = Gl(), j = () => {
     d.stop(), K && K.active && ws(K.effects, d);
   };
   if (i && t) {
     const M = t;
     t = (...te) => {
       const ne = M(...te);
-      return H(), ne;
+      return j(), ne;
     };
   }
-  let G = L ? new Array(e.length).fill(ir) : ir;
-  const q = (M) => {
+  let Y = L ? new Array(e.length).fill(ir) : ir;
+  const X = (M) => {
     if (!(!(d.flags & 1) || !d.dirty && !M))
       if (t) {
         const te = d.run();
-        if (M || s || V || (L ? te.some((ne, F) => St(ne, G[F])) : St(te, G))) {
+        if (M || s || V || (L ? te.some((ne, F) => St(ne, Y[F])) : St(te, Y))) {
           A && A();
           const ne = Kt;
           Kt = d;
@@ -1066,10 +1066,10 @@ function _a(e, t, n = ae) {
             const F = [
               te,
               // pass undefined as the old value when it's changed for the first time
-              G === ir ? void 0 : L && G[0] === ir ? [] : G,
+              Y === ir ? void 0 : L && Y[0] === ir ? [] : Y,
               S
             ];
-            G = te, c ? c(t, 3, F) : (
+            Y = te, c ? c(t, 3, F) : (
               // @ts-expect-error
               t(...F)
             );
@@ -1080,7 +1080,7 @@ function _a(e, t, n = ae) {
       } else
         d.run();
   };
-  return l && l(q), d = new mo(_), d.scheduler = o ? () => o(q, !1) : q, S = (M) => ga(M, !1, d), A = d.onStop = () => {
+  return l && l(X), d = new mo(_), d.scheduler = o ? () => o(X, !1) : X, S = (M) => ga(M, !1, d), A = d.onStop = () => {
     const M = pr.get(d);
     if (M) {
       if (c)
@@ -1089,7 +1089,7 @@ function _a(e, t, n = ae) {
         for (const te of M) te();
       pr.delete(d);
     }
-  }, t ? r ? q(!0) : G = d.run() : o ? o(q.bind(null, !0), !0) : d.run(), H.pause = d.pause.bind(d), H.resume = d.resume.bind(d), H.stop = H, H;
+  }, t ? r ? X(!0) : Y = d.run() : o ? o(X.bind(null, !0), !0) : d.run(), j.pause = d.pause.bind(d), j.resume = d.resume.bind(d), j.stop = j, j;
 }
 function At(e, t = 1 / 0, n) {
   if (t <= 0 || !le(e) || e.__v_skip || (n = n || /* @__PURE__ */ new Map(), (n.get(e) || 0) >= t))
@@ -1244,12 +1244,12 @@ function Lo(e) {
     ut = -1, Le.length = 0, Mo(), hr = null, (Le.length || hn.length) && Lo();
   }
 }
-let Je = null, Fo = null;
+let Ze = null, Fo = null;
 function mr(e) {
-  const t = Je;
-  return Je = e, Fo = e && e.type.__scopeId || null, t;
+  const t = Ze;
+  return Ze = e, Fo = e && e.type.__scopeId || null, t;
 }
-function Ea(e, t = Je, n) {
+function Ea(e, t = Ze, n) {
   if (!t || e._n)
     return e;
   const r = (...s) => {
@@ -1266,10 +1266,10 @@ function Ea(e, t = Je, n) {
   };
   return r._n = !0, r._c = !0, r._d = !0, r;
 }
-function Qe(e, t) {
-  if (Je === null)
+function et(e, t) {
+  if (Ze === null)
     return e;
-  const n = Mr(Je), r = e.dirs || (e.dirs = []);
+  const n = Mr(Ze), r = e.dirs || (e.dirs = []);
   for (let s = 0; s < t.length; s++) {
     let [i, o, l, c = ae] = t[s];
     i && (Z(i) && (i = {
@@ -1437,28 +1437,28 @@ function Ln(e, t, n, r, s = !1) {
   else {
     const L = _e(c), K = /* @__PURE__ */ Ue(c);
     if (L || K) {
-      const H = () => {
+      const j = () => {
         if (e.f) {
-          const G = L ? S(c) ? _[c] : d[c] : V() || !e.k ? c.value : d[e.k];
+          const Y = L ? S(c) ? _[c] : d[c] : V() || !e.k ? c.value : d[e.k];
           if (s)
-            B(G) && ws(G, i);
-          else if (B(G))
-            G.includes(i) || G.push(i);
+            B(Y) && ws(Y, i);
+          else if (B(Y))
+            Y.includes(i) || Y.push(i);
           else if (L)
             d[c] = [i], S(c) && (_[c] = d[c]);
           else {
-            const q = [i];
-            V(c, e.k) && (c.value = q), e.k && (d[e.k] = q);
+            const X = [i];
+            V(c, e.k) && (c.value = X), e.k && (d[e.k] = X);
           }
         } else L ? (d[c] = o, S(c) && (_[c] = o)) : K && (V(c, e.k) && (c.value = o), e.k && (d[e.k] = o));
       };
       if (o) {
-        const G = () => {
-          H(), gr.delete(e);
+        const Y = () => {
+          j(), gr.delete(e);
         };
-        G.id = -1, gr.set(e, G), $e(G, n);
+        Y.id = -1, gr.set(e, Y), $e(Y, n);
       } else
-        hi(e), H();
+        hi(e), j();
     }
   }
 }
@@ -1671,9 +1671,9 @@ function Va(e) {
     updated: V,
     activated: L,
     deactivated: K,
-    beforeDestroy: H,
-    beforeUnmount: G,
-    destroyed: q,
+    beforeDestroy: j,
+    beforeUnmount: Y,
+    destroyed: X,
     unmounted: M,
     render: te,
     renderTracked: ne,
@@ -1699,8 +1699,8 @@ function Va(e) {
   }
   if (ys = !0, i)
     for (const pe in i) {
-      const se = i[pe], Ze = Z(se) ? se.bind(n, n) : Z(se.get) ? se.get.bind(n, n) : pt, kt = !Z(se) && Z(se.set) ? se.set.bind(n) : pt, _t = We({
-        get: Ze,
+      const se = i[pe], Qe = Z(se) ? se.bind(n, n) : Z(se.get) ? se.get.bind(n, n) : pt, kt = !Z(se) && Z(se.set) ? se.set.bind(n) : pt, _t = We({
+        get: Qe,
         set: kt
       });
       Object.defineProperty(r, pe, {
@@ -1721,15 +1721,15 @@ function Va(e) {
   }
   d && gi(d, e, "c");
   function we(pe, se) {
-    B(se) ? se.forEach((Ze) => pe(Ze.bind(n))) : se && pe(se.bind(n));
+    B(se) ? se.forEach((Qe) => pe(Qe.bind(n))) : se && pe(se.bind(n));
   }
-  if (we(Pa, _), we(Da, A), we(Na, S), we(Ma, V), we(Oa, L), we(Ra, K), we(Ha, b), we(ka, ne), we(Ua, F), we(La, G), we(Vo, M), we(Fa, ce), B(Pe))
+  if (we(Pa, _), we(Da, A), we(Na, S), we(Ma, V), we(Oa, L), we(Ra, K), we(Ha, b), we(ka, ne), we(Ua, F), we(La, Y), we(Vo, M), we(Fa, ce), B(Pe))
     if (Pe.length) {
       const pe = e.exposed || (e.exposed = {});
       Pe.forEach((se) => {
         Object.defineProperty(pe, se, {
           get: () => n[se],
-          set: (Ze) => n[se] = Ze,
+          set: (Qe) => n[se] = Qe,
           enumerable: !0
         });
       });
@@ -2021,11 +2021,11 @@ function yi(e) {
     ctx: V,
     inheritAttrs: L
   } = e, K = mr(e);
-  let H, G;
+  let j, Y;
   try {
     if (n.shapeFlag & 4) {
       const M = s || r, te = M;
-      H = dt(
+      j = dt(
         h.call(
           te,
           M,
@@ -2035,10 +2035,10 @@ function yi(e) {
           A,
           V
         )
-      ), G = l;
+      ), Y = l;
     } else {
       const M = t;
-      H = dt(
+      j = dt(
         M.length > 1 ? M(
           _,
           { attrs: l, slots: o, emit: c }
@@ -2046,24 +2046,24 @@ function yi(e) {
           _,
           null
         )
-      ), G = t.props ? l : Za(l);
+      ), Y = t.props ? l : Za(l);
     }
   } catch (M) {
-    Zt.length = 0, Rr(M, e, 1), H = xt(Rt);
+    Zt.length = 0, Rr(M, e, 1), j = xt(Rt);
   }
-  let q = H;
-  if (G && L !== !1) {
-    const M = Object.keys(G), { shapeFlag: te } = q;
-    M.length && te & 7 && (i && M.some(vr) && (G = Qa(
-      G,
+  let X = j;
+  if (Y && L !== !1) {
+    const M = Object.keys(Y), { shapeFlag: te } = X;
+    M.length && te & 7 && (i && M.some(vr) && (Y = Qa(
+      Y,
       i
-    )), q = bn(q, G, !1, !0));
+    )), X = bn(X, Y, !1, !0));
   }
-  if (n.dirs && (q = bn(q, null, !1, !0), q.dirs = q.dirs ? q.dirs.concat(n.dirs) : n.dirs), n.transition) {
-    const M = Ir(q.type) && Ho(q) || q;
+  if (n.dirs && (X = bn(X, null, !1, !0), X.dirs = X.dirs ? X.dirs.concat(n.dirs) : n.dirs), n.transition) {
+    const M = Ir(X.type) && Ho(X) || X;
     Us(M, n.transition);
   }
-  return H = q, mr(K), H;
+  return j = X, mr(K), j;
 }
 const Za = (e) => {
   let t;
@@ -2278,12 +2278,12 @@ function Zo(e, t, n = !1) {
         const A = i[d], S = o[_] = B(A) || Z(A) ? { type: A } : Ie({}, A), V = S.type;
         let L = !1, K = !0;
         if (B(V))
-          for (let H = 0; H < V.length; ++H) {
-            const G = V[H], q = Z(G) && G.name;
-            if (q === "Boolean") {
+          for (let j = 0; j < V.length; ++j) {
+            const Y = V[j], X = Z(Y) && Y.name;
+            if (X === "Boolean") {
               L = !0;
               break;
-            } else q === "String" && (K = !1);
+            } else X === "String" && (K = !1);
           }
         else
           L = Z(V) && V.name === "Boolean";
@@ -2365,16 +2365,16 @@ function cc(e, t) {
     if (u === f)
       return;
     u && !xn(u, f) && (v = nn(u), Ye(u, g, T, !0), u = null), f.patchFlag === -2 && (O = !1, f.dynamicChildren = null);
-    const { type: y, ref: $, shapeFlag: P } = f;
+    const { type: y, ref: $, shapeFlag: D } = f;
     switch (y) {
       case Nr:
         K(u, f, m, v);
         break;
       case Rt:
-        H(u, f, m, v);
+        j(u, f, m, v);
         break;
       case ns:
-        u == null && G(f, m, v, w);
+        u == null && Y(f, m, v, w);
         break;
       case Te:
         Ut(
@@ -2390,7 +2390,7 @@ function cc(e, t) {
         );
         break;
       default:
-        P & 1 ? te(
+        D & 1 ? te(
           u,
           f,
           m,
@@ -2400,7 +2400,7 @@ function cc(e, t) {
           w,
           C,
           O
-        ) : P & 6 ? ot(
+        ) : D & 6 ? ot(
           u,
           f,
           m,
@@ -2410,7 +2410,7 @@ function cc(e, t) {
           w,
           C,
           O
-        ) : (P & 64 || P & 128) && y.process(
+        ) : (D & 64 || D & 128) && y.process(
           u,
           f,
           m,
@@ -2435,13 +2435,13 @@ function cc(e, t) {
       const g = f.el = u.el;
       f.children !== u.children && h(g, f.children);
     }
-  }, H = (u, f, m, v) => {
+  }, j = (u, f, m, v) => {
     u == null ? r(
       f.el = c(f.children || ""),
       m,
       v
     ) : f.el = u.el;
-  }, G = (u, f, m, v) => {
+  }, Y = (u, f, m, v) => {
     [u.el, u.anchor] = V(
       u.children,
       f,
@@ -2450,7 +2450,7 @@ function cc(e, t) {
       u.el,
       u.anchor
     );
-  }, q = ({ el: u, anchor: f }, m, v) => {
+  }, X = ({ el: u, anchor: f }, m, v) => {
     let g;
     for (; u && u !== f; )
       g = A(u), r(u, m, v), u = g;
@@ -2490,13 +2490,13 @@ function cc(e, t) {
     }
   }, ne = (u, f, m, v, g, T, w, C) => {
     let O, y;
-    const { props: $, shapeFlag: P, transition: k, dirs: z } = u;
+    const { props: $, shapeFlag: D, transition: k, dirs: z } = u;
     if (O = u.el = o(
       u.type,
       T,
       $ && $.is,
       $
-    ), P & 8 ? d(O, u.children) : P & 16 && b(
+    ), D & 8 ? d(O, u.children) : D & 16 && b(
       u.children,
       O,
       null,
@@ -2511,9 +2511,9 @@ function cc(e, t) {
       "value" in $ && i(O, "value", null, $.value, T), (y = $.onVnodeBeforeMount) && ct(y, v, u);
     }
     z && zt(u, null, v, "beforeMount");
-    const X = uc(g, k);
-    X && k.beforeEnter(O), r(O, f, m), ((y = $ && $.onVnodeMounted) || X || z) && $e(() => {
-      y && ct(y, v, u), X && k.enter(O), z && zt(u, null, v, "mounted");
+    const J = uc(g, k);
+    J && k.beforeEnter(O), r(O, f, m), ((y = $ && $.onVnodeMounted) || J || z) && $e(() => {
+      y && ct(y, v, u), J && k.enter(O), z && zt(u, null, v, "mounted");
     }, g);
   }, F = (u, f, m, v, g) => {
     if (m && S(u, m), v)
@@ -2551,11 +2551,11 @@ function cc(e, t) {
     const C = f.el = u.el;
     let { patchFlag: O, dynamicChildren: y, dirs: $ } = f;
     O |= u.patchFlag & 16;
-    const P = u.props || ae, k = f.props || ae;
+    const D = u.props || ae, k = f.props || ae;
     let z;
     if (m && Bt(m, !1), (z = k.onVnodeBeforeUpdate) && ct(z, m, f, u), $ && zt(f, u, m, "beforeUpdate"), m && Bt(m, !0), // #6385 the old vnode may be a user-wrapped non-isomorphic block
     // Force full diff when block metadata is unstable.
-    y && (!u.dynamicChildren || u.dynamicChildren.length !== y.length) && (O = 0, w = !1, y = null), (P.innerHTML && k.innerHTML == null || P.textContent && k.textContent == null) && d(C, ""), y ? Pe(
+    y && (!u.dynamicChildren || u.dynamicChildren.length !== y.length) && (O = 0, w = !1, y = null), (D.innerHTML && k.innerHTML == null || D.textContent && k.textContent == null) && d(C, ""), y ? Pe(
       u.dynamicChildren,
       y,
       C,
@@ -2575,16 +2575,16 @@ function cc(e, t) {
       !1
     ), O > 0) {
       if (O & 16)
-        mt(C, P, k, m, g);
-      else if (O & 2 && P.class !== k.class && i(C, "class", null, k.class, g), O & 4 && i(C, "style", P.style, k.style, g), O & 8) {
-        const X = f.dynamicProps;
-        for (let ee = 0; ee < X.length; ee++) {
-          const Q = X[ee], he = P[Q], ge = k[Q];
+        mt(C, D, k, m, g);
+      else if (O & 2 && D.class !== k.class && i(C, "class", null, k.class, g), O & 4 && i(C, "style", D.style, k.style, g), O & 8) {
+        const J = f.dynamicProps;
+        for (let ee = 0; ee < J.length; ee++) {
+          const Q = J[ee], he = D[Q], ge = k[Q];
           (ge !== he || Q === "value") && i(C, Q, he, ge, g, m);
         }
       }
       O & 1 && u.children !== f.children && d(C, f.children);
-    } else !w && y == null && mt(C, P, k, m, g);
+    } else !w && y == null && mt(C, D, k, m, g);
     ((z = k.onVnodeUpdated) || $) && $e(() => {
       z && ct(z, m, f, u), $ && zt(f, u, m, "updated");
     }, v);
@@ -2637,7 +2637,7 @@ function cc(e, t) {
     }
   }, Ut = (u, f, m, v, g, T, w, C, O) => {
     const y = f.el = u ? u.el : l(""), $ = f.anchor = u ? u.anchor : l("");
-    let { patchFlag: P, dynamicChildren: k, slotScopeIds: z } = f;
+    let { patchFlag: D, dynamicChildren: k, slotScopeIds: z } = f;
     z && (C = C ? C.concat(z) : z), u == null ? (r(y, m, v), r($, m, v), b(
       // #10007
       // such fragment like `<></>` will be compiled into
@@ -2651,7 +2651,7 @@ function cc(e, t) {
       w,
       C,
       O
-    )) : P > 0 && P & 64 && k && // #2715 the previous fragment could've been a BAILed one as a result
+    )) : D > 0 && D & 64 && k && // #2715 the previous fragment could've been a BAILed one as a result
     // of renderSlot() with no valid children
     u.dynamicChildren && u.dynamicChildren.length === k.length ? (Pe(
       u.dynamicChildren,
@@ -2706,7 +2706,7 @@ function cc(e, t) {
     if (ks(u) && (C.ctx.renderer = jt), Ec(C, !1, w), C.asyncDep) {
       if (g && g.registerDep(C, we, w), !u.el) {
         const O = C.subTree = xt(Rt);
-        H(null, O, f, m), u.placeholder = O.el;
+        j(null, O, f, m), u.placeholder = O.el;
       }
     } else
       we(
@@ -2731,11 +2731,11 @@ function cc(e, t) {
   }, we = (u, f, m, v, g, T, w) => {
     const C = () => {
       if (u.isMounted) {
-        let { next: P, bu: k, u: z, parent: X, vnode: ee } = u;
+        let { next: D, bu: k, u: z, parent: J, vnode: ee } = u;
         {
           const ke = rl(u);
           if (ke) {
-            P && (P.el = ee.el, pe(u, P, w)), ke.asyncDep.then(() => {
+            D && (D.el = ee.el, pe(u, D, w)), ke.asyncDep.then(() => {
               $e(() => {
                 u.isUnmounted || y();
               }, g);
@@ -2743,8 +2743,8 @@ function cc(e, t) {
             return;
           }
         }
-        let Q = P, he;
-        Bt(u, !1), P ? (P.el = ee.el, pe(u, P, w)) : P = ee, k && cr(k), (he = P.props && P.props.onVnodeBeforeUpdate) && ct(he, X, P, ee), Bt(u, !0);
+        let Q = D, he;
+        Bt(u, !1), D ? (D.el = ee.el, pe(u, D, w)) : D = ee, k && cr(k), (he = D.props && D.props.onVnodeBeforeUpdate) && ct(he, J, D, ee), Bt(u, !0);
         const ge = yi(u), De = u.subTree;
         u.subTree = ge, L(
           De,
@@ -2756,14 +2756,14 @@ function cc(e, t) {
           u,
           g,
           T
-        ), P.el = ge.el, Q === null && tc(u, ge.el), z && $e(z, g), (he = P.props && P.props.onVnodeUpdated) && $e(
-          () => ct(he, X, P, ee),
+        ), D.el = ge.el, Q === null && tc(u, ge.el), z && $e(z, g), (he = D.props && D.props.onVnodeUpdated) && $e(
+          () => ct(he, J, D, ee),
           g
         );
       } else {
-        let P;
-        const { el: k, props: z } = f, { bm: X, m: ee, parent: Q, root: he, type: ge } = u, De = Fn(f);
-        Bt(u, !1), X && cr(X), !De && (P = z && z.onVnodeBeforeMount) && ct(P, Q, f), Bt(u, !0);
+        let D;
+        const { el: k, props: z } = f, { bm: J, m: ee, parent: Q, root: he, type: ge } = u, De = Fn(f);
+        Bt(u, !1), J && cr(J), !De && (D = z && z.onVnodeBeforeMount) && ct(D, Q, f), Bt(u, !0);
         {
           he.ce && he.ce._hasShadowRoot() && he.ce._injectChildStyle(
             ge,
@@ -2780,10 +2780,10 @@ function cc(e, t) {
             T
           ), f.el = ke.el;
         }
-        if (ee && $e(ee, g), !De && (P = z && z.onVnodeMounted)) {
+        if (ee && $e(ee, g), !De && (D = z && z.onVnodeMounted)) {
           const ke = f;
           $e(
-            () => ct(P, Q, ke),
+            () => ct(D, Q, ke),
             g
           );
         }
@@ -2800,12 +2800,12 @@ function cc(e, t) {
     const v = u.vnode.props;
     u.vnode = f, u.next = null, rc(u, f.props, v, m), lc(u, f.children, m), wt(), di(u), Ct();
   }, se = (u, f, m, v, g, T, w, C, O = !1) => {
-    const y = u && u.children, $ = u ? u.shapeFlag : 0, P = f.children, { patchFlag: k, shapeFlag: z } = f;
+    const y = u && u.children, $ = u ? u.shapeFlag : 0, D = f.children, { patchFlag: k, shapeFlag: z } = f;
     if (k > 0) {
       if (k & 128) {
         kt(
           y,
-          P,
+          D,
           m,
           v,
           g,
@@ -2816,9 +2816,9 @@ function cc(e, t) {
         );
         return;
       } else if (k & 256) {
-        Ze(
+        Qe(
           y,
-          P,
+          D,
           m,
           v,
           g,
@@ -2830,9 +2830,9 @@ function cc(e, t) {
         return;
       }
     }
-    z & 8 ? ($ & 16 && Ht(y, g, T), P !== y && d(m, P)) : $ & 16 ? z & 16 ? kt(
+    z & 8 ? ($ & 16 && Ht(y, g, T), D !== y && d(m, D)) : $ & 16 ? z & 16 ? kt(
       y,
-      P,
+      D,
       m,
       v,
       g,
@@ -2841,7 +2841,7 @@ function cc(e, t) {
       C,
       O
     ) : Ht(y, g, T, !0) : ($ & 8 && d(m, ""), z & 16 && b(
-      P,
+      D,
       m,
       v,
       g,
@@ -2850,11 +2850,11 @@ function cc(e, t) {
       C,
       O
     ));
-  }, Ze = (u, f, m, v, g, T, w, C, O) => {
+  }, Qe = (u, f, m, v, g, T, w, C, O) => {
     u = u || pn, f = f || pn;
-    const y = u.length, $ = f.length, P = Math.min(y, $);
+    const y = u.length, $ = f.length, D = Math.min(y, $);
     let k;
-    for (k = 0; k < P; k++) {
+    for (k = 0; k < D; k++) {
       const z = f[k] = O ? Et(f[k]) : dt(f[k]);
       L(
         u[k],
@@ -2874,7 +2874,7 @@ function cc(e, t) {
       T,
       !0,
       !1,
-      P
+      D
     ) : b(
       f,
       m,
@@ -2884,18 +2884,18 @@ function cc(e, t) {
       w,
       C,
       O,
-      P
+      D
     );
   }, kt = (u, f, m, v, g, T, w, C, O) => {
     let y = 0;
     const $ = f.length;
-    let P = u.length - 1, k = $ - 1;
-    for (; y <= P && y <= k; ) {
-      const z = u[y], X = f[y] = O ? Et(f[y]) : dt(f[y]);
-      if (xn(z, X))
+    let D = u.length - 1, k = $ - 1;
+    for (; y <= D && y <= k; ) {
+      const z = u[y], J = f[y] = O ? Et(f[y]) : dt(f[y]);
+      if (xn(z, J))
         L(
           z,
-          X,
+          J,
           m,
           null,
           g,
@@ -2908,12 +2908,12 @@ function cc(e, t) {
         break;
       y++;
     }
-    for (; y <= P && y <= k; ) {
-      const z = u[P], X = f[k] = O ? Et(f[k]) : dt(f[k]);
-      if (xn(z, X))
+    for (; y <= D && y <= k; ) {
+      const z = u[D], J = f[k] = O ? Et(f[k]) : dt(f[k]);
+      if (xn(z, J))
         L(
           z,
-          X,
+          J,
           m,
           null,
           g,
@@ -2924,17 +2924,17 @@ function cc(e, t) {
         );
       else
         break;
-      P--, k--;
+      D--, k--;
     }
-    if (y > P) {
+    if (y > D) {
       if (y <= k) {
-        const z = k + 1, X = z < $ ? f[z].el : v;
+        const z = k + 1, J = z < $ ? f[z].el : v;
         for (; y <= k; )
           L(
             null,
             f[y] = O ? Et(f[y]) : dt(f[y]),
             m,
-            X,
+            J,
             g,
             T,
             w,
@@ -2943,20 +2943,20 @@ function cc(e, t) {
           ), y++;
       }
     } else if (y > k)
-      for (; y <= P; )
+      for (; y <= D; )
         Ye(u[y], g, T, !0), y++;
     else {
-      const z = y, X = y, ee = /* @__PURE__ */ new Map();
-      for (y = X; y <= k; y++) {
+      const z = y, J = y, ee = /* @__PURE__ */ new Map();
+      for (y = J; y <= k; y++) {
         const ve = f[y] = O ? Et(f[y]) : dt(f[y]);
         ve.key != null && ee.set(ve.key, y);
       }
       let Q, he = 0;
-      const ge = k - X + 1;
+      const ge = k - J + 1;
       let De = !1, ke = 0;
       const qe = new Array(ge);
       for (y = 0; y < ge; y++) qe[y] = 0;
-      for (y = z; y <= P; y++) {
+      for (y = z; y <= D; y++) {
         const ve = u[y];
         if (he >= ge) {
           Ye(ve, g, T, !0);
@@ -2966,12 +2966,12 @@ function cc(e, t) {
         if (ve.key != null)
           ze = ee.get(ve.key);
         else
-          for (Q = X; Q <= k; Q++)
-            if (qe[Q - X] === 0 && xn(ve, f[Q])) {
+          for (Q = J; Q <= k; Q++)
+            if (qe[Q - J] === 0 && xn(ve, f[Q])) {
               ze = Q;
               break;
             }
-        ze === void 0 ? Ye(ve, g, T, !0) : (qe[ze - X] = y + 1, ze >= ke ? ke = ze : De = !0, L(
+        ze === void 0 ? Ye(ve, g, T, !0) : (qe[ze - J] = y + 1, ze >= ke ? ke = ze : De = !0, L(
           ve,
           f[ze],
           m,
@@ -2985,7 +2985,7 @@ function cc(e, t) {
       }
       const $t = De ? fc(qe) : pn;
       for (Q = $t.length - 1, y = ge - 1; y >= 0; y--) {
-        const ve = X + y, ze = f[ve], Tn = f[ve + 1], En = ve + 1 < $ ? (
+        const ve = J + y, ze = f[ve], Tn = f[ve + 1], En = ve + 1 < $ ? (
           // #13559, #14173 fallback to el placeholder for unresolved async component
           Tn.el || sl(Tn)
         ) : v;
@@ -3018,31 +3018,31 @@ function cc(e, t) {
     }
     if (w === Te) {
       r(T, f, m);
-      for (let P = 0; P < O.length; P++)
-        _t(O[P], f, m, v);
+      for (let D = 0; D < O.length; D++)
+        _t(O[D], f, m, v);
       r(u.anchor, f, m);
       return;
     }
     if (w === ns) {
-      q(u, f, m);
+      X(u, f, m);
       return;
     }
     if (v !== 2 && y & 1 && C)
       if (v === 0)
         C.persisted && !T[Qr] ? r(T, f, m) : (C.beforeEnter(T), r(T, f, m), $e(() => C.enter(T), g));
       else {
-        const { leave: P, delayLeave: k, afterLeave: z } = C, X = () => {
+        const { leave: D, delayLeave: k, afterLeave: z } = C, J = () => {
           u.ctx.isUnmounted ? s(T) : r(T, f, m);
         }, ee = () => {
           const Q = T._isLeaving || !!T[Qr];
           T._isLeaving && T[Qr](
             !0
             /* cancelled */
-          ), C.persisted && !Q ? X() : P(T, () => {
-            X(), z && z();
+          ), C.persisted && !Q ? J() : D(T, () => {
+            J(), z && z();
           });
         };
-        k ? k(T, X, ee) : ee();
+        k ? k(T, J, ee) : ee();
       }
     else
       r(T, f, m);
@@ -3054,12 +3054,12 @@ function cc(e, t) {
       children: O,
       dynamicChildren: y,
       shapeFlag: $,
-      patchFlag: P,
+      patchFlag: D,
       dirs: k,
       cacheIndex: z,
-      memo: X
+      memo: J
     } = u;
-    if (P === -2 && (g = !1), C != null && (wt(), Ln(C, null, m, u, !0), Ct()), z != null && (f.renderCache[z] = void 0), $ & 256) {
+    if (D === -2 && (g = !1), C != null && (wt(), Ln(C, null, m, u, !0), Ct()), z != null && (f.renderCache[z] = void 0), $ & 256) {
       f.ctx.deactivate(u);
       return;
     }
@@ -3084,15 +3084,15 @@ function cc(e, t) {
       // so that it doesn't take the fast path during unmount - otherwise
       // components nested in v-once are never unmounted.
       !y.hasOnce && // #1153: fast path should not be taken for non-stable (v-for) fragments
-      (T !== Te || P > 0 && P & 64) ? Ht(
+      (T !== Te || D > 0 && D & 64) ? Ht(
         y,
         f,
         m,
         !1,
         !0
-      ) : (T === Te && P & 384 || !g && $ & 16) && Ht(O, f, m), v && Gn(u);
+      ) : (T === Te && D & 384 || !g && $ & 16) && Ht(O, f, m), v && Gn(u);
     }
-    const ge = X != null && z == null;
+    const ge = J != null && z == null;
     (Q && (he = w && w.onVnodeUnmounted) || ee || ge) && $e(() => {
       he && ct(he, f, u), ee && zt(u, null, f, "unmounted"), ge && (u.el = null);
     }, m);
@@ -3225,7 +3225,7 @@ function dc(e, t) {
 }
 const Te = /* @__PURE__ */ Symbol.for("v-fgt"), Nr = /* @__PURE__ */ Symbol.for("v-txt"), Rt = /* @__PURE__ */ Symbol.for("v-cmt"), ns = /* @__PURE__ */ Symbol.for("v-stc"), Zt = [];
 let Ge = null;
-function Y(e = !1) {
+function G(e = !1) {
   Zt.push(Ge = e ? null : []);
 }
 function ol() {
@@ -3238,7 +3238,7 @@ function vi(e, t = !1) {
 function ll(e) {
   return e.dynamicChildren = $n > 0 ? Ge || pn : null, ol(), $n > 0 && Ge && Ge.push(e), e;
 }
-function J(e, t, n, r, s, i) {
+function q(e, t, n, r, s, i) {
   return ll(
     R(
       e,
@@ -3273,7 +3273,7 @@ const cl = ({ key: e }) => e ?? null, fr = ({
   ref: e,
   ref_key: t,
   ref_for: n
-}) => (typeof e == "number" && (e = "" + e), e != null ? _e(e) || /* @__PURE__ */ Ue(e) || Z(e) ? { i: Je, r: e, k: t, f: !!n } : e : null);
+}) => (typeof e == "number" && (e = "" + e), e != null ? _e(e) || /* @__PURE__ */ Ue(e) || Z(e) ? { i: Ze, r: e, k: t, f: !!n } : e : null);
 function R(e, t = null, n = null, r = 0, s = null, i = e === Te ? 0 : 1, o = !1, l = !1) {
   const c = {
     __v_isVNode: !0,
@@ -3302,7 +3302,7 @@ function R(e, t = null, n = null, r = 0, s = null, i = e === Te ? 0 : 1, o = !1,
     dynamicProps: s,
     dynamicChildren: null,
     appContext: null,
-    ctx: Je
+    ctx: Ze
   };
   return l ? (br(c, n), i & 128 && e.normalize(c)) : n && (c.shapeFlag |= _e(n) ? 8 : 16), $n > 0 && // avoid a block node from tracking itself
   !o && // has current parent block
@@ -3398,8 +3398,8 @@ function bn(e, t, n = !1, r = !1) {
 function Ae(e = " ", t = 0) {
   return xt(Nr, null, e, t);
 }
-function et(e = "", t = !1) {
-  return t ? (Y(), pc(Rt, null, e)) : xt(Rt, null, e);
+function Je(e = "", t = !1) {
+  return t ? (G(), pc(Rt, null, e)) : xt(Rt, null, e);
 }
 function dt(e) {
   return e == null || typeof e == "boolean" ? xt(Rt) : B(e) ? xt(
@@ -3427,14 +3427,14 @@ function br(e, t) {
     } else {
       n = 32;
       const s = t._;
-      !s && !Xo(t) ? t._ctx = Je : s === 3 && Je && (Je.slots._ === 1 ? t._ = 1 : (t._ = 2, e.patchFlag |= 1024));
+      !s && !Xo(t) ? t._ctx = Ze : s === 3 && Ze && (Ze.slots._ === 1 ? t._ = 1 : (t._ = 2, e.patchFlag |= 1024));
     }
   else if (Z(t)) {
     if (r & 65) {
       br(e, { default: t });
       return;
     }
-    t = { default: t, _ctx: Je }, n = 32;
+    t = { default: t, _ctx: Ze }, n = 32;
   } else
     t = String(t), r & 64 ? (n = 16, t = [Ae(t)]) : n = 8;
   e.children = t, e.shapeFlag |= n;
@@ -3545,7 +3545,7 @@ function yc(e, t, n) {
   return i.ctx = { _: i }, i.root = t ? t.root : i, i.emit = Xa.bind(null, i), e.ce && e.ce(i), i;
 }
 let Fe = null;
-const Tc = () => Fe || Je;
+const Tc = () => Fe || Ze;
 let yr, Vn;
 {
   const e = wr(), t = (n, r) => {
@@ -4304,7 +4304,7 @@ function gl() {
   e.DocumentFragment;
   const i = e.HTMLTemplateElement, o = e.Node, l = e.Element, c = e.NodeFilter, h = e.NamedNodeMap;
   h === void 0 && (e.NamedNodeMap || e.MozNamedAttrMap), e.HTMLFormElement;
-  const d = e.DOMParser, _ = e.trustedTypes, A = l.prototype, S = tt(A, "cloneNode"), V = tt(A, "remove"), L = tt(A, "nextSibling"), K = tt(A, "childNodes"), H = tt(A, "parentNode"), G = tt(A, "shadowRoot"), q = tt(A, "attributes"), M = o && o.prototype ? tt(o.prototype, "nodeType") : null, te = o && o.prototype ? tt(o.prototype, "nodeName") : null, ne = o && o.prototype ? tt(o.prototype, "ownerDocument") : null, F = function(a) {
+  const d = e.DOMParser, _ = e.trustedTypes, A = l.prototype, S = tt(A, "cloneNode"), V = tt(A, "remove"), L = tt(A, "nextSibling"), K = tt(A, "childNodes"), j = tt(A, "parentNode"), Y = tt(A, "shadowRoot"), X = tt(A, "attributes"), M = o && o.prototype ? tt(o.prototype, "nodeType") : null, te = o && o.prototype ? tt(o.prototype, "nodeName") : null, ne = o && o.prototype ? tt(o.prototype, "ownerDocument") : null, F = function(a) {
     return M ? M(a) : a.nodeType;
   }, b = function(a) {
     return te ? te(a) : a.nodeName;
@@ -4333,9 +4333,9 @@ function gl() {
     }
   }, pe = function() {
     return Ut || (mt = Fu(_, s), Ut = !0), mt;
-  }, se = n, Ze = se.implementation, kt = se.createNodeIterator, _t = se.createDocumentFragment, Ye = se.getElementsByTagName, Gn = r.importNode;
+  }, se = n, Qe = se.implementation, kt = se.createNodeIterator, _t = se.createDocumentFragment, Ye = se.getElementsByTagName, Gn = r.importNode;
   let ue = Qi();
-  t.isSupported = typeof pl == "function" && typeof H == "function" && Ze && Ze.createHTMLDocument !== void 0;
+  t.isSupported = typeof pl == "function" && typeof j == "function" && Qe && Qe.createHTMLDocument !== void 0;
   const Lr = Su, Ht = vu, nn = Au, yn = xu, Yn = wu, jt = Cu, Fr = Ou, u = Iu;
   let f = Xi, m = null;
   const v = re({}, [...Ki, ...ls, ...as, ...cs, ...Gi]);
@@ -4375,7 +4375,7 @@ function gl() {
       value: null
     }
   }));
-  let $ = !0, P = !0, k = !1, z = !0, X = !1, ee = !0, Q = !1, he = !1, ge = null, De = null, ke = !1, qe = !1, $t = !1, ve = !1, ze = !0, Tn = !1;
+  let $ = !0, D = !0, k = !1, z = !0, J = !1, ee = !0, Q = !1, he = !1, ge = null, De = null, ke = !1, qe = !1, $t = !1, ve = !1, ze = !0, Tn = !1;
   const En = "user-content-";
   let Ur = !0, kr = !1, rn = {}, sn = null;
   const $s = re({}, [
@@ -4453,7 +4453,7 @@ function gl() {
       transform: be
     }), O = Dt(a, "FORBID_ATTR", Ke({}), {
       transform: be
-    }), rn = Ve(a, "USE_PROFILES") ? a.USE_PROFILES && typeof a.USE_PROFILES == "object" ? Ke(a.USE_PROFILES) : a.USE_PROFILES : !1, $ = a.ALLOW_ARIA_ATTR !== !1, P = a.ALLOW_DATA_ATTR !== !1, k = a.ALLOW_UNKNOWN_PROTOCOLS || !1, z = a.ALLOW_SELF_CLOSE_IN_ATTR !== !1, X = a.SAFE_FOR_TEMPLATES || !1, ee = a.SAFE_FOR_XML !== !1, Q = a.WHOLE_DOCUMENT || !1, qe = a.RETURN_DOM || !1, $t = a.RETURN_DOM_FRAGMENT || !1, ve = a.RETURN_TRUSTED_TYPE || !1, ke = a.FORCE_BODY || !1, ze = a.SANITIZE_DOM !== !1, Tn = a.SANITIZE_NAMED_PROPS || !1, Ur = a.KEEP_CONTENT !== !1, kr = a.IN_PLACE || !1, f = yu(a.ALLOWED_URI_REGEXP) ? a.ALLOWED_URI_REGEXP : Xi, on = typeof a.NAMESPACE == "string" ? a.NAMESPACE : lt, $r = fs(
+    }), rn = Ve(a, "USE_PROFILES") ? a.USE_PROFILES && typeof a.USE_PROFILES == "object" ? Ke(a.USE_PROFILES) : a.USE_PROFILES : !1, $ = a.ALLOW_ARIA_ATTR !== !1, D = a.ALLOW_DATA_ATTR !== !1, k = a.ALLOW_UNKNOWN_PROTOCOLS || !1, z = a.ALLOW_SELF_CLOSE_IN_ATTR !== !1, J = a.SAFE_FOR_TEMPLATES || !1, ee = a.SAFE_FOR_XML !== !1, Q = a.WHOLE_DOCUMENT || !1, qe = a.RETURN_DOM || !1, $t = a.RETURN_DOM_FRAGMENT || !1, ve = a.RETURN_TRUSTED_TYPE || !1, ke = a.FORCE_BODY || !1, ze = a.SANITIZE_DOM !== !1, Tn = a.SANITIZE_NAMED_PROPS || !1, Ur = a.KEEP_CONTENT !== !1, kr = a.IN_PLACE || !1, f = yu(a.ALLOWED_URI_REGEXP) ? a.ALLOWED_URI_REGEXP : Xi, on = typeof a.NAMESPACE == "string" ? a.NAMESPACE : lt, $r = fs(
       a,
       "MATHML_TEXT_INTEGRATION_POINTS",
       () => re({}, Ks)
@@ -4465,7 +4465,7 @@ function gl() {
       // Default built-in map
     );
     const p = fs(a, "CUSTOM_ELEMENT_HANDLING", () => dn(null));
-    if (w = dn(null), Ve(p, "tagNameCheck") && Ys(p.tagNameCheck) && (w.tagNameCheck = p.tagNameCheck), Ve(p, "attributeNameCheck") && Ys(p.attributeNameCheck) && (w.attributeNameCheck = p.attributeNameCheck), Ve(p, "allowCustomizedBuiltInElements") && typeof p.allowCustomizedBuiltInElements == "boolean" && (w.allowCustomizedBuiltInElements = p.allowCustomizedBuiltInElements), xe(w), X && (P = !1), $t && (qe = !0), rn && (m = re({}, Gi), g = dn(null), rn.html === !0 && (re(m, Ki), re(g, Yi)), rn.svg === !0 && (re(m, ls), re(g, us), re(g, ar)), rn.svgFilters === !0 && (re(m, as), re(g, us), re(g, ar)), rn.mathMl === !0 && (re(m, cs), re(g, qi), re(g, ar))), y.tagCheck = null, y.attributeCheck = null, Ve(a, "ADD_TAGS") && (typeof a.ADD_TAGS == "function" ? y.tagCheck = a.ADD_TAGS : gn(a.ADD_TAGS) && (m === v && (m = Ke(m)), re(m, a.ADD_TAGS, be))), Ve(a, "ADD_ATTR") && (typeof a.ADD_ATTR == "function" ? y.attributeCheck = a.ADD_ATTR : gn(a.ADD_ATTR) && (g === T && (g = Ke(g)), re(g, a.ADD_ATTR, be))), Ve(a, "ADD_FORBID_CONTENTS") && gn(a.ADD_FORBID_CONTENTS) && (sn === $s && (sn = Ke(sn)), re(sn, a.ADD_FORBID_CONTENTS, be)), Ur && (m["#text"] = !0), Q && re(m, ["html", "head", "body"]), m.table && (re(m, ["tbody"]), delete C.tbody), a.TRUSTED_TYPES_POLICY) {
+    if (w = dn(null), Ve(p, "tagNameCheck") && Ys(p.tagNameCheck) && (w.tagNameCheck = p.tagNameCheck), Ve(p, "attributeNameCheck") && Ys(p.attributeNameCheck) && (w.attributeNameCheck = p.attributeNameCheck), Ve(p, "allowCustomizedBuiltInElements") && typeof p.allowCustomizedBuiltInElements == "boolean" && (w.allowCustomizedBuiltInElements = p.allowCustomizedBuiltInElements), xe(w), J && (D = !1), $t && (qe = !0), rn && (m = re({}, Gi), g = dn(null), rn.html === !0 && (re(m, Ki), re(g, Yi)), rn.svg === !0 && (re(m, ls), re(g, us), re(g, ar)), rn.svgFilters === !0 && (re(m, as), re(g, us), re(g, ar)), rn.mathMl === !0 && (re(m, cs), re(g, qi), re(g, ar))), y.tagCheck = null, y.attributeCheck = null, Ve(a, "ADD_TAGS") && (typeof a.ADD_TAGS == "function" ? y.tagCheck = a.ADD_TAGS : gn(a.ADD_TAGS) && (m === v && (m = Ke(m)), re(m, a.ADD_TAGS, be))), Ve(a, "ADD_ATTR") && (typeof a.ADD_ATTR == "function" ? y.attributeCheck = a.ADD_ATTR : gn(a.ADD_ATTR) && (g === T && (g = Ke(g)), re(g, a.ADD_ATTR, be))), Ve(a, "ADD_FORBID_CONTENTS") && gn(a.ADD_FORBID_CONTENTS) && (sn === $s && (sn = Ke(sn)), re(sn, a.ADD_FORBID_CONTENTS, be)), Ur && (m["#text"] = !0), Q && re(m, ["html", "head", "body"]), m.table && (re(m, ["tbody"]), delete C.tbody), a.TRUSTED_TYPES_POLICY) {
       if (typeof a.TRUSTED_TYPES_POLICY.createHTML != "function")
         throw Wt('TRUSTED_TYPES_POLICY configuration option must provide a "createHTML" hook.');
       if (typeof a.TRUSTED_TYPES_POLICY.createScriptURL != "function")
@@ -4486,7 +4486,7 @@ function gl() {
   }, xl = function(a, p, E) {
     return p.namespaceURI === Xn && !Vr[E] || p.namespaceURI === qn && !$r[E] ? !1 : !Xs[a] && (yl[a] || !qs[a]);
   }, wl = function(a) {
-    let p = H(a);
+    let p = j(a);
     (!p || !p.tagName) && (p = {
       namespaceURI: on,
       tagName: "template"
@@ -4498,9 +4498,9 @@ function gl() {
       element: a
     });
     try {
-      H(a).removeChild(a);
+      j(a).removeChild(a);
     } catch {
-      if (V(a), !H(a))
+      if (V(a), !j(a))
         throw Wt("a node selected for removal could not be detached from its tree and cannot be safely returned; refusing to sanitize in place");
     }
   }, Js = function(a, p, E) {
@@ -4526,7 +4526,7 @@ function gl() {
         }
       });
     }
-    const E = q(a);
+    const E = X(a);
     if (E)
       for (let N = E.length - 1; N >= 0; --N) {
         const U = E[N], W = U && U.name;
@@ -4563,7 +4563,7 @@ function gl() {
         } catch {
         }
   }, Cl = function(a) {
-    const p = q(a);
+    const p = X(a);
     if (p)
       for (let E = p.length - 1; E >= 0; --E) {
         const N = p[E], U = N && N.name;
@@ -4622,7 +4622,7 @@ function gl() {
       } catch {
       }
     if (!p || !p.documentElement) {
-      p = Ze.createDocument(on, "template", null);
+      p = Qe.createDocument(on, "template", null);
       try {
         p.documentElement.innerHTML = Hr ? Pe : N;
       } catch {
@@ -4665,7 +4665,7 @@ function gl() {
     // makes the direct read diverge from the cached read; a clean form
     // (same-realm OR foreign-realm) has both reads pointing at the same
     // canonical NamedNodeMap.
-    a.attributes !== q(a) || typeof a.removeAttribute != "function" || typeof a.setAttribute != "function" || typeof a.namespaceURI != "string" || typeof a.insertBefore != "function" || typeof a.hasChildNodes != "function" || // NodeType clobbering probe. Cached Node.prototype.nodeType getter
+    a.attributes !== X(a) || typeof a.removeAttribute != "function" || typeof a.setAttribute != "function" || typeof a.namespaceURI != "string" || typeof a.insertBefore != "function" || typeof a.hasChildNodes != "function" || // NodeType clobbering probe. Cached Node.prototype.nodeType getter
     // returns the integer 1 for any Element regardless of realm; direct
     // read on a clobbered form (e.g. <input name="nodeType">) returns
     // the named child element. Cheap addition — nodeType is read from
@@ -4721,7 +4721,7 @@ function gl() {
     if (!C[p] && ii(p) && tr(w.tagNameCheck, p))
       return !1;
     if (Ur && !sn[p]) {
-      const N = H(a), U = K(a);
+      const N = j(a), U = K(a);
       if (U && N) {
         const W = U.length;
         for (let fe = W - 1; fe >= 0; --fe) {
@@ -4734,7 +4734,7 @@ function gl() {
   }, ti = function(a, p, E, N) {
     return a.length === 0 ? p : p === E || p === N ? Ke(p) : p;
   }, ni = function(a, p) {
-    return a === p || H(a) !== null ? !1 : (kr && Zn(a), !0);
+    return a === p || j(a) !== null ? !1 : (kr && Zn(a), !0);
   }, ri = function(a, p) {
     if (at(ue.beforeSanitizeElements, a, null), ni(a, p))
       return !0;
@@ -4754,7 +4754,7 @@ function gl() {
     }
     if (F(a) === Be.element && !wl(a) || (E === "noscript" || E === "noembed" || E === "noframes") && Oe(Pu, a.innerHTML))
       return Pt(a), !0;
-    if (X && a.nodeType === Be.text) {
+    if (J && a.nodeType === Be.text) {
       const U = Qn(a.textContent);
       a.textContent !== U && (wn(t.removed, {
         element: a.cloneNode()
@@ -4765,7 +4765,7 @@ function gl() {
     if (O[p] || Zs(p, a) || ze && (p === "id" || p === "name") && (E in n || E in Sl))
       return !1;
     const N = g[p] || y.attributeCheck instanceof Function && y.attributeCheck(p, a);
-    return P && Oe(yn, p) || $ && Oe(Yn, p) ? !0 : N ? Bs[p] || Oe(f, Cn(E, Fr, "")) || (p === "src" || p === "xlink:href" || p === "href") && a !== "script" && zi(E, "data:") === 0 && Vs[a] || k && !Oe(jt, Cn(E, Fr, "")) ? !0 : !E : (
+    return D && Oe(yn, p) || $ && Oe(Yn, p) ? !0 : N ? Bs[p] || Oe(f, Cn(E, Fr, "")) || (p === "src" || p === "xlink:href" || p === "href") && a !== "script" && zi(E, "data:") === 0 && Vs[a] || k && !Oe(jt, Cn(E, Fr, "")) ? !0 : !E : (
       // Condition a) covers a basically valid custom element tag name whose
       // tag passes the configured tagNameCheck and whose attribute name
       // passes the configured attributeNameCheck ...
@@ -4826,7 +4826,7 @@ function gl() {
           Vt(fe, a, W);
           continue;
         }
-        if (X && (Ne = Qn(Ne)), !si(U, je, Ne)) {
+        if (J && (Ne = Qn(Ne)), !si(U, je, Ne)) {
           Vt(fe, a, W);
           continue;
         }
@@ -4839,7 +4839,7 @@ function gl() {
     const E = ei(a);
     for (at(ue.beforeSanitizeShadowDOM, a, null); p = E.nextNode(); )
       if (at(ue.uponSanitizeShadowNode, p, null), ri(p, a), oi(p), an(p.content) && nr(p.content), F(p) === Be.element) {
-        const N = G(p);
+        const N = Y(p);
         an(N) && (Wr(N), nr(N));
       }
     at(ue.afterSanitizeShadowDOM, a, null);
@@ -4872,7 +4872,7 @@ function gl() {
         }
       }
       if (W) {
-        const me = G(N);
+        const me = Y(N);
         an(me) && p.push({
           node: null,
           shadow: me
@@ -4909,7 +4909,7 @@ function gl() {
     } else if (vn(x))
       p = Qs("<!---->"), E = p.ownerDocument.importNode(x, !0), E.nodeType === Be.element && E.nodeName === "BODY" || E.nodeName === "HTML" ? p = E : p.appendChild(E), Wr(E);
     else {
-      if (!qe && !X && !Q && // eslint-disable-next-line unicorn/prefer-includes
+      if (!qe && !J && !Q && // eslint-disable-next-line unicorn/prefer-includes
       x.indexOf("<") === -1)
         return ce && ve ? gt(x) : x;
       if (p = Qs(x), !p)
@@ -4929,9 +4929,9 @@ function gl() {
     if (W)
       return Gt(t.removed, (He) => {
         He.element && Zn(He.element);
-      }), X && Br(x), x;
+      }), J && Br(x), x;
     if (qe) {
-      if (X && Br(p), $t)
+      if (J && Br(p), $t)
         for (U = _t.call(p.ownerDocument); p.firstChild; )
           U.appendChild(p.firstChild);
       else
@@ -4940,7 +4940,7 @@ function gl() {
     }
     let me = Q ? p.outerHTML : p.innerHTML;
     return Q && m["!doctype"] && p.ownerDocument && p.ownerDocument.doctype && p.ownerDocument.doctype.name && Oe(Ru, p.ownerDocument.doctype.name) && (me = "<!DOCTYPE " + p.ownerDocument.doctype.name + `>
-` + me), X && (me = Qn(me)), ce && ve ? gt(me) : me;
+` + me), J && (me = Qn(me)), ce && ve ? gt(me) : me;
   }, t.setConfig = function() {
     let x = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
     zr(x), he = !0, ge = m, De = g;
@@ -5026,11 +5026,11 @@ function I(e, t, n, r, s) {
     sanitize: !0,
     // overwrite with user config
     ...typeof s == "object" ? s : typeof r == "object" ? r : {}
-  }, c = (L) => L, h = (l.sanitize ? Uu.sanitize : c) || c, d = l.escape ? to : c, _ = (L) => typeof L == "string" || typeof L == "number", A = (L, K, H) => L.replace(/%n/g, "" + H).replace(/{([^{}]*)}/g, (G, q) => {
-    if (K === void 0 || !(q in K))
-      return d(G);
-    const M = K[q];
-    return _(M) ? d(`${M}`) : typeof M == "object" && _(M.value) ? (M.escape !== !1 ? to : c)(`${M.value}`) : d(G);
+  }, c = (L) => L, h = (l.sanitize ? Uu.sanitize : c) || c, d = l.escape ? to : c, _ = (L) => typeof L == "string" || typeof L == "number", A = (L, K, j) => L.replace(/%n/g, "" + j).replace(/{([^{}]*)}/g, (Y, X) => {
+    if (K === void 0 || !(X in K))
+      return d(Y);
+    const M = K[X];
+    return _(M) ? d(`${M}`) : typeof M == "object" && _(M.value) ? (M.escape !== !1 ? to : c)(`${M.value}`) : d(Y);
   });
   let V = (s?.bundle ?? $u(e)).translations[t] || t;
   return V = Array.isArray(V) ? V[0] : V, h(typeof i == "object" || o !== void 0 ? A(
@@ -5042,43 +5042,43 @@ function I(e, t, n, r, s) {
 const Vu = { class: "library-vue-catalogue" }, zu = {
   class: "library-panel",
   "aria-labelledby": "library-catalogue-heading"
-}, Bu = { id: "library-catalogue-heading" }, Wu = { class: "library-muted" }, Ku = ["aria-label"], Gu = { value: "" }, Yu = ["value"], qu = { value: "" }, Xu = ["value"], Ju = { value: "" }, Zu = ["value"], Qu = { value: "" }, ef = ["value"], tf = { value: "" }, nf = ["value"], rf = { value: "" }, sf = ["value"], of = { value: "" }, lf = ["value"], af = { value: "" }, cf = { value: "1" }, uf = { value: "title" }, ff = { value: "recent" }, df = { value: "publicationDate" }, pf = { value: "publication" }, hf = { value: "format" }, mf = ["value"], gf = ["value"], _f = ["aria-label"], bf = ["aria-label"], yf = ["aria-label"], Tf = ["href", "aria-label"], Ef = ["aria-label"], Sf = ["href"], vf = {
+}, Bu = { id: "library-catalogue-heading" }, Wu = { class: "library-muted" }, Ku = ["aria-label"], Gu = { value: "" }, Yu = ["value"], qu = { value: "" }, Xu = ["value"], Ju = { value: "" }, Zu = ["value"], Qu = { value: "" }, ef = ["value"], tf = { value: "" }, nf = ["value"], rf = { value: "" }, sf = ["value"], of = { value: "" }, lf = ["value"], af = { value: "" }, cf = { value: "1" }, uf = { value: "title" }, ff = { value: "recent" }, df = { value: "publicationDate" }, pf = { value: "publication" }, hf = { value: "lastOpened" }, mf = { value: "format" }, gf = ["value"], _f = ["value"], bf = ["aria-label"], yf = ["aria-label"], Tf = ["aria-label"], Ef = ["href", "aria-label"], Sf = ["aria-label"], vf = ["href"], Af = {
   key: 1,
   class: "library-muted"
-}, Af = ["href"], xf = {
+}, xf = ["href"], wf = {
   key: 3,
   class: "library-muted"
-}, wf = {
+}, Cf = {
   key: 1,
   class: "library-periodical-groups",
   "aria-labelledby": "library-periodical-groups-heading"
-}, Cf = { id: "library-periodical-groups-heading" }, Of = { class: "library-muted" }, Rf = ["href"], If = { class: "library-muted" }, Pf = {
+}, Of = { id: "library-periodical-groups-heading" }, Rf = { class: "library-muted" }, If = ["href"], Pf = { class: "library-muted" }, Df = {
   key: 2,
   class: "library-periodical-groups library-periodical-groups-empty",
   "aria-labelledby": "library-periodical-groups-empty-heading"
-}, Df = { id: "library-periodical-groups-empty-heading" }, Nf = { class: "library-muted" }, Mf = {
+}, Nf = { id: "library-periodical-groups-empty-heading" }, Mf = { class: "library-muted" }, Lf = {
   key: 3,
   class: "library-empty-content",
   role: "status"
-}, Lf = { class: "library-muted" }, Ff = {
+}, Ff = { class: "library-muted" }, Uf = {
   key: 4,
   class: "library-cover-gallery"
-}, Uf = ["href", "aria-label"], kf = ["src", "alt"], Hf = { class: "library-cover-summary" }, jf = { class: "library-cover-primary" }, $f = ["aria-label"], Vf = ["href"], zf = { class: "library-cover-details" }, Bf = ["aria-label"], Wf = { class: "library-cover-meta" }, Kf = {
+}, kf = ["href", "aria-label"], Hf = ["src", "alt"], jf = { class: "library-cover-summary" }, $f = { class: "library-cover-primary" }, Vf = ["aria-label"], zf = ["href"], Bf = { class: "library-cover-details" }, Wf = ["aria-label"], Kf = { class: "library-cover-meta" }, Gf = {
   key: 0,
   class: "library-creator"
-}, Gf = { class: "library-muted" }, Yf = { key: 0 }, qf = { key: 1 }, Xf = { key: 2 }, Jf = { key: 3 }, Zf = {
+}, Yf = { class: "library-muted" }, qf = { key: 0 }, Xf = { key: 1 }, Jf = { key: 2 }, Zf = { key: 3 }, Qf = { key: 4 }, ed = {
   key: 1,
   class: "library-item-scan-status library-scan-error"
-}, Qf = { key: 0 }, ed = {
+}, td = { key: 0 }, nd = {
   class: "library-nextcloud-tags library-cover-tags",
   "aria-label": "nextcloudTags"
-}, td = {
+}, rd = {
   key: 0,
   class: "library-muted"
-}, nd = { class: "library-cover-actions" }, rd = ["href"], sd = ["href"], id = ["href"], od = {
+}, sd = { class: "library-cover-actions" }, id = ["href"], od = ["href"], ld = ["href"], ad = {
   class: "library-hero library-secondary-panel",
   "aria-label": "Library settings"
-}, ld = { class: "library-hero-actions" }, ad = ["href"], cd = ["href"], ud = {
+}, cd = { class: "library-hero-actions" }, ud = ["href"], fd = ["href"], dd = {
   __name: "App",
   props: {
     state: {
@@ -5119,14 +5119,14 @@ const Vu = { class: "library-vue-catalogue" }, zu = {
       shelf: "Shelf",
       status: "Scan status",
       starred: "Starred"
-    }, H = We(() => Object.entries(K).map(([ne, F]) => ({ key: ne, label: F, value: S[ne] || "" })).filter((ne) => String(ne.value).trim() !== ""));
-    function G(ne) {
+    }, j = We(() => Object.entries(K).map(([ne, F]) => ({ key: ne, label: F, value: S[ne] || "" })).filter((ne) => String(ne.value).trim() !== ""));
+    function Y(ne) {
       const F = new URLSearchParams(window.location.search);
       F.delete(ne), F.delete("page");
       const b = F.toString();
       return b ? `?${b}` : "?";
     }
-    function q(ne) {
+    function X(ne) {
       return String(ne || "").toUpperCase();
     }
     function M(ne) {
@@ -5136,18 +5136,18 @@ const Vu = { class: "library-vue-catalogue" }, zu = {
       const F = new URLSearchParams(window.location.search);
       return F.set("publication", ne), F.set("sort", "publication"), F.delete("page"), `?${F.toString()}`;
     }
-    return (ne, F) => (Y(), J("div", Vu, [
+    return (ne, F) => (G(), q("div", Vu, [
       R("section", zu, [
-        R("h2", Bu, D(j(I)("library", "Publication catalogue")), 1),
-        R("p", Wu, D(j(I)("library", "Browse as a shelf/gallery first; open the details panel when metadata matters.")), 1),
+        R("h2", Bu, P(H(I)("library", "Publication catalogue")), 1),
+        R("p", Wu, P(H(I)("library", "Browse as a shelf/gallery first; open the details panel when metadata matters.")), 1),
         R("form", {
           method: "get",
           class: "library-filter-bar",
-          "aria-label": j(I)("library", "Catalogue search and filters")
+          "aria-label": H(I)("library", "Catalogue search and filters")
         }, [
           R("label", null, [
-            Ae(D(j(I)("library", "Search title / author")) + " ", 1),
-            Qe(R("input", {
+            Ae(P(H(I)("library", "Search title / author")) + " ", 1),
+            et(R("input", {
               "onUpdate:modelValue": F[0] || (F[0] = (b) => S.q = b),
               type: "search",
               name: "q",
@@ -5157,69 +5157,69 @@ const Vu = { class: "library-vue-catalogue" }, zu = {
             ])
           ]),
           R("label", null, [
-            Ae(D(j(I)("library", "Type")) + " ", 1),
-            Qe(R("select", {
+            Ae(P(H(I)("library", "Type")) + " ", 1),
+            et(R("select", {
               "onUpdate:modelValue": F[1] || (F[1] = (b) => S.type = b),
               name: "type"
             }, [
-              R("option", Gu, D(j(I)("library", "All types")), 1),
-              (Y(), J(Te, null, Xe(n, (b) => R("option", {
+              R("option", Gu, P(H(I)("library", "All types")), 1),
+              (G(), q(Te, null, Xe(n, (b) => R("option", {
                 key: b,
                 value: b
-              }, D(b), 9, Yu)), 64))
+              }, P(b), 9, Yu)), 64))
             ], 512), [
               [yt, S.type]
             ])
           ]),
           R("label", null, [
-            Ae(D(j(I)("library", "Series / periodical")) + " ", 1),
-            Qe(R("select", {
+            Ae(P(H(I)("library", "Series / periodical")) + " ", 1),
+            et(R("select", {
               "onUpdate:modelValue": F[2] || (F[2] = (b) => S.publication = b),
               name: "publication"
             }, [
-              R("option", qu, D(j(I)("library", "All series and periodicals")), 1),
-              (Y(!0), J(Te, null, Xe(l.value, (b) => (Y(), J("option", {
+              R("option", qu, P(H(I)("library", "All series and periodicals")), 1),
+              (G(!0), q(Te, null, Xe(l.value, (b) => (G(), q("option", {
                 key: b,
                 value: b
-              }, D(b), 9, Xu))), 128))
+              }, P(b), 9, Xu))), 128))
             ], 512), [
               [yt, S.publication]
             ])
           ]),
           R("label", null, [
-            Ae(D(j(I)("library", "Publication year")) + " ", 1),
-            Qe(R("select", {
+            Ae(P(H(I)("library", "Publication year")) + " ", 1),
+            et(R("select", {
               "onUpdate:modelValue": F[3] || (F[3] = (b) => S.year = b),
               name: "year"
             }, [
-              R("option", Ju, D(j(I)("library", "All years")), 1),
-              (Y(!0), J(Te, null, Xe(h.value, (b) => (Y(), J("option", {
+              R("option", Ju, P(H(I)("library", "All years")), 1),
+              (G(!0), q(Te, null, Xe(h.value, (b) => (G(), q("option", {
                 key: b,
                 value: b
-              }, D(b), 9, Zu))), 128))
+              }, P(b), 9, Zu))), 128))
             ], 512), [
               [yt, S.year]
             ])
           ]),
           R("label", null, [
-            Ae(D(j(I)("library", "Creator")) + " ", 1),
-            Qe(R("select", {
+            Ae(P(H(I)("library", "Creator")) + " ", 1),
+            et(R("select", {
               "onUpdate:modelValue": F[4] || (F[4] = (b) => S.creator = b),
               name: "creator",
               title: "Exact full-field creator matches only"
             }, [
-              R("option", Qu, D(j(I)("library", "All creators")), 1),
-              (Y(!0), J(Te, null, Xe(d.value, (b) => (Y(), J("option", {
+              R("option", Qu, P(H(I)("library", "All creators")), 1),
+              (G(!0), q(Te, null, Xe(d.value, (b) => (G(), q("option", {
                 key: b,
                 value: b
-              }, D(b), 9, ef))), 128))
+              }, P(b), 9, ef))), 128))
             ], 512), [
               [yt, S.creator]
             ])
           ]),
           R("label", null, [
-            Ae(D(j(I)("library", "Nextcloud tag")) + " ", 1),
-            Qe(R("input", {
+            Ae(P(H(I)("library", "Nextcloud tag")) + " ", 1),
+            et(R("input", {
               "onUpdate:modelValue": F[5] || (F[5] = (b) => S.tag = b),
               type: "text",
               name: "tag",
@@ -5229,153 +5229,154 @@ const Vu = { class: "library-vue-catalogue" }, zu = {
             ])
           ]),
           R("label", null, [
-            Ae(D(j(I)("library", "Format")) + " ", 1),
-            Qe(R("select", {
+            Ae(P(H(I)("library", "Format")) + " ", 1),
+            et(R("select", {
               "onUpdate:modelValue": F[6] || (F[6] = (b) => S.format = b),
               name: "format"
             }, [
-              R("option", tf, D(j(I)("library", "All formats")), 1),
-              (Y(!0), J(Te, null, Xe(o.value, (b) => (Y(), J("option", {
+              R("option", tf, P(H(I)("library", "All formats")), 1),
+              (G(!0), q(Te, null, Xe(o.value, (b) => (G(), q("option", {
                 key: b,
                 value: b
-              }, D(q(b)), 9, nf))), 128))
+              }, P(X(b)), 9, nf))), 128))
             ], 512), [
               [yt, S.format]
             ])
           ]),
           R("label", null, [
-            Ae(D(j(I)("library", "Shelf")) + " ", 1),
-            Qe(R("select", {
+            Ae(P(H(I)("library", "Shelf")) + " ", 1),
+            et(R("select", {
               "onUpdate:modelValue": F[7] || (F[7] = (b) => S.shelf = b),
               name: "shelf"
             }, [
-              R("option", rf, D(j(I)("library", "All shelves")), 1),
-              (Y(!0), J(Te, null, Xe(i.value, (b) => (Y(), J("option", {
+              R("option", rf, P(H(I)("library", "All shelves")), 1),
+              (G(!0), q(Te, null, Xe(i.value, (b) => (G(), q("option", {
                 key: b,
                 value: b
-              }, D(b), 9, sf))), 128))
+              }, P(b), 9, sf))), 128))
             ], 512), [
               [yt, S.shelf]
             ])
           ]),
           R("label", null, [
-            Ae(D(j(I)("library", "Scan status")) + " ", 1),
-            Qe(R("select", {
+            Ae(P(H(I)("library", "Scan status")) + " ", 1),
+            et(R("select", {
               "onUpdate:modelValue": F[8] || (F[8] = (b) => S.status = b),
               name: "status"
             }, [
-              R("option", of, D(j(I)("library", "All scan statuses")), 1),
-              (Y(!0), J(Te, null, Xe(_.value, (b) => (Y(), J("option", {
+              R("option", of, P(H(I)("library", "All scan statuses")), 1),
+              (G(!0), q(Te, null, Xe(_.value, (b) => (G(), q("option", {
                 key: b,
                 value: b
-              }, D(b), 9, lf))), 128))
+              }, P(b), 9, lf))), 128))
             ], 512), [
               [yt, S.status]
             ])
           ]),
           R("label", null, [
-            Ae(D(j(I)("library", "Starred")) + " ", 1),
-            Qe(R("select", {
+            Ae(P(H(I)("library", "Starred")) + " ", 1),
+            et(R("select", {
               "onUpdate:modelValue": F[9] || (F[9] = (b) => S.starred = b),
               name: "starred"
             }, [
-              R("option", af, D(j(I)("library", "All publications")), 1),
-              R("option", cf, D(j(I)("library", "Starred only")), 1)
+              R("option", af, P(H(I)("library", "All publications")), 1),
+              R("option", cf, P(H(I)("library", "Starred only")), 1)
             ], 512), [
               [yt, S.starred]
             ])
           ]),
           R("label", null, [
-            Ae(D(j(I)("library", "Sort")) + " ", 1),
-            Qe(R("select", {
+            Ae(P(H(I)("library", "Sort")) + " ", 1),
+            et(R("select", {
               "onUpdate:modelValue": F[10] || (F[10] = (b) => S.sort = b),
               name: "sort"
             }, [
-              R("option", uf, D(j(I)("library", "Title")), 1),
-              R("option", ff, D(j(I)("library", "Recently added")), 1),
-              R("option", df, D(j(I)("library", "Publication date")), 1),
-              R("option", pf, D(j(I)("library", "Series / periodical")), 1),
-              R("option", hf, D(j(I)("library", "Format")), 1)
+              R("option", uf, P(H(I)("library", "Title")), 1),
+              R("option", ff, P(H(I)("library", "Recently added")), 1),
+              R("option", df, P(H(I)("library", "Publication date")), 1),
+              R("option", pf, P(H(I)("library", "Series / periodical")), 1),
+              R("option", hf, P(H(I)("library", "Recently opened")), 1),
+              R("option", mf, P(H(I)("library", "Format")), 1)
             ], 512), [
               [yt, S.sort]
             ])
           ]),
           R("label", null, [
-            Ae(D(j(I)("library", "Page size")) + " ", 1),
+            Ae(P(H(I)("library", "Page size")) + " ", 1),
             R("select", {
               value: A.value.limit,
               name: "limit"
             }, [
-              (Y(), J(Te, null, Xe(r, (b) => R("option", {
+              (G(), q(Te, null, Xe(r, (b) => R("option", {
                 key: b,
                 value: b
-              }, D(b), 9, gf)), 64))
-            ], 8, mf)
+              }, P(b), 9, _f)), 64))
+            ], 8, gf)
           ]),
           R("button", {
             type: "submit",
             class: "button primary",
-            "aria-label": j(I)("library", "Apply catalogue filters")
-          }, D(j(I)("library", "Apply filters")), 9, _f),
+            "aria-label": H(I)("library", "Apply catalogue filters")
+          }, P(H(I)("library", "Apply filters")), 9, bf),
           R("a", {
             href: "?",
             class: "button secondary",
-            "aria-label": j(I)("library", "Clear catalogue filters")
-          }, D(j(I)("library", "Clear")), 9, bf)
+            "aria-label": H(I)("library", "Clear catalogue filters")
+          }, P(H(I)("library", "Clear")), 9, yf)
         ], 8, Ku),
-        H.value.length > 0 ? (Y(), J("nav", {
+        j.value.length > 0 ? (G(), q("nav", {
           key: 0,
           class: "library-active-filter-chips",
-          "aria-label": j(I)("library", "Active filters")
+          "aria-label": H(I)("library", "Active filters")
         }, [
-          R("span", null, D(j(I)("library", "Active filters")), 1),
-          (Y(!0), J(Te, null, Xe(H.value, (b) => (Y(), J("a", {
+          R("span", null, P(H(I)("library", "Active filters")), 1),
+          (G(!0), q(Te, null, Xe(j.value, (b) => (G(), q("a", {
             key: b.key,
-            href: G(b.key),
+            href: Y(b.key),
             class: "library-filter-chip",
-            "aria-label": `${j(I)("library", "Remove filter")}: ${b.label}`
+            "aria-label": `${H(I)("library", "Remove filter")}: ${b.label}`
           }, [
-            R("strong", null, D(b.label) + ":", 1),
-            Ae(" " + D(b.value) + " ", 1),
+            R("strong", null, P(b.label) + ":", 1),
+            Ae(" " + P(b.value) + " ", 1),
             F[11] || (F[11] = R("span", { "aria-hidden": "true" }, "×", -1))
-          ], 8, Tf))), 128))
-        ], 8, yf)) : et("", !0),
+          ], 8, Ef))), 128))
+        ], 8, Tf)) : Je("", !0),
         R("nav", {
           class: "library-pagination",
-          "aria-label": j(I)("library", "Catalogue pagination")
+          "aria-label": H(I)("library", "Catalogue pagination")
         }, [
-          R("span", null, "Showing " + D(A.value.from) + "–" + D(A.value.to) + " of " + D(A.value.total) + " catalogue items", 1),
-          A.value.previousUrl ? (Y(), J("a", {
+          R("span", null, "Showing " + P(A.value.from) + "–" + P(A.value.to) + " of " + P(A.value.total) + " catalogue items", 1),
+          A.value.previousUrl ? (G(), q("a", {
             key: 0,
             href: A.value.previousUrl
-          }, D(j(I)("library", "Previous")), 9, Sf)) : (Y(), J("span", vf, D(j(I)("library", "Previous")), 1)),
-          A.value.nextUrl ? (Y(), J("a", {
+          }, P(H(I)("library", "Previous")), 9, vf)) : (G(), q("span", Af, P(H(I)("library", "Previous")), 1)),
+          A.value.nextUrl ? (G(), q("a", {
             key: 2,
             href: A.value.nextUrl
-          }, D(j(I)("library", "Next")), 9, Af)) : (Y(), J("span", xf, D(j(I)("library", "Next")), 1))
-        ], 8, Ef),
-        c.value.length > 0 ? (Y(), J("section", wf, [
-          R("h3", Cf, D(j(I)("library", "Top series and periodicals")), 1),
-          R("p", Of, D(j(I)("library", "Jump into recurring publications with one click.")), 1),
+          }, P(H(I)("library", "Next")), 9, xf)) : (G(), q("span", wf, P(H(I)("library", "Next")), 1))
+        ], 8, Sf),
+        c.value.length > 0 ? (G(), q("section", Cf, [
+          R("h3", Of, P(H(I)("library", "Top series and periodicals")), 1),
+          R("p", Rf, P(H(I)("library", "Jump into recurring publications with one click.")), 1),
           R("ul", null, [
-            (Y(!0), J(Te, null, Xe(c.value, (b) => (Y(), J("li", {
+            (G(!0), q(Te, null, Xe(c.value, (b) => (G(), q("li", {
               key: b.publication
             }, [
               R("a", {
                 href: te(b.publication)
-              }, D(b.publication), 9, Rf),
-              R("span", If, D(b.itemCount) + " items", 1)
+              }, P(b.publication), 9, If),
+              R("span", Pf, P(b.itemCount) + " items", 1)
             ]))), 128))
           ])
-        ])) : c.value.length === 0 ? (Y(), J("section", Pf, [
-          R("h3", Df, D(j(I)("library", "No series or periodicals found yet")), 1),
-          R("p", Nf, D(j(I)("library", "Add publication or series names in item details to build this shortcut panel.")), 1)
-        ])) : et("", !0),
-        s.value.length === 0 ? (Y(), J("div", Mf, [
-          R("h3", null, D(j(I)("library", "No catalogue items match")), 1),
-          R("p", Lf, D(j(I)("library", "Scan enabled roots or clear the active filters.")), 1)
-        ])) : (Y(), J("div", Ff, [
-          (Y(!0), J(Te, null, Xe(s.value, (b) => (Y(), J("article", {
+        ])) : c.value.length === 0 ? (G(), q("section", Df, [
+          R("h3", Nf, P(H(I)("library", "No series or periodicals found yet")), 1),
+          R("p", Mf, P(H(I)("library", "Add publication or series names in item details to build this shortcut panel.")), 1)
+        ])) : Je("", !0),
+        s.value.length === 0 ? (G(), q("div", Lf, [
+          R("h3", null, P(H(I)("library", "No catalogue items match")), 1),
+          R("p", Ff, P(H(I)("library", "Scan enabled roots or clear the active filters.")), 1)
+        ])) : (G(), q("div", Uf, [
+          (G(!0), q(Te, null, Xe(s.value, (b) => (G(), q("article", {
             key: b.id,
             class: "library-cover-card"
           }, [
@@ -5389,59 +5390,60 @@ const Vu = { class: "library-vue-catalogue" }, zu = {
                 src: b.coverUrl,
                 alt: `Cover for ${b.title}`,
                 loading: "lazy"
-              }, null, 8, kf)
-            ], 8, Uf),
-            R("div", Hf, [
-              R("div", jf, [
+              }, null, 8, Hf)
+            ], 8, kf),
+            R("div", jf, [
+              R("div", $f, [
                 R("h3", null, [
-                  b.starred ? (Y(), J("span", {
+                  b.starred ? (G(), q("span", {
                     key: 0,
                     class: "library-star-marker",
-                    "aria-label": j(I)("library", "Starred")
-                  }, "★", 8, $f)) : et("", !0),
-                  Ae(D(b.title), 1)
+                    "aria-label": H(I)("library", "Starred")
+                  }, "★", 8, Vf)) : Je("", !0),
+                  Ae(P(b.title), 1)
                 ]),
                 R("a", {
                   class: "library-cover-read",
                   href: b.openUrl
-                }, D(j(I)("library", "Read")), 9, Vf)
+                }, P(H(I)("library", "Read")), 9, zf)
               ]),
-              R("details", zf, [
+              R("details", Bf, [
                 R("summary", {
                   class: "library-cover-details-summary",
-                  "aria-label": `${j(I)("library", "Show details and actions")}: ${b.title}`
-                }, D(j(I)("library", "Details")), 9, Bf),
-                R("div", Wf, [
-                  b.creators ? (Y(), J("p", Kf, D(b.creators), 1)) : et("", !0),
-                  R("p", Gf, [
-                    R("span", null, D(b.publicationType), 1),
-                    b.publication ? (Y(), J("span", Yf, " · " + D(b.publication), 1)) : et("", !0),
-                    b.publicationDate ? (Y(), J("span", qf, " · " + D(b.publicationDate), 1)) : et("", !0),
-                    b.extension ? (Y(), J("span", Xf, " · Format: " + D(q(b.extension)), 1)) : et("", !0),
-                    b.shelf ? (Y(), J("span", Jf, " · Shelf: " + D(b.shelf), 1)) : et("", !0)
+                  "aria-label": `${H(I)("library", "Show details and actions")}: ${b.title}`
+                }, P(H(I)("library", "Details")), 9, Wf),
+                R("div", Kf, [
+                  b.creators ? (G(), q("p", Gf, P(b.creators), 1)) : Je("", !0),
+                  R("p", Yf, [
+                    R("span", null, P(b.publicationType), 1),
+                    b.publication ? (G(), q("span", qf, " · " + P(b.publication), 1)) : Je("", !0),
+                    b.publicationDate ? (G(), q("span", Xf, " · " + P(b.publicationDate), 1)) : Je("", !0),
+                    b.lastOpenedAt ? (G(), q("span", Jf, " · Last opened: " + P(b.lastOpenedAt), 1)) : Je("", !0),
+                    b.extension ? (G(), q("span", Zf, " · Format: " + P(X(b.extension)), 1)) : Je("", !0),
+                    b.shelf ? (G(), q("span", Qf, " · Shelf: " + P(b.shelf), 1)) : Je("", !0)
                   ]),
-                  b.scanStatus !== "indexed" || b.scanError ? (Y(), J("p", Zf, [
-                    Ae(" scanStatus: " + D(b.scanStatus || "unknown"), 1),
-                    b.scanError ? (Y(), J("span", Qf, " · scanError: " + D(b.scanError), 1)) : et("", !0)
-                  ])) : et("", !0),
-                  R("div", ed, [
-                    M(b).length === 0 ? (Y(), J("span", td, "No Nextcloud tags")) : (Y(!0), J(Te, { key: 1 }, Xe(M(b), (ce) => (Y(), J("span", {
+                  b.scanStatus !== "indexed" || b.scanError ? (G(), q("p", ed, [
+                    Ae(" scanStatus: " + P(b.scanStatus || "unknown"), 1),
+                    b.scanError ? (G(), q("span", td, " · scanError: " + P(b.scanError), 1)) : Je("", !0)
+                  ])) : Je("", !0),
+                  R("div", nd, [
+                    M(b).length === 0 ? (G(), q("span", rd, "No Nextcloud tags")) : (G(!0), q(Te, { key: 1 }, Xe(M(b), (ce) => (G(), q("span", {
                       key: ce.id,
                       class: "library-tag"
-                    }, D(ce.name), 1))), 128))
+                    }, P(ce.name), 1))), 128))
                   ]),
-                  R("p", nd, [
+                  R("p", sd, [
                     R("a", {
                       href: b.filesUrl
-                    }, D(j(I)("library", "Show in Files")), 9, rd),
+                    }, P(H(I)("library", "Show in Files")), 9, id),
                     F[12] || (F[12] = Ae(" · ", -1)),
                     R("a", {
                       href: b.downloadUrl
-                    }, D(j(I)("library", "Download source")), 9, sd),
+                    }, P(H(I)("library", "Download source")), 9, od),
                     F[13] || (F[13] = Ae(" · ", -1)),
                     R("a", {
                       href: b.detailsUrl
-                    }, D(j(I)("library", "Details")), 9, id)
+                    }, P(H(I)("library", "Details")), 9, ld)
                   ])
                 ])
               ])
@@ -5449,23 +5451,23 @@ const Vu = { class: "library-vue-catalogue" }, zu = {
           ]))), 128))
         ]))
       ]),
-      R("section", od, [
+      R("section", ad, [
         F[14] || (F[14] = R("div", null, [
           R("h2", null, "Library"),
           R("p", { class: "library-lede" }, "Browse publications already stored in Nextcloud.")
         ], -1)),
-        R("div", ld, [
+        R("div", cd, [
           R("a", {
             href: V.value,
             class: "button secondary",
             "aria-label": "Open Library settings"
-          }, "Library settings", 8, ad),
-          L.value ? (Y(), J("a", {
+          }, "Library settings", 8, ud),
+          L.value ? (G(), q("a", {
             key: 0,
             href: L.value,
             class: "button secondary",
             "aria-label": "Export corrected metadata"
-          }, "Export corrected metadata", 8, cd)) : et("", !0)
+          }, "Export corrected metadata", 8, fd)) : Je("", !0)
         ])
       ])
     ]));
@@ -5480,7 +5482,7 @@ function ye(e) {
 function _l(e) {
   return ye(e).toUpperCase();
 }
-function fd(e, t, n, r = ye) {
+function pd(e, t, n, r = ye) {
   for (const s of t) {
     const i = document.createElement("option");
     i.value = ye(s), i.textContent = r(s), ye(s) === ye(n) && (i.selected = !0), e.appendChild(i);
@@ -5498,9 +5500,9 @@ function un(e, t, n, r, s, i, o = ye) {
   const c = document.createElement("select");
   c.name = n;
   const h = document.createElement("option");
-  h.value = "", h.textContent = s, c.appendChild(h), fd(c, i, r, o), l.appendChild(c), e.appendChild(l);
+  h.value = "", h.textContent = s, c.appendChild(h), pd(c, i, r, o), l.appendChild(c), e.appendChild(l);
 }
-function dd(e, t) {
+function hd(e, t) {
   const n = e.activeFilters || {}, r = document.createElement("form");
   r.method = "get", r.className = "library-filter-bar", r.setAttribute("aria-label", I("library", "Catalogue search and filters")), so(r, I("library", "Search title / author"), "q", n.q, "Camera, Eco, Rolleiflex..."), un(r, I("library", "Type"), "type", n.type, I("library", "All types"), ["book", "comic", "magazine", "journal", "manual", "catalogue", "other"]), so(r, I("library", "Nextcloud tag"), "tag", n.tag, "photography"), un(r, I("library", "Format"), "format", n.format, I("library", "All formats"), e.formats || [], _l), un(r, I("library", "Shelf"), "shelf", n.shelf, I("library", "All shelves"), e.shelves || []), un(r, I("library", "Scan status"), "status", n.status, I("library", "All scan statuses"), e.scanStatuses || []), un(r, I("library", "Sort"), "sort", n.sort || "title", I("library", "Sort by"), ["title", "recent", "publicationDate", "format"]), un(r, I("library", "Page size"), "limit", t.limit || 100, I("library", "Page size"), [25, 50, 100, 250, 500]);
   const s = document.createElement("button");
@@ -5508,7 +5510,7 @@ function dd(e, t) {
   const i = document.createElement("a");
   return i.href = "?", i.className = "button secondary", i.setAttribute("aria-label", I("library", "Clear catalogue filters")), i.textContent = I("library", "Clear"), r.append(s, i), r;
 }
-function pd(e, t) {
+function md(e, t) {
   const n = Array.isArray(e.items) ? e.items : [], r = e.cataloguePagination || {
     from: n.length > 0 ? 1 : 0,
     to: n.length,
@@ -5520,7 +5522,7 @@ function pd(e, t) {
   const c = document.createElement("h2");
   c.id = "library-catalogue-heading", c.textContent = I("library", "Publication catalogue"), l.appendChild(c);
   const h = document.createElement("p");
-  h.className = "library-muted", h.textContent = I("library", "Browse as a shelf/gallery first; open the details panel when metadata matters."), l.appendChild(h), l.appendChild(dd(e, r));
+  h.className = "library-muted", h.textContent = I("library", "Browse as a shelf/gallery first; open the details panel when metadata matters."), l.appendChild(h), l.appendChild(hd(e, r));
   const d = document.createElement("nav");
   d.className = "library-pagination", d.setAttribute("aria-label", I("library", "Catalogue pagination"));
   const _ = document.createElement("span");
@@ -5541,19 +5543,19 @@ function pd(e, t) {
       L.className = "library-cover-link", L.href = ye(S.openUrl || "#"), L.setAttribute("aria-label", `Read ${ye(S.title || "publication")}`);
       const K = document.createElement("img");
       K.className = "library-cover-image", K.src = ye(S.coverUrl || ""), K.alt = `Cover for ${ye(S.title || "publication")}`, K.loading = "lazy", L.appendChild(K);
-      const H = document.createElement("div");
-      H.className = "library-cover-summary";
-      const G = document.createElement("h3");
-      if (G.textContent = ye(S.title || "Untitled publication"), H.appendChild(G), S.creators) {
+      const j = document.createElement("div");
+      j.className = "library-cover-summary";
+      const Y = document.createElement("h3");
+      if (Y.textContent = ye(S.title || "Untitled publication"), j.appendChild(Y), S.creators) {
         const ce = document.createElement("p");
-        ce.className = "library-creator", ce.textContent = ye(S.creators), H.appendChild(ce);
+        ce.className = "library-creator", ce.textContent = ye(S.creators), j.appendChild(ce);
       }
-      const q = document.createElement("p");
-      q.className = "library-muted", q.textContent = [
+      const X = document.createElement("p");
+      X.className = "library-muted", X.textContent = [
         ye(S.publicationType || "other"),
         S.extension ? `Format: ${_l(S.extension)}` : "",
         S.shelf ? `Shelf: ${ye(S.shelf)}` : ""
-      ].filter(Boolean).join(" · "), H.appendChild(q);
+      ].filter(Boolean).join(" · "), j.appendChild(X);
       const M = document.createElement("p"), te = document.createElement("a");
       te.href = ye(S.openUrl || "#"), te.textContent = I("library", "Read");
       const ne = document.createElement("a");
@@ -5561,7 +5563,7 @@ function pd(e, t) {
       const F = document.createElement("a");
       F.href = ye(S.downloadUrl || "#"), F.textContent = I("library", "Download source");
       const b = document.createElement("a");
-      b.href = ye(S.detailsUrl || "#"), b.textContent = I("library", "Details"), M.append(te, document.createTextNode(" · "), ne, document.createTextNode(" · "), F, document.createTextNode(" · "), b), H.appendChild(M), V.append(L, H), A.appendChild(V);
+      b.href = ye(S.detailsUrl || "#"), b.textContent = I("library", "Details"), M.append(te, document.createTextNode(" · "), ne, document.createTextNode(" · "), F, document.createTextNode(" · "), b), j.appendChild(M), V.append(L, j), A.appendChild(V);
     }
     l.appendChild(A);
   }
@@ -5574,12 +5576,12 @@ function pd(e, t) {
     L.className = "library-lede", L.textContent = "Browse publications already stored in Nextcloud.", S.append(V, L);
     const K = document.createElement("div");
     if (K.className = "library-hero-actions", s) {
-      const H = document.createElement("a");
-      H.href = s, H.className = "button secondary", H.setAttribute("aria-label", "Open Library settings"), H.textContent = "Library settings", K.appendChild(H);
+      const j = document.createElement("a");
+      j.href = s, j.className = "button secondary", j.setAttribute("aria-label", "Open Library settings"), j.textContent = "Library settings", K.appendChild(j);
     }
     if (i) {
-      const H = document.createElement("a");
-      H.href = i, H.className = "button secondary", H.setAttribute("aria-label", "Export corrected metadata"), H.textContent = "Export corrected metadata", K.appendChild(H);
+      const j = document.createElement("a");
+      j.href = i, j.className = "button secondary", j.setAttribute("aria-label", "Export corrected metadata"), j.textContent = "Export corrected metadata", K.appendChild(j);
     }
     A.append(S, K), o.appendChild(A);
   }
@@ -5587,8 +5589,8 @@ function pd(e, t) {
 }
 if (dr)
   try {
-    Qc(ud, { state: ro }).mount(dr);
+    Qc(dd, { state: ro }).mount(dr);
   } catch (e) {
-    console.error("[library] Vue mount failed; rendering fallback catalogue", e), dr.replaceChildren(pd(ro));
+    console.error("[library] Vue mount failed; rendering fallback catalogue", e), dr.replaceChildren(md(ro));
   }
 //# sourceMappingURL=library-main.mjs.map

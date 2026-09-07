@@ -7,10 +7,13 @@ def test_nextcloud_internal_links_use_absolute_url_generator_not_empty_app_linkt
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     provider = (ROOT / "lib" / "Reader" / "DefaultNextcloudFileProvider.php").read_text()
 
+    item_controller = (ROOT / "lib" / "Controller" / "ItemController.php").read_text()
+
     assert "linkTo('', '/settings/user/library')" not in page
     assert "linkTo('', '/f/__FILE_ID__')" not in page
     assert "getAbsoluteURL('/settings/user/library')" in page
-    assert "getAbsoluteURL('/f/' . $fileId)" in page
+    assert "linkToRoute('library.item.open'" in page
+    assert "getAbsoluteURL('/f/' . (int)$item['fileId'])" in item_controller
 
     assert "linkTo('', '/f/' . $fileId)" not in provider
     assert "linkTo('', '/apps/files/files/' . $fileId)" not in provider
