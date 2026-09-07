@@ -114,7 +114,7 @@ $fileRows = [
                         <a href="<?php p($item['openUrl'] ?? '#'); ?>" class="button primary"><?php p($l->t('Read')); ?></a>
                         <a href="<?php p($item['filesUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Show in Files')); ?></a>
                         <a href="<?php p($item['downloadUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Download source')); ?></a>
-                        <a href="<?php p($item['coverRefreshUrl'] ?? ($item['coverUrl'] ?? '#')); ?>" class="button secondary library-cover-refresh-action"><?php p($l->t('Refresh cover preview')); ?></a>
+                        <a href="<?php p($item['coverRefreshPageUrl'] ?? ($item['coverUrl'] ?? '#')); ?>" class="button secondary library-cover-refresh-action"><?php p($l->t('Refresh cover preview')); ?></a>
                     </div>
                     <aside class="library-cover-quality-explanation" aria-labelledby="library-cover-quality-heading">
                         <h3 id="library-cover-quality-heading"><?php p($l->t('How Library chose this cover')); ?></h3>

@@ -13,7 +13,8 @@ def test_vue_cards_use_touch_friendly_collapsed_metadata_details():
     assert "library-cover-meta" in vue
     assert "library-cover-actions" in vue
     assert "library-cover-tags" in vue
-    assert "<details class=\"library-cover-details\">" in vue
+    assert "class=\"library-cover-details\"" in vue
+    assert "@toggle=\"setCoverDetailsOpen" in vue
     assert "Download source" in vue
 
 

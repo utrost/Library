@@ -347,7 +347,14 @@
     flex-direction: column;
     gap: 8px;
     min-width: 0;
+    overflow-wrap: anywhere;
     padding: 8px;
+}
+
+.library-cover-card--open {
+    grid-column: span 2;
+    position: relative;
+    z-index: 2;
 }
 
 .library-cover-link {

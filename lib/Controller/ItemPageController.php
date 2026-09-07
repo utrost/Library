@@ -50,8 +50,16 @@ final class ItemPageController extends Controller {
         $tags = $this->fileTagService->tagsForItems([$item]);
         $comments = $this->fileCommentService->commentsForItems([$item]);
 
-        $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => (string)$item['id']]);
+        $coverRefreshRequested = (string)$this->request->getParam('coverRefresh', '0') === '1';
+        $item['coverUrl'] = $this->urlGenerator->linkToRoute(
+            'library.cover.show',
+            array_filter([
+                'itemId' => (string)$item['id'],
+                'refresh' => $coverRefreshRequested ? '1' : null,
+            ], static fn ($value) => $value !== null)
+        );
         $item['coverRefreshUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => (string)$item['id'], 'refresh' => '1']);
+        $item['coverRefreshPageUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => (string)$item['id'], 'coverRefresh' => '1']);
         $item['coverQualityExplanation'] = $this->coverQualityExplanation($item);
         $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => (string)$item['id']]);
         $item['starUrl'] = $this->urlGenerator->linkToRoute('library.item.star', ['itemId' => (string)$item['id']]);
