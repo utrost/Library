@@ -142,39 +142,57 @@ final class FileTagService {
         return array_slice(array_values($tagNames), 0, max(1, $limit));
     }
 
-    public function assignTagToItem(string $userId, int $itemId, string $tagName): void {
+    /**
+     * @return array{status:string, tagName:string, tagId:string}
+     */
+    public function assignTagToItem(string $userId, int $itemId, string $tagName): array {
         $tagName = trim($tagName);
         if ($tagName === '') {
-            return;
+            return ['status' => 'empty', 'tagName' => '', 'tagId' => ''];
         }
 
         $fileId = $this->findFileIdForItem($userId, $itemId);
         if ($fileId === null) {
-            return;
+            return ['status' => 'item-not-found', 'tagName' => $tagName, 'tagId' => ''];
         }
 
         $user = $this->userSession->getUser();
+        $created = false;
         try {
             $tag = $this->tagManager->getTag($tagName, true, true);
         } catch (TagNotFoundException) {
             if (!$this->tagManager->canUserCreateTag($user)) {
-                return;
+                return ['status' => 'not-assignable', 'tagName' => $tagName, 'tagId' => ''];
             }
 
             try {
                 $tag = $this->tagManager->createTag($tagName, true, true, $user);
+                $created = true;
             } catch (TagAlreadyExistsException) {
                 $tag = $this->tagManager->getTag($tagName, true, true);
             } catch (TagCreationForbiddenException) {
-                return;
+                return ['status' => 'not-assignable', 'tagName' => $tagName, 'tagId' => ''];
             }
         }
 
         if (!$this->tagManager->canUserAssignTag($tag, $user)) {
-            return;
+            return ['status' => 'not-assignable', 'tagName' => $tagName, 'tagId' => (string)$tag->getId()];
+        }
+
+        if ($this->tagAlreadyAssigned($fileId, (string)$tag->getId())) {
+            return ['status' => 'already-assigned', 'tagName' => $tagName, 'tagId' => (string)$tag->getId()];
         }
 
         $this->tagObjectMapper->assignTags((string)$fileId, 'files', $tag->getId());
+        if ($created) {
+            return ['status' => 'created', 'tagName' => $tagName, 'tagId' => (string)$tag->getId()];
+        }
+        return ['status' => 'added', 'tagName' => $tagName, 'tagId' => (string)$tag->getId()];
+    }
+
+    private function tagAlreadyAssigned(int $fileId, string $tagId): bool {
+        $tagIdsByObject = $this->tagObjectMapper->getTagIdsForObjects([(string)$fileId], 'files');
+        return in_array($tagId, array_map('strval', $tagIdsByObject[(string)$fileId] ?? []), true);
     }
 
     public function removeTagFromItem(string $userId, int $itemId, string $tagId): void {

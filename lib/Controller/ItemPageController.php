@@ -72,6 +72,10 @@ final class ItemPageController extends Controller {
             return $tag;
         }, $tags[$fileId] ?? []);
         $item['tagSuggestions'] = $this->fileTagService->visibleAssignableTagNames();
+        $item['tagFeedback'] = $this->tagFeedback(
+            (string)$this->request->getParam('tagResult', ''),
+            (string)$this->request->getParam('tagName', '')
+        );
         $item['nextcloudComments'] = $comments[$fileId] ?? ['count' => 0, 'recent' => []];
 
         Util::addStyle(Application::APP_ID, 'style');
@@ -79,6 +83,21 @@ final class ItemPageController extends Controller {
             'item' => $item,
             'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
         ]);
+    }
+
+    /**
+     * @return array{status:string,message:string,type:string}|null
+     */
+    private function tagFeedback(string $status, string $tagName): ?array {
+        $safeName = trim($tagName) !== '' ? trim($tagName) : 'tag';
+        return match ($status) {
+            'added', 'created' => ['status' => $status, 'message' => 'Tag added: ' . $safeName, 'type' => 'success'],
+            'already-assigned' => ['status' => $status, 'message' => 'Tag already assigned: ' . $safeName, 'type' => 'info'],
+            'empty' => ['status' => $status, 'message' => 'Empty tag ignored.', 'type' => 'info'],
+            'not-assignable' => ['status' => $status, 'message' => 'Tag is not assignable: ' . $safeName, 'type' => 'warning'],
+            'item-not-found' => ['status' => $status, 'message' => 'Publication not found for tag update.', 'type' => 'warning'],
+            default => null,
+        };
     }
 
     /**

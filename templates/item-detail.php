@@ -4,6 +4,7 @@ $item = $_['item'] ?? [];
 $comments = $item['nextcloudComments'] ?? ['count' => 0, 'recent' => []];
 $tags = $item['nextcloudTags'] ?? [];
 $tagSuggestions = is_array($item['tagSuggestions'] ?? null) ? $item['tagSuggestions'] : [];
+$tagFeedback = is_array($item['tagFeedback'] ?? null) ? $item['tagFeedback'] : null;
 $publicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'];
 $workflowStatuses = [
     '' => 'No workflow status',
@@ -309,6 +310,9 @@ $fileRows = [
                 <?php endif; ?>
             </div>
             <div class="library-detail-tag-editor" aria-label="nextcloudTagEditor">
+                <?php if ($tagFeedback !== null): ?>
+                    <p class="library-tag-feedback library-tag-feedback-<?php p((string)($tagFeedback['type'] ?? 'info')); ?>" data-tag-result="<?php p((string)($tagFeedback['status'] ?? '')); ?>"><?php p((string)($tagFeedback['message'] ?? '')); ?></p>
+                <?php endif; ?>
                 <?php if (count($tags) > 0): ?>
                     <ul class="library-tag-remove-list" aria-label="<?php p($l->t('Remove Nextcloud tag')); ?>">
                         <?php foreach ($tags as $tag): ?>
@@ -335,6 +339,7 @@ $fileRows = [
                             <option value="<?php p((string)$tagName); ?>"></option>
                         <?php endforeach; ?>
                     </datalist>
+                    <p class="library-muted library-tag-feedback-help"><?php p($l->t('Tag result feedback can report: Tag already assigned, Tag is not assignable, or Empty tag ignored.')); ?></p>
                     <button type="submit"><?php p($l->t('Add tag')); ?></button>
                 </form>
             </div>

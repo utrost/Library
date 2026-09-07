@@ -25,16 +25,17 @@ final class TagController extends Controller {
 
     #[NoAdminRequired]
     public function assign(int $itemId): RedirectResponse {
+        $result = ['status' => 'not-authenticated', 'tagName' => '', 'tagId' => ''];
         $user = $this->userSession->getUser();
         if ($user !== null) {
-            $this->fileTagService->assignTagToItem(
+            $result = $this->fileTagService->assignTagToItem(
                 $user->getUID(),
                 $itemId,
                 (string)($this->request->getParam('nextcloudTagName', '') ?: $this->request->getParam('tagName', '')),
             );
         }
 
-        return $this->redirectAfterTagChange($itemId);
+        return $this->redirectAfterTagChange($itemId, $result);
     }
 
     #[NoAdminRequired]
@@ -47,10 +48,17 @@ final class TagController extends Controller {
         return $this->redirectAfterTagChange($itemId);
     }
 
-    private function redirectAfterTagChange(int $itemId): RedirectResponse {
+    private function redirectAfterTagChange(int $itemId, array $result = []): RedirectResponse {
         $returnTo = (string)$this->request->getParam('returnTo', '');
         if ($returnTo === 'details') {
-            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+            $url = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]);
+            if ($result !== []) {
+                $url .= '?' . http_build_query([
+                    'tagResult' => (string)($result['status'] ?? ''),
+                    'tagName' => (string)($result['tagName'] ?? ''),
+                ]);
+            }
+            return new RedirectResponse($url);
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
