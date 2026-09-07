@@ -211,6 +211,46 @@ async function runBrowserSmoke(proxyBase) {
       throw new Error(`Chrome Runtime.evaluate returned no DOM value: ${JSON.stringify(result).slice(0, 1000)}`)
     }
 
+    const starToggleResult = await client.send('Runtime.evaluate', {
+      returnByValue: true,
+      awaitPromise: true,
+      expression: `new Promise((resolve) => {
+        const button = document.querySelector('.library-cover-star-button')
+        const startUrl = location.href
+        const beforePressed = button?.getAttribute('aria-pressed') || ''
+        const beforeText = button?.textContent?.trim() || ''
+        const realFetch = window.fetch
+        const calls = []
+        window.fetch = async (...args) => {
+          calls.push([String(args[0] || ''), args[1]?.method || 'GET', args[1]?.credentials || ''])
+          return { ok: true }
+        }
+        button?.click()
+        window.setTimeout(() => {
+          const afterPressed = button?.getAttribute('aria-pressed') || ''
+          const afterText = button?.textContent?.trim() || ''
+          const afterClass = button?.classList.contains('library-cover-star-button--starred') || false
+          button?.click()
+          window.setTimeout(() => {
+            window.fetch = realFetch
+            resolve({
+              noReload: location.href === startUrl,
+              beforePressed,
+              beforeText,
+              afterPressed,
+              afterText,
+              afterClass,
+              changed: beforePressed !== afterPressed && beforeText !== afterText,
+              restored: (button?.getAttribute('aria-pressed') || '') === beforePressed,
+              fetchCalls: calls.length,
+              firstFetch: calls[0] || [],
+            })
+          }, 600)
+        }, 600)
+      })`,
+    })
+    const starToggleDom = starToggleResult.result?.value ?? starToggleResult.value
+
     const firstDetailsUrl = new URL(dom.firstDetails, proxyBase)
     const detailUrl = `${proxyBase}${firstDetailsUrl.pathname}${firstDetailsUrl.search}`
     print('browser_detail_target', detailUrl)
@@ -337,6 +377,14 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_catalogue_star_forms', dom.catalogueStarForms)
     print('browser_catalogue_star_buttons', dom.catalogueStarButtons)
     print('browser_catalogue_post_forms_are_star_forms', dom.postForms === dom.catalogueStarForms)
+    print('browser_catalogue_star_no_reload', starToggleDom?.noReload === true)
+    print('browser_catalogue_star_changed', starToggleDom?.changed === true)
+    print('browser_catalogue_star_restored', starToggleDom?.restored === true)
+    print('browser_catalogue_star_fetch_calls', starToggleDom?.fetchCalls ?? 0)
+    print('browser_catalogue_star_fetch_method', starToggleDom?.firstFetch?.[1] || '')
+    print('browser_catalogue_star_fetch_credentials', starToggleDom?.firstFetch?.[2] || '')
+    print('browser_catalogue_star_before', `${starToggleDom?.beforePressed || ''}/${starToggleDom?.beforeText || ''}`)
+    print('browser_catalogue_star_after', `${starToggleDom?.afterPressed || ''}/${starToggleDom?.afterText || ''}/${starToggleDom?.afterClass === true}`)
     print('browser_post_forms', dom.postForms)
     print('browser_request_token_fields', dom.requestTokenFields)
     print('browser_tagNameField', dom.tagNameField)
@@ -381,6 +429,12 @@ async function runBrowserSmoke(proxyBase) {
       && dom.catalogueStarButtons === dom.cards
       && dom.postForms === dom.catalogueStarForms
       && dom.requestTokenFields === dom.postForms
+      && starToggleDom?.noReload === true
+      && starToggleDom?.changed === true
+      && starToggleDom?.restored === true
+      && starToggleDom?.fetchCalls === 2
+      && starToggleDom?.firstFetch?.[1] === 'POST'
+      && starToggleDom?.firstFetch?.[2] === 'same-origin'
       && dom.tagNameField === false
       && (dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
       && dom.firstShowFiles.includes('openfile=false')

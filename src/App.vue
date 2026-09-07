@@ -12,7 +12,8 @@ const props = defineProps({
 const publicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other']
 const pageSizes = [25, 50, 100, 250, 500]
 
-const items = computed(() => props.state.items || [])
+const catalogueItems = reactive((props.state.items || []).map((item) => ({ ...item })))
+const items = computed(() => catalogueItems)
 const shelves = computed(() => props.state.shelves || [])
 const formats = computed(() => props.state.formats || [])
 const publications = computed(() => props.state.publications || [])
@@ -103,6 +104,25 @@ function publicationFilterUrl(publication) {
 
 function setCoverDetailsOpen(itemId, event) {
   openCoverDetails[itemId] = Boolean(event?.currentTarget?.open)
+}
+
+async function toggleStar(item, event) {
+  const form = event?.currentTarget?.closest?.('form') || event?.currentTarget
+  if (!form || !item?.starUrl) return
+  const previous = Boolean(item.starred)
+  item.starred = !previous
+  try {
+    const response = await fetch(item.starUrl, {
+      method: 'POST',
+      body: new FormData(form),
+      credentials: 'same-origin',
+    })
+    if (!response.ok) {
+      item.starred = previous
+    }
+  } catch (_error) {
+    item.starred = previous
+  }
 }
 
 </script>
@@ -273,7 +293,7 @@ function setCoverDetailsOpen(itemId, event) {
         <a class="library-cover-link" :href="item.openUrl" :aria-label="`Read ${item.title}`">
           <img class="library-cover-image" :src="item.coverUrl" :alt="`Cover for ${item.title}`" loading="lazy">
         </a>
-        <form method="post" :action="item.starUrl" class="library-cover-star-form">
+        <form method="post" :action="item.starUrl" class="library-cover-star-form" @submit.prevent="toggleStar(item, $event)">
           <input type="hidden" name="requesttoken" :value="requestToken">
           <input type="hidden" name="returnTo" value="catalogue">
           <input type="hidden" name="starred" :value="item.starred ? '0' : '1'">
@@ -283,7 +303,8 @@ function setCoverDetailsOpen(itemId, event) {
             :class="{ 'library-cover-star-button--starred': item.starred }"
             :aria-pressed="item.starred ? 'true' : 'false'"
             :title="item.starred ? t('library', 'Unstar this publication') : t('library', 'Star this publication')"
-            :aria-label="item.starred ? t('library', 'Unstar this publication') : t('library', 'Star this publication')">
+            :aria-label="item.starred ? t('library', 'Unstar this publication') : t('library', 'Star this publication')"
+            @click.prevent="toggleStar(item, $event)">
             {{ item.starred ? '★' : '☆' }}
           </button>
         </form>

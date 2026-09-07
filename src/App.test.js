@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import App from './App.vue'
 
@@ -72,5 +72,23 @@ describe('Library catalogue Vue app', () => {
     expect(periodicalsPanel.find('summary').text()).toBe('Show top series and periodicals')
     expect(wrapper.text()).toContain('Export corrected metadata')
     expect(wrapper.find('a[aria-label="Export corrected metadata"]').attributes('href')).toBe('/apps/library/export/metadata')
+  })
+
+  it('toggles catalogue stars without submitting a page reload', async () => {
+    const fetchSpy = vi.fn(() => Promise.resolve({ ok: true }))
+    globalThis.fetch = fetchSpy
+    const wrapper = mount(App, { props: { state } })
+
+    const button = wrapper.find('.library-cover-star-button')
+    await button.trigger('click')
+
+    expect(fetchSpy).toHaveBeenCalledWith('/apps/library/items/7/star', expect.objectContaining({
+      method: 'POST',
+      credentials: 'same-origin',
+    }))
+    const form = wrapper.find('form.library-cover-star-form')
+    expect(form.find('input[name="starred"]').element.value).toBe('0')
+    expect(wrapper.find('.library-cover-star-button').text()).toBe('★')
+    expect(wrapper.find('.library-cover-star-button').classes()).toContain('library-cover-star-button--starred')
   })
 })
