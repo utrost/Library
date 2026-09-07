@@ -15,7 +15,9 @@ def test_scan_job_service_lists_recent_user_history_newest_first_and_limited():
 def test_personal_settings_passes_scan_history_to_template():
     settings = (ROOT / "lib" / "Settings" / "Personal.php").read_text()
 
-    assert "'scanJobHistory' => $this->scanJobService->recentJobs($this->userId, 5)" in settings
+    assert "$this->scanJobService->recentJobs($this->userId, 5)" in settings
+    assert "'scanJobHistory' => array_map" in settings
+    assert "$this->withCancelUrl($job)" in settings
 
 
 def test_settings_template_renders_scan_history_without_replacing_latest_progress():

@@ -32,6 +32,10 @@ class ScanJob extends QueuedJob {
             return;
         }
 
+        if ($this->scanJobService->isCancelled($userId, $jobId)) {
+            return;
+        }
+
         $this->scanJobService->markRunning($userId, $jobId);
         try {
             $progress = function (array $progress) use ($userId, $jobId): void {

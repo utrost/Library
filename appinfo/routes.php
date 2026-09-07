@@ -13,6 +13,7 @@ return [
         ['name' => 'scan#runRoot', 'url' => '/scan/roots/{rootId}', 'verb' => 'POST'],
         ['name' => 'scan#retryMetadataErrors', 'url' => '/scan/retry-metadata-errors', 'verb' => 'POST'],
         ['name' => 'scan#recheckMissingFiles', 'url' => '/scan/recheck-missing-files', 'verb' => 'POST'],
+        ['name' => 'scan#cancel', 'url' => '/scan/jobs/{jobId}/cancel', 'verb' => 'POST'],
         ['name' => 'scan#progress', 'url' => '/scan/progress', 'verb' => 'GET'],
         ['name' => 'export#metadata', 'url' => '/export/metadata', 'verb' => 'GET'],
         ['name' => 'import#preview', 'url' => '/import/metadata/preview', 'verb' => 'POST'],
