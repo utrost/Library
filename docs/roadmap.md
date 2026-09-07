@@ -426,14 +426,14 @@ Exit criteria:
 
 ## Personal top features, 2026-09-07
 
-Uwe's current personal top features are scoped in [Personal top features](personal-top-features.md). This list shifts the next product direction from mostly release hardening toward daily-library usefulness: finish multi-root confidence, add starring/bookmarking, record last read/opened activity, search descriptions, add custom per-publication status, and model genres and classifications. Multi-root confidence, starring/bookmarking, and Library-tracked last-opened activity have landed; description search is the next personal-field candidate.
+Uwe's current personal top features are scoped in [Personal top features](personal-top-features.md). This list shifts the next product direction from mostly release hardening toward daily-library usefulness: finish multi-root confidence, add starring/bookmarking, record last read/opened activity, search descriptions, add custom per-publication status, and model genres and classifications. Multi-root confidence, starring/bookmarking, Library-tracked last-opened activity, and description search have landed; Library-native workflow status is the next personal-field candidate.
 
 Recommended order from that scope:
 
 1. **P0 — finish multi-root confidence.** Landed: `npm run smoke:multi-root` now proves two temporary roots, shelf filters, duplicate-card absence and scoped scan isolation. Remaining polish is stronger first-run/overlap guidance.
 2. **P1 — starring/bookmarking.** Landed: Library-native star state is visible, filterable and portable.
 3. **P2 — last read/opened.** Landed for last-opened activity: Library **Read** clicks update `last_opened_at` before redirecting to `/f/{fileId}`; true page-position “last read” stays deferred to reader integrations.
-4. **P3 — search with description.** Add an editable/exportable description field and include it in the database-backed text search.
+4. **P3 — search with description. Landed.** Library-native descriptions are editable on item details, included in database-backed catalogue search, and carried through corrected-metadata export/import while staying out of compact card defaults.
 5. **P4 — custom status per publication.** Add a Library-native reading/workflow status distinct from operational scan status; tags can approximate status today but should not be the whole model.
 6. **P5 — genres and classifications.** Add multi-value Library-native genres and classifications after the smaller personal fields prove the storage/filter/export pattern.
 

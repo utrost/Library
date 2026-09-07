@@ -51,6 +51,7 @@ final class ItemController extends Controller {
                 'publicationDate' => (string)$this->request->getParam('publicationDate', ''),
                 'language' => (string)$this->request->getParam('language', ''),
                 'publisher' => (string)$this->request->getParam('publisher', ''),
+                'description' => (string)$this->request->getParam('description', ''),
             ]);
         }
 

@@ -33,7 +33,7 @@ Library owns:
 - exposure and adding of Nextcloud file comments;
 - read-only corrected-metadata JSON export for user-edited catalogue rows.
 
-For the next personal-library direction, see [Personal top features](personal-top-features.md): multi-root confidence, starring/bookmarking, and last-opened activity now have checked implementation/smoke coverage; next priorities are description search, Library-native status, and genres/classifications.
+For the next personal-library direction, see [Personal top features](personal-top-features.md): multi-root confidence, starring/bookmarking, last-opened activity, and description search now have checked implementation/smoke coverage; next priorities are Library-native status and genres/classifications.
 
 Library does **not** own:
 
@@ -62,7 +62,7 @@ Current catalogue capabilities:
 - open the original file context through **Show in Files**;
 - fetch the original source file through **Download source**;
 - open the item workbench through **Details**;
-- search by title, subtitle, creator, publication/series/periodical and path text;
+- search title, subtitle, creators, publication, description and file path;
 - filter by exact creator field as read-only discovery; creator identity splitting remains future work;
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
 - browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure;
@@ -89,6 +89,7 @@ Current details capabilities:
 
 - view cover, title, creator, type, format and shelf;
 - star or unstar the publication as Library-native personal catalogue state;
+- see and edit a Library-native description that also participates in catalogue search;
 - see the last time Library opened the item when it has been read through the Library **Read** action;
 - use **Read**, **Show in Files** and **Download source** actions;
 - inspect publication metadata;
