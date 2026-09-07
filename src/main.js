@@ -124,15 +124,53 @@ function fallbackCatalogue(state, error) {
   panel.className = 'library-panel'
   panel.setAttribute('aria-labelledby', 'library-catalogue-heading')
 
+  const header = document.createElement('div')
+  header.className = 'library-catalogue-header'
+  const headerText = document.createElement('div')
   const heading = document.createElement('h2')
   heading.id = 'library-catalogue-heading'
   heading.textContent = t('library', 'Publication catalogue')
-  panel.appendChild(heading)
-
   const note = document.createElement('p')
   note.className = 'library-muted'
   note.textContent = t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.')
-  panel.appendChild(note)
+  headerText.append(heading, note)
+  const toolbar = document.createElement('nav')
+  toolbar.className = 'library-catalogue-toolbar'
+  toolbar.setAttribute('aria-label', t('library', 'Library actions'))
+  if (settingsUrl) {
+    const settingsLink = document.createElement('a')
+    settingsLink.href = settingsUrl
+    settingsLink.className = 'button secondary'
+    settingsLink.setAttribute('aria-label', 'Open Library settings')
+    settingsLink.textContent = t('library', 'Settings')
+    toolbar.appendChild(settingsLink)
+  }
+  if (metadataExportUrl) {
+    const exportLink = document.createElement('a')
+    exportLink.href = metadataExportUrl
+    exportLink.className = 'button secondary'
+    exportLink.setAttribute('aria-label', 'Export corrected metadata')
+    exportLink.textContent = t('library', 'Export corrected metadata')
+    toolbar.appendChild(exportLink)
+  }
+  if (state.metadataSidecarManifestUrl) {
+    const manifestLink = document.createElement('a')
+    manifestLink.href = state.metadataSidecarManifestUrl
+    manifestLink.className = 'button secondary'
+    manifestLink.setAttribute('aria-label', 'Export sidecar manifest')
+    manifestLink.textContent = t('library', 'Sidecar manifest')
+    toolbar.appendChild(manifestLink)
+  }
+  if (state.metadataSidecarBundleUrl) {
+    const zipLink = document.createElement('a')
+    zipLink.href = state.metadataSidecarBundleUrl
+    zipLink.className = 'button secondary'
+    zipLink.setAttribute('aria-label', 'Export sidecar ZIP')
+    zipLink.textContent = t('library', 'Sidecar ZIP')
+    toolbar.appendChild(zipLink)
+  }
+  header.append(headerText, toolbar)
+  panel.appendChild(header)
   const filterPanel = document.createElement('details')
   filterPanel.className = 'library-filter-panel'
   const filterSummary = document.createElement('summary')
@@ -140,6 +178,15 @@ function fallbackCatalogue(state, error) {
   filterSummary.textContent = t('library', 'Show catalogue filters')
   filterPanel.append(filterSummary, fallbackFilterForm(state, pagination))
   panel.appendChild(filterPanel)
+
+  const resultSummary = document.createElement('p')
+  resultSummary.className = 'library-muted library-filter-result-summary'
+  resultSummary.textContent = `Showing ${pagination.from ?? 0}–${pagination.to ?? items.length} of ${pagination.total ?? items.length} catalogue items`
+  const clearAll = document.createElement('a')
+  clearAll.href = '?'
+  clearAll.textContent = ` ${t('library', 'Clear all filters')}`
+  resultSummary.appendChild(clearAll)
+  panel.appendChild(resultSummary)
 
   const nav = document.createElement('nav')
   nav.className = 'library-pagination'
@@ -194,7 +241,18 @@ function fallbackCatalogue(state, error) {
     const emptyText = document.createElement('p')
     emptyText.className = 'library-muted'
     emptyText.textContent = t('library', 'Scan enabled roots or clear the active filters.')
-    empty.append(emptyHeading, emptyText)
+    const emptyActions = document.createElement('p')
+    emptyActions.className = 'library-empty-actions'
+    const clearFilters = document.createElement('a')
+    clearFilters.href = '?'
+    clearFilters.className = 'button secondary'
+    clearFilters.textContent = t('library', 'Clear all filters')
+    const scanLink = document.createElement('a')
+    scanLink.href = settingsUrl
+    scanLink.className = 'button primary'
+    scanLink.textContent = t('library', 'Run a scan from settings')
+    emptyActions.append(clearFilters, scanLink)
+    empty.append(emptyHeading, emptyText, emptyActions)
     panel.appendChild(empty)
   } else {
     const gallery = document.createElement('div')
@@ -248,14 +306,24 @@ function fallbackCatalogue(state, error) {
         creators.textContent = text(item.creators)
         summary.appendChild(creators)
       }
-      const meta = document.createElement('p')
-      meta.className = 'library-muted'
-      meta.textContent = [
-        text(item.publicationType || 'other'),
-        item.extension ? `Format: ${upper(item.extension)}` : '',
-        item.shelf ? `Shelf: ${text(item.shelf)}` : '',
-      ].filter(Boolean).join(' · ')
-      summary.appendChild(meta)
+      const detailList = document.createElement('dl')
+      detailList.className = 'library-cover-detail-list'
+      const detailChips = [
+        ['Type', text(item.publicationType || 'other')],
+        ['Format', item.extension ? upper(item.extension) : ''],
+        ['Shelf', item.shelf ? text(item.shelf) : ''],
+      ].filter(([, value]) => value !== '')
+      for (const [labelText, value] of detailChips) {
+        const chip = document.createElement('div')
+        chip.className = 'library-cover-detail-chip'
+        const dt = document.createElement('dt')
+        dt.textContent = labelText
+        const dd = document.createElement('dd')
+        dd.textContent = value
+        chip.append(dt, dd)
+        detailList.appendChild(chip)
+      }
+      summary.appendChild(detailList)
 
       const actions = document.createElement('p')
       const read = document.createElement('a')
@@ -280,54 +348,6 @@ function fallbackCatalogue(state, error) {
   }
 
   root.appendChild(panel)
-  if (settingsUrl || metadataExportUrl) {
-    const settings = document.createElement('section')
-    settings.className = 'library-hero library-secondary-panel'
-    settings.setAttribute('aria-label', 'Library settings')
-    const box = document.createElement('div')
-    const h = document.createElement('h2')
-    h.textContent = 'Library'
-    const p = document.createElement('p')
-    p.className = 'library-lede'
-    p.textContent = 'Browse publications already stored in Nextcloud.'
-    box.append(h, p)
-    const actions = document.createElement('div')
-    actions.className = 'library-hero-actions'
-    if (settingsUrl) {
-      const link = document.createElement('a')
-      link.href = settingsUrl
-      link.className = 'button secondary'
-      link.setAttribute('aria-label', 'Open Library settings')
-      link.textContent = 'Library settings'
-      actions.appendChild(link)
-    }
-    if (metadataExportUrl) {
-      const exportLink = document.createElement('a')
-      exportLink.href = metadataExportUrl
-      exportLink.className = 'button secondary'
-      exportLink.setAttribute('aria-label', 'Export corrected metadata')
-      exportLink.textContent = 'Export corrected metadata'
-      actions.appendChild(exportLink)
-    }
-    if (state.metadataSidecarManifestUrl) {
-      const manifestLink = document.createElement('a')
-      manifestLink.href = state.metadataSidecarManifestUrl
-      manifestLink.className = 'button secondary'
-      manifestLink.setAttribute('aria-label', 'Export sidecar manifest')
-      manifestLink.textContent = 'Export sidecar manifest'
-      actions.appendChild(manifestLink)
-    }
-    if (state.metadataSidecarBundleUrl) {
-      const sidecarZipLink = document.createElement('a')
-      sidecarZipLink.href = state.metadataSidecarBundleUrl
-      sidecarZipLink.className = 'button secondary'
-      sidecarZipLink.setAttribute('aria-label', 'Export sidecar ZIP')
-      sidecarZipLink.textContent = 'Export sidecar ZIP'
-      actions.appendChild(sidecarZipLink)
-    }
-    settings.append(box, actions)
-    root.appendChild(settings)
-  }
   return root
 }
 

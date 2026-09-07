@@ -684,3 +684,134 @@
         background: var(--color-main-background);
     }
 }
+
+.library-catalogue-header {
+    align-items: start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.library-catalogue-header h2 {
+    margin-bottom: 0.25rem;
+}
+
+.library-catalogue-toolbar {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.library-filter-result-summary {
+    margin: -0.35rem 0 0.85rem;
+}
+
+.library-empty-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.library-cover-detail-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0;
+}
+
+.library-cover-detail-chip {
+    background: var(--color-background-hover);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 12px;
+    line-height: 1.25;
+    padding: 0.15rem 0.45rem;
+}
+
+.library-workflow-status-pill {
+    align-items: center;
+    background: var(--color-background-hover);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    display: inline-flex;
+    gap: 0.35rem;
+    padding: 0.2rem 0.35rem 0.2rem 0.7rem;
+}
+
+.library-workflow-status-pill > span {
+    color: var(--color-text-maxcontrast);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.library-save-feedback {
+    background: color-mix(in srgb, var(--color-success, #008000) 14%, var(--color-main-background));
+    border: 1px solid var(--color-success, #008000);
+    border-radius: var(--border-radius);
+    color: var(--color-success-text, var(--color-main-text));
+    margin: 0 0 0.5rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.library-tag-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.5rem 0;
+}
+
+.library-tag-chip-form {
+    margin: 0;
+}
+
+.library-tag-removable {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.25rem;
+}
+
+.library-tag-chip-remove {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 15px;
+    height: 1.25rem;
+    justify-content: center;
+    padding: 0;
+    width: 1.25rem;
+}
+
+.library-tag-chip-remove:hover,
+.library-tag-chip-remove:focus-visible {
+    background: var(--color-background-dark);
+}
+
+.library-detail-diagnostic-section > summary,
+.library-provenance-all-fields > summary {
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.library-detail-diagnostic-section > summary:focus-visible,
+.library-provenance-all-fields > summary:focus-visible {
+    outline: 2px solid var(--color-primary-element);
+    outline-offset: 3px;
+}
+
+.library-provenance-differences {
+    border-left: 3px solid var(--color-warning, #f0ad00);
+    margin: 0.75rem 0 1rem;
+    padding-left: 0.75rem;
+}

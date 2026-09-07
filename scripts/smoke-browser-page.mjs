@@ -175,8 +175,11 @@ async function runBrowserSmoke(proxyBase) {
           title: document.title,
           fallback: Boolean(document.querySelector('[data-vue-fallback="true"]')),
           vueApp: Boolean(document.querySelector('#library-vue-root[data-v-app]')),
+          catalogueToolbar: Boolean(document.querySelector('.library-catalogue-toolbar')),
           cards: document.querySelectorAll('.library-cover-card').length,
           filters: Boolean(document.querySelector('.library-filter-bar')),
+          filterResultSummary: Boolean(document.querySelector('.library-filter-result-summary')),
+          cardDetailChips: document.querySelectorAll('.library-cover-card .library-cover-detail-chip').length,
           filterPanelCollapsed: Boolean(document.querySelector('.library-filter-panel:not([open]) .library-filter-bar')),
           periodicalPanelCollapsed: Boolean(document.querySelector('.library-periodical-groups:not([open])')),
           periodicalPanelSummary: document.querySelector('.library-periodical-groups summary')?.textContent?.trim() || '',
@@ -290,6 +293,10 @@ async function runBrowserSmoke(proxyBase) {
           detailWorkbench: Boolean(workbench),
           detailPrimary: Boolean(document.querySelector('.library-detail-primary')),
           detailSecondary: Boolean(document.querySelector('.library-detail-secondary')),
+          detailDiagnosticSections: document.querySelectorAll('.library-detail-diagnostic-section').length,
+          detailProvenanceDifferences: Boolean(document.querySelector('.library-provenance-differences')),
+          detailTagChipRemove: Boolean(document.querySelector('.library-tag-chip-remove')),
+          detailWorkflowPill: Boolean(document.querySelector('.library-workflow-status-pill')),
           detailSectionsLabelled: requiredLabelledSections.every(([selector, id]) => {
             const section = document.querySelector(selector)
             return Boolean(section) && section.getAttribute('aria-labelledby') === id && Boolean(document.querySelector('#' + id))
@@ -405,9 +412,12 @@ async function runBrowserSmoke(proxyBase) {
 
     print('browser_title', dom.title)
     print('browser_vue_app', dom.vueApp)
+    print('browser_catalogue_toolbar', dom.catalogueToolbar)
     print('browser_fallback', dom.fallback)
     print('browser_cards', dom.cards)
     print('browser_filters', dom.filters)
+    print('browser_filter_result_summary', dom.filterResultSummary)
+    print('browser_card_detail_chips', dom.cardDetailChips)
     print('browser_filter_panel_collapsed', dom.filterPanelCollapsed)
     print('browser_periodical_panel_collapsed', dom.periodicalPanelCollapsed)
     print('browser_periodical_panel_summary', dom.periodicalPanelSummary)
@@ -442,6 +452,10 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_detail_workbench', detailDom.detailWorkbench)
     print('browser_detail_primary', detailDom.detailPrimary)
     print('browser_detail_secondary', detailDom.detailSecondary)
+    print('browser_detail_diagnostic_sections', detailDom.detailDiagnosticSections)
+    print('browser_detail_provenance_differences', detailDom.detailProvenanceDifferences)
+    print('browser_detail_tag_chip_remove', detailDom.detailTagChipRemove)
+    print('browser_detail_workflow_pill', detailDom.detailWorkflowPill)
     print('browser_detail_sections_labelled', detailDom.detailSectionsLabelled)
     print('browser_detail_post_forms', detailDom.detailPostForms)
     print('browser_detail_request_token_fields', detailDom.detailRequestTokenFields)
@@ -465,8 +479,11 @@ async function runBrowserSmoke(proxyBase) {
 
     const ok = dom.vueApp === true
       && dom.fallback === false
+      && dom.catalogueToolbar === true
       && dom.cards > 0
       && dom.filters === true
+      && dom.filterResultSummary === true
+      && dom.cardDetailChips >= dom.cards
       && dom.filterPanelCollapsed === true
       && dom.periodicalPanelCollapsed === true
       && dom.periodicalPanelSummary === 'Show top series and periodicals'
@@ -495,6 +512,9 @@ async function runBrowserSmoke(proxyBase) {
       && detailDom.detailWorkbench === true
       && detailDom.detailPrimary === true
       && detailDom.detailSecondary === true
+      && detailDom.detailDiagnosticSections === 3
+      && detailDom.detailProvenanceDifferences === true
+      && detailDom.detailWorkflowPill === true
       && detailDom.detailSectionsLabelled === true
       && detailDom.detailPostForms > 0
       && detailDom.detailRequestTokenFields === detailDom.detailPostForms

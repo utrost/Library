@@ -44,8 +44,8 @@ def test_genres_classifications_are_visible_editable_filterable_and_not_nextclou
     assert "Genre" in vue
     assert "classification" in vue
     assert "Nextcloud tag" in vue
-    assert "item.genres" in vue
-    assert "item.classifications" in vue
+    assert "genres" in vue
+    assert "classifications" in vue
 
 
 def test_genres_classifications_roundtrip_through_corrected_metadata_import_export_and_filter_facets():

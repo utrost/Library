@@ -56,9 +56,9 @@ def test_vue_page_stays_catalogue_first_on_mobile():
 
     wrapper_index = app.index('class="library-vue-catalogue"')
     panel_index = app.index('class="library-panel"')
-    hero_index = app.index('class="library-hero library-secondary-panel"')
-    assert wrapper_index < panel_index < hero_index
-    assert 'class="library-hero-actions"' in app
+    toolbar_index = app.index('class="library-catalogue-toolbar"')
+    assert wrapper_index < panel_index < toolbar_index
+    assert 'class="library-catalogue-toolbar"' in app
     assert 'class="library-settings-link"' not in app
     assert 'without importing or owning the files' not in app
 

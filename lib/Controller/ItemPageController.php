@@ -84,6 +84,7 @@ final class ItemPageController extends Controller {
             (string)$this->request->getParam('tagResult', ''),
             (string)$this->request->getParam('tagName', '')
         );
+        $item['metadataSaved'] = (string)$this->request->getParam('metadataSaved', '0') === '1';
         $item['nextcloudComments'] = $comments[$fileId] ?? ['count' => 0, 'recent' => []];
 
         Util::addStyle(Application::APP_ID, 'style');

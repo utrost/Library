@@ -26,7 +26,8 @@ def test_template_renders_format_filter_and_card_format_label():
     assert "name=\"format\"" in vue
     assert "All formats" in vue
     assert "v-for=\"format in formats\"" in vue
-    assert "Format:" in vue
+    assert "library-cover-detail-chip" in vue
+    assert "Format" in vue
 
 
 def test_docs_name_format_filter_slice_as_landed():
