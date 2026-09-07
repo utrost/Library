@@ -71,7 +71,7 @@ final class ItemPageController extends Controller {
             ]);
             return $tag;
         }, $tags[$fileId] ?? []);
-        $item['tagSuggestions'] = $this->fileTagService->visibleAssignableTagNames();
+        $item['tagSuggestions'] = $this->unassignedTagSuggestions($this->fileTagService->visibleAssignableTagNames(), $item['nextcloudTags']);
         $item['tagFeedback'] = $this->tagFeedback(
             (string)$this->request->getParam('tagResult', ''),
             (string)$this->request->getParam('tagName', '')
@@ -83,6 +83,17 @@ final class ItemPageController extends Controller {
             'item' => $item,
             'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
         ]);
+    }
+
+    /**
+     * @param array<int, string> $suggestions
+     * @param array<int, array<string, mixed>> $currentTags
+     * @return array<int, string>
+     */
+    private function unassignedTagSuggestions(array $suggestions, array $currentTags): array {
+        $assignedNames = array_map('strval', array_column($currentTags, 'name'));
+        $unassigned = array_diff($suggestions, $assignedNames);
+        return array_values($unassigned);
     }
 
     /**
