@@ -177,6 +177,9 @@ async function runBrowserSmoke(proxyBase) {
           vueApp: Boolean(document.querySelector('#library-vue-root[data-v-app]')),
           cards: document.querySelectorAll('.library-cover-card').length,
           filters: Boolean(document.querySelector('.library-filter-bar')),
+          filterPanelCollapsed: Boolean(document.querySelector('.library-filter-panel:not([open]) .library-filter-bar')),
+          periodicalPanelCollapsed: Boolean(document.querySelector('.library-periodical-groups:not([open])')),
+          periodicalPanelSummary: document.querySelector('.library-periodical-groups summary')?.textContent?.trim() || '',
           details: document.querySelectorAll('.library-cover-card a').length > 0 ? [...document.querySelectorAll('.library-cover-card a')].filter((a) => a.textContent === 'Details').length : 0,
           nextcloudTagNameField: Boolean(document.querySelector('input[name="nextcloudTagName"]')),
           catalogueTagEditor: Boolean(document.querySelector('[aria-label="nextcloudTagEditor"]')),
@@ -323,6 +326,9 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_fallback', dom.fallback)
     print('browser_cards', dom.cards)
     print('browser_filters', dom.filters)
+    print('browser_filter_panel_collapsed', dom.filterPanelCollapsed)
+    print('browser_periodical_panel_collapsed', dom.periodicalPanelCollapsed)
+    print('browser_periodical_panel_summary', dom.periodicalPanelSummary)
     print('browser_details', dom.details)
     print('browser_nextcloudTagNameField', dom.nextcloudTagNameField)
     print('browser_catalogue_tag_editor', dom.catalogueTagEditor)
@@ -361,6 +367,9 @@ async function runBrowserSmoke(proxyBase) {
       && dom.fallback === false
       && dom.cards > 0
       && dom.filters === true
+      && dom.filterPanelCollapsed === true
+      && dom.periodicalPanelCollapsed === true
+      && dom.periodicalPanelSummary === 'Show top series and periodicals'
       && dom.details === dom.cards
       && dom.nextcloudTagNameField === false
       && dom.catalogueTagEditor === false

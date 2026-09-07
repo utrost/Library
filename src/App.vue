@@ -107,11 +107,13 @@ function publicationFilterUrl(publication) {
     <h2 id="library-catalogue-heading">{{ t('library', 'Publication catalogue') }}</h2>
     <p class="library-muted">{{ t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.') }}</p>
 
-    <form method="get" class="library-filter-bar" :aria-label="t('library', 'Catalogue search and filters')">
-      <label>
-        {{ t('library', 'Search title / author') }}
-        <input v-model="activeFilters.q" type="search" name="q" placeholder="Camera, Eco, Rolleiflex...">
-      </label>
+    <details class="library-filter-panel">
+      <summary class="library-filter-panel-summary">{{ t('library', 'Show catalogue filters') }}</summary>
+      <form method="get" class="library-filter-bar" :aria-label="t('library', 'Catalogue search and filters')">
+        <label>
+          {{ t('library', 'Search title / author') }}
+          <input v-model="activeFilters.q" type="search" name="q" placeholder="Camera, Eco, Rolleiflex...">
+        </label>
       <label>
         {{ t('library', 'Type') }}
         <select v-model="activeFilters.type" name="type">
@@ -217,10 +219,11 @@ function publicationFilterUrl(publication) {
           <option v-for="limit in pageSizes" :key="limit" :value="limit">{{ limit }}</option>
         </select>
       </label>
-      <button type="submit" class="button primary" :aria-label="t('library', 'Apply catalogue filters')">{{ t('library', 'Apply filters') }}</button>
-      <a href="?" class="button secondary" :aria-label="t('library', 'Clear catalogue filters')">{{ t('library', 'Clear') }}</a>
-      <a :href="scannerConflictReviewUrl" class="button secondary library-scanner-conflict-review-link">{{ t('library', 'Review scanner conflicts') }}</a>
-    </form>
+        <button type="submit" class="button primary" :aria-label="t('library', 'Apply catalogue filters')">{{ t('library', 'Apply filters') }}</button>
+        <a href="?" class="button secondary" :aria-label="t('library', 'Clear catalogue filters')">{{ t('library', 'Clear') }}</a>
+        <a :href="scannerConflictReviewUrl" class="button secondary library-scanner-conflict-review-link">{{ t('library', 'Review scanner conflicts') }}</a>
+      </form>
+    </details>
 
     <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
       <span>{{ t('library', 'Active filters') }}</span>
@@ -237,7 +240,8 @@ function publicationFilterUrl(publication) {
       <span v-else class="library-muted">{{ t('library', 'Next') }}</span>
     </nav>
 
-    <section v-if="publicationSummaries.length > 0" class="library-periodical-groups" aria-labelledby="library-periodical-groups-heading">
+    <details v-if="publicationSummaries.length > 0" class="library-periodical-groups">
+      <summary class="library-periodical-groups-summary">{{ t('library', 'Show top series and periodicals') }}</summary>
       <h3 id="library-periodical-groups-heading">{{ t('library', 'Top series and periodicals') }}</h3>
       <p class="library-muted">{{ t('library', 'Jump into recurring publications with one click.') }}</p>
       <ul>
@@ -246,11 +250,12 @@ function publicationFilterUrl(publication) {
           <span class="library-muted">{{ summary.itemCount }} items</span>
         </li>
       </ul>
-    </section>
-    <section v-else-if="publicationSummaries.length === 0" class="library-periodical-groups library-periodical-groups-empty" aria-labelledby="library-periodical-groups-empty-heading">
+    </details>
+    <details v-else-if="publicationSummaries.length === 0" class="library-periodical-groups library-periodical-groups-empty">
+      <summary class="library-periodical-groups-summary">{{ t('library', 'Show top series and periodicals') }}</summary>
       <h3 id="library-periodical-groups-empty-heading">{{ t('library', 'No series or periodicals found yet') }}</h3>
       <p class="library-muted">{{ t('library', 'Add publication or series names in item details to build this shortcut panel.') }}</p>
-    </section>
+    </details>
 
     <div v-if="items.length === 0" class="library-empty-content" role="status">
       <h3>{{ t('library', 'No catalogue items match') }}</h3>
@@ -318,6 +323,22 @@ function publicationFilterUrl(publication) {
 .library-cover-gallery {
   gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+
+.library-filter-panel,
+.library-periodical-groups {
+  margin: 0 0 1rem;
+}
+
+.library-filter-panel-summary,
+.library-periodical-groups-summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.library-filter-panel .library-filter-bar {
+  margin-top: 12px;
 }
 
 .library-cover-card {

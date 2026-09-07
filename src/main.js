@@ -66,6 +66,14 @@ function fallbackHiddenRequestToken(state) {
   return input
 }
 
+function fallbackPublicationFilterUrl(publication) {
+  const params = new URLSearchParams(window.location.search)
+  params.set('publication', publication)
+  params.set('sort', 'publication')
+  params.delete('page')
+  return `?${params.toString()}`
+}
+
 function fallbackFilterForm(state, pagination) {
   const activeFilters = state.activeFilters || {}
   const form = document.createElement('form')
@@ -125,7 +133,13 @@ function fallbackCatalogue(state, error) {
   note.className = 'library-muted'
   note.textContent = t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.')
   panel.appendChild(note)
-  panel.appendChild(fallbackFilterForm(state, pagination))
+  const filterPanel = document.createElement('details')
+  filterPanel.className = 'library-filter-panel'
+  const filterSummary = document.createElement('summary')
+  filterSummary.className = 'library-filter-panel-summary'
+  filterSummary.textContent = t('library', 'Show catalogue filters')
+  filterPanel.append(filterSummary, fallbackFilterForm(state, pagination))
+  panel.appendChild(filterPanel)
 
   const nav = document.createElement('nav')
   nav.className = 'library-pagination'
@@ -134,6 +148,42 @@ function fallbackCatalogue(state, error) {
   range.textContent = `Showing ${pagination.from ?? 0}–${pagination.to ?? items.length} of ${pagination.total ?? items.length} catalogue items`
   nav.appendChild(range)
   panel.appendChild(nav)
+
+  const publicationSummaries = Array.isArray(state.publicationSummaries) ? state.publicationSummaries : []
+  const periodicalPanel = document.createElement('details')
+  periodicalPanel.className = publicationSummaries.length > 0
+    ? 'library-periodical-groups'
+    : 'library-periodical-groups library-periodical-groups-empty'
+  const periodicalSummary = document.createElement('summary')
+  periodicalSummary.className = 'library-periodical-groups-summary'
+  periodicalSummary.textContent = t('library', 'Show top series and periodicals')
+  periodicalPanel.appendChild(periodicalSummary)
+  const periodicalHeading = document.createElement('h3')
+  periodicalHeading.textContent = publicationSummaries.length > 0
+    ? t('library', 'Top series and periodicals')
+    : t('library', 'No series or periodicals found yet')
+  const periodicalText = document.createElement('p')
+  periodicalText.className = 'library-muted'
+  periodicalText.textContent = publicationSummaries.length > 0
+    ? t('library', 'Jump into recurring publications with one click.')
+    : t('library', 'Add publication or series names in item details to build this shortcut panel.')
+  periodicalPanel.append(periodicalHeading, periodicalText)
+  if (publicationSummaries.length > 0) {
+    const list = document.createElement('ul')
+    for (const summary of publicationSummaries) {
+      const entry = document.createElement('li')
+      const link = document.createElement('a')
+      link.href = fallbackPublicationFilterUrl(text(summary.publication))
+      link.textContent = text(summary.publication)
+      const count = document.createElement('span')
+      count.className = 'library-muted'
+      count.textContent = `${summary.itemCount} items`
+      entry.append(link, count)
+      list.appendChild(entry)
+    }
+    periodicalPanel.appendChild(list)
+  }
+  panel.appendChild(periodicalPanel)
 
   if (items.length === 0) {
     const empty = document.createElement('div')
