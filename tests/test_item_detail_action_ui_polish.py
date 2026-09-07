@@ -3,13 +3,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_cover_explanation_moves_to_refresh_tooltip_not_visible_panel():
+def test_cover_explanation_is_visible_near_refresh_action():
     template = (ROOT / "templates" / "item-detail.php").read_text()
     controller = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
     assert "coverQualityExplanation" in controller
-    assert "library-cover-quality-explanation" not in template
+    assert "library-cover-quality-explanation" in template
+    assert "How Library chose this cover" in template
+    assert "If you see a placeholder" in template
     assert "title=\"<?php p((string)($item['coverQualityExplanation']" in template
     assert "aria-label=\"<?php p($l->t('Refresh cover preview" in template
     assert "detail_has_cover_refresh_tooltip" in smoke
