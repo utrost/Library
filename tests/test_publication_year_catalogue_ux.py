@@ -28,8 +28,8 @@ def test_item_service_filters_and_facets_by_publication_year_prefix():
 def test_vue_catalogue_exposes_publication_year_filter():
     vue = (ROOT / "src" / "App.vue").read_text()
 
-    assert "const publicationYears = computed(() => props.state.publicationYears || [])" in vue
-    assert "year: props.state.activeFilters?.year || ''" in vue
+    assert "const publicationYears = computed(() => catalogueState.publicationYears || [])" in vue
+    assert "year: catalogueState.activeFilters?.year || ''" in vue
     assert "Publication year" in vue
     assert "name=\"year\"" in vue
     assert "All years" in vue

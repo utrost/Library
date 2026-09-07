@@ -12,19 +12,25 @@ const props = defineProps({
 const publicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other']
 const pageSizes = [25, 50, 100, 250, 500]
 
-const catalogueItems = reactive((props.state.items || []).map((item) => ({ ...item })))
+const catalogueState = reactive({
+  ...props.state,
+  items: props.state.items || [],
+  activeFilters: props.state.activeFilters || {},
+  cataloguePagination: props.state.cataloguePagination || {},
+})
+const catalogueItems = reactive((catalogueState.items || []).map((item) => ({ ...item })))
 const items = computed(() => catalogueItems)
-const shelves = computed(() => props.state.shelves || [])
-const formats = computed(() => props.state.formats || [])
-const publications = computed(() => props.state.publications || [])
-const publicationSummaries = computed(() => props.state.publicationSummaries || [])
-const publicationYears = computed(() => props.state.publicationYears || [])
-const creators = computed(() => props.state.creators || [])
-const scanStatuses = computed(() => props.state.scanStatuses || [])
-const workflowStatuses = computed(() => props.state.workflowStatuses || [])
-const genres = computed(() => props.state.genres || [])
-const classifications = computed(() => props.state.classifications || [])
-const pagination = computed(() => props.state.cataloguePagination || {
+const shelves = computed(() => catalogueState.shelves || [])
+const formats = computed(() => catalogueState.formats || [])
+const publications = computed(() => catalogueState.publications || [])
+const publicationSummaries = computed(() => catalogueState.publicationSummaries || [])
+const publicationYears = computed(() => catalogueState.publicationYears || [])
+const creators = computed(() => catalogueState.creators || [])
+const scanStatuses = computed(() => catalogueState.scanStatuses || [])
+const workflowStatuses = computed(() => catalogueState.workflowStatuses || [])
+const genres = computed(() => catalogueState.genres || [])
+const classifications = computed(() => catalogueState.classifications || [])
+const pagination = computed(() => catalogueState.cataloguePagination || {
   page: 1,
   limit: 100,
   total: items.value.length,
@@ -35,28 +41,29 @@ const pagination = computed(() => props.state.cataloguePagination || {
   nextUrl: '',
 })
 const activeFilters = reactive({
-  q: props.state.activeFilters?.q || '',
-  type: props.state.activeFilters?.type || '',
-  publication: props.state.activeFilters?.publication || '',
-  year: props.state.activeFilters?.year || '',
-  creator: props.state.activeFilters?.creator || '',
-  format: props.state.activeFilters?.format || '',
-  tag: props.state.activeFilters?.tag || '',
-  shelf: props.state.activeFilters?.shelf || '',
-  status: props.state.activeFilters?.status || '',
-  workflowStatus: props.state.activeFilters?.workflowStatus || '',
-  genre: props.state.activeFilters?.genre || '',
-  classification: props.state.activeFilters?.classification || '',
-  scannerConflicts: props.state.activeFilters?.scannerConflicts || '',
-  starred: props.state.activeFilters?.starred || '',
-  sort: props.state.activeFilters?.sort || 'title',
+  q: catalogueState.activeFilters?.q || '',
+  type: catalogueState.activeFilters?.type || '',
+  publication: catalogueState.activeFilters?.publication || '',
+  year: catalogueState.activeFilters?.year || '',
+  creator: catalogueState.activeFilters?.creator || '',
+  format: catalogueState.activeFilters?.format || '',
+  tag: catalogueState.activeFilters?.tag || '',
+  shelf: catalogueState.activeFilters?.shelf || '',
+  status: catalogueState.activeFilters?.status || '',
+  workflowStatus: catalogueState.activeFilters?.workflowStatus || '',
+  genre: catalogueState.activeFilters?.genre || '',
+  classification: catalogueState.activeFilters?.classification || '',
+  scannerConflicts: catalogueState.activeFilters?.scannerConflicts || '',
+  starred: catalogueState.activeFilters?.starred || '',
+  sort: catalogueState.activeFilters?.sort || 'title',
 })
-const settingsUrl = computed(() => props.state.settingsUrl || '')
-const requestToken = computed(() => props.state.requestToken || '')
-const metadataExportUrl = computed(() => props.state.metadataExportUrl || '')
-const metadataSidecarManifestUrl = computed(() => props.state.metadataSidecarManifestUrl || '')
-const metadataSidecarBundleUrl = computed(() => props.state.metadataSidecarBundleUrl || '')
-const scannerConflictReviewUrl = computed(() => props.state.scannerConflictReviewUrl || '?scannerConflicts=1')
+const settingsUrl = computed(() => catalogueState.settingsUrl || '')
+const requestToken = computed(() => catalogueState.requestToken || '')
+const metadataExportUrl = computed(() => catalogueState.metadataExportUrl || '')
+const metadataSidecarManifestUrl = computed(() => catalogueState.metadataSidecarManifestUrl || '')
+const metadataSidecarBundleUrl = computed(() => catalogueState.metadataSidecarBundleUrl || '')
+const catalogueEndpointUrl = computed(() => catalogueState.catalogueEndpointUrl || '/apps/library/catalogue')
+const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictReviewUrl || '?scannerConflicts=1')
 const filterLabels = {
   q: 'Search',
   type: 'Type',
@@ -82,14 +89,42 @@ const quickHiddenFilters = computed(() => Object.entries(activeFilters)
 const openCoverDetails = reactive({})
 let filterSubmitTimer = null
 
-function submitFiltersNow(event) {
-  const form = event?.currentTarget?.form || event?.currentTarget?.closest?.('form')
-  if (!form) return
-  if (typeof form.requestSubmit === 'function') {
-    form.requestSubmit()
-  } else {
-    form.submit()
+function buildFilterParams(form) {
+  const params = new URLSearchParams(new FormData(form))
+  params.delete('page')
+  return params
+}
+
+function applyCatalogueState(nextState) {
+  catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'scannerConflictReviewUrl']) {
+    if (Object.prototype.hasOwnProperty.call(nextState, key)) {
+      catalogueState[key] = nextState[key]
+    }
   }
+  Object.assign(activeFilters, nextState.activeFilters || {})
+}
+
+async function submitFiltersAjax(event) {
+  const form = event?.currentTarget?.tagName === 'FORM' ? event.currentTarget : event?.currentTarget?.form
+  if (!form) return
+  const params = buildFilterParams(form)
+  const query = params.toString()
+  const endpointQuery = query ? `?${query}` : ''
+  const response = await fetch(catalogueEndpointUrl.value + endpointQuery, {
+    headers: { Accept: 'application/json' },
+    credentials: 'same-origin',
+  })
+  if (!response.ok) {
+    form.submit()
+    return
+  }
+  applyCatalogueState(await response.json())
+  history.replaceState({}, '', query ? `?${query}` : window.location.pathname)
+}
+
+function submitFiltersNow(event) {
+  void submitFiltersAjax(event)
 }
 
 function scheduleFilterSubmit(event) {
@@ -162,7 +197,7 @@ async function toggleStar(item, event) {
       </nav>
     </div>
 
-    <form method="get" class="library-quick-filter-bar" :aria-label="t('library', 'Quick catalogue filters')">
+    <form method="get" class="library-quick-filter-bar" :aria-label="t('library', 'Quick catalogue filters')" @submit.prevent="submitFiltersAjax">
       <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
       <label class="library-quick-filter-search">
         {{ t('library', 'Search') }}
@@ -170,7 +205,7 @@ async function toggleStar(item, event) {
       </label>
       <label>
         {{ t('library', 'Sort') }}
-        <select v-model="activeFilters.sort" name="sort" @change="submitFiltersNow">
+        <select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax">
           <option value="title">{{ t('library', 'Title') }}</option>
           <option value="recent">{{ t('library', 'Recently added') }}</option>
           <option value="publicationDate">{{ t('library', 'Publication date') }}</option>
@@ -181,14 +216,14 @@ async function toggleStar(item, event) {
       </label>
       <label>
         {{ t('library', 'Starred') }}
-        <select v-model="activeFilters.starred" name="starred" @change="submitFiltersNow">
+        <select v-model="activeFilters.starred" name="starred" @change="submitFiltersAjax">
           <option value="">{{ t('library', 'All') }}</option>
           <option value="1">{{ t('library', 'Starred') }}</option>
         </select>
       </label>
       <label>
         {{ t('library', 'Size') }}
-        <select :value="pagination.limit" name="limit" @change="submitFiltersNow">
+        <select :value="pagination.limit" name="limit" @change="submitFiltersAjax">
           <option v-for="limit in pageSizes" :key="limit" :value="limit">{{ limit }}</option>
         </select>
       </label>
@@ -198,7 +233,7 @@ async function toggleStar(item, event) {
 
     <details class="library-filter-panel">
       <summary class="library-filter-panel-summary">{{ t('library', 'Show catalogue filters') }}</summary>
-      <form method="get" class="library-filter-bar" :aria-label="t('library', 'Catalogue search and filters')">
+      <form method="get" class="library-filter-bar" :aria-label="t('library', 'Catalogue search and filters')" @submit.prevent="submitFiltersAjax">
         <label>
           {{ t('library', 'Search title / author') }}
           <input v-model="activeFilters.q" type="search" name="q" placeholder="Camera, Eco, Rolleiflex...">

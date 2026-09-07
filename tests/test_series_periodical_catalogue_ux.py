@@ -25,8 +25,8 @@ def test_item_service_filters_and_sorts_by_publication_series_periodical_title()
 def test_vue_catalogue_exposes_series_periodical_filter_and_metadata_on_cards():
     vue = (ROOT / "src" / "App.vue").read_text()
 
-    assert "const publications = computed(() => props.state.publications || [])" in vue
-    assert "publication: props.state.activeFilters?.publication || ''" in vue
+    assert "const publications = computed(() => catalogueState.publications || [])" in vue
+    assert "publication: catalogueState.activeFilters?.publication || ''" in vue
     assert "Series / periodical" in vue
     assert "name=\"publication\"" in vue
     assert "All series and periodicals" in vue

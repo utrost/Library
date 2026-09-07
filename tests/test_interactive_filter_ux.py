@@ -11,7 +11,7 @@ def test_vue_catalogue_has_compact_interactive_quick_filters():
     assert "scheduleFilterSubmit" in app
     assert "submitFiltersNow" in app
     assert "@input=\"scheduleFilterSubmit\"" in app
-    assert "@change=\"submitFiltersNow\"" in app
+    assert "@change=\"submitFiltersAjax\"" in app
     assert "name=\"q\"" in app
     assert "name=\"sort\"" in app
     assert "name=\"limit\"" in app

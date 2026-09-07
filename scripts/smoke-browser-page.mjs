@@ -265,14 +265,18 @@ async function runBrowserSmoke(proxyBase) {
         const search = form?.querySelector('input[name="q"]')
         const select = form?.querySelector('select[name="sort"]')
         const startUrl = location.href
-        let submitCalls = 0
-        const originalRequestSubmit = HTMLFormElement.prototype.requestSubmit
-        HTMLFormElement.prototype.requestSubmit = function requestSubmitProbe() {
-          if (this === form) {
-            submitCalls += 1
-            return undefined
+        let fetchCalls = []
+        const realFetch = window.fetch
+        window.fetch = async (...args) => {
+          fetchCalls.push(String(args[0] || ''))
+          return {
+            ok: true,
+            json: async () => ({
+              items: [],
+              cataloguePagination: { page: 1, limit: 100, total: 0, visible: 0, from: 0, to: 0, previousUrl: '', nextUrl: '' },
+              activeFilters: { q: search?.value || '', sort: select?.value || 'title' },
+            }),
           }
-          return originalRequestSubmit.call(this)
         }
         if (search) {
           search.value = 'interactive-smoke'
@@ -283,12 +287,13 @@ async function runBrowserSmoke(proxyBase) {
           select.dispatchEvent(new Event('change', { bubbles: true }))
         }
         window.setTimeout(() => {
-          HTMLFormElement.prototype.requestSubmit = originalRequestSubmit
+          window.fetch = realFetch
           resolve({
             bar: Boolean(form),
             controls: form?.querySelectorAll('input:not([type=hidden]), select, button, a').length || 0,
-            submitCalls,
-            noNavigation: location.href === startUrl,
+            fetchCalls: fetchCalls.length,
+            endpoint: fetchCalls[0] || '',
+            noNavigation: location.href === startUrl || location.search.includes('interactive-smoke'),
           })
         }, 500)
       })`,
@@ -461,9 +466,10 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_catalogue_toolbar', dom.catalogueToolbar)
     print('browser_quick_filter_bar', dom.quickFilterBar)
     print('browser_quick_filter_controls', dom.quickFilterControls)
-    print('browser_quick_filter_submit_calls', quickFilterDom?.submitCalls ?? -1)
-    print('browser_quick_filter_no_navigation', quickFilterDom?.noNavigation === true)
-    print('browser_quick_filter_auto_submit', quickFilterDom?.submitCalls >= 1 && quickFilterDom?.noNavigation === true)
+    print('browser_ajax_filter_fetch_calls', quickFilterDom?.fetchCalls ?? 0)
+    print('browser_ajax_filter_endpoint', quickFilterDom?.endpoint || '')
+    print('browser_ajax_filter_no_navigation', quickFilterDom?.noNavigation === true)
+    print('browser_quick_filter_auto_submit', quickFilterDom?.fetchCalls >= 1 && quickFilterDom?.noNavigation === true && String(quickFilterDom?.endpoint || '').includes('/apps/library/catalogue'))
     print('browser_fallback', dom.fallback)
     print('browser_cards', dom.cards)
     print('browser_filters', dom.filters)
@@ -539,8 +545,9 @@ async function runBrowserSmoke(proxyBase) {
       && dom.catalogueToolbar === true
       && dom.quickFilterBar === true
       && dom.quickFilterControls >= 6
-      && quickFilterDom?.submitCalls >= 1
+      && quickFilterDom?.fetchCalls >= 1
       && quickFilterDom?.noNavigation === true
+      && String(quickFilterDom?.endpoint || '').includes('/apps/library/catalogue')
       && dom.cards > 0
       && dom.filters === true
       && dom.filterResultSummary === true
