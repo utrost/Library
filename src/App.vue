@@ -74,6 +74,7 @@ const filterLabels = {
 const activeFilterChips = computed(() => Object.entries(filterLabels)
   .map(([key, label]) => ({ key, label, value: activeFilters[key] || '' }))
   .filter((chip) => String(chip.value).trim() !== ''))
+const openCoverDetails = reactive({})
 
 function filterChipRemoveUrl(key) {
   const params = new URLSearchParams(window.location.search)
@@ -97,6 +98,10 @@ function publicationFilterUrl(publication) {
   params.set('sort', 'publication')
   params.delete('page')
   return `?${params.toString()}`
+}
+
+function setCoverDetailsOpen(itemId, event) {
+  openCoverDetails[itemId] = Boolean(event?.currentTarget?.open)
 }
 
 </script>
@@ -263,7 +268,7 @@ function publicationFilterUrl(publication) {
     </div>
 
     <div v-else class="library-cover-gallery">
-      <article v-for="item in items" :key="item.id" class="library-cover-card">
+      <article v-for="item in items" :key="item.id" class="library-cover-card" :class="{ 'library-cover-card--open': openCoverDetails[item.id] }">
         <a class="library-cover-link" :href="item.openUrl" :aria-label="`Read ${item.title}`">
           <img class="library-cover-image" :src="item.coverUrl" :alt="`Cover for ${item.title}`" loading="lazy">
         </a>
@@ -272,7 +277,7 @@ function publicationFilterUrl(publication) {
             <h3><span v-if="item.starred" class="library-star-marker" :aria-label="t('library', 'Starred')">★</span>{{ item.title }}</h3>
             <a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Read') }}</a>
           </div>
-          <details class="library-cover-details">
+          <details class="library-cover-details" @toggle="setCoverDetailsOpen(item.id, $event)">
             <summary class="library-cover-details-summary" :aria-label="`${t('library', 'Show details and actions')}: ${item.title}`">{{ t('library', 'Details') }}</summary>
             <div class="library-cover-meta">
               <p v-if="item.creators" class="library-creator">{{ item.creators }}</p>
@@ -343,7 +348,14 @@ function publicationFilterUrl(publication) {
 
 .library-cover-card {
   gap: 8px;
+  overflow-wrap: anywhere;
   padding: 8px;
+}
+
+.library-cover-card--open {
+  grid-column: span 2;
+  position: relative;
+  z-index: 2;
 }
 
 .library-cover-image {

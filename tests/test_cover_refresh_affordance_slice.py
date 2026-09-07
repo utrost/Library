@@ -10,7 +10,8 @@ def test_detail_controller_exposes_refresh_cover_url_with_refresh_query():
     assert "coverRefreshUrl" in controller
     assert "'refresh' => '1'" in controller
     assert "library.cover.show" in controller
-    assert "coverRefreshUrl" in template
+    assert "coverRefreshPageUrl" in template
+    assert "coverRefreshUrl" in controller
     assert "Refresh cover preview" in template
     assert "library-cover-refresh-action" in template
 
