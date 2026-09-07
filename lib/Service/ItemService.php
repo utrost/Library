@@ -39,6 +39,8 @@ final class ItemService {
         'language',
         'publisher',
         'description',
+        'genres',
+        'classifications',
     ];
 
     public function __construct(
@@ -74,6 +76,8 @@ final class ItemService {
                 'language' => $qb->createNamedParameter($metadataCandidate['language']),
                 'publisher' => $qb->createNamedParameter($metadataCandidate['publisher']),
                 'description' => $qb->createNamedParameter($metadataCandidate['description']),
+                'genres_json' => $qb->createNamedParameter($this->jsonEncodeList($metadataCandidate['genres'])),
+                'classifications_json' => $qb->createNamedParameter($this->jsonEncodeList($metadataCandidate['classifications'])),
                 'starred' => $qb->createNamedParameter(0),
                 'workflow_status' => $qb->createNamedParameter(''),
                 'last_opened_at' => $qb->createNamedParameter(null),
@@ -151,6 +155,8 @@ final class ItemService {
             ->set('language', $qb->createNamedParameter($this->nullableString($metadata['language'] ?? null)))
             ->set('publisher', $qb->createNamedParameter($this->nullableString($metadata['publisher'] ?? null)))
             ->set('description', $qb->createNamedParameter($this->nullableString($metadata['description'] ?? null)))
+            ->set('genres_json', $qb->createNamedParameter($this->jsonEncodeList($this->normalizeMultiValueField($metadata['genres'] ?? []))))
+            ->set('classifications_json', $qb->createNamedParameter($this->jsonEncodeList($this->normalizeMultiValueField($metadata['classifications'] ?? []))))
             ->set('metadata_source', $qb->createNamedParameter('user'))
             ->set('field_sources', $qb->createNamedParameter(json_encode($existingProvenance['fieldSources'], JSON_THROW_ON_ERROR)))
             ->set('field_values', $qb->createNamedParameter(json_encode($existingProvenance['fieldValues'], JSON_THROW_ON_ERROR)))
@@ -341,7 +347,7 @@ final class ItemService {
 
     public function findItem(string $userId, int $itemId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -361,7 +367,7 @@ final class ItemService {
 
     public function exportCorrectedMetadata(string $userId): array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -544,6 +550,12 @@ final class ItemService {
     private function changedImportFields(array $current, array $importItem): array {
         $changedFields = [];
         foreach (self::PUBLICATION_FIELDS as $field) {
+            if ($field === 'genres' || $field === 'classifications') {
+                if (array_key_exists($field, $importItem) && $this->normalizeMultiValueField($importItem[$field]) !== $this->normalizeMultiValueField($current[$field] ?? [])) {
+                    $changedFields[] = $field;
+                }
+                continue;
+            }
             if (array_key_exists($field, $importItem) && (string)($importItem[$field] ?? '') !== (string)($current[$field] ?? '')) {
                 $changedFields[] = $field;
             }
@@ -601,7 +613,7 @@ final class ItemService {
         $cachedPath = trim((string)($importItem['cachedPath'] ?? ''));
 
         $qb = $this->db->getQueryBuilder();
-        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -625,7 +637,7 @@ final class ItemService {
 
     private function catalogueQueryBuilder(string $userId, array $filters): IQueryBuilder {
         $qb = $this->db->getQueryBuilder();
-        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -663,6 +675,8 @@ final class ItemService {
             'publicationSummaries' => $this->topPublicationSummaries($userId),
             'publicationYears' => $this->publicationYearFacetValues($userId),
             'creators' => $this->distinctCatalogueValues($userId, 'i.creators', 'creator'),
+            'genres' => $this->genreFacetValues($userId),
+            'classifications' => $this->classificationFacetValues($userId),
             'scanStatuses' => $this->scanStatusFacetValues($userId),
             'workflowStatuses' => array_values(array_filter(self::WORKFLOW_STATUSES)),
         ];
@@ -724,6 +738,43 @@ final class ItemService {
         }
         $result->closeCursor();
         return $values;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function genreFacetValues(string $userId): array {
+        return $this->multiValueFacetValues($userId, 'genres_json');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function classificationFacetValues(string $userId): array {
+        return $this->multiValueFacetValues($userId, 'classifications_json');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function multiValueFacetValues(string $userId, string $column): array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select($column)
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
+            ->executeQuery();
+
+        $values = [];
+        while ($row = $result->fetch()) {
+            foreach ($this->decodeJsonList($row[$column] ?? null) as $value) {
+                $values[$value] = true;
+            }
+        }
+        $result->closeCursor();
+        ksort($values, SORT_NATURAL | SORT_FLAG_CASE);
+        return array_keys($values);
     }
 
     /**
@@ -792,6 +843,16 @@ final class ItemService {
             $qb->andWhere($qb->expr()->eq($qb->createFunction('LOWER(f.extension)'), $qb->createNamedParameter($format)));
         }
 
+        $genre = trim((string)($filters['genre'] ?? ''));
+        if ($genre !== '') {
+            $qb->andWhere($this->jsonArrayContainsFilter($qb, 'i.genres_json', $genre));
+        }
+
+        $classification = trim((string)($filters['classification'] ?? ''));
+        if ($classification !== '') {
+            $qb->andWhere($this->jsonArrayContainsFilter($qb, 'i.classifications_json', $classification));
+        }
+
         $status = trim((string)($filters['status'] ?? ''));
         if ($status !== '') {
             $qb->andWhere($qb->expr()->eq('f.scan_status', $qb->createNamedParameter($status)));
@@ -830,9 +891,17 @@ final class ItemService {
                 $qb->expr()->like($qb->createFunction('LOWER(i.creators)'), $like),
                 $qb->expr()->like($qb->createFunction('LOWER(i.publication)'), $like),
                 $qb->expr()->like($qb->createFunction('LOWER(i.description)'), $like),
+                $qb->expr()->like($qb->createFunction('LOWER(i.genres_json)'), $like),
+                $qb->expr()->like($qb->createFunction('LOWER(i.classifications_json)'), $like),
                 $qb->expr()->like($qb->createFunction('LOWER(f.cached_path)'), $like)
             ));
         }
+    }
+
+    private function jsonArrayContainsFilter(IQueryBuilder $qb, string $column, string $value): string {
+        $normalized = $this->normalizeMultiValueField([$value]);
+        $encoded = json_encode($normalized[0] ?? '', JSON_THROW_ON_ERROR);
+        return $qb->expr()->like($column, $qb->createNamedParameter('%' . $this->escapeLikeParameter($encoded) . '%'));
     }
 
     private function applyCatalogueSort(IQueryBuilder $qb, string $sort): void {
@@ -869,6 +938,8 @@ final class ItemService {
             'language' => $row['language'] !== null ? (string)$row['language'] : '',
             'publisher' => $row['publisher'] !== null ? (string)$row['publisher'] : '',
             'description' => $row['description'] !== null ? (string)$row['description'] : '',
+            'genres' => $this->decodeJsonList($row['genres_json'] ?? null),
+            'classifications' => $this->decodeJsonList($row['classifications_json'] ?? null),
             'starred' => (bool)$row['starred'],
             'workflowStatus' => (string)($row['workflow_status'] ?? ''),
             'lastOpenedAt' => (int)($row['last_opened_at'] ?? 0),
@@ -922,6 +993,8 @@ final class ItemService {
             ->set('language', $qb->createNamedParameter($metadataCandidate['language']))
             ->set('publisher', $qb->createNamedParameter($metadataCandidate['publisher']))
             ->set('description', $qb->createNamedParameter($metadataCandidate['description']))
+            ->set('genres_json', $qb->createNamedParameter($this->jsonEncodeList($metadataCandidate['genres'])))
+            ->set('classifications_json', $qb->createNamedParameter($this->jsonEncodeList($metadataCandidate['classifications'])))
             ->set('metadata_source', $qb->createNamedParameter($metadataCandidate['metadataSource']))
             ->set('field_sources', $qb->createNamedParameter(json_encode($metadataCandidate['fieldSources'], JSON_THROW_ON_ERROR)))
             ->set('field_values', $qb->createNamedParameter(json_encode($metadataCandidate['fieldValues'], JSON_THROW_ON_ERROR)))
@@ -977,6 +1050,8 @@ final class ItemService {
             'language' => $this->nullableString($metadata['language'] ?? null),
             'publisher' => $this->nullableString($metadata['publisher'] ?? null),
             'description' => $this->nullableString($metadata['description'] ?? null),
+            'genres' => $this->normalizeMultiValueField($metadata['genres'] ?? []),
+            'classifications' => $this->normalizeMultiValueField($metadata['classifications'] ?? []),
             'metadataSource' => $source,
         ];
 
@@ -995,7 +1070,11 @@ final class ItemService {
         $sources = [];
         foreach (self::PUBLICATION_FIELDS as $field) {
             $value = $metadataCandidate[$field] ?? null;
-            if ($value !== null && trim((string)$value) !== '') {
+            if (is_array($value)) {
+                if ($this->normalizeMultiValueField($value) !== []) {
+                    $sources[$field] = $source;
+                }
+            } elseif ($value !== null && trim((string)$value) !== '') {
                 $sources[$field] = $source;
             }
         }
@@ -1031,11 +1110,65 @@ final class ItemService {
         $fieldValues = [];
         foreach (self::PUBLICATION_FIELDS as $field) {
             $value = $values[$field] ?? null;
-            if ($value !== null && trim((string)$value) !== '') {
+            if (is_array($value)) {
+                $encoded = $this->jsonEncodeList($value);
+                if ($encoded !== '[]') {
+                    $fieldValues[$field] = $encoded;
+                }
+            } elseif ($value !== null && trim((string)$value) !== '') {
                 $fieldValues[$field] = (string)$value;
             }
         }
         return $fieldValues;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function normalizeMultiValueField(mixed $value): array {
+        if (is_string($value)) {
+            $decoded = null;
+            if (str_starts_with(trim($value), '[')) {
+                try {
+                    $decoded = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+                } catch (\JsonException) {
+                    $decoded = null;
+                }
+            }
+            $parts = is_array($decoded) ? $decoded : (preg_split('/[;,\n]+/u', $value) ?: []);
+        } elseif (is_array($value)) {
+            $parts = $value;
+        } else {
+            $parts = [];
+        }
+        $normalized = [];
+        foreach ($parts as $part) {
+            $entry = trim((string)$part);
+            if ($entry !== '') {
+                $normalized[mb_strtolower($entry)] = $entry;
+            }
+        }
+        ksort($normalized, SORT_NATURAL | SORT_FLAG_CASE);
+        return array_values($normalized);
+    }
+
+    private function jsonEncodeList(array $values): string {
+        return json_encode(array_values($this->normalizeMultiValueField($values)), JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function decodeJsonList(mixed $json): array {
+        if (!is_string($json) || trim($json) === '') {
+            return [];
+        }
+        try {
+            $decoded = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return [];
+        }
+        return $this->normalizeMultiValueField(is_array($decoded) ? $decoded : []);
     }
 
     /**
@@ -1091,6 +1224,8 @@ final class ItemService {
             'language' => 'language',
             'publisher' => 'publisher',
             'description' => 'description',
+            'genres' => 'genres_json',
+            'classifications' => 'classifications_json',
             default => null,
         };
     }
@@ -1102,6 +1237,9 @@ final class ItemService {
         }
         if ($field === 'title') {
             return $trimmed === '' ? 'Untitled publication' : $trimmed;
+        }
+        if ($field === 'genres' || $field === 'classifications') {
+            return $this->jsonEncodeList($this->normalizeMultiValueField($trimmed));
         }
         return $trimmed === '' ? null : $trimmed;
     }

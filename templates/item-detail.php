@@ -26,6 +26,8 @@ $metadataRows = [
     'Last opened' => !empty($item['lastOpenedAt']) ? gmdate('Y-m-d H:i', (int)$item['lastOpenedAt']) . ' UTC' : '',
     'Publisher' => $item['publisher'] ?? '',
     'Language' => $item['language'] ?? '',
+    'Genres' => implode('; ', is_array($item['genres'] ?? null) ? $item['genres'] : []),
+    'Classifications' => implode('; ', is_array($item['classifications'] ?? null) ? $item['classifications'] : []),
     'Description' => $item['description'] ?? '',
 ];
 $fieldSources = is_array($item['fieldSources'] ?? null) ? $item['fieldSources'] : [];
@@ -40,11 +42,14 @@ $fieldProvenanceRows = [
     'language' => 'Language',
     'publisher' => 'Publisher',
     'description' => 'Description',
+    'genres' => 'Genres',
+    'classifications' => 'Classifications',
 ];
 $scannerCandidateCount = count(array_filter($fieldValues, static fn ($value) => trim((string)$value) !== ''));
 $scannerConflictCount = 0;
 foreach ($fieldProvenanceRows as $field => $_label) {
-    $currentValue = (string)($item[$field] ?? '');
+    $rawCurrentValue = $item[$field] ?? '';
+    $currentValue = is_array($rawCurrentValue) ? json_encode(array_values($rawCurrentValue)) : (string)$rawCurrentValue;
     $candidateValue = (string)($fieldValues[$field] ?? '');
     if (trim($candidateValue) !== '' && $candidateValue !== $currentValue) {
         $scannerConflictCount++;
@@ -170,6 +175,28 @@ $fileRows = [
                     <span id="library-language-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Use short language codes such as de, en, fr.')); ?></span>
                 </label>
                 <label>
+                    <?php p($l->t('Genres')); ?>
+                    <input type="text" name="genres" list="library-genre-suggestions" aria-describedby="library-genres-guidance" value="<?php p(implode('; ', is_array($item['genres'] ?? null) ? $item['genres'] : [])); ?>" />
+                    <datalist id="library-genre-suggestions">
+                        <option value="fiction"></option>
+                        <option value="photography"></option>
+                        <option value="science fiction"></option>
+                        <option value="history"></option>
+                    </datalist>
+                    <span id="library-genres-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Separate multiple genres with semicolons. These are Library metadata, not Nextcloud tags.')); ?></span>
+                </label>
+                <label>
+                    <?php p($l->t('Classifications')); ?>
+                    <input type="text" name="classifications" list="library-classification-suggestions" aria-describedby="library-classifications-guidance" value="<?php p(implode('; ', is_array($item['classifications'] ?? null) ? $item['classifications'] : [])); ?>" />
+                    <datalist id="library-classification-suggestions">
+                        <option value="reference collection"></option>
+                        <option value="manual"></option>
+                        <option value="catalogue"></option>
+                        <option value="OCR-needed"></option>
+                    </datalist>
+                    <span id="library-classifications-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Separate multiple classifications with semicolons. Use Nextcloud tags for ad-hoc cross-app labels.')); ?></span>
+                </label>
+                <label>
                     <?php p($l->t('Description')); ?>
                     <textarea name="description" rows="5"><?php p((string)($item['description'] ?? '')); ?></textarea>
                 </label>
@@ -232,7 +259,8 @@ $fileRows = [
                     </thead>
                     <tbody>
                         <?php foreach ($fieldProvenanceRows as $field => $label): ?>
-                            <?php $currentValue = (string)($item[$field] ?? ''); ?>
+                            <?php $rawCurrentValue = $item[$field] ?? ''; ?>
+                            <?php $currentValue = is_array($rawCurrentValue) ? json_encode(array_values($rawCurrentValue)) : (string)$rawCurrentValue; ?>
                             <?php $candidateValue = (string)($fieldValues[$field] ?? ''); ?>
                             <?php $resetUrl = (string)($item['resetFieldUrl'] ?? ''); ?>
                             <?php $fieldDiffersFromScanner = trim($candidateValue) !== '' && $candidateValue !== $currentValue; ?>

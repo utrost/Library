@@ -426,7 +426,7 @@ Exit criteria:
 
 ## Personal top features, 2026-09-07
 
-Uwe's current personal top features are scoped in [Personal top features](personal-top-features.md). This list shifts the next product direction from mostly release hardening toward daily-library usefulness: finish multi-root confidence, add starring/bookmarking, record last read/opened activity, search descriptions, add custom per-publication status, and model genres and classifications. Multi-root confidence, starring/bookmarking, Library-tracked last-opened activity, description search and Library-native workflow status have landed; the next personal-field modeling priority is genres/classifications.
+Uwe's current personal top features are scoped in [Personal top features](personal-top-features.md). This list shifts the next product direction from mostly release hardening toward daily-library usefulness: finish multi-root confidence, add starring/bookmarking, record last read/opened activity, search descriptions, add custom per-publication status, and model genres and classifications. Multi-root confidence, starring/bookmarking, Library-tracked last-opened activity, description search, Library-native workflow status and Library-native genres/classifications have landed; the next personal-library priority returns to release polish around metadata review, discovery pages and onboarding.
 
 Recommended order from that scope:
 
@@ -435,7 +435,7 @@ Recommended order from that scope:
 3. **P2 — last read/opened.** Landed for last-opened activity: Library **Read** clicks update `last_opened_at` before redirecting to `/f/{fileId}`; true page-position “last read” stays deferred to reader integrations.
 4. **P3 — search with description. Landed.** Library-native descriptions are editable on item details, included in database-backed catalogue search, and carried through corrected-metadata export/import while staying out of compact card defaults.
 5. **P4 — custom status per publication. Landed.** Library-native workflow status is editable on item details, filterable with a dedicated `workflowStatus` catalogue filter, visible inside card **Details**, and carried through corrected-metadata export/import without overloading operational scan status or Nextcloud tags.
-6. **P5 — genres and classifications.** Add multi-value Library-native genres and classifications after the smaller personal fields prove the storage/filter/export pattern.
+6. **P5 — genres and classifications. Landed.** Multi-value Library-native genres and classifications are editable on item details, filterable with dedicated catalogue filters, visible inside card **Details**, and carried through corrected-metadata export/import separate from Nextcloud tags.
 
 Feedback: Nextcloud tags are useful as cross-app labels, but stars, Library-owned reading activity, workflow status, and genres/classifications should become canonical Library-native fields when they affect catalogue UX, filters, export/import or future sidecar write-back.
 

@@ -45,7 +45,7 @@ def test_catalogue_supports_recently_opened_sort_and_filter_preservation():
     smoke = (ROOT / "scripts" / "smoke-last-opened.mjs").read_text()
 
     assert "lastOpened" in page
-    assert "foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'starred', 'sort'] as $param)" in page
+    assert "foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'starred', 'sort'] as $param)" in page
     assert "lastOpened" in service
     assert "i.last_opened_at" in service
     assert "Recently opened" in vue

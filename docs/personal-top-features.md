@@ -62,9 +62,9 @@ Workflow status is app-owned and separate from operational `library_files.scan_s
 
 ### genres and classifications
 
-Current support: partial via Nextcloud tags, missing as structured Library metadata.
+Current support: genres and classifications are implemented as structured Library metadata.
 
-Genres and classifications overlap with tags but deserve a deliberate model because one publication can have multiple fiction genres and multiple non-fiction classifications. Nextcloud tags are still useful as broad cross-app labels; Library-native genres/classifications should drive catalogue facets, import/export and later sidecar write-back.
+Genres and classifications overlap with tags but now have a deliberate Library-native model because one publication can have multiple fiction genres and multiple non-fiction classifications. Nextcloud tags are still useful as broad cross-app labels; Library-native genres/classifications drive catalogue filters, corrected-metadata import/export and later sidecar write-back.
 
 Recommended split:
 
@@ -180,15 +180,17 @@ Result: workflow status is implemented as a small personal-field slice.
 
 ### P5 — genres and classifications
 
+Status: landed as a Library-native multi-value metadata checkpoint.
+
 Why sixth: powerful, but this is the richest modeling problem. It should follow stars/status/description so we do not over-design taxonomy before seeing real use.
 
 Scope:
 
-- decide whether first storage is JSON arrays on `library_items` or a normalized join table;
+- store first-slice values as JSON arrays on `library_items`;
 - support multiple genres/classifications per item;
 - add details editing with suggestions;
 - add catalogue facets/filters;
-- include values in export/import and future sidecar write-back.
+- include values in export/import and leave sidecar write-back for later.
 
 Acceptance checks:
 
@@ -196,6 +198,8 @@ Acceptance checks:
 - filtering by one classification finds the item;
 - values are not confused with Nextcloud tags;
 - export/import preserves them.
+
+Result: genres and classifications are implemented as structured Library metadata distinct from Nextcloud tags.
 
 ## Suggested immediate implementation slice
 
