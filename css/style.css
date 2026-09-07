@@ -231,9 +231,28 @@
     display: grid;
     gap: 12px;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    margin: 16px 0 24px;
+    margin: 12px 0 24px;
     max-width: 100%;
     min-width: 0;
+}
+
+.library-filter-panel {
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+}
+
+.library-filter-panel-summary,
+.library-periodical-groups-summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.library-filter-panel-summary:focus-visible,
+.library-periodical-groups-summary:focus-visible {
+    outline: 2px solid var(--color-primary-element);
+    outline-offset: 3px;
 }
 
 .library-filter-bar label {
