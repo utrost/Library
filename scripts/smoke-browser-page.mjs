@@ -179,6 +179,7 @@ async function runBrowserSmoke(proxyBase) {
           cards: document.querySelectorAll('.library-cover-card').length,
           filters: Boolean(document.querySelector('.library-filter-bar')),
           filterResultSummary: Boolean(document.querySelector('.library-filter-result-summary')),
+          singleCatalogueResultSummary: document.body.textContent.match(/Showing [0-9]+[–-][0-9]+ of [0-9]+ catalogue items/g)?.length === 1,
           cardDetailChips: document.querySelectorAll('.library-cover-card .library-cover-detail-chip').length,
           filterPanelCollapsed: Boolean(document.querySelector('.library-filter-panel:not([open]) .library-filter-bar')),
           periodicalPanelCollapsed: Boolean(document.querySelector('.library-periodical-groups:not([open])')),
@@ -295,6 +296,7 @@ async function runBrowserSmoke(proxyBase) {
           detailSecondary: Boolean(document.querySelector('.library-detail-secondary')),
           detailDiagnosticSections: document.querySelectorAll('.library-detail-diagnostic-section').length,
           detailProvenanceDifferences: Boolean(document.querySelector('.library-provenance-differences')),
+          detailSummaryBadges: document.querySelectorAll('.library-detail-diagnostic-section > summary .library-summary-badge').length,
           detailTagChipRemove: Boolean(document.querySelector('.library-tag-chip-remove')),
           detailWorkflowPill: Boolean(document.querySelector('.library-workflow-status-pill')),
           detailSectionsLabelled: requiredLabelledSections.every(([selector, id]) => {
@@ -417,6 +419,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_cards', dom.cards)
     print('browser_filters', dom.filters)
     print('browser_filter_result_summary', dom.filterResultSummary)
+    print('browser_single_catalogue_result_summary', dom.singleCatalogueResultSummary)
     print('browser_card_detail_chips', dom.cardDetailChips)
     print('browser_filter_panel_collapsed', dom.filterPanelCollapsed)
     print('browser_periodical_panel_collapsed', dom.periodicalPanelCollapsed)
@@ -454,6 +457,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_detail_secondary', detailDom.detailSecondary)
     print('browser_detail_diagnostic_sections', detailDom.detailDiagnosticSections)
     print('browser_detail_provenance_differences', detailDom.detailProvenanceDifferences)
+    print('browser_detail_summary_badges', detailDom.detailSummaryBadges)
     print('browser_detail_tag_chip_remove', detailDom.detailTagChipRemove)
     print('browser_detail_workflow_pill', detailDom.detailWorkflowPill)
     print('browser_detail_sections_labelled', detailDom.detailSectionsLabelled)
@@ -483,6 +487,7 @@ async function runBrowserSmoke(proxyBase) {
       && dom.cards > 0
       && dom.filters === true
       && dom.filterResultSummary === true
+      && dom.singleCatalogueResultSummary === true
       && dom.cardDetailChips >= dom.cards
       && dom.filterPanelCollapsed === true
       && dom.periodicalPanelCollapsed === true
@@ -513,6 +518,7 @@ async function runBrowserSmoke(proxyBase) {
       && detailDom.detailPrimary === true
       && detailDom.detailSecondary === true
       && detailDom.detailDiagnosticSections === 3
+      && detailDom.detailSummaryBadges === 3
       && detailDom.detailProvenanceDifferences === true
       && detailDom.detailWorkflowPill === true
       && detailDom.detailSectionsLabelled === true
