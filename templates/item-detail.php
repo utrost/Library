@@ -15,6 +15,7 @@ $metadataRows = [
     'Last opened' => !empty($item['lastOpenedAt']) ? gmdate('Y-m-d H:i', (int)$item['lastOpenedAt']) . ' UTC' : '',
     'Publisher' => $item['publisher'] ?? '',
     'Language' => $item['language'] ?? '',
+    'Description' => $item['description'] ?? '',
 ];
 $fieldSources = is_array($item['fieldSources'] ?? null) ? $item['fieldSources'] : [];
 $fieldValues = is_array($item['fieldValues'] ?? null) ? $item['fieldValues'] : [];
@@ -27,6 +28,7 @@ $fieldProvenanceRows = [
     'publicationDate' => 'Publication date',
     'language' => 'Language',
     'publisher' => 'Publisher',
+    'description' => 'Description',
 ];
 $scannerCandidateCount = count(array_filter($fieldValues, static fn ($value) => trim((string)$value) !== ''));
 $scannerConflictCount = 0;
@@ -142,6 +144,10 @@ $fileRows = [
                     <?php p($l->t('Language')); ?>
                     <input type="text" name="language" aria-describedby="library-language-guidance" value="<?php p((string)($item['language'] ?? '')); ?>" />
                     <span id="library-language-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Use short language codes such as de, en, fr.')); ?></span>
+                </label>
+                <label>
+                    <?php p($l->t('Description')); ?>
+                    <textarea name="description" rows="5"><?php p((string)($item['description'] ?? '')); ?></textarea>
                 </label>
                 <button type="submit" class="button primary"><?php p($l->t('Save metadata')); ?></button>
             </form>

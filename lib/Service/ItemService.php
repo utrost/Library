@@ -27,6 +27,7 @@ final class ItemService {
         'publicationDate',
         'language',
         'publisher',
+        'description',
     ];
 
     public function __construct(
@@ -61,6 +62,7 @@ final class ItemService {
                 'publication_date' => $qb->createNamedParameter($metadataCandidate['publicationDate']),
                 'language' => $qb->createNamedParameter($metadataCandidate['language']),
                 'publisher' => $qb->createNamedParameter($metadataCandidate['publisher']),
+                'description' => $qb->createNamedParameter($metadataCandidate['description']),
                 'starred' => $qb->createNamedParameter(0),
                 'last_opened_at' => $qb->createNamedParameter(null),
                 'metadata_source' => $qb->createNamedParameter($metadataCandidate['metadataSource']),
@@ -136,6 +138,7 @@ final class ItemService {
             ->set('publication_date', $qb->createNamedParameter($this->nullableString($metadata['publicationDate'] ?? null)))
             ->set('language', $qb->createNamedParameter($this->nullableString($metadata['language'] ?? null)))
             ->set('publisher', $qb->createNamedParameter($this->nullableString($metadata['publisher'] ?? null)))
+            ->set('description', $qb->createNamedParameter($this->nullableString($metadata['description'] ?? null)))
             ->set('metadata_source', $qb->createNamedParameter('user'))
             ->set('field_sources', $qb->createNamedParameter(json_encode($existingProvenance['fieldSources'], JSON_THROW_ON_ERROR)))
             ->set('field_values', $qb->createNamedParameter(json_encode($existingProvenance['fieldValues'], JSON_THROW_ON_ERROR)))
@@ -314,7 +317,7 @@ final class ItemService {
 
     public function findItem(string $userId, int $itemId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.starred', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.starred', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -334,7 +337,7 @@ final class ItemService {
 
     public function exportCorrectedMetadata(string $userId): array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.starred', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.starred', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -566,7 +569,7 @@ final class ItemService {
         $cachedPath = trim((string)($importItem['cachedPath'] ?? ''));
 
         $qb = $this->db->getQueryBuilder();
-        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.starred', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.starred', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -590,7 +593,7 @@ final class ItemService {
 
     private function catalogueQueryBuilder(string $userId, array $filters): IQueryBuilder {
         $qb = $this->db->getQueryBuilder();
-        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.starred', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.starred', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -788,6 +791,7 @@ final class ItemService {
                 $qb->expr()->like($qb->createFunction('LOWER(i.subtitle)'), $like),
                 $qb->expr()->like($qb->createFunction('LOWER(i.creators)'), $like),
                 $qb->expr()->like($qb->createFunction('LOWER(i.publication)'), $like),
+                $qb->expr()->like($qb->createFunction('LOWER(i.description)'), $like),
                 $qb->expr()->like($qb->createFunction('LOWER(f.cached_path)'), $like)
             ));
         }
@@ -826,6 +830,7 @@ final class ItemService {
             'publicationDate' => $row['publication_date'] !== null ? (string)$row['publication_date'] : '',
             'language' => $row['language'] !== null ? (string)$row['language'] : '',
             'publisher' => $row['publisher'] !== null ? (string)$row['publisher'] : '',
+            'description' => $row['description'] !== null ? (string)$row['description'] : '',
             'starred' => (bool)$row['starred'],
             'lastOpenedAt' => (int)($row['last_opened_at'] ?? 0),
             'metadataSource' => (string)$row['metadata_source'],
@@ -877,6 +882,7 @@ final class ItemService {
             ->set('publication_date', $qb->createNamedParameter($metadataCandidate['publicationDate']))
             ->set('language', $qb->createNamedParameter($metadataCandidate['language']))
             ->set('publisher', $qb->createNamedParameter($metadataCandidate['publisher']))
+            ->set('description', $qb->createNamedParameter($metadataCandidate['description']))
             ->set('metadata_source', $qb->createNamedParameter($metadataCandidate['metadataSource']))
             ->set('field_sources', $qb->createNamedParameter(json_encode($metadataCandidate['fieldSources'], JSON_THROW_ON_ERROR)))
             ->set('field_values', $qb->createNamedParameter(json_encode($metadataCandidate['fieldValues'], JSON_THROW_ON_ERROR)))
@@ -914,7 +920,7 @@ final class ItemService {
     /**
      * @param array<string, mixed> $file
      * @param array<string, string> $metadata
-     * @return array{publicationType:string,title:string,subtitle:?string,creators:?string,publication:?string,publicationDate:?string,language:?string,publisher:?string,metadataSource:string,fieldSources:array<string, string>,fieldValues:array<string, string>}
+     * @return array{publicationType:string,title:string,subtitle:?string,creators:?string,publication:?string,publicationDate:?string,language:?string,publisher:?string,description:?string,metadataSource:string,fieldSources:array<string, string>,fieldValues:array<string, string>}
      */
     private function metadataCandidate(array $file, array $metadata): array {
         $source = (string)($metadata['metadataSource'] ?? 'filename');
@@ -931,6 +937,7 @@ final class ItemService {
             'publicationDate' => $this->nullableString($metadata['publicationDate'] ?? null),
             'language' => $this->nullableString($metadata['language'] ?? null),
             'publisher' => $this->nullableString($metadata['publisher'] ?? null),
+            'description' => $this->nullableString($metadata['description'] ?? null),
             'metadataSource' => $source,
         ];
 
@@ -1039,6 +1046,7 @@ final class ItemService {
             'publicationDate' => 'publication_date',
             'language' => 'language',
             'publisher' => 'publisher',
+            'description' => 'description',
             default => null,
         };
     }

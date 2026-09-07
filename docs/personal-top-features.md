@@ -150,7 +150,9 @@ Acceptance checks:
 
 ### P3 — richer text search
 
-Why fourth: description search is valuable, but it depends on first making description an actual editable/exportable field.
+Current support: description search is implemented.
+
+Library now stores a Library-native `description` field on catalogue items. It is editable on the item details page, appears in the details metadata/provenance surfaces, participates in the existing database-backed catalogue text search, and travels through corrected-metadata export/import. It remains tucked behind card **Details** so compact cover browsing does not turn into long text snippets by default.
 
 Scope:
 

@@ -236,6 +236,7 @@ function publicationFilterUrl(publication) {
                 <span v-if="item.extension"> · Format: {{ upper(item.extension) }}</span>
                 <span v-if="item.shelf"> · Shelf: {{ item.shelf }}</span>
               </p>
+              <p v-if="item.description" class="library-muted library-cover-description">{{ item.description }}</p>
               <p v-if="item.scanStatus !== 'indexed' || item.scanError" class="library-item-scan-status library-scan-error">
                 scanStatus: {{ item.scanStatus || 'unknown' }}<span v-if="item.scanError"> · scanError: {{ item.scanError }}</span>
               </p>
