@@ -27,8 +27,8 @@ def test_item_service_filters_exact_creator_and_exposes_creator_facets():
 def test_vue_exposes_creator_filter_without_identity_splitting():
     app = (ROOT / "src" / "App.vue").read_text()
 
-    assert "const creators = computed(() => props.state.creators || [])" in app
-    assert "creator: props.state.activeFilters?.creator || ''" in app
+    assert "const creators = computed(() => catalogueState.creators || [])" in app
+    assert "creator: catalogueState.activeFilters?.creator || ''" in app
     assert "Creator" in app
     assert "name=\"creator\"" in app
     assert "All creators" in app

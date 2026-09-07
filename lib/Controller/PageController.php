@@ -16,6 +16,7 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
@@ -52,7 +53,20 @@ class PageController extends Controller {
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
+        $this->initialState->provideInitialState('catalogue', $this->buildCatalogueState($userId));
 
+        return new TemplateResponse(Application::APP_ID, 'main');
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function catalogue(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        return new JSONResponse($this->buildCatalogueState($userId));
+    }
+
+    private function buildCatalogueState(string $userId): array {
         $activeFilters = [
             'q' => trim((string)$this->request->getParam('q', '')),
             'type' => trim((string)$this->request->getParam('type', '')),
@@ -97,7 +111,7 @@ class PageController extends Controller {
         $fileCommentsByFileId = $this->fileCommentService->commentsForItems($items);
         $items = $this->enrichItemsForVue($userId, $items, $fileTagsByFileId, $fileCommentsByFileId);
 
-        $this->initialState->provideInitialState('catalogue', [
+        return [
             'items' => $items,
             'scannerConflictCount' => array_sum(array_map(static fn (array $item): int => (int)($item['scannerConflictCount'] ?? 0), $items)),
             'shelves' => $catalogue['facets']['shelves'],
@@ -116,10 +130,9 @@ class PageController extends Controller {
             'metadataExportUrl' => $this->urlGenerator->linkToRoute('library.export.metadata'),
             'metadataSidecarManifestUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarManifest'),
             'metadataSidecarBundleUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarBundle'),
+            'catalogueEndpointUrl' => $this->urlGenerator->linkToRoute('library.page.catalogue'),
             'scannerConflictReviewUrl' => '?scannerConflicts=1',
-        ]);
-
-        return new TemplateResponse(Application::APP_ID, 'main');
+        ];
     }
 
     /**

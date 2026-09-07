@@ -20,7 +20,7 @@ def test_item_service_provides_top_publication_summaries_with_counts():
 def test_vue_renders_periodicals_panel_with_counts_and_filter_links():
     vue = (ROOT / "src" / "App.vue").read_text()
 
-    assert "const publicationSummaries = computed(() => props.state.publicationSummaries || [])" in vue
+    assert "const publicationSummaries = computed(() => catalogueState.publicationSummaries || [])" in vue
     assert "function publicationFilterUrl(publication)" in vue
     assert "library-periodical-groups" in vue
     assert "Top series and periodicals" in vue
