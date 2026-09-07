@@ -72,6 +72,6 @@ def test_roadmap_points_to_personal_top_features_as_current_product_priority():
 def test_user_guide_mentions_tags_vs_library_native_status_boundary():
     guide = read("docs/user-guide.md")
 
-    assert "Tags can approximate status today" in guide
-    assert "Library-native status" in guide
-    assert "genres and classifications" in guide.lower()
+    assert "Library-native workflow status is implemented" in guide
+    assert "separate from operational scan status" in guide
+    assert "Nextcloud tags" in guide

@@ -33,7 +33,7 @@ Library owns:
 - exposure and adding of Nextcloud file comments;
 - read-only corrected-metadata JSON export for user-edited catalogue rows.
 
-For the next personal-library direction, see [Personal top features](personal-top-features.md): multi-root confidence, starring/bookmarking, last-opened activity, and description search now have checked implementation/smoke coverage; next priorities are Library-native status and genres/classifications.
+For the next personal-library direction, see [Personal top features](personal-top-features.md): multi-root confidence, starring/bookmarking, last-opened activity, description search and Library-native workflow status now have checked implementation/smoke coverage; next priority is genres/classifications.
 
 Library does **not** own:
 
@@ -70,7 +70,7 @@ Current catalogue capabilities:
 - filter by publication year as read-only discovery for dated books, magazines, journals and comics;
 - use the **Top series and periodicals** panel to jump to recurring publications with item counts;
 - see **No series or periodicals found yet** when the shortcut panel has no publication metadata yet; this is only guidance, with no new series schema;
-- filter by publication type, file format, scan status, exact Nextcloud tag, shelf and starred state;
+- filter by publication type, file format, scan status, workflow status, exact Nextcloud tag, shelf and starred state;
 - sort by title, recently added, recently opened, publication date, series/periodical or format;
 - choose page size up to the current 500-item clamp;
 - see page counts and previous/next links;
@@ -89,6 +89,7 @@ Current details capabilities:
 
 - view cover, title, creator, type, format and shelf;
 - star or unstar the publication as Library-native personal catalogue state;
+- set a Library-native workflow status such as `to-read`, `reading`, `finished`, `reference`, `paused`, `abandoned` or `needs-action`; this is separate from operational scan status and Nextcloud tags;
 - see and edit a Library-native description that also participates in catalogue search;
 - see the last time Library opened the item when it has been read through the Library **Read** action;
 - use **Read**, **Show in Files** and **Download source** actions;
@@ -124,7 +125,7 @@ Current details capabilities:
 
 Manual Library metadata edits set provenance to `user` and are preserved across rescans. Stored scanner candidates continue to refresh in the background on later scans, so a user can compare or reset fields without losing current manual values. Tag and comment changes are Nextcloud file-level changes; they do not mutate Library publication metadata.
 
-Tags can approximate status today: labels such as `read`, `processed` or `ocr-missing` can be added as Nextcloud tags and filtered in the catalogue. That is useful for lightweight triage, but it is not the same as a Library-native status. A future Library-native status should be separate from operational scan status and should coexist with tags. Genres and classifications are similar: current Nextcloud tags can help, but richer multi-value genres/classifications should become Library-native metadata when they drive facets, export/import and sidecar write-back.
+Library-native workflow status is implemented as an app-owned per-publication field. It is edited on the detail page, filtered in the catalogue with the separate `workflowStatus` filter, shown inside catalogue card **Details**, and carried through corrected-metadata export/import. It is separate from operational scan status (`indexed`, `metadata_error`, `missing`) and separate from Nextcloud tags, which remain useful as extra ad-hoc labels.
 
 ### Personal Library settings
 

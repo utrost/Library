@@ -5,6 +5,16 @@ $comments = $item['nextcloudComments'] ?? ['count' => 0, 'recent' => []];
 $tags = $item['nextcloudTags'] ?? [];
 $tagSuggestions = is_array($item['tagSuggestions'] ?? null) ? $item['tagSuggestions'] : [];
 $publicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'];
+$workflowStatuses = [
+    '' => 'No workflow status',
+    'to-read' => 'To read',
+    'reading' => 'Reading',
+    'finished' => 'Finished',
+    'reference' => 'Reference',
+    'paused' => 'Paused',
+    'abandoned' => 'Abandoned',
+    'needs-action' => 'Needs action',
+];
 $metadataRows = [
     'Title' => $item['title'] ?? '',
     'Subtitle' => $item['subtitle'] ?? '',
@@ -12,6 +22,7 @@ $metadataRows = [
     'Publication' => $item['publication'] ?? '',
     'Publication date' => $item['publicationDate'] ?? '',
     'Publication type' => $item['publicationType'] ?? '',
+    'Workflow status' => $workflowStatuses[(string)($item['workflowStatus'] ?? '')] ?? ($item['workflowStatus'] ?? ''),
     'Last opened' => !empty($item['lastOpenedAt']) ? gmdate('Y-m-d H:i', (int)$item['lastOpenedAt']) . ' UTC' : '',
     'Publisher' => $item['publisher'] ?? '',
     'Language' => $item['language'] ?? '',
@@ -80,6 +91,19 @@ $fileRows = [
                             <input type="hidden" name="returnTo" value="details" />
                             <input type="hidden" name="starred" value="<?php p(($item['starred'] ?? false) ? '0' : '1'); ?>" />
                             <button type="submit" class="button secondary"><?php p(($item['starred'] ?? false) ? $l->t('Unstar this publication') : $l->t('Star this publication')); ?></button>
+                        </form>
+                        <form method="post" action="<?php p($item['workflowStatusUrl'] ?? ''); ?>" class="library-inline-form library-workflow-status-form">
+                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                            <input type="hidden" name="returnTo" value="details" />
+                            <label>
+                                <?php p($l->t('Workflow status')); ?>
+                                <select name="workflowStatus">
+                                    <?php foreach ($workflowStatuses as $status => $label): ?>
+                                        <option value="<?php p($status); ?>" <?php if (($item['workflowStatus'] ?? '') === $status) { print_unescaped('selected'); } ?>><?php p($l->t($label)); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                            <button type="submit" class="button secondary"><?php p($l->t('Save status')); ?></button>
                         </form>
                         <a href="<?php p($item['openUrl'] ?? '#'); ?>" class="button primary"><?php p($l->t('Read')); ?></a>
                         <a href="<?php p($item['filesUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Show in Files')); ?></a>

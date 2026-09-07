@@ -110,6 +110,21 @@ final class ItemController extends Controller {
     }
 
     #[NoAdminRequired]
+    public function workflowStatus(int $itemId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $this->itemService->setWorkflowStatus($user->getUID(), $itemId, (string)$this->request->getParam('workflowStatus', ''));
+        }
+
+        $returnTo = (string)$this->request->getParam('returnTo', '');
+        if ($returnTo === 'details') {
+            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+        }
+
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
+
+    #[NoAdminRequired]
     public function forgetMissing(int $itemId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
