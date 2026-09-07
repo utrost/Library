@@ -27,5 +27,5 @@ def test_docs_describe_conflict_visibility_as_label_not_review_queue():
 
     assert "Field-level conflict visibility has landed" in roadmap
     assert "Differs from scanner" in guide
-    assert "review queue remains future work" in guide
+    assert "scanner-conflict filtering is the first review view" in guide
     assert "no bulk edit" in guide

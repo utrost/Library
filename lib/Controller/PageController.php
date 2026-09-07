@@ -66,6 +66,7 @@ class PageController extends Controller {
             'workflowStatus' => trim((string)$this->request->getParam('workflowStatus', '')),
             'genre' => trim((string)$this->request->getParam('genre', '')),
             'classification' => trim((string)$this->request->getParam('classification', '')),
+            'scannerConflicts' => trim((string)$this->request->getParam('scannerConflicts', '')),
             'starred' => trim((string)$this->request->getParam('starred', '')),
             'sort' => trim((string)$this->request->getParam('sort', 'title')),
         ];
@@ -98,6 +99,7 @@ class PageController extends Controller {
 
         $this->initialState->provideInitialState('catalogue', [
             'items' => $items,
+            'scannerConflictCount' => array_sum(array_map(static fn (array $item): int => (int)($item['scannerConflictCount'] ?? 0), $items)),
             'shelves' => $catalogue['facets']['shelves'],
             'formats' => $catalogue['facets']['formats'],
             'publications' => $catalogue['facets']['publications'],
@@ -112,6 +114,7 @@ class PageController extends Controller {
             'activeFilters' => $activeFilters,
             'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library'),
             'metadataExportUrl' => $this->urlGenerator->linkToRoute('library.export.metadata'),
+            'scannerConflictReviewUrl' => '?scannerConflicts=1',
         ]);
 
         return new TemplateResponse(Application::APP_ID, 'main');
@@ -162,12 +165,12 @@ class PageController extends Controller {
     }
 
     /**
-     * @param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,genre:string,classification:string,starred:string,sort:string} $activeFilters
+     * @param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,genre:string,classification:string,scannerConflicts:string,starred:string,sort:string} $activeFilters
      * @param array{limit:int} $pagination
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
         $query = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'starred', 'sort'] as $param) {
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title')) {
                 $query[$param] = $value;

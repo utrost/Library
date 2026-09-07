@@ -9,8 +9,8 @@ def test_page_controller_accepts_creator_filter_and_provides_creator_facets():
     assert "'creator' => trim((string)$this->request->getParam('creator', ''))" in page
     assert "'creators' => $catalogue['facets']['creators']" in page
     assert "'creators' => []" in page
-    assert "foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'starred', 'sort'] as $param)" in page
-    assert "@param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,genre:string,classification:string,starred:string,sort:string}" in page
+    assert "foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'sort'] as $param)" in page
+    assert "@param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,genre:string,classification:string,scannerConflicts:string,starred:string,sort:string}" in page
 
 
 def test_item_service_filters_exact_creator_and_exposes_creator_facets():
