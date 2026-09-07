@@ -6,9 +6,24 @@ $latestScanJob = $_['latestScanJob'] ?? null;
 $scanJobHistory = $_['scanJobHistory'] ?? [];
 ?>
 <div id="library-settings" class="library-app library-settings">
-    <section class="library-panel" aria-labelledby="library-settings-heading">
-        <h2 id="library-settings-heading"><?php p($l->t('Library settings')); ?></h2>
-        <p class="library-muted"><?php p($l->t('Configure the folders that become Library shelves, run scans, and inspect scan/index diagnostics.')); ?></p>
+    <section class="library-panel library-settings-summary" aria-labelledby="library-settings-heading">
+        <div class="library-catalogue-header">
+            <div>
+                <h2 id="library-settings-heading"><?php p($l->t('Library settings')); ?></h2>
+                <p class="library-muted"><?php p($l->t('Configure the folders that become Library shelves, run scans, and inspect scan/index diagnostics.')); ?></p>
+            </div>
+            <p class="library-settings-quick-actions">
+                <a href="<?php p($_['catalogueUrl'] ?? ''); ?>" class="button secondary"><?php p($l->t('Back to catalogue')); ?></a>
+                <a href="<?php p($_['metadataExportUrl']); ?>" class="button secondary"><?php p($l->t('Export corrected metadata')); ?></a>
+            </p>
+        </div>
+    </section>
+
+    <details class="library-panel library-settings-section library-settings-section-roots" open aria-labelledby="library-settings-roots-heading">
+        <summary id="library-settings-roots-heading" class="library-settings-summary-row">
+            <?php p($l->t('Shelves and roots')); ?>
+            <span class="library-settings-count-badge"><?php p($l->t('%n root', '%n roots', count($roots))); ?></span>
+        </summary>
         <form method="post" action="<?php p($_['rootSaveUrl']); ?>" class="library-form">
             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
             <label>
@@ -63,60 +78,31 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
+    </details>
 
-        <form method="post" action="<?php p($_['scanRunUrl']); ?>">
-            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-            <button type="submit"><?php p($l->t('Scan enabled roots')); ?></button>
-        </form>
+    <details class="library-panel library-settings-section library-settings-section-scan" open aria-labelledby="library-scan-progress-heading">
+        <summary class="library-settings-summary-row">
+            <?php p($l->t('Scan and repair')); ?>
+            <span class="library-settings-count-badge"><?php p($l->t('%n recent job', '%n recent jobs', count($scanJobHistory))); ?></span>
+        </summary>
+        <div class="library-settings-action-strip">
+            <form method="post" action="<?php p($_['scanRunUrl']); ?>">
+                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                <button type="submit"><?php p($l->t('Scan enabled roots')); ?></button>
+            </form>
 
-        <form method="post" action="<?php p($_['scanRetryMetadataErrorsUrl']); ?>" class="library-inline-form library-scan-retry-metadata-errors-form">
-            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-            <button type="submit"><?php p($l->t('Retry metadata errors')); ?></button>
-            <span class="library-muted"><?php p($l->t('Only rows currently marked metadata_error are retried; unrelated indexed files are not marked missing.')); ?></span>
-        </form>
+            <form method="post" action="<?php p($_['scanRetryMetadataErrorsUrl']); ?>" class="library-inline-form library-scan-retry-metadata-errors-form">
+                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                <button type="submit"><?php p($l->t('Retry metadata errors')); ?></button>
+                <span class="library-muted"><?php p($l->t('Only rows currently marked metadata_error are retried; unrelated indexed files are not marked missing.')); ?></span>
+            </form>
 
-        <form method="post" action="<?php p($_['scanRecheckMissingFilesUrl']); ?>" class="library-inline-form library-scan-recheck-missing-files-form">
-            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-            <button type="submit"><?php p($l->t('Recheck missing files')); ?></button>
-            <span class="library-muted"><?php p($l->t('Only rows currently marked as missing files are rechecked; unrelated indexed files are not marked missing.')); ?></span>
-        </form>
-
-        <p class="library-detail-actions">
-            <a href="<?php p($_['metadataExportUrl']); ?>" class="button secondary"><?php p($l->t('Export corrected metadata')); ?></a>
-            <a href="<?php p($_['metadataSidecarManifestUrl']); ?>" class="button secondary"><?php p($l->t('Export sidecar manifest')); ?></a>
-            <a href="<?php p($_['metadataSidecarBundleUrl']); ?>" class="button secondary"><?php p($l->t('Export sidecar ZIP')); ?></a>
-        </p>
-        <p class="library-muted"><?php p($l->t('The sidecar manifest lists suggested .library.json paths for corrected metadata. Export sidecar ZIP downloads those JSON sidecars as a reviewable archive; neither export writes sidecar files into source folders.')); ?></p>
-
-        <form method="post" action="<?php p($_['metadataImportPreviewUrl']); ?>" class="library-form library-metadata-import-preview-form">
-            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-            <label>
-                <?php p($l->t('Preview metadata import')); ?>
-                <textarea name="metadataJson" rows="6" placeholder="<?php p($l->t('Paste a Library corrected metadata JSON export here.')); ?>"></textarea>
-            </label>
-            <p class="library-muted"><?php p($l->t('No changes are written during preview. Use Apply metadata import only after reviewing the preview output.')); ?></p>
-            <button type="submit" class="button secondary"><?php p($l->t('Preview metadata import')); ?></button>
-        </form>
-
-        <form method="post" action="<?php p($_['metadataImportApplyUrl']); ?>" class="library-form library-metadata-import-apply-form">
-            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-            <label>
-                <?php p($l->t('Apply metadata import')); ?>
-                <textarea name="metadataJson" rows="6" placeholder="<?php p($l->t('Paste the reviewed Library corrected metadata JSON export here.')); ?>"></textarea>
-            </label>
-            <p class="library-muted"><?php p($l->t('This writes matched corrected metadata to existing Library items. Missing items and unchanged items are skipped.')); ?></p>
-            <button type="submit" class="button primary"><?php p($l->t('Apply metadata import')); ?></button>
-        </form>
-
-        <form method="post" action="<?php p($_['bulkResetFieldsUrl']); ?>" class="library-form library-bulk-reset-fields-form">
-            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-            <label>
-                <?php p($l->t('Bulk reset selected items to scanner')); ?>
-                <textarea name="itemIds" rows="3" placeholder="<?php p($l->t('Example: 12, 19, 27')); ?>"></textarea>
-            </label>
-            <p class="library-muted"><?php p($l->t('Paste item IDs from the scanner-conflict review filter. This applies stored scanner candidates to selected existing Library items only.')); ?></p>
-            <button type="submit" class="button secondary"><?php p($l->t('Reset selected items to scanner')); ?></button>
-        </form>
+            <form method="post" action="<?php p($_['scanRecheckMissingFilesUrl']); ?>" class="library-inline-form library-scan-recheck-missing-files-form">
+                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                <button type="submit"><?php p($l->t('Recheck missing files')); ?></button>
+                <span class="library-muted"><?php p($l->t('Only rows currently marked as missing files are rechecked; unrelated indexed files are not marked missing.')); ?></span>
+            </form>
+        </div>
 
         <section class="library-scan-progress" aria-labelledby="library-scan-progress-heading" data-library-scan-progress-url="<?php p($_['scanProgressUrl']); ?>">
             <h3 id="library-scan-progress-heading"><?php p($l->t('Scan progress')); ?></h3>
@@ -183,10 +169,56 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                 </ol>
             <?php endif; ?>
         </section>
-    </section>
+    </details>
 
-    <section class="library-panel" aria-labelledby="library-indexed-files-heading">
-        <h2 id="library-indexed-files-heading"><?php p($l->t('Indexed files')); ?></h2>
+    <details class="library-panel library-settings-section library-settings-section-portability" aria-labelledby="library-settings-portability-heading">
+        <summary id="library-settings-portability-heading" class="library-settings-summary-row">
+            <?php p($l->t('Metadata portability')); ?>
+            <span class="library-settings-count-badge"><?php p($l->t('export, preview, apply')); ?></span>
+        </summary>
+        <p class="library-detail-actions">
+            <a href="<?php p($_['metadataExportUrl']); ?>" class="button secondary"><?php p($l->t('Export corrected metadata')); ?></a>
+            <a href="<?php p($_['metadataSidecarManifestUrl']); ?>" class="button secondary"><?php p($l->t('Export sidecar manifest')); ?></a>
+            <a href="<?php p($_['metadataSidecarBundleUrl']); ?>" class="button secondary"><?php p($l->t('Export sidecar ZIP')); ?></a>
+        </p>
+        <p class="library-muted"><?php p($l->t('The sidecar manifest lists suggested .library.json paths for corrected metadata. Export sidecar ZIP downloads those JSON sidecars as a reviewable archive; neither export writes sidecar files into source folders.')); ?></p>
+
+        <form method="post" action="<?php p($_['metadataImportPreviewUrl']); ?>" class="library-form library-metadata-import-preview-form">
+            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+            <label>
+                <?php p($l->t('Preview metadata import')); ?>
+                <textarea name="metadataJson" rows="6" placeholder="<?php p($l->t('Paste a Library corrected metadata JSON export here.')); ?>"></textarea>
+            </label>
+            <p class="library-muted"><?php p($l->t('No changes are written during preview. Use Apply metadata import only after reviewing the preview output.')); ?></p>
+            <button type="submit" class="button secondary"><?php p($l->t('Preview metadata import')); ?></button>
+        </form>
+
+        <form method="post" action="<?php p($_['metadataImportApplyUrl']); ?>" class="library-form library-metadata-import-apply-form">
+            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+            <label>
+                <?php p($l->t('Apply metadata import')); ?>
+                <textarea name="metadataJson" rows="6" placeholder="<?php p($l->t('Paste the reviewed Library corrected metadata JSON export here.')); ?>"></textarea>
+            </label>
+            <p class="library-muted"><?php p($l->t('This writes matched corrected metadata to existing Library items. Missing items and unchanged items are skipped.')); ?></p>
+            <button type="submit" class="button primary"><?php p($l->t('Apply metadata import')); ?></button>
+        </form>
+
+        <form method="post" action="<?php p($_['bulkResetFieldsUrl']); ?>" class="library-form library-bulk-reset-fields-form">
+            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+            <label>
+                <?php p($l->t('Bulk reset selected items to scanner')); ?>
+                <textarea name="itemIds" rows="3" placeholder="<?php p($l->t('Example: 12, 19, 27')); ?>"></textarea>
+            </label>
+            <p class="library-muted"><?php p($l->t('Paste item IDs from the scanner-conflict review filter. This applies stored scanner candidates to selected existing Library items only.')); ?></p>
+            <button type="submit" class="button secondary"><?php p($l->t('Reset selected items to scanner')); ?></button>
+        </form>
+    </details>
+
+    <details class="library-panel library-settings-section library-settings-section-indexed-files" aria-labelledby="library-indexed-files-heading">
+        <summary id="library-indexed-files-heading" class="library-settings-summary-row">
+            <?php p($l->t('Indexed files')); ?>
+            <span class="library-settings-count-badge"><?php p($l->t('%n file', '%n files', count($files))); ?></span>
+        </summary>
         <?php if (count($files) === 0): ?>
             <p class="library-muted"><?php p($l->t('No indexed files yet. Add a root and scan it.')); ?></p>
         <?php else: ?>
@@ -214,5 +246,5 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-    </section>
+    </details>
 </div>
