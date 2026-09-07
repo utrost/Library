@@ -19,6 +19,7 @@ return [
         ['name' => 'import#preview', 'url' => '/import/metadata/preview', 'verb' => 'POST'],
         ['name' => 'import#apply', 'url' => '/import/metadata/apply', 'verb' => 'POST'],
         ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET'],
+        ['name' => 'item#bulkresetfields', 'url' => '/bulk/items/reset-fields', 'verb' => 'POST'],
         ['name' => 'item#resetfield', 'url' => '/items/{itemId}/reset-field', 'verb' => 'POST'],
         ['name' => 'item#resetfields', 'url' => '/items/{itemId}/reset-fields', 'verb' => 'POST'],
         ['name' => 'item#open', 'url' => '/items/{itemId}/open', 'verb' => 'GET'],

@@ -500,11 +500,12 @@ Recommended next slice: **release-facing metadata repair and review polish**.
 
 Minimum first cut:
 
-1. Expand PDF/EPUB/OPF/CBZ fixture coverage with real Alice samples that currently produce weak, missing or wrong metadata. First PDF hardening landed for PDF hex Info strings and PDF literal octal escapes. Follow-up PDF hardening maps `/Subject` to Library subtitle, normalizes `/CreationDate`/`/ModDate` into `publicationDate`, and walks nested PDF literal parentheses while leaving Creator/Producer/Keywords out of canonical publication metadata.
-2. Keep user-edited metadata precedence and sidecar OPF cleanup policy intact while improving scanner candidates.
-3. Preserve the database-backed catalogue query path under text/type/format/tag/shelf/status filters during every smoke.
-4. Smoke on Alice with generated scale fixtures and at least one real staged sample.
-5. Keep metadata export/import write-back as a later portability slice; the current export route is read-only.
+1. Add the first selected-item bulk reset process for scanner-conflict review items so copied item IDs can be reset to stored scanner candidates from Library settings.
+2. Expand PDF/EPUB/OPF/CBZ fixture coverage with real Alice samples that currently produce weak, missing or wrong metadata. First PDF hardening landed for PDF hex Info strings and PDF literal octal escapes. Follow-up PDF hardening maps `/Subject` to Library subtitle, normalizes `/CreationDate`/`/ModDate` into `publicationDate`, and walks nested PDF literal parentheses while leaving Creator/Producer/Keywords out of canonical publication metadata.
+3. Keep user-edited metadata precedence and sidecar OPF cleanup policy intact while improving scanner candidates.
+4. Preserve the database-backed catalogue query path under text/type/format/tag/shelf/status filters during every smoke.
+5. Smoke on Alice with generated scale fixtures and at least one real staged sample.
+6. Keep metadata export/import write-back as a later portability slice for OPF/JSON sidecars; the current import/apply flow only writes matched existing Library catalogue rows.
 
 Non-goals for this slice:
 
