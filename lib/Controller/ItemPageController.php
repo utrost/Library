@@ -52,6 +52,7 @@ final class ItemPageController extends Controller {
 
         $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => (string)$item['id']]);
         $item['coverRefreshUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => (string)$item['id'], 'refresh' => '1']);
+        $item['coverQualityExplanation'] = $this->coverQualityExplanation($item);
         $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => (string)$item['id']]);
         $item['starUrl'] = $this->urlGenerator->linkToRoute('library.item.star', ['itemId' => (string)$item['id']]);
         $item['workflowStatusUrl'] = $this->urlGenerator->linkToRoute('library.item.workflowStatus', ['itemId' => (string)$item['id']]);
@@ -78,5 +79,26 @@ final class ItemPageController extends Controller {
             'item' => $item,
             'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
         ]);
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    private function coverQualityExplanation(array $item): string {
+        $extension = strtolower((string)($item['extension'] ?? ''));
+        $scanStatus = (string)($item['scanStatus'] ?? '');
+
+        $source = 'Library first asks the Nextcloud preview system for a cover image.';
+        if ($extension === 'epub') {
+            $source = 'Library first asks the Nextcloud preview system, then tries the EPUB package cover from the publication manifest.';
+        } elseif ($extension === 'cbz') {
+            $source = 'Library first asks the Nextcloud preview system, then tries the CBZ first image as a cover.';
+        }
+
+        $diagnostic = $scanStatus !== '' && $scanStatus !== 'indexed'
+            ? ' The file currently has scan status ' . $scanStatus . ', so fixing scan diagnostics may also improve cover results.'
+            : '';
+
+        return $source . ' If those sources are unavailable, Library shows a stable placeholder so the catalogue remains usable.' . $diagnostic;
     }
 }

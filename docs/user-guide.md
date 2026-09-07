@@ -205,6 +205,7 @@ Library serves covers through its own item cover route:
 - uses an EPUB package-manifest cover image as a fallback cover;
 - uses the first image in a CBZ as a fallback cover;
 - offers **Refresh cover preview** on item details as a no-store retry of the cover route when the browser or preview looks stale;
+- explains **How Library chose this cover** on item details, including the Nextcloud preview, EPUB package cover, CBZ first-image and stable placeholder fallback ladder;
 - returns a stable SVG placeholder when no cover provider succeeds;
 - includes diagnostic response headers so smokes can distinguish preview, CBZ first-image and placeholder outcomes.
 
@@ -529,13 +530,12 @@ Acceptance checks:
 - Nextcloud preview covers appear when available;
 - CBZ first-image covers work when generic previews do not;
 - placeholder covers keep unsupported items usable;
-- diagnostic headers explain whether a response came from preview, CBZ first image or placeholder.
+- item details explain **How Library chose this cover** and suggest **Refresh cover preview** when the cover is stale or placeholder-backed;
+- diagnostic headers explain whether a response came from preview, EPUB package cover, CBZ first image or placeholder.
 
 Visible gaps:
 
 - no persistent app-owned cover cache yet;
-- EPUB cover extraction is not a dedicated path yet;
-- preview failures are diagnostic, not user-friendly;
 - no manual cover override.
 
 ### Story 8: Keeping sidecars and metadata files sane
