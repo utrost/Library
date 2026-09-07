@@ -90,6 +90,7 @@ Explicit non-goals for v0.1:
 
 - [Product concept](docs/product-concept.md)
 - [User and admin guide](docs/user-guide.md)
+- [Human architecture review notes](docs/architecture-review.md)
 - [Public alpha test checklist](docs/alpha-test-checklist.md)
 - [Changelog](CHANGELOG.md)
 - [Release process](RELEASE.md)
