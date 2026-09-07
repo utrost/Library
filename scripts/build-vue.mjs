@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 
@@ -37,12 +37,14 @@ for (const file of assets) {
   }
 }
 
+copyFileSync('src/detail-star.js', join(jsDir, 'library-detail.js'))
+
 const cssAsset = join(cssDir, 'library-vue.css')
 if (!existsSync(cssAsset)) {
   writeFileSync(cssAsset, '/* No Vue component CSS emitted for this build. */\n')
 }
 
-const required = [join(jsDir, 'library-main.mjs'), cssAsset]
+const required = [join(jsDir, 'library-main.mjs'), join(jsDir, 'library-detail.js'), cssAsset]
 for (const file of required) {
   if (!existsSync(file)) {
     console.error(`Missing expected build asset: ${file}`)

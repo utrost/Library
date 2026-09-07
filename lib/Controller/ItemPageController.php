@@ -87,6 +87,7 @@ final class ItemPageController extends Controller {
         $item['nextcloudComments'] = $comments[$fileId] ?? ['count' => 0, 'recent' => []];
 
         Util::addStyle(Application::APP_ID, 'style');
+        Util::addScript(Application::APP_ID, 'library-detail');
         return new TemplateResponse(Application::APP_ID, 'item-detail', [
             'item' => $item,
             'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
