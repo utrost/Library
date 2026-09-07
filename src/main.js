@@ -216,6 +216,7 @@ function fallbackCatalogue(state, error) {
   const metadataExportUrl = text(state.metadataExportUrl || '')
   const batchTagUrl = text(state.batchTagUrl || '/apps/library/bulk/tags')
   const batchMetadataResetUrl = text(state.batchMetadataResetUrl || '/apps/library/bulk/items/reset-filtered-fields')
+  const batchCoverRefreshUrl = text(state.batchCoverRefreshUrl || '/apps/library/bulk/covers/refresh')
 
   const root = document.createElement('div')
   root.className = 'library-vue-catalogue library-vue-fallback'
@@ -349,7 +350,29 @@ function fallbackCatalogue(state, error) {
   resetNote.className = 'library-muted'
   resetNote.textContent = t('library', 'Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.')
   resetForm.append(resetConflictOnly, resetButton, resetNote)
-  batchActions.append(batchSummary, batchForm, resetForm)
+  const coverForm = document.createElement('form')
+  coverForm.method = 'post'
+  coverForm.action = batchCoverRefreshUrl
+  coverForm.className = 'library-batch-cover-refresh-form'
+  const coverToken = fallbackHiddenRequestToken(state)
+  if (coverToken) coverForm.appendChild(coverToken)
+  for (const [key, value] of Object.entries(state.activeFilters || {})) {
+    if (text(value).trim() === '') continue
+    const hidden = document.createElement('input')
+    hidden.type = 'hidden'
+    hidden.name = key
+    hidden.value = text(value)
+    coverForm.appendChild(hidden)
+  }
+  const coverButton = document.createElement('button')
+  coverButton.type = 'submit'
+  coverButton.className = 'button secondary'
+  coverButton.textContent = t('library', 'Request fresh cover previews')
+  const coverNote = document.createElement('p')
+  coverNote.className = 'library-muted'
+  coverNote.textContent = t('library', 'Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.')
+  coverForm.append(coverButton, coverNote)
+  batchActions.append(batchSummary, batchForm, resetForm, coverForm)
   panel.appendChild(batchActions)
 
   const nav = document.createElement('nav')
