@@ -8,11 +8,14 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDownloadResponse;
+use OCP\AppFramework\Http\RedirectResponse;
+use OCA\Library\Service\ItemService;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\IDBConnection;
 use OCP\IPreview;
 use OCP\IRequest;
+use OCP\IURLGenerator;
 use OCP\IUserSession;
 use Throwable;
 use ZipArchive;
@@ -25,6 +28,8 @@ class CoverController extends Controller {
         private IDBConnection $db,
         private IRootFolder $rootFolder,
         private IPreview $previewManager,
+        private ItemService $itemService,
+        private IURLGenerator $urlGenerator,
     ) {
         parent::__construct($appName, $request);
     }
@@ -77,6 +82,34 @@ class CoverController extends Controller {
             return $cbzCover;
         }
         return $this->placeholderResponse($this->coverInitials($file->getName()), $previewError ?? ($this->isCbzFile($file) ? 'cbz-cover-unavailable' : 'preview-unavailable'));
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function batchrefresh(): RedirectResponse {
+        $user = $this->userSession->getUser();
+        $filters = $this->catalogueFiltersFromRequest();
+        $requested = 0;
+        if ($user !== null) {
+            $requested = count($this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000));
+        }
+
+        $query = array_filter($filters, static fn (string $value): bool => $value !== '');
+        $query['coverRefresh'] = '1';
+        $query['batchCoverRefreshResult'] = '1';
+        $query['batchCoverRefreshRequested'] = (string)$requested;
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
+    }
+
+    private function catalogueFiltersFromRequest(): array {
+        $filters = [];
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'sort'] as $key) {
+            $filters[$key] = trim((string)$this->request->getParam($key, ''));
+        }
+        if ($filters['sort'] === '') {
+            $filters['sort'] = 'title';
+        }
+        return $filters;
     }
 
     private function isEpubFile(File $file): bool {

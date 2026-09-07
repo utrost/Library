@@ -67,6 +67,7 @@ class PageController extends Controller {
     }
 
     private function buildCatalogueState(string $userId): array {
+        $batchCoverRefreshRequested = (string)$this->request->getParam('coverRefresh', '0') === '1';
         $activeFilters = [
             'q' => trim((string)$this->request->getParam('q', '')),
             'type' => trim((string)$this->request->getParam('type', '')),
@@ -110,7 +111,7 @@ class PageController extends Controller {
 
         $fileTagsByFileId = $this->fileTagService->tagsForItems($items);
         $fileCommentsByFileId = $this->fileCommentService->commentsForItems($items);
-        $items = $this->enrichItemsForVue($userId, $items, $fileTagsByFileId, $fileCommentsByFileId);
+        $items = $this->enrichItemsForVue($userId, $items, $fileTagsByFileId, $fileCommentsByFileId, $batchCoverRefreshRequested);
 
         return [
             'items' => $items,
@@ -136,6 +137,8 @@ class PageController extends Controller {
             'catalogueEndpointUrl' => $this->urlGenerator->linkToRoute('library.page.catalogue'),
             'batchTagUrl' => $this->urlGenerator->linkToRoute('library.tag.batchassign'),
             'batchMetadataResetUrl' => $this->urlGenerator->linkToRoute('library.item.batchresetfilteredfields'),
+            'batchCoverRefreshUrl' => $this->urlGenerator->linkToRoute('library.cover.batchrefresh'),
+            'batchCoverRefreshRequested' => $batchCoverRefreshRequested,
             'scannerConflictReviewUrl' => '?scannerConflicts=1',
         ];
     }
@@ -146,14 +149,17 @@ class PageController extends Controller {
      * @param array<int, array{count:int,recent:array<int, array<string, string>>}> $fileCommentsByFileId
      * @return array<int, array<string, mixed>>
      */
-    private function enrichItemsForVue(string $userId, array $items, array $fileTagsByFileId, array $fileCommentsByFileId): array {
-        return array_map(function (array $item) use ($fileTagsByFileId, $fileCommentsByFileId, $userId): array {
+    private function enrichItemsForVue(string $userId, array $items, array $fileTagsByFileId, array $fileCommentsByFileId, bool $batchCoverRefreshRequested = false): array {
+        return array_map(function (array $item) use ($fileTagsByFileId, $fileCommentsByFileId, $userId, $batchCoverRefreshRequested): array {
             $itemId = (string)$item['id'];
             $fileId = (int)$item['fileId'];
             $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $itemId]);
             $item['starUrl'] = $this->urlGenerator->linkToRoute('library.item.star', ['itemId' => $itemId]);
             $item['workflowStatusUrl'] = $this->urlGenerator->linkToRoute('library.item.workflowStatus', ['itemId' => $itemId]);
-            $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $itemId]);
+            $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', [
+                'itemId' => $itemId,
+                'refresh' => $batchCoverRefreshRequested ? '1' : null,
+            ]);
             $item['tagUrl'] = $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => $itemId]);
             $item['tagRemoveBaseUrl'] = $this->urlGenerator->linkToRoute('library.tag.remove', ['itemId' => $itemId, 'tagId' => '__TAG_ID__']);
             $item['commentUrl'] = $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => $itemId]);

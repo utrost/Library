@@ -24,7 +24,7 @@ def test_catalogue_and_detail_expose_download_url_next_to_read_and_show_in_files
     expected = "$this->readerProvider->getDownloadUrl($userId, (string)($item['cachedPath'] ?? ''))"
     assert "downloadUrl" in page
     assert "private function enrichItemsForVue(string $userId" in page
-    assert "use ($fileTagsByFileId, $fileCommentsByFileId, $userId)" in page
+    assert "use ($fileTagsByFileId, $fileCommentsByFileId, $userId, $batchCoverRefreshRequested)" in page
     assert expected in page
     assert "downloadUrl" in detail_controller
     assert "$this->readerProvider->getDownloadUrl($user->getUID(), (string)($item['cachedPath'] ?? ''))" in detail_controller

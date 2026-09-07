@@ -65,6 +65,7 @@ const metadataSidecarBundleUrl = computed(() => catalogueState.metadataSidecarBu
 const catalogueEndpointUrl = computed(() => catalogueState.catalogueEndpointUrl || '/apps/library/catalogue')
 const batchTagUrl = computed(() => catalogueState.batchTagUrl || '/apps/library/bulk/tags')
 const batchMetadataResetUrl = computed(() => catalogueState.batchMetadataResetUrl || '/apps/library/bulk/items/reset-filtered-fields')
+const batchCoverRefreshUrl = computed(() => catalogueState.batchCoverRefreshUrl || '/apps/library/bulk/covers/refresh')
 const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictReviewUrl || '?scannerConflicts=1')
 const rootCount = computed(() => Number(catalogueState.rootCount || 0))
 const enabledRootCount = computed(() => Number(catalogueState.enabledRootCount || 0))
@@ -113,7 +114,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchMetadataResetUrl', 'scannerConflictReviewUrl']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchMetadataResetUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -431,6 +432,12 @@ async function toggleStar(item, event) {
         <input type="hidden" name="scannerConflicts" value="1">
         <button type="submit" class="button secondary">{{ t('library', 'Reset filtered metadata') }}</button>
         <p class="library-muted">{{ t('library', 'Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.') }}</p>
+      </form>
+      <form method="post" :action="batchCoverRefreshUrl" class="library-batch-cover-refresh-form">
+        <input type="hidden" name="requesttoken" :value="requestToken">
+        <input v-for="filter in batchHiddenFilters" :key="`cover-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
+        <button type="submit" class="button secondary">{{ t('library', 'Request fresh cover previews') }}</button>
+        <p class="library-muted">{{ t('library', 'Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.') }}</p>
       </form>
     </details>
 
