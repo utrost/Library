@@ -126,6 +126,12 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                     <dd data-library-scan-duration-seconds><?php p((string)$latestScanJob['durationSeconds']); ?></dd>
                 </dl>
                 <p class="library-muted" data-library-scan-summary><?php p((string)($latestScanJob['summary'] ?? '')); ?></p>
+                <?php if (($latestScanJob['status'] ?? '') === 'queued'): ?>
+                    <form method="post" action="<?php p((string)$latestScanJob['cancelUrl']); ?>" class="library-inline-form library-scan-cancel-form">
+                        <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                        <button type="submit"><?php p($l->t('Cancel queued scan')); ?></button>
+                    </form>
+                <?php endif; ?>
             <?php endif; ?>
         </section>
 
@@ -151,6 +157,12 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                             </dl>
                             <?php if (($historyJob['summary'] ?? '') !== ''): ?>
                                 <p class="library-muted"><?php p((string)$historyJob['summary']); ?></p>
+                            <?php endif; ?>
+                            <?php if (($historyJob['status'] ?? '') === 'queued'): ?>
+                                <form method="post" action="<?php p((string)$historyJob['cancelUrl']); ?>" class="library-inline-form library-scan-cancel-form">
+                                    <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                                    <button type="submit"><?php p($l->t('Cancel queued scan')); ?></button>
+                                </form>
                             <?php endif; ?>
                         </li>
                     <?php endforeach; ?>

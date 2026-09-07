@@ -31,8 +31,8 @@ class Personal implements ISettings {
         return new TemplateResponse(Application::APP_ID, 'settings-personal', [
             'roots' => $this->rootsWithActionUrls($this->rootService->listRoots($this->userId)),
             'files' => $this->fileIndexService->listFiles($this->userId),
-            'latestScanJob' => $this->scanJobService->latestJob($this->userId),
-            'scanJobHistory' => $this->scanJobService->recentJobs($this->userId, 5),
+            'latestScanJob' => $this->withCancelUrl($this->scanJobService->latestJob($this->userId)),
+            'scanJobHistory' => array_map(fn (array $job): array => $this->withCancelUrl($job) ?? $job, $this->scanJobService->recentJobs($this->userId, 5)),
             'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
             'scanRetryMetadataErrorsUrl' => $this->urlGenerator->linkToRoute('library.scan.retryMetadataErrors'),
@@ -57,6 +57,18 @@ class Personal implements ISettings {
             $root['rootScanUrl'] = $this->urlGenerator->linkToRoute('library.scan.runRoot', ['rootId' => $rootId]);
             return $root;
         }, $roots);
+    }
+
+    /**
+     * @param array<string, mixed>|null $job
+     * @return array<string, mixed>|null
+     */
+    private function withCancelUrl(?array $job): ?array {
+        if ($job === null) {
+            return null;
+        }
+        $job['cancelUrl'] = $this->urlGenerator->linkToRoute('library.scan.cancel', ['jobId' => (int)$job['id']]);
+        return $job;
     }
 
     #[\Override]

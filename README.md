@@ -14,7 +14,7 @@ The current development slice can:
 
 - store user-specific Library roots in an extendable multi-root table;
 - configure an initial root path through the bootstrap UI;
-- manually scan all enabled roots or one selected root for the current user from `/settings/user/library` through a queued background scan and record auto-refreshing scan progress, live-ish scan progress, scan scope, recent scan history, status, counts, duration and summary for progress/history visibility;
+- manually scan all enabled roots or one selected root for the current user from `/settings/user/library` through a queued background scan, cancel queued scan jobs before they start, and record auto-refreshing scan progress, live-ish scan progress, scan scope, recent scan history, status, counts, duration and summary for progress/history visibility;
 - retry rows currently marked `metadata_error` from Library settings and **Recheck missing files** from the same surface without running a full library scan or marking unrelated indexed files missing;
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;

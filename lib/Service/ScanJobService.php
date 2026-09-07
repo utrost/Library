@@ -52,6 +52,34 @@ final class ScanJobService {
         $this->updateJob($userId, $jobId, 'failed', 0, 0, 1, $error);
     }
 
+    public function cancelQueuedJob(string $userId, int $jobId): bool {
+        $qb = $this->db->getQueryBuilder();
+        $affected = $qb->update('library_scan_jobs')
+            ->set('status', $qb->createNamedParameter('cancelled'))
+            ->set('summary', $qb->createNamedParameter('Scan cancelled before it started'))
+            ->set('finished_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('status', $qb->createNamedParameter('queued')))
+            ->executeStatement();
+
+        return $affected > 0;
+    }
+
+    public function isCancelled(string $userId, int $jobId): bool {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('status')
+            ->from('library_scan_jobs')
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeQuery();
+
+        $row = $result->fetch();
+        $result->closeCursor();
+
+        return $row !== false && (string)$row['status'] === 'cancelled';
+    }
+
     public function latestJob(string $userId): ?array {
         $jobs = $this->recentJobs($userId, 1);
         return $jobs[0] ?? null;
