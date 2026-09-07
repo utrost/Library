@@ -63,7 +63,8 @@ Current catalogue capabilities:
 - open the original file context through **Show in Files**;
 - fetch the original source file through **Download source**;
 - open the item workbench through **Details**;
-- search title, subtitle, creators, publication, description and file path;
+- search title, subtitle, creators, publication, description and file path from the compact quick-filter row;
+- use the always-visible quick-filter row for search, sort, starred-only and page-size changes without opening the full filter panel; search submits after a short debounce and select changes submit immediately;
 - filter by exact creator field as read-only discovery; creator identity splitting remains future work;
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
 - browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure;

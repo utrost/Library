@@ -76,7 +76,26 @@ const filterLabels = {
 const activeFilterChips = computed(() => Object.entries(filterLabels)
   .map(([key, label]) => ({ key, label, value: activeFilters[key] || '' }))
   .filter((chip) => String(chip.value).trim() !== ''))
+const quickHiddenFilters = computed(() => Object.entries(activeFilters)
+  .filter(([key, value]) => !['q', 'sort', 'starred'].includes(key) && String(value || '').trim() !== '')
+  .map(([key, value]) => ({ key, value })))
 const openCoverDetails = reactive({})
+let filterSubmitTimer = null
+
+function submitFiltersNow(event) {
+  const form = event?.currentTarget?.form || event?.currentTarget?.closest?.('form')
+  if (!form) return
+  if (typeof form.requestSubmit === 'function') {
+    form.requestSubmit()
+  } else {
+    form.submit()
+  }
+}
+
+function scheduleFilterSubmit(event) {
+  window.clearTimeout(filterSubmitTimer)
+  filterSubmitTimer = window.setTimeout(() => submitFiltersNow(event), 350)
+}
 
 function filterChipRemoveUrl(key) {
   const params = new URLSearchParams(window.location.search)
@@ -142,6 +161,40 @@ async function toggleStar(item, event) {
         <a v-if="metadataSidecarBundleUrl" :href="metadataSidecarBundleUrl" class="button secondary" aria-label="Export sidecar ZIP">{{ t('library', 'Sidecar ZIP') }}</a>
       </nav>
     </div>
+
+    <form method="get" class="library-quick-filter-bar" :aria-label="t('library', 'Quick catalogue filters')">
+      <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
+      <label class="library-quick-filter-search">
+        {{ t('library', 'Search') }}
+        <input v-model="activeFilters.q" type="search" name="q" placeholder="Camera, Eco, Rolleiflex..." @input="scheduleFilterSubmit">
+      </label>
+      <label>
+        {{ t('library', 'Sort') }}
+        <select v-model="activeFilters.sort" name="sort" @change="submitFiltersNow">
+          <option value="title">{{ t('library', 'Title') }}</option>
+          <option value="recent">{{ t('library', 'Recently added') }}</option>
+          <option value="publicationDate">{{ t('library', 'Publication date') }}</option>
+          <option value="publication">{{ t('library', 'Series') }}</option>
+          <option value="lastOpened">{{ t('library', 'Recently opened') }}</option>
+          <option value="format">{{ t('library', 'Format') }}</option>
+        </select>
+      </label>
+      <label>
+        {{ t('library', 'Starred') }}
+        <select v-model="activeFilters.starred" name="starred" @change="submitFiltersNow">
+          <option value="">{{ t('library', 'All') }}</option>
+          <option value="1">{{ t('library', 'Starred') }}</option>
+        </select>
+      </label>
+      <label>
+        {{ t('library', 'Size') }}
+        <select :value="pagination.limit" name="limit" @change="submitFiltersNow">
+          <option v-for="limit in pageSizes" :key="limit" :value="limit">{{ limit }}</option>
+        </select>
+      </label>
+      <button type="submit" class="button primary" :aria-label="t('library', 'Apply catalogue filters')">{{ t('library', 'Apply filters') }}</button>
+      <a href="?" class="button secondary" :aria-label="t('library', 'Clear catalogue filters')">{{ t('library', 'Clear all') }}</a>
+    </form>
 
     <details class="library-filter-panel">
       <summary class="library-filter-panel-summary">{{ t('library', 'Show catalogue filters') }}</summary>
@@ -370,6 +423,28 @@ async function toggleStar(item, event) {
   margin: 0 0 1rem;
 }
 
+.library-quick-filter-bar {
+  align-items: end;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(110px, auto)) auto auto;
+  margin: 0.75rem 0;
+}
+
+.library-quick-filter-bar label {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.library-quick-filter-search input {
+  min-width: 0;
+}
+
+.library-filter-panel[open] {
+  margin-top: 0.5rem;
+}
+
 .library-filter-panel-summary,
 .library-periodical-groups-summary {
   cursor: pointer;
@@ -423,6 +498,14 @@ async function toggleStar(item, event) {
 }
 
 @media (max-width: 520px) {
+  .library-quick-filter-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .library-quick-filter-search {
+    grid-column: 1 / -1;
+  }
+
   .library-cover-gallery {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

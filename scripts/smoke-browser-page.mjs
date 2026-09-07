@@ -176,6 +176,8 @@ async function runBrowserSmoke(proxyBase) {
           fallback: Boolean(document.querySelector('[data-vue-fallback="true"]')),
           vueApp: Boolean(document.querySelector('#library-vue-root[data-v-app]')),
           catalogueToolbar: Boolean(document.querySelector('.library-catalogue-toolbar')),
+          quickFilterBar: Boolean(document.querySelector('.library-quick-filter-bar')),
+          quickFilterControls: document.querySelectorAll('.library-quick-filter-bar input:not([type=hidden]), .library-quick-filter-bar select, .library-quick-filter-bar button, .library-quick-filter-bar a').length,
           cards: document.querySelectorAll('.library-cover-card').length,
           filters: Boolean(document.querySelector('.library-filter-bar')),
           filterResultSummary: Boolean(document.querySelector('.library-filter-result-summary')),
@@ -254,6 +256,44 @@ async function runBrowserSmoke(proxyBase) {
       })`,
     })
     const starToggleDom = starToggleResult.result?.value ?? starToggleResult.value
+
+    const quickFilterResult = await client.send('Runtime.evaluate', {
+      returnByValue: true,
+      awaitPromise: true,
+      expression: `new Promise((resolve) => {
+        const form = document.querySelector('.library-quick-filter-bar')
+        const search = form?.querySelector('input[name="q"]')
+        const select = form?.querySelector('select[name="sort"]')
+        const startUrl = location.href
+        let submitCalls = 0
+        const originalRequestSubmit = HTMLFormElement.prototype.requestSubmit
+        HTMLFormElement.prototype.requestSubmit = function requestSubmitProbe() {
+          if (this === form) {
+            submitCalls += 1
+            return undefined
+          }
+          return originalRequestSubmit.call(this)
+        }
+        if (search) {
+          search.value = 'interactive-smoke'
+          search.dispatchEvent(new Event('input', { bubbles: true }))
+        }
+        if (select) {
+          select.value = select.value === 'title' ? 'recent' : 'title'
+          select.dispatchEvent(new Event('change', { bubbles: true }))
+        }
+        window.setTimeout(() => {
+          HTMLFormElement.prototype.requestSubmit = originalRequestSubmit
+          resolve({
+            bar: Boolean(form),
+            controls: form?.querySelectorAll('input:not([type=hidden]), select, button, a').length || 0,
+            submitCalls,
+            noNavigation: location.href === startUrl,
+          })
+        }, 500)
+      })`,
+    })
+    const quickFilterDom = quickFilterResult.result?.value ?? quickFilterResult.value
 
     const firstDetailsUrl = new URL(dom.firstDetails, proxyBase)
     const detailUrl = `${proxyBase}${firstDetailsUrl.pathname}${firstDetailsUrl.search}`
@@ -419,6 +459,11 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_title', dom.title)
     print('browser_vue_app', dom.vueApp)
     print('browser_catalogue_toolbar', dom.catalogueToolbar)
+    print('browser_quick_filter_bar', dom.quickFilterBar)
+    print('browser_quick_filter_controls', dom.quickFilterControls)
+    print('browser_quick_filter_submit_calls', quickFilterDom?.submitCalls ?? -1)
+    print('browser_quick_filter_no_navigation', quickFilterDom?.noNavigation === true)
+    print('browser_quick_filter_auto_submit', quickFilterDom?.submitCalls >= 1 && quickFilterDom?.noNavigation === true)
     print('browser_fallback', dom.fallback)
     print('browser_cards', dom.cards)
     print('browser_filters', dom.filters)
@@ -492,6 +537,10 @@ async function runBrowserSmoke(proxyBase) {
     const ok = dom.vueApp === true
       && dom.fallback === false
       && dom.catalogueToolbar === true
+      && dom.quickFilterBar === true
+      && dom.quickFilterControls >= 6
+      && quickFilterDom?.submitCalls >= 1
+      && quickFilterDom?.noNavigation === true
       && dom.cards > 0
       && dom.filters === true
       && dom.filterResultSummary === true
