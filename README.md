@@ -33,6 +33,7 @@ The current development slice can:
 - extract first CBZ ComicInfo.xml metadata for comic title, series, creators, publisher and date;
 - extract filename/folder metadata patterns for magazine dates/issues and comic number/title names when OPF/embedded metadata is absent;
 - EPUB cover extraction landed: extract EPUB cover images from EPUB package manifests when Nextcloud preview cannot provide a cover;
+- expose **Refresh cover preview** on item details to retry the cover route with no-store response headers when a cover looks stale;
 - serve CBZ first-image covers when the general Nextcloud preview pipeline cannot generate a cover;
 - return cover diagnostics on every cover response, including preview-backed, CBZ first-image and placeholder covers;
 - provide separate Read, Show in Files and Download source actions for each catalogue item;

@@ -32,6 +32,7 @@ class CoverController extends Controller {
     #[NoAdminRequired]
     #[NoCSRFRequired]
     public function show(int $itemId): DataDownloadResponse {
+        $refreshRequested = $this->isRefreshRequest();
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
         if ($userId === '') {
@@ -57,7 +58,8 @@ class CoverController extends Controller {
                     $preview->getMimeType(),
                     'preview',
                     'preview-manager',
-                    3600
+                    3600,
+                    $refreshRequested
                 );
             }
         } catch (Throwable $e) {
@@ -154,7 +156,8 @@ class CoverController extends Controller {
                 $mimeType,
                 'epub-cover',
                 'epub-manifest-cover-image',
-                3600
+                3600,
+                $this->isRefreshRequest()
             );
         } catch (Throwable) {
             return null;
@@ -225,7 +228,8 @@ class CoverController extends Controller {
                 (string)$first['mimeType'],
                 'cbz-first-image',
                 'cbz-first-image',
-                3600
+                3600,
+                $this->isRefreshRequest()
             );
         } catch (Throwable) {
             return null;
@@ -294,21 +298,31 @@ class CoverController extends Controller {
             'image/svg+xml',
             'placeholder',
             $reason,
-            300
+            300,
+            $this->isRefreshRequest()
         );
     }
 
-    private function coverResponse(string $content, string $filename, string $mimeType, string $status, string $reason, int $maxAge): DataDownloadResponse {
+    private function isRefreshRequest(): bool {
+        return (string)$this->request->getParam('refresh', '0') === '1';
+    }
+
+    private function coverResponse(string $content, string $filename, string $mimeType, string $status, string $reason, int $maxAge, bool $refreshRequested = false): DataDownloadResponse {
+        $headers = [
+            'Cache-Control' => $refreshRequested ? 'private, no-store' : 'private, max-age=' . $maxAge,
+            'X-Library-Cover-Status' => $status,
+            'X-Library-Cover-Reason' => mb_substr($reason, 0, 160),
+        ];
+        if ($refreshRequested) {
+            $headers['X-Library-Cover-Refresh'] = 'refresh-requested';
+        }
+
         return new DataDownloadResponse(
             $content,
             $filename,
             $mimeType,
             200,
-            [
-                'Cache-Control' => 'private, max-age=' . $maxAge,
-                'X-Library-Cover-Status' => $status,
-                'X-Library-Cover-Reason' => mb_substr($reason, 0, 160),
-            ]
+            $headers
         );
     }
 

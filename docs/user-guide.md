@@ -196,10 +196,11 @@ Library serves covers through its own item cover route:
 - uses Nextcloud preview generation where available;
 - uses an EPUB package-manifest cover image as a fallback cover;
 - uses the first image in a CBZ as a fallback cover;
+- offers **Refresh cover preview** on item details as a no-store retry of the cover route when the browser or preview looks stale;
 - returns a stable SVG placeholder when no cover provider succeeds;
 - includes diagnostic response headers so smokes can distinguish preview, CBZ first-image and placeholder outcomes.
 
-There is no app-owned cover cache yet, no cover refresh control, and no manual cover override.
+There is no app-owned cover cache yet and no manual cover override. **Refresh cover preview** is a request-level retry affordance, not a persistent cover-cache management UI.
 
 ### Reader and source-file actions
 
@@ -572,7 +573,7 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 2. Improve the metadata correction workflow. Details editing exists, field-level scanner candidates are recorded and shown on item details, manual edit keeps scanner candidates available for later reset, and rescans refresh scanner candidates while current user-edited values stay untouched. Individual fields can show a **Reset to scanner** action when a stored scanner candidate differs from the current value, and whole-item reset to scanner candidates can apply all stored candidates at once. The edit form shows hints for dates, language codes and creator separators; these hints do not block saving. Rows where the current value differs from the scanner candidate show a **Differs from scanner** label. The details page includes a read-only metadata correction summary with scanner candidate count and differing-field count. Conflict review and hard validation remain future work.
 3. Make corrected metadata portable back into a fresh install or files. Read-only export, no-write import preview and apply-to-matched-existing-items exist; write-back to JSON or OPF sidecars does not.
 4. Add repair-oriented scan lifecycle controls. Queued scans and progress exist; retry metadata errors, check missing files, cancellation and notifications do not.
-5. Improve the cover quality path. Preview, CBZ first image and placeholders work; EPUB cover extraction, cover cache/refresh and manual override do not.
+5. Improve the cover quality path. Preview, EPUB package cover, CBZ first image, placeholders and a refresh-cover retry affordance work; app-owned cover cache and manual override do not.
 6. Add discovery by publication structure. Search/filter/pagination exist; creator, series, publication/year pages and saved views do not.
 7. Polish root/onboarding/shared-library workflows. Root lifecycle exists; stronger confirmations, first-run guidance and admin-managed shared roots remain future work.
 
@@ -584,7 +585,7 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 2. **Scan lifecycle controls** — queued scans exist, but cancellation, retry, scheduled scans, metadata-error retry, missing-file checks and completion notifications are absent.
 3. **Metadata correction workflow** — details editing, field-level scanner candidates, single-field reset-to-scanner, whole-item reset to scanner candidates, non-blocking edit guidance, field-level **Differs from scanner** labels and a read-only metadata correction summary exist. Bulk edit and review queue remain future work, as does hard validation.
 4. **Tag UX** — tag add/remove and tag suggestions work, but lacks a richer picker, bulk tagging and clear permission feedback.
-5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers work, but cover cache, refresh controls and manual overrides remain missing.
+5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers and a refresh-cover retry affordance work, but app-owned cover cache and manual overrides remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
 7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips and top-series shortcuts exist, but there are no dedicated creator/series/publication/year landing pages, smart collections or saved views.
 8. **User-facing onboarding and empty states** — the current app is smoke-testable and usable by a technical tester, but a first-time user still needs clearer guidance.
