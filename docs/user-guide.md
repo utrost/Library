@@ -67,6 +67,7 @@ Current catalogue capabilities:
 - use the always-visible quick-filter row for search, sort, starred-only and page-size changes without opening the full filter panel; search fetches updated results after a short debounce and select changes update immediately without a whole-page refresh; press `/` to focus catalogue search and `Escape` to clear it;
 - filter by exact creator field as read-only discovery; creator identity splitting remains future work;
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
+- see first-run guidance when no Library root exists, disabled-root guidance when roots are saved but disabled, and filter-specific recovery actions when a search returns no matches;
 - browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure;
 - filter by series or periodical title for magazines, journals and recurring publications;
 - filter by publication year as read-only discovery for dated books, magazines, journals and comics;
@@ -604,7 +605,7 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers and a refresh-cover retry affordance work, but app-owned cover cache and manual overrides remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
 7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips and top-series shortcuts exist, but there are no dedicated creator/series/publication/year landing pages, smart collections or saved views.
-8. **User-facing onboarding and empty states** — the current app is smoke-testable and usable by a technical tester, but a first-time user still needs clearer guidance.
+8. **User-facing onboarding and empty states** — first-run root guidance, disabled-root guidance and filtered-empty recovery actions exist; richer guided tours and sample/demo fixtures remain future work.
 9. **Metadata portability beyond export/preview/apply** — corrected Library metadata can be exported as JSON, previewed for restore matches/field changes, applied to matched existing Library items, mapped to suggested `.library.json` paths with a read-only sidecar manifest and downloaded as a sidecar ZIP, but there is no OPF/JSON sidecar writer into source folders or fresh-install migration story that makes corrections fully file-first durable.
 10. **Real-collection metadata hardening** — PDF hardening has improved, but more real EPUB/OPF/CBZ/PDF samples are needed to find weak metadata, cover and sidecar cases before release.
 

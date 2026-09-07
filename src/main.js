@@ -74,6 +74,36 @@ function fallbackPublicationFilterUrl(publication) {
   return `?${params.toString()}`
 }
 
+function fallbackHasActiveFilters(state) {
+  const activeFilters = state.activeFilters || {}
+  return Object.entries(activeFilters).some(([key, value]) => key !== 'sort' && text(value).trim() !== '')
+}
+
+function fallbackClearSearchUrl() {
+  const params = new URLSearchParams(window.location.search)
+  params.delete('q')
+  params.delete('page')
+  const query = params.toString()
+  return query ? `?${query}` : '?'
+}
+
+function fallbackAppendEmptyAction(parent, href, className, label) {
+  const link = document.createElement('a')
+  link.href = href
+  link.className = className
+  link.textContent = label
+  parent.appendChild(link)
+  return link
+}
+
+function fallbackAppendMutedText(parent, label) {
+  const span = document.createElement('span')
+  span.className = 'library-muted'
+  span.textContent = label
+  parent.appendChild(span)
+  return span
+}
+
 function fallbackFilterForm(state, pagination) {
   const activeFilters = state.activeFilters || {}
   const form = document.createElement('form')
@@ -305,24 +335,37 @@ function fallbackCatalogue(state, error) {
 
   if (items.length === 0) {
     const empty = document.createElement('div')
+    const rootCount = Number(state.rootCount || 0)
+    const enabledRootCount = Number(state.enabledRootCount || 0)
+    const hasActiveFilters = fallbackHasActiveFilters(state)
     empty.className = 'library-empty-content'
+    if (rootCount === 0 || enabledRootCount === 0) empty.classList.add('library-first-run-guidance')
+    if (hasActiveFilters && rootCount > 0 && enabledRootCount > 0) empty.classList.add('library-filter-empty-state')
     empty.setAttribute('role', 'status')
     const emptyHeading = document.createElement('h3')
-    emptyHeading.textContent = t('library', 'No catalogue items match')
     const emptyText = document.createElement('p')
     emptyText.className = 'library-muted'
-    emptyText.textContent = t('library', 'Scan enabled roots or clear the active filters.')
     const emptyActions = document.createElement('p')
     emptyActions.className = 'library-empty-actions'
-    const clearFilters = document.createElement('a')
-    clearFilters.href = '?'
-    clearFilters.className = 'button secondary'
-    clearFilters.textContent = t('library', 'Clear all filters')
-    const scanLink = document.createElement('a')
-    scanLink.href = settingsUrl
-    scanLink.className = 'button primary'
-    scanLink.textContent = t('library', 'Run a scan from settings')
-    emptyActions.append(clearFilters, scanLink)
+    if (rootCount === 0) {
+      emptyHeading.textContent = t('library', 'Start with one Library root')
+      emptyText.textContent = t('library', 'Add one folder path that already exists in Nextcloud Files, then run a scan to build the catalogue.')
+      fallbackAppendEmptyAction(emptyActions, settingsUrl, 'button primary', t('library', 'Add a Library root'))
+      fallbackAppendMutedText(emptyActions, t('library', 'Run a scan after saving a root'))
+    } else if (enabledRootCount === 0) {
+      emptyHeading.textContent = t('library', 'No enabled Library roots')
+      emptyText.textContent = t('library', 'Enable a saved root in settings, then scan enabled roots to refresh the catalogue.')
+      fallbackAppendEmptyAction(emptyActions, settingsUrl, 'button primary', t('library', 'Open Library settings'))
+    } else if (hasActiveFilters) {
+      emptyHeading.textContent = t('library', 'No matches for the current filters')
+      emptyText.textContent = t('library', 'Try a broader search, remove one active chip, or clear every catalogue filter.')
+      fallbackAppendEmptyAction(emptyActions, fallbackClearSearchUrl(), 'button secondary', t('library', 'Clear search'))
+      fallbackAppendEmptyAction(emptyActions, '?', 'button primary', t('library', 'Clear all filters'))
+    } else {
+      emptyHeading.textContent = t('library', 'No catalogue items yet')
+      emptyText.textContent = t('library', 'Run a scan from settings to index enabled roots. Source files stay in Nextcloud Files.')
+      fallbackAppendEmptyAction(emptyActions, settingsUrl, 'button primary', t('library', 'Run a scan from settings'))
+    }
     empty.append(emptyHeading, emptyText, emptyActions)
     panel.appendChild(empty)
   } else {

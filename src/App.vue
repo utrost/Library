@@ -64,6 +64,11 @@ const metadataSidecarManifestUrl = computed(() => catalogueState.metadataSidecar
 const metadataSidecarBundleUrl = computed(() => catalogueState.metadataSidecarBundleUrl || '')
 const catalogueEndpointUrl = computed(() => catalogueState.catalogueEndpointUrl || '/apps/library/catalogue')
 const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictReviewUrl || '?scannerConflicts=1')
+const rootCount = computed(() => Number(catalogueState.rootCount || 0))
+const enabledRootCount = computed(() => Number(catalogueState.enabledRootCount || 0))
+const hasNoConfiguredRoots = computed(() => rootCount.value === 0)
+const hasNoEnabledRoots = computed(() => rootCount.value > 0 && enabledRootCount.value === 0)
+const hasActiveFilters = computed(() => activeFilterChips.value.length > 0)
 const filterLabels = {
   q: 'Search',
   type: 'Type',
@@ -139,11 +144,19 @@ function scheduleFilterSubmit(event) {
 }
 
 function filterChipRemoveUrl(key) {
-  const params = new URLSearchParams(window.location.search)
-  params.delete(key)
-  params.delete('page')
+  const params = new URLSearchParams()
+  for (const [param, value] of Object.entries(activeFilters)) {
+    const normalized = String(value || '').trim()
+    if (normalized !== '' && param !== key && !(param === 'sort' && normalized === 'title')) {
+      params.set(param, normalized)
+    }
+  }
   const query = params.toString()
   return query ? `?${query}` : '?'
+}
+
+function clearSearchUrl() {
+  return filterChipRemoveUrl('q')
 }
 
 function upper(value) {
@@ -427,10 +440,27 @@ async function toggleStar(item, event) {
       <p class="library-muted">{{ t('library', 'Add publication or series names in item details to build this shortcut panel.') }}</p>
     </details>
 
-    <div v-if="items.length === 0" class="library-empty-content" role="status">
-      <h3>{{ t('library', 'No catalogue items match') }}</h3>
-      <p class="library-muted">{{ t('library', 'Scan enabled roots or clear the active filters.') }}</p>
-      <p class="library-empty-actions"><a href="?" class="button secondary">{{ t('library', 'Clear all filters') }}</a><a :href="settingsUrl" class="button primary">{{ t('library', 'Run a scan from settings') }}</a></p>
+    <div v-if="items.length === 0" class="library-empty-content" :class="{ 'library-first-run-guidance': hasNoConfiguredRoots || hasNoEnabledRoots, 'library-filter-empty-state': hasActiveFilters && !hasNoConfiguredRoots && !hasNoEnabledRoots }" role="status">
+      <template v-if="hasNoConfiguredRoots">
+        <h3>{{ t('library', 'Start with one Library root') }}</h3>
+        <p class="library-muted">{{ t('library', 'Add one folder path that already exists in Nextcloud Files, then run a scan to build the catalogue.') }}</p>
+        <p class="library-empty-actions"><a :href="settingsUrl" class="button primary">{{ t('library', 'Add a Library root') }}</a><span class="library-muted">{{ t('library', 'Run a scan after saving a root') }}</span></p>
+      </template>
+      <template v-else-if="hasNoEnabledRoots">
+        <h3>{{ t('library', 'No enabled Library roots') }}</h3>
+        <p class="library-muted">{{ t('library', 'Enable a saved root in settings, then scan enabled roots to refresh the catalogue.') }}</p>
+        <p class="library-empty-actions"><a :href="settingsUrl" class="button primary">{{ t('library', 'Open Library settings') }}</a></p>
+      </template>
+      <template v-else-if="hasActiveFilters">
+        <h3>{{ t('library', 'No matches for the current filters') }}</h3>
+        <p class="library-muted">{{ t('library', 'Try a broader search, remove one active chip, or clear every catalogue filter.') }}</p>
+        <p class="library-empty-actions"><a :href="clearSearchUrl()" class="button secondary">{{ t('library', 'Clear search') }}</a><a href="?" class="button primary">{{ t('library', 'Clear all filters') }}</a></p>
+      </template>
+      <template v-else>
+        <h3>{{ t('library', 'No catalogue items yet') }}</h3>
+        <p class="library-muted">{{ t('library', 'Run a scan from settings to index enabled roots. Source files stay in Nextcloud Files.') }}</p>
+        <p class="library-empty-actions"><a :href="settingsUrl" class="button primary">{{ t('library', 'Run a scan from settings') }}</a></p>
+      </template>
     </div>
 
     <div v-else class="library-cover-gallery">

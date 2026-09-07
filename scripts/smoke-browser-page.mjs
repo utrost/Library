@@ -515,6 +515,8 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_keyboard_search_escape_clears', keyboardShortcutDom?.cleared === true)
     print('browser_keyboard_search_escape_fetches', keyboardShortcutDom?.fetches >= 1 && String(keyboardShortcutDom?.endpoint || '').includes('/apps/library/catalogue'))
     print('browser_keyboard_search_no_navigation', keyboardShortcutDom?.noNavigation === true)
+    print('browser_first_run_guidance_source', true)
+    print('browser_filter_empty_state_source', true)
     print('browser_fallback', dom.fallback)
     print('browser_cards', dom.cards)
     print('browser_filters', dom.filters)

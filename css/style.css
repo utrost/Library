@@ -745,11 +745,29 @@
 }
 
 .library-empty-actions {
+    align-items: center;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     justify-content: center;
     margin-top: 1rem;
+}
+
+.library-getting-started,
+.library-first-run-guidance,
+.library-filter-empty-state {
+    background: var(--color-background-hover);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-large, var(--border-radius));
+    padding: 1rem;
+}
+
+.library-getting-started ol {
+    margin-bottom: 0;
+}
+
+.library-getting-started li + li {
+    margin-top: 0.35rem;
 }
 
 .library-cover-detail-list {

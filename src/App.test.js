@@ -5,6 +5,8 @@ import App from './App.vue'
 const state = {
   settingsUrl: '/settings/user/library',
   requestToken: 'test-token',
+  rootCount: 1,
+  enabledRootCount: 1,
   metadataExportUrl: '/apps/library/export/metadata',
   shelves: ['Books'],
   formats: ['epub'],
@@ -129,5 +131,43 @@ describe('Library catalogue Vue app', () => {
     }))
 
     wrapper.unmount()
+  })
+
+  it('shows first-run root guidance instead of filtered-empty copy when no roots exist', () => {
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          rootCount: 0,
+          enabledRootCount: 0,
+          items: [],
+          cataloguePagination: { page: 1, limit: 100, total: 0, visible: 0, from: 0, to: 0, previousUrl: '', nextUrl: '' },
+        },
+      },
+    })
+
+    expect(wrapper.find('.library-first-run-guidance').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Start with one Library root')
+    expect(wrapper.text()).toContain('Add a Library root')
+    expect(wrapper.text()).toContain('Run a scan after saving a root')
+  })
+
+  it('shows filter recovery actions when active filters produce no results', () => {
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          items: [],
+          activeFilters: { ...state.activeFilters, q: 'missing-title', format: 'pdf' },
+          cataloguePagination: { page: 1, limit: 100, total: 0, visible: 0, from: 0, to: 0, previousUrl: '', nextUrl: '' },
+        },
+      },
+    })
+
+    expect(wrapper.find('.library-filter-empty-state').exists()).toBe(true)
+    expect(wrapper.text()).toContain('No matches for the current filters')
+    expect(wrapper.text()).toContain('Clear search')
+    expect(wrapper.text()).toContain('Clear all filters')
+    expect(wrapper.find('a[href="?format=pdf"]').exists()).toBe(true)
   })
 })
