@@ -39,7 +39,7 @@ What exists now:
 - Minimal Nextcloud system tag assignment/removal from item details for visible/assignable tags.
 - Read-only recent Nextcloud file comments on publication item cards and item details as file-level notes/discussion.
 - Minimal Nextcloud file comment writing from item details.
-- Library-native personal starring for catalogue items: detail-page star/unstar toggle, compact card marker, `starred=1` filter, and corrected-metadata export/import portability without altering scanner provenance.
+- Library-native personal starring and last-opened activity for catalogue items: detail-page star/unstar toggle, compact card marker, `starred=1` filter, Library-tracked **Read** redirects, recently-opened sort, and corrected-metadata export/import portability without altering scanner provenance.
 - Per-file metadata extraction error isolation with visible indexed-file diagnostics for corrupt EPUB/CBZ/OPF inputs.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - metadata/tag/comment separation smoke is checked in: Nextcloud tag/comment actions do not mutate Library publication metadata.
@@ -426,13 +426,13 @@ Exit criteria:
 
 ## Personal top features, 2026-09-07
 
-Uwe's current personal top features are scoped in [Personal top features](personal-top-features.md). This list shifts the next product direction from mostly release hardening toward daily-library usefulness: finish multi-root confidence, add starring/bookmarking, record last read/opened activity, search descriptions, add custom per-publication status, and model genres and classifications.
+Uwe's current personal top features are scoped in [Personal top features](personal-top-features.md). This list shifts the next product direction from mostly release hardening toward daily-library usefulness: finish multi-root confidence, add starring/bookmarking, record last read/opened activity, search descriptions, add custom per-publication status, and model genres and classifications. Multi-root confidence, starring/bookmarking, and Library-tracked last-opened activity have landed; description search is the next personal-field candidate.
 
 Recommended order from that scope:
 
-1. **P0 — finish multi-root confidence.** Multiple roots exist, but this should be proven with a two-root real smoke, shelf filter checks and explicit overlapping-root behavior before more item metadata is layered on top.
-2. **P1 — starring/bookmarking.** Add a personal Library-native star because it is small, visible and more structured than a generic tag.
-3. **P2 — last read/opened.** Track `last_opened_at` when Library's **Read** action is used; defer true page-position “last read” to reader integrations.
+1. **P0 — finish multi-root confidence.** Landed: `npm run smoke:multi-root` now proves two temporary roots, shelf filters, duplicate-card absence and scoped scan isolation. Remaining polish is stronger first-run/overlap guidance.
+2. **P1 — starring/bookmarking.** Landed: Library-native star state is visible, filterable and portable.
+3. **P2 — last read/opened.** Landed for last-opened activity: Library **Read** clicks update `last_opened_at` before redirecting to `/f/{fileId}`; true page-position “last read” stays deferred to reader integrations.
 4. **P3 — search with description.** Add an editable/exportable description field and include it in the database-backed text search.
 5. **P4 — custom status per publication.** Add a Library-native reading/workflow status distinct from operational scan status; tags can approximate status today but should not be the whole model.
 6. **P5 — genres and classifications.** Add multi-value Library-native genres and classifications after the smaller personal fields prove the storage/filter/export pattern.

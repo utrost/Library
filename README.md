@@ -45,6 +45,7 @@ The current development slice can:
 - export corrected metadata as a side-effect-free JSON download for user-edited catalogue rows.
 - preview corrected metadata imports before writing changes, then apply matched corrected metadata to existing Library items when the preview is acceptable.
 - star/unstar publications from item details, show starred state on compact catalogue cards, filter the catalogue with `starred=1`, and carry starred state through corrected-metadata export/import without changing scanner provenance.
+- record Library **Read** clicks as `last_opened_at`, route them through a Library redirect to Nextcloud's `/f/{fileId}` handoff, sort by recently opened, and carry last-opened state through corrected-metadata export/import without treating Files/download opens as tracked activity.
 - filter the catalogue by scan status (`indexed`, `metadata_error`, `missing`) and show per-card scan diagnostics for unhealthy items.
 - query catalogue search, filters, sort modes and pagination through database-backed item queries instead of loading the full catalogue into app-layer arrays.
 - isolate local metadata extraction failures per file so corrupt EPUB/CBZ/OPF fixtures do not abort an otherwise healthy root scan, and show the scan error in the indexed-file diagnostics.
@@ -70,7 +71,7 @@ Current v0.1 proof includes or is converging on:
 Explicit non-goals for v0.1:
 
 - custom EPUB/PDF/comic renderer;
-- page-position bookmarks, annotations or reader-owned reading position; Library-native star/bookmark support exists for catalogue items, while last-opened activity remains a planned personal-library feature;
+- page-position bookmarks, annotations or reader-owned reading position; Library-native star/bookmark support and last-opened activity exist for catalogue items;
 - OCR and full-text document search;
 - Internet metadata lookup;
 - OPDS/Kobo/Kindle integration;

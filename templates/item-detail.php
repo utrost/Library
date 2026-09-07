@@ -12,6 +12,7 @@ $metadataRows = [
     'Publication' => $item['publication'] ?? '',
     'Publication date' => $item['publicationDate'] ?? '',
     'Publication type' => $item['publicationType'] ?? '',
+    'Last opened' => !empty($item['lastOpenedAt']) ? gmdate('Y-m-d H:i', (int)$item['lastOpenedAt']) . ' UTC' : '',
     'Publisher' => $item['publisher'] ?? '',
     'Language' => $item['language'] ?? '',
 ];

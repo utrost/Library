@@ -165,6 +165,7 @@ function publicationFilterUrl(publication) {
           <option value="recent">{{ t('library', 'Recently added') }}</option>
           <option value="publicationDate">{{ t('library', 'Publication date') }}</option>
           <option value="publication">{{ t('library', 'Series / periodical') }}</option>
+          <option value="lastOpened">{{ t('library', 'Recently opened') }}</option>
           <option value="format">{{ t('library', 'Format') }}</option>
         </select>
       </label>
@@ -231,6 +232,7 @@ function publicationFilterUrl(publication) {
                 <span>{{ item.publicationType }}</span>
                 <span v-if="item.publication"> · {{ item.publication }}</span>
                 <span v-if="item.publicationDate"> · {{ item.publicationDate }}</span>
+                <span v-if="item.lastOpenedAt"> · Last opened: {{ item.lastOpenedAt }}</span>
                 <span v-if="item.extension"> · Format: {{ upper(item.extension) }}</span>
                 <span v-if="item.shelf"> · Shelf: {{ item.shelf }}</span>
               </p>

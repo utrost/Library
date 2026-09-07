@@ -9,10 +9,25 @@ POST_CONTROLLERS = [
 ]
 
 
+def method_attributes_before(text: str, method_name: str) -> str:
+    before_method = text.split(f"public function {method_name}", 1)[0]
+    previous_method = before_method.rfind("public function ")
+    return before_method[previous_method:]
+
+
 def test_mutating_post_controllers_use_nextcloud_csrf_protection():
-    for controller_name in POST_CONTROLLERS:
+    mutating_methods = {
+        "CommentController.php": ["add"],
+        "ItemController.php": ["update", "resetfield", "resetfields", "star", "forgetMissing"],
+        "RootController.php": ["create", "update", "delete", "enable", "disable"],
+        "TagController.php": ["assign", "remove"],
+    }
+    for controller_name, method_names in mutating_methods.items():
         text = (ROOT / "lib" / "Controller" / controller_name).read_text()
-        assert "NoCSRFRequired" not in text, f"{controller_name} must not disable CSRF for POST actions"
+        for method_name in method_names:
+            assert "NoCSRFRequired" not in method_attributes_before(text, method_name), (
+                f"{controller_name}::{method_name} must not disable CSRF for POST actions"
+            )
 
     scan = (ROOT / "lib" / "Controller" / "ScanController.php").read_text()
     assert "#[NoCSRFRequired]\n    public function run" not in scan

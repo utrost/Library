@@ -33,14 +33,14 @@ Library owns:
 - exposure and adding of Nextcloud file comments;
 - read-only corrected-metadata JSON export for user-edited catalogue rows.
 
-For the next personal-library direction, see [Personal top features](personal-top-features.md): multi-root confidence and starring/bookmarking now have checked implementation/smoke coverage; next priorities are last read/opened activity, description search, Library-native status, and genres/classifications.
+For the next personal-library direction, see [Personal top features](personal-top-features.md): multi-root confidence, starring/bookmarking, and last-opened activity now have checked implementation/smoke coverage; next priorities are description search, Library-native status, and genres/classifications.
 
 Library does **not** own:
 
 - the binary files themselves;
 - folder permissions, shares or WebDAV storage;
 - a custom EPUB/PDF/CBZ reader;
-- page-position bookmarks, annotations or reader-owned reading position; Library-native star/bookmark support exists for catalogue items, while last-opened activity remains a planned personal-library feature;
+- page-position bookmarks, annotations or reader-owned reading position; Library-native star/bookmark support and last-opened activity exist for catalogue items;
 - OCR or full-text document search;
 - internet metadata lookup;
 - OPDS, Kobo or Kindle sync;
@@ -71,7 +71,7 @@ Current catalogue capabilities:
 - use the **Top series and periodicals** panel to jump to recurring publications with item counts;
 - see **No series or periodicals found yet** when the shortcut panel has no publication metadata yet; this is only guidance, with no new series schema;
 - filter by publication type, file format, scan status, exact Nextcloud tag, shelf and starred state;
-- sort by title, recently added, publication date, series/periodical or format;
+- sort by title, recently added, recently opened, publication date, series/periodical or format;
 - choose page size up to the current 500-item clamp;
 - see page counts and previous/next links;
 - see scan diagnostics on unhealthy catalogue cards only;
@@ -89,6 +89,7 @@ Current details capabilities:
 
 - view cover, title, creator, type, format and shelf;
 - star or unstar the publication as Library-native personal catalogue state;
+- see the last time Library opened the item when it has been read through the Library **Read** action;
 - use **Read**, **Show in Files** and **Download source** actions;
 - inspect publication metadata;
 - inspect a metadata correction summary with scanner-candidate and differing-field counts;

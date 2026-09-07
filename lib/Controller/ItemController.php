@@ -7,6 +7,7 @@ namespace OCA\Library\Controller;
 use OCA\Library\Service\ItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
@@ -21,6 +22,20 @@ final class ItemController extends Controller {
         private IURLGenerator $urlGenerator,
     ) {
         parent::__construct($appName, $request);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function open(int $itemId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $item = $this->itemService->markOpened($user->getUID(), $itemId);
+            if ($item !== null) {
+                return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/f/' . (int)$item['fileId']));
+            }
+        }
+
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
     }
 
     #[NoAdminRequired]

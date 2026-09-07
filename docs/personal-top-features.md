@@ -44,9 +44,9 @@ This is Library-native rather than only a Nextcloud tag. A star is a fast, perso
 
 ### last read/opened
 
-Current support: missing as Library-owned activity.
+Current support: implemented as Library-owned open activity.
 
-Use “last opened” for the first slice because Library can reliably record when the user clicks **Read** from Library. “Last read” implies reader integration or page-position feedback, which should stay future until a reader provider exposes trustworthy events.
+Library **Read** links now go through a tiny app route, record `last_opened_at` for the current user/item, and then redirect to Nextcloud's existing `/f/{fileId}` handoff. The catalogue can sort by **Recently opened**, details show the last-opened time, and corrected-metadata export/import carries the timestamp. “Last read” still implies reader integration or page-position feedback, which remains future until a reader provider exposes trustworthy events.
 
 ### search with description
 
@@ -129,6 +129,8 @@ Acceptance checks:
 
 ### P2 — last opened
 
+Status: landed as a Library-owned open-activity checkpoint.
+
 Why third: it gives immediate everyday utility and enables “Continue reading” without deep reader integration.
 
 Scope:
@@ -136,13 +138,14 @@ Scope:
 - route Library **Read** clicks through a tiny Library redirect endpoint;
 - record `last_opened_at` for the current user/item;
 - redirect to the existing `/f/{fileId}` handoff;
-- add sort/filter/section for recently opened.
+- add recently-opened sort and details display.
 
 Acceptance checks:
 
 - opening through Library updates `last_opened_at`;
 - **Show in Files** and **Download source** do not update it;
 - recently opened sort works;
+- corrected-metadata export/import preserves the timestamp;
 - direct Nextcloud Files opens are not claimed as tracked.
 
 ### P3 — richer text search
