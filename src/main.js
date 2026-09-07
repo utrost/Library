@@ -104,6 +104,75 @@ function fallbackFilterForm(state, pagination) {
   return form
 }
 
+function fallbackQuickFilterForm(state, pagination) {
+  const activeFilters = state.activeFilters || {}
+  const form = document.createElement('form')
+  form.method = 'get'
+  form.className = 'library-quick-filter-bar'
+  form.setAttribute('aria-label', t('library', 'Quick catalogue filters'))
+  let fallbackSubmitTimer = null
+  const scheduleFallbackSubmit = () => {
+    window.clearTimeout(fallbackSubmitTimer)
+    fallbackSubmitTimer = window.setTimeout(() => form.requestSubmit(), 350)
+  }
+
+  for (const [key, value] of Object.entries(activeFilters)) {
+    if (['q', 'sort', 'starred'].includes(key) || text(value).trim() === '') continue
+    const hidden = document.createElement('input')
+    hidden.type = 'hidden'
+    hidden.name = key
+    hidden.value = text(value)
+    form.appendChild(hidden)
+  }
+
+  const searchLabel = document.createElement('label')
+  searchLabel.className = 'library-quick-filter-search'
+  searchLabel.textContent = t('library', 'Search')
+  const input = document.createElement('input')
+  input.type = 'search'
+  input.name = 'q'
+  input.value = text(activeFilters.q)
+  input.placeholder = 'Camera, Eco, Rolleiflex...'
+  input.addEventListener('input', scheduleFallbackSubmit)
+  searchLabel.appendChild(input)
+  form.appendChild(searchLabel)
+
+  const quickSelects = [
+    [t('library', 'Sort'), 'sort', activeFilters.sort || 'title', [['title', t('library', 'Title')], ['recent', t('library', 'Recently added')], ['publicationDate', t('library', 'Publication date')], ['publication', t('library', 'Series')], ['lastOpened', t('library', 'Recently opened')], ['format', t('library', 'Format')]]],
+    [t('library', 'Starred'), 'starred', activeFilters.starred || '', [['', t('library', 'All')], ['1', t('library', 'Starred')]]],
+    [t('library', 'Size'), 'limit', pagination.limit || 100, [[25, '25'], [50, '50'], [100, '100'], [250, '250'], [500, '500']]],
+  ]
+  for (const [labelText, name, value, options] of quickSelects) {
+    const label = document.createElement('label')
+    label.textContent = labelText
+    const select = document.createElement('select')
+    select.name = name
+    for (const [optionValue, optionText] of options) {
+      const option = document.createElement('option')
+      option.value = text(optionValue)
+      option.textContent = text(optionText)
+      if (text(optionValue) === text(value)) option.selected = true
+      select.appendChild(option)
+    }
+    select.addEventListener('change', () => form.requestSubmit())
+    label.appendChild(select)
+    form.appendChild(label)
+  }
+
+  const submit = document.createElement('button')
+  submit.type = 'submit'
+  submit.className = 'button primary'
+  submit.setAttribute('aria-label', t('library', 'Apply catalogue filters'))
+  submit.textContent = t('library', 'Apply filters')
+  const clear = document.createElement('a')
+  clear.href = '?'
+  clear.className = 'button secondary'
+  clear.setAttribute('aria-label', t('library', 'Clear catalogue filters'))
+  clear.textContent = t('library', 'Clear all')
+  form.append(submit, clear)
+  return form
+}
+
 function fallbackCatalogue(state, error) {
   const items = Array.isArray(state.items) ? state.items : []
   const pagination = state.cataloguePagination || {
@@ -171,6 +240,7 @@ function fallbackCatalogue(state, error) {
   }
   header.append(headerText, toolbar)
   panel.appendChild(header)
+  panel.appendChild(fallbackQuickFilterForm(state, pagination))
   const filterPanel = document.createElement('details')
   filterPanel.className = 'library-filter-panel'
   const filterSummary = document.createElement('summary')

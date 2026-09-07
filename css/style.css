@@ -226,6 +226,26 @@
 }
 
 
+.library-quick-filter-bar {
+    align-items: end;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(110px, auto)) auto auto;
+    margin: 12px 0;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.library-quick-filter-bar label {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+}
+
+.library-quick-filter-search input {
+    min-width: 0;
+}
+
 .library-filter-bar {
     align-items: end;
     display: grid;
@@ -241,6 +261,10 @@
     border-radius: var(--border-radius);
     margin: 0 0 1rem;
     padding: 0.75rem 1rem;
+}
+
+.library-filter-panel[open] {
+    margin-top: 0.5rem;
 }
 
 .library-filter-panel-summary,
@@ -627,6 +651,16 @@
 
     .library-cover-gallery {
         grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .library-quick-filter-bar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .library-quick-filter-search {
+        grid-column: 1 / -1;
     }
 }
 
