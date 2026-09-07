@@ -103,19 +103,16 @@ $fileRows = [
                                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                                 <input type="hidden" name="returnTo" value="details" />
                                 <input type="hidden" name="starred" value="<?php p(($item['starred'] ?? false) ? '0' : '1'); ?>" />
-                                <button type="submit" class="library-star-button <?php p(($item['starred'] ?? false) ? 'library-star-button--starred' : ''); ?>" aria-pressed="<?php p(($item['starred'] ?? false) ? 'true' : 'false'); ?>" title="<?php p(($item['starred'] ?? false) ? $l->t('Unstar this publication') : $l->t('Star this publication')); ?>" aria-label="<?php p(($item['starred'] ?? false) ? $l->t('Unstar this publication') : $l->t('Star this publication')); ?>">★</button>
+                                <button type="submit" class="library-star-button <?php p(($item['starred'] ?? false) ? 'library-star-button--starred' : ''); ?>" aria-pressed="<?php p(($item['starred'] ?? false) ? 'true' : 'false'); ?>" title="<?php p(($item['starred'] ?? false) ? $l->t('Unstar this publication') : $l->t('Star this publication')); ?>" aria-label="<?php p(($item['starred'] ?? false) ? $l->t('Unstar this publication') : $l->t('Star this publication')); ?>"><?php p(($item['starred'] ?? false) ? '★' : '☆'); ?></button>
                             </form>
                             <form method="post" action="<?php p($item['workflowStatusUrl'] ?? ''); ?>" class="library-inline-form library-workflow-status-form">
                                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                                 <input type="hidden" name="returnTo" value="details" />
-                                <label>
-                                    <?php p($l->t('Workflow status')); ?>
-                                    <select name="workflowStatus" onchange="this.form.submit()">
-                                        <?php foreach ($workflowStatuses as $status => $label): ?>
-                                            <option value="<?php p($status); ?>" <?php if (($item['workflowStatus'] ?? '') === $status) { print_unescaped('selected'); } ?>><?php p($l->t($label)); ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </label>
+                                <select name="workflowStatus" onchange="this.form.submit()" aria-label="<?php p($l->t('Workflow status')); ?>">
+                                    <?php foreach ($workflowStatuses as $status => $label): ?>
+                                        <option value="<?php p($status); ?>" <?php if (($item['workflowStatus'] ?? '') === $status) { print_unescaped('selected'); } ?>><?php p($l->t($label)); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
                                 <button type="submit" class="button secondary library-workflow-status-submit-fallback"><?php p($l->t('Save status')); ?></button>
                             </form>
                         </div>

@@ -4,6 +4,7 @@ import App from './App.vue'
 
 const state = {
   settingsUrl: '/settings/user/library',
+  requestToken: 'test-token',
   metadataExportUrl: '/apps/library/export/metadata',
   shelves: ['Books'],
   formats: ['epub'],
@@ -31,6 +32,8 @@ const state = {
     coverUrl: '/apps/library/items/7/cover',
     openUrl: '/f/178',
     filesUrl: '/apps/files/files/178?openfile=true',
+    starUrl: '/apps/library/items/7/star',
+    starred: false,
     updateUrl: '/apps/library/items/7',
     tagUrl: '/apps/library/items/7/tags',
     tagRemoveBaseUrl: '/apps/library/items/7/tags/__TAG_ID__',
@@ -52,7 +55,12 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-cover-image').attributes('src')).toBe('/apps/library/items/7/cover')
     expect(wrapper.find('.library-cover-link').attributes('href')).toBe('/f/178')
     expect(wrapper.text()).toContain('Show in Files')
-    expect(wrapper.findAll('form[method="post"]')).toHaveLength(0)
+    const starForm = wrapper.find('form.library-cover-star-form')
+    expect(starForm.exists()).toBe(true)
+    expect(starForm.attributes('action')).toBe('/apps/library/items/7/star')
+    expect(starForm.find('input[name="requesttoken"]').element.value).toBe('test-token')
+    expect(starForm.find('input[name="starred"]').element.value).toBe('1')
+    expect(starForm.find('.library-cover-star-button').text()).toBe('☆')
     expect(wrapper.text()).toContain('Details')
     const filterPanel = wrapper.find('.library-filter-panel')
     const periodicalsPanel = wrapper.find('.library-periodical-groups')

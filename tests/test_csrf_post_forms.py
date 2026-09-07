@@ -42,7 +42,7 @@ def test_get_only_controllers_may_disable_csrf():
     assert "#[NoCSRFRequired]\n    public function progress" in scan
 
 
-def test_vue_page_has_no_post_forms_and_detail_forms_include_requesttoken():
+def test_vue_catalogue_star_and_detail_forms_include_requesttoken():
     main_php = (ROOT / "templates" / "main.php").read_text()
     main_js = (ROOT / "src" / "main.js").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
@@ -50,8 +50,9 @@ def test_vue_page_has_no_post_forms_and_detail_forms_include_requesttoken():
 
     assert "data-request-token" in main_php
     assert "requestToken" in main_js
-    assert 'method="post"' not in vue
-    assert 'name="requesttoken"' not in vue
+    assert 'class="library-cover-star-form"' in vue
+    assert 'name="requesttoken"' in vue
+    assert 'name="returnTo" value="catalogue"' in vue
     assert detail.count('name="requesttoken"') >= 3
     assert "$_['requesttoken']" in detail
     assert "fallbackHiddenRequestToken" in main_js
