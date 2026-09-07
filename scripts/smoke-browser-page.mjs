@@ -390,6 +390,10 @@ async function runBrowserSmoke(proxyBase) {
             && Boolean(root.querySelector('[aria-labelledby="library-scan-progress-heading"]'))
             && Boolean(root.querySelector('[aria-labelledby="library-scan-history-heading"]'))
             && Boolean(root.querySelector('[aria-labelledby="library-indexed-files-heading"]')),
+          collapsibleSections: root.querySelectorAll('.library-settings-section').length,
+          settingsQuickActions: Boolean(root.querySelector('.library-settings-quick-actions')),
+          settingsCountBadges: root.querySelectorAll('.library-settings-count-badge').length,
+          indexedFilesCollapsed: Boolean(root.querySelector('.library-settings-section-indexed-files:not([open])')),
           controls: controls.length,
           unlabelledControls,
           postForms: root.querySelectorAll('form[method="post"]').length,
@@ -475,6 +479,10 @@ async function runBrowserSmoke(proxyBase) {
     print('settings_present', settingsDom.present)
     print('settings_auth_blocked', settingsDom.authBlocked === true)
     print('settings_labelled_sections', settingsDom.labelledSections)
+    print('settings_collapsible_sections', settingsDom.collapsibleSections ?? 0)
+    print('settings_quick_actions', settingsDom.settingsQuickActions === true)
+    print('settings_count_badges', settingsDom.settingsCountBadges ?? 0)
+    print('settings_indexed_files_collapsed', settingsDom.indexedFilesCollapsed === true)
     print('settings_controls', settingsDom.controls ?? 0)
     print('settings_unlabelled_controls', settingsDom.unlabelledControls ?? 0)
     print('settings_post_forms', settingsDom.postForms ?? 0)
@@ -534,6 +542,10 @@ async function runBrowserSmoke(proxyBase) {
       && (settingsDom.authBlocked === true || (
         settingsDom.present === true
         && settingsDom.labelledSections === true
+        && settingsDom.collapsibleSections === 4
+        && settingsDom.settingsQuickActions === true
+        && settingsDom.settingsCountBadges >= 4
+        && settingsDom.indexedFilesCollapsed === true
         && settingsDom.controls > 0
         && settingsDom.unlabelledControls === 0
         && settingsDom.postForms > 0

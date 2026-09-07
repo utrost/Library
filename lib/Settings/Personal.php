@@ -44,6 +44,7 @@ class Personal implements ISettings {
             'metadataImportPreviewUrl' => $this->urlGenerator->linkToRoute('library.import.preview'),
             'metadataImportApplyUrl' => $this->urlGenerator->linkToRoute('library.import.apply'),
             'bulkResetFieldsUrl' => $this->urlGenerator->linkToRoute('library.item.bulkresetfields'),
+            'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
         ], '');
     }
 
