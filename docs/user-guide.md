@@ -406,9 +406,9 @@ Acceptance checks:
 
 Visible gaps:
 
-- root management needs stronger confirmation and recovery guidance;
+- root deletion now requires users to Type DELETE to confirm; recovery guidance and richer path validation still need release polish;
 - first-run empty state could guide non-technical users more explicitly;
-- no bulk rescan scheduling or running-job scan cancellation UI.
+- no bulk rescan scheduling or completion notifications.
 
 ### Story 2: Correcting messy scanner metadata
 
@@ -596,16 +596,16 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 4. Add repair-oriented scan lifecycle controls. Queued scans, progress, metadata-error retry, **Recheck missing files**, **Cancel queued scan** and cooperative running-job cancellation work; scheduled scans and completion notifications do not.
 5. Improve the cover quality path. Preview, EPUB package cover, CBZ first image, placeholders and a refresh-cover retry affordance work; app-owned cover cache and manual override do not.
 6. Add discovery by publication structure. Search/filter/pagination exist; creator, series, publication/year pages and saved views do not.
-7. Polish root/onboarding/shared-library workflows. Root lifecycle exists; stronger confirmations, first-run guidance and admin-managed shared roots remain future work.
+7. Polish root/onboarding/shared-library workflows. Root lifecycle exists with typed root-delete confirmation; recovery guidance, first-run guidance and admin-managed shared roots remain future work.
 
 ## Crucial missing-feature candidates exposed by the guide
 
 These are the highest-signal gaps to judge before pushing v0.1 further:
 
-1. **Root management polish beyond the first lifecycle slice** — users can edit, enable/disable, delete and scan one root, but the workflow still needs stronger confirmation, clearer consequences and richer validation before release.
+1. **Root management polish beyond the first lifecycle slice** — users can edit, enable/disable, delete and scan one root, and root deletion asks users to Type DELETE to confirm; the workflow still needs clearer recovery consequences and richer validation before release.
 2. **Scan lifecycle controls** — queued scans, metadata-error retry, missing-file recheck, queued-job cancellation and cooperative running-job cancellation work, but scheduled scans and completion notifications are absent.
 3. **Metadata correction workflow** — details editing, field-level scanner candidates, single-field reset-to-scanner, whole-item reset to scanner candidates, non-blocking edit guidance, field-level **Differs from scanner** labels, a read-only metadata correction summary and the first scanner-conflict review filter exist. Bulk edit remains future work, as does hard validation.
-4. **Tag UX** — tag add/remove, tag suggestions, one-click suggested tag buttons and tag result feedback work, but bulk tagging remains future work.
+4. **Tag UX** — tag add/remove, tag suggestions, one-click suggested tag buttons, tag result feedback, and filter-result bulk tagging apply/remove work; richer taxonomy batch workflows remain future work.
 5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers and a refresh-cover retry affordance work, but app-owned cover cache and manual overrides remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
 7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips and top-series shortcuts exist, but there are no dedicated creator/series/publication/year landing pages, smart collections or saved views.

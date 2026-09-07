@@ -44,7 +44,7 @@ The current development slice can:
 - sort the catalogue grid by title, recently added, publication date, series/periodical or format;
 - mark previously indexed files as missing when a root scan no longer sees them, without deleting catalogue metadata, and recheck only those missing rows later when a file may have returned.
 - forget missing item catalogue entries from the details page after their backing file is no longer seen, without deleting source files.
-- edit, enable/disable and delete Library roots from the personal settings surface without deleting source files from Nextcloud Files.
+- edit, enable/disable and delete Library roots from the personal settings surface with typed root-delete confirmation, without deleting source files from Nextcloud Files.
 - export corrected metadata as a side-effect-free JSON download for user-edited catalogue rows.
 - export a read-only sidecar manifest and a sidecar ZIP of proposed `.library.json` files without writing sidecars into source folders.
 - preview corrected metadata imports before writing changes, then apply matched corrected metadata to existing Library items when the preview is acceptable.
