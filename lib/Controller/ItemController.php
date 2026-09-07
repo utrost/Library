@@ -8,6 +8,7 @@ use OCA\Library\Service\ItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
@@ -124,6 +125,30 @@ final class ItemController extends Controller {
         $query['batchMetadataReset'] = (string)($result['resetItems'] ?? 0);
         $query['batchMetadataSkipped'] = (string)($result['skippedItems'] ?? 0);
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function batchpreviewmetadataedit(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $filters = $this->catalogueFiltersFromRequest();
+        $result = [
+            'batchMetadataEditPreviewResult' => true,
+            'previewOnly' => true,
+            'requestedItems' => 0,
+            'changedItems' => 0,
+            'unchangedItems' => 0,
+            'skippedItems' => 0,
+            'examples' => [],
+        ];
+        if ($user !== null) {
+            $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+            $result = array_merge($result, $this->itemService->previewBatchMetadataEdit($user->getUID(), $itemIds,
+                (string)$this->request->getParam('bulkEditField', ''),
+                (string)$this->request->getParam('bulkEditValue', ''),
+            ));
+        }
+        return new JSONResponse($result);
     }
 
     private function catalogueFiltersFromRequest(): array {

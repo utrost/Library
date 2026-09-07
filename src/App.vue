@@ -66,6 +66,7 @@ const catalogueEndpointUrl = computed(() => catalogueState.catalogueEndpointUrl 
 const batchTagUrl = computed(() => catalogueState.batchTagUrl || '/apps/library/bulk/tags')
 const batchTagRemoveUrl = computed(() => catalogueState.batchTagRemoveUrl || '/apps/library/bulk/tags/remove')
 const batchMetadataResetUrl = computed(() => catalogueState.batchMetadataResetUrl || '/apps/library/bulk/items/reset-filtered-fields')
+const batchMetadataEditPreviewUrl = computed(() => catalogueState.batchMetadataEditPreviewUrl || '/apps/library/bulk/items/edit-preview')
 const batchCoverRefreshUrl = computed(() => catalogueState.batchCoverRefreshUrl || '/apps/library/bulk/covers/refresh')
 const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictReviewUrl || '?scannerConflicts=1')
 const rootCount = computed(() => Number(catalogueState.rootCount || 0))
@@ -115,7 +116,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -443,6 +444,30 @@ async function toggleStar(item, event) {
         <input type="hidden" name="scannerConflicts" value="1">
         <button type="submit" class="button secondary">{{ t('library', 'Reset filtered metadata') }}</button>
         <p class="library-muted">{{ t('library', 'Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.') }}</p>
+      </form>
+      <form method="post" :action="batchMetadataEditPreviewUrl" class="library-batch-metadata-edit-preview-form" target="_blank">
+        <input type="hidden" name="requesttoken" :value="requestToken">
+        <input v-for="filter in batchHiddenFilters" :key="`edit-preview-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
+        <label>
+          <span>{{ t('library', 'Metadata field') }}</span>
+          <select name="bulkEditField">
+            <option value="publicationType">{{ t('library', 'Publication type') }}</option>
+            <option value="subtitle">{{ t('library', 'Subtitle') }}</option>
+            <option value="creators">{{ t('library', 'Creators') }}</option>
+            <option value="publication">{{ t('library', 'Series / periodical') }}</option>
+            <option value="publicationDate">{{ t('library', 'Publication date') }}</option>
+            <option value="language">{{ t('library', 'Language') }}</option>
+            <option value="publisher">{{ t('library', 'Publisher') }}</option>
+            <option value="genres">{{ t('library', 'Genres') }}</option>
+            <option value="classifications">{{ t('library', 'Classifications') }}</option>
+          </select>
+        </label>
+        <label>
+          <span>{{ t('library', 'Preview value') }}</span>
+          <input type="text" name="bulkEditValue" placeholder="magazine, de, photography..." autocomplete="off">
+        </label>
+        <button type="submit" class="button secondary">{{ t('library', 'Preview metadata edit') }}</button>
+        <p class="library-muted">{{ t('library', 'Preview-first batch metadata edit for current filter results. No changes are written during preview.') }}</p>
       </form>
       <form method="post" :action="batchCoverRefreshUrl" class="library-batch-cover-refresh-form">
         <input type="hidden" name="requesttoken" :value="requestToken">

@@ -217,6 +217,7 @@ function fallbackCatalogue(state, error) {
   const batchTagUrl = text(state.batchTagUrl || '/apps/library/bulk/tags')
   const batchTagRemoveUrl = text(state.batchTagRemoveUrl || '/apps/library/bulk/tags/remove')
   const batchMetadataResetUrl = text(state.batchMetadataResetUrl || '/apps/library/bulk/items/reset-filtered-fields')
+  const batchMetadataEditPreviewUrl = text(state.batchMetadataEditPreviewUrl || '/apps/library/bulk/items/edit-preview')
   const batchCoverRefreshUrl = text(state.batchCoverRefreshUrl || '/apps/library/bulk/covers/refresh')
 
   const root = document.createElement('div')
@@ -382,6 +383,48 @@ function fallbackCatalogue(state, error) {
   resetNote.className = 'library-muted'
   resetNote.textContent = t('library', 'Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.')
   resetForm.append(resetConflictOnly, resetButton, resetNote)
+  const editPreviewForm = document.createElement('form')
+  editPreviewForm.method = 'post'
+  editPreviewForm.action = batchMetadataEditPreviewUrl
+  editPreviewForm.className = 'library-batch-metadata-edit-preview-form'
+  editPreviewForm.target = '_blank'
+  const editPreviewToken = fallbackHiddenRequestToken(state)
+  if (editPreviewToken) editPreviewForm.appendChild(editPreviewToken)
+  for (const [key, value] of Object.entries(state.activeFilters || {})) {
+    if (text(value).trim() === '') continue
+    const hidden = document.createElement('input')
+    hidden.type = 'hidden'
+    hidden.name = key
+    hidden.value = text(value)
+    editPreviewForm.appendChild(hidden)
+  }
+  const editFieldLabel = document.createElement('label')
+  editFieldLabel.textContent = t('library', 'Metadata field')
+  const editField = document.createElement('select')
+  editField.name = 'bulkEditField'
+  for (const [value, label] of [['publicationType', 'Publication type'], ['subtitle', 'Subtitle'], ['creators', 'Creators'], ['publication', 'Series / periodical'], ['publicationDate', 'Publication date'], ['language', 'Language'], ['publisher', 'Publisher'], ['genres', 'Genres'], ['classifications', 'Classifications']]) {
+    const option = document.createElement('option')
+    option.value = value
+    option.textContent = t('library', label)
+    editField.appendChild(option)
+  }
+  editFieldLabel.appendChild(editField)
+  const editValueLabel = document.createElement('label')
+  editValueLabel.textContent = t('library', 'Preview value')
+  const editValue = document.createElement('input')
+  editValue.type = 'text'
+  editValue.name = 'bulkEditValue'
+  editValue.placeholder = 'magazine, de, photography...'
+  editValue.autocomplete = 'off'
+  editValueLabel.appendChild(editValue)
+  const editPreviewButton = document.createElement('button')
+  editPreviewButton.type = 'submit'
+  editPreviewButton.className = 'button secondary'
+  editPreviewButton.textContent = t('library', 'Preview metadata edit')
+  const editPreviewNote = document.createElement('p')
+  editPreviewNote.className = 'library-muted'
+  editPreviewNote.textContent = t('library', 'Preview-first batch metadata edit for current filter results. No changes are written during preview.')
+  editPreviewForm.append(editFieldLabel, editValueLabel, editPreviewButton, editPreviewNote)
   const coverForm = document.createElement('form')
   coverForm.method = 'post'
   coverForm.action = batchCoverRefreshUrl
@@ -404,7 +447,7 @@ function fallbackCatalogue(state, error) {
   coverNote.className = 'library-muted'
   coverNote.textContent = t('library', 'Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.')
   coverForm.append(coverButton, coverNote)
-  batchActions.append(batchSummary, batchForm, removeForm, resetForm, coverForm)
+  batchActions.append(batchSummary, batchForm, removeForm, resetForm, editPreviewForm, coverForm)
   panel.appendChild(batchActions)
 
   const nav = document.createElement('nav')

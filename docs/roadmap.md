@@ -463,7 +463,7 @@ This section combines the role-facing gaps from the [User and admin guide](user-
 
 ### Current answers
 
-- **Item metadata update:** present. The details page owns publication metadata editing and user-edited items are preserved across rescans.
+- **Item metadata update:** present. The details page owns publication metadata editing and user-edited items are preserved across rescans. A preview-first batch metadata edit endpoint/form now estimates one-field edits for current filter results, but arbitrary bulk edit remains preview-only until a safer apply/review workflow lands.
 - **Root add/update:** first lifecycle slice landed. Users can save roots, edit label/path, enable/disable, delete roots and scan one selected root from settings.
 - **Deletion:** first item-forget slice landed. Root deletion removes Library catalogue/index data for that root without deleting source files; missing files are marked `missing` on rescan; the details page can forget missing item rows. Source-file deletion remains deliberately deferred to Nextcloud Files.
 - **Library removal/uninstall:** first guide/export slice landed. Original Nextcloud files remain canonical, disable/remove commands and consequences are documented, and corrected user-edited metadata can be downloaded as side-effect-free JSON before removal. Restore/import still requires DB backup or future import work.

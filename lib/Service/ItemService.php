@@ -324,6 +324,79 @@ final class ItemService {
         ];
     }
 
+    public function previewBatchMetadataEdit(string $userId, array $itemIds, string $field, string $value): array {
+        $ids = $this->normalizeBulkItemIds($itemIds);
+        $field = trim($field);
+        if (!in_array($field, self::PUBLICATION_FIELDS, true) || $this->databaseColumnForField($field) === null) {
+            return [
+                'previewOnly' => true,
+                'invalidField' => true,
+                'field' => $field,
+                'value' => $value,
+                'requestedItems' => count($ids),
+                'changedItems' => 0,
+                'unchangedItems' => 0,
+                'skippedItems' => count($ids),
+                'examples' => [],
+            ];
+        }
+
+        $normalizedValue = $this->databaseValueForField($field, $value);
+        $changedItems = 0;
+        $unchangedItems = 0;
+        $skippedItems = 0;
+        $examples = [];
+        foreach ($ids as $itemId) {
+            $item = $this->findItem($userId, $itemId);
+            if ($item === null) {
+                $skippedItems++;
+                continue;
+            }
+            $currentValue = $this->previewComparableValue($item, $field);
+            $willChange = $currentValue !== $normalizedValue;
+            if ($willChange) {
+                $changedItems++;
+            } else {
+                $unchangedItems++;
+            }
+            if (count($examples) < 5) {
+                $examples[] = [
+                    'itemId' => (int)$item['id'],
+                    'title' => (string)$item['title'],
+                    'currentValue' => $currentValue,
+                    'newValue' => $normalizedValue,
+                    'willChange' => $willChange,
+                ];
+            }
+        }
+
+        return [
+            'previewOnly' => true,
+            'invalidField' => false,
+            'field' => $field,
+            'value' => $normalizedValue,
+            'requestedItems' => count($ids),
+            'changedItems' => $changedItems,
+            'unchangedItems' => $unchangedItems,
+            'skippedItems' => $skippedItems,
+            'examples' => $examples,
+        ];
+    }
+
+    private function previewComparableValue(array $item, string $field): ?string {
+        if ($field === 'publicationType') {
+            return $this->normalizePublicationType((string)($item[$field] ?? 'other'));
+        }
+        if ($field === 'title') {
+            return trim((string)($item[$field] ?? '')) ?: 'Untitled publication';
+        }
+        if ($field === 'genres' || $field === 'classifications') {
+            return $this->jsonEncodeList($this->normalizeMultiValueField($item[$field] ?? []));
+        }
+        $current = trim((string)($item[$field] ?? ''));
+        return $current === '' ? null : $current;
+    }
+
     /**
      * @return array<int, int>
      */

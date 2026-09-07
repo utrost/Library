@@ -138,6 +138,7 @@ class PageController extends Controller {
             'batchTagUrl' => $this->urlGenerator->linkToRoute('library.tag.batchassign'),
             'batchTagRemoveUrl' => $this->urlGenerator->linkToRoute('library.tag.batchremove'),
             'batchMetadataResetUrl' => $this->urlGenerator->linkToRoute('library.item.batchresetfilteredfields'),
+            'batchMetadataEditPreviewUrl' => $this->urlGenerator->linkToRoute('library.item.batchpreviewmetadataedit'),
             'batchCoverRefreshUrl' => $this->urlGenerator->linkToRoute('library.cover.batchrefresh'),
             'batchCoverRefreshRequested' => $batchCoverRefreshRequested,
             'scannerConflictReviewUrl' => '?scannerConflicts=1',
