@@ -27,6 +27,7 @@ class ScanJob extends QueuedJob {
         $rootId = isset($argument['rootId']) ? (int)$argument['rootId'] : null;
         $scopeType = (string)($argument['scopeType'] ?? '');
         $retryMetadataErrors = (bool)($argument['retryMetadataErrors'] ?? false) || $scopeType === 'metadata_errors';
+        $recheckMissingFiles = (bool)($argument['recheckMissingFiles'] ?? false) || $scopeType === 'missing_files';
         if ($userId === '' || $jobId <= 0) {
             return;
         }
@@ -36,9 +37,11 @@ class ScanJob extends QueuedJob {
             $progress = function (array $progress) use ($userId, $jobId): void {
                 $this->scanJobService->updateProgress($userId, $jobId, $progress);
             };
-            $result = $retryMetadataErrors
-                ? $this->scanner->retryMetadataErrors($userId, $progress)
-                : $this->scanner->scan($userId, $rootId, $progress);
+            $result = match (true) {
+                $retryMetadataErrors => $this->scanner->retryMetadataErrors($userId, $progress),
+                $recheckMissingFiles => $this->scanner->recheckMissingFiles($userId, $progress),
+                default => $this->scanner->scan($userId, $rootId, $progress),
+            };
             $this->scanJobService->finishJob($userId, $jobId, $result);
         } catch (Throwable $e) {
             $this->scanJobService->failJob($userId, $jobId, $e->getMessage());

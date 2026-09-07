@@ -75,6 +75,12 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <span class="library-muted"><?php p($l->t('Only rows currently marked metadata_error are retried; unrelated indexed files are not marked missing.')); ?></span>
         </form>
 
+        <form method="post" action="<?php p($_['scanRecheckMissingFilesUrl']); ?>" class="library-inline-form library-scan-recheck-missing-files-form">
+            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+            <button type="submit"><?php p($l->t('Recheck missing files')); ?></button>
+            <span class="library-muted"><?php p($l->t('Only rows currently marked as missing files are rechecked; unrelated indexed files are not marked missing.')); ?></span>
+        </form>
+
         <p class="library-detail-actions">
             <a href="<?php p($_['metadataExportUrl']); ?>" class="button secondary"><?php p($l->t('Export corrected metadata')); ?></a>
         </p>
