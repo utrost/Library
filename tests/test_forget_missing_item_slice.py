@@ -61,7 +61,8 @@ def test_docs_describe_forget_missing_and_uninstall_export_boundary():
     assert "does not delete source files" in guide
     assert "Disable the app" in guide
     assert "Remove the app" in guide
-    assert "metadata export" in guide
+    assert "corrected-metadata export" in guide
+    assert "Apply metadata import" in guide
     assert "Deletion/forget policy.** First slice landed" in roadmap
     assert "Library removal/uninstall guide.** First slice landed" in roadmap
     assert "Metadata export foundation.** First slice landed" in roadmap

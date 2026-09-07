@@ -351,12 +351,7 @@ final class ItemService {
                 continue;
             }
 
-            $itemChangedFields = [];
-            foreach (self::PUBLICATION_FIELDS as $field) {
-                if (array_key_exists($field, $importItem) && (string)($importItem[$field] ?? '') !== (string)($current[$field] ?? '')) {
-                    $itemChangedFields[] = $field;
-                }
-            }
+            $itemChangedFields = $this->changedImportFields($current, $importItem);
             $matchedItems++;
             $changedFields += count($itemChangedFields);
             $previewItems[] = [
@@ -382,6 +377,96 @@ final class ItemService {
         ];
     }
 
+    public function applyCorrectedMetadataImport(string $userId, string $metadataJson): array {
+        try {
+            $payload = json_decode($metadataJson, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return $this->emptyImportApply(false, 'invalid_json');
+        }
+        if (!is_array($payload) || (string)($payload['exportKind'] ?? '') !== 'library-corrected-metadata' || !is_array($payload['items'] ?? null)) {
+            return $this->emptyImportApply(false, 'unsupported_export');
+        }
+
+        $applyItems = [];
+        $matchedItems = 0;
+        $appliedItems = 0;
+        $skippedItems = 0;
+        $missingItems = 0;
+        $invalidItems = 0;
+        $changedFields = 0;
+        foreach ($payload['items'] as $importItem) {
+            if (!is_array($importItem)) {
+                $invalidItems++;
+                continue;
+            }
+            $current = $this->findItemForImportPreview($userId, $importItem);
+            if ($current === null) {
+                $missingItems++;
+                $applyItems[] = [
+                    'status' => 'missing',
+                    'cachedPath' => (string)($importItem['cachedPath'] ?? ''),
+                    'changedFields' => [],
+                ];
+                continue;
+            }
+
+            $itemChangedFields = $this->changedImportFields($current, $importItem);
+            $matchedItems++;
+            $changedFields += count($itemChangedFields);
+            if ($itemChangedFields === []) {
+                $skippedItems++;
+                $applyItems[] = [
+                    'status' => 'unchanged',
+                    'itemId' => (int)$current['id'],
+                    'libraryFileId' => (int)$current['libraryFileId'],
+                    'cachedPath' => (string)($current['cachedPath'] ?? ''),
+                    'changedFields' => [],
+                ];
+                continue;
+            }
+
+            $this->updateItem($userId, (int)$current['id'], $importItem);
+            $appliedItems++;
+            $applyItems[] = [
+                'status' => 'applied',
+                'itemId' => (int)$current['id'],
+                'libraryFileId' => (int)$current['libraryFileId'],
+                'cachedPath' => (string)($current['cachedPath'] ?? ''),
+                'changedFields' => $itemChangedFields,
+            ];
+        }
+
+        return [
+            'schemaVersion' => 1,
+            'applicationKind' => 'library-metadata-import-apply',
+            'valid' => true,
+            'error' => '',
+            'totalItems' => count($payload['items']),
+            'matchedItems' => $matchedItems,
+            'appliedItems' => $appliedItems,
+            'skippedItems' => $skippedItems,
+            'missingItems' => $missingItems,
+            'invalidItems' => $invalidItems,
+            'changedFields' => $changedFields,
+            'items' => $applyItems,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $current
+     * @param array<string, mixed> $importItem
+     * @return array<int, string>
+     */
+    private function changedImportFields(array $current, array $importItem): array {
+        $changedFields = [];
+        foreach (self::PUBLICATION_FIELDS as $field) {
+            if (array_key_exists($field, $importItem) && (string)($importItem[$field] ?? '') !== (string)($current[$field] ?? '')) {
+                $changedFields[] = $field;
+            }
+        }
+        return $changedFields;
+    }
+
     private function emptyImportPreview(bool $valid, string $error): array {
         return [
             'schemaVersion' => 1,
@@ -390,6 +475,23 @@ final class ItemService {
             'error' => $error,
             'totalItems' => 0,
             'matchedItems' => 0,
+            'missingItems' => 0,
+            'invalidItems' => 0,
+            'changedFields' => 0,
+            'items' => [],
+        ];
+    }
+
+    private function emptyImportApply(bool $valid, string $error): array {
+        return [
+            'schemaVersion' => 1,
+            'applicationKind' => 'library-metadata-import-apply',
+            'valid' => $valid,
+            'error' => $error,
+            'totalItems' => 0,
+            'matchedItems' => 0,
+            'appliedItems' => 0,
+            'skippedItems' => 0,
             'missingItems' => 0,
             'invalidItems' => 0,
             'changedFields' => 0,

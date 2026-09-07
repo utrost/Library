@@ -3,6 +3,7 @@
 $item = $_['item'] ?? [];
 $comments = $item['nextcloudComments'] ?? ['count' => 0, 'recent' => []];
 $tags = $item['nextcloudTags'] ?? [];
+$tagSuggestions = is_array($item['tagSuggestions'] ?? null) ? $item['tagSuggestions'] : [];
 $publicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'];
 $metadataRows = [
     'Title' => $item['title'] ?? '',
@@ -256,8 +257,13 @@ $fileRows = [
                     <input type="hidden" name="returnTo" value="details" />
                     <label>
                         <?php p($l->t('Add Nextcloud tag')); ?>
-                        <input type="text" name="nextcloudTagName" placeholder="<?php p($l->t('photography, project-library...')); ?>" />
+                        <input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" placeholder="<?php p($l->t('photography, project-library...')); ?>" />
                     </label>
+                    <datalist id="library-nextcloud-tag-suggestions">
+                        <?php foreach ($tagSuggestions as $tagName): ?>
+                            <option value="<?php p((string)$tagName); ?>"></option>
+                        <?php endforeach; ?>
+                    </datalist>
                     <button type="submit"><?php p($l->t('Add tag')); ?></button>
                 </form>
             </div>

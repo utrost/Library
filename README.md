@@ -32,6 +32,7 @@ The current development slice can:
 - clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items while keeping manually edited OPF sidecar items visible as standalone records until an explicit merge/migration exists;
 - extract first CBZ ComicInfo.xml metadata for comic title, series, creators, publisher and date;
 - extract filename/folder metadata patterns for magazine dates/issues and comic number/title names when OPF/embedded metadata is absent;
+- EPUB cover extraction landed: extract EPUB cover images from EPUB package manifests when Nextcloud preview cannot provide a cover;
 - serve CBZ first-image covers when the general Nextcloud preview pipeline cannot generate a cover;
 - return cover diagnostics on every cover response, including preview-backed, CBZ first-image and placeholder covers;
 - provide separate Read, Show in Files and Download source actions for each catalogue item;
@@ -40,7 +41,7 @@ The current development slice can:
 - forget missing item catalogue entries from the details page after their backing file is no longer seen, without deleting source files.
 - edit, enable/disable and delete Library roots from the personal settings surface without deleting source files from Nextcloud Files.
 - export corrected metadata as a side-effect-free JSON download for user-edited catalogue rows.
-- preview corrected metadata imports without writing changes, so restore matching can be checked before a future apply step.
+- preview corrected metadata imports before writing changes, then apply matched corrected metadata to existing Library items when the preview is acceptable.
 - filter the catalogue by scan status (`indexed`, `metadata_error`, `missing`) and show per-card scan diagnostics for unhealthy items.
 - query catalogue search, filters, sort modes and pagination through database-backed item queries instead of loading the full catalogue into app-layer arrays.
 - isolate local metadata extraction failures per file so corrupt EPUB/CBZ/OPF fixtures do not abort an otherwise healthy root scan, and show the scan error in the indexed-file diagnostics.

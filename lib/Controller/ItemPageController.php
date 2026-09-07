@@ -67,6 +67,7 @@ final class ItemPageController extends Controller {
             ]);
             return $tag;
         }, $tags[$fileId] ?? []);
+        $item['tagSuggestions'] = $this->fileTagService->visibleAssignableTagNames();
         $item['nextcloudComments'] = $comments[$fileId] ?? ['count' => 0, 'recent' => []];
 
         Util::addStyle(Application::APP_ID, 'style');
