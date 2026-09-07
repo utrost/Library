@@ -40,14 +40,14 @@ def test_cache_busting_version_bumped_for_compact_card_fix():
     package = (ROOT / "package.json").read_text()
     lock = (ROOT / "package-lock.json").read_text()
 
-    assert "<version>0.1.0-alpha.81</version>" in info
-    assert '"version": "0.1.0-alpha.81"' in package
-    assert '"version": "0.1.0-alpha.81"' in lock
+    assert "<version>0.1.0-alpha.82</version>" in info
+    assert '"version": "0.1.0-alpha.82"' in package
+    assert '"version": "0.1.0-alpha.82"' in lock
 
 
 def test_smoke_requires_compact_card_default_and_version_marker():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
     assert "source_has_compact_cover_cards_all_widths" in smoke
-    assert "app_version=0.1.0-alpha.81" in smoke
+    assert "app_version=0.1.0-alpha.82" in smoke
     assert "served_css_has_compact_cover_defaults" in smoke

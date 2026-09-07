@@ -92,6 +92,7 @@ async function fetchBinaryStatus(pathOrUrl, token) {
     status: response.status,
     bytes: body.byteLength,
     contentType: response.headers.get('content-type') || '',
+    headers: response.headers,
   }
 }
 
@@ -143,6 +144,8 @@ try {
     const settingsPage = await fetchText('/settings/user/library', token)
     const metadataSidecarManifestUrl = state?.metadataSidecarManifestUrl || '/apps/library/export/metadata/sidecar-manifest'
     const sidecarManifest = await fetchText(metadataSidecarManifestUrl, token)
+    const metadataSidecarBundleUrl = state?.metadataSidecarBundleUrl || '/apps/library/export/metadata/sidecars.zip'
+    const sidecarBundle = await fetchBinaryStatus(metadataSidecarBundleUrl, token)
     let sidecarManifestJson = null
     try {
       sidecarManifestJson = JSON.parse(sidecarManifest.text)
@@ -191,6 +194,12 @@ try {
     console.log(`sidecar_manifest_mode=${sidecarManifest.headers.get('X-Library-Export-Type') || ''}`)
     console.log(`sidecar_manifest_kind=${sidecarManifestJson?.manifestKind || ''}`)
     console.log(`sidecar_manifest_item_count=${sidecarManifestJson?.itemCount ?? -1}`)
+    console.log(`state_has_metadataSidecarBundleUrl=${String(state?.metadataSidecarBundleUrl || '').includes('/apps/library/export/metadata/sidecars.zip')}`)
+    console.log(`sidecar_bundle_http=${sidecarBundle.status}`)
+    console.log(`sidecar_bundle_mode=${sidecarBundle.headers.get('X-Library-Export-Type') || ''}`)
+    console.log(`sidecar_bundle_is_metadata_bundle=${sidecarBundle.headers.get('X-Library-Export-Type') === 'corrected-metadata-sidecar-bundle'}`)
+    console.log(`sidecar_bundle_content_type=${sidecarBundle.contentType}`)
+    console.log(`sidecar_bundle_bytes=${sidecarBundle.bytes}`)
     console.log(`state_has_publications=${Array.isArray(state?.publications)}`)
     console.log(`state_has_publication_summaries=${Array.isArray(state?.publicationSummaries)}`)
     console.log(`state_has_publication_years=${Array.isArray(state?.publicationYears)}`)
@@ -202,15 +211,16 @@ try {
     console.log(`source_has_creator_filter=${sourceComponent.includes('Creator') && sourceComponent.includes('name="creator"') && sourceComponent.includes('All creators') && sourceComponent.includes('Exact full-field creator matches only')}`)
     console.log(`source_has_active_filter_chips=${sourceComponent.includes('library-active-filter-chips') && sourceComponent.includes('activeFilterChips') && sourceComponent.includes('filterChipRemoveUrl') && sourceComponent.includes('Remove filter') && sourceComponent.includes("params.delete(key)") && sourceComponent.includes("params.delete('page')")}`)
     const appInfo = readFileSync('appinfo/info.xml', 'utf8')
-    console.log(`app_version=0.1.0-alpha.81`)
+    console.log(`app_version=0.1.0-alpha.82`)
     console.log(`source_has_mobile_cover_first_cards=${sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceComponent.includes('library-cover-actions') && sourceStyle.includes('@media (max-width: 520px)') && sourceStyle.includes('grid-template-columns: repeat(2, minmax(0, 1fr))')}`)
-    console.log(`source_has_compact_cover_cards_all_widths=${appInfo.includes('<version>0.1.0-alpha.81</version>') && sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0')}`)
+    console.log(`source_has_compact_cover_cards_all_widths=${appInfo.includes('<version>0.1.0-alpha.82</version>') && sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0')}`)
     console.log(`served_css_has_compact_cover_defaults=${css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') && css.text.includes('min-height:0') && css.text.includes('library-cover-details')}`)
     console.log(`source_has_publication_sort=${sourceComponent.includes('<option value="publication">')}`)
     console.log(`source_has_periodical_groups_panel=${sourceComponent.includes('library-periodical-groups') && sourceComponent.includes('Top series and periodicals') && sourceComponent.includes('Jump into recurring publications with one click') && sourceComponent.includes('publicationFilterUrl(summary.publication)')}`)
     console.log(`source_has_periodical_empty_state=${sourceComponent.includes('library-periodical-groups-empty') && sourceComponent.includes('No series or periodicals found yet')}`)
     console.log(`source_has_metadata_export_link=${sourceComponent.includes('metadataExportUrl') && sourceComponent.includes('Export corrected metadata')}`)
     console.log(`source_has_sidecar_manifest_link=${sourceComponent.includes('metadataSidecarManifestUrl') && sourceComponent.includes('Export sidecar manifest')}`)
+    console.log(`source_has_sidecar_bundle_link=${sourceComponent.includes('metadataSidecarBundleUrl') && sourceComponent.includes('Export sidecar ZIP')}`)
     console.log(`cover_http=${cover.status}`)
     console.log(`cover_content_type=${cover.contentType}`)
     console.log(`cover_header_status=${cover.coverStatus}`)

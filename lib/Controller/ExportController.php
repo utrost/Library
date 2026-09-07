@@ -11,6 +11,7 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\IRequest;
 use OCP\IUserSession;
+use ZipArchive;
 
 class ExportController extends Controller {
     public function __construct(
@@ -57,6 +58,62 @@ class ExportController extends Controller {
         );
     }
 
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function sidecarBundle(): DataDownloadResponse {
+        $user = $this->userSession->getUser();
+        $manifest = $user !== null
+            ? $this->itemService->exportCorrectedMetadataSidecarManifest($user->getUID())
+            : [
+                'schemaVersion' => 1,
+                'exportedAt' => gmdate(DATE_ATOM),
+                'manifestKind' => 'library-corrected-metadata-sidecar-manifest',
+                'itemCount' => 0,
+                'items' => [],
+            ];
+
+        $zip = new ZipArchive();
+        $tempPath = tempnam(sys_get_temp_dir(), 'library-sidecars-');
+        if ($tempPath === false || $zip->open($tempPath, ZipArchive::OVERWRITE) !== true) {
+            return $this->downloadJson([
+                'schemaVersion' => 1,
+                'error' => 'zip_unavailable',
+                'items' => [],
+            ], 'library-metadata-sidecars-error.json', 'corrected-metadata-sidecar-bundle');
+        }
+
+        $zip->addFromString('library-sidecar-manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+        foreach (($manifest['items'] ?? []) as $manifestItem) {
+            if (!is_array($manifestItem)) {
+                continue;
+            }
+            $entryName = $this->zipEntryName((string)($manifestItem['sidecarPath'] ?? ''));
+            if ($entryName === '') {
+                continue;
+            }
+            $metadata = is_array($manifestItem['metadata'] ?? null) ? $manifestItem['metadata'] : [];
+            $zip->addFromString($entryName, json_encode($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+        }
+        $zip->close();
+
+        $contents = file_get_contents($tempPath);
+        @unlink($tempPath);
+        if (!is_string($contents)) {
+            $contents = '';
+        }
+
+        return new DataDownloadResponse(
+            $contents,
+            'library-metadata-sidecars.zip',
+            'application/zip',
+            200,
+            [
+                'Cache-Control' => 'private, no-store',
+                'X-Library-Export-Type' => 'corrected-metadata-sidecar-bundle',
+            ]
+        );
+    }
+
     /**
      * @param array<string, mixed> $payload
      */
@@ -76,5 +133,11 @@ class ExportController extends Controller {
                 'X-Library-Export-Type' => $exportType,
             ]
         );
+    }
+
+    private function zipEntryName(string $sidecarPath): string {
+        $entryName = trim(str_replace('\\', '/', $sidecarPath), '/');
+        $parts = array_values(array_filter(explode('/', $entryName), static fn (string $part): bool => $part !== '' && $part !== '.' && $part !== '..'));
+        return implode('/', $parts);
     }
 }

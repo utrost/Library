@@ -44,6 +44,7 @@ The current development slice can:
 - forget missing item catalogue entries from the details page after their backing file is no longer seen, without deleting source files.
 - edit, enable/disable and delete Library roots from the personal settings surface without deleting source files from Nextcloud Files.
 - export corrected metadata as a side-effect-free JSON download for user-edited catalogue rows.
+- export a read-only sidecar manifest and a sidecar ZIP of proposed `.library.json` files without writing sidecars into source folders.
 - preview corrected metadata imports before writing changes, then apply matched corrected metadata to existing Library items when the preview is acceptable.
 - star/unstar publications from item details, show starred state on compact catalogue cards, filter the catalogue with `starred=1`, and carry starred state through corrected-metadata export/import without changing scanner provenance.
 - record Library **Read** clicks as `last_opened_at`, route them through a Library redirect to Nextcloud's `/f/{fileId}` handoff, sort by recently opened, and carry last-opened state through corrected-metadata export/import without treating Files/download opens as tracked activity.

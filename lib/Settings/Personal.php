@@ -40,6 +40,7 @@ class Personal implements ISettings {
             'scanProgressUrl' => $this->urlGenerator->linkToRoute('library.scan.progress'),
             'metadataExportUrl' => $this->urlGenerator->linkToRoute('library.export.metadata'),
             'metadataSidecarManifestUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarManifest'),
+            'metadataSidecarBundleUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarBundle'),
             'metadataImportPreviewUrl' => $this->urlGenerator->linkToRoute('library.import.preview'),
             'metadataImportApplyUrl' => $this->urlGenerator->linkToRoute('library.import.apply'),
             'bulkResetFieldsUrl' => $this->urlGenerator->linkToRoute('library.item.bulkresetfields'),

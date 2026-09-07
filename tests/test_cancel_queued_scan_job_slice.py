@@ -56,5 +56,5 @@ def test_smoke_docs_and_version_track_cancel_queued_scans_as_landed():
     assert "cancel queued scan" in readme.lower()
     assert "Cancel queued scan" in guide
     assert "cancel queued scan" in roadmap.lower()
-    assert "0.1.0-alpha.81" in info
-    assert '"version": "0.1.0-alpha.81"' in package
+    assert "0.1.0-alpha.82" in info
+    assert '"version": "0.1.0-alpha.82"' in package
