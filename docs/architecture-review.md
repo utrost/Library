@@ -38,8 +38,8 @@ Source: `appinfo/info.xml`.
   - icon: `img/app.svg`
   - order: `8`
 - Personal settings registration:
-  - `OCA\Library\Settings\\Personal`
-  - `OCA\Library\Settings\\PersonalSection`
+  - `OCA\Library\Settings\Personal`
+  - `OCA\Library\Settings\PersonalSection`
 
 There is no declared dependency on another app such as `epubviewer` in `info.xml`.
 
@@ -219,8 +219,8 @@ Index:
 Library adds one Nextcloud queued background job class:
 
 - `OCA\Library\BackgroundJob\ScanJob`
-- Extends: `OCP\BackgroundJob\\QueuedJob`
-- Queued by: `ScanController` through `OCP\BackgroundJob\\IJobList`
+- Extends: `OCP\BackgroundJob\QueuedJob`
+- Queued by: `ScanController` through `OCP\BackgroundJob\IJobList`
 - Arguments include the Library user id, the Library scan-job row id and optional scope such as a root id.
 
 The job:
