@@ -112,6 +112,7 @@ Current details capabilities:
   - whether the item has user-edited metadata;
   - scanner field sources and scanner candidate values;
 - add or remove assignable visible Nextcloud system tags on the backing file;
+- choose from tag suggestions for visible/assignable Nextcloud tags while still allowing a new tag name;
 - see recent Nextcloud comments for the backing file;
 - add a new Nextcloud file comment;
 - forget a missing item when the backing file row has already been marked `missing`.
@@ -193,11 +194,12 @@ The catalogue exposes `indexed`, `metadata_error` and `missing` as scan-status f
 Library serves covers through its own item cover route:
 
 - uses Nextcloud preview generation where available;
+- uses an EPUB package-manifest cover image as a fallback cover;
 - uses the first image in a CBZ as a fallback cover;
 - returns a stable SVG placeholder when no cover provider succeeds;
 - includes diagnostic response headers so smokes can distinguish preview, CBZ first-image and placeholder outcomes.
 
-There is no app-owned cover cache yet, no dedicated EPUB cover extraction path, and no manual cover override.
+There is no app-owned cover cache yet, no cover refresh control, and no manual cover override.
 
 ### Reader and source-file actions
 
@@ -245,7 +247,7 @@ Library does not implement a reader in v0.1.
 ### Using Nextcloud tags from Library
 
 1. Open an item's **Details** page.
-2. Add a visible/assignable Nextcloud tag such as `photography`, `project-library`, `manuals` or `to-review`.
+2. Add a visible/assignable Nextcloud tag such as `photography`, `project-library`, `manuals` or `to-review`; the input offers tag suggestions from assignable visible tags.
 3. Remove a tag from the details page when needed.
 4. Return to the catalogue.
 5. Filter by the exact tag name.
@@ -287,7 +289,7 @@ Forgetting a missing item removes this Library catalogue entry and its app-owned
 
 ### Export corrected metadata
 
-Use **Export corrected metadata** from the catalogue or Library settings to download a side-effect-free JSON download of user-edited catalogue rows.
+Use **Export corrected metadata** from the catalogue or Library settings to download a side-effect-free JSON download of user-edited catalogue rows; this corrected-metadata export is the portable input for preview/apply.
 
 The read-only corrected-metadata JSON export is implemented. It includes stable file identity and Library metadata needed for a first recovery/import story:
 
@@ -302,7 +304,7 @@ The read-only corrected-metadata JSON export is implemented. It includes stable 
 - metadata provenance and user-edited flags;
 - scan status and scan diagnostics.
 
-The export is read-only. It does not write OPF files, JSON sidecars or any other source-folder files. It is not a complete restore/import feature yet, but it gives admins a portable snapshot of corrected metadata before disabling or removing the app.
+The export itself is read-only. Settings also provide **Preview metadata import** and **Apply metadata import**. Preview reports matches, missing items and differing fields without writing. Apply writes matched corrected metadata to existing Library items, skips missing/unchanged rows, and still does not write OPF files, JSON sidecars or any other source-folder files.
 
 ## Admin processes
 
@@ -365,8 +367,8 @@ Current uninstall/removal boundaries:
 2. **Remove the app** through normal Nextcloud app management or by deleting `custom_apps/library` only after disabling it. This removes the app code, not the original publications in Nextcloud Files.
 3. Keep a Nextcloud database backup if you need to preserve Library roots, scan history, file index rows and corrected catalogue metadata.
 4. Use **Export corrected metadata** to keep a JSON snapshot of user-edited catalogue rows before removal.
-5. Treat import/write-back as not yet implemented: there is currently no sidecar/JSON importer that can reconstruct user-corrected Library metadata after app removal.
-6. Before uninstalling a real archive, keep both the database backup and the corrected-metadata export until a restore/import flow exists.
+5. Use **Preview metadata import** and **Apply metadata import** only against an existing Library catalogue where rows can be matched by Library/file identity or path.
+6. Treat full restore/write-back as not yet implemented: there is currently no sidecar/JSON writer that can reconstruct user-corrected Library metadata after app removal without an existing catalogue to match.
 
 ## User stories for judging v0.1 usefulness
 
@@ -568,7 +570,7 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 
 1. Keep metadata-quality work safe by splitting the extractor seam. `PublicationMetadataService` should remain the façade, but filename, PDF, OPF/EPUB and CBZ parsing should move into narrower adapters before more real-corpus rules accumulate. This refactor is now complete for the current extractor families: filename/folder parsing lives in `FilenameMetadataExtractor`, PDF Info parsing/decoding lives in `PdfInfoMetadataExtractor`, EPUB package/standalone OPF parsing lives in `OpfEpubMetadataExtractor`, and CBZ ComicInfo parsing lives in `CbzComicInfoMetadataExtractor`.
 2. Improve the metadata correction workflow. Details editing exists, field-level scanner candidates are recorded and shown on item details, manual edit keeps scanner candidates available for later reset, and rescans refresh scanner candidates while current user-edited values stay untouched. Individual fields can show a **Reset to scanner** action when a stored scanner candidate differs from the current value, and whole-item reset to scanner candidates can apply all stored candidates at once. The edit form shows hints for dates, language codes and creator separators; these hints do not block saving. Rows where the current value differs from the scanner candidate show a **Differs from scanner** label. The details page includes a read-only metadata correction summary with scanner candidate count and differing-field count. Conflict review and hard validation remain future work.
-3. Make corrected metadata portable back into a fresh install or files. Read-only export and no-write import preview exist; apply/import and write-back to JSON or OPF sidecars do not.
+3. Make corrected metadata portable back into a fresh install or files. Read-only export, no-write import preview and apply-to-matched-existing-items exist; write-back to JSON or OPF sidecars does not.
 4. Add repair-oriented scan lifecycle controls. Queued scans and progress exist; retry metadata errors, check missing files, cancellation and notifications do not.
 5. Improve the cover quality path. Preview, CBZ first image and placeholders work; EPUB cover extraction, cover cache/refresh and manual override do not.
 6. Add discovery by publication structure. Search/filter/pagination exist; creator, series, publication/year pages and saved views do not.
@@ -581,15 +583,15 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 1. **Root management polish beyond the first lifecycle slice** — users can edit, enable/disable, delete and scan one root, but the workflow still needs stronger confirmation, clearer consequences and richer validation before release.
 2. **Scan lifecycle controls** — queued scans exist, but cancellation, retry, scheduled scans, metadata-error retry, missing-file checks and completion notifications are absent.
 3. **Metadata correction workflow** — details editing, field-level scanner candidates, single-field reset-to-scanner, whole-item reset to scanner candidates, non-blocking edit guidance, field-level **Differs from scanner** labels and a read-only metadata correction summary exist. Bulk edit and review queue remain future work, as does hard validation.
-4. **Tag UX** — tag add/remove works, but lacks autocomplete, picker, bulk tagging and clear permission feedback.
-5. **Cover quality path** — preview/CBZ/placeholder covers work, but EPUB covers, cover cache and manual overrides remain missing.
+4. **Tag UX** — tag add/remove and tag suggestions work, but lacks a richer picker, bulk tagging and clear permission feedback.
+5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers work, but cover cache, refresh controls and manual overrides remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
 7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips and top-series shortcuts exist, but there are no dedicated creator/series/publication/year landing pages, smart collections or saved views.
 8. **User-facing onboarding and empty states** — the current app is smoke-testable and usable by a technical tester, but a first-time user still needs clearer guidance.
-9. **Metadata portability beyond export/preview** — corrected Library metadata can be exported as JSON and previewed for restore matches/field changes, but there is no applying import, OPF write-back, sidecar writer or migration story that makes corrections file-first durable.
+9. **Metadata portability beyond export/preview/apply** — corrected Library metadata can be exported as JSON, previewed for restore matches/field changes and applied to matched existing Library items, but there is no OPF write-back, sidecar writer or fresh-install migration story that makes corrections file-first durable.
 10. **Real-collection metadata hardening** — PDF hardening has improved, but more real EPUB/OPF/CBZ/PDF samples are needed to find weak metadata, cover and sidecar cases before release.
 
-DB-backed catalogue query path is implemented and is no longer a missing-feature candidate. Corrected-metadata JSON export and no-write import preview are implemented, but applying imports and OPF/JSON write-back remain missing.
+DB-backed catalogue query path is implemented and is no longer a missing-feature candidate. Corrected-metadata JSON export, no-write import preview and apply-to-matched-items are implemented, but OPF/JSON write-back remains missing.
 
 ## Practical review script
 
@@ -603,7 +605,7 @@ Use this script when deciding what to build next:
 6. Open each with **Read**, **Show in Files** and **Download source**.
 7. Correct metadata on three items.
 8. Add one Nextcloud tag and one comment.
-9. Export corrected metadata and inspect the JSON.
+9. Export corrected metadata and inspect the JSON; preview/apply it only after reviewing matched rows.
 10. Rescan.
 11. Confirm edits survived and diagnostics are understandable.
 12. Try to remove or temporarily disable a root.

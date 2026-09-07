@@ -123,6 +123,25 @@ final class FileTagService {
         return array_values($fileIds);
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public function visibleAssignableTagNames(int $limit = 50): array {
+        $user = $this->userSession->getUser();
+        $tagNames = [];
+        foreach ($this->tagManager->getAllTags(true, null) as $tag) {
+            if (!$this->tagManager->canUserSeeTag($tag, $user) || !$this->tagManager->canUserAssignTag($tag, $user)) {
+                continue;
+            }
+            $name = trim((string)$tag->getName());
+            if ($name !== '') {
+                $tagNames[$name] = $name;
+            }
+        }
+        natcasesort($tagNames);
+        return array_slice(array_values($tagNames), 0, max(1, $limit));
+    }
+
     public function assignTagToItem(string $userId, int $itemId, string $tagName): void {
         $tagName = trim($tagName);
         if ($tagName === '') {

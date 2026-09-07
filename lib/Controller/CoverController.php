@@ -65,11 +65,109 @@ class CoverController extends Controller {
             $previewError = 'preview-error: ' . $e->getMessage();
         }
 
+        $epubCover = $this->extractEpubCover($file, $itemId);
+        if ($epubCover !== null) {
+            return $epubCover;
+        }
+
         $cbzCover = $this->extractCbzFirstImageCover($file, $itemId);
         if ($cbzCover !== null) {
             return $cbzCover;
         }
         return $this->placeholderResponse($this->coverInitials($file->getName()), $previewError ?? ($this->isCbzFile($file) ? 'cbz-cover-unavailable' : 'preview-unavailable'));
+    }
+
+    private function isEpubFile(File $file): bool {
+        $extension = strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION));
+        $mimeType = strtolower($file->getMimetype());
+        return $extension === 'epub' || $mimeType === 'application/epub+zip';
+    }
+
+    private function extractEpubCover(File $file, int $itemId): ?DataDownloadResponse {
+        // EPUB cover fallback: read META-INF/container.xml, then package OPF cover-image metadata.
+        if (!$this->isEpubFile($file) || !class_exists(ZipArchive::class)) {
+            return null;
+        }
+
+        $temporaryPath = tempnam(sys_get_temp_dir(), 'library-epub-cover-');
+        if ($temporaryPath === false) {
+            return null;
+        }
+
+        try {
+            file_put_contents($temporaryPath, $file->getContent());
+            $zip = new ZipArchive();
+            if ($zip->open($temporaryPath) !== true) {
+                return null;
+            }
+
+            $container = $zip->getFromName('META-INF/container.xml');
+            if (!is_string($container) || !preg_match("/full-path=[\"']([^\"']+)[\"']/i", $container, $containerMatch)) {
+                $zip->close();
+                return null;
+            }
+
+            $opfPath = $containerMatch[1];
+            $opf = $zip->getFromName($opfPath);
+            if (!is_string($opf)) {
+                $zip->close();
+                return null;
+            }
+
+            $coverId = null;
+            if (preg_match("/<meta\\s+[^>]*name=[\"']cover[\"'][^>]*content=[\"']([^\"']+)[\"'][^>]*>/i", $opf, $coverMatch)
+                || preg_match("/<meta\\s+[^>]*content=[\"']([^\"']+)[\"'][^>]*name=[\"']cover[\"'][^>]*>/i", $opf, $coverMatch)) {
+                $coverId = $coverMatch[1];
+            }
+
+            $coverHref = null;
+            $coverMimeType = null;
+            if ($coverId !== null && preg_match("/<item\\s+[^>]*id=[\"']" . preg_quote($coverId, '/') . "[\"'][^>]*>/i", $opf, $itemMatch)) {
+                $coverHref = $this->xmlAttribute($itemMatch[0], 'href');
+                $coverMimeType = $this->xmlAttribute($itemMatch[0], 'media-type');
+            }
+            if ($coverHref === null && preg_match("/<item\\s+[^>]*properties=[\"'][^\"']*cover-image[^\"']*[\"'][^>]*>/i", $opf, $itemMatch)) {
+                $coverHref = $this->xmlAttribute($itemMatch[0], 'href');
+                $coverMimeType = $this->xmlAttribute($itemMatch[0], 'media-type');
+            }
+
+            if ($coverHref === null) {
+                $zip->close();
+                return null;
+            }
+
+            $coverPath = ltrim(dirname($opfPath) . '/' . $coverHref, './');
+            $content = $zip->getFromName($coverPath);
+            $zip->close();
+            if (!is_string($content) || $content === '') {
+                return null;
+            }
+
+            $mimeType = $coverMimeType ?: $this->coverMimeType($coverPath) ?: 'image/jpeg';
+            if (!str_starts_with($mimeType, 'image/')) {
+                return null;
+            }
+
+            return $this->coverResponse(
+                $content,
+                'library-cover-' . $itemId . '.' . $this->coverExtension($mimeType),
+                $mimeType,
+                'epub-cover',
+                'epub-manifest-cover-image',
+                3600
+            );
+        } catch (Throwable) {
+            return null;
+        } finally {
+            @unlink($temporaryPath);
+        }
+    }
+
+    private function xmlAttribute(string $tag, string $attribute): ?string {
+        if (preg_match("/\\s" . preg_quote($attribute, '/') . "=[\"']([^\"']+)[\"']/", $tag, $match) !== 1) {
+            return null;
+        }
+        return html_entity_decode($match[1], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     private function isCbzFile(File $file): bool {

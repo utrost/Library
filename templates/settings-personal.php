@@ -79,8 +79,18 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                 <?php p($l->t('Preview metadata import')); ?>
                 <textarea name="metadataJson" rows="6" placeholder="<?php p($l->t('Paste a Library corrected metadata JSON export here.')); ?>"></textarea>
             </label>
-            <p class="library-muted"><?php p($l->t('No changes are written during preview. Apply imported metadata remains future work.')); ?></p>
+            <p class="library-muted"><?php p($l->t('No changes are written during preview. Use Apply metadata import only after reviewing the preview output.')); ?></p>
             <button type="submit" class="button secondary"><?php p($l->t('Preview metadata import')); ?></button>
+        </form>
+
+        <form method="post" action="<?php p($_['metadataImportApplyUrl']); ?>" class="library-form library-metadata-import-apply-form">
+            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+            <label>
+                <?php p($l->t('Apply metadata import')); ?>
+                <textarea name="metadataJson" rows="6" placeholder="<?php p($l->t('Paste the reviewed Library corrected metadata JSON export here.')); ?>"></textarea>
+            </label>
+            <p class="library-muted"><?php p($l->t('This writes matched corrected metadata to existing Library items. Missing items and unchanged items are skipped.')); ?></p>
+            <button type="submit" class="button primary"><?php p($l->t('Apply metadata import')); ?></button>
         </form>
 
         <section class="library-scan-progress" aria-labelledby="library-scan-progress-heading" data-library-scan-progress-url="<?php p($_['scanProgressUrl']); ?>">

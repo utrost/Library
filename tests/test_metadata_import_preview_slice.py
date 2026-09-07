@@ -65,6 +65,9 @@ def test_smoke_posts_export_to_import_preview_and_requires_non_mutating_counts()
 
     assert "metadataImportPreviewUrl" in smoke
     assert "detail_has_metadata_import_preview_form" in smoke
+    assert "settings_has_metadata_import_apply_form" in smoke
+    assert "library-metadata-import-apply-form" in smoke
+    assert "Apply metadata import" in smoke
     assert "import_preview_http" in smoke
     assert "import_preview_matched_items" in smoke
     assert "import_preview_changed_fields" in smoke
@@ -72,7 +75,7 @@ def test_smoke_posts_export_to_import_preview_and_requires_non_mutating_counts()
     assert "preview-only" in smoke
 
 
-def test_docs_mark_metadata_import_preview_landed_but_apply_still_future():
+def test_docs_mark_metadata_import_preview_and_apply_landed_but_sidecars_still_future():
     readme = (ROOT / "README.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
@@ -80,5 +83,6 @@ def test_docs_mark_metadata_import_preview_landed_but_apply_still_future():
     assert "preview corrected metadata imports" in readme.lower()
     assert "Preview metadata import" in guide
     assert "No changes are written during preview" in guide
-    assert "Metadata import preview.** First slice landed" in roadmap
-    assert "apply imported metadata remains future work" in roadmap
+    assert "Apply metadata import" in guide
+    assert "first apply flow applies matched corrected metadata" in roadmap
+    assert "OPF/JSON sidecar write-back" in roadmap

@@ -46,4 +46,30 @@ class ImportController extends Controller {
             'X-Library-Import-Mode' => 'preview-only',
         ]);
     }
+
+    #[NoAdminRequired]
+    public function apply(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $payload = $user !== null
+            ? $this->itemService->applyCorrectedMetadataImport($user->getUID(), (string)$this->request->getParam('metadataJson', ''))
+            : [
+                'schemaVersion' => 1,
+                'applicationKind' => 'library-metadata-import-apply',
+                'valid' => false,
+                'error' => 'not_authenticated',
+                'totalItems' => 0,
+                'matchedItems' => 0,
+                'appliedItems' => 0,
+                'skippedItems' => 0,
+                'missingItems' => 0,
+                'invalidItems' => 0,
+                'changedFields' => 0,
+                'items' => [],
+            ];
+
+        return new JSONResponse($payload, 200, [
+            'Cache-Control' => 'private, no-store',
+            'X-Library-Import-Mode' => 'apply',
+        ]);
+    }
 }
