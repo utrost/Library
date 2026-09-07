@@ -14,11 +14,11 @@ def test_route_and_controller_expose_preview_only_filtered_metadata_edit():
     assert "item#batchpreviewmetadataedit" in routes
     assert "/bulk/items/edit-preview" in routes
     assert routes.index("/bulk/items/edit-preview") < routes.index("/items/{itemId}")
-    assert "public function batchpreviewmetadataedit(): JSONResponse" in controller
+    assert "public function batchpreviewmetadataedit(): TemplateResponse" in controller
     assert "catalogueFiltersFromRequest()" in controller
     assert "itemIdsForCatalogueFilters($user->getUID(), $filters, 5000)" in controller
     assert "previewBatchMetadataEdit($user->getUID(), $itemIds" in controller
-    assert "new JSONResponse" in controller
+    assert "new TemplateResponse($this->appName, 'batch-metadata-edit-preview'" in controller
     assert "batchMetadataEditPreviewResult" in controller
     assert "bulkEditField" in controller
     assert "bulkEditValue" in controller
@@ -73,6 +73,6 @@ def test_docs_and_version_track_preview_first_filtered_batch_metadata_edit():
     assert "No changes are written during preview" in guide
     assert "preview-first batch metadata edit" in roadmap.lower()
     assert "arbitrary bulk edit remains preview-only" in roadmap.lower()
-    assert "<version>0.1.0-alpha.102</version>" in info
-    assert '"version": "0.1.0-alpha.102"' in package
-    assert '"version": "0.1.0-alpha.102"' in lock
+    assert "<version>0.1.0-alpha.103</version>" in info
+    assert '"version": "0.1.0-alpha.103"' in package
+    assert '"version": "0.1.0-alpha.103"' in lock
