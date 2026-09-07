@@ -77,7 +77,11 @@ final class ScanJobService {
 
     private function createJob(string $userId, string $status, string $scopeType = 'all', ?int $rootId = null): array {
         $now = time();
-        $scopeType = $scopeType === 'root' && $rootId !== null && $rootId > 0 ? 'root' : 'all';
+        $scopeType = match (true) {
+            $scopeType === 'root' && $rootId !== null && $rootId > 0 => 'root',
+            $scopeType === 'metadata_errors' => 'metadata_errors',
+            default => 'all',
+        };
         $rootId = $scopeType === 'root' ? $rootId : null;
         $qb = $this->db->getQueryBuilder();
         $qb->insert('library_scan_jobs')

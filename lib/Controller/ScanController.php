@@ -51,6 +51,17 @@ final class ScanController extends Controller {
     }
 
     #[NoAdminRequired]
+    public function retryMetadataErrors(): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $job = $this->scanJobService->queueJob($user->getUID(), 'metadata_errors');
+            $this->jobList->add(ScanJob::class, ['userId' => $user->getUID(), 'jobId' => (int)$job['id'], 'scopeType' => 'metadata_errors', 'retryMetadataErrors' => true]);
+        }
+
+        return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/settings/user/library'));
+    }
+
+    #[NoAdminRequired]
     #[NoCSRFRequired]
     public function progress(): JSONResponse {
         $user = $this->userSession->getUser();

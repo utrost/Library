@@ -14,8 +14,9 @@ def test_scan_background_job_class_runs_existing_scanner_and_marks_job_lifecycle
     assert "ScanJobService $scanJobService" in job
     assert "$this->scanJobService->markRunning($userId, $jobId);" in job
     assert "$rootId = isset($argument['rootId']) ? (int)$argument['rootId'] : null;" in job
-    assert "$result = $this->scanner->scan($userId, $rootId, function (array $progress) use ($userId, $jobId): void" in job
+    assert "$progress = function (array $progress) use ($userId, $jobId): void" in job
     assert "$this->scanJobService->updateProgress($userId, $jobId, $progress);" in job
+    assert "$this->scanner->scan($userId, $rootId, $progress)" in job
     assert "$this->scanJobService->finishJob($userId, $jobId, $result);" in job
     assert "$this->scanJobService->failJob($userId, $jobId, $e->getMessage());" in job
 
@@ -43,6 +44,7 @@ def test_scan_job_service_supports_queued_and_running_statuses():
     assert "running" in service
     assert "completed" in service
     assert "failed" in service
+    assert "metadata_errors" in service
 
 
 def test_docs_and_ui_name_scan_as_background_queued():

@@ -25,15 +25,20 @@ class ScanJob extends QueuedJob {
         $userId = (string)($argument['userId'] ?? '');
         $jobId = (int)($argument['jobId'] ?? 0);
         $rootId = isset($argument['rootId']) ? (int)$argument['rootId'] : null;
+        $scopeType = (string)($argument['scopeType'] ?? '');
+        $retryMetadataErrors = (bool)($argument['retryMetadataErrors'] ?? false) || $scopeType === 'metadata_errors';
         if ($userId === '' || $jobId <= 0) {
             return;
         }
 
         $this->scanJobService->markRunning($userId, $jobId);
         try {
-            $result = $this->scanner->scan($userId, $rootId, function (array $progress) use ($userId, $jobId): void {
+            $progress = function (array $progress) use ($userId, $jobId): void {
                 $this->scanJobService->updateProgress($userId, $jobId, $progress);
-            });
+            };
+            $result = $retryMetadataErrors
+                ? $this->scanner->retryMetadataErrors($userId, $progress)
+                : $this->scanner->scan($userId, $rootId, $progress);
             $this->scanJobService->finishJob($userId, $jobId, $result);
         } catch (Throwable $e) {
             $this->scanJobService->failJob($userId, $jobId, $e->getMessage());

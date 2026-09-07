@@ -69,6 +69,12 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <button type="submit"><?php p($l->t('Scan enabled roots')); ?></button>
         </form>
 
+        <form method="post" action="<?php p($_['scanRetryMetadataErrorsUrl']); ?>" class="library-inline-form library-scan-retry-metadata-errors-form">
+            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+            <button type="submit"><?php p($l->t('Retry metadata errors')); ?></button>
+            <span class="library-muted"><?php p($l->t('Only rows currently marked metadata_error are retried; unrelated indexed files are not marked missing.')); ?></span>
+        </form>
+
         <p class="library-detail-actions">
             <a href="<?php p($_['metadataExportUrl']); ?>" class="button secondary"><?php p($l->t('Export corrected metadata')); ?></a>
         </p>

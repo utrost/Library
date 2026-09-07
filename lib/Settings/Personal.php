@@ -35,6 +35,7 @@ class Personal implements ISettings {
             'scanJobHistory' => $this->scanJobService->recentJobs($this->userId, 5),
             'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
+            'scanRetryMetadataErrorsUrl' => $this->urlGenerator->linkToRoute('library.scan.retryMetadataErrors'),
             'scanProgressUrl' => $this->urlGenerator->linkToRoute('library.scan.progress'),
             'metadataExportUrl' => $this->urlGenerator->linkToRoute('library.export.metadata'),
             'metadataImportPreviewUrl' => $this->urlGenerator->linkToRoute('library.import.preview'),
