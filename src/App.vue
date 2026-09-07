@@ -271,7 +271,7 @@ async function toggleStar(item, event) {
     </nav>
 
     <nav class="library-pagination" :aria-label="t('library', 'Catalogue pagination')">
-      <span>Showing {{ pagination.from }}–{{ pagination.to }} of {{ pagination.total }} catalogue items</span>
+      <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
       <a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a>
       <span v-else class="library-muted">{{ t('library', 'Previous') }}</span>
       <a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a>

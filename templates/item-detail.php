@@ -213,7 +213,7 @@ $fileRows = [
             <div class="library-detail-secondary">
 
         <details class="library-panel library-detail-diagnostic-section library-detail-section-file" aria-labelledby="library-file-metadata-heading">
-            <summary id="library-file-metadata-heading"><?php p($l->t('File metadata')); ?></summary>
+            <summary id="library-file-metadata-heading"><?php p($l->t('File metadata')); ?> <span class="library-summary-badge">scanStatus: <?php p((string)($item['scanStatus'] ?? 'unknown')); ?></span></summary>
             <dl class="library-item-metadata">
                 <?php foreach ($fileRows as $label => $value): ?>
                     <dt><?php p($label); ?></dt>
@@ -231,7 +231,7 @@ $fileRows = [
         </details>
 
         <details class="library-panel library-detail-diagnostic-section library-detail-section-provenance" aria-labelledby="library-provenance-heading">
-            <summary id="library-provenance-heading"><?php p($l->t('Provenance')); ?></summary>
+            <summary id="library-provenance-heading"><?php p($l->t('Provenance')); ?> <span class="library-summary-badge"><?php p($l->t('Scanner differences: %n', 'Scanner differences: %n', $scannerConflictCount)); ?></span></summary>
             <dl class="library-item-metadata">
                 <dt>metadataSource</dt>
                 <dd><?php p((string)($item['metadataSource'] ?? '')); ?></dd>
@@ -342,7 +342,7 @@ $fileRows = [
         </details>
 
         <details class="library-panel library-detail-diagnostic-section library-detail-section-nextcloud" aria-labelledby="library-nextcloud-metadata-heading">
-            <summary id="library-nextcloud-metadata-heading"><?php p($l->t('Nextcloud metadata')); ?></summary>
+            <summary id="library-nextcloud-metadata-heading"><?php p($l->t('Nextcloud metadata')); ?> <span class="library-summary-badge"><?php p($l->t('%n tag', '%n tags', count($tags))); ?> · <?php p($l->t('%n comment', '%n comments', (int)($comments['count'] ?? 0))); ?></span></summary>
             <div class="library-nextcloud-tags" aria-label="nextcloudTags">
                 <strong><?php p($l->t('Nextcloud tags')); ?></strong>
                 <?php if (count($tags) === 0): ?>

@@ -192,7 +192,8 @@ function fallbackCatalogue(state, error) {
   nav.className = 'library-pagination'
   nav.setAttribute('aria-label', t('library', 'Catalogue pagination'))
   const range = document.createElement('span')
-  range.textContent = `Showing ${pagination.from ?? 0}–${pagination.to ?? items.length} of ${pagination.total ?? items.length} catalogue items`
+  range.className = 'library-pagination-range'
+  range.textContent = `Page ${pagination.page ?? 1} · ${pagination.from ?? 0}–${pagination.to ?? items.length}`
   nav.appendChild(range)
   panel.appendChild(nav)
 
