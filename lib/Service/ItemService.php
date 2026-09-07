@@ -308,6 +308,41 @@ final class ItemService {
         return $affected > 0;
     }
 
+    public function bulkResetFieldsToScannerCandidates(string $userId, mixed $itemIds): array {
+        $ids = $this->normalizeBulkItemIds($itemIds);
+        $resetItems = 0;
+        foreach ($ids as $itemId) {
+            if ($this->resetAllFieldsToScannerCandidates($userId, $itemId)) {
+                $resetItems++;
+            }
+        }
+
+        return [
+            'requestedItems' => count($ids),
+            'resetItems' => $resetItems,
+            'skippedItems' => count($ids) - $resetItems,
+        ];
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function normalizeBulkItemIds(mixed $itemIds): array {
+        if (is_array($itemIds)) {
+            $parts = $itemIds;
+        } else {
+            $parts = preg_split('/[^0-9]+/', (string)$itemIds) ?: [];
+        }
+        $ids = [];
+        foreach ($parts as $part) {
+            $id = (int)$part;
+            if ($id > 0) {
+                $ids[] = $id;
+            }
+        }
+        return array_slice(array_values(array_unique($ids)), 0, 100);
+    }
+
     /**
      * @return array<int, array<string, mixed>>
      */

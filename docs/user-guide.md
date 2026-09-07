@@ -96,7 +96,7 @@ Current details capabilities:
 - inspect publication metadata;
 - inspect a metadata correction summary with scanner-candidate and differing-field counts;
 - compare current field values with stored scanner candidates, including **Differs from scanner** labels when they disagree;
-- reset one field or all fields to the stored scanner candidates when candidates are available;
+- reset one field, all fields on one item, or **Bulk reset selected items to scanner** from Library settings when scanner candidates are available;
 - edit publication metadata fields:
   - title;
   - subtitle;
@@ -421,6 +421,7 @@ Implemented correction helpers:
 - Reset to scanner remains available after editing when a stored scanner candidate differs from the current value;
 - whole-item reset to scanner candidates can apply all stored scanner values at once;
 - The edit form shows hints for dates, language codes and creator separators; these hints do not block saving;
+- Library settings include **Bulk reset selected items to scanner** for item IDs copied from the scanner-conflict review filter;
 - rows where the current value differs from the scanner candidate show a **Differs from scanner** label;
 - the details page includes a read-only metadata correction summary with a scanner candidate count and differing-field count;
 - **Preview metadata import** accepts a Library corrected metadata JSON export and reports matches/field changes; **No changes are written during preview**.

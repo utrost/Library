@@ -97,6 +97,17 @@ final class ItemController extends Controller {
     }
 
     #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function bulkresetfields(): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $this->itemService->bulkResetFieldsToScannerCandidates($user->getUID(), (string)$this->request->getParam('itemIds', ''));
+        }
+
+        return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/settings/user/library'));
+    }
+
+    #[NoAdminRequired]
     public function star(int $itemId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
