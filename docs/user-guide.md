@@ -68,6 +68,7 @@ Current catalogue capabilities:
 - filter by exact creator field as read-only discovery; creator identity splitting remains future work;
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
 - use **Batch actions for current results** to apply a Nextcloud tag to every item matching the current catalogue filters; this is the first filter-result batch tagging workflow and keeps tags separate from Library metadata;
+- use the same batch panel for a filter-result metadata reset: Library resets only current scanner-conflict results to stored scanner candidates, preserving current filters and reporting requested/reset/skipped counts;
 - see first-run guidance when no Library root exists, disabled-root guidance when roots are saved but disabled, and filter-specific recovery actions when a search returns no matches;
 - browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure;
 - filter by series or periodical title for magazines, journals and recurring publications;
@@ -429,13 +430,14 @@ Implemented correction helpers:
 - whole-item reset to scanner candidates can apply all stored scanner values at once;
 - The edit form shows hints for dates, language codes and creator separators; these hints do not block saving;
 - Library settings include **Bulk reset selected items to scanner** for item IDs copied from the scanner-conflict review filter;
+- the catalogue **Batch actions for current results** panel includes a filter-result metadata reset that applies scanner candidates only to current scanner-conflict results;
 - rows where the current value differs from the scanner candidate show a **Differs from scanner** label;
 - the details page includes a read-only metadata correction summary with a scanner candidate count and differing-field count;
 - **Preview metadata import** accepts a Library corrected metadata JSON export and reports matches/field changes; **No changes are written during preview**.
 
 Visible gaps:
 
-- no bulk edit or multi-select correction workflow;
+- no bulk edit or multi-select correction workflow yet; current batch metadata reset is deliberately limited to current scanner-conflict results and stored scanner candidates;
 - hard validation rules remain future work;
 - scanner-conflict filtering is the first review view for scanner/sidecar/user metadata conflicts; richer queues remain future work.
 
@@ -456,7 +458,7 @@ Acceptance checks:
 
 Visible gaps:
 
-- no bulk tagging;
+- batch tagging exists for current catalogue filter results; richer bulk tag management such as removing tags from filter results remains future work;
 
 ### Story 4: Shared household library
 
