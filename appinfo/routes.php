@@ -24,6 +24,7 @@ return [
         ['name' => 'tag#batchassign', 'url' => '/bulk/tags', 'verb' => 'POST'],
         ['name' => 'tag#batchremove', 'url' => '/bulk/tags/remove', 'verb' => 'POST'],
         ['name' => 'item#batchresetfilteredfields', 'url' => '/bulk/items/reset-filtered-fields', 'verb' => 'POST'],
+        ['name' => 'item#batchpreviewmetadataedit', 'url' => '/bulk/items/edit-preview', 'verb' => 'POST'],
         ['name' => 'item#bulkresetfields', 'url' => '/bulk/items/reset-fields', 'verb' => 'POST'],
         ['name' => 'cover#batchrefresh', 'url' => '/bulk/covers/refresh', 'verb' => 'POST'],
         ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET'],

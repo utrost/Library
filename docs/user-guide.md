@@ -69,6 +69,7 @@ Current catalogue capabilities:
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
 - use **Batch actions for current results** to apply or remove a Nextcloud tag from current filter results; this filter-result batch tagging workflow keeps tags separate from Library metadata;
 - use the same batch panel for a filter-result metadata reset: Library resets only current scanner-conflict results to stored scanner candidates, preserving current filters and reporting requested/reset/skipped counts;
+- run a preview-first batch metadata edit for one selected publication field across current filter results; **No changes are written during preview** and the response reports requested/changed/unchanged/skipped counts plus example items;
 - use filter-result cover refresh to request fresh cover previews for the current result set; this reloads the filtered catalogue with no-store cover URLs and does not change source files or metadata;
 - see first-run guidance when no Library root exists, disabled-root guidance when roots are saved but disabled, and filter-specific recovery actions when a search returns no matches;
 - browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure;
@@ -438,7 +439,7 @@ Implemented correction helpers:
 
 Visible gaps:
 
-- no bulk edit or multi-select correction workflow yet; current batch metadata reset is deliberately limited to current scanner-conflict results and stored scanner candidates;
+- no bulk edit apply path yet: arbitrary bulk edit remains preview-only, current batch metadata reset is deliberately limited to current scanner-conflict results and stored scanner candidates, and preview-first batch metadata edit can estimate one-field changes before any future apply path exists;
 - hard validation rules remain future work;
 - scanner-conflict filtering is the first review view for scanner/sidecar/user metadata conflicts; richer queues remain future work.
 
@@ -459,7 +460,7 @@ Acceptance checks:
 
 Visible gaps:
 
-- batch tagging exists for current catalogue filter results; richer bulk tag management such as removing tags from filter results remains future work;
+- batch tagging exists for current catalogue filter results, including applying or removing one Nextcloud tag from every matched item; richer taxonomy batch workflows remain future work;
 
 ### Story 4: Shared household library
 

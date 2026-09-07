@@ -43,7 +43,7 @@ def test_catalogue_exposes_batch_tag_remove_form_separate_from_card_tag_editors(
         assert "/bulk/tags/remove" in source
 
     assert "print('browser_batch_tag_remove_form', dom.batchTagRemoveForm)" in smoke
-    assert "dom.postForms === dom.catalogueStarForms + 4" in smoke
+    assert "dom.postForms === dom.catalogueStarForms + 5" in smoke
 
 
 def test_docs_and_version_track_filter_result_batch_tag_remove():
@@ -54,5 +54,5 @@ def test_docs_and_version_track_filter_result_batch_tag_remove():
 
     assert "remove a nextcloud tag from current filter results" in guide.lower()
     assert "batch tag removal" in roadmap.lower()
-    assert "<version>0.1.0-alpha.101</version>" in info
-    assert '"version": "0.1.0-alpha.101"' in package
+    assert "<version>0.1.0-alpha.102</version>" in info
+    assert '"version": "0.1.0-alpha.102"' in package
