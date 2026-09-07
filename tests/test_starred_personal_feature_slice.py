@@ -48,9 +48,18 @@ def test_starred_state_is_exported_and_imported_without_touching_scanner_provena
 
 def test_detail_page_has_star_toggle_separate_from_metadata_form():
     template = (ROOT / "templates" / "item-detail.php").read_text()
+    controller = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
+    detail_script = (ROOT / "src" / "detail-star.js").read_text()
+    build_script = (ROOT / "scripts" / "build-vue.mjs").read_text()
 
     assert "library-star-form" in template
     assert "name=\"starred\"" in template
     assert "Star this publication" in template
     assert "Unstar this publication" in template
     assert "starUrl" in template
+    assert "Util::addScript(Application::APP_ID, 'library-detail')" in controller
+    assert "setupDetailStarToggles" in detail_script
+    assert "event.preventDefault()" in detail_script
+    assert "fetch(form.getAttribute('action') || form.action" in detail_script
+    assert "credentials: 'same-origin'" in detail_script
+    assert "copyFileSync('src/detail-star.js', join(jsDir, 'library-detail.js'))" in build_script

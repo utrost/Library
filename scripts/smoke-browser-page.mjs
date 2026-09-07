@@ -306,6 +306,46 @@ async function runBrowserSmoke(proxyBase) {
       throw new Error(`Chrome Runtime.evaluate returned no detail DOM value: ${JSON.stringify(detailResult).slice(0, 1000)}`)
     }
 
+    const detailStarToggleResult = await client.send('Runtime.evaluate', {
+      returnByValue: true,
+      awaitPromise: true,
+      expression: `new Promise((resolve) => {
+        const startUrl = location.href
+        const button = document.querySelector('#library-app.library-item-detail .library-star-button')
+        const beforePressed = button?.getAttribute('aria-pressed') || ''
+        const beforeText = button?.textContent?.trim() || ''
+        const realFetch = window.fetch
+        const calls = []
+        window.fetch = async (...args) => {
+          calls.push([String(args[0] || ''), args[1]?.method || 'GET', args[1]?.credentials || ''])
+          return { ok: true }
+        }
+        button?.click()
+        window.setTimeout(() => {
+          const afterPressed = button?.getAttribute('aria-pressed') || ''
+          const afterText = button?.textContent?.trim() || ''
+          const afterClass = button?.classList.contains('library-star-button--starred') || false
+          button?.click()
+          window.setTimeout(() => {
+            window.fetch = realFetch
+            resolve({
+              noReload: location.href === startUrl,
+              beforePressed,
+              beforeText,
+              afterPressed,
+              afterText,
+              afterClass,
+              changed: beforePressed !== afterPressed && beforeText !== afterText,
+              restored: (button?.getAttribute('aria-pressed') || '') === beforePressed,
+              fetchCalls: calls.length,
+              firstFetch: calls[0] || [],
+            })
+          }, 600)
+        }, 600)
+      })`,
+    })
+    const detailStarToggleDom = detailStarToggleResult.result?.value ?? detailStarToggleResult.value
+
     await client.send('Page.navigate', { url: `${proxyBase}/settings/user/library?browser-smoke=${Date.now()}` })
     await new Promise((resolve) => setTimeout(resolve, 2500))
     const settingsResult = await client.send('Runtime.evaluate', {
@@ -406,6 +446,14 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_detail_post_forms', detailDom.detailPostForms)
     print('browser_detail_request_token_fields', detailDom.detailRequestTokenFields)
     print('browser_detail_unlabelled_controls', detailDom.detailUnlabelledControls)
+    print('browser_detail_star_no_reload', detailStarToggleDom?.noReload === true)
+    print('browser_detail_star_changed', detailStarToggleDom?.changed === true)
+    print('browser_detail_star_restored', detailStarToggleDom?.restored === true)
+    print('browser_detail_star_fetch_calls', detailStarToggleDom?.fetchCalls ?? 0)
+    print('browser_detail_star_fetch_method', detailStarToggleDom?.firstFetch?.[1] || '')
+    print('browser_detail_star_fetch_credentials', detailStarToggleDom?.firstFetch?.[2] || '')
+    print('browser_detail_star_before', `${detailStarToggleDom?.beforePressed || ''}/${detailStarToggleDom?.beforeText || ''}`)
+    print('browser_detail_star_after', `${detailStarToggleDom?.afterPressed || ''}/${detailStarToggleDom?.afterText || ''}/${detailStarToggleDom?.afterClass === true}`)
     print('settings_present', settingsDom.present)
     print('settings_auth_blocked', settingsDom.authBlocked === true)
     print('settings_labelled_sections', settingsDom.labelledSections)
@@ -451,6 +499,12 @@ async function runBrowserSmoke(proxyBase) {
       && detailDom.detailPostForms > 0
       && detailDom.detailRequestTokenFields === detailDom.detailPostForms
       && detailDom.detailUnlabelledControls === 0
+      && detailStarToggleDom?.noReload === true
+      && detailStarToggleDom?.changed === true
+      && detailStarToggleDom?.restored === true
+      && detailStarToggleDom?.fetchCalls === 2
+      && detailStarToggleDom?.firstFetch?.[1] === 'POST'
+      && detailStarToggleDom?.firstFetch?.[2] === 'same-origin'
       && (settingsDom.authBlocked === true || (
         settingsDom.present === true
         && settingsDom.labelledSections === true
