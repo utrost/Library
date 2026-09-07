@@ -80,6 +80,7 @@ final class ScanJobService {
         $scopeType = match (true) {
             $scopeType === 'root' && $rootId !== null && $rootId > 0 => 'root',
             $scopeType === 'metadata_errors' => 'metadata_errors',
+            $scopeType === 'missing_files' => 'missing_files',
             default => 'all',
         };
         $rootId = $scopeType === 'root' ? $rootId : null;

@@ -15,7 +15,7 @@ The current development slice can:
 - store user-specific Library roots in an extendable multi-root table;
 - configure an initial root path through the bootstrap UI;
 - manually scan all enabled roots or one selected root for the current user from `/settings/user/library` through a queued background scan and record auto-refreshing scan progress, live-ish scan progress, scan scope, recent scan history, status, counts, duration and summary for progress/history visibility;
-- retry rows currently marked `metadata_error` from Library settings without running a full library scan or marking unrelated indexed files missing;
+- retry rows currently marked `metadata_error` from Library settings and **Recheck missing files** from the same surface without running a full library scan or marking unrelated indexed files missing;
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans while refreshing stored scanner candidates;
@@ -39,7 +39,7 @@ The current development slice can:
 - return cover diagnostics on every cover response, including preview-backed, CBZ first-image and placeholder covers;
 - provide separate Read, Show in Files and Download source actions for each catalogue item;
 - sort the catalogue grid by title, recently added, publication date, series/periodical or format;
-- mark previously indexed files as missing when a root scan no longer sees them, without deleting catalogue metadata.
+- mark previously indexed files as missing when a root scan no longer sees them, without deleting catalogue metadata, and recheck only those missing rows later when a file may have returned.
 - forget missing item catalogue entries from the details page after their backing file is no longer seen, without deleting source files.
 - edit, enable/disable and delete Library roots from the personal settings surface without deleting source files from Nextcloud Files.
 - export corrected metadata as a side-effect-free JSON download for user-edited catalogue rows.

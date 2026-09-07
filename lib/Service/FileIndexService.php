@@ -91,6 +91,19 @@ final class FileIndexService {
             ->executeStatement();
     }
 
+    public function markMissingRecheckError(string $userId, int $libraryFileId, string $message): void {
+        $message = str_starts_with($message, 'missing recheck failed') ? $message : 'missing recheck failed: ' . $message;
+        $qb = $this->db->getQueryBuilder();
+        $qb->update('library_files')
+            ->set('scan_status', $qb->createNamedParameter('missing'))
+            ->set('scan_error', $qb->createNamedParameter(mb_substr($message, 0, 1024)))
+            ->set('last_scanned_at', $qb->createNamedParameter(time()))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($libraryFileId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+    }
+
     /**
      * @param array<int, int> $seenLibraryFileIds
      */
@@ -158,12 +171,41 @@ final class FileIndexService {
      * @return array<int, array<string, mixed>>
      */
     public function metadataErrorFiles(string $userId): array {
+        return $this->filesWithScanStatus($userId, 'metadata_error');
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function missingFiles(string $userId): array {
         $rootLabels = $this->rootLabelsById($userId);
         $qb = $this->db->getQueryBuilder();
         $result = $qb->select('id', 'root_id', 'file_id', 'cached_path', 'mime_type', 'extension', 'scan_status', 'scan_error', 'last_scanned_at')
             ->from('library_files')
             ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
-            ->andWhere($qb->expr()->eq('scan_status', $qb->createNamedParameter('metadata_error')))
+            ->andWhere($qb->expr()->eq('scan_status', $qb->createNamedParameter('missing')))
+            ->orderBy('last_scanned_at', 'ASC')
+            ->executeQuery();
+
+        $files = [];
+        while ($row = $result->fetch()) {
+            $files[] = $this->normalizeFileRow($row, $rootLabels);
+        }
+        $result->closeCursor();
+
+        return $files;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function filesWithScanStatus(string $userId, string $scanStatus): array {
+        $rootLabels = $this->rootLabelsById($userId);
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('id', 'root_id', 'file_id', 'cached_path', 'mime_type', 'extension', 'scan_status', 'scan_error', 'last_scanned_at')
+            ->from('library_files')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('scan_status', $qb->createNamedParameter($scanStatus)))
             ->orderBy('last_scanned_at', 'ASC')
             ->executeQuery();
 

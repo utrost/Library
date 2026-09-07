@@ -101,6 +101,41 @@ final class LibraryScanner {
     }
 
     /**
+     * @return array{roots:int,indexed:int,errors:array<int,string>}
+     */
+    public function recheckMissingFiles(string $userId, ?callable $progress = null): array {
+        $files = $this->fileIndexService->missingFiles($userId);
+        $indexed = 0;
+        $errors = [];
+        $rootsTotal = count(array_unique(array_map(fn (array $file): int => (int)$file['rootId'], $files)));
+        $userFolder = $this->rootFolder->getUserFolder($userId);
+        $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Rechecking missing files…');
+
+        foreach ($files as $file) {
+            $nodes = $userFolder->getById((int)$file['fileId']);
+            $node = $nodes[0] ?? null;
+            if (!$node instanceof File) {
+                $this->fileIndexService->markMissingRecheckError($userId, (int)$file['id'], 'missing recheck failed: source file not found');
+                $errors[] = (string)$file['cachedPath'] . ': source file not found';
+                $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Rechecking missing files');
+                continue;
+            }
+
+            $seenLibraryFileIds = [];
+            if ($this->scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds)) {
+                $indexed++;
+            }
+            $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Rechecking missing files: ' . (string)$file['cachedPath']);
+        }
+
+        return [
+            'roots' => $rootsTotal,
+            'indexed' => $indexed,
+            'errors' => $errors,
+        ];
+    }
+
+    /**
      * @return array<int, array<string, mixed>>
      */
     private function filterRootsForScope(string $userId, ?int $scopeRootId): array {

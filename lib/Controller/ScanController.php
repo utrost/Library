@@ -62,6 +62,17 @@ final class ScanController extends Controller {
     }
 
     #[NoAdminRequired]
+    public function recheckMissingFiles(): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $job = $this->scanJobService->queueJob($user->getUID(), 'missing_files');
+            $this->jobList->add(ScanJob::class, ['userId' => $user->getUID(), 'jobId' => (int)$job['id'], 'scopeType' => 'missing_files', 'recheckMissingFiles' => true]);
+        }
+
+        return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/settings/user/library'));
+    }
+
+    #[NoAdminRequired]
     #[NoCSRFRequired]
     public function progress(): JSONResponse {
         $user = $this->userSession->getUser();
