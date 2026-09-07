@@ -108,6 +108,36 @@ final class ItemController extends Controller {
     }
 
     #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function batchresetfilteredfields(): RedirectResponse {
+        $user = $this->userSession->getUser();
+        $filters = $this->catalogueFiltersFromRequest();
+        $result = ['requestedItems' => 0, 'resetItems' => 0, 'skippedItems' => 0];
+        if ($user !== null) {
+            $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+            $result = $this->itemService->bulkResetFieldsToScannerCandidates($user->getUID(), $itemIds);
+        }
+
+        $query = array_filter($filters, static fn (string $value): bool => $value !== '');
+        $query['batchMetadataResetResult'] = '1';
+        $query['batchMetadataRequested'] = (string)($result['requestedItems'] ?? 0);
+        $query['batchMetadataReset'] = (string)($result['resetItems'] ?? 0);
+        $query['batchMetadataSkipped'] = (string)($result['skippedItems'] ?? 0);
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
+    }
+
+    private function catalogueFiltersFromRequest(): array {
+        $filters = [];
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'sort'] as $key) {
+            $filters[$key] = trim((string)$this->request->getParam($key, ''));
+        }
+        if ($filters['sort'] === '') {
+            $filters['sort'] = 'title';
+        }
+        return $filters;
+    }
+
+    #[NoAdminRequired]
     public function star(int $itemId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {

@@ -64,6 +64,7 @@ const metadataSidecarManifestUrl = computed(() => catalogueState.metadataSidecar
 const metadataSidecarBundleUrl = computed(() => catalogueState.metadataSidecarBundleUrl || '')
 const catalogueEndpointUrl = computed(() => catalogueState.catalogueEndpointUrl || '/apps/library/catalogue')
 const batchTagUrl = computed(() => catalogueState.batchTagUrl || '/apps/library/bulk/tags')
+const batchMetadataResetUrl = computed(() => catalogueState.batchMetadataResetUrl || '/apps/library/bulk/items/reset-filtered-fields')
 const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictReviewUrl || '?scannerConflicts=1')
 const rootCount = computed(() => Number(catalogueState.rootCount || 0))
 const enabledRootCount = computed(() => Number(catalogueState.enabledRootCount || 0))
@@ -112,7 +113,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'scannerConflictReviewUrl']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchMetadataResetUrl', 'scannerConflictReviewUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -423,6 +424,13 @@ async function toggleStar(item, event) {
         </label>
         <button type="submit" class="button secondary">{{ t('library', 'Apply tag to filtered results') }}</button>
         <p class="library-muted">{{ t('library', 'Applies to every item matching the current filters, up to the safety cap. Nextcloud tags stay separate from Library metadata.') }}</p>
+      </form>
+      <form method="post" :action="batchMetadataResetUrl" class="library-batch-metadata-reset-form">
+        <input type="hidden" name="requesttoken" :value="requestToken">
+        <input v-for="filter in batchHiddenFilters" :key="`reset-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
+        <input type="hidden" name="scannerConflicts" value="1">
+        <button type="submit" class="button secondary">{{ t('library', 'Reset filtered metadata') }}</button>
+        <p class="library-muted">{{ t('library', 'Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.') }}</p>
       </form>
     </details>
 

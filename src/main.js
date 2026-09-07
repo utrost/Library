@@ -215,6 +215,7 @@ function fallbackCatalogue(state, error) {
   const settingsUrl = text(state.settingsUrl || '')
   const metadataExportUrl = text(state.metadataExportUrl || '')
   const batchTagUrl = text(state.batchTagUrl || '/apps/library/bulk/tags')
+  const batchMetadataResetUrl = text(state.batchMetadataResetUrl || '/apps/library/bulk/items/reset-filtered-fields')
 
   const root = document.createElement('div')
   root.className = 'library-vue-catalogue library-vue-fallback'
@@ -322,7 +323,33 @@ function fallbackCatalogue(state, error) {
   batchNote.className = 'library-muted'
   batchNote.textContent = t('library', 'Applies to every item matching the current filters, up to the safety cap. Nextcloud tags stay separate from Library metadata.')
   batchForm.append(batchLabel, batchButton, batchNote)
-  batchActions.append(batchSummary, batchForm)
+  const resetForm = document.createElement('form')
+  resetForm.method = 'post'
+  resetForm.action = batchMetadataResetUrl
+  resetForm.className = 'library-batch-metadata-reset-form'
+  const resetToken = fallbackHiddenRequestToken(state)
+  if (resetToken) resetForm.appendChild(resetToken)
+  for (const [key, value] of Object.entries(state.activeFilters || {})) {
+    if (text(value).trim() === '') continue
+    const hidden = document.createElement('input')
+    hidden.type = 'hidden'
+    hidden.name = key
+    hidden.value = text(value)
+    resetForm.appendChild(hidden)
+  }
+  const resetConflictOnly = document.createElement('input')
+  resetConflictOnly.type = 'hidden'
+  resetConflictOnly.name = 'scannerConflicts'
+  resetConflictOnly.value = '1'
+  const resetButton = document.createElement('button')
+  resetButton.type = 'submit'
+  resetButton.className = 'button secondary'
+  resetButton.textContent = t('library', 'Reset filtered metadata')
+  const resetNote = document.createElement('p')
+  resetNote.className = 'library-muted'
+  resetNote.textContent = t('library', 'Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.')
+  resetForm.append(resetConflictOnly, resetButton, resetNote)
+  batchActions.append(batchSummary, batchForm, resetForm)
   panel.appendChild(batchActions)
 
   const nav = document.createElement('nav')
