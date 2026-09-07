@@ -28,7 +28,7 @@ def test_catalogue_cards_stay_free_of_tag_picker_forms():
 
     assert "library-tag-suggestion-picker" not in vue
     assert "Add suggested tag" not in vue
-    assert "nextcloudTagName" not in vue
+    assert "library-batch-tag-form" in vue
 
 
 def test_smoke_vue_page_checks_detail_tag_suggestion_picker():

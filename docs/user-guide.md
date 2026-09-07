@@ -67,6 +67,7 @@ Current catalogue capabilities:
 - use the always-visible quick-filter row for search, sort, starred-only and page-size changes without opening the full filter panel; search fetches updated results after a short debounce and select changes update immediately without a whole-page refresh; press `/` to focus catalogue search and `Escape` to clear it;
 - filter by exact creator field as read-only discovery; creator identity splitting remains future work;
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
+- use **Batch actions for current results** to apply a Nextcloud tag to every item matching the current catalogue filters; this is the first filter-result batch tagging workflow and keeps tags separate from Library metadata;
 - see first-run guidance when no Library root exists, disabled-root guidance when roots are saved but disabled, and filter-specific recovery actions when a search returns no matches;
 - browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure;
 - filter by series or periodical title for magazines, journals and recurring publications;

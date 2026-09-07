@@ -38,7 +38,7 @@ def test_template_has_add_nextcloud_tag_form_separate_from_metadata_edit():
     assert "name=\"nextcloudTagName\"" in template
     assert "name=\"tagName\"" not in template
     assert "photography, project-library..." in template
-    assert "name=\"nextcloudTagName\"" not in vue
+    assert "library-batch-tag-form" in vue
 
 
 def test_add_tag_form_avoids_native_form_property_names_that_break_vue_dom_runtime():

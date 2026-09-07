@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace OCA\Library\Controller;
 
 use OCA\Library\Service\FileTagService;
+use OCA\Library\Service\ItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
@@ -17,6 +19,7 @@ final class TagController extends Controller {
         string $appName,
         IRequest $request,
         private FileTagService $fileTagService,
+        private ItemService $itemService,
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
     ) {
@@ -39,6 +42,31 @@ final class TagController extends Controller {
     }
 
     #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function batchassign(): RedirectResponse {
+        $user = $this->userSession->getUser();
+        $filters = $this->catalogueFiltersFromRequest();
+        $result = ['requestedItems' => 0, 'addedItems' => 0, 'alreadyTaggedItems' => 0, 'skippedItems' => 0];
+        if ($user !== null) {
+            $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+            $result = $this->fileTagService->assignTagToItems(
+                $user->getUID(),
+                $itemIds,
+                (string)($this->request->getParam('nextcloudTagName', '') ?: $this->request->getParam('tagName', '')),
+            );
+        }
+
+        $query = array_filter($filters, static fn (string $value): bool => $value !== '');
+        $query['batchTagResult'] = '1';
+        $query['batchRequested'] = (string)($result['requestedItems'] ?? 0);
+        $query['batchAdded'] = (string)($result['addedItems'] ?? 0);
+        $query['batchAlreadyTagged'] = (string)($result['alreadyTaggedItems'] ?? 0);
+        $query['batchSkipped'] = (string)($result['skippedItems'] ?? 0);
+        $query['batchTagName'] = (string)($result['tagName'] ?? $this->request->getParam('nextcloudTagName', ''));
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
+    }
+
+    #[NoAdminRequired]
     public function remove(int $itemId, string $tagId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
@@ -46,6 +74,17 @@ final class TagController extends Controller {
         }
 
         return $this->redirectAfterTagChange($itemId);
+    }
+
+    private function catalogueFiltersFromRequest(): array {
+        $filters = [];
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'sort'] as $key) {
+            $filters[$key] = trim((string)$this->request->getParam($key, ''));
+        }
+        if ($filters['sort'] === '') {
+            $filters['sort'] = 'title';
+        }
+        return $filters;
     }
 
     private function redirectAfterTagChange(int $itemId, array $result = []): RedirectResponse {

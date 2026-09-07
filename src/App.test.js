@@ -8,6 +8,7 @@ const state = {
   rootCount: 1,
   enabledRootCount: 1,
   metadataExportUrl: '/apps/library/export/metadata',
+  batchTagUrl: '/apps/library/bulk/tags',
   shelves: ['Books'],
   formats: ['epub'],
   scanStatuses: ['indexed'],
