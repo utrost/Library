@@ -53,6 +53,8 @@ def test_catalogue_cards_offer_hover_star_toggle_with_csrf_token():
     css = (ROOT / "css" / "style.css").read_text()
 
     assert "library-cover-star-form" in app
+    assert "@submit.prevent=\"toggleStar(item, $event)\"" in app
+    assert "@click.prevent=\"toggleStar(item, $event)\"" in app
     assert ":action=\"item.starUrl\"" in app
     assert "name=\"requesttoken\"" in app
     assert "name=\"returnTo\" value=\"catalogue\"" in app
