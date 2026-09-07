@@ -190,6 +190,36 @@ final class FileTagService {
         return ['status' => 'added', 'tagName' => $tagName, 'tagId' => (string)$tag->getId()];
     }
 
+    /**
+     * @param array<int, int|string> $itemIds
+     * @return array{requestedItems:int,addedItems:int,alreadyTaggedItems:int,skippedItems:int,tagName:string}
+     */
+    public function assignTagToItems(string $userId, array $itemIds, string $tagName): array {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $itemIds), static fn (int $id): bool => $id > 0)));
+        $addedItems = 0;
+        $alreadyTaggedItems = 0;
+        $skippedItems = 0;
+        foreach ($ids as $itemId) {
+            $result = $this->assignTagToItem($userId, $itemId, $tagName);
+            $status = (string)($result['status'] ?? '');
+            if ($status === 'added' || $status === 'created') {
+                $addedItems++;
+            } elseif ($status === 'already-assigned') {
+                $alreadyTaggedItems++;
+            } else {
+                $skippedItems++;
+            }
+        }
+
+        return [
+            'requestedItems' => count($ids),
+            'addedItems' => $addedItems,
+            'alreadyTaggedItems' => $alreadyTaggedItems,
+            'skippedItems' => $skippedItems,
+            'tagName' => trim($tagName),
+        ];
+    }
+
     private function tagAlreadyAssigned(int $fileId, string $tagId): bool {
         $tagIdsByObject = $this->tagObjectMapper->getTagIdsForObjects([(string)$fileId], 'files');
         return in_array($tagId, array_map('strval', $tagIdsByObject[(string)$fileId] ?? []), true);

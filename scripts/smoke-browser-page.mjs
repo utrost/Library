@@ -181,6 +181,8 @@ async function runBrowserSmoke(proxyBase) {
           cards: document.querySelectorAll('.library-cover-card').length,
           filters: Boolean(document.querySelector('.library-filter-bar')),
           filterResultSummary: Boolean(document.querySelector('.library-filter-result-summary')),
+          batchActions: Boolean(document.querySelector('.library-batch-actions')),
+          batchTagForm: Boolean(document.querySelector('.library-batch-tag-form[action*="/bulk/tags"] input[name="nextcloudTagName"]')),
           singleCatalogueResultSummary: document.body.textContent.match(/Showing [0-9]+[–-][0-9]+ of [0-9]+ catalogue items/g)?.length === 1,
           cardDetailChips: document.querySelectorAll('.library-cover-card .library-cover-detail-chip').length,
           filterPanelCollapsed: Boolean(document.querySelector('.library-filter-panel:not([open]) .library-filter-bar')),
@@ -521,6 +523,8 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_cards', dom.cards)
     print('browser_filters', dom.filters)
     print('browser_filter_result_summary', dom.filterResultSummary)
+    print('browser_batch_actions', dom.batchActions)
+    print('browser_batch_tag_form', dom.batchTagForm)
     print('browser_single_catalogue_result_summary', dom.singleCatalogueResultSummary)
     print('browser_card_detail_chips', dom.cardDetailChips)
     print('browser_filter_panel_collapsed', dom.filterPanelCollapsed)
@@ -603,17 +607,19 @@ async function runBrowserSmoke(proxyBase) {
       && dom.cards > 0
       && dom.filters === true
       && dom.filterResultSummary === true
+      && dom.batchActions === true
+      && dom.batchTagForm === true
       && dom.singleCatalogueResultSummary === true
       && dom.cardDetailChips >= dom.cards
       && dom.filterPanelCollapsed === true
       && dom.periodicalPanelCollapsed === true
       && dom.periodicalPanelSummary === 'Show top series and periodicals'
       && dom.details === dom.cards
-      && dom.nextcloudTagNameField === false
+      && dom.nextcloudTagNameField === true
       && dom.catalogueTagEditor === false
       && dom.catalogueStarForms === dom.cards
       && dom.catalogueStarButtons === dom.cards
-      && dom.postForms === dom.catalogueStarForms
+      && dom.postForms === dom.catalogueStarForms + 1
       && dom.requestTokenFields === dom.postForms
       && starToggleDom?.noReload === true
       && starToggleDom?.changed === true

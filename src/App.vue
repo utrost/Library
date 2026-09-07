@@ -63,6 +63,7 @@ const metadataExportUrl = computed(() => catalogueState.metadataExportUrl || '')
 const metadataSidecarManifestUrl = computed(() => catalogueState.metadataSidecarManifestUrl || '')
 const metadataSidecarBundleUrl = computed(() => catalogueState.metadataSidecarBundleUrl || '')
 const catalogueEndpointUrl = computed(() => catalogueState.catalogueEndpointUrl || '/apps/library/catalogue')
+const batchTagUrl = computed(() => catalogueState.batchTagUrl || '/apps/library/bulk/tags')
 const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictReviewUrl || '?scannerConflicts=1')
 const rootCount = computed(() => Number(catalogueState.rootCount || 0))
 const enabledRootCount = computed(() => Number(catalogueState.enabledRootCount || 0))
@@ -91,6 +92,9 @@ const activeFilterChips = computed(() => Object.entries(filterLabels)
 const quickHiddenFilters = computed(() => Object.entries(activeFilters)
   .filter(([key, value]) => !['q', 'sort', 'starred'].includes(key) && String(value || '').trim() !== '')
   .map(([key, value]) => ({ key, value })))
+const batchHiddenFilters = computed(() => Object.entries(activeFilters)
+  .filter(([_key, value]) => String(value || '').trim() !== '')
+  .map(([key, value]) => ({ key, value })))
 const openCoverDetails = reactive({})
 const quickSearchInput = ref(null)
 let filterSubmitTimer = null
@@ -108,7 +112,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'scannerConflictReviewUrl']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'scannerConflictReviewUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -408,6 +412,20 @@ async function toggleStar(item, event) {
 
     <p class="library-muted library-filter-result-summary">{{ t('library', 'Showing') }} {{ pagination.from }}–{{ pagination.to }} {{ t('library', 'of') }} {{ pagination.total }} {{ t('library', 'catalogue items') }}<span v-if="activeFilterChips.length > 0"> · <a href="?">{{ t('library', 'Clear all filters') }}</a></span></p>
 
+    <details class="library-batch-actions">
+      <summary>{{ t('library', 'Batch actions for current results') }} <span class="library-settings-count-badge">{{ pagination.total }} {{ t('library', 'Current filter result') }}</span></summary>
+      <form method="post" :action="batchTagUrl" class="library-batch-tag-form">
+        <input type="hidden" name="requesttoken" :value="requestToken">
+        <input v-for="filter in batchHiddenFilters" :key="filter.key" type="hidden" :name="filter.key" :value="filter.value">
+        <label>
+          {{ t('library', 'Apply Nextcloud tag to current results') }}
+          <input type="text" name="nextcloudTagName" placeholder="batch-review">
+        </label>
+        <button type="submit" class="button secondary">{{ t('library', 'Apply tag to filtered results') }}</button>
+        <p class="library-muted">{{ t('library', 'Applies to every item matching the current filters, up to the safety cap. Nextcloud tags stay separate from Library metadata.') }}</p>
+      </form>
+    </details>
+
     <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
       <span>{{ t('library', 'Active filters') }}</span>
       <a v-for="chip in activeFilterChips" :key="chip.key" :href="filterChipRemoveUrl(chip.key)" class="library-filter-chip" :aria-label="`${t('library', 'Remove filter')}: ${chip.label}`">
@@ -558,6 +576,36 @@ async function toggleStar(item, event) {
   font-size: 0.8em;
   line-height: 1;
   padding: 2px 5px;
+}
+
+.library-batch-actions {
+  border: 1px solid var(--color-border, #d0d0d0);
+  border-radius: var(--border-radius, 6px);
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.library-batch-actions > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.library-batch-tag-form {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.library-batch-tag-form label {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.library-batch-tag-form .library-muted {
+  flex-basis: 100%;
 }
 
 .library-filter-panel[open] {

@@ -351,6 +351,29 @@ final class ItemService {
     }
 
     /**
+     * @param array<string, mixed> $filters
+     * @return array<int, int>
+     */
+    public function itemIdsForCatalogueFilters(string $userId, array $filters, int $limit = 5000): array {
+        $limit = max(1, min(5000, $limit));
+        $ids = [];
+        $page = 1;
+        do {
+            $result = $this->queryCatalogue($userId, $filters, ['page' => $page, 'limit' => 500]);
+            foreach ($result['items'] as $item) {
+                $ids[] = (int)$item['id'];
+                if (count($ids) >= $limit) {
+                    return array_values(array_unique($ids));
+                }
+            }
+            $total = (int)$result['total'];
+            $page++;
+        } while (count($ids) < $total && count($result['items']) > 0);
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
      * @param array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string,tag?:string,shelf?:string,status?:string,starred?:string,sort?:string,scannerConflicts?:string,taggedFileIds?:array<int, int>} $filters
      * @param array{page:int,limit:int} $pagination
      * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,creators:array<int, string>,scanStatuses:array<int, string>}}

@@ -134,6 +134,7 @@ class PageController extends Controller {
             'metadataSidecarManifestUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarManifest'),
             'metadataSidecarBundleUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarBundle'),
             'catalogueEndpointUrl' => $this->urlGenerator->linkToRoute('library.page.catalogue'),
+            'batchTagUrl' => $this->urlGenerator->linkToRoute('library.tag.batchassign'),
             'scannerConflictReviewUrl' => '?scannerConflicts=1',
         ];
     }

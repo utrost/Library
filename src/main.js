@@ -214,6 +214,7 @@ function fallbackCatalogue(state, error) {
   }
   const settingsUrl = text(state.settingsUrl || '')
   const metadataExportUrl = text(state.metadataExportUrl || '')
+  const batchTagUrl = text(state.batchTagUrl || '/apps/library/bulk/tags')
 
   const root = document.createElement('div')
   root.className = 'library-vue-catalogue library-vue-fallback'
@@ -287,6 +288,42 @@ function fallbackCatalogue(state, error) {
   clearAll.textContent = ` ${t('library', 'Clear all filters')}`
   resultSummary.appendChild(clearAll)
   panel.appendChild(resultSummary)
+
+  const batchActions = document.createElement('details')
+  batchActions.className = 'library-batch-actions'
+  const batchSummary = document.createElement('summary')
+  batchSummary.textContent = `${t('library', 'Batch actions for current results')} (${pagination.total ?? items.length} ${t('library', 'Current filter result')})`
+  const batchForm = document.createElement('form')
+  batchForm.method = 'post'
+  batchForm.action = batchTagUrl
+  batchForm.className = 'library-batch-tag-form'
+  const token = fallbackHiddenRequestToken(state)
+  if (token) batchForm.appendChild(token)
+  for (const [key, value] of Object.entries(state.activeFilters || {})) {
+    if (text(value).trim() === '') continue
+    const hidden = document.createElement('input')
+    hidden.type = 'hidden'
+    hidden.name = key
+    hidden.value = text(value)
+    batchForm.appendChild(hidden)
+  }
+  const batchLabel = document.createElement('label')
+  batchLabel.textContent = t('library', 'Apply Nextcloud tag to current results')
+  const batchInput = document.createElement('input')
+  batchInput.type = 'text'
+  batchInput.name = 'nextcloudTagName'
+  batchInput.placeholder = 'batch-review'
+  batchLabel.appendChild(batchInput)
+  const batchButton = document.createElement('button')
+  batchButton.type = 'submit'
+  batchButton.className = 'button secondary'
+  batchButton.textContent = t('library', 'Apply tag to filtered results')
+  const batchNote = document.createElement('p')
+  batchNote.className = 'library-muted'
+  batchNote.textContent = t('library', 'Applies to every item matching the current filters, up to the safety cap. Nextcloud tags stay separate from Library metadata.')
+  batchForm.append(batchLabel, batchButton, batchNote)
+  batchActions.append(batchSummary, batchForm)
+  panel.appendChild(batchActions)
 
   const nav = document.createElement('nav')
   nav.className = 'library-pagination'
