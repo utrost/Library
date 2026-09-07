@@ -115,6 +115,11 @@ $fileRows = [
                         <a href="<?php p($item['downloadUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Download source')); ?></a>
                         <a href="<?php p($item['coverRefreshUrl'] ?? ($item['coverUrl'] ?? '#')); ?>" class="button secondary library-cover-refresh-action"><?php p($l->t('Refresh cover preview')); ?></a>
                     </div>
+                    <aside class="library-cover-quality-explanation" aria-labelledby="library-cover-quality-heading">
+                        <h3 id="library-cover-quality-heading"><?php p($l->t('How Library chose this cover')); ?></h3>
+                        <p><?php p((string)($item['coverQualityExplanation'] ?? $l->t('Library asks Nextcloud preview first, then format-specific cover fallbacks, and finally shows a stable placeholder.'))); ?></p>
+                        <p class="library-muted"><?php p($l->t('If you see a placeholder or a stale image, use Refresh cover preview to retry without browser caching. App-owned cover cache and manual cover override are still future work.')); ?></p>
+                    </aside>
                 </div>
             </div>
         </article>
