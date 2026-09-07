@@ -607,7 +607,7 @@ DB-backed catalogue query path is implemented and is no longer a missing-feature
 
 ## Practical review script
 
-Use this script when deciding what to build next:
+Use this script when deciding what to build next. Genre and classification filters are Library-native catalogue filters, separate from Nextcloud tags, and are preserved in corrected-metadata export/import:
 
 1. Install/enable Library on a Nextcloud 34 sandbox.
 2. Add one small root with 20-100 mixed real files.
@@ -615,8 +615,8 @@ Use this script when deciding what to build next:
 4. Browse the catalogue without touching settings.
 5. Find one PDF, one EPUB and one CBZ if available.
 6. Open each with **Read**, **Show in Files** and **Download source**.
-7. Correct metadata on three items.
-8. Add one Nextcloud tag and one comment.
+7. Correct metadata on three items, including Library-native genres/classifications where useful.
+8. Add one Nextcloud tag and one comment; keep it separate from Genre and classification filters.
 9. Export corrected metadata and inspect the JSON; preview/apply it only after reviewing matched rows.
 10. Rescan.
 11. Confirm edits survived and diagnostics are understandable.

@@ -1,6 +1,6 @@
 {
   "name": "library",
-  "version": "0.1.0-alpha.74",
+  "version": "0.1.0-alpha.75",
   "private": true,
   "description": "Nextcloud publication catalogue for files stored in Nextcloud",
   "license": "AGPL-3.0-or-later",
@@ -17,6 +17,7 @@
     "smoke:last-opened": "node scripts/smoke-last-opened.mjs",
     "smoke:description": "node scripts/smoke-description.mjs",
     "smoke:workflow-status": "node scripts/smoke-workflow-status.mjs",
+    "smoke:genres": "node scripts/smoke-genres-classifications.mjs",
     "smoke:scale": "node scripts/smoke-scale-pilot.mjs",
     "smoke:real-scale": "node scripts/smoke-real-scale-pilot.mjs"
   },

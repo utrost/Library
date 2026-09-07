@@ -21,6 +21,8 @@ const publicationYears = computed(() => props.state.publicationYears || [])
 const creators = computed(() => props.state.creators || [])
 const scanStatuses = computed(() => props.state.scanStatuses || [])
 const workflowStatuses = computed(() => props.state.workflowStatuses || [])
+const genres = computed(() => props.state.genres || [])
+const classifications = computed(() => props.state.classifications || [])
 const pagination = computed(() => props.state.cataloguePagination || {
   page: 1,
   limit: 100,
@@ -42,6 +44,8 @@ const activeFilters = reactive({
   shelf: props.state.activeFilters?.shelf || '',
   status: props.state.activeFilters?.status || '',
   workflowStatus: props.state.activeFilters?.workflowStatus || '',
+  genre: props.state.activeFilters?.genre || '',
+  classification: props.state.activeFilters?.classification || '',
   starred: props.state.activeFilters?.starred || '',
   sort: props.state.activeFilters?.sort || 'title',
 })
@@ -58,6 +62,8 @@ const filterLabels = {
   shelf: 'Shelf',
   status: 'Scan status',
   workflowStatus: 'Workflow status',
+  genre: 'Genre',
+  classification: 'Classification',
   starred: 'Starred',
 }
 const activeFilterChips = computed(() => Object.entries(filterLabels)
@@ -162,6 +168,20 @@ function publicationFilterUrl(publication) {
         </select>
       </label>
       <label>
+        {{ t('library', 'Genre') }}
+        <select v-model="activeFilters.genre" name="genre">
+          <option value="">{{ t('library', 'All genres') }}</option>
+          <option v-for="genre in genres" :key="genre" :value="genre">{{ genre }}</option>
+        </select>
+      </label>
+      <label>
+        {{ t('library', 'Classification') }}
+        <select v-model="activeFilters.classification" name="classification">
+          <option value="">{{ t('library', 'All classifications') }}</option>
+          <option v-for="classification in classifications" :key="classification" :value="classification">{{ classification }}</option>
+        </select>
+      </label>
+      <label>
         {{ t('library', 'Starred') }}
         <select v-model="activeFilters.starred" name="starred">
           <option value="">{{ t('library', 'All publications') }}</option>
@@ -243,6 +263,8 @@ function publicationFilterUrl(publication) {
                 <span v-if="item.publication"> · {{ item.publication }}</span>
                 <span v-if="item.publicationDate"> · {{ item.publicationDate }}</span>
                 <span v-if="item.workflowStatus"> · Workflow status: {{ item.workflowStatus }}</span>
+                <span v-if="item.genres?.length"> · Genres: {{ item.genres.join('; ') }}</span>
+                <span v-if="item.classifications?.length"> · Classifications: {{ item.classifications.join('; ') }}</span>
                 <span v-if="item.lastOpenedAt"> · Last opened: {{ item.lastOpenedAt }}</span>
                 <span v-if="item.extension"> · Format: {{ upper(item.extension) }}</span>
                 <span v-if="item.shelf"> · Shelf: {{ item.shelf }}</span>

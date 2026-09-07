@@ -47,6 +47,7 @@ The current development slice can:
 - star/unstar publications from item details, show starred state on compact catalogue cards, filter the catalogue with `starred=1`, and carry starred state through corrected-metadata export/import without changing scanner provenance.
 - record Library **Read** clicks as `last_opened_at`, route them through a Library redirect to Nextcloud's `/f/{fileId}` handoff, sort by recently opened, and carry last-opened state through corrected-metadata export/import without treating Files/download opens as tracked activity.
 - set a Library-native workflow status on publication details, filter with `workflowStatus=<status>`, show the status in catalogue Details, and carry it through corrected-metadata export/import as user catalogue state separate from operational scan status and Nextcloud tags.
+- store Library-native genres and classifications as multi-value catalogue metadata, edit them on details pages with simple suggestions, filter with `genre=<value>` or `classification=<value>`, show them in catalogue Details, and carry them through corrected-metadata export/import separate from Nextcloud tags.
 - store a Library-native description on catalogue items, edit it on details pages, include it in database-backed catalogue search, and carry it through corrected-metadata export/import without crowding compact cards by default.
 - filter the catalogue by scan status (`indexed`, `metadata_error`, `missing`) and show per-card scan diagnostics for unhealthy items.
 - query catalogue search, filters, sort modes and pagination through database-backed item queries instead of loading the full catalogue into app-layer arrays.
@@ -59,6 +60,8 @@ The next milestone is release hardening around real collection use: metadata rep
 Library v0.1 should prove this proposition:
 
 > Publications already stored in Nextcloud can be presented as a useful media library without moving or restructuring them.
+
+Current personal-library metadata now includes Library-native genres and classifications alongside stars, last-opened activity, workflow status and description text.
 
 Current v0.1 proof includes or is converging on:
 

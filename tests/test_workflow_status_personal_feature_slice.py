@@ -31,7 +31,7 @@ def test_workflow_status_is_visible_editable_and_filterable_without_overloading_
     assert "workflowStatusUrl" in page
     assert "'status' => trim((string)$this->request->getParam('status', ''))" in page
     assert "'workflowStatus' => trim((string)$this->request->getParam('workflowStatus', ''))" in page
-    assert "foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'starred', 'sort'] as $param)" in page
+    assert "foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'starred', 'sort'] as $param)" in page
     assert "i.workflow_status" in service
     assert "Workflow status" in detail
     assert 'name="workflowStatus"' in detail
