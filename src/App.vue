@@ -52,6 +52,7 @@ const activeFilters = reactive({
 })
 const settingsUrl = computed(() => props.state.settingsUrl || '')
 const metadataExportUrl = computed(() => props.state.metadataExportUrl || '')
+const metadataSidecarManifestUrl = computed(() => props.state.metadataSidecarManifestUrl || '')
 const scannerConflictReviewUrl = computed(() => props.state.scannerConflictReviewUrl || '?scannerConflicts=1')
 const filterLabels = {
   q: 'Search',
@@ -305,6 +306,7 @@ function publicationFilterUrl(publication) {
     <div class="library-hero-actions">
       <a :href="settingsUrl" class="button secondary" aria-label="Open Library settings">Library settings</a>
       <a v-if="metadataExportUrl" :href="metadataExportUrl" class="button secondary" aria-label="Export corrected metadata">Export corrected metadata</a>
+      <a v-if="metadataSidecarManifestUrl" :href="metadataSidecarManifestUrl" class="button secondary" aria-label="Export sidecar manifest">Export sidecar manifest</a>
     </div>
   </section>
   </div>

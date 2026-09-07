@@ -114,6 +114,7 @@ class PageController extends Controller {
             'activeFilters' => $activeFilters,
             'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library'),
             'metadataExportUrl' => $this->urlGenerator->linkToRoute('library.export.metadata'),
+            'metadataSidecarManifestUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarManifest'),
             'scannerConflictReviewUrl' => '?scannerConflicts=1',
         ]);
 

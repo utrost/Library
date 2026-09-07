@@ -497,6 +497,36 @@ final class ItemService {
         ];
     }
 
+    public function exportCorrectedMetadataSidecarManifest(string $userId): array {
+        $export = $this->exportCorrectedMetadata($userId);
+        $manifestItems = [];
+        foreach (($export['items'] ?? []) as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $cachedPath = (string)($item['cachedPath'] ?? '');
+            $directory = trim(dirname('/' . ltrim($cachedPath, '/')), '/');
+            $filename = basename($cachedPath) . '.library.json';
+            $sidecarPath = ($directory === '' ? '' : $directory . '/') . $filename;
+            $manifestItems[] = [
+                'itemId' => (int)($item['id'] ?? 0),
+                'libraryFileId' => (int)($item['libraryFileId'] ?? 0),
+                'fileId' => (int)($item['fileId'] ?? 0),
+                'sourcePath' => $cachedPath,
+                'sidecarPath' => $sidecarPath,
+                'metadata' => $item,
+            ];
+        }
+
+        return [
+            'schemaVersion' => 1,
+            'exportedAt' => gmdate(DATE_ATOM),
+            'manifestKind' => 'library-corrected-metadata-sidecar-manifest',
+            'itemCount' => count($manifestItems),
+            'items' => $manifestItems,
+        ];
+    }
+
     public function previewCorrectedMetadataImport(string $userId, string $metadataJson): array {
         try {
             $payload = json_decode($metadataJson, true, 512, JSON_THROW_ON_ERROR);

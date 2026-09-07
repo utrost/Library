@@ -39,6 +39,7 @@ class Personal implements ISettings {
             'scanRecheckMissingFilesUrl' => $this->urlGenerator->linkToRoute('library.scan.recheckMissingFiles'),
             'scanProgressUrl' => $this->urlGenerator->linkToRoute('library.scan.progress'),
             'metadataExportUrl' => $this->urlGenerator->linkToRoute('library.export.metadata'),
+            'metadataSidecarManifestUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarManifest'),
             'metadataImportPreviewUrl' => $this->urlGenerator->linkToRoute('library.import.preview'),
             'metadataImportApplyUrl' => $this->urlGenerator->linkToRoute('library.import.apply'),
             'bulkResetFieldsUrl' => $this->urlGenerator->linkToRoute('library.item.bulkresetfields'),

@@ -34,6 +34,33 @@ class ExportController extends Controller {
                 'items' => [],
             ];
 
+        return $this->downloadJson($payload, 'library-metadata-export.json', 'corrected-metadata');
+    }
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function sidecarManifest(): DataDownloadResponse {
+        $user = $this->userSession->getUser();
+        $payload = $user !== null
+            ? $this->itemService->exportCorrectedMetadataSidecarManifest($user->getUID())
+            : [
+                'schemaVersion' => 1,
+                'exportedAt' => gmdate(DATE_ATOM),
+                'manifestKind' => 'library-corrected-metadata-sidecar-manifest',
+                'itemCount' => 0,
+                'items' => [],
+            ];
+
+        return $this->downloadJson(
+            $payload,
+            'library-metadata-sidecar-manifest.json',
+            'corrected-metadata-sidecar-manifest'
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function downloadJson(array $payload, string $filename, string $exportType): DataDownloadResponse {
         $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if (!is_string($json)) {
             $json = '{"schemaVersion":1,"items":[]}';
@@ -41,12 +68,12 @@ class ExportController extends Controller {
 
         return new DataDownloadResponse(
             $json . "\n",
-            'library-metadata-export.json',
+            $filename,
             'application/json',
             200,
             [
                 'Cache-Control' => 'private, no-store',
-                'X-Library-Export-Type' => 'corrected-metadata',
+                'X-Library-Export-Type' => $exportType,
             ]
         );
     }
