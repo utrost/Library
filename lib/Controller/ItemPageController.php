@@ -51,6 +51,7 @@ final class ItemPageController extends Controller {
         $comments = $this->fileCommentService->commentsForItems([$item]);
 
         $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => (string)$item['id']]);
+        $item['coverRefreshUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => (string)$item['id'], 'refresh' => '1']);
         $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => (string)$item['id']]);
         $item['resetFieldUrl'] = $this->urlGenerator->linkToRoute('library.item.resetfield', ['itemId' => (string)$item['id']]);
         $item['resetFieldsUrl'] = $this->urlGenerator->linkToRoute('library.item.resetfields', ['itemId' => (string)$item['id']]);
