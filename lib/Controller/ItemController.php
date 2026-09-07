@@ -8,8 +8,8 @@ use OCA\Library\Service\ItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
-use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\RedirectResponse;
+use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
@@ -129,7 +129,7 @@ final class ItemController extends Controller {
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    public function batchpreviewmetadataedit(): JSONResponse {
+    public function batchpreviewmetadataedit(): TemplateResponse {
         $user = $this->userSession->getUser();
         $filters = $this->catalogueFiltersFromRequest();
         $result = [
@@ -148,7 +148,10 @@ final class ItemController extends Controller {
                 (string)$this->request->getParam('bulkEditValue', ''),
             ));
         }
-        return new JSONResponse($result);
+        return new TemplateResponse($this->appName, 'batch-metadata-edit-preview', [
+            'result' => $result,
+            'backUrl' => $this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query(array_filter($filters, static fn (string $value): bool => $value !== '')),
+        ]);
     }
 
     private function catalogueFiltersFromRequest(): array {

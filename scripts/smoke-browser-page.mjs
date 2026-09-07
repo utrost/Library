@@ -263,6 +263,28 @@ async function runBrowserSmoke(proxyBase) {
     })
     const starToggleDom = starToggleResult.result?.value ?? starToggleResult.value
 
+    const previewResponse = await fetch(`${proxyBase}/apps/library/bulk/items/edit-preview`, {
+      method: 'POST',
+      headers: {
+        Accept: 'text/html',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        bulkEditField: 'language',
+        bulkEditValue: 'de',
+        limit: '25',
+      }),
+    })
+    const previewHtml = await previewResponse.text()
+    const previewPageDom = {
+      status: previewResponse.status,
+      page: previewHtml.includes('library-batch-metadata-edit-preview-page'),
+      noWrite: previewHtml.includes('No changes are written during preview'),
+      requested: previewHtml.includes('Requested items'),
+      wouldChange: previewHtml.includes('Would change'),
+      noApply: !previewHtml.includes('Apply changes'),
+    }
+
     const quickFilterResult = await client.send('Runtime.evaluate', {
       returnByValue: true,
       awaitPromise: true,
@@ -552,6 +574,8 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_catalogue_star_fetch_credentials', starToggleDom?.firstFetch?.[2] || '')
     print('browser_catalogue_star_before', `${starToggleDom?.beforePressed || ''}/${starToggleDom?.beforeText || ''}`)
     print('browser_catalogue_star_after', `${starToggleDom?.afterPressed || ''}/${starToggleDom?.afterText || ''}/${starToggleDom?.afterClass === true}`)
+    print('browser_batch_metadata_edit_preview_page', previewPageDom.status === 200 && previewPageDom.page === true && previewPageDom.noWrite === true && previewPageDom.requested === true && previewPageDom.wouldChange === true && previewPageDom.noApply === true)
+    print('browser_batch_metadata_edit_preview_status', previewPageDom.status)
     print('browser_post_forms', dom.postForms)
     print('browser_request_token_fields', dom.requestTokenFields)
     print('browser_tagNameField', dom.tagNameField)
@@ -638,6 +662,12 @@ async function runBrowserSmoke(proxyBase) {
       && starToggleDom?.fetchCalls === 2
       && starToggleDom?.firstFetch?.[1] === 'POST'
       && starToggleDom?.firstFetch?.[2] === 'same-origin'
+      && previewPageDom.status === 200
+      && previewPageDom.page === true
+      && previewPageDom.noWrite === true
+      && previewPageDom.requested === true
+      && previewPageDom.wouldChange === true
+      && previewPageDom.noApply === true
       && dom.tagNameField === false
       && (dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
       && dom.firstShowFiles.includes('openfile=false')
