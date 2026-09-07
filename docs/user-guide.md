@@ -258,9 +258,10 @@ Library does not implement a reader in v0.1.
 
 1. Open an item's **Details** page.
 2. Add a visible/assignable Nextcloud tag such as `photography`, `project-library`, `manuals` or `to-review`; the input offers tag suggestions from assignable visible tags.
-3. Remove a tag from the details page when needed.
-4. Return to the catalogue.
-5. Filter by the exact tag name.
+3. Review tag result feedback on the detail page. Library reports when a tag was added, when it was already assigned, when an empty tag was ignored, and when a tag is not assignable.
+4. Remove a tag from the details page when needed.
+5. Return to the catalogue.
+6. Filter by the exact tag name.
 
 Tags remain Nextcloud file-level metadata. They are useful for cross-archive classification across Files and Library, not just Library-only categories.
 
@@ -443,15 +444,15 @@ Acceptance checks:
 
 - visible assignable Nextcloud tags appear on cards/details;
 - details can add/remove assignable tags;
+- detail pages show tag result feedback for added, already-assigned, empty and not-assignable tag outcomes;
 - catalogue can filter by exact tag;
-- tag/comment changes do not mutate Library publication metadata.
+- tag/comment operations do not change Library publication metadata.
 
 Visible gaps:
 
-- no tag autocomplete or picker;
+- no richer picker beyond the current datalist suggestions;
 - exact-match tag filter only;
 - no bulk tagging;
-- Nextcloud tag permission edge cases are intentionally quiet rather than explained in the UI.
 
 ### Story 4: Shared household library
 
@@ -596,7 +597,7 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 1. **Root management polish beyond the first lifecycle slice** — users can edit, enable/disable, delete and scan one root, but the workflow still needs stronger confirmation, clearer consequences and richer validation before release.
 2. **Scan lifecycle controls** — queued scans, metadata-error retry, missing-file recheck, queued-job cancellation and cooperative running-job cancellation work, but scheduled scans and completion notifications are absent.
 3. **Metadata correction workflow** — details editing, field-level scanner candidates, single-field reset-to-scanner, whole-item reset to scanner candidates, non-blocking edit guidance, field-level **Differs from scanner** labels, a read-only metadata correction summary and the first scanner-conflict review filter exist. Bulk edit remains future work, as does hard validation.
-4. **Tag UX** — tag add/remove and tag suggestions work, but lacks a richer picker, bulk tagging and clear permission feedback.
+4. **Tag UX** — tag add/remove, tag suggestions and tag result feedback work, but lacks a richer picker and bulk tagging.
 5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers and a refresh-cover retry affordance work, but app-owned cover cache and manual overrides remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
 7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips and top-series shortcuts exist, but there are no dedicated creator/series/publication/year landing pages, smart collections or saved views.

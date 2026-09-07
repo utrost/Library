@@ -176,8 +176,21 @@ try {
   console.log(`tag_post_status=${tagPost.status}`)
   console.log(`tag_post_location_is_details=${tagPost.location.includes('/apps/library/items/')}`)
 
-  const taggedDetail = await fetchText(first.detailsUrl, token)
-  const commentToken = hidden(taggedDetail.text, 'requesttoken') || requestToken
+  const taggedDetail = await fetchText(tagPost.location || first.detailsUrl, token)
+  const tagFeedbackAfterAdd = taggedDetail.text.includes('library-tag-feedback') && (taggedDetail.text.includes('data-tag-result="added"') || taggedDetail.text.includes('data-tag-result="created"'))
+  console.log(tagFeedbackAfterAdd ? 'tag_feedback_after_add=true' : 'tag_feedback_after_add=false')
+  const duplicateToken = hidden(taggedDetail.text, 'requesttoken') || requestToken
+  const duplicatePost = await fetchText(new URL(`/apps/library/items/${first.id}/tags`, upstream).toString(), token, {
+    method: 'POST',
+    redirect: 'manual',
+    body: new URLSearchParams({ requesttoken: duplicateToken, returnTo: 'details', nextcloudTagName: tagName }),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  })
+  const duplicateDetail = await fetchText(duplicatePost.location || first.detailsUrl, token)
+  console.log(`tag_duplicate_post_status=${duplicatePost.status}`)
+  const tagFeedbackAfterDuplicate = duplicateDetail.text.includes('data-tag-result="already-assigned"') && duplicateDetail.text.includes('Tag already assigned')
+  console.log(tagFeedbackAfterDuplicate ? 'tag_feedback_after_duplicate=true' : 'tag_feedback_after_duplicate=false')
+  const commentToken = hidden(duplicateDetail.text, 'requesttoken') || duplicateToken
   const commentBody = new URLSearchParams({ requesttoken: commentToken, returnTo: 'details', commentMessage })
   const commentPost = await fetchText(new URL(`/apps/library/items/${first.id}/comments`, upstream).toString(), token, {
     method: 'POST',
@@ -203,9 +216,13 @@ try {
   }
 
   const ok = [302, 303].includes(tagPost.status)
+    && [302, 303].includes(duplicatePost.status)
     && [302, 303].includes(commentPost.status)
     && tagPost.location.includes('/apps/library/items/')
+    && duplicatePost.location.includes('/apps/library/items/')
     && commentPost.location.includes('/apps/library/items/')
+    && tagFeedbackAfterAdd
+    && tagFeedbackAfterDuplicate
     && afterDetail.text.includes(tagName)
     && afterDetail.text.includes(commentMessage)
     && unchanged

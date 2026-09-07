@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_file_tag_service_can_assign_existing_or_created_system_tag_to_item_file():
     service = (ROOT / "lib" / "Service" / "FileTagService.php").read_text()
     assert "IDBConnection" in service
-    assert "public function assignTagToItem(string $userId, int $itemId, string $tagName): void" in service
+    assert "public function assignTagToItem(string $userId, int $itemId, string $tagName): array" in service
     assert "findFileIdForItem" in service
     assert "getTag($tagName" in service
     assert "createTag($tagName, true, true" in service
