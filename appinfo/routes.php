@@ -16,6 +16,7 @@ return [
         ['name' => 'scan#cancel', 'url' => '/scan/jobs/{jobId}/cancel', 'verb' => 'POST'],
         ['name' => 'scan#progress', 'url' => '/scan/progress', 'verb' => 'GET'],
         ['name' => 'export#metadata', 'url' => '/export/metadata', 'verb' => 'GET'],
+        ['name' => 'export#sidecarManifest', 'url' => '/export/metadata/sidecar-manifest', 'verb' => 'GET'],
         ['name' => 'import#preview', 'url' => '/import/metadata/preview', 'verb' => 'POST'],
         ['name' => 'import#apply', 'url' => '/import/metadata/apply', 'verb' => 'POST'],
         ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET'],

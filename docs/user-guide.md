@@ -31,7 +31,8 @@ Library owns:
 - handoff links to read/open files, show them in Nextcloud Files and download the original source file;
 - exposure and editing of Nextcloud system tags on the backing file;
 - exposure and adding of Nextcloud file comments;
-- read-only corrected-metadata JSON export for user-edited catalogue rows.
+- read-only corrected-metadata JSON export for user-edited catalogue rows;
+- read-only sidecar manifest export that maps corrected rows to suggested `.library.json` sidecar paths.
 
 For the next personal-library direction, see [Personal top features](personal-top-features.md): multi-root confidence, starring/bookmarking, last-opened activity, description search and Library-native workflow status now have checked implementation/smoke coverage; next priority is genres/classifications.
 
@@ -75,7 +76,7 @@ Current catalogue capabilities:
 - choose page size up to the current 500-item clamp;
 - see page counts and previous/next links;
 - see scan diagnostics on unhealthy catalogue cards only;
-- open **Library settings** and **Export corrected metadata** from the secondary catalogue action area.
+- open **Library settings**, **Export corrected metadata** and **Export sidecar manifest** from the secondary catalogue action area.
 
 The catalogue cards are intentionally browse-only. Editing happens on the detail page so the grid stays fast to scan. The no-Vue fallback renderer is also expected to preserve the same core browse actions.
 
@@ -141,7 +142,7 @@ Current settings capabilities:
 - inspect latest scan progress and recent scan history;
 - see scan scope as `all` or a specific root ID;
 - inspect indexed file rows with file ID, root label, cached path, format, scan status and scan error;
-- open **Export corrected metadata**.
+- open **Export corrected metadata** and **Export sidecar manifest**.
 
 Deleting a Library root removes Library catalogue/index data for that root, but never deletes the source files from Nextcloud Files. The current confirmation is still minimal: the settings form includes a delete action and explanatory copy, but there is not yet a richer typed confirmation or recovery wizard.
 
@@ -315,7 +316,9 @@ The read-only corrected-metadata JSON export is implemented. It includes stable 
 - metadata provenance and user-edited flags;
 - scan status and scan diagnostics.
 
-The export itself is read-only. Settings also provide **Preview metadata import** and **Apply metadata import**. Preview reports matches, missing items and differing fields without writing. Apply writes matched corrected metadata to existing Library items, skips missing/unchanged rows, and still does not write OPF files, JSON sidecars or any other source-folder files.
+The export itself is read-only. **Export sidecar manifest** is also read-only: it lists each corrected row with its source path and suggested `.library.json` sidecar path so a future writer or external script has a reviewable target map. It does not write sidecar files.
+
+Settings also provide **Preview metadata import** and **Apply metadata import**. Preview reports matches, missing items and differing fields without writing. Apply writes matched corrected metadata to existing Library items, skips missing/unchanged rows, and still does not write OPF files, JSON sidecars or any other source-folder files.
 
 ## Admin processes
 
@@ -377,9 +380,9 @@ Current uninstall/removal boundaries:
 1. **Disable the app** with `occ app:disable library` when you want to stop Library without deleting app code or source files.
 2. **Remove the app** through normal Nextcloud app management or by deleting `custom_apps/library` only after disabling it. This removes the app code, not the original publications in Nextcloud Files.
 3. Keep a Nextcloud database backup if you need to preserve Library roots, scan history, file index rows and corrected catalogue metadata.
-4. Use **Export corrected metadata** to keep a JSON snapshot of user-edited catalogue rows before removal.
+4. Use **Export corrected metadata** to keep a JSON snapshot of user-edited catalogue rows before removal, and **Export sidecar manifest** to review suggested file-neighbour `.library.json` paths for those rows.
 5. Use **Preview metadata import** and **Apply metadata import** only against an existing Library catalogue where rows can be matched by Library/file identity or path.
-6. Treat full restore/write-back as not yet implemented: there is currently no sidecar/JSON writer that can reconstruct user-corrected Library metadata after app removal without an existing catalogue to match.
+6. Treat full restore/write-back as not yet implemented: there is currently no OPF/JSON writer that can reconstruct user-corrected Library metadata after app removal without an existing catalogue to match.
 
 ## User stories for judging v0.1 usefulness
 
@@ -601,7 +604,7 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
 7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips and top-series shortcuts exist, but there are no dedicated creator/series/publication/year landing pages, smart collections or saved views.
 8. **User-facing onboarding and empty states** — the current app is smoke-testable and usable by a technical tester, but a first-time user still needs clearer guidance.
-9. **Metadata portability beyond export/preview/apply** — corrected Library metadata can be exported as JSON, previewed for restore matches/field changes and applied to matched existing Library items, but there is no OPF write-back, sidecar writer or fresh-install migration story that makes corrections file-first durable.
+9. **Metadata portability beyond export/preview/apply** — corrected Library metadata can be exported as JSON, previewed for restore matches/field changes, applied to matched existing Library items and mapped to suggested `.library.json` paths with a read-only sidecar manifest, but there is no OPF/JSON sidecar writer or fresh-install migration story that makes corrections file-first durable.
 10. **Real-collection metadata hardening** — PDF hardening has improved, but more real EPUB/OPF/CBZ/PDF samples are needed to find weak metadata, cover and sidecar cases before release.
 
 DB-backed catalogue query path is implemented and is no longer a missing-feature candidate. Corrected-metadata JSON export, no-write import preview and apply-to-matched-items are implemented, but OPF/JSON write-back remains missing.

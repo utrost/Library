@@ -83,7 +83,9 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
 
         <p class="library-detail-actions">
             <a href="<?php p($_['metadataExportUrl']); ?>" class="button secondary"><?php p($l->t('Export corrected metadata')); ?></a>
+            <a href="<?php p($_['metadataSidecarManifestUrl']); ?>" class="button secondary"><?php p($l->t('Export sidecar manifest')); ?></a>
         </p>
+        <p class="library-muted"><?php p($l->t('The sidecar manifest lists suggested .library.json paths for corrected metadata. It does not write sidecar files.')); ?></p>
 
         <form method="post" action="<?php p($_['metadataImportPreviewUrl']); ?>" class="library-form library-metadata-import-preview-form">
             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
