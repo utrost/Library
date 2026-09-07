@@ -19,7 +19,7 @@ Two framing points:
 
 ### fully implemented multi-root Library
 
-Current support: partial/mostly present.
+Current support: mostly implemented and smoke-tested.
 
 Implemented today:
 
@@ -27,20 +27,20 @@ Implemented today:
 - each root has a label/path/enabled state;
 - scans can cover all enabled roots or one selected root;
 - catalogue shelf filters use root labels/paths;
-- root deletion removes Library catalogue/index rows for that root without deleting source files.
+- root deletion removes Library catalogue/index rows for that root without deleting source files;
+- `npm run smoke:multi-root` creates two temporary real Nextcloud folders, scans both, proves both shelf filters, verifies a scoped scan does not mark the other root missing, checks duplicate catalogue-card count, and removes temporary files/tokens.
 
-Missing before calling it fully implemented:
+Still missing before calling it polished release quality:
 
 - stronger root validation and confirmation;
-- clearer duplicate/overlap behavior when the same file is visible through multiple roots;
-- first-run guidance for adding several roots;
-- a confidence smoke that indexes two or more real configured directories at once and proves all expected shelves appear in catalogue filters.
+- clearer user-facing explanation of overlapping-root behavior;
+- first-run guidance for adding several roots.
 
 ### starring/bookmarking
 
-Current support: missing as a Library-native feature.
+Current support: implemented as the first Library-native personal catalogue field.
 
-This should be Library-native rather than only a Nextcloud tag. A star is a fast, personal, first-class catalogue action. It should appear on cards and details, be filterable, and survive export/import. It is not the same as reader bookmarks inside an EPUB/PDF app.
+This is Library-native rather than only a Nextcloud tag. A star is a fast, personal, first-class catalogue action. It appears as a toggle on item details, as a visible marker on compact catalogue cards, is filterable with `starred=1`, and is included in corrected-metadata export/import. It is not the same as reader bookmarks inside an EPUB/PDF app, and toggling it does not change scanner provenance or Nextcloud tags.
 
 ### last read/opened
 
@@ -88,7 +88,9 @@ Recommended split:
 
 ### P0 — finish multi-root confidence
 
-Why first: if multiple dirs are your top missing feature, we should prove it before adding more item-level metadata. Most code exists; the gap is confidence, edge cases and user-facing clarity.
+Status: landed as a confidence-smoke checkpoint.
+
+Why first: if multiple dirs are your top missing feature, we should prove it before adding more item-level metadata. Most code already existed; this checkpoint added proof instead of a broad rewrite.
 
 Scope:
 
@@ -106,6 +108,8 @@ Acceptance checks:
 - duplicate file IDs from overlapping roots do not create duplicate catalogue cards.
 
 ### P1 — personal starring
+
+Status: landed as the first personal catalogue feature.
 
 Why second: it is small, high-value and changes the catalogue from “inventory” to “my library”.
 

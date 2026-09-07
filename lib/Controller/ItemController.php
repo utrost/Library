@@ -79,6 +79,21 @@ final class ItemController extends Controller {
     }
 
     #[NoAdminRequired]
+    public function star(int $itemId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $this->itemService->setStarred($user->getUID(), $itemId, (string)$this->request->getParam('starred', '') === '1');
+        }
+
+        $returnTo = (string)$this->request->getParam('returnTo', '');
+        if ($returnTo === 'details') {
+            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+        }
+
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
+
+    #[NoAdminRequired]
     public function forgetMissing(int $itemId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {

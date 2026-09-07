@@ -40,6 +40,7 @@ const activeFilters = reactive({
   tag: props.state.activeFilters?.tag || '',
   shelf: props.state.activeFilters?.shelf || '',
   status: props.state.activeFilters?.status || '',
+  starred: props.state.activeFilters?.starred || '',
   sort: props.state.activeFilters?.sort || 'title',
 })
 const settingsUrl = computed(() => props.state.settingsUrl || '')
@@ -54,6 +55,7 @@ const filterLabels = {
   tag: 'Nextcloud tag',
   shelf: 'Shelf',
   status: 'Scan status',
+  starred: 'Starred',
 }
 const activeFilterChips = computed(() => Object.entries(filterLabels)
   .map(([key, label]) => ({ key, label, value: activeFilters[key] || '' }))
@@ -150,6 +152,13 @@ function publicationFilterUrl(publication) {
         </select>
       </label>
       <label>
+        {{ t('library', 'Starred') }}
+        <select v-model="activeFilters.starred" name="starred">
+          <option value="">{{ t('library', 'All publications') }}</option>
+          <option value="1">{{ t('library', 'Starred only') }}</option>
+        </select>
+      </label>
+      <label>
         {{ t('library', 'Sort') }}
         <select v-model="activeFilters.sort" name="sort">
           <option value="title">{{ t('library', 'Title') }}</option>
@@ -211,7 +220,7 @@ function publicationFilterUrl(publication) {
         </a>
         <div class="library-cover-summary">
           <div class="library-cover-primary">
-            <h3>{{ item.title }}</h3>
+            <h3><span v-if="item.starred" class="library-star-marker" :aria-label="t('library', 'Starred')">★</span>{{ item.title }}</h3>
             <a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Read') }}</a>
           </div>
           <details class="library-cover-details">
@@ -275,6 +284,11 @@ function publicationFilterUrl(publication) {
 .library-cover-details {
   margin-top: 4px;
   padding-top: 4px;
+}
+
+.library-star-marker {
+  color: var(--color-warning, #f0ad00);
+  margin-right: 4px;
 }
 
 .library-cover-details-summary,

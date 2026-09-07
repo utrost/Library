@@ -61,6 +61,7 @@ final class ItemService {
                 'publication_date' => $qb->createNamedParameter($metadataCandidate['publicationDate']),
                 'language' => $qb->createNamedParameter($metadataCandidate['language']),
                 'publisher' => $qb->createNamedParameter($metadataCandidate['publisher']),
+                'starred' => $qb->createNamedParameter(0),
                 'metadata_source' => $qb->createNamedParameter($metadataCandidate['metadataSource']),
                 'field_sources' => $qb->createNamedParameter(json_encode($metadataCandidate['fieldSources'], JSON_THROW_ON_ERROR)),
                 'field_values' => $qb->createNamedParameter(json_encode($metadataCandidate['fieldValues'], JSON_THROW_ON_ERROR)),
@@ -142,6 +143,18 @@ final class ItemService {
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
+    }
+
+    public function setStarred(string $userId, int $itemId, bool $starred): bool {
+        $qb = $this->db->getQueryBuilder();
+        $affected = $qb->update('library_items')
+            ->set('starred', $qb->createNamedParameter($starred ? 1 : 0))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+
+        return $affected > 0;
     }
 
     public function resetFieldToScannerCandidate(string $userId, int $itemId, string $field): bool {
@@ -242,7 +255,7 @@ final class ItemService {
     }
 
     /**
-     * @param array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string,tag?:string,shelf?:string,status?:string,sort?:string,taggedFileIds?:array<int, int>} $filters
+     * @param array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string,tag?:string,shelf?:string,status?:string,starred?:string,sort?:string,taggedFileIds?:array<int, int>} $filters
      * @param array{page:int,limit:int} $pagination
      * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,creators:array<int, string>,scanStatuses:array<int, string>}}
      */
@@ -273,7 +286,7 @@ final class ItemService {
 
     public function findItem(string $userId, int $itemId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.starred', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -293,12 +306,15 @@ final class ItemService {
 
     public function exportCorrectedMetadata(string $userId): array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.starred', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
             ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
-            ->andWhere($qb->expr()->eq('i.user_edited', $qb->createNamedParameter(1)))
+            ->andWhere($qb->expr()->orX(
+                $qb->expr()->eq('i.user_edited', $qb->createNamedParameter(1)),
+                $qb->expr()->eq('i.starred', $qb->createNamedParameter(1))
+            ))
             ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
             ->orderBy('i.title', 'ASC')
             ->executeQuery();
@@ -426,6 +442,9 @@ final class ItemService {
             }
 
             $this->updateItem($userId, (int)$current['id'], $importItem);
+            if (array_key_exists('starred', $importItem)) {
+                $this->setStarred($userId, (int)$current['id'], (bool)$importItem['starred']);
+            }
             $appliedItems++;
             $applyItems[] = [
                 'status' => 'applied',
@@ -463,6 +482,9 @@ final class ItemService {
             if (array_key_exists($field, $importItem) && (string)($importItem[$field] ?? '') !== (string)($current[$field] ?? '')) {
                 $changedFields[] = $field;
             }
+        }
+        if (array_key_exists('starred', $importItem) && (bool)$importItem['starred'] !== (bool)($current['starred'] ?? false)) {
+            $changedFields[] = 'starred';
         }
         return $changedFields;
     }
@@ -508,7 +530,7 @@ final class ItemService {
         $cachedPath = trim((string)($importItem['cachedPath'] ?? ''));
 
         $qb = $this->db->getQueryBuilder();
-        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.starred', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -532,7 +554,7 @@ final class ItemService {
 
     private function catalogueQueryBuilder(string $userId, array $filters): IQueryBuilder {
         $qb = $this->db->getQueryBuilder();
-        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.starred', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -703,6 +725,11 @@ final class ItemService {
             $qb->andWhere($qb->expr()->eq('f.scan_status', $qb->createNamedParameter($status)));
         }
 
+        $starred = trim((string)($filters['starred'] ?? ''));
+        if ($starred === '1') {
+            $qb->andWhere($qb->expr()->eq('i.starred', $qb->createNamedParameter(1)));
+        }
+
         $shelf = trim((string)($filters['shelf'] ?? ''));
         if ($shelf !== '') {
             $qb->andWhere($qb->expr()->eq($qb->createFunction("COALESCE(NULLIF(r.label, ''), r.path)"), $qb->createNamedParameter($shelf)));
@@ -762,6 +789,7 @@ final class ItemService {
             'publicationDate' => $row['publication_date'] !== null ? (string)$row['publication_date'] : '',
             'language' => $row['language'] !== null ? (string)$row['language'] : '',
             'publisher' => $row['publisher'] !== null ? (string)$row['publisher'] : '',
+            'starred' => (bool)$row['starred'],
             'metadataSource' => (string)$row['metadata_source'],
             'fieldSources' => $this->decodeJsonMap($row['field_sources'] ?? null),
             'fieldValues' => $this->decodeJsonMap($row['field_values'] ?? null),
