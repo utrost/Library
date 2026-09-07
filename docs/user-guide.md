@@ -33,12 +33,14 @@ Library owns:
 - exposure and adding of Nextcloud file comments;
 - read-only corrected-metadata JSON export for user-edited catalogue rows.
 
+For the next personal-library direction, see [Personal top features](personal-top-features.md): finish multi-root confidence, then add starring/bookmarking, last read/opened activity, description search, Library-native status, and genres/classifications.
+
 Library does **not** own:
 
 - the binary files themselves;
 - folder permissions, shares or WebDAV storage;
 - a custom EPUB/PDF/CBZ reader;
-- bookmarks, annotations or reading position;
+- page-position bookmarks, annotations or reader-owned reading position; Library-native stars/bookmarks and last-opened activity are now planned personal-library features;
 - OCR or full-text document search;
 - internet metadata lookup;
 - OPDS, Kobo or Kindle sync;
@@ -118,6 +120,8 @@ Current details capabilities:
 - forget a missing item when the backing file row has already been marked `missing`.
 
 Manual Library metadata edits set provenance to `user` and are preserved across rescans. Stored scanner candidates continue to refresh in the background on later scans, so a user can compare or reset fields without losing current manual values. Tag and comment changes are Nextcloud file-level changes; they do not mutate Library publication metadata.
+
+Tags can approximate status today: labels such as `read`, `processed` or `ocr-missing` can be added as Nextcloud tags and filtered in the catalogue. That is useful for lightweight triage, but it is not the same as a Library-native status. A future Library-native status should be separate from operational scan status and should coexist with tags. Genres and classifications are similar: current Nextcloud tags can help, but richer multi-value genres/classifications should become Library-native metadata when they drive facets, export/import and sidecar write-back.
 
 ### Personal Library settings
 
