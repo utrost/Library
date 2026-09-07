@@ -553,12 +553,13 @@ Acceptance checks:
 - paired sidecar OPFs are hidden as separate catalogue items;
 - scanner-created stale sidecar items can be cleaned on rescan;
 - manually edited OPF sidecar records are preserved as visible standalone records until a merge workflow exists.
+- corrected Library metadata can be exported as JSON, mapped to suggested `.library.json` paths with **Export sidecar manifest**, and downloaded as proposed sidecar files with **Export sidecar ZIP**.
 
 Visible gaps:
 
 - no user-facing explanation of sidecar precedence in the UI;
-- no tool to create/export sidecars from corrected Library metadata;
-- no conflict UI when scanner/sidecar/user metadata disagree.
+- no source-folder writer that creates OPF/JSON sidecars in place;
+- conflict visibility exists for scanner/user candidates, but there is no richer dedicated conflict UI for scanner/sidecar/user precedence disagreements.
 
 ### Story 9: Removing or migrating Library safely
 
@@ -575,8 +576,8 @@ Acceptance checks:
 
 Visible gaps:
 
-- no import from the corrected-metadata JSON export;
-- no write-back to OPF or JSON sidecars;
+- import from the corrected-metadata JSON export exists for matched existing catalogue rows, but not for rebuilding a fresh catalogue from files alone;
+- no write-back to OPF or JSON sidecars in source folders;
 - no guided uninstall/export checklist inside the UI;
 - no automated validation that an export can recreate a catalogue in a fresh install.
 
