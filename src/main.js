@@ -215,6 +215,7 @@ function fallbackCatalogue(state, error) {
   const settingsUrl = text(state.settingsUrl || '')
   const metadataExportUrl = text(state.metadataExportUrl || '')
   const batchTagUrl = text(state.batchTagUrl || '/apps/library/bulk/tags')
+  const batchTagRemoveUrl = text(state.batchTagRemoveUrl || '/apps/library/bulk/tags/remove')
   const batchMetadataResetUrl = text(state.batchMetadataResetUrl || '/apps/library/bulk/items/reset-filtered-fields')
   const batchCoverRefreshUrl = text(state.batchCoverRefreshUrl || '/apps/library/bulk/covers/refresh')
 
@@ -319,11 +320,42 @@ function fallbackCatalogue(state, error) {
   const batchButton = document.createElement('button')
   batchButton.type = 'submit'
   batchButton.className = 'button secondary'
-  batchButton.textContent = t('library', 'Apply tag to filtered results')
+  batchButton.textContent = t('library', 'Apply Nextcloud tag to current results')
   const batchNote = document.createElement('p')
   batchNote.className = 'library-muted'
   batchNote.textContent = t('library', 'Applies to every item matching the current filters, up to the safety cap. Nextcloud tags stay separate from Library metadata.')
   batchForm.append(batchLabel, batchButton, batchNote)
+  const removeForm = document.createElement('form')
+  removeForm.method = 'post'
+  removeForm.action = batchTagRemoveUrl
+  removeForm.className = 'library-batch-tag-remove-form'
+  const removeToken = fallbackHiddenRequestToken(state)
+  if (removeToken) removeForm.appendChild(removeToken)
+  for (const [key, value] of Object.entries(state.activeFilters || {})) {
+    if (text(value).trim() === '') continue
+    const hidden = document.createElement('input')
+    hidden.type = 'hidden'
+    hidden.name = key
+    hidden.value = text(value)
+    removeForm.appendChild(hidden)
+  }
+  const removeLabel = document.createElement('label')
+  removeLabel.textContent = t('library', 'Nextcloud tag')
+  const removeInput = document.createElement('input')
+  removeInput.type = 'text'
+  removeInput.name = 'nextcloudTagName'
+  removeInput.setAttribute('list', 'library-nextcloud-tag-suggestions')
+  removeInput.placeholder = t('library', 'e.g. Review')
+  removeInput.autocomplete = 'off'
+  removeLabel.appendChild(removeInput)
+  const removeButton = document.createElement('button')
+  removeButton.type = 'submit'
+  removeButton.className = 'button secondary'
+  removeButton.textContent = t('library', 'Remove tag from current results')
+  const removeNote = document.createElement('p')
+  removeNote.className = 'library-muted'
+  removeNote.textContent = t('library', 'Removes an existing Nextcloud tag from every item matching the current filters. Library metadata is not changed.')
+  removeForm.append(removeLabel, removeButton, removeNote)
   const resetForm = document.createElement('form')
   resetForm.method = 'post'
   resetForm.action = batchMetadataResetUrl
@@ -372,7 +404,7 @@ function fallbackCatalogue(state, error) {
   coverNote.className = 'library-muted'
   coverNote.textContent = t('library', 'Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.')
   coverForm.append(coverButton, coverNote)
-  batchActions.append(batchSummary, batchForm, resetForm, coverForm)
+  batchActions.append(batchSummary, batchForm, removeForm, resetForm, coverForm)
   panel.appendChild(batchActions)
 
   const nav = document.createElement('nav')

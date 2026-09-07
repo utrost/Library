@@ -33,7 +33,7 @@ def test_catalogue_cards_no_longer_render_inline_tag_editor():
     assert "nextcloudTagEditor" not in vue
     assert "library-tag-form" not in vue
     assert "library-batch-tag-form" in vue
-    assert "Remove tag" not in vue
+    assert "library-batch-tag-remove-form" in vue
     assert "removeTagUrl(item, tag)" not in vue
     assert "library-detail-tag-editor" not in vue
 

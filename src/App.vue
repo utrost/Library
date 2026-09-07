@@ -64,6 +64,7 @@ const metadataSidecarManifestUrl = computed(() => catalogueState.metadataSidecar
 const metadataSidecarBundleUrl = computed(() => catalogueState.metadataSidecarBundleUrl || '')
 const catalogueEndpointUrl = computed(() => catalogueState.catalogueEndpointUrl || '/apps/library/catalogue')
 const batchTagUrl = computed(() => catalogueState.batchTagUrl || '/apps/library/bulk/tags')
+const batchTagRemoveUrl = computed(() => catalogueState.batchTagRemoveUrl || '/apps/library/bulk/tags/remove')
 const batchMetadataResetUrl = computed(() => catalogueState.batchMetadataResetUrl || '/apps/library/bulk/items/reset-filtered-fields')
 const batchCoverRefreshUrl = computed(() => catalogueState.batchCoverRefreshUrl || '/apps/library/bulk/covers/refresh')
 const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictReviewUrl || '?scannerConflicts=1')
@@ -114,7 +115,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchMetadataResetUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -420,11 +421,21 @@ async function toggleStar(item, event) {
         <input type="hidden" name="requesttoken" :value="requestToken">
         <input v-for="filter in batchHiddenFilters" :key="filter.key" type="hidden" :name="filter.key" :value="filter.value">
         <label>
-          {{ t('library', 'Apply Nextcloud tag to current results') }}
-          <input type="text" name="nextcloudTagName" placeholder="batch-review">
+          <span>{{ t('library', 'Nextcloud tag') }}</span>
+          <input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off">
         </label>
-        <button type="submit" class="button secondary">{{ t('library', 'Apply tag to filtered results') }}</button>
-        <p class="library-muted">{{ t('library', 'Applies to every item matching the current filters, up to the safety cap. Nextcloud tags stay separate from Library metadata.') }}</p>
+        <button type="submit" class="button primary">{{ t('library', 'Apply Nextcloud tag to current results') }}</button>
+        <p class="library-muted">{{ t('library', 'Uses the current filters, not just this page. Limit: 5,000 matched items.') }}</p>
+      </form>
+      <form method="post" :action="batchTagRemoveUrl" class="library-batch-tag-remove-form">
+        <input type="hidden" name="requesttoken" :value="requestToken">
+        <input v-for="filter in batchHiddenFilters" :key="`remove-tag-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
+        <label>
+          <span>{{ t('library', 'Nextcloud tag') }}</span>
+          <input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off">
+        </label>
+        <button type="submit" class="button secondary">{{ t('library', 'Remove tag from current results') }}</button>
+        <p class="library-muted">{{ t('library', 'Removes an existing Nextcloud tag from every item matching the current filters. Library metadata is not changed.') }}</p>
       </form>
       <form method="post" :action="batchMetadataResetUrl" class="library-batch-metadata-reset-form">
         <input type="hidden" name="requesttoken" :value="requestToken">

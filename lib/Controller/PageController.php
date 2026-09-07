@@ -136,6 +136,7 @@ class PageController extends Controller {
             'metadataSidecarBundleUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarBundle'),
             'catalogueEndpointUrl' => $this->urlGenerator->linkToRoute('library.page.catalogue'),
             'batchTagUrl' => $this->urlGenerator->linkToRoute('library.tag.batchassign'),
+            'batchTagRemoveUrl' => $this->urlGenerator->linkToRoute('library.tag.batchremove'),
             'batchMetadataResetUrl' => $this->urlGenerator->linkToRoute('library.item.batchresetfilteredfields'),
             'batchCoverRefreshUrl' => $this->urlGenerator->linkToRoute('library.cover.batchrefresh'),
             'batchCoverRefreshRequested' => $batchCoverRefreshRequested,
