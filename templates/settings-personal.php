@@ -79,7 +79,10 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                         </form>
                         <form method="post" action="<?php p($root['rootDeleteUrl']); ?>" class="library-inline-form">
                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                            <input type="hidden" name="confirmDelete" value="1" />
+                            <label>
+                                <?php p($l->t('Type DELETE to confirm')); ?>
+                                <input type="text" name="confirmDeleteText" placeholder="DELETE" autocomplete="off" />
+                            </label>
                             <button type="submit"><?php p($l->t('Delete root')); ?></button>
                         </form>
                         <p class="library-muted"><?php p($l->t('Deleting a Library root removes only Library index and catalogue rows for that root, but never deletes source files from Nextcloud Files.')); ?></p>

@@ -67,7 +67,8 @@ final class RootController extends Controller {
     #[NoAdminRequired]
     public function delete(int $rootId): RedirectResponse {
         $user = $this->userSession->getUser();
-        if ($user !== null && (string)$this->request->getParam('confirmDelete', '') === '1') {
+        $confirmDeleteText = trim((string)$this->request->getParam('confirmDeleteText', ''));
+        if ($user !== null && $confirmDeleteText === 'DELETE') {
             $this->rootService->deleteRoot($user->getUID(), $rootId);
         }
 
