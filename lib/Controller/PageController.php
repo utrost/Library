@@ -63,6 +63,7 @@ class PageController extends Controller {
             'tag' => trim((string)$this->request->getParam('tag', '')),
             'shelf' => trim((string)$this->request->getParam('shelf', '')),
             'status' => trim((string)$this->request->getParam('status', '')),
+            'starred' => trim((string)$this->request->getParam('starred', '')),
             'sort' => trim((string)$this->request->getParam('sort', 'title')),
         ];
         if ($activeFilters['tag'] !== '') {
@@ -118,6 +119,7 @@ class PageController extends Controller {
             $itemId = (string)$item['id'];
             $fileId = (int)$item['fileId'];
             $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $itemId]);
+            $item['starUrl'] = $this->urlGenerator->linkToRoute('library.item.star', ['itemId' => $itemId]);
             $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $itemId]);
             $item['tagUrl'] = $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => $itemId]);
             $item['tagRemoveBaseUrl'] = $this->urlGenerator->linkToRoute('library.tag.remove', ['itemId' => $itemId, 'tagId' => '__TAG_ID__']);
@@ -150,12 +152,12 @@ class PageController extends Controller {
     }
 
     /**
-     * @param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,sort:string} $activeFilters
+     * @param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,starred:string,sort:string} $activeFilters
      * @param array{limit:int} $pagination
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
         $query = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'sort'] as $param) {
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'starred', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title')) {
                 $query[$param] = $value;

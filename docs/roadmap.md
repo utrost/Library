@@ -33,12 +33,13 @@ What exists now:
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue gallery with preview/CBZ/placeholder covers and compact cover-first cards on mobile and desktop; the default card surface is cover, title, Read and Details, with secondary metadata/actions behind a Details disclosure.
 - Bounded catalogue pagination with page-size controls, smoke-tested through a 1000-real-file / 16.52 GiB staged Alice scale pilot after the planned 10 → 100 → 1000 → 10000 guardrail path.
-- Database-backed catalogue search/filter controls for title/author text, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, exact Nextcloud tag and root-derived shelf, plus active filter chips.
+- Database-backed catalogue search/filter controls for title/author text, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, starred state, exact Nextcloud tag and root-derived shelf, plus active filter chips.
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
 - Dedicated item details page where the details page owns metadata, tag and comment editing while catalogue cards stay browse-only.
 - Minimal Nextcloud system tag assignment/removal from item details for visible/assignable tags.
 - Read-only recent Nextcloud file comments on publication item cards and item details as file-level notes/discussion.
 - Minimal Nextcloud file comment writing from item details.
+- Library-native personal starring for catalogue items: detail-page star/unstar toggle, compact card marker, `starred=1` filter, and corrected-metadata export/import portability without altering scanner provenance.
 - Per-file metadata extraction error isolation with visible indexed-file diagnostics for corrupt EPUB/CBZ/OPF inputs.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - metadata/tag/comment separation smoke is checked in: Nextcloud tag/comment actions do not mutate Library publication metadata.

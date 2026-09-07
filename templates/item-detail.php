@@ -71,12 +71,18 @@ $fileRows = [
                             · <?php p($l->t('Shelf: %s', [(string)$item['shelf']])); ?>
                         <?php endif; ?>
                     </p>
-                    <p class="library-detail-actions">
+                    <div class="library-detail-actions">
+                        <form method="post" action="<?php p($item['starUrl'] ?? ''); ?>" class="library-inline-form library-star-form">
+                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                            <input type="hidden" name="returnTo" value="details" />
+                            <input type="hidden" name="starred" value="<?php p(($item['starred'] ?? false) ? '0' : '1'); ?>" />
+                            <button type="submit" class="button secondary"><?php p(($item['starred'] ?? false) ? $l->t('Unstar this publication') : $l->t('Star this publication')); ?></button>
+                        </form>
                         <a href="<?php p($item['openUrl'] ?? '#'); ?>" class="button primary"><?php p($l->t('Read')); ?></a>
                         <a href="<?php p($item['filesUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Show in Files')); ?></a>
                         <a href="<?php p($item['downloadUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Download source')); ?></a>
                         <a href="<?php p($item['coverRefreshUrl'] ?? ($item['coverUrl'] ?? '#')); ?>" class="button secondary library-cover-refresh-action"><?php p($l->t('Refresh cover preview')); ?></a>
-                    </p>
+                    </div>
                 </div>
             </div>
         </article>

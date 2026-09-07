@@ -122,7 +122,7 @@ Install app
 ## Explicit v0.1 non-goals
 
 - Custom EPUB, PDF or comic rendering.
-- Reader-owned page-position bookmarks, annotations or reading position. Library-native stars/bookmarks and last-opened activity are now planned personal-library features.
+- Reader-owned page-position bookmarks, annotations or reading position. Library-native star/bookmark support now exists for catalogue items; last-opened activity remains planned.
 - OCR.
 - Full-text document search.
 - Internet metadata lookup.
@@ -137,7 +137,7 @@ Install app
 
 Uwe's current personal top features are scoped in [Personal top features](personal-top-features.md). They refine the product thesis toward daily use: fully trusted multi-root browsing, personal starring/bookmarking, last opened activity, description search, custom reading/workflow status, and richer genres/classifications.
 
-Feedback captured there: use Nextcloud tags for lightweight cross-app labels, but make stars, Library-owned reading activity, workflow status, and structured genres/classifications canonical Library-native fields when they need first-class filters, export/import or File-First sidecar portability.
+Feedback captured there: use Nextcloud tags for lightweight cross-app labels, but make stars, Library-owned reading activity, workflow status, and structured genres/classifications canonical Library-native fields when they need first-class filters, export/import or File-First sidecar portability. The first of those fields, personal starring, is now implemented as Library-native catalogue state.
 
 ## Design tension to preserve
 
