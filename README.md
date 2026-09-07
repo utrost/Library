@@ -37,7 +37,7 @@ The current development slice can:
 - extract filename/folder metadata patterns for magazine dates/issues and comic number/title names when OPF/embedded metadata is absent;
 - EPUB cover extraction landed: extract EPUB cover images from EPUB package manifests when Nextcloud preview cannot provide a cover;
 - expose **Refresh cover preview** on item details to retry the cover route with no-store response headers when a cover looks stale;
-- show a user-facing cover-quality explanation on item details so placeholders explain the Nextcloud preview, EPUB package cover, CBZ first-image and stable placeholder fallback ladder;
+- attach a cover-quality explanation to the **Refresh cover preview** action so the fallback ladder is available as help text without taking over the detail page;
 - serve CBZ first-image covers when the general Nextcloud preview pipeline cannot generate a cover;
 - return cover diagnostics on every cover response, including preview-backed, CBZ first-image and placeholder covers;
 - provide separate Read, Show in Files and Download source actions for each catalogue item;

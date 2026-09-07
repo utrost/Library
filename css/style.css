@@ -466,27 +466,60 @@
     background: var(--color-background-darker);
 }
 
-.library-detail-actions {
+.library-detail-actionbar {
+    align-items: center;
     display: flex;
-    gap: 8px;
     flex-wrap: wrap;
-}
-
-.library-cover-quality-explanation {
-    background: var(--color-background-hover);
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
+    gap: 12px 16px;
+    justify-content: space-between;
     margin-top: 14px;
-    padding: 12px 14px;
 }
 
-.library-cover-quality-explanation h3 {
-    font-size: 1rem;
-    margin: 0 0 6px;
+.library-detail-primary-actions,
+.library-detail-secondary-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
-.library-cover-quality-explanation p {
-    margin: 6px 0 0;
+.library-star-form {
+    margin: 0;
+}
+
+.library-star-button {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    color: var(--color-text-maxcontrast);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 24px;
+    height: 44px;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    width: 44px;
+}
+
+.library-star-button:hover,
+.library-star-button:focus-visible,
+.library-star-button--starred {
+    border-color: var(--color-warning, #f0ad00);
+    color: var(--color-warning, #f0ad00);
+}
+
+.library-workflow-status-submit-fallback {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
 }
 
 .library-detail-workbench {
