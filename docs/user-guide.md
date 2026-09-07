@@ -499,11 +499,12 @@ Acceptance checks:
 
 Visible gaps:
 
-- no scan cancellation/retry control;
+- **Retry metadata errors** / metadata-error retry works from Library settings;
+- no scan cancellation control;
 - no notification when a long scan completes or fails;
 - no per-root progress percentage or estimated remaining time;
 - no scheduled/resumable incremental scan policy;
-- no explicit repair flow for “retry metadata errors” or “check missing files”.
+- no explicit repair flow for “check missing files” yet.
 
 ### Story 7: Covers make the library feel browsable
 
@@ -572,7 +573,7 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 1. Keep metadata-quality work safe by splitting the extractor seam. `PublicationMetadataService` should remain the façade, but filename, PDF, OPF/EPUB and CBZ parsing should move into narrower adapters before more real-corpus rules accumulate. This refactor is now complete for the current extractor families: filename/folder parsing lives in `FilenameMetadataExtractor`, PDF Info parsing/decoding lives in `PdfInfoMetadataExtractor`, EPUB package/standalone OPF parsing lives in `OpfEpubMetadataExtractor`, and CBZ ComicInfo parsing lives in `CbzComicInfoMetadataExtractor`.
 2. Improve the metadata correction workflow. Details editing exists, field-level scanner candidates are recorded and shown on item details, manual edit keeps scanner candidates available for later reset, and rescans refresh scanner candidates while current user-edited values stay untouched. Individual fields can show a **Reset to scanner** action when a stored scanner candidate differs from the current value, and whole-item reset to scanner candidates can apply all stored candidates at once. The edit form shows hints for dates, language codes and creator separators; these hints do not block saving. Rows where the current value differs from the scanner candidate show a **Differs from scanner** label. The details page includes a read-only metadata correction summary with scanner candidate count and differing-field count. Conflict review and hard validation remain future work.
 3. Make corrected metadata portable back into a fresh install or files. Read-only export, no-write import preview and apply-to-matched-existing-items exist; write-back to JSON or OPF sidecars does not.
-4. Add repair-oriented scan lifecycle controls. Queued scans and progress exist; retry metadata errors, check missing files, cancellation and notifications do not.
+4. Add repair-oriented scan lifecycle controls. Queued scans, progress and metadata-error retry works; check missing files, cancellation and notifications do not.
 5. Improve the cover quality path. Preview, EPUB package cover, CBZ first image, placeholders and a refresh-cover retry affordance work; app-owned cover cache and manual override do not.
 6. Add discovery by publication structure. Search/filter/pagination exist; creator, series, publication/year pages and saved views do not.
 7. Polish root/onboarding/shared-library workflows. Root lifecycle exists; stronger confirmations, first-run guidance and admin-managed shared roots remain future work.
@@ -582,7 +583,7 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 These are the highest-signal gaps to judge before pushing v0.1 further:
 
 1. **Root management polish beyond the first lifecycle slice** — users can edit, enable/disable, delete and scan one root, but the workflow still needs stronger confirmation, clearer consequences and richer validation before release.
-2. **Scan lifecycle controls** — queued scans exist, but cancellation, retry, scheduled scans, metadata-error retry, missing-file checks and completion notifications are absent.
+2. **Scan lifecycle controls** — queued scans and metadata-error retry works, but cancellation, scheduled scans, missing-file checks and completion notifications are absent.
 3. **Metadata correction workflow** — details editing, field-level scanner candidates, single-field reset-to-scanner, whole-item reset to scanner candidates, non-blocking edit guidance, field-level **Differs from scanner** labels and a read-only metadata correction summary exist. Bulk edit and review queue remain future work, as does hard validation.
 4. **Tag UX** — tag add/remove and tag suggestions work, but lacks a richer picker, bulk tagging and clear permission feedback.
 5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers and a refresh-cover retry affordance work, but app-owned cover cache and manual overrides remain missing.

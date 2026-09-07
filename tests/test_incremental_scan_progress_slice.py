@@ -19,8 +19,9 @@ def test_background_scan_job_persists_incremental_progress_while_running():
     job = (ROOT / "lib" / "BackgroundJob" / "ScanJob.php").read_text()
     service = (ROOT / "lib" / "Service" / "ScanJobService.php").read_text()
 
-    assert "$this->scanner->scan($userId, $rootId, function (array $progress) use ($userId, $jobId): void" in job
+    assert "$progress = function (array $progress) use ($userId, $jobId): void" in job
     assert "$this->scanJobService->updateProgress($userId, $jobId, $progress);" in job
+    assert "$this->scanner->scan($userId, $rootId, $progress)" in job
     assert "public function updateProgress(string $userId, int $jobId, array $progress): void" in service
     assert "->set('status', $qb->createNamedParameter('running'))" in service
     assert "->set('roots_total', $qb->createNamedParameter((int)($progress['roots'] ?? 0)))" in service

@@ -66,6 +66,41 @@ final class LibraryScanner {
     }
 
     /**
+     * @return array{roots:int,indexed:int,errors:array<int,string>}
+     */
+    public function retryMetadataErrors(string $userId, ?callable $progress = null): array {
+        $files = $this->fileIndexService->metadataErrorFiles($userId);
+        $indexed = 0;
+        $errors = [];
+        $rootsTotal = count(array_unique(array_map(fn (array $file): int => (int)$file['rootId'], $files)));
+        $userFolder = $this->rootFolder->getUserFolder($userId);
+        $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Retrying metadata errors…');
+
+        foreach ($files as $file) {
+            $nodes = $userFolder->getById((int)$file['fileId']);
+            $node = $nodes[0] ?? null;
+            if (!$node instanceof File) {
+                $this->fileIndexService->markScanError($userId, (int)$file['id'], 'metadata retry failed: source file not found');
+                $errors[] = (string)$file['cachedPath'] . ': source file not found';
+                $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Retrying metadata errors');
+                continue;
+            }
+
+            $seenLibraryFileIds = [];
+            if ($this->scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds)) {
+                $indexed++;
+            }
+            $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Retrying metadata errors: ' . (string)$file['cachedPath']);
+        }
+
+        return [
+            'roots' => $rootsTotal,
+            'indexed' => $indexed,
+            'errors' => $errors,
+        ];
+    }
+
+    /**
      * @return array<int, array<string, mixed>>
      */
     private function filterRootsForScope(string $userId, ?int $scopeRootId): array {

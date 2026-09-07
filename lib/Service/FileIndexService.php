@@ -147,23 +147,54 @@ final class FileIndexService {
 
         $files = [];
         while ($row = $result->fetch()) {
-            $rootId = (int)$row['root_id'];
-            $files[] = [
-                'id' => (int)$row['id'],
-                'rootId' => $rootId,
-                'rootLabel' => $rootLabels[$rootId] ?? ('root #' . $rootId),
-                'fileId' => (int)$row['file_id'],
-                'cachedPath' => (string)$row['cached_path'],
-                'mimeType' => (string)$row['mime_type'],
-                'extension' => $row['extension'] !== null ? (string)$row['extension'] : '',
-                'scanStatus' => (string)$row['scan_status'],
-                'scanError' => $row['scan_error'] !== null ? (string)$row['scan_error'] : '',
-                'lastScannedAt' => (int)$row['last_scanned_at'],
-            ];
+            $files[] = $this->normalizeFileRow($row, $rootLabels);
         }
         $result->closeCursor();
 
         return $files;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function metadataErrorFiles(string $userId): array {
+        $rootLabels = $this->rootLabelsById($userId);
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('id', 'root_id', 'file_id', 'cached_path', 'mime_type', 'extension', 'scan_status', 'scan_error', 'last_scanned_at')
+            ->from('library_files')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('scan_status', $qb->createNamedParameter('metadata_error')))
+            ->orderBy('last_scanned_at', 'ASC')
+            ->executeQuery();
+
+        $files = [];
+        while ($row = $result->fetch()) {
+            $files[] = $this->normalizeFileRow($row, $rootLabels);
+        }
+        $result->closeCursor();
+
+        return $files;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     * @param array<int, string> $rootLabels
+     * @return array<string, mixed>
+     */
+    private function normalizeFileRow(array $row, array $rootLabels): array {
+        $rootId = (int)$row['root_id'];
+        return [
+            'id' => (int)$row['id'],
+            'rootId' => $rootId,
+            'rootLabel' => $rootLabels[$rootId] ?? ('root #' . $rootId),
+            'fileId' => (int)$row['file_id'],
+            'cachedPath' => (string)$row['cached_path'],
+            'mimeType' => (string)$row['mime_type'],
+            'extension' => $row['extension'] !== null ? (string)$row['extension'] : '',
+            'scanStatus' => (string)$row['scan_status'],
+            'scanError' => $row['scan_error'] !== null ? (string)$row['scan_error'] : '',
+            'lastScannedAt' => (int)$row['last_scanned_at'],
+        ];
     }
 
     private function rootLabelsById(string $userId): array {

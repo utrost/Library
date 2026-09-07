@@ -11,6 +11,7 @@ return [
         ['name' => 'root#delete', 'url' => '/roots/{rootId}/delete', 'verb' => 'POST'],
         ['name' => 'scan#run', 'url' => '/scan', 'verb' => 'POST'],
         ['name' => 'scan#runRoot', 'url' => '/scan/roots/{rootId}', 'verb' => 'POST'],
+        ['name' => 'scan#retryMetadataErrors', 'url' => '/scan/retry-metadata-errors', 'verb' => 'POST'],
         ['name' => 'scan#progress', 'url' => '/scan/progress', 'verb' => 'GET'],
         ['name' => 'export#metadata', 'url' => '/export/metadata', 'verb' => 'GET'],
         ['name' => 'import#preview', 'url' => '/import/metadata/preview', 'verb' => 'POST'],
