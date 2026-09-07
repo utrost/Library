@@ -316,7 +316,7 @@ final class ItemService {
     }
 
     /**
-     * @param array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string,tag?:string,shelf?:string,status?:string,starred?:string,sort?:string,taggedFileIds?:array<int, int>} $filters
+     * @param array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string,tag?:string,shelf?:string,status?:string,starred?:string,sort?:string,scannerConflicts?:string,taggedFileIds?:array<int, int>} $filters
      * @param array{page:int,limit:int} $pagination
      * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,creators:array<int, string>,scanStatuses:array<int, string>}}
      */
@@ -324,6 +324,10 @@ final class ItemService {
         $page = max(1, (int)($pagination['page'] ?? 1));
         $limit = max(1, min(500, (int)($pagination['limit'] ?? 100)));
         $offset = ($page - 1) * $limit;
+
+        if (trim((string)($filters['scannerConflicts'] ?? '')) === '1') {
+            return $this->queryScannerConflictCatalogue($userId, $filters, $offset, $limit);
+        }
 
         $qb = $this->catalogueQueryBuilder($userId, $filters);
         $this->applyCatalogueSort($qb, (string)($filters['sort'] ?? 'title'));
@@ -343,6 +347,63 @@ final class ItemService {
             'total' => $this->countCatalogueItems($userId, $filters),
             'facets' => $this->catalogueFacets($userId),
         ];
+    }
+
+    private function queryScannerConflictCatalogue(string $userId, array $filters, int $offset, int $limit): array {
+        $filtersWithoutConflict = $filters;
+        unset($filtersWithoutConflict['scannerConflicts']);
+
+        $qb = $this->catalogueQueryBuilder($userId, $filtersWithoutConflict);
+        $this->applyCatalogueSort($qb, (string)($filtersWithoutConflict['sort'] ?? 'title'));
+        $result = $qb->executeQuery();
+
+        $conflictingItems = [];
+        while ($row = $result->fetch()) {
+            $item = $this->normalizeJoinedItemRow($row);
+            if ($this->itemHasScannerConflict($item)) {
+                $conflictingItems[] = $item;
+            }
+        }
+        $result->closeCursor();
+
+        return [
+            'items' => array_slice($conflictingItems, $offset, $limit),
+            'total' => count($conflictingItems),
+            'facets' => $this->catalogueFacets($userId),
+        ];
+    }
+
+    private function itemHasScannerConflict(array $item): bool {
+        foreach (self::PUBLICATION_FIELDS as $field) {
+            if (!array_key_exists($field, $item['fieldValues'] ?? [])) {
+                continue;
+            }
+            $candidate = (string)($item['fieldValues'][$field] ?? '');
+            $current = ($field === 'genres' || $field === 'classifications')
+                ? $this->jsonEncodeList($this->normalizeMultiValueField($item[$field] ?? []))
+                : (string)($item[$field] ?? '');
+            if ($current !== $candidate) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function scannerConflictCount(array $item): int {
+        $count = 0;
+        foreach (self::PUBLICATION_FIELDS as $field) {
+            if (!array_key_exists($field, $item['fieldValues'] ?? [])) {
+                continue;
+            }
+            $candidate = (string)($item['fieldValues'][$field] ?? '');
+            $current = ($field === 'genres' || $field === 'classifications')
+                ? $this->jsonEncodeList($this->normalizeMultiValueField($item[$field] ?? []))
+                : (string)($item[$field] ?? '');
+            if ($current !== $candidate) {
+                $count++;
+            }
+        }
+        return $count;
     }
 
     public function findItem(string $userId, int $itemId): ?array {
@@ -920,7 +981,7 @@ final class ItemService {
     }
 
     private function normalizeJoinedItemRow(array $row): array {
-        return [
+        $item = [
             'id' => (int)$row['id'],
             'libraryFileId' => (int)$row['library_file_id'],
             'fileId' => (int)$row['file_id'],
@@ -949,6 +1010,9 @@ final class ItemService {
             'userEdited' => (bool)$row['user_edited'],
             'shelf' => trim((string)($row['label'] ?? '')) !== '' ? (string)$row['label'] : (string)($row['path'] ?? ''),
         ];
+        $item['hasScannerConflict'] = $this->itemHasScannerConflict($item);
+        $item['scannerConflictCount'] = $this->scannerConflictCount($item);
+        return $item;
     }
 
     private function findByLibraryFileId(string $userId, int $libraryFileId): ?array {

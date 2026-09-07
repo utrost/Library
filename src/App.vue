@@ -46,11 +46,13 @@ const activeFilters = reactive({
   workflowStatus: props.state.activeFilters?.workflowStatus || '',
   genre: props.state.activeFilters?.genre || '',
   classification: props.state.activeFilters?.classification || '',
+  scannerConflicts: props.state.activeFilters?.scannerConflicts || '',
   starred: props.state.activeFilters?.starred || '',
   sort: props.state.activeFilters?.sort || 'title',
 })
 const settingsUrl = computed(() => props.state.settingsUrl || '')
 const metadataExportUrl = computed(() => props.state.metadataExportUrl || '')
+const scannerConflictReviewUrl = computed(() => props.state.scannerConflictReviewUrl || '?scannerConflicts=1')
 const filterLabels = {
   q: 'Search',
   type: 'Type',
@@ -64,6 +66,7 @@ const filterLabels = {
   workflowStatus: 'Workflow status',
   genre: 'Genre',
   classification: 'Classification',
+  scannerConflicts: 'Scanner conflicts',
   starred: 'Starred',
 }
 const activeFilterChips = computed(() => Object.entries(filterLabels)
@@ -182,6 +185,13 @@ function publicationFilterUrl(publication) {
         </select>
       </label>
       <label>
+        {{ t('library', 'Scanner conflicts') }}
+        <select v-model="activeFilters.scannerConflicts" name="scannerConflicts">
+          <option value="">{{ t('library', 'All metadata') }}</option>
+          <option value="1">{{ t('library', 'Needs review') }}</option>
+        </select>
+      </label>
+      <label>
         {{ t('library', 'Starred') }}
         <select v-model="activeFilters.starred" name="starred">
           <option value="">{{ t('library', 'All publications') }}</option>
@@ -207,6 +217,7 @@ function publicationFilterUrl(publication) {
       </label>
       <button type="submit" class="button primary" :aria-label="t('library', 'Apply catalogue filters')">{{ t('library', 'Apply filters') }}</button>
       <a href="?" class="button secondary" :aria-label="t('library', 'Clear catalogue filters')">{{ t('library', 'Clear') }}</a>
+      <a :href="scannerConflictReviewUrl" class="button secondary library-scanner-conflict-review-link">{{ t('library', 'Review scanner conflicts') }}</a>
     </form>
 
     <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
@@ -265,6 +276,7 @@ function publicationFilterUrl(publication) {
                 <span v-if="item.workflowStatus"> · Workflow status: {{ item.workflowStatus }}</span>
                 <span v-if="item.genres?.length"> · Genres: {{ item.genres.join('; ') }}</span>
                 <span v-if="item.classifications?.length"> · Classifications: {{ item.classifications.join('; ') }}</span>
+                <span v-if="item.hasScannerConflict"> · Needs scanner review: {{ item.scannerConflictCount }} fields</span>
                 <span v-if="item.lastOpenedAt"> · Last opened: {{ item.lastOpenedAt }}</span>
                 <span v-if="item.extension"> · Format: {{ upper(item.extension) }}</span>
                 <span v-if="item.shelf"> · Shelf: {{ item.shelf }}</span>

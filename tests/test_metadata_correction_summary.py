@@ -38,4 +38,5 @@ def test_docs_mark_summary_landed_without_bulk_or_review_workflow():
     assert "read-only metadata correction summary" in guide
     assert "scanner candidate count" in guide
     assert "differing-field count" in guide
-    assert "Bulk edit and review queue remain future work" in guide
+    assert "first scanner-conflict review filter exist" in guide
+    assert "Bulk edit remains future work" in guide

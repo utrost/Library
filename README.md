@@ -19,10 +19,10 @@ The current development slice can:
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans while refreshing stored scanner candidates;
-- show field-level scanner provenance, **Differs from scanner** labels, single-field reset and whole-item reset-to-scanner actions on item details;
+- show field-level scanner provenance, **Differs from scanner** labels, scanner-conflict review filter, single-field reset and whole-item reset-to-scanner actions on item details;
 - generate absolute Nextcloud URLs for reader handoff, Files handoff and Library settings links so browser hrefs stay under the Nextcloud host;
 - show indexed files and publication items with a catalogue-first Vue/Vite-backed catalogue page mounted in a conventional Nextcloud `#app-content` shell, responsive, paginated cover gallery, preview-backed covers, placeholder fallbacks and browse-only catalogue cards;
-- search and filter the catalogue by title/author text, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, exact Nextcloud tag and root-derived shelf;
+- search and filter the catalogue by title/author text, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, scanner conflicts, exact Nextcloud tag and root-derived shelf;
 - catalogue cards are browse-only, compact and cover-first on mobile and desktop: the default card surface is cover, title, **Read** and **Details**, while secondary metadata/actions stay behind the Details disclosure; the details page owns publication metadata, tag and comment editing;
 - treat Nextcloud system tags as cross-archive classification metadata exposed on catalogue cards and addable/removable from item details;
 - show recent Nextcloud file comments as file-level notes/discussion on catalogue cards and item details;
