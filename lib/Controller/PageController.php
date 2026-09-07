@@ -94,6 +94,7 @@ class PageController extends Controller {
             (int)$this->request->getParam('page', 1),
             (int)$this->request->getParam('limit', 100),
         );
+        $roots = $this->rootService->listRoots($userId);
         $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination) : [
             'items' => [],
             'total' => 0,
@@ -126,6 +127,8 @@ class PageController extends Controller {
             'classifications' => $catalogue['facets']['classifications'] ?? [],
             'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
+            'rootCount' => count($roots),
+            'enabledRootCount' => count(array_filter($roots, static fn (array $root): bool => (bool)($root['enabled'] ?? false))),
             'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library'),
             'metadataExportUrl' => $this->urlGenerator->linkToRoute('library.export.metadata'),
             'metadataSidecarManifestUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarManifest'),

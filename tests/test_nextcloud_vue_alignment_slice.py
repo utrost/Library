@@ -45,7 +45,7 @@ def test_catalogue_uses_plain_fail_safe_controls_until_browser_harness_covers_ne
     assert "NcButton" not in app
     assert "NcEmptyContent" not in app
     assert "button type=\"submit\"" in app
-    assert "No catalogue items match" in app
+    assert "No matches for the current filters" in app
     assert "Apply filters" in app
     assert "Library settings" in app
 

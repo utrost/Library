@@ -38,6 +38,15 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
         </form>
 
         <?php if (count($roots) === 0): ?>
+            <section class="library-getting-started" aria-label="<?php p($l->t('Getting started')); ?>">
+                <h3><?php p($l->t('Getting started')); ?></h3>
+                <ol>
+                    <li><?php p($l->t('Add one folder path that already exists in Nextcloud Files.')); ?></li>
+                    <li><?php p($l->t('Run Scan enabled roots after saving the root.')); ?></li>
+                    <li><?php p($l->t('Browse covers, open Details, then correct metadata only where needed.')); ?></li>
+                    <li><?php p($l->t('Export corrected metadata before uninstalling or moving to another install.')); ?></li>
+                </ol>
+            </section>
             <p class="library-muted"><?php p($l->t('No roots configured yet. Start with one path; more roots can be added later.')); ?></p>
         <?php else: ?>
             <ul class="library-root-list">
@@ -73,7 +82,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                             <input type="hidden" name="confirmDelete" value="1" />
                             <button type="submit"><?php p($l->t('Delete root')); ?></button>
                         </form>
-                        <p class="library-muted"><?php p($l->t('Deleting a Library root removes Library catalogue/index data for that root, but never deletes source files from Nextcloud Files.')); ?></p>
+                        <p class="library-muted"><?php p($l->t('Deleting a Library root removes only Library index and catalogue rows for that root, but never deletes source files from Nextcloud Files.')); ?></p>
                     </li>
                 <?php endforeach; ?>
             </ul>
