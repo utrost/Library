@@ -92,4 +92,42 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-cover-star-button').text()).toBe('★')
     expect(wrapper.find('.library-cover-star-button').classes()).toContain('library-cover-star-button--starred')
   })
+
+  it('supports slash focus and Escape-to-clear keyboard search shortcuts', async () => {
+    const fetchSpy = vi.fn(() => Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({
+        ...state,
+        activeFilters: { ...state.activeFilters, q: '' },
+      }),
+    }))
+    globalThis.fetch = fetchSpy
+    const wrapper = mount(App, {
+      attachTo: document.body,
+      props: {
+        state: {
+          ...state,
+          activeFilters: { ...state.activeFilters, q: 'Camera' },
+          catalogueEndpointUrl: '/apps/library/catalogue',
+        },
+      },
+    })
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: '/' }))
+
+    const searchInput = wrapper.find('[data-library-quick-search]').element
+    expect(document.activeElement).toBe(searchInput)
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(searchInput.value).toBe('')
+    expect(fetchSpy).toHaveBeenCalledWith('/apps/library/catalogue?sort=title&limit=100', expect.objectContaining({
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+    }))
+
+    wrapper.unmount()
+  })
 })
