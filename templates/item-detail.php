@@ -5,6 +5,7 @@ $comments = $item['nextcloudComments'] ?? ['count' => 0, 'recent' => []];
 $tags = $item['nextcloudTags'] ?? [];
 $tagSuggestions = is_array($item['tagSuggestions'] ?? null) ? $item['tagSuggestions'] : [];
 $tagFeedback = is_array($item['tagFeedback'] ?? null) ? $item['tagFeedback'] : null;
+$metadataSaved = (bool)($item['metadataSaved'] ?? false);
 $publicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'];
 $workflowStatuses = [
     '' => 'No workflow status',
@@ -108,11 +109,11 @@ $fileRows = [
                             <form method="post" action="<?php p($item['workflowStatusUrl'] ?? ''); ?>" class="library-inline-form library-workflow-status-form">
                                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                                 <input type="hidden" name="returnTo" value="details" />
-                                <select name="workflowStatus" onchange="this.form.submit()" aria-label="<?php p($l->t('Workflow status')); ?>">
+                                <span class="library-workflow-status-pill"><span><?php p($l->t('Workflow status')); ?></span><select name="workflowStatus" onchange="this.form.submit()" aria-label="<?php p($l->t('Workflow status')); ?>">
                                     <?php foreach ($workflowStatuses as $status => $label): ?>
                                         <option value="<?php p($status); ?>" <?php if (($item['workflowStatus'] ?? '') === $status) { print_unescaped('selected'); } ?>><?php p($l->t($label)); ?></option>
                                     <?php endforeach; ?>
-                                </select>
+                                </select></span>
                                 <button type="submit" class="button secondary library-workflow-status-submit-fallback"><?php p($l->t('Save status')); ?></button>
                             </form>
                         </div>
@@ -136,6 +137,9 @@ $fileRows = [
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <input type="hidden" name="returnTo" value="details" />
                 <h4 id="library-publication-edit-heading"><?php p($l->t('Edit publication metadata')); ?></h4>
+                <?php if ($metadataSaved): ?>
+                    <p class="library-save-feedback" role="status"><?php p($l->t('Metadata saved')); ?></p>
+                <?php endif; ?>
                 <p class="library-muted library-metadata-guidance"><?php p($l->t('Non-blocking guidance: these hints document useful metadata shapes, but they do not block saving.')); ?></p>
                 <label>
                     <?php p($l->t('Title')); ?>
@@ -208,8 +212,8 @@ $fileRows = [
             </div>
             <div class="library-detail-secondary">
 
-        <section class="library-panel library-detail-section-file" aria-labelledby="library-file-metadata-heading">
-            <h3 id="library-file-metadata-heading"><?php p($l->t('File metadata')); ?></h3>
+        <details class="library-panel library-detail-diagnostic-section library-detail-section-file" aria-labelledby="library-file-metadata-heading">
+            <summary id="library-file-metadata-heading"><?php p($l->t('File metadata')); ?></summary>
             <dl class="library-item-metadata">
                 <?php foreach ($fileRows as $label => $value): ?>
                     <dt><?php p($label); ?></dt>
@@ -224,10 +228,10 @@ $fileRows = [
                     <button type="submit" class="button secondary"><?php p($l->t('Forget missing item')); ?></button>
                 </form>
             <?php endif; ?>
-        </section>
+        </details>
 
-        <section class="library-panel library-detail-section-provenance" aria-labelledby="library-provenance-heading">
-            <h3 id="library-provenance-heading"><?php p($l->t('Provenance')); ?></h3>
+        <details class="library-panel library-detail-diagnostic-section library-detail-section-provenance" aria-labelledby="library-provenance-heading">
+            <summary id="library-provenance-heading"><?php p($l->t('Provenance')); ?></summary>
             <dl class="library-item-metadata">
                 <dt>metadataSource</dt>
                 <dd><?php p((string)($item['metadataSource'] ?? '')); ?></dd>
@@ -250,6 +254,49 @@ $fileRows = [
                         <button type="submit" class="button secondary"><?php p($l->t('Reset all fields to scanner')); ?></button>
                     </form>
                 <?php endif; ?>
+                <div class="library-provenance-differences">
+                    <p class="library-muted"><?php p($l->t('Only fields that currently differ from scanner candidates are shown first.')); ?></p>
+                    <?php if ($scannerConflictCount === 0): ?>
+                        <p class="library-muted"><?php p($l->t('No scanner differences for this item.')); ?></p>
+                    <?php else: ?>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><?php p($l->t('Field')); ?></th>
+                                    <th><?php p($l->t('Current value')); ?></th>
+                                    <th><?php p($l->t('Scanner candidate')); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($fieldProvenanceRows as $field => $label): ?>
+                                    <?php $rawCurrentValue = $item[$field] ?? ''; ?>
+                                    <?php $currentValue = is_array($rawCurrentValue) ? json_encode(array_values($rawCurrentValue)) : (string)$rawCurrentValue; ?>
+                                    <?php $candidateValue = (string)($fieldValues[$field] ?? ''); ?>
+                                    <?php $resetUrl = (string)($item['resetFieldUrl'] ?? ''); ?>
+                                    <?php $fieldDiffersFromScanner = trim($candidateValue) !== '' && $candidateValue !== $currentValue; ?>
+                                    <?php if (!$fieldDiffersFromScanner) { continue; } ?>
+                                    <tr class="library-field-conflict">
+                                        <th scope="row"><?php p($l->t($label)); ?></th>
+                                        <td><?php p(trim($currentValue) !== '' ? $currentValue : '—'); ?></td>
+                                        <td>
+                                            <?php p(trim($candidateValue) !== '' ? $candidateValue : '—'); ?>
+                                            <?php if ($resetUrl !== ''): ?>
+                                                <form method="post" action="<?php p($resetUrl); ?>" class="library-field-reset-form">
+                                                    <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                                                    <input type="hidden" name="returnTo" value="details" />
+                                                    <input type="hidden" name="field" value="<?php p((string)$field); ?>" />
+                                                    <button type="submit" class="button secondary"><?php p($l->t('Reset to scanner')); ?></button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+                </div>
+                <details class="library-provenance-all-fields">
+                    <summary><?php p($l->t('Show all scanner provenance')); ?></summary>
                 <table>
                     <thead>
                         <tr>
@@ -290,11 +337,12 @@ $fileRows = [
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </details>
             </div>
-        </section>
+        </details>
 
-        <section class="library-panel library-detail-section-nextcloud" aria-labelledby="library-nextcloud-metadata-heading">
-            <h3 id="library-nextcloud-metadata-heading"><?php p($l->t('Nextcloud metadata')); ?></h3>
+        <details class="library-panel library-detail-diagnostic-section library-detail-section-nextcloud" aria-labelledby="library-nextcloud-metadata-heading">
+            <summary id="library-nextcloud-metadata-heading"><?php p($l->t('Nextcloud metadata')); ?></summary>
             <div class="library-nextcloud-tags" aria-label="nextcloudTags">
                 <strong><?php p($l->t('Nextcloud tags')); ?></strong>
                 <?php if (count($tags) === 0): ?>
@@ -310,18 +358,18 @@ $fileRows = [
                     <p class="library-tag-feedback library-tag-feedback-<?php p((string)($tagFeedback['type'] ?? 'info')); ?>" data-tag-result="<?php p((string)($tagFeedback['status'] ?? '')); ?>"><?php p((string)($tagFeedback['message'] ?? '')); ?></p>
                 <?php endif; ?>
                 <?php if (count($tags) > 0): ?>
-                    <ul class="library-tag-remove-list" aria-label="<?php p($l->t('Remove Nextcloud tag')); ?>">
+                    <div class="library-tag-chip-list" aria-label="<?php p($l->t('Remove Nextcloud tag')); ?>">
                         <?php foreach ($tags as $tag): ?>
-                            <li>
-                                <span class="library-tag"><?php p((string)$tag['name']); ?></span>
-                                <form method="post" action="<?php p((string)($tag['removeUrl'] ?? '')); ?>" class="library-inline-form">
-                                    <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                                    <input type="hidden" name="returnTo" value="details" />
-                                    <button type="submit"><?php p($l->t('Remove tag')); ?></button>
-                                </form>
-                            </li>
+                            <form method="post" action="<?php p((string)($tag['removeUrl'] ?? '')); ?>" class="library-tag-chip-form">
+                                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                                <input type="hidden" name="returnTo" value="details" />
+                                <span class="library-tag library-tag-removable">
+                                    <span><?php p((string)$tag['name']); ?></span>
+                                    <button type="submit" class="library-tag-chip-remove" aria-label="<?php p($l->t('Remove tag: %s', [(string)$tag['name']])); ?>">×</button>
+                                </span>
+                            </form>
                         <?php endforeach; ?>
-                    </ul>
+                    </div>
                 <?php endif; ?>
                 <form method="post" action="<?php p($item['tagUrl'] ?? ''); ?>" class="library-tag-form">
                     <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
@@ -379,7 +427,7 @@ $fileRows = [
                     <button type="submit"><?php p($l->t('Add comment')); ?></button>
                 </form>
             </div>
-        </section>
+        </details>
             </div>
         </div>
     </main>

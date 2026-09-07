@@ -41,7 +41,7 @@ def test_landing_template_states_scope_boundary():
     vue = (ROOT / "src" / "App.vue").read_text()
     assert "library-vue-root" in template
     assert "Library" in vue
-    assert "Browse publications already stored in Nextcloud" in vue
     assert "Publication catalogue" in vue
-    assert "Library settings" in vue
-    assert vue.index('class="library-vue-catalogue"') < vue.index('class="library-panel"') < vue.index('class="library-hero library-secondary-panel"')
+    assert "Library actions" in vue
+    assert "library-catalogue-toolbar" in vue
+    assert vue.index('class="library-vue-catalogue"') < vue.index('class="library-panel"') < vue.index('class="library-catalogue-toolbar"')

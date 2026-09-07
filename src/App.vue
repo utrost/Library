@@ -130,8 +130,18 @@ async function toggleStar(item, event) {
 <template>
   <div class="library-vue-catalogue">
   <section class="library-panel" aria-labelledby="library-catalogue-heading">
-    <h2 id="library-catalogue-heading">{{ t('library', 'Publication catalogue') }}</h2>
-    <p class="library-muted">{{ t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.') }}</p>
+    <div class="library-catalogue-header">
+      <div>
+        <h2 id="library-catalogue-heading">{{ t('library', 'Publication catalogue') }}</h2>
+        <p class="library-muted">{{ t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.') }}</p>
+      </div>
+      <nav class="library-catalogue-toolbar" :aria-label="t('library', 'Library actions')">
+        <a :href="settingsUrl" class="button secondary" aria-label="Open Library settings">{{ t('library', 'Settings') }}</a>
+        <a v-if="metadataExportUrl" :href="metadataExportUrl" class="button secondary" aria-label="Export corrected metadata">{{ t('library', 'Export corrected metadata') }}</a>
+        <a v-if="metadataSidecarManifestUrl" :href="metadataSidecarManifestUrl" class="button secondary" aria-label="Export sidecar manifest">{{ t('library', 'Sidecar manifest') }}</a>
+        <a v-if="metadataSidecarBundleUrl" :href="metadataSidecarBundleUrl" class="button secondary" aria-label="Export sidecar ZIP">{{ t('library', 'Sidecar ZIP') }}</a>
+      </nav>
+    </div>
 
     <details class="library-filter-panel">
       <summary class="library-filter-panel-summary">{{ t('library', 'Show catalogue filters') }}</summary>
@@ -251,6 +261,8 @@ async function toggleStar(item, event) {
       </form>
     </details>
 
+    <p class="library-muted library-filter-result-summary">{{ t('library', 'Showing') }} {{ pagination.from }}–{{ pagination.to }} {{ t('library', 'of') }} {{ pagination.total }} {{ t('library', 'catalogue items') }}<span v-if="activeFilterChips.length > 0"> · <a href="?">{{ t('library', 'Clear all filters') }}</a></span></p>
+
     <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
       <span>{{ t('library', 'Active filters') }}</span>
       <a v-for="chip in activeFilterChips" :key="chip.key" :href="filterChipRemoveUrl(chip.key)" class="library-filter-chip" :aria-label="`${t('library', 'Remove filter')}: ${chip.label}`">
@@ -286,6 +298,7 @@ async function toggleStar(item, event) {
     <div v-if="items.length === 0" class="library-empty-content" role="status">
       <h3>{{ t('library', 'No catalogue items match') }}</h3>
       <p class="library-muted">{{ t('library', 'Scan enabled roots or clear the active filters.') }}</p>
+      <p class="library-empty-actions"><a href="?" class="button secondary">{{ t('library', 'Clear all filters') }}</a><a :href="settingsUrl" class="button primary">{{ t('library', 'Run a scan from settings') }}</a></p>
     </div>
 
     <div v-else class="library-cover-gallery">
@@ -317,18 +330,16 @@ async function toggleStar(item, event) {
             <summary class="library-cover-details-summary" :aria-label="`${t('library', 'Show details and actions')}: ${item.title}`">{{ t('library', 'Details') }}</summary>
             <div class="library-cover-meta">
               <p v-if="item.creators" class="library-creator">{{ item.creators }}</p>
-              <p class="library-muted">
-                <span>{{ item.publicationType }}</span>
-                <span v-if="item.publication"> · {{ item.publication }}</span>
-                <span v-if="item.publicationDate"> · {{ item.publicationDate }}</span>
-                <span v-if="item.workflowStatus"> · Workflow status: {{ item.workflowStatus }}</span>
-                <span v-if="item.genres?.length"> · Genres: {{ item.genres.join('; ') }}</span>
-                <span v-if="item.classifications?.length"> · Classifications: {{ item.classifications.join('; ') }}</span>
-                <span v-if="item.hasScannerConflict"> · Needs scanner review: {{ item.scannerConflictCount }} fields</span>
-                <span v-if="item.lastOpenedAt"> · Last opened: {{ item.lastOpenedAt }}</span>
-                <span v-if="item.extension"> · Format: {{ upper(item.extension) }}</span>
-                <span v-if="item.shelf"> · Shelf: {{ item.shelf }}</span>
-              </p>
+              <dl class="library-cover-detail-list">
+                <div class="library-cover-detail-chip"><dt>{{ t('library', 'Type') }}</dt><dd>{{ item.publicationType }}</dd></div>
+                <div v-if="item.publication" class="library-cover-detail-chip"><dt>{{ t('library', 'Series') }}</dt><dd>{{ item.publication }}</dd></div>
+                <div v-if="item.publicationDate" class="library-cover-detail-chip"><dt>{{ t('library', 'Date') }}</dt><dd>{{ item.publicationDate }}</dd></div>
+                <div v-if="item.workflowStatus" class="library-cover-detail-chip"><dt>{{ t('library', 'Status') }}</dt><dd>{{ item.workflowStatus }}</dd></div>
+                <div v-if="item.hasScannerConflict" class="library-cover-detail-chip"><dt>{{ t('library', 'Review') }}</dt><dd>{{ item.scannerConflictCount }} fields</dd></div>
+                <div v-if="item.lastOpenedAt" class="library-cover-detail-chip"><dt>{{ t('library', 'Last opened') }}</dt><dd>{{ item.lastOpenedAt }}</dd></div>
+                <div v-if="item.extension" class="library-cover-detail-chip"><dt>{{ t('library', 'Format') }}:</dt><dd> {{ upper(item.extension) }}</dd></div>
+                <div v-if="item.shelf" class="library-cover-detail-chip"><dt>{{ t('library', 'Shelf') }}</dt><dd>{{ item.shelf }}</dd></div>
+              </dl>
               <p v-if="item.description" class="library-muted library-cover-description">{{ item.description }}</p>
               <p v-if="item.scanStatus !== 'indexed' || item.scanError" class="library-item-scan-status library-scan-error">
                 scanStatus: {{ item.scanStatus || 'unknown' }}<span v-if="item.scanError"> · scanError: {{ item.scanError }}</span>
@@ -345,18 +356,6 @@ async function toggleStar(item, event) {
     </div>
   </section>
 
-  <section class="library-hero library-secondary-panel" aria-label="Library settings">
-    <div>
-      <h2>Library</h2>
-      <p class="library-lede">Browse publications already stored in Nextcloud.</p>
-    </div>
-    <div class="library-hero-actions">
-      <a :href="settingsUrl" class="button secondary" aria-label="Open Library settings">Library settings</a>
-      <a v-if="metadataExportUrl" :href="metadataExportUrl" class="button secondary" aria-label="Export corrected metadata">Export corrected metadata</a>
-      <a v-if="metadataSidecarManifestUrl" :href="metadataSidecarManifestUrl" class="button secondary" aria-label="Export sidecar manifest">Export sidecar manifest</a>
-      <a v-if="metadataSidecarBundleUrl" :href="metadataSidecarBundleUrl" class="button secondary" aria-label="Export sidecar ZIP">Export sidecar ZIP</a>
-    </div>
-  </section>
   </div>
 </template>
 
