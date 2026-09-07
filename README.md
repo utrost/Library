@@ -2,6 +2,8 @@
 
 Library is an open-source Nextcloud application for managing and browsing digital publications already stored in Nextcloud.
 
+License: AGPL-3.0-or-later. See [LICENSE](LICENSE).
+
 The model is deliberately similar to Memories for photographs and Music for audio:
 
 > Nextcloud Files remains the canonical storage. Library adds a publication-specific catalogue, metadata model, search and browsing interface on top.
@@ -88,6 +90,9 @@ Explicit non-goals for v0.1:
 
 - [Product concept](docs/product-concept.md)
 - [User and admin guide](docs/user-guide.md)
+- [Public alpha test checklist](docs/alpha-test-checklist.md)
+- [Changelog](CHANGELOG.md)
+- [Release process](RELEASE.md)
 - [UX concept and user stories](docs/ux-concept.md)
 - [Active roadmap](docs/roadmap.md)
 - [Personal top features scope](docs/personal-top-features.md)
@@ -109,3 +114,19 @@ library
 ```
 
 For the current Alice sandbox, clone this repository outside the Nextcloud data volume and copy the working tree into `/var/www/html/custom_apps/library` inside the container for each smoke test. A host symlink is not used yet because `/home/uwe` is not world-traversable from the container user.
+
+## Local checks and packaging
+
+Run the local gate with:
+
+```bash
+npm run check
+```
+
+Build a release archive with:
+
+```bash
+scripts/package-release.sh
+```
+
+The package script builds Vue assets, runs Python contracts and writes `dist/library-<version>.tar.gz` plus a SHA-256 checksum.
