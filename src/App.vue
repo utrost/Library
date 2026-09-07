@@ -51,6 +51,7 @@ const activeFilters = reactive({
   sort: props.state.activeFilters?.sort || 'title',
 })
 const settingsUrl = computed(() => props.state.settingsUrl || '')
+const requestToken = computed(() => props.state.requestToken || '')
 const metadataExportUrl = computed(() => props.state.metadataExportUrl || '')
 const metadataSidecarManifestUrl = computed(() => props.state.metadataSidecarManifestUrl || '')
 const metadataSidecarBundleUrl = computed(() => props.state.metadataSidecarBundleUrl || '')
@@ -272,6 +273,20 @@ function setCoverDetailsOpen(itemId, event) {
         <a class="library-cover-link" :href="item.openUrl" :aria-label="`Read ${item.title}`">
           <img class="library-cover-image" :src="item.coverUrl" :alt="`Cover for ${item.title}`" loading="lazy">
         </a>
+        <form method="post" :action="item.starUrl" class="library-cover-star-form">
+          <input type="hidden" name="requesttoken" :value="requestToken">
+          <input type="hidden" name="returnTo" value="catalogue">
+          <input type="hidden" name="starred" :value="item.starred ? '0' : '1'">
+          <button
+            type="submit"
+            class="library-cover-star-button"
+            :class="{ 'library-cover-star-button--starred': item.starred }"
+            :aria-pressed="item.starred ? 'true' : 'false'"
+            :title="item.starred ? t('library', 'Unstar this publication') : t('library', 'Star this publication')"
+            :aria-label="item.starred ? t('library', 'Unstar this publication') : t('library', 'Star this publication')">
+            {{ item.starred ? '★' : '☆' }}
+          </button>
+        </form>
         <div class="library-cover-summary">
           <div class="library-cover-primary">
             <h3><span v-if="item.starred" class="library-star-marker" :aria-label="t('library', 'Starred')">★</span>{{ item.title }}</h3>

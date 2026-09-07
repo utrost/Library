@@ -214,6 +214,29 @@ function fallbackCatalogue(state, error) {
       image.loading = 'lazy'
       coverLink.appendChild(image)
 
+      const hidden = fallbackHiddenRequestToken(state)
+      const starForm = document.createElement('form')
+      starForm.method = 'post'
+      starForm.action = text(item.starUrl || '')
+      starForm.className = 'library-cover-star-form'
+      if (hidden) starForm.appendChild(hidden)
+      const returnTo = document.createElement('input')
+      returnTo.type = 'hidden'
+      returnTo.name = 'returnTo'
+      returnTo.value = 'catalogue'
+      const starred = document.createElement('input')
+      starred.type = 'hidden'
+      starred.name = 'starred'
+      starred.value = item.starred ? '0' : '1'
+      const starButton = document.createElement('button')
+      starButton.type = 'submit'
+      starButton.className = item.starred ? 'library-cover-star-button library-cover-star-button--starred' : 'library-cover-star-button'
+      starButton.setAttribute('aria-pressed', item.starred ? 'true' : 'false')
+      starButton.setAttribute('aria-label', item.starred ? t('library', 'Unstar this publication') : t('library', 'Star this publication'))
+      starButton.title = item.starred ? t('library', 'Unstar this publication') : t('library', 'Star this publication')
+      starButton.textContent = item.starred ? '★' : '☆'
+      starForm.append(returnTo, starred, starButton)
+
       const summary = document.createElement('div')
       summary.className = 'library-cover-summary'
       const title = document.createElement('h3')
@@ -250,7 +273,7 @@ function fallbackCatalogue(state, error) {
       actions.append(read, document.createTextNode(' · '), files, document.createTextNode(' · '), download, document.createTextNode(' · '), details)
       summary.appendChild(actions)
 
-      card.append(coverLink, summary)
+      card.append(coverLink, starForm, summary)
       gallery.appendChild(card)
     }
     panel.appendChild(gallery)

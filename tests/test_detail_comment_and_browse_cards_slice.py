@@ -77,9 +77,11 @@ def test_fallback_catalogue_cards_are_browse_only_and_keep_export_action():
     assert "Export corrected metadata" in fallback
 
 
-def test_browser_smoke_requires_zero_catalogue_post_forms():
+def test_browser_smoke_requires_catalogue_post_forms_to_be_star_forms_only():
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
-    assert "browser_catalogue_post_forms_zero" in smoke
-    assert "dom.postForms === 0" in smoke
-    assert "dom.requestTokenFields === 0" in smoke
+    assert "browser_catalogue_post_forms_are_star_forms" in smoke
+    assert "dom.catalogueStarForms === dom.cards" in smoke
+    assert "dom.catalogueStarButtons === dom.cards" in smoke
+    assert "dom.postForms === dom.catalogueStarForms" in smoke
+    assert "dom.requestTokenFields === dom.postForms" in smoke
