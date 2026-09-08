@@ -139,6 +139,7 @@ final class ItemService {
     }
 
     public function updateItem(string $userId, int $itemId, array $metadata): void {
+        $metadata = $this->validateEditableMetadata($metadata);
         $now = time();
         $publicationType = $this->normalizePublicationType((string)($metadata['publicationType'] ?? 'other'));
         $title = trim((string)($metadata['title'] ?? '')) ?: 'Untitled publication';
@@ -165,6 +166,33 @@ final class ItemService {
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
+    }
+
+    /**
+     * @param array<string, mixed> $metadata
+     * @return array<string, mixed>
+     */
+    private function validateEditableMetadata(array $metadata): array {
+        $publicationDate = trim((string)($metadata['publicationDate'] ?? ''));
+        if ($publicationDate !== '' && preg_match('/^\d{4}(-\d{2}){0,2}$/', $publicationDate) !== 1) {
+            throw new \InvalidArgumentException('Publication date must use YYYY, YYYY-MM, or YYYY-MM-DD.');
+        }
+        if ($publicationDate !== '') {
+            $parts = array_map('intval', explode('-', $publicationDate));
+            $year = $parts[0];
+            $month = $parts[1] ?? 1;
+            $day = $parts[2] ?? 1;
+            if ($year < 1 || $month < 1 || $month > 12 || $day < 1 || !checkdate($month, $day, $year)) {
+                throw new \InvalidArgumentException('Publication date must use YYYY, YYYY-MM, or YYYY-MM-DD.');
+            }
+        }
+
+        $language = trim((string)($metadata['language'] ?? ''));
+        if ($language !== '' && preg_match('/^[a-z]{2,3}(-[A-Z]{2})?$/', $language) !== 1) {
+            throw new \InvalidArgumentException('Language must use a short code such as de, en, fr, or en-US.');
+        }
+
+        return $metadata;
     }
 
     public function setStarred(string $userId, int $itemId, bool $starred): bool {
@@ -715,7 +743,6 @@ final class ItemService {
 
             $itemChangedFields = $this->changedImportFields($current, $importItem);
             $matchedItems++;
-            $changedFields += count($itemChangedFields);
             if ($itemChangedFields === []) {
                 $skippedItems++;
                 $applyItems[] = [
@@ -728,7 +755,21 @@ final class ItemService {
                 continue;
             }
 
-            $this->updateItem($userId, (int)$current['id'], $importItem);
+            try {
+                $this->updateItem($userId, (int)$current['id'], $importItem);
+            } catch (\InvalidArgumentException $e) {
+                $invalidItems++;
+                $applyItems[] = [
+                    'status' => 'invalid',
+                    'itemId' => (int)$current['id'],
+                    'libraryFileId' => (int)$current['libraryFileId'],
+                    'cachedPath' => (string)($current['cachedPath'] ?? ''),
+                    'changedFields' => $itemChangedFields,
+                    'validationError' => $e->getMessage(),
+                ];
+                continue;
+            }
+            $changedFields += count($itemChangedFields);
             if (array_key_exists('starred', $importItem)) {
                 $this->setStarred($userId, (int)$current['id'], (bool)$importItem['starred']);
             }

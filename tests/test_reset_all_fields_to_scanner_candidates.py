@@ -68,4 +68,4 @@ def test_smoke_and_docs_cover_whole_item_reset_slice():
     assert "Whole-item reset to scanner candidates" in roadmap
     assert "whole-item reset to scanner candidates" in guide
     assert "Scanner conflicts filter is available" in guide
-    assert "hard validation and bulk editing remain future work" in guide
+    assert "bulk editing remains future work" in guide
