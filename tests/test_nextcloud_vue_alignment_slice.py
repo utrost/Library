@@ -55,7 +55,7 @@ def test_vue_page_stays_catalogue_first_on_mobile():
     stylesheet = (ROOT / "css" / "style.css").read_text()
 
     wrapper_index = app.index('class="library-vue-catalogue"')
-    panel_index = app.index('class="library-panel"')
+    panel_index = app.index('class="library-panel library-mobile-compact-chrome"')
     toolbar_index = app.index('class="library-catalogue-toolbar"')
     assert wrapper_index < panel_index < toolbar_index
     assert 'class="library-catalogue-toolbar"' in app

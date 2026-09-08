@@ -75,6 +75,8 @@ const isYearDiscoveryPage = computed(() => catalogueState.discoveryPage === 'yea
 const isCreatorDiscoveryPage = computed(() => catalogueState.discoveryPage === 'creator')
 const isDiscoveryPage = computed(() => isPublicationDiscoveryPage.value || isYearDiscoveryPage.value || isCreatorDiscoveryPage.value)
 const discoveryTitle = computed(() => catalogueState.discoveryTitle || activeFilters.publication || activeFilters.year || activeFilters.creator || '')
+const catalogueHeading = computed(() => isDiscoveryPage.value ? discoveryTitle.value : t('library', 'Publication catalogue'))
+const discoveryKindLabel = computed(() => isCreatorDiscoveryPage.value ? t('library', 'Creator') : (isYearDiscoveryPage.value ? t('library', 'Publication year') : t('library', 'Publication / series')))
 const rootCount = computed(() => Number(catalogueState.rootCount || 0))
 const enabledRootCount = computed(() => Number(catalogueState.enabledRootCount || 0))
 const hasNoConfiguredRoots = computed(() => rootCount.value === 0)
@@ -278,11 +280,12 @@ async function toggleStar(item, event) {
 
 <template>
   <div class="library-vue-catalogue">
-  <section class="library-panel" aria-labelledby="library-catalogue-heading">
+  <section class="library-panel library-mobile-compact-chrome" aria-labelledby="library-catalogue-heading">
     <div class="library-catalogue-header">
       <div>
-        <h2 id="library-catalogue-heading">{{ t('library', 'Publication catalogue') }}</h2>
-        <p class="library-muted">{{ t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.') }}</p>
+        <p v-if="isDiscoveryPage" class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
+        <h2 id="library-catalogue-heading">{{ catalogueHeading }}</h2>
+        <p class="library-muted">{{ isDiscoveryPage ? t('library', 'Browse this focused view; use filters only when you need to narrow it further.') : t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.') }}</p>
       </div>
       <nav class="library-catalogue-toolbar" :aria-label="t('library', 'Library actions')">
         <details class="library-catalogue-actions-menu">
@@ -301,36 +304,44 @@ async function toggleStar(item, event) {
 
     <form method="get" class="library-quick-filter-bar" :aria-label="t('library', 'Quick catalogue filters')" @submit.prevent="submitFiltersAjax">
       <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
-      <label class="library-quick-filter-search">
-        {{ t('library', 'Search') }} <kbd class="library-keyboard-hint">/</kbd>
-        <input ref="quickSearchInput" v-model="activeFilters.q" data-library-quick-search type="search" name="q" placeholder="Camera, Eco, Rolleiflex..." @input="scheduleFilterSubmit">
-      </label>
-      <label>
-        {{ t('library', 'Sort') }}
-        <select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax">
-          <option value="title">{{ t('library', 'Title') }}</option>
-          <option value="recent">{{ t('library', 'Recently added') }}</option>
-          <option value="publicationDate">{{ t('library', 'Publication date') }}</option>
-          <option value="publication">{{ t('library', 'Series') }}</option>
-          <option value="lastOpened">{{ t('library', 'Recently opened') }}</option>
-          <option value="format">{{ t('library', 'Format') }}</option>
-        </select>
-      </label>
-      <label>
-        {{ t('library', 'Starred') }}
-        <select v-model="activeFilters.starred" name="starred" @change="submitFiltersAjax">
-          <option value="">{{ t('library', 'All') }}</option>
-          <option value="1">{{ t('library', 'Starred') }}</option>
-        </select>
-      </label>
-      <label>
-        {{ t('library', 'Size') }}
-        <select :value="pagination.limit" name="limit" @change="submitFiltersAjax">
-          <option v-for="limit in pageSizes" :key="limit" :value="limit">{{ limit }}</option>
-        </select>
-      </label>
-      <button type="submit" class="button primary" :aria-label="t('library', 'Apply catalogue filters')">{{ t('library', 'Apply filters') }}</button>
-      <a href="?" class="button secondary" :aria-label="t('library', 'Clear catalogue filters')">{{ t('library', 'Clear all') }}</a>
+      <div class="library-quick-search-row">
+        <label class="library-quick-filter-search">
+          <span>{{ t('library', 'Search') }} <kbd class="library-keyboard-hint">/</kbd></span>
+          <input ref="quickSearchInput" v-model="activeFilters.q" data-library-quick-search type="search" name="q" placeholder="Camera, Eco, Rolleiflex..." @input="scheduleFilterSubmit">
+        </label>
+        <button type="submit" class="button primary" :aria-label="t('library', 'Search catalogue')">{{ t('library', 'Search') }}</button>
+      </div>
+      <details class="library-quick-filter-options">
+        <summary>{{ t('library', 'Filter & sort') }}</summary>
+        <div class="library-quick-filter-option-grid">
+          <label>
+            {{ t('library', 'Sort') }}
+            <select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax">
+              <option value="title">{{ t('library', 'Title') }}</option>
+              <option value="recent">{{ t('library', 'Recently added') }}</option>
+              <option value="publicationDate">{{ t('library', 'Publication date') }}</option>
+              <option value="publication">{{ t('library', 'Series') }}</option>
+              <option value="lastOpened">{{ t('library', 'Recently opened') }}</option>
+              <option value="format">{{ t('library', 'Format') }}</option>
+            </select>
+          </label>
+          <label>
+            {{ t('library', 'Starred') }}
+            <select v-model="activeFilters.starred" name="starred" @change="submitFiltersAjax">
+              <option value="">{{ t('library', 'All') }}</option>
+              <option value="1">{{ t('library', 'Starred') }}</option>
+            </select>
+          </label>
+          <label>
+            {{ t('library', 'Size') }}
+            <select :value="pagination.limit" name="limit" @change="submitFiltersAjax">
+              <option v-for="limit in pageSizes" :key="limit" :value="limit">{{ limit }}</option>
+            </select>
+          </label>
+          <button type="submit" class="button secondary" :aria-label="t('library', 'Apply catalogue filters')">{{ t('library', 'Apply filters') }}</button>
+          <a href="?" class="button secondary" :aria-label="t('library', 'Clear catalogue filters')">{{ t('library', 'Clear all') }}</a>
+        </div>
+      </details>
     </form>
 
     <details class="library-filter-panel">
@@ -451,10 +462,16 @@ async function toggleStar(item, event) {
       </form>
     </details>
 
-    <section v-if="isDiscoveryPage" class="library-discovery-header" aria-labelledby="library-discovery-heading">
-      <p class="library-muted">{{ isCreatorDiscoveryPage ? t('library', 'Creator') : (isYearDiscoveryPage ? t('library', 'Publication year') : t('library', 'Publication / series')) }}</p>
+    <section v-if="isDiscoveryPage" class="library-discovery-hero" aria-labelledby="library-discovery-heading">
+      <p class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
       <h3 id="library-discovery-heading">{{ discoveryTitle }}</h3>
-      <p class="library-muted">{{ pagination.total }} {{ isCreatorDiscoveryPage ? t('library', 'items by this creator. Sorted by publication context when available.') : (isYearDiscoveryPage ? t('library', 'items from this publication year. Sorted by publication date when available.') : t('library', 'items in this publication. Sorted by issue/date context when available.')) }}</p>
+      <p class="library-muted">{{ isCreatorDiscoveryPage ? t('library', 'Items by this creator, sorted by publication context when available.') : (isYearDiscoveryPage ? t('library', 'Items from this publication year, sorted by publication date when available.') : t('library', 'Items in this publication, sorted by issue/date context when available.')) }}</p>
+      <div class="library-discovery-hero-metrics" aria-label="Discovery summary">
+        <span>{{ pagination.total }} {{ t('library', 'items') }}</span>
+        <span v-if="publicationIssueContext?.earliestYear && publicationIssueContext?.latestYear">{{ publicationIssueContext.earliestYear }}–{{ publicationIssueContext.latestYear }}</span>
+        <span v-if="publicationIssueContext?.datedCount">{{ publicationIssueContext.datedCount }} {{ t('library', 'dated') }}</span>
+        <span v-if="publicationIssueContext?.undatedCount > 0">{{ publicationIssueContext.undatedCount }} {{ t('library', 'undated') }}</span>
+      </div>
       <aside v-if="isPublicationDiscoveryPage && publicationIssueContext" class="library-publication-issue-context" aria-label="Publication issue/date context">
         <strong>{{ t('library', 'Publication contents') }}</strong>
         <span>{{ publicationIssueContext.itemCount }} {{ t('library', 'items') }}</span>
@@ -702,11 +719,36 @@ async function toggleStar(item, event) {
 }
 
 .library-quick-filter-bar {
+  display: grid;
+  gap: 6px;
+  margin: 0.35rem 0;
+}
+
+.library-quick-search-row {
   align-items: end;
   display: grid;
   gap: 6px;
-  grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(96px, auto)) auto auto;
-  margin: 0.35rem 0;
+  grid-template-columns: minmax(180px, 1fr) auto;
+}
+
+.library-quick-filter-option-grid {
+  align-items: end;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(3, minmax(96px, auto)) auto auto;
+  margin-top: 0.5rem;
+}
+
+.library-quick-filter-options {
+  border: 1px solid var(--color-border, #d0d0d0);
+  border-radius: var(--border-radius, 6px);
+  padding: 0.35rem 0.55rem;
+}
+
+.library-quick-filter-options > summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .library-quick-filter-bar label {
@@ -770,11 +812,38 @@ async function toggleStar(item, event) {
   margin-top: 0.5rem;
 }
 
+.library-discovery-hero,
 .library-discovery-header {
-  border: 1px solid var(--color-border, #d0d0d0);
-  border-radius: var(--border-radius-large, 10px);
-  margin: 0.75rem 0;
-  padding: 0.75rem;
+    border: 1px solid var(--color-border, #d0d0d0);
+    border-radius: var(--border-radius-large, 10px);
+    margin: 0.75rem 0;
+    padding: 1rem;
+}
+
+.library-discovery-hero {
+    background: linear-gradient(135deg, var(--color-background-hover), var(--color-main-background));
+}
+
+.library-catalogue-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.library-discovery-hero-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+}
+
+.library-discovery-hero-metrics span {
+    background: var(--color-main-background);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
 }
 
 .library-discovery-header h3 {
@@ -888,14 +957,8 @@ async function toggleStar(item, event) {
 }
 
 @media (max-width: 520px) {
-  .library-quick-filter-bar {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .library-quick-filter-search {
-    grid-column: 1 / -1;
-  }
-
+  .library-quick-search-row,
+  .library-quick-filter-option-grid,
   .library-catalogue-utility-row,
   .library-discovery-shortcut-grid {
     grid-template-columns: 1fr;

@@ -24,18 +24,22 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <?php p($l->t('Shelves and roots')); ?>
             <span class="library-settings-count-badge"><?php p($l->t('%n root', '%n roots', count($roots))); ?></span>
         </summary>
-        <form method="post" action="<?php p($_['rootSaveUrl']); ?>" class="library-form">
-            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-            <label>
-                <?php p($l->t('Folder path')); ?>
-                <input type="text" name="path" value="/LibrarySpike" placeholder="/Media/Books" />
-            </label>
-            <label>
-                <?php p($l->t('Label')); ?>
-                <input type="text" name="label" value="" placeholder="Books, Comics, Manuals..." />
-            </label>
-            <button type="submit"><?php p($l->t('Save root')); ?></button>
-        </form>
+        <section class="library-add-shelf-card" aria-label="<?php p($l->t('Add Library shelf')); ?>">
+            <h3><?php p($l->t('Add a shelf')); ?></h3>
+            <p class="library-muted"><?php p($l->t('Point Library at a Nextcloud folder; it becomes a browsable shelf after scanning.')); ?></p>
+            <form method="post" action="<?php p($_['rootSaveUrl']); ?>" class="library-form library-add-shelf-form">
+                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                <label>
+                    <?php p($l->t('Folder path')); ?>
+                    <input type="text" name="path" value="/LibrarySpike" placeholder="/Media/Books" />
+                </label>
+                <label>
+                    <?php p($l->t('Label')); ?>
+                    <input type="text" name="label" value="" placeholder="Books, Comics, Manuals..." />
+                </label>
+                <button type="submit" class="button primary"><?php p($l->t('Save root')); ?></button>
+            </form>
+        </section>
 
         <?php if (count($roots) === 0): ?>
             <section class="library-getting-started" aria-label="<?php p($l->t('Getting started')); ?>">
@@ -51,7 +55,17 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
         <?php else: ?>
             <ul class="library-root-list">
                 <?php foreach ($roots as $root): ?>
-                    <li>
+                    <li class="library-root-card">
+                        <div class="library-root-card-header">
+                            <div>
+                                <strong><?php p((string)($root['label'] ?? $root['path'])); ?></strong>
+                                <p class="library-muted"><?php p((string)$root['path']); ?></p>
+                            </div>
+                            <span class="library-settings-count-badge"><?php p($root['enabled'] ? $l->t('enabled') : $l->t('disabled')); ?></span>
+                        </div>
+                        <?php if ($root['lastScanAt']): ?>
+                            <p class="library-muted"><?php p($l->t('last scan:')); ?> <?php p(date('Y-m-d H:i', $root['lastScanAt'])); ?></p>
+                        <?php endif; ?>
                         <form method="post" action="<?php p($root['rootUpdateUrl']); ?>" class="library-form library-root-edit-form">
                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                             <label>
@@ -62,39 +76,40 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                                 <?php p($l->t('Label')); ?>
                                 <input type="text" name="label" value="<?php p((string)($root['label'] ?? '')); ?>" />
                             </label>
-                            <span><?php p($root['enabled'] ? $l->t('enabled') : $l->t('disabled')); ?></span>
-                            <?php if ($root['lastScanAt']): ?>
-                                <span><?php p($l->t('last scan:')); ?> <?php p(date('Y-m-d H:i', $root['lastScanAt'])); ?></span>
-                            <?php endif; ?>
-                            <button type="submit"><?php p($l->t('Update root')); ?></button>
+                            <button type="submit" class="button secondary"><?php p($l->t('Update root')); ?></button>
                         </form>
-                        <form method="post" action="<?php p($root['rootScanUrl']); ?>" class="library-inline-form">
-                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                            <button type="submit"><?php p($l->t('Scan this root')); ?></button>
-                        </form>
-                        <form method="post" action="<?php p($root['rootToggleUrl']); ?>" class="library-inline-form">
-                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                            <input type="hidden" name="enabled" value="<?php p($root['enabled'] ? '0' : '1'); ?>" />
-                            <button type="submit"><?php p($root['enabled'] ? $l->t('Disable root') : $l->t('Enable root')); ?></button>
-                        </form>
-                        <section class="library-root-recovery-checklist" aria-label="<?php p($l->t('Root deletion recovery checklist')); ?>">
-                            <p class="library-muted"><strong><?php p($l->t('Before deleting this Library root')); ?></strong></p>
-                            <ul>
-                                <li><?php p($l->t('Export corrected metadata if you want to keep manual corrections outside this app database.')); ?></li>
-                                <li><?php p($l->t('Keep a database backup if you need an exact rollback of Library catalogue rows.')); ?></li>
-                                <li><?php p($l->t('Re-add the same folder path and scan it again to rebuild catalogue rows from source files.')); ?></li>
-                                <li><?php p($l->t('The source files from Nextcloud Files are not deleted by this action.')); ?></li>
-                            </ul>
-                        </section>
-                        <form method="post" action="<?php p($root['rootDeleteUrl']); ?>" class="library-inline-form">
-                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                            <label>
-                                <?php p($l->t('Type DELETE to confirm')); ?>
-                                <input type="text" name="confirmDeleteText" placeholder="DELETE" autocomplete="off" />
-                            </label>
-                            <button type="submit"><?php p($l->t('Delete root')); ?></button>
-                        </form>
-                        <p class="library-muted"><?php p($l->t('Deleting a Library root removes only Library index and catalogue rows for that root, but never deletes source files from Nextcloud Files.')); ?></p>
+                        <div class="library-root-card-actions">
+                            <form method="post" action="<?php p($root['rootScanUrl']); ?>" class="library-inline-form">
+                                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                                <button type="submit" class="button primary"><?php p($l->t('Scan this root')); ?></button>
+                            </form>
+                            <form method="post" action="<?php p($root['rootToggleUrl']); ?>" class="library-inline-form">
+                                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                                <input type="hidden" name="enabled" value="<?php p($root['enabled'] ? '0' : '1'); ?>" />
+                                <button type="submit" class="button secondary"><?php p($root['enabled'] ? $l->t('Disable root') : $l->t('Enable root')); ?></button>
+                            </form>
+                        </div>
+                        <details class="library-root-danger-zone">
+                            <summary><?php p($l->t('Danger zone')); ?></summary>
+                            <section class="library-root-recovery-checklist" aria-label="<?php p($l->t('Root deletion recovery checklist')); ?>">
+                                <p class="library-muted"><strong><?php p($l->t('Before deleting this Library root')); ?></strong></p>
+                                <ul>
+                                    <li><?php p($l->t('Export corrected metadata if you want to keep manual corrections outside this app database.')); ?></li>
+                                    <li><?php p($l->t('Keep a database backup if you need an exact rollback of Library catalogue rows.')); ?></li>
+                                    <li><?php p($l->t('Re-add the same folder path and scan it again to rebuild catalogue rows from source files.')); ?></li>
+                                    <li><?php p($l->t('The source files from Nextcloud Files are not deleted by this action.')); ?></li>
+                                </ul>
+                            </section>
+                            <form method="post" action="<?php p($root['rootDeleteUrl']); ?>" class="library-inline-form library-root-delete-form">
+                                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                                <label>
+                                    <?php p($l->t('Type DELETE to confirm')); ?>
+                                    <input type="text" name="confirmDeleteText" placeholder="DELETE" autocomplete="off" />
+                                </label>
+                                <button type="submit" class="button secondary"><?php p($l->t('Delete root')); ?></button>
+                            </form>
+                            <p class="library-muted"><?php p($l->t('Deleting a Library root removes only Library index and catalogue rows for that root, but never deletes source files from Nextcloud Files.')); ?></p>
+                        </details>
                     </li>
                 <?php endforeach; ?>
             </ul>

@@ -34,7 +34,9 @@ def test_filter_css_preserves_catalogue_area_with_compact_responsive_controls():
     css = (ROOT / "css" / "style.css").read_text()
 
     assert ".library-quick-filter-bar" in css
-    assert "grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(110px, auto)) auto auto" in css
+    assert ".library-quick-search-row" in css
+    assert ".library-quick-filter-options" in css
+    assert "grid-template-columns: repeat(3, minmax(110px, auto)) auto auto" in css
     assert ".library-filter-panel[open]" in css
     assert "@media (max-width: 760px)" in css
 

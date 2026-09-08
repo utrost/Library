@@ -28,6 +28,7 @@ $invalidField = !empty($result['invalidField']);
                             <input type="hidden" name="<?php p((string)$key); ?>" value="<?php p((string)$value); ?>">
                         <?php endforeach; ?>
                         <button type="submit" class="button primary">Apply changes to current results</button>
+                        <p class="library-batch-preview-apply-summary"><strong>This affects <?php p((string)$changedItems); ?> current results.</strong></p>
                         <p class="library-muted">Applies to the same server-side filter result, capped at 5,000 items.</p>
                     </form>
                 <?php endif; ?>
@@ -70,6 +71,19 @@ $invalidField = !empty($result['invalidField']);
             <?php if ($examples === []): ?>
                 <p class="library-muted">No matching items were found for this preview.</p>
             <?php else: ?>
+                <div class="library-batch-preview-card-list" aria-label="Mobile review cards">
+                    <?php foreach ($examples as $example): ?>
+                        <article class="library-batch-preview-card">
+                            <h4><?php p((string)($example['title'] ?? 'Untitled publication')); ?></h4>
+                            <p class="library-muted">Item <?php p((string)($example['itemId'] ?? '')); ?></p>
+                            <dl>
+                                <div><dt>Current</dt><dd><?php p((string)($example['currentValue'] ?? '')); ?></dd></div>
+                                <div><dt>New</dt><dd><?php p((string)($example['newValue'] ?? '')); ?></dd></div>
+                            </dl>
+                            <p class="library-batch-preview-outcome"><?php p(!empty($example['willChange']) ? 'Will change' : 'Already matches'); ?></p>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
                 <div class="library-batch-preview-table-wrap">
                     <table class="library-batch-preview-table">
                         <thead>
