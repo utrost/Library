@@ -25,7 +25,7 @@ The current development slice can:
 - generate absolute Nextcloud URLs for reader handoff, Files handoff and Library settings links so browser hrefs stay under the Nextcloud host;
 - show indexed files and publication items with a catalogue-first Vue/Vite-backed catalogue page mounted in a conventional Nextcloud `#app-content` shell, responsive, paginated cover gallery, preview-backed covers, placeholder fallbacks and browse-only catalogue cards;
 - search and filter the catalogue by title/author text, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, scanner conflicts, exact Nextcloud tag and root-derived shelf;
-- open the first dedicated publication discovery page from top series/periodical shortcuts, a dedicated publication year discovery page from the years shortcut panel, and a dedicated creator discovery page from the creator shortcut panel, keeping compact catalogue cards inside a named discovery context;
+- open the first dedicated publication discovery page from top series/periodical shortcuts with a compact **Publication contents** issue/date context summary, a dedicated publication year discovery page from the years shortcut panel, and a dedicated creator discovery page from the creator shortcut panel, keeping compact catalogue cards inside a named discovery context;
 - catalogue cards are browse-only, compact and cover-first on mobile and desktop: the default card surface is cover, title, **Read** and **Details**, while secondary metadata/actions stay behind the Details disclosure; the details page owns publication metadata, tag and comment editing, and the publication metadata panel now uses one editable field surface instead of repeating the same values in separate read-only and edit sections;
 - treat Nextcloud system tags as cross-archive classification metadata exposed on catalogue cards and addable/removable from item details;
 - show recent Nextcloud file comments as file-level notes/discussion on catalogue cards and item details;
@@ -74,7 +74,7 @@ Current v0.1 proof includes or is converging on:
 - discover EPUB, PDF and CBZ files first;
 - store a file-ID-based index;
 - extract basic metadata and covers where practical, with extractor failures isolated per file;
-- browse/search/filter/sort publication metadata through a database-backed paginated cover gallery with compact cards, shelf filters, publication filters and detail/edit pages;
+- browse/search/filter/sort publication metadata through a database-backed paginated cover gallery with compact cards, shelf filters, publication/year/creator filters, publication contents summaries and detail/edit pages;
 - open files through compatible existing Nextcloud viewers/readers;
 - show the original file in Nextcloud Files and download the original source file.
 

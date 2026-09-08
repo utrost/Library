@@ -92,6 +92,8 @@ Install app
   -> queue scans for all roots or one root
   -> see compact cover grid/list
   -> search, filter and sort
+  -> open publication/year/creator discovery pages when structure metadata exists
+  -> review publication contents issue/date coverage on publication pages
   -> edit wrong metadata on details
   -> compare/reset scanner candidates when useful
   -> open publication inline through existing viewer
@@ -111,7 +113,8 @@ Install app
 - Cover-grid/list browsing.
 - Item detail view.
 - Basic search.
-- Basic discovery by exact creator, series/periodical/publication and year filters.
+- Basic discovery by exact creator, series/periodical/publication and year filters plus dedicated landing pages.
+- Compact publication contents issue/date coverage on publication landing pages.
 - Manual metadata editing.
 - Field-level scanner-candidate provenance and reset workflow.
 - Read-only corrected-metadata export, no-write import preview, matched-item import apply, sidecar manifest export and sidecar ZIP download.

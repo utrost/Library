@@ -40,7 +40,7 @@ Notes:
 
 For v0.1 testing to start, these must pass on the packaged app, not just the working checkout:
 
-1. The app installs/enables from `dist/library-0.1.0-alpha.111.tar.gz` on a Nextcloud 34 test instance.
+1. The app installs/enables from `dist/library-0.1.0-alpha.115.tar.gz` on a Nextcloud 34 test instance.
 2. `/apps/library/` and `/settings/user/library` load for a normal user without Library-specific console errors.
 3. Adding a root, scanning it, browsing compact cards, opening details, and using Read/Show in Files/Download source works.
 4. Editing Library metadata survives a rescan and stays separate from Nextcloud tags/comments.
@@ -53,7 +53,7 @@ For v0.1 testing to start, these must pass on the packaged app, not just the wor
 
 Purpose: prove the tester is using the generated release archive.
 
-Setup: install `dist/library-0.1.0-alpha.111.tar.gz` into a disposable Nextcloud 34 instance and enable Library.
+Setup: install `dist/library-0.1.0-alpha.115.tar.gz` into a disposable Nextcloud 34 instance and enable Library.
 
 Steps:
 
@@ -62,7 +62,7 @@ Steps:
 3. Check the visible app version or installed app version if available.
 4. Open browser developer tools and inspect console output.
 
-Expected result: both pages load; the app is version `0.1.0-alpha.111`; no Library-specific JavaScript error appears.
+Expected result: both pages load; the app is version `0.1.0-alpha.115`; no Library-specific JavaScript error appears.
 
 Evidence to capture on failure: screenshot, URL, browser console errors, Nextcloud app version, and whether the app came from the generated archive.
 
@@ -96,9 +96,10 @@ Steps:
 2. Use text search.
 3. Apply at least two filters, preferably format plus publication year or shelf.
 4. Remove filters through active chips.
-5. Change sort and page size.
+5. Open one creator shortcut if the fixture has creator metadata.
+6. Change sort and page size.
 
-Expected result: the grid updates predictably; compact cards stay compact; Details owns secondary metadata/actions.
+Expected result: the grid updates predictably; compact cards stay compact; Details owns secondary metadata/actions; creator shortcuts open named discovery pages rather than broad text searches.
 
 Evidence to capture on failure: screenshot before/after, active URL query, filter values, and visible result count.
 
@@ -216,10 +217,13 @@ Steps:
 
 1. Open a publication/series link from **Top series and periodicals**.
 2. Confirm the dedicated publication page has a heading/back link and filtered cards.
-3. Open a year link from **Top publication years**.
-4. Confirm the dedicated year page has a heading/back link and date-filtered cards.
+3. Confirm the publication page shows a compact **Publication contents** issue/date context summary with item count and date coverage.
+4. Open a year link from **Top publication years**.
+5. Confirm the dedicated year page has a heading/back link and date-filtered cards.
+6. Open a creator link from **Top creators**.
+7. Confirm the dedicated creator page has a heading/back link and exact-creator filtered cards.
 
-Expected result: publication and publication-year discovery pages exist and keep the compact grid inside named discovery contexts.
+Expected result: publication, publication-year and creator discovery pages exist and keep the compact grid inside named discovery contexts. Publication pages expose **Publication contents** issue/date coverage without becoming a full issue-management database.
 
 Evidence to capture on failure: source item, clicked link, resulting URL, and page header screenshot.
 
@@ -251,7 +255,7 @@ Steps:
 
 1. Confirm the tester understands manual cover override/revert exists, but there is no app-owned cover cache or crop/rebuild workflow.
 2. Confirm sidecar exports do not write source folders.
-3. Confirm creator pages, saved views, smart collections, shared/admin roots, custom readers, annotations, OCR/full-text search, internet lookup and AI classification are not part of this test pass.
+3. Confirm creator pages are part of the current discovery surface, while saved views, smart collections, shared/admin roots, custom readers, annotations, OCR/full-text search, internet lookup and AI classification are not part of this test pass.
 
 Expected result: missing future features are reported as product feedback, not release-blocking regressions unless they break a current v0.1 workflow.
 

@@ -19,6 +19,8 @@ Search and filter should be simple and direct in v0.1:
 - filter by publication type;
 - filter by file format and scan status;
 - filter by exact creator, publication/series/periodical title and publication year;
+- use dedicated publication, publication-year and creator landing pages around the same compact grid;
+- see compact **Publication contents** issue/date coverage on publication pages;
 - filter by Nextcloud tag;
 - filter by shelf/root label;
 - show active filter chips so one filter can be removed without clearing the whole search.
@@ -96,7 +98,7 @@ Shelf/gallery
 
 ## Next presentation slices
 
-1. Add dedicated creator/series/publication/year landing pages beyond the current filters and top-series shortcuts.
+1. Deepen the landed publication **Publication contents** summary into richer issue grouping when real recurring-publication fixtures justify it.
 2. Add saved filters such as `Unread manuals`, `Photography magazines`, or `Needs metadata review`.
 3. Add virtual shelves/collections separate from root folders.
 4. Add cover cache/crop/rebuild workflows only if on-demand preview/CBZ/placeholder covers plus manual override/revert prove insufficient.

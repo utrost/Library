@@ -50,9 +50,9 @@ Library **Read** links now go through a tiny app route, record `last_opened_at` 
 
 ### search with description
 
-Current support: partial.
+Current support: implemented.
 
-The catalogue already searches title, subtitle, creators, publication/series/periodical and path text. The publication model and concept docs mention description, but the current editable detail form does not expose a description field and catalogue search does not include one. First slice: add a Library-native description field, show/edit it on details, include it in text search, and preserve it through export/import.
+The catalogue searches title, subtitle, creators, publication/series/periodical, description and path text. Library stores a native description field, exposes it on item details, includes it in database-backed catalogue search, and preserves it through corrected-metadata export/import.
 
 ### custom status per publication
 
@@ -203,9 +203,9 @@ Result: genres and classifications are implemented as structured Library metadat
 
 ## Suggested immediate implementation slice
 
-Start with **P0 — finish multi-root confidence**, because it validates your top feature without a risky schema migration. If current behavior already passes, the slice becomes documentation and smoke hardening; if it fails, it exposes a foundational bug before we build stars/status on top.
+The original P0-P5 personal-library sequence has landed: multi-root confidence, starring, last-opened activity, description search, workflow status, and Library-native genres/classifications are implemented and covered by smoke or contract tests.
 
-After that, implement **P1 — personal starring** as the first new user-facing field. It is smaller than descriptions/status/genres, provides visible value immediately, and creates the reusable pattern for user-owned per-item fields, filters, export/import and rescan preservation.
+Next personal-library slices should build on those foundations rather than restart them: improve saved views/smart collections for repeated filters, deepen publication issue grouping beyond the compact **Publication contents** summary, and keep real-collection metadata/cover fixes small and evidence-driven.
 
 ## Open product decisions
 

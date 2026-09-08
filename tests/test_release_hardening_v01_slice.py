@@ -22,9 +22,11 @@ def test_release_docs_are_current_for_v01_testing_candidate():
     assert "0.1.0-alpha.115" in changelog
     assert "v0.1.0-alpha.1" in changelog
 
-    assert "publication and publication-year discovery pages exist" in checklist
-    assert "dedicated creator pages, saved views or smart collections" in checklist.lower()
+    assert "publication, publication-year and creator discovery pages exist" in checklist
+    assert "Publication contents" in checklist
+    assert "saved views, smart collections and richer publication issue grouping" in checklist
     assert "No dedicated creator/series/publication/year landing pages" not in checklist
+    assert "no dedicated creator pages" not in checklist.lower()
     assert "generated archive install smoke" in release
     assert "npm run smoke:release-package" in release
 
@@ -54,6 +56,9 @@ def test_human_test_handbook_is_linked_and_executable():
         assert f"### {test_id}" in handbook
 
     assert "Critical pass criteria" in handbook
+    assert "0.1.0-alpha.111" not in handbook
+    assert "Publication contents" in handbook
+    assert "creator pages are part of the current discovery surface" in handbook
     assert "Evidence to capture on failure" in handbook
     assert "Result vocabulary" in handbook
     assert "Failure report template" in handbook

@@ -503,7 +503,7 @@ Acceptance checks:
 Visible gaps:
 
 - no full-text search inside documents;
-- publication/series, publication-year and creator landing pages exist so far; richer creator identity splitting, series issue grouping and saved views remain future work;
+- publication/series, publication-year and creator landing pages exist so far, and publication pages show **Publication contents** issue/date coverage; richer creator identity splitting, issue grouping beyond the compact context summary and saved views remain future work;
 - no saved views or smart collections;
 - no user-facing explanation of query performance limits for very large libraries.
 
