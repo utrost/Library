@@ -193,8 +193,8 @@ async function runBrowserSmoke(proxyBase) {
           singleCatalogueResultSummary: document.body.textContent.match(/Showing [0-9]+[–-][0-9]+ of [0-9]+ catalogue items/g)?.length === 1,
           cardDetailChips: document.querySelectorAll('.library-cover-card .library-cover-detail-chip').length,
           filterPanelCollapsed: Boolean(document.querySelector('.library-filter-panel:not([open]) .library-filter-bar')),
-          periodicalPanelCollapsed: Boolean(document.querySelector('.library-periodical-groups:not([open])')),
-          periodicalPanelSummary: document.querySelector('.library-periodical-groups summary')?.textContent?.trim() || '',
+          discoveryShortcutsCollapsed: Boolean(document.querySelector('.library-discovery-shortcuts:not([open]) .library-periodical-groups')),
+          discoveryShortcutsSummary: document.querySelector('.library-discovery-shortcuts > summary')?.textContent?.trim() || '',
           details: document.querySelectorAll('.library-cover-card a').length > 0 ? [...document.querySelectorAll('.library-cover-card a')].filter((a) => a.textContent === 'Details').length : 0,
           nextcloudTagNameField: Boolean(document.querySelector('input[name="nextcloudTagName"]')),
           catalogueTagEditor: Boolean(document.querySelector('[aria-label="nextcloudTagEditor"]')),
@@ -638,8 +638,8 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_single_catalogue_result_summary', dom.singleCatalogueResultSummary)
     print('browser_card_detail_chips', dom.cardDetailChips)
     print('browser_filter_panel_collapsed', dom.filterPanelCollapsed)
-    print('browser_periodical_panel_collapsed', dom.periodicalPanelCollapsed)
-    print('browser_periodical_panel_summary', dom.periodicalPanelSummary)
+    print('browser_discovery_shortcuts_collapsed', dom.discoveryShortcutsCollapsed)
+    print('browser_discovery_shortcuts_summary', dom.discoveryShortcutsSummary)
     print('browser_details', dom.details)
     print('browser_nextcloudTagNameField', dom.nextcloudTagNameField)
     print('browser_catalogue_tag_editor', dom.catalogueTagEditor)
@@ -742,8 +742,8 @@ async function runBrowserSmoke(proxyBase) {
       && dom.singleCatalogueResultSummary === true
       && dom.cardDetailChips >= dom.cards
       && dom.filterPanelCollapsed === true
-      && dom.periodicalPanelCollapsed === true
-      && dom.periodicalPanelSummary === 'Show top series and periodicals'
+      && dom.discoveryShortcutsCollapsed === true
+      && dom.discoveryShortcutsSummary === 'Browse'
       && dom.details === dom.cards
       && dom.nextcloudTagNameField === true
       && dom.catalogueTagEditor === false

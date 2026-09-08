@@ -14,14 +14,14 @@ def test_vue_catalogue_filters_are_collapsible_and_closed_by_default():
     assert '<form method="get" class="library-filter-bar"' in vue
 
 
-def test_vue_top_series_periodicals_panel_is_collapsible_and_closed_by_default():
+def test_vue_top_series_periodicals_are_folded_into_compact_browse_disclosure():
     vue = (ROOT / "src" / "App.vue").read_text()
 
+    assert 'class="library-discovery-shortcuts"' in vue
+    assert "{{ t('library', 'Browse') }}" in vue
     assert 'class="library-periodical-groups"' in vue
-    assert 'summary class="library-periodical-groups-summary"' in vue
-    assert "Show top series and periodicals" in vue
-    assert '<details v-if="publicationSummaries.length > 0" class="library-periodical-groups">' in vue
-    assert '<details v-if="publicationSummaries.length > 0" class="library-periodical-groups" open>' not in vue
+    assert '<section v-if="publicationSummaries.length > 0" class="library-periodical-groups"' in vue
+    assert '<details v-if="publicationSummaries.length > 0" class="library-periodical-groups">' not in vue
 
 
 def test_vue_fallback_uses_collapsible_catalogue_filter_panel():
@@ -35,7 +35,9 @@ def test_vue_fallback_uses_collapsible_catalogue_filter_panel():
 
 def test_styles_cover_collapsible_catalogue_panels():
     css = (ROOT / "css" / "style.css").read_text()
+    vue = (ROOT / "src" / "App.vue").read_text()
 
     assert ".library-filter-panel" in css
     assert ".library-filter-panel-summary" in css
-    assert ".library-periodical-groups-summary" in css
+    assert ".library-discovery-shortcuts" in vue
+    assert ".library-catalogue-utility-row" in vue
