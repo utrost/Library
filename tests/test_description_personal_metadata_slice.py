@@ -20,7 +20,6 @@ def test_description_is_visible_editable_and_kept_off_compact_cards():
     detail = (ROOT / "templates" / "item-detail.php").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
 
-    assert "'Description' => $item['description'] ?? ''" in detail
     assert 'name="description"' in detail
     assert "textarea" in detail
     details_section = vue.split("<details", 1)[1]

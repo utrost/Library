@@ -419,7 +419,7 @@ Current support: present for the current fields.
 
 Acceptance checks:
 
-- Details page exposes publication metadata editing.
+- Details page exposes publication metadata editing in a single editable field surface rather than duplicating the same values as read-only metadata and edit fields.
 - Saved edits set provenance to user-edited.
 - Rescan does not overwrite user-edited metadata.
 - Scanner candidates refresh on rescan, while current user-edited values stay untouched.

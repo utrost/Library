@@ -593,10 +593,8 @@
     min-width: 0;
 }
 
-.library-detail-section-edit {
-    border-top: 1px solid var(--color-border);
-    margin-top: 18px;
-    padding-top: 18px;
+.library-detail-edit-form {
+    margin-top: 12px;
 }
 
 .library-detail-section-nextcloud .library-nextcloud-tags,

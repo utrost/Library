@@ -22,7 +22,8 @@ def test_detail_page_owns_publication_metadata_edit_form():
     item_controller = (ROOT / "lib" / "Controller" / "ItemController.php").read_text()
 
     assert "library-detail-edit-form" in template
-    assert "$l->t('Edit publication metadata')" in template
+    assert "$l->t('Publication metadata')" in template
+    assert "$l->t('Edit publication metadata')" not in template
     assert "linkToRoute('library.item.update'" in controller
     assert "name=\"requesttoken\"" in template
     assert "name=\"returnTo\"" in template

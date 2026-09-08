@@ -198,7 +198,7 @@ User outcome:
 
 - The catalogue cards are browse-only and stay visually light.
 - The details page owns metadata, tag and comment editing.
-- The detail workbench layout separates publication editing from Nextcloud/file/provenance diagnostics.
+- The detail workbench layout separates a compact single-surface publication metadata editor from Nextcloud/file/provenance diagnostics.
 - Every details-page form keeps CSRF protection and returns to the detail page after save.
 
 Backend/frontend slices:
