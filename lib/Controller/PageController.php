@@ -74,6 +74,7 @@ class PageController extends Controller {
         ], [
             'discoveryPage' => 'publication',
             'discoveryTitle' => $publication,
+            'publicationIssueContext' => $this->itemService->publicationIssueContext($userId, $publication),
         ]));
 
         return new TemplateResponse(Application::APP_ID, 'main');
@@ -180,6 +181,7 @@ class PageController extends Controller {
         $items = $this->enrichItemsForVue($userId, $items, $fileTagsByFileId, $fileCommentsByFileId, $batchCoverRefreshRequested);
 
         return [
+            'publicationIssueContext' => null,
             ...$pageContext,
             'items' => $items,
             'scannerConflictCount' => array_sum(array_map(static fn (array $item): int => (int)($item['scannerConflictCount'] ?? 0), $items)),

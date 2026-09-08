@@ -1058,6 +1058,47 @@ final class ItemService {
     }
 
     /**
+     * @return array{itemCount:int,datedCount:int,undatedCount:int,earliestYear:string,latestYear:string}
+     */
+    public function publicationIssueContext(string $userId, string $publication): array {
+        $publication = trim($publication);
+        if ($publication === '') {
+            return [
+                'itemCount' => 0,
+                'datedCount' => 0,
+                'undatedCount' => 0,
+                'earliestYear' => '',
+                'latestYear' => '',
+            ];
+        }
+
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->selectAlias($qb->createFunction('COUNT(*)'), 'item_count')
+            ->selectAlias($qb->createFunction("SUM(CASE WHEN i.publication_date IS NOT NULL AND i.publication_date <> '' THEN 1 ELSE 0 END)"), 'dated_count')
+            ->selectAlias($qb->createFunction("MIN(CASE WHEN i.publication_date IS NOT NULL AND i.publication_date <> '' THEN SUBSTR(i.publication_date, 1, 4) ELSE NULL END)"), 'earliest_year')
+            ->selectAlias($qb->createFunction("MAX(CASE WHEN i.publication_date IS NOT NULL AND i.publication_date <> '' THEN SUBSTR(i.publication_date, 1, 4) ELSE NULL END)"), 'latest_year')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('i.publication', $qb->createNamedParameter($publication)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
+            ->executeQuery();
+
+        $row = $result->fetch();
+        $result->closeCursor();
+        $itemCount = (int)($row['item_count'] ?? 0);
+        $datedCount = (int)($row['dated_count'] ?? 0);
+
+        return [
+            'itemCount' => $itemCount,
+            'datedCount' => $datedCount,
+            'undatedCount' => max(0, $itemCount - $datedCount),
+            'earliestYear' => trim((string)($row['earliest_year'] ?? '')),
+            'latestYear' => trim((string)($row['latest_year'] ?? '')),
+        ];
+    }
+
+    /**
      * @return array<int, string>
      */
     private function distinctCatalogueValues(string $userId, string $expression, string $alias): array {
