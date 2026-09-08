@@ -179,6 +179,25 @@ try {
     try {
       importPreviewJson = JSON.parse(importPreview.text)
     } catch {}
+    const importManifestPreview = await fetchText(metadataImportPreviewUrl, token, {
+      method: 'POST',
+      body: new URLSearchParams({ metadataJson: JSON.stringify(sidecarManifestJson || { manifestKind: 'library-corrected-metadata-sidecar-manifest', items: [] }) }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    })
+    let importManifestPreviewJson = null
+    try {
+      importManifestPreviewJson = JSON.parse(importManifestPreview.text)
+    } catch {}
+    const importSingleSidecarPayload = sidecarManifestJson?.items?.find((item) => item?.metadata)?.metadata || (first.id ? { ...first } : {})
+    const importSingleSidecarPreview = await fetchText(metadataImportPreviewUrl, token, {
+      method: 'POST',
+      body: new URLSearchParams({ metadataJson: JSON.stringify(importSingleSidecarPayload) }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    })
+    let importSingleSidecarPreviewJson = null
+    try {
+      importSingleSidecarPreviewJson = JSON.parse(importSingleSidecarPreview.text)
+    } catch {}
     const cover = first.coverUrl ? await fetchBinaryHeaders(first.coverUrl, token) : { status: 0, contentType: '', coverStatus: '', coverReason: '', coverRefresh: '', cacheControl: '' }
     const coverRefreshPageMatch = detail.text.match(/href="([^"]*\/apps\/library\/items\/[^\"]*coverRefresh=1[^"]*)"[^>]*library-cover-refresh-action/)
     const coverRefreshPagePath = coverRefreshPageMatch ? coverRefreshPageMatch[1].replaceAll('&amp;', '&') : ''
@@ -286,6 +305,12 @@ try {
     console.log(`import_preview_mode=${importPreview.headers.get('X-Library-Import-Mode') || ''}`)
     console.log(`import_preview_matched_items=${importPreviewJson?.matchedItems ?? -1}`)
     console.log(`import_preview_changed_fields=${importPreviewJson?.changedFields ?? -1}`)
+    console.log(`import_manifest_preview_http=${importManifestPreview.status}`)
+    console.log(`import_manifest_preview_kind=${importManifestPreviewJson?.previewKind || ''}`)
+    console.log(`import_manifest_preview_matched_items=${importManifestPreviewJson?.matchedItems ?? -1}`)
+    console.log(`import_single_sidecar_preview_http=${importSingleSidecarPreview.status}`)
+    console.log(`import_single_sidecar_preview_kind=${importSingleSidecarPreviewJson?.previewKind || ''}`)
+    console.log(`import_single_sidecar_preview_matched_items=${importSingleSidecarPreviewJson?.matchedItems ?? -1}`)
     const scannerConflictCountMatch = detail.text.match(/Fields differing from scanner:\s*([0-9]+)/)
     const scannerConflictCount = scannerConflictCountMatch ? Number.parseInt(scannerConflictCountMatch[1], 10) : 0
     console.log(`detail_has_metadata_correction_summary=${detail.text.includes('library-metadata-correction-summary') && detail.text.includes('Scanner candidates') && detail.text.includes('Fields differing from scanner')}`)

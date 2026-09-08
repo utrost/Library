@@ -71,8 +71,24 @@ def test_smoke_posts_export_to_import_preview_and_requires_non_mutating_counts()
     assert "import_preview_http" in smoke
     assert "import_preview_matched_items" in smoke
     assert "import_preview_changed_fields" in smoke
+    assert "import_manifest_preview_http" in smoke
+    assert "import_manifest_preview_kind" in smoke
+    assert "import_single_sidecar_preview_http" in smoke
+    assert "import_single_sidecar_preview_kind" in smoke
     assert "X-Library-Import-Mode" in smoke
     assert "preview-only" in smoke
+
+
+def test_item_service_import_accepts_sidecar_manifest_as_restore_source():
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
+
+    assert "private function importItemsFromPayload(array $payload): ?array" in service
+    assert "looksLikeSingleSidecarMetadata" in service
+    assert "manifestKind" in service
+    assert "library-corrected-metadata-sidecar-manifest" in service
+    assert "$manifestItem['metadata']" in service
+    assert "sidecarPath" in service
+    assert "unsupported_export" in service
 
 
 def test_docs_mark_metadata_import_preview_and_apply_landed_but_sidecars_still_future():
@@ -85,4 +101,6 @@ def test_docs_mark_metadata_import_preview_and_apply_landed_but_sidecars_still_f
     assert "No changes are written during preview" in guide
     assert "Apply metadata import" in guide
     assert "first apply flow applies matched corrected metadata" in roadmap
+    assert "sidecar manifest imports" in guide.lower()
+    assert "sidecar manifest restore" in roadmap.lower()
     assert "OPF/JSON sidecar write-back" in roadmap
