@@ -230,7 +230,23 @@
     grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
-.library-detail-edit-form label,
+.library-detail-edit-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.library-field-label-help {
+    cursor: help;
+    text-decoration: underline dotted var(--color-text-maxcontrast) 1px;
+    text-underline-offset: 0.18em;
+}
+
+.library-field-label-help:focus-visible {
+    outline: 2px solid var(--color-primary-element);
+    outline-offset: 3px;
+}
+
 .library-detail-edit-form input,
 .library-detail-edit-form select,
 .library-detail-edit-form textarea {

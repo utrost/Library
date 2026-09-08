@@ -431,7 +431,7 @@ Implemented correction helpers:
 - field-level scanner candidates are stored, and a manual edit keeps scanner candidates available for later reset;
 - Reset to scanner remains available after editing when a stored scanner candidate differs from the current value;
 - whole-item reset to scanner candidates can apply all stored scanner values at once;
-- The edit form shows hints for dates, language codes and creator separators; hard validation for publication dates and language codes now blocks clearly invalid values while creator separators remain guidance;
+- The edit form keeps short field-shape hints as hover/focus help on the field names for dates, language codes and creator separators; hard validation for publication dates and language codes now blocks clearly invalid values while creator separators remain guidance;
 - Library settings include **Bulk reset selected items to scanner** for item IDs copied from the scanner-conflict review filter;
 - the catalogue **Batch actions for current results** panel includes a filter-result metadata reset that applies scanner candidates only to current scanner-conflict results;
 - rows where the current value differs from the scanner candidate show a **Differs from scanner** label;

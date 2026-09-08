@@ -19,6 +19,13 @@ $languageOptions = [
 ];
 $genreOptions = ['fiction', 'non-fiction', 'photography', 'science fiction', 'history', 'technical', 'manual', 'reference'];
 $publisherSuggestions = ['Packt', "O'Reilly Media", 'Manning', 'No Starch Press', 'Apress', 'Springer', 'Penguin', 'Taschen'];
+$metadataHelp = [
+    'creators' => $l->t('One creator per line. Existing semicolon-separated values are still accepted.'),
+    'publicationDate' => $l->t('Use YYYY, YYYY-MM, or YYYY-MM-DD.'),
+    'language' => $l->t('Choose one or more language codes.'),
+    'genres' => $l->t('Choose one or more Library genres. Use Nextcloud tags for ad-hoc cross-app labels.'),
+    'classifications' => $l->t('Separate multiple classifications with semicolons. Use Nextcloud tags for ad-hoc cross-app labels.'),
+];
 $selectedLanguages = array_values(array_filter(array_map('trim', preg_split('/[;,\n]+/u', (string)($item['language'] ?? '')) ?: []), static fn ($value) => $value !== ''));
 $selectedGenres = is_array($item['genres'] ?? null) ? $item['genres'] : [];
 $creatorLines = implode("\n", array_filter(array_map('trim', preg_split('/[;\n]+/u', (string)($item['creators'] ?? '')) ?: []), static fn ($value) => $value !== ''));
@@ -159,18 +166,16 @@ $fileRows = [
                     </select>
                 </label>
                 <label class="library-detail-field-wide library-creators-field">
-                    <?php p($l->t('Creators')); ?>
-                    <textarea name="creators" rows="4" aria-describedby="library-creators-guidance"><?php p($creatorLines); ?></textarea>
-                    <span id="library-creators-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('One creator per line. Existing semicolon-separated values are still accepted.')); ?></span>
+                    <span class="library-field-label-help" title="<?php p($metadataHelp['creators']); ?>" aria-label="<?php p($l->t('Creators help: %s', [$metadataHelp['creators']])); ?>"><?php p($l->t('Creators')); ?></span>
+                    <textarea name="creators" rows="4"><?php p($creatorLines); ?></textarea>
                 </label>
                 <label class="library-detail-field-wide">
                     <?php p($l->t('Publication')); ?>
                     <input type="text" name="publication" value="<?php p((string)($item['publication'] ?? '')); ?>" />
                 </label>
                 <label>
-                    <?php p($l->t('Publication date')); ?>
-                    <input type="text" name="publicationDate" aria-describedby="library-publication-date-guidance" value="<?php p((string)($item['publicationDate'] ?? '')); ?>" />
-                    <span id="library-publication-date-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Use YYYY, YYYY-MM, or YYYY-MM-DD.')); ?></span>
+                    <span class="library-field-label-help" title="<?php p($metadataHelp['publicationDate']); ?>" aria-label="<?php p($l->t('Publication date help: %s', [$metadataHelp['publicationDate']])); ?>"><?php p($l->t('Publication date')); ?></span>
+                    <input type="text" name="publicationDate" value="<?php p((string)($item['publicationDate'] ?? '')); ?>" />
                 </label>
                 <label class="library-detail-field-wide">
                     <?php p($l->t('Publisher')); ?>
@@ -182,33 +187,30 @@ $fileRows = [
                     </datalist>
                 </label>
                 <label>
-                    <?php p($l->t('Language')); ?>
-                    <select name="language[]" multiple class="library-language-picklist" aria-describedby="library-language-guidance">
+                    <span class="library-field-label-help" title="<?php p($metadataHelp['language']); ?>" aria-label="<?php p($l->t('Language help: %s', [$metadataHelp['language']])); ?>"><?php p($l->t('Language')); ?></span>
+                    <select name="language[]" multiple class="library-language-picklist">
                         <?php foreach ($languageOptions as $code => $label): ?>
                             <option value="<?php p($code); ?>" <?php if (in_array($code, $selectedLanguages, true)) { print_unescaped('selected'); } ?>><?php p($label); ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <span id="library-language-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Choose one or more language codes.')); ?></span>
                 </label>
                 <label class="library-detail-field-wide">
-                    <?php p($l->t('Genres')); ?>
-                    <select name="genres[]" multiple class="library-genre-picklist" aria-describedby="library-genres-guidance">
+                    <span class="library-field-label-help" title="<?php p($metadataHelp['genres']); ?>" aria-label="<?php p($l->t('Genres help: %s', [$metadataHelp['genres']])); ?>"><?php p($l->t('Genres')); ?></span>
+                    <select name="genres[]" multiple class="library-genre-picklist">
                         <?php foreach ($genreOptions as $genre): ?>
                             <option value="<?php p($genre); ?>" <?php if (in_array($genre, $selectedGenres, true)) { print_unescaped('selected'); } ?>><?php p($genre); ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <span id="library-genres-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Choose one or more Library genres. Use Nextcloud tags for ad-hoc cross-app labels.')); ?></span>
                 </label>
                 <label class="library-detail-field-wide">
-                    <?php p($l->t('Classifications')); ?>
-                    <input type="text" name="classifications" list="library-classification-suggestions" aria-describedby="library-classifications-guidance" value="<?php p(implode('; ', is_array($item['classifications'] ?? null) ? $item['classifications'] : [])); ?>" />
+                    <span class="library-field-label-help" title="<?php p($metadataHelp['classifications']); ?>" aria-label="<?php p($l->t('Classifications help: %s', [$metadataHelp['classifications']])); ?>"><?php p($l->t('Classifications')); ?></span>
+                    <input type="text" name="classifications" list="library-classification-suggestions" value="<?php p(implode('; ', is_array($item['classifications'] ?? null) ? $item['classifications'] : [])); ?>" />
                     <datalist id="library-classification-suggestions">
                         <option value="reference collection"></option>
                         <option value="manual"></option>
                         <option value="catalogue"></option>
                         <option value="OCR-needed"></option>
                     </datalist>
-                    <span id="library-classifications-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Separate multiple classifications with semicolons. Use Nextcloud tags for ad-hoc cross-app labels.')); ?></span>
                 </label>
                 <label class="library-detail-field-full library-detail-description-field">
                     <?php p($l->t('Description')); ?>

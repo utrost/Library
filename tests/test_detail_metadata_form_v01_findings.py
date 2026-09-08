@@ -49,6 +49,31 @@ def test_detail_metadata_form_replaces_semicolon_only_editing_with_assisted_mult
     assert "Packt" in template
 
 
+def test_detail_metadata_guidance_is_field_label_hover_help_not_inline_body_copy():
+    template = (ROOT / "templates" / "item-detail.php").read_text()
+    css = (ROOT / "css" / "style.css").read_text()
+
+    assert "library-field-label-help" in template
+    assert "title=\"<?php p($metadataHelp['publicationDate']); ?>\"" in template
+    assert "title=\"<?php p($metadataHelp['language']); ?>\"" in template
+    assert "title=\"<?php p($metadataHelp['genres']); ?>\"" in template
+    assert "title=\"<?php p($metadataHelp['classifications']); ?>\"" in template
+    assert "title=\"<?php p($metadataHelp['creators']); ?>\"" in template
+    assert "aria-describedby=\"library-publication-date-guidance\"" not in template
+    assert "aria-describedby=\"library-language-guidance\"" not in template
+    assert "aria-describedby=\"library-genres-guidance\"" not in template
+    assert "aria-describedby=\"library-classifications-guidance\"" not in template
+    assert "id=\"library-publication-date-guidance\"" not in template
+    assert "id=\"library-language-guidance\"" not in template
+    assert "id=\"library-genres-guidance\"" not in template
+    assert "id=\"library-classifications-guidance\"" not in template
+    assert "Use YYYY, YYYY-MM, or YYYY-MM-DD." in template
+    assert "Choose one or more language codes." in template
+    assert ".library-field-label-help" in css
+    assert "cursor: help" in css
+    assert "text-decoration" in css
+
+
 def test_detail_metadata_controller_accepts_autosave_and_array_multiselect_values():
     controller = (ROOT / "lib" / "Controller" / "ItemController.php").read_text()
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
