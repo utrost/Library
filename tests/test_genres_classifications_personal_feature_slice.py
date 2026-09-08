@@ -20,8 +20,8 @@ def test_genres_classifications_have_schema_and_publication_field_model():
     update_block = service.split("public function updateItem", 1)[1].split("public function setStarred", 1)[0]
     assert "->set('genres_json'" in update_block
     assert "->set('classifications_json'" in update_block
-    assert "'genres' => (string)$this->request->getParam('genres', '')" in controller
-    assert "'classifications' => (string)$this->request->getParam('classifications', '')" in controller
+    assert "'genres' => $this->normalizeRequestList($this->request->getParam('genres', $this->request->getParam('genres[]', '')))" in controller
+    assert "'classifications' => $this->normalizeRequestList($this->request->getParam('classifications', $this->request->getParam('classifications[]', '')))" in controller
 
 
 def test_genres_classifications_are_visible_editable_filterable_and_not_nextcloud_tags():
@@ -38,7 +38,8 @@ def test_genres_classifications_are_visible_editable_filterable_and_not_nextclou
     assert "i.classifications_json" in service
     assert "jsonArrayContainsFilter" in service
     assert "Genres" in detail
-    assert 'name="genres"' in detail
+    assert 'name="genres[]"' in detail
+    assert "library-genre-picklist" in detail
     assert "Classifications" in detail
     assert 'name="classifications"' in detail
     assert "Genre" in vue

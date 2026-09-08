@@ -36,10 +36,11 @@ def test_detail_page_owns_publication_metadata_edit_form():
         "publication",
         "publicationDate",
         "publisher",
-        "language",
     ]:
         assert f'name=\"{field}\"' in template
         assert f"getParam('{field}'" in item_controller
+    assert 'name=\"language[]\"' in template
+    assert "getParam('language'" in item_controller
     assert "returnTo === 'details'" in item_controller
     assert "linkToRoute('library.item_page.show'" in item_controller
 

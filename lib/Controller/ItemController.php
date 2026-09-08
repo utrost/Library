@@ -44,18 +44,19 @@ final class ItemController extends Controller {
         $user = $this->userSession->getUser();
         if ($user !== null) {
             try {
+                $metadataAutosave = (string)$this->request->getParam('metadataAutosave', '0') === '1';
                 $this->itemService->updateItem($user->getUID(), $itemId, [
                     'publicationType' => (string)$this->request->getParam('publicationType', 'other'),
                     'title' => (string)$this->request->getParam('title', ''),
                     'subtitle' => (string)$this->request->getParam('subtitle', ''),
-                    'creators' => (string)$this->request->getParam('creators', ''),
+                    'creators' => $this->normalizeCreatorInput($this->request->getParam('creators', '')),
                     'publication' => (string)$this->request->getParam('publication', ''),
                     'publicationDate' => (string)$this->request->getParam('publicationDate', ''),
-                    'language' => (string)$this->request->getParam('language', ''),
+                    'language' => $this->normalizeRequestList($this->request->getParam('language', $this->request->getParam('language[]', ''))),
                     'publisher' => (string)$this->request->getParam('publisher', ''),
                     'description' => (string)$this->request->getParam('description', ''),
-                    'genres' => (string)$this->request->getParam('genres', ''),
-                    'classifications' => (string)$this->request->getParam('classifications', ''),
+                    'genres' => $this->normalizeRequestList($this->request->getParam('genres', $this->request->getParam('genres[]', ''))),
+                    'classifications' => $this->normalizeRequestList($this->request->getParam('classifications', $this->request->getParam('classifications[]', ''))),
                 ]);
             } catch (\InvalidArgumentException $e) {
                 $returnTo = (string)$this->request->getParam('returnTo', '');
@@ -222,5 +223,35 @@ final class ItemController extends Controller {
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizeCreatorInput(mixed $value): string {
+        $parts = is_array($value) ? $value : (preg_split('/[;\n]+/u', (string)$value) ?: []);
+        $normalized = [];
+        foreach ($parts as $part) {
+            $entry = trim((string)$part);
+            if ($entry !== '') {
+                $normalized[] = $entry;
+            }
+        }
+        return implode('; ', $normalized);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizeRequestList(mixed $value): string {
+        $parts = is_array($value) ? $value : (preg_split('/[;,\n]+/u', (string)$value) ?: []);
+        $normalized = [];
+        foreach ($parts as $part) {
+            $entry = trim((string)$part);
+            if ($entry !== '') {
+                $normalized[] = $entry;
+            }
+        }
+        return implode('; ', $normalized);
     }
 }

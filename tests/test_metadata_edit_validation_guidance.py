@@ -9,8 +9,8 @@ def test_detail_edit_form_shows_non_blocking_validation_guidance_for_ambiguous_f
     assert "library-metadata-guidance" in detail
     assert "Non-blocking guidance" in detail
     assert "Use YYYY, YYYY-MM, or YYYY-MM-DD" in detail
-    assert "Use short language codes such as de, en, fr" in detail
-    assert "Separate multiple creators with semicolons" in detail
+    assert "Choose one or more language codes" in detail
+    assert "One creator per line" in detail
     assert "aria-describedby=\"library-publication-date-guidance\"" in detail
     assert "aria-describedby=\"library-language-guidance\"" in detail
     assert "aria-describedby=\"library-creators-guidance\"" in detail

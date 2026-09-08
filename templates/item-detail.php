@@ -7,6 +7,25 @@ $tagSuggestions = is_array($item['tagSuggestions'] ?? null) ? $item['tagSuggesti
 $tagFeedback = is_array($item['tagFeedback'] ?? null) ? $item['tagFeedback'] : null;
 $metadataSaved = (bool)($item['metadataSaved'] ?? false);
 $publicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'];
+$languageOptions = [
+    'de' => 'German (de)',
+    'en' => 'English (en)',
+    'fr' => 'French (fr)',
+    'es' => 'Spanish (es)',
+    'it' => 'Italian (it)',
+    'nl' => 'Dutch (nl)',
+    'en-US' => 'English, US (en-US)',
+    'en-GB' => 'English, UK (en-GB)',
+];
+$genreOptions = ['fiction', 'non-fiction', 'photography', 'science fiction', 'history', 'technical', 'manual', 'reference'];
+$publisherSuggestions = ['Packt', "O'Reilly Media", 'Manning', 'No Starch Press', 'Apress', 'Springer', 'Penguin', 'Taschen'];
+$selectedLanguages = array_values(array_filter(array_map('trim', preg_split('/[;,\n]+/u', (string)($item['language'] ?? '')) ?: []), static fn ($value) => $value !== ''));
+$selectedGenres = is_array($item['genres'] ?? null) ? $item['genres'] : [];
+$creatorLines = implode("\n", array_filter(array_map('trim', preg_split('/[;\n]+/u', (string)($item['creators'] ?? '')) ?: []), static fn ($value) => $value !== ''));
+$currentPublisher = trim((string)($item['publisher'] ?? ''));
+if ($currentPublisher !== '' && !in_array($currentPublisher, $publisherSuggestions, true)) {
+    array_unshift($publisherSuggestions, $currentPublisher);
+}
 $workflowStatuses = [
     '' => 'No workflow status',
     'to-read' => 'To read',
@@ -111,21 +130,23 @@ $fileRows = [
             <div class="library-detail-primary">
         <section class="library-panel library-detail-section-meta" aria-labelledby="library-publication-metadata-heading">
             <h3 id="library-publication-metadata-heading"><?php p($l->t('Publication metadata')); ?></h3>
-            <form method="post" action="<?php p($item['updateUrl'] ?? ''); ?>" class="library-item-form library-detail-edit-form" aria-labelledby="library-publication-metadata-heading">
+            <form method="post" action="<?php p($item['updateUrl'] ?? ''); ?>" class="library-item-form library-detail-edit-form library-detail-edit-form--autosave" aria-labelledby="library-publication-metadata-heading" data-autosave="metadata">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <input type="hidden" name="returnTo" value="details" />
-                <?php if ($metadataSaved): ?>
-                    <p class="library-save-feedback" role="status"><?php p($l->t('Metadata saved')); ?></p>
-                <?php endif; ?>
+                <input type="hidden" name="metadataAutosave" value="0" />
+                <div class="library-detail-save-row">
+                    <p class="library-save-feedback library-detail-autosave-status" role="status" aria-live="polite"><?php p($metadataSaved ? $l->t('Metadata saved') : $l->t('Changes save automatically.')); ?></p>
+                    <button type="submit" class="button primary library-detail-save-button"><?php p($l->t('Save metadata')); ?></button>
+                </div>
                 <?php if (($item['metadataError'] ?? '') !== ''): ?>
-                    <p class="library-validation-feedback" role="alert"><?php p($l->t('Metadata was not saved') . ': ' . (string)$item['metadataError']); ?></p>
+                    <p class="library-validation-feedback library-detail-field-full" role="alert"><?php p($l->t('Metadata was not saved') . ': ' . (string)$item['metadataError']); ?></p>
                 <?php endif; ?>
-                <p class="library-muted library-metadata-guidance"><?php p($l->t('Non-blocking guidance: these hints document useful metadata shapes, but they do not block saving.')); ?></p>
-                <label>
+                <p class="library-muted library-metadata-guidance library-detail-field-full"><?php p($l->t('Non-blocking guidance: these hints document useful metadata shapes, but they do not block saving.')); ?></p>
+                <label class="library-detail-field-wide library-detail-title-field">
                     <?php p($l->t('Title')); ?>
                     <input type="text" name="title" value="<?php p((string)($item['title'] ?? '')); ?>" />
                 </label>
-                <label>
+                <label class="library-detail-field-wide">
                     <?php p($l->t('Subtitle')); ?>
                     <input type="text" name="subtitle" value="<?php p((string)($item['subtitle'] ?? '')); ?>" />
                 </label>
@@ -137,12 +158,12 @@ $fileRows = [
                         <?php endforeach; ?>
                     </select>
                 </label>
-                <label>
+                <label class="library-detail-field-wide library-creators-field">
                     <?php p($l->t('Creators')); ?>
-                    <input type="text" name="creators" aria-describedby="library-creators-guidance" value="<?php p((string)($item['creators'] ?? '')); ?>" />
-                    <span id="library-creators-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Separate multiple creators with semicolons.')); ?></span>
+                    <textarea name="creators" rows="4" aria-describedby="library-creators-guidance"><?php p($creatorLines); ?></textarea>
+                    <span id="library-creators-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('One creator per line. Existing semicolon-separated values are still accepted.')); ?></span>
                 </label>
-                <label>
+                <label class="library-detail-field-wide">
                     <?php p($l->t('Publication')); ?>
                     <input type="text" name="publication" value="<?php p((string)($item['publication'] ?? '')); ?>" />
                 </label>
@@ -151,27 +172,34 @@ $fileRows = [
                     <input type="text" name="publicationDate" aria-describedby="library-publication-date-guidance" value="<?php p((string)($item['publicationDate'] ?? '')); ?>" />
                     <span id="library-publication-date-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Use YYYY, YYYY-MM, or YYYY-MM-DD.')); ?></span>
                 </label>
-                <label>
+                <label class="library-detail-field-wide">
                     <?php p($l->t('Publisher')); ?>
-                    <input type="text" name="publisher" value="<?php p((string)($item['publisher'] ?? '')); ?>" />
+                    <input type="text" name="publisher" list="library-publisher-suggestions" value="<?php p((string)($item['publisher'] ?? '')); ?>" />
+                    <datalist id="library-publisher-suggestions">
+                        <?php foreach ($publisherSuggestions as $publisher): ?>
+                            <option value="<?php p($publisher); ?>"></option>
+                        <?php endforeach; ?>
+                    </datalist>
                 </label>
                 <label>
                     <?php p($l->t('Language')); ?>
-                    <input type="text" name="language" aria-describedby="library-language-guidance" value="<?php p((string)($item['language'] ?? '')); ?>" />
-                    <span id="library-language-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Use short language codes such as de, en, fr.')); ?></span>
+                    <select name="language[]" multiple class="library-language-picklist" aria-describedby="library-language-guidance">
+                        <?php foreach ($languageOptions as $code => $label): ?>
+                            <option value="<?php p($code); ?>" <?php if (in_array($code, $selectedLanguages, true)) { print_unescaped('selected'); } ?>><?php p($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span id="library-language-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Choose one or more language codes.')); ?></span>
                 </label>
-                <label>
+                <label class="library-detail-field-wide">
                     <?php p($l->t('Genres')); ?>
-                    <input type="text" name="genres" list="library-genre-suggestions" aria-describedby="library-genres-guidance" value="<?php p(implode('; ', is_array($item['genres'] ?? null) ? $item['genres'] : [])); ?>" />
-                    <datalist id="library-genre-suggestions">
-                        <option value="fiction"></option>
-                        <option value="photography"></option>
-                        <option value="science fiction"></option>
-                        <option value="history"></option>
-                    </datalist>
-                    <span id="library-genres-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Separate multiple genres with semicolons. These are Library metadata, not Nextcloud tags.')); ?></span>
+                    <select name="genres[]" multiple class="library-genre-picklist" aria-describedby="library-genres-guidance">
+                        <?php foreach ($genreOptions as $genre): ?>
+                            <option value="<?php p($genre); ?>" <?php if (in_array($genre, $selectedGenres, true)) { print_unescaped('selected'); } ?>><?php p($genre); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span id="library-genres-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Choose one or more Library genres. Use Nextcloud tags for ad-hoc cross-app labels.')); ?></span>
                 </label>
-                <label>
+                <label class="library-detail-field-wide">
                     <?php p($l->t('Classifications')); ?>
                     <input type="text" name="classifications" list="library-classification-suggestions" aria-describedby="library-classifications-guidance" value="<?php p(implode('; ', is_array($item['classifications'] ?? null) ? $item['classifications'] : [])); ?>" />
                     <datalist id="library-classification-suggestions">
@@ -182,11 +210,10 @@ $fileRows = [
                     </datalist>
                     <span id="library-classifications-guidance" class="library-muted library-metadata-guidance"><?php p($l->t('Separate multiple classifications with semicolons. Use Nextcloud tags for ad-hoc cross-app labels.')); ?></span>
                 </label>
-                <label>
+                <label class="library-detail-field-full library-detail-description-field">
                     <?php p($l->t('Description')); ?>
-                    <textarea name="description" rows="5"><?php p((string)($item['description'] ?? '')); ?></textarea>
+                    <textarea name="description" rows="10"><?php p((string)($item['description'] ?? '')); ?></textarea>
                 </label>
-                <button type="submit" class="button primary"><?php p($l->t('Save metadata')); ?></button>
             </form>
         </section>
             </div>

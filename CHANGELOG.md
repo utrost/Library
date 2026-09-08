@@ -2,7 +2,7 @@
 
 All notable changes for Library are tracked here.
 
-## v0.1.0-alpha.111 - 2026-09-08
+## v0.1.0-alpha.112 - 2026-09-08
 
 Release-hardening candidate for Uwe's v0.1 manual test pass.
 
@@ -10,6 +10,7 @@ Release-hardening candidate for Uwe's v0.1 manual test pass.
 
 - Dedicated publication/series discovery pages and dedicated publication-year discovery pages around the existing compact catalogue grid.
 - Details page cleanup so publication metadata is shown as one editable surface instead of duplicate read-only/edit sections.
+- v0.1 detail metadata editing polish: roomier title/description controls, creators entered one per line, language/genre multi-select picklists, publisher autocomplete and autosave with a stable manual fallback button.
 - Root deletion recovery checklist before typed destructive confirmation.
 - Hard validation for publication date and language edit/import paths.
 - Human test handbook with stable release-hardening case IDs.
