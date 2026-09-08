@@ -22,6 +22,7 @@ The current development slice can:
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans while refreshing stored scanner candidates;
 - show field-level scanner provenance, **Differs from scanner** labels, scanner-conflict review filter, bulk reset selected scanner-conflict items, single-field reset and whole-item reset-to-scanner actions on item details;
+- preview and apply one-field batch metadata edits to the current catalogue filter result with requested/applied/unchanged/skipped feedback;
 - generate absolute Nextcloud URLs for reader handoff, Files handoff and Library settings links so browser hrefs stay under the Nextcloud host;
 - show indexed files and publication items with a catalogue-first Vue/Vite-backed catalogue page mounted in a conventional Nextcloud `#app-content` shell, responsive, paginated cover gallery, preview-backed covers, placeholder fallbacks and browse-only catalogue cards;
 - search and filter the catalogue by title/author text, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, scanner conflicts, exact Nextcloud tag and root-derived shelf;
@@ -122,7 +123,7 @@ For the current Alice sandbox, clone this repository outside the Nextcloud data 
 
 ## Local checks and packaging
 
-Current v0.1 testing candidate: `0.1.0-alpha.116`.
+Current v0.1 testing candidate: `0.1.0-alpha.117`.
 
 Run the local gate with:
 

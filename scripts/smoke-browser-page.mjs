@@ -285,10 +285,50 @@ async function runBrowserSmoke(proxyBase) {
     const previewPageDom = {
       status: previewResponse.status,
       page: previewHtml.includes('library-batch-metadata-edit-preview-page'),
-      noWrite: previewHtml.includes('No changes are written during preview'),
+      noWrite: previewHtml.includes('No changes have been written yet.'),
       requested: previewHtml.includes('Requested items'),
       wouldChange: previewHtml.includes('Would change'),
-      noApply: !previewHtml.includes('Apply changes'),
+      polished: previewHtml.includes('library-batch-preview-stat-grid') && previewHtml.includes('library-batch-preview-table'),
+      apply: previewHtml.includes('Apply changes to current results') && previewHtml.includes('/apps/library/bulk/items/edit-apply'),
+    }
+
+    const seedResponse = await fetch(`${proxyBase}/apps/library/catalogue?limit=100&sort=title`, { headers: { Accept: 'application/json' } })
+    const seedState = await seedResponse.json()
+    const titleCounts = new Map()
+    for (const item of seedState.items || []) {
+      titleCounts.set(item.title, (titleCounts.get(item.title) || 0) + 1)
+    }
+    const applyItem = (seedState.items || []).find((item) => titleCounts.get(item.title) === 1)
+    const originalSubtitle = applyItem?.subtitle || ''
+    const smokeSubtitle = `Hermes batch apply smoke ${Date.now()}`
+    let applySmoke = { ok: false, restored: false }
+    if (applyItem) {
+      const params = {
+        bulkEditField: 'subtitle',
+        bulkEditValue: smokeSubtitle,
+        confirmBatchMetadataApply: 'APPLY',
+        q: applyItem.title,
+        sort: 'title',
+        limit: '25',
+      }
+      const applyResponse = await fetch(`${proxyBase}/apps/library/bulk/items/edit-apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(params),
+      })
+      const changedState = await (await fetch(`${proxyBase}/apps/library/catalogue?q=${encodeURIComponent(applyItem.title)}&limit=25`, { headers: { Accept: 'application/json' } })).json()
+      const changedItem = (changedState.items || []).find((item) => item.id === applyItem.id)
+      const restoreResponse = await fetch(`${proxyBase}/apps/library/bulk/items/edit-apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ ...params, bulkEditValue: originalSubtitle }),
+      })
+      const restoredState = await (await fetch(`${proxyBase}/apps/library/catalogue?q=${encodeURIComponent(applyItem.title)}&limit=25`, { headers: { Accept: 'application/json' } })).json()
+      const restoredItem = (restoredState.items || []).find((item) => item.id === applyItem.id)
+      applySmoke = {
+        ok: applyResponse.ok && restoreResponse.ok && changedItem?.subtitle === smokeSubtitle,
+        restored: (restoredItem?.subtitle || '') === originalSubtitle,
+      }
     }
 
     const quickFilterResult = await client.send('Runtime.evaluate', {
@@ -654,8 +694,10 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_catalogue_star_fetch_credentials', starToggleDom?.firstFetch?.[2] || '')
     print('browser_catalogue_star_before', `${starToggleDom?.beforePressed || ''}/${starToggleDom?.beforeText || ''}`)
     print('browser_catalogue_star_after', `${starToggleDom?.afterPressed || ''}/${starToggleDom?.afterText || ''}/${starToggleDom?.afterClass === true}`)
-    print('browser_batch_metadata_edit_preview_page', previewPageDom.status === 200 && previewPageDom.page === true && previewPageDom.noWrite === true && previewPageDom.requested === true && previewPageDom.wouldChange === true && previewPageDom.noApply === true)
+    print('browser_batch_metadata_edit_preview_page', previewPageDom.status === 200 && previewPageDom.page === true && previewPageDom.noWrite === true && previewPageDom.requested === true && previewPageDom.wouldChange === true && previewPageDom.polished === true && previewPageDom.apply === true)
     print('browser_batch_metadata_edit_preview_status', previewPageDom.status)
+    print('browser_batch_metadata_apply_smoke', applySmoke.ok === true)
+    print('batch_apply_restored', applySmoke.restored === true)
     print('browser_post_forms', dom.postForms)
     print('browser_request_token_fields', dom.requestTokenFields)
     print('browser_tagNameField', dom.tagNameField)
@@ -762,7 +804,10 @@ async function runBrowserSmoke(proxyBase) {
       && previewPageDom.noWrite === true
       && previewPageDom.requested === true
       && previewPageDom.wouldChange === true
-      && previewPageDom.noApply === true
+      && previewPageDom.polished === true
+      && previewPageDom.apply === true
+      && applySmoke.ok === true
+      && applySmoke.restored === true
       && dom.tagNameField === false
       && (dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
       && dom.firstShowFiles.includes('openfile=false')

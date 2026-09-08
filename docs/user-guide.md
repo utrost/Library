@@ -69,7 +69,7 @@ Current catalogue capabilities:
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
 - use **Batch actions for current results** to apply or remove a Nextcloud tag from current filter results; this filter-result batch tagging workflow keeps tags separate from Library metadata;
 - use the same batch panel for a filter-result metadata reset: Library resets only current scanner-conflict results to stored scanner candidates, preserving current filters and reporting requested/reset/skipped counts;
-- run a preview-first batch metadata edit for one selected publication field across current filter results; the browser-readable preview page says **No changes are written during preview** and reports requested/changed/unchanged/skipped counts plus example items;
+- run preview-and-apply batch metadata edits for one selected publication field across current filter results; the polished review page first reports requested/changed/unchanged/skipped counts plus example items, then an explicit apply button writes only changed rows;
 - use filter-result cover refresh to request fresh cover previews for the current result set; this reloads the filtered catalogue with no-store cover URLs and does not change source files or metadata;
 - see first-run guidance when no Library root exists, disabled-root guidance when roots are saved but disabled, and filter-specific recovery actions when a search returns no matches;
 - browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure;
@@ -444,8 +444,8 @@ Implemented correction helpers:
 
 Visible gaps:
 
-- no bulk edit apply path yet: arbitrary bulk edit remains preview-only, current batch metadata reset is deliberately limited to current scanner-conflict results and stored scanner candidates, and preview-first batch metadata edit can estimate one-field changes on a browser-readable preview page before any future apply path exists;
-- bulk editing remains future work, and richer cross-field validation rules remain future work;
+- no bulk edit undo/history or multi-field apply workflow yet: arbitrary one-field batch metadata editing now has a preview-and-apply path across the current filter result, but richer cross-field validation rules, multi-field edits, and history remain future work;
+- bulk editing remains future work for multi-field edits, undo/history, and richer cross-field validation rules;
 - scanner-conflict filtering is the first review view for scanner/sidecar/user metadata conflicts; richer queues remain future work.
 
 ### Story 3: Classifying across projects

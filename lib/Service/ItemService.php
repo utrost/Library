@@ -431,6 +431,71 @@ final class ItemService {
         ];
     }
 
+    public function applyBatchMetadataEdit(string $userId, array $itemIds, string $field, string $value): array {
+        $ids = $this->normalizeBulkItemIds($itemIds);
+        $field = trim($field);
+        $preview = $this->previewBatchMetadataEdit($userId, $ids, $field, $value);
+        if (!empty($preview['invalidField'])) {
+            return array_merge($preview, [
+                'previewOnly' => false,
+                'appliedItems' => 0,
+            ]);
+        }
+
+        $normalizedValue = $preview['value'] ?? $this->databaseValueForField($field, $value);
+        $appliedItems = 0;
+        $unchangedItems = 0;
+        $skippedItems = 0;
+        foreach ($ids as $itemId) {
+            $item = $this->findItem($userId, $itemId);
+            if ($item === null) {
+                $skippedItems++;
+                continue;
+            }
+            if ($this->previewComparableValue($item, $field) === $normalizedValue) {
+                $unchangedItems++;
+                continue;
+            }
+            if ($this->updateSingleMetadataField($userId, $itemId, $field, $normalizedValue)) {
+                $appliedItems++;
+            } else {
+                $skippedItems++;
+            }
+        }
+
+        return array_merge($preview, [
+            'previewOnly' => false,
+            'requestedItems' => count($ids),
+            'appliedItems' => $appliedItems,
+            'changedItems' => $appliedItems,
+            'unchangedItems' => $unchangedItems,
+            'skippedItems' => $skippedItems,
+        ]);
+    }
+
+    private function updateSingleMetadataField(string $userId, int $itemId, string $field, ?string $normalizedValue): bool {
+        $column = $this->databaseColumnForField($field);
+        if ($column === null || !in_array($field, self::PUBLICATION_FIELDS, true)) {
+            return false;
+        }
+        $this->validateEditableMetadata([$field => $normalizedValue]);
+        $existingProvenance = $this->existingFieldProvenance($userId, $itemId);
+        $existingProvenance['fieldSources'][$field] = 'user';
+
+        $qb = $this->db->getQueryBuilder();
+        $affected = $qb->update('library_items')
+            ->set($column, $qb->createNamedParameter($normalizedValue))
+            ->set('metadata_source', $qb->createNamedParameter('user'))
+            ->set('field_sources', $qb->createNamedParameter(json_encode($existingProvenance['fieldSources'], JSON_THROW_ON_ERROR)))
+            ->set('field_values', $qb->createNamedParameter(json_encode($existingProvenance['fieldValues'], JSON_THROW_ON_ERROR)))
+            ->set('user_edited', $qb->createNamedParameter(1))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+        return $affected > 0;
+    }
+
     private function previewComparableValue(array $item, string $field): ?string {
         if ($field === 'publicationType') {
             return $this->normalizePublicationType((string)($item[$field] ?? 'other'));

@@ -2,7 +2,7 @@
 
 All notable changes for Library are tracked here.
 
-## v0.1.0-alpha.116 - 2026-09-08
+## v0.1.0-alpha.117 - 2026-09-08
 
 ### Added
 
@@ -12,6 +12,8 @@ All notable changes for Library are tracked here.
 - Creator chip editor that syncs to the existing canonical creators field.
 - Dedicated creator discovery pages from the Top creators shortcut panel, using exact full-field creator matching.
 - Publication landing pages now show a compact **Publication contents** issue/date context summary with item count, date coverage and year range.
+- Batch metadata apply: current filter results can now preview and then write one selected metadata field, with requested/applied/unchanged/skipped feedback.
+- Polished batch metadata preview page with summary cards, a real review table and an explicit apply action.
 
 ### Changed
 

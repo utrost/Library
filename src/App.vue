@@ -96,6 +96,17 @@ const filterLabels = {
   scannerConflicts: 'Scanner conflicts',
   starred: 'Starred',
 }
+const batchMetadataApplyMessage = computed(() => {
+  if (typeof window === 'undefined') return ''
+  const params = new URLSearchParams(window.location.search)
+  if (params.get('batchMetadataApplyResult') !== '1') return ''
+  const field = params.get('batchMetadataField') || 'field'
+  const applied = params.get('batchMetadataApplied') || '0'
+  const unchanged = params.get('batchMetadataUnchanged') || '0'
+  const skipped = params.get('batchMetadataSkipped') || '0'
+  return t('library', 'Batch metadata apply updated {applied} {field} values; {unchanged} already matched, {skipped} skipped.', { applied, field, unchanged, skipped })
+})
+
 const activeFilterChips = computed(() => Object.entries(filterLabels)
   .map(([key, label]) => ({ key, label, value: activeFilters[key] || '' }))
   .filter((chip) => String(chip.value).trim() !== ''))
@@ -285,6 +296,8 @@ async function toggleStar(item, event) {
         </details>
       </nav>
     </div>
+
+    <p v-if="batchMetadataApplyMessage" class="library-notice library-batch-metadata-apply-result">{{ batchMetadataApplyMessage }}</p>
 
     <form method="get" class="library-quick-filter-bar" :aria-label="t('library', 'Quick catalogue filters')" @submit.prevent="submitFiltersAjax">
       <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
@@ -514,8 +527,8 @@ async function toggleStar(item, event) {
             <span>{{ t('library', 'Preview value') }}</span>
             <input type="text" name="bulkEditValue" placeholder="magazine, de, photography..." autocomplete="off">
           </label>
-          <button type="submit" class="button secondary">{{ t('library', 'Preview metadata edit') }}</button>
-          <p class="library-muted">{{ t('library', 'Preview-first batch metadata edit for current filter results. No changes are written during preview.') }}</p>
+          <button type="submit" class="button secondary">{{ t('library', 'Preview & apply metadata edit') }}</button>
+          <p class="library-muted">{{ t('library', 'Preview first, then apply from the review page.') }}</p>
         </form>
         <form method="post" :action="batchCoverRefreshUrl" class="library-batch-cover-refresh-form">
           <input type="hidden" name="requesttoken" :value="requestToken">
