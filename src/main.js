@@ -74,6 +74,14 @@ function fallbackPublicationFilterUrl(publication) {
   return `?${params.toString()}`
 }
 
+function fallbackPublicationLandingUrl(publication, summary = {}) {
+  return text(summary?.publicationLandingUrl || `/apps/library/publications/${encodeURIComponent(text(publication || summary?.publication || ''))}`)
+}
+
+function fallbackIsPublicationDiscoveryPage(state) {
+  return text(state.discoveryPage) === 'publication'
+}
+
 function fallbackHasActiveFilters(state) {
   const activeFilters = state.activeFilters || {}
   return Object.entries(activeFilters).some(([key, value]) => key !== 'sort' && text(value).trim() !== '')
@@ -284,6 +292,27 @@ function fallbackCatalogue(state, error) {
   filterPanel.append(filterSummary, fallbackFilterForm(state, pagination))
   panel.appendChild(filterPanel)
 
+  if (fallbackIsPublicationDiscoveryPage(state)) {
+    const discovery = document.createElement('section')
+    discovery.className = 'library-discovery-header'
+    discovery.setAttribute('aria-labelledby', 'library-publication-discovery-heading')
+    const label = document.createElement('p')
+    label.className = 'library-muted'
+    label.textContent = t('library', 'Publication / series')
+    const discoveryHeading = document.createElement('h3')
+    discoveryHeading.id = 'library-publication-discovery-heading'
+    discoveryHeading.textContent = text(state.discoveryTitle || state.activeFilters?.publication || '')
+    const discoveryText = document.createElement('p')
+    discoveryText.className = 'library-muted'
+    discoveryText.textContent = `${pagination.total ?? items.length} ${t('library', 'items in this publication. Sorted by issue/date context when available.')}`
+    const back = document.createElement('a')
+    back.href = '/apps/library/'
+    back.className = 'button secondary'
+    back.textContent = t('library', 'Back to full catalogue')
+    discovery.append(label, discoveryHeading, discoveryText, back)
+    panel.appendChild(discovery)
+  }
+
   const resultSummary = document.createElement('p')
   resultSummary.className = 'library-muted library-filter-result-summary'
   resultSummary.textContent = `Showing ${pagination.from ?? 0}–${pagination.to ?? items.length} of ${pagination.total ?? items.length} catalogue items`
@@ -483,7 +512,7 @@ function fallbackCatalogue(state, error) {
     for (const summary of publicationSummaries) {
       const entry = document.createElement('li')
       const link = document.createElement('a')
-      link.href = fallbackPublicationFilterUrl(text(summary.publication))
+      link.href = fallbackPublicationLandingUrl(summary.publication, summary)
       link.textContent = text(summary.publication)
       const count = document.createElement('span')
       count.className = 'library-muted'

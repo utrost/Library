@@ -171,6 +171,7 @@ async function runBrowserSmoke(proxyBase) {
         const showFiles = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Show in Files')
         const download = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Download source')
         const details = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Details')
+        const publicationLanding = document.querySelector('.library-periodical-groups a[href*="/apps/library/publications/"]')
         return {
           title: document.title,
           fallback: Boolean(document.querySelector('[data-vue-fallback="true"]')),
@@ -203,6 +204,7 @@ async function runBrowserSmoke(proxyBase) {
           firstShowFiles: showFiles ? showFiles.href : '',
           firstDownload: download ? download.href : '',
           firstDetails: details ? details.href : '',
+          firstPublicationLanding: publicationLanding ? publicationLanding.href : '',
           badHostHrefs: [...document.querySelectorAll('a[href]')].filter((a) => a.href.startsWith('http://f/') || a.href.startsWith('http://settings/')).length,
           catalogueLabelled: document.querySelector('.library-panel')?.getAttribute('aria-labelledby') === 'library-catalogue-heading'
             && Boolean(document.querySelector('#library-catalogue-heading')),
@@ -368,6 +370,25 @@ async function runBrowserSmoke(proxyBase) {
       })`,
     })
     const keyboardShortcutDom = keyboardShortcutResult.result?.value ?? keyboardShortcutResult.value
+
+    const publicationDiscoveryUrl = dom.firstPublicationLanding ? new URL(dom.firstPublicationLanding, proxyBase).href : ''
+    if (publicationDiscoveryUrl) {
+      await client.send('Page.navigate', { url: publicationDiscoveryUrl })
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+    }
+    const publicationDiscoveryResult = await client.send('Runtime.evaluate', {
+      returnByValue: true,
+      awaitPromise: true,
+      expression: `(() => ({
+        url: location.href,
+        page: Boolean(document.querySelector('.library-discovery-header')),
+        heading: document.querySelector('#library-publication-discovery-heading')?.textContent?.trim() || '',
+        cards: document.querySelectorAll('.library-cover-card').length,
+        activePublication: [...document.querySelectorAll('.library-active-filter-chips .library-filter-chip')].some((chip) => chip.textContent.includes('Series / periodical')),
+        backLink: Boolean(document.querySelector('.library-discovery-header a[href="/apps/library/"]')),
+      }))()`
+    })
+    const publicationDiscoveryDom = publicationDiscoveryResult.result?.value ?? publicationDiscoveryResult.value
 
     const firstDetailsUrl = new URL(dom.firstDetails, proxyBase)
     const detailUrl = `${proxyBase}${firstDetailsUrl.pathname}${firstDetailsUrl.search}`
@@ -611,6 +632,10 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_detail_star_fetch_credentials', detailStarToggleDom?.firstFetch?.[2] || '')
     print('browser_detail_star_before', `${detailStarToggleDom?.beforePressed || ''}/${detailStarToggleDom?.beforeText || ''}`)
     print('browser_detail_star_after', `${detailStarToggleDom?.afterPressed || ''}/${detailStarToggleDom?.afterText || ''}/${detailStarToggleDom?.afterClass === true}`)
+    print('browser_publication_discovery_page', publicationDiscoveryDom?.page === true)
+    print('browser_publication_discovery_cards', publicationDiscoveryDom?.cards ?? 0)
+    print('browser_publication_discovery_active_filter', publicationDiscoveryDom?.activePublication === true)
+    print('browser_publication_discovery_back_link', publicationDiscoveryDom?.backLink === true)
     print('settings_present', settingsDom.present)
     print('settings_auth_blocked', settingsDom.authBlocked === true)
     print('settings_labelled_sections', settingsDom.labelledSections)
@@ -674,6 +699,11 @@ async function runBrowserSmoke(proxyBase) {
       && dom.firstShowFiles.includes('openfile=false')
       && dom.firstDownload.includes('/remote.php/dav/files/')
       && dom.firstDetails.includes('/apps/library/items/')
+      && dom.firstPublicationLanding.includes('/apps/library/publications/')
+      && publicationDiscoveryDom?.page === true
+      && publicationDiscoveryDom?.cards > 0
+      && publicationDiscoveryDom?.activePublication === true
+      && publicationDiscoveryDom?.backLink === true
       && dom.badHostHrefs === 0
       && dom.catalogueLabelled === true
       && dom.unlabelledControls === 0

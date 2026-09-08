@@ -60,13 +60,34 @@ class PageController extends Controller {
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
+    public function publication(string $publication): TemplateResponse {
+        Util::addStyle(Application::APP_ID, 'style');
+        Util::addStyle(Application::APP_ID, 'library-vue');
+        Util::addScript(Application::APP_ID, 'library-shell');
+        Util::addScript(Application::APP_ID, 'library-main');
+
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        $this->initialState->provideInitialState('catalogue', $this->buildCatalogueState($userId, [
+            'publication' => $publication,
+            'sort' => 'publication',
+        ], [
+            'discoveryPage' => 'publication',
+            'discoveryTitle' => $publication,
+        ]));
+
+        return new TemplateResponse(Application::APP_ID, 'main');
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
     public function catalogue(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
         return new JSONResponse($this->buildCatalogueState($userId));
     }
 
-    private function buildCatalogueState(string $userId): array {
+    private function buildCatalogueState(string $userId, array $filterOverrides = [], array $pageContext = []): array {
         $batchCoverRefreshRequested = (string)$this->request->getParam('coverRefresh', '0') === '1';
         $activeFilters = [
             'q' => trim((string)$this->request->getParam('q', '')),
@@ -85,6 +106,9 @@ class PageController extends Controller {
             'starred' => trim((string)$this->request->getParam('starred', '')),
             'sort' => trim((string)$this->request->getParam('sort', 'title')),
         ];
+        foreach ($filterOverrides as $key => $value) {
+            $activeFilters[$key] = trim((string)$value);
+        }
         if (!in_array($activeFilters['sort'], ['title', 'recent', 'publicationDate', 'publication', 'lastOpened', 'format'], true)) {
             $activeFilters['sort'] = 'title';
         }
@@ -114,12 +138,16 @@ class PageController extends Controller {
         $items = $this->enrichItemsForVue($userId, $items, $fileTagsByFileId, $fileCommentsByFileId, $batchCoverRefreshRequested);
 
         return [
+            ...$pageContext,
             'items' => $items,
             'scannerConflictCount' => array_sum(array_map(static fn (array $item): int => (int)($item['scannerConflictCount'] ?? 0), $items)),
             'shelves' => $catalogue['facets']['shelves'],
             'formats' => $catalogue['facets']['formats'],
             'publications' => $catalogue['facets']['publications'],
-            'publicationSummaries' => $catalogue['facets']['publicationSummaries'],
+            'publicationSummaries' => array_map(function (array $summary): array {
+                $summary['publicationLandingUrl'] = $this->urlGenerator->linkToRoute('library.page.publication', ['publication' => (string)($summary['publication'] ?? '')]);
+                return $summary;
+            }, $catalogue['facets']['publicationSummaries']),
             'publicationYears' => $catalogue['facets']['publicationYears'],
             'creators' => $catalogue['facets']['creators'],
             'scanStatuses' => $catalogue['facets']['scanStatuses'],

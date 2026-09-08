@@ -25,6 +25,7 @@ The current development slice can:
 - generate absolute Nextcloud URLs for reader handoff, Files handoff and Library settings links so browser hrefs stay under the Nextcloud host;
 - show indexed files and publication items with a catalogue-first Vue/Vite-backed catalogue page mounted in a conventional Nextcloud `#app-content` shell, responsive, paginated cover gallery, preview-backed covers, placeholder fallbacks and browse-only catalogue cards;
 - search and filter the catalogue by title/author text, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, scanner conflicts, exact Nextcloud tag and root-derived shelf;
+- open the first dedicated publication discovery page from top series/periodical shortcuts, keeping compact catalogue cards inside a named publication context;
 - catalogue cards are browse-only, compact and cover-first on mobile and desktop: the default card surface is cover, title, **Read** and **Details**, while secondary metadata/actions stay behind the Details disclosure; the details page owns publication metadata, tag and comment editing, and the publication metadata panel now uses one editable field surface instead of repeating the same values in separate read-only and edit sections;
 - treat Nextcloud system tags as cross-archive classification metadata exposed on catalogue cards and addable/removable from item details;
 - show recent Nextcloud file comments as file-level notes/discussion on catalogue cards and item details;
@@ -57,7 +58,7 @@ The current development slice can:
 - query catalogue search, filters, sort modes and pagination through database-backed item queries instead of loading the full catalogue into app-layer arrays.
 - isolate local metadata extraction failures per file so corrupt EPUB/CBZ/OPF fixtures do not abort an otherwise healthy root scan, and show the scan error in the indexed-file diagnostics.
 
-The next milestone is release hardening around real collection use: metadata repair/review flows, scan repair controls, cover quality, first-run onboarding, and publication/creator/year landing pages.
+The next milestone is release hardening around real collection use: metadata repair/review flows, scan repair controls, cover quality, first-run onboarding, richer publication/creator/year landing pages and saved views.
 
 ## v0.1 direction
 
