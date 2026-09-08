@@ -158,6 +158,19 @@ function fallbackFilterForm(state, pagination) {
   return form
 }
 
+function fallbackBatchMetadataApplyMessage() {
+  const params = new URLSearchParams(window.location.search)
+  if (params.get('batchMetadataApplyResult') !== '1') return null
+  const field = params.get('batchMetadataField') || 'field'
+  const applied = params.get('batchMetadataApplied') || '0'
+  const unchanged = params.get('batchMetadataUnchanged') || '0'
+  const skipped = params.get('batchMetadataSkipped') || '0'
+  const notice = document.createElement('p')
+  notice.className = 'library-notice library-batch-metadata-apply-result'
+  notice.textContent = t('library', `Batch metadata apply updated ${applied} ${field} values; ${unchanged} already matched, ${skipped} skipped.`)
+  return notice
+}
+
 function fallbackQuickFilterForm(state, pagination) {
   const activeFilters = state.activeFilters || {}
   const form = document.createElement('form')
@@ -299,6 +312,8 @@ function fallbackCatalogue(state, error) {
   }
   header.append(headerText, toolbar)
   panel.appendChild(header)
+  const applyMessage = fallbackBatchMetadataApplyMessage()
+  if (applyMessage) panel.appendChild(applyMessage)
   panel.appendChild(fallbackQuickFilterForm(state, pagination))
   const filterPanel = document.createElement('details')
   filterPanel.className = 'library-filter-panel'
@@ -465,10 +480,10 @@ function fallbackCatalogue(state, error) {
   const editPreviewButton = document.createElement('button')
   editPreviewButton.type = 'submit'
   editPreviewButton.className = 'button secondary'
-  editPreviewButton.textContent = t('library', 'Preview metadata edit')
+  editPreviewButton.textContent = t('library', 'Preview & apply metadata edit')
   const editPreviewNote = document.createElement('p')
   editPreviewNote.className = 'library-muted'
-  editPreviewNote.textContent = t('library', 'Preview-first batch metadata edit for current filter results. No changes are written during preview.')
+  editPreviewNote.textContent = t('library', 'Preview first, then apply from the review page.')
   editPreviewForm.append(editFieldLabel, editValueLabel, editPreviewButton, editPreviewNote)
   const coverForm = document.createElement('form')
   coverForm.method = 'post'

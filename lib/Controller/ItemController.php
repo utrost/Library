@@ -163,8 +163,34 @@ final class ItemController extends Controller {
         }
         return new TemplateResponse($this->appName, 'batch-metadata-edit-preview', [
             'result' => $result,
+            'filters' => array_filter($filters, static fn (string $value): bool => $value !== ''),
+            'applyUrl' => $this->urlGenerator->linkToRoute('library.item.batchapplymetadataedit'),
             'backUrl' => $this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query(array_filter($filters, static fn (string $value): bool => $value !== '')),
         ]);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function batchapplymetadataedit(): RedirectResponse {
+        $user = $this->userSession->getUser();
+        $filters = $this->catalogueFiltersFromRequest();
+        $result = ['requestedItems' => 0, 'appliedItems' => 0, 'unchangedItems' => 0, 'skippedItems' => 0];
+        if ($user !== null && (string)$this->request->getParam('confirmBatchMetadataApply', '') === 'APPLY') {
+            $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+            $result = $this->itemService->applyBatchMetadataEdit($user->getUID(), $itemIds,
+                (string)$this->request->getParam('bulkEditField', ''),
+                (string)$this->request->getParam('bulkEditValue', ''),
+            );
+        }
+
+        $query = array_filter($filters, static fn (string $value): bool => $value !== '');
+        $query['batchMetadataApplyResult'] = '1';
+        $query['batchMetadataRequested'] = (string)($result['requestedItems'] ?? 0);
+        $query['batchMetadataApplied'] = (string)($result['appliedItems'] ?? 0);
+        $query['batchMetadataUnchanged'] = (string)($result['unchangedItems'] ?? 0);
+        $query['batchMetadataSkipped'] = (string)($result['skippedItems'] ?? 0);
+        $query['batchMetadataField'] = (string)($result['field'] ?? (string)$this->request->getParam('bulkEditField', ''));
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
     }
 
     private function catalogueFiltersFromRequest(): array {

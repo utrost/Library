@@ -1066,3 +1066,106 @@
     align-items: flex-start;
     margin-top: 1rem;
 }
+
+.library-notice,
+.library-warning {
+    border-radius: var(--border-radius);
+    margin: 0.75rem 0;
+    padding: 0.65rem 0.8rem;
+}
+
+.library-notice {
+    background: var(--color-success, #0082c9);
+    color: var(--color-primary-text, #fff);
+}
+
+.library-warning {
+    background: var(--color-warning, #f0ad00);
+    color: var(--color-main-text, #222);
+}
+
+.library-batch-preview-hero {
+    background: linear-gradient(135deg, var(--color-main-background), var(--color-background-hover));
+}
+
+.library-batch-preview-heading-row {
+    align-items: start;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr) minmax(240px, auto);
+}
+
+.library-batch-preview-heading-row h2 {
+    margin: 0.25rem 0;
+}
+
+.library-batch-preview-apply-form {
+    background: var(--color-main-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-large, var(--border-radius));
+    padding: 0.75rem;
+}
+
+.library-batch-preview-apply-form p {
+    margin: 0.5rem 0 0;
+}
+
+.library-batch-preview-stat-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    margin: 1rem 0 0;
+}
+
+.library-batch-preview-stat-grid > div {
+    background: var(--color-main-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 0.7rem;
+}
+
+.library-batch-preview-stat-grid dt {
+    color: var(--color-text-maxcontrast);
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.library-batch-preview-stat-grid dd {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.library-batch-preview-stat-primary {
+    border-color: var(--color-primary-element, var(--color-border)) !important;
+}
+
+.library-batch-preview-table-wrap {
+    overflow-x: auto;
+}
+
+.library-batch-preview-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.library-batch-preview-table th,
+.library-batch-preview-table td {
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.55rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.library-batch-preview-table th span {
+    display: block;
+    font-weight: 400;
+    margin-top: 0.2rem;
+}
+
+@media (max-width: 700px) {
+    .library-batch-preview-heading-row {
+        grid-template-columns: 1fr;
+    }
+}

@@ -29,7 +29,7 @@ def test_item_service_previews_without_writing_and_limits_to_publication_fields(
     service = read("lib/Service/ItemService.php")
 
     assert "public function previewBatchMetadataEdit(string $userId, array $itemIds, string $field, string $value): array" in service
-    body = service.split("public function previewBatchMetadataEdit", 1)[1].split("private function normalizeBulkItemIds", 1)[0]
+    body = service.split("public function previewBatchMetadataEdit", 1)[1].split("public function applyBatchMetadataEdit", 1)[0]
     assert "PUBLICATION_FIELDS" in body
     assert "databaseColumnForField($field)" in body
     assert "normalizeBulkItemIds($itemIds)" in body
@@ -52,10 +52,10 @@ def test_catalogue_vue_and_fallback_render_batch_metadata_edit_preview_form():
     assert "library.item.batchpreviewmetadataedit" in page
     assert "batchMetadataEditPreviewUrl" in app
     assert "library-batch-metadata-edit-preview-form" in app
-    assert "Preview metadata edit" in app
+    assert "Preview & apply metadata edit" in app
     assert "bulkEditField" in app
     assert "bulkEditValue" in app
-    assert "No changes are written during preview" in app
+    assert "Preview first, then apply from the review page." in app
     assert "batchMetadataEditPreviewUrl" in fallback
     assert "library-batch-metadata-edit-preview-form" in fallback
     assert "browser_batch_metadata_edit_preview_form" in smoke
@@ -69,10 +69,10 @@ def test_docs_and_version_track_preview_first_filtered_batch_metadata_edit():
     package = read("package.json")
     lock = read("package-lock.json")
 
-    assert "preview-first batch metadata edit" in guide.lower()
-    assert "No changes are written during preview" in guide
-    assert "preview-first batch metadata edit" in roadmap.lower()
-    assert "arbitrary bulk edit remains preview-only" in roadmap.lower()
-    assert "<version>0.1.0-alpha.116</version>" in info
-    assert '"version": "0.1.0-alpha.116"' in package
-    assert '"version": "0.1.0-alpha.116"' in lock
+    assert "preview-and-apply batch metadata edits" in guide.lower()
+    assert "explicit apply button writes only changed rows" in guide
+    assert "batch metadata apply" in roadmap.lower()
+    assert "reports requested/applied/unchanged/skipped counts" in roadmap.lower()
+    assert "<version>0.1.0-alpha.117</version>" in info
+    assert '"version": "0.1.0-alpha.117"' in package
+    assert '"version": "0.1.0-alpha.117"' in lock
