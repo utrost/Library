@@ -14,7 +14,8 @@ def test_item_service_provides_top_publication_summaries_with_counts():
     assert "item_count" in service
     assert "->orderBy('item_count', 'DESC')" in service
     assert "->setMaxResults(12)" in service
-    assert "'publicationSummaries' => $catalogue['facets']['publicationSummaries']" in controller
+    assert "'publicationSummaries' => array_map(function (array $summary): array" in controller
+    assert "'publicationLandingUrl'" in controller
 
 
 def test_vue_renders_periodicals_panel_with_counts_and_filter_links():
@@ -26,7 +27,7 @@ def test_vue_renders_periodicals_panel_with_counts_and_filter_links():
     assert "Top series and periodicals" in vue
     assert "Jump into recurring publications with one click" in vue
     assert "v-for=\"summary in publicationSummaries\"" in vue
-    assert ":href=\"publicationFilterUrl(summary.publication)\"" in vue
+    assert ":href=\"publicationLandingUrl(summary.publication)\"" in vue
     assert "summary.itemCount" in vue
     assert "items" in vue
 

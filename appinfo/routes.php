@@ -6,6 +6,7 @@ return [
     'routes' => [
         ['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
         ['name' => 'page#catalogue', 'url' => '/catalogue', 'verb' => 'GET'],
+        ['name' => 'page#publication', 'url' => '/publications/{publication}', 'verb' => 'GET'],
         ['name' => 'root#save', 'url' => '/roots', 'verb' => 'POST'],
         ['name' => 'root#update', 'url' => '/roots/{rootId}', 'verb' => 'POST'],
         ['name' => 'root#toggle', 'url' => '/roots/{rootId}/toggle', 'verb' => 'POST'],

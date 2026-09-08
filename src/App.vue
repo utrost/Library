@@ -69,6 +69,8 @@ const batchMetadataResetUrl = computed(() => catalogueState.batchMetadataResetUr
 const batchMetadataEditPreviewUrl = computed(() => catalogueState.batchMetadataEditPreviewUrl || '/apps/library/bulk/items/edit-preview')
 const batchCoverRefreshUrl = computed(() => catalogueState.batchCoverRefreshUrl || '/apps/library/bulk/covers/refresh')
 const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictReviewUrl || '?scannerConflicts=1')
+const isPublicationDiscoveryPage = computed(() => catalogueState.discoveryPage === 'publication')
+const discoveryTitle = computed(() => catalogueState.discoveryTitle || activeFilters.publication || '')
 const rootCount = computed(() => Number(catalogueState.rootCount || 0))
 const enabledRootCount = computed(() => Number(catalogueState.enabledRootCount || 0))
 const hasNoConfiguredRoots = computed(() => rootCount.value === 0)
@@ -181,6 +183,11 @@ function publicationFilterUrl(publication) {
   params.set('sort', 'publication')
   params.delete('page')
   return `?${params.toString()}`
+}
+
+function publicationLandingUrl(publication) {
+  const summary = publicationSummaries.value.find((entry) => entry.publication === publication)
+  return summary?.publicationLandingUrl || `/apps/library/publications/${encodeURIComponent(publication)}`
 }
 
 function setCoverDetailsOpen(itemId, event) {
@@ -414,6 +421,13 @@ async function toggleStar(item, event) {
       </form>
     </details>
 
+    <section v-if="isPublicationDiscoveryPage" class="library-discovery-header" aria-labelledby="library-publication-discovery-heading">
+      <p class="library-muted">{{ t('library', 'Publication / series') }}</p>
+      <h3 id="library-publication-discovery-heading">{{ discoveryTitle }}</h3>
+      <p class="library-muted">{{ pagination.total }} {{ t('library', 'items in this publication. Sorted by issue/date context when available.') }}</p>
+      <p><a href="/apps/library/" class="button secondary">{{ t('library', 'Back to full catalogue') }}</a></p>
+    </section>
+
     <p class="library-muted library-filter-result-summary">{{ t('library', 'Showing') }} {{ pagination.from }}–{{ pagination.to }} {{ t('library', 'of') }} {{ pagination.total }} {{ t('library', 'catalogue items') }}<span v-if="activeFilterChips.length > 0"> · <a href="?">{{ t('library', 'Clear all filters') }}</a></span></p>
 
     <details class="library-batch-actions">
@@ -498,7 +512,7 @@ async function toggleStar(item, event) {
       <p class="library-muted">{{ t('library', 'Jump into recurring publications with one click.') }}</p>
       <ul>
         <li v-for="summary in publicationSummaries" :key="summary.publication">
-          <a :href="publicationFilterUrl(summary.publication)">{{ summary.publication }}</a>
+          <a :href="publicationLandingUrl(summary.publication)">{{ summary.publication }}</a>
           <span class="library-muted">{{ summary.itemCount }} items</span>
         </li>
       </ul>
@@ -661,6 +675,21 @@ async function toggleStar(item, event) {
 
 .library-filter-panel[open] {
   margin-top: 0.5rem;
+}
+
+.library-discovery-header {
+  border: 1px solid var(--color-border, #d0d0d0);
+  border-radius: var(--border-radius-large, 10px);
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+}
+
+.library-discovery-header h3 {
+  margin: 0.1rem 0 0.25rem;
+}
+
+.library-discovery-header p {
+  margin: 0.25rem 0;
 }
 
 .library-filter-panel-summary,
