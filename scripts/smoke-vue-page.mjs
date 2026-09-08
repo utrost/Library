@@ -119,6 +119,7 @@ try {
     const cssMatch = page.text.match(/href="([^"]*library-vue\.css[^"]*)"/)
     const sourceComponent = readFileSync('src/App.vue', 'utf8')
     const sourceStyle = readFileSync('css/style.css', 'utf8')
+    const sourceDetailTemplate = readFileSync('templates/item-detail.php', 'utf8')
 
     const script = scriptMatch ? await fetchText(scriptMatch[1], token) : { status: 0, text: '' }
     const css = cssMatch ? await fetchText(cssMatch[1], token) : { status: 0, text: '' }
@@ -214,9 +215,9 @@ try {
     console.log(`source_has_creator_filter=${sourceComponent.includes('Creator') && sourceComponent.includes('name="creator"') && sourceComponent.includes('All creators') && sourceComponent.includes('Exact full-field creator matches only')}`)
     console.log(`source_has_active_filter_chips=${sourceComponent.includes('library-active-filter-chips') && sourceComponent.includes('activeFilterChips') && sourceComponent.includes('filterChipRemoveUrl') && sourceComponent.includes('Remove filter') && sourceComponent.includes('param !== key') && sourceComponent.includes('params.set(param, normalized)')}`)
     const appInfo = readFileSync('appinfo/info.xml', 'utf8')
-    console.log(`app_version=0.1.0-alpha.105`)
+    console.log(`app_version=0.1.0-alpha.106`)
     console.log(`source_has_mobile_cover_first_cards=${sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceComponent.includes('library-cover-actions') && sourceStyle.includes('@media (max-width: 520px)') && sourceStyle.includes('grid-template-columns: repeat(2, minmax(0, 1fr))')}`)
-    console.log(`source_has_compact_cover_cards_all_widths=${appInfo.includes('<version>0.1.0-alpha.105</version>') && sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0')}`)
+    console.log(`source_has_compact_cover_cards_all_widths=${appInfo.includes('<version>0.1.0-alpha.106</version>') && sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0')}`)
     console.log(`served_css_has_compact_cover_defaults=${css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') && css.text.includes('min-height:0') && css.text.includes('library-cover-details')}`)
     console.log(`source_has_publication_sort=${sourceComponent.includes('<option value="publication">')}`)
     console.log(`source_has_periodical_groups_panel=${sourceComponent.includes('library-periodical-groups') && sourceComponent.includes('Top series and periodicals') && sourceComponent.includes('Jump into recurring publications with one click') && sourceComponent.includes('publicationFilterUrl(summary.publication)')}`)
@@ -253,6 +254,7 @@ try {
     console.log(`detail_has_field_reset_form=${detail.text.includes('library-field-reset-form') && detail.text.includes('Reset to scanner')}`)
     console.log(`detail_has_fields_reset_form=${detail.text.includes('library-fields-reset-form') && detail.text.includes('Reset all fields to scanner')}`)
     console.log(`detail_has_metadata_guidance=${detail.text.includes('library-metadata-guidance') && detail.text.includes('Use YYYY, YYYY-MM, or YYYY-MM-DD') && detail.text.includes('Use short language codes such as de, en, fr') && detail.text.includes('Separate multiple creators with semicolons')}`)
+    console.log(`detail_has_validation_feedback_contract=${sourceDetailTemplate.includes('library-validation-feedback') && sourceDetailTemplate.includes('Metadata was not saved') && sourceDetailTemplate.includes('role="alert"')}`)
     console.log(`detail_has_field_conflict_marker=${detail.text.includes('library-field-conflict') && detail.text.includes('Differs from scanner')}`)
     console.log(`detail_has_metadata_import_preview_form=${settingsPage.text.includes('library-metadata-import-preview-form') && settingsPage.text.includes('metadataJson') && settingsPage.text.includes('Preview metadata import')}`)
     console.log(`settings_has_metadata_import_apply_form=${settingsPage.text.includes('library-metadata-import-apply-form') && settingsPage.text.includes('metadataJson') && settingsPage.text.includes('Apply metadata import') && settingsPage.text.includes('This writes matched corrected metadata')}`)

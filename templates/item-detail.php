@@ -140,6 +140,9 @@ $fileRows = [
                 <?php if ($metadataSaved): ?>
                     <p class="library-save-feedback" role="status"><?php p($l->t('Metadata saved')); ?></p>
                 <?php endif; ?>
+                <?php if (($item['metadataError'] ?? '') !== ''): ?>
+                    <p class="library-validation-feedback" role="alert"><?php p($l->t('Metadata was not saved') . ': ' . (string)$item['metadataError']); ?></p>
+                <?php endif; ?>
                 <p class="library-muted library-metadata-guidance"><?php p($l->t('Non-blocking guidance: these hints document useful metadata shapes, but they do not block saving.')); ?></p>
                 <label>
                     <?php p($l->t('Title')); ?>

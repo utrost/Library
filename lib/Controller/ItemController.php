@@ -43,19 +43,30 @@ final class ItemController extends Controller {
     public function update(int $itemId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
-            $this->itemService->updateItem($user->getUID(), $itemId, [
-                'publicationType' => (string)$this->request->getParam('publicationType', 'other'),
-                'title' => (string)$this->request->getParam('title', ''),
-                'subtitle' => (string)$this->request->getParam('subtitle', ''),
-                'creators' => (string)$this->request->getParam('creators', ''),
-                'publication' => (string)$this->request->getParam('publication', ''),
-                'publicationDate' => (string)$this->request->getParam('publicationDate', ''),
-                'language' => (string)$this->request->getParam('language', ''),
-                'publisher' => (string)$this->request->getParam('publisher', ''),
-                'description' => (string)$this->request->getParam('description', ''),
-                'genres' => (string)$this->request->getParam('genres', ''),
-                'classifications' => (string)$this->request->getParam('classifications', ''),
-            ]);
+            try {
+                $this->itemService->updateItem($user->getUID(), $itemId, [
+                    'publicationType' => (string)$this->request->getParam('publicationType', 'other'),
+                    'title' => (string)$this->request->getParam('title', ''),
+                    'subtitle' => (string)$this->request->getParam('subtitle', ''),
+                    'creators' => (string)$this->request->getParam('creators', ''),
+                    'publication' => (string)$this->request->getParam('publication', ''),
+                    'publicationDate' => (string)$this->request->getParam('publicationDate', ''),
+                    'language' => (string)$this->request->getParam('language', ''),
+                    'publisher' => (string)$this->request->getParam('publisher', ''),
+                    'description' => (string)$this->request->getParam('description', ''),
+                    'genres' => (string)$this->request->getParam('genres', ''),
+                    'classifications' => (string)$this->request->getParam('classifications', ''),
+                ]);
+            } catch (\InvalidArgumentException $e) {
+                $returnTo = (string)$this->request->getParam('returnTo', '');
+                if ($returnTo === 'details') {
+                    return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', [
+                        'itemId' => $itemId,
+                        'metadataError' => $e->getMessage(),
+                    ]));
+                }
+                return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+            }
         }
 
         $returnTo = (string)$this->request->getParam('returnTo', '');

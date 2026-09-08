@@ -59,5 +59,5 @@ def test_settings_copy_and_docs_track_running_cancellation_boundary():
     assert "running-job cancellation" in readme.lower()
     assert "running-job cancellation" in guide.lower()
     assert "running-job cancellation" in roadmap.lower()
-    assert "0.1.0-alpha.105" in info
-    assert '"version": "0.1.0-alpha.105"' in package
+    assert "0.1.0-alpha.106" in info
+    assert '"version": "0.1.0-alpha.106"' in package

@@ -85,6 +85,8 @@ final class ItemPageController extends Controller {
             (string)$this->request->getParam('tagName', '')
         );
         $item['metadataSaved'] = (string)$this->request->getParam('metadataSaved', '0') === '1';
+        $item['metadataError'] = trim((string)$this->request->getParam('metadataError', ''));
+        $item['metadataValidationError'] = $item['metadataError'] !== '' ? 'Metadata was not saved: ' . $item['metadataError'] : '';
         $item['nextcloudComments'] = $comments[$fileId] ?? ['count' => 0, 'recent' => []];
 
         Util::addStyle(Application::APP_ID, 'style');
