@@ -236,6 +236,54 @@
     gap: 6px;
 }
 
+.library-metadata-health,
+.library-cover-override-panel,
+.library-creator-chip-editor {
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 0.75rem;
+    background: var(--color-main-background);
+}
+
+.library-metadata-health {
+    display: grid;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+}
+
+.library-weak-field-jump-list,
+.library-creator-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+.library-weak-field-jump-list a,
+.library-creator-chip {
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    background: var(--color-background-hover);
+}
+
+.library-creator-chip {
+    display: inline-flex;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+.library-creator-chip-remove {
+    border: 0;
+    background: transparent;
+    color: var(--color-text-maxcontrast);
+    cursor: pointer;
+}
+
+.library-creator-chip-input {
+    margin-top: 0.5rem;
+}
+
 .library-field-label-help {
     cursor: help;
     text-decoration: underline dotted var(--color-text-maxcontrast) 1px;

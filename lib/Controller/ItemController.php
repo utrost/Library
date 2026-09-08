@@ -57,6 +57,7 @@ final class ItemController extends Controller {
                     'description' => (string)$this->request->getParam('description', ''),
                     'genres' => $this->normalizeRequestList($this->request->getParam('genres', $this->request->getParam('genres[]', ''))),
                     'classifications' => $this->normalizeRequestList($this->request->getParam('classifications', $this->request->getParam('classifications[]', ''))),
+                    'personalRating' => (string)$this->request->getParam('personalRating', ''),
                 ]);
             } catch (\InvalidArgumentException $e) {
                 $returnTo = (string)$this->request->getParam('returnTo', '');

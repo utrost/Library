@@ -38,6 +38,8 @@ return [
         ['name' => 'item#workflowStatus', 'url' => '/items/{itemId}/workflow-status', 'verb' => 'POST'],
         ['name' => 'item#forgetMissing', 'url' => '/items/{itemId}/forget-missing', 'verb' => 'POST'],
         ['name' => 'cover#show', 'url' => '/items/{itemId}/cover', 'verb' => 'GET'],
+        ['name' => 'cover#override', 'url' => '/items/{itemId}/cover/override', 'verb' => 'POST'],
+        ['name' => 'cover#revert', 'url' => '/items/{itemId}/cover/revert', 'verb' => 'POST'],
         ['name' => 'tag#assign', 'url' => '/items/{itemId}/tags', 'verb' => 'POST'],
         ['name' => 'tag#remove', 'url' => '/items/{itemId}/tags/{tagId}', 'verb' => 'POST'],
         ['name' => 'comment#add', 'url' => '/items/{itemId}/comments', 'verb' => 'POST'],

@@ -457,7 +457,9 @@ async function runBrowserSmoke(proxyBase) {
           detailSingleMetadataSurface: Boolean(document.querySelector('.library-detail-section-meta .library-detail-edit-form')) && !document.querySelector('.library-detail-section-meta dl.library-item-metadata') && !document.body.textContent.includes('Edit publication metadata'),
           detailV01MetadataFormPolish: Boolean(document.querySelector('.library-detail-edit-form--autosave')
             && document.querySelector('.library-detail-title-field input[name="title"]')
-            && document.querySelector('.library-creators-field textarea[name="creators"]')
+            && document.querySelector('.library-creators-field .library-creator-chip-editor[data-creator-chip-editor]')
+            && document.querySelector('.library-creators-field input[type="hidden"][name="creators"]')
+            && document.querySelector('.library-creators-field .library-creator-chip-input')
             && document.querySelector('.library-language-picklist[name="language[]"][multiple]')
             && document.querySelector('.library-genre-picklist[name="genres[]"][multiple]')
             && document.querySelector('input[name="publisher"][list="library-publisher-suggestions"]')

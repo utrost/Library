@@ -40,6 +40,8 @@ What exists now:
 - Read-only recent Nextcloud file comments on publication item cards and item details as file-level notes/discussion.
 - Minimal Nextcloud file comment writing from item details.
 - Library-native personal starring and last-opened activity for catalogue items: detail-page star/unstar toggle, compact card marker, `starred=1` filter, Library-tracked **Read** redirects, recently-opened sort, and corrected-metadata export/import portability without altering scanner provenance.
+- metadata field audit: useful v0.1 fields are title, subtitle, type, creators, publication/series, publication date, language, publisher, description, genre/classification lists, workflow status, starred, last-opened activity and rating (0–5 stars). sub-genre remains a genre/classification value for now instead of a separate schema column, so the model avoids inventing a rigid taxonomy before real collection cleanup shows one is needed.
+- Detail-page metadata health score and weak-field jump list computed locally from transparent field completeness, plus a personal rating control.
 - Per-file metadata extraction error isolation with visible indexed-file diagnostics for corrupt EPUB/CBZ/OPF inputs.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - metadata/tag/comment separation smoke is checked in: Nextcloud tag/comment actions do not mutate Library publication metadata.

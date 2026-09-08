@@ -102,6 +102,7 @@ Current details capabilities:
 - see the last time Library opened the item when it has been read through the Library **Read** action;
 - use **Read**, **Show in Files** and **Download source** actions;
 - inspect publication metadata;
+- inspect a transparent, local **Metadata health** score and weak-field jump list for cleanup targets;
 - inspect a metadata correction summary with scanner-candidate and differing-field counts;
 - compare current field values with stored scanner candidates, including **Differs from scanner** labels when they disagree;
 - reset one field, all fields on one item, or **Bulk reset selected items to scanner** from Library settings when scanner candidates are available;
@@ -114,6 +115,8 @@ Current details capabilities:
   - publication date;
   - publisher;
   - language;
+  - personal rating (0–5 stars);
+  - genres and classifications, where sub-genre remains a genre/classification value until a real taxonomy proves it needs a separate field;
 - inspect backing file metadata:
   - Nextcloud file ID;
   - Library file-index ID;

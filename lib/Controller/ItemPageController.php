@@ -51,13 +51,19 @@ final class ItemPageController extends Controller {
         $comments = $this->fileCommentService->commentsForItems([$item]);
 
         $coverRefreshRequested = (string)$this->request->getParam('coverRefresh', '0') === '1';
-        $item['coverUrl'] = $this->urlGenerator->linkToRoute(
+        $manualCoverUrl = trim((string)($item['coverOverrideUrl'] ?? ''));
+        $item['coverUrl'] = $manualCoverUrl !== ''
+            ? $manualCoverUrl
+            : $this->urlGenerator->linkToRoute(
             'library.cover.show',
             array_filter([
                 'itemId' => (string)$item['id'],
                 'refresh' => $coverRefreshRequested ? '1' : null,
             ], static fn ($value) => $value !== null)
         );
+        $item['coverOverrideUrl'] = $manualCoverUrl;
+        $item['coverOverrideActionUrl'] = $this->urlGenerator->linkToRoute('library.cover.override', ['itemId' => (string)$item['id']]);
+        $item['coverRevertUrl'] = $this->urlGenerator->linkToRoute('library.cover.revert', ['itemId' => (string)$item['id']]);
         $item['coverRefreshUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => (string)$item['id'], 'refresh' => '1']);
         $item['coverRefreshPageUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => (string)$item['id'], 'coverRefresh' => '1']);
         $item['coverQualityExplanation'] = $this->coverQualityExplanation($item);

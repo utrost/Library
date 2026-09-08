@@ -120,6 +120,64 @@
     })
   }
 
+  function syncCreatorChipEditor(editor) {
+    const hidden = editor.querySelector('input[type="hidden"][name="creators"]')
+    const chips = Array.from(editor.querySelectorAll('.library-creator-chip span:first-child'))
+      .map((chip) => chip.textContent.trim())
+      .filter(Boolean)
+    if (hidden) {
+      hidden.value = chips.join('\n')
+      hidden.dispatchEvent(new window.Event('input', { bubbles: true }))
+    }
+  }
+
+  function addCreatorChip(editor, name) {
+    const value = String(name || '').trim()
+    if (value === '') return
+    const list = editor.querySelector('.library-creator-chip-list')
+    if (!list) return
+    const chip = document.createElement('span')
+    chip.className = 'library-creator-chip'
+    const label = document.createElement('span')
+    label.textContent = value
+    const remove = document.createElement('button')
+    remove.type = 'button'
+    remove.className = 'library-creator-chip-remove'
+    remove.textContent = '×'
+    remove.setAttribute('aria-label', `Remove creator: ${value}`)
+    chip.append(label, remove)
+    list.append(chip)
+    syncCreatorChipEditor(editor)
+  }
+
+  function setupCreatorChipEditors(root) {
+    const scope = root || document
+    scope.querySelectorAll('[data-creator-chip-editor]').forEach((editor) => {
+      if (editor.dataset.libraryCreatorChipEnhanced === 'true') return
+      editor.dataset.libraryCreatorChipEnhanced = 'true'
+      editor.addEventListener('click', (event) => {
+        if (!event.target?.classList?.contains('library-creator-chip-remove')) return
+        event.preventDefault()
+        event.target.closest('.library-creator-chip')?.remove()
+        syncCreatorChipEditor(editor)
+      })
+      const input = editor.querySelector('.library-creator-chip-input')
+      input?.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return
+        event.preventDefault()
+        addCreatorChip(editor, input.value)
+        input.value = ''
+      })
+      syncCreatorChipEditor(editor)
+    })
+  }
+
+  window.LibraryDetailCreatorChips = {
+    setupCreatorChipEditors,
+    syncCreatorChipEditor,
+    addCreatorChip,
+  }
+
   window.LibraryDetailStar = {
     setupDetailStarToggles,
     applyState,
@@ -132,9 +190,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       setupDetailStarToggles(document)
       setupMetadataAutosave(document)
+      setupCreatorChipEditors(document)
     }, { once: true })
   } else {
     setupDetailStarToggles(document)
     setupMetadataAutosave(document)
+    setupCreatorChipEditors(document)
   }
 })()
