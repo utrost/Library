@@ -24,6 +24,7 @@ const shelves = computed(() => catalogueState.shelves || [])
 const formats = computed(() => catalogueState.formats || [])
 const publications = computed(() => catalogueState.publications || [])
 const publicationSummaries = computed(() => catalogueState.publicationSummaries || [])
+const publicationIssueContext = computed(() => catalogueState.publicationIssueContext || null)
 const publicationYears = computed(() => catalogueState.publicationYears || [])
 const creators = computed(() => catalogueState.creators || [])
 const scanStatuses = computed(() => catalogueState.scanStatuses || [])
@@ -121,7 +122,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -436,6 +437,13 @@ async function toggleStar(item, event) {
       <p class="library-muted">{{ isCreatorDiscoveryPage ? t('library', 'Creator') : (isYearDiscoveryPage ? t('library', 'Publication year') : t('library', 'Publication / series')) }}</p>
       <h3 id="library-discovery-heading">{{ discoveryTitle }}</h3>
       <p class="library-muted">{{ pagination.total }} {{ isCreatorDiscoveryPage ? t('library', 'items by this creator. Sorted by publication context when available.') : (isYearDiscoveryPage ? t('library', 'items from this publication year. Sorted by publication date when available.') : t('library', 'items in this publication. Sorted by issue/date context when available.')) }}</p>
+      <aside v-if="isPublicationDiscoveryPage && publicationIssueContext" class="library-publication-issue-context" aria-label="Publication issue/date context">
+        <strong>{{ t('library', 'Publication contents') }}</strong>
+        <span>{{ publicationIssueContext.itemCount }} {{ t('library', 'items') }}</span>
+        <span v-if="publicationIssueContext.earliestYear && publicationIssueContext.latestYear">{{ publicationIssueContext.earliestYear }}–{{ publicationIssueContext.latestYear }}</span>
+        <span>{{ publicationIssueContext.datedCount }} {{ t('library', 'with issue/date coverage') }}</span>
+        <span v-if="publicationIssueContext.undatedCount > 0">{{ publicationIssueContext.undatedCount }} {{ t('library', 'without dates yet') }}</span>
+      </aside>
       <p><a href="/apps/library/" class="button secondary">{{ t('library', 'Back to full catalogue') }}</a></p>
     </section>
 
@@ -641,6 +649,20 @@ async function toggleStar(item, event) {
 .library-cover-gallery {
   gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+
+.library-publication-issue-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.library-publication-issue-context span,
+.library-publication-issue-context strong {
+  border-radius: 999px;
+  background: var(--color-background-hover);
+  padding: 0.25rem 0.6rem;
 }
 
 .library-filter-panel,
