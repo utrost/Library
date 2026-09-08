@@ -29,6 +29,8 @@ export default defineConfig({
     },
   },
   test: {
+    include: ['src/**/*.test.js'],
+    exclude: ['dist/**', 'build/**', 'node_modules/**'],
     environment: 'happy-dom',
     css: true,
     server: {
