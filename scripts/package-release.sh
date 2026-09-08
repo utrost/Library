@@ -26,6 +26,7 @@ mkdir -p "$STAGE_DIR"
 
 tar \
   --exclude=.git \
+  --exclude=.gitignore \
   --exclude=.github \
   --exclude=.pytest_cache \
   --exclude='__pycache__' \

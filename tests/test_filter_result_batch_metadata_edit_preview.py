@@ -73,6 +73,6 @@ def test_docs_and_version_track_preview_first_filtered_batch_metadata_edit():
     assert "No changes are written during preview" in guide
     assert "preview-first batch metadata edit" in roadmap.lower()
     assert "arbitrary bulk edit remains preview-only" in roadmap.lower()
-    assert "<version>0.1.0-alpha.110</version>" in info
-    assert '"version": "0.1.0-alpha.110"' in package
-    assert '"version": "0.1.0-alpha.110"' in lock
+    assert "<version>0.1.0-alpha.111</version>" in info
+    assert '"version": "0.1.0-alpha.111"' in package
+    assert '"version": "0.1.0-alpha.111"' in lock

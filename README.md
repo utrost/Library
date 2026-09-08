@@ -58,7 +58,7 @@ The current development slice can:
 - query catalogue search, filters, sort modes and pagination through database-backed item queries instead of loading the full catalogue into app-layer arrays.
 - isolate local metadata extraction failures per file so corrupt EPUB/CBZ/OPF fixtures do not abort an otherwise healthy root scan, and show the scan error in the indexed-file diagnostics.
 
-The next milestone is release hardening around real collection use: metadata repair/review flows, scan repair controls, cover quality, first-run onboarding, richer publication/creator/year landing pages and saved views.
+The current milestone is v0.1 release hardening for Uwe's manual test pass: keep source files safe, prove the generated archive installs cleanly, keep docs/test handbooks honest, and use real collection testing to identify metadata, cover or scan edge cases before any broader release.
 
 ## v0.1 direction
 
@@ -92,6 +92,8 @@ Explicit non-goals for v0.1:
 - [Product concept](docs/product-concept.md)
 - [User and admin guide](docs/user-guide.md)
 - [Human architecture review notes](docs/architecture-review.md)
+- [Current state and risk register](docs/current-state-and-risk-register.md)
+- [Human test handbook](docs/human-test-handbook.md)
 - [Public alpha test checklist](docs/alpha-test-checklist.md)
 - [Changelog](CHANGELOG.md)
 - [Release process](RELEASE.md)
@@ -118,6 +120,8 @@ library
 For the current Alice sandbox, clone this repository outside the Nextcloud data volume and copy the working tree into `/var/www/html/custom_apps/library` inside the container for each smoke test. A host symlink is not used yet because `/home/uwe` is not world-traversable from the container user.
 
 ## Local checks and packaging
+
+Current v0.1 testing candidate: `0.1.0-alpha.111`.
 
 Run the local gate with:
 

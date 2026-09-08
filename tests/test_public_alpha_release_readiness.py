@@ -48,6 +48,7 @@ def test_release_packaging_script_builds_clean_nextcloud_app_archive():
     assert "npm run build" in script
     assert "tar" in script
     assert "--exclude=.git" in script
+    assert "--exclude=.gitignore" in script
     assert "--exclude=node_modules" in script
     assert "custom_apps/library" not in script
     assert "scripts/package-release.sh" in readme
@@ -83,7 +84,9 @@ def test_alpha_tag_is_documented_as_annotated_public_prerelease():
     release = read("RELEASE.md")
 
     assert "v0.1.0-alpha.1" in release
-    assert "git tag -a v0.1.0-alpha.1" in release
+    assert "Do not retag `v0.1.0-alpha.1`" in release
+    assert "git tag -a v0.1.0-alpha.2" in release
     assert "GitHub prerelease" in release
-    assert "package install smoke" in release
+    assert "Generated archive install smoke" in release
+    assert "npm run smoke:release-package" in release
     assert "npm run smoke:vue" in release
