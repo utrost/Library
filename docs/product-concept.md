@@ -96,7 +96,7 @@ Install app
   -> compare/reset scanner candidates when useful
   -> open publication inline through existing viewer
   -> show original file in Nextcloud Files
-  -> export corrected metadata or preview an export before a future import/apply step
+  -> export corrected metadata, preview restore matches, apply matched corrected metadata to existing Library items, or download proposed sidecar JSON files
 ```
 
 ## What v0.1 should include
@@ -114,7 +114,7 @@ Install app
 - Basic discovery by exact creator, series/periodical/publication and year filters.
 - Manual metadata editing.
 - Field-level scanner-candidate provenance and reset workflow.
-- Read-only corrected-metadata export and no-write import preview.
+- Read-only corrected-metadata export, no-write import preview, matched-item import apply, sidecar manifest export and sidecar ZIP download.
 - Default reader handoff through `/f/{fileId}`.
 - Show original in Files.
 - Download original source file.
