@@ -386,7 +386,6 @@ async function runBrowserSmoke(proxyBase) {
         const workbench = document.querySelector('.library-detail-workbench')
         const requiredLabelledSections = [
           ['.library-detail-section-meta', 'library-publication-metadata-heading'],
-          ['.library-detail-section-edit', 'library-publication-edit-heading'],
           ['.library-detail-section-nextcloud', 'library-nextcloud-metadata-heading'],
           ['.library-detail-section-file', 'library-file-metadata-heading'],
           ['.library-detail-section-provenance', 'library-provenance-heading'],
@@ -413,6 +412,7 @@ async function runBrowserSmoke(proxyBase) {
           detailSummaryBadges: document.querySelectorAll('.library-detail-diagnostic-section > summary .library-summary-badge').length,
           detailTagChipRemove: Boolean(document.querySelector('.library-tag-chip-remove')),
           detailWorkflowPill: Boolean(document.querySelector('.library-workflow-status-pill')),
+          detailSingleMetadataSurface: Boolean(document.querySelector('.library-detail-section-meta .library-detail-edit-form')) && !document.querySelector('.library-detail-section-meta dl.library-item-metadata') && !document.body.textContent.includes('Edit publication metadata'),
           detailSectionsLabelled: requiredLabelledSections.every(([selector, id]) => {
             const section = document.querySelector(selector)
             return Boolean(section) && section.getAttribute('aria-labelledby') === id && Boolean(document.querySelector('#' + id))
@@ -598,6 +598,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_detail_summary_badges', detailDom.detailSummaryBadges)
     print('browser_detail_tag_chip_remove', detailDom.detailTagChipRemove)
     print('browser_detail_workflow_pill', detailDom.detailWorkflowPill)
+    print('browser_detail_single_metadata_surface', detailDom.detailSingleMetadataSurface)
     print('browser_detail_sections_labelled', detailDom.detailSectionsLabelled)
     print('browser_detail_post_forms', detailDom.detailPostForms)
     print('browser_detail_request_token_fields', detailDom.detailRequestTokenFields)
@@ -684,6 +685,7 @@ async function runBrowserSmoke(proxyBase) {
       && detailDom.detailSummaryBadges === 3
       && detailDom.detailProvenanceDifferences === true
       && detailDom.detailWorkflowPill === true
+      && detailDom.detailSingleMetadataSurface === true
       && detailDom.detailSectionsLabelled === true
       && detailDom.detailPostForms > 0
       && detailDom.detailRequestTokenFields === detailDom.detailPostForms

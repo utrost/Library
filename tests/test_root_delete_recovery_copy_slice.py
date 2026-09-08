@@ -31,6 +31,6 @@ def test_smoke_and_docs_track_root_delete_recovery_guidance_as_landed():
     assert "root deletion recovery guidance has landed" in guide
     assert "recovery copy" in roadmap
     assert "Remaining release polish is richer validation" in roadmap
-    assert "<version>0.1.0-alpha.107</version>" in info
-    assert '"version": "0.1.0-alpha.107"' in package
-    assert '"version": "0.1.0-alpha.107"' in lock
+    assert "<version>0.1.0-alpha.108</version>" in info
+    assert '"version": "0.1.0-alpha.108"' in package
+    assert '"version": "0.1.0-alpha.108"' in lock

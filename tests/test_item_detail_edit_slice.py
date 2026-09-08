@@ -24,7 +24,8 @@ def test_item_detail_page_contains_publication_metadata_edit_form():
         "publisher",
     ]:
         assert f'name="{field}"' in template
-    assert "$l->t('Edit publication metadata')" in template
+    assert "$l->t('Publication metadata')" in template
+    assert "$l->t('Edit publication metadata')" not in template
     assert "$l->t('Save metadata')" in template
 
 

@@ -22,11 +22,11 @@ def test_detail_template_has_scannable_workbench_sections():
     assert "library-detail-primary" in template
     assert "library-detail-secondary" in template
     assert "library-detail-section-meta" in template
-    assert "library-detail-section-edit" in template
+    assert "library-detail-edit-form" in template
     assert "library-detail-section-nextcloud" in template
     assert "library-detail-section-file" in template
     assert "library-detail-section-provenance" in template
-    assert "aria-labelledby=\"library-publication-edit-heading\"" in template
+    assert "aria-labelledby=\"library-publication-metadata-heading\"" in template
     assert "aria-labelledby=\"library-nextcloud-metadata-heading\"" in template
 
 
@@ -37,7 +37,7 @@ def test_detail_workbench_css_is_responsive_and_readable():
     assert "grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr)" in css
     assert ".library-detail-primary" in css
     assert ".library-detail-secondary" in css
-    assert ".library-detail-section-edit" in css
+    assert ".library-detail-edit-form" in css
     assert "@media (max-width: 900px)" in css
     assert ".library-detail-workbench" in css[css.index("@media (max-width: 900px)") :]
     assert "grid-template-columns: 1fr" in css[css.index("@media (max-width: 900px)") :]

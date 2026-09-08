@@ -17,21 +17,6 @@ $workflowStatuses = [
     'abandoned' => 'Abandoned',
     'needs-action' => 'Needs action',
 ];
-$metadataRows = [
-    'Title' => $item['title'] ?? '',
-    'Subtitle' => $item['subtitle'] ?? '',
-    'Creators' => $item['creators'] ?? '',
-    'Publication' => $item['publication'] ?? '',
-    'Publication date' => $item['publicationDate'] ?? '',
-    'Publication type' => $item['publicationType'] ?? '',
-    'Workflow status' => $workflowStatuses[(string)($item['workflowStatus'] ?? '')] ?? ($item['workflowStatus'] ?? ''),
-    'Last opened' => !empty($item['lastOpenedAt']) ? gmdate('Y-m-d H:i', (int)$item['lastOpenedAt']) . ' UTC' : '',
-    'Publisher' => $item['publisher'] ?? '',
-    'Language' => $item['language'] ?? '',
-    'Genres' => implode('; ', is_array($item['genres'] ?? null) ? $item['genres'] : []),
-    'Classifications' => implode('; ', is_array($item['classifications'] ?? null) ? $item['classifications'] : []),
-    'Description' => $item['description'] ?? '',
-];
 $fieldSources = is_array($item['fieldSources'] ?? null) ? $item['fieldSources'] : [];
 $fieldValues = is_array($item['fieldValues'] ?? null) ? $item['fieldValues'] : [];
 $fieldProvenanceRows = [
@@ -126,17 +111,9 @@ $fileRows = [
             <div class="library-detail-primary">
         <section class="library-panel library-detail-section-meta" aria-labelledby="library-publication-metadata-heading">
             <h3 id="library-publication-metadata-heading"><?php p($l->t('Publication metadata')); ?></h3>
-            <dl class="library-item-metadata">
-                <?php foreach ($metadataRows as $label => $value): ?>
-                    <dt><?php p($l->t($label)); ?></dt>
-                    <dd><?php p(trim((string)$value) !== '' ? (string)$value : '—'); ?></dd>
-                <?php endforeach; ?>
-            </dl>
-
-            <form method="post" action="<?php p($item['updateUrl'] ?? ''); ?>" class="library-item-form library-detail-edit-form library-detail-section-edit" aria-labelledby="library-publication-edit-heading">
+            <form method="post" action="<?php p($item['updateUrl'] ?? ''); ?>" class="library-item-form library-detail-edit-form" aria-labelledby="library-publication-metadata-heading">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <input type="hidden" name="returnTo" value="details" />
-                <h4 id="library-publication-edit-heading"><?php p($l->t('Edit publication metadata')); ?></h4>
                 <?php if ($metadataSaved): ?>
                     <p class="library-save-feedback" role="status"><?php p($l->t('Metadata saved')); ?></p>
                 <?php endif; ?>
