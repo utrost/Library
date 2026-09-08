@@ -82,6 +82,14 @@ function fallbackIsPublicationDiscoveryPage(state) {
   return text(state.discoveryPage) === 'publication'
 }
 
+function fallbackYearLandingUrl(year, state = {}) {
+  return text(state?.publicationYearLandingUrls?.[year] || `/apps/library/years/${encodeURIComponent(text(year))}`)
+}
+
+function fallbackIsYearDiscoveryPage(state) {
+  return text(state.discoveryPage) === 'year'
+}
+
 function fallbackHasActiveFilters(state) {
   const activeFilters = state.activeFilters || {}
   return Object.entries(activeFilters).some(([key, value]) => key !== 'sort' && text(value).trim() !== '')
@@ -292,19 +300,19 @@ function fallbackCatalogue(state, error) {
   filterPanel.append(filterSummary, fallbackFilterForm(state, pagination))
   panel.appendChild(filterPanel)
 
-  if (fallbackIsPublicationDiscoveryPage(state)) {
+  if (fallbackIsPublicationDiscoveryPage(state) || fallbackIsYearDiscoveryPage(state)) {
     const discovery = document.createElement('section')
     discovery.className = 'library-discovery-header'
-    discovery.setAttribute('aria-labelledby', 'library-publication-discovery-heading')
+    discovery.setAttribute('aria-labelledby', 'library-discovery-heading')
     const label = document.createElement('p')
     label.className = 'library-muted'
-    label.textContent = t('library', 'Publication / series')
+    label.textContent = fallbackIsYearDiscoveryPage(state) ? t('library', 'Publication year') : t('library', 'Publication / series')
     const discoveryHeading = document.createElement('h3')
-    discoveryHeading.id = 'library-publication-discovery-heading'
-    discoveryHeading.textContent = text(state.discoveryTitle || state.activeFilters?.publication || '')
+    discoveryHeading.id = 'library-discovery-heading'
+    discoveryHeading.textContent = text(state.discoveryTitle || state.activeFilters?.publication || state.activeFilters?.year || '')
     const discoveryText = document.createElement('p')
     discoveryText.className = 'library-muted'
-    discoveryText.textContent = `${pagination.total ?? items.length} ${t('library', 'items in this publication. Sorted by issue/date context when available.')}`
+    discoveryText.textContent = `${pagination.total ?? items.length} ${fallbackIsYearDiscoveryPage(state) ? t('library', 'items from this publication year. Sorted by publication date when available.') : t('library', 'items in this publication. Sorted by issue/date context when available.')}`
     const back = document.createElement('a')
     back.href = '/apps/library/'
     back.className = 'button secondary'
@@ -523,6 +531,31 @@ function fallbackCatalogue(state, error) {
     periodicalPanel.appendChild(list)
   }
   panel.appendChild(periodicalPanel)
+
+  const publicationYears = Array.isArray(state.publicationYears) ? state.publicationYears : []
+  if (publicationYears.length > 0) {
+    const yearPanel = document.createElement('details')
+    yearPanel.className = 'library-year-groups'
+    const yearSummary = document.createElement('summary')
+    yearSummary.className = 'library-periodical-groups-summary'
+    yearSummary.textContent = t('library', 'Show publication years')
+    const yearHeading = document.createElement('h3')
+    yearHeading.textContent = t('library', 'Top publication years')
+    const yearText = document.createElement('p')
+    yearText.className = 'library-muted'
+    yearText.textContent = t('library', 'Jump into dated books, magazines, journals and comics by year.')
+    const yearList = document.createElement('ul')
+    for (const year of publicationYears) {
+      const entry = document.createElement('li')
+      const link = document.createElement('a')
+      link.href = fallbackYearLandingUrl(year, state)
+      link.textContent = text(year)
+      entry.appendChild(link)
+      yearList.appendChild(entry)
+    }
+    yearPanel.append(yearSummary, yearHeading, yearText, yearList)
+    panel.appendChild(yearPanel)
+  }
 
   if (items.length === 0) {
     const empty = document.createElement('div')

@@ -172,6 +172,7 @@ async function runBrowserSmoke(proxyBase) {
         const download = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Download source')
         const details = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Details')
         const publicationLanding = document.querySelector('.library-periodical-groups a[href*="/apps/library/publications/"]')
+        const yearLanding = document.querySelector('.library-year-groups a[href*="/apps/library/years/"]')
         return {
           title: document.title,
           fallback: Boolean(document.querySelector('[data-vue-fallback="true"]')),
@@ -205,6 +206,7 @@ async function runBrowserSmoke(proxyBase) {
           firstDownload: download ? download.href : '',
           firstDetails: details ? details.href : '',
           firstPublicationLanding: publicationLanding ? publicationLanding.href : '',
+          firstYearLanding: yearLanding ? yearLanding.href : '',
           badHostHrefs: [...document.querySelectorAll('a[href]')].filter((a) => a.href.startsWith('http://f/') || a.href.startsWith('http://settings/')).length,
           catalogueLabelled: document.querySelector('.library-panel')?.getAttribute('aria-labelledby') === 'library-catalogue-heading'
             && Boolean(document.querySelector('#library-catalogue-heading')),
@@ -382,13 +384,32 @@ async function runBrowserSmoke(proxyBase) {
       expression: `(() => ({
         url: location.href,
         page: Boolean(document.querySelector('.library-discovery-header')),
-        heading: document.querySelector('#library-publication-discovery-heading')?.textContent?.trim() || '',
+        heading: document.querySelector('#library-discovery-heading')?.textContent?.trim() || '',
         cards: document.querySelectorAll('.library-cover-card').length,
         activePublication: [...document.querySelectorAll('.library-active-filter-chips .library-filter-chip')].some((chip) => chip.textContent.includes('Series / periodical')),
         backLink: Boolean(document.querySelector('.library-discovery-header a[href="/apps/library/"]')),
       }))()`
     })
     const publicationDiscoveryDom = publicationDiscoveryResult.result?.value ?? publicationDiscoveryResult.value
+
+    const yearDiscoveryUrl = dom.firstYearLanding ? new URL(dom.firstYearLanding, proxyBase).href : ''
+    if (yearDiscoveryUrl) {
+      await client.send('Page.navigate', { url: yearDiscoveryUrl })
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+    }
+    const yearDiscoveryResult = await client.send('Runtime.evaluate', {
+      returnByValue: true,
+      awaitPromise: true,
+      expression: `(() => ({
+        url: location.href,
+        page: Boolean(document.querySelector('.library-discovery-header')),
+        heading: document.querySelector('#library-discovery-heading')?.textContent?.trim() || '',
+        cards: document.querySelectorAll('.library-cover-card').length,
+        activeYear: [...document.querySelectorAll('.library-active-filter-chips .library-filter-chip')].some((chip) => chip.textContent.includes('Publication year')),
+        backLink: Boolean(document.querySelector('.library-discovery-header a[href="/apps/library/"]')),
+      }))()`
+    })
+    const yearDiscoveryDom = yearDiscoveryResult.result?.value ?? yearDiscoveryResult.value
 
     const firstDetailsUrl = new URL(dom.firstDetails, proxyBase)
     const detailUrl = `${proxyBase}${firstDetailsUrl.pathname}${firstDetailsUrl.search}`
@@ -636,6 +657,10 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_publication_discovery_cards', publicationDiscoveryDom?.cards ?? 0)
     print('browser_publication_discovery_active_filter', publicationDiscoveryDom?.activePublication === true)
     print('browser_publication_discovery_back_link', publicationDiscoveryDom?.backLink === true)
+    print('browser_year_discovery_page', yearDiscoveryDom?.page === true)
+    print('browser_year_discovery_cards', yearDiscoveryDom?.cards ?? 0)
+    print('browser_year_discovery_active_filter', yearDiscoveryDom?.activeYear === true)
+    print('browser_year_discovery_back_link', yearDiscoveryDom?.backLink === true)
     print('settings_present', settingsDom.present)
     print('settings_auth_blocked', settingsDom.authBlocked === true)
     print('settings_labelled_sections', settingsDom.labelledSections)
@@ -700,10 +725,15 @@ async function runBrowserSmoke(proxyBase) {
       && dom.firstDownload.includes('/remote.php/dav/files/')
       && dom.firstDetails.includes('/apps/library/items/')
       && dom.firstPublicationLanding.includes('/apps/library/publications/')
+      && dom.firstYearLanding.includes('/apps/library/years/')
       && publicationDiscoveryDom?.page === true
       && publicationDiscoveryDom?.cards > 0
       && publicationDiscoveryDom?.activePublication === true
       && publicationDiscoveryDom?.backLink === true
+      && yearDiscoveryDom?.page === true
+      && yearDiscoveryDom?.cards > 0
+      && yearDiscoveryDom?.activeYear === true
+      && yearDiscoveryDom?.backLink === true
       && dom.badHostHrefs === 0
       && dom.catalogueLabelled === true
       && dom.unlabelledControls === 0

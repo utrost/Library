@@ -76,6 +76,7 @@ Current catalogue capabilities:
 - filter by series or periodical title for magazines, journals and recurring publications;
 - filter by publication year as read-only discovery for dated books, magazines, journals and comics;
 - use the **Top series and periodicals** panel to open the first dedicated publication discovery page for a recurring publication, with item counts and the compact cover gallery in that named context;
+- use the **Top publication years** panel to open a dedicated publication year discovery page for dated books, magazines, journals and comics;
 - see **No series or periodicals found yet** when the shortcut panel has no publication metadata yet; this is only guidance, with no new series schema;
 - filter by publication type, file format, scan status, workflow status, exact Nextcloud tag, shelf and starred state;
 - sort by title, recently added, recently opened, publication date, series/periodical or format;
@@ -498,7 +499,7 @@ Acceptance checks:
 Visible gaps:
 
 - no full-text search inside documents;
-- only the publication/series landing page exists so far; creator/year landing pages, richer series issue grouping and saved views remain future work;
+- only the publication/series and publication-year landing pages exist so far; creator landing pages, richer series issue grouping and saved views remain future work;
 - no saved views or smart collections;
 - no user-facing explanation of query performance limits for very large libraries.
 
@@ -596,7 +597,7 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 3. Make corrected metadata portable back into a fresh install or files. Read-only export, no-write import preview, apply-to-matched-existing-items, sidecar manifest export and sidecar ZIP export exist; write-back to JSON or OPF sidecars in source folders does not.
 4. Add repair-oriented scan lifecycle controls. Queued scans, progress, metadata-error retry, **Recheck missing files**, **Cancel queued scan** and cooperative running-job cancellation work; scheduled scans and completion notifications do not.
 5. Improve the cover quality path. Preview, EPUB package cover, CBZ first image, placeholders and a refresh-cover retry affordance work; app-owned cover cache and manual override do not.
-6. Add discovery by publication structure. Search/filter/pagination and the first dedicated publication discovery page exist; creator/year pages, richer grouping and saved views do not.
+6. Add discovery by publication structure. Search/filter/pagination, the first dedicated publication discovery page and the first dedicated publication year discovery page exist; creator pages, richer grouping and saved views do not.
 7. Polish root/onboarding/shared-library workflows. Root lifecycle exists with typed root-delete confirmation, root deletion recovery guidance and first-run guidance; richer validation and admin-managed shared roots remain future work.
 
 ## Crucial missing-feature candidates exposed by the guide
@@ -609,7 +610,7 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 4. **Tag UX** — tag add/remove, tag suggestions, one-click suggested tag buttons, tag result feedback, and filter-result bulk tagging apply/remove work; richer taxonomy batch workflows remain future work.
 5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers and a refresh-cover retry affordance work, but app-owned cover cache and manual overrides remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
-7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips, top-series shortcuts and the first dedicated publication discovery page exist; creator/year landing pages, richer publication grouping, smart collections and saved views remain future work.
+7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips, top-series shortcuts, the first dedicated publication discovery page and the first dedicated publication year discovery page exist; creator landing pages, richer publication grouping, smart collections and saved views remain future work.
 8. **User-facing onboarding and empty states** — first-run root guidance, disabled-root guidance and filtered-empty recovery actions exist; richer guided tours and sample/demo fixtures remain future work.
 9. **Metadata portability beyond export/preview/apply** — corrected Library metadata can be exported as JSON, previewed for restore matches/field changes, applied to matched existing Library items, mapped to suggested `.library.json` paths with a read-only sidecar manifest and downloaded as a sidecar ZIP, but there is no OPF/JSON sidecar writer into source folders or fresh-install migration story that makes corrections fully file-first durable.
 10. **Real-collection metadata hardening** — PDF hardening has improved, but more real EPUB/OPF/CBZ/PDF samples are needed to find weak metadata, cover and sidecar cases before release.

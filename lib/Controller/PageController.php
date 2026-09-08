@@ -81,6 +81,27 @@ class PageController extends Controller {
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
+    public function year(string $year): TemplateResponse {
+        Util::addStyle(Application::APP_ID, 'style');
+        Util::addStyle(Application::APP_ID, 'library-vue');
+        Util::addScript(Application::APP_ID, 'library-shell');
+        Util::addScript(Application::APP_ID, 'library-main');
+
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        $this->initialState->provideInitialState('catalogue', $this->buildCatalogueState($userId, [
+            'year' => $year,
+            'sort' => 'publicationDate',
+        ], [
+            'discoveryPage' => 'year',
+            'discoveryTitle' => $year,
+        ]));
+
+        return new TemplateResponse(Application::APP_ID, 'main');
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
     public function catalogue(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -149,6 +170,10 @@ class PageController extends Controller {
                 return $summary;
             }, $catalogue['facets']['publicationSummaries']),
             'publicationYears' => $catalogue['facets']['publicationYears'],
+            'publicationYearLandingUrls' => array_reduce($catalogue['facets']['publicationYears'], function (array $carry, string $year): array {
+                $carry[$year] = $this->urlGenerator->linkToRoute('library.page.year', ['year' => $year]);
+                return $carry;
+            }, []),
             'creators' => $catalogue['facets']['creators'],
             'scanStatuses' => $catalogue['facets']['scanStatuses'],
             'workflowStatuses' => $catalogue['facets']['workflowStatuses'],
