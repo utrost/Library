@@ -67,7 +67,7 @@ Expected result: Library removes or updates app-owned rows only. It must not del
 ## Known alpha limitations
 
 - Nextcloud 34 is the only supported target for this alpha.
-- Covers are on-demand; there is no app-owned cover cache or manual cover override.
+- Covers are on-demand; manual cover override/revert exists for individual items, but there is no app-owned cover cache or crop/rebuild workflow.
 - Sidecar manifest and sidecar ZIP are read-only/download-only. There is no OPF/JSON sidecar write-back into source folders yet.
 - Metadata import applies only to matched existing Library catalogue rows; a fresh-install restore flow is not complete.
 - Scan scheduling, resumable scans and notifications are absent.

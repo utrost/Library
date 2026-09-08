@@ -99,4 +99,4 @@ Shelf/gallery
 1. Add dedicated creator/series/publication/year landing pages beyond the current filters and top-series shortcuts.
 2. Add saved filters such as `Unread manuals`, `Photography magazines`, or `Needs metadata review`.
 3. Add virtual shelves/collections separate from root folders.
-4. Add cover cache/refresh/manual override only if on-demand preview/CBZ/placeholder covers prove insufficient.
+4. Add cover cache/crop/rebuild workflows only if on-demand preview/CBZ/placeholder covers plus manual override/revert prove insufficient.

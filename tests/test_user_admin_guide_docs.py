@@ -109,7 +109,7 @@ def test_roadmap_combines_user_review_questions_with_guide_gaps():
         "Deletion/forget policy",
         "Library removal/uninstall guide",
         "Scoped folder/subtree rescan",
-        "Cover lifecycle only after cache",
+        "Cover lifecycle after manual override",
         "DB-backed catalogue query path",
         "Metadata portability",
     ]:
