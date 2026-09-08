@@ -153,7 +153,7 @@ That mirror is useful for WebDAV/search/app integration, but Library's own norma
 
 ## Sidecars/export/import preview
 
-File-first portability matters, but v0.1 should not write sidecars by default. The current app can export user-edited corrected metadata as side-effect-free JSON, preview/apply that export against matched existing catalogue rows, map corrected rows to proposed `.library.json` paths through a sidecar manifest, and download those proposed JSON files as a sidecar ZIP archive. These export paths remain side-effect-free for source folders. A later write-back feature can create reviewable files such as:
+File-first portability matters, but v0.1 should not write sidecars by default. The current app can export user-edited corrected metadata as side-effect-free JSON, preview/apply that export against matched existing catalogue rows, map corrected rows to proposed `.library.json` paths through a sidecar manifest, accept that sidecar manifest or one individual `.library.json` sidecar object as an import source for matched scanned items, and download those proposed JSON files as a sidecar ZIP archive. These export/import paths remain side-effect-free for source folders. A later write-back feature can create reviewable files such as OPF or `.library.json` sidecars beside source publications.
 
 ```text
 .Library/metadata.json

@@ -677,7 +677,11 @@ final class ItemService {
         } catch (\JsonException) {
             return $this->emptyImportPreview(false, 'invalid_json');
         }
-        if (!is_array($payload) || (string)($payload['exportKind'] ?? '') !== 'library-corrected-metadata' || !is_array($payload['items'] ?? null)) {
+        if (!is_array($payload)) {
+            return $this->emptyImportPreview(false, 'unsupported_export');
+        }
+        $importItems = $this->importItemsFromPayload($payload);
+        if ($importItems === null) {
             return $this->emptyImportPreview(false, 'unsupported_export');
         }
 
@@ -686,7 +690,7 @@ final class ItemService {
         $missingItems = 0;
         $invalidItems = 0;
         $changedFields = 0;
-        foreach ($payload['items'] as $importItem) {
+        foreach ($importItems as $importItem) {
             if (!is_array($importItem)) {
                 $invalidItems++;
                 continue;
@@ -719,7 +723,7 @@ final class ItemService {
             'previewKind' => 'library-metadata-import-preview',
             'valid' => true,
             'error' => '',
-            'totalItems' => count($payload['items']),
+            'totalItems' => count($importItems),
             'matchedItems' => $matchedItems,
             'missingItems' => $missingItems,
             'invalidItems' => $invalidItems,
@@ -734,7 +738,11 @@ final class ItemService {
         } catch (\JsonException) {
             return $this->emptyImportApply(false, 'invalid_json');
         }
-        if (!is_array($payload) || (string)($payload['exportKind'] ?? '') !== 'library-corrected-metadata' || !is_array($payload['items'] ?? null)) {
+        if (!is_array($payload)) {
+            return $this->emptyImportApply(false, 'unsupported_export');
+        }
+        $importItems = $this->importItemsFromPayload($payload);
+        if ($importItems === null) {
             return $this->emptyImportApply(false, 'unsupported_export');
         }
 
@@ -745,7 +753,7 @@ final class ItemService {
         $missingItems = 0;
         $invalidItems = 0;
         $changedFields = 0;
-        foreach ($payload['items'] as $importItem) {
+        foreach ($importItems as $importItem) {
             if (!is_array($importItem)) {
                 $invalidItems++;
                 continue;
@@ -814,7 +822,7 @@ final class ItemService {
             'applicationKind' => 'library-metadata-import-apply',
             'valid' => true,
             'error' => '',
-            'totalItems' => count($payload['items']),
+            'totalItems' => count($importItems),
             'matchedItems' => $matchedItems,
             'appliedItems' => $appliedItems,
             'skippedItems' => $skippedItems,
@@ -823,6 +831,58 @@ final class ItemService {
             'changedFields' => $changedFields,
             'items' => $applyItems,
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<int, mixed>|null
+     */
+    private function importItemsFromPayload(array $payload): ?array {
+        if ((string)($payload['exportKind'] ?? '') === 'library-corrected-metadata' && is_array($payload['items'] ?? null)) {
+            return $payload['items'];
+        }
+        if ($this->looksLikeSingleSidecarMetadata($payload)) {
+            return [$payload];
+        }
+
+        if ((string)($payload['manifestKind'] ?? '') !== 'library-corrected-metadata-sidecar-manifest' || !is_array($payload['items'] ?? null)) {
+            return null;
+        }
+
+        $items = [];
+        foreach ($payload['items'] as $manifestItem) {
+            if (!is_array($manifestItem) || !is_array($manifestItem['metadata'] ?? null)) {
+                $items[] = $manifestItem;
+                continue;
+            }
+            $metadata = $manifestItem['metadata'];
+            if (!array_key_exists('cachedPath', $metadata) && array_key_exists('sourcePath', $manifestItem)) {
+                $metadata['cachedPath'] = (string)$manifestItem['sourcePath'];
+            }
+            if (!array_key_exists('sidecarPath', $metadata) && array_key_exists('sidecarPath', $manifestItem)) {
+                $metadata['sidecarPath'] = (string)$manifestItem['sidecarPath'];
+            }
+            $items[] = $metadata;
+        }
+        return $items;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function looksLikeSingleSidecarMetadata(array $payload): bool {
+        if (isset($payload['exportKind']) || isset($payload['manifestKind']) || isset($payload['items'])) {
+            return false;
+        }
+        if ((string)($payload['cachedPath'] ?? '') !== '' || (string)($payload['sourcePath'] ?? '') !== '') {
+            return true;
+        }
+        foreach (self::PUBLICATION_FIELDS as $field) {
+            if (array_key_exists($field, $payload)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

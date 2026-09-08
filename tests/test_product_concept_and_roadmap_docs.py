@@ -93,6 +93,6 @@ def test_product_and_v01_docs_track_landed_import_apply_and_sidecar_zip():
     assert "apply matched corrected metadata to existing Library items" in concept
     assert "future import/apply step" not in concept
 
-    assert "corrected-metadata JSON export, no-write metadata import preview, matched-item import apply, sidecar manifest export and sidecar ZIP export" in spec
+    assert "corrected-metadata JSON export, no-write metadata import preview, matched-item import apply, sidecar manifest export/import and sidecar ZIP export" in spec
     assert "applying imports and writing sidecars remain future work" not in spec
-    assert "corrected-metadata JSON export, import preview, matched-item apply, sidecar manifest and sidecar ZIP" in spec
+    assert "corrected-metadata JSON export, import preview, matched-item apply, sidecar manifest restore and sidecar ZIP" in spec
