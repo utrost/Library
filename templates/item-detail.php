@@ -118,11 +118,6 @@ $fileRows = [
                             </form>
                         </div>
                     </div>
-                    <aside class="library-cover-quality-explanation" aria-labelledby="library-cover-quality-heading">
-                        <h3 id="library-cover-quality-heading"><?php p($l->t('How Library chose this cover')); ?></h3>
-                        <p><?php p((string)($item['coverQualityExplanation'] ?? $l->t('Library asks Nextcloud preview first, then format-specific cover fallbacks, and finally shows a stable placeholder.'))); ?></p>
-                        <p class="library-muted"><?php p($l->t('If you see a placeholder, Refresh cover preview retries the cover route without browser caching. No app-owned cover cache or manual cover override exists yet.')); ?></p>
-                    </aside>
                 </div>
             </div>
         </article>
