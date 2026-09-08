@@ -51,6 +51,6 @@ def test_docs_pivot_priority_from_import_export_to_series_periodical_ux():
     guide = (ROOT / "docs" / "user-guide.md").read_text()
 
     assert "Series and periodicals UX is the next common-use priority" in roadmap
-    assert "The next discovery layer is creator/year pages, richer publication issue grouping, saved views or smart collections." in roadmap
+    assert "The next discovery layer is richer publication issue grouping, saved views or smart collections." in roadmap
     assert "filter by series or periodical title" in guide.lower()
     assert "magazines, journals and recurring publications" in guide.lower()

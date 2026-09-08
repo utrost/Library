@@ -102,6 +102,27 @@ class PageController extends Controller {
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
+    public function creator(string $creator): TemplateResponse {
+        Util::addStyle(Application::APP_ID, 'style');
+        Util::addStyle(Application::APP_ID, 'library-vue');
+        Util::addScript(Application::APP_ID, 'library-shell');
+        Util::addScript(Application::APP_ID, 'library-main');
+
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        $this->initialState->provideInitialState('catalogue', $this->buildCatalogueState($userId, [
+            'creator' => $creator,
+            'sort' => 'publication',
+        ], [
+            'discoveryPage' => 'creator',
+            'discoveryTitle' => $creator,
+        ]));
+
+        return new TemplateResponse(Application::APP_ID, 'main');
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
     public function catalogue(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -175,6 +196,10 @@ class PageController extends Controller {
                 return $carry;
             }, []),
             'creators' => $catalogue['facets']['creators'],
+            'creatorLandingUrls' => array_reduce($catalogue['facets']['creators'], function (array $carry, string $creator): array {
+                $carry[$creator] = $this->urlGenerator->linkToRoute('library.page.creator', ['creator' => $creator]);
+                return $carry;
+            }, []),
             'scanStatuses' => $catalogue['facets']['scanStatuses'],
             'workflowStatuses' => $catalogue['facets']['workflowStatuses'],
             'genres' => $catalogue['facets']['genres'] ?? [],
