@@ -407,7 +407,7 @@ Acceptance checks:
 
 Visible gaps:
 
-- root deletion now requires users to Type DELETE to confirm; recovery guidance and richer path validation still need release polish;
+- root deletion now requires users to Type DELETE to confirm, and root deletion recovery guidance has landed so users know to export corrected metadata, keep a database backup for exact rollback, and re-add/scan the same source folder when rebuilding catalogue rows;
 - first-run empty state could guide non-technical users more explicitly;
 - no bulk rescan scheduling or completion notifications.
 
@@ -597,7 +597,7 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 4. Add repair-oriented scan lifecycle controls. Queued scans, progress, metadata-error retry, **Recheck missing files**, **Cancel queued scan** and cooperative running-job cancellation work; scheduled scans and completion notifications do not.
 5. Improve the cover quality path. Preview, EPUB package cover, CBZ first image, placeholders and a refresh-cover retry affordance work; app-owned cover cache and manual override do not.
 6. Add discovery by publication structure. Search/filter/pagination exist; creator, series, publication/year pages and saved views do not.
-7. Polish root/onboarding/shared-library workflows. Root lifecycle exists with typed root-delete confirmation; recovery guidance, first-run guidance and admin-managed shared roots remain future work.
+7. Polish root/onboarding/shared-library workflows. Root lifecycle exists with typed root-delete confirmation, root deletion recovery guidance and first-run guidance; richer validation and admin-managed shared roots remain future work.
 
 ## Crucial missing-feature candidates exposed by the guide
 

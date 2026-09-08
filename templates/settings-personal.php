@@ -77,6 +77,15 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                             <input type="hidden" name="enabled" value="<?php p($root['enabled'] ? '0' : '1'); ?>" />
                             <button type="submit"><?php p($root['enabled'] ? $l->t('Disable root') : $l->t('Enable root')); ?></button>
                         </form>
+                        <section class="library-root-recovery-checklist" aria-label="<?php p($l->t('Root deletion recovery checklist')); ?>">
+                            <p class="library-muted"><strong><?php p($l->t('Before deleting this Library root')); ?></strong></p>
+                            <ul>
+                                <li><?php p($l->t('Export corrected metadata if you want to keep manual corrections outside this app database.')); ?></li>
+                                <li><?php p($l->t('Keep a database backup if you need an exact rollback of Library catalogue rows.')); ?></li>
+                                <li><?php p($l->t('Re-add the same folder path and scan it again to rebuild catalogue rows from source files.')); ?></li>
+                                <li><?php p($l->t('The source files from Nextcloud Files are not deleted by this action.')); ?></li>
+                            </ul>
+                        </section>
                         <form method="post" action="<?php p($root['rootDeleteUrl']); ?>" class="library-inline-form">
                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                             <label>
