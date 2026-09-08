@@ -6,7 +6,7 @@ This snapshot prepares Library for Uwe's v0.1 test pass. It documents what is im
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current app version: `0.1.0-alpha.111`.
+- Current app version: `0.1.0-alpha.115`.
 - Intended audience now: Uwe and trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
@@ -47,7 +47,7 @@ These are acceptable for Uwe's v0.1 test pass but should stay visible:
 3. **Cover lifecycle:** on-demand previews/fallbacks, refresh affordances and manual cover override/revert exist, but no app-owned cover cache or crop/rebuild workflow exists.
 4. **Metadata portability:** export/import/apply and sidecar manifest/ZIP exist, but there is no OPF/JSON writer into source folders and no full fresh-install restore-from-sidecars workflow.
 5. **Scanning operations:** queued scans, progress, retry, recheck and cancellation exist; scheduled/resumable scans and notifications remain future work.
-6. **Discovery:** publication/series and year pages exist; dedicated creator pages, saved views and smart collections remain future work.
+6. **Discovery:** publication/series, publication-year and creator pages exist; saved views, smart collections and richer identity/issue grouping remain future work.
 7. **Shared libraries:** users manage personal roots; admin-managed shared/global roots are not implemented.
 8. **Readers and content services:** Library delegates reading to Nextcloud and does not provide page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
 9. **Real-collection evidence:** generated scale and selected live smokes are strong for a v0.1 candidate, but Uwe's manual test pass should still use real mixed files to find weak metadata/cover cases.
@@ -60,10 +60,10 @@ Most recent release-hardening target evidence should include:
 - Full Python contract suite.
 - Frontend Vitest suite and Vite production build.
 - Markdown link check and `git diff --check`.
-- Generated `dist/library-0.1.0-alpha.111.tar.gz` plus SHA-256 verification.
+- Generated `dist/library-0.1.0-alpha.115.tar.gz` plus SHA-256 verification.
 - Generated archive install into the live `nextcloud` container, then PHP lint, `occ app:enable library`, `occ upgrade`, router listing and live Vue/browser smokes.
 
-Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, genres/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year discovery pages.
+Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, genres/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year/creator discovery pages.
 
 ## Practical next hardening slices
 
