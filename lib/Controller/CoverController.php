@@ -44,6 +44,19 @@ class CoverController extends Controller {
             return $this->placeholderResponse('LIB', 'not-authenticated');
         }
 
+        $item = $this->itemService->findItem($userId, $itemId);
+        if ($item !== null && trim((string)($item['coverOverrideData'] ?? '')) !== '') {
+            return $this->coverResponse(
+                base64_decode((string)$item['coverOverrideData'], true) ?: '',
+                'library-cover-manual-' . $itemId . '.' . $this->coverExtension((string)($item['coverOverrideMimeType'] ?? 'image/jpeg')),
+                (string)($item['coverOverrideMimeType'] ?? 'image/jpeg'),
+                'manual-cover',
+                'manual-cover-upload',
+                3600,
+                $refreshRequested
+            );
+        }
+
         $fileId = $this->findFileIdForItem($userId, $itemId);
         if ($fileId === null) {
             return $this->placeholderResponse('LIB', 'item-not-found');
@@ -82,6 +95,41 @@ class CoverController extends Controller {
             return $cbzCover;
         }
         return $this->placeholderResponse($this->coverInitials($file->getName()), $previewError ?? ($this->isCbzFile($file) ? 'cbz-cover-unavailable' : 'preview-unavailable'));
+    }
+
+    #[NoAdminRequired]
+    public function override(int $itemId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $upload = $_FILES['coverOverrideFile'] ?? null;
+            $data = null;
+            $mimeType = null;
+            if (is_array($upload) && isset($upload['tmp_name']) && is_uploaded_file((string)$upload['tmp_name'])) {
+                $mimeType = is_string($upload['type'] ?? null) ? (string)$upload['type'] : 'image/jpeg';
+                if (str_starts_with($mimeType, 'image/')) {
+                    $data = base64_encode((string)file_get_contents((string)$upload['tmp_name']));
+                }
+            }
+            $this->itemService->setManualCoverOverride(
+                $user->getUID(),
+                $itemId,
+                (string)$this->request->getParam('coverOverrideUrl', ''),
+                $data,
+                $mimeType
+            );
+        }
+
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+    }
+
+    #[NoAdminRequired]
+    public function revert(int $itemId): RedirectResponse {
+        $user = $this->userSession->getUser();
+        if ($user !== null) {
+            $this->itemService->clearManualCoverOverride($user->getUID(), $itemId);
+        }
+
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
     }
 
     #[NoAdminRequired]

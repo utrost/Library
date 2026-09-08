@@ -158,6 +158,7 @@ final class ItemService {
             ->set('description', $qb->createNamedParameter($this->nullableString($metadata['description'] ?? null)))
             ->set('genres_json', $qb->createNamedParameter($this->jsonEncodeList($this->normalizeMultiValueField($metadata['genres'] ?? []))))
             ->set('classifications_json', $qb->createNamedParameter($this->jsonEncodeList($this->normalizeMultiValueField($metadata['classifications'] ?? []))))
+            ->set('personal_rating', $qb->createNamedParameter($this->normalizePersonalRating($metadata['personalRating'] ?? null)))
             ->set('metadata_source', $qb->createNamedParameter('user'))
             ->set('field_sources', $qb->createNamedParameter(json_encode($existingProvenance['fieldSources'], JSON_THROW_ON_ERROR)))
             ->set('field_values', $qb->createNamedParameter(json_encode($existingProvenance['fieldValues'], JSON_THROW_ON_ERROR)))
@@ -193,6 +194,8 @@ final class ItemService {
                 throw new \InvalidArgumentException('Language must use short codes such as de, en, fr, or en-US.');
             }
         }
+
+        $this->normalizePersonalRating($metadata['personalRating'] ?? null);
 
         return $metadata;
     }
@@ -584,7 +587,7 @@ final class ItemService {
 
     public function findItem(string $userId, int $itemId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -604,7 +607,7 @@ final class ItemService {
 
     public function exportCorrectedMetadata(string $userId): array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -893,7 +896,7 @@ final class ItemService {
         $cachedPath = trim((string)($importItem['cachedPath'] ?? ''));
 
         $qb = $this->db->getQueryBuilder();
-        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -917,7 +920,7 @@ final class ItemService {
 
     private function catalogueQueryBuilder(string $userId, array $filters): IQueryBuilder {
         $qb = $this->db->getQueryBuilder();
-        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -1220,6 +1223,10 @@ final class ItemService {
             'description' => $row['description'] !== null ? (string)$row['description'] : '',
             'genres' => $this->decodeJsonList($row['genres_json'] ?? null),
             'classifications' => $this->decodeJsonList($row['classifications_json'] ?? null),
+            'personalRating' => $row['personal_rating'] !== null ? (int)$row['personal_rating'] : null,
+            'coverOverrideUrl' => $row['cover_override_url'] !== null ? (string)$row['cover_override_url'] : '',
+            'coverOverrideData' => $row['cover_override_data'] !== null ? (string)$row['cover_override_data'] : '',
+            'coverOverrideMimeType' => $row['cover_override_mime_type'] !== null ? (string)$row['cover_override_mime_type'] : '',
             'starred' => (bool)$row['starred'],
             'workflowStatus' => (string)($row['workflow_status'] ?? ''),
             'lastOpenedAt' => (int)($row['last_opened_at'] ?? 0),
@@ -1494,6 +1501,52 @@ final class ItemService {
     private function normalizeWorkflowStatus(string $workflowStatus): string {
         $normalized = trim($workflowStatus);
         return in_array($normalized, self::WORKFLOW_STATUSES, true) ? $normalized : '';
+    }
+
+    private function normalizePersonalRating(mixed $rating): ?int {
+        $normalized = trim((string)$rating);
+        if ($normalized === '') {
+            return null;
+        }
+        if (preg_match('/^[0-5]$/', $normalized) !== 1) {
+            throw new \InvalidArgumentException('Personal rating must be between 0 and 5 stars.');
+        }
+        return (int)$normalized;
+    }
+
+    public function setManualCoverOverride(string $userId, int $itemId, ?string $coverOverrideUrl, ?string $coverData, ?string $mimeType): bool {
+        $url = trim((string)$coverOverrideUrl);
+        $data = $coverData !== null && trim($coverData) !== '' ? trim($coverData) : null;
+        $mime = $mimeType !== null && trim($mimeType) !== '' ? trim($mimeType) : null;
+        if ($url !== '' && preg_match('/^https?:\/\//i', $url) !== 1) {
+            throw new \InvalidArgumentException('Cover URL must start with http:// or https://.');
+        }
+        if ($data === null && $url === '') {
+            return false;
+        }
+        $qb = $this->db->getQueryBuilder();
+        $affected = $qb->update('library_items')
+            ->set('cover_override_url', $qb->createNamedParameter($url !== '' ? $url : null))
+            ->set('cover_override_data', $qb->createNamedParameter($data))
+            ->set('cover_override_mime_type', $qb->createNamedParameter($mime))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+        return $affected > 0;
+    }
+
+    public function clearManualCoverOverride(string $userId, int $itemId): bool {
+        $qb = $this->db->getQueryBuilder();
+        $affected = $qb->update('library_items')
+            ->set('cover_override_url', $qb->createNamedParameter(null))
+            ->set('cover_override_data', $qb->createNamedParameter(null))
+            ->set('cover_override_mime_type', $qb->createNamedParameter(null))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+        return $affected > 0;
     }
 
     private function databaseColumnForField(string $field): ?string {

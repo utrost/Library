@@ -59,6 +59,32 @@ $fieldProvenanceRows = [
     'classifications' => 'Classifications',
 ];
 $scannerCandidateCount = count(array_filter($fieldValues, static fn ($value) => trim((string)$value) !== ''));
+$metadataHealthFields = [
+    'title' => 'Title',
+    'creators' => 'Creators',
+    'publicationDate' => 'Publication date',
+    'language' => 'Language',
+    'genres' => 'Genres',
+    'publisher' => 'Publisher',
+    'description' => 'Description',
+    'personalRating' => 'Personal rating',
+];
+$weakFields = [];
+foreach ($metadataHealthFields as $field => $label) {
+    $rawValue = $item[$field] ?? '';
+    $hasValue = is_array($rawValue) ? count(array_filter($rawValue, static fn ($value) => trim((string)$value) !== '')) > 0 : trim((string)$rawValue) !== '';
+    if (!$hasValue) {
+        $weakFields[$field] = $label;
+    }
+}
+$metadataHealthTotal = count($metadataHealthFields);
+$metadataHealthComplete = $metadataHealthTotal - count($weakFields);
+$metadataHealth = [
+    'complete' => $metadataHealthComplete,
+    'total' => $metadataHealthTotal,
+    'score' => $metadataHealthTotal > 0 ? (int)round(($metadataHealthComplete / $metadataHealthTotal) * 100) : 100,
+    'weakFields' => $weakFields,
+];
 $scannerConflictCount = 0;
 foreach ($fieldProvenanceRows as $field => $_label) {
     $rawCurrentValue = $item[$field] ?? '';
@@ -129,6 +155,25 @@ $fileRows = [
                             </form>
                         </div>
                     </div>
+                    <details class="library-cover-override-panel">
+                        <summary><?php p($l->t('Manual cover override')); ?></summary>
+                        <form method="post" enctype="multipart/form-data" action="<?php p($item['coverOverrideActionUrl'] ?? ''); ?>" class="library-cover-override-form">
+                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                            <label>
+                                <?php p($l->t('Cover image URL')); ?>
+                                <input type="url" name="coverOverrideUrl" value="<?php p((string)($item['coverOverrideUrl'] ?? '')); ?>" placeholder="https://…" />
+                            </label>
+                            <label>
+                                <?php p($l->t('Upload cover image')); ?>
+                                <input type="file" name="coverOverrideFile" accept="image/*" />
+                            </label>
+                            <button type="submit" class="button secondary"><?php p($l->t('Use manual cover')); ?></button>
+                        </form>
+                        <form method="post" action="<?php p($item['coverRevertUrl'] ?? ''); ?>" class="library-cover-revert-form">
+                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                            <button type="submit" class="button secondary"><?php p($l->t('Revert to extracted/preview cover')); ?></button>
+                        </form>
+                    </details>
                 </div>
             </div>
         </article>
@@ -137,6 +182,21 @@ $fileRows = [
             <div class="library-detail-primary">
         <section class="library-panel library-detail-section-meta" aria-labelledby="library-publication-metadata-heading">
             <h3 id="library-publication-metadata-heading"><?php p($l->t('Publication metadata')); ?></h3>
+            <!-- health anchors: href="#library-field-title" href="#library-field-creators" href="#library-field-publicationDate" -->
+            <div class="library-metadata-health" aria-label="<?php p($l->t('Metadata health')); ?>">
+                <strong><?php p($l->t('Metadata health')); ?>: <?php p((string)$metadataHealth['score']); ?>%</strong>
+                <span class="library-muted"><?php p($l->t('%n of %n useful fields complete', '%n of %n useful fields complete', (int)$metadataHealth['complete'], [(int)$metadataHealth['total']])); ?></span>
+                <div class="library-weak-field-jump-list" aria-label="<?php p($l->t('Weak fields')); ?>">
+                    <span><?php p($l->t('Weak fields')); ?>:</span>
+                    <?php if (count($metadataHealth['weakFields']) === 0): ?>
+                        <span class="library-muted"><?php p($l->t('None')); ?></span>
+                    <?php else: ?>
+                        <?php foreach ($metadataHealth['weakFields'] as $field => $label): ?>
+                            <a href="#library-field-<?php p((string)$field); ?>"><?php p($l->t((string)$label)); ?></a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
             <form method="post" action="<?php p($item['updateUrl'] ?? ''); ?>" class="library-item-form library-detail-edit-form library-detail-edit-form--autosave" aria-labelledby="library-publication-metadata-heading" data-autosave="metadata">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <input type="hidden" name="returnTo" value="details" />
@@ -149,7 +209,7 @@ $fileRows = [
                     <p class="library-validation-feedback library-detail-field-full" role="alert"><?php p($l->t('Metadata was not saved') . ': ' . (string)$item['metadataError']); ?></p>
                 <?php endif; ?>
                 <p class="library-muted library-metadata-guidance library-detail-field-full"><?php p($l->t('Non-blocking guidance: these hints document useful metadata shapes, but they do not block saving.')); ?></p>
-                <label class="library-detail-field-wide library-detail-title-field">
+                <label class="library-detail-field-wide library-detail-title-field" id="library-field-title">
                     <?php p($l->t('Title')); ?>
                     <input type="text" name="title" value="<?php p((string)($item['title'] ?? '')); ?>" />
                 </label>
@@ -165,19 +225,27 @@ $fileRows = [
                         <?php endforeach; ?>
                     </select>
                 </label>
-                <label class="library-detail-field-wide library-creators-field">
+                <label class="library-detail-field-wide library-creators-field" id="library-field-creators">
                     <span class="library-field-label-help" title="<?php p($metadataHelp['creators']); ?>" aria-label="<?php p($l->t('Creators help: %s', [$metadataHelp['creators']])); ?>"><?php p($l->t('Creators')); ?></span>
-                    <textarea name="creators" rows="4"><?php p($creatorLines); ?></textarea>
+                    <div class="library-creator-chip-editor" data-creator-chip-editor>
+                        <div class="library-creator-chip-list" aria-label="<?php p($l->t('Creators')); ?>">
+                            <?php foreach (array_filter(array_map('trim', preg_split('/[;\n]+/u', (string)($item['creators'] ?? '')) ?: []), static fn ($value) => $value !== '') as $creator): ?>
+                                <span class="library-creator-chip"><span><?php p($creator); ?></span><button type="button" class="library-creator-chip-remove" aria-label="<?php p($l->t('Remove creator: %s', [$creator])); ?>">×</button></span>
+                            <?php endforeach; ?>
+                        </div>
+                        <input type="text" class="library-creator-chip-input" placeholder="<?php p($l->t('Add creator and press Enter')); ?>" />
+                        <input type="hidden" name="creators" value="<?php p($creatorLines); ?>" />
+                    </div>
                 </label>
                 <label class="library-detail-field-wide">
                     <?php p($l->t('Publication')); ?>
                     <input type="text" name="publication" value="<?php p((string)($item['publication'] ?? '')); ?>" />
                 </label>
-                <label>
+                <label id="library-field-publicationDate">
                     <span class="library-field-label-help" title="<?php p($metadataHelp['publicationDate']); ?>" aria-label="<?php p($l->t('Publication date help: %s', [$metadataHelp['publicationDate']])); ?>"><?php p($l->t('Publication date')); ?></span>
                     <input type="text" name="publicationDate" value="<?php p((string)($item['publicationDate'] ?? '')); ?>" />
                 </label>
-                <label class="library-detail-field-wide">
+                <label class="library-detail-field-wide" id="library-field-publisher">
                     <?php p($l->t('Publisher')); ?>
                     <input type="text" name="publisher" list="library-publisher-suggestions" value="<?php p((string)($item['publisher'] ?? '')); ?>" />
                     <datalist id="library-publisher-suggestions">
@@ -186,7 +254,7 @@ $fileRows = [
                         <?php endforeach; ?>
                     </datalist>
                 </label>
-                <label>
+                <label id="library-field-language">
                     <span class="library-field-label-help" title="<?php p($metadataHelp['language']); ?>" aria-label="<?php p($l->t('Language help: %s', [$metadataHelp['language']])); ?>"><?php p($l->t('Language')); ?></span>
                     <select name="language[]" multiple class="library-language-picklist">
                         <?php foreach ($languageOptions as $code => $label): ?>
@@ -194,7 +262,7 @@ $fileRows = [
                         <?php endforeach; ?>
                     </select>
                 </label>
-                <label class="library-detail-field-wide">
+                <label class="library-detail-field-wide" id="library-field-genres">
                     <span class="library-field-label-help" title="<?php p($metadataHelp['genres']); ?>" aria-label="<?php p($l->t('Genres help: %s', [$metadataHelp['genres']])); ?>"><?php p($l->t('Genres')); ?></span>
                     <select name="genres[]" multiple class="library-genre-picklist">
                         <?php foreach ($genreOptions as $genre): ?>
@@ -202,7 +270,7 @@ $fileRows = [
                         <?php endforeach; ?>
                     </select>
                 </label>
-                <label class="library-detail-field-wide">
+                <label class="library-detail-field-wide" id="library-field-classifications">
                     <span class="library-field-label-help" title="<?php p($metadataHelp['classifications']); ?>" aria-label="<?php p($l->t('Classifications help: %s', [$metadataHelp['classifications']])); ?>"><?php p($l->t('Classifications')); ?></span>
                     <input type="text" name="classifications" list="library-classification-suggestions" value="<?php p(implode('; ', is_array($item['classifications'] ?? null) ? $item['classifications'] : [])); ?>" />
                     <datalist id="library-classification-suggestions">
@@ -212,7 +280,11 @@ $fileRows = [
                         <option value="OCR-needed"></option>
                     </datalist>
                 </label>
-                <label class="library-detail-field-full library-detail-description-field">
+                <label id="library-field-personalRating">
+                    <?php p($l->t('Personal rating')); ?>
+                    <input type="number" name="personalRating" min="0" max="5" step="1" value="<?php p($item['personalRating'] !== null ? (string)$item['personalRating'] : ''); ?>" />
+                </label>
+                <label class="library-detail-field-full library-detail-description-field" id="library-field-description">
                     <?php p($l->t('Description')); ?>
                     <textarea name="description" rows="10"><?php p((string)($item['description'] ?? '')); ?></textarea>
                 </label>

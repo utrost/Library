@@ -2,11 +2,19 @@
 
 All notable changes for Library are tracked here.
 
-## v0.1.0-alpha.113 - 2026-09-08
+## v0.1.0-alpha.114 - 2026-09-08
+
+### Added
+
+- Detail-page metadata health score with a weak-field jump list for local cleanup triage.
+- Personal rating field with 0–5 star validation.
+- Manual cover override from URL or upload, with revert back to extracted/preview cover.
+- Creator chip editor that syncs to the existing canonical creators field.
 
 ### Changed
 
 - Moved detail-page metadata field help into hover/focus help on the field names so inline guidance no longer stretches the edit form.
+- Documented the useful metadata-field audit: sub-genre stays in genre/classification values for now instead of becoming a premature schema column.
 
 ## v0.1.0-alpha.112 - 2026-09-08
 
@@ -26,7 +34,7 @@ Release-hardening candidate for Uwe's v0.1 manual test pass.
 ### v0.1 testing limitations
 
 - Target is Nextcloud 34 only.
-- No app-owned cover cache or manual cover override.
+- Manual cover override is basic: detail pages accept a URL/upload and can revert to extracted/preview cover, but there is still no app-owned cover-crop/cache workflow.
 - Sidecar manifest and ZIP are export/download artifacts; there is no OPF/JSON writer into source folders and no full fresh-install restore from sidecars yet.
 - No scheduled/resumable scans or completion/failure notifications.
 - Publication and publication-year discovery pages exist; dedicated creator pages, saved views and smart collections remain future work.
