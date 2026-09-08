@@ -47,6 +47,34 @@ const state = {
 }
 
 describe('Library catalogue Vue app', () => {
+  it('keeps header actions and discovery shortcuts in compact disclosure controls above the covers', () => {
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          metadataSidecarManifestUrl: '/apps/library/export/sidecars/manifest',
+          metadataSidecarBundleUrl: '/apps/library/export/sidecars.zip',
+          publicationSummaries: [{ publication: 'Science of Everything', itemCount: 42 }],
+          publicationYears: ['2026'],
+          creators: ['Ada Reader'],
+        },
+      },
+    })
+
+    const toolbar = wrapper.find('.library-catalogue-toolbar')
+    expect(Array.from(toolbar.element.children).filter((child) => child.matches('a.button'))).toHaveLength(0)
+    expect(toolbar.find('.library-catalogue-actions-menu > summary').text()).toBe('Actions')
+
+    const utilityRow = wrapper.find('.library-catalogue-utility-row')
+    expect(utilityRow.exists()).toBe(true)
+    expect(utilityRow.findAll('details')).toHaveLength(2)
+    expect(utilityRow.find('.library-batch-actions > summary').text()).toContain('Batch')
+    expect(utilityRow.find('.library-discovery-shortcuts > summary').text()).toContain('Browse')
+
+    const utilityTop = utilityRow.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
+    expect(Boolean(utilityTop & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
+  })
+
   it('renders the catalogue from Nextcloud initial state', () => {
     const wrapper = mount(App, { props: { state } })
 
@@ -67,13 +95,13 @@ describe('Library catalogue Vue app', () => {
     expect(starForm.find('.library-cover-star-button').text()).toBe('☆')
     expect(wrapper.text()).toContain('Details')
     const filterPanel = wrapper.find('.library-filter-panel')
-    const periodicalsPanel = wrapper.find('.library-periodical-groups')
+    const discoveryShortcuts = wrapper.find('.library-discovery-shortcuts')
     expect(filterPanel.exists()).toBe(true)
     expect(filterPanel.attributes('open')).toBeUndefined()
     expect(filterPanel.find('summary').text()).toBe('Show catalogue filters')
-    expect(periodicalsPanel.exists()).toBe(true)
-    expect(periodicalsPanel.attributes('open')).toBeUndefined()
-    expect(periodicalsPanel.find('summary').text()).toBe('Show top series and periodicals')
+    expect(discoveryShortcuts.exists()).toBe(true)
+    expect(discoveryShortcuts.attributes('open')).toBeUndefined()
+    expect(discoveryShortcuts.find('summary').text()).toBe('Browse')
     expect(wrapper.text()).toContain('Export corrected metadata')
     expect(wrapper.find('a[aria-label="Export corrected metadata"]').attributes('href')).toBe('/apps/library/export/metadata')
   })

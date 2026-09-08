@@ -274,10 +274,15 @@ async function toggleStar(item, event) {
         <p class="library-muted">{{ t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.') }}</p>
       </div>
       <nav class="library-catalogue-toolbar" :aria-label="t('library', 'Library actions')">
-        <a :href="settingsUrl" class="button secondary" aria-label="Open Library settings">{{ t('library', 'Settings') }}</a>
-        <a v-if="metadataExportUrl" :href="metadataExportUrl" class="button secondary" aria-label="Export corrected metadata">{{ t('library', 'Export corrected metadata') }}</a>
-        <a v-if="metadataSidecarManifestUrl" :href="metadataSidecarManifestUrl" class="button secondary" aria-label="Export sidecar manifest">{{ t('library', 'Sidecar manifest') }}</a>
-        <a v-if="metadataSidecarBundleUrl" :href="metadataSidecarBundleUrl" class="button secondary" aria-label="Export sidecar ZIP">{{ t('library', 'Sidecar ZIP') }}</a>
+        <details class="library-catalogue-actions-menu">
+          <summary>{{ t('library', 'Actions') }}</summary>
+          <div class="library-catalogue-actions-list">
+            <a :href="settingsUrl" class="button secondary" aria-label="Open Library settings">{{ t('library', 'Settings') }}</a>
+            <a v-if="metadataExportUrl" :href="metadataExportUrl" class="button secondary" aria-label="Export corrected metadata">{{ t('library', 'Export corrected metadata') }}</a>
+            <a v-if="metadataSidecarManifestUrl" :href="metadataSidecarManifestUrl" class="button secondary" aria-label="Export sidecar manifest">{{ t('library', 'Sidecar manifest') }}</a>
+            <a v-if="metadataSidecarBundleUrl" :href="metadataSidecarBundleUrl" class="button secondary" aria-label="Export sidecar ZIP">{{ t('library', 'Sidecar ZIP') }}</a>
+          </div>
+        </details>
       </nav>
     </div>
 
@@ -447,68 +452,115 @@ async function toggleStar(item, event) {
       <p><a href="/apps/library/" class="button secondary">{{ t('library', 'Back to full catalogue') }}</a></p>
     </section>
 
-    <p class="library-muted library-filter-result-summary">{{ t('library', 'Showing') }} {{ pagination.from }}–{{ pagination.to }} {{ t('library', 'of') }} {{ pagination.total }} {{ t('library', 'catalogue items') }}<span v-if="activeFilterChips.length > 0"> · <a href="?">{{ t('library', 'Clear all filters') }}</a></span></p>
+    <div class="library-catalogue-status-row">
+      <p class="library-muted library-filter-result-summary">{{ t('library', 'Showing') }} {{ pagination.from }}–{{ pagination.to }} {{ t('library', 'of') }} {{ pagination.total }} {{ t('library', 'catalogue items') }}<span v-if="activeFilterChips.length > 0"> · <a href="?">{{ t('library', 'Clear all filters') }}</a></span></p>
+      <nav class="library-pagination library-pagination--top" :aria-label="t('library', 'Catalogue pagination')">
+        <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
+        <a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a>
+        <span v-else class="library-muted">{{ t('library', 'Previous') }}</span>
+        <a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a>
+        <span v-else class="library-muted">{{ t('library', 'Next') }}</span>
+      </nav>
+    </div>
 
-    <details class="library-batch-actions">
-      <summary>{{ t('library', 'Batch actions for current results') }} <span class="library-settings-count-badge">{{ pagination.total }} {{ t('library', 'Current filter result') }}</span></summary>
-      <form method="post" :action="batchTagUrl" class="library-batch-tag-form">
-        <input type="hidden" name="requesttoken" :value="requestToken">
-        <input v-for="filter in batchHiddenFilters" :key="filter.key" type="hidden" :name="filter.key" :value="filter.value">
-        <label>
-          <span>{{ t('library', 'Nextcloud tag') }}</span>
-          <input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off">
-        </label>
-        <button type="submit" class="button primary">{{ t('library', 'Apply Nextcloud tag to current results') }}</button>
-        <p class="library-muted">{{ t('library', 'Uses the current filters, not just this page. Limit: 5,000 matched items.') }}</p>
-      </form>
-      <form method="post" :action="batchTagRemoveUrl" class="library-batch-tag-remove-form">
-        <input type="hidden" name="requesttoken" :value="requestToken">
-        <input v-for="filter in batchHiddenFilters" :key="`remove-tag-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
-        <label>
-          <span>{{ t('library', 'Nextcloud tag') }}</span>
-          <input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off">
-        </label>
-        <button type="submit" class="button secondary">{{ t('library', 'Remove tag from current results') }}</button>
-        <p class="library-muted">{{ t('library', 'Removes an existing Nextcloud tag from every item matching the current filters. Library metadata is not changed.') }}</p>
-      </form>
-      <form method="post" :action="batchMetadataResetUrl" class="library-batch-metadata-reset-form">
-        <input type="hidden" name="requesttoken" :value="requestToken">
-        <input v-for="filter in batchHiddenFilters" :key="`reset-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
-        <input type="hidden" name="scannerConflicts" value="1">
-        <button type="submit" class="button secondary">{{ t('library', 'Reset filtered metadata') }}</button>
-        <p class="library-muted">{{ t('library', 'Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.') }}</p>
-      </form>
-      <form method="post" :action="batchMetadataEditPreviewUrl" class="library-batch-metadata-edit-preview-form" target="_blank">
-        <input type="hidden" name="requesttoken" :value="requestToken">
-        <input v-for="filter in batchHiddenFilters" :key="`edit-preview-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
-        <label>
-          <span>{{ t('library', 'Metadata field') }}</span>
-          <select name="bulkEditField">
-            <option value="publicationType">{{ t('library', 'Publication type') }}</option>
-            <option value="subtitle">{{ t('library', 'Subtitle') }}</option>
-            <option value="creators">{{ t('library', 'Creators') }}</option>
-            <option value="publication">{{ t('library', 'Series / periodical') }}</option>
-            <option value="publicationDate">{{ t('library', 'Publication date') }}</option>
-            <option value="language">{{ t('library', 'Language') }}</option>
-            <option value="publisher">{{ t('library', 'Publisher') }}</option>
-            <option value="genres">{{ t('library', 'Genres') }}</option>
-            <option value="classifications">{{ t('library', 'Classifications') }}</option>
-          </select>
-        </label>
-        <label>
-          <span>{{ t('library', 'Preview value') }}</span>
-          <input type="text" name="bulkEditValue" placeholder="magazine, de, photography..." autocomplete="off">
-        </label>
-        <button type="submit" class="button secondary">{{ t('library', 'Preview metadata edit') }}</button>
-        <p class="library-muted">{{ t('library', 'Preview-first batch metadata edit for current filter results. No changes are written during preview.') }}</p>
-      </form>
-      <form method="post" :action="batchCoverRefreshUrl" class="library-batch-cover-refresh-form">
-        <input type="hidden" name="requesttoken" :value="requestToken">
-        <input v-for="filter in batchHiddenFilters" :key="`cover-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
-        <button type="submit" class="button secondary">{{ t('library', 'Request fresh cover previews') }}</button>
-        <p class="library-muted">{{ t('library', 'Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.') }}</p>
-      </form>
-    </details>
+    <div class="library-catalogue-utility-row" aria-label="Catalogue tools and discovery shortcuts">
+      <details class="library-batch-actions" :aria-label="t('library', 'Batch actions for current results')">
+        <summary>{{ t('library', 'Batch') }} <span class="library-settings-count-badge">{{ pagination.total }} {{ t('library', 'Current filter result') }}</span></summary>
+        <form method="post" :action="batchTagUrl" class="library-batch-tag-form">
+          <input type="hidden" name="requesttoken" :value="requestToken">
+          <input v-for="filter in batchHiddenFilters" :key="filter.key" type="hidden" :name="filter.key" :value="filter.value">
+          <label>
+            <span>{{ t('library', 'Nextcloud tag') }}</span>
+            <input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off">
+          </label>
+          <button type="submit" class="button primary">{{ t('library', 'Apply Nextcloud tag to current results') }}</button>
+          <p class="library-muted">{{ t('library', 'Uses the current filters, not just this page. Limit: 5,000 matched items.') }}</p>
+        </form>
+        <form method="post" :action="batchTagRemoveUrl" class="library-batch-tag-remove-form">
+          <input type="hidden" name="requesttoken" :value="requestToken">
+          <input v-for="filter in batchHiddenFilters" :key="`remove-tag-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
+          <label>
+            <span>{{ t('library', 'Nextcloud tag') }}</span>
+            <input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off">
+          </label>
+          <button type="submit" class="button secondary">{{ t('library', 'Remove tag from current results') }}</button>
+          <p class="library-muted">{{ t('library', 'Removes an existing Nextcloud tag from every item matching the current filters. Library metadata is not changed.') }}</p>
+        </form>
+        <form method="post" :action="batchMetadataResetUrl" class="library-batch-metadata-reset-form">
+          <input type="hidden" name="requesttoken" :value="requestToken">
+          <input v-for="filter in batchHiddenFilters" :key="`reset-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
+          <input type="hidden" name="scannerConflicts" value="1">
+          <button type="submit" class="button secondary">{{ t('library', 'Reset filtered metadata') }}</button>
+          <p class="library-muted">{{ t('library', 'Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.') }}</p>
+        </form>
+        <form method="post" :action="batchMetadataEditPreviewUrl" class="library-batch-metadata-edit-preview-form" target="_blank">
+          <input type="hidden" name="requesttoken" :value="requestToken">
+          <input v-for="filter in batchHiddenFilters" :key="`edit-preview-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
+          <label>
+            <span>{{ t('library', 'Metadata field') }}</span>
+            <select name="bulkEditField">
+              <option value="publicationType">{{ t('library', 'Publication type') }}</option>
+              <option value="subtitle">{{ t('library', 'Subtitle') }}</option>
+              <option value="creators">{{ t('library', 'Creators') }}</option>
+              <option value="publication">{{ t('library', 'Series / periodical') }}</option>
+              <option value="publicationDate">{{ t('library', 'Publication date') }}</option>
+              <option value="language">{{ t('library', 'Language') }}</option>
+              <option value="publisher">{{ t('library', 'Publisher') }}</option>
+              <option value="genres">{{ t('library', 'Genres') }}</option>
+              <option value="classifications">{{ t('library', 'Classifications') }}</option>
+            </select>
+          </label>
+          <label>
+            <span>{{ t('library', 'Preview value') }}</span>
+            <input type="text" name="bulkEditValue" placeholder="magazine, de, photography..." autocomplete="off">
+          </label>
+          <button type="submit" class="button secondary">{{ t('library', 'Preview metadata edit') }}</button>
+          <p class="library-muted">{{ t('library', 'Preview-first batch metadata edit for current filter results. No changes are written during preview.') }}</p>
+        </form>
+        <form method="post" :action="batchCoverRefreshUrl" class="library-batch-cover-refresh-form">
+          <input type="hidden" name="requesttoken" :value="requestToken">
+          <input v-for="filter in batchHiddenFilters" :key="`cover-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
+          <button type="submit" class="button secondary">{{ t('library', 'Request fresh cover previews') }}</button>
+          <p class="library-muted">{{ t('library', 'Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.') }}</p>
+        </form>
+      </details>
+
+      <details class="library-discovery-shortcuts">
+        <summary>{{ t('library', 'Browse') }}</summary>
+        <div class="library-discovery-shortcut-grid">
+          <section v-if="publicationSummaries.length > 0" class="library-periodical-groups" aria-labelledby="library-periodical-groups-heading">
+            <h3 id="library-periodical-groups-heading">{{ t('library', 'Top series and periodicals') }}</h3>
+            <p class="library-muted">{{ t('library', 'Jump into recurring publications with one click.') }}</p>
+            <ul>
+              <li v-for="summary in publicationSummaries" :key="summary.publication">
+                <a :href="publicationLandingUrl(summary.publication)">{{ summary.publication }}</a>
+                <span class="library-muted">{{ summary.itemCount }} items</span>
+              </li>
+            </ul>
+          </section>
+          <section v-else-if="publicationSummaries.length === 0" class="library-periodical-groups library-periodical-groups-empty" aria-labelledby="library-periodical-groups-empty-heading">
+            <h3 id="library-periodical-groups-empty-heading">{{ t('library', 'No series or periodicals found yet') }}</h3>
+            <p class="library-muted">{{ t('library', 'Add publication or series names in item details to build this shortcut panel.') }}</p>
+          </section>
+          <section v-if="publicationYears.length > 0" class="library-year-groups" aria-labelledby="library-year-groups-heading">
+            <h3 id="library-year-groups-heading">{{ t('library', 'Top publication years') }}</h3>
+            <ul>
+              <li v-for="year in publicationYears" :key="year">
+                <a :href="yearLandingUrl(year)">{{ year }}</a>
+              </li>
+            </ul>
+          </section>
+          <section v-if="creators.length > 0" class="library-creator-groups" aria-labelledby="library-creator-groups-heading">
+            <h3 id="library-creator-groups-heading">{{ t('library', 'Top creators') }}</h3>
+            <ul>
+              <li v-for="creator in creators" :key="creator">
+                <a :href="creatorLandingUrl(creator)">{{ creator }}</a>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </details>
+    </div>
 
     <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
       <span>{{ t('library', 'Active filters') }}</span>
@@ -517,52 +569,6 @@ async function toggleStar(item, event) {
       </a>
     </nav>
 
-    <nav class="library-pagination" :aria-label="t('library', 'Catalogue pagination')">
-      <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
-      <a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a>
-      <span v-else class="library-muted">{{ t('library', 'Previous') }}</span>
-      <a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a>
-      <span v-else class="library-muted">{{ t('library', 'Next') }}</span>
-    </nav>
-
-    <details v-if="publicationSummaries.length > 0" class="library-periodical-groups">
-      <summary class="library-periodical-groups-summary">{{ t('library', 'Show top series and periodicals') }}</summary>
-      <h3 id="library-periodical-groups-heading">{{ t('library', 'Top series and periodicals') }}</h3>
-      <p class="library-muted">{{ t('library', 'Jump into recurring publications with one click.') }}</p>
-      <ul>
-        <li v-for="summary in publicationSummaries" :key="summary.publication">
-          <a :href="publicationLandingUrl(summary.publication)">{{ summary.publication }}</a>
-          <span class="library-muted">{{ summary.itemCount }} items</span>
-        </li>
-      </ul>
-    </details>
-    <details v-else-if="publicationSummaries.length === 0" class="library-periodical-groups library-periodical-groups-empty">
-      <summary class="library-periodical-groups-summary">{{ t('library', 'Show top series and periodicals') }}</summary>
-      <h3 id="library-periodical-groups-empty-heading">{{ t('library', 'No series or periodicals found yet') }}</h3>
-      <p class="library-muted">{{ t('library', 'Add publication or series names in item details to build this shortcut panel.') }}</p>
-    </details>
-
-    <details v-if="publicationYears.length > 0" class="library-year-groups">
-      <summary class="library-periodical-groups-summary">{{ t('library', 'Show publication years') }}</summary>
-      <h3 id="library-year-groups-heading">{{ t('library', 'Top publication years') }}</h3>
-      <p class="library-muted">{{ t('library', 'Jump into dated books, magazines, journals and comics by year.') }}</p>
-      <ul>
-        <li v-for="year in publicationYears" :key="year">
-          <a :href="yearLandingUrl(year)">{{ year }}</a>
-        </li>
-      </ul>
-    </details>
-
-    <details v-if="creators.length > 0" class="library-creator-groups">
-      <summary class="library-periodical-groups-summary">{{ t('library', 'Show creators') }}</summary>
-      <h3 id="library-creator-groups-heading">{{ t('library', 'Top creators') }}</h3>
-      <p class="library-muted">{{ t('library', 'Jump to a dedicated creator discovery page with exact full-field matching.') }}</p>
-      <ul>
-        <li v-for="creator in creators" :key="creator">
-          <a :href="creatorLandingUrl(creator)">{{ creator }}</a>
-        </li>
-      </ul>
-    </details>
 
     <div v-if="items.length === 0" class="library-empty-content" :class="{ 'library-first-run-guidance': hasNoConfiguredRoots || hasNoEnabledRoots, 'library-filter-empty-state': hasActiveFilters && !hasNoConfiguredRoots && !hasNoEnabledRoots }" role="status">
       <template v-if="hasNoConfiguredRoots">
@@ -640,12 +646,25 @@ async function toggleStar(item, event) {
         </div>
       </article>
     </div>
+
+    <nav v-if="items.length > 0" class="library-pagination library-pagination--bottom" :aria-label="t('library', 'Catalogue pagination')">
+      <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
+      <a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a>
+      <span v-else class="library-muted">{{ t('library', 'Previous') }}</span>
+      <a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a>
+      <span v-else class="library-muted">{{ t('library', 'Next') }}</span>
+    </nav>
   </section>
 
   </div>
 </template>
 
 <style>
+.library-vue-catalogue .library-panel {
+  margin-top: 8px;
+  padding: 12px;
+}
+
 .library-cover-gallery {
   gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -665,23 +684,22 @@ async function toggleStar(item, event) {
   padding: 0.25rem 0.6rem;
 }
 
-.library-filter-panel,
-.library-periodical-groups,
-.library-year-groups {
-  margin: 0 0 1rem;
+.library-filter-panel {
+  margin: 0;
 }
 
 .library-quick-filter-bar {
   align-items: end;
   display: grid;
-  gap: 8px;
-  grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(110px, auto)) auto auto;
-  margin: 0.75rem 0;
+  gap: 6px;
+  grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(96px, auto)) auto auto;
+  margin: 0.35rem 0;
 }
 
 .library-quick-filter-bar label {
   display: grid;
-  gap: 4px;
+  font-size: 12px;
+  gap: 2px;
   margin: 0;
 }
 
@@ -699,16 +717,22 @@ async function toggleStar(item, event) {
   padding: 2px 5px;
 }
 
-.library-batch-actions {
+.library-batch-actions,
+.library-discovery-shortcuts,
+.library-catalogue-actions-menu {
   border: 1px solid var(--color-border, #d0d0d0);
   border-radius: var(--border-radius, 6px);
-  margin: 0 0 0.75rem;
-  padding: 0.5rem 0.75rem;
+  margin: 0;
+  padding: 0.35rem 0.55rem;
 }
 
-.library-batch-actions > summary {
+.library-batch-actions > summary,
+.library-discovery-shortcuts > summary,
+.library-catalogue-actions-menu > summary {
   cursor: pointer;
+  font-size: 13px;
   font-weight: 600;
+  line-height: 1.2;
 }
 
 .library-batch-tag-form {
@@ -748,15 +772,65 @@ async function toggleStar(item, event) {
   margin: 0.25rem 0;
 }
 
-.library-filter-panel-summary,
-.library-periodical-groups-summary {
+.library-filter-panel-summary {
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 }
 
-.library-filter-panel .library-filter-bar {
-  margin-top: 12px;
+.library-catalogue-header {
+  gap: 0.25rem 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.library-catalogue-header h2,
+.library-catalogue-header p {
+  margin: 0;
+}
+
+.library-catalogue-actions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+}
+
+.library-catalogue-status-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  justify-content: space-between;
+  margin: 0.35rem 0;
+}
+
+.library-catalogue-status-row .library-filter-result-summary,
+.library-catalogue-status-row .library-pagination {
+  margin: 0;
+}
+
+.library-catalogue-utility-row {
+  display: grid;
+  gap: 0.35rem;
+  grid-template-columns: minmax(180px, auto) minmax(180px, 1fr);
+  margin: 0.35rem 0;
+}
+
+.library-discovery-shortcut-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0.6rem;
+}
+
+.library-discovery-shortcut-grid h3 {
+  font-size: 14px;
+  margin: 0 0 0.25rem;
+}
+
+.library-discovery-shortcut-grid ul,
+.library-discovery-shortcut-grid p {
+  margin-bottom: 0;
 }
 
 .library-cover-card {
@@ -807,6 +881,11 @@ async function toggleStar(item, event) {
 
   .library-quick-filter-search {
     grid-column: 1 / -1;
+  }
+
+  .library-catalogue-utility-row,
+  .library-discovery-shortcut-grid {
+    grid-template-columns: 1fr;
   }
 
   .library-cover-gallery {
