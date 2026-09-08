@@ -389,6 +389,13 @@
     margin-top: 0.5rem;
 }
 
+.library-filter-panel,
+.library-periodical-groups,
+.library-year-groups,
+.library-creator-groups {
+    margin: 0 0 1rem;
+}
+
 .library-filter-panel-summary,
 .library-periodical-groups-summary {
     cursor: pointer;
@@ -449,18 +456,24 @@
     display: inline-block;
 }
 
-.library-periodical-groups {
+.library-periodical-groups,
+.library-year-groups,
+.library-creator-groups {
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
     margin: 0 0 1rem;
     padding: 1rem;
 }
 
-.library-periodical-groups h3 {
+.library-periodical-groups h3,
+.library-year-groups h3,
+.library-creator-groups h3 {
     margin-top: 0;
 }
 
-.library-periodical-groups ul {
+.library-periodical-groups ul,
+.library-year-groups ul,
+.library-creator-groups ul {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -469,7 +482,9 @@
     padding: 0;
 }
 
-.library-periodical-groups li {
+.library-periodical-groups li,
+.library-year-groups li,
+.library-creator-groups li {
     align-items: center;
     background: var(--color-background-hover);
     border: 1px solid var(--color-border);

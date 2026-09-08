@@ -90,6 +90,14 @@ function fallbackIsYearDiscoveryPage(state) {
   return text(state.discoveryPage) === 'year'
 }
 
+function fallbackCreatorLandingUrl(creator, state = {}) {
+  return text(state?.creatorLandingUrls?.[creator] || `/apps/library/creators/${encodeURIComponent(text(creator))}`)
+}
+
+function fallbackIsCreatorDiscoveryPage(state) {
+  return text(state.discoveryPage) === 'creator'
+}
+
 function fallbackHasActiveFilters(state) {
   const activeFilters = state.activeFilters || {}
   return Object.entries(activeFilters).some(([key, value]) => key !== 'sort' && text(value).trim() !== '')
@@ -300,19 +308,19 @@ function fallbackCatalogue(state, error) {
   filterPanel.append(filterSummary, fallbackFilterForm(state, pagination))
   panel.appendChild(filterPanel)
 
-  if (fallbackIsPublicationDiscoveryPage(state) || fallbackIsYearDiscoveryPage(state)) {
+  if (fallbackIsPublicationDiscoveryPage(state) || fallbackIsYearDiscoveryPage(state) || fallbackIsCreatorDiscoveryPage(state)) {
     const discovery = document.createElement('section')
     discovery.className = 'library-discovery-header'
     discovery.setAttribute('aria-labelledby', 'library-discovery-heading')
     const label = document.createElement('p')
     label.className = 'library-muted'
-    label.textContent = fallbackIsYearDiscoveryPage(state) ? t('library', 'Publication year') : t('library', 'Publication / series')
+    label.textContent = fallbackIsCreatorDiscoveryPage(state) ? t('library', 'Creator') : (fallbackIsYearDiscoveryPage(state) ? t('library', 'Publication year') : t('library', 'Publication / series'))
     const discoveryHeading = document.createElement('h3')
     discoveryHeading.id = 'library-discovery-heading'
-    discoveryHeading.textContent = text(state.discoveryTitle || state.activeFilters?.publication || state.activeFilters?.year || '')
+    discoveryHeading.textContent = text(state.discoveryTitle || state.activeFilters?.publication || state.activeFilters?.year || state.activeFilters?.creator || '')
     const discoveryText = document.createElement('p')
     discoveryText.className = 'library-muted'
-    discoveryText.textContent = `${pagination.total ?? items.length} ${fallbackIsYearDiscoveryPage(state) ? t('library', 'items from this publication year. Sorted by publication date when available.') : t('library', 'items in this publication. Sorted by issue/date context when available.')}`
+    discoveryText.textContent = `${pagination.total ?? items.length} ${fallbackIsCreatorDiscoveryPage(state) ? t('library', 'items by this creator. Sorted by publication context when available.') : (fallbackIsYearDiscoveryPage(state) ? t('library', 'items from this publication year. Sorted by publication date when available.') : t('library', 'items in this publication. Sorted by issue/date context when available.'))}`
     const back = document.createElement('a')
     back.href = '/apps/library/'
     back.className = 'button secondary'
@@ -555,6 +563,31 @@ function fallbackCatalogue(state, error) {
     }
     yearPanel.append(yearSummary, yearHeading, yearText, yearList)
     panel.appendChild(yearPanel)
+  }
+
+  const creators = Array.isArray(state.creators) ? state.creators : []
+  if (creators.length > 0) {
+    const creatorPanel = document.createElement('details')
+    creatorPanel.className = 'library-creator-groups'
+    const creatorSummary = document.createElement('summary')
+    creatorSummary.className = 'library-periodical-groups-summary'
+    creatorSummary.textContent = t('library', 'Show creators')
+    const creatorHeading = document.createElement('h3')
+    creatorHeading.textContent = t('library', 'Top creators')
+    const creatorText = document.createElement('p')
+    creatorText.className = 'library-muted'
+    creatorText.textContent = t('library', 'Jump to a dedicated creator discovery page with exact full-field matching.')
+    const creatorList = document.createElement('ul')
+    for (const creator of creators) {
+      const entry = document.createElement('li')
+      const link = document.createElement('a')
+      link.href = fallbackCreatorLandingUrl(creator, state)
+      link.textContent = text(creator)
+      entry.appendChild(link)
+      creatorList.appendChild(entry)
+    }
+    creatorPanel.append(creatorSummary, creatorHeading, creatorText, creatorList)
+    panel.appendChild(creatorPanel)
   }
 
   if (items.length === 0) {

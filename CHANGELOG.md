@@ -2,7 +2,7 @@
 
 All notable changes for Library are tracked here.
 
-## v0.1.0-alpha.114 - 2026-09-08
+## v0.1.0-alpha.115 - 2026-09-08
 
 ### Added
 
@@ -10,6 +10,7 @@ All notable changes for Library are tracked here.
 - Personal rating field with 0–5 star validation.
 - Manual cover override from URL or upload, with revert back to extracted/preview cover.
 - Creator chip editor that syncs to the existing canonical creators field.
+- Dedicated creator discovery pages from the Top creators shortcut panel, using exact full-field creator matching.
 
 ### Changed
 
@@ -37,7 +38,7 @@ Release-hardening candidate for Uwe's v0.1 manual test pass.
 - Manual cover override is basic: detail pages accept a URL/upload and can revert to extracted/preview cover, but there is still no app-owned cover-crop/cache workflow.
 - Sidecar manifest and ZIP are export/download artifacts; there is no OPF/JSON writer into source folders and no full fresh-install restore from sidecars yet.
 - No scheduled/resumable scans or completion/failure notifications.
-- Publication and publication-year discovery pages exist; dedicated creator pages, saved views and smart collections remain future work.
+- Publication, publication-year and creator discovery pages exist; saved views and smart collections remain future work.
 - No shared global/admin-managed library roots.
 - No custom reader, page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
 
