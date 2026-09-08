@@ -20,10 +20,10 @@ def test_item_detail_page_contains_publication_metadata_edit_form():
         "creators",
         "publication",
         "publicationDate",
-        "language",
         "publisher",
     ]:
         assert f'name="{field}"' in template
+    assert 'name="language[]"' in template
     assert "$l->t('Publication metadata')" in template
     assert "$l->t('Edit publication metadata')" not in template
     assert "$l->t('Save metadata')" in template

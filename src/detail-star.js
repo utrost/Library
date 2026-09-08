@@ -65,14 +65,76 @@
     })
   }
 
+  function metadataStatus(form) {
+    return form.querySelector('.library-detail-autosave-status')
+  }
+
+  function setMetadataStatus(form, text) {
+    const status = metadataStatus(form)
+    if (status) status.textContent = text
+  }
+
+  async function submitMetadataAutosave(form) {
+    const autosaveFlag = form.querySelector('input[name="metadataAutosave"]')
+    const previousFlag = autosaveFlag?.value
+    if (autosaveFlag) autosaveFlag.value = '1'
+    setMetadataStatus(form, 'Saving metadata…')
+    try {
+      const response = await window.fetch(form.getAttribute('action') || form.action, {
+        method: 'POST',
+        body: new window.FormData(form),
+        credentials: 'same-origin',
+      })
+      setMetadataStatus(form, response.ok ? 'Metadata saved' : 'Metadata was not saved')
+    } catch (_error) {
+      setMetadataStatus(form, 'Metadata was not saved')
+    } finally {
+      if (autosaveFlag) autosaveFlag.value = previousFlag || '0'
+    }
+  }
+
+  function setupMetadataAutosave(root) {
+    const scope = root || document
+    const forms = scope.querySelectorAll('#library-app.library-item-detail form.library-detail-edit-form--autosave')
+    forms.forEach((form) => {
+      if (form.dataset.libraryMetadataAutosaveEnhanced === 'true') return
+      form.dataset.libraryMetadataAutosaveEnhanced = 'true'
+      let timer = null
+      const schedule = (delay) => {
+        window.clearTimeout(timer)
+        setMetadataStatus(form, 'Unsaved changes…')
+        timer = window.setTimeout(() => submitMetadataAutosave(form), delay)
+      }
+      form.addEventListener('input', (event) => {
+        if (event.target?.matches?.('input[type="hidden"]')) return
+        schedule(900)
+      })
+      form.addEventListener('change', (event) => {
+        if (event.target?.matches?.('input[type="hidden"]')) return
+        schedule(120)
+      })
+      form.addEventListener('submit', () => {
+        const autosaveFlag = form.querySelector('input[name="metadataAutosave"]')
+        if (autosaveFlag) autosaveFlag.value = '0'
+      })
+    })
+  }
+
   window.LibraryDetailStar = {
     setupDetailStarToggles,
     applyState,
   }
-
+  window.LibraryDetailMetadataAutosave = {
+    setupMetadataAutosave,
+    submitMetadataAutosave,
+  }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => setupDetailStarToggles(document), { once: true })
+    document.addEventListener('DOMContentLoaded', () => {
+      setupDetailStarToggles(document)
+      setupMetadataAutosave(document)
+    }, { once: true })
   } else {
     setupDetailStarToggles(document)
+    setupMetadataAutosave(document)
   }
 })()

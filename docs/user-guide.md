@@ -254,8 +254,8 @@ Library does not implement a reader in v0.1.
 ### Correcting a bad catalogue item
 
 1. Open the item's **Details** page.
-2. Edit publication metadata.
-3. Save metadata.
+2. Edit publication metadata in the single metadata workbench. Title and description use roomier fields; creators can be entered one per line; language and genre are multi-select picklists; publisher has type-ahead/autocomplete suggestions.
+3. Let the autosave enhancement save changes after edits, or press **Save metadata** as the accessible fallback/manual save action.
 4. Confirm provenance shows the item is user-edited.
 5. Use the scanner-candidate table to see where the scanner agrees or differs.
 6. Use **Reset to scanner** on a single field, or the whole-item reset action, only when the stored scanner candidate is preferable.

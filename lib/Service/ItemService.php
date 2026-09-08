@@ -188,11 +188,28 @@ final class ItemService {
         }
 
         $language = trim((string)($metadata['language'] ?? ''));
-        if ($language !== '' && preg_match('/^[a-z]{2,3}(-[A-Z]{2})?$/', $language) !== 1) {
-            throw new \InvalidArgumentException('Language must use a short code such as de, en, fr, or en-US.');
+        foreach ($this->normalizeLanguageList($language) as $languageCode) {
+            if (preg_match('/^[a-z]{2,3}(-[A-Z]{2})?$/', $languageCode) !== 1) {
+                throw new \InvalidArgumentException('Language must use short codes such as de, en, fr, or en-US.');
+            }
         }
 
         return $metadata;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function normalizeLanguageList(string $language): array {
+        $parts = preg_split('/[;,\n]+/u', $language) ?: [];
+        $normalized = [];
+        foreach ($parts as $part) {
+            $entry = trim($part);
+            if ($entry !== '') {
+                $normalized[] = $entry;
+            }
+        }
+        return $normalized;
     }
 
     public function setStarred(string $userId, int $itemId, bool $starred): bool {
