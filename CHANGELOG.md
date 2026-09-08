@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.113 - 2026-09-08
+
+### Changed
+
+- Moved detail-page metadata field help into hover/focus help on the field names so inline guidance no longer stretches the edit form.
+
 ## v0.1.0-alpha.112 - 2026-09-08
 
 Release-hardening candidate for Uwe's v0.1 manual test pass.

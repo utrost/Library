@@ -465,6 +465,11 @@ async function runBrowserSmoke(proxyBase) {
             && document.querySelector('.library-detail-description-field textarea[name="description"][rows="10"]')
             && document.querySelector('.library-detail-save-row .library-detail-autosave-status')
           ),
+          detailMetadataHoverHelp: document.querySelectorAll('.library-detail-section-meta .library-field-label-help[title]').length >= 5
+            && !document.querySelector('#library-publication-date-guidance')
+            && !document.querySelector('#library-language-guidance')
+            && !document.querySelector('#library-genres-guidance')
+            && !document.querySelector('#library-classifications-guidance'),
           detailSectionsLabelled: requiredLabelledSections.every(([selector, id]) => {
             const section = document.querySelector(selector)
             return Boolean(section) && section.getAttribute('aria-labelledby') === id && Boolean(document.querySelector('#' + id))
@@ -652,6 +657,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_detail_workflow_pill', detailDom.detailWorkflowPill)
     print('browser_detail_single_metadata_surface', detailDom.detailSingleMetadataSurface)
     print('browser_detail_v01_metadata_form_polish', detailDom.detailV01MetadataFormPolish)
+    print('browser_detail_metadata_hover_help', detailDom.detailMetadataHoverHelp)
     print('browser_detail_sections_labelled', detailDom.detailSectionsLabelled)
     print('browser_detail_post_forms', detailDom.detailPostForms)
     print('browser_detail_request_token_fields', detailDom.detailRequestTokenFields)
@@ -758,6 +764,7 @@ async function runBrowserSmoke(proxyBase) {
       && detailDom.detailWorkflowPill === true
       && detailDom.detailSingleMetadataSurface === true
       && detailDom.detailV01MetadataFormPolish === true
+      && detailDom.detailMetadataHoverHelp === true
       && detailDom.detailSectionsLabelled === true
       && detailDom.detailPostForms > 0
       && detailDom.detailRequestTokenFields === detailDom.detailPostForms
