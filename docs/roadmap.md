@@ -457,6 +457,18 @@ Tag result feedback has landed, and one-click suggested tag buttons have landed 
 
 Immediate implementation stance: use the cleaner extractor boundary to support common browsing UX first. The first dedicated publication discovery page has landed for top series/periodical shortcuts; next discovery slices should add creator/year pages, richer issue/date grouping and saved views.
 
+## Rough post-v0.1 roadmap
+
+The rough roadmap after v0.1 lives in [Rough roadmap after v0.1](post-v0.1-roadmap.md). It intentionally assigns one major feature family to each minor release line:
+
+1. v0.2 — filename and directory metadata parsing.
+2. v0.3 — external metadata providers.
+3. v0.4 — File-First sidecar write-back and restore.
+4. v0.5 — shared libraries and admin-managed roots.
+5. v0.6 — reading integrations and activity.
+
+Treat that file as direction-setting, not a date promise. Uwe's v0.1 test findings can reorder the sequence.
+
 ## Combined missing operational processes, 2026-09-06
 
 This section combines the role-facing gaps from the [User and admin guide](user-guide.md) with the latest product review questions: deletion/update processes, Library removal, cover rescans, folder/root scoped rescans and whether cover extraction remains optional.
