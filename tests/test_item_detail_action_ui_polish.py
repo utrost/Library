@@ -3,19 +3,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_cover_explanation_is_visible_near_refresh_action():
+def test_cover_explanation_is_contextual_help_on_refresh_action():
     template = (ROOT / "templates" / "item-detail.php").read_text()
     controller = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
     assert "coverQualityExplanation" in controller
-    assert "library-cover-quality-explanation" in template
-    assert "How Library chose this cover" in template
-    assert "If you see a placeholder" in template
     assert "title=\"<?php p((string)($item['coverQualityExplanation']" in template
     assert "aria-label=\"<?php p($l->t('Refresh cover preview" in template
+    assert "library-cover-quality-explanation" not in template
+    assert "<aside" not in template.split('class=\"library-detail-hero\"', 1)[1].split('</article>', 1)[0]
     assert "detail_has_cover_refresh_tooltip" in smoke
-    assert "detail_has_cover_quality_explanation=${detail.text.includes('library-cover-quality-explanation')}" in smoke
+    assert "detail_has_visible_cover_quality_explanation=${detail.text.includes('library-cover-quality-explanation')}" in smoke
 
 
 def test_detail_actions_are_grouped_and_ordered_with_star_icon_and_autosave_status():
