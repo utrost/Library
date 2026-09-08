@@ -70,7 +70,9 @@ const batchMetadataEditPreviewUrl = computed(() => catalogueState.batchMetadataE
 const batchCoverRefreshUrl = computed(() => catalogueState.batchCoverRefreshUrl || '/apps/library/bulk/covers/refresh')
 const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictReviewUrl || '?scannerConflicts=1')
 const isPublicationDiscoveryPage = computed(() => catalogueState.discoveryPage === 'publication')
-const discoveryTitle = computed(() => catalogueState.discoveryTitle || activeFilters.publication || '')
+const isYearDiscoveryPage = computed(() => catalogueState.discoveryPage === 'year')
+const isDiscoveryPage = computed(() => isPublicationDiscoveryPage.value || isYearDiscoveryPage.value)
+const discoveryTitle = computed(() => catalogueState.discoveryTitle || activeFilters.publication || activeFilters.year || '')
 const rootCount = computed(() => Number(catalogueState.rootCount || 0))
 const enabledRootCount = computed(() => Number(catalogueState.enabledRootCount || 0))
 const hasNoConfiguredRoots = computed(() => rootCount.value === 0)
@@ -118,7 +120,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -188,6 +190,10 @@ function publicationFilterUrl(publication) {
 function publicationLandingUrl(publication) {
   const summary = publicationSummaries.value.find((entry) => entry.publication === publication)
   return summary?.publicationLandingUrl || `/apps/library/publications/${encodeURIComponent(publication)}`
+}
+
+function yearLandingUrl(year) {
+  return catalogueState.publicationYearLandingUrls?.[year] || `/apps/library/years/${encodeURIComponent(year)}`
 }
 
 function setCoverDetailsOpen(itemId, event) {
@@ -421,10 +427,10 @@ async function toggleStar(item, event) {
       </form>
     </details>
 
-    <section v-if="isPublicationDiscoveryPage" class="library-discovery-header" aria-labelledby="library-publication-discovery-heading">
-      <p class="library-muted">{{ t('library', 'Publication / series') }}</p>
-      <h3 id="library-publication-discovery-heading">{{ discoveryTitle }}</h3>
-      <p class="library-muted">{{ pagination.total }} {{ t('library', 'items in this publication. Sorted by issue/date context when available.') }}</p>
+    <section v-if="isDiscoveryPage" class="library-discovery-header" aria-labelledby="library-discovery-heading">
+      <p class="library-muted">{{ isYearDiscoveryPage ? t('library', 'Publication year') : t('library', 'Publication / series') }}</p>
+      <h3 id="library-discovery-heading">{{ discoveryTitle }}</h3>
+      <p class="library-muted">{{ pagination.total }} {{ isYearDiscoveryPage ? t('library', 'items from this publication year. Sorted by publication date when available.') : t('library', 'items in this publication. Sorted by issue/date context when available.') }}</p>
       <p><a href="/apps/library/" class="button secondary">{{ t('library', 'Back to full catalogue') }}</a></p>
     </section>
 
@@ -523,6 +529,17 @@ async function toggleStar(item, event) {
       <p class="library-muted">{{ t('library', 'Add publication or series names in item details to build this shortcut panel.') }}</p>
     </details>
 
+    <details v-if="publicationYears.length > 0" class="library-year-groups">
+      <summary class="library-periodical-groups-summary">{{ t('library', 'Show publication years') }}</summary>
+      <h3 id="library-year-groups-heading">{{ t('library', 'Top publication years') }}</h3>
+      <p class="library-muted">{{ t('library', 'Jump into dated books, magazines, journals and comics by year.') }}</p>
+      <ul>
+        <li v-for="year in publicationYears" :key="year">
+          <a :href="yearLandingUrl(year)">{{ year }}</a>
+        </li>
+      </ul>
+    </details>
+
     <div v-if="items.length === 0" class="library-empty-content" :class="{ 'library-first-run-guidance': hasNoConfiguredRoots || hasNoEnabledRoots, 'library-filter-empty-state': hasActiveFilters && !hasNoConfiguredRoots && !hasNoEnabledRoots }" role="status">
       <template v-if="hasNoConfiguredRoots">
         <h3>{{ t('library', 'Start with one Library root') }}</h3>
@@ -611,7 +628,8 @@ async function toggleStar(item, event) {
 }
 
 .library-filter-panel,
-.library-periodical-groups {
+.library-periodical-groups,
+.library-year-groups {
   margin: 0 0 1rem;
 }
 
