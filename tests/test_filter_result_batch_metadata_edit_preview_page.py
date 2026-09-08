@@ -60,6 +60,6 @@ def test_docs_and_version_track_html_preview_page():
 
     assert "browser-readable preview page" in guide.lower()
     assert "HTML preview page" in roadmap
-    assert "<version>0.1.0-alpha.115</version>" in info
-    assert '"version": "0.1.0-alpha.115"' in package
-    assert '"version": "0.1.0-alpha.115"' in lock
+    assert "<version>0.1.0-alpha.116</version>" in info
+    assert '"version": "0.1.0-alpha.116"' in package
+    assert '"version": "0.1.0-alpha.116"' in lock
