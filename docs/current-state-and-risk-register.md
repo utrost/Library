@@ -21,7 +21,7 @@ Implemented and ready for v0.1 testing:
 - General editable publication metadata: title, subtitle, creators, publication/series, date, language, publisher, description, workflow status, genres and classifications.
 - Scanner provenance/candidates, differs-from-scanner labels, correction counts, single-field reset, whole-item reset, conflict review filter and batch scanner-candidate reset.
 - Compact cover-first catalogue with database-backed search, filters, facets, sort modes and pagination.
-- Dedicated publication/series and publication-year discovery pages around the compact catalogue grid.
+- Dedicated publication/series, publication-year and creator discovery pages around the compact catalogue grid, with publication pages showing a compact **Publication contents** issue/date coverage summary.
 - Read, Show in Files and Download source actions.
 - Detail workbench for publication metadata, Nextcloud tags/comments, cover refresh, scanner provenance and file diagnostics.
 - Nextcloud tag feedback, suggested tag buttons and filter-result batch tag add/remove.
@@ -47,7 +47,7 @@ These are acceptable for Uwe's v0.1 test pass but should stay visible:
 3. **Cover lifecycle:** on-demand previews/fallbacks, refresh affordances and manual cover override/revert exist, but no app-owned cover cache or crop/rebuild workflow exists.
 4. **Metadata portability:** export/import/apply and sidecar manifest/ZIP exist, but there is no OPF/JSON writer into source folders and no full fresh-install restore-from-sidecars workflow.
 5. **Scanning operations:** queued scans, progress, retry, recheck and cancellation exist; scheduled/resumable scans and notifications remain future work.
-6. **Discovery:** publication/series, publication-year and creator pages exist; saved views, smart collections and richer identity/issue grouping remain future work.
+6. **Discovery:** publication/series, publication-year and creator pages exist, and publication pages show compact issue/date coverage; saved views, smart collections and richer identity/issue grouping remain future work.
 7. **Shared libraries:** users manage personal roots; admin-managed shared/global roots are not implemented.
 8. **Readers and content services:** Library delegates reading to Nextcloud and does not provide page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
 9. **Real-collection evidence:** generated scale and selected live smokes are strong for a v0.1 candidate, but Uwe's manual test pass should still use real mixed files to find weak metadata/cover cases.

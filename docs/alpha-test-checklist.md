@@ -21,8 +21,9 @@ Expected result: Library opens without browser console errors, and the settings 
 5. Verify compact cards show cover, title, **Read** and **Details** by default.
 6. Use search and at least one filter, preferably type, format, shelf, scan status, genre/classification or starred.
 7. Open **Details** for one PDF, one EPUB and one CBZ when available.
+8. Open one publication/series, publication-year and creator discovery page from the shortcut panels when the fixture contains matching metadata.
 
-Expected result: source files stay in Nextcloud Files; Library only adds catalogue/index/metadata rows.
+Expected result: source files stay in Nextcloud Files; Library only adds catalogue/index/metadata rows. Discovery pages keep compact cards in a named context; publication pages show **Publication contents** issue/date coverage when publication metadata exists.
 
 ## Reader/file actions
 
@@ -71,7 +72,7 @@ Expected result: Library removes or updates app-owned rows only. It must not del
 - Sidecar manifest and sidecar ZIP are read-only/download-only. There is no OPF/JSON sidecar write-back into source folders yet.
 - Metadata import applies only to matched existing Library catalogue rows; a fresh-install restore flow is not complete.
 - Scan scheduling, resumable scans and notifications are absent.
-- publication and publication-year discovery pages exist; no dedicated creator pages, saved views or smart collections are present yet.
+- publication, publication-year and creator discovery pages exist, and publication pages show a compact **Publication contents** issue/date summary; saved views, smart collections and richer publication issue grouping are not present yet.
 - Shared/admin-managed roots are absent; users manage their own roots and Nextcloud permissions remain authoritative.
 - Library does not provide its own document reader, page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
 

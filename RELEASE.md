@@ -103,4 +103,4 @@ Release note summary should link to:
 - [Public alpha test checklist](docs/alpha-test-checklist.md)
 - [User and admin guide](docs/user-guide.md)
 
-Mark any GitHub release as a **GitHub prerelease** because important limitations remain: no source-folder sidecar write-back, no fresh-install restore from sidecars, no app-owned cover cache/crop workflow, no scheduling/notifications, no creator pages/saved views/smart collections, and no shared-root admin model.
+Mark any GitHub release as a **GitHub prerelease** because important limitations remain: no source-folder sidecar write-back, no fresh-install restore from sidecars, no app-owned cover cache/crop workflow, no scheduling/notifications, no saved views/smart collections, and no shared-root admin model.
