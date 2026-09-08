@@ -13,6 +13,7 @@ use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
+use OCP\Util;
 
 final class ItemController extends Controller {
     public function __construct(
@@ -161,6 +162,7 @@ final class ItemController extends Controller {
                 (string)$this->request->getParam('bulkEditValue', ''),
             ));
         }
+        Util::addStyle('library', 'style');
         return new TemplateResponse($this->appName, 'batch-metadata-edit-preview', [
             'result' => $result,
             'filters' => array_filter($filters, static fn (string $value): bool => $value !== ''),

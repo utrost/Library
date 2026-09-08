@@ -13,8 +13,10 @@ def test_batch_metadata_edit_preview_uses_browser_readable_template_response():
 
     assert "item#batchpreviewmetadataedit" in routes
     assert "use OCP\\AppFramework\\Http\\TemplateResponse;" in controller
+    assert "use OCP\\Util;" in controller
     assert "public function batchpreviewmetadataedit(): TemplateResponse" in controller
     body = controller.split("public function batchpreviewmetadataedit", 1)[1].split("private function catalogueFiltersFromRequest", 1)[0]
+    assert "Util::addStyle('library', 'style');" in body
     assert "batchMetadataEditPreviewResult" in body
     assert "previewOnly" in body
     assert "return new TemplateResponse($this->appName, 'batch-metadata-edit-preview'" in body
