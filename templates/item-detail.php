@@ -132,9 +132,14 @@ $fileRows = [
                     <div class="library-detail-actionbar">
                         <div class="library-detail-primary-actions">
                             <a href="<?php p($item['openUrl'] ?? '#'); ?>" class="button primary"><?php p($l->t('Read')); ?></a>
-                            <a href="<?php p($item['filesUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Show in Files')); ?></a>
-                            <a href="<?php p($item['downloadUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Download source')); ?></a>
-                            <a href="<?php p($item['coverRefreshPageUrl'] ?? ($item['coverUrl'] ?? '#')); ?>" class="button secondary library-cover-refresh-action" title="<?php p((string)($item['coverQualityExplanation'] ?? $l->t('Library asks Nextcloud preview first, then format-specific cover fallbacks, and finally shows a stable placeholder.'))); ?>" aria-label="<?php p($l->t('Refresh cover preview. How Library chose this cover: %s', [(string)($item['coverQualityExplanation'] ?? '')])); ?>"><?php p($l->t('Refresh cover preview')); ?></a>
+                            <details class="library-detail-more-actions">
+                                <summary><?php p($l->t('More actions')); ?></summary>
+                                <div>
+                                    <a href="<?php p($item['filesUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Show in Files')); ?></a>
+                                    <a href="<?php p($item['downloadUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Download source')); ?></a>
+                                    <a href="<?php p($item['coverRefreshPageUrl'] ?? ($item['coverUrl'] ?? '#')); ?>" class="button secondary library-cover-refresh-action" title="<?php p((string)($item['coverQualityExplanation'] ?? $l->t('Library asks Nextcloud preview first, then format-specific cover fallbacks, and finally shows a stable placeholder.'))); ?>" aria-label="<?php p($l->t('Refresh cover preview. How Library chose this cover: %s', [(string)($item['coverQualityExplanation'] ?? '')])); ?>"><?php p($l->t('Refresh cover preview')); ?></a>
+                                </div>
+                            </details>
                         </div>
                         <div class="library-detail-secondary-actions">
                             <form method="post" action="<?php p($item['starUrl'] ?? ''); ?>" class="library-inline-form library-star-form">
@@ -183,8 +188,8 @@ $fileRows = [
         <section class="library-panel library-detail-section-meta" aria-labelledby="library-publication-metadata-heading">
             <h3 id="library-publication-metadata-heading"><?php p($l->t('Publication metadata')); ?></h3>
             <!-- health anchors: href="#library-field-title" href="#library-field-creators" href="#library-field-publicationDate" -->
-            <div class="library-metadata-health" aria-label="<?php p($l->t('Metadata health')); ?>">
-                <strong><?php p($l->t('Metadata health')); ?>: <?php p((string)$metadataHealth['score']); ?>%</strong>
+            <details class="library-metadata-health library-metadata-health-details" aria-label="<?php p($l->t('Metadata health')); ?>">
+                <summary><?php p($l->t('Metadata quality')); ?> <span class="library-summary-badge"><?php p((string)$metadataHealth['score']); ?>%</span></summary>
                 <span class="library-muted"><?php p($l->t('%n of %n useful fields complete', '%n of %n useful fields complete', (int)$metadataHealth['complete'], [(int)$metadataHealth['total']])); ?></span>
                 <div class="library-weak-field-jump-list" aria-label="<?php p($l->t('Weak fields')); ?>">
                     <span><?php p($l->t('Weak fields')); ?>:</span>
@@ -196,7 +201,7 @@ $fileRows = [
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
-            </div>
+            </details>
             <form method="post" action="<?php p($item['updateUrl'] ?? ''); ?>" class="library-item-form library-detail-edit-form library-detail-edit-form--autosave" aria-labelledby="library-publication-metadata-heading" data-autosave="metadata">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <input type="hidden" name="returnTo" value="details" />
@@ -209,6 +214,8 @@ $fileRows = [
                     <p class="library-validation-feedback library-detail-field-full" role="alert"><?php p($l->t('Metadata was not saved') . ': ' . (string)$item['metadataError']); ?></p>
                 <?php endif; ?>
                 <p class="library-muted library-metadata-guidance library-detail-field-full"><?php p($l->t('Non-blocking guidance: these hints document useful metadata shapes, but they do not block saving.')); ?></p>
+                <div class="library-detail-fieldset library-detail-fieldset-identity library-detail-field-full">
+                    <h4><?php p($l->t('Identity')); ?></h4>
                 <label class="library-detail-field-wide library-detail-title-field" id="library-field-title">
                     <?php p($l->t('Title')); ?>
                     <input type="text" name="title" value="<?php p((string)($item['title'] ?? '')); ?>" />
@@ -237,6 +244,9 @@ $fileRows = [
                         <input type="hidden" name="creators" value="<?php p($creatorLines); ?>" />
                     </div>
                 </label>
+                </div>
+                <div class="library-detail-fieldset library-detail-fieldset-publication library-detail-field-full">
+                    <h4><?php p($l->t('Publication')); ?></h4>
                 <label class="library-detail-field-wide">
                     <?php p($l->t('Publication')); ?>
                     <input type="text" name="publication" value="<?php p((string)($item['publication'] ?? '')); ?>" />
@@ -280,6 +290,9 @@ $fileRows = [
                         <option value="OCR-needed"></option>
                     </datalist>
                 </label>
+                </div>
+                <div class="library-detail-fieldset library-detail-fieldset-personal library-detail-field-full">
+                    <h4><?php p($l->t('Personal')); ?></h4>
                 <label id="library-field-personalRating">
                     <?php p($l->t('Personal rating')); ?>
                     <input type="number" name="personalRating" min="0" max="5" step="1" value="<?php p($item['personalRating'] !== null ? (string)$item['personalRating'] : ''); ?>" />
@@ -288,6 +301,7 @@ $fileRows = [
                     <?php p($l->t('Description')); ?>
                     <textarea name="description" rows="10"><?php p((string)($item['description'] ?? '')); ?></textarea>
                 </label>
+                </div>
             </form>
         </section>
             </div>

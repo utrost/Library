@@ -2,7 +2,7 @@
 
 All notable changes for Library are tracked here.
 
-## v0.1.0-alpha.117 - 2026-09-08
+## v0.1.0-alpha.118 - 2026-09-08
 
 ### Added
 
@@ -17,6 +17,7 @@ All notable changes for Library are tracked here.
 
 ### Changed
 
+- UI/UX polish is now the active priority: settings roots render as shelf cards with collapsed danger zones, the mobile catalogue starts with search and hides sort/filter options, discovery pages use their focused context as the hero, detail pages demote secondary actions/metadata quality, and batch-preview examples become mobile review cards.
 - Moved detail-page metadata field help into hover/focus help on the field names so inline guidance no longer stretches the edit form.
 - Documented the useful metadata-field audit: sub-genre stays in genre/classification values for now instead of becoming a premature schema column.
 

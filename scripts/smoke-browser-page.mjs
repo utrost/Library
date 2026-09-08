@@ -425,11 +425,11 @@ async function runBrowserSmoke(proxyBase) {
       awaitPromise: true,
       expression: `(() => ({
         url: location.href,
-        page: Boolean(document.querySelector('.library-discovery-header')),
+        page: Boolean(document.querySelector('.library-discovery-hero')),
         heading: document.querySelector('#library-discovery-heading')?.textContent?.trim() || '',
         cards: document.querySelectorAll('.library-cover-card').length,
         activePublication: [...document.querySelectorAll('.library-active-filter-chips .library-filter-chip')].some((chip) => chip.textContent.includes('Series / periodical')),
-        backLink: Boolean(document.querySelector('.library-discovery-header a[href="/apps/library/"]')),
+        backLink: Boolean(document.querySelector('.library-discovery-hero a[href="/apps/library/"]')),
       }))()`
     })
     const publicationDiscoveryDom = publicationDiscoveryResult.result?.value ?? publicationDiscoveryResult.value
@@ -444,11 +444,11 @@ async function runBrowserSmoke(proxyBase) {
       awaitPromise: true,
       expression: `(() => ({
         url: location.href,
-        page: Boolean(document.querySelector('.library-discovery-header')),
+        page: Boolean(document.querySelector('.library-discovery-hero')),
         heading: document.querySelector('#library-discovery-heading')?.textContent?.trim() || '',
         cards: document.querySelectorAll('.library-cover-card').length,
         activeYear: [...document.querySelectorAll('.library-active-filter-chips .library-filter-chip')].some((chip) => chip.textContent.includes('Publication year')),
-        backLink: Boolean(document.querySelector('.library-discovery-header a[href="/apps/library/"]')),
+        backLink: Boolean(document.querySelector('.library-discovery-hero a[href="/apps/library/"]')),
       }))()`
     })
     const yearDiscoveryDom = yearDiscoveryResult.result?.value ?? yearDiscoveryResult.value
@@ -463,11 +463,11 @@ async function runBrowserSmoke(proxyBase) {
       awaitPromise: true,
       expression: `(() => ({
         url: location.href,
-        page: Boolean(document.querySelector('.library-discovery-header')),
+        page: Boolean(document.querySelector('.library-discovery-hero')),
         heading: document.querySelector('#library-discovery-heading')?.textContent?.trim() || '',
         cards: document.querySelectorAll('.library-cover-card').length,
         activeCreator: [...document.querySelectorAll('.library-active-filter-chips .library-filter-chip')].some((chip) => chip.textContent.includes('Creator')),
-        backLink: Boolean(document.querySelector('.library-discovery-header a[href="/apps/library/"]')),
+        backLink: Boolean(document.querySelector('.library-discovery-hero a[href="/apps/library/"]')),
       }))()`
     })
     const creatorDiscoveryDom = creatorDiscoveryResult.result?.value ?? creatorDiscoveryResult.value
