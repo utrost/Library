@@ -37,7 +37,7 @@ def test_live_smoke_checks_refresh_cover_url_and_response_headers():
     assert "refresh=1" in smoke
 
 
-def test_docs_mark_cover_refresh_affordance_landed_but_cache_override_future():
+def test_docs_mark_cover_refresh_affordance_and_manual_override_landed_but_cache_future():
     readme = (ROOT / "README.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
@@ -45,5 +45,11 @@ def test_docs_mark_cover_refresh_affordance_landed_but_cache_override_future():
     assert "Refresh cover preview" in readme
     assert "Refresh cover preview" in guide
     assert "cover refresh affordance" in roadmap
-    assert "app-owned cover cache" in roadmap
+    assert "Manual cover override" in guide
     assert "manual cover override" in roadmap
+    assert "no app-owned cover cache" in guide
+    assert "app-owned cover cache" in roadmap
+    assert "no manual cover override" not in guide
+    assert "manual cover override do not" not in guide
+    assert "manual overrides remain missing" not in guide
+    assert "manual cover override exists" not in roadmap

@@ -249,7 +249,7 @@ Setup: read the Known alpha limitations in [Public alpha test checklist](alpha-t
 
 Steps:
 
-1. Confirm the tester understands there is no app-owned cover cache/manual cover override.
+1. Confirm the tester understands manual cover override/revert exists, but there is no app-owned cover cache or crop/rebuild workflow.
 2. Confirm sidecar exports do not write source folders.
 3. Confirm creator pages, saved views, smart collections, shared/admin roots, custom readers, annotations, OCR/full-text search, internet lookup and AI classification are not part of this test pass.
 

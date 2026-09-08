@@ -182,7 +182,7 @@ These are **not committed release promises**. They can be pulled forward if v0.1
 
 - Creator identity splitting and dedicated creator pages.
 - Saved views and smart collections.
-- App-owned cover cache and manual cover override.
+- App-owned cover cache plus crop/rebuild workflows beyond the current manual cover override/revert.
 - OPDS/Kobo/Kindle export or sync.
 - OCR/full-text search for scanned PDFs.
 - Internet/AI classification only after provenance, privacy and review workflows are strong.

@@ -219,7 +219,7 @@ Library serves covers through its own item cover route:
 - returns a stable SVG placeholder when no cover provider succeeds;
 - includes diagnostic response headers so smokes can distinguish preview, CBZ first-image and placeholder outcomes.
 
-There is no app-owned cover cache yet and no manual cover override. **Refresh cover preview** is a request-level retry affordance, not a persistent cover-cache management UI.
+There is no app-owned cover cache yet. **Refresh cover preview** is a request-level retry affordance, not a persistent cover-cache management UI. **Manual cover override** is available on item details for URL/upload fixes, with revert back to extracted or preview covers.
 
 ### Reader and source-file actions
 
@@ -544,12 +544,13 @@ Acceptance checks:
 - CBZ first-image covers work when generic previews do not;
 - placeholder covers keep unsupported items usable;
 - item details keep the cover-quality explanation on the refresh action so placeholders and fallback sources are understandable without adding a permanent diagnostic body panel;
+- item details can set a manual cover override from a URL or uploaded image and revert back to extracted/preview covers;
 - diagnostic headers explain whether a response came from preview, EPUB package cover, CBZ first image or placeholder.
 
 Visible gaps:
 
 - no persistent app-owned cover cache yet;
-- no manual cover override.
+- no crop/rebuild workflow for an app-owned cached cover store.
 
 ### Story 8: Keeping sidecars and metadata files sane
 
@@ -599,7 +600,7 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 2. Improve the metadata correction workflow. Details editing exists, field-level scanner candidates are recorded and shown on item details, manual edit keeps scanner candidates available for later reset, and rescans refresh scanner candidates while current user-edited values stay untouched. Individual fields can show a **Reset to scanner** action when a stored scanner candidate differs from the current value, and whole-item reset to scanner candidates can apply all stored candidates at once. The edit form shows hints for dates, language codes and creator separators; first hard validation now blocks invalid publication date and language values while creator separators remain guidance. Rows where the current value differs from the scanner candidate show a **Differs from scanner** label. The details page includes a read-only metadata correction summary with scanner candidate count and differing-field count. Scanner conflicts filter is available from the catalogue as the first review workflow; bulk editing and richer validation remain future work.
 3. Make corrected metadata portable back into a fresh install or files. Read-only export, no-write import preview, apply-to-matched-existing-items, sidecar manifest export and sidecar ZIP export exist; write-back to JSON or OPF sidecars in source folders does not.
 4. Add repair-oriented scan lifecycle controls. Queued scans, progress, metadata-error retry, **Recheck missing files**, **Cancel queued scan** and cooperative running-job cancellation work; scheduled scans and completion notifications do not.
-5. Improve the cover quality path. Preview, EPUB package cover, CBZ first image, placeholders and a refresh-cover retry affordance work; app-owned cover cache and manual override do not.
+5. Improve the cover quality path. Preview, EPUB package cover, CBZ first image, placeholders, a refresh-cover retry affordance, and manual cover override/revert work; app-owned cover cache and crop/rebuild workflows do not.
 6. Add discovery by publication structure. Search/filter/pagination, the first dedicated publication discovery page and the first dedicated publication year discovery page exist; creator pages, richer grouping and saved views do not.
 7. Polish root/onboarding/shared-library workflows. Root lifecycle exists with typed root-delete confirmation, root deletion recovery guidance and first-run guidance; richer validation and admin-managed shared roots remain future work.
 
@@ -611,7 +612,7 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 2. **Scan lifecycle controls** — queued scans, metadata-error retry, missing-file recheck, queued-job cancellation and cooperative running-job cancellation work, but scheduled scans and completion notifications are absent.
 3. **Metadata correction workflow** — details editing, field-level scanner candidates, single-field reset-to-scanner, whole-item reset to scanner candidates, non-blocking edit guidance, first hard validation for publication dates and language codes, field-level **Differs from scanner** labels, a read-only metadata correction summary and the first scanner-conflict review filter exist. Bulk edit remains future work. Richer validation remains future work.
 4. **Tag UX** — tag add/remove, tag suggestions, one-click suggested tag buttons, tag result feedback, and filter-result bulk tagging apply/remove work; richer taxonomy batch workflows remain future work.
-5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers and a refresh-cover retry affordance work, but app-owned cover cache and manual overrides remain missing.
+5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers, a refresh-cover retry affordance, and manual cover override/revert work, but app-owned cover cache and crop/rebuild workflows remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
 7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips, top-series shortcuts, the first dedicated publication discovery page and the first dedicated publication year discovery page exist; creator landing pages, richer publication grouping, smart collections and saved views remain future work.
 8. **User-facing onboarding and empty states** — first-run root guidance, disabled-root guidance and filtered-empty recovery actions exist; richer guided tours and sample/demo fixtures remain future work.
