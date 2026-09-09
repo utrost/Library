@@ -163,20 +163,38 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                 <p class="library-muted" data-library-scan-summary><?php p((string)($latestScanJob['summary'] ?? '')); ?></p>
                 <?php if (($latestScanJob['status'] ?? '') === 'completed'): ?>
                     <section class="library-scan-changes-panel" aria-label="<?php p($l->t('Changes found')); ?>">
-                        <h4><?php p($l->t('Changes found')); ?></h4>
-                        <dl class="library-scan-change-counts">
-                            <dt>filesAdded</dt>
-                            <dd><?php p((string)($latestScanJob['filesAdded'] ?? 0)); ?></dd>
-                            <dt>pathsUpdated</dt>
-                            <dd><?php p((string)($latestScanJob['pathsUpdated'] ?? 0)); ?></dd>
-                            <dt>filesUnchanged</dt>
-                            <dd><?php p((string)($latestScanJob['filesUnchanged'] ?? 0)); ?></dd>
-                            <dt>filesMissing</dt>
-                            <dd><?php p((string)($latestScanJob['filesMissing'] ?? 0)); ?></dd>
+                        <div class="library-scan-changes-heading">
+                            <div>
+                                <h4><?php p($l->t('Changes found')); ?></h4>
+                                <p class="library-muted library-scan-changes-intro"><?php p($l->t('Library compared the scanned files with its catalogue index. Review anything that changed outside Library before forgetting missing rows.')); ?></p>
+                            </div>
+                            <span class="library-settings-count-badge"><?php p($l->t('safe review')); ?></span>
+                        </div>
+                        <dl class="library-scan-change-grid">
+                            <div class="library-scan-change-card library-scan-change-card--attention">
+                                <dt><?php p($l->t('Added')); ?></dt>
+                                <dd data-library-scan-files-added><?php p((string)($latestScanJob['filesAdded'] ?? 0)); ?></dd>
+                            </div>
+                            <div class="library-scan-change-card library-scan-change-card--attention">
+                                <dt><?php p($l->t('Moved or renamed')); ?></dt>
+                                <dd data-library-scan-paths-updated><?php p((string)($latestScanJob['pathsUpdated'] ?? 0)); ?></dd>
+                            </div>
+                            <div class="library-scan-change-card library-scan-change-card--calm">
+                                <dt><?php p($l->t('Unchanged')); ?></dt>
+                                <dd data-library-scan-files-unchanged><?php p((string)($latestScanJob['filesUnchanged'] ?? 0)); ?></dd>
+                            </div>
+                            <div class="library-scan-change-card library-scan-change-card--attention">
+                                <dt><?php p($l->t('Missing')); ?></dt>
+                                <dd data-library-scan-files-missing><?php p((string)($latestScanJob['filesMissing'] ?? 0)); ?></dd>
+                            </div>
+                            <div class="library-scan-change-card library-scan-change-card--attention">
+                                <dt><?php p($l->t('Metadata errors')); ?></dt>
+                                <dd data-library-scan-metadata-errors><?php p((string)($latestScanJob['errorCount'] ?? 0)); ?></dd>
+                            </div>
                         </dl>
-                        <p class="library-detail-actions">
-                            <a href="<?php p($_['scanChangedFilesUrl']); ?>" class="button secondary"><?php p($l->t('Review added and moved files')); ?></a>
-                            <a href="<?php p($_['scanMissingFilesUrl']); ?>" class="button secondary"><?php p($l->t('Review missing files')); ?></a>
+                        <p class="library-detail-actions library-scan-change-actions">
+                            <a href="<?php p($_['scanChangedFilesUrl']); ?>" class="button secondary"><?php p($l->t('Review recently changed files')); ?></a>
+                            <a href="<?php p($_['scanMissingFilesUrl']); ?>" class="button secondary"><?php p($l->t('Review files missing from disk')); ?></a>
                             <a href="<?php p($_['scanMetadataErrorsUrl']); ?>" class="button secondary"><?php p($l->t('Review metadata errors')); ?></a>
                         </p>
                     </section>

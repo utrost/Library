@@ -1,6 +1,6 @@
 {
   "name": "library",
-  "version": "0.1.0-alpha.133",
+  "version": "0.1.0-alpha.134",
   "private": true,
   "description": "Nextcloud publication catalogue for files stored in Nextcloud",
   "license": "AGPL-3.0-or-later",
