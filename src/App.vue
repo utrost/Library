@@ -78,9 +78,14 @@ const importHealthState = reactive({
   summary: catalogueState.importHealthSummary || {},
   loaded: Boolean(catalogueState.importHealthSummary && Object.keys(catalogueState.importHealthSummary).length > 0),
   loading: false,
+  refreshing: false,
   error: '',
 })
 const importHealthSummary = computed(() => importHealthState.summary || {})
+const importHealthGeneratedAt = computed(() => {
+  const generatedAt = Number(importHealthSummary.value.generatedAt || 0)
+  return generatedAt > 0 ? new Date(generatedAt * 1000).toLocaleString() : ''
+})
 const metadataErrorReview = computed(() => importHealthSummary.value.metadataErrorReview || { total: 0, byExtension: [], byError: [], examples: [], reviewUrl: '?status=metadata_error' })
 const archiveMagicSummary = computed(() => importHealthSummary.value.archiveMagicSummary || { totalChecked: 0, mismatches: 0, byExtensionAndContainer: [], examples: [] })
 const coverHealthSummary = computed(() => importHealthSummary.value.coverHealthSummary || { totalChecked: 0, byFormat: [], examples: [], note: '' })
@@ -160,13 +165,16 @@ function applyCatalogueState(nextState) {
   Object.assign(activeFilters, nextState.activeFilters || {})
 }
 
-async function loadImportHealthSummary(event) {
-  if (event && event.currentTarget && event.currentTarget.open !== true) return
-  if (importHealthState.loaded || importHealthState.loading) return
-  importHealthState.loading = true
+async function fetchImportHealthSummary(refresh = false) {
+  if (importHealthState.loading || importHealthState.refreshing) return
+  if (refresh) {
+    importHealthState.refreshing = true
+  } else {
+    importHealthState.loading = true
+  }
   importHealthState.error = ''
   try {
-    const response = await fetch(importHealthSummaryUrl.value, {
+    const response = await fetch(`${importHealthSummaryUrl.value}${refresh ? '?refresh=1' : ''}`, {
       headers: { Accept: 'application/json' },
       credentials: 'same-origin',
     })
@@ -179,7 +187,18 @@ async function loadImportHealthSummary(event) {
     importHealthState.error = error?.message || String(error)
   } finally {
     importHealthState.loading = false
+    importHealthState.refreshing = false
   }
+}
+
+async function loadImportHealthSummary(event) {
+  if (event && event.currentTarget && event.currentTarget.open !== true) return
+  if (importHealthState.loaded || importHealthState.loading) return
+  await fetchImportHealthSummary(false)
+}
+
+async function refreshImportHealthSummary() {
+  await fetchImportHealthSummary(true)
 }
 
 async function submitFiltersAjax(event) {
@@ -337,11 +356,15 @@ async function toggleStar(item, event) {
           <div class="library-actions-health-overview" aria-labelledby="library-actions-health-heading">
             <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Import health') }}</p>
             <h3 id="library-actions-health-heading">{{ t('library', 'Metadata overview') }}</h3>
-            <p class="library-muted">{{ t('library', 'Loaded on demand so normal paging, search, and filters stay fast. Files are left as-is; diagnostics separate Library extraction from Nextcloud/plugin preview.') }}</p>
-            <p v-if="importHealthState.loading" class="library-muted">{{ t('library', 'Loading metadata overview…') }}</p>
+            <p class="library-muted">{{ t('library', 'Cached metadata overview loads quickly. Refresh only when you want to recompute heavier archive and cover diagnostics. Files are left as-is; diagnostics separate Library extraction from Nextcloud/plugin preview.') }}</p>
+            <p v-if="importHealthState.loading" class="library-muted">{{ t('library', 'Loading cached metadata overview…') }}</p>
             <p v-else-if="importHealthState.error" class="library-notice">{{ importHealthState.error }}</p>
-            <p v-else-if="!importHealthState.loaded" class="library-muted">{{ t('library', 'Open Actions to load the current metadata and cover overview.') }}</p>
+            <p v-else-if="!importHealthState.loaded" class="library-muted">{{ t('library', 'Open Actions to load the cached metadata and cover overview.') }}</p>
             <template v-if="importHealthState.loaded">
+              <p v-if="importHealthSummary.message" class="library-muted">{{ importHealthSummary.message }}</p>
+              <p v-else-if="importHealthSummary.cacheStatus === 'missing'" class="library-muted">{{ t('library', 'No cached metadata overview exists yet') }}</p>
+              <p v-if="importHealthGeneratedAt" class="library-muted">{{ t('library', 'Last generated') }}: {{ importHealthGeneratedAt }}</p>
+              <button type="button" class="button secondary library-import-health-refresh" :disabled="importHealthState.refreshing" @click="refreshImportHealthSummary">{{ importHealthState.refreshing ? t('library', 'Refreshing metadata overview…') : t('library', 'Refresh metadata overview') }}</button>
               <div class="library-actions-health-links">
               <a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Review metadata errors') }}</a>
               <a class="button secondary" :href="metadataErrorsUrl">{{ t('library', 'Full review') }}</a>

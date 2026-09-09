@@ -28,7 +28,8 @@ class HealthController extends Controller {
     public function importSummary(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
-        return new JSONResponse($this->libraryHealthService->importHealthSummary($userId), 200, [
+        $refresh = (string)$this->request->getParam('refresh', '0') === '1';
+        return new JSONResponse($this->libraryHealthService->cachedImportHealthSummary($userId, $refresh), 200, [
             'Cache-Control' => 'private, no-store',
         ]);
     }

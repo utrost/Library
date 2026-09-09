@@ -6,7 +6,7 @@ This snapshot prepares Library for Uwe's v0.1 test pass. It documents what is im
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current app version: `0.1.0-alpha.124`.
+- Current app version: `0.1.0-alpha.125`.
 - Intended audience now: Uwe and trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
@@ -27,6 +27,7 @@ Implemented and ready for v0.1 testing:
 - Nextcloud tag feedback, suggested tag buttons and filter-result batch tag add/remove.
 - Cover route using Nextcloud preview, EPUB package cover, CBZ first image and placeholder fallback with diagnostic headers and no-store refresh paths.
 - Corrected metadata JSON export, import preview, matched-item import apply, sidecar manifest export and sidecar ZIP export without writing into source folders.
+- Cached Import Health metadata overview with explicit refresh, so heavy archive/container and cover diagnostics stay out of catalogue paging/search/filter paths.
 - Library-native starring/bookmarking, last-opened activity and recently opened sorting.
 
 ## Current security and safety controls
@@ -60,7 +61,7 @@ Most recent release-hardening target evidence should include:
 - Full Python contract suite.
 - Frontend Vitest suite and Vite production build.
 - Markdown link check and `git diff --check`.
-- Generated `dist/library-0.1.0-alpha.124.tar.gz` plus SHA-256 verification.
+- Generated `dist/library-0.1.0-alpha.125.tar.gz` plus SHA-256 verification.
 - Generated archive install into the live `nextcloud` container, then PHP lint, `occ app:enable library`, `occ upgrade`, router listing and live Vue/browser smokes.
 
 Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, genres/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year/creator discovery pages.
