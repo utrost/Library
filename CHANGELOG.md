@@ -2,6 +2,11 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.141 - 2026-09-09
+
+- Added keyboard polish to the in-page details drawer: Esc closes, and arrow keys browse neighbouring catalogue items.
+- Added an accessible drawer hint so keyboard controls are discoverable without leaving the browsing surface.
+
 ## v0.1.0-alpha.140 - 2026-09-09
 
 - Added catalogue cover loading polish with a subtle shimmer while lazy covers resolve.

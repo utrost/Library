@@ -34,5 +34,5 @@ def test_docs_and_smoke_track_filename_path_search_as_landed():
     assert "filename and folder path search" in guide.lower()
     assert "filename and folder path search" in roadmap.lower()
     assert "source_has_filename_path_search_copy" in smoke
-    assert "<version>0.1.0-alpha.140</version>" in info
-    assert '"version": "0.1.0-alpha.140"' in package
+    assert "<version>0.1.0-alpha.141</version>" in info
+    assert '"version": "0.1.0-alpha.141"' in package

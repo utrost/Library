@@ -455,7 +455,30 @@ function clearQuickSearchShortcut(event) {
   submitFiltersNow({ currentTarget: quickSearchInput.value })
 }
 
+function handleDrawerKeyboardShortcuts(event) {
+  if (!selectedDrawerItem.value || event.metaKey || event.ctrlKey || event.altKey) {
+    return false
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    closeDetailsDrawer()
+    return true
+  }
+  if (event.key === 'ArrowLeft' && drawerPreviousItem.value) {
+    event.preventDefault()
+    showDrawerItem(drawerPreviousItem.value)
+    return true
+  }
+  if (event.key === 'ArrowRight' && drawerNextItem.value) {
+    event.preventDefault()
+    showDrawerItem(drawerNextItem.value)
+    return true
+  }
+  return false
+}
+
 function handleCatalogueKeyboardShortcuts(event) {
+  if (handleDrawerKeyboardShortcuts(event)) return
   focusQuickSearchShortcut(event)
   clearQuickSearchShortcut(event)
 }
@@ -1114,8 +1137,9 @@ async function toggleStar(item, event) {
     </nav>
 
     <div v-if="selectedDrawerItem" class="library-detail-drawer-backdrop" @click="closeDetailsDrawer" aria-hidden="true"></div>
-    <aside v-if="selectedDrawerItem" class="library-detail-drawer" aria-labelledby="library-detail-drawer-heading" role="dialog" aria-modal="true">
+    <aside v-if="selectedDrawerItem" class="library-detail-drawer" aria-labelledby="library-detail-drawer-heading" aria-describedby="library-detail-drawer-keyboard-hint" role="dialog" aria-modal="true">
       <button type="button" class="library-detail-drawer-close" aria-label="Close details panel" @click="closeDetailsDrawer">×</button>
+      <p id="library-detail-drawer-keyboard-hint" class="library-muted library-detail-drawer-keyboard-hint">{{ t('library', 'Esc closes; arrow keys browse neighbouring items.') }}</p>
       <img class="library-detail-drawer-cover" :src="selectedDrawerItem.coverUrl" :alt="`Cover for ${selectedDrawerItem.title}`" loading="lazy">
       <p class="library-muted library-catalogue-eyebrow">{{ selectedDrawerItem.publicationType || t('library', 'Publication') }}</p>
       <h3 id="library-detail-drawer-heading">{{ selectedDrawerItem.title }}</h3>
@@ -1920,6 +1944,14 @@ async function toggleStar(item, event) {
 
 .library-detail-drawer-close {
   justify-self: end;
+}
+
+.library-detail-drawer-keyboard-hint {
+  background: var(--color-background-hover);
+  border-radius: 999px;
+  font-size: 12px;
+  margin: -0.2rem 0 0;
+  padding: 0.25rem 0.6rem;
 }
 
 .library-detail-drawer-cover {

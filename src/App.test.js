@@ -199,6 +199,36 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-detail-drawer-backdrop').exists()).toBe(true)
   })
 
+  it('supports keyboard navigation inside the details drawer', async () => {
+    const keyboardState = {
+      ...state,
+      items: [
+        { ...state.items[0], id: 7, title: 'Example Book', coverUrl: '/apps/library/items/7/cover' },
+        { ...state.items[0], id: 8, title: 'Second Book', coverUrl: '/apps/library/items/8/cover' },
+      ],
+      cataloguePagination: { ...state.cataloguePagination, total: 2, visible: 2, to: 2 },
+    }
+    const wrapper = mount(App, { props: { state: keyboardState } })
+
+    await wrapper.findAll('.library-cover-details')[0].trigger('toggle')
+    await wrapper.findAll('.library-cover-details-drawer-button')[0].trigger('click')
+    expect(wrapper.find('.library-detail-drawer').text()).toContain('Example Book')
+    expect(wrapper.find('.library-detail-drawer-keyboard-hint').text()).toContain('Esc closes')
+    expect(wrapper.find('.library-detail-drawer-keyboard-hint').text()).toContain('arrow keys browse')
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.library-detail-drawer').text()).toContain('Second Book')
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.library-detail-drawer').text()).toContain('Example Book')
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.library-detail-drawer').exists()).toBe(false)
+  })
+
   it('switches between compact gallery and shelf cover modes without navigation', async () => {
     const wrapper = mount(App, { props: { state } })
 
