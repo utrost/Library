@@ -122,6 +122,7 @@ try {
     const sourceStyle = readFileSync('css/style.css', 'utf8')
     const sourceDetailTemplate = readFileSync('templates/item-detail.php', 'utf8')
     const sourceSettingsTemplate = readFileSync('templates/settings-personal.php', 'utf8')
+    const sourceScanProgress = readFileSync('js/scan-progress.js', 'utf8')
 
     const script = scriptMatch ? await fetchText(scriptMatch[1], token) : { status: 0, text: '' }
     const css = cssMatch ? await fetchText(cssMatch[1], token) : { status: 0, text: '' }
@@ -280,9 +281,9 @@ try {
     console.log(`source_has_custom_saved_collections=${sourceComponent.includes('library-saved-collections') && sourceComponent.includes('Custom collections') && sourceComponent.includes('Save current view') && sourceComponent.includes('savedCollections') && sourceComponent.includes('savedCollectionSaveUrl') && sourceComponent.includes('savedCollectionDeleteUrl') && sourceComponent.includes('savedCollectionFilters') && sourceComponent.includes('JSON.stringify(currentSavableFilters')}`)
     console.log(`source_has_query_encoding_fix=${sourceComponent.includes("encodeURIComponent(tag.name)") && sourceComponent.includes('nextcloudTags.some')}`)
     const appInfo = readFileSync('appinfo/info.xml', 'utf8')
-    console.log(`app_version=0.1.0-alpha.136`)
+    console.log(`app_version=0.1.0-alpha.137`)
     console.log(`source_has_mobile_cover_first_cards=${sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceComponent.includes('library-cover-actions') && sourceStyle.includes('@media (max-width: 520px)') && sourceStyle.includes('grid-template-columns: repeat(2, minmax(0, 1fr))')}`)
-    console.log(`source_has_compact_cover_cards_all_widths=${appInfo.includes('<version>0.1.0-alpha.136</version>') && sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0')}`)
+    console.log(`source_has_compact_cover_cards_all_widths=${appInfo.includes('<version>0.1.0-alpha.137</version>') && sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0')}`)
     console.log(`served_css_has_compact_cover_defaults=${css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') && css.text.includes('min-height:0') && css.text.includes('library-cover-details')}`)
     console.log(`source_has_publication_sort=${sourceComponent.includes('<option value="publication">')}`)
     console.log(`source_has_periodical_groups_panel=${sourceComponent.includes('library-periodical-groups') && sourceComponent.includes('Top series and periodicals') && sourceComponent.includes('Jump into recurring publications with one click') && sourceComponent.includes('publicationLandingUrl(summary.publication)')}`)
@@ -332,6 +333,7 @@ try {
     console.log(`settings_has_metadata_import_apply_form=${settingsPage.text.includes('library-metadata-import-apply-form') && settingsPage.text.includes('metadataJson') && settingsPage.text.includes('Apply metadata import') && settingsPage.text.includes('This writes matched corrected metadata')}`)
     console.log(`settings_has_scan_changes_panel=${sourceSettingsTemplate.includes('library-scan-changes-panel') && sourceSettingsTemplate.includes('Changes found') && sourceSettingsTemplate.includes('data-library-scan-files-added') && sourceSettingsTemplate.includes('data-library-scan-paths-updated')}`)
     console.log(`settings_has_scan_changes_ux=${sourceSettingsTemplate.includes('library-scan-change-grid') && sourceSettingsTemplate.includes('Moved or renamed') && sourceSettingsTemplate.includes('Review recently changed files') && sourceStyle.includes('.library-scan-change-card')}`)
+    console.log(`settings_has_scan_completion_summary=${sourceSettingsTemplate.includes('library-scan-completion-summary') && sourceSettingsTemplate.includes('data-library-scan-completion-summary') && sourceSettingsTemplate.includes('Export metadata-error TSV') && sourceScanProgress.includes('renderCompletionSummary')}`)
     console.log(`settings_has_retry_metadata_errors_form=${settingsPage.text.includes('library-scan-retry-metadata-errors-form') && settingsPage.text.includes('Retry metadata errors')}`)
     console.log(`settings_has_recheck_missing_files_form=${settingsPage.text.includes('library-scan-recheck-missing-files-form') && settingsPage.text.includes('Recheck missing files')}`)
     console.log(`settings_has_cancel_queued_scan_form=${sourceSettingsTemplate.includes('library-scan-cancel-form') && sourceSettingsTemplate.includes('Cancel queued scan')}`)

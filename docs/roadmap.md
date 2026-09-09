@@ -28,7 +28,7 @@ What exists now:
 - `library_items` table for one editable publication item per indexed file.
 - Bootstrap UI for saving an initial root path and manually scanning enabled roots.
 - Scanner that indexes PDF, EPUB, CBZ and standalone OPF files by stable Nextcloud file ID, then creates/refreshes inferred catalogue items.
-- Scan-job progress/history table and UI summary for the latest queued background scan plus recent scan history: auto-refreshing scan progress and live-ish scan progress, status, root count, indexed file count, error count and duration.
+- Scan-job progress/history table and UI summary for the latest queued background scan plus recent scan history: auto-refreshing scan progress and live-ish scan progress, status, root count, indexed file count, added/moved/renamed/unchanged/missing/metadata-error counts, separate root/job failure count, duration, reload-safe post-scan completion summary, review smart-view links and metadata-error TSV export.
 - First local metadata extraction for EPUB package OPF, standalone OPF files, filename/folder patterns and basic PDF info dictionaries including UTF-16 BOM encoded PDF Info strings, PDF hex Info strings, PDF literal octal escapes, nested PDF literal parentheses, PDF Subject-as-subtitle, normalized PDF CreationDate/ModDate values, plain PDF Info dates and PDF literal line continuations.
 - Indexed-file list showing root, cached path, MIME type/extension and scan status.
 - Publication catalogue gallery with preview/CBZ/placeholder covers and compact cover-first cards on mobile and desktop; the default card surface is cover, title, Read and Details, with secondary metadata/actions behind a Details disclosure.

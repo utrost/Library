@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.137 - 2026-09-09
+
+- Added a reload-safe post-scan completion summary in Library settings for completed and failed scans.
+- Stored metadata-error scan counters separately from root/job failures so scan summaries match extraction behavior.
+- Linked scan summary counters to filtered review views and added a metadata-error TSV export action.
+
 ## v0.1.0-alpha.136 - 2026-09-09
 
 ### Added

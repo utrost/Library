@@ -47,8 +47,8 @@ final class LibraryScanner {
                 $rootId = (int)$root['id'];
                 $folder = $this->resolveRootFolder($userFolder, (string)$root['path']);
                 $seenLibraryFileIds = [];
-                $indexed += $this->scanFolder($userId, $rootId, $folder, $seenLibraryFileIds, $summary, function (int $filesIndexed) use (&$indexed, $progress, $rootsTotal, &$errors, $root): void {
-                    $this->reportProgress($progress, $rootsTotal, $indexed + $filesIndexed, count($errors), 'Scanning ' . (string)$root['path']);
+                $indexed += $this->scanFolder($userId, $rootId, $folder, $seenLibraryFileIds, $summary, function (int $filesIndexed) use (&$indexed, $progress, $rootsTotal, &$errors, $root, &$summary): void {
+                    $this->reportProgress($progress, $rootsTotal, $indexed + $filesIndexed, count($errors), 'Scanning ' . (string)$root['path'], $summary);
                 });
                 $summary['filesMissing'] += $this->fileIndexService->markMissingExcept($userId, $rootId, $seenLibraryFileIds);
                 $this->rootService->markScanned($rootId);
@@ -221,7 +221,7 @@ final class LibraryScanner {
         };
     }
 
-    private function reportProgress(?callable $progress, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary): void {
+    private function reportProgress(?callable $progress, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary, array $changeSummary = []): void {
         if ($progress === null) {
             return;
         }
@@ -231,6 +231,11 @@ final class LibraryScanner {
             'indexed' => $filesIndexed,
             'errors' => $errorCount,
             'summary' => $summary,
+            'filesAdded' => (int)($changeSummary['filesAdded'] ?? 0),
+            'pathsUpdated' => (int)($changeSummary['pathsUpdated'] ?? 0),
+            'filesUnchanged' => (int)($changeSummary['filesUnchanged'] ?? 0),
+            'filesMissing' => (int)($changeSummary['filesMissing'] ?? 0),
+            'metadataErrors' => (int)($changeSummary['metadataErrors'] ?? 0),
         ]);
     }
 
