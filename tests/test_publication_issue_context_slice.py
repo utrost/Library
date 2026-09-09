@@ -8,10 +8,11 @@ def test_item_service_exposes_publication_issue_context_summary():
 
     assert "public function publicationIssueContext(string $userId, string $publication): array" in service
     assert "itemCount:int,datedCount:int,undatedCount:int,earliestYear:string,latestYear:string" in service
-    assert "COUNT(*)" in service
-    assert "MIN(CASE WHEN i.publication_date IS NOT NULL AND i.publication_date <> '' THEN SUBSTR(i.publication_date, 1, 4) ELSE NULL END)" in service
-    assert "MAX(CASE WHEN i.publication_date IS NOT NULL AND i.publication_date <> '' THEN SUBSTR(i.publication_date, 1, 4) ELSE NULL END)" in service
-    assert "i.publication_date" in service
+    assert "private function publicationIssueRows" in service
+    assert "private function buildPublicationIssueGroups" in service
+    assert "issueGroups" in service
+    assert "gapRanges" in service
+    assert "unknownIssueItems" in service
     assert "f.scan_status" in service
     assert "sidecar" in service
 
@@ -19,7 +20,9 @@ def test_item_service_exposes_publication_issue_context_summary():
 def test_publication_discovery_page_provides_issue_context_initial_state():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
 
-    assert "'publicationIssueContext' => $this->itemService->publicationIssueContext($userId, $publication)" in controller
+    assert "'publicationIssueContext' => $this->enrichPublicationIssueContextForVue($this->itemService->publicationIssueContext($userId, $publication))" in controller
+    assert "private function enrichPublicationIssueContextForVue" in controller
+    assert "'detailsUrl'" in controller
     assert "'publicationIssueContext' => null" in controller
 
 
@@ -41,6 +44,7 @@ def test_smoke_and_docs_track_publication_issue_context_slice():
     guide = (ROOT / "docs" / "user-guide.md").read_text()
 
     assert "publication_issue_context" in smoke
+    assert "publication_issue_grouping" in smoke
     assert "source_has_publication_issue_context" in smoke
-    assert "publication issue/date context" in roadmap.lower()
+    assert "publication issue/date context" in roadmap.lower() or "read-only issue/date grouping" in roadmap.lower()
     assert "publication contents" in guide.lower()

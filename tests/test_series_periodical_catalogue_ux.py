@@ -51,7 +51,7 @@ def test_docs_pivot_priority_from_import_export_to_series_periodical_ux():
     guide = (ROOT / "docs" / "user-guide.md").read_text()
 
     assert "Series and periodicals UX is the next common-use priority" in roadmap
-    assert "Publication issue/date context has landed on publication landing pages as a compact contents summary" in roadmap
+    assert "Publication contents read-only issue/date grouping has landed on publication landing pages" in roadmap
     assert "Built-in useful views now cover daily destinations and cleanup queues" in roadmap
     assert "the next discovery layer is richer issue grouping" in roadmap
     assert "filter by series or periodical title" in guide.lower()

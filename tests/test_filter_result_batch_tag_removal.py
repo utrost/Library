@@ -54,5 +54,5 @@ def test_docs_and_version_track_filter_result_batch_tag_remove():
 
     assert "remove a nextcloud tag from current filter results" in guide.lower()
     assert "batch tag removal" in roadmap.lower()
-    assert "<version>0.1.0-alpha.135</version>" in info
-    assert '"version": "0.1.0-alpha.135"' in package
+    assert "<version>0.1.0-alpha.136</version>" in info
+    assert '"version": "0.1.0-alpha.136"' in package

@@ -74,11 +74,11 @@ class PageController extends Controller {
         $userId = $user !== null ? $user->getUID() : '';
         $this->initialState->provideInitialState('catalogue', $this->buildCatalogueState($userId, [
             'publication' => $publication,
-            'sort' => 'publication',
+            'sort' => 'publicationIssue',
         ], [
             'discoveryPage' => 'publication',
             'discoveryTitle' => $publication,
-            'publicationIssueContext' => $this->itemService->publicationIssueContext($userId, $publication),
+            'publicationIssueContext' => $this->enrichPublicationIssueContextForVue($this->itemService->publicationIssueContext($userId, $publication)),
         ]));
 
         return new TemplateResponse(Application::APP_ID, 'main');
@@ -166,7 +166,7 @@ class PageController extends Controller {
         foreach ($filterOverrides as $key => $value) {
             $activeFilters[$key] = trim((string)$value);
         }
-        if (!in_array($activeFilters['sort'], ['title', 'recent', 'publicationDate', 'publication', 'lastOpened', 'format'], true)) {
+        if (!in_array($activeFilters['sort'], ['title', 'recent', 'publicationDate', 'publication', 'publicationIssue', 'lastOpened', 'format'], true)) {
             $activeFilters['sort'] = 'title';
         }
         if ($activeFilters['tag'] !== '') {
@@ -256,6 +256,18 @@ class PageController extends Controller {
             $collection['count'] = (int)$this->itemService->queryCatalogue($userId, (array)($collection['filters'] ?? []), ['page' => 1, 'limit' => 1])['total'];
             return $collection;
         }, $this->savedCollectionService->listCollections($userId));
+    }
+
+    private function enrichPublicationIssueContextForVue(array $context): array {
+        foreach (($context['issueGroups'] ?? []) as $groupIndex => $group) {
+            foreach (($group['items'] ?? []) as $itemIndex => $issue) {
+                $context['issueGroups'][$groupIndex]['items'][$itemIndex]['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => (string)($issue['itemId'] ?? '0')]);
+            }
+        }
+        foreach (($context['unknownIssueItems'] ?? []) as $itemIndex => $issue) {
+            $context['unknownIssueItems'][$itemIndex]['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => (string)($issue['itemId'] ?? '0')]);
+        }
+        return $context;
     }
 
     /**

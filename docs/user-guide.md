@@ -520,7 +520,7 @@ Acceptance checks:
 Visible gaps:
 
 - no full-text search inside documents;
-- publication/series, publication-year and creator landing pages exist so far, and publication pages show **Publication contents** issue/date coverage; richer creator identity splitting and issue grouping beyond the compact context summary remain future work;
+- publication/series, publication-year and creator landing pages exist so far, and publication pages show **Publication contents** read-only issue/date grouping with stable issue/date order, year/month and volume buckets, conservative gap hints, and an **Unknown issue/date** bucket that keeps weak comics and periodicals visible; richer creator identity splitting and editable issue management remain future work;
 - built-in **Useful views** and in-app **Custom collections** provide saved smart-collection navigation without leaving Library;
 - no user-facing explanation of query performance limits for very large libraries.
 
@@ -619,7 +619,7 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 3. Make corrected metadata portable back into a fresh install or files. Read-only export, no-write import preview, apply-to-matched-existing-items, sidecar manifest export, sidecar manifest imports, and sidecar ZIP export exist; write-back to JSON or OPF sidecars in source folders does not.
 4. Add repair-oriented scan lifecycle controls. Queued scans, progress, added, moved/renamed, unchanged, missing and metadata-error counts, post-scan **Changes found** review links, human-readable scan change cards, metadata-error retry, **Recheck missing files**, **Cancel queued scan** and cooperative running-job cancellation work; scheduled scans and completion notifications do not.
 5. Improve the cover quality path. Preview, EPUB package cover, CBZ first image, placeholders, a refresh-cover retry affordance, and manual cover override/revert work; app-owned cover cache and crop/rebuild workflows do not.
-6. Add discovery by publication structure. Search/filter/pagination, built-in **Useful views** with daily/cleanup smart collections and count badges, the **Weak metadata cockpit** for sparse/suspicious metadata counts, in-app **Custom collections** for named saved filter combinations, the first dedicated publication discovery page, publication contents issue/date context, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; richer grouping/reordering polish does not.
+6. Add discovery by publication structure. Search/filter/pagination, built-in **Useful views** with daily/cleanup smart collections and count badges, the **Weak metadata cockpit** for sparse/suspicious metadata counts, in-app **Custom collections** for named saved filter combinations, the dedicated publication discovery page with **Publication contents** read-only issue/date grouping, stable issue/date order, year/month and volume buckets, conservative gap hints, an **Unknown issue/date** bucket, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; richer grouping/reordering polish does not.
 7. Polish root/onboarding/shared-library workflows. Root lifecycle exists with typed root-delete confirmation, root deletion recovery guidance and first-run guidance; richer validation and admin-managed shared roots remain future work.
 
 ## Crucial missing-feature candidates exposed by the guide
