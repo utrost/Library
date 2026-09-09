@@ -179,17 +179,17 @@ Candidate views:
 - no description;
 - unsupported archive/container type.
 
-Possible first slice:
+Current implementation:
 
-1. Add built-in “Needs metadata” and “Weak metadata” smart views.
-2. Show counts in the catalogue or Import Health panel.
-3. Link each count to the current filtered catalogue.
+1. Built-in **Needs metadata** and **Weak filename metadata** smart views are implemented in the catalogue.
+2. The **Weak metadata cockpit** now shows count cards for missing creator, missing publication/series, missing date, filename-derived title, filename/path-derived metadata, placeholder cover, scanner conflict, metadata extraction error, no description and unsupported archive/container candidates.
+3. Every count links to the normal filtered catalogue URL (`noCreator=1`, `noPublication=1`, `noDate=1`, `titleFromFilename=1`, `weakMetadata=filename`, `coverReview=placeholder`, `scannerConflicts=1`, `status=metadata_error`, `noDescription=1`, `unsupportedContainer=1`).
 
-Acceptance checks:
+Acceptance status:
 
-- weak views are derived from indexed metadata and provenance, not manual lists;
-- view links are stable and shareable;
-- compact cards remain browse-first while details carry repair actions.
+- **implemented**: weak views are derived from indexed metadata and provenance via the same catalogue query/count path as other filters, not manual lists;
+- **implemented**: view links are stable/shareable query URLs;
+- **implemented**: compact cards remain browse-first while Details carries repair actions.
 
 ### 5. Metadata review workbench
 

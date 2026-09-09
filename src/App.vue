@@ -60,6 +60,10 @@ const activeFilters = reactive({
   coverReview: catalogueState.activeFilters?.coverReview || '',
   noCreator: catalogueState.activeFilters?.noCreator || '',
   noPublication: catalogueState.activeFilters?.noPublication || '',
+  noDate: catalogueState.activeFilters?.noDate || '',
+  titleFromFilename: catalogueState.activeFilters?.titleFromFilename || '',
+  noDescription: catalogueState.activeFilters?.noDescription || '',
+  unsupportedContainer: catalogueState.activeFilters?.unsupportedContainer || '',
   weakMetadata: catalogueState.activeFilters?.weakMetadata || '',
   unreviewedImports: catalogueState.activeFilters?.unreviewedImports || '',
   sort: catalogueState.activeFilters?.sort || 'title',
@@ -129,6 +133,10 @@ const filterLabels = {
   coverReview: 'Cover review',
   noCreator: 'No creator',
   noPublication: 'No publication/series',
+  noDate: 'Missing date',
+  titleFromFilename: 'Filename-derived title',
+  noDescription: 'No description',
+  unsupportedContainer: 'Unsupported archive/container',
   weakMetadata: 'Weak metadata',
   unreviewedImports: 'Unreviewed imports',
 }
@@ -285,8 +293,25 @@ const smartViews = computed(() => [
   { key: 'placeholder-covers', label: 'Placeholder covers', description: 'Likely placeholder-cover candidates without a manual cover override.', query: 'coverReview=placeholder', filters: { coverReview: 'placeholder' } },
   { key: 'no-creator', label: 'No creator', description: 'Publications without creator metadata.', query: 'noCreator=1', filters: { noCreator: '1' } },
   { key: 'no-publication', label: 'No publication/series', description: 'Items without publication, series, periodical or collection metadata.', query: 'noPublication=1', filters: { noPublication: '1' } },
+  { key: 'missing-date', label: 'Missing date', description: 'Items without a publication date or year.', query: 'noDate=1', filters: { noDate: '1' } },
+  { key: 'title-from-filename', label: 'Filename-derived title', description: 'Rows whose title still comes from filename/path parsing.', query: 'titleFromFilename=1', filters: { titleFromFilename: '1' } },
   { key: 'weak-filename-metadata', label: 'Weak filename metadata', description: 'Items whose metadata still depends on filename/folder parsing.', query: 'weakMetadata=filename', filters: { weakMetadata: 'filename' } },
+  { key: 'no-description', label: 'No description', description: 'Rows without summary or description text.', query: 'noDescription=1', filters: { noDescription: '1' } },
+  { key: 'unsupported-containers', label: 'Unsupported archive/container', description: 'Archive/container formats that Library cannot inspect deeply yet.', query: 'unsupportedContainer=1', filters: { unsupportedContainer: '1' } },
   { key: 'unreviewed-imports', label: 'Unreviewed imports', description: 'Scanner-created catalogue rows not yet touched by user review.', query: 'unreviewedImports=1', filters: { unreviewedImports: '1' } },
+])
+
+const weakMetadataDashboardRows = computed(() => [
+  { key: 'no-creator', label: 'Missing creator', description: 'Creator field is empty.', filters: { noCreator: '1' } },
+  { key: 'no-publication', label: 'Missing publication/series', description: 'No publication, series, periodical or collection.', filters: { noPublication: '1' } },
+  { key: 'missing-date', label: 'Missing date', description: 'No publication year/date is indexed.', filters: { noDate: '1' } },
+  { key: 'title-from-filename', label: 'Filename-derived title', description: 'Title was inferred from the source path.', filters: { titleFromFilename: '1' } },
+  { key: 'weak-filename-metadata', label: 'Filename/path-derived metadata', description: 'At least one indexed field still depends on filename parsing.', filters: { weakMetadata: 'filename' } },
+  { key: 'placeholder-covers', label: 'Placeholder cover', description: 'Likely placeholder-cover candidates.', filters: { coverReview: 'placeholder' } },
+  { key: 'scanner-conflicts', label: 'Scanner conflict', description: 'Current metadata differs from scanner candidates.', filters: { scannerConflicts: '1' } },
+  { key: 'metadata-errors', label: 'Metadata extraction error', description: 'Scanner recorded a metadata extraction error.', filters: { status: 'metadata_error' } },
+  { key: 'no-description', label: 'No description', description: 'No summary/description text is indexed.', filters: { noDescription: '1' } },
+  { key: 'unsupported-containers', label: 'Unsupported archive/container', description: 'Container type needs manual inspection or future extractor support.', filters: { unsupportedContainer: '1' } },
 ])
 
 function smartViewUrl(filters) {
@@ -526,6 +551,23 @@ async function toggleStar(item, event) {
           <strong>{{ t('library', view.label) }}</strong>
           <span>{{ t('library', view.description) }}</span>
           <small class="library-useful-view-count">{{ Number(smartViewCounts[view.key] || 0) }}</small>
+        </a>
+      </nav>
+    </section>
+
+    <section class="library-weak-metadata-dashboard" aria-labelledby="library-weak-metadata-heading">
+      <div class="library-weak-metadata-dashboard-copy">
+        <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata cleanup') }}</p>
+        <h3 id="library-weak-metadata-heading">{{ t('library', 'Weak metadata cockpit') }}</h3>
+        <p class="library-muted">{{ t('library', 'Counts are derived from indexed metadata and scanner provenance, not manual lists; compact cards stay browse-first while Details carries repair actions.') }}</p>
+      </div>
+      <nav class="library-weak-metadata-links" :aria-label="t('library', 'Weak metadata catalogue views')">
+        <a v-for="row in weakMetadataDashboardRows" :key="row.key" class="library-weak-metadata-card" :href="smartViewUrl(row.filters)" :title="row.description">
+          <span>
+            <strong>{{ t('library', row.label) }}</strong>
+            <small>{{ t('library', row.description) }}</small>
+          </span>
+          <b>{{ Number(smartViewCounts[row.key] || 0) }}</b>
         </a>
       </nav>
     </section>
@@ -1057,6 +1099,7 @@ async function toggleStar(item, event) {
 }
 
 .library-useful-views,
+.library-weak-metadata-dashboard,
 .library-saved-collections {
   background: var(--color-background-hover, #f6f6f6);
   border: 1px solid var(--color-border, #d0d0d0);
@@ -1069,12 +1112,15 @@ async function toggleStar(item, event) {
 
 .library-useful-views h3,
 .library-useful-views p,
+.library-weak-metadata-dashboard h3,
+.library-weak-metadata-dashboard p,
 .library-saved-collections h3,
 .library-saved-collections p {
   margin: 0;
 }
 
 .library-useful-views-copy,
+.library-weak-metadata-dashboard-copy,
 .library-saved-collections-copy {
   display: grid;
   gap: 0.25rem;
@@ -1125,6 +1171,53 @@ async function toggleStar(item, event) {
   font-weight: 700;
   min-width: 1.5rem;
   padding: 0.1rem 0.35rem;
+  text-align: center;
+}
+
+.library-weak-metadata-links {
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.library-weak-metadata-card {
+  align-items: center;
+  background: var(--color-main-background, #fff);
+  border: 1px solid var(--color-border, #d0d0d0);
+  border-radius: var(--border-radius, 6px);
+  color: var(--color-main-text, #222);
+  display: flex;
+  gap: 0.55rem;
+  justify-content: space-between;
+  min-height: 3.4rem;
+  padding: 0.5rem 0.6rem;
+  text-decoration: none;
+}
+
+.library-weak-metadata-card:hover,
+.library-weak-metadata-card:focus {
+  border-color: var(--color-primary-element, #00679e);
+  text-decoration: none;
+}
+
+.library-weak-metadata-card span {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.library-weak-metadata-card small {
+  color: var(--color-text-maxcontrast, #6b6b6b);
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.library-weak-metadata-card b {
+  background: var(--color-primary-element-light, #eaf6ff);
+  border-radius: 999px;
+  flex: 0 0 auto;
+  min-width: 2rem;
+  padding: 0.15rem 0.45rem;
   text-align: center;
 }
 

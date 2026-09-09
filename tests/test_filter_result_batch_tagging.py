@@ -56,5 +56,5 @@ def test_docs_and_version_track_filter_result_batch_tagging():
 
     assert "filter-result batch tagging" in guide.lower()
     assert "current filter results" in roadmap.lower()
-    assert "<version>0.1.0-alpha.134</version>" in info
-    assert '"version": "0.1.0-alpha.134"' in package
+    assert "<version>0.1.0-alpha.135</version>" in info
+    assert '"version": "0.1.0-alpha.135"' in package

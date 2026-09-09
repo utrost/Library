@@ -155,6 +155,10 @@ class PageController extends Controller {
             'coverReview' => trim((string)$this->request->getParam('coverReview', '')),
             'noCreator' => trim((string)$this->request->getParam('noCreator', '')),
             'noPublication' => trim((string)$this->request->getParam('noPublication', '')),
+            'noDate' => trim((string)$this->request->getParam('noDate', '')),
+            'titleFromFilename' => trim((string)$this->request->getParam('titleFromFilename', '')),
+            'noDescription' => trim((string)$this->request->getParam('noDescription', '')),
+            'unsupportedContainer' => trim((string)$this->request->getParam('unsupportedContainer', '')),
             'weakMetadata' => trim((string)$this->request->getParam('weakMetadata', '')),
             'unreviewedImports' => trim((string)$this->request->getParam('unreviewedImports', '')),
             'sort' => trim((string)$this->request->getParam('sort', 'title')),
@@ -307,7 +311,7 @@ class PageController extends Controller {
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
         $query = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title')) {
                 $query[$param] = $value;
