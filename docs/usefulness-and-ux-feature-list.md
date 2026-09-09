@@ -385,11 +385,12 @@ These items intentionally put metadata/admin/check surfaces aside and focus on m
 
 ### 13. Better cover wall / shelf mode
 
-Status: first slice implemented.
+Status: implemented for the first visual-browsing slice.
 
+- A Compact / Gallery / Shelf view-mode toggle now keeps Compact as the fast default while Gallery view enlarges covers and Shelf view offers a horizontal snap-scrolling shelf.
 - A browsing-first home dashboard now puts **Continue reading**, **Recently added** and **Rediscover** above the grid.
 - Compact cards retain the fast cover-first default, while subtle shadows, hover lift and reduced-motion fallbacks add polish without turning the catalogue into an admin page.
-- Remaining: explicit Compact/Gallery/Shelf toggle, dominant-colour cover backgrounds, richer placeholder/broken-cover art.
+- Remaining: dominant-colour cover backgrounds, richer placeholder/broken-cover art and stronger shelf-specific cover treatments.
 
 ### 14. Fast visual browsing gestures
 

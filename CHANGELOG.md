@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.139 - 2026-09-09
+
+- Added a Compact / Gallery / Shelf view-mode toggle for the cover catalogue.
+- Gallery view enlarges covers for visual browsing; Shelf view becomes a horizontal snap-scrolling shelf.
+- Kept Compact as the fast default while preserving no-navigation toggling and reduced-motion styling.
+
 ## v0.1.0-alpha.138 - 2026-09-09
 
 - Added a browsing-first home dashboard with Continue reading, Recently added and Rediscover rails.
