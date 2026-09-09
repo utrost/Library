@@ -141,13 +141,19 @@ private function extractPdfInfoDate(string $content, string $key): ?string {
 
 private function normalizePdfInfoDate(string $value): ?string {
     // PDF date form is D:YYYYMMDDHHmmSS with optional timezone suffix; partial dates exist.
-    if (!preg_match('/^D?:(?<year>\d{4})(?<month>\d{2})?(?<day>\d{2})?/u', trim($value), $matches)) {
+    // Some malformed real PDFs sometimes omit D: but still store plain YYYYMMDD values.
+    $trimmed = trim($value);
+    if (preg_match('/^D?:(?<year>\d{4})(?<month>\d{2})?(?<day>\d{2})?/u', $trimmed, $matches)) {
+        $year = (int)$matches['year'];
+        $month = isset($matches['month']) && $matches['month'] !== '' ? (int)$matches['month'] : null;
+        $day = isset($matches['day']) && $matches['day'] !== '' ? (int)$matches['day'] : null;
+    } elseif (preg_match('/^(?<plainYear>\d{4})(?<plainMonth>\d{2})?(?<plainDay>\d{2})?/u', $trimmed, $matches)) {
+        $year = (int)$matches['plainYear'];
+        $month = isset($matches['plainMonth']) && $matches['plainMonth'] !== '' ? (int)$matches['plainMonth'] : null;
+        $day = isset($matches['plainDay']) && $matches['plainDay'] !== '' ? (int)$matches['plainDay'] : null;
+    } else {
         return null;
     }
-
-    $year = (int)$matches['year'];
-    $month = isset($matches['month']) && $matches['month'] !== '' ? (int)$matches['month'] : null;
-    $day = isset($matches['day']) && $matches['day'] !== '' ? (int)$matches['day'] : null;
 
     if ($month === null) {
         return sprintf('%04d', $year);
@@ -165,6 +171,10 @@ private function normalizePdfInfoDate(string $value): ?string {
 }
 
 private function decodePdfLiteralEscapes(string $value): string {
+    // PDF literal line continuations use a trailing backslash before a newline; join them
+    // before decoding octal escapes and normal one-character escapes.
+    $value = preg_replace('/\\\\\r?\n/', '', $value) ?? $value;
+    $value = preg_replace('/\\\\\r/', '', $value) ?? $value;
     $value = preg_replace_callback('/\\\\([0-7]{1,3})/', static function (array $matches): string {
         return chr(octdec($matches[1]));
     }, $value) ?? $value;
