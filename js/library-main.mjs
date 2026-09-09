@@ -5087,118 +5087,118 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
   key: 0,
   class: "library-muted library-catalogue-eyebrow"
 }, rf = { id: "library-catalogue-heading" }, nf = { class: "library-muted" }, of = ["aria-label"], sf = { class: "library-catalogue-actions-menu" }, lf = { class: "library-catalogue-actions-list" }, af = ["href"], cf = ["href"], uf = ["href"], ff = ["href"], df = {
+  key: 3,
+  class: "library-actions-health-overview",
+  "aria-labelledby": "library-actions-health-heading"
+}, pf = { class: "library-muted library-catalogue-eyebrow" }, hf = { id: "library-actions-health-heading" }, mf = { class: "library-muted" }, bf = { class: "library-actions-health-links" }, yf = ["href"], gf = ["href"], _f = ["href"], vf = ["href"], Ef = { class: "library-actions-health-grid" }, Tf = { class: "library-import-health-number" }, Sf = { class: "library-import-health-number" }, xf = { class: "library-muted" }, Cf = { class: "library-muted" }, Af = { class: "library-muted" }, wf = {
+  key: 0,
+  class: "library-import-health-examples"
+}, Rf = {
   key: 0,
   class: "library-notice library-batch-metadata-apply-result"
-}, pf = ["aria-label"], hf = ["name", "value"], mf = { class: "library-quick-search-row" }, bf = { class: "library-quick-filter-search" }, yf = ["aria-label"], gf = { class: "library-quick-filter-options" }, _f = { class: "library-quick-filter-option-grid" }, vf = { value: "title" }, Ef = { value: "recent" }, Tf = { value: "publicationDate" }, Sf = { value: "publication" }, xf = { value: "lastOpened" }, Cf = { value: "format" }, Af = { value: "" }, wf = { value: "1" }, Rf = ["value"], Of = ["value"], Nf = ["aria-label"], Pf = ["aria-label"], kf = { class: "library-filter-panel" }, Mf = { class: "library-filter-panel-summary" }, Lf = ["aria-label"], If = { value: "" }, Uf = ["value"], Df = { value: "" }, Ff = ["value"], Hf = { value: "" }, $f = ["value"], jf = { value: "" }, Vf = ["value"], Bf = { value: "" }, zf = ["value"], Wf = { value: "" }, qf = ["value"], Kf = { value: "" }, Gf = ["value"], Yf = { value: "" }, Xf = ["value"], Jf = { value: "" }, Zf = ["value"], Qf = { value: "" }, ed = ["value"], td = { value: "" }, rd = { value: "1" }, nd = { value: "" }, id = { value: "1" }, od = { value: "title" }, sd = { value: "recent" }, ld = { value: "publicationDate" }, ad = { value: "publication" }, cd = { value: "lastOpened" }, ud = { value: "format" }, fd = ["value"], dd = ["value"], pd = ["aria-label"], hd = ["aria-label"], md = ["href"], bd = {
+}, Of = ["aria-label"], Nf = ["name", "value"], Pf = { class: "library-quick-search-row" }, kf = { class: "library-quick-filter-search" }, Mf = ["aria-label"], Lf = { class: "library-quick-filter-options" }, If = { class: "library-quick-filter-option-grid" }, Uf = { value: "title" }, Df = { value: "recent" }, Ff = { value: "publicationDate" }, Hf = { value: "publication" }, $f = { value: "lastOpened" }, jf = { value: "format" }, Vf = { value: "" }, Bf = { value: "1" }, zf = ["value"], Wf = ["value"], qf = ["aria-label"], Kf = ["aria-label"], Gf = { class: "library-filter-panel" }, Yf = { class: "library-filter-panel-summary" }, Xf = ["aria-label"], Jf = { value: "" }, Zf = ["value"], Qf = { value: "" }, ed = ["value"], td = { value: "" }, rd = ["value"], nd = { value: "" }, id = ["value"], od = { value: "" }, sd = ["value"], ld = { value: "" }, ad = ["value"], cd = { value: "" }, ud = ["value"], fd = { value: "" }, dd = ["value"], pd = { value: "" }, hd = ["value"], md = { value: "" }, bd = ["value"], yd = { value: "" }, gd = { value: "1" }, _d = { value: "" }, vd = { value: "1" }, Ed = { value: "title" }, Td = { value: "recent" }, Sd = { value: "publicationDate" }, xd = { value: "publication" }, Cd = { value: "lastOpened" }, Ad = { value: "format" }, wd = ["value"], Rd = ["value"], Od = ["aria-label"], Nd = ["aria-label"], Pd = ["href"], kd = {
   key: 1,
   class: "library-discovery-hero",
   "aria-labelledby": "library-discovery-heading"
-}, yd = { class: "library-muted library-catalogue-eyebrow" }, gd = { id: "library-discovery-heading" }, _d = { class: "library-muted" }, vd = {
+}, Md = { class: "library-muted library-catalogue-eyebrow" }, Ld = { id: "library-discovery-heading" }, Id = { class: "library-muted" }, Ud = {
   class: "library-discovery-hero-metrics",
   "aria-label": "Discovery summary"
-}, Ed = { key: 0 }, Td = { key: 1 }, Sd = { key: 2 }, xd = {
+}, Dd = { key: 0 }, Fd = { key: 1 }, Hd = { key: 2 }, $d = {
   key: 0,
   class: "library-publication-issue-context",
   "aria-label": "Publication issue/date context"
-}, Cd = { key: 0 }, Ad = { key: 1 }, wd = {
+}, jd = { key: 0 }, Vd = { key: 1 }, Bd = {
   href: "/apps/library/",
   class: "button secondary"
-}, Rd = {
-  key: 2,
-  class: "library-import-health-panel",
-  "aria-labelledby": "library-import-health-heading"
-}, Od = { class: "library-import-health-header" }, Nd = { class: "library-muted library-catalogue-eyebrow" }, Pd = { id: "library-import-health-heading" }, kd = { class: "library-muted" }, Md = ["href"], Ld = ["href"], Id = ["href"], Ud = ["href"], Dd = { class: "library-import-health-grid" }, Fd = { class: "library-import-health-card" }, Hd = { class: "library-import-health-number" }, $d = { class: "library-import-health-card" }, jd = { class: "library-import-health-number" }, Vd = { class: "library-import-health-card" }, Bd = { class: "library-muted" }, zd = { class: "library-import-health-card" }, Wd = { class: "library-muted" }, qd = { class: "library-muted" }, Kd = {
-  key: 0,
-  class: "library-import-health-examples"
-}, Gd = { class: "library-catalogue-status-row" }, Yd = { class: "library-muted library-filter-result-summary" }, Xd = { key: 0 }, Jd = { href: "?" }, Zd = ["aria-label"], Qd = { class: "library-pagination-range" }, ep = { key: 0 }, tp = ["href"], rp = {
+}, zd = { class: "library-catalogue-status-row" }, Wd = { class: "library-muted library-filter-result-summary" }, qd = { key: 0 }, Kd = { href: "?" }, Gd = ["aria-label"], Yd = { class: "library-pagination-range" }, Xd = { key: 0 }, Jd = ["href"], Zd = {
   key: 1,
   class: "library-muted"
-}, np = ["href"], ip = {
+}, Qd = ["href"], ep = {
   key: 3,
   class: "library-muted"
-}, op = {
+}, tp = {
   class: "library-catalogue-utility-row",
   "aria-label": "Catalogue tools and discovery shortcuts"
-}, sp = ["aria-label"], lp = { class: "library-settings-count-badge" }, ap = ["action"], cp = ["value"], up = ["name", "value"], fp = ["placeholder"], dp = {
+}, rp = ["aria-label"], np = { class: "library-settings-count-badge" }, ip = ["action"], op = ["value"], sp = ["name", "value"], lp = ["placeholder"], ap = {
   type: "submit",
   class: "button primary"
-}, pp = { class: "library-muted" }, hp = ["action"], mp = ["value"], bp = ["name", "value"], yp = ["placeholder"], gp = {
+}, cp = { class: "library-muted" }, up = ["action"], fp = ["value"], dp = ["name", "value"], pp = ["placeholder"], hp = {
   type: "submit",
   class: "button secondary"
-}, _p = { class: "library-muted" }, vp = ["action"], Ep = ["value"], Tp = ["name", "value"], Sp = {
+}, mp = { class: "library-muted" }, bp = ["action"], yp = ["value"], gp = ["name", "value"], _p = {
   type: "submit",
   class: "button secondary"
-}, xp = { class: "library-muted" }, Cp = ["action"], Ap = ["value"], wp = ["name", "value"], Rp = { name: "bulkEditField" }, Op = { value: "publicationType" }, Np = { value: "subtitle" }, Pp = { value: "creators" }, kp = { value: "publication" }, Mp = { value: "publicationDate" }, Lp = { value: "language" }, Ip = { value: "publisher" }, Up = { value: "genres" }, Dp = { value: "classifications" }, Fp = {
+}, vp = { class: "library-muted" }, Ep = ["action"], Tp = ["value"], Sp = ["name", "value"], xp = { name: "bulkEditField" }, Cp = { value: "publicationType" }, Ap = { value: "subtitle" }, wp = { value: "creators" }, Rp = { value: "publication" }, Op = { value: "publicationDate" }, Np = { value: "language" }, Pp = { value: "publisher" }, kp = { value: "genres" }, Mp = { value: "classifications" }, Lp = {
   type: "submit",
   class: "button secondary"
-}, Hp = { class: "library-muted" }, $p = ["action"], jp = ["value"], Vp = ["name", "value"], Bp = {
+}, Ip = { class: "library-muted" }, Up = ["action"], Dp = ["value"], Fp = ["name", "value"], Hp = {
   type: "submit",
   class: "button secondary"
-}, zp = { class: "library-muted" }, Wp = { class: "library-discovery-shortcuts" }, qp = { class: "library-discovery-shortcut-grid" }, Kp = {
+}, $p = { class: "library-muted" }, jp = { class: "library-discovery-shortcuts" }, Vp = { class: "library-discovery-shortcut-grid" }, Bp = {
   key: 0,
   class: "library-periodical-groups",
   "aria-labelledby": "library-periodical-groups-heading"
-}, Gp = { id: "library-periodical-groups-heading" }, Yp = { class: "library-muted" }, Xp = ["href"], Jp = { class: "library-muted" }, Zp = {
+}, zp = { id: "library-periodical-groups-heading" }, Wp = { class: "library-muted" }, qp = ["href"], Kp = { class: "library-muted" }, Gp = {
   key: 1,
   class: "library-periodical-groups library-periodical-groups-empty",
   "aria-labelledby": "library-periodical-groups-empty-heading"
-}, Qp = { id: "library-periodical-groups-empty-heading" }, eh = { class: "library-muted" }, th = {
+}, Yp = { id: "library-periodical-groups-empty-heading" }, Xp = { class: "library-muted" }, Jp = {
   key: 2,
   class: "library-year-groups",
   "aria-labelledby": "library-year-groups-heading"
-}, rh = { id: "library-year-groups-heading" }, nh = ["href"], ih = {
+}, Zp = { id: "library-year-groups-heading" }, Qp = ["href"], eh = {
   key: 3,
   class: "library-creator-groups",
   "aria-labelledby": "library-creator-groups-heading"
-}, oh = { id: "library-creator-groups-heading" }, sh = ["href"], lh = ["aria-label"], ah = ["href", "aria-label"], ch = { class: "library-muted" }, uh = { class: "library-empty-actions" }, fh = ["href"], dh = { class: "library-muted" }, ph = { class: "library-muted" }, hh = { class: "library-empty-actions" }, mh = ["href"], bh = { class: "library-muted" }, yh = { class: "library-empty-actions" }, gh = ["href"], _h = {
+}, th = { id: "library-creator-groups-heading" }, rh = ["href"], nh = ["aria-label"], ih = ["href", "aria-label"], oh = { class: "library-muted" }, sh = { class: "library-empty-actions" }, lh = ["href"], ah = { class: "library-muted" }, ch = { class: "library-muted" }, uh = { class: "library-empty-actions" }, fh = ["href"], dh = { class: "library-muted" }, ph = { class: "library-empty-actions" }, hh = ["href"], mh = {
   href: "?",
   class: "button primary"
-}, vh = { class: "library-muted" }, Eh = { class: "library-empty-actions" }, Th = ["href"], Sh = {
-  key: 5,
+}, bh = { class: "library-muted" }, yh = { class: "library-empty-actions" }, gh = ["href"], _h = {
+  key: 4,
   class: "library-cover-gallery"
-}, xh = ["href", "aria-label"], Ch = ["src", "alt"], Ah = ["action", "onSubmit"], wh = ["value"], Rh = ["value"], Oh = ["aria-pressed", "title", "aria-label", "onClick"], Nh = { class: "library-cover-summary" }, Ph = { class: "library-cover-primary" }, kh = ["aria-label"], Mh = ["href"], Lh = ["onToggle"], Ih = ["aria-label"], Uh = { class: "library-cover-meta" }, Dh = {
+}, vh = ["href", "aria-label"], Eh = ["src", "alt"], Th = ["action", "onSubmit"], Sh = ["value"], xh = ["value"], Ch = ["aria-pressed", "title", "aria-label", "onClick"], Ah = { class: "library-cover-summary" }, wh = { class: "library-cover-primary" }, Rh = ["aria-label"], Oh = ["href"], Nh = ["onToggle"], Ph = ["aria-label"], kh = { class: "library-cover-meta" }, Mh = {
   key: 0,
   class: "library-creator"
-}, Fh = { class: "library-cover-detail-list" }, Hh = { class: "library-cover-detail-chip" }, $h = {
+}, Lh = { class: "library-cover-detail-list" }, Ih = { class: "library-cover-detail-chip" }, Uh = {
   key: 0,
   class: "library-cover-detail-chip"
-}, jh = {
+}, Dh = {
   key: 1,
   class: "library-cover-detail-chip"
-}, Vh = {
+}, Fh = {
   key: 2,
   class: "library-cover-detail-chip"
-}, Bh = {
+}, Hh = {
   key: 3,
   class: "library-cover-detail-chip"
-}, zh = {
+}, $h = {
   key: 4,
   class: "library-cover-detail-chip"
-}, Wh = {
+}, jh = {
   key: 5,
   class: "library-cover-detail-chip"
-}, qh = {
+}, Vh = {
   key: 6,
   class: "library-cover-detail-chip"
-}, Kh = {
+}, Bh = {
   key: 1,
   class: "library-muted library-cover-description"
-}, Gh = {
+}, zh = {
   key: 2,
   class: "library-item-scan-status library-scan-error"
-}, Yh = { key: 0 }, Xh = {
+}, Wh = { key: 0 }, qh = {
   class: "library-nextcloud-tags library-cover-tags",
   "aria-label": "nextcloudTags"
-}, Jh = {
+}, Kh = {
   key: 0,
   class: "library-muted"
-}, Zh = { class: "library-cover-actions" }, Qh = ["href"], em = ["href"], tm = ["href"], rm = ["aria-label"], nm = { class: "library-pagination-range" }, im = { key: 0 }, om = ["href"], sm = {
+}, Gh = { class: "library-cover-actions" }, Yh = ["href"], Xh = ["href"], Jh = ["href"], Zh = ["aria-label"], Qh = { class: "library-pagination-range" }, em = { key: 0 }, tm = ["href"], rm = {
   key: 1,
   class: "library-muted"
-}, lm = ["href"], am = {
+}, nm = ["href"], im = {
   key: 3,
   class: "library-muted"
-}, cm = {
+}, om = {
   __name: "App",
   props: {
     state: {
@@ -5391,12 +5391,86 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                   href: Be.value,
                   class: "button secondary",
                   "aria-label": "Export sidecar ZIP"
-                }, d(b(l)("library", "Sidecar ZIP")), 9, ff)) : de("", !0)
+                }, d(b(l)("library", "Sidecar ZIP")), 9, ff)) : de("", !0),
+                Vt.value ? (C(), R("div", df, [
+                  u("p", pf, d(b(l)("library", "Import health")), 1),
+                  u("h3", hf, d(b(l)("library", "Metadata overview")), 1),
+                  u("p", mf, d(b(l)("library", "Metadata errors, archive/container mismatches, and cover risks from current roots. Files are left as-is; diagnostics separate Library extraction from Nextcloud/plugin preview.")), 1),
+                  u("div", bf, [
+                    u("a", {
+                      class: "button secondary",
+                      href: ze.value.reviewUrl || "?status=metadata_error"
+                    }, d(b(l)("library", "Review metadata errors")), 9, yf),
+                    u("a", {
+                      class: "button secondary",
+                      href: ke.value
+                    }, d(b(l)("library", "Full review")), 9, gf),
+                    u("a", {
+                      class: "button secondary",
+                      href: me.value
+                    }, d(b(l)("library", "Export TSV")), 9, _f),
+                    u("a", {
+                      class: "button secondary",
+                      href: ce.value
+                    }, d(b(l)("library", "Probe covers")), 9, vf)
+                  ]),
+                  u("div", Ef, [
+                    u("article", null, [
+                      u("h4", null, d(b(l)("library", "Metadata errors")), 1),
+                      u("p", Tf, d(ze.value.total || 0), 1),
+                      u("ul", null, [
+                        (C(!0), R(se, null, ve(ze.value.byExtension, (h) => (C(), R("li", {
+                          key: h.extension
+                        }, d(ae(h.extension)) + " · " + d(h.count), 1))), 128))
+                      ])
+                    ]),
+                    u("article", null, [
+                      u("h4", null, d(b(l)("library", "Archive/container check")), 1),
+                      u("p", Sf, d(Ie.value.mismatches || 0), 1),
+                      u("ul", null, [
+                        (C(!0), R(se, null, ve(Ie.value.byExtensionAndContainer, (h) => (C(), R("li", {
+                          key: `${h.extension}-${h.actualContainerType}`
+                        }, d(ae(h.extension)) + " · " + d(h.actualContainerType) + " · " + d(h.count), 1))), 128))
+                      ])
+                    ]),
+                    u("article", null, [
+                      u("h4", null, d(b(l)("library", "Cover health")), 1),
+                      u("p", xf, d(Fe.value.note), 1),
+                      u("ul", null, [
+                        (C(!0), R(se, null, ve(Fe.value.byFormat, (h) => (C(), R("li", {
+                          key: `${h.extension}-${h.nextcloudPreview}-${h.libraryCoverRoute}`
+                        }, d(ae(h.extension)) + " · nextcloudPreview: " + d(h.nextcloudPreview) + " · libraryCoverRoute: " + d(h.libraryCoverRoute) + " · " + d(h.count), 1))), 128))
+                      ])
+                    ]),
+                    u("article", null, [
+                      u("h4", null, d(b(l)("library", "Cover support matrix")), 1),
+                      u("p", Cf, d(b(l)("library", "Nextcloud/plugin preview and Library extraction are separate actors. 7z/RAR files stay left as-is; optional read-only archive tools only inspect copies.")), 1),
+                      u("ul", null, [
+                        (C(!0), R(se, null, ve(Ct.value, (h) => (C(), R("li", {
+                          key: `${h.extension}-${h.nextcloudPreview}-${h.libraryCoverRoute}-${h.count}`
+                        }, d(ae(h.extension)) + " · Nextcloud/plugin preview: " + d(h.nextcloudPreview) + " · Library extraction: " + d(h.libraryCoverRoute) + " · " + d(h.count), 1))), 128))
+                      ]),
+                      u("p", Af, d(b(l)("library", "Extractor tools")) + ": ZIP=" + d(fe.value.phpZipArchive ? "ZipArchive" : "missing") + " · 7z=" + d(fe.value.sevenZipCommand || "missing") + " · RAR=" + d(fe.value.rarCommand || "missing") + " · bsdtar=" + d(fe.value.bsdtarCommand || "missing"), 1)
+                    ])
+                  ]),
+                  ze.value.examples?.length ? (C(), R("details", wf, [
+                    u("summary", null, d(b(l)("library", "Example files and suggested actions")), 1),
+                    u("ul", null, [
+                      (C(!0), R(se, null, ve(ze.value.examples, (h) => (C(), R("li", {
+                        key: `${h.fileId}-${h.path}`
+                      }, [
+                        u("code", null, d(h.path), 1),
+                        u("span", null, d(h.scanStatus) + " · " + d(h.scanError) + " · " + d(h.actualContainerType), 1),
+                        u("strong", null, d(h.suggestedRepairAction), 1)
+                      ]))), 128))
+                    ])
+                  ])) : de("", !0)
+                ])) : de("", !0)
               ])
             ])
           ], 8, of)
         ]),
-        I.value ? (C(), R("p", df, d(I.value), 1)) : de("", !0),
+        I.value ? (C(), R("p", Rf, d(I.value), 1)) : de("", !0),
         u("form", {
           method: "get",
           class: "library-quick-filter-bar",
@@ -5408,9 +5482,9 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
             type: "hidden",
             name: h.key,
             value: h.value
-          }, null, 8, hf))), 128)),
-          u("div", mf, [
-            u("label", bf, [
+          }, null, 8, Nf))), 128)),
+          u("div", Pf, [
+            u("label", kf, [
               u("span", null, [
                 be(d(b(l)("library", "Search")) + " ", 1),
                 k[18] || (k[18] = u("kbd", { class: "library-keyboard-hint" }, "/", -1))
@@ -5432,11 +5506,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
               type: "submit",
               class: "button primary",
               "aria-label": b(l)("library", "Search catalogue")
-            }, d(b(l)("library", "Search")), 9, yf)
+            }, d(b(l)("library", "Search")), 9, Mf)
           ]),
-          u("details", gf, [
+          u("details", Lf, [
             u("summary", null, d(b(l)("library", "Filter & sort")), 1),
-            u("div", _f, [
+            u("div", If, [
               u("label", null, [
                 be(d(b(l)("library", "Sort")) + " ", 1),
                 We(u("select", {
@@ -5444,12 +5518,12 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                   name: "sort",
                   onChange: O
                 }, [
-                  u("option", vf, d(b(l)("library", "Title")), 1),
-                  u("option", Ef, d(b(l)("library", "Recently added")), 1),
-                  u("option", Tf, d(b(l)("library", "Publication date")), 1),
-                  u("option", Sf, d(b(l)("library", "Series")), 1),
-                  u("option", xf, d(b(l)("library", "Recently opened")), 1),
-                  u("option", Cf, d(b(l)("library", "Format")), 1)
+                  u("option", Uf, d(b(l)("library", "Title")), 1),
+                  u("option", Df, d(b(l)("library", "Recently added")), 1),
+                  u("option", Ff, d(b(l)("library", "Publication date")), 1),
+                  u("option", Hf, d(b(l)("library", "Series")), 1),
+                  u("option", $f, d(b(l)("library", "Recently opened")), 1),
+                  u("option", jf, d(b(l)("library", "Format")), 1)
                 ], 544), [
                   [rt, U.sort]
                 ])
@@ -5461,8 +5535,8 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                   name: "starred",
                   onChange: O
                 }, [
-                  u("option", Af, d(b(l)("library", "All")), 1),
-                  u("option", wf, d(b(l)("library", "Starred")), 1)
+                  u("option", Vf, d(b(l)("library", "All")), 1),
+                  u("option", Bf, d(b(l)("library", "Starred")), 1)
                 ], 544), [
                   [rt, U.starred]
                 ])
@@ -5477,24 +5551,24 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                   (C(), R(se, null, ve(n, (h) => u("option", {
                     key: h,
                     value: h
-                  }, d(h), 9, Of)), 64))
-                ], 40, Rf)
+                  }, d(h), 9, Wf)), 64))
+                ], 40, zf)
               ]),
               u("button", {
                 type: "submit",
                 class: "button secondary",
                 "aria-label": b(l)("library", "Apply catalogue filters")
-              }, d(b(l)("library", "Apply filters")), 9, Nf),
+              }, d(b(l)("library", "Apply filters")), 9, qf),
               u("a", {
                 href: "?",
                 class: "button secondary",
                 "aria-label": b(l)("library", "Clear catalogue filters")
-              }, d(b(l)("library", "Clear all")), 9, Pf)
+              }, d(b(l)("library", "Clear all")), 9, Kf)
             ])
           ])
-        ], 40, pf),
-        u("details", kf, [
-          u("summary", Mf, d(b(l)("library", "Show catalogue filters")), 1),
+        ], 40, Of),
+        u("details", Gf, [
+          u("summary", Yf, d(b(l)("library", "Show catalogue filters")), 1),
           u("form", {
             method: "get",
             class: "library-filter-bar",
@@ -5518,11 +5592,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[4] || (k[4] = (h) => U.type = h),
                 name: "type"
               }, [
-                u("option", If, d(b(l)("library", "All types")), 1),
+                u("option", Jf, d(b(l)("library", "All types")), 1),
                 (C(), R(se, null, ve(r, (h) => u("option", {
                   key: h,
                   value: h
-                }, d(h), 9, Uf)), 64))
+                }, d(h), 9, Zf)), 64))
               ], 512), [
                 [rt, U.type]
               ])
@@ -5533,11 +5607,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[5] || (k[5] = (h) => U.publication = h),
                 name: "publication"
               }, [
-                u("option", Df, d(b(l)("library", "All series and periodicals")), 1),
+                u("option", Qf, d(b(l)("library", "All series and periodicals")), 1),
                 (C(!0), R(se, null, ve(v.value, (h) => (C(), R("option", {
                   key: h,
                   value: h
-                }, d(h), 9, Ff))), 128))
+                }, d(h), 9, ed))), 128))
               ], 512), [
                 [rt, U.publication]
               ])
@@ -5548,11 +5622,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[6] || (k[6] = (h) => U.year = h),
                 name: "year"
               }, [
-                u("option", Hf, d(b(l)("library", "All years")), 1),
+                u("option", td, d(b(l)("library", "All years")), 1),
                 (C(!0), R(se, null, ve(P.value, (h) => (C(), R("option", {
                   key: h,
                   value: h
-                }, d(h), 9, $f))), 128))
+                }, d(h), 9, rd))), 128))
               ], 512), [
                 [rt, U.year]
               ])
@@ -5564,11 +5638,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 name: "creator",
                 title: "Exact full-field creator matches only"
               }, [
-                u("option", jf, d(b(l)("library", "All creators")), 1),
+                u("option", nd, d(b(l)("library", "All creators")), 1),
                 (C(!0), R(se, null, ve(j.value, (h) => (C(), R("option", {
                   key: h,
                   value: h
-                }, d(h), 9, Vf))), 128))
+                }, d(h), 9, id))), 128))
               ], 512), [
                 [rt, U.creator]
               ])
@@ -5590,11 +5664,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[9] || (k[9] = (h) => U.format = h),
                 name: "format"
               }, [
-                u("option", Bf, d(b(l)("library", "All formats")), 1),
+                u("option", od, d(b(l)("library", "All formats")), 1),
                 (C(!0), R(se, null, ve(f.value, (h) => (C(), R("option", {
                   key: h,
                   value: h
-                }, d(ae(h)), 9, zf))), 128))
+                }, d(ae(h)), 9, sd))), 128))
               ], 512), [
                 [rt, U.format]
               ])
@@ -5605,11 +5679,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[10] || (k[10] = (h) => U.shelf = h),
                 name: "shelf"
               }, [
-                u("option", Wf, d(b(l)("library", "All shelves")), 1),
+                u("option", ld, d(b(l)("library", "All shelves")), 1),
                 (C(!0), R(se, null, ve(a.value, (h) => (C(), R("option", {
                   key: h,
                   value: h
-                }, d(h), 9, qf))), 128))
+                }, d(h), 9, ad))), 128))
               ], 512), [
                 [rt, U.shelf]
               ])
@@ -5620,11 +5694,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[11] || (k[11] = (h) => U.status = h),
                 name: "status"
               }, [
-                u("option", Kf, d(b(l)("library", "All scan statuses")), 1),
+                u("option", cd, d(b(l)("library", "All scan statuses")), 1),
                 (C(!0), R(se, null, ve(re.value, (h) => (C(), R("option", {
                   key: h,
                   value: h
-                }, d(h), 9, Gf))), 128))
+                }, d(h), 9, ud))), 128))
               ], 512), [
                 [rt, U.status]
               ])
@@ -5635,11 +5709,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[12] || (k[12] = (h) => U.workflowStatus = h),
                 name: "workflowStatus"
               }, [
-                u("option", Yf, d(b(l)("library", "All workflow statuses")), 1),
+                u("option", fd, d(b(l)("library", "All workflow statuses")), 1),
                 (C(!0), R(se, null, ve(K.value, (h) => (C(), R("option", {
                   key: h,
                   value: h
-                }, d(h), 9, Xf))), 128))
+                }, d(h), 9, dd))), 128))
               ], 512), [
                 [rt, U.workflowStatus]
               ])
@@ -5650,11 +5724,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[13] || (k[13] = (h) => U.genre = h),
                 name: "genre"
               }, [
-                u("option", Jf, d(b(l)("library", "All genres")), 1),
+                u("option", pd, d(b(l)("library", "All genres")), 1),
                 (C(!0), R(se, null, ve(oe.value, (h) => (C(), R("option", {
                   key: h,
                   value: h
-                }, d(h), 9, Zf))), 128))
+                }, d(h), 9, hd))), 128))
               ], 512), [
                 [rt, U.genre]
               ])
@@ -5665,11 +5739,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[14] || (k[14] = (h) => U.classification = h),
                 name: "classification"
               }, [
-                u("option", Qf, d(b(l)("library", "All classifications")), 1),
+                u("option", md, d(b(l)("library", "All classifications")), 1),
                 (C(!0), R(se, null, ve(ne.value, (h) => (C(), R("option", {
                   key: h,
                   value: h
-                }, d(h), 9, ed))), 128))
+                }, d(h), 9, bd))), 128))
               ], 512), [
                 [rt, U.classification]
               ])
@@ -5680,8 +5754,8 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[15] || (k[15] = (h) => U.scannerConflicts = h),
                 name: "scannerConflicts"
               }, [
-                u("option", td, d(b(l)("library", "All metadata")), 1),
-                u("option", rd, d(b(l)("library", "Needs review")), 1)
+                u("option", yd, d(b(l)("library", "All metadata")), 1),
+                u("option", gd, d(b(l)("library", "Needs review")), 1)
               ], 512), [
                 [rt, U.scannerConflicts]
               ])
@@ -5692,8 +5766,8 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[16] || (k[16] = (h) => U.starred = h),
                 name: "starred"
               }, [
-                u("option", nd, d(b(l)("library", "All publications")), 1),
-                u("option", id, d(b(l)("library", "Starred only")), 1)
+                u("option", _d, d(b(l)("library", "All publications")), 1),
+                u("option", vd, d(b(l)("library", "Starred only")), 1)
               ], 512), [
                 [rt, U.starred]
               ])
@@ -5704,12 +5778,12 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 "onUpdate:modelValue": k[17] || (k[17] = (h) => U.sort = h),
                 name: "sort"
               }, [
-                u("option", od, d(b(l)("library", "Title")), 1),
-                u("option", sd, d(b(l)("library", "Recently added")), 1),
-                u("option", ld, d(b(l)("library", "Publication date")), 1),
-                u("option", ad, d(b(l)("library", "Series / periodical")), 1),
-                u("option", cd, d(b(l)("library", "Recently opened")), 1),
-                u("option", ud, d(b(l)("library", "Format")), 1)
+                u("option", Ed, d(b(l)("library", "Title")), 1),
+                u("option", Td, d(b(l)("library", "Recently added")), 1),
+                u("option", Sd, d(b(l)("library", "Publication date")), 1),
+                u("option", xd, d(b(l)("library", "Series / periodical")), 1),
+                u("option", Cd, d(b(l)("library", "Recently opened")), 1),
+                u("option", Ad, d(b(l)("library", "Format")), 1)
               ], 512), [
                 [rt, U.sort]
               ])
@@ -5723,156 +5797,80 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 (C(), R(se, null, ve(n, (h) => u("option", {
                   key: h,
                   value: h
-                }, d(h), 9, dd)), 64))
-              ], 8, fd)
+                }, d(h), 9, Rd)), 64))
+              ], 8, wd)
             ]),
             u("button", {
               type: "submit",
               class: "button primary",
               "aria-label": b(l)("library", "Apply catalogue filters")
-            }, d(b(l)("library", "Apply filters")), 9, pd),
+            }, d(b(l)("library", "Apply filters")), 9, Od),
             u("a", {
               href: "?",
               class: "button secondary",
               "aria-label": b(l)("library", "Clear catalogue filters")
-            }, d(b(l)("library", "Clear")), 9, hd),
+            }, d(b(l)("library", "Clear")), 9, Nd),
             u("a", {
               href: $e.value,
               class: "button secondary library-scanner-conflict-review-link"
-            }, d(b(l)("library", "Review scanner conflicts")), 9, md)
-          ], 40, Lf)
+            }, d(b(l)("library", "Review scanner conflicts")), 9, Pd)
+          ], 40, Xf)
         ]),
-        bt.value ? (C(), R("section", bd, [
-          u("p", yd, d(p.value), 1),
-          u("h3", gd, d(lt.value), 1),
-          u("p", _d, d(mt.value ? b(l)("library", "Items by this creator, sorted by publication context when available.") : ht.value ? b(l)("library", "Items from this publication year, sorted by publication date when available.") : b(l)("library", "Items in this publication, sorted by issue/date context when available.")), 1),
-          u("div", vd, [
+        bt.value ? (C(), R("section", kd, [
+          u("p", Md, d(p.value), 1),
+          u("h3", Ld, d(lt.value), 1),
+          u("p", Id, d(mt.value ? b(l)("library", "Items by this creator, sorted by publication context when available.") : ht.value ? b(l)("library", "Items from this publication year, sorted by publication date when available.") : b(l)("library", "Items in this publication, sorted by issue/date context when available.")), 1),
+          u("div", Ud, [
             u("span", null, d(z.value.total) + " " + d(b(l)("library", "items")), 1),
-            E.value?.earliestYear && E.value?.latestYear ? (C(), R("span", Ed, d(E.value.earliestYear) + "–" + d(E.value.latestYear), 1)) : de("", !0),
-            E.value?.datedCount ? (C(), R("span", Td, d(E.value.datedCount) + " " + d(b(l)("library", "dated")), 1)) : de("", !0),
-            E.value?.undatedCount > 0 ? (C(), R("span", Sd, d(E.value.undatedCount) + " " + d(b(l)("library", "undated")), 1)) : de("", !0)
+            E.value?.earliestYear && E.value?.latestYear ? (C(), R("span", Dd, d(E.value.earliestYear) + "–" + d(E.value.latestYear), 1)) : de("", !0),
+            E.value?.datedCount ? (C(), R("span", Fd, d(E.value.datedCount) + " " + d(b(l)("library", "dated")), 1)) : de("", !0),
+            E.value?.undatedCount > 0 ? (C(), R("span", Hd, d(E.value.undatedCount) + " " + d(b(l)("library", "undated")), 1)) : de("", !0)
           ]),
-          je.value && E.value ? (C(), R("aside", xd, [
+          je.value && E.value ? (C(), R("aside", $d, [
             u("strong", null, d(b(l)("library", "Publication contents")), 1),
             u("span", null, d(E.value.itemCount) + " " + d(b(l)("library", "items")), 1),
-            E.value.earliestYear && E.value.latestYear ? (C(), R("span", Cd, d(E.value.earliestYear) + "–" + d(E.value.latestYear), 1)) : de("", !0),
+            E.value.earliestYear && E.value.latestYear ? (C(), R("span", jd, d(E.value.earliestYear) + "–" + d(E.value.latestYear), 1)) : de("", !0),
             u("span", null, d(E.value.datedCount) + " " + d(b(l)("library", "with issue/date coverage")), 1),
-            E.value.undatedCount > 0 ? (C(), R("span", Ad, d(E.value.undatedCount) + " " + d(b(l)("library", "without dates yet")), 1)) : de("", !0)
+            E.value.undatedCount > 0 ? (C(), R("span", Vd, d(E.value.undatedCount) + " " + d(b(l)("library", "without dates yet")), 1)) : de("", !0)
           ])) : de("", !0),
           u("p", null, [
-            u("a", wd, d(b(l)("library", "Back to full catalogue")), 1)
+            u("a", Bd, d(b(l)("library", "Back to full catalogue")), 1)
           ])
         ])) : de("", !0),
-        Vt.value ? (C(), R("section", Rd, [
-          u("div", Od, [
-            u("div", null, [
-              u("p", Nd, d(b(l)("library", "Import health")), 1),
-              u("h3", Pd, d(b(l)("library", "Real-file findings")), 1),
-              u("p", kd, d(b(l)("library", "Metadata errors, archive/container mismatches, and cover risks from the current Library roots. Files are left as-is; diagnostics clarify what Library cover extraction can do versus Nextcloud/other preview plugins.")), 1)
-            ]),
-            u("a", {
-              class: "button secondary",
-              href: ze.value.reviewUrl || "?status=metadata_error"
-            }, d(b(l)("library", "Review metadata errors")), 9, Md),
-            u("a", {
-              class: "button secondary",
-              href: ke.value
-            }, d(b(l)("library", "Full review")), 9, Ld),
-            u("a", {
-              class: "button secondary",
-              href: me.value
-            }, d(b(l)("library", "Export TSV")), 9, Id),
-            u("a", {
-              class: "button secondary",
-              href: ce.value
-            }, d(b(l)("library", "Probe covers")), 9, Ud)
-          ]),
-          u("div", Dd, [
-            u("article", Fd, [
-              u("h4", null, d(b(l)("library", "Metadata errors")), 1),
-              u("p", Hd, d(ze.value.total || 0), 1),
-              u("ul", null, [
-                (C(!0), R(se, null, ve(ze.value.byExtension, (h) => (C(), R("li", {
-                  key: h.extension
-                }, d(ae(h.extension)) + " · " + d(h.count), 1))), 128))
-              ])
-            ]),
-            u("article", $d, [
-              u("h4", null, d(b(l)("library", "Archive/container check")), 1),
-              u("p", jd, d(Ie.value.mismatches || 0), 1),
-              u("ul", null, [
-                (C(!0), R(se, null, ve(Ie.value.byExtensionAndContainer, (h) => (C(), R("li", {
-                  key: `${h.extension}-${h.actualContainerType}`
-                }, d(ae(h.extension)) + " · " + d(h.actualContainerType) + " · " + d(h.count), 1))), 128))
-              ])
-            ]),
-            u("article", Vd, [
-              u("h4", null, d(b(l)("library", "Cover health")), 1),
-              u("p", Bd, d(Fe.value.note), 1),
-              u("ul", null, [
-                (C(!0), R(se, null, ve(Fe.value.byFormat, (h) => (C(), R("li", {
-                  key: `${h.extension}-${h.nextcloudPreview}-${h.libraryCoverRoute}`
-                }, d(ae(h.extension)) + " · nextcloudPreview: " + d(h.nextcloudPreview) + " · libraryCoverRoute: " + d(h.libraryCoverRoute) + " · " + d(h.count), 1))), 128))
-              ])
-            ]),
-            u("article", zd, [
-              u("h4", null, d(b(l)("library", "Cover support matrix")), 1),
-              u("p", Wd, d(b(l)("library", "Nextcloud/plugin preview and Library extraction are separate actors. 7z/RAR files stay left as-is; optional read-only archive tools only inspect copies.")), 1),
-              u("ul", null, [
-                (C(!0), R(se, null, ve(Ct.value, (h) => (C(), R("li", {
-                  key: `${h.extension}-${h.nextcloudPreview}-${h.libraryCoverRoute}-${h.count}`
-                }, d(ae(h.extension)) + " · Nextcloud/plugin preview: " + d(h.nextcloudPreview) + " · Library extraction: " + d(h.libraryCoverRoute) + " · " + d(h.count), 1))), 128))
-              ]),
-              u("p", qd, d(b(l)("library", "Extractor tools")) + ": ZIP=" + d(fe.value.phpZipArchive ? "ZipArchive" : "missing") + " · 7z=" + d(fe.value.sevenZipCommand || "missing") + " · RAR=" + d(fe.value.rarCommand || "missing") + " · bsdtar=" + d(fe.value.bsdtarCommand || "missing"), 1)
-            ])
-          ]),
-          ze.value.examples?.length ? (C(), R("details", Kd, [
-            u("summary", null, d(b(l)("library", "Example files and suggested actions")), 1),
-            u("ul", null, [
-              (C(!0), R(se, null, ve(ze.value.examples, (h) => (C(), R("li", {
-                key: `${h.fileId}-${h.path}`
-              }, [
-                u("code", null, d(h.path), 1),
-                u("span", null, d(h.scanStatus) + " · " + d(h.scanError) + " · " + d(h.actualContainerType), 1),
-                u("strong", null, d(h.suggestedRepairAction), 1)
-              ]))), 128))
-            ])
-          ])) : de("", !0)
-        ])) : de("", !0),
-        u("div", Gd, [
-          u("p", Yd, [
+        u("div", zd, [
+          u("p", Wd, [
             be(d(b(l)("library", "Showing")) + " " + d(z.value.from) + "–" + d(z.value.to) + " " + d(b(l)("library", "of")) + " " + d(z.value.total) + " " + d(b(l)("library", "catalogue items")), 1),
-            M.value.length > 0 ? (C(), R("span", Xd, [
+            M.value.length > 0 ? (C(), R("span", qd, [
               k[19] || (k[19] = be(" · ", -1)),
-              u("a", Jd, d(b(l)("library", "Clear all filters")), 1)
+              u("a", Kd, d(b(l)("library", "Clear all filters")), 1)
             ])) : de("", !0)
           ]),
           u("nav", {
             class: "library-pagination library-pagination--top",
             "aria-label": b(l)("library", "Catalogue pagination")
           }, [
-            u("span", Qd, [
+            u("span", Yd, [
               be(d(b(l)("library", "Page")) + " " + d(z.value.page), 1),
-              z.value.total > 0 ? (C(), R("span", ep, " · " + d(z.value.from) + "–" + d(z.value.to), 1)) : de("", !0)
+              z.value.total > 0 ? (C(), R("span", Xd, " · " + d(z.value.from) + "–" + d(z.value.to), 1)) : de("", !0)
             ]),
             z.value.previousUrl ? (C(), R("a", {
               key: 0,
               href: z.value.previousUrl
-            }, d(b(l)("library", "Previous")), 9, tp)) : (C(), R("span", rp, d(b(l)("library", "Previous")), 1)),
+            }, d(b(l)("library", "Previous")), 9, Jd)) : (C(), R("span", Zd, d(b(l)("library", "Previous")), 1)),
             z.value.nextUrl ? (C(), R("a", {
               key: 2,
               href: z.value.nextUrl
-            }, d(b(l)("library", "Next")), 9, np)) : (C(), R("span", ip, d(b(l)("library", "Next")), 1))
-          ], 8, Zd)
+            }, d(b(l)("library", "Next")), 9, Qd)) : (C(), R("span", ep, d(b(l)("library", "Next")), 1))
+          ], 8, Gd)
         ]),
-        u("div", op, [
+        u("div", tp, [
           u("details", {
             class: "library-batch-actions",
             "aria-label": b(l)("library", "Batch actions for current results")
           }, [
             u("summary", null, [
               be(d(b(l)("library", "Batch")) + " ", 1),
-              u("span", lp, d(z.value.total) + " " + d(b(l)("library", "Current filter result")), 1)
+              u("span", np, d(z.value.total) + " " + d(b(l)("library", "Current filter result")), 1)
             ]),
             u("form", {
               method: "post",
@@ -5883,13 +5881,13 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 type: "hidden",
                 name: "requesttoken",
                 value: ue.value
-              }, null, 8, cp),
+              }, null, 8, op),
               (C(!0), R(se, null, ve(q.value, (h) => (C(), R("input", {
                 key: h.key,
                 type: "hidden",
                 name: h.key,
                 value: h.value
-              }, null, 8, up))), 128)),
+              }, null, 8, sp))), 128)),
               u("label", null, [
                 u("span", null, d(b(l)("library", "Nextcloud tag")), 1),
                 u("input", {
@@ -5898,11 +5896,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                   list: "library-nextcloud-tag-suggestions",
                   placeholder: b(l)("library", "e.g. Review"),
                   autocomplete: "off"
-                }, null, 8, fp)
+                }, null, 8, lp)
               ]),
-              u("button", dp, d(b(l)("library", "Apply Nextcloud tag to current results")), 1),
-              u("p", pp, d(b(l)("library", "Uses the current filters, not just this page. Limit: 5,000 matched items.")), 1)
-            ], 8, ap),
+              u("button", ap, d(b(l)("library", "Apply Nextcloud tag to current results")), 1),
+              u("p", cp, d(b(l)("library", "Uses the current filters, not just this page. Limit: 5,000 matched items.")), 1)
+            ], 8, ip),
             u("form", {
               method: "post",
               action: et.value,
@@ -5912,13 +5910,13 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 type: "hidden",
                 name: "requesttoken",
                 value: ue.value
-              }, null, 8, mp),
+              }, null, 8, fp),
               (C(!0), R(se, null, ve(q.value, (h) => (C(), R("input", {
                 key: `remove-tag-${h.key}`,
                 type: "hidden",
                 name: h.key,
                 value: h.value
-              }, null, 8, bp))), 128)),
+              }, null, 8, dp))), 128)),
               u("label", null, [
                 u("span", null, d(b(l)("library", "Nextcloud tag")), 1),
                 u("input", {
@@ -5927,11 +5925,11 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                   list: "library-nextcloud-tag-suggestions",
                   placeholder: b(l)("library", "e.g. Review"),
                   autocomplete: "off"
-                }, null, 8, yp)
+                }, null, 8, pp)
               ]),
-              u("button", gp, d(b(l)("library", "Remove tag from current results")), 1),
-              u("p", _p, d(b(l)("library", "Removes an existing Nextcloud tag from every item matching the current filters. Library metadata is not changed.")), 1)
-            ], 8, hp),
+              u("button", hp, d(b(l)("library", "Remove tag from current results")), 1),
+              u("p", mp, d(b(l)("library", "Removes an existing Nextcloud tag from every item matching the current filters. Library metadata is not changed.")), 1)
+            ], 8, up),
             u("form", {
               method: "post",
               action: st.value,
@@ -5941,21 +5939,21 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 type: "hidden",
                 name: "requesttoken",
                 value: ue.value
-              }, null, 8, Ep),
+              }, null, 8, yp),
               (C(!0), R(se, null, ve(q.value, (h) => (C(), R("input", {
                 key: `reset-${h.key}`,
                 type: "hidden",
                 name: h.key,
                 value: h.value
-              }, null, 8, Tp))), 128)),
+              }, null, 8, gp))), 128)),
               k[20] || (k[20] = u("input", {
                 type: "hidden",
                 name: "scannerConflicts",
                 value: "1"
               }, null, -1)),
-              u("button", Sp, d(b(l)("library", "Reset filtered metadata")), 1),
-              u("p", xp, d(b(l)("library", "Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.")), 1)
-            ], 8, vp),
+              u("button", _p, d(b(l)("library", "Reset filtered metadata")), 1),
+              u("p", vp, d(b(l)("library", "Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.")), 1)
+            ], 8, bp),
             u("form", {
               method: "post",
               action: Ke.value,
@@ -5966,25 +5964,25 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 type: "hidden",
                 name: "requesttoken",
                 value: ue.value
-              }, null, 8, Ap),
+              }, null, 8, Tp),
               (C(!0), R(se, null, ve(q.value, (h) => (C(), R("input", {
                 key: `edit-preview-${h.key}`,
                 type: "hidden",
                 name: h.key,
                 value: h.value
-              }, null, 8, wp))), 128)),
+              }, null, 8, Sp))), 128)),
               u("label", null, [
                 u("span", null, d(b(l)("library", "Metadata field")), 1),
-                u("select", Rp, [
-                  u("option", Op, d(b(l)("library", "Publication type")), 1),
-                  u("option", Np, d(b(l)("library", "Subtitle")), 1),
-                  u("option", Pp, d(b(l)("library", "Creators")), 1),
-                  u("option", kp, d(b(l)("library", "Series / periodical")), 1),
-                  u("option", Mp, d(b(l)("library", "Publication date")), 1),
-                  u("option", Lp, d(b(l)("library", "Language")), 1),
-                  u("option", Ip, d(b(l)("library", "Publisher")), 1),
-                  u("option", Up, d(b(l)("library", "Genres")), 1),
-                  u("option", Dp, d(b(l)("library", "Classifications")), 1)
+                u("select", xp, [
+                  u("option", Cp, d(b(l)("library", "Publication type")), 1),
+                  u("option", Ap, d(b(l)("library", "Subtitle")), 1),
+                  u("option", wp, d(b(l)("library", "Creators")), 1),
+                  u("option", Rp, d(b(l)("library", "Series / periodical")), 1),
+                  u("option", Op, d(b(l)("library", "Publication date")), 1),
+                  u("option", Np, d(b(l)("library", "Language")), 1),
+                  u("option", Pp, d(b(l)("library", "Publisher")), 1),
+                  u("option", kp, d(b(l)("library", "Genres")), 1),
+                  u("option", Mp, d(b(l)("library", "Classifications")), 1)
                 ])
               ]),
               u("label", null, [
@@ -5996,9 +5994,9 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                   autocomplete: "off"
                 }, null, -1))
               ]),
-              u("button", Fp, d(b(l)("library", "Preview & apply metadata edit")), 1),
-              u("p", Hp, d(b(l)("library", "Preview first, then apply from the review page.")), 1)
-            ], 8, Cp),
+              u("button", Lp, d(b(l)("library", "Preview & apply metadata edit")), 1),
+              u("p", Ip, d(b(l)("library", "Preview first, then apply from the review page.")), 1)
+            ], 8, Ep),
             u("form", {
               method: "post",
               action: Tt.value,
@@ -6008,54 +6006,54 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 type: "hidden",
                 name: "requesttoken",
                 value: ue.value
-              }, null, 8, jp),
+              }, null, 8, Dp),
               (C(!0), R(se, null, ve(q.value, (h) => (C(), R("input", {
                 key: `cover-${h.key}`,
                 type: "hidden",
                 name: h.key,
                 value: h.value
-              }, null, 8, Vp))), 128)),
-              u("button", Bp, d(b(l)("library", "Request fresh cover previews")), 1),
-              u("p", zp, d(b(l)("library", "Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.")), 1)
-            ], 8, $p)
-          ], 8, sp),
-          u("details", Wp, [
+              }, null, 8, Fp))), 128)),
+              u("button", Hp, d(b(l)("library", "Request fresh cover previews")), 1),
+              u("p", $p, d(b(l)("library", "Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.")), 1)
+            ], 8, Up)
+          ], 8, rp),
+          u("details", jp, [
             u("summary", null, d(b(l)("library", "Browse")), 1),
-            u("div", qp, [
-              y.value.length > 0 ? (C(), R("section", Kp, [
-                u("h3", Gp, d(b(l)("library", "Top series and periodicals")), 1),
-                u("p", Yp, d(b(l)("library", "Jump into recurring publications with one click.")), 1),
+            u("div", Vp, [
+              y.value.length > 0 ? (C(), R("section", Bp, [
+                u("h3", zp, d(b(l)("library", "Top series and periodicals")), 1),
+                u("p", Wp, d(b(l)("library", "Jump into recurring publications with one click.")), 1),
                 u("ul", null, [
                   (C(!0), R(se, null, ve(y.value, (h) => (C(), R("li", {
                     key: h.publication
                   }, [
                     u("a", {
                       href: Ae(h.publication)
-                    }, d(h.publication), 9, Xp),
-                    u("span", Jp, d(h.itemCount) + " items", 1)
+                    }, d(h.publication), 9, qp),
+                    u("span", Kp, d(h.itemCount) + " items", 1)
                   ]))), 128))
                 ])
-              ])) : y.value.length === 0 ? (C(), R("section", Zp, [
-                u("h3", Qp, d(b(l)("library", "No series or periodicals found yet")), 1),
-                u("p", eh, d(b(l)("library", "Add publication or series names in item details to build this shortcut panel.")), 1)
+              ])) : y.value.length === 0 ? (C(), R("section", Gp, [
+                u("h3", Yp, d(b(l)("library", "No series or periodicals found yet")), 1),
+                u("p", Xp, d(b(l)("library", "Add publication or series names in item details to build this shortcut panel.")), 1)
               ])) : de("", !0),
-              P.value.length > 0 ? (C(), R("section", th, [
-                u("h3", rh, d(b(l)("library", "Top publication years")), 1),
+              P.value.length > 0 ? (C(), R("section", Jp, [
+                u("h3", Zp, d(b(l)("library", "Top publication years")), 1),
                 u("ul", null, [
                   (C(!0), R(se, null, ve(P.value, (h) => (C(), R("li", { key: h }, [
                     u("a", {
                       href: Oe(h)
-                    }, d(h), 9, nh)
+                    }, d(h), 9, Qp)
                   ]))), 128))
                 ])
               ])) : de("", !0),
-              j.value.length > 0 ? (C(), R("section", ih, [
-                u("h3", oh, d(b(l)("library", "Top creators")), 1),
+              j.value.length > 0 ? (C(), R("section", eh, [
+                u("h3", th, d(b(l)("library", "Top creators")), 1),
                 u("ul", null, [
                   (C(!0), R(se, null, ve(j.value, (h) => (C(), R("li", { key: h }, [
                     u("a", {
                       href: at(h)
-                    }, d(h), 9, sh)
+                    }, d(h), 9, rh)
                   ]))), 128))
                 ])
               ])) : de("", !0)
@@ -6063,7 +6061,7 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
           ])
         ]),
         M.value.length > 0 ? (C(), R("nav", {
-          key: 3,
+          key: 2,
           class: "library-active-filter-chips",
           "aria-label": b(l)("library", "Active filters")
         }, [
@@ -6077,53 +6075,53 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
             u("strong", null, d(h.label) + ":", 1),
             be(" " + d(h.value) + " ", 1),
             k[22] || (k[22] = u("span", { "aria-hidden": "true" }, "×", -1))
-          ], 8, ah))), 128))
-        ], 8, lh)) : de("", !0),
+          ], 8, ih))), 128))
+        ], 8, nh)) : de("", !0),
         s.value.length === 0 ? (C(), R("div", {
-          key: 4,
+          key: 3,
           class: Pr(["library-empty-content", { "library-first-run-guidance": A.value || T.value, "library-filter-empty-state": x.value && !A.value && !T.value }]),
           role: "status"
         }, [
           A.value ? (C(), R(se, { key: 0 }, [
             u("h3", null, d(b(l)("library", "Start with one Library root")), 1),
-            u("p", ch, d(b(l)("library", "Add one folder path that already exists in Nextcloud Files, then run a scan to build the catalogue.")), 1),
+            u("p", oh, d(b(l)("library", "Add one folder path that already exists in Nextcloud Files, then run a scan to build the catalogue.")), 1),
+            u("p", sh, [
+              u("a", {
+                href: V.value,
+                class: "button primary"
+              }, d(b(l)("library", "Add a Library root")), 9, lh),
+              u("span", ah, d(b(l)("library", "Run a scan after saving a root")), 1)
+            ])
+          ], 64)) : T.value ? (C(), R(se, { key: 1 }, [
+            u("h3", null, d(b(l)("library", "No enabled Library roots")), 1),
+            u("p", ch, d(b(l)("library", "Enable a saved root in settings, then scan enabled roots to refresh the catalogue.")), 1),
             u("p", uh, [
               u("a", {
                 href: V.value,
                 class: "button primary"
-              }, d(b(l)("library", "Add a Library root")), 9, fh),
-              u("span", dh, d(b(l)("library", "Run a scan after saving a root")), 1)
-            ])
-          ], 64)) : T.value ? (C(), R(se, { key: 1 }, [
-            u("h3", null, d(b(l)("library", "No enabled Library roots")), 1),
-            u("p", ph, d(b(l)("library", "Enable a saved root in settings, then scan enabled roots to refresh the catalogue.")), 1),
-            u("p", hh, [
-              u("a", {
-                href: V.value,
-                class: "button primary"
-              }, d(b(l)("library", "Open Library settings")), 9, mh)
+              }, d(b(l)("library", "Open Library settings")), 9, fh)
             ])
           ], 64)) : x.value ? (C(), R(se, { key: 2 }, [
             u("h3", null, d(b(l)("library", "No matches for the current filters")), 1),
-            u("p", bh, d(b(l)("library", "Try a broader search, remove one active chip, or clear every catalogue filter.")), 1),
-            u("p", yh, [
+            u("p", dh, d(b(l)("library", "Try a broader search, remove one active chip, or clear every catalogue filter.")), 1),
+            u("p", ph, [
               u("a", {
                 href: he(),
                 class: "button secondary"
-              }, d(b(l)("library", "Clear search")), 9, gh),
-              u("a", _h, d(b(l)("library", "Clear all filters")), 1)
+              }, d(b(l)("library", "Clear search")), 9, hh),
+              u("a", mh, d(b(l)("library", "Clear all filters")), 1)
             ])
           ], 64)) : (C(), R(se, { key: 3 }, [
             u("h3", null, d(b(l)("library", "No catalogue items yet")), 1),
-            u("p", vh, d(b(l)("library", "Run a scan from settings to index enabled roots. Source files stay in Nextcloud Files.")), 1),
-            u("p", Eh, [
+            u("p", bh, d(b(l)("library", "Run a scan from settings to index enabled roots. Source files stay in Nextcloud Files.")), 1),
+            u("p", yh, [
               u("a", {
                 href: V.value,
                 class: "button primary"
-              }, d(b(l)("library", "Run a scan from settings")), 9, Th)
+              }, d(b(l)("library", "Run a scan from settings")), 9, gh)
             ])
           ], 64))
-        ], 2)) : (C(), R("div", Sh, [
+        ], 2)) : (C(), R("div", _h, [
           (C(!0), R(se, null, ve(s.value, (h) => (C(), R("article", {
             key: h.id,
             class: Pr(["library-cover-card", { "library-cover-card--open": H[h.id] }])
@@ -6138,8 +6136,8 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 src: h.coverUrl,
                 alt: `Cover for ${h.title}`,
                 loading: "lazy"
-              }, null, 8, Ch)
-            ], 8, xh),
+              }, null, 8, Eh)
+            ], 8, vh),
             u("form", {
               method: "post",
               action: h.starUrl,
@@ -6150,7 +6148,7 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 type: "hidden",
                 name: "requesttoken",
                 value: ue.value
-              }, null, 8, wh),
+              }, null, 8, Sh),
               k[23] || (k[23] = u("input", {
                 type: "hidden",
                 name: "returnTo",
@@ -6160,7 +6158,7 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 type: "hidden",
                 name: "starred",
                 value: h.starred ? "0" : "1"
-              }, null, 8, Rh),
+              }, null, 8, xh),
               u("button", {
                 type: "submit",
                 class: Pr(["library-cover-star-button", { "library-cover-star-button--starred": h.starred }]),
@@ -6168,22 +6166,22 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 title: h.starred ? b(l)("library", "Unstar this publication") : b(l)("library", "Star this publication"),
                 "aria-label": h.starred ? b(l)("library", "Unstar this publication") : b(l)("library", "Star this publication"),
                 onClick: En((Ee) => zt(h, Ee), ["prevent"])
-              }, d(h.starred ? "★" : "☆"), 11, Oh)
-            ], 40, Ah),
-            u("div", Nh, [
-              u("div", Ph, [
+              }, d(h.starred ? "★" : "☆"), 11, Ch)
+            ], 40, Th),
+            u("div", Ah, [
+              u("div", wh, [
                 u("h3", null, [
                   h.starred ? (C(), R("span", {
                     key: 0,
                     class: "library-star-marker",
                     "aria-label": b(l)("library", "Starred")
-                  }, "★", 8, kh)) : de("", !0),
+                  }, "★", 8, Rh)) : de("", !0),
                   be(d(h.title), 1)
                 ]),
                 u("a", {
                   class: "library-cover-read",
                   href: h.openUrl
-                }, d(b(l)("library", "Read")), 9, Mh)
+                }, d(b(l)("library", "Read")), 9, Oh)
               ]),
               u("details", {
                 class: "library-cover-details",
@@ -6192,90 +6190,90 @@ const Zu = { class: "library-vue-catalogue" }, Qu = {
                 u("summary", {
                   class: "library-cover-details-summary",
                   "aria-label": `${b(l)("library", "Show details and actions")}: ${h.title}`
-                }, d(b(l)("library", "Details")), 9, Ih),
-                u("div", Uh, [
-                  h.creators ? (C(), R("p", Dh, d(h.creators), 1)) : de("", !0),
-                  u("dl", Fh, [
-                    u("div", Hh, [
+                }, d(b(l)("library", "Details")), 9, Ph),
+                u("div", kh, [
+                  h.creators ? (C(), R("p", Mh, d(h.creators), 1)) : de("", !0),
+                  u("dl", Lh, [
+                    u("div", Ih, [
                       u("dt", null, d(b(l)("library", "Type")), 1),
                       u("dd", null, d(h.publicationType), 1)
                     ]),
-                    h.publication ? (C(), R("div", $h, [
+                    h.publication ? (C(), R("div", Uh, [
                       u("dt", null, d(b(l)("library", "Series")), 1),
                       u("dd", null, d(h.publication), 1)
                     ])) : de("", !0),
-                    h.publicationDate ? (C(), R("div", jh, [
+                    h.publicationDate ? (C(), R("div", Dh, [
                       u("dt", null, d(b(l)("library", "Date")), 1),
                       u("dd", null, d(h.publicationDate), 1)
                     ])) : de("", !0),
-                    h.workflowStatus ? (C(), R("div", Vh, [
+                    h.workflowStatus ? (C(), R("div", Fh, [
                       u("dt", null, d(b(l)("library", "Status")), 1),
                       u("dd", null, d(h.workflowStatus), 1)
                     ])) : de("", !0),
-                    h.hasScannerConflict ? (C(), R("div", Bh, [
+                    h.hasScannerConflict ? (C(), R("div", Hh, [
                       u("dt", null, d(b(l)("library", "Review")), 1),
                       u("dd", null, d(h.scannerConflictCount) + " fields", 1)
                     ])) : de("", !0),
-                    h.lastOpenedAt ? (C(), R("div", zh, [
+                    h.lastOpenedAt ? (C(), R("div", $h, [
                       u("dt", null, d(b(l)("library", "Last opened")), 1),
                       u("dd", null, d(h.lastOpenedAt), 1)
                     ])) : de("", !0),
-                    h.extension ? (C(), R("div", Wh, [
+                    h.extension ? (C(), R("div", jh, [
                       u("dt", null, d(b(l)("library", "Format")) + ":", 1),
                       u("dd", null, d(ae(h.extension)), 1)
                     ])) : de("", !0),
-                    h.shelf ? (C(), R("div", qh, [
+                    h.shelf ? (C(), R("div", Vh, [
                       u("dt", null, d(b(l)("library", "Shelf")), 1),
                       u("dd", null, d(h.shelf), 1)
                     ])) : de("", !0)
                   ]),
-                  h.description ? (C(), R("p", Kh, d(h.description), 1)) : de("", !0),
-                  h.scanStatus !== "indexed" || h.scanError ? (C(), R("p", Gh, [
+                  h.description ? (C(), R("p", Bh, d(h.description), 1)) : de("", !0),
+                  h.scanStatus !== "indexed" || h.scanError ? (C(), R("p", zh, [
                     be(" scanStatus: " + d(h.scanStatus || "unknown"), 1),
-                    h.scanError ? (C(), R("span", Yh, " · scanError: " + d(h.scanError), 1)) : de("", !0)
+                    h.scanError ? (C(), R("span", Wh, " · scanError: " + d(h.scanError), 1)) : de("", !0)
                   ])) : de("", !0),
-                  u("div", Xh, [
-                    Re(h).length === 0 ? (C(), R("span", Jh, "No Nextcloud tags")) : (C(!0), R(se, { key: 1 }, ve(Re(h), (Ee) => (C(), R("span", {
+                  u("div", qh, [
+                    Re(h).length === 0 ? (C(), R("span", Kh, "No Nextcloud tags")) : (C(!0), R(se, { key: 1 }, ve(Re(h), (Ee) => (C(), R("span", {
                       key: Ee.id,
                       class: "library-tag"
                     }, d(Ee.name), 1))), 128))
                   ]),
-                  u("p", Zh, [
+                  u("p", Gh, [
                     u("a", {
                       href: h.filesUrl
-                    }, d(b(l)("library", "Show in Files")), 9, Qh),
+                    }, d(b(l)("library", "Show in Files")), 9, Yh),
                     k[24] || (k[24] = be(" · ", -1)),
                     u("a", {
                       href: h.downloadUrl
-                    }, d(b(l)("library", "Download source")), 9, em),
+                    }, d(b(l)("library", "Download source")), 9, Xh),
                     k[25] || (k[25] = be(" · ", -1)),
                     u("a", {
                       href: h.detailsUrl
-                    }, d(b(l)("library", "Details")), 9, tm)
+                    }, d(b(l)("library", "Details")), 9, Jh)
                   ])
                 ])
-              ], 40, Lh)
+              ], 40, Nh)
             ])
           ], 2))), 128))
         ])),
         s.value.length > 0 ? (C(), R("nav", {
-          key: 6,
+          key: 5,
           class: "library-pagination library-pagination--bottom",
           "aria-label": b(l)("library", "Catalogue pagination")
         }, [
-          u("span", nm, [
+          u("span", Qh, [
             be(d(b(l)("library", "Page")) + " " + d(z.value.page), 1),
-            z.value.total > 0 ? (C(), R("span", im, " · " + d(z.value.from) + "–" + d(z.value.to), 1)) : de("", !0)
+            z.value.total > 0 ? (C(), R("span", em, " · " + d(z.value.from) + "–" + d(z.value.to), 1)) : de("", !0)
           ]),
           z.value.previousUrl ? (C(), R("a", {
             key: 0,
             href: z.value.previousUrl
-          }, d(b(l)("library", "Previous")), 9, om)) : (C(), R("span", sm, d(b(l)("library", "Previous")), 1)),
+          }, d(b(l)("library", "Previous")), 9, tm)) : (C(), R("span", rm, d(b(l)("library", "Previous")), 1)),
           z.value.nextUrl ? (C(), R("a", {
             key: 2,
             href: z.value.nextUrl
-          }, d(b(l)("library", "Next")), 9, lm)) : (C(), R("span", am, d(b(l)("library", "Next")), 1))
-        ], 8, rm)) : de("", !0)
+          }, d(b(l)("library", "Next")), 9, nm)) : (C(), R("span", im, d(b(l)("library", "Next")), 1))
+        ], 8, Zh)) : de("", !0)
       ])
     ]));
   }
@@ -6289,7 +6287,7 @@ function G(e) {
 function xl(e) {
   return G(e).toUpperCase();
 }
-function um(e, t, r, n = G) {
+function sm(e, t, r, n = G) {
   for (const i of t) {
     const o = document.createElement("option");
     o.value = G(i), o.textContent = n(i), G(i) === G(r) && (o.selected = !0), e.appendChild(o);
@@ -6307,7 +6305,7 @@ function Ar(e, t, r, n, i, o, s = G) {
   const f = document.createElement("select");
   f.name = r;
   const v = document.createElement("option");
-  v.value = "", v.textContent = i, f.appendChild(v), um(f, o, n, s), a.appendChild(f), e.appendChild(a);
+  v.value = "", v.textContent = i, f.appendChild(v), sm(f, o, n, s), a.appendChild(f), e.appendChild(a);
 }
 function wr(e) {
   const t = G(e.requestToken || "");
@@ -6315,29 +6313,29 @@ function wr(e) {
   const r = document.createElement("input");
   return r.type = "hidden", r.name = "requesttoken", r.value = t, r;
 }
-function fm(e, t = {}) {
+function lm(e, t = {}) {
   return G(t?.publicationLandingUrl || `/apps/library/publications/${encodeURIComponent(G(e || t?.publication || ""))}`);
 }
-function dm(e) {
+function am(e) {
   return G(e.discoveryPage) === "publication";
 }
-function pm(e, t = {}) {
+function cm(e, t = {}) {
   return G(t?.publicationYearLandingUrls?.[e] || `/apps/library/years/${encodeURIComponent(G(e))}`);
 }
 function Si(e) {
   return G(e.discoveryPage) === "year";
 }
-function hm(e, t = {}) {
+function um(e, t = {}) {
   return G(t?.creatorLandingUrls?.[e] || `/apps/library/creators/${encodeURIComponent(G(e))}`);
 }
 function xi(e) {
   return G(e.discoveryPage) === "creator";
 }
-function mm(e) {
+function fm(e) {
   const t = e.activeFilters || {};
   return Object.entries(t).some(([r, n]) => r !== "sort" && G(n).trim() !== "");
 }
-function bm() {
+function dm() {
   const e = new URLSearchParams(window.location.search);
   e.delete("q"), e.delete("page");
   const t = e.toString();
@@ -6347,11 +6345,11 @@ function zr(e, t, r, n) {
   const i = document.createElement("a");
   return i.href = t, i.className = r, i.textContent = n, e.appendChild(i), i;
 }
-function ym(e, t) {
+function pm(e, t) {
   const r = document.createElement("span");
   return r.className = "library-muted", r.textContent = t, e.appendChild(r), r;
 }
-function gm(e, t) {
+function hm(e, t) {
   const r = e.activeFilters || {}, n = document.createElement("form");
   n.method = "get", n.className = "library-filter-bar", n.setAttribute("aria-label", l("library", "Catalogue search and filters")), fs(n, l("library", "Search title / author"), "q", r.q, "Camera, Eco, Rolleiflex..."), Ar(n, l("library", "Type"), "type", r.type, l("library", "All types"), ["book", "comic", "magazine", "journal", "manual", "catalogue", "other"]), fs(n, l("library", "Nextcloud tag"), "tag", r.tag, "photography"), Ar(n, l("library", "Format"), "format", r.format, l("library", "All formats"), e.formats || [], xl), Ar(n, l("library", "Shelf"), "shelf", r.shelf, l("library", "All shelves"), e.shelves || []), Ar(n, l("library", "Scan status"), "status", r.status, l("library", "All scan statuses"), e.scanStatuses || []), Ar(n, l("library", "Sort"), "sort", r.sort || "title", l("library", "Sort by"), ["title", "recent", "publicationDate", "format"]), Ar(n, l("library", "Page size"), "limit", t.limit || 100, l("library", "Page size"), [25, 50, 100, 250, 500]);
   const i = document.createElement("button");
@@ -6359,13 +6357,13 @@ function gm(e, t) {
   const o = document.createElement("a");
   return o.href = "?", o.className = "button secondary", o.setAttribute("aria-label", l("library", "Clear catalogue filters")), o.textContent = l("library", "Clear"), n.append(i, o), n;
 }
-function _m() {
+function mm() {
   const e = new URLSearchParams(window.location.search);
   if (e.get("batchMetadataApplyResult") !== "1") return null;
   const t = e.get("batchMetadataField") || "field", r = e.get("batchMetadataApplied") || "0", n = e.get("batchMetadataUnchanged") || "0", i = e.get("batchMetadataSkipped") || "0", o = document.createElement("p");
   return o.className = "library-notice library-batch-metadata-apply-result", o.textContent = l("library", `Batch metadata apply updated ${r} ${t} values; ${n} already matched, ${i} skipped.`), o;
 }
-function vm(e, t) {
+function bm(e, t) {
   const r = e.activeFilters || {}, n = document.createElement("form");
   n.method = "get", n.className = "library-quick-filter-bar", n.setAttribute("aria-label", l("library", "Quick catalogue filters"));
   let i = null;
@@ -6402,7 +6400,7 @@ function vm(e, t) {
   const y = document.createElement("a");
   return y.href = "?", y.className = "button secondary", y.setAttribute("aria-label", l("library", "Clear catalogue filters")), y.textContent = l("library", "Clear all"), n.append(v, y), n;
 }
-function Em(e, t) {
+function ym(e, t) {
   const r = Array.isArray(e.items) ? e.items : [], n = e.cataloguePagination || {
     from: r.length > 0 ? 1 : 0,
     to: r.length,
@@ -6435,12 +6433,12 @@ function Em(e, t) {
     N.href = e.metadataSidecarBundleUrl, N.className = "button secondary", N.setAttribute("aria-label", "Export sidecar ZIP"), N.textContent = l("library", "Sidecar ZIP"), ne.appendChild(N);
   }
   j.append(re, ne), P.appendChild(j);
-  const z = _m();
-  z && P.appendChild(z), P.appendChild(vm(e, n));
+  const z = mm();
+  z && P.appendChild(z), P.appendChild(bm(e, n));
   const U = document.createElement("details");
   U.className = "library-filter-panel";
   const V = document.createElement("summary");
-  if (V.className = "library-filter-panel-summary", V.textContent = l("library", "Show catalogue filters"), U.append(V, gm(e, n)), P.appendChild(U), dm(e) || Si(e) || xi(e)) {
+  if (V.className = "library-filter-panel-summary", V.textContent = l("library", "Show catalogue filters"), U.append(V, hm(e, n)), P.appendChild(U), am(e) || Si(e) || xi(e)) {
     const N = document.createElement("section");
     N.className = "library-discovery-header", N.setAttribute("aria-labelledby", "library-discovery-heading");
     const O = document.createElement("p");
@@ -6563,7 +6561,7 @@ function Em(e, t) {
     const N = document.createElement("ul");
     for (const O of M) {
       const $ = document.createElement("li"), Z = document.createElement("a");
-      Z.href = fm(O.publication, O), Z.textContent = G(O.publication);
+      Z.href = lm(O.publication, O), Z.textContent = G(O.publication);
       const ie = document.createElement("span");
       ie.className = "library-muted", ie.textContent = `${O.itemCount} items`, $.append(Z, ie), N.appendChild($);
     }
@@ -6583,7 +6581,7 @@ function Em(e, t) {
     const ie = document.createElement("ul");
     for (const he of X) {
       const ae = document.createElement("li"), Re = document.createElement("a");
-      Re.href = pm(he, e), Re.textContent = G(he), ae.appendChild(Re), ie.appendChild(ae);
+      Re.href = cm(he, e), Re.textContent = G(he), ae.appendChild(Re), ie.appendChild(ae);
     }
     N.append(O, $, Z, ie), P.appendChild(N);
   }
@@ -6600,17 +6598,17 @@ function Em(e, t) {
     const ie = document.createElement("ul");
     for (const he of ee) {
       const ae = document.createElement("li"), Re = document.createElement("a");
-      Re.href = hm(he, e), Re.textContent = G(he), ae.appendChild(Re), ie.appendChild(ae);
+      Re.href = um(he, e), Re.textContent = G(he), ae.appendChild(Re), ie.appendChild(ae);
     }
     N.append(O, $, Z, ie), P.appendChild(N);
   }
   if (r.length === 0) {
-    const N = document.createElement("div"), O = Number(e.rootCount || 0), $ = Number(e.enabledRootCount || 0), Z = mm(e);
+    const N = document.createElement("div"), O = Number(e.rootCount || 0), $ = Number(e.enabledRootCount || 0), Z = fm(e);
     N.className = "library-empty-content", (O === 0 || $ === 0) && N.classList.add("library-first-run-guidance"), Z && O > 0 && $ > 0 && N.classList.add("library-filter-empty-state"), N.setAttribute("role", "status");
     const ie = document.createElement("h3"), he = document.createElement("p");
     he.className = "library-muted";
     const ae = document.createElement("p");
-    ae.className = "library-empty-actions", O === 0 ? (ie.textContent = l("library", "Start with one Library root"), he.textContent = l("library", "Add one folder path that already exists in Nextcloud Files, then run a scan to build the catalogue."), zr(ae, i, "button primary", l("library", "Add a Library root")), ym(ae, l("library", "Run a scan after saving a root"))) : $ === 0 ? (ie.textContent = l("library", "No enabled Library roots"), he.textContent = l("library", "Enable a saved root in settings, then scan enabled roots to refresh the catalogue."), zr(ae, i, "button primary", l("library", "Open Library settings"))) : Z ? (ie.textContent = l("library", "No matches for the current filters"), he.textContent = l("library", "Try a broader search, remove one active chip, or clear every catalogue filter."), zr(ae, bm(), "button secondary", l("library", "Clear search")), zr(ae, "?", "button primary", l("library", "Clear all filters"))) : (ie.textContent = l("library", "No catalogue items yet"), he.textContent = l("library", "Run a scan from settings to index enabled roots. Source files stay in Nextcloud Files."), zr(ae, i, "button primary", l("library", "Run a scan from settings"))), N.append(ie, he, ae), P.appendChild(N);
+    ae.className = "library-empty-actions", O === 0 ? (ie.textContent = l("library", "Start with one Library root"), he.textContent = l("library", "Add one folder path that already exists in Nextcloud Files, then run a scan to build the catalogue."), zr(ae, i, "button primary", l("library", "Add a Library root")), pm(ae, l("library", "Run a scan after saving a root"))) : $ === 0 ? (ie.textContent = l("library", "No enabled Library roots"), he.textContent = l("library", "Enable a saved root in settings, then scan enabled roots to refresh the catalogue."), zr(ae, i, "button primary", l("library", "Open Library settings"))) : Z ? (ie.textContent = l("library", "No matches for the current filters"), he.textContent = l("library", "Try a broader search, remove one active chip, or clear every catalogue filter."), zr(ae, dm(), "button secondary", l("library", "Clear search")), zr(ae, "?", "button primary", l("library", "Clear all filters"))) : (ie.textContent = l("library", "No catalogue items yet"), he.textContent = l("library", "Run a scan from settings to index enabled roots. Source files stay in Nextcloud Files."), zr(ae, i, "button primary", l("library", "Run a scan from settings"))), N.append(ie, he, ae), P.appendChild(N);
   } else {
     const N = document.createElement("div");
     N.className = "library-cover-gallery";
@@ -6667,8 +6665,8 @@ function Em(e, t) {
 }
 if (An)
   try {
-    cu(cm, { state: us }).mount(An);
+    cu(om, { state: us }).mount(An);
   } catch (e) {
-    console.error("[library] Vue mount failed; rendering fallback catalogue", e), An.replaceChildren(Em(us));
+    console.error("[library] Vue mount failed; rendering fallback catalogue", e), An.replaceChildren(ym(us));
   }
 //# sourceMappingURL=library-main.mjs.map

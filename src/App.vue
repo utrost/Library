@@ -305,6 +305,58 @@ async function toggleStar(item, event) {
             <a v-if="metadataExportUrl" :href="metadataExportUrl" class="button secondary" aria-label="Export corrected metadata">{{ t('library', 'Export corrected metadata') }}</a>
             <a v-if="metadataSidecarManifestUrl" :href="metadataSidecarManifestUrl" class="button secondary" aria-label="Export sidecar manifest">{{ t('library', 'Sidecar manifest') }}</a>
             <a v-if="metadataSidecarBundleUrl" :href="metadataSidecarBundleUrl" class="button secondary" aria-label="Export sidecar ZIP">{{ t('library', 'Sidecar ZIP') }}</a>
+          <div v-if="hasImportHealthFindings" class="library-actions-health-overview" aria-labelledby="library-actions-health-heading">
+            <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Import health') }}</p>
+            <h3 id="library-actions-health-heading">{{ t('library', 'Metadata overview') }}</h3>
+            <p class="library-muted">{{ t('library', 'Metadata errors, archive/container mismatches, and cover risks from current roots. Files are left as-is; diagnostics separate Library extraction from Nextcloud/plugin preview.') }}</p>
+            <div class="library-actions-health-links">
+              <a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Review metadata errors') }}</a>
+              <a class="button secondary" :href="metadataErrorsUrl">{{ t('library', 'Full review') }}</a>
+              <a class="button secondary" :href="metadataErrorsTsvUrl">{{ t('library', 'Export TSV') }}</a>
+              <a class="button secondary" :href="coverProbeUrl">{{ t('library', 'Probe covers') }}</a>
+            </div>
+            <div class="library-actions-health-grid">
+              <article>
+                <h4>{{ t('library', 'Metadata errors') }}</h4>
+                <p class="library-import-health-number">{{ metadataErrorReview.total || 0 }}</p>
+                <ul>
+                  <li v-for="row in metadataErrorReview.byExtension" :key="row.extension">{{ upper(row.extension) }} · {{ row.count }}</li>
+                </ul>
+              </article>
+              <article>
+                <h4>{{ t('library', 'Archive/container check') }}</h4>
+                <p class="library-import-health-number">{{ archiveMagicSummary.mismatches || 0 }}</p>
+                <ul>
+                  <li v-for="row in archiveMagicSummary.byExtensionAndContainer" :key="`${row.extension}-${row.actualContainerType}`">{{ upper(row.extension) }} · {{ row.actualContainerType }} · {{ row.count }}</li>
+                </ul>
+              </article>
+              <article>
+                <h4>{{ t('library', 'Cover health') }}</h4>
+                <p class="library-muted">{{ coverHealthSummary.note }}</p>
+                <ul>
+                  <li v-for="row in coverHealthSummary.byFormat" :key="`${row.extension}-${row.nextcloudPreview}-${row.libraryCoverRoute}`">{{ upper(row.extension) }} · nextcloudPreview: {{ row.nextcloudPreview }} · libraryCoverRoute: {{ row.libraryCoverRoute }} · {{ row.count }}</li>
+                </ul>
+              </article>
+              <article>
+                <h4>{{ t('library', 'Cover support matrix') }}</h4>
+                <p class="library-muted">{{ t('library', 'Nextcloud/plugin preview and Library extraction are separate actors. 7z/RAR files stay left as-is; optional read-only archive tools only inspect copies.') }}</p>
+                <ul>
+                  <li v-for="row in coverSupportMatrix" :key="`${row.extension}-${row.nextcloudPreview}-${row.libraryCoverRoute}-${row.count}`">{{ upper(row.extension) }} · Nextcloud/plugin preview: {{ row.nextcloudPreview }} · Library extraction: {{ row.libraryCoverRoute }} · {{ row.count }}</li>
+                </ul>
+                <p class="library-muted">{{ t('library', 'Extractor tools') }}: ZIP={{ environmentCapabilities.phpZipArchive ? 'ZipArchive' : 'missing' }} · 7z={{ environmentCapabilities.sevenZipCommand || 'missing' }} · RAR={{ environmentCapabilities.rarCommand || 'missing' }} · bsdtar={{ environmentCapabilities.bsdtarCommand || 'missing' }}</p>
+              </article>
+            </div>
+            <details v-if="metadataErrorReview.examples?.length" class="library-import-health-examples">
+              <summary>{{ t('library', 'Example files and suggested actions') }}</summary>
+              <ul>
+                <li v-for="example in metadataErrorReview.examples" :key="`${example.fileId}-${example.path}`">
+                  <code>{{ example.path }}</code>
+                  <span>{{ example.scanStatus }} · {{ example.scanError }} · {{ example.actualContainerType }}</span>
+                  <strong>{{ example.suggestedRepairAction }}</strong>
+                </li>
+              </ul>
+            </details>
+          </div>
           </div>
         </details>
       </nav>
@@ -490,61 +542,6 @@ async function toggleStar(item, event) {
         <span v-if="publicationIssueContext.undatedCount > 0">{{ publicationIssueContext.undatedCount }} {{ t('library', 'without dates yet') }}</span>
       </aside>
       <p><a href="/apps/library/" class="button secondary">{{ t('library', 'Back to full catalogue') }}</a></p>
-    </section>
-
-    <section v-if="hasImportHealthFindings" class="library-import-health-panel" aria-labelledby="library-import-health-heading">
-      <div class="library-import-health-header">
-        <div>
-          <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Import health') }}</p>
-          <h3 id="library-import-health-heading">{{ t('library', 'Real-file findings') }}</h3>
-          <p class="library-muted">{{ t('library', 'Metadata errors, archive/container mismatches, and cover risks from the current Library roots. Files are left as-is; diagnostics clarify what Library cover extraction can do versus Nextcloud/other preview plugins.') }}</p>
-        </div>
-        <a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Review metadata errors') }}</a>
-        <a class="button secondary" :href="metadataErrorsUrl">{{ t('library', 'Full review') }}</a>
-        <a class="button secondary" :href="metadataErrorsTsvUrl">{{ t('library', 'Export TSV') }}</a>
-        <a class="button secondary" :href="coverProbeUrl">{{ t('library', 'Probe covers') }}</a>
-      </div>
-      <div class="library-import-health-grid">
-        <article class="library-import-health-card">
-          <h4>{{ t('library', 'Metadata errors') }}</h4>
-          <p class="library-import-health-number">{{ metadataErrorReview.total || 0 }}</p>
-          <ul>
-            <li v-for="row in metadataErrorReview.byExtension" :key="row.extension">{{ upper(row.extension) }} · {{ row.count }}</li>
-          </ul>
-        </article>
-        <article class="library-import-health-card">
-          <h4>{{ t('library', 'Archive/container check') }}</h4>
-          <p class="library-import-health-number">{{ archiveMagicSummary.mismatches || 0 }}</p>
-          <ul>
-            <li v-for="row in archiveMagicSummary.byExtensionAndContainer" :key="`${row.extension}-${row.actualContainerType}`">{{ upper(row.extension) }} · {{ row.actualContainerType }} · {{ row.count }}</li>
-          </ul>
-        </article>
-        <article class="library-import-health-card">
-          <h4>{{ t('library', 'Cover health') }}</h4>
-          <p class="library-muted">{{ coverHealthSummary.note }}</p>
-          <ul>
-            <li v-for="row in coverHealthSummary.byFormat" :key="`${row.extension}-${row.nextcloudPreview}-${row.libraryCoverRoute}`">{{ upper(row.extension) }} · nextcloudPreview: {{ row.nextcloudPreview }} · libraryCoverRoute: {{ row.libraryCoverRoute }} · {{ row.count }}</li>
-          </ul>
-        </article>
-        <article class="library-import-health-card">
-          <h4>{{ t('library', 'Cover support matrix') }}</h4>
-          <p class="library-muted">{{ t('library', 'Nextcloud/plugin preview and Library extraction are separate actors. 7z/RAR files stay left as-is; optional read-only archive tools only inspect copies.') }}</p>
-          <ul>
-            <li v-for="row in coverSupportMatrix" :key="`${row.extension}-${row.nextcloudPreview}-${row.libraryCoverRoute}-${row.count}`">{{ upper(row.extension) }} · Nextcloud/plugin preview: {{ row.nextcloudPreview }} · Library extraction: {{ row.libraryCoverRoute }} · {{ row.count }}</li>
-          </ul>
-          <p class="library-muted">{{ t('library', 'Extractor tools') }}: ZIP={{ environmentCapabilities.phpZipArchive ? 'ZipArchive' : 'missing' }} · 7z={{ environmentCapabilities.sevenZipCommand || 'missing' }} · RAR={{ environmentCapabilities.rarCommand || 'missing' }} · bsdtar={{ environmentCapabilities.bsdtarCommand || 'missing' }}</p>
-        </article>
-      </div>
-      <details v-if="metadataErrorReview.examples?.length" class="library-import-health-examples">
-        <summary>{{ t('library', 'Example files and suggested actions') }}</summary>
-        <ul>
-          <li v-for="example in metadataErrorReview.examples" :key="`${example.fileId}-${example.path}`">
-            <code>{{ example.path }}</code>
-            <span>{{ example.scanStatus }} · {{ example.scanError }} · {{ example.actualContainerType }}</span>
-            <strong>{{ example.suggestedRepairAction }}</strong>
-          </li>
-        </ul>
-      </details>
     </section>
 
     <div class="library-catalogue-status-row">
@@ -783,29 +780,31 @@ async function toggleStar(item, event) {
   margin: 0;
 }
 
-.library-import-health-panel {
-  border: 1px solid var(--color-warning, #eca700);
-  border-radius: var(--border-radius-large, 12px);
+.library-actions-health-overview {
   background: var(--color-background-hover, #f6f6f6);
-  margin: 0.75rem 0;
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: var(--border-radius-large, 12px);
+  display: grid;
+  flex-basis: 100%;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+  max-width: min(92vw, 760px);
   padding: 0.75rem;
 }
 
-.library-import-health-header {
-  align-items: start;
+.library-actions-health-links {
   display: flex;
-  gap: 1rem;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.45rem;
 }
 
-.library-import-health-grid {
+.library-actions-health-grid {
   display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 0.75rem;
+  gap: 0.65rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.library-import-health-card {
+.library-actions-health-grid article {
   background: var(--color-main-background, #fff);
   border: 1px solid var(--color-border, #ddd);
   border-radius: var(--border-radius, 8px);
@@ -813,12 +812,12 @@ async function toggleStar(item, event) {
 }
 
 .library-import-health-number {
-  font-size: 1.8rem;
+  font-size: 1.45rem;
   font-weight: 700;
-  margin: 0.25rem 0;
+  margin: 0.2rem 0;
 }
 
-.library-import-health-card ul,
+.library-actions-health-grid ul,
 .library-import-health-examples ul {
   margin-bottom: 0;
   padding-left: 1.1rem;

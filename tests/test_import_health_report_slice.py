@@ -30,12 +30,14 @@ def test_page_initial_state_exposes_import_health_summary():
     assert "coverHealthSummary" in controller
 
 
-def test_catalogue_renders_import_health_panel_with_review_actions():
+def test_catalogue_keeps_import_health_overview_inside_actions_menu():
     app = (ROOT / "src" / "App.vue").read_text()
 
     assert "const importHealthSummary" in app
-    assert "library-import-health-panel" in app
-    assert "Import health" in app
+    assert "library-actions-health-overview" in app
+    assert "Metadata overview" in app
+    assert "library-import-health-panel" not in app
+    assert "Real-file findings" not in app
     assert "Metadata errors" in app
     assert "Archive/container check" in app
     assert "Cover health" in app
