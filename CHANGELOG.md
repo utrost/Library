@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.128 - 2026-09-09
+
+### Changed
+
+- Hardened filename/folder metadata parsing for real staged EPUB/PDF names with middle-initial filename authors such as `Arthur_C_Clarke`, while preserving the existing two-author hyphen-suffix split behavior.
+- Broadened archive-source suffix cleanup to strip short `z-lib.org` style source tails before filename metadata parsing.
+
 ## v0.1.0-alpha.127 - 2026-09-08
 
 ### Added

@@ -515,7 +515,7 @@ Acceptance checks:
 - filters combine across text, type, format, tag, shelf and scan status;
 - sorting options cover title, recently added, publication date and format;
 - database-backed item queries provide filtered totals and page slices;
-- generated 10k stress and staged real-pilot evidence have verified the basic shape, but real pilots should be rerun after parser changes before treating them as release evidence.
+- generated 10k stress and staged real-pilot evidence have verified the basic shape, but real pilots should be rerun after parser changes such as middle-initial filename authors before treating them as release evidence.
 
 Visible gaps:
 
