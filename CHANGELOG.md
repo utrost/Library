@@ -2,10 +2,12 @@
 
 All notable changes for Library are tracked here.
 
-## v0.1.0-alpha.128 - 2026-09-09
+## v0.1.0-alpha.129 - 2026-09-09
 
 ### Changed
 
+- Made catalogue text search explicitly cover filename and folder path text via the indexed cached path, so sparse PDFs/comics can be found by the structure they already live in.
+- Clarified catalogue search UI copy to say title, creator, filename and folder names are searchable.
 - Hardened filename/folder metadata parsing for real staged EPUB/PDF names with middle-initial filename authors such as `Arthur_C_Clarke`, while preserving the existing two-author hyphen-suffix split behavior.
 - Broadened archive-source suffix cleanup to strip short `z-lib.org` style source tails before filename metadata parsing.
 

@@ -507,7 +507,7 @@ Recommended vertical slices:
 6. **Scoped folder/subtree rescan.** After per-root scan lands, consider optional folder-path scan under a configured root. This should validate the path is inside a user-owned Library root and should not mark unrelated root files missing.
 7. **Metadata retry filters.** First slice landed: “retry metadata errors” and “Recheck missing files” flows can queue scoped repair jobs without requiring a full library scan.
 8. **Cover lifecycle after manual override.** Keep current on-demand preview/CBZ/placeholder covers plus per-item manual cover override/revert as the v0.1 baseline. Add cover cache, crop/rebuild and per-root cover refresh only when real usage proves cover quality is a blocker.
-9. **DB-backed catalogue query path.** First slice landed: text/type/format/tag/shelf/status filtering, sort modes, counts, facets and page slicing now run through database-backed catalogue queries instead of loading the full catalogue into app-layer arrays.
+9. **DB-backed catalogue query path.** First slice landed: text/type/format/tag/shelf/status filtering, filename and folder path search, sort modes, counts, facets and page slicing now run through database-backed catalogue queries instead of loading the full catalogue into app-layer arrays.
 10. **Metadata portability.** Metadata export foundation.** First slice landed: user-edited catalogue rows can be downloaded as side-effect-free JSON with stable file identity, root/shelf labels, publication metadata and provenance. Import/write-back to OPF or JSON sidecars remains future work.
 
 ### Immediate next implementation slice

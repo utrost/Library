@@ -25,7 +25,7 @@ The current development slice can:
 - preview and apply one-field batch metadata edits to the current catalogue filter result with requested/applied/unchanged/skipped feedback;
 - generate absolute Nextcloud URLs for reader handoff, Files handoff and Library settings links so browser hrefs stay under the Nextcloud host;
 - show indexed files and publication items with a catalogue-first Vue/Vite-backed catalogue page mounted in a conventional Nextcloud `#app-content` shell, responsive, paginated cover gallery, preview-backed covers, placeholder fallbacks and browse-only catalogue cards;
-- search and filter the catalogue by title/author text, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, scanner conflicts, exact Nextcloud tag and root-derived shelf;
+- search and filter the catalogue by title/author text, filename and folder path search, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, scanner conflicts, exact Nextcloud tag and root-derived shelf;
 - open the first dedicated publication discovery page from top series/periodical shortcuts with a compact **Publication contents** issue/date context summary, a dedicated publication year discovery page from the years shortcut panel, and a dedicated creator discovery page from the creator shortcut panel, keeping compact catalogue cards inside a named discovery context;
 - catalogue cards are browse-only, compact and cover-first on mobile and desktop: the default card surface is cover, title, **Read** and **Details**, while secondary metadata/actions stay behind the Details disclosure; the details page owns publication metadata, tag and comment editing, and the publication metadata panel now uses one editable field surface instead of repeating the same values in separate read-only and edit sections;
 - treat Nextcloud system tags as cross-archive classification metadata exposed on catalogue cards and addable/removable from item details;
@@ -123,7 +123,7 @@ For the current Alice sandbox, clone this repository outside the Nextcloud data 
 
 ## Local checks and packaging
 
-Current v0.1 testing candidate: `0.1.0-alpha.128`.
+Current v0.1 testing candidate: `0.1.0-alpha.129`.
 
 Run the local gate with:
 
