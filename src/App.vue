@@ -70,6 +70,11 @@ const batchMetadataResetUrl = computed(() => catalogueState.batchMetadataResetUr
 const batchMetadataEditPreviewUrl = computed(() => catalogueState.batchMetadataEditPreviewUrl || '/apps/library/bulk/items/edit-preview')
 const batchCoverRefreshUrl = computed(() => catalogueState.batchCoverRefreshUrl || '/apps/library/bulk/covers/refresh')
 const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictReviewUrl || '?scannerConflicts=1')
+const importHealthSummary = computed(() => catalogueState.importHealthSummary || {})
+const metadataErrorReview = computed(() => catalogueState.metadataErrorReview || importHealthSummary.value.metadataErrorReview || { total: 0, byExtension: [], byError: [], examples: [], reviewUrl: '?status=metadata_error' })
+const archiveMagicSummary = computed(() => catalogueState.archiveMagicSummary || importHealthSummary.value.archiveMagicSummary || { totalChecked: 0, mismatches: 0, byExtensionAndContainer: [], examples: [] })
+const coverHealthSummary = computed(() => catalogueState.coverHealthSummary || importHealthSummary.value.coverHealthSummary || { totalChecked: 0, byFormat: [], examples: [], note: '' })
+const hasImportHealthFindings = computed(() => Number(metadataErrorReview.value.total || 0) > 0 || Number(archiveMagicSummary.value.mismatches || 0) > 0 || (coverHealthSummary.value.byFormat || []).some((row) => row.nextcloudPreview !== 'expected-ok' || row.libraryCoverRoute !== 'expected-ok'))
 const isPublicationDiscoveryPage = computed(() => catalogueState.discoveryPage === 'publication')
 const isYearDiscoveryPage = computed(() => catalogueState.discoveryPage === 'year')
 const isCreatorDiscoveryPage = computed(() => catalogueState.discoveryPage === 'creator')
@@ -135,7 +140,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'importHealthSummary', 'metadataErrorReview', 'archiveMagicSummary', 'coverHealthSummary']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -482,6 +487,50 @@ async function toggleStar(item, event) {
       <p><a href="/apps/library/" class="button secondary">{{ t('library', 'Back to full catalogue') }}</a></p>
     </section>
 
+    <section v-if="hasImportHealthFindings" class="library-import-health-panel" aria-labelledby="library-import-health-heading">
+      <div class="library-import-health-header">
+        <div>
+          <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Import health') }}</p>
+          <h3 id="library-import-health-heading">{{ t('library', 'Real-file findings') }}</h3>
+          <p class="library-muted">{{ t('library', 'Metadata errors, archive/container mismatches, and cover risks from the current Library roots.') }}</p>
+        </div>
+        <a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Review metadata errors') }}</a>
+      </div>
+      <div class="library-import-health-grid">
+        <article class="library-import-health-card">
+          <h4>{{ t('library', 'Metadata errors') }}</h4>
+          <p class="library-import-health-number">{{ metadataErrorReview.total || 0 }}</p>
+          <ul>
+            <li v-for="row in metadataErrorReview.byExtension" :key="row.extension">{{ upper(row.extension) }} · {{ row.count }}</li>
+          </ul>
+        </article>
+        <article class="library-import-health-card">
+          <h4>{{ t('library', 'Archive/container check') }}</h4>
+          <p class="library-import-health-number">{{ archiveMagicSummary.mismatches || 0 }}</p>
+          <ul>
+            <li v-for="row in archiveMagicSummary.byExtensionAndContainer" :key="`${row.extension}-${row.actualContainerType}`">{{ upper(row.extension) }} · {{ row.actualContainerType }} · {{ row.count }}</li>
+          </ul>
+        </article>
+        <article class="library-import-health-card">
+          <h4>{{ t('library', 'Cover health') }}</h4>
+          <p class="library-muted">{{ coverHealthSummary.note }}</p>
+          <ul>
+            <li v-for="row in coverHealthSummary.byFormat" :key="`${row.extension}-${row.nextcloudPreview}-${row.libraryCoverRoute}`">{{ upper(row.extension) }} · nextcloudPreview: {{ row.nextcloudPreview }} · libraryCoverRoute: {{ row.libraryCoverRoute }} · {{ row.count }}</li>
+          </ul>
+        </article>
+      </div>
+      <details v-if="metadataErrorReview.examples?.length" class="library-import-health-examples">
+        <summary>{{ t('library', 'Example files and suggested actions') }}</summary>
+        <ul>
+          <li v-for="example in metadataErrorReview.examples" :key="`${example.fileId}-${example.path}`">
+            <code>{{ example.path }}</code>
+            <span>{{ example.scanStatus }} · {{ example.scanError }} · {{ example.actualContainerType }}</span>
+            <strong>{{ example.suggestedRepairAction }}</strong>
+          </li>
+        </ul>
+      </details>
+    </section>
+
     <div class="library-catalogue-status-row">
       <p class="library-muted library-filter-result-summary">{{ t('library', 'Showing') }} {{ pagination.from }}–{{ pagination.to }} {{ t('library', 'of') }} {{ pagination.total }} {{ t('library', 'catalogue items') }}<span v-if="activeFilterChips.length > 0"> · <a href="?">{{ t('library', 'Clear all filters') }}</a></span></p>
       <nav class="library-pagination library-pagination--top" :aria-label="t('library', 'Catalogue pagination')">
@@ -716,6 +765,62 @@ async function toggleStar(item, event) {
 
 .library-filter-panel {
   margin: 0;
+}
+
+.library-import-health-panel {
+  border: 1px solid var(--color-warning, #eca700);
+  border-radius: var(--border-radius-large, 12px);
+  background: var(--color-background-hover, #f6f6f6);
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+}
+
+.library-import-health-header {
+  align-items: start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.library-import-health-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0.75rem;
+}
+
+.library-import-health-card {
+  background: var(--color-main-background, #fff);
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: var(--border-radius, 8px);
+  padding: 0.7rem;
+}
+
+.library-import-health-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0.25rem 0;
+}
+
+.library-import-health-card ul,
+.library-import-health-examples ul {
+  margin-bottom: 0;
+  padding-left: 1.1rem;
+}
+
+.library-import-health-examples li {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.5rem 0;
+}
+
+.library-import-health-examples code {
+  white-space: normal;
+  word-break: break-word;
+}
+
+.library-import-health-examples strong {
+  font-weight: 600;
 }
 
 .library-quick-filter-bar {
@@ -960,8 +1065,13 @@ async function toggleStar(item, event) {
   .library-quick-search-row,
   .library-quick-filter-option-grid,
   .library-catalogue-utility-row,
-  .library-discovery-shortcut-grid {
+  .library-discovery-shortcut-grid,
+  .library-import-health-grid {
     grid-template-columns: 1fr;
+  }
+
+  .library-import-health-header {
+    display: grid;
   }
 
   .library-cover-gallery {

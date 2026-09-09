@@ -39,5 +39,5 @@ def test_docs_and_version_track_typed_root_delete_confirmation():
     assert "typed root-delete confirmation" in readme.lower()
     assert "Type DELETE to confirm" in guide
     assert "typed root-delete confirmation" in roadmap.lower()
-    assert "0.1.0-alpha.118" in info
-    assert '"version": "0.1.0-alpha.118"' in package
+    assert "0.1.0-alpha.119" in info
+    assert '"version": "0.1.0-alpha.119"' in package

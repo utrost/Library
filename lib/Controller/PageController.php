@@ -10,6 +10,7 @@ use OCA\Library\Service\FileCommentService;
 use OCA\Library\Service\FileIndexService;
 use OCA\Library\Service\FileTagService;
 use OCA\Library\Service\ItemService;
+use OCA\Library\Service\LibraryHealthService;
 use OCA\Library\Service\RootService;
 use OCA\Library\Service\ScanJobService;
 use OCP\AppFramework\Controller;
@@ -35,6 +36,7 @@ class PageController extends Controller {
         private FileTagService $fileTagService,
         private FileCommentService $fileCommentService,
         private ItemService $itemService,
+        private LibraryHealthService $libraryHealthService,
         private ScanJobService $scanJobService,
         private IInitialState $initialState,
         private IUserSession $userSession,
@@ -180,6 +182,16 @@ class PageController extends Controller {
         $fileCommentsByFileId = $this->fileCommentService->commentsForItems($items);
         $items = $this->enrichItemsForVue($userId, $items, $fileTagsByFileId, $fileCommentsByFileId, $batchCoverRefreshRequested);
 
+        $metadataErrorReview = [];
+        $archiveMagicSummary = [];
+        $coverHealthSummary = [];
+        $importHealthSummary = $this->libraryHealthService->importHealthSummary($userId);
+        if ($importHealthSummary !== []) {
+            $metadataErrorReview = $importHealthSummary['metadataErrorReview'] ?? [];
+            $archiveMagicSummary = $importHealthSummary['archiveMagicSummary'] ?? [];
+            $coverHealthSummary = $importHealthSummary['coverHealthSummary'] ?? [];
+        }
+
         return [
             'publicationIssueContext' => null,
             ...$pageContext,
@@ -222,6 +234,10 @@ class PageController extends Controller {
             'batchCoverRefreshUrl' => $this->urlGenerator->linkToRoute('library.cover.batchrefresh'),
             'batchCoverRefreshRequested' => $batchCoverRefreshRequested,
             'scannerConflictReviewUrl' => '?scannerConflicts=1',
+            'importHealthSummary' => $importHealthSummary,
+            'metadataErrorReview' => $metadataErrorReview,
+            'archiveMagicSummary' => $archiveMagicSummary,
+            'coverHealthSummary' => $coverHealthSummary,
         ];
     }
 
