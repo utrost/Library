@@ -184,8 +184,15 @@ async function runBrowserSmoke(proxyBase) {
           usefulViewLinks: document.querySelectorAll('.library-useful-view-chip').length,
           usefulViewQueryLinks: [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('sort=lastOpened'))
             && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('starred=1'))
+            && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('needsMetadata=1'))
             && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('scannerConflicts=1'))
-            && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('status=metadata_error')),
+            && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('status=metadata_error'))
+            && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('coverReview=placeholder'))
+            && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('noCreator=1'))
+            && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('noPublication=1'))
+            && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('weakMetadata=filename'))
+            && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('unreviewedImports=1')),
+          usefulViewCountBadges: document.querySelectorAll('.library-useful-view-count').length,
           quickFilterControls: document.querySelectorAll('.library-quick-filter-bar input:not([type=hidden]), .library-quick-filter-bar select, .library-quick-filter-bar button, .library-quick-filter-bar a').length,
           cards: document.querySelectorAll('.library-cover-card').length,
           filters: Boolean(document.querySelector('.library-filter-bar')),
@@ -669,8 +676,9 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_quick_filter_bar', dom.quickFilterBar)
     print('browser_useful_views', dom.usefulViews)
     print('browser_useful_view_links', dom.usefulViewLinks)
-    print('browser_useful_view_query_links', dom.usefulViewQueryLinks)
-    print('browser_quick_filter_controls', dom.quickFilterControls)
+    print('browser_useful_view_query_links', dom.usefulViewQueryLinks === true)
+    print('browser_useful_view_count_badges', dom.usefulViewCountBadges ?? 0)
+    print('browser_quick_filter_controls', dom.quickFilterControls ?? 0)
     print('browser_ajax_filter_fetch_calls', quickFilterDom?.fetchCalls ?? 0)
     print('browser_ajax_filter_endpoint', quickFilterDom?.endpoint || '')
     print('browser_ajax_filter_no_navigation', quickFilterDom?.noNavigation === true)
@@ -788,8 +796,9 @@ async function runBrowserSmoke(proxyBase) {
       && dom.catalogueToolbar === true
       && dom.quickFilterBar === true
       && dom.usefulViews === true
-      && dom.usefulViewLinks >= 8
+      && dom.usefulViewLinks >= 14
       && dom.usefulViewQueryLinks === true
+      && dom.usefulViewCountBadges >= 14
       && dom.quickFilterControls >= 6
       && quickFilterDom?.fetchCalls >= 1
       && quickFilterDom?.noNavigation === true

@@ -55,18 +55,24 @@ Candidate views:
 - Unreviewed imports;
 - specific user-defined genre/classification/status combinations.
 
-Possible first slice:
+Current support:
 
-1. Add built-in smart-view links that reuse the existing database-backed catalogue filters. **First slice landed** for recently opened, starred, workflow statuses, scanner conflicts and metadata errors.
-2. Render a compact **Useful views** strip on the catalogue and first-run/empty state. **First slice landed** on the catalogue; richer first-run placement remains a follow-up.
-3. Keep user-defined saved views as a later slice unless built-in views prove insufficient.
+- **Useful views** is now a built-in smart-collection dashboard on the catalogue.
+- Daily navigation views cover Recently opened, Starred and the core workflow statuses: To read, Reading, Finished and Needs action.
+- Cleanup views cover Needs metadata, Scanner conflicts, Metadata errors, Placeholder covers, No creator, No publication/series, Weak filename metadata and Unreviewed imports.
+- Every built-in smart view maps to explicit normal catalogue query parameters, keeps permission/user scoping inside `ItemService::queryCatalogue()`, preserves active filter chips, and shows a count badge.
+- Empty smart views keep the same filtered-empty guidance as normal catalogue filters.
+- User-defined saved views remain intentionally deferred until real use proves the built-in set is not enough; current genre/classification/status combinations can still be bookmarked because they are plain URLs.
 
 Acceptance checks:
 
 - each built-in view maps to explicit query parameters;
 - smart views do not bypass permission/user scoping;
 - active filter chips still explain what the view selected;
+- count badges are derived from the same catalogue query path;
 - empty smart views explain how to create matching items.
+
+Status: **implemented for the built-in smart-collection feature set**. Future work, if needed, is user-defined persistence for arbitrary saved filter combinations rather than more built-in daily/cleanup destinations.
 
 ### 2. Re-indexing, moving, adding and deleting files
 

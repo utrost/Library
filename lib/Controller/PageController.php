@@ -149,6 +149,12 @@ class PageController extends Controller {
             'classification' => trim((string)$this->request->getParam('classification', '')),
             'scannerConflicts' => trim((string)$this->request->getParam('scannerConflicts', '')),
             'starred' => trim((string)$this->request->getParam('starred', '')),
+            'needsMetadata' => trim((string)$this->request->getParam('needsMetadata', '')),
+            'coverReview' => trim((string)$this->request->getParam('coverReview', '')),
+            'noCreator' => trim((string)$this->request->getParam('noCreator', '')),
+            'noPublication' => trim((string)$this->request->getParam('noPublication', '')),
+            'weakMetadata' => trim((string)$this->request->getParam('weakMetadata', '')),
+            'unreviewedImports' => trim((string)$this->request->getParam('unreviewedImports', '')),
             'sort' => trim((string)$this->request->getParam('sort', 'title')),
         ];
         foreach ($filterOverrides as $key => $value) {
@@ -228,6 +234,7 @@ class PageController extends Controller {
             'metadataErrorsTsvUrl' => $this->urlGenerator->linkToRoute('library.health.metadataErrorsTsv'),
             'coverProbeUrl' => $this->urlGenerator->linkToRoute('library.health.coverProbe'),
             'importHealthSummaryUrl' => $this->urlGenerator->linkToRoute('library.health.importSummary'),
+            'smartViewCounts' => $userId !== '' ? $this->itemService->smartViewCounts($userId) : [],
             'importHealthSummary' => [],
         ];
     }
@@ -280,12 +287,12 @@ class PageController extends Controller {
     }
 
     /**
-     * @param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,genre:string,classification:string,scannerConflicts:string,starred:string,sort:string} $activeFilters
+     * @param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,genre:string,classification:string,scannerConflicts:string,starred:string,needsMetadata:string,coverReview:string,noCreator:string,noPublication:string,weakMetadata:string,unreviewedImports:string,sort:string} $activeFilters
      * @param array{limit:int} $pagination
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
         $query = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'sort'] as $param) {
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title')) {
                 $query[$param] = $value;
