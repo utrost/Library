@@ -372,7 +372,7 @@ Library scan jobs currently expose progress/history, status, scope, indexed coun
 
 ### Import health
 
-After a real-library scan, the catalogue can show an **Import health** panel when it finds repair-worthy data. The panel is intentionally separate from normal browsing so the cover-first shelf stays calm while maintainers still get collection-scale diagnostics.
+After a real-library scan, the catalogue exposes an **Import health → Metadata overview** section inside the **Actions** menu when maintainers need collection-scale diagnostics. It loads on demand instead of during normal catalogue requests, so paging, search and filters keep using the fast catalogue query path while the heavier archive/cover overview remains available deliberately.
 
 Current import health checks include:
 
