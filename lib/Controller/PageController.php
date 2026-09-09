@@ -12,6 +12,7 @@ use OCA\Library\Service\FileTagService;
 use OCA\Library\Service\ItemService;
 use OCA\Library\Service\LibraryHealthService;
 use OCA\Library\Service\RootService;
+use OCA\Library\Service\SavedCollectionService;
 use OCA\Library\Service\ScanJobService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Services\IInitialState;
@@ -36,6 +37,7 @@ class PageController extends Controller {
         private FileTagService $fileTagService,
         private FileCommentService $fileCommentService,
         private ItemService $itemService,
+        private SavedCollectionService $savedCollectionService,
         private LibraryHealthService $libraryHealthService,
         private ScanJobService $scanJobService,
         private IInitialState $initialState,
@@ -235,8 +237,21 @@ class PageController extends Controller {
             'coverProbeUrl' => $this->urlGenerator->linkToRoute('library.health.coverProbe'),
             'importHealthSummaryUrl' => $this->urlGenerator->linkToRoute('library.health.importSummary'),
             'smartViewCounts' => $userId !== '' ? $this->itemService->smartViewCounts($userId) : [],
+            'savedCollections' => $userId !== '' ? $this->savedCollectionsWithCounts($userId) : [],
+            'savedCollectionSaveUrl' => $this->urlGenerator->linkToRoute('library.saved_collection.save'),
+            'savedCollectionDeleteBaseUrl' => $this->urlGenerator->linkToRoute('library.saved_collection.delete', ['collectionId' => '__COLLECTION_ID__']),
             'importHealthSummary' => [],
         ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function savedCollectionsWithCounts(string $userId): array {
+        return array_map(function (array $collection) use ($userId): array {
+            $collection['count'] = (int)$this->itemService->queryCatalogue($userId, (array)($collection['filters'] ?? []), ['page' => 1, 'limit' => 1])['total'];
+            return $collection;
+        }, $this->savedCollectionService->listCollections($userId));
     }
 
     /**

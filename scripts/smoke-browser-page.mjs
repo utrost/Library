@@ -193,6 +193,9 @@ async function runBrowserSmoke(proxyBase) {
             && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('weakMetadata=filename'))
             && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('unreviewedImports=1')),
           usefulViewCountBadges: document.querySelectorAll('.library-useful-view-count').length,
+          savedCollections: Boolean(document.querySelector('.library-saved-collections')),
+          savedCollectionSaveForm: Boolean(document.querySelector('.library-saved-collection-save-form[action*="/collections"] input[name="savedCollectionName"]') && document.querySelector('.library-saved-collection-save-form input[name="savedCollectionFilters"]')),
+          savedCollectionLinks: document.querySelectorAll('.library-saved-collection-link').length,
           quickFilterControls: document.querySelectorAll('.library-quick-filter-bar input:not([type=hidden]), .library-quick-filter-bar select, .library-quick-filter-bar button, .library-quick-filter-bar a').length,
           cards: document.querySelectorAll('.library-cover-card').length,
           filters: Boolean(document.querySelector('.library-filter-bar')),
@@ -678,6 +681,9 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_useful_view_links', dom.usefulViewLinks)
     print('browser_useful_view_query_links', dom.usefulViewQueryLinks === true)
     print('browser_useful_view_count_badges', dom.usefulViewCountBadges ?? 0)
+    print('browser_saved_collections', dom.savedCollections === true)
+    print('browser_saved_collection_save_form', dom.savedCollectionSaveForm === true)
+    print('browser_saved_collection_links', dom.savedCollectionLinks ?? 0)
     print('browser_quick_filter_controls', dom.quickFilterControls ?? 0)
     print('browser_ajax_filter_fetch_calls', quickFilterDom?.fetchCalls ?? 0)
     print('browser_ajax_filter_endpoint', quickFilterDom?.endpoint || '')
@@ -799,6 +805,8 @@ async function runBrowserSmoke(proxyBase) {
       && dom.usefulViewLinks >= 14
       && dom.usefulViewQueryLinks === true
       && dom.usefulViewCountBadges >= 14
+      && dom.savedCollections === true
+      && dom.savedCollectionSaveForm === true
       && dom.quickFilterControls >= 6
       && quickFilterDom?.fetchCalls >= 1
       && quickFilterDom?.noNavigation === true
@@ -833,7 +841,7 @@ async function runBrowserSmoke(proxyBase) {
       && dom.catalogueTagEditor === false
       && dom.catalogueStarForms === dom.cards
       && dom.catalogueStarButtons === dom.cards
-      && dom.postForms === dom.catalogueStarForms + 7
+      && dom.postForms === dom.catalogueStarForms + 8
       && dom.requestTokenFields === dom.postForms
       && starToggleDom?.noReload === true
       && starToggleDom?.changed === true
