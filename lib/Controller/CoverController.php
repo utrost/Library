@@ -9,6 +9,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\RedirectResponse;
+use OCA\Library\Service\ArchiveCoverService;
 use OCA\Library\Service\ItemService;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
@@ -30,6 +31,7 @@ class CoverController extends Controller {
         private IPreview $previewManager,
         private ItemService $itemService,
         private IURLGenerator $urlGenerator,
+        private ArchiveCoverService $archiveCoverService,
     ) {
         parent::__construct($appName, $request);
     }
@@ -93,6 +95,11 @@ class CoverController extends Controller {
         $cbzCover = $this->extractCbzFirstImageCover($file, $itemId);
         if ($cbzCover !== null) {
             return $cbzCover;
+        }
+
+        $archiveCover = $this->extractArchiveFirstImageCover($file, $itemId);
+        if ($archiveCover !== null) {
+            return $archiveCover;
         }
         return $this->placeholderResponse($this->coverInitials($file->getName()), $previewError ?? ($this->isCbzFile($file) ? 'cbz-cover-unavailable' : 'preview-unavailable'));
     }
@@ -178,7 +185,9 @@ class CoverController extends Controller {
         }
 
         try {
-            file_put_contents($temporaryPath, $file->getContent());
+            if (!$this->copyFileToTemporaryPath($file, $temporaryPath)) {
+                return null;
+            }
             $zip = new ZipArchive();
             if ($zip->open($temporaryPath) !== true) {
                 return null;
@@ -272,7 +281,9 @@ class CoverController extends Controller {
         }
 
         try {
-            file_put_contents($temporaryPath, $file->getContent());
+            if (!$this->copyFileToTemporaryPath($file, $temporaryPath)) {
+                return null;
+            }
             $zip = new ZipArchive();
             if ($zip->open($temporaryPath) !== true) {
                 return null;
@@ -317,6 +328,81 @@ class CoverController extends Controller {
         } finally {
             @unlink($temporaryPath);
         }
+    }
+
+    private function extractArchiveFirstImageCover(File $file, int $itemId): ?DataDownloadResponse {
+        // Read-only 7z/RAR-as-CBZ cover fallback. It never converts, renames, or writes source files.
+        if (!$this->isCbzFile($file)) {
+            return null;
+        }
+        $temporaryPath = tempnam(sys_get_temp_dir(), 'library-archive-cover-');
+        if ($temporaryPath === false) {
+            return null;
+        }
+        try {
+            if (!$this->copyFileToTemporaryPath($file, $temporaryPath)) {
+                return null;
+            }
+            $actualContainerType = $this->actualContainerType($temporaryPath);
+            if (!in_array($actualContainerType, ['application/x-7z-compressed', 'application/x-rar-compressed'], true)) {
+                return null;
+            }
+            $archiveCover = $this->archiveCoverService->firstImageCover($temporaryPath, $actualContainerType);
+            if (($archiveCover['content'] ?? null) === null || ($archiveCover['mimeType'] ?? null) === null) {
+                return null;
+            }
+            $status = $actualContainerType === 'application/x-7z-compressed' ? 'sevenzip-first-image' : 'rar-first-image';
+            return $this->coverResponse(
+                (string)$archiveCover['content'],
+                'library-cover-' . $itemId . '.' . $this->coverExtension((string)$archiveCover['mimeType']),
+                (string)$archiveCover['mimeType'],
+                $status,
+                'inspect-only; files are left as-is; ' . (string)$archiveCover['reason'],
+                3600,
+                $this->isRefreshRequest()
+            );
+        } catch (Throwable) {
+            return null;
+        } finally {
+            @unlink($temporaryPath);
+        }
+    }
+
+    private function actualContainerType(string $temporaryPath): string {
+        $handle = @fopen($temporaryPath, 'r');
+        if (!is_resource($handle)) {
+            return 'unavailable';
+        }
+        $magic = (string)fread($handle, 8);
+        fclose($handle);
+        if (str_starts_with($magic, "PK\x03\x04")) {
+            return 'application/zip';
+        }
+        if (str_starts_with($magic, "7z\xBC\xAF\x27\x1C")) {
+            return 'application/x-7z-compressed';
+        }
+        if (str_starts_with($magic, "Rar!\x1A\x07")) {
+            return 'application/x-rar-compressed';
+        }
+        return 'unknown:' . bin2hex($magic);
+    }
+
+    private function copyFileToTemporaryPath(File $file, string $temporaryPath): bool {
+        $source = $file->fopen('r');
+        $target = fopen($temporaryPath, 'w');
+        if (!is_resource($source) || !is_resource($target)) {
+            if (is_resource($source)) {
+                fclose($source);
+            }
+            if (is_resource($target)) {
+                fclose($target);
+            }
+            return false;
+        }
+        stream_copy_to_stream($source, $target);
+        fclose($source);
+        fclose($target);
+        return true;
     }
 
     private function coverMimeType(string $name): ?string {

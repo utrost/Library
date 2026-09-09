@@ -379,8 +379,9 @@ Current import health checks include:
 - **metadata-error review** — counts files with `metadata_error` or `scanError`, groups them by extension/error, links to `?status=metadata_error`, exposes `/apps/library/health/metadata-errors` for paginated JSON review, and offers `/apps/library/health/metadata-errors.tsv` for a full TSV export;
 - **archive/container check** — reads lightweight file magic for EPUB/CBZ rows and highlights archive magic mismatches such as a `.cbz` file that is really 7z/RAR or an EPUB that is not a readable ZIP container;
 - **cover health** — separates Nextcloud preview generation expectations from Library cover-route fallback expectations, because Nextcloud may not preview CBZ while Library can still use a valid ZIP CBZ first-image fallback;
-- **bounded cover probing** — `/apps/library/health/covers/probe` inspects a limited set of EPUB/CBZ rows and reports `nextcloudPreview`, `libraryExtraction`, `libraryExtractionReason`, and manual-cover override status without modifying files;
-- **non-ZIP CBZ** guidance — reports 7z/RAR archives in place and explains that the current Library ZIP-based extractor cannot read them; files are left as-is rather than renamed or converted.
+- **cover support matrix** — shows Nextcloud/plugin preview and Library extraction as separate actors, then reports available extraction tools (`ZipArchive`, 7z/7za/7zr, RAR/unrar, bsdtar) so the operator knows whether a cover failure belongs to Nextcloud, Library's built-in ZIP/EPUB path, or missing optional archive tooling;
+- **bounded cover probing** — `/apps/library/health/covers/probe` inspects a limited set of EPUB/CBZ rows and reports `nextcloudPreview`, `nextcloudPreviewProvider`, `libraryExtraction`, `libraryExtractionActor`, `libraryExtractionReason`, and manual-cover override status without modifying files;
+- **non-ZIP CBZ** guidance — reports 7z/RAR archives in place and explains that 7z/RAR files are left as-is. Library can use read-only archive extraction for covers only when an optional external extractor is available; otherwise diagnostics clearly report `blocked-missing-archive-extractor` rather than implying Nextcloud preview failed.
 
 Use this panel after large imports to decide whether to repair source archives, add parser fixtures, or tag/filter affected rows for manual cleanup.
 
