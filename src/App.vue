@@ -56,6 +56,12 @@ const activeFilters = reactive({
   classification: catalogueState.activeFilters?.classification || '',
   scannerConflicts: catalogueState.activeFilters?.scannerConflicts || '',
   starred: catalogueState.activeFilters?.starred || '',
+  needsMetadata: catalogueState.activeFilters?.needsMetadata || '',
+  coverReview: catalogueState.activeFilters?.coverReview || '',
+  noCreator: catalogueState.activeFilters?.noCreator || '',
+  noPublication: catalogueState.activeFilters?.noPublication || '',
+  weakMetadata: catalogueState.activeFilters?.weakMetadata || '',
+  unreviewedImports: catalogueState.activeFilters?.unreviewedImports || '',
   sort: catalogueState.activeFilters?.sort || 'title',
 })
 const settingsUrl = computed(() => catalogueState.settingsUrl || '')
@@ -119,6 +125,12 @@ const filterLabels = {
   classification: 'Classification',
   scannerConflicts: 'Scanner conflicts',
   starred: 'Starred',
+  needsMetadata: 'Needs metadata',
+  coverReview: 'Cover review',
+  noCreator: 'No creator',
+  noPublication: 'No publication/series',
+  weakMetadata: 'Weak metadata',
+  unreviewedImports: 'Unreviewed imports',
 }
 const batchMetadataApplyMessage = computed(() => {
   if (typeof window === 'undefined') return ''
@@ -244,15 +256,22 @@ function clearSearchUrl() {
   return filterChipRemoveUrl('q')
 }
 
+const smartViewCounts = computed(() => catalogueState.smartViewCounts || {})
 const smartViews = computed(() => [
-  { label: 'Recently opened', description: 'Continue from the publications you opened through Library.', query: 'sort=lastOpened', filters: { sort: 'lastOpened' } },
-  { label: 'Starred', description: 'Your marked publications and reference items.', query: 'starred=1', filters: { starred: '1' } },
-  { label: 'To read', description: 'Publications queued for later.', query: 'workflowStatus=to-read', filters: { workflowStatus: 'to-read' } },
-  { label: 'Reading', description: 'Publications currently in progress.', query: 'workflowStatus=reading', filters: { workflowStatus: 'reading' } },
-  { label: 'Finished', description: 'Completed publications.', query: 'workflowStatus=finished', filters: { workflowStatus: 'finished' } },
-  { label: 'Needs action', description: 'Items that need a cleanup or follow-up decision.', query: 'workflowStatus=needs-action', filters: { workflowStatus: 'needs-action' } },
-  { label: 'Scanner conflicts', description: 'Rows where current metadata differs from scanner candidates.', query: 'scannerConflicts=1', filters: { scannerConflicts: '1' } },
-  { label: 'Metadata errors', description: 'Files whose metadata extraction needs review.', query: 'status=metadata_error', filters: { status: 'metadata_error' } },
+  { key: 'recently-opened', label: 'Recently opened', description: 'Continue from the publications you opened through Library.', query: 'sort=lastOpened', filters: { sort: 'lastOpened' } },
+  { key: 'starred', label: 'Starred', description: 'Your marked publications and reference items.', query: 'starred=1', filters: { starred: '1' } },
+  { key: 'to-read', label: 'To read', description: 'Publications queued for later.', query: 'workflowStatus=to-read', filters: { workflowStatus: 'to-read' } },
+  { key: 'reading', label: 'Reading', description: 'Publications currently in progress.', query: 'workflowStatus=reading', filters: { workflowStatus: 'reading' } },
+  { key: 'finished', label: 'Finished', description: 'Completed publications.', query: 'workflowStatus=finished', filters: { workflowStatus: 'finished' } },
+  { key: 'needs-action', label: 'Needs action', description: 'Items that need a cleanup or follow-up decision.', query: 'workflowStatus=needs-action', filters: { workflowStatus: 'needs-action' } },
+  { key: 'needs-metadata', label: 'Needs metadata', description: 'Items with missing core fields, extraction errors, or filename-only metadata.', query: 'needsMetadata=1', filters: { needsMetadata: '1' } },
+  { key: 'scanner-conflicts', label: 'Scanner conflicts', description: 'Rows where current metadata differs from scanner candidates.', query: 'scannerConflicts=1', filters: { scannerConflicts: '1' } },
+  { key: 'metadata-errors', label: 'Metadata errors', description: 'Files whose metadata extraction needs review.', query: 'status=metadata_error', filters: { status: 'metadata_error' } },
+  { key: 'placeholder-covers', label: 'Placeholder covers', description: 'Likely placeholder-cover candidates without a manual cover override.', query: 'coverReview=placeholder', filters: { coverReview: 'placeholder' } },
+  { key: 'no-creator', label: 'No creator', description: 'Publications without creator metadata.', query: 'noCreator=1', filters: { noCreator: '1' } },
+  { key: 'no-publication', label: 'No publication/series', description: 'Items without publication, series, periodical or collection metadata.', query: 'noPublication=1', filters: { noPublication: '1' } },
+  { key: 'weak-filename-metadata', label: 'Weak filename metadata', description: 'Items whose metadata still depends on filename/folder parsing.', query: 'weakMetadata=filename', filters: { weakMetadata: 'filename' } },
+  { key: 'unreviewed-imports', label: 'Unreviewed imports', description: 'Scanner-created catalogue rows not yet touched by user review.', query: 'unreviewedImports=1', filters: { unreviewedImports: '1' } },
 ])
 
 function smartViewUrl(filters) {
@@ -480,9 +499,10 @@ async function toggleStar(item, event) {
         <p class="library-muted">{{ t('library', 'Empty useful views mean no current catalogue items match that saved direction yet; add metadata, star items, update workflow status, or run a scan to create matches.') }}</p>
       </div>
       <nav class="library-useful-view-links" :aria-label="t('library', 'Built-in useful catalogue views')">
-        <a v-for="view in smartViews" :key="view.label" class="library-useful-view-chip" :href="smartViewUrl(view.filters)" :title="view.description">
+        <a v-for="view in smartViews" :key="view.key" class="library-useful-view-chip" :href="smartViewUrl(view.filters)" :title="view.description">
           <strong>{{ t('library', view.label) }}</strong>
           <span>{{ t('library', view.description) }}</span>
+          <small class="library-useful-view-count">{{ Number(smartViewCounts[view.key] || 0) }}</small>
         </a>
       </nav>
     </section>
@@ -1016,6 +1036,7 @@ async function toggleStar(item, event) {
   color: var(--color-main-text, #222);
   display: inline-grid;
   gap: 0.1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
   max-width: 18rem;
   padding: 0.4rem 0.7rem;
   text-decoration: none;
@@ -1034,7 +1055,20 @@ async function toggleStar(item, event) {
 .library-useful-view-chip span {
   color: var(--color-text-maxcontrast, #6b6b6b);
   font-size: 0.78rem;
+  grid-column: 1 / -1;
   line-height: 1.2;
+}
+
+.library-useful-view-count {
+  align-self: start;
+  background: var(--color-primary-element-light, #eaf6ff);
+  border-radius: 999px;
+  color: var(--color-main-text, #222);
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 1.5rem;
+  padding: 0.1rem 0.35rem;
+  text-align: center;
 }
 
 .library-quick-search-row {

@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.131 - 2026-09-09
+
+### Added
+
+- Expanded **Useful views** into a fuller smart-collection dashboard: added cleanup views for Needs metadata, Placeholder covers, No creator, No publication/series, Weak filename metadata and Unreviewed imports.
+- Added smart-view count badges and backend catalogue filters for the new cleanup views, while preserving normal query parameters and active filter chips.
+
 ## v0.1.0-alpha.130 - 2026-09-09
 
 ### Added

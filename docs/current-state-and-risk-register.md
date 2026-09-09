@@ -20,7 +20,7 @@ Implemented and ready for v0.1 testing:
 - EPUB, PDF, CBZ and OPF indexing with extractor failure isolation and missing-file diagnostics.
 - General editable publication metadata: title, subtitle, creators, publication/series, date, language, publisher, description, workflow status, genres and classifications.
 - Scanner provenance/candidates, differs-from-scanner labels, correction counts, single-field reset, whole-item reset, conflict review filter and batch scanner-candidate reset.
-- Compact cover-first catalogue with database-backed search, filters, facets, sort modes and pagination.
+- Compact cover-first catalogue with database-backed search, filters, facets, sort modes and pagination, active filter chips, and built-in Useful views for daily/cleanup smart collections with count badges.
 - Dedicated publication/series, publication-year and creator discovery pages around the compact catalogue grid, with publication pages showing a compact **Publication contents** issue/date coverage summary.
 - Read, Show in Files and Download source actions.
 - Detail workbench for publication metadata, Nextcloud tags/comments, cover refresh, scanner provenance and file diagnostics.

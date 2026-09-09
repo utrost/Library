@@ -537,6 +537,34 @@ final class ItemService {
     }
 
     /**
+     * @return array<string, int>
+     */
+    public function smartViewCounts(string $userId): array {
+        $views = [
+            'recently-opened' => ['sort' => 'lastOpened'],
+            'starred' => ['starred' => '1'],
+            'to-read' => ['workflowStatus' => 'to-read'],
+            'reading' => ['workflowStatus' => 'reading'],
+            'finished' => ['workflowStatus' => 'finished'],
+            'needs-action' => ['workflowStatus' => 'needs-action'],
+            'needs-metadata' => ['needsMetadata' => '1'],
+            'scanner-conflicts' => ['scannerConflicts' => '1'],
+            'metadata-errors' => ['status' => 'metadata_error'],
+            'placeholder-covers' => ['coverReview' => 'placeholder'],
+            'no-creator' => ['noCreator' => '1'],
+            'no-publication' => ['noPublication' => '1'],
+            'weak-filename-metadata' => ['weakMetadata' => 'filename'],
+            'unreviewed-imports' => ['unreviewedImports' => '1'],
+        ];
+
+        $counts = [];
+        foreach ($views as $key => $filters) {
+            $counts[$key] = (int)$this->queryCatalogue($userId, $filters, ['page' => 1, 'limit' => 1])['total'];
+        }
+        return $counts;
+    }
+
+    /**
      * @param array<string, mixed> $filters
      * @return array<int, int>
      */
@@ -1312,10 +1340,7 @@ final class ItemService {
             $qb->andWhere($qb->expr()->eq('i.starred', $qb->createNamedParameter(1)));
         }
 
-        $workflowStatus = $this->normalizeWorkflowStatus((string)($filters['workflowStatus'] ?? ''));
-        if ($workflowStatus !== '') {
-            $qb->andWhere($qb->expr()->eq('i.workflow_status', $qb->createNamedParameter($workflowStatus)));
-        }
+        $this->applySmartCollectionFilters($qb, $filters);
 
         $shelf = trim((string)($filters['shelf'] ?? ''));
         if ($shelf !== '') {
@@ -1345,6 +1370,67 @@ final class ItemService {
                 $qb->expr()->like($qb->createFunction('LOWER(i.genres_json)'), $like),
                 $qb->expr()->like($qb->createFunction('LOWER(i.classifications_json)'), $like),
                 $qb->expr()->like($qb->createFunction('LOWER(f.cached_path)'), $like)
+            ));
+        }
+    }
+
+    private function applySmartCollectionFilters(IQueryBuilder $qb, array $filters): void {
+        $workflowStatus = $this->normalizeWorkflowStatus((string)($filters['workflowStatus'] ?? ''));
+        if ($workflowStatus !== '') {
+            $qb->andWhere($qb->expr()->eq('i.workflow_status', $qb->createNamedParameter($workflowStatus)));
+        }
+
+        if (trim((string)($filters['noCreator'] ?? '')) === '1') {
+            $qb->andWhere($qb->expr()->orX(
+                $qb->expr()->isNull('i.creators'),
+                $qb->expr()->eq('i.creators', $qb->createNamedParameter(''))
+            ));
+        }
+
+        if (trim((string)($filters['noPublication'] ?? '')) === '1') {
+            $qb->andWhere($qb->expr()->orX(
+                $qb->expr()->isNull('i.publication'),
+                $qb->expr()->eq('i.publication', $qb->createNamedParameter(''))
+            ));
+        }
+
+        if (trim((string)($filters['needsMetadata'] ?? '')) === '1') {
+            $qb->andWhere($qb->expr()->orX(
+                $qb->expr()->eq('f.scan_status', $qb->createNamedParameter('metadata_error')),
+                $qb->expr()->isNull('i.creators'),
+                $qb->expr()->eq('i.creators', $qb->createNamedParameter('')),
+                $qb->expr()->isNull('i.publication'),
+                $qb->expr()->eq('i.publication', $qb->createNamedParameter('')),
+                $qb->expr()->isNull('i.publication_date'),
+                $qb->expr()->eq('i.publication_date', $qb->createNamedParameter('')),
+                $qb->expr()->eq('i.metadata_source', $qb->createNamedParameter('filename-pattern'))
+            ));
+        }
+
+        if (trim((string)($filters['weakMetadata'] ?? '')) === 'filename') {
+            $filenameSource = $qb->createNamedParameter('filename-pattern');
+            $filenameLike = $qb->createNamedParameter('%filename-pattern%');
+            $qb->andWhere($qb->expr()->orX(
+                $qb->expr()->eq('i.metadata_source', $filenameSource),
+                $qb->expr()->like('i.field_sources', $filenameLike)
+            ));
+        }
+
+        if (trim((string)($filters['unreviewedImports'] ?? '')) === '1') {
+            $qb->andWhere($qb->expr()->neq('i.metadata_source', $qb->createNamedParameter('user')))
+                ->andWhere($qb->expr()->eq('i.user_edited', $qb->createNamedParameter(0)));
+        }
+
+        if (trim((string)($filters['coverReview'] ?? '')) === 'placeholder') {
+            $qb->andWhere($qb->expr()->andX(
+                $qb->expr()->orX(
+                    $qb->expr()->isNull('i.cover_override_url'),
+                    $qb->expr()->eq('i.cover_override_url', $qb->createNamedParameter(''))
+                ),
+                $qb->expr()->orX(
+                    $qb->expr()->eq('f.scan_status', $qb->createNamedParameter('metadata_error')),
+                    $qb->expr()->notIn($qb->createFunction('LOWER(f.extension)'), $qb->createNamedParameter(['pdf', 'epub', 'cbz'], IQueryBuilder::PARAM_STR_ARRAY))
+                )
             ));
         }
     }

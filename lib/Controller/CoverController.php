@@ -158,7 +158,7 @@ class CoverController extends Controller {
 
     private function catalogueFiltersFromRequest(): array {
         $filters = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'sort'] as $key) {
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'weakMetadata', 'unreviewedImports', 'sort'] as $key) {
             $filters[$key] = trim((string)$this->request->getParam($key, ''));
         }
         if ($filters['sort'] === '') {
