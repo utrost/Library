@@ -779,7 +779,31 @@ async function toggleStar(item, event) {
         <span v-if="publicationIssueContext.earliestYear && publicationIssueContext.latestYear">{{ publicationIssueContext.earliestYear }}–{{ publicationIssueContext.latestYear }}</span>
         <span>{{ publicationIssueContext.datedCount }} {{ t('library', 'with issue/date coverage') }}</span>
         <span v-if="publicationIssueContext.undatedCount > 0">{{ publicationIssueContext.undatedCount }} {{ t('library', 'without dates yet') }}</span>
+        <span>{{ t('library', 'read-only grouping') }}</span>
       </aside>
+      <section v-if="isPublicationDiscoveryPage && publicationIssueContext?.issueGroups?.length" class="library-publication-issue-groups" aria-labelledby="library-publication-issue-groups-heading">
+        <div>
+          <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Issue order') }}</p>
+          <h4 id="library-publication-issue-groups-heading">{{ t('library', 'Read-only issue/date grouping') }}</h4>
+          <p class="library-muted">{{ t('library', 'Comics, magazines and periodicals stay visible here even when Library only has dates or filename/path issue candidates. Use item details before editing metadata.') }}</p>
+        </div>
+        <p v-if="publicationIssueContext.gapRanges?.length" class="library-notice">{{ t('library', 'Gap') }}: {{ publicationIssueContext.gapRanges.join(', ') }}</p>
+        <div v-for="group in publicationIssueContext.issueGroups" :key="group.label" class="library-publication-issue-group">
+          <h5>{{ group.label }}</h5>
+          <ol>
+            <li v-for="(issue, index) in group.items" :key="issue.itemId">
+              <span class="library-publication-issue-label">{{ issue.issueLabel }}</span>
+              <a :href="issue.detailsUrl || '#'">{{ issue.title }}</a>
+              <small>{{ issue.publicationType }}<template v-if="issue.publicationDate"> · {{ issue.publicationDate }}</template></small>
+              <small class="library-muted"><template v-if="index > 0">{{ t('library', 'Previous issue') }}</template><template v-if="index > 0 && index < group.items.length - 1"> · </template><template v-if="index < group.items.length - 1">{{ t('library', 'Next issue') }}</template></small>
+            </li>
+          </ol>
+        </div>
+        <details v-if="publicationIssueContext.unknownIssueItems?.length" class="library-publication-unknown-issues">
+          <summary>{{ t('library', 'Unknown issue/date') }} · {{ publicationIssueContext.unknownIssueItems.length }}</summary>
+          <p class="library-muted">{{ t('library', 'Unknown issue/date rows remain visible instead of disappearing from the publication page.') }}</p>
+        </details>
+      </section>
       <p><a href="/apps/library/" class="button secondary">{{ t('library', 'Back to full catalogue') }}</a></p>
     </section>
 
@@ -1013,6 +1037,45 @@ async function toggleStar(item, event) {
   border-radius: 999px;
   background: var(--color-background-hover);
   padding: 0.25rem 0.6rem;
+}
+
+.library-publication-issue-groups {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--color-main-background);
+}
+
+.library-publication-issue-group {
+  border-top: 1px solid var(--color-border);
+  padding-top: 10px;
+}
+
+.library-publication-issue-group h5 {
+  margin: 0 0 8px;
+}
+
+.library-publication-issue-group ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 22px;
+}
+
+.library-publication-issue-group li {
+  display: grid;
+  gap: 2px;
+}
+
+.library-publication-issue-label {
+  font-weight: 700;
+}
+
+.library-publication-unknown-issues {
+  border-top: 1px solid var(--color-border);
+  padding-top: 8px;
 }
 
 .library-filter-panel {

@@ -15,11 +15,11 @@ def test_release_docs_are_current_for_v01_testing_candidate():
     changelog = read("CHANGELOG.md")
     checklist = read("docs/alpha-test-checklist.md")
 
-    assert "<version>0.1.0-alpha.135</version>" in info
+    assert "<version>0.1.0-alpha.136</version>" in info
     for doc in (readme, release, checklist):
-        assert "0.1.0-alpha.135" in doc
+        assert "0.1.0-alpha.136" in doc
         assert "0.1.0-alpha.82" not in doc
-    assert "0.1.0-alpha.135" in changelog
+    assert "0.1.0-alpha.136" in changelog
     assert "v0.1.0-alpha.1" in changelog
 
     assert "publication, publication-year and creator discovery pages exist" in checklist

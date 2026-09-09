@@ -1155,7 +1155,7 @@ final class ItemService {
     }
 
     /**
-     * @return array{itemCount:int,datedCount:int,undatedCount:int,earliestYear:string,latestYear:string}
+     * @return array{itemCount:int,datedCount:int,undatedCount:int,earliestYear:string,latestYear:string,issueGroups:array<int, array<string, mixed>>,unknownIssueItems:array<int, array<string, mixed>>,gapRanges:array<int, string>}
      */
     public function publicationIssueContext(string $userId, string $publication): array {
         $publication = trim($publication);
@@ -1166,32 +1166,143 @@ final class ItemService {
                 'undatedCount' => 0,
                 'earliestYear' => '',
                 'latestYear' => '',
+                'issueGroups' => [],
+                'unknownIssueItems' => [],
+                'gapRanges' => [],
             ];
         }
 
+        $rows = $this->publicationIssueRows($userId, $publication);
+        $datedCount = 0;
+        $years = [];
+        foreach ($rows as $row) {
+            if ((string)($row['publicationDate'] ?? '') !== '') {
+                $datedCount++;
+                $years[] = substr((string)$row['publicationDate'], 0, 4);
+            }
+        }
+        sort($years, SORT_STRING);
+        $issueContext = $this->buildPublicationIssueGroups($rows);
+
+        return [
+            'itemCount' => count($rows),
+            'datedCount' => $datedCount,
+            'undatedCount' => max(0, count($rows) - $datedCount),
+            'earliestYear' => $years[0] ?? '',
+            'latestYear' => $years[count($years) - 1] ?? '',
+            'issueGroups' => $issueContext['issueGroups'],
+            'unknownIssueItems' => $issueContext['unknownIssueItems'],
+            'gapRanges' => $issueContext['gapRanges'],
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function publicationIssueRows(string $userId, string $publication): array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->selectAlias($qb->createFunction('COUNT(*)'), 'item_count')
-            ->selectAlias($qb->createFunction("SUM(CASE WHEN i.publication_date IS NOT NULL AND i.publication_date <> '' THEN 1 ELSE 0 END)"), 'dated_count')
-            ->selectAlias($qb->createFunction("MIN(CASE WHEN i.publication_date IS NOT NULL AND i.publication_date <> '' THEN SUBSTR(i.publication_date, 1, 4) ELSE NULL END)"), 'earliest_year')
-            ->selectAlias($qb->createFunction("MAX(CASE WHEN i.publication_date IS NOT NULL AND i.publication_date <> '' THEN SUBSTR(i.publication_date, 1, 4) ELSE NULL END)"), 'latest_year')
+        $result = $qb->select('i.id', 'i.title', 'i.subtitle', 'i.publication_type', 'i.publication_date', 'f.cached_path', 'f.extension')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('i.publication', $qb->createNamedParameter($publication)))
             ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
+            ->orderBy($qb->createFunction("CASE WHEN i.publication_date IS NULL OR i.publication_date = '' THEN 1 ELSE 0 END"), 'ASC')
+            ->addOrderBy('i.publication_date', 'ASC')
+            ->addOrderBy('i.title', 'ASC')
             ->executeQuery();
 
-        $row = $result->fetch();
+        $rows = [];
+        while ($row = $result->fetch()) {
+            $title = (string)($row['title'] ?? '');
+            $subtitle = (string)($row['subtitle'] ?? '');
+            $path = (string)($row['cached_path'] ?? '');
+            $sequence = $this->deriveIssueSequence($title, $subtitle, $path);
+            $date = (string)($row['publication_date'] ?? '');
+            $rows[] = [
+                'itemId' => (int)($row['id'] ?? 0),
+                'title' => $title,
+                'publicationType' => (string)($row['publication_type'] ?? 'other'),
+                'publicationDate' => $date,
+                'issueNumber' => $sequence,
+                'issueLabel' => $sequence !== null ? '#' . $sequence : ($date !== '' ? $date : 'Unknown issue/date'),
+                'volumeLabel' => $this->deriveVolumeLabel($title, $subtitle, $path),
+                'monthLabel' => strlen($date) >= 7 ? substr($date, 0, 7) : ($date !== '' ? substr($date, 0, 4) : 'Unknown issue/date'),
+                'unknownIssueDate' => $sequence === null && $date === '', // unknown issue/date rows remain visible instead of disappearing
+            ];
+        }
         $result->closeCursor();
-        $itemCount = (int)($row['item_count'] ?? 0);
-        $datedCount = (int)($row['dated_count'] ?? 0);
+        return $rows;
+    }
+
+    private function deriveIssueSequence(string ...$values): ?int {
+        $haystack = trim(implode(' ', array_filter($values, static fn (string $value): bool => trim($value) !== '')));
+        if ($haystack === '') {
+            return null;
+        }
+        foreach ([
+            '/(?:^|[^a-z0-9])(?:issue|nr|no|number|#)\s*0*(\d{1,5})(?:\b|[^a-z0-9])/iu',
+            '/(?:^|[^a-z0-9])0*(\d{1,5})\s*(?:of|von)\s*\d{1,5}(?:\b|[^a-z0-9])/iu',
+            '/(?:^|[^a-z0-9])#\s*0*(\d{1,5})(?:\b|[^a-z0-9])/u',
+        ] as $pattern) {
+            if (preg_match($pattern, $haystack, $matches) === 1) {
+                return max(1, (int)$matches[1]);
+            }
+        }
+        return null;
+    }
+
+    private function deriveVolumeLabel(string ...$values): string {
+        $haystack = trim(implode(' ', array_filter($values, static fn (string $value): bool => trim($value) !== '')));
+        if ($haystack !== '' && preg_match('/(?:^|[^a-z0-9])(?:vol(?:ume)?|band|jahrgang)\s*0*(\d{1,4})(?:\b|[^a-z0-9])/iu', $haystack, $matches) === 1) {
+            return 'Volume ' . (int)$matches[1];
+        }
+        return '';
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     * @return array{issueGroups:array<int, array<string, mixed>>,unknownIssueItems:array<int, array<string, mixed>>,gapRanges:array<int, string>}
+     */
+    private function buildPublicationIssueGroups(array $rows): array {
+        $groups = [];
+        $unknown = [];
+        $seenIssues = [];
+        foreach ($rows as $row) {
+            if (!empty($row['unknownIssueDate'])) {
+                $unknown[] = $row;
+            }
+            $issueNumber = $row['issueNumber'] ?? null;
+            if (is_int($issueNumber)) {
+                $seenIssues[$issueNumber] = true;
+            }
+            $groupKey = trim((string)($row['volumeLabel'] ?? '')) !== ''
+                ? (string)$row['volumeLabel']
+                : (string)($row['monthLabel'] ?? 'Unknown issue/date');
+            if (!isset($groups[$groupKey])) {
+                $groups[$groupKey] = [
+                    'label' => $groupKey,
+                    'items' => [],
+                ];
+            }
+            $groups[$groupKey]['items'][] = $row;
+        }
+
+        $gapRanges = [];
+        if ($seenIssues !== []) {
+            $issueNumbers = array_keys($seenIssues);
+            sort($issueNumbers, SORT_NUMERIC);
+            for ($issue = (int)$issueNumbers[0]; $issue <= (int)$issueNumbers[count($issueNumbers) - 1]; $issue++) {
+                if (!isset($seenIssues[$issue])) {
+                    $gapRanges[] = 'Gap #' . $issue;
+                }
+            }
+        }
 
         return [
-            'itemCount' => $itemCount,
-            'datedCount' => $datedCount,
-            'undatedCount' => max(0, $itemCount - $datedCount),
-            'earliestYear' => trim((string)($row['earliest_year'] ?? '')),
-            'latestYear' => trim((string)($row['latest_year'] ?? '')),
+            'issueGroups' => array_values($groups),
+            'unknownIssueItems' => $unknown,
+            'gapRanges' => $gapRanges,
         ];
     }
 
@@ -1476,6 +1587,7 @@ final class ItemService {
             'recent' => $qb->orderBy('i.library_file_id', 'DESC')->addOrderBy('i.id', 'DESC'),
             'publicationDate' => $qb->orderBy('i.publication_date', 'DESC')->addOrderBy('i.title', 'ASC'),
             'publication' => $qb->orderBy('i.publication', 'ASC')->addOrderBy('i.publication_date', 'DESC')->addOrderBy('i.title', 'ASC'),
+            'publicationIssue' => $qb->orderBy('i.publication_date', 'ASC')->addOrderBy('i.title', 'ASC'),
             'lastOpened' => $qb->orderBy('i.last_opened_at', 'DESC')->addOrderBy('i.title', 'ASC'),
             'format' => $qb->orderBy('f.extension', 'ASC')->addOrderBy('i.title', 'ASC'),
             default => $qb->orderBy('i.title', 'ASC'),

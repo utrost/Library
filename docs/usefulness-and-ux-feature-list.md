@@ -251,19 +251,25 @@ Origin: Hermes recommendation.
 
 Why it matters: comics, magazines and periodicals need sequence-oriented browsing rather than only a flat publication filter.
 
-Missing UX:
+Current support:
 
-- issue order;
-- volume grouping;
-- year/month grouping;
-- gap detection;
-- next/previous issue browsing;
-- richer contents pages for periodicals and comics.
+- publication pages show **Publication contents** read-only issue/date grouping;
+- stable issue/date order uses dated rows first and keeps weak rows visible;
+- year/month buckets and conservative volume labels are derived from existing dates, titles, subtitles and paths;
+- simple gap hints flag missing numeric issue candidates;
+- an **Unknown issue/date** bucket keeps rows without issue/date candidates from disappearing;
+- the grouping works for comics, magazines, journals and other publication rows without requiring every item to be a book.
 
-Possible first slice:
+Remaining UX:
 
-1. Extend publication discovery pages with issue/date grouping derived from existing fields and filename/path candidates.
-2. Keep grouping read-only until metadata confidence improves.
+- richer editable issue metadata;
+- dedicated next/previous issue routes;
+- richer contents pages for periodicals and comics beyond the read-only grouping.
+
+First slice shipped:
+
+1. Publication discovery pages include issue/date grouping derived from existing fields and filename/path candidates.
+2. Grouping stays read-only until metadata confidence improves.
 
 Acceptance checks:
 

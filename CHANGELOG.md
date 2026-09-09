@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.136 - 2026-09-09
+
+### Added
+
+- Added **Publication contents** read-only issue/date grouping on publication pages, with stable issue/date order, year/month buckets, conservative volume labels, gap hints and an **Unknown issue/date** bucket so weak comics and periodicals stay visible.
+- Publication discovery pages now default to issue/date ordering while keeping catalogue cards compact and non-editable.
+
 ## v0.1.0-alpha.135 - 2026-09-09
 
 ### Added
