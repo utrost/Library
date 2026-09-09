@@ -191,7 +191,9 @@ Current PDF Info hardening includes:
 - UTF-16 BOM strings;
 - PDF hex Info strings;
 - PDF literal octal escapes;
+- PDF literal line continuations;
 - nested PDF literal parentheses, such as `Camera (Special Issue)`;
+- plain PDF Info dates such as `20240131` from malformed real files;
 - non-BOM single-byte strings that need conversion before MariaDB insert.
 
 PDF `/Creator`, `/Producer` and `/Keywords` are not promoted into canonical publication metadata yet. Creator/Producer usually describe generating software, and keywords need a reviewable keyword/tag model before they become catalogue truth.
@@ -443,7 +445,7 @@ Acceptance checks:
 - Saved edits set provenance to user-edited.
 - Rescan does not overwrite user-edited metadata.
 - Scanner candidates refresh on rescan, while current user-edited values stay untouched.
-- PDF Info extraction handles current hardened cases including PDF Subject-as-subtitle, normalized PDF CreationDate/ModDate, hex strings, octal escapes and nested PDF literal parentheses.
+- PDF Info extraction handles current hardened cases including PDF Subject-as-subtitle, normalized PDF CreationDate/ModDate, plain PDF Info dates, hex strings, octal escapes, literal line continuations and nested PDF literal parentheses.
 
 Implemented correction helpers:
 
