@@ -34,6 +34,7 @@ final class LibraryScanner {
      */
     public function scan(string $userId, ?int $onlyRootId = null, ?callable $progress = null): array {
         $indexed = 0;
+        $summary = $this->emptyChangeSummary();
         $errors = [];
         $scopeRootId = $onlyRootId;
         $roots = $this->filterRootsForScope($userId, $scopeRootId);
@@ -46,10 +47,10 @@ final class LibraryScanner {
                 $rootId = (int)$root['id'];
                 $folder = $this->resolveRootFolder($userFolder, (string)$root['path']);
                 $seenLibraryFileIds = [];
-                $indexed += $this->scanFolder($userId, $rootId, $folder, $seenLibraryFileIds, function (int $filesIndexed) use (&$indexed, $progress, $rootsTotal, &$errors, $root): void {
+                $indexed += $this->scanFolder($userId, $rootId, $folder, $seenLibraryFileIds, $summary, function (int $filesIndexed) use (&$indexed, $progress, $rootsTotal, &$errors, $root): void {
                     $this->reportProgress($progress, $rootsTotal, $indexed + $filesIndexed, count($errors), 'Scanning ' . (string)$root['path']);
                 });
-                $this->fileIndexService->markMissingExcept($userId, $rootId, $seenLibraryFileIds);
+                $summary['filesMissing'] += $this->fileIndexService->markMissingExcept($userId, $rootId, $seenLibraryFileIds);
                 $this->rootService->markScanned($rootId);
                 $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Finished ' . (string)$root['path']);
             } catch (Throwable $e) {
@@ -62,6 +63,7 @@ final class LibraryScanner {
             'roots' => $rootsTotal,
             'indexed' => $indexed,
             'errors' => $errors,
+            ...$summary,
         ];
     }
 
@@ -166,11 +168,11 @@ final class LibraryScanner {
         return $node;
     }
 
-    private function scanFolder(string $userId, int $rootId, Folder $folder, array &$seenLibraryFileIds, ?callable $progress = null): int {
+    private function scanFolder(string $userId, int $rootId, Folder $folder, array &$seenLibraryFileIds, array &$summary, ?callable $progress = null): int {
         $indexed = 0;
         foreach ($folder->getDirectoryListing() as $node) {
             if ($node instanceof Folder) {
-                $indexed += $this->scanFolder($userId, $rootId, $node, $seenLibraryFileIds, $progress);
+                $indexed += $this->scanFolder($userId, $rootId, $node, $seenLibraryFileIds, $summary, $progress);
                 continue;
             }
 
@@ -190,7 +192,7 @@ final class LibraryScanner {
                 continue;
             }
 
-            if ($this->scanFile($userId, $rootId, $node, $seenLibraryFileIds)) {
+            if ($this->scanFile($userId, $rootId, $node, $seenLibraryFileIds, $summary)) {
                 $indexed++;
                 if ($progress !== null) {
                     $progress($indexed);
@@ -199,6 +201,24 @@ final class LibraryScanner {
         }
 
         return $indexed;
+    }
+
+    private function emptyChangeSummary(): array {
+        return [
+            'filesAdded' => 0,
+            'pathsUpdated' => 0,
+            'filesUnchanged' => 0,
+            'filesMissing' => 0,
+            'metadataErrors' => 0,
+        ];
+    }
+
+    private function incrementChangeCount(array &$summary, string $changeStatus): void {
+        match ($changeStatus) {
+            'added' => $summary['filesAdded']++,
+            'path_updated' => $summary['pathsUpdated']++,
+            default => $summary['filesUnchanged']++,
+        };
     }
 
     private function reportProgress(?callable $progress, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary): void {
@@ -214,7 +234,7 @@ final class LibraryScanner {
         ]);
     }
 
-    private function scanFile(string $userId, int $rootId, File $node, array &$seenLibraryFileIds): bool {
+    private function scanFile(string $userId, int $rootId, File $node, array &$seenLibraryFileIds, ?array &$summary = null): bool {
         $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
             'fileId' => $node->getId(),
             'cachedPath' => $this->displayPath($node, $userId),
@@ -225,6 +245,9 @@ final class LibraryScanner {
             'size' => $node->getSize(),
         ]);
         $seenLibraryFileIds[] = (int)$indexedFile['id'];
+        if ($summary !== null) {
+            $this->incrementChangeCount($summary, (string)($indexedFile['changeStatus'] ?? 'unchanged'));
+        }
 
         try {
             $metadata = $this->metadataService->extractWithSidecar($node);
@@ -232,9 +255,15 @@ final class LibraryScanner {
 
             $metadataError = $this->metadataService->getLastError();
             if ($metadataError !== null) {
+                if ($summary !== null) {
+                    $summary['metadataErrors']++;
+                }
                 $this->fileIndexService->markScanError($userId, (int)$indexedFile['id'], $metadataError);
             }
         } catch (Throwable $e) {
+            if ($summary !== null) {
+                $summary['metadataErrors']++;
+            }
             $this->fileIndexService->markScanError($userId, (int)$indexedFile['id'], 'metadata extraction failed: ' . $e->getMessage());
         }
 

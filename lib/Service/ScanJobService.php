@@ -38,6 +38,10 @@ final class ScanJobService {
             ->set('files_indexed', $qb->createNamedParameter((int)($progress['indexed'] ?? 0)))
             ->set('error_count', $qb->createNamedParameter((int)($progress['errors'] ?? 0)))
             ->set('summary', $qb->createNamedParameter(mb_substr((string)($progress['summary'] ?? 'Scanning…'), 0, 4000)))
+            ->set('files_added', $qb->createNamedParameter((int)($progress['filesAdded'] ?? 0)))
+            ->set('paths_updated', $qb->createNamedParameter((int)($progress['pathsUpdated'] ?? 0)))
+            ->set('files_unchanged', $qb->createNamedParameter((int)($progress['filesUnchanged'] ?? 0)))
+            ->set('files_missing', $qb->createNamedParameter((int)($progress['filesMissing'] ?? 0)))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->neq('status', $qb->createNamedParameter('cancelled')))
@@ -50,8 +54,17 @@ final class ScanJobService {
         }
 
         $errors = $result['errors'] ?? [];
-        $summary = $errors !== [] ? implode("\n", array_map('strval', $errors)) : 'Scan completed';
-        $this->updateJob($userId, $jobId, 'completed', (int)($result['roots'] ?? 0), (int)($result['indexed'] ?? 0), count($errors), $summary);
+        $summary = $errors !== []
+            ? implode("\n", array_map('strval', $errors))
+            : sprintf(
+                'Scan completed: %d added, %d moved/renamed, %d unchanged, %d missing, %d metadata errors',
+                (int)($result['filesAdded'] ?? 0),
+                (int)($result['pathsUpdated'] ?? 0),
+                (int)($result['filesUnchanged'] ?? 0),
+                (int)($result['filesMissing'] ?? 0),
+                (int)($result['metadataErrors'] ?? 0),
+            );
+        $this->updateJob($userId, $jobId, 'completed', (int)($result['roots'] ?? 0), (int)($result['indexed'] ?? 0), count($errors), $summary, $result);
     }
 
     public function failJob(string $userId, int $jobId, string $error): void {
@@ -137,6 +150,10 @@ final class ScanJobService {
                 'files_indexed' => $qb->createNamedParameter(0),
                 'error_count' => $qb->createNamedParameter(0),
                 'summary' => $qb->createNamedParameter(null),
+                'files_added' => $qb->createNamedParameter(0),
+                'paths_updated' => $qb->createNamedParameter(0),
+                'files_unchanged' => $qb->createNamedParameter(0),
+                'files_missing' => $qb->createNamedParameter(0),
                 'started_at' => $qb->createNamedParameter($now),
                 'finished_at' => $qb->createNamedParameter(null),
             ])
@@ -151,6 +168,10 @@ final class ScanJobService {
             'rootsTotal' => 0,
             'filesIndexed' => 0,
             'errorCount' => 0,
+            'filesAdded' => 0,
+            'pathsUpdated' => 0,
+            'filesUnchanged' => 0,
+            'filesMissing' => 0,
             'summary' => '',
             'startedAt' => $now,
             'finishedAt' => null,
@@ -158,7 +179,7 @@ final class ScanJobService {
         ];
     }
 
-    private function updateJob(string $userId, int $jobId, string $status, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary): void {
+    private function updateJob(string $userId, int $jobId, string $status, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary, array $changeSummary = []): void {
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_scan_jobs')
             ->set('status', $qb->createNamedParameter($status))
@@ -166,6 +187,10 @@ final class ScanJobService {
             ->set('files_indexed', $qb->createNamedParameter($filesIndexed))
             ->set('error_count', $qb->createNamedParameter($errorCount))
             ->set('summary', $qb->createNamedParameter(mb_substr($summary, 0, 4000)))
+            ->set('files_added', $qb->createNamedParameter((int)($changeSummary['filesAdded'] ?? 0)))
+            ->set('paths_updated', $qb->createNamedParameter((int)($changeSummary['pathsUpdated'] ?? 0)))
+            ->set('files_unchanged', $qb->createNamedParameter((int)($changeSummary['filesUnchanged'] ?? 0)))
+            ->set('files_missing', $qb->createNamedParameter((int)($changeSummary['filesMissing'] ?? 0)))
             ->set('finished_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
@@ -185,6 +210,10 @@ final class ScanJobService {
             'rootsTotal' => (int)$row['roots_total'],
             'filesIndexed' => (int)$row['files_indexed'],
             'errorCount' => (int)$row['error_count'],
+            'filesAdded' => (int)($row['files_added'] ?? 0),
+            'pathsUpdated' => (int)($row['paths_updated'] ?? 0),
+            'filesUnchanged' => (int)($row['files_unchanged'] ?? 0),
+            'filesMissing' => (int)($row['files_missing'] ?? 0),
             'summary' => $row['summary'] !== null ? (string)$row['summary'] : '',
             'startedAt' => $startedAt,
             'finishedAt' => $finishedAt,

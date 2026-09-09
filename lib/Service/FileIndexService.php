@@ -21,6 +21,7 @@ final class FileIndexService {
 
         $existing = $this->findByFileId($userId, $fileId);
         if ($existing !== null) {
+            $pathChanged = (string)$existing['cachedPath'] !== (string)$file['cachedPath'] || (int)$existing['rootId'] !== $rootId;
             $qb = $this->db->getQueryBuilder();
             $qb->update('library_files')
                 ->set('root_id', $qb->createNamedParameter($rootId))
@@ -36,7 +37,9 @@ final class FileIndexService {
                 ->set('updated_at', $qb->createNamedParameter($now))
                 ->where($qb->expr()->eq('id', $qb->createNamedParameter($existing['id'])))
                 ->executeStatement();
-            return $this->findByFileId($userId, $fileId) ?? $existing;
+            $updated = $this->findByFileId($userId, $fileId) ?? $existing;
+            $updated['changeStatus'] = $pathChanged ? 'path_updated' : 'unchanged';
+            return $updated;
         }
 
         $qb = $this->db->getQueryBuilder();
@@ -59,13 +62,15 @@ final class FileIndexService {
             ])
             ->executeStatement();
 
-        return $this->findByFileId($userId, $fileId) ?? [
+        $created = $this->findByFileId($userId, $fileId) ?? [
             'id' => 0,
             'fileId' => $fileId,
             'cachedPath' => (string)$file['cachedPath'],
             'mimeType' => (string)$file['mimeType'],
             'extension' => (string)$file['extension'],
         ];
+        $created['changeStatus'] = 'added';
+        return $created;
     }
 
     public function markAsSidecar(string $userId, int $libraryFileId): void {
@@ -107,8 +112,9 @@ final class FileIndexService {
     /**
      * @param array<int, int> $seenLibraryFileIds
      */
-    public function markMissingExcept(string $userId, int $rootId, array $seenLibraryFileIds): void {
+    public function markMissingExcept(string $userId, int $rootId, array $seenLibraryFileIds): int {
         $seen = array_flip(array_map('intval', $seenLibraryFileIds));
+        $missing = 0;
         foreach ($this->libraryFileIdsForRoot($userId, $rootId) as $libraryFileId) {
             if (isset($seen[$libraryFileId])) {
                 continue;
@@ -123,7 +129,9 @@ final class FileIndexService {
                 ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
                 ->andWhere($qb->expr()->neq('scan_status', $qb->createNamedParameter('sidecar')))
                 ->executeStatement();
+            $missing++;
         }
+        return $missing;
     }
 
     /**

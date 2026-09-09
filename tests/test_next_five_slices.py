@@ -41,7 +41,7 @@ def test_scanner_marks_missing_files_after_root_scan_without_deleting_items():
     settings = (ROOT / "templates" / "settings-personal.php").read_text()
     assert "$seenLibraryFileIds" in scanner
     assert "markMissingExcept($userId, $rootId, $seenLibraryFileIds)" in scanner
-    assert "public function markMissingExcept(string $userId, int $rootId, array $seenLibraryFileIds): void" in file_index
+    assert "public function markMissingExcept(string $userId, int $rootId, array $seenLibraryFileIds): int" in file_index
     assert "scan_status', $qb->createNamedParameter('missing')" in file_index
     assert "missing" in settings
 
