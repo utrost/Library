@@ -62,6 +62,6 @@ def test_docs_and_version_track_html_preview_page():
 
     assert "polished review page" in guide.lower()
     assert "batch metadata apply" in roadmap.lower()
-    assert "<version>0.1.0-alpha.119</version>" in info
-    assert '"version": "0.1.0-alpha.119"' in package
-    assert '"version": "0.1.0-alpha.119"' in lock
+    assert "<version>0.1.0-alpha.120</version>" in info
+    assert '"version": "0.1.0-alpha.120"' in package
+    assert '"version": "0.1.0-alpha.120"' in lock

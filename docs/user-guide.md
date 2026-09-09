@@ -376,10 +376,11 @@ After a real-library scan, the catalogue can show an **Import health** panel whe
 
 Current import health checks include:
 
-- **metadata-error review** — counts files with `metadata_error` or `scanError`, groups them by extension/error, links to `?status=metadata_error`, and shows example paths with a suggested repair action;
+- **metadata-error review** — counts files with `metadata_error` or `scanError`, groups them by extension/error, links to `?status=metadata_error`, exposes `/apps/library/health/metadata-errors` for paginated JSON review, and offers `/apps/library/health/metadata-errors.tsv` for a full TSV export;
 - **archive/container check** — reads lightweight file magic for EPUB/CBZ rows and highlights archive magic mismatches such as a `.cbz` file that is really 7z/RAR or an EPUB that is not a readable ZIP container;
 - **cover health** — separates Nextcloud preview generation expectations from Library cover-route fallback expectations, because Nextcloud may not preview CBZ while Library can still use a valid ZIP CBZ first-image fallback;
-- **non-ZIP CBZ** guidance — recommends converting 7z/RAR archives to real ZIP/CBZ or adding explicit extractor support before expecting reliable metadata and covers.
+- **bounded cover probing** — `/apps/library/health/covers/probe` inspects a limited set of EPUB/CBZ rows and reports `nextcloudPreview`, `libraryExtraction`, `libraryExtractionReason`, and manual-cover override status without modifying files;
+- **non-ZIP CBZ** guidance — reports 7z/RAR archives in place and explains that the current Library ZIP-based extractor cannot read them; files are left as-is rather than renamed or converted.
 
 Use this panel after large imports to decide whether to repair source archives, add parser fixtures, or tag/filter affected rows for manual cleanup.
 

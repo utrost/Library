@@ -512,12 +512,12 @@ Recommended vertical slices:
 
 ### Immediate next implementation slice
 
-Recommended next slice: **release-facing metadata repair and review polish**. The first import-health cut has landed: catalogue state now includes metadata-error review counts/examples, archive magic checks for EPUB/CBZ container mismatches, and cover health rows that separate Nextcloud preview status from Library cover-route fallback status.
+Recommended next slice: **release-facing metadata repair and review polish**. The import-health review/probe cut has landed: catalogue state now includes metadata-error review counts/examples, archive magic checks for EPUB/CBZ container mismatches, cover health rows, full metadata-error JSON/TSV exports, and bounded cover probes that separate Nextcloud preview/plugin behaviour from Library's own EPUB/CBZ cover extraction. Source files are intentionally left as-is; non-ZIP CBZ rows are diagnostics, not conversion requests.
 
 Minimum next cuts:
 
-1. Turn the import-health examples into a fuller paginated review surface/export so maintainers can work through every metadata-error row, not only the summary sample; keep the landed first selected-item bulk reset process available for scanner-conflict review items.
-2. Add repair actions for common archive magic findings: convert non-ZIP CBZ files from 7z/RAR to real ZIP/CBZ or add explicit 7z/RAR extractor support.
+1. Add richer review workflow affordances on top of the paginated metadata-error export: saved filters, tag affected rows, and per-error bulk actions that do not mutate source files; keep the landed first selected-item bulk reset process available for scanner-conflict review items.
+2. Add explicit 7z/RAR extraction support as a read-only Library capability if we want covers/metadata for those files while preserving the source archives unchanged.
 3. Expand PDF/EPUB/OPF/CBZ fixture coverage with real Alice samples that currently produce weak, missing or wrong metadata. First PDF hardening landed for PDF hex Info strings and PDF literal octal escapes. Follow-up PDF hardening maps `/Subject` to Library subtitle, normalizes `/CreationDate`/`/ModDate` into `publicationDate`, and walks nested PDF literal parentheses while leaving Creator/Producer/Keywords out of canonical publication metadata.
 4. Preserve the database-backed catalogue query path under text/type/format/tag/shelf/status filters during every smoke.
 5. Smoke on Alice with generated scale fixtures and at least one real staged sample.
