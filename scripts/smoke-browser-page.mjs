@@ -180,6 +180,12 @@ async function runBrowserSmoke(proxyBase) {
           vueApp: Boolean(document.querySelector('#library-vue-root[data-v-app]')),
           catalogueToolbar: Boolean(document.querySelector('.library-catalogue-toolbar')),
           quickFilterBar: Boolean(document.querySelector('.library-quick-filter-bar')),
+          usefulViews: Boolean(document.querySelector('.library-useful-views')),
+          usefulViewLinks: document.querySelectorAll('.library-useful-view-chip').length,
+          usefulViewQueryLinks: [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('sort=lastOpened'))
+            && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('starred=1'))
+            && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('scannerConflicts=1'))
+            && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('status=metadata_error')),
           quickFilterControls: document.querySelectorAll('.library-quick-filter-bar input:not([type=hidden]), .library-quick-filter-bar select, .library-quick-filter-bar button, .library-quick-filter-bar a').length,
           cards: document.querySelectorAll('.library-cover-card').length,
           filters: Boolean(document.querySelector('.library-filter-bar')),
@@ -661,6 +667,9 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_vue_app', dom.vueApp)
     print('browser_catalogue_toolbar', dom.catalogueToolbar)
     print('browser_quick_filter_bar', dom.quickFilterBar)
+    print('browser_useful_views', dom.usefulViews)
+    print('browser_useful_view_links', dom.usefulViewLinks)
+    print('browser_useful_view_query_links', dom.usefulViewQueryLinks)
     print('browser_quick_filter_controls', dom.quickFilterControls)
     print('browser_ajax_filter_fetch_calls', quickFilterDom?.fetchCalls ?? 0)
     print('browser_ajax_filter_endpoint', quickFilterDom?.endpoint || '')
@@ -778,6 +787,9 @@ async function runBrowserSmoke(proxyBase) {
       && dom.fallback === false
       && dom.catalogueToolbar === true
       && dom.quickFilterBar === true
+      && dom.usefulViews === true
+      && dom.usefulViewLinks >= 8
+      && dom.usefulViewQueryLinks === true
       && dom.quickFilterControls >= 6
       && quickFilterDom?.fetchCalls >= 1
       && quickFilterDom?.noNavigation === true

@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.130 - 2026-09-09
+
+### Added
+
+- Added a compact **Useful views** strip to the catalogue with one-click links for recently opened, starred, workflow statuses, scanner conflicts and metadata errors. Links reuse normal catalogue query parameters so active filter chips still explain each view.
+- Updated catalogue search copy to name descriptions explicitly alongside title, creator, filename and folder search.
+
 ## v0.1.0-alpha.129 - 2026-09-09
 
 ### Changed

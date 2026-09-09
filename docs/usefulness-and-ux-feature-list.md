@@ -57,8 +57,8 @@ Candidate views:
 
 Possible first slice:
 
-1. Add built-in smart-view links that reuse the existing database-backed catalogue filters.
-2. Render a compact **Useful views** strip on the catalogue and first-run/empty state.
+1. Add built-in smart-view links that reuse the existing database-backed catalogue filters. **First slice landed** for recently opened, starred, workflow statuses, scanner conflicts and metadata errors.
+2. Render a compact **Useful views** strip on the catalogue and first-run/empty state. **First slice landed** on the catalogue; richer first-run placement remains a follow-up.
 3. Keep user-defined saved views as a later slice unless built-in views prove insufficient.
 
 Acceptance checks:

@@ -244,6 +244,32 @@ function clearSearchUrl() {
   return filterChipRemoveUrl('q')
 }
 
+const smartViews = computed(() => [
+  { label: 'Recently opened', description: 'Continue from the publications you opened through Library.', query: 'sort=lastOpened', filters: { sort: 'lastOpened' } },
+  { label: 'Starred', description: 'Your marked publications and reference items.', query: 'starred=1', filters: { starred: '1' } },
+  { label: 'To read', description: 'Publications queued for later.', query: 'workflowStatus=to-read', filters: { workflowStatus: 'to-read' } },
+  { label: 'Reading', description: 'Publications currently in progress.', query: 'workflowStatus=reading', filters: { workflowStatus: 'reading' } },
+  { label: 'Finished', description: 'Completed publications.', query: 'workflowStatus=finished', filters: { workflowStatus: 'finished' } },
+  { label: 'Needs action', description: 'Items that need a cleanup or follow-up decision.', query: 'workflowStatus=needs-action', filters: { workflowStatus: 'needs-action' } },
+  { label: 'Scanner conflicts', description: 'Rows where current metadata differs from scanner candidates.', query: 'scannerConflicts=1', filters: { scannerConflicts: '1' } },
+  { label: 'Metadata errors', description: 'Files whose metadata extraction needs review.', query: 'status=metadata_error', filters: { status: 'metadata_error' } },
+])
+
+function smartViewUrl(filters) {
+  const params = new URLSearchParams(window.location.search)
+  for (const key of Object.keys(filterLabels)) {
+    params.delete(key)
+  }
+  params.delete('page')
+  for (const [key, value] of Object.entries(filters)) {
+    if (String(value || '').trim() !== '') {
+      params.set(key, String(value))
+    }
+  }
+  const query = params.toString()
+  return query ? `?${query}` : '?'
+}
+
 function upper(value) {
   return String(value || '').toUpperCase()
 }
@@ -446,12 +472,27 @@ async function toggleStar(item, event) {
 
     <p v-if="batchMetadataApplyMessage" class="library-notice library-batch-metadata-apply-result">{{ batchMetadataApplyMessage }}</p>
 
+    <section class="library-useful-views" aria-labelledby="library-useful-views-heading">
+      <div class="library-useful-views-copy">
+        <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Useful views') }}</p>
+        <h3 id="library-useful-views-heading">{{ t('library', 'Useful views') }}</h3>
+        <p class="library-muted">{{ t('library', 'One-click smart views reuse normal catalogue filters, so active chips still explain what you are seeing.') }}</p>
+        <p class="library-muted">{{ t('library', 'Empty useful views mean no current catalogue items match that saved direction yet; add metadata, star items, update workflow status, or run a scan to create matches.') }}</p>
+      </div>
+      <nav class="library-useful-view-links" :aria-label="t('library', 'Built-in useful catalogue views')">
+        <a v-for="view in smartViews" :key="view.label" class="library-useful-view-chip" :href="smartViewUrl(view.filters)" :title="view.description">
+          <strong>{{ t('library', view.label) }}</strong>
+          <span>{{ t('library', view.description) }}</span>
+        </a>
+      </nav>
+    </section>
+
     <form method="get" class="library-quick-filter-bar" :aria-label="t('library', 'Quick catalogue filters')" @submit.prevent="submitFiltersAjax">
       <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
       <div class="library-quick-search-row">
         <label class="library-quick-filter-search">
-          <span>{{ t('library', 'Search title, creator, filename or folder') }} <kbd class="library-keyboard-hint">/</kbd></span>
-          <input ref="quickSearchInput" v-model="activeFilters.q" data-library-quick-search type="search" name="q" placeholder="Camera, Eco, Rolleiflex, folder name..." aria-describedby="library-search-scope" @input="scheduleFilterSubmit">
+          <span>{{ t('library', 'Search title, creator, description, filename or folder') }} <kbd class="library-keyboard-hint">/</kbd></span>
+          <input ref="quickSearchInput" v-model="activeFilters.q" data-library-quick-search type="search" name="q" placeholder="Camera, Eco, Rolleiflex, description or folder..." aria-describedby="library-search-scope" @input="scheduleFilterSubmit">
         </label>
         <button type="submit" class="button primary" :aria-label="t('library', 'Search catalogue')">{{ t('library', 'Search') }}</button>
       </div>
@@ -492,10 +533,10 @@ async function toggleStar(item, event) {
       <summary class="library-filter-panel-summary">{{ t('library', 'Show catalogue filters') }}</summary>
       <form method="get" class="library-filter-bar" :aria-label="t('library', 'Catalogue search and filters')" @submit.prevent="submitFiltersAjax">
         <label>
-          {{ t('library', 'Search title, creator, filename or folder') }}
-          <input v-model="activeFilters.q" type="search" name="q" placeholder="Camera, Eco, Rolleiflex, folder name..." aria-describedby="library-search-scope">
+          {{ t('library', 'Search title, creator, description, filename or folder') }}
+          <input v-model="activeFilters.q" type="search" name="q" placeholder="Camera, Eco, Rolleiflex, description or folder..." aria-describedby="library-search-scope">
         </label>
-        <p id="library-search-scope" class="library-muted library-search-scope">{{ t('library', 'Filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path.') }}</p>
+        <p id="library-search-scope" class="library-muted library-search-scope">{{ t('library', 'Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.') }}</p>
       <label>
         {{ t('library', 'Type') }}
         <select v-model="activeFilters.type" name="type">
@@ -940,6 +981,60 @@ async function toggleStar(item, event) {
   display: grid;
   gap: 6px;
   margin: 0.35rem 0;
+}
+
+.library-useful-views {
+  background: var(--color-background-hover, #f6f6f6);
+  border: 1px solid var(--color-border, #d0d0d0);
+  border-radius: var(--border-radius-large, 10px);
+  display: grid;
+  gap: 0.65rem;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+}
+
+.library-useful-views h3,
+.library-useful-views p {
+  margin: 0;
+}
+
+.library-useful-views-copy {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.library-useful-view-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.library-useful-view-chip {
+  background: var(--color-main-background, #fff);
+  border: 1px solid var(--color-border, #d0d0d0);
+  border-radius: 999px;
+  color: var(--color-main-text, #222);
+  display: inline-grid;
+  gap: 0.1rem;
+  max-width: 18rem;
+  padding: 0.4rem 0.7rem;
+  text-decoration: none;
+}
+
+.library-useful-view-chip:hover,
+.library-useful-view-chip:focus {
+  border-color: var(--color-primary-element, #00679e);
+  text-decoration: none;
+}
+
+.library-useful-view-chip strong {
+  font-size: 0.9rem;
+}
+
+.library-useful-view-chip span {
+  color: var(--color-text-maxcontrast, #6b6b6b);
+  font-size: 0.78rem;
+  line-height: 1.2;
 }
 
 .library-quick-search-row {
