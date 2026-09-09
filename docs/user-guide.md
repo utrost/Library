@@ -370,6 +370,19 @@ Each user configures their own Library roots. There is no polished global root p
 
 Library scan jobs currently expose progress/history, status, scope, indexed counts, error counts, duration and summary. **Cancel queued scan** is available before a job starts, and **Cancel scan** is available for running jobs; running-job cancellation is cooperative and stops at the next scan progress checkpoint. Scheduled scan UI and notification flow remain future work.
 
+### Import health
+
+After a real-library scan, the catalogue can show an **Import health** panel when it finds repair-worthy data. The panel is intentionally separate from normal browsing so the cover-first shelf stays calm while maintainers still get collection-scale diagnostics.
+
+Current import health checks include:
+
+- **metadata-error review** — counts files with `metadata_error` or `scanError`, groups them by extension/error, links to `?status=metadata_error`, and shows example paths with a suggested repair action;
+- **archive/container check** — reads lightweight file magic for EPUB/CBZ rows and highlights archive magic mismatches such as a `.cbz` file that is really 7z/RAR or an EPUB that is not a readable ZIP container;
+- **cover health** — separates Nextcloud preview generation expectations from Library cover-route fallback expectations, because Nextcloud may not preview CBZ while Library can still use a valid ZIP CBZ first-image fallback;
+- **non-ZIP CBZ** guidance — recommends converting 7z/RAR archives to real ZIP/CBZ or adding explicit extractor support before expecting reliable metadata and covers.
+
+Use this panel after large imports to decide whether to repair source archives, add parser fixtures, or tag/filter affected rows for manual cleanup.
+
 ### Preview and reader dependencies
 
 Library depends on existing Nextcloud capabilities for two visible behaviours:
