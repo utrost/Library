@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.132 - 2026-09-09
+
+### Added
+
+- Added in-app **Custom collections** so users can save the current catalogue search/filter setup under a name, reopen it from Library with a count badge, and delete stale collections without relying on browser bookmarks.
+- Added a per-user `library_saved_collections` table, service and controller routes for saved collection persistence.
+
 ## v0.1.0-alpha.131 - 2026-09-09
 
 ### Added

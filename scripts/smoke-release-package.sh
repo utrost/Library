@@ -40,11 +40,14 @@ docker exec -u root "$CONTAINER" sh -lc "
 "
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/appinfo/routes.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Controller/PageController.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Controller/SavedCollectionController.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Service/SavedCollectionService.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260909162000.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/templates/item-detail.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/templates/settings-personal.php
 docker exec -u www-data "$CONTAINER" php occ app:enable library
 docker exec -u www-data "$CONTAINER" php occ upgrade
-docker exec -u www-data "$CONTAINER" php occ router:list library | grep -E 'library\.(page|item|tag|scan|root|metadata|bulk)'
+docker exec -u www-data "$CONTAINER" php occ router:list library | grep -E 'library\.(page|item|tag|scan|root|saved_collection|metadata|bulk)'
 
 npm run smoke:vue
 npm run smoke:browser

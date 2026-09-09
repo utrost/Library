@@ -143,6 +143,9 @@ const batchMetadataApplyMessage = computed(() => {
   return t('library', 'Batch metadata apply updated {applied} {field} values; {unchanged} already matched, {skipped} skipped.', { applied, field, unchanged, skipped })
 })
 
+const savedCollections = computed(() => catalogueState.savedCollections || [])
+const savedCollectionSaveUrl = computed(() => catalogueState.savedCollectionSaveUrl || '/apps/library/collections')
+const savedCollectionDeleteBaseUrl = computed(() => catalogueState.savedCollectionDeleteBaseUrl || '/apps/library/collections/__COLLECTION_ID__/delete')
 const activeFilterChips = computed(() => Object.entries(filterLabels)
   .map(([key, label]) => ({ key, label, value: activeFilters[key] || '' }))
   .filter((chip) => String(chip.value).trim() !== ''))
@@ -169,7 +172,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -257,6 +260,18 @@ function clearSearchUrl() {
 }
 
 const smartViewCounts = computed(() => catalogueState.smartViewCounts || {})
+const currentSavableFilters = computed(() => {
+  const filters = {}
+  for (const [key, value] of Object.entries(activeFilters)) {
+    const normalized = String(value || '').trim()
+    if (normalized !== '' && !(key === 'sort' && normalized === 'title')) {
+      filters[key] = normalized
+    }
+  }
+  return filters
+})
+const currentSavableFiltersJson = computed(() => JSON.stringify(currentSavableFilters.value))
+const canSaveCurrentView = computed(() => Object.keys(currentSavableFilters.value).length > 0)
 const smartViews = computed(() => [
   { key: 'recently-opened', label: 'Recently opened', description: 'Continue from the publications you opened through Library.', query: 'sort=lastOpened', filters: { sort: 'lastOpened' } },
   { key: 'starred', label: 'Starred', description: 'Your marked publications and reference items.', query: 'starred=1', filters: { starred: '1' } },
@@ -287,6 +302,14 @@ function smartViewUrl(filters) {
   }
   const query = params.toString()
   return query ? `?${query}` : '?'
+}
+
+function savedCollectionUrl(filters) {
+  return smartViewUrl(filters || {})
+}
+
+function savedCollectionDeleteUrl(collectionId) {
+  return savedCollectionDeleteBaseUrl.value.replace('__COLLECTION_ID__', encodeURIComponent(String(collectionId || '0')))
 }
 
 function upper(value) {
@@ -504,6 +527,36 @@ async function toggleStar(item, event) {
           <span>{{ t('library', view.description) }}</span>
           <small class="library-useful-view-count">{{ Number(smartViewCounts[view.key] || 0) }}</small>
         </a>
+      </nav>
+    </section>
+
+    <section class="library-saved-collections" aria-labelledby="library-saved-collections-heading">
+      <div class="library-saved-collections-copy">
+        <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Custom collections') }}</p>
+        <h3 id="library-saved-collections-heading">{{ t('library', 'Custom collections') }}</h3>
+        <p class="library-muted">{{ t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.') }}</p>
+      </div>
+      <form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form">
+        <input type="hidden" name="requesttoken" :value="requestToken">
+        <input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson">
+        <label>
+          {{ t('library', 'Collection name') }}
+          <input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off">
+        </label>
+        <button type="submit" class="button secondary" :disabled="!canSaveCurrentView">{{ t('library', 'Save current view') }}</button>
+      </form>
+      <p v-if="!canSaveCurrentView" class="library-muted">{{ t('library', 'Choose search terms or filters first, then save them as a custom collection.') }}</p>
+      <nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')">
+        <article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card">
+          <a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)">
+            <strong>{{ collection.name }}</strong>
+            <span>{{ Number(collection.count || 0) }} {{ t('library', 'items') }}</span>
+          </a>
+          <form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form">
+            <input type="hidden" name="requesttoken" :value="requestToken">
+            <button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button>
+          </form>
+        </article>
       </nav>
     </section>
 
@@ -1003,7 +1056,8 @@ async function toggleStar(item, event) {
   margin: 0.35rem 0;
 }
 
-.library-useful-views {
+.library-useful-views,
+.library-saved-collections {
   background: var(--color-background-hover, #f6f6f6);
   border: 1px solid var(--color-border, #d0d0d0);
   border-radius: var(--border-radius-large, 10px);
@@ -1014,11 +1068,14 @@ async function toggleStar(item, event) {
 }
 
 .library-useful-views h3,
-.library-useful-views p {
+.library-useful-views p,
+.library-saved-collections h3,
+.library-saved-collections p {
   margin: 0;
 }
 
-.library-useful-views-copy {
+.library-useful-views-copy,
+.library-saved-collections-copy {
   display: grid;
   gap: 0.25rem;
 }
@@ -1069,6 +1126,44 @@ async function toggleStar(item, event) {
   min-width: 1.5rem;
   padding: 0.1rem 0.35rem;
   text-align: center;
+}
+
+.library-saved-collection-save-form,
+.library-saved-collection-card,
+.library-saved-collection-link {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.library-saved-collection-save-form label {
+  display: grid;
+  flex: 1 1 14rem;
+  gap: 0.2rem;
+}
+
+.library-saved-collection-links {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.library-saved-collection-card {
+  align-items: center;
+  background: var(--color-main-background, #fff);
+  border: 1px solid var(--color-border, #d0d0d0);
+  border-radius: var(--border-radius, 6px);
+  justify-content: space-between;
+  padding: 0.45rem 0.55rem;
+}
+
+.library-saved-collection-link {
+  color: var(--color-main-text, #222);
+  text-decoration: none;
+}
+
+.library-saved-collection-link span {
+  color: var(--color-text-maxcontrast, #6b6b6b);
 }
 
 .library-quick-search-row {

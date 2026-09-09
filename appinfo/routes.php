@@ -28,6 +28,8 @@ return [
         ['name' => 'export#sidecarBundle', 'url' => '/export/metadata/sidecars.zip', 'verb' => 'GET'],
         ['name' => 'import#preview', 'url' => '/import/metadata/preview', 'verb' => 'POST'],
         ['name' => 'import#apply', 'url' => '/import/metadata/apply', 'verb' => 'POST'],
+        ['name' => 'saved_collection#save', 'url' => '/collections', 'verb' => 'POST'],
+        ['name' => 'saved_collection#delete', 'url' => '/collections/{collectionId}/delete', 'verb' => 'POST'],
         ['name' => 'tag#batchassign', 'url' => '/bulk/tags', 'verb' => 'POST'],
         ['name' => 'tag#batchremove', 'url' => '/bulk/tags/remove', 'verb' => 'POST'],
         ['name' => 'item#batchresetfilteredfields', 'url' => '/bulk/items/reset-filtered-fields', 'verb' => 'POST'],

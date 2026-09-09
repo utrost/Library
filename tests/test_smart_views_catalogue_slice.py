@@ -90,5 +90,6 @@ def test_smoke_and_docs_track_built_in_useful_views():
     assert "Useful views" in guide
     assert "built-in useful views" in roadmap.lower()
     assert "built-in smart-collection dashboard" in feature_list
-    assert "implemented for the built-in smart-collection feature set" in feature_list
+    assert "implemented for the in-app smart-collection feature set" in feature_list
+    assert "user-defined saved views are implemented" in feature_list
     assert "count badge" in feature_list

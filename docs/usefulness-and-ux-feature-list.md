@@ -60,9 +60,10 @@ Current support:
 - **Useful views** is now a built-in smart-collection dashboard on the catalogue.
 - Daily navigation views cover Recently opened, Starred and the core workflow statuses: To read, Reading, Finished and Needs action.
 - Cleanup views cover Needs metadata, Scanner conflicts, Metadata errors, Placeholder covers, No creator, No publication/series, Weak filename metadata and Unreviewed imports.
-- Every built-in smart view maps to explicit normal catalogue query parameters, keeps permission/user scoping inside `ItemService::queryCatalogue()`, preserves active filter chips, and shows a count badge.
+- **Custom collections** let users save the current in-app search/filter setup under a name, reopen it from Library, see a result count, and delete it again without using browser bookmarks.
+- Every built-in smart view and custom collection maps to explicit normal catalogue query parameters, keeps permission/user scoping inside `ItemService::queryCatalogue()`, preserves active filter chips, and shows a count badge.
 - Empty smart views keep the same filtered-empty guidance as normal catalogue filters.
-- User-defined saved views remain intentionally deferred until real use proves the built-in set is not enough; current genre/classification/status combinations can still be bookmarked because they are plain URLs.
+- User-defined saved views are now implemented for arbitrary current filter combinations; future polish is limited to richer management/reordering if real use asks for it.
 
 Acceptance checks:
 
@@ -72,7 +73,7 @@ Acceptance checks:
 - count badges are derived from the same catalogue query path;
 - empty smart views explain how to create matching items.
 
-Status: **implemented for the built-in smart-collection feature set**. Future work, if needed, is user-defined persistence for arbitrary saved filter combinations rather than more built-in daily/cleanup destinations.
+Status: **implemented for the in-app smart-collection feature set**. Built-in views cover daily and cleanup destinations; user-defined saved views are implemented as named custom collections for arbitrary current catalogue filters.
 
 ### 2. Re-indexing, moving, adding and deleting files
 
