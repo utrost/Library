@@ -553,7 +553,11 @@ final class ItemService {
             'placeholder-covers' => ['coverReview' => 'placeholder'],
             'no-creator' => ['noCreator' => '1'],
             'no-publication' => ['noPublication' => '1'],
+            'missing-date' => ['noDate' => '1'],
+            'title-from-filename' => ['titleFromFilename' => '1'],
             'weak-filename-metadata' => ['weakMetadata' => 'filename'],
+            'no-description' => ['noDescription' => '1'],
+            'unsupported-containers' => ['unsupportedContainer' => '1'],
             'unreviewed-imports' => ['unreviewedImports' => '1'],
         ];
 
@@ -1392,6 +1396,32 @@ final class ItemService {
                 $qb->expr()->isNull('i.publication'),
                 $qb->expr()->eq('i.publication', $qb->createNamedParameter(''))
             ));
+        }
+
+        if (trim((string)($filters['noDate'] ?? '')) === '1') {
+            $qb->andWhere($qb->expr()->orX(
+                $qb->expr()->isNull('i.publication_date'),
+                $qb->expr()->eq('i.publication_date', $qb->createNamedParameter(''))
+            ));
+        }
+
+        if (trim((string)($filters['noDescription'] ?? '')) === '1') {
+            $qb->andWhere($qb->expr()->orX(
+                $qb->expr()->isNull('i.description'),
+                $qb->expr()->eq('i.description', $qb->createNamedParameter(''))
+            ));
+        }
+
+        if (trim((string)($filters['titleFromFilename'] ?? '')) === '1') {
+            $qb->andWhere($qb->expr()->orX(
+                $qb->expr()->eq('i.metadata_source', $qb->createNamedParameter('filename-pattern')),
+                $qb->expr()->like('i.field_sources', $qb->createNamedParameter('%"title":"filename-pattern"%')),
+                $qb->expr()->like('i.field_sources', $qb->createNamedParameter('%"title":"filename"%'))
+            ));
+        }
+
+        if (trim((string)($filters['unsupportedContainer'] ?? '')) === '1') {
+            $qb->andWhere($qb->expr()->in($qb->createFunction('LOWER(f.extension)'), $qb->createNamedParameter(['7z', 'rar', 'cbr', 'cb7'], IQueryBuilder::PARAM_STR_ARRAY)));
         }
 
         if (trim((string)($filters['needsMetadata'] ?? '')) === '1') {

@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.135 - 2026-09-09
+
+### Added
+
+- Added a **Weak metadata cockpit** to the catalogue with count cards for missing creator, missing publication/series, missing date, filename-derived title, filename/path-derived metadata, placeholder covers, scanner conflicts, metadata extraction errors, no description and unsupported archive/container candidates.
+- Added stable query filters for missing date, filename-derived titles, missing descriptions and unsupported archive/container candidates, all counted through the existing catalogue query path.
+
 ## v0.1.0-alpha.134 - 2026-09-09
 
 ### Changed

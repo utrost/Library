@@ -24,8 +24,8 @@ The current development slice can:
 - show field-level scanner provenance, **Differs from scanner** labels, scanner-conflict review filter, bulk reset selected scanner-conflict items, single-field reset and whole-item reset-to-scanner actions on item details;
 - preview and apply one-field batch metadata edits to the current catalogue filter result with requested/applied/unchanged/skipped feedback;
 - generate absolute Nextcloud URLs for reader handoff, Files handoff and Library settings links so browser hrefs stay under the Nextcloud host;
-- show indexed files and publication items with a catalogue-first Vue/Vite-backed catalogue page mounted in a conventional Nextcloud `#app-content` shell, responsive, paginated cover gallery, preview-backed covers, placeholder fallbacks, browse-only catalogue cards, built-in useful views for frequent catalogue destinations and cleanup queues with count badges, and in-app custom collections that save named filter combinations;
-- search and filter the catalogue by title/author/description text, filename and folder path search, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, workflow status, scanner conflicts, exact Nextcloud tag, root-derived shelf, starred state, missing core metadata, likely placeholder-cover candidates, creator gaps, publication/series gaps, filename-derived weak metadata and unreviewed scanner imports;
+- show indexed files and publication items with a catalogue-first Vue/Vite-backed catalogue page mounted in a conventional Nextcloud `#app-content` shell, responsive, paginated cover gallery, preview-backed covers, placeholder fallbacks, browse-only catalogue cards, built-in useful views for frequent catalogue destinations, a weak-metadata cleanup cockpit with count badges, and in-app custom collections that save named filter combinations;
+- search and filter the catalogue by title/author/description text, filename and folder path search, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, workflow status, scanner conflicts, exact Nextcloud tag, root-derived shelf, starred state, missing core metadata, likely placeholder-cover candidates, creator gaps, publication/series gaps, missing date, missing description, filename-derived title/metadata, unsupported archive/container candidates and unreviewed scanner imports;
 - open the first dedicated publication discovery page from top series/periodical shortcuts with a compact **Publication contents** issue/date context summary, a dedicated publication year discovery page from the years shortcut panel, and a dedicated creator discovery page from the creator shortcut panel, keeping compact catalogue cards inside a named discovery context;
 - catalogue cards are browse-only, compact and cover-first on mobile and desktop: the default card surface is cover, title, **Read** and **Details**, while secondary metadata/actions stay behind the Details disclosure; the details page owns publication metadata, tag and comment editing, and the publication metadata panel now uses one editable field surface instead of repeating the same values in separate read-only and edit sections;
 - treat Nextcloud system tags as cross-archive classification metadata exposed on catalogue cards and addable/removable from item details;
@@ -124,7 +124,7 @@ For the current Alice sandbox, clone this repository outside the Nextcloud data 
 
 ## Local checks and packaging
 
-Current v0.1 testing candidate: `0.1.0-alpha.134`.
+Current v0.1 testing candidate: `0.1.0-alpha.135`.
 
 Run the local gate with:
 

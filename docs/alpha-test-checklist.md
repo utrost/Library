@@ -1,6 +1,6 @@
 # Public alpha test checklist
 
-Use this Public alpha checklist before Uwe's v0.1 manual test pass on `0.1.0-alpha.134` and for early tester feedback. For the full repeatable script, use the [human test handbook](human-test-handbook.md).
+Use this Public alpha checklist before Uwe's v0.1 manual test pass on `0.1.0-alpha.135` and for early tester feedback. For the full repeatable script, use the [human test handbook](human-test-handbook.md).
 
 ## Setup
 
@@ -72,7 +72,7 @@ Expected result: Library removes or updates app-owned rows only. It must not del
 - Sidecar manifest and sidecar ZIP are read-only/download-only. There is no OPF/JSON sidecar write-back into source folders yet.
 - Metadata import applies only to matched existing Library catalogue rows; a fresh-install restore flow is not complete.
 - Scan scheduling, resumable scans and notifications are absent.
-- publication, publication-year and creator discovery pages exist, and publication pages show a compact **Publication contents** issue/date summary; saved views, smart collections and richer publication issue grouping are not present yet.
+- publication, publication-year and creator discovery pages exist, and publication pages show a compact **Publication contents** issue/date summary; built-in Useful views, a weak-metadata cockpit and in-app Custom collections exist, while richer publication issue grouping is not part of this test pass.
 - Shared/admin-managed roots are absent; users manage their own roots and Nextcloud permissions remain authoritative.
 - Library does not provide its own document reader, page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
 
