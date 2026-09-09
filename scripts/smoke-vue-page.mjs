@@ -200,6 +200,28 @@ try {
     try {
       importSingleSidecarPreviewJson = JSON.parse(importSingleSidecarPreview.text)
     } catch {}
+    const importSummaryUrl = state?.importHealthSummaryUrl || '/apps/library/health/import-summary'
+    const importSummaryCachedStarted = Date.now()
+    const importSummaryCached = await fetchText(importSummaryUrl, token, { headers: { Accept: 'application/json' } })
+    const importSummaryCachedElapsedMs = Date.now() - importSummaryCachedStarted
+    let importSummaryCachedJson = null
+    try {
+      importSummaryCachedJson = JSON.parse(importSummaryCached.text)
+    } catch {}
+    const importSummaryRefreshStarted = Date.now()
+    const importSummaryRefresh = await fetchText(`${importSummaryUrl}?refresh=1`, token, { headers: { Accept: 'application/json' } })
+    const importSummaryRefreshElapsedMs = Date.now() - importSummaryRefreshStarted
+    let importSummaryRefreshJson = null
+    try {
+      importSummaryRefreshJson = JSON.parse(importSummaryRefresh.text)
+    } catch {}
+    const importSummaryAfterRefreshStarted = Date.now()
+    const importSummaryAfterRefresh = await fetchText(importSummaryUrl, token, { headers: { Accept: 'application/json' } })
+    const importSummaryAfterRefreshElapsedMs = Date.now() - importSummaryAfterRefreshStarted
+    let importSummaryAfterRefreshJson = null
+    try {
+      importSummaryAfterRefreshJson = JSON.parse(importSummaryAfterRefresh.text)
+    } catch {}
     const cover = first.coverUrl ? await fetchBinaryHeaders(first.coverUrl, token) : { status: 0, contentType: '', coverStatus: '', coverReason: '', coverRefresh: '', cacheControl: '' }
     const coverRefreshPageMatch = detail.text.match(/href="([^"]*\/apps\/library\/items\/[^\"]*coverRefresh=1[^"]*)"[^>]*library-cover-refresh-action/)
     const coverRefreshPagePath = coverRefreshPageMatch ? coverRefreshPageMatch[1].replaceAll('&amp;', '&') : ''
@@ -252,9 +274,9 @@ try {
     console.log(`source_has_creator_filter=${sourceComponent.includes('Creator') && sourceComponent.includes('name="creator"') && sourceComponent.includes('All creators') && sourceComponent.includes('Exact full-field creator matches only')}`)
     console.log(`source_has_active_filter_chips=${sourceComponent.includes('library-active-filter-chips') && sourceComponent.includes('activeFilterChips') && sourceComponent.includes('filterChipRemoveUrl') && sourceComponent.includes('Remove filter') && sourceComponent.includes('param !== key') && sourceComponent.includes('params.set(param, normalized)')}`)
     const appInfo = readFileSync('appinfo/info.xml', 'utf8')
-    console.log(`app_version=0.1.0-alpha.124`)
+    console.log(`app_version=0.1.0-alpha.125`)
     console.log(`source_has_mobile_cover_first_cards=${sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceComponent.includes('library-cover-actions') && sourceStyle.includes('@media (max-width: 520px)') && sourceStyle.includes('grid-template-columns: repeat(2, minmax(0, 1fr))')}`)
-    console.log(`source_has_compact_cover_cards_all_widths=${appInfo.includes('<version>0.1.0-alpha.124</version>') && sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0')}`)
+    console.log(`source_has_compact_cover_cards_all_widths=${appInfo.includes('<version>0.1.0-alpha.125</version>') && sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0')}`)
     console.log(`served_css_has_compact_cover_defaults=${css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') && css.text.includes('min-height:0') && css.text.includes('library-cover-details')}`)
     console.log(`source_has_publication_sort=${sourceComponent.includes('<option value="publication">')}`)
     console.log(`source_has_periodical_groups_panel=${sourceComponent.includes('library-periodical-groups') && sourceComponent.includes('Top series and periodicals') && sourceComponent.includes('Jump into recurring publications with one click') && sourceComponent.includes('publicationLandingUrl(summary.publication)')}`)
@@ -318,6 +340,15 @@ try {
     console.log(`import_single_sidecar_preview_http=${importSingleSidecarPreview.status}`)
     console.log(`import_single_sidecar_preview_kind=${importSingleSidecarPreviewJson?.previewKind || ''}`)
     console.log(`import_single_sidecar_preview_matched_items=${importSingleSidecarPreviewJson?.matchedItems ?? -1}`)
+    console.log(`import_summary_cached_http=${importSummaryCached.status}`)
+    console.log(`import_summary_cached_elapsed_ms=${importSummaryCachedElapsedMs}`)
+    console.log(`import_summary_cached_cache_status=${importSummaryCachedJson?.cacheStatus || ''}`)
+    console.log(`import_summary_refresh_http=${importSummaryRefresh.status}`)
+    console.log(`import_summary_refresh_elapsed_ms=${importSummaryRefreshElapsedMs}`)
+    console.log(`import_summary_refresh_cache_status=${importSummaryRefreshJson?.cacheStatus || ''}`)
+    console.log(`import_summary_after_refresh_http=${importSummaryAfterRefresh.status}`)
+    console.log(`import_summary_after_refresh_elapsed_ms=${importSummaryAfterRefreshElapsedMs}`)
+    console.log(`import_summary_after_refresh_cache_status=${importSummaryAfterRefreshJson?.cacheStatus || ''}`)
     const scannerConflictCountMatch = detail.text.match(/Fields differing from scanner:\s*([0-9]+)/)
     const scannerConflictCount = scannerConflictCountMatch ? Number.parseInt(scannerConflictCountMatch[1], 10) : 0
     console.log(`detail_has_metadata_correction_summary=${detail.text.includes('library-metadata-correction-summary') && detail.text.includes('Scanner candidates') && detail.text.includes('Fields differing from scanner')}`)

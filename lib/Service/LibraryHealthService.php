@@ -6,6 +6,7 @@ namespace OCA\Library\Service;
 
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
+use OCP\IConfig;
 use OCP\IDBConnection;
 use Throwable;
 use ZipArchive;
@@ -18,7 +19,56 @@ final class LibraryHealthService {
         private IDBConnection $db,
         private IRootFolder $rootFolder,
         private ArchiveCoverService $archiveCoverService,
+        private IConfig $config,
     ) {
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function cachedImportHealthSummary(string $userId, bool $refresh = false): array {
+        if ($userId === '') {
+            return array_merge($this->emptySummary(), [
+                'cacheStatus' => 'missing',
+                'generatedAt' => 0,
+                'message' => 'No cached metadata overview exists yet. Refresh metadata overview to generate current diagnostics.',
+            ]);
+        }
+
+        if ($refresh) {
+            return $this->refreshImportHealthSummary($userId);
+        }
+
+        $cachedJson = $this->config->getUserValue($userId, 'library', 'import_health_summary_json', '');
+        if ($cachedJson !== '') {
+            $cachedPayload = json_decode($cachedJson, true);
+            if (is_array($cachedPayload)) {
+                $cachedPayload['cacheStatus'] = 'cached';
+                $cachedPayload['generatedAt'] = (int)$this->config->getUserValue($userId, 'library', 'import_health_summary_generated_at', '0');
+                $cachedPayload['message'] = 'Cached metadata overview loads quickly. Refresh when you want to recompute archive and cover diagnostics.';
+                return $cachedPayload;
+            }
+        }
+
+        return array_merge($this->emptySummary(), [
+            'cacheStatus' => 'missing',
+            'generatedAt' => 0,
+            'message' => 'No cached metadata overview exists yet. Refresh metadata overview to generate current diagnostics.',
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function refreshImportHealthSummary(string $userId): array {
+        $payload = $this->importHealthSummary($userId);
+        $generatedAt = time();
+        $payload['generatedAt'] = $generatedAt;
+        $payload['cacheStatus'] = 'refreshed';
+        $payload['message'] = 'Metadata overview refreshed from current files.';
+        $this->config->setUserValue($userId, 'library', 'import_health_summary_json', json_encode($payload, JSON_THROW_ON_ERROR));
+        $this->config->setUserValue($userId, 'library', 'import_health_summary_generated_at', (string)$generatedAt);
+        return $payload;
     }
 
     /**

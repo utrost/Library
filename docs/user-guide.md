@@ -372,7 +372,7 @@ Library scan jobs currently expose progress/history, status, scope, indexed coun
 
 ### Import health
 
-After a real-library scan, the catalogue exposes an **Import health → Metadata overview** section inside the **Actions** menu when maintainers need collection-scale diagnostics. It loads on demand instead of during normal catalogue requests, so paging, search and filters keep using the fast catalogue query path while the heavier archive/cover overview remains available deliberately.
+After a real-library scan, the catalogue exposes an **Import health → Metadata overview** section inside the **Actions** menu when maintainers need collection-scale diagnostics. The overview opens from a cached snapshot instead of recomputing during normal catalogue requests, so paging, search and filters keep using the fast catalogue query path. Use **Refresh metadata overview** only when you deliberately want to recompute the heavier archive/cover diagnostics from current files.
 
 Current import health checks include:
 
