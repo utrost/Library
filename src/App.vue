@@ -184,6 +184,39 @@ const selectedDrawerItem = ref(null)
 const selectedDrawerIndex = computed(() => selectedDrawerItem.value ? items.value.findIndex((item) => item.id === selectedDrawerItem.value.id) : -1)
 const drawerPreviousItem = computed(() => selectedDrawerIndex.value > 0 ? items.value[selectedDrawerIndex.value - 1] : null)
 const drawerNextItem = computed(() => selectedDrawerIndex.value >= 0 && selectedDrawerIndex.value < items.value.length - 1 ? items.value[selectedDrawerIndex.value + 1] : null)
+const reviewableMetadataFields = ['publicationType', 'title', 'subtitle', 'creators', 'publication', 'publicationDate', 'language', 'publisher', 'description', 'genres', 'classifications']
+const metadataReviewWorkbench = computed(() => {
+  const enabled = activeFilters.scannerConflicts === '1' || String(activeFilters.weakMetadata || '').trim() !== ''
+  const item = enabled ? items.value.find((candidate) => reviewConflictFieldsFor(candidate).length > 0) : null
+  return {
+    enabled,
+    item,
+    fields: item ? reviewConflictFieldsFor(item) : [],
+    reviewNextUrl: scannerConflictReviewUrl.value,
+    skipUrl: pagination.value.nextUrl || scannerConflictReviewUrl.value,
+  }
+})
+
+function normalizedMetadataValue(value) {
+  if (Array.isArray(value)) return JSON.stringify(value)
+  return value === null || value === undefined ? '' : String(value)
+}
+
+function reviewConflictFieldsFor(item) {
+  const scannerValues = item.fieldValues || {}
+  const fieldSources = item.fieldSources || {}
+  return reviewableMetadataFields
+    .filter((field) => Object.prototype.hasOwnProperty.call(scannerValues, field))
+    .map((field) => {
+      const currentValue = normalizedMetadataValue(item[field])
+      const scannerCandidate = normalizedMetadataValue(scannerValues[field])
+      const sourceProvenance = normalizedMetadataValue(fieldSources[field] || item['metadata' + 'Source'] || 'scanner')
+      const pathTemplateCandidate = sourceProvenance.includes('filename') || sourceProvenance.includes('path') ? scannerCandidate : ''
+      const sidecarValue = sourceProvenance.includes('sidecar') ? scannerCandidate : ''
+      return { field, currentValue, scannerCandidate, pathTemplateCandidate, sidecarValue, sourceProvenance, differs: currentValue !== scannerCandidate }
+    })
+    .filter((field) => field.differs)
+}
 
 function openDetailsDrawer(item) {
   selectedDrawerItem.value = item
@@ -680,6 +713,44 @@ async function toggleStar(item, event) {
       </nav>
     </section>
 
+    <section v-if="metadataReviewWorkbench.enabled" class="library-metadata-review-workbench" aria-labelledby="library-metadata-review-workbench-heading">
+      <div class="library-metadata-review-workbench-copy">
+        <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata review workbench') }}</p>
+        <h3 id="library-metadata-review-workbench-heading">{{ t('library', 'Review next conflict') }}</h3>
+        <p class="library-muted">{{ t('library', 'Shows current value, scanner candidate, path-template candidate, sidecar value and source provenance together. No source files are changed; user-edited values are never silently overwritten.') }}</p>
+      </div>
+      <article v-if="metadataReviewWorkbench.item" class="library-metadata-review-card">
+        <header>
+          <strong>{{ metadataReviewWorkbench.item.title }}</strong>
+          <span class="library-muted">{{ metadataReviewWorkbench.item.cachedPath }}</span>
+        </header>
+        <div class="library-metadata-review-fields">
+          <article v-for="field in metadataReviewWorkbench.fields" :key="field.field" class="library-metadata-review-field">
+            <h4>{{ field.field }}</h4>
+            <dl>
+              <div><dt>{{ t('library', 'Current value') }}</dt><dd>{{ field.currentValue || '—' }}</dd></div>
+              <div><dt>{{ t('library', 'scanner candidate') }}</dt><dd>{{ field.scannerCandidate || '—' }}</dd></div>
+              <div><dt>{{ t('library', 'path-template candidate') }}</dt><dd>{{ field.pathTemplateCandidate || '—' }}</dd></div>
+              <div><dt>{{ t('library', 'sidecar value') }}</dt><dd>{{ field.sidecarValue || '—' }}</dd></div>
+              <div><dt>{{ t('library', 'source provenance') }}</dt><dd>{{ field.sourceProvenance || '—' }}</dd></div>
+            </dl>
+            <form method="post" :action="metadataReviewWorkbench.item.resetFieldUrl" class="library-metadata-review-accept-form">
+              <input type="hidden" name="requesttoken" :value="requestToken">
+              <input type="hidden" name="field" :value="field.field">
+              <input type="hidden" name="returnTo" value="catalogue">
+              <button type="submit" class="button secondary">{{ t('library', 'accept scanner candidate') }}</button>
+            </form>
+          </article>
+        </div>
+        <footer class="library-metadata-review-actions">
+          <a class="button secondary" :href="metadataReviewWorkbench.item.detailsUrl">{{ t('library', 'Open full details') }}</a>
+          <a class="button secondary" :href="metadataReviewWorkbench.skipUrl">{{ t('library', 'Skip to next conflict') }}</a>
+        </footer>
+      </article>
+      <p v-else class="library-muted">{{ t('library', 'No reviewable conflict is visible on this page. Open scanner conflicts to review the next matching item.') }}</p>
+      <a class="button secondary" :href="metadataReviewWorkbench.reviewNextUrl">{{ t('library', 'Review next conflict') }}</a>
+    </section>
+
     <section class="library-saved-collections" aria-labelledby="library-saved-collections-heading">
       <div class="library-saved-collections-copy">
         <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Custom collections') }}</p>
@@ -759,7 +830,7 @@ async function toggleStar(item, event) {
           {{ t('library', 'Search title, creator, description, filename or folder') }}
           <input v-model="activeFilters.q" type="search" name="q" placeholder="Camera, Eco, Rolleiflex, description or folder..." aria-describedby="library-search-scope">
         </label>
-        <p id="library-search-scope" class="library-muted library-search-scope">{{ t('library', 'Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.') }}</p>
+        <p id="library-search-scope" class="library-muted library-search-scope">{{ t('library', 'Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.') }}</p>
       <label>
         {{ t('library', 'Type') }}
         <select v-model="activeFilters.type" name="type">
@@ -1369,6 +1440,66 @@ async function toggleStar(item, event) {
 
 .library-useful-views,
 .library-weak-metadata-dashboard,
+.library-saved-collections {
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 1rem;
+}
+
+.library-metadata-review-workbench {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-warning, #eca700) 10%, var(--color-main-background)), var(--color-main-background));
+  border: 1px solid color-mix(in srgb, var(--color-warning, #eca700) 35%, var(--color-border));
+  border-radius: 20px;
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+}
+
+.library-metadata-review-card,
+.library-metadata-review-field {
+  background: var(--color-main-background);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+}
+
+.library-metadata-review-fields {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.library-metadata-review-field dl {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.library-metadata-review-field dl > div {
+  display: grid;
+  gap: 0.2rem;
+  grid-template-columns: minmax(9rem, 0.35fr) 1fr;
+}
+
+.library-metadata-review-field dt {
+  color: var(--color-text-maxcontrast);
+  font-size: 0.82rem;
+}
+
+.library-metadata-review-field dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.library-metadata-review-actions,
+.library-metadata-review-accept-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .library-saved-collections {
   background: var(--color-background-hover, #f6f6f6);
   border: 1px solid var(--color-border, #d0d0d0);

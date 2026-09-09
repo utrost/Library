@@ -63,13 +63,14 @@ Current catalogue capabilities:
 - open the original file context through **Show in Files**;
 - fetch the original source file through **Download source**;
 - open the item workbench through **Details**;
-- search title, subtitle, creators, publication, description and file path from the compact quick-filter row; this is now explicit filename and folder path search for sparse PDFs/comics whose useful metadata only lives in their path;
+- search title, subtitle, creators, publication, description and file path from the compact quick-filter row; this is now explicit description search plus filename and folder path search for sparse PDFs/comics whose useful metadata only lives in their path or notes;
 - use the always-visible quick-filter row for search, sort, starred-only and page-size changes without opening the full filter panel; search fetches updated results after a short debounce and select changes update immediately without a whole-page refresh; press `/` to focus catalogue search and `Escape` to clear it;
 - filter by exact creator field and open a creator landing page as read-only discovery; creator identity splitting remains future work;
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
 - use **Batch actions for current results** to apply or remove a Nextcloud tag from current filter results; this filter-result batch tagging workflow keeps tags separate from Library metadata;
 - use the same batch panel for a filter-result metadata reset: Library resets only current scanner-conflict results to stored scanner candidates, preserving current filters and reporting requested/reset/skipped counts;
 - run preview-and-apply batch metadata edits for one selected publication field across current filter results; the polished review page first reports requested/changed/unchanged/skipped counts plus example items, then an explicit apply button writes only changed rows;
+- use the metadata review workbench from scanner-conflict or weak-metadata views to review next conflict rows, compare current value, scanner candidate, path-template candidate, sidecar value and source provenance, and explicitly accept a scanner candidate per field without changing source files;
 - use filter-result cover refresh to request fresh cover previews for the current result set; this reloads the filtered catalogue with no-store cover URLs and does not change source files or metadata;
 - see first-run guidance when no Library root exists, disabled-root guidance when roots are saved but disabled, and filter-specific recovery actions when a search returns no matches;
 - browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure, with a Compact / Gallery / Shelf view-mode toggle, cover loading shimmer plus a broken-cover fallback, a home dashboard for **Continue reading**, **Recently added** and **Rediscover** entry points plus a sleek in-page details drawer for quick peeking without losing catalogue context; Esc closes and arrow keys browse neighbouring drawer items;
