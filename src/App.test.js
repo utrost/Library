@@ -31,6 +31,9 @@ const state = {
     publicationDate: '2026',
     language: 'en',
     publisher: 'Example Press',
+    fieldSources: { title: 'epub-opf', creators: 'path-template' },
+    fieldValues: { title: 'Scanner Title', creators: 'Ada Path' },
+    resetFieldUrl: '/apps/library/items/7/reset-field',
     subtitle: '',
     coverUrl: '/apps/library/items/7/cover',
     openUrl: '/f/178',
@@ -241,6 +244,33 @@ describe('Library catalogue Vue app', () => {
     await wrapper.find('[data-library-view-mode=shelf]').trigger('click')
     expect(wrapper.find('.library-cover-gallery').classes()).toContain('library-cover-gallery--shelf')
     expect(wrapper.find('[data-library-view-mode=shelf]').attributes('aria-pressed')).toBe('true')
+  })
+
+  it('shows a review-next metadata workbench for scanner conflicts', () => {
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          activeFilters: { ...state.activeFilters, scannerConflicts: '1' },
+          scannerConflictReviewUrl: '?scannerConflicts=1',
+        },
+      },
+    })
+
+    const workbench = wrapper.find('.library-metadata-review-workbench')
+    expect(workbench.exists()).toBe(true)
+    expect(workbench.text()).toContain('Review next conflict')
+    expect(workbench.text()).toContain('Current value')
+    expect(workbench.text()).toContain('scanner candidate')
+    expect(workbench.text()).toContain('path-template candidate')
+    expect(workbench.text()).toContain('sidecar value')
+    expect(workbench.text()).toContain('source provenance')
+    expect(workbench.text()).toContain('No source files are changed')
+    expect(workbench.text()).toContain('user-edited values are never silently overwritten')
+    const acceptForm = workbench.find('form.library-metadata-review-accept-form')
+    expect(acceptForm.attributes('action')).toBe('/apps/library/items/7/reset-field')
+    expect(acceptForm.find('input[name="field"]').exists()).toBe(true)
+    expect(acceptForm.find('input[name="returnTo"]').element.value).toBe('catalogue')
   })
 
   it('shows cover loading polish and a graceful broken-cover fallback', async () => {

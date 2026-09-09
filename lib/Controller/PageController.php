@@ -292,6 +292,7 @@ class PageController extends Controller {
             $item['commentUrl'] = $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => $itemId]);
             $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]);
             $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $itemId]);
+            $item['resetFieldUrl'] = $this->urlGenerator->linkToRoute('library.item.resetfield', ['itemId' => $itemId]);
             $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
             $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($userId, (string)($item['cachedPath'] ?? ''));
             $item['nextcloudTags'] = $fileTagsByFileId[$fileId] ?? [];

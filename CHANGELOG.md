@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.142 - 2026-09-09
+
+- Added a metadata review workbench for scanner-conflict and weak-metadata catalogue views with a **Review next conflict** flow.
+- The workbench compares current value, scanner candidate, path-template candidate, sidecar value and source provenance, with explicit per-field accept actions and no source-file writes.
+- Polished catalogue search copy so the UI explicitly says descriptions are searchable, and protected the backend description query in smoke markers.
+
 ## v0.1.0-alpha.141 - 2026-09-09
 
 - Added keyboard polish to the in-page details drawer: Esc closes, and arrow keys browse neighbouring catalogue items.

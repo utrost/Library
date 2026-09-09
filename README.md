@@ -10,7 +10,7 @@ The model is deliberately similar to Memories for photographs and Music for audi
 
 ## Current status
 
-Current v0.1 development catalogue. The repository contains a conventional Nextcloud 34 app with a Vue/Vite catalogue, per-user roots, queued scans with cooperative running-job cancellation, file indexing, editable publication metadata, field-level scanner provenance, corrected-metadata export/import preview, database-backed search/filter/sort/pagination, compact cover-first browse cards and a detail workbench for editing metadata, tags and comments.
+Current v0.1 development catalogue. The repository contains a conventional Nextcloud 34 app with a Vue/Vite catalogue, per-user roots, queued scans with cooperative running-job cancellation, file indexing, editable publication metadata, field-level scanner provenance, a metadata review workbench for review next conflict flows, corrected-metadata export/import preview, database-backed search/filter/sort/pagination, compact cover-first browse cards and a detail workbench for editing metadata, tags and comments.
 
 The current development slice can:
 
@@ -21,7 +21,7 @@ The current development slice can:
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;
 - preserve user-edited metadata across rescans while refreshing stored scanner candidates;
-- show field-level scanner provenance, **Differs from scanner** labels, scanner-conflict review filter, bulk reset selected scanner-conflict items, single-field reset and whole-item reset-to-scanner actions on item details;
+- show field-level scanner provenance, **Differs from scanner** labels, scanner-conflict review filter, a metadata review workbench with **Review next conflict**, bulk reset selected scanner-conflict items, single-field reset and whole-item reset-to-scanner actions on item details;
 - preview and apply one-field batch metadata edits to the current catalogue filter result with requested/applied/unchanged/skipped feedback;
 - generate absolute Nextcloud URLs for reader handoff, Files handoff and Library settings links so browser hrefs stay under the Nextcloud host;
 - show indexed files and publication items with a catalogue-first Vue/Vite-backed catalogue page mounted in a conventional Nextcloud `#app-content` shell, responsive, paginated cover gallery, preview-backed covers, animated cover loading, a broken-cover fallback, placeholder fallbacks, browse-only catalogue cards, a browsing-first home dashboard, a Compact / Gallery / Shelf view-mode toggle, a sleek in-page details drawer for quick peeking without losing catalogue position, including Esc closes and arrow keys browse keyboard polish, built-in useful views for frequent catalogue destinations, a weak-metadata cleanup cockpit with count badges, and in-app custom collections that save named filter combinations;
@@ -124,7 +124,7 @@ For the current Alice sandbox, clone this repository outside the Nextcloud data 
 
 ## Local checks and packaging
 
-Current v0.1 testing candidate: `0.1.0-alpha.141`.
+Current v0.1 testing candidate: `0.1.0-alpha.142`.
 
 Run the local gate with:
 
