@@ -195,6 +195,10 @@ async function runBrowserSmoke(proxyBase) {
           filterPanelCollapsed: Boolean(document.querySelector('.library-filter-panel:not([open]) .library-filter-bar')),
           discoveryShortcutsCollapsed: Boolean(document.querySelector('.library-discovery-shortcuts:not([open]) .library-periodical-groups')),
           discoveryShortcutsSummary: document.querySelector('.library-discovery-shortcuts > summary')?.textContent?.trim() || '',
+          importHealthPanelVisible: Boolean(document.querySelector('.library-import-health-panel')),
+          actionsMenuCollapsed: Boolean(document.querySelector('.library-catalogue-actions-menu:not([open])')),
+          actionsMenuHasMetadataOverview: Boolean(document.querySelector('.library-catalogue-actions-menu .library-actions-health-overview')),
+          actionsMenuMetadataOverviewText: document.querySelector('.library-catalogue-actions-menu .library-actions-health-overview')?.textContent?.includes('Metadata overview') || false,
           details: document.querySelectorAll('.library-cover-card a').length > 0 ? [...document.querySelectorAll('.library-cover-card a')].filter((a) => a.textContent === 'Details').length : 0,
           nextcloudTagNameField: Boolean(document.querySelector('input[name="nextcloudTagName"]')),
           catalogueTagEditor: Boolean(document.querySelector('[aria-label="nextcloudTagEditor"]')),
@@ -680,6 +684,10 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_filter_panel_collapsed', dom.filterPanelCollapsed)
     print('browser_discovery_shortcuts_collapsed', dom.discoveryShortcutsCollapsed)
     print('browser_discovery_shortcuts_summary', dom.discoveryShortcutsSummary)
+    print('browser_import_health_panel_visible', dom.importHealthPanelVisible)
+    print('browser_actions_menu_collapsed', dom.actionsMenuCollapsed)
+    print('browser_actions_menu_has_metadata_overview', dom.actionsMenuHasMetadataOverview)
+    print('browser_actions_menu_metadata_overview_text', dom.actionsMenuMetadataOverviewText)
     print('browser_details', dom.details)
     print('browser_nextcloudTagNameField', dom.nextcloudTagNameField)
     print('browser_catalogue_tag_editor', dom.catalogueTagEditor)
@@ -786,6 +794,10 @@ async function runBrowserSmoke(proxyBase) {
       && dom.filterPanelCollapsed === true
       && dom.discoveryShortcutsCollapsed === true
       && dom.discoveryShortcutsSummary === 'Browse'
+      && dom.importHealthPanelVisible === false
+      && dom.actionsMenuCollapsed === true
+      && dom.actionsMenuHasMetadataOverview === true
+      && dom.actionsMenuMetadataOverviewText === true
       && dom.details === dom.cards
       && dom.nextcloudTagNameField === true
       && dom.catalogueTagEditor === false
