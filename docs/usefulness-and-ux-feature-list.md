@@ -379,6 +379,34 @@ Possible future providers:
 
 Priority note: delay until local filename/path extraction, review UX and sidecar durability are strong. Provider values should be candidates with provenance, never silent overwrites.
 
+## Sleek browsing experience track
+
+These items intentionally put metadata/admin/check surfaces aside and focus on making Library feel fast, elegant and personal.
+
+### 13. Better cover wall / shelf mode
+
+Status: first slice implemented.
+
+- A browsing-first home dashboard now puts **Continue reading**, **Recently added** and **Rediscover** above the grid.
+- Compact cards retain the fast cover-first default, while subtle shadows, hover lift and reduced-motion fallbacks add polish without turning the catalogue into an admin page.
+- Remaining: explicit Compact/Gallery/Shelf toggle, dominant-colour cover backgrounds, richer placeholder/broken-cover art.
+
+### 14. Fast visual browsing gestures
+
+Status: first slice implemented.
+
+- Cards can open a sleek in-page details drawer so users can peek without losing catalogue scroll/context.
+- The drawer has previous/next controls for neighbouring items.
+- Remaining: keyboard card navigation, mobile swipe affordances, prefetch-on-hover and stronger scroll restoration.
+
+### 15. Series/publication visual page
+
+Status: first slice implemented.
+
+- Publication pages now include a horizontal **visual issue strip** above the detailed issue/date grouping.
+- This makes comics, magazines and periodicals feel more shelf-like while preserving unknown issue/date rows below.
+- Remaining: richer issue-cover strips, editable issue metadata, dedicated next/previous issue routes and magazine-style contents pages.
+
 ## Recommended next order
 
 1. **Re-indexing and changed-file summaries** — because real archives move and change, and this reinforces trust.

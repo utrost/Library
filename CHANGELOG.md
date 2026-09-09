@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.138 - 2026-09-09
+
+- Added a browsing-first home dashboard with Continue reading, Recently added and Rediscover rails.
+- Added an in-page details drawer so users can peek at title, cover and key facts without losing catalogue position.
+- Added a visual issue strip on publication pages to make series and periodical browsing feel more like a shelf.
+- Added subtle motion/depth styling with reduced-motion fallbacks for the new browsing surfaces.
+
 ## v0.1.0-alpha.137 - 2026-09-09
 
 - Added a reload-safe post-scan completion summary in Library settings for completed and failed scans.

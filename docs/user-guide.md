@@ -72,10 +72,10 @@ Current catalogue capabilities:
 - run preview-and-apply batch metadata edits for one selected publication field across current filter results; the polished review page first reports requested/changed/unchanged/skipped counts plus example items, then an explicit apply button writes only changed rows;
 - use filter-result cover refresh to request fresh cover previews for the current result set; this reloads the filtered catalogue with no-store cover URLs and does not change source files or metadata;
 - see first-run guidance when no Library root exists, disabled-root guidance when roots are saved but disabled, and filter-specific recovery actions when a search returns no matches;
-- browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure;
+- browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure, with a home dashboard for **Continue reading**, **Recently added** and **Rediscover** entry points plus a sleek in-page details drawer for quick peeking without losing catalogue context;
 - filter by series or periodical title for magazines, journals and recurring publications;
 - filter by publication year as read-only discovery for dated books, magazines, journals and comics;
-- use the **Top series and periodicals** panel to open the first dedicated publication discovery page for a recurring publication, with item counts and the compact cover gallery in that named context;
+- use the **Top series and periodicals** panel to open the first dedicated publication discovery page for a recurring publication, with item counts, a visual issue strip and the compact cover gallery in that named context;
 - use the **Top publication years** panel to open a dedicated publication year discovery page for dated books, magazines, journals and comics;
 - use the **Top creators** panel to open a dedicated creator landing page for the exact full creator field;
 - see **No series or periodicals found yet** when the shortcut panel has no publication metadata yet; this is only guidance, with no new series schema;

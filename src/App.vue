@@ -164,6 +164,27 @@ const batchHiddenFilters = computed(() => Object.entries(activeFilters)
   .filter(([_key, value]) => String(value || '').trim() !== '')
   .map(([key, value]) => ({ key, value })))
 const openCoverDetails = reactive({})
+
+const featuredHomeItems = computed(() => items.value.filter((item) => item.starred || item.workflowStatus === 'reading' || item.lastOpenedAt).slice(0, 5))
+const recentHomeItems = computed(() => [...items.value].slice(0, 6))
+const rediscoverItem = computed(() => items.value.find((item) => item['description'] || item.publication || item.creators) || items.value[0] || null)
+const hasHomeDashboard = computed(() => !isDiscoveryPage.value && items.value.length > 0)
+const selectedDrawerItem = ref(null)
+const selectedDrawerIndex = computed(() => selectedDrawerItem.value ? items.value.findIndex((item) => item.id === selectedDrawerItem.value.id) : -1)
+const drawerPreviousItem = computed(() => selectedDrawerIndex.value > 0 ? items.value[selectedDrawerIndex.value - 1] : null)
+const drawerNextItem = computed(() => selectedDrawerIndex.value >= 0 && selectedDrawerIndex.value < items.value.length - 1 ? items.value[selectedDrawerIndex.value + 1] : null)
+
+function openDetailsDrawer(item) {
+  selectedDrawerItem.value = item
+}
+
+function closeDetailsDrawer() {
+  selectedDrawerItem.value = null
+}
+
+function showDrawerItem(item) {
+  if (item) selectedDrawerItem.value = item
+}
 const quickSearchInput = ref(null)
 let filterSubmitTimer = null
 
@@ -539,6 +560,31 @@ async function toggleStar(item, event) {
 
     <p v-if="batchMetadataApplyMessage" class="library-notice library-batch-metadata-apply-result">{{ batchMetadataApplyMessage }}</p>
 
+    <section v-if="hasHomeDashboard" class="library-home-dashboard" aria-labelledby="library-home-dashboard-heading">
+      <article class="library-home-hero-card">
+        <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Home dashboard') }}</p>
+        <h3 id="library-home-dashboard-heading">{{ t('library', 'Continue reading') }}</h3>
+        <p class="library-muted">{{ t('library', 'Fast entry points keep browsing visual: continue, revisit recent additions, or rediscover one shelf item without opening admin tools.') }}</p>
+        <div class="library-home-hero-actions">
+          <a v-if="featuredHomeItems[0]" class="button primary" :href="featuredHomeItems[0].openUrl">{{ t('library', 'Read now') }}</a>
+          <button v-if="featuredHomeItems[0]" type="button" class="button secondary" @click="openDetailsDrawer(featuredHomeItems[0])">{{ t('library', 'Open details drawer') }}</button>
+        </div>
+      </article>
+      <nav class="library-home-rail" :aria-label="t('library', 'Recently added')">
+        <h4>{{ t('library', 'Recently added') }}</h4>
+        <button v-for="item in recentHomeItems" :key="`recent-${item.id}`" type="button" class="library-home-mini-card" @click="openDetailsDrawer(item)">
+          <img :src="item.coverUrl" :alt="`Cover for ${item.title}`" loading="lazy">
+          <span>{{ item.title }}</span>
+        </button>
+      </nav>
+      <article v-if="rediscoverItem" class="library-home-rediscover">
+        <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Rediscover') }}</p>
+        <strong>{{ rediscoverItem.title }}</strong>
+        <span class="library-muted">{{ rediscoverItem.creators || rediscoverItem.publication || rediscoverItem.cachedPath }}</span>
+        <button type="button" class="button secondary" @click="openDetailsDrawer(rediscoverItem)">{{ t('library', 'Peek') }}</button>
+      </article>
+    </section>
+
     <section class="library-useful-views" aria-labelledby="library-useful-views-heading">
       <div class="library-useful-views-copy">
         <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Useful views') }}</p>
@@ -787,6 +833,13 @@ async function toggleStar(item, event) {
           <h4 id="library-publication-issue-groups-heading">{{ t('library', 'Read-only issue/date grouping') }}</h4>
           <p class="library-muted">{{ t('library', 'Comics, magazines and periodicals stay visible here even when Library only has dates or filename/path issue candidates. Use item details before editing metadata.') }}</p>
         </div>
+        <div class="library-publication-issue-strip" aria-label="Visual issue strip">
+          <a v-for="group in publicationIssueContext.issueGroups" :key="`strip-${group.label}`" class="library-issue-strip-card" :href="group.items?.[0]?.detailsUrl || '#'">
+            <span>{{ group.label }}</span>
+            <strong>{{ group.items?.[0]?.issueLabel || t('library', 'Issue') }}</strong>
+            <small>{{ group.items?.length || 0 }} {{ t('library', 'items') }}</small>
+          </a>
+        </div>
         <p v-if="publicationIssueContext.gapRanges?.length" class="library-notice">{{ t('library', 'Gap') }}: {{ publicationIssueContext.gapRanges.join(', ') }}</p>
         <div v-for="group in publicationIssueContext.issueGroups" :key="group.label" class="library-publication-issue-group">
           <h5>{{ group.label }}</h5>
@@ -995,7 +1048,7 @@ async function toggleStar(item, event) {
                 <span v-if="tagsFor(item).length === 0" class="library-muted">No Nextcloud tags</span>
                 <span v-for="tag in tagsFor(item)" v-else :key="tag.id" class="library-tag">{{ tag.name }}</span>
               </div>
-              <p class="library-cover-actions"><a :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a> · <a :href="item.downloadUrl">{{ t('library', 'Download source') }}</a> · <a :href="item.detailsUrl">{{ t('library', 'Details') }}</a></p>
+              <p class="library-cover-actions"><a :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a> · <a :href="item.downloadUrl">{{ t('library', 'Download source') }}</a> · <button type="button" class="library-link-button library-cover-details-drawer-button" @click="openDetailsDrawer(item)">{{ t('library', 'Details drawer') }}</button> · <a :href="item.detailsUrl">{{ t('library', 'Details') }}</a></p>
             </div>
           </details>
         </div>
@@ -1009,6 +1062,29 @@ async function toggleStar(item, event) {
       <a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a>
       <span v-else class="library-muted">{{ t('library', 'Next') }}</span>
     </nav>
+
+    <div v-if="selectedDrawerItem" class="library-detail-drawer-backdrop" @click="closeDetailsDrawer" aria-hidden="true"></div>
+    <aside v-if="selectedDrawerItem" class="library-detail-drawer" aria-labelledby="library-detail-drawer-heading" role="dialog" aria-modal="true">
+      <button type="button" class="library-detail-drawer-close" aria-label="Close details panel" @click="closeDetailsDrawer">×</button>
+      <img class="library-detail-drawer-cover" :src="selectedDrawerItem.coverUrl" :alt="`Cover for ${selectedDrawerItem.title}`" loading="lazy">
+      <p class="library-muted library-catalogue-eyebrow">{{ selectedDrawerItem.publicationType || t('library', 'Publication') }}</p>
+      <h3 id="library-detail-drawer-heading">{{ selectedDrawerItem.title }}</h3>
+      <p v-if="selectedDrawerItem.creators" class="library-creator">{{ selectedDrawerItem.creators }}</p>
+      <p v-if="selectedDrawerItem.description" class="library-muted">{{ selectedDrawerItem.description }}</p>
+      <dl class="library-detail-drawer-facts">
+        <div v-if="selectedDrawerItem.publication"><dt>{{ t('library', 'Series') }}</dt><dd>{{ selectedDrawerItem.publication }}</dd></div>
+        <div v-if="selectedDrawerItem.publicationDate"><dt>{{ t('library', 'Date') }}</dt><dd>{{ selectedDrawerItem.publicationDate }}</dd></div>
+        <div v-if="selectedDrawerItem.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd>{{ selectedDrawerItem.shelf }}</dd></div>
+      </dl>
+      <p class="library-detail-drawer-actions">
+        <a class="button primary" :href="selectedDrawerItem.openUrl">{{ t('library', 'Read') }}</a>
+        <a class="button secondary" :href="selectedDrawerItem.detailsUrl">{{ t('library', 'View full details') }}</a>
+      </p>
+      <nav class="library-detail-drawer-stepper" :aria-label="t('library', 'Browse neighbouring items')">
+        <button type="button" class="button secondary" :disabled="!drawerPreviousItem" @click="showDrawerItem(drawerPreviousItem)">{{ t('library', 'Previous issue') }}</button>
+        <button type="button" class="button secondary" :disabled="!drawerNextItem" @click="showDrawerItem(drawerNextItem)">{{ t('library', 'Next issue') }}</button>
+      </nav>
+    </aside>
   </section>
 
   </div>
@@ -1552,6 +1628,190 @@ async function toggleStar(item, event) {
 .library-cover-meta {
   gap: 6px;
   padding-top: 6px;
+}
+
+.library-home-dashboard {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(220px, 1.25fr) minmax(220px, 1.6fr) minmax(180px, 0.8fr);
+  margin: 0.75rem 0;
+}
+
+.library-home-hero-card,
+.library-home-rediscover,
+.library-detail-drawer,
+.library-issue-strip-card {
+  box-shadow: 0 18px 46px color-mix(in srgb, #000 12%, transparent);
+}
+
+.library-home-hero-card,
+.library-home-rediscover {
+  background: radial-gradient(circle at top left, color-mix(in srgb, var(--color-primary-element, #0082c9) 18%, transparent), transparent 45%), var(--color-main-background);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+}
+
+.library-home-hero-actions,
+.library-detail-drawer-actions,
+.library-detail-drawer-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.library-home-rail {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(88px, 1fr));
+}
+
+.library-home-rail h4 {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.library-home-mini-card {
+  background: var(--color-main-background);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  cursor: pointer;
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.45rem;
+  text-align: left;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.library-home-mini-card:hover,
+.library-home-mini-card:focus,
+.library-cover-card:hover {
+  transform: translateY(-2px);
+}
+
+.library-home-mini-card img {
+  aspect-ratio: 2 / 3;
+  border-radius: 10px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.library-publication-issue-strip {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding: 0.3rem 0 0.7rem;
+  scroll-snap-type: x mandatory;
+}
+
+.library-issue-strip-card {
+  background: linear-gradient(160deg, var(--color-main-background), var(--color-background-hover));
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  color: inherit;
+  display: grid;
+  flex: 0 0 9rem;
+  gap: 0.25rem;
+  padding: 0.7rem;
+  scroll-snap-align: start;
+  text-decoration: none;
+  transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.library-issue-strip-card:hover,
+.library-issue-strip-card:focus {
+  border-color: var(--color-primary-element, #0082c9);
+  transform: translateY(-2px);
+}
+
+.library-link-button {
+  background: transparent;
+  border: 0;
+  color: var(--color-primary-element, #0082c9);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.library-detail-drawer-backdrop {
+  backdrop-filter: blur(5px);
+  background: color-mix(in srgb, #000 22%, transparent);
+  inset: 0;
+  position: fixed;
+  z-index: 50;
+}
+
+.library-detail-drawer {
+  background: var(--color-main-background);
+  border-left: 1px solid var(--color-border);
+  display: grid;
+  gap: 0.7rem;
+  inset: 0 0 0 auto;
+  max-width: min(92vw, 420px);
+  overflow: auto;
+  padding: 1rem;
+  position: fixed;
+  transform: translateX(0);
+  transition: transform 180ms ease;
+  width: 420px;
+  z-index: 51;
+}
+
+.library-detail-drawer-close {
+  justify-self: end;
+}
+
+.library-detail-drawer-cover {
+  aspect-ratio: 2 / 3;
+  border-radius: 16px;
+  max-height: 42vh;
+  object-fit: cover;
+  width: min(100%, 260px);
+}
+
+.library-detail-drawer-facts {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.library-detail-drawer-facts div {
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .library-home-mini-card,
+  .library-issue-strip-card,
+  .library-detail-drawer,
+  .library-cover-card {
+    transition: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .library-home-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .library-home-rail {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .library-home-mini-card {
+    flex: 0 0 8rem;
+  }
+
+  .library-detail-drawer {
+    border-left: 0;
+    border-radius: 18px 18px 0 0;
+    inset: auto 0 0;
+    max-height: 86vh;
+    max-width: none;
+    width: auto;
+  }
 }
 
 @media (max-width: 520px) {
