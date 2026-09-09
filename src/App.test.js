@@ -181,6 +181,24 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).toContain('Run a scan after saving a root')
   })
 
+  it('shows a home dashboard for fast browsing and opens an in-page details drawer', async () => {
+    const wrapper = mount(App, { props: { state } })
+
+    expect(wrapper.find('.library-home-dashboard').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Continue reading')
+    expect(wrapper.text()).toContain('Recently added')
+    expect(wrapper.text()).toContain('Rediscover')
+    expect(wrapper.find('.library-detail-drawer').exists()).toBe(false)
+
+    await wrapper.find('.library-cover-details').trigger('toggle')
+    await wrapper.find('.library-cover-details-drawer-button').trigger('click')
+
+    expect(wrapper.find('.library-detail-drawer').exists()).toBe(true)
+    expect(wrapper.find('.library-detail-drawer').text()).toContain('Example Book')
+    expect(wrapper.find('.library-detail-drawer').text()).toContain('View full details')
+    expect(wrapper.find('.library-detail-drawer-backdrop').exists()).toBe(true)
+  })
+
   it('shows filter recovery actions when active filters produce no results', () => {
     const wrapper = mount(App, {
       props: {
