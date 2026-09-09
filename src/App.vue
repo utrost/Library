@@ -70,6 +70,9 @@ const batchMetadataResetUrl = computed(() => catalogueState.batchMetadataResetUr
 const batchMetadataEditPreviewUrl = computed(() => catalogueState.batchMetadataEditPreviewUrl || '/apps/library/bulk/items/edit-preview')
 const batchCoverRefreshUrl = computed(() => catalogueState.batchCoverRefreshUrl || '/apps/library/bulk/covers/refresh')
 const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictReviewUrl || '?scannerConflicts=1')
+const metadataErrorsUrl = computed(() => catalogueState.metadataErrorsUrl || '/apps/library/health/metadata-errors')
+const metadataErrorsTsvUrl = computed(() => catalogueState.metadataErrorsTsvUrl || '/apps/library/health/metadata-errors.tsv')
+const coverProbeUrl = computed(() => catalogueState.coverProbeUrl || '/apps/library/health/covers/probe')
 const importHealthSummary = computed(() => catalogueState.importHealthSummary || {})
 const metadataErrorReview = computed(() => catalogueState.metadataErrorReview || importHealthSummary.value.metadataErrorReview || { total: 0, byExtension: [], byError: [], examples: [], reviewUrl: '?status=metadata_error' })
 const archiveMagicSummary = computed(() => catalogueState.archiveMagicSummary || importHealthSummary.value.archiveMagicSummary || { totalChecked: 0, mismatches: 0, byExtensionAndContainer: [], examples: [] })
@@ -140,7 +143,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'importHealthSummary', 'metadataErrorReview', 'archiveMagicSummary', 'coverHealthSummary']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummary', 'metadataErrorReview', 'archiveMagicSummary', 'coverHealthSummary']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -492,9 +495,12 @@ async function toggleStar(item, event) {
         <div>
           <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Import health') }}</p>
           <h3 id="library-import-health-heading">{{ t('library', 'Real-file findings') }}</h3>
-          <p class="library-muted">{{ t('library', 'Metadata errors, archive/container mismatches, and cover risks from the current Library roots.') }}</p>
+          <p class="library-muted">{{ t('library', 'Metadata errors, archive/container mismatches, and cover risks from the current Library roots. Files are left as-is; diagnostics clarify what Library cover extraction can do versus Nextcloud/other preview plugins.') }}</p>
         </div>
         <a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Review metadata errors') }}</a>
+        <a class="button secondary" :href="metadataErrorsUrl">{{ t('library', 'Full review') }}</a>
+        <a class="button secondary" :href="metadataErrorsTsvUrl">{{ t('library', 'Export TSV') }}</a>
+        <a class="button secondary" :href="coverProbeUrl">{{ t('library', 'Probe covers') }}</a>
       </div>
       <div class="library-import-health-grid">
         <article class="library-import-health-card">
