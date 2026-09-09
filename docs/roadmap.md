@@ -516,7 +516,7 @@ Recommended next slice: **release-facing metadata repair and review polish**. Th
 
 Minimum next cuts:
 
-1. Add richer review workflow affordances on top of the paginated metadata-error export: saved filters, tag affected rows, and per-error bulk actions that do not mutate source files; keep the landed first selected-item bulk reset process available for scanner-conflict review items.
+1. Add richer review workflow affordances on top of the paginated metadata-error export: review queue shortcuts now open/export metadata-error rows and can tag current metadata-error or scanner-conflict rows with Nextcloud tags while leaving source files and Library metadata unchanged; no source files are changed. Remaining polish: saved filters beyond these first queues and per-error bulk actions that do not mutate source files; keep the landed first selected-item bulk reset process available for scanner-conflict review items.
 2. Add explicit 7z/RAR extraction support as a read-only Library capability if we want covers/metadata for those files while preserving the source archives unchanged.
 3. Expand PDF/EPUB/OPF/CBZ fixture coverage with real Alice samples that currently produce weak, missing or wrong metadata. First PDF hardening landed for PDF hex Info strings and PDF literal octal escapes. Follow-up PDF hardening maps `/Subject` to Library subtitle, normalizes `/CreationDate`/`/ModDate` into `publicationDate`, and walks nested PDF literal parentheses while leaving Creator/Producer/Keywords out of canonical publication metadata.
 4. Preserve the database-backed catalogue query path under text/type/format/tag/shelf/status filters during every smoke.

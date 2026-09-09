@@ -123,7 +123,7 @@ For the current Alice sandbox, clone this repository outside the Nextcloud data 
 
 ## Local checks and packaging
 
-Current v0.1 testing candidate: `0.1.0-alpha.125`.
+Current v0.1 testing candidate: `0.1.0-alpha.126`.
 
 Run the local gate with:
 

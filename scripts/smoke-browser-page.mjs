@@ -199,6 +199,9 @@ async function runBrowserSmoke(proxyBase) {
           actionsMenuCollapsed: Boolean(document.querySelector('.library-catalogue-actions-menu:not([open])')),
           actionsMenuHasMetadataOverview: Boolean(document.querySelector('.library-catalogue-actions-menu .library-actions-health-overview')),
           actionsMenuMetadataOverviewText: document.querySelector('.library-catalogue-actions-menu .library-actions-health-overview')?.textContent?.includes('Metadata overview') || false,
+          reviewQueueActions: Boolean(document.querySelector('.library-review-queue-actions')),
+          reviewQueueMetadataErrorTagForm: Boolean(document.querySelector('.library-review-queue-tag-form input[name="status"][value="metadata_error"]') && document.querySelector('.library-review-queue-tag-form input[name="nextcloudTagName"][value="library-metadata-error"]')),
+          reviewQueueScannerConflictTagForm: Boolean(document.querySelector('.library-review-queue-tag-form input[name="scannerConflicts"][value="1"]') && document.querySelector('.library-review-queue-tag-form input[name="nextcloudTagName"][value="library-scanner-conflict"]')),
           details: document.querySelectorAll('.library-cover-card a').length > 0 ? [...document.querySelectorAll('.library-cover-card a')].filter((a) => a.textContent === 'Details').length : 0,
           nextcloudTagNameField: Boolean(document.querySelector('input[name="nextcloudTagName"]')),
           catalogueTagEditor: Boolean(document.querySelector('[aria-label="nextcloudTagEditor"]')),
@@ -688,6 +691,9 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_actions_menu_collapsed', dom.actionsMenuCollapsed)
     print('browser_actions_menu_has_metadata_overview', dom.actionsMenuHasMetadataOverview)
     print('browser_actions_menu_metadata_overview_text', dom.actionsMenuMetadataOverviewText)
+    print('browser_review_queue_actions', dom.reviewQueueActions)
+    print('browser_review_queue_metadata_error_tag_form', dom.reviewQueueMetadataErrorTagForm)
+    print('browser_review_queue_scanner_conflict_tag_form', dom.reviewQueueScannerConflictTagForm)
     print('browser_details', dom.details)
     print('browser_nextcloudTagNameField', dom.nextcloudTagNameField)
     print('browser_catalogue_tag_editor', dom.catalogueTagEditor)
@@ -798,12 +804,15 @@ async function runBrowserSmoke(proxyBase) {
       && dom.actionsMenuCollapsed === true
       && dom.actionsMenuHasMetadataOverview === true
       && dom.actionsMenuMetadataOverviewText === true
+      && dom.reviewQueueActions === true
+      && dom.reviewQueueMetadataErrorTagForm === true
+      && dom.reviewQueueScannerConflictTagForm === true
       && dom.details === dom.cards
       && dom.nextcloudTagNameField === true
       && dom.catalogueTagEditor === false
       && dom.catalogueStarForms === dom.cards
       && dom.catalogueStarButtons === dom.cards
-      && dom.postForms === dom.catalogueStarForms + 5
+      && dom.postForms === dom.catalogueStarForms + 7
       && dom.requestTokenFields === dom.postForms
       && starToggleDom?.noReload === true
       && starToggleDom?.changed === true

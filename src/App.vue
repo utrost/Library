@@ -413,6 +413,31 @@ async function toggleStar(item, event) {
               </ul>
             </details>
             </template>
+            <div class="library-review-queue-actions" aria-label="Review queue shortcuts">
+              <article>
+                <h4>{{ t('library', 'Metadata-error queue') }}</h4>
+                <p class="library-muted">{{ t('library', 'Open, export or tag the current metadata-error rows. Uses the existing batch tag route, so source files and Library metadata are not changed.') }}</p>
+                <a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Open metadata-error rows') }}</a>
+                <a class="button secondary" :href="metadataErrorsTsvUrl">{{ t('library', 'Export metadata-error rows') }}</a>
+                <form method="post" :action="batchTagUrl" class="library-review-queue-tag-form">
+                  <input type="hidden" name="requesttoken" :value="requestToken">
+                  <input type="hidden" name="status" value="metadata_error">
+                  <input type="hidden" name="nextcloudTagName" value="library-metadata-error">
+                  <button type="submit" class="button secondary">{{ t('library', 'Tag metadata-error rows') }}</button>
+                </form>
+              </article>
+              <article>
+                <h4>{{ t('library', 'Scanner-conflict queue') }}</h4>
+                <p class="library-muted">{{ t('library', 'Open or tag items where user metadata differs from stored scanner candidates. Library metadata is not changed.') }}</p>
+                <a class="button secondary" :href="scannerConflictReviewUrl">{{ t('library', 'Open scanner-conflict rows') }}</a>
+                <form method="post" :action="batchTagUrl" class="library-review-queue-tag-form">
+                  <input type="hidden" name="requesttoken" :value="requestToken">
+                  <input type="hidden" name="scannerConflicts" value="1">
+                  <input type="hidden" name="nextcloudTagName" value="library-scanner-conflict">
+                  <button type="submit" class="button secondary">{{ t('library', 'Tag scanner-conflict rows') }}</button>
+                </form>
+              </article>
+            </div>
           </div>
           </div>
         </details>
@@ -849,10 +874,25 @@ async function toggleStar(item, event) {
   padding: 0.75rem;
 }
 
-.library-actions-health-links {
+.library-actions-health-links,
+.library-review-queue-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
+}
+
+.library-review-queue-actions article {
+  background: var(--color-main-background, #fff);
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: var(--border-radius, 8px);
+  display: grid;
+  gap: 0.45rem;
+  max-width: 22rem;
+  padding: 0.65rem;
+}
+
+.library-review-queue-tag-form {
+  margin: 0;
 }
 
 .library-actions-health-grid {
