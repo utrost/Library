@@ -74,6 +74,27 @@
     if (status) status.textContent = text
   }
 
+  function metadataValidationFeedback(form) {
+    return form.querySelector('.library-validation-feedback')
+  }
+
+  function clearMetadataValidationFeedback(form) {
+    const feedback = metadataValidationFeedback(form)
+    if (feedback) feedback.remove()
+  }
+
+  function setMetadataValidationFeedback(form, text) {
+    let feedback = metadataValidationFeedback(form)
+    if (!feedback) {
+      feedback = document.createElement('p')
+      feedback.className = 'library-validation-feedback library-detail-field-full'
+      feedback.setAttribute('role', 'alert')
+      const saveRow = form.querySelector('.library-detail-save-row')
+      saveRow?.insertAdjacentElement('afterend', feedback)
+    }
+    if (feedback) feedback.textContent = text
+  }
+
   async function submitMetadataAutosave(form) {
     const autosaveFlag = form.querySelector('input[name="metadataAutosave"]')
     const previousFlag = autosaveFlag?.value
@@ -85,7 +106,22 @@
         body: new window.FormData(form),
         credentials: 'same-origin',
       })
-      setMetadataStatus(form, response.ok ? 'Metadata saved' : 'Metadata was not saved')
+      if (response.ok) {
+        setMetadataStatus(form, 'Metadata saved')
+        clearMetadataValidationFeedback(form)
+      } else {
+        let message = 'Metadata was not saved'
+        if (response.status === 422) {
+          try {
+            const payload = await response.json()
+            if (payload?.error) message = `Metadata was not saved: ${payload.error}`
+          } catch (_jsonError) {
+            // Keep the generic failure message.
+          }
+        }
+        setMetadataStatus(form, 'Metadata was not saved')
+        setMetadataValidationFeedback(form, message)
+      }
     } catch (_error) {
       setMetadataStatus(form, 'Metadata was not saved')
     } finally {

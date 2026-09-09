@@ -8,6 +8,7 @@ use OCA\Library\Service\ItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
@@ -41,7 +42,7 @@ final class ItemController extends Controller {
     }
 
     #[NoAdminRequired]
-    public function update(int $itemId): RedirectResponse {
+    public function update(int $itemId): RedirectResponse|JSONResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
             try {
@@ -61,6 +62,11 @@ final class ItemController extends Controller {
                     'personalRating' => (string)$this->request->getParam('personalRating', ''),
                 ]);
             } catch (\InvalidArgumentException $e) {
+                if ($metadataAutosave) {
+                    return new JSONResponse(['saved' => false, 'error' => $e->getMessage()], 422, [
+                        'Cache-Control' => 'private, no-store',
+                    ]);
+                }
                 $returnTo = (string)$this->request->getParam('returnTo', '');
                 if ($returnTo === 'details') {
                     return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', [
@@ -73,6 +79,12 @@ final class ItemController extends Controller {
         }
 
         $returnTo = (string)$this->request->getParam('returnTo', '');
+        $metadataAutosave = (string)$this->request->getParam('metadataAutosave', '0') === '1';
+        if ($metadataAutosave) {
+            return new JSONResponse(['saved' => true], 200, [
+                'Cache-Control' => 'private, no-store',
+            ]);
+        }
         if ($returnTo === 'details') {
             return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId, 'metadataSaved' => '1']));
         }
