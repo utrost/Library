@@ -8,7 +8,8 @@ def test_cover_cards_render_one_cover_surface_not_mock_placeholder_plus_image():
 
     assert 'class="library-cover-image"' in vue
     assert 'class="library-cover-placeholder"' not in vue
-    assert 'library-cover-frame' not in vue
+    assert 'library-cover-frame' in vue
+    assert 'library-cover-fallback' in vue
     assert 'mb_substr(trim((string)$item[\'title\']), 0, 2)' not in vue
 
 

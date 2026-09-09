@@ -72,7 +72,7 @@ Current catalogue capabilities:
 - run preview-and-apply batch metadata edits for one selected publication field across current filter results; the polished review page first reports requested/changed/unchanged/skipped counts plus example items, then an explicit apply button writes only changed rows;
 - use filter-result cover refresh to request fresh cover previews for the current result set; this reloads the filtered catalogue with no-store cover URLs and does not change source files or metadata;
 - see first-run guidance when no Library root exists, disabled-root guidance when roots are saved but disabled, and filter-specific recovery actions when a search returns no matches;
-- browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure, with a Compact / Gallery / Shelf view-mode toggle, a home dashboard for **Continue reading**, **Recently added** and **Rediscover** entry points plus a sleek in-page details drawer for quick peeking without losing catalogue context;
+- browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure, with a Compact / Gallery / Shelf view-mode toggle, cover loading shimmer plus a broken-cover fallback, a home dashboard for **Continue reading**, **Recently added** and **Rediscover** entry points plus a sleek in-page details drawer for quick peeking without losing catalogue context;
 - filter by series or periodical title for magazines, journals and recurring publications;
 - filter by publication year as read-only discovery for dated books, magazines, journals and comics;
 - use the **Top series and periodicals** panel to open the first dedicated publication discovery page for a recurring publication, with item counts, a visual issue strip and the compact cover gallery in that named context;
@@ -219,7 +219,7 @@ Library serves covers through its own item cover route:
 - uses an EPUB package-manifest cover image as a fallback cover;
 - uses the first image in a CBZ as a fallback cover;
 - offers **Refresh cover preview** on item details as a no-store retry of the cover route when the browser or preview looks stale, with the cover-quality explanation on the refresh action instead of a permanent body panel;
-- returns a stable SVG placeholder when no cover provider succeeds;
+- returns a stable SVG placeholder when no cover provider succeeds, while the catalogue itself shows cover loading shimmer and a broken-cover fallback if an image request fails;
 - includes diagnostic response headers so smokes can distinguish preview, CBZ first-image and placeholder outcomes.
 
 There is no app-owned cover cache yet. **Refresh cover preview** is a request-level retry affordance, not a persistent cover-cache management UI. **Manual cover override** is available on item details for URL/upload fixes, with revert back to extracted or preview covers.
