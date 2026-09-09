@@ -73,12 +73,19 @@ const scannerConflictReviewUrl = computed(() => catalogueState.scannerConflictRe
 const metadataErrorsUrl = computed(() => catalogueState.metadataErrorsUrl || '/apps/library/health/metadata-errors')
 const metadataErrorsTsvUrl = computed(() => catalogueState.metadataErrorsTsvUrl || '/apps/library/health/metadata-errors.tsv')
 const coverProbeUrl = computed(() => catalogueState.coverProbeUrl || '/apps/library/health/covers/probe')
-const importHealthSummary = computed(() => catalogueState.importHealthSummary || {})
-const metadataErrorReview = computed(() => catalogueState.metadataErrorReview || importHealthSummary.value.metadataErrorReview || { total: 0, byExtension: [], byError: [], examples: [], reviewUrl: '?status=metadata_error' })
-const archiveMagicSummary = computed(() => catalogueState.archiveMagicSummary || importHealthSummary.value.archiveMagicSummary || { totalChecked: 0, mismatches: 0, byExtensionAndContainer: [], examples: [] })
-const coverHealthSummary = computed(() => catalogueState.coverHealthSummary || importHealthSummary.value.coverHealthSummary || { totalChecked: 0, byFormat: [], examples: [], note: '' })
-const coverSupportMatrix = computed(() => catalogueState.coverSupportMatrix || importHealthSummary.value.coverSupportMatrix || coverHealthSummary.value.byFormat || [])
-const environmentCapabilities = computed(() => catalogueState.environmentCapabilities || importHealthSummary.value.environmentCapabilities || {})
+const importHealthSummaryUrl = computed(() => catalogueState.importHealthSummaryUrl || '/apps/library/health/import-summary')
+const importHealthState = reactive({
+  summary: catalogueState.importHealthSummary || {},
+  loaded: Boolean(catalogueState.importHealthSummary && Object.keys(catalogueState.importHealthSummary).length > 0),
+  loading: false,
+  error: '',
+})
+const importHealthSummary = computed(() => importHealthState.summary || {})
+const metadataErrorReview = computed(() => importHealthSummary.value.metadataErrorReview || { total: 0, byExtension: [], byError: [], examples: [], reviewUrl: '?status=metadata_error' })
+const archiveMagicSummary = computed(() => importHealthSummary.value.archiveMagicSummary || { totalChecked: 0, mismatches: 0, byExtensionAndContainer: [], examples: [] })
+const coverHealthSummary = computed(() => importHealthSummary.value.coverHealthSummary || { totalChecked: 0, byFormat: [], examples: [], note: '' })
+const coverSupportMatrix = computed(() => importHealthSummary.value.coverSupportMatrix || coverHealthSummary.value.byFormat || [])
+const environmentCapabilities = computed(() => importHealthSummary.value.environmentCapabilities || {})
 const hasImportHealthFindings = computed(() => Number(metadataErrorReview.value.total || 0) > 0 || Number(archiveMagicSummary.value.mismatches || 0) > 0 || (coverHealthSummary.value.byFormat || []).some((row) => row.nextcloudPreview !== 'expected-ok' || row.libraryCoverRoute !== 'expected-ok'))
 const isPublicationDiscoveryPage = computed(() => catalogueState.discoveryPage === 'publication')
 const isYearDiscoveryPage = computed(() => catalogueState.discoveryPage === 'year')
@@ -145,12 +152,34 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummary', 'metadataErrorReview', 'archiveMagicSummary', 'coverHealthSummary', 'coverSupportMatrix', 'environmentCapabilities']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
   }
   Object.assign(activeFilters, nextState.activeFilters || {})
+}
+
+async function loadImportHealthSummary(event) {
+  if (event && event.currentTarget && event.currentTarget.open !== true) return
+  if (importHealthState.loaded || importHealthState.loading) return
+  importHealthState.loading = true
+  importHealthState.error = ''
+  try {
+    const response = await fetch(importHealthSummaryUrl.value, {
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+    })
+    if (!response.ok) {
+      throw new Error(`Import health request failed: ${response.status}`)
+    }
+    importHealthState.summary = await response.json()
+    importHealthState.loaded = true
+  } catch (error) {
+    importHealthState.error = error?.message || String(error)
+  } finally {
+    importHealthState.loading = false
+  }
 }
 
 async function submitFiltersAjax(event) {
@@ -298,18 +327,22 @@ async function toggleStar(item, event) {
         <p class="library-muted">{{ isDiscoveryPage ? t('library', 'Browse this focused view; use filters only when you need to narrow it further.') : t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.') }}</p>
       </div>
       <nav class="library-catalogue-toolbar" :aria-label="t('library', 'Library actions')">
-        <details class="library-catalogue-actions-menu">
+        <details class="library-catalogue-actions-menu" @toggle="loadImportHealthSummary">
           <summary>{{ t('library', 'Actions') }}</summary>
           <div class="library-catalogue-actions-list">
             <a :href="settingsUrl" class="button secondary" aria-label="Open Library settings">{{ t('library', 'Settings') }}</a>
             <a v-if="metadataExportUrl" :href="metadataExportUrl" class="button secondary" aria-label="Export corrected metadata">{{ t('library', 'Export corrected metadata') }}</a>
             <a v-if="metadataSidecarManifestUrl" :href="metadataSidecarManifestUrl" class="button secondary" aria-label="Export sidecar manifest">{{ t('library', 'Sidecar manifest') }}</a>
             <a v-if="metadataSidecarBundleUrl" :href="metadataSidecarBundleUrl" class="button secondary" aria-label="Export sidecar ZIP">{{ t('library', 'Sidecar ZIP') }}</a>
-          <div v-if="hasImportHealthFindings" class="library-actions-health-overview" aria-labelledby="library-actions-health-heading">
+          <div class="library-actions-health-overview" aria-labelledby="library-actions-health-heading">
             <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Import health') }}</p>
             <h3 id="library-actions-health-heading">{{ t('library', 'Metadata overview') }}</h3>
-            <p class="library-muted">{{ t('library', 'Metadata errors, archive/container mismatches, and cover risks from current roots. Files are left as-is; diagnostics separate Library extraction from Nextcloud/plugin preview.') }}</p>
-            <div class="library-actions-health-links">
+            <p class="library-muted">{{ t('library', 'Loaded on demand so normal paging, search, and filters stay fast. Files are left as-is; diagnostics separate Library extraction from Nextcloud/plugin preview.') }}</p>
+            <p v-if="importHealthState.loading" class="library-muted">{{ t('library', 'Loading metadata overview…') }}</p>
+            <p v-else-if="importHealthState.error" class="library-notice">{{ importHealthState.error }}</p>
+            <p v-else-if="!importHealthState.loaded" class="library-muted">{{ t('library', 'Open Actions to load the current metadata and cover overview.') }}</p>
+            <template v-if="importHealthState.loaded">
+              <div class="library-actions-health-links">
               <a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Review metadata errors') }}</a>
               <a class="button secondary" :href="metadataErrorsUrl">{{ t('library', 'Full review') }}</a>
               <a class="button secondary" :href="metadataErrorsTsvUrl">{{ t('library', 'Export TSV') }}</a>
@@ -356,6 +389,7 @@ async function toggleStar(item, event) {
                 </li>
               </ul>
             </details>
+            </template>
           </div>
           </div>
         </details>

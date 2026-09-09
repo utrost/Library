@@ -25,6 +25,16 @@ class HealthController extends Controller {
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
+    public function importSummary(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        return new JSONResponse($this->libraryHealthService->importHealthSummary($userId), 200, [
+            'Cache-Control' => 'private, no-store',
+        ]);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
     public function metadataErrors(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';

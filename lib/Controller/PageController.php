@@ -182,16 +182,6 @@ class PageController extends Controller {
         $fileCommentsByFileId = $this->fileCommentService->commentsForItems($items);
         $items = $this->enrichItemsForVue($userId, $items, $fileTagsByFileId, $fileCommentsByFileId, $batchCoverRefreshRequested);
 
-        $metadataErrorReview = [];
-        $archiveMagicSummary = [];
-        $coverHealthSummary = [];
-        $importHealthSummary = $this->libraryHealthService->importHealthSummary($userId);
-        if ($importHealthSummary !== []) {
-            $metadataErrorReview = $importHealthSummary['metadataErrorReview'] ?? [];
-            $archiveMagicSummary = $importHealthSummary['archiveMagicSummary'] ?? [];
-            $coverHealthSummary = $importHealthSummary['coverHealthSummary'] ?? [];
-        }
-
         return [
             'publicationIssueContext' => null,
             ...$pageContext,
@@ -237,10 +227,8 @@ class PageController extends Controller {
             'metadataErrorsUrl' => $this->urlGenerator->linkToRoute('library.health.metadataErrors'),
             'metadataErrorsTsvUrl' => $this->urlGenerator->linkToRoute('library.health.metadataErrorsTsv'),
             'coverProbeUrl' => $this->urlGenerator->linkToRoute('library.health.coverProbe'),
-            'importHealthSummary' => $importHealthSummary,
-            'metadataErrorReview' => $metadataErrorReview,
-            'archiveMagicSummary' => $archiveMagicSummary,
-            'coverHealthSummary' => $coverHealthSummary,
+            'importHealthSummaryUrl' => $this->urlGenerator->linkToRoute('library.health.importSummary'),
+            'importHealthSummary' => [],
         ];
     }
 

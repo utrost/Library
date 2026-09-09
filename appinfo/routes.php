@@ -20,6 +20,7 @@ return [
         ['name' => 'scan#cancel', 'url' => '/scan/jobs/{jobId}/cancel', 'verb' => 'POST'],
         ['name' => 'scan#progress', 'url' => '/scan/progress', 'verb' => 'GET'],
         ['name' => 'export#metadata', 'url' => '/export/metadata', 'verb' => 'GET'],
+        ['name' => 'health#importSummary', 'url' => '/health/import-summary', 'verb' => 'GET'],
         ['name' => 'health#metadataErrors', 'url' => '/health/metadata-errors', 'verb' => 'GET'],
         ['name' => 'health#metadataErrorsTsv', 'url' => '/health/metadata-errors.tsv', 'verb' => 'GET'],
         ['name' => 'health#coverProbe', 'url' => '/health/covers/probe', 'verb' => 'GET'],

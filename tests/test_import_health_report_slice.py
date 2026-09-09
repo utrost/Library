@@ -20,14 +20,13 @@ def test_library_health_service_reports_metadata_errors_archive_magic_and_cover_
     assert "application/x-rar-compressed" in service
 
 
-def test_page_initial_state_exposes_import_health_summary():
+def test_page_initial_state_exposes_lazy_import_health_summary_url():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
 
     assert "LibraryHealthService" in controller
-    assert "importHealthSummary" in controller
-    assert "metadataErrorReview" in controller
-    assert "archiveMagicSummary" in controller
-    assert "coverHealthSummary" in controller
+    assert "importHealthSummaryUrl" in controller
+    assert "library.health.importSummary" in controller
+    assert "importHealthSummary' => []" in controller
 
 
 def test_catalogue_keeps_import_health_overview_inside_actions_menu():

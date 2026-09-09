@@ -37,7 +37,7 @@ def test_settings_polish_version_bump_is_tracked_for_asset_refresh():
     lock = (ROOT / "package-lock.json").read_text()
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
-    assert "<version>0.1.0-alpha.122</version>" in info
-    assert '"version": "0.1.0-alpha.122"' in package
-    assert '"version": "0.1.0-alpha.122"' in lock
-    assert "app_version=0.1.0-alpha.122" in smoke
+    assert "<version>0.1.0-alpha.123</version>" in info
+    assert '"version": "0.1.0-alpha.123"' in package
+    assert '"version": "0.1.0-alpha.123"' in lock
+    assert "app_version=0.1.0-alpha.123" in smoke
