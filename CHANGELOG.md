@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.134 - 2026-09-09
+
+### Changed
+
+- Polished the post-scan **Changes found** panel into human-readable scan change cards for added, moved/renamed, unchanged, missing and metadata-error counts.
+- Clarified scan result review actions for recently changed files, files missing from disk and metadata errors.
+
 ## v0.1.0-alpha.133 - 2026-09-09
 
 ### Added
