@@ -77,6 +77,8 @@ const importHealthSummary = computed(() => catalogueState.importHealthSummary ||
 const metadataErrorReview = computed(() => catalogueState.metadataErrorReview || importHealthSummary.value.metadataErrorReview || { total: 0, byExtension: [], byError: [], examples: [], reviewUrl: '?status=metadata_error' })
 const archiveMagicSummary = computed(() => catalogueState.archiveMagicSummary || importHealthSummary.value.archiveMagicSummary || { totalChecked: 0, mismatches: 0, byExtensionAndContainer: [], examples: [] })
 const coverHealthSummary = computed(() => catalogueState.coverHealthSummary || importHealthSummary.value.coverHealthSummary || { totalChecked: 0, byFormat: [], examples: [], note: '' })
+const coverSupportMatrix = computed(() => catalogueState.coverSupportMatrix || importHealthSummary.value.coverSupportMatrix || coverHealthSummary.value.byFormat || [])
+const environmentCapabilities = computed(() => catalogueState.environmentCapabilities || importHealthSummary.value.environmentCapabilities || {})
 const hasImportHealthFindings = computed(() => Number(metadataErrorReview.value.total || 0) > 0 || Number(archiveMagicSummary.value.mismatches || 0) > 0 || (coverHealthSummary.value.byFormat || []).some((row) => row.nextcloudPreview !== 'expected-ok' || row.libraryCoverRoute !== 'expected-ok'))
 const isPublicationDiscoveryPage = computed(() => catalogueState.discoveryPage === 'publication')
 const isYearDiscoveryPage = computed(() => catalogueState.discoveryPage === 'year')
@@ -143,7 +145,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummary', 'metadataErrorReview', 'archiveMagicSummary', 'coverHealthSummary']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummary', 'metadataErrorReview', 'archiveMagicSummary', 'coverHealthSummary', 'coverSupportMatrix', 'environmentCapabilities']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -523,6 +525,14 @@ async function toggleStar(item, event) {
           <ul>
             <li v-for="row in coverHealthSummary.byFormat" :key="`${row.extension}-${row.nextcloudPreview}-${row.libraryCoverRoute}`">{{ upper(row.extension) }} · nextcloudPreview: {{ row.nextcloudPreview }} · libraryCoverRoute: {{ row.libraryCoverRoute }} · {{ row.count }}</li>
           </ul>
+        </article>
+        <article class="library-import-health-card">
+          <h4>{{ t('library', 'Cover support matrix') }}</h4>
+          <p class="library-muted">{{ t('library', 'Nextcloud/plugin preview and Library extraction are separate actors. 7z/RAR files stay left as-is; optional read-only archive tools only inspect copies.') }}</p>
+          <ul>
+            <li v-for="row in coverSupportMatrix" :key="`${row.extension}-${row.nextcloudPreview}-${row.libraryCoverRoute}-${row.count}`">{{ upper(row.extension) }} · Nextcloud/plugin preview: {{ row.nextcloudPreview }} · Library extraction: {{ row.libraryCoverRoute }} · {{ row.count }}</li>
+          </ul>
+          <p class="library-muted">{{ t('library', 'Extractor tools') }}: ZIP={{ environmentCapabilities.phpZipArchive ? 'ZipArchive' : 'missing' }} · 7z={{ environmentCapabilities.sevenZipCommand || 'missing' }} · RAR={{ environmentCapabilities.rarCommand || 'missing' }} · bsdtar={{ environmentCapabilities.bsdtarCommand || 'missing' }}</p>
         </article>
       </div>
       <details v-if="metadataErrorReview.examples?.length" class="library-import-health-examples">

@@ -512,7 +512,7 @@ Recommended vertical slices:
 
 ### Immediate next implementation slice
 
-Recommended next slice: **release-facing metadata repair and review polish**. The import-health review/probe cut has landed: catalogue state now includes metadata-error review counts/examples, archive magic checks for EPUB/CBZ container mismatches, cover health rows, full metadata-error JSON/TSV exports, and bounded cover probes that separate Nextcloud preview/plugin behaviour from Library's own EPUB/CBZ cover extraction. Source files are intentionally left as-is; non-ZIP CBZ rows are diagnostics, not conversion requests.
+Recommended next slice: **release-facing metadata repair and review polish**. The import-health review/probe cut has landed: catalogue state now includes metadata-error review counts/examples, archive magic checks for EPUB/CBZ container mismatches, cover health rows, a cover support matrix that separates Nextcloud/plugin preview from Library extraction, full metadata-error JSON/TSV exports, and bounded cover probes. Source files are intentionally left as-is; non-ZIP CBZ rows are diagnostic rows, and read-only archive extraction is attempted only when optional local extractor tooling is available.
 
 Minimum next cuts:
 

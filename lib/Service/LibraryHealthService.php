@@ -17,6 +17,7 @@ final class LibraryHealthService {
     public function __construct(
         private IDBConnection $db,
         private IRootFolder $rootFolder,
+        private ArchiveCoverService $archiveCoverService,
     ) {
     }
 
@@ -37,6 +38,8 @@ final class LibraryHealthService {
             'metadataErrorReview' => $metadataErrorReview,
             'archiveMagicSummary' => $archiveMagicSummary,
             'coverHealthSummary' => $coverHealthSummary,
+            'coverSupportMatrix' => $this->coverSupportMatrix($coverHealthSummary),
+            'environmentCapabilities' => $this->environmentCapabilities(),
         ];
     }
 
@@ -228,15 +231,18 @@ final class LibraryHealthService {
     public function coverProbeReport(string $userId, int $limit = 30): array {
         $limit = max(1, min(200, $limit));
         $rows = [];
-        foreach ($this->coverCandidateRows($userId, $limit, 0) as $row) {
+        foreach ($this->representativeCoverCandidateRows($userId, $limit) as $row) {
             $extension = (string)$row['extension'];
             $actualContainerType = (string)$row['actualContainerType'];
             $path = (string)$row['path'];
             $probe = $this->probeLibraryCoverExtraction($userId, $path, $extension, $actualContainerType);
+            $nextcloudPreview = $this->nextcloudPreviewStatus($extension, $actualContainerType, (string)($row['scanStatus'] ?? ''));
             $rows[] = [
                 ...$row,
-                'nextcloudPreview' => $this->nextcloudPreviewStatus($extension, $actualContainerType, (string)($row['scanStatus'] ?? '')),
+                'nextcloudPreview' => $nextcloudPreview,
+                'nextcloudPreviewProvider' => $this->nextcloudPreviewProvider($extension, $nextcloudPreview),
                 'libraryExtraction' => $probe['status'],
+                'libraryExtractionActor' => $this->libraryExtractionActor($probe['status']),
                 'libraryExtractionReason' => $probe['reason'],
                 'manualOverride' => trim((string)($row['manualOverride'] ?? '')) !== '' ? 'present' : 'not-present',
                 'policy' => 'inspect-only; files are left as-is',
@@ -352,6 +358,40 @@ final class LibraryHealthService {
         return $rows;
     }
 
+    /** @return array<int,array<string,mixed>> */
+    private function representativeCoverCandidateRows(string $userId, int $limit): array {
+        $buckets = [];
+        foreach ($this->coverCandidateRows($userId, 10000, 0) as $row) {
+            $key = (string)$row['extension'] . '|' . (string)$row['actualContainerType'] . '|' . (trim((string)($row['manualOverride'] ?? '')) !== '' ? 'manual' : 'automatic');
+            if (!isset($buckets[$key])) {
+                $buckets[$key] = [];
+            }
+            if (count($buckets[$key]) < 5) {
+                $buckets[$key][] = $row;
+            }
+        }
+        ksort($buckets);
+        $selected = [];
+        while (count($selected) < $limit) {
+            $added = false;
+            foreach ($buckets as $key => $bucketRows) {
+                if ($bucketRows === []) {
+                    continue;
+                }
+                $selected[] = array_shift($bucketRows);
+                $buckets[$key] = $bucketRows;
+                $added = true;
+                if (count($selected) >= $limit) {
+                    break;
+                }
+            }
+            if (!$added) {
+                break;
+            }
+        }
+        return $selected;
+    }
+
     private function countCoverCandidates(string $userId): int {
         $qb = $this->db->getQueryBuilder();
         $result = $qb->selectAlias($qb->createFunction('COUNT(*)'), 'cover_candidate_count')
@@ -402,14 +442,15 @@ final class LibraryHealthService {
 
     /** @return array{status:string,reason:string} */
     private function probeLibraryCoverExtraction(string $userId, string $cachedPath, string $extension, string $actualContainerType): array {
-        if ($actualContainerType !== 'application/zip') {
-            return ['status' => 'blocked-non-zip-cbz-left-as-is', 'reason' => 'Library does not mutate source files and the ZIP-based fallback cannot read this container.'];
-        }
         $temporaryPath = $this->temporaryUserFile($userId, $cachedPath, 'library-cover-probe-');
         if ($temporaryPath === null) {
             return ['status' => 'unavailable', 'reason' => 'Could not open file through Nextcloud storage.'];
         }
         try {
+            if ($actualContainerType !== 'application/zip') {
+                $archiveCover = $this->archiveCoverService->firstImageCover($temporaryPath, $actualContainerType);
+                return ['status' => $archiveCover['status'], 'reason' => $archiveCover['reason']];
+            }
             if ($extension === 'cbz') {
                 return $this->probeZipForFirstImage($temporaryPath);
             }
@@ -432,7 +473,21 @@ final class LibraryHealthService {
             if ($temporaryPath === false) {
                 return null;
             }
-            file_put_contents($temporaryPath, $node->getContent());
+            $source = $node->fopen('r');
+            $target = fopen($temporaryPath, 'w');
+            if (!is_resource($source) || !is_resource($target)) {
+                if (is_resource($source)) {
+                    fclose($source);
+                }
+                if (is_resource($target)) {
+                    fclose($target);
+                }
+                @unlink($temporaryPath);
+                return null;
+            }
+            stream_copy_to_stream($source, $target);
+            fclose($source);
+            fclose($target);
             return $temporaryPath;
         } catch (Throwable) {
             return null;
@@ -502,6 +557,12 @@ final class LibraryHealthService {
             return $actualContainerType === 'application/zip' ? 'expected-ok' : 'blocked-bad-epub-container';
         }
         if ($extension === 'cbz') {
+            if ($actualContainerType === 'application/x-7z-compressed' || $actualContainerType === 'application/x-rar-compressed') {
+                $archiveCapability = $this->archiveCoverService->firstImageCover('/dev/null', $actualContainerType);
+                return $archiveCapability['status'] === 'blocked-missing-archive-extractor'
+                    ? 'blocked-missing-archive-extractor'
+                    : 'read-only-archive-extractor-available';
+            }
             if ($actualContainerType !== 'application/zip') {
                 return 'blocked-non-zip-cbz-left-as-is';
             }
@@ -518,6 +579,59 @@ final class LibraryHealthService {
             return $actualContainerType === 'application/zip' && $scanStatus !== 'metadata_error' ? 'expected-ok' : 'preview-risk';
         }
         return 'unknown-format';
+    }
+
+    /** @return array<int,array<string,mixed>> */
+    public function coverSupportMatrix(array $coverHealthSummary = []): array {
+        $rows = [];
+        foreach (($coverHealthSummary['byFormat'] ?? []) as $row) {
+            $nextcloudPreview = (string)($row['nextcloudPreview'] ?? 'unknown-format');
+            $libraryCoverRoute = (string)($row['libraryCoverRoute'] ?? 'unknown-format');
+            $rows[] = [
+                'extension' => (string)($row['extension'] ?? 'unknown'),
+                'nextcloudPreview' => $nextcloudPreview,
+                'nextcloudPreviewProvider' => $this->nextcloudPreviewProvider((string)($row['extension'] ?? ''), $nextcloudPreview),
+                'libraryCoverRoute' => $libraryCoverRoute,
+                'libraryExtractionActor' => $this->libraryExtractionActor($libraryCoverRoute),
+                'count' => (int)($row['count'] ?? 0),
+            ];
+        }
+        return $rows;
+    }
+
+    /** @return array<string,mixed> */
+    public function environmentCapabilities(): array {
+        return [
+            ...$this->archiveCoverService->environmentCapabilities(),
+            'nextcloudPreviewProvider' => 'runtime preview-manager/plugin availability is checked separately from Library extraction',
+            'libraryExtractionActor' => 'Library uses ZipArchive for EPUB/ZIP-CBZ and optional read-only external tools for 7z/RAR CBZ archives',
+            'manualCoverOverride' => 'manual-cover-override',
+        ];
+    }
+
+    private function nextcloudPreviewProvider(string $extension, string $nextcloudPreview): string {
+        if ($extension === 'cbz') {
+            return $nextcloudPreview === 'unsupported-cbz-preview-provider'
+                ? 'Nextcloud/plugin preview provider not available for CBZ in this environment'
+                : 'Nextcloud/plugin preview provider';
+        }
+        if ($extension === 'epub') {
+            return 'Nextcloud/plugin preview provider may handle EPUB; Library EPUB manifest fallback is separate';
+        }
+        return 'unknown Nextcloud/plugin preview provider boundary';
+    }
+
+    private function libraryExtractionActor(string $status): string {
+        if (str_starts_with($status, 'manual-cover') || $status === 'manual-cover-override') {
+            return 'manual-cover-override';
+        }
+        if (str_contains($status, 'sevenzip') || str_contains($status, 'rar') || $status === 'blocked-missing-archive-extractor') {
+            return 'Library extraction: read-only external archive tool';
+        }
+        if (str_contains($status, 'cbz') || str_contains($status, 'epub') || str_starts_with($status, 'blocked-')) {
+            return 'Library extraction: built-in ZIP/EPUB fallback';
+        }
+        return 'Library extraction';
     }
 
     private function suggestedRepairAction(string $extension, string $scanError, string $actualContainerType): string {
@@ -585,6 +699,8 @@ final class LibraryHealthService {
             'metadataErrorReview' => ['total' => 0, 'byExtension' => [], 'byError' => [], 'examples' => [], 'reviewUrl' => '?status=metadata_error'],
             'archiveMagicSummary' => ['totalChecked' => 0, 'mismatches' => 0, 'byExtensionAndContainer' => [], 'examples' => []],
             'coverHealthSummary' => ['totalChecked' => 0, 'byFormat' => [], 'examples' => [], 'note' => ''],
+            'coverSupportMatrix' => [],
+            'environmentCapabilities' => $this->environmentCapabilities(),
         ];
     }
 }
