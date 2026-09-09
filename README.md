@@ -100,6 +100,7 @@ Explicit non-goals for v0.1:
 - [Release process](RELEASE.md)
 - [UX concept and user stories](docs/ux-concept.md)
 - [Active roadmap](docs/roadmap.md)
+- [Usefulness and UX feature list](docs/usefulness-and-ux-feature-list.md)
 - [Rough post-v0.1 roadmap](docs/post-v0.1-roadmap.md)
 - [Personal top features scope](docs/personal-top-features.md)
 - [Original concept summary](docs/concept.md)
