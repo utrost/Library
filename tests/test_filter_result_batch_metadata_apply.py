@@ -93,6 +93,6 @@ def test_docs_and_version_track_batch_metadata_apply():
 
     assert "preview-and-apply batch metadata edits" in guide.lower()
     assert "batch metadata apply" in roadmap.lower()
-    assert "<version>0.1.0-alpha.128</version>" in info
-    assert '"version": "0.1.0-alpha.128"' in package
-    assert '"version": "0.1.0-alpha.128"' in lock
+    assert "<version>0.1.0-alpha.129</version>" in info
+    assert '"version": "0.1.0-alpha.129"' in package
+    assert '"version": "0.1.0-alpha.129"' in lock

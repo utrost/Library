@@ -450,8 +450,8 @@ async function toggleStar(item, event) {
       <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
       <div class="library-quick-search-row">
         <label class="library-quick-filter-search">
-          <span>{{ t('library', 'Search') }} <kbd class="library-keyboard-hint">/</kbd></span>
-          <input ref="quickSearchInput" v-model="activeFilters.q" data-library-quick-search type="search" name="q" placeholder="Camera, Eco, Rolleiflex..." @input="scheduleFilterSubmit">
+          <span>{{ t('library', 'Search title, creator, filename or folder') }} <kbd class="library-keyboard-hint">/</kbd></span>
+          <input ref="quickSearchInput" v-model="activeFilters.q" data-library-quick-search type="search" name="q" placeholder="Camera, Eco, Rolleiflex, folder name..." aria-describedby="library-search-scope" @input="scheduleFilterSubmit">
         </label>
         <button type="submit" class="button primary" :aria-label="t('library', 'Search catalogue')">{{ t('library', 'Search') }}</button>
       </div>
@@ -492,9 +492,10 @@ async function toggleStar(item, event) {
       <summary class="library-filter-panel-summary">{{ t('library', 'Show catalogue filters') }}</summary>
       <form method="get" class="library-filter-bar" :aria-label="t('library', 'Catalogue search and filters')" @submit.prevent="submitFiltersAjax">
         <label>
-          {{ t('library', 'Search title / author') }}
-          <input v-model="activeFilters.q" type="search" name="q" placeholder="Camera, Eco, Rolleiflex...">
+          {{ t('library', 'Search title, creator, filename or folder') }}
+          <input v-model="activeFilters.q" type="search" name="q" placeholder="Camera, Eco, Rolleiflex, folder name..." aria-describedby="library-search-scope">
         </label>
+        <p id="library-search-scope" class="library-muted library-search-scope">{{ t('library', 'Filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path.') }}</p>
       <label>
         {{ t('library', 'Type') }}
         <select v-model="activeFilters.type" name="type">

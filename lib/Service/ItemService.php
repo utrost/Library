@@ -1333,6 +1333,8 @@ final class ItemService {
 
         $query = mb_strtolower(trim((string)($filters['q'] ?? '')));
         if ($query !== '') {
+            // filename and folder path search is deliberate: many PDFs/comics have sparse embedded metadata,
+            // so the source path remains an important fallback signal for immediate discovery.
             $like = $qb->createNamedParameter('%' . $this->escapeLikeParameter($query) . '%');
             $qb->andWhere($qb->expr()->orX(
                 $qb->expr()->like($qb->createFunction('LOWER(i.title)'), $like),
