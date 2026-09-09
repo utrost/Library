@@ -16,7 +16,7 @@ The current development slice can:
 
 - store user-specific Library roots in an extendable multi-root table;
 - configure an initial root path through the bootstrap UI;
-- manually scan all enabled roots or one selected root for the current user from `/settings/user/library` through a queued background scan, use **Cancel queued scan** before a job starts or cancel queued/running scan jobs cooperatively, and record auto-refreshing scan progress, live-ish scan progress, scan scope, recent scan history, status, added/moved/renamed/unchanged/missing/error counts, duration, summary and post-scan **Changes found** review links for progress/history visibility;
+- manually scan all enabled roots or one selected root for the current user from `/settings/user/library` through a queued background scan, use **Cancel queued scan** before a job starts or cancel queued/running scan jobs cooperatively, and record auto-refreshing scan progress, live-ish scan progress, scan scope, recent scan history, status, added/moved/renamed/unchanged/missing/metadata-error counts, duration, summary and a reload-safe post-scan completion summary with **Changes found** review links for progress/history visibility;
 - retry rows currently marked `metadata_error` from Library settings and **Recheck missing files** from the same surface without running a full library scan or marking unrelated indexed files missing;
 - index supported EPUB/PDF/CBZ files by stable Nextcloud file ID;
 - create one editable publication item for each indexed file;
@@ -124,7 +124,7 @@ For the current Alice sandbox, clone this repository outside the Nextcloud data 
 
 ## Local checks and packaging
 
-Current v0.1 testing candidate: `0.1.0-alpha.136`.
+Current v0.1 testing candidate: `0.1.0-alpha.137`.
 
 Run the local gate with:
 

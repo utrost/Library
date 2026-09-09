@@ -8,11 +8,12 @@ def test_library_scanner_accepts_progress_callback_and_reports_roots_and_files()
 
     assert "public function scan(string $userId, ?int $onlyRootId = null, ?callable $progress = null): array" in scanner
     assert "$this->reportProgress($progress, $rootsTotal, $indexed, count($errors)," in scanner
-    assert "private function reportProgress(?callable $progress, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary): void" in scanner
+    assert "private function reportProgress(?callable $progress, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary, array $changeSummary = []): void" in scanner
     assert "$progress([" in scanner
     assert "'roots' => $rootsTotal" in scanner
     assert "'indexed' => $filesIndexed" in scanner
     assert "'errors' => $errorCount" in scanner
+    assert "'metadataErrors' => (int)($changeSummary['metadataErrors'] ?? 0)" in scanner
 
 
 def test_background_scan_job_persists_incremental_progress_while_running():

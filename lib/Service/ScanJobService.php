@@ -42,6 +42,7 @@ final class ScanJobService {
             ->set('paths_updated', $qb->createNamedParameter((int)($progress['pathsUpdated'] ?? 0)))
             ->set('files_unchanged', $qb->createNamedParameter((int)($progress['filesUnchanged'] ?? 0)))
             ->set('files_missing', $qb->createNamedParameter((int)($progress['filesMissing'] ?? 0)))
+            ->set('metadata_errors', $qb->createNamedParameter((int)($progress['metadataErrors'] ?? 0)))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->neq('status', $qb->createNamedParameter('cancelled')))
@@ -154,6 +155,7 @@ final class ScanJobService {
                 'paths_updated' => $qb->createNamedParameter(0),
                 'files_unchanged' => $qb->createNamedParameter(0),
                 'files_missing' => $qb->createNamedParameter(0),
+                'metadata_errors' => $qb->createNamedParameter(0),
                 'started_at' => $qb->createNamedParameter($now),
                 'finished_at' => $qb->createNamedParameter(null),
             ])
@@ -172,6 +174,7 @@ final class ScanJobService {
             'pathsUpdated' => 0,
             'filesUnchanged' => 0,
             'filesMissing' => 0,
+            'metadataErrors' => 0,
             'summary' => '',
             'startedAt' => $now,
             'finishedAt' => null,
@@ -191,6 +194,7 @@ final class ScanJobService {
             ->set('paths_updated', $qb->createNamedParameter((int)($changeSummary['pathsUpdated'] ?? 0)))
             ->set('files_unchanged', $qb->createNamedParameter((int)($changeSummary['filesUnchanged'] ?? 0)))
             ->set('files_missing', $qb->createNamedParameter((int)($changeSummary['filesMissing'] ?? 0)))
+            ->set('metadata_errors', $qb->createNamedParameter((int)($changeSummary['metadataErrors'] ?? 0)))
             ->set('finished_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
@@ -214,6 +218,7 @@ final class ScanJobService {
             'pathsUpdated' => (int)($row['paths_updated'] ?? 0),
             'filesUnchanged' => (int)($row['files_unchanged'] ?? 0),
             'filesMissing' => (int)($row['files_missing'] ?? 0),
+            'metadataErrors' => (int)($row['metadata_errors'] ?? 0),
             'summary' => $row['summary'] !== null ? (string)$row['summary'] : '',
             'startedAt' => $startedAt,
             'finishedAt' => $finishedAt,

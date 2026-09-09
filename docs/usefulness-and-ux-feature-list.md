@@ -311,21 +311,19 @@ Origin: Hermes recommendation, connected to Uwe's re-indexing concern.
 
 Why it matters: after large scans, users need to know whether anything useful happened and where to go next.
 
-Missing UX:
+Current support:
 
-- completion/failure notification;
-- summary of added/changed/moved/missing/error rows;
-- direct links to review affected rows;
+- settings show a reload-safe post-scan completion summary for completed and failed jobs;
+- scan jobs store added, moved/renamed, unchanged, missing and metadata-error counts separately from root/job failure counts;
+- counter cards link to filtered review views, and metadata-error rows also offer a metadata-error TSV export.
+
+Still missing UX:
+
+- Nextcloud notification bell delivery outside the settings page;
 - per-root progress percentage or estimated remaining time;
 - scheduled/resumable incremental scans.
 
-Possible first slice:
-
-1. Store richer scan result counters.
-2. Show a post-scan summary in settings.
-3. Link counters to smart views.
-
-Acceptance checks:
+Acceptance checks now covered:
 
 - summary survives page reload;
 - counters match scan behavior;
