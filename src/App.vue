@@ -174,6 +174,7 @@ const batchHiddenFilters = computed(() => Object.entries(activeFilters)
   .filter(([_key, value]) => String(value || '').trim() !== '')
   .map(([key, value]) => ({ key, value })))
 const openCoverDetails = reactive({})
+const coverImageStates = reactive({})
 
 const featuredHomeItems = computed(() => items.value.filter((item) => item.starred || item.workflowStatus === 'reading' || item.lastOpenedAt).slice(0, 5))
 const recentHomeItems = computed(() => [...items.value].slice(0, 6))
@@ -411,6 +412,18 @@ function yearLandingUrl(year) {
 
 function creatorLandingUrl(creator) {
   return catalogueState.creatorLandingUrls?.[creator] || `/apps/library/creators/${encodeURIComponent(creator)}`
+}
+
+function coverImageState(item) {
+  return coverImageStates[item.id] || 'loading'
+}
+
+function markCoverLoaded(item) {
+  coverImageStates[item.id] = 'loaded'
+}
+
+function markCoverFailed(item) {
+  coverImageStates[item.id] = 'error'
 }
 
 function setCoverDetailsOpen(itemId, event) {
@@ -1035,9 +1048,13 @@ async function toggleStar(item, event) {
     </div>
 
     <div v-else class="library-cover-gallery" :class="coverGalleryClasses">
-      <article v-for="item in items" :key="item.id" class="library-cover-card" :class="{ 'library-cover-card--open': openCoverDetails[item.id] }">
+      <article v-for="item in items" :key="item.id" class="library-cover-card" :class="{ 'library-cover-card--open': openCoverDetails[item.id], 'library-cover-card--cover-loaded': coverImageState(item) === 'loaded', 'library-cover-card--cover-error': coverImageState(item) === 'error' }">
         <a class="library-cover-link" :href="item.openUrl" :aria-label="`Read ${item.title}`">
-          <img class="library-cover-image" :src="item.coverUrl" :alt="`Cover for ${item.title}`" loading="lazy">
+          <span class="library-cover-frame">
+            <span v-if="coverImageState(item) === 'loading'" class="library-cover-loading-shimmer" aria-hidden="true"></span>
+            <img class="library-cover-image" :class="{ 'library-cover-image--loaded': coverImageState(item) === 'loaded' }" :src="item.coverUrl" :alt="`Cover for ${item.title}`" loading="lazy" @load="markCoverLoaded(item)" @error="markCoverFailed(item)">
+            <span v-if="coverImageState(item) === 'error'" class="library-cover-fallback" role="status">{{ t('library', 'Cover unavailable') }}</span>
+          </span>
         </a>
         <form method="post" :action="item.starUrl" class="library-cover-star-form" @submit.prevent="toggleStar(item, $event)">
           <input type="hidden" name="requesttoken" :value="requestToken">
@@ -1690,8 +1707,61 @@ async function toggleStar(item, event) {
   z-index: 2;
 }
 
+.library-cover-frame {
+  background: linear-gradient(145deg, var(--color-background-hover), color-mix(in srgb, var(--color-primary-element, #0082c9) 7%, var(--color-main-background)));
+  border-radius: 12px;
+  display: grid;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.library-cover-frame > * {
+  grid-area: 1 / 1;
+}
+
+.library-cover-loading-shimmer {
+  animation: library-cover-shimmer 1.4s ease-in-out infinite;
+  background: linear-gradient(100deg, transparent 15%, color-mix(in srgb, #fff 42%, transparent) 45%, transparent 75%);
+  inset: 0;
+  opacity: 0.8;
+  position: absolute;
+  transform: translateX(-100%);
+}
+
 .library-cover-image {
   min-height: 0;
+  opacity: 0;
+  transition: opacity 180ms ease, filter 180ms ease;
+}
+
+.library-cover-image--loaded {
+  opacity: 1;
+}
+
+.library-cover-card--cover-error .library-cover-image {
+  filter: grayscale(1) opacity(0.18);
+  opacity: 1;
+}
+
+.library-cover-fallback {
+  align-self: center;
+  background: color-mix(in srgb, var(--color-main-background) 90%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-lighter, #666);
+  font-size: 12px;
+  font-weight: 700;
+  justify-self: center;
+  padding: 0.25rem 0.55rem;
+  text-align: center;
+  z-index: 1;
+}
+
+@keyframes library-cover-shimmer {
+  to {
+    transform: translateX(100%);
+  }
 }
 
 .library-cover-primary {
@@ -1875,7 +1945,10 @@ async function toggleStar(item, event) {
   .library-issue-strip-card,
   .library-detail-drawer,
   .library-cover-card,
+  .library-cover-image,
+  .library-cover-loading-shimmer,
   .library-view-mode-toggle button {
+    animation: none;
     transition: none;
   }
 }

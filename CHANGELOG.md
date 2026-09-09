@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.140 - 2026-09-09
+
+- Added catalogue cover loading polish with a subtle shimmer while lazy covers resolve.
+- Added a broken-cover fallback badge so failed cover image requests do not leave blank cards.
+- Kept reduced-motion behavior for the new cover-loading animation.
+
 ## v0.1.0-alpha.139 - 2026-09-09
 
 - Added a Compact / Gallery / Shelf view-mode toggle for the cover catalogue.

@@ -213,6 +213,22 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('[data-library-view-mode=shelf]').attributes('aria-pressed')).toBe('true')
   })
 
+  it('shows cover loading polish and a graceful broken-cover fallback', async () => {
+    const wrapper = mount(App, { props: { state } })
+
+    expect(wrapper.find('.library-cover-frame').exists()).toBe(true)
+    expect(wrapper.find('.library-cover-loading-shimmer').exists()).toBe(true)
+    expect(wrapper.find('.library-cover-image').classes()).not.toContain('library-cover-image--loaded')
+
+    await wrapper.find('.library-cover-image').trigger('load')
+    expect(wrapper.find('.library-cover-image').classes()).toContain('library-cover-image--loaded')
+    expect(wrapper.find('.library-cover-loading-shimmer').exists()).toBe(false)
+
+    await wrapper.find('.library-cover-image').trigger('error')
+    expect(wrapper.find('.library-cover-card').classes()).toContain('library-cover-card--cover-error')
+    expect(wrapper.find('.library-cover-fallback').text()).toContain('Cover unavailable')
+  })
+
   it('shows filter recovery actions when active filters produce no results', () => {
     const wrapper = mount(App, {
       props: {

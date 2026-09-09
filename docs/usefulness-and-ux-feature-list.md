@@ -8,7 +8,7 @@ This document collects the next usefulness and UX ideas after the v0.1 release-h
 
 ## Product stance
 
-Library is already useful as a private Nextcloud publication catalogue: roots, scans, compact cards, metadata editing, provenance, filtering, discovery pages, export/import and first repair workflows exist. The next gains should make Library better at daily use with real messy archives:
+Library is already useful as a private Nextcloud publication catalogue: roots, scans, compact cards, animated cover loading, broken-cover fallback, metadata editing, provenance, filtering, discovery pages, export/import and first repair workflows exist. The next gains should make Library better at daily use with real messy archives:
 
 - files get added, deleted, renamed and moved;
 - PDFs, scans, magazines and comics often have weak embedded metadata;
