@@ -161,6 +161,26 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                     <dd data-library-scan-duration-seconds><?php p((string)$latestScanJob['durationSeconds']); ?></dd>
                 </dl>
                 <p class="library-muted" data-library-scan-summary><?php p((string)($latestScanJob['summary'] ?? '')); ?></p>
+                <?php if (($latestScanJob['status'] ?? '') === 'completed'): ?>
+                    <section class="library-scan-changes-panel" aria-label="<?php p($l->t('Changes found')); ?>">
+                        <h4><?php p($l->t('Changes found')); ?></h4>
+                        <dl class="library-scan-change-counts">
+                            <dt>filesAdded</dt>
+                            <dd><?php p((string)($latestScanJob['filesAdded'] ?? 0)); ?></dd>
+                            <dt>pathsUpdated</dt>
+                            <dd><?php p((string)($latestScanJob['pathsUpdated'] ?? 0)); ?></dd>
+                            <dt>filesUnchanged</dt>
+                            <dd><?php p((string)($latestScanJob['filesUnchanged'] ?? 0)); ?></dd>
+                            <dt>filesMissing</dt>
+                            <dd><?php p((string)($latestScanJob['filesMissing'] ?? 0)); ?></dd>
+                        </dl>
+                        <p class="library-detail-actions">
+                            <a href="<?php p($_['scanChangedFilesUrl']); ?>" class="button secondary"><?php p($l->t('Review added and moved files')); ?></a>
+                            <a href="<?php p($_['scanMissingFilesUrl']); ?>" class="button secondary"><?php p($l->t('Review missing files')); ?></a>
+                            <a href="<?php p($_['scanMetadataErrorsUrl']); ?>" class="button secondary"><?php p($l->t('Review metadata errors')); ?></a>
+                        </p>
+                    </section>
+                <?php endif; ?>
                 <?php if (in_array(($latestScanJob['status'] ?? ''), ['queued', 'running'], true)): ?>
                     <form method="post" action="<?php p((string)$latestScanJob['cancelUrl']); ?>" class="library-inline-form library-scan-cancel-form">
                         <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />

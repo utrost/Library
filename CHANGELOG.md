@@ -2,6 +2,14 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.133 - 2026-09-09
+
+### Added
+
+- Added explicit scan change summaries for added, moved/renamed path updates, unchanged, missing and metadata-error counts.
+- Added a post-scan **Changes found** panel in Library settings with review links for changed, missing and errored rows.
+- Preserved stable Nextcloud file-ID indexing while reporting path changes so moves/renames update cached paths without duplicate catalogue rows.
+
 ## v0.1.0-alpha.132 - 2026-09-09
 
 ### Added
