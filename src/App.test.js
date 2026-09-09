@@ -199,6 +199,20 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-detail-drawer-backdrop').exists()).toBe(true)
   })
 
+  it('switches between compact gallery and shelf cover modes without navigation', async () => {
+    const wrapper = mount(App, { props: { state } })
+
+    expect(wrapper.find('.library-view-mode-toggle').exists()).toBe(true)
+    expect(wrapper.find('.library-cover-gallery').classes()).toContain('library-cover-gallery--compact')
+
+    await wrapper.find('[data-library-view-mode=gallery]').trigger('click')
+    expect(wrapper.find('.library-cover-gallery').classes()).toContain('library-cover-gallery--gallery')
+
+    await wrapper.find('[data-library-view-mode=shelf]').trigger('click')
+    expect(wrapper.find('.library-cover-gallery').classes()).toContain('library-cover-gallery--shelf')
+    expect(wrapper.find('[data-library-view-mode=shelf]').attributes('aria-pressed')).toBe('true')
+  })
+
   it('shows filter recovery actions when active filters produce no results', () => {
     const wrapper = mount(App, {
       props: {

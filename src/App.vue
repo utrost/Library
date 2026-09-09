@@ -43,6 +43,7 @@ const pagination = computed(() => catalogueState.cataloguePagination || {
 })
 const activeFilters = reactive({
   q: catalogueState.activeFilters?.q || '',
+  view: catalogueState.activeFilters?.view || 'compact',
   type: catalogueState.activeFilters?.type || '',
   publication: catalogueState.activeFilters?.publication || '',
   year: catalogueState.activeFilters?.year || '',
@@ -116,6 +117,7 @@ const hasNoEnabledRoots = computed(() => rootCount.value > 0 && enabledRootCount
 const hasActiveFilters = computed(() => activeFilterChips.value.length > 0)
 const filterLabels = {
   q: 'Search',
+  view: 'View mode',
   type: 'Type',
   publication: 'Series / periodical',
   year: 'Publication year',
@@ -154,6 +156,14 @@ const batchMetadataApplyMessage = computed(() => {
 const savedCollections = computed(() => catalogueState.savedCollections || [])
 const savedCollectionSaveUrl = computed(() => catalogueState.savedCollectionSaveUrl || '/apps/library/collections')
 const savedCollectionDeleteBaseUrl = computed(() => catalogueState.savedCollectionDeleteBaseUrl || '/apps/library/collections/__COLLECTION_ID__/delete')
+const viewModes = ['compact', 'gallery', 'shelf']
+const viewMode = computed(() => viewModes.includes(activeFilters.view) ? activeFilters.view : 'compact')
+const coverGalleryClasses = computed(() => ({
+  ['library-cover-' + 'gallery--compact']: viewMode.value === 'compact',
+  ['library-cover-' + 'gallery--gallery']: viewMode.value === 'gallery',
+  ['library-cover-' + 'gallery--shelf']: viewMode.value === 'shelf',
+}))
+
 const activeFilterChips = computed(() => Object.entries(filterLabels)
   .map(([key, label]) => ({ key, label, value: activeFilters[key] || '' }))
   .filter((chip) => String(chip.value).trim() !== ''))
@@ -196,6 +206,9 @@ function buildFilterParams(form) {
     }
   }
   params.delete('page')
+  if (params.get('view') === 'compact') {
+    params.delete('view')
+  }
   return params
 }
 
@@ -276,7 +289,7 @@ function filterChipRemoveUrl(key) {
   const params = new URLSearchParams()
   for (const [param, value] of Object.entries(activeFilters)) {
     const normalized = String(value || '').trim()
-    if (normalized !== '' && param !== key && !(param === 'sort' && normalized === 'title')) {
+    if (normalized !== '' && param !== key && !(param === 'sort' && normalized === 'title') && !(param === 'view' && normalized === 'compact')) {
       params.set(param, normalized)
     }
   }
@@ -334,6 +347,19 @@ const weakMetadataDashboardRows = computed(() => [
   { key: 'no-description', label: 'No description', description: 'No summary/description text is indexed.', filters: { noDescription: '1' } },
   { key: 'unsupported-containers', label: 'Unsupported archive/container', description: 'Container type needs manual inspection or future extractor support.', filters: { unsupportedContainer: '1' } },
 ])
+
+function setViewMode(nextMode) {
+  if (!viewModes.includes(nextMode)) return
+  activeFilters.view = nextMode
+  const params = new URLSearchParams(window.location.search)
+  if (nextMode === 'compact') {
+    params.delete('view')
+  } else {
+    params.set('view', nextMode)
+  }
+  params.delete('page')
+  history.replaceState({}, '', params.toString() ? `?${params.toString()}` : window.location.pathname)
+}
 
 function smartViewUrl(filters) {
   const params = new URLSearchParams(window.location.search)
@@ -860,6 +886,13 @@ async function toggleStar(item, event) {
       <p><a href="/apps/library/" class="button secondary">{{ t('library', 'Back to full catalogue') }}</a></p>
     </section>
 
+    <nav class="library-view-mode-toggle" aria-label="Cover view mode">
+      <span class="library-muted">{{ t('library', 'Compact / Gallery / Shelf') }}</span>
+      <button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button>
+      <button type="button" data-library-view-mode="gallery" :class="{ active: viewMode === 'gallery' }" :aria-pressed="viewMode === 'gallery' ? 'true' : 'false'" @click="setViewMode('gallery')">{{ t('library', 'Gallery') }}</button>
+      <button type="button" data-library-view-mode="shelf" :class="{ active: viewMode === 'shelf' }" :aria-pressed="viewMode === 'shelf' ? 'true' : 'false'" @click="setViewMode('shelf')">{{ t('library', 'Shelf') }}</button>
+    </nav>
+
     <div class="library-catalogue-status-row">
       <p class="library-muted library-filter-result-summary">{{ t('library', 'Showing') }} {{ pagination.from }}–{{ pagination.to }} {{ t('library', 'of') }} {{ pagination.total }} {{ t('library', 'catalogue items') }}<span v-if="activeFilterChips.length > 0"> · <a href="?">{{ t('library', 'Clear all filters') }}</a></span></p>
       <nav class="library-pagination library-pagination--top" :aria-label="t('library', 'Catalogue pagination')">
@@ -1001,7 +1034,7 @@ async function toggleStar(item, event) {
       </template>
     </div>
 
-    <div v-else class="library-cover-gallery">
+    <div v-else class="library-cover-gallery" :class="coverGalleryClasses">
       <article v-for="item in items" :key="item.id" class="library-cover-card" :class="{ 'library-cover-card--open': openCoverDetails[item.id] }">
         <a class="library-cover-link" :href="item.openUrl" :aria-label="`Read ${item.title}`">
           <img class="library-cover-image" :src="item.coverUrl" :alt="`Cover for ${item.title}`" loading="lazy">
@@ -1099,6 +1132,62 @@ async function toggleStar(item, event) {
 .library-cover-gallery {
   gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+
+.library-view-mode-toggle {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+}
+
+.library-view-mode-toggle button {
+  background: var(--color-main-background);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.library-view-mode-toggle button:hover,
+.library-view-mode-toggle button:focus,
+.library-view-mode-toggle button.active {
+  background: color-mix(in srgb, var(--color-primary-element, #0082c9) 12%, var(--color-main-background));
+  border-color: var(--color-primary-element, #0082c9);
+  transform: translateY(-2px);
+}
+
+.library-cover-gallery--gallery {
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.library-cover-gallery--gallery .library-cover-card {
+  border-radius: 18px;
+  padding: 12px;
+}
+
+.library-cover-gallery--gallery .library-cover-image {
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+}
+
+.library-cover-gallery--shelf {
+  display: grid;
+  gap: 14px;
+  grid-auto-columns: minmax(148px, 190px);
+  grid-auto-flow: column;
+  grid-template-columns: none;
+  overflow-x: auto;
+  padding-bottom: 0.8rem;
+  scroll-snap-type: x mandatory;
+}
+
+.library-cover-gallery--shelf .library-cover-card {
+  scroll-snap-align: start;
 }
 
 .library-publication-issue-context {
@@ -1785,7 +1874,8 @@ async function toggleStar(item, event) {
   .library-home-mini-card,
   .library-issue-strip-card,
   .library-detail-drawer,
-  .library-cover-card {
+  .library-cover-card,
+  .library-view-mode-toggle button {
     transition: none;
   }
 }
