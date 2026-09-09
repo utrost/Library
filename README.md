@@ -36,7 +36,7 @@ The current development slice can:
 - suppress OPF sidecars as separate catalogue items when they accompany a primary PDF/EPUB/CBZ, while still allowing standalone OPF records;
 - clean up stale sidecar OPF catalogue rows on rescan by marking sidecar file-index rows and removing scanner-created duplicate items while keeping manually edited OPF sidecar items visible as standalone records until an explicit merge/migration exists;
 - extract first CBZ ComicInfo.xml metadata for comic title, series, creators, publisher and date;
-- extract filename/folder metadata patterns for magazine dates/issues and comic number/title names when OPF/embedded metadata is absent;
+- extract filename/folder metadata patterns for magazine dates/issues, comic number/title names and middle-initial filename authors when OPF/embedded metadata is absent;
 - EPUB cover extraction landed: extract EPUB cover images from EPUB package manifests when Nextcloud preview cannot provide a cover;
 - expose **Refresh cover preview** on item details to retry the cover route with no-store response headers when a cover looks stale;
 - show a visible cover-quality explanation on item details so the fallback ladder is readable without guessing from diagnostic headers;
@@ -123,7 +123,7 @@ For the current Alice sandbox, clone this repository outside the Nextcloud data 
 
 ## Local checks and packaging
 
-Current v0.1 testing candidate: `0.1.0-alpha.127`.
+Current v0.1 testing candidate: `0.1.0-alpha.128`.
 
 Run the local gate with:
 

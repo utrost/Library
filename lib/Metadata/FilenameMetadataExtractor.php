@@ -153,7 +153,38 @@ private function parseTitleCreatorPattern(string $basename, string $defaultPubli
         }
     }
 
+    $threeTokenCreatorCandidate = $this->parseThreeTokenCreatorCandidate($normalized, $defaultPublicationType);
+    if ($threeTokenCreatorCandidate !== []) {
+        return $threeTokenCreatorCandidate;
+    }
+
     return $this->parseTrailingCreatorCandidate($normalized, $defaultPublicationType);
+}
+
+/**
+ * @return array<string, string>
+ */
+private function parseThreeTokenCreatorCandidate(string $normalized, string $defaultPublicationType): array {
+    // Real staged sample that drove this hardening:
+    // Real-00123-2001_A_Space_Odyssey_Arthur_C_Clarke_z-lib.org
+    // => 2001 A Space Odyssey / Arthur C Clarke
+    $threeTokenCreatorPattern = '/^(?<title>.+?)\s+(?<creator>[A-ZÄÖÜ][\p{L}\'’.-]+\s+[A-ZÄÖÜ]\.?(?:\s+|\s*\.\s*)[A-ZÄÖÜ][\p{L}\'’.-]+)$/u';
+    if (!preg_match($threeTokenCreatorPattern, $normalized, $matches)) {
+        return [];
+    }
+
+    $title = $this->cleanTitle((string)$matches['title']);
+    $creator = $this->normalizeCreatorList((string)$matches['creator']);
+    if ($title === '' || $creator === '') {
+        return [];
+    }
+
+    return [
+        'metadataSource' => 'filename-pattern',
+        'publicationType' => $defaultPublicationType,
+        'title' => $title,
+        'creators' => $creator,
+    ];
 }
 
 /**
@@ -242,7 +273,7 @@ private function stripRealCorpusNoise(string $basename): string {
 }
 
 private function stripArchiveSourceSuffix(string $basename): string {
-    $value = preg_replace('/(?:[_\s-]+\(?z[-_\s]?library[^)]*\)?)+$/iu', '', $basename) ?? $basename;
+    $value = preg_replace('/(?:[_\s-]+\(?z[-_\s]?lib(?:rary)?(?:\.[a-z]{2,})?[^)]*\)?)+$/iu', '', $basename) ?? $basename;
     $value = preg_replace('/[_\s-]+Anna[_\s]+s[_\s]+Archive$/iu', '', $value) ?? $value;
     $value = preg_replace('/[_\s-]+[a-f0-9]{24,}$/iu', '', $value) ?? $value;
     $value = preg_replace('/[_\s-]+\d{10,13}$/u', '', $value) ?? $value;
