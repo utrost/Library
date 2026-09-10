@@ -9,7 +9,7 @@ Library should feel like a **gallery of covers** with librarian tools nearby, no
 The core rule is **one workspace, progressive disclosure**:
 
 1. **Browse stays primary.** The user lands in a visual result set: covers, titles, quick status, primary open/detail actions and paging.
-2. **Refine stays near the result set.** Search, sort and the most common filters are always visible; deeper filters expand in the same pattern instead of becoming a separate mode.
+2. **Refine stays near the result set.** Search, sort and filters live inside the same polished disclosure pattern as the other workspace jobs. The slash shortcut opens **Refine results** and focuses search, so the cover grid stays primary without burying search.
 3. **Act is scoped and explicit.** Single-item actions live on cards/details. Multi-item actions always say which result set they affect and use preview/apply or clear feedback.
 4. **Review is a workbench, not more metadata noise.** Weak metadata, scanner conflicts, missing files and extraction errors open focused review flows from the same catalogue context.
 5. **Admin stays secondary.** Roots, scans, exports and repair tools are reachable, but they should not dominate the reader-facing catalogue.
@@ -47,10 +47,11 @@ Cover result set
 
 The expandable blocks must look and behave consistently:
 
-- summary row: short label, one-line purpose and count/scope badge when available;
+- summary row: polished card row with a coloured icon, short label, one-line purpose, count/scope badge when available and a summary arrow;
 - body: one focused job, not a mixed drawer of unrelated controls;
 - scope language: `this item`, `current results`, `this shelf`, `all enabled roots` or `whole catalogue`;
 - feedback: changed/unchanged/skipped/error counts for every non-trivial action;
+- keyboard: the slash shortcut opens Refine results and focuses search; `Escape` clears the focused search;
 - mobile first: collapsed by default unless it is part of the immediate task.
 
 ## Interaction model
@@ -61,7 +62,7 @@ Search and quick filters answer: “What am I looking at right now?”
 
 Rules:
 
-- keep search, sort, starred-only and page size in the always-visible quick row;
+- keep search, sort, starred-only and page size in **Refine results**, with `/` as the fast path into search;
 - show active filter chips for every applied constraint;
 - use the same result grid for search results, shelves, smart views, creator pages, years and publication pages;
 - never hide the current context: shelf, smart view, creator, year, publication and result count should remain visible.
@@ -157,16 +158,17 @@ Acceptance:
 - a shelf selector filters by current shelf/root label;
 - filters are ordinary GET parameters so the result is bookmarkable and debuggable.
 
-## v0.1 design direction
+## v0.1 implemented workspace
 
-The next UI work should consolidate surfaces before adding more capabilities:
+The catalogue now uses the workspace model in the app UI:
 
-1. Rename and group expandable panels around the shared jobs: **Refine results**, **Browse shortcuts**, **Batch actions**, **Review queue** and **Admin tools**.
-2. Standardize every panel summary with label, purpose text and scope/count badge.
-3. Make current-result scope visible wherever filters, batch operations or review queues are used.
-4. Keep cards quiet: cover, title, quick status, Read and Details.
-5. Use the in-page drawer for peek/read decisions and the full details page for editing/review decisions.
-6. Add new features only when they fit one of the workspace jobs above; otherwise create a new job name before adding UI.
+1. **Refine results** opens search, sort, common filters, full facets and saved-filter context. The `/` shortcut opens the panel and focuses search.
+2. **Browse shortcuts** holds Continue reading, Recently added, Rediscover, Useful views, top publications, top years, top creators and saved collections.
+3. **Batch actions** holds current-result tag apply/remove, metadata reset, metadata edit preview/apply and cover-refresh requests.
+4. **Review queue** holds weak metadata cards, metadata-error shortcuts, scanner-conflict shortcuts and the review-next workbench.
+5. **Admin tools** holds settings, exports, sidecar downloads and cached metadata/archive/cover diagnostics.
+
+New UI surfaces should reuse the same visual pattern before adding another panel: coloured icon, label, one-line purpose, scope badge, focused body and explicit action feedback.
 
 ## Deliberate v0.1 limits
 

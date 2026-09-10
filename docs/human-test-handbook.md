@@ -40,7 +40,7 @@ Notes:
 
 For v0.1 testing to start, these must pass on the packaged app, not just the working checkout:
 
-1. The app installs/enables from `dist/library-0.1.0-alpha.144.tar.gz` on a Nextcloud 34 test instance.
+1. The app installs/enables from `dist/library-0.1.0-alpha.145.tar.gz` on a Nextcloud 34 test instance.
 2. `/apps/library/` and `/settings/user/library` load for a normal user without Library-specific console errors.
 3. Adding a root, scanning it, browsing compact cards, opening details, and using Read/Show in Files/Download source works.
 4. Editing Library metadata survives a rescan and stays separate from Nextcloud tags/comments.
@@ -53,7 +53,7 @@ For v0.1 testing to start, these must pass on the packaged app, not just the wor
 
 Purpose: prove the tester is using the generated release archive.
 
-Setup: install `dist/library-0.1.0-alpha.144.tar.gz` into a disposable Nextcloud 34 instance and enable Library.
+Setup: install `dist/library-0.1.0-alpha.145.tar.gz` into a disposable Nextcloud 34 instance and enable Library.
 
 Steps:
 
@@ -62,7 +62,7 @@ Steps:
 3. Check the visible app version or installed app version if available.
 4. Open browser developer tools and inspect console output.
 
-Expected result: both pages load; the app is version `0.1.0-alpha.144`; no Library-specific JavaScript error appears.
+Expected result: both pages load; the app is version `0.1.0-alpha.145`; no Library-specific JavaScript error appears.
 
 Evidence to capture on failure: screenshot, URL, browser console errors, Nextcloud app version, and whether the app came from the generated archive.
 

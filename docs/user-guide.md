@@ -64,8 +64,9 @@ Current catalogue capabilities:
 - fetch the original source file through **Download source**;
 - open the item workbench through **Details**;
 - search title, subtitle, creators, publication, description and file path from the compact quick-filter row; this is now explicit description search plus filename and folder path search for sparse PDFs/comics whose useful metadata only lives in their path or notes;
-- use the always-visible quick-filter row for search, sort, starred-only and page-size changes without opening the full filter panel; search fetches updated results after a short debounce and select changes update immediately without a whole-page refresh; press `/` to focus catalogue search and `Escape` to clear it;
+- use the polished **Refine results** workspace panel for search, sort, starred-only, page-size changes and full facets; press `/` to open the panel and focus catalogue search, and press `Escape` to clear focused search without a whole-page refresh;
 - filter by exact creator field and open a creator landing page as read-only discovery; creator identity splitting remains future work;
+- use the polished workspace panels: **Refine results**, **Browse shortcuts**, **Batch actions**, **Review queue** and **Admin tools**. Each panel uses a coloured icon, one-line purpose and scope badge so reader, batch, review and admin work no longer look like unrelated toolbars;
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
 - use **Batch actions for current results** to apply or remove a Nextcloud tag from current filter results; this filter-result batch tagging workflow keeps tags separate from Library metadata;
 - use the same batch panel for a filter-result metadata reset: Library resets only current scanner-conflict results to stored scanner candidates, preserving current filters and reporting requested/reset/skipped counts;

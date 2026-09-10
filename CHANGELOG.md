@@ -2,7 +2,7 @@
 
 All notable changes for Library are tracked here.
 
-## v0.1.0-alpha.144 - 2026-09-09
+## v0.1.0-alpha.145 - 2026-09-09
 
 - Added a metadata review workbench for scanner-conflict and weak-metadata catalogue views with a **Review next conflict** flow.
 - The workbench compares current value, scanner candidate, path-template candidate, sidecar value and source provenance, with explicit per-field accept actions and no source-file writes.
