@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+APP_ID="library"
 SIGNED=false
 VERSION=""
 for arg in "$@"; do
@@ -35,8 +36,8 @@ PY
 )"
 fi
 DIST_DIR="$ROOT/dist"
-STAGE_DIR="$DIST_DIR/library-${VERSION}"
-ARCHIVE="$DIST_DIR/library-${VERSION}.tar.gz"
+STAGE_DIR="$DIST_DIR/$APP_ID"
+ARCHIVE="$DIST_DIR/${APP_ID}-${VERSION}.tar.gz"
 
 cd "$ROOT"
 npm ci
@@ -70,7 +71,7 @@ if [ "$SIGNED" = true ]; then
   bash "$ROOT/scripts/sign-release-package.sh" "$STAGE_DIR"
 fi
 
-tar -C "$DIST_DIR" -czf "$ARCHIVE" "library-${VERSION}"
+tar -C "$DIST_DIR" -czf "$ARCHIVE" "$APP_ID"
 sha256sum "$ARCHIVE" > "$ARCHIVE.sha256"
 if [ "$SIGNED" = true ]; then
   bash "$ROOT/scripts/audit-release-package.sh" "$VERSION" --require-signature

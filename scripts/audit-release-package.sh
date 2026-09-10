@@ -36,7 +36,7 @@ PY
 fi
 APP_ID="library"
 ARCHIVE="$ROOT/dist/${APP_ID}-${VERSION}.tar.gz"
-TOP="${APP_ID}-${VERSION}"
+TOP="$APP_ID"
 
 if [ ! -f "$ARCHIVE" ]; then
   echo "release_archive_missing=$ARCHIVE"

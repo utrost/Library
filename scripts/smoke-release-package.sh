@@ -28,12 +28,11 @@ fi
 sha256sum -c "$CHECKSUM"
 
 docker exec -u www-data "$CONTAINER" php occ app:disable library >/dev/null 2>&1 || true
-docker exec -u root "$CONTAINER" sh -lc "rm -rf /var/www/html/custom_apps/library /var/www/html/custom_apps/library-${VERSION} /tmp/library-${VERSION}.tar.gz"
+docker exec -u root "$CONTAINER" sh -lc "rm -rf /var/www/html/custom_apps/library /tmp/library-${VERSION}.tar.gz"
 docker cp "$ARCHIVE" "$CONTAINER:/tmp/library-${VERSION}.tar.gz"
 docker exec -u root "$CONTAINER" sh -lc "
   cd /var/www/html/custom_apps &&
   tar -xzf /tmp/library-${VERSION}.tar.gz &&
-  mv library-${VERSION} library &&
   chown -R www-data:www-data library &&
   find library -type d -exec chmod 755 {} \\; &&
   find library -type f -exec chmod 644 {} \\;

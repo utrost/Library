@@ -11,7 +11,7 @@ Library is already packaged and smoke-tested as an alpha candidate on a Nextclou
 Library is App-Store-ready when all of these are true:
 
 - `appinfo/info.xml` contains public metadata, support URLs, AGPL licensing, and an explicit Nextcloud 34 compatibility claim.
-- The install archive contains only runtime app files plus minimal public metadata files; it does not ship tests, local smoke harnesses, source-only Vue files, local docs, caches, build directories, or dependency folders.
+- The install archive contains one top-level `library/` folder that must match the app id `library`; it contains only runtime app files plus minimal public metadata files and does not ship tests, local smoke harnesses, source-only Vue files, local docs, caches, build directories, or dependency folders.
 - The release package audit passes before checksum generation is reported as usable.
 - A signing certificate and private-key handling process exists, and the final release package includes `appinfo/signature.json` produced after the archive staging directory is finalized.
 - The generated archive install smoke passes on a disposable Nextcloud 34 instance.
@@ -38,7 +38,7 @@ Work:
 Acceptance checks:
 
 - `npm run package:release` prints `release_package_audit_ok=true`.
-- `tar -tzf dist/library-<version>.tar.gz` shows a single top-level `library-<version>/` directory.
+- `tar -tzf dist/library-<version>.tar.gz` shows a single top-level `library/` directory.
 - No forbidden dev path appears in the tarball.
 - `npm run smoke:release-package` passes after packaging.
 
@@ -74,6 +74,9 @@ Work:
 3. Require `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` only at signing time; keep keys outside the repository and outside the archive.
 4. Document the Nextcloud certificate request step and the public repository URL required by the certificate request.
 5. Add package audit checks that fail if a stable App Store package lacks `appinfo/signature.json`, while allowing unsigned alpha rehearsal packages.
+6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and sign the exact release archive with `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.142.tar.gz | openssl base64`.
+
+Guideline notes: App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`; the archive top folder must match the app id `library`; `info.xml` should use the current SPDX license identifier and include the public repository URL.
 
 Acceptance checks:
 

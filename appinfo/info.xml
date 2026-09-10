@@ -6,13 +6,14 @@
     <summary>Publication catalogue for files stored in Nextcloud Files</summary>
     <description><![CDATA[Library adds a publication-specific catalogue, metadata cleanup workflow, search and browsing interface on top of ordinary Nextcloud files. Source files remain canonical in Nextcloud Files; Library stores app-owned indexes, extracted metadata and user edits. It does not contact external metadata services or provide a built-in reader.]]></description>
     <version>0.1.0-alpha.142</version>
-    <licence>agpl</licence>
+    <licence>AGPL-3.0-or-later</licence>
     <author>Library contributors</author>
     <namespace>Library</namespace>
     <category>files</category>
     <category>multimedia</category>
     <bugs>https://github.com/utrost/Library/issues</bugs>
     <website>https://github.com/utrost/Library</website>
+    <repository type="git">https://github.com/utrost/Library</repository>
     <dependencies>
         <nextcloud min-version="34" max-version="34" />
     </dependencies>
