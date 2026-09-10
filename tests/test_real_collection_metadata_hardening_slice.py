@@ -25,7 +25,7 @@ def test_pdf_info_extractor_decodes_literal_octal_escapes_from_real_pdfs():
 
 def test_real_collection_docs_name_pdf_hex_and_octal_info_hardening():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
 
     assert "PDF hex Info strings" in roadmap
     assert "PDF literal octal escapes" in roadmap

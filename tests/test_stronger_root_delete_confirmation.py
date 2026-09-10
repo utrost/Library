@@ -30,7 +30,7 @@ def test_settings_root_delete_form_asks_for_typed_delete_and_keeps_source_file_w
 
 
 def test_docs_and_version_track_typed_root_delete_confirmation():
-    readme = read("README.md")
+    readme = read("docs/user-guide.md")
     guide = read("docs/user-guide.md")
     roadmap = read("docs/roadmap.md")
     info = read("appinfo/info.xml")

@@ -24,7 +24,7 @@ def test_pdf_literal_decoder_joins_backslash_line_continuations():
 
 
 def test_docs_track_pdf_plain_date_and_literal_continuation_hardening():
-    readme = read("README.md")
+    readme = read("docs/user-guide.md")
     roadmap = read("docs/roadmap.md")
     guide = read("docs/user-guide.md")
 

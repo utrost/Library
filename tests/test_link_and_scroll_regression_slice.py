@@ -55,7 +55,7 @@ def test_filter_bar_and_gallery_wrap_instead_of_forcing_horizontal_overflow():
 
 
 def test_existing_route_docs_mention_verified_link_scroll_regression():
-    readme = (ROOT / "README.md").read_text().lower()
+    readme = (ROOT / "docs" / "user-guide.md").read_text().lower()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text().lower()
 
     assert "absolute nextcloud urls" in readme

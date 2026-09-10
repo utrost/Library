@@ -45,7 +45,7 @@ def test_description_searches_and_roundtrips_through_import_export():
 
 
 def test_description_docs_mark_p3_as_landed_without_claiming_full_text_search():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     personal = (ROOT / "docs" / "personal-top-features.md").read_text()

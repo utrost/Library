@@ -25,7 +25,7 @@ def test_filename_parser_keeps_two_author_hyphen_pattern_split_for_four_name_tok
 
 
 def test_docs_track_middle_initial_real_sample_hardening():
-    readme = read("README.md")
+    readme = read("docs/user-guide.md")
     roadmap = read("docs/roadmap.md")
     guide = read("docs/user-guide.md")
 

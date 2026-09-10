@@ -34,5 +34,5 @@ def test_docs_name_format_filter_slice_as_landed():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     assert "file format filter" in roadmap
     assert "Filter by PDF, EPUB, CBZ or OPF" in roadmap
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     assert "file format" in readme

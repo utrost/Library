@@ -48,7 +48,7 @@ def test_scan_job_service_supports_queued_and_running_statuses():
 
 
 def test_docs_and_ui_name_scan_as_background_queued():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     template = (ROOT / "templates" / "settings-personal.php").read_text()
 

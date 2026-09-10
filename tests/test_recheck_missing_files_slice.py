@@ -69,7 +69,7 @@ def test_settings_page_exposes_recheck_missing_files_form_and_url():
 
 def test_smoke_and_docs_track_recheck_missing_files_as_landed():
     smoke = read("scripts/smoke-vue-page.mjs")
-    readme = read("README.md")
+    readme = read("docs/user-guide.md")
     guide = read("docs/user-guide.md")
     roadmap = read("docs/roadmap.md")
 

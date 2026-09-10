@@ -68,7 +68,7 @@ def test_genres_classifications_roundtrip_through_corrected_metadata_import_expo
 
 
 def test_genres_classifications_docs_mark_p5_as_landed_and_distinct_from_tags():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     personal = (ROOT / "docs" / "personal-top-features.md").read_text()

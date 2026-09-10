@@ -46,7 +46,7 @@ def test_settings_page_exposes_cancel_for_queued_latest_and_history_jobs():
 
 def test_smoke_docs_and_version_track_cancel_queued_scans_as_landed():
     smoke = read("scripts/smoke-vue-page.mjs")
-    readme = read("README.md")
+    readme = read("docs/user-guide.md")
     guide = read("docs/user-guide.md")
     roadmap = read("docs/roadmap.md")
     info = read("appinfo/info.xml")

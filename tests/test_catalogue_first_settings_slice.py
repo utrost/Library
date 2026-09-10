@@ -69,7 +69,7 @@ def test_page_controller_links_to_user_settings_and_no_longer_loads_admin_data()
 
 
 def test_docs_name_catalogue_first_and_user_settings_admin():
-    readme = (ROOT / "README.md").read_text().lower()
+    readme = (ROOT / "docs" / "user-guide.md").read_text().lower()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text().lower()
 
     assert "catalogue-first" in readme

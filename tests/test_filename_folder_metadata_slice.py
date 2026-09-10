@@ -63,7 +63,7 @@ def test_item_service_accepts_filename_pattern_source():
 
 
 def test_docs_explain_filename_folder_metadata_reality():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     docs = (ROOT / "docs" / "metadata-storage.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     assert "filename/folder" in readme

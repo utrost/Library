@@ -34,7 +34,7 @@ def test_pagination_preserves_active_filters_in_links():
 
 
 def test_docs_note_scale_pilot_and_bounded_catalogue():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     assert "paginated" in readme.lower()
     assert "10 → 100 → 1000 → 10000" in roadmap

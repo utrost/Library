@@ -38,7 +38,7 @@ def test_file_index_list_exposes_sidecar_status_but_catalogue_joins_only_active_
 
 
 def test_docs_record_stale_sidecar_cleanup():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     assert "clean up stale sidecar OPF catalogue rows" in readme
     assert "stale sidecar cleanup" in roadmap

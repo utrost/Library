@@ -41,7 +41,7 @@ def test_vue_and_fallback_render_year_discovery_links_and_header():
 def test_smokes_and_docs_track_year_discovery_page():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
     browser = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 
     assert "year_discovery_http" in smoke

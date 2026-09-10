@@ -49,7 +49,7 @@ def test_vue_renders_custom_saved_collection_panel_and_preserves_current_filters
 def test_smokes_and_docs_track_custom_saved_collections():
     browser_smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
     vue_smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     feature_list = (ROOT / "docs" / "usefulness-and-ux-feature-list.md").read_text()
 

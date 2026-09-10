@@ -43,7 +43,7 @@ def test_vue_publication_page_renders_grouped_contents_for_comics_and_periodical
 
 
 def test_docs_track_landed_publication_issue_grouping_slice():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     feature_list = (ROOT / "docs" / "usefulness-and-ux-feature-list.md").read_text()

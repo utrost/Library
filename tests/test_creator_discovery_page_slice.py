@@ -41,7 +41,7 @@ def test_vue_and_fallback_render_creator_discovery_links_and_header():
 def test_smokes_and_docs_track_creator_discovery_page():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
     browser = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 

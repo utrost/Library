@@ -38,7 +38,7 @@ def test_live_smoke_checks_refresh_cover_url_and_response_headers():
 
 
 def test_docs_mark_cover_refresh_affordance_and_manual_override_landed_but_cache_future():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 

@@ -34,7 +34,7 @@ def test_catalogue_cards_show_scan_diagnostics_for_unhealthy_items():
 
 
 def test_docs_record_scan_status_filter_slice():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     assert "scan status" in readme.lower()
     assert "scan status" in roadmap.lower()

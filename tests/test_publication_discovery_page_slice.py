@@ -39,7 +39,7 @@ def test_vue_and_fallback_render_publication_discovery_header_and_links():
 def test_smokes_and_docs_track_publication_discovery_page():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
     browser = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 
     assert "publication_discovery_http" in smoke

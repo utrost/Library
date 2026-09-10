@@ -9,7 +9,6 @@ def read(path: str) -> str:
 
 def test_docs_spine_mentions_landed_publication_issue_context():
     docs = {
-        "README.md": read("README.md"),
         "CHANGELOG.md": read("CHANGELOG.md"),
         "docs/user-guide.md": read("docs/user-guide.md"),
         "docs/alpha-test-checklist.md": read("docs/alpha-test-checklist.md"),

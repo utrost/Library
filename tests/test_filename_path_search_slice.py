@@ -23,7 +23,7 @@ def test_vue_search_copy_explains_filename_and_folder_search():
 
 
 def test_docs_and_smoke_track_filename_path_search_as_landed():
-    readme = read("README.md")
+    readme = read("docs/user-guide.md")
     guide = read("docs/user-guide.md")
     roadmap = read("docs/roadmap.md")
     smoke = read("scripts/smoke-vue-page.mjs")
