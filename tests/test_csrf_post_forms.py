@@ -33,6 +33,23 @@ def test_mutating_post_controllers_use_nextcloud_csrf_protection():
     assert "#[NoCSRFRequired]\n    public function run" not in scan
 
 
+def test_batch_mutations_with_tokenized_forms_require_csrf():
+    mutating_methods = {
+        "ItemController.php": ["bulkresetfields", "batchresetfilteredfields", "batchapplymetadataedit"],
+        "TagController.php": ["batchassign", "batchremove"],
+        "CoverController.php": ["batchrefresh"],
+    }
+    for controller_name, method_names in mutating_methods.items():
+        text = (ROOT / "lib" / "Controller" / controller_name).read_text()
+        for method_name in method_names:
+            assert "NoCSRFRequired" not in method_attributes_before(text, method_name), (
+                f"{controller_name}::{method_name} must use the request token supplied by its POST form"
+            )
+
+    item = (ROOT / "lib" / "Controller" / "ItemController.php").read_text()
+    assert "#[NoCSRFRequired]" in method_attributes_before(item, "batchpreviewmetadataedit")
+
+
 def test_get_only_controllers_may_disable_csrf():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     cover = (ROOT / "lib" / "Controller" / "CoverController.php").read_text()

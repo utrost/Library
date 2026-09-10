@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Library\Controller;
 
+use OCA\Library\Exception\BatchLimitExceededException;
 use OCA\Library\Service\ItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -124,25 +125,31 @@ final class ItemController extends Controller {
     }
 
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function bulkresetfields(): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
-            $this->itemService->bulkResetFieldsToScannerCandidates($user->getUID(), (string)$this->request->getParam('itemIds', ''));
+            try {
+                $this->itemService->bulkResetFieldsToScannerCandidates($user->getUID(), (string)$this->request->getParam('itemIds', ''));
+            } catch (BatchLimitExceededException $e) {
+                return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/settings/user/library') . '?batchLimitError=1');
+            }
         }
 
         return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/settings/user/library'));
     }
 
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function batchresetfilteredfields(): RedirectResponse {
         $user = $this->userSession->getUser();
         $filters = $this->catalogueFiltersFromRequest();
         $result = ['requestedItems' => 0, 'resetItems' => 0, 'skippedItems' => 0];
         if ($user !== null) {
-            $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
-            $result = $this->itemService->bulkResetFieldsToScannerCandidates($user->getUID(), $itemIds);
+            try {
+                $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+                $result = $this->itemService->bulkResetFieldsToScannerCandidates($user->getUID(), $itemIds);
+            } catch (BatchLimitExceededException $e) {
+                return $this->batchLimitRedirect($filters);
+            }
         }
 
         $query = array_filter($filters, static fn (string $value): bool => $value !== '');
@@ -168,11 +175,17 @@ final class ItemController extends Controller {
             'examples' => [],
         ];
         if ($user !== null) {
-            $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
-            $result = array_merge($result, $this->itemService->previewBatchMetadataEdit($user->getUID(), $itemIds,
-                (string)$this->request->getParam('bulkEditField', ''),
-                (string)$this->request->getParam('bulkEditValue', ''),
-            ));
+            try {
+                $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+                $result = array_merge($result, $this->itemService->previewBatchMetadataEdit($user->getUID(), $itemIds,
+                    (string)$this->request->getParam('bulkEditField', ''),
+                    (string)$this->request->getParam('bulkEditValue', ''),
+                ));
+            } catch (BatchLimitExceededException $e) {
+                $result['batchMetadataEditPreviewResult'] = false;
+                $result['batchLimitError'] = true;
+                $result['error'] = $e->getMessage();
+            }
         }
         Util::addStyle('library', 'style');
         return new TemplateResponse($this->appName, 'batch-metadata-edit-preview', [
@@ -184,17 +197,20 @@ final class ItemController extends Controller {
     }
 
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function batchapplymetadataedit(): RedirectResponse {
         $user = $this->userSession->getUser();
         $filters = $this->catalogueFiltersFromRequest();
         $result = ['requestedItems' => 0, 'appliedItems' => 0, 'unchangedItems' => 0, 'skippedItems' => 0];
         if ($user !== null && (string)$this->request->getParam('confirmBatchMetadataApply', '') === 'APPLY') {
-            $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
-            $result = $this->itemService->applyBatchMetadataEdit($user->getUID(), $itemIds,
-                (string)$this->request->getParam('bulkEditField', ''),
-                (string)$this->request->getParam('bulkEditValue', ''),
-            );
+            try {
+                $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+                $result = $this->itemService->applyBatchMetadataEdit($user->getUID(), $itemIds,
+                    (string)$this->request->getParam('bulkEditField', ''),
+                    (string)$this->request->getParam('bulkEditValue', ''),
+                );
+            } catch (BatchLimitExceededException $e) {
+                return $this->batchLimitRedirect($filters);
+            }
         }
 
         $query = array_filter($filters, static fn (string $value): bool => $value !== '');
@@ -216,6 +232,12 @@ final class ItemController extends Controller {
             $filters['sort'] = 'title';
         }
         return $filters;
+    }
+
+    private function batchLimitRedirect(array $filters): RedirectResponse {
+        $query = array_filter($filters, static fn (string $value): bool => $value !== '');
+        $query['batchLimitError'] = '1';
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
     }
 
     #[NoAdminRequired]

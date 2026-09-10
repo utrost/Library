@@ -12,11 +12,13 @@ def test_batch_tag_route_and_controller_use_current_catalogue_filters():
     assert "'url' => '/bulk/tags'" in routes
     assert routes.index("/bulk/tags") < routes.index("/items/{itemId}/tags")
     assert "public function batchassign(): RedirectResponse" in controller
-    assert "#[NoCSRFRequired]" in controller
+    attributes = controller.split("public function batchassign", 1)[0].split("public function assign", 1)[-1]
+    assert "NoCSRFRequired" not in attributes
     assert "catalogueFiltersFromRequest" in controller
     assert "itemIdsForCatalogueFilters" in service
     assert "queryCatalogue($userId, $filters, ['page' => $page, 'limit' => 500])" in service
-    assert "min(5000" in service
+    assert "private const BULK_ITEM_LIMIT = 5000;" in service
+    assert "min(self::BULK_ITEM_LIMIT, $limit)" in service
 
 
 def test_batch_tag_service_reports_added_duplicate_skipped_counts():
@@ -56,5 +58,5 @@ def test_docs_and_version_track_filter_result_batch_tagging():
 
     assert "filter-result batch tagging" in guide.lower()
     assert "current filter results" in roadmap.lower()
-    assert "<version>0.1.0-alpha.148</version>" in info
-    assert '"version": "0.1.0-alpha.148"' in package
+    assert "<version>0.1.0-alpha.149</version>" in info
+    assert '"version": "0.1.0-alpha.149"' in package

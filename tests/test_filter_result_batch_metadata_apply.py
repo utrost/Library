@@ -80,6 +80,8 @@ def test_browser_smoke_covers_batch_apply_write_restore_and_polished_preview():
     assert "/apps/library/bulk/items/edit-apply" in smoke
     assert "browser_batch_metadata_apply_smoke" in smoke
     assert "batch_apply_restored" in smoke
+    assert "requesttoken: dom.catalogueRequestToken" in smoke
+    assert "body: new URLSearchParams({ ...params, bulkEditValue: originalSubtitle })" in smoke
     assert "library-batch-preview-stat-grid" in smoke
     assert "Apply changes to current results" in smoke
 
@@ -93,6 +95,6 @@ def test_docs_and_version_track_batch_metadata_apply():
 
     assert "preview-and-apply batch metadata edits" in guide.lower()
     assert "batch metadata apply" in roadmap.lower()
-    assert "<version>0.1.0-alpha.148</version>" in info
-    assert '"version": "0.1.0-alpha.148"' in package
-    assert '"version": "0.1.0-alpha.148"' in lock
+    assert "<version>0.1.0-alpha.149</version>" in info
+    assert '"version": "0.1.0-alpha.149"' in package
+    assert '"version": "0.1.0-alpha.149"' in lock

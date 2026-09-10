@@ -42,7 +42,7 @@ Not in scope for v0.1:
 
 ## Try it
 
-Current testing candidate: `0.1.0-alpha.148`.
+Current testing candidate: `0.1.0-alpha.149`.
 
 Run local checks:
 

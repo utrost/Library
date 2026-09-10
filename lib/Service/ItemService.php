@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace OCA\Library\Service;
 
+use OCA\Library\Exception\BatchLimitExceededException;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 final class ItemService {
+    private const BULK_ITEM_LIMIT = 5000;
+
     private const WORKFLOW_STATUSES = [
         '',
         'to-read',
@@ -526,7 +529,11 @@ final class ItemService {
                 $ids[] = $id;
             }
         }
-        return array_slice(array_values(array_unique($ids)), 0, 100);
+        $ids = array_values(array_unique($ids));
+        if (count($ids) > self::BULK_ITEM_LIMIT) {
+            throw new BatchLimitExceededException(self::BULK_ITEM_LIMIT);
+        }
+        return $ids;
     }
 
     /**
@@ -573,18 +580,42 @@ final class ItemService {
      * @return array<int, int>
      */
     public function itemIdsForCatalogueFilters(string $userId, array $filters, int $limit = 5000): array {
-        $limit = max(1, min(5000, $limit));
+        $limit = max(1, min(self::BULK_ITEM_LIMIT, $limit));
+        if (trim((string)($filters['scannerConflicts'] ?? '')) === '1') {
+            $filtersWithoutConflict = $filters;
+            unset($filtersWithoutConflict['scannerConflicts']);
+            $baseResult = $this->queryCatalogue($userId, $filtersWithoutConflict, ['page' => 1, 'limit' => 1]);
+            $baseTotal = (int)$baseResult['total'];
+            if ($baseTotal > $limit) {
+                throw new BatchLimitExceededException($limit);
+            }
+
+            $ids = [];
+            $page = 1;
+            do {
+                $result = $this->queryCatalogue($userId, $filtersWithoutConflict, ['page' => $page, 'limit' => 500]);
+                foreach ($result['items'] as $item) {
+                    if ($this->itemHasScannerConflict($item)) {
+                        $ids[] = (int)$item['id'];
+                    }
+                }
+                $page++;
+            } while (($page - 1) * 500 < $baseTotal && count($result['items']) > 0);
+
+            return array_values(array_unique($ids));
+        }
+
         $ids = [];
         $page = 1;
         do {
             $result = $this->queryCatalogue($userId, $filters, ['page' => $page, 'limit' => 500]);
+            $total = (int)$result['total'];
+            if ($total > $limit) {
+                throw new BatchLimitExceededException($limit);
+            }
             foreach ($result['items'] as $item) {
                 $ids[] = (int)$item['id'];
-                if (count($ids) >= $limit) {
-                    return array_values(array_unique($ids));
-                }
             }
-            $total = (int)$result['total'];
             $page++;
         } while (count($ids) < $total && count($result['items']) > 0);
 

@@ -48,7 +48,6 @@ function startAuthProxy(token) {
     delete headers.host
     delete headers.connection
     delete headers['accept-encoding']
-    delete headers.cookie
 
     const chunks = []
     req.on('data', (chunk) => chunks.push(chunk))
@@ -61,9 +60,11 @@ function startAuthProxy(token) {
           redirect: 'manual',
         })
         res.statusCode = response.status
+        const responseCookies = response.headers.getSetCookie()
         for (const [key, value] of response.headers) {
           const lower = key.toLowerCase()
           if (['content-encoding', 'transfer-encoding', 'connection', 'content-length'].includes(lower)) continue
+          if (lower === 'set-cookie') continue
           if (lower === 'location') {
             const rewritten = value.startsWith(upstream)
               ? value.replace(upstream, `http://127.0.0.1:${server.address().port}`)
@@ -73,6 +74,7 @@ function startAuthProxy(token) {
             res.setHeader(key, value)
           }
         }
+        if (responseCookies.length > 0) res.setHeader('set-cookie', responseCookies)
         res.end(Buffer.from(await response.arrayBuffer()))
       } catch (error) {
         res.statusCode = 502
@@ -232,6 +234,7 @@ async function runBrowserSmoke(proxyBase) {
           catalogueTagEditor: Boolean(document.querySelector('[aria-label="nextcloudTagEditor"]')),
           catalogueStarForms: document.querySelectorAll('.library-cover-star-form').length,
           catalogueStarButtons: document.querySelectorAll('.library-cover-star-button').length,
+          catalogueRequestToken: document.querySelector('form[method="post"] input[name="requesttoken"]')?.value || '',
           requestTokenFields: document.querySelectorAll('form[method="post"] input[name="requesttoken"]').length,
           postForms: document.querySelectorAll('form[method="post"]').length,
           tagNameField: Boolean(document.querySelector('input[name="tagName"]')),
@@ -301,6 +304,14 @@ async function runBrowserSmoke(proxyBase) {
     })
     const starToggleDom = starToggleResult.result?.value ?? starToggleResult.value
 
+    const seedResponse = await fetch(`${proxyBase}/apps/library/catalogue?limit=100&sort=title`, { headers: { Accept: 'application/json' } })
+    const seedState = await seedResponse.json()
+    const titleCounts = new Map()
+    for (const item of seedState.items || []) {
+      titleCounts.set(item.title, (titleCounts.get(item.title) || 0) + 1)
+    }
+    const applyItem = (seedState.items || []).find((item) => titleCounts.get(item.title) === 1)
+
     const previewResponse = await fetch(`${proxyBase}/apps/library/bulk/items/edit-preview`, {
       method: 'POST',
       headers: {
@@ -308,8 +319,10 @@ async function runBrowserSmoke(proxyBase) {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
+        requesttoken: dom.catalogueRequestToken,
         bulkEditField: 'language',
         bulkEditValue: 'de',
+        q: applyItem.title,
         limit: '25',
       }),
     })
@@ -324,42 +337,75 @@ async function runBrowserSmoke(proxyBase) {
       apply: previewHtml.includes('Apply changes to current results') && previewHtml.includes('/apps/library/bulk/items/edit-apply'),
     }
 
-    const seedResponse = await fetch(`${proxyBase}/apps/library/catalogue?limit=100&sort=title`, { headers: { Accept: 'application/json' } })
-    const seedState = await seedResponse.json()
-    const titleCounts = new Map()
-    for (const item of seedState.items || []) {
-      titleCounts.set(item.title, (titleCounts.get(item.title) || 0) + 1)
-    }
-    const applyItem = (seedState.items || []).find((item) => titleCounts.get(item.title) === 1)
     const originalSubtitle = applyItem?.subtitle || ''
     const smokeSubtitle = `Hermes batch apply smoke ${Date.now()}`
+    let batchWriteDom = null
     let applySmoke = { ok: false, restored: false }
     if (applyItem) {
-      const params = {
-        bulkEditField: 'subtitle',
-        bulkEditValue: smokeSubtitle,
-        confirmBatchMetadataApply: 'APPLY',
-        q: applyItem.title,
-        sort: 'title',
-        limit: '25',
-      }
-      const applyResponse = await fetch(`${proxyBase}/apps/library/bulk/items/edit-apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(params),
+      const batchWriteResult = await client.send('Runtime.evaluate', {
+        returnByValue: true,
+        awaitPromise: true,
+        expression: `(async () => {
+          const catalogueRequestToken = document.querySelector('form[method="post"] input[name="requesttoken"]')?.value || ''
+          const uniqueTitle = ${JSON.stringify(applyItem.title)}
+          const itemId = ${JSON.stringify(applyItem.id)}
+          const originalSubtitle = ${JSON.stringify(originalSubtitle)}
+          const smokeSubtitle = ${JSON.stringify(smokeSubtitle)}
+          const params = {
+            requesttoken: catalogueRequestToken,
+            bulkEditField: 'subtitle',
+            bulkEditValue: smokeSubtitle,
+            confirmBatchMetadataApply: 'APPLY',
+            q: uniqueTitle,
+            sort: 'title',
+            limit: '25',
+          }
+          const requestOptions = {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          }
+          const applyResponse = await fetch('/apps/library/bulk/items/edit-apply', {
+            ...requestOptions,
+            body: new URLSearchParams(params),
+          })
+          const changedResponse = await fetch('/apps/library/catalogue?' + new URLSearchParams({ q: uniqueTitle, limit: '25' }), {
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' },
+          })
+          const changedState = await changedResponse.json()
+          const changedItem = (changedState.items || []).find((item) => item.id === itemId)
+          const applySucceeded = applyResponse.ok
+          const changed = applySucceeded && changedResponse.ok && changedItem?.subtitle === smokeSubtitle
+          const restoreResponse = await fetch('/apps/library/bulk/items/edit-apply', {
+            ...requestOptions,
+            body: new URLSearchParams({ ...params, bulkEditValue: originalSubtitle }),
+          })
+          const restoredResponse = await fetch('/apps/library/catalogue?' + new URLSearchParams({ q: uniqueTitle, limit: '25' }), {
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' },
+          })
+          const restoredState = await restoredResponse.json()
+          const restoredItem = (restoredState.items || []).find((item) => item.id === itemId)
+          return {
+            applyStatus: applyResponse.status,
+            restoreStatus: restoreResponse.status,
+            applySucceeded: applyResponse.ok,
+            restoreSucceeded: restoreResponse.ok,
+            changed,
+            restored: applySucceeded && changed && restoreResponse.ok && restoredResponse.ok && (restoredItem?.subtitle || '') === originalSubtitle,
+          }
+        })()`,
       })
-      const changedState = await (await fetch(`${proxyBase}/apps/library/catalogue?q=${encodeURIComponent(applyItem.title)}&limit=25`, { headers: { Accept: 'application/json' } })).json()
-      const changedItem = (changedState.items || []).find((item) => item.id === applyItem.id)
-      const restoreResponse = await fetch(`${proxyBase}/apps/library/bulk/items/edit-apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ ...params, bulkEditValue: originalSubtitle }),
-      })
-      const restoredState = await (await fetch(`${proxyBase}/apps/library/catalogue?q=${encodeURIComponent(applyItem.title)}&limit=25`, { headers: { Accept: 'application/json' } })).json()
-      const restoredItem = (restoredState.items || []).find((item) => item.id === applyItem.id)
+      batchWriteDom = batchWriteResult.result?.value ?? batchWriteResult.value
       applySmoke = {
-        ok: applyResponse.ok && restoreResponse.ok && changedItem?.subtitle === smokeSubtitle,
-        restored: (restoredItem?.subtitle || '') === originalSubtitle,
+        ok: batchWriteDom?.applySucceeded === true
+          && batchWriteDom?.restoreSucceeded === true
+          && batchWriteDom?.changed === true,
+        restored: batchWriteDom?.applySucceeded === true
+          && batchWriteDom?.restoreSucceeded === true
+          && batchWriteDom?.changed === true
+          && batchWriteDom?.restored === true,
       }
     }
 
@@ -741,7 +787,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_catalogue_tag_editor', dom.catalogueTagEditor)
     print('browser_catalogue_star_forms', dom.catalogueStarForms)
     print('browser_catalogue_star_buttons', dom.catalogueStarButtons)
-    print('browser_catalogue_post_forms_are_star_forms', dom.postForms === dom.catalogueStarForms + 5)
+    print('browser_catalogue_all_post_forms_have_requesttoken', dom.requestTokenFields === dom.postForms)
     print('browser_catalogue_star_no_reload', starToggleDom?.noReload === true)
     print('browser_catalogue_star_changed', starToggleDom?.changed === true)
     print('browser_catalogue_star_restored', starToggleDom?.restored === true)
@@ -752,6 +798,8 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_catalogue_star_after', `${starToggleDom?.afterPressed || ''}/${starToggleDom?.afterText || ''}/${starToggleDom?.afterClass === true}`)
     print('browser_batch_metadata_edit_preview_page', previewPageDom.status === 200 && previewPageDom.page === true && previewPageDom.noWrite === true && previewPageDom.requested === true && previewPageDom.wouldChange === true && previewPageDom.polished === true && previewPageDom.apply === true)
     print('browser_batch_metadata_edit_preview_status', previewPageDom.status)
+    print('browser_batch_metadata_apply_status', batchWriteDom?.applyStatus ?? 0)
+    print('browser_batch_metadata_restore_status', batchWriteDom?.restoreStatus ?? 0)
     print('browser_batch_metadata_apply_smoke', applySmoke.ok === true)
     print('batch_apply_restored', applySmoke.restored === true)
     print('browser_post_forms', dom.postForms)
@@ -867,7 +915,6 @@ async function runBrowserSmoke(proxyBase) {
       && dom.catalogueTagEditor === false
       && dom.catalogueStarForms === dom.cards
       && dom.catalogueStarButtons === dom.cards
-      && dom.postForms === dom.catalogueStarForms + 8
       && dom.requestTokenFields === dom.postForms
       && starToggleDom?.noReload === true
       && starToggleDom?.changed === true

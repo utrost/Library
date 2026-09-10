@@ -12,7 +12,8 @@ def test_filter_result_tag_remove_route_uses_current_catalogue_filters():
     assert "'url' => '/bulk/tags/remove'" in routes
     assert routes.index("/bulk/tags/remove") < routes.index("/items/{itemId}/tags")
     assert "public function batchremove(): RedirectResponse" in controller
-    assert "#[NoCSRFRequired]" in controller
+    attributes = controller.split("public function batchremove", 1)[0].split("public function batchassign", 1)[-1]
+    assert "NoCSRFRequired" not in attributes
     assert "catalogueFiltersFromRequest" in controller
     assert "itemIdsForCatalogueFilters($user->getUID(), $filters, 5000)" in controller
     assert "removeTagFromItems(" in controller
@@ -43,7 +44,8 @@ def test_catalogue_exposes_batch_tag_remove_form_separate_from_card_tag_editors(
         assert "/bulk/tags/remove" in source
 
     assert "print('browser_batch_tag_remove_form', dom.batchTagRemoveForm)" in smoke
-    assert "dom.postForms === dom.catalogueStarForms + 5" in smoke
+    assert "browser_catalogue_all_post_forms_have_requesttoken" in smoke
+    assert "dom.requestTokenFields === dom.postForms" in smoke
 
 
 def test_docs_and_version_track_filter_result_batch_tag_remove():
@@ -54,5 +56,5 @@ def test_docs_and_version_track_filter_result_batch_tag_remove():
 
     assert "remove a nextcloud tag from current filter results" in guide.lower()
     assert "batch tag removal" in roadmap.lower()
-    assert "<version>0.1.0-alpha.148</version>" in info
-    assert '"version": "0.1.0-alpha.148"' in package
+    assert "<version>0.1.0-alpha.149</version>" in info
+    assert '"version": "0.1.0-alpha.149"' in package

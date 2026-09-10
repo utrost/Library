@@ -6,6 +6,9 @@ $latestScanJob = $_['latestScanJob'] ?? null;
 $scanJobHistory = $_['scanJobHistory'] ?? [];
 ?>
 <div id="library-settings" class="library-app library-settings">
+    <?php if ((string)filter_input(INPUT_GET, 'batchLimitError') === '1'): ?>
+        <p class="library-warning library-batch-limit-error"><?php p($l->t('This batch matches more than 5,000 items. Narrow the selection and try again.')); ?></p>
+    <?php endif; ?>
     <section class="library-panel library-settings-summary" aria-labelledby="library-settings-heading">
         <div class="library-catalogue-header">
             <div>

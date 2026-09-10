@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.149 - 2026-09-10
+
+- Batch operations no longer silently truncate selections at 100 items.
+- Selections and filter results above the explicit 5,000-item cap are rejected with a visible message before mutation.
+- Batch mutation endpoints now require Nextcloud CSRF tokens.
+
 ## v0.1.0-alpha.148 - 2026-09-09
 
 - Added a metadata review workbench for scanner-conflict and weak-metadata catalogue views with a **Review next conflict** flow.
