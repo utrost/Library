@@ -27,7 +27,7 @@ function php(code, env = {}, timeout = 600000) {
   return docker([...envArgs, '-u', 'www-data', container, 'php', '-d', 'memory_limit=1024M', '-r', code], { timeout })
 }
 function parseToken(output) {
-  const patterns = [/app password is:\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
+  const patterns = [/app password is:\s*(\S+)/i, /app password:\s*\n\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
   for (const pattern of patterns) {
     const match = output.match(pattern)
     if (match) return match[1]
@@ -183,7 +183,7 @@ i=$((i+1)); done; chown -R www-data:www-data ${dataDir}; find ${dataDir} -type f
   const counts = dbCounts().trim()
   console.log(`db_counts=${counts}`)
 
-  token = parseToken(dockerWww(['php', 'occ', 'user:add-app-password', '--name', tokenName, user]))
+  token = parseToken(dockerWww(['php', 'occ', 'user:add-app-password', '--no-interaction', '--name', tokenName, user]))
   if (!token) throw new Error('temporary app password was not created')
   for (const [limit, page] of [[25,1], [25,2], [100,1], [500,1]]) {
     const http = await fetchText(`/apps/library/?shelf=${encodeURIComponent(rootName)}&limit=${limit}&page=${page}`, token)

@@ -22,7 +22,7 @@ function runPhp(env, code) {
 }
 
 function parseToken(output) {
-  const patterns = [/app password is:\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
+  const patterns = [/app password is:\s*(\S+)/i, /app password:\s*\n\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
   for (const pattern of patterns) {
     const match = output.match(pattern)
     if (match) return match[1]
@@ -146,7 +146,7 @@ let tagName = ''
 let commentMessage = ''
 let fileId = ''
 try {
-  token = parseToken(runOcc(['user:add-app-password', '--name', tokenName, user]))
+  token = parseToken(runOcc(['user:add-app-password', '--no-interaction', '--name', tokenName, user]))
   if (!token) throw new Error('temporary app password was not created')
 
   const page = await fetchText('/apps/library/', token)

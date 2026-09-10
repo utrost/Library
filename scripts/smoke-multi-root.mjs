@@ -42,7 +42,7 @@ function php(code, env = {}, timeout = 600000) {
   return docker([...envArgs, '-u', 'www-data', container, 'php', '-d', 'memory_limit=512M', '-r', code], { timeout })
 }
 function parseToken(output) {
-  const patterns = [/app password is:\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
+  const patterns = [/app password is:\s*(\S+)/i, /app password:\s*\n\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
   for (const pattern of patterns) {
     const match = output.match(pattern)
     if (match) return match[1]
@@ -238,7 +238,7 @@ chown -R www-data:www-data ${dataAlphaDir} ${dataBetaDir}`)
     throw new Error(`unexpected multi-root summary ${JSON.stringify({ allResult, summary })}`)
   }
 
-  token = parseToken(dockerWww(['php', 'occ', 'user:add-app-password', '--name', tokenName, user]))
+  token = parseToken(dockerWww(['php', 'occ', 'user:add-app-password', '--no-interaction', '--name', tokenName, user]))
   if (!token) throw new Error('temporary app password was not created')
   for (const [name, label] of [['alpha', 'LibraryMultiRootAlpha'], ['beta', 'LibraryMultiRootBeta']]) {
     const http = await fetchText(`/apps/library/?shelf=${encodeURIComponent(label)}&limit=25`, token)

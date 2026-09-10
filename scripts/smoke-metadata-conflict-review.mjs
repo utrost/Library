@@ -20,7 +20,7 @@ function runDockerPhp(code) {
 }
 
 function parseToken(output) {
-  const patterns = [/app password is:\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
+  const patterns = [/app password is:\s*(\S+)/i, /app password:\s*\n\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
   for (const pattern of patterns) {
     const match = output.match(pattern)
     if (match) return match[1]
@@ -86,7 +86,7 @@ let token = ''
 let itemId = 0
 let originalState = null
 try {
-  token = parseToken(runDocker(['user:add-app-password', '--name', tokenName, user]))
+  token = parseToken(runDocker(['user:add-app-password', '--no-interaction', '--name', tokenName, user]))
   if (!token) {
     fail('temporary_app_password_not_created')
   } else {

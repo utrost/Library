@@ -19,7 +19,7 @@ function runOcc(args) {
 }
 
 function parseToken(output) {
-  const patterns = [/app password is:\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
+  const patterns = [/app password is:\s*(\S+)/i, /app password:\s*\n\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
   for (const pattern of patterns) {
     const match = output.match(pattern)
     if (match) return match[1]
@@ -941,7 +941,7 @@ async function runBrowserSmoke(proxyBase) {
 let token = ''
 let proxy
 try {
-  token = parseToken(runOcc(['user:add-app-password', '--name', tokenName, user]))
+  token = parseToken(runOcc(['user:add-app-password', '--no-interaction', '--name', tokenName, user]))
   if (!token) throw new Error('Temporary app password was not created')
   proxy = await startAuthProxy(token)
   const proxyBase = `http://127.0.0.1:${proxy.address().port}`
