@@ -72,9 +72,9 @@ Expected result: Library removes or updates app-owned rows only. It must not del
 - Sidecar manifest and sidecar ZIP are read-only/download-only. There is no OPF/JSON sidecar write-back into source folders yet.
 - Metadata import applies only to matched existing Library catalogue rows; a fresh-install restore flow is not complete.
 - Scan scheduling, resumable scans and notifications are absent.
-- publication, publication-year and creator discovery pages exist, and publication pages show a compact **Publication contents** issue/date summary; built-in Useful views, a weak-metadata cockpit and in-app Custom collections exist, while richer publication issue grouping is not part of this test pass.
+- publication, publication-year and creator discovery pages exist, publication pages show **Publication contents** plus a visual issue strip, and built-in Useful views, a weak-metadata cockpit and in-app Custom collections exist. The metadata review workbench is also part of the current test pass; richer publication issue grouping remains post-v0.1 feedback beyond the current read-only summary.
 - Shared/admin-managed roots are absent; users manage their own roots and Nextcloud permissions remain authoritative.
-- Library does not provide its own document reader, page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
+- Library does not provide its own document reader, page-position sync, reader annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, shared/admin roots, internet metadata lookup or AI classification.
 
 ## Report format for testers
 
