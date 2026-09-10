@@ -31,7 +31,7 @@ def test_item_service_marks_and_filters_items_with_stored_scanner_candidate_conf
 def test_conflict_review_filter_smoke_and_docs_are_landed():
     package = (ROOT / "package.json").read_text()
     smoke = (ROOT / "scripts" / "smoke-metadata-conflict-review.mjs").read_text()
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 

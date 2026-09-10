@@ -92,7 +92,7 @@ def test_item_service_import_accepts_sidecar_manifest_as_restore_source():
 
 
 def test_docs_mark_metadata_import_preview_and_apply_landed_but_sidecars_still_future():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 

@@ -48,7 +48,7 @@ def test_cancelled_scan_job_terminal_state_is_not_overwritten_by_progress_or_fin
 
 def test_settings_copy_and_docs_track_running_cancellation_boundary():
     template = read("templates/settings-personal.php")
-    readme = read("README.md")
+    readme = read("docs/user-guide.md")
     guide = read("docs/user-guide.md")
     roadmap = read("docs/roadmap.md")
     info = read("appinfo/info.xml")

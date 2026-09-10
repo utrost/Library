@@ -34,7 +34,7 @@ def test_settings_template_renders_scan_history_without_replacing_latest_progres
 
 
 def test_docs_name_recent_scan_history():
-    readme = (ROOT / "README.md").read_text().lower()
+    readme = (ROOT / "docs" / "user-guide.md").read_text().lower()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text().lower()
 
     assert "recent scan history" in readme

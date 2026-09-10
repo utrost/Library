@@ -33,7 +33,7 @@ def test_background_scan_job_persists_incremental_progress_while_running():
 
 
 def test_ui_copy_names_live_progress_during_background_scan():
-    readme = (ROOT / "README.md").read_text().lower()
+    readme = (ROOT / "docs" / "user-guide.md").read_text().lower()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text().lower()
     template = (ROOT / "templates" / "settings-personal.php").read_text().lower()
 

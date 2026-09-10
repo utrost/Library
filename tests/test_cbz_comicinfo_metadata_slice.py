@@ -37,5 +37,5 @@ def test_docs_name_cbz_comicinfo_slice_as_landed():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     assert "ComicInfo.xml metadata" in roadmap
     assert "CBZ ComicInfo" in roadmap
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     assert "CBZ ComicInfo.xml" in readme

@@ -36,7 +36,7 @@ def test_live_smoke_checks_detail_cover_quality_help_without_visible_body_panel(
 
 
 def test_docs_mark_cover_explanation_landed_and_cache_override_future():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 

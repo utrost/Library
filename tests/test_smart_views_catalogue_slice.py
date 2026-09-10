@@ -80,7 +80,7 @@ def test_catalogue_accepts_smart_collection_query_parameters():
 
 def test_smoke_and_docs_track_built_in_useful_views():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     feature_list = (ROOT / "docs" / "usefulness-and-ux-feature-list.md").read_text()

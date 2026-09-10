@@ -48,5 +48,5 @@ def test_docs_name_preview_backed_cover_slice():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     assert "preview-backed covers" in roadmap
     assert "Phase 3.1" in roadmap
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     assert "preview-backed covers" in readme

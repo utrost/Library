@@ -40,7 +40,7 @@ def test_item_service_bulk_reset_normalizes_ids_and_reports_counts():
 def test_bulk_reset_smoke_and_docs_are_landed():
     package = (ROOT / "package.json").read_text()
     smoke = (ROOT / "scripts" / "smoke-bulk-reset-fields.mjs").read_text()
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 

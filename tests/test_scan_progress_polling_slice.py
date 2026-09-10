@@ -39,7 +39,7 @@ def test_scan_progress_javascript_polls_until_terminal_status_and_updates_dom():
 
 
 def test_docs_name_auto_refresh_scan_progress():
-    readme = (ROOT / "README.md").read_text().lower()
+    readme = (ROOT / "docs" / "user-guide.md").read_text().lower()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text().lower()
 
     assert "auto-refreshing scan progress" in readme

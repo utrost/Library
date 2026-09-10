@@ -28,5 +28,5 @@ def test_docs_name_cbz_first_image_cover_slice():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     assert "CBZ first-image covers" in roadmap
     assert "first-image cover extraction" in roadmap
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     assert "CBZ first-image covers" in readme

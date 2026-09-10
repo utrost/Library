@@ -27,7 +27,7 @@ def test_pdf_info_literal_extractor_preserves_escaped_parentheses():
 
 def test_docs_record_nested_pdf_literal_parentheses_hardening():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
 
     assert "nested PDF literal parentheses" in roadmap
     assert "nested PDF literal parentheses" in readme

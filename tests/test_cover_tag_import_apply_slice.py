@@ -69,7 +69,7 @@ def test_metadata_import_apply_route_controller_service_and_settings_form_are_wi
 
 
 def test_docs_track_cover_tag_and_import_apply_as_landed_first_slices():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 

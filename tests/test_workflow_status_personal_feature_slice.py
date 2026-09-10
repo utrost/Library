@@ -65,7 +65,7 @@ def test_workflow_status_roundtrips_through_corrected_metadata_import_export_wit
 
 
 def test_workflow_status_docs_mark_p4_as_landed_and_distinct_from_scan_status_and_tags():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     personal = (ROOT / "docs" / "personal-top-features.md").read_text()

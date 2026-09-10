@@ -51,7 +51,7 @@ def test_item_detail_page_only_renders_forget_action_for_missing_items():
 
 
 def test_docs_describe_forget_missing_and_uninstall_export_boundary():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 

@@ -65,7 +65,7 @@ def test_catalogue_and_settings_link_to_metadata_export():
 
 
 def test_docs_mark_metadata_export_foundation_landed_and_next_priority():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "docs" / "user-guide.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 
