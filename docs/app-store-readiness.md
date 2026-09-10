@@ -63,16 +63,17 @@ Acceptance checks:
 
 ### AS-003 — Signing certificate and signed package workflow
 
-Status: blocked on external certificate request.
+Status: started; final signed release remains blocked on external certificate request.
 
 Goal: make signing repeatable and safe.
 
 Work:
 
 1. Document the local path policy for the private signing key: never commit it, never package it.
-2. Add a script or release step for staging the finalized app directory, running `occ integrity:sign-app`, and verifying `appinfo/signature.json` before tarball creation.
-3. Document the Nextcloud certificate request step and the public repository URL required by the certificate request.
-4. Add package audit checks that fail if a stable App Store package lacks `appinfo/signature.json`, while allowing unsigned alpha rehearsal packages.
+2. Add `scripts/sign-release-package.sh` plus `npm run package:release -- --signed` for staging the finalized app directory, running `occ integrity:sign-app`, and verifying `appinfo/signature.json` before tarball creation.
+3. Require `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` only at signing time; keep keys outside the repository and outside the archive.
+4. Document the Nextcloud certificate request step and the public repository URL required by the certificate request.
+5. Add package audit checks that fail if a stable App Store package lacks `appinfo/signature.json`, while allowing unsigned alpha rehearsal packages.
 
 Acceptance checks:
 

@@ -42,7 +42,21 @@ Audit an existing package with:
 npm run audit:release-package
 ```
 
-The audit must print `release_package_audit_ok=true` before a package is considered uploadable.
+The audit must print `release_package_audit_ok=true` before a package is considered uploadable. Unsigned alpha rehearsal packages are allowed, but stable release packages require `appinfo/signature.json`.
+
+## Signed App Store package
+
+A stable App Store package must be signed after the app directory is staged and before the tarball/checksum are written:
+
+```bash
+export NEXTCLOUD_SIGNING_PRIVATE_KEY=/path/to/private.key
+export NEXTCLOUD_SIGNING_CERTIFICATE=/path/to/certificate.crt
+npm run package:release -- --signed
+```
+
+The signing script copies the staged app, private key and certificate into a temporary Nextcloud container directory, runs `occ integrity:sign-app`, copies only `appinfo/signature.json` back into the staged app, removes the temporary directory, and then lets the package script create and audit the archive. Private key files must never be committed or shipped.
+
+For a signed package, the audit runs with `--require-signature`. The same requirement is applied automatically for stable version strings without a prerelease suffix.
 
 ## Generated archive install smoke
 

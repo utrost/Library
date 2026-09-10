@@ -2,7 +2,28 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="${1:-$(python3 - <<'PY'
+SIGNED=false
+VERSION=""
+for arg in "$@"; do
+  case "$arg" in
+    --signed)
+      SIGNED=true
+      ;;
+    --help|-h)
+      echo "Usage: scripts/package-release.sh [version] [--signed]"
+      exit 0
+      ;;
+    *)
+      if [ -n "$VERSION" ]; then
+        echo "unexpected_argument=$arg" >&2
+        exit 2
+      fi
+      VERSION="$arg"
+      ;;
+  esac
+done
+if [ -z "$VERSION" ]; then
+  VERSION="$(python3 - <<'PY'
 from pathlib import Path
 import re
 info = Path('appinfo/info.xml').read_text(encoding='utf-8')
@@ -11,7 +32,8 @@ if not match:
     raise SystemExit('Could not read app version from appinfo/info.xml')
 print(match.group(1))
 PY
-)}"
+)"
+fi
 DIST_DIR="$ROOT/dist"
 STAGE_DIR="$DIST_DIR/library-${VERSION}"
 ARCHIVE="$DIST_DIR/library-${VERSION}.tar.gz"
@@ -44,8 +66,16 @@ tar \
   --exclude='*.pyc' \
   -cf - . | tar -xf - -C "$STAGE_DIR"
 
+if [ "$SIGNED" = true ]; then
+  bash "$ROOT/scripts/sign-release-package.sh" "$STAGE_DIR"
+fi
+
 tar -C "$DIST_DIR" -czf "$ARCHIVE" "library-${VERSION}"
 sha256sum "$ARCHIVE" > "$ARCHIVE.sha256"
-bash "$ROOT/scripts/audit-release-package.sh" "$VERSION"
+if [ "$SIGNED" = true ]; then
+  bash "$ROOT/scripts/audit-release-package.sh" "$VERSION" --require-signature
+else
+  bash "$ROOT/scripts/audit-release-package.sh" "$VERSION"
+fi
 printf 'release_archive=%s\n' "$ARCHIVE"
 printf 'release_checksum=%s\n' "$ARCHIVE.sha256"

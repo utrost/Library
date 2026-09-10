@@ -156,3 +156,39 @@ def test_info_xml_public_metadata_parses_and_stays_nextcloud_34_only():
     dependency = root.find("dependencies/nextcloud")
     assert dependency is not None
     assert dependency.attrib == {"min-version": "34", "max-version": "34"}
+
+
+def test_signed_release_workflow_is_documented_and_wired_without_packaging_keys():
+    package_script = read("scripts/package-release.sh")
+    sign_script = read("scripts/sign-release-package.sh")
+    audit_script = read("scripts/audit-release-package.sh")
+    release = read("RELEASE.md")
+    roadmap = read("docs/app-store-readiness.md")
+
+    assert "--signed" in package_script
+    assert "scripts/sign-release-package.sh" in package_script
+    assert "NEXTCLOUD_SIGNING_PRIVATE_KEY" in sign_script
+    assert "NEXTCLOUD_SIGNING_CERTIFICATE" in sign_script
+    assert "integrity:sign-app" in sign_script
+    assert "appinfo/signature.json" in sign_script
+    assert "rm -rf" in sign_script
+    assert "--require-signature" in audit_script
+    assert "stable release packages require `appinfo/signature.json`" in release
+    assert "npm run package:release -- --signed" in release
+    assert "NEXTCLOUD_SIGNING_PRIVATE_KEY" in roadmap
+
+    for private_key_pattern in [
+        "private.key",
+        "signing.key",
+        "*.key",
+        "*.pem",
+    ]:
+        assert private_key_pattern in audit_script
+
+
+def test_stable_package_audit_requires_signature_while_alpha_allows_unsigned():
+    audit_script = read("scripts/audit-release-package.sh")
+
+    assert "require_signature = explicit_require_signature or '-' not in version" in audit_script
+    assert "missing required signed release entry" in audit_script
+    assert "unsigned_alpha_package=true" in audit_script
