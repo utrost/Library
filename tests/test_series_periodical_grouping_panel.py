@@ -24,10 +24,10 @@ def test_vue_renders_periodicals_panel_with_counts_and_filter_links():
     assert "const publicationSummaries = computed(() => catalogueState.publicationSummaries || [])" in vue
     assert "function publicationFilterUrl(publication)" in vue
     assert "library-periodical-groups" in vue
-    assert "Top series and periodicals" in vue
+    assert "Series / periodicals" in vue
     assert "Jump into recurring publications with one click" in vue
     assert "v-for=\"summary in publicationSummaries\"" in vue
-    assert ":href=\"publicationLandingUrl(summary.publication)\"" in vue
+    assert ":value=\"publicationLandingUrl(summary.publication)\"" in vue
     assert "summary.itemCount" in vue
     assert "items" in vue
 
@@ -38,7 +38,7 @@ def test_smoke_requires_periodical_grouping_panel_contract():
     assert "state_has_publication_summaries" in smoke
     assert "source_has_periodical_groups_panel" in smoke
     assert "library-periodical-groups" in smoke
-    assert "Top series and periodicals" in smoke
+    assert "Series / periodicals" in smoke
 
 
 def test_docs_name_series_periodical_grouping_panel_as_landed():

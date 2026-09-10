@@ -19,8 +19,10 @@ def test_vue_top_series_periodicals_are_folded_into_compact_browse_disclosure():
 
     assert 'library-workspace-panel--browse' in vue
     assert "{{ t('library', 'Browse shortcuts') }}" in vue
-    assert 'class="library-periodical-groups"' in vue
-    assert '<section v-if="publicationSummaries.length > 0" class="library-periodical-groups"' in vue
+    assert 'library-shortcut-selectors' in vue
+    assert 'class="library-shortcut-select-card library-periodical-groups"' in vue
+    assert '<select @change="navigateToSelected">' in vue
+    assert ':value="publicationLandingUrl(summary.publication)"' in vue
     assert '<details v-if="publicationSummaries.length > 0" class="library-periodical-groups">' not in vue
 
 

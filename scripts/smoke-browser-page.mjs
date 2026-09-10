@@ -171,9 +171,9 @@ async function runBrowserSmoke(proxyBase) {
         const showFiles = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Show in Files')
         const download = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Download source')
         const details = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Details')
-        const publicationLanding = document.querySelector('.library-periodical-groups a[href*="/apps/library/publications/"]')
-        const yearLanding = document.querySelector('.library-year-groups a[href*="/apps/library/years/"]')
-        const creatorLanding = document.querySelector('.library-creator-groups a[href*="/apps/library/creators/"]')
+        const publicationLanding = document.querySelector('.library-periodical-groups a[href*="/apps/library/publications/"]') || document.querySelector('.library-periodical-groups option[value*="/apps/library/publications/"]')
+        const yearLanding = document.querySelector('.library-year-groups a[href*="/apps/library/years/"]') || document.querySelector('.library-year-groups option[value*="/apps/library/years/"]')
+        const creatorLanding = document.querySelector('.library-creator-groups a[href*="/apps/library/creators/"]') || document.querySelector('.library-creator-groups option[value*="/apps/library/creators/"]')
         return {
           title: document.title,
           fallback: Boolean(document.querySelector('[data-vue-fallback="true"]')),
@@ -238,9 +238,9 @@ async function runBrowserSmoke(proxyBase) {
           firstShowFiles: showFiles ? showFiles.href : '',
           firstDownload: download ? download.href : '',
           firstDetails: details ? details.href : '',
-          firstPublicationLanding: publicationLanding ? publicationLanding.href : '',
-          firstYearLanding: yearLanding ? yearLanding.href : '',
-          firstCreatorLanding: creatorLanding ? creatorLanding.href : '',
+          firstPublicationLanding: publicationLanding ? (publicationLanding.href || publicationLanding.value || '') : '',
+          firstYearLanding: yearLanding ? (yearLanding.href || yearLanding.value || '') : '',
+          firstCreatorLanding: creatorLanding ? (creatorLanding.href || creatorLanding.value || '') : '',
           badHostHrefs: [...document.querySelectorAll('a[href]')].filter((a) => a.href.startsWith('http://f/') || a.href.startsWith('http://settings/')).length,
           catalogueLabelled: document.querySelector('.library-panel')?.getAttribute('aria-labelledby') === 'library-catalogue-heading'
             && Boolean(document.querySelector('#library-catalogue-heading')),

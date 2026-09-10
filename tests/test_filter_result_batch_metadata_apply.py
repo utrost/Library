@@ -67,7 +67,7 @@ def test_catalogue_batch_form_labels_apply_capable_preview():
     fallback = read("src/main.js")
 
     for source in (vue, fallback):
-        assert "Preview & apply metadata edit" in source
+        assert "Preview & apply metadata edit" in source or "Preview edit" in source
         assert "Preview first, then apply from the review page." in source
         assert "batchMetadataEditPreviewUrl" in source
         assert "Batch metadata apply updated" in source
@@ -93,6 +93,6 @@ def test_docs_and_version_track_batch_metadata_apply():
 
     assert "preview-and-apply batch metadata edits" in guide.lower()
     assert "batch metadata apply" in roadmap.lower()
-    assert "<version>0.1.0-alpha.147</version>" in info
-    assert '"version": "0.1.0-alpha.147"' in package
-    assert '"version": "0.1.0-alpha.147"' in lock
+    assert "<version>0.1.0-alpha.148</version>" in info
+    assert '"version": "0.1.0-alpha.148"' in package
+    assert '"version": "0.1.0-alpha.148"' in lock

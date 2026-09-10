@@ -52,7 +52,7 @@ def test_catalogue_vue_and_fallback_render_batch_metadata_edit_preview_form():
     assert "library.item.batchpreviewmetadataedit" in page
     assert "batchMetadataEditPreviewUrl" in app
     assert "library-batch-metadata-edit-preview-form" in app
-    assert "Preview & apply metadata edit" in app
+    assert "Preview & apply metadata edit" in app or "Preview edit" in app
     assert "bulkEditField" in app
     assert "bulkEditValue" in app
     assert "Preview first, then apply from the review page." in app
@@ -73,6 +73,6 @@ def test_docs_and_version_track_preview_first_filtered_batch_metadata_edit():
     assert "explicit apply button writes only changed rows" in guide
     assert "batch metadata apply" in roadmap.lower()
     assert "reports requested/applied/unchanged/skipped counts" in roadmap.lower()
-    assert "<version>0.1.0-alpha.147</version>" in info
-    assert '"version": "0.1.0-alpha.147"' in package
-    assert '"version": "0.1.0-alpha.147"' in lock
+    assert "<version>0.1.0-alpha.148</version>" in info
+    assert '"version": "0.1.0-alpha.148"' in package
+    assert '"version": "0.1.0-alpha.148"' in lock
