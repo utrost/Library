@@ -26,6 +26,7 @@ use OCP\IUserSession;
 use OCP\Util;
 
 class PageController extends Controller {
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-147';
     private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-147';
 
     private const READER_FIXTURE_FILE_ID = 82;
@@ -55,7 +56,7 @@ class PageController extends Controller {
         Util::addStyle(Application::APP_ID, 'style');
         Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
-        Util::addScript(Application::APP_ID, 'library-main');
+        Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -70,7 +71,7 @@ class PageController extends Controller {
         Util::addStyle(Application::APP_ID, 'style');
         Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
-        Util::addScript(Application::APP_ID, 'library-main');
+        Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -92,7 +93,7 @@ class PageController extends Controller {
         Util::addStyle(Application::APP_ID, 'style');
         Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
-        Util::addScript(Application::APP_ID, 'library-main');
+        Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -113,7 +114,7 @@ class PageController extends Controller {
         Util::addStyle(Application::APP_ID, 'style');
         Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
-        Util::addScript(Application::APP_ID, 'library-main');
+        Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';

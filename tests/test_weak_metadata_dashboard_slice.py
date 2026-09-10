@@ -7,7 +7,8 @@ def test_vue_catalogue_renders_weak_metadata_dashboard_with_stable_filter_links(
     source = (ROOT / "src" / "App.vue").read_text()
 
     assert "library-weak-metadata-dashboard" in source
-    assert "Weak metadata cockpit" in source
+    assert "Review cards compare current values" in source
+    assert ":title=\"t('library', row.description)\"" in source
     for label in [
         "Missing creator",
         "Missing publication/series",
@@ -68,4 +69,5 @@ def test_weak_metadata_dashboard_keeps_cards_browse_first_and_uses_counts_from_c
     assert "smartViewCounts[row.key]" in source
     assert "smartViewUrl(row.filters)" in source
     assert "compact cards stay browse-first" in source
+    assert "<small>{{ t('library', row.description) }}</small>" not in source
     assert "queryCatalogue($userId, $filters, ['page' => 1, 'limit' => 1])['total']" in service

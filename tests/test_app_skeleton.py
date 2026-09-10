@@ -58,3 +58,25 @@ def test_workspace_menus_use_economical_open_layouts():
     assert "grid-column: 1 / -1" in vue
     assert "grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr))" in vue
     assert "max-width: none" in vue
+
+
+def test_explanatory_help_moves_to_hover_labels():
+    vue = (ROOT / "src" / "App.vue").read_text()
+
+    removed_visible_help = [
+        "<p class=\"library-muted\">{{ t('library', 'Search, sort and filters narrow the current result set.",
+        "id=\"library-search-scope\" class=\"library-muted library-search-scope\"",
+        "library-workspace-panel-copy",
+        "<span>{{ t('library', view.description) }}</span>",
+        "<small>{{ t('library', row.description) }}</small>",
+        "<p class=\"library-muted\">{{ t('library', 'Every batch action uses the current filters",
+        "<p class=\"library-muted\">{{ t('library', 'Review cards compare current values",
+        "<p class=\"library-muted\">{{ t('library', 'Cached metadata overview loads quickly",
+    ]
+    for phrase in removed_visible_help:
+        assert phrase not in vue
+
+    assert ":title=\"t('library', 'Search, sort and filters narrow the current result set." in vue
+    assert ":title=\"t('library', 'Search also checks descriptions." in vue
+    assert ":title=\"t('library', view.description)\"" in vue
+    assert ":title=\"t('library', row.description)\"" in vue
