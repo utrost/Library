@@ -21,6 +21,18 @@ def test_package_exposes_vue_browser_smoke_script():
     assert "user:auth-tokens:delete" in text
 
 
+def test_vue_smoke_retries_only_initial_catalogue_404_during_app_enable_cache_ttl():
+    smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
+
+    assert "async function fetchInitialLibraryPage" in smoke
+    assert "deadlineMs = 5000" in smoke
+    assert "intervalMs = 200" in smoke
+    assert "response.status !== 404" in smoke
+    assert "Math.min(intervalMs, deadline - Date.now())" in smoke
+    assert "const page = await fetchInitialLibraryPage(token)" in smoke
+    assert "const page = await fetchText('/apps/library/', token)" not in smoke
+
+
 def test_vue_component_css_is_built_to_nextcloud_css_asset_and_loaded():
     config = (ROOT / "vite.config.js").read_text()
     build_script = (ROOT / "scripts" / "build-vue.mjs").read_text()
@@ -30,13 +42,13 @@ def test_vue_component_css_is_built_to_nextcloud_css_asset_and_loaded():
     assert "versionedJsAssetName" in build_script
     assert "versionedCssAssetName" in build_script
     assert "copied_nextcloud_vue_assets=true" in build_script
-    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-149';" in controller
-    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-149';" in controller
+    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-150';" in controller
+    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-150';" in controller
     assert "Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);" in controller
     assert "Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);" in controller
     assert (ROOT / "css" / "library-vue.css").exists()
-    assert (ROOT / "js" / "library-main-0-1-0-alpha-149.mjs").exists()
-    assert (ROOT / "css" / "library-vue-0-1-0-alpha-149.css").exists()
+    assert (ROOT / "js" / "library-main-0-1-0-alpha-150.mjs").exists()
+    assert (ROOT / "css" / "library-vue-0-1-0-alpha-150.css").exists()
 
 
 def test_built_vue_bundle_is_browser_safe_without_node_process_global():

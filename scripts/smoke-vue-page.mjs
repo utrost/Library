@@ -62,6 +62,15 @@ async function fetchText(pathOrUrl, token, options = {}) {
   return { status: response.status, text: await response.text(), headers: response.headers }
 }
 
+async function fetchInitialLibraryPage(token, { deadlineMs = 5000, intervalMs = 200 } = {}) {
+  const deadline = Date.now() + deadlineMs
+  while (true) {
+    const response = await fetchText('/apps/library/', token)
+    if (response.status !== 404 || Date.now() >= deadline) return response
+    await new Promise((resolve) => setTimeout(resolve, Math.min(intervalMs, deadline - Date.now())))
+  }
+}
+
 async function fetchBinaryHeaders(pathOrUrl, token) {
   const url = pathOrUrl.startsWith('http') ? pathOrUrl : new URL(pathOrUrl, upstream).toString()
   const response = await fetch(url, {
@@ -114,7 +123,7 @@ try {
   if (!token) {
     fail('temporary_app_password_not_created')
   } else {
-    const page = await fetchText('/apps/library/', token)
+    const page = await fetchInitialLibraryPage(token)
     const state = decodeInitialState(page.text)
     // accepts versioned assets; legacy contract marker: library-main\.mjs library-vue\.css
     const scriptMatch = page.text.match(/src="([^"]*library-main(?:-[0-9a-z-]+)?\.mjs[^"]*)"/)
@@ -286,9 +295,9 @@ try {
     console.log(`source_has_custom_saved_collections=${sourceComponent.includes('library-saved-collections') && sourceComponent.includes('Custom collections') && sourceComponent.includes('Save current view') && sourceComponent.includes('savedCollections') && sourceComponent.includes('savedCollectionSaveUrl') && sourceComponent.includes('savedCollectionDeleteUrl') && sourceComponent.includes('savedCollectionFilters') && sourceComponent.includes('JSON.stringify(currentSavableFilters')}`)
     console.log(`source_has_query_encoding_fix=${sourceComponent.includes("encodeURIComponent(tag.name)") && sourceComponent.includes('nextcloudTags.some')}`)
     const appInfo = readFileSync('appinfo/info.xml', 'utf8')
-    console.log(`app_version=0.1.0-alpha.149`)
+    console.log(`app_version=0.1.0-alpha.150`)
     console.log(`source_has_mobile_cover_first_cards=${sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceComponent.includes('library-cover-actions') && sourceStyle.includes('@media (max-width: 520px)') && sourceStyle.includes('grid-template-columns: repeat(2, minmax(0, 1fr))')}`)
-    console.log(`source_has_compact_cover_cards_all_widths=${appInfo.includes('<version>0.1.0-alpha.149</version>') && sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0')}`)
+    console.log(`source_has_compact_cover_cards_all_widths=${appInfo.includes('<version>0.1.0-alpha.150</version>') && sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0')}`)
     console.log(`served_css_has_compact_cover_defaults=${css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') && css.text.includes('min-height:0') && css.text.includes('library-cover-details')}`)
     console.log(`source_has_publication_sort=${sourceComponent.includes('<option value="publication">')}`)
     console.log(`source_has_periodical_groups_panel=${sourceComponent.includes('library-shortcut-selectors') && sourceComponent.includes('library-periodical-groups') && sourceComponent.includes('Series / periodicals') && sourceComponent.includes('Jump into recurring publications with one click') && sourceComponent.includes('publicationLandingUrl(summary.publication)')}`)

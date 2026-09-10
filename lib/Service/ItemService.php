@@ -570,9 +570,20 @@ final class ItemService {
 
         $counts = [];
         foreach ($views as $key => $filters) {
-            $counts[$key] = (int)$this->queryCatalogue($userId, $filters, ['page' => 1, 'limit' => 1])['total'];
+            $counts[$key] = $this->countCatalogue($userId, $filters);
         }
         return $counts;
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     */
+    public function countCatalogue(string $userId, array $filters): int {
+        if (trim((string)($filters['scannerConflicts'] ?? '')) === '1') {
+            return $this->countScannerConflictCatalogueItems($userId, $filters);
+        }
+
+        return $this->countCatalogueItems($userId, $filters);
     }
 
     /**
@@ -654,6 +665,25 @@ final class ItemService {
             'total' => $this->countCatalogueItems($userId, $filters),
             'facets' => $this->catalogueFacets($userId),
         ];
+    }
+
+    private function countScannerConflictCatalogueItems(string $userId, array $filters): int {
+        $filtersWithoutConflict = $filters;
+        unset($filtersWithoutConflict['scannerConflicts']);
+
+        $qb = $this->catalogueQueryBuilder($userId, $filtersWithoutConflict);
+        $result = $qb->executeQuery();
+
+        $count = 0;
+        while ($row = $result->fetch()) {
+            $item = $this->normalizeJoinedItemRow($row);
+            if ($this->itemHasScannerConflict($item)) {
+                $count++;
+            }
+        }
+        $result->closeCursor();
+
+        return $count;
     }
 
     private function queryScannerConflictCatalogue(string $userId, array $filters, int $offset, int $limit): array {

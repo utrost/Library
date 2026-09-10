@@ -1,7 +1,7 @@
 # Human Architecture Review Notes
 
 Audience: Nextcloud administrators, architecture reviewers and security reviewers  
-Status: current implementation reference for Library `0.1.0-alpha.149`
+Status: current implementation reference for Library `0.1.0-alpha.150`
 
 This document answers: what changes when Library is installed in a Nextcloud instance, which schema objects and jobs are added, what prerequisites and optional dependencies exist, and which parts of the surrounding Nextcloud stack Library relies on.
 
@@ -28,7 +28,7 @@ Source: `appinfo/info.xml`.
 - App id: `library`
 - Display name: `Library`
 - Namespace: `Library` / PHP namespace `OCA\Library`
-- Current version: `0.1.0-alpha.149`
+- Current version: `0.1.0-alpha.150`
 - Licence declaration: `agpl` in `info.xml`; repository license is `AGPL-3.0-or-later`.
 - Categories: `files`, `multimedia`
 - Nextcloud compatibility: `min-version="34"`, `max-version="34"`
@@ -301,6 +301,8 @@ Operational command-line interactions use existing Nextcloud and repository comm
   - `npm run smoke:vue`
   - `npm run smoke:browser`
   - other focused smoke scripts listed in `package.json` for metadata separation, multi-root, last-opened, descriptions, workflow status, genres/classifications, conflict review, bulk reset and scale pilots.
+
+The catalogue exposes a dedicated count-only service path for Useful-view and saved-collection badges. Normal count filters execute a database count without materializing item rows or computing facets. Scanner-conflict counts remain a deliberate exception: they read matching rows and apply the same PHP conflict predicate as the visible catalogue until an equivalent SQL predicate is implemented. Further scale work remains pending for list-payload trimming, workload-led index additions, unchanged-rescan short-circuiting, and runtime PHP database coverage; that coverage must include correctness for saved collection filters persisted with a raw Nextcloud tag.
 
 ## Data ownership and side effects
 
