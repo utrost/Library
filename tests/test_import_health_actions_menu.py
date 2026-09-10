@@ -28,7 +28,8 @@ def test_import_health_actions_css_keeps_menu_readable():
 
     assert ".library-actions-health-overview" in app
     assert ".library-actions-health-grid" in app
-    assert "max-width: min(92vw, 760px)" in app
+    assert "max-width: none" in app
+    assert "grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr))" in app
     assert "browser_import_health_panel_visible" in smoke
     assert "browser_actions_menu_has_metadata_overview" in smoke
     assert "dom.importHealthPanelVisible === false" in smoke

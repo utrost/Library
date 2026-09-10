@@ -994,9 +994,14 @@ async function toggleStar(item, event) {
 .library-workspace-panel--admin { --library-workspace-accent: #4f5d75; }
 
 .library-workspace-panel[open] {
+  align-items: start;
   box-shadow: 0 12px 36px color-mix(in srgb, var(--library-workspace-accent) 18%, transparent 82%);
+  display: grid;
   flex-basis: 100%;
+  gap: 0.65rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   order: 10;
+  padding-bottom: 0.75rem;
 }
 
 .library-workspace-panel-summary {
@@ -1010,6 +1015,11 @@ async function toggleStar(item, event) {
   box-sizing: border-box;
   padding: 0.7rem 0.8rem;
   width: 100%;
+}
+
+.library-workspace-panel[open] > .library-workspace-panel-summary {
+  grid-column: 1 / -1;
+  min-height: 4.2rem;
 }
 
 .library-workspace-panel-summary::-webkit-details-marker {
@@ -1080,7 +1090,11 @@ async function toggleStar(item, event) {
 
 .library-workspace-panel-copy {
   border-top: 1px solid color-mix(in srgb, var(--library-workspace-accent) 20%, var(--color-border) 80%);
-  padding: 0.85rem 1rem 0;
+  padding: 0.7rem 0.85rem 0;
+}
+
+.library-workspace-panel[open] > .library-workspace-panel-copy {
+  grid-column: 1 / -1;
 }
 
 .library-workspace-panel > form,
@@ -1092,8 +1106,21 @@ async function toggleStar(item, event) {
   margin-right: 1rem;
 }
 
+.library-workspace-panel[open] > form,
+.library-workspace-panel[open] > nav,
+.library-workspace-panel[open] > section,
+.library-workspace-panel[open] > article,
+.library-workspace-panel[open] > div:not(.library-workspace-panel-copy) {
+  margin-left: 0.85rem;
+  margin-right: 0.85rem;
+}
+
 .library-workspace-panel > :last-child {
   margin-bottom: 1rem;
+}
+
+.library-workspace-panel[open] > :last-child {
+  margin-bottom: 0;
 }
 
 .library-workspace-panel--batch > form,
@@ -1120,15 +1147,15 @@ async function toggleStar(item, event) {
   flex-basis: 100%;
   gap: 0.65rem;
   margin-top: 0.75rem;
-  max-width: min(92vw, 760px);
+  max-width: none;
   padding: 0.75rem;
 }
 
 .library-actions-health-links,
 .library-review-queue-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 0.45rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
 }
 
 .library-review-queue-actions article {
@@ -1137,7 +1164,6 @@ async function toggleStar(item, event) {
   border-radius: var(--border-radius, 8px);
   display: grid;
   gap: 0.45rem;
-  max-width: 22rem;
   padding: 0.65rem;
 }
 
@@ -1328,21 +1354,26 @@ async function toggleStar(item, event) {
 }
 
 .library-useful-view-links {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 0.45rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+
+.library-workspace-panel--browse[open] .library-useful-view-links {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
 }
 
 .library-useful-view-chip {
   background: var(--color-main-background, #fff);
   border: 1px solid var(--color-border, #d0d0d0);
-  border-radius: 999px;
+  border-radius: 12px;
   color: var(--color-main-text, #222);
-  display: inline-grid;
-  gap: 0.1rem;
+  display: grid;
+  gap: 0.08rem 0.35rem;
   grid-template-columns: minmax(0, 1fr) auto;
-  max-width: 18rem;
-  padding: 0.4rem 0.7rem;
+  min-width: 0;
+  padding: 0.45rem 0.55rem;
   text-decoration: none;
 }
 
@@ -1354,13 +1385,19 @@ async function toggleStar(item, event) {
 
 .library-useful-view-chip strong {
   font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .library-useful-view-chip span {
   color: var(--color-text-maxcontrast, #6b6b6b);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   grid-column: 1 / -1;
   line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .library-useful-view-count {
@@ -1750,6 +1787,17 @@ async function toggleStar(item, event) {
   gap: 12px;
   grid-template-columns: minmax(220px, 1.25fr) minmax(220px, 1.6fr) minmax(180px, 0.8fr);
   margin: 0.75rem 0;
+}
+
+.library-workspace-panel--browse[open] .library-home-hero-card,
+.library-workspace-panel--browse[open] .library-home-rediscover,
+.library-workspace-panel--browse[open] .library-discovery-shortcut-grid {
+  align-self: stretch;
+  margin-top: 0;
+}
+
+.library-workspace-panel--browse[open] .library-discovery-shortcut-grid {
+  grid-column: 1 / -1;
 }
 
 .library-home-hero-card,
