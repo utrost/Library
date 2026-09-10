@@ -72,7 +72,7 @@ describe('Library catalogue Vue app', () => {
     expect(workspace.exists()).toBe(true)
     const panels = workspace.findAll(':scope > details.library-workspace-panel')
     expect(panels).toHaveLength(5)
-    expect(panels.map((panel) => panel.find('summary span').text())).toEqual([
+    expect(panels.map((panel) => panel.find('.library-workspace-panel-title').text())).toEqual([
       'Refine results',
       'Browse shortcuts',
       'Batch actions',
@@ -103,6 +103,32 @@ describe('Library catalogue Vue app', () => {
     expect(Boolean(workspaceTop & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
   })
 
+  it('gives each workspace panel a polished visual identity without changing its contract', () => {
+    const wrapper = mount(App, { props: { state } })
+    const panels = wrapper.findAll('.library-catalogue-workspace > details.library-workspace-panel')
+
+    expect(panels).toHaveLength(5)
+    expect(panels.map((panel) => panel.attributes('data-workspace-panel'))).toEqual([
+      'refine',
+      'browse',
+      'batch',
+      'review',
+      'admin',
+    ])
+    expect(panels.map((panel) => panel.find('.library-workspace-panel-icon').text())).toEqual([
+      '⌕',
+      '↗',
+      '✓',
+      '!',
+      '⚙',
+    ])
+    for (const panel of panels) {
+      expect(panel.find('.library-workspace-panel-title').exists()).toBe(true)
+      expect(panel.find('.library-workspace-panel-purpose').exists()).toBe(true)
+      expect(panel.find('.library-workspace-panel-summary').classes()).toContain('library-workspace-panel-summary--polished')
+    }
+  })
+
   it('renders the catalogue from Nextcloud initial state', () => {
     const wrapper = mount(App, { props: { state } })
 
@@ -126,10 +152,10 @@ describe('Library catalogue Vue app', () => {
     const discoveryShortcuts = wrapper.find('.library-workspace-panel--browse')
     expect(filterPanel.exists()).toBe(true)
     expect(filterPanel.attributes('open')).toBeUndefined()
-    expect(filterPanel.find('summary span').text()).toBe('Refine results')
+    expect(filterPanel.find('.library-workspace-panel-title').text()).toBe('Refine results')
     expect(discoveryShortcuts.exists()).toBe(true)
     expect(discoveryShortcuts.attributes('open')).toBeUndefined()
-    expect(discoveryShortcuts.find('summary span').text()).toBe('Browse shortcuts')
+    expect(discoveryShortcuts.find('.library-workspace-panel-title').text()).toBe('Browse shortcuts')
     expect(wrapper.text()).toContain('Export corrected metadata')
     expect(wrapper.find('a[aria-label="Export corrected metadata"]').attributes('href')).toBe('/apps/library/export/metadata')
   })
@@ -229,11 +255,11 @@ describe('Library catalogue Vue app', () => {
       expect(panel.attributes('open')).toBeUndefined()
     }
 
-    expect(workspace.find('.library-workspace-panel--refine > summary span').text()).toContain('Refine results')
-    expect(workspace.find('.library-workspace-panel--browse > summary span').text()).toContain('Browse shortcuts')
-    expect(workspace.find('.library-workspace-panel--batch > summary span').text()).toContain('Batch actions')
-    expect(workspace.find('.library-workspace-panel--review > summary span').text()).toContain('Review queue')
-    expect(workspace.find('.library-workspace-panel--admin > summary span').text()).toContain('Admin tools')
+    expect(workspace.find('.library-workspace-panel--refine .library-workspace-panel-title').text()).toContain('Refine results')
+    expect(workspace.find('.library-workspace-panel--browse .library-workspace-panel-title').text()).toContain('Browse shortcuts')
+    expect(workspace.find('.library-workspace-panel--batch .library-workspace-panel-title').text()).toContain('Batch actions')
+    expect(workspace.find('.library-workspace-panel--review .library-workspace-panel-title').text()).toContain('Review queue')
+    expect(workspace.find('.library-workspace-panel--admin .library-workspace-panel-title').text()).toContain('Admin tools')
 
     const toolsBeforeCovers = workspace.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
     expect(Boolean(toolsBeforeCovers & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)

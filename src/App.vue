@@ -563,10 +563,11 @@ async function toggleStar(item, event) {
     <p v-if="batchMetadataApplyMessage" class="library-notice library-batch-metadata-apply-result">{{ batchMetadataApplyMessage }}</p>
 
     <nav class="library-catalogue-workspace" :aria-label="t('library', 'One catalogue workspace')">
-      <details class="library-workspace-panel library-workspace-panel--refine library-filter-panel">
-        <summary class="library-workspace-panel-summary library-filter-panel-summary">
-          <span>{{ t('library', 'Refine results') }}</span>
-          <small>{{ t('library', 'Filters, facets and saved filter shortcuts') }}</small>
+      <details class="library-workspace-panel library-workspace-panel--refine library-filter-panel" data-workspace-panel="refine">
+        <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished library-filter-panel-summary">
+          <span class="library-workspace-panel-icon" aria-hidden="true">⌕</span>
+          <span class="library-workspace-panel-title">{{ t('library', 'Refine results') }}</span>
+          <small class="library-workspace-panel-purpose">{{ t('library', 'Filters, facets and saved filter shortcuts') }}</small>
           <b class="library-workspace-scope-badge">{{ activeFilters.shelf ? t('library', 'this shelf') : (activeFilterChips.length > 0 ? t('library', 'current results') : t('library', 'whole catalogue')) }}</b>
         </summary>
         <div class="library-workspace-panel-copy">
@@ -611,8 +612,8 @@ async function toggleStar(item, event) {
         </form>
       </details>
 
-      <details class="library-workspace-panel library-workspace-panel--browse library-secondary-tool library-discovery-shortcuts library-home-dashboard">
-        <summary class="library-workspace-panel-summary"><span>{{ t('library', 'Browse shortcuts') }}</span><small>{{ t('library', 'Continue reading, recently added, rediscover and useful views') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'whole catalogue') }}</b></summary>
+      <details class="library-workspace-panel library-workspace-panel--browse library-secondary-tool library-discovery-shortcuts library-home-dashboard" data-workspace-panel="browse">
+        <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">↗</span><span class="library-workspace-panel-title">{{ t('library', 'Browse shortcuts') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Continue reading, recently added, rediscover and useful views') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'whole catalogue') }}</b></summary>
         <div class="library-workspace-panel-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Browse shortcuts') }}</p><p class="library-muted">{{ t('library', 'Shortcuts reopen ordinary catalogue views, so filters, chips and pagination stay consistent.') }}</p></div>
         <article v-if="hasHomeDashboard" class="library-home-hero-card"><h3>{{ t('library', 'Continue reading') }}</h3><p class="library-muted">{{ t('library', 'Fast entry points keep browsing visual: continue, revisit recent additions, or rediscover one shelf item.') }}</p><div class="library-home-hero-actions"><a v-if="featuredHomeItems[0]" class="button primary" :href="featuredHomeItems[0].openUrl">{{ t('library', 'Read now') }}</a><button v-if="featuredHomeItems[0]" type="button" class="button secondary" @click="openDetailsDrawer(featuredHomeItems[0])">{{ t('library', 'Open details drawer') }}</button></div></article>
         <article v-if="rediscoverItem" class="library-home-rediscover"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Rediscover') }}</p><strong>{{ rediscoverItem.title }}</strong><span class="library-muted">{{ rediscoverItem.creators || rediscoverItem.publication || rediscoverItem.cachedPath }}</span><button type="button" class="button secondary" @click="openDetailsDrawer(rediscoverItem)">{{ t('library', 'Peek') }}</button></article>
@@ -622,8 +623,8 @@ async function toggleStar(item, event) {
         <section class="library-saved-collections"><h3>{{ t('library', 'Custom collections') }}</h3><p class="library-muted">{{ t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.') }}</p><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView">{{ t('library', 'Save current view') }}</button></form><p v-if="!canSaveCurrentView" class="library-muted">{{ t('library', 'Choose search terms or filters first, then save them as a custom collection.') }}</p><nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')"><article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card"><a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)"><strong>{{ collection.name }}</strong><span>{{ Number(collection.count || 0) }} {{ t('library', 'items') }}</span></a><form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form"><input type="hidden" name="requesttoken" :value="requestToken"><button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button></form></article></nav></section>
       </details>
 
-      <details class="library-workspace-panel library-workspace-panel--batch library-batch-actions" :aria-label="t('library', 'Batch actions for current results')">
-        <summary class="library-workspace-panel-summary"><span>{{ t('library', 'Batch actions') }}</span><small>{{ t('library', 'Preview and apply changes to current results') }}</small><b class="library-workspace-scope-badge">{{ pagination.total }} {{ t('library', 'Current filter result') }}</b></summary>
+      <details class="library-workspace-panel library-workspace-panel--batch library-batch-actions" data-workspace-panel="batch" :aria-label="t('library', 'Batch actions for current results')">
+        <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">✓</span><span class="library-workspace-panel-title">{{ t('library', 'Batch actions') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Preview and apply changes to current results') }}</small><b class="library-workspace-scope-badge">{{ pagination.total }} {{ t('library', 'Current filter result') }}</b></summary>
         <div class="library-workspace-panel-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Batch actions') }}</p><p class="library-muted">{{ t('library', 'Every batch action uses the current filters, names its scope, and returns changed / unchanged / skipped / error feedback.') }}</p></div>
         <form method="post" :action="batchTagUrl" class="library-batch-tag-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="filter.key" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Nextcloud tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button primary">{{ t('library', 'Apply Nextcloud tag to current results') }}</button><p class="library-muted">{{ t('library', 'Uses the current filters, not just this page. Limit: 5,000 matched items.') }}</p></form>
         <form method="post" :action="batchTagRemoveUrl" class="library-batch-tag-remove-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`remove-tag-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Nextcloud tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button secondary">{{ t('library', 'Remove tag from current results') }}</button><p class="library-muted">{{ t('library', 'Removes an existing Nextcloud tag from every item matching the current filters. Library metadata is not changed.') }}</p></form>
@@ -632,16 +633,16 @@ async function toggleStar(item, event) {
         <form method="post" :action="batchCoverRefreshUrl" class="library-batch-cover-refresh-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`cover-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><button type="submit" class="button secondary">{{ t('library', 'Request fresh cover previews') }}</button><p class="library-muted">{{ t('library', 'Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.') }}</p></form>
       </details>
 
-      <details class="library-workspace-panel library-workspace-panel--review library-weak-metadata-dashboard">
-        <summary class="library-workspace-panel-summary"><span>{{ t('library', 'Review queue') }}</span><small>{{ t('library', 'Weak metadata, conflicts, missing files and extraction errors') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'current results') }}</b></summary>
+      <details class="library-workspace-panel library-workspace-panel--review library-weak-metadata-dashboard" data-workspace-panel="review">
+        <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">!</span><span class="library-workspace-panel-title">{{ t('library', 'Review queue') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Weak metadata, conflicts, missing files and extraction errors') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'current results') }}</b></summary>
         <div class="library-workspace-panel-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Review queue') }}</p><h3>{{ t('library', 'Weak metadata cockpit') }}</h3><p class="library-muted">{{ t('library', 'Review cards compare current values, proposed values, source and consequence before anything changes. Source files stay in Nextcloud Files; compact cards stay browse-first while Details carries repair actions.') }}</p></div>
         <nav class="library-weak-metadata-links" :aria-label="t('library', 'Weak metadata catalogue views')"><a v-for="row in weakMetadataDashboardRows" :key="row.key" class="library-weak-metadata-card" :href="smartViewUrl(row.filters)" :title="row.description"><span><strong>{{ t('library', row.label) }}</strong><small>{{ t('library', row.description) }}</small></span><b>{{ Number(smartViewCounts[row.key] || 0) }}</b></a></nav>
         <div class="library-review-queue-actions" aria-label="Review queue shortcuts"><article><h4>{{ t('library', 'Metadata-error queue') }}</h4><p class="library-muted">{{ t('library', 'Open, export or tag the current metadata-error rows. Uses the existing batch tag route, so source files and Library metadata are not changed.') }}</p><a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Open metadata-error rows') }}</a><a class="button secondary" :href="metadataErrorsTsvUrl">{{ t('library', 'Export metadata-error rows') }}</a><form method="post" :action="batchTagUrl" class="library-review-queue-tag-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="status" value="metadata_error"><input type="hidden" name="nextcloudTagName" value="library-metadata-error"><button type="submit" class="button secondary">{{ t('library', 'Tag metadata-error rows') }}</button></form></article><article><h4>{{ t('library', 'Scanner-conflict queue') }}</h4><p class="library-muted">{{ t('library', 'Open or tag items where user metadata differs from stored scanner candidates. Library metadata is not changed.') }}</p><a class="button secondary" :href="scannerConflictReviewUrl">{{ t('library', 'Review scanner conflicts') }}</a><form method="post" :action="batchTagUrl" class="library-review-queue-tag-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="scannerConflicts" value="1"><input type="hidden" name="nextcloudTagName" value="library-scanner-conflict"><button type="submit" class="button secondary">{{ t('library', 'Tag scanner-conflict rows') }}</button></form></article></div>
         <section v-if="metadataReviewWorkbench.enabled" class="library-metadata-review-workbench" aria-labelledby="library-metadata-review-workbench-heading"><div class="library-metadata-review-workbench-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata review workbench') }}</p><h3 id="library-metadata-review-workbench-heading">{{ t('library', 'Review next conflict') }}</h3><p class="library-muted">{{ t('library', 'Shows current value, scanner candidate, path-template candidate, sidecar value and source provenance together. No source files are changed; user-edited values are never silently overwritten.') }}</p></div><article v-if="metadataReviewWorkbench.item" class="library-metadata-review-card"><header><strong>{{ metadataReviewWorkbench.item.title }}</strong><span class="library-muted">{{ metadataReviewWorkbench.item.cachedPath }}</span></header><div class="library-metadata-review-fields"><article v-for="field in metadataReviewWorkbench.fields" :key="field.field" class="library-metadata-review-field"><h4>{{ field.field }}</h4><dl><div><dt>{{ t('library', 'Current value') }}</dt><dd>{{ field.currentValue || '—' }}</dd></div><div><dt>{{ t('library', 'scanner candidate') }}</dt><dd>{{ field.scannerCandidate || '—' }}</dd></div><div><dt>{{ t('library', 'path-template candidate') }}</dt><dd>{{ field.pathTemplateCandidate || '—' }}</dd></div><div><dt>{{ t('library', 'sidecar value') }}</dt><dd>{{ field.sidecarValue || '—' }}</dd></div><div><dt>{{ t('library', 'source provenance') }}</dt><dd>{{ field.sourceProvenance || '—' }}</dd></div></dl><form method="post" :action="metadataReviewWorkbench.item.resetFieldUrl" class="library-metadata-review-accept-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="field" :value="field.field"><input type="hidden" name="returnTo" value="catalogue"><button type="submit" class="button secondary">{{ t('library', 'accept scanner candidate') }}</button></form></article></div><footer class="library-metadata-review-actions"><a class="button secondary" :href="metadataReviewWorkbench.item.detailsUrl">{{ t('library', 'Open full details') }}</a><a class="button secondary" :href="metadataReviewWorkbench.skipUrl">{{ t('library', 'Skip to next conflict') }}</a></footer></article><p v-else class="library-muted">{{ t('library', 'No reviewable conflict is visible on this page. Open scanner conflicts to review the next matching item.') }}</p><a class="button secondary" :href="metadataReviewWorkbench.reviewNextUrl">{{ t('library', 'Review next conflict') }}</a></section>
       </details>
 
-      <details class="library-workspace-panel library-workspace-panel--admin" @toggle="loadImportHealthSummary">
-        <summary class="library-workspace-panel-summary"><span>{{ t('library', 'Admin tools') }}</span><small>{{ t('library', 'Roots, scans, exports and repair operations') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'all enabled roots') }}</b></summary>
+      <details class="library-workspace-panel library-workspace-panel--admin" data-workspace-panel="admin" @toggle="loadImportHealthSummary">
+        <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">⚙</span><span class="library-workspace-panel-title">{{ t('library', 'Admin tools') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Roots, scans, exports and repair operations') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'all enabled roots') }}</b></summary>
         <div class="library-workspace-panel-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Admin tools') }}</p><p class="library-muted">{{ t('library', 'Maintain roots, scans, exports and repair operations away from the browse cards.') }}</p></div>
         <div class="library-catalogue-actions-list"><a :href="settingsUrl" class="button secondary" aria-label="Open Library settings">{{ t('library', 'Settings') }}</a><a v-if="metadataExportUrl" :href="metadataExportUrl" class="button secondary" aria-label="Export corrected metadata">{{ t('library', 'Export corrected metadata') }}</a><a v-if="metadataSidecarManifestUrl" :href="metadataSidecarManifestUrl" class="button secondary" aria-label="Export sidecar manifest">{{ t('library', 'Sidecar manifest') }}</a><a v-if="metadataSidecarBundleUrl" :href="metadataSidecarBundleUrl" class="button secondary" aria-label="Export sidecar ZIP">{{ t('library', 'Sidecar ZIP') }}</a></div>
         <div class="library-actions-health-overview"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Import health') }}</p><h3>{{ t('library', 'Metadata overview') }}</h3><p class="library-muted">{{ t('library', 'Cached metadata overview loads quickly. Refresh only when you want to recompute heavier archive and cover diagnostics. Files are left as-is; diagnostics separate Library extraction from Nextcloud/plugin preview.') }}</p><p v-if="importHealthState.loading" class="library-muted">{{ t('library', 'Loading cached metadata overview…') }}</p><p v-else-if="importHealthState.error" class="library-notice">{{ importHealthState.error }}</p><p v-else-if="!importHealthState.loaded" class="library-muted">{{ t('library', 'Open Admin tools to load the cached metadata and cover overview.') }}</p><template v-if="importHealthState.loaded"><p v-if="importHealthSummary.message" class="library-muted">{{ importHealthSummary.message }}</p><p v-else-if="importHealthSummary.cacheStatus === 'missing'" class="library-muted">{{ t('library', 'No cached metadata overview exists yet') }}</p><p v-if="importHealthGeneratedAt" class="library-muted">{{ t('library', 'Last generated') }}: {{ importHealthGeneratedAt }}</p><button type="button" class="button secondary library-import-health-refresh" :disabled="importHealthState.refreshing" @click="refreshImportHealthSummary">{{ importHealthState.refreshing ? t('library', 'Refreshing metadata overview…') : t('library', 'Refresh metadata overview') }}</button><div class="library-actions-health-links"><a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Review metadata errors') }}</a><a class="button secondary" :href="metadataErrorsUrl">{{ t('library', 'Full review') }}</a><a class="button secondary" :href="metadataErrorsTsvUrl">{{ t('library', 'Export TSV') }}</a><a class="button secondary" :href="coverProbeUrl">{{ t('library', 'Probe covers') }}</a></div><div class="library-actions-health-grid"><article><h4>{{ t('library', 'Metadata errors') }}</h4><p class="library-import-health-number">{{ metadataErrorReview.total || 0 }}</p></article><article><h4>{{ t('library', 'Archive/container check') }}</h4><p class="library-import-health-number">{{ archiveMagicSummary.mismatches || 0 }}</p></article><article><h4>{{ t('library', 'Cover health') }}</h4><p class="library-muted">{{ coverHealthSummary.note }}</p></article><article><h4>{{ t('library', 'Cover support matrix') }}</h4><p class="library-muted">{{ t('library', 'Nextcloud/plugin preview and Library extraction are separate actors. 7z/RAR files stay left as-is; optional read-only archive tools only inspect copies.') }}</p></article><details v-if="metadataErrorReview.examples?.length" class="library-import-health-examples"><summary>{{ t('library', 'Example files and suggested actions') }}</summary><ul><li v-for="example in metadataErrorReview.examples" :key="`${example.fileId}-${example.path}`"><code>{{ example.path }}</code><span>{{ example.scanStatus }} · {{ example.scanError }} · {{ example.actualContainerType }}</span><strong>{{ example.suggestedRepairAction }}</strong></li></ul></details></div></template></div>
@@ -964,46 +965,122 @@ async function toggleStar(item, event) {
 
 .library-catalogue-workspace {
   display: grid;
-  gap: 10px;
-  margin: 0.75rem 0;
+  gap: 12px;
+  margin: 0.9rem 0 1.1rem;
 }
 
 .library-workspace-panel {
-  background: var(--color-main-background);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
+  --library-workspace-accent: var(--color-primary-element, #00679e);
+  --library-workspace-tint: color-mix(in srgb, var(--library-workspace-accent) 10%, var(--color-main-background) 90%);
+  background: linear-gradient(135deg, var(--library-workspace-tint), var(--color-main-background) 44%);
+  border: 1px solid color-mix(in srgb, var(--library-workspace-accent) 24%, var(--color-border) 76%);
+  border-radius: 18px;
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--color-box-shadow, #000) 16%, transparent 84%);
+  overflow: clip;
   padding: 0;
+}
+
+.library-workspace-panel--refine { --library-workspace-accent: #2f80ed; }
+.library-workspace-panel--browse { --library-workspace-accent: #27ae60; }
+.library-workspace-panel--batch { --library-workspace-accent: #9b51e0; }
+.library-workspace-panel--review { --library-workspace-accent: #f2994a; }
+.library-workspace-panel--admin { --library-workspace-accent: #4f5d75; }
+
+.library-workspace-panel[open] {
+  box-shadow: 0 12px 36px color-mix(in srgb, var(--library-workspace-accent) 18%, transparent 82%);
 }
 
 .library-workspace-panel-summary {
   align-items: center;
   cursor: pointer;
   display: grid;
-  gap: 0.2rem 0.6rem;
-  grid-template-columns: minmax(120px, auto) 1fr auto;
+  gap: 0.2rem 0.65rem;
+  grid-template-columns: auto max-content minmax(0, 1fr) auto auto;
   list-style: none;
-  padding: 0.75rem 0.9rem;
+  box-sizing: border-box;
+  padding: 0.85rem 1rem;
+  width: 100%;
 }
 
-.library-workspace-panel-summary span {
-  font-weight: 700;
+.library-workspace-panel-summary::-webkit-details-marker {
+  display: none;
 }
 
-.library-workspace-panel-summary small {
+.library-workspace-panel-summary::after {
   color: var(--color-text-maxcontrast);
+  content: '▾';
+  font-size: 0.95rem;
+  grid-column: 5;
+  transition: transform 160ms ease;
+}
+
+.library-workspace-panel[open] .library-workspace-panel-summary::after {
+  transform: rotate(180deg);
+}
+
+.library-workspace-panel-icon {
+  align-items: center;
+  background: var(--library-workspace-accent);
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 0.95rem;
+  font-weight: 800;
+  height: 2rem;
+  justify-content: center;
+  line-height: 1;
+  width: 2rem;
+}
+
+.library-workspace-panel-title {
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.library-workspace-panel-purpose {
+  color: var(--color-text-maxcontrast);
+  min-width: 0;
 }
 
 .library-workspace-scope-badge {
-  background: var(--color-background-hover);
+  background: color-mix(in srgb, var(--library-workspace-accent) 13%, var(--color-main-background) 87%);
+  border: 1px solid color-mix(in srgb, var(--library-workspace-accent) 32%, transparent 68%);
   border-radius: 999px;
+  color: var(--color-main-text);
   font-size: 0.8rem;
-  padding: 0.2rem 0.55rem;
+  font-weight: 650;
+  padding: 0.2rem 0.6rem;
   white-space: nowrap;
 }
 
 .library-workspace-panel-copy {
-  border-top: 1px solid var(--color-border);
-  padding: 0.75rem 0.9rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--library-workspace-accent) 20%, var(--color-border) 80%);
+  padding: 0.85rem 1rem 0;
+}
+
+.library-workspace-panel > form,
+.library-workspace-panel > nav,
+.library-workspace-panel > section,
+.library-workspace-panel > article,
+.library-workspace-panel > div:not(.library-workspace-panel-copy) {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+.library-workspace-panel > :last-child {
+  margin-bottom: 1rem;
+}
+
+.library-workspace-panel--batch > form,
+.library-review-queue-actions article,
+.library-actions-health-overview,
+.library-home-hero-card,
+.library-home-rediscover,
+.library-saved-collection-card,
+.library-periodical-groups,
+.library-year-groups,
+.library-creator-groups {
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 54%, transparent 46%);
 }
 
 .library-filter-panel {

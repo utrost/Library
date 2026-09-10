@@ -9,7 +9,7 @@ def test_vue_catalogue_filters_are_collapsible_and_closed_by_default():
     assert 'library-workspace-panel--refine library-filter-panel' in vue
     assert 'library-filter-panel-summary' in vue
     assert "Refine results" in vue
-    assert '<details class="library-workspace-panel library-workspace-panel--refine library-filter-panel">' in vue
+    assert '<details class="library-workspace-panel library-workspace-panel--refine library-filter-panel" data-workspace-panel="refine">' in vue
     assert 'library-workspace-panel--refine library-filter-panel" open' not in vue
     assert '<form method="get" class="library-filter-bar"' in vue
 

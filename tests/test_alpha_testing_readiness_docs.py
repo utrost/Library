@@ -11,10 +11,10 @@ def test_human_test_handbook_targets_current_alpha_package():
     handbook = read("docs/human-test-handbook.md")
     checklist = read("docs/alpha-test-checklist.md")
 
-    assert "0.1.0-alpha.144" in handbook
-    assert "dist/library-0.1.0-alpha.144.tar.gz" in handbook
+    assert "0.1.0-alpha.145" in handbook
+    assert "dist/library-0.1.0-alpha.145.tar.gz" in handbook
     assert "0.1.0-alpha.127" not in handbook
-    assert "0.1.0-alpha.144" in checklist
+    assert "0.1.0-alpha.145" in checklist
 
 
 def test_human_test_handbook_covers_recent_browsing_and_review_surfaces():

@@ -29,6 +29,15 @@ def test_user_story_ux_concept_covers_gallery_metadata_shelves_and_filtering():
         "whole catalogue",
     ]:
         assert scope in text
+    for phrase in [
+        "polished card row",
+        "coloured icon",
+        "summary arrow",
+        "slash shortcut opens Refine results",
+    ]:
+        assert phrase in text
+    assert "always-visible quick row" not in text
+    assert "The next UI work should consolidate surfaces" not in text
     for story in [
         "As a reader, I want to browse a gallery of covers",
         "As an archivist, I want metadata visible on cards and detail sections",
@@ -76,6 +85,14 @@ def test_styles_define_responsive_cover_gallery_and_filter_bar():
     assert ".library-cover-image" in css
     assert ".library-cover-placeholder" not in css
     assert ".library-cover-details" in css
+    for selector in [
+        ".library-workspace-panel-icon",
+        ".library-workspace-panel-title",
+        ".library-workspace-panel-purpose",
+        ".library-workspace-panel[open]",
+    ]:
+        assert selector in css
+    assert "--library-workspace-accent" in css
 
 
 def test_readme_links_ux_concept_and_names_current_presentation_slice():

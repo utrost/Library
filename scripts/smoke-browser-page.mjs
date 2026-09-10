@@ -181,7 +181,7 @@ async function runBrowserSmoke(proxyBase) {
           catalogueToolbar: Boolean(document.querySelector('.library-catalogue-workspace')),
           quickFilterBar: Boolean(document.querySelector('.library-quick-filter-bar')),
           secondaryTools: Boolean(document.querySelector('.library-catalogue-workspace')),
-          workspacePanels: Array.from(document.querySelectorAll('.library-catalogue-workspace > details.library-workspace-panel > summary span')).map((node) => node.textContent.trim()),
+          workspacePanels: Array.from(document.querySelectorAll('.library-catalogue-workspace > details.library-workspace-panel .library-workspace-panel-title')).map((node) => node.textContent.trim()),
           secondaryToolCount: document.querySelectorAll('.library-catalogue-workspace > details.library-workspace-panel').length,
           secondaryToolsCollapsed: [...document.querySelectorAll('.library-catalogue-workspace > details.library-workspace-panel')].every((details) => !details.open),
           secondaryToolSummaries: [...document.querySelectorAll('.library-catalogue-workspace > details.library-workspace-panel > summary')].map((summary) => summary.textContent.trim()).join(' | '),
