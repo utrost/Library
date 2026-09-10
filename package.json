@@ -9,6 +9,7 @@
     "build": "node scripts/build-vue.mjs",
     "check": "bash scripts/check.sh",
     "package:release": "bash scripts/package-release.sh",
+    "audit:release-package": "bash scripts/audit-release-package.sh",
     "dev": "vite --mode development build",
     "watch": "vite --mode development build --watch",
     "test": "vitest run",
