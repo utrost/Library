@@ -56,4 +56,4 @@ def test_smoke_and_docs_track_gallery_shelf_slice():
     assert "source_has_gallery_shelf_view_modes" in smoke
     assert "gallery view" in docs
     assert "shelf view" in docs
-    assert "compact / gallery / shelf" in docs
+    assert "cover-catalogue view-mode" in docs

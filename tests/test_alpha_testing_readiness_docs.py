@@ -22,7 +22,7 @@ def test_human_test_handbook_covers_recent_browsing_and_review_surfaces():
 
     required_phrases = [
         "home dashboard",
-        "Compact / Gallery / Shelf",
+        "view-mode buttons",
         "details drawer",
         "Esc closes",
         "ArrowLeft/ArrowRight",
@@ -36,6 +36,18 @@ def test_human_test_handbook_covers_recent_browsing_and_review_surfaces():
     ]
     for phrase in required_phrases:
         assert phrase in handbook
+
+
+def test_public_docs_avoid_removed_catalogue_chrome_copy():
+    combined = "\n".join([
+        read("docs/ux-concept.md"),
+        read("docs/user-guide.md"),
+        read("docs/human-test-handbook.md"),
+        read("docs/usefulness-and-ux-feature-list.md"),
+    ])
+
+    assert "One catalogue workspace for finding, browsing, acting on and reviewing publication files." not in combined
+    assert "Compact / Gallery / Shelf" not in combined
 
 
 def test_alpha_testing_docs_do_not_call_landed_views_absent():

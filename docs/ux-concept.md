@@ -28,7 +28,6 @@ A **Shelf** is a browsing concept, not a new storage silo. In v0.1 shelves come 
 [ Refine ] [ Browse ] [ Batch ] [ Review ] [ Admin ]       workspace menu bar
 
 Library
-One catalogue workspace for finding, browsing, acting on and reviewing publication files.
 
 [active filter chips] [result count]                       current result explanation
 

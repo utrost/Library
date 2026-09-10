@@ -65,7 +65,9 @@ describe('Library catalogue Vue app', () => {
       },
     })
 
-    expect(wrapper.text()).toContain('One catalogue workspace')
+    expect(wrapper.find('#library-catalogue-heading').text()).toBe('Library')
+    expect(wrapper.text()).not.toContain('One catalogue workspace for finding, browsing, acting on and reviewing publication files.')
+    expect(wrapper.text()).not.toContain('Compact / Gallery / Shelf')
     expect(wrapper.text()).not.toContain('Browse as a shelf/gallery first')
 
     const workspace = wrapper.find('.library-catalogue-workspace')
