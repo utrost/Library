@@ -1,29 +1,112 @@
 # Library UX Concept
 
-This document turns the current question — covers, visible metadata, shelves, search and filtering — into a v0.1 user-facing contract. It describes the intended experience and what the current implementation now proves.
+This document defines the v0.1 Library interface as one consistent catalogue workspace. It is not a feature inventory. It is the UX contract that keeps browse, filters, actions, batch tools and review flows from becoming separate competing interfaces.
 
 ## Product answer
 
-Yes, Library should present a **gallery of covers**. The gallery is the primary browsing mode because publications are visual and collection-like. Covers are now served through Library's cover route: Nextcloud previews when available, first-image CBZ extraction when preview is unavailable, and stable placeholders otherwise.
+Library should feel like a **gallery of covers** with librarian tools nearby, not like an admin table. The primary job is to help an external Nextcloud user find, recognize, open and improve publication-like files that already live in Nextcloud Files.
 
-Metadata is visible in two layers. In plain terms, metadata is visible where it helps browsing first, and editable in details when correction matters:
+The core rule is **one workspace, progressive disclosure**:
 
-1. **Card metadata**: compact cards show cover, title, **Read** and **Details** first so browsing works on phones and desktops without dense metadata blocks.
-2. **Details disclosure/workbench metadata**: secondary metadata, source path, metadata provenance, scanner candidates, reset actions, Nextcloud comments, tag editing and Library metadata editing are available behind the card Details disclosure and the dedicated item details page.
+1. **Browse stays primary.** The user lands in a visual result set: covers, titles, quick status, primary open/detail actions and paging.
+2. **Refine stays near the result set.** Search, sort and the most common filters are always visible; deeper filters expand in the same pattern instead of becoming a separate mode.
+3. **Act is scoped and explicit.** Single-item actions live on cards/details. Multi-item actions always say which result set they affect and use preview/apply or clear feedback.
+4. **Review is a workbench, not more metadata noise.** Weak metadata, scanner conflicts, missing files and extraction errors open focused review flows from the same catalogue context.
+5. **Admin stays secondary.** Roots, scans, exports and repair tools are reachable, but they should not dominate the reader-facing catalogue.
 
-A **Shelf** is useful, but it should not become another import silo. For v0.1, shelves are derived from configured Library roots. A root labeled `Photography magazines` or `Manuals` becomes a browse/filter shelf. Later releases can add virtual shelves/collections while keeping Nextcloud Files as canonical storage.
+In this model, metadata is visible where it helps browsing and correction:
 
-Search and filter should be simple and direct in v0.1:
+- **Cards** show the minimum needed to recognize and open an item.
+- **Drawers/details** show richer metadata, provenance, health, comments, tags and edits.
+- **Review panels** show only the comparisons needed for a decision.
 
-- search text across title, subtitle, author/creator, publication and path;
-- filter by publication type;
-- filter by file format and scan status;
-- filter by exact creator, publication/series/periodical title and publication year;
-- use dedicated publication, publication-year and creator landing pages around the same compact grid;
-- see compact **Publication contents** issue/date coverage on publication pages;
-- filter by Nextcloud tag;
-- filter by shelf/root label;
-- show active filter chips so one filter can be removed without clearing the whole search.
+A **Shelf** is a browsing concept, not a new storage silo. In v0.1 shelves come from configured Library roots. Later virtual shelves or saved collections should still behave like catalogue views over files that remain in Nextcloud Files.
+
+## Overarching layout
+
+```text
+Library catalogue
+
+[Search...] [Sort] [Starred] [Page size]          primary quick controls
+[active filter chips] [result count]              current result explanation
+
+▸ Refine results       filters, facets, saved filter shortcuts
+▸ Browse shortcuts     continue reading, recently added, rediscover, useful views
+▸ Batch actions        current-result actions with preview/apply feedback
+▸ Review queue         weak metadata, conflicts, missing files, extraction errors
+▸ Admin tools          roots, scans, exports, repair operations
+
+Cover result set
+┌────────────┐ ┌────────────┐ ┌────────────┐
+│ cover      │ │ cover      │ │ cover      │
+│ title      │ │ title      │ │ title      │
+│ Read       │ │ Read       │ │ Read       │
+│ Details    │ │ Details    │ │ Details    │
+└────────────┘ └────────────┘ └────────────┘
+```
+
+The expandable blocks must look and behave consistently:
+
+- summary row: short label, one-line purpose and count/scope badge when available;
+- body: one focused job, not a mixed drawer of unrelated controls;
+- scope language: `this item`, `current results`, `this shelf`, `all enabled roots` or `whole catalogue`;
+- feedback: changed/unchanged/skipped/error counts for every non-trivial action;
+- mobile first: collapsed by default unless it is part of the immediate task.
+
+## Interaction model
+
+### Find
+
+Search and quick filters answer: “What am I looking at right now?”
+
+Rules:
+
+- keep search, sort, starred-only and page size in the always-visible quick row;
+- show active filter chips for every applied constraint;
+- use the same result grid for search results, shelves, smart views, creator pages, years and publication pages;
+- never hide the current context: shelf, smart view, creator, year, publication and result count should remain visible.
+
+### Browse
+
+Browse shortcuts answer: “Where can I go from here?”
+
+Rules:
+
+- Continue reading, Recently added, Rediscover, Top creators, Top years, Top publications, Publication contents issue/date summaries and Useful views are all shortcuts into normal catalogue results;
+- shortcuts should create ordinary filters/contexts, not special one-off pages with different behavior;
+- empty shortcut panels should explain what metadata or activity would make them useful.
+
+### Select and act
+
+Actions answer: “What will happen, and to what?”
+
+Rules:
+
+- card actions stay simple: Read and Details;
+- detail actions are item-scoped: star, workflow status, metadata edit, tags, comments, Show in Files, Download source;
+- batch actions are current-result-scoped and must say so in the label, preview page and result message;
+- destructive or broad changes require preview/apply or typed/explicit confirmation depending on risk.
+
+### Review
+
+Review flows answer: “What needs a decision?”
+
+Rules:
+
+- weak metadata, scanner conflicts, missing files and extraction errors should enter a consistent review queue pattern;
+- each review card compares current value, proposed value, source and consequence;
+- accept/skip/reset actions should be per field or per item before they become batch operations;
+- review flows must not write source files in v0.1.
+
+### Admin
+
+Admin tools answer: “How is the catalogue maintained?”
+
+Rules:
+
+- roots and scans are settings/admin surfaces, not primary browse controls;
+- scan state appears in the catalogue only as health/status context;
+- exports/import previews belong behind admin or batch-style disclosure, not beside every card.
 
 ## User stories
 
@@ -44,8 +127,8 @@ Acceptance:
 
 Acceptance:
 
-- card view shows the high-signal browse controls without crowding the grid;
-- Details disclosure/detail view shows provenance (`metadataSource`), `userEdited`, scanner candidates, source path and secondary metadata;
+- card view shows high-signal browse controls without crowding the grid;
+- drawer/detail view shows provenance (`metadataSource`), `userEdited`, scanner candidates, source path and secondary metadata;
 - edit fields live on the dedicated item details page, not inline on catalogue cards;
 - scanner-derived, scanner-candidate and user-edited data stay visibly distinct, including **Differs from scanner** labels.
 
@@ -66,27 +149,24 @@ Acceptance:
 
 Acceptance:
 
-- a search box filters title, subtitle, creators, publication and source path;
+- a search box filters title, subtitle, creators, publication, description and source path;
+- common quick filters stay visible above the result set;
+- deeper filters use the same Refine results disclosure pattern;
 - a type selector filters book/comic/magazine/journal/manual/catalogue/other;
 - a tag field filters by exact Nextcloud system tag name;
 - a shelf selector filters by current shelf/root label;
 - filters are ordinary GET parameters so the result is bookmarkable and debuggable.
 
-## v0.1 UX shape
+## v0.1 design direction
 
-```text
-Library
+The next UI work should consolidate surfaces before adding more capabilities:
 
-[Search...] [Type] [Format] [Creator] [Series/periodical] [Year] [Tag] [Shelf] [Apply]
-
-Shelf/gallery
-┌────────────┐ ┌────────────┐ ┌────────────┐
-│ cover area │ │ cover area │ │ cover area │
-│ Title      │ │ Title      │ │ Title      │
-│ Read       │ │ Read       │ │ Read       │
-│ Details ▸  │ │ Details ▸  │ │ Details ▸  │
-└────────────┘ └────────────┘ └────────────┘
-```
+1. Rename and group expandable panels around the shared jobs: **Refine results**, **Browse shortcuts**, **Batch actions**, **Review queue** and **Admin tools**.
+2. Standardize every panel summary with label, purpose text and scope/count badge.
+3. Make current-result scope visible wherever filters, batch operations or review queues are used.
+4. Keep cards quiet: cover, title, quick status, Read and Details.
+5. Use the in-page drawer for peek/read decisions and the full details page for editing/review decisions.
+6. Add new features only when they fit one of the workspace jobs above; otherwise create a new job name before adding UI.
 
 ## Deliberate v0.1 limits
 
@@ -95,10 +175,3 @@ Shelf/gallery
 - Tag filtering uses Nextcloud system tags attached to backing files.
 - Full-text document search is still out of scope for v0.1.
 - Search/filter/sort/pagination are server-side and database-backed; Vue renders the catalogue but should not become the permission/query source of truth.
-
-## Next presentation slices
-
-1. Deepen the landed publication **Publication contents** summary into richer issue grouping when real recurring-publication fixtures justify it.
-2. Add saved filters such as `Unread manuals`, `Photography magazines`, or `Needs metadata review`.
-3. Add virtual shelves/collections separate from root folders.
-4. Add cover cache/crop/rebuild workflows only if on-demand preview/CBZ/placeholder covers plus manual override/revert prove insufficient.
