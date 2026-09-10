@@ -34,6 +34,6 @@ def test_navigation_summary_polish_version_bump_is_tracked_for_asset_refresh():
     info = (ROOT / "appinfo" / "info.xml").read_text()
     package = (ROOT / "package.json").read_text()
     lock = (ROOT / "package-lock.json").read_text()
-    assert "<version>0.1.0-alpha.146</version>" in info
-    assert '"version": "0.1.0-alpha.146"' in package
-    assert '"version": "0.1.0-alpha.146"' in lock
+    assert "<version>0.1.0-alpha.147</version>" in info
+    assert '"version": "0.1.0-alpha.147"' in package
+    assert '"version": "0.1.0-alpha.147"' in lock

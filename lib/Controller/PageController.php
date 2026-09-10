@@ -26,6 +26,8 @@ use OCP\IUserSession;
 use OCP\Util;
 
 class PageController extends Controller {
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-147';
+
     private const READER_FIXTURE_FILE_ID = 82;
 
     public function __construct(
@@ -51,7 +53,7 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function index(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
-        Util::addStyle(Application::APP_ID, 'library-vue');
+        Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
         Util::addScript(Application::APP_ID, 'library-main');
 
@@ -66,7 +68,7 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function publication(string $publication): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
-        Util::addStyle(Application::APP_ID, 'library-vue');
+        Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
         Util::addScript(Application::APP_ID, 'library-main');
 
@@ -88,7 +90,7 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function year(string $year): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
-        Util::addStyle(Application::APP_ID, 'library-vue');
+        Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
         Util::addScript(Application::APP_ID, 'library-main');
 
@@ -109,7 +111,7 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function creator(string $creator): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
-        Util::addStyle(Application::APP_ID, 'library-vue');
+        Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
         Util::addScript(Application::APP_ID, 'library-main');
 
