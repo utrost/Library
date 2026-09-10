@@ -180,7 +180,15 @@ async function runBrowserSmoke(proxyBase) {
           vueApp: Boolean(document.querySelector('#library-vue-root[data-v-app]')),
           catalogueToolbar: Boolean(document.querySelector('.library-catalogue-toolbar')),
           quickFilterBar: Boolean(document.querySelector('.library-quick-filter-bar')),
+          secondaryTools: Boolean(document.querySelector('.library-secondary-tools')),
+          secondaryToolCount: document.querySelectorAll('.library-secondary-tools > details.library-secondary-tool').length,
+          secondaryToolsCollapsed: [...document.querySelectorAll('.library-secondary-tools > details.library-secondary-tool')].every((details) => !details.open),
+          secondaryToolSummaries: [...document.querySelectorAll('.library-secondary-tools > details.library-secondary-tool > summary')].map((summary) => summary.textContent.trim()).join(' | '),
           usefulViews: Boolean(document.querySelector('.library-useful-views')),
+          usefulViewsCollapsed: Boolean(document.querySelector('.library-useful-views.library-secondary-tool:not([open])')),
+          weakMetadataCollapsed: Boolean(document.querySelector('.library-weak-metadata-dashboard.library-secondary-tool:not([open])')),
+          savedCollectionsCollapsed: Boolean(document.querySelector('.library-saved-collections.library-secondary-tool:not([open])')),
+          continueReadingCollapsed: Boolean(document.querySelector('.library-home-dashboard.library-secondary-tool:not([open])')),
           usefulViewLinks: document.querySelectorAll('.library-useful-view-chip').length,
           usefulViewQueryLinks: [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('sort=lastOpened'))
             && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('starred=1'))
@@ -677,7 +685,15 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_vue_app', dom.vueApp)
     print('browser_catalogue_toolbar', dom.catalogueToolbar)
     print('browser_quick_filter_bar', dom.quickFilterBar)
+    print('browser_secondary_tools', dom.secondaryTools)
+    print('browser_secondary_tool_count', dom.secondaryToolCount)
+    print('browser_secondary_tools_collapsed', dom.secondaryToolsCollapsed)
+    print('browser_secondary_tool_summaries', dom.secondaryToolSummaries)
+    print('browser_continue_reading_collapsed', dom.continueReadingCollapsed)
     print('browser_useful_views', dom.usefulViews)
+    print('browser_useful_views_collapsed', dom.usefulViewsCollapsed)
+    print('browser_weak_metadata_collapsed', dom.weakMetadataCollapsed)
+    print('browser_saved_collections_collapsed', dom.savedCollectionsCollapsed)
     print('browser_useful_view_links', dom.usefulViewLinks)
     print('browser_useful_view_query_links', dom.usefulViewQueryLinks === true)
     print('browser_useful_view_count_badges', dom.usefulViewCountBadges ?? 0)
@@ -801,6 +817,13 @@ async function runBrowserSmoke(proxyBase) {
       && dom.fallback === false
       && dom.catalogueToolbar === true
       && dom.quickFilterBar === true
+      && dom.secondaryTools === true
+      && dom.secondaryToolCount === 4
+      && dom.secondaryToolsCollapsed === true
+      && dom.continueReadingCollapsed === true
+      && dom.usefulViewsCollapsed === true
+      && dom.weakMetadataCollapsed === true
+      && dom.savedCollectionsCollapsed === true
       && dom.usefulViews === true
       && dom.usefulViewLinks >= 14
       && dom.usefulViewQueryLinks === true

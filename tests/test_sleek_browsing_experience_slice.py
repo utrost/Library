@@ -51,10 +51,11 @@ def test_sleek_browsing_css_adds_motion_depth_and_mobile_drawer():
     assert "@media (max-width: 720px)" in component
 
 
-def test_vitest_exercises_home_dashboard_and_drawer_interaction():
+def test_vitest_exercises_compact_home_tools_and_drawer_interaction():
     test = read("src/App.test.js")
 
-    assert "shows a home dashboard for fast browsing and opens an in-page details drawer" in test
+    assert "keeps secondary browsing tools collapsed so the cover shelf stays central" in test
+    assert ".library-secondary-tools" in test
     assert ".library-home-dashboard" in test
     assert ".library-detail-drawer" in test
     assert "await wrapper.find('.library-cover-details-drawer-button').trigger('click')" in test
