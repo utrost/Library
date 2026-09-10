@@ -643,7 +643,7 @@ async function toggleStar(item, event) {
       <div>
         <p v-if="isDiscoveryPage" class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
         <h2 id="library-catalogue-heading">{{ catalogueHeading }}</h2>
-        <p class="library-muted">{{ isDiscoveryPage ? t('library', 'Browse this focused view; refine only when you need to narrow it further.') : t('library', 'One catalogue workspace for finding, browsing, acting on and reviewing publication files.') }}</p>
+        <p v-if="isDiscoveryPage" class="library-muted">{{ t('library', 'Browse this focused view; refine only when you need to narrow it further.') }}</p>
       </div>
     </div>
 
@@ -702,7 +702,6 @@ async function toggleStar(item, event) {
     </section>
 
     <nav class="library-view-mode-toggle" aria-label="Cover view mode">
-      <span class="library-muted">{{ t('library', 'Compact / Gallery / Shelf') }}</span>
       <button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button>
       <button type="button" data-library-view-mode="gallery" :class="{ active: viewMode === 'gallery' }" :aria-pressed="viewMode === 'gallery' ? 'true' : 'false'" @click="setViewMode('gallery')">{{ t('library', 'Gallery') }}</button>
       <button type="button" data-library-view-mode="shelf" :class="{ active: viewMode === 'shelf' }" :aria-pressed="viewMode === 'shelf' ? 'true' : 'false'" @click="setViewMode('shelf')">{{ t('library', 'Shelf') }}</button>

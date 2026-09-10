@@ -239,7 +239,7 @@ Steps:
 
 1. Open catalogue and confirm the home dashboard appears when items exist.
 2. Browse several compact cards without expanding Details.
-3. Switch through **Compact / Gallery / Shelf** and back to Compact.
+3. Switch through the view-mode buttons and back to Compact.
 4. Watch a slow cover load if possible; otherwise inspect that the cover area does not look blank. If a cover image fails, confirm the **Cover unavailable** fallback appears. The normal loading state may show cover loading shimmer briefly.
 5. Expand one card Details.
 6. Open the details drawer from the catalogue; confirm **Esc closes** and **ArrowLeft/ArrowRight** move between neighbouring drawer items when possible.
