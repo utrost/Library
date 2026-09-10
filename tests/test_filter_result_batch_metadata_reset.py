@@ -48,5 +48,5 @@ def test_docs_and_version_track_filter_result_metadata_reset():
     assert "filter-result metadata reset" in guide.lower()
     assert "scanner-conflict results" in guide.lower()
     assert "batch metadata reset" in roadmap.lower()
-    assert "<version>0.1.0-alpha.146</version>" in info
-    assert '"version": "0.1.0-alpha.146"' in package
+    assert "<version>0.1.0-alpha.147</version>" in info
+    assert '"version": "0.1.0-alpha.147"' in package
