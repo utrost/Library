@@ -69,8 +69,8 @@ Expected result: Library removes or updates app-owned rows only. It must not del
 
 - Nextcloud 34 is the only supported target for this alpha.
 - Covers are on-demand; manual cover override/revert exists for individual items, but there is no app-owned cover cache or crop/rebuild workflow.
-- Sidecar manifest and sidecar ZIP are read-only/download-only. There is no OPF/JSON sidecar write-back into source folders yet.
-- Metadata import applies only to matched existing Library catalogue rows; a fresh-install restore flow is not complete.
+- Sidecar manifest and sidecar ZIP are read-only/download-only. Source-folder OPF/JSON sidecar write-back is intentionally outside the app roadmap.
+- Metadata import applies only to matched existing Library catalogue rows; fresh-install restore from sidecars belongs to external file-first tooling rather than the app.
 - Scan scheduling, resumable scans and notifications are absent.
 - publication, publication-year and creator discovery pages exist, publication pages show **Publication contents** plus a visual issue strip, and built-in Useful views, a weak-metadata cockpit and in-app Custom collections exist. The metadata review workbench is also part of the current test pass; richer publication issue grouping remains post-v0.1 feedback beyond the current read-only summary.
 - Shared/admin-managed roots are absent; users manage their own roots and Nextcloud permissions remain authoritative.

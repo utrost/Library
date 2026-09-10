@@ -103,4 +103,5 @@ def test_docs_mark_metadata_import_preview_and_apply_landed_but_sidecars_still_f
     assert "first apply flow applies matched corrected metadata" in roadmap
     assert "sidecar manifest imports" in guide.lower()
     assert "sidecar manifest restore" in roadmap.lower()
-    assert "OPF/JSON sidecar write-back" in roadmap
+    assert "Source-folder OPF/JSON sidecar write-back" in roadmap
+    assert "outside the app roadmap" in roadmap

@@ -73,5 +73,6 @@ def test_docs_mark_sidecar_manifest_landed_but_writers_future():
 
     assert "export sidecar manifest" in guide
     assert "sidecar manifest" in roadmap
-    assert "opf/json sidecar write-back" in roadmap
+    assert "source-folder opf/json sidecar write-back" in roadmap
+    assert "outside the app roadmap" in roadmap
     assert "does not write sidecar files" in guide

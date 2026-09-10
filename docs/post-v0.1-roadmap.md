@@ -78,44 +78,11 @@ Acceptance checks:
 - Cached provider payloads can be inspected or discarded.
 - The app behaves well when a provider is unavailable, rate-limited or returns ambiguous matches.
 
-## v0.4 — File-First sidecar write-back and restore
-
-Major feature: **Writing portable sidecar metadata and restoring from it**.
-
-Why this matters: v0.1 already exports corrected metadata and proposed sidecar bundles, but true File-First durability means corrections can live next to source files and survive a fresh app install.
-
-User outcome:
-
-- A user can write reviewed `.library.json` sidecars next to source files when they choose to.
-- A fresh Library install can rebuild trusted user corrections from sidecars.
-- Sidecar write-back remains explicit, reversible and source-folder-safe.
-
-Candidate slices:
-
-1. Add an explicit sidecar write preview with exact target paths and overwrite warnings.
-2. Add write selected sidecars for corrected rows with backup/skip behavior.
-3. Add scan-time sidecar import as high-priority user-correction candidates.
-4. Add fresh-install restore workflow from sidecars.
-5. Add conflict handling when DB metadata and sidecar metadata disagree.
-
-Non-goals:
-
-- No automatic writes during ordinary export.
-- No rewriting EPUB/PDF/CBZ internals.
-- No deleting or moving source files.
-
-Acceptance checks:
-
-- Sidecar writes are opt-in and list every source-folder path beforehand.
-- Existing sidecars are never overwritten without an explicit decision.
-- Fresh install plus scan can restore expected corrected metadata from sidecars.
-- Export/import/write-back docs clearly distinguish JSON download, ZIP export and real source-folder writes.
-
-## v0.5 — Shared libraries and admin-managed roots
+## v0.4 — Shared libraries and admin-managed roots
 
 Major feature: **Shared Library roots for households and teams**.
 
-Why this belongs after personal metadata durability: personal roots are enough for v0.1, but a family archive or team document shelf needs shared configuration and clear permission behavior.
+Why this belongs after personal catalogue hardening: personal roots are enough for v0.1, but a family archive or team document shelf needs shared configuration and clear permission behavior.
 
 User outcome:
 
@@ -144,11 +111,11 @@ Acceptance checks:
 - Admin root deletion still leaves source files untouched.
 - Docs explain who owns shared metadata corrections.
 
-## v0.6 — Reading integrations and activity
+## v0.5 — Reading integrations and activity
 
 Major feature: **Reader-aware activity beyond Library's own open timestamp**.
 
-Why this should wait: v0.1 proves handoff through Nextcloud readers/viewers. Deeper reading activity should come after catalogue, metadata and portability are stable.
+Why this should wait: v0.1 proves handoff through Nextcloud readers/viewers. Deeper reading activity should come after catalogue, metadata review and shared-root ownership are stable.
 
 User outcome:
 

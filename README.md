@@ -17,7 +17,7 @@ Current highlights:
 - search across title, creators, description, filename and folder path;
 - scan, repair and review tools for missing files, metadata errors, weak metadata and scanner conflicts;
 - search and filter by metadata, file format, scan status, workflow status and collection context;
-- corrected-metadata export/import preview/apply plus read-only sidecar manifest/ZIP exports;
+- corrected-metadata export/import preview/apply for app metadata handoff;
 - safe reader handoff to existing Nextcloud viewers/readers, Show in Files and Download source actions.
 
 ## Current scope
@@ -28,7 +28,6 @@ Implemented safety boundary:
 
 - source files stay in Nextcloud Files;
 - scans and metadata edits update Library-owned catalogue/index data;
-- sidecar exports are download-only and do not write into source folders;
 - metadata import applies only after a preview step.
 
 Not in scope for v0.1:

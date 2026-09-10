@@ -61,4 +61,5 @@ def test_docs_mark_sidecar_zip_landed_but_source_folder_writers_future():
     assert "sidecar zip" in roadmap
     assert "downloadable zip" in guide
     assert "does not write sidecar files into source folders" in guide
-    assert "opf/json sidecar write-back" in roadmap
+    assert "source-folder opf/json sidecar write-back" in roadmap
+    assert "outside the app roadmap" in roadmap
