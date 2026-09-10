@@ -83,6 +83,7 @@ def test_app_store_package_hygiene_keeps_minimal_public_files():
 
     for required in [
         "appinfo/info.xml",
+        "appinfo/database.xml",
         "lib/AppInfo/Application.php",
         "templates/main.php",
         "js/library-main.mjs",
@@ -94,6 +95,20 @@ def test_app_store_package_hygiene_keeps_minimal_public_files():
         assert required in audit_script
 
     assert "minimal public files: `README.md`, `LICENSE`, and `CHANGELOG.md`" in release
+
+
+def test_database_xml_app_store_schema_is_documented_and_packaged():
+    database_xml = read("appinfo/database.xml")
+    audit_script = read("scripts/audit-release-package.sh")
+    release = read("RELEASE.md")
+    readiness = read("docs/app-store-readiness.md")
+
+    assert "https://apps.nextcloud.com/schema/apps/database.xsd" in database_xml
+    assert "appinfo/database.xml" in audit_script
+    assert "appinfo/database.xml" in release
+    assert "database.xsd" in release
+    assert "appinfo/database.xml" in readiness
+    assert "database.xsd" in readiness
 
 
 def test_app_store_listing_draft_has_reviewer_sections_and_public_scope():

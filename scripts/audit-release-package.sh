@@ -54,6 +54,7 @@ explicit_require_signature = explicit_require_signature_arg.lower() == "true"
 require_signature = explicit_require_signature or '-' not in version
 required = {
     f"{top}/appinfo/info.xml",
+    f"{top}/appinfo/database.xml",
     f"{top}/appinfo/routes.php",
     f"{top}/lib/AppInfo/Application.php",
     f"{top}/templates/main.php",

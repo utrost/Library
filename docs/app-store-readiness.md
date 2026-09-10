@@ -11,6 +11,7 @@ Library is already packaged and smoke-tested as an alpha candidate on a Nextclou
 Library is App-Store-ready when all of these are true:
 
 - `appinfo/info.xml` contains public metadata, support URLs, AGPL licensing, and an explicit Nextcloud 34 compatibility claim.
+- `appinfo/database.xml` declares the current app-owned Library tables/fields/indexes and validates against `https://apps.nextcloud.com/schema/apps/database.xsd`.
 - The install archive contains one top-level `library/` folder that must match the app id `library`; it contains only runtime app files plus minimal public metadata files and does not ship tests, local smoke harnesses, source-only Vue files, local docs, caches, build directories, or dependency folders.
 - The release package audit passes before checksum generation is reported as usable.
 - A signing certificate and private-key handling process exists, and the final release package includes `appinfo/signature.json` produced after the archive staging directory is finalized.
