@@ -40,7 +40,7 @@ Notes:
 
 For v0.1 testing to start, these must pass on the packaged app, not just the working checkout:
 
-1. The app installs/enables from `dist/library-0.1.0-alpha.127.tar.gz` on a Nextcloud 34 test instance.
+1. The app installs/enables from `dist/library-0.1.0-alpha.142.tar.gz` on a Nextcloud 34 test instance.
 2. `/apps/library/` and `/settings/user/library` load for a normal user without Library-specific console errors.
 3. Adding a root, scanning it, browsing compact cards, opening details, and using Read/Show in Files/Download source works.
 4. Editing Library metadata survives a rescan and stays separate from Nextcloud tags/comments.
@@ -53,7 +53,7 @@ For v0.1 testing to start, these must pass on the packaged app, not just the wor
 
 Purpose: prove the tester is using the generated release archive.
 
-Setup: install `dist/library-0.1.0-alpha.127.tar.gz` into a disposable Nextcloud 34 instance and enable Library.
+Setup: install `dist/library-0.1.0-alpha.142.tar.gz` into a disposable Nextcloud 34 instance and enable Library.
 
 Steps:
 
@@ -62,7 +62,7 @@ Steps:
 3. Check the visible app version or installed app version if available.
 4. Open browser developer tools and inspect console output.
 
-Expected result: both pages load; the app is version `0.1.0-alpha.127`; no Library-specific JavaScript error appears.
+Expected result: both pages load; the app is version `0.1.0-alpha.142`; no Library-specific JavaScript error appears.
 
 Evidence to capture on failure: screenshot, URL, browser console errors, Nextcloud app version, and whether the app came from the generated archive.
 
@@ -84,24 +84,25 @@ Expected result: compact catalogue cards appear and source files remain in Nextc
 
 Evidence to capture on failure: root path/label, scan status summary, first error row, and whether any source file changed unexpectedly.
 
-### LIB-HARDEN-003 — Catalogue browsing and filters
+### LIB-HARDEN-003 — Catalogue browsing, search and filters
 
 Purpose: prove the main browse loop is useful before testing deeper editing.
 
-Setup: an indexed root with enough items to browse.
+Setup: an indexed root with enough items to browse. If possible, choose or edit one item so a memorable word appears only in its Library description.
 
 Steps:
 
 1. Confirm cards show cover, title, **Read**, and **Details** by default.
-2. Use text search.
-3. Apply at least two filters, preferably format plus publication year or shelf.
-4. Remove filters through active chips.
-5. Open one creator shortcut if the fixture has creator metadata.
-6. Change sort and page size.
+2. Use text search for a title/creator/path term.
+3. Use description-only search: search for a term that appears only in an item's Library description.
+4. Apply at least two filters, preferably format plus publication year or shelf.
+5. Remove filters through active chips.
+6. Open one creator shortcut if the fixture has creator metadata.
+7. Change sort and page size.
 
-Expected result: the grid updates predictably; compact cards stay compact; Details owns secondary metadata/actions; creator shortcuts open named discovery pages rather than broad text searches.
+Expected result: the grid updates predictably; description-only search finds matching catalogue items; compact cards stay compact and do not show long description snippets by default; Details owns secondary metadata/actions; creator shortcuts open named discovery pages rather than broad text searches.
 
-Evidence to capture on failure: screenshot before/after, active URL query, filter values, and visible result count.
+Evidence to capture on failure: screenshot before/after, active URL query, search term, filter values, and visible result count.
 
 ### LIB-HARDEN-004 — Reader and file actions
 
@@ -207,7 +208,7 @@ Expected result: repair updates app-owned index/catalogue rows; root deletion/fo
 
 Evidence to capture on failure: file path, Library status, source-file existence before/after, and root settings screenshot.
 
-### LIB-HARDEN-010 — Discovery pages
+### LIB-HARDEN-010 — Discovery pages and visual issue browsing
 
 Purpose: prove dedicated discovery contexts work beyond ordinary query filters.
 
@@ -218,34 +219,74 @@ Steps:
 1. Open a publication/series link from **Top series and periodicals**.
 2. Confirm the dedicated publication page has a heading/back link and filtered cards.
 3. Confirm the publication page shows a compact **Publication contents** issue/date context summary with item count and date coverage.
-4. Open a year link from **Top publication years**.
-5. Confirm the dedicated year page has a heading/back link and date-filtered cards.
-6. Open a creator link from **Top creators**.
-7. Confirm the dedicated creator page has a heading/back link and exact-creator filtered cards.
+4. Confirm the visual issue strip is present when the publication has enough grouped items, and weak/unknown issue rows remain visible below.
+5. Open a year link from **Top publication years**.
+6. Confirm the dedicated year page has a heading/back link and date-filtered cards.
+7. Open a creator link from **Top creators**.
+8. Confirm the dedicated creator page has a heading/back link and exact-creator filtered cards.
 
-Expected result: publication, publication-year and creator discovery pages exist and keep the compact grid inside named discovery contexts. Publication pages expose **Publication contents** issue/date coverage without becoming a full issue-management database.
+Expected result: publication, publication-year and creator discovery pages exist and keep the compact grid inside named discovery contexts. Publication pages expose **Publication contents** issue/date coverage and a visual issue strip without becoming a full issue-management database.
 
-Evidence to capture on failure: source item, clicked link, resulting URL, and page header screenshot.
+Evidence to capture on failure: source item, clicked link, resulting URL, issue-strip screenshot, and page header screenshot.
 
-### LIB-HARDEN-011 — Mobile walkthrough
+### LIB-HARDEN-011 — Mobile and browsing-polish walkthrough
 
-Purpose: prove the v0.1 shape is usable on a phone-sized screen.
+Purpose: prove the v0.1 shape is usable on a phone-sized screen and that the new browsing surfaces do not hide core actions.
 
 Setup: phone browser or responsive mode around 390 px width.
 
 Steps:
 
-1. Open catalogue.
-2. Browse several cards without expanding Details.
-3. Expand one card Details.
-4. Open item Details and scroll through actions/metadata/provenance/tags/comments.
-5. Return to catalogue.
+1. Open catalogue and confirm the home dashboard appears when items exist.
+2. Browse several compact cards without expanding Details.
+3. Switch through **Compact / Gallery / Shelf** and back to Compact.
+4. Watch a slow cover load if possible; otherwise inspect that the cover area does not look blank. If a cover image fails, confirm the **Cover unavailable** fallback appears. The normal loading state may show cover loading shimmer briefly.
+5. Expand one card Details.
+6. Open the details drawer from the catalogue; confirm **Esc closes** and **ArrowLeft/ArrowRight** move between neighbouring drawer items when possible.
+7. Open item Details and scroll through actions/metadata/provenance/tags/comments.
+8. Return to catalogue.
 
-Expected result: browsing remains cover-first and compact; detail actions are reachable; duplicate metadata surfaces do not waste vertical space.
+Expected result: browsing remains cover-first and compact by default; Gallery/Shelf are additive visual modes; the details drawer is reachable without losing catalogue context; keyboard controls work on desktop; detail actions are reachable; duplicate metadata surfaces do not waste vertical space.
 
-Evidence to capture on failure: phone screenshot, viewport size, and whether the issue blocks a normal testing pass.
+Evidence to capture on failure: phone screenshot, viewport size, selected view mode, visible drawer state, and whether the issue blocks a normal testing pass.
 
-### LIB-HARDEN-012 — Known-limitations sanity check
+### LIB-HARDEN-012 — Metadata cleanup and review workbench
+
+Purpose: prove the cleanup surfaces are understandable before broad real-collection testing.
+
+Setup: a catalogue with at least one weak-metadata row or scanner-conflict row. If no conflict exists naturally, edit one field on a detail page so the stored scanner candidate differs from the current value.
+
+Steps:
+
+1. Open the weak-metadata cockpit and note counts for missing creator, missing publication/series, missing date, filename-derived title, no description and scanner conflicts.
+2. Open a scanner-conflict or weak-metadata view.
+3. Confirm the metadata review workbench appears.
+4. Use **Review next conflict** and inspect current value, scanner candidate, path-template candidate, sidecar value and source provenance.
+5. Accept a scanner candidate only for a safe single field, or skip if the value should remain user-edited.
+6. Reopen the item details and confirm provenance/difference labels still explain what happened.
+
+Expected result: the workbench helps decide one field at a time; accepting a scanner candidate is explicit and per field; source files are not changed; user-edited values are not silently overwritten.
+
+Evidence to capture on failure: active filter URL, item ID/title, field name, before/after values, and whether a source file changed unexpectedly.
+
+### LIB-HARDEN-013 — Custom collections and useful views
+
+Purpose: prove saved in-app views replace browser-bookmark workarounds for normal test sessions.
+
+Setup: an active catalogue filter or search that returns a useful subset.
+
+Steps:
+
+1. Open a built-in Useful view and confirm the count badge and active filter chips match the view.
+2. Create a Custom collection from the current filter setup.
+3. Reopen the Custom collection from Library.
+4. Delete the temporary collection if desired.
+
+Expected result: Useful views and custom collections are part of the current test pass; they reopen normal Library filter states without breaking browse context.
+
+Evidence to capture on failure: collection name, filter URL, visible count, and screenshot before/after deletion.
+
+### LIB-HARDEN-014 — Known-limitations sanity check
 
 Purpose: keep testing focused on v0.1 rather than future-product expectations.
 
@@ -255,7 +296,9 @@ Steps:
 
 1. Confirm the tester understands manual cover override/revert exists, but there is no app-owned cover cache or crop/rebuild workflow.
 2. Confirm sidecar exports do not write source folders.
-3. Confirm creator pages are part of the current discovery surface, while saved views, smart collections, shared/admin roots, custom readers, annotations, OCR/full-text search, internet lookup and AI classification are not part of this test pass.
+3. Confirm Useful views and custom collections are part of the current test pass.
+4. Confirm creator pages are part of the current discovery surface.
+5. Confirm shared/admin roots, a custom document reader, reader annotations, OCR/full-text search, internet lookup and AI classification are not part of this test pass.
 
 Expected result: missing future features are reported as product feedback, not release-blocking regressions unless they break a current v0.1 workflow.
 
@@ -267,10 +310,11 @@ After the numbered cases, spend 20-30 minutes trying to use Library like a norma
 
 1. Pick one shelf/root.
 2. Find something by search, something by series/publication, and something by year.
-3. Correct metadata on one weak item.
-4. Tag or classify one item for later.
-5. Open/read one item.
-6. Export corrected metadata.
+3. Try one Useful view and one Custom collection if the fixture has enough items.
+4. Correct metadata on one weak item, or inspect it through the metadata review workbench.
+5. Tag or classify one item for later.
+6. Open/read one item.
+7. Export corrected metadata.
 
 Write down the first three moments that felt confusing, slow, unsafe, or too technical.
 
