@@ -178,17 +178,18 @@ async function runBrowserSmoke(proxyBase) {
           title: document.title,
           fallback: Boolean(document.querySelector('[data-vue-fallback="true"]')),
           vueApp: Boolean(document.querySelector('#library-vue-root[data-v-app]')),
-          catalogueToolbar: Boolean(document.querySelector('.library-catalogue-toolbar')),
+          catalogueToolbar: Boolean(document.querySelector('.library-catalogue-workspace')),
           quickFilterBar: Boolean(document.querySelector('.library-quick-filter-bar')),
-          secondaryTools: Boolean(document.querySelector('.library-secondary-tools')),
-          secondaryToolCount: document.querySelectorAll('.library-secondary-tools > details.library-secondary-tool').length,
-          secondaryToolsCollapsed: [...document.querySelectorAll('.library-secondary-tools > details.library-secondary-tool')].every((details) => !details.open),
-          secondaryToolSummaries: [...document.querySelectorAll('.library-secondary-tools > details.library-secondary-tool > summary')].map((summary) => summary.textContent.trim()).join(' | '),
-          usefulViews: Boolean(document.querySelector('.library-useful-views')),
-          usefulViewsCollapsed: Boolean(document.querySelector('.library-useful-views.library-secondary-tool:not([open])')),
-          weakMetadataCollapsed: Boolean(document.querySelector('.library-weak-metadata-dashboard.library-secondary-tool:not([open])')),
-          savedCollectionsCollapsed: Boolean(document.querySelector('.library-saved-collections.library-secondary-tool:not([open])')),
-          continueReadingCollapsed: Boolean(document.querySelector('.library-home-dashboard.library-secondary-tool:not([open])')),
+          secondaryTools: Boolean(document.querySelector('.library-catalogue-workspace')),
+          workspacePanels: Array.from(document.querySelectorAll('.library-catalogue-workspace > details.library-workspace-panel > summary span')).map((node) => node.textContent.trim()),
+          secondaryToolCount: document.querySelectorAll('.library-catalogue-workspace > details.library-workspace-panel').length,
+          secondaryToolsCollapsed: [...document.querySelectorAll('.library-catalogue-workspace > details.library-workspace-panel')].every((details) => !details.open),
+          secondaryToolSummaries: [...document.querySelectorAll('.library-catalogue-workspace > details.library-workspace-panel > summary')].map((summary) => summary.textContent.trim()).join(' | '),
+          usefulViews: Boolean(document.querySelector('.library-useful-view-links')),
+          usefulViewsCollapsed: Boolean(document.querySelector('.library-workspace-panel--browse:not([open])')),
+          weakMetadataCollapsed: Boolean(document.querySelector('.library-workspace-panel--review:not([open])')),
+          savedCollectionsCollapsed: Boolean(document.querySelector('.library-workspace-panel--browse:not([open])')),
+          continueReadingCollapsed: Boolean(document.querySelector('.library-workspace-panel--browse:not([open])')),
           usefulViewLinks: document.querySelectorAll('.library-useful-view-chip').length,
           usefulViewQueryLinks: [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('sort=lastOpened'))
             && [...document.querySelectorAll('.library-useful-view-chip')].some((a) => (a.getAttribute('href') || '').includes('starred=1'))
@@ -216,13 +217,13 @@ async function runBrowserSmoke(proxyBase) {
           batchCoverRefreshForm: Boolean(document.querySelector('.library-batch-cover-refresh-form[action*="/bulk/covers/refresh"]')),
           singleCatalogueResultSummary: document.body.textContent.match(/Showing [0-9]+[–-][0-9]+ of [0-9]+ catalogue items/g)?.length === 1,
           cardDetailChips: document.querySelectorAll('.library-cover-card .library-cover-detail-chip').length,
-          filterPanelCollapsed: Boolean(document.querySelector('.library-filter-panel:not([open]) .library-filter-bar')),
-          discoveryShortcutsCollapsed: Boolean(document.querySelector('.library-discovery-shortcuts:not([open]) .library-periodical-groups')),
-          discoveryShortcutsSummary: document.querySelector('.library-discovery-shortcuts > summary')?.textContent?.trim() || '',
+          filterPanelCollapsed: Boolean(document.querySelector('.library-workspace-panel--refine:not([open])')),
+          discoveryShortcutsCollapsed: Boolean(document.querySelector('.library-workspace-panel--browse:not([open])')),
+          discoveryShortcutsSummary: document.querySelector('.library-workspace-panel--browse > summary')?.textContent?.trim() || '',
           importHealthPanelVisible: Boolean(document.querySelector('.library-import-health-panel')),
-          actionsMenuCollapsed: Boolean(document.querySelector('.library-catalogue-actions-menu:not([open])')),
-          actionsMenuHasMetadataOverview: Boolean(document.querySelector('.library-catalogue-actions-menu .library-actions-health-overview')),
-          actionsMenuMetadataOverviewText: document.querySelector('.library-catalogue-actions-menu .library-actions-health-overview')?.textContent?.includes('Metadata overview') || false,
+          actionsMenuCollapsed: Boolean(document.querySelector('.library-workspace-panel--admin:not([open])')),
+          actionsMenuHasMetadataOverview: Boolean(document.querySelector('.library-workspace-panel--admin .library-actions-health-overview')),
+          actionsMenuMetadataOverviewText: document.querySelector('.library-workspace-panel--admin .library-actions-health-overview')?.textContent?.includes('Metadata overview') || false,
           reviewQueueActions: Boolean(document.querySelector('.library-review-queue-actions')),
           reviewQueueMetadataErrorTagForm: Boolean(document.querySelector('.library-review-queue-tag-form input[name="status"][value="metadata_error"]') && document.querySelector('.library-review-queue-tag-form input[name="nextcloudTagName"][value="library-metadata-error"]')),
           reviewQueueScannerConflictTagForm: Boolean(document.querySelector('.library-review-queue-tag-form input[name="scannerConflicts"][value="1"]') && document.querySelector('.library-review-queue-tag-form input[name="nextcloudTagName"][value="library-scanner-conflict"]')),
@@ -426,22 +427,24 @@ async function runBrowserSmoke(proxyBase) {
           }
         }
         window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true }))
-        const focused = document.activeElement === search
-        if (search) {
-          search.value = 'keyboard-smoke'
-          search.dispatchEvent(new Event('input', { bubbles: true }))
-        }
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
         window.setTimeout(() => {
-          window.fetch = realFetch
-          resolve({
-            focused,
-            cleared: search?.value === '',
-            fetches: calls.length,
-            endpoint: calls[0] || '',
-            noNavigation: location.href === startUrl || !location.search.includes('keyboard-smoke'),
-          })
-        }, 500)
+          const focused = document.activeElement === search
+          if (search) {
+            search.value = 'keyboard-smoke'
+            search.dispatchEvent(new Event('input', { bubbles: true }))
+          }
+          window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+          window.setTimeout(() => {
+            window.fetch = realFetch
+            resolve({
+              focused,
+              cleared: search?.value === '',
+              fetches: calls.length,
+              endpoint: calls[0] || '',
+              noNavigation: location.href === startUrl || !location.search.includes('keyboard-smoke'),
+            })
+          }, 500)
+        }, 100)
       })`,
     })
     const keyboardShortcutDom = keyboardShortcutResult.result?.value ?? keyboardShortcutResult.value
@@ -818,7 +821,7 @@ async function runBrowserSmoke(proxyBase) {
       && dom.catalogueToolbar === true
       && dom.quickFilterBar === true
       && dom.secondaryTools === true
-      && dom.secondaryToolCount === 4
+      && dom.secondaryToolCount === 5
       && dom.secondaryToolsCollapsed === true
       && dom.continueReadingCollapsed === true
       && dom.usefulViewsCollapsed === true
@@ -851,7 +854,7 @@ async function runBrowserSmoke(proxyBase) {
       && dom.cardDetailChips >= dom.cards
       && dom.filterPanelCollapsed === true
       && dom.discoveryShortcutsCollapsed === true
-      && dom.discoveryShortcutsSummary === 'Browse'
+      && dom.discoveryShortcutsSummary.includes('Browse shortcuts')
       && dom.importHealthPanelVisible === false
       && dom.actionsMenuCollapsed === true
       && dom.actionsMenuHasMetadataOverview === true

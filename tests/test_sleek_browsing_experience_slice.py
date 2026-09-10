@@ -54,9 +54,9 @@ def test_sleek_browsing_css_adds_motion_depth_and_mobile_drawer():
 def test_vitest_exercises_compact_home_tools_and_drawer_interaction():
     test = read("src/App.test.js")
 
-    assert "keeps secondary browsing tools collapsed so the cover shelf stays central" in test
-    assert ".library-secondary-tools" in test
-    assert ".library-home-dashboard" in test
+    assert "keeps catalogue workspace panels collapsed so the cover shelf stays central" in test
+    assert ".library-catalogue-workspace" in test
+    assert ".library-workspace-panel--browse" in test
     assert ".library-detail-drawer" in test
     assert "await wrapper.find('.library-cover-details-drawer-button').trigger('click')" in test
     assert "View full details" in test
