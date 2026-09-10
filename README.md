@@ -65,6 +65,7 @@ The package script builds Vue assets, runs Python contracts and writes `dist/lib
 - [Public alpha test checklist](docs/alpha-test-checklist.md)
 - [Current state and risk register](docs/current-state-and-risk-register.md)
 - [Release process](RELEASE.md)
+- [App Store listing draft](docs/app-store-listing.md)
 - [App Store readiness roadmap](docs/app-store-readiness.md)
 - [Changelog](CHANGELOG.md)
 - [Product concept](docs/product-concept.md)

@@ -44,14 +44,14 @@ Acceptance checks:
 
 ### AS-002 — App metadata and reviewer-facing public information
 
-Status: next.
+Status: started.
 
 Goal: make `appinfo/info.xml`, README, release notes and App Store copy align with a public Nextcloud app.
 
 Work:
 
 1. Review `summary`, `description`, category, support/bug links, website, author/contact, and license metadata.
-2. Add an App Store listing draft with short description, full description, privacy statement, limitations, support URL and screenshot checklist.
+2. Add an [App Store listing draft](app-store-listing.md) with short description, full description, privacy statement, limitations, support URL and screenshot checklist.
 3. Keep the README as a one-page external overview and avoid internal host/person/test-environment names.
 4. Add docs/tests that prevent stale alpha/private wording from leaking into the App Store-facing surfaces.
 
