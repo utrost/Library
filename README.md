@@ -12,6 +12,7 @@ Current highlights:
 
 - cover-first catalogue with Compact, Gallery and Shelf views;
 - home dashboard, useful views, custom collections and discovery pages for creators, years and publications/series;
+- count-only useful-view and saved-collection badges that avoid fetching catalogue rows or facets for normal filters, while scanner-conflict counts retain row inspection for correctness;
 - in-page details drawer with keyboard browsing plus full details pages for editing;
 - metadata editing for title, creators, publication/series, dates, genres, classifications, workflow status, stars, descriptions and file comments;
 - search across title, creators, description, filename and folder path;
@@ -42,7 +43,7 @@ Not in scope for v0.1:
 
 ## Try it
 
-Current testing candidate: `0.1.0-alpha.149`.
+Current testing candidate: `0.1.0-alpha.150`.
 
 Run local checks:
 

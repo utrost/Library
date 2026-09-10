@@ -26,8 +26,8 @@ use OCP\IUserSession;
 use OCP\Util;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-149';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-149';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-150';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-150';
 
     private const READER_FIXTURE_FILE_ID = 82;
 
@@ -256,7 +256,7 @@ class PageController extends Controller {
      */
     private function savedCollectionsWithCounts(string $userId): array {
         return array_map(function (array $collection) use ($userId): array {
-            $collection['count'] = (int)$this->itemService->queryCatalogue($userId, (array)($collection['filters'] ?? []), ['page' => 1, 'limit' => 1])['total'];
+            $collection['count'] = $this->itemService->countCatalogue($userId, (array)($collection['filters'] ?? []));
             return $collection;
         }, $this->savedCollectionService->listCollections($userId));
     }

@@ -2,6 +2,11 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.150 - 2026-09-10
+
+- Useful-view and saved-collection count badges now use a count-only catalogue path instead of fetching paginated item rows and catalogue facets.
+- Kept scanner-conflict count semantics aligned with the visible catalogue while leaving SQL-only conflict counting as a documented follow-up.
+
 ## v0.1.0-alpha.149 - 2026-09-10
 
 - Batch operations no longer silently truncate selections at 100 items.

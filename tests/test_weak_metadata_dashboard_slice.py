@@ -70,4 +70,4 @@ def test_weak_metadata_dashboard_keeps_cards_browse_first_and_uses_counts_from_c
     assert "smartViewUrl(row.filters)" in source
     assert "compact cards stay browse-first" in source
     assert "<small>{{ t('library', row.description) }}</small>" not in source
-    assert "queryCatalogue($userId, $filters, ['page' => 1, 'limit' => 1])['total']" in service
+    assert "$this->countCatalogue($userId, $filters)" in service
