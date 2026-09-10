@@ -36,7 +36,7 @@ function php(code, env = {}, timeout = 600000) {
   return docker([...envArgs, '-u', 'www-data', container, 'php', '-d', 'memory_limit=1024M', '-r', code], { timeout })
 }
 function parseToken(output) {
-  const patterns = [/app password is:\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
+  const patterns = [/app password is:\s*(\S+)/i, /app password:\s*\n\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
   for (const pattern of patterns) {
     const match = output.match(pattern)
     if (match) return match[1]
@@ -267,7 +267,7 @@ try {
     throw new Error(`real sample indexing incomplete: files=${counts.files} items=${counts.items} expected=${selected.length}`)
   }
 
-  token = parseToken(dockerWww(['php', 'occ', 'user:add-app-password', '--name', tokenName, user]))
+  token = parseToken(dockerWww(['php', 'occ', 'user:add-app-password', '--no-interaction', '--name', tokenName, user]))
   if (!token) throw new Error('temporary app password was not created')
   const pageCases = [[25,1], [100,1]]
   if (count > 25) pageCases.push([25,2])

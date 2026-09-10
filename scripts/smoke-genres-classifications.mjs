@@ -22,7 +22,7 @@ function runDockerPhp(code) {
 }
 
 function parseToken(output) {
-  const patterns = [/app password is:\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
+  const patterns = [/app password is:\s*(\S+)/i, /app password:\s*\n\s*(\S+)/i, /password is:\s*(\S+)/i, /:\s*(\S+)\s*$/im]
   for (const pattern of patterns) {
     const match = output.match(pattern)
     if (match) return match[1]
@@ -86,7 +86,7 @@ let token = ''
 let itemId = 0
 let originalState = null
 try {
-  token = parseToken(runDocker(['user:add-app-password', '--name', tokenName, user]))
+  token = parseToken(runDocker(['user:add-app-password', '--no-interaction', '--name', tokenName, user]))
   if (!token) {
     fail('temporary_app_password_not_created')
   } else {
@@ -118,11 +118,11 @@ try {
       console.log(`classification_filter_first_matches=${Number(classificationFirst.id || 0) === itemId}`)
       console.log(`classification_filter_result_contains_classification=${classificationFirst.classifications?.includes(desiredClassification)}`)
       console.log(`genres_detail_http=${detail.status}`)
-      console.log(`genres_detail_has_fields=${detail.text.includes('name="genres"') && detail.text.includes('name="classifications"')}`)
+      console.log(`genres_detail_has_fields=${detail.text.includes('name="genres[]"') && detail.text.includes('name="classifications"')}`)
       console.log(`genres_export_http=${exported.status}`)
       console.log(`genres_export_contains_values=${exportedItem?.genres?.includes(desiredGenre) && exportedItem?.classifications?.includes(desiredClassification)}`)
 
-      if (genrePage.status !== 200 || Number(genreFirst.id || 0) !== itemId || !genreFirst.genres?.includes(desiredGenre) || classificationPage.status !== 200 || Number(classificationFirst.id || 0) !== itemId || !classificationFirst.classifications?.includes(desiredClassification) || detail.status !== 200 || !detail.text.includes('name="genres"') || !detail.text.includes('name="classifications"') || exported.status !== 200 || !exportedItem?.genres?.includes(desiredGenre) || !exportedItem?.classifications?.includes(desiredClassification)) {
+      if (genrePage.status !== 200 || Number(genreFirst.id || 0) !== itemId || !genreFirst.genres?.includes(desiredGenre) || classificationPage.status !== 200 || Number(classificationFirst.id || 0) !== itemId || !classificationFirst.classifications?.includes(desiredClassification) || detail.status !== 200 || !detail.text.includes('name="genres[]"') || !detail.text.includes('name="classifications"') || exported.status !== 200 || !exportedItem?.genres?.includes(desiredGenre) || !exportedItem?.classifications?.includes(desiredClassification)) {
         fail('genres_classifications_contract_failed')
       } else {
         console.log('genres_classifications_smoke_ok=true')
