@@ -55,7 +55,8 @@ def test_useful_views_keep_existing_filters_explainable_and_do_not_hide_chips():
     assert "params.delete('page')" in source
     assert "activeFilterChips" in source
     assert "library-active-filter-chips" in source
-    assert "Empty useful views mean no current catalogue items match that saved direction yet" in source
+    assert "Empty useful views mean no current catalogue items match that saved direction yet" not in source
+    assert ":title=\"t('library', view.description)\"" in source
 
 
 def test_catalogue_accepts_smart_collection_query_parameters():

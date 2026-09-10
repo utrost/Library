@@ -96,10 +96,14 @@ describe('Library catalogue Vue app', () => {
       'all enabled roots',
     ])
     for (const panel of panels) {
-      expect(panel.find('.library-workspace-panel-copy').exists()).toBe(true)
+      expect(panel.find('.library-workspace-panel-copy').exists()).toBe(false)
+      expect(panel.find('.library-workspace-panel-title').attributes('title')).toBeTruthy()
     }
-    expect(workspace.text()).toContain('changed / unchanged / skipped / error feedback')
-    expect(workspace.text()).toContain('Source files stay in Nextcloud Files')
+    expect(workspace.text()).not.toContain('Search, sort and filters narrow the current result set')
+    expect(workspace.text()).not.toContain('Search also checks descriptions')
+    expect(workspace.text()).not.toContain('changed / unchanged / skipped / error feedback')
+    expect(workspace.text()).not.toContain('Source files stay in Nextcloud Files')
+    expect(wrapper.find('.library-quick-filter-search').attributes('title')).toContain('Search also checks descriptions')
 
     const heading = wrapper.find('#library-catalogue-heading')
     expect(heading.text()).toBe('Library')
@@ -107,6 +111,42 @@ describe('Library catalogue Vue app', () => {
     expect(Boolean(workspaceBeforeHeading & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
     const workspaceTop = workspace.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
     expect(Boolean(workspaceTop & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
+  })
+
+  it('keeps explanatory help in hover labels instead of always-visible prose', () => {
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          metadataSidecarManifestUrl: '/apps/library/export/sidecars/manifest',
+          metadataSidecarBundleUrl: '/apps/library/export/sidecars.zip',
+          publicationSummaries: [{ publication: 'Science of Everything', itemCount: 42 }],
+          publicationYears: ['2026'],
+          creators: ['Ada Reader'],
+        },
+      },
+    })
+
+    const visibleAntiPatterns = [
+      'Search, sort and filters narrow the current result set',
+      'Search also checks descriptions',
+      'Shortcuts reopen ordinary catalogue views',
+      'Fast entry points keep browsing visual',
+      'Every batch action uses the current filters',
+      'Reset current scanner-conflict results',
+      'Refresh cover previews for current results',
+      'Review cards compare current values',
+      'Maintain roots, scans, exports and repair operations',
+      'Cached metadata overview loads quickly',
+    ]
+    for (const phrase of visibleAntiPatterns) {
+      expect(wrapper.text()).not.toContain(phrase)
+    }
+
+    expect(wrapper.find('.library-workspace-panel--refine .library-workspace-panel-title').attributes('title')).toContain('Search, sort and filters')
+    expect(wrapper.find('.library-quick-filter-search').attributes('title')).toContain('Search also checks descriptions')
+    expect(wrapper.find('.library-batch-metadata-reset-form button').attributes('title')).toContain('Reset current scanner-conflict results')
+    expect(wrapper.find('.library-actions-health-overview h3').attributes('title')).toContain('Cached metadata overview loads quickly')
   })
 
   it('renders collapsed workspace controls as a menu bar above the Library heading', () => {
@@ -362,8 +402,10 @@ describe('Library catalogue Vue app', () => {
     expect(workbench.text()).toContain('path-template candidate')
     expect(workbench.text()).toContain('sidecar value')
     expect(workbench.text()).toContain('source provenance')
-    expect(workbench.text()).toContain('No source files are changed')
-    expect(workbench.text()).toContain('user-edited values are never silently overwritten')
+    expect(workbench.text()).not.toContain('No source files are changed')
+    expect(workbench.text()).not.toContain('user-edited values are never silently overwritten')
+    expect(workbench.find('#library-metadata-review-workbench-heading').attributes('title')).toContain('No source files are changed')
+    expect(workbench.find('#library-metadata-review-workbench-heading').attributes('title')).toContain('user-edited values are never silently overwritten')
     const acceptForm = workbench.find('form.library-metadata-review-accept-form')
     expect(acceptForm.attributes('action')).toBe('/apps/library/items/7/reset-field')
     expect(acceptForm.find('input[name="field"]').exists()).toBe(true)

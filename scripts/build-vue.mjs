@@ -6,6 +6,7 @@ const buildDir = 'build/vue'
 const jsDir = 'js'
 const cssDir = 'css'
 const packageVersion = JSON.parse(readFileSync('package.json', 'utf8')).version
+const versionedJsAssetName = `library-main-${packageVersion.replace(/[^a-zA-Z0-9]+/g, '-')}.mjs`
 const versionedCssAssetName = `library-vue-${packageVersion.replace(/[^a-zA-Z0-9]+/g, '-')}.css`
 
 rmSync(buildDir, { recursive: true, force: true })
@@ -45,9 +46,10 @@ const cssAsset = join(cssDir, 'library-vue.css')
 if (!existsSync(cssAsset)) {
   writeFileSync(cssAsset, '/* No Vue component CSS emitted for this build. */\n')
 }
+copyFileSync(join(jsDir, 'library-main.mjs'), join(jsDir, versionedJsAssetName))
 copyFileSync(cssAsset, join(cssDir, versionedCssAssetName))
 
-const required = [join(jsDir, 'library-main.mjs'), join(jsDir, 'library-detail.js'), cssAsset, join(cssDir, versionedCssAssetName)]
+const required = [join(jsDir, 'library-main.mjs'), join(jsDir, 'library-detail.js'), join(jsDir, versionedJsAssetName), cssAsset, join(cssDir, versionedCssAssetName)]
 for (const file of required) {
   if (!existsSync(file)) {
     console.error(`Missing expected build asset: ${file}`)
