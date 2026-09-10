@@ -12,6 +12,23 @@ def test_user_story_ux_concept_covers_gallery_metadata_shelves_and_filtering():
     assert "metadata is visible" in text
     assert "Shelf" in text
     assert "Search and filter" in text
+    assert "one workspace, progressive disclosure" in text
+    for panel in [
+        "Refine results",
+        "Browse shortcuts",
+        "Batch actions",
+        "Review queue",
+        "Admin tools",
+    ]:
+        assert panel in text
+    for scope in [
+        "this item",
+        "current results",
+        "this shelf",
+        "all enabled roots",
+        "whole catalogue",
+    ]:
+        assert scope in text
     for story in [
         "As a reader, I want to browse a gallery of covers",
         "As an archivist, I want metadata visible on cards and detail sections",
