@@ -1,6 +1,6 @@
 # Release process
 
-This repo is prepared for Uwe's v0.1 manual testing pass from app version `0.1.0-alpha.142`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after Uwe's manual test pass is accepted.
+This repo is prepared for the v0.1 manual testing pass from app version `0.1.0-alpha.142`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
 
 ## Release type
 
@@ -38,7 +38,7 @@ The archive contains a top-level `library-0.1.0-alpha.142/` directory and exclud
 
 ## Generated archive install smoke
 
-Before Uwe tests v0.1 functionality, install and smoke the generated archive, not only a copied checkout:
+Before manual v0.1 functionality testing, install and smoke the generated archive, not only a copied checkout:
 
 ```bash
 npm run smoke:release-package
@@ -81,7 +81,7 @@ The handbook is the detailed human-executable test plan. The shorter alpha check
 
 ## Tagging
 
-Do not retag `v0.1.0-alpha.1`. If Uwe's v0.1 test pass accepts this candidate and a new prerelease is wanted, create a new annotated tag such as:
+Do not retag `v0.1.0-alpha.1`. If the v0.1 test pass accepts this candidate and a new prerelease is wanted, create a new annotated tag such as:
 
 ```bash
 git tag -a v0.1.0-alpha.2 -m "Library v0.1.0-alpha.2"

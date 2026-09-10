@@ -1,13 +1,13 @@
 # Current state and risk register
 
-This snapshot prepares Library for Uwe's v0.1 test pass. It documents what is implemented and verified now, where the app is safe to test, and which risks remain intentionally outside the current release candidate.
+This snapshot prepares Library for the v0.1 alpha test pass. It documents what is implemented and verified now, where the app is safe to test, and which risks remain intentionally outside the current release candidate.
 
 ## Deployment posture
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current app version: `0.1.0-alpha.127`.
-- Intended audience now: Uwe and trusted early testers on a disposable or private Nextcloud 34 instance.
+- Current app version: `0.1.0-alpha.142`.
+- Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
 
@@ -41,7 +41,7 @@ Implemented and ready for v0.1 testing:
 
 ## Known weak points and deferred hardening
 
-These are acceptable for Uwe's v0.1 test pass but should stay visible:
+These are acceptable for the v0.1 alpha test pass but should stay visible:
 
 1. **Nextcloud version scope:** only Nextcloud 34 has been targeted and smoke-tested.
 2. **Release packaging:** generated archive install smoke is now scripted, but app signing/App Store packaging is still future work.
@@ -61,14 +61,14 @@ Most recent release-hardening target evidence should include:
 - Full Python contract suite.
 - Frontend Vitest suite and Vite production build.
 - Markdown link check and `git diff --check`.
-- Generated `dist/library-0.1.0-alpha.127.tar.gz` plus SHA-256 verification.
+- Generated `dist/library-0.1.0-alpha.142.tar.gz` plus SHA-256 verification.
 - Generated archive install into the live `nextcloud` container, then PHP lint, `occ app:enable library`, `occ upgrade`, router listing and live Vue/browser smokes.
 
 Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, genres/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year/creator discovery pages.
 
 ## Practical next hardening slices
 
-If Uwe's v0.1 test pass finds issues, prioritize fixes in this order:
+If the v0.1 alpha test pass finds issues, prioritize fixes in this order:
 
 1. Source-file safety, root deletion, missing-item forget, or import apply surprises.
 2. Install/upgrade/package problems from generated archive.
@@ -81,4 +81,4 @@ If Uwe's v0.1 test pass finds issues, prioritize fixes in this order:
 
 ## v0.1 testing stance
 
-Functionality is broad enough for Uwe's v0.1 test pass. The goal now is not to hide limitations; it is to prove that the current Library workflows are safe, understandable and recoverable on real files.
+Functionality is broad enough for the v0.1 alpha test pass. The goal now is not to hide limitations; it is to prove that the current Library workflows are safe, understandable and recoverable on real files.
