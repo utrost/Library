@@ -56,7 +56,6 @@ def test_catalogue_has_top_toolbar_filter_summary_empty_actions_and_structured_c
 
     for source in (app, fallback):
         assert "library-catalogue-header" in source
-        assert "library-catalogue-toolbar" in source
         assert "library-filter-result-summary" in source
         assert "Clear all filters" in source
         assert "library-empty-actions" in source
@@ -64,9 +63,11 @@ def test_catalogue_has_top_toolbar_filter_summary_empty_actions_and_structured_c
         assert "library-cover-detail-list" in source
         assert "library-cover-detail-chip" in source
 
+    assert "library-catalogue-workspace" in app
+
     assert "library-secondary-panel" not in app
     assert ".library-catalogue-header" in css
-    assert ".library-catalogue-toolbar" in css
+    assert ".library-catalogue-workspace" in css
     assert ".library-cover-detail-chip" in css
     assert "browser_catalogue_toolbar" in smoke
     assert "browser_filter_result_summary" in smoke
@@ -78,6 +79,6 @@ def test_ui_polish_version_bump_is_tracked_for_nextcloud_asset_refresh():
     package = (ROOT / "package.json").read_text()
     lock = (ROOT / "package-lock.json").read_text()
 
-    assert "<version>0.1.0-alpha.143</version>" in info
-    assert '"version": "0.1.0-alpha.143"' in package
-    assert '"version": "0.1.0-alpha.143"' in lock
+    assert "<version>0.1.0-alpha.144</version>" in info
+    assert '"version": "0.1.0-alpha.144"' in package
+    assert '"version": "0.1.0-alpha.144"' in lock

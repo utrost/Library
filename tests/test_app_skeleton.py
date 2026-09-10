@@ -42,6 +42,6 @@ def test_landing_template_states_scope_boundary():
     assert "library-vue-root" in template
     assert "Library" in vue
     assert "Publication catalogue" in vue
-    assert "Library actions" in vue
-    assert "library-catalogue-toolbar" in vue
-    assert vue.index('class="library-vue-catalogue"') < vue.index('class="library-panel library-mobile-compact-chrome"') < vue.index('class="library-catalogue-toolbar"')
+    assert "One catalogue workspace" in vue
+    assert "library-catalogue-workspace" in vue
+    assert vue.index('class="library-vue-catalogue"') < vue.index('class="library-panel library-mobile-compact-chrome"') < vue.index('class="library-catalogue-workspace"')

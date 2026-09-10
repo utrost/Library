@@ -50,7 +50,7 @@ const state = {
 }
 
 describe('Library catalogue Vue app', () => {
-  it('keeps header actions and discovery shortcuts in compact disclosure controls above the covers', () => {
+  it('frames catalogue tools as one consistent expandable workspace above the covers', () => {
     const wrapper = mount(App, {
       props: {
         state: {
@@ -60,22 +60,47 @@ describe('Library catalogue Vue app', () => {
           publicationSummaries: [{ publication: 'Science of Everything', itemCount: 42 }],
           publicationYears: ['2026'],
           creators: ['Ada Reader'],
+          activeFilters: { ...state.activeFilters, shelf: 'Books' },
         },
       },
     })
 
-    const toolbar = wrapper.find('.library-catalogue-toolbar')
-    expect(Array.from(toolbar.element.children).filter((child) => child.matches('a.button'))).toHaveLength(0)
-    expect(toolbar.find('.library-catalogue-actions-menu > summary').text()).toBe('Actions')
+    expect(wrapper.text()).toContain('One catalogue workspace')
+    expect(wrapper.text()).not.toContain('Browse as a shelf/gallery first')
 
-    const utilityRow = wrapper.find('.library-catalogue-utility-row')
-    expect(utilityRow.exists()).toBe(true)
-    expect(utilityRow.findAll('details')).toHaveLength(2)
-    expect(utilityRow.find('.library-batch-actions > summary').text()).toContain('Batch')
-    expect(utilityRow.find('.library-discovery-shortcuts > summary').text()).toContain('Browse')
+    const workspace = wrapper.find('.library-catalogue-workspace')
+    expect(workspace.exists()).toBe(true)
+    const panels = workspace.findAll(':scope > details.library-workspace-panel')
+    expect(panels).toHaveLength(5)
+    expect(panels.map((panel) => panel.find('summary span').text())).toEqual([
+      'Refine results',
+      'Browse shortcuts',
+      'Batch actions',
+      'Review queue',
+      'Admin tools',
+    ])
+    expect(panels.map((panel) => panel.find('summary small').text())).toEqual([
+      'Filters, facets and saved filter shortcuts',
+      'Continue reading, recently added, rediscover and useful views',
+      'Preview and apply changes to current results',
+      'Weak metadata, conflicts, missing files and extraction errors',
+      'Roots, scans, exports and repair operations',
+    ])
+    expect(panels.map((panel) => panel.find('.library-workspace-scope-badge').text())).toEqual([
+      'this shelf',
+      'whole catalogue',
+      '1 Current filter result',
+      'current results',
+      'all enabled roots',
+    ])
+    for (const panel of panels) {
+      expect(panel.find('.library-workspace-panel-copy').exists()).toBe(true)
+    }
+    expect(workspace.text()).toContain('changed / unchanged / skipped / error feedback')
+    expect(workspace.text()).toContain('Source files stay in Nextcloud Files')
 
-    const utilityTop = utilityRow.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
-    expect(Boolean(utilityTop & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
+    const workspaceTop = workspace.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
+    expect(Boolean(workspaceTop & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
   })
 
   it('renders the catalogue from Nextcloud initial state', () => {
@@ -97,14 +122,14 @@ describe('Library catalogue Vue app', () => {
     expect(starForm.find('input[name="starred"]').element.value).toBe('1')
     expect(starForm.find('.library-cover-star-button').text()).toBe('☆')
     expect(wrapper.text()).toContain('Details')
-    const filterPanel = wrapper.find('.library-filter-panel')
-    const discoveryShortcuts = wrapper.find('.library-discovery-shortcuts')
+    const filterPanel = wrapper.find('.library-workspace-panel--refine')
+    const discoveryShortcuts = wrapper.find('.library-workspace-panel--browse')
     expect(filterPanel.exists()).toBe(true)
     expect(filterPanel.attributes('open')).toBeUndefined()
-    expect(filterPanel.find('summary').text()).toBe('Show catalogue filters')
+    expect(filterPanel.find('summary span').text()).toBe('Refine results')
     expect(discoveryShortcuts.exists()).toBe(true)
     expect(discoveryShortcuts.attributes('open')).toBeUndefined()
-    expect(discoveryShortcuts.find('summary').text()).toBe('Browse')
+    expect(discoveryShortcuts.find('summary span').text()).toBe('Browse shortcuts')
     expect(wrapper.text()).toContain('Export corrected metadata')
     expect(wrapper.find('a[aria-label="Export corrected metadata"]').attributes('href')).toBe('/apps/library/export/metadata')
   })
@@ -184,31 +209,33 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).toContain('Run a scan after saving a root')
   })
 
-  it('keeps secondary browsing tools collapsed so the cover shelf stays central', () => {
+  it('keeps catalogue workspace panels collapsed so the cover shelf stays central', () => {
     const wrapper = mount(App, { props: { state } })
 
-    const secondaryTools = wrapper.find('.library-secondary-tools')
-    expect(secondaryTools.exists()).toBe(true)
-    expect(secondaryTools.element.tagName).toBe('NAV')
+    const workspace = wrapper.find('.library-catalogue-workspace')
+    expect(workspace.exists()).toBe(true)
+    expect(workspace.element.tagName).toBe('NAV')
 
     for (const selector of [
-      '.library-home-dashboard',
-      '.library-useful-views',
-      '.library-weak-metadata-dashboard',
-      '.library-saved-collections',
+      '.library-workspace-panel--refine',
+      '.library-workspace-panel--browse',
+      '.library-workspace-panel--batch',
+      '.library-workspace-panel--review',
+      '.library-workspace-panel--admin',
     ]) {
-      const panel = secondaryTools.find(selector)
+      const panel = workspace.find(selector)
       expect(panel.exists()).toBe(true)
       expect(panel.element.tagName).toBe('DETAILS')
       expect(panel.attributes('open')).toBeUndefined()
     }
 
-    expect(secondaryTools.find('.library-home-dashboard > summary').text()).toContain('Continue reading')
-    expect(secondaryTools.find('.library-useful-views > summary').text()).toContain('Useful views')
-    expect(secondaryTools.find('.library-weak-metadata-dashboard > summary').text()).toContain('Weak metadata cockpit')
-    expect(secondaryTools.find('.library-saved-collections > summary').text()).toContain('Custom collections')
+    expect(workspace.find('.library-workspace-panel--refine > summary span').text()).toContain('Refine results')
+    expect(workspace.find('.library-workspace-panel--browse > summary span').text()).toContain('Browse shortcuts')
+    expect(workspace.find('.library-workspace-panel--batch > summary span').text()).toContain('Batch actions')
+    expect(workspace.find('.library-workspace-panel--review > summary span').text()).toContain('Review queue')
+    expect(workspace.find('.library-workspace-panel--admin > summary span').text()).toContain('Admin tools')
 
-    const toolsBeforeCovers = secondaryTools.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
+    const toolsBeforeCovers = workspace.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
     expect(Boolean(toolsBeforeCovers & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
   })
 
