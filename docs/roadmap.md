@@ -467,7 +467,7 @@ Immediate slices:
 
 1. **AS-001 — Runtime package hygiene.** Started: add an archive audit and reduce release tarballs to runtime app files plus minimal public metadata.
 2. **AS-002 — App metadata and reviewer-facing public information.** Started: align `appinfo/info.xml`, public listing copy, privacy notes, limitations, support URLs and screenshot guidance.
-3. **AS-003 — Signing certificate and signed package workflow.** External dependency: request and receive a Nextcloud signing certificate, then add a repeatable signed-package path.
+3. **AS-003 — Signing certificate and signed package workflow.** Started: signed package mode now stages the app, runs `occ integrity:sign-app`, requires `appinfo/signature.json` for stable packages, and keeps the actual certificate request/private key as the remaining external dependency.
 4. **AS-004 — App Store release rehearsal.** Planned: build from clean checkout, audit/sign/smoke the package, and prepare GitHub release notes.
 5. **AS-005 — Stable `0.1.0` App Store submission.** Decision-gated: publish only after the alpha/manual test pass accepts the candidate.
 
