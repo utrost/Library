@@ -1,7 +1,7 @@
 # Human Architecture Review Notes
 
 Audience: Nextcloud administrators, architecture reviewers and security reviewers  
-Status: current implementation reference for Library `0.1.0-alpha.147`
+Status: current implementation reference for Library `0.1.0-alpha.148`
 
 This document answers: what changes when Library is installed in a Nextcloud instance, which schema objects and jobs are added, what prerequisites and optional dependencies exist, and which parts of the surrounding Nextcloud stack Library relies on.
 
@@ -28,7 +28,7 @@ Source: `appinfo/info.xml`.
 - App id: `library`
 - Display name: `Library`
 - Namespace: `Library` / PHP namespace `OCA\Library`
-- Current version: `0.1.0-alpha.147`
+- Current version: `0.1.0-alpha.148`
 - Licence declaration: `agpl` in `info.xml`; repository license is `AGPL-3.0-or-later`.
 - Categories: `files`, `multimedia`
 - Nextcloud compatibility: `min-version="34"`, `max-version="34"`

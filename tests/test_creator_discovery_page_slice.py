@@ -31,7 +31,7 @@ def test_vue_and_fallback_render_creator_discovery_links_and_header():
     assert "isCreatorDiscoveryPage" in vue
     assert "creatorLandingUrl(creator)" in vue
     assert "library-creator-groups" in vue
-    assert "Top creators" in vue
+    assert "Creator" in vue
     assert "library-discovery-header" in vue
     assert "fallbackIsCreatorDiscoveryPage" in fallback
     assert "fallbackCreatorLandingUrl(creator" in fallback

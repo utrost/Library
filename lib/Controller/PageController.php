@@ -26,8 +26,8 @@ use OCP\IUserSession;
 use OCP\Util;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-147';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-147';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-148';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-148';
 
     private const READER_FIXTURE_FILE_ID = 82;
 

@@ -447,6 +447,13 @@ function creatorLandingUrl(creator) {
   return catalogueState.creatorLandingUrls?.[creator] || `/apps/library/creators/${encodeURIComponent(creator)}`
 }
 
+function navigateToSelected(event) {
+  const url = event?.target?.value || ''
+  if (url) {
+    window.location.href = url
+  }
+}
+
 function coverImageState(item) {
   return coverImageStates[item.id] || 'loading'
 }
@@ -600,21 +607,23 @@ async function toggleStar(item, event) {
       <details class="library-workspace-panel library-workspace-panel--browse library-discovery-shortcuts library-home-dashboard" data-workspace-panel="browse">
         <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">↗</span><span class="library-workspace-panel-title" :title="t('library', 'Shortcuts reopen ordinary catalogue views, so filters, chips and pagination stay consistent.')">{{ t('library', 'Browse shortcuts') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Continue reading, recently added, rediscover and useful views') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'whole catalogue') }}</b></summary>
 
-        <article v-if="hasHomeDashboard" class="library-home-hero-card"><h3 :title="t('library', 'Fast entry points keep browsing visual: continue, revisit recent additions, or rediscover one shelf item.')">{{ t('library', 'Continue reading') }}</h3><div class="library-home-hero-actions"><a v-if="featuredHomeItems[0]" class="button primary" :href="featuredHomeItems[0].openUrl">{{ t('library', 'Read now') }}</a><button v-if="featuredHomeItems[0]" type="button" class="button secondary" @click="openDetailsDrawer(featuredHomeItems[0])">{{ t('library', 'Open details drawer') }}</button></div></article>
+        <article v-if="hasHomeDashboard" class="library-home-hero-card"><h3 :title="t('library', 'Fast entry points keep browsing visual: continue, revisit recent additions, or rediscover one shelf item.')">{{ t('library', 'Continue reading') }}</h3><div class="library-home-hero-actions"><a v-if="featuredHomeItems[0]" class="button primary" :href="featuredHomeItems[0].openUrl">{{ t('library', 'Read now') }}</a><button v-if="featuredHomeItems[0]" type="button" class="button secondary" @click="openDetailsDrawer(featuredHomeItems[0])">{{ t('library', 'Details') }}</button></div></article>
         <article v-if="rediscoverItem" class="library-home-rediscover"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Rediscover') }}</p><strong>{{ rediscoverItem.title }}</strong><span class="library-muted">{{ rediscoverItem.creators || rediscoverItem.publication || rediscoverItem.cachedPath }}</span><button type="button" class="button secondary" @click="openDetailsDrawer(rediscoverItem)">{{ t('library', 'Peek') }}</button></article>
         <nav class="library-useful-view-links" :aria-label="t('library', 'Useful views')"><a v-for="view in smartViews" :key="view.key" class="library-useful-view-chip" :href="smartViewUrl(view.filters)" :title="t('library', view.description)"><strong>{{ t('library', view.label) }}</strong><small class="library-useful-view-count">{{ Number(smartViewCounts[view.key] || 0) }}</small></a></nav>
-        <div class="library-discovery-shortcut-grid"><section v-if="publicationSummaries.length > 0" class="library-periodical-groups"><h3 :title="t('library', 'Jump into recurring publications with one click.')">{{ t('library', 'Top series and periodicals') }}</h3><ul><li v-for="summary in publicationSummaries" :key="summary.publication"><a :href="publicationLandingUrl(summary.publication)">{{ summary.publication }}</a><span class="library-muted">{{ summary.itemCount }} items</span></li></ul></section><section v-if="publicationSummaries.length === 0" class="library-periodical-groups library-periodical-groups-empty"><h3>{{ t('library', 'No series or periodicals found yet') }}</h3><p class="library-muted">{{ t('library', 'Add publication or series names in item details to build this shortcut panel.') }}</p></section><section v-if="publicationYears.length > 0" class="library-year-groups"><h3>{{ t('library', 'Top publication years') }}</h3><ul><li v-for="year in publicationYears" :key="year"><a :href="yearLandingUrl(year)">{{ year }}</a></li></ul></section><section v-if="creators.length > 0" class="library-creator-groups"><h3>{{ t('library', 'Top creators') }}</h3><ul><li v-for="creator in creators" :key="creator"><a :href="creatorLandingUrl(creator)">{{ creator }}</a></li></ul></section></div>
-        <section class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Custom collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView">{{ t('library', 'Save current view') }}</button></form><p v-if="!canSaveCurrentView" class="library-muted">{{ t('library', 'Choose search terms or filters first, then save them as a custom collection.') }}</p><nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')"><article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card"><a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)"><strong>{{ collection.name }}</strong><span>{{ Number(collection.count || 0) }} {{ t('library', 'items') }}</span></a><form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form"><input type="hidden" name="requesttoken" :value="requestToken"><button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button></form></article></nav></section>
+        <div class="library-shortcut-selectors"><label v-if="publicationSummaries.length > 0" class="library-shortcut-select-card library-periodical-groups" :title="t('library', 'Jump into recurring publications with one click.')"><span>{{ t('library', 'Series / periodicals') }}</span><select @change="navigateToSelected"><option value="">{{ t('library', 'Choose series') }}</option><option v-for="summary in publicationSummaries" :key="summary.publication" :value="publicationLandingUrl(summary.publication)">{{ summary.publication }} · {{ summary.itemCount }}</option></select></label><label v-if="publicationYears.length > 0" class="library-shortcut-select-card library-year-groups"><span>{{ t('library', 'Publication year') }}</span><select @change="navigateToSelected"><option value="">{{ t('library', 'Choose year') }}</option><option v-for="year in publicationYears" :key="year" :value="yearLandingUrl(year)">{{ year }}</option></select></label><label v-if="creators.length > 0" class="library-shortcut-select-card library-creator-groups"><span>{{ t('library', 'Creator') }}</span><select @change="navigateToSelected"><option value="">{{ t('library', 'Choose creator') }}</option><option v-for="creator in creators" :key="creator" :value="creatorLandingUrl(creator)">{{ creator }}</option></select></label></div>
+        <section class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Custom collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form><nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')"><article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card"><a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)"><strong>{{ collection.name }}</strong><span>{{ Number(collection.count || 0) }} {{ t('library', 'items') }}</span></a><form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form"><input type="hidden" name="requesttoken" :value="requestToken"><button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button></form></article></nav></section>
       </details>
 
       <details class="library-workspace-panel library-workspace-panel--batch library-batch-actions" data-workspace-panel="batch" :aria-label="t('library', 'Batch actions for current results')">
         <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">✓</span><span class="library-workspace-panel-title" :title="t('library', 'Every batch action uses the current filters, names its scope, and returns changed / unchanged / skipped / error feedback.')">{{ t('library', 'Batch actions') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Preview and apply changes to current results') }}</small><b class="library-workspace-scope-badge">{{ pagination.total }} {{ t('library', 'Current filter result') }}</b></summary>
 
-        <form method="post" :action="batchTagUrl" class="library-batch-tag-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="filter.key" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Nextcloud tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button primary" :title="t('library', 'Uses the current filters, not just this page. Limit: 5,000 matched items.')">{{ t('library', 'Apply Nextcloud tag to current results') }}</button></form>
-        <form method="post" :action="batchTagRemoveUrl" class="library-batch-tag-remove-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`remove-tag-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Nextcloud tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button secondary" :title="t('library', 'Removes an existing Nextcloud tag from every item matching the current filters. Library metadata is not changed.')">{{ t('library', 'Remove tag from current results') }}</button></form>
-        <form method="post" :action="batchMetadataResetUrl" class="library-batch-metadata-reset-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`reset-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><input type="hidden" name="scannerConflicts" value="1"><button type="submit" class="button secondary" :title="t('library', 'Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.')">{{ t('library', 'Reset filtered metadata') }}</button></form>
-        <form method="post" :action="batchMetadataEditPreviewUrl" class="library-batch-metadata-edit-preview-form" target="_blank"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`edit-preview-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Metadata field') }}</span><select name="bulkEditField"><option value="publicationType">{{ t('library', 'Publication type') }}</option><option value="subtitle">{{ t('library', 'Subtitle') }}</option><option value="creators">{{ t('library', 'Creators') }}</option><option value="publication">{{ t('library', 'Series / periodical') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="language">{{ t('library', 'Language') }}</option><option value="publisher">{{ t('library', 'Publisher') }}</option><option value="genres">{{ t('library', 'Genres') }}</option><option value="classifications">{{ t('library', 'Classifications') }}</option></select></label><label><span>{{ t('library', 'Preview value') }}</span><input type="text" name="bulkEditValue" placeholder="magazine, de, photography..." autocomplete="off"></label><button type="submit" class="button secondary" :title="t('library', 'Preview first, then apply from the review page.')">{{ t('library', 'Preview & apply metadata edit') }}</button></form>
-        <form method="post" :action="batchCoverRefreshUrl" class="library-batch-cover-refresh-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`cover-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><button type="submit" class="button secondary" :title="t('library', 'Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.')">{{ t('library', 'Request fresh cover previews') }}</button></form>
+        <div class="library-batch-action-grid">
+          <form method="post" :action="batchTagUrl" class="library-batch-action-card library-batch-tag-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="filter.key" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Add tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button primary" :title="t('library', 'Uses the current filters, not just this page. Limit: 5,000 matched items.')">{{ t('library', 'Apply') }}</button></form>
+          <form method="post" :action="batchTagRemoveUrl" class="library-batch-action-card library-batch-tag-remove-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`remove-tag-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Remove tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button secondary" :title="t('library', 'Removes an existing Nextcloud tag from every item matching the current filters. Library metadata is not changed.')">{{ t('library', 'Remove') }}</button></form>
+          <form method="post" :action="batchMetadataResetUrl" class="library-batch-action-card library-batch-metadata-reset-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`reset-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><input type="hidden" name="scannerConflicts" value="1"><button type="submit" class="button secondary" :title="t('library', 'Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.')">{{ t('library', 'Reset metadata') }}</button></form>
+          <form method="post" :action="batchMetadataEditPreviewUrl" class="library-batch-action-card library-batch-action-card--wide library-batch-metadata-edit-preview-form" target="_blank"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`edit-preview-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Field') }}</span><select name="bulkEditField"><option value="publicationType">{{ t('library', 'Publication type') }}</option><option value="subtitle">{{ t('library', 'Subtitle') }}</option><option value="creators">{{ t('library', 'Creators') }}</option><option value="publication">{{ t('library', 'Series / periodical') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="language">{{ t('library', 'Language') }}</option><option value="publisher">{{ t('library', 'Publisher') }}</option><option value="genres">{{ t('library', 'Genres') }}</option><option value="classifications">{{ t('library', 'Classifications') }}</option></select></label><label><span>{{ t('library', 'Value') }}</span><input type="text" name="bulkEditValue" placeholder="magazine, de, photography..." autocomplete="off"></label><button type="submit" class="button secondary" :title="t('library', 'Preview first, then apply from the review page.')">{{ t('library', 'Preview edit') }}</button></form>
+          <form method="post" :action="batchCoverRefreshUrl" class="library-batch-action-card library-batch-cover-refresh-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`cover-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><button type="submit" class="button secondary" :title="t('library', 'Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.')">{{ t('library', 'Fresh covers') }}</button></form>
+        </div>
       </details>
 
       <details class="library-workspace-panel library-workspace-panel--review library-weak-metadata-dashboard" data-workspace-panel="review">
@@ -1100,15 +1109,13 @@ async function toggleStar(item, event) {
   margin-bottom: 0;
 }
 
-.library-workspace-panel--batch > form,
+.library-batch-action-card,
 .library-review-queue-actions article,
 .library-actions-health-overview,
 .library-home-hero-card,
 .library-home-rediscover,
 .library-saved-collection-card,
-.library-periodical-groups,
-.library-year-groups,
-.library-creator-groups {
+.library-shortcut-select-card {
   box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 54%, transparent 46%);
 }
 
@@ -1389,6 +1396,37 @@ async function toggleStar(item, event) {
   text-align: center;
 }
 
+.library-shortcut-selectors {
+  align-items: end;
+  display: grid;
+  gap: 0.45rem;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+}
+
+.library-shortcut-select-card {
+  background: var(--color-main-background, #fff);
+  border: 1px solid var(--color-border, #d0d0d0);
+  border-radius: 12px;
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.5rem 0.6rem;
+}
+
+.library-shortcut-select-card span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library-shortcut-select-card select {
+  min-width: 0;
+  width: 100%;
+}
+
 .library-weak-metadata-links {
   display: grid;
   gap: 0.4rem;
@@ -1540,22 +1578,59 @@ async function toggleStar(item, event) {
   line-height: 1.2;
 }
 
-.library-batch-tag-form {
-  align-items: end;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.library-batch-tag-form label {
+.library-batch-action-grid {
   display: grid;
-  gap: 4px;
-  margin: 0;
+  gap: 0.5rem;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
 }
 
-.library-batch-tag-form .library-muted {
-  flex-basis: 100%;
+.library-batch-action-card {
+  align-items: end;
+  background: var(--color-main-background, #fff);
+  border: 1px solid var(--color-border, #d0d0d0);
+  border-radius: 12px;
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin: 0;
+  min-width: 0;
+  padding: 0.55rem 0.6rem;
+}
+
+.library-batch-action-card--wide {
+  grid-template-columns: minmax(7rem, 0.8fr) minmax(7rem, 1fr) auto;
+}
+
+.library-batch-action-card label {
+  display: grid;
+  gap: 0.18rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.library-batch-action-card label span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library-batch-action-card input,
+.library-batch-action-card select {
+  min-width: 0;
+  width: 100%;
+}
+
+.library-batch-action-card button {
+  min-height: 38px;
+  white-space: nowrap;
+}
+
+.library-batch-metadata-reset-form,
+.library-batch-cover-refresh-form {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .library-filter-panel[open] {
@@ -1768,7 +1843,7 @@ async function toggleStar(item, event) {
 
 .library-workspace-panel--browse[open] .library-home-hero-card,
 .library-workspace-panel--browse[open] .library-home-rediscover,
-.library-workspace-panel--browse[open] .library-discovery-shortcut-grid {
+.library-workspace-panel--browse[open] .library-shortcut-selectors {
   align-self: stretch;
   margin-top: 0;
 }

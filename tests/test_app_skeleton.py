@@ -58,6 +58,13 @@ def test_workspace_menus_use_economical_open_layouts():
     assert "grid-column: 1 / -1" in vue
     assert "grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr))" in vue
     assert "max-width: none" in vue
+    assert "class=\"library-shortcut-selectors\"" in vue
+    assert "library-shortcut-select-card" in vue
+    assert ".library-shortcut-selectors" in vue
+    assert ".library-shortcut-select-card select" in vue
+    assert ".library-batch-action-grid" in vue
+    assert "class=\"library-batch-action-card" in vue
+    assert "grid-template-columns: minmax(0, 1fr) auto" in vue
 
 
 def test_explanatory_help_moves_to_hover_labels():

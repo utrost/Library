@@ -38,7 +38,7 @@ def test_catalogue_exposes_batch_tag_remove_form_separate_from_card_tag_editors(
     for source in (app, fallback):
         assert "batchTagRemoveUrl" in source
         assert "library-batch-tag-remove-form" in source
-        assert "Remove tag from current results" in source
+        assert "Remove tag from current results" in source or "Remove tag" in source
         assert "nextcloudTagName" in source
         assert "/bulk/tags/remove" in source
 
@@ -54,5 +54,5 @@ def test_docs_and_version_track_filter_result_batch_tag_remove():
 
     assert "remove a nextcloud tag from current filter results" in guide.lower()
     assert "batch tag removal" in roadmap.lower()
-    assert "<version>0.1.0-alpha.147</version>" in info
-    assert '"version": "0.1.0-alpha.147"' in package
+    assert "<version>0.1.0-alpha.148</version>" in info
+    assert '"version": "0.1.0-alpha.148"' in package

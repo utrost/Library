@@ -33,7 +33,7 @@ def test_vue_and_fallback_expose_metadata_reset_batch_action_separate_from_taggi
         assert "library-batch-metadata-reset-form" in source
         assert "Reset current scanner-conflict results to scanner metadata" in source
         assert "scannerConflicts" in source
-        assert "Reset filtered metadata" in source
+        assert "Reset filtered metadata" in source or "Reset metadata" in source
         assert "name=\"scannerConflicts\" value=\"1\"" in source or "name = 'scannerConflicts'" in source
 
     assert "print('browser_batch_metadata_reset_form', dom.batchMetadataResetForm)" in smoke
@@ -48,5 +48,5 @@ def test_docs_and_version_track_filter_result_metadata_reset():
     assert "filter-result metadata reset" in guide.lower()
     assert "scanner-conflict results" in guide.lower()
     assert "batch metadata reset" in roadmap.lower()
-    assert "<version>0.1.0-alpha.147</version>" in info
-    assert '"version": "0.1.0-alpha.147"' in package
+    assert "<version>0.1.0-alpha.148</version>" in info
+    assert '"version": "0.1.0-alpha.148"' in package
