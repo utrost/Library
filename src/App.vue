@@ -108,7 +108,7 @@ const isYearDiscoveryPage = computed(() => catalogueState.discoveryPage === 'yea
 const isCreatorDiscoveryPage = computed(() => catalogueState.discoveryPage === 'creator')
 const isDiscoveryPage = computed(() => isPublicationDiscoveryPage.value || isYearDiscoveryPage.value || isCreatorDiscoveryPage.value)
 const discoveryTitle = computed(() => catalogueState.discoveryTitle || activeFilters.publication || activeFilters.year || activeFilters.creator || '')
-const catalogueHeading = computed(() => isDiscoveryPage.value ? discoveryTitle.value : t('library', 'Publication catalogue'))
+const catalogueHeading = computed(() => isDiscoveryPage.value ? discoveryTitle.value : t('library', 'Library'))
 const discoveryKindLabel = computed(() => isCreatorDiscoveryPage.value ? t('library', 'Creator') : (isYearDiscoveryPage.value ? t('library', 'Publication year') : t('library', 'Publication / series')))
 const rootCount = computed(() => Number(catalogueState.rootCount || 0))
 const enabledRootCount = computed(() => Number(catalogueState.enabledRootCount || 0))
@@ -552,17 +552,7 @@ async function toggleStar(item, event) {
 <template>
   <div class="library-vue-catalogue">
   <section class="library-panel library-mobile-compact-chrome" aria-labelledby="library-catalogue-heading">
-    <div class="library-catalogue-header">
-      <div>
-        <p v-if="isDiscoveryPage" class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
-        <h2 id="library-catalogue-heading">{{ catalogueHeading }}</h2>
-        <p class="library-muted">{{ isDiscoveryPage ? t('library', 'Browse this focused view; refine only when you need to narrow it further.') : t('library', 'One catalogue workspace for finding, browsing, acting on and reviewing publication files.') }}</p>
-      </div>
-    </div>
-
-    <p v-if="batchMetadataApplyMessage" class="library-notice library-batch-metadata-apply-result">{{ batchMetadataApplyMessage }}</p>
-
-    <nav class="library-catalogue-workspace" :aria-label="t('library', 'One catalogue workspace')">
+    <nav class="library-catalogue-workspace library-workspace-menubar" :aria-label="t('library', 'One catalogue workspace')">
       <details class="library-workspace-panel library-workspace-panel--refine library-filter-panel" data-workspace-panel="refine">
         <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished library-filter-panel-summary">
           <span class="library-workspace-panel-icon" aria-hidden="true">⌕</span>
@@ -612,7 +602,7 @@ async function toggleStar(item, event) {
         </form>
       </details>
 
-      <details class="library-workspace-panel library-workspace-panel--browse library-secondary-tool library-discovery-shortcuts library-home-dashboard" data-workspace-panel="browse">
+      <details class="library-workspace-panel library-workspace-panel--browse library-discovery-shortcuts library-home-dashboard" data-workspace-panel="browse">
         <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">↗</span><span class="library-workspace-panel-title">{{ t('library', 'Browse shortcuts') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Continue reading, recently added, rediscover and useful views') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'whole catalogue') }}</b></summary>
         <div class="library-workspace-panel-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Browse shortcuts') }}</p><p class="library-muted">{{ t('library', 'Shortcuts reopen ordinary catalogue views, so filters, chips and pagination stay consistent.') }}</p></div>
         <article v-if="hasHomeDashboard" class="library-home-hero-card"><h3>{{ t('library', 'Continue reading') }}</h3><p class="library-muted">{{ t('library', 'Fast entry points keep browsing visual: continue, revisit recent additions, or rediscover one shelf item.') }}</p><div class="library-home-hero-actions"><a v-if="featuredHomeItems[0]" class="button primary" :href="featuredHomeItems[0].openUrl">{{ t('library', 'Read now') }}</a><button v-if="featuredHomeItems[0]" type="button" class="button secondary" @click="openDetailsDrawer(featuredHomeItems[0])">{{ t('library', 'Open details drawer') }}</button></div></article>
@@ -648,6 +638,17 @@ async function toggleStar(item, event) {
         <div class="library-actions-health-overview"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Import health') }}</p><h3>{{ t('library', 'Metadata overview') }}</h3><p class="library-muted">{{ t('library', 'Cached metadata overview loads quickly. Refresh only when you want to recompute heavier archive and cover diagnostics. Files are left as-is; diagnostics separate Library extraction from Nextcloud/plugin preview.') }}</p><p v-if="importHealthState.loading" class="library-muted">{{ t('library', 'Loading cached metadata overview…') }}</p><p v-else-if="importHealthState.error" class="library-notice">{{ importHealthState.error }}</p><p v-else-if="!importHealthState.loaded" class="library-muted">{{ t('library', 'Open Admin tools to load the cached metadata and cover overview.') }}</p><template v-if="importHealthState.loaded"><p v-if="importHealthSummary.message" class="library-muted">{{ importHealthSummary.message }}</p><p v-else-if="importHealthSummary.cacheStatus === 'missing'" class="library-muted">{{ t('library', 'No cached metadata overview exists yet') }}</p><p v-if="importHealthGeneratedAt" class="library-muted">{{ t('library', 'Last generated') }}: {{ importHealthGeneratedAt }}</p><button type="button" class="button secondary library-import-health-refresh" :disabled="importHealthState.refreshing" @click="refreshImportHealthSummary">{{ importHealthState.refreshing ? t('library', 'Refreshing metadata overview…') : t('library', 'Refresh metadata overview') }}</button><div class="library-actions-health-links"><a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Review metadata errors') }}</a><a class="button secondary" :href="metadataErrorsUrl">{{ t('library', 'Full review') }}</a><a class="button secondary" :href="metadataErrorsTsvUrl">{{ t('library', 'Export TSV') }}</a><a class="button secondary" :href="coverProbeUrl">{{ t('library', 'Probe covers') }}</a></div><div class="library-actions-health-grid"><article><h4>{{ t('library', 'Metadata errors') }}</h4><p class="library-import-health-number">{{ metadataErrorReview.total || 0 }}</p></article><article><h4>{{ t('library', 'Archive/container check') }}</h4><p class="library-import-health-number">{{ archiveMagicSummary.mismatches || 0 }}</p></article><article><h4>{{ t('library', 'Cover health') }}</h4><p class="library-muted">{{ coverHealthSummary.note }}</p></article><article><h4>{{ t('library', 'Cover support matrix') }}</h4><p class="library-muted">{{ t('library', 'Nextcloud/plugin preview and Library extraction are separate actors. 7z/RAR files stay left as-is; optional read-only archive tools only inspect copies.') }}</p></article><details v-if="metadataErrorReview.examples?.length" class="library-import-health-examples"><summary>{{ t('library', 'Example files and suggested actions') }}</summary><ul><li v-for="example in metadataErrorReview.examples" :key="`${example.fileId}-${example.path}`"><code>{{ example.path }}</code><span>{{ example.scanStatus }} · {{ example.scanError }} · {{ example.actualContainerType }}</span><strong>{{ example.suggestedRepairAction }}</strong></li></ul></details></div></template></div>
       </details>
     </nav>
+
+    <div class="library-catalogue-header">
+      <div>
+        <p v-if="isDiscoveryPage" class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
+        <h2 id="library-catalogue-heading">{{ catalogueHeading }}</h2>
+        <p class="library-muted">{{ isDiscoveryPage ? t('library', 'Browse this focused view; refine only when you need to narrow it further.') : t('library', 'One catalogue workspace for finding, browsing, acting on and reviewing publication files.') }}</p>
+      </div>
+    </div>
+
+    <p v-if="batchMetadataApplyMessage" class="library-notice library-batch-metadata-apply-result">{{ batchMetadataApplyMessage }}</p>
+
 
     <section v-if="isDiscoveryPage" class="library-discovery-hero" aria-labelledby="library-discovery-heading">
       <p class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
@@ -964,18 +965,25 @@ async function toggleStar(item, event) {
 }
 
 .library-catalogue-workspace {
-  display: grid;
-  gap: 12px;
-  margin: 0.9rem 0 1.1rem;
+  align-items: stretch;
+  background: color-mix(in srgb, var(--color-main-background) 88%, var(--color-primary-element, #0082c9) 12%);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 1rem;
+  padding: 0.45rem;
 }
 
 .library-workspace-panel {
   --library-workspace-accent: var(--color-primary-element, #00679e);
   --library-workspace-tint: color-mix(in srgb, var(--library-workspace-accent) 10%, var(--color-main-background) 90%);
-  background: linear-gradient(135deg, var(--library-workspace-tint), var(--color-main-background) 44%);
+  background: linear-gradient(135deg, var(--library-workspace-tint), var(--color-main-background) 48%);
   border: 1px solid color-mix(in srgb, var(--library-workspace-accent) 24%, var(--color-border) 76%);
-  border-radius: 18px;
-  box-shadow: 0 8px 28px color-mix(in srgb, var(--color-box-shadow, #000) 16%, transparent 84%);
+  border-radius: 14px;
+  flex: 1 1 180px;
+  min-width: 170px;
   overflow: clip;
   padding: 0;
 }
@@ -988,17 +996,20 @@ async function toggleStar(item, event) {
 
 .library-workspace-panel[open] {
   box-shadow: 0 12px 36px color-mix(in srgb, var(--library-workspace-accent) 18%, transparent 82%);
+  flex-basis: 100%;
+  order: 10;
 }
 
 .library-workspace-panel-summary {
   align-items: center;
   cursor: pointer;
   display: grid;
-  gap: 0.2rem 0.65rem;
-  grid-template-columns: auto max-content minmax(0, 1fr) auto auto;
+  gap: 0.15rem 0.55rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-height: 5.7rem;
   list-style: none;
   box-sizing: border-box;
-  padding: 0.85rem 1rem;
+  padding: 0.7rem 0.8rem;
   width: 100%;
 }
 
@@ -1010,7 +1021,8 @@ async function toggleStar(item, event) {
   color: var(--color-text-maxcontrast);
   content: '▾';
   font-size: 0.95rem;
-  grid-column: 5;
+  grid-column: 3;
+  grid-row: 1;
   transition: transform 160ms ease;
 }
 
@@ -1020,26 +1032,35 @@ async function toggleStar(item, event) {
 
 .library-workspace-panel-icon {
   align-items: center;
+  align-self: start;
   background: var(--library-workspace-accent);
   border-radius: 999px;
   color: #fff;
   display: inline-flex;
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   font-weight: 800;
-  height: 2rem;
+  grid-row: 1 / 4;
+  height: 1.75rem;
   justify-content: center;
   line-height: 1;
-  width: 2rem;
+  width: 1.75rem;
 }
 
 .library-workspace-panel-title {
   font-weight: 750;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .library-workspace-panel-purpose {
   color: var(--color-text-maxcontrast);
+  font-size: 0.78rem;
+  grid-column: 2 / 4;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .library-workspace-scope-badge {
@@ -1047,9 +1068,14 @@ async function toggleStar(item, event) {
   border: 1px solid color-mix(in srgb, var(--library-workspace-accent) 32%, transparent 68%);
   border-radius: 999px;
   color: var(--color-main-text);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 650;
-  padding: 0.2rem 0.6rem;
+  grid-column: 2 / 4;
+  justify-self: start;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0.18rem 0.48rem;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

@@ -56,9 +56,10 @@ def test_vue_page_stays_catalogue_first_on_mobile():
 
     wrapper_index = app.index('class="library-vue-catalogue"')
     panel_index = app.index('class="library-panel library-mobile-compact-chrome"')
-    workspace_index = app.index('class="library-catalogue-workspace"')
-    assert wrapper_index < panel_index < workspace_index
-    assert 'class="library-catalogue-workspace"' in app
+    workspace_index = app.index('class="library-catalogue-workspace library-workspace-menubar"')
+    heading_index = app.index('id="library-catalogue-heading"')
+    assert wrapper_index < panel_index < workspace_index < heading_index
+    assert 'class="library-catalogue-workspace library-workspace-menubar"' in app
     assert 'class="library-settings-link"' not in app
     assert 'without importing or owning the files' not in app
 

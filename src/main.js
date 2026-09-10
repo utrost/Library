@@ -270,7 +270,7 @@ function fallbackCatalogue(state, error) {
   const headerText = document.createElement('div')
   const heading = document.createElement('h2')
   heading.id = 'library-catalogue-heading'
-  heading.textContent = t('library', 'Publication catalogue')
+  heading.textContent = t('library', 'Library')
   const note = document.createElement('p')
   note.className = 'library-muted'
   note.textContent = t('library', 'Browse as a shelf/gallery first; open the details panel when metadata matters.')

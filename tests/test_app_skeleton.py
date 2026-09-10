@@ -41,7 +41,7 @@ def test_landing_template_states_scope_boundary():
     vue = (ROOT / "src" / "App.vue").read_text()
     assert "library-vue-root" in template
     assert "Library" in vue
-    assert "Publication catalogue" in vue
+    assert "t('library', 'Publication catalogue')" not in vue
     assert "One catalogue workspace" in vue
-    assert "library-catalogue-workspace" in vue
-    assert vue.index('class="library-vue-catalogue"') < vue.index('class="library-panel library-mobile-compact-chrome"') < vue.index('class="library-catalogue-workspace"')
+    assert "library-catalogue-workspace library-workspace-menubar" in vue
+    assert vue.index('class="library-vue-catalogue"') < vue.index('class="library-panel library-mobile-compact-chrome"') < vue.index('class="library-catalogue-workspace library-workspace-menubar"') < vue.index('id="library-catalogue-heading"')

@@ -30,7 +30,7 @@ def test_user_story_ux_concept_covers_gallery_metadata_shelves_and_filtering():
     ]:
         assert scope in text
     for phrase in [
-        "polished card row",
+        "menu-bar card",
         "coloured icon",
         "summary arrow",
         "slash shortcut opens Refine results",
@@ -93,6 +93,10 @@ def test_styles_define_responsive_cover_gallery_and_filter_bar():
     ]:
         assert selector in css
     assert "--library-workspace-accent" in css
+    assert "display: flex" in css
+    assert "flex-wrap: wrap" in css
+    assert "flex: 1 1 180px" in css
+    assert "order: 10" in css
 
 
 def test_readme_links_ux_concept_and_names_current_presentation_slice():

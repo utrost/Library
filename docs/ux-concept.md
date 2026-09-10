@@ -25,16 +25,12 @@ A **Shelf** is a browsing concept, not a new storage silo. In v0.1 shelves come 
 ## Overarching layout
 
 ```text
-Library catalogue
+[ Refine ] [ Browse ] [ Batch ] [ Review ] [ Admin ]       workspace menu bar
 
-[Search...] [Sort] [Starred] [Page size]          primary quick controls
-[active filter chips] [result count]              current result explanation
+Library
+One catalogue workspace for finding, browsing, acting on and reviewing publication files.
 
-▸ Refine results       filters, facets, saved filter shortcuts
-▸ Browse shortcuts     continue reading, recently added, rediscover, useful views
-▸ Batch actions        current-result actions with preview/apply feedback
-▸ Review queue         weak metadata, conflicts, missing files, extraction errors
-▸ Admin tools          roots, scans, exports, repair operations
+[active filter chips] [result count]                       current result explanation
 
 Cover result set
 ┌────────────┐ ┌────────────┐ ┌────────────┐
@@ -47,7 +43,7 @@ Cover result set
 
 The expandable blocks must look and behave consistently:
 
-- summary row: polished card row with a coloured icon, short label, one-line purpose, count/scope badge when available and a summary arrow;
+- summary row: menu-bar card with a coloured icon, short label, one-line purpose, count/scope badge when available and a summary arrow;
 - body: one focused job, not a mixed drawer of unrelated controls;
 - scope language: `this item`, `current results`, `this shelf`, `all enabled roots` or `whole catalogue`;
 - feedback: changed/unchanged/skipped/error counts for every non-trivial action;
@@ -151,7 +147,7 @@ Acceptance:
 Acceptance:
 
 - a search box filters title, subtitle, creators, publication, description and source path;
-- common quick filters stay visible above the result set;
+- search, sort, starred-only and page-size controls live inside **Refine results** and open with the same workspace menu pattern;
 - deeper filters use the same Refine results disclosure pattern;
 - a type selector filters book/comic/magazine/journal/manual/catalogue/other;
 - a tag field filters by exact Nextcloud system tag name;
@@ -160,7 +156,7 @@ Acceptance:
 
 ## v0.1 implemented workspace
 
-The catalogue now uses the workspace model in the app UI:
+The catalogue now uses the workspace model in the app UI as a menu bar above the **Library** heading:
 
 1. **Refine results** opens search, sort, common filters, full facets and saved-filter context. The `/` shortcut opens the panel and focuses search.
 2. **Browse shortcuts** holds Continue reading, Recently added, Rediscover, Useful views, top publications, top years, top creators and saved collections.
