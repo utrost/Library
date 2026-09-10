@@ -459,6 +459,18 @@ Tag result feedback has landed, and one-click suggested tag buttons have landed 
 
 Immediate implementation stance: use the cleaner extractor boundary to support common browsing UX first. The first dedicated publication discovery page has landed for top series/periodical shortcuts, the first dedicated publication year discovery page has landed, and the first dedicated creator discovery page has landed for exact creator fields; Publication contents read-only issue/date grouping has landed on publication landing pages, and the next discovery layer is richer issue grouping polish, next/previous issue routes and saved views.
 
+## App Store readiness track
+
+The App Store readiness plan lives in [App Store readiness roadmap](app-store-readiness.md). This track is separate from product expansion: it prepares Library for a signed Nextcloud App Store release while preserving the current Nextcloud 34-only compatibility claim.
+
+Immediate slices:
+
+1. **AS-001 — Runtime package hygiene.** Started: add an archive audit and reduce release tarballs to runtime app files plus minimal public metadata.
+2. **AS-002 — App metadata and reviewer-facing public information.** Next: align `appinfo/info.xml`, public listing copy, privacy notes, limitations, support URLs and screenshots.
+3. **AS-003 — Signing certificate and signed package workflow.** External dependency: request and receive a Nextcloud signing certificate, then add a repeatable signed-package path.
+4. **AS-004 — App Store release rehearsal.** Planned: build from clean checkout, audit/sign/smoke the package, and prepare GitHub release notes.
+5. **AS-005 — Stable `0.1.0` App Store submission.** Decision-gated: publish only after the alpha/manual test pass accepts the candidate.
+
 ## Rough post-v0.1 roadmap
 
 The rough roadmap after v0.1 lives in [Rough roadmap after v0.1](post-v0.1-roadmap.md). It intentionally assigns one major feature family to each minor release line:

@@ -27,14 +27,22 @@ Create the app archive with:
 scripts/package-release.sh
 ```
 
-The script runs `npm ci`, `npm run build`, `python -m pytest -q`, then writes:
+The script runs `npm ci`, `npm run build`, `python -m pytest -q`, stages runtime app files, audits the tarball, then writes:
 
 ```text
 dist/library-0.1.0-alpha.142.tar.gz
 dist/library-0.1.0-alpha.142.tar.gz.sha256
 ```
 
-The archive contains a top-level `library-0.1.0-alpha.142/` directory and excludes `.git`, `.github`, `node_modules`, `build`, `dist`, caches and bytecode.
+The archive contains a top-level `library-0.1.0-alpha.142/` directory. For App Store hygiene it excludes `.git`, `.github`, `node_modules`, `build`, `dist`, `tests`, `scripts`, `src`, `docs`, `package.json`, package locks, local release docs, local tool configs, caches and bytecode. It keeps the runtime app directories plus minimal public files: `README.md`, `LICENSE`, and `CHANGELOG.md`.
+
+Audit an existing package with:
+
+```bash
+npm run audit:release-package
+```
+
+The audit must print `release_package_audit_ok=true` before a package is considered uploadable.
 
 ## Generated archive install smoke
 

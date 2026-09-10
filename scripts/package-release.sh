@@ -33,10 +33,19 @@ tar \
   --exclude=node_modules \
   --exclude=build \
   --exclude=dist \
+  --exclude=tests \
+  --exclude=scripts \
+  --exclude=src \
+  --exclude=docs \
+  --exclude=package.json \
+  --exclude=package-lock.json \
+  --exclude=RELEASE.md \
+  --exclude=vite.config.js \
   --exclude='*.pyc' \
   -cf - . | tar -xf - -C "$STAGE_DIR"
 
 tar -C "$DIST_DIR" -czf "$ARCHIVE" "library-${VERSION}"
 sha256sum "$ARCHIVE" > "$ARCHIVE.sha256"
+bash "$ROOT/scripts/audit-release-package.sh" "$VERSION"
 printf 'release_archive=%s\n' "$ARCHIVE"
 printf 'release_checksum=%s\n' "$ARCHIVE.sha256"

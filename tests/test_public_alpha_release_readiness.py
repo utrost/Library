@@ -50,6 +50,9 @@ def test_release_packaging_script_builds_clean_nextcloud_app_archive():
     assert "--exclude=.git" in script
     assert "--exclude=.gitignore" in script
     assert "--exclude=node_modules" in script
+    assert "--exclude=tests" in script
+    assert "--exclude=scripts" in script
+    assert "audit-release-package.sh" in script
     assert "custom_apps/library" not in script
     assert "scripts/package-release.sh" in readme
     assert "scripts/package-release.sh" in checklist
