@@ -34,7 +34,7 @@ dist/library-0.1.0-alpha.142.tar.gz
 dist/library-0.1.0-alpha.142.tar.gz.sha256
 ```
 
-The archive contains a top-level `library-0.1.0-alpha.142/` directory. For App Store hygiene it excludes `.git`, `.github`, `node_modules`, `build`, `dist`, `tests`, `scripts`, `src`, `docs`, `package.json`, package locks, local release docs, local tool configs, caches and bytecode. It keeps the runtime app directories plus minimal public files: `README.md`, `LICENSE`, and `CHANGELOG.md`.
+The archive contains a single top-level `library/` directory, which must match the app id `library` for Nextcloud App Store uploads. For App Store hygiene it excludes `.git`, `.github`, `node_modules`, `build`, `dist`, `tests`, `scripts`, `src`, `docs`, `package.json`, package locks, local release docs, local tool configs, caches and bytecode. It keeps the runtime app directories plus minimal public files: `README.md`, `LICENSE`, and `CHANGELOG.md`.
 
 Audit an existing package with:
 
@@ -58,6 +58,34 @@ The signing script copies the staged app, private key and certificate into a tem
 
 For a signed package, the audit runs with `--require-signature`. The same requirement is applied automatically for stable version strings without a prerelease suffix.
 
+Nextcloud App Store developer guideline notes:
+
+- App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`.
+- The archive must contain one top-level folder whose name matches the app id; for this app that folder is `library/`.
+- Keep certificate files outside the repository, using the documented Nextcloud convention:
+  - `~/.nextcloud/certificates/library.key`
+  - `~/.nextcloud/certificates/library.csr`
+  - `~/.nextcloud/certificates/library.crt`
+- Generate the key and certificate signing request with:
+
+```bash
+mkdir -p ~/.nextcloud/certificates
+cd ~/.nextcloud/certificates
+openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"
+```
+
+- Register the app by pasting the public certificate and signing the app id with:
+
+```bash
+echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64
+```
+
+- Upload a release by providing the tarball download URL and a signature over the exact archive:
+
+```bash
+openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.142.tar.gz | openssl base64
+```
+
 ## Generated archive install smoke
 
 Before manual v0.1 functionality testing, install and smoke the generated archive, not only a copied checkout:
@@ -75,7 +103,6 @@ sha256sum -c dist/library-0.1.0-alpha.142.tar.gz.sha256
 rm -rf /var/www/html/custom_apps/library
 mkdir -p /var/www/html/custom_apps
 tar -xzf dist/library-0.1.0-alpha.142.tar.gz -C /var/www/html/custom_apps
-mv /var/www/html/custom_apps/library-0.1.0-alpha.142 /var/www/html/custom_apps/library
 chown -R www-data:www-data /var/www/html/custom_apps/library
 sudo -u www-data php -l /var/www/html/custom_apps/library/appinfo/routes.php
 sudo -u www-data php occ app:enable library

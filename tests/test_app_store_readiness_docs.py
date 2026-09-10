@@ -148,9 +148,10 @@ def test_info_xml_public_metadata_parses_and_stays_nextcloud_34_only():
     assert root.findtext("summary") == "Publication catalogue for files stored in Nextcloud Files"
     assert root.findtext("author") == "Library contributors"
     assert author.attrib == {}
-    assert root.findtext("licence") == "agpl"
+    assert root.findtext("licence") == "AGPL-3.0-or-later"
     assert root.findtext("bugs") == "https://github.com/utrost/Library/issues"
     assert root.findtext("website") == "https://github.com/utrost/Library"
+    assert root.findtext("repository") == "https://github.com/utrost/Library"
     assert [category.text for category in root.findall("category")] == ["files", "multimedia"]
 
     dependency = root.find("dependencies/nextcloud")
@@ -192,3 +193,33 @@ def test_stable_package_audit_requires_signature_while_alpha_allows_unsigned():
     assert "require_signature = explicit_require_signature or '-' not in version" in audit_script
     assert "missing required signed release entry" in audit_script
     assert "unsigned_alpha_package=true" in audit_script
+
+
+def test_app_store_archive_top_folder_matches_app_id_guideline():
+    package_script = read("scripts/package-release.sh")
+    audit_script = read("scripts/audit-release-package.sh")
+    smoke_script = read("scripts/smoke-release-package.sh")
+    release = read("RELEASE.md")
+    readiness = read("docs/app-store-readiness.md")
+
+    assert 'STAGE_DIR="$DIST_DIR/$APP_ID"' in package_script
+    assert 'tar -C "$DIST_DIR" -czf "$ARCHIVE" "$APP_ID"' in package_script
+    assert 'TOP="$APP_ID"' in audit_script
+    assert 'must match the app id `library`' in release
+    assert 'must match the app id `library`' in readiness
+    assert 'mv /var/www/html/custom_apps/library-' not in smoke_script
+    assert 'mv /var/www/html/custom_apps/library-' not in release
+
+
+def test_nextcloud_app_store_guideline_steps_are_captured_for_submission():
+    release = read("RELEASE.md")
+    readiness = read("docs/app-store-readiness.md")
+
+    for text in [release, readiness]:
+        assert "~/.nextcloud/certificates/library.key" in text
+        assert "~/.nextcloud/certificates/library.csr" in text
+        assert "~/.nextcloud/certificates/library.crt" in text
+        assert "openssl req -nodes -newkey rsa:4096" in text
+        assert "echo -n \"library\" | openssl dgst -sha512 -sign" in text
+        assert "openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.142.tar.gz" in text
+        assert "App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`" in text

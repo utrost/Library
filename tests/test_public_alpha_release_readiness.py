@@ -15,7 +15,7 @@ def test_repo_declares_agplv3_license_file_and_app_metadata():
 
     assert "GNU AFFERO GENERAL PUBLIC LICENSE" in license_text
     assert "Version 3" in license_text
-    assert "<licence>agpl</licence>" in info
+    assert "<licence>AGPL-3.0-or-later</licence>" in info
     assert "AGPL-3.0-or-later" in readme
 
 
@@ -43,7 +43,7 @@ def test_release_packaging_script_builds_clean_nextcloud_app_archive():
     readme = read("README.md")
     checklist = read("docs/alpha-test-checklist.md")
 
-    assert "library-${VERSION}.tar.gz" in script
+    assert "${APP_ID}-${VERSION}.tar.gz" in script
     assert "npm ci" in script
     assert "npm run build" in script
     assert "tar" in script
