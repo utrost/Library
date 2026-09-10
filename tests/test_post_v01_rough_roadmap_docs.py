@@ -23,14 +23,17 @@ def test_post_v01_roadmap_has_one_major_feature_per_release():
     expected = {
         "## v0.2 — Filename and directory metadata parsing": "Parsing metadata from filenames and directories",
         "## v0.3 — External metadata providers": "Getting metadata from a provider",
-        "## v0.4 — File-First sidecar write-back and restore": "Writing portable sidecar metadata and restoring from it",
-        "## v0.5 — Shared libraries and admin-managed roots": "Shared Library roots for households and teams",
-        "## v0.6 — Reading integrations and activity": "Reader-aware activity beyond Library's own open timestamp",
+        "## v0.4 — Shared libraries and admin-managed roots": "Shared Library roots for households and teams",
+        "## v0.5 — Reading integrations and activity": "Reader-aware activity beyond Library's own open timestamp",
         "## Later candidates": "not committed release promises",
     }
     for heading, theme in expected.items():
         assert heading in post
         assert theme in post
+
+    assert "File-First sidecar write-back and restore" not in post
+    assert "Writing portable sidecar metadata and restoring from it" not in post
+    assert "source-folder sidecar" not in post.lower()
 
     assert "one major feature family" in post
     assert "Non-goals" in post

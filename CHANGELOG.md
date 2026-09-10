@@ -135,7 +135,7 @@ Release-hardening candidate for Uwe's v0.1 manual test pass.
 
 - Target is Nextcloud 34 only.
 - Manual cover override is basic: detail pages accept a URL/upload and can revert to extracted/preview cover, but there is still no app-owned cover-crop/cache workflow.
-- Sidecar manifest and ZIP are export/download artifacts; there is no OPF/JSON writer into source folders and no full fresh-install restore from sidecars yet.
+- Sidecar manifest and ZIP are export/download artifacts; source-folder OPF/JSON writing and full restore from sidecars are intentionally outside the app roadmap.
 - No scheduled/resumable scans or completion/failure notifications.
 - Publication, publication-year and creator discovery pages exist; saved views, smart collections and richer issue grouping remain future work.
 - No shared global/admin-managed library roots.
@@ -164,7 +164,7 @@ Public alpha candidate built from app version `0.1.0-alpha.82`.
 
 - Target is Nextcloud 34 only.
 - No app-owned cover cache or manual cover override.
-- No OPF/JSON sidecar writer into source folders and no fresh-install restore from sidecars yet.
+- Source-folder OPF/JSON sidecar writing and fresh-install sidecar restore are intentionally outside the app roadmap.
 - No scheduled/resumable scans or notifications.
 - At this first alpha tag, no dedicated discovery landing pages existed yet.
 - No shared global/admin-managed library roots.

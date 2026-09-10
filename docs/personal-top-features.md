@@ -12,7 +12,7 @@ My read: this is the right list. The earlier v0.1 roadmap was mostly release-har
 
 Two framing points:
 
-- Nextcloud tags are useful for lightweight labels and can approximate some workflows today, but they are not enough for every feature. Stars, reading state, structured status and genre/classification metadata should become canonical Library-native fields when they affect catalogue UX, sorting, export/import or future File-First sidecars.
+- Nextcloud tags are useful for lightweight labels and can approximate some workflows today, but they are not enough for every feature. Stars, reading state, structured status and genre/classification metadata should become canonical Library-native fields when they affect catalogue UX, sorting, export/import or external metadata-tool handoff.
 - Reader apps can keep owning page position and annotations, but Library should record Library-owned reading activity such as last opened, manual read status, stars/bookmarks and “needs OCR” workflow flags because those are catalogue decisions, not reader rendering internals.
 
 ## Current support at a glance
@@ -64,7 +64,7 @@ Workflow status is app-owned and separate from operational `library_files.scan_s
 
 Current support: genres and classifications are implemented as structured Library metadata.
 
-Genres and classifications overlap with tags but now have a deliberate Library-native model because one publication can have multiple fiction genres and multiple non-fiction classifications. Nextcloud tags are still useful as broad cross-app labels; Library-native genres/classifications drive catalogue filters, corrected-metadata import/export and later sidecar write-back.
+Genres and classifications overlap with tags but now have a deliberate Library-native model because one publication can have multiple fiction genres and multiple non-fiction classifications. Nextcloud tags are still useful as broad cross-app labels; Library-native genres/classifications drive catalogue filters, corrected-metadata import/export and external metadata-tool handoff.
 
 Recommended split:
 
@@ -190,7 +190,7 @@ Scope:
 - support multiple genres/classifications per item;
 - add details editing with suggestions;
 - add catalogue facets/filters;
-- include values in export/import and leave sidecar write-back for later.
+- include values in export/import and leave source-folder sidecar writing to external file-first tooling.
 
 Acceptance checks:
 

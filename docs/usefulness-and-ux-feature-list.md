@@ -14,7 +14,7 @@ Library is already useful as a private Nextcloud publication catalogue: roots, s
 - PDFs, scans, magazines and comics often have weak embedded metadata;
 - folder structure and filenames often carry the real collection knowledge;
 - users need repeatable views and repair workflows, not only one-off filters;
-- File-First metadata should eventually survive a fresh install without trusting only the app database.
+- corrected metadata should remain exportable so external file-first tools can make it durable outside the app database.
 
 ## Current implemented baseline
 
@@ -158,7 +158,7 @@ Acceptance checks:
 - unmatched paths are skipped with understandable diagnostics;
 - preview shows exact path, extracted fields and warnings;
 - template changes do not rewrite source files or move folders;
-- export/import and future sidecars can carry trusted values after the user accepts them.
+- export/import can carry trusted values after the user accepts them; external tools may handle file-neighbour sidecars outside the app.
 
 ### 4. Weak-metadata discovery dashboard
 
@@ -215,7 +215,7 @@ Acceptance checks:
 
 - no source files are changed;
 - user-edited values are never silently overwritten;
-- each accepted value records provenance/history clearly enough for later export/sidecar decisions.
+- each accepted value records provenance/history clearly enough for later export and external-tool handoff decisions.
 
 ### 6. Description search polish
 
@@ -277,33 +277,24 @@ Acceptance checks:
 - unknown issue/date rows remain visible instead of disappearing;
 - grouping works for comics and periodicals without requiring every item to be a book.
 
-### 8. File-First sidecar write-back and fresh-install restore
+### 8. External sidecar tooling handoff
 
-Origin: Hermes recommendation, aligned with Uwe's File-First preference.
+Status: outside the Library app roadmap.
 
-Why it matters: export/import is useful, but corrections become fully durable only when reviewed metadata can live next to source files.
+File-neighbour sidecar write-back and fresh-install restoration should be handled by external file-first tooling, not by the Nextcloud app. Library's app-owned responsibility stays limited to safe catalogue metadata, reviewable corrected-metadata export/import, and download-only artifacts that external tools can consume.
 
 Current support:
 
 - corrected metadata JSON export;
 - import preview and apply for matched existing catalogue rows;
-- sidecar manifest export;
-- sidecar ZIP download of proposed `.library.json` files;
+- sidecar manifest export and ZIP download as reviewable/download-only handoff artifacts;
 - no source-folder writes during these exports.
-
-Missing:
-
-- explicit source-folder sidecar write preview;
-- write selected `.library.json` sidecars into source folders;
-- skip/backup behavior for existing sidecars;
-- scan-time restore from sidecars on a fresh install;
-- conflict handling when DB, sidecar, embedded metadata and path-template candidates disagree.
 
 Acceptance checks:
 
-- sidecar writes are opt-in and preview every target path;
-- existing source files and existing sidecars are not overwritten without an explicit choice;
-- fresh install plus scan can restore trusted corrections from sidecars.
+- Library never writes OPF or `.library.json` sidecars into source folders;
+- exported metadata remains useful as input for external file-first tools;
+- app documentation does not present source-folder sidecar write-back as a future Library feature.
 
 ### 9. Scan completion notifications and scan summaries
 
@@ -363,13 +354,13 @@ Missing:
 - clear split between shared publication metadata and personal overlay fields such as stars/status/last-opened;
 - shared-library onboarding and governance rules.
 
-Priority note: defer until personal-root workflows and File-First durability feel solid.
+Priority note: defer until personal-root workflows, metadata review and external-tool handoff expectations feel solid.
 
 ### 12. External metadata providers
 
 Origin: Hermes recommendation.
 
-Why it matters: external lookup can fill gaps that filenames and sidecars cannot, but it can also create noisy or privacy-sensitive candidate data.
+Why it matters: external lookup can fill gaps that filenames, embedded metadata and OPF sidecars cannot, but it can also create noisy or privacy-sensitive candidate data.
 
 Possible future providers:
 
@@ -377,7 +368,7 @@ Possible future providers:
 - Crossref / DOI sources for papers;
 - comic providers if licensing and API access are acceptable.
 
-Priority note: delay until local filename/path extraction, review UX and sidecar durability are strong. Provider values should be candidates with provenance, never silent overwrites.
+Priority note: delay until local filename/path extraction and review UX are strong. Provider values should be candidates with provenance, never silent overwrites.
 
 ## Sleek browsing experience track
 
@@ -415,11 +406,10 @@ Status: first slice implemented.
 3. **Useful views / weak-metadata dashboard** — because it turns all existing filters into daily entry points and cleanup queues.
 4. **Description search UI polish** — small follow-up: already implemented in backend; make it explicit in the search UX.
 5. **Metadata review workbench** — build after weak views and path-template candidates give it enough useful input.
-6. **Sidecar write-back / fresh-install restore** — make accepted corrections truly File-First durable.
-7. **Scan notifications and scheduled/resumable scans** — improve confidence for larger libraries.
-8. **Publication issue grouping and saved custom views** — deepen the browsing experience.
-9. **Cover cache/crop/rebuild** — only if manual testing shows cover quality blocks browsing.
-10. **Shared libraries and external providers** — important later, but best after the personal/local metadata loop is solid.
+6. **Scan notifications and scheduled/resumable scans** — improve confidence for larger libraries.
+7. **Publication issue grouping and saved custom views** — deepen the browsing experience.
+8. **Cover cache/crop/rebuild** — only if manual testing shows cover quality blocks browsing.
+9. **Shared libraries and external providers** — important later, but best after the personal/local metadata loop is solid.
 
 ## Open product decisions
 
@@ -429,4 +419,3 @@ Status: first slice implemented.
 - Should moved/renamed files be shown as a review queue, or only as scan summary counters?
 - Should “weak metadata” be a built-in derived status, a saved smart view, or both?
 - Should descriptions be shown as search-match snippets, or remain details-only to protect compact browsing?
-- Should sidecar write-back use only `.library.json`, or eventually support OPF write-back for compatible book workflows?

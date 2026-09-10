@@ -402,4 +402,4 @@ Use this checklist before approving installation in a non-disposable Nextcloud i
 - Should Library eventually register an `occ library:*` command set for scan/repair/export operations, or stay UI/background-job-first?
 - Should shared/team libraries get a separate admin-managed root model instead of extending per-user roots?
 - Should `epubviewer` be detected and surfaced as a capability label, while keeping `/f/{fileId}` as the default handoff?
-- Should direct source-folder OPF/JSON sidecar writes remain out of scope until a backup/restore workflow is reviewed?
+- How should Library document the boundary between app-owned corrected-metadata export/import and external file-first tooling that writes source-folder OPF/JSON sidecars?

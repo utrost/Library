@@ -46,7 +46,7 @@ These are acceptable for Uwe's v0.1 test pass but should stay visible:
 1. **Nextcloud version scope:** only Nextcloud 34 has been targeted and smoke-tested.
 2. **Release packaging:** generated archive install smoke is now scripted, but app signing/App Store packaging is still future work.
 3. **Cover lifecycle:** on-demand previews/fallbacks, refresh affordances and manual cover override/revert exist, but no app-owned cover cache or crop/rebuild workflow exists.
-4. **Metadata portability:** export/import/apply and sidecar manifest/ZIP exist, but there is no OPF/JSON writer into source folders and no full fresh-install restore-from-sidecars workflow.
+4. **Metadata portability:** export/import/apply and sidecar manifest/ZIP exist, and source-folder OPF/JSON writing plus full sidecar restore are intentionally external-tool workflows rather than app responsibilities.
 5. **Scanning operations:** queued scans, progress, retry, recheck and cancellation exist; scheduled/resumable scans and notifications remain future work.
 6. **Discovery:** publication/series, publication-year and creator pages exist, publication pages show compact issue/date coverage, and the weak-metadata cockpit links sparse/suspicious metadata counts back to filtered catalogue views; richer identity/issue grouping remain future work.
 7. **Shared libraries:** users manage personal roots; admin-managed shared/global roots are not implemented.

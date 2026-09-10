@@ -22,7 +22,7 @@ def test_usefulness_ux_feature_list_captures_uwe_and_hermes_priorities():
         "Saved views and smart collections",
         "Weak-metadata discovery dashboard",
         "Metadata review workbench",
-        "File-First sidecar write-back and fresh-install restore",
+        "External sidecar tooling handoff",
     ]:
         assert phrase in doc
 
