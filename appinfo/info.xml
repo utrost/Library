@@ -3,11 +3,11 @@
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>library</id>
     <name>Library</name>
-    <summary>Publication catalogue for files stored in Nextcloud</summary>
-    <description><![CDATA[Library adds a publication-specific catalogue, metadata model, search and browsing interface on top of ordinary Nextcloud files. Nextcloud Files remain canonical; Library stores indexes and derived metadata.]]></description>
+    <summary>Publication catalogue for files stored in Nextcloud Files</summary>
+    <description><![CDATA[Library adds a publication-specific catalogue, metadata cleanup workflow, search and browsing interface on top of ordinary Nextcloud files. Source files remain canonical in Nextcloud Files; Library stores app-owned indexes, extracted metadata and user edits. It does not contact external metadata services or provide a built-in reader.]]></description>
     <version>0.1.0-alpha.142</version>
     <licence>agpl</licence>
-    <author mail="utrost@users.noreply.github.com">Uwe Trostheide</author>
+    <author>Library contributors</author>
     <namespace>Library</namespace>
     <category>files</category>
     <category>multimedia</category>

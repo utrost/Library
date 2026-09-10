@@ -118,7 +118,7 @@ All notable changes for Library are tracked here.
 
 ## v0.1.0-alpha.112 - 2026-09-08
 
-Release-hardening candidate for Uwe's v0.1 manual test pass.
+Release-hardening candidate for the v0.1 manual test pass.
 
 ### Added since the first alpha tag
 

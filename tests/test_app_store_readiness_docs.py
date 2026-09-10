@@ -1,4 +1,5 @@
 from pathlib import Path
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -93,3 +94,65 @@ def test_app_store_package_hygiene_keeps_minimal_public_files():
         assert required in audit_script
 
     assert "minimal public files: `README.md`, `LICENSE`, and `CHANGELOG.md`" in release
+
+
+def test_app_store_listing_draft_has_reviewer_sections_and_public_scope():
+    readme = read("README.md")
+    roadmap = read("docs/app-store-readiness.md")
+    listing = read("docs/app-store-listing.md")
+
+    assert "[App Store listing draft](docs/app-store-listing.md)" in readme
+    assert "[App Store listing draft](app-store-listing.md)" in roadmap
+
+    for heading in [
+        "## Short description",
+        "## Full description",
+        "## Current scope",
+        "## Privacy statement",
+        "## Support URL",
+        "## Screenshot checklist",
+        "## Release note draft",
+    ]:
+        assert heading in listing
+
+    for phrase in [
+        "Nextcloud 34 only",
+        "does not contact external metadata services",
+        "does not provide a built-in reader",
+        "no real filenames, private folder names, user names, server names or credentials",
+    ]:
+        assert phrase in listing
+
+
+def test_app_store_public_surfaces_do_not_expose_internal_names_or_paths():
+    public_surfaces = {
+        "README.md": read("README.md"),
+        "CHANGELOG.md": read("CHANGELOG.md"),
+        "docs/app-store-listing.md": read("docs/app-store-listing.md"),
+        "appinfo/info.xml": read("appinfo/info.xml"),
+    }
+    forbidden = ["Uwe", "Hermes", "Alice", "Bob", "Charlie", "/home/uwe", "utrost@", "assistant"]
+
+    for path, content in public_surfaces.items():
+        for term in forbidden:
+            assert term not in content, f"{term!r} leaked into {path}"
+
+
+def test_info_xml_public_metadata_parses_and_stays_nextcloud_34_only():
+    info = read("appinfo/info.xml")
+    root = ET.fromstring(info)
+
+    author = root.find("author")
+    assert author is not None
+
+    assert root.findtext("summary") == "Publication catalogue for files stored in Nextcloud Files"
+    assert root.findtext("author") == "Library contributors"
+    assert author.attrib == {}
+    assert root.findtext("licence") == "agpl"
+    assert root.findtext("bugs") == "https://github.com/utrost/Library/issues"
+    assert root.findtext("website") == "https://github.com/utrost/Library"
+    assert [category.text for category in root.findall("category")] == ["files", "multimedia"]
+
+    dependency = root.find("dependencies/nextcloud")
+    assert dependency is not None
+    assert dependency.attrib == {"min-version": "34", "max-version": "34"}
