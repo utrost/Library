@@ -7,6 +7,7 @@ $backUrl = (string)($_['backUrl'] ?? '');
 $applyUrl = (string)($_['applyUrl'] ?? '');
 $changedItems = (int)($result['changedItems'] ?? 0);
 $invalidField = !empty($result['invalidField']);
+$batchLimitError = !empty($result['batchLimitError']);
 ?>
 <div id="app-content" class="library-app-content">
     <main id="library-app" class="library-batch-metadata-edit-preview-page" aria-labelledby="library-batch-metadata-edit-preview-heading">
@@ -18,7 +19,7 @@ $invalidField = !empty($result['invalidField']);
                     <h2 id="library-batch-metadata-edit-preview-heading">Batch metadata edit preview</h2>
                     <p class="library-muted">No changes have been written yet. This will update the selected field for every item that still differs from the normalized value.</p>
                 </div>
-                <?php if (!$invalidField && $changedItems > 0): ?>
+                <?php if (!$batchLimitError && !$invalidField && $changedItems > 0): ?>
                     <form method="post" action="<?php p($applyUrl); ?>" class="library-batch-preview-apply-form">
                         <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
                         <input type="hidden" name="bulkEditField" value="<?php p((string)($result['field'] ?? '')); ?>">
@@ -33,6 +34,10 @@ $invalidField = !empty($result['invalidField']);
                     </form>
                 <?php endif; ?>
             </div>
+
+            <?php if ($batchLimitError): ?>
+                <p class="library-warning"><?php p($l->t('This batch matches more than 5,000 items. Narrow the selection and try again.')); ?></p>
+            <?php endif; ?>
 
             <?php if ($invalidField): ?>
                 <p class="library-warning">The selected metadata field is not supported for batch editing. Nothing can be applied.</p>

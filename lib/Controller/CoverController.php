@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Library\Controller;
 
+use OCA\Library\Exception\BatchLimitExceededException;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -140,13 +141,18 @@ class CoverController extends Controller {
     }
 
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function batchrefresh(): RedirectResponse {
         $user = $this->userSession->getUser();
         $filters = $this->catalogueFiltersFromRequest();
         $requested = 0;
         if ($user !== null) {
-            $requested = count($this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000));
+            try {
+                $requested = count($this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000));
+            } catch (BatchLimitExceededException $e) {
+                $query = array_filter($filters, static fn (string $value): bool => $value !== '');
+                $query['batchLimitError'] = '1';
+                return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
+            }
         }
 
         $query = array_filter($filters, static fn (string $value): bool => $value !== '');

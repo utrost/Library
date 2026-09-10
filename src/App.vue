@@ -152,6 +152,12 @@ const batchMetadataApplyMessage = computed(() => {
   const skipped = params.get('batchMetadataSkipped') || '0'
   return t('library', 'Batch metadata apply updated {applied} {field} values; {unchanged} already matched, {skipped} skipped.', { applied, field, unchanged, skipped })
 })
+const batchLimitErrorMessage = computed(() => {
+  if (typeof window === 'undefined') return ''
+  return new URLSearchParams(window.location.search).get('batchLimitError') === '1'
+    ? t('library', 'This batch matches more than 5,000 items. Narrow the selection and try again.')
+    : ''
+})
 
 const savedCollections = computed(() => catalogueState.savedCollections || [])
 const savedCollectionSaveUrl = computed(() => catalogueState.savedCollectionSaveUrl || '/apps/library/collections')
@@ -649,6 +655,7 @@ async function toggleStar(item, event) {
       </div>
     </div>
 
+    <p v-if="batchLimitErrorMessage" class="library-warning library-batch-limit-error">{{ batchLimitErrorMessage }}</p>
     <p v-if="batchMetadataApplyMessage" class="library-notice library-batch-metadata-apply-result">{{ batchMetadataApplyMessage }}</p>
 
 

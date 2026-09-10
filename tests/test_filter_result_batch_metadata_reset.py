@@ -12,7 +12,8 @@ def test_filter_result_metadata_reset_route_uses_current_catalogue_filters():
     assert "'url' => '/bulk/items/reset-filtered-fields'" in routes
     assert routes.index("/bulk/items/reset-filtered-fields") < routes.index("/items/{itemId}")
     assert "public function batchresetfilteredfields(): RedirectResponse" in controller
-    assert "#[NoCSRFRequired]" in controller
+    attributes = controller.split("public function batchresetfilteredfields", 1)[0].split("public function bulkresetfields", 1)[-1]
+    assert "NoCSRFRequired" not in attributes
     assert "catalogueFiltersFromRequest" in controller
     assert "itemIdsForCatalogueFilters($user->getUID(), $filters, 5000)" in controller
     assert "bulkResetFieldsToScannerCandidates($user->getUID(), $itemIds)" in controller
@@ -48,5 +49,5 @@ def test_docs_and_version_track_filter_result_metadata_reset():
     assert "filter-result metadata reset" in guide.lower()
     assert "scanner-conflict results" in guide.lower()
     assert "batch metadata reset" in roadmap.lower()
-    assert "<version>0.1.0-alpha.148</version>" in info
-    assert '"version": "0.1.0-alpha.148"' in package
+    assert "<version>0.1.0-alpha.149</version>" in info
+    assert '"version": "0.1.0-alpha.149"' in package

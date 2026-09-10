@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace OCA\Library\Controller;
 
+use OCA\Library\Exception\BatchLimitExceededException;
 use OCA\Library\Service\FileTagService;
 use OCA\Library\Service\ItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
-use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
@@ -42,18 +42,21 @@ final class TagController extends Controller {
     }
 
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function batchassign(): RedirectResponse {
         $user = $this->userSession->getUser();
         $filters = $this->catalogueFiltersFromRequest();
         $result = ['requestedItems' => 0, 'addedItems' => 0, 'alreadyTaggedItems' => 0, 'skippedItems' => 0];
         if ($user !== null) {
-            $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
-            $result = $this->fileTagService->assignTagToItems(
-                $user->getUID(),
-                $itemIds,
-                (string)($this->request->getParam('nextcloudTagName', '') ?: $this->request->getParam('tagName', '')),
-            );
+            try {
+                $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+                $result = $this->fileTagService->assignTagToItems(
+                    $user->getUID(),
+                    $itemIds,
+                    (string)($this->request->getParam('nextcloudTagName', '') ?: $this->request->getParam('tagName', '')),
+                );
+            } catch (BatchLimitExceededException $e) {
+                return $this->batchLimitRedirect($filters);
+            }
         }
 
         $query = array_filter($filters, static fn (string $value): bool => $value !== '');
@@ -67,18 +70,21 @@ final class TagController extends Controller {
     }
 
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function batchremove(): RedirectResponse {
         $user = $this->userSession->getUser();
         $filters = $this->catalogueFiltersFromRequest();
         $result = ['requestedItems' => 0, 'removedItems' => 0, 'notTaggedItems' => 0, 'skippedItems' => 0];
         if ($user !== null) {
-            $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
-            $result = $this->fileTagService->removeTagFromItems(
-                $user->getUID(),
-                $itemIds,
-                (string)($this->request->getParam('nextcloudTagName', '') ?: $this->request->getParam('tagName', '')),
-            );
+            try {
+                $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+                $result = $this->fileTagService->removeTagFromItems(
+                    $user->getUID(),
+                    $itemIds,
+                    (string)($this->request->getParam('nextcloudTagName', '') ?: $this->request->getParam('tagName', '')),
+                );
+            } catch (BatchLimitExceededException $e) {
+                return $this->batchLimitRedirect($filters);
+            }
         }
 
         $query = array_filter($filters, static fn (string $value): bool => $value !== '');
@@ -110,6 +116,12 @@ final class TagController extends Controller {
             $filters['sort'] = 'title';
         }
         return $filters;
+    }
+
+    private function batchLimitRedirect(array $filters): RedirectResponse {
+        $query = array_filter($filters, static fn (string $value): bool => $value !== '');
+        $query['batchLimitError'] = '1';
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
     }
 
     private function redirectAfterTagChange(int $itemId, array $result = []): RedirectResponse {

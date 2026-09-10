@@ -12,7 +12,8 @@ def test_filter_result_cover_refresh_route_counts_current_catalogue_filters():
     assert "'url' => '/bulk/covers/refresh'" in routes
     assert routes.index("/bulk/covers/refresh") < routes.index("/items/{itemId}/cover")
     assert "public function batchrefresh(): RedirectResponse" in controller
-    assert "#[NoCSRFRequired]" in controller
+    attributes = controller.split("public function batchrefresh", 1)[0].split("public function revert", 1)[-1]
+    assert "NoCSRFRequired" not in attributes
     assert "catalogueFiltersFromRequest" in controller
     assert "itemIdsForCatalogueFilters($user->getUID(), $filters, 5000)" in controller
     assert "batchCoverRefreshResult" in controller
@@ -49,5 +50,5 @@ def test_docs_and_version_track_filter_result_cover_refresh():
     assert "filter-result cover refresh" in guide.lower()
     assert "request fresh cover previews" in guide.lower()
     assert "batch cover refresh" in roadmap.lower()
-    assert "<version>0.1.0-alpha.148</version>" in info
-    assert '"version": "0.1.0-alpha.148"' in package
+    assert "<version>0.1.0-alpha.149</version>" in info
+    assert '"version": "0.1.0-alpha.149"' in package
