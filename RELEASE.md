@@ -61,6 +61,7 @@ For a signed package, the audit runs with `--require-signature`. The same requir
 Nextcloud App Store developer guideline notes:
 
 - App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`.
+- The app-owned database schema is declared in `appinfo/database.xml` and should validate against `https://apps.nextcloud.com/schema/apps/database.xsd` before release.
 - The archive must contain one top-level folder whose name matches the app id; for this app that folder is `library/`.
 - Keep certificate files outside the repository, using the documented Nextcloud convention:
   - `~/.nextcloud/certificates/library.key`
