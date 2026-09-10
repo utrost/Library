@@ -1,6 +1,6 @@
 # Public alpha test checklist
 
-Use this Public alpha checklist before the v0.1 alpha test pass on `0.1.0-alpha.142` and for early tester feedback. For the full repeatable script, use the [human test handbook](human-test-handbook.md).
+Use this Public alpha checklist before the v0.1 alpha test pass on `0.1.0-alpha.143` and for early tester feedback. For the full repeatable script, use the [human test handbook](human-test-handbook.md).
 
 ## Setup
 

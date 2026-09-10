@@ -12,7 +12,7 @@ def test_readme_is_public_one_page_overview_without_internal_names():
     assert "# Library" in readme
     assert "open-source Nextcloud app" in readme
     assert "Nextcloud Files remains the canonical storage" in readme
-    assert "Current testing candidate: `0.1.0-alpha.142`" in readme
+    assert "Current testing candidate: `0.1.0-alpha.143`" in readme
 
     internal_names = ["Uwe", "Hermes", "Alice", "/home/uwe"]
     for name in internal_names:
