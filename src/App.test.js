@@ -99,8 +99,25 @@ describe('Library catalogue Vue app', () => {
     expect(workspace.text()).toContain('changed / unchanged / skipped / error feedback')
     expect(workspace.text()).toContain('Source files stay in Nextcloud Files')
 
+    const heading = wrapper.find('#library-catalogue-heading')
+    expect(heading.text()).toBe('Library')
+    const workspaceBeforeHeading = workspace.element.compareDocumentPosition(heading.element)
+    expect(Boolean(workspaceBeforeHeading & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
     const workspaceTop = workspace.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
     expect(Boolean(workspaceTop & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
+  })
+
+  it('renders collapsed workspace controls as a menu bar above the Library heading', () => {
+    const wrapper = mount(App, { props: { state } })
+
+    const workspace = wrapper.find('.library-catalogue-workspace')
+    const heading = wrapper.find('#library-catalogue-heading')
+    expect(workspace.classes()).toContain('library-workspace-menubar')
+    expect(heading.text()).toBe('Library')
+    const workspaceBeforeHeading = workspace.element.compareDocumentPosition(heading.element)
+    expect(Boolean(workspaceBeforeHeading & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
+    const headerBeforeCovers = heading.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
+    expect(Boolean(headerBeforeCovers & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
   })
 
   it('gives each workspace panel a polished visual identity without changing its contract', () => {
@@ -132,7 +149,8 @@ describe('Library catalogue Vue app', () => {
   it('renders the catalogue from Nextcloud initial state', () => {
     const wrapper = mount(App, { props: { state } })
 
-    expect(wrapper.text()).toContain('Publication catalogue')
+    expect(wrapper.text()).toContain('Library')
+    expect(wrapper.text()).not.toContain('Publication catalogue')
     expect(wrapper.text()).toContain('Example Book')
     expect(wrapper.text()).toContain('Ada Reader')
     expect(wrapper.find('.library-cover-detail-chip').exists()).toBe(true)

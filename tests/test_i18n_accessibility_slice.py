@@ -11,8 +11,10 @@ def test_vue_catalogue_uses_nextcloud_l10n_for_visible_copy():
     assert '"@nextcloud/l10n"' in package
     assert "import { t } from '@nextcloud/l10n'" in app
     assert "import { t } from '@nextcloud/l10n'" in main
-    assert "t('library', 'Publication catalogue')" in app
-    assert "t('library', 'Publication catalogue')" in main
+    assert "t('library', 'Library')" in app
+    assert "t('library', 'Library')" in main
+    assert "t('library', 'Publication catalogue')" not in app
+    assert "t('library', 'Publication catalogue')" not in main
     assert "t('library', 'Apply filters')" in app
     assert "t('library', 'Apply filters')" in main
 

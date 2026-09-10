@@ -11,7 +11,8 @@ def test_bootstrap_page_no_longer_shows_fixture_handoff_card():
     template = (ROOT / "templates" / "main.php").read_text()
     assert "fixtureOpenUrl" not in template
     assert "reader-handoff.pdf" not in template
-    assert "Publication catalogue" in template
+    assert "Library" in template
+    assert "Publication catalogue" not in template
 
 
 def test_reader_handoff_spike_documents_direct_file_route_result():

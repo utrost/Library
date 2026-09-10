@@ -236,5 +236,5 @@ def test_nextcloud_app_store_guideline_steps_are_captured_for_submission():
         assert "~/.nextcloud/certificates/library.crt" in text
         assert "openssl req -nodes -newkey rsa:4096" in text
         assert "echo -n \"library\" | openssl dgst -sha512 -sign" in text
-        assert "openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.145.tar.gz" in text
+        assert "openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.146.tar.gz" in text
         assert "App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`" in text

@@ -28,18 +28,25 @@
 }
 
 .library-catalogue-workspace {
-    display: grid;
-    gap: 12px;
-    margin: 14px 0 18px;
+    align-items: stretch;
+    background: color-mix(in srgb, var(--color-main-background) 88%, var(--color-primary-element, #0082c9) 12%);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 7px;
 }
 
 .library-workspace-panel {
     --library-workspace-accent: var(--color-primary-element, #00679e);
     --library-workspace-tint: color-mix(in srgb, var(--library-workspace-accent) 10%, var(--color-main-background) 90%);
-    background: linear-gradient(135deg, var(--library-workspace-tint), var(--color-main-background) 44%);
+    background: linear-gradient(135deg, var(--library-workspace-tint), var(--color-main-background) 48%);
     border: 1px solid color-mix(in srgb, var(--library-workspace-accent) 24%, var(--color-border) 76%);
-    border-radius: 18px;
-    box-shadow: 0 8px 28px color-mix(in srgb, var(--color-box-shadow, #000) 16%, transparent 84%);
+    border-radius: 14px;
+    flex: 1 1 180px;
+    min-width: 170px;
     overflow: clip;
 }
 
@@ -51,17 +58,20 @@
 
 .library-workspace-panel[open] {
     box-shadow: 0 12px 36px color-mix(in srgb, var(--library-workspace-accent) 18%, transparent 82%);
+    flex-basis: 100%;
+    order: 10;
 }
 
 .library-workspace-panel-summary {
     align-items: center;
     cursor: pointer;
     display: grid;
-    gap: 4px 10px;
-    grid-template-columns: auto max-content minmax(0, 1fr) auto auto;
+    gap: 2px 9px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    min-height: 91px;
     list-style: none;
     box-sizing: border-box;
-    padding: 14px 16px;
+    padding: 11px 13px;
     width: 100%;
 }
 
@@ -73,7 +83,8 @@
     color: var(--color-text-maxcontrast);
     content: '▾';
     font-size: 15px;
-    grid-column: 5;
+    grid-column: 3;
+    grid-row: 1;
     transition: transform 160ms ease;
 }
 
@@ -83,26 +94,35 @@
 
 .library-workspace-panel-icon {
     align-items: center;
+    align-self: start;
     background: var(--library-workspace-accent);
     border-radius: 999px;
     color: #fff;
     display: inline-flex;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 800;
-    height: 32px;
+    grid-row: 1 / 4;
+    height: 28px;
     justify-content: center;
     line-height: 1;
-    width: 32px;
+    width: 28px;
 }
 
 .library-workspace-panel-title {
     font-weight: 750;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .library-workspace-panel-purpose {
     color: var(--color-text-maxcontrast);
+    font-size: 13px;
+    grid-column: 2 / 4;
     min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .library-workspace-scope-badge {
@@ -110,9 +130,14 @@
     border: 1px solid color-mix(in srgb, var(--library-workspace-accent) 32%, transparent 68%);
     border-radius: 999px;
     color: var(--color-main-text);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 650;
-    padding: 3px 10px;
+    grid-column: 2 / 4;
+    justify-self: start;
+    max-width: 100%;
+    overflow: hidden;
+    padding: 3px 8px;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 

@@ -5,8 +5,8 @@
 <main id="library-app" class="library-app" tabindex="-1">
     <div id="library-vue-root" data-request-token="<?php p($_['requesttoken'] ?? ''); ?>"></div>
     <noscript>
-        <section class="library-panel" aria-label="Publication catalogue">
-            <h2>Publication catalogue</h2>
+        <section class="library-panel" aria-label="Library">
+            <h2>Library</h2>
             <p>JavaScript is required for the modern Library catalogue interface.</p>
         </section>
     </noscript>
