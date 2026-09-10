@@ -184,13 +184,37 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).toContain('Run a scan after saving a root')
   })
 
-  it('shows a home dashboard for fast browsing and opens an in-page details drawer', async () => {
+  it('keeps secondary browsing tools collapsed so the cover shelf stays central', () => {
     const wrapper = mount(App, { props: { state } })
 
-    expect(wrapper.find('.library-home-dashboard').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Continue reading')
-    expect(wrapper.text()).toContain('Recently added')
-    expect(wrapper.text()).toContain('Rediscover')
+    const secondaryTools = wrapper.find('.library-secondary-tools')
+    expect(secondaryTools.exists()).toBe(true)
+    expect(secondaryTools.element.tagName).toBe('NAV')
+
+    for (const selector of [
+      '.library-home-dashboard',
+      '.library-useful-views',
+      '.library-weak-metadata-dashboard',
+      '.library-saved-collections',
+    ]) {
+      const panel = secondaryTools.find(selector)
+      expect(panel.exists()).toBe(true)
+      expect(panel.element.tagName).toBe('DETAILS')
+      expect(panel.attributes('open')).toBeUndefined()
+    }
+
+    expect(secondaryTools.find('.library-home-dashboard > summary').text()).toContain('Continue reading')
+    expect(secondaryTools.find('.library-useful-views > summary').text()).toContain('Useful views')
+    expect(secondaryTools.find('.library-weak-metadata-dashboard > summary').text()).toContain('Weak metadata cockpit')
+    expect(secondaryTools.find('.library-saved-collections > summary').text()).toContain('Custom collections')
+
+    const toolsBeforeCovers = secondaryTools.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
+    expect(Boolean(toolsBeforeCovers & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
+  })
+
+  it('opens an in-page details drawer from cover cards', async () => {
+    const wrapper = mount(App, { props: { state } })
+
     expect(wrapper.find('.library-detail-drawer').exists()).toBe(false)
 
     await wrapper.find('.library-cover-details').trigger('toggle')

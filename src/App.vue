@@ -655,63 +655,111 @@ async function toggleStar(item, event) {
 
     <p v-if="batchMetadataApplyMessage" class="library-notice library-batch-metadata-apply-result">{{ batchMetadataApplyMessage }}</p>
 
-    <section v-if="hasHomeDashboard" class="library-home-dashboard" aria-labelledby="library-home-dashboard-heading">
-      <article class="library-home-hero-card">
-        <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Home dashboard') }}</p>
-        <h3 id="library-home-dashboard-heading">{{ t('library', 'Continue reading') }}</h3>
-        <p class="library-muted">{{ t('library', 'Fast entry points keep browsing visual: continue, revisit recent additions, or rediscover one shelf item without opening admin tools.') }}</p>
-        <div class="library-home-hero-actions">
-          <a v-if="featuredHomeItems[0]" class="button primary" :href="featuredHomeItems[0].openUrl">{{ t('library', 'Read now') }}</a>
-          <button v-if="featuredHomeItems[0]" type="button" class="button secondary" @click="openDetailsDrawer(featuredHomeItems[0])">{{ t('library', 'Open details drawer') }}</button>
+    <nav class="library-secondary-tools" :aria-label="t('library', 'Secondary catalogue tools')">
+      <details v-if="hasHomeDashboard" class="library-home-dashboard library-secondary-tool">
+        <summary>
+          <span>{{ t('library', 'Continue reading') }}</span>
+          <small>{{ t('library', 'Recent and rediscovery shortcuts') }}</small>
+        </summary>
+        <article class="library-home-hero-card">
+          <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Home dashboard') }}</p>
+          <h3 id="library-home-dashboard-heading">{{ t('library', 'Continue reading') }}</h3>
+          <p class="library-muted">{{ t('library', 'Fast entry points keep browsing visual: continue, revisit recent additions, or rediscover one shelf item without opening admin tools.') }}</p>
+          <div class="library-home-hero-actions">
+            <a v-if="featuredHomeItems[0]" class="button primary" :href="featuredHomeItems[0].openUrl">{{ t('library', 'Read now') }}</a>
+            <button v-if="featuredHomeItems[0]" type="button" class="button secondary" @click="openDetailsDrawer(featuredHomeItems[0])">{{ t('library', 'Open details drawer') }}</button>
+          </div>
+        </article>
+        <nav class="library-home-rail" :aria-label="t('library', 'Recently added')">
+          <h4>{{ t('library', 'Recently added') }}</h4>
+          <button v-for="item in recentHomeItems" :key="`recent-${item.id}`" type="button" class="library-home-mini-card" @click="openDetailsDrawer(item)">
+            <img :src="item.coverUrl" :alt="`Cover for ${item.title}`" loading="lazy">
+            <span>{{ item.title }}</span>
+          </button>
+        </nav>
+        <article v-if="rediscoverItem" class="library-home-rediscover">
+          <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Rediscover') }}</p>
+          <strong>{{ rediscoverItem.title }}</strong>
+          <span class="library-muted">{{ rediscoverItem.creators || rediscoverItem.publication || rediscoverItem.cachedPath }}</span>
+          <button type="button" class="button secondary" @click="openDetailsDrawer(rediscoverItem)">{{ t('library', 'Peek') }}</button>
+        </article>
+      </details>
+
+      <details class="library-useful-views library-secondary-tool">
+        <summary>
+          <span>{{ t('library', 'Useful views') }}</span>
+          <small>{{ t('library', 'Smart filter shortcuts') }}</small>
+        </summary>
+        <div class="library-useful-views-copy">
+          <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Useful views') }}</p>
+          <h3 id="library-useful-views-heading">{{ t('library', 'Useful views') }}</h3>
+          <p class="library-muted">{{ t('library', 'One-click smart views reuse normal catalogue filters, so active chips still explain what you are seeing.') }}</p>
+          <p class="library-muted">{{ t('library', 'Empty useful views mean no current catalogue items match that saved direction yet; add metadata, star items, update workflow status, or run a scan to create matches.') }}</p>
         </div>
-      </article>
-      <nav class="library-home-rail" :aria-label="t('library', 'Recently added')">
-        <h4>{{ t('library', 'Recently added') }}</h4>
-        <button v-for="item in recentHomeItems" :key="`recent-${item.id}`" type="button" class="library-home-mini-card" @click="openDetailsDrawer(item)">
-          <img :src="item.coverUrl" :alt="`Cover for ${item.title}`" loading="lazy">
-          <span>{{ item.title }}</span>
-        </button>
-      </nav>
-      <article v-if="rediscoverItem" class="library-home-rediscover">
-        <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Rediscover') }}</p>
-        <strong>{{ rediscoverItem.title }}</strong>
-        <span class="library-muted">{{ rediscoverItem.creators || rediscoverItem.publication || rediscoverItem.cachedPath }}</span>
-        <button type="button" class="button secondary" @click="openDetailsDrawer(rediscoverItem)">{{ t('library', 'Peek') }}</button>
-      </article>
-    </section>
+        <nav class="library-useful-view-links" :aria-label="t('library', 'Built-in useful catalogue views')">
+          <a v-for="view in smartViews" :key="view.key" class="library-useful-view-chip" :href="smartViewUrl(view.filters)" :title="view.description">
+            <strong>{{ t('library', view.label) }}</strong>
+            <span>{{ t('library', view.description) }}</span>
+            <small class="library-useful-view-count">{{ Number(smartViewCounts[view.key] || 0) }}</small>
+          </a>
+        </nav>
+      </details>
 
-    <section class="library-useful-views" aria-labelledby="library-useful-views-heading">
-      <div class="library-useful-views-copy">
-        <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Useful views') }}</p>
-        <h3 id="library-useful-views-heading">{{ t('library', 'Useful views') }}</h3>
-        <p class="library-muted">{{ t('library', 'One-click smart views reuse normal catalogue filters, so active chips still explain what you are seeing.') }}</p>
-        <p class="library-muted">{{ t('library', 'Empty useful views mean no current catalogue items match that saved direction yet; add metadata, star items, update workflow status, or run a scan to create matches.') }}</p>
-      </div>
-      <nav class="library-useful-view-links" :aria-label="t('library', 'Built-in useful catalogue views')">
-        <a v-for="view in smartViews" :key="view.key" class="library-useful-view-chip" :href="smartViewUrl(view.filters)" :title="view.description">
-          <strong>{{ t('library', view.label) }}</strong>
-          <span>{{ t('library', view.description) }}</span>
-          <small class="library-useful-view-count">{{ Number(smartViewCounts[view.key] || 0) }}</small>
-        </a>
-      </nav>
-    </section>
+      <details class="library-weak-metadata-dashboard library-secondary-tool">
+        <summary>
+          <span>{{ t('library', 'Weak metadata cockpit') }}</span>
+          <small>{{ t('library', 'Cleanup queues') }}</small>
+        </summary>
+        <div class="library-weak-metadata-dashboard-copy">
+          <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata cleanup') }}</p>
+          <h3 id="library-weak-metadata-heading">{{ t('library', 'Weak metadata cockpit') }}</h3>
+          <p class="library-muted">{{ t('library', 'Counts are derived from indexed metadata and scanner provenance, not manual lists; compact cards stay browse-first while Details carries repair actions.') }}</p>
+        </div>
+        <nav class="library-weak-metadata-links" :aria-label="t('library', 'Weak metadata catalogue views')">
+          <a v-for="row in weakMetadataDashboardRows" :key="row.key" class="library-weak-metadata-card" :href="smartViewUrl(row.filters)" :title="row.description">
+            <span>
+              <strong>{{ t('library', row.label) }}</strong>
+              <small>{{ t('library', row.description) }}</small>
+            </span>
+            <b>{{ Number(smartViewCounts[row.key] || 0) }}</b>
+          </a>
+        </nav>
+      </details>
 
-    <section class="library-weak-metadata-dashboard" aria-labelledby="library-weak-metadata-heading">
-      <div class="library-weak-metadata-dashboard-copy">
-        <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata cleanup') }}</p>
-        <h3 id="library-weak-metadata-heading">{{ t('library', 'Weak metadata cockpit') }}</h3>
-        <p class="library-muted">{{ t('library', 'Counts are derived from indexed metadata and scanner provenance, not manual lists; compact cards stay browse-first while Details carries repair actions.') }}</p>
-      </div>
-      <nav class="library-weak-metadata-links" :aria-label="t('library', 'Weak metadata catalogue views')">
-        <a v-for="row in weakMetadataDashboardRows" :key="row.key" class="library-weak-metadata-card" :href="smartViewUrl(row.filters)" :title="row.description">
-          <span>
-            <strong>{{ t('library', row.label) }}</strong>
-            <small>{{ t('library', row.description) }}</small>
-          </span>
-          <b>{{ Number(smartViewCounts[row.key] || 0) }}</b>
-        </a>
-      </nav>
-    </section>
+      <details class="library-saved-collections library-secondary-tool">
+        <summary>
+          <span>{{ t('library', 'Custom collections') }}</span>
+          <small>{{ Number(savedCollections.length || 0) }} {{ t('library', 'saved') }}</small>
+        </summary>
+        <div class="library-saved-collections-copy">
+          <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Custom collections') }}</p>
+          <h3 id="library-saved-collections-heading">{{ t('library', 'Custom collections') }}</h3>
+          <p class="library-muted">{{ t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.') }}</p>
+        </div>
+        <form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form">
+          <input type="hidden" name="requesttoken" :value="requestToken">
+          <input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson">
+          <label>
+            {{ t('library', 'Collection name') }}
+            <input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off">
+          </label>
+          <button type="submit" class="button secondary" :disabled="!canSaveCurrentView">{{ t('library', 'Save current view') }}</button>
+        </form>
+        <p v-if="!canSaveCurrentView" class="library-muted">{{ t('library', 'Choose search terms or filters first, then save them as a custom collection.') }}</p>
+        <nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')">
+          <article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card">
+            <a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)">
+              <strong>{{ collection.name }}</strong>
+              <span>{{ Number(collection.count || 0) }} {{ t('library', 'items') }}</span>
+            </a>
+            <form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form">
+              <input type="hidden" name="requesttoken" :value="requestToken">
+              <button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button>
+            </form>
+          </article>
+        </nav>
+      </details>
+    </nav>
 
     <section v-if="metadataReviewWorkbench.enabled" class="library-metadata-review-workbench" aria-labelledby="library-metadata-review-workbench-heading">
       <div class="library-metadata-review-workbench-copy">
@@ -749,36 +797,6 @@ async function toggleStar(item, event) {
       </article>
       <p v-else class="library-muted">{{ t('library', 'No reviewable conflict is visible on this page. Open scanner conflicts to review the next matching item.') }}</p>
       <a class="button secondary" :href="metadataReviewWorkbench.reviewNextUrl">{{ t('library', 'Review next conflict') }}</a>
-    </section>
-
-    <section class="library-saved-collections" aria-labelledby="library-saved-collections-heading">
-      <div class="library-saved-collections-copy">
-        <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Custom collections') }}</p>
-        <h3 id="library-saved-collections-heading">{{ t('library', 'Custom collections') }}</h3>
-        <p class="library-muted">{{ t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.') }}</p>
-      </div>
-      <form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form">
-        <input type="hidden" name="requesttoken" :value="requestToken">
-        <input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson">
-        <label>
-          {{ t('library', 'Collection name') }}
-          <input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off">
-        </label>
-        <button type="submit" class="button secondary" :disabled="!canSaveCurrentView">{{ t('library', 'Save current view') }}</button>
-      </form>
-      <p v-if="!canSaveCurrentView" class="library-muted">{{ t('library', 'Choose search terms or filters first, then save them as a custom collection.') }}</p>
-      <nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')">
-        <article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card">
-          <a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)">
-            <strong>{{ collection.name }}</strong>
-            <span>{{ Number(collection.count || 0) }} {{ t('library', 'items') }}</span>
-          </a>
-          <form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form">
-            <input type="hidden" name="requesttoken" :value="requestToken">
-            <button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button>
-          </form>
-        </article>
-      </nav>
     </section>
 
     <form method="get" class="library-quick-filter-bar" :aria-label="t('library', 'Quick catalogue filters')" @submit.prevent="submitFiltersAjax">
@@ -1438,9 +1456,57 @@ async function toggleStar(item, event) {
   margin: 0.35rem 0;
 }
 
-.library-useful-views,
-.library-weak-metadata-dashboard,
-.library-saved-collections {
+.library-secondary-tools {
+  align-items: start;
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 0.45rem 0;
+}
+
+.library-secondary-tool {
+  background: color-mix(in srgb, var(--color-background-hover, #f6f6f6) 70%, var(--color-main-background, #fff));
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  min-width: 0;
+  padding: 0.35rem 0.55rem;
+}
+
+.library-secondary-tool > summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 0.45rem;
+  justify-content: space-between;
+  line-height: 1.2;
+}
+
+.library-secondary-tool > summary span {
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.library-secondary-tool > summary small {
+  color: var(--color-text-maxcontrast, #6b6b6b);
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library-secondary-tool[open] {
+  padding: 0.75rem;
+}
+
+.library-secondary-tool[open] > summary {
+  border-bottom: 1px solid var(--color-border, #d0d0d0);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+
+.library-useful-views:not(.library-secondary-tool),
+.library-weak-metadata-dashboard:not(.library-secondary-tool),
+.library-saved-collections:not(.library-secondary-tool) {
   border: 1px solid var(--color-border);
   border-radius: 18px;
   padding: 1rem;
@@ -1500,7 +1566,7 @@ async function toggleStar(item, event) {
   gap: 0.5rem;
 }
 
-.library-saved-collections {
+.library-saved-collections:not(.library-secondary-tool) {
   background: var(--color-background-hover, #f6f6f6);
   border: 1px solid var(--color-border, #d0d0d0);
   border-radius: var(--border-radius-large, 10px);
