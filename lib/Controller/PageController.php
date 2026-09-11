@@ -20,6 +20,7 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
+use OCP\L10N\IFactory;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
 use OCP\Util;
@@ -29,8 +30,8 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-163';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-163';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-164';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-164';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -64,6 +65,7 @@ class PageController extends Controller {
         private LibraryHealthService $libraryHealthService,
         private ScanJobService $scanJobService,
         private IInitialState $initialState,
+        private IFactory $l10nFactory,
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
         private LoggerInterface $logger,
@@ -161,8 +163,12 @@ class PageController extends Controller {
     }
 
     private function catalogueTemplateResponse(): TemplateResponse {
+        $language = $this->l10nFactory->findLanguage(Application::APP_ID);
+        $direction = $this->l10nFactory->getLanguageDirection($language);
         return new TemplateResponse(Application::APP_ID, 'main', [
             'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),
+            'language' => $language,
+            'direction' => $direction,
         ]);
     }
 
@@ -251,9 +257,13 @@ class PageController extends Controller {
         $savedCollections = $userId !== '' ? $this->savedCollectionsWithCounts($userId) : [];
         $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
         $catalogueRootUrl = $this->urlGenerator->linkToRoute('library.page.index');
+        $language = $this->l10nFactory->findLanguage(Application::APP_ID);
+        $direction = $this->l10nFactory->getLanguageDirection($language);
         $state = [
             'publicationIssueContext' => null,
             ...$pageContext,
+            'language' => $language,
+            'direction' => $direction,
             'items' => $items,
             'scannerConflictCount' => array_sum(array_map(static fn (array $item): int => (int)($item['scannerConflictCount'] ?? 0), $items)),
             'shelves' => $catalogue['facets']['shelves'],

@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.164 - 2026-09-11
+
+- Localized the native Vue Library catalogue, Review destination, read-only item sidebar, and startup watchdog in German and Arabic through Nextcloud's translation APIs.
+- Added generated runtime catalogues, fail-closed translation inventory and semantic checks, Arabic RTL shell/layout coverage, and desktop/mobile translated-control geometry gates.
+- Corrected independently reviewed German and Arabic operational copy for enabled roots, refresh state, pagination, result summaries, issue ordering, and scanner-conflict tagging.
+
 ## v0.1.0-alpha.163 - 2026-09-11
 
 - Retired the duplicate client-side catalogue renderer and its cards, filters, panels, mutation forms, and stale-data contracts; authoritative initial state continues to be delivered by the server and rendered only by Vue.

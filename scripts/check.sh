@@ -2,6 +2,7 @@
 set -euo pipefail
 
 python -m pytest -q
+npm run check:translations
 ./scripts/run-php-runtime-tests.sh
 npm test -- --run
 npm run build

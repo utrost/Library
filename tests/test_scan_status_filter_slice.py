@@ -28,8 +28,9 @@ def test_catalogue_supports_scan_status_filter():
 def test_catalogue_cards_show_scan_diagnostics_for_unhealthy_items():
     vue = (ROOT / "src" / "App.vue").read_text()
     assert "library-item-scan-status" in vue
-    assert "scanStatus:" in vue
-    assert "scanError:" in vue
+    assert "t('library', 'Scan status')" in vue
+    assert "t('library', 'Scan error')" in vue
+    assert "item.scanError" in vue
     assert "library-scan-error" in vue
 
 

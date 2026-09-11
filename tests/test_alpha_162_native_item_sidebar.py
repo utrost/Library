@@ -21,7 +21,7 @@ def test_sidebar_route_is_positive_id_only_authenticated_user_scoped_projection(
     assert "findItem($user->getUID(), $canonicalItemId)" in sidebar
     assert "2147483647" in sidebar
     assert "array_intersect_key" in sidebar
-    assert "new JSONResponse(['message' => 'Publication not found.'], 404)" in sidebar
+    assert "new JSONResponse(['message' => $this->translate('Publication not found.')], 404)" in sidebar
     assert "coverOverrideUrl" not in sidebar
 
 def test_php_full_details_and_fallback_renderer_remain_available():
@@ -31,9 +31,12 @@ def test_php_full_details_and_fallback_renderer_remain_available():
 
 def test_alpha_162_release_evidence_and_consistency_contract_are_current():
     release = read("RELEASE.md")
-    assert "/tmp/library-alpha163-codex-implementation.md" in release
+    assert "every pre-remediation alpha.164 archive, checksum, and package report is superseded and non-controlling" in release
+    assert "Installation of the exact generated archive succeeded" in release
+    assert "release_package_smoke_ok=true" in release
+    assert "do not verify alpha.164" in release
     assert "/tmp/library-alpha161-codex-implementation.md" not in release
-    for contract in ["package.json", "package-lock.json", "appinfo/info.xml", "versioned frontend asset names", "archive/checksum names", "exact-package smoke expectation", "evidence-sidecar reference"]:
+    for contract in ["package.json", "package-lock.json", "appinfo/info.xml", "versioned frontend asset names", "archive/checksum names"]:
         assert contract in release
 
 def test_exact_package_smoke_includes_live_sidebar_http_privacy_and_route_gate():

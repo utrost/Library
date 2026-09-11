@@ -327,7 +327,7 @@
 
 .library-comment-list {
     margin: 0.5rem 0 0;
-    padding-left: 1.25rem;
+    padding-inline-start: 1.25rem;
 }
 
 .library-comment-list li,
@@ -1276,9 +1276,9 @@
 }
 
 .library-provenance-differences {
-    border-left: 3px solid var(--color-warning, #f0ad00);
+    border-inline-start: 3px solid var(--color-warning, #f0ad00);
     margin: 0.75rem 0 1rem;
-    padding-left: 0.75rem;
+    padding-inline-start: 0.75rem;
 }
 
 .library-summary-badge,
@@ -1291,12 +1291,12 @@
     font-size: 12px;
     font-weight: 600;
     line-height: 1.3;
-    margin-left: 0.35rem;
+    margin-inline-start: 0.35rem;
     padding: 0.15rem 0.5rem;
 }
 
 .library-pagination-range {
-    margin-left: 0;
+    margin-inline-start: 0;
 }
 
 .library-settings-section > summary,

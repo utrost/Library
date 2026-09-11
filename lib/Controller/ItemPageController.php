@@ -16,6 +16,7 @@ use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
+use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
 use OCP\Util;
@@ -30,6 +31,7 @@ final class ItemPageController extends Controller {
         private DefaultNextcloudFileProvider $readerProvider,
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
+        private ?IL10N $l10n = null,
     ) {
         parent::__construct($appName, $request);
     }
@@ -79,7 +81,7 @@ final class ItemPageController extends Controller {
     }
 
     private function sidebarNotFoundResponse(): JSONResponse {
-        return new JSONResponse(['message' => 'Publication not found.'], 404);
+        return new JSONResponse(['message' => $this->translate('Publication not found.')], 404);
     }
 
     #[NoAdminRequired]
@@ -139,11 +141,11 @@ final class ItemPageController extends Controller {
         );
         $item['metadataSaved'] = (string)$this->request->getParam('metadataSaved', '0') === '1';
         $item['metadataError'] = trim((string)$this->request->getParam('metadataError', ''));
-        $item['metadataValidationError'] = $item['metadataError'] !== '' ? 'Metadata was not saved: ' . $item['metadataError'] : '';
+        $item['metadataValidationError'] = $item['metadataError'] !== '' ? $this->translate('Metadata was not saved: %s', [$item['metadataError']]) : '';
         $coverUploadResult = (string)$this->request->getParam('coverUploadError', '');
         $item['coverUploadError'] = match ($coverUploadResult) {
-            'invalid' => 'Cover was not saved. Choose a valid JPEG, PNG, or WebP within the upload limits.',
-            'remote-url-disabled' => 'Cover was not saved. Upload a JPEG, PNG, or WebP image.',
+            'invalid' => $this->translate('Cover was not saved. Choose a valid JPEG, PNG, or WebP within the upload limits.'),
+            'remote-url-disabled' => $this->translate('Cover was not saved. Upload a JPEG, PNG, or WebP image.'),
             default => '',
         };
         $item['nextcloudComments'] = $comments[$fileId] ?? ['count' => 0, 'recent' => []];
@@ -175,13 +177,13 @@ final class ItemPageController extends Controller {
      * @return array{status:string,message:string,type:string}|null
      */
     private function tagFeedback(string $status, string $tagName): ?array {
-        $safeName = trim($tagName) !== '' ? trim($tagName) : 'tag';
+        $safeName = trim($tagName) !== '' ? trim($tagName) : $this->translate('tag');
         return match ($status) {
-            'added', 'created' => ['status' => $status, 'message' => 'Tag added: ' . $safeName, 'type' => 'success'],
-            'already-assigned' => ['status' => $status, 'message' => 'Tag already assigned: ' . $safeName, 'type' => 'info'],
-            'empty' => ['status' => $status, 'message' => 'Empty tag ignored.', 'type' => 'info'],
-            'not-assignable' => ['status' => $status, 'message' => 'Tag is not assignable: ' . $safeName, 'type' => 'warning'],
-            'item-not-found' => ['status' => $status, 'message' => 'Publication not found for tag update.', 'type' => 'warning'],
+            'added', 'created' => ['status' => $status, 'message' => $this->translate('Tag added: %s', [$safeName]), 'type' => 'success'],
+            'already-assigned' => ['status' => $status, 'message' => $this->translate('Tag already assigned: %s', [$safeName]), 'type' => 'info'],
+            'empty' => ['status' => $status, 'message' => $this->translate('Empty tag ignored.'), 'type' => 'info'],
+            'not-assignable' => ['status' => $status, 'message' => $this->translate('Tag is not assignable: %s', [$safeName]), 'type' => 'warning'],
+            'item-not-found' => ['status' => $status, 'message' => $this->translate('Publication not found for tag update.'), 'type' => 'warning'],
             default => null,
         };
     }
@@ -193,17 +195,21 @@ final class ItemPageController extends Controller {
         $extension = strtolower((string)($item['extension'] ?? ''));
         $scanStatus = (string)($item['scanStatus'] ?? '');
 
-        $source = 'Library first asks the Nextcloud preview system for a cover image.';
+        $source = $this->translate('Library first asks the Nextcloud preview system for a cover image.');
         if ($extension === 'epub') {
-            $source = 'Library first asks the Nextcloud preview system, then tries the EPUB package cover from the publication manifest.';
+            $source = $this->translate('Library first asks the Nextcloud preview system, then tries the EPUB package cover from the publication manifest.');
         } elseif ($extension === 'cbz') {
-            $source = 'Library first asks the Nextcloud preview system, then tries the CBZ first image as a cover.';
+            $source = $this->translate('Library first asks the Nextcloud preview system, then tries the CBZ first image as a cover.');
         }
 
         $diagnostic = $scanStatus !== '' && $scanStatus !== 'indexed'
-            ? ' The file currently has scan status ' . $scanStatus . ', so fixing scan diagnostics may also improve cover results.'
+            ? ' ' . $this->translate('The file currently has scan status %s, so fixing scan diagnostics may also improve cover results.', [$scanStatus])
             : '';
 
-        return $source . ' If those sources are unavailable, Library shows a stable placeholder so the catalogue remains usable.' . $diagnostic;
+        return $source . ' ' . $this->translate('If those sources are unavailable, Library shows a stable placeholder so the catalogue remains usable.') . $diagnostic;
+    }
+
+    private function translate(string $text, array $parameters = []): string {
+        return $this->l10n?->t($text, $parameters) ?? vsprintf($text, $parameters);
     }
 }
