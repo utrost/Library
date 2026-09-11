@@ -23,10 +23,14 @@ use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
 use OCP\Util;
+use Psr\Log\LoggerInterface;
+use OCA\Library\Instrumentation\MonotonicClock;
+use Throwable;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-153';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-153';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-154';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-154';
+    private MonotonicClock $clock;
 
     private const READER_FIXTURE_FILE_ID = 82;
 
@@ -59,8 +63,11 @@ class PageController extends Controller {
         private IInitialState $initialState,
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
+        private LoggerInterface $logger,
+        ?MonotonicClock $clock = null,
     ) {
         parent::__construct($appName, $request);
+        $this->clock = $clock ?? new MonotonicClock();
     }
 
     #[NoAdminRequired]
@@ -73,7 +80,7 @@ class PageController extends Controller {
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
-        $this->initialState->provideInitialState('catalogue', $this->buildCatalogueState($userId));
+        $this->initialState->provideInitialState('catalogue', $this->buildCatalogueState($userId, [], [], 'index'));
 
         return new TemplateResponse(Application::APP_ID, 'main');
     }
@@ -95,7 +102,7 @@ class PageController extends Controller {
             'discoveryPage' => 'publication',
             'discoveryTitle' => $publication,
             'publicationIssueContext' => $this->enrichPublicationIssueContextForVue($this->itemService->publicationIssueContext($userId, $publication)),
-        ]));
+        ], 'publication'));
 
         return new TemplateResponse(Application::APP_ID, 'main');
     }
@@ -116,7 +123,7 @@ class PageController extends Controller {
         ], [
             'discoveryPage' => 'year',
             'discoveryTitle' => $year,
-        ]));
+        ], 'year'));
 
         return new TemplateResponse(Application::APP_ID, 'main');
     }
@@ -137,7 +144,7 @@ class PageController extends Controller {
         ], [
             'discoveryPage' => 'creator',
             'discoveryTitle' => $creator,
-        ]));
+        ], 'creator'));
 
         return new TemplateResponse(Application::APP_ID, 'main');
     }
@@ -147,10 +154,12 @@ class PageController extends Controller {
     public function catalogue(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
-        return new JSONResponse($this->buildCatalogueState($userId));
+        return new JSONResponse($this->buildCatalogueState($userId, [], [], 'catalogue_api'));
     }
 
-    private function buildCatalogueState(string $userId, array $filterOverrides = [], array $pageContext = []): array {
+    private function buildCatalogueState(string $userId, array $filterOverrides = [], array $pageContext = [], string $surface = 'catalogue_api'): array {
+        $totalStarted = $this->clock->now();
+        $durations = ['catalogue_query_ms' => 0, 'tag_enrichment_ms' => 0, 'auxiliary_ms' => 0, 'projection_ms' => 0];
         $batchCoverRefreshRequested = (string)$this->request->getParam('coverRefresh', '0') === '1';
         $activeFilters = [
             'q' => trim((string)$this->request->getParam('q', '')),
@@ -192,12 +201,16 @@ class PageController extends Controller {
             (int)$this->request->getParam('page', 1),
             (int)$this->request->getParam('limit', 100),
         );
+        $phaseStarted = $this->clock->now();
         $roots = $this->rootService->listRoots($userId);
+        $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
+        $phaseStarted = $this->clock->now();
         $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination) : [
             'items' => [],
             'total' => 0,
             'facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'workflowStatuses' => [], 'genres' => [], 'classifications' => [], 'publications' => [], 'publicationSummaries' => [], 'publicationYears' => [], 'creators' => []],
         ];
+        $durations['catalogue_query_ms'] = $this->clock->elapsedMs($phaseStarted);
         $items = $catalogue['items'];
         $pagination['total'] = (int)$catalogue['total'];
         $pagination['visible'] = count($items);
@@ -206,9 +219,12 @@ class PageController extends Controller {
         $pagination['previousUrl'] = $pagination['page'] > 1 ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] - 1) : '';
         $pagination['nextUrl'] = $pagination['to'] < $pagination['total'] ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] + 1) : '';
 
+        $phaseStarted = $this->clock->now();
         $fileTagsByFileId = $this->fileTagService->tagsForItems($items);
+        $durations['tag_enrichment_ms'] = $this->clock->elapsedMs($phaseStarted);
         $metadataReviewProjection = ($activeFilters['scannerConflicts'] ?? '') === '1'
             || trim((string)($activeFilters['weakMetadata'] ?? '')) !== '';
+        $phaseStarted = $this->clock->now();
         $items = $this->enrichItemsForVue(
             $userId,
             $items,
@@ -216,8 +232,13 @@ class PageController extends Controller {
             $metadataReviewProjection,
             $batchCoverRefreshRequested,
         );
+        $durations['projection_ms'] = $this->clock->elapsedMs($phaseStarted);
 
-        return [
+        $phaseStarted = $this->clock->now();
+        $smartViewCounts = $userId !== '' ? $this->itemService->smartViewCounts($userId) : [];
+        $savedCollections = $userId !== '' ? $this->savedCollectionsWithCounts($userId) : [];
+        $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
+        $state = [
             'publicationIssueContext' => null,
             ...$pageContext,
             'items' => $items,
@@ -263,12 +284,25 @@ class PageController extends Controller {
             'metadataErrorsTsvUrl' => $this->urlGenerator->linkToRoute('library.health.metadataErrorsTsv'),
             'coverProbeUrl' => $this->urlGenerator->linkToRoute('library.health.coverProbe'),
             'importHealthSummaryUrl' => $this->urlGenerator->linkToRoute('library.health.importSummary'),
-            'smartViewCounts' => $userId !== '' ? $this->itemService->smartViewCounts($userId) : [],
-            'savedCollections' => $userId !== '' ? $this->savedCollectionsWithCounts($userId) : [],
+            'smartViewCounts' => $smartViewCounts,
+            'savedCollections' => $savedCollections,
             'savedCollectionSaveUrl' => $this->urlGenerator->linkToRoute('library.saved_collection.save'),
             'savedCollectionDeleteBaseUrl' => $this->urlGenerator->linkToRoute('library.saved_collection.delete', ['collectionId' => '__COLLECTION_ID__']),
             'importHealthSummary' => [],
         ];
+        $durations['total_ms'] = $this->clock->elapsedMs($totalStarted);
+        $context = ['event_schema' => 1, 'surface' => in_array($surface, ['index', 'catalogue_api', 'publication', 'year', 'creator'], true) ? $surface : 'catalogue_api',
+            ...$durations, 'items_returned' => count($items), 'total_items' => (int)$catalogue['total'],
+            'page' => $pagination['page'], 'limit' => $pagination['limit'],
+            'active_filter_count' => count(array_filter($activeFilters, static fn ($value, $key): bool => $key !== 'taggedFileIds' && trim((string)$value) !== '' && !($key === 'sort' && $value === 'title'), ARRAY_FILTER_USE_BOTH)),
+            'has_text_search' => $activeFilters['q'] !== '', 'scanner_conflict_projection' => $metadataReviewProjection];
+        try {
+            if ($durations['total_ms'] >= 500) { $this->logger->warning('library.catalogue.slow', $context); }
+            else { $this->logger->debug('library.catalogue.built', $context); }
+        } catch (Throwable) {
+            // Operational logging must not break catalogue requests.
+        }
+        return $state;
     }
 
     /**

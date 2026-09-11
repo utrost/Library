@@ -21,8 +21,12 @@ use OCP\IURLGenerator;
 use OCP\IUserSession;
 use Throwable;
 use ZipArchive;
+use Psr\Log\LoggerInterface;
+use OCA\Library\Instrumentation\MonotonicClock;
 
 class CoverController extends Controller {
+    private MonotonicClock $clock;
+    private int $coverStartedAt = 0;
     public function __construct(
         string $appName,
         IRequest $request,
@@ -33,13 +37,17 @@ class CoverController extends Controller {
         private ItemService $itemService,
         private IURLGenerator $urlGenerator,
         private ArchiveCoverService $archiveCoverService,
+        private LoggerInterface $logger,
+        ?MonotonicClock $clock = null,
     ) {
         parent::__construct($appName, $request);
+        $this->clock = $clock ?? new MonotonicClock();
     }
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
     public function show(int $itemId): DataDownloadResponse {
+        $this->coverStartedAt = $this->clock->now();
         $refreshRequested = $this->isRefreshRequest();
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -85,7 +93,7 @@ class CoverController extends Controller {
             }
         } catch (Throwable $e) {
             // Fall through to CBZ first-image cover or SVG placeholder.
-            $previewError = 'preview-error: ' . $e->getMessage();
+            $previewError = 'preview-error';
         }
 
         $epubCover = $this->extractEpubCover($file, $itemId);
@@ -488,6 +496,16 @@ class CoverController extends Controller {
         ];
         if ($refreshRequested) {
             $headers['X-Library-Cover-Refresh'] = 'refresh-requested';
+        }
+        $durationMs = $this->clock->elapsedMs($this->coverStartedAt);
+        $safeStatus = in_array($status, ['manual-cover', 'preview', 'epub-cover', 'cbz-first-image', 'sevenzip-first-image', 'rar-first-image', 'placeholder'], true) ? $status : 'placeholder';
+        $context = ['event_schema' => 1, 'status' => $safeStatus, 'refresh_requested' => $refreshRequested,
+            'duration_ms' => $durationMs, 'returned_bytes' => strlen($content)];
+        try {
+            if ($durationMs >= 1000) { $this->logger->warning('library.cover.slow', $context); }
+            else { $this->logger->debug('library.cover.built', $context); }
+        } catch (Throwable) {
+            // Operational logging must not break cover responses.
         }
 
         return new DataDownloadResponse(

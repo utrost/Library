@@ -45,9 +45,13 @@ Not in scope for v0.1:
 
 ## Try it
 
-Current testing candidate: `0.1.0-alpha.153`.
+Current source candidate: `0.1.0-alpha.154`.
 
-Ordinary trusted rescans now avoid repeating metadata content extraction and catalogue-item writes when an indexed file already has an item and its current pipeline revision plus primary/selected-OPF identity, path, ETag, modification time, size and type fingerprint are unchanged. Weak or unavailable storage-provider signals fall back to extraction. This is a conservative correctness optimization; performance instrumentation is still pending and no measured speedup is claimed yet.
+Exact alpha.154 package, checksum, install, migration, 40-file scan, API, and browser evidence is pending.
+
+Alpha.154 adds aggregate operation instrumentation and bounded scan progress/cancellation polling. Metrics are in-memory or aggregate scan-job fields and privacy-safe Library log events; there is no external telemetry and no claim of universal speedup. Cancellation is checked initially and after 100 traversal units or 1000 ms, including unsupported nodes and nested/empty folders. A single filesystem listing/node call or extraction/storage operation remains non-preemptive. Queue wait and running/cancelled wall durations use portable epoch-second storage and are second-resolution approximations; completed/failed worker duration remains monotonic integer milliseconds.
+
+Ordinary trusted rescans now avoid repeating metadata content extraction and catalogue-item writes when an indexed file already has an item and its current pipeline revision plus primary/selected-OPF identity, path, ETag, modification time, size and type fingerprint are unchanged. Weak or unavailable storage-provider signals fall back to extraction. This is a conservative correctness optimization; the new instrumentation does not establish a measured speedup.
 
 Run local checks:
 

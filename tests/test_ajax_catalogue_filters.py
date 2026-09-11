@@ -17,8 +17,8 @@ def test_page_controller_exposes_json_catalogue_endpoint_reusing_catalogue_state
     assert "['name' => 'page#catalogue', 'url' => '/catalogue', 'verb' => 'GET']" in routes
     assert "use OCP\\AppFramework\\Http\\JSONResponse;" in controller
     assert "public function catalogue(): JSONResponse" in controller
-    assert "private function buildCatalogueState(string $userId, array $filterOverrides = [], array $pageContext = []): array" in controller
-    assert "return new JSONResponse($this->buildCatalogueState($userId));" in controller
+    assert "private function buildCatalogueState(string $userId, array $filterOverrides = [], array $pageContext = [], string $surface = 'catalogue_api'): array" in controller
+    assert "return new JSONResponse($this->buildCatalogueState($userId, [], [], 'catalogue_api'));" in controller
 
 
 def test_vue_filters_fetch_catalogue_json_without_full_page_reload():

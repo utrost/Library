@@ -2,11 +2,11 @@
 
 Status: active release-readiness roadmap  
 Target: signed Nextcloud App Store release for Nextcloud 34  
-Current candidate baseline: `0.1.0-alpha.153`
+Current candidate baseline: `0.1.0-alpha.154`
 
-Library is already packaged and smoke-tested as an alpha candidate on a Nextcloud 34 instance. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
+Library alpha.153 was packaged and smoke-tested on a Nextcloud 34 instance. Alpha.154 is the current source candidate. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
 
-The current candidate adds nullable metadata-input fingerprint and extractor-revision fields through `Version000100Date20260911130000`. Ordinary trusted unchanged indexed files with existing items/current revision can skip extraction and item writes; the first stable successful post-upgrade scan warms markers. Provider metadata remains a trust dependency, weak signals fail open, and stable pre/post checks do not eliminate residual concurrent ABA/TOCTOU risk. Exact-package smoke measured zero item-row rewrites on the unchanged second pass of a 40-file root after warm-up established 40 markers, with `source_observation_changes=0` for path/ETag/mtime/size/MIME observations. This does not instrument source writes or compare content bytes; it is write-elision evidence, not throughput or latency evidence. Performance instrumentation remains next and no elapsed-speedup claim is made.
+The current candidate adds aggregate scan-job counters/duration, privacy-safe operation logs, and throttled progress/cancellation checks through `Version000100Date20260911140000`. This is not external telemetry or proof of universal speedup. Exact-package alpha.154 migration and live smoke evidence remain pending.
 
 ## Definition of ready
 
@@ -77,7 +77,7 @@ Work:
 3. Require `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` only at signing time; keep keys outside the repository and outside the archive.
 4. Document the Nextcloud certificate request step and the public repository URL required by the certificate request.
 5. Add package audit checks that fail if a stable App Store package lacks `appinfo/signature.json`, while allowing unsigned alpha rehearsal packages.
-6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and sign the exact release archive with `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.153.tar.gz | openssl base64`.
+6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and sign the exact release archive with `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.154.tar.gz | openssl base64`.
 
 Guideline notes: App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`; the archive top folder must match the app id `library`; `info.xml` should use the current SPDX license identifier and include the public repository URL.
 
@@ -89,7 +89,7 @@ Acceptance checks:
 
 ### AS-004 — App Store release rehearsal
 
-Status: exact-package alpha.153 rehearsal passed; clean-checkout CI and signed stable rehearsal remain pending.
+Status: exact-package alpha.154 rehearsal, clean-checkout CI, and signed stable rehearsal remain pending.
 
 Goal: prove every step before the real stable upload.
 
