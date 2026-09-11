@@ -1,11 +1,11 @@
 # Release process
 
-This repo is prepared for the v0.1 manual testing pass from app version `0.1.0-alpha.157`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
+This repo is prepared for the v0.1 manual testing pass from app version `0.1.0-alpha.158`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
 
 ## Release type
 
 - Private/early-tester v0.1 candidate on a Nextcloud 34 test instance.
-- App version in `appinfo/info.xml`: `0.1.0-alpha.157`.
+- App version in `appinfo/info.xml`: `0.1.0-alpha.158`.
 - License: AGPL-3.0-or-later.
 - Target runtime: Nextcloud 34.
 
@@ -30,8 +30,8 @@ scripts/package-release.sh
 The script runs `npm ci`, `npm run build`, `python -m pytest -q`, the focused PHP runtime suite, stages runtime app files, audits the tarball, then writes:
 
 ```text
-dist/library-0.1.0-alpha.157.tar.gz
-dist/library-0.1.0-alpha.157.tar.gz.sha256
+dist/library-0.1.0-alpha.158.tar.gz
+dist/library-0.1.0-alpha.158.tar.gz.sha256
 ```
 
 The archive contains a single top-level `library/` directory, which must match the app id `library` for Nextcloud App Store uploads. For App Store hygiene it excludes `.git`, `.github`, `node_modules`, `build`, `dist`, `tests`, `scripts`, `src`, `docs`, `package.json`, package locks, local release docs, local tool configs, caches and bytecode. It keeps the runtime app directories plus minimal public files: `README.md`, `LICENSE`, and `CHANGELOG.md`.
@@ -84,7 +84,7 @@ echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library
 - Upload a release by providing the tarball download URL and a signature over the exact archive:
 
 ```bash
-openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.157.tar.gz | openssl base64
+openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.158.tar.gz | openssl base64
 ```
 
 ## Generated archive install smoke
@@ -95,13 +95,15 @@ Before manual v0.1 functionality testing, install and smoke the generated archiv
 npm run smoke:release-package
 ```
 
-That script verifies the archive checksum and exact alpha.157 version, disables the currently installed app if present, removes the development copy from `custom_apps/library`, extracts `dist/library-0.1.0-alpha.157.tar.gz`, fixes ownership/permissions, runs PHP lint on key app files including the current migrations and fast-path classes, enables the app, runs `occ upgrade`, lists app routes, invokes the repository-side unchanged-file smoke, and then runs the live Vue/browser smokes. The unchanged-file smoke selects the smallest already-indexed non-empty enabled root without printing private identifiers, runs the production scanner twice, and emits aggregate acceptance evidence only.
+That script verifies the archive checksum and exact alpha.158 version, disables the currently installed app if present, removes the development copy from `custom_apps/library`, extracts `dist/library-0.1.0-alpha.158.tar.gz`, fixes ownership/permissions, runs PHP lint on key app files including the current migrations and fast-path classes, enables the app, runs `occ upgrade`, lists app routes, invokes the repository-side unchanged-file smoke, and then runs the live Vue/browser smokes. The unchanged-file smoke selects the smallest already-indexed non-empty enabled root without printing private identifiers, runs the production scanner twice, and emits aggregate acceptance evidence only.
 
-Alpha.157 verification evidence:
+Alpha.158 verification evidence:
 
-- `npm run check` passed with 718 Python tests, 7 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks.
-- `npm run package:release` passed its audit as an allowed unsigned alpha package, staged 116 archive entries, and created the archive and SHA-256 checksum.
-- `npm run smoke:release-package` verified the checksum, installed and enabled the exact alpha.157 package, passed PHP lint and route listing, and ended with `release_package_smoke_ok=true`.
+- `npm run check` passed with 726 Python tests, 8 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks.
+- `npm run package:release` passed its audit as an allowed unsigned alpha package, staged 118 archive entries, and created the archive and SHA-256 checksum.
+- The live cover-privacy gate safely seeded and restored a legacy tracker-style URL, captured catalogue and detail requests, observed zero non-Nextcloud cover requests, proved upload/render/revert, and proved temporary-second-user read/mutation isolation. Cleanup removed both temporary app passwords and the deterministic temporary user without emitting credentials or identifiers.
+- Remote cover SSRF was not present because no server fetch occurred. Alpha.158 removes direct browser leakage and intentionally does not introduce server fetching; archive hardening, cover caching, and broader privacy work remain separate.
+- `npm run smoke:release-package` verified the checksum, installed and enabled the exact alpha.158 package, passed PHP lint and route listing, and ended with `release_package_smoke_ok=true`.
 - The privacy-safe unchanged-root smoke ran the same 40-file root twice. Both scans reported `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0`.
 - Live Vue/API smoke passed. Browser smoke passed with zero console errors and the mutation-restoration markers.
 - `occ upgrade` reported `No upgrade required`. This verifies operation against the existing database state, not a fresh database migration; a fresh migration rehearsal remains pending.
@@ -110,19 +112,19 @@ Historical alpha.153 package evidence:
 
 - The pre-upgrade installed version was `0.1.0-alpha.152`. A 12,223,391-byte rollback SQL dump was created before migration; the release record intentionally omits its host-local path.
 - Database rows were unchanged across migration: `library_items=7,120` and `library_files=7,120` both before and after. The migration registry contains `000100Date20260911130000`, and the physical `metadata_input_fingerprint` and `metadata_extractor_revision` columns are nullable `varchar(64)`.
-- The checksum for the exact alpha.153 archive passed, and that archive was installed and enabled. This remains historical evidence and is separate from the alpha.157 result above.
+- The checksum for the exact alpha.153 archive passed, and that archive was installed and enabled. This remains historical evidence and is separate from the alpha.158 result above.
 - The privacy-safe smallest-root smoke contained 40 files. Both scans reported `roots=1`, `indexed=40`, `missing=0`, `errors=0`. The warm-up scan rewrote 40 item rows and established 40 markers; the second unchanged scan rewrote 0 item rows and retained 40 markers. Item and file row counts remained 40, and changes to the observed source path/ETag/mtime/size/MIME values remained 0.
 - Vue, API and browser smoke passed against the installed exact package; browser console errors were 0.
 
-The 40-file results verify write elision only. Alpha.154 adds measured aggregate operation boundaries, but those observations are not proof of a universal speedup. The alpha.157 package/install/API/browser/40-file rehearsal is complete; only the fresh database migration rehearsal remains pending from that evidence set.
+The 40-file results verify write elision only. Alpha.154 adds measured aggregate operation boundaries, but those observations are not proof of a universal speedup. The alpha.158 package/install/API/browser/40-file rehearsal is complete; only the fresh database migration rehearsal remains pending from that evidence set.
 
 For a non-Docker disposable instance, the equivalent manual steps are:
 
 ```bash
-(cd dist && sha256sum -c library-0.1.0-alpha.157.tar.gz.sha256)
+(cd dist && sha256sum -c library-0.1.0-alpha.158.tar.gz.sha256)
 rm -rf /var/www/html/custom_apps/library
 mkdir -p /var/www/html/custom_apps
-tar -xzf dist/library-0.1.0-alpha.157.tar.gz -C /var/www/html/custom_apps
+tar -xzf dist/library-0.1.0-alpha.158.tar.gz -C /var/www/html/custom_apps
 chown -R www-data:www-data /var/www/html/custom_apps/library
 sudo -u www-data php -l /var/www/html/custom_apps/library/appinfo/routes.php
 sudo -u www-data php occ app:enable library
@@ -161,8 +163,8 @@ git push origin v0.1.0-alpha.2
 
 Create a GitHub prerelease from the accepted annotated tag and attach:
 
-- `dist/library-0.1.0-alpha.157.tar.gz`
-- `dist/library-0.1.0-alpha.157.tar.gz.sha256`
+- `dist/library-0.1.0-alpha.158.tar.gz`
+- `dist/library-0.1.0-alpha.158.tar.gz.sha256`
 
 Release note summary:
 

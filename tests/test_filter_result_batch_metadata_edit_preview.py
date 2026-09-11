@@ -74,6 +74,6 @@ def test_docs_and_version_track_preview_first_filtered_batch_metadata_edit():
     assert "explicit apply button writes only changed rows" in guide
     assert "batch metadata apply" in roadmap.lower()
     assert "reports requested/applied/unchanged/skipped counts" in roadmap.lower()
-    assert "<version>0.1.0-alpha.157</version>" in info
-    assert '"version": "0.1.0-alpha.157"' in package
-    assert '"version": "0.1.0-alpha.157"' in lock
+    assert "<version>0.1.0-alpha.158</version>" in info
+    assert '"version": "0.1.0-alpha.158"' in package
+    assert '"version": "0.1.0-alpha.158"' in lock

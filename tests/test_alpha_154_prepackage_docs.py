@@ -14,23 +14,23 @@ def test_alpha_157_exact_package_evidence_is_complete_but_fresh_migration_is_pen
     readiness = read("docs/app-store-readiness.md")
     risk = read("docs/current-state-and-risk-register.md")
 
-    assert "Current source candidate: `0.1.0-alpha.157`." in readme
-    assert "718 Python tests, 7 PHP runtime programs, 26 Vitest tests" in readme
+    assert "Current source candidate: `0.1.0-alpha.158`." in readme
+    assert "726 Python tests, 8 PHP runtime programs, 26 Vitest tests" in readme
     assert "`release_package_smoke_ok=true`" in readme
     assert "`No upgrade required`" in readme
     assert "fresh database migration rehearsal remains pending" in readme
     assert "performance instrumentation is still pending" not in readme
-    assert "exact-package alpha.157 rehearsal complete" in readiness
-    assert "Alpha.157 verification is complete" in risk
-    assert "Alpha.157 verification evidence" in release
+    assert "exact-package alpha.158 rehearsal complete" in readiness
+    assert "Alpha.158 verification is complete" in risk
+    assert "Alpha.158 verification evidence" in release
     assert "fresh database migration rehearsal remains pending" in release
 
     combined = "\n".join((readme, release, readiness, risk))
     stale_pending_claims = (
-        "Exact alpha.157 package, checksum, install, migration, 40-file scan, API, and browser evidence is pending.",
-        "No alpha.157 archive, checksum verification, install, database migration, 40-file scan, API smoke, or browser smoke has been completed",
-        "alpha.157 exact-package and live migration rehearsal remain pending",
-        "exact-package/live alpha.157 evidence",
+        "Exact alpha.158 package, checksum, install, migration, 40-file scan, API, and browser evidence is pending.",
+        "No alpha.158 archive, checksum verification, install, database migration, 40-file scan, API smoke, or browser smoke has been completed",
+        "alpha.158 exact-package and live migration rehearsal remain pending",
+        "exact-package/live alpha.158 evidence",
     )
     for claim in stale_pending_claims:
         assert claim not in combined

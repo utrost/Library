@@ -41,8 +41,8 @@ namespace OCA\Library\Instrumentation {
 namespace OCA\Library\Service {
     class ItemService {
         public array $calls = [];
-        public function setManualCoverOverride(string $userId, int $itemId, string $url, ?string $data, ?string $mime): void {
-            $this->calls[] = compact('userId', 'itemId', 'url', 'data', 'mime');
+        public function setManualCoverOverride(string $userId, int $itemId, ?string $data, ?string $mime): void {
+            $this->calls[] = compact('userId', 'itemId', 'data', 'mime');
         }
     }
     class ArchiveCoverService {}
@@ -98,6 +98,12 @@ namespace {
         $uploadService,
     );
 
+    unset($_FILES['coverOverrideFile']);
+    $urlOnlyResponse = $controller->override(7);
+    expectController(count($itemService->calls) === 0, 'URL-only override must not reach persistence');
+    expectController($urlOnlyResponse->url === '/items/7?coverUploadError=remote-url-disabled', 'URL-only override returns bounded feedback code');
+    expectController(!str_contains($urlOnlyResponse->url, 'old.example'), 'URL-only feedback excludes submitted URL');
+
     $tmp = tempnam(sys_get_temp_dir(), 'manual-cover-test-');
     if ($tmp === false) {
         throw new RuntimeException('temporary file unavailable');
@@ -120,7 +126,6 @@ namespace {
         $controller->override(7);
         expectController(count($itemService->calls) === 1, 'valid upload reaches persistence once');
         $call = $itemService->calls[0];
-        expectController($call['url'] === '', 'valid uploaded cover clears the old remote URL');
         expectController($call['mime'] === 'image/jpeg', 'server canonical MIME must be persisted');
         expectController(base64_decode((string)$call['data'], true) === $jpeg, 'validated bytes must be persisted');
     } finally {

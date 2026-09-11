@@ -593,10 +593,10 @@ async function runBrowserSmoke(proxyBase) {
 
     const firstDetailsUrl = new URL(dom.firstDetails, proxyBase)
     const detailUrl = `${proxyBase}${firstDetailsUrl.pathname}${firstDetailsUrl.search}`
-    print('browser_detail_target', detailUrl)
+    print('browser_detail_target_present', detailUrl !== '')
     const detailPreflight = await fetch(detailUrl, { redirect: 'manual' })
     print('browser_detail_preflight_status', detailPreflight.status)
-    print('browser_detail_preflight_location', detailPreflight.headers.get('location') || '')
+    print('browser_detail_preflight_redirected', Boolean(detailPreflight.headers.get('location')))
     const detailNavigate = await client.send('Page.navigate', { url: detailUrl })
     print('browser_detail_navigate_error', detailNavigate.errorText || '')
     await new Promise((resolve) => setTimeout(resolve, 2500))
@@ -790,7 +790,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_saved_collection_links', dom.savedCollectionLinks ?? 0)
     print('browser_quick_filter_controls', dom.quickFilterControls ?? 0)
     print('browser_ajax_filter_fetch_calls', quickFilterDom?.fetchCalls ?? 0)
-    print('browser_ajax_filter_endpoint', quickFilterDom?.endpoint || '')
+    print('browser_ajax_filter_endpoint_valid', String(quickFilterDom?.endpoint || '').includes('/apps/library/catalogue'))
     print('browser_ajax_filter_no_navigation', quickFilterDom?.noNavigation === true)
     print('browser_quick_filter_auto_submit', quickFilterDom?.fetchCalls >= 1 && quickFilterDom?.noNavigation === true && String(quickFilterDom?.endpoint || '').includes('/apps/library/catalogue'))
     print('browser_keyboard_search_focus', keyboardShortcutDom?.focused === true)
@@ -852,7 +852,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_catalogue_labelled', dom.catalogueLabelled)
     print('browser_unlabelled_controls', dom.unlabelledControls)
     print('browser_detail_page', detailDom.detailPage)
-    print('browser_detail_url', detailDom.detailUrl)
+    print('browser_detail_url_valid', String(detailDom.detailUrl || '').includes('/apps/library/items/'))
     print('browser_detail_title', detailDom.detailTitle)
     print('browser_detail_has_app_content', detailDom.detailHasAppContent)
     print('browser_detail_workbench', detailDom.detailWorkbench)
@@ -1060,7 +1060,7 @@ try {
   await runBrowserSmoke(proxyBase)
 } catch (error) {
   print('browser_smoke_ok', false)
-  console.error(error?.stack || error)
+  console.error('browser_smoke_failure=true')
   process.exitCode = 1
 } finally {
   if (proxy) await new Promise((resolve) => proxy.close(resolve))

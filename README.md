@@ -45,9 +45,9 @@ Not in scope for v0.1:
 
 ## Try it
 
-Current source candidate: `0.1.0-alpha.157`.
+Current source candidate: `0.1.0-alpha.158`.
 
-Alpha.157 verification passed: the local gate completed 718 Python tests, 7 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. The unsigned alpha package audit passed with 116 archive entries and produced the archive plus checksum. Exact-package smoke verified the checksum, installed and enabled alpha.157, passed PHP lint and route listing, and scanned the same 40-file root twice with `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0` on both scans. Live Vue/API and browser smokes passed with zero browser console errors, mutation-restoration markers, and `release_package_smoke_ok=true`.
+Alpha.158 verification passed: the local gate completed 726 Python tests, 8 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. The unsigned alpha package audit passed with 118 archive entries and produced the archive plus checksum. Exact-package smoke verified the checksum, installed and enabled alpha.158, passed PHP lint and route listing, and scanned the same 40-file root twice with `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0` on both scans. Live Vue/API and browser smokes passed with zero browser console errors and mutation restoration. The cover-privacy browser gate seeded and restored a legacy tracker-style value, captured catalogue/detail requests with zero non-Nextcloud cover requests, proved upload/render/revert, and proved deterministic temporary-second-user isolation with cleanup. The package gate ended with `release_package_smoke_ok=true`.
 
 The upgrade command reported `No upgrade required`; therefore a fresh database migration rehearsal remains pending.
 

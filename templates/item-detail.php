@@ -168,10 +168,6 @@ $fileRows = [
                         <form method="post" enctype="multipart/form-data" action="<?php p($item['coverOverrideActionUrl'] ?? ''); ?>" class="library-cover-override-form">
                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                             <label>
-                                <?php p($l->t('Cover image URL')); ?>
-                                <input type="url" name="coverOverrideUrl" value="<?php p((string)($item['coverOverrideUrl'] ?? '')); ?>" placeholder="https://…" />
-                            </label>
-                            <label>
                                 <?php p($l->t('Upload cover image')); ?>
                                 <input type="file" name="coverOverrideFile" accept="image/jpeg,image/png,image/webp" />
                                 <small><?php p($l->t('JPEG, PNG, or WebP; up to 10 MiB, 10,000 px per side, and 40 megapixels.')); ?></small>
