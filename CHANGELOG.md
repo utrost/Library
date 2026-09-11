@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.155 - 2026-09-11
+
+- Hardened catalogue AJAX filtering with request cancellation, monotonic response ownership, rejection fallback, and unmount cleanup so stale responses cannot replace newer results.
+- Serialized detail metadata autosaves with one coalesced latest snapshot, latest-request-only status ownership, and manual-submit cleanup.
+- Made catalogue and detail star controls ignore rapid repeat clicks while pending, restore controls after every outcome, roll back failed optimistic updates, and show accessible failure feedback.
+
 ## v0.1.0-alpha.154 - 2026-09-11
 
 - Added dependency-free, monotonic, aggregate operation instrumentation for scans, catalogue builds, and cover builds. Metrics stay in process or in aggregate scan-job columns; this is not external telemetry and it is not proof of a universal speedup.

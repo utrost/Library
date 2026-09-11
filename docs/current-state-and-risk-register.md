@@ -6,7 +6,7 @@ This snapshot prepares Library for the v0.1 alpha test pass. It documents what i
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current app version: `0.1.0-alpha.154`.
+- Current app version: `0.1.0-alpha.155`.
 - Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
@@ -53,11 +53,11 @@ These are acceptable for the v0.1 alpha test pass but should stay visible:
 7. **Shared libraries:** users manage personal roots; admin-managed shared/global roots are not implemented.
 8. **Readers and content services:** Library delegates reading to Nextcloud and does not provide page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
 9. **Real-collection evidence:** generated scale and selected live smokes are strong for a v0.1 candidate, but Uwe's manual test pass should still use real mixed files to find weak metadata/cover cases.
-10. **Catalogue scale follow-ups:** alpha.154 adds aggregate operation instrumentation and throttled progress/cancellation persistence, not external telemetry or proof of universal speedup. Request/autosave/star races; cover validation, remote privacy, archive budgets/cache; query/payload completion; missing batching; root transaction/overlap; and representative scale gates remain pending.
+10. **Catalogue scale follow-ups:** alpha.154 added aggregate operation instrumentation and throttled progress/cancellation persistence, not external telemetry or proof of universal speedup. Alpha.155 closes the identified catalogue request, detail autosave and star-toggle races. Cover validation, remote privacy, archive budgets/cache, query/payload completion, missing batching, root transaction/overlap, and representative scale gates remain pending.
 
 ## Verification evidence
 
-Historical exact-package evidence is for alpha.153; the alpha.154 exact-package and live migration rehearsal remain pending:
+Historical exact-package evidence is for alpha.153; the alpha.155 exact-package and live migration rehearsal remain pending:
 
 - The archive checksum passed; the package was installed and enabled over alpha.152 after creating a 12,223,391-byte rollback SQL dump.
 - Migration registry entry `000100Date20260911130000` is present. Item and file row counts remained exactly 7,120 each across migration, and both fast-path columns are physically nullable `varchar(64)`.
@@ -77,7 +77,7 @@ The historical alpha.153 release-hardening evidence set also includes:
 - Generated `dist/library-0.1.0-alpha.153.tar.gz` plus SHA-256 verification.
 - Generated alpha.153 archive install into the live `nextcloud` container, then PHP lint, `occ app:enable library`, `occ upgrade`, router listing and live Vue/browser smokes.
 
-The corresponding exact alpha.154 package, checksum, install, migration, scan, API, and browser evidence remains pending.
+The corresponding exact alpha.155 package, checksum, install, migration, scan, API, and browser evidence remains pending.
 
 Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, genres/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year/creator discovery pages.
 

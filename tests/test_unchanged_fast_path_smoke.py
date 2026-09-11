@@ -81,7 +81,7 @@ def test_release_package_smoke_uses_repo_smoke_after_upgrade_and_requires_exact_
     unchanged = text.index('"$ROOT/scripts/smoke-unchanged-fast-path.sh"')
     browser = text.index("npm run smoke:browser")
     assert upgrade < unchanged < browser
-    assert 'EXPECTED_VERSION="0.1.0-alpha.154"' in text
+    assert 'EXPECTED_VERSION="0.1.0-alpha.155"' in text
     assert 'if [ "$VERSION" != "$EXPECTED_VERSION" ]' in text
     assert "php occ app:list --output=json" in text
     assert 'if [ "$INSTALLED_VERSION" != "$EXPECTED_VERSION" ]' in text

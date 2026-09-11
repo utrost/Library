@@ -238,6 +238,79 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-cover-star-button').classes()).toContain('library-cover-star-button--starred')
   })
 
+  it('ignores rapid catalogue star clicks while saving and reports a failure', async () => {
+    let rejectRequest
+    const fetchSpy = vi.fn(() => new Promise((_resolve, reject) => { rejectRequest = reject }))
+    globalThis.fetch = fetchSpy
+    const wrapper = mount(App, { props: { state } })
+    const button = wrapper.find('.library-cover-star-button')
+
+    await button.trigger('click')
+    await button.trigger('click')
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(button.attributes('disabled')).toBeDefined()
+    rejectRequest(new Error('offline'))
+    await Promise.resolve()
+    await wrapper.vm.$nextTick()
+
+    expect(button.attributes('disabled')).toBeUndefined()
+    expect(button.text()).toBe('☆')
+    expect(wrapper.find('[data-library-star-error="7"]').attributes('role')).toBe('alert')
+    expect(wrapper.text()).toContain('Could not update star. Try again.')
+  })
+
+  it('only applies the latest catalogue response and aborts superseded requests', async () => {
+    const requests = []
+    globalThis.fetch = vi.fn((_url, options) => new Promise((resolve) => requests.push({ resolve, options })))
+    const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+    const form = wrapper.find('.library-quick-filter-bar')
+
+    await form.find('input[name="q"]').setValue('first')
+    void form.trigger('submit')
+    await Promise.resolve()
+    await form.find('input[name="q"]').setValue('latest')
+    void form.trigger('submit')
+    await Promise.resolve()
+
+    expect(requests).toHaveLength(2)
+    expect(requests[0].options.signal).toBeInstanceOf(AbortSignal)
+    expect(requests[0].options.signal.aborted).toBe(true)
+    requests[1].resolve({ ok: true, json: async () => ({ ...state, items: [{ ...state.items[0], title: 'Latest result' }], activeFilters: { ...state.activeFilters, q: 'latest' } }) })
+    await Promise.resolve()
+    await Promise.resolve()
+    requests[0].resolve({ ok: true, json: async () => ({ ...state, items: [{ ...state.items[0], title: 'Stale result' }], activeFilters: { ...state.activeFilters, q: 'first' } }) })
+    await Promise.resolve()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Latest result')
+    expect(wrapper.text()).not.toContain('Stale result')
+  })
+
+  it('falls back on a current catalogue rejection and aborts it on unmount', async () => {
+    let rejectRequest
+    let requestOptions
+    globalThis.fetch = vi.fn((_url, options) => {
+      requestOptions = options
+      return new Promise((_resolve, reject) => { rejectRequest = reject })
+    })
+    const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+    const form = wrapper.find('.library-quick-filter-bar')
+    const nativeSubmit = vi.spyOn(form.element, 'submit').mockImplementation(() => {})
+
+    void form.trigger('submit')
+    await Promise.resolve()
+    rejectRequest(new Error('network down'))
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(nativeSubmit).toHaveBeenCalledTimes(1)
+
+    void form.trigger('submit')
+    await Promise.resolve()
+    wrapper.unmount()
+    expect(requestOptions.signal.aborted).toBe(true)
+    expect(nativeSubmit).toHaveBeenCalledTimes(1)
+  })
+
   it('supports slash focus and Escape-to-clear keyboard search shortcuts', async () => {
     const fetchSpy = vi.fn(() => Promise.resolve({
       ok: true,
