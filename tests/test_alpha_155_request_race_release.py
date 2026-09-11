@@ -11,5 +11,5 @@ def test_failed_catalogue_star_feedback_keeps_the_overlay_visible():
 
 def test_alpha_155_controller_serves_the_versioned_race_hardened_assets():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text(encoding="utf-8")
-    assert "library-main-0-1-0-alpha-159" in controller
-    assert "library-vue-0-1-0-alpha-159" in controller
+    assert "library-main-0-1-0-alpha-160" in controller
+    assert "library-vue-0-1-0-alpha-160" in controller

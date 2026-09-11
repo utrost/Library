@@ -28,8 +28,8 @@ use OCA\Library\Instrumentation\MonotonicClock;
 use Throwable;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-159';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-159';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-160';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-160';
     private MonotonicClock $clock;
 
     private const READER_FIXTURE_FILE_ID = 82;
@@ -238,6 +238,7 @@ class PageController extends Controller {
         $smartViewCounts = $userId !== '' ? $this->itemService->smartViewCounts($userId) : [];
         $savedCollections = $userId !== '' ? $this->savedCollectionsWithCounts($userId) : [];
         $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
+        $catalogueRootUrl = $this->urlGenerator->linkToRoute('library.page.index');
         $state = [
             'publicationIssueContext' => null,
             ...$pageContext,
@@ -268,7 +269,9 @@ class PageController extends Controller {
             'activeFilters' => $activeFilters,
             'rootCount' => count($roots),
             'enabledRootCount' => count(array_filter($roots, static fn (array $root): bool => (bool)($root['enabled'] ?? false))),
-            'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library'),
+            'catalogueRootUrl' => $catalogueRootUrl,
+            'reviewUrl' => $catalogueRootUrl . '?scannerConflicts=1',
+            'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),
             'metadataExportUrl' => $this->urlGenerator->linkToRoute('library.export.metadata'),
             'metadataSidecarManifestUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarManifest'),
             'metadataSidecarBundleUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarBundle'),
@@ -279,7 +282,7 @@ class PageController extends Controller {
             'batchMetadataEditPreviewUrl' => $this->urlGenerator->linkToRoute('library.item.batchpreviewmetadataedit'),
             'batchCoverRefreshUrl' => $this->urlGenerator->linkToRoute('library.cover.batchrefresh'),
             'batchCoverRefreshRequested' => $batchCoverRefreshRequested,
-            'scannerConflictReviewUrl' => '?scannerConflicts=1',
+            'scannerConflictReviewUrl' => $catalogueRootUrl . '?scannerConflicts=1',
             'metadataErrorsUrl' => $this->urlGenerator->linkToRoute('library.health.metadataErrors'),
             'metadataErrorsTsvUrl' => $this->urlGenerator->linkToRoute('library.health.metadataErrorsTsv'),
             'coverProbeUrl' => $this->urlGenerator->linkToRoute('library.health.coverProbe'),

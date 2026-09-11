@@ -17,7 +17,7 @@ def test_alpha_159_real_gates_are_complete_but_deferred_gates_remain_explicit():
     architecture = read("docs/architecture-review.md")
     combined = "\n".join((readme, changelog, release, readiness, risk, architecture))
 
-    assert "Current source candidate: `0.1.0-alpha.159`." in readme
+    assert "Current source candidate: `0.1.0-alpha.160`." in readme
     assert "727 Python tests, 9 PHP runtime programs, 26 Vitest tests" in readme
     assert "`release_package_smoke_ok=true`" in readme
     assert "`No upgrade required`" in readme
@@ -41,9 +41,9 @@ def test_alpha_159_real_gates_are_complete_but_deferred_gates_remain_explicit():
         "No alpha.158 archive, checksum verification, install, database migration, 40-file scan, API smoke, or browser smoke has been completed",
         "alpha.158 exact-package and live migration rehearsal remain pending",
         "exact-package/live alpha.158 evidence",
-        "alpha.159 packaging and live gates have not run",
+        "alpha.160 packaging and live gates have not run",
         "package and live gates remain pending",
-        "alpha.159 exact-package/live and fresh-database migration rehearsals remain pending",
+        "alpha.160 exact-package/live and fresh-database migration rehearsals remain pending",
         "complete local gate, package/audit, exact-package install, live smoke",
     )
     for claim in stale_pending_claims:

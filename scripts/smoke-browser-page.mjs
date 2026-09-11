@@ -3,6 +3,7 @@ import { execFileSync, spawn } from 'node:child_process'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { classifyBrowserEvent } from './browser-error-classifier.mjs'
 
 const upstream = process.env.NC_URL || 'http://100.123.149.120:8088'
 const user = process.env.NC_USER || 'uwe'
@@ -39,13 +40,21 @@ function print(key, value) {
   console.log(`${key}=${value}`)
 }
 
+function rewriteUpstreamOrigin(value, proxyOrigin) {
+  return value
+    .split(upstream).join(proxyOrigin)
+    .split(upstream.replaceAll('/', '\\/')).join(proxyOrigin.replaceAll('/', '\\/'))
+}
+
 function startAuthProxy(token) {
   const auth = `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`
   const server = createServer(async (req, res) => {
     const requestUrl = new URL(req.url || '/', 'http://127.0.0.1')
     const target = new URL(`${requestUrl.pathname}${requestUrl.search}`, upstream)
     const headers = { ...req.headers, authorization: auth }
-    delete headers.host
+    headers.host = req.headers.host
+    headers['x-forwarded-host'] = req.headers.host
+    headers['x-forwarded-proto'] = 'http'
     delete headers.connection
     delete headers['accept-encoding']
 
@@ -61,21 +70,19 @@ function startAuthProxy(token) {
         })
         res.statusCode = response.status
         const responseCookies = response.headers.getSetCookie()
+        const proxyOrigin = `http://127.0.0.1:${server.address().port}`
         for (const [key, value] of response.headers) {
           const lower = key.toLowerCase()
           if (['content-encoding', 'transfer-encoding', 'connection', 'content-length'].includes(lower)) continue
           if (lower === 'set-cookie') continue
-          if (lower === 'location') {
-            const rewritten = value.startsWith(upstream)
-              ? value.replace(upstream, `http://127.0.0.1:${server.address().port}`)
-              : value
-            res.setHeader(key, rewritten)
-          } else {
-            res.setHeader(key, value)
-          }
+          res.setHeader(key, rewriteUpstreamOrigin(value, proxyOrigin))
         }
         if (responseCookies.length > 0) res.setHeader('set-cookie', responseCookies)
-        res.end(Buffer.from(await response.arrayBuffer()))
+        let body = Buffer.from(await response.arrayBuffer())
+        if (body.indexOf(Buffer.from(upstream)) >= 0 || body.indexOf(Buffer.from(upstream.replaceAll('/', '\\/'))) >= 0) {
+          body = Buffer.from(rewriteUpstreamOrigin(body.toString('utf8'), proxyOrigin))
+        }
+        res.end(body)
       } catch (error) {
         res.statusCode = 502
         res.setHeader('content-type', 'text/plain')
@@ -137,6 +144,45 @@ function cdp(wsUrl) {
   return { socket, send, events }
 }
 
+async function inspectDiscoveryRoute(client, url, kind) {
+  if (!url) {
+    return { fixturePresent: false, skipEvidence: `root catalogue exposed no ${kind} fixture URL` }
+  }
+  await client.send('Page.navigate', { url })
+  await new Promise((resolve) => setTimeout(resolve, 1500))
+  const result = await client.send('Runtime.evaluate', {
+    returnByValue: true,
+    awaitPromise: true,
+    expression: `(() => {
+      const entries = [...document.querySelectorAll('#app-navigation-vue .app-navigation-entry-link')]
+      const library = entries.find((entry) => entry.textContent.trim() === 'Library')
+      const review = entries.find((entry) => entry.textContent.trim() === 'Review')
+      const settings = document.querySelector('#app-navigation-vue .library-navigation-settings-link')
+      const shellHrefs = [library, review, settings].map((entry) => entry?.getAttribute('href') || '')
+      return {
+        fixturePresent: true,
+        url: location.href,
+        page: Boolean(document.querySelector('.library-discovery-hero')),
+        heading: document.querySelector('#library-discovery-heading')?.textContent?.trim() || '',
+        cards: document.querySelectorAll('.library-cover-card').length,
+        activeFilterLabels: [...document.querySelectorAll('.library-active-filter-chips .library-filter-chip')].map((chip) => chip.textContent.trim()),
+        backLinkHref: document.querySelector('.library-discovery-back-link')?.getAttribute('href') || '',
+        nativeShell: Boolean(document.querySelector('#content-vue') && document.querySelector('#app-navigation-vue') && document.querySelector('#app-content-vue')),
+        nativeDestinations: entries.map((entry) => entry.textContent.trim()),
+        nativeLibraryHref: library?.getAttribute('href') || '',
+        nativeReviewHref: review?.getAttribute('href') || '',
+        nativeSettingsHref: settings?.getAttribute('href') || '',
+        nativeHrefsSameOrigin: shellHrefs.every((href) => href.startsWith('/') && !href.startsWith('//')),
+        nativeLibraryActive: library?.getAttribute('aria-current') === 'page',
+        nativeReviewActive: review?.getAttribute('aria-current') === 'page',
+        nativeSidebarClosed: Boolean(document.querySelector('#app-sidebar-vue.app-sidebar[style*="display: none"]')),
+        nativeSidebarExternalToggleAbsent: !document.querySelector('[aria-controls="app-sidebar-vue"]'),
+      }
+    })()`,
+  })
+  return result.result?.value ?? result.value
+}
+
 async function runBrowserSmoke(proxyBase) {
   const userDataDir = mkdtempSync(join(tmpdir(), 'library-chrome-'))
   const chrome = spawn(chromeBin, [
@@ -176,10 +222,24 @@ async function runBrowserSmoke(proxyBase) {
         const publicationLanding = document.querySelector('.library-periodical-groups a[href*="/apps/library/publications/"]') || document.querySelector('.library-periodical-groups option[value*="/apps/library/publications/"]')
         const yearLanding = document.querySelector('.library-year-groups a[href*="/apps/library/years/"]') || document.querySelector('.library-year-groups option[value*="/apps/library/years/"]')
         const creatorLanding = document.querySelector('.library-creator-groups a[href*="/apps/library/creators/"]') || document.querySelector('.library-creator-groups option[value*="/apps/library/creators/"]')
+        const nativeNavigationEntries = [...document.querySelectorAll('#app-navigation-vue .app-navigation-entry-link')]
+        const nativeLibrary = nativeNavigationEntries.find((entry) => entry.textContent.trim() === 'Library')
+        const nativeReview = nativeNavigationEntries.find((entry) => entry.textContent.trim() === 'Review')
+        const nativeSettings = document.querySelector('#app-navigation-vue .library-navigation-settings-link')
+        const nativeShellHrefs = [nativeLibrary, nativeReview, nativeSettings].map((entry) => entry?.getAttribute('href') || '')
         return {
           title: document.title,
           fallback: Boolean(document.querySelector('[data-vue-fallback="true"]')),
           vueApp: Boolean(document.querySelector('#library-vue-root[data-v-app]')),
+          nativeShell: Boolean(document.querySelector('#content-vue') && document.querySelector('#app-navigation-vue') && document.querySelector('#app-content-vue')),
+          nativeDestinations: nativeNavigationEntries.map((entry) => entry.textContent.trim()),
+          nativeLibraryActive: nativeNavigationEntries.some((entry) => entry.textContent.trim() === 'Library' && entry.getAttribute('aria-current') === 'page'),
+          nativeLibraryHref: nativeLibrary?.getAttribute('href') || '',
+          nativeReviewHref: nativeReview?.getAttribute('href') || '',
+          nativeSettingsHref: nativeSettings?.getAttribute('href') || '',
+          nativeHrefsSameOrigin: nativeShellHrefs.every((href) => href.startsWith('/') && !href.startsWith('//')),
+          nativeSidebarClosed: Boolean(document.querySelector('#app-sidebar-vue.app-sidebar[style*="display: none"]')),
+          nativeSidebarExternalToggleAbsent: !document.querySelector('[aria-controls="app-sidebar-vue"]'),
           catalogueToolbar: Boolean(document.querySelector('.library-catalogue-workspace')),
           quickFilterBar: Boolean(document.querySelector('.library-quick-filter-bar')),
           secondaryTools: Boolean(document.querySelector('.library-catalogue-workspace')),
@@ -535,61 +595,16 @@ async function runBrowserSmoke(proxyBase) {
     const keyboardShortcutDom = keyboardShortcutResult.result?.value ?? keyboardShortcutResult.value
 
     const publicationDiscoveryUrl = dom.firstPublicationLanding ? new URL(dom.firstPublicationLanding, proxyBase).href : ''
-    if (publicationDiscoveryUrl) {
-      await client.send('Page.navigate', { url: publicationDiscoveryUrl })
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-    }
-    const publicationDiscoveryResult = await client.send('Runtime.evaluate', {
-      returnByValue: true,
-      awaitPromise: true,
-      expression: `(() => ({
-        url: location.href,
-        page: Boolean(document.querySelector('.library-discovery-hero')),
-        heading: document.querySelector('#library-discovery-heading')?.textContent?.trim() || '',
-        cards: document.querySelectorAll('.library-cover-card').length,
-        activePublication: [...document.querySelectorAll('.library-active-filter-chips .library-filter-chip')].some((chip) => chip.textContent.includes('Series / periodical')),
-        backLink: Boolean(document.querySelector('.library-discovery-hero a[href="/apps/library/"]')),
-      }))()`
-    })
-    const publicationDiscoveryDom = publicationDiscoveryResult.result?.value ?? publicationDiscoveryResult.value
+    const publicationDiscoveryDom = await inspectDiscoveryRoute(client, publicationDiscoveryUrl, 'publication')
+    publicationDiscoveryDom.activePublication = publicationDiscoveryDom.activeFilterLabels?.some((label) => label.includes('Series / periodical')) === true
 
     const yearDiscoveryUrl = dom.firstYearLanding ? new URL(dom.firstYearLanding, proxyBase).href : ''
-    if (yearDiscoveryUrl) {
-      await client.send('Page.navigate', { url: yearDiscoveryUrl })
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-    }
-    const yearDiscoveryResult = await client.send('Runtime.evaluate', {
-      returnByValue: true,
-      awaitPromise: true,
-      expression: `(() => ({
-        url: location.href,
-        page: Boolean(document.querySelector('.library-discovery-hero')),
-        heading: document.querySelector('#library-discovery-heading')?.textContent?.trim() || '',
-        cards: document.querySelectorAll('.library-cover-card').length,
-        activeYear: [...document.querySelectorAll('.library-active-filter-chips .library-filter-chip')].some((chip) => chip.textContent.includes('Publication year')),
-        backLink: Boolean(document.querySelector('.library-discovery-hero a[href="/apps/library/"]')),
-      }))()`
-    })
-    const yearDiscoveryDom = yearDiscoveryResult.result?.value ?? yearDiscoveryResult.value
+    const yearDiscoveryDom = await inspectDiscoveryRoute(client, yearDiscoveryUrl, 'year')
+    yearDiscoveryDom.activeYear = yearDiscoveryDom.activeFilterLabels?.some((label) => label.includes('Publication year')) === true
 
     const creatorDiscoveryUrl = dom.firstCreatorLanding ? new URL(dom.firstCreatorLanding, proxyBase).href : ''
-    if (creatorDiscoveryUrl) {
-      await client.send('Page.navigate', { url: creatorDiscoveryUrl })
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-    }
-    const creatorDiscoveryResult = await client.send('Runtime.evaluate', {
-      returnByValue: true,
-      awaitPromise: true,
-      expression: `(() => ({
-        url: location.href,
-        page: Boolean(document.querySelector('.library-discovery-hero')),
-        heading: document.querySelector('#library-discovery-heading')?.textContent?.trim() || '',
-        cards: document.querySelectorAll('.library-cover-card').length,
-        activeCreator: [...document.querySelectorAll('.library-active-filter-chips .library-filter-chip')].some((chip) => chip.textContent.includes('Creator')),
-        backLink: Boolean(document.querySelector('.library-discovery-hero a[href="/apps/library/"]')),
-      }))()`
-    })
-    const creatorDiscoveryDom = creatorDiscoveryResult.result?.value ?? creatorDiscoveryResult.value
+    const creatorDiscoveryDom = await inspectDiscoveryRoute(client, creatorDiscoveryUrl, 'creator')
+    creatorDiscoveryDom.activeCreator = creatorDiscoveryDom.activeFilterLabels?.some((label) => label.includes('Creator')) === true
 
     const firstDetailsUrl = new URL(dom.firstDetails, proxyBase)
     const detailUrl = `${proxyBase}${firstDetailsUrl.pathname}${firstDetailsUrl.search}`
@@ -708,6 +723,10 @@ async function runBrowserSmoke(proxyBase) {
     })
     const detailStarToggleDom = detailStarToggleResult.result?.value ?? detailStarToggleResult.value
 
+    // Keep app-page diagnostics separate from the Nextcloud settings shell.
+    // The latter can emit host-bound core/theme asset CSP noise that Library
+    // neither renders nor controls; Library-owned errors remain fatal there.
+    const libraryPageEventCount = client.events.length
     await client.send('Page.navigate', { url: `${proxyBase}/settings/user/library?browser-smoke=${Date.now()}` })
     await new Promise((resolve) => setTimeout(resolve, 2500))
     const settingsResult = await client.send('Runtime.evaluate', {
@@ -759,18 +778,24 @@ async function runBrowserSmoke(proxyBase) {
     if (!settingsDom) {
       throw new Error(`Chrome Runtime.evaluate returned no settings DOM value: ${JSON.stringify(settingsResult).slice(0, 1000)}`)
     }
-    const consoleErrors = client.events.filter((event) => {
-      const text = JSON.stringify(event)
-      const isLibraryError = text.includes('/custom_apps/library/') || text.includes('[library]') || text.includes('library-main.mjs')
-      if (!isLibraryError) return false
-      if (event.method === 'Runtime.exceptionThrown') return true
-      if (event.method === 'Log.entryAdded' && ['error', 'warning'].includes(event.params?.entry?.level)) return true
-      if (event.method === 'Runtime.consoleAPICalled' && ['error', 'warning'].includes(event.params?.type)) return true
-      return false
+    const libraryConsoleErrors = client.events.slice(0, libraryPageEventCount).filter((event) => {
+      return classifyBrowserEvent(event).fatal
     })
+    const settingsConsoleErrors = client.events.slice(libraryPageEventCount).filter((event) => {
+      return classifyBrowserEvent(event).fatal
+    })
+    const consoleErrors = [...libraryConsoleErrors, ...settingsConsoleErrors]
 
     print('browser_title', dom.title)
     print('browser_vue_app', dom.vueApp)
+    print('browser_native_shell', dom.nativeShell)
+    print('browser_native_destinations', dom.nativeDestinations.join(' | '))
+    print('browser_native_library_active', dom.nativeLibraryActive)
+    print('browser_native_library_href', dom.nativeLibraryHref)
+    print('browser_native_review_href', dom.nativeReviewHref)
+    print('browser_native_settings_href', dom.nativeSettingsHref)
+    print('browser_native_hrefs_same_origin', dom.nativeHrefsSameOrigin)
+    print('browser_native_sidebar_closed', dom.nativeSidebarClosed)
     print('browser_catalogue_toolbar', dom.catalogueToolbar)
     print('browser_quick_filter_bar', dom.quickFilterBar)
     print('browser_secondary_tools', dom.secondaryTools)
@@ -881,15 +906,30 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_publication_discovery_page', publicationDiscoveryDom?.page === true)
     print('browser_publication_discovery_cards', publicationDiscoveryDom?.cards ?? 0)
     print('browser_publication_discovery_active_filter', publicationDiscoveryDom?.activePublication === true)
-    print('browser_publication_discovery_back_link', publicationDiscoveryDom?.backLink === true)
+    print('browser_publication_discovery_back_link', publicationDiscoveryDom?.backLinkHref === publicationDiscoveryDom?.nativeLibraryHref)
+    print('browser_publication_fixture_evidence', publicationDiscoveryDom?.fixturePresent ? publicationDiscoveryDom.url : publicationDiscoveryDom?.skipEvidence)
+    print('browser_publication_native_shell', publicationDiscoveryDom?.nativeShell === true)
+    print('browser_publication_native_hrefs', `${publicationDiscoveryDom?.nativeLibraryHref || ''} | ${publicationDiscoveryDom?.nativeReviewHref || ''} | ${publicationDiscoveryDom?.nativeSettingsHref || ''}`)
+    print('browser_publication_native_active', publicationDiscoveryDom?.nativeLibraryActive === true && publicationDiscoveryDom?.nativeReviewActive === false)
+    print('browser_publication_sidebar_inert', publicationDiscoveryDom?.nativeSidebarClosed === true && publicationDiscoveryDom?.nativeSidebarExternalToggleAbsent === true)
     print('browser_year_discovery_page', yearDiscoveryDom?.page === true)
     print('browser_year_discovery_cards', yearDiscoveryDom?.cards ?? 0)
     print('browser_year_discovery_active_filter', yearDiscoveryDom?.activeYear === true)
-    print('browser_year_discovery_back_link', yearDiscoveryDom?.backLink === true)
+    print('browser_year_discovery_back_link', yearDiscoveryDom?.backLinkHref === yearDiscoveryDom?.nativeLibraryHref)
+    print('browser_year_fixture_evidence', yearDiscoveryDom?.fixturePresent ? yearDiscoveryDom.url : yearDiscoveryDom?.skipEvidence)
+    print('browser_year_native_shell', yearDiscoveryDom?.nativeShell === true)
+    print('browser_year_native_hrefs', `${yearDiscoveryDom?.nativeLibraryHref || ''} | ${yearDiscoveryDom?.nativeReviewHref || ''} | ${yearDiscoveryDom?.nativeSettingsHref || ''}`)
+    print('browser_year_native_active', yearDiscoveryDom?.nativeLibraryActive === true && yearDiscoveryDom?.nativeReviewActive === false)
+    print('browser_year_sidebar_inert', yearDiscoveryDom?.nativeSidebarClosed === true && yearDiscoveryDom?.nativeSidebarExternalToggleAbsent === true)
     print('browser_creator_discovery_page', creatorDiscoveryDom?.page === true)
     print('browser_creator_discovery_cards', creatorDiscoveryDom?.cards ?? 0)
     print('browser_creator_discovery_active_filter', creatorDiscoveryDom?.activeCreator === true)
-    print('browser_creator_discovery_back_link', creatorDiscoveryDom?.backLink === true)
+    print('browser_creator_discovery_back_link', creatorDiscoveryDom?.backLinkHref === creatorDiscoveryDom?.nativeLibraryHref)
+    print('browser_creator_fixture_evidence', creatorDiscoveryDom?.fixturePresent ? creatorDiscoveryDom.url : creatorDiscoveryDom?.skipEvidence)
+    print('browser_creator_native_shell', creatorDiscoveryDom?.nativeShell === true)
+    print('browser_creator_native_hrefs', `${creatorDiscoveryDom?.nativeLibraryHref || ''} | ${creatorDiscoveryDom?.nativeReviewHref || ''} | ${creatorDiscoveryDom?.nativeSettingsHref || ''}`)
+    print('browser_creator_native_active', creatorDiscoveryDom?.nativeLibraryActive === true && creatorDiscoveryDom?.nativeReviewActive === false)
+    print('browser_creator_sidebar_inert', creatorDiscoveryDom?.nativeSidebarClosed === true && creatorDiscoveryDom?.nativeSidebarExternalToggleAbsent === true)
     print('settings_present', settingsDom.present)
     print('settings_auth_blocked', settingsDom.authBlocked === true)
     print('settings_labelled_sections', settingsDom.labelledSections)
@@ -905,6 +945,14 @@ async function runBrowserSmoke(proxyBase) {
 
     const ok = dom.vueApp === true
       && dom.fallback === false
+      && dom.nativeShell === true
+      && JSON.stringify(dom.nativeDestinations) === JSON.stringify(['Library', 'Review'])
+      && dom.nativeLibraryActive === true
+      && dom.nativeHrefsSameOrigin === true
+      && dom.nativeReviewHref.includes('scannerConflicts=1')
+      && dom.nativeSettingsHref.includes('/settings/user/library')
+      && dom.nativeSidebarClosed === true
+      && dom.nativeSidebarExternalToggleAbsent === true
       && dom.catalogueToolbar === true
       && dom.quickFilterBar === true
       && dom.secondaryTools === true
@@ -981,15 +1029,52 @@ async function runBrowserSmoke(proxyBase) {
       && publicationDiscoveryDom?.page === true
       && publicationDiscoveryDom?.cards > 0
       && publicationDiscoveryDom?.activePublication === true
-      && publicationDiscoveryDom?.backLink === true
+      && publicationDiscoveryDom?.backLinkHref === publicationDiscoveryDom?.nativeLibraryHref
+      && publicationDiscoveryDom?.backLinkHref.startsWith('/')
+      && !publicationDiscoveryDom?.backLinkHref.startsWith('//')
+      && publicationDiscoveryDom?.nativeShell === true
+      && JSON.stringify(publicationDiscoveryDom?.nativeDestinations) === JSON.stringify(['Library', 'Review'])
+      && publicationDiscoveryDom?.nativeLibraryHref.includes('/apps/library/')
+      && publicationDiscoveryDom?.nativeReviewHref.includes('/apps/library/')
+      && publicationDiscoveryDom?.nativeReviewHref.includes('scannerConflicts=1')
+      && publicationDiscoveryDom?.nativeSettingsHref.includes('/settings/user/library')
+      && publicationDiscoveryDom?.nativeHrefsSameOrigin === true
+      && publicationDiscoveryDom?.nativeLibraryActive === true
+      && publicationDiscoveryDom?.nativeReviewActive === false
+      && publicationDiscoveryDom?.nativeSidebarClosed === true
+      && publicationDiscoveryDom?.nativeSidebarExternalToggleAbsent === true
       && yearDiscoveryDom?.page === true
       && yearDiscoveryDom?.cards > 0
       && yearDiscoveryDom?.activeYear === true
-      && yearDiscoveryDom?.backLink === true
+      && yearDiscoveryDom?.backLinkHref === yearDiscoveryDom?.nativeLibraryHref
+      && yearDiscoveryDom?.backLinkHref.startsWith('/')
+      && !yearDiscoveryDom?.backLinkHref.startsWith('//')
+      && yearDiscoveryDom?.nativeShell === true
+      && JSON.stringify(yearDiscoveryDom?.nativeDestinations) === JSON.stringify(['Library', 'Review'])
+      && yearDiscoveryDom?.nativeLibraryHref.includes('/apps/library/')
+      && yearDiscoveryDom?.nativeReviewHref.includes('scannerConflicts=1')
+      && yearDiscoveryDom?.nativeSettingsHref.includes('/settings/user/library')
+      && yearDiscoveryDom?.nativeHrefsSameOrigin === true
+      && yearDiscoveryDom?.nativeLibraryActive === true
+      && yearDiscoveryDom?.nativeReviewActive === false
+      && yearDiscoveryDom?.nativeSidebarClosed === true
+      && yearDiscoveryDom?.nativeSidebarExternalToggleAbsent === true
       && creatorDiscoveryDom?.page === true
       && creatorDiscoveryDom?.cards > 0
       && creatorDiscoveryDom?.activeCreator === true
-      && creatorDiscoveryDom?.backLink === true
+      && creatorDiscoveryDom?.backLinkHref === creatorDiscoveryDom?.nativeLibraryHref
+      && creatorDiscoveryDom?.backLinkHref.startsWith('/')
+      && !creatorDiscoveryDom?.backLinkHref.startsWith('//')
+      && creatorDiscoveryDom?.nativeShell === true
+      && JSON.stringify(creatorDiscoveryDom?.nativeDestinations) === JSON.stringify(['Library', 'Review'])
+      && creatorDiscoveryDom?.nativeLibraryHref.includes('/apps/library/')
+      && creatorDiscoveryDom?.nativeReviewHref.includes('scannerConflicts=1')
+      && creatorDiscoveryDom?.nativeSettingsHref.includes('/settings/user/library')
+      && creatorDiscoveryDom?.nativeHrefsSameOrigin === true
+      && creatorDiscoveryDom?.nativeLibraryActive === true
+      && creatorDiscoveryDom?.nativeReviewActive === false
+      && creatorDiscoveryDom?.nativeSidebarClosed === true
+      && creatorDiscoveryDom?.nativeSidebarExternalToggleAbsent === true
       && dom.badHostHrefs === 0
       && dom.catalogueLabelled === true
       && dom.unlabelledControls === 0

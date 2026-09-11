@@ -53,7 +53,7 @@ Library does **not** own:
 
 ### Library catalogue
 
-Open the **Library** app from Nextcloud navigation. The catalogue page is the normal reader-facing entry point.
+Open the **Library** app from Nextcloud navigation. The catalogue page is the normal reader-facing entry point. Alpha.160 places that existing catalogue inside the first native Nextcloud application-shell scaffold. **Library** is active, **Review** opens the existing scanner-conflict catalogue view, and **Settings** reveals a link to the existing personal-settings page. The closed sidebar is only a scaffold in this release; review, settings and detail content have not migrated into it.
 
 Current catalogue capabilities:
 

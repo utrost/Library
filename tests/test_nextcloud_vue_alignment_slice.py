@@ -42,8 +42,8 @@ def test_vue_component_css_is_built_to_nextcloud_css_asset_and_loaded():
     assert "versionedJsAssetName" in build_script
     assert "versionedCssAssetName" in build_script
     assert "copied_nextcloud_vue_assets=true" in build_script
-    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-159';" in controller
-    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-159';" in controller
+    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-160';" in controller
+    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-160';" in controller
     assert "Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);" in controller
     assert "Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);" in controller
     assert (ROOT / "css" / "library-vue.css").exists()
@@ -62,9 +62,12 @@ def test_built_vue_bundle_is_browser_safe_without_node_process_global():
     assert "process.env" not in text
 
 
-def test_catalogue_uses_plain_fail_safe_controls_until_browser_harness_covers_nextcloud_vue_components():
+def test_catalogue_uses_public_nextcloud_vue_shell_components_without_router():
     app = (ROOT / "src" / "App.vue").read_text()
-    assert "@nextcloud/vue" not in app
+    assert "from '@nextcloud/vue'" not in app
+    for component in ("NcContent", "NcAppNavigation", "NcAppContent", "NcAppSidebar"):
+        assert f"from '@nextcloud/vue/components/{component}'" in app
+    assert "vue-router" not in app
     assert "NcButton" not in app
     assert "NcEmptyContent" not in app
     assert "button type=\"submit\"" in app
@@ -77,7 +80,7 @@ def test_vue_page_stays_catalogue_first_on_mobile():
     app = (ROOT / "src" / "App.vue").read_text()
     stylesheet = (ROOT / "css" / "style.css").read_text()
 
-    wrapper_index = app.index('class="library-vue-catalogue"')
+    wrapper_index = app.index('class="library-vue-catalogue library-app"')
     panel_index = app.index('class="library-panel library-mobile-compact-chrome"')
     workspace_index = app.index('class="library-catalogue-workspace library-workspace-menubar"')
     heading_index = app.index('id="library-catalogue-heading"')

@@ -1,9 +1,18 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import NcAppContent from '@nextcloud/vue/components/NcAppContent'
+import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
+import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
+import NcAppNavigationList from '@nextcloud/vue/components/NcAppNavigationList'
+import NcAppNavigationSettings from '@nextcloud/vue/components/NcAppNavigationSettings'
+import NcAppSidebar from '@nextcloud/vue/components/NcAppSidebar'
+import NcContent from '@nextcloud/vue/components/NcContent'
 import App from './App.vue'
 
 const state = {
-  settingsUrl: '/settings/user/library',
+  catalogueRootUrl: '/nc/index.php/apps/library/',
+  reviewUrl: '/nc/index.php/apps/library/?scannerConflicts=1',
+  settingsUrl: '/nc/index.php/settings/user/library',
   requestToken: 'test-token',
   rootCount: 1,
   enabledRootCount: 1,
@@ -49,7 +58,169 @@ const state = {
   }],
 }
 
+beforeEach(() => {
+  document.body.innerHTML = '<div id="skip-actions"></div>'
+})
+
 describe('Library catalogue Vue app', () => {
+  it('wraps the unchanged catalogue in the first native application shell scaffold', () => {
+    const wrapper = mount(App, { props: { state } })
+
+    expect(wrapper.findComponent(NcContent).exists()).toBe(true)
+    expect(wrapper.findComponent(NcAppNavigation).exists()).toBe(true)
+    expect(wrapper.findComponent(NcAppNavigationList).exists()).toBe(true)
+    expect(wrapper.findComponent(NcAppContent).exists()).toBe(true)
+
+    const destinations = wrapper.findAllComponents(NcAppNavigationItem)
+    expect(destinations).toHaveLength(2)
+    expect(destinations.map((destination) => destination.props('name'))).toEqual(['Library', 'Review'])
+    expect(destinations[0].props('href')).toBe(state.catalogueRootUrl)
+    expect(destinations[0].props('active')).toBe(true)
+    expect(destinations[1].props('href')).toBe(state.reviewUrl)
+    expect(destinations[1].props('active')).toBe(false)
+
+    expect(wrapper.findComponent(NcAppNavigationSettings).exists()).toBe(false)
+    const settings = wrapper.find('.library-navigation-settings-link')
+    expect(settings.attributes('href')).toBe('/nc/index.php/settings/user/library')
+    expect(settings.text()).toContain('Settings')
+
+    const content = wrapper.findComponent(NcAppContent)
+    expect(content.find('.library-vue-catalogue').exists()).toBe(true)
+    expect(content.find('.library-catalogue-workspace').exists()).toBe(true)
+    expect(content.findAll('.library-workspace-panel')).toHaveLength(5)
+    expect(content.text()).toContain('Example Book')
+
+    const sidebar = wrapper.findComponent(NcAppSidebar)
+    expect(sidebar.exists()).toBe(true)
+    expect(sidebar.props('open')).toBe(false)
+    expect(sidebar.props('noToggle')).toBe(true)
+    expect(document.body.textContent).not.toContain('Open sidebar')
+  })
+
+  it('keeps app-internal shell destinations same-origin and correct from nested routes', () => {
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/creators/Ada%20Reader')
+    const wrapper = mount(App, { props: { state } })
+    const hrefs = [
+      ...wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('href')),
+      wrapper.find('.library-navigation-settings-link').attributes('href'),
+    ]
+
+    expect(hrefs).toEqual([
+      '/nc/index.php/apps/library/',
+      '/nc/index.php/apps/library/?scannerConflicts=1',
+      '/nc/index.php/settings/user/library',
+    ])
+    expect(hrefs.every((href) => href.startsWith('/') && !/^\/\//.test(href))).toBe(true)
+    expect(hrefs.every((href) => !/^[a-z][a-z\d+.-]*:/i.test(href))).toBe(true)
+  })
+
+  it.each([
+    ['missing', {}],
+    ['malformed', { catalogueRootUrl: '/nc/%zz', reviewUrl: '/nc/%', settingsUrl: '/nc/%zz' }],
+    ['absolute', { catalogueRootUrl: 'https://evil.invalid/apps/library/', reviewUrl: 'https://evil.invalid/review', settingsUrl: 'https://evil.invalid/settings' }],
+    ['scheme-relative', { catalogueRootUrl: '//evil.invalid/apps/library/', reviewUrl: '//evil.invalid/review', settingsUrl: '//evil.invalid/settings' }],
+    ['unsafe', { catalogueRootUrl: '/nc/index.php/apps/library/\\evil', reviewUrl: '/other/review', settingsUrl: 'javascript:alert(1)' }],
+  ])('falls back to safe webroot-aware navigation for %s initial-state URLs', (_kind, urls) => {
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/creators/Ada')
+    const wrapper = mount(App, { props: { state: { ...state, ...urls } } })
+    const destinations = wrapper.findAllComponents(NcAppNavigationItem)
+
+    expect(destinations.map((item) => item.props('href'))).toEqual([
+      '/nc/index.php/apps/library/',
+      '/nc/index.php/apps/library/?scannerConflicts=1',
+    ])
+    expect(wrapper.find('.library-navigation-settings-link').attributes('href')).toBe('/nc/index.php/settings/user/library')
+  })
+
+  it.each([
+    ['encoded backslash', '/nc/index.php/apps/library/%5cevil'],
+    ['encoded NUL', '/nc/index.php/apps/library/%00evil'],
+    ['encoded dot traversal', '/nc/index.php/apps/library/%2e%2e/settings'],
+    ['double-encoded backslash', '/nc/index.php/apps/library/%255cevil'],
+    ['double-encoded dot traversal', '/nc/index.php/apps/library/%252e%252e/settings'],
+  ])('rejects %s in initial-state navigation URLs', (_kind, unsafeUrl) => {
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/creators/Ada')
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          catalogueRootUrl: unsafeUrl,
+          reviewUrl: unsafeUrl,
+          settingsUrl: unsafeUrl,
+        },
+      },
+    })
+
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('href'))).toEqual([
+      '/nc/index.php/apps/library/',
+      '/nc/index.php/apps/library/?scannerConflicts=1',
+    ])
+    expect(wrapper.find('.library-navigation-settings-link').attributes('href')).toBe('/nc/index.php/settings/user/library')
+  })
+
+  it.each([
+    '/nc/index.php/apps/library/Ada%20Reader',
+    '/nc/index.php/apps/library/%E2%9C%93?title=Encoded%20title',
+  ])('preserves legitimate encoded navigation path %s', (encodedUrl) => {
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/creators/Ada')
+    const wrapper = mount(App, { props: { state: { ...state, catalogueRootUrl: encodedUrl } } })
+
+    expect(wrapper.findAllComponents(NcAppNavigationItem)[0].props('href')).toBe(encodedUrl)
+  })
+
+  it.each(['publication', 'year', 'creator'])('returns from the nested %s discovery page through the generated catalogue root', (discoveryPage) => {
+    window.history.replaceState({}, '', `/nc/index.php/apps/library/${discoveryPage}/nested`)
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          discoveryPage,
+          discoveryTitle: 'Nested discovery fixture',
+        },
+      },
+    })
+
+    const backLink = wrapper.find('.library-discovery-hero .button.secondary')
+    expect(backLink.text()).toBe('Back to full catalogue')
+    expect(backLink.attributes('href')).toBe(state.catalogueRootUrl)
+    expect(backLink.attributes('href')).not.toBe('/apps/library/')
+  })
+
+  it.each([
+    ['index', undefined],
+    ['publication', 'publication'],
+    ['year', 'year'],
+    ['creator', 'creator'],
+  ])('uses root destinations and review active state from the %s route', (_route, discoveryPage) => {
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          discoveryPage,
+          activeFilters: { ...state.activeFilters, scannerConflicts: '1' },
+        },
+      },
+    })
+    const destinations = wrapper.findAllComponents(NcAppNavigationItem)
+
+    expect(destinations[0].props('href')).toBe(state.catalogueRootUrl)
+    expect(destinations[0].props('active')).toBe(false)
+    expect(destinations[1].props('href')).toBe(state.reviewUrl)
+    expect(destinations[1].props('active')).toBe(true)
+  })
+
+  it('treats weak-metadata review filters as Review and ordinary filters as Library', () => {
+    const review = mount(App, {
+      props: { state: { ...state, activeFilters: { ...state.activeFilters, weakMetadata: '1' } } },
+    }).findAllComponents(NcAppNavigationItem)
+    const library = mount(App, {
+      props: { state: { ...state, activeFilters: { ...state.activeFilters, q: 'camera' } } },
+    }).findAllComponents(NcAppNavigationItem)
+
+    expect(review.map((item) => item.props('active'))).toEqual([false, true])
+    expect(library.map((item) => item.props('active'))).toEqual([true, false])
+  })
+
   it('frames catalogue tools as one consistent expandable workspace above the covers', () => {
     const wrapper = mount(App, {
       props: {

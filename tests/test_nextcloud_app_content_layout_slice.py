@@ -3,13 +3,29 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_main_template_uses_nextcloud_app_content_wrapper():
+def test_main_template_leaves_the_application_shell_to_nextcloud_vue():
     template = (ROOT / "templates" / "main.php").read_text()
 
-    assert '<div id="app-content" class="library-app-content">' in template
+    assert '<div id="app-content" class="library-app-content">' not in template
+    assert '<div id="library-vue-root"' in template
     assert '<main id="library-app" class="library-app"' in template
-    assert template.index('id="app-content"') < template.index('id="library-app"')
-    assert template.rstrip().endswith('</main>\n</div>')
+    assert template.index('id="library-vue-root"') < template.index('<noscript>')
+
+
+def test_vue_catalogue_uses_the_public_nextcloud_application_shell_components():
+    component = (ROOT / "src" / "App.vue").read_text()
+
+    for name in (
+        "NcContent",
+        "NcAppNavigation",
+        "NcAppNavigationList",
+        "NcAppNavigationItem",
+        "NcAppContent",
+        "NcAppSidebar",
+    ):
+        assert name in component
+    assert '<NcAppSidebar :open="false" no-toggle' in component
+    assert 'class="library-navigation-settings-link" :href="settingsUrl"' in component
 
 
 def test_css_leaves_nextcloud_content_shell_clipped_and_scrolls_app_content():
