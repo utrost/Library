@@ -6,7 +6,7 @@ This snapshot prepares Library for the v0.1 alpha test pass. It documents what i
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current app version: `0.1.0-alpha.150`.
+- Current app version: `0.1.0-alpha.151`.
 - Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
@@ -20,7 +20,7 @@ Implemented and ready for v0.1 testing:
 - EPUB, PDF, CBZ and OPF indexing with extractor failure isolation and missing-file diagnostics.
 - General editable publication metadata: title, subtitle, creators, publication/series, date, language, publisher, description, workflow status, genres and classifications.
 - Scanner provenance/candidates, differs-from-scanner labels, correction counts, single-field reset, whole-item reset, conflict review filter and batch scanner-candidate reset.
-- Compact cover-first catalogue with database-backed search, filters, facets, sort modes and pagination, active filter chips, built-in Useful views for daily/cleanup smart collections with count badges, a weak-metadata cockpit for sparse/suspicious catalogue rows, and in-app Custom collections for user-defined saved filters. Useful-view and saved-collection badges now use a count-only path that does not fetch catalogue rows or facets for normal filters.
+- Compact cover-first catalogue with database-backed search, filters, facets, sort modes and pagination, active filter chips, built-in Useful views for daily/cleanup smart collections with count badges, a weak-metadata cockpit for sparse/suspicious catalogue rows, and in-app Custom collections for user-defined saved filters. Useful-view and saved-collection badges use a count-only path that does not fetch catalogue rows or facets for normal filters. Ordinary catalogue/AJAX item DTOs omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs, and their SQL path avoids selecting cover override data; tags, descriptions, diagnostics and visible card actions remain. Scanner-conflict and weak-metadata review views intentionally retain rich provenance, while detail, cover, export and import paths remain full.
 - Dedicated publication/series, publication-year and creator discovery pages around the compact catalogue grid, with publication pages showing a compact **Publication contents** issue/date coverage summary.
 - Read, Show in Files and Download source actions.
 - Detail workbench for publication metadata, Nextcloud tags/comments, cover refresh, scanner provenance and file diagnostics.
@@ -52,7 +52,7 @@ These are acceptable for the v0.1 alpha test pass but should stay visible:
 7. **Shared libraries:** users manage personal roots; admin-managed shared/global roots are not implemented.
 8. **Readers and content services:** Library delegates reading to Nextcloud and does not provide page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
 9. **Real-collection evidence:** generated scale and selected live smokes are strong for a v0.1 candidate, but Uwe's manual test pass should still use real mixed files to find weak metadata/cover cases.
-10. **Catalogue scale follow-ups:** list responses still carry fields that can be trimmed, catalogue query indexes still need workload-led review, and unchanged rescans still need a cheaper fast path. Runtime PHP database tests are still pending, including saved collections whose persisted filter contains a raw Nextcloud tag. Scanner-conflict counts intentionally retain PHP row inspection for contract correctness; moving that predicate fully into SQL remains pending.
+10. **Catalogue scale follow-ups:** creator landing URLs are still duplicated per item, descriptions still ship eagerly instead of through lazy detail loading, catalogue query indexes still need workload-led review, and unchanged rescans still need a cheaper fast path. The saved raw-tag filter bug remains pending. Scanner-conflict counts intentionally retain PHP row inspection for contract correctness; moving that predicate fully into SQL remains pending.
 
 ## Verification evidence
 
@@ -62,7 +62,7 @@ Most recent release-hardening target evidence should include:
 - Full Python contract suite.
 - Frontend Vitest suite and Vite production build.
 - Markdown link check and `git diff --check`.
-- Generated `dist/library-0.1.0-alpha.150.tar.gz` plus SHA-256 verification.
+- Generated `dist/library-0.1.0-alpha.151.tar.gz` plus SHA-256 verification.
 - Generated archive install into the live `nextcloud` container, then PHP lint, `occ app:enable library`, `occ upgrade`, router listing and live Vue/browser smokes.
 
 Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, genres/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year/creator discovery pages.

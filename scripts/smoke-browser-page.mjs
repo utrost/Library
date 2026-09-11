@@ -337,8 +337,8 @@ async function runBrowserSmoke(proxyBase) {
       apply: previewHtml.includes('Apply changes to current results') && previewHtml.includes('/apps/library/bulk/items/edit-apply'),
     }
 
-    const originalSubtitle = applyItem?.subtitle || ''
-    const smokeSubtitle = `Hermes batch apply smoke ${Date.now()}`
+    const originalPublication = applyItem?.publication || ''
+    const smokePublication = `Hermes batch apply smoke ${Date.now()}`
     let batchWriteDom = null
     let applySmoke = { ok: false, restored: false }
     if (applyItem) {
@@ -347,65 +347,104 @@ async function runBrowserSmoke(proxyBase) {
         awaitPromise: true,
         expression: `(async () => {
           const catalogueRequestToken = document.querySelector('form[method="post"] input[name="requesttoken"]')?.value || ''
-          const uniqueTitle = ${JSON.stringify(applyItem.title)}
           const itemId = ${JSON.stringify(applyItem.id)}
-          const originalSubtitle = ${JSON.stringify(originalSubtitle)}
-          const smokeSubtitle = ${JSON.stringify(smokeSubtitle)}
-          const params = {
+          const originalPublication = ${JSON.stringify(originalPublication)}
+          const smokePublication = ${JSON.stringify(smokePublication)}
+          const applyParams = new URLSearchParams({
             requesttoken: catalogueRequestToken,
-            bulkEditField: 'subtitle',
-            bulkEditValue: smokeSubtitle,
+            bulkEditField: 'publication',
+            bulkEditValue: smokePublication,
             confirmBatchMetadataApply: 'APPLY',
-            q: uniqueTitle,
-            sort: 'title',
-            limit: '25',
-          }
+          })
+          applyParams.append('itemIds[]', String(itemId))
           const requestOptions = {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           }
-          const applyResponse = await fetch('/apps/library/bulk/items/edit-apply', {
-            ...requestOptions,
-            body: new URLSearchParams(params),
+          const restoreParams = new URLSearchParams({
+            requesttoken: catalogueRequestToken,
+            bulkEditField: 'publication',
+            bulkEditValue: originalPublication,
+            confirmBatchMetadataApply: 'APPLY',
           })
-          const changedResponse = await fetch('/apps/library/catalogue?' + new URLSearchParams({ q: uniqueTitle, limit: '25' }), {
-            credentials: 'same-origin',
-            headers: { Accept: 'application/json' },
-          })
-          const changedState = await changedResponse.json()
-          const changedItem = (changedState.items || []).find((item) => item.id === itemId)
-          const applySucceeded = applyResponse.ok
-          const changed = applySucceeded && changedResponse.ok && changedItem?.subtitle === smokeSubtitle
-          const restoreResponse = await fetch('/apps/library/bulk/items/edit-apply', {
-            ...requestOptions,
-            body: new URLSearchParams({ ...params, bulkEditValue: originalSubtitle }),
-          })
-          const restoredResponse = await fetch('/apps/library/catalogue?' + new URLSearchParams({ q: uniqueTitle, limit: '25' }), {
-            credentials: 'same-origin',
-            headers: { Accept: 'application/json' },
-          })
-          const restoredState = await restoredResponse.json()
-          const restoredItem = (restoredState.items || []).find((item) => item.id === itemId)
+          restoreParams.append('itemIds[]', String(itemId))
+          let applyStatus = 0
+          let restoreStatus = 0
+          let applySucceeded = false
+          let restoreAttempted = false
+          let restoreSucceeded = false
+          let changed = false
+          let restored = false
+          let restoredCatalogueValue = null
+          let mutationError = ''
+          let restoreError = ''
+          try {
+            const applyResponse = await fetch('/apps/library/bulk/items/edit-apply', {
+              ...requestOptions,
+              body: applyParams,
+            })
+            applyStatus = applyResponse.status
+            applySucceeded = applyResponse.ok
+            const changedResponse = await fetch('/apps/library/catalogue?' + new URLSearchParams({ sort: 'title', limit: '100' }), {
+              credentials: 'same-origin',
+              headers: { Accept: 'application/json' },
+            })
+            const changedState = await changedResponse.json()
+            const changedItem = (changedState.items || []).find((item) => item.id === itemId)
+            changed = applySucceeded && changedResponse.ok && changedItem?.publication === smokePublication
+          } catch (error) {
+            mutationError = String(error)
+          } finally {
+            if (applySucceeded) {
+              restoreAttempted = true
+              try {
+                const restoreResponse = await fetch('/apps/library/bulk/items/edit-apply', {
+                  ...requestOptions,
+                  body: restoreParams,
+                })
+                restoreStatus = restoreResponse.status
+                restoreSucceeded = restoreResponse.ok
+                const restoredResponse = await fetch('/apps/library/catalogue?' + new URLSearchParams({ sort: 'title', limit: '100' }), {
+                  credentials: 'same-origin',
+                  headers: { Accept: 'application/json' },
+                })
+                const restoredState = await restoredResponse.json()
+                const restoredItem = (restoredState.items || []).find((item) => item.id === itemId)
+                restoredCatalogueValue = restoredItem?.publication || ''
+                restored = restoreSucceeded && restoredResponse.ok && (restoredItem?.publication || '') === originalPublication
+              } catch (error) {
+                restoreError = String(error)
+              }
+            }
+          }
           return {
-            applyStatus: applyResponse.status,
-            restoreStatus: restoreResponse.status,
-            applySucceeded: applyResponse.ok,
-            restoreSucceeded: restoreResponse.ok,
+            applyStatus,
+            restoreStatus,
+            applySucceeded,
+            restoreAttempted: restoreAttempted,
+            restoreSucceeded,
             changed,
-            restored: applySucceeded && changed && restoreResponse.ok && restoredResponse.ok && (restoredItem?.subtitle || '') === originalSubtitle,
+            restored,
+            restoredCatalogueValue,
+            mutationError,
+            restoreError,
           }
         })()`,
       })
       batchWriteDom = batchWriteResult.result?.value ?? batchWriteResult.value
       applySmoke = {
         ok: batchWriteDom?.applySucceeded === true
-          && batchWriteDom?.restoreSucceeded === true
-          && batchWriteDom?.changed === true,
-        restored: batchWriteDom?.applySucceeded === true
+          && batchWriteDom?.restoreAttempted === true
           && batchWriteDom?.restoreSucceeded === true
           && batchWriteDom?.changed === true
-          && batchWriteDom?.restored === true,
+          && batchWriteDom?.restoredCatalogueValue === originalPublication,
+        restored: batchWriteDom?.applySucceeded === true
+          && batchWriteDom?.restoreAttempted === true
+          && batchWriteDom?.restoreSucceeded === true
+          && batchWriteDom?.changed === true
+          && batchWriteDom?.restored === true
+          && batchWriteDom?.restoredCatalogueValue === originalPublication,
       }
     }
 

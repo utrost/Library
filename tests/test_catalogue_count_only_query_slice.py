@@ -64,7 +64,7 @@ def test_count_only_scanner_conflicts_retain_visible_catalogue_conflict_semantic
     assert "countScannerConflictCatalogueItems($userId, $filters)" in count_path
     for contract in [
         "unset($filtersWithoutConflict['scannerConflicts'])",
-        "catalogueQueryBuilder($userId, $filtersWithoutConflict)",
+        "catalogueQueryBuilder($userId, $filtersWithoutConflict, true)",
         "normalizeJoinedItemRow($row)",
         "itemHasScannerConflict($item)",
     ]:

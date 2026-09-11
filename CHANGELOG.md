@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.151 - 2026-09-10
+
+- Ordinary catalogue and AJAX item DTOs now omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs; tags, descriptions, diagnostics and visible card actions remain available.
+- Normal catalogue SQL no longer selects cover override data.
+- Scanner-conflict and weak-metadata review views intentionally retain the rich provenance required for review, while detail, cover, export and import paths remain full-fidelity.
+- Creator landing URL duplication, description/lazy detail loading, workload-led indexes, unchanged-rescan short-circuiting, the saved raw-tag bug and SQL-native scanner-conflict counting remain pending.
+
 ## v0.1.0-alpha.150 - 2026-09-10
 
 - Useful-view and saved-collection count badges now use a count-only catalogue path instead of fetching paginated item rows and catalogue facets.

@@ -19,11 +19,15 @@ def test_file_comment_service_reads_recent_comments_for_file_ids():
     assert "getCreationDateTime()" in service
 
 
-def test_page_controller_passes_nextcloud_comments_to_template():
+def test_catalogue_payload_omits_comments_while_detail_comments_remain_available():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    assert "FileCommentService $fileCommentService" in page
-    assert "commentsForItems($items)" in page
-    assert "fileCommentsByFileId" in page
+    detail = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
+    assert "use OCA\\Library\\Service\\FileCommentService;" not in page
+    assert "FileCommentService $fileCommentService" not in page
+    assert "commentsForItems($items)" not in page
+    assert "fileCommentsByFileId" not in page
+    assert "commentsForItems([$item])" in detail
+    assert "nextcloudComments" in detail
 
 
 def test_detail_template_renders_nextcloud_comments_as_discussion_not_metadata():

@@ -203,7 +203,12 @@ final class ItemController extends Controller {
         $result = ['requestedItems' => 0, 'appliedItems' => 0, 'unchangedItems' => 0, 'skippedItems' => 0];
         if ($user !== null && (string)$this->request->getParam('confirmBatchMetadataApply', '') === 'APPLY') {
             try {
-                $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+                $itemIdsParamPresent = array_key_exists('itemIds', $this->request->getParams());
+                $requestedItemIds = $this->request->getParam('itemIds', null);
+                $explicitItemIds = $this->parseExplicitItemIds($requestedItemIds);
+                $itemIds = $itemIdsParamPresent
+                    ? $explicitItemIds
+                    : $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
                 $result = $this->itemService->applyBatchMetadataEdit($user->getUID(), $itemIds,
                     (string)$this->request->getParam('bulkEditField', ''),
                     (string)$this->request->getParam('bulkEditValue', ''),
@@ -221,6 +226,38 @@ final class ItemController extends Controller {
         $query['batchMetadataSkipped'] = (string)($result['skippedItems'] ?? 0);
         $query['batchMetadataField'] = (string)($result['field'] ?? (string)$this->request->getParam('bulkEditField', ''));
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
+    }
+
+    private function parseExplicitItemIds(mixed $value): array {
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $ids = [];
+        $seen = [];
+        $maximum = (string)PHP_INT_MAX;
+        foreach ($value as $candidate) {
+            if (is_int($candidate)) {
+                if ($candidate <= 0) {
+                    return [];
+                }
+                $id = $candidate;
+            } elseif (is_string($candidate) && preg_match('/^[1-9][0-9]*$/D', $candidate) === 1) {
+                if (strlen($candidate) > strlen($maximum)
+                    || (strlen($candidate) === strlen($maximum) && strcmp($candidate, $maximum) > 0)) {
+                    return [];
+                }
+                $id = (int)$candidate;
+            } else {
+                return [];
+            }
+
+            if (!isset($seen[$id])) {
+                $seen[$id] = true;
+                $ids[] = $id;
+            }
+        }
+        return $ids;
     }
 
     private function catalogueFiltersFromRequest(): array {

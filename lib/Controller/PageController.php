@@ -6,7 +6,6 @@ namespace OCA\Library\Controller;
 
 use OCA\Library\AppInfo\Application;
 use OCA\Library\Reader\DefaultNextcloudFileProvider;
-use OCA\Library\Service\FileCommentService;
 use OCA\Library\Service\FileIndexService;
 use OCA\Library\Service\FileTagService;
 use OCA\Library\Service\ItemService;
@@ -26,10 +25,25 @@ use OCP\IUserSession;
 use OCP\Util;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-150';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-150';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-151';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-151';
 
     private const READER_FIXTURE_FILE_ID = 82;
+
+    private const CATALOGUE_ITEM_KEYS = [
+        'id', 'title', 'creators', 'publicationType', 'publication',
+        'publicationDate', 'description', 'starred', 'workflowStatus',
+        'lastOpenedAt', 'extension', 'shelf', 'scanStatus', 'scanError',
+        'hasScannerConflict', 'scannerConflictCount', 'nextcloudTags',
+        'coverUrl', 'starUrl', 'openUrl', 'filesUrl', 'downloadUrl',
+        'detailsUrl',
+    ];
+
+    private const SCANNER_CONFLICT_ITEM_EXTRA_KEYS = [
+        'cachedPath', 'subtitle', 'language', 'publisher', 'genres',
+        'classifications', 'metadataSource', 'fieldSources', 'fieldValues',
+        'resetFieldUrl',
+    ];
 
     public function __construct(
         string $appName,
@@ -38,7 +52,6 @@ class PageController extends Controller {
         private RootService $rootService,
         private FileIndexService $fileIndexService,
         private FileTagService $fileTagService,
-        private FileCommentService $fileCommentService,
         private ItemService $itemService,
         private SavedCollectionService $savedCollectionService,
         private LibraryHealthService $libraryHealthService,
@@ -194,8 +207,15 @@ class PageController extends Controller {
         $pagination['nextUrl'] = $pagination['to'] < $pagination['total'] ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] + 1) : '';
 
         $fileTagsByFileId = $this->fileTagService->tagsForItems($items);
-        $fileCommentsByFileId = $this->fileCommentService->commentsForItems($items);
-        $items = $this->enrichItemsForVue($userId, $items, $fileTagsByFileId, $fileCommentsByFileId, $batchCoverRefreshRequested);
+        $metadataReviewProjection = ($activeFilters['scannerConflicts'] ?? '') === '1'
+            || trim((string)($activeFilters['weakMetadata'] ?? '')) !== '';
+        $items = $this->enrichItemsForVue(
+            $userId,
+            $items,
+            $fileTagsByFileId,
+            $metadataReviewProjection,
+            $batchCoverRefreshRequested,
+        );
 
         return [
             'publicationIssueContext' => null,
@@ -276,32 +296,33 @@ class PageController extends Controller {
     /**
      * @param array<int, array<string, mixed>> $items
      * @param array<int, array<int, array{id:int,name:string}>> $fileTagsByFileId
-     * @param array<int, array{count:int,recent:array<int, array<string, string>>}> $fileCommentsByFileId
      * @return array<int, array<string, mixed>>
      */
-    private function enrichItemsForVue(string $userId, array $items, array $fileTagsByFileId, array $fileCommentsByFileId, bool $batchCoverRefreshRequested = false): array {
-        return array_map(function (array $item) use ($fileTagsByFileId, $fileCommentsByFileId, $userId, $batchCoverRefreshRequested): array {
+    private function enrichItemsForVue(string $userId, array $items, array $fileTagsByFileId, bool $scannerConflictProjection, bool $batchCoverRefreshRequested = false): array {
+        return array_map(function (array $item) use ($fileTagsByFileId, $userId, $scannerConflictProjection, $batchCoverRefreshRequested): array {
             $itemId = (string)$item['id'];
             $fileId = (int)$item['fileId'];
-            $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $itemId]);
             $item['starUrl'] = $this->urlGenerator->linkToRoute('library.item.star', ['itemId' => $itemId]);
-            $item['workflowStatusUrl'] = $this->urlGenerator->linkToRoute('library.item.workflowStatus', ['itemId' => $itemId]);
             $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', [
                 'itemId' => $itemId,
                 'refresh' => $batchCoverRefreshRequested ? '1' : null,
             ]);
-            $item['tagUrl'] = $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => $itemId]);
-            $item['tagRemoveBaseUrl'] = $this->urlGenerator->linkToRoute('library.tag.remove', ['itemId' => $itemId, 'tagId' => '__TAG_ID__']);
-            $item['commentUrl'] = $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => $itemId]);
             $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]);
             $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $itemId]);
             $item['resetFieldUrl'] = $this->urlGenerator->linkToRoute('library.item.resetfield', ['itemId' => $itemId]);
             $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
             $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($userId, (string)($item['cachedPath'] ?? ''));
             $item['nextcloudTags'] = $fileTagsByFileId[$fileId] ?? [];
-            $item['nextcloudComments'] = $fileCommentsByFileId[$fileId] ?? ['count' => 0, 'recent' => []];
-            return $item;
+            return $this->projectCatalogueItem($item, $scannerConflictProjection);
         }, $items);
+    }
+
+    private function projectCatalogueItem(array $item, bool $scannerConflictProjection): array {
+        $keys = self::CATALOGUE_ITEM_KEYS;
+        if ($scannerConflictProjection) {
+            $keys = [...$keys, ...self::SCANNER_CONFLICT_ITEM_EXTRA_KEYS];
+        }
+        return array_intersect_key($item, array_flip($keys));
     }
 
     /**
