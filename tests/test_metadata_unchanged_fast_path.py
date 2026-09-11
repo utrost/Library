@@ -127,8 +127,9 @@ def test_force_repairs_bypass_fast_path_and_suppressed_opf_cleanup_stays_separat
     text = (ROOT / "lib" / "Service" / "LibraryScanner.php").read_text()
     retry = text.split("function retryMetadataErrors", 1)[1].split("public function recheckMissingFiles", 1)[0]
     recheck = text.split("function recheckMissingFiles", 1)[1].split("private function filterRootsForScope", 1)[0]
-    assert re.search(r"scanFile\([^;]+true\)", retry, re.S)
-    assert re.search(r"scanFile\([^;]+true\)", recheck, re.S)
+    repair_call = r"scanFile\([^;]+true,\s*\(int\)\$file\['rootId'\]\)"
+    assert re.search(repair_call, retry, re.S)
+    assert re.search(repair_call, recheck, re.S)
     cleanup = text.split("function cleanupSuppressedOpfSidecar", 1)[1]
     assert "shouldSkip" not in cleanup
 

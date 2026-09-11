@@ -1,7 +1,7 @@
 # Human Architecture Review Notes
 
 Audience: Nextcloud administrators, architecture reviewers and security reviewers  
-Status: current implementation reference for Library `0.1.0-alpha.158`
+Status: current implementation reference for Library `0.1.0-alpha.159`
 
 Alpha.158 retires remote manual-cover URLs from browser rendering. Details and catalogue cards use the same-origin `library.cover.show` route; legacy `cover_override_url` database values are retained for compatibility but are inert and are cleared by a valid upload or revert. Remote cover SSRF was not present because Library performed no server-side fetch of that value. This slice removes direct browser leakage and intentionally does not introduce server fetching. It does not harden archive extraction, add cover caching, or establish broad privacy completion.
 
@@ -38,7 +38,7 @@ Source: `appinfo/info.xml`.
 - App id: `library`
 - Display name: `Library`
 - Namespace: `Library` / PHP namespace `OCA\Library`
-- Current version: `0.1.0-alpha.158`
+- Current version: `0.1.0-alpha.159`
 - Licence declaration: `agpl` in `info.xml`; repository license is `AGPL-3.0-or-later`.
 - Categories: `files`, `multimedia`
 - Nextcloud compatibility: `min-version="34"`, `max-version="34"`
@@ -107,6 +107,8 @@ All schema changes are app-owned and use the `library_` prefix. Library does not
 ### `library_roots`
 
 Purpose: per-user catalogue roots. These are pointers to existing folders/files in Nextcloud Files; deleting a Library root removes only Library's root/index metadata, not source files.
+
+Repair resolves stable file IDs only through the current user's folder. After reading node metadata and immediately before each repair upsert, it makes one authoritative observation of the node's current path and the user's currently enabled roots. The resulting path/root pair is passed directly to the write; paths outside the observed enabled scope fail closed, and overlaps preserve the existing enabled root when possible. Nextcloud file/root state and Library's index write do not share a transaction, so a path or root change after that observation remains outside this physical boundary.
 
 Columns:
 

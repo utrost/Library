@@ -45,11 +45,13 @@ Not in scope for v0.1:
 
 ## Try it
 
-Current source candidate: `0.1.0-alpha.158`.
+Current source candidate: `0.1.0-alpha.159`.
+
+Alpha.159 fixes repair-scan root containment: missing-file recheck and metadata-error retry only restore a resolved stable-ID file when its current path is inside an enabled root owned by that user. The full local gate passed 727 Python tests, 9 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. The unsigned alpha package was built and audited, and exact-package smoke verified checksum, install/enable, PHP, routes, scanner, Vue/API/browser and privacy behavior with `release_package_smoke_ok=true`, zero browser console errors, zero cross-origin cover requests and second-user isolation. Verify the exact archive checksum with its adjacent `.sha256` artifact; the repository's excluded `RELEASE.md` records the accepted package checksum and evidence.
 
 Alpha.158 verification passed: the local gate completed 726 Python tests, 8 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. The unsigned alpha package audit passed with 118 archive entries and produced the archive plus checksum. Exact-package smoke verified the checksum, installed and enabled alpha.158, passed PHP lint and route listing, and scanned the same 40-file root twice with `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0` on both scans. Live Vue/API and browser smokes passed with zero browser console errors and mutation restoration. The cover-privacy browser gate seeded and restored a legacy tracker-style value, captured catalogue/detail requests with zero non-Nextcloud cover requests, proved upload/render/revert, and proved deterministic temporary-second-user isolation with cleanup. The package gate ended with `release_package_smoke_ok=true`.
 
-The upgrade command reported `No upgrade required`; therefore a fresh database migration rehearsal remains pending.
+The alpha.159 upgrade command reported `No upgrade required`; therefore a fresh-database migration rehearsal remains pending. Realistic scale data gates, a signed package and App Store submission, and formal Trust-and-scale phase closure also remain deferred.
 
 Alpha.154 adds aggregate operation instrumentation and bounded scan progress/cancellation polling. Metrics are in-memory or aggregate scan-job fields and privacy-safe Library log events; there is no external telemetry and no claim of universal speedup. Cancellation is checked initially and after 100 traversal units or 1000 ms, including unsupported nodes and nested/empty folders. A single filesystem listing/node call or extraction/storage operation remains non-preemptive. Queue wait and running/cancelled wall durations use portable epoch-second storage and are second-resolution approximations; completed/failed worker duration remains monotonic integer milliseconds.
 

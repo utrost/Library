@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.159 - 2026-09-11
+
+- Prevented metadata-error retry and missing-file recheck from restoring a stable-ID file after it moves outside every enabled root owned by the current user.
+- Repair reads node metadata, then makes one authoritative observation of the current path and the user's currently enabled roots immediately before upsert. That observation preserves the original root for overlaps, reassigns legitimate stable-ID moves between enabled roots, and fails closed when the observed path is outside the enabled repair scope.
+- Added focused PHP scanner coverage with explicit metadata-read side effects for path movement and root disablement before the final authorization observation, plus static `/Books` versus `/Bookshelf`, overlap, cross-root, and per-user lookup cases. The observation and index upsert cannot be atomic across Nextcloud file/root storage and Library's database write; a storage change after that observation remains outside this physical boundary. The full local gate, unsigned package build/audit, and exact-package live smoke completed successfully; fresh-database migration, realistic scale, signing/App Store submission, and formal Trust-and-scale closure remain pending or deferred.
+
 ## v0.1.0-alpha.158 - 2026-09-11
 
 - Removed the remote cover URL control and made validated JPEG, PNG, or WebP uploads the only manual cover override.

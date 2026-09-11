@@ -6,7 +6,7 @@ This snapshot prepares Library for the v0.1 alpha test pass. It documents what i
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current app version: `0.1.0-alpha.158`.
+- Current app version: `0.1.0-alpha.159`.
 - Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
@@ -77,7 +77,9 @@ The historical alpha.153 release-hardening evidence set also includes:
 - Generated `dist/library-0.1.0-alpha.153.tar.gz` plus SHA-256 verification.
 - Generated alpha.153 archive install into the live `nextcloud` container, then PHP lint, `occ app:enable library`, `occ upgrade`, router listing and live Vue/browser smokes.
 
-Alpha.158 verification is complete for the local gate (726 Python tests, 8 PHP runtime programs, 26 Vitest tests, production build and Markdown links), unsigned 118-entry package audit/archive/checksum, exact-package checksum and install/enable, PHP lint, route listing, live Vue/API smoke, and browser smoke with zero console errors and mutation-restoration markers. Its focused privacy browser gate restored its legacy tracker-style seed and temporary users/tokens after observing zero non-Nextcloud cover requests and proving upload/render/revert plus second-user isolation. Its 40-file unchanged-root smoke ran twice with `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0` both times. The upgrade reported `No upgrade required`, so this was not a fresh database migration rehearsal and that rehearsal remains pending.
+Alpha.159 verification is complete for the local gate (727 Python tests, 9 PHP runtime programs, 26 Vitest tests, production build and Markdown links), unsigned 120-entry package build/audit, and exact-package checksum/install/enable, PHP, routes, scanner, live Vue/API, browser and privacy smoke. The package smoke ended with `release_package_smoke_ok=true`; browser console errors and cross-origin cover requests were zero, and deterministic second-user isolation passed. The exact `dist/library-0.1.0-alpha.159.tar.gz` SHA-256 is `4287ec3f7a798ba6e6000900ca69aee1540b163146f53262a05e49095718c5d7`. The upgrade reported `No upgrade required`, so this was not a fresh-database migration rehearsal and that rehearsal remains pending. Realistic scale data gates, a signed package and App Store submission, and formal Trust-and-scale phase closure also remain deferred.
+
+Historical alpha.158 verification completed its local, unsigned package, exact-package and live gates, including the privacy and 40-file unchanged-root evidence recorded in the release documents.
 
 Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, genres/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year/creator discovery pages.
 

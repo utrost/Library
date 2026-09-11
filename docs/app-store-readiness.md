@@ -2,11 +2,11 @@
 
 Status: active release-readiness roadmap  
 Target: signed Nextcloud App Store release for Nextcloud 34  
-Current candidate baseline: `0.1.0-alpha.158`
+Current candidate baseline: `0.1.0-alpha.159`
 
-Library alpha.158 was packaged and smoke-tested on a Nextcloud 34 instance. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
+Library alpha.159 passed its full local gate, unsigned package build/audit, and exact-package smoke on a Nextcloud 34 instance. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
 
-The current candidate includes aggregate scan-job counters/duration, privacy-safe operation logs, throttled progress/cancellation checks through `Version000100Date20260911140000`, and frontend request-race hardening for catalogue filtering, metadata autosave, and star mutations. This is not external telemetry or proof of universal speedup. Exact-package alpha.158 install and live smoke evidence is complete. Because `occ upgrade` reported `No upgrade required`, a fresh database migration rehearsal remains pending.
+The current candidate includes aggregate scan-job counters/duration, privacy-safe operation logs, throttled progress/cancellation checks through `Version000100Date20260911140000`, frontend request-race hardening, and repair root-containment enforcement. This is not external telemetry or proof of universal speedup. Alpha.159 exact-package/live evidence is complete; fresh-database migration rehearsal, realistic scale data gates, the signed package/App Store submission, and formal Trust-and-scale phase closure remain deferred.
 
 ## Definition of ready
 
@@ -77,7 +77,7 @@ Work:
 3. Require `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` only at signing time; keep keys outside the repository and outside the archive.
 4. Document the Nextcloud certificate request step and the public repository URL required by the certificate request.
 5. Add package audit checks that fail if a stable App Store package lacks `appinfo/signature.json`, while allowing unsigned alpha rehearsal packages.
-6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and sign the exact release archive with `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.158.tar.gz | openssl base64`.
+6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and sign the exact release archive with `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.159.tar.gz | openssl base64`.
 
 Guideline notes: App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`; the archive top folder must match the app id `library`; `info.xml` should use the current SPDX license identifier and include the public repository URL.
 
@@ -89,7 +89,7 @@ Acceptance checks:
 
 ### AS-004 — App Store release rehearsal
 
-Status: exact-package alpha.158 rehearsal complete; fresh database migration, clean-checkout CI, and signed stable rehearsals remain pending.
+Status: alpha.159 exact-package and live rehearsal complete; fresh database migration, realistic scale data, clean-checkout CI, signed stable package/App Store submission, and formal Trust-and-scale phase closure remain pending or deferred.
 
 Goal: prove every step before the real stable upload.
 
@@ -110,6 +110,8 @@ Acceptance checks:
 Alpha.153 rehearsal evidence: the exact archive checksum passed and the package was installed and enabled over alpha.152 after a rollback dump was created. Database row counts stayed at 7,120 items and 7,120 files across migration; registry and physical-schema inspection confirmed migration `000100Date20260911130000` and two nullable `varchar(64)` marker columns. Source, archive and installed SHA-256 values matched for the fast-path helpers, metadata service, file/item/scanner services, migration and app XML metadata. The privacy-safe 40-file two-scan smoke indexed all files with zero missing/errors, rewrote 40 item rows and established 40 markers on warm-up, then rewrote zero item rows and retained all markers on the unchanged scan; row counts stayed at 40, and `source_observation_changes=0` confirmed equal before/after path/ETag/mtime/size/MIME observations. Vue, API and browser smokes passed with zero console errors.
 
 Alpha.158 rehearsal evidence: the local gate passed 726 Python tests, 8 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. Packaging passed audit as an unsigned alpha, staged 118 entries, and created the archive/checksum. Exact-package smoke passed checksum verification, alpha.158 install/enable, PHP lint and route listing. Both runs over the unchanged 40-file root reported `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0`. Live Vue/API and browser smokes passed. The focused cover gate observed zero non-Nextcloud cover requests with a restored legacy tracker-style seed, proved upload/render/revert and deterministic temporary-second-user isolation, and completed cleanup. The upgrade reported `No upgrade required`, so this is not a fresh database migration rehearsal.
+
+Alpha.159 rehearsal evidence: the local gate passed 727 Python tests, 9 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. The unsigned package was built and audited with 120 archive entries. Exact-package smoke verified checksum, install/enable, PHP, routes, scanner, Vue/API/browser and privacy behavior and ended with `release_package_smoke_ok=true`; browser console errors and cross-origin cover requests were zero, and second-user isolation passed. The exact archive SHA-256 is `4287ec3f7a798ba6e6000900ca69aee1540b163146f53262a05e49095718c5d7`. The upgrade reported `No upgrade required`, so this is not a fresh-database migration rehearsal.
 
 ### AS-005 — Stable `0.1.0` App Store submission
 

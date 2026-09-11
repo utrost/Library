@@ -42,12 +42,12 @@ def test_manual_cover_validator_contract_is_strict_and_canonical():
 
 
 def test_alpha_156_release_assets_and_runtime_suite_are_wired():
-    assert "<version>0.1.0-alpha.158</version>" in read("appinfo/info.xml")
-    assert '"version": "0.1.0-alpha.158"' in read("package.json")
-    assert '"version": "0.1.0-alpha.158"' in read("package-lock.json")
+    assert "<version>0.1.0-alpha.159</version>" in read("appinfo/info.xml")
+    assert '"version": "0.1.0-alpha.159"' in read("package.json")
+    assert '"version": "0.1.0-alpha.159"' in read("package-lock.json")
     assert (ROOT / "js/library-main-0-1-0-alpha-158.mjs").exists()
     assert (ROOT / "css/library-vue-0-1-0-alpha-158.css").exists()
     runner = read("scripts/run-php-runtime-tests.sh")
     assert "manual_cover_validator_test.php" in runner
     assert "manual_cover_controller_test.php" in runner
-    assert "v0.1.0-alpha.158" in read("CHANGELOG.md")
+    assert "v0.1.0-alpha.159" in read("CHANGELOG.md")
