@@ -27,7 +27,7 @@ Library owns:
 - field-level scanner candidates and provenance for reset/review workflows;
 - provenance and scan diagnostics;
 - a database-backed item query for catalogue search, filters, sorting, facets and pagination;
-- cover URLs with preview/CBZ/placeholder diagnostics;
+- same-origin cover routes with preview/CBZ/placeholder diagnostics;
 - handoff links to read/open files, show them in Nextcloud Files and download the original source file;
 - exposure and editing of Nextcloud system tags on the backing file;
 - exposure and adding of Nextcloud file comments;
@@ -564,7 +564,7 @@ Acceptance checks:
 - CBZ first-image covers work when generic previews do not;
 - placeholder covers keep unsupported items usable;
 - item details keep the cover-quality explanation on the refresh action so placeholders and fallback sources are understandable without adding a permanent diagnostic body panel;
-- item details can set a manual cover override from a URL or uploaded image and revert back to extracted/preview covers;
+- item details can upload a validated manual cover image and revert back to extracted/preview covers; legacy remote cover URL values are inert;
 - diagnostic headers explain whether a response came from preview, EPUB package cover, CBZ first image or placeholder.
 
 Visible gaps:

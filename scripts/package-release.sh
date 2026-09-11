@@ -80,5 +80,5 @@ if [ "$SIGNED" = true ]; then
 else
   bash "$ROOT/scripts/audit-release-package.sh" "$VERSION"
 fi
-printf 'release_archive=%s\n' "$ARCHIVE"
-printf 'release_checksum=%s\n' "$ARCHIVE.sha256"
+printf 'release_archive_created=true\n'
+printf 'release_checksum_created=true\n'

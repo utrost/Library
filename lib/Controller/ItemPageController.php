@@ -12,7 +12,6 @@ use OCA\Library\Service\ItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
-use OCP\AppFramework\Http\NotFoundException;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
@@ -38,12 +37,12 @@ final class ItemPageController extends Controller {
     public function show(int $itemId): TemplateResponse {
         $user = $this->userSession->getUser();
         if ($user === null) {
-            throw new NotFoundException('Publication not found');
+            return $this->notFoundResponse();
         }
 
         $item = $this->itemService->findItem($user->getUID(), $itemId);
         if ($item === null) {
-            throw new NotFoundException('Publication not found');
+            return $this->notFoundResponse();
         }
 
         $fileId = (int)$item['fileId'];
@@ -51,17 +50,15 @@ final class ItemPageController extends Controller {
         $comments = $this->fileCommentService->commentsForItems([$item]);
 
         $coverRefreshRequested = (string)$this->request->getParam('coverRefresh', '0') === '1';
-        $manualCoverUrl = trim((string)($item['coverOverrideUrl'] ?? ''));
-        $item['coverUrl'] = $manualCoverUrl !== ''
-            ? $manualCoverUrl
-            : $this->urlGenerator->linkToRoute(
+        $item['coverUrl'] = $this->urlGenerator->linkToRoute(
             'library.cover.show',
             array_filter([
                 'itemId' => (string)$item['id'],
                 'refresh' => $coverRefreshRequested ? '1' : null,
             ], static fn ($value) => $value !== null)
         );
-        $item['coverOverrideUrl'] = $manualCoverUrl;
+        // The compatibility column is intentionally inert and never reaches browser markup.
+        unset($item['coverOverrideUrl']);
         $item['coverOverrideActionUrl'] = $this->urlGenerator->linkToRoute('library.cover.override', ['itemId' => (string)$item['id']]);
         $item['coverRevertUrl'] = $this->urlGenerator->linkToRoute('library.cover.revert', ['itemId' => (string)$item['id']]);
         $item['coverRefreshUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => (string)$item['id'], 'refresh' => '1']);
@@ -93,9 +90,12 @@ final class ItemPageController extends Controller {
         $item['metadataSaved'] = (string)$this->request->getParam('metadataSaved', '0') === '1';
         $item['metadataError'] = trim((string)$this->request->getParam('metadataError', ''));
         $item['metadataValidationError'] = $item['metadataError'] !== '' ? 'Metadata was not saved: ' . $item['metadataError'] : '';
-        $item['coverUploadError'] = (string)$this->request->getParam('coverUploadError', '') === 'invalid'
-            ? 'Cover was not saved. Choose a valid JPEG, PNG, or WebP within the upload limits.'
-            : '';
+        $coverUploadResult = (string)$this->request->getParam('coverUploadError', '');
+        $item['coverUploadError'] = match ($coverUploadResult) {
+            'invalid' => 'Cover was not saved. Choose a valid JPEG, PNG, or WebP within the upload limits.',
+            'remote-url-disabled' => 'Cover was not saved. Upload a JPEG, PNG, or WebP image.',
+            default => '',
+        };
         $item['nextcloudComments'] = $comments[$fileId] ?? ['count' => 0, 'recent' => []];
 
         Util::addStyle(Application::APP_ID, 'style');
@@ -104,6 +104,10 @@ final class ItemPageController extends Controller {
             'item' => $item,
             'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
         ]);
+    }
+
+    private function notFoundResponse(): TemplateResponse {
+        return new TemplateResponse('core', '404', [], 'guest', 404);
     }
 
     /**

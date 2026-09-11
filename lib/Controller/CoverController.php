@@ -136,13 +136,12 @@ class CoverController extends Controller {
                     return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]) . '?coverUploadError=invalid');
                 }
             }
-            $this->itemService->setManualCoverOverride(
-                $user->getUID(),
-                $itemId,
-                $data !== null ? '' : (string)$this->request->getParam('coverOverrideUrl', ''),
-                $data,
-                $mimeType
-            );
+            if ($data === null && trim((string)$this->request->getParam('coverOverrideUrl', '')) !== '') {
+                return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]) . '?coverUploadError=remote-url-disabled');
+            }
+            if ($data !== null) {
+                $this->itemService->setManualCoverOverride($user->getUID(), $itemId, $data, $mimeType);
+            }
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));

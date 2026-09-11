@@ -15,11 +15,11 @@ def test_release_docs_are_current_for_v01_testing_candidate():
     changelog = read("CHANGELOG.md")
     checklist = read("docs/alpha-test-checklist.md")
 
-    assert "<version>0.1.0-alpha.157</version>" in info
+    assert "<version>0.1.0-alpha.158</version>" in info
     for doc in (readme, release, checklist):
-        assert "0.1.0-alpha.157" in doc
+        assert "0.1.0-alpha.158" in doc
         assert "0.1.0-alpha.82" not in doc
-    assert "0.1.0-alpha.157" in changelog
+    assert "0.1.0-alpha.158" in changelog
     assert "v0.1.0-alpha.1" in changelog
 
     assert "publication, publication-year and creator discovery pages exist" in checklist
@@ -71,7 +71,7 @@ def test_release_package_smoke_script_exercises_generated_archive_not_checkout()
     package_json = read("package.json")
 
     assert '"smoke:release-package"' in package_json
-    assert "release_archive=" in package_script
+    assert "release_archive_created=true" in package_script
     assert "docker cp" in smoke_script
     assert "custom_apps/library" in smoke_script
     assert "tar -xzf" in smoke_script

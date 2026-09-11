@@ -26,7 +26,7 @@ def test_package_checksum_is_portable_private_and_runtime_tests_cannot_be_bypass
 def test_basename_checksum_verifies_from_any_checkout_path(tmp_path: Path):
     dist = tmp_path / "checkout with spaces" / "dist"
     dist.mkdir(parents=True)
-    archive = dist / "library-0.1.0-alpha.157.tar.gz"
+    archive = dist / "library-0.1.0-alpha.158.tar.gz"
     archive.write_bytes(b"deterministic checksum fixture\n")
 
     subprocess.run(
@@ -47,7 +47,7 @@ def test_checksum_verification_commands_run_inside_dist_with_basename():
     release = read("RELEASE.md")
 
     assert '(cd "$DIST_DIR" && sha256sum -c "$CHECKSUM_BASENAME")' in smoke
-    assert "(cd dist && sha256sum -c library-0.1.0-alpha.157.tar.gz.sha256)" in release
+    assert "(cd dist && sha256sum -c library-0.1.0-alpha.158.tar.gz.sha256)" in release
     assert "sha256sum -c dist/" not in release
 
 

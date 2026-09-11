@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONTAINER="${NEXTCLOUD_CONTAINER:-nextcloud}"
 APP_ID="library"
-EXPECTED_VERSION="0.1.0-alpha.157"
+EXPECTED_VERSION="0.1.0-alpha.158"
 VERSION="${1:-$(python3 - <<'PY'
 from pathlib import Path
 import re
@@ -76,7 +76,7 @@ docker exec -u www-data "$CONTAINER" php occ router:list library | grep -E 'libr
 
 npm run smoke:vue
 npm run smoke:browser
+npm run smoke:cover-privacy
 
 printf 'release_package_smoke_ok=true\n'
 printf 'release_package_version=%s\n' "$VERSION"
-printf 'release_archive=%s\n' "$ARCHIVE"

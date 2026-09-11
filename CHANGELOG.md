@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.158 - 2026-09-11
+
+- Removed the remote cover URL control and made validated JPEG, PNG, or WebP uploads the only manual cover override.
+- Detail and catalogue covers now always use the same-origin `library.cover.show` route. Existing `cover_override_url` values remain schema-compatible but inert; upload and revert clear them.
+- URL-only submissions write nothing and return a bounded, privacy-safe result. `remote cover SSRF was not present` because the server never fetched these URLs; alpha.158 removes direct browser leakage and intentionally does not introduce server fetching.
+- Added production-path PHP regressions, source contracts, and an exact-package browser gate that safely seeds a tracker-style legacy value, captures catalogue/detail requests, proves upload/render/revert, and checks temporary-second-user read/mutation isolation with full restoration.
+
 ## v0.1.0-alpha.157 - 2026-09-11
 
 - Invalidated and aborted catalogue requests at debounced user intent, preserved the newest controls, and made failure fallback submit the failed request's captured query.

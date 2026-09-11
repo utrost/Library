@@ -2020,19 +2020,15 @@ final class ItemService {
         return (int)$normalized;
     }
 
-    public function setManualCoverOverride(string $userId, int $itemId, ?string $coverOverrideUrl, ?string $coverData, ?string $mimeType): bool {
-        $url = trim((string)$coverOverrideUrl);
+    public function setManualCoverOverride(string $userId, int $itemId, ?string $coverData, ?string $mimeType): bool {
         $data = $coverData !== null && trim($coverData) !== '' ? trim($coverData) : null;
         $mime = $mimeType !== null && trim($mimeType) !== '' ? trim($mimeType) : null;
-        if ($url !== '' && preg_match('/^https?:\/\//i', $url) !== 1) {
-            throw new \InvalidArgumentException('Cover URL must start with http:// or https://.');
-        }
-        if ($data === null && $url === '') {
+        if ($data === null) {
             return false;
         }
         $qb = $this->db->getQueryBuilder();
         $affected = $qb->update('library_items')
-            ->set('cover_override_url', $qb->createNamedParameter($url !== '' ? $url : null))
+            ->set('cover_override_url', $qb->createNamedParameter(null))
             ->set('cover_override_data', $qb->createNamedParameter($data))
             ->set('cover_override_mime_type', $qb->createNamedParameter($mime))
             ->set('updated_at', $qb->createNamedParameter(time()))

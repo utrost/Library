@@ -1,7 +1,9 @@
 # Human Architecture Review Notes
 
 Audience: Nextcloud administrators, architecture reviewers and security reviewers  
-Status: current implementation reference for Library `0.1.0-alpha.157`
+Status: current implementation reference for Library `0.1.0-alpha.158`
+
+Alpha.158 retires remote manual-cover URLs from browser rendering. Details and catalogue cards use the same-origin `library.cover.show` route; legacy `cover_override_url` database values are retained for compatibility but are inert and are cleared by a valid upload or revert. Remote cover SSRF was not present because Library performed no server-side fetch of that value. This slice removes direct browser leakage and intentionally does not introduce server fetching. It does not harden archive extraction, add cover caching, or establish broad privacy completion.
 
 Alpha.155 hardens frontend request ownership: catalogue filtering aborts superseded GETs and also guards state application with a monotonic generation; detail metadata POSTs are serialized with one coalesced latest snapshot; star mutation controls reject repeat activation while pending and expose failures on both catalogue and detail surfaces.
 
@@ -36,7 +38,7 @@ Source: `appinfo/info.xml`.
 - App id: `library`
 - Display name: `Library`
 - Namespace: `Library` / PHP namespace `OCA\Library`
-- Current version: `0.1.0-alpha.157`
+- Current version: `0.1.0-alpha.158`
 - Licence declaration: `agpl` in `info.xml`; repository license is `AGPL-3.0-or-later`.
 - Categories: `files`, `multimedia`
 - Nextcloud compatibility: `min-version="34"`, `max-version="34"`
