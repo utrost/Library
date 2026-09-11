@@ -1,11 +1,11 @@
 # Release process
 
-This repo is prepared for the v0.1 manual testing pass from app version `0.1.0-alpha.161`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
+This repo is prepared for the v0.1 manual testing pass from app version `0.1.0-alpha.162`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
 
 ## Release type
 
 - Private/early-tester v0.1 candidate on a Nextcloud 34 test instance.
-- App version in `appinfo/info.xml`: `0.1.0-alpha.161`.
+- App version in `appinfo/info.xml`: `0.1.0-alpha.162`.
 - License: AGPL-3.0-or-later.
 - Target runtime: Nextcloud 34.
 
@@ -30,8 +30,8 @@ scripts/package-release.sh
 The script runs the test/build gates, applies the intentional frontend manifest, creates a reproducible archive, audits it, then writes:
 
 ```text
-dist/library-0.1.0-alpha.161.tar.gz
-dist/library-0.1.0-alpha.161.tar.gz.sha256
+dist/library-0.1.0-alpha.162.tar.gz
+dist/library-0.1.0-alpha.162.tar.gz.sha256
 ```
 
 The archive contains one `library/` directory and excludes development material. Its frontend manifest is the current versioned Vue JS/CSS plus referenced `style.css`, `library-detail.js`, `library-shell.js`, and `scan-progress.js`. Historical assets, unversioned aliases, orphan chunks, and source maps are rejected. The active module closure is limited to 2,000,000 bytes/eight chunks; the complete frontend manifest is separately limited to 1,200,000 bytes. Entries are sorted and normalized to owner/group 0, directory mode 0755, file mode 0644, and one mtime. `SOURCE_DATE_EPOCH` selects it; the fallback is `946684800` (2000-01-01T00:00:00Z). Gzip name/timestamp metadata is disabled.
@@ -84,7 +84,7 @@ echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library
 - Upload a release by providing the tarball download URL and a signature over the exact archive:
 
 ```bash
-openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.161.tar.gz | openssl base64
+openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.162.tar.gz | openssl base64
 ```
 
 ## Generated archive install smoke
@@ -95,7 +95,7 @@ Before manual v0.1 functionality testing, install and smoke the generated archiv
 npm run smoke:release-package
 ```
 
-That script verifies and installs the exact generated archive before running live smokes. The generated `.sha256` file is the archive checksum sidecar and is not packaged. `/tmp/library-alpha161-codex-implementation.md` is the package-excluded alpha.161 implementation and gate record; it is not a shipped sidecar. The following older sections remain historical evidence only.
+That script verifies and installs the exact generated archive before running live smokes. The generated `.sha256` file is the archive checksum sidecar and is not packaged. `/tmp/library-alpha162-codex-remediation.md` is the package-excluded alpha.162 remediation and gate record; it is not a shipped sidecar. The release version in `package.json`, `package-lock.json`, `appinfo/info.xml`, versioned frontend asset names, archive/checksum names, exact-package smoke expectation, and this evidence-sidecar reference must remain identical. The following older sections remain historical evidence only.
 
 Alpha.159 verification evidence:
 
@@ -132,10 +132,10 @@ The 40-file results verify write elision only. Alpha.154 adds measured aggregate
 For a non-Docker disposable instance, the equivalent manual steps are:
 
 ```bash
-(cd dist && sha256sum -c library-0.1.0-alpha.161.tar.gz.sha256)
+(cd dist && sha256sum -c library-0.1.0-alpha.162.tar.gz.sha256)
 rm -rf /var/www/html/custom_apps/library
 mkdir -p /var/www/html/custom_apps
-tar -xzf dist/library-0.1.0-alpha.161.tar.gz -C /var/www/html/custom_apps
+tar -xzf dist/library-0.1.0-alpha.162.tar.gz -C /var/www/html/custom_apps
 chown -R www-data:www-data /var/www/html/custom_apps/library
 sudo -u www-data php -l /var/www/html/custom_apps/library/appinfo/routes.php
 sudo -u www-data php occ app:enable library
@@ -174,8 +174,8 @@ git push origin v0.1.0-alpha.2
 
 Create a GitHub prerelease from the accepted annotated tag and attach:
 
-- `dist/library-0.1.0-alpha.161.tar.gz`
-- `dist/library-0.1.0-alpha.161.tar.gz.sha256`
+- `dist/library-0.1.0-alpha.162.tar.gz`
+- `dist/library-0.1.0-alpha.162.tar.gz.sha256`
 
 Release note summary:
 

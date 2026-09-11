@@ -50,5 +50,5 @@ def test_docs_and_version_track_filter_result_cover_refresh():
     assert "filter-result cover refresh" in guide.lower()
     assert "request fresh cover previews" in guide.lower()
     assert "batch cover refresh" in roadmap.lower()
-    assert "<version>0.1.0-alpha.161</version>" in info
-    assert '"version": "0.1.0-alpha.161"' in package
+    assert "<version>0.1.0-alpha.162</version>" in info
+    assert '"version": "0.1.0-alpha.162"' in package

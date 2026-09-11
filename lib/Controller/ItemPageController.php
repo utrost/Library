@@ -12,6 +12,8 @@ use OCA\Library\Service\ItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
@@ -30,6 +32,54 @@ final class ItemPageController extends Controller {
         private IURLGenerator $urlGenerator,
     ) {
         parent::__construct($appName, $request);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    #[PublicPage]
+    public function sidebar(string $itemId): JSONResponse {
+        $canonicalItemId = $this->canonicalSidebarItemId($itemId);
+        $user = $this->userSession->getUser();
+        if ($user === null || $canonicalItemId === null) {
+            return $this->sidebarNotFoundResponse();
+        }
+        $item = $this->itemService->findItem($user->getUID(), $canonicalItemId);
+        if ($item === null) {
+            return $this->sidebarNotFoundResponse();
+        }
+        $id = (string)$item['id'];
+        $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $id]);
+        $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $id]);
+        $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $id]);
+        return new JSONResponse(['item' => array_intersect_key($item, array_flip([
+            'id', 'title', 'subtitle', 'creators', 'publicationType', 'publication', 'publicationDate',
+            'language', 'publisher', 'description', 'genres', 'classifications', 'personalRating',
+            'extension', 'shelf', 'cachedPath', 'scanStatus', 'scanError', 'workflowStatus',
+            'metadataSource', 'fieldSources', 'fieldValues', 'userEdited', 'coverUrl', 'detailsUrl', 'openUrl',
+        ]))]);
+    }
+
+    private function canonicalSidebarItemId(string $itemId): ?int {
+        // Keep this boundary portable across supported PHP/database platforms.
+        // 2^31-1 also matches the sentinel used to construct the frontend route.
+        if (!preg_match('/^[1-9][0-9]*$/D', $itemId)
+            || strlen($itemId) > 10
+            || (strlen($itemId) === 10 && strcmp($itemId, '2147483647') > 0)) {
+            return null;
+        }
+
+        // Reject percent-encoded signs/digits instead of accepting a decoded alias.
+        $requestUri = $this->request->getRequestUri();
+        if (preg_match('~/items/([^/]*)/sidebar(?:[?#]|$)~', $requestUri, $matches)
+            && $matches[1] !== $itemId) {
+            return null;
+        }
+
+        return (int)$itemId;
+    }
+
+    private function sidebarNotFoundResponse(): JSONResponse {
+        return new JSONResponse(['message' => 'Publication not found.'], 404);
     }
 
     #[NoAdminRequired]

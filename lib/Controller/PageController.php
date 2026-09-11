@@ -29,8 +29,8 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-161';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-161';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-162';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-162';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -282,6 +282,7 @@ class PageController extends Controller {
             'metadataSidecarManifestUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarManifest'),
             'metadataSidecarBundleUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarBundle'),
             'catalogueEndpointUrl' => $this->urlGenerator->linkToRoute('library.page.catalogue'),
+            'itemSidebarUrlTemplate' => str_replace('2147483647', '__ITEM_ID__', $this->urlGenerator->linkToRoute('library.item_page.sidebar', ['itemId' => '2147483647'])),
             'batchTagUrl' => $this->urlGenerator->linkToRoute('library.tag.batchassign'),
             'batchTagRemoveUrl' => $this->urlGenerator->linkToRoute('library.tag.batchremove'),
             'batchMetadataResetUrl' => $this->urlGenerator->linkToRoute('library.item.batchresetfilteredfields'),

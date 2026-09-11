@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { t } from '@nextcloud/l10n'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
@@ -165,6 +165,7 @@ const metadataExportUrl = computed(() => catalogueState.metadataExportUrl || '')
 const metadataSidecarManifestUrl = computed(() => catalogueState.metadataSidecarManifestUrl || '')
 const metadataSidecarBundleUrl = computed(() => catalogueState.metadataSidecarBundleUrl || '')
 const catalogueEndpointUrl = computed(() => catalogueState.catalogueEndpointUrl || '/apps/library/catalogue')
+const itemSidebarUrlTemplate = computed(() => catalogueState.itemSidebarUrlTemplate || `${webroot}/apps/library/items/__ITEM_ID__/sidebar`)
 const batchTagUrl = computed(() => catalogueState.batchTagUrl || '/apps/library/bulk/tags')
 const batchTagRemoveUrl = computed(() => catalogueState.batchTagRemoveUrl || '/apps/library/bulk/tags/remove')
 const batchMetadataResetUrl = computed(() => catalogueState.batchMetadataResetUrl || '/apps/library/bulk/items/reset-filtered-fields')
@@ -278,6 +279,19 @@ const recentHomeItems = computed(() => [...items.value].slice(0, 6))
 const rediscoverItem = computed(() => items.value.find((item) => item['description'] || item.publication || item.creators) || items.value[0] || null)
 const hasHomeDashboard = computed(() => !isDiscoveryPage.value && items.value.length > 0)
 const selectedDrawerItem = ref(null)
+const sidebarRequestedId = ref(null)
+const sidebarState = reactive({ loading: false, error: '', missing: false })
+const sidebarHeading = ref(null)
+const sidebarComponent = ref(null)
+const sidebarIsMobile = ref(false)
+let sidebarOpener = null
+let sidebarMobileQuery = null
+let pendingSidebarFocusRestore = null
+let sidebarUnmounting = false
+let sidebarFocusRestoreFrame = null
+let sidebarFocusRestoreGeneration = 0
+const sidebarOpen = computed(() => sidebarRequestedId.value !== null)
+const MAX_ITEM_ID = 2147483647
 const selectedDrawerIndex = computed(() => selectedDrawerItem.value ? items.value.findIndex((item) => item.id === selectedDrawerItem.value.id) : -1)
 const drawerPreviousItem = computed(() => selectedDrawerIndex.value > 0 ? items.value[selectedDrawerIndex.value - 1] : null)
 const drawerNextItem = computed(() => selectedDrawerIndex.value >= 0 && selectedDrawerIndex.value < items.value.length - 1 ? items.value[selectedDrawerIndex.value + 1] : null)
@@ -320,16 +334,125 @@ function reviewConflictFieldsFor(item) {
     .filter((field) => field.differs)
 }
 
-function openDetailsDrawer(item) {
-  selectedDrawerItem.value = item
+let sidebarRequestGeneration = 0
+let sidebarRequestController = null
+function canonicalItemIdFromUrl() {
+  const values = new URLSearchParams(window.location.search).getAll('item')
+  if (values.length !== 1 || !/^[1-9][0-9]*$/.test(values[0])) return null
+  const numeric = Number(values[0])
+  return Number.isSafeInteger(numeric) && numeric <= MAX_ITEM_ID ? numeric : null
 }
 
-function closeDetailsDrawer() {
+function updateItemHistory(itemId, mode = 'push') {
+  const url = new URL(window.location.href)
+  url.searchParams.delete('item')
+  if (itemId !== null) url.searchParams.set('item', String(itemId))
+  history[`${mode}State`]({}, '', `${url.pathname}${url.search}${url.hash}`)
+}
+
+async function selectSidebarItem(itemId, { historyMode = 'push', seed = null } = {}) {
+  sidebarRequestController?.abort()
+  const generation = ++sidebarRequestGeneration
+  const controller = new AbortController()
+  sidebarRequestController = controller
+  sidebarRequestedId.value = itemId
+  selectedDrawerItem.value = seed && Number(seed.id) === itemId ? seed : null
+  Object.assign(sidebarState, { loading: true, error: '', missing: false })
+  if (historyMode !== 'none') updateItemHistory(itemId, historyMode)
+  try {
+    const endpoint = itemSidebarUrlTemplate.value.replace('__ITEM_ID__', encodeURIComponent(String(itemId)))
+    const response = await fetch(endpoint, { headers: { Accept: 'application/json' }, credentials: 'same-origin', signal: controller.signal })
+    if (generation !== sidebarRequestGeneration) return
+    if (!response.ok) {
+      selectedDrawerItem.value = null
+      sidebarState.missing = response.status === 404
+      sidebarState.error = response.status === 404 ? t('library', 'This publication is unavailable or you do not have access.') : t('library', 'Could not load publication details. Try again.')
+      return
+    }
+    const payload = await response.json()
+    if (generation !== sidebarRequestGeneration) return
+    if (typeof payload?.item?.id !== 'number' || !Number.isSafeInteger(payload.item.id) || payload.item.id !== itemId) {
+      selectedDrawerItem.value = null
+      sidebarState.missing = false
+      sidebarState.error = t('library', 'Could not load publication details. Try again.')
+      return
+    }
+    selectedDrawerItem.value = payload.item
+    await nextTick()
+  } catch (error) {
+    if (generation === sidebarRequestGeneration && error?.name !== 'AbortError') {
+      selectedDrawerItem.value = null
+      sidebarState.missing = false
+      sidebarState.error = t('library', 'Could not load publication details. Try again.')
+    }
+  } finally {
+    if (generation === sidebarRequestGeneration) {
+      sidebarState.loading = false
+      sidebarRequestController = null
+    }
+  }
+}
+
+function openDetailsDrawer(item, event) {
+  cancelSidebarFocusRestore()
+  sidebarOpener = event?.currentTarget instanceof HTMLElement ? event.currentTarget : null
+  selectSidebarItem(Number(item.id), { seed: item })
+}
+
+function closeDetailsDrawer({ historyMode = 'push', restoreFocus = true } = {}) {
+  pendingSidebarFocusRestore = restoreFocus ? sidebarOpener : null
+  sidebarOpener = null
+  sidebarRequestController?.abort()
+  sidebarRequestController = null
+  sidebarRequestGeneration += 1
+  sidebarRequestedId.value = null
   selectedDrawerItem.value = null
+  Object.assign(sidebarState, { loading: false, error: '', missing: false })
+  if (historyMode !== 'none') updateItemHistory(null, historyMode)
+}
+
+function handleSidebarOpened() {
+  // NcAppSidebar owns initial focus on mobile when it activates its trap after
+  // the slide transition. On desktop there is no trap, so focus the named
+  // application heading once the same transition has settled.
+  if (sidebarIsMobile.value) {
+    const root = sidebarComponent.value?.$refs?.sidebar || sidebarComponent.value?.$el
+    root?.querySelector?.('.app-sidebar__close')?.focus()
+  } else {
+    sidebarHeading.value?.focus()
+  }
+}
+
+function handleSidebarClosed() {
+  const opener = pendingSidebarFocusRestore
+  pendingSidebarFocusRestore = null
+  cancelSidebarFocusRestore()
+  if (sidebarUnmounting || !opener?.isConnected) return
+  const generation = sidebarFocusRestoreGeneration
+  // NcAppSidebar emits `closed` before making its own final focus call. Restore
+  // on the next frame so its transition lifecycle has completely settled.
+  sidebarFocusRestoreFrame = window.requestAnimationFrame(() => {
+    sidebarFocusRestoreFrame = null
+    if (generation !== sidebarFocusRestoreGeneration || sidebarUnmounting || sidebarOpen.value || !opener.isConnected) return
+    opener.focus()
+  })
+}
+
+function cancelSidebarFocusRestore() {
+  sidebarFocusRestoreGeneration += 1
+  if (sidebarFocusRestoreFrame !== null) {
+    window.cancelAnimationFrame(sidebarFocusRestoreFrame)
+    sidebarFocusRestoreFrame = null
+  }
+}
+
+function updateSidebarMobileState(event = sidebarMobileQuery) {
+  sidebarIsMobile.value = Boolean(event?.matches)
+  if (sidebarOpen.value) nextTick(handleSidebarOpened)
 }
 
 function showDrawerItem(item) {
-  if (item) selectedDrawerItem.value = item
+  if (item) selectSidebarItem(Number(item.id), { seed: item })
 }
 const quickSearchInput = ref(null)
 let filterSubmitTimer = null
@@ -353,7 +476,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -435,6 +558,7 @@ async function submitFiltersAjax(event, scheduled = null) {
     applyCatalogueState(nextState)
     if (historyMode !== 'none') {
       history[historyMode === 'push' ? 'pushState' : 'replaceState']({}, '', query ? `?${query}` : window.location.pathname)
+      if (sidebarOpen.value) closeDetailsDrawer({ historyMode: 'none' })
     }
   } catch (error) {
     if (generation === catalogueRequestGeneration && error?.name !== 'AbortError') {
@@ -452,8 +576,17 @@ async function submitFiltersAjax(event, scheduled = null) {
 
 function restoreCatalogueFromHistory() {
   catalogueRequestController?.abort()
+  const params = new URLSearchParams(window.location.search)
+  const requestedId = canonicalItemIdFromUrl()
+  if (params.has('item') && requestedId === null) {
+    params.delete('item')
+    history.replaceState({}, '', `${window.location.pathname}${params.toString() ? `?${params}` : ''}${window.location.hash}`)
+  }
+  if (requestedId === null) closeDetailsDrawer({ historyMode: 'none' })
+  else selectSidebarItem(requestedId, { historyMode: 'none', seed: items.value.find((item) => Number(item.id) === requestedId) || null })
+  params.delete('item')
   submitFiltersAjax(null, {
-    params: normalizedReviewParams(window.location.search),
+    params: normalizedReviewParams(params),
     generation: ++catalogueRequestGeneration,
     historyMode: 'none',
     historyTraversal: true,
@@ -677,13 +810,34 @@ function clearQuickSearchShortcut(event) {
 }
 
 function handleDrawerKeyboardShortcuts(event) {
-  if (!selectedDrawerItem.value || event.metaKey || event.ctrlKey || event.altKey) {
+  if (!sidebarOpen.value || event.metaKey || event.ctrlKey || event.altKey) {
     return false
   }
   if (event.key === 'Escape') {
     event.preventDefault()
     closeDetailsDrawer()
     return true
+  }
+  if (event.key === 'Tab' && sidebarIsMobile.value) {
+    // NcAppSidebar already traps focus on its small-mobile breakpoint. The
+    // boundary fallback below only covers its wider mobile sidebar layout.
+    if (sidebarComponent.value?.focusTrap) return false
+    const root = sidebarComponent.value?.$refs?.sidebar || sidebarComponent.value?.$el || sidebarComponent.value
+    const focusable = [...(root?.querySelectorAll?.('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])') || [])]
+      .filter((element) => !element.hidden && element.getAttribute('aria-hidden') !== 'true')
+    if (focusable.length === 0) return false
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (event.shiftKey && (document.activeElement === first || !root.contains(document.activeElement))) {
+      event.preventDefault()
+      last.focus()
+      return true
+    }
+    if (!event.shiftKey && (document.activeElement === last || !root.contains(document.activeElement))) {
+      event.preventDefault()
+      first.focus()
+      return true
+    }
   }
   if (event.key === 'ArrowLeft' && drawerPreviousItem.value) {
     event.preventDefault()
@@ -707,15 +861,36 @@ function handleCatalogueKeyboardShortcuts(event) {
 onMounted(() => {
   window.addEventListener('keydown', handleCatalogueKeyboardShortcuts)
   window.addEventListener('popstate', restoreCatalogueFromHistory)
+  sidebarMobileQuery = window.matchMedia?.('(max-width: 1023px)') || null
+  updateSidebarMobileState()
+  if (sidebarMobileQuery?.addEventListener) sidebarMobileQuery.addEventListener('change', updateSidebarMobileState)
+  else sidebarMobileQuery?.addListener?.(updateSidebarMobileState)
+  const params = new URLSearchParams(window.location.search)
+  const initialItemId = canonicalItemIdFromUrl()
+  if (params.has('item') && initialItemId === null) {
+    params.delete('item')
+    history.replaceState({}, '', `${window.location.pathname}${params.toString() ? `?${params}` : ''}${window.location.hash}`)
+  } else if (initialItemId !== null) {
+    selectSidebarItem(initialItemId, { historyMode: 'none', seed: items.value.find((item) => Number(item.id) === initialItemId) || null })
+  }
 })
 
 onBeforeUnmount(() => {
+  sidebarUnmounting = true
+  cancelSidebarFocusRestore()
   window.removeEventListener('keydown', handleCatalogueKeyboardShortcuts)
   window.removeEventListener('popstate', restoreCatalogueFromHistory)
   window.clearTimeout(filterSubmitTimer)
   catalogueRequestGeneration += 1
   catalogueRequestController?.abort()
   catalogueRequestController = null
+  sidebarRequestGeneration += 1
+  sidebarRequestController?.abort()
+  sidebarRequestController = null
+  if (sidebarMobileQuery?.removeEventListener) sidebarMobileQuery.removeEventListener('change', updateSidebarMobileState)
+  else sidebarMobileQuery?.removeListener?.(updateSidebarMobileState)
+  sidebarMobileQuery = null
+  pendingSidebarFocusRestore = null
 })
 
 const starPending = reactive({})
@@ -850,8 +1025,8 @@ async function toggleStar(item, event) {
       <details class="library-workspace-panel library-workspace-panel--browse library-discovery-shortcuts library-home-dashboard" data-workspace-panel="browse">
         <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">↗</span><span class="library-workspace-panel-title" :title="t('library', 'Shortcuts reopen ordinary catalogue views, so filters, chips and pagination stay consistent.')">{{ t('library', 'Browse shortcuts') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Continue reading, recently added, rediscover and useful views') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'whole catalogue') }}</b></summary>
 
-        <article v-if="hasHomeDashboard" class="library-home-hero-card"><h3 :title="t('library', 'Fast entry points keep browsing visual: continue, revisit recent additions, or rediscover one shelf item.')">{{ t('library', 'Continue reading') }}</h3><div class="library-home-hero-actions"><a v-if="featuredHomeItems[0]" class="button primary" :href="featuredHomeItems[0].openUrl">{{ t('library', 'Read now') }}</a><button v-if="featuredHomeItems[0]" type="button" class="button secondary" @click="openDetailsDrawer(featuredHomeItems[0])">{{ t('library', 'Details') }}</button></div></article>
-        <article v-if="rediscoverItem" class="library-home-rediscover"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Rediscover') }}</p><strong>{{ rediscoverItem.title }}</strong><span class="library-muted">{{ rediscoverItem.creators || rediscoverItem.publication || rediscoverItem.cachedPath }}</span><button type="button" class="button secondary" @click="openDetailsDrawer(rediscoverItem)">{{ t('library', 'Peek') }}</button></article>
+        <article v-if="hasHomeDashboard" class="library-home-hero-card"><h3 :title="t('library', 'Fast entry points keep browsing visual: continue, revisit recent additions, or rediscover one shelf item.')">{{ t('library', 'Continue reading') }}</h3><div class="library-home-hero-actions"><a v-if="featuredHomeItems[0]" class="button primary" :href="featuredHomeItems[0].openUrl">{{ t('library', 'Read now') }}</a><button v-if="featuredHomeItems[0]" type="button" class="button secondary" @click="openDetailsDrawer(featuredHomeItems[0], $event)">{{ t('library', 'Details') }}</button></div></article>
+        <article v-if="rediscoverItem" class="library-home-rediscover"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Rediscover') }}</p><strong>{{ rediscoverItem.title }}</strong><span class="library-muted">{{ rediscoverItem.creators || rediscoverItem.publication || rediscoverItem.cachedPath }}</span><button type="button" class="button secondary" @click="openDetailsDrawer(rediscoverItem, $event)">{{ t('library', 'Peek') }}</button></article>
         <nav class="library-useful-view-links" :aria-label="t('library', 'Useful views')"><a v-for="view in smartViews" :key="view.key" class="library-useful-view-chip" :href="smartViewUrl(view.filters)" :title="t('library', view.description)"><strong>{{ t('library', view.label) }}</strong><small class="library-useful-view-count">{{ Number(smartViewCounts[view.key] || 0) }}</small></a></nav>
         <div class="library-shortcut-selectors"><label v-if="publicationSummaries.length > 0" class="library-shortcut-select-card library-periodical-groups" :title="t('library', 'Jump into recurring publications with one click.')"><span>{{ t('library', 'Series / periodicals') }}</span><select @change="navigateToSelected"><option value="">{{ t('library', 'Choose series') }}</option><option v-for="summary in publicationSummaries" :key="summary.publication" :value="publicationLandingUrl(summary.publication)">{{ summary.publication }} · {{ summary.itemCount }}</option></select></label><label v-if="publicationYears.length > 0" class="library-shortcut-select-card library-year-groups"><span>{{ t('library', 'Publication year') }}</span><select @change="navigateToSelected"><option value="">{{ t('library', 'Choose year') }}</option><option v-for="year in publicationYears" :key="year" :value="yearLandingUrl(year)">{{ year }}</option></select></label><label v-if="creators.length > 0" class="library-shortcut-select-card library-creator-groups"><span>{{ t('library', 'Creator') }}</span><select @change="navigateToSelected"><option value="">{{ t('library', 'Choose creator') }}</option><option v-for="creator in creators" :key="creator" :value="creatorLandingUrl(creator)">{{ creator }}</option></select></label></div>
         <section class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Custom collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form><nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')"><article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card"><a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)"><strong>{{ collection.name }}</strong><span>{{ Number(collection.count || 0) }} {{ t('library', 'items') }}</span></a><form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form"><input type="hidden" name="requesttoken" :value="requestToken"><button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button></form></article></nav></section>
@@ -1042,7 +1217,7 @@ async function toggleStar(item, event) {
                 <span v-if="tagsFor(item).length === 0" class="library-muted">No Nextcloud tags</span>
                 <span v-for="tag in tagsFor(item)" v-else :key="tag.id" class="library-tag">{{ tag.name }}</span>
               </div>
-              <p class="library-cover-actions"><a :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a> · <a :href="item.downloadUrl">{{ t('library', 'Download source') }}</a> · <button type="button" class="library-link-button library-cover-details-drawer-button" @click="openDetailsDrawer(item)">{{ t('library', 'Details drawer') }}</button> · <a :href="item.detailsUrl">{{ t('library', 'Details') }}</a></p>
+              <p class="library-cover-actions"><a :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a> · <a :href="item.downloadUrl">{{ t('library', 'Download source') }}</a> · <button type="button" class="library-link-button library-cover-details-drawer-button" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Quick details') }}</button> · <a :href="item.detailsUrl">{{ t('library', 'Open full details') }}</a></p>
             </div>
           </details>
         </div>
@@ -1057,38 +1232,94 @@ async function toggleStar(item, event) {
       <span v-else class="library-muted">{{ t('library', 'Next') }}</span>
     </nav>
 
-    <div v-if="selectedDrawerItem" class="library-detail-drawer-backdrop" @click="closeDetailsDrawer" aria-hidden="true"></div>
-    <aside v-if="selectedDrawerItem" class="library-detail-drawer" aria-labelledby="library-detail-drawer-heading" aria-describedby="library-detail-drawer-keyboard-hint" role="dialog" aria-modal="true">
-      <button type="button" class="library-detail-drawer-close" aria-label="Close details panel" @click="closeDetailsDrawer">×</button>
-      <p id="library-detail-drawer-keyboard-hint" class="library-muted library-detail-drawer-keyboard-hint">{{ t('library', 'Esc closes; arrow keys browse neighbouring items.') }}</p>
-      <img class="library-detail-drawer-cover" :src="selectedDrawerItem.coverUrl" :alt="`Cover for ${selectedDrawerItem.title}`" loading="lazy">
-      <p class="library-muted library-catalogue-eyebrow">{{ selectedDrawerItem.publicationType || t('library', 'Publication') }}</p>
-      <h3 id="library-detail-drawer-heading">{{ selectedDrawerItem.title }}</h3>
-      <p v-if="selectedDrawerItem.creators" class="library-creator">{{ selectedDrawerItem.creators }}</p>
-      <p v-if="selectedDrawerItem.description" class="library-muted">{{ selectedDrawerItem.description }}</p>
-      <dl class="library-detail-drawer-facts">
-        <div v-if="selectedDrawerItem.publication"><dt>{{ t('library', 'Series') }}</dt><dd>{{ selectedDrawerItem.publication }}</dd></div>
-        <div v-if="selectedDrawerItem.publicationDate"><dt>{{ t('library', 'Date') }}</dt><dd>{{ selectedDrawerItem.publicationDate }}</dd></div>
-        <div v-if="selectedDrawerItem.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd>{{ selectedDrawerItem.shelf }}</dd></div>
-      </dl>
-      <p class="library-detail-drawer-actions">
-        <a class="button primary" :href="selectedDrawerItem.openUrl">{{ t('library', 'Read') }}</a>
-        <a class="button secondary" :href="selectedDrawerItem.detailsUrl">{{ t('library', 'View full details') }}</a>
-      </p>
-      <nav class="library-detail-drawer-stepper" :aria-label="t('library', 'Browse neighbouring items')">
-        <button type="button" class="button secondary" :disabled="!drawerPreviousItem" @click="showDrawerItem(drawerPreviousItem)">{{ t('library', 'Previous issue') }}</button>
-        <button type="button" class="button secondary" :disabled="!drawerNextItem" @click="showDrawerItem(drawerNextItem)">{{ t('library', 'Next issue') }}</button>
-      </nav>
-    </aside>
   </section>
 
   </div>
     </NcAppContent>
-    <NcAppSidebar :open="false" no-toggle :name="t('library', 'Details')" />
+    <NcAppSidebar
+      ref="sidebarComponent"
+      class="library-native-item-sidebar"
+      :open="sidebarOpen"
+      no-toggle
+      :loading="sidebarState.loading"
+      :name="selectedDrawerItem?.title || t('library', 'Publication details')"
+      :subname="selectedDrawerItem?.creators || ''"
+      :role="sidebarIsMobile ? 'dialog' : undefined"
+      :aria-modal="sidebarIsMobile ? 'true' : undefined"
+      :aria-labelledby="sidebarIsMobile ? 'library-detail-drawer-heading' : undefined"
+      :aria-describedby="sidebarIsMobile ? 'library-detail-drawer-keyboard-hint' : undefined"
+      @opened="handleSidebarOpened"
+      @closed="handleSidebarClosed"
+      @close="closeDetailsDrawer">
+      <div class="library-sidebar-content" aria-live="polite">
+        <h2 id="library-detail-drawer-heading" ref="sidebarHeading" class="hidden-visually" tabindex="-1">{{ selectedDrawerItem?.title || t('library', 'Publication details') }}</h2>
+        <p v-if="sidebarState.loading && !selectedDrawerItem" class="library-muted" role="status">{{ t('library', 'Loading publication details…') }}</p>
+        <div v-else-if="sidebarState.error" class="library-sidebar-state" :role="sidebarState.missing ? 'status' : 'alert'">
+          <p>{{ sidebarState.error }}</p>
+          <button v-if="!sidebarState.missing" type="button" class="button secondary" @click="selectSidebarItem(sidebarRequestedId, { historyMode: 'none' })">{{ t('library', 'Try again') }}</button>
+        </div>
+        <template v-else-if="selectedDrawerItem">
+          <p id="library-detail-drawer-keyboard-hint" class="library-muted">{{ t('library', 'Escape closes; arrow keys browse neighbouring visible items.') }}</p>
+          <img class="library-detail-drawer-cover" :src="selectedDrawerItem.coverUrl" :alt="`${t('library', 'Cover for')} ${selectedDrawerItem.title}`" loading="lazy">
+          <p class="library-muted library-catalogue-eyebrow">{{ selectedDrawerItem.publicationType || t('library', 'Publication') }}<span v-if="selectedDrawerItem.extension"> · {{ upper(selectedDrawerItem.extension) }}</span></p>
+          <p v-if="selectedDrawerItem.description" class="library-sidebar-description">{{ selectedDrawerItem.description }}</p>
+          <dl class="library-detail-drawer-facts">
+            <div v-if="selectedDrawerItem.publication"><dt>{{ t('library', 'Series') }}</dt><dd>{{ selectedDrawerItem.publication }}</dd></div>
+            <div v-if="selectedDrawerItem.publicationDate"><dt>{{ t('library', 'Date') }}</dt><dd>{{ selectedDrawerItem.publicationDate }}</dd></div>
+            <div v-if="selectedDrawerItem.publisher"><dt>{{ t('library', 'Publisher') }}</dt><dd>{{ selectedDrawerItem.publisher }}</dd></div>
+            <div v-if="selectedDrawerItem.language"><dt>{{ t('library', 'Language') }}</dt><dd>{{ selectedDrawerItem.language }}</dd></div>
+            <div v-if="selectedDrawerItem.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd>{{ selectedDrawerItem.shelf }}</dd></div>
+            <div v-if="selectedDrawerItem.cachedPath"><dt>{{ t('library', 'File') }}</dt><dd>{{ selectedDrawerItem.cachedPath }}</dd></div>
+          </dl>
+          <section v-if="selectedDrawerItem.metadataSource || Object.keys(selectedDrawerItem.fieldSources || {}).length" class="library-sidebar-provenance" aria-labelledby="library-sidebar-provenance-heading">
+            <h3 id="library-sidebar-provenance-heading">{{ t('library', 'Metadata provenance') }}</h3>
+            <p v-if="selectedDrawerItem.metadataSource" class="library-muted">{{ t('library', 'Primary source') }}: {{ selectedDrawerItem.metadataSource }}</p>
+            <dl><div v-for="(source, field) in selectedDrawerItem.fieldSources" :key="field"><dt>{{ field }}</dt><dd>{{ source }}</dd></div></dl>
+          </section>
+          <section v-if="reviewConflictFieldsFor(selectedDrawerItem).length" class="library-sidebar-review" aria-labelledby="library-sidebar-review-heading">
+            <h3 id="library-sidebar-review-heading">{{ t('library', 'Review context') }}</h3>
+            <dl><div v-for="field in reviewConflictFieldsFor(selectedDrawerItem)" :key="field.field"><dt>{{ field.field }} · {{ field.sourceProvenance }}</dt><dd>{{ field.currentValue || '—' }} → {{ field.scannerCandidate || '—' }}</dd></div></dl>
+          </section>
+          <p class="library-detail-drawer-actions"><a class="button primary" :href="selectedDrawerItem.openUrl">{{ t('library', 'Read') }}</a><a class="button secondary" :href="selectedDrawerItem.detailsUrl">{{ t('library', 'Open full details') }}</a></p>
+          <nav class="library-detail-drawer-stepper" :aria-label="t('library', 'Browse neighbouring items')"><button type="button" class="button secondary" :disabled="!drawerPreviousItem" @click="showDrawerItem(drawerPreviousItem)">{{ t('library', 'Previous item') }}</button><button type="button" class="button secondary" :disabled="!drawerNextItem" @click="showDrawerItem(drawerNextItem)">{{ t('library', 'Next item') }}</button></nav>
+        </template>
+      </div>
+    </NcAppSidebar>
   </NcContent>
 </template>
 
 <style>
+.library-sidebar-content {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  overflow-wrap: anywhere;
+}
+
+.library-sidebar-state,
+.library-sidebar-provenance,
+.library-sidebar-review {
+  display: grid;
+  gap: 8px;
+}
+
+.library-sidebar-provenance dl,
+.library-sidebar-review dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.library-sidebar-provenance dl div,
+.library-sidebar-review dl div {
+  border-inline-start: 3px solid var(--color-border-maxcontrast);
+  padding-inline-start: 10px;
+}
+
+.library-sidebar-description {
+  white-space: pre-wrap;
+}
+
 .library-review-destination {
   display: grid;
   gap: 18px;

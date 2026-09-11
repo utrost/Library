@@ -24,7 +24,8 @@ def test_vue_catalogue_uses_the_public_nextcloud_application_shell_components():
         "NcAppSidebar",
     ):
         assert name in component
-    assert '<NcAppSidebar :open="false" no-toggle' in component
+    assert '<NcAppSidebar' in component
+    assert ':open="sidebarOpen"' in component
     assert 'class="library-navigation-settings-link" :href="settingsUrl"' in component
 
 
