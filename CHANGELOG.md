@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.152 - 2026-09-11
+
+- Added seven additive user-scoped B-tree indexes for measured catalogue sort/filter and file diagnostic queries without changing query result behavior.
+- Existing scan-job, root and saved-collection indexes are not duplicated; no starred index was added, and redundant legacy single-user indexes are retained for compatibility.
+- `LOWER(...)`, leading-wildcard text search, JSON predicates and scanner-conflict row inspection remain outside ordinary B-tree benefits.
+- Unchanged-rescan optimization and performance instrumentation remain the next scale work.
+
 ## v0.1.0-alpha.151 - 2026-09-10
 
 - Ordinary catalogue and AJAX item DTOs now omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs; tags, descriptions, diagnostics and visible card actions remain available.

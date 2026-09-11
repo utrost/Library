@@ -6,7 +6,7 @@ This snapshot prepares Library for the v0.1 alpha test pass. It documents what i
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current app version: `0.1.0-alpha.151`.
+- Current app version: `0.1.0-alpha.152`.
 - Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
@@ -52,7 +52,7 @@ These are acceptable for the v0.1 alpha test pass but should stay visible:
 7. **Shared libraries:** users manage personal roots; admin-managed shared/global roots are not implemented.
 8. **Readers and content services:** Library delegates reading to Nextcloud and does not provide page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
 9. **Real-collection evidence:** generated scale and selected live smokes are strong for a v0.1 candidate, but Uwe's manual test pass should still use real mixed files to find weak metadata/cover cases.
-10. **Catalogue scale follow-ups:** creator landing URLs are still duplicated per item, descriptions still ship eagerly instead of through lazy detail loading, catalogue query indexes still need workload-led review, and unchanged rescans still need a cheaper fast path. The saved raw-tag filter bug remains pending. Scanner-conflict counts intentionally retain PHP row inspection for contract correctness; moving that predicate fully into SQL remains pending.
+10. **Catalogue scale follow-ups:** seven additive user-scoped indexes now cover measured catalogue sort/filter and file diagnostic queries. Existing scan-job, root and saved-collection indexes were not duplicated; no starred index was added; redundant legacy single-user indexes remain in place. Queries using `LOWER(...)`, leading-wildcard text matching, JSON predicates or scanner-conflict row inspection remain outside ordinary B-tree benefits. Creator landing URLs are still duplicated per item, descriptions still ship eagerly instead of through lazy detail loading, unchanged rescans still need a cheaper fast path, and performance instrumentation remains next. The saved raw-tag filter bug and SQL-only scanner-conflict counting also remain pending.
 
 ## Verification evidence
 
@@ -62,7 +62,7 @@ Most recent release-hardening target evidence should include:
 - Full Python contract suite.
 - Frontend Vitest suite and Vite production build.
 - Markdown link check and `git diff --check`.
-- Generated `dist/library-0.1.0-alpha.151.tar.gz` plus SHA-256 verification.
+- Generated `dist/library-0.1.0-alpha.152.tar.gz` plus SHA-256 verification.
 - Generated archive install into the live `nextcloud` container, then PHP lint, `occ app:enable library`, `occ upgrade`, router listing and live Vue/browser smokes.
 
 Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, genres/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year/creator discovery pages.
