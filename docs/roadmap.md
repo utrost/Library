@@ -1,7 +1,7 @@
 # Library Roadmap
 
 Status: active planning roadmap  
-Last updated: 2026-09-06
+Last updated: 2026-09-11
 Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md), [Alice scale pilot notes](alice-scale-pilot.md)
 
 ## Roadmap stance
@@ -45,7 +45,7 @@ What exists now:
 - Per-file metadata extraction error isolation with visible indexed-file diagnostics for corrupt EPUB/CBZ/OPF inputs.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - metadata/tag/comment separation smoke is checked in: Nextcloud tag/comment actions do not mutate Library publication metadata.
-- Scan/admin controls remain on the personal settings surface at `/settings/user/library`. The app remains catalogue-first and preserves its absolute Nextcloud URLs, generated for the active webroot. Alpha.160 introduced the native `@nextcloud/vue` application-shell scaffold, alpha.161 made Review a focused native destination, alpha.162 added read-only catalogue/Review sidebar details, and alpha.163 retired the duplicate catalogue renderer after adding an accessible startup watchdog and exact-package failure matrix. The PHP full-details editing page and personal Settings remain; neither is a substitute catalogue.
+- Scan/admin controls remain on the personal settings surface at `/settings/user/library`. The app remains catalogue-first and preserves its absolute Nextcloud URLs, generated for the active webroot. Alpha.160 introduced the native `@nextcloud/vue` application-shell scaffold, alpha.161 made Review a focused native destination, alpha.162 added read-only catalogue/Review sidebar details, alpha.163 retired the duplicate catalogue renderer after adding an accessible startup watchdog and exact-package failure matrix, and alpha.164 added localization and RTL support. The PHP full-details editing page and personal Settings remain; neither is a substitute catalogue.
 - Concept, technical-spec and reader-handoff notes.
 - Lightweight repository tests protecting the current skeleton, docs contracts, roots/file-index slice and catalogue-item slice.
 
@@ -258,6 +258,16 @@ Exit criteria:
 ## Phase 3 — Format metadata and cover extraction
 
 Goal: populate catalogue items with useful initial metadata and covers without external services.
+
+### Phase 3 inclusive quality — alpha.164
+
+The first inclusive-quality slice localizes the native Library, Review, read-only
+item sidebar, and startup watchdog, packages English/German/Arabic catalogues,
+and establishes logical-property RTL layout and exact-package RTL/long-copy
+browser gates. It preserves the alpha.163 fail-closed startup matrix. This does
+not yet cover every legacy PHP surface: personal Settings, batch preview, and
+remaining full-details copy stay explicitly scheduled for alpha.165, followed by
+broader mixed-direction and assistive-technology coverage in alpha.166.
 
 ### Phase 3.1 — Preview-backed covers
 

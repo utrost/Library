@@ -4,6 +4,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { classifyBrowserEvent } from './browser-error-classifier.mjs'
+import { evaluateTranslatedControlGeometry } from './browser-geometry-gate.mjs'
 
 const upstream = process.env.NC_URL || 'http://100.123.149.120:8088'
 const user = process.env.NC_USER || 'uwe'
@@ -89,10 +90,10 @@ function startAuthProxy(token) {
         }
         if (responseCookies.length > 0) res.setHeader('set-cookie', responseCookies)
         let body = Buffer.from(await response.arrayBuffer())
-        const isLibraryModule = requestUrl.pathname.includes('/js/library-main-0-1-0-alpha-163.mjs')
+        const isLibraryModule = requestUrl.pathname.includes('/js/library-main-0-1-0-alpha-164.mjs')
         const effectiveFailureMode = requestUrl.searchParams.get('startupFailure') || startupFailureMode
         if (requestUrl.pathname.endsWith('/apps/library/') && requestUrl.searchParams.has('startupFailure')) {
-          body = Buffer.from(body.toString('utf8').replace(/(library-main-0-1-0-alpha-163\.mjs)([^"']*)(["'])/g, (match, asset, suffix, quote) => `${asset}${suffix}${suffix.includes('?') ? '&' : '?'}startupFailure=${startupFailureMode}${quote}`))
+          body = Buffer.from(body.toString('utf8').replace(/(library-main-0-1-0-alpha-164\.mjs)([^"']*)(["'])/g, (match, asset, suffix, quote) => `${asset}${suffix}${suffix.includes('?') ? '&' : '?'}startupFailure=${startupFailureMode}${quote}`))
         }
         if (isLibraryModule && effectiveFailureMode === 'module-404') {
           res.statusCode = 404
@@ -128,6 +129,23 @@ function startAuthProxy(token) {
         if (requestUrl.pathname.includes('/apps/library/') && effectiveFailureMode === 'state-invalid-shape') {
           const invalidState = Buffer.from(JSON.stringify({ items: [], activeFilters: [] })).toString('base64')
           body = Buffer.from(body.toString('utf8').replace(/(id="initial-state-library-catalogue" value=")[^"]*/, `$1${invalidState}`))
+        }
+        if (requestUrl.pathname.endsWith('/apps/library/') && requestUrl.searchParams.has('localization-fixture')) {
+          body = Buffer.from(body.toString('utf8').replace(/(id="initial-state-library-catalogue" value=")([^"]*)/, (match, prefix, encoded) => {
+            const state = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8'))
+            const seed = state.items?.[0] || {}
+            state.items = [
+              ['rtl-fixture-1', 'أطلس التصوير الفوتوغرافي الطويل'],
+              ['rtl-fixture-2', 'دليل الأرشيفات والمجموعات المصورة'],
+              ['rtl-fixture-3', 'مجلة التاريخ المرئي المعاصر'],
+            ].map(([id, title], index) => ({
+              ...seed, id, title, creators: `مؤلف ${index + 1}`,
+              cachedPath: `/Library/${id}.pdf`, coverAvailable: false,
+              detailsUrl: `/apps/library/items/${id}`, openUrl: `/apps/files/?fileid=${index + 1}`,
+            }))
+            state.pagination = { ...(state.pagination || {}), total: 3, visible: 3, from: 1, to: 3 }
+            return `${prefix}${Buffer.from(JSON.stringify(state)).toString('base64')}`
+          }))
         }
         if (body.indexOf(Buffer.from(upstream)) >= 0 || body.indexOf(Buffer.from(upstream.replaceAll('/', '\\/'))) >= 0) {
           body = Buffer.from(rewriteUpstreamOrigin(body.toString('utf8'), proxyOrigin))
@@ -373,6 +391,105 @@ async function runBrowserSmoke(proxyBase) {
     const dom = result.result?.value ?? result.value
     if (!dom) {
       throw new Error(`Chrome Runtime.evaluate returned no DOM value: ${JSON.stringify(result).slice(0, 1000)}`)
+    }
+
+    // Exercise real Nextcloud locale loading from the installed exact package,
+    // restoring the user's authoritative setting before the normal smoke resumes.
+    const originalLanguage = runOcc(['user:setting', user, 'core', 'lang']).trim() || 'en'
+    let inclusiveDom
+    try {
+      runOcc(['user:setting', user, 'core', 'lang', 'de'])
+      await client.send('Page.navigate', { url: `${proxyBase}/apps/library/?browser-locale=de&localization-fixture=1` })
+      await new Promise((resolve) => setTimeout(resolve, 2500))
+      const german = await client.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
+        const expected = ['Bibliothek', 'Prüfung', 'Bibliothekseinstellungen öffnen', 'Filter anwenden']
+        const body = document.body.textContent
+        return { expected, missing: expected.filter((copy) => !body.includes(copy)) }
+      })()` })
+      runOcc(['user:setting', user, 'core', 'lang', 'ar'])
+      await client.send('Page.navigate', { url: `${proxyBase}/apps/library/?browser-locale=ar&localization-fixture=1` })
+      await new Promise((resolve) => setTimeout(resolve, 2500))
+      const inspectRtlGeometry = async ({ width, height, mobile }) => {
+        await client.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile })
+        const measured = await client.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `(async () => {
+          const evaluateTranslatedControlGeometry = ${evaluateTranslatedControlGeometry.toString()}
+          const root = document.documentElement
+          const app = document.querySelector('#library-app')
+          if (!app) return { present: false }
+          const cards = [...document.querySelectorAll('.library-cover-card')]
+          const expectedArabic = ['المكتبة', 'المراجعة', 'فتح إعدادات المكتبة', 'تطبيق المرشحات']
+          const body = document.body.textContent
+          const controls = [...document.querySelectorAll('.library-workspace-panel-title, .library-workspace-panel-purpose, .library-catalogue-actions-list .button')]
+          const details = document.querySelector('.library-cover-details-summary')
+          details?.focus()
+          details?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+          details?.click()
+          await new Promise((resolve) => setTimeout(resolve, 50))
+          const drawerButton = document.querySelector('.library-cover-details-drawer-button')
+          drawerButton?.click()
+          await new Promise((resolve) => setTimeout(resolve, 100))
+          const sidebar = document.querySelector('#app-sidebar-vue')
+          const sidebarClose = sidebar?.querySelector('button')
+          const clipping = controls.map((control) => {
+            const style = getComputedStyle(control)
+            const lineHeight = Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.2
+            const text = control.textContent.trim()
+            return {
+              selector: control.className ? '.' + String(control.className).trim().split(/\s+/).join('.') : control.tagName.toLowerCase(),
+              text, translated: /[\u0600-\u06ff]/.test(text), scrollWidth: control.scrollWidth, clientWidth: control.clientWidth,
+              scrollHeight: control.scrollHeight, clientHeight: control.clientHeight,
+              whiteSpace: style.whiteSpace, overflowX: style.overflowX,
+              wraps: control.scrollHeight > lineHeight * 1.25,
+              clipped: control.scrollWidth > control.clientWidth + 1 || control.scrollHeight > control.clientHeight + 1,
+            }
+          })
+          const geometryGate = evaluateTranslatedControlGeometry(clipping)
+          const value = {
+            present: true,
+            arabic: expectedArabic.every((copy) => body.includes(copy)),
+            expectedArabic,
+            missingArabic: expectedArabic.filter((copy) => !body.includes(copy)),
+            language: app.getAttribute('lang'),
+            directionAttribute: app.getAttribute('dir'),
+            direction: getComputedStyle(app).direction,
+            overflow: root.scrollWidth <= root.clientWidth && app.scrollWidth <= app.clientWidth,
+            fixtureCards: cards.length,
+            mirrored: cards.length >= 3 && cards[0].getBoundingClientRect().right > cards[1].getBoundingClientRect().right,
+            longControlsUnclipped: geometryGate.pass,
+            geometryGate,
+            clipping,
+            keyboardFocus: document.activeElement === details || Boolean(sidebar?.contains(document.activeElement)),
+            sidebarOpened: Boolean(sidebar && getComputedStyle(sidebar).display !== 'none'),
+            sidebarCloseVisible: Boolean(sidebarClose && sidebarClose.getBoundingClientRect().width > 0),
+          }
+          return value
+        })()` })
+        return measured.result?.value
+      }
+      const rtlDesktop = await inspectRtlGeometry({ width: 1280, height: 900, mobile: false })
+      const rtlMobile = await inspectRtlGeometry({ width: 390, height: 844, mobile: true })
+      inclusiveDom = {
+        de: german.result?.value?.missing?.length === 0,
+        expectedGerman: german.result?.value?.expected || [],
+        missingGerman: german.result?.value?.missing || [],
+        ...rtlDesktop,
+        mobileDirection: rtlMobile?.direction,
+        mobileDirectionAttribute: rtlMobile?.directionAttribute,
+        mobileLanguage: rtlMobile?.language,
+        mobileOverflow: rtlMobile?.overflow === true,
+        fixtureCards: Math.min(rtlDesktop?.fixtureCards || 0, rtlMobile?.fixtureCards || 0),
+        longUnclipped: rtlDesktop?.longControlsUnclipped === true && rtlMobile?.longControlsUnclipped === true,
+        desktopClipping: rtlDesktop?.clipping || [],
+        mobileClipping: rtlMobile?.clipping || [],
+        keyboardFocus: rtlDesktop?.keyboardFocus === true && rtlMobile?.keyboardFocus === true,
+        sidebarOpened: rtlDesktop?.sidebarOpened === true && rtlMobile?.sidebarOpened === true,
+        sidebarCloseVisible: rtlDesktop?.sidebarCloseVisible === true && rtlMobile?.sidebarCloseVisible === true,
+      }
+    } finally {
+      runOcc(['user:setting', user, 'core', 'lang', originalLanguage])
+      await client.send('Emulation.clearDeviceMetricsOverride')
+      await client.send('Page.navigate', { url: `${proxyBase}/apps/library/?browser-smoke=${Date.now()}` })
+      await new Promise((resolve) => setTimeout(resolve, 2500))
     }
 
     const starToggleResult = await client.send('Runtime.evaluate', {
@@ -1055,8 +1172,44 @@ async function runBrowserSmoke(proxyBase) {
     print('settings_post_forms', settingsDom.postForms ?? 0)
     print('settings_request_token_fields', settingsDom.requestTokenFields ?? 0)
     print('browser_console_errors', consoleErrors.length)
+    print('browser_locale_de', inclusiveDom?.de === true)
+    print('browser_locale_ar', inclusiveDom?.arabic === true)
+    print('browser_locale_de_missing_expected_strings', JSON.stringify(inclusiveDom?.missingGerman || []))
+    print('browser_locale_ar_missing_expected_strings', JSON.stringify(inclusiveDom?.missingArabic || []))
+    print('browser_long_string_desktop_geometry', JSON.stringify(inclusiveDom?.desktopClipping || []))
+    print('browser_long_string_mobile_geometry', JSON.stringify(inclusiveDom?.mobileClipping || []))
+    print('browser_rtl_language_attribute', inclusiveDom?.language === 'ar' && inclusiveDom?.mobileLanguage === 'ar')
+    print('browser_rtl_direction_attribute', inclusiveDom?.directionAttribute === 'rtl' && inclusiveDom?.mobileDirectionAttribute === 'rtl')
+    print('browser_rtl_direction', inclusiveDom?.direction === 'rtl')
+    print('browser_rtl_desktop_no_horizontal_overflow', inclusiveDom?.overflow === true)
+    print('browser_rtl_mobile_no_horizontal_overflow', inclusiveDom?.mobileOverflow === true)
+    print('browser_rtl_logical_layout_mirrored', inclusiveDom?.mirrored === true)
+    print('browser_rtl_exact_fixture_cards', inclusiveDom?.fixtureCards ?? 0)
+    print('browser_rtl_keyboard_focus', inclusiveDom?.keyboardFocus === true)
+    print('browser_rtl_sidebar_opened', inclusiveDom?.sidebarOpened === true)
+    print('browser_rtl_mobile_drawer_control_visible', inclusiveDom?.sidebarCloseVisible === true)
+    print('browser_long_string_no_clipping', inclusiveDom?.longUnclipped === true)
+    print('browser_normal_console_errors', consoleErrors.length)
+    print('browser_normal_csp_errors', consoleErrors.filter((event) => JSON.stringify(event).toLowerCase().includes('content security policy')).length)
+    print('browser_normal_failed_asset_requests', consoleErrors.filter((event) => event.method === 'Network.loadingFailed').length)
 
     const ok = dom.vueApp === true
+      && inclusiveDom?.de === true
+      && inclusiveDom?.arabic === true
+      && inclusiveDom?.language === 'ar'
+      && inclusiveDom?.mobileLanguage === 'ar'
+      && inclusiveDom?.directionAttribute === 'rtl'
+      && inclusiveDom?.mobileDirectionAttribute === 'rtl'
+      && inclusiveDom?.direction === 'rtl'
+      && inclusiveDom?.mobileDirection === 'rtl'
+      && inclusiveDom?.overflow === true
+      && inclusiveDom?.mobileOverflow === true
+      && inclusiveDom?.fixtureCards >= 3
+      && inclusiveDom?.mirrored === true
+      && inclusiveDom?.longUnclipped === true
+      && inclusiveDom?.keyboardFocus === true
+      && inclusiveDom?.sidebarOpened === true
+      && inclusiveDom?.sidebarCloseVisible === true
       && dom.fallback === false
       && dom.nativeShell === true
       && JSON.stringify(dom.nativeDestinations) === JSON.stringify(['Library', 'Review'])

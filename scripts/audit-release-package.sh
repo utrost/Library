@@ -65,6 +65,9 @@ required = {
     f"{top}/LICENSE",
     f"{top}/CHANGELOG.md",
 }
+for locale in ("en", "de", "ar"):
+    required.add(f"{top}/l10n/{locale}.js")
+    required.add(f"{top}/l10n/{locale}.json")
 if require_signature:
     required.add(f"{top}/appinfo/signature.json")
 forbidden_parts = {

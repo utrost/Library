@@ -24,7 +24,7 @@ def test_server_template_has_distinct_no_javascript_and_watchdog_surfaces():
     assert 'role="status"' in template
     assert 'aria-live="polite"' in template
     assert 'data-library-startup-timeout="10000"' in template
-    assert 'data-library-main-script="library-main-0-1-0-alpha-163"' in template
+    assert 'data-library-main-script="library-main-0-1-0-alpha-164"' in template
     assert "data-library-retry" in template
     assert "settingsUrl" in template
     assert "<script" not in template
