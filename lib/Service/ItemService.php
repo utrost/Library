@@ -11,6 +11,37 @@ use OCP\IDBConnection;
 final class ItemService {
     private const BULK_ITEM_LIMIT = 5000;
 
+    private const CATALOGUE_INTERNAL_COLUMNS = [
+        'i.id',
+        'i.publication_type',
+        'i.title',
+        'i.subtitle',
+        'i.creators',
+        'i.publication',
+        'i.publication_date',
+        'i.language',
+        'i.publisher',
+        'i.description',
+        'i.genres_json',
+        'i.classifications_json',
+        'i.starred',
+        'i.workflow_status',
+        'i.last_opened_at',
+        'i.field_values',
+        'f.file_id',
+        'f.cached_path',
+        'f.extension',
+        'f.scan_status',
+        'f.scan_error',
+        'r.label',
+        'r.path',
+    ];
+
+    private const SCANNER_CONFLICT_INTERNAL_COLUMNS = [
+        'i.metadata_source',
+        'i.field_sources',
+    ];
+
     private const WORKFLOW_STATUSES = [
         '',
         'to-read',
@@ -647,7 +678,8 @@ final class ItemService {
             return $this->queryScannerConflictCatalogue($userId, $filters, $offset, $limit);
         }
 
-        $qb = $this->catalogueQueryBuilder($userId, $filters);
+        $metadataReviewProjection = trim((string)($filters['weakMetadata'] ?? '')) !== '';
+        $qb = $this->catalogueQueryBuilder($userId, $filters, $metadataReviewProjection);
         $this->applyCatalogueSort($qb, (string)($filters['sort'] ?? 'title'));
         $result = $qb
             ->setFirstResult($offset)
@@ -671,7 +703,7 @@ final class ItemService {
         $filtersWithoutConflict = $filters;
         unset($filtersWithoutConflict['scannerConflicts']);
 
-        $qb = $this->catalogueQueryBuilder($userId, $filtersWithoutConflict);
+        $qb = $this->catalogueQueryBuilder($userId, $filtersWithoutConflict, true);
         $result = $qb->executeQuery();
 
         $count = 0;
@@ -690,7 +722,7 @@ final class ItemService {
         $filtersWithoutConflict = $filters;
         unset($filtersWithoutConflict['scannerConflicts']);
 
-        $qb = $this->catalogueQueryBuilder($userId, $filtersWithoutConflict);
+        $qb = $this->catalogueQueryBuilder($userId, $filtersWithoutConflict, true);
         $this->applyCatalogueSort($qb, (string)($filtersWithoutConflict['sort'] ?? 'title'));
         $result = $qb->executeQuery();
 
@@ -1136,9 +1168,13 @@ final class ItemService {
         return $row === false ? null : $this->normalizeJoinedItemRow($row);
     }
 
-    private function catalogueQueryBuilder(string $userId, array $filters): IQueryBuilder {
+    private function catalogueQueryBuilder(string $userId, array $filters, bool $scannerConflictProjection = false): IQueryBuilder {
         $qb = $this->db->getQueryBuilder();
-        $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.genres_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $columns = self::CATALOGUE_INTERNAL_COLUMNS;
+        if ($scannerConflictProjection) {
+            $columns = [...$columns, ...self::SCANNER_CONFLICT_INTERNAL_COLUMNS];
+        }
+        $qb->select(...$columns)
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->innerJoin('f', 'library_roots', 'r', $qb->expr()->eq('f.root_id', 'r.id'))
@@ -1662,10 +1698,10 @@ final class ItemService {
     private function normalizeJoinedItemRow(array $row): array {
         $item = [
             'id' => (int)$row['id'],
-            'libraryFileId' => (int)$row['library_file_id'],
-            'fileId' => (int)$row['file_id'],
-            'cachedPath' => (string)$row['cached_path'],
-            'mimeType' => (string)$row['mime_type'],
+            'libraryFileId' => (int)($row['library_file_id'] ?? 0),
+            'fileId' => (int)($row['file_id'] ?? 0),
+            'cachedPath' => (string)($row['cached_path'] ?? ''),
+            'mimeType' => (string)($row['mime_type'] ?? ''),
             'extension' => $row['extension'] !== null ? (string)$row['extension'] : '',
             'scanStatus' => (string)$row['scan_status'],
             'scanError' => $row['scan_error'] !== null ? (string)$row['scan_error'] : '',
@@ -1680,17 +1716,17 @@ final class ItemService {
             'description' => $row['description'] !== null ? (string)$row['description'] : '',
             'genres' => $this->decodeJsonList($row['genres_json'] ?? null),
             'classifications' => $this->decodeJsonList($row['classifications_json'] ?? null),
-            'personalRating' => $row['personal_rating'] !== null ? (int)$row['personal_rating'] : null,
-            'coverOverrideUrl' => $row['cover_override_url'] !== null ? (string)$row['cover_override_url'] : '',
-            'coverOverrideData' => $row['cover_override_data'] !== null ? (string)$row['cover_override_data'] : '',
-            'coverOverrideMimeType' => $row['cover_override_mime_type'] !== null ? (string)$row['cover_override_mime_type'] : '',
+            'personalRating' => isset($row['personal_rating']) ? (int)$row['personal_rating'] : null,
+            'coverOverrideUrl' => isset($row['cover_override_url']) ? (string)$row['cover_override_url'] : '',
+            'coverOverrideData' => isset($row['cover_override_data']) ? (string)$row['cover_override_data'] : '',
+            'coverOverrideMimeType' => isset($row['cover_override_mime_type']) ? (string)$row['cover_override_mime_type'] : '',
             'starred' => (bool)$row['starred'],
             'workflowStatus' => (string)($row['workflow_status'] ?? ''),
             'lastOpenedAt' => (int)($row['last_opened_at'] ?? 0),
-            'metadataSource' => (string)$row['metadata_source'],
+            'metadataSource' => (string)($row['metadata_source'] ?? ''),
             'fieldSources' => $this->decodeJsonMap($row['field_sources'] ?? null),
             'fieldValues' => $this->decodeJsonMap($row['field_values'] ?? null),
-            'userEdited' => (bool)$row['user_edited'],
+            'userEdited' => (bool)($row['user_edited'] ?? false),
             'shelf' => trim((string)($row['label'] ?? '')) !== '' ? (string)$row['label'] : (string)($row['path'] ?? ''),
         ];
         $item['hasScannerConflict'] = $this->itemHasScannerConflict($item);

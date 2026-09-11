@@ -28,7 +28,8 @@ def test_workflow_status_is_visible_editable_and_filterable_without_overloading_
 
     assert "workflowStatus" in page
     assert "workflowStatuses" in page
-    assert "workflowStatusUrl" in page
+    assert "workflowStatusUrl" not in page
+    assert "workflowStatusUrl" in (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
     assert "'status' => trim((string)$this->request->getParam('status', ''))" in page
     assert "'workflowStatus' => trim((string)$this->request->getParam('workflowStatus', ''))" in page
     pagination_method = page.split("private function paginationUrl", 1)[1]

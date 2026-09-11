@@ -47,19 +47,53 @@ def test_browser_smoke_preserves_browser_session_for_csrf_protected_batch_writes
     assert "batchWriteResult = await client.send('Runtime.evaluate'" in script
     assert "credentials: 'same-origin'" in script
     assert "requesttoken: catalogueRequestToken" in script
-    assert "q: uniqueTitle" in script
-    assert "limit: '25'" in script
+    mutation = script.split("const originalPublication", 1)[1].split("const quickFilterResult", 1)[0]
+    assert "applyParams.append('itemIds[]', String(itemId))" in mutation
+    assert "restoreParams.append('itemIds[]', String(itemId))" in mutation
+    assert "q: uniqueTitle" not in mutation
+    assert "body: applyParams" in mutation
+    assert "body: restoreParams" in mutation
+    assert "find((item) => item.id === itemId)" in mutation
+
+
+def test_batch_apply_controller_distinguishes_absent_empty_and_malformed_item_ids():
+    controller = (ROOT / "lib" / "Controller" / "ItemController.php").read_text()
+    body = controller.split("public function batchapplymetadataedit", 1)[1].split(
+        "private function catalogueFiltersFromRequest", 1
+    )[0]
+
+    assert "$itemIdsParamPresent = array_key_exists('itemIds', $this->request->getParams())" in body
+    assert "$requestedItemIds = $this->request->getParam('itemIds', null)" in body
+    assert "$itemIds = $itemIdsParamPresent" in body
+    assert ": $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000)" in body
+    assert "$explicitItemIds !== []" not in body
+
+
+def test_browser_smoke_restores_explicit_item_after_failed_changed_state_readback():
+    script = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
+    mutation = script.split("const originalPublication", 1)[1].split("const quickFilterResult", 1)[0]
+
+    assert "let applySucceeded = false" in mutation
+    assert "let restoreAttempted = false" in mutation
+    assert "try {" in mutation
+    assert "} finally {" in mutation
+    assert mutation.index("} finally {") < mutation.index("body: restoreParams")
+    assert "restoreAttempted = true" in mutation
+    assert "restoreAttempted: restoreAttempted" in mutation
+    assert "restoredCatalogueValue" in mutation
 
 
 def test_browser_smoke_requires_successful_apply_and_restore_responses_before_state_checks_pass():
     script = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
-    assert "applyStatus: applyResponse.status" in script
-    assert "restoreStatus: restoreResponse.status" in script
-    assert "applySucceeded: applyResponse.ok" in script
-    assert "restoreSucceeded: restoreResponse.ok" in script
+    assert "applyStatus = applyResponse.status" in script
+    assert "restoreStatus = restoreResponse.status" in script
+    assert "applySucceeded = applyResponse.ok" in script
+    assert "restoreSucceeded = restoreResponse.ok" in script
     assert "batchWriteDom?.applySucceeded === true" in script
+    assert "batchWriteDom?.restoreAttempted === true" in script
     assert "batchWriteDom?.restoreSucceeded === true" in script
+    assert "batchWriteDom?.restoredCatalogueValue === originalPublication" in script
     assert "browser_batch_metadata_apply_status" in script
     assert "browser_batch_metadata_restore_status" in script
 

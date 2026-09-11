@@ -29,10 +29,11 @@ def test_comment_controller_and_route_are_wired():
     assert "addCommentToItem" in controller
 
 
-def test_page_controller_passes_comment_post_url_to_template():
+def test_comment_post_url_is_detail_only_not_in_catalogue_payload():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    assert "commentUrl" in page
-    assert "library.comment.add" in page
+    detail = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
+    assert "commentUrl" not in page
+    assert "library.comment.add" in detail
 
 
 def test_template_has_add_nextcloud_comment_form_separate_from_metadata_edit():
