@@ -1,7 +1,7 @@
 # Human Architecture Review Notes
 
 Audience: Nextcloud administrators, architecture reviewers and security reviewers  
-Status: current implementation reference for Library `0.1.0-alpha.151`
+Status: current implementation reference for Library `0.1.0-alpha.152`
 
 This document answers: what changes when Library is installed in a Nextcloud instance, which schema objects and jobs are added, what prerequisites and optional dependencies exist, and which parts of the surrounding Nextcloud stack Library relies on.
 
@@ -28,7 +28,7 @@ Source: `appinfo/info.xml`.
 - App id: `library`
 - Display name: `Library`
 - Namespace: `Library` / PHP namespace `OCA\Library`
-- Current version: `0.1.0-alpha.151`
+- Current version: `0.1.0-alpha.152`
 - Licence declaration: `agpl` in `info.xml`; repository license is `AGPL-3.0-or-later`.
 - Categories: `files`, `multimedia`
 - Nextcloud compatibility: `min-version="34"`, `max-version="34"`
@@ -148,6 +148,7 @@ Indexes:
 - `library_files_user_id` on `user_id`
 - `library_files_root_id` on `root_id`
 - `library_files_file_id_unique` unique on `user_id`, `file_id`
+- `library_files_usr_status_scan` on `user_id`, `scan_status`, `last_scanned_at`
 
 ### `library_items`
 
@@ -183,6 +184,16 @@ Indexes:
 
 - `library_items_user_id` on `user_id`
 - `library_items_file_unique` unique on `library_file_id`
+- `library_items_usr_title` on `user_id`, `title`
+- `library_items_usr_file` on `user_id`, `library_file_id`
+- `library_items_usr_pubdate` on `user_id`, `publication_date`
+- `library_items_usr_publication` on `user_id`, `publication`, `publication_date`
+- `library_items_usr_lastopen` on `user_id`, `last_opened_at`
+- `library_items_usr_workflow` on `user_id`, `workflow_status`
+
+The seven newer indexes are additive and user-scoped for reviewed catalogue sort/filter and file diagnostic queries. Existing scan-job, root and saved-collection indexes are not duplicated, there is no starred index, and the redundant legacy single-user indexes are retained. Expressions using `LOWER(...)`, leading-wildcard matching, JSON predicates and scanner-conflict row inspection do not gain ordinary B-tree benefits from this slice. Query behavior is unchanged; unchanged-rescan optimization and performance instrumentation remain follow-up work.
+
+Measured live MySQL migration evidence: upgrading the installed `0.1.0-alpha.151` app to `0.1.0-alpha.152` from the exact `dist/library-0.1.0-alpha.152.tar.gz` archive registered `Version000100Date20260911120000`, with item and file row counts unchanged at 7,120 each. `EXPLAIN` selected `library_items_usr_title` for title order and `library_items_usr_file` for recent order, with filesort absent in both cases; metadata-error diagnostics selected `library_files_usr_status_scan` without a full scan or filesort. Last-opened order selected `library_items_usr_lastopen`, although its title tie-break may still filesort. On this dataset, unfiltered `publicationDate` and `publication` orders with mixed directions or tie-breaks still filesorted; their indexes nevertheless support the relevant equality, filtering and grouping traversal. Scan jobs retained the existing `library_scan_jobs_user_started` index. These observations make no timing claim because no benchmark was run.
 
 ### `library_scan_jobs`
 
