@@ -13,7 +13,7 @@ def test_readme_is_public_one_page_overview_without_internal_names():
     assert "# Library" in readme
     assert "open-source Nextcloud app" in readme
     assert "Nextcloud Files remains the canonical storage" in readme
-    assert "Current source candidate: `0.1.0-alpha.162`" in readme
+    assert "Current source candidate: `0.1.0-alpha.163`" in readme
 
     internal_names = ["Uwe", "Hermes", "Alice", "/home/uwe"]
     for name in internal_names:
@@ -48,7 +48,7 @@ def test_readme_keeps_public_entry_links():
 
 def test_packaged_readme_does_not_embed_the_current_archive_checksum():
     readme = README.read_text(encoding="utf-8")
-    checksum_file = ROOT / "dist/library-0.1.0-alpha.162.tar.gz.sha256"
+    checksum_file = ROOT / "dist/library-0.1.0-alpha.163.tar.gz.sha256"
 
     assert "adjacent `.sha256` artifact" in readme
     assert "excluded `RELEASE.md`" in readme

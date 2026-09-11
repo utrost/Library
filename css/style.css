@@ -1588,3 +1588,18 @@
         position: static;
     }
 }
+.library-startup-status {
+    box-sizing: border-box;
+    margin: 1rem;
+    max-width: 48rem;
+}
+
+.library-startup-status[hidden] {
+    display: none !important;
+}
+
+.library-startup-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}

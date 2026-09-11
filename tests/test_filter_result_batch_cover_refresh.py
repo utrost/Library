@@ -32,7 +32,7 @@ def test_catalogue_refresh_state_threads_refresh_into_cover_urls():
     assert "coverRefresh" in page
     assert "'refresh' => $batchCoverRefreshRequested ? '1' : null" in page
 
-    for source in (app, fallback):
+    for source in (app,):
         assert "batchCoverRefreshUrl" in source
         assert "library-batch-cover-refresh-form" in source
         assert "Refresh cover previews for current results" in source
@@ -50,5 +50,5 @@ def test_docs_and_version_track_filter_result_cover_refresh():
     assert "filter-result cover refresh" in guide.lower()
     assert "request fresh cover previews" in guide.lower()
     assert "batch cover refresh" in roadmap.lower()
-    assert "<version>0.1.0-alpha.162</version>" in info
-    assert '"version": "0.1.0-alpha.162"' in package
+    assert "<version>0.1.0-alpha.163</version>" in info
+    assert '"version": "0.1.0-alpha.163"' in package

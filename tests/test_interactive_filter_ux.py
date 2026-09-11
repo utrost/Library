@@ -19,17 +19,6 @@ def test_vue_catalogue_has_compact_interactive_quick_filters():
     assert "Apply filters" in app
 
 
-def test_fallback_catalogue_has_matching_quick_filter_surface():
-    fallback = (ROOT / "src" / "main.js").read_text()
-
-    assert "library-quick-filter-bar" in fallback
-    assert "Quick catalogue filters" in fallback
-    assert "fallbackQuickFilterForm" in fallback
-    assert "scheduleFallbackSubmit" in fallback
-    assert "input.addEventListener('input', scheduleFallbackSubmit)" in fallback
-    assert "select.addEventListener('change', () => form.requestSubmit())" in fallback
-
-
 def test_filter_css_preserves_catalogue_area_with_compact_responsive_controls():
     css = (ROOT / "css" / "style.css").read_text()
 

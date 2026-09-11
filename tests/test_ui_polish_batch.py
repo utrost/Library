@@ -54,7 +54,7 @@ def test_catalogue_has_top_toolbar_filter_summary_empty_actions_and_structured_c
     css = (ROOT / "css" / "style.css").read_text()
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
-    for source in (app, fallback):
+    for source in (app,):
         assert "library-catalogue-header" in source
         assert "library-filter-result-summary" in source
         assert "Clear all filters" in source
@@ -79,6 +79,6 @@ def test_ui_polish_version_bump_is_tracked_for_nextcloud_asset_refresh():
     package = (ROOT / "package.json").read_text()
     lock = (ROOT / "package-lock.json").read_text()
 
-    assert "<version>0.1.0-alpha.162</version>" in info
-    assert '"version": "0.1.0-alpha.162"' in package
-    assert '"version": "0.1.0-alpha.162"' in lock
+    assert "<version>0.1.0-alpha.163</version>" in info
+    assert '"version": "0.1.0-alpha.163"' in package
+    assert '"version": "0.1.0-alpha.163"' in lock

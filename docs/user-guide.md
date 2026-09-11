@@ -88,7 +88,7 @@ Current catalogue capabilities:
 - see scan diagnostics on unhealthy catalogue cards only;
 - open **Library settings**, **Export corrected metadata** and **Export sidecar manifest** from the secondary catalogue action area.
 
-The catalogue cards are intentionally browse-only. Editing happens on the detail page so the grid stays fast to scan. The no-Vue fallback renderer is also expected to preserve the same core browse actions.
+The catalogue cards are intentionally browse-only. Editing happens on the detail page so the grid stays fast to scan. Vue is the sole catalogue renderer; startup failure shows an honest recovery notice rather than a second, potentially stale catalogue.
 
 Implementation note for reviewers: the catalogue is no longer an app-layer filter over a fully loaded item list. The DB-backed catalogue query path is implemented in `ItemService::queryCatalogue()`, including total counts, facets, filters, sort modes and page slicing. Exact Nextcloud tag filtering is implemented by resolving visible tag names to file IDs, then applying the database query to those file IDs.
 
@@ -348,7 +348,7 @@ A Nextcloud administrator should:
 4. make sure Nextcloud background jobs execute regularly, because Library scan requests are queued as background jobs;
 5. verify that the Library navigation entry appears;
 6. verify that `/settings/user/library` opens for a normal user;
-7. verify that the catalogue loads through the Vue app or fallback without browser console errors.
+7. verify that the catalogue loads through Vue without browser console errors; separately verify that injected startup failures show only the watchdog recovery notice and never catalogue data.
 
 ### Preparing folders and permissions
 

@@ -28,6 +28,13 @@ def test_browser_smoke_script_checks_real_vue_dom_and_cleans_tokens():
     assert "user:add-app-password" in script
     assert "user:auth-tokens:delete" in script
     assert "print('browser_smoke_ok', true)" in script
+    assert "browser_startup_failure_matrix" in script
+    assert "module-404', 'syntax', 'bootstrap', 'mount', 'state-missing', 'state-malformed-json', 'state-invalid-shape" in script
+    assert "Emulation.setScriptExecutionDisabled" in script
+    assert "browser_slow_startup_no_flash" in script
+    assert "browser_module_timeout_visible_while_pending" in script
+    assert "browser_module_timeout_recovery" in script
+    assert "browser_near_threshold_startup_no_notice" in script
     assert "temp_token_remaining" in script
 
 

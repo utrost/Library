@@ -33,9 +33,6 @@ def test_vue_and_fallback_render_creator_discovery_links_and_header():
     assert "library-creator-groups" in vue
     assert "Creator" in vue
     assert "library-discovery-header" in vue
-    assert "fallbackIsCreatorDiscoveryPage" in fallback
-    assert "fallbackCreatorLandingUrl(creator" in fallback
-    assert "library-creator-groups" in fallback
 
 
 def test_smokes_and_docs_track_creator_discovery_page():
