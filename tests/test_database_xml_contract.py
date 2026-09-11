@@ -39,7 +39,8 @@ EXPECTED_TABLES = {
         "fields": {
             "id", "user_id", "status", "scope_type", "root_id", "roots_total", "files_indexed",
             "files_added", "paths_updated", "files_unchanged", "files_missing", "error_count",
-            "metadata_errors", "summary", "started_at", "finished_at",
+            "metadata_errors", "summary", "started_at", "finished_at", "run_started_at", "duration_ms",
+            "fingerprint_skips", "metadata_extractions", "item_refreshes",
         },
         "indexes": {
             "library_scan_jobs_id", "library_scan_jobs_user_started",
@@ -107,6 +108,7 @@ def test_database_xml_preserves_key_types_defaults_and_uniqueness():
     assert child_text(scan_jobs["status"], "default") == "running"
     assert child_text(scan_jobs["scope_type"], "default") == "all"
     assert child_text(scan_jobs["metadata_errors"], "default") == "0"
+    assert child_text(scan_jobs["fingerprint_skips"], "default") == "0"
 
     saved_declaration = required_declaration(tables, "*dbprefix*library_saved_collections")
     saved_indexes = {child_text(index, "name"): index for index in saved_declaration.findall("index")}

@@ -14,7 +14,7 @@ def test_scan_retry_metadata_errors_route_queues_scoped_background_job():
     assert "public function retryMetadataErrors(): RedirectResponse" in controller
     assert "queueJob($user->getUID(), 'metadata_errors')" in controller
     assert "'retryMetadataErrors' => true" in controller
-    assert "scopeType = (string)($argument['scopeType'] ??" in job
+    assert "$scopeType = (string)$queuedJob['scopeType'];" in job
     assert "retryMetadataErrors($userId" in job
     assert "metadata_errors" in service
 

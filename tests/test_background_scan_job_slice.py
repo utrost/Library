@@ -12,13 +12,14 @@ def test_scan_background_job_class_runs_existing_scanner_and_marks_job_lifecycle
     assert "ITimeFactory $time" in job
     assert "LibraryScanner $scanner" in job
     assert "ScanJobService $scanJobService" in job
-    assert "$this->scanJobService->markRunning($userId, $jobId);" in job
-    assert "$rootId = isset($argument['rootId']) ? (int)$argument['rootId'] : null;" in job
-    assert "$progress = function (array $progress) use ($userId, $jobId): void" in job
+    assert "$this->scanJobService->markRunning($userId, $jobId)" in job
+    assert "$rootId = $scopeType === 'root' ? (int)($queuedJob['rootId'] ?? 0) : null;" in job
+    assert "isset($argument['rootId'])" not in job
+    assert "$progress = function (array $progress) use ($userId, $jobId, $policy" in job
     assert "$this->scanJobService->updateProgress($userId, $jobId, $progress);" in job
     assert "$this->scanner->scan($userId, $rootId, $progress)" in job
-    assert "$this->scanJobService->finishJob($userId, $jobId, $result);" in job
-    assert "$this->scanJobService->failJob($userId, $jobId, $e->getMessage());" in job
+    assert "$this->scanJobService->finishJob($userId, $jobId, $result)" in job
+    assert "$this->scanJobService->failJob($userId, $jobId, $e->getMessage(), $metrics)" in job
 
 
 def test_scan_controller_queues_background_job_and_returns_before_scanning():
@@ -39,7 +40,7 @@ def test_scan_job_service_supports_queued_and_running_statuses():
     assert "public function queueJob(string $userId, string $scopeType = 'all', ?int $rootId = null): array" in service
     assert "scopeType" in service
     assert "rootId" in service
-    assert "public function markRunning(string $userId, int $jobId): void" in service
+    assert "public function markRunning(string $userId, int $jobId): bool" in service
     assert "queued" in service
     assert "running" in service
     assert "completed" in service

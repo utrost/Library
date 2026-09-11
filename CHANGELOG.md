@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.154 - 2026-09-11
+
+- Added dependency-free, monotonic, aggregate operation instrumentation for scans, catalogue builds, and cover builds. Metrics stay in process or in aggregate scan-job columns; this is not external telemetry and it is not proof of a universal speedup.
+- Persisted scan duration and extraction/write-elision counters, fixed exact scan-job creation IDs, and made competing terminal transitions conditional.
+- Throttled scan progress and cancellation polling to the initial observation and then 100 traversal units or 1000 ms, including unsupported nodes and nested/empty folders, with an authoritative final transition. A single filesystem listing/node call or extraction/storage operation remains non-preemptive.
+- Added privacy-safe structured terminal events whose fixed contexts exclude identifiers, paths, search values, metadata, URLs, SQL, and exception details.
+
 ## v0.1.0-alpha.153 - 2026-09-11
 
 - Added a conservative unchanged-file metadata fast path: trusted indexed files with an existing catalogue item, a matching current pipeline revision and an unchanged primary/selected-OPF fingerprint skip content extraction and catalogue-item writes.

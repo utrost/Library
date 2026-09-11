@@ -16,7 +16,7 @@ def test_schema_and_portable_post_120000_migration_add_nullable_marker_fields_on
         assert fields[name].findtext("notnull") == "false"
 
     migrations = sorted((ROOT / "lib" / "Migration").glob("Version000100Date20260911*.php"))
-    migration = migrations[-1]
+    migration = next(path for path in migrations if "130000" in path.name)
     assert migration.name > "Version000100Date20260911120000.php"
     text = migration.read_text()
     assert "metadata_input_fingerprint" in text
@@ -117,7 +117,10 @@ def test_ci_sets_up_php_83_and_runs_plain_php_runtime_test():
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text()
     assert "shivammathur/setup-php@" in workflow
     assert re.search(r"php-version:\s*['\"]?8\.3['\"]?", workflow)
-    assert "php tests/php/metadata_fast_path_test.php" in workflow
+    assert "./scripts/run-php-runtime-tests.sh" in workflow
+    runtime_script = (ROOT / "scripts" / "run-php-runtime-tests.sh").read_text()
+    assert "metadata_fast_path_test.php" in runtime_script
+    assert "performance_instrumentation_test.php" in runtime_script
 
 
 def test_force_repairs_bypass_fast_path_and_suppressed_opf_cleanup_stays_separate():

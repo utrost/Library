@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONTAINER="${NEXTCLOUD_CONTAINER:-nextcloud}"
 APP_ID="library"
-EXPECTED_VERSION="0.1.0-alpha.153"
+EXPECTED_VERSION="0.1.0-alpha.154"
 VERSION="${1:-$(python3 - <<'PY'
 from pathlib import Path
 import re
@@ -52,6 +52,9 @@ docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/li
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260909170000.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260911120000.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260911130000.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260911140000.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Instrumentation/MonotonicClock.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Instrumentation/ScanProgressPolicy.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Metadata/MetadataFastPathDecision.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Metadata/MetadataInputFingerprint.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Metadata/PublicationMetadataService.php

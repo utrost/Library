@@ -6,13 +6,19 @@ namespace OCA\Library\Service;
 
 use OCA\Library\Metadata\PublicationMetadataService;
 use OCA\Library\Metadata\MetadataFastPathDecision;
+use OCA\Library\Exception\ScanCancelledException;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
 use Throwable;
+use OCA\Library\Instrumentation\MonotonicClock;
 
 final class LibraryScanner {
+    private MonotonicClock $clock;
+    /** @var array<string,int> */
+    private array $metrics = [];
+    private int $scanStartedAt = 0;
     private const SUPPORTED_MIME_TYPES = [
         'application/pdf',
         'application/epub+zip',
@@ -27,36 +33,47 @@ final class LibraryScanner {
         private ItemService $itemService,
         private PublicationMetadataService $metadataService,
         private IRootFolder $rootFolder,
+        ?MonotonicClock $clock = null,
     ) {
+        $this->clock = $clock ?? new MonotonicClock();
     }
 
     /**
      * @return array{roots:int,indexed:int,errors:array<int,string>}
      */
     public function scan(string $userId, ?int $onlyRootId = null, ?callable $progress = null): array {
+        $scanStarted = $this->beginMetrics();
         $indexed = 0;
         $summary = $this->emptyChangeSummary();
         $errors = [];
         $scopeRootId = $onlyRootId;
         $roots = $this->filterRootsForScope($userId, $scopeRootId);
         $rootsTotal = count($roots);
+        $traversalUnits = 0;
         $userFolder = $this->rootFolder->getUserFolder($userId);
-        $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Scanning enabled roots…');
+        $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Scanning enabled roots…', [], $traversalUnits);
 
         foreach ($roots as $root) {
             try {
                 $rootId = (int)$root['id'];
                 $folder = $this->resolveRootFolder($userFolder, (string)$root['path']);
                 $seenLibraryFileIds = [];
-                $indexed += $this->scanFolder($userId, $rootId, $folder, $seenLibraryFileIds, $summary, function (int $filesIndexed) use (&$indexed, $progress, $rootsTotal, &$errors, $root, &$summary): void {
-                    $this->reportProgress($progress, $rootsTotal, $indexed + $filesIndexed, count($errors), 'Scanning ' . (string)$root['path'], $summary);
+                $this->scanFolder($userId, $rootId, $folder, $seenLibraryFileIds, $summary, $indexed, $traversalUnits, function (int $filesIndexed, int $units) use ($progress, $rootsTotal, &$errors, $root, &$summary): void {
+                    $this->reportProgress($progress, $rootsTotal, $filesIndexed, count($errors), 'Scanning ' . (string)$root['path'], $summary, $units);
                 });
-                $summary['filesMissing'] += $this->fileIndexService->markMissingExcept($userId, $rootId, $seenLibraryFileIds);
+                $missingStarted = $this->clock->now();
+                try {
+                    $summary['filesMissing'] += $this->fileIndexService->markMissingExcept($userId, $rootId, $seenLibraryFileIds);
+                } finally {
+                    $this->metrics['missingUpdateDurationMs'] += $this->clock->elapsedMs($missingStarted);
+                }
                 $this->rootService->markScanned($rootId);
-                $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Finished ' . (string)$root['path']);
+                $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Finished ' . (string)$root['path'], $summary, $traversalUnits);
+            } catch (ScanCancelledException $e) {
+                throw $e;
             } catch (Throwable $e) {
                 $errors[] = sprintf('%s: %s', (string)$root['path'], $e->getMessage());
-                $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Scan error: ' . (string)$root['path']);
+                $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Scan error: ' . (string)$root['path'], $summary, $traversalUnits);
             }
         }
 
@@ -65,6 +82,7 @@ final class LibraryScanner {
             'indexed' => $indexed,
             'errors' => $errors,
             ...$summary,
+            ...$this->finishMetrics($scanStarted),
         ];
     }
 
@@ -72,6 +90,7 @@ final class LibraryScanner {
      * @return array{roots:int,indexed:int,errors:array<int,string>}
      */
     public function retryMetadataErrors(string $userId, ?callable $progress = null): array {
+        $scanStarted = $this->beginMetrics();
         $files = $this->fileIndexService->metadataErrorFiles($userId);
         $indexed = 0;
         $errors = [];
@@ -100,6 +119,7 @@ final class LibraryScanner {
             'roots' => $rootsTotal,
             'indexed' => $indexed,
             'errors' => $errors,
+            ...$this->finishMetrics($scanStarted),
         ];
     }
 
@@ -107,6 +127,7 @@ final class LibraryScanner {
      * @return array{roots:int,indexed:int,errors:array<int,string>}
      */
     public function recheckMissingFiles(string $userId, ?callable $progress = null): array {
+        $scanStarted = $this->beginMetrics();
         $files = $this->fileIndexService->missingFiles($userId);
         $indexed = 0;
         $errors = [];
@@ -135,6 +156,7 @@ final class LibraryScanner {
             'roots' => $rootsTotal,
             'indexed' => $indexed,
             'errors' => $errors,
+            ...$this->finishMetrics($scanStarted),
         ];
     }
 
@@ -169,11 +191,15 @@ final class LibraryScanner {
         return $node;
     }
 
-    private function scanFolder(string $userId, int $rootId, Folder $folder, array &$seenLibraryFileIds, array &$summary, ?callable $progress = null): int {
-        $indexed = 0;
-        foreach ($folder->getDirectoryListing() as $node) {
+    private function scanFolder(string $userId, int $rootId, Folder $folder, array &$seenLibraryFileIds, array &$summary, int &$indexed, int &$traversalUnits, ?callable $progress = null): void {
+        $nodes = $folder->getDirectoryListing();
+        $traversalUnits++;
+        if ($progress !== null) { $progress($indexed, $traversalUnits); }
+        foreach ($nodes as $node) {
+            $traversalUnits++;
+            if ($progress !== null) { $progress($indexed, $traversalUnits); }
             if ($node instanceof Folder) {
-                $indexed += $this->scanFolder($userId, $rootId, $node, $seenLibraryFileIds, $summary, $progress);
+                $this->scanFolder($userId, $rootId, $node, $seenLibraryFileIds, $summary, $indexed, $traversalUnits, $progress);
                 continue;
             }
 
@@ -187,7 +213,7 @@ final class LibraryScanner {
                     $seenLibraryFileIds[] = $preservedSidecarId;
                     $indexed++;
                     if ($progress !== null) {
-                        $progress($indexed);
+                        $progress($indexed, $traversalUnits);
                     }
                 }
                 continue;
@@ -196,12 +222,10 @@ final class LibraryScanner {
             if ($this->scanFile($userId, $rootId, $node, $seenLibraryFileIds, false, $summary)) {
                 $indexed++;
                 if ($progress !== null) {
-                    $progress($indexed);
+                    $progress($indexed, $traversalUnits);
                 }
             }
         }
-
-        return $indexed;
     }
 
     private function emptyChangeSummary(): array {
@@ -214,6 +238,21 @@ final class LibraryScanner {
         ];
     }
 
+    private function beginMetrics(): int {
+        $this->metrics = [
+            'fingerprintSkips' => 0, 'metadataExtractions' => 0, 'itemRefreshes' => 0,
+            'fileIndexDurationMs' => 0, 'fingerprintDurationMs' => 0,
+            'metadataExtractionDurationMs' => 0, 'itemRefreshDurationMs' => 0,
+            'missingUpdateDurationMs' => 0,
+        ];
+        $this->scanStartedAt = $this->clock->now();
+        return $this->scanStartedAt;
+    }
+
+    private function finishMetrics(int $startedAt): array {
+        return [...$this->metrics, 'scannerDurationMs' => $this->clock->elapsedMs($startedAt)];
+    }
+
     private function incrementChangeCount(array &$summary, string $changeStatus): void {
         match ($changeStatus) {
             'added' => $summary['filesAdded']++,
@@ -222,7 +261,7 @@ final class LibraryScanner {
         };
     }
 
-    private function reportProgress(?callable $progress, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary, array $changeSummary = []): void {
+    private function reportProgress(?callable $progress, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary, array $changeSummary = [], int $traversalUnits = 0): void {
         if ($progress === null) {
             return;
         }
@@ -230,6 +269,7 @@ final class LibraryScanner {
         $progress([
             'roots' => $rootsTotal,
             'indexed' => $filesIndexed,
+            'traversalUnits' => $traversalUnits,
             'errors' => $errorCount,
             'summary' => $summary,
             'filesAdded' => (int)($changeSummary['filesAdded'] ?? 0),
@@ -237,26 +277,42 @@ final class LibraryScanner {
             'filesUnchanged' => (int)($changeSummary['filesUnchanged'] ?? 0),
             'filesMissing' => (int)($changeSummary['filesMissing'] ?? 0),
             'metadataErrors' => (int)($changeSummary['metadataErrors'] ?? 0),
+            'fingerprintSkips' => $this->metrics['fingerprintSkips'],
+            'metadataExtractions' => $this->metrics['metadataExtractions'],
+            'itemRefreshes' => $this->metrics['itemRefreshes'],
+            'fileIndexDurationMs' => $this->metrics['fileIndexDurationMs'],
+            'fingerprintDurationMs' => $this->metrics['fingerprintDurationMs'],
+            'metadataExtractionDurationMs' => $this->metrics['metadataExtractionDurationMs'],
+            'itemRefreshDurationMs' => $this->metrics['itemRefreshDurationMs'],
+            'missingUpdateDurationMs' => $this->metrics['missingUpdateDurationMs'],
+            'scannerDurationMs' => $this->scanStartedAt > 0 ? $this->clock->elapsedMs($this->scanStartedAt) : 0,
         ]);
     }
 
     private function scanFile(string $userId, int $rootId, File $node, array &$seenLibraryFileIds, bool $force = false, ?array &$summary = null): bool {
-        $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
-            'fileId' => $node->getId(),
-            'cachedPath' => $this->displayPath($node, $userId),
-            'mimeType' => $node->getMimetype(),
-            'extension' => strtolower(pathinfo($node->getName(), PATHINFO_EXTENSION)),
-            'etag' => $node->getEtag(),
-            'mtime' => $node->getMTime(),
-            'size' => $node->getSize(),
-        ]);
+        $fileIndexStarted = $this->clock->now();
+        try {
+            $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
+                'fileId' => $node->getId(),
+                'cachedPath' => $this->displayPath($node, $userId),
+                'mimeType' => $node->getMimetype(),
+                'extension' => strtolower(pathinfo($node->getName(), PATHINFO_EXTENSION)),
+                'etag' => $node->getEtag(),
+                'mtime' => $node->getMTime(),
+                'size' => $node->getSize(),
+            ]);
+        } finally {
+            $this->metrics['fileIndexDurationMs'] += $this->clock->elapsedMs($fileIndexStarted);
+        }
         $seenLibraryFileIds[] = (int)$indexedFile['id'];
         if ($summary !== null) {
             $this->incrementChangeCount($summary, (string)($indexedFile['changeStatus'] ?? 'unchanged'));
         }
 
         try {
-            $fingerprint = $this->metadataService->metadataInputFingerprint($node, $rootId);
+            $fingerprintStarted = $this->clock->now();
+            try { $fingerprint = $this->metadataService->metadataInputFingerprint($node, $rootId); }
+            finally { $this->metrics['fingerprintDurationMs'] += $this->clock->elapsedMs($fingerprintStarted); }
             $revision = PublicationMetadataService::PIPELINE_REVISION;
             if (MetadataFastPathDecision::shouldSkip(
                 $force,
@@ -268,13 +324,22 @@ final class LibraryScanner {
                 $indexedFile['previousMetadataExtractorRevision'] ?? null,
                 fn () => $this->itemService->hasItemForLibraryFile($userId, (int)$indexedFile['id']),
             )) {
+                $this->metrics['fingerprintSkips']++;
                 return true;
             }
 
-            $metadata = $this->metadataService->extractWithSidecar($node);
-            $this->itemService->ensureItemForFile($userId, $indexedFile, $metadata);
+            $this->metrics['metadataExtractions']++;
+            $metadataStarted = $this->clock->now();
+            try { $metadata = $this->metadataService->extractWithSidecar($node); }
+            finally { $this->metrics['metadataExtractionDurationMs'] += $this->clock->elapsedMs($metadataStarted); }
+            $itemStarted = $this->clock->now();
+            try { $this->itemService->ensureItemForFile($userId, $indexedFile, $metadata); }
+            finally { $this->metrics['itemRefreshDurationMs'] += $this->clock->elapsedMs($itemStarted); }
+            $this->metrics['itemRefreshes']++;
 
-            $postExtractionFingerprint = $this->metadataService->metadataInputFingerprint($node, $rootId);
+            $fingerprintStarted = $this->clock->now();
+            try { $postExtractionFingerprint = $this->metadataService->metadataInputFingerprint($node, $rootId); }
+            finally { $this->metrics['fingerprintDurationMs'] += $this->clock->elapsedMs($fingerprintStarted); }
             $metadataError = $this->metadataService->getLastError();
             if ($metadataError !== null) {
                 if ($summary !== null) {
@@ -284,6 +349,8 @@ final class LibraryScanner {
             } elseif (MetadataFastPathDecision::shouldMarkProcessed($fingerprint, $postExtractionFingerprint, $metadataError)) {
                 $this->fileIndexService->markMetadataProcessed($userId, (int)$indexedFile['id'], $fingerprint, $revision);
             }
+        } catch (ScanCancelledException $e) {
+            throw $e;
         } catch (Throwable $e) {
             if ($summary !== null) {
                 $summary['metadataErrors']++;

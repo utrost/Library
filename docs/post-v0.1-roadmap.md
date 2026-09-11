@@ -155,6 +155,7 @@ These are **not committed release promises**. They can be pulled forward if v0.1
 - Internet/AI classification only after provenance, privacy and review workflows are strong.
 - Public sharing or publishing of a curated catalogue.
 - Broader Nextcloud version support and App Store signing/release process.
+- Remaining Trust/scale work: request/autosave/star races; cover validation, remote privacy, archive budgets and caching; query/payload completion; missing-file batching; root transaction/overlap hardening; and representative scale gates.
 
 ## Sequencing principle
 

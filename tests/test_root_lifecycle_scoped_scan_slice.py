@@ -40,7 +40,8 @@ def test_scan_jobs_record_scope_and_background_job_passes_root_id_to_scanner():
     assert "public function queueJob(string $userId, string $scopeType = 'all', ?int $rootId = null): array" in service
     assert "scopeType" in service
     assert "rootId" in service
-    assert "$rootId = isset($argument['rootId']) ? (int)$argument['rootId'] : null;" in job
+    assert "$rootId = $scopeType === 'root' ? (int)($queuedJob['rootId'] ?? 0) : null;" in job
+    assert "isset($argument['rootId'])" not in job
     assert "$this->scanner->scan($userId, $rootId" in job
     assert "runRoot(int $rootId)" in controller
     assert "queueJob($user->getUID(), 'root', $rootId)" in controller

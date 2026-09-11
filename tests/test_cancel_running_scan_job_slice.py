@@ -38,12 +38,12 @@ def test_cancelled_scan_job_terminal_state_is_not_overwritten_by_progress_or_fin
     assert "public function updateProgress" in service
     update_body = service.split("public function updateProgress", 1)[1].split("public function", 1)[0]
     assert "status'" in update_body
-    assert "cancelled" in update_body
-    assert "neq('status'" in update_body or "notIn('status'" in update_body
+    assert "->eq('status', $qb->createNamedParameter('running'))" in update_body
 
     finish_body = service.split("public function finishJob", 1)[1].split("public function", 1)[0]
-    assert "isCancelled($userId, $jobId)" in finish_body
-    assert "return;" in finish_body
+    assert "updateJob($userId, $jobId, 'completed'" in finish_body
+    assert "eq('status', $qb->createNamedParameter('running'))" in service
+    assert "return $this->updateJob" in finish_body
 
 
 def test_settings_copy_and_docs_track_running_cancellation_boundary():
@@ -59,5 +59,5 @@ def test_settings_copy_and_docs_track_running_cancellation_boundary():
     assert "running-job cancellation" in readme.lower()
     assert "running-job cancellation" in guide.lower()
     assert "running-job cancellation" in roadmap.lower()
-    assert "0.1.0-alpha.153" in info
-    assert '"version": "0.1.0-alpha.153"' in package
+    assert "0.1.0-alpha.154" in info
+    assert '"version": "0.1.0-alpha.154"' in package

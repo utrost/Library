@@ -39,7 +39,21 @@ jobs:
         run: python -m pytest -q
 
       - name: Run PHP runtime tests
-        run: php tests/php/metadata_fast_path_test.php
+        run: ./scripts/run-php-runtime-tests.sh
+
+      - name: Lint instrumentation PHP
+        run: |
+          php -l lib/Instrumentation/MonotonicClock.php
+          php -l lib/Instrumentation/ScanProgressPolicy.php
+          php -l lib/Exception/ScanCancelledException.php
+          php -l lib/Service/ScanJobService.php
+          php -l lib/Service/LibraryScanner.php
+          php -l lib/BackgroundJob/ScanJob.php
+          php -l lib/Migration/Version000100Date20260911140000.php
+          php -l tests/php/performance_instrumentation_test.php
+          php -l tests/php/library_scanner_traversal_test.php
+          php -l tests/php/scan_job_runtime_test.php
+          php -l tests/php/scan_job_service_test.php
 
       - name: Run frontend tests
         run: npm test -- --run
