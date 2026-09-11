@@ -6,18 +6,23 @@ $tags = $item['nextcloudTags'] ?? [];
 $tagSuggestions = is_array($item['tagSuggestions'] ?? null) ? $item['tagSuggestions'] : [];
 $tagFeedback = is_array($item['tagFeedback'] ?? null) ? $item['tagFeedback'] : null;
 $metadataSaved = (bool)($item['metadataSaved'] ?? false);
-$publicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other'];
-$languageOptions = [
-    'de' => 'German (de)',
-    'en' => 'English (en)',
-    'fr' => 'French (fr)',
-    'es' => 'Spanish (es)',
-    'it' => 'Italian (it)',
-    'nl' => 'Dutch (nl)',
-    'en-US' => 'English, US (en-US)',
-    'en-GB' => 'English, UK (en-GB)',
+$publicationTypes = [
+    'book' => $l->t('book'), 'comic' => $l->t('comic'), 'magazine' => $l->t('magazine'),
+    'journal' => $l->t('journal'), 'manual' => $l->t('manual'),
+    'catalogue' => $l->t('catalogue'), 'other' => $l->t('other'),
 ];
-$genreOptions = ['fiction', 'non-fiction', 'photography', 'science fiction', 'history', 'technical', 'manual', 'reference'];
+$languageOptions = [
+    'de' => $l->t('German (de)'), 'en' => $l->t('English (en)'),
+    'fr' => $l->t('French (fr)'), 'es' => $l->t('Spanish (es)'),
+    'it' => $l->t('Italian (it)'), 'nl' => $l->t('Dutch (nl)'),
+    'en-US' => $l->t('English, US (en-US)'), 'en-GB' => $l->t('English, UK (en-GB)'),
+];
+$genreOptions = [
+    'fiction' => $l->t('fiction'), 'non-fiction' => $l->t('non-fiction'),
+    'photography' => $l->t('photography'), 'science fiction' => $l->t('science fiction'),
+    'history' => $l->t('history'), 'technical' => $l->t('technical'),
+    'manual' => $l->t('manual'), 'reference' => $l->t('reference'),
+];
 $publisherSuggestions = ['Packt', "O'Reilly Media", 'Manning', 'No Starch Press', 'Apress', 'Springer', 'Penguin', 'Taschen'];
 $metadataHelp = [
     'creators' => $l->t('One creator per line. Existing semicolon-separated values are still accepted.'),
@@ -34,40 +39,27 @@ if ($currentPublisher !== '' && !in_array($currentPublisher, $publisherSuggestio
     array_unshift($publisherSuggestions, $currentPublisher);
 }
 $workflowStatuses = [
-    '' => 'No workflow status',
-    'to-read' => 'To read',
-    'reading' => 'Reading',
-    'finished' => 'Finished',
-    'reference' => 'Reference',
-    'paused' => 'Paused',
-    'abandoned' => 'Abandoned',
-    'needs-action' => 'Needs action',
+    '' => $l->t('No workflow status'), 'to-read' => $l->t('To read'),
+    'reading' => $l->t('Reading'), 'finished' => $l->t('Finished'),
+    'reference' => $l->t('Reference'), 'paused' => $l->t('Paused'),
+    'abandoned' => $l->t('Abandoned'), 'needs-action' => $l->t('Needs action'),
 ];
 $fieldSources = is_array($item['fieldSources'] ?? null) ? $item['fieldSources'] : [];
 $fieldValues = is_array($item['fieldValues'] ?? null) ? $item['fieldValues'] : [];
 $fieldProvenanceRows = [
-    'publicationType' => 'Publication type',
-    'title' => 'Title',
-    'subtitle' => 'Subtitle',
-    'creators' => 'Creators',
-    'publication' => 'Publication',
-    'publicationDate' => 'Publication date',
-    'language' => 'Language',
-    'publisher' => 'Publisher',
-    'description' => 'Description',
-    'genres' => 'Genres',
-    'classifications' => 'Classifications',
+    'publicationType' => $l->t('Publication type'), 'title' => $l->t('Title'),
+    'subtitle' => $l->t('Subtitle'), 'creators' => $l->t('Creators'),
+    'publication' => $l->t('Publication'), 'publicationDate' => $l->t('Publication date'),
+    'language' => $l->t('Language'), 'publisher' => $l->t('Publisher'),
+    'description' => $l->t('Description'), 'genres' => $l->t('Genres'),
+    'classifications' => $l->t('Classifications'),
 ];
 $scannerCandidateCount = count(array_filter($fieldValues, static fn ($value) => trim((string)$value) !== ''));
 $metadataHealthFields = [
-    'title' => 'Title',
-    'creators' => 'Creators',
-    'publicationDate' => 'Publication date',
-    'language' => 'Language',
-    'genres' => 'Genres',
-    'publisher' => 'Publisher',
-    'description' => 'Description',
-    'personalRating' => 'Personal rating',
+    'title' => $l->t('Title'), 'creators' => $l->t('Creators'),
+    'publicationDate' => $l->t('Publication date'), 'language' => $l->t('Language'),
+    'genres' => $l->t('Genres'), 'publisher' => $l->t('Publisher'),
+    'description' => $l->t('Description'), 'personalRating' => $l->t('Personal rating'),
 ];
 $weakFields = [];
 foreach ($metadataHealthFields as $field => $label) {
@@ -104,8 +96,18 @@ $fileRows = [
     'scanStatus' => $item['scanStatus'] ?? '',
     'scanError' => $item['scanError'] ?? '',
 ];
+$fileRowLabels = [
+    'fileId' => $l->t('File ID'), 'libraryFileId' => $l->t('Library file ID'),
+    'path' => $l->t('Path'), 'shelf' => $l->t('Shelf'), 'format' => $l->t('Format'),
+    'mimeType' => $l->t('MIME type'), 'scanStatus' => $l->t('Scan status'),
+    'scanError' => $l->t('Scan error'),
+];
+$scanStatusLabels = [
+    'indexed' => $l->t('indexed'), 'missing' => $l->t('missing'),
+    'metadata_error' => $l->t('metadata error'), 'unknown' => $l->t('unknown'),
+];
 ?>
-<div id="app-content" class="library-app-content">
+<div id="app-content" class="library-app-content" lang="<?php p($_['language'] ?? 'en'); ?>" dir="<?php p($_['direction'] ?? 'ltr'); ?>">
     <main id="library-app" class="library-app library-item-detail" tabindex="-1">
         <nav class="library-detail-nav" aria-label="<?php p($l->t('Publication navigation')); ?>">
             <a href="<?php p($_['catalogueUrl'] ?? ''); ?>" class="button secondary"><?php p($l->t('Back to catalogue')); ?></a>
@@ -121,7 +123,7 @@ $fileRows = [
                         <p class="library-creator"><?php p((string)$item['creators']); ?></p>
                     <?php endif; ?>
                     <p class="library-muted">
-                        <?php p((string)($item['publicationType'] ?? 'other')); ?>
+                        <?php p($publicationTypes[(string)($item['publicationType'] ?? 'other')] ?? $publicationTypes['other']); ?>
                         <?php if (($item['extension'] ?? '') !== ''): ?>
                             · <?php p($l->t('Format: %s', [strtoupper((string)$item['extension'])])); ?>
                         <?php endif; ?>
@@ -153,7 +155,7 @@ $fileRows = [
                                 <input type="hidden" name="returnTo" value="details" />
                                 <span class="library-workflow-status-pill"><span><?php p($l->t('Workflow status')); ?></span><select name="workflowStatus" onchange="this.form.submit()" aria-label="<?php p($l->t('Workflow status')); ?>">
                                     <?php foreach ($workflowStatuses as $status => $label): ?>
-                                        <option value="<?php p($status); ?>" <?php if (($item['workflowStatus'] ?? '') === $status) { print_unescaped('selected'); } ?>><?php p($l->t($label)); ?></option>
+                                        <option value="<?php p($status); ?>" <?php if (($item['workflowStatus'] ?? '') === $status) { print_unescaped('selected'); } ?>><?php p($label); ?></option>
                                     <?php endforeach; ?>
                                 </select></span>
                                 <button type="submit" class="button secondary library-workflow-status-submit-fallback"><?php p($l->t('Save status')); ?></button>
@@ -163,7 +165,7 @@ $fileRows = [
                     <details class="library-cover-override-panel">
                         <summary><?php p($l->t('Manual cover override')); ?></summary>
                         <?php if (($item['coverUploadError'] ?? '') !== ''): ?>
-                            <p class="library-validation-feedback" role="alert"><?php p($l->t((string)$item['coverUploadError'])); ?></p>
+                            <p class="library-validation-feedback" role="alert"><?php p((string)$item['coverUploadError']); ?></p>
                         <?php endif; ?>
                         <form method="post" enctype="multipart/form-data" action="<?php p($item['coverOverrideActionUrl'] ?? ''); ?>" class="library-cover-override-form">
                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
@@ -190,14 +192,14 @@ $fileRows = [
             <!-- health anchors: href="#library-field-title" href="#library-field-creators" href="#library-field-publicationDate" -->
             <details class="library-metadata-health library-metadata-health-details" aria-label="<?php p($l->t('Metadata health')); ?>">
                 <summary><?php p($l->t('Metadata quality')); ?> <span class="library-summary-badge"><?php p((string)$metadataHealth['score']); ?>%</span></summary>
-                <span class="library-muted"><?php p($l->t('%n of %n useful fields complete', '%n of %n useful fields complete', (int)$metadataHealth['complete'], [(int)$metadataHealth['total']])); ?></span>
+                <span class="library-muted"><?php p($l->t('%s of %s useful fields complete', [(string)$metadataHealth['complete'], (string)$metadataHealth['total']])); ?></span>
                 <div class="library-weak-field-jump-list" aria-label="<?php p($l->t('Weak fields')); ?>">
                     <span><?php p($l->t('Weak fields')); ?>:</span>
                     <?php if (count($metadataHealth['weakFields']) === 0): ?>
                         <span class="library-muted"><?php p($l->t('None')); ?></span>
                     <?php else: ?>
                         <?php foreach ($metadataHealth['weakFields'] as $field => $label): ?>
-                            <a href="#library-field-<?php p((string)$field); ?>"><?php p($l->t((string)$label)); ?></a>
+                            <a href="#library-field-<?php p((string)$field); ?>"><?php p((string)$label); ?></a>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
@@ -208,7 +210,7 @@ $fileRows = [
                 <input type="hidden" name="metadataAutosave" value="0" />
                 <div class="library-detail-save-row">
                     <p class="library-save-feedback library-detail-autosave-status" role="status" aria-live="polite"><?php p($metadataSaved ? $l->t('Metadata saved') : $l->t('Changes save automatically.')); ?></p>
-                    <button type="submit" class="button primary library-detail-save-button"><?php p($l->t('Save metadata')); ?></button>
+                    <button type="submit" class="button primary library-detail-save-button library-localization-long-control"><?php p($l->t('Save metadata')); ?></button>
                 </div>
                 <?php if (($item['metadataError'] ?? '') !== ''): ?>
                     <p class="library-validation-feedback library-detail-field-full" role="alert"><?php p($l->t('Metadata was not saved') . ': ' . (string)$item['metadataError']); ?></p>
@@ -227,8 +229,8 @@ $fileRows = [
                 <label>
                     <?php p($l->t('Type')); ?>
                     <select name="publicationType">
-                        <?php foreach ($publicationTypes as $type): ?>
-                            <option value="<?php p($type); ?>" <?php if (($item['publicationType'] ?? 'other') === $type) { print_unescaped('selected'); } ?>><?php p($type); ?></option>
+                        <?php foreach ($publicationTypes as $type => $typeLabel): ?>
+                            <option value="<?php p($type); ?>" <?php if (($item['publicationType'] ?? 'other') === $type) { print_unescaped('selected'); } ?>><?php p($typeLabel); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </label>
@@ -275,8 +277,8 @@ $fileRows = [
                 <label class="library-detail-field-wide" id="library-field-genres">
                     <span class="library-field-label-help" title="<?php p($metadataHelp['genres']); ?>" aria-label="<?php p($l->t('Genres help: %s', [$metadataHelp['genres']])); ?>"><?php p($l->t('Genres')); ?></span>
                     <select name="genres[]" multiple class="library-genre-picklist">
-                        <?php foreach ($genreOptions as $genre): ?>
-                            <option value="<?php p($genre); ?>" <?php if (in_array($genre, $selectedGenres, true)) { print_unescaped('selected'); } ?>><?php p($genre); ?></option>
+                        <?php foreach ($genreOptions as $genre => $genreLabel): ?>
+                            <option value="<?php p($genre); ?>" <?php if (in_array($genre, $selectedGenres, true)) { print_unescaped('selected'); } ?>><?php p($genreLabel); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </label>
@@ -284,10 +286,10 @@ $fileRows = [
                     <span class="library-field-label-help" title="<?php p($metadataHelp['classifications']); ?>" aria-label="<?php p($l->t('Classifications help: %s', [$metadataHelp['classifications']])); ?>"><?php p($l->t('Classifications')); ?></span>
                     <input type="text" name="classifications" list="library-classification-suggestions" value="<?php p(implode('; ', is_array($item['classifications'] ?? null) ? $item['classifications'] : [])); ?>" />
                     <datalist id="library-classification-suggestions">
-                        <option value="reference collection"></option>
-                        <option value="manual"></option>
-                        <option value="catalogue"></option>
-                        <option value="OCR-needed"></option>
+                        <option value="reference collection" label="<?php p($l->t('reference collection')); ?>"></option>
+                        <option value="manual" label="<?php p($l->t('manual')); ?>"></option>
+                        <option value="catalogue" label="<?php p($l->t('catalogue')); ?>"></option>
+                        <option value="OCR-needed" label="<?php p($l->t('OCR needed')); ?>"></option>
                     </datalist>
                 </label>
                 </div>
@@ -308,10 +310,10 @@ $fileRows = [
             <div class="library-detail-secondary">
 
         <details class="library-panel library-detail-diagnostic-section library-detail-section-file" aria-labelledby="library-file-metadata-heading">
-            <summary id="library-file-metadata-heading"><?php p($l->t('File metadata')); ?> <span class="library-summary-badge">scanStatus: <?php p((string)($item['scanStatus'] ?? 'unknown')); ?></span></summary>
+            <summary id="library-file-metadata-heading"><?php p($l->t('File metadata')); ?> <span class="library-summary-badge"><?php p($l->t('Scan status: %s', [$scanStatusLabels[(string)($item['scanStatus'] ?? 'unknown')] ?? $scanStatusLabels['unknown']])); ?></span></summary>
             <dl class="library-item-metadata">
                 <?php foreach ($fileRows as $label => $value): ?>
-                    <dt><?php p($label); ?></dt>
+                    <dt><?php p($fileRowLabels[$label]); ?></dt>
                     <dd class="<?php p($label === 'scanError' && trim((string)$value) !== '' ? 'library-scan-error' : ''); ?>"><?php p(trim((string)$value) !== '' ? (string)$value : '—'); ?></dd>
                 <?php endforeach; ?>
             </dl>
@@ -326,15 +328,15 @@ $fileRows = [
         </details>
 
         <details class="library-panel library-detail-diagnostic-section library-detail-section-provenance" aria-labelledby="library-provenance-heading">
-            <summary id="library-provenance-heading"><?php p($l->t('Provenance')); ?> <span class="library-summary-badge"><?php p($l->t('Scanner differences: %n', 'Scanner differences: %n', $scannerConflictCount)); ?></span></summary>
+            <summary id="library-provenance-heading"><?php p($l->t('Provenance')); ?> <span class="library-summary-badge"><?php p($l->n('Scanner difference: %n', 'Scanner differences: %n', $scannerConflictCount)); ?></span></summary>
             <dl class="library-item-metadata">
-                <dt>metadataSource</dt>
+                <dt><?php p($l->t('Metadata source')); ?></dt>
                 <dd><?php p((string)($item['metadataSource'] ?? '')); ?></dd>
-                <dt>userEdited</dt>
+                <dt data-library-field="userEdited"><?php p($l->t('User edited')); ?></dt>
                 <dd><?php p(($item['userEdited'] ?? false) ? $l->t('yes') : $l->t('no')); ?></dd>
             </dl>
             <p class="library-muted"><?php p($l->t('User-edited publication metadata is preserved across rescans. Scanner values remain provenance-labelled.')); ?></p>
-            <div class="library-field-provenance" aria-label="fieldSources">
+            <div class="library-field-provenance" aria-label="<?php p($l->t('Field sources')); ?>">
                 <h4><?php p($l->t('Field-level provenance')); ?></h4>
                 <div class="library-metadata-correction-summary" aria-label="<?php p($l->t('Metadata correction summary')); ?>">
                     <strong><?php p($l->t('Read-only summary')); ?></strong>
@@ -371,7 +373,7 @@ $fileRows = [
                                     <?php $fieldDiffersFromScanner = trim($candidateValue) !== '' && $candidateValue !== $currentValue; ?>
                                     <?php if (!$fieldDiffersFromScanner) { continue; } ?>
                                     <tr class="library-field-conflict">
-                                        <th scope="row"><?php p($l->t($label)); ?></th>
+                                        <th scope="row"><?php p($label); ?></th>
                                         <td><?php p(trim($currentValue) !== '' ? $currentValue : '—'); ?></td>
                                         <td>
                                             <?php p(trim($candidateValue) !== '' ? $candidateValue : '—'); ?>
@@ -409,7 +411,7 @@ $fileRows = [
                             <?php $resetUrl = (string)($item['resetFieldUrl'] ?? ''); ?>
                             <?php $fieldDiffersFromScanner = trim($candidateValue) !== '' && $candidateValue !== $currentValue; ?>
                             <tr class="<?php p($fieldDiffersFromScanner ? 'library-field-conflict' : ''); ?>">
-                                <th scope="row"><?php p($l->t($label)); ?></th>
+                                <th scope="row"><?php p($label); ?></th>
                                 <td><?php p((string)($fieldSources[$field] ?? ($item['metadataSource'] ?? ''))); ?></td>
                                 <td>
                                     <?php p(trim($currentValue) !== '' ? $currentValue : '—'); ?>
@@ -437,8 +439,8 @@ $fileRows = [
         </details>
 
         <details class="library-panel library-detail-diagnostic-section library-detail-section-nextcloud" aria-labelledby="library-nextcloud-metadata-heading">
-            <summary id="library-nextcloud-metadata-heading"><?php p($l->t('Nextcloud metadata')); ?> <span class="library-summary-badge"><?php p($l->t('%n tag', '%n tags', count($tags))); ?> · <?php p($l->t('%n comment', '%n comments', (int)($comments['count'] ?? 0))); ?></span></summary>
-            <div class="library-nextcloud-tags" aria-label="nextcloudTags">
+            <summary id="library-nextcloud-metadata-heading"><?php p($l->t('Nextcloud metadata')); ?> <span class="library-summary-badge"><?php p($l->n('%n tag', '%n tags', count($tags))); ?> · <?php p($l->n('%n comment', '%n comments', (int)($comments['count'] ?? 0))); ?></span></summary>
+            <div class="library-nextcloud-tags" aria-label="<?php p($l->t('Nextcloud tags')); ?>">
                 <strong><?php p($l->t('Nextcloud tags')); ?></strong>
                 <?php if (count($tags) === 0): ?>
                     <span class="library-muted"><?php p($l->t('No Nextcloud tags')); ?></span>
@@ -448,7 +450,7 @@ $fileRows = [
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
-            <div class="library-detail-tag-editor" aria-label="nextcloudTagEditor">
+            <div class="library-detail-tag-editor" data-library-surface="nextcloudTagEditor" aria-label="<?php p($l->t('Nextcloud tag editor')); ?>">
                 <?php if ($tagFeedback !== null): ?>
                     <p class="library-tag-feedback library-tag-feedback-<?php p((string)($tagFeedback['type'] ?? 'info')); ?>" data-tag-result="<?php p((string)($tagFeedback['status'] ?? '')); ?>"><?php p((string)($tagFeedback['message'] ?? '')); ?></p>
                 <?php endif; ?>
@@ -497,12 +499,12 @@ $fileRows = [
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="library-nextcloud-comments" aria-label="nextcloudComments">
+            <div class="library-nextcloud-comments" aria-label="<?php p($l->t('Nextcloud comments')); ?>">
                 <strong><?php p($l->t('Nextcloud comments')); ?></strong>
                 <?php if (($comments['count'] ?? 0) === 0): ?>
                     <span class="library-muted"><?php p($l->t('No Nextcloud comments')); ?></span>
                 <?php else: ?>
-                    <span><?php p($l->t('%n comment', '%n comments', (int)$comments['count'])); ?></span>
+                    <span><?php p($l->n('%n comment', '%n comments', (int)$comments['count'])); ?></span>
                     <ul class="library-comment-list">
                         <?php foreach (($comments['recent'] ?? []) as $comment): ?>
                             <li>

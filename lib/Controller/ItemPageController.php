@@ -19,6 +19,7 @@ use OCP\IRequest;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
+use OCP\L10N\IFactory;
 use OCP\Util;
 
 final class ItemPageController extends Controller {
@@ -32,6 +33,7 @@ final class ItemPageController extends Controller {
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
         private ?IL10N $l10n = null,
+        private ?IFactory $l10nFactory = null,
     ) {
         parent::__construct($appName, $request);
     }
@@ -152,9 +154,12 @@ final class ItemPageController extends Controller {
 
         Util::addStyle(Application::APP_ID, 'style');
         Util::addScript(Application::APP_ID, 'library-detail');
+        $language = $this->l10nFactory?->findLanguage(Application::APP_ID) ?? 'en';
         return new TemplateResponse(Application::APP_ID, 'item-detail', [
             'item' => $item,
             'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
+            'language' => $language,
+            'direction' => $this->l10nFactory?->getLanguageDirection($language) ?? 'ltr',
         ]);
     }
 

@@ -38,12 +38,20 @@ def test_browser_smoke_script_checks_real_vue_dom_and_cleans_tokens():
     assert "temp_token_remaining" in script
 
 
+def test_keyboard_collection_has_statement_boundary_before_serialized_cleanup_helper():
+    script = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
+    collection = script.split("const recordedResult", 1)[1].split("const recorded =", 1)[0]
+
+    assert "window.removeEventListener('focusin', state.onFocusIn, true);\n          (${removeFocusExitSentinel.toString()})(state.sentinel)" in collection
+
+
 def test_browser_smoke_tokenizes_filtered_batch_preview_apply_and_restore():
     script = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
     assert "catalogueRequestToken: document.querySelector('form[method=\"post\"] input[name=\"requesttoken\"]')?.value || ''" in script
     assert "requesttoken: dom.catalogueRequestToken" in script
-    assert "q: applyItem.title" in script
+    assert "previewParams.append('itemIds[]', String(applyItem.id))" in script
+    assert "q: applyItem.title" not in script
     assert "browser_catalogue_all_post_forms_have_requesttoken" in script
     assert "browser_catalogue_post_forms_are_star_forms" not in script
 

@@ -36,8 +36,8 @@ def test_detail_metadata_form_replaces_semicolon_only_editing_with_assisted_mult
 
     assert "multiple" in template.split('name="language[]"', 1)[1].split("</select>", 1)[0]
     assert "library-language-picklist" in template
-    assert "'de' => 'German (de)'" in template
-    assert "'en' => 'English (en)'" in template
+    assert "'de' => $l->t('German (de)')" in template
+    assert "'en' => $l->t('English (en)')" in template
 
     assert "multiple" in template.split('name="genres[]"', 1)[1].split("</select>", 1)[0]
     assert "library-genre-picklist" in template

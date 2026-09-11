@@ -1,6 +1,95 @@
 # Release process
 
-## Alpha.164 inclusive-quality coverage
+## Alpha.165 legacy server-rendered localization coverage
+
+`0.1.0-alpha.165` completes localization of personal Settings, batch metadata
+preview/apply, and the full PHP item-detail/edit surface. The fail-closed inventory
+now covers PHP and Vue visible copy, accessibility attributes, catalogue freshness,
+placeholders, and plural form counts. Server-rendered roots carry Nextcloud-resolved
+language and direction. German and Arabic terminology coverage is broader; this is
+not a claim of native-speaker fluency.
+
+Final alpha.165 verification: the full local gate passed 828 Python tests, 161
+Vitest tests, translation inventory with 568 keys and 127 semantic sentinels, and
+the focused runtime, production-build, module-closure, and Markdown-link gates. The
+legacy keyboard gate now records complete real-CDP Tab traversal page-side with
+exact sequential, settled N+1 paired dispatch and fail-closed snapshot/exit/order
+evidence. A temporary empty fixed 1x1 test-only focus sentinel is inserted as the
+surface's next sibling before the root snapshot and traversal. The real CDP N+1 Tab
+must focus that outside-root sentinel, proving deterministic exit and trap freedom;
+recorder cleanup removes it even on failure, and it is never part of the root
+snapshot. The static comparison snapshot uses native `tabIndex`, rendered/ancestor
+state, closed-details semantics, and native radio grouping; clipped-but-tabbable
+controls remain in sequence with separate accessibility evidence, while positive
+tabindex remains rejected. Browser-chrome exit is no longer accepted as controlling
+evidence. Inspect-core now emits
+capped, key-allowlisted numeric overflow diagnostics on every row without text,
+URLs, form values, HTML, data attributes, or token contents. Hidden/no-box descendants
+and intrinsic child width contained by the child's own clipping box are excluded;
+actual root/viewport crossings and propagated ancestor overflow remain reported.
+The fifth live result proved the expected keyboard population on every row:
+Settings 42/42, detail 25/25, and batch 3/3. Its browser-chrome exit observations
+are now non-controlling historical diagnostics. The former mutation observer
+incorrectly failed every row after observing ordinary focus styling or the recorder's
+temporary root focus setup. Collection now recomputes the native sequential snapshot
+and compares connected element identities, order, and eligibility-affecting properties;
+regressions prove class/focus styling is ignored while hidden, disabled, tabindex,
+href, details, radio, order, and disconnection changes fail closed.
+
+The live overflow offenders drove a narrow logical-property mobile fix: the detail
+hero stacks, action/workflow/form children can shrink and wrap, cover override input
+is bounded, metadata and German Settings definition lists use bounded one-column
+tracks, and provenance tables are contained by their deliberate inline scroll
+wrapper. No root/document overflow clipping is used. The live matrix now includes
+320 and 390 CSS-pixel mobile widths for both LTR German and RTL Arabic. The gate
+retains 30-second keyboard plus 35-second navigation phase timeouts and split
+10-second core/form/geometry inspections. Each row still inspects before keyboard
+traversal and attaches post-keyboard fatal/network events without another renderer
+evaluation. The catalogue and legacy geometry gates now measure explicitly identified,
+exactly translated real controls and require actual wrapping without clipping only
+for row specifications whose `expectWrap` contract names that viewport. One-line
+desktop fits and short German/Arabic controls remain valid when unclipped; narrow
+German legacy controls and the naturally long Arabic catalogue summary retain genuine
+two-line Range-rect proof. Keyboard traversal passed with 42 targets plus N+1 exit
+for Settings, 3 plus N+1 for batch preview, and 25 plus N+1 for full details on every
+applicable row.
+
+Every configured legacy width is now controlling: each surface row requires its
+own overflow result, with exactly six rows at 1280, six at 390, and six at 320 CSS
+pixels (twelve mobile rows total). Mutation coverage proves a single otherwise-valid
+320 row with overflow disabled fails its surface marker, the mobile marker, and the
+final aggregate. Both legacy and catalogue long-string probes now measure the exact
+visible text nodes with `Range.getClientRects()`, cluster line tops within 1.5 pixels,
+cap emitted counts at 64, and require at least two rendered text lines. Containing
+labels exclude nested input/select/textarea/button content. Executable DOM regressions
+reject padded single-line buttons, stacked label/control layouts, absent/nontext
+nodes, and accept genuine two-line text while the existing translation, association,
+natural-control, white-space, and clipping contracts remain controlling.
+
+Final controlling alpha.165 package evidence:
+
+- The exact reproducible archive has SHA-256
+  `a100044ea8e4ca1e70174f504b4052367556d65d07cb069d14fa472b9a16a0bc`, is
+  377564 bytes, contains 102 entries, and carries 807361 frontend bytes. Its
+  package audit reported zero dependency vulnerabilities.
+- Exact-package verification, installation, enablement, and the complete release
+  workflow exited 0 and ended with `release_package_smoke_ok=true`.
+- All six German/Arabic Settings, batch, and details markers were true at each of
+  1280, 390, and 320 CSS pixels. Desktop and mobile no-overflow, safe-form, locale
+  restoration, and `browser_smoke_ok` checks were true; `browser_console_errors=0`.
+- Privacy cleanup passed with `second_user_isolation=true` and
+  `temp_token_remaining=0`.
+
+Automated catalogue and legacy-surface checks prove structure, coverage,
+placeholders, selected semantic sentinels, generation parity, geometry, and
+interaction contracts, but cannot prove linguistic quality. Independent human
+review remains advisable, and no native-speaker review or fluency claim is made.
+Final independent review, commit, push, and exact-SHA CI remain pending. No
+deployment is claimed. Alpha.164 native Vue/Review/sidebar behavior and the
+alpha.163 startup matrix remain unchanged. Only alpha.166 mixed-direction and
+dedicated assistive-technology expansion remains scheduled.
+
+## Alpha.164 historical inclusive-quality coverage
 
 `0.1.0-alpha.164` localizes the native Library Vue catalogue, Review destination,
 read-only item sidebar, and CSP-safe startup watchdog through Nextcloud's PHP and
@@ -23,12 +112,12 @@ legacy PHP/settings/detail surfaces and broaden reviewed translations; alpha.166
 should extend assistive-technology and mixed-direction content coverage. Source
 files remain private and unchanged, and locale changes in smoke are restored.
 
-This repo is prepared for the v0.1 manual testing pass from app version `0.1.0-alpha.164`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
+This repo is prepared for independent review from app version `0.1.0-alpha.165`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
 
 ## Release type
 
 - Private/early-tester v0.1 candidate on a Nextcloud 34 test instance.
-- App version in `appinfo/info.xml`: `0.1.0-alpha.164`.
+- App version in `appinfo/info.xml`: `0.1.0-alpha.165`.
 - License: AGPL-3.0-or-later.
 - Target runtime: Nextcloud 34.
 
@@ -53,8 +142,8 @@ scripts/package-release.sh
 The script runs the test/build gates, applies the intentional frontend manifest, creates a reproducible archive, audits it, then writes:
 
 ```text
-dist/library-0.1.0-alpha.164.tar.gz
-dist/library-0.1.0-alpha.164.tar.gz.sha256
+dist/library-0.1.0-alpha.165.tar.gz
+dist/library-0.1.0-alpha.165.tar.gz.sha256
 ```
 
 The archive contains one `library/` directory and excludes development material. Its frontend manifest is the current versioned Vue JS/CSS plus referenced `style.css`, `library-detail.js`, `library-shell.js`, and `scan-progress.js`. Historical assets, unversioned aliases, orphan chunks, and source maps are rejected. The active module closure is limited to 2,000,000 bytes/eight chunks; the complete frontend manifest is separately limited to 1,200,000 bytes. Entries are sorted and normalized to owner/group 0, directory mode 0755, file mode 0644, and one mtime. `SOURCE_DATE_EPOCH` selects it; the fallback is `946684800` (2000-01-01T00:00:00Z). Gzip name/timestamp metadata is disabled.
@@ -107,7 +196,7 @@ echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library
 - Upload a release by providing the tarball download URL and a signature over the exact archive:
 
 ```bash
-openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.164.tar.gz | openssl base64
+openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.165.tar.gz | openssl base64
 ```
 
 ## Generated archive install smoke
@@ -168,10 +257,10 @@ The 40-file results verify write elision only. Alpha.154 adds measured aggregate
 For a non-Docker disposable instance, the equivalent manual steps are:
 
 ```bash
-(cd dist && sha256sum -c library-0.1.0-alpha.164.tar.gz.sha256)
+(cd dist && sha256sum -c library-0.1.0-alpha.165.tar.gz.sha256)
 rm -rf /var/www/html/custom_apps/library
 mkdir -p /var/www/html/custom_apps
-tar -xzf dist/library-0.1.0-alpha.164.tar.gz -C /var/www/html/custom_apps
+tar -xzf dist/library-0.1.0-alpha.165.tar.gz -C /var/www/html/custom_apps
 chown -R www-data:www-data /var/www/html/custom_apps/library
 sudo -u www-data php -l /var/www/html/custom_apps/library/appinfo/routes.php
 sudo -u www-data php occ app:enable library
@@ -210,8 +299,8 @@ git push origin v0.1.0-alpha.2
 
 Create a GitHub prerelease from the accepted annotated tag and attach:
 
-- `dist/library-0.1.0-alpha.164.tar.gz`
-- `dist/library-0.1.0-alpha.164.tar.gz.sha256`
+- `dist/library-0.1.0-alpha.165.tar.gz`
+- `dist/library-0.1.0-alpha.165.tar.gz.sha256`
 
 Release note summary:
 

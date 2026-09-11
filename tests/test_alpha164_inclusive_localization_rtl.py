@@ -19,14 +19,14 @@ def placeholders(value: str) -> list[str]:
     return sorted(re.findall(r"%(?:n|s)|\{[A-Za-z][A-Za-z0-9_]*\}", value))
 
 
-def test_alpha164_versions_assets_and_package_smoke_are_exact():
-    assert '<version>0.1.0-alpha.164</version>' in read('appinfo/info.xml')
-    assert '"version": "0.1.0-alpha.164"' in read('package.json')
-    assert "appVersion: JSON.stringify('0.1.0-alpha.164')" in read('vite.config.js')
+def test_current_versions_assets_and_package_smoke_are_exact():
+    assert '<version>0.1.0-alpha.165</version>' in read('appinfo/info.xml')
+    assert '"version": "0.1.0-alpha.165"' in read('package.json')
+    assert "appVersion: JSON.stringify('0.1.0-alpha.165')" in read('vite.config.js')
     controller = read('lib/Controller/PageController.php')
-    assert "library-main-0-1-0-alpha-164" in controller
-    assert "library-vue-0-1-0-alpha-164" in controller
-    assert 'EXPECTED_VERSION="0.1.0-alpha.164"' in read('scripts/smoke-release-package.sh')
+    assert "library-main-0-1-0-alpha-165" in controller
+    assert "library-vue-0-1-0-alpha-165" in controller
+    assert 'EXPECTED_VERSION="0.1.0-alpha.165"' in read('scripts/smoke-release-package.sh')
 
 
 def test_native_and_watchdog_visible_copy_uses_nextcloud_translation_api():
@@ -56,7 +56,7 @@ def test_catalogues_are_complete_real_locales_with_matching_placeholders():
         assert set(translated) == set(source)
         assert all(value for value in translated.values())
         assert all(
-            key.startswith('_%n ') or placeholders(key) == placeholders(value)
+                (key.startswith('_') and '_::_' in key) or placeholders(key) == placeholders(value)
             for key, value in translated.items()
         )
     assert json.loads(read('l10n/de.json'))['translations']['Library'] == 'Bibliothek'
@@ -108,7 +108,7 @@ def test_plural_catalogues_cover_german_and_all_six_arabic_forms():
     ar = json.loads(read('l10n/ar.json'))['translations'][key]
     assert de == ['%n Element', '%n Elemente']
     assert ar == [
-        'لا توجد عناصر', 'عنصر واحد', 'عنصران', '%n عناصر', '%n عنصرًا', '%n عنصر',
+        '%n عنصر', '%n عنصر', '%n عنصران', '%n عناصر', '%n عنصرًا', '%n عنصر',
     ]
     app = read('src/App.vue')
     assert "import { n, t } from '@nextcloud/l10n'" in app
@@ -175,6 +175,12 @@ def test_browser_geometry_regression_is_app_scoped_wrapping_at_both_widths():
     assert 'browser_locale_ar_missing_expected_strings' in smoke
     assert 'browser_long_string_desktop_geometry' in smoke
     assert 'browser_long_string_mobile_geometry' in smoke
+    assert "id: 'admin-summary'" in smoke
+    assert "id: 'settings-action'" in smoke
+    assert "id: 'metadata-export-action'" in smoke
+    assert 'exactText: text === spec.text' in smoke
+    assert 'associated: true' in smoke
+    assert 'designatedLong: Boolean(spec.designatedLong)' in smoke
     assert 'scrollHeight: control.scrollHeight' in smoke
     assert 'keyboardFocus' in smoke
     assert 'sidebarOpened' in smoke
@@ -182,12 +188,17 @@ def test_browser_geometry_regression_is_app_scoped_wrapping_at_both_widths():
     assert 'width: 390' in smoke
     assert 'cards.length >= 3' in smoke
     assert "control.whiteSpace === 'normal'" in gate
-    assert 'control.scrollHeight > lineHeight * 1.25' in smoke
-    assert 'wrappedLongControls.length > 0' in gate
+    assert 'measureVisibleTextLines.toString()' in smoke
+    assert 'control.lineCount >= 2' in gate
+    assert 'control.textRectCount >= 2' in gate
+    assert 'control.textMeasured === true' in gate
+    assert 'expectedWrappedControls.every' in gate
+    assert 'expectWrap: spec.expectWrap === true' in smoke
     assert 'control.scrollWidth <= control.clientWidth + clippingTolerance' in gate
     assert 'accepts a long label that fits on one line' in regression
     assert 'fails for clipping beyond the rounding tolerance' in regression
-    assert 'fails when no genuinely long translated control wraps' in regression
+    assert 'fails expected-wrap one-line text' in regression
+    assert 'accepts desktop-fit rows with no expected wrapping' in regression
     assert 'overflow-wrap: anywhere' in css
     assert '.library-catalogue-actions-list .button' in css
     assert 'white-space: normal' in css
