@@ -29,7 +29,29 @@
       || button?.textContent?.trim() === '★'
   }
 
+  function setStarFailure(form, text) {
+    let feedback = form.querySelector('.library-star-feedback')
+    if (!feedback && text) {
+      feedback = document.createElement('span')
+      feedback.className = 'library-star-feedback'
+      feedback.setAttribute('role', 'alert')
+      form.append(feedback)
+    }
+    if (feedback) {
+      feedback.textContent = text
+      feedback.hidden = !text
+    }
+  }
+
   async function submitStar(form) {
+    if (form.dataset.libraryStarPending === 'true') return
+    form.dataset.libraryStarPending = 'true'
+    const button = form.querySelector('.library-star-button')
+    if (button) {
+      button.disabled = true
+      button.setAttribute('aria-busy', 'true')
+    }
+    setStarFailure(form, '')
     const previous = isCurrentlyStarred(form)
     const next = !previous
     applyState(form, next)
@@ -41,9 +63,17 @@
       })
       if (!response.ok) {
         applyState(form, previous)
+        setStarFailure(form, 'Could not update star. Try again.')
       }
     } catch (_error) {
       applyState(form, previous)
+      setStarFailure(form, 'Could not update star. Try again.')
+    } finally {
+      form.dataset.libraryStarPending = 'false'
+      if (button) {
+        button.disabled = false
+        button.removeAttribute('aria-busy')
+      }
     }
   }
 
@@ -95,21 +125,39 @@
     if (feedback) feedback.textContent = text
   }
 
-  async function submitMetadataAutosave(form) {
-    const autosaveFlag = form.querySelector('input[name="metadataAutosave"]')
-    const previousFlag = autosaveFlag?.value
-    if (autosaveFlag) autosaveFlag.value = '1'
+  const metadataSaveStates = new WeakMap()
+
+  function metadataSaveState(form) {
+    if (!metadataSaveStates.has(form)) {
+      metadataSaveStates.set(form, {
+        running: false,
+        queued: null,
+        generation: 0,
+        manuallySubmitted: false,
+        manualSubmitPending: false,
+        manualSubmitter: null,
+        allowNativeSubmit: false,
+        timer: null,
+      })
+    }
+    return metadataSaveStates.get(form)
+  }
+
+  async function runMetadataAutosave(form, request) {
+    const state = metadataSaveState(form)
+    state.running = true
     setMetadataStatus(form, 'Saving metadata…')
     try {
       const response = await window.fetch(form.getAttribute('action') || form.action, {
         method: 'POST',
-        body: new window.FormData(form),
+        body: request.body,
         credentials: 'same-origin',
       })
-      if (response.ok) {
+      const ownsStatus = () => request.generation === state.generation && !state.manuallySubmitted
+      if (response.ok && ownsStatus()) {
         setMetadataStatus(form, 'Metadata saved')
         clearMetadataValidationFeedback(form)
-      } else {
+      } else if (!response.ok && ownsStatus()) {
         let message = 'Metadata was not saved'
         if (response.status === 422) {
           try {
@@ -119,14 +167,49 @@
             // Keep the generic failure message.
           }
         }
-        setMetadataStatus(form, 'Metadata was not saved')
-        setMetadataValidationFeedback(form, message)
+        if (ownsStatus()) {
+          setMetadataStatus(form, 'Metadata was not saved')
+          setMetadataValidationFeedback(form, message)
+        }
       }
     } catch (_error) {
-      setMetadataStatus(form, 'Metadata was not saved')
+      if (request.generation === state.generation && !state.manuallySubmitted) {
+        setMetadataStatus(form, 'Metadata was not saved')
+        setMetadataValidationFeedback(form, 'Metadata was not saved')
+      }
     } finally {
-      if (autosaveFlag) autosaveFlag.value = previousFlag || '0'
+      state.running = false
+      if (state.manualSubmitPending) {
+        const submitter = state.manualSubmitter
+        state.manualSubmitPending = false
+        state.manualSubmitter = null
+        state.allowNativeSubmit = true
+        if (typeof form.requestSubmit === 'function') {
+          submitter ? form.requestSubmit(submitter) : form.requestSubmit()
+        } else {
+          form.submit()
+        }
+        return
+      }
+      if (state.queued && !state.manuallySubmitted) {
+        const queued = state.queued
+        state.queued = null
+        await runMetadataAutosave(form, queued)
+      }
     }
+  }
+
+  function submitMetadataAutosave(form) {
+    const state = metadataSaveState(form)
+    if (state.manuallySubmitted) return Promise.resolve()
+    const body = new window.FormData(form)
+    body.set('metadataAutosave', '1')
+    const request = { body, generation: ++state.generation }
+    if (state.running) {
+      state.queued = request
+      return Promise.resolve()
+    }
+    return runMetadataAutosave(form, request)
   }
 
   function setupMetadataAutosave(root) {
@@ -135,11 +218,12 @@
     forms.forEach((form) => {
       if (form.dataset.libraryMetadataAutosaveEnhanced === 'true') return
       form.dataset.libraryMetadataAutosaveEnhanced = 'true'
-      let timer = null
+      const state = metadataSaveState(form)
       const schedule = (delay) => {
-        window.clearTimeout(timer)
+        state.manuallySubmitted = false
+        window.clearTimeout(state.timer)
         setMetadataStatus(form, 'Unsaved changes…')
-        timer = window.setTimeout(() => submitMetadataAutosave(form), delay)
+        state.timer = window.setTimeout(() => submitMetadataAutosave(form), delay)
       }
       form.addEventListener('input', (event) => {
         if (event.target?.matches?.('input[type="hidden"]')) return
@@ -149,9 +233,26 @@
         if (event.target?.matches?.('input[type="hidden"]')) return
         schedule(120)
       })
-      form.addEventListener('submit', () => {
+      form.addEventListener('submit', (event) => {
+        if (state.allowNativeSubmit) {
+          state.allowNativeSubmit = false
+          return
+        }
+        window.clearTimeout(state.timer)
+        state.timer = null
+        state.manuallySubmitted = true
+        state.generation += 1
+        state.queued = null
         const autosaveFlag = form.querySelector('input[name="metadataAutosave"]')
         if (autosaveFlag) autosaveFlag.value = '0'
+        if (state.running) {
+          event.preventDefault()
+          state.manualSubmitPending = true
+          state.manualSubmitter = event.submitter || null
+          setMetadataStatus(form, 'Finishing current save…')
+        } else {
+          setMetadataStatus(form, '')
+        }
       })
     })
   }

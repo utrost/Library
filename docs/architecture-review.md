@@ -1,7 +1,9 @@
 # Human Architecture Review Notes
 
 Audience: Nextcloud administrators, architecture reviewers and security reviewers  
-Status: current implementation reference for Library `0.1.0-alpha.154`
+Status: current implementation reference for Library `0.1.0-alpha.155`
+
+Alpha.155 hardens frontend request ownership: catalogue filtering aborts superseded GETs and also guards state application with a monotonic generation; detail metadata POSTs are serialized with one coalesced latest snapshot; star mutation controls reject repeat activation while pending and expose failures on both catalogue and detail surfaces.
 
 Alpha.154 observes measured scanner, catalogue, and cover operation boundaries with a monotonic clock. It emits aggregate privacy-allowlisted application logs only—not external telemetry or full HTTP latency—and makes no universal speedup claim. Progress persistence and cancellation checks occur initially and then after 100 traversal units or 1000 ms, including unsupported nodes and nested or empty folders. A single filesystem listing/node call or extraction/storage operation remains non-preemptive; the longest such operation is therefore the cancellation bound.
 
@@ -34,7 +36,7 @@ Source: `appinfo/info.xml`.
 - App id: `library`
 - Display name: `Library`
 - Namespace: `Library` / PHP namespace `OCA\Library`
-- Current version: `0.1.0-alpha.154`
+- Current version: `0.1.0-alpha.155`
 - Licence declaration: `agpl` in `info.xml`; repository license is `AGPL-3.0-or-later`.
 - Categories: `files`, `multimedia`
 - Nextcloud compatibility: `min-version="34"`, `max-version="34"`
@@ -205,7 +207,7 @@ Historical alpha.152 live MySQL migration evidence: upgrading the installed `0.1
 
 Alpha.153 adds nullable `metadata_input_fingerprint` and `metadata_extractor_revision` columns through `Version000100Date20260911130000`. The fingerprint covers root/file identity, path, ETag, mtime, size, MIME type and extension for the primary file and whichever same-basename or `metadata.opf` sidecar the extraction precedence selects. An ordinary file skips content extraction and ItemService writes only when it was unchanged/indexed, has an existing item, both markers match the current inputs/revision, and all provider signals are usable. Weak/unavailable observations fail open. Path/root/content/sidecar/revision changes, previous missing/metadata-error/sidecar state, missing items, retry and recheck extract normally. Markers are written only after successful extraction and equal non-null pre/post observations, so the first post-upgrade scan warms them. This relies on storage-provider metadata and still has a residual concurrent ABA/TOCTOU limit if inputs change and return to the identical observation. `PIPELINE_REVISION` must bump for every output-affecting extractor, normalization, sidecar precedence, filename/folder interpretation or ItemService candidate-mapping change. Alpha.154 now adds aggregate instrumentation; neither it nor the historical evidence establishes a measured speedup.
 
-Historical exact-package migration evidence covers alpha.153 and migration `000100Date20260911130000`. The alpha.154 aggregate instrumentation migration and package have not received a live database or exact-package rehearsal in this source-only update.
+Historical exact-package migration evidence covers alpha.153 and migration `000100Date20260911130000`. The alpha.154 aggregate instrumentation migration and package did not receive a live database or exact-package rehearsal; the exact alpha.155 package also remains unrehearsed in this source-only update.
 
 Historical alpha.153 privacy-safe smallest-root validation scanned 40 files twice. Each scan reported one root, 40 indexed, zero missing and zero errors. Warm-up rewrote 40 item rows and established 40 markers; the unchanged second scan rewrote zero item rows and retained 40 markers. Item/file counts stayed at 40, and `source_observation_changes=0` confirmed equal before/after path/ETag/mtime/size/MIME observations. Vue, API and browser smokes passed against the installed alpha.153 package with zero browser console errors. This is measured write-elision evidence, not throughput or latency evidence.
 

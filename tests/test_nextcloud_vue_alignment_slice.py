@@ -42,13 +42,13 @@ def test_vue_component_css_is_built_to_nextcloud_css_asset_and_loaded():
     assert "versionedJsAssetName" in build_script
     assert "versionedCssAssetName" in build_script
     assert "copied_nextcloud_vue_assets=true" in build_script
-    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-154';" in controller
-    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-154';" in controller
+    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-155';" in controller
+    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-155';" in controller
     assert "Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);" in controller
     assert "Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);" in controller
     assert (ROOT / "css" / "library-vue.css").exists()
-    assert (ROOT / "js" / "library-main-0-1-0-alpha-154.mjs").exists()
-    assert (ROOT / "css" / "library-vue-0-1-0-alpha-154.css").exists()
+    assert (ROOT / "js" / "library-main-0-1-0-alpha-155.mjs").exists()
+    assert (ROOT / "css" / "library-vue-0-1-0-alpha-155.css").exists()
     assert (ROOT / "js" / "library-main-0-1-0-alpha-151.mjs").exists()
     assert (ROOT / "css" / "library-vue-0-1-0-alpha-151.css").exists()
     assert (ROOT / "js" / "library-main-0-1-0-alpha-150.mjs").exists()

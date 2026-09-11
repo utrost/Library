@@ -237,6 +237,8 @@ function showDrawerItem(item) {
 }
 const quickSearchInput = ref(null)
 let filterSubmitTimer = null
+let catalogueRequestGeneration = 0
+let catalogueRequestController = null
 
 function buildFilterParams(form) {
   const params = new URLSearchParams(new FormData(form))
@@ -304,16 +306,30 @@ async function submitFiltersAjax(event) {
   const params = buildFilterParams(form)
   const query = params.toString()
   const endpointQuery = query ? `?${query}` : ''
-  const response = await fetch(catalogueEndpointUrl.value + endpointQuery, {
-    headers: { Accept: 'application/json' },
-    credentials: 'same-origin',
-  })
-  if (!response.ok) {
-    form.submit()
-    return
+  const generation = ++catalogueRequestGeneration
+  catalogueRequestController?.abort()
+  const controller = new AbortController()
+  catalogueRequestController = controller
+  try {
+    const response = await fetch(catalogueEndpointUrl.value + endpointQuery, {
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+      signal: controller.signal,
+    })
+    if (generation !== catalogueRequestGeneration) return
+    if (!response.ok) {
+      form.submit()
+      return
+    }
+    const nextState = await response.json()
+    if (generation !== catalogueRequestGeneration) return
+    applyCatalogueState(nextState)
+    history.replaceState({}, '', query ? `?${query}` : window.location.pathname)
+  } catch (error) {
+    if (generation === catalogueRequestGeneration && error?.name !== 'AbortError') form.submit()
+  } finally {
+    if (generation === catalogueRequestGeneration) catalogueRequestController = null
   }
-  applyCatalogueState(await response.json())
-  history.replaceState({}, '', query ? `?${query}` : window.location.pathname)
 }
 
 function submitFiltersNow(event) {
@@ -539,12 +555,21 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleCatalogueKeyboardShortcuts)
+  window.clearTimeout(filterSubmitTimer)
+  catalogueRequestGeneration += 1
+  catalogueRequestController?.abort()
+  catalogueRequestController = null
 })
+
+const starPending = reactive({})
+const starErrors = reactive({})
 
 async function toggleStar(item, event) {
   const form = event?.currentTarget?.closest?.('form') || event?.currentTarget
-  if (!form || !item?.starUrl) return
+  if (!form || !item?.starUrl || starPending[item.id]) return
   const previous = Boolean(item.starred)
+  starPending[item.id] = true
+  starErrors[item.id] = ''
   item.starred = !previous
   try {
     const response = await fetch(item.starUrl, {
@@ -554,9 +579,13 @@ async function toggleStar(item, event) {
     })
     if (!response.ok) {
       item.starred = previous
+      starErrors[item.id] = t('library', 'Could not update star. Try again.')
     }
   } catch (_error) {
     item.starred = previous
+    starErrors[item.id] = t('library', 'Could not update star. Try again.')
+  } finally {
+    starPending[item.id] = false
   }
 }
 
@@ -771,9 +800,12 @@ async function toggleStar(item, event) {
             :aria-pressed="item.starred ? 'true' : 'false'"
             :title="item.starred ? t('library', 'Unstar this publication') : t('library', 'Star this publication')"
             :aria-label="item.starred ? t('library', 'Unstar this publication') : t('library', 'Star this publication')"
+            :aria-busy="starPending[item.id] ? 'true' : undefined"
+            :disabled="starPending[item.id]"
             @click.prevent="toggleStar(item, $event)">
             {{ item.starred ? '★' : '☆' }}
           </button>
+          <span v-if="starErrors[item.id]" :data-library-star-error="item.id" class="library-star-feedback" role="alert">{{ starErrors[item.id] }}</span>
         </form>
         <div class="library-cover-summary">
           <div class="library-cover-primary">

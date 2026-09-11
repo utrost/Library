@@ -9,8 +9,10 @@ def test_metadata_autosave_validation_clears_stale_warning_after_success():
     assert "metadataValidationFeedback" in script
     assert "clearMetadataValidationFeedback(form)" in script
     assert "response.ok" in script
-    success_block = script[script.index("if (response.ok)"):script.index("} catch", script.index("if (response.ok)"))]
+    success_start = script.index("if (response.ok && ownsStatus())")
+    success_block = script[success_start:script.index("} catch", success_start)]
     assert "clearMetadataValidationFeedback(form)" in success_block
+    assert "request.generation === state.generation" in script
 
 
 def test_metadata_autosave_surfaces_current_server_validation_error_without_redirect_staleness():

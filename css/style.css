@@ -928,7 +928,8 @@
 
 .library-cover-card:hover .library-cover-star-form,
 .library-cover-card:focus-within .library-cover-star-form,
-.library-cover-star-form:has(.library-cover-star-button--starred) {
+.library-cover-star-form:has(.library-cover-star-button--starred),
+.library-cover-star-form:has(.library-star-feedback:not([hidden])) {
     opacity: 1;
     transform: translateY(0);
 }
@@ -938,6 +939,31 @@
     font-size: 22px;
     height: 36px;
     width: 36px;
+}
+
+.library-star-button:disabled,
+.library-cover-star-button:disabled {
+    cursor: wait;
+    opacity: .65;
+}
+
+.library-star-feedback {
+    background: var(--color-error, #c00);
+    border-radius: var(--border-radius-large, 8px);
+    color: var(--color-primary-text, #fff);
+    display: block;
+    font-size: 13px;
+    line-height: 1.35;
+    margin-top: 6px;
+    max-width: 220px;
+    padding: 6px 8px;
+}
+
+.library-cover-star-form .library-star-feedback {
+    position: absolute;
+    right: 0;
+    top: 38px;
+    width: max-content;
 }
 
 .library-workflow-status-submit-fallback {
