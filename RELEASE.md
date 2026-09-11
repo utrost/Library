@@ -1,11 +1,11 @@
 # Release process
 
-This repo is prepared for the v0.1 manual testing pass from app version `0.1.0-alpha.159`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
+This repo is prepared for the v0.1 manual testing pass from app version `0.1.0-alpha.160`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
 
 ## Release type
 
 - Private/early-tester v0.1 candidate on a Nextcloud 34 test instance.
-- App version in `appinfo/info.xml`: `0.1.0-alpha.159`.
+- App version in `appinfo/info.xml`: `0.1.0-alpha.160`.
 - License: AGPL-3.0-or-later.
 - Target runtime: Nextcloud 34.
 
@@ -27,14 +27,14 @@ Create the app archive with:
 scripts/package-release.sh
 ```
 
-The script runs `npm ci`, `npm run build`, `python -m pytest -q`, the focused PHP runtime suite, stages runtime app files, audits the tarball, then writes:
+The script runs the test/build gates, applies the intentional frontend manifest, creates a reproducible archive, audits it, then writes:
 
 ```text
-dist/library-0.1.0-alpha.159.tar.gz
-dist/library-0.1.0-alpha.159.tar.gz.sha256
+dist/library-0.1.0-alpha.160.tar.gz
+dist/library-0.1.0-alpha.160.tar.gz.sha256
 ```
 
-The archive contains a single top-level `library/` directory, which must match the app id `library` for Nextcloud App Store uploads. For App Store hygiene it excludes `.git`, `.github`, `node_modules`, `build`, `dist`, `tests`, `scripts`, `src`, `docs`, `package.json`, package locks, local release docs, local tool configs, caches and bytecode. It keeps the runtime app directories plus minimal public files: `README.md`, `LICENSE`, and `CHANGELOG.md`.
+The archive contains one `library/` directory and excludes development material. Its frontend manifest is the current versioned Vue JS/CSS plus referenced `style.css`, `library-detail.js`, `library-shell.js`, and `scan-progress.js`. Historical assets, unversioned aliases, orphan chunks, and source maps are rejected. The active module closure is limited to 2,000,000 bytes/eight chunks; the complete frontend manifest is separately limited to 1,200,000 bytes. Entries are sorted and normalized to owner/group 0, directory mode 0755, file mode 0644, and one mtime. `SOURCE_DATE_EPOCH` selects it; the fallback is `946684800` (2000-01-01T00:00:00Z). Gzip name/timestamp metadata is disabled.
 
 Audit an existing package with:
 
@@ -42,7 +42,7 @@ Audit an existing package with:
 npm run audit:release-package
 ```
 
-The audit must print `release_package_audit_ok=true` before a package is considered uploadable. Unsigned alpha rehearsal packages are allowed, but stable release packages require `appinfo/signature.json`.
+The audit must print `release_package_audit_ok=true` and `module_closure_ok=true`. It enforces archive safety, the exact frontend manifest, both budgets, and source-map rejection. Closure follows relative static imports, re-exports, and literal dynamic imports, and rejects bare, absolute, URL, or non-literal specifiers. There is currently no browser-URL allowlist. Unsigned alpha rehearsals are allowed; stable releases require `appinfo/signature.json`.
 
 ## Signed App Store package
 
@@ -84,7 +84,7 @@ echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library
 - Upload a release by providing the tarball download URL and a signature over the exact archive:
 
 ```bash
-openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.159.tar.gz | openssl base64
+openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.160.tar.gz | openssl base64
 ```
 
 ## Generated archive install smoke
@@ -95,7 +95,7 @@ Before manual v0.1 functionality testing, install and smoke the generated archiv
 npm run smoke:release-package
 ```
 
-That script verifies the archive checksum and exact alpha.159 version, disables the currently installed app if present, removes the development copy from `custom_apps/library`, extracts `dist/library-0.1.0-alpha.159.tar.gz`, fixes ownership/permissions, runs PHP lint on key app files including the current migrations and fast-path classes, enables the app, runs `occ upgrade`, lists app routes, invokes the repository-side unchanged-file smoke, and then runs the live Vue/browser smokes. The unchanged-file smoke selects the smallest already-indexed non-empty enabled root without printing private identifiers, runs the production scanner twice, and emits aggregate acceptance evidence only.
+That script verifies and installs the exact generated archive before running live smokes. The generated `.sha256` file is the archive checksum sidecar and is not packaged; `/tmp/library-alpha160-codex-remediation-3.md` is the authoritative package-excluded run evidence, not a sidecar. Prior alpha.160 results predate that latest rereview remediation and are superseded as acceptance evidence. Consult remediation 3 for the authoritative rebuilt artifact identity, timestamp, commands, and outcomes. The following alpha.159 section remains historical evidence.
 
 Alpha.159 verification evidence:
 
@@ -132,10 +132,10 @@ The 40-file results verify write elision only. Alpha.154 adds measured aggregate
 For a non-Docker disposable instance, the equivalent manual steps are:
 
 ```bash
-(cd dist && sha256sum -c library-0.1.0-alpha.159.tar.gz.sha256)
+(cd dist && sha256sum -c library-0.1.0-alpha.160.tar.gz.sha256)
 rm -rf /var/www/html/custom_apps/library
 mkdir -p /var/www/html/custom_apps
-tar -xzf dist/library-0.1.0-alpha.159.tar.gz -C /var/www/html/custom_apps
+tar -xzf dist/library-0.1.0-alpha.160.tar.gz -C /var/www/html/custom_apps
 chown -R www-data:www-data /var/www/html/custom_apps/library
 sudo -u www-data php -l /var/www/html/custom_apps/library/appinfo/routes.php
 sudo -u www-data php occ app:enable library
@@ -174,8 +174,8 @@ git push origin v0.1.0-alpha.2
 
 Create a GitHub prerelease from the accepted annotated tag and attach:
 
-- `dist/library-0.1.0-alpha.159.tar.gz`
-- `dist/library-0.1.0-alpha.159.tar.gz.sha256`
+- `dist/library-0.1.0-alpha.160.tar.gz`
+- `dist/library-0.1.0-alpha.160.tar.gz.sha256`
 
 Release note summary:
 

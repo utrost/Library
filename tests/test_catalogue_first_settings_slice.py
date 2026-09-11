@@ -61,7 +61,7 @@ def test_user_settings_template_contains_root_scan_and_history_admin_tools():
 def test_page_controller_links_to_user_settings_and_no_longer_loads_admin_data():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
 
-    assert "'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library')" in page
+    assert "'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library'])" in page
     assert "'roots' =>" not in page
     assert "'files' =>" not in page
     assert "'latestScanJob' =>" not in page

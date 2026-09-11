@@ -65,15 +65,18 @@ tar \
   --exclude=package.json \
   --exclude=package-lock.json \
   --exclude=RELEASE.md \
+  --exclude='ALPHA.*-IMPLEMENTATION-REPORT.md' \
   --exclude=vite.config.js \
   --exclude='*.pyc' \
   -cf - . | tar -xf - -C "$STAGE_DIR"
+
+node "$ROOT/scripts/stage-release-frontend.mjs" "$STAGE_DIR" "$VERSION"
 
 if [ "$SIGNED" = true ]; then
   bash "$ROOT/scripts/sign-release-package.sh" "$STAGE_DIR"
 fi
 
-tar -C "$DIST_DIR" -czf "$ARCHIVE" "$APP_ID"
+bash "$ROOT/scripts/create-reproducible-archive.sh" "$DIST_DIR" "$APP_ID" "$ARCHIVE"
 (cd "$DIST_DIR" && sha256sum "$ARCHIVE_BASENAME" > "$ARCHIVE_BASENAME.sha256")
 if [ "$SIGNED" = true ]; then
   bash "$ROOT/scripts/audit-release-package.sh" "$VERSION" --require-signature

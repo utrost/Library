@@ -1,6 +1,6 @@
 {
   "name": "library",
-  "version": "0.1.0-alpha.159",
+  "version": "0.1.0-alpha.160",
   "private": true,
   "description": "Nextcloud publication catalogue for files stored in Nextcloud",
   "license": "AGPL-3.0-or-later",
@@ -13,6 +13,7 @@
     "dev": "vite --mode development build",
     "watch": "vite --mode development build --watch",
     "test": "vitest run",
+    "test:bundle": "npm run build",
     "smoke:vue": "node scripts/smoke-vue-page.mjs",
     "smoke:browser": "node scripts/smoke-browser-page.mjs",
     "smoke:cover-privacy": "node scripts/smoke-cover-privacy.mjs",
@@ -39,6 +40,7 @@
     "vue": "^3.5.33"
   },
   "devDependencies": {
+    "@babel/parser": "^7.29.8",
     "@nextcloud/browserslist-config": "^3.1.2",
     "@vitejs/plugin-vue": "^6.0.3",
     "@vitest/coverage-v8": "^4.1.9",

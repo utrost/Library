@@ -1,6 +1,12 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { t } from '@nextcloud/l10n'
+import NcAppContent from '@nextcloud/vue/components/NcAppContent'
+import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
+import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
+import NcAppNavigationList from '@nextcloud/vue/components/NcAppNavigationList'
+import NcAppSidebar from '@nextcloud/vue/components/NcAppSidebar'
+import NcContent from '@nextcloud/vue/components/NcContent'
 
 const props = defineProps({
   state: {
@@ -69,7 +75,47 @@ const activeFilters = reactive({
   unreviewedImports: catalogueState.activeFilters?.unreviewedImports || '',
   sort: catalogueState.activeFilters?.sort || 'title',
 })
-const settingsUrl = computed(() => catalogueState.settingsUrl || '')
+const libraryPathMarker = '/apps/library'
+const markerIndex = window.location.pathname.indexOf(libraryPathMarker)
+const webroot = markerIndex >= 0 ? window.location.pathname.slice(0, markerIndex) : ''
+const navigationFallbacks = {
+  catalogue: `${webroot}/apps/library/`,
+  review: `${webroot}/apps/library/?scannerConflicts=1`,
+  settings: `${webroot}/settings/user/library`,
+}
+function safeNavigationUrl(value, fallback) {
+  if (typeof value !== 'string' || value === '') return fallback
+  try {
+    const requiredPrefix = webroot ? `${webroot}/` : '/'
+    let decoded = value
+    for (let depth = 0; depth < 5; depth += 1) {
+      if (!decoded.startsWith('/') || decoded.startsWith('//') || /[\\\u0000-\u001f\u007f]/.test(decoded)) return fallback
+      const parsed = new URL(decoded, window.location.origin)
+      if (parsed.origin !== window.location.origin || !parsed.pathname.startsWith(requiredPrefix)) return fallback
+      const encodedPath = decoded.split(/[?#]/, 1)[0]
+      for (const encodedSegment of encodedPath.split('/')) {
+        let segment = encodedSegment
+        for (let segmentDepth = 0; segmentDepth < 5; segmentDepth += 1) {
+          const nextSegment = decodeURIComponent(segment)
+          if (/[\\/\u0000-\u001f\u007f]/.test(nextSegment) || nextSegment === '.' || nextSegment === '..') return fallback
+          if (nextSegment === segment) break
+          segment = nextSegment
+          if (segmentDepth === 4) return fallback
+        }
+      }
+      const next = decodeURI(decoded)
+      if (next === decoded) return value
+      decoded = next
+    }
+    return fallback
+  } catch {
+    return fallback
+  }
+}
+const settingsUrl = computed(() => safeNavigationUrl(catalogueState.settingsUrl, navigationFallbacks.settings))
+const catalogueRootUrl = computed(() => safeNavigationUrl(catalogueState.catalogueRootUrl, navigationFallbacks.catalogue))
+const reviewUrl = computed(() => safeNavigationUrl(catalogueState.reviewUrl || catalogueState.scannerConflictReviewUrl, navigationFallbacks.review))
+const reviewActive = computed(() => activeFilters.scannerConflicts === '1' || String(activeFilters.weakMetadata || '').trim() !== '')
 const requestToken = computed(() => catalogueState.requestToken || '')
 const metadataExportUrl = computed(() => catalogueState.metadataExportUrl || '')
 const metadataSidecarManifestUrl = computed(() => catalogueState.metadataSidecarManifestUrl || '')
@@ -256,7 +302,7 @@ function buildFilterParams(form) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
+  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -620,7 +666,23 @@ async function toggleStar(item, event) {
 </script>
 
 <template>
-  <div class="library-vue-catalogue">
+  <NcContent app-name="library">
+    <NcAppNavigation :aria-label="t('library', 'Library navigation')">
+      <template #list>
+        <NcAppNavigationList>
+          <NcAppNavigationItem :active="!reviewActive" :href="catalogueRootUrl" :name="t('library', 'Library')" />
+          <NcAppNavigationItem :active="reviewActive" :href="reviewUrl" :name="t('library', 'Review')" />
+        </NcAppNavigationList>
+      </template>
+      <template #footer>
+        <a class="library-navigation-settings-link" :href="settingsUrl">
+          <span class="library-navigation-settings-icon" aria-hidden="true">⚙</span>
+          <span>{{ t('library', 'Settings') }}</span>
+        </a>
+      </template>
+    </NcAppNavigation>
+    <NcAppContent>
+  <div id="library-app" class="library-vue-catalogue library-app" tabindex="-1">
   <section class="library-panel library-mobile-compact-chrome" aria-labelledby="library-catalogue-heading">
     <nav class="library-catalogue-workspace library-workspace-menubar" :aria-label="t('library', 'One catalogue workspace')">
       <details class="library-workspace-panel library-workspace-panel--refine library-filter-panel" data-workspace-panel="refine">
@@ -761,7 +823,7 @@ async function toggleStar(item, event) {
           <summary :title="t('library', 'Unknown issue/date rows remain visible instead of disappearing from the publication page.')">{{ t('library', 'Unknown issue/date') }} · {{ publicationIssueContext.unknownIssueItems.length }}</summary>
         </details>
       </section>
-      <p><a href="/apps/library/" class="button secondary">{{ t('library', 'Back to full catalogue') }}</a></p>
+      <p><a :href="catalogueRootUrl" class="button secondary library-discovery-back-link">{{ t('library', 'Back to full catalogue') }}</a></p>
     </section>
 
     <nav class="library-view-mode-toggle" aria-label="Cover view mode">
@@ -903,9 +965,34 @@ async function toggleStar(item, event) {
   </section>
 
   </div>
+    </NcAppContent>
+    <NcAppSidebar :open="false" no-toggle :name="t('library', 'Details')" />
+  </NcContent>
 </template>
 
 <style>
+.library-navigation-settings-link {
+  align-items: center;
+  border-radius: var(--border-radius-large);
+  color: var(--color-main-text);
+  display: flex;
+  gap: 12px;
+  margin: 4px;
+  min-height: 44px;
+  padding: 0 12px;
+  text-decoration: none;
+}
+
+.library-navigation-settings-link:hover,
+.library-navigation-settings-link:focus-visible {
+  background-color: var(--color-background-hover);
+}
+
+.library-navigation-settings-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
 .library-vue-catalogue .library-panel {
   margin-top: 8px;
   padding: 12px;

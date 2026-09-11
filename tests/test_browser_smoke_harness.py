@@ -12,11 +12,12 @@ def test_browser_smoke_script_checks_real_vue_dom_and_cleans_tokens():
     script_path = ROOT / "scripts" / "smoke-browser-page.mjs"
     assert script_path.exists()
     script = script_path.read_text()
+    classifier = (ROOT / "scripts" / "browser-error-classifier.mjs").read_text()
 
     assert "google-chrome" in script
     assert "--headless=new" in script
-    assert "Runtime.consoleAPICalled" in script
-    assert "Runtime.exceptionThrown" in script
+    assert "Runtime.consoleAPICalled" in classifier
+    assert "Runtime.exceptionThrown" in classifier
     assert "data-vue-fallback" in script
     assert "#library-vue-root[data-v-app]" in script
     assert "requestTokenFields" in script

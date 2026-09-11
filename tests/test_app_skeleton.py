@@ -45,7 +45,7 @@ def test_landing_template_states_scope_boundary():
     assert "One catalogue workspace for finding, browsing, acting on and reviewing publication files." not in vue
     assert "Compact / Gallery / Shelf" not in vue
     assert "library-catalogue-workspace library-workspace-menubar" in vue
-    assert vue.index('class="library-vue-catalogue"') < vue.index('class="library-panel library-mobile-compact-chrome"') < vue.index('class="library-catalogue-workspace library-workspace-menubar"') < vue.index('id="library-catalogue-heading"')
+    assert vue.index('class="library-vue-catalogue library-app"') < vue.index('class="library-panel library-mobile-compact-chrome"') < vue.index('class="library-catalogue-workspace library-workspace-menubar"') < vue.index('id="library-catalogue-heading"')
 
 
 def test_workspace_menus_use_economical_open_layouts():

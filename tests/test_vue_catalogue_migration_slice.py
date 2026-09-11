@@ -28,11 +28,11 @@ def test_page_controller_provides_catalogue_initial_state_and_loads_vue_entrypoi
     assert "use OCP\\AppFramework\\Services\\IInitialState;" in controller
     assert "private IInitialState $initialState" in controller
     assert "$this->initialState->provideInitialState('catalogue'" in controller
-    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-159';" in controller
-    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-159';" in controller
+    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-160';" in controller
+    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-160';" in controller
     assert "Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);" in controller
     assert "'items' => $items" in controller
-    assert "'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library')" in controller
+    assert "'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library'])" in controller
 
 
 def test_current_release_assets_exist_without_removing_alpha150_history():
@@ -49,11 +49,10 @@ def test_current_release_assets_exist_without_removing_alpha150_history():
         assert (ROOT / rel).is_file(), rel
 
 
-def test_main_template_is_vue_mount_only_inside_nextcloud_app_content():
+def test_main_template_is_vue_mount_only_for_the_native_component_shell():
     template = (ROOT / "templates" / "main.php").read_text()
 
-    assert '<div id="app-content" class="library-app-content">' in template
-    assert '<main id="library-app" class="library-app" tabindex="-1">' in template
+    assert '<div id="app-content" class="library-app-content">' not in template
     assert '<div id="library-vue-root" data-request-token="<?php p($_[\'requesttoken\'] ?? \'\'); ?>"></div>' in template
     assert 'class="library-cover-card"' not in template
     assert '<form method="get" class="library-filter-bar"' not in template

@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONTAINER="${NEXTCLOUD_CONTAINER:-nextcloud}"
 APP_ID="library"
-EXPECTED_VERSION="0.1.0-alpha.159"
+EXPECTED_VERSION="0.1.0-alpha.160"
 VERSION="${1:-$(python3 - <<'PY'
 from pathlib import Path
 import re

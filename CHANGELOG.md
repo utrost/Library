@@ -2,6 +2,15 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.160 - 2026-09-11
+
+- Added the first native Nextcloud application-shell scaffold using documented public `@nextcloud/vue` component subpaths. Library/Review navigation now uses same-origin, webroot-aware server-generated route paths, derives its active destination from review filters, and keeps the intentionally empty sidebar inert.
+- Reduced the production shell to one budgeted runtime module with no hashed chunks; added fail-closed static/re-export/literal-dynamic closure checks, a separate total-package frontend budget, an exact asset manifest, source-map rejection, and reproducible archive metadata.
+- Hardened release packaging to reject unsafe, non-canonical, duplicate-normalized, or unsupported archive entries before module reads; recursively reject nested orphan chunks; and exclude internal implementation reports while enforcing the public root-file allowlist.
+- Exposed Library as the active destination, Review as a live link to the existing scanner-conflict catalogue filter, and Settings as a safe native footer link to the existing personal-settings route. Build-time `appName` and `appVersion` replacements satisfy the supported `@nextcloud/vue` convention. The unchanged catalogue, AJAX filters, five-panel workspace, cards, forms, discovery URLs and PHP detail route remain in place inside Library.
+- Fixed the alpha.160 live-package proxy regression: the smoke proxy now normalizes raw and JSON-escaped upstream origins at the proxy boundary, while unknown runtime exceptions and every uncorrelated CSP failure remain fatal. The rebuilt exact package passed the fail-closed browser smoke with zero console errors; the package-excluded remediation record contains the authoritative command results and artifact identity.
+- This is scaffold-first only: review and settings functionality have not migrated into new shell surfaces, the sidebar has no detail content and stays closed, Vue Router was not added, and the duplicate no-Vue fallback renderer remains available.
+
 ## v0.1.0-alpha.159 - 2026-09-11
 
 - Prevented metadata-error retry and missing-file recheck from restoring a stable-ID file after it moves outside every enabled root owned by the current user.

@@ -3,7 +3,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_nextcloud_internal_links_use_absolute_url_generator_not_empty_app_linkto():
+def test_nextcloud_internal_links_use_route_generators_not_empty_app_linkto():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     provider = (ROOT / "lib" / "Reader" / "DefaultNextcloudFileProvider.php").read_text()
 
@@ -11,7 +11,7 @@ def test_nextcloud_internal_links_use_absolute_url_generator_not_empty_app_linkt
 
     assert "linkTo('', '/settings/user/library')" not in page
     assert "linkTo('', '/f/__FILE_ID__')" not in page
-    assert "getAbsoluteURL('/settings/user/library')" in page
+    assert "linkToRoute('settings.PersonalSettings.index', ['section' => 'library'])" in page
     assert "linkToRoute('library.item.open'" in page
     assert "getAbsoluteURL('/f/' . (int)$item['fileId'])" in item_controller
 
@@ -61,4 +61,4 @@ def test_existing_route_docs_mention_verified_link_scroll_regression():
     assert "absolute nextcloud urls" in readme
     assert "vue/vite-backed catalogue page" in readme
     assert "absolute nextcloud urls" in roadmap
-    assert "vue/vite catalogue mounted" in roadmap
+    assert "native `@nextcloud/vue` application-shell scaffold" in roadmap

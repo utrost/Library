@@ -58,7 +58,7 @@ Candidate views:
 Current support:
 
 - **Useful views** is now a built-in smart-collection dashboard on the catalogue.
-- Daily navigation views cover Recently opened, Starred and the core workflow statuses: To read, Reading, Finished and Needs action.
+- Daily navigation views cover Recently opened, Starred and the core workflow statuses: To read, Reading, Finished and Needs action. Alpha.160 also adds the first native application-shell scaffold with exactly three conceptual destinations: active Library, a Review link to the existing scanner-conflict results, and native Settings linking to the existing personal-settings page. It does not yet migrate those workflows or detail content into the shell/sidebar.
 - Cleanup views cover Needs metadata, Scanner conflicts, Metadata errors, Placeholder covers, No creator, No publication/series, Weak filename metadata and Unreviewed imports.
 - **Custom collections** let users save the current in-app search/filter setup under a name, reopen it from Library, see a result count, and delete it again without using browser bookmarks.
 - Every built-in smart view and custom collection maps to explicit normal catalogue query parameters, keeps permission/user scoping inside `ItemService::queryCatalogue()`, preserves active filter chips, and shows a count badge.
