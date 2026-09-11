@@ -14,12 +14,12 @@ def test_alpha_154_is_consistently_a_source_candidate_with_package_live_evidence
     readiness = read("docs/app-store-readiness.md")
     risk = read("docs/current-state-and-risk-register.md")
 
-    assert "Current source candidate: `0.1.0-alpha.155`." in readme
-    assert "Exact alpha.155 package, checksum, install, migration, 40-file scan, API, and browser evidence is pending." in readme
+    assert "Current source candidate: `0.1.0-alpha.156`." in readme
+    assert "Exact alpha.156 package, checksum, install, migration, 40-file scan, API, and browser evidence is pending." in readme
     assert "performance instrumentation is still pending" not in readme
-    assert "exact-package alpha.155 rehearsal" in readiness and "remain pending" in readiness
-    assert "alpha.155 exact-package and live migration rehearsal remain pending" in risk
-    assert "No alpha.155 archive, checksum verification, install, database migration, 40-file scan, API smoke, or browser smoke has been completed" in release
+    assert "exact-package alpha.156 rehearsal" in readiness and "remain pending" in readiness
+    assert "alpha.156 exact-package and live migration rehearsal remain pending" in risk
+    assert "No alpha.156 archive, checksum verification, install, database migration, 40-file scan, API smoke, or browser smoke has been completed" in release
 
 
 def test_all_40_file_and_package_live_evidence_is_explicitly_historical_alpha_153():
@@ -34,4 +34,4 @@ def test_all_40_file_and_package_live_evidence_is_explicitly_historical_alpha_15
     assert "Historical alpha.153 privacy-safe smallest-root validation" in architecture
     assert "Alpha.153 rehearsal evidence" in readiness
     assert "Historical exact-package evidence is for alpha.153" in risk
-    assert "Release baseline: the exact alpha.155 package passed" not in checklist
+    assert "Release baseline: the exact alpha.156 package passed" not in checklist

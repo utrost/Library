@@ -170,7 +170,8 @@ $fileRows = [
                             </label>
                             <label>
                                 <?php p($l->t('Upload cover image')); ?>
-                                <input type="file" name="coverOverrideFile" accept="image/*" />
+                                <input type="file" name="coverOverrideFile" accept="image/jpeg,image/png,image/webp" />
+                                <small><?php p($l->t('JPEG, PNG, or WebP; up to 10 MiB, 10,000 px per side, and 40 megapixels.')); ?></small>
                             </label>
                             <button type="submit" class="button secondary"><?php p($l->t('Use manual cover')); ?></button>
                         </form>

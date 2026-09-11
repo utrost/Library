@@ -224,7 +224,7 @@ Library serves covers through its own item cover route:
 - returns a stable SVG placeholder when no cover provider succeeds, while the catalogue itself shows cover loading shimmer and a broken-cover fallback if an image request fails;
 - includes diagnostic response headers so smokes can distinguish preview, CBZ first-image and placeholder outcomes.
 
-There is no app-owned cover cache yet. **Refresh cover preview** is a request-level retry affordance, not a persistent cover-cache management UI. **Manual cover override** is available on item details for URL/upload fixes, with revert back to extracted or preview covers.
+There is no app-owned cover cache yet. **Refresh cover preview** is a request-level retry affordance, not a persistent cover-cache management UI. **Manual cover override** is available on item details for URL/upload fixes, with revert back to extracted or preview covers. Uploaded covers must be structurally complete JPEG, PNG, or WebP files no larger than 10 MiB, 10,000 pixels on either side, or 40 megapixels; the server-detected MIME type is authoritative and invalid uploads leave the current override untouched.
 
 ### Reader and source-file actions
 

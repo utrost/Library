@@ -109,7 +109,7 @@ def test_alpha_153_release_docs_state_the_measured_index_boundary():
         ]
     )
 
-    assert "<version>0.1.0-alpha.155</version>" in info
+    assert "<version>0.1.0-alpha.156</version>" in info
     assert "seven additive user-scoped" in release_docs.lower()
     assert "no starred index" in release_docs.lower()
     assert "leading-wildcard" in release_docs
