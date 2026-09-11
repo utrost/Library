@@ -11,6 +11,46 @@ import App from './App.vue'
 
 enableAutoUnmount(afterEach)
 
+let mediaQuery
+let consoleError
+
+function installMatchMedia(initialMatches = false, { legacy = false } = {}) {
+  const listeners = new Set()
+  mediaQuery = {
+    matches: initialMatches,
+    media: '(max-width: 1023px)',
+    addEventListener: legacy ? undefined : vi.fn((_type, listener) => listeners.add(listener)),
+    removeEventListener: legacy ? undefined : vi.fn((_type, listener) => listeners.delete(listener)),
+    addListener: legacy ? vi.fn((listener) => listeners.add(listener)) : undefined,
+    removeListener: legacy ? vi.fn((listener) => listeners.delete(listener)) : undefined,
+    setMatches(matches) {
+      this.matches = matches
+      for (const listener of [...listeners]) listener({ matches, media: this.media })
+    },
+    listenerCount: () => listeners.size,
+  }
+  vi.stubGlobal('matchMedia', vi.fn(() => mediaQuery))
+  return mediaQuery
+}
+
+function setNextcloudViewport(width) {
+  Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: width })
+  window.dispatchEvent(new Event('resize'))
+}
+
+async function waitForSidebarEvent(wrapper, event, count = 1) {
+  const sidebar = wrapper.findComponent(NcAppSidebar)
+  await wrapper.vm.$nextTick()
+  const transitionHook = event === 'opened' ? 'onAfterEnter' : 'onAfterLeave'
+  // Vue Test Utils does not expose a portable CSS clock. Complete the installed
+  // component's real post-transition hook instead of asserting against the
+  // pre-transition render tick.
+  sidebar.vm[transitionHook](sidebar.element)
+  await wrapper.vm.$nextTick()
+  if (event === 'closed') await new Promise((resolve) => window.requestAnimationFrame(resolve))
+  return sidebar
+}
+
 const state = {
   catalogueRootUrl: '/nc/index.php/apps/library/',
   reviewUrl: '/nc/index.php/apps/library/?scannerConflicts=1',
@@ -63,7 +103,16 @@ const state = {
 
 beforeEach(() => {
   vi.restoreAllMocks()
+  setNextcloudViewport(1280)
+  installMatchMedia(false)
+  consoleError = vi.spyOn(console, 'error')
   document.body.innerHTML = '<div id="skip-actions"></div>'
+})
+
+afterEach(async () => {
+  await new Promise((resolve) => window.setTimeout(resolve, 20))
+  expect(consoleError).not.toHaveBeenCalled()
+  vi.unstubAllGlobals()
 })
 
 describe('Library catalogue Vue app', () => {
@@ -841,17 +890,208 @@ describe('Library catalogue Vue app', () => {
   })
 
   it('opens an in-page details drawer from cover cards', async () => {
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state } })
 
-    expect(wrapper.find('.library-detail-drawer').exists()).toBe(false)
+    expect(wrapper.findComponent(NcAppSidebar).props('open')).toBe(false)
 
     await wrapper.find('.library-cover-details').trigger('toggle')
     await wrapper.find('.library-cover-details-drawer-button').trigger('click')
 
-    expect(wrapper.find('.library-detail-drawer').exists()).toBe(true)
-    expect(wrapper.find('.library-detail-drawer').text()).toContain('Example Book')
-    expect(wrapper.find('.library-detail-drawer').text()).toContain('View full details')
-    expect(wrapper.find('.library-detail-drawer-backdrop').exists()).toBe(true)
+    await waitForSidebarEvent(wrapper, 'opened')
+    expect(wrapper.findComponent(NcAppSidebar).props('open')).toBe(true)
+    expect(wrapper.find('.library-sidebar-content').text()).toContain('Example Book')
+    expect(wrapper.find('.library-sidebar-content').text()).toContain('Open full details')
+    expect(window.location.search).toContain('item=7')
+  })
+
+  it('moves focus into the drawer and restores each activating control on Escape and close', async () => {
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
+    const wrapper = mount(App, { props: { state }, attachTo: document.body })
+    await wrapper.find('.library-cover-details').trigger('toggle')
+    const opener = wrapper.find('.library-cover-details-drawer-button')
+    opener.element.focus()
+    await opener.trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+    expect(document.activeElement).toBe(wrapper.find('#library-detail-drawer-heading').element)
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await waitForSidebarEvent(wrapper, 'closed')
+    expect(document.activeElement).toBe(opener.element)
+
+    await opener.trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened', 2)
+    expect(document.activeElement).toBe(wrapper.find('#library-detail-drawer-heading').element)
+    await wrapper.find('.app-sidebar__close').trigger('click')
+    await waitForSidebarEvent(wrapper, 'closed', 2)
+    expect(document.activeElement).toBe(opener.element)
+  })
+
+  it('wins the real persistent-sidebar close lifecycle and cancels stale opener restores', async () => {
+    document.body.innerHTML = '<button id="persistent-focus">Persistent mount focus</button><div id="skip-actions"></div>'
+    const persistentFocus = document.querySelector('#persistent-focus')
+    persistentFocus.focus()
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
+    const wrapper = mount(App, { props: { state }, attachTo: document.body })
+    const sidebar = wrapper.findComponent(NcAppSidebar)
+    await wrapper.find('.library-cover-details').trigger('toggle')
+    const opener = wrapper.find('.library-cover-details-drawer-button')
+
+    opener.element.focus()
+    await opener.trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await wrapper.vm.$nextTick()
+    sidebar.vm.onAfterLeave(sidebar.element)
+    expect(document.activeElement).toBe(persistentFocus)
+    await new Promise((resolve) => window.requestAnimationFrame(resolve))
+    expect(document.activeElement).toBe(opener.element)
+
+    await opener.trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened', 2)
+    await wrapper.find('.app-sidebar__close').trigger('click')
+    await wrapper.vm.$nextTick()
+    sidebar.vm.onAfterLeave(sidebar.element)
+    await opener.trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened', 3)
+    await new Promise((resolve) => window.requestAnimationFrame(resolve))
+    expect(document.activeElement).toBe(wrapper.find('#library-detail-drawer-heading').element)
+
+    await wrapper.find('.app-sidebar__close').trigger('click')
+    await wrapper.vm.$nextTick()
+    sidebar.vm.onAfterLeave(sidebar.element)
+    opener.element.remove()
+    await new Promise((resolve) => window.requestAnimationFrame(resolve))
+    expect(document.activeElement).not.toBe(opener.element)
+  })
+
+  it('cancels a queued opener restoration when the app unmounts', async () => {
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
+    const wrapper = mount(App, { props: { state }, attachTo: document.body })
+    const sidebar = wrapper.findComponent(NcAppSidebar)
+    await wrapper.find('.library-cover-details').trigger('toggle')
+    const opener = wrapper.find('.library-cover-details-drawer-button')
+    const focus = vi.spyOn(opener.element, 'focus')
+    await opener.trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+    await wrapper.find('.app-sidebar__close').trigger('click')
+    await wrapper.vm.$nextTick()
+    sidebar.vm.onAfterLeave(sidebar.element)
+    focus.mockClear()
+    wrapper.unmount()
+    await new Promise((resolve) => window.requestAnimationFrame(resolve))
+    expect(focus).not.toHaveBeenCalled()
+  })
+
+  it('gives the mobile sidebar a named modal dialog and lets its native trap own settled focus and Tab containment', async () => {
+    mediaQuery.setMatches(true)
+    setNextcloudViewport(480)
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
+    const wrapper = mount(App, { props: { state }, attachTo: document.body })
+    await wrapper.find('.library-cover-details').trigger('toggle')
+    await wrapper.find('.library-cover-details-drawer-button').trigger('click')
+    const sidebar = wrapper.find('.library-native-item-sidebar')
+    await waitForSidebarEvent(wrapper, 'opened')
+    expect(sidebar.attributes('role')).toBe('dialog')
+    expect(sidebar.attributes('aria-modal')).toBe('true')
+    expect(sidebar.attributes('aria-labelledby')).toBe('library-detail-drawer-heading')
+    expect(wrapper.find('#library-detail-drawer-heading').text()).toBe('Example Book')
+    expect(document.activeElement).toBe(sidebar.find('.app-sidebar__close').element)
+
+    const focusable = [...sidebar.element.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+    focusable.at(-1).focus()
+    focusable.at(-1).dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }))
+    await vi.waitFor(() => expect(document.activeElement).toBe(focusable[0]))
+    focusable[0].focus()
+    focusable[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }))
+    await vi.waitFor(() => expect(document.activeElement).toBe(focusable.at(-1)))
+  })
+
+  it('tracks desktop-to-mobile changes while closed and open, including the wider mobile containment fallback', async () => {
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
+    const wrapper = mount(App, { props: { state }, attachTo: document.body })
+    const sidebar = wrapper.find('.library-native-item-sidebar')
+    expect(sidebar.attributes('role')).toBeUndefined()
+
+    mediaQuery.setMatches(true)
+    setNextcloudViewport(800)
+    await vi.waitFor(() => expect(sidebar.attributes('role')).toBe('dialog'))
+    expect(sidebar.attributes('aria-modal')).toBe('true')
+    expect(sidebar.attributes('aria-labelledby')).toBe('library-detail-drawer-heading')
+
+    await wrapper.find('.library-cover-details').trigger('toggle')
+    await wrapper.find('.library-cover-details-drawer-button').trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+    const focusable = [...sidebar.element.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+    expect(document.activeElement).toBe(sidebar.find('.app-sidebar__close').element)
+    focusable.at(-1).focus()
+    focusable.at(-1).dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }))
+    expect(document.activeElement).toBe(focusable[0])
+    focusable[0].focus()
+    focusable[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }))
+    expect(document.activeElement).toBe(focusable.at(-1))
+  })
+
+  it('tracks mobile-to-desktop changes while open and closed and removes modern and legacy listeners', async () => {
+    mediaQuery.setMatches(true)
+    setNextcloudViewport(480)
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
+    const wrapper = mount(App, { props: { state }, attachTo: document.body })
+    await wrapper.find('.library-cover-details').trigger('toggle')
+    const opener = wrapper.find('.library-cover-details-drawer-button')
+    opener.element.focus()
+    await opener.trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+    const sidebar = wrapper.find('.library-native-item-sidebar')
+    expect(document.activeElement).toBe(sidebar.find('.app-sidebar__close').element)
+
+    setNextcloudViewport(1280)
+    mediaQuery.setMatches(false)
+    await vi.waitFor(() => expect(sidebar.attributes('role')).toBeUndefined())
+    expect(sidebar.attributes('aria-modal')).toBeUndefined()
+    expect(sidebar.attributes('aria-labelledby')).toBeUndefined()
+    await vi.waitFor(() => expect(document.activeElement).toBe(wrapper.find('#library-detail-drawer-heading').element))
+
+    await sidebar.find('.app-sidebar__close').trigger('click')
+    await waitForSidebarEvent(wrapper, 'closed')
+    expect(document.activeElement).toBe(opener.element)
+    wrapper.unmount()
+    expect(mediaQuery.removeEventListener).toHaveBeenCalledWith('change', expect.any(Function))
+    expect(mediaQuery.listenerCount()).toBe(0)
+
+    const legacyQuery = installMatchMedia(false, { legacy: true })
+    const legacyWrapper = mount(App, { props: { state } })
+    expect(legacyQuery.addListener).toHaveBeenCalledWith(expect.any(Function))
+    legacyWrapper.unmount()
+    expect(legacyQuery.removeListener).toHaveBeenCalledWith(expect.any(Function))
+    expect(legacyQuery.listenerCount()).toBe(0)
+  })
+
+  it('focuses a meaningful heading when opened from a canonical deep link', async () => {
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/?item=7')
+    const wrapper = mount(App, { props: { state }, attachTo: document.body })
+    await waitForSidebarEvent(wrapper, 'opened')
+    expect(document.activeElement).toBe(wrapper.find('#library-detail-drawer-heading').element)
+  })
+
+  it.each([
+    ['missing ID', {}],
+    ['malformed item', { item: null }],
+    ['string-ambiguous ID', { item: { ...state.items[0], id: '7' } }],
+    ['mismatched ID', { item: { ...state.items[0], id: 8 } }],
+  ])('fails the seeded detail request atomically for %s', async (_label, payload) => {
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/')
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => payload }))
+    const wrapper = mount(App, { props: { state } })
+    await wrapper.find('.library-cover-details').trigger('toggle')
+    await wrapper.find('.library-cover-details-drawer-button').trigger('click')
+    await vi.waitFor(() => expect(wrapper.find('.library-sidebar-state').exists()).toBe(true))
+    await waitForSidebarEvent(wrapper, 'opened')
+    expect(wrapper.find('.library-sidebar-content').text()).toContain('Could not load publication details. Try again.')
+    expect(wrapper.find('.library-sidebar-content').text()).not.toContain('Open full details')
+    expect(wrapper.find('.library-sidebar-state button').text()).toBe('Try again')
+    expect(window.location.search).toBe('?item=7')
   })
 
   it('supports keyboard navigation inside the details drawer', async () => {
@@ -863,25 +1103,86 @@ describe('Library catalogue Vue app', () => {
       ],
       cataloguePagination: { ...state.cataloguePagination, total: 2, visible: 2, to: 2 },
     }
+    globalThis.fetch = vi.fn(async (url) => {
+      const item = url.includes('/8/') ? keyboardState.items[1] : keyboardState.items[0]
+      return { ok: true, json: async () => ({ item }) }
+    })
     const wrapper = mount(App, { props: { state: keyboardState } })
 
     await wrapper.findAll('.library-cover-details')[0].trigger('toggle')
     await wrapper.findAll('.library-cover-details-drawer-button')[0].trigger('click')
-    expect(wrapper.find('.library-detail-drawer').text()).toContain('Example Book')
-    expect(wrapper.find('.library-detail-drawer-keyboard-hint').text()).toContain('Esc closes')
-    expect(wrapper.find('.library-detail-drawer-keyboard-hint').text()).toContain('arrow keys browse')
+    await waitForSidebarEvent(wrapper, 'opened')
+    expect(wrapper.find('.library-sidebar-content').text()).toContain('Example Book')
+    expect(wrapper.find('#library-detail-drawer-keyboard-hint').text()).toContain('Escape closes')
+    expect(wrapper.find('#library-detail-drawer-keyboard-hint').text()).toContain('arrow keys browse')
 
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
     await wrapper.vm.$nextTick()
-    expect(wrapper.find('.library-detail-drawer').text()).toContain('Second Book')
+    await vi.waitFor(() => expect(wrapper.find('.library-sidebar-content').text()).toContain('Second Book'))
 
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
     await wrapper.vm.$nextTick()
-    expect(wrapper.find('.library-detail-drawer').text()).toContain('Example Book')
+    await vi.waitFor(() => expect(wrapper.find('.library-sidebar-content').text()).toContain('Example Book'))
 
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
-    await wrapper.vm.$nextTick()
-    expect(wrapper.find('.library-detail-drawer').exists()).toBe(false)
+    await waitForSidebarEvent(wrapper, 'closed')
+    expect(wrapper.findComponent(NcAppSidebar).props('open')).toBe(false)
+  })
+
+  it('opens canonical deep links and fails malformed or repeated item ids closed', async () => {
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/?scannerConflicts=1&item=7')
+    const wrapper = mount(App, { props: { state: { ...state, activeFilters: { ...state.activeFilters, scannerConflicts: '1' } } } })
+    await waitForSidebarEvent(wrapper, 'opened')
+    expect(wrapper.findComponent(NcAppSidebar).props('open')).toBe(true)
+    expect(globalThis.fetch).toHaveBeenCalledWith(expect.stringContaining('/items/7/sidebar'), expect.objectContaining({ credentials: 'same-origin' }))
+
+    wrapper.unmount()
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/?item=7&item=8')
+    const malformed = mount(App, { props: { state } })
+    expect(malformed.findComponent(NcAppSidebar).props('open')).toBe(false)
+    expect(window.location.search).toBe('')
+  })
+
+  it.each([
+    ['the backend maximum', '2147483647', true],
+    ['one above the backend maximum', '2147483648', false],
+    ['a larger safe integer', '9007199254740991', false],
+    ['an integer beyond safe precision', '9007199254740992', false],
+  ])('applies the canonical item ID boundary for %s', async (_label, itemId, requestable) => {
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: { ...state.items[0], id: Number(itemId) } }) }))
+    window.history.replaceState({}, '', `/nc/index.php/apps/library/?scannerConflicts=1&item=${itemId}`)
+    const wrapper = mount(App, { props: { state } })
+
+    if (requestable) {
+      await waitForSidebarEvent(wrapper, 'opened')
+      expect(wrapper.findComponent(NcAppSidebar).props('open')).toBe(true)
+      expect(globalThis.fetch).toHaveBeenCalledWith(expect.stringContaining(`/items/${itemId}/sidebar`), expect.any(Object))
+      expect(window.location.search).toBe(`?scannerConflicts=1&item=${itemId}`)
+    } else {
+      await wrapper.vm.$nextTick()
+      expect(wrapper.findComponent(NcAppSidebar).props('open')).toBe(false)
+      expect(wrapper.find('.library-sidebar-state').exists()).toBe(false)
+      expect(globalThis.fetch).not.toHaveBeenCalled()
+      expect(window.location.search).toBe('?scannerConflicts=1')
+    }
+  })
+
+  it('prevents a slower item response from replacing the latest selection', async () => {
+    const pending = []
+    globalThis.fetch = vi.fn((url, options) => new Promise((resolve) => pending.push({ url, options, resolve })))
+    const keyboardState = { ...state, items: [{ ...state.items[0] }, { ...state.items[0], id: 8, title: 'Second Book' }] }
+    const wrapper = mount(App, { props: { state: keyboardState } })
+    await wrapper.findAll('.library-cover-details')[0].trigger('toggle')
+    await wrapper.findAll('.library-cover-details-drawer-button')[0].trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+    await wrapper.findAll('.library-cover-details')[1].trigger('toggle')
+    await wrapper.findAll('.library-cover-details-drawer-button')[1].trigger('click')
+    expect(pending[0].options.signal.aborted).toBe(true)
+    pending[1].resolve({ ok: true, json: async () => ({ item: keyboardState.items[1] }) })
+    await vi.waitFor(() => expect(wrapper.find('.library-sidebar-content').text()).toContain('Second Book'))
+    pending[0].resolve({ ok: true, json: async () => ({ item: keyboardState.items[0] }) })
+    expect(wrapper.find('.library-sidebar-content').text()).toContain('Second Book')
   })
 
   it('switches between compact gallery and shelf cover modes without navigation', async () => {

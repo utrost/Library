@@ -53,7 +53,7 @@ Library does **not** own:
 
 ### Library catalogue
 
-Open the **Library** app from Nextcloud navigation. The catalogue page is the normal reader-facing entry point. Alpha.160 places that existing catalogue inside the first native Nextcloud application-shell scaffold. **Library** is active, **Review** opens the existing scanner-conflict catalogue view, and **Settings** reveals a link to the existing personal-settings page. The closed sidebar is only a scaffold in this release; review, settings and detail content have not migrated into it.
+Open the **Library** app from Nextcloud navigation. The catalogue page is the normal reader-facing entry point. **Library** is active, **Review** opens focused cleanup results, and **Settings** links to personal settings. Use **Quick details** on a catalogue or Review card for the native read-only sidebar; its URL can be copied and browser Back/Forward restores selection. Use **Open full details** for the existing PHP editing surface.
 
 Current catalogue capabilities:
 

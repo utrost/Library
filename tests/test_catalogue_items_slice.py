@@ -76,7 +76,7 @@ def test_catalogue_shows_items_and_detail_page_owns_edit_form():
     assert "Publication catalogue" not in vue
     assert "publicationType" in vue
     assert "Details" in vue
-    assert "metadataSource" not in vue
+    assert "Metadata provenance" in vue
     assert "userEdited" not in vue
     assert "Save metadata" not in vue
 

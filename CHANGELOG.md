@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.162 - 2026-09-11
+
+- Replaced the inert shell sidebar with an accessible read-only item detail for catalogue and Review results, retaining Read and the PHP full-details escape hatch.
+- Added canonical `item=<id>` deep links, atomic back/forward selection, fail-closed IDs, request abort/race ownership, and explicit loading/error/unavailable states.
+- Added a narrow authenticated user-scoped detail projection with privacy coverage; editing, PHP fallback rendering, and alpha.160/161 release hardening remain intact.
+
 ## v0.1.0-alpha.161 - 2026-09-11
 
 - Made Review a distinct native-shell destination while retaining the established GET query filters, catalogue service, rich scanner-conflict projection, and shareable server-rendered URLs.

@@ -19,11 +19,11 @@ def test_vue_catalogue_has_browsing_home_dashboard_details_drawer_and_issue_stri
 
     assert "library-detail-drawer" in component
     assert "selectedDrawerItem" in component
-    assert "openDetailsDrawer(item)" in component
-    assert "Close details panel" in component
+    assert "openDetailsDrawer(item, $event)" in component
+    assert "library-native-item-sidebar" in component
     assert "drawerNextItem" in component
     assert "drawerPreviousItem" in component
-    assert "View full details" in component
+    assert "Open full details" in component
 
     assert "library-publication-issue-strip" in component
     assert "Visual issue strip" in component
@@ -57,9 +57,9 @@ def test_vitest_exercises_compact_home_tools_and_drawer_interaction():
     assert "keeps catalogue workspace panels collapsed so the cover shelf stays central" in test
     assert ".library-catalogue-workspace" in test
     assert ".library-workspace-panel--browse" in test
-    assert ".library-detail-drawer" in test
+    assert ".library-sidebar-content" in test
     assert "await wrapper.find('.library-cover-details-drawer-button').trigger('click')" in test
-    assert "View full details" in test
+    assert "Open full details" in test
 
 
 def test_smoke_and_docs_track_sleek_browsing_slice():

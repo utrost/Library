@@ -218,7 +218,7 @@ async function runBrowserSmoke(proxyBase) {
       expression: `(() => {
         const showFiles = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Show in Files')
         const download = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Download source')
-        const details = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Details')
+        const details = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Open full details')
         const publicationLanding = document.querySelector('.library-periodical-groups a[href*="/apps/library/publications/"]') || document.querySelector('.library-periodical-groups option[value*="/apps/library/publications/"]')
         const yearLanding = document.querySelector('.library-year-groups a[href*="/apps/library/years/"]') || document.querySelector('.library-year-groups option[value*="/apps/library/years/"]')
         const creatorLanding = document.querySelector('.library-creator-groups a[href*="/apps/library/creators/"]') || document.querySelector('.library-creator-groups option[value*="/apps/library/creators/"]')
@@ -289,7 +289,7 @@ async function runBrowserSmoke(proxyBase) {
           reviewQueueActions: Boolean(document.querySelector('.library-review-queue-actions')),
           reviewQueueMetadataErrorTagForm: Boolean(document.querySelector('.library-review-queue-tag-form input[name="status"][value="metadata_error"]') && document.querySelector('.library-review-queue-tag-form input[name="nextcloudTagName"][value="library-metadata-error"]')),
           reviewQueueScannerConflictTagForm: Boolean(document.querySelector('.library-review-queue-tag-form input[name="scannerConflicts"][value="1"]') && document.querySelector('.library-review-queue-tag-form input[name="nextcloudTagName"][value="library-scanner-conflict"]')),
-          details: document.querySelectorAll('.library-cover-card a').length > 0 ? [...document.querySelectorAll('.library-cover-card a')].filter((a) => a.textContent === 'Details').length : 0,
+          details: document.querySelectorAll('.library-cover-card a').length > 0 ? [...document.querySelectorAll('.library-cover-card a')].filter((a) => a.textContent === 'Open full details').length : 0,
           nextcloudTagNameField: Boolean(document.querySelector('input[name="nextcloudTagName"]')),
           catalogueTagEditor: Boolean(document.querySelector('[aria-label="nextcloudTagEditor"]')),
           catalogueStarForms: document.querySelectorAll('.library-cover-star-form').length,

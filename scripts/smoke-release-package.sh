@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONTAINER="${NEXTCLOUD_CONTAINER:-nextcloud}"
 APP_ID="library"
-EXPECTED_VERSION="0.1.0-alpha.161"
+EXPECTED_VERSION="0.1.0-alpha.162"
 VERSION="${1:-$(python3 - <<'PY'
 from pathlib import Path
 import re
@@ -79,6 +79,7 @@ docker exec -u www-data "$CONTAINER" php occ router:list library | grep -E 'libr
 "$ROOT/scripts/smoke-unchanged-fast-path.sh"
 
 npm run smoke:vue
+npm run smoke:sidebar-http
 npm run smoke:browser
 npm run smoke:cover-privacy
 
