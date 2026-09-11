@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.153 - 2026-09-11
+
+- Added a conservative unchanged-file metadata fast path: trusted indexed files with an existing catalogue item, a matching current pipeline revision and an unchanged primary/selected-OPF fingerprint skip content extraction and catalogue-item writes.
+- Fingerprints cover root and file identity, path, ETag, modification time, size, MIME type and extension for the primary file and selected OPF sidecar. Missing or weak provider metadata fails open to normal extraction.
+- Added nullable fingerprint/revision schema fields and migration `Version000100Date20260911130000`; the first successful stable scan after upgrade warms those markers.
+- Added focused PHP runtime coverage and a privacy-preserving live two-scan smoke contract. Performance instrumentation remains next, so this release makes no measured speedup claim.
+
 ## v0.1.0-alpha.152 - 2026-09-11
 
 - Added seven additive user-scoped B-tree indexes for measured catalogue sort/filter and file diagnostic queries without changing query result behavior.

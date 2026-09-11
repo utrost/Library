@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONTAINER="${NEXTCLOUD_CONTAINER:-nextcloud}"
 APP_ID="library"
+EXPECTED_VERSION="0.1.0-alpha.153"
 VERSION="${1:-$(python3 - <<'PY'
 from pathlib import Path
 import re
@@ -14,8 +15,14 @@ if not match:
 print(match.group(1))
 PY
 )}"
+if [ "$VERSION" != "$EXPECTED_VERSION" ]; then
+  echo "release_version_mismatch=true"
+  exit 1
+fi
 ARCHIVE="$ROOT/dist/${APP_ID}-${VERSION}.tar.gz"
-CHECKSUM="$ARCHIVE.sha256"
+DIST_DIR="$ROOT/dist"
+CHECKSUM_BASENAME="${APP_ID}-${VERSION}.tar.gz.sha256"
+CHECKSUM="$DIST_DIR/$CHECKSUM_BASENAME"
 
 cd "$ROOT"
 
@@ -25,7 +32,7 @@ if [ ! -f "$ARCHIVE" ]; then
   exit 1
 fi
 
-sha256sum -c "$CHECKSUM"
+(cd "$DIST_DIR" && sha256sum -c "$CHECKSUM_BASENAME")
 
 docker exec -u www-data "$CONTAINER" php occ app:disable library >/dev/null 2>&1 || true
 docker exec -u root "$CONTAINER" sh -lc "rm -rf /var/www/html/custom_apps/library /tmp/library-${VERSION}.tar.gz"
@@ -44,11 +51,25 @@ docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/li
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260909162000.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260909170000.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260911120000.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260911130000.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Metadata/MetadataFastPathDecision.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Metadata/MetadataInputFingerprint.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Metadata/PublicationMetadataService.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Service/FileIndexService.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Service/ItemService.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Service/LibraryScanner.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/templates/item-detail.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/templates/settings-personal.php
 docker exec -u www-data "$CONTAINER" php occ app:enable library
 docker exec -u www-data "$CONTAINER" php occ upgrade
+INSTALLED_VERSION="$(docker exec -u www-data "$CONTAINER" php occ app:list --output=json | python3 -c 'import json, sys; print(json.load(sys.stdin).get("enabled", {}).get("library", ""))')"
+if [ "$INSTALLED_VERSION" != "$EXPECTED_VERSION" ]; then
+  echo "installed_release_version_mismatch=true"
+  exit 1
+fi
 docker exec -u www-data "$CONTAINER" php occ router:list library | grep -E 'library\.(page|item|tag|scan|root|saved_collection|metadata|bulk)'
+
+"$ROOT/scripts/smoke-unchanged-fast-path.sh"
 
 npm run smoke:vue
 npm run smoke:browser

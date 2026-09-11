@@ -139,6 +139,19 @@ final class ItemService {
         return $existing !== null && (bool)$existing['user_edited'];
     }
 
+    public function hasItemForLibraryFile(string $userId, int $libraryFileId): bool {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('id')
+            ->from('library_items')
+            ->where($qb->expr()->eq('library_file_id', $qb->createNamedParameter($libraryFileId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->setMaxResults(1)
+            ->executeQuery();
+        $exists = $result->fetch() !== false;
+        $result->closeCursor();
+        return $exists;
+    }
+
     public function forgetMissingItem(string $userId, int $itemId): bool {
         $qb = $this->db->getQueryBuilder();
         $result = $qb->select('i.library_file_id', 'f.scan_status')

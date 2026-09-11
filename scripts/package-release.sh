@@ -38,11 +38,13 @@ fi
 DIST_DIR="$ROOT/dist"
 STAGE_DIR="$DIST_DIR/$APP_ID"
 ARCHIVE="$DIST_DIR/${APP_ID}-${VERSION}.tar.gz"
+ARCHIVE_BASENAME="${APP_ID}-${VERSION}.tar.gz"
 
 cd "$ROOT"
 npm ci
 npm run build
 python -m pytest -q
+./scripts/run-php-runtime-tests.sh
 
 rm -rf "$STAGE_DIR" "$ARCHIVE"
 mkdir -p "$STAGE_DIR"
@@ -72,7 +74,7 @@ if [ "$SIGNED" = true ]; then
 fi
 
 tar -C "$DIST_DIR" -czf "$ARCHIVE" "$APP_ID"
-sha256sum "$ARCHIVE" > "$ARCHIVE.sha256"
+(cd "$DIST_DIR" && sha256sum "$ARCHIVE_BASENAME" > "$ARCHIVE_BASENAME.sha256")
 if [ "$SIGNED" = true ]; then
   bash "$ROOT/scripts/audit-release-package.sh" "$VERSION" --require-signature
 else

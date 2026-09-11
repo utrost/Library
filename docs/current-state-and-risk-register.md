@@ -6,7 +6,7 @@ This snapshot prepares Library for the v0.1 alpha test pass. It documents what i
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current app version: `0.1.0-alpha.152`.
+- Current app version: `0.1.0-alpha.153`.
 - Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
@@ -17,6 +17,7 @@ Implemented and ready for v0.1 testing:
 
 - Per-user Library roots with add/edit/enable/disable/delete, typed delete confirmation and recovery guidance.
 - Queued all-root and per-root scans, scan progress/history, metadata-error retry, missing-file recheck, queued cancellation and cooperative running-job cancellation.
+- Conservative unchanged-file rescans: an ordinary trusted indexed file with an existing item and current pipeline revision skips metadata content extraction and item writes only when its primary plus selected OPF sidecar identity/path/ETag/mtime/size/type fingerprint matches. Retry and recheck remain forced extraction paths.
 - EPUB, PDF, CBZ and OPF indexing with extractor failure isolation and missing-file diagnostics.
 - General editable publication metadata: title, subtitle, creators, publication/series, date, language, publisher, description, workflow status, genres and classifications.
 - Scanner provenance/candidates, differs-from-scanner labels, correction counts, single-field reset, whole-item reset, conflict review filter and batch scanner-candidate reset.
@@ -52,17 +53,28 @@ These are acceptable for the v0.1 alpha test pass but should stay visible:
 7. **Shared libraries:** users manage personal roots; admin-managed shared/global roots are not implemented.
 8. **Readers and content services:** Library delegates reading to Nextcloud and does not provide page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
 9. **Real-collection evidence:** generated scale and selected live smokes are strong for a v0.1 candidate, but Uwe's manual test pass should still use real mixed files to find weak metadata/cover cases.
-10. **Catalogue scale follow-ups:** seven additive user-scoped indexes now cover measured catalogue sort/filter and file diagnostic queries. Existing scan-job, root and saved-collection indexes were not duplicated; no starred index was added; redundant legacy single-user indexes remain in place. Queries using `LOWER(...)`, leading-wildcard text matching, JSON predicates or scanner-conflict row inspection remain outside ordinary B-tree benefits. Creator landing URLs are still duplicated per item, descriptions still ship eagerly instead of through lazy detail loading, unchanged rescans still need a cheaper fast path, and performance instrumentation remains next. The saved raw-tag filter bug and SQL-only scanner-conflict counting also remain pending.
+10. **Catalogue scale follow-ups:** seven additive user-scoped indexes cover measured catalogue sort/filter and file diagnostic queries. The unchanged-file fast path is implemented, but relies on metadata exposed by the active Nextcloud storage provider. Missing, empty or invalid signals fail open to extraction; root/path/content/sidecar/revision changes, prior missing/metadata-error/sidecar states and missing items also extract. Nullable markers warm on the first successful stable post-upgrade scan. Stable pre/post observations narrow races but cannot eliminate a concurrent ABA/TOCTOU change that returns to the same observed metadata. Performance instrumentation remains next, and no speedup has been measured or claimed. Creator URL duplication, eager descriptions, the saved raw-tag bug and SQL-only scanner-conflict counting also remain pending.
 
 ## Verification evidence
 
-Most recent release-hardening target evidence should include:
+Verified for the exact alpha.153 release package:
+
+- The archive checksum passed; the package was installed and enabled over alpha.152 after creating a 12,223,391-byte rollback SQL dump.
+- Migration registry entry `000100Date20260911130000` is present. Item and file row counts remained exactly 7,120 each across migration, and both fast-path columns are physically nullable `varchar(64)`.
+- SHA-256 equality was confirmed across source, archive and installed copies for the fast-path helpers, metadata service, file/item/scanner services, migration, database schema and app metadata.
+- A privacy-safe 40-file smallest-root smoke reported one root, 40 indexed, zero missing and zero errors on both scans. Warm-up rewrote 40 item rows and established 40 markers; the unchanged second scan rewrote zero item rows and retained 40 markers. Item/file row counts stayed at 40, and `source_observation_changes=0` confirmed equal before/after path/ETag/mtime/size/MIME observations.
+- Vue, API and browser exact-package smokes passed; browser console errors were zero.
+
+The 40-file result measures write elision, not throughput or latency. No elapsed-speedup claim is supported; performance instrumentation remains next.
+
+The release-hardening evidence set also includes:
 
 - Focused release-hardening contract tests.
 - Full Python contract suite.
 - Frontend Vitest suite and Vite production build.
+- Plain-PHP fast-path runtime tests and the aggregate-only two-scan live smoke after migration.
 - Markdown link check and `git diff --check`.
-- Generated `dist/library-0.1.0-alpha.152.tar.gz` plus SHA-256 verification.
+- Generated `dist/library-0.1.0-alpha.153.tar.gz` plus SHA-256 verification.
 - Generated archive install into the live `nextcloud` container, then PHP lint, `occ app:enable library`, `occ upgrade`, router listing and live Vue/browser smokes.
 
 Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, genres/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year/creator discovery pages.

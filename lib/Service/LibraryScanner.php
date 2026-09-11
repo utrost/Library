@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\Library\Service;
 
 use OCA\Library\Metadata\PublicationMetadataService;
+use OCA\Library\Metadata\MetadataFastPathDecision;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
@@ -89,7 +90,7 @@ final class LibraryScanner {
             }
 
             $seenLibraryFileIds = [];
-            if ($this->scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds)) {
+            if ($this->scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds, true)) {
                 $indexed++;
             }
             $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Retrying metadata errors: ' . (string)$file['cachedPath']);
@@ -124,7 +125,7 @@ final class LibraryScanner {
             }
 
             $seenLibraryFileIds = [];
-            if ($this->scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds)) {
+            if ($this->scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds, true)) {
                 $indexed++;
             }
             $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Rechecking missing files: ' . (string)$file['cachedPath']);
@@ -192,7 +193,7 @@ final class LibraryScanner {
                 continue;
             }
 
-            if ($this->scanFile($userId, $rootId, $node, $seenLibraryFileIds, $summary)) {
+            if ($this->scanFile($userId, $rootId, $node, $seenLibraryFileIds, false, $summary)) {
                 $indexed++;
                 if ($progress !== null) {
                     $progress($indexed);
@@ -239,7 +240,7 @@ final class LibraryScanner {
         ]);
     }
 
-    private function scanFile(string $userId, int $rootId, File $node, array &$seenLibraryFileIds, ?array &$summary = null): bool {
+    private function scanFile(string $userId, int $rootId, File $node, array &$seenLibraryFileIds, bool $force = false, ?array &$summary = null): bool {
         $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
             'fileId' => $node->getId(),
             'cachedPath' => $this->displayPath($node, $userId),
@@ -255,15 +256,33 @@ final class LibraryScanner {
         }
 
         try {
+            $fingerprint = $this->metadataService->metadataInputFingerprint($node, $rootId);
+            $revision = PublicationMetadataService::PIPELINE_REVISION;
+            if (MetadataFastPathDecision::shouldSkip(
+                $force,
+                (string)($indexedFile['changeStatus'] ?? 'unchanged'),
+                $indexedFile['previousScanStatus'] ?? null,
+                $fingerprint,
+                $indexedFile['previousMetadataInputFingerprint'] ?? null,
+                $revision,
+                $indexedFile['previousMetadataExtractorRevision'] ?? null,
+                fn () => $this->itemService->hasItemForLibraryFile($userId, (int)$indexedFile['id']),
+            )) {
+                return true;
+            }
+
             $metadata = $this->metadataService->extractWithSidecar($node);
             $this->itemService->ensureItemForFile($userId, $indexedFile, $metadata);
 
+            $postExtractionFingerprint = $this->metadataService->metadataInputFingerprint($node, $rootId);
             $metadataError = $this->metadataService->getLastError();
             if ($metadataError !== null) {
                 if ($summary !== null) {
                     $summary['metadataErrors']++;
                 }
                 $this->fileIndexService->markScanError($userId, (int)$indexedFile['id'], $metadataError);
+            } elseif (MetadataFastPathDecision::shouldMarkProcessed($fingerprint, $postExtractionFingerprint, $metadataError)) {
+                $this->fileIndexService->markMetadataProcessed($userId, (int)$indexedFile['id'], $fingerprint, $revision);
             }
         } catch (Throwable $e) {
             if ($summary !== null) {

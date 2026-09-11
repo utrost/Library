@@ -1,6 +1,6 @@
 # Public alpha test checklist
 
-Use this Public alpha checklist before the v0.1 alpha test pass on `0.1.0-alpha.152` and for early tester feedback. For the full repeatable script, use the [human test handbook](human-test-handbook.md).
+Use this Public alpha checklist before the v0.1 alpha test pass on `0.1.0-alpha.153` and for early tester feedback. For the full repeatable script, use the [human test handbook](human-test-handbook.md).
 
 ## Setup
 
@@ -45,6 +45,10 @@ Expected result: Read hands off to Nextcloud's existing file/viewer route, Show 
 6. Reopen the item details.
 
 Expected result: user-edited Library metadata survives the rescan. Nextcloud tags/comments remain separate from Library-native genres/classifications.
+
+For an unchanged-root regression check, run the same root twice after the alpha.153 migration. The first run may warm nullable fingerprint/revision markers and may rewrite inferred rows; the second should preserve every item `updated_at` value while still reporting the fixture count as indexed. This verifies write avoidance, not a measured speedup.
+
+Release baseline: the exact alpha.153 package passed this check on a privacy-safe 40-file smallest root. Both scans reported one root, 40 indexed, zero missing and zero errors. Warm-up rewrote 40 item rows and established 40 markers; the unchanged second scan rewrote zero item rows and retained 40 markers. Item/file row counts remained 40, and the before/after path/ETag/mtime/size/MIME observations had zero changes. Vue, API and browser package smokes also passed with zero browser console errors. This measured result is write-elision evidence only, not throughput or latency evidence; performance instrumentation remains next.
 
 ## Metadata portability smoke
 

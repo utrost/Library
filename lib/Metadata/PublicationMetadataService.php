@@ -9,11 +9,41 @@ use OCP\Files\Folder;
 use Throwable;
 
 final class PublicationMetadataService {
+    // Bump for any output-affecting extractor or normalization change, sidecar precedence
+    // change, filename/folder interpretation change, or ItemService candidate mapping change.
+    public const PIPELINE_REVISION = 'metadata-pipeline-v1';
+
     // realistic fixture notes: encoded PDF info dictionaries, CBZ without ComicInfo.xml, nested ComicInfo.xml, sidecar collisions.
     private ?string $lastError = null;
 
     public function getLastError(): ?string {
         return $this->lastError;
+    }
+
+    public function metadataInputFingerprint(File $file, int $rootId): ?string {
+        try {
+            $sidecar = $this->findOpfSidecar($file);
+            return MetadataInputFingerprint::fromObservations(
+                $this->observeNode($file, $rootId),
+                $sidecar === null ? null : $this->observeNode($sidecar, $rootId),
+            );
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    /** @return array<string, mixed> */
+    private function observeNode(File $file, int $rootId): array {
+        return [
+            'rootId' => $rootId,
+            'fileId' => $file->getId(),
+            'path' => $file->getPath(),
+            'etag' => $file->getEtag(),
+            'mimeType' => $file->getMimetype(),
+            'extension' => strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION)),
+            'mtime' => $file->getMTime(),
+            'size' => $file->getSize(),
+        ];
     }
 
     /**

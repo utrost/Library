@@ -144,6 +144,18 @@
                 <notnull>false</notnull>
             </field>
             <field>
+                <name>metadata_input_fingerprint</name>
+                <type>string</type>
+                <length>64</length>
+                <notnull>false</notnull>
+            </field>
+            <field>
+                <name>metadata_extractor_revision</name>
+                <type>string</type>
+                <length>64</length>
+                <notnull>false</notnull>
+            </field>
+            <field>
                 <name>scan_status</name>
                 <type>string</type>
                 <length>32</length>

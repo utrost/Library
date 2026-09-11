@@ -2,11 +2,11 @@
 
 Status: active release-readiness roadmap  
 Target: signed Nextcloud App Store release for Nextcloud 34  
-Current candidate baseline: `0.1.0-alpha.152`
+Current candidate baseline: `0.1.0-alpha.153`
 
 Library is already packaged and smoke-tested as an alpha candidate on a Nextcloud 34 instance. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
 
-The current candidate packages the additive migration for seven user-scoped indexes supporting measured catalogue sort/filter and file diagnostic queries. It does not duplicate existing scan-job, root or saved-collection indexes, does not add a starred index, and retains redundant legacy single-user indexes. Query behavior is unchanged; `LOWER(...)`, leading-wildcard, JSON and scanner-conflict queries remain outside ordinary B-tree benefits.
+The current candidate adds nullable metadata-input fingerprint and extractor-revision fields through `Version000100Date20260911130000`. Ordinary trusted unchanged indexed files with existing items/current revision can skip extraction and item writes; the first stable successful post-upgrade scan warms markers. Provider metadata remains a trust dependency, weak signals fail open, and stable pre/post checks do not eliminate residual concurrent ABA/TOCTOU risk. Exact-package smoke measured zero item-row rewrites on the unchanged second pass of a 40-file root after warm-up established 40 markers, with `source_observation_changes=0` for path/ETag/mtime/size/MIME observations. This does not instrument source writes or compare content bytes; it is write-elision evidence, not throughput or latency evidence. Performance instrumentation remains next and no elapsed-speedup claim is made.
 
 ## Definition of ready
 
@@ -77,7 +77,7 @@ Work:
 3. Require `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` only at signing time; keep keys outside the repository and outside the archive.
 4. Document the Nextcloud certificate request step and the public repository URL required by the certificate request.
 5. Add package audit checks that fail if a stable App Store package lacks `appinfo/signature.json`, while allowing unsigned alpha rehearsal packages.
-6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and sign the exact release archive with `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.152.tar.gz | openssl base64`.
+6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and sign the exact release archive with `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.153.tar.gz | openssl base64`.
 
 Guideline notes: App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`; the archive top folder must match the app id `library`; `info.xml` should use the current SPDX license identifier and include the public repository URL.
 
@@ -89,7 +89,7 @@ Acceptance checks:
 
 ### AS-004 — App Store release rehearsal
 
-Status: planned.
+Status: exact-package alpha.153 rehearsal passed; clean-checkout CI and signed stable rehearsal remain pending.
 
 Goal: prove every step before the real stable upload.
 
@@ -97,15 +97,17 @@ Work:
 
 1. Build a release candidate archive from a clean checkout.
 2. Install it on a disposable Nextcloud 34 instance.
-3. Run local gate, generated archive install smoke, Vue/browser smoke, and a small real-file scan.
+3. Run local gate, generated archive install smoke (including the aggregate-only two-scan unchanged-file contract after migration), Vue/browser smoke, and a small real-file scan.
 4. Verify the checksum and tarball contents match the published artifact.
 5. Prepare GitHub release notes with known limitations and support scope.
 
 Acceptance checks:
 
 - CI is green for the exact commit used for the package.
-- Release smoke output records app version, routes, Vue smoke, browser smoke and zero console errors.
+- Release smoke output records exact app version, routes, privacy-safe unchanged-file aggregates, Vue smoke, browser smoke and zero console errors.
 - Known limitations are visible in release notes and listing draft.
+
+Alpha.153 rehearsal evidence: the exact archive checksum passed and the package was installed and enabled over alpha.152 after a rollback dump was created. Database row counts stayed at 7,120 items and 7,120 files across migration; registry and physical-schema inspection confirmed migration `000100Date20260911130000` and two nullable `varchar(64)` marker columns. Source, archive and installed SHA-256 values matched for the fast-path helpers, metadata service, file/item/scanner services, migration and app XML metadata. The privacy-safe 40-file two-scan smoke indexed all files with zero missing/errors, rewrote 40 item rows and established 40 markers on warm-up, then rewrote zero item rows and retained all markers on the unchanged scan; row counts stayed at 40, and `source_observation_changes=0` confirmed equal before/after path/ETag/mtime/size/MIME observations. Vue, API and browser smokes passed with zero console errors.
 
 ### AS-005 — Stable `0.1.0` App Store submission
 
