@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.156 - 2026-09-11
+
+- Hardened manual cover uploads with bounded reads, upload-error rejection, exact JPEG/PNG/WebP server-side detection, structural completeness checks, and explicit encoded-byte, dimension, and pixel-count limits.
+- Invalid or malformed uploaded covers now leave the existing override untouched, while persisted MIME is always the canonical server-detected value rather than client metadata.
+- Added dependency-free PHP runtime behavior coverage for the validator and the real controller/upload-service integration seam.
+
 ## v0.1.0-alpha.155 - 2026-09-11
 
 - Hardened catalogue AJAX filtering with request cancellation, monotonic response ownership, rejection fallback, and unmount cleanup so stale responses cannot replace newer results.

@@ -45,9 +45,9 @@ Not in scope for v0.1:
 
 ## Try it
 
-Current source candidate: `0.1.0-alpha.155`.
+Current source candidate: `0.1.0-alpha.156`.
 
-Exact alpha.155 package, checksum, install, migration, 40-file scan, API, and browser evidence is pending.
+Exact alpha.156 package, checksum, install, migration, 40-file scan, API, and browser evidence is pending.
 
 Alpha.154 adds aggregate operation instrumentation and bounded scan progress/cancellation polling. Metrics are in-memory or aggregate scan-job fields and privacy-safe Library log events; there is no external telemetry and no claim of universal speedup. Cancellation is checked initially and after 100 traversal units or 1000 ms, including unsupported nodes and nested/empty folders. A single filesystem listing/node call or extraction/storage operation remains non-preemptive. Queue wait and running/cancelled wall durations use portable epoch-second storage and are second-resolution approximations; completed/failed worker duration remains monotonic integer milliseconds.
 

@@ -12,6 +12,9 @@ use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCA\Library\Service\ArchiveCoverService;
 use OCA\Library\Service\ItemService;
+use OCA\Library\Service\ManualCoverUploadService;
+use OCA\Library\Service\ManualCoverValidationException;
+use OCA\Library\Service\ManualCoverValidator;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\IDBConnection;
@@ -26,6 +29,7 @@ use OCA\Library\Instrumentation\MonotonicClock;
 
 class CoverController extends Controller {
     private MonotonicClock $clock;
+    private ManualCoverUploadService $manualCoverUploadService;
     private int $coverStartedAt = 0;
     public function __construct(
         string $appName,
@@ -39,9 +43,11 @@ class CoverController extends Controller {
         private ArchiveCoverService $archiveCoverService,
         private LoggerInterface $logger,
         ?MonotonicClock $clock = null,
+        ?ManualCoverUploadService $manualCoverUploadService = null,
     ) {
         parent::__construct($appName, $request);
         $this->clock = $clock ?? new MonotonicClock();
+        $this->manualCoverUploadService = $manualCoverUploadService ?? new ManualCoverUploadService(new ManualCoverValidator());
     }
 
     #[NoAdminRequired]
@@ -120,10 +126,15 @@ class CoverController extends Controller {
             $upload = $_FILES['coverOverrideFile'] ?? null;
             $data = null;
             $mimeType = null;
-            if (is_array($upload) && isset($upload['tmp_name']) && is_uploaded_file((string)$upload['tmp_name'])) {
-                $mimeType = is_string($upload['type'] ?? null) ? (string)$upload['type'] : 'image/jpeg';
-                if (str_starts_with($mimeType, 'image/')) {
-                    $data = base64_encode((string)file_get_contents((string)$upload['tmp_name']));
+            if (is_array($upload) && ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                try {
+                    $validated = $this->manualCoverUploadService->validateUpload($upload);
+                    $data = base64_encode($validated['content']);
+                    $mimeType = $validated['mimeType'];
+                } catch (ManualCoverValidationException) {
+                    // Invalid files never reach persistence. Redirect back to the item just
+                    // like the existing form flow, leaving the current override untouched.
+                    return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
                 }
             }
             $this->itemService->setManualCoverOverride(

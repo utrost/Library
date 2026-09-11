@@ -2,11 +2,11 @@
 
 Status: active release-readiness roadmap  
 Target: signed Nextcloud App Store release for Nextcloud 34  
-Current candidate baseline: `0.1.0-alpha.155`
+Current candidate baseline: `0.1.0-alpha.156`
 
-Library alpha.153 was packaged and smoke-tested on a Nextcloud 34 instance. Alpha.155 is the current source candidate. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
+Library alpha.153 was packaged and smoke-tested on a Nextcloud 34 instance. Alpha.156 is the current source candidate. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
 
-The current candidate includes aggregate scan-job counters/duration, privacy-safe operation logs, throttled progress/cancellation checks through `Version000100Date20260911140000`, and frontend request-race hardening for catalogue filtering, metadata autosave, and star mutations. This is not external telemetry or proof of universal speedup. Exact-package alpha.155 migration and live smoke evidence remain pending.
+The current candidate includes aggregate scan-job counters/duration, privacy-safe operation logs, throttled progress/cancellation checks through `Version000100Date20260911140000`, and frontend request-race hardening for catalogue filtering, metadata autosave, and star mutations. This is not external telemetry or proof of universal speedup. Exact-package alpha.156 migration and live smoke evidence remain pending.
 
 ## Definition of ready
 
@@ -77,7 +77,7 @@ Work:
 3. Require `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` only at signing time; keep keys outside the repository and outside the archive.
 4. Document the Nextcloud certificate request step and the public repository URL required by the certificate request.
 5. Add package audit checks that fail if a stable App Store package lacks `appinfo/signature.json`, while allowing unsigned alpha rehearsal packages.
-6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and sign the exact release archive with `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.155.tar.gz | openssl base64`.
+6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and sign the exact release archive with `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.156.tar.gz | openssl base64`.
 
 Guideline notes: App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`; the archive top folder must match the app id `library`; `info.xml` should use the current SPDX license identifier and include the public repository URL.
 
@@ -89,7 +89,7 @@ Acceptance checks:
 
 ### AS-004 — App Store release rehearsal
 
-Status: exact-package alpha.155 rehearsal, clean-checkout CI, and signed stable rehearsal remain pending.
+Status: exact-package alpha.156 rehearsal, clean-checkout CI, and signed stable rehearsal remain pending.
 
 Goal: prove every step before the real stable upload.
 
