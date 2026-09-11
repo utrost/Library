@@ -9,22 +9,23 @@ def read(relative: str) -> str:
 
 
 def test_alpha_157_version_assets_and_release_contracts_are_aligned():
-    assert "<version>0.1.0-alpha.158</version>" in read("appinfo/info.xml")
-    assert '"version": "0.1.0-alpha.158"' in read("package.json")
-    assert '"version": "0.1.0-alpha.158"' in read("package-lock.json")
+    assert "<version>0.1.0-alpha.159</version>" in read("appinfo/info.xml")
+    assert '"version": "0.1.0-alpha.159"' in read("package.json")
+    assert '"version": "0.1.0-alpha.159"' in read("package-lock.json")
     controller = read("lib/Controller/PageController.php")
-    assert "library-main-0-1-0-alpha-158" in controller
-    assert "library-vue-0-1-0-alpha-158" in controller
+    assert "library-main-0-1-0-alpha-159" in controller
+    assert "library-vue-0-1-0-alpha-159" in controller
     assert (ROOT / "js/library-main-0-1-0-alpha-156.mjs").exists()
     assert (ROOT / "css/library-vue-0-1-0-alpha-156.css").exists()
-    assert "v0.1.0-alpha.158" in read("CHANGELOG.md")
+    assert "v0.1.0-alpha.159" in read("CHANGELOG.md")
 
 
-def test_alpha_157_app_store_readiness_names_only_the_current_candidate():
+def test_app_store_readiness_names_alpha_159_as_the_current_verified_candidate():
     readiness = read("docs/app-store-readiness.md")
-    assert "Current candidate baseline: `0.1.0-alpha.158`" in readiness
-    assert "Library alpha.158 was packaged and smoke-tested" in readiness
-    assert "Exact-package alpha.158 install and live smoke evidence is complete." in readiness
+    assert "Current candidate baseline: `0.1.0-alpha.159`" in readiness
+    assert "Library alpha.159 passed its full local gate, unsigned package build/audit, and exact-package smoke" in readiness
+    assert "Alpha.159 exact-package/live evidence is complete" in readiness
+    assert "Alpha.158 rehearsal evidence:" in readiness
     assert "Alpha.156 is the current source candidate." not in readiness
     assert "Exact-package alpha.158 install and live smoke evidence remains pending." not in readiness
 

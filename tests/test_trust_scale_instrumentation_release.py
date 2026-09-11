@@ -23,7 +23,7 @@ def test_terminal_atomicity_throttling_and_private_logger_allowlists():
     assert "library.cover.built" in cover and "library.cover.slow" in cover
     assert "preview-error: " not in cover
 def test_alpha_154_release_assets_and_docs():
-    assert "0.1.0-alpha.158" in read("appinfo/info.xml") and "0.1.0-alpha.158" in read("package.json")
+    assert "0.1.0-alpha.159" in read("appinfo/info.xml") and "0.1.0-alpha.159" in read("package.json")
     assert (ROOT / "js/library-main-0-1-0-alpha-154.mjs").exists() and (ROOT / "css/library-vue-0-1-0-alpha-154.css").exists()
     combined = "\n".join(read(p) for p in ("README.md", "CHANGELOG.md", "RELEASE.md", "docs/post-v0.1-roadmap.md"))
     assert "aggregate" in combined.lower() and "external telemetry" in combined.lower() and "non-preemptive" in combined.lower()

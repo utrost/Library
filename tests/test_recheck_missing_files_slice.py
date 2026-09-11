@@ -40,7 +40,12 @@ def test_scanner_rechecks_missing_files_without_broad_missing_sweep():
     body = scanner.split("public function recheckMissingFiles", 1)[1].split("private function", 1)[0]
     assert "missingFiles($userId)" in body
     assert "getById((int)$file['fileId'])" in body
-    assert "scanFile($userId, (int)$file['rootId'], $node" in body
+    assert "listEnabledRoots($userId)" in body
+    assert "scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds, true, (int)$file['rootId'])" in body
+    scan_file = scanner.split("private function scanFile", 1)[1].split("private function cleanupSuppressedOpfSidecar", 1)[0]
+    assert scan_file.count("repairObservation($userId, $repairOriginalRootId, $node)") == 1
+    assert scan_file.index("getSize()") < scan_file.index("repairObservation(") < scan_file.index("upsertFile(")
+    assert "rootState" not in scanner
     assert "markMissingExcept" not in body
     assert "missing recheck failed: source file not found" in body
     assert "markMissingRecheckError($userId" in body

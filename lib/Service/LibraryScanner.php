@@ -94,7 +94,7 @@ final class LibraryScanner {
         $files = $this->fileIndexService->metadataErrorFiles($userId);
         $indexed = 0;
         $errors = [];
-        $rootsTotal = count(array_unique(array_map(fn (array $file): int => (int)$file['rootId'], $files)));
+        $rootsTotal = count($this->rootService->listEnabledRoots($userId));
         $userFolder = $this->rootFolder->getUserFolder($userId);
         $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Retrying metadata errors…');
 
@@ -109,9 +109,14 @@ final class LibraryScanner {
             }
 
             $seenLibraryFileIds = [];
-            if ($this->scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds, true)) {
-                $indexed++;
+            if (!$this->scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds, true, (int)$file['rootId'])) {
+                $message = 'repair failed: source file is outside enabled Library roots';
+                $this->fileIndexService->markMissingRecheckError($userId, (int)$file['id'], $message);
+                $errors[] = (string)$file['cachedPath'] . ': source file is outside enabled Library roots';
+                $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Retrying metadata errors');
+                continue;
             }
+            $indexed++;
             $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Retrying metadata errors: ' . (string)$file['cachedPath']);
         }
 
@@ -131,7 +136,7 @@ final class LibraryScanner {
         $files = $this->fileIndexService->missingFiles($userId);
         $indexed = 0;
         $errors = [];
-        $rootsTotal = count(array_unique(array_map(fn (array $file): int => (int)$file['rootId'], $files)));
+        $rootsTotal = count($this->rootService->listEnabledRoots($userId));
         $userFolder = $this->rootFolder->getUserFolder($userId);
         $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Rechecking missing files…');
 
@@ -146,9 +151,14 @@ final class LibraryScanner {
             }
 
             $seenLibraryFileIds = [];
-            if ($this->scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds, true)) {
-                $indexed++;
+            if (!$this->scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds, true, (int)$file['rootId'])) {
+                $message = 'missing recheck failed: source file is outside enabled Library roots';
+                $this->fileIndexService->markMissingRecheckError($userId, (int)$file['id'], $message);
+                $errors[] = (string)$file['cachedPath'] . ': source file is outside enabled Library roots';
+                $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Rechecking missing files');
+                continue;
             }
+            $indexed++;
             $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Rechecking missing files: ' . (string)$file['cachedPath']);
         }
 
@@ -176,6 +186,48 @@ final class LibraryScanner {
         }
 
         throw new \RuntimeException('Scoped root not found or disabled');
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $enabledRoots
+     */
+    private function repairRootId(array $enabledRoots, int $originalRootId, string $currentPath): ?int {
+        $fallbackRootId = null;
+        foreach ($enabledRoots as $root) {
+            if (!$this->pathIsWithinRoot($currentPath, (string)$root['path'])) {
+                continue;
+            }
+
+            $rootId = (int)$root['id'];
+            if ($rootId === $originalRootId) {
+                return $rootId;
+            }
+            $fallbackRootId ??= $rootId;
+        }
+
+        return $fallbackRootId;
+    }
+
+    /** @return array{rootId:int,path:string}|null */
+    private function repairObservation(string $userId, int $originalRootId, File $node): ?array {
+        $path = $this->displayPath($node, $userId);
+        $enabledRoots = $this->rootService->listEnabledRoots($userId);
+        $rootId = $this->repairRootId($enabledRoots, $originalRootId, $path);
+        if ($rootId === null) {
+            return null;
+        }
+
+        return ['rootId' => $rootId, 'path' => $path];
+    }
+
+    private function pathIsWithinRoot(string $path, string $rootPath): bool {
+        $normalizedPath = '/' . trim($path, '/');
+        $normalizedRoot = '/' . trim($rootPath, '/');
+        if ($normalizedRoot === '/') {
+            return true;
+        }
+
+        return $normalizedPath === $normalizedRoot || str_starts_with($normalizedPath, $normalizedRoot . '/');
     }
 
     private function resolveRootFolder(Folder $userFolder, string $path): Folder {
@@ -219,7 +271,7 @@ final class LibraryScanner {
                 continue;
             }
 
-            if ($this->scanFile($userId, $rootId, $node, $seenLibraryFileIds, false, $summary)) {
+            if ($this->scanFile($userId, $rootId, $node, $seenLibraryFileIds, false, null, $summary)) {
                 $indexed++;
                 if ($progress !== null) {
                     $progress($indexed, $traversalUnits);
@@ -289,17 +341,29 @@ final class LibraryScanner {
         ]);
     }
 
-    private function scanFile(string $userId, int $rootId, File $node, array &$seenLibraryFileIds, bool $force = false, ?array &$summary = null): bool {
+    private function scanFile(string $userId, int $rootId, File $node, array &$seenLibraryFileIds, bool $force = false, ?int $repairOriginalRootId = null, ?array &$summary = null): bool {
         $fileIndexStarted = $this->clock->now();
         try {
-            $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
+            $file = [
                 'fileId' => $node->getId(),
-                'cachedPath' => $this->displayPath($node, $userId),
                 'mimeType' => $node->getMimetype(),
                 'extension' => strtolower(pathinfo($node->getName(), PATHINFO_EXTENSION)),
                 'etag' => $node->getEtag(),
                 'mtime' => $node->getMTime(),
                 'size' => $node->getSize(),
+            ];
+            if ($repairOriginalRootId !== null) {
+                $repair = $this->repairObservation($userId, $repairOriginalRootId, $node);
+                if ($repair === null) {
+                    return false;
+                }
+                $rootId = $repair['rootId'];
+                $file['cachedPath'] = $repair['path'];
+            } else {
+                $file['cachedPath'] = $this->displayPath($node, $userId);
+            }
+            $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
+                ...$file,
             ]);
         } finally {
             $this->metrics['fileIndexDurationMs'] += $this->clock->elapsedMs($fileIndexStarted);

@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.md"
@@ -8,11 +9,11 @@ def test_readme_is_public_one_page_overview_without_internal_names():
     readme = README.read_text()
     lines = readme.splitlines()
 
-    assert len(lines) <= 90
+    assert len(lines) <= 92
     assert "# Library" in readme
     assert "open-source Nextcloud app" in readme
     assert "Nextcloud Files remains the canonical storage" in readme
-    assert "Current source candidate: `0.1.0-alpha.158`" in readme
+    assert "Current source candidate: `0.1.0-alpha.159`" in readme
 
     internal_names = ["Uwe", "Hermes", "Alice", "/home/uwe"]
     for name in internal_names:
@@ -43,3 +44,15 @@ def test_readme_keeps_public_entry_links():
         "[Changelog](CHANGELOG.md)",
     ]:
         assert link in readme
+
+
+def test_packaged_readme_does_not_embed_the_current_archive_checksum():
+    readme = README.read_text(encoding="utf-8")
+    checksum_file = ROOT / "dist/library-0.1.0-alpha.159.tar.gz.sha256"
+
+    assert "adjacent `.sha256` artifact" in readme
+    assert "excluded `RELEASE.md`" in readme
+    assert re.search(r"archive SHA-256 is [` ]*[0-9a-f]{64}", readme, re.IGNORECASE) is None
+    if checksum_file.exists():
+        current_checksum = checksum_file.read_text(encoding="utf-8").split()[0]
+        assert current_checksum not in readme

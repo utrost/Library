@@ -33,9 +33,14 @@ def test_library_scanner_retries_metadata_error_files_without_missing_sweep():
     scanner = (ROOT / "lib" / "Service" / "LibraryScanner.php").read_text()
 
     assert "public function retryMetadataErrors(string $userId, ?callable $progress = null): array" in scanner
-    retry_body = scanner.split("public function retryMetadataErrors", 1)[1].split("private function", 1)[0]
+    retry_body = scanner.split("public function retryMetadataErrors", 1)[1].split("public function recheckMissingFiles", 1)[0]
     assert "metadataErrorFiles($userId)" in retry_body
-    assert "scanFile($userId" in retry_body
+    assert "listEnabledRoots($userId)" in retry_body
+    assert "scanFile($userId, (int)$file['rootId'], $node, $seenLibraryFileIds, true, (int)$file['rootId'])" in retry_body
+    scan_file = scanner.split("private function scanFile", 1)[1].split("private function cleanupSuppressedOpfSidecar", 1)[0]
+    assert scan_file.count("repairObservation($userId, $repairOriginalRootId, $node)") == 1
+    assert scan_file.index("getSize()") < scan_file.index("repairObservation(") < scan_file.index("upsertFile(")
+    assert "rootState" not in scanner
     assert "markMissingExcept" not in retry_body
     assert "Retrying metadata errors" in retry_body
 

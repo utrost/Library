@@ -374,6 +374,8 @@ Each user configures their own Library roots. There is no polished global root p
 
 Library scan jobs currently expose progress/history, status, scope, indexed counts, error counts, duration and summary. **Cancel queued scan** is available before a job starts, and **Cancel scan** is available for running jobs; running-job cancellation is cooperative and stops at the next scan progress checkpoint. Scheduled scan UI and notification flow remain future work.
 
+**Retry metadata errors** and **Recheck missing files** follow current enabled-root scope. Their reported root total is the number of enabled roots when the repair operation starts, rather than the historical roots attached to queued rows. A stable-ID file moved within an enabled root, or into another enabled root, can be repaired without losing identity. A file observed outside every enabled root stays missing and is not restored to the active catalogue; disabled roots do not qualify.
+
 ### Import health
 
 After a real-library scan, the catalogue exposes an **Import health → Metadata overview** section inside the **Actions** menu when maintainers need collection-scale diagnostics. The overview opens from a cached snapshot instead of recomputing during normal catalogue requests, so paging, search and filters keep using the fast catalogue query path. Use **Refresh metadata overview** only when you deliberately want to recompute the heavier archive/cover diagnostics from current files.
