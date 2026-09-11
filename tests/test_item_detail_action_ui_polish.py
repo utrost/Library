@@ -64,5 +64,3 @@ def test_catalogue_cards_offer_hover_star_toggle_with_csrf_token():
     assert "library-cover-star-button--starred" in app
     assert "library-cover-card:hover .library-cover-star-form" in css
     assert ".library-cover-star-button--starred" in css
-    assert "fallbackHiddenRequestToken(state)" in fallback
-    assert "library-cover-star-form" in fallback

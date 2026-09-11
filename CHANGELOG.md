@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.163 - 2026-09-11
+
+- Retired the duplicate client-side catalogue renderer and its cards, filters, panels, mutation forms, and stale-data contracts; authoritative initial state continues to be delivered by the server and rendered only by Vue.
+- Added an independently loaded, CSP-safe startup watchdog whose 10-second timer starts as soon as the shell executes, safely resolves its status element after parsing, detects immediate module/runtime/CSP failures, cancels after successful mount, and preserves accessible reload and personal-settings exits.
+- Added exact-package browser failure injection for disabled JavaScript, module 404, syntax failure, pre-mount bootstrap failure, mount failure, missing initial state, malformed initial-state JSON, structurally invalid decoded state, a module held pending beyond 10 seconds, near-threshold successful startup without a premature notice, and successful recovery after a displayed timeout. PHP full details, Vue Library/Review/sidebar behavior, and personal settings remain available.
+
 ## v0.1.0-alpha.162 - 2026-09-11
 
 - Replaced the inert shell sidebar with an accessible read-only item detail for catalogue and Review results, retaining Read and the PHP full-details escape hatch.

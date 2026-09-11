@@ -32,8 +32,6 @@ def test_catalogue_and_detail_expose_download_url_next_to_read_and_show_in_files
     assert "Download" in detail_template
     assert "item.downloadUrl" in vue
     assert "Download" in vue
-    assert "item.downloadUrl" in fallback
-    assert "Download" in fallback
 
 
 def test_reader_download_fallback_documented_and_smoked():

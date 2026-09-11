@@ -31,7 +31,7 @@ def test_php_full_details_and_fallback_renderer_remain_available():
 
 def test_alpha_162_release_evidence_and_consistency_contract_are_current():
     release = read("RELEASE.md")
-    assert "/tmp/library-alpha162-codex-remediation.md" in release
+    assert "/tmp/library-alpha163-codex-implementation.md" in release
     assert "/tmp/library-alpha161-codex-implementation.md" not in release
     for contract in ["package.json", "package-lock.json", "appinfo/info.xml", "versioned frontend asset names", "archive/checksum names", "exact-package smoke expectation", "evidence-sidecar reference"]:
         assert contract in release

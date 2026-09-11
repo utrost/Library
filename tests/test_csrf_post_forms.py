@@ -72,7 +72,6 @@ def test_vue_catalogue_star_and_detail_forms_include_requesttoken():
     assert 'name="returnTo" value="catalogue"' in vue
     assert detail.count('name="requesttoken"') >= 3
     assert "$_['requesttoken']" in detail
-    assert "fallbackHiddenRequestToken" in main_js
 
 
 def test_personal_settings_post_forms_include_requesttoken():

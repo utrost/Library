@@ -28,8 +28,8 @@ def test_page_controller_provides_catalogue_initial_state_and_loads_vue_entrypoi
     assert "use OCP\\AppFramework\\Services\\IInitialState;" in controller
     assert "private IInitialState $initialState" in controller
     assert "$this->initialState->provideInitialState('catalogue'" in controller
-    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-162';" in controller
-    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-162';" in controller
+    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-163';" in controller
+    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-163';" in controller
     assert "Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);" in controller
     assert "'items' => $items" in controller
     assert "'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library'])" in controller
@@ -66,13 +66,8 @@ def test_vue_entrypoint_loads_nextcloud_initial_state_and_mounts_app():
     assert "loadState('library', 'catalogue'" in main
     assert "document.querySelector('#library-vue-root')" in main
     assert ".mount(mountTarget)" in main
-    assert "fallbackCatalogue" in main
-    assert "Vue mount failed; rendering fallback catalogue" in main
-    assert "library-filter-bar" in main
-    assert "Search title / author" in main
-    assert "All formats" in main
-    assert "Apply filters" in main
-    assert "Clear" in main
+    assert "validInitialState" in main
+    assert "LibraryStartupWatchdog?.mounted()" in main
 
 
 def test_vue_app_renders_catalogue_filters_covers_and_detail_links():

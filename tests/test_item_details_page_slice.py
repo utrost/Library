@@ -47,7 +47,6 @@ def test_catalogue_cards_link_to_dedicated_details_page():
     assert "linkToRoute('library.item_page.show'" in page
     assert ':href="item.detailsUrl"' in vue
     assert "t('library', 'Details')" in vue
-    assert "item.detailsUrl" in fallback
 
 
 def test_item_detail_template_has_layered_read_only_metadata_sections():

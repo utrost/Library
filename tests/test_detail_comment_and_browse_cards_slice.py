@@ -68,17 +68,6 @@ def test_vue_catalogue_cards_are_browse_only_without_post_edit_forms():
     assert "Details" in vue
 
 
-def test_fallback_catalogue_cards_are_browse_only_and_keep_export_action():
-    fallback = (ROOT / "src" / "main.js").read_text()
-
-    assert "item.updateUrl" not in fallback
-    assert "item.commentUrl" not in fallback
-    assert "library-item-form" not in fallback
-    assert "Save metadata" not in fallback
-    assert "metadataExportUrl" in fallback
-    assert "Export corrected metadata" in fallback
-
-
 def test_browser_smoke_requires_tokens_on_all_catalogue_post_forms_and_keeps_star_checks():
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 

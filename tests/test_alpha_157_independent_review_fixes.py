@@ -9,20 +9,20 @@ def read(relative: str) -> str:
 
 
 def test_alpha_157_version_assets_and_release_contracts_are_aligned():
-    assert "<version>0.1.0-alpha.162</version>" in read("appinfo/info.xml")
-    assert '"version": "0.1.0-alpha.162"' in read("package.json")
-    assert '"version": "0.1.0-alpha.162"' in read("package-lock.json")
+    assert "<version>0.1.0-alpha.163</version>" in read("appinfo/info.xml")
+    assert '"version": "0.1.0-alpha.163"' in read("package.json")
+    assert '"version": "0.1.0-alpha.163"' in read("package-lock.json")
     controller = read("lib/Controller/PageController.php")
-    assert "library-main-0-1-0-alpha-162" in controller
-    assert "library-vue-0-1-0-alpha-162" in controller
+    assert "library-main-0-1-0-alpha-163" in controller
+    assert "library-vue-0-1-0-alpha-163" in controller
     assert (ROOT / "js/library-main-0-1-0-alpha-156.mjs").exists()
     assert (ROOT / "css/library-vue-0-1-0-alpha-156.css").exists()
-    assert "v0.1.0-alpha.162" in read("CHANGELOG.md")
+    assert "v0.1.0-alpha.163" in read("CHANGELOG.md")
 
 
 def test_app_store_readiness_distinguishes_current_source_from_alpha_159_evidence():
     readiness = read("docs/app-store-readiness.md")
-    assert "Current candidate baseline: `0.1.0-alpha.162`" in readiness
+    assert "Current candidate baseline: `0.1.0-alpha.163`" in readiness
     assert "Library alpha.159 passed its full local gate, unsigned package build/audit, and exact-package smoke" in readiness
     assert "Alpha.159 exact-package/live evidence is complete" in readiness
     assert "Alpha.158 rehearsal evidence:" in readiness

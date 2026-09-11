@@ -29,8 +29,8 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-162';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-162';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-163';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-163';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -85,7 +85,7 @@ class PageController extends Controller {
         $userId = $user !== null ? $user->getUID() : '';
         $this->initialState->provideInitialState('catalogue', $this->buildCatalogueState($userId, [], [], 'index'));
 
-        return new TemplateResponse(Application::APP_ID, 'main');
+        return $this->catalogueTemplateResponse();
     }
 
     #[NoAdminRequired]
@@ -107,7 +107,7 @@ class PageController extends Controller {
             'publicationIssueContext' => $this->enrichPublicationIssueContextForVue($this->itemService->publicationIssueContext($userId, $publication)),
         ], 'publication'));
 
-        return new TemplateResponse(Application::APP_ID, 'main');
+        return $this->catalogueTemplateResponse();
     }
 
     #[NoAdminRequired]
@@ -128,7 +128,7 @@ class PageController extends Controller {
             'discoveryTitle' => $year,
         ], 'year'));
 
-        return new TemplateResponse(Application::APP_ID, 'main');
+        return $this->catalogueTemplateResponse();
     }
 
     #[NoAdminRequired]
@@ -149,7 +149,7 @@ class PageController extends Controller {
             'discoveryTitle' => $creator,
         ], 'creator'));
 
-        return new TemplateResponse(Application::APP_ID, 'main');
+        return $this->catalogueTemplateResponse();
     }
 
     #[NoAdminRequired]
@@ -158,6 +158,12 @@ class PageController extends Controller {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
         return new JSONResponse($this->buildCatalogueState($userId, [], [], 'catalogue_api'));
+    }
+
+    private function catalogueTemplateResponse(): TemplateResponse {
+        return new TemplateResponse(Application::APP_ID, 'main', [
+            'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),
+        ]);
     }
 
     private function buildCatalogueState(string $userId, array $filterOverrides = [], array $pageContext = [], string $surface = 'catalogue_api'): array {

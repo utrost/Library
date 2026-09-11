@@ -33,9 +33,6 @@ def test_vue_and_fallback_render_year_discovery_links_and_header():
     assert "library-year-groups" in vue
     assert "Publication year" in vue
     assert "library-discovery-header" in vue
-    assert "fallbackIsYearDiscoveryPage" in fallback
-    assert "fallbackYearLandingUrl(year" in fallback
-    assert "library-year-groups" in fallback
 
 
 def test_smokes_and_docs_track_year_discovery_page():

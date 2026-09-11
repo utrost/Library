@@ -16,7 +16,7 @@ def test_vue_and_fallback_distinguish_first_run_from_filtered_empty_state():
     fallback = (ROOT / "src" / "main.js").read_text()
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
-    for source in (app, fallback):
+    for source in (app,):
         assert "library-first-run-guidance" in source
         assert "Start with one Library root" in source
         assert "Add a Library root" in source

@@ -37,7 +37,7 @@ def test_vue_and_fallback_expose_batch_actions_for_current_filter_results():
     fallback = (ROOT / "src" / "main.js").read_text()
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
-    for source in (app, fallback):
+    for source in (app,):
         assert "library-batch-actions" in source
         assert "Batch actions for current results" in source
         assert "Apply Nextcloud tag to current results" in source or "Add tag" in source
@@ -58,5 +58,5 @@ def test_docs_and_version_track_filter_result_batch_tagging():
 
     assert "filter-result batch tagging" in guide.lower()
     assert "current filter results" in roadmap.lower()
-    assert "<version>0.1.0-alpha.162</version>" in info
-    assert '"version": "0.1.0-alpha.162"' in package
+    assert "<version>0.1.0-alpha.163</version>" in info
+    assert '"version": "0.1.0-alpha.163"' in package

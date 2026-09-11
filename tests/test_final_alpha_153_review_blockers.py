@@ -47,7 +47,7 @@ def test_checksum_verification_commands_run_inside_dist_with_basename():
     release = read("RELEASE.md")
 
     assert '(cd "$DIST_DIR" && sha256sum -c "$CHECKSUM_BASENAME")' in smoke
-    assert "(cd dist && sha256sum -c library-0.1.0-alpha.162.tar.gz.sha256)" in release
+    assert "(cd dist && sha256sum -c library-0.1.0-alpha.163.tar.gz.sha256)" in release
     assert "sha256sum -c dist/" not in release
 
 

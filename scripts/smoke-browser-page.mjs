@@ -48,8 +48,18 @@ function rewriteUpstreamOrigin(value, proxyOrigin) {
 
 function startAuthProxy(token) {
   const auth = `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`
+  let startupFailureMode = ''
+  let moduleRequestPending = false
   const server = createServer(async (req, res) => {
     const requestUrl = new URL(req.url || '/', 'http://127.0.0.1')
+    if (requestUrl.pathname === '/__library-smoke/status') {
+      res.setHeader('content-type', 'application/json')
+      res.end(JSON.stringify({ moduleRequestPending }))
+      return
+    }
+    if (requestUrl.pathname.endsWith('/apps/library/') && requestUrl.searchParams.has('startupFailure')) {
+      startupFailureMode = requestUrl.searchParams.get('startupFailure') || ''
+    }
     const target = new URL(`${requestUrl.pathname}${requestUrl.search}`, upstream)
     const headers = { ...req.headers, authorization: auth }
     headers.host = req.headers.host
@@ -79,6 +89,46 @@ function startAuthProxy(token) {
         }
         if (responseCookies.length > 0) res.setHeader('set-cookie', responseCookies)
         let body = Buffer.from(await response.arrayBuffer())
+        const isLibraryModule = requestUrl.pathname.includes('/js/library-main-0-1-0-alpha-163.mjs')
+        const effectiveFailureMode = requestUrl.searchParams.get('startupFailure') || startupFailureMode
+        if (requestUrl.pathname.endsWith('/apps/library/') && requestUrl.searchParams.has('startupFailure')) {
+          body = Buffer.from(body.toString('utf8').replace(/(library-main-0-1-0-alpha-163\.mjs)([^"']*)(["'])/g, (match, asset, suffix, quote) => `${asset}${suffix}${suffix.includes('?') ? '&' : '?'}startupFailure=${startupFailureMode}${quote}`))
+        }
+        if (isLibraryModule && effectiveFailureMode === 'module-404') {
+          res.statusCode = 404
+          res.setHeader('content-type', 'text/plain')
+          res.end('injected exact-package module failure')
+          return
+        }
+        if (isLibraryModule && effectiveFailureMode === 'syntax') {
+          res.setHeader('content-type', 'text/javascript')
+          res.end('export { injected syntax failure')
+          return
+        }
+        if (isLibraryModule && effectiveFailureMode === 'bootstrap') {
+          res.setHeader('content-type', 'text/javascript')
+          res.end('throw new Error("injected bootstrap failure before mount")')
+          return
+        }
+        if (isLibraryModule && effectiveFailureMode === 'mount') {
+          body = Buffer.from('document.querySelector("#library-vue-root").insertBefore = function () { throw new Error("injected mount failure") };\n' + body.toString('utf8'))
+        }
+        if (isLibraryModule && ['module-timeout', 'module-near-threshold'].includes(effectiveFailureMode)) {
+          moduleRequestPending = true
+          const delay = effectiveFailureMode === 'module-timeout' ? 12000 : 9000
+          await new Promise((resolve) => setTimeout(resolve, delay))
+          moduleRequestPending = false
+        }
+        if (requestUrl.pathname.includes('/apps/library/') && effectiveFailureMode === 'state-missing') {
+          body = Buffer.from(body.toString('utf8').replace('id="initial-state-library-catalogue"', 'id="injected-missing-library-state"'))
+        }
+        if (requestUrl.pathname.includes('/apps/library/') && effectiveFailureMode === 'state-malformed-json') {
+          body = Buffer.from(body.toString('utf8').replace(/(id="initial-state-library-catalogue" value=")[^"]*/, `$1${Buffer.from('{').toString('base64')}`))
+        }
+        if (requestUrl.pathname.includes('/apps/library/') && effectiveFailureMode === 'state-invalid-shape') {
+          const invalidState = Buffer.from(JSON.stringify({ items: [], activeFilters: [] })).toString('base64')
+          body = Buffer.from(body.toString('utf8').replace(/(id="initial-state-library-catalogue" value=")[^"]*/, `$1${invalidState}`))
+        }
         if (body.indexOf(Buffer.from(upstream)) >= 0 || body.indexOf(Buffer.from(upstream.replaceAll('/', '\\/'))) >= 0) {
           body = Buffer.from(rewriteUpstreamOrigin(body.toString('utf8'), proxyOrigin))
         }
@@ -196,6 +246,7 @@ async function runBrowserSmoke(proxyBase) {
   ], { stdio: ['ignore', 'ignore', 'pipe'] })
 
   let stderr = ''
+  let client
   chrome.stderr.on('data', (chunk) => { stderr += String(chunk) })
 
   try {
@@ -203,7 +254,7 @@ async function runBrowserSmoke(proxyBase) {
     const targets = await waitForJson(`http://127.0.0.1:${chromePort}/json/list`)
     const pageTarget = targets.find((target) => target.type === 'page' && target.webSocketDebuggerUrl)
     if (!pageTarget) throw new Error('Chrome did not expose a page debugging target')
-    const client = cdp(pageTarget.webSocketDebuggerUrl)
+    client = cdp(pageTarget.webSocketDebuggerUrl)
     await client.send('Runtime.enable')
     await client.send('Page.enable')
     await client.send('Log.enable')
@@ -786,6 +837,68 @@ async function runBrowserSmoke(proxyBase) {
     })
     const consoleErrors = [...libraryConsoleErrors, ...settingsConsoleErrors]
 
+    async function inspectStartupFailure(mode, waitMs = 800) {
+      const eventStart = client.events.length
+      await client.send('Page.navigate', { url: `${proxyBase}/apps/library/?startupFailure=${mode}&nonce=${Date.now()}` })
+      await new Promise((resolve) => setTimeout(resolve, waitMs))
+      const evaluation = await client.send('Runtime.evaluate', {
+        returnByValue: true,
+        expression: `(() => ({
+          watchdogVisible: Boolean(document.querySelector('#library-startup-status:not([hidden])')),
+          catalogueCards: document.querySelectorAll('.library-cover-card').length,
+          duplicateFallback: Boolean(document.querySelector('[data-vue-fallback="true"]')),
+          retry: Boolean(document.querySelector('[data-library-retry]')),
+          settings: Boolean(document.querySelector('#library-startup-status a[href*="/settings/user/library"]')),
+          mounted: Boolean(document.querySelector('#library-vue-root[data-v-app]')),
+        }))()`,
+      })
+      return { ...(evaluation.result?.value ?? evaluation.value), events: client.events.slice(eventStart) }
+    }
+
+    const injectedFailures = {}
+    for (const mode of ['module-404', 'syntax', 'bootstrap', 'mount', 'state-missing', 'state-malformed-json', 'state-invalid-shape']) {
+      injectedFailures[mode] = await inspectStartupFailure(mode)
+      print(`browser_startup_${mode}`, JSON.stringify({ ...injectedFailures[mode], events: undefined }))
+    }
+    const nearThresholdBefore = await inspectStartupFailure('module-near-threshold', 8500)
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+    const nearThresholdAfterResult = await client.send('Runtime.evaluate', { returnByValue: true, expression: `({ watchdogVisible: Boolean(document.querySelector('#library-startup-status:not([hidden])')), mounted: Boolean(document.querySelector('#library-vue-root[data-v-app]')) })` })
+    const nearThresholdAfter = nearThresholdAfterResult.result?.value ?? nearThresholdAfterResult.value
+
+    const timeoutWhilePending = await inspectStartupFailure('module-timeout', 10500)
+    const pendingStatusResponse = await fetch(`${proxyBase}/__library-smoke/status`)
+    const { moduleRequestPending } = await pendingStatusResponse.json()
+    await new Promise((resolve) => setTimeout(resolve, 2500))
+    const timeoutRecoveryResult = await client.send('Runtime.evaluate', { returnByValue: true, expression: `({ watchdogVisible: Boolean(document.querySelector('#library-startup-status:not([hidden])')), mounted: Boolean(document.querySelector('#library-vue-root[data-v-app]')) })` })
+    const timeoutRecovery = timeoutRecoveryResult.result?.value ?? timeoutRecoveryResult.value
+
+    await client.send('Emulation.setScriptExecutionDisabled', { value: true })
+    await client.send('Page.navigate', { url: `${proxyBase}/apps/library/?startupFailure=javascript-disabled&nonce=${Date.now()}` })
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    const noJsDocument = await client.send('DOM.getDocument', { depth: -1, pierce: true })
+    const noJsHtml = await client.send('DOM.getOuterHTML', { nodeId: noJsDocument.root.nodeId })
+    await client.send('Emulation.setScriptExecutionDisabled', { value: false })
+    const noJs = {
+      noScript: noJsHtml.outerHTML.includes('JavaScript is disabled'),
+      cards: (noJsHtml.outerHTML.match(/class="[^"]*library-cover-card/g) || []).length,
+    }
+
+    const injectedFailureOk = Object.values(injectedFailures).every((entry) => entry.watchdogVisible === true
+      && entry.catalogueCards === 0 && entry.duplicateFallback === false && entry.retry === true && entry.settings === true)
+      && nearThresholdBefore.watchdogVisible === false && nearThresholdBefore.mounted === false
+      && nearThresholdAfter.watchdogVisible === false && nearThresholdAfter.mounted === true
+      && timeoutWhilePending.watchdogVisible === true && timeoutWhilePending.mounted === false && moduleRequestPending === true
+      && timeoutRecovery.watchdogVisible === false && timeoutRecovery.mounted === true
+      && noJs.noScript === true && noJs.cards === 0
+
+    print('browser_startup_failure_matrix', injectedFailureOk)
+    print('browser_startup_failure_modes', Object.keys(injectedFailures).join(','))
+    print('browser_slow_startup_no_flash', nearThresholdBefore.watchdogVisible === false && nearThresholdAfter.mounted === true && nearThresholdAfter.watchdogVisible === false)
+    print('browser_near_threshold_startup_no_notice', nearThresholdBefore.watchdogVisible === false && nearThresholdAfter.mounted === true && nearThresholdAfter.watchdogVisible === false)
+    print('browser_module_timeout_visible_while_pending', timeoutWhilePending.watchdogVisible === true && timeoutWhilePending.mounted === false && moduleRequestPending === true)
+    print('browser_module_timeout_recovery', timeoutRecovery.watchdogVisible === false && timeoutRecovery.mounted === true)
+    print('browser_javascript_disabled_notice', noJs.noScript === true && noJs.cards === 0)
+
     print('browser_title', dom.title)
     print('browser_vue_app', dom.vueApp)
     print('browser_native_shell', dom.nativeShell)
@@ -1112,6 +1225,7 @@ async function runBrowserSmoke(proxyBase) {
         && settingsDom.requestTokenFields === settingsDom.postForms
       ))
       && consoleErrors.length === 0
+      && injectedFailureOk === true
 
     if (!ok) {
       print('browser_smoke_ok', false)
@@ -1123,6 +1237,7 @@ async function runBrowserSmoke(proxyBase) {
       print('browser_smoke_ok', true)
     }
   } finally {
+    client?.socket.close()
     if (!chrome.killed) chrome.kill('SIGTERM')
     await new Promise((resolve) => {
       chrome.once('close', resolve)
@@ -1146,6 +1261,7 @@ try {
 } catch (error) {
   print('browser_smoke_ok', false)
   console.error('browser_smoke_failure=true')
+  console.error(error?.stack || error)
   process.exitCode = 1
 } finally {
   if (proxy) await new Promise((resolve) => proxy.close(resolve))
