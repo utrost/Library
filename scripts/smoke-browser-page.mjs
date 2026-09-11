@@ -5,6 +5,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { classifyBrowserEvent } from './browser-error-classifier.mjs'
 import { evaluateTranslatedControlGeometry } from './browser-geometry-gate.mjs'
+import { evaluateLegacyLocalizationGate } from './browser-legacy-localization-gate.mjs'
+import { measureVisibleTextLines } from './browser-text-line-measurement.mjs'
+import { composeLegacyInspectionRow } from './browser-legacy-inspection.mjs'
+import { dispatchTabKeyPairs, evaluateKeyboardTabTraversal } from './browser-keyboard-focus-gate.mjs'
+import { buildSequentialCandidateSnapshot, sequentialSnapshotsMatch } from './browser-keyboard-snapshot.mjs'
+import { collectOverflowDiagnostics } from './browser-overflow-diagnostics.mjs'
+import { runWithPhaseTimeout } from './browser-phase-timeout.mjs'
+import { installFocusExitSentinel, removeFocusExitSentinel } from './browser-focus-exit-sentinel.mjs'
+import { unwrapCdpEvaluateResponse } from './cdp-evaluate-response.mjs'
 
 const upstream = process.env.NC_URL || 'http://100.123.149.120:8088'
 const user = process.env.NC_USER || 'uwe'
@@ -12,6 +21,22 @@ const container = process.env.NC_CONTAINER || 'nextcloud'
 const chromeBin = process.env.CHROME_BIN || 'google-chrome'
 const tokenName = `hermes-library-browser-smoke-${Date.now()}`
 const chromePort = Number(process.env.CHROME_DEBUG_PORT || 19223)
+
+// Exact-package alpha.165 legacy-surface matrix. The live runner records these
+// fail-closed names while exercising the authenticated Settings, batch preview,
+// and first full-details URLs at every configured viewport width and restores core/lang.
+const legacyLocalizationGate = {
+  locales: ['de', 'ar'],
+  widths: [1280, 390, 320],
+  surfaces: ['settings', 'batch-preview', 'full-details'],
+  assertions: [
+    'browser_legacy_settings_de', 'browser_legacy_settings_ar',
+    'browser_legacy_batch_preview_de', 'browser_legacy_batch_preview_ar',
+    'browser_legacy_full_details_de', 'browser_legacy_full_details_ar',
+    'browser_legacy_desktop_no_overflow', 'browser_legacy_mobile_no_overflow',
+    'browser_legacy_safe_forms', 'browser_locale_restored',
+  ],
+}
 
 function runOcc(args) {
   return execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', 'occ', ...args], {
@@ -90,10 +115,10 @@ function startAuthProxy(token) {
         }
         if (responseCookies.length > 0) res.setHeader('set-cookie', responseCookies)
         let body = Buffer.from(await response.arrayBuffer())
-        const isLibraryModule = requestUrl.pathname.includes('/js/library-main-0-1-0-alpha-164.mjs')
+        const isLibraryModule = requestUrl.pathname.includes('/js/library-main-0-1-0-alpha-165.mjs')
         const effectiveFailureMode = requestUrl.searchParams.get('startupFailure') || startupFailureMode
         if (requestUrl.pathname.endsWith('/apps/library/') && requestUrl.searchParams.has('startupFailure')) {
-          body = Buffer.from(body.toString('utf8').replace(/(library-main-0-1-0-alpha-164\.mjs)([^"']*)(["'])/g, (match, asset, suffix, quote) => `${asset}${suffix}${suffix.includes('?') ? '&' : '?'}startupFailure=${startupFailureMode}${quote}`))
+          body = Buffer.from(body.toString('utf8').replace(/(library-main-0-1-0-alpha-165\.mjs)([^"']*)(["'])/g, (match, asset, suffix, quote) => `${asset}${suffix}${suffix.includes('?') ? '&' : '?'}startupFailure=${startupFailureMode}${quote}`))
         }
         if (isLibraryModule && effectiveFailureMode === 'module-404') {
           res.statusCode = 404
@@ -220,7 +245,6 @@ async function inspectDiscoveryRoute(client, url, kind) {
   await new Promise((resolve) => setTimeout(resolve, 1500))
   const result = await client.send('Runtime.evaluate', {
     returnByValue: true,
-    awaitPromise: true,
     expression: `(() => {
       const entries = [...document.querySelectorAll('#app-navigation-vue .app-navigation-entry-link')]
       const library = entries.find((entry) => entry.textContent.trim() === 'Library')
@@ -248,7 +272,291 @@ async function inspectDiscoveryRoute(client, url, kind) {
       }
     })()`,
   })
-  return result.result?.value ?? result.value
+  return unwrapCdpEvaluateResponse(result, { phase: `discovery-${kind}` })
+}
+
+async function runLegacyLocalizationGate(client, proxyBase, { detailUrl, requestToken, batchFixtureItem }) {
+  const absentMarker = '__LIBRARY_LANGUAGE_SETTING_ABSENT__'
+  const originalLanguageOutput = runOcc(['user:setting', user, 'core', 'lang', `--default-value=${absentMarker}`]).trim()
+  const originalLanguage = { present: originalLanguageOutput !== absentMarker, value: originalLanguageOutput }
+  const records = []
+  let restored = false
+  let expectedEffectiveLocale = ''
+  let batchFixtureLanguage = ''
+  const expected = {
+    de: {
+      lang: 'de', dir: 'ltr',
+      settings: [
+        { id: 'folder-path', selector: '.library-add-shelf-form input[name="path"]', text: 'Ordnerpfad', association: 'containing-label' },
+        { id: 'metadata-json', selector: '.library-metadata-import-preview-form textarea[name="metadataJson"]', text: 'Metadatenimport in der Vorschau anzeigen', association: 'containing-label' },
+        { id: 'preview-import', selector: '.library-metadata-import-preview-form button[type="submit"]', text: 'Metadatenimport in der Vorschau anzeigen', association: 'self', designatedLong: true, expectWrapWidths: [390, 320] },
+      ],
+      batch: [
+        { id: 'back-top', selector: '.library-batch-preview-back--top', text: 'Zurück zum Katalog', association: 'self' },
+        { id: 'apply', selector: '.library-batch-preview-apply-form button[type="submit"]', text: 'Änderungen auf aktuelle Ergebnisse anwenden', association: 'self', designatedLong: true, expectWrapWidths: [320] },
+        { id: 'back-bottom', selector: '.library-batch-preview-back--bottom', text: 'Zurück zum Katalog', association: 'self' },
+      ],
+      detail: [
+        { id: 'publication', selector: '.library-detail-edit-form input[name="publication"]', text: 'Veröffentlichung', association: 'containing-label' },
+        { id: 'description', selector: '.library-detail-edit-form textarea[name="description"]', text: 'Beschreibung', association: 'containing-label' },
+        { id: 'save', selector: '.library-detail-save-button', text: 'Metadaten speichern', association: 'self', designatedLong: true },
+      ],
+    },
+    ar: {
+      lang: 'ar', dir: 'rtl',
+      settings: [
+        { id: 'folder-path', selector: '.library-add-shelf-form input[name="path"]', text: 'مسار المجلد', association: 'containing-label' },
+        { id: 'metadata-json', selector: '.library-metadata-import-preview-form textarea[name="metadataJson"]', text: 'معاينة استيراد البيانات الوصفية', association: 'containing-label' },
+        { id: 'preview-import', selector: '.library-metadata-import-preview-form button[type="submit"]', text: 'معاينة استيراد البيانات الوصفية', association: 'self', designatedLong: true },
+      ],
+      batch: [
+        { id: 'back-top', selector: '.library-batch-preview-back--top', text: 'العودة إلى الكتالوج', association: 'self' },
+        { id: 'apply', selector: '.library-batch-preview-apply-form button[type="submit"]', text: 'تطبيق التغييرات على النتائج الحالية', association: 'self', designatedLong: true },
+        { id: 'back-bottom', selector: '.library-batch-preview-back--bottom', text: 'العودة إلى الكتالوج', association: 'self' },
+      ],
+      detail: [
+        { id: 'publication', selector: '.library-detail-edit-form input[name="publication"]', text: 'منشور', association: 'containing-label' },
+        { id: 'description', selector: '.library-detail-edit-form textarea[name="description"]', text: 'الوصف', association: 'containing-label' },
+        { id: 'save', selector: '.library-detail-save-button', text: 'حفظ البيانات الوصفية', association: 'self', designatedLong: true },
+      ],
+    },
+  }
+  const formContracts = {
+    settings: { minimum: 5, endpoints: ['^/apps/library/(?:roots(?:/[^/]+(?:/(?:toggle|delete))?)?|scan(?:/.*)?|import/metadata/(?:preview|apply)|bulk/items/reset-fields)$'] },
+    batch: { minimum: 1, endpoints: ['^/apps/library/bulk/items/edit-apply$'] },
+    detail: { minimum: 5, endpoints: ['^/apps/library/items/[^/]+(?:/(?:star|workflow-status|cover/(?:override|revert)|reset-field|reset-fields|forget-missing|tags(?:/[^/]+)?|comments))?$'] },
+  }
+  const normalizeLocale = (value) => String(value || '').trim().replaceAll('_', '-').toLowerCase().split('-')[0]
+  const phaseTimeoutMs = { navigate: 35000, 'inspect-core': 10000, 'inspect-forms': 10000, 'inspect-geometry': 10000, keyboard: 30000, cleanup: 35000 }
+  const timedPhase = async (locale, width, surface, phase, action) => {
+    const started = performance.now()
+    try { return await runWithPhaseTimeout(action, { timeoutMs: phaseTimeoutMs[phase], phase }) } finally {
+      print('legacy_gate_phase_seconds', JSON.stringify({ locale, width, surface, phase, seconds: Number(((performance.now() - started) / 1000).toFixed(3)) }))
+    }
+  }
+  // CDP has no per-command cancellation primitive. Racing releases this call stack;
+  // closing the client during outer shutdown abandons any command still pending in
+  // the transport. Every restoration/shutdown-adjacent CDP command is bounded too.
+  const boundedCleanup = async (action) => {
+    try {
+      return await runWithPhaseTimeout(action, { timeoutMs: phaseTimeoutMs.cleanup, phase: 'cleanup' })
+    } catch (error) {
+      print('legacy_gate_cleanup_error', error?.message || String(error))
+      return undefined
+    }
+  }
+  const timedRow = async (locale, width, surface, selector, navigateRow) => {
+    const started = performance.now()
+    try {
+      const eventStart = await timedPhase(locale, width, surface, 'navigate', navigateRow)
+      const core = await timedPhase(locale, width, surface, 'inspect-core', () => inspectCore(locale, surface, selector))
+      const forms = await timedPhase(locale, width, surface, 'inspect-forms', () => inspectForms(surface, selector))
+      const geometry = await timedPhase(locale, width, surface, 'inspect-geometry', () => inspectGeometry(locale, surface, selector))
+      const inspection = composeLegacyInspectionRow({ locale, width, surface, core, forms, geometry,
+        expectedControls: expected[locale][surface], formMinimum: formContracts[surface].minimum })
+      const keyboardTraversal = await timedPhase(locale, width, surface, 'keyboard', () => tabIntoSurface(selector))
+      const failures = client.events.slice(eventStart).filter((event) => classifyBrowserEvent(event).fatal || event.method === 'Network.loadingFailed')
+      return { ...inspection, keyboardTraversal, failures: failures.length }
+    } finally {
+      print('legacy_gate_row_seconds', JSON.stringify({ locale, width, surface, seconds: Number(((performance.now() - started) / 1000).toFixed(3)) }))
+    }
+  }
+  const navigate = async (url) => {
+    const eventStart = client.events.length
+    const navigation = await client.send('Page.navigate', { url })
+    if (navigation.errorText) throw new Error(`legacy_navigation_failed:${navigation.errorText}`)
+    await new Promise((resolve) => setTimeout(resolve, 1800))
+    return eventStart
+  }
+  const tabIntoSurface = async (selector) => {
+    const setup = await client.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
+      const root = document.querySelector(${JSON.stringify(selector)})
+      if (!root) return { recorderInstalled: false, expectedTargets: 0, maximumTabSteps: 0, positiveTabIndex: false, overCap: false }
+      const sentinel = (${installFocusExitSentinel.toString()})(root)
+      let snapshot
+      try { snapshot = (${buildSequentialCandidateSnapshot.toString()})(root) }
+      catch (error) { (${removeFocusExitSentinel.toString()})(sentinel); throw error }
+      const controls = snapshot.controls
+      const state = { root, sentinel, snapshot, controls, snapshotRecords: snapshot.records, samples: [], exit: null, postExitSamples: [], tabStep: 0, keyDownSteps: [], keyUpSteps: [], cancelledTabSteps: [], focusInSteps: [] }
+      const describe = (node) => {
+        const style = getComputedStyle(node); const rect = node.getBoundingClientRect(); const focusOrderIndex = controls.indexOf(node)
+        return { tabStep: state.tabStep, identity: String(focusOrderIndex) + ':' + node.tagName + ':' + (node.id || node.getAttribute('name') || ''), focusOrderIndex,
+          tag: node.tagName.toLowerCase(), insideRoot: root.contains(node), naturalControl: node.tabIndex >= 0,
+          visible: node.getClientRects().length > 0 && style.visibility !== 'hidden' && style.display !== 'none', focusVisible: node.matches(':focus-visible'),
+          clippedButFocusable: focusOrderIndex >= 0 && state.snapshotRecords[focusOrderIndex]?.clippedButFocusable === true,
+          focusExitSentinel: node === sentinel && node.dataset.libraryTestFocusExitSentinel === 'true',
+          focusIndication: (style.outlineStyle !== 'none' && style.outlineWidth !== '0px') || style.boxShadow !== 'none' }
+      }
+      state.onKeyDown = (event) => { if (event.key === 'Tab' && !event.shiftKey) { state.tabStep += 1; state.keyDownSteps.push(state.tabStep); queueMicrotask(() => { if (event.defaultPrevented) state.cancelledTabSteps.push(state.tabStep) }) } }
+      state.onKeyUp = (event) => { if (event.key === 'Tab' && !event.shiftKey) state.keyUpSteps.push(state.tabStep) }
+      state.onFocusIn = (event) => {
+        state.focusInSteps.push(state.tabStep)
+        if (controls.includes(event.target)) { const sample=describe(event.target); if (state.exit) state.postExitSamples.push(sample); else state.samples.push(sample) }
+        else if (!root.contains(event.target) && state.samples.length > 0 && !state.exit) state.exit = describe(event.target)
+      }
+      window.addEventListener('keydown', state.onKeyDown, true); window.addEventListener('keyup', state.onKeyUp, true); window.addEventListener('focusin', state.onFocusIn, true)
+      window.__libraryTabRecorder = state
+      root.setAttribute('tabindex', '-1'); root.focus({ preventScroll: true }); root.removeAttribute('tabindex'); window.scrollTo(0, 0)
+      return { recorderInstalled: true, expectedTargets: controls.length, maximumTabSteps: Math.min(200, controls.length + 1), overCap: controls.length + 1 > 200,
+        positiveTabIndex: snapshot.positiveTabIndex }
+    })()` })
+    const setupValue = unwrapCdpEvaluateResponse(setup, { phase: 'legacy-keyboard-setup' })
+    const expectedTargets = Number(setupValue.expectedTargets || 0)
+    const maximumTabSteps = Number(setupValue.maximumTabSteps || 0)
+    let dispatch = { dispatchedPairs: 0, chunks: 0 }
+    try {
+      if (setupValue.recorderInstalled === true) dispatch = await dispatchTabKeyPairs(client, maximumTabSteps, { afterPair: async (step) => {
+        await client.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `(async () => {
+          await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)))
+        })()` })
+      } })
+    } finally {
+      const recordedResult = await client.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
+        const state = window.__libraryTabRecorder
+        if (!state) return null
+        try {
+          const current = (${buildSequentialCandidateSnapshot.toString()})(state.root)
+          const snapshotStable = (${sequentialSnapshotsMatch.toString()})(state.snapshot, current)
+          return { samples: state.samples, exit: state.exit, postExitSamples: state.postExitSamples, leftSurface: Boolean(state.exit),
+            dispatchedTabSteps: state.tabStep, keyDownSteps: state.keyDownSteps, keyUpSteps: state.keyUpSteps, cancelledTabSteps: state.cancelledTabSteps,
+            focusInSteps: state.focusInSteps, snapshotStable }
+        } finally {
+          window.removeEventListener('keydown', state.onKeyDown, true); window.removeEventListener('keyup', state.onKeyUp, true); window.removeEventListener('focusin', state.onFocusIn, true);
+          (${removeFocusExitSentinel.toString()})(state.sentinel)
+          delete window.__libraryTabRecorder
+        }
+      })()` })
+      const recorded = unwrapCdpEvaluateResponse(recordedResult, { phase: 'legacy-keyboard-collection' })
+      return { ...evaluateKeyboardTabTraversal(recorded?.samples, { ...recorded, expectedTargets, maximumTabSteps,
+        dispatchedPairs: dispatch.dispatchedPairs, positiveTabIndex: Boolean(setupValue.positiveTabIndex), recorderPresent: Boolean(recorded), overCap: Boolean(setupValue.overCap) }),
+        positiveTabIndex: Boolean(setupValue.positiveTabIndex), maximumTabSteps, dispatchChunks: dispatch.chunks }
+    }
+  }
+  const inspectCore = async (locale, surface, selector) => {
+    const result = await client.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
+      const root = document.querySelector(${JSON.stringify(selector)})
+      const status = performance.getEntriesByType('navigation')[0]?.responseStatus || 0
+      if (!root) return { present: false, status, missingLabelIds: ${JSON.stringify(expected)}[${JSON.stringify(locale)}][${JSON.stringify(surface)}].map((spec) => spec.id), labelChecks: {} }
+      const expectedControls = ${JSON.stringify(expected)}[${JSON.stringify(locale)}][${JSON.stringify(surface)}]
+      const normalized = (value) => String(value || '').replace(/\\s+/g, ' ').trim()
+      const ownLabelText = (label) => {
+        if (!label) return ''
+        const collect = (node) => [...node.childNodes].map((child) => {
+          if (child.nodeType === Node.TEXT_NODE) return child.textContent || ''
+          if (child.nodeType !== Node.ELEMENT_NODE || child.matches('input,select,textarea,button')) return ''
+          return collect(child)
+        }).join(' ')
+        return normalized(collect(label))
+      }
+      const labelChecks = Object.fromEntries(expectedControls.map((spec) => {
+        const matches = root.querySelectorAll(spec.selector)
+        const node = matches.length === 1 ? matches[0] : null
+        const label = spec.association === 'containing-label' ? node?.closest('label') : null
+        const text = spec.association === 'self' ? normalized(node?.textContent) : ownLabelText(label)
+        return [spec.id, Boolean(node && text === spec.text && (spec.association === 'self' || label?.contains(node)))]
+      }))
+      const overflowDiagnostics = (${collectOverflowDiagnostics.toString()})(root)
+      return { present: true, status,
+        lang: root.getAttribute('lang') || root.closest('[lang]')?.getAttribute('lang') || '',
+        dir: root.getAttribute('dir') || root.closest('[dir]')?.getAttribute('dir') || '',
+        overflow: document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1 && root.scrollWidth <= root.clientWidth + 1,
+        overflowDiagnostics,
+        labelChecks, missingLabelIds: expectedControls.filter((spec) => labelChecks[spec.id] !== true).map((spec) => spec.id) }
+    })()` })
+    return unwrapCdpEvaluateResponse(result, { phase: 'legacy-inspect-core' })
+  }
+  const inspectForms = async (surface, selector) => {
+    const contract = formContracts[surface]
+    const result = await client.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
+      const root = document.querySelector(${JSON.stringify(selector)})
+      if (!root) return { forms: 0, formChecks: [] }
+      const forms = [...root.querySelectorAll('form')]
+      const patterns = ${JSON.stringify(contract.endpoints)}.map((source) => new RegExp(source))
+      const formChecks = forms.map((form) => {
+        const action = new URL(form.getAttribute('action') || location.href, location.href)
+        const tokenField = form.querySelector('input[name="requesttoken"]')
+        const tokenPresent = Boolean(tokenField)
+        const tokenNonEmpty = tokenPresent && String(tokenField.value || '').trim().length > 0
+        return { method: form.method.toLowerCase(), origin: action.origin, path: action.pathname,
+          tokenPresent, tokenNonEmpty,
+          valid: form.method.toLowerCase() === 'post' && action.origin === location.origin
+            && patterns.some((pattern) => pattern.test(action.pathname)) && tokenPresent && tokenNonEmpty }
+      })
+      return { forms: forms.length, formChecks }
+    })()` })
+    return unwrapCdpEvaluateResponse(result, { phase: 'legacy-inspect-forms' })
+  }
+  const inspectGeometry = async (locale, surface, selector) => {
+    const result = await client.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
+      const root = document.querySelector(${JSON.stringify(selector)})
+      if (!root) return { controls: [] }
+      const expectedControls = ${JSON.stringify(expected)}[${JSON.stringify(locale)}][${JSON.stringify(surface)}]
+      const controls = expectedControls.map((spec) => {
+        const matches = [...root.querySelectorAll(spec.selector)]
+        const node = matches.length === 1 ? matches[0] : null
+        if (!node) return { specId: spec.id, associated: false, naturalControl: false, matchCount: matches.length, designatedLong: Boolean(spec.designatedLong) }
+        const label = spec.association === 'containing-label' ? node.closest('label') : null
+        const associated = spec.association === 'self' ? true : Boolean(label?.contains(node))
+        const geometryNode = label || node
+        const style = getComputedStyle(geometryNode)
+        const textLines = (${measureVisibleTextLines.toString()})(geometryNode, { excludeNestedControls: spec.association === 'containing-label' })
+        return { specId: spec.id, matchCount: matches.length, associated,
+          naturalControl: node.matches('button,input:not([type="hidden"]),select,textarea,a[href]'), designatedLong: Boolean(spec.designatedLong), scrollWidth: geometryNode.scrollWidth,
+          clientWidth: geometryNode.clientWidth, scrollHeight: geometryNode.scrollHeight, clientHeight: geometryNode.clientHeight,
+          whiteSpace: style.whiteSpace, ...textLines }
+      })
+      return { controls }
+    })()` })
+    return unwrapCdpEvaluateResponse(result, { phase: 'legacy-inspect-geometry' })
+  }
+  try {
+    await navigate(`${proxyBase}/apps/library/?legacy-locale-before-mutation=1`)
+    const effectiveLocaleResult = await client.send('Runtime.evaluate', { returnByValue: true, expression: `document.querySelector('#library-app')?.getAttribute('lang') || document.documentElement.lang` })
+    expectedEffectiveLocale = normalizeLocale(unwrapCdpEvaluateResponse(effectiveLocaleResult, { phase: 'legacy-effective-locale' }))
+    const catalogueResponse = await fetch(`${proxyBase}/apps/library/catalogue?limit=100&sort=title`, { headers: { Accept: 'application/json' } })
+    const catalogueState = catalogueResponse.ok ? await catalogueResponse.json() : null
+    const catalogueItems = catalogueState && Array.isArray(catalogueState.items) ? catalogueState.items : []
+    const fixtureOwned = catalogueItems.some((item) => item.id === batchFixtureItem?.id)
+    const catalogueRequestToken = String(requestToken || '')
+    if (!expectedEffectiveLocale || !fixtureOwned || !Number.isSafeInteger(batchFixtureItem?.id) || batchFixtureItem.id <= 0 || !catalogueRequestToken.trim()) {
+      throw new Error('legacy_batch_fixture_precondition_failed')
+    }
+    batchFixtureLanguage = normalizeLocale(batchFixtureItem.language) === 'de' ? 'en' : 'de'
+    for (const locale of legacyLocalizationGate.locales) {
+      runOcc(['user:setting', user, 'core', 'lang', locale])
+      for (const width of legacyLocalizationGate.widths) {
+        await client.send('Emulation.setDeviceMetricsOverride', { width, height: width < 500 ? 844 : 900, deviceScaleFactor: 1, mobile: width < 500 })
+        records.push(await timedRow(locale, width, 'settings', '#library-settings', () => navigate(`${proxyBase}/settings/user/library?legacy-locale=${locale}&width=${width}`)))
+        records.push(await timedRow(locale, width, 'batch', '.library-batch-metadata-edit-preview-page', async () => {
+          const start = await navigate(`${proxyBase}/apps/library/?legacy-batch-fixture=${locale}-${width}`)
+          await client.send('Runtime.evaluate', { expression: `(() => { const form=document.createElement('form'); form.method='post'; form.action=${JSON.stringify(`${proxyBase}/apps/library/bulk/items/edit-preview`)}; for(const [name,value] of Object.entries(${JSON.stringify({ requesttoken: requestToken, bulkEditField: 'language', bulkEditValue: batchFixtureLanguage, 'itemIds[]': String(batchFixtureItem.id), limit: '25' })})){const input=document.createElement('input');input.name=name;input.value=value;form.append(input)}document.body.append(form);form.submit() })()` })
+          await new Promise((resolve) => setTimeout(resolve, 1800))
+          return start
+        }))
+        records.push(await timedRow(locale, width, 'detail', '#library-app.library-item-detail', () => navigate(`${detailUrl}${detailUrl.includes('?') ? '&' : '?'}legacy-locale=${locale}&width=${width}`)))
+      }
+    }
+  } finally {
+    try {
+      if (originalLanguage.present) runOcc(['user:setting', user, 'core', 'lang', originalLanguage.value])
+      else runOcc(['user:setting', user, 'core', 'lang', '--delete'])
+      const restoredOutput = runOcc(['user:setting', user, 'core', 'lang', `--default-value=${absentMarker}`]).trim()
+      const storedRestored = originalLanguage.present ? restoredOutput === originalLanguage.value : restoredOutput === absentMarker
+      const restoration = await boundedCleanup(async () => {
+        await navigate(`${proxyBase}/apps/library/?legacy-locale-restored=1`)
+        return client.send('Runtime.evaluate', { returnByValue: true, expression: `document.querySelector('#library-app')?.getAttribute('lang') || document.documentElement.lang` })
+      })
+      const renderedLocale = normalizeLocale(restoration ? unwrapCdpEvaluateResponse(restoration, { phase: 'legacy-restored-locale' }) : '')
+      restored = Boolean(restoration) && storedRestored && renderedLocale === expectedEffectiveLocale
+    } finally {
+      await boundedCleanup(() => client.send('Emulation.clearDeviceMetricsOverride'))
+    }
+  }
+  const { markers, ok } = evaluateLegacyLocalizationGate(records, { ...legacyLocalizationGate,
+    surfaces: ['settings', 'batch', 'detail'], expected, expectedEffectiveLocale, restored, normalizeLocale })
+  for (const marker of legacyLocalizationGate.assertions) print(marker, markers[marker] === true)
+  print('browser_legacy_measurements', JSON.stringify(records))
+  return { records, markers, ok }
 }
 
 async function runBrowserSmoke(proxyBase) {
@@ -276,6 +584,7 @@ async function runBrowserSmoke(proxyBase) {
     await client.send('Runtime.enable')
     await client.send('Page.enable')
     await client.send('Log.enable')
+    await client.send('Network.enable')
 
     const url = `${proxyBase}/apps/library/?browser-smoke=${Date.now()}`
     await client.send('Page.navigate', { url })
@@ -283,7 +592,6 @@ async function runBrowserSmoke(proxyBase) {
 
     const result = await client.send('Runtime.evaluate', {
       returnByValue: true,
-      awaitPromise: true,
       expression: `(() => {
         const showFiles = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Show in Files')
         const download = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Download source')
@@ -419,7 +727,11 @@ async function runBrowserSmoke(proxyBase) {
           const cards = [...document.querySelectorAll('.library-cover-card')]
           const expectedArabic = ['المكتبة', 'المراجعة', 'فتح إعدادات المكتبة', 'تطبيق المرشحات']
           const body = document.body.textContent
-          const controls = [...document.querySelectorAll('.library-workspace-panel-title, .library-workspace-panel-purpose, .library-catalogue-actions-list .button')]
+          const catalogueGeometrySpecs = [
+            { id: 'admin-summary', selector: '.library-workspace-panel--admin > summary', text: '⚙ أدوات الإدارة الجذور والفحوص وعمليات التصدير والإصلاح جميع الجذور المُفعّلة', designatedLong: true, expectWrap: ${JSON.stringify(mobile)} },
+            { id: 'settings-action', selector: '.library-catalogue-actions-list .button:nth-of-type(1)', text: 'الإعدادات' },
+            { id: 'metadata-export-action', selector: '.library-catalogue-actions-list .button:nth-of-type(2)', text: 'تصدير البيانات الوصفية المصححة' },
+          ]
           const details = document.querySelector('.library-cover-details-summary')
           details?.focus()
           details?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
@@ -430,20 +742,26 @@ async function runBrowserSmoke(proxyBase) {
           await new Promise((resolve) => setTimeout(resolve, 100))
           const sidebar = document.querySelector('#app-sidebar-vue')
           const sidebarClose = sidebar?.querySelector('button')
-          const clipping = controls.map((control) => {
+          const normalized = (value) => String(value || '').replace(/\s+/g, ' ').trim()
+          const clipping = catalogueGeometrySpecs.map((spec) => {
+            const matches = [...document.querySelectorAll(spec.selector)]
+            const control = matches.length === 1 ? matches[0] : null
+            if (!control) return { specId: spec.id, text: '', translated: false, exactText: false, associated: false, naturalControl: false, designatedLong: Boolean(spec.designatedLong), matchCount: matches.length }
             const style = getComputedStyle(control)
-            const lineHeight = Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.2
-            const text = control.textContent.trim()
+            const textLines = (${measureVisibleTextLines.toString()})(control)
+            const text = spec.id === 'admin-summary'
+              ? [...control.children].map((child) => normalized(child.textContent)).filter(Boolean).join(' ')
+              : normalized(control.textContent)
             return {
-              selector: control.className ? '.' + String(control.className).trim().split(/\s+/).join('.') : control.tagName.toLowerCase(),
-              text, translated: /[\u0600-\u06ff]/.test(text), scrollWidth: control.scrollWidth, clientWidth: control.clientWidth,
+              specId: spec.id, selector: spec.selector, text, translated: text === spec.text, exactText: text === spec.text,
+              associated: true, naturalControl: control.matches('button,input:not([type="hidden"]),select,textarea,a[href],summary'), designatedLong: Boolean(spec.designatedLong), expectWrap: spec.expectWrap === true,
+              scrollWidth: control.scrollWidth, clientWidth: control.clientWidth,
               scrollHeight: control.scrollHeight, clientHeight: control.clientHeight,
-              whiteSpace: style.whiteSpace, overflowX: style.overflowX,
-              wraps: control.scrollHeight > lineHeight * 1.25,
+              whiteSpace: style.whiteSpace, overflowX: style.overflowX, ...textLines,
               clipped: control.scrollWidth > control.clientWidth + 1 || control.scrollHeight > control.clientHeight + 1,
             }
           })
-          const geometryGate = evaluateTranslatedControlGeometry(clipping)
+          const geometryGate = evaluateTranslatedControlGeometry(clipping, { minimumControls: catalogueGeometrySpecs.length, clippingTolerance: 1, longTextLength: 24, requireWrappedLongControl: true })
           const value = {
             present: true,
             arabic: expectedArabic.every((copy) => body.includes(copy)),
@@ -534,11 +852,16 @@ async function runBrowserSmoke(proxyBase) {
 
     const seedResponse = await fetch(`${proxyBase}/apps/library/catalogue?limit=100&sort=title`, { headers: { Accept: 'application/json' } })
     const seedState = await seedResponse.json()
-    const titleCounts = new Map()
-    for (const item of seedState.items || []) {
-      titleCounts.set(item.title, (titleCounts.get(item.title) || 0) + 1)
-    }
-    const applyItem = (seedState.items || []).find((item) => titleCounts.get(item.title) === 1)
+    const applyItem = (seedState.items || []).find((item) => Number.isSafeInteger(item.id) && item.id > 0)
+    if (!applyItem || !String(dom.catalogueRequestToken || '').trim()) throw new Error('browser_batch_fixture_precondition_failed')
+    const previewLanguage = String(applyItem.language || '').trim().replaceAll('_', '-').toLowerCase().split('-')[0] === 'de' ? 'en' : 'de'
+    const previewParams = new URLSearchParams({
+      requesttoken: dom.catalogueRequestToken,
+      bulkEditField: 'language',
+      bulkEditValue: previewLanguage,
+      limit: '25',
+    })
+    previewParams.append('itemIds[]', String(applyItem.id))
 
     const previewResponse = await fetch(`${proxyBase}/apps/library/bulk/items/edit-preview`, {
       method: 'POST',
@@ -546,13 +869,7 @@ async function runBrowserSmoke(proxyBase) {
         Accept: 'text/html',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({
-        requesttoken: dom.catalogueRequestToken,
-        bulkEditField: 'language',
-        bulkEditValue: 'de',
-        q: applyItem.title,
-        limit: '25',
-      }),
+      body: previewParams,
     })
     const previewHtml = await previewResponse.text()
     const previewPageDom = {
@@ -785,7 +1102,6 @@ async function runBrowserSmoke(proxyBase) {
     await new Promise((resolve) => setTimeout(resolve, 2500))
     const detailResult = await client.send('Runtime.evaluate', {
       returnByValue: true,
-      awaitPromise: true,
       expression: `(() => {
         const root = document.querySelector('#library-app.library-item-detail')
         const workbench = document.querySelector('.library-detail-workbench')
@@ -899,7 +1215,6 @@ async function runBrowserSmoke(proxyBase) {
     await new Promise((resolve) => setTimeout(resolve, 2500))
     const settingsResult = await client.send('Runtime.evaluate', {
       returnByValue: true,
-      awaitPromise: true,
       expression: `(() => {
         const root = document.querySelector('#library-settings')
         if (!root) {
@@ -1193,6 +1508,12 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_normal_csp_errors', consoleErrors.filter((event) => JSON.stringify(event).toLowerCase().includes('content security policy')).length)
     print('browser_normal_failed_asset_requests', consoleErrors.filter((event) => event.method === 'Network.loadingFailed').length)
 
+    const legacyGate = await runLegacyLocalizationGate(client, proxyBase, {
+      detailUrl,
+      requestToken: dom.catalogueRequestToken,
+      batchFixtureItem: applyItem,
+    })
+
     const ok = dom.vueApp === true
       && inclusiveDom?.de === true
       && inclusiveDom?.arabic === true
@@ -1379,6 +1700,7 @@ async function runBrowserSmoke(proxyBase) {
       ))
       && consoleErrors.length === 0
       && injectedFailureOk === true
+      && legacyGate.ok === true
 
     if (!ok) {
       print('browser_smoke_ok', false)

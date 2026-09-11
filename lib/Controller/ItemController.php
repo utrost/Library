@@ -15,6 +15,7 @@ use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
+use OCP\L10N\IFactory;
 use OCP\Util;
 
 final class ItemController extends Controller {
@@ -24,6 +25,7 @@ final class ItemController extends Controller {
         private ItemService $itemService,
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
+        private ?IFactory $l10nFactory = null,
     ) {
         parent::__construct($appName, $request);
     }
@@ -174,9 +176,14 @@ final class ItemController extends Controller {
             'skippedItems' => 0,
             'examples' => [],
         ];
+        $itemIdsParamPresent = array_key_exists('itemIds', $this->request->getParams());
+        $requestedItemIds = $this->request->getParam('itemIds', null);
+        $itemIds = $itemIdsParamPresent ? $this->parseExplicitItemIds($requestedItemIds) : [];
         if ($user !== null) {
             try {
-                $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+                $itemIds = $itemIdsParamPresent
+                    ? $itemIds
+                    : $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
                 $result = array_merge($result, $this->itemService->previewBatchMetadataEdit($user->getUID(), $itemIds,
                     (string)$this->request->getParam('bulkEditField', ''),
                     (string)$this->request->getParam('bulkEditValue', ''),
@@ -188,9 +195,13 @@ final class ItemController extends Controller {
             }
         }
         Util::addStyle('library', 'style');
+        $language = $this->l10nFactory?->findLanguage($this->appName) ?? 'en';
         return new TemplateResponse($this->appName, 'batch-metadata-edit-preview', [
+            'language' => $language,
+            'direction' => $this->l10nFactory?->getLanguageDirection($language) ?? 'ltr',
             'result' => $result,
             'filters' => array_filter($filters, static fn (string $value): bool => $value !== ''),
+            'itemIds' => $itemIdsParamPresent ? $itemIds : [],
             'applyUrl' => $this->urlGenerator->linkToRoute('library.item.batchapplymetadataedit'),
             'backUrl' => $this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query(array_filter($filters, static fn (string $value): bool => $value !== '')),
         ]);

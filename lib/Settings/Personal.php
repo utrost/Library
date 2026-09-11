@@ -10,6 +10,7 @@ use OCA\Library\Service\RootService;
 use OCA\Library\Service\ScanJobService;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IURLGenerator;
+use OCP\L10N\IFactory;
 use OCP\Settings\ISettings;
 use OCP\Util;
 
@@ -20,6 +21,7 @@ class Personal implements ISettings {
         private FileIndexService $fileIndexService,
         private ScanJobService $scanJobService,
         private IURLGenerator $urlGenerator,
+        private ?IFactory $l10nFactory = null,
     ) {
     }
 
@@ -28,7 +30,10 @@ class Personal implements ISettings {
         Util::addStyle(Application::APP_ID, 'style');
         Util::addScript(Application::APP_ID, 'scan-progress');
 
+        $language = $this->l10nFactory?->findLanguage(Application::APP_ID) ?? 'en';
         return new TemplateResponse(Application::APP_ID, 'settings-personal', [
+            'language' => $language,
+            'direction' => $this->l10nFactory?->getLanguageDirection($language) ?? 'ltr',
             'roots' => $this->rootsWithActionUrls($this->rootService->listRoots($this->userId)),
             'files' => $this->fileIndexService->listFiles($this->userId),
             'latestScanJob' => $this->withCancelUrl($this->scanJobService->latestJob($this->userId)),

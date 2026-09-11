@@ -10,7 +10,7 @@
       role="status"
       aria-live="polite"
       aria-atomic="true"
-      data-library-main-script="library-main-0-1-0-alpha-164"
+     data-library-main-script="library-main-0-1-0-alpha-165"
       data-library-startup-timeout="10000"
       hidden>
     <section class="library-panel" aria-labelledby="library-startup-heading">

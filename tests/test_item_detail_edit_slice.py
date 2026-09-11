@@ -44,4 +44,5 @@ def test_detail_smoke_asserts_edit_form_and_user_edit_provenance():
     assert "detail_has_edit_form" in smoke
     assert "detail_has_requesttoken" in smoke
     assert "detail_has_return_to_details" in smoke
-    assert "detail_mentions_userEdited" in smoke
+    assert "detail_has_user_edited_marker" in smoke
+    assert "data-library-field=\"userEdited\"" in smoke

@@ -5,6 +5,7 @@ import { parse as parseJavaScript, parseExpression } from '@babel/parser'
 import { NodeTypes, parse as parseTemplate } from '@vue/compiler-dom'
 import { parse as parseSfc } from '@vue/compiler-sfc'
 import { spawnSync } from 'node:child_process'
+import { evaluatePluralPlaceholderIntegrity } from './plural-placeholder-gate.mjs'
 
 const root = path.resolve(import.meta.dirname, '..')
 const keys = new Set()
@@ -75,10 +76,40 @@ if (!sfc.descriptor.template || !sfc.descriptor.scriptSetup) fail('malformed_vue
 validateTemplate(parseTemplate(sfc.descriptor.template.content))
 walkJavaScript(parseJavaScript(sfc.descriptor.scriptSetup.content, { sourceType: 'module', plugins: ['optionalChaining'] }))
 
-for (const relative of ['src/main.js', 'templates/main.php', 'lib/Controller/ItemPageController.php']) {
+const phpFiles = [
+  ...fs.readdirSync(path.join(root, 'templates')).filter((name) => name.endsWith('.php')).map((name) => `templates/${name}`),
+  ...fs.readdirSync(path.join(root, 'lib/Controller')).filter((name) => name.endsWith('.php')).map((name) => `lib/Controller/${name}`),
+  ...fs.readdirSync(path.join(root, 'lib/Settings')).filter((name) => name.endsWith('.php')).map((name) => `lib/Settings/${name}`),
+]
+
+function validatePhpTemplate(source, relative) {
+  // Nextcloud t() accepts a parameter array, never singular/plural/count.
+  if (/\$l->t\(\s*(['"])(?:(?!\1)[^\r\n])*\1\s*,\s*(['"])/u.test(source)) fail('php_plural_t_misuse', relative)
+  for (const match of source.matchAll(/\$l->n\(\s*(['"])(.*?)\1\s*,\s*(['"])(.*?)\3/gu)) {
+    if ((match[2].match(/%n/g) || []).length !== 1 || (match[4].match(/%n/g) || []).length !== 1) fail('php_plural_count_contract', relative)
+  }
+  if (/\$l->t\(\s*(?:\(string\)\s*)?\$/u.test(source)) fail('dynamic_php_translation_key', relative)
+  const html = source.replace(/<\?(?:php|=)[\s\S]*?\?>/g, '')
+  for (const match of html.matchAll(/>([^<]+)</g)) {
+    const visible = match[1].replace(/&(?:[a-z]+|#\d+);/gi, '').trim()
+    if (visible && !allowedStaticText.test(visible)) fail('hard_coded_php_visible_text', `${relative}:${visible}`)
+  }
+  for (const match of html.matchAll(/\b(alt|aria-label|placeholder|title)="([^"]+)"/g)) {
+    if (match[2].trim() && !allowedStaticText.test(match[2].trim())) fail('hard_coded_php_visible_attribute', `${relative}:${match[1]}=${match[2]}`)
+  }
+}
+
+for (const relative of ['src/main.js', ...phpFiles]) {
   const source = fs.readFileSync(path.join(root, relative), 'utf8')
   if (relative.endsWith('.js')) walkJavaScript(parseJavaScript(source, { sourceType: 'module' }))
-  else for (const match of source.matchAll(/(?:\$l->t\(\s*|\$this->(?:l10n->t|translate)\(\s*)'((?:\\'|[^'])*)'/g)) addKey(match[1].replaceAll("\\'", "'"))
+  else {
+    for (const match of source.matchAll(/(?:\$l->(?:t|n)\(\s*|\$this->(?:l10n->t|translate)\(\s*)'((?:\\'|[^'])*)'(?:\s*,\s*'((?:\\'|[^'])*)')?/g)) {
+      const singular = match[1].replaceAll("\\'", "'")
+      const plural = match[2]?.replaceAll("\\'", "'")
+      addKey(plural ? `_${singular}_::_${plural}_` : singular)
+    }
+    if (relative.startsWith('templates/')) validatePhpTemplate(source, relative)
+  }
 }
 
 function placeholders(value) {
@@ -110,7 +141,7 @@ for (const locale of ['en', 'de', 'ar']) {
     if (!Object.hasOwn(translations, key) || value === '' || value == null) fail('missing_translation', `${locale}:${key}`)
     const values = Array.isArray(value) ? value : [value]
     if (!values.length || values.some((entry) => typeof entry !== 'string' || !entry.trim())) fail('malformed_translation', `${locale}:${key}`)
-    if (!key.startsWith('_%n ') && values.some((entry) => placeholders(key).join('\0') !== placeholders(entry).join('\0'))) {
+    if (!(key.startsWith('_') && key.includes('_::_')) && values.some((entry) => placeholders(key).join('\0') !== placeholders(entry).join('\0'))) {
       fail('placeholder_mismatch', `${locale}:${key}`)
     }
   }
@@ -132,6 +163,76 @@ try {
   semanticSentinels = JSON.parse(fs.readFileSync(path.join(root, 'scripts/translation-semantic-sentinels.json'), 'utf8'))
 } catch (error) {
   fail('malformed_semantic_sentinels', error.message)
+}
+
+let fragmentAllowlist
+try {
+  fragmentAllowlist = JSON.parse(fs.readFileSync(path.join(root, 'scripts/translation-fragment-allowlist.json'), 'utf8'))
+} catch (error) {
+  fail('malformed_fragment_allowlist', error.message)
+}
+// Latin text is fail-closed. Codes, placeholders are removed, and filenames
+// structurally; this reviewed set contains only brands, formats, physical units,
+// key names and established German UI/technical loanwords. For German, any
+// source token preserved by its translation must be in this set. Arabic permits
+// no other Latin content token at all.
+const permittedLatinTokens = new Set([
+  'nextcloud', 'files', 'library', 'javascript', 'json', 'zip', 'tsv', 'cbz',
+  'epub', 'pdf', 'pdfs', 'jpeg', 'png', 'webp', 'mime', 'isbn', 'opds', 'api',
+  'rar', 'mib', 'px', 'yyyy', 'mm', 'dd', 'delete', 'enter', 'esc', 'escape',
+  'eco', 'rolleiflex', 'ocr', 'id', 'ids', 'url', 'urls',
+])
+const permittedGermanSourceTokens = new Set([
+  ...permittedLatinTokens,
+  'admin', 'app', 'batch', 'chip', 'chips', 'comic', 'comics', 'container',
+  'cover', 'details', 'export', 'fiction', 'filter', 'genres', 'index', 'limit',
+  'manifest', 'plugin', 'plugins', 'route', 'scan', 'scans', 'scanner', 'science',
+  'sidecar', 'status', 'store', 'tag', 'tags', 'tools', 'workflow',
+])
+const latinTokens = (value) => value.match(/[A-Za-z][A-Za-z'-]*/g) || []
+const stripNonContentLatin = (value) => value
+  .replace(/\{[A-Za-z][A-Za-z0-9_]*\}|%(?:n|s)/g, '')
+  .replace(/\bYYYY(?:-MM(?:-DD)?)?\b/g, '')
+  .replace(/(?:^|[\s(])(?:\.?[\w-]+\/)+(?:\.?[\w-]+)(?=$|[\s),.;])/g, ' ')
+  .replace(/\b[\w.-]+\.(?:json|zip|tsv|cbz|epub|pdf|jpe?g|png|webp|rar)\b/giu, '')
+  .replace(/\b(?:en-GB|en-US|de|en|fr|es|it|nl)\b/g, '')
+
+for (const [locale, examples] of Object.entries({
+  de: [['Save Status', 'Save status'], ['Kürzlich recently geöffnet', 'Recently opened']],
+  ar: [['تعليق comments', 'Nextcloud comments'], ['عرض rogue', 'Useful views']],
+})) {
+  for (const [translated, source] of examples) {
+    const sourceTokens = new Set(latinTokens(source).map((token) => token.toLowerCase()))
+    const leaked = latinTokens(stripNonContentLatin(translated)).some((token) => {
+      const normalized = token.toLowerCase()
+      if (normalized.length < 3) return false
+      return locale === 'ar'
+        ? !permittedLatinTokens.has(normalized)
+        : sourceTokens.has(normalized) && !permittedGermanSourceTokens.has(normalized)
+    })
+    if (!leaked) fail('latin_guard_self_test_failed', `${locale}:${translated}`)
+  }
+}
+for (const locale of ['de', 'ar']) {
+  for (const [key, reason] of Object.entries(fragmentAllowlist[locale] || {})) {
+    if (!keys.has(key) || typeof reason !== 'string' || reason.length < 16) fail('invalid_fragment_allowlist_entry', `${locale}:${key}`)
+  }
+  for (const [key, raw] of Object.entries(catalogues[locale].translations)) {
+    for (const value of Array.isArray(raw) ? raw : [raw]) {
+      const sourceValues = Array.isArray(catalogues.en.translations[key]) ? catalogues.en.translations[key] : [catalogues.en.translations[key]]
+      const sourceTokens = new Set(sourceValues.flatMap(latinTokens).map((token) => token.toLowerCase()))
+      const leakedTokens = latinTokens(stripNonContentLatin(value)).filter((token) => {
+        const normalized = token.toLowerCase()
+        if (normalized.length < 3) return false
+        return locale === 'ar'
+          ? !permittedLatinTokens.has(normalized)
+          : sourceTokens.has(normalized) && !permittedGermanSourceTokens.has(normalized)
+      })
+      if (leakedTokens.length > 0) {
+        fail('untranslated_fragment', `${locale}:${key}`)
+      }
+    }
+  }
 }
 for (const locale of ['de', 'ar']) {
   const sentinels = semanticSentinels[locale]
@@ -166,9 +267,15 @@ for (const locale of ['de', 'ar']) {
   }
 }
 
-const pluralKey = '_%n item_::_%n items_'
-if (!Array.isArray(catalogues.de.translations[pluralKey]) || catalogues.de.translations[pluralKey].length !== 2) fail('malformed_plural', 'de')
-if (!Array.isArray(catalogues.ar.translations[pluralKey]) || catalogues.ar.translations[pluralKey].length !== 6) fail('malformed_plural', 'ar')
+for (const pluralKey of [...keys].filter((key) => key.startsWith('_') && key.includes('_::_'))) {
+  if (!Array.isArray(catalogues.en.translations[pluralKey]) || catalogues.en.translations[pluralKey].length !== 2) fail('malformed_plural', `en:${pluralKey}`)
+  if (!Array.isArray(catalogues.de.translations[pluralKey]) || catalogues.de.translations[pluralKey].length !== 2) fail('malformed_plural', `de:${pluralKey}`)
+  if (!Array.isArray(catalogues.ar.translations[pluralKey]) || catalogues.ar.translations[pluralKey].length !== 6) fail('malformed_plural', `ar:${pluralKey}`)
+  for (const locale of ['en', 'de', 'ar']) {
+    const integrity = evaluatePluralPlaceholderIntegrity(pluralKey, catalogues[locale].translations[pluralKey])
+    if (!integrity.pass) fail('plural_placeholder_mismatch', `${locale}:${pluralKey}`)
+  }
+}
 
 process.stdout.write(`translation_inventory_ok=true keys=${keys.size} locales=en,de,ar identical_allowlist=${Object.keys(allowlist).length} semantic_sentinels=${Object.keys(semanticSentinels.de).length + Object.keys(semanticSentinels.ar).length}\n`)
 const generated = spawnSync(process.execPath, ['scripts/generate-l10n.mjs', '--check'], { cwd: root, encoding: 'utf8' })

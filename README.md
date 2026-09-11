@@ -45,7 +45,7 @@ Not in scope for v0.1:
 
 ## Try it
 
-Current source candidate: `0.1.0-alpha.164`. The duplicate catalogue fallback has been retired: the server still delivers authoritative initial state, and Vue exclusively renders Library, Review, and the native item sidebar. If startup genuinely fails, a small accessible watchdog shows reload and personal-settings exits without exposing state or presenting a stale substitute catalogue. Read and the PHP full-details page remain explicit actions.
+Current source candidate: `0.1.0-alpha.165`. The duplicate catalogue fallback has been retired: the server still delivers authoritative initial state, and Vue exclusively renders Library, Review, and the native item sidebar. If startup genuinely fails, a small accessible watchdog shows reload and personal-settings exits without exposing state or presenting a stale substitute catalogue. Read and the localized PHP full-details page remain explicit actions.
 
 Alpha.159 fixes repair-scan root containment: missing-file recheck and metadata-error retry only restore a resolved stable-ID file when its current path is inside an enabled root owned by that user. The full local gate passed 727 Python tests, 9 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. The unsigned alpha package was built and audited, and exact-package smoke verified checksum, install/enable, PHP, routes, scanner, Vue/API/browser and privacy behavior with `release_package_smoke_ok=true`, zero browser console errors, zero cross-origin cover requests and second-user isolation. Verify an exact archive checksum with its adjacent `.sha256` artifact; the excluded `RELEASE.md` records verification evidence without duplicating the digest.
 

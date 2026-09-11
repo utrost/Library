@@ -269,6 +269,14 @@ not yet cover every legacy PHP surface: personal Settings, batch preview, and
 remaining full-details copy stay explicitly scheduled for alpha.165, followed by
 broader mixed-direction and assistive-technology coverage in alpha.166.
 
+### Phase 3 inclusive quality — alpha.165
+
+Alpha.165 completes personal Settings, batch preview/apply, and full PHP details/edit
+localization. The shared fail-closed PHP/Vue inventory, active server-side `lang`/`dir`,
+and broader German/Arabic domain terminology retain alpha.164 native behavior and the
+alpha.163 startup matrix. Only mixed-direction and dedicated assistive-technology
+expansion is scheduled for alpha.166.
+
 ### Phase 3.1 — Preview-backed covers
 
 Status: first slice landed. Catalogue cards now request item covers from a Library route that resolves the owned catalogue item to its Nextcloud file and asks the public Nextcloud preview manager for a cover-sized preview. The route also does first-image cover extraction for CBZ archives when the generic preview path is unavailable. Every cover response now includes `X-Library-Cover-Status` and `X-Library-Cover-Reason` diagnostics for preview-backed, CBZ first-image and placeholder outcomes. Unsupported files still return the existing stable placeholder artwork, so the gallery remains usable while deeper EPUB/CBZ/PDF cover extraction evolves.

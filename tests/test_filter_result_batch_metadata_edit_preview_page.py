@@ -47,8 +47,9 @@ def test_browser_smoke_checks_preview_page_and_retains_token_cleanup():
     assert "browser_batch_metadata_edit_preview_page" in smoke
     assert "/apps/library/bulk/items/edit-preview" in smoke
     assert "bulkEditField: 'language'" in smoke
-    assert "bulkEditValue: 'de'" in smoke
-    assert "q: applyItem.title" in smoke
+    assert "bulkEditValue: previewLanguage" in smoke
+    assert "previewParams.append('itemIds[]', String(applyItem.id))" in smoke
+    assert "q: applyItem.title" not in smoke
     assert "requesttoken: dom.catalogueRequestToken" in smoke
     assert "library-batch-metadata-edit-preview-page" in smoke
     assert "No changes have been written yet." in smoke
@@ -64,6 +65,6 @@ def test_docs_and_version_track_html_preview_page():
 
     assert "polished review page" in guide.lower()
     assert "batch metadata apply" in roadmap.lower()
-    assert "<version>0.1.0-alpha.164</version>" in info
-    assert '"version": "0.1.0-alpha.164"' in package
-    assert '"version": "0.1.0-alpha.164"' in lock
+    assert "<version>0.1.0-alpha.165</version>" in info
+    assert '"version": "0.1.0-alpha.165"' in package
+    assert '"version": "0.1.0-alpha.165"' in lock

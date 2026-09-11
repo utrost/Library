@@ -2,6 +2,12 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.165 - 2026-09-11
+
+- Completed Nextcloud-API localization of personal Settings, batch metadata preview/apply, and full PHP item-detail/edit surfaces, including accessibility attributes, plural result copy, and server-resolved `lang`/`dir`.
+- Expanded English/German/Arabic catalogues and the fail-closed PHP/Vue inventory while retaining canonical JSON-to-JS generation.
+- Added alpha.165 regression and exact-package legacy-surface browser-gate contracts. Mixed-direction and assistive-technology expansion remains scheduled only for alpha.166.
+
 ## v0.1.0-alpha.164 - 2026-09-11
 
 - Localized the native Vue Library catalogue, Review destination, read-only item sidebar, and startup watchdog in German and Arabic through Nextcloud's translation APIs.

@@ -531,6 +531,17 @@
     min-width: 10rem;
 }
 
+/* Keep the localization smoke's designated long actions genuinely constrained.
+ * These are real, visible controls; wrapping is also useful at narrow widths. */
+.library-detail-save-button,
+.library-localization-long-control {
+    inline-size: min(100%, 10rem);
+    block-size: auto;
+    min-block-size: 36px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
 
 .library-quick-filter-bar {
     display: grid;
@@ -1557,7 +1568,7 @@
 .library-batch-preview-table td {
     border-bottom: 1px solid var(--color-border);
     padding: 0.55rem;
-    text-align: left;
+    text-align: start;
     vertical-align: top;
 }
 
@@ -1596,6 +1607,112 @@
 
 .library-startup-status[hidden] {
     display: none !important;
+}
+
+/* Alpha.165 fifth-matrix mobile overflow remediation. */
+@media (max-width: 700px) {
+    #library-settings,
+    #library-app.library-item-detail,
+    .library-panel,
+    .library-detail-workbench,
+    .library-detail-primary,
+    .library-detail-secondary,
+    .library-detail-primary > *,
+    .library-detail-secondary > *,
+    .library-metadata-health,
+    .library-cover-override-panel,
+    .library-creator-chip-editor,
+    .library-detail-fieldset,
+    .library-detail-edit-form,
+    .library-detail-edit-form > * {
+        min-inline-size: 0;
+        max-inline-size: 100%;
+    }
+
+    .library-catalogue-header > *,
+    .library-catalogue-header h1,
+    .library-catalogue-header h2,
+    .library-catalogue-header h3,
+    .library-catalogue-header p {
+        min-inline-size: 0;
+        max-inline-size: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .library-detail-hero {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .library-detail-hero > *,
+    .library-detail-actionbar,
+    .library-detail-primary-actions,
+    .library-detail-secondary-actions,
+    .library-detail-secondary-actions > *,
+    .library-workflow-status-form,
+    .library-workflow-status-pill,
+    .library-cover-override-form,
+    .library-cover-revert-form,
+    .library-index-row,
+    .library-index-row dl,
+    .library-index-row dd,
+    .library-form,
+    .library-form > * {
+        min-inline-size: 0;
+        max-inline-size: 100%;
+    }
+
+    .library-detail-actionbar,
+    .library-detail-primary-actions,
+    .library-detail-secondary-actions,
+    .library-workflow-status-form,
+    .library-workflow-status-pill {
+        flex-wrap: wrap;
+    }
+
+    .library-workflow-status-pill select,
+    .library-cover-override-form input,
+    .library-index-row input,
+    .library-form input,
+    .library-form select,
+    .library-form textarea {
+        box-sizing: border-box;
+        inline-size: 100%;
+        min-inline-size: 0;
+        max-inline-size: 100%;
+    }
+
+    .library-cover-override-form,
+    .library-cover-override-form input,
+    .library-detail-edit-form select,
+    .library-detail-edit-form option,
+    .library-language-picklist,
+    .library-language-picklist option {
+        box-sizing: border-box;
+        inline-size: 100%;
+        min-inline-size: 0;
+        max-inline-size: 100%;
+    }
+
+    .library-item-metadata,
+    .library-index-row dl {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .library-item-metadata dt,
+    .library-index-row dt {
+        min-inline-size: 0;
+        overflow-wrap: anywhere;
+        white-space: normal;
+    }
+
+    .library-provenance-differences {
+        max-inline-size: 100%;
+        overflow-x: auto;
+    }
+
+    .library-provenance-differences table {
+        max-inline-size: none;
+    }
 }
 
 .library-startup-actions {

@@ -22,7 +22,7 @@ def test_settings_root_delete_form_asks_for_typed_delete_and_keeps_source_file_w
     template = read("templates/settings-personal.php")
 
     assert "name=\"confirmDeleteText\"" in template
-    assert "placeholder=\"DELETE\"" in template
+    assert "placeholder=\"<?php p($l->t('DELETE')); ?>\"" in template
     assert "Type DELETE to confirm" in template
     assert "Deleting a Library root removes only Library index and catalogue rows" in template
     assert "never deletes source files from Nextcloud Files" in template
@@ -39,5 +39,5 @@ def test_docs_and_version_track_typed_root_delete_confirmation():
     assert "typed root-delete confirmation" in readme.lower()
     assert "Type DELETE to confirm" in guide
     assert "typed root-delete confirmation" in roadmap.lower()
-    assert "0.1.0-alpha.164" in info
-    assert '"version": "0.1.0-alpha.164"' in package
+    assert "0.1.0-alpha.165" in info
+    assert '"version": "0.1.0-alpha.165"' in package

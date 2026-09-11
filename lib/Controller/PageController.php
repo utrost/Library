@@ -30,8 +30,8 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-164';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-164';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-165';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-165';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
