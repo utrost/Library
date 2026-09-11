@@ -36,6 +36,8 @@ class ScanJob extends QueuedJob {
             return;
         }
 
+        $cancelChecks = 0;
+        $cancelChecks++;
         if ($this->scanJobService->isCancelled($userId, $jobId)) {
             return;
         }
@@ -52,7 +54,6 @@ class ScanJob extends QueuedJob {
         $startedAt = $this->clock->now();
         $policy = new ScanProgressPolicy($this->clock);
         $progressWrites = 0;
-        $cancelChecks = 1;
         $latestProgress = [];
         try {
             if (!$this->scanJobService->markRunning($userId, $jobId)) {
@@ -78,6 +79,7 @@ class ScanJob extends QueuedJob {
                 default => $this->scanner->scan($userId, $rootId, $progress),
             };
             $result['scannerDurationMs'] = max((int)($result['scannerDurationMs'] ?? 0), $this->clock->elapsedMs($startedAt));
+            $cancelChecks++;
             if ($this->scanJobService->isCancelled($userId, $jobId)) {
                 return;
             }
