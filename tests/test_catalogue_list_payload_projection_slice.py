@@ -41,7 +41,7 @@ def test_normal_and_metadata_review_dto_shapes_are_explicit_and_exact():
     assert php_string_list(page, "SCANNER_CONFLICT_ITEM_EXTRA_KEYS") == CONFLICT_EXTRA_KEYS
     assert "projectCatalogueItem" in page
     assert "($activeFilters['scannerConflicts'] ?? '') === '1'" in page
-    assert "trim((string)($activeFilters['weakMetadata'] ?? '')) !== ''" in page
+    assert "($activeFilters['weakMetadata'] ?? '') === 'filename'" in page
 
 
 def test_projection_happens_after_internal_file_fields_feed_tags_and_urls():
@@ -108,7 +108,7 @@ def test_weak_metadata_filter_requests_rich_review_internal_projection():
         "private function countScannerConflictCatalogueItems(",
     )
 
-    assert "trim((string)($filters['weakMetadata'] ?? '')) !== ''" in query
+    assert "($filters['weakMetadata'] ?? '') === 'filename'" in query
     assert "catalogueQueryBuilder($userId, $filters, $metadataReviewProjection)" in query
 
 

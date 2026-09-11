@@ -25,12 +25,15 @@ use OCP\IUserSession;
 use OCP\Util;
 use Psr\Log\LoggerInterface;
 use OCA\Library\Instrumentation\MonotonicClock;
+use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-160';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-160';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-161';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-161';
     private MonotonicClock $clock;
+    /** @var array<string, true> */
+    private array $invalidReviewKeys = [];
 
     private const READER_FIXTURE_FILE_ID = 82;
 
@@ -160,6 +163,7 @@ class PageController extends Controller {
     private function buildCatalogueState(string $userId, array $filterOverrides = [], array $pageContext = [], string $surface = 'catalogue_api'): array {
         $totalStarted = $this->clock->now();
         $durations = ['catalogue_query_ms' => 0, 'tag_enrichment_ms' => 0, 'auxiliary_ms' => 0, 'projection_ms' => 0];
+        $this->invalidReviewKeys = ReviewQueryPolicy::invalidKeysFromRequestUri($this->request->getRequestUri());
         $batchCoverRefreshRequested = (string)$this->request->getParam('coverRefresh', '0') === '1';
         $activeFilters = [
             'q' => trim((string)$this->request->getParam('q', '')),
@@ -170,26 +174,28 @@ class PageController extends Controller {
             'format' => trim((string)$this->request->getParam('format', '')),
             'tag' => trim((string)$this->request->getParam('tag', '')),
             'shelf' => trim((string)$this->request->getParam('shelf', '')),
-            'status' => trim((string)$this->request->getParam('status', '')),
+            'status' => $this->normalizeScalarFilter($this->request->getParam('status', '')),
             'workflowStatus' => trim((string)$this->request->getParam('workflowStatus', '')),
             'genre' => trim((string)$this->request->getParam('genre', '')),
             'classification' => trim((string)$this->request->getParam('classification', '')),
-            'scannerConflicts' => trim((string)$this->request->getParam('scannerConflicts', '')),
+            'scannerConflicts' => $this->normalizeReviewFilter('scannerConflicts', $this->request->getParam('scannerConflicts', '')),
             'starred' => trim((string)$this->request->getParam('starred', '')),
-            'needsMetadata' => trim((string)$this->request->getParam('needsMetadata', '')),
-            'coverReview' => trim((string)$this->request->getParam('coverReview', '')),
-            'noCreator' => trim((string)$this->request->getParam('noCreator', '')),
-            'noPublication' => trim((string)$this->request->getParam('noPublication', '')),
-            'noDate' => trim((string)$this->request->getParam('noDate', '')),
-            'titleFromFilename' => trim((string)$this->request->getParam('titleFromFilename', '')),
-            'noDescription' => trim((string)$this->request->getParam('noDescription', '')),
-            'unsupportedContainer' => trim((string)$this->request->getParam('unsupportedContainer', '')),
-            'weakMetadata' => trim((string)$this->request->getParam('weakMetadata', '')),
-            'unreviewedImports' => trim((string)$this->request->getParam('unreviewedImports', '')),
+            'needsMetadata' => $this->normalizeReviewFilter('needsMetadata', $this->request->getParam('needsMetadata', '')),
+            'coverReview' => $this->normalizeReviewFilter('coverReview', $this->request->getParam('coverReview', '')),
+            'noCreator' => $this->normalizeReviewFilter('noCreator', $this->request->getParam('noCreator', '')),
+            'noPublication' => $this->normalizeReviewFilter('noPublication', $this->request->getParam('noPublication', '')),
+            'noDate' => $this->normalizeReviewFilter('noDate', $this->request->getParam('noDate', '')),
+            'titleFromFilename' => $this->normalizeReviewFilter('titleFromFilename', $this->request->getParam('titleFromFilename', '')),
+            'noDescription' => $this->normalizeReviewFilter('noDescription', $this->request->getParam('noDescription', '')),
+            'unsupportedContainer' => $this->normalizeReviewFilter('unsupportedContainer', $this->request->getParam('unsupportedContainer', '')),
+            'weakMetadata' => $this->normalizeReviewFilter('weakMetadata', $this->request->getParam('weakMetadata', '')),
+            'unreviewedImports' => $this->normalizeReviewFilter('unreviewedImports', $this->request->getParam('unreviewedImports', '')),
             'sort' => trim((string)$this->request->getParam('sort', 'title')),
         ];
         foreach ($filterOverrides as $key => $value) {
-            $activeFilters[$key] = trim((string)$value);
+            $activeFilters[$key] = isset(ReviewQueryPolicy::FILTER_VALUES[$key])
+                ? $this->normalizeReviewFilter($key, $value)
+                : trim((string)$value);
         }
         if (!in_array($activeFilters['sort'], ['title', 'recent', 'publicationDate', 'publication', 'publicationIssue', 'lastOpened', 'format'], true)) {
             $activeFilters['sort'] = 'title';
@@ -223,7 +229,7 @@ class PageController extends Controller {
         $fileTagsByFileId = $this->fileTagService->tagsForItems($items);
         $durations['tag_enrichment_ms'] = $this->clock->elapsedMs($phaseStarted);
         $metadataReviewProjection = ($activeFilters['scannerConflicts'] ?? '') === '1'
-            || trim((string)($activeFilters['weakMetadata'] ?? '')) !== '';
+            || ($activeFilters['weakMetadata'] ?? '') === 'filename';
         $phaseStarted = $this->clock->now();
         $items = $this->enrichItemsForVue(
             $userId,
@@ -360,6 +366,14 @@ class PageController extends Controller {
             $keys = [...$keys, ...self::SCANNER_CONFLICT_ITEM_EXTRA_KEYS];
         }
         return array_intersect_key($item, array_flip($keys));
+    }
+
+    private function normalizeReviewFilter(string $key, mixed $value): string {
+        return ReviewQueryPolicy::normalizeReviewValue($key, $value, $this->invalidReviewKeys);
+    }
+
+    private function normalizeScalarFilter(mixed $value): string {
+        return ReviewQueryPolicy::normalizeStatus($value, $this->invalidReviewKeys);
     }
 
     /**

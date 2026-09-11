@@ -66,7 +66,7 @@ def test_catalogue_accepts_smart_collection_query_parameters():
     tag = (ROOT / "lib" / "Controller" / "TagController.php").read_text()
 
     for param in ["needsMetadata", "coverReview", "noCreator", "noPublication", "weakMetadata", "unreviewedImports"]:
-        assert f"'{param}' => trim((string)$this->request->getParam('{param}', ''))" in page
+        assert f"'{param}' => $this->normalizeReviewFilter('{param}', $this->request->getParam('{param}', ''))" in page
         assert param in service
         assert param in cover
         assert param in tag

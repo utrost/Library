@@ -17,6 +17,45 @@ const props = defineProps({
 
 const publicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other']
 const pageSizes = [25, 50, 100, 250, 500]
+const reviewQueueDefinitions = Object.freeze([
+  { key: 'needsMetadata', value: '1', countKey: 'needs-metadata', label: 'Needs metadata' },
+  { key: 'scannerConflicts', value: '1', countKey: 'scanner-conflicts', label: 'Scanner conflicts' },
+  { key: 'status', value: 'metadata_error', countKey: 'metadata-errors', label: 'Metadata errors' },
+  { key: 'coverReview', value: 'placeholder', countKey: 'placeholder-covers', label: 'Placeholder covers' },
+  { key: 'noCreator', value: '1', countKey: 'no-creator', label: 'Missing creator' },
+  { key: 'noPublication', value: '1', countKey: 'no-publication', label: 'Missing publication/series' },
+  { key: 'noDate', value: '1', countKey: 'missing-date', label: 'Missing date' },
+  { key: 'titleFromFilename', value: '1', countKey: 'title-from-filename', label: 'Filename-derived title' },
+  { key: 'weakMetadata', value: 'filename', countKey: 'weak-filename-metadata', label: 'Weak filename metadata' },
+  { key: 'noDescription', value: '1', countKey: 'no-description', label: 'No description' },
+  { key: 'unsupportedContainer', value: '1', countKey: 'unsupported-containers', label: 'Unsupported container' },
+  { key: 'unreviewedImports', value: '1', countKey: 'unreviewed-imports', label: 'Unreviewed imports' },
+])
+const reviewFilterValues = Object.freeze(Object.fromEntries(reviewQueueDefinitions.map(({ key, value }) => [key, value])))
+function isCanonicalReviewFilter(key, value) {
+  return Object.prototype.hasOwnProperty.call(reviewFilterValues, key) && String(value ?? '').trim() === reviewFilterValues[key]
+}
+function normalizedReviewParams(input) {
+  const params = new URLSearchParams(input)
+  for (const reviewKey of Object.keys(reviewFilterValues)) {
+    const matchingKeys = [...new Set([...params.keys()].filter((key) => key === reviewKey || key.startsWith(`${reviewKey}[`)))]
+    const occurrences = matchingKeys.reduce((count, key) => count + params.getAll(key).length, 0)
+    if (occurrences > 1 || matchingKeys.some((key) => key !== reviewKey)) {
+      for (const key of matchingKeys) params.delete(key)
+      continue
+    }
+    if (reviewKey !== 'status' && occurrences === 1 && !isCanonicalReviewFilter(reviewKey, params.get(reviewKey))) {
+      params.delete(reviewKey)
+    }
+  }
+  return params
+}
+function hasCanonicalReviewDestination(params) {
+  return Object.keys(reviewFilterValues).some((key) => params.getAll(key).length === 1 && isCanonicalReviewFilter(key, params.get(key)))
+}
+function canonicalReviewFilters(filters) {
+  return Object.fromEntries(Object.entries(filters || {}).filter(([key, value]) => key === 'status' || !Object.prototype.hasOwnProperty.call(reviewFilterValues, key) || isCanonicalReviewFilter(key, value)))
+}
 
 const catalogueState = reactive({
   ...props.state,
@@ -75,6 +114,11 @@ const activeFilters = reactive({
   unreviewedImports: catalogueState.activeFilters?.unreviewedImports || '',
   sort: catalogueState.activeFilters?.sort || 'title',
 })
+for (const key of Object.keys(reviewFilterValues)) {
+  if (key === 'status') continue
+  if (!isCanonicalReviewFilter(key, activeFilters[key])) activeFilters[key] = ''
+}
+const activeFilterDefaults = Object.fromEntries(Object.keys(activeFilters).map((key) => [key, key === 'sort' ? 'title' : (key === 'view' ? 'compact' : '')]))
 const libraryPathMarker = '/apps/library'
 const markerIndex = window.location.pathname.indexOf(libraryPathMarker)
 const webroot = markerIndex >= 0 ? window.location.pathname.slice(0, markerIndex) : ''
@@ -115,7 +159,7 @@ function safeNavigationUrl(value, fallback) {
 const settingsUrl = computed(() => safeNavigationUrl(catalogueState.settingsUrl, navigationFallbacks.settings))
 const catalogueRootUrl = computed(() => safeNavigationUrl(catalogueState.catalogueRootUrl, navigationFallbacks.catalogue))
 const reviewUrl = computed(() => safeNavigationUrl(catalogueState.reviewUrl || catalogueState.scannerConflictReviewUrl, navigationFallbacks.review))
-const reviewActive = computed(() => activeFilters.scannerConflicts === '1' || String(activeFilters.weakMetadata || '').trim() !== '')
+const reviewActive = computed(() => Object.entries(reviewFilterValues).some(([key, value]) => activeFilters[key] === value))
 const requestToken = computed(() => catalogueState.requestToken || '')
 const metadataExportUrl = computed(() => catalogueState.metadataExportUrl || '')
 const metadataSidecarManifestUrl = computed(() => catalogueState.metadataSidecarManifestUrl || '')
@@ -222,9 +266,10 @@ const activeFilterChips = computed(() => Object.entries(filterLabels)
 const quickHiddenFilters = computed(() => Object.entries(activeFilters)
   .filter(([key, value]) => !['q', 'sort', 'starred'].includes(key) && String(value || '').trim() !== '')
   .map(([key, value]) => ({ key, value })))
-const batchHiddenFilters = computed(() => Object.entries(activeFilters)
+const batchHiddenFilters = computed(() => Object.entries(canonicalReviewFilters(activeFilters))
   .filter(([_key, value]) => String(value || '').trim() !== '')
   .map(([key, value]) => ({ key, value })))
+const reviewHiddenFilters = computed(() => batchHiddenFilters.value.filter(({ key, value }) => key !== 'q' && !(key === 'sort' && value === 'title')))
 const openCoverDetails = reactive({})
 const coverImageStates = reactive({})
 
@@ -238,7 +283,7 @@ const drawerPreviousItem = computed(() => selectedDrawerIndex.value > 0 ? items.
 const drawerNextItem = computed(() => selectedDrawerIndex.value >= 0 && selectedDrawerIndex.value < items.value.length - 1 ? items.value[selectedDrawerIndex.value + 1] : null)
 const reviewableMetadataFields = ['publicationType', 'title', 'subtitle', 'creators', 'publication', 'publicationDate', 'language', 'publisher', 'description', 'genres', 'classifications']
 const metadataReviewWorkbench = computed(() => {
-  const enabled = activeFilters.scannerConflicts === '1' || String(activeFilters.weakMetadata || '').trim() !== ''
+  const enabled = isCanonicalReviewFilter('scannerConflicts', activeFilters.scannerConflicts) || isCanonicalReviewFilter('weakMetadata', activeFilters.weakMetadata)
   const item = enabled ? items.value.find((candidate) => reviewConflictFieldsFor(candidate).length > 0) : null
   return {
     enabled,
@@ -248,6 +293,11 @@ const metadataReviewWorkbench = computed(() => {
     skipUrl: pagination.value.nextUrl || scannerConflictReviewUrl.value,
   }
 })
+const reviewQueues = computed(() => reviewQueueDefinitions.map((queue) => ({
+  ...queue,
+  href: `${catalogueRootUrl.value}?${encodeURIComponent(queue.key)}=${encodeURIComponent(queue.value)}`,
+  active: String(activeFilters[queue.key] || '') === queue.value,
+})))
 
 function normalizedMetadataValue(value) {
   if (Array.isArray(value)) return JSON.stringify(value)
@@ -285,9 +335,10 @@ const quickSearchInput = ref(null)
 let filterSubmitTimer = null
 let catalogueRequestGeneration = 0
 let catalogueRequestController = null
+const catalogueRequestState = reactive({ loading: false, error: '' })
 
 function buildFilterParams(form) {
-  const params = new URLSearchParams(new FormData(form))
+  const params = normalizedReviewParams(new FormData(form))
   for (const key of Array.from(params.keys())) {
     if (String(params.get(key) || '').trim() === '') {
       params.delete(key)
@@ -307,7 +358,7 @@ function applyCatalogueState(nextState) {
       catalogueState[key] = nextState[key]
     }
   }
-  Object.assign(activeFilters, nextState.activeFilters || {})
+  Object.assign(activeFilters, activeFilterDefaults, nextState.activeFilters || {})
 }
 
 async function fetchImportHealthSummary(refresh = false) {
@@ -348,15 +399,20 @@ async function refreshImportHealthSummary() {
 
 async function submitFiltersAjax(event, scheduled = null) {
   const form = event?.currentTarget?.tagName === 'FORM' ? event.currentTarget : event?.currentTarget?.form
-  if (!form) return
-  const params = scheduled?.params ?? buildFilterParams(form)
+  if (!form && !scheduled?.params) return
+  const params = normalizedReviewParams(scheduled?.params ?? buildFilterParams(form))
   const query = params.toString()
   const endpointQuery = query ? `?${query}` : ''
   const generation = scheduled?.generation ?? ++catalogueRequestGeneration
+  const requestedReviewDestination = hasCanonicalReviewDestination(params)
+  const historyMode = scheduled?.historyMode ?? (requestedReviewDestination ? 'push' : 'replace')
+  const historyTraversal = scheduled?.historyTraversal === true
   if (generation !== catalogueRequestGeneration) return
   if (scheduled === null) catalogueRequestController?.abort()
   const controller = new AbortController()
   catalogueRequestController = controller
+  catalogueRequestState.loading = true
+  catalogueRequestState.error = ''
   try {
     const response = await fetch(catalogueEndpointUrl.value + endpointQuery, {
       headers: { Accept: 'application/json' },
@@ -365,18 +421,43 @@ async function submitFiltersAjax(event, scheduled = null) {
     })
     if (generation !== catalogueRequestGeneration) return
     if (!response.ok) {
-      submitCapturedFilterFallback(params)
+      if (historyTraversal) {
+        submitCapturedFilterFallback(params)
+      } else if (requestedReviewDestination) {
+        catalogueRequestState.error = t('library', 'Could not load this review queue. Try again.')
+      } else {
+        submitCapturedFilterFallback(params)
+      }
       return
     }
     const nextState = await response.json()
     if (generation !== catalogueRequestGeneration) return
     applyCatalogueState(nextState)
-    history.replaceState({}, '', query ? `?${query}` : window.location.pathname)
+    if (historyMode !== 'none') {
+      history[historyMode === 'push' ? 'pushState' : 'replaceState']({}, '', query ? `?${query}` : window.location.pathname)
+    }
   } catch (error) {
-    if (generation === catalogueRequestGeneration && error?.name !== 'AbortError') submitCapturedFilterFallback(params)
+    if (generation === catalogueRequestGeneration && error?.name !== 'AbortError') {
+      if (historyTraversal) submitCapturedFilterFallback(params)
+      else if (requestedReviewDestination) catalogueRequestState.error = t('library', 'Could not load this review queue. Try again.')
+      else submitCapturedFilterFallback(params)
+    }
   } finally {
-    if (generation === catalogueRequestGeneration) catalogueRequestController = null
+    if (generation === catalogueRequestGeneration) {
+      catalogueRequestController = null
+      catalogueRequestState.loading = false
+    }
   }
+}
+
+function restoreCatalogueFromHistory() {
+  catalogueRequestController?.abort()
+  submitFiltersAjax(null, {
+    params: normalizedReviewParams(window.location.search),
+    generation: ++catalogueRequestGeneration,
+    historyMode: 'none',
+    historyTraversal: true,
+  })
 }
 
 function submitCapturedFilterFallback(params) {
@@ -481,7 +562,7 @@ const weakMetadataDashboardRows = computed(() => [
 function setViewMode(nextMode) {
   if (!viewModes.includes(nextMode)) return
   activeFilters.view = nextMode
-  const params = new URLSearchParams(window.location.search)
+  const params = normalizedReviewParams(window.location.search)
   if (nextMode === 'compact') {
     params.delete('view')
   } else {
@@ -492,7 +573,7 @@ function setViewMode(nextMode) {
 }
 
 function smartViewUrl(filters) {
-  const params = new URLSearchParams(window.location.search)
+  const params = normalizedReviewParams(window.location.search)
   for (const key of Object.keys(filterLabels)) {
     params.delete(key)
   }
@@ -523,7 +604,7 @@ function tagsFor(item) {
 }
 
 function publicationFilterUrl(publication) {
-  const params = new URLSearchParams(window.location.search)
+  const params = normalizedReviewParams(window.location.search)
   params.set('publication', publication)
   params.set('sort', 'publication')
   params.delete('page')
@@ -625,10 +706,12 @@ function handleCatalogueKeyboardShortcuts(event) {
 
 onMounted(() => {
   window.addEventListener('keydown', handleCatalogueKeyboardShortcuts)
+  window.addEventListener('popstate', restoreCatalogueFromHistory)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleCatalogueKeyboardShortcuts)
+  window.removeEventListener('popstate', restoreCatalogueFromHistory)
   window.clearTimeout(filterSubmitTimer)
   catalogueRequestGeneration += 1
   catalogueRequestController?.abort()
@@ -683,7 +766,42 @@ async function toggleStar(item, event) {
     </NcAppNavigation>
     <NcAppContent>
   <div id="library-app" class="library-vue-catalogue library-app" tabindex="-1">
-  <section class="library-panel library-mobile-compact-chrome" aria-labelledby="library-catalogue-heading">
+  <section v-if="reviewActive" class="library-panel library-review-destination" aria-labelledby="library-review-heading">
+    <header class="library-review-header">
+      <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata cleanup') }}</p>
+      <h2 id="library-review-heading">{{ t('library', 'Review') }}</h2>
+      <p>{{ t('library', 'Work through catalogue items that need a metadata decision. Source files remain in Nextcloud Files.') }}</p>
+    </header>
+    <nav class="library-review-queues" :aria-label="t('library', 'Review queues')">
+      <a v-for="queue in reviewQueues" :key="queue.key" class="library-review-queue-link" :class="{ active: queue.active }" :href="queue.href" :aria-current="queue.active ? 'page' : undefined">
+        <span>{{ t('library', queue.label) }}</span>
+        <b>{{ Number(smartViewCounts[queue.countKey] || 0) }}</b>
+      </a>
+    </nav>
+    <form method="get" class="library-review-filter-form" :aria-label="t('library', 'Filter current review queue')" @submit.prevent="submitFiltersAjax">
+      <input v-for="filter in reviewHiddenFilters" :key="`review-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
+      <label>{{ t('library', 'Search within this queue') }}<input v-model="activeFilters.q" type="search" name="q"></label>
+      <button type="submit" class="button secondary">{{ t('library', 'Apply') }}</button>
+    </form>
+    <div class="library-review-request-status" role="status" aria-live="polite" :aria-busy="catalogueRequestState.loading ? 'true' : 'false'">
+      <span v-if="catalogueRequestState.loading">{{ t('library', 'Loading review queue…') }}</span>
+    </div>
+    <p v-if="catalogueRequestState.error" class="library-notice library-review-request-error" role="alert">{{ catalogueRequestState.error }}</p>
+    <section v-if="metadataReviewWorkbench.enabled" class="library-metadata-review-workbench" aria-labelledby="library-metadata-review-workbench-heading"><div class="library-metadata-review-workbench-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata review workbench') }}</p><h3 id="library-metadata-review-workbench-heading" :title="t('library', 'Shows current value, scanner candidate, path-template candidate, sidecar value and source provenance together. No source files are changed; user-edited values are never silently overwritten.')">{{ t('library', 'Review next conflict') }}</h3></div><article v-if="metadataReviewWorkbench.item" class="library-metadata-review-card"><header><strong>{{ metadataReviewWorkbench.item.title }}</strong><span class="library-muted">{{ metadataReviewWorkbench.item.cachedPath }}</span></header><div class="library-metadata-review-fields"><article v-for="field in metadataReviewWorkbench.fields" :key="field.field" class="library-metadata-review-field"><h4>{{ field.field }}</h4><dl><div><dt>{{ t('library', 'Current value') }}</dt><dd>{{ field.currentValue || '—' }}</dd></div><div><dt>{{ t('library', 'scanner candidate') }}</dt><dd>{{ field.scannerCandidate || '—' }}</dd></div><div><dt>{{ t('library', 'path-template candidate') }}</dt><dd>{{ field.pathTemplateCandidate || '—' }}</dd></div><div><dt>{{ t('library', 'sidecar value') }}</dt><dd>{{ field.sidecarValue || '—' }}</dd></div><div><dt>{{ t('library', 'source provenance') }}</dt><dd>{{ field.sourceProvenance || '—' }}</dd></div></dl><form method="post" :action="metadataReviewWorkbench.item.resetFieldUrl" class="library-metadata-review-accept-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="field" :value="field.field"><input type="hidden" name="returnTo" value="catalogue"><button type="submit" class="button secondary">{{ t('library', 'accept scanner candidate') }}</button></form></article></div><footer class="library-metadata-review-actions"><a class="button secondary" :href="metadataReviewWorkbench.item.detailsUrl">{{ t('library', 'Open full details') }}</a><a class="button secondary" :href="metadataReviewWorkbench.skipUrl">{{ t('library', 'Skip to next conflict') }}</a></footer></article></section>
+    <div v-if="items.length === 0 && !catalogueRequestState.loading && !catalogueRequestState.error" class="library-review-empty" role="status">
+      <h3>{{ t('library', 'This review queue is clear') }}</h3>
+      <p>{{ t('library', 'Choose another queue or return to the catalogue.') }}</p>
+      <a class="button primary" :href="catalogueRootUrl">{{ t('library', 'Back to Library') }}</a>
+    </div>
+    <div v-else class="library-review-results" :aria-label="t('library', 'Review results')">
+      <article v-for="item in items" :key="item.id" class="library-review-result-card">
+        <div><h3>{{ item.title }}</h3><p v-if="item.creators" class="library-muted">{{ item.creators }}</p><p v-if="item.scanError" class="library-scan-error">{{ item.scanError }}</p></div>
+        <p><a class="button secondary" :href="item.detailsUrl">{{ t('library', 'Open full details') }}</a><a class="button primary" :href="item.openUrl">{{ t('library', 'Read') }}</a></p>
+      </article>
+    </div>
+    <nav v-if="items.length > 0" class="library-pagination" :aria-label="t('library', 'Review pagination')"><a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a><span v-else class="library-muted">{{ t('library', 'Previous') }}</span><span>{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span><a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a><span v-else class="library-muted">{{ t('library', 'Next') }}</span></nav>
+  </section>
+  <section v-else class="library-panel library-mobile-compact-chrome" aria-labelledby="library-catalogue-heading">
     <nav class="library-catalogue-workspace library-workspace-menubar" :aria-label="t('library', 'One catalogue workspace')">
       <details class="library-workspace-panel library-workspace-panel--refine library-filter-panel" data-workspace-panel="refine">
         <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished library-filter-panel-summary">
@@ -971,6 +1089,91 @@ async function toggleStar(item, event) {
 </template>
 
 <style>
+.library-review-destination {
+  display: grid;
+  gap: 18px;
+  margin: 0 auto;
+  max-width: 1120px;
+  padding: 20px;
+}
+
+.library-review-header h2,
+.library-review-result-card h3 {
+  margin: 0;
+}
+
+.library-review-queues {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.library-review-queue-link,
+.library-review-result-card {
+  background: var(--color-main-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-large);
+}
+
+.library-review-queue-link {
+  align-items: center;
+  color: var(--color-main-text);
+  display: flex;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 8px 12px;
+  text-decoration: none;
+}
+
+.library-review-queue-link.active,
+.library-review-queue-link:focus-visible,
+.library-review-queue-link:hover {
+  border-color: var(--color-primary-element);
+  background: var(--color-background-hover);
+}
+
+.library-review-filter-form,
+.library-review-result-card,
+.library-review-result-card > p {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.library-review-filter-form label {
+  flex: 1;
+}
+
+.library-review-filter-form input {
+  width: 100%;
+}
+
+.library-review-results {
+  display: grid;
+  gap: 10px;
+}
+
+.library-review-result-card {
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.library-review-request-status:empty {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .library-review-destination {
+    padding: 10px;
+  }
+
+  .library-review-filter-form,
+  .library-review-result-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
 .library-navigation-settings-link {
   align-items: center;
   border-radius: var(--border-radius-large);

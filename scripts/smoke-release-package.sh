@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONTAINER="${NEXTCLOUD_CONTAINER:-nextcloud}"
 APP_ID="library"
-EXPECTED_VERSION="0.1.0-alpha.160"
+EXPECTED_VERSION="0.1.0-alpha.161"
 VERSION="${1:-$(python3 - <<'PY'
 from pathlib import Path
 import re
@@ -65,6 +65,10 @@ docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/te
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/templates/settings-personal.php
 docker exec -u www-data "$CONTAINER" php occ app:enable library
 docker exec -u www-data "$CONTAINER" php occ upgrade
+# Reproducible archives intentionally normalize PHP mtimes. Gracefully replace
+# Apache workers so an exact-package smoke cannot execute an older OPcache entry
+# whose path and timestamp happen to match the newly installed controller.
+docker exec -u root "$CONTAINER" apachectl -k graceful
 INSTALLED_VERSION="$(docker exec -u www-data "$CONTAINER" php occ app:list --output=json | python3 -c 'import json, sys; print(json.load(sys.stdin).get("enabled", {}).get("library", ""))')"
 if [ "$INSTALLED_VERSION" != "$EXPECTED_VERSION" ]; then
   echo "installed_release_version_mismatch=true"

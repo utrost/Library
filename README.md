@@ -45,7 +45,7 @@ Not in scope for v0.1:
 
 ## Try it
 
-Current source candidate: `0.1.0-alpha.160`. Alpha.160 is the first native Nextcloud application-shell scaffold. Library remains the active destination and contains the existing catalogue unchanged; Review links to the existing scanner-conflict view, Settings links to the existing personal-settings page, and the closed sidebar is scaffolding only. Review/settings migration and sidebar-driven details are later slices.
+Current source candidate: `0.1.0-alpha.161`. Review is now a native shell destination with accessible, shareable query-backed cleanup queues, focused results, explicit loading/error/empty states, and preserved back/forward-safe GET URLs. Settings remains the existing personal-settings route, while PHP detail/fallback rendering and the closed sidebar remain unchanged for later slices.
 
 Alpha.159 fixes repair-scan root containment: missing-file recheck and metadata-error retry only restore a resolved stable-ID file when its current path is inside an enabled root owned by that user. The full local gate passed 727 Python tests, 9 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. The unsigned alpha package was built and audited, and exact-package smoke verified checksum, install/enable, PHP, routes, scanner, Vue/API/browser and privacy behavior with `release_package_smoke_ok=true`, zero browser console errors, zero cross-origin cover requests and second-user isolation. Verify an exact archive checksum with its adjacent `.sha256` artifact; the excluded `RELEASE.md` records verification evidence without duplicating the digest.
 

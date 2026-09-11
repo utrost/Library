@@ -15,7 +15,7 @@ def test_catalogue_supports_scan_status_filter():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
-    assert "'status' => trim((string)$this->request->getParam('status', ''))" in page
+    assert "'status' => $this->normalizeScalarFilter($this->request->getParam('status', ''))" in page
     assert "scanStatusFacetValues" in service
     assert "'scanStatuses' => $catalogue['facets']['scanStatuses']" in page
     assert "f.scan_status" in service

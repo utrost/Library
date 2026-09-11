@@ -2,6 +2,14 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.161 - 2026-09-11
+
+- Made Review a distinct native-shell destination while retaining the established GET query filters, catalogue service, rich scanner-conflict projection, and shareable server-rendered URLs.
+- Added focused scanner-conflict, weak-metadata, metadata-error, and missing-field queue navigation; compact Review result cards; conflict comparison/actions; pagination; and explicit accessible loading, error, and clear-queue states with responsive mobile layout.
+- Kept Settings on the existing safe personal-settings route and deliberately left PHP detail/fallback rendering and the inert sidebar in place for separately versioned migration work.
+- Preserved alpha.160 same-origin/webroot navigation validation, request-race ownership, strict browser diagnostics, release manifest/dual budgets, source-map rejection, and reproducible packaging controls.
+- Made the exact-package harness gracefully recycle Apache workers after installing normalized-mtime archives, preventing a stale OPcache controller from pointing the live page at the prior version's assets.
+
 ## v0.1.0-alpha.160 - 2026-09-11
 
 - Added the first native Nextcloud application-shell scaffold using documented public `@nextcloud/vue` component subpaths. Library/Review navigation now uses same-origin, webroot-aware server-generated route paths, derives its active destination from review filters, and keeps the intentionally empty sidebar inert.
