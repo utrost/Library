@@ -16,7 +16,7 @@ def read(relative: str) -> str:
 
 
 def test_alpha_160_packaged_runtime_size_and_checksum_sidecar_stay_consistent():
-    current = ROOT / "js/library-main-0-1-0-alpha-160.mjs"
+    current = ROOT / "js/library-main-0-1-0-alpha-161.mjs"
     assert current.read_bytes() == (ROOT / "js/library-main.mjs").read_bytes()
     assert current.stat().st_size <= 2_000_000
     assert not (ROOT / "js/library-main.mjs.map").exists()
@@ -68,11 +68,11 @@ def test_vite_defines_nextcloud_vue_app_identity_and_built_bundle_has_no_missing
     vite = read("vite.config.js")
 
     assert "appName: JSON.stringify('library')" in vite
-    assert "appVersion: JSON.stringify('0.1.0-alpha.160')" in vite
+    assert "appVersion: JSON.stringify('0.1.0-alpha.161')" in vite
 
     bundle = read("js/library-main.mjs")
     assert '= "library";' in bundle
-    assert '= "0.1.0-alpha.160";' in bundle
+    assert '= "0.1.0-alpha.161";' in bundle
 
 
 def test_settings_footer_does_not_use_component_slot_that_triggers_legacy_cross_origin_icon():
@@ -249,7 +249,7 @@ def _release_archive(version: str, extra_names: list[str]) -> Path:
     "library//ambiguous.txt",
 ])
 def test_release_audit_rejects_unsafe_or_noncanonical_archive_names(unsafe_name: str):
-    version = f"0.1.0-alpha.160-adversarial-{uuid.uuid4().hex}"
+    version = f"0.1.0-alpha.161-adversarial-{uuid.uuid4().hex}"
     archive = _release_archive(version, [unsafe_name])
     try:
         result = subprocess.run(
@@ -265,7 +265,7 @@ def test_release_audit_rejects_unsafe_or_noncanonical_archive_names(unsafe_name:
 
 
 def test_release_audit_rejects_duplicate_normalized_archive_names():
-    version = f"0.1.0-alpha.160-duplicate-{uuid.uuid4().hex}"
+    version = f"0.1.0-alpha.161-duplicate-{uuid.uuid4().hex}"
     archive = _release_archive(version, ["library/README.md/"])
     try:
         result = subprocess.run(
@@ -285,7 +285,7 @@ def test_release_audit_rejects_duplicate_normalized_archive_names():
     "README.md",
 ])
 def test_release_audit_rejects_required_paths_replaced_by_directories(required_path: str):
-    version = f"0.1.0-alpha.160-required-directory-{uuid.uuid4().hex}"
+    version = f"0.1.0-alpha.161-required-directory-{uuid.uuid4().hex}"
     archive = _release_archive(version, [])
     rewritten = archive.with_suffix(".replacement.tar.gz")
     with tarfile.open(archive, "r:gz") as source, tarfile.open(rewritten, "w:gz") as target:
@@ -313,7 +313,7 @@ def test_release_audit_rejects_required_paths_replaced_by_directories(required_p
 
 
 def test_release_audit_rejects_unlisted_root_level_files():
-    version = f"0.1.0-alpha.160-root-file-{uuid.uuid4().hex}"
+    version = f"0.1.0-alpha.161-root-file-{uuid.uuid4().hex}"
     archive = _release_archive(version, ["library/ALPHA.160-IMPLEMENTATION-REPORT.md"])
     try:
         result = subprocess.run(
@@ -334,7 +334,7 @@ def test_release_audit_rejects_unlisted_root_level_files():
     "library/css/theme/removed.txt",
 ])
 def test_release_audit_recursively_rejects_every_unlisted_frontend_file(extra: str):
-    version = f"0.1.0-alpha.160-nested-frontend-{uuid.uuid4().hex}"
+    version = f"0.1.0-alpha.161-nested-frontend-{uuid.uuid4().hex}"
     archive = _release_archive(version, [extra])
     try:
         result = subprocess.run(
@@ -432,7 +432,7 @@ def test_module_closure_fails_closed_on_nonrelative_specifiers_in_directory_and_
 
 def test_release_audit_rejects_source_maps_and_stale_versioned_assets():
     for extra in ("library/js/library-main.mjs.map", "library/js/library-main-0-1-0-alpha-159.mjs"):
-        version = f"0.1.0-alpha.160-hygiene-{uuid.uuid4().hex}"
+        version = f"0.1.0-alpha.161-hygiene-{uuid.uuid4().hex}"
         archive = _release_archive(version, [extra])
         try:
             result = subprocess.run(["bash", str(ROOT / "scripts/audit-release-package.sh"), version], cwd=ROOT, text=True, capture_output=True)

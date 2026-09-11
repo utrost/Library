@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
 import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
@@ -8,6 +8,8 @@ import NcAppNavigationSettings from '@nextcloud/vue/components/NcAppNavigationSe
 import NcAppSidebar from '@nextcloud/vue/components/NcAppSidebar'
 import NcContent from '@nextcloud/vue/components/NcContent'
 import App from './App.vue'
+
+enableAutoUnmount(afterEach)
 
 const state = {
   catalogueRootUrl: '/nc/index.php/apps/library/',
@@ -46,6 +48,7 @@ const state = {
     subtitle: '',
     coverUrl: '/apps/library/items/7/cover',
     openUrl: '/f/178',
+    detailsUrl: '/nc/index.php/apps/library/items/7',
     filesUrl: '/apps/files/files/178?openfile=true',
     starUrl: '/apps/library/items/7/star',
     starred: false,
@@ -59,6 +62,7 @@ const state = {
 }
 
 beforeEach(() => {
+  vi.restoreAllMocks()
   document.body.innerHTML = '<div id="skip-actions"></div>'
 })
 
@@ -209,9 +213,9 @@ describe('Library catalogue Vue app', () => {
     expect(destinations[1].props('active')).toBe(true)
   })
 
-  it('treats weak-metadata review filters as Review and ordinary filters as Library', () => {
+  it('treats canonical weak-metadata review filters as Review and ordinary filters as Library', () => {
     const review = mount(App, {
-      props: { state: { ...state, activeFilters: { ...state.activeFilters, weakMetadata: '1' } } },
+      props: { state: { ...state, activeFilters: { ...state.activeFilters, weakMetadata: 'filename' } } },
     }).findAllComponents(NcAppNavigationItem)
     const library = mount(App, {
       props: { state: { ...state, activeFilters: { ...state.activeFilters, q: 'camera' } } },
@@ -219,6 +223,220 @@ describe('Library catalogue Vue app', () => {
 
     expect(review.map((item) => item.props('active'))).toEqual([false, true])
     expect(library.map((item) => item.props('active'))).toEqual([true, false])
+  })
+
+  it.each([
+    ['scannerConflicts', '0'],
+    ['needsMetadata', 'false'],
+    ['coverReview', 'all'],
+    ['noCreator', '0'],
+    ['weakMetadata', 'bogus'],
+  ])('does not activate Review or project malformed %s=%s', (key, value) => {
+    const wrapper = mount(App, {
+      props: { state: { ...state, activeFilters: { ...state.activeFilters, [key]: value } } },
+    })
+
+    expect(wrapper.find('.library-review-destination').exists()).toBe(false)
+    expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(true)
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([true, false])
+    expect(wrapper.findAll('input[type="hidden"]').some((input) => input.attributes('name') === key && input.attributes('value') === value)).toBe(false)
+  })
+
+  it.each([
+    ['scanner conflicts', { scannerConflicts: '1' }],
+    ['weak metadata', { weakMetadata: 'filename' }],
+    ['metadata errors', { status: 'metadata_error' }],
+    ['missing creator', { noCreator: '1' }],
+  ])('renders %s as a dedicated native Review destination', (_label, reviewFilter) => {
+    const wrapper = mount(App, {
+      props: { state: { ...state, activeFilters: { ...state.activeFilters, ...reviewFilter } } },
+    })
+
+    expect(wrapper.find('.library-review-destination').exists()).toBe(true)
+    expect(wrapper.find('#library-review-heading').text()).toBe('Review')
+    expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(false)
+    expect(wrapper.find('.library-view-mode-toggle').exists()).toBe(false)
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true])
+    expect(wrapper.find('.library-review-results').text()).toContain('Example Book')
+  })
+
+  it('keeps Review queue URLs shareable, webroot-aware and independently selectable', () => {
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/?scannerConflicts=1')
+    const wrapper = mount(App, {
+      props: { state: { ...state, activeFilters: { ...state.activeFilters, scannerConflicts: '1' } } },
+    })
+    const links = wrapper.findAll('.library-review-queue-link')
+
+    expect(links.map((link) => link.attributes('href'))).toEqual([
+      '/nc/index.php/apps/library/?needsMetadata=1',
+      '/nc/index.php/apps/library/?scannerConflicts=1',
+      '/nc/index.php/apps/library/?status=metadata_error',
+      '/nc/index.php/apps/library/?coverReview=placeholder',
+      '/nc/index.php/apps/library/?noCreator=1',
+      '/nc/index.php/apps/library/?noPublication=1',
+      '/nc/index.php/apps/library/?noDate=1',
+      '/nc/index.php/apps/library/?titleFromFilename=1',
+      '/nc/index.php/apps/library/?weakMetadata=filename',
+      '/nc/index.php/apps/library/?noDescription=1',
+      '/nc/index.php/apps/library/?unsupportedContainer=1',
+      '/nc/index.php/apps/library/?unreviewedImports=1',
+    ])
+    expect(links[1].attributes('aria-current')).toBe('page')
+  })
+
+  it('records Review filtering in browser history and clears stale review state from the response', async () => {
+    const pushState = vi.spyOn(window.history, 'pushState')
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...state,
+        activeFilters: { ...state.activeFilters, q: 'camera', scannerConflicts: '1' },
+      }),
+    })
+    const wrapper = mount(App, {
+      props: { state: { ...state, activeFilters: { ...state.activeFilters, scannerConflicts: '1' } } },
+    })
+
+    await wrapper.find('.library-review-filter-form input[type="search"]').setValue('camera')
+    await wrapper.find('.library-review-filter-form').trigger('submit')
+    await vi.waitFor(() => expect(wrapper.find('.library-review-results').text()).toContain('Example Book'))
+
+    expect(pushState).toHaveBeenCalledWith({}, '', '?scannerConflicts=1&q=camera')
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true])
+  })
+
+  it('reloads the server-backed destination on browser history traversal', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, q: 'camera' } }),
+    })
+    const wrapper = mount(App, {
+      props: { state: { ...state, activeFilters: { ...state.activeFilters, scannerConflicts: '1' } } },
+    })
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/?q=camera')
+
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    await vi.waitFor(() => expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(true))
+
+    expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?q=camera', expect.objectContaining({ credentials: 'same-origin' }))
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([true, false])
+  })
+
+  it.each([
+    ['scanner conflict canonical then noncanonical', '?scannerConflicts=1&scannerConflicts=0'],
+    ['scanner conflict noncanonical then canonical', '?scannerConflicts=0&scannerConflicts=1'],
+    ['scanner conflict duplicate canonical', '?scannerConflicts=1&scannerConflicts=1'],
+    ['scanner conflict array syntax', '?scannerConflicts%5B%5D=1'],
+    ['metadata error then indexed', '?status=metadata_error&status=indexed'],
+    ['indexed then metadata error', '?status=indexed&status=metadata_error'],
+    ['metadata error duplicate canonical', '?status=metadata_error&status=metadata_error'],
+    ['metadata error array syntax', '?status%5B%5D=metadata_error'],
+  ])('fail-closes repeated Review parameters during history/AJAX handling: %s', async (_label, search) => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters } }),
+    })
+    const wrapper = mount(App, {
+      props: { state: { ...state, activeFilters: { ...state.activeFilters, scannerConflicts: '1' } } },
+    })
+    window.history.replaceState({}, '', `/nc/index.php/apps/library/${search}`)
+
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    await vi.waitFor(() => expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(true))
+
+    expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue', expect.objectContaining({ credentials: 'same-origin' }))
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([true, false])
+    expect(wrapper.findAll('.library-filter-bar input[type="hidden"], .library-review-filter-form input[type="hidden"]')
+      .some((input) => ['scannerConflicts', 'status'].includes(input.attributes('name')))).toBe(false)
+  })
+
+  it('keeps an ordinary non-Review status filter valid through history/AJAX handling', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, status: 'indexed' } }),
+    })
+    const wrapper = mount(App, { props: { state } })
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/?status=indexed')
+
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalled())
+
+    expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?status=indexed', expect.any(Object))
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([true, false])
+  })
+
+  it.each([
+    ['Review to Library', { scannerConflicts: '1' }, '?q=camera'],
+    ['Library to Review', { q: 'camera' }, '?scannerConflicts=1'],
+  ])('full-navigates the current history URL when %s popstate fails', async (_label, initialFilters, targetSearch) => {
+    const submit = vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(() => {})
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 503 })
+    mount(App, { props: { state: { ...state, activeFilters: { ...state.activeFilters, ...initialFilters } } } })
+    window.history.replaceState({}, '', `/nc/index.php/apps/library/${targetSearch}`)
+
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    await vi.waitFor(() => expect(submit).toHaveBeenCalledOnce())
+
+    const fallback = submit.mock.instances[0]
+    expect(fallback.action).toBe('http://localhost:3000/nc/index.php/apps/library/')
+    expect(Array.from(new FormData(fallback).entries())).toEqual(Array.from(new URLSearchParams(targetSearch).entries()))
+  })
+
+  it.each([
+    ['network failure', () => Promise.reject(new TypeError('offline'))],
+    ['invalid JSON', () => Promise.resolve({ ok: true, json: async () => { throw new SyntaxError('bad json') } })],
+  ])('full-navigates the captured popstate destination after %s', async (_label, response) => {
+    const submit = vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(() => {})
+    global.fetch = vi.fn(response)
+    mount(App, { props: { state } })
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/?scannerConflicts=1')
+
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    await vi.waitFor(() => expect(submit).toHaveBeenCalledOnce())
+    expect(new FormData(submit.mock.instances[0]).get('scannerConflicts')).toBe('1')
+  })
+
+  it('ignores stale raced responses and aborts the superseded request without fallback', async () => {
+    const requests = []
+    global.fetch = vi.fn((_url, options) => new Promise((resolve, reject) => {
+      requests.push({ resolve, reject, signal: options.signal })
+      options.signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))
+    }))
+    const submit = vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(() => {})
+    const wrapper = mount(App, { props: { state } })
+
+    await wrapper.find('input[type="search"]').setValue('first')
+    await wrapper.find('.library-filter-bar').trigger('submit')
+    await wrapper.find('input[type="search"]').setValue('second')
+    await wrapper.find('.library-filter-bar').trigger('submit')
+    expect(requests[0].signal.aborted).toBe(true)
+    requests[1].resolve({ ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, q: 'second' } }) })
+    await vi.waitFor(() => expect(wrapper.find('input[type="search"]').element.value).toBe('second'))
+    expect(submit).not.toHaveBeenCalled()
+  })
+
+  it('gives Review explicit loading, error and empty-state contracts', async () => {
+    let resolveRequest
+    global.fetch = vi.fn(() => new Promise((resolve) => { resolveRequest = resolve }))
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          items: [],
+          cataloguePagination: { ...state.cataloguePagination, total: 0, visible: 0, from: 0, to: 0 },
+          activeFilters: { ...state.activeFilters, scannerConflicts: '1' },
+        },
+      },
+    })
+
+    expect(wrapper.find('.library-review-empty').attributes('role')).toBe('status')
+    await wrapper.find('.library-review-filter-form').trigger('submit')
+    expect(wrapper.find('.library-review-request-status').attributes('aria-busy')).toBe('true')
+    resolveRequest({ ok: false, status: 503 })
+    await vi.waitFor(() => expect(wrapper.find('.library-review-request-error').exists()).toBe(true))
+    expect(wrapper.find('.library-review-request-error').attributes('role')).toBe('alert')
+    expect(wrapper.find('.library-review-empty').exists()).toBe(false)
+    expect(wrapper.find('.library-review-request-status').attributes('aria-busy')).toBe('false')
   })
 
   it('frames catalogue tools as one consistent expandable workspace above the covers', () => {

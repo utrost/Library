@@ -7,7 +7,7 @@ def test_scanner_conflict_review_filter_is_exposed_in_catalogue_state_and_vue():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
 
-    assert "'scannerConflicts' => trim((string)$this->request->getParam('scannerConflicts', ''))" in page
+    assert "'scannerConflicts' => $this->normalizeReviewFilter('scannerConflicts', $this->request->getParam('scannerConflicts', ''))" in page
     assert "scannerConflictCount" in page
     assert "scannerConflictReviewUrl" in page
     assert "scannerConflicts" in vue

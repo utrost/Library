@@ -1,7 +1,9 @@
 # Human Architecture Review Notes
 
 Audience: Nextcloud administrators, architecture reviewers and security reviewers  
-Status: current implementation reference for Library `0.1.0-alpha.160`
+Status: current implementation reference for Library `0.1.0-alpha.161`
+
+Alpha.161 keeps one server-rendered catalogue route and its existing query/filter service contract, but selects a distinct native Review surface whenever any established review-needed filter is active. Queue links are same-origin server-root URLs, AJAX refinement retains the fail-closed request ownership from alpha.155, browser history traversal reloads authoritative server state, and failed Review requests remain visible as an accessible error instead of replacing the focused surface. No Vue Router, settings migration, detail/sidebar migration, schema change, or PHP fallback removal is included.
 
 Alpha.158 retires remote manual-cover URLs from browser rendering. Details and catalogue cards use the same-origin `library.cover.show` route; legacy `cover_override_url` database values are retained for compatibility but are inert and are cleared by a valid upload or revert. Remote cover SSRF was not present because Library performed no server-side fetch of that value. This slice removes direct browser leakage and intentionally does not introduce server fetching. It does not harden archive extraction, add cover caching, or establish broad privacy completion.
 
@@ -38,7 +40,7 @@ Source: `appinfo/info.xml`.
 - App id: `library`
 - Display name: `Library`
 - Namespace: `Library` / PHP namespace `OCA\Library`
-- Current version: `0.1.0-alpha.160`
+- Current version: `0.1.0-alpha.161`
 - Licence declaration: `agpl` in `info.xml`; repository license is `AGPL-3.0-or-later`.
 - Categories: `files`, `multimedia`
 - Nextcloud compatibility: `min-version="34"`, `max-version="34"`

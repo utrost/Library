@@ -45,7 +45,7 @@ def test_catalogue_accepts_weak_metadata_dashboard_filter_parameters_everywhere(
     tag = (ROOT / "lib" / "Controller" / "TagController.php").read_text()
 
     for param in ["noDate", "titleFromFilename", "noDescription", "unsupportedContainer"]:
-        assert f"'{param}' => trim((string)$this->request->getParam('{param}', ''))" in page
+        assert f"'{param}' => $this->normalizeReviewFilter('{param}', $this->request->getParam('{param}', ''))" in page
         assert param in service
         assert param in cover
         assert param in item

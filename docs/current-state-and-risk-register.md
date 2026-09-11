@@ -6,7 +6,7 @@ This snapshot prepares Library for the v0.1 alpha test pass. It documents what i
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current app version: `0.1.0-alpha.160`.
+- Current app version: `0.1.0-alpha.161`.
 - Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
@@ -15,6 +15,7 @@ This snapshot prepares Library for the v0.1 alpha test pass. It documents what i
 
 Implemented and ready for v0.1 testing:
 
+- Native Library/Review shell destinations. Review presents the existing scanner-conflict, weak-metadata, metadata-error, and missing-field filters as shareable, webroot-aware queues with focused results and explicit loading, error, and empty states. Settings remains `/settings/user/library`; detail and fallback rendering remain PHP-backed.
 - Per-user Library roots with add/edit/enable/disable/delete, typed delete confirmation and recovery guidance.
 - Queued all-root and per-root scans, scan progress/history, metadata-error retry, missing-file recheck, queued cancellation and cooperative running-job cancellation.
 - Conservative unchanged-file rescans: an ordinary trusted indexed file with an existing item and current pipeline revision skips metadata content extraction and item writes only when its primary plus selected OPF sidecar identity/path/ETag/mtime/size/type fingerprint matches. Retry and recheck remain forced extraction paths.

@@ -45,7 +45,7 @@ What exists now:
 - Per-file metadata extraction error isolation with visible indexed-file diagnostics for corrupt EPUB/CBZ/OPF inputs.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - metadata/tag/comment separation smoke is checked in: Nextcloud tag/comment actions do not mutate Library publication metadata.
-- Scan/admin controls remain on the personal settings surface at `/settings/user/library`. The app remains catalogue-first and preserves its absolute Nextcloud URLs. Alpha.160 introduces the first native `@nextcloud/vue` application-shell scaffold around the unchanged catalogue: Library is active, Review links to the existing scanner-conflict filter, Settings links to the existing personal-settings page, and the sidebar is closed and empty. Migrating review, settings and PHP detail behavior into native shell surfaces is later work.
+- Scan/admin controls remain on the personal settings surface at `/settings/user/library`. The app remains catalogue-first and preserves its absolute Nextcloud URLs, generated for the active webroot. Alpha.160 introduced the native `@nextcloud/vue` application-shell scaffold; alpha.161 makes Review a focused native destination using the existing GET-backed review-needed filters and projections. Settings, PHP detail/fallback rendering, and the closed sidebar remain unchanged; settings and detail/sidebar migration are later separately versioned work.
 - Concept, technical-spec and reader-handoff notes.
 - Lightweight repository tests protecting the current skeleton, docs contracts, roots/file-index slice and catalogue-item slice.
 

@@ -691,7 +691,7 @@ final class ItemService {
             return $this->queryScannerConflictCatalogue($userId, $filters, $offset, $limit);
         }
 
-        $metadataReviewProjection = trim((string)($filters['weakMetadata'] ?? '')) !== '';
+        $metadataReviewProjection = ($filters['weakMetadata'] ?? '') === 'filename';
         $qb = $this->catalogueQueryBuilder($userId, $filters, $metadataReviewProjection);
         $this->applyCatalogueSort($qb, (string)($filters['sort'] ?? 'title'));
         $result = $qb
