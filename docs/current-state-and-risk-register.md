@@ -6,7 +6,7 @@ This snapshot prepares Library for the v0.1 alpha test pass. It documents what i
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current app version: `0.1.0-alpha.156`.
+- Current app version: `0.1.0-alpha.157`.
 - Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
@@ -57,7 +57,7 @@ These are acceptable for the v0.1 alpha test pass but should stay visible:
 
 ## Verification evidence
 
-Historical exact-package evidence is for alpha.153; the alpha.156 exact-package and live migration rehearsal remain pending:
+Historical exact-package migration evidence for alpha.153 remains relevant:
 
 - The archive checksum passed; the package was installed and enabled over alpha.152 after creating a 12,223,391-byte rollback SQL dump.
 - Migration registry entry `000100Date20260911130000` is present. Item and file row counts remained exactly 7,120 each across migration, and both fast-path columns are physically nullable `varchar(64)`.
@@ -77,7 +77,7 @@ The historical alpha.153 release-hardening evidence set also includes:
 - Generated `dist/library-0.1.0-alpha.153.tar.gz` plus SHA-256 verification.
 - Generated alpha.153 archive install into the live `nextcloud` container, then PHP lint, `occ app:enable library`, `occ upgrade`, router listing and live Vue/browser smokes.
 
-The corresponding exact alpha.156 package, checksum, install, migration, scan, API, and browser evidence remains pending.
+Alpha.157 verification is complete for the local gate (718 Python tests, 7 PHP runtime programs, 26 Vitest tests, production build and Markdown links), unsigned 116-entry package audit/archive/checksum, exact-package checksum and install/enable, PHP lint, route listing, live Vue/API smoke, and browser smoke with zero console errors and mutation-restoration markers. Its 40-file unchanged-root smoke ran twice with `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0` both times; `release_package_smoke_ok=true`. The upgrade reported `No upgrade required`, so this was not a fresh database migration rehearsal and that rehearsal remains pending.
 
 Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, genres/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year/creator discovery pages.
 

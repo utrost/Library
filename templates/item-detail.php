@@ -162,6 +162,9 @@ $fileRows = [
                     </div>
                     <details class="library-cover-override-panel">
                         <summary><?php p($l->t('Manual cover override')); ?></summary>
+                        <?php if (($item['coverUploadError'] ?? '') !== ''): ?>
+                            <p class="library-validation-feedback" role="alert"><?php p($l->t((string)$item['coverUploadError'])); ?></p>
+                        <?php endif; ?>
                         <form method="post" enctype="multipart/form-data" action="<?php p($item['coverOverrideActionUrl'] ?? ''); ?>" class="library-cover-override-form">
                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                             <label>

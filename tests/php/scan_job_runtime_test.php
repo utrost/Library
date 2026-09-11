@@ -26,9 +26,10 @@ namespace OCA\Library\Service {
     class LibraryScanner {
         public array $calls = [];
         public ?\Closure $duringScan = null;
+        public array $progressUnits = [0];
         public function scan(string $userId, ?int $rootId, ?callable $progress): array {
             $this->calls[] = ['scan', $userId, $rootId];
-            if ($progress !== null) { $progress(['roots' => 1, 'indexed' => 0, 'traversalUnits' => 0, 'errors' => 0]); }
+            if ($progress !== null) { foreach ($this->progressUnits as $unit) { $progress(['roots' => 1, 'indexed' => 0, 'traversalUnits' => $unit, 'errors' => 0]); } }
             if ($this->duringScan !== null) { ($this->duringScan)(); }
             return ['roots' => 1, 'indexed' => 1, 'errors' => []];
         }
@@ -40,7 +41,8 @@ namespace OCA\Library\Service {
         public string $status = 'queued';
         public int $finishes = 0;
         public int $failures = 0;
-        public function isCancelled(string $userId, int $jobId): bool { return $this->status === 'cancelled'; }
+        public int $cancelChecks = 0;
+        public function isCancelled(string $userId, int $jobId): bool { $this->cancelChecks++; return $this->status === 'cancelled'; }
         public function getJob(string $userId, int $jobId): ?array { return $this->job === [] ? null : $this->job; }
         public function markRunning(string $userId, int $jobId): bool { if ($this->status !== 'queued') return false; $this->status = 'running'; return true; }
         public function updateProgress(string $userId, int $jobId, array $progress): void {}
@@ -79,6 +81,7 @@ namespace {
 
     [$scanner, $service] = executeJob(['scopeType' => 'root', 'rootId' => 41], ['userId' => 'alice', 'jobId' => 7, 'scopeType' => 'all', 'rootId' => 99]);
     scanJobExpect($scanner->calls === [['scan', 'alice', 41]], 'persisted root is the only root authority');
+    scanJobExpect($service->cancelChecks === 3, 'initial progress run checks before start, at persisted progress, and before completion');
     [$scanner] = executeJob(['scopeType' => 'all', 'rootId' => 41], ['userId' => 'alice', 'jobId' => 7, 'rootId' => 99]);
     scanJobExpect($scanner->calls === [['scan', 'alice', null]], 'non-root persisted scope forces null root');
     [$scanner, $service, $logger] = executeJob(['scopeType' => 'root', 'rootId' => 0], ['userId' => 'alice', 'jobId' => 7]);
@@ -92,6 +95,14 @@ namespace {
     $scanner->duringScan = static function () use (&$raceService): void { $raceService->status = 'cancelled'; };
     (new ScanJob(new TimeStub(), $scanner, $raceService, $logger))->run(['userId' => 'alice', 'jobId' => 8]);
     scanJobExpect($raceService->finishes === 0 && $raceService->failures === 0 && $logger->events === [], 'cancellation owns terminal state after final callback');
+    scanJobExpect($raceService->cancelChecks === 3, 'final cancellation is counted as an actual check');
+
+    $scanner = new LibraryScanner(); $scanner->progressUnits = [0, 1, 99, 100];
+    $throttledService = new ScanJobService(); $throttledService->job = ['startedAt' => time(), 'scopeType' => 'all', 'rootId' => null];
+    $throttledLogger = new LoggerStub();
+    (new ScanJob(new TimeStub(), $scanner, $throttledService, $throttledLogger))->run(['userId' => 'alice', 'jobId' => 10]);
+    scanJobExpect($throttledService->cancelChecks === 4, 'only initial, throttled, and final progress boundaries check cancellation');
+    scanJobExpect($throttledLogger->events[0][2]['cancel_checks'] === 4, 'logged cancellation checks exactly match runtime calls');
 
     [$scanner, $service, $logger] = executeJob(['scopeType' => 'all'], ['userId' => 'alice', 'jobId' => 9], null, true);
     scanJobExpect($service->status === 'completed' && $service->finishes === 1 && $service->failures === 0, 'logger failure cannot retry or strand completed work');

@@ -286,6 +286,59 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).not.toContain('Stale result')
   })
 
+  it('invalidates a pending response as soon as newer debounced input expresses user intent', async () => {
+    vi.useFakeTimers()
+    const requests = []
+    globalThis.fetch = vi.fn((_url, options) => new Promise((resolve) => requests.push({ resolve, options })))
+    const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+    const input = wrapper.find('.library-quick-filter-bar input[name="q"]')
+    const form = wrapper.find('.library-quick-filter-bar')
+
+    await input.setValue('first')
+    void form.trigger('submit')
+    await Promise.resolve()
+    await input.setValue('latest')
+
+    expect(requests).toHaveLength(1)
+    expect(requests[0].options.signal.aborted).toBe(true)
+    requests[0].resolve({ ok: true, json: async () => ({ ...state, items: [{ ...state.items[0], title: 'Stale result' }], activeFilters: { ...state.activeFilters, q: 'first' } }) })
+    await Promise.resolve()
+    await wrapper.vm.$nextTick()
+
+    expect(input.element.value).toBe('latest')
+    expect(wrapper.text()).not.toContain('Stale result')
+    await vi.advanceTimersByTimeAsync(350)
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2)
+    expect(globalThis.fetch.mock.calls[1][0]).toContain('q=latest')
+    vi.useRealTimers()
+  })
+
+  it('falls back with the failed request snapshot while preserving newer controls', async () => {
+    vi.useFakeTimers()
+    let rejectRequest
+    globalThis.fetch = vi.fn(() => new Promise((_resolve, reject) => { rejectRequest = reject }))
+    const submitted = []
+    const nativeSubmit = vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(function () {
+      submitted.push(Object.fromEntries(new FormData(this)))
+    })
+    const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+    const input = wrapper.find('.library-quick-filter-bar input[name="q"]')
+    const form = wrapper.find('.library-quick-filter-bar')
+
+    await input.setValue('first')
+    void form.trigger('submit')
+    await Promise.resolve()
+    input.element.value = 'latest'
+    rejectRequest(new Error('network down'))
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(input.element.value).toBe('latest')
+    expect(submitted).toEqual([{ q: 'first', sort: 'title', limit: '100' }])
+    nativeSubmit.mockRestore()
+    vi.useRealTimers()
+  })
+
   it('falls back on a current catalogue rejection and aborts it on unmount', async () => {
     let rejectRequest
     let requestOptions
@@ -295,7 +348,7 @@ describe('Library catalogue Vue app', () => {
     })
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
     const form = wrapper.find('.library-quick-filter-bar')
-    const nativeSubmit = vi.spyOn(form.element, 'submit').mockImplementation(() => {})
+    const nativeSubmit = vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(() => {})
 
     void form.trigger('submit')
     await Promise.resolve()

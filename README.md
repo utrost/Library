@@ -45,9 +45,11 @@ Not in scope for v0.1:
 
 ## Try it
 
-Current source candidate: `0.1.0-alpha.156`.
+Current source candidate: `0.1.0-alpha.157`.
 
-Exact alpha.156 package, checksum, install, migration, 40-file scan, API, and browser evidence is pending.
+Alpha.157 verification passed: the local gate completed 718 Python tests, 7 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. The unsigned alpha package audit passed with 116 archive entries and produced the archive plus checksum. Exact-package smoke verified the checksum, installed and enabled alpha.157, passed PHP lint and route listing, and scanned the same 40-file root twice with `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0` on both scans. Live Vue/API and browser smokes passed with zero browser console errors, mutation-restoration markers, and `release_package_smoke_ok=true`.
+
+The upgrade command reported `No upgrade required`; therefore a fresh database migration rehearsal remains pending.
 
 Alpha.154 adds aggregate operation instrumentation and bounded scan progress/cancellation polling. Metrics are in-memory or aggregate scan-job fields and privacy-safe Library log events; there is no external telemetry and no claim of universal speedup. Cancellation is checked initially and after 100 traversal units or 1000 ms, including unsupported nodes and nested/empty folders. A single filesystem listing/node call or extraction/storage operation remains non-preemptive. Queue wait and running/cancelled wall durations use portable epoch-second storage and are second-resolution approximations; completed/failed worker duration remains monotonic integer milliseconds.
 

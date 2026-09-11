@@ -66,7 +66,8 @@ namespace {
     }
 
     $request = new class implements \OCP\IRequest {
-        public function getParam(string $key, mixed $default = null): mixed { return $default; }
+        public array $params = ['coverOverrideUrl' => 'https://old.example/cover.jpg'];
+        public function getParam(string $key, mixed $default = null): mixed { return $this->params[$key] ?? $default; }
     };
     $session = new class implements \OCP\IUserSession {
         public function getUser(): object { return new class { public function getUID(): string { return 'alice'; } }; }
@@ -104,8 +105,10 @@ namespace {
     try {
         file_put_contents($tmp, '<html>spoof</html>');
         $_FILES['coverOverrideFile'] = ['tmp_name' => $tmp, 'error' => UPLOAD_ERR_OK, 'type' => 'image/png', 'size' => 19];
-        $controller->override(7);
+        $response = $controller->override(7);
         expectController(count($itemService->calls) === 0, 'invalid upload must not reach persistence');
+        expectController($response->url === '/items/7?coverUploadError=invalid', 'invalid upload returns bounded feedback code');
+        expectController(!str_contains($response->url, 'spoof'), 'invalid upload feedback excludes decoder details');
 
         $_FILES['coverOverrideFile']['error'] = UPLOAD_ERR_PARTIAL;
         $controller->override(7);
@@ -117,6 +120,7 @@ namespace {
         $controller->override(7);
         expectController(count($itemService->calls) === 1, 'valid upload reaches persistence once');
         $call = $itemService->calls[0];
+        expectController($call['url'] === '', 'valid uploaded cover clears the old remote URL');
         expectController($call['mime'] === 'image/jpeg', 'server canonical MIME must be persisted');
         expectController(base64_decode((string)$call['data'], true) === $jpeg, 'validated bytes must be persisted');
     } finally {

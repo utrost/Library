@@ -93,6 +93,9 @@ final class ItemPageController extends Controller {
         $item['metadataSaved'] = (string)$this->request->getParam('metadataSaved', '0') === '1';
         $item['metadataError'] = trim((string)$this->request->getParam('metadataError', ''));
         $item['metadataValidationError'] = $item['metadataError'] !== '' ? 'Metadata was not saved: ' . $item['metadataError'] : '';
+        $item['coverUploadError'] = (string)$this->request->getParam('coverUploadError', '') === 'invalid'
+            ? 'Cover was not saved. Choose a valid JPEG, PNG, or WebP within the upload limits.'
+            : '';
         $item['nextcloudComments'] = $comments[$fileId] ?? ['count' => 0, 'recent' => []];
 
         Util::addStyle(Application::APP_ID, 'style');

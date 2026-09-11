@@ -28,8 +28,8 @@ def test_page_controller_provides_catalogue_initial_state_and_loads_vue_entrypoi
     assert "use OCP\\AppFramework\\Services\\IInitialState;" in controller
     assert "private IInitialState $initialState" in controller
     assert "$this->initialState->provideInitialState('catalogue'" in controller
-    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-156';" in controller
-    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-156';" in controller
+    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-157';" in controller
+    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-157';" in controller
     assert "Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);" in controller
     assert "'items' => $items" in controller
     assert "'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library')" in controller
@@ -39,8 +39,8 @@ def test_current_release_assets_exist_without_removing_alpha150_history():
     for rel in [
         "js/library-main.mjs",
         "css/library-vue.css",
-        "js/library-main-0-1-0-alpha-156.mjs",
-        "css/library-vue-0-1-0-alpha-156.css",
+        "js/library-main-0-1-0-alpha-157.mjs",
+        "css/library-vue-0-1-0-alpha-157.css",
         "js/library-main-0-1-0-alpha-151.mjs",
         "css/library-vue-0-1-0-alpha-151.css",
         "js/library-main-0-1-0-alpha-150.mjs",

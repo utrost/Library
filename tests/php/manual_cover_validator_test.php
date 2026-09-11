@@ -122,6 +122,46 @@ expectInvalid($validator, pngImage(ManualCoverValidator::MAX_WIDTH + 1, 1), 'wid
 expectInvalid($validator, pngImage(1, ManualCoverValidator::MAX_HEIGHT + 1), 'height limit');
 expectInvalid($validator, pngImage(ManualCoverValidator::MAX_WIDTH, intdiv(ManualCoverValidator::MAX_PIXELS, ManualCoverValidator::MAX_WIDTH) + 1), 'pixel-count limit');
 
+$decodeCalls = 0;
+$headerValidator = new ManualCoverValidator(static function (string $bytes) use (&$decodeCalls): ?array {
+    $decodeCalls++;
+    return ['mimeType' => 'image/png', 'width' => 1, 'height' => 1];
+});
+expectInvalid($headerValidator, pngImage(ManualCoverValidator::MAX_WIDTH + 1, 1), 'oversized PNG header before decode');
+expect($decodeCalls === 0, 'oversized PNG header must not invoke the full decoder');
+$oversizedJpeg = "\xFF\xD8\xFF\xC0\x00\x11\x08" . pack('nn', 1, ManualCoverValidator::MAX_WIDTH + 1) . "\x03\x01\x11\x00\x02\x11\x00\x03\x11\x00\xFF\xD9";
+expectInvalid($headerValidator, $oversizedJpeg, 'oversized JPEG SOF before decode');
+expect($decodeCalls === 0, 'oversized JPEG header must not invoke the full decoder');
+$oversizedWebp = 'RIFF' . pack('V', 22) . 'WEBPVP8X' . pack('V', 10) . "\x00\x00\x00\x00" . substr(pack('V', ManualCoverValidator::MAX_WIDTH), 0, 3) . "\x00\x00\x00";
+expectInvalid($headerValidator, $oversizedWebp, 'oversized WebP VP8X before decode');
+expect($decodeCalls === 0, 'oversized WebP header must not invoke the full decoder');
+foreach (["\xFF\xD8\xFF", "\xFF\xD8\xFF\xE0\x00\x01", "\xFF\xD8\xFF\xE0\xFF\xFFx"] as $index => $badJpeg) {
+    expectInvalid($headerValidator, $badJpeg, 'truncated or invalid JPEG marker ' . $index);
+}
+expect($decodeCalls === 0, 'malformed JPEG marker lengths must not invoke the full decoder');
+
+$webpWarningCount = 0;
+set_error_handler(static function (int $severity, string $message) use (&$webpWarningCount): bool {
+    $webpWarningCount++;
+    throw new ErrorException($message, 0, $severity);
+});
+try {
+    foreach (range(16, 19) as $payloadLength) {
+        $truncatedWebp = 'RIFF' . pack('V', 12) . 'WEBP' . str_repeat('x', $payloadLength - 12);
+        expectInvalid($headerValidator, $truncatedWebp, $payloadLength . '-byte WebP header');
+    }
+
+    // The physical input extends beyond the RIFF payload, but the declared
+    // container ends immediately after the first chunk header.
+    $chunkBeyondRiffBoundary = 'RIFF' . pack('V', 12) . 'WEBPVP8X' . pack('V', 10)
+        . "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+    expectInvalid($headerValidator, $chunkBeyondRiffBoundary, 'WebP chunk beyond declared RIFF boundary');
+} finally {
+    restore_error_handler();
+}
+expect($webpWarningCount === 0, 'truncated WebP headers must not emit PHP warnings');
+expect($decodeCalls === 0, 'malformed WebP headers must not invoke the full decoder');
+
 $uploadPath = tempnam(sys_get_temp_dir(), 'manual-cover-boundary-');
 expect(is_string($uploadPath), 'upload boundary fixture path');
 try {

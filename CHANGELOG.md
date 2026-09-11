@@ -2,6 +2,13 @@
 
 All notable changes for Library are tracked here.
 
+## v0.1.0-alpha.157 - 2026-09-11
+
+- Invalidated and aborted catalogue requests at debounced user intent, preserved the newest controls, and made failure fallback submit the failed request's captured query.
+- Added bounded JPEG, PNG, and WebP dimension inspection before full image decode, including defensive JPEG marker/length handling; full decoder structural and MIME validation remains authoritative afterward.
+- Made valid uploaded covers clear prior remote overrides, added bounded privacy-safe rejection feedback, and precisely counted scan cancellation checks next to each runtime check.
+- Added focused runtime regressions for debounce-window ownership, captured fallback queries, pre-decode image limits, upload precedence/feedback, and cancellation-check counts.
+
 ## v0.1.0-alpha.156 - 2026-09-11
 
 - Hardened manual cover uploads with bounded reads, upload-error rejection, exact JPEG/PNG/WebP server-side detection, structural completeness checks, and explicit encoded-byte, dimension, and pixel-count limits.

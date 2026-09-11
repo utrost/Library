@@ -28,8 +28,8 @@ use OCA\Library\Instrumentation\MonotonicClock;
 use Throwable;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-156';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-156';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-157';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-157';
     private MonotonicClock $clock;
 
     private const READER_FIXTURE_FILE_ID = 82;

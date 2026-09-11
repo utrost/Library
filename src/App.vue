@@ -300,14 +300,15 @@ async function refreshImportHealthSummary() {
   await fetchImportHealthSummary(true)
 }
 
-async function submitFiltersAjax(event) {
+async function submitFiltersAjax(event, scheduled = null) {
   const form = event?.currentTarget?.tagName === 'FORM' ? event.currentTarget : event?.currentTarget?.form
   if (!form) return
-  const params = buildFilterParams(form)
+  const params = scheduled?.params ?? buildFilterParams(form)
   const query = params.toString()
   const endpointQuery = query ? `?${query}` : ''
-  const generation = ++catalogueRequestGeneration
-  catalogueRequestController?.abort()
+  const generation = scheduled?.generation ?? ++catalogueRequestGeneration
+  if (generation !== catalogueRequestGeneration) return
+  if (scheduled === null) catalogueRequestController?.abort()
   const controller = new AbortController()
   catalogueRequestController = controller
   try {
@@ -318,7 +319,7 @@ async function submitFiltersAjax(event) {
     })
     if (generation !== catalogueRequestGeneration) return
     if (!response.ok) {
-      form.submit()
+      submitCapturedFilterFallback(params)
       return
     }
     const nextState = await response.json()
@@ -326,19 +327,46 @@ async function submitFiltersAjax(event) {
     applyCatalogueState(nextState)
     history.replaceState({}, '', query ? `?${query}` : window.location.pathname)
   } catch (error) {
-    if (generation === catalogueRequestGeneration && error?.name !== 'AbortError') form.submit()
+    if (generation === catalogueRequestGeneration && error?.name !== 'AbortError') submitCapturedFilterFallback(params)
   } finally {
     if (generation === catalogueRequestGeneration) catalogueRequestController = null
   }
 }
 
-function submitFiltersNow(event) {
-  void submitFiltersAjax(event)
+function submitCapturedFilterFallback(params) {
+  const fallback = document.createElement('form')
+  fallback.method = 'get'
+  fallback.action = window.location.pathname
+  fallback.hidden = true
+  for (const [name, value] of params.entries()) {
+    const input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = name
+    input.value = value
+    fallback.appendChild(input)
+  }
+  document.body.appendChild(fallback)
+  fallback.submit()
+  fallback.remove()
+}
+
+function submitFiltersNow(formOrEvent, params = null, generation = null) {
+  if (params === null) {
+    void submitFiltersAjax(formOrEvent)
+    return
+  }
+  void submitFiltersAjax({ currentTarget: formOrEvent }, { params, generation })
 }
 
 function scheduleFilterSubmit(event) {
+  const form = event?.currentTarget?.form
+  if (!form) return
   window.clearTimeout(filterSubmitTimer)
-  filterSubmitTimer = window.setTimeout(() => submitFiltersNow(event), 350)
+  const generation = ++catalogueRequestGeneration
+  const params = buildFilterParams(form)
+  catalogueRequestController?.abort()
+  catalogueRequestController = null
+  filterSubmitTimer = window.setTimeout(() => submitFiltersNow(form, params, generation), 350)
 }
 
 function filterChipRemoveUrl(key) {

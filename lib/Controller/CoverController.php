@@ -132,15 +132,14 @@ class CoverController extends Controller {
                     $data = base64_encode($validated['content']);
                     $mimeType = $validated['mimeType'];
                 } catch (ManualCoverValidationException) {
-                    // Invalid files never reach persistence. Redirect back to the item just
-                    // like the existing form flow, leaving the current override untouched.
-                    return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+                    // Keep decoder details private and expose only a bounded result code.
+                    return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]) . '?coverUploadError=invalid');
                 }
             }
             $this->itemService->setManualCoverOverride(
                 $user->getUID(),
                 $itemId,
-                (string)$this->request->getParam('coverOverrideUrl', ''),
+                $data !== null ? '' : (string)$this->request->getParam('coverOverrideUrl', ''),
                 $data,
                 $mimeType
             );
