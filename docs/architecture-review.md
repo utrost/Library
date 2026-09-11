@@ -1,7 +1,7 @@
 # Human Architecture Review Notes
 
 Audience: Nextcloud administrators, architecture reviewers and security reviewers  
-Status: current implementation reference for Library `0.1.0-alpha.152`
+Status: current implementation reference for Library `0.1.0-alpha.153`
 
 This document answers: what changes when Library is installed in a Nextcloud instance, which schema objects and jobs are added, what prerequisites and optional dependencies exist, and which parts of the surrounding Nextcloud stack Library relies on.
 
@@ -28,7 +28,7 @@ Source: `appinfo/info.xml`.
 - App id: `library`
 - Display name: `Library`
 - Namespace: `Library` / PHP namespace `OCA\Library`
-- Current version: `0.1.0-alpha.152`
+- Current version: `0.1.0-alpha.153`
 - Licence declaration: `agpl` in `info.xml`; repository license is `AGPL-3.0-or-later`.
 - Categories: `files`, `multimedia`
 - Nextcloud compatibility: `min-version="34"`, `max-version="34"`
@@ -130,6 +130,8 @@ Columns:
 - `etag` string(255), nullable
 - `mtime` integer unsigned, nullable
 - `size` bigint unsigned, nullable
+- `metadata_input_fingerprint` string(64), nullable; SHA-256 of trusted primary/selected-sidecar observations after a successful stable extraction
+- `metadata_extractor_revision` string(64), nullable; output-affecting metadata pipeline revision paired with the fingerprint
 - `scan_status` string(32), not null, default `indexed`
 - `scan_error` string(1024), nullable; added by a later migration
 - `last_scanned_at` integer unsigned, not null
@@ -191,9 +193,15 @@ Indexes:
 - `library_items_usr_lastopen` on `user_id`, `last_opened_at`
 - `library_items_usr_workflow` on `user_id`, `workflow_status`
 
-The seven newer indexes are additive and user-scoped for reviewed catalogue sort/filter and file diagnostic queries. Existing scan-job, root and saved-collection indexes are not duplicated, there is no starred index, and the redundant legacy single-user indexes are retained. Expressions using `LOWER(...)`, leading-wildcard matching, JSON predicates and scanner-conflict row inspection do not gain ordinary B-tree benefits from this slice. Query behavior is unchanged; unchanged-rescan optimization and performance instrumentation remain follow-up work.
+The seven newer indexes are additive and user-scoped for reviewed catalogue sort/filter and file diagnostic queries. Existing scan-job, root and saved-collection indexes are not duplicated, there is no starred index, and the redundant legacy single-user indexes are retained. Expressions using `LOWER(...)`, leading-wildcard matching, JSON predicates and scanner-conflict row inspection do not gain ordinary B-tree benefits from this slice.
 
-Measured live MySQL migration evidence: upgrading the installed `0.1.0-alpha.151` app to `0.1.0-alpha.152` from the exact `dist/library-0.1.0-alpha.152.tar.gz` archive registered `Version000100Date20260911120000`, with item and file row counts unchanged at 7,120 each. `EXPLAIN` selected `library_items_usr_title` for title order and `library_items_usr_file` for recent order, with filesort absent in both cases; metadata-error diagnostics selected `library_files_usr_status_scan` without a full scan or filesort. Last-opened order selected `library_items_usr_lastopen`, although its title tie-break may still filesort. On this dataset, unfiltered `publicationDate` and `publication` orders with mixed directions or tie-breaks still filesorted; their indexes nevertheless support the relevant equality, filtering and grouping traversal. Scan jobs retained the existing `library_scan_jobs_user_started` index. These observations make no timing claim because no benchmark was run.
+Historical alpha.152 live MySQL migration evidence: upgrading the installed `0.1.0-alpha.151` app to `0.1.0-alpha.152` from the exact alpha.152 archive registered `Version000100Date20260911120000`, with item and file row counts unchanged at 7,120 each. `EXPLAIN` selected `library_items_usr_title` for title order and `library_items_usr_file` for recent order, with filesort absent in both cases; metadata-error diagnostics selected `library_files_usr_status_scan` without a full scan or filesort. Last-opened order selected `library_items_usr_lastopen`, although its title tie-break may still filesort. On this dataset, unfiltered `publicationDate` and `publication` orders with mixed directions or tie-breaks still filesorted; their indexes nevertheless support the relevant equality, filtering and grouping traversal. Scan jobs retained the existing `library_scan_jobs_user_started` index. These observations make no timing claim because no benchmark was run.
+
+Alpha.153 adds nullable `metadata_input_fingerprint` and `metadata_extractor_revision` columns through `Version000100Date20260911130000`. The fingerprint covers root/file identity, path, ETag, mtime, size, MIME type and extension for the primary file and whichever same-basename or `metadata.opf` sidecar the extraction precedence selects. An ordinary file skips content extraction and ItemService writes only when it was unchanged/indexed, has an existing item, both markers match the current inputs/revision, and all provider signals are usable. Weak/unavailable observations fail open. Path/root/content/sidecar/revision changes, previous missing/metadata-error/sidecar state, missing items, retry and recheck extract normally. Markers are written only after successful extraction and equal non-null pre/post observations, so the first post-upgrade scan warms them. This relies on storage-provider metadata and still has a residual concurrent ABA/TOCTOU limit if inputs change and return to the identical observation. `PIPELINE_REVISION` must bump for every output-affecting extractor, normalization, sidecar precedence, filename/folder interpretation or ItemService candidate-mapping change. Performance instrumentation remains next; no measured speedup is claimed.
+
+Verified exact-package migration evidence for alpha.153: the installed pre-upgrade version was alpha.152 and a 12,223,391-byte rollback SQL dump was created before migration. Item and file tables each contained 7,120 rows before and after the upgrade. The migration registry contains `000100Date20260911130000`; physical inspection confirmed both new columns are nullable `varchar(64)`. The exact alpha.153 archive passed its checksum, was installed and enabled, and matched the source and installed copies by SHA-256 for both fast-path helpers, the metadata service, file/item/scanner services, migration and app schema/metadata XML files.
+
+The privacy-safe smallest-root validation scanned 40 files twice. Each scan reported one root, 40 indexed, zero missing and zero errors. Warm-up rewrote 40 item rows and established 40 markers; the unchanged second scan rewrote zero item rows and retained 40 markers. Item/file counts stayed at 40, and `source_observation_changes=0` confirmed equal before/after path/ETag/mtime/size/MIME observations. Vue, API and browser smokes passed against the installed package with zero browser console errors. This is measured write-elision evidence, not throughput or latency evidence.
 
 ### `library_scan_jobs`
 
@@ -313,7 +321,7 @@ Operational command-line interactions use existing Nextcloud and repository comm
   - `npm run smoke:browser`
   - other focused smoke scripts listed in `package.json` for metadata separation, multi-root, last-opened, descriptions, workflow status, genres/classifications, conflict review, bulk reset and scale pilots.
 
-The catalogue exposes a dedicated count-only service path for Useful-view and saved-collection badges. Normal count filters execute a database count without materializing item rows or computing facets. Ordinary catalogue/AJAX item DTOs are explicitly projected: they omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs while retaining tags, descriptions, diagnostics and visible card actions. Their SQL query also avoids selecting cover override data. Scanner-conflict and weak-metadata review views intentionally retain the richer provenance needed by the review workbench; detail, cover, export and import paths remain full-fidelity. Scanner-conflict counts remain a deliberate exception: they read matching rows and apply the same PHP conflict predicate as the visible catalogue until an equivalent SQL predicate is implemented. Further scale work remains pending for duplicated creator landing URLs, description/lazy-detail loading, workload-led index additions, unchanged-rescan short-circuiting, the saved raw-tag filter bug and SQL-native scanner-conflict counting.
+The catalogue exposes a dedicated count-only service path for Useful-view and saved-collection badges. Normal count filters execute a database count without materializing item rows or computing facets. Ordinary catalogue/AJAX item DTOs are explicitly projected: they omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs while retaining tags, descriptions, diagnostics and visible card actions. Their SQL query also avoids selecting cover override data. Scanner-conflict and weak-metadata review views intentionally retain the richer provenance needed by the review workbench; detail, cover, export and import paths remain full-fidelity. Scanner-conflict counts remain a deliberate exception: they read matching rows and apply the same PHP conflict predicate as the visible catalogue until an equivalent SQL predicate is implemented. Further scale work remains pending for duplicated creator landing URLs, description/lazy-detail loading, performance instrumentation, the saved raw-tag filter bug and SQL-native scanner-conflict counting.
 
 ## Data ownership and side effects
 

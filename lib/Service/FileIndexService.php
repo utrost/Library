@@ -21,6 +21,9 @@ final class FileIndexService {
 
         $existing = $this->findByFileId($userId, $fileId);
         if ($existing !== null) {
+            $previousScanStatus = $existing['scanStatus'];
+            $previousMetadataInputFingerprint = $existing['metadataInputFingerprint'];
+            $previousMetadataExtractorRevision = $existing['metadataExtractorRevision'];
             $pathChanged = (string)$existing['cachedPath'] !== (string)$file['cachedPath'] || (int)$existing['rootId'] !== $rootId;
             $qb = $this->db->getQueryBuilder();
             $qb->update('library_files')
@@ -39,6 +42,9 @@ final class FileIndexService {
                 ->executeStatement();
             $updated = $this->findByFileId($userId, $fileId) ?? $existing;
             $updated['changeStatus'] = $pathChanged ? 'path_updated' : 'unchanged';
+            $updated['previousScanStatus'] = $previousScanStatus;
+            $updated['previousMetadataInputFingerprint'] = $previousMetadataInputFingerprint;
+            $updated['previousMetadataExtractorRevision'] = $previousMetadataExtractorRevision;
             return $updated;
         }
 
@@ -62,15 +68,26 @@ final class FileIndexService {
             ])
             ->executeStatement();
 
-        $created = $this->findByFileId($userId, $fileId) ?? [
-            'id' => 0,
-            'fileId' => $fileId,
-            'cachedPath' => (string)$file['cachedPath'],
-            'mimeType' => (string)$file['mimeType'],
-            'extension' => (string)$file['extension'],
-        ];
+        $created = $this->findByFileId($userId, $fileId);
+        if ($created === null) {
+            throw new \RuntimeException('Inserted library file could not be read back');
+        }
         $created['changeStatus'] = 'added';
+        $created['previousScanStatus'] = null;
+        $created['previousMetadataInputFingerprint'] = null;
+        $created['previousMetadataExtractorRevision'] = null;
         return $created;
+    }
+
+    public function markMetadataProcessed(string $userId, int $libraryFileId, string $fingerprint, string $revision): void {
+        $qb = $this->db->getQueryBuilder();
+        $qb->update('library_files')
+            ->set('metadata_input_fingerprint', $qb->createNamedParameter($fingerprint))
+            ->set('metadata_extractor_revision', $qb->createNamedParameter($revision))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($libraryFileId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
     }
 
     public function markAsSidecar(string $userId, int $libraryFileId): void {
@@ -265,7 +282,7 @@ final class FileIndexService {
 
     public function findByFileId(string $userId, int $fileId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('id', 'root_id', 'file_id', 'cached_path', 'mime_type', 'extension', 'scan_status', 'scan_error', 'last_scanned_at')
+        $result = $qb->select('id', 'root_id', 'file_id', 'cached_path', 'mime_type', 'extension', 'etag', 'mtime', 'size', 'scan_status', 'scan_error', 'metadata_input_fingerprint', 'metadata_extractor_revision', 'last_scanned_at')
             ->from('library_files')
             ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('file_id', $qb->createNamedParameter($fileId)))
@@ -284,7 +301,12 @@ final class FileIndexService {
             'cachedPath' => (string)$row['cached_path'],
             'mimeType' => (string)$row['mime_type'],
             'extension' => $row['extension'] !== null ? (string)$row['extension'] : '',
+            'etag' => $row['etag'] !== null ? (string)$row['etag'] : '',
+            'mtime' => $row['mtime'] !== null ? (int)$row['mtime'] : null,
+            'size' => $row['size'] !== null ? (int)$row['size'] : null,
             'scanStatus' => (string)$row['scan_status'],
+            'metadataInputFingerprint' => $row['metadata_input_fingerprint'] !== null ? (string)$row['metadata_input_fingerprint'] : null,
+            'metadataExtractorRevision' => $row['metadata_extractor_revision'] !== null ? (string)$row['metadata_extractor_revision'] : null,
             'scanError' => $row['scan_error'] !== null ? (string)$row['scan_error'] : '',
             'lastScannedAt' => (int)$row['last_scanned_at'],
         ];

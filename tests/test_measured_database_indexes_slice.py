@@ -94,7 +94,7 @@ def test_measured_index_migration_excludes_speculative_indexes():
         assert excluded not in source
 
 
-def test_alpha_152_release_docs_state_the_measured_index_boundary():
+def test_alpha_153_release_docs_state_the_measured_index_boundary():
     info = (ROOT / "appinfo" / "info.xml").read_text()
     release_docs = "\n".join(
         (ROOT / path).read_text()
@@ -109,14 +109,14 @@ def test_alpha_152_release_docs_state_the_measured_index_boundary():
         ]
     )
 
-    assert "<version>0.1.0-alpha.152</version>" in info
+    assert "<version>0.1.0-alpha.153</version>" in info
     assert "seven additive user-scoped" in release_docs.lower()
     assert "no starred index" in release_docs.lower()
     assert "leading-wildcard" in release_docs
     assert "performance instrumentation" in release_docs
 
 
-def test_alpha_152_package_includes_the_new_migration():
+def test_alpha_153_package_includes_the_new_migration():
     package_script = (ROOT / "scripts" / "package-release.sh").read_text()
     smoke_script = (ROOT / "scripts" / "smoke-release-package.sh").read_text()
 

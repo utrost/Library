@@ -45,7 +45,9 @@ Not in scope for v0.1:
 
 ## Try it
 
-Current testing candidate: `0.1.0-alpha.152`.
+Current testing candidate: `0.1.0-alpha.153`.
+
+Ordinary trusted rescans now avoid repeating metadata content extraction and catalogue-item writes when an indexed file already has an item and its current pipeline revision plus primary/selected-OPF identity, path, ETag, modification time, size and type fingerprint are unchanged. Weak or unavailable storage-provider signals fall back to extraction. This is a conservative correctness optimization; performance instrumentation is still pending and no measured speedup is claimed yet.
 
 Run local checks:
 

@@ -17,6 +17,7 @@ EXPECTED_TABLES = {
         "fields": {
             "id", "user_id", "root_id", "file_id", "cached_path", "mime_type", "extension", "etag",
             "mtime", "size", "scan_status", "scan_error", "last_scanned_at", "created_at", "updated_at",
+            "metadata_input_fingerprint", "metadata_extractor_revision",
         },
         "indexes": {
             "library_files_id", "library_files_user_id", "library_files_root_id", "library_files_file_id_unique",

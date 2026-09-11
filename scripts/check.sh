@@ -2,6 +2,7 @@
 set -euo pipefail
 
 python -m pytest -q
+./scripts/run-php-runtime-tests.sh
 npm test -- --run
 npm run build
 git diff --check
