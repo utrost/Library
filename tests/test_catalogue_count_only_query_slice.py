@@ -27,12 +27,12 @@ def test_smart_views_and_saved_collections_use_only_the_count_path():
 
     smart_counts = method_body(
         service,
-        "public function smartViewCounts(string $userId): array",
+        "public function smartViewCounts(string $userId, bool $includeScannerConflicts = true): array",
         "public function countCatalogue",
     )
     saved_counts = method_body(
         page,
-        "private function savedCollectionsWithCounts(string $userId): array",
+        "private function savedCollectionsWithCounts(string $userId, bool $includeScannerConflicts = true): array",
         "private function enrichPublicationIssueContextForVue",
     )
 
@@ -72,3 +72,36 @@ def test_count_only_scanner_conflicts_retain_visible_catalogue_conflict_semantic
         assert contract in visible_conflicts
     assert "catalogueFacets(" not in conflict_count
     assert "queryCatalogue(" not in conflict_count
+
+
+def test_ordinary_catalogue_state_skips_expensive_scanner_conflict_badge_count():
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
+    page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+
+    smart_counts = method_body(
+        service,
+        "public function smartViewCounts(string $userId, bool $includeScannerConflicts = true): array",
+        "public function countCatalogue",
+    )
+    catalogue_state = page.split("private function buildCatalogueState", 1)[1]
+
+    assert "$this->itemService->smartViewCounts($userId, false)" in catalogue_state
+    assert "'smartViewCountsPending' => ['scanner-conflicts']" in catalogue_state
+    assert "'reviewUrl' => $catalogueRootUrl . '?scannerConflicts=1'" in catalogue_state
+    assert "if (!$includeScannerConflicts && $key === 'scanner-conflicts')" in smart_counts
+    assert "$this->countCatalogue($userId, $filters)" in smart_counts
+
+
+def test_ordinary_catalogue_state_marks_saved_scanner_conflict_counts_pending():
+    page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    catalogue_state = page.split("private function buildCatalogueState", 1)[1]
+    saved_counts = method_body(
+        page,
+        "private function savedCollectionsWithCounts(string $userId, bool $includeScannerConflicts = true): array",
+        "private function enrichPublicationIssueContextForVue",
+    )
+
+    assert "$this->savedCollectionsWithCounts($userId, false)" in catalogue_state
+    assert "if (!$includeScannerConflicts && ($filters['scannerConflicts'] ?? '') === '1')" in saved_counts
+    assert "$collection['count'] = null" in saved_counts
+    assert "$collection['countPending'] = true" in saved_counts

@@ -815,7 +815,7 @@ final class ItemService {
     /**
      * @return array<string, int>
      */
-    public function smartViewCounts(string $userId): array {
+    public function smartViewCounts(string $userId, bool $includeScannerConflicts = true): array {
         $views = [
             'recently-opened' => ['sort' => 'lastOpened'],
             'starred' => ['starred' => '1'],
@@ -839,6 +839,9 @@ final class ItemService {
 
         $counts = [];
         foreach ($views as $key => $filters) {
+            if (!$includeScannerConflicts && $key === 'scanner-conflicts') {
+                continue;
+            }
             $counts[$key] = $this->countCatalogue($userId, $filters);
         }
         return $counts;
