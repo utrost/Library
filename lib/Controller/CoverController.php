@@ -12,9 +12,11 @@ use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCA\Library\Service\ArchiveCoverService;
 use OCA\Library\Service\ItemService;
+use OCA\Library\Service\FileIndexService;
 use OCA\Library\Service\ManualCoverUploadService;
 use OCA\Library\Service\ManualCoverValidationException;
 use OCA\Library\Service\ManualCoverValidator;
+use OCA\Library\Service\SelectedItemIds;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\IDBConnection;
@@ -39,6 +41,7 @@ class CoverController extends Controller {
         private IRootFolder $rootFolder,
         private IPreview $previewManager,
         private ItemService $itemService,
+        private FileIndexService $fileIndexService,
         private IURLGenerator $urlGenerator,
         private ArchiveCoverService $archiveCoverService,
         private LoggerInterface $logger,
@@ -162,18 +165,30 @@ class CoverController extends Controller {
         $user = $this->userSession->getUser();
         $filters = $this->catalogueFiltersFromRequest();
         $requested = 0;
+        $selectedItemIds = [];
         if ($user !== null) {
             try {
-                $requested = count($this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000));
+                $selectedItemIds = $this->fileIndexService->coverRefreshItemIds(
+                    $user->getUID(),
+                    SelectedItemIds::parse($this->request->getParam('itemIds', null)),
+                );
+                $requested = count($selectedItemIds);
             } catch (BatchLimitExceededException $e) {
                 $query = array_filter($filters, static fn (string $value): bool => $value !== '');
                 $query['batchLimitError'] = '1';
+                return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
+            } catch (\InvalidArgumentException $e) {
+                $query = array_filter($filters, static fn (string $value): bool => $value !== '');
+                $query['batchSelectionError'] = '1';
                 return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
             }
         }
 
         $query = array_filter($filters, static fn (string $value): bool => $value !== '');
-        $query['coverRefresh'] = '1';
+        if ($requested > 0) {
+            $query['coverRefresh'] = '1';
+            $query['coverRefreshItemIds'] = $selectedItemIds;
+        }
         $query['batchCoverRefreshResult'] = '1';
         $query['batchCoverRefreshRequested'] = (string)$requested;
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
@@ -181,7 +196,7 @@ class CoverController extends Controller {
 
     private function catalogueFiltersFromRequest(): array {
         $filters = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $key) {
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $key) {
             $filters[$key] = trim((string)$this->request->getParam($key, ''));
         }
         if ($filters['sort'] === '') {

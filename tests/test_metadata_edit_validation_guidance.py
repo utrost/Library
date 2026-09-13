@@ -3,11 +3,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_detail_edit_form_shows_non_blocking_validation_guidance_for_ambiguous_fields():
+def test_detail_edit_form_keeps_compact_field_help_without_advisory_copy():
     detail = (ROOT / "templates" / "item-detail.php").read_text()
 
-    assert "library-metadata-guidance" in detail
-    assert "Non-blocking guidance" in detail
+    assert "library-metadata-guidance" not in detail
+    assert "Non-blocking guidance" not in detail
     assert "Use YYYY, YYYY-MM, or YYYY-MM-DD" in detail
     assert "Choose one or more language codes" in detail
     assert "One creator per line" in detail
@@ -35,8 +35,5 @@ def test_guidance_is_documented_with_first_hard_validation_boundary():
 def test_live_smoke_checks_validation_guidance_marker():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
-    assert "detail_has_metadata_guidance" in smoke
+    assert "detail_has_four_metadata_status_concepts" in smoke
     assert "detail_has_validation_feedback_contract" in smoke
-    assert "library-metadata-guidance" in smoke
-    assert "library-field-label-help" in smoke
-    assert "Use YYYY, YYYY-MM, or YYYY-MM-DD" in smoke

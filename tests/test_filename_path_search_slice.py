@@ -18,7 +18,7 @@ def test_catalogue_text_search_includes_cached_filename_and_folder_path():
 def test_vue_search_copy_explains_filename_and_folder_search():
     app = read("src/App.vue")
 
-    assert "Search title, creator, description, filename or folder" in app
+    assert "Title, creator, description, filename or folder" in app
     assert "Descriptions, filename and folder names are searchable" in app
 
 
@@ -30,9 +30,10 @@ def test_docs_and_smoke_track_filename_path_search_as_landed():
     info = read("appinfo/info.xml")
     package = read("package.json")
 
-    assert "filename and folder path search" in readme.lower()
-    assert "filename and folder path search" in guide.lower()
-    assert "filename and folder path search" in roadmap.lower()
-    assert "source_has_filename_path_search_copy" in smoke
-    assert "<version>0.1.0-alpha.165</version>" in info
-    assert '"version": "0.1.0-alpha.165"' in package
+    assert "filename and folder names" in readme.lower()
+    assert "filename and folder names" in guide.lower()
+    assert "filename and folder names" in roadmap.lower()
+    assert "source_has_primary_catalogue_controls" in smoke
+    assert "backend_searches_description" in smoke
+    assert "<version>0.1.0-alpha.168</version>" in info
+    assert '"version": "0.1.0-alpha.168"' in package

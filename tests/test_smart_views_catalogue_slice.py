@@ -17,7 +17,7 @@ def test_vue_catalogue_renders_useful_views_strip_with_query_links():
         "Finished",
         "Needs action",
         "Needs metadata",
-        "Scanner conflicts",
+        "Suggested updates",
         "Metadata errors",
         "Placeholder covers",
         "No creator",
@@ -86,7 +86,7 @@ def test_smoke_and_docs_track_built_in_useful_views():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     feature_list = (ROOT / "docs" / "usefulness-and-ux-feature-list.md").read_text()
 
-    assert "source_has_useful_views_strip" in smoke
+    assert "source_has_calm_catalogue" in smoke
     assert "built-in useful views" in readme.lower()
     assert "Useful views" in guide
     assert "built-in useful views" in roadmap.lower()

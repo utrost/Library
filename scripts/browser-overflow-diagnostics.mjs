@@ -10,10 +10,33 @@ export function collectOverflowDiagnostics(root) {
   const boundaryLeft = Math.max(0, rootRect.left)
   const boundaryRight = Math.min(viewportBounds.right, rootRect.right)
   const rootOverflows = root.scrollWidth > root.clientWidth + 1
+  const approvedVisualHiding = (element) => {
+    if (!element.classList.contains('hidden-visually')) return false
+    const style = view.getComputedStyle(element)
+    const rect = element.getBoundingClientRect()
+    const px = (value, expected) => Number.parseFloat(value) === expected
+    const zeroSides = (prefix) => ['Top', 'Right', 'Bottom', 'Left'].every((side) => px(style[`${prefix}${side}`], 0))
+    const negativeOneMargins = ['Top', 'Right', 'Bottom', 'Left'].every((side) => px(style[`margin${side}`], -1))
+    const zeroBorder = ['Top', 'Right', 'Bottom', 'Left'].every((side) => px(style[`border${side}Width`], 0))
+    const clip = String(style.clip).replace(/\s+/g, '').toLowerCase()
+    const clipPath = String(style.clipPath).replace(/\s+/g, '').toLowerCase()
+    return style.position === 'absolute' && rect.width <= 1 && px(style.width, 1) && px(style.minWidth, 1)
+      && px(style.height, 1) && px(style.minHeight, 1) && negativeOneMargins && zeroSides('padding') && zeroBorder
+      && style.overflow === 'hidden' && (style.overflowX || style.overflow) === 'hidden' && (style.overflowY || style.overflow) === 'hidden'
+      && style.whiteSpace === 'nowrap' && ['rect(0px,0px,0px,0px)', 'rect(0px,0px,0px,0px)'].includes(clip)
+      && clipPath === 'inset(50%)'
+  }
   const offenders = [...root.querySelectorAll('*')].filter((element) => {
     const style = view.getComputedStyle(element)
     const rect = element.getBoundingClientRect()
     if (style.display === 'none' || style.visibility === 'hidden' || element.getClientRects().length === 0 || (rect.width === 0 && rect.height === 0)) return false
+    const closedDetails = element.closest('details:not([open])')
+    if (closedDetails && !closedDetails.querySelector(':scope > summary')?.contains(element)) return false
+    let ancestor = element
+    while (ancestor && ancestor !== root) {
+      if (approvedVisualHiding(ancestor)) return false
+      ancestor = ancestor.parentElement
+    }
     const crossesBoundary = rect.left < boundaryLeft - 1 || rect.right > boundaryRight + 1
     const propagatesOverflow = rootOverflows && element.scrollWidth > element.clientWidth + 1
       && !['hidden', 'clip', 'auto', 'scroll'].includes(style.overflowX)

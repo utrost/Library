@@ -8,7 +8,7 @@ def test_page_controller_accepts_publication_filter_and_provides_publication_fac
 
     assert "'publication' => trim((string)$this->request->getParam('publication', ''))" in page
     assert "'publications' => $catalogue['facets']['publications']" in page
-    assert "facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'workflowStatuses' => [], 'genres' => [], 'classifications' => [], 'publications' => [], 'publicationSummaries' => [], 'publicationYears' => [], 'creators' => []]" in page
+    assert "'publications' => []" in page
 
 
 def test_item_service_filters_and_sorts_by_publication_series_periodical_title():
@@ -16,7 +16,7 @@ def test_item_service_filters_and_sorts_by_publication_series_periodical_title()
 
     assert "publication?:string" in service
     assert "publications:array<int, string>" in service
-    assert "'publications' => $this->distinctCatalogueValues($userId, 'i.publication', 'publication')" in service
+    assert "'publications' => $this->distinctCatalogueValues($userId, $facetFilters['publications'], 'i.publication', 'publication', self::PUBLICATION_FACET_LIMIT)" in service
     assert "$publication = trim((string)($filters['publication'] ?? ''));" in service
     assert "$qb->expr()->eq('i.publication', $qb->createNamedParameter($publication))" in service
     assert "'publication' => $qb->orderBy('i.publication', 'ASC')->addOrderBy('i.publication_date', 'DESC')->addOrderBy('i.title', 'ASC')" in service
@@ -28,12 +28,22 @@ def test_vue_catalogue_exposes_series_periodical_filter_and_metadata_on_cards():
     assert "const publications = computed(() => catalogueState.publications || [])" in vue
     assert "publication: catalogueState.activeFilters?.publication || ''" in vue
     assert "Series / periodical" in vue
-    assert "name=\"publication\"" in vue
-    assert "All series and periodicals" in vue
-    assert "v-for=\"publication in publications\"" in vue
-    assert "item.publication" in vue
-    assert "item.publicationDate" in vue
+    assert 'name="publicationSearch"' in vue
+    assert 'type="hidden" name="publication"' in vue
+    assert 'select name="publication"' not in vue
+    assert "PUBLICATION_SUGGESTION_LIMIT = 20" in vue
+    assert "selectedDrawerItem.publication" in vue
+    assert "selectedDrawerItem.publicationDate" in vue
     assert "<option value=\"publication\">" in vue
+
+
+def test_publication_facet_payload_has_a_named_server_side_limit():
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
+
+    assert "private const PUBLICATION_FACET_LIMIT = 100;" in service
+    assert "'publication', self::PUBLICATION_FACET_LIMIT" in service
+    assert "?int $limit = null" in service
+    assert "->setMaxResults($limit)" in service
 
 
 def test_smoke_requires_series_periodical_filter_contract():
@@ -43,7 +53,7 @@ def test_smoke_requires_series_periodical_filter_contract():
     assert "source_has_series_periodical_filter" in smoke
     assert "source_has_publication_sort" in smoke
     assert "Series / periodical" in smoke
-    assert "All series and periodicals" in smoke
+    assert "publicationSearch" in smoke
 
 
 def test_docs_pivot_priority_from_import_export_to_series_periodical_ux():

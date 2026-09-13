@@ -27,7 +27,8 @@ def test_vue_loads_import_health_only_when_actions_menu_is_opened():
 
     assert "importHealthSummaryUrl" in app
     assert "loadImportHealthSummary" in app
-    assert "@toggle=\"loadImportHealthSummary\"" in app
+    assert "@toggle=\"loadImportHealthSummary\"" not in app
+    assert "Admin tools" not in app
     assert "fetch(`${importHealthSummaryUrl.value}${refresh ? '?refresh=1' : ''}`" in app
     assert "refreshImportHealthSummary" in app
     assert "hasImportHealthFindings" in app

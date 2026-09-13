@@ -1,7 +1,7 @@
 <?php
 /** @var array $_ */
 $roots = $_['roots'] ?? [];
-$files = $_['files'] ?? [];
+$fileStatusCounts = $_['fileStatusCounts'] ?? ['total' => 0];
 $latestScanJob = $_['latestScanJob'] ?? null;
 $scanJobHistory = $_['scanJobHistory'] ?? [];
 ?>
@@ -22,15 +22,20 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
         </div>
     </section>
 
+    <div class="library-panel library-operation-status" data-library-operation-status data-running-text="<?php p($l->t('Settings operation in progress')); ?>" data-completed-text="<?php p($l->t('Scan completed')); ?>" data-failed-text="<?php p($l->t('Scan failed')); ?>" role="status" aria-live="polite" aria-atomic="true" hidden>
+        <span class="icon-loading-small" aria-hidden="true"></span>
+        <span data-library-operation-status-text><?php p($l->t('Settings operation in progress')); ?></span>
+    </div>
+
     <details class="library-panel library-settings-section library-settings-section-roots" open aria-labelledby="library-settings-roots-heading">
         <summary id="library-settings-roots-heading" class="library-settings-summary-row">
-            <?php p($l->t('Shelves and roots')); ?>
+            <?php p($l->t('Folders and scanning')); ?>
             <span class="library-settings-count-badge"><?php p($l->n('%n root', '%n roots', count($roots))); ?></span>
         </summary>
         <section class="library-add-shelf-card" aria-label="<?php p($l->t('Add Library shelf')); ?>">
             <h3><?php p($l->t('Add a shelf')); ?></h3>
             <p class="library-muted"><?php p($l->t('Point Library at a Nextcloud folder; it becomes a browsable shelf after scanning.')); ?></p>
-            <form method="post" action="<?php p($_['rootSaveUrl']); ?>" class="library-form library-add-shelf-form">
+            <form method="post" action="<?php p($_['rootSaveUrl']); ?>" class="library-form library-add-shelf-form" data-library-operation="save-root">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <label>
                     <?php p($l->t('Folder path')); ?>
@@ -61,14 +66,15 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                     <li class="library-root-card">
                         <div class="library-root-card-header">
                             <div>
-                                <strong><?php p((string)($root['label'] ?? $root['path'])); ?></strong>
-                                <p class="library-muted"><?php p((string)$root['path']); ?></p>
+                                <strong><bdi class="library-bidi-human" dir="auto"><?php p((string)($root['label'] ?? $root['path'])); ?></bdi></strong>
+                                <p class="library-muted"><bdi class="library-bidi-machine" dir="ltr"><?php p((string)$root['path']); ?></bdi></p>
                             </div>
                             <span class="library-settings-count-badge"><?php p($root['enabled'] ? $l->t('enabled') : $l->t('disabled')); ?></span>
                         </div>
                         <?php if ($root['lastScanAt']): ?>
                             <p class="library-muted"><?php p($l->t('last scan:')); ?> <?php p(date('Y-m-d H:i', $root['lastScanAt'])); ?></p>
                         <?php endif; ?>
+                        <p class="library-root-publication-count"><?php p($l->n('%n publication', '%n publications', (int)$root['publicationCount'])); ?></p>
                         <form method="post" action="<?php p($root['rootUpdateUrl']); ?>" class="library-form library-root-edit-form">
                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                             <label>
@@ -82,7 +88,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                             <button type="submit" class="button secondary"><?php p($l->t('Update root')); ?></button>
                         </form>
                         <div class="library-root-card-actions">
-                            <form method="post" action="<?php p($root['rootScanUrl']); ?>" class="library-inline-form">
+                            <form method="post" action="<?php p($root['rootScanUrl']); ?>" class="library-inline-form" data-library-operation="scan-root">
                                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                                 <button type="submit" class="button primary"><?php p($l->t('Scan this root')); ?></button>
                             </form>
@@ -117,15 +123,13 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
-    </details>
-
-    <details class="library-panel library-settings-section library-settings-section-scan" open aria-labelledby="library-scan-progress-heading">
-        <summary class="library-settings-summary-row">
+    <section class="library-settings-subsection library-settings-section-scan" aria-labelledby="library-scan-progress-heading">
+        <header class="library-settings-summary-row">
             <?php p($l->t('Scan and repair')); ?>
             <span class="library-settings-count-badge"><?php p($l->n('%n recent job', '%n recent jobs', count($scanJobHistory))); ?></span>
-        </summary>
+        </header>
         <div class="library-settings-action-strip">
-            <form method="post" action="<?php p($_['scanRunUrl']); ?>">
+            <form method="post" action="<?php p($_['scanRunUrl']); ?>" data-library-operation="scan-roots">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <button type="submit"><?php p($l->t('Scan enabled roots')); ?></button>
             </form>
@@ -145,6 +149,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
 
         <section class="library-scan-progress" aria-labelledby="library-scan-progress-heading" data-library-scan-progress-url="<?php p($_['scanProgressUrl']); ?>">
             <h3 id="library-scan-progress-heading"><?php p($l->t('Scan progress')); ?></h3>
+            <p><strong><?php p($l->t('All found publications')); ?>:</strong> <span data-library-total-publications><?php p((string)($_['totalPublications'] ?? 0)); ?></span></p>
             <?php if ($latestScanJob === null): ?>
                 <p class="library-muted"><?php p($l->t('No scan job has run yet.')); ?></p>
             <?php else: ?>
@@ -162,7 +167,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                     <dt data-library-field="scanJobStatus"><?php p($l->t('Scan job status')); ?></dt>
                     <dd data-library-scan-status><?php p((string)$latestScanJob['status']); ?></dd>
                     <dt data-library-field="scanScope"><?php p($l->t('Scan scope')); ?></dt>
-                    <dd data-library-scan-scope><?php p((string)($latestScanJob['scopeType'] ?? 'all')); ?><?php if (($latestScanJob['rootId'] ?? null) !== null): ?> #<?php p((string)$latestScanJob['rootId']); ?><?php endif; ?></dd>
+                    <dd data-library-scan-scope><?php p((string)($latestScanJob['scopeLabel'] ?? $latestScanJob['scopeType'] ?? 'all')); ?></dd>
                     <dt data-library-field="rootsTotal"><?php p($l->t('Roots total')); ?></dt>
                     <dd data-library-scan-roots-total><?php p((string)$latestScanJob['rootsTotal']); ?></dd>
                     <dt data-library-field="filesIndexed"><?php p($l->t('Files indexed')); ?></dt>
@@ -222,8 +227,8 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <?php endif; ?>
         </section>
 
-        <section class="library-scan-history" aria-labelledby="library-scan-history-heading" data-library-scan-history>
-            <h3 id="library-scan-history-heading"><?php p($l->t('Scan history')); ?></h3>
+        <details class="library-scan-history" aria-labelledby="library-scan-history-heading" data-library-scan-history>
+            <summary id="library-scan-history-heading"><?php p($l->t('Scan history')); ?></summary>
             <?php if (count($scanJobHistory) === 0): ?>
                 <p class="library-muted"><?php p($l->t('No recent scan history yet.')); ?></p>
             <?php else: ?>
@@ -234,7 +239,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                                 <dt data-library-field="historyScanJobStatus"><?php p($l->t('Scan job status')); ?></dt>
                                 <dd><?php p((string)$historyJob['status']); ?></dd>
                                 <dt data-library-field="historyScanScope"><?php p($l->t('Scan scope')); ?></dt>
-                                <dd><?php p((string)($historyJob['scopeType'] ?? 'all')); ?><?php if (($historyJob['rootId'] ?? null) !== null): ?> #<?php p((string)$historyJob['rootId']); ?><?php endif; ?></dd>
+                                <dd><?php p((string)($historyJob['scopeLabel'] ?? $historyJob['scopeType'] ?? 'all')); ?></dd>
                                 <dt data-library-field="historyFilesIndexed"><?php p($l->t('Files indexed')); ?></dt>
                                 <dd><?php p((string)$historyJob['filesIndexed']); ?></dd>
                                 <dt data-library-field="historyErrorCount"><?php p($l->t('Error count')); ?></dt>
@@ -255,12 +260,18 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                     <?php endforeach; ?>
                 </ol>
             <?php endif; ?>
-        </section>
+        </details>
+    </section>
+    </details>
+
+    <details class="library-panel library-settings-section library-settings-section-metadata" aria-labelledby="library-settings-metadata-heading">
+        <summary id="library-settings-metadata-heading" class="library-settings-summary-row"><?php p($l->t('Metadata and covers')); ?></summary>
+        <p class="library-muted"><?php p($l->t('Metadata review and cover maintenance are available from publication details and Review.')); ?></p>
     </details>
 
     <details class="library-panel library-settings-section library-settings-section-portability" aria-labelledby="library-settings-portability-heading">
         <summary id="library-settings-portability-heading" class="library-settings-summary-row">
-            <?php p($l->t('Metadata portability')); ?>
+            <?php p($l->t('Import and export')); ?>
             <span class="library-settings-count-badge"><?php p($l->t('export, preview, apply')); ?></span>
         </summary>
         <p class="library-detail-actions">
@@ -290,48 +301,14 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <button type="submit" class="button primary"><?php p($l->t('Apply metadata import')); ?></button>
         </form>
 
-        <form method="post" action="<?php p($_['bulkResetFieldsUrl']); ?>" class="library-form library-bulk-reset-fields-form">
-            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-            <label>
-                <?php p($l->t('Bulk reset selected items to scanner')); ?>
-                <textarea name="itemIds" rows="3" placeholder="<?php p($l->t('Example: 12, 19, 27')); ?>"></textarea>
-            </label>
-            <p class="library-muted"><?php p($l->t('Paste item IDs from the scanner-conflict review filter. This applies stored scanner candidates to selected existing Library items only.')); ?></p>
-            <button type="submit" class="button secondary"><?php p($l->t('Reset selected items to scanner')); ?></button>
-        </form>
     </details>
 
-    <details class="library-panel library-settings-section library-settings-section-indexed-files" aria-labelledby="library-indexed-files-heading">
+    <details class="library-panel library-settings-section library-settings-section-diagnostics" aria-labelledby="library-indexed-files-heading">
         <summary id="library-indexed-files-heading" class="library-settings-summary-row">
-            <?php p($l->t('Indexed files')); ?>
-            <span class="library-settings-count-badge"><?php p($l->n('%n file', '%n files', count($files))); ?></span>
+            <?php p($l->t('Diagnostics')); ?>
+            <span class="library-settings-count-badge"><?php p($l->n('%n file', '%n files', (int)($fileStatusCounts['total'] ?? 0))); ?></span>
         </summary>
-        <?php if (count($files) === 0): ?>
-            <p class="library-muted"><?php p($l->t('No indexed files yet. Add a root and scan it.')); ?></p>
-        <?php else: ?>
-            <div class="library-index-list">
-                <?php foreach ($files as $file): ?>
-                    <article class="library-index-row">
-                        <h3><?php p(basename($file['cachedPath'])); ?></h3>
-                        <dl>
-                            <dt><?php p($l->t('File ID')); ?></dt>
-                            <dd><?php p((string)$file['fileId']); ?></dd>
-                            <dt><?php p($l->t('Root label')); ?></dt>
-                            <dd><?php p($file['rootLabel']); ?></dd>
-                            <dt><?php p($l->t('Path')); ?></dt>
-                            <dd><?php p($file['cachedPath']); ?></dd>
-                            <dt><?php p($l->t('Format')); ?></dt>
-                            <dd><?php p($file['extension']); ?> / <?php p($file['mimeType']); ?></dd>
-                            <dt><?php p($l->t('Scan status')); ?></dt>
-                            <dd class="<?php p($file['scanStatus'] === 'missing' ? 'library-scan-error' : ''); ?>"><?php p($file['scanStatus']); ?></dd>
-                            <?php if (($file['scanError'] ?? '') !== ''): ?>
-                                <dt><?php p($l->t('Scan error')); ?></dt>
-                                <dd class="library-scan-error"><?php p($file['scanError']); ?></dd>
-                            <?php endif; ?>
-                        </dl>
-                    </article>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
+        <dl><dt><?php p($l->t('Indexed')); ?></dt><dd><?php p((string)($fileStatusCounts['indexed'] ?? 0)); ?></dd><dt><?php p($l->t('Missing')); ?></dt><dd><?php p((string)($fileStatusCounts['missing'] ?? 0)); ?></dd><dt><?php p($l->t('Metadata errors')); ?></dt><dd><?php p((string)($fileStatusCounts['metadata_error'] ?? 0)); ?></dd></dl>
+        <p><a class="button secondary" href="<?php p($_['scanMetadataErrorsExportUrl']); ?>"><?php p($l->t('Download diagnostics')); ?></a></p>
     </details>
 </div>

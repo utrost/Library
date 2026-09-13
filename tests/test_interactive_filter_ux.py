@@ -7,14 +7,16 @@ def test_vue_catalogue_has_compact_interactive_quick_filters():
     app = (ROOT / "src" / "App.vue").read_text()
 
     assert "library-quick-filter-bar" in app
-    assert "Quick catalogue filters" in app
-    assert "scheduleFilterSubmit" in app
+    assert "Catalogue toolbar" in app
     assert "submitFiltersNow" in app
-    assert "@input=\"scheduleFilterSubmit\"" in app
+    assert "scheduleFilterSubmit" not in app
+    assert "@input=\"scheduleFilterSubmit\"" not in app
+    assert 'data-library-quick-search type="search" name="q"' in app
+    assert 'v-model="activeFilters.type" name="type" @change="submitFiltersNow($event)"' in app
     assert "@change=\"submitFiltersAjax\"" in app
     assert "name=\"q\"" in app
     assert "name=\"sort\"" in app
-    assert "name=\"limit\"" in app
+    assert 'data-library-control="view"' in app
     assert "Clear all" in app
     assert "Apply filters" in app
 

@@ -27,8 +27,8 @@ def test_live_smoke_reports_compact_payload_measurements_without_byte_thresholds
     assert "catalogue_first_item_field_count" in smoke
     assert "Buffer.byteLength(JSON.stringify(state), 'utf8')" in smoke
     assert "Buffer.byteLength(JSON.stringify(items), 'utf8')" in smoke
-    assert "catalogueInitialStateJsonBytes >" not in smoke
-    assert "catalogueItemsJsonBytes >" not in smoke
+    assert "catalogueInitialStateJsonBytes > 524288" in smoke
+    assert "catalogueItemsJsonBytes > 262144" in smoke
 
 
 def test_live_smoke_rejects_forbidden_fields_only_on_ordinary_catalogue_rows():

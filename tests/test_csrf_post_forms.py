@@ -35,7 +35,7 @@ def test_mutating_post_controllers_use_nextcloud_csrf_protection():
 
 def test_batch_mutations_with_tokenized_forms_require_csrf():
     mutating_methods = {
-        "ItemController.php": ["bulkresetfields", "batchresetfilteredfields", "batchapplymetadataedit"],
+        "ItemController.php": ["batchresetfilteredfields", "batchapplymetadataedit"],
         "TagController.php": ["batchassign", "batchremove"],
         "CoverController.php": ["batchrefresh"],
     }

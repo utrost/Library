@@ -37,7 +37,7 @@ def test_preview_template_renders_counts_examples_and_no_apply_path():
     assert "Current value" in template
     assert "New value" in template
     assert "Outcome" in template
-    assert "Apply changes to current results" in template
+    assert "Apply changes to selected items" in template
     assert "method=\"post\"" in template
 
 
@@ -63,8 +63,8 @@ def test_docs_and_version_track_html_preview_page():
     package = read("package.json")
     lock = read("package-lock.json")
 
-    assert "polished review page" in guide.lower()
+    assert "preview-and-apply" in guide.lower()
     assert "batch metadata apply" in roadmap.lower()
-    assert "<version>0.1.0-alpha.165</version>" in info
-    assert '"version": "0.1.0-alpha.165"' in package
-    assert '"version": "0.1.0-alpha.165"' in lock
+    assert "<version>0.1.0-alpha.168</version>" in info
+    assert '"version": "0.1.0-alpha.168"' in package
+    assert '"version": "0.1.0-alpha.168"' in lock

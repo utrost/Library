@@ -58,7 +58,7 @@ def test_item_payload_and_detail_page_expose_field_level_provenance_read_only():
     assert "Current value" in detail
 
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
-    assert "detail_has_field_provenance" in smoke
+    assert "detail_has_four_metadata_status_concepts" in smoke
 
 
 def test_docs_record_p1_field_provenance_foundation_and_reset_is_still_future_work():

@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace OCA\Library\Service;
 
+use OCA\Library\Exception\BatchLimitExceededException;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 final class FileIndexService {
+    private const COVER_REFRESH_BATCH_LIMIT = 5000;
+
     public function __construct(
         private IDBConnection $db,
     ) {
@@ -190,6 +194,84 @@ final class FileIndexService {
         $result->closeCursor();
 
         return $files;
+    }
+
+    /** @return array<string, int> */
+    public function fileStatusCounts(string $userId): array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('scan_status')->selectAlias($qb->func()->count('*'), 'item_count')
+            ->from('library_files')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->groupBy('scan_status')->executeQuery();
+        $counts = ['total' => 0];
+        while ($row = $result->fetch()) {
+            $count = (int)$row['item_count'];
+            $counts[(string)$row['scan_status']] = $count;
+            $counts['total'] += $count;
+        }
+        $result->closeCursor();
+        return $counts;
+    }
+
+    /** @return array<int, int> Publication counts keyed by root ID. */
+    public function publicationCountsByRoot(string $userId): array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('f.root_id')
+            ->selectAlias($qb->createFunction('COUNT(i.id)'), 'publication_count')
+            ->from('library_files', 'f')
+            ->innerJoin('f', 'library_items', 'i', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->where($qb->expr()->eq('f.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
+            ->groupBy('f.root_id')
+            ->executeQuery();
+
+        $counts = [];
+        while ($row = $result->fetch()) {
+            $counts[(int)$row['root_id']] = (int)$row['publication_count'];
+        }
+        $result->closeCursor();
+        return $counts;
+    }
+
+    /**
+     * Return only explicitly requested catalogue item IDs owned by this user.
+     * Invalid input fails closed; an oversized explicit batch is rejected.
+     *
+     * @return array<int, int>
+     */
+    public function coverRefreshItemIds(string $userId, mixed $itemIds): array {
+        if (!is_array($itemIds) || $itemIds === []) {
+            return [];
+        }
+        if (count($itemIds) > self::COVER_REFRESH_BATCH_LIMIT) {
+            throw new BatchLimitExceededException(self::COVER_REFRESH_BATCH_LIMIT);
+        }
+
+        $ids = [];
+        foreach ($itemIds as $candidate) {
+            if (!is_int($candidate) && (!is_string($candidate) || preg_match('/^[1-9][0-9]*$/D', $candidate) !== 1)) {
+                return [];
+            }
+            $id = (int)$candidate;
+            if ($id < 1 || $id > 2147483647) {
+                return [];
+            }
+            $ids[$id] = $id;
+        }
+
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('id')
+            ->from('library_items')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->in('id', $qb->createNamedParameter(array_values($ids), IQueryBuilder::PARAM_INT_ARRAY)))
+            ->executeQuery();
+        $owned = [];
+        while ($row = $result->fetch()) {
+            $owned[(int)$row['id']] = true;
+        }
+        $result->closeCursor();
+        return array_values(array_filter($ids, static fn (int $id): bool => isset($owned[$id])));
     }
 
     /**

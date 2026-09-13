@@ -12,7 +12,7 @@ Library is file-first and Nextcloud-native, but the publication catalogue is ric
 - Nextcloud system tags are used as a shared cross-archive classification layer.
 - Nextcloud comments are exposed as file-level discussion/notes, not structured metadata.
 - Nextcloud FilesMetadata can mirror selected Library summary fields later, but is not the primary catalogue database.
-- Optional sidecar/export files are future portability features, not v0.1 primary storage.
+- Sidecar manifest/ZIP export and matched-item import are portability tools, not primary storage; Library does not write sidecars into source folders.
 
 ## Three different metadata layers
 
@@ -56,7 +56,7 @@ scanner_field_sources_json
 scanner_candidates_json
 ```
 
-This answers: what publication-like object should Library display? The current implementation also stores scanner field sources and scanner candidate values as JSON maps so user-edited rows can compare current values with refreshed scanner candidates and reset one field or the whole item when wanted.
+This answers: what publication-like object should Library display? The current implementation also stores scanner field sources and scanner candidate values as JSON maps so user-edited rows can compare current values with refreshed scanner candidates and reset one field or the whole item when wanted. ISBN and ISSN values live in the child `library_item_identifiers` table: display punctuation is preserved, normalized values support exact search, and invalid checksums remain reviewable instead of being silently rewritten.
 
 `publication_type` is the current implementation column name. The product language should move toward `publication_form` because this field describes the form of the publication, not the binary file format.
 

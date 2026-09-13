@@ -46,6 +46,7 @@ namespace OCA\Library\Service {
         }
     }
     class ArchiveCoverService {}
+    class FileIndexService {}
 }
 namespace {
     require_once __DIR__ . '/../../lib/Service/ManualCoverValidationException.php';
@@ -91,6 +92,7 @@ namespace {
         new class implements \OCP\Files\IRootFolder {},
         new class implements \OCP\IPreview {},
         $itemService,
+        new \OCA\Library\Service\FileIndexService(),
         $urls,
         new ArchiveCoverService(),
         new class implements \Psr\Log\LoggerInterface {},

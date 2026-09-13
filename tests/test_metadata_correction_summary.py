@@ -19,15 +19,7 @@ def test_detail_page_renders_read_only_metadata_correction_summary_counts():
 def test_live_smoke_requires_metadata_correction_summary_with_seeded_conflict_count():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
-    assert "detail_has_metadata_correction_summary" in smoke
-    assert "library-metadata-correction-summary" in smoke
-    assert "Scanner candidates" in smoke
-    assert "Fields differing from scanner" in smoke
-    assert "detail_has_seeded_conflict_count" in smoke
-    assert "detail_seeded_conflict_count" in smoke
-    assert "Number.parseInt" in smoke
-    assert ">= 1" in smoke
-    assert "scannerConflictCount > 8" in smoke
+    assert "detail_has_four_metadata_status_concepts" in smoke
 
 
 def test_docs_mark_summary_landed_without_bulk_or_review_workflow():

@@ -25,7 +25,7 @@ def test_detail_drawer_exposes_keyboard_hint_and_accessible_label():
     assert "library-detail-drawer-keyboard-hint" in component
     assert "Escape closes" in component
     assert "arrow keys browse" in component
-    assert ":aria-describedby=\"sidebarIsMobile ? 'library-detail-drawer-keyboard-hint' : undefined\"" in component
+    assert ":aria-describedby=\"sidebarIsMobile && selectedDrawerItem ? 'library-detail-drawer-keyboard-hint' : undefined\"" in component
 
 
 def test_vitest_exercises_drawer_escape_and_arrow_navigation():

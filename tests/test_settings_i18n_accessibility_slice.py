@@ -9,8 +9,8 @@ def test_personal_settings_template_uses_nextcloud_l10n_for_visible_copy():
     assert "$l->t('Library settings')" in template
     assert "$l->t('Folder path')" in template
     assert "$l->t('Scan enabled roots')" in template
-    assert "$l->t('Indexed files')" in template
-    assert "$l->t('No indexed files yet. Add a root and scan it.')" in template
+    assert "$l->t('Diagnostics')" in template
+    assert "$l->t('Indexed')" in template
 
 
 def test_personal_settings_sections_use_heading_based_accessible_names():
@@ -33,3 +33,13 @@ def test_browser_smoke_checks_settings_page_accessibility_scope():
     assert "settings_labelled_sections" in smoke
     assert "settings_unlabelled_controls" in smoke
     assert "#library-settings" in smoke
+
+
+def test_settings_has_accessible_global_async_operation_status():
+    template = (ROOT / "templates" / "settings-personal.php").read_text()
+
+    assert 'data-library-operation-status' in template
+    assert 'role="status"' in template
+    assert 'aria-live="polite"' in template
+    assert 'aria-atomic="true"' in template
+    assert "$l->t('Settings operation in progress')" in template

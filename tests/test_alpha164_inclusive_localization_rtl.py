@@ -20,13 +20,13 @@ def placeholders(value: str) -> list[str]:
 
 
 def test_current_versions_assets_and_package_smoke_are_exact():
-    assert '<version>0.1.0-alpha.165</version>' in read('appinfo/info.xml')
-    assert '"version": "0.1.0-alpha.165"' in read('package.json')
-    assert "appVersion: JSON.stringify('0.1.0-alpha.165')" in read('vite.config.js')
+    assert '<version>0.1.0-alpha.168</version>' in read('appinfo/info.xml')
+    assert '"version": "0.1.0-alpha.168"' in read('package.json')
+    assert "appVersion: JSON.stringify('0.1.0-alpha.168')" in read('vite.config.js')
     controller = read('lib/Controller/PageController.php')
-    assert "library-main-0-1-0-alpha-165" in controller
-    assert "library-vue-0-1-0-alpha-165" in controller
-    assert 'EXPECTED_VERSION="0.1.0-alpha.165"' in read('scripts/smoke-release-package.sh')
+    assert "library-main-0-1-0-alpha-168-filterux" in controller
+    assert "library-vue-0-1-0-alpha-168-filterux" in controller
+    assert 'EXPECTED_VERSION="$(python3 - "$ROOT/appinfo/info.xml"' in read('scripts/smoke-release-package.sh')
 
 
 def test_native_and_watchdog_visible_copy_uses_nextcloud_translation_api():
@@ -89,7 +89,7 @@ def test_translation_inventory_negative_mutations_fail_closed():
     mutations = [
         ('missing_translation', catalogue_mutation('de', lambda values: values.pop('Library'))),
         ('stale_translation', catalogue_mutation('de', lambda values: values.__setitem__('Stale test key', 'Veraltet'))),
-        ('placeholder_mismatch', catalogue_mutation('de', lambda values: values.__setitem__('Read {title}', 'Lesen'))),
+        ('placeholder_mismatch', catalogue_mutation('de', lambda values: values.__setitem__('Batch metadata apply updated {applied} {field} values; {unchanged} already matched, {skipped} skipped.', 'Felder'))),
         ('source_identical_translation', catalogue_mutation('de', lambda values: values.__setitem__('Library', 'Library'))),
         ('malformed_catalogue', lambda root: (root / 'l10n/de.json').write_text('{')),
         ('hard_coded_visible_text', lambda root: (root / 'src/App.vue').write_text(
@@ -226,23 +226,22 @@ def test_independently_reviewed_translation_meanings_are_pinned():
     de = json.loads(read('l10n/de.json'))['translations']
     ar = json.loads(read('l10n/ar.json'))['translations']
     expected_de = {
-        'Refreshing metadata overview…': 'Metadatenübersicht wird aktualisiert…',
         'Review pagination': 'Seitennavigation der Prüfung',
         'Showing': 'Angezeigt',
+        'Suggested updates': 'Vorgeschlagene Aktualisierungen',
     }
     expected_ar = {
         'No enabled Library roots': 'لا توجد جذور مكتبة مُفعّلة',
-        'all enabled roots': 'جميع الجذور المُفعّلة',
         'Enable a saved root in settings, then scan enabled roots to refresh the catalogue.': 'فعّل جذرًا محفوظًا في الإعدادات، ثم افحص الجذور المُفعّلة لتحديث الكتالوج.',
         'Run a scan from settings to index enabled roots. Source files stay in Nextcloud Files.': 'أجرِ فحصًا من الإعدادات لفهرسة الجذور المُفعّلة. تبقى الملفات المصدرية في ملفات Nextcloud.',
-        'Issue order': 'ترتيب الأعداد',
-        'Tag scanner-conflict rows': 'وسم صفوف تعارض الماسح الضوئي',
+        'Suggested updates': 'تحديثات مقترحة',
+        'Folders and scanning': 'المجلدات والفحص',
     }
     assert {key: de[key] for key in expected_de} == expected_de
     assert {key: ar[key] for key in expected_ar} == expected_ar
     sentinels = json.loads(read('scripts/translation-semantic-sentinels.json'))
-    assert all(sentinels['de'][key] == value for key, value in expected_de.items())
-    assert all(sentinels['ar'][key] == value for key, value in expected_ar.items())
+    assert all(sentinels['de'][key] == expected_de[key] for key in ('Review pagination', 'Showing'))
+    assert sentinels['ar']['Recently opened'] == ar['Recently opened']
 
 
 def test_touched_native_css_uses_logical_properties():

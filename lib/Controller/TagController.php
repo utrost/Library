@@ -7,6 +7,7 @@ namespace OCA\Library\Controller;
 use OCA\Library\Exception\BatchLimitExceededException;
 use OCA\Library\Service\FileTagService;
 use OCA\Library\Service\ItemService;
+use OCA\Library\Service\SelectedItemIds;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\RedirectResponse;
@@ -48,7 +49,7 @@ final class TagController extends Controller {
         $result = ['requestedItems' => 0, 'addedItems' => 0, 'alreadyTaggedItems' => 0, 'skippedItems' => 0];
         if ($user !== null) {
             try {
-                $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+                $itemIds = SelectedItemIds::parse($this->request->getParam('itemIds', null));
                 $result = $this->fileTagService->assignTagToItems(
                     $user->getUID(),
                     $itemIds,
@@ -56,6 +57,8 @@ final class TagController extends Controller {
                 );
             } catch (BatchLimitExceededException $e) {
                 return $this->batchLimitRedirect($filters);
+            } catch (\InvalidArgumentException $e) {
+                return $this->batchSelectionRedirect($filters);
             }
         }
 
@@ -76,7 +79,7 @@ final class TagController extends Controller {
         $result = ['requestedItems' => 0, 'removedItems' => 0, 'notTaggedItems' => 0, 'skippedItems' => 0];
         if ($user !== null) {
             try {
-                $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+                $itemIds = SelectedItemIds::parse($this->request->getParam('itemIds', null));
                 $result = $this->fileTagService->removeTagFromItems(
                     $user->getUID(),
                     $itemIds,
@@ -84,6 +87,8 @@ final class TagController extends Controller {
                 );
             } catch (BatchLimitExceededException $e) {
                 return $this->batchLimitRedirect($filters);
+            } catch (\InvalidArgumentException $e) {
+                return $this->batchSelectionRedirect($filters);
             }
         }
 
@@ -109,7 +114,7 @@ final class TagController extends Controller {
 
     private function catalogueFiltersFromRequest(): array {
         $filters = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $key) {
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $key) {
             $filters[$key] = trim((string)$this->request->getParam($key, ''));
         }
         if ($filters['sort'] === '') {
@@ -121,6 +126,12 @@ final class TagController extends Controller {
     private function batchLimitRedirect(array $filters): RedirectResponse {
         $query = array_filter($filters, static fn (string $value): bool => $value !== '');
         $query['batchLimitError'] = '1';
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
+    }
+
+    private function batchSelectionRedirect(array $filters): RedirectResponse {
+        $query = array_filter($filters, static fn (string $value): bool => $value !== '');
+        $query['batchSelectionError'] = '1';
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
     }
 

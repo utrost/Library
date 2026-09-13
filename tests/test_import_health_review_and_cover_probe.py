@@ -48,7 +48,7 @@ def test_catalogue_ui_links_to_full_health_exports_and_explains_left_as_is_polic
     assert "metadataErrorsUrl" in app
     assert "metadataErrorsTsvUrl" in app
     assert "coverProbeUrl" in app
-    assert "Full review" in app
-    assert "Export TSV" in app
-    assert "Probe covers" in app
-    assert "Files are left as-is" in app
+    assert "Full review" not in app
+    assert "Export TSV" not in app
+    assert "Probe covers" not in app
+    assert "File problems" in app and "Cover problems" in app

@@ -80,9 +80,9 @@ def test_batch_apply_controller_distinguishes_absent_empty_and_malformed_item_id
 
     assert "$itemIdsParamPresent = array_key_exists('itemIds', $this->request->getParams())" in body
     assert "$requestedItemIds = $this->request->getParam('itemIds', null)" in body
-    assert "$itemIds = $itemIdsParamPresent" in body
-    assert ": $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000)" in body
-    assert "$explicitItemIds !== []" not in body
+    assert "SelectedItemIds::parse($itemIdsParamPresent ? $requestedItemIds : null)" in body
+    assert "itemIdsForCatalogueFilters" not in body
+    assert "$this->itemService->applyBatchMetadataEdit" in body
 
 
 def test_browser_smoke_restores_explicit_item_after_failed_changed_state_readback():

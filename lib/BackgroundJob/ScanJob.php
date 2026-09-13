@@ -59,6 +59,17 @@ class ScanJob extends QueuedJob {
             if (!$this->scanJobService->markRunning($userId, $jobId)) {
                 return;
             }
+            try {
+                $this->logger->info('library.scan.started', [
+                    'event_schema' => 1,
+                    'job_id' => $jobId,
+                    'user_id' => $userId,
+                    'scope_type' => $scopeType,
+                    'queue_wait_ms' => $queueWaitMs,
+                ]);
+            } catch (Throwable) {
+                // Operational logging must not interrupt the scan.
+            }
             if (!in_array($scopeType, ['all', 'root', 'metadata_errors', 'missing_files'], true)
                 || ($scopeType === 'root' && $rootId <= 0)) {
                 throw new \RuntimeException('Invalid persisted scan scope');
@@ -84,21 +95,21 @@ class ScanJob extends QueuedJob {
                 return;
             }
             if ($this->scanJobService->finishJob($userId, $jobId, $result)) {
-                $this->logTerminal($result['errors'] === [] ? 'completed' : 'completed_with_errors', $scopeType, $result, $progressWrites, $cancelChecks, $queueWaitMs);
+                $this->logTerminal($result['errors'] === [] ? 'completed' : 'completed_with_errors', $userId, $jobId, $scopeType, $result, $progressWrites, $cancelChecks, $queueWaitMs);
             }
         } catch (ScanCancelledException) {
             return;
         } catch (Throwable $e) {
             $metrics = [...$latestProgress, 'scannerDurationMs' => $this->clock->elapsedMs($startedAt)];
             if ($this->scanJobService->failJob($userId, $jobId, $e->getMessage(), $metrics)) {
-                $this->logTerminal('failed', $scopeType, $metrics, $progressWrites, $cancelChecks, $queueWaitMs);
+                $this->logTerminal('failed', $userId, $jobId, $scopeType, $metrics, $progressWrites, $cancelChecks, $queueWaitMs);
             }
         }
     }
 
-    private function logTerminal(string $outcome, string $scopeType, array $metrics, int $progressWrites, int $cancelChecks, int $queueWaitMs): void {
+    private function logTerminal(string $outcome, string $userId, int $jobId, string $scopeType, array $metrics, int $progressWrites, int $cancelChecks, int $queueWaitMs): void {
         $scope = in_array($scopeType, ['all', 'root', 'metadata_errors', 'missing_files'], true) ? $scopeType : 'all';
-        $context = ['event_schema' => 1, 'scope_type' => $scope, 'outcome' => $outcome, 'worker_metrics_available' => true,
+        $context = ['event_schema' => 1, 'job_id' => $jobId, 'user_id' => $userId, 'scope_type' => $scope, 'outcome' => $outcome, 'worker_metrics_available' => true,
             'queue_wait_ms' => $queueWaitMs, 'progress_writes' => $progressWrites, 'cancel_checks' => $cancelChecks];
         $metricKeys = [
             'roots' => 'roots', 'indexed' => 'indexed', 'fingerprintSkips' => 'fingerprint_skips',

@@ -36,7 +36,7 @@ def test_shared_cancellation_exception_and_scanner_propagation_contract():
     assert scanner.rfind("catch (ScanCancelledException $e)", 0, root_catch) > scanner.index("foreach ($roots as $root)")
 
 
-def test_cancellation_has_one_atomic_privacy_safe_event_owner():
+def test_cancellation_has_one_atomic_correlated_event_owner():
     service = read("lib/Service/ScanJobService.php")
     job = read("lib/BackgroundJob/ScanJob.php")
     cancel = method(service, "cancelJob", "isCancelled")
@@ -45,10 +45,12 @@ def test_cancellation_has_one_atomic_privacy_safe_event_owner():
     assert "library.scan.cancelled" in cancel
     assert "try {" in cancel and "catch (Throwable)" in cancel
     assert "library.scan.cancelled" not in job
-    forbidden = ("user_id", "userId", "job_id", "jobId", "root_id", "rootId", "path", "error")
     log_call = cancel[cancel.index("library.scan.cancelled"):]
-    for key in forbidden:
+    for key in ("root_id", "rootId", "path", "error"):
         assert f"'{key}' =>" not in log_call
+    terminal_context = service[service.index("function terminalContext"):]
+    assert "'job_id' =>" in terminal_context
+    assert "'user_id' =>" in terminal_context
 
 
 def test_terminal_updates_preserve_latest_metrics_and_running_predicates():

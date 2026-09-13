@@ -46,9 +46,11 @@ def test_docs_and_ui_explain_nextcloud_vs_library_cover_support_matrix():
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 
-    assert "Cover support matrix" in app
-    assert "Nextcloud/plugin preview" in app
-    assert "Library extraction" in app
+    assert "Cover support matrix" not in app
+    assert "Cover problems" in app
+    assert "Nextcloud/plugin preview" not in app
+    assert "Library extraction" not in app
+    assert "Advanced details" in app
     assert "7z/RAR files are left as-is" in guide
     assert "read-only archive extraction" in guide
     assert "cover support matrix" in roadmap.lower()

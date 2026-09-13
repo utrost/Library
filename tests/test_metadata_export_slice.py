@@ -61,7 +61,8 @@ def test_catalogue_and_settings_link_to_metadata_export():
     assert "Export corrected metadata" in template
     assert "metadataExportUrl" in template
     assert "metadataExportUrl" in app
-    assert "Export corrected metadata" in app
+    assert "Export corrected metadata" not in app
+    assert "Import and export" in template
 
 
 def test_docs_mark_metadata_export_foundation_landed_and_next_priority():

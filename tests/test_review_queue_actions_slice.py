@@ -10,21 +10,18 @@ def read(path: str) -> str:
 def test_import_health_metadata_error_review_queue_has_open_export_and_tag_actions():
     app = read("src/App.vue")
     assert "library-review-queue-actions" in app
-    assert "metadataErrorReview.reviewUrl || '?status=metadata_error'" in app
+    assert "File problems" in app
     assert "metadataErrorsTsvUrl" in app
-    assert "Tag metadata-error rows" in app
-    assert 'name="status" value="metadata_error"' in app
-    assert 'name="nextcloudTagName" value="library-metadata-error"' in app
-    assert "Uses the existing batch tag route" in app
+    assert "Tag metadata-error rows" not in app
+    assert "selectedItemIds" in app
 
 
 def test_scanner_conflict_review_queue_can_be_opened_or_tagged_without_metadata_changes():
     app = read("src/App.vue")
     assert "scannerConflictReviewUrl" in app
-    assert "Tag scanner-conflict rows" in app
-    assert 'name="scannerConflicts" value="1"' in app
-    assert 'name="nextcloudTagName" value="library-scanner-conflict"' in app
-    assert "Library metadata is not changed" in app
+    assert "Suggested updates" in app
+    assert "Tag scanner-conflict rows" not in app
+    assert 'v-if="selectedItemIds.length > 0"' in app
 
 
 def test_review_queue_slice_stays_on_existing_safe_routes():

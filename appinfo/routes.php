@@ -6,6 +6,10 @@ return [
     'routes' => [
         ['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
         ['name' => 'page#catalogue', 'url' => '/catalogue', 'verb' => 'GET'],
+        ['name' => 'page#shelfChildren', 'url' => '/shelves/children', 'verb' => 'GET'],
+        ['name' => 'page#publicationSuggestions', 'url' => '/catalogue/publication-suggestions', 'verb' => 'GET'],
+        ['name' => 'page#creatorSuggestions', 'url' => '/catalogue/creator-suggestions', 'verb' => 'GET'],
+        ['name' => 'page#yearSuggestions', 'url' => '/catalogue/year-suggestions', 'verb' => 'GET'],
         ['name' => 'page#publication', 'url' => '/publications/{publication}', 'verb' => 'GET', 'requirements' => ['publication' => '.+']],
         ['name' => 'page#year', 'url' => '/years/{year}', 'verb' => 'GET'],
         ['name' => 'page#creator', 'url' => '/creators/{creator}', 'verb' => 'GET', 'requirements' => ['creator' => '.+']],
@@ -35,7 +39,6 @@ return [
         ['name' => 'item#batchresetfilteredfields', 'url' => '/bulk/items/reset-filtered-fields', 'verb' => 'POST'],
         ['name' => 'item#batchpreviewmetadataedit', 'url' => '/bulk/items/edit-preview', 'verb' => 'POST'],
         ['name' => 'item#batchapplymetadataedit', 'url' => '/bulk/items/edit-apply', 'verb' => 'POST'],
-        ['name' => 'item#bulkresetfields', 'url' => '/bulk/items/reset-fields', 'verb' => 'POST'],
         ['name' => 'cover#batchrefresh', 'url' => '/bulk/covers/refresh', 'verb' => 'POST'],
         ['name' => 'item_page#sidebar', 'url' => '/items/{itemId}/sidebar', 'verb' => 'GET', 'requirements' => ['itemId' => '[^/]+']],
         ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET', 'requirements' => ['itemId' => '[1-9][0-9]*']],

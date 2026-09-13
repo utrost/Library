@@ -30,7 +30,8 @@ def test_vue_and_fallback_render_publication_discovery_header_and_links():
     assert "isPublicationDiscoveryPage" in vue
     assert "library-discovery-header" in vue
     assert "discoveryTitle" in vue
-    assert "publicationLandingUrl(summary.publication)" in vue
+    assert "function publicationLandingUrl(publication)" in vue
+    assert 'name="publicationSearch"' in vue
 
 
 def test_smokes_and_docs_track_publication_discovery_page():

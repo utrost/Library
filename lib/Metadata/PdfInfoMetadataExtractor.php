@@ -35,6 +35,26 @@ public function extract(File $file): array {
         $metadata['subtitle'] = $subject;
     }
 
+    $identifiers = [];
+    foreach ([$subject, $this->extractPdfInfoString($content, 'Keywords')] as $infoText) {
+        if ($infoText !== null) {
+            $identifiers = array_merge($identifiers, $this->extractIdentifiersFromText($infoText, false));
+        }
+    }
+    if (preg_match_all('/<(?:[A-Za-z_][\w.-]*:)?identifier\b[^>]*>(.*?)<\/(?:[A-Za-z_][\w.-]*:)?identifier\s*>/isu', $content, $matches)) {
+        foreach ($matches[1] as $xmpValue) {
+            $identifiers = array_merge($identifiers, $this->extractIdentifiersFromText(html_entity_decode(strip_tags((string)$xmpValue), ENT_QUOTES | ENT_XML1, 'UTF-8'), true));
+        }
+    }
+    if ($identifiers !== []) {
+        $deduplicated = [];
+        foreach ($identifiers as $identifier) {
+            $key = $identifier['scheme'] . ':' . strtoupper((string)preg_replace('/[^0-9X]/i', '', $identifier['displayValue']));
+            $deduplicated[$key] = $deduplicated[$key] ?? $identifier;
+        }
+        $metadata['identifiers'] = array_values($deduplicated);
+    }
+
     $date = $this->extractPdfInfoDate($content, 'CreationDate') ?? $this->extractPdfInfoDate($content, 'ModDate');
     if ($date !== null) {
         $metadata['publicationDate'] = $date;
@@ -44,6 +64,39 @@ public function extract(File $file): array {
     // PDF Creator/Producer usually name generating software, and Keywords need a future
     // reviewable tag/keyword model rather than silent publication-metadata promotion.
     return count($metadata) > 2 ? $metadata : [];
+}
+
+/**
+ * @return array<int, array{scheme:string,displayValue:string,source:string,userEdited:bool}>
+ */
+private function extractIdentifiersFromText(string $text, bool $allowBare): array {
+    $identifiers = [];
+    $patterns = [
+        'isbn' => '/(?:(?:urn:)?isbn(?:-1[03])?\s*:?\s*)(\d[\d\s-]{7,16}[\dX])/iu',
+        'issn' => '/(?:(?:urn:)?issn\s*:?\s*)(\d[\d\s-]{5,10}[\dX])/iu',
+    ];
+    foreach ($patterns as $scheme => $pattern) {
+        if (preg_match_all($pattern, $text, $matches)) {
+            foreach ($matches[1] as $value) {
+                $value = trim((string)$value);
+                $compact = strtoupper((string)preg_replace('/[\s-]+/u', '', $value));
+                $expectedPattern = $scheme === 'isbn' ? '/^(?:\d{9}[\dX]|\d{13})$/' : '/^\d{7}[\dX]$/';
+                if (preg_match($expectedPattern, $compact) === 1) {
+                    $identifiers[] = ['scheme' => $scheme, 'displayValue' => $value, 'source' => 'pdf-info', 'userEdited' => false];
+                }
+            }
+        }
+    }
+    if ($allowBare && $identifiers === []) {
+        $value = trim($text);
+        $compact = strtoupper((string)preg_replace('/[\s-]+/u', '', $value));
+        if (preg_match('/^\d{9}[\dX]$|^\d{13}$/', $compact) === 1) {
+            $identifiers[] = ['scheme' => 'isbn', 'displayValue' => $value, 'source' => 'pdf-info', 'userEdited' => false];
+        } elseif (preg_match('/^\d{7}[\dX]$/', $compact) === 1) {
+            $identifiers[] = ['scheme' => 'issn', 'displayValue' => $value, 'source' => 'pdf-info', 'userEdited' => false];
+        }
+    }
+    return $identifiers;
 }
 
 private function extractPdfInfoString(string $content, string $key): ?string {

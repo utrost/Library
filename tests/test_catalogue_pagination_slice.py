@@ -22,14 +22,14 @@ def test_template_renders_catalogue_pagination_controls_and_summary():
     assert "of" in vue
     assert "Previous" in vue
     assert "Next" in vue
-    assert "name=\"limit\"" in vue
+    assert "pagination.page" in vue
     assert "[25, 50, 100, 250, 500]" in vue
 
 
 def test_pagination_preserves_active_filters_in_links():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     assert "paginationUrl" in page
-    for param in ["q", "type", "format", "tag", "shelf", "status", "sort", "limit", "page"]:
+    for param in ["q", "type", "publisher", "format", "tag", "shelf", "status", "sort", "limit", "page"]:
         assert param in page
 
 

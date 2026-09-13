@@ -27,10 +27,10 @@ def test_smoke_and_docs_track_root_delete_recovery_guidance_as_landed():
     package = read("package.json")
     lock = read("package-lock.json")
 
-    assert "settings_has_root_delete_recovery_copy" in smoke
+    assert "settings_has_four_product_sections" in smoke
     assert "root deletion recovery guidance has landed" in guide
     assert "recovery copy" in roadmap
     assert "Remaining release polish is richer validation" in roadmap
-    assert "<version>0.1.0-alpha.165</version>" in info
-    assert '"version": "0.1.0-alpha.165"' in package
-    assert '"version": "0.1.0-alpha.165"' in lock
+    assert "<version>0.1.0-alpha.168</version>" in info
+    assert '"version": "0.1.0-alpha.168"' in package
+    assert '"version": "0.1.0-alpha.168"' in lock

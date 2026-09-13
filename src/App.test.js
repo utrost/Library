@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+// Source-harness marker: keeps catalogue workspace panels collapsed so the cover shelf stays central
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
@@ -53,6 +54,8 @@ async function waitForSidebarEvent(wrapper, event, count = 1) {
 
 const state = {
   catalogueRootUrl: '/nc/index.php/apps/library/',
+  homeUrl: '/nc/index.php/apps/library/?home=1',
+  shelvesUrl: '/nc/index.php/apps/library/?shelves=1',
   reviewUrl: '/nc/index.php/apps/library/?scannerConflicts=1',
   settingsUrl: '/nc/index.php/settings/user/library',
   requestToken: 'test-token',
@@ -63,6 +66,8 @@ const state = {
   shelves: ['Books'],
   formats: ['epub'],
   scanStatuses: ['indexed'],
+  subjects: ['History'],
+  classifications: ['DDC 900'],
   activeFilters: { q: '', type: '', format: '', tag: '', shelf: '', status: '', sort: 'title' },
   cataloguePagination: { page: 1, limit: 100, total: 1, visible: 1, from: 1, to: 1, previousUrl: '', nextUrl: '' },
   items: [{
@@ -90,6 +95,7 @@ const state = {
     openUrl: '/f/178',
     detailsUrl: '/nc/index.php/apps/library/items/7',
     filesUrl: '/apps/files/files/178?openfile=true',
+    downloadUrl: '/apps/library/items/7/download',
     starUrl: '/apps/library/items/7/star',
     starred: false,
     updateUrl: '/apps/library/items/7',
@@ -116,6 +122,357 @@ afterEach(async () => {
 })
 
 describe('Library catalogue Vue app', () => {
+  it('renders server-backed Home rows independently from catalogue items', () => {
+    const homeItem = {
+      ...state.items[0],
+      id: 41,
+      title: 'Server Home Publication',
+    }
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          surface: 'home',
+          items: [{ ...state.items[0], id: 99, title: 'Catalogue Page Only' }],
+          homeUrl: '/apps/library/?home=1',
+          homeRows: { continueReading: [homeItem], recentlyAdded: [homeItem] },
+          homeShelves: [{ shelf: 'Books', itemCount: 12, url: '/apps/library/?shelf=Books' }],
+          needsAttention: { count: 3, url: '/apps/library/?needsMetadata=1' },
+        },
+      },
+    })
+
+    expect(wrapper.find('#library-home').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Server Home Publication')
+    expect(wrapper.text()).not.toContain('Catalogue Page Only')
+    expect(wrapper.text()).toContain('Continue reading')
+    expect(wrapper.text()).toContain('Recently added')
+    expect(wrapper.text()).toContain('Shelves')
+    expect(wrapper.text()).toContain('Needs attention')
+    expect(wrapper.find('[aria-labelledby="library-home-shelves-heading"] > header a').attributes('href')).toBe(state.shelvesUrl)
+    expect(wrapper.findAllComponents(NcAppNavigationItem)[0].props('active')).toBe(true)
+    expect(wrapper.findAllComponents(NcAppNavigationItem)[0].props('href')).toBe('/apps/library/?home=1')
+  })
+
+  it('renders collapsed shelf roots and fetches bounded children once on expansion', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ nodes: [
+        { id: 'root-4-/Books/Art', rootId: 4, label: 'Art', path: '/Books/Art', itemCount: 3, childCount: 0, hasChildren: false, url: '/apps/library/?folder=%2FBooks%2FArt' },
+      ] }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      surface: 'shelves',
+      items: [{ ...state.items[0], title: 'Catalogue Page Only' }],
+      shelfChildrenUrl: '/apps/library/shelves/children',
+      shelfTree: [
+        { id: 'root-4', rootId: 4, label: 'Books', path: '/Books', itemCount: 12, childCount: 1, hasChildren: true, url: '/apps/library/?folder=%2FBooks' },
+        { id: 'root-5', rootId: 5, label: 'Empty root', path: '/Empty', itemCount: 0, childCount: 0, hasChildren: false, url: '/apps/library/?folder=%2FEmpty' },
+      ],
+    } } })
+
+    expect(wrapper.find('#library-shelves-landing').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Books')
+    expect(wrapper.text()).toContain('12 items')
+    expect(wrapper.text()).toContain('Empty root')
+    expect(wrapper.text()).not.toContain('Catalogue Page Only')
+    expect(wrapper.findAll('.library-shelf-tree-node')).toHaveLength(2)
+    expect(wrapper.find('.library-shelf-tree > .library-shelf-tree-node > a').attributes('href')).toBe('/apps/library/?folder=%2FBooks')
+    expect(wrapper.text()).not.toContain('Art')
+    const expand = wrapper.find('.library-shelf-tree-toggle')
+    expect(expand.attributes('aria-expanded')).toBe('false')
+    await expand.trigger('click')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Art'))
+    expect(fetchMock).toHaveBeenCalledWith('/apps/library/shelves/children?rootId=4&parent=%2FBooks&limit=100&offset=0', expect.objectContaining({ credentials: 'same-origin' }))
+    const child = wrapper.find('.library-shelf-tree .library-shelf-tree .library-shelf-tree-node')
+    expect(child.text()).toContain('Art')
+    expect(child.text()).toContain('3 items')
+    expect(child.find('a').attributes('href')).toBe('/apps/library/?folder=%2FBooks%2FArt')
+    await expand.trigger('click')
+    await expand.trigger('click')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(wrapper.findAllComponents(NcAppNavigationItem)[4].props('active')).toBe(true)
+    expect(wrapper.findAllComponents(NcAppNavigationItem)[4].props('href')).toBe(state.shelvesUrl)
+
+    const empty = mount(App, { props: { state: { ...state, surface: 'shelves', shelfTree: [] } } })
+    expect(empty.find('.library-shelves-empty').exists()).toBe(true)
+    const emptyActions = empty.findAll('.library-shelves-empty .button')
+    expect(emptyActions.map((action) => action.text())).toEqual(['Add a Library root', 'All publications'])
+    expect(emptyActions.map((action) => action.attributes('href'))).toEqual([state.settingsUrl, state.catalogueRootUrl])
+  })
+
+  it('shows and removes an active folder filter chip', async () => {
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      activeFilters: { ...state.activeFilters, folder: '/Books/Art' },
+    } } })
+
+    const chip = wrapper.find('.library-filter-chip[aria-label="Remove filter: Folder"]')
+    expect(chip.text()).toContain('Folder: /Books/Art')
+    await chip.trigger('click')
+    expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Folder"]').exists()).toBe(false)
+  })
+
+  it('does not render an empty Shelves discovery section in the normal catalogue', () => {
+    const wrapper = mount(App, { props: { state: { ...state, surface: 'catalogue' } } })
+
+    expect(wrapper.find('#library-catalogue').exists()).toBe(true)
+    expect(wrapper.find('#library-shelves').exists()).toBe(false)
+    expect(wrapper.find('.library-discovery-shortcuts').exists()).toBe(false)
+  })
+
+  it('submits only selected publication IDs for Fresh covers and offers no action without a selection', async () => {
+    const submit = vi.fn((event) => event.preventDefault())
+    document.addEventListener('submit', submit)
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      batchCoverRefreshUrl: '/apps/library/bulk/covers/refresh',
+      items: [
+        { ...state.items[0], id: 11, title: 'A' },
+        { ...state.items[0], id: 12, title: 'B' },
+        { ...state.items[0], id: 13, title: 'C' },
+      ],
+    } } })
+
+    expect(wrapper.find('.library-batch-cover-refresh-form').exists()).toBe(false)
+    expect(submit).not.toHaveBeenCalled()
+    const checkboxes = wrapper.findAll('.library-item-selection input')
+    await checkboxes[0].setValue(true)
+    await checkboxes[1].setValue(true)
+    const form = wrapper.find('.library-batch-cover-refresh-form')
+    await form.trigger('submit')
+    expect(form.findAll('input[name="itemIds[]"]').map((input) => input.element.value)).toEqual(['11', '12'])
+    expect(form.findAll('input[name="itemIds[]"]').map((input) => input.element.value)).not.toContain('13')
+    document.removeEventListener('submit', submit)
+  })
+  it('starts with one visible navigation filter form plus Sort and View content controls and no catalogue workbenches', () => {
+    const wrapper = mount(App, { props: { state } })
+    const search = wrapper.get('[data-library-quick-search]')
+
+    expect(search.element.closest('details')).toBeNull()
+    expect(wrapper.findAll('form.library-sidebar-filters')).toHaveLength(1)
+    expect(wrapper.findAll('[data-library-control="sort"]')).toHaveLength(1)
+    expect(wrapper.findAll('[data-library-control="view"]')).toHaveLength(1)
+    expect(wrapper.find('.library-quick-filter-options').exists()).toBe(false)
+    expect(wrapper.findAll('form.library-filter-bar')).toHaveLength(1)
+    expect(wrapper.find('[data-workspace-panel="review"]').exists()).toBe(false)
+    expect(wrapper.find('[data-workspace-panel="admin"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toMatch(/Recently added|Rediscover/)
+  })
+
+  it('places catalogue filters below navigation while keeping result controls in content', () => {
+    const wrapper = mount(App, { attachTo: document.body, props: { state: {
+      ...state,
+      publishers: ['Example Press'],
+      publications: ['Nature Weekly'],
+      publicationYears: ['2026'],
+      creators: ['Ada Reader'],
+    } } })
+    const navigation = wrapper.findComponent(NcAppNavigation)
+    const filters = navigation.get('form.library-sidebar-filters')
+
+    expect(navigation.get('#library-sidebar-filters-heading').text()).toBe('Filters')
+    expect(filters.get('[data-library-quick-search]').attributes('name')).toBe('q')
+    expect(filters.get('select[name="type"]').exists()).toBe(true)
+    expect(filters.get('select[name="publisher"]').exists()).toBe(true)
+    expect(filters.get('input[name="publicationSearch"]').exists()).toBe(true)
+    expect(filters.get('input[name="yearSearch"]').exists()).toBe(true)
+    expect(filters.get('input[name="creatorSearch"]').exists()).toBe(true)
+    expect(filters.get('select[name="format"]').exists()).toBe(true)
+    expect(filters.get('select[name="status"]').exists()).toBe(true)
+    expect(filters.get('select[name="subject"]').text()).toContain('All subjects')
+    expect(filters.get('select[name="subject"]').text()).toContain('History')
+    expect(filters.find('select[name="genre"]').exists()).toBe(false)
+    expect(wrapper.find('#library-catalogue form.library-filter-bar').exists()).toBe(false)
+    expect(wrapper.find('#library-catalogue [data-library-control="filter"]').exists()).toBe(false)
+    expect(wrapper.find('#library-catalogue [data-library-control="sort"]').exists()).toBe(true)
+    expect(wrapper.find('#library-catalogue [data-library-control="view"]').exists()).toBe(true)
+  })
+
+  it('preserves active hidden catalogue constraints when applying sidebar filters', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...state }) })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, folder: '/Books/Art', starred: '1', coverReview: 'placeholder' },
+    } } })
+    const form = wrapper.get('form.library-sidebar-filters')
+
+    expect(form.findAll('input[name="folder"]')).toHaveLength(1)
+    expect(form.findAll('input[name="starred"]')).toHaveLength(1)
+    expect(form.findAll('input[name="coverReview"]')).toHaveLength(1)
+    expect(form.findAll('[name="scannerConflicts"]')).toHaveLength(1)
+    await form.get('input[name="q"]').setValue('bauhaus')
+    await form.trigger('submit')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?folder=%2FBooks%2FArt&starred=1&coverReview=placeholder&q=bauhaus',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+  })
+
+  it('immediately applies a changed select filter without an Apply click', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, format: 'epub' } }),
+    })
+    const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+
+    await wrapper.get('select[name="format"]').setValue('epub')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?format=epub',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+  })
+
+  it('waits for Enter before applying typed search text', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, q: 'bauhaus' } }),
+    })
+    const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+    const search = wrapper.get('input[name="q"]')
+
+    await search.setValue('bauhaus')
+    await new Promise((resolve) => window.setTimeout(resolve, 400))
+    expect(global.fetch).not.toHaveBeenCalled()
+
+    await search.trigger('keydown', { key: 'Enter' })
+    await search.element.form.requestSubmit()
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?q=bauhaus',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+  })
+
+  it('offers a per-filter reset that clears only that active filter', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, type: '', format: 'epub' } }),
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, type: 'book', format: 'epub' },
+    } } })
+
+    const resets = wrapper.findAll('.library-filter-chip')
+    expect(resets.map((reset) => reset.attributes('aria-label'))).toEqual(expect.arrayContaining([
+      'Remove filter: Type',
+      'Remove filter: Format',
+    ]))
+    await wrapper.get('.library-filter-chip[aria-label="Remove filter: Type"]').trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?format=epub',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+    expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Type"]').exists()).toBe(false)
+    expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Format"]').exists()).toBe(true)
+  })
+
+  it.each(['home', 'shelves'])('offers active filter resets on %s and navigates to the canonical catalogue', async (surface) => {
+    global.fetch = vi.fn()
+    const submissions = []
+    const nativeSubmit = vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(function () {
+      submissions.push({ action: this.getAttribute('action'), params: Object.fromEntries(new FormData(this)) })
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      surface,
+      activeFilters: { ...state.activeFilters, type: 'book', format: 'epub' },
+    } } })
+
+    const chip = wrapper.get('.library-filter-chip[aria-label="Remove filter: Type"]')
+    await chip.trigger('click')
+
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(submissions).toEqual([{
+      action: state.catalogueRootUrl,
+      params: { format: 'epub' },
+    }])
+    nativeSubmit.mockRestore()
+  })
+
+  it('offers active filter resets on Review and updates the catalogue through AJAX', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, scannerConflicts: '1', type: '' } }),
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, scannerConflicts: '1', type: 'book' },
+    } } })
+
+    await wrapper.get('.library-filter-chip[aria-label="Remove filter: Type"]').trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?scannerConflicts=1',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+  })
+
+  it('resets a non-default Sort independently while preserving the type filter', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, sort: 'title', type: 'book' } }),
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, sort: 'recent', type: 'book' },
+    } } })
+
+    await wrapper.get('.library-filter-chip[aria-label="Remove filter: Sort"]').trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?type=book',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+    expect(wrapper.get('select[name="sort"]').element.value).toBe('title')
+    expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Type"]').exists()).toBe(true)
+    expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Sort"]').exists()).toBe(false)
+  })
+
+  it.each(['home', 'shelves'])('full-navigates sidebar filter submissions from the %s surface', async (surface) => {
+    global.fetch = vi.fn()
+    const submissions = []
+    const nativeSubmit = vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(function () {
+      submissions.push({ action: this.getAttribute('action'), params: Object.fromEntries(new FormData(this)) })
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      surface,
+      activeFilters: { ...state.activeFilters, folder: '/Books' },
+    } } })
+    const form = wrapper.get('form.library-sidebar-filters')
+
+    await form.get('input[name="q"]').setValue('design')
+    await form.trigger('submit')
+    await wrapper.vm.$nextTick()
+
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(submissions).toEqual([{
+      action: state.catalogueRootUrl,
+      params: { folder: '/Books', q: 'design' },
+    }])
+    nativeSubmit.mockRestore()
+  })
+
+  it('focuses the already-visible navigation search with slash', async () => {
+    const wrapper = mount(App, { attachTo: document.body, props: { state } })
+    const filters = wrapper.findComponent(NcAppNavigation).get('form.library-sidebar-filters')
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true, cancelable: true }))
+    await wrapper.vm.$nextTick()
+
+    expect(document.activeElement).toBe(filters.get('[data-library-quick-search]').element)
+  })
   it('wraps the unchanged catalogue in the first native application shell scaffold', () => {
     const wrapper = mount(App, { props: { state } })
 
@@ -125,12 +482,13 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.findComponent(NcAppContent).exists()).toBe(true)
 
     const destinations = wrapper.findAllComponents(NcAppNavigationItem)
-    expect(destinations).toHaveLength(2)
-    expect(destinations.map((destination) => destination.props('name'))).toEqual(['Library', 'Review'])
-    expect(destinations[0].props('href')).toBe(state.catalogueRootUrl)
-    expect(destinations[0].props('active')).toBe(true)
-    expect(destinations[1].props('href')).toBe(state.reviewUrl)
-    expect(destinations[1].props('active')).toBe(false)
+    expect(destinations).toHaveLength(7)
+    expect(destinations.map((destination) => destination.props('name'))).toEqual(['Home', 'All publications', 'Starred', 'Continue reading', 'Shelves', 'Collections', 'Review'])
+    expect(destinations[0].props('href')).toBe(state.homeUrl)
+    expect(destinations[1].props('href')).toBe(state.catalogueRootUrl)
+    expect(destinations[1].props('active')).toBe(true)
+    expect(destinations[6].props('href')).toBe(state.reviewUrl)
+    expect(destinations[6].props('active')).toBe(false)
 
     expect(wrapper.findComponent(NcAppNavigationSettings).exists()).toBe(false)
     const settings = wrapper.find('.library-navigation-settings-link')
@@ -140,7 +498,7 @@ describe('Library catalogue Vue app', () => {
     const content = wrapper.findComponent(NcAppContent)
     expect(content.find('.library-vue-catalogue').exists()).toBe(true)
     expect(content.find('.library-catalogue-workspace').exists()).toBe(true)
-    expect(content.findAll('.library-workspace-panel')).toHaveLength(5)
+    expect(content.findAll('.library-workspace-panel')).toHaveLength(0)
     expect(content.text()).toContain('Example Book')
 
     const sidebar = wrapper.findComponent(NcAppSidebar)
@@ -148,6 +506,28 @@ describe('Library catalogue Vue app', () => {
     expect(sidebar.props('open')).toBe(false)
     expect(sidebar.props('noToggle')).toBe(true)
     expect(document.body.textContent).not.toContain('Open sidebar')
+  })
+
+  it('implements the catalogue shell, toolbar, card hierarchy, and selection-only batch contract', () => {
+    const wrapper = mount(App, { props: { state: { ...state, smartViewCounts: { 'scanner-conflicts': 2, 'needs-metadata': 3 } } } })
+    const destinations = wrapper.findAllComponents(NcAppNavigationItem)
+
+    expect(destinations.map((item) => item.props('name'))).toEqual([
+      'Home', 'All publications', 'Starred', 'Continue reading', 'Shelves', 'Collections', 'Review (5)',
+    ])
+    expect(wrapper.find('#library-catalogue-heading').text()).toBe('Library')
+    const navigation = wrapper.findComponent(NcAppNavigation)
+    expect(navigation.findAll('form.library-sidebar-filters')).toHaveLength(1)
+    expect(navigation.get('#library-sidebar-filters-heading').text()).toBe('Filters')
+    expect(wrapper.find('#library-catalogue form.library-sidebar-filters').exists()).toBe(false)
+    expect(wrapper.find('#library-catalogue [data-library-control="sort"]').exists()).toBe(true)
+    expect(wrapper.find('#library-catalogue [data-library-control="view"]').exists()).toBe(true)
+    expect(navigation.find('form.library-sidebar-filters button[type="submit"]').exists()).toBe(true)
+    expect(wrapper.find('.library-workspace-panel--batch').exists()).toBe(false)
+    expect(wrapper.find('.library-cover-creator').text()).toBe('Ada Reader')
+    expect(wrapper.findAll('.library-cover-context')).toHaveLength(1)
+    expect(wrapper.find('.library-cover-context').text()).toBe('2026')
+    expect(wrapper.find('.library-cover-card--open').exists()).toBe(false)
   })
 
   it('keeps app-internal shell destinations same-origin and correct from nested routes', () => {
@@ -159,7 +539,12 @@ describe('Library catalogue Vue app', () => {
     ]
 
     expect(hrefs).toEqual([
+      '/nc/index.php/apps/library/?home=1',
       '/nc/index.php/apps/library/',
+      '/nc/index.php/apps/library/?starred=1',
+      '/nc/index.php/apps/library/?sort=lastOpened',
+      '/nc/index.php/apps/library/?shelves=1',
+      '/nc/index.php/apps/library/#library-collections',
       '/nc/index.php/apps/library/?scannerConflicts=1',
       '/nc/index.php/settings/user/library',
     ])
@@ -179,7 +564,12 @@ describe('Library catalogue Vue app', () => {
     const destinations = wrapper.findAllComponents(NcAppNavigationItem)
 
     expect(destinations.map((item) => item.props('href'))).toEqual([
+      '/nc/index.php/apps/library/?home=1',
       '/nc/index.php/apps/library/',
+      '/nc/index.php/apps/library/?starred=1',
+      '/nc/index.php/apps/library/?sort=lastOpened',
+      '/nc/index.php/apps/library/?shelves=1',
+      '/nc/index.php/apps/library/#library-collections',
       '/nc/index.php/apps/library/?scannerConflicts=1',
     ])
     expect(wrapper.find('.library-navigation-settings-link').attributes('href')).toBe('/nc/index.php/settings/user/library')
@@ -205,7 +595,12 @@ describe('Library catalogue Vue app', () => {
     })
 
     expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('href'))).toEqual([
+      '/nc/index.php/apps/library/?home=1',
       '/nc/index.php/apps/library/',
+      '/nc/index.php/apps/library/?starred=1',
+      '/nc/index.php/apps/library/?sort=lastOpened',
+      '/nc/index.php/apps/library/?shelves=1',
+      '/nc/index.php/apps/library/#library-collections',
       '/nc/index.php/apps/library/?scannerConflicts=1',
     ])
     expect(wrapper.find('.library-navigation-settings-link').attributes('href')).toBe('/nc/index.php/settings/user/library')
@@ -218,7 +613,7 @@ describe('Library catalogue Vue app', () => {
     window.history.replaceState({}, '', '/nc/index.php/apps/library/creators/Ada')
     const wrapper = mount(App, { props: { state: { ...state, catalogueRootUrl: encodedUrl } } })
 
-    expect(wrapper.findAllComponents(NcAppNavigationItem)[0].props('href')).toBe(encodedUrl)
+    expect(wrapper.findAllComponents(NcAppNavigationItem)[1].props('href')).toBe(encodedUrl)
   })
 
   it.each(['publication', 'year', 'creator'])('returns from the nested %s discovery page through the generated catalogue root', (discoveryPage) => {
@@ -256,10 +651,10 @@ describe('Library catalogue Vue app', () => {
     })
     const destinations = wrapper.findAllComponents(NcAppNavigationItem)
 
-    expect(destinations[0].props('href')).toBe(state.catalogueRootUrl)
-    expect(destinations[0].props('active')).toBe(false)
-    expect(destinations[1].props('href')).toBe(state.reviewUrl)
-    expect(destinations[1].props('active')).toBe(true)
+    expect(destinations[1].props('href')).toBe(state.catalogueRootUrl)
+    expect(destinations[1].props('active')).toBe(false)
+    expect(destinations[6].props('href')).toBe(state.reviewUrl)
+    expect(destinations[6].props('active')).toBe(true)
   })
 
   it('treats canonical weak-metadata review filters as Review and ordinary filters as Library', () => {
@@ -270,8 +665,8 @@ describe('Library catalogue Vue app', () => {
       props: { state: { ...state, activeFilters: { ...state.activeFilters, q: 'camera' } } },
     }).findAllComponents(NcAppNavigationItem)
 
-    expect(review.map((item) => item.props('active'))).toEqual([false, true])
-    expect(library.map((item) => item.props('active'))).toEqual([true, false])
+    expect(review.map((item) => item.props('active'))).toEqual([false, false, false, false, false, false, true])
+    expect(library.map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false])
   })
 
   it.each([
@@ -287,7 +682,7 @@ describe('Library catalogue Vue app', () => {
 
     expect(wrapper.find('.library-review-destination').exists()).toBe(false)
     expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(true)
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([true, false])
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false])
     expect(wrapper.findAll('input[type="hidden"]').some((input) => input.attributes('name') === key && input.attributes('value') === value)).toBe(false)
   })
 
@@ -305,7 +700,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('#library-review-heading').text()).toBe('Review')
     expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(false)
     expect(wrapper.find('.library-view-mode-toggle').exists()).toBe(false)
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true])
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, false, false, false, false, false, true])
     expect(wrapper.find('.library-review-results').text()).toContain('Example Book')
   })
 
@@ -317,20 +712,34 @@ describe('Library catalogue Vue app', () => {
     const links = wrapper.findAll('.library-review-queue-link')
 
     expect(links.map((link) => link.attributes('href'))).toEqual([
-      '/nc/index.php/apps/library/?needsMetadata=1',
       '/nc/index.php/apps/library/?scannerConflicts=1',
+      '/nc/index.php/apps/library/?needsMetadata=1',
       '/nc/index.php/apps/library/?status=metadata_error',
       '/nc/index.php/apps/library/?coverReview=placeholder',
-      '/nc/index.php/apps/library/?noCreator=1',
-      '/nc/index.php/apps/library/?noPublication=1',
-      '/nc/index.php/apps/library/?noDate=1',
-      '/nc/index.php/apps/library/?titleFromFilename=1',
-      '/nc/index.php/apps/library/?weakMetadata=filename',
-      '/nc/index.php/apps/library/?noDescription=1',
-      '/nc/index.php/apps/library/?unsupportedContainer=1',
       '/nc/index.php/apps/library/?unreviewedImports=1',
     ])
-    expect(links[1].attributes('aria-current')).toBe('page')
+    expect(links[0].attributes('aria-current')).toBe('page')
+  })
+
+  it('loads a clicked Review queue through the catalogue endpoint while retaining its href fallback', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, needsMetadata: '1' } }),
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, scannerConflicts: '1' },
+    } } })
+    const link = wrapper.findAll('.library-review-queue-link')[1]
+
+    expect(link.attributes('href')).toBe('/nc/index.php/apps/library/?needsMetadata=1')
+    await link.trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?needsMetadata=1',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
   })
 
   it('records Review filtering in browser history and clears stale review state from the response', async () => {
@@ -351,7 +760,7 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.find('.library-review-results').text()).toContain('Example Book'))
 
     expect(pushState).toHaveBeenCalledWith({}, '', '?scannerConflicts=1&q=camera')
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true])
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, false, false, false, false, false, true])
   })
 
   it('reloads the server-backed destination on browser history traversal', async () => {
@@ -368,7 +777,7 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(true))
 
     expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?q=camera', expect.objectContaining({ credentials: 'same-origin' }))
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([true, false])
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false])
   })
 
   it.each([
@@ -394,7 +803,7 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(true))
 
     expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue', expect.objectContaining({ credentials: 'same-origin' }))
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([true, false])
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false])
     expect(wrapper.findAll('.library-filter-bar input[type="hidden"], .library-review-filter-form input[type="hidden"]')
       .some((input) => ['scannerConflicts', 'status'].includes(input.attributes('name')))).toBe(false)
   })
@@ -411,7 +820,203 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalled())
 
     expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?status=indexed', expect.any(Object))
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([true, false])
+    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false])
+  })
+
+  it('removes an active year filter chip through AJAX while preserving other filters', async () => {
+    setNextcloudViewport(390)
+    installMatchMedia(true)
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...state,
+        activeFilters: { ...state.activeFilters, year: '', format: 'epub' },
+      }),
+    })
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          catalogueEndpointUrl: '/apps/library/catalogue',
+          activeFilters: { ...state.activeFilters, year: '1999', format: 'epub' },
+        },
+      },
+    })
+    const yearChip = wrapper.findAll('.library-filter-chip').find((chip) => chip.text().includes('1999'))
+    const tap = new MouseEvent('click', { bubbles: true, cancelable: true })
+
+    yearChip.element.dispatchEvent(tap)
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalled())
+
+    expect(tap.defaultPrevented).toBe(true)
+    expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?format=epub', expect.objectContaining({ credentials: 'same-origin' }))
+    await vi.waitFor(() => expect(wrapper.findAll('.library-filter-chip').some((chip) => chip.text().includes('1999'))).toBe(false))
+    expect(wrapper.find('.library-filter-bar input[name="yearSearch"]').element.value).toBe('')
+    expect(wrapper.find('.library-filter-bar select[name="format"]').element.value).toBe('epub')
+  })
+
+  it('persists an applied year filter from the AJAX catalogue response', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...state,
+        publicationYears: ['1999'],
+        activeFilters: { ...state.activeFilters, year: '1999', type: 'book' },
+      }),
+    })
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          catalogueEndpointUrl: '/apps/library/catalogue',
+          publicationYears: ['1999'],
+          publicationTypes: ['book'],
+        },
+      },
+    })
+
+    await wrapper.find('.library-filter-bar input[name="yearSearch"]').setValue('1999')
+    await wrapper.find('.library-filter-bar select[name="type"]').setValue('book')
+    await wrapper.find('.library-filter-bar').trigger('submit')
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalled())
+
+    expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?type=book&year=1999', expect.objectContaining({ credentials: 'same-origin' }))
+    await vi.waitFor(() => expect(wrapper.find('.library-filter-bar input[name="yearSearch"]').element.value).toBe('1999'))
+    expect(wrapper.findAll('.library-filter-chip').some((chip) => chip.text().includes('1999'))).toBe(true)
+  })
+
+  it('renders a capped publication typeahead instead of a publication select', async () => {
+    const publications = Array.from({ length: 40 }, (_, index) => `Series ${String(index + 1).padStart(2, '0')}`)
+    const wrapper = mount(App, { props: { state: { ...state, publications, publicationSummaries: [{ publication: 'Series 01', itemCount: 2 }] } } })
+
+    expect(wrapper.find('select[name="publication"]').exists()).toBe(false)
+    expect(wrapper.find('input[name="publicationSearch"]').exists()).toBe(true)
+    expect(wrapper.find('.library-periodical-groups').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Choose series')
+    expect(wrapper.find('input[type="hidden"][name="publication"]').exists()).toBe(true)
+    await wrapper.get('input[name="publicationSearch"]').trigger('focus')
+    expect(wrapper.findAll('.library-publication-suggestion')).toHaveLength(20)
+  })
+
+  it('filters publication suggestions and applies a selected exact value through AJAX', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...state,
+        publications: ['Nature Weekly', 'Nature World'],
+        activeFilters: { ...state.activeFilters, publication: 'Nature Weekly' },
+      }),
+    })
+    const wrapper = mount(App, {
+      props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue', publications: ['Science Today', 'Nature Weekly', 'Nature World'] } },
+    })
+
+    const search = wrapper.get('input[name="publicationSearch"]')
+    await search.trigger('focus')
+    await search.setValue('weekly')
+    expect(wrapper.findAll('.library-publication-suggestion').map((candidate) => candidate.text())).toEqual(['Nature Weekly'])
+    await wrapper.get('.library-publication-suggestion').trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?publication=Nature+Weekly', expect.objectContaining({ credentials: 'same-origin' })))
+    await vi.waitFor(() => expect(wrapper.findAll('.library-filter-chip').some((chip) => chip.text().includes('Nature Weekly'))).toBe(true))
+    expect(wrapper.get('input[type="hidden"][name="publication"]').element.value).toBe('Nature Weekly')
+    expect(search.element.value).toBe('Nature Weekly')
+  })
+
+  it('fetches remote publication suggestions outside the seed and applies one through AJAX', async () => {
+    global.fetch = vi.fn().mockImplementation(async (url) => {
+      if (String(url).startsWith('/apps/library/catalogue/publication-suggestions')) {
+        return { ok: true, json: async () => ({ publications: ['Zzz Remote Quarterly'] }) }
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          ...state,
+          publications: ['Local Seed'],
+          activeFilters: { ...state.activeFilters, publication: 'Zzz Remote Quarterly', year: '1999' },
+        }),
+      }
+    })
+    const wrapper = mount(App, {
+      props: {
+        state: {
+          ...state,
+          catalogueEndpointUrl: '/apps/library/catalogue',
+          publicationSuggestionsUrl: '/apps/library/catalogue/publication-suggestions',
+          publications: ['Local Seed'],
+          publicationYears: ['1999'],
+          activeFilters: { ...state.activeFilters, publication: 'Old Selected Series', year: '1999' },
+        },
+      },
+    })
+
+    const search = wrapper.get('input[name="publicationSearch"]')
+    await search.trigger('focus')
+    await search.setValue('zzz remote')
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue/publication-suggestions?year=1999&publicationSearch=zzz+remote',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+    expect(global.fetch.mock.calls.filter(([url]) => /^\/apps\/library\/catalogue(?:\?|$)/.test(String(url)))).toHaveLength(0)
+    await vi.waitFor(() => expect(wrapper.findAll('.library-publication-suggestion').map((candidate) => candidate.text())).toEqual(['Zzz Remote Quarterly']))
+    await wrapper.get('.library-publication-suggestion').trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?publication=Zzz+Remote+Quarterly&year=1999',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+  })
+
+  it('renders creator and year as typeaheads without legacy shortcut pick lists', () => {
+    const wrapper = mount(App, { props: { state: { ...state, creators: ['Ada Reader'], publicationYears: ['1999'] } } })
+
+    for (const facet of ['creator', 'year']) {
+      expect(wrapper.find(`select[name="${facet}"]`).exists()).toBe(false)
+      expect(wrapper.find(`input[name="${facet}Search"]`).exists()).toBe(true)
+      expect(wrapper.find(`input[type="hidden"][name="${facet}"]`).exists()).toBe(true)
+    }
+    expect(wrapper.text()).not.toContain('Choose creator')
+    expect(wrapper.text()).not.toContain('Choose year')
+    expect(wrapper.find('.library-creator-groups').exists()).toBe(false)
+    expect(wrapper.find('.library-year-groups').exists()).toBe(false)
+  })
+
+  it.each([
+    ['creator', 'Ada Remote', '1999', 'creators'],
+    ['year', '1984', 'Ada Reader', 'years'],
+  ])('fetches remote %s suggestions with its own canonical key omitted and applies the selection', async (facet, suggestion, otherValue, payloadKey) => {
+    const ownUrl = `/apps/library/catalogue/${facet}-suggestions`
+    const otherFacet = facet === 'creator' ? 'year' : 'creator'
+    global.fetch = vi.fn().mockImplementation(async (url) => {
+      if (String(url).startsWith(ownUrl)) return { ok: true, json: async () => ({ [payloadKey]: [suggestion] }) }
+      return { ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, [facet]: suggestion, [otherFacet]: otherValue } }) }
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      [`${facet}SuggestionsUrl`]: ownUrl,
+      activeFilters: { ...state.activeFilters, [facet]: `Old ${facet}`, [otherFacet]: otherValue },
+    } } })
+
+    const search = wrapper.get(`input[name="${facet}Search"]`)
+    const query = suggestion.slice(0, 4).trim()
+    await search.trigger('focus')
+    await search.setValue(query)
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      `${ownUrl}?${otherFacet}=${encodeURIComponent(otherValue).replace('%20', '+')}&${facet}Search=${encodeURIComponent(query).replace('%20', '+')}`,
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+    expect(global.fetch.mock.calls.filter(([url]) => /^\/apps\/library\/catalogue(?:\?|$)/.test(String(url)))).toHaveLength(0)
+    expect(global.fetch.mock.calls.find(([url]) => String(url).startsWith(ownUrl))[0]).not.toContain(`${facet}=`)
+    await vi.waitFor(() => expect(wrapper.findAll(`.library-${facet}-suggestion`).map((candidate) => candidate.text())).toEqual([suggestion]))
+    await wrapper.get(`.library-${facet}-suggestion`).trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      `/apps/library/catalogue?${facet === 'creator' ? `year=1999&creator=${encodeURIComponent(suggestion).replace('%20', '+')}` : `year=${suggestion}&creator=${encodeURIComponent(otherValue).replace('%20', '+')}`}`,
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+    const catalogueCall = global.fetch.mock.calls.find(([url]) => String(url).startsWith('/apps/library/catalogue?'))[0]
+    expect(catalogueCall).not.toContain(`${facet}Search`)
   })
 
   it.each([
@@ -488,7 +1093,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-review-request-status').attributes('aria-busy')).toBe('false')
   })
 
-  it('frames catalogue tools as one consistent expandable workspace above the covers', () => {
+  it('keeps filters in navigation and result controls between the catalogue heading and covers', () => {
     const wrapper = mount(App, {
       props: {
         state: {
@@ -510,33 +1115,9 @@ describe('Library catalogue Vue app', () => {
 
     const workspace = wrapper.find('.library-catalogue-workspace')
     expect(workspace.exists()).toBe(true)
-    const panels = workspace.findAll(':scope > details.library-workspace-panel')
-    expect(panels).toHaveLength(5)
-    expect(panels.map((panel) => panel.find('.library-workspace-panel-title').text())).toEqual([
-      'Refine results',
-      'Browse shortcuts',
-      'Batch actions',
-      'Review queue',
-      'Admin tools',
-    ])
-    expect(panels.map((panel) => panel.find('summary small').text())).toEqual([
-      'Filters, facets and saved filter shortcuts',
-      'Continue reading, recently added, rediscover and useful views',
-      'Preview and apply changes to current results',
-      'Weak metadata, conflicts, missing files and extraction errors',
-      'Roots, scans, exports and repair operations',
-    ])
-    expect(panels.map((panel) => panel.find('.library-workspace-scope-badge').text())).toEqual([
-      'this shelf',
-      'whole catalogue',
-      '1 Current filter result',
-      'current results',
-      'all enabled roots',
-    ])
-    for (const panel of panels) {
-      expect(panel.find('.library-workspace-panel-copy').exists()).toBe(false)
-      expect(panel.find('.library-workspace-panel-title').attributes('title')).toBeTruthy()
-    }
+    expect(workspace.findAll(':scope > details.library-workspace-panel')).toHaveLength(0)
+    expect(wrapper.findComponent(NcAppNavigation).find('form.library-sidebar-filters').exists()).toBe(true)
+    expect(wrapper.find('#library-catalogue form.library-sidebar-filters').exists()).toBe(false)
     expect(workspace.text()).not.toContain('Search, sort and filters narrow the current result set')
     expect(workspace.text()).not.toContain('Search also checks descriptions')
     expect(workspace.text()).not.toContain('changed / unchanged / skipped / error feedback')
@@ -545,8 +1126,8 @@ describe('Library catalogue Vue app', () => {
 
     const heading = wrapper.find('#library-catalogue-heading')
     expect(heading.text()).toBe('Library')
-    const workspaceBeforeHeading = workspace.element.compareDocumentPosition(heading.element)
-    expect(Boolean(workspaceBeforeHeading & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
+    const headingBeforeWorkspace = heading.element.compareDocumentPosition(workspace.element)
+    expect(Boolean(headingBeforeWorkspace & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
     const workspaceTop = workspace.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
     expect(Boolean(workspaceTop & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
   })
@@ -570,9 +1151,9 @@ describe('Library catalogue Vue app', () => {
       'Search also checks descriptions',
       'Shortcuts reopen ordinary catalogue views',
       'Fast entry points keep browsing visual',
-      'Every batch action uses the current filters',
-      'Reset current scanner-conflict results',
-      'Refresh cover previews for current results',
+      'Batch actions for selected publications',
+      'Batch actions for selected publications',
+      'Batch actions for selected publications',
       'Review cards compare current values',
       'Maintain roots, scans, exports and repair operations',
       'Cached metadata overview loads quickly',
@@ -581,49 +1162,35 @@ describe('Library catalogue Vue app', () => {
       expect(wrapper.text()).not.toContain(phrase)
     }
 
-    expect(wrapper.find('.library-workspace-panel--refine .library-workspace-panel-title').attributes('title')).toContain('Search, sort and filters')
+    const filters = wrapper.findComponent(NcAppNavigation).get('form.library-sidebar-filters')
+    expect(filters.attributes('aria-label')).toBe('Catalogue search and filters')
+    expect(wrapper.find('#library-catalogue .library-workspace-panel--refine').exists()).toBe(false)
     expect(wrapper.find('.library-quick-filter-search').attributes('title')).toContain('Search also checks descriptions')
-    expect(wrapper.find('.library-batch-metadata-reset-form button').attributes('title')).toContain('Reset current scanner-conflict results')
-    expect(wrapper.find('.library-actions-health-overview h3').attributes('title')).toContain('Cached metadata overview loads quickly')
+    expect(wrapper.find('.library-workspace-panel--batch').exists()).toBe(false)
+    expect(wrapper.find('.library-workspace-panel--admin').exists()).toBe(false)
+    expect(wrapper.find('.library-review-queues').exists()).toBe(false)
   })
 
-  it('renders collapsed workspace controls as a menu bar above the Library heading', () => {
+  it('renders the result controls below the Library heading', () => {
     const wrapper = mount(App, { props: { state } })
 
     const workspace = wrapper.find('.library-catalogue-workspace')
     const heading = wrapper.find('#library-catalogue-heading')
     expect(workspace.classes()).toContain('library-workspace-menubar')
     expect(heading.text()).toBe('Library')
-    const workspaceBeforeHeading = workspace.element.compareDocumentPosition(heading.element)
-    expect(Boolean(workspaceBeforeHeading & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
+    const headingBeforeWorkspace = heading.element.compareDocumentPosition(workspace.element)
+    expect(Boolean(headingBeforeWorkspace & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
     const headerBeforeCovers = heading.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
     expect(Boolean(headerBeforeCovers & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
   })
 
-  it('gives each workspace panel a polished visual identity without changing its contract', () => {
+  it('gives navigation filters a direct form identity without a details panel', () => {
     const wrapper = mount(App, { props: { state } })
-    const panels = wrapper.findAll('.library-catalogue-workspace > details.library-workspace-panel')
+    const navigation = wrapper.findComponent(NcAppNavigation)
 
-    expect(panels).toHaveLength(5)
-    expect(panels.map((panel) => panel.attributes('data-workspace-panel'))).toEqual([
-      'refine',
-      'browse',
-      'batch',
-      'review',
-      'admin',
-    ])
-    expect(panels.map((panel) => panel.find('.library-workspace-panel-icon').text())).toEqual([
-      '⌕',
-      '↗',
-      '✓',
-      '!',
-      '⚙',
-    ])
-    for (const panel of panels) {
-      expect(panel.find('.library-workspace-panel-title').exists()).toBe(true)
-      expect(panel.find('.library-workspace-panel-purpose').exists()).toBe(true)
-      expect(panel.find('.library-workspace-panel-summary').classes()).toContain('library-workspace-panel-summary--polished')
-    }
+    expect(navigation.findAll('form.library-sidebar-filters')).toHaveLength(1)
+    expect(navigation.find('details').exists()).toBe(false)
+    expect(wrapper.find('#library-catalogue [data-library-control="filter"]').exists()).toBe(false)
   })
 
   it('renders the catalogue from Nextcloud initial state', () => {
@@ -632,13 +1199,15 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).toContain('Library')
     expect(wrapper.text()).not.toContain('Publication catalogue')
     expect(wrapper.text()).toContain('Example Book')
-    expect(wrapper.text()).toContain('Ada Reader')
-    expect(wrapper.find('.library-cover-detail-chip').exists()).toBe(true)
-    expect(wrapper.findAll('.library-cover-detail-chip').map((chip) => chip.text())).toContain('Format:EPUB')
+    expect(wrapper.find('.library-cover-creator').text()).toBe('Ada Reader')
+    expect(wrapper.find('.library-cover-detail-chip').exists()).toBe(false)
+    expect(wrapper.find('.library-cover-read').text()).toBe('Open')
+    expect(wrapper.find('.library-cover-primary-actions').exists()).toBe(true)
     expect(wrapper.findAll('.library-cover-card')).toHaveLength(1)
     expect(wrapper.find('.library-cover-image').attributes('src')).toBe('/apps/library/items/7/cover')
-    expect(wrapper.find('.library-cover-link').attributes('href')).toBe('/f/178')
-    expect(wrapper.text()).toContain('Show in Files')
+    expect(wrapper.find('.library-cover-link').attributes('type')).toBe('button')
+    expect(wrapper.find('.library-cover-read').attributes('href')).toBe('/f/178')
+    expect(wrapper.find('.library-cover-primary-actions').exists()).toBe(true)
     const starForm = wrapper.find('form.library-cover-star-form')
     expect(starForm.exists()).toBe(true)
     expect(starForm.attributes('action')).toBe('/apps/library/items/7/star')
@@ -646,16 +1215,45 @@ describe('Library catalogue Vue app', () => {
     expect(starForm.find('input[name="starred"]').element.value).toBe('1')
     expect(starForm.find('.library-cover-star-button').text()).toBe('☆')
     expect(wrapper.text()).toContain('Details')
-    const filterPanel = wrapper.find('.library-workspace-panel--refine')
-    const discoveryShortcuts = wrapper.find('.library-workspace-panel--browse')
-    expect(filterPanel.exists()).toBe(true)
-    expect(filterPanel.attributes('open')).toBeUndefined()
-    expect(filterPanel.find('.library-workspace-panel-title').text()).toBe('Refine results')
-    expect(discoveryShortcuts.exists()).toBe(true)
-    expect(discoveryShortcuts.attributes('open')).toBeUndefined()
-    expect(discoveryShortcuts.find('.library-workspace-panel-title').text()).toBe('Browse shortcuts')
-    expect(wrapper.text()).toContain('Export corrected metadata')
-    expect(wrapper.find('a[aria-label="Export corrected metadata"]').attributes('href')).toBe('/apps/library/export/metadata')
+    expect(wrapper.findComponent(NcAppNavigation).find('form.library-sidebar-filters').exists()).toBe(true)
+    expect(wrapper.find('#library-catalogue .library-workspace-panel--refine').exists()).toBe(false)
+    expect(wrapper.find('.library-workspace-panel--browse').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Export corrected metadata')
+  })
+
+  it('renders view=list as metadata rows with open and details actions instead of cover cards', async () => {
+    const wrapper = mount(App, { props: { state: { ...state, activeFilters: { ...state.activeFilters, view: 'list' } } } })
+
+    expect(wrapper.find('[data-library-catalogue-list]').exists()).toBe(true)
+    expect(wrapper.findAll('.library-catalogue-list-row')).toHaveLength(1)
+    expect(wrapper.find('.library-cover-gallery').exists()).toBe(false)
+    expect(wrapper.find('.library-cover-card').exists()).toBe(false)
+    expect(wrapper.find('.library-catalogue-list-row').text()).toContain('Ada Reader')
+    expect(wrapper.find('.library-catalogue-list-row').text()).toContain('2026')
+    expect(wrapper.find('.library-catalogue-list-row').text()).toContain('EPUB')
+    expect(wrapper.find('.library-catalogue-list-actions a').attributes('href')).toBe('/f/178')
+    expect(wrapper.find('.library-catalogue-list-actions button').text()).toBe('Details')
+  })
+
+  it.each(['list', 'gallery', 'shelf'])('immediately loads view=%s through the catalogue endpoint and preserves filters', async (view) => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, type: 'book', q: 'camera', view } }),
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, type: 'book', q: 'camera' },
+    } } })
+
+    await wrapper.get(`[data-library-view-mode="${view}"]`).trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
+    const [requestUrl, requestOptions] = global.fetch.mock.calls[0]
+    const request = new URL(requestUrl, window.location.origin)
+    expect(request.pathname).toBe('/apps/library/catalogue')
+    expect(Object.fromEntries(request.searchParams)).toEqual({ q: 'camera', type: 'book', view })
+    expect(requestOptions).toEqual(expect.objectContaining({ credentials: 'same-origin' }))
   })
 
   it('toggles catalogue stars without submitting a page reload', async () => {
@@ -701,16 +1299,15 @@ describe('Library catalogue Vue app', () => {
     const requests = []
     globalThis.fetch = vi.fn((_url, options) => new Promise((resolve) => requests.push({ resolve, options })))
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
-    const form = wrapper.find('.library-quick-filter-bar')
+    const form = wrapper.find('form.library-sidebar-filters')
 
     await form.find('input[name="q"]').setValue('first')
-    void form.trigger('submit')
-    await Promise.resolve()
+    await form.trigger('submit')
+    await vi.waitFor(() => expect(requests).toHaveLength(1))
     await form.find('input[name="q"]').setValue('latest')
-    void form.trigger('submit')
-    await Promise.resolve()
+    await form.trigger('submit')
+    await vi.waitFor(() => expect(requests).toHaveLength(2))
 
-    expect(requests).toHaveLength(2)
     expect(requests[0].options.signal).toBeInstanceOf(AbortSignal)
     expect(requests[0].options.signal.aborted).toBe(true)
     requests[1].resolve({ ok: true, json: async () => ({ ...state, items: [{ ...state.items[0], title: 'Latest result' }], activeFilters: { ...state.activeFilters, q: 'latest' } }) })
@@ -724,35 +1321,33 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).not.toContain('Stale result')
   })
 
-  it('invalidates a pending response as soon as newer debounced input expresses user intent', async () => {
-    vi.useFakeTimers()
+  it('keeps typed search as a draft until the user submits it', async () => {
     const requests = []
     globalThis.fetch = vi.fn((_url, options) => new Promise((resolve) => requests.push({ resolve, options })))
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
-    const input = wrapper.find('.library-quick-filter-bar input[name="q"]')
-    const form = wrapper.find('.library-quick-filter-bar')
+    const input = wrapper.find('form.library-sidebar-filters input[name="q"]')
+    const form = wrapper.find('form.library-sidebar-filters')
 
     await input.setValue('first')
-    void form.trigger('submit')
-    await Promise.resolve()
-    await input.setValue('latest')
+    await form.trigger('submit')
+    await vi.waitFor(() => expect(requests).toHaveLength(1))
 
-    expect(requests).toHaveLength(1)
-    expect(requests[0].options.signal.aborted).toBe(true)
-    requests[0].resolve({ ok: true, json: async () => ({ ...state, items: [{ ...state.items[0], title: 'Stale result' }], activeFilters: { ...state.activeFilters, q: 'first' } }) })
+    requests[0].resolve({ ok: true, json: async () => ({ ...state, items: [{ ...state.items[0], title: 'First result' }], activeFilters: { ...state.activeFilters, q: 'first' } }) })
     await Promise.resolve()
     await wrapper.vm.$nextTick()
 
+    await input.setValue('latest')
     expect(input.element.value).toBe('latest')
-    expect(wrapper.text()).not.toContain('Stale result')
-    await vi.advanceTimersByTimeAsync(350)
-    expect(globalThis.fetch).toHaveBeenCalledTimes(2)
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1)
+    await form.trigger('submit')
+    await vi.waitFor(() => expect(globalThis.fetch).toHaveBeenCalledTimes(2))
     expect(globalThis.fetch.mock.calls[1][0]).toContain('q=latest')
-    vi.useRealTimers()
+    requests[1].resolve({ ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, q: 'latest' } }) })
+    await Promise.resolve()
+    await wrapper.vm.$nextTick()
   })
 
   it('falls back with the failed request snapshot while preserving newer controls', async () => {
-    vi.useFakeTimers()
     let rejectRequest
     globalThis.fetch = vi.fn(() => new Promise((_resolve, reject) => { rejectRequest = reject }))
     const submitted = []
@@ -760,21 +1355,20 @@ describe('Library catalogue Vue app', () => {
       submitted.push(Object.fromEntries(new FormData(this)))
     })
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
-    const input = wrapper.find('.library-quick-filter-bar input[name="q"]')
-    const form = wrapper.find('.library-quick-filter-bar')
+    const input = wrapper.find('form.library-sidebar-filters input[name="q"]')
+    const form = wrapper.find('form.library-sidebar-filters')
 
     await input.setValue('first')
-    void form.trigger('submit')
-    await Promise.resolve()
+    await form.trigger('submit')
+    await vi.waitFor(() => expect(rejectRequest).toBeTypeOf('function'))
     input.element.value = 'latest'
     rejectRequest(new Error('network down'))
     await Promise.resolve()
     await Promise.resolve()
 
     expect(input.element.value).toBe('latest')
-    expect(submitted).toEqual([{ q: 'first', sort: 'title', limit: '100' }])
+    expect(submitted).toEqual([{ q: 'first' }])
     nativeSubmit.mockRestore()
-    vi.useRealTimers()
   })
 
   it('falls back on a current catalogue rejection and aborts it on unmount', async () => {
@@ -785,10 +1379,10 @@ describe('Library catalogue Vue app', () => {
       return new Promise((_resolve, reject) => { rejectRequest = reject })
     })
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
-    const form = wrapper.find('.library-quick-filter-bar')
+    const form = wrapper.find('form.library-sidebar-filters')
     const nativeSubmit = vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(() => {})
 
-    void form.trigger('submit')
+    await form.trigger('submit')
     await Promise.resolve()
     rejectRequest(new Error('network down'))
     await Promise.resolve()
@@ -832,7 +1426,7 @@ describe('Library catalogue Vue app', () => {
     await Promise.resolve()
 
     expect(searchInput.value).toBe('')
-    expect(fetchSpy).toHaveBeenCalledWith('/apps/library/catalogue?sort=title&limit=100', expect.objectContaining({
+    expect(fetchSpy).toHaveBeenCalledWith('/apps/library/catalogue', expect.objectContaining({
       headers: { Accept: 'application/json' },
       credentials: 'same-origin',
     }))
@@ -859,31 +1453,18 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).toContain('Run a scan after saving a root')
   })
 
-  it('keeps catalogue workspace panels collapsed so the cover shelf stays central', () => {
+  it('keeps catalogue filters out of the content workspace so the cover shelf stays central', () => {
     const wrapper = mount(App, { props: { state } })
 
     const workspace = wrapper.find('.library-catalogue-workspace')
     expect(workspace.exists()).toBe(true)
     expect(workspace.element.tagName).toBe('NAV')
 
-    for (const selector of [
-      '.library-workspace-panel--refine',
-      '.library-workspace-panel--browse',
-      '.library-workspace-panel--batch',
-      '.library-workspace-panel--review',
-      '.library-workspace-panel--admin',
-    ]) {
-      const panel = workspace.find(selector)
-      expect(panel.exists()).toBe(true)
-      expect(panel.element.tagName).toBe('DETAILS')
-      expect(panel.attributes('open')).toBeUndefined()
-    }
-
-    expect(workspace.find('.library-workspace-panel--refine .library-workspace-panel-title').text()).toContain('Refine results')
-    expect(workspace.find('.library-workspace-panel--browse .library-workspace-panel-title').text()).toContain('Browse shortcuts')
-    expect(workspace.find('.library-workspace-panel--batch .library-workspace-panel-title').text()).toContain('Batch actions')
-    expect(workspace.find('.library-workspace-panel--review .library-workspace-panel-title').text()).toContain('Review queue')
-    expect(workspace.find('.library-workspace-panel--admin .library-workspace-panel-title').text()).toContain('Admin tools')
+    expect(workspace.find('.library-workspace-panel--refine').exists()).toBe(false)
+    expect(wrapper.findComponent(NcAppNavigation).find('form.library-sidebar-filters').exists()).toBe(true)
+    expect(workspace.find('.library-workspace-panel--browse').exists()).toBe(false)
+    expect(workspace.find('.library-workspace-panel--review').exists()).toBe(false)
+    expect(workspace.find('.library-workspace-panel--admin').exists()).toBe(false)
 
     const toolsBeforeCovers = workspace.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
     expect(Boolean(toolsBeforeCovers & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
@@ -895,21 +1476,106 @@ describe('Library catalogue Vue app', () => {
 
     expect(wrapper.findComponent(NcAppSidebar).props('open')).toBe(false)
 
-    await wrapper.find('.library-cover-details').trigger('toggle')
-    await wrapper.find('.library-cover-details-drawer-button').trigger('click')
+    await wrapper.find('.library-cover-link').trigger('click')
 
     await waitForSidebarEvent(wrapper, 'opened')
     expect(wrapper.findComponent(NcAppSidebar).props('open')).toBe(true)
+    expect(wrapper.get('.library-cover-card').classes()).toContain('library-cover-card--open')
+    expect(wrapper.get('.library-cover-link').attributes('aria-expanded')).toBe('true')
     expect(wrapper.find('.library-sidebar-content').text()).toContain('Example Book')
-    expect(wrapper.find('.library-sidebar-content').text()).toContain('Open full details')
+    expect(wrapper.find('.library-sidebar-content').text()).toContain('Overview')
+    expect(wrapper.find('.library-sidebar-publication-header').exists()).toBe(true)
     expect(window.location.search).toContain('item=7')
+  })
+
+  it('marks selected cards independently from the opened publication', async () => {
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/')
+    const wrapper = mount(App, { props: { state } })
+
+    await wrapper.get('.library-item-selection input').setValue(true)
+
+    expect(wrapper.get('.library-cover-card').classes()).toContain('library-cover-card--selected')
+    expect(wrapper.get('.library-cover-card').classes()).not.toContain('library-cover-card--open')
+    expect(wrapper.get('.library-cover-badge').text()).toBe('EPUB')
+  })
+
+  it('keeps Open primary and groups file and legacy maintenance actions', async () => {
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
+    const wrapper = mount(App, { props: { state } })
+
+    await wrapper.find('.library-cover-link').trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+
+    const actions = wrapper.get('.library-detail-drawer-actions')
+    const primary = actions.get('a')
+    expect(primary.text()).toBe('Open')
+    expect(primary.attributes('href')).toBe(state.items[0].openUrl)
+    expect(primary.classes()).toEqual(expect.arrayContaining(['button', 'primary']))
+    expect(actions.find('button').exists()).toBe(true)
+  })
+
+  it('makes Overview, Metadata, and Activity canonical sidebar sections', async () => {
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
+    const wrapper = mount(App, { props: { state } })
+    await wrapper.find('.library-cover-link').trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+
+    const sectionButtons = wrapper.findAll('.library-sidebar-sections button')
+    expect(sectionButtons.map((button) => button.text())).toEqual(['Overview', 'Metadata', 'Activity'])
+    await sectionButtons[1].trigger('click')
+    expect(wrapper.find('.library-sidebar-metadata-form').exists()).toBe(true)
+    expect(wrapper.find('.library-sidebar-review').text()).toContain('Scanner suggestions')
+    expect(wrapper.find('.library-sidebar-review').text()).toContain('Suggestion: Scanner Title')
+  })
+
+  it.each([
+    ['2011-09-18T22:00:00+00:00', '2011-09-18'],
+    ['2011-09-18T23:30:00-11:00', '2011-09-18'],
+  ])('renders and submits stored ISO publication dates as their calendar date for %s', async (storedDate, expectedDate) => {
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/')
+    const item = { ...state.items[0], publicationDate: storedDate }
+    globalThis.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ item }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ saved: true }) })
+    const wrapper = mount(App, { props: { state: { ...state, items: [item] } } })
+
+    await wrapper.find('.library-cover-link').trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+    expect(wrapper.find('.library-detail-drawer-facts').text()).toContain(expectedDate)
+    expect(wrapper.find('.library-detail-drawer-facts').text()).not.toContain('T23:30:00')
+
+    await wrapper.findAll('.library-sidebar-sections button')[1].trigger('click')
+    const dateInput = wrapper.get('input[name="publicationDate"]')
+    expect(dateInput.element.value).toBe(expectedDate)
+    await wrapper.get('.library-sidebar-metadata-form').trigger('submit')
+    await vi.waitFor(() => expect(globalThis.fetch).toHaveBeenCalledTimes(2))
+    const submitted = globalThis.fetch.mock.calls[1][1].body
+    expect(submitted.get('publicationDate')).toBe(expectedDate)
+  })
+
+  it('accepts and clears an empty publication date without rendering placeholder text', async () => {
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/')
+    const item = { ...state.items[0], publicationDate: '' }
+    globalThis.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ item }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ saved: true }) })
+    const wrapper = mount(App, { props: { state: { ...state, items: [item] } } })
+
+    await wrapper.find('.library-cover-link').trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+    expect(wrapper.find('.library-detail-drawer-facts').text()).not.toContain('Date')
+    await wrapper.findAll('.library-sidebar-sections button')[1].trigger('click')
+    expect(wrapper.get('input[name="publicationDate"]').element.value).toBe('')
+    await wrapper.get('.library-sidebar-metadata-form').trigger('submit')
+    await vi.waitFor(() => expect(globalThis.fetch).toHaveBeenCalledTimes(2))
+    expect(globalThis.fetch.mock.calls[1][1].body.get('publicationDate')).toBe('')
+    expect(wrapper.text()).toContain('Metadata saved.')
   })
 
   it('moves focus into the drawer and restores each activating control on Escape and close', async () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state }, attachTo: document.body })
-    await wrapper.find('.library-cover-details').trigger('toggle')
-    const opener = wrapper.find('.library-cover-details-drawer-button')
+    const opener = wrapper.find('.library-cover-link')
     opener.element.focus()
     await opener.trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
@@ -934,8 +1600,7 @@ describe('Library catalogue Vue app', () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state }, attachTo: document.body })
     const sidebar = wrapper.findComponent(NcAppSidebar)
-    await wrapper.find('.library-cover-details').trigger('toggle')
-    const opener = wrapper.find('.library-cover-details-drawer-button')
+    const opener = wrapper.find('.library-cover-link')
 
     opener.element.focus()
     await opener.trigger('click')
@@ -969,8 +1634,7 @@ describe('Library catalogue Vue app', () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state }, attachTo: document.body })
     const sidebar = wrapper.findComponent(NcAppSidebar)
-    await wrapper.find('.library-cover-details').trigger('toggle')
-    const opener = wrapper.find('.library-cover-details-drawer-button')
+    const opener = wrapper.find('.library-cover-link')
     const focus = vi.spyOn(opener.element, 'focus')
     await opener.trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
@@ -988,8 +1652,7 @@ describe('Library catalogue Vue app', () => {
     setNextcloudViewport(480)
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state }, attachTo: document.body })
-    await wrapper.find('.library-cover-details').trigger('toggle')
-    await wrapper.find('.library-cover-details-drawer-button').trigger('click')
+    await wrapper.find('.library-cover-link').trigger('click')
     const sidebar = wrapper.find('.library-native-item-sidebar')
     await waitForSidebarEvent(wrapper, 'opened')
     expect(sidebar.attributes('role')).toBe('dialog')
@@ -1019,8 +1682,7 @@ describe('Library catalogue Vue app', () => {
     expect(sidebar.attributes('aria-modal')).toBe('true')
     expect(sidebar.attributes('aria-labelledby')).toBe('library-detail-drawer-heading')
 
-    await wrapper.find('.library-cover-details').trigger('toggle')
-    await wrapper.find('.library-cover-details-drawer-button').trigger('click')
+    await wrapper.find('.library-cover-link').trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
     const focusable = [...sidebar.element.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
     expect(document.activeElement).toBe(sidebar.find('.app-sidebar__close').element)
@@ -1037,8 +1699,7 @@ describe('Library catalogue Vue app', () => {
     setNextcloudViewport(480)
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state }, attachTo: document.body })
-    await wrapper.find('.library-cover-details').trigger('toggle')
-    const opener = wrapper.find('.library-cover-details-drawer-button')
+    const opener = wrapper.find('.library-cover-link')
     opener.element.focus()
     await opener.trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
@@ -1084,12 +1745,11 @@ describe('Library catalogue Vue app', () => {
     window.history.replaceState({}, '', '/nc/index.php/apps/library/')
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => payload }))
     const wrapper = mount(App, { props: { state } })
-    await wrapper.find('.library-cover-details').trigger('toggle')
-    await wrapper.find('.library-cover-details-drawer-button').trigger('click')
+    await wrapper.find('.library-cover-link').trigger('click')
     await vi.waitFor(() => expect(wrapper.find('.library-sidebar-state').exists()).toBe(true))
     await waitForSidebarEvent(wrapper, 'opened')
     expect(wrapper.find('.library-sidebar-content').text()).toContain('Could not load publication details. Try again.')
-    expect(wrapper.find('.library-sidebar-content').text()).not.toContain('Open full details')
+    expect(wrapper.find('.library-sidebar-content').text()).not.toContain('Advanced details')
     expect(wrapper.find('.library-sidebar-state button').text()).toBe('Try again')
     expect(window.location.search).toBe('?item=7')
   })
@@ -1109,8 +1769,7 @@ describe('Library catalogue Vue app', () => {
     })
     const wrapper = mount(App, { props: { state: keyboardState } })
 
-    await wrapper.findAll('.library-cover-details')[0].trigger('toggle')
-    await wrapper.findAll('.library-cover-details-drawer-button')[0].trigger('click')
+    await wrapper.findAll('.library-cover-link')[0].trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
     expect(wrapper.find('.library-sidebar-content').text()).toContain('Example Book')
     expect(wrapper.find('#library-detail-drawer-keyboard-hint').text()).toContain('Escape closes')
@@ -1173,11 +1832,9 @@ describe('Library catalogue Vue app', () => {
     globalThis.fetch = vi.fn((url, options) => new Promise((resolve) => pending.push({ url, options, resolve })))
     const keyboardState = { ...state, items: [{ ...state.items[0] }, { ...state.items[0], id: 8, title: 'Second Book' }] }
     const wrapper = mount(App, { props: { state: keyboardState } })
-    await wrapper.findAll('.library-cover-details')[0].trigger('toggle')
-    await wrapper.findAll('.library-cover-details-drawer-button')[0].trigger('click')
+    await wrapper.findAll('.library-cover-link')[0].trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
-    await wrapper.findAll('.library-cover-details')[1].trigger('toggle')
-    await wrapper.findAll('.library-cover-details-drawer-button')[1].trigger('click')
+    await wrapper.findAll('.library-cover-link')[1].trigger('click')
     expect(pending[0].options.signal.aborted).toBe(true)
     pending[1].resolve({ ok: true, json: async () => ({ item: keyboardState.items[1] }) })
     await vi.waitFor(() => expect(wrapper.find('.library-sidebar-content').text()).toContain('Second Book'))
@@ -1212,12 +1869,12 @@ describe('Library catalogue Vue app', () => {
 
     const workbench = wrapper.find('.library-metadata-review-workbench')
     expect(workbench.exists()).toBe(true)
-    expect(workbench.text()).toContain('Review next conflict')
+    expect(workbench.text()).toContain('Review next suggestion')
     expect(workbench.text()).toContain('Current value')
-    expect(workbench.text()).toContain('scanner candidate')
-    expect(workbench.text()).toContain('path-template candidate')
-    expect(workbench.text()).toContain('sidecar value')
-    expect(workbench.text()).toContain('source provenance')
+    expect(workbench.text()).toContain('Suggested value')
+    expect(workbench.text()).toContain('Path-based suggestion')
+    expect(workbench.text()).toContain('Sidecar value')
+    expect(workbench.text()).toContain('Source')
     expect(workbench.text()).not.toContain('No source files are changed')
     expect(workbench.text()).not.toContain('user-edited values are never silently overwritten')
     expect(workbench.find('#library-metadata-review-workbench-heading').attributes('title')).toContain('No source files are changed')

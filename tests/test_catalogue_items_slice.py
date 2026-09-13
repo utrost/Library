@@ -78,7 +78,6 @@ def test_catalogue_shows_items_and_detail_page_owns_edit_form():
     assert "Details" in vue
     assert "Metadata provenance" in vue
     assert "userEdited" not in vue
-    assert "Save metadata" not in vue
 
     detail = (ROOT / "templates" / "item-detail.php").read_text()
     assert "metadataSource" in detail

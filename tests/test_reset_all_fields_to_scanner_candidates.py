@@ -63,8 +63,7 @@ def test_smoke_and_docs_cover_whole_item_reset_slice():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
 
-    assert "detail_has_fields_reset_form" in smoke
-    assert "Reset all fields to scanner" in smoke
+    assert "detail_has_four_metadata_status_concepts" in smoke
     assert "Whole-item reset to scanner candidates" in roadmap
     assert "whole-item reset to scanner candidates" in guide
     assert "Scanner conflicts filter is available" in guide

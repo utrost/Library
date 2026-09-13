@@ -11,17 +11,17 @@ def test_human_test_handbook_targets_current_alpha_package():
     handbook = read("docs/human-test-handbook.md")
     checklist = read("docs/alpha-test-checklist.md")
 
-    assert "0.1.0-alpha.165" in handbook
-    assert "dist/library-0.1.0-alpha.165.tar.gz" in handbook
+    assert "0.1.0-alpha.168" in handbook
+    assert "dist/library-0.1.0-alpha.168.tar.gz" in handbook
     assert "0.1.0-alpha.127" not in handbook
-    assert "0.1.0-alpha.165" in checklist
+    assert "0.1.0-alpha.168" in checklist
 
 
 def test_human_test_handbook_covers_recent_browsing_and_review_surfaces():
     handbook = read("docs/human-test-handbook.md")
 
     required_phrases = [
-        "home dashboard",
+        "no page-local home rails",
         "view-mode buttons",
         "details drawer",
         "Esc closes",
@@ -30,7 +30,7 @@ def test_human_test_handbook_covers_recent_browsing_and_review_surfaces():
         "Cover unavailable",
         "weak-metadata cockpit",
         "metadata review workbench",
-        "Review next conflict",
+        "Review next suggestion",
         "description-only search",
         "Custom collections",
     ]

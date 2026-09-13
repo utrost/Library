@@ -15,7 +15,7 @@ def test_filter_result_tag_remove_route_uses_current_catalogue_filters():
     attributes = controller.split("public function batchremove", 1)[0].split("public function batchassign", 1)[-1]
     assert "NoCSRFRequired" not in attributes
     assert "catalogueFiltersFromRequest" in controller
-    assert "itemIdsForCatalogueFilters($user->getUID(), $filters, 5000)" in controller
+    assert "SelectedItemIds::parse" in controller
     assert "removeTagFromItems(" in controller
     assert "$user->getUID()" in controller
     assert "$itemIds" in controller
@@ -54,7 +54,7 @@ def test_docs_and_version_track_filter_result_batch_tag_remove():
     info = (ROOT / "appinfo" / "info.xml").read_text()
     package = (ROOT / "package.json").read_text()
 
-    assert "remove a nextcloud tag from current filter results" in guide.lower()
+    assert "applying or removing one nextcloud tag" in guide.lower()
     assert "batch tag removal" in roadmap.lower()
-    assert "<version>0.1.0-alpha.165</version>" in info
-    assert '"version": "0.1.0-alpha.165"' in package
+    assert "<version>0.1.0-alpha.168</version>" in info
+    assert '"version": "0.1.0-alpha.168"' in package

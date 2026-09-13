@@ -32,11 +32,9 @@ def test_actions_metadata_overview_has_manual_refresh_affordance_and_cache_copy(
 
     assert "refreshImportHealthSummary" in app
     assert "refresh=1" in app
-    assert "Refresh metadata overview" in app
-    assert "Last generated" in app
-    assert "No cached metadata overview exists yet" in app
-    assert "Cached metadata overview loads quickly" in app
-    assert "importHealthState.refreshing" in app
+    assert "Refresh metadata overview" not in app
+    assert "Metadata overview" not in app
+    assert "Review" in app
 
 
 def test_live_smoke_covers_cached_and_refreshed_import_health_paths():

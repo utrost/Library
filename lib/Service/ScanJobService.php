@@ -9,6 +9,9 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 final class ScanJobService {
+    public const STALE_RUNNING_AFTER_SECONDS = 15 * 60;
+    private const CURRENT_PATH_MAX_LENGTH = 1024;
+
     public function __construct(
         private IDBConnection $db,
         private LoggerInterface $logger,
@@ -24,10 +27,12 @@ final class ScanJobService {
     }
 
     public function markRunning(string $userId, int $jobId): bool {
+        $now = time();
         $qb = $this->db->getQueryBuilder();
         return $qb->update('library_scan_jobs')
             ->set('status', $qb->createNamedParameter('running'))
-            ->set('run_started_at', $qb->createNamedParameter(time()))
+            ->set('run_started_at', $qb->createNamedParameter($now))
+            ->set('last_progress_at', $qb->createNamedParameter($now))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('status', $qb->createNamedParameter('queued')))
@@ -36,8 +41,9 @@ final class ScanJobService {
 
     public function updateProgress(string $userId, int $jobId, array $progress): void {
         $qb = $this->db->getQueryBuilder();
-        $qb->update('library_scan_jobs')
+        $update = $qb->update('library_scan_jobs')
             ->set('status', $qb->createNamedParameter('running'))
+            ->set('last_progress_at', $qb->createNamedParameter(time()))
             ->set('roots_total', $qb->createNamedParameter((int)($progress['roots'] ?? 0)))
             ->set('files_indexed', $qb->createNamedParameter((int)($progress['indexed'] ?? 0)))
             ->set('error_count', $qb->createNamedParameter((int)($progress['errors'] ?? 0)))
@@ -52,8 +58,12 @@ final class ScanJobService {
             ->set('item_refreshes', $qb->createNamedParameter((int)($progress['itemRefreshes'] ?? 0)))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
-            ->andWhere($qb->expr()->eq('status', $qb->createNamedParameter('running')))
-            ->executeStatement();
+            ->andWhere($qb->expr()->eq('status', $qb->createNamedParameter('running')));
+        $currentPath = $this->boundedPath($progress['currentPath'] ?? null);
+        if ($currentPath !== null) {
+            $update->set('current_path', $qb->createNamedParameter($currentPath));
+        }
+        $update->executeStatement();
     }
 
     public function finishJob(string $userId, int $jobId, array $result): bool {
@@ -152,6 +162,31 @@ final class ScanJobService {
     }
 
     public function latestJob(string $userId): ?array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('*')
+            ->from('library_scan_jobs')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('status', $qb->createNamedParameter('running')))
+            ->orderBy('started_at', 'DESC')
+            ->addOrderBy('id', 'DESC')
+            ->setMaxResults(1)
+            ->executeQuery();
+        $running = $result->fetch();
+        $result->closeCursor();
+        if ($running !== false) {
+            $heartbeat = $running['last_progress_at'] ?? $running['run_started_at'] ?? $running['started_at'];
+            if ((int)$heartbeat > time() - self::STALE_RUNNING_AFTER_SECONDS) {
+                return $this->normalizeRow($running);
+            }
+
+            $latest = $this->recentJobs($userId, 1)[0] ?? null;
+            if ($latest !== null && (int)$latest['id'] !== (int)$running['id']) {
+                return $latest;
+            }
+
+            return $this->normalizeRow($running, true);
+        }
+
         $jobs = $this->recentJobs($userId, 1);
         return $jobs[0] ?? null;
     }
@@ -209,6 +244,8 @@ final class ScanJobService {
                 'item_refreshes' => $qb->createNamedParameter(0),
                 'started_at' => $qb->createNamedParameter($now),
                 'run_started_at' => $qb->createNamedParameter($status === 'running' ? $now : null),
+                'last_progress_at' => $qb->createNamedParameter($status === 'running' ? $now : null),
+                'current_path' => $qb->createNamedParameter(null),
                 'duration_ms' => $qb->createNamedParameter(null),
                 'finished_at' => $qb->createNamedParameter(null),
             ])
@@ -258,7 +295,7 @@ final class ScanJobService {
         return $row === false ? null : $this->normalizeRow($row);
     }
 
-    private function normalizeRow(array $row): array {
+    private function normalizeRow(array $row, bool $isStale = false): array {
         $startedAt = (int)$row['started_at'];
         $finishedAt = $row['finished_at'] !== null ? (int)$row['finished_at'] : null;
         $status = (string)$row['status'];
@@ -270,6 +307,8 @@ final class ScanJobService {
             in_array($status, ['completed', 'failed', 'cancelled'], true) => $storedDurationMs ?? ($runStartedAt !== null && $finishedAt !== null ? max(0, ($finishedAt - $runStartedAt) * 1000) : 0),
             default => $storedDurationMs ?? 0,
         };
+        $heartbeat = $row['last_progress_at'] ?? $row['run_started_at'] ?? $row['started_at'];
+        $staleSeconds = $isStale ? max(0, time() - (int)$heartbeat) : 0;
         return [
             'id' => (int)$row['id'],
             'userId' => (string)$row['user_id'],
@@ -291,9 +330,29 @@ final class ScanJobService {
             'startedAt' => $startedAt,
             'finishedAt' => $finishedAt,
             'runStartedAt' => $runStartedAt,
+            'lastProgressAt' => isset($row['last_progress_at']) && $row['last_progress_at'] !== null ? (int)$row['last_progress_at'] : null,
+            'currentPath' => isset($row['current_path']) && $row['current_path'] !== null ? (string)$row['current_path'] : '',
             'durationMs' => $durationMs,
             'durationSeconds' => intdiv($durationMs, 1000),
+            'isStale' => $isStale,
+            'staleAfterSeconds' => self::STALE_RUNNING_AFTER_SECONDS,
+            'staleSeconds' => $staleSeconds,
         ];
+    }
+
+    private function boundedPath(mixed $path): ?string {
+        if ($path === null || $path === '') {
+            return null;
+        }
+        return mb_substr((string)$path, 0, self::CURRENT_PATH_MAX_LENGTH);
+    }
+
+    private function safeLog(string $level, string $event, array $context): void {
+        try {
+            $this->logger->{$level}($event, $context);
+        } catch (Throwable) {
+            // Diagnostics must never affect scan state transitions.
+        }
     }
 
     private function terminalContext(string $outcome, array $job): array {
@@ -303,6 +362,8 @@ final class ScanJobService {
             : 0;
         return [
             'event_schema' => 1,
+            'job_id' => (int)($job['id'] ?? 0),
+            'user_id' => (string)($job['userId'] ?? ''),
             'scope_type' => in_array(($job['scopeType'] ?? 'all'), ['all', 'root', 'metadata_errors', 'missing_files'], true) ? $job['scopeType'] : 'all',
             'outcome' => $outcome,
             'worker_metrics_available' => false,

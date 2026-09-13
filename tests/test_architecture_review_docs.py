@@ -24,7 +24,7 @@ def test_architecture_review_documents_tables_fields_jobs_routes_and_cli_boundar
     for field in [
         "user_id", "path", "file_id", "cached_path", "scan_status", "scan_error",
         "publication_type", "field_sources", "field_values", "starred", "last_opened_at",
-        "description", "workflow_status", "genres_json", "classifications_json",
+        "description", "workflow_status", "subjects_json", "classifications_json",
         "scope_type", "root_id", "files_indexed", "error_count",
     ]:
         assert f"`{field}`" in doc

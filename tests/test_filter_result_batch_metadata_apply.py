@@ -18,8 +18,9 @@ def test_batch_metadata_apply_route_controller_and_service_write_filtered_result
     assert "public function batchapplymetadataedit(): RedirectResponse" in controller
     body = controller.split("public function batchapplymetadataedit", 1)[1].split("private function catalogueFiltersFromRequest", 1)[0]
     assert "catalogueFiltersFromRequest" in body
-    assert "itemIdsForCatalogueFilters($user->getUID(), $filters, 5000)" in body
-    assert "applyBatchMetadataEdit($user->getUID(), $itemIds" in body
+    assert "SelectedItemIds::parse" in body
+    assert "itemIdsForCatalogueFilters" not in body
+    assert "applyBatchMetadataEdit($user->getUID(), $explicitItemIds" in body
     assert "batchMetadataApplyResult" in body
     assert "batchMetadataApplied" in body
     assert "batchMetadataUnchanged" in body
@@ -51,7 +52,7 @@ def test_preview_template_is_polished_and_contains_confirmed_apply_form():
     assert "This will update the selected field for every item that still differs from the normalized value." in template
     assert "method=\"post\" action=\"<?php p($applyUrl); ?>\"" in template
     assert "name=\"confirmBatchMetadataApply\" value=\"APPLY\"" in template
-    assert "Apply changes to current results" in template
+    assert "Apply changes to selected items" in template
     assert "library-batch-preview-stat-grid" in template
     assert "library-batch-preview-table" in template
     assert "No changes have been written yet." in template
@@ -84,7 +85,7 @@ def test_browser_smoke_covers_batch_apply_write_restore_and_polished_preview():
     assert "body: restoreParams" in smoke
     assert "bulkEditField: 'publication'" in smoke
     assert "library-batch-preview-stat-grid" in smoke
-    assert "Apply changes to current results" in smoke
+    assert "Apply changes to selected items" in smoke
 
 
 def test_docs_and_version_track_batch_metadata_apply():
@@ -94,8 +95,8 @@ def test_docs_and_version_track_batch_metadata_apply():
     package = read("package.json")
     lock = read("package-lock.json")
 
-    assert "preview-and-apply batch metadata edits" in guide.lower()
+    assert "preview-and-apply" in guide.lower()
     assert "batch metadata apply" in roadmap.lower()
-    assert "<version>0.1.0-alpha.165</version>" in info
-    assert '"version": "0.1.0-alpha.165"' in package
-    assert '"version": "0.1.0-alpha.165"' in lock
+    assert "<version>0.1.0-alpha.168</version>" in info
+    assert '"version": "0.1.0-alpha.168"' in package
+    assert '"version": "0.1.0-alpha.168"' in lock

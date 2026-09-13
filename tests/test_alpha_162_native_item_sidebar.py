@@ -7,7 +7,7 @@ def read(path: str) -> str:
 
 def test_native_sidebar_has_canonical_history_abort_and_accessible_states():
     app = read("src/App.vue")
-    for contract in [':open="sidebarOpen"', '@close="closeDetailsDrawer"', "getAll('item')", "/^[1-9][0-9]*$/", "MAX_ITEM_ID = 2147483647", "numeric <= MAX_ITEM_ID", "history.replaceState", "historyMode: 'none'", "sidebarRequestController?.abort()", "generation !== sidebarRequestGeneration", "requestAnimationFrame", "cancelAnimationFrame", "Loading publication details", "you do not have access", "Try again", "Metadata provenance", "Review context", "Open full details"]:
+    for contract in [':open="sidebarOpen"', '@close="closeDetailsDrawer"', "getAll('item')", "/^[1-9][0-9]*$/", "MAX_ITEM_ID = 2147483647", "numeric <= MAX_ITEM_ID", "history.replaceState", "historyMode: 'none'", "sidebarRequestController?.abort()", "generation !== sidebarRequestGeneration", "requestAnimationFrame", "cancelAnimationFrame", "Loading publication details", "you do not have access", "Try again", "Overview", "Metadata", "Activity", "Scanner suggestions", "Maintenance (legacy)"]:
         assert contract in app
 
 def test_sidebar_route_is_positive_id_only_authenticated_user_scoped_projection():
@@ -21,6 +21,8 @@ def test_sidebar_route_is_positive_id_only_authenticated_user_scoped_projection(
     assert "findItem($user->getUID(), $canonicalItemId)" in sidebar
     assert "2147483647" in sidebar
     assert "array_intersect_key" in sidebar
+    for contract in ["'identifiers'", "'updateUrl'", "'filesUrl'", "'downloadUrl'", "getShowInFilesUrl", "getDownloadUrl"]:
+        assert contract in sidebar
     assert "new JSONResponse(['message' => $this->translate('Publication not found.')], 404)" in sidebar
     assert "coverOverrideUrl" not in sidebar
 

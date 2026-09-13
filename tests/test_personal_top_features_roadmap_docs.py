@@ -24,7 +24,7 @@ def test_personal_top_features_doc_prioritizes_user_list_with_current_state():
         "last read/opened",
         "search with description",
         "custom status per publication",
-        "genres and classifications",
+        "subjects and classifications",
     ]:
         assert phrase in doc.lower()
 
@@ -45,7 +45,7 @@ def test_personal_top_features_doc_has_ordered_vertical_slices():
         "P2 — last opened",
         "P3 — richer text search",
         "P4 — custom reading/workflow status",
-        "P5 — genres and classifications",
+        "P5 — subjects and classifications",
     ]
     positions = [doc.index(item) for item in expected_order]
     assert positions == sorted(positions)
@@ -66,7 +66,7 @@ def test_roadmap_points_to_personal_top_features_as_current_product_priority():
     assert "personal-top-features.md" in roadmap
     assert "starring/bookmarking" in roadmap.lower()
     assert "last read/opened" in roadmap.lower()
-    assert "genres and classifications" in roadmap.lower()
+    assert "subjects and classifications" in roadmap.lower()
 
 
 def test_user_guide_mentions_tags_vs_library_native_status_boundary():

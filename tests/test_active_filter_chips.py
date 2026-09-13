@@ -33,6 +33,7 @@ def test_smoke_requires_active_filter_chips_source_markers():
     assert "library-active-filter-chips" in smoke
     assert "activeFilterChips" in smoke
     assert "filterChipRemoveUrl" in smoke
+    assert "removeFilterChip" in smoke
 
 
 def test_docs_describe_active_filter_chips_as_read_only_navigation():

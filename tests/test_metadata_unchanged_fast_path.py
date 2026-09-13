@@ -28,7 +28,7 @@ def test_schema_and_portable_post_120000_migration_add_nullable_marker_fields_on
 
 def test_metadata_service_revision_fingerprint_and_sidecar_precedence_contract():
     text = (ROOT / "lib" / "Metadata" / "PublicationMetadataService.php").read_text()
-    assert "metadata-pipeline-v1" in text
+    assert "metadata-pipeline-v3" in text
     assert "metadataInputFingerprint" in text
     assert "MetadataInputFingerprint::fromObservations" in text
     assert text.index("$sameBasenameOpf") < text.index("nodeExists('metadata.opf')")

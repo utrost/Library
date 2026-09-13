@@ -58,8 +58,8 @@ final class LibraryScanner {
                 $rootId = (int)$root['id'];
                 $folder = $this->resolveRootFolder($userFolder, (string)$root['path']);
                 $seenLibraryFileIds = [];
-                $this->scanFolder($userId, $rootId, $folder, $seenLibraryFileIds, $summary, $indexed, $traversalUnits, function (int $filesIndexed, int $units) use ($progress, $rootsTotal, &$errors, $root, &$summary): void {
-                    $this->reportProgress($progress, $rootsTotal, $filesIndexed, count($errors), 'Scanning ' . (string)$root['path'], $summary, $units);
+                $this->scanFolder($userId, $rootId, $folder, $seenLibraryFileIds, $summary, $indexed, $traversalUnits, function (int $filesIndexed, int $units, string $currentPath) use ($progress, $rootsTotal, &$errors, $root, &$summary): void {
+                    $this->reportProgress($progress, $rootsTotal, $filesIndexed, count($errors), 'Scanning ' . (string)$root['path'], $summary, $units, $currentPath);
                 });
                 $missingStarted = $this->clock->now();
                 try {
@@ -96,9 +96,13 @@ final class LibraryScanner {
         $errors = [];
         $rootsTotal = count($this->rootService->listEnabledRoots($userId));
         $userFolder = $this->rootFolder->getUserFolder($userId);
+        $traversalUnits = 0;
         $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Retrying metadata errors…');
 
         foreach ($files as $file) {
+            $traversalUnits++;
+            $currentPath = (string)$file['cachedPath'];
+            $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Retrying metadata errors: ' . $currentPath, [], $traversalUnits, $currentPath);
             $nodes = $userFolder->getById((int)$file['fileId']);
             $node = $nodes[0] ?? null;
             if (!$node instanceof File) {
@@ -117,7 +121,7 @@ final class LibraryScanner {
                 continue;
             }
             $indexed++;
-            $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Retrying metadata errors: ' . (string)$file['cachedPath']);
+            $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Retrying metadata errors: ' . (string)$file['cachedPath'], [], 0, (string)$file['cachedPath']);
         }
 
         return [
@@ -138,9 +142,13 @@ final class LibraryScanner {
         $errors = [];
         $rootsTotal = count($this->rootService->listEnabledRoots($userId));
         $userFolder = $this->rootFolder->getUserFolder($userId);
+        $traversalUnits = 0;
         $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Rechecking missing files…');
 
         foreach ($files as $file) {
+            $traversalUnits++;
+            $currentPath = (string)$file['cachedPath'];
+            $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Rechecking missing files: ' . $currentPath, [], $traversalUnits, $currentPath);
             $nodes = $userFolder->getById((int)$file['fileId']);
             $node = $nodes[0] ?? null;
             if (!$node instanceof File) {
@@ -159,7 +167,7 @@ final class LibraryScanner {
                 continue;
             }
             $indexed++;
-            $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Rechecking missing files: ' . (string)$file['cachedPath']);
+            $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Rechecking missing files: ' . (string)$file['cachedPath'], [], 0, (string)$file['cachedPath']);
         }
 
         return [
@@ -245,11 +253,11 @@ final class LibraryScanner {
 
     private function scanFolder(string $userId, int $rootId, Folder $folder, array &$seenLibraryFileIds, array &$summary, int &$indexed, int &$traversalUnits, ?callable $progress = null): void {
         $nodes = $folder->getDirectoryListing();
+        $currentPath = $this->displayPath($folder, $userId);
         $traversalUnits++;
-        if ($progress !== null) { $progress($indexed, $traversalUnits); }
+        if ($progress !== null) { $progress($indexed, $traversalUnits, $currentPath); }
         foreach ($nodes as $node) {
             $traversalUnits++;
-            if ($progress !== null) { $progress($indexed, $traversalUnits); }
             if ($node instanceof Folder) {
                 $this->scanFolder($userId, $rootId, $node, $seenLibraryFileIds, $summary, $indexed, $traversalUnits, $progress);
                 continue;
@@ -259,13 +267,16 @@ final class LibraryScanner {
                 continue;
             }
 
+            $currentPath = $this->displayPath($node, $userId);
+            if ($progress !== null) { $progress($indexed, $traversalUnits, $currentPath); }
+
             if ($this->isSuppressedOpfSidecar($node)) {
                 $preservedSidecarId = $this->cleanupSuppressedOpfSidecar($userId, $rootId, $node);
                 if ($preservedSidecarId !== null) {
                     $seenLibraryFileIds[] = $preservedSidecarId;
                     $indexed++;
                     if ($progress !== null) {
-                        $progress($indexed, $traversalUnits);
+                        $progress($indexed, $traversalUnits, $currentPath);
                     }
                 }
                 continue;
@@ -274,7 +285,7 @@ final class LibraryScanner {
             if ($this->scanFile($userId, $rootId, $node, $seenLibraryFileIds, false, null, $summary)) {
                 $indexed++;
                 if ($progress !== null) {
-                    $progress($indexed, $traversalUnits);
+                    $progress($indexed, $traversalUnits, $currentPath);
                 }
             }
         }
@@ -313,7 +324,7 @@ final class LibraryScanner {
         };
     }
 
-    private function reportProgress(?callable $progress, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary, array $changeSummary = [], int $traversalUnits = 0): void {
+    private function reportProgress(?callable $progress, int $rootsTotal, int $filesIndexed, int $errorCount, string $summary, array $changeSummary = [], int $traversalUnits = 0, ?string $currentPath = null): void {
         if ($progress === null) {
             return;
         }
@@ -324,6 +335,7 @@ final class LibraryScanner {
             'traversalUnits' => $traversalUnits,
             'errors' => $errorCount,
             'summary' => $summary,
+            'currentPath' => $currentPath,
             'filesAdded' => (int)($changeSummary['filesAdded'] ?? 0),
             'pathsUpdated' => (int)($changeSummary['pathsUpdated'] ?? 0),
             'filesUnchanged' => (int)($changeSummary['filesUnchanged'] ?? 0),

@@ -19,7 +19,10 @@ def test_item_detail_template_keeps_cover_quality_explanation_as_contextual_refr
 
     assert "coverQualityExplanation" in template
     assert "title=\"<?php p((string)($item['coverQualityExplanation']" in template
-    assert "aria-label=\"<?php p($l->t('Refresh cover preview. How Library chose this cover: %s'" in template
+    assert 'aria-label="<?php p($l->t(\'Refresh cover preview\')); ?>"' in template
+    assert 'aria-describedby="library-item-cover-explanation"' in template
+    assert 'id="library-item-cover-explanation"' in template
+    assert '<bdi class="library-bidi-human" dir="auto"><?php p((string)($item[\'coverQualityExplanation\']' in template
     assert "Refresh cover preview" in template
     assert "library-cover-quality-explanation" not in template
     assert "<aside" not in template.split('class=\"library-detail-hero\"', 1)[1].split('</article>', 1)[0]
@@ -28,7 +31,7 @@ def test_item_detail_template_keeps_cover_quality_explanation_as_contextual_refr
 def test_live_smoke_checks_detail_cover_quality_help_without_visible_body_panel():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
-    assert "detail_has_cover_refresh_tooltip" in smoke
+    assert "cover_refresh_uses_private_image_endpoint" in smoke
     assert "detail_has_visible_cover_quality_explanation=${detail.text.includes('library-cover-quality-explanation')}" in smoke
     pre_failure_contract = smoke.split("fail('catalogue_initial_state_invalid')", 1)[0]
     assert "detail.text.includes('library-cover-quality-explanation')" in pre_failure_contract

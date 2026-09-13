@@ -11,10 +11,9 @@ def test_scanner_conflict_review_filter_is_exposed_in_catalogue_state_and_vue():
     assert "scannerConflictCount" in page
     assert "scannerConflictReviewUrl" in page
     assert "scannerConflicts" in vue
-    assert "Scanner conflicts" in vue
-    assert "Needs review" in vue
+    assert "Suggested updates" in vue
     assert "scannerConflictReviewUrl" in vue
-    assert "Review scanner conflicts" in vue
+    assert "Review next suggestion" in vue
 
 
 def test_item_service_marks_and_filters_items_with_stored_scanner_candidate_conflicts():

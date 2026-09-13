@@ -24,7 +24,7 @@ def test_catalogue_and_detail_expose_download_url_next_to_read_and_show_in_files
     expected = "$this->readerProvider->getDownloadUrl($userId, (string)($item['cachedPath'] ?? ''))"
     assert "downloadUrl" in page
     assert "private function enrichItemsForVue(string $userId" in page
-    assert "use ($fileTagsByFileId, $userId, $scannerConflictProjection, $batchCoverRefreshRequested)" in page
+    assert "use ($fileTagsByFileId, $userId, $scannerConflictProjection, $coverRefreshItemIdSet)" in page
     assert expected in page
     assert "downloadUrl" in detail_controller
     assert "$this->readerProvider->getDownloadUrl($user->getUID(), (string)($item['cachedPath'] ?? ''))" in detail_controller
@@ -40,8 +40,8 @@ def test_reader_download_fallback_documented_and_smoked():
     smoke_vue = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
     smoke_browser = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
-    assert "Download source" in roadmap
-    assert "Download source" in readme
+    assert "Download" in roadmap
+    assert "Download" in readme
     assert "first_has_downloadUrl" in smoke_vue
     assert "first_downloadUrl_is_webdav" in smoke_vue
     assert "download_http" in smoke_vue

@@ -17,22 +17,17 @@ $languageOptions = [
     'it' => $l->t('Italian (it)'), 'nl' => $l->t('Dutch (nl)'),
     'en-US' => $l->t('English, US (en-US)'), 'en-GB' => $l->t('English, UK (en-GB)'),
 ];
-$genreOptions = [
-    'fiction' => $l->t('fiction'), 'non-fiction' => $l->t('non-fiction'),
-    'photography' => $l->t('photography'), 'science fiction' => $l->t('science fiction'),
-    'history' => $l->t('history'), 'technical' => $l->t('technical'),
-    'manual' => $l->t('manual'), 'reference' => $l->t('reference'),
-];
 $publisherSuggestions = ['Packt', "O'Reilly Media", 'Manning', 'No Starch Press', 'Apress', 'Springer', 'Penguin', 'Taschen'];
 $metadataHelp = [
     'creators' => $l->t('One creator per line. Existing semicolon-separated values are still accepted.'),
+    'identifiers' => $l->t('ISBN and ISSN preserve your display form, validate punctuation-insensitive checksums, and search by normalized exact value.'),
     'publicationDate' => $l->t('Use YYYY, YYYY-MM, or YYYY-MM-DD.'),
     'language' => $l->t('Choose one or more language codes.'),
-    'genres' => $l->t('Choose one or more Library genres. Use Nextcloud tags for ad-hoc cross-app labels.'),
+    'subjects' => $l->t('Separate multiple subjects with semicolons. Use Nextcloud tags for ad-hoc cross-app labels.'),
     'classifications' => $l->t('Separate multiple classifications with semicolons. Use Nextcloud tags for ad-hoc cross-app labels.'),
 ];
 $selectedLanguages = array_values(array_filter(array_map('trim', preg_split('/[;,\n]+/u', (string)($item['language'] ?? '')) ?: []), static fn ($value) => $value !== ''));
-$selectedGenres = is_array($item['genres'] ?? null) ? $item['genres'] : [];
+$selectedSubjects = is_array($item['subjects'] ?? null) ? $item['subjects'] : [];
 $creatorLines = implode("\n", array_filter(array_map('trim', preg_split('/[;\n]+/u', (string)($item['creators'] ?? '')) ?: []), static fn ($value) => $value !== ''));
 $currentPublisher = trim((string)($item['publisher'] ?? ''));
 if ($currentPublisher !== '' && !in_array($currentPublisher, $publisherSuggestions, true)) {
@@ -51,32 +46,10 @@ $fieldProvenanceRows = [
     'subtitle' => $l->t('Subtitle'), 'creators' => $l->t('Creators'),
     'publication' => $l->t('Publication'), 'publicationDate' => $l->t('Publication date'),
     'language' => $l->t('Language'), 'publisher' => $l->t('Publisher'),
-    'description' => $l->t('Description'), 'genres' => $l->t('Genres'),
+    'description' => $l->t('Description'), 'subjects' => $l->t('Subjects'),
     'classifications' => $l->t('Classifications'),
 ];
 $scannerCandidateCount = count(array_filter($fieldValues, static fn ($value) => trim((string)$value) !== ''));
-$metadataHealthFields = [
-    'title' => $l->t('Title'), 'creators' => $l->t('Creators'),
-    'publicationDate' => $l->t('Publication date'), 'language' => $l->t('Language'),
-    'genres' => $l->t('Genres'), 'publisher' => $l->t('Publisher'),
-    'description' => $l->t('Description'), 'personalRating' => $l->t('Personal rating'),
-];
-$weakFields = [];
-foreach ($metadataHealthFields as $field => $label) {
-    $rawValue = $item[$field] ?? '';
-    $hasValue = is_array($rawValue) ? count(array_filter($rawValue, static fn ($value) => trim((string)$value) !== '')) > 0 : trim((string)$rawValue) !== '';
-    if (!$hasValue) {
-        $weakFields[$field] = $label;
-    }
-}
-$metadataHealthTotal = count($metadataHealthFields);
-$metadataHealthComplete = $metadataHealthTotal - count($weakFields);
-$metadataHealth = [
-    'complete' => $metadataHealthComplete,
-    'total' => $metadataHealthTotal,
-    'score' => $metadataHealthTotal > 0 ? (int)round(($metadataHealthComplete / $metadataHealthTotal) * 100) : 100,
-    'weakFields' => $weakFields,
-];
 $scannerConflictCount = 0;
 foreach ($fieldProvenanceRows as $field => $_label) {
     $rawCurrentValue = $item[$field] ?? '';
@@ -85,6 +58,26 @@ foreach ($fieldProvenanceRows as $field => $_label) {
     if (trim($candidateValue) !== '' && $candidateValue !== $currentValue) {
         $scannerConflictCount++;
     }
+}
+require_once __DIR__ . '/../lib/Presentation/MetadataStatus.php';
+$statusItem = $item;
+$statusItem['scannerConflictCount'] = $scannerConflictCount;
+$metadataStatus = \OCA\Library\Presentation\MetadataStatus::forItem($statusItem);
+$fieldLabels = array_column(array_map(static fn ($field, $label) => ['field' => $field, 'label' => $label], array_keys($fieldProvenanceRows), $fieldProvenanceRows), 'label', 'field');
+$weakFields = [];
+foreach ($metadataStatus['completeness']['missing'] as $field) $weakFields[$field] = $fieldLabels[$field] ?? $field;
+$metadataHealth = [
+    'complete' => $metadataStatus['completeness']['complete'], 'total' => $metadataStatus['completeness']['total'],
+    'score' => $metadataStatus['completeness']['total'] > 0 ? (int)round($metadataStatus['completeness']['complete'] / $metadataStatus['completeness']['total'] * 100) : 100,
+    'weakFields' => $weakFields,
+];
+$confidenceLabels = ['user-edited' => $l->t('User edited'), 'mixed' => $l->t('Mixed sources'), 'inferred' => $l->t('Filename/path inferred'), 'extracted' => $l->t('Extracted')];
+$confidenceLabel = $confidenceLabels[$metadataStatus['confidence']];
+$attentionLabels = ['file-status' => $l->t('File status needs attention'), 'scan-error' => $l->t('Metadata extraction problem'), 'suggestions' => $l->t('Suggested updates available'), 'identifier-problems' => $l->t('Invalid identifier checksum')];
+$attentionItems = array_map(static fn ($key) => $attentionLabels[$key], $metadataStatus['attention']);
+$identifiers = is_array($item['identifiers'] ?? null) ? array_values($item['identifiers']) : [];
+if (count($identifiers) === 0) {
+    $identifiers[] = ['scheme' => 'isbn', 'displayValue' => '', 'normalizedValue' => '', 'valid' => true, 'source' => 'user', 'userEdited' => true];
 }
 $fileRows = [
     'fileId' => $item['fileId'] ?? '',
@@ -102,6 +95,7 @@ $fileRowLabels = [
     'mimeType' => $l->t('MIME type'), 'scanStatus' => $l->t('Scan status'),
     'scanError' => $l->t('Scan error'),
 ];
+$fileRowMachineFields = ['fileId', 'libraryFileId', 'path', 'format', 'mimeType'];
 $scanStatusLabels = [
     'indexed' => $l->t('indexed'), 'missing' => $l->t('missing'),
     'metadata_error' => $l->t('metadata error'), 'unknown' => $l->t('unknown'),
@@ -115,31 +109,32 @@ $scanStatusLabels = [
 
         <article class="library-panel" aria-labelledby="library-item-detail-heading">
             <div class="library-detail-hero">
-                <img class="library-detail-cover" src="<?php p($item['coverUrl'] ?? ''); ?>" alt="<?php p($l->t('Cover for %s', [$item['title'] ?? $l->t('publication')])); ?>" loading="lazy" />
+                <img class="library-detail-cover" src="<?php p($item['coverUrl'] ?? ''); ?>" alt="" loading="lazy" />
                 <div>
                     <p class="library-muted"><?php p($l->t('Publication details')); ?></p>
-                    <h2 id="library-item-detail-heading"><?php p((string)($item['title'] ?? $l->t('Untitled publication'))); ?></h2>
+                    <h2 id="library-item-detail-heading"><bdi class="library-bidi-human" dir="auto"><?php p((string)($item['title'] ?? $l->t('Untitled publication'))); ?></bdi></h2>
                     <?php if (($item['creators'] ?? '') !== ''): ?>
-                        <p class="library-creator"><?php p((string)$item['creators']); ?></p>
+                        <p class="library-creator"><bdi class="library-bidi-human" dir="auto"><?php p((string)$item['creators']); ?></bdi></p>
                     <?php endif; ?>
-                    <p class="library-muted">
+                    <p class="library-muted"><bdi class="library-bidi-machine" dir="ltr"><?php p((string)($item['publicationDate'] ?? '')); ?></bdi>
                         <?php p($publicationTypes[(string)($item['publicationType'] ?? 'other')] ?? $publicationTypes['other']); ?>
                         <?php if (($item['extension'] ?? '') !== ''): ?>
                             · <?php p($l->t('Format: %s', [strtoupper((string)$item['extension'])])); ?>
                         <?php endif; ?>
                         <?php if (($item['shelf'] ?? '') !== ''): ?>
-                            · <?php p($l->t('Shelf: %s', [(string)$item['shelf']])); ?>
+                            · <?php p($l->t('Shelf')); ?>: <bdi class="library-bidi-human" dir="auto"><?php p((string)$item['shelf']); ?></bdi>
                         <?php endif; ?>
                     </p>
                     <div class="library-detail-actionbar">
                         <div class="library-detail-primary-actions">
-                            <a href="<?php p($item['openUrl'] ?? '#'); ?>" class="button primary"><?php p($l->t('Read')); ?></a>
+                            <a href="<?php p($item['openUrl'] ?? '#'); ?>" class="button primary"><?php p($l->t('Open')); ?></a>
                             <details class="library-detail-more-actions">
                                 <summary><?php p($l->t('More actions')); ?></summary>
                                 <div>
                                     <a href="<?php p($item['filesUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Show in Files')); ?></a>
                                     <a href="<?php p($item['downloadUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Download source')); ?></a>
-                                    <a href="<?php p($item['coverRefreshPageUrl'] ?? ($item['coverUrl'] ?? '#')); ?>" class="button secondary library-cover-refresh-action" title="<?php p((string)($item['coverQualityExplanation'] ?? $l->t('Library asks Nextcloud preview first, then format-specific cover fallbacks, and finally shows a stable placeholder.'))); ?>" aria-label="<?php p($l->t('Refresh cover preview. How Library chose this cover: %s', [(string)($item['coverQualityExplanation'] ?? '')])); ?>"><?php p($l->t('Refresh cover preview')); ?></a>
+                                    <span id="library-item-cover-explanation" class="hidden-visually"><bdi class="library-bidi-human" dir="auto"><?php p((string)($item['coverQualityExplanation'] ?? '')); ?></bdi></span>
+                                    <a href="<?php p($item['coverRefreshPageUrl'] ?? ($item['coverUrl'] ?? '#')); ?>" class="button secondary library-cover-refresh-action" title="<?php p((string)($item['coverQualityExplanation'] ?? $l->t('Library asks Nextcloud preview first, then format-specific cover fallbacks, and finally shows a stable placeholder.'))); ?>" aria-label="<?php p($l->t('Refresh cover preview')); ?>" aria-describedby="library-item-cover-explanation"><?php p($l->t('Refresh cover preview')); ?></a>
                                 </div>
                             </details>
                         </div>
@@ -191,10 +186,11 @@ $scanStatusLabels = [
             <h3 id="library-publication-metadata-heading"><?php p($l->t('Publication metadata')); ?></h3>
             <!-- health anchors: href="#library-field-title" href="#library-field-creators" href="#library-field-publicationDate" -->
             <details class="library-metadata-health library-metadata-health-details" aria-label="<?php p($l->t('Metadata health')); ?>">
-                <summary><?php p($l->t('Metadata quality')); ?> <span class="library-summary-badge"><?php p((string)$metadataHealth['score']); ?>%</span></summary>
+                <summary><?php p($l->t('Metadata status')); ?></summary>
+                <h3><?php p($l->t('Completeness')); ?> <span class="library-summary-badge"><?php p((string)$metadataHealth['score']); ?>%</span></h3>
                 <span class="library-muted"><?php p($l->t('%s of %s useful fields complete', [(string)$metadataHealth['complete'], (string)$metadataHealth['total']])); ?></span>
-                <div class="library-weak-field-jump-list" aria-label="<?php p($l->t('Weak fields')); ?>">
-                    <span><?php p($l->t('Weak fields')); ?>:</span>
+                <div class="library-weak-field-jump-list" aria-label="<?php p($l->t('Missing details')); ?>">
+                    <span><?php p($l->t('Missing details')); ?>:</span>
                     <?php if (count($metadataHealth['weakFields']) === 0): ?>
                         <span class="library-muted"><?php p($l->t('None')); ?></span>
                     <?php else: ?>
@@ -203,6 +199,9 @@ $scanStatusLabels = [
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
+                <h3><?php p($l->t('Confidence')); ?></h3><p><?php p($confidenceLabel); ?></p>
+                <h3><?php p($l->t('Attention')); ?></h3><p><?php p($attentionItems === [] ? $l->t('No current problems') : implode(' · ', $attentionItems)); ?></p>
+                <h3><?php p($l->t('Personal')); ?></h3><p><?php p($l->t('Starred: %s · Rating: %s/5 · Workflow: %s', [$metadataStatus['personal']['starred'] ? $l->t('Yes') : $l->t('No'), (string)$metadataStatus['personal']['rating'], $workflowStatuses[$metadataStatus['personal']['workflow']] ?? $l->t('None')])); ?></p>
             </details>
             <form method="post" action="<?php p($item['updateUrl'] ?? ''); ?>" class="library-item-form library-detail-edit-form library-detail-edit-form--autosave" aria-labelledby="library-publication-metadata-heading" data-autosave="metadata">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
@@ -215,7 +214,6 @@ $scanStatusLabels = [
                 <?php if (($item['metadataError'] ?? '') !== ''): ?>
                     <p class="library-validation-feedback library-detail-field-full" role="alert"><?php p($l->t('Metadata was not saved') . ': ' . (string)$item['metadataError']); ?></p>
                 <?php endif; ?>
-                <p class="library-muted library-metadata-guidance library-detail-field-full"><?php p($l->t('Non-blocking guidance: these hints document useful metadata shapes, but they do not block saving.')); ?></p>
                 <div class="library-detail-fieldset library-detail-fieldset-identity library-detail-field-full">
                     <h4><?php p($l->t('Identity')); ?></h4>
                 <label class="library-detail-field-wide library-detail-title-field" id="library-field-title">
@@ -247,6 +245,27 @@ $scanStatusLabels = [
                     </div>
                 </label>
                 </div>
+                <div class="library-detail-fieldset library-detail-fieldset-identifiers library-identifiers-fieldset library-detail-field-full">
+                    <h4><span class="library-field-label-help" tabindex="0" title="<?php p($metadataHelp['identifiers']); ?>" aria-label="<?php p($l->t('Identifiers help: %s', [$metadataHelp['identifiers']])); ?>"><?php p($l->t('Identifiers')); ?></span></h4>
+                    <?php foreach ($identifiers as $identifierIndex => $identifier): ?>
+                        <div class="library-identifier-row">
+                            <label>
+                                <?php p($l->t('Scheme')); ?>
+                                <select name="identifiers[<?php p((string)$identifierIndex); ?>][scheme]">
+                                    <option value="isbn" <?php if (($identifier['scheme'] ?? '') === 'isbn') { print_unescaped('selected'); } ?>><?php p(strtoupper('isbn')); ?></option>
+                                    <option value="issn" <?php if (($identifier['scheme'] ?? '') === 'issn') { print_unescaped('selected'); } ?>><?php p(strtoupper('issn')); ?></option>
+                                </select>
+                            </label>
+                            <label class="library-detail-field-wide">
+                                <?php p($l->t('Identifier value')); ?>
+                                <input type="text" name="identifiers[<?php p((string)$identifierIndex); ?>][displayValue]" value="<?php p((string)($identifier['displayValue'] ?? '')); ?>" />
+                            </label>
+                            <?php if (($identifier['displayValue'] ?? '') !== '' && empty($identifier['valid'])): ?>
+                                <p class="library-identifier-warning" role="status"><?php p($l->t('Invalid identifier checksum')); ?></p>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
                 <div class="library-detail-fieldset library-detail-fieldset-publication library-detail-field-full">
                     <h4><?php p($l->t('Publication')); ?></h4>
                 <label class="library-detail-field-wide">
@@ -274,13 +293,9 @@ $scanStatusLabels = [
                         <?php endforeach; ?>
                     </select>
                 </label>
-                <label class="library-detail-field-wide" id="library-field-genres">
-                    <span class="library-field-label-help" title="<?php p($metadataHelp['genres']); ?>" aria-label="<?php p($l->t('Genres help: %s', [$metadataHelp['genres']])); ?>"><?php p($l->t('Genres')); ?></span>
-                    <select name="genres[]" multiple class="library-genre-picklist">
-                        <?php foreach ($genreOptions as $genre => $genreLabel): ?>
-                            <option value="<?php p($genre); ?>" <?php if (in_array($genre, $selectedGenres, true)) { print_unescaped('selected'); } ?>><?php p($genreLabel); ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                <label class="library-detail-field-wide" id="library-field-subjects">
+                    <span class="library-field-label-help" title="<?php p($metadataHelp['subjects']); ?>" aria-label="<?php p($l->t('Subjects help: %s', [$metadataHelp['subjects']])); ?>"><?php p($l->t('Subjects')); ?></span>
+                    <input type="text" name="subjects[]" class="library-subject-field" value="<?php p(implode('; ', $selectedSubjects)); ?>" />
                 </label>
                 <label class="library-detail-field-wide" id="library-field-classifications">
                     <span class="library-field-label-help" title="<?php p($metadataHelp['classifications']); ?>" aria-label="<?php p($l->t('Classifications help: %s', [$metadataHelp['classifications']])); ?>"><?php p($l->t('Classifications')); ?></span>
@@ -314,7 +329,7 @@ $scanStatusLabels = [
             <dl class="library-item-metadata">
                 <?php foreach ($fileRows as $label => $value): ?>
                     <dt><?php p($fileRowLabels[$label]); ?></dt>
-                    <dd class="<?php p($label === 'scanError' && trim((string)$value) !== '' ? 'library-scan-error' : ''); ?>"><?php p(trim((string)$value) !== '' ? (string)$value : '—'); ?></dd>
+                    <dd class="<?php p($label === 'scanError' && trim((string)$value) !== '' ? 'library-scan-error' : ''); ?>"><bdi class="<?php p(in_array($label, $fileRowMachineFields, true) ? 'library-bidi-machine' : 'library-bidi-human'); ?>" dir="<?php p(in_array($label, $fileRowMachineFields, true) ? 'ltr' : 'auto'); ?>"><?php p(trim((string)$value) !== '' ? (string)$value : '—'); ?></bdi></dd>
                 <?php endforeach; ?>
             </dl>
             <?php if (($item['scanStatus'] ?? '') === 'missing'): ?>
@@ -331,7 +346,7 @@ $scanStatusLabels = [
             <summary id="library-provenance-heading"><?php p($l->t('Provenance')); ?> <span class="library-summary-badge"><?php p($l->n('Scanner difference: %n', 'Scanner differences: %n', $scannerConflictCount)); ?></span></summary>
             <dl class="library-item-metadata">
                 <dt><?php p($l->t('Metadata source')); ?></dt>
-                <dd><?php p((string)($item['metadataSource'] ?? '')); ?></dd>
+                <dd><bdi class="library-bidi-human" dir="auto"><?php p((string)($item['metadataSource'] ?? '')); ?></bdi></dd>
                 <dt data-library-field="userEdited"><?php p($l->t('User edited')); ?></dt>
                 <dd><?php p(($item['userEdited'] ?? false) ? $l->t('yes') : $l->t('no')); ?></dd>
             </dl>
@@ -352,16 +367,17 @@ $scanStatusLabels = [
                     </form>
                 <?php endif; ?>
                 <div class="library-provenance-differences">
-                    <p class="library-muted"><?php p($l->t('Only fields that currently differ from scanner candidates are shown first.')); ?></p>
+                    <p class="library-muted"><?php p($l->t('Only fields with suggested updates are shown first.')); ?></p>
                     <?php if ($scannerConflictCount === 0): ?>
                         <p class="library-muted"><?php p($l->t('No scanner differences for this item.')); ?></p>
                     <?php else: ?>
                         <table>
+                            <caption class="hidden-visually"><?php p($l->t('Fields differing from scanner')); ?></caption>
                             <thead>
                                 <tr>
-                                    <th><?php p($l->t('Field')); ?></th>
-                                    <th><?php p($l->t('Current value')); ?></th>
-                                    <th><?php p($l->t('Scanner candidate')); ?></th>
+                                    <th scope="col"><?php p($l->t('Field')); ?></th>
+                                    <th scope="col"><?php p($l->t('Current value')); ?></th>
+                                    <th scope="col"><?php p($l->t('Scanner candidate')); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -374,9 +390,9 @@ $scanStatusLabels = [
                                     <?php if (!$fieldDiffersFromScanner) { continue; } ?>
                                     <tr class="library-field-conflict">
                                         <th scope="row"><?php p($label); ?></th>
-                                        <td><?php p(trim($currentValue) !== '' ? $currentValue : '—'); ?></td>
+                                        <td><bdi class="library-bidi-human" dir="auto"><?php p(trim($currentValue) !== '' ? $currentValue : '—'); ?></bdi></td>
                                         <td>
-                                            <?php p(trim($candidateValue) !== '' ? $candidateValue : '—'); ?>
+                                            <bdi class="library-bidi-human" dir="auto"><?php p(trim($candidateValue) !== '' ? $candidateValue : '—'); ?></bdi>
                                             <?php if ($resetUrl !== ''): ?>
                                                 <form method="post" action="<?php p($resetUrl); ?>" class="library-field-reset-form">
                                                     <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
@@ -395,12 +411,13 @@ $scanStatusLabels = [
                 <details class="library-provenance-all-fields">
                     <summary><?php p($l->t('Show all scanner provenance')); ?></summary>
                 <table>
+                    <caption class="hidden-visually"><?php p($l->t('Field-level provenance')); ?></caption>
                     <thead>
                         <tr>
-                            <th><?php p($l->t('Field')); ?></th>
-                            <th><?php p($l->t('Scanner source')); ?></th>
-                            <th><?php p($l->t('Current value')); ?></th>
-                            <th><?php p($l->t('Scanner candidate')); ?></th>
+                            <th scope="col"><?php p($l->t('Field')); ?></th>
+                            <th scope="col"><?php p($l->t('Scanner source')); ?></th>
+                            <th scope="col"><?php p($l->t('Current value')); ?></th>
+                            <th scope="col"><?php p($l->t('Scanner candidate')); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -412,15 +429,15 @@ $scanStatusLabels = [
                             <?php $fieldDiffersFromScanner = trim($candidateValue) !== '' && $candidateValue !== $currentValue; ?>
                             <tr class="<?php p($fieldDiffersFromScanner ? 'library-field-conflict' : ''); ?>">
                                 <th scope="row"><?php p($label); ?></th>
-                                <td><?php p((string)($fieldSources[$field] ?? ($item['metadataSource'] ?? ''))); ?></td>
+                                <td><bdi class="library-bidi-human" dir="auto"><?php p((string)($fieldSources[$field] ?? ($item['metadataSource'] ?? ''))); ?></bdi></td>
                                 <td>
-                                    <?php p(trim($currentValue) !== '' ? $currentValue : '—'); ?>
+                                    <bdi class="library-bidi-human" dir="auto"><?php p(trim($currentValue) !== '' ? $currentValue : '—'); ?></bdi>
                                     <?php if ($fieldDiffersFromScanner): ?>
-                                        <span class="library-field-conflict-badge" aria-label="<?php p($l->t('Current value differs from scanner candidate')); ?>"><?php p($l->t('Differs from scanner')); ?></span>
+                                        <span class="library-field-conflict-badge" aria-label="<?php p($l->t('Current value differs from suggested value')); ?>"><?php p($l->t('Suggested update')); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php p(trim($candidateValue) !== '' ? $candidateValue : '—'); ?>
+                                    <bdi class="library-bidi-human" dir="auto"><?php p(trim($candidateValue) !== '' ? $candidateValue : '—'); ?></bdi>
                                     <?php if ($resetUrl !== '' && trim($candidateValue) !== '' && $candidateValue !== $currentValue): ?>
                                         <form method="post" action="<?php p($resetUrl); ?>" class="library-field-reset-form">
                                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
@@ -446,23 +463,24 @@ $scanStatusLabels = [
                     <span class="library-muted"><?php p($l->t('No Nextcloud tags')); ?></span>
                 <?php else: ?>
                     <?php foreach ($tags as $tag): ?>
-                        <span class="library-tag"><?php p((string)$tag['name']); ?></span>
+                        <span class="library-tag"><bdi class="library-bidi-human" dir="auto"><?php p((string)$tag['name']); ?></bdi></span>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
             <div class="library-detail-tag-editor" data-library-surface="nextcloudTagEditor" aria-label="<?php p($l->t('Nextcloud tag editor')); ?>">
                 <?php if ($tagFeedback !== null): ?>
-                    <p class="library-tag-feedback library-tag-feedback-<?php p((string)($tagFeedback['type'] ?? 'info')); ?>" data-tag-result="<?php p((string)($tagFeedback['status'] ?? '')); ?>"><?php p((string)($tagFeedback['message'] ?? '')); ?></p>
+                    <p class="library-tag-feedback library-tag-feedback-<?php p((string)($tagFeedback['type'] ?? 'info')); ?>" data-tag-result="<?php p((string)($tagFeedback['status'] ?? '')); ?>"><bdi id="library-tag-feedback-value" class="library-bidi-human" dir="auto"><?php p((string)($tagFeedback['message'] ?? '')); ?></bdi></p>
                 <?php endif; ?>
                 <?php if (count($tags) > 0): ?>
                     <div class="library-tag-chip-list" aria-label="<?php p($l->t('Remove Nextcloud tag')); ?>">
-                        <?php foreach ($tags as $tag): ?>
+                        <?php foreach ($tags as $tagIndex => $tag): ?>
                             <form method="post" action="<?php p((string)($tag['removeUrl'] ?? '')); ?>" class="library-tag-chip-form">
                                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                                 <input type="hidden" name="returnTo" value="details" />
                                 <span class="library-tag library-tag-removable">
-                                    <span><?php p((string)$tag['name']); ?></span>
-                                    <button type="submit" class="library-tag-chip-remove" aria-label="<?php p($l->t('Remove tag: %s', [(string)$tag['name']])); ?>">×</button>
+                                    <span id="library-remove-tag-name-<?php p((string)$tagIndex); ?>"><bdi class="library-bidi-human" dir="auto"><?php p((string)$tag['name']); ?></bdi></span>
+                                    <span id="library-remove-tag-action-<?php p((string)$tagIndex); ?>" class="hidden-visually"><?php p($l->t('Remove tag')); ?></span>
+                                    <button type="submit" class="library-tag-chip-remove" aria-labelledby="library-remove-tag-action-<?php p((string)$tagIndex); ?> library-remove-tag-name-<?php p((string)$tagIndex); ?>">×</button>
                                 </span>
                             </form>
                         <?php endforeach; ?>

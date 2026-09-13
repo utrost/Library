@@ -6,6 +6,7 @@ namespace OCA\Library\Controller;
 
 use OCA\Library\Exception\BatchLimitExceededException;
 use OCA\Library\Service\ItemService;
+use OCA\Library\Service\SelectedItemIds;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -60,9 +61,10 @@ final class ItemController extends Controller {
                     'language' => $this->normalizeRequestList($this->request->getParam('language', $this->request->getParam('language[]', ''))),
                     'publisher' => (string)$this->request->getParam('publisher', ''),
                     'description' => (string)$this->request->getParam('description', ''),
-                    'genres' => $this->normalizeRequestList($this->request->getParam('genres', $this->request->getParam('genres[]', ''))),
+                    'subjects' => $this->normalizeRequestList($this->request->getParam('subjects', $this->request->getParam('subjects[]', ''))),
                     'classifications' => $this->normalizeRequestList($this->request->getParam('classifications', $this->request->getParam('classifications[]', ''))),
                     'personalRating' => (string)$this->request->getParam('personalRating', ''),
+                    'identifiers' => $this->normalizeIdentifierRequest($this->request->getParam('identifiers', [])),
                 ]);
             } catch (\InvalidArgumentException $e) {
                 if ($metadataAutosave) {
@@ -127,30 +129,18 @@ final class ItemController extends Controller {
     }
 
     #[NoAdminRequired]
-    public function bulkresetfields(): RedirectResponse {
-        $user = $this->userSession->getUser();
-        if ($user !== null) {
-            try {
-                $this->itemService->bulkResetFieldsToScannerCandidates($user->getUID(), (string)$this->request->getParam('itemIds', ''));
-            } catch (BatchLimitExceededException $e) {
-                return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/settings/user/library') . '?batchLimitError=1');
-            }
-        }
-
-        return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/settings/user/library'));
-    }
-
-    #[NoAdminRequired]
     public function batchresetfilteredfields(): RedirectResponse {
         $user = $this->userSession->getUser();
         $filters = $this->catalogueFiltersFromRequest();
         $result = ['requestedItems' => 0, 'resetItems' => 0, 'skippedItems' => 0];
         if ($user !== null) {
             try {
-                $itemIds = $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+                $itemIds = SelectedItemIds::parse($this->request->getParam('itemIds', null));
                 $result = $this->itemService->bulkResetFieldsToScannerCandidates($user->getUID(), $itemIds);
             } catch (BatchLimitExceededException $e) {
                 return $this->batchLimitRedirect($filters);
+            } catch (\InvalidArgumentException $e) {
+                return $this->batchSelectionRedirect($filters);
             }
         }
 
@@ -176,14 +166,10 @@ final class ItemController extends Controller {
             'skippedItems' => 0,
             'examples' => [],
         ];
-        $itemIdsParamPresent = array_key_exists('itemIds', $this->request->getParams());
-        $requestedItemIds = $this->request->getParam('itemIds', null);
-        $itemIds = $itemIdsParamPresent ? $this->parseExplicitItemIds($requestedItemIds) : [];
+        $itemIds = [];
         if ($user !== null) {
             try {
-                $itemIds = $itemIdsParamPresent
-                    ? $itemIds
-                    : $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
+                $itemIds = SelectedItemIds::parse($this->request->getParam('itemIds', null));
                 $result = array_merge($result, $this->itemService->previewBatchMetadataEdit($user->getUID(), $itemIds,
                     (string)$this->request->getParam('bulkEditField', ''),
                     (string)$this->request->getParam('bulkEditValue', ''),
@@ -191,6 +177,10 @@ final class ItemController extends Controller {
             } catch (BatchLimitExceededException $e) {
                 $result['batchMetadataEditPreviewResult'] = false;
                 $result['batchLimitError'] = true;
+                $result['error'] = $e->getMessage();
+            } catch (\InvalidArgumentException $e) {
+                $result['batchMetadataEditPreviewResult'] = false;
+                $result['batchSelectionError'] = true;
                 $result['error'] = $e->getMessage();
             }
         }
@@ -201,7 +191,7 @@ final class ItemController extends Controller {
             'direction' => $this->l10nFactory?->getLanguageDirection($language) ?? 'ltr',
             'result' => $result,
             'filters' => array_filter($filters, static fn (string $value): bool => $value !== ''),
-            'itemIds' => $itemIdsParamPresent ? $itemIds : [],
+            'itemIds' => $itemIds,
             'applyUrl' => $this->urlGenerator->linkToRoute('library.item.batchapplymetadataedit'),
             'backUrl' => $this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query(array_filter($filters, static fn (string $value): bool => $value !== '')),
         ]);
@@ -216,16 +206,15 @@ final class ItemController extends Controller {
             try {
                 $itemIdsParamPresent = array_key_exists('itemIds', $this->request->getParams());
                 $requestedItemIds = $this->request->getParam('itemIds', null);
-                $explicitItemIds = $this->parseExplicitItemIds($requestedItemIds);
-                $itemIds = $itemIdsParamPresent
-                    ? $explicitItemIds
-                    : $this->itemService->itemIdsForCatalogueFilters($user->getUID(), $filters, 5000);
-                $result = $this->itemService->applyBatchMetadataEdit($user->getUID(), $itemIds,
-                    (string)$this->request->getParam('bulkEditField', ''),
-                    (string)$this->request->getParam('bulkEditValue', ''),
-                );
+                $explicitItemIds = SelectedItemIds::parse($itemIdsParamPresent ? $requestedItemIds : null);
+                $result = $this->itemService->applyBatchMetadataEdit($user->getUID(), $explicitItemIds,
+                        (string)$this->request->getParam('bulkEditField', ''),
+                        (string)$this->request->getParam('bulkEditValue', ''),
+                    );
             } catch (BatchLimitExceededException $e) {
                 return $this->batchLimitRedirect($filters);
+            } catch (\InvalidArgumentException $e) {
+                return $this->batchSelectionRedirect($filters);
             }
         }
 
@@ -239,41 +228,9 @@ final class ItemController extends Controller {
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
     }
 
-    private function parseExplicitItemIds(mixed $value): array {
-        if (!is_array($value)) {
-            return [];
-        }
-
-        $ids = [];
-        $seen = [];
-        $maximum = (string)PHP_INT_MAX;
-        foreach ($value as $candidate) {
-            if (is_int($candidate)) {
-                if ($candidate <= 0) {
-                    return [];
-                }
-                $id = $candidate;
-            } elseif (is_string($candidate) && preg_match('/^[1-9][0-9]*$/D', $candidate) === 1) {
-                if (strlen($candidate) > strlen($maximum)
-                    || (strlen($candidate) === strlen($maximum) && strcmp($candidate, $maximum) > 0)) {
-                    return [];
-                }
-                $id = (int)$candidate;
-            } else {
-                return [];
-            }
-
-            if (!isset($seen[$id])) {
-                $seen[$id] = true;
-                $ids[] = $id;
-            }
-        }
-        return $ids;
-    }
-
     private function catalogueFiltersFromRequest(): array {
         $filters = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $key) {
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $key) {
             $filters[$key] = trim((string)$this->request->getParam($key, ''));
         }
         if ($filters['sort'] === '') {
@@ -285,6 +242,12 @@ final class ItemController extends Controller {
     private function batchLimitRedirect(array $filters): RedirectResponse {
         $query = array_filter($filters, static fn (string $value): bool => $value !== '');
         $query['batchLimitError'] = '1';
+        return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
+    }
+
+    private function batchSelectionRedirect(array $filters): RedirectResponse {
+        $query = array_filter($filters, static fn (string $value): bool => $value !== '');
+        $query['batchSelectionError'] = '1';
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?' . http_build_query($query));
     }
 
@@ -334,6 +297,28 @@ final class ItemController extends Controller {
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
+
+    /**
+     * @param mixed $value
+     * @return array<int, array{scheme:string,displayValue:string}>
+     */
+    private function normalizeIdentifierRequest(mixed $value): array {
+        if (!is_array($value)) {
+            return [];
+        }
+        $normalized = [];
+        foreach ($value as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $scheme = strtolower(trim((string)($row['scheme'] ?? '')));
+            $displayValue = trim((string)($row['displayValue'] ?? ''));
+            if ($displayValue !== '' && in_array($scheme, ['isbn', 'issn'], true)) {
+                $normalized[] = ['scheme' => $scheme, 'displayValue' => $displayValue];
+            }
+        }
+        return $normalized;
     }
 
     /**

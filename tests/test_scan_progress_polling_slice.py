@@ -10,7 +10,7 @@ def test_scan_progress_route_returns_latest_job_json():
     assert "['name' => 'scan#progress', 'url' => '/scan/progress', 'verb' => 'GET']" in routes
     assert "use OCP\\AppFramework\\Http\\JSONResponse;" in controller
     assert "public function progress(): JSONResponse" in controller
-    assert "return new JSONResponse(['job' => $job]);" in controller
+    assert "return new JSONResponse(['job' => $job, 'totalPublications' => $totalPublications]);" in controller
     assert "$this->scanJobService->latestJob($user->getUID())" in controller
 
 
@@ -29,7 +29,7 @@ def test_settings_loads_scan_progress_script_and_passes_endpoint_url():
 def test_scan_progress_javascript_polls_until_terminal_status_and_updates_dom():
     script = (ROOT / "js" / "scan-progress.js").read_text()
 
-    assert "fetch(progressUrl" in script
+    assert "fetch(url.toString()" in script
     assert "credentials: 'same-origin'" in script
     assert "data-library-scan-status" in script
     assert "data-library-scan-files-indexed" in script

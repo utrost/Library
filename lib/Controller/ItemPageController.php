@@ -52,14 +52,19 @@ final class ItemPageController extends Controller {
             return $this->sidebarNotFoundResponse();
         }
         $id = (string)$item['id'];
+        $fileId = (int)$item['fileId'];
         $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $id]);
         $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $id]);
+        $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $id]);
         $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $id]);
+        $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
+        $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($user->getUID(), (string)($item['cachedPath'] ?? ''));
         return new JSONResponse(['item' => array_intersect_key($item, array_flip([
             'id', 'title', 'subtitle', 'creators', 'publicationType', 'publication', 'publicationDate',
-            'language', 'publisher', 'description', 'genres', 'classifications', 'personalRating',
+            'language', 'publisher', 'description', 'subjects', 'classifications', 'personalRating',
             'extension', 'shelf', 'cachedPath', 'scanStatus', 'scanError', 'workflowStatus',
-            'metadataSource', 'fieldSources', 'fieldValues', 'userEdited', 'coverUrl', 'detailsUrl', 'openUrl',
+            'identifiers', 'metadataSource', 'fieldSources', 'fieldValues', 'userEdited', 'coverUrl',
+            'detailsUrl', 'updateUrl', 'openUrl', 'filesUrl', 'downloadUrl',
         ]))]);
     }
 

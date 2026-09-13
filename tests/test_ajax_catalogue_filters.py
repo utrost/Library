@@ -21,6 +21,14 @@ def test_page_controller_exposes_json_catalogue_endpoint_reusing_catalogue_state
     assert "return new JSONResponse($this->buildCatalogueState($userId, [], [], 'catalogue_api'));" in controller
 
 
+def test_page_controller_preserves_accepted_catalogue_view_in_initial_state_and_pagination():
+    controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+
+    assert "'view' => trim((string)$this->request->getParam('view', 'compact'))" in controller
+    assert "in_array($activeFilters['view'], ['compact', 'gallery', 'list', 'shelf'], true)" in controller
+    assert "['q', 'view', 'type'" in controller
+
+
 def test_vue_filters_fetch_catalogue_json_without_full_page_reload():
     app = (ROOT / "src" / "App.vue").read_text()
 
@@ -30,7 +38,9 @@ def test_vue_filters_fetch_catalogue_json_without_full_page_reload():
     assert "history.replaceState" in app
     assert "fetch(catalogueEndpointUrl.value" in app
     assert "@submit.prevent=\"submitFiltersAjax\"" in app
-    assert "@input=\"scheduleFilterSubmit\"" in app
+    assert "@input=\"scheduleFilterSubmit\"" not in app
+    assert 'data-library-quick-search type="search" name="q"' in app
+    assert 'v-model="activeFilters.format" name="format" @change="submitFiltersNow($event)"' in app
     assert "@change=\"submitFiltersAjax\"" in app
 
 

@@ -83,7 +83,8 @@ def test_explanatory_help_moves_to_hover_labels():
     for phrase in removed_visible_help:
         assert phrase not in vue
 
-    assert ":title=\"t('library', 'Search, sort and filters narrow the current result set." in vue
+    assert "data-library-quick-search" in vue
+    assert "data-library-control=\"filter\"" in vue
     assert ":title=\"t('library', 'Search also checks descriptions." in vue
     assert ":title=\"t('library', view.description)\"" in vue
-    assert ":title=\"t('library', row.description)\"" in vue
+    assert "Review next suggestion" in vue

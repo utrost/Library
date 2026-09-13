@@ -23,7 +23,7 @@ Included in the v0.1 line:
 - user-configured library roots;
 - background scanning for EPUB, PDF and CBZ collections;
 - catalogue search, sorting, filters and paginated cover views;
-- metadata editing for publication fields, creators, dates, genres, classifications, workflow status, stars, descriptions and comments;
+- metadata editing for publication fields, creators, dates, subjects, classifications, workflow status, stars, descriptions and comments;
 - review flows for weak metadata, scanner conflicts, missing files and metadata extraction errors;
 - corrected-metadata export and import preview/apply;
 - safe handoff to existing Nextcloud viewers, Show in Files and Download source actions.
