@@ -41,7 +41,26 @@ def test_each_catalogue_facet_uses_a_self_excluding_filter_context():
         "classifications": "classification",
     }.items():
         assert f"'{facet}' => ['{key}']" in service
-        assert f"$facetFilters['{facet}']" in facets
+        if facet not in {"subjects", "classifications"}:
+            assert f"$facetFilters['{facet}']" in facets
 
     assert "unset($filtersByFacet[$facet][$excludedKey])" in facets
     assert "catalogueFilteredQueryBuilder($userId, $filters)" in facets
+
+
+def test_ordinary_catalogue_facets_skip_multi_value_json_scans_but_keep_filters():
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
+    facets = service.split("private function catalogueFacets", 1)[1].split(
+        "private function facetFiltersFor", 1
+    )[0]
+    predicates = service.split("private function applyCatalogueFilters", 1)[1].split(
+        "private function", 1
+    )[0]
+
+    assert "'subjects' => []" in facets
+    assert "'classifications' => []" in facets
+    assert "subjectFacetValues(" not in facets
+    assert "classificationFacetValues(" not in facets
+    assert "i.subjects_json" in predicates
+    assert "i.classifications_json" in predicates
+    assert "jsonArrayContainsFilter" in predicates
