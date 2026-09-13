@@ -41,8 +41,10 @@ def test_each_catalogue_facet_uses_a_self_excluding_filter_context():
         "classifications": "classification",
     }.items():
         assert f"'{facet}' => ['{key}']" in service
-        if facet not in {"subjects", "classifications"}:
+        if facet not in {"creators", "subjects", "classifications"}:
             assert f"$facetFilters['{facet}']" in facets
+
+    assert "'creators' => []" in facets
 
     assert "unset($filtersByFacet[$facet][$excludedKey])" in facets
     assert "catalogueFilteredQueryBuilder($userId, $filters)" in facets
