@@ -1099,6 +1099,16 @@
         grid-template-columns: 1fr;
     }
 
+    .library-detail-edit-form .library-detail-fieldset {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .library-detail-edit-form .library-detail-fieldset > label {
+        grid-column: 1 / -1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
     .library-detail-field-wide,
     .library-detail-field-full,
     .library-detail-save-row {
