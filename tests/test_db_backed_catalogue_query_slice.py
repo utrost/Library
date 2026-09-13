@@ -9,10 +9,10 @@ def test_item_service_exposes_db_backed_catalogue_query_result():
     assert "public function queryCatalogue(string $userId, array $filters, array $pagination): array" in service
     assert "private function catalogueQueryBuilder(string $userId" in service
     assert "private function countCatalogueItems(string $userId, array $filters): int" in service
-    assert "private function catalogueFacets(string $userId): array" in service
+    assert "private function catalogueFacets(string $userId, array $filters): array" in service
     assert "->setFirstResult($offset)" in service
     assert "->setMaxResults($limit)" in service
-    assert "COUNT(*)" in service
+    assert "COUNT(DISTINCT i.id)" in service
     assert "LOWER(i.title)" in service
     assert "LOWER(f.cached_path)" in service
     assert "f.file_id" in service
@@ -27,7 +27,8 @@ def test_page_controller_no_longer_filters_sorts_or_slices_catalogue_in_memory()
     assert "filterItemsForPresentation" not in page
     assert "sortItemsForPresentation" not in page
     assert "sliceItemsForPresentation" not in page
-    assert "buildShelves" not in page
+    shelves_state = page.split("private function buildShelvesState", 1)[1].split("private function buildCatalogueState", 1)[0]
+    assert "queryCatalogue(" not in shelves_state
     assert "buildFormats" not in page
 
 

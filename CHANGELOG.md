@@ -1,6 +1,26 @@
 # Changelog
 
+## v0.1.0-alpha.168 - 2026-09-13 (source candidate, unpackaged)
+
+- Added bounded server-backed Home and Shelves surfaces, lazy shelf-tree children, additive catalogue facets/filters, publication suggestions, and list-view and responsive shelf refinements.
+- Added the ISBN/ISSN identifier spine with display-value preservation, checksum warnings, OPF extraction, normalized exact search, and distinct catalogue queries so multi-identifier joins do not duplicate publications.
+- Kept OPF precedence explicit: same-basename sidecars precede folder `metadata.opf`, sidecar metadata precedes embedded candidates but not user edits, paired OPFs stay out of normal catalogue results, and user-edited standalone OPF records are preserved.
+- Made Settings operations asynchronous, added per-root and total publication counts, retained cooperative cancellation, and added bounded heartbeat/current-path progress. Quiet running jobs are reported as stale without a destructive terminal transition.
+- Updated current documentation and focused docs contracts for alpha.168. No package, installation, deployment, or exact-package browser smoke was performed.
+
+## v0.1.0-alpha.167 - 2026-09-12 (source candidate, unpackaged)
+
+- Removed page-local catalogue rails and made cover/title open the native sidebar; Open is the sole primary file action and secondary actions use the Nextcloud actions menu.
+- Added visible-page selection-gated batch controls with explicit fail-closed item IDs, five top-level Review groups, and separate completeness, confidence, attention, and personal metadata status.
+- Reorganized Settings into four sections, replaced default indexed-file enumeration with aggregate status counts, and collapsed scan history.
+- Updated English, German, and Arabic catalogues and generated alpha.167 frontend assets. No package, installation, deployment, or full browser smoke was performed.
+
 All notable changes for Library are tracked here.
+
+## v0.1.0-alpha.166 - 2026-09-12 (source candidate, unpackaged)
+
+- Added field-specific bidi isolation for existing Vue and PHP presentation, exact DOM/AX association gates, reduced-motion media/duration observations, forced-colors media activation observation, and viewport reflow/control-bound source-harness gates. Native browser zoom and visual forced-colors usability remain manual debt.
+- Added an honest pending NVDA/VoiceOver/Orca handbook matrix. AX-tree evidence is not screen-reader testing. No ISBN schema or UI was added.
 
 ## v0.1.0-alpha.165 - 2026-09-11
 
@@ -226,7 +246,7 @@ All notable changes for Library are tracked here.
 
 - UI/UX polish is now the active priority: settings roots render as shelf cards with collapsed danger zones, the mobile catalogue starts with search and hides sort/filter options, discovery pages use their focused context as the hero, detail pages demote secondary actions/metadata quality, and batch-preview examples become mobile review cards.
 - Moved detail-page metadata field help into hover/focus help on the field names so inline guidance no longer stretches the edit form.
-- Documented the useful metadata-field audit: sub-genre stays in genre/classification values for now instead of becoming a premature schema column.
+- Documented the useful metadata-field audit: sub-subject stays in subject/classification values for now instead of becoming a premature schema column.
 
 ## v0.1.0-alpha.112 - 2026-09-08
 
@@ -236,7 +256,7 @@ Release-hardening candidate for the v0.1 manual test pass.
 
 - Dedicated publication/series discovery pages and dedicated publication-year discovery pages around the existing compact catalogue grid.
 - Details page cleanup so publication metadata is shown as one editable surface instead of duplicate read-only/edit sections.
-- v0.1 detail metadata editing polish: roomier title/description controls, creators entered one per line, language/genre multi-select picklists, publisher autocomplete and autosave with a stable manual fallback button.
+- v0.1 detail metadata editing polish: roomier title/description controls, creators entered one per line, language/subject multi-select picklists, publisher autocomplete and autosave with a stable manual fallback button.
 - Root deletion recovery checklist before typed destructive confirmation.
 - Hard validation for publication date and language edit/import paths.
 - Human test handbook with stable release-hardening case IDs.
@@ -263,7 +283,7 @@ Public alpha candidate built from app version `0.1.0-alpha.82`.
 - User-configured Library roots with enable/disable, edit, delete and per-root scan actions.
 - Background scan jobs with progress/history, metadata-error retry, missing-file recheck, queued-job cancellation and cooperative running-job cancellation.
 - File-index and catalogue-item model for EPUB, PDF, CBZ and OPF inputs, with extractor failure isolation.
-- General publication metadata model with editable title, subtitle, creators, publication/series, date, language, publisher, description, workflow status, genres and classifications.
+- General publication metadata model with editable title, subtitle, creators, publication/series, date, language, publisher, description, workflow status, subjects and classifications.
 - Scanner provenance/candidates, details-page metadata correction summary, field-level differs-from-scanner markers, single-field reset, whole-item reset and scanner-conflict catalogue filter.
 - Compact cover-first catalogue cards, database-backed search/filter/sort/pagination, top series/periodicals facet and active filter chips.
 - Read handoff, Show in Files and Download source actions.

@@ -64,10 +64,7 @@ def test_smoke_posts_export_to_import_preview_and_requires_non_mutating_counts()
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
     assert "metadataImportPreviewUrl" in smoke
-    assert "detail_has_metadata_import_preview_form" in smoke
-    assert "settings_has_metadata_import_apply_form" in smoke
-    assert "library-metadata-import-apply-form" in smoke
-    assert "Apply metadata import" in smoke
+    assert "settings_has_four_product_sections" in smoke
     assert "import_preview_http" in smoke
     assert "import_preview_matched_items" in smoke
     assert "import_preview_changed_fields" in smoke

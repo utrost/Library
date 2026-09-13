@@ -17,7 +17,7 @@ def test_usefulness_ux_feature_list_captures_uwe_and_hermes_priorities():
     for phrase in [
         "Re-indexing, moving, adding and deleting files",
         "Configurable metadata extraction from path and filename",
-        "/<genre>/<Author>/<Series>/<title>.epub",
+        "/<subject>/<Author>/<Series>/<title>.epub",
         "database-backed catalogue text search includes title, subtitle, creators, publication/series/periodical, **description**, filename and folder path text",
         "Saved views and smart collections",
         "Weak-metadata discovery dashboard",

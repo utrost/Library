@@ -12,7 +12,8 @@ def test_page_controller_accepts_creator_filter_and_provides_creator_facets():
     pagination_method = page.split("private function paginationUrl", 1)[1]
     for param in ["creator", "scannerConflicts", "starred", "needsMetadata", "coverReview", "noCreator", "noPublication", "weakMetadata", "unreviewedImports", "sort"]:
         assert f"'{param}'" in pagination_method
-    assert "@param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,genre:string,classification:string,scannerConflicts:string,starred:string,needsMetadata:string,coverReview:string,noCreator:string,noPublication:string,weakMetadata:string,unreviewedImports:string,sort:string}" in page
+    assert "publisher:string" in page
+    assert "creator:string" in page
 
 
 def test_item_service_filters_exact_creator_and_exposes_creator_facets():
@@ -20,7 +21,7 @@ def test_item_service_filters_exact_creator_and_exposes_creator_facets():
 
     assert "creator?:string" in service
     assert "creators:array<int, string>" in service
-    assert "'creators' => $this->distinctCatalogueValues($userId, 'i.creators', 'creator')" in service
+    assert "'creators' => $this->distinctCatalogueValues($userId, $facetFilters['creators'], 'i.creators', 'creator')" in service
     assert "$creator = trim((string)($filters['creator'] ?? ''))" in service
     assert "$qb->expr()->eq('i.creators', $qb->createNamedParameter($creator))" in service
     assert "Exact creator filter intentionally matches the full creators field" in service

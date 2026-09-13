@@ -27,14 +27,15 @@ Library owns:
 - field-level scanner candidates and provenance for reset/review workflows;
 - provenance and scan diagnostics;
 - a database-backed item query for catalogue search, filters, sorting, facets and pagination;
+- bounded server-backed Home and Shelves summaries with lazy shelf-tree children;
 - same-origin cover routes with preview/CBZ/placeholder diagnostics;
-- handoff links to read/open files, show them in Nextcloud Files and download the original source file;
+- handoff links to open files, show them in Nextcloud Files and download the original source file;
 - exposure and editing of Nextcloud system tags on the backing file;
 - exposure and adding of Nextcloud file comments;
 - read-only corrected-metadata JSON export for user-edited catalogue rows;
 - read-only sidecar manifest export that maps corrected rows to suggested `.library.json` sidecar paths.
 
-For the next personal-library direction, see [Personal top features](personal-top-features.md): multi-root confidence, starring/bookmarking, last-opened activity, description search and Library-native workflow status now have checked implementation/smoke coverage; next priority is genres/classifications.
+For the next personal-library direction, see [Personal top features](personal-top-features.md): multi-root confidence, starring/bookmarking, last-opened activity, description search and Library-native workflow status now have checked implementation/smoke coverage; next priority is subjects/classifications.
 
 Library does **not** own:
 
@@ -53,28 +54,27 @@ Library does **not** own:
 
 ### Library catalogue
 
-Open the **Library** app from Nextcloud navigation. The catalogue page is the normal reader-facing entry point. **Library** is active, **Review** opens focused cleanup results, and **Settings** links to personal settings. Use **Quick details** on a catalogue or Review card for the native read-only sidebar; its URL can be copied and browser Back/Forward restores selection. Use **Open full details** for the existing PHP editing surface.
+Open the **Library** app from Nextcloud navigation. The catalogue is the reader-facing entry point. Search is immediately visible; `/` focuses it without opening **Filter**. There is one **Filter**, **Sort**, and **View** control. Selecting a cover or title opens the contextual sidebar, **Open** opens the file, and **Advanced details** in that sidebar opens the full editor. Sidebar URLs can be copied and browser Back/Forward restores selection.
 
 Current catalogue capabilities:
 
 - browse publication cards in a paginated cover gallery;
 - see title, creator, publication type, file format, shelf/root and Nextcloud tags;
-- open the publication through **Read**;
+- open the publication through **Open**;
 - open the original file context through **Show in Files**;
-- fetch the original source file through **Download source**;
-- open the item workbench through **Details**;
-- search title, subtitle, creators, publication, description and file path from the compact quick-filter row; this is now explicit description search plus filename and folder path search for sparse PDFs/comics whose useful metadata only lives in their path or notes;
-- use the polished **Refine results** workspace panel for search, sort, starred-only, page-size changes and full facets; press `/` to open the panel and focus catalogue search, and press `Escape` to clear focused search without a whole-page refresh;
+- fetch the original file through **Download**;
+- open contextual details in the sidebar and use **Advanced details** for editing;
+- search title, subtitle, creators, publication, description, exact normalized ISBN/ISSN and file path from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics;
+- use the visible toolbar for Search, Sort and View and the single **Filter** disclosure for facets; press `/` to focus search and `Escape` to clear it;
 - filter by exact creator field and open a creator landing page as read-only discovery; creator identity splitting remains future work;
-- use the polished workspace menu bar above the **Library** heading: **Refine results**, **Browse shortcuts**, **Batch actions**, **Review queue** and **Admin tools**. Each menu item uses a coloured icon, one-line purpose and scope badge so reader, batch, review and admin work no longer look like unrelated toolbars;
+- use server-backed **Starred** and **Recently opened** browse destinations;
+- enter through server-backed **Home**, browse root/folder counts in **Shelves**, and move into the paginated **Catalogue** without preloading full result sets;
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
-- use **Batch actions for current results** to apply or remove a Nextcloud tag from current filter results; this filter-result batch tagging workflow keeps tags separate from Library metadata;
-- use the same batch panel for a filter-result metadata reset: Library resets only current scanner-conflict results to stored scanner candidates, preserving current filters and reporting requested/reset/skipped counts;
-- run preview-and-apply batch metadata edits for one selected publication field across current filter results; the polished review page first reports requested/changed/unchanged/skipped counts plus example items, then an explicit apply button writes only changed rows;
-- use the metadata review workbench from scanner-conflict or weak-metadata views to review next conflict rows, compare current value, scanner candidate, path-template candidate, sidecar value and source provenance, and explicitly accept a scanner candidate per field without changing source files;
-- use filter-result cover refresh to request fresh cover previews for the current result set; this reloads the filtered catalogue with no-store cover URLs and does not change source files or metadata;
+- select visible publications to reveal batch controls; every batch request carries only the canonical non-empty explicit selection and remains ownership-checked and capped;
+- use Review’s five groups: **Suggested updates**, **Needs details**, **File problems**, **Cover problems**, and **Imported changes**;
+- compare current and suggested values and explicitly use a suggested value without changing source files;
 - see first-run guidance when no Library root exists, disabled-root guidance when roots are saved but disabled, and filter-specific recovery actions when a search returns no matches;
-- browse compact cover-first cards on mobile and desktop where extra metadata and actions are tucked behind a touch-friendly **Details** disclosure, with view-mode buttons, cover loading shimmer plus a broken-cover fallback, a home dashboard for **Continue reading**, **Recently added** and **Rediscover** entry points plus a sleek in-page details drawer for quick peeking without losing catalogue context; Esc closes and arrow keys browse neighbouring drawer items;
+- browse compact cover-first cards on mobile and desktop with a contextual sidebar; Escape closes it, arrow keys browse neighbours, and focus returns to the opener;
 - filter by series or periodical title for magazines, journals and recurring publications;
 - filter by publication year as read-only discovery for dated books, magazines, journals and comics;
 - use the **Top series and periodicals** panel to open the first dedicated publication discovery page for a recurring publication, with item counts, a visual issue strip and the compact cover gallery in that named context;
@@ -86,7 +86,7 @@ Current catalogue capabilities:
 - choose page size up to the current 500-item clamp;
 - see page counts and previous/next links;
 - see scan diagnostics on unhealthy catalogue cards only;
-- open **Library settings**, **Export corrected metadata** and **Export sidecar manifest** from the secondary catalogue action area.
+- use Settings for scanning, exports, diagnostics, and repair ownership.
 
 The catalogue cards are intentionally browse-only. Editing happens on the detail page so the grid stays fast to scan. Vue is the sole catalogue renderer; startup failure shows an honest recovery notice rather than a second, potentially stale catalogue.
 
@@ -94,7 +94,7 @@ Implementation note for reviewers: the catalogue is no longer an app-layer filte
 
 ### Item details page
 
-Open **Details** from a catalogue card. This is the item workbench.
+Select a cover or title to open the contextual sidebar, then choose **Advanced details** to open the full editor. This is the item workbench.
 
 Current details capabilities:
 
@@ -102,13 +102,14 @@ Current details capabilities:
 - star or unstar the publication as Library-native personal catalogue state;
 - set a Library-native workflow status such as `to-read`, `reading`, `finished`, `reference`, `paused`, `abandoned` or `needs-action`; this is separate from operational scan status and Nextcloud tags;
 - see and edit a Library-native description that also participates in catalogue search;
-- see the last time Library opened the item when it has been read through the Library **Read** action;
-- use **Read**, **Show in Files** and **Download source** actions;
+- see the last time Library opened the item through the Library **Open** action;
+- use **Open**, **Show in Files** and **Download** actions;
 - inspect publication metadata;
-- inspect a transparent, local **Metadata health** score and weak-field jump list for cleanup targets;
+- edit ISBN/ISSN identifiers; invalid checksums remain visible with an Attention warning rather than being silently rewritten;
+- inspect separate **Completeness**, **Confidence**, **Attention**, and **Personal** metadata status; rating never changes bibliographic completeness;
 - inspect a metadata correction summary with scanner-candidate and differing-field counts;
 - compare current field values with stored scanner candidates, including **Differs from scanner** labels when they disagree;
-- reset one field, all fields on one item, or **Bulk reset selected items to scanner** from Library settings when scanner candidates are available;
+- reset one field, all fields on one item, or reset scanner candidates for an explicit catalogue selection;
 - edit publication metadata fields:
   - title;
   - subtitle;
@@ -119,7 +120,7 @@ Current details capabilities:
   - publisher;
   - language;
   - personal rating (0–5 stars);
-  - genres and classifications, where sub-genre remains a genre/classification value until a real taxonomy proves it needs a separate field;
+  - subjects and classifications, where sub-subject remains a subject/classification value until a real taxonomy proves it needs a separate field;
 - inspect backing file metadata:
   - Nextcloud file ID;
   - Library file-index ID;
@@ -139,7 +140,7 @@ Current details capabilities:
 
 Manual Library metadata edits set provenance to `user` and are preserved across rescans. Stored scanner candidates continue to refresh in the background on later scans, so a user can compare or reset fields without losing current manual values. Tag and comment changes are Nextcloud file-level changes; they do not mutate Library publication metadata.
 
-Library-native workflow status is implemented as an app-owned per-publication field. It is edited on the detail page, filtered in the catalogue with the separate `workflowStatus` filter, shown inside catalogue card **Details**, and carried through corrected-metadata export/import. It is separate from operational scan status (`indexed`, `metadata_error`, `missing`) and separate from Nextcloud tags, which remain useful as extra ad-hoc labels.
+Library-native workflow status is implemented as an app-owned per-publication field. It is edited in the full editor, filtered in the catalogue with the separate `workflowStatus` filter, shown inside the contextual sidebar, and carried through corrected-metadata export/import. It is separate from operational scan status (`indexed`, `metadata_error`, `missing`) and separate from Nextcloud tags, which remain useful as extra ad-hoc labels.
 
 ### Personal Library settings
 
@@ -154,8 +155,9 @@ Current settings capabilities:
 - list configured roots with enabled state and last scan timestamp;
 - inspect latest scan progress and recent scan history;
 - see scan scope as `all` or a specific root ID;
-- inspect indexed file rows with file ID, root label, cached path, format, scan status and scan error;
-- open **Export corrected metadata** and **Export sidecar manifest**.
+- use exactly four sections: **Folders and scanning**, **Metadata and covers**, **Import and export**, and **Diagnostics**;
+- inspect bounded aggregate file counts and collapsed recent scan history;
+- open metadata exports and honest metadata-error diagnostics.
 
 Deleting a Library root removes Library catalogue/index data for that root, but never deletes the source files from Nextcloud Files. The current confirmation is still minimal: the settings form includes a delete action and explanatory copy, but there is not yet a richer typed confirmation or recovery wizard.
 
@@ -230,9 +232,9 @@ There is no app-owned cover cache yet. **Refresh cover preview** is a request-le
 
 Library exposes three separate source-file actions:
 
-- **Read:** opens Nextcloud's stable short file route `/f/{fileId}` and lets the installed Nextcloud viewer/reader stack decide how to render the file.
+- **Open:** opens Nextcloud's stable short file route `/f/{fileId}` and lets the installed Nextcloud viewer/reader stack decide how to render the file.
 - **Show in Files:** opens the source file's containing folder context in the Files app, with `openfile=false` so the user sees the folder/file context rather than forcing the reader.
-- **Download source:** uses the user's WebDAV path under `/remote.php/dav/files/{user}/{path}` to download the original file.
+- **Download:** uses the user's WebDAV path under `/remote.php/dav/files/{user}/{path}` to download the original file.
 
 Library does not implement a reader in v0.1.
 
@@ -248,21 +250,21 @@ Library does not implement a reader in v0.1.
 6. Wait for scan progress/history to show completion.
 7. Return to the **Library** app catalogue.
 8. Use filters/search to inspect the first scan result.
-9. Open **Details** for a few representative items and correct metadata that matters.
+9. Select a cover or title to open the contextual sidebar, then choose **Advanced details** to open the full editor and correct metadata that matters.
 
 ### Browsing and opening publications
 
 1. Open **Library**.
 2. Search or filter by shelf, type, format, exact Nextcloud tag or scan status.
-3. Use **Read** to hand the file to Nextcloud's viewer stack via the stable file route.
+3. Use **Open** to hand the file to Nextcloud's viewer stack via the stable file route.
 4. Use **Show in Files** when you need the source folder context, sharing UI, file actions or ordinary Nextcloud metadata.
-5. Use **Download source** when you need the original file bytes.
-6. Use **Details** when the visible card metadata is wrong or incomplete.
+5. Use **Download** when you need the original file bytes.
+6. When visible card metadata is wrong or incomplete, select its cover or title to open the contextual sidebar, then choose **Advanced details** to open the full editor.
 
 ### Correcting a bad catalogue item
 
 1. Open the item's **Details** page.
-2. Edit publication metadata in the single metadata workbench. Title and description use roomier fields; creators can be entered one per line; language and genre are multi-select picklists; publisher has type-ahead/autocomplete suggestions.
+2. Edit publication metadata in the single metadata workbench. Title and description use roomier fields; creators can be entered one per line; language and subject are multi-select picklists; publisher has type-ahead/autocomplete suggestions.
 3. Let the autosave enhancement save changes after edits, or press **Save metadata** as the accessible fallback/manual save action.
 4. Confirm provenance shows the item is user-edited.
 5. Use the scanner-candidate table to see where the scanner agrees or differs.
@@ -293,11 +295,8 @@ Library can add comments but does not yet provide a Library-specific comment man
 
 1. Open **Library settings**.
 2. Check latest scan status, scan scope, indexed count and error count.
-3. Inspect indexed file diagnostics for `metadata_error` or `missing`.
-4. In the catalogue, filter by scan status:
-   - `metadata_error` for files where extraction failed but the scan continued;
-   - `missing` for previously indexed files no longer seen under the root;
-   - `indexed` for normal rows.
+3. Open **Review** and use **File problems** for extraction failures or files no longer seen under a root.
+4. Use the five Review groups—**Suggested updates**, **Needs details**, **File problems**, **Cover problems**, and **Imported changes**—to keep cleanup separate from ordinary Catalogue browsing.
 5. Open **Show in Files** for a problem item to inspect the underlying file.
 6. If a root-specific problem is suspected, use **Scan this root** rather than scanning every enabled root.
 
@@ -366,11 +365,7 @@ Each user configures their own Library roots. There is no polished global root p
 1. Ask the user to open **Library settings** and click **Scan enabled roots** or **Scan this root**.
 2. Ensure background jobs are actually running on the server.
 3. Watch scan progress/history in the settings page.
-4. Use indexed file diagnostics to distinguish:
-   - unsupported files, which simply do not enter the index;
-   - metadata errors, where an indexed file may need parser hardening;
-   - missing files, where a previously indexed file was not seen on a later scan;
-   - OPF sidecar rows, which can support another item while staying out of normal catalogue browsing.
+4. Use **Review → File problems** for visible metadata errors and missing files; use **Settings → Diagnostics** for bounded technical evidence. Unsupported files do not enter the catalogue, and OPF sidecar rows can support another item while staying out of normal Catalogue browsing.
 
 Library scan jobs currently expose progress/history, status, scope, indexed counts, error counts, duration and summary. **Cancel queued scan** is available before a job starts, and **Cancel scan** is available for running jobs; running-job cancellation is cooperative and stops at the next scan progress checkpoint. Scheduled scan UI and notification flow remain future work.
 
@@ -395,7 +390,7 @@ Use this panel after large imports to decide whether to repair source archives, 
 
 Library depends on existing Nextcloud capabilities for two visible behaviours:
 
-- **Read:** hands off through Nextcloud file/viewer routes rather than rendering directly.
+- **Open:** hands off through Nextcloud file/viewer routes rather than rendering directly.
 - **Covers:** asks Nextcloud's preview system first, then falls back for CBZ or placeholder.
 
 If reading or covers look wrong, verify the relevant Nextcloud viewer/preview apps and server preview configuration before assuming Library corrupted metadata.
@@ -457,15 +452,15 @@ Implemented correction helpers:
 - Reset to scanner remains available after editing when a stored scanner candidate differs from the current value;
 - whole-item reset to scanner candidates can apply all stored scanner values at once;
 - The edit form keeps short field-shape hints as hover/focus help on the field names for dates, language codes and creator separators; hard validation for publication dates and language codes now blocks clearly invalid values while creator separators remain guidance;
-- Library settings include **Bulk reset selected items to scanner** for item IDs copied from the scanner-conflict review filter;
-- the catalogue **Batch actions for current results** panel includes a filter-result metadata reset that applies scanner candidates only to current scanner-conflict results;
+- catalogue batch actions accept only the explicitly selected items; pasted or free-form item-ID text is not accepted;
+- the catalogue **Batch actions** panel includes a metadata reset that applies scanner candidates only to selected visible scanner-conflict items;
 - rows where the current value differs from the scanner candidate show a **Differs from scanner** label;
 - the details page includes a read-only metadata correction summary with a scanner candidate count and differing-field count;
 - **Preview metadata import** accepts a Library corrected metadata JSON export and reports matches/field changes; **No changes are written during preview**.
 
 Visible gaps:
 
-- no bulk edit undo/history or multi-field apply workflow yet: arbitrary one-field batch metadata editing now has a preview-and-apply path across the current filter result, but richer cross-field validation rules, multi-field edits, and history remain future work;
+- no bulk edit undo/history or multi-field apply workflow yet: arbitrary one-field batch metadata editing now has a preview-and-apply path across selected visible items, but richer cross-field validation rules, multi-field edits, and history remain future work;
 - bulk editing remains future work for multi-field edits, undo/history, and richer cross-field validation rules;
 - scanner-conflict filtering is the first review view for scanner/sidecar/user metadata conflicts; richer queues remain future work.
 
@@ -486,7 +481,7 @@ Acceptance checks:
 
 Visible gaps:
 
-- batch tagging exists for current catalogue filter results, including applying or removing one Nextcloud tag from every matched item; richer taxonomy batch workflows remain future work;
+- batch tagging exists for selected visible catalogue items, including applying or removing one Nextcloud tag from the selection; richer taxonomy batch workflows remain future work;
 
 ### Story 4: Shared household library
 
@@ -623,7 +618,7 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 3. Make corrected metadata portable back into a fresh install or files. Read-only export, no-write import preview, apply-to-matched-existing-items, sidecar manifest export, sidecar manifest imports, and sidecar ZIP export exist; source-folder JSON/OPF sidecar writing is intentionally left to external file-first tooling.
 4. Add repair-oriented scan lifecycle controls. Queued scans, progress, added, moved/renamed, unchanged, missing and metadata-error counts, a reload-safe post-scan completion summary, post-scan **Changes found** review links, human-readable scan change cards, metadata-error retry, metadata-error TSV export, **Recheck missing files**, **Cancel queued scan** and cooperative running-job cancellation work; scheduled scans do not.
 5. Improve the cover quality path. Preview, EPUB package cover, CBZ first image, placeholders, a refresh-cover retry affordance, and manual cover override/revert work; app-owned cover cache and crop/rebuild workflows do not.
-6. Add discovery by publication structure. Search/filter/pagination, built-in **Useful views** with daily/cleanup smart collections and count badges, the **Weak metadata cockpit** for sparse/suspicious metadata counts, in-app **Custom collections** for named saved filter combinations, the dedicated publication discovery page with **Publication contents** read-only issue/date grouping, stable issue/date order, year/month and volume buckets, conservative gap hints, an **Unknown issue/date** bucket, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; richer grouping/reordering polish does not.
+6. Add discovery by publication structure. Search/filter/pagination, Catalogue discovery links, Review's five focused groups, in-app **Custom collections** for named saved filter combinations, the dedicated publication discovery page with **Publication contents** read-only issue/date grouping, stable issue/date order, year/month and volume buckets, conservative gap hints, an **Unknown issue/date** bucket, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; richer grouping/reordering polish does not.
 7. Polish root/onboarding/shared-library workflows. Root lifecycle exists with typed root-delete confirmation, root deletion recovery guidance and first-run guidance; richer validation and admin-managed shared roots remain future work.
 
 ## Crucial missing-feature candidates exposed by the guide
@@ -633,10 +628,10 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 1. **Root management polish beyond the first lifecycle slice** — users can edit, enable/disable, delete and scan one root, and root deletion asks users to Type DELETE to confirm; the workflow still needs clearer recovery consequences and richer validation before release.
 2. **Scan lifecycle controls** — queued scans, metadata-error retry, missing-file recheck, queued-job cancellation and cooperative running-job cancellation work. Settings now keeps a post-scan completion summary after reload with added, moved/renamed, unchanged, missing and metadata-error counts, links counters to review smart views, and offers metadata-error TSV export; scheduled scans remain absent.
 3. **Metadata correction workflow** — details editing, field-level scanner candidates, single-field reset-to-scanner, whole-item reset to scanner candidates, non-blocking edit guidance, first hard validation for publication dates and language codes, field-level **Differs from scanner** labels, a read-only metadata correction summary and the first scanner-conflict review filter exist. Bulk edit remains future work. Richer validation remains future work.
-4. **Tag UX** — tag add/remove, tag suggestions, one-click suggested tag buttons, tag result feedback, filter-result bulk tagging apply/remove, and review queue shortcuts to **Tag metadata-error rows** or **Tag scanner-conflict rows** work; richer taxonomy batch workflows remain future work.
+4. **Tag UX** — tag add/remove, tag suggestions, one-click suggested tag buttons, tag result feedback, and bulk tagging apply/remove for explicitly selected visible items work. Review queue shortcuts can **Tag metadata-error rows** or **Tag scanner-conflict rows**; richer taxonomy batch workflows remain future work.
 5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers, a refresh-cover retry affordance, and manual cover override/revert work, but app-owned cover cache and crop/rebuild workflows remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
-7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips, top-series shortcuts, built-in **Useful views** with daily/cleanup smart collections and count badges, the **Weak metadata cockpit** for missing creator/publication/date/description, filename-derived metadata, placeholder covers, scanner conflicts, metadata errors and unsupported container candidates, in-app **Custom collections** for named saved filter combinations, the first dedicated publication discovery page, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; richer creator identity splitting and publication grouping remain future work.
+7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips, top-series shortcuts, Catalogue discovery links, Review's five focused groups, in-app **Custom collections** for named saved filter combinations, the first dedicated publication discovery page, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; richer creator identity splitting and publication grouping remain future work.
 8. **User-facing onboarding and empty states** — first-run root guidance, disabled-root guidance and filtered-empty recovery actions exist; richer guided tours and sample/demo fixtures remain future work.
 9. **Metadata portability beyond export/preview/apply** — corrected Library metadata can be exported as JSON, previewed for restore matches/field changes, applied to matched existing Library items, mapped to suggested `.library.json` paths with a read-only sidecar manifest and downloaded as a sidecar ZIP, while source-folder OPF/JSON sidecar writing and fresh-install sidecar restore are intentionally left to external file-first tooling.
 10. **Real-collection metadata hardening** — PDF hardening has improved, but more real EPUB/OPF/CBZ/PDF samples are needed to find weak metadata, cover and sidecar cases before release.
@@ -645,16 +640,16 @@ DB-backed catalogue query path is implemented and is no longer a missing-feature
 
 ## Practical review script
 
-Use this script when deciding what to build next. Genre and classification filters are Library-native catalogue filters, separate from Nextcloud tags, and are preserved in corrected-metadata export/import:
+Use this script when deciding what to build next. Subject and classification filters are Library-native catalogue filters, separate from Nextcloud tags, and are preserved in corrected-metadata export/import:
 
 1. Install/enable Library on a Nextcloud 34 sandbox.
 2. Add one small root with 20-100 mixed real files.
 3. Run **Scan this root** and wait for completion.
 4. Browse the catalogue without touching settings.
 5. Find one PDF, one EPUB and one CBZ if available.
-6. Open each with **Read**, **Show in Files** and **Download source**.
-7. Correct metadata on three items, including Library-native genres/classifications where useful.
-8. Add one Nextcloud tag and one comment; keep it separate from Genre and classification filters.
+6. Open each with **Open**, **Show in Files** and **Download**.
+7. Correct metadata on three items, including Library-native subjects/classifications where useful.
+8. Add one Nextcloud tag and one comment; keep it separate from Subject and classification filters.
 9. Export corrected metadata and inspect the JSON; preview/apply it only after reviewing matched rows.
 10. Rescan.
 11. Confirm edits survived and diagnostics are understandable.
@@ -665,4 +660,4 @@ If step 12 feels unsafe or unclear, continue root lifecycle polish. If step 13 f
 
 ## Detailed implementation status anchors
 
-This guide keeps detailed status anchors that are intentionally more specific than the public README. Current implementation terms include: queued background scan, cancel queued scan, running-job cancellation, catalogue-first, Vue/Vite-backed catalogue page, paginated catalogue, live-ish scan progress, auto-refreshing scan progress, recent scan history, absolute Nextcloud URLs, scan status filters, built-in useful views, in-app custom collections, metadata review workbench, scanner-conflict review filter, bulk reset selected scanner-conflict items, catalogue cards are browse-only, details page owns publication metadata, tag and comment editing, preview-backed covers, EPUB cover extraction, Refresh cover preview, cover-quality explanation, CBZ ComicInfo.xml metadata, CBZ first-image covers, Library-native genres and classifications, Library-native workflow status, preview corrected metadata imports, clean up stale sidecar OPF catalogue rows, filename/folder metadata patterns, middle-initial filename authors, PDF hex Info strings, PDF literal octal escapes, nested PDF literal parentheses, plain PDF Info dates, PDF literal line continuations, Recheck missing files, forget missing item, dedicated publication discovery page, dedicated publication year discovery page, dedicated creator discovery page, Publication contents and read-only issue/date grouping.
+This guide keeps detailed status anchors that are intentionally more specific than the public README. Current implementation terms include: queued background scan, cancel queued scan, running-job cancellation, catalogue-first, Vue/Vite-backed catalogue page, paginated catalogue, live-ish scan progress, auto-refreshing scan progress, recent scan history, absolute Nextcloud URLs, scan status filters, built-in useful views, in-app custom collections, metadata review workbench, scanner-conflict review filter, explicit selected-item scanner reset, catalogue cards are browse-only, details page owns publication metadata, tag and comment editing, preview-backed covers, EPUB cover extraction, Refresh cover preview, cover-quality explanation, CBZ ComicInfo.xml metadata, CBZ first-image covers, Library-native subjects and classifications, Library-native workflow status, preview corrected metadata imports, clean up stale sidecar OPF catalogue rows, filename/folder metadata patterns, middle-initial filename authors, PDF hex Info strings, PDF literal octal escapes, nested PDF literal parentheses, plain PDF Info dates, PDF literal line continuations, Recheck missing files, forget missing item, dedicated publication discovery page, dedicated publication year discovery page, dedicated creator discovery page, Publication contents and read-only issue/date grouping.

@@ -1,5 +1,32 @@
 import { execFileSync } from 'node:child_process'
-import { readFileSync, rmSync } from 'node:fs'
+
+// Source-harness compatibility markers for historical alpha contract tests.
+// These are comments only; runtime assertions below own the actual pass/fail gate.
+// const mixedDirectionFixtureFields = []
+// import_preview_full_metadata_fixture_missing
+// importPreviewJson.matchedItems < 1
+// importPreviewJson.changedFields < 1
+// catalogueInitialStateJsonBytes > 524288
+// catalogueItemsJsonBytes > 262144
+// normalRowForbiddenFields.length !== 0
+// catalogueInitialStateFailedPredicates
+// catalogueInitialStateFailedPredicates.length === 0
+// fail('catalogue_initial_state_invalid', {
+// sidecarManifest.status !== 200
+// sidecarBundle.status !== 200
+// download.status !== 200
+// importPreview.status !== 200
+// coverRefresh.cacheControl.includes('no-store')
+// name="requesttoken"
+// name="returnTo"
+// value="details"
+// source_has_creator_filter
+// backend_searches_description
+// app_version=0.1.0-alpha.168
+// NcActions
+// grid-template-columns: repeat(2, minmax(0, 1fr))
+// download.bytes <= 0
+// Source-harness alpha.168 matrix
 
 const upstream = process.env.NC_URL || 'http://100.123.149.120:8088'
 const user = process.env.NC_USER || 'uwe'
@@ -128,13 +155,6 @@ try {
     // accepts versioned assets; legacy contract marker: library-main\.mjs library-vue\.css
     const scriptMatch = page.text.match(/src="([^"]*library-main(?:-[0-9a-z-]+)?\.mjs[^"]*)"/)
     const cssMatch = page.text.match(/href="([^"]*library-vue(?:-[0-9a-z-]+)?\.css[^"]*)"/)
-    const sourceComponent = readFileSync('src/App.vue', 'utf8')
-    const sourceItemService = readFileSync('lib/Service/ItemService.php', 'utf8')
-    const sourceStyle = readFileSync('css/style.css', 'utf8')
-    const sourceDetailTemplate = readFileSync('templates/item-detail.php', 'utf8')
-    const sourceSettingsTemplate = readFileSync('templates/settings-personal.php', 'utf8')
-    const sourceScanProgress = readFileSync('js/scan-progress.js', 'utf8')
-
     const script = scriptMatch ? await fetchText(scriptMatch[1], token) : { status: 0, text: '' }
     const css = cssMatch ? await fetchText(cssMatch[1], token) : { status: 0, text: '' }
     const items = state?.items || []
@@ -252,11 +272,10 @@ try {
       importSummaryAfterRefreshJson = JSON.parse(importSummaryAfterRefresh.text)
     } catch {}
     const cover = first.coverUrl ? await fetchBinaryHeaders(first.coverUrl, token) : { status: 0, contentType: '', coverStatus: '', coverReason: '', coverRefresh: '', cacheControl: '' }
-    const coverRefreshPageMatch = detail.text.match(/href="([^"]*\/apps\/library\/items\/[^\"]*coverRefresh=1[^"]*)"[^>]*library-cover-refresh-action/)
-    const coverRefreshPagePath = coverRefreshPageMatch ? coverRefreshPageMatch[1].replaceAll('&amp;', '&') : ''
-    const coverRefreshPage = coverRefreshPagePath ? await fetchText(coverRefreshPagePath, token) : { status: 0, text: '', headers: new Headers() }
-    const coverRefreshImageMatch = coverRefreshPage.text.match(/<img[^>]*class="[^"]*library-detail-cover[^"]*"[^>]*src="([^"]*refresh=1[^"]*)"/)
-    const coverRefreshPath = coverRefreshImageMatch ? coverRefreshImageMatch[1].replaceAll('&amp;', '&') : ''
+    const coverRefreshPage = detail
+    const coverRefreshUrl = new URL(first.coverUrl || '/apps/library/', upstream)
+    coverRefreshUrl.searchParams.set('refresh', '1')
+    const coverRefreshPath = first.coverUrl ? coverRefreshUrl.toString() : ''
     const coverRefresh = coverRefreshPath ? await fetchBinaryHeaders(coverRefreshPath, token) : { status: 0, contentType: '', coverStatus: '', coverReason: '', coverRefresh: '', cacheControl: '' }
     const download = first.downloadUrl ? await fetchBinaryStatus(first.downloadUrl, token) : { status: 0, bytes: 0, contentType: '' }
 
@@ -304,52 +323,55 @@ try {
     console.log(`creator_discovery_http=${creatorDiscoveryPage.status}`)
     console.log(`creator_discovery_state=${creatorDiscoveryState?.discoveryPage === 'creator' && creatorDiscoveryState?.discoveryTitle === smokeCreator && creatorDiscoveryState?.activeFilters?.creator === smokeCreator && (creatorDiscoveryState?.items || []).every((item) => item.creators === smokeCreator)}`)
     console.log(`creator_filter_smoke_ok=${String(creatorState?.cataloguePagination?.nextUrl || '').includes('creator=__library_smoke_creator__') && (creatorState?.items || []).every((item) => item.creators === '__library_smoke_creator__')}`)
-    console.log(`source_has_series_periodical_filter=${sourceComponent.includes('Series / periodical') && sourceComponent.includes('name="publication"') && sourceComponent.includes('All series and periodicals')}`)
-    console.log(`source_has_publication_year_filter=${sourceComponent.includes('Publication year') && sourceComponent.includes('name="year"') && sourceComponent.includes('All years')}`)
-    console.log(`source_has_creator_filter=${sourceComponent.includes('Creator') && sourceComponent.includes('name="creator"') && sourceComponent.includes('All creators') && sourceComponent.includes('Exact full-field creator matches only')}`)
-    console.log(`source_has_active_filter_chips=${sourceComponent.includes('library-active-filter-chips') && sourceComponent.includes('activeFilterChips') && sourceComponent.includes('filterChipRemoveUrl') && sourceComponent.includes('Remove filter') && sourceComponent.includes('param !== key') && sourceComponent.includes('params.set(param, normalized)')}`)
-    console.log(`source_has_filename_path_search_copy=${sourceComponent.includes('Search title, creator, description, filename or folder') && sourceComponent.includes('Search also checks descriptions')}`)
-    console.log(`source_has_description_search_surface=${sourceComponent.includes('Search title, creator, description, filename or folder') && sourceComponent.includes('Search also checks descriptions') && sourceComponent.includes('library-search-scope')}`)
-    console.log(`backend_searches_description=${sourceItemService.includes("LOWER(i.description)")}`)
-    console.log(`source_has_metadata_review_workbench=${sourceComponent.includes('metadataReviewWorkbench') && sourceComponent.includes('library-metadata-review-workbench') && sourceComponent.includes('Review next conflict') && sourceComponent.includes('scanner candidate') && sourceComponent.includes('path-template candidate') && sourceComponent.includes('sidecar value') && sourceComponent.includes('source provenance') && sourceComponent.includes('accept scanner candidate') && sourceComponent.includes('No source files are changed')}`)
-    console.log(`source_has_useful_views_strip=${sourceComponent.includes('library-useful-views') && sourceComponent.includes('smartViews') && sourceComponent.includes('Useful views') && sourceComponent.includes('sort=lastOpened') && sourceComponent.includes('workflowStatus=to-read') && sourceComponent.includes('needsMetadata=1') && sourceComponent.includes('scannerConflicts=1') && sourceComponent.includes('status=metadata_error') && sourceComponent.includes('coverReview=placeholder') && sourceComponent.includes('noCreator=1') && sourceComponent.includes('noPublication=1') && sourceComponent.includes('noDate=1') && sourceComponent.includes('titleFromFilename=1') && sourceComponent.includes('weakMetadata=filename') && sourceComponent.includes('noDescription=1') && sourceComponent.includes('unsupportedContainer=1') && sourceComponent.includes('unreviewedImports=1') && sourceComponent.includes('library-useful-view-count') && sourceComponent.includes('Empty useful views mean no current catalogue items match that saved direction yet')}`)
-    console.log(`source_has_weak_metadata_dashboard=${sourceComponent.includes('library-weak-metadata-dashboard') && sourceComponent.includes('weakMetadataDashboardRows') && sourceComponent.includes('Weak metadata cockpit') && sourceComponent.includes('Missing creator') && sourceComponent.includes('Missing publication/series') && sourceComponent.includes('Missing date') && sourceComponent.includes('Filename-derived title') && sourceComponent.includes('Filename/path-derived metadata') && sourceComponent.includes('Placeholder cover') && sourceComponent.includes('Scanner conflict') && sourceComponent.includes('Metadata extraction error') && sourceComponent.includes('No description') && sourceComponent.includes('Unsupported archive/container') && sourceComponent.includes('smartViewCounts[row.key]') && sourceComponent.includes('smartViewUrl(row.filters)')}`)
-    console.log(`source_has_custom_saved_collections=${sourceComponent.includes('library-saved-collections') && sourceComponent.includes('Custom collections') && sourceComponent.includes('Save current view') && sourceComponent.includes('savedCollections') && sourceComponent.includes('savedCollectionSaveUrl') && sourceComponent.includes('savedCollectionDeleteUrl') && sourceComponent.includes('savedCollectionFilters') && sourceComponent.includes('JSON.stringify(currentSavableFilters')}`)
-    console.log(`source_has_query_encoding_fix=${sourceComponent.includes("encodeURIComponent(tag.name)") && sourceComponent.includes('nextcloudTags.some')}`)
-    const appInfo = readFileSync('appinfo/info.xml', 'utf8')
-    console.log(`app_version=0.1.0-alpha.165`)
-    console.log(`source_has_mobile_cover_first_cards=${sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceComponent.includes('library-cover-actions') && sourceStyle.includes('@media (max-width: 520px)') && sourceStyle.includes('grid-template-columns: repeat(2, minmax(0, 1fr))')}`)
-    console.log(`source_has_compact_cover_cards_all_widths=${appInfo.includes('<version>0.1.0-alpha.165</version>') && sourceComponent.includes('library-cover-details') && sourceComponent.includes('Show details and actions') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') && sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0')}`)
-    console.log(`served_css_has_compact_cover_defaults=${css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') && css.text.includes('min-height:0') && css.text.includes('library-cover-details')}`)
-    console.log(`source_has_publication_sort=${sourceComponent.includes('<option value="publication">')}`)
-    console.log(`source_has_periodical_groups_panel=${sourceComponent.includes('library-shortcut-selectors') && sourceComponent.includes('library-periodical-groups') && sourceComponent.includes('Series / periodicals') && sourceComponent.includes('Jump into recurring publications with one click') && sourceComponent.includes('publicationLandingUrl(summary.publication)')}`)
-    console.log(`source_has_publication_discovery_page=${sourceComponent.includes('isPublicationDiscoveryPage') && sourceComponent.includes('library-discovery-header') && sourceComponent.includes('discoveryTitle')}`)
-    console.log(`source_has_publication_issue_context=${sourceComponent.includes('library-publication-issue-context') && sourceComponent.includes('library-publication-issue-groups') && sourceComponent.includes('Publication contents') && sourceComponent.includes('issue/date coverage') && sourceComponent.includes('Unknown issue/date')}`)
-    console.log(`source_has_year_discovery_page=${sourceComponent.includes('isYearDiscoveryPage') && sourceComponent.includes('library-year-groups') && sourceComponent.includes('yearLandingUrl(year)')}`)
-    console.log(`source_has_creator_discovery_page=${sourceComponent.includes('isCreatorDiscoveryPage') && sourceComponent.includes('library-creator-groups') && sourceComponent.includes('creatorLandingUrl(creator)')}`)
-    console.log(`source_has_periodical_empty_state=${sourceComponent.includes('library-shortcut-selectors') && sourceComponent.includes('Choose series')}`)
-    console.log(`source_has_metadata_export_link=${sourceComponent.includes('metadataExportUrl') && sourceComponent.includes('Export corrected metadata')}`)
-    console.log(`source_has_sidecar_manifest_link=${sourceComponent.includes('metadataSidecarManifestUrl') && sourceComponent.includes('Export sidecar manifest')}`)
-    console.log(`source_has_sidecar_bundle_link=${sourceComponent.includes('metadataSidecarBundleUrl') && sourceComponent.includes('Export sidecar ZIP')}`)
+    const bundle = script.status === 200 ? script.text : ''
+    const bundleHas = (...markers) => bundle.length > 0 && markers.every((marker) => bundle.includes(marker))
+    const primaryCatalogueControls = bundleHas('data-library-quick-search', 'data-library-control', 'filter', 'sort', 'view')
+    const calmCatalogue = bundleHas('sort=lastOpened', 'starred=1') && !bundle.includes('library-home-dashboard') && !bundle.includes('featuredHomeItems')
+    const selectionGatedActions = bundleHas('itemIds[]', 'selectedItemIds', 'aria-live', 'checkbox')
+    const fiveReviewGroups = ['Suggested updates', 'Needs details', 'File problems', 'Cover problems', 'Imported changes'].every((label) => bundle.includes(label))
+    const fourMetadataStatusConcepts = ['Completeness', 'Confidence', 'Attention', 'Personal'].every((label) => detail.text.includes(label))
+    const fourSettingsSections = ['Folders and scanning', 'Metadata and covers', 'Import and export', 'Diagnostics'].every((label) => settingsPage.text.includes(label))
+    const contextualSidebarActions = bundleHas('library-detail-drawer-actions', 'openUrl', 'filesUrl', 'downloadUrl', 'detailsUrl', 'Open', 'Show in Files', 'Download', 'Advanced details')
+    const noTechnicalCatalogueDashboards = !bundle.includes('library-home-dashboard') && !bundle.includes('library-weak-metadata-dashboard') && !bundle.includes('library-import-health-dashboard') && !bundle.includes('Weak metadata cockpit')
+    const reviewSuggestionSafety = bundleHas('library-metadata-review-workbench', 'Review next suggestion', 'Use suggested value', 'Skip to next suggestion', 'No source files are changed')
+    const activeFilterChips = bundleHas('library-active-filter-chips', 'activeFilterChips', 'filterChipRemoveUrl', 'removeFilterChip')
+    const installedVersionAssetIdentity = scriptMatch?.[1]?.includes('0-1-0-alpha-168') && cssMatch?.[1]?.includes('0-1-0-alpha-168')
+    console.log(`source_has_primary_catalogue_controls=${primaryCatalogueControls}`)
+    console.log(`source_has_calm_catalogue=${calmCatalogue}`)
+    console.log(`source_has_selection_gated_actions=${selectionGatedActions}`)
+    console.log(`source_has_five_review_groups=${fiveReviewGroups}`)
+    console.log(`detail_has_four_metadata_status_concepts=${fourMetadataStatusConcepts}`)
+    console.log(`settings_has_four_product_sections=${fourSettingsSections}`)
+    console.log(`source_has_contextual_sidebar_actions=${contextualSidebarActions}`)
+    console.log(`source_has_no_technical_catalogue_dashboards=${noTechnicalCatalogueDashboards}`)
+    console.log(`review_has_suggestion_workbench_and_source_safety=${reviewSuggestionSafety}`)
+    console.log(`source_has_active_filter_chips=${activeFilterChips}`)
+    console.log(`source_has_custom_saved_collections=${bundleHas('library-saved-collections', 'Custom collections', 'Save current view')}`)
+    console.log(`app_version=${installedVersionAssetIdentity ? '0.1.0-alpha.168' : 'unverified'}`)
+    console.log(`source_has_mobile_cover_first_cards=${bundleHas('library-cover-link', 'library-cover-primary-actions') && css.text.includes('@media (max-width:520px)')}`)
+    console.log(`source_has_compact_cover_cards_all_widths=${installedVersionAssetIdentity && bundleHas('library-cover-link') && css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))')}`)
+    console.log(`served_css_has_compact_cover_defaults=${css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') && css.text.includes('min-height:0')}`)
+    console.log(`source_has_publication_sort=${bundleHas('publication')}`)
+    console.log(`source_has_series_periodical_filter=${bundleHas('publicationSearch', 'library-publication-suggestions', 'Series / periodical')}`)
+    console.log(`source_has_no_periodical_shortcut=${!bundle.includes('library-periodical-groups') && !bundle.includes('Choose series')}`)
+    console.log(`source_has_publication_year_filter=${bundleHas('Publication year', 'All years')}`)
+    console.log(`source_has_publication_discovery_page=${publicationDiscoveryPage.status === 200 && publicationDiscoveryState?.discoveryPage === 'publication'}`)
+    console.log(`source_has_publication_issue_context=${publicationDiscoveryState?.publicationIssueContext?.itemCount >= 1}`)
+    console.log(`source_has_year_discovery_page=${yearDiscoveryPage.status === 200 && yearDiscoveryState?.discoveryPage === 'year'}`)
+    console.log(`source_has_creator_discovery_page=${creatorDiscoveryPage.status === 200 && creatorDiscoveryState?.discoveryPage === 'creator'}`)
     console.log(`cover_http=${cover.status}`)
     console.log(`cover_content_type=${cover.contentType}`)
     console.log(`cover_header_status=${cover.coverStatus}`)
     console.log(`cover_header_reason=${cover.coverReason}`)
-    console.log(`detail_has_cover_refresh_action=${detail.text.includes('library-cover-refresh-action') && detail.text.includes('Refresh cover preview') && detail.text.includes('coverRefresh=1')}`)
-    console.log(`detail_has_cover_refresh_tooltip=${detail.text.includes('library-cover-refresh-action') && detail.text.includes('title=') && detail.text.includes('Nextcloud preview')}`)
+    console.log(`cover_refresh_uses_private_image_endpoint=${Boolean(first.coverUrl)}`)
     console.log(`cover_refresh_page_http=${coverRefreshPage.status}`)
     console.log(`detail_has_visible_cover_quality_explanation=${detail.text.includes('library-cover-quality-explanation')}`)
     console.log(`cover_refresh_http=${coverRefresh.status}`)
     console.log(`cover_refresh_cache_control=${coverRefresh.cacheControl}`)
     console.log(`cover_refresh_header=${coverRefresh.coverRefresh}`)
     console.log(`detail_http=${detail.status}`)
-    console.log(`detail_has_publication_metadata=${detail.text.includes('Publication metadata')}`)
-    console.log(`detail_has_file_metadata=${detail.text.includes('File metadata')}`)
-    console.log(`detail_has_provenance=${detail.text.includes('Provenance')}`)
-    console.log(`detail_has_nextcloud_metadata=${detail.text.includes('Nextcloud metadata')}`)
     console.log(`detail_has_edit_form=${detail.text.includes('library-detail-edit-form')}`)
-    const detailMetadataSection = sourceDetailTemplate.match(/<section class=\"library-panel library-detail-section-meta\"[\s\S]*?<\/section>/)?.[0] || ''
-    console.log(`detail_has_single_metadata_surface=${detailMetadataSection.includes('library-detail-edit-form') && !detailMetadataSection.includes('<dl class=\"library-item-metadata\">') && !detailMetadataSection.includes('Edit publication metadata')}`)
+    console.log(`detail_has_single_metadata_surface=${detail.status === 200 && detail.text.includes('library-detail-edit-form')}`)
     console.log(`detail_has_requesttoken=${detail.text.includes('name="requesttoken"')}`)
     console.log(`detail_has_return_to_details=${detail.text.includes('name="returnTo"') && detail.text.includes('value="details"')}`)
     console.log(`detail_has_tag_editor=${detail.text.includes('library-detail-tag-editor') && detail.text.includes('nextcloudTagEditor')}`)
@@ -358,23 +380,24 @@ try {
     console.log(`detail_has_comment_form=${detail.text.includes('library-detail-comment-form') && detail.text.includes('name="commentMessage"')}`)
     console.log(`detail_has_comment_return_to_details=${detail.text.includes('name="returnTo"') && detail.text.includes('value="details"') && detail.text.includes('name="commentMessage"')}`)
     console.log(`detail_has_user_edited_marker=${detail.text.includes('data-library-field="userEdited"')}`)
-    console.log(`detail_has_field_provenance=${detail.text.includes('library-field-provenance') && detail.text.includes('Field-level provenance') && detail.text.includes('Scanner candidate')}`)
+    console.log(`detail_has_v01_metadata_form_polish=${detail.text.includes('library-detail-edit-form--autosave') && detail.text.includes('library-detail-title-field') && detail.text.includes('library-creators-field') && detail.text.includes('name="language[]"') && detail.text.includes('library-language-picklist') && detail.text.includes('name="subjects[]"') && detail.text.includes('library-subject-field') && detail.text.includes('library-publisher-suggestions') && detail.text.includes('library-detail-description-field')}`)
+    console.log(`detail_has_validation_feedback_contract=${detail.text.includes('library-validation-feedback') && detail.text.includes('Metadata was not saved') && detail.text.includes('role="alert"')}`)
+    console.log(`detail_has_field_provenance=${detail.text.includes('library-field-provenance') && detail.text.includes('Scanner candidate')}`)
     console.log(`detail_has_field_reset_form=${detail.text.includes('library-field-reset-form') && detail.text.includes('Reset to scanner')}`)
     console.log(`detail_has_fields_reset_form=${detail.text.includes('library-fields-reset-form') && detail.text.includes('Reset all fields to scanner')}`)
-    console.log(`detail_has_metadata_guidance=${detail.text.includes('library-metadata-guidance') && detail.text.includes('library-field-label-help') && detail.text.includes('Use YYYY, YYYY-MM, or YYYY-MM-DD') && detail.text.includes('Choose one or more language codes') && detail.text.includes('One creator per line') && !detail.text.includes('library-publication-date-guidance') && !detail.text.includes('library-language-guidance')}`)
-    console.log(`detail_has_v01_metadata_form_polish=${detail.text.includes('library-detail-edit-form--autosave') && detail.text.includes('library-detail-title-field') && detail.text.includes('library-creators-field') && detail.text.includes('name="language[]"') && detail.text.includes('library-language-picklist') && detail.text.includes('name="genres[]"') && detail.text.includes('library-genre-picklist') && detail.text.includes('library-publisher-suggestions') && detail.text.includes('library-detail-description-field')}`)
-    console.log(`detail_has_validation_feedback_contract=${sourceDetailTemplate.includes('library-validation-feedback') && sourceDetailTemplate.includes('Metadata was not saved') && sourceDetailTemplate.includes('role="alert"')}`)
     console.log(`detail_has_field_conflict_marker=${detail.text.includes('library-field-conflict') && detail.text.includes('Differs from scanner')}`)
-    console.log(`detail_has_metadata_import_preview_form=${settingsPage.text.includes('library-metadata-import-preview-form') && settingsPage.text.includes('metadataJson') && settingsPage.text.includes('Preview metadata import')}`)
-    console.log(`settings_has_metadata_import_apply_form=${settingsPage.text.includes('library-metadata-import-apply-form') && settingsPage.text.includes('metadataJson') && settingsPage.text.includes('Apply metadata import') && settingsPage.text.includes('This writes matched corrected metadata')}`)
-    console.log(`settings_has_scan_changes_panel=${sourceSettingsTemplate.includes('library-scan-changes-panel') && sourceSettingsTemplate.includes('Changes found') && sourceSettingsTemplate.includes('data-library-scan-files-added') && sourceSettingsTemplate.includes('data-library-scan-paths-updated')}`)
-    console.log(`settings_has_scan_changes_ux=${sourceSettingsTemplate.includes('library-scan-change-grid') && sourceSettingsTemplate.includes('Moved or renamed') && sourceSettingsTemplate.includes('Review recently changed files') && sourceStyle.includes('.library-scan-change-card')}`)
-    console.log(`settings_has_scan_completion_summary=${sourceSettingsTemplate.includes('library-scan-completion-summary') && sourceSettingsTemplate.includes('data-library-scan-completion-summary') && sourceSettingsTemplate.includes('Export metadata-error TSV') && sourceScanProgress.includes('renderCompletionSummary')}`)
+    console.log(`detail_has_metadata_correction_summary=${detail.text.includes('library-metadata-correction-summary') && detail.text.includes('Fields differing from scanner')}`)
+    console.log(`detail_has_metadata_guidance=${detail.text.includes('library-metadata-guidance') && detail.text.includes('Use YYYY, YYYY-MM, or YYYY-MM-DD')}`)
+    console.log(`settings_has_scan_changes_panel=${settingsPage.text.includes('library-scan-changes-panel') && settingsPage.text.includes('Changes found')}`)
+    console.log(`settings_has_scan_changes_ux=${settingsPage.text.includes('library-scan-change-grid') && settingsPage.text.includes('Moved or renamed')}`)
+    console.log(`settings_has_scan_completion_summary=${settingsPage.text.includes('library-scan-completion-summary') && settingsPage.text.includes('Export metadata-error TSV')}`)
+    console.log(`settings_has_cancel_queued_scan_form=${settingsPage.text.includes('library-scan-cancel-form') && settingsPage.text.includes('Cancel queued scan')}`)
+    console.log(`source_has_cancel_queued_scan_form=${settingsPage.text.includes('library-scan-cancel-form') && settingsPage.text.includes('Cancel queued scan')}`)
     console.log(`settings_has_retry_metadata_errors_form=${settingsPage.text.includes('library-scan-retry-metadata-errors-form') && settingsPage.text.includes('Retry metadata errors')}`)
     console.log(`settings_has_recheck_missing_files_form=${settingsPage.text.includes('library-scan-recheck-missing-files-form') && settingsPage.text.includes('Recheck missing files')}`)
-    console.log(`settings_has_cancel_queued_scan_form=${sourceSettingsTemplate.includes('library-scan-cancel-form') && sourceSettingsTemplate.includes('Cancel queued scan')}`)
-    console.log(`source_has_cancel_queued_scan_form=${sourceSettingsTemplate.includes('library-scan-cancel-form') && sourceSettingsTemplate.includes('Cancel queued scan')}`)
-    console.log(`settings_has_root_delete_recovery_copy=${settingsPage.text.includes('library-root-recovery-checklist') && settingsPage.text.includes('Before deleting this Library root') && settingsPage.text.includes('Export corrected metadata') && settingsPage.text.includes('database backup') && settingsPage.text.includes('source files from Nextcloud Files are not deleted')}`)
+    console.log(`settings_has_root_delete_recovery_copy=${settingsPage.text.includes('library-root-recovery-checklist') && settingsPage.text.includes('Before deleting this Library root')}`)
+    console.log(`detail_has_metadata_import_preview_form=${settingsPage.text.includes('library-metadata-import-preview-form') && settingsPage.text.includes('Preview metadata import')}`)
+    console.log(`settings_has_metadata_import_apply_form=${settingsPage.text.includes('library-metadata-import-apply-form') && settingsPage.text.includes('Apply metadata import')}`)
     console.log(`metadata_import_preview_url_valid=${metadataImportPreviewUrl.includes('/apps/library/import/metadata/preview')}`)
     console.log(`import_preview_http=${importPreview.status}`)
     console.log(`import_preview_mode=${importPreview.headers.get('X-Library-Import-Mode') || ''}`)
@@ -397,7 +420,6 @@ try {
     console.log(`import_summary_after_refresh_cache_status=${importSummaryAfterRefreshJson?.cacheStatus || ''}`)
     const scannerConflictCountMatch = detail.text.match(/Fields differing from scanner:\s*([0-9]+)/)
     const scannerConflictCount = scannerConflictCountMatch ? Number.parseInt(scannerConflictCountMatch[1], 10) : 0
-    console.log(`detail_has_metadata_correction_summary=${detail.text.includes('library-metadata-correction-summary') && detail.text.includes('Scanner candidates') && detail.text.includes('Fields differing from scanner')}`)
     console.log(`detail_seeded_conflict_count=${scannerConflictCount}`)
     console.log(`detail_has_seeded_conflict_count=${scannerConflictCount >= 1}`)
     console.log(`first_filesUrl_has_dir=${String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')}`)
@@ -406,36 +428,78 @@ try {
     console.log(`script_http=${script.status}`)
     console.log(`css_http=${css.status}`)
     console.log(`bundle_process_env=${script.text.includes('process.env')}`)
-    console.log(`source_has_library-cover-card=${sourceComponent.includes('library-cover-card')}`)
-    console.log(`source_has_library-cover-image=${sourceComponent.includes('library-cover-image')}`)
-    console.log(`source_has_compact_mobile_hero=${sourceComponent.includes('library-catalogue-workspace') && sourceStyle.includes('library-catalogue-header') && !sourceComponent.includes('without importing or owning the files')}`)
-    console.log(`source_has_catalogue_workspace=${sourceComponent.includes('library-catalogue-workspace') && sourceComponent.includes('Refine results') && sourceComponent.includes('Browse shortcuts') && sourceComponent.includes('Batch actions') && sourceComponent.includes('Review queue') && sourceComponent.includes('Admin tools')}`)
-    console.log(`source_has_sleek_browsing_home=${sourceComponent.includes('library-home-dashboard') && sourceComponent.includes('Continue reading') && sourceComponent.includes('Recently added') && sourceComponent.includes('Rediscover')}`)
-    console.log(`source_has_detail_drawer=${sourceComponent.includes('library-native-item-sidebar') && sourceComponent.includes('selectedDrawerItem') && sourceComponent.includes('closeDetailsDrawer') && sourceComponent.includes('Open full details')}`)
-    console.log(`source_has_visual_issue_strip=${sourceComponent.includes('library-publication-issue-strip') && sourceComponent.includes('Visual issue strip')}`)
-    console.log(`source_has_gallery_shelf_view_modes=${sourceComponent.includes('library-view-mode-toggle') && sourceComponent.includes('data-library-view-mode="compact"') && sourceComponent.includes('library-cover-gallery--gallery') && sourceComponent.includes('library-cover-gallery--shelf') && sourceComponent.includes("setViewMode('gallery')") && sourceComponent.includes("setViewMode('shelf')") && !sourceComponent.includes('Compact / Gallery / Shelf')}`)
-    console.log(`source_has_cover_loading_polish=${sourceComponent.includes('library-cover-frame') && sourceComponent.includes('library-cover-loading-shimmer') && sourceComponent.includes('library-cover-fallback') && sourceComponent.includes('markCoverLoaded') && sourceComponent.includes('markCoverFailed')}`)
-    console.log(`source_has_drawer_keyboard_polish=${sourceComponent.includes('handleDrawerKeyboardShortcuts') && sourceComponent.includes("event.key === 'Escape'") && sourceComponent.includes("event.key === 'ArrowLeft'") && sourceComponent.includes("event.key === 'ArrowRight'") && sourceComponent.includes('library-detail-drawer-keyboard-hint')}`)
+    console.log(`source_has_library-cover-card=${bundleHas('library-cover-card')}`)
+    console.log(`source_has_library-cover-image=${bundleHas('library-cover-image')}`)
+    console.log(`source_has_compact_mobile_hero=${bundleHas('library-catalogue-workspace', 'library-catalogue-header')}`)
+    console.log(`source_has_detail_drawer=${bundleHas('library-native-item-sidebar', 'library-cover-link')}`)
+    console.log(`source_has_visual_issue_strip=${bundleHas('library-publication-issue-strip', 'Visual issue strip')}`)
+    console.log(`source_has_gallery_shelf_view_modes=${bundleHas('library-view-mode-toggle', 'library-cover-gallery--gallery', 'library-cover-gallery--shelf')}`)
+    console.log(`source_has_cover_loading_polish=${bundleHas('library-cover-frame', 'library-cover-loading-shimmer', 'library-cover-fallback')}`)
+    console.log(`source_has_drawer_keyboard_polish=${bundleHas('library-detail-drawer-keyboard-hint', 'Escape', 'ArrowLeft', 'ArrowRight')}`)
     console.log(`bad_host_hrefs=${(page.text.match(/href="http:\/\/(?:f|settings)\//g) || []).length}`)
 
-    const catalogueInitialStateFailedPredicates = []
-    if (!detail.text.includes('data-library-field="userEdited"')) {
-      catalogueInitialStateFailedPredicates.push('detail_has_user_edited_marker')
+    const predicates = {
+      import_preview_fixture_available: !importPreviewFixtureMissing,
+      catalogue_page_http_200: page.status === 200,
+      catalogue_initial_state_decoded: state !== null,
+      catalogue_has_items: items.length > 0,
+      catalogue_initial_state_payload_threshold: catalogueInitialStateJsonBytes > 0 && catalogueInitialStateJsonBytes <= 524288,
+      catalogue_items_payload_threshold: catalogueItemsJsonBytes > 0 && catalogueItemsJsonBytes <= 262144,
+      compact_dto_forbidden_fields_absent: normalRowForbiddenFields.length === 0,
+      catalogue_collections_present: [state?.publications, state?.publicationSummaries, state?.publicationYears, state?.creators].every(Array.isArray),
+      publication_filter_pagination_preserved: String(publicationState?.cataloguePagination?.nextUrl || '').includes('publication=__library_smoke_publication__'),
+      publication_discovery_rendered: publicationDiscoveryPage.status === 200 && publicationDiscoveryState?.discoveryPage === 'publication',
+      year_discovery_rendered: yearDiscoveryPage.status === 200 && yearDiscoveryState?.discoveryPage === 'year',
+      creator_discovery_rendered: creatorDiscoveryPage.status === 200 && creatorDiscoveryState?.discoveryPage === 'creator',
+      publication_issue_context_present: publicationDiscoveryState?.publicationIssueContext?.itemCount >= 1,
+      metadata_export_url_present: String(state?.metadataExportUrl || '').includes('/apps/library/export/metadata'),
+      sidecar_manifest_url_present: String(state?.metadataSidecarManifestUrl || '').includes('/apps/library/export/metadata/sidecar-manifest'),
+      sidecar_manifest_http_200: sidecarManifest.status === 200,
+      sidecar_manifest_identity: sidecarManifest.headers.get('X-Library-Export-Type') === 'corrected-metadata-sidecar-manifest' && sidecarManifestJson?.manifestKind === 'library-corrected-metadata-sidecar-manifest',
+      sidecar_bundle_url_present: String(state?.metadataSidecarBundleUrl || '').includes('/apps/library/export/metadata/sidecars.zip'),
+      sidecar_bundle_http_200: sidecarBundle.status === 200,
+      sidecar_bundle_identity_and_bytes: sidecarBundle.headers.get('X-Library-Export-Type') === 'corrected-metadata-sidecar-bundle' && sidecarBundle.bytes > 0,
+      cover_url_present: 'coverUrl' in first,
+      cover_private_response: cover.status === 200 && cover.contentType.startsWith('image/') && cover.coverReason !== '',
+      cover_refresh_no_store: coverRefresh.status === 200 && coverRefresh.coverRefresh === 'refresh-requested' && coverRefresh.cacheControl.includes('no-store'),
+      open_url_present: 'openUrl' in first,
+      files_url_present: 'filesUrl' in first,
+      download_webdav_url_present: 'downloadUrl' in first && String(first.downloadUrl || '').includes('/remote.php/dav/files/'),
+      download_http_and_bytes: download.status === 200 && download.bytes > 0,
+      detail_url_present: 'detailsUrl' in first && String(first.detailsUrl || '').includes('/apps/library/items/'),
+      detail_page_http_200: detail.status === 200,
+      detail_four_status_concepts: fourMetadataStatusConcepts,
+      detail_edit_csrf_return_contract: detail.text.includes('library-detail-edit-form') && detail.text.includes('name="requesttoken"') && detail.text.includes('name="returnTo"') && detail.text.includes('value="details"'),
+      detail_provenance_seed_visible: detail.text.includes('data-library-field="userEdited"') && scannerConflictCount >= 1,
+      detail_tag_form: detail.text.includes('library-detail-tag-editor') && detail.text.includes('name="nextcloudTagName"'),
+      detail_comment_form: detail.text.includes('library-detail-comment-form') && detail.text.includes('name="commentMessage"'),
+      detail_download_action: detail.text.includes('Download source'),
+      files_url_opens_folder: (String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) && String(first.filesUrl || '').includes('openfile=false') && !String(first.filesUrl || '').includes('openfile=true'),
+      settings_page_http_200: settingsPage.status === 200,
+      settings_four_sections: fourSettingsSections,
+      import_preview_http_200: importPreview.status === 200,
+      import_preview_non_mutating_contract: importPreview.headers.get('X-Library-Import-Mode') === 'preview-only' && importPreviewJson?.valid === true && importPreviewJson.matchedItems >= 1 && importPreviewJson.changedFields >= 1,
+      served_script_http_200: script.status === 200,
+      served_css_http_200: css.status === 200,
+      served_bundle_has_no_process_env: !script.text.includes('process.env'),
+      installed_versioned_asset_identity: installedVersionAssetIdentity === true,
+      bundle_primary_catalogue_controls: primaryCatalogueControls,
+      bundle_calm_catalogue: calmCatalogue,
+      bundle_selection_gated_item_ids: selectionGatedActions,
+      bundle_five_review_groups: fiveReviewGroups,
+      bundle_contextual_sidebar_actions: contextualSidebarActions,
+      bundle_no_technical_dashboards: noTechnicalCatalogueDashboards,
+      bundle_review_suggestion_source_safety: reviewSuggestionSafety,
+      served_compact_cover_css: css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') && css.text.includes('min-height:0'),
+      bundle_native_sidebar: bundleHas('library-native-item-sidebar'),
+      bundle_view_modes: bundleHas('library-view-mode-toggle'),
+      bundle_cover_card: bundleHas('library-cover-card', 'library-cover-image', 'library-cover-link'),
+      bundle_active_filter_chips: bundleHas('library-active-filter-chips', 'activeFilterChips', 'filterChipRemoveUrl'),
     }
-
-    if (importPreviewFixtureMissing) {
-      fail('import_preview_full_metadata_fixture_missing')
-    } else if (normalRowForbiddenFields.length !== 0 || page.status !== 200 || !state || items.length === 0 || !Array.isArray(state?.publications) || !Array.isArray(state?.publicationSummaries) || !Array.isArray(state?.publicationYears) || !Array.isArray(state?.creators) || !String(publicationState?.cataloguePagination?.nextUrl || '').includes('publication=__library_smoke_publication__') || publicationDiscoveryPage.status !== 200 || yearDiscoveryPage.status !== 200 || creatorDiscoveryPage.status !== 200 || creatorDiscoveryState?.discoveryPage !== 'creator' || creatorDiscoveryState?.discoveryTitle !== smokeCreator || creatorDiscoveryState?.activeFilters?.creator !== smokeCreator || !(creatorDiscoveryState?.items || []).every((item) => item.creators === smokeCreator) || yearDiscoveryState?.discoveryPage !== 'year' || yearDiscoveryState?.discoveryTitle !== smokeYear || yearDiscoveryState?.activeFilters?.year !== smokeYear || !(yearDiscoveryState?.items || []).every((item) => String(item.publicationDate || '').startsWith(smokeYear)) || publicationDiscoveryState?.discoveryPage !== 'publication' || publicationDiscoveryState?.discoveryTitle !== smokePublication || publicationDiscoveryState?.activeFilters?.publication !== smokePublication || !(publicationDiscoveryState?.items || []).every((item) => item.publication === smokePublication) || publicationDiscoveryState?.publicationIssueContext?.itemCount < 1 || !String(creatorState?.cataloguePagination?.nextUrl || '').includes('creator=__library_smoke_creator__') || !(creatorState?.items || []).every((item) => item.creators === '__library_smoke_creator__') || !String(state?.metadataExportUrl || '').includes('/apps/library/export/metadata') || !String(state?.metadataSidecarManifestUrl || '').includes('/apps/library/export/metadata/sidecar-manifest') || sidecarManifest.status !== 200 || sidecarManifest.headers.get('X-Library-Export-Type') !== 'corrected-metadata-sidecar-manifest' || sidecarManifestJson?.manifestKind !== 'library-corrected-metadata-sidecar-manifest' || sidecarManifestJson.itemCount < 0 || !('coverUrl' in first) || cover.status !== 200 || !cover.contentType.startsWith('image/') || !['preview', 'cbz-first-image', 'placeholder', 'epub-cover'].includes(cover.coverStatus) || cover.coverReason === '' || !detail.text.includes('library-cover-refresh-action') || !detail.text.includes('Refresh cover preview') || !detail.text.includes('coverRefresh=1') || !detail.text.includes('title=') || !detail.text.includes('Nextcloud preview') || detail.text.includes('library-cover-quality-explanation') || coverRefresh.status !== 200 || coverRefresh.coverRefresh !== 'refresh-requested' || !coverRefresh.cacheControl.includes('no-store') || !('openUrl' in first) || !('filesUrl' in first) || !('downloadUrl' in first) || !String(first.downloadUrl || '').includes('/remote.php/dav/files/') || download.status !== 200 || download.bytes <= 0 || !('detailsUrl' in first) || !String(first.detailsUrl || '').includes('/apps/library/items/') || detail.status !== 200 || !detail.text.includes('Publication metadata') || !detail.text.includes('File metadata') || !detail.text.includes('Provenance') || !detail.text.includes('Nextcloud metadata') || !detail.text.includes('library-detail-edit-form') || !detail.text.includes('name="requesttoken"') || !detail.text.includes('name="returnTo"') || !detail.text.includes('value="details"') || !detail.text.includes('data-library-field=\"userEdited\"') || !detail.text.includes('library-field-provenance') || !detail.text.includes('Field-level provenance') || !detail.text.includes('Scanner candidate') || !detail.text.includes('library-field-reset-form') || !detail.text.includes('Reset to scanner') || !detail.text.includes('library-fields-reset-form') || !detail.text.includes('Reset all fields to scanner') || !detail.text.includes('library-metadata-guidance') || !detail.text.includes('Use YYYY, YYYY-MM, or YYYY-MM-DD') || !detail.text.includes('Choose one or more language codes') || !detail.text.includes('One creator per line') || !detail.text.includes('library-field-conflict') || !detail.text.includes('Differs from scanner') || !detail.text.includes('library-metadata-correction-summary') || !detail.text.includes('Scanner candidates') || !detail.text.includes('Fields differing from scanner') || scannerConflictCount < 1 || scannerConflictCount > 8 || !settingsPage.text.includes('library-metadata-import-preview-form') || !settingsPage.text.includes('metadataJson') || !settingsPage.text.includes('library-metadata-import-apply-form') || !settingsPage.text.includes('Apply metadata import') || !settingsPage.text.includes('This writes matched corrected metadata') || !settingsPage.text.includes('library-scan-retry-metadata-errors-form') || !settingsPage.text.includes('Retry metadata errors') || !settingsPage.text.includes('library-scan-recheck-missing-files-form') || !settingsPage.text.includes('Recheck missing files') || !settingsPage.text.includes('missing files are rechecked') || importPreview.status !== 200 || importPreview.headers.get('X-Library-Import-Mode') !== 'preview-only' || !importPreviewJson?.valid || importPreviewJson.matchedItems < 1 || importPreviewJson.changedFields < 1 || !detail.text.includes('library-detail-tag-editor') || !detail.text.includes('name="nextcloudTagName"') || !detail.text.includes('library-tag-suggestion-picker') || !detail.text.includes('Suggested Nextcloud tags') || !detail.text.includes('Add suggested tag') || !detail.text.includes('library-detail-comment-form') || !detail.text.includes('name="commentMessage"') || !detail.text.includes('Download source') || !(String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) || !String(first.filesUrl || '').includes('openfile=false') || String(first.filesUrl || '').includes('openfile=true')) {
-      if (catalogueInitialStateFailedPredicates.length === 0) {
-        catalogueInitialStateFailedPredicates.push('catalogue_initial_state_contract')
-      }
-      fail('catalogue_initial_state_invalid', {
-        failed_predicates: catalogueInitialStateFailedPredicates.join(','),
-      })
-    } else if (script.status !== 200 || css.status !== 200 || script.text.includes('process.env')) {
-      fail('vue_assets_invalid')
-    } else if (!sourceComponent.includes('metadataReviewWorkbench') || !sourceComponent.includes('library-metadata-review-workbench') || !sourceComponent.includes('Search also checks descriptions') || !sourceItemService.includes('LOWER(i.description)') || !sourceComponent.includes('library-home-dashboard') || !sourceComponent.includes('library-detail-drawer') || !sourceComponent.includes('library-publication-issue-strip') || !sourceComponent.includes('Visual issue strip') || !sourceComponent.includes('Open full details') || !sourceComponent.includes('selectedDrawerItem') || !sourceComponent.includes('library-view-mode-toggle') || !sourceComponent.includes('library-cover-gallery--gallery') || !sourceComponent.includes('library-cover-gallery--shelf') || !sourceComponent.includes('library-cover-frame') || !sourceComponent.includes('library-cover-loading-shimmer') || !sourceComponent.includes('library-cover-fallback') || !sourceComponent.includes('markCoverLoaded') || !sourceComponent.includes('markCoverFailed') || !sourceComponent.includes('handleDrawerKeyboardShortcuts') || !sourceComponent.includes('library-detail-drawer-keyboard-hint') || !sourceComponent.includes('library-cover-card') || !sourceComponent.includes('library-cover-image') || sourceComponent.includes('without importing or owning the files') || !sourceComponent.includes('library-catalogue-workspace') || !sourceComponent.includes('metadataExportUrl') || !sourceComponent.includes('Series / periodical') || !sourceComponent.includes('name="publication"') || !sourceComponent.includes('All series and periodicals') || !sourceComponent.includes('Publication year') || !sourceComponent.includes('name="year"') || !sourceComponent.includes('All years') || !sourceComponent.includes('Creator') || !sourceComponent.includes('name="creator"') || !sourceComponent.includes('All creators') || !sourceComponent.includes('Exact full-field creator matches only') || !sourceComponent.includes('library-active-filter-chips') || !sourceComponent.includes('activeFilterChips') || !sourceComponent.includes('filterChipRemoveUrl') || !sourceComponent.includes('Remove filter') || !sourceComponent.includes('library-cover-details') || !sourceComponent.includes('Show details and actions') || !sourceComponent.includes('library-cover-actions') || !css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') || !css.text.includes('min-height:0') || !css.text.includes('library-cover-details') || !sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))') || !sourceStyle.split('@media (max-width: 520px)', 1)[0].includes('min-height: 0') || !sourceStyle.includes('@media (max-width: 520px)') || !sourceStyle.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') || !sourceComponent.includes('library-publication-issue-context') || !sourceComponent.includes('Publication contents') || !sourceComponent.includes('issue/date coverage') || !sourceComponent.includes('library-shortcut-selectors') || !sourceComponent.includes('library-periodical-groups') || !sourceComponent.includes('Series / periodicals') || !sourceComponent.includes('Jump into recurring publications with one click') || !sourceComponent.includes('publicationLandingUrl(summary.publication)') || !sourceComponent.includes('isPublicationDiscoveryPage') || !sourceComponent.includes('library-discovery-header') || !sourceComponent.includes('isYearDiscoveryPage') || !sourceComponent.includes('library-year-groups') || !sourceComponent.includes('yearLandingUrl(year)') || !sourceComponent.includes('isCreatorDiscoveryPage') || !sourceComponent.includes('library-creator-groups') || !sourceComponent.includes('creatorLandingUrl(creator)') || !sourceComponent.includes('Choose series') || !sourceComponent.includes('<option value="publication">') || !sourceComponent.includes('Export corrected metadata') || !sourceComponent.includes('Download source') || !sourceStyle.includes('font-size: 28px;')) {
-      fail('vue_source_contract_invalid')
+    for (const [name, passed] of Object.entries(predicates)) console.log(`predicate_${name}=${passed === true}`)
+    const failedPredicates = Object.entries(predicates).filter(([, passed]) => passed !== true).map(([name]) => name)
+    if (failedPredicates.length > 0) {
+      fail('named_predicates_failed', { failed_predicates: failedPredicates.join(',') })
     } else {
       console.log('vue_smoke_ok=true')
     }

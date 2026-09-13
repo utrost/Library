@@ -62,7 +62,8 @@ def test_page_routes_expose_root_save_and_manual_scan_actions():
     assert "RootService $rootService" in settings
     assert "FileIndexService $fileIndexService" in settings
     assert "listRoots($this->userId)" in settings
-    assert "listFiles($this->userId)" in settings
+    assert "listFiles($this->userId)" not in settings
+    assert "fileStatusCounts($this->userId)" in settings
 
 
 def test_personal_settings_template_shows_extendable_root_configuration_and_file_index():
@@ -70,7 +71,20 @@ def test_personal_settings_template_shows_extendable_root_configuration_and_file
     assert "library-settings-heading" in template
     assert "name=\"path\"" in template
     assert "Scan enabled roots" in template
-    assert "Indexed files" in template
-    assert "rootLabel" in template
-    assert "fileId" in template
-    assert "scanStatus" in template
+    assert "Diagnostics" in template
+    assert "$fileStatusCounts" in template
+    assert "label" in template
+    assert "fileStatusCounts" in template
+    assert "metadata_error" in template
+
+
+def test_settings_root_dto_and_template_include_publication_count():
+    file_index = (ROOT / "lib" / "Service" / "FileIndexService.php").read_text()
+    settings = (ROOT / "lib" / "Settings" / "Personal.php").read_text()
+    template = (ROOT / "templates" / "settings-personal.php").read_text()
+
+    assert "public function publicationCountsByRoot(string $userId): array" in file_index
+    assert "publicationCountsByRoot($this->userId)" in settings
+    assert "'publicationCount'" in settings
+    assert "$root['publicationCount']" in template
+    assert "'%n publication', '%n publications'" in template

@@ -37,20 +37,35 @@ fi
 APP_ID="library"
 ARCHIVE="$ROOT/dist/${APP_ID}-${VERSION}.tar.gz"
 TOP="$APP_ID"
+mapfile -t WIRED_ASSETS < <(python3 - "$ROOT/lib/Controller/PageController.php" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+controller = Path(sys.argv[1]).read_text(encoding="utf-8")
+for constant in ("VUE_SCRIPT_ASSET", "VUE_STYLE_ASSET"):
+    match = re.search(rf"{constant}\s*=\s*'([^']+)'", controller)
+    if not match:
+        raise SystemExit(f"Could not read {constant} from PageController.php")
+    print(match.group(1))
+PY
+)
+VUE_SCRIPT_ASSET="${WIRED_ASSETS[0]}"
+VUE_STYLE_ASSET="${WIRED_ASSETS[1]}"
 
 if [ ! -f "$ARCHIVE" ]; then
   echo "release_archive_missing=$ARCHIVE"
   exit 1
 fi
 
-python3 - "$ARCHIVE" "$TOP" "$VERSION" "$REQUIRE_SIGNATURE" <<'PY'
+python3 - "$ARCHIVE" "$TOP" "$VERSION" "$REQUIRE_SIGNATURE" "$VUE_SCRIPT_ASSET" "$VUE_STYLE_ASSET" <<'PY'
 from __future__ import annotations
 import sys
 import tarfile
 import re
 from pathlib import PurePosixPath
 
-archive, top, version, explicit_require_signature_arg = sys.argv[1:5]
+archive, top, version, explicit_require_signature_arg, vue_script_asset, vue_style_asset = sys.argv[1:7]
 explicit_require_signature = explicit_require_signature_arg.lower() == "true"
 require_signature = explicit_require_signature or '-' not in version
 required = {
@@ -59,8 +74,8 @@ required = {
     f"{top}/appinfo/routes.php",
     f"{top}/lib/AppInfo/Application.php",
     f"{top}/templates/main.php",
-    f"{top}/js/library-main-{re.sub(r'[^a-zA-Z0-9]+', '-', version)}.mjs",
-    f"{top}/css/library-vue-{re.sub(r'[^a-zA-Z0-9]+', '-', version)}.css",
+    f"{top}/js/{vue_script_asset}.mjs",
+    f"{top}/css/{vue_style_asset}.css",
     f"{top}/README.md",
     f"{top}/LICENSE",
     f"{top}/CHANGELOG.md",
@@ -96,11 +111,10 @@ forbidden_files = {
 }
 forbidden_suffixes = (".pyc", ".pyo", ".key", ".pem")
 allowed_root_files = {"README.md", "LICENSE", "CHANGELOG.md"}
-asset_version = re.sub(r'[^a-zA-Z0-9]+', '-', version)
 allowed_frontend_files = {
-    "css/style.css", f"css/library-vue-{asset_version}.css",
-    "js/library-detail.js", f"js/library-main-{asset_version}.mjs",
-    "js/library-shell.js", "js/scan-progress.js",
+    "css/style.css", f"css/{vue_style_asset}.css",
+    "js/library-detail.js", f"js/{vue_script_asset}.mjs",
+    "js/library-shell.js", "js/scan-progress.js", "js/settings-operations.js",
 }
 max_package_frontend_bytes = 1_200_000
 errors: list[str] = []
@@ -194,8 +208,7 @@ print(f"release_package_entries={len(names)}")
 print(f"package_frontend_bytes={frontend_bytes}")
 PY
 
-VERSIONED_ASSET_VERSION="$(printf '%s' "$VERSION" | sed 's/[^a-zA-Z0-9][^a-zA-Z0-9]*/-/g')"
 node "$ROOT/scripts/validate-module-closure.mjs" \
   --archive "$ARCHIVE" \
-  --entry "$TOP/js/library-main-${VERSIONED_ASSET_VERSION}.mjs" \
+  --entry "$TOP/js/${VUE_SCRIPT_ASSET}.mjs" \
   --reject-orphans

@@ -12,7 +12,7 @@ def test_detail_page_collapses_diagnostics_and_shows_difference_first_provenance
     assert "<details class=\"library-panel library-detail-diagnostic-section library-detail-section-provenance\"" in template
     assert "<details class=\"library-panel library-detail-diagnostic-section library-detail-section-nextcloud\"" in template
     assert "library-provenance-differences" in template
-    assert "Only fields that currently differ from scanner candidates are shown first." in template
+    assert "Only fields with suggested updates are shown first." in template
     assert "library-provenance-all-fields" in template
     assert "Show all scanner provenance" in template
     assert "No scanner differences for this item." in template
@@ -31,7 +31,8 @@ def test_detail_page_has_inline_tag_chip_remove_and_save_feedback():
     assert "library-save-feedback" in template
     assert "Metadata saved" in template
     assert "library-tag-chip-remove" in template
-    assert "aria-label=\"<?php p($l->t('Remove tag: %s'" in template
+    assert 'aria-labelledby="library-remove-tag-action-' in template
+    assert 'id="library-remove-tag-name-' in template
     assert "×" in template
     assert "library-tag-remove-list" not in template
     assert ".library-tag-chip-remove" in css
@@ -60,8 +61,9 @@ def test_catalogue_has_top_toolbar_filter_summary_empty_actions_and_structured_c
         assert "Clear all filters" in source
         assert "library-empty-actions" in source
         assert "Run a scan from settings" in source
-        assert "library-cover-detail-list" in source
-        assert "library-cover-detail-chip" in source
+        assert "library-cover-primary-actions" in source
+        assert "library-cover-link" in source
+        assert "selectedDrawerItem.extension" in source
 
     assert "library-catalogue-workspace" in app
 
@@ -79,6 +81,6 @@ def test_ui_polish_version_bump_is_tracked_for_nextcloud_asset_refresh():
     package = (ROOT / "package.json").read_text()
     lock = (ROOT / "package-lock.json").read_text()
 
-    assert "<version>0.1.0-alpha.165</version>" in info
-    assert '"version": "0.1.0-alpha.165"' in package
-    assert '"version": "0.1.0-alpha.165"' in lock
+    assert "<version>0.1.0-alpha.168</version>" in info
+    assert '"version": "0.1.0-alpha.168"' in package
+    assert '"version": "0.1.0-alpha.168"' in lock

@@ -17,8 +17,8 @@ def test_item_service_filters_and_facets_by_publication_year_prefix():
 
     assert "year?:string" in service
     assert "publicationYears:array<int, string>" in service
-    assert "'publicationYears' => $this->publicationYearFacetValues($userId)" in service
-    assert "private function publicationYearFacetValues(string $userId): array" in service
+    assert "'publicationYears' => $this->publicationYearFacetValues($userId, $facetFilters['publicationYears'])" in service
+    assert "private function publicationYearFacetValues(string $userId, array $filters): array" in service
     assert "$year = trim((string)($filters['year'] ?? ''));" in service
     assert "LIKE", "Expected year filter to use publication_date prefix matching for YYYY / YYYY-MM / YYYY-MM-DD values"
     assert "i.publication_date" in service

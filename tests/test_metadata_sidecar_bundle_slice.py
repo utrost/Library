@@ -42,7 +42,8 @@ def test_catalogue_and_settings_link_to_sidecar_bundle_download():
     assert "Export sidecar ZIP" in template
     assert "metadataSidecarBundleUrl" in template
     assert "metadataSidecarBundleUrl" in app
-    assert "Export sidecar ZIP" in app
+    assert "Export sidecar ZIP" not in app
+    assert "Import and export" in template
 
 
 def test_smoke_vue_page_checks_sidecar_bundle_endpoint():

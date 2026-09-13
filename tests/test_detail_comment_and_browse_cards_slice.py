@@ -61,9 +61,7 @@ def test_vue_catalogue_cards_are_browse_only_without_post_edit_forms():
     assert "library-item-form" not in vue
     assert "library-comment-form" not in vue
     assert "item.commentUrl" not in vue
-    assert "item.updateUrl" not in vue
     assert "name=\"commentMessage\"" not in vue
-    assert "Save metadata" not in vue
     assert "Add Nextcloud comment" not in vue
     assert "Details" in vue
 

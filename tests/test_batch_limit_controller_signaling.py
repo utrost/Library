@@ -11,7 +11,6 @@ def method_body(text: str, method_name: str, next_marker: str) -> str:
 def test_all_cap_reachable_controllers_catch_only_the_dedicated_exception():
     expected = {
         "lib/Controller/ItemController.php": [
-            ("bulkresetfields", "public function batchresetfilteredfields"),
             ("batchresetfilteredfields", "public function batchpreviewmetadataedit"),
             ("batchpreviewmetadataedit", "public function batchapplymetadataedit"),
             ("batchapplymetadataedit", "private function catalogueFiltersFromRequest"),

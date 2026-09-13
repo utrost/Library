@@ -51,7 +51,7 @@ def test_catalogue_supports_recently_opened_sort_and_filter_preservation():
     assert "lastOpened" in service
     assert "i.last_opened_at" in service
     assert "Recently opened" in vue
-    assert "lastOpenedAt" in vue
+    assert "sort=lastOpened" in vue
     assert '"smoke:last-opened"' in package
     assert "last_opened_smoke_ok=true" in smoke
     assert "last_opened_files_unchanged" in smoke

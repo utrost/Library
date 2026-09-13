@@ -12,7 +12,7 @@ My read: this is the right list. The earlier v0.1 roadmap was mostly release-har
 
 Two framing points:
 
-- Nextcloud tags are useful for lightweight labels and can approximate some workflows today, but they are not enough for every feature. Stars, reading state, structured status and genre/classification metadata should become canonical Library-native fields when they affect catalogue UX, sorting, export/import or external metadata-tool handoff.
+- Nextcloud tags are useful for lightweight labels and can approximate some workflows today, but they are not enough for every feature. Stars, reading state, structured status and subject/classification metadata should become canonical Library-native fields when they affect catalogue UX, sorting, export/import or external metadata-tool handoff.
 - Reader apps can keep owning page position and annotations, but Library should record Library-owned reading activity such as last opened, manual read status, stars/bookmarks and “needs OCR” workflow flags because those are catalogue decisions, not reader rendering internals.
 
 ## Current support at a glance
@@ -60,15 +60,15 @@ Current support: workflow status is implemented as a Library-native personal cat
 
 Workflow status is app-owned and separate from operational `library_files.scan_status`. The first vocabulary is intentionally small: `to-read`, `reading`, `finished`, `reference`, `paused`, `abandoned` and `needs-action`, with an empty default for no status. Details pages expose the editor, the catalogue has a dedicated `workflowStatus` filter/facet, card **Details** can show the status, and corrected-metadata export/import preserves it. Nextcloud tags still coexist as freeform cross-app labels.
 
-### genres and classifications
+### subjects and classifications
 
-Current support: genres and classifications are implemented as structured Library metadata.
+Current support: subjects and classifications are implemented as structured Library metadata.
 
-Genres and classifications overlap with tags but now have a deliberate Library-native model because one publication can have multiple fiction genres and multiple non-fiction classifications. Nextcloud tags are still useful as broad cross-app labels; Library-native genres/classifications drive catalogue filters, corrected-metadata import/export and external metadata-tool handoff.
+Subjects and classifications overlap with tags but now have a deliberate Library-native model because one publication can have multiple fiction subjects and multiple non-fiction classifications. Nextcloud tags are still useful as broad cross-app labels; Library-native subjects/classifications drive catalogue filters, corrected-metadata import/export and external metadata-tool handoff.
 
 Recommended split:
 
-- `genres`: user-facing literary/content genres, mostly fiction but not limited to it.
+- `subjects`: user-facing literary/content subjects, mostly fiction but not limited to it.
 - `classifications`: non-fiction and collection-oriented taxonomy such as photography, programming, philosophy, history, manual, catalogue, OCR-needed, reference collection.
 - `tags`: freeform Nextcloud/system labels for ad-hoc cross-app grouping.
 
@@ -178,7 +178,7 @@ Acceptance checks:
 
 Result: workflow status is implemented as a small personal-field slice.
 
-### P5 — genres and classifications
+### P5 — subjects and classifications
 
 Status: landed as a Library-native multi-value metadata checkpoint.
 
@@ -187,23 +187,23 @@ Why sixth: powerful, but this is the richest modeling problem. It should follow 
 Scope:
 
 - store first-slice values as JSON arrays on `library_items`;
-- support multiple genres/classifications per item;
+- support multiple subjects/classifications per item;
 - add details editing with suggestions;
 - add catalogue facets/filters;
 - include values in export/import and leave source-folder sidecar writing to external file-first tooling.
 
 Acceptance checks:
 
-- one book can have multiple genres/classifications;
+- one book can have multiple subjects/classifications;
 - filtering by one classification finds the item;
 - values are not confused with Nextcloud tags;
 - export/import preserves them.
 
-Result: genres and classifications are implemented as structured Library metadata distinct from Nextcloud tags.
+Result: subjects and classifications are implemented as structured Library metadata distinct from Nextcloud tags.
 
 ## Suggested immediate implementation slice
 
-The original P0-P5 personal-library sequence has landed: multi-root confidence, starring, last-opened activity, description search, workflow status, and Library-native genres/classifications are implemented and covered by smoke or contract tests.
+The original P0-P5 personal-library sequence has landed: multi-root confidence, starring, last-opened activity, description search, workflow status, and Library-native subjects/classifications are implemented and covered by smoke or contract tests.
 
 Next personal-library slices should build on those foundations rather than restart them: improve saved views/smart collections for repeated filters, deepen publication issue grouping beyond the compact **Publication contents** summary, and keep real-collection metadata/cover fixes small and evidence-driven.
 
@@ -211,5 +211,5 @@ Next personal-library slices should build on those foundations rather than resta
 
 - Should “bookmark” mean the same as “star”, or should “bookmark” be reserved for reader/page positions while Library uses “star”? My recommendation: use **Star** in Library and leave page bookmarks to reader apps.
 - Should `needs_ocr` be a status, a tag, or both? My recommendation: make it a status only if it drives workflow filters; allow tags for extra detail such as `ocr:bad-layout` later.
-- Should genres/classifications be user-only or scanner-suggested? My recommendation: user-owned first, scanner suggestions later with the same provenance/conflict model as other metadata fields.
+- Should subjects/classifications be user-only or scanner-suggested? My recommendation: user-owned first, scanner suggestions later with the same provenance/conflict model as other metadata fields.
 - Should status and star be included in corrected-metadata export even though they are not bibliographic metadata? My recommendation: yes, because they are personal Library corrections/preferences that matter during migration.

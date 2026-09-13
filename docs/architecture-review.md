@@ -1,7 +1,9 @@
 # Human Architecture Review Notes
 
+Alpha.168 status: `0.1.0-alpha.168` source candidate (unpackaged).
+
 Audience: Nextcloud administrators, architecture reviewers and security reviewers  
-Status: current implementation reference for Library `0.1.0-alpha.165`
+Status: current implementation reference for the unpackaged Library `0.1.0-alpha.168` source candidate
 
 Alpha.161 keeps one server-rendered catalogue route and its existing query/filter service contract, but selects a distinct native Review surface whenever any established review-needed filter is active. Queue links are same-origin server-root URLs, AJAX refinement retains the fail-closed request ownership from alpha.155, browser history traversal reloads authoritative server state, and failed Review requests remain visible as an accessible error instead of replacing the focused surface. No Vue Router, settings migration, detail/sidebar migration, schema change, or PHP fallback removal is included.
 
@@ -40,7 +42,7 @@ Source: `appinfo/info.xml`.
 - App id: `library`
 - Display name: `Library`
 - Namespace: `Library` / PHP namespace `OCA\Library`
-- Current version: `0.1.0-alpha.165`
+- Current source-candidate version: `0.1.0-alpha.168` (unpackaged)
 - Licence declaration: `agpl` in `info.xml`; repository license is `AGPL-3.0-or-later`.
 - Categories: `files`, `multimedia`
 - Nextcloud compatibility: `min-version="34"`, `max-version="34"`
@@ -76,7 +78,7 @@ If `ZipArchive` is missing, EPUB/CBZ metadata and cover extraction paths degrade
 Library uses public Nextcloud APIs and existing core app surfaces:
 
 - Files app and file cache/file IDs: canonical source files and handoff URLs.
-- Files/WebDAV: **Download source** links point to `/remote.php/dav/files/{userId}/{path}`.
+- Files/WebDAV: **Download** links point to `/remote.php/dav/files/{userId}/{path}`.
 - Preview manager: cover route first asks Nextcloud preview providers for cover images.
 - System tags: Library can display/add/remove Nextcloud system tags for the backing file.
 - Comments: Library can display/add Nextcloud file comments for the backing file.
@@ -191,7 +193,7 @@ Columns:
 - `last_opened_at` integer unsigned, nullable; Library-native read/open activity timestamp
 - `description` text, nullable; Library-native long description
 - `workflow_status` string(32), nullable; Library-native workflow state
-- `genres_json` text, nullable; JSON array of Library-native genres
+- `subjects_json` text, nullable; JSON array of Library-native subjects
 - `classifications_json` text, nullable; JSON array of Library-native classifications
 - `created_at` integer unsigned, not null
 - `updated_at` integer unsigned, not null
@@ -279,7 +281,7 @@ Source: `appinfo/routes.php`.
 - `POST /apps/library/items/{itemId}` — update Library publication metadata.
 - `POST /apps/library/items/{itemId}/reset-field` — reset one field to stored scanner candidate.
 - `POST /apps/library/items/{itemId}/reset-fields` — reset all supported fields to scanner candidates.
-- `POST /apps/library/bulk/items/reset-fields` — bulk reset selected item ids from settings/review workflow.
+- `POST /apps/library/bulk/items/reset-filtered-fields` — reset scanner candidates for the explicit catalogue selection.
 - `POST /apps/library/items/{itemId}/star` — toggle Library-native starred state.
 - `POST /apps/library/items/{itemId}/workflow-status` — set Library-native workflow status.
 - `POST /apps/library/items/{itemId}/forget-missing` — remove a Library catalogue entry only after its backing file is missing.
@@ -333,7 +335,7 @@ Operational command-line interactions use existing Nextcloud and repository comm
   - `npm run package:release`
   - `npm run smoke:vue`
   - `npm run smoke:browser`
-  - other focused smoke scripts listed in `package.json` for metadata separation, multi-root, last-opened, descriptions, workflow status, genres/classifications, conflict review, bulk reset and scale pilots.
+  - other focused smoke scripts listed in `package.json` for metadata separation, multi-root, last-opened, descriptions, workflow status, subjects/classifications, conflict review, bulk reset and scale pilots.
 
 The catalogue exposes a dedicated count-only service path for Useful-view and saved-collection badges. Normal count filters execute a database count without materializing item rows or computing facets. Ordinary catalogue/AJAX item DTOs are explicitly projected: they omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs while retaining tags, descriptions, diagnostics and visible card actions. Their SQL query also avoids selecting cover override data. Scanner-conflict and weak-metadata review views intentionally retain the richer provenance needed by the review workbench; detail, cover, export and import paths remain full-fidelity. Scanner-conflict counts remain a deliberate exception: they read matching rows and apply the same PHP conflict predicate as the visible catalogue until an equivalent SQL predicate is implemented. Further scale work remains pending for duplicated creator landing URLs, description/lazy-detail loading, performance instrumentation, the saved raw-tag filter bug and SQL-native scanner-conflict counting.
 
@@ -381,7 +383,7 @@ Mutating actions that affect only Library-owned app tables:
 - starred state;
 - last-opened timestamp from Library Read action;
 - workflow status;
-- genres/classifications;
+- subjects/classifications;
 - description;
 - import apply for matched corrected metadata.
 

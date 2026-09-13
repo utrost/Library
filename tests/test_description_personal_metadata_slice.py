@@ -22,10 +22,9 @@ def test_description_is_visible_editable_and_kept_off_compact_cards():
 
     assert 'name="description"' in detail
     assert "textarea" in detail
-    details_section = vue.split("<details", 1)[1]
-    compact_default = vue.split("<details", 1)[0]
-    assert "item.description" in details_section
-    assert "item.description" not in compact_default
+    assert "selectedDrawerItem.description" in vue
+    card = vue.split('<article v-for="item in items"', 1)[1].split('</article>', 1)[0]
+    assert "item.description" not in card
 
 
 def test_description_searches_and_roundtrips_through_import_export():
@@ -51,7 +50,7 @@ def test_description_docs_mark_p3_as_landed_without_claiming_full_text_search():
     personal = (ROOT / "docs" / "personal-top-features.md").read_text()
 
     assert "Library-native description" in readme
-    assert "search title, subtitle, creators, publication, description and file path" in guide
+    assert "search title, subtitle, creators, publication, description, exact normalized ISBN/ISSN and file path" in guide
     assert "P3 — search with description. Landed" in roadmap
     assert "description search is implemented" in personal
     assert "OCR or full-text document search" in guide

@@ -185,7 +185,7 @@ const permittedLatinTokens = new Set([
 const permittedGermanSourceTokens = new Set([
   ...permittedLatinTokens,
   'admin', 'app', 'batch', 'chip', 'chips', 'comic', 'comics', 'container',
-  'cover', 'details', 'export', 'fiction', 'filter', 'genres', 'index', 'limit',
+  'cover', 'details', 'export', 'fiction', 'filter', 'subjects', 'index', 'limit',
   'manifest', 'plugin', 'plugins', 'route', 'scan', 'scans', 'scanner', 'science',
   'sidecar', 'status', 'store', 'tag', 'tags', 'tools', 'workflow',
 ])

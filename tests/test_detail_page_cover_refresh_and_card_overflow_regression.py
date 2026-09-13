@@ -28,7 +28,8 @@ def test_compact_catalogue_card_text_and_open_details_stay_inside_card():
     app = (ROOT / "src" / "App.vue").read_text()
 
     assert "library-cover-card--open" in app
-    assert "@toggle=" in app
+    assert "selectSidebarItem" in app
+    assert "Advanced details" in app
     assert "openCoverDetails" in app
 
     assert ".library-cover-details[open]" in css

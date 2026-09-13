@@ -25,8 +25,8 @@ def test_mobile_catalogue_chrome_prioritizes_search_and_collapses_options():
     assert "library-mobile-compact-chrome" in vue
     assert "library-quick-search-row" in vue
     assert "library-quick-filter-options" in vue
-    assert "<details class=\"library-quick-filter-options\">" in vue
-    assert "Filter & sort" in vue
+    assert 'data-library-control="filter"' in vue
+    assert 'data-library-control="sort"' in vue
     assert ".library-mobile-compact-chrome" in css
     assert "@media (max-width: 520px)" in css
     assert ".library-mobile-compact-chrome .library-catalogue-header" in css
@@ -39,7 +39,7 @@ def test_detail_hero_demotes_secondary_actions_and_metadata_health():
     assert "library-detail-more-actions" in template
     assert "<summary><?php p($l->t('More actions')); ?></summary>" in template
     assert "library-metadata-health-details" in template
-    assert "<summary><?php p($l->t('Metadata quality')); ?>" in template
+    assert "<summary><?php p($l->t('Metadata status')); ?>" in template
     assert "library-detail-fieldset" in template
     assert "library-detail-fieldset-identity" in template
     assert "library-detail-fieldset-publication" in template

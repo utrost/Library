@@ -86,7 +86,7 @@ def test_batch_preview_fixture_fails_closed_for_empty_and_unsuitable_datasets():
     assert "catalogueRequestToken.trim()" in gate
     controller = read("lib/Controller/ItemController.php")
     preview = controller.split("public function batchpreviewmetadataedit", 1)[1].split("public function batchapplymetadataedit", 1)[0]
-    assert "parseExplicitItemIds" in preview
+    assert "SelectedItemIds::parse" in preview
 
 
 def test_legacy_form_safety_rejects_absent_and_empty_request_tokens():

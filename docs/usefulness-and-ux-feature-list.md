@@ -53,7 +53,7 @@ Candidate views:
 - No publication/series;
 - Weak filename-derived metadata;
 - Unreviewed imports;
-- specific user-defined genre/classification/status combinations.
+- specific user-defined subject/classification/status combinations.
 
 Current support:
 
@@ -122,7 +122,7 @@ Origin: Uwe.
 Why it matters: many collections encode metadata in folder layout rather than file internals. A user may know that one root follows a structure such as:
 
 ```text
-/<genre>/<Author>/<Series>/<title>.epub
+/<subject>/<Author>/<Series>/<title>.epub
 ```
 
 For that root, Library should be able to map path segments and filename parts into reviewable metadata candidates.
@@ -145,7 +145,7 @@ Possible first slice:
 
 1. Add a per-root read-only template preview tool before writing any metadata candidates.
 2. Support a tiny first grammar, for example:
-   - `/<genre>/<Author>/<Series>/<title>`
+   - `/<subject>/<Author>/<Series>/<title>`
    - `/<classification>/<Author>/<title>`
    - `/<publication>/<year>/<title>`
 3. Show sample matches and failures for the first N files in the selected root.

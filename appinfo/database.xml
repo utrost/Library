@@ -207,6 +207,18 @@
                 </field>
             </index>
             <index>
+                <name>library_files_usr_root_status</name>
+                <field>
+                    <name>user_id</name>
+                </field>
+                <field>
+                    <name>root_id</name>
+                </field>
+                <field>
+                    <name>scan_status</name>
+                </field>
+            </index>
+            <index>
                 <name>library_files_file_id_unique</name>
                 <unique>true</unique>
                 <field>
@@ -335,7 +347,7 @@
                 <notnull>false</notnull>
             </field>
             <field>
-                <name>genres_json</name>
+                <name>subjects_json</name>
                 <type>text</type>
                 <notnull>false</notnull>
             </field>
@@ -399,6 +411,25 @@
                     <name>library_file_id</name>
                 </field>
             </index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_item_identifiers</name>
+        <declaration>
+            <field><name>id</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull><autoincrement>true</autoincrement></field>
+            <field><name>item_id</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>scheme</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>display_value</name><type>string</type><length>128</length><notnull>true</notnull></field>
+            <field><name>normalized_value</name><type>string</type><length>128</length><notnull>true</notnull></field>
+            <field><name>source</name><type>string</type><length>64</length><notnull>true</notnull><default>user</default></field>
+            <field><name>user_edited</name><type>boolean</type><notnull>true</notnull><default>false</default></field>
+            <field><name>valid</name><type>boolean</type><notnull>true</notnull><default>true</default></field>
+            <field><name>created_at</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <field><name>updated_at</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <index><name>library_ident_id</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>library_ident_item</name><field><name>item_id</name></field></index>
+            <index><name>library_ident_user_scheme_value</name><field><name>user_id</name></field><field><name>scheme</name></field><field><name>normalized_value</name></field></index>
         </declaration>
     </table>
     <table>
@@ -508,6 +539,8 @@
                 <notnull>true</notnull>
             </field>
             <field><name>run_started_at</name><type>bigint</type><unsigned>true</unsigned><notnull>false</notnull></field>
+            <field><name>last_progress_at</name><type>bigint</type><unsigned>true</unsigned><notnull>false</notnull></field>
+            <field><name>current_path</name><type>string</type><length>1024</length><notnull>false</notnull></field>
             <field><name>duration_ms</name><type>bigint</type><unsigned>true</unsigned><notnull>false</notnull></field>
             <field>
                 <name>finished_at</name>

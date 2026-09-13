@@ -13,7 +13,7 @@ def test_cover_explanation_is_contextual_help_on_refresh_action():
     assert "aria-label=\"<?php p($l->t('Refresh cover preview" in template
     assert "library-cover-quality-explanation" not in template
     assert "<aside" not in template.split('class=\"library-detail-hero\"', 1)[1].split('</article>', 1)[0]
-    assert "detail_has_cover_refresh_tooltip" in smoke
+    assert "cover_refresh_uses_private_image_endpoint" in smoke
     assert "detail_has_visible_cover_quality_explanation=${detail.text.includes('library-cover-quality-explanation')}" in smoke
 
 
@@ -36,8 +36,8 @@ def test_detail_actions_are_grouped_and_ordered_with_star_icon_and_autosave_stat
     assert "</label>" not in workflow_form
     assert "aria-label=\"<?php p($l->t('Workflow status')); ?>\"" in workflow_form
 
-    actionbar = template.split('class="library-detail-actionbar"', 1)[1].split('</div>', 1)[0]
-    assert actionbar.index("Read") < actionbar.index("Show in Files") < actionbar.index("Download source") < actionbar.index("Refresh cover preview")
+    actionbar = template.split('class="library-detail-actionbar"', 1)[1].split('class="library-detail-secondary-actions"', 1)[0]
+    assert actionbar.index("Open") < actionbar.index("Show in Files") < actionbar.index("Download source") < actionbar.index("Refresh cover preview")
 
     assert ".library-detail-actionbar" in css
     assert ".library-star-button" in css

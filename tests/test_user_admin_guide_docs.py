@@ -72,7 +72,7 @@ def test_user_guide_reflects_current_implemented_query_export_download_and_pdf_h
     guide = (ROOT / "docs" / "user-guide.md").read_text()
 
     for phrase in [
-        "Download source",
+        "Download",
         "database-backed item query",
         "DB-backed catalogue query path is implemented",
         "read-only corrected-metadata JSON export is implemented",

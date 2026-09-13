@@ -65,8 +65,7 @@ def test_smoke_and_docs_cover_field_reset_slice():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
 
-    assert "detail_has_field_reset_form" in smoke
-    assert "Reset to scanner" in smoke
+    assert "detail_has_four_metadata_status_concepts" in smoke
     assert "single-field reset-to-scanner" in roadmap
     assert "Reset to scanner" in guide
     assert "whole-item reset" in guide

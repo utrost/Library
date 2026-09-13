@@ -7,8 +7,9 @@ const buildDir = 'build/vue'
 const jsDir = 'js'
 const cssDir = 'css'
 const packageVersion = JSON.parse(readFileSync('package.json', 'utf8')).version
-const versionedJsAssetName = `library-main-${packageVersion.replace(/[^a-zA-Z0-9]+/g, '-')}.mjs`
-const versionedCssAssetName = `library-vue-${packageVersion.replace(/[^a-zA-Z0-9]+/g, '-')}.css`
+const assetBasename = `${packageVersion.replace(/[^a-zA-Z0-9]+/g, '-')}-filterux`
+const versionedJsAssetName = `library-main-${assetBasename}.mjs`
+const versionedCssAssetName = `library-vue-${assetBasename}.css`
 rmSync(buildDir, { recursive: true, force: true })
 
 const vite = spawnSync('vite', ['--mode', 'production', 'build'], {

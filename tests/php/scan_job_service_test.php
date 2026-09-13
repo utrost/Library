@@ -27,6 +27,7 @@ final class FakeQueryBuilder {
     private string $operation = '';
     private array $sets = [];
     private array $conditions = [];
+    private array $orders = [];
     public function __construct(private FakeDb $db) {}
     public function update(string $table): self { $this->operation = 'update'; return $this; }
     public function insert(string $table): self { $this->operation = 'insert'; return $this; }
@@ -36,8 +37,8 @@ final class FakeQueryBuilder {
     public function set(string $column, mixed $value): self { $this->sets[$column] = $value; return $this; }
     public function where(array $condition): self { $this->conditions[] = $condition; return $this; }
     public function andWhere(array $condition): self { $this->conditions[] = $condition; return $this; }
-    public function orderBy(string $column, string $direction): self { return $this; }
-    public function addOrderBy(string $column, string $direction): self { return $this; }
+    public function orderBy(string $column, string $direction): self { $this->orders = [[$column, $direction]]; return $this; }
+    public function addOrderBy(string $column, string $direction): self { $this->orders[] = [$column, $direction]; return $this; }
     public function setMaxResults(int $limit): self { return $this; }
     public function expr(): FakeExpr { return new FakeExpr(); }
     public function createNamedParameter(mixed $value, mixed $type = null): mixed { return $value; }
@@ -59,8 +60,15 @@ final class FakeQueryBuilder {
         return 0;
     }
     public function executeQuery(): FakeResult {
-        foreach ($this->db->rows as $row) { if ($this->matches($row)) { return new FakeResult($row); } }
-        return new FakeResult(false);
+        $rows = array_values(array_filter($this->db->rows, fn (array $row): bool => $this->matches($row)));
+        usort($rows, function (array $left, array $right): int {
+            foreach ($this->orders as [$column, $direction]) {
+                $comparison = ($left[$column] ?? null) <=> ($right[$column] ?? null);
+                if ($comparison !== 0) { return strtoupper($direction) === 'DESC' ? -$comparison : $comparison; }
+            }
+            return 0;
+        });
+        return new FakeResult($rows[0] ?? false);
     }
 }
 final class FakeDb implements \OCP\IDBConnection {
@@ -104,8 +112,8 @@ serviceExpect(count($logger->events) === 1 && $logger->events[0][0] === 'library
 $before = $db->rows[1]; $service->updateProgress('alice', 1, ['indexed' => 99]);
 serviceExpect($db->rows[1] === $before, 'stale progress cannot revive a terminal job');
 serviceExpect($logger->events[0][1]['indexed'] === 7 && $logger->events[0][1]['fingerprint_skips'] === 3, 'cancel event uses persisted aggregates');
-serviceExpect(!array_intersect(array_keys($logger->events[0][1]), ['user_id', 'job_id', 'root_id', 'path', 'error']), 'cancel event is privacy safe');
-$expectedKeys = ['event_schema', 'scope_type', 'outcome', 'worker_metrics_available', 'queue_wait_ms', 'progress_writes', 'cancel_checks', 'roots', 'indexed', 'fingerprint_skips', 'metadata_extractions', 'item_refreshes', 'scanner_duration_ms', 'file_index_duration_ms', 'fingerprint_duration_ms', 'metadata_extraction_duration_ms', 'item_refresh_duration_ms', 'missing_update_duration_ms'];
+serviceExpect($logger->events[0][1]['user_id'] === 'alice' && $logger->events[0][1]['job_id'] === 1, 'cancel event includes correlation identifiers');
+$expectedKeys = ['event_schema', 'job_id', 'user_id', 'scope_type', 'outcome', 'worker_metrics_available', 'queue_wait_ms', 'progress_writes', 'cancel_checks', 'roots', 'indexed', 'fingerprint_skips', 'metadata_extractions', 'item_refreshes', 'scanner_duration_ms', 'file_index_duration_ms', 'fingerprint_duration_ms', 'metadata_extraction_duration_ms', 'item_refresh_duration_ms', 'missing_update_duration_ms'];
 serviceExpect(array_keys($logger->events[0][1]) === $expectedKeys, 'cancel event has the exact stable allowlist');
 serviceExpect($logger->events[0][1]['worker_metrics_available'] === false, 'service-owned cancellation marks worker-only metrics unavailable');
 foreach (['progress_writes', 'cancel_checks', 'file_index_duration_ms', 'fingerprint_duration_ms', 'metadata_extraction_duration_ms', 'item_refresh_duration_ms', 'missing_update_duration_ms'] as $unavailableKey) {
@@ -134,6 +142,15 @@ $running2 = $service->queueJob('alice'); $service->markRunning('alice', $running
 $service->updateProgress('alice', $running2['id'], ['roots' => 2, 'indexed' => 8, 'filesAdded' => 4, 'metadataExtractions' => 2]);
 serviceExpect($service->failJob('alice', $running2['id'], 'failed', ['roots' => 2, 'indexed' => 9, 'filesAdded' => 4, 'metadataExtractions' => 3, 'scannerDurationMs' => 41]), 'running failure transitions atomically');
 serviceExpect($db->rows[$running2['id']]['files_indexed'] === 9 && $db->rows[$running2['id']]['files_added'] === 4 && $db->rows[$running2['id']]['metadata_extractions'] === 3 && $db->rows[$running2['id']]['duration_ms'] === 41, 'failure preserves latest aggregate metrics and monotonic duration');
+$stale = $service->queueJob('bob'); $service->markRunning('bob', $stale['id']);
+$db->rows[$stale['id']]['last_progress_at'] = time() - ScanJobService::STALE_RUNNING_AFTER_SECONDS - 5;
+$db->rows[$stale['id']]['current_path'] = '/Library/long-book.pdf';
+$observedStale = $service->latestJob('bob');
+serviceExpect($observedStale['status'] === 'running' && $observedStale['isStale'] === true && $observedStale['staleSeconds'] >= ScanJobService::STALE_RUNNING_AFTER_SECONDS, 'stale polling remains non-destructive and exposes diagnostics');
+serviceExpect($db->rows[$stale['id']]['status'] === 'running' && $observedStale['currentPath'] === '/Library/long-book.pdf', 'stale polling preserves worker ownership and current path');
+$newer = $service->queueJob('bob');
+$latest = $service->latestJob('bob');
+serviceExpect($latest['id'] === $newer['id'] && $latest['status'] === 'queued', 'newer non-running job is not masked by stale running job');
 $queued3 = $service->queueJob('alice'); $logger->fail = true;
 serviceExpect($service->cancelJob('alice', $queued3['id']), 'logger failure does not change queued cancellation success');
 $badDb = new FakeDb(); $badDb->invalidLastId = true; $badService = new ScanJobService($badDb, new FakeLogger());

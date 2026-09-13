@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         setText('[data-library-scan-status]', job.status);
-        setText('[data-library-scan-scope]', `${job.scopeType || 'all'}${job.rootId ? ` #${job.rootId}` : ''}`);
+        setText('[data-library-scan-scope]', job.scopeLabel || job.scopeType || 'all');
         setText('[data-library-scan-roots-total]', job.rootsTotal);
         setText('[data-library-scan-files-indexed]', job.filesIndexed);
         setText('[data-library-scan-error-count]', job.errorCount);
@@ -57,8 +57,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return ['completed', 'failed'].includes(job.status);
     };
 
+    let pollCount = 0;
+
     const poll = () => {
-        fetch(progressUrl, {
+        pollCount += 1;
+        const url = new URL(progressUrl, window.location.href);
+        if (pollCount % 5 === 0) {
+            url.searchParams.set('includeTotal', '1');
+        }
+
+        fetch(url.toString(), {
             credentials: 'same-origin',
             headers: {
                 'Accept': 'application/json',
@@ -66,6 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
         })
             .then((response) => response.ok ? response.json() : Promise.reject(new Error('scan progress request failed')))
             .then((payload) => {
+                if (payload.totalPublications !== null && payload.totalPublications !== undefined) {
+                    setText('[data-library-total-publications]', payload.totalPublications);
+                }
                 const done = renderJob(payload.job);
                 if (!done) {
                     setTimeout(poll, 2000);

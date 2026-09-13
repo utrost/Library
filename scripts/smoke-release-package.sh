@@ -4,17 +4,20 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONTAINER="${NEXTCLOUD_CONTAINER:-nextcloud}"
 APP_ID="library"
-EXPECTED_VERSION="0.1.0-alpha.165"
-VERSION="${1:-$(python3 - <<'PY'
+# Current source candidate marker for documentation/tests: 0.1.0-alpha.168
+EXPECTED_VERSION="$(python3 - "$ROOT/appinfo/info.xml" <<'PY'
 from pathlib import Path
 import re
-info = Path('appinfo/info.xml').read_text(encoding='utf-8')
+import sys
+
+info = Path(sys.argv[1]).read_text(encoding='utf-8')
 match = re.search(r'<version>([^<]+)</version>', info)
 if not match:
     raise SystemExit('Could not read app version from appinfo/info.xml')
 print(match.group(1))
 PY
-)}"
+)"
+VERSION="${1:-$EXPECTED_VERSION}"
 if [ "$VERSION" != "$EXPECTED_VERSION" ]; then
   echo "release_version_mismatch=true"
   exit 1

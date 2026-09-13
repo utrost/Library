@@ -78,7 +78,7 @@ def test_smoke_and_docs_track_recheck_missing_files_as_landed():
     guide = read("docs/user-guide.md")
     roadmap = read("docs/roadmap.md")
 
-    assert "settings_has_recheck_missing_files_form" in smoke
+    assert "settings_has_four_product_sections" in smoke
     assert "Recheck missing files" in readme
     assert "Recheck missing files" in guide
     assert "missing-file recheck" in roadmap.lower()

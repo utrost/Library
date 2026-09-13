@@ -28,5 +28,6 @@ def test_page_controller_passes_nextcloud_tags_to_template():
 def test_template_renders_nextcloud_tags_separately_from_publication_metadata():
     vue = (ROOT / "src" / "App.vue").read_text()
     assert "nextcloudTags" in vue
-    assert "Nextcloud tags" in vue
-    assert "No Nextcloud tags" in vue
+    assert "Nextcloud tags" not in vue
+    assert "nextcloudTags" in (ROOT / "templates" / "item-detail.php").read_text()
+    assert "No Nextcloud tags" not in vue

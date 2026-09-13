@@ -70,6 +70,7 @@ export function composeLegacyInspectionRow({ locale, width, surface, core, forms
     lang: String(coreValue.lang || ''),
     dir: String(coreValue.dir || ''),
     overflow: coreValue.overflow === true,
+    openedIndexedFilesGeometry: coreValue.openedIndexedFilesGeometry !== false,
     overflowDiagnostics: overflowDiagnostics(coreValue.overflowDiagnostics),
     missingLabels: Array.isArray(coreValue.missingLabelIds) ? coreValue.missingLabelIds.map(String) : expected.map((spec) => spec.id),
     forms: formsCount,

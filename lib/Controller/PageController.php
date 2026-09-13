@@ -30,8 +30,9 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-165';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-165';
+    private const APP_VERSION = '0.1.0-alpha.168';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-168-filterux';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-168-filterux';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -44,12 +45,12 @@ class PageController extends Controller {
         'lastOpenedAt', 'extension', 'shelf', 'scanStatus', 'scanError',
         'hasScannerConflict', 'scannerConflictCount', 'nextcloudTags',
         'coverUrl', 'starUrl', 'openUrl', 'filesUrl', 'downloadUrl',
-        'detailsUrl',
+        'detailsUrl', 'subjects', 'classifications',
     ];
 
     private const SCANNER_CONFLICT_ITEM_EXTRA_KEYS = [
-        'cachedPath', 'subtitle', 'language', 'publisher', 'genres',
-        'classifications', 'metadataSource', 'fieldSources', 'fieldValues',
+        'cachedPath', 'subtitle', 'language', 'publisher',
+        'metadataSource', 'fieldSources', 'fieldValues',
         'resetFieldUrl',
     ];
 
@@ -85,9 +86,40 @@ class PageController extends Controller {
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
-        $this->initialState->provideInitialState('catalogue', $this->buildCatalogueState($userId, [], [], 'index'));
+        $showHome = (string)$this->request->getParam('home', '0') === '1';
+        $showShelves = (string)$this->request->getParam('shelves', '0') === '1';
+        $this->initialState->provideInitialState(
+            'catalogue',
+            $showHome
+                ? $this->buildHomeState($userId)
+                : ($showShelves ? $this->buildShelvesState($userId) : $this->buildCatalogueState($userId, [], [], 'index')),
+        );
 
         return $this->catalogueTemplateResponse();
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function shelfChildren(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        $rootId = max(0, (int)$this->request->getParam('rootId', '0'));
+        $parent = (string)$this->request->getParam('parent', '');
+        $limit = max(1, min(100, (int)$this->request->getParam('limit', '100')));
+        $offset = max(0, (int)$this->request->getParam('offset', '0'));
+        $page = $userId !== '' && $rootId > 0
+            ? $this->itemService->shelfChildren($userId, $rootId, $parent, $limit, $offset)
+            : ['nodes' => [], 'hasMore' => false, 'nextOffset' => $offset];
+        $catalogueRootUrl = $this->urlGenerator->linkToRoute('library.page.index');
+        foreach ($page['nodes'] as &$node) {
+            $node['url'] = $catalogueRootUrl . '?' . http_build_query(['folder' => $node['path']]);
+        }
+        unset($node);
+        return new JSONResponse([
+            'nodes' => $page['nodes'],
+            'hasMore' => $page['hasMore'],
+            'nextOffset' => $page['nextOffset'],
+        ]);
     }
 
     #[NoAdminRequired]
@@ -162,6 +194,50 @@ class PageController extends Controller {
         return new JSONResponse($this->buildCatalogueState($userId, [], [], 'catalogue_api'));
     }
 
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function publicationSuggestions(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        $query = trim((string)$this->request->getParam('publicationSearch', ''));
+        $filters = $this->catalogueFiltersFromRequest();
+        unset($filters['publication']);
+
+        return new JSONResponse([
+            'publications' => $userId === '' || $query === ''
+                ? []
+                : $this->itemService->publicationSuggestions($userId, $filters, $query, 20),
+        ]);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function creatorSuggestions(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        $query = trim((string)$this->request->getParam('creatorSearch', ''));
+        $filters = $this->catalogueFiltersFromRequest();
+        unset($filters['creator']);
+
+        return new JSONResponse([
+            'creators' => $userId === '' || $query === '' ? [] : $this->itemService->creatorSuggestions($userId, $filters, $query, 20),
+        ]);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function yearSuggestions(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        $query = trim((string)$this->request->getParam('yearSearch', ''));
+        $filters = $this->catalogueFiltersFromRequest();
+        unset($filters['year']);
+
+        return new JSONResponse([
+            'years' => $userId === '' || $query === '' ? [] : $this->itemService->yearSuggestions($userId, $filters, $query, 20),
+        ]);
+    }
+
     private function catalogueTemplateResponse(): TemplateResponse {
         $language = $this->l10nFactory->findLanguage(Application::APP_ID);
         $direction = $this->l10nFactory->getLanguageDirection($language);
@@ -172,23 +248,23 @@ class PageController extends Controller {
         ]);
     }
 
-    private function buildCatalogueState(string $userId, array $filterOverrides = [], array $pageContext = [], string $surface = 'catalogue_api'): array {
-        $totalStarted = $this->clock->now();
-        $durations = ['catalogue_query_ms' => 0, 'tag_enrichment_ms' => 0, 'auxiliary_ms' => 0, 'projection_ms' => 0];
-        $this->invalidReviewKeys = ReviewQueryPolicy::invalidKeysFromRequestUri($this->request->getRequestUri());
-        $batchCoverRefreshRequested = (string)$this->request->getParam('coverRefresh', '0') === '1';
-        $activeFilters = [
+    /** @return array<string, mixed> */
+    private function catalogueFiltersFromRequest(): array {
+        return [
             'q' => trim((string)$this->request->getParam('q', '')),
+            'view' => trim((string)$this->request->getParam('view', 'compact')),
             'type' => trim((string)$this->request->getParam('type', '')),
+            'publisher' => trim((string)$this->request->getParam('publisher', '')),
             'publication' => trim((string)$this->request->getParam('publication', '')),
             'year' => trim((string)$this->request->getParam('year', '')),
             'creator' => trim((string)$this->request->getParam('creator', '')),
             'format' => trim((string)$this->request->getParam('format', '')),
             'tag' => trim((string)$this->request->getParam('tag', '')),
             'shelf' => trim((string)$this->request->getParam('shelf', '')),
+            'folder' => trim((string)$this->request->getParam('folder', '')),
             'status' => $this->normalizeScalarFilter($this->request->getParam('status', '')),
             'workflowStatus' => trim((string)$this->request->getParam('workflowStatus', '')),
-            'genre' => trim((string)$this->request->getParam('genre', '')),
+            'subject' => trim((string)$this->request->getParam('subject', '')),
             'classification' => trim((string)$this->request->getParam('classification', '')),
             'scannerConflicts' => $this->normalizeReviewFilter('scannerConflicts', $this->request->getParam('scannerConflicts', '')),
             'starred' => trim((string)$this->request->getParam('starred', '')),
@@ -204,6 +280,106 @@ class PageController extends Controller {
             'unreviewedImports' => $this->normalizeReviewFilter('unreviewedImports', $this->request->getParam('unreviewedImports', '')),
             'sort' => trim((string)$this->request->getParam('sort', 'title')),
         ];
+    }
+
+    private function buildHomeState(string $userId): array {
+        $activeFilters = $this->catalogueFiltersFromRequest();
+        $rows = $userId !== '' ? $this->itemService->homeRows($userId, 8) : ['continueReading' => [], 'recentlyAdded' => []];
+        $allItems = array_values(array_merge($rows['continueReading'], $rows['recentlyAdded']));
+        $tags = $this->fileTagService->tagsForItems($allItems);
+        $enrichedById = [];
+        foreach ($this->enrichItemsForVue($userId, $allItems, $tags, false) as $item) {
+            $enrichedById[(int)$item['id']] = $item;
+        }
+        $enrichRow = static fn (array $row): array => array_values(array_map(
+            static fn (array $item): array => $enrichedById[(int)$item['id']],
+            $row,
+        ));
+        $catalogueRootUrl = $this->urlGenerator->linkToRoute('library.page.index');
+        $roots = $this->rootService->listRoots($userId);
+        $shelfSummaries = $userId !== '' ? $this->itemService->homeShelfSummaries($userId, 8) : [];
+        foreach ($shelfSummaries as &$summary) {
+            $summary['url'] = $catalogueRootUrl . '?' . http_build_query(['shelf' => $summary['shelf']]);
+        }
+        unset($summary);
+        return [
+            'surface' => 'home',
+            'language' => $this->l10nFactory->findLanguage(Application::APP_ID),
+            'direction' => $this->l10nFactory->getLanguageDirection($this->l10nFactory->findLanguage(Application::APP_ID)),
+            'items' => [],
+            'activeFilters' => $activeFilters,
+            'cataloguePagination' => ['page' => 1, 'limit' => 0, 'total' => 0, 'visible' => 0, 'from' => 0, 'to' => 0, 'previousUrl' => '', 'nextUrl' => ''],
+            'homeRows' => [
+                'continueReading' => $enrichRow($rows['continueReading']),
+                'recentlyAdded' => $enrichRow($rows['recentlyAdded']),
+            ],
+            'homeShelves' => $shelfSummaries,
+            'needsAttention' => [
+                'count' => $userId !== '' ? $this->itemService->countCatalogue($userId, ['needsMetadata' => '1']) : 0,
+                'url' => $catalogueRootUrl . '?needsMetadata=1',
+            ],
+            'rootCount' => count($roots),
+            'enabledRootCount' => count(array_filter($roots, static fn (array $root): bool => (bool)($root['enabled'] ?? false))),
+            'catalogueRootUrl' => $catalogueRootUrl,
+            'homeUrl' => $catalogueRootUrl . '?home=1',
+            'shelvesUrl' => $catalogueRootUrl . '?shelves=1',
+            'reviewUrl' => $catalogueRootUrl . '?scannerConflicts=1',
+            'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),
+            'itemSidebarUrlTemplate' => str_replace('2147483647', '__ITEM_ID__', $this->urlGenerator->linkToRoute('library.item_page.sidebar', ['itemId' => '2147483647'])),
+        ];
+    }
+
+    private function buildShelvesState(string $userId): array {
+        $activeFilters = $this->catalogueFiltersFromRequest();
+        $catalogueRootUrl = $this->urlGenerator->linkToRoute('library.page.index');
+        $shelfSummaries = $userId !== '' ? $this->itemService->shelfSummaries($userId, 200) : [];
+        foreach ($shelfSummaries as &$summary) {
+            $summary['url'] = $catalogueRootUrl . '?' . http_build_query(['shelf' => $summary['shelf']]);
+        }
+        unset($summary);
+        $shelfTree = $userId !== '' ? $this->itemService->shelfTree($userId, 200) : [];
+        foreach ($shelfTree as &$node) {
+            $node['url'] = $catalogueRootUrl . '?' . http_build_query(['folder' => $node['path']]);
+        }
+        unset($node);
+        $language = $this->l10nFactory->findLanguage(Application::APP_ID);
+
+        return [
+            'surface' => 'shelves',
+            'language' => $language,
+            'direction' => $this->l10nFactory->getLanguageDirection($language),
+            'items' => [],
+            'activeFilters' => $activeFilters,
+            'cataloguePagination' => ['page' => 1, 'limit' => 0, 'total' => 0, 'visible' => 0, 'from' => 0, 'to' => 0, 'previousUrl' => '', 'nextUrl' => ''],
+            'shelfSummaries' => $shelfSummaries,
+            'shelfTree' => $shelfTree,
+            'shelfChildrenUrl' => $this->urlGenerator->linkToRoute('library.page.shelfChildren'),
+            'catalogueRootUrl' => $catalogueRootUrl,
+            'homeUrl' => $catalogueRootUrl . '?home=1',
+            'shelvesUrl' => $catalogueRootUrl . '?shelves=1',
+            'reviewUrl' => $catalogueRootUrl . '?scannerConflicts=1',
+            'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),
+            'itemSidebarUrlTemplate' => str_replace('2147483647', '__ITEM_ID__', $this->urlGenerator->linkToRoute('library.item_page.sidebar', ['itemId' => '2147483647'])),
+        ];
+    }
+
+    private function buildCatalogueState(string $userId, array $filterOverrides = [], array $pageContext = [], string $surface = 'catalogue_api'): array {
+        $totalStarted = $this->clock->now();
+        $durations = ['catalogue_query_ms' => 0, 'tag_enrichment_ms' => 0, 'auxiliary_ms' => 0, 'projection_ms' => 0];
+        $this->invalidReviewKeys = ReviewQueryPolicy::invalidKeysFromRequestUri($this->request->getRequestUri());
+        $batchCoverRefreshRequested = (string)$this->request->getParam('coverRefresh', '0') === '1';
+        $coverRefreshItemIds = [];
+        if ($batchCoverRefreshRequested && $userId !== '') {
+            try {
+                $coverRefreshItemIds = $this->fileIndexService->coverRefreshItemIds(
+                    $userId,
+                    $this->request->getParam('coverRefreshItemIds', null),
+                );
+            } catch (\OCA\Library\Exception\BatchLimitExceededException) {
+                $coverRefreshItemIds = [];
+            }
+        }
+        $activeFilters = $this->catalogueFiltersFromRequest();
         foreach ($filterOverrides as $key => $value) {
             $activeFilters[$key] = isset(ReviewQueryPolicy::FILTER_VALUES[$key])
                 ? $this->normalizeReviewFilter($key, $value)
@@ -211,6 +387,9 @@ class PageController extends Controller {
         }
         if (!in_array($activeFilters['sort'], ['title', 'recent', 'publicationDate', 'publication', 'publicationIssue', 'lastOpened', 'format'], true)) {
             $activeFilters['sort'] = 'title';
+        }
+        if (!in_array($activeFilters['view'], ['compact', 'gallery', 'list', 'shelf'], true)) {
+            $activeFilters['view'] = 'compact';
         }
         if ($activeFilters['tag'] !== '') {
             $activeFilters['taggedFileIds'] = $this->fileTagService->fileIdsForExactVisibleTag($activeFilters['tag']);
@@ -226,7 +405,7 @@ class PageController extends Controller {
         $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination) : [
             'items' => [],
             'total' => 0,
-            'facets' => ['shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'workflowStatuses' => [], 'genres' => [], 'classifications' => [], 'publications' => [], 'publicationSummaries' => [], 'publicationYears' => [], 'creators' => []],
+            'facets' => ['publicationTypes' => [], 'publishers' => [], 'shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'workflowStatuses' => [], 'subjects' => [], 'classifications' => [], 'publications' => [], 'publicationSummaries' => [], 'publicationYears' => [], 'creators' => []],
         ];
         $durations['catalogue_query_ms'] = $this->clock->elapsedMs($phaseStarted);
         $items = $catalogue['items'];
@@ -248,7 +427,7 @@ class PageController extends Controller {
             $items,
             $fileTagsByFileId,
             $metadataReviewProjection,
-            $batchCoverRefreshRequested,
+            $coverRefreshItemIds,
         );
         $durations['projection_ms'] = $this->clock->elapsedMs($phaseStarted);
 
@@ -268,6 +447,8 @@ class PageController extends Controller {
             'scannerConflictCount' => array_sum(array_map(static fn (array $item): int => (int)($item['scannerConflictCount'] ?? 0), $items)),
             'shelves' => $catalogue['facets']['shelves'],
             'formats' => $catalogue['facets']['formats'],
+            'publicationTypes' => $catalogue['facets']['publicationTypes'],
+            'publishers' => $catalogue['facets']['publishers'],
             'publications' => $catalogue['facets']['publications'],
             'publicationSummaries' => array_map(function (array $summary): array {
                 $summary['publicationLandingUrl'] = $this->urlGenerator->linkToRoute('library.page.publication', ['publication' => (string)($summary['publication'] ?? '')]);
@@ -285,19 +466,24 @@ class PageController extends Controller {
             }, []),
             'scanStatuses' => $catalogue['facets']['scanStatuses'],
             'workflowStatuses' => $catalogue['facets']['workflowStatuses'],
-            'genres' => $catalogue['facets']['genres'] ?? [],
+            'subjects' => $catalogue['facets']['subjects'] ?? [],
             'classifications' => $catalogue['facets']['classifications'] ?? [],
             'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
             'rootCount' => count($roots),
             'enabledRootCount' => count(array_filter($roots, static fn (array $root): bool => (bool)($root['enabled'] ?? false))),
             'catalogueRootUrl' => $catalogueRootUrl,
+            'homeUrl' => $catalogueRootUrl . '?home=1',
+            'shelvesUrl' => $catalogueRootUrl . '?shelves=1',
             'reviewUrl' => $catalogueRootUrl . '?scannerConflicts=1',
             'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),
             'metadataExportUrl' => $this->urlGenerator->linkToRoute('library.export.metadata'),
             'metadataSidecarManifestUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarManifest'),
             'metadataSidecarBundleUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarBundle'),
             'catalogueEndpointUrl' => $this->urlGenerator->linkToRoute('library.page.catalogue'),
+            'publicationSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.publicationSuggestions'),
+            'creatorSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.creatorSuggestions'),
+            'yearSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.yearSuggestions'),
             'itemSidebarUrlTemplate' => str_replace('2147483647', '__ITEM_ID__', $this->urlGenerator->linkToRoute('library.item_page.sidebar', ['itemId' => '2147483647'])),
             'batchTagUrl' => $this->urlGenerator->linkToRoute('library.tag.batchassign'),
             'batchTagRemoveUrl' => $this->urlGenerator->linkToRoute('library.tag.batchremove'),
@@ -358,14 +544,15 @@ class PageController extends Controller {
      * @param array<int, array<int, array{id:int,name:string}>> $fileTagsByFileId
      * @return array<int, array<string, mixed>>
      */
-    private function enrichItemsForVue(string $userId, array $items, array $fileTagsByFileId, bool $scannerConflictProjection, bool $batchCoverRefreshRequested = false): array {
-        return array_map(function (array $item) use ($fileTagsByFileId, $userId, $scannerConflictProjection, $batchCoverRefreshRequested): array {
+    private function enrichItemsForVue(string $userId, array $items, array $fileTagsByFileId, bool $scannerConflictProjection, array $coverRefreshItemIds = []): array {
+        $coverRefreshItemIdSet = array_fill_keys($coverRefreshItemIds, true);
+        return array_map(function (array $item) use ($fileTagsByFileId, $userId, $scannerConflictProjection, $coverRefreshItemIdSet): array {
             $itemId = (string)$item['id'];
             $fileId = (int)$item['fileId'];
             $item['starUrl'] = $this->urlGenerator->linkToRoute('library.item.star', ['itemId' => $itemId]);
             $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', [
                 'itemId' => $itemId,
-                'refresh' => $batchCoverRefreshRequested ? '1' : null,
+                'refresh' => isset($coverRefreshItemIdSet[(int)$itemId]) ? '1' : null,
             ]);
             $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]);
             $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $itemId]);
@@ -411,14 +598,14 @@ class PageController extends Controller {
     }
 
     /**
-     * @param array{q:string,type:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,genre:string,classification:string,scannerConflicts:string,starred:string,needsMetadata:string,coverReview:string,noCreator:string,noPublication:string,weakMetadata:string,unreviewedImports:string,sort:string} $activeFilters
+     * @param array{q:string,view:string,type:string,publisher:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,subject:string,classification:string,scannerConflicts:string,starred:string,needsMetadata:string,coverReview:string,noCreator:string,noPublication:string,weakMetadata:string,unreviewedImports:string,sort:string} $activeFilters
      * @param array{limit:int} $pagination
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
         $query = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'status', 'workflowStatus', 'genre', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
+        foreach (['q', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
-            if ($value !== '' && !($param === 'sort' && $value === 'title')) {
+            if ($value !== '' && !($param === 'sort' && $value === 'title') && !($param === 'view' && $value === 'compact')) {
                 $query[$param] = $value;
             }
         }

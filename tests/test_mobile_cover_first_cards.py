@@ -7,15 +7,14 @@ def test_vue_cards_use_touch_friendly_collapsed_metadata_details():
     vue = (ROOT / "src" / "App.vue").read_text()
 
     assert "library-cover-primary" in vue
-    assert "library-cover-details" in vue
-    assert "library-cover-details-summary" in vue
-    assert "Show details and actions" in vue
-    assert "library-cover-meta" in vue
-    assert "library-cover-actions" in vue
-    assert "library-cover-tags" in vue
-    assert "class=\"library-cover-details\"" in vue
-    assert "@toggle=\"setCoverDetailsOpen" in vue
-    assert "Download source" in vue
+    assert "library-cover-link" in vue
+    assert "library-cover-title-button" in vue
+    assert 'library-cover-details"' not in vue
+    assert "library-cover-summary" in vue
+    assert "library-cover-primary-actions" in vue
+    assert "class=\"library-cover-details\"" not in vue
+    assert "@toggle=\"setCoverDetailsOpen" not in vue
+    assert "Download" in vue
 
 
 def test_mobile_css_makes_catalogue_cards_cover_first_and_dense():
@@ -42,6 +41,6 @@ def test_live_smoke_checks_mobile_cover_first_source_markers():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
     assert "source_has_mobile_cover_first_cards" in smoke
-    assert "library-cover-details" in smoke
-    assert "Show details and actions" in smoke
+    assert "library-cover-link" in smoke
+    assert "NcActions" in smoke
     assert "grid-template-columns: repeat(2, minmax(0, 1fr))" in smoke

@@ -54,7 +54,8 @@ def test_catalogue_and_settings_link_to_sidecar_manifest_download():
     assert "Export sidecar manifest" in template
     assert "metadataSidecarManifestUrl" in template
     assert "metadataSidecarManifestUrl" in app
-    assert "Export sidecar manifest" in app
+    assert "Export sidecar manifest" not in app
+    assert "Import and export" in template
 
 
 def test_smoke_vue_page_checks_sidecar_manifest_export_endpoint():

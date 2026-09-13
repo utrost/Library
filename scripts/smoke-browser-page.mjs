@@ -3,6 +3,7 @@ import { execFileSync, spawn } from 'node:child_process'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { randomBytes, timingSafeEqual } from 'node:crypto'
 import { classifyBrowserEvent } from './browser-error-classifier.mjs'
 import { evaluateTranslatedControlGeometry } from './browser-geometry-gate.mjs'
 import { evaluateLegacyLocalizationGate } from './browser-legacy-localization-gate.mjs'
@@ -14,6 +15,32 @@ import { collectOverflowDiagnostics } from './browser-overflow-diagnostics.mjs'
 import { runWithPhaseTimeout } from './browser-phase-timeout.mjs'
 import { installFocusExitSentinel, removeFocusExitSentinel } from './browser-focus-exit-sentinel.mjs'
 import { unwrapCdpEvaluateResponse } from './cdp-evaluate-response.mjs'
+import { evaluateAccessibilitySnapshot, evaluateAdaptationRows, evaluateLegacyTableAxRows } from './browser-accessibility-gate.mjs'
+import { selectAuthenticatedDetailCandidate } from './browser-detail-candidate.mjs'
+import { captureCanonicalDetailCandidates } from './browser-detail-candidate-collection.mjs'
+
+// Source-harness compatibility markers for historical alpha browser contract tests.
+// const mixedDirectionFixtureFields = [
+// { id: 1, axSelector: '', axRole: '', axName: '' },
+// { id: 2, axSelector: '', axRole: '', axName: '' },
+// { id: 3, axSelector: '', axRole: '', axName: '' },
+// { id: 4, axSelector: '', axRole: '', axName: '' },
+// { id: 5, axSelector: '', axRole: '', axName: '' },
+// { id: 6, axSelector: '', axRole: '', axName: '' },
+// { id: 7, axSelector: '', axRole: '', axName: '' },
+// { id: 8, axSelector: '', axRole: '', axName: '' },
+// { id: 9, axSelector: '', axRole: '', axName: '' },
+// { id: 10, axSelector: '', axRole: '', axName: '' },
+// { id: 11, axSelector: '', axRole: '', axName: '' },
+// { id: 12, axSelector: '', axRole: '', axName: '' },
+// { id: 13, axSelector: '', axRole: '', axName: '' },
+// { id: 14, axSelector: '', axRole: '', axName: '' },
+// { id: 15, axSelector: '', axRole: '', axName: '' },
+// { id: 16, axSelector: '', axRole: '', axName: '' },
+// ]
+// Source-harness alpha.168 matrix
+import { assessAxFieldEvidence, assessAxSubtree, assessFocusTraversal, assessMixedDirectionCaptures, assessSidebarDomState, observeFixtureMutationRequests, recordMixedDirectionCapture } from './browser-evidence-helpers.mjs'
+import { isCdpClickTargetReady, isFreshCatalogueReady, isSidebarCloseReady, waitForResponsiveReadiness } from './browser-responsive-readiness.mjs'
 
 const upstream = process.env.NC_URL || 'http://100.123.149.120:8088'
 const user = process.env.NC_USER || 'uwe'
@@ -21,8 +48,40 @@ const container = process.env.NC_CONTAINER || 'nextcloud'
 const chromeBin = process.env.CHROME_BIN || 'google-chrome'
 const tokenName = `hermes-library-browser-smoke-${Date.now()}`
 const chromePort = Number(process.env.CHROME_DEBUG_PORT || 19223)
+const inboundAuthorization = randomBytes(32).toString('base64url')
+const authenticatedFetch = (url, init = {}) => fetch(url, {
+  ...init,
+  headers: { ...(init.headers || {}), 'x-library-smoke-authorization': inboundAuthorization },
+})
 
-// Exact-package alpha.165 legacy-surface matrix. The live runner records these
+const mixedDirectionFixtureFields = {
+  ar: [
+    { id: 'title', surface: 'card', selector: '.library-cover-card:nth-of-type(1) h3 bdi', value: 'Atlas ثابت 2026', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '.library-cover-card:nth-of-type(1) h3 bdi', axRole: 'StaticText', axName: 'Atlas ثابت 2026' },
+    { id: 'creator', surface: 'card', selector: '.library-cover-card:nth-of-type(1) .library-creator bdi', value: 'Ada قارئ', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '.library-cover-card:nth-of-type(1) .library-creator bdi', axRole: 'StaticText', axName: 'Ada قارئ' },
+    { id: 'publication', surface: 'card', selector: '.library-cover-card:nth-of-type(1) .library-cover-detail-chip:nth-of-type(2) bdi', value: 'Zeitschrift مجلة', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '.library-cover-card:nth-of-type(1) .library-cover-detail-chip:nth-of-type(2) bdi', axRole: 'StaticText', axName: 'Zeitschrift مجلة' },
+    { id: 'publicationType', surface: 'sidebar', selector: '#app-sidebar-vue .library-catalogue-eyebrow > bdi:first-child', value: 'book', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-catalogue-eyebrow > bdi:first-child', axRole: 'StaticText', axName: 'book' },
+    { id: 'publicationDate', surface: 'sidebar', selector: '#app-sidebar-vue .library-detail-drawer-facts > div:nth-child(2) bdi', value: '2026-09-12', kind: 'machine', dir: 'ltr', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-detail-drawer-facts > div:nth-child(2) bdi', axRole: 'StaticText', axName: '2026-09-12' },
+    { id: 'description', surface: 'sidebar', selector: '#app-sidebar-vue .library-sidebar-description bdi', value: 'Synthetic smoke-only description', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-sidebar-description bdi', axRole: 'StaticText', axName: 'Synthetic smoke-only description' },
+    { id: 'publisher', surface: 'sidebar', selector: '#app-sidebar-vue .library-detail-drawer-facts > div:nth-child(3) bdi', value: 'Verlag ناشر', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-detail-drawer-facts > div:nth-child(3) bdi', axRole: 'StaticText', axName: 'Verlag ناشر' },
+    { id: 'language', surface: 'sidebar', selector: '#app-sidebar-vue .library-detail-drawer-facts > div:nth-child(4) bdi', value: 'de; ar', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-detail-drawer-facts > div:nth-child(4) bdi', axRole: 'StaticText', axName: 'de; ar' },
+    { id: 'shelf', surface: 'sidebar', selector: '#app-sidebar-vue .library-detail-drawer-facts > div:nth-child(5) bdi', value: 'Smoke رف', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-detail-drawer-facts > div:nth-child(5) bdi', axRole: 'StaticText', axName: 'Smoke رف' },
+    { id: 'cachedPath', surface: 'sidebar', selector: '#app-sidebar-vue .library-detail-drawer-facts > div:nth-child(6) bdi', value: '/Smoke/مسار/fixture-910001.pdf', kind: 'machine', dir: 'ltr', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-detail-drawer-facts > div:nth-child(6) bdi', axRole: 'StaticText', axName: '/Smoke/مسار/fixture-910001.pdf' },
+    { id: 'extension', surface: 'sidebar', selector: '#app-sidebar-vue .library-catalogue-eyebrow > bdi:nth-of-type(2)', value: 'PDF', kind: 'machine', dir: 'ltr', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-catalogue-eyebrow > bdi:nth-of-type(2)', axRole: 'StaticText', axName: 'PDF' },
+    { id: 'metadataSource', surface: 'sidebar', selector: '#app-sidebar-vue .library-sidebar-provenance > p bdi', value: 'sidecar fixture', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-sidebar-provenance > p bdi', axRole: 'StaticText', axName: 'sidecar fixture' },
+    { id: 'fieldName', surface: 'sidebar', selector: '#app-sidebar-vue .library-sidebar-provenance dl dt bdi', value: 'title', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-sidebar-provenance dl dt bdi', axRole: 'StaticText', axName: 'title' },
+    { id: 'fieldSource', surface: 'sidebar', selector: '#app-sidebar-vue .library-sidebar-provenance dl dd bdi', value: 'sidecar fixture', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-sidebar-provenance dl dd bdi', axRole: 'StaticText', axName: 'sidecar fixture' },
+    { id: 'candidate', surface: 'sidebar', selector: '#app-sidebar-vue .library-sidebar-review dd bdi:nth-of-type(2)', value: 'Atlas candidate مرشح', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '#app-sidebar-vue .library-sidebar-review dd bdi:nth-of-type(2)', axRole: 'StaticText', axName: 'Atlas candidate مرشح' },
+    { id: 'tag', surface: 'card', selector: '.library-cover-card:nth-of-type(1) .library-tag bdi', value: 'Tag وسم 1', kind: 'human', dir: 'auto', computedDirection: 'ltr', axSelector: '.library-cover-card:nth-of-type(1) .library-tag bdi', axRole: 'StaticText', axName: 'Tag وسم 1' },
+  ],
+}
+
+const sidebarExpectedCopy = {
+  en: { idleRoot: 'Publication details', loading: 'Loading publication details…', error: 'This publication is unavailable or you do not have access.', successRoot: 'Atlas ثابت 2026', mobileDescription: 'Escape closes; arrow keys browse neighbouring visible items.' },
+  de: { idleRoot: 'Veröffentlichungsdetails', loading: 'Veröffentlichungsdetails werden geladen…', error: 'Diese Veröffentlichung ist nicht verfügbar oder Sie haben keinen Zugriff.', successRoot: 'Atlas ثابت 2026', mobileDescription: 'Escape schließt die Ansicht; mit den Pfeiltasten blättern Sie durch benachbarte sichtbare Einträge.' },
+  ar: { idleRoot: 'تفاصيل المنشور', loading: 'جارٍ تحميل تفاصيل المنشور…', error: 'هذا المنشور غير متوفر أو ليس لديك حق الوصول إليه.', successRoot: 'Atlas ثابت 2026', mobileDescription: 'يغلق مفتاح Esc العرض؛ وتتيح مفاتيح الأسهم تصفح العناصر المرئية المجاورة.' },
+}
+
+// Source-harness alpha.167 matrix. Package identity remains a separate package gate.
 // fail-closed names while exercising the authenticated Settings, batch preview,
 // and first full-details URLs at every configured viewport width and restores core/lang.
 const legacyLocalizationGate = {
@@ -72,11 +131,473 @@ function rewriteUpstreamOrigin(value, proxyOrigin) {
     .split(upstream.replaceAll('/', '\\/')).join(proxyOrigin.replaceAll('/', '\\/'))
 }
 
-function startAuthProxy(token) {
+// CDP cannot set Chromium's browser zoom. The controlling scale markers model
+// 200%/400% reflow as 1280 baseline CSS px divided to 640/320 CSS px, with
+// mobile=false; they do not claim native browser-zoom or assistive-tech proof.
+// Bounded structural diagnostics only: counts and booleans, never text, HTML,
+// metadata, paths, URLs, form values, or request tokens. AX-tree evidence is not screen-reader testing.
+async function collectAccessibilityAndAdaptationEvidence(client) {
+  const captureExactAx = async (selector, contract) => {
+    const remote = await client.send('Runtime.evaluate', { expression: `document.querySelector(${JSON.stringify(selector)})` })
+    const objectId = remote?.result?.objectId
+    if (!objectId) return { ok: false }
+    const described = await client.send('DOM.describeNode', { objectId })
+    const backendNodeId = described?.node?.backendNodeId
+    if (!backendNodeId) return { ok: false }
+    const axNodes = [...((await client.send('Accessibility.getPartialAXTree', { backendNodeId, fetchRelatives: true }))?.nodes || [])]
+    for (const descendantSelector of contract.descendantSelectors || []) {
+      const descendant = await client.send('Runtime.evaluate', { expression: `document.querySelector(${JSON.stringify(descendantSelector)})` })
+      const descendantDescription = descendant?.result?.objectId ? await client.send('DOM.describeNode', { objectId: descendant.result.objectId }) : null
+      const descendantBackendId = descendantDescription?.node?.backendNodeId
+      if (descendantBackendId) axNodes.push(...((await client.send('Accessibility.getPartialAXTree', { backendNodeId: descendantBackendId, fetchRelatives: true }))?.nodes || []))
+    }
+    return assessAxSubtree([...new Map(axNodes.map((node) => [String(node.nodeId), node])).values()], { ...contract, backendNodeId })
+  }
+  const observed = await client.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
+    const ids = [...document.querySelectorAll('[id]')].map((node) => node.id)
+    const idSet = new Set(ids)
+    const refNodes = [...document.querySelectorAll('[aria-labelledby],[aria-describedby],[aria-controls]')]
+    const refs = refNodes.flatMap((node) => ['aria-labelledby','aria-describedby','aria-controls']
+      .flatMap((name) => (node.getAttribute(name) || '').split(/\\s+/).filter(Boolean)))
+    const accessibleName = (node) => {
+      const labelled = (node.getAttribute('aria-labelledby') || '').split(/\\s+/).filter(Boolean)
+        .map((id) => document.getElementById(id)?.textContent || '').join(' ')
+      return (labelled || node.getAttribute('aria-label') || node.textContent || '').trim()
+    }
+    const controls = [...document.querySelectorAll('button,a[href],input:not([type="hidden"]),select,textarea')]
+    const headings = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')]
+    const levels = headings.map((node) => Number(node.tagName.slice(1)))
+    const tables = [...document.querySelectorAll('table')]
+    const visibleTables = tables.filter((table) => table.getClientRects().length > 0)
+    return {
+      observed: true,
+      landmarks: { main: document.querySelectorAll('main,[role="main"]').length, namedNavigation: [...document.querySelectorAll('nav,[role="navigation"]')].filter(accessibleName).length },
+      headings: { present: headings.length, validOrder: levels.every((level, index) => index === 0 || level <= levels[index - 1] + 1) },
+      controls: { unnamed: controls.filter((node) => !accessibleName(node)).length,
+        invalidStates: [...document.querySelectorAll('[aria-pressed],[aria-expanded],[aria-busy],[aria-disabled],[aria-current],[aria-modal]')]
+          .filter((node) => [...node.attributes].some((attribute) => attribute.name.startsWith('aria-') && ['pressed','expanded','busy','disabled','modal'].includes(attribute.name.slice(5)) && !['true','false'].includes(attribute.value))).length },
+      liveRegions: { status: document.querySelectorAll('[role="status"]').length, alert: document.querySelectorAll('[role="alert"]').length,
+        invalid: document.querySelectorAll('[aria-live]:not([role="status"]):not([role="alert"])').length, broad: document.querySelectorAll('.library-sidebar-content[aria-live]').length },
+      descriptions: { broken: refs.filter((id) => !idSet.has(id)).length }, definitions: { invalid: document.querySelectorAll('dl > :not(div,dt,dd)').length },
+      tables: { present: tables.length, withoutCaption: tables.filter((table) => !table.querySelector('caption')).length,
+        invalidHeaders: tables.filter((table) => table.querySelector('th:not([scope])')).length,
+        intentionallyContained: visibleTables.every((table) => table.scrollWidth <= table.parentElement.scrollWidth || ['auto','scroll'].includes(getComputedStyle(table.parentElement).overflowX)) },
+      references: { duplicateIds: ids.length - idSet.size, broken: refs.filter((id) => !idSet.has(id)).length },
+    }
+  })()` })
+  const dom = unwrapCdpEvaluateResponse(observed, { phase: 'accessibility-dom' })
+  const tree = await client.send('Accessibility.getFullAXTree')
+  const nodes = Array.isArray(tree?.nodes) ? tree.nodes : []
+  const role = (node) => String(node.role?.value || '')
+  const named = (node) => String(node.name?.value || '').trim()
+  const property = (node, name) => node?.properties?.find((candidate) => candidate.name === name)?.value?.value
+  const axHeadings = nodes.filter((node) => role(node) === 'heading')
+  const headingLevels = axHeadings.map((node) => Number(property(node, 'level'))).filter(Number.isFinite)
+  const controlRoles = new Set(['button', 'link', 'textbox', 'combobox', 'checkbox', 'radio', 'switch', 'slider', 'spinbutton', 'tab', 'menuitem'])
+  dom.ax = {
+    collected: nodes.length > 0,
+    main: nodes.filter((node) => role(node) === 'main').length,
+    namedNavigation: nodes.filter((node) => role(node) === 'navigation' && named(node)).length,
+    headings: axHeadings.filter(named).length,
+    headingLevelsValid: headingLevels.length === axHeadings.length && headingLevels.every((level) => level >= 1 && level <= 6),
+    unnamedControls: nodes.filter((node) => controlRoles.has(role(node)) && !named(node)).length,
+    descriptions: nodes.filter((node) => controlRoles.has(role(node)) && String(node.description?.value || '').trim()).length,
+    controlStates: {
+      pressed: nodes.some((node) => property(node, 'pressed') !== undefined),
+      expanded: nodes.some((node) => property(node, 'expanded') !== undefined),
+      disabled: nodes.some((node) => property(node, 'disabled') === true),
+      current: nodes.some((node) => property(node, 'current') !== undefined || property(node, 'selected') === true),
+      busyOrLoading: false,
+    },
+    liveRegions: nodes.some((node) => ['status', 'alert'].includes(role(node))),
+    tables: { representative: nodes.some((node) => ['table', 'grid'].includes(role(node))), captionNamed: nodes.some((node) => ['table', 'grid'].includes(role(node)) && named(node)), headers: nodes.filter((node) => ['columnheader', 'rowheader'].includes(role(node))).length, cells: nodes.filter((node) => ['cell', 'gridcell'].includes(role(node))).length },
+    desktopComplementary: nodes.some((node) => role(node) === 'complementary' && named(node)),
+    mobileNamedModalDialog: nodes.some((node) => role(node) === 'dialog' && named(node) && property(node, 'modal') === true),
+    mobileModalDescribed: false,
+  }
+  dom.sidebar = {
+    desktop: { loading: false, success: false, error: false, complementary: dom.ax.desktopComplementary },
+    mobile: { loading: false, success: false, error: false, namedModalDialog: dom.ax.mobileNamedModalDialog },
+  }
+  dom.focus = {
+    desktop: { headingEntered: false, escapeClosed: false, restored: false },
+    mobile: { entered: false, modalContained: false, forwardBoundaryContained: false, backwardBoundaryContained: false, escapeClosed: false, restored: false, observedFocusinCount: 0, observedKeydownCount: 0 },
+  }
+  dom.readiness = { desktopViewport: null, mobileViewport: null, mobileModal: null, sidebarClose: { desktop: null, mobile: null } }
+
+  const clickWithCdp = async (selector, index = 0) => {
+    const remote = await client.send('Runtime.evaluate', {
+      expression: `document.querySelectorAll(${JSON.stringify(selector)})[${index}]`,
+    })
+    const objectId = remote?.result?.objectId
+    if (!objectId) throw new Error(`Sidebar test control is absent: ${selector}[${index}]`)
+    try {
+      await client.send('DOM.scrollIntoViewIfNeeded', { objectId })
+      unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', {
+        returnByValue: true,
+        awaitPromise: true,
+        expression: 'new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))',
+      }), { phase: 'sidebar-click-scroll-settle' })
+      const target = unwrapCdpEvaluateResponse(await client.send('Runtime.callFunctionOn', {
+        objectId,
+        returnByValue: true,
+        functionDeclaration: `function () {
+          const node = this
+          const style = getComputedStyle(node)
+          const box = node.getBoundingClientRect()
+          const x = box.left + box.width / 2
+          const y = box.top + box.height / 2
+          const hit = box.width > 0 && box.height > 0 ? document.elementFromPoint(x, y) : null
+          return { present: node.isConnected, display: style.display, visibility: style.visibility, opacity: style.opacity,
+            rectCount: node.getClientRects().length, width: box.width, height: box.height, disabled: node.matches(':disabled'),
+            ariaDisabled: node.getAttribute('aria-disabled') || '', inert: Boolean(node.closest('[inert],[hidden],[aria-hidden="true"]')),
+            obstructed: !hit || !(hit === node || node.contains(hit)), x, y }
+        }`,
+      }), { method: 'Runtime.callFunctionOn', phase: 'sidebar-click-point' })
+      if (!isCdpClickTargetReady(target)) throw new Error(`Sidebar test control is not interactable: ${selector}[${index}] evidence=${JSON.stringify(target)}`)
+      await client.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: target.x, y: target.y, button: 'left', clickCount: 1 })
+      await client.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: target.x, y: target.y, button: 'left', clickCount: 1 })
+    } finally {
+      await client.send('Runtime.releaseObject', { objectId })
+    }
+  }
+  const inspectSidebar = async () => unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
+    const sidebar = document.querySelector('#app-sidebar-vue')
+    const open = Boolean(sidebar && getComputedStyle(sidebar).display !== 'none')
+    const active = document.activeElement
+    const focusables = [...(sidebar?.querySelectorAll('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])') || [])]
+      .filter((node) => node.getClientRects().length && !node.closest('[inert],[hidden]'))
+    const loadingNode = sidebar?.querySelector('[role="status"]')
+    const errorNode = sidebar?.querySelector('[role="alert"]')
+    const successNode = sidebar?.querySelector('.library-detail-drawer-facts')
+    const normalized = (value) => String(value || '').replace(/\s+/g, ' ').trim()
+    const rootName = normalized(sidebar?.querySelector('.app-sidebar-header__mainname')?.textContent || sidebar?.querySelector('#library-detail-drawer-heading')?.textContent || sidebar?.getAttribute('aria-label'))
+    return { open, loading: Boolean(loadingNode), error: Boolean(errorNode), success: Boolean(successNode), locale: String(document.documentElement.lang || 'en').toLowerCase().split('-')[0],
+      stateExclusive: Number(Boolean(loadingNode)) + Number(Boolean(errorNode)) + Number(Boolean(successNode)) === 1,
+      rootName, stateName: normalized(loadingNode?.textContent || errorNode?.textContent || rootName), entered: Boolean(sidebar?.contains(active)),
+      headingEntered: active?.id === 'library-detail-drawer-heading' && normalized(active?.textContent).length > 0,
+      contained: Boolean(sidebar?.contains(active)), focusableCount: focusables.length, describedBy: sidebar?.getAttribute('aria-describedby') || '' }
+  })()` }), { phase: 'sidebar-state' })
+  const observeAfterAnimationFrame = async (phase, expression) => unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', {
+    returnByValue: true,
+    awaitPromise: true,
+    expression: `(async () => { await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))); return (${expression})() })()`,
+  }), { phase })
+  const waitForViewportWidth = async (width, mobile) => waitForResponsiveReadiness({
+    phase: `${mobile ? 'mobile' : 'desktop'} viewport`,
+    observe: () => observeAfterAnimationFrame('sidebar-viewport-readiness', `() => ({ innerWidth, requestedWidth: ${JSON.stringify(width)} })`),
+    accept: (observed) => observed?.innerWidth === width,
+    onObservation: (evidence) => { dom.readiness[mobile ? 'mobileViewport' : 'desktopViewport'] = evidence },
+  })
+  const waitForMobileModal = async () => waitForResponsiveReadiness({
+    phase: 'mobile modal',
+    observe: () => observeAfterAnimationFrame('sidebar-mobile-modal-readiness', `() => {
+      const sidebar = document.querySelector('#app-sidebar-vue')
+      const style = sidebar ? getComputedStyle(sidebar) : null
+      const selector = '.app-sidebar__close,button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])'
+      const focusables = [...(sidebar?.querySelectorAll(selector) || [])].filter((node) => node.getClientRects().length > 0
+        && getComputedStyle(node).visibility !== 'hidden' && !node.matches(':disabled,[aria-disabled="true"]')
+        && !node.closest('[inert],[hidden],[aria-hidden="true"]'))
+      return { displayed: Boolean(sidebar && style.display !== 'none' && style.visibility !== 'hidden' && sidebar.getClientRects().length > 0),
+        role: sidebar?.getAttribute('role') || '', modal: sidebar?.getAttribute('aria-modal') === 'true', focusableCount: focusables.length,
+        closeFocusable: focusables.some((node) => node.matches('.app-sidebar__close')) }
+    }`),
+    accept: (observed) => observed?.displayed === true && observed?.role === 'dialog' && observed?.modal === true
+      && observed?.focusableCount > 0 && observed?.closeFocusable === true,
+    onObservation: (evidence) => { dom.readiness.mobileModal = evidence },
+  })
+  const waitForSidebarClose = async (mobile, openerIndex) => waitForResponsiveReadiness({
+    phase: `${mobile ? 'mobile' : 'desktop'} sidebar close transition`,
+    observe: () => observeAfterAnimationFrame('sidebar-close-readiness', `() => {
+      const sidebar = document.querySelector('#app-sidebar-vue')
+      const sidebarStyle = sidebar ? getComputedStyle(sidebar) : null
+      const sidebarBox = sidebar?.getBoundingClientRect()
+      const opener = document.querySelectorAll('.library-cover-link')[${openerIndex}]
+      const openerStyle = opener ? getComputedStyle(opener) : null
+      const openerBox = opener?.getBoundingClientRect()
+      const openerX = openerBox ? openerBox.left + openerBox.width / 2 : 0
+      const openerY = openerBox ? openerBox.top + openerBox.height / 2 : 0
+      const openerHit = openerBox?.width > 0 && openerBox?.height > 0 ? document.elementFromPoint(openerX, openerY) : null
+      const overlaySelector = '[role="dialog"][aria-modal="true"],.modal-mask,.modal-backdrop,.app-modal'
+      const activeOverlayCount = [...document.querySelectorAll(overlaySelector)].filter((node) => {
+        const style = getComputedStyle(node)
+        const box = node.getBoundingClientRect()
+        return style.display !== 'none' && style.visibility !== 'hidden' && node.getClientRects().length > 0 && box.width > 0 && box.height > 0
+      }).length
+      return { sidebarPresent: Boolean(sidebar), sidebarDisplay: sidebarStyle?.display || '', sidebarVisibility: sidebarStyle?.visibility || '',
+        sidebarRectCount: sidebar?.getClientRects().length || 0, sidebarWidth: sidebarBox?.width || 0, sidebarHeight: sidebarBox?.height || 0,
+        activeOverlayCount, openerPresent: Boolean(opener), openerDisplay: openerStyle?.display || '', openerVisibility: openerStyle?.visibility || '', openerOpacity: openerStyle?.opacity || '',
+        openerRectCount: opener?.getClientRects().length || 0, openerWidth: openerBox?.width || 0, openerHeight: openerBox?.height || 0,
+        openerDisabled: opener?.matches(':disabled') || false, openerAriaDisabled: opener?.getAttribute('aria-disabled') || '',
+        openerObstructed: !openerHit || !(openerHit === opener || opener.contains(openerHit)), openerInert: Boolean(opener?.closest('[inert],[hidden],[aria-hidden="true"]')) }
+    }`),
+    accept: (observed) => observed?.openerInert === false && isSidebarCloseReady(observed),
+    onObservation: (evidence) => { dom.readiness.sidebarClose[mobile ? 'mobile' : 'desktop'] = evidence },
+  })
+  const exerciseSidebar = async (mobile) => {
+    const key = async (key, code, modifiers = 0) => {
+      for (const type of ['keyDown', 'keyUp']) {
+        await client.send('Input.dispatchKeyEvent', { type, key, code, modifiers, windowsVirtualKeyCode: key === 'Tab' ? 9 : 27 })
+      }
+    }
+    const captureSidebarAx = async (phase, state) => {
+      const copy = sidebarExpectedCopy[state.locale] || sidebarExpectedCopy.en
+      const expectedRootName = phase === 'success' ? copy.successRoot : copy.idleRoot
+      const expectedStateName = phase === 'loading' ? copy.loading : phase === 'error' ? copy.error : copy.successRoot
+      const expectedRole = mobile ? 'dialog' : 'complementary'
+      const descendantRoles = phase === 'loading' ? ['status'] : phase === 'error' ? ['alert'] : ['heading']
+      const descendantSelectors = phase === 'loading' ? ['#app-sidebar-vue [role="status"]'] : phase === 'error' ? ['#app-sidebar-vue [role="alert"]'] : ['#library-detail-drawer-heading']
+      const descendantExpectations = []
+      for (const selector of descendantSelectors) {
+        const remote = await client.send('Runtime.evaluate', { expression: `document.querySelector(${JSON.stringify(selector)})` })
+        const description = remote?.result?.objectId ? await client.send('DOM.describeNode', { objectId: remote.result.objectId }) : null
+        descendantExpectations.push({ backendNodeId: description?.node?.backendNodeId || 0, roles: descendantRoles,
+          name: expectedStateName, description: '' })
+      }
+      const evidence = await captureExactAx('#app-sidebar-vue', { rootRoles: [expectedRole], rootName: expectedRootName,
+        descendantRoles, descendantSelectors, descendantExpectations })
+      const expectedDescription = mobile && phase === 'success'
+        ? copy.mobileDescription : ''
+      const exactDescription = String(evidence.root?.description?.value || '').trim() === expectedDescription
+      const modal = !mobile || property(evidence.root, 'modal') === true
+      return { ok: evidence.ok && assessSidebarDomState(state, phase, { rootName: expectedRootName, stateName: expectedStateName }) && modal && exactDescription, backendNodeId: evidence.root?.backendDOMNodeId }
+    }
+    const requestedWidth = mobile ? 390 : 1280
+    await client.send('Emulation.setDeviceMetricsOverride', { width: requestedWidth, height: mobile ? 844 : 900, deviceScaleFactor: 1, mobile })
+    await waitForViewportWidth(requestedWidth, mobile)
+    await clickWithCdp('.library-cover-link', 0)
+    if (mobile) await waitForMobileModal()
+    const loading = await inspectSidebar()
+    const loadingAx = await captureSidebarAx('loading', loading)
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    const success = await inspectSidebar()
+    const successAx = await captureSidebarAx('success', success)
+    const sidebarRole = mobile ? 'dialog' : 'complementary'
+    const sidebarAx = await captureExactAx('#app-sidebar-vue', { rootRoles: [sidebarRole] })
+    const axSidebar = sidebarAx.ok && Boolean(named(sidebarAx.root)) && (!mobile || property(sidebarAx.root, 'modal') === true)
+    let traversal = null
+    if (mobile) {
+      await client.send('Runtime.evaluate', { expression: `(() => {
+        const root=document.querySelector('#app-sidebar-vue'); const selector='button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])';
+        const nodes=[...(root?.querySelectorAll(selector)||[])].filter((node)=>node.getClientRects().length&&!node.closest('[inert],[hidden]'));
+        const identity=(node)=>String(nodes.indexOf(node))+':'+node.tagName+':'+(node.id||node.getAttribute('name')||'');
+        window.__libraryModalEvents=[]; window.__libraryModalBoundary={first:identity(nodes[0]),last:identity(nodes.at(-1))};
+        window.__libraryModalRecord=(event)=>window.__libraryModalEvents.push({type:event.type,key:event.key||'',shiftKey:event.shiftKey===true,target:identity(event.target),inside:Boolean(root?.contains(event.target))});
+        document.addEventListener('focusin',window.__libraryModalRecord,true); document.addEventListener('keydown',window.__libraryModalRecord,true);
+      })()` })
+      const clickBoundary = async (which) => {
+        const point = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true, expression: `(() => { const root=document.querySelector('#app-sidebar-vue'); const nodes=[...(root?.querySelectorAll('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])')||[])].filter((node)=>node.getClientRects().length&&!node.closest('[inert],[hidden]')); const node=${which === 'last' ? 'nodes.at(-1)' : 'nodes[0]'}; const box=node?.getBoundingClientRect(); return box?{x:box.left+box.width/2,y:box.top+box.height/2}:null })()` }), { phase: `sidebar-${which}-point` })
+        if (!point) throw new Error(`Missing ${which} modal boundary`)
+        await client.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: point.x, y: point.y, button: 'left', clickCount: 1 })
+        await client.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: point.x, y: point.y, button: 'left', clickCount: 1 })
+      }
+      await clickBoundary('last'); await key('Tab', 'Tab')
+      await clickBoundary('first'); await key('Tab', 'Tab', 8)
+      const traversalRaw = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true, expression: `(() => { document.removeEventListener('focusin',window.__libraryModalRecord,true); document.removeEventListener('keydown',window.__libraryModalRecord,true); return {...window.__libraryModalBoundary,events:window.__libraryModalEvents} })()` }), { phase: 'sidebar-event-log' })
+      traversal = assessFocusTraversal(traversalRaw)
+    }
+    await key('Escape', 'Escape')
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    const closed = !(await inspectSidebar()).open
+    const restored = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true, expression: `document.activeElement?.classList.contains('library-cover-link') === true` }), { phase: 'sidebar-focus-return' })
+    await clickWithCdp('.library-cover-link', 1)
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    const error = await inspectSidebar()
+    const errorAx = await captureSidebarAx('error', error)
+    await key('Escape', 'Escape')
+    await waitForSidebarClose(mobile, 1)
+    return { loading: assessSidebarDomState(loading, 'loading'), success: assessSidebarDomState(success, 'success'),
+      error: assessSidebarDomState(error, 'error'), loadingAx: loadingAx.ok, successAx: successAx.ok, errorAx: errorAx.ok, axSidebar,
+      entered: success.entered, headingEntered: success.headingEntered,
+      forwardBoundaryContained: traversal?.forwardBoundaryContained,
+      backwardBoundaryContained: traversal?.backwardBoundaryContained, closed, restored,
+      observedFocusinCount: traversal?.focusinCount, observedKeydownCount: traversal?.keydownCount }
+  }
+  try {
+    const desktop = await exerciseSidebar(false)
+    const mobile = await exerciseSidebar(true)
+    dom.sidebar.desktop = { loading: desktop.loading && desktop.loadingAx, success: desktop.success && desktop.successAx, error: desktop.error && desktop.errorAx, complementary: desktop.axSidebar }
+    dom.sidebar.mobile = { loading: mobile.loading && mobile.loadingAx, success: mobile.success && mobile.successAx, error: mobile.error && mobile.errorAx, namedModalDialog: mobile.axSidebar }
+    dom.ax.desktopComplementary = desktop.axSidebar
+    dom.ax.mobileNamedModalDialog = mobile.axSidebar
+    dom.ax.mobileModalDescribed = mobile.successAx
+    dom.ax.controlStates.busyOrLoading = desktop.loadingAx && mobile.loadingAx
+    dom.ax.descriptions = Math.max(dom.ax.descriptions, mobile.successAx ? 1 : 0)
+    dom.liveRegions.status = desktop.loading && mobile.loading ? 1 : 0
+    dom.liveRegions.alert = desktop.error && mobile.error ? 1 : 0
+    dom.ax.liveRegions = desktop.loadingAx && mobile.loadingAx && desktop.errorAx && mobile.errorAx
+    dom.focus = {
+      desktop: { headingEntered: desktop.headingEntered, escapeClosed: desktop.closed, restored: desktop.restored },
+      mobile: { entered: mobile.entered,
+        modalContained: mobile.forwardBoundaryContained && mobile.backwardBoundaryContained,
+        forwardBoundaryContained: mobile.forwardBoundaryContained,
+        backwardBoundaryContained: mobile.backwardBoundaryContained,
+        escapeClosed: mobile.closed, restored: mobile.restored,
+        observedFocusinCount: mobile.observedFocusinCount,
+        observedKeydownCount: mobile.observedKeydownCount },
+    }
+  } catch (error) {
+    dom.readiness.failure = error?.evidence || null
+    dom.errors = { sidebar: error?.message || String(error) }
+  } finally {
+    await client.send('Emulation.clearDeviceMetricsOverride')
+  }
+
+  const adaptationFixtureUrl = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', {
+    returnByValue: true, expression: `({ href: location.href, origin: location.origin, timeOrigin: performance.timeOrigin })`,
+  }), { phase: 'adaptation-fixture-url' })
+  const assertFixtureScopedSameUrl = (observed) => {
+    const candidate = new URL(observed?.href || '')
+    const expected = new URL(adaptationFixtureUrl.href)
+    if (candidate.href !== expected.href || candidate.origin !== expected.origin
+      || candidate.username || candidate.password || candidate.hash
+      || candidate.searchParams.get('localization-fixture') !== '1') {
+      throw new Error('adaptation_reload_url_not_same_origin_fixture_scoped')
+    }
+    return candidate.href
+  }
+  const adaptationReloadUrl = assertFixtureScopedSameUrl(adaptationFixtureUrl)
+  const adaptationNavigation = await client.send('Page.navigate', { url: adaptationReloadUrl })
+  if (adaptationNavigation?.errorText) throw new Error(`adaptation_reload_failed:${adaptationNavigation.errorText}`)
+  const waitForFreshCatalogue = () => waitForResponsiveReadiness({
+    phase: 'fresh catalogue after sidebar isolation reload',
+    timeoutMs: 5000,
+    observe: () => observeAfterAnimationFrame('adaptation-fresh-catalogue-readiness', `() => {
+      const expectedUrl = ${JSON.stringify(adaptationReloadUrl)}
+      const fixtureIds = ['910001', '910002', '910003']
+      const cards = fixtureIds.map((id) => document.querySelector('#library-card-title-' + id)?.closest('.library-cover-card'))
+      const buttons = cards.map((card) => card?.querySelector('.library-cover-link'))
+      const sidebar = document.querySelector('#app-sidebar-vue')
+      const sidebarStyle = sidebar ? getComputedStyle(sidebar) : null
+      const sidebarBox = sidebar?.getBoundingClientRect()
+      const sidebarClosed = !sidebar || sidebarStyle?.display === 'none' || sidebarStyle?.visibility === 'hidden'
+        || sidebar.getClientRects().length === 0 || !sidebarBox?.width || !sidebarBox?.height
+      const visiblyActive = (node) => { const style=getComputedStyle(node); const box=node.getBoundingClientRect(); return style.display !== 'none' && style.visibility !== 'hidden' && node.getClientRects().length > 0 && box.width > 0 && box.height > 0 }
+      const overlaySelector = '[role="dialog"][aria-modal="true"],.modal-mask,.modal-backdrop,.app-modal'
+      const activeOverlayCount = [...document.querySelectorAll(overlaySelector)].filter(visiblyActive).length
+      const activeInertCount = [...document.querySelectorAll('[inert]')].filter(visiblyActive).length
+      const node = buttons[0]
+      const style = node ? getComputedStyle(node) : null
+      const box = node?.getBoundingClientRect()
+      return { urlMatches: location.href === expectedUrl, newDocument: performance.timeOrigin !== ${JSON.stringify(adaptationFixtureUrl.timeOrigin)},
+        vueCatalogueMounted: Boolean(document.querySelector('#library-app .library-cover-gallery') && cards.every(Boolean)),
+        fixtureCardCount: cards.filter(Boolean).length, fixtureButtonCount: buttons.filter(Boolean).length,
+        sidebarClosed, activeOverlayCount, activeInertCount,
+        opener: { present: Boolean(node), display: style?.display || '', visibility: style?.visibility || '', opacity: style?.opacity || '',
+          rectCount: node?.getClientRects().length || 0, width: box?.width || 0, height: box?.height || 0,
+          disabled: node?.matches(':disabled') || false, ariaDisabled: node?.getAttribute('aria-disabled') || '',
+          inert: Boolean(node?.closest('[inert],[hidden],[aria-hidden="true"]')) } }
+    }`),
+    accept: isFreshCatalogueReady,
+    onObservation: (evidence) => { dom.readiness.adaptationFreshCatalogue = evidence },
+  })
+  await waitForFreshCatalogue()
+
+  const rows = []
+  const baselineMetrics = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true,
+    expression: `({ width: innerWidth, height: innerHeight, deviceScaleFactor: devicePixelRatio })` }), { phase: 'adaptation-baseline' })
+  const inspectAdaptation = async (mode, extra) => {
+    if (mode === 'forced-colors') {
+      await clickWithCdp('.library-cover-link', 1)
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
+      await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
+    }
+    if (mode === 'reduced-motion') {
+      await clickWithCdp('.library-cover-link', 0)
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    }
+    const value = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `(async () => {
+      const visible = [...document.querySelectorAll('button,a[href],input:not([type="hidden"]),select,textarea')]
+        .filter((node) => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
+          && !node.matches(':disabled,[aria-disabled="true"]') && !node.closest('[hidden],[inert],[aria-hidden="true"]'))
+      const motionNodes=[...document.querySelectorAll('#app-sidebar-vue,#app-sidebar-vue *')]
+      const scrollNodes = [document.scrollingElement, ...document.querySelectorAll('*')].filter((node, index, all) => node && all.indexOf(node) === index && (node.scrollTop || node.scrollLeft || node.scrollHeight > node.clientHeight || node.scrollWidth > node.clientWidth))
+      const baseline = scrollNodes.map((node) => ({ node, top: node.scrollTop, left: node.scrollLeft }))
+      let fullyBounded = visible.length > 0
+      for (const node of visible) {
+        node.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+        await new Promise((resolve) => requestAnimationFrame(resolve))
+        const box = node.getBoundingClientRect()
+        fullyBounded &&= box.left >= 0 && box.top >= 0 && box.right <= innerWidth && box.bottom <= innerHeight
+        for (const saved of baseline) saved.node.scrollTo(saved.left, saved.top)
+        await new Promise((resolve) => requestAnimationFrame(resolve))
+      }
+      const controlScrollRestored = baseline.every((saved) => saved.node.scrollTop === saved.top && saved.node.scrollLeft === saved.left)
+      return {
+        observed: true,
+        pageReflowContained: document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
+        visibleControlBoundsObserved: fullyBounded,
+        controlScrollRestored,
+        mediaActive: ${JSON.stringify(mode)} === 'reduced-motion' ? matchMedia('(prefers-reduced-motion: reduce)').matches : matchMedia('(forced-colors: active)').matches,
+        representativeDurationsSuppressed: ${JSON.stringify(mode)} !== 'reduced-motion' || motionNodes.every((node) => { const style=getComputedStyle(node); return parseFloat(style.animationDuration) === 0 && parseFloat(style.transitionDuration) === 0 }),
+      }
+    })()` }), { phase: mode })
+    rows.push({ mode, ...value, ...extra, restored: false })
+    if (mode === 'reduced-motion') await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 })
+    if (mode === 'forced-colors') await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 })
+  }
+  try {
+    await client.send('Emulation.setEmulatedMedia', { media: 'screen', features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })
+    await inspectAdaptation('reduced-motion', {})
+    await client.send('Emulation.setEmulatedMedia', { media: 'screen', features: [{ name: 'forced-colors', value: 'active' }] })
+    await inspectAdaptation('forced-colors', {})
+    await client.send('Emulation.setEmulatedMedia', { media: 'screen', features: [] })
+    for (const [mode, width, percent] of [['scale-200-equivalent', 640, 200], ['scale-400-equivalent', 320, 400]]) {
+      await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false })
+      const value = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `(async () => {
+        const visible = [...document.querySelectorAll('button,a[href],input:not([type="hidden"]),select,textarea')]
+          .filter((node) => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
+            && !node.matches(':disabled,[aria-disabled="true"]') && !node.closest('[hidden],[inert],[aria-hidden="true"]'))
+        const scrollNodes = [document.scrollingElement, ...document.querySelectorAll('*')].filter((node, index, all) => node && all.indexOf(node) === index && (node.scrollTop || node.scrollLeft || node.scrollHeight > node.clientHeight || node.scrollWidth > node.clientWidth))
+        const baseline = scrollNodes.map((node) => ({ node, top: node.scrollTop, left: node.scrollLeft }))
+        let fullyBounded = visible.length > 0
+        for (const node of visible) {
+          node.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+          await new Promise((resolve) => requestAnimationFrame(resolve))
+          const box = node.getBoundingClientRect()
+          fullyBounded &&= box.left >= 0 && box.top >= 0 && box.right <= innerWidth && box.bottom <= innerHeight
+          for (const saved of baseline) saved.node.scrollTo(saved.left, saved.top)
+          await new Promise((resolve) => requestAnimationFrame(resolve))
+        }
+        return { observed: true, pageReflowContained: document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
+          visibleControlBoundsObserved: fullyBounded,
+          controlScrollRestored: baseline.every((saved) => saved.node.scrollTop === saved.top && saved.node.scrollLeft === saved.left) }
+      })()` }), { phase: mode })
+      rows.push({ mode, ...value, baselineCssWidth: 1280, effectiveCssWidth: width, scalePercent: percent, restored: false })
+    }
+  } finally {
+    await client.send('Emulation.setEmulatedMedia', { media: 'screen', features: [] })
+    await client.send('Emulation.clearDeviceMetricsOverride')
+    const restoration = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true, expression: `({
+      mediaRestored: !matchMedia('(prefers-reduced-motion: reduce)').matches && !matchMedia('(forced-colors: active)').matches,
+      metricsRestored: innerWidth === ${JSON.stringify(baselineMetrics.width)} && innerHeight === ${JSON.stringify(baselineMetrics.height)} && devicePixelRatio === ${JSON.stringify(baselineMetrics.deviceScaleFactor)}
+    })` }), { phase: 'adaptation-restoration' })
+    for (const row of rows) Object.assign(row, { baselineMetrics, ...restoration, restored: restoration.mediaRestored === true && restoration.metricsRestored === true })
+  }
+  return { snapshot: dom, rows }
+}
+
+function startAuthProxy(token, inboundAuthorization) {
   const auth = `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`
   let startupFailureMode = ''
   let moduleRequestPending = false
+  const inboundEvidence = { inboundAuthRejected: 0, inboundAuthAccepted: 0, fixtureResponses: 0, upstreamResponses: 0, upstreamHeaderStripped: true }
+  const inboundHeaderName = 'x-library-smoke-authorization'
+  const authorized = (value) => {
+    const supplied = Buffer.from(String(value || ''))
+    const expected = Buffer.from(inboundAuthorization)
+    return supplied.length === expected.length && timingSafeEqual(supplied, expected)
+  }
   const server = createServer(async (req, res) => {
+    if (!authorized(req.headers[inboundHeaderName])) {
+      inboundEvidence.inboundAuthRejected += 1
+      res.statusCode = 401
+      res.setHeader('cache-control', 'no-store')
+      res.end('Unauthorized')
+      return
+    }
+    inboundEvidence.inboundAuthAccepted += 1
     const requestUrl = new URL(req.url || '/', 'http://127.0.0.1')
     if (requestUrl.pathname === '/__library-smoke/status') {
       res.setHeader('content-type', 'application/json')
@@ -88,6 +609,8 @@ function startAuthProxy(token) {
     }
     const target = new URL(`${requestUrl.pathname}${requestUrl.search}`, upstream)
     const headers = { ...req.headers, authorization: auth }
+    delete headers[inboundHeaderName]
+    inboundEvidence.upstreamHeaderStripped = inboundEvidence.upstreamHeaderStripped && !(inboundHeaderName in headers)
     headers.host = req.headers.host
     headers['x-forwarded-host'] = req.headers.host
     headers['x-forwarded-proto'] = 'http'
@@ -98,12 +621,37 @@ function startAuthProxy(token) {
     req.on('data', (chunk) => chunks.push(chunk))
     req.on('end', async () => {
       try {
+        const fixtureSidebarMatch = requestUrl.pathname.match(/\/apps\/library\/items\/(91000[1-3])\/sidebar$/)
+        if (fixtureSidebarMatch && requestUrl.searchParams.get('localization-fixture') === '1') {
+          inboundEvidence.fixtureResponses += 1
+          const id = Number(fixtureSidebarMatch[1])
+          await new Promise((resolve) => setTimeout(resolve, 120))
+          if (id === 910002) {
+            res.statusCode = 500
+            res.setHeader('content-type', 'application/json')
+            res.end(JSON.stringify({ error: 'synthetic smoke failure' }))
+            return
+          }
+          res.setHeader('content-type', 'application/json')
+          res.end(JSON.stringify({ item: {
+            id, fileId: id, libraryFileId: id, title: id === 910001 ? 'Atlas ثابت 2026' : 'مجلة Visual 2026',
+            subtitle: '', creators: 'Ada قارئ', publication: 'Zeitschrift مجلة', publicationType: 'book',
+            publicationDate: '2026-09-12', description: 'Synthetic smoke-only description', publisher: 'Verlag ناشر',
+            language: 'de; ar', shelf: 'Smoke رف', extension: 'pdf', cachedPath: `/Smoke/مسار/fixture-${id}.pdf`,
+            scanStatus: 'indexed', scanError: '', workflowStatus: 'to-read', starred: false,
+            coverUrl: `/apps/library/covers/${id}`, openUrl: `/apps/files/?fileid=${id}`,
+            detailsUrl: `/apps/library/items/${id}`, metadataSource: 'sidecar fixture',
+            fieldSources: { title: 'sidecar fixture' }, fieldValues: { title: 'Atlas candidate مرشح' },
+          } }))
+          return
+        }
         const response = await fetch(target, {
           method: req.method,
           headers,
           body: chunks.length > 0 ? Buffer.concat(chunks) : undefined,
           redirect: 'manual',
         })
+        inboundEvidence.upstreamResponses += 1
         res.statusCode = response.status
         const responseCookies = response.headers.getSetCookie()
         const proxyOrigin = `http://127.0.0.1:${server.address().port}`
@@ -115,10 +663,10 @@ function startAuthProxy(token) {
         }
         if (responseCookies.length > 0) res.setHeader('set-cookie', responseCookies)
         let body = Buffer.from(await response.arrayBuffer())
-        const isLibraryModule = requestUrl.pathname.includes('/js/library-main-0-1-0-alpha-165.mjs')
+        const isLibraryModule = requestUrl.pathname.includes('/js/library-main-0-1-0-alpha-167.mjs')
         const effectiveFailureMode = requestUrl.searchParams.get('startupFailure') || startupFailureMode
         if (requestUrl.pathname.endsWith('/apps/library/') && requestUrl.searchParams.has('startupFailure')) {
-          body = Buffer.from(body.toString('utf8').replace(/(library-main-0-1-0-alpha-165\.mjs)([^"']*)(["'])/g, (match, asset, suffix, quote) => `${asset}${suffix}${suffix.includes('?') ? '&' : '?'}startupFailure=${startupFailureMode}${quote}`))
+          body = Buffer.from(body.toString('utf8').replace(/(library-main-0-1-0-alpha-167\.mjs)([^"']*)(["'])/g, (match, asset, suffix, quote) => `${asset}${suffix}${suffix.includes('?') ? '&' : '?'}startupFailure=${startupFailureMode}${quote}`))
         }
         if (isLibraryModule && effectiveFailureMode === 'module-404') {
           res.statusCode = 404
@@ -158,17 +706,28 @@ function startAuthProxy(token) {
         if (requestUrl.pathname.endsWith('/apps/library/') && requestUrl.searchParams.has('localization-fixture')) {
           body = Buffer.from(body.toString('utf8').replace(/(id="initial-state-library-catalogue" value=")([^"]*)/, (match, prefix, encoded) => {
             const state = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8'))
-            const seed = state.items?.[0] || {}
             state.items = [
-              ['rtl-fixture-1', 'أطلس التصوير الفوتوغرافي الطويل'],
-              ['rtl-fixture-2', 'دليل الأرشيفات والمجموعات المصورة'],
-              ['rtl-fixture-3', 'مجلة التاريخ المرئي المعاصر'],
+              [910001, 'Atlas ثابت 2026'],
+              [910002, 'دليل Archive 2026'],
+              [910003, 'مجلة Visual 2026'],
             ].map(([id, title], index) => ({
-              ...seed, id, title, creators: `مؤلف ${index + 1}`,
-              cachedPath: `/Library/${id}.pdf`, coverAvailable: false,
-              detailsUrl: `/apps/library/items/${id}`, openUrl: `/apps/files/?fileid=${index + 1}`,
+              id, fileId: id, libraryFileId: id, title, subtitle: '',
+              creators: index === 0 ? 'Ada قارئ' : `مؤلف Test ${index + 1}`,
+              publication: 'Zeitschrift مجلة', publicationType: index === 2 ? 'magazine' : 'book',
+              cachedPath: `/Smoke/مسار/fixture-${index + 1}.pdf`, publicationDate: '2026-09-12',
+              description: 'Reference https://example.invalid/item and ISBN 978-0-00-000000-0',
+              publisher: 'Verlag ناشر', language: 'de; ar', shelf: 'Smoke رف', extension: 'pdf',
+              scanStatus: 'indexed', scanError: '', workflowStatus: 'to-read', starred: false,
+              coverAvailable: false, coverUrl: `/apps/library/covers/${id}`,
+              detailsUrl: `/apps/library/items/${id}`, openUrl: `/apps/files/?fileid=${id}`,
+              filesUrl: `/apps/files/?fileid=${id}`, downloadUrl: `/apps/library/items/${id}/download`,
+              starUrl: `/apps/library/items/${id}/star`, resetFieldUrl: `/apps/library/items/${id}/reset-field`,
+              metadataSource: 'sidecar fixture', fieldSources: { title: 'sidecar fixture' },
+              fieldValues: { title: `${title} candidate` }, hasScannerConflict: true, scannerConflictCount: 1,
+              nextcloudTags: [{ id: 700 + index, name: `Tag وسم ${index + 1}` }],
             }))
-            state.pagination = { ...(state.pagination || {}), total: 3, visible: 3, from: 1, to: 3 }
+            state.cataloguePagination = { page: 1, limit: 25, total: 3, visible: 3, from: 1, to: 3, previousUrl: '', nextUrl: '' }
+            state.itemSidebarUrlTemplate = '/apps/library/items/__ITEM_ID__/sidebar?localization-fixture=1'
             return `${prefix}${Buffer.from(JSON.stringify(state)).toString('base64')}`
           }))
         }
@@ -184,6 +743,7 @@ function startAuthProxy(token) {
     })
   })
 
+  server.inboundEvidence = inboundEvidence
   return new Promise((resolve) => {
     server.listen(0, '127.0.0.1', () => resolve(server))
   })
@@ -322,7 +882,7 @@ async function runLegacyLocalizationGate(client, proxyBase, { detailUrl, request
     },
   }
   const formContracts = {
-    settings: { minimum: 5, endpoints: ['^/apps/library/(?:roots(?:/[^/]+(?:/(?:toggle|delete))?)?|scan(?:/.*)?|import/metadata/(?:preview|apply)|bulk/items/reset-fields)$'] },
+    settings: { minimum: 5, endpoints: ['^/apps/library/(?:roots(?:/[^/]+(?:/(?:toggle|delete))?)?|scan(?:/.*)?|import/metadata/(?:preview|apply))$'] },
     batch: { minimum: 1, endpoints: ['^/apps/library/bulk/items/edit-apply$'] },
     detail: { minimum: 5, endpoints: ['^/apps/library/items/[^/]+(?:/(?:star|workflow-status|cover/(?:override|revert)|reset-field|reset-fields|forget-missing|tags(?:/[^/]+)?|comments))?$'] },
   }
@@ -352,11 +912,68 @@ async function runLegacyLocalizationGate(client, proxyBase, { detailUrl, request
       const core = await timedPhase(locale, width, surface, 'inspect-core', () => inspectCore(locale, surface, selector))
       const forms = await timedPhase(locale, width, surface, 'inspect-forms', () => inspectForms(surface, selector))
       const geometry = await timedPhase(locale, width, surface, 'inspect-geometry', () => inspectGeometry(locale, surface, selector))
+      let tableAx = null
+      if (surface === 'batch') {
+        const tableDom = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
+          const table = document.querySelector('.library-batch-preview-table')
+          const cards = document.querySelector('.library-batch-preview-card-list')
+          const captionText = table?.querySelector('caption')?.textContent.trim() || ''
+          return { representative: ${width} >= 700 ? Boolean(table) : Boolean(cards), caption: Boolean(captionText), captionText, cardListName: cards?.getAttribute('aria-label') || '',
+            scopedHeaders: Boolean(table) && [...table.querySelectorAll('th')].length > 0 && [...table.querySelectorAll('th')].every((node) => ['col','row'].includes(node.getAttribute('scope'))),
+            domAssociations: Boolean(table) && table.querySelectorAll('tbody td').length > 0,
+            cardFieldValues: {
+              item: cards?.querySelector('.library-batch-preview-field--item dd')?.textContent.trim() || '',
+              current: cards?.querySelector('.library-batch-preview-field--current dd')?.textContent.trim() || '',
+              new: cards?.querySelector('.library-batch-preview-field--new dd')?.textContent.trim() || '',
+              outcome: cards?.querySelector('.library-batch-preview-outcome')?.textContent.trim() || '',
+            } }
+        })()` }), { phase: 'legacy-table-dom' })
+        const cardFieldSelectors = {
+          item: '.library-batch-preview-card .library-batch-preview-field--item dd',
+          current: '.library-batch-preview-card .library-batch-preview-field--current dd',
+          new: '.library-batch-preview-card .library-batch-preview-field--new dd',
+          outcome: '.library-batch-preview-card .library-batch-preview-outcome',
+        }
+        const selectors = ['.library-batch-preview-table', '.library-batch-preview-table caption', '.library-batch-preview-table th', '.library-batch-preview-table tbody td', '.library-batch-preview-card-list', '.library-batch-preview-card', ...Object.values(cardFieldSelectors)]
+        const axBySelector = {}
+        for (const selector of selectors) {
+          const remote = await client.send('Runtime.evaluate', { expression: `document.querySelector(${JSON.stringify(selector)})` })
+          const description = remote?.result?.objectId ? await client.send('DOM.describeNode', { objectId: remote.result.objectId }) : null
+          const backendNodeId = description?.node?.backendNodeId
+          const nodes = backendNodeId ? ((await client.send('Accessibility.getPartialAXTree', { backendNodeId, fetchRelatives: true })).nodes || []) : []
+          axBySelector[selector] = { backendNodeId, nodes, exposed: Boolean(backendNodeId) && nodes.some((node) => node.backendDOMNodeId === backendNodeId && node.ignored !== true) }
+        }
+        if (width >= 700) {
+          const table = axBySelector['.library-batch-preview-table']
+          const nodes = selectors.filter((selector) => selector.includes('table')).flatMap((selector) => axBySelector[selector].nodes)
+          const association = assessAxSubtree([...new Map(nodes.map((node) => [String(node.nodeId), node])).values()], { backendNodeId: table.backendNodeId, rootRoles: ['table'], rootName: String(tableDom.captionText || ''), descendantRoles: ['columnheader', 'cell'] })
+          tableAx = { width, activeRepresentation: 'table', ...tableDom, axNamedTable: association.ok, axHeaders: association.ok, axCells: association.ok, exactBackendNodeAssociation: association.ok, inactiveAbsentFromAx: !axBySelector['.library-batch-preview-card-list'].exposed }
+        } else {
+          const cards = axBySelector['.library-batch-preview-card-list']
+          const nodes = selectors.filter((selector) => selector.includes('card') || selector.includes('outcome')).flatMap((selector) => axBySelector[selector].nodes)
+          const uniqueNodes = [...new Map(nodes.map((node) => [String(node.nodeId), node])).values()]
+          const association = assessAxSubtree(uniqueNodes, { backendNodeId: cards.backendNodeId, rootRoles: ['list'], rootName: tableDom.cardListName, descendantRoles: ['listitem'] })
+          const fieldCoverage = Object.fromEntries(Object.entries(cardFieldSelectors).map(([field, selector]) => {
+            const evidence = axBySelector[selector]
+            const value = tableDom.cardFieldValues[field]
+            const valueNode = evidence.nodes.find((node) => node.ignored !== true && node.role?.value === 'StaticText' && String(node.name?.value || '').trim() === value)
+            return [field, Boolean(value) && assessAxFieldEvidence(uniqueNodes, {
+              rootBackendNodeId: cards.backendNodeId,
+              fieldBackendNodeId: evidence.backendNodeId,
+              valueBackendNodeId: valueNode?.backendDOMNodeId,
+              value,
+            }).ok]
+          }))
+          tableAx = { width, activeRepresentation: 'cards', representative: tableDom.representative, axNamedCardList: association.ok, axCards: association.ok,
+            fieldCoverage,
+            exactBackendNodeAssociation: association.ok, inactiveAbsentFromAx: !axBySelector['.library-batch-preview-table'].exposed }
+        }
+      }
       const inspection = composeLegacyInspectionRow({ locale, width, surface, core, forms, geometry,
         expectedControls: expected[locale][surface], formMinimum: formContracts[surface].minimum })
       const keyboardTraversal = await timedPhase(locale, width, surface, 'keyboard', () => tabIntoSurface(selector))
       const failures = client.events.slice(eventStart).filter((event) => classifyBrowserEvent(event).fatal || event.method === 'Network.loadingFailed')
-      return { ...inspection, keyboardTraversal, failures: failures.length }
+      return { ...inspection, keyboardTraversal, tableAx, failures: failures.length }
     } finally {
       print('legacy_gate_row_seconds', JSON.stringify({ locale, width, surface, seconds: Number(((performance.now() - started) / 1000).toFixed(3)) }))
     }
@@ -437,6 +1054,8 @@ async function runLegacyLocalizationGate(client, proxyBase, { detailUrl, request
       const root = document.querySelector(${JSON.stringify(selector)})
       const status = performance.getEntriesByType('navigation')[0]?.responseStatus || 0
       if (!root) return { present: false, status, missingLabelIds: ${JSON.stringify(expected)}[${JSON.stringify(locale)}][${JSON.stringify(surface)}].map((spec) => spec.id), labelChecks: {} }
+      const indexed = ${JSON.stringify(surface)} === 'settings' ? root.querySelector('.library-settings-section-indexed-files') : null
+      if (indexed) indexed.open = true
       const expectedControls = ${JSON.stringify(expected)}[${JSON.stringify(locale)}][${JSON.stringify(surface)}]
       const normalized = (value) => String(value || '').replace(/\\s+/g, ' ').trim()
       const ownLabelText = (label) => {
@@ -456,7 +1075,12 @@ async function runLegacyLocalizationGate(client, proxyBase, { detailUrl, request
         return [spec.id, Boolean(node && text === spec.text && (spec.association === 'self' || label?.contains(node)))]
       }))
       const overflowDiagnostics = (${collectOverflowDiagnostics.toString()})(root)
-      return { present: true, status,
+      const openedIndexedFilesGeometry = !indexed || (indexed.open && [...indexed.querySelectorAll('.library-index-row, .library-index-row dl, .library-index-row dd, .library-bidi-machine')].every((node) => {
+        const rect = node.getBoundingClientRect()
+        const rootRect = root.getBoundingClientRect()
+        return rect.left >= Math.max(0, rootRect.left) - 1 && rect.right <= Math.min(document.documentElement.clientWidth, rootRect.right) + 1
+      }))
+      return { present: true, status, openedIndexedFilesGeometry,
         lang: root.getAttribute('lang') || root.closest('[lang]')?.getAttribute('lang') || '',
         dir: root.getAttribute('dir') || root.closest('[dir]')?.getAttribute('dir') || '',
         overflow: document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1 && root.scrollWidth <= root.clientWidth + 1,
@@ -513,7 +1137,7 @@ async function runLegacyLocalizationGate(client, proxyBase, { detailUrl, request
     await navigate(`${proxyBase}/apps/library/?legacy-locale-before-mutation=1`)
     const effectiveLocaleResult = await client.send('Runtime.evaluate', { returnByValue: true, expression: `document.querySelector('#library-app')?.getAttribute('lang') || document.documentElement.lang` })
     expectedEffectiveLocale = normalizeLocale(unwrapCdpEvaluateResponse(effectiveLocaleResult, { phase: 'legacy-effective-locale' }))
-    const catalogueResponse = await fetch(`${proxyBase}/apps/library/catalogue?limit=100&sort=title`, { headers: { Accept: 'application/json' } })
+    const catalogueResponse = await authenticatedFetch(`${proxyBase}/apps/library/catalogue?limit=100&sort=title`, { headers: { Accept: 'application/json' } })
     const catalogueState = catalogueResponse.ok ? await catalogueResponse.json() : null
     const catalogueItems = catalogueState && Array.isArray(catalogueState.items) ? catalogueState.items : []
     const fixtureOwned = catalogueItems.some((item) => item.id === batchFixtureItem?.id)
@@ -555,11 +1179,13 @@ async function runLegacyLocalizationGate(client, proxyBase, { detailUrl, request
   const { markers, ok } = evaluateLegacyLocalizationGate(records, { ...legacyLocalizationGate,
     surfaces: ['settings', 'batch', 'detail'], expected, expectedEffectiveLocale, restored, normalizeLocale })
   for (const marker of legacyLocalizationGate.assertions) print(marker, markers[marker] === true)
+  const tableAx = evaluateLegacyTableAxRows(records.filter((row) => row.surface === 'batch'), { expected, locales: legacyLocalizationGate.locales, widths: legacyLocalizationGate.widths, normalizeLocale })
+  print('browser_ax_legacy_table_relationships', tableAx)
   print('browser_legacy_measurements', JSON.stringify(records))
-  return { records, markers, ok }
+  return { records, markers, tableAx, ok: ok && tableAx }
 }
 
-async function runBrowserSmoke(proxyBase) {
+async function runBrowserSmoke(proxyBase, proxy) {
   const userDataDir = mkdtempSync(join(tmpdir(), 'library-chrome-'))
   const chrome = spawn(chromeBin, [
     '--headless=new',
@@ -583,20 +1209,57 @@ async function runBrowserSmoke(proxyBase) {
     client = cdp(pageTarget.webSocketDebuggerUrl)
     await client.send('Runtime.enable')
     await client.send('Page.enable')
+    await client.send('Accessibility.enable')
     await client.send('Log.enable')
     await client.send('Network.enable')
+    await client.send('Network.setExtraHTTPHeaders', { headers: { 'x-library-smoke-authorization': inboundAuthorization } })
 
     const url = `${proxyBase}/apps/library/?browser-smoke=${Date.now()}`
     await client.send('Page.navigate', { url })
     await new Promise((resolve) => setTimeout(resolve, 2500))
+    const realDetailCandidateObservation = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', {
+      returnByValue: true,
+      expression: `({
+        hrefs: [...document.querySelectorAll('.library-cover-card a[href]')].map((anchor) => anchor.href),
+        origin: location.origin,
+      })`,
+    }), { phase: 'real-detail-candidate-capture' })
+    const realDetailCandidates = captureCanonicalDetailCandidates(realDetailCandidateObservation)
+    await client.send('Page.navigate', { url: `${proxyBase}/apps/library/?browser-smoke=${Date.now()}&localization-fixture=1` })
+    await new Promise((resolve) => setTimeout(resolve, 2500))
+    const inclusiveObservations = await collectAccessibilityAndAdaptationEvidence(client)
+    const inclusiveEvidence = {
+      accessibility: evaluateAccessibilitySnapshot(inclusiveObservations.snapshot),
+      adaptation: evaluateAdaptationRows(inclusiveObservations.rows),
+    }
+    print('browser_inclusive_evidence_diagnostics', JSON.stringify({
+      errors: inclusiveObservations.snapshot?.errors || {},
+      readiness: inclusiveObservations.snapshot?.readiness || {},
+      axCollected: inclusiveObservations.snapshot?.ax?.collected === true,
+      rowCount: inclusiveObservations.rows.length,
+      rows: inclusiveObservations.rows.map((row) => ({
+        mode: row.mode,
+        width: row.viewport?.width || 0,
+        active: row.active === true,
+        reachable: row.controlsReachable === true,
+        restored: row.restored === true,
+        error: row.error || '',
+      })),
+    }))
+    for (const [marker, passed] of Object.entries(inclusiveEvidence.accessibility.markers)) print(marker, passed)
+    for (const [marker, passed] of Object.entries(inclusiveEvidence.adaptation.markers)) print(marker, passed)
+    let mixedDirectionEvidence = { markers: {}, ok: false }
 
     const result = await client.send('Runtime.evaluate', {
       returnByValue: true,
       expression: `(() => {
         const showFiles = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Show in Files')
         const download = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Download source')
-        const details = [...document.querySelectorAll('.library-cover-card a')].find((a) => a.textContent === 'Open full details')
-        const publicationLanding = document.querySelector('.library-periodical-groups a[href*="/apps/library/publications/"]') || document.querySelector('.library-periodical-groups option[value*="/apps/library/publications/"]')
+        let catalogueState = {}
+        try {
+          catalogueState = JSON.parse(atob(document.querySelector('#initial-state-library-catalogue')?.textContent?.trim() || ''))
+        } catch (_error) {}
+        const publicationLanding = catalogueState.publicationSummaries?.[0]?.publicationLandingUrl || ''
         const yearLanding = document.querySelector('.library-year-groups a[href*="/apps/library/years/"]') || document.querySelector('.library-year-groups option[value*="/apps/library/years/"]')
         const creatorLanding = document.querySelector('.library-creator-groups a[href*="/apps/library/creators/"]') || document.querySelector('.library-creator-groups option[value*="/apps/library/creators/"]')
         const nativeNavigationEntries = [...document.querySelectorAll('#app-navigation-vue .app-navigation-entry-link')]
@@ -666,7 +1329,7 @@ async function runBrowserSmoke(proxyBase) {
           reviewQueueActions: Boolean(document.querySelector('.library-review-queue-actions')),
           reviewQueueMetadataErrorTagForm: Boolean(document.querySelector('.library-review-queue-tag-form input[name="status"][value="metadata_error"]') && document.querySelector('.library-review-queue-tag-form input[name="nextcloudTagName"][value="library-metadata-error"]')),
           reviewQueueScannerConflictTagForm: Boolean(document.querySelector('.library-review-queue-tag-form input[name="scannerConflicts"][value="1"]') && document.querySelector('.library-review-queue-tag-form input[name="nextcloudTagName"][value="library-scanner-conflict"]')),
-          details: document.querySelectorAll('.library-cover-card a').length > 0 ? [...document.querySelectorAll('.library-cover-card a')].filter((a) => a.textContent === 'Open full details').length : 0,
+          details: document.querySelectorAll('.library-cover-card .library-cover-link').length,
           nextcloudTagNameField: Boolean(document.querySelector('input[name="nextcloudTagName"]')),
           catalogueTagEditor: Boolean(document.querySelector('[aria-label="nextcloudTagEditor"]')),
           catalogueStarForms: document.querySelectorAll('.library-cover-star-form').length,
@@ -677,8 +1340,7 @@ async function runBrowserSmoke(proxyBase) {
           tagNameField: Boolean(document.querySelector('input[name="tagName"]')),
           firstShowFiles: showFiles ? showFiles.href : '',
           firstDownload: download ? download.href : '',
-          firstDetails: details ? details.href : '',
-          firstPublicationLanding: publicationLanding ? (publicationLanding.href || publicationLanding.value || '') : '',
+          firstPublicationLanding: publicationLanding,
           firstYearLanding: yearLanding ? (yearLanding.href || yearLanding.value || '') : '',
           firstCreatorLanding: creatorLanding ? (creatorLanding.href || creatorLanding.value || '') : '',
           badHostHrefs: [...document.querySelectorAll('a[href]')].filter((a) => a.href.startsWith('http://f/') || a.href.startsWith('http://settings/')).length,
@@ -717,7 +1379,11 @@ async function runBrowserSmoke(proxyBase) {
       runOcc(['user:setting', user, 'core', 'lang', 'ar'])
       await client.send('Page.navigate', { url: `${proxyBase}/apps/library/?browser-locale=ar&localization-fixture=1` })
       await new Promise((resolve) => setTimeout(resolve, 2500))
+      let mixedDirectionCaptureSequence = 0
       const inspectRtlGeometry = async ({ width, height, mobile }) => {
+        const captureIdentity = Object.freeze({ sequence: ++mixedDirectionCaptureSequence })
+        const captureSequence = captureIdentity.sequence
+        const viewportId = `${mobile ? 'mobile' : 'desktop'}-${width}x${height}`
         await client.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile })
         const measured = await client.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `(async () => {
           const evaluateTranslatedControlGeometry = ${evaluateTranslatedControlGeometry.toString()}
@@ -732,17 +1398,23 @@ async function runBrowserSmoke(proxyBase) {
             { id: 'settings-action', selector: '.library-catalogue-actions-list .button:nth-of-type(1)', text: 'الإعدادات' },
             { id: 'metadata-export-action', selector: '.library-catalogue-actions-list .button:nth-of-type(2)', text: 'تصدير البيانات الوصفية المصححة' },
           ]
-          const details = document.querySelector('.library-cover-details-summary')
-          details?.focus()
-          details?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-          details?.click()
-          await new Promise((resolve) => setTimeout(resolve, 50))
-          const drawerButton = document.querySelector('.library-cover-details-drawer-button')
+          const drawerButton = document.querySelector('.library-cover-link')
+          drawerButton?.focus()
           drawerButton?.click()
           await new Promise((resolve) => setTimeout(resolve, 100))
           const sidebar = document.querySelector('#app-sidebar-vue')
           const sidebarClose = sidebar?.querySelector('button')
           const normalized = (value) => String(value || '').replace(/\s+/g, ' ').trim()
+          const expectedFixtureFields = ${JSON.stringify(mixedDirectionFixtureFields.ar)}
+          const fixtureFieldRows = expectedFixtureFields.map((spec) => {
+            const matches = [...document.querySelectorAll(spec.selector)]
+            const node = matches.length === 1 ? matches[0] : null
+            const style = node ? getComputedStyle(node) : null
+            return { id: spec.id, selector: spec.selector, surface: spec.surface, matchCount: matches.length,
+              text: normalized(node?.textContent), exactText: normalized(node?.textContent) === spec.value,
+              className: node?.className || '', dir: node?.getAttribute('dir') || '',
+              computedDirection: style?.direction || '', unicodeBidi: style?.unicodeBidi || '' }
+          })
           const clipping = catalogueGeometrySpecs.map((spec) => {
             const matches = [...document.querySelectorAll(spec.selector)]
             const control = matches.length === 1 ? matches[0] : null
@@ -779,13 +1451,58 @@ async function runBrowserSmoke(proxyBase) {
             keyboardFocus: document.activeElement === details || Boolean(sidebar?.contains(document.activeElement)),
             sidebarOpened: Boolean(sidebar && getComputedStyle(sidebar).display !== 'none'),
             sidebarCloseVisible: Boolean(sidebarClose && sidebarClose.getBoundingClientRect().width > 0),
+            isolatedHumanValues: document.querySelectorAll('bdi.library-bidi-human[dir="auto"]').length,
+            isolatedMachineValues: document.querySelectorAll('bdi.library-bidi-machine[dir="ltr"]').length,
+            expectedFixtureFields, fixtureFieldRows,
+            computedDirection: [...document.querySelectorAll('.library-cover-card,.library-native-item-sidebar,.library-sidebar-content')].map((node) => getComputedStyle(node).direction),
+            blanketDirectionForcing: [...document.querySelectorAll('.library-cover-card,.library-native-item-sidebar,.library-sidebar-content')].filter((node) => {
+              const own = getComputedStyle(node).direction
+              const parent = node.parentElement ? getComputedStyle(node.parentElement).direction : own
+              return own !== parent && !node.hasAttribute('dir')
+            }).length,
+            brokenNames: [...document.querySelectorAll('[aria-labelledby]')].filter((node) => (node.getAttribute('aria-labelledby') || '').split(/\s+/).some((id) => !document.getElementById(id))).length,
           }
           return value
         })()` })
-        return measured.result?.value
+        const observation = measured.result?.value
+        for (const spec of mixedDirectionFixtureFields.ar) {
+          const fieldRemote = await client.send('Runtime.evaluate', { expression: `document.querySelector(${JSON.stringify(spec.selector)})` })
+          const fieldDescription = fieldRemote?.result?.objectId ? await client.send('DOM.describeNode', { objectId: fieldRemote.result.objectId }) : null
+          const axBackendNodeId = fieldDescription?.node?.backendNodeId
+          const partial = axBackendNodeId ? await client.send('Accessibility.getPartialAXTree', { backendNodeId: axBackendNodeId, fetchRelatives: true }) : { nodes: [] }
+          const axNodes = partial.nodes || []
+          const selectedAxNode = axNodes.find((node) => Number(node.backendDOMNodeId) === Number(axBackendNodeId))
+          const byAxId = new Map(axNodes.map((node) => [String(node.nodeId), node]))
+          const rootedIds = new Set()
+          const pendingAxIds = selectedAxNode ? [String(selectedAxNode.nodeId)] : []
+          while (pendingAxIds.length) {
+            const nodeId = pendingAxIds.shift()
+            if (rootedIds.has(nodeId)) continue
+            rootedIds.add(nodeId)
+            pendingAxIds.push(...(byAxId.get(nodeId)?.childIds || []).map(String))
+          }
+          const exact = spec.axRole === 'StaticText'
+            ? axNodes.find((node) => rootedIds.has(String(node.nodeId)) && String(node.role?.value || '') === spec.axRole && String(node.name?.value || '') === spec.axName)
+            : selectedAxNode
+          const row = observation?.fixtureFieldRows?.find((candidate) => candidate.id === spec.id)
+          if (row) Object.assign(row, { viewportId, backendNodeId: fieldDescription?.node?.backendNodeId || 0,
+            axBackendNodeId: axBackendNodeId || 0,
+            matchedAxBackendNodeId: exact?.backendDOMNodeId || 0, selectedAxNodeId: String(selectedAxNode?.nodeId || ''), matchedAxNodeId: String(exact?.nodeId || ''),
+            axNodes: axNodes.map((node) => ({ nodeId: String(node.nodeId || ''), backendDOMNodeId: node.backendDOMNodeId || 0, childIds: (node.childIds || []).map(String), role: { value: String(node.role?.value || '') }, name: { value: String(node.name?.value || '') } })),
+            axRole: String(exact?.role?.value || ''), axName: String(exact?.name?.value || '') })
+        }
+        const layoutMetrics = await client.send('Page.getLayoutMetrics')
+        const visualViewport = layoutMetrics?.cssVisualViewport || layoutMetrics?.visualViewport
+        Object.assign(observation || {}, { viewportId, captureIdentity, captureSequence,
+          viewport: { width: Math.round(visualViewport?.clientWidth || 0), height: Math.round(visualViewport?.clientHeight || 0), mobile } })
+        recordMixedDirectionCapture(observation, { identity: captureIdentity, sequence: captureSequence, viewportId, width, height, mobile })
+        return observation
       }
       const rtlDesktop = await inspectRtlGeometry({ width: 1280, height: 900, mobile: false })
       const rtlMobile = await inspectRtlGeometry({ width: 390, height: 844, mobile: true })
+      const pairedFieldAssessment = assessMixedDirectionCaptures(mixedDirectionFixtureFields.ar,
+        { desktop: rtlDesktop, mobile: rtlMobile },
+        { desktopIdentity: rtlDesktop?.captureIdentity, mobileIdentity: rtlMobile?.captureIdentity })
       inclusiveDom = {
         de: german.result?.value?.missing?.length === 0,
         expectedGerman: german.result?.value?.expected || [],
@@ -802,13 +1519,58 @@ async function runBrowserSmoke(proxyBase) {
         keyboardFocus: rtlDesktop?.keyboardFocus === true && rtlMobile?.keyboardFocus === true,
         sidebarOpened: rtlDesktop?.sidebarOpened === true && rtlMobile?.sidebarOpened === true,
         sidebarCloseVisible: rtlDesktop?.sidebarCloseVisible === true && rtlMobile?.sidebarCloseVisible === true,
+        isolatedHumanValues: Math.min(rtlDesktop?.isolatedHumanValues || 0, rtlMobile?.isolatedHumanValues || 0),
+        isolatedMachineValues: Math.min(rtlDesktop?.isolatedMachineValues || 0, rtlMobile?.isolatedMachineValues || 0),
+        blanketDirectionForcing: Math.max(rtlDesktop?.blanketDirectionForcing ?? 1, rtlMobile?.blanketDirectionForcing ?? 1),
+        brokenNames: Math.max(rtlDesktop?.brokenNames ?? 1, rtlMobile?.brokenNames ?? 1),
+        expectedFixtureFields: rtlDesktop?.expectedFixtureFields || [],
+        fixtureFieldRows: { desktop: rtlDesktop?.fixtureFieldRows || [], mobile: rtlMobile?.fixtureFieldRows || [] },
+        fixtureFieldIsolation: pairedFieldAssessment.ok,
+        computedDirection: { desktop: rtlDesktop?.computedDirection || [], mobile: rtlMobile?.computedDirection || [] },
       }
+      inclusiveDom.exactAssociatedAxNames = pairedFieldAssessment.ok
     } finally {
       runOcc(['user:setting', user, 'core', 'lang', originalLanguage])
       await client.send('Emulation.clearDeviceMetricsOverride')
       await client.send('Page.navigate', { url: `${proxyBase}/apps/library/?browser-smoke=${Date.now()}` })
       await new Promise((resolve) => setTimeout(resolve, 2500))
     }
+
+    mixedDirectionEvidence = {
+      markers: {
+        browser_mixed_direction_arabic_locale: inclusiveDom?.arabic === true && inclusiveDom?.language === 'ar' && inclusiveDom?.direction === 'rtl',
+        browser_mixed_direction_german_locale: inclusiveDom?.de === true,
+        browser_bidi_values_isolated: inclusiveDom?.fixtureFieldIsolation === true,
+        browser_no_blanket_direction_forcing: inclusiveDom?.blanketDirectionForcing === 0,
+        browser_accessible_names_mixed_direction: inclusiveDom?.brokenNames === 0 && inclusiveDom?.exactAssociatedAxNames === true,
+        browser_fixture_scope_safe: proxyBase.startsWith('http://127.0.0.1:') && inclusiveDom?.fixtureCards === 3
+          && proxy.inboundEvidence.inboundAuthRejected >= 2 && proxy.inboundEvidence.inboundAuthAccepted > 0
+          && proxy.inboundEvidence.fixtureResponses > 0 && proxy.inboundEvidence.upstreamResponses > 0
+          && proxy.inboundEvidence.upstreamHeaderStripped === true,
+        browser_fixture_metadata_restored: runOcc(['user:setting', user, 'core', 'lang']).trim() === originalLanguage,
+      },
+    }
+    // Request bodies are inspected in memory only and are never printed or retained in evidence.
+    const persistenceEvents = []
+    for (const event of client.events) {
+      const request = event?.params?.request || {}
+      if (event?.method !== 'Network.requestWillBeSent' || ['GET', 'HEAD'].includes(String(request.method || '').toUpperCase())) {
+        persistenceEvents.push(event)
+        continue
+      }
+      let completePostData
+      try {
+        completePostData = (await client.send('Network.getRequestPostData', { requestId: event.params.requestId }))?.postData
+      } catch {
+        completePostData = undefined
+      }
+      persistenceEvents.push({ ...event, params: { ...event.params, request: { ...request, completePostData } } })
+    }
+    const fixtureRequestObservation = observeFixtureMutationRequests(persistenceEvents, ['910001', '910002', '910003'], 8192)
+    mixedDirectionEvidence.requestObservation = fixtureRequestObservation
+    mixedDirectionEvidence.markers.browser_fixture_persistence_zero_matches_and_complete_bodies = fixtureRequestObservation.safe === true
+    mixedDirectionEvidence.ok = Object.values(mixedDirectionEvidence.markers).every((value) => value === true)
+    for (const marker of Object.keys(mixedDirectionEvidence.markers)) print(marker, mixedDirectionEvidence.markers[marker])
 
     const starToggleResult = await client.send('Runtime.evaluate', {
       returnByValue: true,
@@ -850,7 +1612,7 @@ async function runBrowserSmoke(proxyBase) {
     })
     const starToggleDom = starToggleResult.result?.value ?? starToggleResult.value
 
-    const seedResponse = await fetch(`${proxyBase}/apps/library/catalogue?limit=100&sort=title`, { headers: { Accept: 'application/json' } })
+    const seedResponse = await authenticatedFetch(`${proxyBase}/apps/library/catalogue?limit=100&sort=title`, { headers: { Accept: 'application/json' } })
     const seedState = await seedResponse.json()
     const applyItem = (seedState.items || []).find((item) => Number.isSafeInteger(item.id) && item.id > 0)
     if (!applyItem || !String(dom.catalogueRequestToken || '').trim()) throw new Error('browser_batch_fixture_precondition_failed')
@@ -863,7 +1625,7 @@ async function runBrowserSmoke(proxyBase) {
     })
     previewParams.append('itemIds[]', String(applyItem.id))
 
-    const previewResponse = await fetch(`${proxyBase}/apps/library/bulk/items/edit-preview`, {
+    const previewResponse = await authenticatedFetch(`${proxyBase}/apps/library/bulk/items/edit-preview`, {
       method: 'POST',
       headers: {
         Accept: 'text/html',
@@ -879,7 +1641,7 @@ async function runBrowserSmoke(proxyBase) {
       requested: previewHtml.includes('Requested items'),
       wouldChange: previewHtml.includes('Would change'),
       polished: previewHtml.includes('library-batch-preview-stat-grid') && previewHtml.includes('library-batch-preview-table'),
-      apply: previewHtml.includes('Apply changes to current results') && previewHtml.includes('/apps/library/bulk/items/edit-apply'),
+      apply: previewHtml.includes('Apply changes to selected items') && previewHtml.includes('/apps/library/bulk/items/edit-apply'),
     }
 
     const originalPublication = applyItem?.publication || ''
@@ -1091,15 +1853,32 @@ async function runBrowserSmoke(proxyBase) {
     const creatorDiscoveryDom = await inspectDiscoveryRoute(client, creatorDiscoveryUrl, 'creator')
     creatorDiscoveryDom.activeCreator = creatorDiscoveryDom.activeFilterLabels?.some((label) => label.includes('Creator')) === true
 
-    const firstDetailsUrl = new URL(dom.firstDetails, proxyBase)
-    const detailUrl = `${proxyBase}${firstDetailsUrl.pathname}${firstDetailsUrl.search}`
-    print('browser_detail_target_present', detailUrl !== '')
-    const detailPreflight = await fetch(detailUrl, { redirect: 'manual' })
-    print('browser_detail_preflight_status', detailPreflight.status)
-    print('browser_detail_preflight_redirected', Boolean(detailPreflight.headers.get('location')))
-    const detailNavigate = await client.send('Page.navigate', { url: detailUrl })
-    print('browser_detail_navigate_error', detailNavigate.errorText || '')
-    await new Promise((resolve) => setTimeout(resolve, 2500))
+    let selectedDetail
+    try {
+      selectedDetail = await selectAuthenticatedDetailCandidate(realDetailCandidates, {
+        origin: proxyBase,
+        preflight: async (url) => unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', {
+          returnByValue: true, awaitPromise: true,
+          expression: `(async () => { const response = await fetch(${JSON.stringify(url)}, { credentials: 'same-origin', redirect: 'manual' }); return { status: response.status, browserContext: true } })()`,
+        }), { phase: 'detail-candidate-preflight' }),
+        navigate: async (url) => {
+          const navigation = await client.send('Page.navigate', { url })
+          if (navigation.errorText) return { status: 0, detailPage: false }
+          await new Promise((resolve) => setTimeout(resolve, 1800))
+          const result = await client.send('Runtime.evaluate', { returnByValue: true, expression: `({ status: performance.getEntriesByType('navigation')[0]?.responseStatus || 0, detailPage: Boolean(document.querySelector('#library-app.library-item-detail')) })` })
+          return unwrapCdpEvaluateResponse(result, { phase: 'detail-candidate-navigation' })
+        },
+      })
+    } catch (error) {
+      print('browser_detail_candidate_failure', error?.code || error?.message || String(error))
+      print('browser_detail_candidate_attempts', JSON.stringify(error?.attempts || []))
+      throw error
+    }
+    const detailUrl = selectedDetail.url
+    print('browser_detail_target_present', true)
+    print('browser_detail_candidate_authenticated', true)
+    print('browser_detail_preflight_status', selectedDetail.status)
+    print('browser_detail_candidate_attempts', JSON.stringify(selectedDetail.attempts))
     const detailResult = await client.send('Runtime.evaluate', {
       returnByValue: true,
       expression: `(() => {
@@ -1139,8 +1918,8 @@ async function runBrowserSmoke(proxyBase) {
             && document.querySelector('.library-creators-field .library-creator-chip-editor[data-creator-chip-editor]')
             && document.querySelector('.library-creators-field input[type="hidden"][name="creators"]')
             && document.querySelector('.library-creators-field .library-creator-chip-input')
-            && document.querySelector('.library-language-picklist[name="language[]"][multiple]')
-            && document.querySelector('.library-genre-picklist[name="genres[]"][multiple]')
+            && document.querySelector('.library-language-picklist[name="language[]"]')
+            && document.querySelector('.library-subject-field[name="subjects[]"]')
             && document.querySelector('input[name="publisher"][list="library-publisher-suggestions"]')
             && document.querySelector('#library-publisher-suggestions option[value="Packt"]')
             && document.querySelector('.library-detail-description-field textarea[name="description"][rows="10"]')
@@ -1149,7 +1928,7 @@ async function runBrowserSmoke(proxyBase) {
           detailMetadataHoverHelp: document.querySelectorAll('.library-detail-section-meta .library-field-label-help[title]').length >= 5
             && !document.querySelector('#library-publication-date-guidance')
             && !document.querySelector('#library-language-guidance')
-            && !document.querySelector('#library-genres-guidance')
+            && !document.querySelector('#library-subjects-guidance')
             && !document.querySelector('#library-classifications-guidance'),
           detailSectionsLabelled: requiredLabelledSections.every(([selector, id]) => {
             const section = document.querySelector(selector)
@@ -1298,7 +2077,7 @@ async function runBrowserSmoke(proxyBase) {
     const nearThresholdAfter = nearThresholdAfterResult.result?.value ?? nearThresholdAfterResult.value
 
     const timeoutWhilePending = await inspectStartupFailure('module-timeout', 10500)
-    const pendingStatusResponse = await fetch(`${proxyBase}/__library-smoke/status`)
+    const pendingStatusResponse = await authenticatedFetch(`${proxyBase}/__library-smoke/status`)
     const { moduleRequestPending } = await pendingStatusResponse.json()
     await new Promise((resolve) => setTimeout(resolve, 2500))
     const timeoutRecoveryResult = await client.send('Runtime.evaluate', { returnByValue: true, expression: `({ watchdogVisible: Boolean(document.querySelector('#library-startup-status:not([hidden])')), mounted: Boolean(document.querySelector('#library-vue-root[data-v-app]')) })` })
@@ -1417,7 +2196,7 @@ async function runBrowserSmoke(proxyBase) {
     print('browser_firstShowFiles_has_dir', dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
     print('browser_firstShowFiles_openfile_false', dom.firstShowFiles.includes('openfile=false'))
     print('browser_firstDownload_is_webdav', dom.firstDownload.includes('/remote.php/dav/files/'))
-    print('browser_firstDetails_is_item_page', dom.firstDetails.includes('/apps/library/items/'))
+    print('browser_firstDetails_is_item_page', new URL(detailUrl).pathname.startsWith('/apps/library/items/'))
     print('browser_bad_host_hrefs', dom.badHostHrefs)
     print('browser_catalogue_labelled', dom.catalogueLabelled)
     print('browser_unlabelled_controls', dom.unlabelledControls)
@@ -1567,13 +2346,13 @@ async function runBrowserSmoke(proxyBase) {
       && dom.cards > 0
       && dom.filters === true
       && dom.filterResultSummary === true
-      && dom.batchActions === true
-      && dom.batchTagForm === true
-      && dom.batchTagRemoveForm === true
-      && dom.batchMetadataResetForm === true
-      && dom.batchCoverRefreshForm === true
+      && dom.batchActions === false
+      && dom.batchTagForm === false
+      && dom.batchTagRemoveForm === false
+      && dom.batchMetadataResetForm === false
+      && dom.batchCoverRefreshForm === false
       && dom.singleCatalogueResultSummary === true
-      && dom.cardDetailChips >= dom.cards
+      && dom.cardDetailChips === 0
       && dom.filterPanelCollapsed === true
       && dom.discoveryShortcutsCollapsed === true
       && dom.discoveryShortcutsSummary.includes('Browse shortcuts')
@@ -1609,7 +2388,7 @@ async function runBrowserSmoke(proxyBase) {
       && (dom.firstShowFiles.includes('?dir=') || dom.firstShowFiles.includes('&dir='))
       && dom.firstShowFiles.includes('openfile=false')
       && dom.firstDownload.includes('/remote.php/dav/files/')
-      && dom.firstDetails.includes('/apps/library/items/')
+      && new URL(detailUrl).pathname.startsWith('/apps/library/items/')
       && dom.firstPublicationLanding.includes('/apps/library/publications/')
       && dom.firstYearLanding.includes('/apps/library/years/')
       && dom.firstCreatorLanding.includes('/apps/library/creators/')
@@ -1701,6 +2480,16 @@ async function runBrowserSmoke(proxyBase) {
       && consoleErrors.length === 0
       && injectedFailureOk === true
       && legacyGate.ok === true
+      && inclusiveEvidence.accessibility.ok === true
+      && inclusiveEvidence.adaptation.ok === true
+      && mixedDirectionEvidence.markers.browser_mixed_direction_arabic_locale === true
+      && mixedDirectionEvidence.markers.browser_mixed_direction_german_locale === true
+      && mixedDirectionEvidence.markers.browser_bidi_values_isolated === true
+      && mixedDirectionEvidence.markers.browser_no_blanket_direction_forcing === true
+      && mixedDirectionEvidence.markers.browser_accessible_names_mixed_direction === true
+      && mixedDirectionEvidence.markers.browser_fixture_scope_safe === true
+      && mixedDirectionEvidence.markers.browser_fixture_metadata_restored === true
+      && mixedDirectionEvidence.markers.browser_fixture_persistence_zero_matches_and_complete_bodies === true
 
     if (!ok) {
       print('browser_smoke_ok', false)
@@ -1730,9 +2519,12 @@ let proxy
 try {
   token = parseToken(runOcc(['user:add-app-password', '--no-interaction', '--name', tokenName, user]))
   if (!token) throw new Error('Temporary app password was not created')
-  proxy = await startAuthProxy(token)
+  proxy = await startAuthProxy(token, inboundAuthorization)
   const proxyBase = `http://127.0.0.1:${proxy.address().port}`
-  await runBrowserSmoke(proxyBase)
+  const missing = await fetch(`${proxyBase}/apps/library/?localization-fixture=1`)
+  const wrong = await fetch(`${proxyBase}/apps/library/?localization-fixture=1`, { headers: { 'x-library-smoke-authorization': 'wrong' } })
+  if (missing.status !== 401 || wrong.status !== 401) throw new Error('Inbound smoke proxy authentication did not fail closed')
+  await runBrowserSmoke(proxyBase, proxy)
 } catch (error) {
   print('browser_smoke_ok', false)
   console.error('browser_smoke_failure=true')

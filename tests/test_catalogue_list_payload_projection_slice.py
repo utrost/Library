@@ -10,12 +10,12 @@ NORMAL_KEYS = {
     "lastOpenedAt", "extension", "shelf", "scanStatus", "scanError",
     "hasScannerConflict", "scannerConflictCount", "nextcloudTags",
     "coverUrl", "starUrl", "openUrl", "filesUrl", "downloadUrl",
-    "detailsUrl",
+    "detailsUrl", "subjects", "classifications",
 }
 
 CONFLICT_EXTRA_KEYS = {
-    "cachedPath", "subtitle", "language", "publisher", "genres",
-    "classifications", "metadataSource", "fieldSources", "fieldValues",
+    "cachedPath", "subtitle", "language", "publisher",
+    "metadataSource", "fieldSources", "fieldValues",
     "resetFieldUrl",
 }
 

@@ -3,8 +3,8 @@ import { execFileSync } from 'node:child_process'
 const upstream = process.env.NC_URL || 'http://100.123.149.120:8088'
 const user = process.env.NC_USER || 'uwe'
 const container = process.env.NC_CONTAINER || 'nextcloud'
-const tokenName = `hermes-library-genres-smoke-${Date.now()}`
-const desiredGenre = 'photography'
+const tokenName = `hermes-library-subjects-smoke-${Date.now()}`
+const desiredSubject = 'photography'
 const desiredClassification = 'reference collection'
 
 function runDocker(args) {
@@ -60,22 +60,22 @@ async function fetchText(pathOrUrl, token) {
 }
 
 function itemState(itemId) {
-  const json = runDockerPhp(`require_once "/var/www/html/lib/base.php"; $db=\\OC::$server->get(\\OCP\\IDBConnection::class); $qb=$db->getQueryBuilder(); $res=$qb->select("genres_json", "classifications_json", "user_edited", "metadata_source", "field_sources", "field_values")->from("library_items")->where($qb->expr()->eq("id", $qb->createNamedParameter(${Number(itemId)})))->executeQuery(); $row=$res->fetch(); $res->closeCursor(); echo json_encode($row ?: []);`)
+  const json = runDockerPhp(`require_once "/var/www/html/lib/base.php"; $db=\\OC::$server->get(\\OCP\\IDBConnection::class); $qb=$db->getQueryBuilder(); $res=$qb->select("subjects_json", "classifications_json", "user_edited", "metadata_source", "field_sources", "field_values")->from("library_items")->where($qb->expr()->eq("id", $qb->createNamedParameter(${Number(itemId)})))->executeQuery(); $row=$res->fetch(); $res->closeCursor(); echo json_encode($row ?: []);`)
   return JSON.parse(json || '{}')
 }
 
-function setGenresClassifications(itemId, genres, classifications) {
-  runDockerPhp(`require_once "/var/www/html/lib/base.php"; $db=\\OC::$server->get(\\OCP\\IDBConnection::class); $qb=$db->getQueryBuilder(); $qb->update("library_items")->set("genres_json", $qb->createNamedParameter(${JSON.stringify(JSON.stringify(genres))}))->set("classifications_json", $qb->createNamedParameter(${JSON.stringify(JSON.stringify(classifications))}))->set("user_edited", $qb->createNamedParameter(1))->set("metadata_source", $qb->createNamedParameter("user"))->set("updated_at", $qb->createNamedParameter(time()))->where($qb->expr()->eq("id", $qb->createNamedParameter(${Number(itemId)})))->executeStatement();`)
+function setSubjectsClassifications(itemId, subjects, classifications) {
+  runDockerPhp(`require_once "/var/www/html/lib/base.php"; $db=\\OC::$server->get(\\OCP\\IDBConnection::class); $qb=$db->getQueryBuilder(); $qb->update("library_items")->set("subjects_json", $qb->createNamedParameter(${JSON.stringify(JSON.stringify(subjects))}))->set("classifications_json", $qb->createNamedParameter(${JSON.stringify(JSON.stringify(classifications))}))->set("user_edited", $qb->createNamedParameter(1))->set("metadata_source", $qb->createNamedParameter("user"))->set("updated_at", $qb->createNamedParameter(time()))->where($qb->expr()->eq("id", $qb->createNamedParameter(${Number(itemId)})))->executeStatement();`)
 }
 
 function restoreItem(itemId, state) {
   const fieldSources = Buffer.from(String(state.field_sources || '')).toString('base64')
   const fieldValues = Buffer.from(String(state.field_values || '')).toString('base64')
-  runDockerPhp(`require_once "/var/www/html/lib/base.php"; $db=\\OC::$server->get(\\OCP\\IDBConnection::class); $qb=$db->getQueryBuilder(); $sources=base64_decode("${fieldSources}"); $values=base64_decode("${fieldValues}"); $qb->update("library_items")->set("genres_json", $qb->createNamedParameter(${JSON.stringify(String(state.genres_json || '[]'))}))->set("classifications_json", $qb->createNamedParameter(${JSON.stringify(String(state.classifications_json || '[]'))}))->set("user_edited", $qb->createNamedParameter(${Number(state.user_edited || 0)}))->set("metadata_source", $qb->createNamedParameter(${JSON.stringify(String(state.metadata_source || 'filename'))}))->set("field_sources", $qb->createNamedParameter($sources === "" ? null : $sources))->set("field_values", $qb->createNamedParameter($values === "" ? null : $values))->set("updated_at", $qb->createNamedParameter(time()))->where($qb->expr()->eq("id", $qb->createNamedParameter(${Number(itemId)})))->executeStatement();`)
+  runDockerPhp(`require_once "/var/www/html/lib/base.php"; $db=\\OC::$server->get(\\OCP\\IDBConnection::class); $qb=$db->getQueryBuilder(); $sources=base64_decode("${fieldSources}"); $values=base64_decode("${fieldValues}"); $qb->update("library_items")->set("subjects_json", $qb->createNamedParameter(${JSON.stringify(String(state.subjects_json || '[]'))}))->set("classifications_json", $qb->createNamedParameter(${JSON.stringify(String(state.classifications_json || '[]'))}))->set("user_edited", $qb->createNamedParameter(${Number(state.user_edited || 0)}))->set("metadata_source", $qb->createNamedParameter(${JSON.stringify(String(state.metadata_source || 'filename'))}))->set("field_sources", $qb->createNamedParameter($sources === "" ? null : $sources))->set("field_values", $qb->createNamedParameter($values === "" ? null : $values))->set("updated_at", $qb->createNamedParameter(time()))->where($qb->expr()->eq("id", $qb->createNamedParameter(${Number(itemId)})))->executeStatement();`)
 }
 
 function fail(reason, extra = {}) {
-  console.log(`genres_classifications_smoke_ok=false reason=${reason}`)
+  console.log(`subjects_classifications_smoke_ok=false reason=${reason}`)
   for (const [key, value] of Object.entries(extra)) {
     console.log(`${key}=${value}`)
   }
@@ -95,13 +95,13 @@ try {
     const first = state?.items?.[0] || {}
     itemId = Number.parseInt(String(first.id || 0), 10)
     if (!itemId || !first.detailsUrl || !state?.metadataExportUrl) {
-      fail('catalogue_item_missing_genre_prerequisites')
+      fail('catalogue_item_missing_subject_prerequisites')
     } else {
       originalState = itemState(itemId)
-      setGenresClassifications(itemId, [desiredGenre, 'history'], [desiredClassification, 'manual'])
-      const genrePage = await fetchText(`/apps/library/?genre=${encodeURIComponent(desiredGenre)}&limit=1`, token)
-      const genreState = decodeInitialState(genrePage.text)
-      const genreFirst = genreState?.items?.[0] || {}
+      setSubjectsClassifications(itemId, [desiredSubject, 'history'], [desiredClassification, 'manual'])
+      const subjectPage = await fetchText(`/apps/library/?subject=${encodeURIComponent(desiredSubject)}&limit=1`, token)
+      const subjectState = decodeInitialState(subjectPage.text)
+      const subjectFirst = subjectState?.items?.[0] || {}
       const classificationPage = await fetchText(`/apps/library/?classification=${encodeURIComponent(desiredClassification)}&limit=1`, token)
       const classificationState = decodeInitialState(classificationPage.text)
       const classificationFirst = classificationState?.items?.[0] || {}
@@ -110,22 +110,22 @@ try {
       const exportPayload = JSON.parse(exported.text)
       const exportedItem = exportPayload.items.find((item) => Number(item.id) === itemId)
 
-      console.log(`genres_item_id=${itemId}`)
-      console.log(`genre_filter_http=${genrePage.status}`)
-      console.log(`genre_filter_first_matches=${Number(genreFirst.id || 0) === itemId}`)
-      console.log(`genre_filter_result_contains_genre=${genreFirst.genres?.includes(desiredGenre)}`)
+      console.log(`subjects_item_id=${itemId}`)
+      console.log(`subject_filter_http=${subjectPage.status}`)
+      console.log(`subject_filter_first_matches=${Number(subjectFirst.id || 0) === itemId}`)
+      console.log(`subject_filter_result_contains_subject=${subjectFirst.subjects?.includes(desiredSubject)}`)
       console.log(`classification_filter_http=${classificationPage.status}`)
       console.log(`classification_filter_first_matches=${Number(classificationFirst.id || 0) === itemId}`)
       console.log(`classification_filter_result_contains_classification=${classificationFirst.classifications?.includes(desiredClassification)}`)
-      console.log(`genres_detail_http=${detail.status}`)
-      console.log(`genres_detail_has_fields=${detail.text.includes('name="genres[]"') && detail.text.includes('name="classifications"')}`)
-      console.log(`genres_export_http=${exported.status}`)
-      console.log(`genres_export_contains_values=${exportedItem?.genres?.includes(desiredGenre) && exportedItem?.classifications?.includes(desiredClassification)}`)
+      console.log(`subjects_detail_http=${detail.status}`)
+      console.log(`subjects_detail_has_fields=${detail.text.includes('name="subjects[]"') && detail.text.includes('name="classifications"')}`)
+      console.log(`subjects_export_http=${exported.status}`)
+      console.log(`subjects_export_contains_values=${exportedItem?.subjects?.includes(desiredSubject) && exportedItem?.classifications?.includes(desiredClassification)}`)
 
-      if (genrePage.status !== 200 || Number(genreFirst.id || 0) !== itemId || !genreFirst.genres?.includes(desiredGenre) || classificationPage.status !== 200 || Number(classificationFirst.id || 0) !== itemId || !classificationFirst.classifications?.includes(desiredClassification) || detail.status !== 200 || !detail.text.includes('name="genres[]"') || !detail.text.includes('name="classifications"') || exported.status !== 200 || !exportedItem?.genres?.includes(desiredGenre) || !exportedItem?.classifications?.includes(desiredClassification)) {
-        fail('genres_classifications_contract_failed')
+      if (subjectPage.status !== 200 || Number(subjectFirst.id || 0) !== itemId || !subjectFirst.subjects?.includes(desiredSubject) || classificationPage.status !== 200 || Number(classificationFirst.id || 0) !== itemId || !classificationFirst.classifications?.includes(desiredClassification) || detail.status !== 200 || !detail.text.includes('name="subjects[]"') || !detail.text.includes('name="classifications"') || exported.status !== 200 || !exportedItem?.subjects?.includes(desiredSubject) || !exportedItem?.classifications?.includes(desiredClassification)) {
+        fail('subjects_classifications_contract_failed')
       } else {
-        console.log('genres_classifications_smoke_ok=true')
+        console.log('subjects_classifications_smoke_ok=true')
       }
     }
   }
@@ -135,7 +135,7 @@ try {
   if (itemId && originalState) {
     try { restoreItem(itemId, originalState) } catch {}
     const restored = itemState(itemId)
-    console.log(`genres_restored=${restored.genres_json === (originalState.genres_json || '[]') && restored.classifications_json === (originalState.classifications_json || '[]')}`)
+    console.log(`subjects_restored=${restored.subjects_json === (originalState.subjects_json || '[]') && restored.classifications_json === (originalState.classifications_json || '[]')}`)
   }
   if (token) {
     try {

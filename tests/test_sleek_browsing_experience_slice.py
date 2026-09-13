@@ -10,12 +10,11 @@ def read(path: str) -> str:
 def test_vue_catalogue_has_browsing_home_dashboard_details_drawer_and_issue_strip():
     component = read("src/App.vue")
 
-    assert "library-home-dashboard" in component
-    assert "Continue reading" in component
-    assert "Recently added" in component
-    assert "Rediscover" in component
-    assert "featuredHomeItems" in component
-    assert "recentHomeItems" in component
+    assert "library-home-dashboard" not in component
+    assert "featuredHomeItems" not in component
+    assert "recentHomeItems" not in component
+    assert "sort=lastOpened" in component
+    assert "starred=1" in component
 
     assert "library-detail-drawer" in component
     assert "selectedDrawerItem" in component
@@ -23,7 +22,7 @@ def test_vue_catalogue_has_browsing_home_dashboard_details_drawer_and_issue_stri
     assert "library-native-item-sidebar" in component
     assert "drawerNextItem" in component
     assert "drawerPreviousItem" in component
-    assert "Open full details" in component
+    assert "Advanced details" in component
 
     assert "library-publication-issue-strip" in component
     assert "Visual issue strip" in component
@@ -35,10 +34,8 @@ def test_sleek_browsing_css_adds_motion_depth_and_mobile_drawer():
     component = read("src/App.vue")
 
     for selector in [
-        ".library-home-dashboard",
-        ".library-home-hero-card",
-        ".library-detail-drawer",
-        ".library-detail-drawer-backdrop",
+        ".library-sidebar-content",
+        ".library-cover-card",
         ".library-publication-issue-strip",
         ".library-issue-strip-card",
     ]:
@@ -58,8 +55,8 @@ def test_vitest_exercises_compact_home_tools_and_drawer_interaction():
     assert ".library-catalogue-workspace" in test
     assert ".library-workspace-panel--browse" in test
     assert ".library-sidebar-content" in test
-    assert "await wrapper.find('.library-cover-details-drawer-button').trigger('click')" in test
-    assert "Open full details" in test
+    assert "await wrapper.find('.library-cover-link').trigger('click')" in test
+    assert "Advanced details" in test
 
 
 def test_smoke_and_docs_track_sleek_browsing_slice():
@@ -71,9 +68,9 @@ def test_smoke_and_docs_track_sleek_browsing_slice():
         read("CHANGELOG.md"),
     ]).lower()
 
-    assert "source_has_sleek_browsing_home" in smoke
+    assert "source_has_calm_catalogue" in smoke
     assert "source_has_detail_drawer" in smoke
     assert "source_has_visual_issue_strip" in smoke
-    assert "home dashboard" in docs
+    assert "alpha.168" in docs
     assert "details drawer" in docs
     assert "visual issue strip" in docs

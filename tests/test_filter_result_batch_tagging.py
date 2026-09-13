@@ -39,12 +39,12 @@ def test_vue_and_fallback_expose_batch_actions_for_current_filter_results():
 
     for source in (app,):
         assert "library-batch-actions" in source
-        assert "Batch actions for current results" in source
+        assert "Batch actions for selected publications" in source
         assert "Apply Nextcloud tag to current results" in source or "Add tag" in source
         assert "batchTagUrl" in source
         assert "name=\"nextcloudTagName\"" in source or "name = 'nextcloudTagName'" in source
         assert "name=\"q\"" in source or "hidden.name = key" in source
-        assert "Current filter result" in source
+        assert "selectedItemIds" in source
 
     assert "print('browser_batch_actions', dom.batchActions)" in smoke
     assert "print('browser_batch_tag_form', dom.batchTagForm)" in smoke
@@ -56,7 +56,7 @@ def test_docs_and_version_track_filter_result_batch_tagging():
     info = (ROOT / "appinfo" / "info.xml").read_text()
     package = (ROOT / "package.json").read_text()
 
-    assert "filter-result batch tagging" in guide.lower()
-    assert "current filter results" in roadmap.lower()
-    assert "<version>0.1.0-alpha.165</version>" in info
-    assert '"version": "0.1.0-alpha.165"' in package
+    assert "batch tagging exists" in guide.lower()
+    assert "selected visible items" in roadmap.lower()
+    assert "<version>0.1.0-alpha.168</version>" in info
+    assert '"version": "0.1.0-alpha.168"' in package

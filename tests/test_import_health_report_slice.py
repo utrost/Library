@@ -33,17 +33,16 @@ def test_catalogue_keeps_import_health_overview_inside_actions_menu():
     app = (ROOT / "src" / "App.vue").read_text()
 
     assert "const importHealthSummary" in app
-    assert "library-actions-health-overview" in app
-    assert "Metadata overview" in app
+    assert 'class="library-actions-health-overview"' not in app
+    assert "Metadata overview" not in app
     assert "library-import-health-panel" not in app
     assert "Real-file findings" not in app
-    assert "Metadata errors" in app
-    assert "Archive/container check" in app
-    assert "Cover health" in app
-    assert "suggestedRepairAction" in app
-    assert "actualContainerType" in app
-    assert "nextcloudPreview" in app
-    assert "libraryCoverRoute" in app
+    assert "File problems" in app
+    assert "Cover problems" in app
+    assert "suggestedRepairAction" not in app
+    assert "actualContainerType" not in app
+    assert "{{ row.nextcloudPreview" not in app
+    assert "{{ row.libraryCoverRoute" not in app
     assert "?status=metadata_error" in app
 
 

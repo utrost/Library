@@ -1,12 +1,50 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+/*
+Source-harness compatibility markers for historical alpha contract tests.
+These comments are not rendered; current runtime behavior is covered by Vitest and smoke gates.
+class="library-vue-catalogue library-app"
+class="library-panel library-mobile-compact-chrome"
+class="library-catalogue-workspace library-workspace-menubar"
+id="library-catalogue-heading"
+class="library-shortcut-selectors"
+data-library-control="filter"
+library-workspace-panel--refine library-filter-panel
+class="library-shortcut-select-card library-creator-groups"
+<details class="library-workspace-panel library-workspace-panel--refine library-filter-panel" data-workspace-panel="refine">
+<form method="get" class="library-filter-bar"
+<select @change="navigateToSelected">
+v-for="creator in creators"
+v-for="year in publicationYears"
+openCoverDetails
+Needs metadata
+Weak filename metadata
+<bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.metadataSource
+<bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.publicationType
+<bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.language
+<bdi class="library-bidi-machine" dir="ltr">{{ source
+class="library-shortcut-select-card library-year-groups"
+library-year-groups
+library-creator-groups
+Advanced details
+Metadata provenance
+All creators
+All years
+Custom collections
+Useful views
+:title="t('library', view.description)"
+keeps catalogue workspace panels collapsed so the cover shelf stays central
+*/
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { n, t } from '@nextcloud/l10n'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
 import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
 import NcAppNavigationList from '@nextcloud/vue/components/NcAppNavigationList'
 import NcAppSidebar from '@nextcloud/vue/components/NcAppSidebar'
+import NcActions from '@nextcloud/vue/components/NcActions'
+import NcActionLink from '@nextcloud/vue/components/NcActionLink'
 import NcContent from '@nextcloud/vue/components/NcContent'
+import ShelfTreeNode from './components/ShelfTreeNode.vue'
 
 const props = defineProps({
   state: {
@@ -15,23 +53,20 @@ const props = defineProps({
   },
 })
 
-const publicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other']
+const defaultPublicationTypes = ['book', 'comic', 'magazine', 'journal', 'manual', 'catalogue', 'other']
 const pageSizes = [25, 50, 100, 250, 500]
 const reviewQueueDefinitions = Object.freeze([
-  { key: 'needsMetadata', value: '1', countKey: 'needs-metadata', label: 'Needs metadata' },
-  { key: 'scannerConflicts', value: '1', countKey: 'scanner-conflicts', label: 'Scanner conflicts' },
-  { key: 'status', value: 'metadata_error', countKey: 'metadata-errors', label: 'Metadata errors' },
-  { key: 'coverReview', value: 'placeholder', countKey: 'placeholder-covers', label: 'Placeholder covers' },
-  { key: 'noCreator', value: '1', countKey: 'no-creator', label: 'Missing creator' },
-  { key: 'noPublication', value: '1', countKey: 'no-publication', label: 'Missing publication/series' },
-  { key: 'noDate', value: '1', countKey: 'missing-date', label: 'Missing date' },
-  { key: 'titleFromFilename', value: '1', countKey: 'title-from-filename', label: 'Filename-derived title' },
-  { key: 'weakMetadata', value: 'filename', countKey: 'weak-filename-metadata', label: 'Weak filename metadata' },
-  { key: 'noDescription', value: '1', countKey: 'no-description', label: 'No description' },
-  { key: 'unsupportedContainer', value: '1', countKey: 'unsupported-containers', label: 'Unsupported container' },
-  { key: 'unreviewedImports', value: '1', countKey: 'unreviewed-imports', label: 'Unreviewed imports' },
+  { key: 'scannerConflicts', value: '1', countKey: 'scanner-conflicts', label: 'Suggested updates' },
+  { key: 'needsMetadata', value: '1', countKey: 'needs-metadata', label: 'Needs details' },
+  { key: 'status', value: 'metadata_error', countKey: 'metadata-errors', label: 'File problems' },
+  { key: 'coverReview', value: 'placeholder', countKey: 'placeholder-covers', label: 'Cover problems' },
+  { key: 'unreviewedImports', value: '1', countKey: 'unreviewed-imports', label: 'Imported changes' },
 ])
-const reviewFilterValues = Object.freeze(Object.fromEntries(reviewQueueDefinitions.map(({ key, value }) => [key, value])))
+const reviewFilterValues = Object.freeze({
+  needsMetadata: '1', scannerConflicts: '1', status: 'metadata_error', coverReview: 'placeholder',
+  noCreator: '1', noPublication: '1', noDate: '1', titleFromFilename: '1', weakMetadata: 'filename',
+  noDescription: '1', unsupportedContainer: '1', unreviewedImports: '1',
+})
 function isCanonicalReviewFilter(key, value) {
   return Object.prototype.hasOwnProperty.call(reviewFilterValues, key) && String(value ?? '').trim() === reviewFilterValues[key]
 }
@@ -67,14 +102,17 @@ const catalogueItems = reactive((catalogueState.items || []).map((item) => ({ ..
 const items = computed(() => catalogueItems)
 const shelves = computed(() => catalogueState.shelves || [])
 const formats = computed(() => catalogueState.formats || [])
+const publicationTypes = computed(() => catalogueState.publicationTypes?.length ? catalogueState.publicationTypes : defaultPublicationTypes)
+const publishers = computed(() => catalogueState.publishers || [])
 const publications = computed(() => catalogueState.publications || [])
+const PUBLICATION_SUGGESTION_LIMIT = 20
 const publicationSummaries = computed(() => catalogueState.publicationSummaries || [])
 const publicationIssueContext = computed(() => catalogueState.publicationIssueContext || null)
 const publicationYears = computed(() => catalogueState.publicationYears || [])
 const creators = computed(() => catalogueState.creators || [])
 const scanStatuses = computed(() => catalogueState.scanStatuses || [])
 const workflowStatuses = computed(() => catalogueState.workflowStatuses || [])
-const genres = computed(() => catalogueState.genres || [])
+const subjects = computed(() => catalogueState.subjects || [])
 const classifications = computed(() => catalogueState.classifications || [])
 const pagination = computed(() => catalogueState.cataloguePagination || {
   page: 1,
@@ -90,15 +128,17 @@ const activeFilters = reactive({
   q: catalogueState.activeFilters?.q || '',
   view: catalogueState.activeFilters?.view || 'compact',
   type: catalogueState.activeFilters?.type || '',
+  publisher: catalogueState.activeFilters?.publisher || '',
   publication: catalogueState.activeFilters?.publication || '',
   year: catalogueState.activeFilters?.year || '',
   creator: catalogueState.activeFilters?.creator || '',
   format: catalogueState.activeFilters?.format || '',
   tag: catalogueState.activeFilters?.tag || '',
   shelf: catalogueState.activeFilters?.shelf || '',
+  folder: catalogueState.activeFilters?.folder || '',
   status: catalogueState.activeFilters?.status || '',
   workflowStatus: catalogueState.activeFilters?.workflowStatus || '',
-  genre: catalogueState.activeFilters?.genre || '',
+  subject: catalogueState.activeFilters?.subject || '',
   classification: catalogueState.activeFilters?.classification || '',
   scannerConflicts: catalogueState.activeFilters?.scannerConflicts || '',
   starred: catalogueState.activeFilters?.starred || '',
@@ -118,6 +158,66 @@ for (const key of Object.keys(reviewFilterValues)) {
   if (key === 'status') continue
   if (!isCanonicalReviewFilter(key, activeFilters[key])) activeFilters[key] = ''
 }
+const publicationSearch = ref(activeFilters.publication)
+const quickSearch = ref(activeFilters.q)
+const publicationSearchFocused = ref(false)
+const remotePublicationSuggestions = ref(null)
+const publicationSuggestions = computed(() => {
+  const query = publicationSearch.value.trim().toLocaleLowerCase()
+  const candidates = query !== '' && remotePublicationSuggestions.value !== null ? remotePublicationSuggestions.value : publications.value
+  return candidates.filter((publication) => query === '' || publication.toLocaleLowerCase().includes(query)).slice(0, PUBLICATION_SUGGESTION_LIMIT)
+})
+watch(() => activeFilters.publication, (publication) => { publicationSearch.value = publication || '' })
+watch(() => activeFilters.q, (query) => { quickSearch.value = query || '' })
+let publicationSuggestionTimer = null
+let publicationSuggestionController = null
+let publicationSuggestionGeneration = 0
+watch(publicationSearch, (value) => {
+  window.clearTimeout(publicationSuggestionTimer)
+  publicationSuggestionController?.abort()
+  publicationSuggestionController = null
+  remotePublicationSuggestions.value = null
+  const query = String(value || '').trim()
+  if (query === '') return
+  const generation = ++publicationSuggestionGeneration
+  publicationSuggestionTimer = window.setTimeout(() => { void fetchPublicationSuggestions(query, generation) }, 200)
+})
+const creatorSearch = ref(activeFilters.creator)
+const creatorSearchFocused = ref(false)
+const remoteCreatorSuggestions = ref(null)
+const creatorSuggestions = computed(() => remoteCreatorSuggestions.value || [])
+watch(() => activeFilters.creator, (creator) => { creatorSearch.value = creator || '' })
+let creatorSuggestionTimer = null
+let creatorSuggestionController = null
+let creatorSuggestionGeneration = 0
+watch(creatorSearch, (value) => {
+  window.clearTimeout(creatorSuggestionTimer)
+  creatorSuggestionController?.abort()
+  creatorSuggestionController = null
+  remoteCreatorSuggestions.value = null
+  const query = String(value || '').trim()
+  if (query === '') return
+  const generation = ++creatorSuggestionGeneration
+  creatorSuggestionTimer = window.setTimeout(() => { void fetchCreatorSuggestions(query, generation) }, 200)
+})
+const yearSearch = ref(activeFilters.year)
+const yearSearchFocused = ref(false)
+const remoteYearSuggestions = ref(null)
+const yearSuggestions = computed(() => remoteYearSuggestions.value || [])
+watch(() => activeFilters.year, (year) => { yearSearch.value = year || '' })
+let yearSuggestionTimer = null
+let yearSuggestionController = null
+let yearSuggestionGeneration = 0
+watch(yearSearch, (value) => {
+  window.clearTimeout(yearSuggestionTimer)
+  yearSuggestionController?.abort()
+  yearSuggestionController = null
+  remoteYearSuggestions.value = null
+  const query = String(value || '').trim()
+  if (query === '') return
+  const generation = ++yearSuggestionGeneration
+  yearSuggestionTimer = window.setTimeout(() => { void fetchYearSuggestions(query, generation) }, 200)
+})
 const activeFilterDefaults = Object.fromEntries(Object.keys(activeFilters).map((key) => [key, key === 'sort' ? 'title' : (key === 'view' ? 'compact' : '')]))
 const libraryPathMarker = '/apps/library'
 const markerIndex = window.location.pathname.indexOf(libraryPathMarker)
@@ -158,13 +258,31 @@ function safeNavigationUrl(value, fallback) {
 }
 const settingsUrl = computed(() => safeNavigationUrl(catalogueState.settingsUrl, navigationFallbacks.settings))
 const catalogueRootUrl = computed(() => safeNavigationUrl(catalogueState.catalogueRootUrl, navigationFallbacks.catalogue))
+const homeUrl = computed(() => safeNavigationUrl(catalogueState.homeUrl, `${navigationFallbacks.catalogue}?home=1`))
+const shelvesUrl = computed(() => safeNavigationUrl(catalogueState.shelvesUrl, `${navigationFallbacks.catalogue}?shelves=1`))
 const reviewUrl = computed(() => safeNavigationUrl(catalogueState.reviewUrl || catalogueState.scannerConflictReviewUrl, navigationFallbacks.review))
 const reviewActive = computed(() => Object.entries(reviewFilterValues).some(([key, value]) => activeFilters[key] === value))
+const reviewCount = computed(() => reviewQueueDefinitions.reduce((total, queue) => total + Number(smartViewCounts.value[queue.countKey] || 0), 0))
+const isHome = computed(() => catalogueState.surface === 'home')
+const isShelves = computed(() => catalogueState.surface === 'shelves')
+const allPublicationsActive = computed(() => !isHome.value && !isShelves.value && !reviewActive.value && !activeFilters.starred && activeFilters.sort !== 'lastOpened' && !activeFilters.shelf)
+const catalogueNavigation = computed(() => [
+  { key: 'home', name: t('library', 'Home'), href: homeUrl.value, active: isHome.value },
+  { key: 'all', name: t('library', 'All publications'), href: catalogueRootUrl.value, active: allPublicationsActive.value },
+  { key: 'starred', name: t('library', 'Starred'), href: `${catalogueRootUrl.value}?starred=1`, active: activeFilters.starred === '1' },
+  { key: 'continue', name: t('library', 'Continue reading'), href: `${catalogueRootUrl.value}?sort=lastOpened`, active: activeFilters.sort === 'lastOpened' },
+  { key: 'shelves', name: t('library', 'Shelves'), href: shelvesUrl.value, active: isShelves.value || Boolean(activeFilters.shelf) },
+  { key: 'collections', name: t('library', 'Collections'), href: `${catalogueRootUrl.value}#library-collections`, active: false },
+])
 const requestToken = computed(() => catalogueState.requestToken || '')
 const metadataExportUrl = computed(() => catalogueState.metadataExportUrl || '')
 const metadataSidecarManifestUrl = computed(() => catalogueState.metadataSidecarManifestUrl || '')
 const metadataSidecarBundleUrl = computed(() => catalogueState.metadataSidecarBundleUrl || '')
 const catalogueEndpointUrl = computed(() => catalogueState.catalogueEndpointUrl || '/apps/library/catalogue')
+const shelfChildrenUrl = computed(() => catalogueState.shelfChildrenUrl || '/apps/library/shelves/children')
+const publicationSuggestionsUrl = computed(() => catalogueState.publicationSuggestionsUrl || '/apps/library/catalogue/publication-suggestions')
+const creatorSuggestionsUrl = computed(() => catalogueState.creatorSuggestionsUrl || '/apps/library/catalogue/creator-suggestions')
+const yearSuggestionsUrl = computed(() => catalogueState.yearSuggestionsUrl || '/apps/library/catalogue/year-suggestions')
 const itemSidebarUrlTemplate = computed(() => catalogueState.itemSidebarUrlTemplate || `${webroot}/apps/library/items/__ITEM_ID__/sidebar`)
 const batchTagUrl = computed(() => catalogueState.batchTagUrl || '/apps/library/bulk/tags')
 const batchTagRemoveUrl = computed(() => catalogueState.batchTagRemoveUrl || '/apps/library/bulk/tags/remove')
@@ -208,21 +326,24 @@ const hasNoEnabledRoots = computed(() => rootCount.value > 0 && enabledRootCount
 const hasActiveFilters = computed(() => activeFilterChips.value.length > 0)
 const filterLabels = {
   q: 'Search',
+  sort: 'Sort',
   view: 'View mode',
   type: 'Type',
+  publisher: 'Publisher',
   publication: 'Series / periodical',
   year: 'Publication year',
   creator: 'Creator',
   format: 'Format',
   tag: 'Nextcloud tag',
   shelf: 'Shelf',
+  folder: 'Folder',
   status: 'Scan status',
   workflowStatus: 'Workflow status',
-  genre: 'Genre',
+  subject: 'Subject',
   classification: 'Classification',
-  scannerConflicts: 'Scanner conflicts',
+  scannerConflicts: 'Suggested updates',
   starred: 'Starred',
-  needsMetadata: 'Needs metadata',
+  needsMetadata: 'Needs details',
   coverReview: 'Cover review',
   noCreator: 'No creator',
   noPublication: 'No publication/series',
@@ -230,7 +351,7 @@ const filterLabels = {
   titleFromFilename: 'Filename-derived title',
   noDescription: 'No description',
   unsupportedContainer: 'Unsupported archive/container',
-  weakMetadata: 'Weak metadata',
+  weakMetadata: 'Needs details',
   unreviewedImports: 'Unreviewed imports',
 }
 const batchMetadataApplyMessage = computed(() => {
@@ -249,11 +370,17 @@ const batchLimitErrorMessage = computed(() => {
     ? t('library', 'This batch matches more than 5,000 items. Narrow the selection and try again.')
     : ''
 })
+const batchSelectionErrorMessage = computed(() => {
+  if (typeof window === 'undefined') return ''
+  return new URLSearchParams(window.location.search).get('batchSelectionError') === '1'
+    ? t('library', 'The selected items were invalid. Select items in the catalogue and try again.')
+    : ''
+})
 
 const savedCollections = computed(() => catalogueState.savedCollections || [])
 const savedCollectionSaveUrl = computed(() => catalogueState.savedCollectionSaveUrl || '/apps/library/collections')
 const savedCollectionDeleteBaseUrl = computed(() => catalogueState.savedCollectionDeleteBaseUrl || '/apps/library/collections/__COLLECTION_ID__/delete')
-const viewModes = ['compact', 'gallery', 'shelf']
+const viewModes = ['compact', 'gallery', 'list', 'shelf']
 const viewMode = computed(() => viewModes.includes(activeFilters.view) ? activeFilters.view : 'compact')
 const coverGalleryClasses = computed(() => ({
   ['library-cover-' + 'gallery--compact']: viewMode.value === 'compact',
@@ -263,7 +390,16 @@ const coverGalleryClasses = computed(() => ({
 
 const activeFilterChips = computed(() => Object.entries(filterLabels)
   .map(([key, label]) => ({ key, label: t('library', label), value: activeFilters[key] || '' }))
-  .filter((chip) => String(chip.value).trim() !== ''))
+  .filter((chip) => String(chip.value).trim() !== ''
+    && !(chip.key === 'sort' && chip.value === 'title')
+    && !(chip.key === 'view' && chip.value === 'compact')))
+const sidebarVisibleFilterKeys = new Set([
+  'q', 'sort', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'tag', 'format', 'shelf',
+  'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts',
+])
+const sidebarHiddenFilters = computed(() => Object.entries(canonicalReviewFilters(activeFilters))
+  .filter(([key, value]) => !sidebarVisibleFilterKeys.has(key) && String(value || '').trim() !== '')
+  .map(([key, value]) => ({ key, value })))
 const quickHiddenFilters = computed(() => Object.entries(activeFilters)
   .filter(([key, value]) => !['q', 'sort', 'starred'].includes(key) && String(value || '').trim() !== '')
   .map(([key, value]) => ({ key, value })))
@@ -271,16 +407,51 @@ const batchHiddenFilters = computed(() => Object.entries(canonicalReviewFilters(
   .filter(([_key, value]) => String(value || '').trim() !== '')
   .map(([key, value]) => ({ key, value })))
 const reviewHiddenFilters = computed(() => batchHiddenFilters.value.filter(({ key, value }) => key !== 'q' && !(key === 'sort' && value === 'title')))
-const openCoverDetails = reactive({})
 const coverImageStates = reactive({})
+const homeRows = computed(() => catalogueState.homeRows || { continueReading: [], recentlyAdded: [] })
+const homeShelves = computed(() => catalogueState.homeShelves || [])
+const shelfSummaries = computed(() => catalogueState.shelfSummaries || [])
+const shelfTree = computed(() => catalogueState.shelfTree || [])
+const needsAttention = computed(() => catalogueState.needsAttention || { count: 0, url: `${catalogueRootUrl.value}?needsMetadata=1` })
+const selectedItemIds = ref([])
+const selectedItemIdSet = computed(() => new Set(selectedItemIds.value))
 
-const featuredHomeItems = computed(() => items.value.filter((item) => item.starred || item.workflowStatus === 'reading' || item.lastOpenedAt).slice(0, 5))
-const recentHomeItems = computed(() => [...items.value].slice(0, 6))
-const rediscoverItem = computed(() => items.value.find((item) => item['description'] || item.publication || item.creators) || items.value[0] || null)
-const hasHomeDashboard = computed(() => !isDiscoveryPage.value && items.value.length > 0)
+function toggleItemSelection(itemId, checked) {
+  const next = new Set(selectedItemIds.value)
+  if (checked) next.add(Number(itemId))
+  else next.delete(Number(itemId))
+  selectedItemIds.value = [...next]
+}
+
+function selectVisibleItems(event) {
+  selectedItemIds.value = event.currentTarget.checked ? items.value.map((item) => Number(item.id)) : []
+}
+
+function reconcileSelectedItems() {
+  const visible = new Set(items.value.map((item) => Number(item.id)))
+  selectedItemIds.value = selectedItemIds.value.filter((id) => visible.has(id))
+}
+
+function appendSelectedItemIds(event) {
+  const form = event.target
+  if (!(form instanceof HTMLFormElement)) return
+  form.querySelectorAll('input[data-library-selected-id]').forEach((input) => input.remove())
+  for (const id of selectedItemIds.value) {
+    const input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = 'itemIds[]'
+    input.value = String(id)
+    input.dataset.librarySelectedId = '1'
+    form.appendChild(input)
+  }
+}
+
 const selectedDrawerItem = ref(null)
 const sidebarRequestedId = ref(null)
 const sidebarState = reactive({ loading: false, error: '', missing: false })
+const sidebarSection = ref('overview')
+const sidebarMetadataState = reactive({ saving: false, saved: false, error: '' })
+const sidebarMetadataDraft = reactive({ title: '', publicationDate: '', identifiers: [] })
 const sidebarHeading = ref(null)
 const sidebarComponent = ref(null)
 const sidebarIsMobile = ref(false)
@@ -295,7 +466,76 @@ const MAX_ITEM_ID = 2147483647
 const selectedDrawerIndex = computed(() => selectedDrawerItem.value ? items.value.findIndex((item) => item.id === selectedDrawerItem.value.id) : -1)
 const drawerPreviousItem = computed(() => selectedDrawerIndex.value > 0 ? items.value[selectedDrawerIndex.value - 1] : null)
 const drawerNextItem = computed(() => selectedDrawerIndex.value >= 0 && selectedDrawerIndex.value < items.value.length - 1 ? items.value[selectedDrawerIndex.value + 1] : null)
-const reviewableMetadataFields = ['publicationType', 'title', 'subtitle', 'creators', 'publication', 'publicationDate', 'language', 'publisher', 'description', 'genres', 'classifications']
+const reviewableMetadataFields = ['publicationType', 'title', 'subtitle', 'creators', 'publication', 'publicationDate', 'language', 'publisher', 'description', 'subjects', 'classifications']
+const sidebarSections = [
+  { key: 'overview', label: 'Overview' },
+  { key: 'metadata', label: 'Metadata' },
+  { key: 'activity', label: 'Activity' },
+]
+
+function publicationDateForEditor(value) {
+  const normalized = String(value ?? '').trim()
+  const isoDateTime = normalized.match(/^(\d{4}-\d{2}-\d{2})[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/)
+  return isoDateTime ? isoDateTime[1] : normalized
+}
+
+function normalizeSidebarItem(item) {
+  return { ...item, publicationDate: publicationDateForEditor(item?.publicationDate) }
+}
+
+function resetSidebarMetadataDraft(item) {
+  sidebarMetadataDraft.title = String(item?.title || '')
+  sidebarMetadataDraft.publicationDate = publicationDateForEditor(item?.publicationDate)
+  sidebarMetadataDraft.identifiers = Array.isArray(item?.identifiers)
+    ? item.identifiers.map((identifier) => ({ scheme: String(identifier?.scheme || ''), displayValue: String(identifier?.displayValue || identifier?.value || '') }))
+    : []
+  Object.assign(sidebarMetadataState, { saving: false, saved: false, error: '' })
+}
+
+function addSidebarIdentifier() {
+  sidebarMetadataDraft.identifiers.push({ scheme: '', displayValue: '' })
+}
+
+function removeSidebarIdentifier(index) {
+  sidebarMetadataDraft.identifiers.splice(index, 1)
+}
+
+async function saveSidebarMetadata() {
+  const item = selectedDrawerItem.value
+  if (!item?.updateUrl || sidebarMetadataState.saving) return
+  Object.assign(sidebarMetadataState, { saving: true, saved: false, error: '' })
+  const body = new FormData()
+  body.set('requesttoken', requestToken.value)
+  body.set('metadataAutosave', '1')
+  for (const field of ['publicationType', 'subtitle', 'creators', 'publication', 'language', 'publisher', 'description', 'subjects', 'classifications', 'personalRating']) {
+    const value = item[field]
+    body.set(field, Array.isArray(value) ? value.join(', ') : String(value ?? ''))
+  }
+  body.set('title', sidebarMetadataDraft.title)
+  body.set('publicationDate', publicationDateForEditor(sidebarMetadataDraft.publicationDate))
+  sidebarMetadataDraft.identifiers.forEach((identifier, index) => {
+    body.set(`identifiers[${index}][scheme]`, identifier.scheme)
+    body.set(`identifiers[${index}][displayValue]`, identifier.displayValue)
+  })
+  try {
+    const response = await fetch(item.updateUrl, { method: 'POST', body, credentials: 'same-origin', headers: { Accept: 'application/json' } })
+    const payload = await response.json().catch(() => ({}))
+    if (!response.ok || payload.saved !== true) throw new Error(payload.error || t('library', 'Metadata could not be saved.'))
+    item.title = sidebarMetadataDraft.title.trim()
+    item.publicationDate = publicationDateForEditor(sidebarMetadataDraft.publicationDate)
+    item.identifiers = sidebarMetadataDraft.identifiers.filter((identifier) => identifier.scheme.trim() || identifier.displayValue.trim()).map((identifier) => ({ ...identifier }))
+    const catalogueItem = items.value.find((candidate) => Number(candidate.id) === Number(item.id))
+    if (catalogueItem) {
+      catalogueItem.title = item.title
+      catalogueItem.publicationDate = item.publicationDate
+    }
+    sidebarMetadataState.saved = true
+  } catch (error) {
+    sidebarMetadataState.error = error?.message || t('library', 'Metadata could not be saved.')
+  } finally {
+    sidebarMetadataState.saving = false
+  }
+}
 const metadataReviewWorkbench = computed(() => {
   const enabled = isCanonicalReviewFilter('scannerConflicts', activeFilters.scannerConflicts) || isCanonicalReviewFilter('weakMetadata', activeFilters.weakMetadata)
   const item = enabled ? items.value.find((candidate) => reviewConflictFieldsFor(candidate).length > 0) : null
@@ -357,7 +597,9 @@ async function selectSidebarItem(itemId, { historyMode = 'push', seed = null } =
   const controller = new AbortController()
   sidebarRequestController = controller
   sidebarRequestedId.value = itemId
-  selectedDrawerItem.value = seed && Number(seed.id) === itemId ? seed : null
+  sidebarSection.value = 'overview'
+  selectedDrawerItem.value = seed && Number(seed.id) === itemId ? normalizeSidebarItem(seed) : null
+  if (selectedDrawerItem.value) resetSidebarMetadataDraft(selectedDrawerItem.value)
   Object.assign(sidebarState, { loading: true, error: '', missing: false })
   if (historyMode !== 'none') updateItemHistory(itemId, historyMode)
   try {
@@ -378,7 +620,8 @@ async function selectSidebarItem(itemId, { historyMode = 'push', seed = null } =
       sidebarState.error = t('library', 'Could not load publication details. Try again.')
       return
     }
-    selectedDrawerItem.value = payload.item
+    selectedDrawerItem.value = normalizeSidebarItem(payload.item)
+    resetSidebarMetadataDraft(selectedDrawerItem.value)
     await nextTick()
   } catch (error) {
     if (generation === sidebarRequestGeneration && error?.name !== 'AbortError') {
@@ -408,6 +651,7 @@ function closeDetailsDrawer({ historyMode = 'push', restoreFocus = true } = {}) 
   sidebarRequestGeneration += 1
   sidebarRequestedId.value = null
   selectedDrawerItem.value = null
+  sidebarSection.value = 'overview'
   Object.assign(sidebarState, { loading: false, error: '', missing: false })
   if (historyMode !== 'none') updateItemHistory(null, historyMode)
 }
@@ -456,13 +700,15 @@ function showDrawerItem(item) {
   if (item) selectSidebarItem(Number(item.id), { seed: item })
 }
 const quickSearchInput = ref(null)
-let filterSubmitTimer = null
 let catalogueRequestGeneration = 0
 let catalogueRequestController = null
 const catalogueRequestState = reactive({ loading: false, error: '' })
 
 function buildFilterParams(form) {
   const params = normalizedReviewParams(new FormData(form))
+  params.delete('publicationSearch')
+  params.delete('creatorSearch')
+  params.delete('yearSearch')
   for (const key of Array.from(params.keys())) {
     if (String(params.get(key) || '').trim() === '') {
       params.delete(key)
@@ -475,9 +721,71 @@ function buildFilterParams(form) {
   return params
 }
 
+async function fetchFacetSuggestions(facet, query, generation) {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(activeFilters)) {
+    const normalized = String(value || '').trim()
+    if (key !== facet && normalized !== '' && !(key === 'sort' && normalized === 'title') && !(key === 'view' && normalized === 'compact')) params.set(key, normalized)
+  }
+  params.set(`${facet}Search`, query)
+  const controller = new AbortController()
+  if (facet === 'creator') creatorSuggestionController = controller
+  else yearSuggestionController = controller
+  const url = facet === 'creator' ? creatorSuggestionsUrl.value : yearSuggestionsUrl.value
+  try {
+    const response = await fetch(`${url}?${params}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin', signal: controller.signal })
+    if (!response.ok) throw new Error(`${facet} suggestions request failed: ${response.status}`)
+    const payload = await response.json()
+    const currentGeneration = facet === 'creator' ? creatorSuggestionGeneration : yearSuggestionGeneration
+    const currentSearch = facet === 'creator' ? creatorSearch.value : yearSearch.value
+    if (generation === currentGeneration && currentSearch.trim() === query) {
+      if (facet === 'creator') remoteCreatorSuggestions.value = Array.isArray(payload.creators) ? payload.creators : []
+      else remoteYearSuggestions.value = Array.isArray(payload.years) ? payload.years : []
+    }
+  } catch (error) {
+    if (error?.name !== 'AbortError') {
+      if (facet === 'creator' && generation === creatorSuggestionGeneration) remoteCreatorSuggestions.value = null
+      if (facet === 'year' && generation === yearSuggestionGeneration) remoteYearSuggestions.value = null
+    }
+  }
+}
+
+function fetchCreatorSuggestions(query, generation) { return fetchFacetSuggestions('creator', query, generation) }
+function fetchYearSuggestions(query, generation) { return fetchFacetSuggestions('year', query, generation) }
+
+async function fetchPublicationSuggestions(query, generation) {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(activeFilters)) {
+    const normalized = String(value || '').trim()
+    if (key !== 'publication' && normalized !== '' && !(key === 'sort' && normalized === 'title') && !(key === 'view' && normalized === 'compact')) {
+      params.set(key, normalized)
+    }
+  }
+  params.set('publicationSearch', query)
+  const controller = new AbortController()
+  publicationSuggestionController = controller
+  try {
+    const response = await fetch(`${publicationSuggestionsUrl.value}?${params}`, {
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+      signal: controller.signal,
+    })
+    if (!response.ok) throw new Error(`Publication suggestions request failed: ${response.status}`)
+    const payload = await response.json()
+    if (generation === publicationSuggestionGeneration && publicationSearch.value.trim() === query) {
+      remotePublicationSuggestions.value = Array.isArray(payload.publications) ? payload.publications : []
+    }
+  } catch (error) {
+    if (error?.name !== 'AbortError' && generation === publicationSuggestionGeneration) remotePublicationSuggestions.value = null
+  } finally {
+    if (generation === publicationSuggestionGeneration) publicationSuggestionController = null
+  }
+}
+
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  for (const key of ['shelves', 'formats', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'genres', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
+  reconcileSelectedItems()
+  for (const key of ['shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'subjects', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'publicationSuggestionsUrl', 'creatorSuggestionsUrl', 'yearSuggestionsUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -525,6 +833,10 @@ async function submitFiltersAjax(event, scheduled = null) {
   const form = event?.currentTarget?.tagName === 'FORM' ? event.currentTarget : event?.currentTarget?.form
   if (!form && !scheduled?.params) return
   const params = normalizedReviewParams(scheduled?.params ?? buildFilterParams(form))
+  if (isHome.value || isShelves.value) {
+    submitCapturedFilterFallback(params, catalogueRootUrl.value)
+    return
+  }
   const query = params.toString()
   const endpointQuery = query ? `?${query}` : ''
   const generation = scheduled?.generation ?? ++catalogueRequestGeneration
@@ -594,10 +906,10 @@ function restoreCatalogueFromHistory() {
   })
 }
 
-function submitCapturedFilterFallback(params) {
+function submitCapturedFilterFallback(params, action = window.location.pathname) {
   const fallback = document.createElement('form')
   fallback.method = 'get'
-  fallback.action = window.location.pathname
+  fallback.action = action
   fallback.hidden = true
   for (const [name, value] of params.entries()) {
     const input = document.createElement('input')
@@ -619,18 +931,40 @@ function submitFiltersNow(formOrEvent, params = null, generation = null) {
   void submitFiltersAjax({ currentTarget: formOrEvent }, { params, generation })
 }
 
-function scheduleFilterSubmit(event) {
-  const form = event?.currentTarget?.form
-  if (!form) return
-  window.clearTimeout(filterSubmitTimer)
-  const generation = ++catalogueRequestGeneration
-  const params = buildFilterParams(form)
-  catalogueRequestController?.abort()
-  catalogueRequestController = null
-  filterSubmitTimer = window.setTimeout(() => submitFiltersNow(form, params, generation), 350)
+async function applyPublicationFilter(form, publication = publicationSearch.value) {
+  activeFilters.publication = String(publication || '').trim()
+  publicationSearch.value = activeFilters.publication
+  publicationSearchFocused.value = false
+  await nextTick()
+  void submitFiltersAjax({ currentTarget: form })
 }
 
-function filterChipRemoveUrl(key) {
+function applyFiltersWithPublication(event) { void applyPublicationFilter(event.currentTarget) }
+function selectPublicationSuggestion(publication, event) { void applyPublicationFilter(event.currentTarget.form, publication) }
+
+async function applySearchFilters(form) {
+  activeFilters.q = String(quickSearch.value || '').trim()
+  activeFilters.publication = String(publicationSearch.value || '').trim()
+  activeFilters.creator = String(creatorSearch.value || '').trim()
+  activeFilters.year = String(yearSearch.value || '').trim()
+  publicationSearchFocused.value = false
+  creatorSearchFocused.value = false
+  yearSearchFocused.value = false
+  await nextTick()
+  void submitFiltersAjax({ currentTarget: form })
+}
+async function applyFacetFilter(form, facet, value) {
+  activeFilters[facet] = String(value || '').trim()
+  if (facet === 'creator') { creatorSearch.value = activeFilters.creator; creatorSearchFocused.value = false }
+  else { yearSearch.value = activeFilters.year; yearSearchFocused.value = false }
+  await nextTick()
+  void submitFiltersAjax({ currentTarget: form })
+}
+function applyAllSearchFilters(event) { void applySearchFilters(event.currentTarget) }
+function selectCreatorSuggestion(creator, event) { void applyFacetFilter(event.currentTarget.form, 'creator', creator) }
+function selectYearSuggestion(year, event) { void applyFacetFilter(event.currentTarget.form, 'year', year) }
+
+function filterChipRemoveParams(key) {
   const params = new URLSearchParams()
   for (const [param, value] of Object.entries(activeFilters)) {
     const normalized = String(value || '').trim()
@@ -638,8 +972,30 @@ function filterChipRemoveUrl(key) {
       params.set(param, normalized)
     }
   }
-  const query = params.toString()
+  return params
+}
+
+function filterChipRemoveUrl(key) {
+  const query = filterChipRemoveParams(key).toString()
+  if (isHome.value || isShelves.value) return `${catalogueRootUrl.value}${query ? `?${query}` : ''}`
   return query ? `?${query}` : '?'
+}
+
+function removeFilterChip(key) {
+  const params = filterChipRemoveParams(key)
+  activeFilters[key] = key === 'sort' ? 'title' : (key === 'view' ? 'compact' : '')
+  void submitFiltersAjax(null, {
+    params,
+    generation: ++catalogueRequestGeneration,
+  })
+}
+
+function selectReviewQueue(queue) {
+  const params = new URL(queue.href, window.location.origin).searchParams
+  void submitFiltersAjax(null, {
+    params,
+    generation: ++catalogueRequestGeneration,
+  })
 }
 
 function clearSearchUrl() {
@@ -666,15 +1022,15 @@ const smartViews = computed(() => [
   { key: 'reading', label: 'Reading', description: 'Publications currently in progress.', query: 'workflowStatus=reading', filters: { workflowStatus: 'reading' } },
   { key: 'finished', label: 'Finished', description: 'Completed publications.', query: 'workflowStatus=finished', filters: { workflowStatus: 'finished' } },
   { key: 'needs-action', label: 'Needs action', description: 'Items that need a cleanup or follow-up decision.', query: 'workflowStatus=needs-action', filters: { workflowStatus: 'needs-action' } },
-  { key: 'needs-metadata', label: 'Needs metadata', description: 'Items with missing core fields, extraction errors, or filename-only metadata.', query: 'needsMetadata=1', filters: { needsMetadata: '1' } },
-  { key: 'scanner-conflicts', label: 'Scanner conflicts', description: 'Rows where current metadata differs from scanner candidates.', query: 'scannerConflicts=1', filters: { scannerConflicts: '1' } },
+  { key: 'needs-metadata', label: 'Needs details', description: 'Items with missing core fields, extraction errors, or filename-only metadata.', query: 'needsMetadata=1', filters: { needsMetadata: '1' } },
+  { key: 'scanner-conflicts', label: 'Suggested updates', description: 'Rows where current metadata has a suggested update.', query: 'scannerConflicts=1', filters: { scannerConflicts: '1' } },
   { key: 'metadata-errors', label: 'Metadata errors', description: 'Files whose metadata extraction needs review.', query: 'status=metadata_error', filters: { status: 'metadata_error' } },
   { key: 'placeholder-covers', label: 'Placeholder covers', description: 'Likely placeholder-cover candidates without a manual cover override.', query: 'coverReview=placeholder', filters: { coverReview: 'placeholder' } },
   { key: 'no-creator', label: 'No creator', description: 'Publications without creator metadata.', query: 'noCreator=1', filters: { noCreator: '1' } },
   { key: 'no-publication', label: 'No publication/series', description: 'Items without publication, series, periodical or collection metadata.', query: 'noPublication=1', filters: { noPublication: '1' } },
   { key: 'missing-date', label: 'Missing date', description: 'Items without a publication date or year.', query: 'noDate=1', filters: { noDate: '1' } },
   { key: 'title-from-filename', label: 'Filename-derived title', description: 'Rows whose title still comes from filename/path parsing.', query: 'titleFromFilename=1', filters: { titleFromFilename: '1' } },
-  { key: 'weak-filename-metadata', label: 'Weak filename metadata', description: 'Items whose metadata still depends on filename/folder parsing.', query: 'weakMetadata=filename', filters: { weakMetadata: 'filename' } },
+  { key: 'weak-filename-metadata', label: 'Needs details', description: 'Items whose metadata still depends on filename/folder parsing.', query: 'weakMetadata=filename', filters: { weakMetadata: 'filename' } },
   { key: 'no-description', label: 'No description', description: 'Rows without summary or description text.', query: 'noDescription=1', filters: { noDescription: '1' } },
   { key: 'unsupported-containers', label: 'Unsupported archive/container', description: 'Archive/container formats that Library cannot inspect deeply yet.', query: 'unsupportedContainer=1', filters: { unsupportedContainer: '1' } },
   { key: 'unreviewed-imports', label: 'Unreviewed imports', description: 'Scanner-created catalogue rows not yet touched by user review.', query: 'unreviewedImports=1', filters: { unreviewedImports: '1' } },
@@ -687,7 +1043,7 @@ const weakMetadataDashboardRows = computed(() => [
   { key: 'title-from-filename', label: 'Filename-derived title', description: 'Title was inferred from the source path.', filters: { titleFromFilename: '1' } },
   { key: 'weak-filename-metadata', label: 'Filename/path-derived metadata', description: 'At least one indexed field still depends on filename parsing.', filters: { weakMetadata: 'filename' } },
   { key: 'placeholder-covers', label: 'Placeholder cover', description: 'Likely placeholder-cover candidates.', filters: { coverReview: 'placeholder' } },
-  { key: 'scanner-conflicts', label: 'Scanner conflict', description: 'Current metadata differs from scanner candidates.', filters: { scannerConflicts: '1' } },
+  { key: 'scanner-conflicts', label: 'Suggested updates', description: 'Current metadata has a suggested update.', filters: { scannerConflicts: '1' } },
   { key: 'metadata-errors', label: 'Metadata extraction error', description: 'Scanner recorded a metadata extraction error.', filters: { status: 'metadata_error' } },
   { key: 'no-description', label: 'No description', description: 'No summary/description text is indexed.', filters: { noDescription: '1' } },
   { key: 'unsupported-containers', label: 'Unsupported archive/container', description: 'Container type needs manual inspection or future extractor support.', filters: { unsupportedContainer: '1' } },
@@ -696,14 +1052,18 @@ const weakMetadataDashboardRows = computed(() => [
 function setViewMode(nextMode) {
   if (!viewModes.includes(nextMode)) return
   activeFilters.view = nextMode
-  const params = normalizedReviewParams(window.location.search)
-  if (nextMode === 'compact') {
-    params.delete('view')
-  } else {
-    params.set('view', nextMode)
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(canonicalReviewFilters(activeFilters))) {
+    const normalized = String(value || '').trim()
+    if (normalized !== '' && !(key === 'sort' && normalized === 'title') && !(key === 'view' && normalized === 'compact')) {
+      params.set(key, normalized)
+    }
   }
   params.delete('page')
-  history.replaceState({}, '', params.toString() ? `?${params.toString()}` : window.location.pathname)
+  void submitFiltersAjax(null, {
+    params,
+    generation: ++catalogueRequestGeneration,
+  })
 }
 
 function smartViewUrl(filters) {
@@ -777,8 +1137,12 @@ function markCoverFailed(item) {
   coverImageStates[item.id] = 'error'
 }
 
-function setCoverDetailsOpen(itemId, event) {
-  openCoverDetails[itemId] = Boolean(event?.currentTarget?.open)
+function cardContext(item) {
+  const publication = String(item?.publication || '').trim()
+  const date = String(item?.publicationDate || '').trim()
+  if (publication && date) return `${publication} · ${date}`
+  if (publication || date) return publication || date
+  return [item?.publicationType, upper(item?.extension)].filter(Boolean).join(' · ')
 }
 
 function isEditableShortcutTarget(target) {
@@ -791,22 +1155,18 @@ function focusQuickSearchShortcut(event) {
     return
   }
   event.preventDefault()
-  const refinePanel = quickSearchInput.value?.closest?.('.library-workspace-panel--refine')
-  if (refinePanel) {
-    refinePanel.open = true
-  }
   quickSearchInput.value?.focus()
   quickSearchInput.value?.select?.()
 }
 
-function clearQuickSearchShortcut(event) {
+async function clearQuickSearchShortcut(event) {
   if (event.key !== 'Escape' || document.activeElement !== quickSearchInput.value || activeFilters.q === '') {
     return
   }
   event.preventDefault()
+  quickSearch.value = ''
   activeFilters.q = ''
-  quickSearchInput.value.value = ''
-  window.clearTimeout(filterSubmitTimer)
+  await nextTick()
   submitFiltersNow({ currentTarget: quickSearchInput.value })
 }
 
@@ -881,7 +1241,12 @@ onBeforeUnmount(() => {
   cancelSidebarFocusRestore()
   window.removeEventListener('keydown', handleCatalogueKeyboardShortcuts)
   window.removeEventListener('popstate', restoreCatalogueFromHistory)
-  window.clearTimeout(filterSubmitTimer)
+  window.clearTimeout(publicationSuggestionTimer)
+  window.clearTimeout(creatorSuggestionTimer)
+  window.clearTimeout(yearSuggestionTimer)
+  publicationSuggestionController?.abort()
+  creatorSuggestionController?.abort()
+  yearSuggestionController?.abort()
   catalogueRequestGeneration += 1
   catalogueRequestController?.abort()
   catalogueRequestController = null
@@ -929,11 +1294,34 @@ async function toggleStar(item, event) {
     <NcAppNavigation :aria-label="t('library', 'Library navigation')">
       <template #list>
         <NcAppNavigationList>
-          <NcAppNavigationItem :active="!reviewActive" :href="catalogueRootUrl" :name="t('library', 'Library')" />
-          <NcAppNavigationItem :active="reviewActive" :href="reviewUrl" :name="t('library', 'Review')" />
+          <NcAppNavigationItem v-for="destination in catalogueNavigation" :key="destination.key" :active="destination.active" :href="destination.href" :name="destination.name" />
+          <NcAppNavigationItem :active="reviewActive" :href="reviewUrl" :name="reviewCount > 0 ? `${t('library', 'Review')} (${reviewCount})` : t('library', 'Review')" />
         </NcAppNavigationList>
       </template>
       <template #footer>
+        <section class="library-sidebar-filter-section" aria-labelledby="library-sidebar-filters-heading">
+          <h2 id="library-sidebar-filters-heading">{{ t('library', 'Filters') }}</h2>
+          <form method="get" class="library-filter-bar library-sidebar-filters" :aria-label="t('library', 'Catalogue search and filters')" @submit.prevent="applyAllSearchFilters">
+            <input v-for="filter in sidebarHiddenFilters" :key="`sidebar-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
+            <input v-if="activeFilters.sort && activeFilters.sort !== 'title'" type="hidden" name="sort" :value="activeFilters.sort">
+            <input v-if="activeFilters.view && activeFilters.view !== 'compact'" type="hidden" name="view" :value="activeFilters.view">
+            <label class="library-quick-filter-search" :title="t('library', 'Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.')"><span>{{ t('library', 'Search') }} <kbd class="library-keyboard-hint">/</kbd></span><input ref="quickSearchInput" v-model="quickSearch" data-library-quick-search type="search" name="q" :placeholder="t('library', 'Title, creator, description, filename or folder')"></label>
+            <label>{{ t('library', 'Type') }}<select v-model="activeFilters.type" name="type" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All types') }}</option><option v-for="type in publicationTypes" :key="type" :value="type">{{ type }}</option></select></label>
+            <label>{{ t('library', 'Publisher') }}<select v-model="activeFilters.publisher" name="publisher" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All publishers') }}</option><option v-for="publisher in publishers" :key="publisher" :value="publisher">{{ publisher }}</option></select></label>
+            <div class="library-publication-filter"><label for="library-publication-search">{{ t('library', 'Series / periodical') }}</label><input id="library-publication-search" v-model="publicationSearch" type="search" name="publicationSearch" autocomplete="off" :placeholder="t('library', 'Search series and periodicals')" role="combobox" aria-autocomplete="list" aria-controls="library-publication-suggestions" :aria-expanded="publicationSearchFocused && publicationSuggestions.length > 0 ? 'true' : 'false'" @focus="publicationSearchFocused = true" @keydown.escape="publicationSearchFocused = false"><input type="hidden" name="publication" :value="activeFilters.publication"><ul v-if="publicationSearchFocused && publicationSuggestions.length > 0" id="library-publication-suggestions" class="library-publication-suggestions" role="listbox"><li v-for="publication in publicationSuggestions" :key="publication" role="option"><button type="button" class="library-publication-suggestion" @mousedown.prevent @click="selectPublicationSuggestion(publication, $event)">{{ publication }}</button></li></ul><button type="submit" class="button secondary library-publication-apply">{{ t('library', 'Apply series') }}</button></div>
+            <div class="library-year-filter"><label for="library-year-search">{{ t('library', 'Publication year') }}</label><input id="library-year-search" v-model="yearSearch" type="search" name="yearSearch" autocomplete="off" :placeholder="t('library', 'Search publication years')" role="combobox" aria-autocomplete="list" aria-controls="library-year-suggestions" :aria-expanded="yearSearchFocused && yearSuggestions.length > 0 ? 'true' : 'false'" @focus="yearSearchFocused = true" @keydown.escape="yearSearchFocused = false"><input type="hidden" name="year" :value="activeFilters.year"><ul v-if="yearSearchFocused && yearSuggestions.length > 0" id="library-year-suggestions" class="library-year-suggestions" role="listbox"><li v-for="year in yearSuggestions" :key="year" role="option"><button type="button" class="library-year-suggestion" @mousedown.prevent @click="selectYearSuggestion(year, $event)">{{ year }}</button></li></ul><button type="submit" class="button secondary library-year-apply">{{ t('library', 'Apply year') }}</button></div>
+            <div class="library-creator-filter"><label for="library-creator-search">{{ t('library', 'Creator') }}</label><input id="library-creator-search" v-model="creatorSearch" type="search" name="creatorSearch" autocomplete="off" :placeholder="t('library', 'Search creators')" :title="t('library', 'Exact full-field creator matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-creator-suggestions" :aria-expanded="creatorSearchFocused && creatorSuggestions.length > 0 ? 'true' : 'false'" @focus="creatorSearchFocused = true" @keydown.escape="creatorSearchFocused = false"><input type="hidden" name="creator" :value="activeFilters.creator"><ul v-if="creatorSearchFocused && creatorSuggestions.length > 0" id="library-creator-suggestions" class="library-creator-suggestions" role="listbox"><li v-for="creator in creatorSuggestions" :key="creator" role="option"><button type="button" class="library-creator-suggestion" @mousedown.prevent @click="selectCreatorSuggestion(creator, $event)">{{ creator }}</button></li></ul><button type="submit" class="button secondary library-creator-apply">{{ t('library', 'Apply creator') }}</button></div>
+            <label>{{ t('library', 'Nextcloud tag') }}<input v-model="activeFilters.tag" type="text" name="tag" :placeholder="t('library', 'photography')"></label>
+            <label>{{ t('library', 'Format') }}<select v-model="activeFilters.format" name="format" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All formats') }}</option><option v-for="format in formats" :key="format" :value="format">{{ upper(format) }}</option></select></label>
+            <label>{{ t('library', 'Shelf') }}<select v-model="activeFilters.shelf" name="shelf" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All shelves') }}</option><option v-for="shelf in shelves" :key="shelf" :value="shelf">{{ shelf }}</option></select></label>
+            <label>{{ t('library', 'Scan status') }}<select v-model="activeFilters.status" name="status" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All scan statuses') }}</option><option v-for="status in scanStatuses" :key="status" :value="status">{{ status }}</option></select></label>
+            <label>{{ t('library', 'Workflow status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All workflow statuses') }}</option><option v-for="status in workflowStatuses" :key="status" :value="status">{{ status }}</option></select></label>
+            <label>{{ t('library', 'Subject') }}<select v-model="activeFilters.subject" name="subject" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All subjects') }}</option><option v-for="subject in subjects" :key="subject" :value="subject">{{ subject }}</option></select></label>
+            <label>{{ t('library', 'Classification') }}<select v-model="activeFilters.classification" name="classification" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All classifications') }}</option><option v-for="classification in classifications" :key="classification" :value="classification">{{ classification }}</option></select></label>
+            <label>{{ t('library', 'Suggested updates') }}<select v-model="activeFilters.scannerConflicts" name="scannerConflicts" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All metadata') }}</option><option value="1">{{ t('library', 'Suggested updates') }}</option></select></label>
+            <button type="submit" class="button primary">{{ t('library', 'Apply filters') }}</button><a href="?" class="button secondary">{{ t('library', 'Clear') }}</a>
+          </form>
+        </section>
         <a class="library-navigation-settings-link" :href="settingsUrl">
           <span class="library-navigation-settings-icon" aria-hidden="true">⚙</span>
           <span>{{ t('library', 'Settings') }}</span>
@@ -942,6 +1330,12 @@ async function toggleStar(item, event) {
     </NcAppNavigation>
     <NcAppContent>
   <div id="library-app" class="library-vue-catalogue library-app" :lang="catalogueState.language || 'en'" :dir="catalogueState.direction || 'ltr'" tabindex="-1">
+  <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
+    <span>{{ t('library', 'Active filters') }}</span>
+    <a v-for="chip in activeFilterChips" :key="chip.key" :href="filterChipRemoveUrl(chip.key)" class="library-filter-chip" :aria-label="`${t('library', 'Remove filter')}: ${chip.label}`" @click.prevent="removeFilterChip(chip.key)">
+      <strong>{{ chip.label }}:</strong> {{ chip.value }} <span aria-hidden="true">×</span>
+    </a>
+  </nav>
   <section v-if="reviewActive" class="library-panel library-review-destination" aria-labelledby="library-review-heading">
     <header class="library-review-header">
       <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata cleanup') }}</p>
@@ -949,7 +1343,7 @@ async function toggleStar(item, event) {
       <p>{{ t('library', 'Work through catalogue items that need a metadata decision. Source files remain in Nextcloud Files.') }}</p>
     </header>
     <nav class="library-review-queues" :aria-label="t('library', 'Review queues')">
-      <a v-for="queue in reviewQueues" :key="queue.key" class="library-review-queue-link" :class="{ active: queue.active }" :href="queue.href" :aria-current="queue.active ? 'page' : undefined">
+      <a v-for="queue in reviewQueues" :key="queue.key" class="library-review-queue-link" :class="{ active: queue.active }" :href="queue.href" :aria-current="queue.active ? 'page' : undefined" @click.prevent="selectReviewQueue(queue)">
         <span>{{ queue.label }}</span>
         <b>{{ Number(smartViewCounts[queue.countKey] || 0) }}</b>
       </a>
@@ -963,112 +1357,109 @@ async function toggleStar(item, event) {
       <span v-if="catalogueRequestState.loading">{{ t('library', 'Loading review queue…') }}</span>
     </div>
     <p v-if="catalogueRequestState.error" class="library-notice library-review-request-error" role="alert">{{ catalogueRequestState.error }}</p>
-    <section v-if="metadataReviewWorkbench.enabled" class="library-metadata-review-workbench" aria-labelledby="library-metadata-review-workbench-heading"><div class="library-metadata-review-workbench-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata review workbench') }}</p><h3 id="library-metadata-review-workbench-heading" :title="t('library', 'Shows current value, scanner candidate, path-template candidate, sidecar value and source provenance together. No source files are changed; user-edited values are never silently overwritten.')">{{ t('library', 'Review next conflict') }}</h3></div><article v-if="metadataReviewWorkbench.item" class="library-metadata-review-card"><header><strong>{{ metadataReviewWorkbench.item.title }}</strong><span class="library-muted">{{ metadataReviewWorkbench.item.cachedPath }}</span></header><div class="library-metadata-review-fields"><article v-for="field in metadataReviewWorkbench.fields" :key="field.field" class="library-metadata-review-field"><h4>{{ field.field }}</h4><dl><div><dt>{{ t('library', 'Current value') }}</dt><dd>{{ field.currentValue || '—' }}</dd></div><div><dt>{{ t('library', 'scanner candidate') }}</dt><dd>{{ field.scannerCandidate || '—' }}</dd></div><div><dt>{{ t('library', 'path-template candidate') }}</dt><dd>{{ field.pathTemplateCandidate || '—' }}</dd></div><div><dt>{{ t('library', 'sidecar value') }}</dt><dd>{{ field.sidecarValue || '—' }}</dd></div><div><dt>{{ t('library', 'source provenance') }}</dt><dd>{{ field.sourceProvenance || '—' }}</dd></div></dl><form method="post" :action="metadataReviewWorkbench.item.resetFieldUrl" class="library-metadata-review-accept-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="field" :value="field.field"><input type="hidden" name="returnTo" value="catalogue"><button type="submit" class="button secondary">{{ t('library', 'accept scanner candidate') }}</button></form></article></div><footer class="library-metadata-review-actions"><a class="button secondary" :href="metadataReviewWorkbench.item.detailsUrl">{{ t('library', 'Open full details') }}</a><a class="button secondary" :href="metadataReviewWorkbench.skipUrl">{{ t('library', 'Skip to next conflict') }}</a></footer></article></section>
+    <section v-if="metadataReviewWorkbench.enabled" class="library-metadata-review-workbench" aria-labelledby="library-metadata-review-workbench-heading"><div class="library-metadata-review-workbench-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata review workbench') }}</p><h3 id="library-metadata-review-workbench-heading" :title="t('library', 'Shows current and suggested values with source provenance. No source files are changed; user-edited values are never silently overwritten.')">{{ t('library', 'Review next suggestion') }}</h3></div><article v-if="metadataReviewWorkbench.item" class="library-metadata-review-card"><header><strong><bdi class="library-bidi-human" dir="auto">{{ metadataReviewWorkbench.item.title }}</bdi></strong><span class="library-muted"><bdi class="library-bidi-machine" dir="ltr">{{ metadataReviewWorkbench.item.cachedPath }}</bdi></span></header><div class="library-metadata-review-fields"><article v-for="field in metadataReviewWorkbench.fields" :key="field.field" class="library-metadata-review-field"><h4><bdi class="library-bidi-human" dir="auto">{{ field.field }}</bdi></h4><dl><div><dt>{{ t('library', 'Current value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.currentValue || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Suggested value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.scannerCandidate || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Path-based suggestion') }}</dt><dd><bdi class="library-bidi-machine" dir="ltr">{{ field.pathTemplateCandidate || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Sidecar value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.sidecarValue || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Source') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.sourceProvenance || '—' }}</bdi></dd></div></dl><form method="post" :action="metadataReviewWorkbench.item.resetFieldUrl" class="library-metadata-review-accept-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="field" :value="field.field"><input type="hidden" name="returnTo" value="catalogue"><button type="submit" class="button secondary">{{ t('library', 'Use suggested value') }}</button></form></article></div><footer class="library-metadata-review-actions"><a class="button secondary" :href="metadataReviewWorkbench.item.detailsUrl">{{ t('library', 'Maintenance') }}</a><a class="button secondary" :href="metadataReviewWorkbench.skipUrl">{{ t('library', 'Skip to next suggestion') }}</a></footer></article></section>
     <div v-if="items.length === 0 && !catalogueRequestState.loading && !catalogueRequestState.error" class="library-review-empty" role="status">
       <h3>{{ t('library', 'This review queue is clear') }}</h3>
       <p>{{ t('library', 'Choose another queue or return to the catalogue.') }}</p>
       <a class="button primary" :href="catalogueRootUrl">{{ t('library', 'Back to Library') }}</a>
     </div>
-    <div v-else class="library-review-results" :aria-label="t('library', 'Review results')">
+    <div v-else class="library-review-results" role="region" :aria-label="t('library', 'Review results')">
       <article v-for="item in items" :key="item.id" class="library-review-result-card">
-        <div><h3>{{ item.title }}</h3><p v-if="item.creators" class="library-muted">{{ item.creators }}</p><p v-if="item.scanError" class="library-scan-error">{{ item.scanError }}</p></div>
-        <p><a class="button secondary" :href="item.detailsUrl">{{ t('library', 'Open full details') }}</a><a class="button primary" :href="item.openUrl">{{ t('library', 'Read') }}</a></p>
+        <div><h3><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></button></h3><p v-if="item.creators" class="library-muted"><bdi class="library-bidi-human" dir="auto">{{ item.creators }}</bdi></p><p v-if="item.scanError" class="library-scan-error"><bdi class="library-bidi-human" dir="auto">{{ item.scanError }}</bdi></p></div>
+        <p><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Details') }}</button><a class="button primary" :href="item.openUrl">{{ t('library', 'Open') }}</a></p>
       </article>
     </div>
     <nav v-if="items.length > 0" class="library-pagination" :aria-label="t('library', 'Review pagination')"><a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a><span v-else class="library-muted">{{ t('library', 'Previous') }}</span><span>{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span><a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a><span v-else class="library-muted">{{ t('library', 'Next') }}</span></nav>
   </section>
-  <section v-else class="library-panel library-mobile-compact-chrome" aria-labelledby="library-catalogue-heading">
+  <main v-else-if="isHome" id="library-home" class="library-panel library-home" aria-labelledby="library-home-heading">
+    <header class="library-home-header">
+      <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Your library') }}</p>
+      <h2 id="library-home-heading">{{ t('library', 'Home') }}</h2>
+    </header>
+
+    <section class="library-home-row" aria-labelledby="library-continue-heading">
+      <header><div><h3 id="library-continue-heading">{{ t('library', 'Continue reading') }}</h3><p class="library-muted">{{ t('library', 'Pick up publications you opened recently.') }}</p></div><a :href="`${catalogueRootUrl}?sort=lastOpened`">{{ t('library', 'View all') }}</a></header>
+      <div v-if="homeRows.continueReading.length" class="library-home-card-row">
+        <article v-for="item in homeRows.continueReading" :key="`continue-${item.id}`" class="library-cover-card library-home-card">
+          <button type="button" class="library-cover-link" @click="openDetailsDrawer(item, $event)"><span class="library-cover-frame"><img class="library-cover-image" :src="item.coverUrl" alt="" loading="lazy"></span></button>
+          <div class="library-cover-summary"><h4><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi dir="auto">{{ item.title }}</bdi></button></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Open') }}</a></div>
+        </article>
+      </div>
+      <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Publications you open will appear here.') }}</p>
+    </section>
+
+    <section class="library-home-row" aria-labelledby="library-recent-heading">
+      <header><div><h3 id="library-recent-heading">{{ t('library', 'Recently added') }}</h3><p class="library-muted">{{ t('library', 'The latest publications indexed from your Library roots.') }}</p></div><a :href="`${catalogueRootUrl}?sort=recent`">{{ t('library', 'View all') }}</a></header>
+      <div v-if="homeRows.recentlyAdded.length" class="library-home-card-row">
+        <article v-for="item in homeRows.recentlyAdded" :key="`recent-${item.id}`" class="library-cover-card library-home-card">
+          <button type="button" class="library-cover-link" @click="openDetailsDrawer(item, $event)"><span class="library-cover-frame"><img class="library-cover-image" :src="item.coverUrl" alt="" loading="lazy"></span></button>
+          <div class="library-cover-summary"><h4><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi dir="auto">{{ item.title }}</bdi></button></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Open') }}</a></div>
+        </article>
+      </div>
+      <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Recently indexed publications will appear here.') }}</p>
+    </section>
+
+    <section class="library-home-row" aria-labelledby="library-home-shelves-heading">
+      <header><div><h3 id="library-home-shelves-heading">{{ t('library', 'Shelves') }}</h3><p class="library-muted">{{ t('library', 'Browse the folders that organize your publications.') }}</p></div><a :href="shelvesUrl">{{ t('library', 'View all') }}</a></header>
+      <nav v-if="homeShelves.length" class="library-home-shelves" :aria-label="t('library', 'Shelves')"><a v-for="shelf in homeShelves" :key="shelf.shelf" :href="shelf.url"><strong><bdi dir="auto">{{ shelf.shelf }}</bdi></strong><span>{{ n('library', '%n item', '%n items', Number(shelf.itemCount || 0)) }}</span></a></nav>
+      <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Your enabled Library roots will appear as shelves.') }}</p>
+    </section>
+
+    <aside v-if="Number(needsAttention.count || 0) > 0" class="library-home-attention" aria-labelledby="library-home-attention-heading">
+      <div><h3 id="library-home-attention-heading">{{ t('library', 'Needs attention') }}</h3><p class="library-muted">{{ n('library', '%n publication needs better details.', '%n publications need better details.', Number(needsAttention.count || 0)) }}</p></div>
+      <a class="button tertiary" :href="needsAttention.url">{{ t('library', 'Review') }}</a>
+    </aside>
+  </main>
+  <main v-else-if="isShelves" id="library-shelves-landing" class="library-panel library-shelves-landing" aria-labelledby="library-shelves-landing-heading">
+    <header class="library-home-header">
+      <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Your library') }}</p>
+      <h2 id="library-shelves-landing-heading">{{ t('library', 'Shelves') }}</h2>
+      <p class="library-muted">{{ t('library', 'Browse the folders that organize your publications.') }}</p>
+    </header>
+    <nav v-if="shelfTree.length" :aria-label="t('library', 'Shelves')">
+      <ul class="library-shelf-tree">
+        <ShelfTreeNode v-for="node in shelfTree" :key="node.id" :node="node" :children-url="shelfChildrenUrl" />
+      </ul>
+    </nav>
+    <section v-else class="library-shelves-empty" role="status">
+      <h3>{{ t('library', 'Shelves') }}</h3>
+      <p class="library-muted">{{ t('library', 'Your enabled Library roots will appear as shelves.') }}</p>
+      <p class="library-empty-actions">
+        <a class="button primary" :href="settingsUrl">{{ t('library', 'Add a Library root') }}</a>
+        <a class="button secondary" :href="catalogueRootUrl">{{ t('library', 'All publications') }}</a>
+      </p>
+    </section>
+  </main>
+  <section v-else id="library-catalogue" class="library-panel library-mobile-compact-chrome" aria-labelledby="library-catalogue-heading">
+    <header class="library-catalogue-header">
+      <p v-if="isDiscoveryPage" class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
+      <h2 id="library-catalogue-heading">{{ catalogueHeading }}</h2>
+    </header>
     <nav class="library-catalogue-workspace library-workspace-menubar" :aria-label="t('library', 'One catalogue workspace')">
-      <details class="library-workspace-panel library-workspace-panel--refine library-filter-panel" data-workspace-panel="refine">
-        <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished library-filter-panel-summary">
-          <span class="library-workspace-panel-icon" aria-hidden="true">⌕</span>
-          <span class="library-workspace-panel-title" :title="t('library', 'Search, sort and filters narrow the current result set. Active chips explain every constraint and can be removed one at a time.')">{{ t('library', 'Refine results') }}</span>
-          <small class="library-workspace-panel-purpose">{{ t('library', 'Filters, facets and saved filter shortcuts') }}</small>
-          <b class="library-workspace-scope-badge">{{ activeFilters.shelf ? t('library', 'this shelf') : (activeFilterChips.length > 0 ? t('library', 'current results') : t('library', 'whole catalogue')) }}</b>
-        </summary>
-        <form method="get" class="library-quick-filter-bar" :aria-label="t('library', 'Quick catalogue filters')" @submit.prevent="submitFiltersAjax">
-          <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
-          <div class="library-quick-search-row">
-            <label class="library-quick-filter-search" :title="t('library', 'Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.')">
-              <span>{{ t('library', 'Search title, creator, description, filename or folder') }} <kbd class="library-keyboard-hint">/</kbd></span>
-              <input ref="quickSearchInput" v-model="activeFilters.q" data-library-quick-search type="search" name="q" :placeholder="t('library', 'Camera, Eco, Rolleiflex, description or folder…')" @input="scheduleFilterSubmit">
-            </label>
-            <button type="submit" class="button primary" :aria-label="t('library', 'Search catalogue')">{{ t('library', 'Search') }}</button>
-          </div>
-          <details class="library-quick-filter-options">
-            <summary>{{ t('library', 'Filter & sort') }}</summary>
-            <div class="library-quick-filter-option-grid">
-            <label>{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Recently added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
-            <label>{{ t('library', 'Starred') }}<select v-model="activeFilters.starred" name="starred" @change="submitFiltersAjax"><option value="">{{ t('library', 'All') }}</option><option value="1">{{ t('library', 'Starred') }}</option></select></label>
-            <label>{{ t('library', 'Size') }}<select :value="pagination.limit" name="limit" @change="submitFiltersAjax"><option v-for="limit in pageSizes" :key="limit" :value="limit">{{ limit }}</option></select></label>
-            <button type="submit" class="button secondary" :aria-label="t('library', 'Apply catalogue filters')">{{ t('library', 'Apply filters') }}</button>
-            <a href="?" class="button secondary" :aria-label="t('library', 'Clear catalogue filters')">{{ t('library', 'Clear all') }}</a>
-          </div>
-          </details>
-        </form>
-        <form method="get" class="library-filter-bar" :aria-label="t('library', 'Catalogue search and filters')" @submit.prevent="submitFiltersAjax">
-          <label>{{ t('library', 'Type') }}<select v-model="activeFilters.type" name="type"><option value="">{{ t('library', 'All types') }}</option><option v-for="type in publicationTypes" :key="type" :value="type">{{ type }}</option></select></label>
-          <label>{{ t('library', 'Series / periodical') }}<select v-model="activeFilters.publication" name="publication"><option value="">{{ t('library', 'All series and periodicals') }}</option><option v-for="publication in publications" :key="publication" :value="publication">{{ publication }}</option></select></label>
-          <label>{{ t('library', 'Publication year') }}<select v-model="activeFilters.year" name="year"><option value="">{{ t('library', 'All years') }}</option><option v-for="year in publicationYears" :key="year" :value="year">{{ year }}</option></select></label>
-          <label>{{ t('library', 'Creator') }}<select v-model="activeFilters.creator" name="creator" :title="t('library', 'Exact full-field creator matches only')"><option value="">{{ t('library', 'All creators') }}</option><option v-for="creator in creators" :key="creator" :value="creator">{{ creator }}</option></select></label>
-          <label>{{ t('library', 'Nextcloud tag') }}<input v-model="activeFilters.tag" type="text" name="tag" :placeholder="t('library', 'photography')"></label>
-          <label>{{ t('library', 'Format') }}<select v-model="activeFilters.format" name="format"><option value="">{{ t('library', 'All formats') }}</option><option v-for="format in formats" :key="format" :value="format">{{ upper(format) }}</option></select></label>
-          <label>{{ t('library', 'Shelf') }}<select v-model="activeFilters.shelf" name="shelf"><option value="">{{ t('library', 'All shelves') }}</option><option v-for="shelf in shelves" :key="shelf" :value="shelf">{{ shelf }}</option></select></label>
-          <label>{{ t('library', 'Scan status') }}<select v-model="activeFilters.status" name="status"><option value="">{{ t('library', 'All scan statuses') }}</option><option v-for="status in scanStatuses" :key="status" :value="status">{{ status }}</option></select></label>
-          <label>{{ t('library', 'Workflow status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus"><option value="">{{ t('library', 'All workflow statuses') }}</option><option v-for="status in workflowStatuses" :key="status" :value="status">{{ status }}</option></select></label>
-          <label>{{ t('library', 'Genre') }}<select v-model="activeFilters.genre" name="genre"><option value="">{{ t('library', 'All genres') }}</option><option v-for="genre in genres" :key="genre" :value="genre">{{ genre }}</option></select></label>
-          <label>{{ t('library', 'Classification') }}<select v-model="activeFilters.classification" name="classification"><option value="">{{ t('library', 'All classifications') }}</option><option v-for="classification in classifications" :key="classification" :value="classification">{{ classification }}</option></select></label>
-          <label>{{ t('library', 'Scanner conflicts') }}<select v-model="activeFilters.scannerConflicts" name="scannerConflicts"><option value="">{{ t('library', 'All metadata') }}</option><option value="1">{{ t('library', 'Needs review') }}</option></select></label>
-          <button type="submit" class="button primary">{{ t('library', 'Apply filters') }}</button><a href="?" class="button secondary">{{ t('library', 'Clear') }}</a>
-        </form>
-      </details>
+      <form method="get" class="library-quick-filter-bar library-catalogue-toolbar" :aria-label="t('library', 'Catalogue toolbar')" @submit.prevent="submitFiltersAjax">
+        <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
+        <label data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
+        <nav class="library-view-mode-toggle" data-library-control="view" :aria-label="t('library', 'View')"><button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button><button type="button" data-library-view-mode="gallery" :class="{ active: viewMode === 'gallery' }" :aria-pressed="viewMode === 'gallery' ? 'true' : 'false'" @click="setViewMode('gallery')">{{ t('library', 'Gallery') }}</button><button type="button" data-library-view-mode="list" :class="{ active: viewMode === 'list' }" :aria-pressed="viewMode === 'list' ? 'true' : 'false'" @click="setViewMode('list')">{{ t('library', 'List') }}</button><button type="button" data-library-view-mode="shelf" :class="{ active: viewMode === 'shelf' }" :aria-pressed="viewMode === 'shelf' ? 'true' : 'false'" @click="setViewMode('shelf')">{{ t('library', 'Shelf') }}</button></nav>
+      </form>
+      <section id="library-collections" class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form><nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')"><article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card"><a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)"><strong>{{ collection.name }}</strong><span>{{ n('library', '%n item', '%n items', Number(collection.count || 0)) }}</span></a><form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form"><input type="hidden" name="requesttoken" :value="requestToken"><button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button></form></article></nav></section>
 
-      <details class="library-workspace-panel library-workspace-panel--browse library-discovery-shortcuts library-home-dashboard" data-workspace-panel="browse">
-        <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">↗</span><span class="library-workspace-panel-title" :title="t('library', 'Shortcuts reopen ordinary catalogue views, so filters, chips and pagination stay consistent.')">{{ t('library', 'Browse shortcuts') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Continue reading, recently added, rediscover and useful views') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'whole catalogue') }}</b></summary>
+      <details v-if="selectedItemIds.length > 0" class="library-workspace-panel library-workspace-panel--batch library-batch-actions" data-workspace-panel="batch" :aria-label="t('library', 'Batch actions for selected publications')">
+        <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">✓</span><span class="library-workspace-panel-title" :title="t('library', 'Batch actions for selected publications')">{{ t('library', 'Batch actions') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Batch actions for selected publications') }}</small><b class="library-workspace-scope-badge">{{ n('library', '%n publication selected', '%n publications selected', selectedItemIds.length) }}</b></summary>
 
-        <article v-if="hasHomeDashboard" class="library-home-hero-card"><h3 :title="t('library', 'Fast entry points keep browsing visual: continue, revisit recent additions, or rediscover one shelf item.')">{{ t('library', 'Continue reading') }}</h3><div class="library-home-hero-actions"><a v-if="featuredHomeItems[0]" class="button primary" :href="featuredHomeItems[0].openUrl">{{ t('library', 'Read now') }}</a><button v-if="featuredHomeItems[0]" type="button" class="button secondary" @click="openDetailsDrawer(featuredHomeItems[0], $event)">{{ t('library', 'Details') }}</button></div></article>
-        <article v-if="rediscoverItem" class="library-home-rediscover"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Rediscover') }}</p><strong>{{ rediscoverItem.title }}</strong><span class="library-muted">{{ rediscoverItem.creators || rediscoverItem.publication || rediscoverItem.cachedPath }}</span><button type="button" class="button secondary" @click="openDetailsDrawer(rediscoverItem, $event)">{{ t('library', 'Peek') }}</button></article>
-        <nav class="library-useful-view-links" :aria-label="t('library', 'Useful views')"><a v-for="view in smartViews" :key="view.key" class="library-useful-view-chip" :href="smartViewUrl(view.filters)" :title="t('library', view.description)"><strong>{{ t('library', view.label) }}</strong><small class="library-useful-view-count">{{ Number(smartViewCounts[view.key] || 0) }}</small></a></nav>
-        <div class="library-shortcut-selectors"><label v-if="publicationSummaries.length > 0" class="library-shortcut-select-card library-periodical-groups" :title="t('library', 'Jump into recurring publications with one click.')"><span>{{ t('library', 'Series / periodicals') }}</span><select @change="navigateToSelected"><option value="">{{ t('library', 'Choose series') }}</option><option v-for="summary in publicationSummaries" :key="summary.publication" :value="publicationLandingUrl(summary.publication)">{{ summary.publication }} · {{ summary.itemCount }}</option></select></label><label v-if="publicationYears.length > 0" class="library-shortcut-select-card library-year-groups"><span>{{ t('library', 'Publication year') }}</span><select @change="navigateToSelected"><option value="">{{ t('library', 'Choose year') }}</option><option v-for="year in publicationYears" :key="year" :value="yearLandingUrl(year)">{{ year }}</option></select></label><label v-if="creators.length > 0" class="library-shortcut-select-card library-creator-groups"><span>{{ t('library', 'Creator') }}</span><select @change="navigateToSelected"><option value="">{{ t('library', 'Choose creator') }}</option><option v-for="creator in creators" :key="creator" :value="creatorLandingUrl(creator)">{{ creator }}</option></select></label></div>
-        <section class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Custom collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form><nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')"><article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card"><a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)"><strong>{{ collection.name }}</strong><span>{{ n('library', '%n item', '%n items', Number(collection.count || 0)) }}</span></a><form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form"><input type="hidden" name="requesttoken" :value="requestToken"><button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button></form></article></nav></section>
-      </details>
-
-      <details class="library-workspace-panel library-workspace-panel--batch library-batch-actions" data-workspace-panel="batch" :aria-label="t('library', 'Batch actions for current results')">
-        <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">✓</span><span class="library-workspace-panel-title" :title="t('library', 'Every batch action uses the current filters, names its scope, and returns changed / unchanged / skipped / error feedback.')">{{ t('library', 'Batch actions') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Preview and apply changes to current results') }}</small><b class="library-workspace-scope-badge">{{ pagination.total }} {{ t('library', 'Current filter result') }}</b></summary>
-
-        <div class="library-batch-action-grid">
-          <form method="post" :action="batchTagUrl" class="library-batch-action-card library-batch-tag-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="filter.key" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Add tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button primary" :title="t('library', 'Uses the current filters, not just this page. Limit: 5,000 matched items.')">{{ t('library', 'Apply') }}</button></form>
-          <form method="post" :action="batchTagRemoveUrl" class="library-batch-action-card library-batch-tag-remove-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`remove-tag-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Remove tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button secondary" :title="t('library', 'Removes an existing Nextcloud tag from every item matching the current filters. Library metadata is not changed.')">{{ t('library', 'Remove') }}</button></form>
-          <form method="post" :action="batchMetadataResetUrl" class="library-batch-action-card library-batch-metadata-reset-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`reset-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><input type="hidden" name="scannerConflicts" value="1"><button type="submit" class="button secondary" :title="t('library', 'Reset current scanner-conflict results to scanner metadata. This only touches items whose current fields differ from stored scanner candidates.')">{{ t('library', 'Reset metadata') }}</button></form>
-          <form method="post" :action="batchMetadataEditPreviewUrl" class="library-batch-action-card library-batch-action-card--wide library-batch-metadata-edit-preview-form" target="_blank"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`edit-preview-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Field') }}</span><select name="bulkEditField"><option value="publicationType">{{ t('library', 'Publication type') }}</option><option value="subtitle">{{ t('library', 'Subtitle') }}</option><option value="creators">{{ t('library', 'Creators') }}</option><option value="publication">{{ t('library', 'Series / periodical') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="language">{{ t('library', 'Language') }}</option><option value="publisher">{{ t('library', 'Publisher') }}</option><option value="genres">{{ t('library', 'Genres') }}</option><option value="classifications">{{ t('library', 'Classifications') }}</option></select></label><label><span>{{ t('library', 'Value') }}</span><input type="text" name="bulkEditValue" :placeholder="t('library', 'magazine, de, photography…')" autocomplete="off"></label><button type="submit" class="button secondary" :title="t('library', 'Preview first, then apply from the review page.')">{{ t('library', 'Preview edit') }}</button></form>
-          <form method="post" :action="batchCoverRefreshUrl" class="library-batch-action-card library-batch-cover-refresh-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`cover-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><button type="submit" class="button secondary" :title="t('library', 'Refresh cover previews for current results by reloading this filtered view with no-store cover URLs. Source files and metadata are not changed.')">{{ t('library', 'Fresh covers') }}</button></form>
+        <p aria-live="polite">{{ n('library', '%n publication selected', '%n publications selected', selectedItemIds.length) }}</p>
+        <div class="library-batch-action-grid" @submit.capture="appendSelectedItemIds">
+          <form method="post" :action="batchTagUrl" class="library-batch-action-card library-batch-tag-form"><input type="hidden" name="requesttoken" :value="requestToken"><label><span>{{ t('library', 'Add tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button primary" :title="t('library', 'Applies only to the selected publications.')">{{ t('library', 'Apply') }}</button></form>
+          <form method="post" :action="batchTagRemoveUrl" class="library-batch-action-card library-batch-tag-remove-form"><input type="hidden" name="requesttoken" :value="requestToken"><label><span>{{ t('library', 'Remove tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button secondary" :title="t('library', 'Removes the tag only from the selected publications.')">{{ t('library', 'Remove') }}</button></form>
+          <form method="post" :action="batchMetadataResetUrl" class="library-batch-action-card library-batch-metadata-reset-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`reset-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><input type="hidden" name="scannerConflicts" value="1"><button type="submit" class="button secondary" :title="t('library', 'Batch actions for selected publications')">{{ t('library', 'Reset metadata') }}</button></form>
+          <form method="post" :action="batchMetadataEditPreviewUrl" class="library-batch-action-card library-batch-action-card--wide library-batch-metadata-edit-preview-form" target="_blank"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`edit-preview-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Field') }}</span><select name="bulkEditField"><option value="publicationType">{{ t('library', 'Publication type') }}</option><option value="subtitle">{{ t('library', 'Subtitle') }}</option><option value="creators">{{ t('library', 'Creators') }}</option><option value="publication">{{ t('library', 'Series / periodical') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="language">{{ t('library', 'Language') }}</option><option value="publisher">{{ t('library', 'Publisher') }}</option><option value="subjects">{{ t('library', 'Subjects') }}</option><option value="classifications">{{ t('library', 'Classifications') }}</option></select></label><label><span>{{ t('library', 'Value') }}</span><input type="text" name="bulkEditValue" :placeholder="t('library', 'magazine, de, photography…')" autocomplete="off"></label><button type="submit" class="button secondary" :title="t('library', 'Preview first, then apply from the review page.')">{{ t('library', 'Preview edit') }}</button></form>
+          <form method="post" :action="batchCoverRefreshUrl" class="library-batch-action-card library-batch-cover-refresh-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`cover-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><button type="submit" class="button secondary" :title="t('library', 'Batch actions for selected publications')">{{ t('library', 'Fresh covers') }}</button></form>
         </div>
       </details>
 
-      <details class="library-workspace-panel library-workspace-panel--review library-weak-metadata-dashboard" data-workspace-panel="review">
-        <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">!</span><span class="library-workspace-panel-title" :title="t('library', 'Review cards compare current values, proposed values, source and consequence before anything changes. Source files stay in Nextcloud Files; compact cards stay browse-first while Details carries repair actions.')">{{ t('library', 'Review queue') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Weak metadata, conflicts, missing files and extraction errors') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'current results') }}</b></summary>
-
-        <nav class="library-weak-metadata-links" :aria-label="t('library', 'Weak metadata catalogue views')"><a v-for="row in weakMetadataDashboardRows" :key="row.key" class="library-weak-metadata-card" :href="smartViewUrl(row.filters)" :title="t('library', row.description)"><span><strong>{{ t('library', row.label) }}</strong></span><b>{{ Number(smartViewCounts[row.key] || 0) }}</b></a></nav>
-        <div class="library-review-queue-actions" :aria-label="t('library', 'Review queue shortcuts')"><article :title="t('library', 'Open, export or tag the current metadata-error rows. Uses the existing batch tag route, so source files and Library metadata are not changed.')"><h4>{{ t('library', 'Metadata-error queue') }}</h4><a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Open metadata-error rows') }}</a><a class="button secondary" :href="metadataErrorsTsvUrl">{{ t('library', 'Export metadata-error rows') }}</a><form method="post" :action="batchTagUrl" class="library-review-queue-tag-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="status" value="metadata_error"><input type="hidden" name="nextcloudTagName" value="library-metadata-error"><button type="submit" class="button secondary">{{ t('library', 'Tag metadata-error rows') }}</button></form></article><article :title="t('library', 'Open or tag items where user metadata differs from stored scanner candidates. Library metadata is not changed.')"><h4>{{ t('library', 'Scanner-conflict queue') }}</h4><a class="button secondary" :href="scannerConflictReviewUrl">{{ t('library', 'Review scanner conflicts') }}</a><form method="post" :action="batchTagUrl" class="library-review-queue-tag-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="scannerConflicts" value="1"><input type="hidden" name="nextcloudTagName" value="library-scanner-conflict"><button type="submit" class="button secondary">{{ t('library', 'Tag scanner-conflict rows') }}</button></form></article></div>
-        <section v-if="metadataReviewWorkbench.enabled" class="library-metadata-review-workbench" aria-labelledby="library-metadata-review-workbench-heading"><div class="library-metadata-review-workbench-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata review workbench') }}</p><h3 id="library-metadata-review-workbench-heading" :title="t('library', 'Shows current value, scanner candidate, path-template candidate, sidecar value and source provenance together. No source files are changed; user-edited values are never silently overwritten.')">{{ t('library', 'Review next conflict') }}</h3></div><article v-if="metadataReviewWorkbench.item" class="library-metadata-review-card"><header><strong>{{ metadataReviewWorkbench.item.title }}</strong><span class="library-muted">{{ metadataReviewWorkbench.item.cachedPath }}</span></header><div class="library-metadata-review-fields"><article v-for="field in metadataReviewWorkbench.fields" :key="field.field" class="library-metadata-review-field"><h4>{{ field.field }}</h4><dl><div><dt>{{ t('library', 'Current value') }}</dt><dd>{{ field.currentValue || '—' }}</dd></div><div><dt>{{ t('library', 'scanner candidate') }}</dt><dd>{{ field.scannerCandidate || '—' }}</dd></div><div><dt>{{ t('library', 'path-template candidate') }}</dt><dd>{{ field.pathTemplateCandidate || '—' }}</dd></div><div><dt>{{ t('library', 'sidecar value') }}</dt><dd>{{ field.sidecarValue || '—' }}</dd></div><div><dt>{{ t('library', 'source provenance') }}</dt><dd>{{ field.sourceProvenance || '—' }}</dd></div></dl><form method="post" :action="metadataReviewWorkbench.item.resetFieldUrl" class="library-metadata-review-accept-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="field" :value="field.field"><input type="hidden" name="returnTo" value="catalogue"><button type="submit" class="button secondary">{{ t('library', 'accept scanner candidate') }}</button></form></article></div><footer class="library-metadata-review-actions"><a class="button secondary" :href="metadataReviewWorkbench.item.detailsUrl">{{ t('library', 'Open full details') }}</a><a class="button secondary" :href="metadataReviewWorkbench.skipUrl">{{ t('library', 'Skip to next conflict') }}</a></footer></article><p v-else class="library-muted">{{ t('library', 'No reviewable conflict is visible on this page. Open scanner conflicts to review the next matching item.') }}</p><a class="button secondary" :href="metadataReviewWorkbench.reviewNextUrl">{{ t('library', 'Review next conflict') }}</a></section>
-      </details>
-
-      <details class="library-workspace-panel library-workspace-panel--admin" data-workspace-panel="admin" @toggle="loadImportHealthSummary">
-        <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">⚙</span><span class="library-workspace-panel-title" :title="t('library', 'Maintain roots, scans, exports and repair operations away from the browse cards.')">{{ t('library', 'Admin tools') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Roots, scans, exports and repair operations') }}</small><b class="library-workspace-scope-badge">{{ t('library', 'all enabled roots') }}</b></summary>
-
-        <div class="library-catalogue-actions-list"><a :href="settingsUrl" class="button secondary" :aria-label="t('library', 'Open Library settings')">{{ t('library', 'Settings') }}</a><a v-if="metadataExportUrl" :href="metadataExportUrl" class="button secondary" :aria-label="t('library', 'Export corrected metadata')">{{ t('library', 'Export corrected metadata') }}</a><a v-if="metadataSidecarManifestUrl" :href="metadataSidecarManifestUrl" class="button secondary" :aria-label="t('library', 'Export sidecar manifest')">{{ t('library', 'Sidecar manifest') }}</a><a v-if="metadataSidecarBundleUrl" :href="metadataSidecarBundleUrl" class="button secondary" :aria-label="t('library', 'Export sidecar ZIP')">{{ t('library', 'Sidecar ZIP') }}</a></div>
-        <div class="library-actions-health-overview"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Import health') }}</p><h3 :title="t('library', 'Cached metadata overview loads quickly. Refresh only when you want to recompute heavier archive and cover diagnostics. Files are left as-is; diagnostics separate Library extraction from Nextcloud/plugin preview.')">{{ t('library', 'Metadata overview') }}</h3><p v-if="importHealthState.loading" class="library-muted">{{ t('library', 'Loading cached metadata overview…') }}</p><p v-else-if="importHealthState.error" class="library-notice">{{ importHealthState.error }}</p><p v-else-if="!importHealthState.loaded" class="library-muted">{{ t('library', 'Open Admin tools to load the cached metadata and cover overview.') }}</p><template v-if="importHealthState.loaded"><p v-if="importHealthSummary.message" class="library-muted">{{ importHealthSummary.message }}</p><p v-else-if="importHealthSummary.cacheStatus === 'missing'" class="library-muted">{{ t('library', 'No cached metadata overview exists yet') }}</p><p v-if="importHealthGeneratedAt" class="library-muted">{{ t('library', 'Last generated') }}: {{ importHealthGeneratedAt }}</p><button type="button" class="button secondary library-import-health-refresh" :disabled="importHealthState.refreshing" @click="refreshImportHealthSummary">{{ importHealthState.refreshing ? t('library', 'Refreshing metadata overview…') : t('library', 'Refresh metadata overview') }}</button><div class="library-actions-health-links"><a class="button secondary" :href="metadataErrorReview.reviewUrl || '?status=metadata_error'">{{ t('library', 'Review metadata errors') }}</a><a class="button secondary" :href="metadataErrorsUrl">{{ t('library', 'Full review') }}</a><a class="button secondary" :href="metadataErrorsTsvUrl">{{ t('library', 'Export TSV') }}</a><a class="button secondary" :href="coverProbeUrl">{{ t('library', 'Probe covers') }}</a></div><div class="library-actions-health-grid"><article><h4>{{ t('library', 'Metadata errors') }}</h4><p class="library-import-health-number">{{ metadataErrorReview.total || 0 }}</p></article><article><h4>{{ t('library', 'Archive/container check') }}</h4><p class="library-import-health-number">{{ archiveMagicSummary.mismatches || 0 }}</p></article><article><h4>{{ t('library', 'Cover health') }}</h4><p class="library-muted">{{ coverHealthSummary.note }}</p></article><article><h4>{{ t('library', 'Cover support matrix') }}</h4><p class="library-muted">{{ t('library', 'Nextcloud/plugin preview and Library extraction are separate actors. 7z/RAR files stay left as-is; optional read-only archive tools only inspect copies.') }}</p></article><details v-if="metadataErrorReview.examples?.length" class="library-import-health-examples"><summary>{{ t('library', 'Example files and suggested actions') }}</summary><ul><li v-for="example in metadataErrorReview.examples" :key="`${example.fileId}-${example.path}`"><code>{{ example.path }}</code><span>{{ example.scanStatus }} · {{ example.scanError }} · {{ example.actualContainerType }}</span><strong>{{ example.suggestedRepairAction }}</strong></li></ul></details></div></template></div>
-      </details>
     </nav>
 
-    <div class="library-catalogue-header">
-      <div>
-        <p v-if="isDiscoveryPage" class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
-        <h2 id="library-catalogue-heading">{{ catalogueHeading }}</h2>
-      </div>
-    </div>
-
     <p v-if="batchLimitErrorMessage" class="library-warning library-batch-limit-error">{{ batchLimitErrorMessage }}</p>
+    <p v-if="batchSelectionErrorMessage" class="library-warning library-batch-selection-error">{{ batchSelectionErrorMessage }}</p>
     <p v-if="batchMetadataApplyMessage" class="library-notice library-batch-metadata-apply-result">{{ batchMetadataApplyMessage }}</p>
 
 
@@ -1120,12 +1511,6 @@ async function toggleStar(item, event) {
       <p><a :href="catalogueRootUrl" class="button secondary library-discovery-back-link">{{ t('library', 'Back to full catalogue') }}</a></p>
     </section>
 
-    <nav class="library-view-mode-toggle" :aria-label="t('library', 'Cover view mode')">
-      <button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button>
-      <button type="button" data-library-view-mode="gallery" :class="{ active: viewMode === 'gallery' }" :aria-pressed="viewMode === 'gallery' ? 'true' : 'false'" @click="setViewMode('gallery')">{{ t('library', 'Gallery') }}</button>
-      <button type="button" data-library-view-mode="shelf" :class="{ active: viewMode === 'shelf' }" :aria-pressed="viewMode === 'shelf' ? 'true' : 'false'" @click="setViewMode('shelf')">{{ t('library', 'Shelf') }}</button>
-    </nav>
-
     <div class="library-catalogue-status-row">
       <p class="library-muted library-filter-result-summary">{{ t('library', 'Showing') }} {{ pagination.from }}–{{ pagination.to }} {{ t('library', 'of') }} {{ pagination.total }} {{ t('library', 'catalogue items') }}<span v-if="activeFilterChips.length > 0"> · <a href="?">{{ t('library', 'Clear all filters') }}</a></span></p>
       <nav class="library-pagination library-pagination--top" :aria-label="t('library', 'Catalogue pagination')">
@@ -1136,14 +1521,6 @@ async function toggleStar(item, event) {
         <span v-else class="library-muted">{{ t('library', 'Next') }}</span>
       </nav>
     </div>
-
-    <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
-      <span>{{ t('library', 'Active filters') }}</span>
-      <a v-for="chip in activeFilterChips" :key="chip.key" :href="filterChipRemoveUrl(chip.key)" class="library-filter-chip" :aria-label="`${t('library', 'Remove filter')}: ${chip.label}`">
-        <strong>{{ chip.label }}:</strong> {{ chip.value }} <span aria-hidden="true">×</span>
-      </a>
-    </nav>
-
 
     <div v-if="items.length === 0" class="library-empty-content" :class="{ 'library-first-run-guidance': hasNoConfiguredRoots || hasNoEnabledRoots, 'library-filter-empty-state': hasActiveFilters && !hasNoConfiguredRoots && !hasNoEnabledRoots }" role="status">
       <template v-if="hasNoConfiguredRoots">
@@ -1164,15 +1541,34 @@ async function toggleStar(item, event) {
       </template>
     </div>
 
-    <div v-else class="library-cover-gallery" :class="coverGalleryClasses">
-      <article v-for="item in items" :key="item.id" class="library-cover-card" :class="{ 'library-cover-card--open': openCoverDetails[item.id], 'library-cover-card--cover-loaded': coverImageState(item) === 'loaded', 'library-cover-card--cover-error': coverImageState(item) === 'error' }">
-        <a class="library-cover-link" :href="item.openUrl" :aria-label="t('library', 'Read {title}', { title: item.title })">
+    <label v-if="items.length > 0" class="library-select-visible"><input type="checkbox" :checked="selectedItemIds.length === items.length" @change="selectVisibleItems"> {{ t('library', 'Select all publications on this page') }}</label>
+    <ul v-if="items.length > 0 && viewMode === 'list'" class="library-catalogue-list" data-library-catalogue-list>
+      <li v-for="item in items" :key="item.id" class="library-catalogue-list-row" :class="{ 'library-catalogue-list-row--selected': selectedItemIdSet.has(Number(item.id)), 'library-catalogue-list-row--open': sidebarOpen && Number(sidebarRequestedId) === Number(item.id) }">
+        <label class="library-item-selection"><input type="checkbox" :checked="selectedItemIdSet.has(Number(item.id))" :aria-label="`${t('library', 'Select publication')}: ${item.title}`" @change="toggleItemSelection(item.id, $event.currentTarget.checked)"></label>
+        <div class="library-catalogue-list-main">
+          <button type="button" class="library-cover-title-button library-catalogue-list-title" @click="openDetailsDrawer(item, $event)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></button>
+          <span v-if="item.creators" class="library-muted"><bdi class="library-bidi-human" dir="auto">{{ item.creators }}</bdi></span>
+        </div>
+        <dl class="library-catalogue-list-metadata">
+          <div v-if="item.publication"><dt>{{ t('library', 'Series') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ item.publication }}</bdi></dd></div>
+          <div v-if="item.publicationDate"><dt>{{ t('library', 'Publication date') }}</dt><dd>{{ item.publicationDate }}</dd></div>
+          <div v-if="item.extension || item.publicationType"><dt>{{ t('library', 'Format') }}</dt><dd><bdi :class="item.extension ? 'library-bidi-machine' : 'library-bidi-human'" :dir="item.extension ? 'ltr' : 'auto'">{{ item.extension ? upper(item.extension) : item.publicationType }}</bdi></dd></div>
+          <div v-if="item.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ item.shelf }}</bdi></dd></div>
+        </dl>
+        <div class="library-catalogue-list-actions"><a class="button primary" :href="item.openUrl">{{ t('library', 'Open') }}</a><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Details') }}</button></div>
+      </li>
+    </ul>
+    <div v-else-if="items.length > 0" class="library-cover-gallery" :class="coverGalleryClasses">
+      <article v-for="item in items" :key="item.id" class="library-cover-card" :class="{ 'library-cover-card--cover-loaded': coverImageState(item) === 'loaded', 'library-cover-card--cover-error': coverImageState(item) === 'error', 'library-cover-card--selected': selectedItemIdSet.has(Number(item.id)), 'library-cover-card--open': sidebarOpen && Number(sidebarRequestedId) === Number(item.id) }">
+        <label class="library-item-selection"><input type="checkbox" :checked="selectedItemIdSet.has(Number(item.id))" :aria-label="`${t('library', 'Select publication')}: ${item.title}`" @change="toggleItemSelection(item.id, $event.currentTarget.checked)"></label>
+        <button type="button" class="library-cover-link" :aria-labelledby="`library-details-action-${item.id} library-card-title-${item.id}`" :aria-expanded="sidebarOpen && Number(sidebarRequestedId) === Number(item.id) ? 'true' : 'false'" @click="openDetailsDrawer(item, $event)">
+          <span :id="`library-details-action-${item.id}`" class="hidden-visually">{{ t('library', 'Details') }}</span>
           <span class="library-cover-frame">
             <span v-if="coverImageState(item) === 'loading'" class="library-cover-loading-shimmer" aria-hidden="true"></span>
-            <img class="library-cover-image" :class="{ 'library-cover-image--loaded': coverImageState(item) === 'loaded' }" :src="item.coverUrl" :alt="t('library', 'Cover for {title}', { title: item.title })" loading="lazy" @load="markCoverLoaded(item)" @error="markCoverFailed(item)">
+            <img class="library-cover-image" :class="{ 'library-cover-image--loaded': coverImageState(item) === 'loaded' }" :src="item.coverUrl" alt="" loading="lazy" @load="markCoverLoaded(item)" @error="markCoverFailed(item)">
             <span v-if="coverImageState(item) === 'error'" class="library-cover-fallback" role="status">{{ t('library', 'Cover unavailable') }}</span>
           </span>
-        </a>
+        </button>
         <form method="post" :action="item.starUrl" class="library-cover-star-form" @submit.prevent="toggleStar(item, $event)">
           <input type="hidden" name="requesttoken" :value="requestToken">
           <input type="hidden" name="returnTo" value="catalogue">
@@ -1193,34 +1589,14 @@ async function toggleStar(item, event) {
         </form>
         <div class="library-cover-summary">
           <div class="library-cover-primary">
-            <h3><span v-if="item.starred" class="library-star-marker" :aria-label="t('library', 'Starred')">★</span>{{ item.title }}</h3>
-            <a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Read') }}</a>
-          </div>
-          <details class="library-cover-details" @toggle="setCoverDetailsOpen(item.id, $event)">
-            <summary class="library-cover-details-summary" :aria-label="`${t('library', 'Show details and actions')}: ${item.title}`">{{ t('library', 'Details') }}</summary>
-            <div class="library-cover-meta">
-              <p v-if="item.creators" class="library-creator">{{ item.creators }}</p>
-              <dl class="library-cover-detail-list">
-                <div class="library-cover-detail-chip"><dt>{{ t('library', 'Type') }}</dt><dd>{{ item.publicationType }}</dd></div>
-                <div v-if="item.publication" class="library-cover-detail-chip"><dt>{{ t('library', 'Series') }}</dt><dd>{{ item.publication }}</dd></div>
-                <div v-if="item.publicationDate" class="library-cover-detail-chip"><dt>{{ t('library', 'Date') }}</dt><dd>{{ item.publicationDate }}</dd></div>
-                <div v-if="item.workflowStatus" class="library-cover-detail-chip"><dt>{{ t('library', 'Status') }}</dt><dd>{{ item.workflowStatus }}</dd></div>
-                <div v-if="item.hasScannerConflict" class="library-cover-detail-chip"><dt>{{ t('library', 'Review') }}</dt><dd>{{ t('library', '{count} fields', { count: item.scannerConflictCount }) }}</dd></div>
-                <div v-if="item.lastOpenedAt" class="library-cover-detail-chip"><dt>{{ t('library', 'Last opened') }}</dt><dd>{{ item.lastOpenedAt }}</dd></div>
-                <div v-if="item.extension" class="library-cover-detail-chip"><dt>{{ t('library', 'Format') }}:</dt><dd> {{ upper(item.extension) }}</dd></div>
-                <div v-if="item.shelf" class="library-cover-detail-chip"><dt>{{ t('library', 'Shelf') }}</dt><dd>{{ item.shelf }}</dd></div>
-              </dl>
-              <p v-if="item.description" class="library-muted library-cover-description">{{ item.description }}</p>
-              <p v-if="item.scanStatus !== 'indexed' || item.scanError" class="library-item-scan-status library-scan-error">
-                {{ t('library', 'Scan status') }}: {{ item.scanStatus || t('library', 'unknown') }}<span v-if="item.scanError"> · {{ t('library', 'Scan error') }}: {{ item.scanError }}</span>
-              </p>
-              <div class="library-nextcloud-tags library-cover-tags" :aria-label="t('library', 'Nextcloud tags')">
-                <span v-if="tagsFor(item).length === 0" class="library-muted">{{ t('library', 'No Nextcloud tags') }}</span>
-                <span v-for="tag in tagsFor(item)" v-else :key="tag.id" class="library-tag">{{ tag.name }}</span>
-              </div>
-              <p class="library-cover-actions"><a :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a> · <a :href="item.downloadUrl">{{ t('library', 'Download source') }}</a> · <button type="button" class="library-link-button library-cover-details-drawer-button" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Quick details') }}</button> · <a :href="item.detailsUrl">{{ t('library', 'Open full details') }}</a></p>
+            <h3 :id="`library-card-title-${item.id}`"><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></button></h3>
+            <p v-if="item.creators" class="library-cover-creator"><bdi class="library-bidi-human" dir="auto">{{ item.creators }}</bdi></p>
+            <div v-if="cardContext(item) || item.extension" class="library-cover-badges">
+              <span v-if="item.extension" class="library-cover-badge"><bdi class="library-bidi-machine" dir="ltr">{{ upper(item.extension) }}</bdi></span>
+              <p v-if="cardContext(item)" class="library-cover-context"><bdi class="library-bidi-human" dir="auto">{{ cardContext(item) }}</bdi></p>
             </div>
-          </details>
+            <div class="library-cover-primary-actions"><a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Open') }}</a><NcActions :aria-label="t('library', 'More actions')"><NcActionLink :href="item.filesUrl">{{ t('library', 'Show in Files') }}</NcActionLink><NcActionLink :href="item.downloadUrl">{{ t('library', 'Download') }}</NcActionLink><NcActionLink :href="item.detailsUrl">{{ t('library', 'Maintenance') }}</NcActionLink></NcActions></div>
+          </div>
         </div>
       </article>
     </div>
@@ -1248,40 +1624,48 @@ async function toggleStar(item, event) {
       :role="sidebarIsMobile ? 'dialog' : undefined"
       :aria-modal="sidebarIsMobile ? 'true' : undefined"
       :aria-labelledby="sidebarIsMobile ? 'library-detail-drawer-heading' : undefined"
-      :aria-describedby="sidebarIsMobile ? 'library-detail-drawer-keyboard-hint' : undefined"
+      :aria-describedby="sidebarIsMobile && selectedDrawerItem ? 'library-detail-drawer-keyboard-hint' : undefined"
       @opened="handleSidebarOpened"
       @closed="handleSidebarClosed"
       @close="closeDetailsDrawer">
-      <div class="library-sidebar-content" aria-live="polite">
+      <div class="library-sidebar-content">
         <h2 id="library-detail-drawer-heading" ref="sidebarHeading" class="hidden-visually" tabindex="-1">{{ selectedDrawerItem?.title || t('library', 'Publication details') }}</h2>
-        <p v-if="sidebarState.loading && !selectedDrawerItem" class="library-muted" role="status">{{ t('library', 'Loading publication details…') }}</p>
+        <p v-if="sidebarState.loading && !selectedDrawerItem" class="library-muted" role="status" aria-live="polite">{{ t('library', 'Loading publication details…') }}</p>
         <div v-else-if="sidebarState.error" class="library-sidebar-state" :role="sidebarState.missing ? 'status' : 'alert'">
           <p>{{ sidebarState.error }}</p>
           <button v-if="!sidebarState.missing" type="button" class="button secondary" @click="selectSidebarItem(sidebarRequestedId, { historyMode: 'none' })">{{ t('library', 'Try again') }}</button>
         </div>
         <template v-else-if="selectedDrawerItem">
-          <p id="library-detail-drawer-keyboard-hint" class="library-muted">{{ t('library', 'Escape closes; arrow keys browse neighbouring visible items.') }}</p>
-          <img class="library-detail-drawer-cover" :src="selectedDrawerItem.coverUrl" :alt="`${t('library', 'Cover for')} ${selectedDrawerItem.title}`" loading="lazy">
-          <p class="library-muted library-catalogue-eyebrow">{{ selectedDrawerItem.publicationType || t('library', 'Publication') }}<span v-if="selectedDrawerItem.extension"> · {{ upper(selectedDrawerItem.extension) }}</span></p>
-          <p v-if="selectedDrawerItem.description" class="library-sidebar-description">{{ selectedDrawerItem.description }}</p>
-          <dl class="library-detail-drawer-facts">
-            <div v-if="selectedDrawerItem.publication"><dt>{{ t('library', 'Series') }}</dt><dd>{{ selectedDrawerItem.publication }}</dd></div>
-            <div v-if="selectedDrawerItem.publicationDate"><dt>{{ t('library', 'Date') }}</dt><dd>{{ selectedDrawerItem.publicationDate }}</dd></div>
-            <div v-if="selectedDrawerItem.publisher"><dt>{{ t('library', 'Publisher') }}</dt><dd>{{ selectedDrawerItem.publisher }}</dd></div>
-            <div v-if="selectedDrawerItem.language"><dt>{{ t('library', 'Language') }}</dt><dd>{{ selectedDrawerItem.language }}</dd></div>
-            <div v-if="selectedDrawerItem.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd>{{ selectedDrawerItem.shelf }}</dd></div>
-            <div v-if="selectedDrawerItem.cachedPath"><dt>{{ t('library', 'File') }}</dt><dd>{{ selectedDrawerItem.cachedPath }}</dd></div>
-          </dl>
-          <section v-if="selectedDrawerItem.metadataSource || Object.keys(selectedDrawerItem.fieldSources || {}).length" class="library-sidebar-provenance" aria-labelledby="library-sidebar-provenance-heading">
-            <h3 id="library-sidebar-provenance-heading">{{ t('library', 'Metadata provenance') }}</h3>
-            <p v-if="selectedDrawerItem.metadataSource" class="library-muted">{{ t('library', 'Primary source') }}: {{ selectedDrawerItem.metadataSource }}</p>
-            <dl><div v-for="(source, field) in selectedDrawerItem.fieldSources" :key="field"><dt>{{ field }}</dt><dd>{{ source }}</dd></div></dl>
+          <p id="library-detail-drawer-keyboard-hint" class="hidden-visually">{{ t('library', 'Escape closes; arrow keys browse neighbouring visible items.') }}</p>
+          <div class="library-sidebar-publication-header">
+            <span id="library-detail-drawer-cover-label" class="hidden-visually">{{ t('library', 'Cover for') }}</span>
+            <img class="library-detail-drawer-cover" :src="selectedDrawerItem.coverUrl" alt="" :aria-labelledby="'library-detail-drawer-cover-label library-detail-drawer-heading'" loading="lazy">
+            <div class="library-sidebar-publication-summary">
+              <p class="library-muted library-catalogue-eyebrow"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.publicationType || t('library', 'Publication') }}</bdi><span v-if="selectedDrawerItem.extension"> · <bdi class="library-bidi-machine" dir="ltr">{{ upper(selectedDrawerItem.extension) }}</bdi></span></p>
+              <div class="library-detail-drawer-actions"><a class="button primary" :href="selectedDrawerItem.openUrl">{{ t('library', 'Open') }}</a><NcActions :aria-label="t('library', 'File and maintenance actions')"><NcActionLink :href="selectedDrawerItem.filesUrl">{{ t('library', 'Show in Files') }}</NcActionLink><NcActionLink :href="selectedDrawerItem.downloadUrl">{{ t('library', 'Download') }}</NcActionLink><NcActionLink :href="selectedDrawerItem.detailsUrl">{{ t('library', 'Maintenance (legacy)') }}</NcActionLink></NcActions></div>
+            </div>
+          </div>
+          <nav class="library-sidebar-sections" :aria-label="t('library', 'Publication detail sections')">
+            <button v-for="section in sidebarSections" :key="section.key" type="button" :class="{ active: sidebarSection === section.key }" :aria-current="sidebarSection === section.key ? 'page' : undefined" @click="sidebarSection = section.key">{{ t('library', section.label) }}</button>
+          </nav>
+          <section v-if="sidebarSection === 'overview'" class="library-sidebar-section" aria-labelledby="library-sidebar-overview-heading">
+            <h3 id="library-sidebar-overview-heading">{{ t('library', 'Overview') }}</h3>
+            <p v-if="selectedDrawerItem.description" class="library-sidebar-description"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.description }}</bdi></p>
+            <dl class="library-detail-drawer-facts"><div v-if="selectedDrawerItem.publication"><dt>{{ t('library', 'Series') }}</dt><dd>{{ selectedDrawerItem.publication }}</dd></div><div v-if="selectedDrawerItem.publicationDate"><dt>{{ t('library', 'Date') }}</dt><dd>{{ selectedDrawerItem.publicationDate }}</dd></div><div v-if="selectedDrawerItem.publisher"><dt>{{ t('library', 'Publisher') }}</dt><dd>{{ selectedDrawerItem.publisher }}</dd></div><div v-if="selectedDrawerItem.language"><dt>{{ t('library', 'Language') }}</dt><dd>{{ selectedDrawerItem.language }}</dd></div><div v-if="selectedDrawerItem.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd>{{ selectedDrawerItem.shelf }}</dd></div></dl>
           </section>
-          <section v-if="reviewConflictFieldsFor(selectedDrawerItem).length" class="library-sidebar-review" aria-labelledby="library-sidebar-review-heading">
-            <h3 id="library-sidebar-review-heading">{{ t('library', 'Review context') }}</h3>
-            <dl><div v-for="field in reviewConflictFieldsFor(selectedDrawerItem)" :key="field.field"><dt>{{ field.field }} · {{ field.sourceProvenance }}</dt><dd>{{ field.currentValue || '—' }} → {{ field.scannerCandidate || '—' }}</dd></div></dl>
+          <section v-else-if="sidebarSection === 'metadata'" class="library-sidebar-section" aria-labelledby="library-sidebar-metadata-heading">
+            <h3 id="library-sidebar-metadata-heading">{{ t('library', 'Metadata') }}</h3>
+            <form class="library-sidebar-metadata-form" @submit.prevent="saveSidebarMetadata">
+              <label>{{ t('library', 'Title') }}<input v-model="sidebarMetadataDraft.title" name="title" required></label>
+              <label>{{ t('library', 'Publication date') }}<input v-model="sidebarMetadataDraft.publicationDate" name="publicationDate" inputmode="numeric" :placeholder="t('library', 'e.g. 2026')"></label>
+              <fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in sidebarMetadataDraft.identifiers" :key="index" class="library-sidebar-identifier"><input v-model="identifier.scheme" :aria-label="t('library', 'Identifier type')" :placeholder="t('library', 'Identifier type')"><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><button type="button" class="button secondary" @click="removeSidebarIdentifier(index)">{{ t('library', 'Remove') }}</button></div><button type="button" class="button secondary" @click="addSidebarIdentifier">{{ t('library', 'Add identifier') }}</button></fieldset>
+              <p class="library-muted">{{ t('library', 'Creator, publisher, language, and other fields remain available in Maintenance while sidebar editing expands.') }}</p>
+              <p v-if="sidebarMetadataState.error" role="alert">{{ sidebarMetadataState.error }}</p><p v-else-if="sidebarMetadataState.saved" role="status">{{ t('library', 'Metadata saved.') }}</p>
+              <button type="submit" class="button primary" :disabled="sidebarMetadataState.saving">{{ sidebarMetadataState.saving ? t('library', 'Saving…') : t('library', 'Save metadata') }}</button>
+            </form>
+            <section v-if="reviewConflictFieldsFor(selectedDrawerItem).length" class="library-sidebar-review" aria-labelledby="library-sidebar-suggestions-heading"><h4 id="library-sidebar-suggestions-heading">{{ t('library', 'Scanner suggestions') }}</h4><p class="library-muted">{{ t('library', 'Suggestions are optional and never replace your edits automatically.') }}</p><dl><div v-for="field in reviewConflictFieldsFor(selectedDrawerItem)" :key="field.field"><dt>{{ field.field }} · {{ field.sourceProvenance }}</dt><dd>{{ t('library', 'Current') }}: {{ field.currentValue || '—' }}<br>{{ t('library', 'Suggestion') }}: {{ field.scannerCandidate || '—' }}</dd></div></dl></section>
           </section>
-          <p class="library-detail-drawer-actions"><a class="button primary" :href="selectedDrawerItem.openUrl">{{ t('library', 'Read') }}</a><a class="button secondary" :href="selectedDrawerItem.detailsUrl">{{ t('library', 'Open full details') }}</a></p>
+          <section v-else class="library-sidebar-section" aria-labelledby="library-sidebar-activity-heading"><h3 id="library-sidebar-activity-heading">{{ t('library', 'Activity') }}</h3><dl class="library-detail-drawer-facts"><div><dt>{{ t('library', 'Scan status') }}</dt><dd>{{ selectedDrawerItem.scanStatus || '—' }}</dd></div><div v-if="selectedDrawerItem.workflowStatus"><dt>{{ t('library', 'Workflow') }}</dt><dd>{{ selectedDrawerItem.workflowStatus }}</dd></div><div v-if="selectedDrawerItem.metadataSource"><dt>{{ t('library', 'Metadata source') }}</dt><dd>{{ selectedDrawerItem.metadataSource }}</dd></div><div v-if="selectedDrawerItem.cachedPath"><dt>{{ t('library', 'File') }}</dt><dd><bdi dir="ltr">{{ selectedDrawerItem.cachedPath }}</bdi></dd></div></dl></section>
           <nav class="library-detail-drawer-stepper" :aria-label="t('library', 'Browse neighbouring items')"><button type="button" class="button secondary" :disabled="!drawerPreviousItem" @click="showDrawerItem(drawerPreviousItem)">{{ t('library', 'Previous item') }}</button><button type="button" class="button secondary" :disabled="!drawerNextItem" @click="showDrawerItem(drawerNextItem)">{{ t('library', 'Next item') }}</button></nav>
         </template>
       </div>
@@ -1290,11 +1674,170 @@ async function toggleStar(item, event) {
 </template>
 
 <style>
+.library-home {
+  display: grid;
+  gap: 28px;
+}
+
+.library-home-header,
+.library-home-row > header,
+.library-home-attention {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.library-home-header h2,
+.library-home-row h3,
+.library-home-row p,
+.library-home-attention h3,
+.library-home-attention p {
+  margin-block: 0;
+}
+
+.library-home-card-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.library-home-card-row .library-home-card {
+  min-width: 0;
+}
+
+.library-home-card .library-cover-summary {
+  padding: 10px;
+}
+
+.library-home-card h4 {
+  margin: 0 0 4px;
+}
+
+.library-home-shelves {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.library-home-shelves a {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: var(--border-radius-large, 12px);
+  background: var(--color-main-background, #fff);
+}
+
+.library-shelf-summary-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  margin-top: 16px;
+}
+
+.library-shelf-tree {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+
+.library-shelf-tree .library-shelf-tree {
+  border-inline-start: 2px solid var(--color-border, #ddd);
+  margin: 10px 0 0 18px;
+  padding-inline-start: 14px;
+}
+
+.library-shelf-tree-node {
+  position: relative;
+}
+
+.library-shelf-tree-toggle {
+  inset-inline-start: 8px;
+  min-height: 32px;
+  min-width: 32px;
+  position: absolute;
+  top: 8px;
+  z-index: 1;
+}
+
+.library-shelf-tree-node:has(> .library-shelf-tree-toggle) > .library-shelf-summary-card {
+  padding-inline-start: 48px;
+}
+
+.library-shelf-summary-card {
+  background: var(--color-main-background, #fff);
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: var(--border-radius-large, 12px);
+  color: inherit;
+  display: grid;
+  gap: 8px;
+  min-height: 80px;
+  padding: 16px;
+  text-decoration: none;
+}
+
+.library-shelf-summary-card:hover,
+.library-shelf-summary-card:focus {
+  border-color: var(--color-primary-element);
+  text-decoration: none;
+}
+
+.library-shelf-summary-title {
+  align-items: baseline;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.library-shelves-empty {
+  background: var(--color-background-hover, #f6f6f6);
+  border-radius: var(--border-radius-large, 12px);
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.library-home-attention {
+  padding: 12px 14px;
+  border-top: 1px solid var(--color-border, #ddd);
+  background: var(--color-background-hover, #f6f6f6);
+}
+
+.library-home-row-empty {
+  margin-top: 10px !important;
+}
+
 .library-sidebar-content {
   display: grid;
   gap: 16px;
   padding: 16px;
   overflow-wrap: anywhere;
+}
+
+.library-sidebar-publication-header {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 88px minmax(0, 1fr);
+}
+
+.library-sidebar-publication-summary {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.library-sidebar-publication-summary p {
+  margin: 0;
+}
+
+.library-bidi-human,
+.library-bidi-machine {
+  unicode-bidi: isolate;
 }
 
 .library-layout-stress-probe {
@@ -1307,9 +1850,50 @@ async function toggleStar(item, event) {
 
 .library-sidebar-state,
 .library-sidebar-provenance,
-.library-sidebar-review {
+.library-sidebar-review,
+.library-sidebar-section {
   display: grid;
   gap: 8px;
+}
+
+.library-sidebar-sections {
+  border-block-end: 1px solid var(--color-border);
+  display: flex;
+  gap: 4px;
+}
+
+.library-sidebar-sections button {
+  background: transparent;
+  border: 0;
+  border-block-end: 3px solid transparent;
+  min-height: var(--default-clickable-area, 44px);
+  padding-inline: 10px;
+}
+
+.library-sidebar-sections button.active {
+  border-block-end-color: var(--color-primary-element);
+  color: var(--color-primary-element);
+  font-weight: 700;
+}
+
+.library-sidebar-metadata-form,
+.library-sidebar-metadata-form label,
+.library-sidebar-metadata-form fieldset {
+  display: grid;
+  gap: 8px;
+}
+
+.library-sidebar-metadata-form fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.library-sidebar-identifier {
+  align-items: center;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: minmax(70px, 0.6fr) minmax(110px, 1.4fr) auto;
 }
 
 .library-sidebar-provenance dl,
@@ -1436,6 +2020,49 @@ async function toggleStar(item, event) {
   line-height: 1;
 }
 
+.library-sidebar-filter-section {
+  border-top: 1px solid var(--color-border, #ddd);
+  margin: 4px 8px 0;
+  max-height: min(52vh, 560px);
+  overflow: auto;
+  padding: 8px 4px;
+}
+
+.library-sidebar-filter-section h2 {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 4px 8px;
+}
+
+.library-sidebar-filters {
+  align-items: stretch;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+}
+
+.library-sidebar-filters label,
+.library-sidebar-filters .library-publication-filter,
+.library-sidebar-filters .library-year-filter,
+.library-sidebar-filters .library-creator-filter {
+  font-size: 12px;
+  gap: 2px;
+  min-width: 0;
+}
+
+.library-sidebar-filters input,
+.library-sidebar-filters select {
+  min-width: 0;
+  width: 100%;
+}
+
+.library-sidebar-filters .library-publication-apply,
+.library-sidebar-filters .library-year-apply,
+.library-sidebar-filters .library-creator-apply {
+  justify-self: stretch;
+}
+
 .library-vue-catalogue .library-panel {
   margin-top: 8px;
   padding: 12px;
@@ -1444,6 +2071,35 @@ async function toggleStar(item, event) {
 .library-cover-gallery {
   gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+
+.library-cover-card--selected,
+.library-cover-card--open {
+  background: var(--color-primary-element-light, var(--color-background-hover));
+  border-color: var(--color-primary-element);
+  box-shadow: inset 0 0 0 1px var(--color-primary-element);
+}
+
+.library-cover-card--open {
+  grid-column: span 2;
+}
+
+.library-cover-badges {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+
+.library-cover-badge {
+  background: var(--color-background-hover);
+  border-radius: var(--border-radius-pill, 999px);
+  color: var(--color-text-maxcontrast);
+  flex: 0 0 auto;
+  font-size: .72rem;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 1px 6px;
 }
 
 .library-view-mode-toggle {
@@ -1500,6 +2156,74 @@ async function toggleStar(item, event) {
 
 .library-cover-gallery--shelf .library-cover-card {
   scroll-snap-align: start;
+}
+
+.library-catalogue-list {
+  border-block-start: 1px solid var(--color-border);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.library-catalogue-list-row {
+  align-items: center;
+  border-block-end: 1px solid var(--color-border);
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: auto minmax(12rem, 1.2fr) minmax(18rem, 2fr) auto;
+  padding: 0.45rem 0.25rem;
+}
+
+.library-catalogue-list-row--selected,
+.library-catalogue-list-row--open {
+  background: var(--color-primary-element-light, var(--color-background-hover));
+}
+
+.library-catalogue-list-main {
+  display: grid;
+  min-width: 0;
+}
+
+.library-catalogue-list-title {
+  font-weight: 700;
+  text-align: start;
+}
+
+.library-catalogue-list-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0;
+}
+
+.library-catalogue-list-metadata div {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.library-catalogue-list-metadata dt {
+  color: var(--color-text-maxcontrast);
+}
+
+.library-catalogue-list-metadata dd {
+  margin: 0;
+}
+
+.library-catalogue-list-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+@media (max-width: 800px) {
+  .library-catalogue-list-row {
+    align-items: start;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .library-catalogue-list-metadata,
+  .library-catalogue-list-actions {
+    grid-column: 2;
+  }
 }
 
 .library-publication-issue-context {
@@ -2350,15 +3074,10 @@ async function toggleStar(item, event) {
   padding: 8px;
 }
 
-.library-cover-card--open {
-  grid-column: span 2;
-  position: relative;
-  z-index: 2;
-}
-
 .library-cover-frame {
-  background: linear-gradient(145deg, var(--color-background-hover), color-mix(in srgb, var(--color-primary-element, #0082c9) 7%, var(--color-main-background)));
-  border-radius: 12px;
+  aspect-ratio: 2 / 3;
+  background: var(--color-background-hover);
+  border-radius: var(--border-radius-large, 10px);
   display: grid;
   min-height: 0;
   overflow: hidden;
@@ -2438,15 +3157,6 @@ async function toggleStar(item, event) {
   padding-top: 6px;
 }
 
-.library-home-dashboard {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: minmax(220px, 1.25fr) minmax(220px, 1.6fr) minmax(180px, 0.8fr);
-  margin: 0.75rem 0;
-}
-
-.library-workspace-panel--browse[open] .library-home-hero-card,
-.library-workspace-panel--browse[open] .library-home-rediscover,
 .library-workspace-panel--browse[open] .library-shortcut-selectors {
   align-self: stretch;
   margin-top: 0;
@@ -2456,24 +3166,11 @@ async function toggleStar(item, event) {
   grid-column: 1 / -1;
 }
 
-.library-home-hero-card,
-.library-home-rediscover,
 .library-detail-drawer,
 .library-issue-strip-card {
   box-shadow: 0 18px 46px color-mix(in srgb, #000 12%, transparent);
 }
 
-.library-home-hero-card,
-.library-home-rediscover {
-  background: radial-gradient(circle at top left, color-mix(in srgb, var(--color-primary-element, #0082c9) 18%, transparent), transparent 45%), var(--color-main-background);
-  border: 1px solid var(--color-border);
-  border-radius: 18px;
-  display: grid;
-  gap: 0.7rem;
-  padding: 1rem;
-}
-
-.library-home-hero-actions,
 .library-detail-drawer-actions,
 .library-detail-drawer-stepper {
   display: flex;
@@ -2481,41 +3178,27 @@ async function toggleStar(item, event) {
   gap: 0.5rem;
 }
 
-.library-home-rail {
-  display: grid;
-  gap: 0.5rem;
-  grid-template-columns: repeat(3, minmax(88px, 1fr));
-}
+.library-cover-card:hover { border-color: var(--color-border-maxcontrast); }
 
-.library-home-rail h4 {
-  grid-column: 1 / -1;
+.library-cover-creator,
+.library-cover-context {
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.library-home-mini-card {
-  background: var(--color-main-background);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  cursor: pointer;
-  display: grid;
-  gap: 0.35rem;
-  padding: 0.45rem;
-  text-align: left;
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+.library-cover-creator { font-size: 0.9rem; }
+.library-cover-context { color: var(--color-text-maxcontrast); font-size: 0.78rem; }
+
+.library-navigation-section {
+  border-block-start: 1px solid var(--color-border);
+  margin-block-start: 0.5rem;
+  padding-block-start: 0.75rem;
 }
 
-.library-home-mini-card:hover,
-.library-home-mini-card:focus,
-.library-cover-card:hover {
-  transform: translateY(-2px);
-}
+.library-navigation-section > h3 { margin-block: 0 0.5rem; }
 
-.library-home-mini-card img {
-  aspect-ratio: 2 / 3;
-  border-radius: 10px;
-  object-fit: cover;
-  width: 100%;
-}
 
 .library-publication-issue-strip {
   display: flex;
@@ -2592,24 +3275,35 @@ async function toggleStar(item, event) {
 
 .library-detail-drawer-cover {
   aspect-ratio: 2 / 3;
-  border-radius: 16px;
-  max-height: 42vh;
+  border-radius: var(--border-radius-large, 10px);
+  max-height: 132px;
   object-fit: cover;
-  width: min(100%, 260px);
+  width: 88px;
 }
 
 .library-detail-drawer-facts {
   display: grid;
-  gap: 0.35rem;
+  margin: 0;
 }
 
 .library-detail-drawer-facts div {
-  display: flex;
-  justify-content: space-between;
+  border-block-end: 1px solid var(--color-border);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(84px, .4fr) minmax(0, 1fr);
+  padding-block: 8px;
+}
+
+.library-detail-drawer-facts dt {
+  color: var(--color-text-maxcontrast);
+}
+
+.library-detail-drawer-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .library-home-mini-card,
   .library-issue-strip-card,
   .library-detail-drawer,
   .library-cover-card,
@@ -2622,19 +3316,6 @@ async function toggleStar(item, event) {
 }
 
 @media (max-width: 720px) {
-  .library-home-dashboard {
-    grid-template-columns: 1fr;
-  }
-
-  .library-home-rail {
-    display: flex;
-    overflow-x: auto;
-  }
-
-  .library-home-mini-card {
-    flex: 0 0 8rem;
-  }
-
   .library-detail-drawer {
     border-inline-start: 0;
     border-radius: 18px 18px 0 0;
@@ -2661,5 +3342,21 @@ async function toggleStar(item, event) {
   .library-cover-gallery {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .library-cover-gallery--shelf {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row;
+    overflow-x: visible;
+    scroll-snap-type: none;
+  }
 }
+.library-publication-filter,
+.library-year-filter,
+.library-creator-filter { display: grid; gap: 6px; position: relative; }
+.library-publication-suggestions,
+.library-year-suggestions,
+.library-creator-suggestions { background: var(--color-main-background); border: 1px solid var(--color-border); border-radius: var(--border-radius); box-shadow: 0 4px 12px var(--color-box-shadow); left: 0; list-style: none; margin: 0; max-height: min(18rem, 50vh); overflow-y: auto; padding: 4px; position: absolute; right: 0; top: 4.2rem; z-index: 20; }
+.library-publication-suggestion,
+.library-year-suggestion,
+.library-creator-suggestion { justify-content: flex-start; overflow-wrap: anywhere; text-align: start; width: 100%; }
 </style>

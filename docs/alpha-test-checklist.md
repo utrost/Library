@@ -1,6 +1,8 @@
 # Public alpha test checklist
 
-Use this Public alpha checklist before the v0.1 alpha test pass on `0.1.0-alpha.165` and for early tester feedback. For the full repeatable script, use the [human test handbook](human-test-handbook.md).
+Alpha.168 is an unpackaged `0.1.0-alpha.168` source candidate. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+
+Use this Public alpha checklist after an exact `0.1.0-alpha.168` package exists and before its v0.1 alpha test pass. Exact-package live proof is currently pending; for the full repeatable script, use the [human test handbook](human-test-handbook.md).
 
 ## Setup
 
@@ -17,9 +19,10 @@ Expected result: Library opens without browser console errors, and the settings 
 1. Add a small root with 20-100 mixed real files if available.
 2. Run **Scan this root**.
 3. Wait for scan progress/history to show completion.
+   Confirm the operation returns immediately, per-root publication counts remain visible, the current path advances while work is active, and cancellation remains available. If a running job becomes quiet past the stale threshold, verify the UI reports it as stale without rewriting its status to failed.
 4. Browse the catalogue first, without using settings.
-5. Verify compact cards show cover, title, **Read** and **Details** by default.
-6. Use search and at least one filter, preferably type, format, shelf, scan status, genre/classification or starred.
+5. Verify compact cards show cover, title and **Open**; cover/title open the sidebar and **Advanced details** stays secondary.
+6. Use search and at least one filter, preferably type, format, shelf, scan status, subject/classification or starred.
 7. Open **Details** for one PDF, one EPUB and one CBZ when available.
 8. Open one publication/series, publication-year and creator discovery page from the shortcut panels when the fixture contains matching metadata.
 
@@ -29,22 +32,22 @@ Expected result: source files stay in Nextcloud Files; Library only adds catalog
 
 For at least one indexed item:
 
-1. Click **Read**.
+1. Click **Open**.
 2. Click **Show in Files**.
-3. Click **Download source**.
+3. Click **Download**.
 
-Expected result: Read hands off to Nextcloud's existing file/viewer route, Show in Files opens the containing Files context, and Download source returns the original file bytes.
+Expected result: Open hands off to Nextcloud's existing file/viewer route, Show in Files opens the containing Files context, and Download returns the original file bytes.
 
 ## Metadata/editing smoke
 
 1. Edit title/subtitle/creator/publication metadata on an item detail page.
-2. Add or update description, workflow status, genres and classifications.
+2. Add or update description, workflow status, subjects and classifications.
 3. Add one Nextcloud tag using typed input or a suggested tag button.
 4. Add one Nextcloud comment.
 5. Rescan the same root.
 6. Reopen the item details.
 
-Expected result: user-edited Library metadata survives the rescan. Nextcloud tags/comments remain separate from Library-native genres/classifications.
+Expected result: user-edited Library metadata survives the rescan. Nextcloud tags/comments remain separate from Library-native subjects/classifications.
 
 For an unchanged-root regression check, run the same root twice after the alpha.158 migration. The first run may warm nullable fingerprint/revision markers and may rewrite inferred rows; the second should preserve every item `updated_at` value while still reporting the fixture count as indexed. This verifies write avoidance, not a measured speedup.
 

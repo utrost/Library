@@ -2,6 +2,7 @@
 /** @var array $_ */
 ?>
 <div id="library-vue-root"
+     data-library-version="0.1.0-alpha.168"
      lang="<?php p($_['language']); ?>"
      dir="<?php p($_['direction']); ?>"
      data-request-token="<?php p($_['requesttoken'] ?? ''); ?>"></div>
@@ -10,7 +11,7 @@
       role="status"
       aria-live="polite"
       aria-atomic="true"
-     data-library-main-script="library-main-0-1-0-alpha-165"
+     data-library-main-script="library-main-0-1-0-alpha-168-filterux"
       data-library-startup-timeout="10000"
       hidden>
     <section class="library-panel" aria-labelledby="library-startup-heading">

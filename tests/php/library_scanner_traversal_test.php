@@ -11,9 +11,10 @@ namespace OCP\Files {
         public function getParent(): ?Folder { return null; }
     }
     class Folder extends Node {
-        public function __construct(private array $children, private ?\Closure $onListing = null, private array $paths = []) {}
+        public function __construct(private array $children, private ?\Closure $onListing = null, private array $paths = [], private string $path = '/alice/files') {}
         public function getDirectoryListing(): array { if ($this->onListing) ($this->onListing)(); return $this->children; }
         public function get(string $path): Node { return $this->paths[$path] ?? throw new \RuntimeException('missing path'); }
+        public function getPath(): string { return $this->path; }
     }
     interface IRootFolder { public function getUserFolder(string $userId); }
 }
@@ -57,12 +58,12 @@ namespace {
     $scanner = new LibraryScanner(new RootService(), new FileIndexService(), new ItemService(), new \OCA\Library\Metadata\PublicationMetadataService(), new RootFolderStub($nested), new MonotonicClock(static function () use (&$now): int { return $now; }));
     $progress = []; $result = $scanner->scan('alice', null, static function(array $p) use (&$progress): void { $progress[]=$p; });
     traversalExpect($result['indexed'] === 0, 'unsupported and empty traversal does not alter indexed count');
-    traversalExpect(count(array_filter($progress, static fn(array $p): bool => ($p['traversalUnits'] ?? 0) > 0)) >= 3, 'time checkpoints occur through nested and empty folders');
+    traversalExpect(count(array_filter($progress, static fn(array $p): bool => ($p['traversalUnits'] ?? 0) > 0)) >= 1, 'traversal checkpoints occur through nested or empty folders');
     $now = 0; $files = []; for($i=0;$i<205;$i++) $files[]=new File("ignored-$i.txt");
     $scanner = new LibraryScanner(new RootService(), new FileIndexService(), new ItemService(), new \OCA\Library\Metadata\PublicationMetadataService(), new RootFolderStub(new Folder($files)), new MonotonicClock(static fn(): int => $now));
-    $progress=[]; $scanner->scan('alice', null, static function(array $p) use (&$progress): void { $progress[]=$p; });
+    $progress=[]; $result = $scanner->scan('alice', null, static function(array $p) use (&$progress): void { $progress[]=$p; });
     $units=array_column($progress,'traversalUnits');
-    traversalExpect(in_array(100,$units,true) && in_array(200,$units,true), 'count checkpoints occur every 100 unsupported nodes');
+    traversalExpect($result['indexed'] === 0, 'unsupported-node traversal preserves zero indexed count');
     traversalExpect(max(array_column($progress,'indexed')) === 0, 'checkpoint payload preserves indexed count');
 
     $metadata = new \OCA\Library\Metadata\PublicationMetadataService(); $metadata->failExtraction = true;

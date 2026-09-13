@@ -30,7 +30,7 @@ def test_cover_route_marks_refresh_requests_no_store_with_diagnostic_header():
 def test_live_smoke_checks_refresh_cover_url_and_response_headers():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
-    assert "detail_has_cover_refresh_action" in smoke
+    assert "cover_refresh_uses_private_image_endpoint" in smoke
     assert "cover_refresh_http" in smoke
     assert "cover_refresh_cache_control" in smoke
     assert "cover_refresh_header" in smoke

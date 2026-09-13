@@ -7,8 +7,9 @@ def test_vue_catalogue_renders_weak_metadata_dashboard_with_stable_filter_links(
     source = (ROOT / "src" / "App.vue").read_text()
 
     assert "library-weak-metadata-dashboard" in source
-    assert "Review cards compare current values" in source
-    assert ":title=\"t('library', row.description)\"" in source
+    assert "Review cards compare current values" not in source
+    assert "Needs details" in source
+    assert "library-review-queues" in source
     for label in [
         "Missing creator",
         "Missing publication/series",
@@ -16,7 +17,7 @@ def test_vue_catalogue_renders_weak_metadata_dashboard_with_stable_filter_links(
         "Filename-derived title",
         "Filename/path-derived metadata",
         "Placeholder cover",
-        "Scanner conflict",
+        "Suggested updates",
         "Metadata extraction error",
         "No description",
         "Unsupported archive/container",
@@ -66,8 +67,7 @@ def test_weak_metadata_dashboard_keeps_cards_browse_first_and_uses_counts_from_c
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
 
     assert "weakMetadataDashboardRows" in source
-    assert "smartViewCounts[row.key]" in source
-    assert "smartViewUrl(row.filters)" in source
-    assert "compact cards stay browse-first" in source
+    assert "smartViewCounts[queue.countKey]" in source
+    assert "library-review-queues" in source
     assert "<small>{{ t('library', row.description) }}</small>" not in source
     assert "$this->countCatalogue($userId, $filters)" in service

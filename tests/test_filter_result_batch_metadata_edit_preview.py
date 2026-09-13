@@ -16,7 +16,7 @@ def test_route_and_controller_expose_preview_only_filtered_metadata_edit():
     assert routes.index("/bulk/items/edit-preview") < routes.index("/items/{itemId}")
     assert "public function batchpreviewmetadataedit(): TemplateResponse" in controller
     assert "catalogueFiltersFromRequest()" in controller
-    assert "itemIdsForCatalogueFilters($user->getUID(), $filters, 5000)" in controller
+    assert "SelectedItemIds::parse" in controller
     assert "previewBatchMetadataEdit($user->getUID(), $itemIds" in controller
     assert "new TemplateResponse($this->appName, 'batch-metadata-edit-preview'" in controller
     assert "batchMetadataEditPreviewResult" in controller
@@ -68,10 +68,10 @@ def test_docs_and_version_track_preview_first_filtered_batch_metadata_edit():
     package = read("package.json")
     lock = read("package-lock.json")
 
-    assert "preview-and-apply batch metadata edits" in guide.lower()
-    assert "explicit apply button writes only changed rows" in guide
+    assert "preview-and-apply" in guide.lower()
+    assert "apply writes matched corrected metadata" in guide.lower()
     assert "batch metadata apply" in roadmap.lower()
     assert "reports requested/applied/unchanged/skipped counts" in roadmap.lower()
-    assert "<version>0.1.0-alpha.165</version>" in info
-    assert '"version": "0.1.0-alpha.165"' in package
-    assert '"version": "0.1.0-alpha.165"' in lock
+    assert "<version>0.1.0-alpha.168</version>" in info
+    assert '"version": "0.1.0-alpha.168"' in package
+    assert '"version": "0.1.0-alpha.168"' in lock

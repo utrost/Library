@@ -3,14 +3,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_metadata_field_audit_keeps_rating_and_subgenre_scope_explicit():
+def test_metadata_field_audit_keeps_rating_and_subsubject_scope_explicit():
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
     guide = (ROOT / "docs" / "user-guide.md").read_text()
 
     assert "metadata field audit" in roadmap
     assert "rating (0–5 stars)" in roadmap
-    assert "sub-genre" in roadmap
-    assert "sub-genre remains a genre/classification value" in roadmap
+    assert "sub-subject" in roadmap
+    assert "sub-subject remains a subject/classification value" in roadmap
     assert "personal rating" in guide
 
 
@@ -20,7 +20,9 @@ def test_detail_template_shows_metadata_health_score_and_weak_field_jump_list():
     assert "$metadataHealth" in template
     assert "library-metadata-health" in template
     assert "Metadata health" in template
-    assert "Weak fields" in template
+    assert "Completeness" in template
+    assert "Confidence" in template
+    assert "Attention" in template
     assert "href=\"#library-field-title\"" in template
     assert "href=\"#library-field-creators\"" in template
     assert "href=\"#library-field-publicationDate\"" in template

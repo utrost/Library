@@ -29,15 +29,19 @@ class Personal implements ISettings {
     public function getForm(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
         Util::addScript(Application::APP_ID, 'scan-progress');
+        Util::addScript(Application::APP_ID, 'settings-operations');
 
         $language = $this->l10nFactory?->findLanguage(Application::APP_ID) ?? 'en';
+        $publicationCountsByRoot = $this->fileIndexService->publicationCountsByRoot($this->userId);
+        $roots = $this->rootsWithActionUrls($this->rootService->listRoots($this->userId), $publicationCountsByRoot);
         return new TemplateResponse(Application::APP_ID, 'settings-personal', [
             'language' => $language,
             'direction' => $this->l10nFactory?->getLanguageDirection($language) ?? 'ltr',
-            'roots' => $this->rootsWithActionUrls($this->rootService->listRoots($this->userId)),
-            'files' => $this->fileIndexService->listFiles($this->userId),
-            'latestScanJob' => $this->withCancelUrl($this->scanJobService->latestJob($this->userId)),
-            'scanJobHistory' => array_map(fn (array $job): array => $this->withCancelUrl($job) ?? $job, $this->scanJobService->recentJobs($this->userId, 5)),
+            'roots' => $roots,
+            'totalPublications' => array_sum($publicationCountsByRoot),
+            'fileStatusCounts' => $this->fileIndexService->fileStatusCounts($this->userId),
+            'latestScanJob' => $this->prepareJob($this->scanJobService->latestJob($this->userId), $roots),
+            'scanJobHistory' => array_map(fn (array $job): array => $this->prepareJob($job, $roots) ?? $job, $this->scanJobService->recentJobs($this->userId, 5)),
             'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),
             'scanRetryMetadataErrorsUrl' => $this->urlGenerator->linkToRoute('library.scan.retryMetadataErrors'),
@@ -54,7 +58,6 @@ class Personal implements ISettings {
             'metadataSidecarBundleUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarBundle'),
             'metadataImportPreviewUrl' => $this->urlGenerator->linkToRoute('library.import.preview'),
             'metadataImportApplyUrl' => $this->urlGenerator->linkToRoute('library.import.apply'),
-            'bulkResetFieldsUrl' => $this->urlGenerator->linkToRoute('library.item.bulkresetfields'),
             'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
         ], '');
     }
@@ -63,9 +66,10 @@ class Personal implements ISettings {
      * @param array<int, array<string, mixed>> $roots
      * @return array<int, array<string, mixed>>
      */
-    private function rootsWithActionUrls(array $roots): array {
-        return array_map(function (array $root): array {
+    private function rootsWithActionUrls(array $roots, array $publicationCountsByRoot): array {
+        return array_map(function (array $root) use ($publicationCountsByRoot): array {
             $rootId = (int)$root['id'];
+            $root['publicationCount'] = $publicationCountsByRoot[$rootId] ?? 0;
             $root['rootUpdateUrl'] = $this->urlGenerator->linkToRoute('library.root.update', ['rootId' => $rootId]);
             $root['rootToggleUrl'] = $this->urlGenerator->linkToRoute('library.root.toggle', ['rootId' => $rootId]);
             $root['rootDeleteUrl'] = $this->urlGenerator->linkToRoute('library.root.delete', ['rootId' => $rootId]);
@@ -83,6 +87,28 @@ class Personal implements ISettings {
             return null;
         }
         $job['cancelUrl'] = $this->urlGenerator->linkToRoute('library.scan.cancel', ['jobId' => (int)$job['id']]);
+        return $job;
+    }
+
+    private function prepareJob(?array $job, array $roots): ?array {
+        $job = $this->withCancelUrl($job);
+        if ($job === null) {
+            return null;
+        }
+        $job['scopeLabel'] = (string)($job['scopeType'] ?? 'all');
+        if ($job['scopeLabel'] === 'root' && ($job['rootId'] ?? null) !== null) {
+            foreach ($roots as $root) {
+                if ((int)$root['id'] === (int)$job['rootId']) {
+                    $label = trim((string)($root['label'] ?? ''));
+                    $path = (string)$root['path'];
+                    $job['scopeLabel'] = $label !== '' && $label !== $path ? "root: {$label} ({$path})" : $path;
+                    break;
+                }
+            }
+            if ($job['scopeLabel'] === 'root') {
+                $job['scopeLabel'] = 'removed Library folder';
+            }
+        }
         return $job;
     }
 

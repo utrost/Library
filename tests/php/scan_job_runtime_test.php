@@ -79,22 +79,25 @@ namespace {
         return [$scanner, $service, $logger];
     }
 
-    [$scanner, $service] = executeJob(['scopeType' => 'root', 'rootId' => 41], ['userId' => 'alice', 'jobId' => 7, 'scopeType' => 'all', 'rootId' => 99]);
+    [$scanner, $service, $logger] = executeJob(['scopeType' => 'root', 'rootId' => 41], ['userId' => 'alice', 'jobId' => 7, 'scopeType' => 'all', 'rootId' => 99]);
     scanJobExpect($scanner->calls === [['scan', 'alice', 41]], 'persisted root is the only root authority');
     scanJobExpect($service->cancelChecks === 3, 'initial progress run checks before start, at persisted progress, and before completion');
+    scanJobExpect($logger->events[0][1] === 'library.scan.started' && $logger->events[0][2]['job_id'] === 7 && $logger->events[0][2]['user_id'] === 'alice', 'started event includes correlation identifiers');
+    scanJobExpect($logger->events[1][1] === 'library.scan.completed' && $logger->events[1][2]['job_id'] === 7 && $logger->events[1][2]['user_id'] === 'alice', 'completed event includes correlation identifiers');
     [$scanner] = executeJob(['scopeType' => 'all', 'rootId' => 41], ['userId' => 'alice', 'jobId' => 7, 'rootId' => 99]);
     scanJobExpect($scanner->calls === [['scan', 'alice', null]], 'non-root persisted scope forces null root');
     [$scanner, $service, $logger] = executeJob(['scopeType' => 'root', 'rootId' => 0], ['userId' => 'alice', 'jobId' => 7]);
     scanJobExpect($scanner->calls === [] && $service->status === 'failed' && $service->failures === 1, 'invalid persisted root fails without scanning');
-    scanJobExpect(count($logger->events) === 1 && $logger->events[0][1] === 'library.scan.failed', 'invalid root emits one failed terminal event');
-    scanJobExpect(!array_intersect(array_keys($logger->events[0][2]), ['user_id','job_id','root_id','path','error']), 'failed event is privacy safe');
+    scanJobExpect(count($logger->events) === 2 && $logger->events[1][1] === 'library.scan.failed', 'invalid root emits one failed terminal event after its start event');
+    scanJobExpect($logger->events[1][2]['user_id'] === 'alice' && $logger->events[1][2]['job_id'] === 7, 'failed event includes correlation identifiers');
 
     $raceService = null;
     $scanner = new LibraryScanner(); $raceService = new ScanJobService(); $logger = new LoggerStub();
     $raceService->job = ['startedAt' => time(), 'scopeType' => 'all', 'rootId' => null];
     $scanner->duringScan = static function () use (&$raceService): void { $raceService->status = 'cancelled'; };
     (new ScanJob(new TimeStub(), $scanner, $raceService, $logger))->run(['userId' => 'alice', 'jobId' => 8]);
-    scanJobExpect($raceService->finishes === 0 && $raceService->failures === 0 && $logger->events === [], 'cancellation owns terminal state after final callback');
+    scanJobExpect($raceService->finishes === 0 && $raceService->failures === 0, 'cancellation owns terminal state after final callback');
+    scanJobExpect(array_column($logger->events, 1) === ['library.scan.started'], 'cancellation after start emits no terminal completion or failure event');
     scanJobExpect($raceService->cancelChecks === 3, 'final cancellation is counted as an actual check');
 
     $scanner = new LibraryScanner(); $scanner->progressUnits = [0, 1, 99, 100];
@@ -102,7 +105,7 @@ namespace {
     $throttledLogger = new LoggerStub();
     (new ScanJob(new TimeStub(), $scanner, $throttledService, $throttledLogger))->run(['userId' => 'alice', 'jobId' => 10]);
     scanJobExpect($throttledService->cancelChecks === 4, 'only initial, throttled, and final progress boundaries check cancellation');
-    scanJobExpect($throttledLogger->events[0][2]['cancel_checks'] === 4, 'logged cancellation checks exactly match runtime calls');
+    scanJobExpect($throttledLogger->events[1][2]['cancel_checks'] === 4, 'logged cancellation checks exactly match runtime calls');
 
     [$scanner, $service, $logger] = executeJob(['scopeType' => 'all'], ['userId' => 'alice', 'jobId' => 9], null, true);
     scanJobExpect($service->status === 'completed' && $service->finishes === 1 && $service->failures === 0, 'logger failure cannot retry or strand completed work');

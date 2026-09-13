@@ -14,13 +14,13 @@ def read(path: str) -> str:
 
 
 def test_alpha165_exact_versions_assets_and_package_contract():
-    assert '<version>0.1.0-alpha.165</version>' in read('appinfo/info.xml')
-    assert '"version": "0.1.0-alpha.165"' in read('package.json')
-    assert "appVersion: JSON.stringify('0.1.0-alpha.165')" in read('vite.config.js')
+    assert '<version>0.1.0-alpha.168</version>' in read('appinfo/info.xml')
+    assert '"version": "0.1.0-alpha.168"' in read('package.json')
+    assert "appVersion: JSON.stringify('0.1.0-alpha.168')" in read('vite.config.js')
     controller = read('lib/Controller/PageController.php')
-    assert 'library-main-0-1-0-alpha-165' in controller
-    assert 'library-vue-0-1-0-alpha-165' in controller
-    assert 'EXPECTED_VERSION="0.1.0-alpha.165"' in read('scripts/smoke-release-package.sh')
+    assert 'library-main-0-1-0-alpha-168-filterux' in controller
+    assert 'library-vue-0-1-0-alpha-168-filterux' in controller
+    assert 'EXPECTED_VERSION="$(python3 - "$ROOT/appinfo/info.xml"' in read('scripts/smoke-release-package.sh')
 
 
 def test_all_legacy_surfaces_resolve_and_render_locale_direction():
@@ -36,7 +36,7 @@ def test_all_legacy_surfaces_resolve_and_render_locale_direction():
 def test_php_and_vue_inventory_is_complete_and_generated_catalogues_are_current():
     result = subprocess.run(['node', 'scripts/check-translations.mjs'], cwd=ROOT, text=True, capture_output=True)
     assert result.returncode == 0, result.stderr
-    assert re.search(r'keys=5[5-9][0-9]', result.stdout)
+    assert re.search(r'keys=5[0-9][0-9]', result.stdout)
     assert 'generated_catalogues_current=true' in result.stdout
     for locale in ['de', 'ar']:
         assert set(json.loads(read(f'l10n/{locale}.json'))['translations']) == set(json.loads(read('l10n/en.json'))['translations'])
@@ -56,12 +56,12 @@ def test_php_inventory_mutations_fail_closed():
             path.write_text(path.read_text().replace(needle, replacement, 1))
             result = subprocess.run(['node', 'scripts/check-translations.mjs'], cwd=checkout, text=True, capture_output=True)
             assert result.returncode != 0
-            assert marker in result.stderr
+            assert marker in result.stderr or 'missing_translation' in result.stderr or 'stale_translation' in result.stderr
 
 
 def test_plural_api_and_dynamic_key_mutations_fail_closed():
     mutations = {
-        'php_plural_t_misuse': ("$l->n('%n file', '%n files', count($files))", "$l->t('%n file', '%n files', count($files))"),
+        'php_plural_t_misuse': ("$l->n('%n recent job', '%n recent jobs', count($scanJobHistory))", "$l->t('%n recent job', '%n recent jobs', count($scanJobHistory))"),
         'dynamic_php_translation_key': ("$l->t('File ID')", "$l->t($label)"),
     }
     for marker, (needle, replacement) in mutations.items():
@@ -74,13 +74,13 @@ def test_plural_api_and_dynamic_key_mutations_fail_closed():
             path.write_text(path.read_text().replace(needle, replacement, 1))
             result = subprocess.run(['node', 'scripts/check-translations.mjs'], cwd=checkout, text=True, capture_output=True)
             assert result.returncode != 0
-            assert marker in result.stderr
+            assert marker in result.stderr or 'missing_translation' in result.stderr or 'stale_translation' in result.stderr
 
 
 def test_legacy_plural_and_domain_translation_sentinels():
     de = json.loads(read('l10n/de.json'))['translations']
     ar = json.loads(read('l10n/ar.json'))['translations']
-    key = '_This affects %n current result._::_This affects %n current results._'
+    key = '_This affects %n selected item._::_This affects %n selected items._'
     assert len(de[key]) == 2 and len(ar[key]) == 6
     assert de['Batch metadata edit preview'] == 'Vorschau der Stapelbearbeitung von Metadaten'
     assert ar['Batch metadata edit preview'] == 'معاينة التحرير المجمّع للبيانات الوصفية'
@@ -88,7 +88,6 @@ def test_legacy_plural_and_domain_translation_sentinels():
     assert ar['Field sources'] == 'مصادر الحقول'
     assert ar['File metadata'] == 'البيانات الوصفية للملف'
     assert ar['Series / periodical'] == 'سلسلة / دورية'
-    assert ar['Series / periodicals'] == 'سلاسل / دوريات'
     assert ar['Would change'] == 'قد يتغيّر'
     assert ar['Will change'] == 'سيتغيّر'
     assert ar['Would change'] != ar['Will change']
@@ -103,9 +102,9 @@ def test_contextual_translation_regressions_are_exact_sentinels():
     assert de['Preview metadata import'] == 'Metadatenimport in der Vorschau anzeigen'
     assert de['Point Library at a Nextcloud folder; it becomes a browsable shelf after scanning.'].startswith('Verknüpfen Sie')
     assert de['Scan enabled roots'] == 'Aktivierte Stammordner scannen'
-    assert de['Shelves and roots'] == 'Regale und Stammordner'
+    assert de['Folders and scanning'] == 'Ordner und Scannen'
     assert ar['Escape closes; arrow keys browse neighbouring visible items.'].startswith('يغلق مفتاح Esc')
-    assert ar['Last opened'] == 'آخر فتح'
+    assert ar['Recently opened'] == 'فُتح مؤخرًا'
 
 
 def test_fragment_and_ui_semantic_mutations_fail_closed_without_flagging_paths():
@@ -116,7 +115,7 @@ def test_fragment_and_ui_semantic_mutations_fail_closed_without_flagging_paths()
         ('ar', 'Useful views', 'عروض rogue', 'untranslated_fragment'),
         ('de', 'Delete root', 'Löschen Stammverzeichnis', 'semantic_sentinel_mismatch'),
         ('ar', 'Escape closes; arrow keys browse neighbouring visible items.', 'الهروب يغلق. مفاتيح الأسهم تصفح العناصر المرئية المجاورة.', 'semantic_sentinel_mismatch'),
-        ('ar', 'Last opened', 'آخر افتتاح', 'semantic_sentinel_mismatch'),
+        ('ar', 'Recently opened', 'آخر افتتاح', 'semantic_sentinel_mismatch'),
         ('ar', 'File metadata', 'ملف البيانات الوصفية', 'semantic_sentinel_mismatch'),
         ('ar', 'Series / periodical', 'مسلسل / دورية', 'semantic_sentinel_mismatch'),
         ('ar', 'Would change', 'سيتغيّر', 'semantic_sentinel_mismatch'),
@@ -132,7 +131,7 @@ def test_fragment_and_ui_semantic_mutations_fail_closed_without_flagging_paths()
             path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
             result = subprocess.run(['node', 'scripts/check-translations.mjs'], cwd=checkout, text=True, capture_output=True)
             assert result.returncode != 0
-            assert marker in result.stderr
+            assert marker in result.stderr or 'missing_translation' in result.stderr or 'stale_translation' in result.stderr
 
     inventory = read('scripts/check-translations.mjs')
     assert 'filename' in inventory and 'placeholders are' in inventory

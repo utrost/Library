@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [vue()],
   define: {
     appName: JSON.stringify('library'),
-    appVersion: JSON.stringify('0.1.0-alpha.165'),
+    appVersion: JSON.stringify('0.1.0-alpha.168'),
     'process.env.NODE_ENV': JSON.stringify('production'),
     'process.env': '{}',
   },

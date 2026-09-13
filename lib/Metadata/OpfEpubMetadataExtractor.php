@@ -135,7 +135,118 @@ public function parseOpfMetadata(string $opfXml, string $source): array {
         $metadata['publicationDate'] = $date;
     }
 
+    $description = $this->firstXmlValue($dc->description ?? null);
+    if ($description !== null) {
+        $metadata['description'] = $description;
+    }
+
+    $subjects = $this->xmlValues($dc->subject ?? null);
+    if ($subjects !== []) {
+        $metadata['subjects'] = $subjects;
+    }
+
+    $series = $this->extractSeries($xml);
+    if ($series !== null) {
+        $metadata['publication'] = $series;
+    }
+
+    $publicationType = $this->normalizePublicationType($this->firstXmlValue($dc->type ?? null));
+    if ($publicationType !== null) {
+        $metadata['publicationType'] = $publicationType;
+    }
+
+    $identifiers = $this->extractIdentifiers($dc->identifier ?? null, $source);
+    if ($identifiers !== []) {
+        $metadata['identifiers'] = $identifiers;
+    }
+
     return count($metadata) > 1 ? $metadata : [];
+}
+
+/**
+ * @return array<int, array{scheme:string,displayValue:string,source:string,userEdited:bool}>
+ */
+private function extractIdentifiers(mixed $nodes, string $source): array {
+    $identifiers = [];
+    if ($nodes === null) {
+        return [];
+    }
+
+    foreach ($nodes as $node) {
+        $value = trim((string)$node);
+        if ($value === '') {
+            continue;
+        }
+        $scheme = strtolower(trim((string)($node['scheme'] ?? '')));
+        $opfAttributes = $node->attributes('http://www.idpf.org/2007/opf');
+        if ($scheme === '' && isset($opfAttributes['scheme'])) {
+            $scheme = strtolower(trim((string)$opfAttributes['scheme']));
+        }
+
+        $compact = strtoupper((string)preg_replace('/[\s-]+/u', '', $value));
+        if (($scheme === 'isbn' || preg_match('/^(?:(?:URN:)?ISBN:?)?(\d{9}[\dX]|\d{13})$/i', $compact) === 1)
+            && preg_match('/(\d{9}[\dX]|\d{13})$/i', $compact) === 1) {
+            $identifiers[] = ['scheme' => 'isbn', 'displayValue' => $value, 'source' => $source, 'userEdited' => false];
+        } elseif (($scheme === 'issn' || preg_match('/^(?:(?:URN:)?ISSN:?)?(\d{7}[\dX])$/i', $compact) === 1)
+            && preg_match('/(\d{7}[\dX])$/i', $compact) === 1) {
+            $identifiers[] = ['scheme' => 'issn', 'displayValue' => $value, 'source' => $source, 'userEdited' => false];
+        }
+    }
+    return $identifiers;
+}
+
+private function extractSeries(\SimpleXMLElement $xml): ?string {
+    $opf3Collections = [];
+    $opf3SeriesIds = [];
+
+    foreach ($xml->xpath('//*[local-name()="metadata"]/*[local-name()="meta"]') ?: [] as $meta) {
+        $name = strtolower(trim((string)($meta['name'] ?? '')));
+        $property = strtolower(trim((string)($meta['property'] ?? '')));
+        $value = trim((string)($meta['content'] ?? ''));
+        if ($value === '') {
+            $value = trim((string)$meta);
+        }
+
+        if (($name === 'calibre:series' || $property === 'calibre:series') && $value !== '') {
+            return $value;
+        }
+
+        if ($property === 'belongs-to-collection' && $value !== '') {
+            $id = trim((string)($meta['id'] ?? ''));
+            if ($id !== '') {
+                $opf3Collections[$id] = $value;
+            }
+        } elseif ($property === 'collection-type' && strtolower($value) === 'series') {
+            $refines = ltrim(trim((string)($meta['refines'] ?? '')), '#');
+            if ($refines !== '') {
+                $opf3SeriesIds[] = $refines;
+            }
+        }
+    }
+
+    foreach ($opf3SeriesIds as $id) {
+        if (isset($opf3Collections[$id])) {
+            return $opf3Collections[$id];
+        }
+    }
+    return null;
+}
+
+private function normalizePublicationType(?string $type): ?string {
+    if ($type === null) {
+        return null;
+    }
+
+    return match (strtolower(trim($type))) {
+        'book', 'text' => 'book',
+        'comic', 'comic book' => 'comic',
+        'magazine' => 'magazine',
+        'journal' => 'journal',
+        'manual' => 'manual',
+        'catalog', 'catalogue' => 'catalogue',
+        'other' => 'other',
+        default => null,
+    };
 }
 
 private function firstXmlValue(mixed $nodes): ?string {

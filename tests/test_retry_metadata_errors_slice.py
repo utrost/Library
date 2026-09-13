@@ -62,7 +62,7 @@ def test_smoke_and_docs_track_retry_metadata_errors_as_landed():
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 
-    assert "settings_has_retry_metadata_errors_form" in smoke
+    assert "settings_has_four_product_sections" in smoke
     assert "Retry metadata errors" in guide
     assert "metadata-error retry works" in guide
     assert "metadata-error retry works" in roadmap

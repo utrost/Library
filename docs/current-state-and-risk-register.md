@@ -1,12 +1,14 @@
 # Current state and risk register
 
+Current app version: `0.1.0-alpha.168` source candidate (unpackaged). Accessibility-tree evidence is not screen-reader testing; manual AT testing is pending.
+
 This snapshot prepares Library for the v0.1 alpha test pass. It documents what is implemented and verified now, where the app is safe to test, and which risks remain intentionally outside the current release candidate.
 
 ## Deployment posture
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current app version: `0.1.0-alpha.165`.
+- Current source-candidate version: `0.1.0-alpha.168`; exact-package live proof remains pending until packaging is authorized.
 - Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
@@ -17,16 +19,16 @@ Implemented and ready for v0.1 testing:
 
 - Native Library/Review shell destinations. Review presents the existing scanner-conflict, weak-metadata, metadata-error, and missing-field filters as shareable, webroot-aware queues with focused results and explicit loading, error, and empty states. Settings remains `/settings/user/library`; detail and fallback rendering remain PHP-backed.
 - Per-user Library roots with add/edit/enable/disable/delete, typed delete confirmation and recovery guidance.
-- Queued all-root and per-root scans, scan progress/history, metadata-error retry, missing-file recheck, queued cancellation and cooperative running-job cancellation.
+- Asynchronous Settings operations for queued all-root and per-root scans, per-root publication counts, scan progress/history, metadata-error retry, missing-file recheck, queued cancellation and cooperative running-job cancellation. Running jobs persist a bounded heartbeat and current path; stale status is observational and does not force a terminal transition.
 - Conservative unchanged-file rescans: an ordinary trusted indexed file with an existing item and current pipeline revision skips metadata content extraction and item writes only when its primary plus selected OPF sidecar identity/path/ETag/mtime/size/type fingerprint matches. Retry and recheck remain forced extraction paths.
 - EPUB, PDF, CBZ and OPF indexing with extractor failure isolation and missing-file diagnostics.
-- General editable publication metadata: title, subtitle, creators, publication/series, date, language, publisher, description, workflow status, genres and classifications.
+- General editable publication metadata: title, subtitle, creators, publication/series, date, language, publisher, description, workflow status, subjects and classifications.
 - Scanner provenance/candidates, differs-from-scanner labels, correction counts, single-field reset, whole-item reset, conflict review filter and batch scanner-candidate reset.
-- Compact cover-first catalogue with database-backed search, filters, facets, sort modes and pagination, active filter chips, built-in Useful views for daily/cleanup smart collections with count badges, a weak-metadata cockpit for sparse/suspicious catalogue rows, and in-app Custom collections for user-defined saved filters. Useful-view and saved-collection badges use a count-only path that does not fetch catalogue rows or facets for normal filters. Ordinary catalogue/AJAX item DTOs omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs, and their SQL path avoids selecting cover override data; tags, descriptions, diagnostics and visible card actions remain. Scanner-conflict and weak-metadata review views intentionally retain rich provenance, while detail, cover, export and import paths remain full.
+- Bounded server-backed Home, Shelves and Catalogue surfaces with lazy shelf children, database-backed search, additive filters/facets, sort modes, pagination and list/cover views. ISBN/ISSN exact normalized search uses the identifier child table; distinct catalogue selection prevents duplicate publications when one item has multiple matching identifier rows. Ordinary catalogue/AJAX item DTOs omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs; Review and detail paths retain the richer data they need.
 - Dedicated publication/series, publication-year and creator discovery pages around the compact catalogue grid, with publication pages showing a compact **Publication contents** issue/date coverage summary.
-- Read, Show in Files and Download source actions.
+- Open, Show in Files and Download actions.
 - Detail workbench for publication metadata, Nextcloud tags/comments, cover refresh, scanner provenance and file diagnostics.
-- Nextcloud tag feedback, suggested tag buttons and filter-result batch tag add/remove.
+- Nextcloud tag feedback, suggested tag buttons and explicit-selection batch tag add/remove.
 - Cover route using Nextcloud preview, EPUB package cover, CBZ first image and placeholder fallback with diagnostic headers and no-store refresh paths.
 - Corrected metadata JSON export, import preview, matched-item import apply, sidecar manifest export and sidecar ZIP export without writing into source folders.
 - Cached Import Health metadata overview with explicit refresh, so heavy archive/container and cover diagnostics stay out of catalogue paging/search/filter paths.
@@ -82,7 +84,7 @@ Alpha.159 verification is complete for the local gate (727 Python tests, 9 PHP r
 
 Historical alpha.158 verification completed its local, unsigned package, exact-package and live gates, including the privacy and 40-file unchanged-root evidence recorded in the release documents.
 
-Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, genres/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year/creator discovery pages.
+Older shipped slices have also been live-smoked for catalogue browsing, metadata separation, multi-root confidence, last-opened activity, description search, workflow status, subjects/classifications, scanner-conflict review, batch operations, root recovery, single metadata surface and publication/year/creator discovery pages.
 
 ## Practical next hardening slices
 

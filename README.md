@@ -11,17 +11,17 @@ Library adds a media-library style layer for EPUB, PDF and CBZ collections witho
 Current highlights:
 
 - cover-first catalogue with Compact, Gallery and Shelf views;
-- home dashboard, useful views, custom collections and discovery pages for creators, years and publications/series;
+- server-backed Home, Shelves and Catalogue surfaces, plus custom collections and discovery pages for creators, years and publications/series;
 - count-only useful-view and saved-collection badges that avoid fetching catalogue rows or facets for normal filters, while scanner-conflict counts retain row inspection for correctness;
 - bounded ordinary catalogue/AJAX item payloads that keep tags, descriptions, diagnostics and visible card actions while leaving rich provenance to metadata-review and full detail/export/import paths;
 - seven additive user-scoped indexes for measured catalogue sort/filter and file diagnostic queries, without duplicating existing scan-job/root/saved-collection indexes or adding a speculative starred index;
 - in-page details drawer with keyboard browsing plus full details pages for editing;
-- metadata editing for title, creators, publication/series, dates, genres, classifications, workflow status, stars, descriptions and file comments;
-- search across title, creators, description, filename and folder path;
+- metadata editing for title, creators, publication/series, dates, subjects, classifications, workflow status, stars, descriptions and file comments;
+- search across title, creators, description, identifiers, filename and folder path;
 - scan, repair and review tools for missing files, metadata errors, weak metadata and scanner conflicts;
 - search and filter by metadata, file format, scan status, workflow status and collection context;
 - corrected-metadata export/import preview/apply for app metadata handoff;
-- safe reader handoff to existing Nextcloud viewers/readers, Show in Files and Download source actions.
+- safe reader handoff to existing Nextcloud viewers/readers, Show in Files and Download actions.
 
 ## Current scope
 
@@ -45,8 +45,9 @@ Not in scope for v0.1:
 
 ## Try it
 
-Current source candidate: `0.1.0-alpha.165`. The duplicate catalogue fallback has been retired: the server still delivers authoritative initial state, and Vue exclusively renders Library, Review, and the native item sidebar. If startup genuinely fails, a small accessible watchdog shows reload and personal-settings exits without exposing state or presenting a stale substitute catalogue. Read and the localized PHP full-details page remain explicit actions.
+Current source candidate: `0.1.0-alpha.168`. This is an unpackaged source candidate. Library now has bounded server-backed Home, Shelves and Catalogue payloads; additive server-side facets and filters; and list, compact, gallery and shelf presentation. ISBN/ISSN values have a dedicated identifier spine with normalized exact search, and catalogue queries remain distinct when identifier joins match more than one row. OPF sidecars enrich their primary publication without becoming duplicate catalogue items. Open is the primary file action and the full PHP editor remains available as Advanced details.
 
+Settings scan operations submit asynchronously, show per-root publication counts, and keep cancellation responsive. Running jobs persist a bounded heartbeat and current path; a quiet job is reported as stale without being destructively changed to failed. Source files remain untouched.
 Alpha.159 fixes repair-scan root containment: missing-file recheck and metadata-error retry only restore a resolved stable-ID file when its current path is inside an enabled root owned by that user. The full local gate passed 727 Python tests, 9 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. The unsigned alpha package was built and audited, and exact-package smoke verified checksum, install/enable, PHP, routes, scanner, Vue/API/browser and privacy behavior with `release_package_smoke_ok=true`, zero browser console errors, zero cross-origin cover requests and second-user isolation. Verify an exact archive checksum with its adjacent `.sha256` artifact; the excluded `RELEASE.md` records verification evidence without duplicating the digest.
 
 Alpha.158 verification passed: the local gate completed 726 Python tests, 8 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. The unsigned alpha package audit passed with 118 archive entries and produced the archive plus checksum. Exact-package smoke verified the checksum, installed and enabled alpha.158, passed PHP lint and route listing, and scanned the same 40-file root twice with `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0` on both scans. Live Vue/API and browser smokes passed with zero browser console errors and mutation restoration. The cover-privacy browser gate seeded and restored a legacy tracker-style value, captured catalogue/detail requests with zero non-Nextcloud cover requests, proved upload/render/revert, and proved deterministic temporary-second-user isolation with cleanup. The package gate ended with `release_package_smoke_ok=true`.

@@ -138,9 +138,9 @@ Install app
 
 ## Personal-library priorities
 
-Uwe's current personal top features are scoped in [Personal top features](personal-top-features.md). They refine the product thesis toward daily use: fully trusted multi-root browsing, personal starring/bookmarking, last opened activity, description search, custom reading/workflow status, and richer genres/classifications.
+Uwe's current personal top features are scoped in [Personal top features](personal-top-features.md). They refine the product thesis toward daily use: fully trusted multi-root browsing, personal starring/bookmarking, last opened activity, description search, custom reading/workflow status, and richer subjects/classifications.
 
-Feedback captured there: use Nextcloud tags for lightweight cross-app labels, but make stars, Library-owned reading activity, workflow status, and structured genres/classifications canonical Library-native fields when they need first-class filters, export/import or external metadata-tool handoff. Personal starring, last-opened activity, and Library-native description search are now implemented as Library-native catalogue state.
+Feedback captured there: use Nextcloud tags for lightweight cross-app labels, but make stars, Library-owned reading activity, workflow status, and structured subjects/classifications canonical Library-native fields when they need first-class filters, export/import or external metadata-tool handoff. Personal starring, last-opened activity, and Library-native description search are now implemented as Library-native catalogue state.
 
 ## Design tension to preserve
 

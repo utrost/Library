@@ -21,6 +21,7 @@ EXPECTED_TABLES = {
         },
         "indexes": {
             "library_files_id", "library_files_user_id", "library_files_root_id", "library_files_file_id_unique",
+            "library_files_usr_root_status",
         },
     },
     "*dbprefix*library_items": {
@@ -28,11 +29,20 @@ EXPECTED_TABLES = {
             "id", "user_id", "library_file_id", "publication_type", "title", "subtitle", "creators",
             "publication", "publication_date", "language", "publisher", "metadata_source", "user_edited",
             "field_sources", "field_values", "starred", "last_opened_at", "description", "workflow_status",
-            "genres_json", "classifications_json", "personal_rating", "cover_override_url", "cover_override_data",
+            "subjects_json", "classifications_json", "personal_rating", "cover_override_url", "cover_override_data",
             "cover_override_mime_type", "created_at", "updated_at",
         },
         "indexes": {
             "library_items_id", "library_items_user_id", "library_items_file_unique",
+        },
+    },
+    "*dbprefix*library_item_identifiers": {
+        "fields": {
+            "id", "item_id", "user_id", "scheme", "display_value", "normalized_value",
+            "source", "user_edited", "valid", "created_at", "updated_at",
+        },
+        "indexes": {
+            "library_ident_id", "library_ident_item", "library_ident_user_scheme_value",
         },
     },
     "*dbprefix*library_scan_jobs": {
@@ -40,7 +50,7 @@ EXPECTED_TABLES = {
             "id", "user_id", "status", "scope_type", "root_id", "roots_total", "files_indexed",
             "files_added", "paths_updated", "files_unchanged", "files_missing", "error_count",
             "metadata_errors", "summary", "started_at", "finished_at", "run_started_at", "duration_ms",
-            "fingerprint_skips", "metadata_extractions", "item_refreshes",
+            "fingerprint_skips", "metadata_extractions", "item_refreshes", "last_progress_at", "current_path",
         },
         "indexes": {
             "library_scan_jobs_id", "library_scan_jobs_user_started",

@@ -3,19 +3,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_vue_renders_series_periodical_empty_state_when_no_publication_groups_exist():
+def test_vue_omits_obsolete_series_periodical_shortcut():
     vue = (ROOT / "src" / "App.vue").read_text()
 
     assert "library-shortcut-selectors" in vue
-    assert "publicationSummaries.length > 0" in vue
-    assert "Choose series" in vue
+    assert "library-periodical-groups" not in vue
+    assert "Choose series" not in vue
+    assert 'name="publicationSearch"' in vue
+    assert "publicationSuggestionsUrl" in vue
 
 
-def test_smoke_tracks_series_periodical_empty_state_contract():
+def test_smoke_tracks_removed_series_periodical_shortcut_contract():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
-    assert "source_has_periodical_empty_state" in smoke
-    assert "library-shortcut-selectors" in smoke
+    assert "source_has_no_periodical_shortcut" in smoke
+    assert "library-periodical-groups" in smoke
     assert "Choose series" in smoke
 
 

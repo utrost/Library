@@ -1,5 +1,11 @@
 # Release process
 
+## Alpha.168 source candidate — unpackaged
+
+Future authorized release commands use `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.168.tar.gz` and `(cd dist && sha256sum -c library-0.1.0-alpha.168.tar.gz.sha256)`; neither has been run for this source candidate.
+
+`0.1.0-alpha.168` is an unpackaged source candidate. It adds bounded server-backed Home and Shelves payloads, lazy shelf navigation, additive catalogue facets/filters and list refinements. Its identifier spine stores display ISBN/ISSN values, supports normalized exact search and keeps catalogue rows distinct across identifier joins. OPF sidecars follow documented suppression and precedence rules. Settings operations are asynchronous; scan status includes root publication counts, cooperative cancellation, heartbeat/current-path progress, and non-destructive stale-job reporting. Accessibility-tree automation is not screen-reader testing, and manual AT testing remains pending. Package identity, installation, deployment, and exact-package browser evidence remain pending until packaging is separately authorized.
+
 ## Alpha.165 legacy server-rendered localization coverage
 
 `0.1.0-alpha.165` completes localization of personal Settings, batch metadata
@@ -112,12 +118,12 @@ legacy PHP/settings/detail surfaces and broaden reviewed translations; alpha.166
 should extend assistive-technology and mixed-direction content coverage. Source
 files remain private and unchanged, and locale changes in smoke are restored.
 
-This repo is prepared for independent review from app version `0.1.0-alpha.165`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
+This repo is prepared for independent review from the unpackaged source candidate `0.1.0-alpha.168`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
 
 ## Release type
 
 - Private/early-tester v0.1 candidate on a Nextcloud 34 test instance.
-- App version in `appinfo/info.xml`: `0.1.0-alpha.165`.
+- App version in `appinfo/info.xml`: `0.1.0-alpha.168`.
 - License: AGPL-3.0-or-later.
 - Target runtime: Nextcloud 34.
 
@@ -142,8 +148,8 @@ scripts/package-release.sh
 The script runs the test/build gates, applies the intentional frontend manifest, creates a reproducible archive, audits it, then writes:
 
 ```text
-dist/library-0.1.0-alpha.165.tar.gz
-dist/library-0.1.0-alpha.165.tar.gz.sha256
+dist/library-0.1.0-alpha.168.tar.gz
+dist/library-0.1.0-alpha.168.tar.gz.sha256
 ```
 
 The archive contains one `library/` directory and excludes development material. Its frontend manifest is the current versioned Vue JS/CSS plus referenced `style.css`, `library-detail.js`, `library-shell.js`, and `scan-progress.js`. Historical assets, unversioned aliases, orphan chunks, and source maps are rejected. The active module closure is limited to 2,000,000 bytes/eight chunks; the complete frontend manifest is separately limited to 1,200,000 bytes. Entries are sorted and normalized to owner/group 0, directory mode 0755, file mode 0644, and one mtime. `SOURCE_DATE_EPOCH` selects it; the fallback is `946684800` (2000-01-01T00:00:00Z). Gzip name/timestamp metadata is disabled.
@@ -196,7 +202,7 @@ echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library
 - Upload a release by providing the tarball download URL and a signature over the exact archive:
 
 ```bash
-openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.165.tar.gz | openssl base64
+openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.168.tar.gz | openssl base64
 ```
 
 ## Generated archive install smoke
@@ -257,10 +263,10 @@ The 40-file results verify write elision only. Alpha.154 adds measured aggregate
 For a non-Docker disposable instance, the equivalent manual steps are:
 
 ```bash
-(cd dist && sha256sum -c library-0.1.0-alpha.165.tar.gz.sha256)
+(cd dist && sha256sum -c library-0.1.0-alpha.168.tar.gz.sha256)
 rm -rf /var/www/html/custom_apps/library
 mkdir -p /var/www/html/custom_apps
-tar -xzf dist/library-0.1.0-alpha.165.tar.gz -C /var/www/html/custom_apps
+tar -xzf dist/library-0.1.0-alpha.168.tar.gz -C /var/www/html/custom_apps
 chown -R www-data:www-data /var/www/html/custom_apps/library
 sudo -u www-data php -l /var/www/html/custom_apps/library/appinfo/routes.php
 sudo -u www-data php occ app:enable library
@@ -299,8 +305,8 @@ git push origin v0.1.0-alpha.2
 
 Create a GitHub prerelease from the accepted annotated tag and attach:
 
-- `dist/library-0.1.0-alpha.165.tar.gz`
-- `dist/library-0.1.0-alpha.165.tar.gz.sha256`
+- `dist/library-0.1.0-alpha.168.tar.gz`
+- `dist/library-0.1.0-alpha.168.tar.gz.sha256`
 
 Release note summary:
 
