@@ -1463,8 +1463,8 @@ final class ItemService {
             'publicationSummaries' => $this->topPublicationSummaries($userId, $facetFilters['publications']),
             'publicationYears' => $this->publicationYearFacetValues($userId, $facetFilters['publicationYears']),
             'creators' => $this->distinctCatalogueValues($userId, $facetFilters['creators'], 'i.creators', 'creator'),
-            'subjects' => $this->subjectFacetValues($userId, $facetFilters['subjects']),
-            'classifications' => $this->classificationFacetValues($userId, $facetFilters['classifications']),
+            'subjects' => [],
+            'classifications' => [],
             'scanStatuses' => $this->scanStatusFacetValues($userId, $facetFilters['scanStatuses']),
             'workflowStatuses' => $this->distinctCatalogueValues($userId, $facetFilters['workflowStatuses'], 'i.workflow_status', 'value'),
         ];
