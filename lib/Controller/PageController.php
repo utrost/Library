@@ -432,8 +432,8 @@ class PageController extends Controller {
         $durations['projection_ms'] = $this->clock->elapsedMs($phaseStarted);
 
         $phaseStarted = $this->clock->now();
-        $smartViewCounts = $userId !== '' ? $this->itemService->smartViewCounts($userId) : [];
-        $savedCollections = $userId !== '' ? $this->savedCollectionsWithCounts($userId) : [];
+        $smartViewCounts = $userId !== '' ? $this->itemService->smartViewCounts($userId, false) : [];
+        $savedCollections = $userId !== '' ? $this->savedCollectionsWithCounts($userId, false) : [];
         $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
         $catalogueRootUrl = $this->urlGenerator->linkToRoute('library.page.index');
         $language = $this->l10nFactory->findLanguage(Application::APP_ID);
@@ -497,6 +497,7 @@ class PageController extends Controller {
             'coverProbeUrl' => $this->urlGenerator->linkToRoute('library.health.coverProbe'),
             'importHealthSummaryUrl' => $this->urlGenerator->linkToRoute('library.health.importSummary'),
             'smartViewCounts' => $smartViewCounts,
+            'smartViewCountsPending' => ['scanner-conflicts'],
             'savedCollections' => $savedCollections,
             'savedCollectionSaveUrl' => $this->urlGenerator->linkToRoute('library.saved_collection.save'),
             'savedCollectionDeleteBaseUrl' => $this->urlGenerator->linkToRoute('library.saved_collection.delete', ['collectionId' => '__COLLECTION_ID__']),
@@ -520,9 +521,15 @@ class PageController extends Controller {
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function savedCollectionsWithCounts(string $userId): array {
-        return array_map(function (array $collection) use ($userId): array {
-            $collection['count'] = $this->itemService->countCatalogue($userId, (array)($collection['filters'] ?? []));
+    private function savedCollectionsWithCounts(string $userId, bool $includeScannerConflicts = true): array {
+        return array_map(function (array $collection) use ($userId, $includeScannerConflicts): array {
+            $filters = (array)($collection['filters'] ?? []);
+            if (!$includeScannerConflicts && ($filters['scannerConflicts'] ?? '') === '1') {
+                $collection['count'] = null;
+                $collection['countPending'] = true;
+                return $collection;
+            }
+            $collection['count'] = $this->itemService->countCatalogue($userId, $filters);
             return $collection;
         }, $this->savedCollectionService->listCollections($userId));
     }
