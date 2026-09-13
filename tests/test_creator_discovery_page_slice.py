@@ -12,16 +12,17 @@ def test_routes_include_dedicated_creator_discovery_page():
     assert routes.index("/creators/{creator}") < routes.index("/items/{itemId}")
 
 
-def test_page_controller_builds_creator_discovery_state_and_landing_urls():
+def test_page_controller_builds_creator_discovery_state_without_eager_landing_urls():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    app = (ROOT / "src" / "App.vue").read_text()
 
     assert "public function creator(string $creator): TemplateResponse" in controller
     assert "'creator' => $creator" in controller
     assert "'sort' => 'publication'" in controller
     assert "'discoveryPage' => 'creator'" in controller
     assert "'discoveryTitle' => $creator" in controller
-    assert "'creatorLandingUrls'" in controller
-    assert "linkToRoute('library.page.creator'" in controller
+    assert "'creatorLandingUrls' => []" in controller
+    assert "`/apps/library/creators/${encodeURIComponent(creator)}`" in app
 
 
 def test_vue_and_fallback_render_creator_discovery_links_and_header():

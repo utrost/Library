@@ -313,6 +313,8 @@ try {
     console.log(`state_has_publication_summaries=${Array.isArray(state?.publicationSummaries)}`)
     console.log(`state_has_publication_years=${Array.isArray(state?.publicationYears)}`)
     console.log(`state_has_creators=${Array.isArray(state?.creators)}`)
+    console.log(`creator_facet_payload_lazy=${Array.isArray(state?.creators) && state.creators.length === 0}`)
+    console.log(`creator_landing_urls_payload_lazy=${state?.creatorLandingUrls && Object.keys(state.creatorLandingUrls).length === 0}`)
     console.log(`publication_filter_pagination_preserved=${String(publicationState?.cataloguePagination?.nextUrl || '').includes('publication=__library_smoke_publication__')}`)
     console.log(`publication_discovery_http=${publicationDiscoveryPage.status}`)
     console.log(`publication_discovery_state=${publicationDiscoveryState?.discoveryPage === 'publication' && publicationDiscoveryState?.discoveryTitle === smokePublication && publicationDiscoveryState?.activeFilters?.publication === smokePublication && (publicationDiscoveryState?.items || []).every((item) => item.publication === smokePublication)}`)
@@ -322,6 +324,7 @@ try {
     console.log(`year_discovery_state=${yearDiscoveryState?.discoveryPage === 'year' && yearDiscoveryState?.discoveryTitle === smokeYear && yearDiscoveryState?.activeFilters?.year === smokeYear && (yearDiscoveryState?.items || []).every((item) => String(item.publicationDate || '').startsWith(smokeYear))}`)
     console.log(`creator_discovery_http=${creatorDiscoveryPage.status}`)
     console.log(`creator_discovery_state=${creatorDiscoveryState?.discoveryPage === 'creator' && creatorDiscoveryState?.discoveryTitle === smokeCreator && creatorDiscoveryState?.activeFilters?.creator === smokeCreator && (creatorDiscoveryState?.items || []).every((item) => item.creators === smokeCreator)}`)
+    console.log(`creator_active_filter_preserved=${creatorState?.activeFilters?.creator === smokeCreator && creatorDiscoveryState?.activeFilters?.creator === smokeCreator}`)
     console.log(`creator_filter_smoke_ok=${String(creatorState?.cataloguePagination?.nextUrl || '').includes('creator=__library_smoke_creator__') && (creatorState?.items || []).every((item) => item.creators === '__library_smoke_creator__')}`)
     const bundle = script.status === 200 ? script.text : ''
     const bundleHas = (...markers) => bundle.length > 0 && markers.every((marker) => bundle.includes(marker))

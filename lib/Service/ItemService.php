@@ -1462,7 +1462,10 @@ final class ItemService {
             'publications' => $this->distinctCatalogueValues($userId, $facetFilters['publications'], 'i.publication', 'publication', self::PUBLICATION_FACET_LIMIT),
             'publicationSummaries' => $this->topPublicationSummaries($userId, $facetFilters['publications']),
             'publicationYears' => $this->publicationYearFacetValues($userId, $facetFilters['publicationYears']),
-            'creators' => $this->distinctCatalogueValues($userId, $facetFilters['creators'], 'i.creators', 'creator'),
+            // Creator choices are fetched on demand by creatorSuggestions(). A full
+            // creator facet is high-cardinality and needlessly fans out every
+            // catalogue request, including the initial page load.
+            'creators' => [],
             'subjects' => [],
             'classifications' => [],
             'scanStatuses' => $this->scanStatusFacetValues($userId, $facetFilters['scanStatuses']),

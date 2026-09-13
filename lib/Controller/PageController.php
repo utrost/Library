@@ -459,11 +459,11 @@ class PageController extends Controller {
                 $carry[$year] = $this->urlGenerator->linkToRoute('library.page.year', ['year' => $year]);
                 return $carry;
             }, []),
-            'creators' => $catalogue['facets']['creators'],
-            'creatorLandingUrls' => array_reduce($catalogue['facets']['creators'], function (array $carry, string $creator): array {
-                $carry[$creator] = $this->urlGenerator->linkToRoute('library.page.creator', ['creator' => $creator]);
-                return $carry;
-            }, []),
+            // Creator matches and navigation are served by creatorSuggestionsUrl.
+            // Keep these legacy state keys empty so catalogue responses never
+            // serialize the high-cardinality facet or a URL map for every creator.
+            'creators' => [],
+            'creatorLandingUrls' => [],
             'scanStatuses' => $catalogue['facets']['scanStatuses'],
             'workflowStatuses' => $catalogue['facets']['workflowStatuses'],
             'subjects' => $catalogue['facets']['subjects'] ?? [],
