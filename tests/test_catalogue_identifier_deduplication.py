@@ -38,6 +38,8 @@ def test_catalogue_page_is_distinct_when_one_item_has_multiple_identifiers():
         "private function catalogueFilteredQueryBuilder", 1
     )[1].split("private function countCatalogueItems", 1)[0]
 
+    assert "$qb->select($columns)" in catalogue_builder
+    assert "catalogueProjectionRequiresDistinct($filters)" in catalogue_builder
     assert "$qb->selectDistinct($columns)" in catalogue_builder
     assert "IdentifierService::normalizeSearchQuery" in filtered_builder
     assert "if ($identifierSearch !== null)" in filtered_builder
@@ -52,3 +54,14 @@ def test_identifier_search_keeps_normalized_isbn_issn_predicate():
     assert "idn.scheme" in service
     assert "idn.normalized_value" in service
     assert "IdentifierService::normalizeSearchQuery($query)" in service
+
+
+def test_catalogue_projection_only_uses_distinct_for_one_to_many_filter_paths():
+    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text(encoding="utf-8")
+    distinct_guard = service.split(
+        "private function catalogueProjectionRequiresDistinct", 1
+    )[1].split("private function catalogueFilteredQueryBuilder", 1)[0]
+
+    assert "IdentifierService::normalizeSearchQuery($query) !== null" in distinct_guard
+    assert "trim((string)($filters['subject'] ?? '')) !== ''" in distinct_guard
+    assert "trim((string)($filters['classification'] ?? '')) !== ''" in distinct_guard
