@@ -37,10 +37,14 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <p class="library-muted"><?php p($l->t('Point Library at a Nextcloud folder; it becomes a browsable shelf after scanning.')); ?></p>
             <form method="post" action="<?php p($_['rootSaveUrl']); ?>" class="library-form library-add-shelf-form" data-library-operation="save-root">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                <label>
-                    <?php p($l->t('Folder path')); ?>
-                    <input type="text" name="path" value="/LibrarySpike" placeholder="<?php p($l->t('/Media/Books')); ?>" />
-                </label>
+                <div class="library-folder-path-field">
+                    <label>
+                        <?php p($l->t('Folder path')); ?>
+                        <input type="text" name="path" value="/LibrarySpike" placeholder="<?php p($l->t('/Media/Books')); ?>" aria-describedby="library-new-root-path-help" />
+                    </label>
+                    <button type="button" class="button secondary library-folder-picker-button" data-library-folder-picker data-picker-title="<?php p($l->t('Choose a folder for this Library shelf')); ?>" hidden><?php p($l->t('Choose folder')); ?></button>
+                    <p id="library-new-root-path-help" class="library-muted library-folder-path-help"><?php p($l->t('Choose a folder from Nextcloud Files, or enter its path manually.')); ?></p>
+                </div>
                 <label>
                     <?php p($l->t('Label')); ?>
                     <input type="text" name="label" value="" placeholder="<?php p($l->t('Books, comics, manuals…')); ?>" />
@@ -77,10 +81,14 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                         <p class="library-root-publication-count"><?php p($l->n('%n publication', '%n publications', (int)$root['publicationCount'])); ?></p>
                         <form method="post" action="<?php p($root['rootUpdateUrl']); ?>" class="library-form library-root-edit-form">
                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                            <label>
-                                <?php p($l->t('Folder path')); ?>
-                                <input type="text" name="path" value="<?php p((string)$root['path']); ?>" />
-                            </label>
+                            <div class="library-folder-path-field">
+                                <label>
+                                    <?php p($l->t('Folder path')); ?>
+                                    <input type="text" name="path" value="<?php p((string)$root['path']); ?>" aria-describedby="library-root-path-help-<?php p((string)$root['id']); ?>" />
+                                </label>
+                                <button type="button" class="button secondary library-folder-picker-button" data-library-folder-picker data-picker-title="<?php p($l->t('Choose a folder for this Library shelf')); ?>" hidden><?php p($l->t('Choose folder')); ?></button>
+                                <p id="library-root-path-help-<?php p((string)$root['id']); ?>" class="library-muted library-folder-path-help"><?php p($l->t('Choose a folder from Nextcloud Files, or edit its path manually.')); ?></p>
+                            </div>
                             <label>
                                 <?php p($l->t('Label')); ?>
                                 <input type="text" name="label" value="<?php p((string)($root['label'] ?? '')); ?>" />

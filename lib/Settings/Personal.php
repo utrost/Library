@@ -30,6 +30,7 @@ class Personal implements ISettings {
         Util::addStyle(Application::APP_ID, 'style');
         Util::addScript(Application::APP_ID, 'scan-progress');
         Util::addScript(Application::APP_ID, 'settings-operations');
+        Util::addScript(Application::APP_ID, 'settings-folder-picker');
 
         $language = $this->l10nFactory?->findLanguage(Application::APP_ID) ?? 'en';
         $publicationCountsByRoot = $this->fileIndexService->publicationCountsByRoot($this->userId);
