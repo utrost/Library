@@ -7,7 +7,7 @@ def test_page_controller_accepts_format_filter_and_builds_available_formats():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
     assert "getParam('format'" in controller
-    assert "queryCatalogue($userId, $activeFilters, $pagination)" in controller
+    assert "queryCatalogue($userId, $activeFilters, $pagination, $includeFacets)" in controller
     assert "catalogueFacets" in service
     assert "formats" in controller
     assert "array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string" in service

@@ -31,8 +31,8 @@ use Throwable;
 
 class PageController extends Controller {
     private const APP_VERSION = '0.1.0-alpha.168';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-168-subjecttypeahead';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-168-subjecttypeahead';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-168-initialhydrate';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-168-initialhydrate';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -416,7 +416,8 @@ class PageController extends Controller {
         $roots = $this->rootService->listRoots($userId);
         $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
         $phaseStarted = $this->clock->now();
-        $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination) : [
+        $includeFacets = $surface !== 'index';
+        $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination, $includeFacets) : [
             'items' => [],
             'total' => 0,
             'facets' => ['publicationTypes' => [], 'publishers' => [], 'shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'workflowStatuses' => [], 'subjects' => [], 'classifications' => [], 'publications' => [], 'publicationSummaries' => [], 'publicationYears' => [], 'creators' => []],
@@ -446,13 +447,22 @@ class PageController extends Controller {
         $durations['projection_ms'] = $this->clock->elapsedMs($phaseStarted);
 
         $phaseStarted = $this->clock->now();
-        $smartViewCounts = $userId !== '' ? $this->itemService->smartViewCounts($userId, false) : [];
-        $savedCollections = $userId !== '' ? $this->savedCollectionsWithCounts($userId, false) : [];
+        $smartViewCounts = $userId === '' ? [] : ($surface === 'index' ? [] : $this->itemService->smartViewCounts($userId, false));
+        $smartViewCountsPending = $surface === 'index' ? [
+            'recently-opened', 'starred', 'to-read', 'reading', 'finished', 'needs-action',
+            'needs-metadata', 'scanner-conflicts', 'metadata-errors', 'placeholder-covers',
+            'no-creator', 'no-publication', 'missing-date', 'title-from-filename',
+            'weak-filename-metadata', 'no-description', 'unsupported-containers', 'unreviewed-imports',
+        ] : ['scanner-conflicts'];
+        $savedCollections = $userId === '' ? [] : ($surface === 'index'
+            ? $this->savedCollectionsPending($userId)
+            : $this->savedCollectionsWithCounts($userId, false));
         $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
         $catalogueRootUrl = $this->urlGenerator->linkToRoute('library.page.index');
         $language = $this->l10nFactory->findLanguage(Application::APP_ID);
         $direction = $this->l10nFactory->getLanguageDirection($language);
         $state = [
+            'surface' => $surface,
             'publicationIssueContext' => null,
             ...$pageContext,
             'language' => $language,
@@ -515,7 +525,7 @@ class PageController extends Controller {
             'coverProbeUrl' => $this->urlGenerator->linkToRoute('library.health.coverProbe'),
             'importHealthSummaryUrl' => $this->urlGenerator->linkToRoute('library.health.importSummary'),
             'smartViewCounts' => $smartViewCounts,
-            'smartViewCountsPending' => ['scanner-conflicts'],
+            'smartViewCountsPending' => $smartViewCountsPending,
             'savedCollections' => $savedCollections,
             'savedCollectionSaveUrl' => $this->urlGenerator->linkToRoute('library.saved_collection.save'),
             'savedCollectionDeleteBaseUrl' => $this->urlGenerator->linkToRoute('library.saved_collection.delete', ['collectionId' => '__COLLECTION_ID__']),
@@ -525,7 +535,7 @@ class PageController extends Controller {
         $context = ['event_schema' => 1, 'surface' => in_array($surface, ['index', 'catalogue_api', 'publication', 'year', 'creator'], true) ? $surface : 'catalogue_api',
             ...$durations, 'items_returned' => count($items), 'total_items' => (int)$catalogue['total'],
             'page' => $pagination['page'], 'limit' => $pagination['limit'],
-            'active_filter_count' => count(array_filter($activeFilters, static fn ($value, $key): bool => $key !== 'taggedFileIds' && trim((string)$value) !== '' && !($key === 'sort' && $value === 'title'), ARRAY_FILTER_USE_BOTH)),
+            'active_filter_count' => count(array_filter($activeFilters, static fn ($value, $key): bool => $key !== 'taggedFileIds' && trim((string)$value) !== '' && !($key === 'sort' && $value === 'title') && !($key === 'view' && $value === 'compact'), ARRAY_FILTER_USE_BOTH)),
             'has_text_search' => $activeFilters['q'] !== '', 'scanner_conflict_projection' => $metadataReviewProjection];
         try {
             if ($durations['total_ms'] >= 500) { $this->logger->warning('library.catalogue.slow', $context); }
@@ -548,6 +558,15 @@ class PageController extends Controller {
                 return $collection;
             }
             $collection['count'] = $this->itemService->countCatalogue($userId, $filters);
+            return $collection;
+        }, $this->savedCollectionService->listCollections($userId));
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function savedCollectionsPending(string $userId): array {
+        return array_map(static function (array $collection): array {
+            $collection['count'] = null;
+            $collection['countPending'] = true;
             return $collection;
         }, $this->savedCollectionService->listCollections($userId));
     }

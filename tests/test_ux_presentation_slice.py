@@ -54,7 +54,7 @@ def test_page_controller_passes_filter_state_and_shelves_to_template():
     assert "getParam('type'" in controller
     assert "getParam('tag'" in controller
     assert "getParam('shelf'" in controller
-    assert "queryCatalogue($userId, $activeFilters, $pagination)" in controller
+    assert "queryCatalogue($userId, $activeFilters, $pagination, $includeFacets)" in controller
     assert "applyCatalogueFilters" in service
     assert "shelves" in controller
     assert "activeFilters" in controller

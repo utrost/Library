@@ -925,13 +925,13 @@ final class ItemService {
      * @param array{page:int,limit:int} $pagination
      * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{publicationTypes:array<int, string>,publishers:array<int, string>,shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,creators:array<int, string>,scanStatuses:array<int, string>,workflowStatuses:array<int, string>,subjects:array<int, string>,classifications:array<int, string>}}
      */
-    public function queryCatalogue(string $userId, array $filters, array $pagination): array {
+    public function queryCatalogue(string $userId, array $filters, array $pagination, bool $includeFacets = true): array {
         $page = max(1, (int)($pagination['page'] ?? 1));
         $limit = max(1, min(500, (int)($pagination['limit'] ?? 100)));
         $offset = ($page - 1) * $limit;
 
         if (trim((string)($filters['scannerConflicts'] ?? '')) === '1') {
-            return $this->queryScannerConflictCatalogue($userId, $filters, $offset, $limit);
+            return $this->queryScannerConflictCatalogue($userId, $filters, $offset, $limit, $includeFacets);
         }
 
         $metadataReviewProjection = ($filters['weakMetadata'] ?? '') === 'filename';
@@ -951,7 +951,17 @@ final class ItemService {
         return [
             'items' => $items,
             'total' => $this->countCatalogueItems($userId, $filters),
-            'facets' => $this->catalogueFacets($userId, $filters),
+            'facets' => $includeFacets ? $this->catalogueFacets($userId, $filters) : $this->emptyCatalogueFacets(),
+        ];
+    }
+
+    /** @return array<string, array> */
+    private function emptyCatalogueFacets(): array {
+        return [
+            'publicationTypes' => [], 'publishers' => [], 'shelves' => [], 'formats' => [],
+            'publications' => [], 'publicationSummaries' => [], 'publicationYears' => [],
+            'creators' => [], 'scanStatuses' => [], 'workflowStatuses' => [], 'subjects' => [],
+            'classifications' => [],
         ];
     }
 
@@ -974,7 +984,7 @@ final class ItemService {
         return $count;
     }
 
-    private function queryScannerConflictCatalogue(string $userId, array $filters, int $offset, int $limit): array {
+    private function queryScannerConflictCatalogue(string $userId, array $filters, int $offset, int $limit, bool $includeFacets = true): array {
         $filtersWithoutConflict = $filters;
         unset($filtersWithoutConflict['scannerConflicts']);
 
@@ -994,7 +1004,7 @@ final class ItemService {
         return [
             'items' => array_slice($conflictingItems, $offset, $limit),
             'total' => count($conflictingItems),
-            'facets' => $this->catalogueFacets($userId, $filters),
+            'facets' => $includeFacets ? $this->catalogueFacets($userId, $filters) : $this->emptyCatalogueFacets(),
         ];
     }
 

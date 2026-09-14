@@ -122,6 +122,74 @@ afterEach(async () => {
 })
 
 describe('Library catalogue Vue app', () => {
+  it('hydrates deferred index facets and counts once without replacing initial items', async () => {
+    let resolveHydration
+    const animationFrames = []
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      animationFrames.push(callback)
+      return animationFrames.length
+    })
+    global.fetch = vi.fn().mockReturnValue(new Promise((resolve) => { resolveHydration = resolve }))
+    const initialItem = { ...state.items[0], title: 'Initial first-paint item' }
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      surface: 'index',
+      items: [initialItem],
+      formats: [],
+      smartViewCounts: {},
+      smartViewCountsPending: ['scanner-conflicts'],
+      savedCollections: [{ id: 9, name: 'Unread', count: null, countPending: true }],
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, format: 'epub' },
+    } } })
+
+    await wrapper.vm.$nextTick()
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(animationFrames.length).toBeGreaterThan(0)
+
+    for (const callback of animationFrames.splice(0)) callback(performance.now())
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
+    expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?format=epub', expect.objectContaining({ credentials: 'same-origin' }))
+    resolveHydration({ ok: true, json: async () => ({
+      ...state,
+      items: [{ ...state.items[0], title: 'API item must not replace first paint' }],
+      formats: ['epub', 'pdf'],
+      smartViewCounts: { 'scanner-conflicts': 4 },
+      smartViewCountsPending: [],
+      savedCollections: [{ id: 9, name: 'Unread', count: 12, countPending: false }],
+    }) })
+
+    await vi.waitFor(() => expect(wrapper.get('select[name="format"]').findAll('option')).toHaveLength(3))
+    expect(wrapper.text()).toContain('Initial first-paint item')
+    expect(wrapper.text()).not.toContain('API item must not replace first paint')
+    expect(wrapper.get('.library-saved-collection-count').text()).toContain('12')
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows a pending marker instead of false zero review queue counts', () => {
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      surface: 'catalogue_api',
+      activeFilters: { ...state.activeFilters, scannerConflicts: '1' },
+      smartViewCounts: {},
+      smartViewCountsPending: ['scanner-conflicts'],
+    } } })
+
+    expect(wrapper.get('.library-review-queue-link b').text()).toBe('—')
+  })
+
+  it('does not display a pending saved collection count as zero', () => {
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      savedCollections: [{ id: 9, name: 'Unread', filters: { workflowStatus: 'unread' }, count: null, countPending: true }],
+    } } })
+
+    const collection = wrapper.get('.library-saved-collection-card')
+    expect(collection.text()).toContain('Unread')
+    expect(collection.text()).not.toContain('0 items')
+    expect(collection.get('.library-saved-collection-count').text()).toBe('—')
+  })
+
   it('renders server-backed Home rows independently from catalogue items', () => {
     const homeItem = {
       ...state.items[0],

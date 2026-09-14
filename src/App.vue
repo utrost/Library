@@ -721,6 +721,8 @@ function showDrawerItem(item) {
 const quickSearchInput = ref(null)
 let catalogueRequestGeneration = 0
 let catalogueRequestController = null
+let initialAuxiliaryHydrationController = null
+let initialAuxiliaryHydrationFrame = null
 const catalogueRequestState = reactive({ loading: false, error: '' })
 
 function buildFilterParams(form) {
@@ -810,12 +812,42 @@ async function fetchPublicationSuggestions(query, generation) {
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
   reconcileSelectedItems()
-  for (const key of ['shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'subjects', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'publicationSuggestionsUrl', 'creatorSuggestionsUrl', 'subjectSuggestionsUrl', 'yearSuggestionsUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
+  for (const key of ['shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'subjects', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'publicationSuggestionsUrl', 'creatorSuggestionsUrl', 'subjectSuggestionsUrl', 'yearSuggestionsUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'smartViewCountsPending', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
   }
   Object.assign(activeFilters, activeFilterDefaults, nextState.activeFilters || {})
+}
+
+async function hydrateInitialAuxiliaryState() {
+  if (catalogueState.surface !== 'index') return
+  const generation = catalogueRequestGeneration
+  const filterSnapshot = JSON.stringify({ ...activeFilters })
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(activeFilters)) {
+    const normalized = String(value || '').trim()
+    if (normalized !== '' && !(key === 'sort' && normalized === 'title') && !(key === 'view' && normalized === 'compact')) params.set(key, normalized)
+  }
+  const controller = new AbortController()
+  initialAuxiliaryHydrationController = controller
+  try {
+    const response = await fetch(`${catalogueEndpointUrl.value}${params.size ? `?${params}` : ''}`, {
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+      signal: controller.signal,
+    })
+    if (!response.ok) return
+    const nextState = await response.json()
+    if (generation !== catalogueRequestGeneration || filterSnapshot !== JSON.stringify({ ...activeFilters })) return
+    for (const key of ['shelves', 'formats', 'publicationTypes', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'scanStatuses', 'workflowStatuses', 'classifications', 'smartViewCounts', 'smartViewCountsPending', 'savedCollections']) {
+      if (Object.prototype.hasOwnProperty.call(nextState, key)) catalogueState[key] = nextState[key]
+    }
+  } catch (error) {
+    if (error?.name !== 'AbortError') return
+  } finally {
+    if (initialAuxiliaryHydrationController === controller) initialAuxiliaryHydrationController = null
+  }
 }
 
 async function fetchImportHealthSummary(refresh = false) {
@@ -1040,6 +1072,11 @@ function clearSearchUrl() {
 }
 
 const smartViewCounts = computed(() => catalogueState.smartViewCounts || {})
+const smartViewCountsPending = computed(() => new Set(catalogueState.smartViewCountsPending || []))
+function reviewQueueCount(countKey) {
+  if (smartViewCountsPending.value.has(countKey) || !Object.prototype.hasOwnProperty.call(smartViewCounts.value, countKey)) return '—'
+  return Number(smartViewCounts.value[countKey] || 0)
+}
 const currentSavableFilters = computed(() => {
   const filters = {}
   for (const [key, value] of Object.entries(activeFilters)) {
@@ -1271,6 +1308,10 @@ onMounted(() => {
   } else if (initialItemId !== null) {
     selectSidebarItem(initialItemId, { historyMode: 'none', seed: items.value.find((item) => Number(item.id) === initialItemId) || null })
   }
+  initialAuxiliaryHydrationFrame = window.requestAnimationFrame(() => {
+    initialAuxiliaryHydrationFrame = null
+    void hydrateInitialAuxiliaryState()
+  })
 })
 
 onBeforeUnmount(() => {
@@ -1287,6 +1328,9 @@ onBeforeUnmount(() => {
   subjectSuggestionController?.abort()
   yearSuggestionController?.abort()
   catalogueRequestGeneration += 1
+  if (initialAuxiliaryHydrationFrame !== null) window.cancelAnimationFrame(initialAuxiliaryHydrationFrame)
+  initialAuxiliaryHydrationFrame = null
+  initialAuxiliaryHydrationController?.abort()
   catalogueRequestController?.abort()
   catalogueRequestController = null
   sidebarRequestGeneration += 1
@@ -1384,7 +1428,7 @@ async function toggleStar(item, event) {
     <nav class="library-review-queues" :aria-label="t('library', 'Review queues')">
       <a v-for="queue in reviewQueues" :key="queue.key" class="library-review-queue-link" :class="{ active: queue.active }" :href="queue.href" :aria-current="queue.active ? 'page' : undefined" @click.prevent="selectReviewQueue(queue)">
         <span>{{ queue.label }}</span>
-        <b>{{ Number(smartViewCounts[queue.countKey] || 0) }}</b>
+        <b>{{ reviewQueueCount(queue.countKey) }}</b>
       </a>
     </nav>
     <form method="get" class="library-review-filter-form" :aria-label="t('library', 'Filter current review queue')" @submit.prevent="submitFiltersAjax">
@@ -1480,7 +1524,7 @@ async function toggleStar(item, event) {
         <label data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
         <nav class="library-view-mode-toggle" data-library-control="view" :aria-label="t('library', 'View')"><button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button><button type="button" data-library-view-mode="gallery" :class="{ active: viewMode === 'gallery' }" :aria-pressed="viewMode === 'gallery' ? 'true' : 'false'" @click="setViewMode('gallery')">{{ t('library', 'Gallery') }}</button><button type="button" data-library-view-mode="list" :class="{ active: viewMode === 'list' }" :aria-pressed="viewMode === 'list' ? 'true' : 'false'" @click="setViewMode('list')">{{ t('library', 'List') }}</button><button type="button" data-library-view-mode="shelf" :class="{ active: viewMode === 'shelf' }" :aria-pressed="viewMode === 'shelf' ? 'true' : 'false'" @click="setViewMode('shelf')">{{ t('library', 'Shelf') }}</button></nav>
       </form>
-      <section id="library-collections" class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form><nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')"><article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card"><a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)"><strong>{{ collection.name }}</strong><span>{{ n('library', '%n item', '%n items', Number(collection.count || 0)) }}</span></a><form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form"><input type="hidden" name="requesttoken" :value="requestToken"><button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button></form></article></nav></section>
+      <section id="library-collections" class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form><nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')"><article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card"><a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)"><strong>{{ collection.name }}</strong><span class="library-saved-collection-count">{{ collection.countPending ? '—' : n('library', '%n item', '%n items', Number(collection.count || 0)) }}</span></a><form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form"><input type="hidden" name="requesttoken" :value="requestToken"><button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button></form></article></nav></section>
 
       <details v-if="selectedItemIds.length > 0" class="library-workspace-panel library-workspace-panel--batch library-batch-actions" data-workspace-panel="batch" :aria-label="t('library', 'Batch actions for selected publications')">
         <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">✓</span><span class="library-workspace-panel-title" :title="t('library', 'Batch actions for selected publications')">{{ t('library', 'Batch actions') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Batch actions for selected publications') }}</small><b class="library-workspace-scope-badge">{{ n('library', '%n publication selected', '%n publications selected', selectedItemIds.length) }}</b></summary>
