@@ -57,7 +57,8 @@ def test_subjects_classifications_are_visible_editable_filterable_and_not_genres
     assert "Classifications" in detail
     assert 'name="classifications"' in detail
     assert "Subject" in vue
-    assert "All subjects" in vue
+    assert 'name="subjectSearch"' in vue
+    assert 'select v-model="activeFilters.subject" name="subject"' not in vue
     assert "Genre" not in vue
     assert "genres" not in vue
     assert "activeFilters.genre" not in vue

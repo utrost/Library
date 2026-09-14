@@ -1483,7 +1483,8 @@ final class ItemService {
             // creator facet is high-cardinality and needlessly fans out every
             // catalogue request, including the initial page load.
             'creators' => [],
-            'subjects' => $this->indexedFacetValues($userId, 'subject'),
+            // High-cardinality subjects are fetched on demand from the facet index.
+            'subjects' => [],
             'classifications' => $this->indexedFacetValues($userId, 'classification'),
             'scanStatuses' => $this->scanStatusFacetValues($userId, $facetFilters['scanStatuses']),
             'workflowStatuses' => $this->distinctCatalogueValues($userId, $facetFilters['workflowStatuses'], 'i.workflow_status', 'value'),
@@ -1757,6 +1758,32 @@ final class ItemService {
         }
         $result->closeCursor();
         return $creators;
+    }
+
+    /** @return array<int, string> */
+    public function subjectSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
+        unset($filters['subject']);
+        $query = mb_strtolower(trim($query));
+        if (mb_strlen($query) < 2 || $limit < 1) return [];
+        $limit = min($limit, 20);
+
+        $qb = $this->catalogueFilteredQueryBuilder($userId, $filters);
+        $qb->innerJoin('i', 'library_item_facets', 'subject_suggestion', $qb->expr()->eq('subject_suggestion.item_id', 'i.id'));
+        $result = $qb->selectAlias($qb->createFunction('subject_suggestion.facet_value'), 'subject')
+            ->andWhere($qb->expr()->eq('subject_suggestion.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('subject_suggestion.facet_type', $qb->createNamedParameter('subject')))
+            ->andWhere($qb->expr()->like('subject_suggestion.normalized_value', $qb->createNamedParameter($this->escapeLikeParameter($query) . '%')))
+            ->groupBy('subject')
+            ->orderBy('subject', 'ASC')
+            ->setMaxResults($limit)
+            ->executeQuery();
+        $subjects = [];
+        while ($row = $result->fetch()) {
+            $subject = trim((string)($row['subject'] ?? ''));
+            if ($subject !== '') $subjects[] = $subject;
+        }
+        $result->closeCursor();
+        return $subjects;
     }
 
     /** @return array<int, string> */

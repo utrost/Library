@@ -281,15 +281,82 @@ describe('Library catalogue Vue app', () => {
     expect(filters.get('input[name="publicationSearch"]').exists()).toBe(true)
     expect(filters.get('input[name="yearSearch"]').exists()).toBe(true)
     expect(filters.get('input[name="creatorSearch"]').exists()).toBe(true)
+    expect(filters.get('input[name="subjectSearch"]').attributes('role')).toBe('combobox')
+    expect(filters.get('input[name="subjectSearch"]').attributes('title')).toBe('Exact subject matches only')
+    expect(filters.get('input[type="hidden"][name="subject"]').exists()).toBe(true)
     expect(filters.get('select[name="format"]').exists()).toBe(true)
     expect(filters.get('select[name="status"]').exists()).toBe(true)
-    expect(filters.get('select[name="subject"]').text()).toContain('All subjects')
-    expect(filters.get('select[name="subject"]').text()).toContain('History')
+    expect(filters.find('select[name="subject"]').exists()).toBe(false)
     expect(filters.find('select[name="genre"]').exists()).toBe(false)
     expect(wrapper.find('#library-catalogue form.library-filter-bar').exists()).toBe(false)
     expect(wrapper.find('#library-catalogue [data-library-control="filter"]').exists()).toBe(false)
     expect(wrapper.find('#library-catalogue [data-library-control="sort"]').exists()).toBe(true)
     expect(wrapper.find('#library-catalogue [data-library-control="view"]').exists()).toBe(true)
+  })
+
+  it('applies a manually typed exact subject without requiring a suggestion', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, subject: 'Social history' } }),
+    })
+    const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+
+    await wrapper.get('input[name="subjectSearch"]').setValue(' Social history ')
+    await wrapper.get('.library-subject-apply').trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?subject=Social+history',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+  })
+
+  it('does not request subject suggestions until two trimmed characters are entered', async () => {
+    global.fetch = vi.fn()
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      subjectSuggestionsUrl: '/apps/library/catalogue/subject-suggestions',
+    } } })
+
+    const input = wrapper.get('input[name="subjectSearch"]')
+    await input.setValue(' h ')
+    await new Promise((resolve) => window.setTimeout(resolve, 250))
+    expect(global.fetch).not.toHaveBeenCalled()
+
+    await input.setValue(' hi ')
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue/subject-suggestions?subjectSearch=hi',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ), { timeout: 1000 })
+  })
+
+  it('fetches and applies an exact subject suggestion while preserving other filters', async () => {
+    global.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ subjects: ['Social history', 'History of science'] }) })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ...state, activeFilters: { ...state.activeFilters, subject: 'Social history', format: 'epub' } }),
+      })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      subjectSuggestionsUrl: '/apps/library/catalogue/subject-suggestions',
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, subject: '', format: 'epub' },
+    } } })
+
+    const input = wrapper.get('input[name="subjectSearch"]')
+    await input.trigger('focus')
+    await input.setValue('hist')
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue/subject-suggestions?format=epub&subjectSearch=hist',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ), { timeout: 1000 })
+    await vi.waitFor(() => expect(wrapper.findAll('.library-subject-suggestion')).toHaveLength(2))
+    await wrapper.findAll('.library-subject-suggestion')[0].trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenLastCalledWith(
+      '/apps/library/catalogue?format=epub&subject=Social+history',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
   })
 
   it('preserves active hidden catalogue constraints when applying sidebar filters', async () => {
