@@ -67,7 +67,7 @@ def test_weak_metadata_dashboard_keeps_cards_browse_first_and_uses_counts_from_c
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
 
     assert "weakMetadataDashboardRows" in source
-    assert "smartViewCounts[queue.countKey]" in source
+    assert "reviewQueueCount(queue.countKey)" in source
     assert "library-review-queues" in source
     assert "<small>{{ t('library', row.description) }}</small>" not in source
     assert "$this->countCatalogue($userId, $filters)" in service

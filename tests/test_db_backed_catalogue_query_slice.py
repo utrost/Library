@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_item_service_exposes_db_backed_catalogue_query_result():
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
 
-    assert "public function queryCatalogue(string $userId, array $filters, array $pagination): array" in service
+    assert "public function queryCatalogue(string $userId, array $filters, array $pagination, bool $includeFacets = true): array" in service
     assert "private function catalogueQueryBuilder(string $userId" in service
     assert "private function countCatalogueItems(string $userId, array $filters): int" in service
     assert "private function catalogueFacets(string $userId, array $filters): array" in service
@@ -22,7 +22,7 @@ def test_item_service_exposes_db_backed_catalogue_query_result():
 def test_page_controller_no_longer_filters_sorts_or_slices_catalogue_in_memory():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
 
-    assert "queryCatalogue($userId, $activeFilters, $pagination)" in page
+    assert "queryCatalogue($userId, $activeFilters, $pagination, $includeFacets)" in page
     assert "fileIdsForExactVisibleTag" in page
     assert "filterItemsForPresentation" not in page
     assert "sortItemsForPresentation" not in page

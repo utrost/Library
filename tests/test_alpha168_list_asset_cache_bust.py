@@ -26,8 +26,8 @@ def test_list_view_asset_path_is_cache_busted_after_alpha168_deploy():
 
     assert script != "library-main-0-1-0-alpha-168"
     assert style != "library-vue-0-1-0-alpha-168"
-    assert script == "library-main-0-1-0-alpha-168-subjecttypeahead"
-    assert style == "library-vue-0-1-0-alpha-168-subjecttypeahead"
+    assert script == "library-main-0-1-0-alpha-168-initialhydrate"
+    assert style == "library-vue-0-1-0-alpha-168-initialhydrate"
     assert f'data-library-main-script="{script}"' in read("templates/main.php")
     assert (ROOT / f"js/{script}.mjs").exists()
     assert (ROOT / f"css/{style}.css").exists()

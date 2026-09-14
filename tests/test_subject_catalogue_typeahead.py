@@ -65,7 +65,7 @@ def test_subject_typeahead_uses_a_fresh_immutable_asset_basename():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     template = (ROOT / "templates" / "main.php").read_text()
 
-    assert "-subjecttypeahead`" in build
-    assert "library-main-0-1-0-alpha-168-subjecttypeahead" in controller
-    assert "library-vue-0-1-0-alpha-168-subjecttypeahead" in controller
-    assert 'data-library-main-script="library-main-0-1-0-alpha-168-subjecttypeahead"' in template
+    assert "-initialhydrate`" in build
+    assert "library-main-0-1-0-alpha-168-initialhydrate" in controller
+    assert "library-vue-0-1-0-alpha-168-initialhydrate" in controller
+    assert 'data-library-main-script="library-main-0-1-0-alpha-168-initialhydrate"' in template

@@ -57,7 +57,7 @@ def test_count_only_scanner_conflicts_retain_visible_catalogue_conflict_semantic
     )
     visible_conflicts = method_body(
         service,
-        "private function queryScannerConflictCatalogue(string $userId, array $filters, int $offset, int $limit): array",
+        "private function queryScannerConflictCatalogue(string $userId, array $filters, int $offset, int $limit, bool $includeFacets = true): array",
         "private function itemHasScannerConflict",
     )
 
@@ -86,7 +86,7 @@ def test_ordinary_catalogue_state_skips_expensive_scanner_conflict_badge_count()
     catalogue_state = page.split("private function buildCatalogueState", 1)[1]
 
     assert "$this->itemService->smartViewCounts($userId, false)" in catalogue_state
-    assert "'smartViewCountsPending' => ['scanner-conflicts']" in catalogue_state
+    assert "'smartViewCountsPending' => $smartViewCountsPending" in catalogue_state
     assert "'reviewUrl' => $catalogueRootUrl . '?scannerConflicts=1'" in catalogue_state
     assert "if (!$includeScannerConflicts && $key === 'scanner-conflicts')" in smart_counts
     assert "$this->countCatalogue($userId, $filters)" in smart_counts
