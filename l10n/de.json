@@ -568,6 +568,15 @@
     "Browse the folders that organize your publications.": "Durchsuche die Ordner, die deine Publikationen ordnen.",
     "Your enabled Library roots will appear as shelves.": "Deine aktivierten Bibliotheksquellen erscheinen als Regale.",
     "Needs attention": "Aufmerksamkeit erforderlich",
+    "This scan is still queued and no background worker has started it yet.": "Dieser Scan wartet noch; bisher wurde er von keinem Hintergrundprozess gestartet.",
+    "Queued — waiting for the Nextcloud background worker.": "Eingereiht — wartet auf den Nextcloud-Hintergrundprozess.",
+    "Running, but progress is stale.": "Läuft, aber der Fortschritt ist veraltet.",
+    "Running — scan progress is updating.": "Läuft — der Scanfortschritt wird aktualisiert.",
+    "Queued for": "Wartet seit",
+    "seconds": "Sekunden",
+    "Worker started at": "Hintergrundprozess gestartet um",
+    "Last progress at": "Letzter Fortschritt um",
+    "Current path": "Aktueller Pfad",
     "_%n publication_::_%n publications_": [
       "%n Publikation",
       "%n Publikationen"

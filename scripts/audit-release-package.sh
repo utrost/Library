@@ -76,6 +76,7 @@ required = {
     f"{top}/templates/main.php",
     f"{top}/js/{vue_script_asset}.mjs",
     f"{top}/css/{vue_style_asset}.css",
+    f"{top}/bin/nextcloud-background-worker.sh",
     f"{top}/README.md",
     f"{top}/LICENSE",
     f"{top}/CHANGELOG.md",
@@ -114,7 +115,7 @@ allowed_root_files = {"README.md", "LICENSE", "CHANGELOG.md"}
 allowed_frontend_files = {
     "css/style.css", f"css/{vue_style_asset}.css",
     "js/library-detail.js", f"js/{vue_script_asset}.mjs",
-    "js/library-shell.js", "js/scan-progress.js", "js/settings-operations.js", "js/settings-folder-picker-dialog.js",
+    "js/library-shell.js", "js/scan-progress-worker.js", "js/settings-operations.js", "js/settings-folder-picker-dialog.js",
 }
 max_package_frontend_bytes = 1_200_000
 errors: list[str] = []
@@ -174,6 +175,9 @@ with tarfile.open(archive, "r:gz") as tar:
             errors.append(f"entry outside top-level app directory: {name}")
         if len(path.parts) == 2 and path.parts[0] == top and not member.isdir() and path.name not in allowed_root_files:
             errors.append(f"unlisted root-level package file: {name}")
+        elif member.isfile() and len(path.parts) >= 3 and path.parts[0] == top and path.parts[1] == "bin" and path.name == "nextcloud-background-worker.sh":
+            if member.mode & 0o111 == 0:
+                errors.append(f"worker helper is not executable in package: {name}")
         if member.isfile() and path.suffix == ".map":
             errors.append(f"production source map forbidden: {name}")
         if member.isfile() and len(path.parts) >= 3 and path.parts[0] == top and path.parts[1] in {"js", "css"}:

@@ -10,7 +10,7 @@ The remediation gates were rerun on 2026-09-11. The authoritative command result
 
 ## Release boundary
 
-The active budget measures the current versioned browser entry and recursively validated relative chunk closure. The total-package budget recursively measures every file below `library/js` and `library/css`; the exact shipped manifest permits only the current versioned Vue JS/CSS, `style.css`, `library-detail.js`, `library-shell.js`, and `scan-progress.js`. Nested/unlisted files, historical versioned assets, unversioned build aliases, orphan chunks, and production source maps are excluded and rejected.
+The active budget measures the current versioned browser entry and recursively validated relative chunk closure. The total-package budget recursively measures every file below `library/js` and `library/css`; the exact shipped manifest permits only the current versioned Vue JS/CSS, `style.css`, `library-detail.js`, `library-shell.js`, and `scan-progress-worker.js`. Nested/unlisted files, historical versioned assets, unversioned build aliases, orphan chunks, and production source maps are excluded and rejected.
 
 Module closure rejects bare, absolute, browser-URL, and non-literal dynamic specifiers. There is currently no browser-URL exception; adding one requires an explicit allowlist and independent validation.
 

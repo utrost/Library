@@ -22,7 +22,7 @@ def test_scan_jobs_persist_metadata_error_counter_separately_from_root_failures(
 
 def test_settings_scan_summary_survives_reload_with_completion_or_failure_notice():
     template = read("templates/settings-personal.php")
-    scan_js = read("js/scan-progress.js")
+    scan_js = read("js/scan-progress-worker.js")
     smoke = read("scripts/smoke-vue-page.mjs")
 
     assert "library-scan-completion-summary" in template
