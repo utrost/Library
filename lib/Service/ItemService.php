@@ -11,6 +11,7 @@ use OCP\IDBConnection;
 
 final class ItemService {
     private const PUBLICATION_FACET_LIMIT = 100;
+    private const MULTI_VALUE_FACET_LIMIT = 200;
     private const BULK_ITEM_LIMIT = 5000;
 
     private const CATALOGUE_INTERNAL_COLUMNS = [
@@ -142,17 +143,22 @@ final class ItemService {
         $existing = $this->findByLibraryFileId($userId, (int)$file['id']);
         $itemId = $existing !== null ? (int)$existing['id'] : 0;
         if ($itemId > 0) {
+            $this->refreshItemFacetIndex($userId, $itemId, $metadataCandidate['subjects'], $metadataCandidate['classifications']);
             $this->syncItemIdentifiers($userId, $itemId, IdentifierService::normalizeIdentifierList($metadataCandidate['identifiers'] ?? [], $metadataCandidate['metadataSource'], false));
         }
     }
 
     public function deleteItemForLibraryFile(string $userId, int $libraryFileId): void {
+        $existing = $this->findByLibraryFileId($userId, $libraryFileId);
         $qb = $this->db->getQueryBuilder();
         $qb->delete('library_items')
             ->where($qb->expr()->eq('library_file_id', $qb->createNamedParameter($libraryFileId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('user_edited', $qb->createNamedParameter(0)))
             ->executeStatement();
+        if ($existing !== null && !(bool)$existing['user_edited']) {
+            $this->deleteItemFacetIndex($userId, (int)$existing['id']);
+        }
     }
 
     public function hasUserEditedItemForLibraryFile(string $userId, int $libraryFileId): bool {
@@ -195,6 +201,7 @@ final class ItemService {
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
+        $this->deleteItemFacetIndex($userId, $itemId);
 
         $qb = $this->db->getQueryBuilder();
         $qb->delete('library_files')
@@ -214,7 +221,7 @@ final class ItemService {
         $existingProvenance = $this->existingFieldProvenance($userId, $itemId);
 
         $qb = $this->db->getQueryBuilder();
-        $qb->update('library_items')
+        $affected = $qb->update('library_items')
             ->set('publication_type', $qb->createNamedParameter($publicationType))
             ->set('title', $qb->createNamedParameter($title))
             ->set('subtitle', $qb->createNamedParameter($this->nullableString($metadata['subtitle'] ?? null)))
@@ -236,6 +243,14 @@ final class ItemService {
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
 
+        if ($affected > 0) {
+            $this->refreshItemFacetIndex(
+                $userId,
+                $itemId,
+                $this->normalizeMultiValueField($metadata['subjects'] ?? []),
+                $this->normalizeMultiValueField($metadata['classifications'] ?? [])
+            );
+        }
         $this->syncItemIdentifiers($userId, $itemId, IdentifierService::normalizeIdentifierList($metadata['identifiers'] ?? [], 'user', true));
     }
 
@@ -1435,7 +1450,7 @@ final class ItemService {
             $qb->leftJoin('i', 'library_item_identifiers', 'idn', $qb->expr()->eq('idn.item_id', 'i.id'));
         }
 
-        $this->applyCatalogueFilters($qb, $filters);
+        $this->applyCatalogueFilters($qb, $userId, $filters);
         return $qb;
     }
 
@@ -1468,8 +1483,8 @@ final class ItemService {
             // creator facet is high-cardinality and needlessly fans out every
             // catalogue request, including the initial page load.
             'creators' => [],
-            'subjects' => [],
-            'classifications' => [],
+            'subjects' => $this->indexedFacetValues($userId, 'subject'),
+            'classifications' => $this->indexedFacetValues($userId, 'classification'),
             'scanStatuses' => $this->scanStatusFacetValues($userId, $facetFilters['scanStatuses']),
             'workflowStatuses' => $this->distinctCatalogueValues($userId, $facetFilters['workflowStatuses'], 'i.workflow_status', 'value'),
         ];
@@ -1771,34 +1786,24 @@ final class ItemService {
     /**
      * @return array<int, string>
      */
-    private function subjectFacetValues(string $userId, array $filters): array {
-        return $this->multiValueFacetValues($userId, $filters, 'subjects_json');
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function classificationFacetValues(string $userId, array $filters): array {
-        return $this->multiValueFacetValues($userId, $filters, 'classifications_json');
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function multiValueFacetValues(string $userId, array $filters, string $column): array {
-        $qb = $this->catalogueFilteredQueryBuilder($userId, $filters);
-        $result = $qb->select($column)
+    private function indexedFacetValues(string $userId, string $facetType): array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->selectAlias($qb->createFunction('MIN(facet.facet_value)'), 'facet_value')
+            ->from('library_item_facets', 'facet')
+            ->where($qb->expr()->eq('facet.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('facet.facet_type', $qb->createNamedParameter($facetType)))
+            ->groupBy('facet.normalized_value')
+            ->orderBy('facet_value', 'ASC')
+            ->setMaxResults(self::MULTI_VALUE_FACET_LIMIT)
             ->executeQuery();
 
         $values = [];
         while ($row = $result->fetch()) {
-            foreach ($this->decodeJsonList($row[$column] ?? null) as $value) {
-                $values[$value] = true;
-            }
+            $value = trim((string)($row['facet_value'] ?? ''));
+            if ($value !== '') $values[] = $value;
         }
         $result->closeCursor();
-        ksort($values, SORT_NATURAL | SORT_FLAG_CASE);
-        return array_keys($values);
+        return $values;
     }
 
     /**
@@ -1830,7 +1835,7 @@ final class ItemService {
         return $this->distinctCatalogueValues($userId, $filters, 'f.scan_status', 'value');
     }
 
-    private function applyCatalogueFilters(IQueryBuilder $qb, array $filters): void {
+    private function applyCatalogueFilters(IQueryBuilder $qb, string $userId, array $filters): void {
         $type = trim((string)($filters['type'] ?? ''));
         if ($type !== '') {
             $qb->andWhere($qb->expr()->eq('i.publication_type', $qb->createNamedParameter($this->normalizePublicationType($type))));
@@ -1865,12 +1870,12 @@ final class ItemService {
 
         $subject = trim((string)($filters['subject'] ?? ''));
         if ($subject !== '') {
-            $qb->andWhere($this->jsonArrayContainsFilter($qb, 'i.subjects_json', $subject));
+            $qb->andWhere($this->indexedFacetFilter($qb, $userId, 'subject', $subject));
         }
 
         $classification = trim((string)($filters['classification'] ?? ''));
         if ($classification !== '') {
-            $qb->andWhere($this->jsonArrayContainsFilter($qb, 'i.classifications_json', $classification));
+            $qb->andWhere($this->indexedFacetFilter($qb, $userId, 'classification', $classification));
         }
 
         $status = trim((string)($filters['status'] ?? ''));
@@ -2023,10 +2028,15 @@ final class ItemService {
         }
     }
 
-    private function jsonArrayContainsFilter(IQueryBuilder $qb, string $column, string $value): string {
-        $normalized = $this->normalizeMultiValueField([$value]);
-        $encoded = json_encode($normalized[0] ?? '', JSON_THROW_ON_ERROR);
-        return $qb->expr()->like($column, $qb->createNamedParameter('%' . $this->escapeLikeParameter($encoded) . '%'));
+    private function indexedFacetFilter(IQueryBuilder $qb, string $userId, string $facetType, string $value) {
+        $normalized = mb_strtolower(mb_substr(trim($value), 0, 255));
+        $alias = $facetType === 'subject' ? 'subject_filter' : 'classification_filter';
+        $qb->innerJoin('i', 'library_item_facets', $alias, $qb->expr()->eq($alias . '.item_id', 'i.id'));
+        return $qb->expr()->andX(
+            $qb->expr()->eq($alias . '.user_id', $qb->createNamedParameter($userId)),
+            $qb->expr()->eq($alias . '.facet_type', $qb->createNamedParameter($facetType)),
+            $qb->expr()->eq($alias . '.normalized_value', $qb->createNamedParameter($normalized))
+        );
     }
 
     private function applyCatalogueSort(IQueryBuilder $qb, string $sort): void {
@@ -2136,7 +2146,76 @@ final class ItemService {
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
+        $this->refreshItemFacetIndex($userId, $itemId, $metadataCandidate['subjects'], $metadataCandidate['classifications']);
         $this->syncItemIdentifiers($userId, $itemId, IdentifierService::normalizeIdentifierList($metadataCandidate['identifiers'] ?? [], $metadataCandidate['metadataSource'], false));
+    }
+
+    /**
+     * Replace the derived subject/classification rows for one item.
+     *
+     * @param array<int, string> $subjects
+     * @param array<int, string> $classifications
+     */
+    public function refreshItemFacetIndex(string $userId, int $itemId, array $subjects, array $classifications): void {
+        $this->deleteItemFacetIndex($userId, $itemId);
+        foreach (['subject' => $subjects, 'classification' => $classifications] as $facetType => $values) {
+            foreach ($this->normalizeMultiValueField($values) as $value) {
+                $facetValue = mb_substr($value, 0, 255);
+                $qb = $this->db->getQueryBuilder();
+                $qb->insert('library_item_facets')
+                    ->values([
+                        'user_id' => $qb->createNamedParameter($userId),
+                        'item_id' => $qb->createNamedParameter($itemId),
+                        'facet_type' => $qb->createNamedParameter($facetType),
+                        'facet_value' => $qb->createNamedParameter($facetValue),
+                        'normalized_value' => $qb->createNamedParameter(mb_strtolower($facetValue)),
+                    ])
+                    ->executeStatement();
+            }
+        }
+    }
+
+    private function deleteItemFacetIndex(string $userId, int $itemId): void {
+        $qb = $this->db->getQueryBuilder();
+        $qb->delete('library_item_facets')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('item_id', $qb->createNamedParameter($itemId)))
+            ->executeStatement();
+    }
+
+    /** Rebuild all derived rows for a user while reading source items in bounded batches. */
+    public function rebuildFacetIndex(string $userId, int $limit = 500): int {
+        $userId = trim($userId);
+        if ($userId === '') {
+            throw new \InvalidArgumentException('A user ID is required.');
+        }
+        $limit = max(1, min(5000, $limit));
+        $lastId = 0;
+        $rebuilt = 0;
+        do {
+            $qb = $this->db->getQueryBuilder();
+            $result = $qb->select('id', 'subjects_json', 'classifications_json')
+                ->from('library_items')
+                ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+                ->andWhere($qb->expr()->gt('id', $qb->createNamedParameter($lastId)))
+                ->orderBy('id', 'ASC')
+                ->setMaxResults($limit)
+                ->executeQuery();
+            $batch = [];
+            while ($row = $result->fetch()) $batch[] = $row;
+            $result->closeCursor();
+            foreach ($batch as $row) {
+                $lastId = (int)$row['id'];
+                $this->refreshItemFacetIndex(
+                    $userId,
+                    $lastId,
+                    $this->decodeJsonList($row['subjects_json'] ?? null),
+                    $this->decodeJsonList($row['classifications_json'] ?? null)
+                );
+                $rebuilt++;
+            }
+        } while (count($batch) === $limit);
+        return $rebuilt;
     }
 
 

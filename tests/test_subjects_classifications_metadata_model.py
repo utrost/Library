@@ -48,7 +48,8 @@ def test_subjects_classifications_are_visible_editable_filterable_and_not_genres
     assert "i.subjects_json" in service
     assert "i.genres_json" not in service
     assert "i.classifications_json" in service
-    assert "jsonArrayContainsFilter" in service
+    assert "indexedFacetFilter" in service
+    assert "jsonArrayContainsFilter" not in service
     assert "Subjects" in detail
     assert 'name="subjects[]"' in detail
     assert "Genre" not in detail
@@ -81,9 +82,9 @@ def test_subjects_classifications_roundtrip_through_import_export_and_filter_fac
     assert "normalizeMultiValueField" in changed_block
     apply_block = service.split("public function applyCorrectedMetadataImport", 1)[1].split("/**", 1)[0]
     assert "updateItem($userId, (int)$current['id'], $importItem)" in apply_block
-    assert "subjectFacetValues" in service
+    assert "indexedFacetValues" in service
     assert "genreFacetValues" not in service
-    assert "classificationFacetValues" in service
+    assert "library_item_facets" in service
     assert '"smoke:subjects"' in package
     assert "subjects_classifications_smoke_ok=true" in smoke
     assert "genres_json" not in smoke

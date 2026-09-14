@@ -2,6 +2,20 @@
 <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/database.xsd">
     <table>
+        <name>*dbprefix*library_item_facets</name>
+        <declaration>
+            <field><name>id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull><autoincrement>true</autoincrement></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>item_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <field><name>facet_type</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>facet_value</name><type>string</type><length>255</length><notnull>true</notnull></field>
+            <field><name>normalized_value</name><type>string</type><length>255</length><notnull>true</notnull></field>
+            <index><name>library_facets_id</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>library_facets_lookup</name><field><name>user_id</name></field><field><name>facet_type</name></field><field><name>normalized_value</name></field></index>
+            <index><name>library_facets_item_unique</name><unique>true</unique><field><name>item_id</name></field><field><name>facet_type</name></field><field><name>normalized_value</name></field></index>
+        </declaration>
+    </table>
+    <table>
         <name>*dbprefix*library_roots</name>
         <declaration>
             <field>
