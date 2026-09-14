@@ -369,6 +369,8 @@ Each user configures their own Library roots. There is no polished global root p
 
 Library scan jobs currently expose progress/history, status, scope, indexed counts, error counts, duration and summary. **Cancel queued scan** is available before a job starts, and **Cancel scan** is available for running jobs; running-job cancellation is cooperative and stops at the next scan progress checkpoint. Scheduled scan UI and notification flow remain future work.
 
+In the Docker development/deploy setup, `bin/nextcloud-background-worker.sh` runs the general Nextcloud background worker inside the `nextcloud` container as `www-data`, with unlimited PHP memory, a host-side non-overlap lock, and a bounded five-minute lifetime. It is safe to invoke repeatedly from cron/schedulers and consumes the normal Nextcloud queue rather than one manually selected `oc_jobs` ID. Use Nextcloud cron or a supervisor/scheduled loop for continuous deployments; a queued scan warning means no worker has started that Library job yet.
+
 **Retry metadata errors** and **Recheck missing files** follow current enabled-root scope. Their reported root total is the number of enabled roots when the repair operation starts, rather than the historical roots attached to queued rows. A stable-ID file moved within an enabled root, or into another enabled root, can be repaired without losing identity. A file observed outside every enabled root stays missing and is not restored to the active catalogue; disabled roots do not qualify.
 
 ### Import health

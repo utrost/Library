@@ -58,7 +58,7 @@ Alpha.154 adds aggregate operation instrumentation and bounded scan progress/can
 
 Ordinary trusted rescans now avoid repeating metadata content extraction and catalogue-item writes when an indexed file already has an item and its current pipeline revision plus primary/selected-OPF identity, path, ETag, modification time, size and type fingerprint are unchanged. Weak or unavailable storage-provider signals fall back to extraction. This is a conservative correctness optimization; the new instrumentation does not establish a measured speedup.
 
-Run local checks:
+Run local checks (for Docker dev/deploy, `bin/nextcloud-background-worker.sh` runs the general Nextcloud background worker for a safe, repeatable five-minute interval):
 
 ```bash
 npm run check

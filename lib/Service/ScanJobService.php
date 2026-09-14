@@ -10,6 +10,7 @@ use Throwable;
 
 final class ScanJobService {
     public const STALE_RUNNING_AFTER_SECONDS = 15 * 60;
+    public const QUEUED_TOO_LONG_AFTER_SECONDS = 60;
     private const CURRENT_PATH_MAX_LENGTH = 1024;
 
     public function __construct(
@@ -309,6 +310,14 @@ final class ScanJobService {
         };
         $heartbeat = $row['last_progress_at'] ?? $row['run_started_at'] ?? $row['started_at'];
         $staleSeconds = $isStale ? max(0, time() - (int)$heartbeat) : 0;
+        $queuedSeconds = match (true) {
+            $status === 'queued' => max(0, time() - $startedAt),
+            $runStartedAt !== null => max(0, $runStartedAt - $startedAt),
+            default => 0,
+        };
+        $isQueuedTooLong = $status === 'queued'
+            && $runStartedAt === null
+            && $queuedSeconds >= self::QUEUED_TOO_LONG_AFTER_SECONDS;
         return [
             'id' => (int)$row['id'],
             'userId' => (string)$row['user_id'],
@@ -334,6 +343,9 @@ final class ScanJobService {
             'currentPath' => isset($row['current_path']) && $row['current_path'] !== null ? (string)$row['current_path'] : '',
             'durationMs' => $durationMs,
             'durationSeconds' => intdiv($durationMs, 1000),
+            'queuedSeconds' => $queuedSeconds,
+            'isQueuedTooLong' => $isQueuedTooLong,
+            'queueWarning' => $isQueuedTooLong ? 'waiting_for_nextcloud_background_worker' : '',
             'isStale' => $isStale,
             'staleAfterSeconds' => self::STALE_RUNNING_AFTER_SECONDS,
             'staleSeconds' => $staleSeconds,

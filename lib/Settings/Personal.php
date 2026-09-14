@@ -28,7 +28,7 @@ class Personal implements ISettings {
     #[\Override]
     public function getForm(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
-        Util::addScript(Application::APP_ID, 'scan-progress');
+        Util::addScript(Application::APP_ID, 'scan-progress-worker');
         Util::addScript(Application::APP_ID, 'settings-operations');
         Util::addScript(Application::APP_ID, 'settings-folder-picker-dialog');
 

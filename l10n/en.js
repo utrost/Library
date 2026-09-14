@@ -569,6 +569,15 @@ OC.L10N.register(
         "Browse the folders that organize your publications.": "Browse the folders that organize your publications.",
         "Your enabled Library roots will appear as shelves.": "Your enabled Library roots will appear as shelves.",
         "Needs attention": "Needs attention",
+        "This scan is still queued and no background worker has started it yet.": "This scan is still queued and no background worker has started it yet.",
+        "Queued — waiting for the Nextcloud background worker.": "Queued — waiting for the Nextcloud background worker.",
+        "Running, but progress is stale.": "Running, but progress is stale.",
+        "Running — scan progress is updating.": "Running — scan progress is updating.",
+        "Queued for": "Queued for",
+        "seconds": "seconds",
+        "Worker started at": "Worker started at",
+        "Last progress at": "Last progress at",
+        "Current path": "Current path",
         "_%n publication_::_%n publications_": [
             "%n publication",
             "%n publications"

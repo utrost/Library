@@ -155,13 +155,25 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             </form>
         </div>
 
-        <section class="library-scan-progress" aria-labelledby="library-scan-progress-heading" data-library-scan-progress-url="<?php p($_['scanProgressUrl']); ?>">
+        <section class="library-scan-progress" aria-labelledby="library-scan-progress-heading" data-library-scan-progress-url="<?php p($_['scanProgressUrl']); ?>" data-library-scan-queued-text="<?php p($l->t('Queued — waiting for the Nextcloud background worker.')); ?>" data-library-scan-queued-warning-text="<?php p($l->t('This scan is still queued and no background worker has started it yet.')); ?>" data-library-scan-running-text="<?php p($l->t('Running — scan progress is updating.')); ?>" data-library-scan-stale-text="<?php p($l->t('Running, but progress is stale.')); ?>" data-library-scan-completed-text="<?php p($l->t('Scan completed')); ?>" data-library-scan-failed-text="<?php p($l->t('Scan failed')); ?>">
             <h3 id="library-scan-progress-heading"><?php p($l->t('Scan progress')); ?></h3>
             <p><strong><?php p($l->t('All found publications')); ?>:</strong> <span data-library-total-publications><?php p((string)($_['totalPublications'] ?? 0)); ?></span></p>
             <?php if ($latestScanJob === null): ?>
                 <p class="library-muted"><?php p($l->t('No scan job has run yet.')); ?></p>
             <?php else: ?>
                 <p class="library-muted"><?php p($l->t('Scan counts update automatically while the background job is running; scan progress updates while the background job is running.')); ?></p>
+                <?php
+                $formatScanTimestamp = static fn($value): string => $value !== null && $value !== '' ? date('Y-m-d H:i', (int)$value) : '—';
+                $scanStatus = (string)($latestScanJob['status'] ?? '');
+                $scanStateMessage = match (true) {
+                    $scanStatus === 'queued' && ($latestScanJob['isQueuedTooLong'] ?? false) => $l->t('This scan is still queued and no background worker has started it yet.'),
+                    $scanStatus === 'queued' => $l->t('Queued — waiting for the Nextcloud background worker.'),
+                    $scanStatus === 'running' && ($latestScanJob['isStale'] ?? false) => $l->t('Running, but progress is stale.'),
+                    $scanStatus === 'running' => $l->t('Running — scan progress is updating.'),
+                    default => '',
+                };
+                ?>
+                <p data-library-scan-state-message aria-live="polite"><?php p($scanStateMessage); ?></p>
                 <?php if (in_array(($latestScanJob['status'] ?? ''), ['completed', 'failed'], true)): ?>
                     <section class="library-scan-completion-summary library-scan-completion-summary--<?php p((string)$latestScanJob['status']); ?>" data-library-scan-completion-summary aria-live="polite">
                         <h4 data-library-scan-completion-title><?php p(($latestScanJob['status'] ?? '') === 'failed' ? $l->t('Scan failed') : $l->t('Scan completed')); ?></h4>
@@ -184,6 +196,14 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                     <dd data-library-scan-error-count><?php p((string)$latestScanJob['errorCount']); ?></dd>
                     <dt data-library-field="durationSeconds"><?php p($l->t('Duration in seconds')); ?></dt>
                     <dd data-library-scan-duration-seconds><?php p((string)$latestScanJob['durationSeconds']); ?></dd>
+                    <dt><?php p($l->t('Queued for')); ?></dt>
+                    <dd><span data-library-scan-queued-seconds><?php p((string)($latestScanJob['queuedSeconds'] ?? 0)); ?></span> <?php p($l->t('seconds')); ?></dd>
+                    <dt><?php p($l->t('Worker started at')); ?></dt>
+                    <dd data-library-scan-run-started-at><?php p($formatScanTimestamp($latestScanJob['runStartedAt'] ?? null)); ?></dd>
+                    <dt><?php p($l->t('Last progress at')); ?></dt>
+                    <dd data-library-scan-last-progress-at><?php p($formatScanTimestamp($latestScanJob['lastProgressAt'] ?? null)); ?></dd>
+                    <dt><?php p($l->t('Current path')); ?></dt>
+                    <dd data-library-scan-current-path><?php p((string)($latestScanJob['currentPath'] ?? '—')); ?></dd>
                 </dl>
                 <p class="library-muted" data-library-scan-summary><?php p((string)($latestScanJob['summary'] ?? '')); ?></p>
                 <?php if (($latestScanJob['status'] ?? '') === 'completed'): ?>

@@ -7,6 +7,9 @@ ARCHIVE="$3"
 RELEASE_EPOCH="${SOURCE_DATE_EPOCH:-946684800}"
 find "$STAGE_PARENT/$TOP_NAME" -type d -exec chmod 0755 {} +
 find "$STAGE_PARENT/$TOP_NAME" -type f -exec chmod 0644 {} +
+if [ -d "$STAGE_PARENT/$TOP_NAME/bin" ]; then
+  find "$STAGE_PARENT/$TOP_NAME/bin" -type f -name '*.sh' -exec chmod 0755 {} +
+fi
 LC_ALL=C tar --sort=name --format=gnu --owner=0 --group=0 --numeric-owner \
   --mode='a=rX,u+w' --mtime="@${RELEASE_EPOCH}" -C "$STAGE_PARENT" -cf - "$TOP_NAME" \
   | gzip -n -9 > "$ARCHIVE"

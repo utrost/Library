@@ -151,6 +151,15 @@ serviceExpect($db->rows[$stale['id']]['status'] === 'running' && $observedStale[
 $newer = $service->queueJob('bob');
 $latest = $service->latestJob('bob');
 serviceExpect($latest['id'] === $newer['id'] && $latest['status'] === 'queued', 'newer non-running job is not masked by stale running job');
+$oldQueued = $service->queueJob('dave');
+$db->rows[$oldQueued['id']]['started_at'] = time() - ScanJobService::QUEUED_TOO_LONG_AFTER_SECONDS - 5;
+$queuedTooLong = $service->latestJob('dave');
+serviceExpect($queuedTooLong['runStartedAt'] === null && $queuedTooLong['lastProgressAt'] === null, 'queued diagnostics preserve missing worker timestamps');
+serviceExpect($queuedTooLong['queuedSeconds'] >= ScanJobService::QUEUED_TOO_LONG_AFTER_SECONDS && $queuedTooLong['isQueuedTooLong'] === true, 'old queued job reports that no worker has started it');
+serviceExpect($queuedTooLong['queueWarning'] === 'waiting_for_nextcloud_background_worker', 'old queued job exposes a stable worker warning code');
+serviceExpect($db->rows[$oldQueued['id']]['status'] === 'queued', 'queue polling is observational and does not fail the job');
+$freshQueued = $service->queueJob('carol');
+serviceExpect($freshQueued['queuedSeconds'] >= 0 && $freshQueued['isQueuedTooLong'] === false && $freshQueued['queueWarning'] === '', 'fresh queued job reports normal worker wait');
 $queued3 = $service->queueJob('alice'); $logger->fail = true;
 serviceExpect($service->cancelJob('alice', $queued3['id']), 'logger failure does not change queued cancellation success');
 $badDb = new FakeDb(); $badDb->invalidLastId = true; $badService = new ScanJobService($badDb, new FakeLogger());

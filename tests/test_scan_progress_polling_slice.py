@@ -18,7 +18,7 @@ def test_settings_loads_scan_progress_script_and_passes_endpoint_url():
     settings = (ROOT / "lib" / "Settings" / "Personal.php").read_text()
     template = (ROOT / "templates" / "settings-personal.php").read_text()
 
-    assert "Util::addScript(Application::APP_ID, 'scan-progress');" in settings
+    assert "Util::addScript(Application::APP_ID, 'scan-progress-worker');" in settings
     assert "'scanProgressUrl' => $this->urlGenerator->linkToRoute('library.scan.progress')" in settings
     assert "data-library-scan-progress-url=\"<?php p($_['scanProgressUrl']); ?>\"" in template
     assert "data-library-scan-status" in template
@@ -27,7 +27,7 @@ def test_settings_loads_scan_progress_script_and_passes_endpoint_url():
 
 
 def test_scan_progress_javascript_polls_until_terminal_status_and_updates_dom():
-    script = (ROOT / "js" / "scan-progress.js").read_text()
+    script = (ROOT / "js" / "scan-progress-worker.js").read_text()
 
     assert "fetch(url.toString()" in script
     assert "credentials: 'same-origin'" in script

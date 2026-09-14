@@ -17,7 +17,7 @@ export function releaseFrontendFiles(_version) {
     'js/library-detail.js',
     `js/${scriptAsset}.mjs`,
     'js/library-shell.js',
-    'js/scan-progress.js',
+    'js/scan-progress-worker.js',
     'js/settings-operations.js',
     'js/settings-folder-picker-dialog.js',
   ]

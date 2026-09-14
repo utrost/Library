@@ -68,7 +68,7 @@ def test_scan_progress_uses_human_scope_and_live_total_publications():
     template = (ROOT / "templates" / "settings-personal.php").read_text()
     settings = (ROOT / "lib" / "Settings" / "Personal.php").read_text()
     controller = (ROOT / "lib" / "Controller" / "ScanController.php").read_text()
-    script = (ROOT / "js" / "scan-progress.js").read_text()
+    script = (ROOT / "js" / "scan-progress-worker.js").read_text()
 
     assert "scopeLabel" in template
     assert " #<?php p((string)$latestScanJob['rootId'])" not in template

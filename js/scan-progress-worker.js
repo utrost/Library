@@ -23,7 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const title = summary.querySelector('[data-library-scan-completion-title]');
         if (title) {
-            title.textContent = job.status === 'failed' ? 'Scan failed' : 'Scan completed';
+            title.textContent = job.status === 'failed'
+                ? (panel.dataset.libraryScanFailedText || 'Scan failed')
+                : (panel.dataset.libraryScanCompletedText || 'Scan completed');
         }
         const finished = summary.querySelector('[data-library-scan-finished-at]');
         if (finished && job.finishedAt) {
@@ -46,6 +48,23 @@ document.addEventListener('DOMContentLoaded', () => {
         setText('[data-library-scan-files-indexed]', job.filesIndexed);
         setText('[data-library-scan-error-count]', job.errorCount);
         setText('[data-library-scan-duration-seconds]', job.durationSeconds);
+        setText('[data-library-scan-queued-seconds]', job.queuedSeconds);
+        const timestampText = (value) => value ? new Date(value * 1000).toLocaleString() : '—';
+        setText('[data-library-scan-run-started-at]', timestampText(job.runStartedAt));
+        setText('[data-library-scan-last-progress-at]', timestampText(job.lastProgressAt));
+        setText('[data-library-scan-current-path]', job.currentPath || '—');
+        const stateMessages = {
+            queued: panel.dataset.libraryScanQueuedText || 'Queued — waiting for the Nextcloud background worker.',
+            queuedWarning: panel.dataset.libraryScanQueuedWarningText || 'This scan is still queued and no background worker has started it yet.',
+            running: panel.dataset.libraryScanRunningText || 'Running — scan progress is updating.',
+            stale: panel.dataset.libraryScanStaleText || 'Running, but progress is stale.',
+        };
+        const stateMessage = job.status === 'queued'
+            ? (job.isQueuedTooLong ? stateMessages.queuedWarning : stateMessages.queued)
+            : job.status === 'running'
+                ? (job.isStale ? stateMessages.stale : stateMessages.running)
+                : '';
+        setText('[data-library-scan-state-message]', stateMessage);
         setText('[data-library-scan-summary]', job.summary);
         setText('[data-library-scan-files-added]', job.filesAdded);
         setText('[data-library-scan-paths-updated]', job.pathsUpdated);

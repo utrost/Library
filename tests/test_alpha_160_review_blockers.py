@@ -227,7 +227,7 @@ def _release_archive(version: str, extra_names: list[str]) -> Path:
         "appinfo/info.xml", "appinfo/database.xml", "appinfo/routes.php",
         "lib/AppInfo/Application.php", "templates/main.php",
         "README.md", "LICENSE", "CHANGELOG.md", "css/style.css",
-        "js/library-detail.js", "js/library-shell.js", "js/scan-progress.js",
+        "js/library-detail.js", "js/library-shell.js", "js/scan-progress-worker.js",
     ]
     entry = f"js/library-main-{version.replace('.', '-').replace('+', '-')}.mjs"
     css_entry = f"css/library-vue-{version.replace('.', '-').replace('+', '-')}.css"
