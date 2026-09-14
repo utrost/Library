@@ -1440,10 +1440,21 @@ final class ItemService {
         if ($scannerConflictProjection) {
             $columns = [...$columns, ...self::SCANNER_CONFLICT_INTERNAL_COLUMNS];
         }
-        // Identifier searches join a one-to-many child table. Keep pagination in
-        // catalogue-item units instead of returning one row per identifier.
-        $qb->selectDistinct($columns);
+        if ($this->catalogueProjectionRequiresDistinct($filters)) {
+            // One-to-many filter joins must keep pagination in catalogue-item
+            // units instead of returning one row per matching child row.
+            $qb->selectDistinct($columns);
+        } else {
+            $qb->select($columns);
+        }
         return $qb;
+    }
+
+    private function catalogueProjectionRequiresDistinct(array $filters): bool {
+        $query = mb_strtolower(trim((string)($filters['q'] ?? '')));
+        return ($query !== '' && IdentifierService::normalizeSearchQuery($query) !== null)
+            || trim((string)($filters['subject'] ?? '')) !== ''
+            || trim((string)($filters['classification'] ?? '')) !== '';
     }
 
     private function catalogueFilteredQueryBuilder(string $userId, array $filters): IQueryBuilder {
