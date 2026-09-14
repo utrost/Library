@@ -416,7 +416,8 @@ class PageController extends Controller {
         $roots = $this->rootService->listRoots($userId);
         $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
         $phaseStarted = $this->clock->now();
-        $includeFacets = $surface !== 'index';
+        $fastCatalogueApi = $surface === 'catalogue_api' && (string)$this->request->getParam('hydrate', '0') !== '1';
+        $includeFacets = $surface !== 'index' && !$fastCatalogueApi;
         $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination, $includeFacets) : [
             'items' => [],
             'total' => 0,
@@ -447,14 +448,14 @@ class PageController extends Controller {
         $durations['projection_ms'] = $this->clock->elapsedMs($phaseStarted);
 
         $phaseStarted = $this->clock->now();
-        $smartViewCounts = $userId === '' ? [] : ($surface === 'index' ? [] : $this->itemService->smartViewCounts($userId, false));
-        $smartViewCountsPending = $surface === 'index' ? [
+        $smartViewCounts = $userId === '' ? [] : ($surface === 'index' || $fastCatalogueApi ? [] : $this->itemService->smartViewCounts($userId, false));
+        $smartViewCountsPending = $surface === 'index' || $fastCatalogueApi ? [
             'recently-opened', 'starred', 'to-read', 'reading', 'finished', 'needs-action',
             'needs-metadata', 'scanner-conflicts', 'metadata-errors', 'placeholder-covers',
             'no-creator', 'no-publication', 'missing-date', 'title-from-filename',
             'weak-filename-metadata', 'no-description', 'unsupported-containers', 'unreviewed-imports',
         ] : ['scanner-conflicts'];
-        $savedCollections = $userId === '' ? [] : ($surface === 'index'
+        $savedCollections = $userId === '' ? [] : ($surface === 'index' || $fastCatalogueApi
             ? $this->savedCollectionsPending($userId)
             : $this->savedCollectionsWithCounts($userId, false));
         $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
@@ -463,6 +464,7 @@ class PageController extends Controller {
         $direction = $this->l10nFactory->getLanguageDirection($language);
         $state = [
             'surface' => $surface,
+            'facetsDeferred' => $fastCatalogueApi,
             'publicationIssueContext' => null,
             ...$pageContext,
             'language' => $language,
