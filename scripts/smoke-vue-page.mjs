@@ -314,6 +314,7 @@ try {
     console.log(`state_has_publication_years=${Array.isArray(state?.publicationYears)}`)
     console.log(`state_has_creators=${Array.isArray(state?.creators)}`)
     console.log(`creator_facet_payload_lazy=${Array.isArray(state?.creators) && state.creators.length === 0}`)
+    console.log(`publisher_facet_payload_lazy=${Array.isArray(state?.publishers) && state.publishers.length === 0}`)
     console.log(`creator_landing_urls_payload_lazy=${state?.creatorLandingUrls && Object.keys(state.creatorLandingUrls).length === 0}`)
     console.log(`publication_filter_pagination_preserved=${String(publicationState?.cataloguePagination?.nextUrl || '').includes('publication=__library_smoke_publication__')}`)
     console.log(`publication_discovery_http=${publicationDiscoveryPage.status}`)
