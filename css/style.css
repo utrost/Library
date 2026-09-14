@@ -219,6 +219,33 @@
     gap: 6px;
 }
 
+.library-folder-path-field {
+    display: grid;
+    gap: 6px 8px;
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.library-folder-path-field label,
+.library-folder-path-help {
+    grid-column: 1 / -1;
+}
+
+.library-folder-picker-button {
+    align-self: end;
+    grid-column: 2;
+    grid-row: 1;
+    white-space: nowrap;
+}
+
+.library-folder-path-field label {
+    grid-column: 1;
+}
+
+.library-folder-path-help {
+    font-size: var(--default-font-size);
+    margin: 0;
+}
+
 .library-muted {
     color: var(--color-text-maxcontrast);
 }
