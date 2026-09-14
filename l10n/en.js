@@ -264,6 +264,7 @@ OC.L10N.register(
         "Finished at": "Finished at",
         "Choose a folder for this Library shelf": "Choose a folder for this Library shelf",
         "Choose folder": "Choose folder",
+        "Could not open the folder picker. Enter the path manually.": "Could not open the folder picker. Enter the path manually.",
         "Choose a folder from Nextcloud Files, or enter its path manually.": "Choose a folder from Nextcloud Files, or enter its path manually.",
         "Choose a folder from Nextcloud Files, or edit its path manually.": "Choose a folder from Nextcloud Files, or edit its path manually.",
         "Folder path": "Folder path",

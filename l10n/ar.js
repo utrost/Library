@@ -300,6 +300,7 @@ OC.L10N.register(
         "Finished at": "انتهى في",
         "Choose a folder for this Library shelf": "اختر مجلدًا لرف المكتبة هذا",
         "Choose folder": "اختر مجلدًا",
+        "Could not open the folder picker. Enter the path manually.": "تعذر فتح منتقي المجلدات. أدخل المسار يدويًا.",
         "Choose a folder from Nextcloud Files, or enter its path manually.": "اختر مجلدًا من ملفات Nextcloud، أو أدخل مساره يدويًا.",
         "Choose a folder from Nextcloud Files, or edit its path manually.": "اختر مجلدًا من ملفات Nextcloud، أو عدّل مساره يدويًا.",
         "Folder path": "مسار المجلد",

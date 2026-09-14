@@ -263,6 +263,7 @@
     "Finished at": "Beendet um",
     "Choose a folder for this Library shelf": "Ordner für dieses Bibliotheksregal auswählen",
     "Choose folder": "Ordner auswählen",
+    "Could not open the folder picker. Enter the path manually.": "Die Ordnerauswahl konnte nicht geöffnet werden. Gib den Pfad manuell ein.",
     "Choose a folder from Nextcloud Files, or enter its path manually.": "Wähle einen Ordner aus Nextcloud Dateien aus oder gib den Pfad manuell ein.",
     "Choose a folder from Nextcloud Files, or edit its path manually.": "Wähle einen Ordner aus Nextcloud Dateien aus oder bearbeite den Pfad manuell.",
     "Folder path": "Ordnerpfad",

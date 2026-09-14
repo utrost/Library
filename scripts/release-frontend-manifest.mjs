@@ -19,6 +19,6 @@ export function releaseFrontendFiles(_version) {
     'js/library-shell.js',
     'js/scan-progress.js',
     'js/settings-operations.js',
-    'js/settings-folder-picker.js',
+    'js/settings-folder-picker-dialog.js',
   ]
 }
