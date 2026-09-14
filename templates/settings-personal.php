@@ -42,7 +42,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                         <?php p($l->t('Folder path')); ?>
                         <input type="text" name="path" value="/LibrarySpike" placeholder="<?php p($l->t('/Media/Books')); ?>" aria-describedby="library-new-root-path-help" />
                     </label>
-                    <button type="button" class="button secondary library-folder-picker-button" data-library-folder-picker data-picker-title="<?php p($l->t('Choose a folder for this Library shelf')); ?>" hidden><?php p($l->t('Choose folder')); ?></button>
+                    <button type="button" class="button secondary library-folder-picker-button" data-library-folder-picker data-picker-title="<?php p($l->t('Choose a folder for this Library shelf')); ?>" data-picker-error="<?php p($l->t('Could not open the folder picker. Enter the path manually.')); ?>" hidden><?php p($l->t('Choose folder')); ?></button>
                     <p id="library-new-root-path-help" class="library-muted library-folder-path-help"><?php p($l->t('Choose a folder from Nextcloud Files, or enter its path manually.')); ?></p>
                 </div>
                 <label>
@@ -86,7 +86,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                                     <?php p($l->t('Folder path')); ?>
                                     <input type="text" name="path" value="<?php p((string)$root['path']); ?>" aria-describedby="library-root-path-help-<?php p((string)$root['id']); ?>" />
                                 </label>
-                                <button type="button" class="button secondary library-folder-picker-button" data-library-folder-picker data-picker-title="<?php p($l->t('Choose a folder for this Library shelf')); ?>" hidden><?php p($l->t('Choose folder')); ?></button>
+                                <button type="button" class="button secondary library-folder-picker-button" data-library-folder-picker data-picker-title="<?php p($l->t('Choose a folder for this Library shelf')); ?>" data-picker-error="<?php p($l->t('Could not open the folder picker. Enter the path manually.')); ?>" hidden><?php p($l->t('Choose folder')); ?></button>
                                 <p id="library-root-path-help-<?php p((string)$root['id']); ?>" class="library-muted library-folder-path-help"><?php p($l->t('Choose a folder from Nextcloud Files, or edit its path manually.')); ?></p>
                             </div>
                             <label>
