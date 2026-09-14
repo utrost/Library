@@ -15350,42 +15350,42 @@ const CC = `<!--
 }, ZA = { class: "library-catalogue-header" }, JA = {
   key: 0,
   class: "library-muted library-catalogue-eyebrow"
-}, QA = { id: "library-catalogue-heading" }, e2 = ["aria-label"], t2 = ["aria-label"], n2 = ["name", "value"], i2 = { "data-library-control": "sort" }, a2 = { value: "title" }, r2 = { value: "recent" }, s2 = { value: "publicationDate" }, o2 = { value: "publication" }, l2 = { value: "lastOpened" }, c2 = { value: "format" }, u2 = ["aria-label"], d2 = ["aria-pressed"], f2 = ["aria-pressed"], h2 = ["aria-pressed"], p2 = ["aria-pressed"], v2 = {
+}, QA = { id: "library-catalogue-heading" }, ek = ["aria-label"], tk = ["aria-label"], nk = ["name", "value"], ik = { "data-library-control": "sort" }, ak = { value: "title" }, rk = { value: "recent" }, sk = { value: "publicationDate" }, ok = { value: "publication" }, lk = { value: "lastOpened" }, ck = { value: "format" }, uk = ["aria-label"], dk = ["aria-pressed"], fk = ["aria-pressed"], hk = ["aria-pressed"], pk = ["aria-pressed"], vk = {
   id: "library-collections",
   class: "library-saved-collections"
-}, g2 = ["title"], m2 = ["action", "title"], b2 = ["value"], y2 = ["value"], _2 = ["placeholder", "disabled"], w2 = ["disabled", "title"], S2 = ["aria-label"], C2 = ["href"], T2 = { class: "library-saved-collection-count" }, E2 = ["action"], A2 = ["value"], k2 = {
+}, gk = ["title"], mk = ["action", "title"], bk = ["value"], yk = ["value"], _k = ["placeholder", "disabled"], wk = ["disabled", "title"], Sk = ["aria-label"], Ck = ["href"], Tk = { class: "library-saved-collection-count" }, Ek = ["action"], Ak = ["value"], kk = {
   type: "submit",
   class: "button tertiary"
-}, O2 = ["aria-label"], x2 = { class: "library-workspace-panel-summary library-workspace-panel-summary--polished" }, N2 = ["title"], L2 = { class: "library-workspace-panel-purpose" }, R2 = { class: "library-workspace-scope-badge" }, I2 = { "aria-live": "polite" }, P2 = ["action"], D2 = ["value"], $2 = ["placeholder"], M2 = ["title"], F2 = ["action"], z2 = ["value"], U2 = ["placeholder"], B2 = ["title"], j2 = ["action"], H2 = ["value"], V2 = ["name", "value"], G2 = ["title"], K2 = ["action"], W2 = ["value"], q2 = ["name", "value"], Y2 = { name: "bulkEditField" }, X2 = { value: "publicationType" }, Z2 = { value: "subtitle" }, J2 = { value: "creators" }, Q2 = { value: "publication" }, ek = { value: "publicationDate" }, tk = { value: "language" }, nk = { value: "publisher" }, ik = { value: "subjects" }, ak = { value: "classifications" }, rk = ["placeholder"], sk = ["title"], ok = ["action"], lk = ["value"], ck = ["name", "value"], uk = ["title"], dk = {
+}, Ok = ["aria-label"], xk = { class: "library-workspace-panel-summary library-workspace-panel-summary--polished" }, Nk = ["title"], Lk = { class: "library-workspace-panel-purpose" }, Rk = { class: "library-workspace-scope-badge" }, Ik = { "aria-live": "polite" }, Pk = ["action"], Dk = ["value"], $k = ["placeholder"], Mk = ["title"], Fk = ["action"], zk = ["value"], Uk = ["placeholder"], Bk = ["title"], jk = ["action"], Hk = ["value"], Vk = ["name", "value"], Gk = ["title"], Kk = ["action"], Wk = ["value"], qk = ["name", "value"], Yk = { name: "bulkEditField" }, Xk = { value: "publicationType" }, Zk = { value: "subtitle" }, Jk = { value: "creators" }, Qk = { value: "publication" }, e2 = { value: "publicationDate" }, t2 = { value: "language" }, n2 = { value: "publisher" }, i2 = { value: "subjects" }, a2 = { value: "classifications" }, r2 = ["placeholder"], s2 = ["title"], o2 = ["action"], l2 = ["value"], c2 = ["name", "value"], u2 = ["title"], d2 = {
   key: 0,
   class: "library-warning library-batch-limit-error"
-}, fk = {
+}, f2 = {
   key: 1,
   class: "library-warning library-batch-selection-error"
-}, hk = {
+}, h2 = {
   key: 2,
   class: "library-notice library-batch-metadata-apply-result"
-}, pk = {
+}, p2 = {
   key: 3,
   class: "library-discovery-hero",
   "aria-labelledby": "library-discovery-heading"
-}, vk = { class: "library-muted library-catalogue-eyebrow" }, gk = ["title"], mk = ["aria-label"], bk = { key: 0 }, yk = { key: 1 }, _k = { key: 2 }, wk = ["aria-label"], Sk = { key: 0 }, Ck = { key: 1 }, Tk = {
+}, v2 = { class: "library-muted library-catalogue-eyebrow" }, g2 = ["title"], m2 = ["aria-label"], b2 = { key: 0 }, y2 = { key: 1 }, _2 = { key: 2 }, w2 = ["aria-label"], S2 = { key: 0 }, C2 = { key: 1 }, T2 = {
   key: 1,
   class: "library-publication-issue-groups",
   "aria-labelledby": "library-publication-issue-groups-heading"
-}, Ek = { class: "library-muted library-catalogue-eyebrow" }, Ak = ["title"], kk = ["aria-label"], Ok = ["href"], xk = {
+}, E2 = { class: "library-muted library-catalogue-eyebrow" }, A2 = ["title"], k2 = ["aria-label"], O2 = ["href"], x2 = {
   key: 0,
   class: "library-notice"
-}, Nk = { class: "library-publication-issue-label" }, Lk = ["href"], Rk = { class: "library-muted" }, Ik = {
+}, N2 = { class: "library-publication-issue-label" }, L2 = ["href"], R2 = { class: "library-muted" }, I2 = {
   key: 1,
   class: "library-publication-unknown-issues"
-}, Pk = ["title"], Dk = ["href"], $k = { class: "library-catalogue-status-row" }, Mk = { class: "library-muted library-filter-result-summary" }, Fk = { key: 0 }, zk = { href: "?" }, Uk = ["aria-label"], Bk = { class: "library-pagination-range" }, jk = { key: 0 }, Hk = ["href"], Vk = {
+}, P2 = ["title"], D2 = ["href"], $2 = { class: "library-catalogue-status-row" }, M2 = { class: "library-muted library-filter-result-summary" }, F2 = { key: 0 }, z2 = { href: "?" }, U2 = ["aria-label"], B2 = { class: "library-pagination-range" }, j2 = { key: 0 }, H2 = ["href"], V2 = {
   key: 1,
   class: "library-muted"
-}, Gk = ["href"], Kk = {
+}, G2 = ["href"], K2 = {
   key: 3,
   class: "library-muted"
-}, Wk = ["title"], qk = { class: "library-empty-actions" }, Yk = ["href"], Xk = { class: "library-muted" }, Zk = ["title"], Jk = { class: "library-empty-actions" }, Qk = ["href"], eO = ["title"], tO = { class: "library-empty-actions" }, nO = ["href"], iO = {
+}, W2 = ["title"], q2 = { class: "library-empty-actions" }, Y2 = ["href"], X2 = { class: "library-muted" }, Z2 = ["title"], J2 = { class: "library-empty-actions" }, Q2 = ["href"], eO = ["title"], tO = { class: "library-empty-actions" }, nO = ["href"], iO = {
   href: "?",
   class: "button primary"
 }, aO = ["title"], rO = { class: "library-empty-actions" }, sO = ["href"], oO = {
@@ -15971,14 +15971,35 @@ const CC = `<!--
       }
     }
     function hv(m) {
-      u.splice(0, u.length, ...(m.items || []).map((b) => ({ ...b }))), ks();
-      for (const b of ["shelves", "formats", "publicationTypes", "publishers", "publications", "publicationSummaries", "publicationIssueContext", "publicationYears", "publicationYearLandingUrls", "creators", "creatorLandingUrls", "scanStatuses", "workflowStatuses", "subjects", "classifications", "cataloguePagination", "catalogueRootUrl", "reviewUrl", "settingsUrl", "metadataExportUrl", "metadataSidecarManifestUrl", "metadataSidecarBundleUrl", "catalogueEndpointUrl", "publicationSuggestionsUrl", "creatorSuggestionsUrl", "subjectSuggestionsUrl", "yearSuggestionsUrl", "itemSidebarUrlTemplate", "batchTagUrl", "batchTagRemoveUrl", "batchMetadataResetUrl", "batchMetadataEditPreviewUrl", "batchCoverRefreshUrl", "scannerConflictReviewUrl", "metadataErrorsUrl", "metadataErrorsTsvUrl", "coverProbeUrl", "importHealthSummaryUrl", "smartViewCounts", "smartViewCountsPending", "savedCollections", "savedCollectionSaveUrl", "savedCollectionDeleteBaseUrl"])
-        Object.prototype.hasOwnProperty.call(m, b) && (d[b] = m[b]);
+      u.splice(0, u.length, ...(m.items || []).map((f) => ({ ...f }))), ks();
+      const b = new Set(m.facetsDeferred ? [
+        "shelves",
+        "formats",
+        "publicationTypes",
+        "publishers",
+        "publications",
+        "publicationSummaries",
+        "publicationIssueContext",
+        "publicationYears",
+        "publicationYearLandingUrls",
+        "creators",
+        "creatorLandingUrls",
+        "scanStatuses",
+        "workflowStatuses",
+        "subjects",
+        "classifications",
+        "smartViewCounts",
+        "smartViewCountsPending",
+        "savedCollections"
+      ] : []);
+      for (const f of ["shelves", "formats", "publicationTypes", "publishers", "publications", "publicationSummaries", "publicationIssueContext", "publicationYears", "publicationYearLandingUrls", "creators", "creatorLandingUrls", "scanStatuses", "workflowStatuses", "subjects", "classifications", "cataloguePagination", "catalogueRootUrl", "reviewUrl", "settingsUrl", "metadataExportUrl", "metadataSidecarManifestUrl", "metadataSidecarBundleUrl", "catalogueEndpointUrl", "publicationSuggestionsUrl", "creatorSuggestionsUrl", "subjectSuggestionsUrl", "yearSuggestionsUrl", "itemSidebarUrlTemplate", "batchTagUrl", "batchTagRemoveUrl", "batchMetadataResetUrl", "batchMetadataEditPreviewUrl", "batchCoverRefreshUrl", "scannerConflictReviewUrl", "metadataErrorsUrl", "metadataErrorsTsvUrl", "coverProbeUrl", "importHealthSummaryUrl", "smartViewCounts", "smartViewCountsPending", "savedCollections", "savedCollectionSaveUrl", "savedCollectionDeleteBaseUrl"])
+        !b.has(f) && Object.prototype.hasOwnProperty.call(m, f) && (d[f] = m[f]);
       Object.assign(P, N, m.activeFilters || {});
     }
     async function pv() {
       if (d.surface !== "index") return;
       const m = en, b = JSON.stringify({ ...P }), f = new URLSearchParams();
+      f.set("hydrate", "1");
       for (const [se, ke] of Object.entries(P)) {
         const Le = String(ke || "").trim();
         Le !== "" && !(se === "sort" && Le === "title") && !(se === "view" && Le === "compact") && f.set(se, Le);
@@ -17052,20 +17073,20 @@ const CC = `<!--
                       type: "hidden",
                       name: f.key,
                       value: f.value
-                    }, null, 8, n2))), 128)),
-                    c("label", i2, [
+                    }, null, 8, nk))), 128)),
+                    c("label", ik, [
                       Re(p(g(y)("library", "Sort")), 1),
                       Xe(c("select", {
                         "onUpdate:modelValue": b[34] || (b[34] = (f) => P.sort = f),
                         name: "sort",
                         onChange: hn
                       }, [
-                        c("option", a2, p(g(y)("library", "Title")), 1),
-                        c("option", r2, p(g(y)("library", "Date added")), 1),
-                        c("option", s2, p(g(y)("library", "Publication date")), 1),
-                        c("option", o2, p(g(y)("library", "Series")), 1),
-                        c("option", l2, p(g(y)("library", "Recently opened")), 1),
-                        c("option", c2, p(g(y)("library", "Format")), 1)
+                        c("option", ak, p(g(y)("library", "Title")), 1),
+                        c("option", rk, p(g(y)("library", "Date added")), 1),
+                        c("option", sk, p(g(y)("library", "Publication date")), 1),
+                        c("option", ok, p(g(y)("library", "Series")), 1),
+                        c("option", lk, p(g(y)("library", "Recently opened")), 1),
+                        c("option", ck, p(g(y)("library", "Format")), 1)
                       ], 544), [
                         [Oi, P.sort]
                       ])
@@ -17081,34 +17102,34 @@ const CC = `<!--
                         class: we({ active: Kt.value === "compact" }),
                         "aria-pressed": Kt.value === "compact" ? "true" : "false",
                         onClick: b[35] || (b[35] = (f) => Ls("compact"))
-                      }, p(g(y)("library", "Compact")), 11, d2),
+                      }, p(g(y)("library", "Compact")), 11, dk),
                       c("button", {
                         type: "button",
                         "data-library-view-mode": "gallery",
                         class: we({ active: Kt.value === "gallery" }),
                         "aria-pressed": Kt.value === "gallery" ? "true" : "false",
                         onClick: b[36] || (b[36] = (f) => Ls("gallery"))
-                      }, p(g(y)("library", "Gallery")), 11, f2),
+                      }, p(g(y)("library", "Gallery")), 11, fk),
                       c("button", {
                         type: "button",
                         "data-library-view-mode": "list",
                         class: we({ active: Kt.value === "list" }),
                         "aria-pressed": Kt.value === "list" ? "true" : "false",
                         onClick: b[37] || (b[37] = (f) => Ls("list"))
-                      }, p(g(y)("library", "List")), 11, h2),
+                      }, p(g(y)("library", "List")), 11, hk),
                       c("button", {
                         type: "button",
                         "data-library-view-mode": "shelf",
                         class: we({ active: Kt.value === "shelf" }),
                         "aria-pressed": Kt.value === "shelf" ? "true" : "false",
                         onClick: b[38] || (b[38] = (f) => Ls("shelf"))
-                      }, p(g(y)("library", "Shelf")), 11, p2)
-                    ], 8, u2)
-                  ], 40, t2),
-                  c("section", v2, [
+                      }, p(g(y)("library", "Shelf")), 11, pk)
+                    ], 8, uk)
+                  ], 40, tk),
+                  c("section", vk, [
                     c("h3", {
                       title: g(y)("library", "Save the current in-app filter setup as a named collection, then reopen it without leaving Library.")
-                    }, p(g(y)("library", "Collections")), 9, g2),
+                    }, p(g(y)("library", "Collections")), 9, gk),
                     c("form", {
                       method: "post",
                       action: ct.value,
@@ -17119,12 +17140,12 @@ const CC = `<!--
                         type: "hidden",
                         name: "requesttoken",
                         value: it.value
-                      }, null, 8, b2),
+                      }, null, 8, bk),
                       c("input", {
                         type: "hidden",
                         name: "savedCollectionFilters",
                         value: Ov.value
-                      }, null, 8, y2),
+                      }, null, 8, yk),
                       c("label", null, [
                         Re(p(g(y)("library", "Collection name")), 1),
                         c("input", {
@@ -17133,15 +17154,15 @@ const CC = `<!--
                           placeholder: g(y)("library", "e.g. Bremen photo books"),
                           disabled: !Nl.value,
                           autocomplete: "off"
-                        }, null, 8, _2)
+                        }, null, 8, _k)
                       ]),
                       c("button", {
                         type: "submit",
                         class: "button secondary",
                         disabled: !Nl.value,
                         title: g(y)("library", "Save current view")
-                      }, p(g(y)("library", "Save")), 9, w2)
-                    ], 8, m2),
+                      }, p(g(y)("library", "Save")), 9, wk)
+                    ], 8, mk),
                     Ss.value.length > 0 ? (_(), T("nav", {
                       key: 0,
                       class: "library-saved-collection-links",
@@ -17156,8 +17177,8 @@ const CC = `<!--
                           href: Nv(f.filters)
                         }, [
                           c("strong", null, p(f.name), 1),
-                          c("span", T2, p(f.countPending ? "—" : g(Mn)("library", "%n item", "%n items", Number(f.count || 0))), 1)
-                        ], 8, C2),
+                          c("span", Tk, p(f.countPending ? "—" : g(Mn)("library", "%n item", "%n items", Number(f.count || 0))), 1)
+                        ], 8, Ck),
                         c("form", {
                           method: "post",
                           action: Lv(f.id),
@@ -17167,11 +17188,11 @@ const CC = `<!--
                             type: "hidden",
                             name: "requesttoken",
                             value: it.value
-                          }, null, 8, A2),
-                          c("button", k2, p(g(y)("library", "Delete")), 1)
-                        ], 8, E2)
+                          }, null, 8, Ak),
+                          c("button", kk, p(g(y)("library", "Delete")), 1)
+                        ], 8, Ek)
                       ]))), 128))
-                    ], 8, S2)) : j("", !0)
+                    ], 8, Sk)) : j("", !0)
                   ]),
                   It.value.length > 0 ? (_(), T("details", {
                     key: 0,
@@ -17179,7 +17200,7 @@ const CC = `<!--
                     "data-workspace-panel": "batch",
                     "aria-label": g(y)("library", "Batch actions for selected publications")
                   }, [
-                    c("summary", x2, [
+                    c("summary", xk, [
                       b[48] || (b[48] = c("span", {
                         class: "library-workspace-panel-icon",
                         "aria-hidden": "true"
@@ -17187,11 +17208,11 @@ const CC = `<!--
                       c("span", {
                         class: "library-workspace-panel-title",
                         title: g(y)("library", "Batch actions for selected publications")
-                      }, p(g(y)("library", "Batch actions")), 9, N2),
-                      c("small", L2, p(g(y)("library", "Batch actions for selected publications")), 1),
-                      c("b", R2, p(g(Mn)("library", "%n publication selected", "%n publications selected", It.value.length)), 1)
+                      }, p(g(y)("library", "Batch actions")), 9, Nk),
+                      c("small", Lk, p(g(y)("library", "Batch actions for selected publications")), 1),
+                      c("b", Rk, p(g(Mn)("library", "%n publication selected", "%n publications selected", It.value.length)), 1)
                     ]),
-                    c("p", I2, p(g(Mn)("library", "%n publication selected", "%n publications selected", It.value.length)), 1),
+                    c("p", Ik, p(g(Mn)("library", "%n publication selected", "%n publications selected", It.value.length)), 1),
                     c("div", {
                       class: "library-batch-action-grid",
                       onSubmitCapture: La
@@ -17205,7 +17226,7 @@ const CC = `<!--
                           type: "hidden",
                           name: "requesttoken",
                           value: it.value
-                        }, null, 8, D2),
+                        }, null, 8, Dk),
                         c("label", null, [
                           c("span", null, p(g(y)("library", "Add tag")), 1),
                           c("input", {
@@ -17214,14 +17235,14 @@ const CC = `<!--
                             list: "library-nextcloud-tag-suggestions",
                             placeholder: g(y)("library", "e.g. Review"),
                             autocomplete: "off"
-                          }, null, 8, $2)
+                          }, null, 8, $k)
                         ]),
                         c("button", {
                           type: "submit",
                           class: "button primary",
                           title: g(y)("library", "Applies only to the selected publications.")
-                        }, p(g(y)("library", "Apply")), 9, M2)
-                      ], 8, P2),
+                        }, p(g(y)("library", "Apply")), 9, Mk)
+                      ], 8, Pk),
                       c("form", {
                         method: "post",
                         action: pi.value,
@@ -17231,7 +17252,7 @@ const CC = `<!--
                           type: "hidden",
                           name: "requesttoken",
                           value: it.value
-                        }, null, 8, z2),
+                        }, null, 8, zk),
                         c("label", null, [
                           c("span", null, p(g(y)("library", "Remove tag")), 1),
                           c("input", {
@@ -17240,14 +17261,14 @@ const CC = `<!--
                             list: "library-nextcloud-tag-suggestions",
                             placeholder: g(y)("library", "e.g. Review"),
                             autocomplete: "off"
-                          }, null, 8, U2)
+                          }, null, 8, Uk)
                         ]),
                         c("button", {
                           type: "submit",
                           class: "button secondary",
                           title: g(y)("library", "Removes the tag only from the selected publications.")
-                        }, p(g(y)("library", "Remove")), 9, B2)
-                      ], 8, F2),
+                        }, p(g(y)("library", "Remove")), 9, Bk)
+                      ], 8, Fk),
                       c("form", {
                         method: "post",
                         action: vi.value,
@@ -17257,13 +17278,13 @@ const CC = `<!--
                           type: "hidden",
                           name: "requesttoken",
                           value: it.value
-                        }, null, 8, H2),
+                        }, null, 8, Hk),
                         (_(!0), T(fe, null, ze(Na.value, (f) => (_(), T("input", {
                           key: `reset-${f.key}`,
                           type: "hidden",
                           name: f.key,
                           value: f.value
-                        }, null, 8, V2))), 128)),
+                        }, null, 8, Vk))), 128)),
                         b[49] || (b[49] = c("input", {
                           type: "hidden",
                           name: "scannerConflicts",
@@ -17273,8 +17294,8 @@ const CC = `<!--
                           type: "submit",
                           class: "button secondary",
                           title: g(y)("library", "Batch actions for selected publications")
-                        }, p(g(y)("library", "Reset metadata")), 9, G2)
-                      ], 8, j2),
+                        }, p(g(y)("library", "Reset metadata")), 9, Gk)
+                      ], 8, jk),
                       c("form", {
                         method: "post",
                         action: bs.value,
@@ -17285,25 +17306,25 @@ const CC = `<!--
                           type: "hidden",
                           name: "requesttoken",
                           value: it.value
-                        }, null, 8, W2),
+                        }, null, 8, Wk),
                         (_(!0), T(fe, null, ze(Na.value, (f) => (_(), T("input", {
                           key: `edit-preview-${f.key}`,
                           type: "hidden",
                           name: f.key,
                           value: f.value
-                        }, null, 8, q2))), 128)),
+                        }, null, 8, qk))), 128)),
                         c("label", null, [
                           c("span", null, p(g(y)("library", "Field")), 1),
-                          c("select", Y2, [
-                            c("option", X2, p(g(y)("library", "Publication type")), 1),
-                            c("option", Z2, p(g(y)("library", "Subtitle")), 1),
-                            c("option", J2, p(g(y)("library", "Creators")), 1),
-                            c("option", Q2, p(g(y)("library", "Series / periodical")), 1),
-                            c("option", ek, p(g(y)("library", "Publication date")), 1),
-                            c("option", tk, p(g(y)("library", "Language")), 1),
-                            c("option", nk, p(g(y)("library", "Publisher")), 1),
-                            c("option", ik, p(g(y)("library", "Subjects")), 1),
-                            c("option", ak, p(g(y)("library", "Classifications")), 1)
+                          c("select", Yk, [
+                            c("option", Xk, p(g(y)("library", "Publication type")), 1),
+                            c("option", Zk, p(g(y)("library", "Subtitle")), 1),
+                            c("option", Jk, p(g(y)("library", "Creators")), 1),
+                            c("option", Qk, p(g(y)("library", "Series / periodical")), 1),
+                            c("option", e2, p(g(y)("library", "Publication date")), 1),
+                            c("option", t2, p(g(y)("library", "Language")), 1),
+                            c("option", n2, p(g(y)("library", "Publisher")), 1),
+                            c("option", i2, p(g(y)("library", "Subjects")), 1),
+                            c("option", a2, p(g(y)("library", "Classifications")), 1)
                           ])
                         ]),
                         c("label", null, [
@@ -17313,14 +17334,14 @@ const CC = `<!--
                             name: "bulkEditValue",
                             placeholder: g(y)("library", "magazine, de, photography…"),
                             autocomplete: "off"
-                          }, null, 8, rk)
+                          }, null, 8, r2)
                         ]),
                         c("button", {
                           type: "submit",
                           class: "button secondary",
                           title: g(y)("library", "Preview first, then apply from the review page.")
-                        }, p(g(y)("library", "Preview edit")), 9, sk)
-                      ], 8, K2),
+                        }, p(g(y)("library", "Preview edit")), 9, s2)
+                      ], 8, Kk),
                       c("form", {
                         method: "post",
                         action: ys.value,
@@ -17330,40 +17351,40 @@ const CC = `<!--
                           type: "hidden",
                           name: "requesttoken",
                           value: it.value
-                        }, null, 8, lk),
+                        }, null, 8, l2),
                         (_(!0), T(fe, null, ze(Na.value, (f) => (_(), T("input", {
                           key: `cover-${f.key}`,
                           type: "hidden",
                           name: f.key,
                           value: f.value
-                        }, null, 8, ck))), 128)),
+                        }, null, 8, c2))), 128)),
                         c("button", {
                           type: "submit",
                           class: "button secondary",
                           title: g(y)("library", "Batch actions for selected publications")
-                        }, p(g(y)("library", "Fresh covers")), 9, uk)
-                      ], 8, ok)
+                        }, p(g(y)("library", "Fresh covers")), 9, u2)
+                      ], 8, o2)
                     ], 32)
-                  ], 8, O2)) : j("", !0)
-                ], 8, e2),
-                yi.value ? (_(), T("p", dk, p(yi.value), 1)) : j("", !0),
-                ws.value ? (_(), T("p", fk, p(ws.value), 1)) : j("", !0),
-                _s.value ? (_(), T("p", hk, p(_s.value), 1)) : j("", !0),
-                mi.value ? (_(), T("section", pk, [
-                  c("p", vk, p(Aa.value), 1),
+                  ], 8, Ok)) : j("", !0)
+                ], 8, ek),
+                yi.value ? (_(), T("p", d2, p(yi.value), 1)) : j("", !0),
+                ws.value ? (_(), T("p", f2, p(ws.value), 1)) : j("", !0),
+                _s.value ? (_(), T("p", h2, p(_s.value), 1)) : j("", !0),
+                mi.value ? (_(), T("section", p2, [
+                  c("p", v2, p(Aa.value), 1),
                   c("h3", {
                     id: "library-discovery-heading",
                     title: gi.value ? g(y)("library", "Items by this creator, sorted by publication context when available.") : Ea.value ? g(y)("library", "Items from this publication year, sorted by publication date when available.") : g(y)("library", "Items in this publication, sorted by issue/date context when available.")
-                  }, p(Jt.value), 9, gk),
+                  }, p(Jt.value), 9, g2),
                   c("div", {
                     class: "library-discovery-hero-metrics",
                     "aria-label": g(y)("library", "Discovery summary")
                   }, [
                     c("span", null, p(g(Mn)("library", "%n item", "%n items", I.value.total)), 1),
-                    O.value?.earliestYear && O.value?.latestYear ? (_(), T("span", bk, p(O.value.earliestYear) + "–" + p(O.value.latestYear), 1)) : j("", !0),
-                    O.value?.datedCount ? (_(), T("span", yk, p(O.value.datedCount) + " " + p(g(y)("library", "dated")), 1)) : j("", !0),
-                    O.value?.undatedCount > 0 ? (_(), T("span", _k, p(O.value.undatedCount) + " " + p(g(y)("library", "undated")), 1)) : j("", !0)
-                  ], 8, mk),
+                    O.value?.earliestYear && O.value?.latestYear ? (_(), T("span", b2, p(O.value.earliestYear) + "–" + p(O.value.latestYear), 1)) : j("", !0),
+                    O.value?.datedCount ? (_(), T("span", y2, p(O.value.datedCount) + " " + p(g(y)("library", "dated")), 1)) : j("", !0),
+                    O.value?.undatedCount > 0 ? (_(), T("span", _2, p(O.value.undatedCount) + " " + p(g(y)("library", "undated")), 1)) : j("", !0)
+                  ], 8, m2),
                   Ta.value && O.value ? (_(), T("aside", {
                     key: 0,
                     class: "library-publication-issue-context",
@@ -17371,18 +17392,18 @@ const CC = `<!--
                   }, [
                     c("strong", null, p(g(y)("library", "Publication contents")), 1),
                     c("span", null, p(g(Mn)("library", "%n item", "%n items", O.value.itemCount)), 1),
-                    O.value.earliestYear && O.value.latestYear ? (_(), T("span", Sk, p(O.value.earliestYear) + "–" + p(O.value.latestYear), 1)) : j("", !0),
+                    O.value.earliestYear && O.value.latestYear ? (_(), T("span", S2, p(O.value.earliestYear) + "–" + p(O.value.latestYear), 1)) : j("", !0),
                     c("span", null, p(O.value.datedCount) + " " + p(g(y)("library", "with issue/date coverage")), 1),
-                    O.value.undatedCount > 0 ? (_(), T("span", Ck, p(O.value.undatedCount) + " " + p(g(y)("library", "without dates yet")), 1)) : j("", !0),
+                    O.value.undatedCount > 0 ? (_(), T("span", C2, p(O.value.undatedCount) + " " + p(g(y)("library", "without dates yet")), 1)) : j("", !0),
                     c("span", null, p(g(y)("library", "read-only grouping")), 1)
-                  ], 8, wk)) : j("", !0),
-                  Ta.value && O.value?.issueGroups?.length ? (_(), T("section", Tk, [
+                  ], 8, w2)) : j("", !0),
+                  Ta.value && O.value?.issueGroups?.length ? (_(), T("section", T2, [
                     c("div", null, [
-                      c("p", Ek, p(g(y)("library", "Issue order")), 1),
+                      c("p", E2, p(g(y)("library", "Issue order")), 1),
                       c("h4", {
                         id: "library-publication-issue-groups-heading",
                         title: g(y)("library", "Comics, magazines and periodicals stay visible here even when Library only has dates or filename/path issue candidates. Use item details before editing metadata.")
-                      }, p(g(y)("library", "Read-only issue/date grouping")), 9, Ak)
+                      }, p(g(y)("library", "Read-only issue/date grouping")), 9, A2)
                     ]),
                     c("div", {
                       class: "library-publication-issue-strip",
@@ -17396,9 +17417,9 @@ const CC = `<!--
                         c("span", null, p(f.label), 1),
                         c("strong", null, p(f.items?.[0]?.issueLabel || g(y)("library", "Issue")), 1),
                         c("small", null, p(g(Mn)("library", "%n item", "%n items", f.items?.length || 0)), 1)
-                      ], 8, Ok))), 128))
-                    ], 8, kk),
-                    O.value.gapRanges?.length ? (_(), T("p", xk, p(g(y)("library", "Gap")) + ": " + p(O.value.gapRanges.join(", ")), 1)) : j("", !0),
+                      ], 8, O2))), 128))
+                    ], 8, k2),
+                    O.value.gapRanges?.length ? (_(), T("p", x2, p(g(y)("library", "Gap")) + ": " + p(O.value.gapRanges.join(", ")), 1)) : j("", !0),
                     (_(!0), T(fe, null, ze(O.value.issueGroups, (f) => (_(), T("div", {
                       key: f.label,
                       class: "library-publication-issue-group"
@@ -17408,17 +17429,17 @@ const CC = `<!--
                         (_(!0), T(fe, null, ze(f.items, (U, se) => (_(), T("li", {
                           key: U.itemId
                         }, [
-                          c("span", Nk, p(U.issueLabel), 1),
+                          c("span", N2, p(U.issueLabel), 1),
                           c("a", {
                             href: U.detailsUrl || "#"
-                          }, p(U.title), 9, Lk),
+                          }, p(U.title), 9, L2),
                           c("small", null, [
                             Re(p(U.publicationType), 1),
                             U.publicationDate ? (_(), T(fe, { key: 0 }, [
                               Re(" · " + p(U.publicationDate), 1)
                             ], 64)) : j("", !0)
                           ]),
-                          c("small", Rk, [
+                          c("small", R2, [
                             se > 0 ? (_(), T(fe, { key: 0 }, [
                               Re(p(g(y)("library", "Previous issue")), 1)
                             ], 64)) : j("", !0),
@@ -17432,44 +17453,44 @@ const CC = `<!--
                         ]))), 128))
                       ])
                     ]))), 128)),
-                    O.value.unknownIssueItems?.length ? (_(), T("details", Ik, [
+                    O.value.unknownIssueItems?.length ? (_(), T("details", I2, [
                       c("summary", {
                         title: g(y)("library", "Unknown issue/date rows remain visible instead of disappearing from the publication page.")
-                      }, p(g(y)("library", "Unknown issue/date")) + " · " + p(O.value.unknownIssueItems.length), 9, Pk)
+                      }, p(g(y)("library", "Unknown issue/date")) + " · " + p(O.value.unknownIssueItems.length), 9, P2)
                     ])) : j("", !0)
                   ])) : j("", !0),
                   c("p", null, [
                     c("a", {
                       href: ue.value,
                       class: "button secondary library-discovery-back-link"
-                    }, p(g(y)("library", "Back to full catalogue")), 9, Dk)
+                    }, p(g(y)("library", "Back to full catalogue")), 9, D2)
                   ])
                 ])) : j("", !0),
-                c("div", $k, [
-                  c("p", Mk, [
+                c("div", $2, [
+                  c("p", M2, [
                     Re(p(g(y)("library", "Showing")) + " " + p(I.value.from) + "–" + p(I.value.to) + " " + p(g(y)("library", "of")) + " " + p(I.value.total) + " " + p(g(y)("library", "catalogue items")), 1),
-                    Yi.value.length > 0 ? (_(), T("span", Fk, [
+                    Yi.value.length > 0 ? (_(), T("span", F2, [
                       b[50] || (b[50] = Re(" · ", -1)),
-                      c("a", zk, p(g(y)("library", "Clear all filters")), 1)
+                      c("a", z2, p(g(y)("library", "Clear all filters")), 1)
                     ])) : j("", !0)
                   ]),
                   c("nav", {
                     class: "library-pagination library-pagination--top",
                     "aria-label": g(y)("library", "Catalogue pagination")
                   }, [
-                    c("span", Bk, [
+                    c("span", B2, [
                       Re(p(g(y)("library", "Page")) + " " + p(I.value.page), 1),
-                      I.value.total > 0 ? (_(), T("span", jk, " · " + p(I.value.from) + "–" + p(I.value.to), 1)) : j("", !0)
+                      I.value.total > 0 ? (_(), T("span", j2, " · " + p(I.value.from) + "–" + p(I.value.to), 1)) : j("", !0)
                     ]),
                     I.value.previousUrl ? (_(), T("a", {
                       key: 0,
                       href: I.value.previousUrl
-                    }, p(g(y)("library", "Previous")), 9, Hk)) : (_(), T("span", Vk, p(g(y)("library", "Previous")), 1)),
+                    }, p(g(y)("library", "Previous")), 9, H2)) : (_(), T("span", V2, p(g(y)("library", "Previous")), 1)),
                     I.value.nextUrl ? (_(), T("a", {
                       key: 2,
                       href: I.value.nextUrl
-                    }, p(g(y)("library", "Next")), 9, Gk)) : (_(), T("span", Kk, p(g(y)("library", "Next")), 1))
-                  ], 8, Uk)
+                    }, p(g(y)("library", "Next")), 9, G2)) : (_(), T("span", K2, p(g(y)("library", "Next")), 1))
+                  ], 8, U2)
                 ]),
                 h.value.length === 0 ? (_(), T("div", {
                   key: 4,
@@ -17479,23 +17500,23 @@ const CC = `<!--
                   Oa.value ? (_(), T(fe, { key: 0 }, [
                     c("h3", {
                       title: g(y)("library", "Add one folder path that already exists in Nextcloud Files, then run a scan to build the catalogue.")
-                    }, p(g(y)("library", "Start with one Library root")), 9, Wk),
-                    c("p", qk, [
+                    }, p(g(y)("library", "Start with one Library root")), 9, W2),
+                    c("p", q2, [
                       c("a", {
                         href: H.value,
                         class: "button primary"
-                      }, p(g(y)("library", "Add a Library root")), 9, Yk),
-                      c("span", Xk, p(g(y)("library", "Run a scan after saving a root")), 1)
+                      }, p(g(y)("library", "Add a Library root")), 9, Y2),
+                      c("span", X2, p(g(y)("library", "Run a scan after saving a root")), 1)
                     ])
                   ], 64)) : qi.value ? (_(), T(fe, { key: 1 }, [
                     c("h3", {
                       title: g(y)("library", "Enable a saved root in settings, then scan enabled roots to refresh the catalogue.")
-                    }, p(g(y)("library", "No enabled Library roots")), 9, Zk),
-                    c("p", Jk, [
+                    }, p(g(y)("library", "No enabled Library roots")), 9, Z2),
+                    c("p", J2, [
                       c("a", {
                         href: H.value,
                         class: "button primary"
-                      }, p(g(y)("library", "Open Library settings")), 9, Qk)
+                      }, p(g(y)("library", "Open Library settings")), 9, Q2)
                     ])
                   ], 64)) : nr.value ? (_(), T(fe, { key: 2 }, [
                     c("h3", {

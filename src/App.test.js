@@ -149,7 +149,7 @@ describe('Library catalogue Vue app', () => {
 
     for (const callback of animationFrames.splice(0)) callback(performance.now())
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
-    expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?format=epub', expect.objectContaining({ credentials: 'same-origin' }))
+    expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?hydrate=1&format=epub', expect.objectContaining({ credentials: 'same-origin' }))
     resolveHydration({ ok: true, json: async () => ({
       ...state,
       items: [{ ...state.items[0], title: 'API item must not replace first paint' }],
@@ -509,6 +509,38 @@ describe('Library catalogue Vue app', () => {
     ))
     expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Type"]').exists()).toBe(false)
     expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Format"]').exists()).toBe(true)
+  })
+
+  it('preserves hydrated facet choices when a fast catalogue refresh defers facets', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...state,
+        facetsDeferred: true,
+        items: [{ ...state.items[0], title: 'Filtered result' }],
+        formats: [],
+        smartViewCounts: {},
+        smartViewCountsPending: ['scanner-conflicts'],
+        savedCollections: [{ id: 9, name: 'Unread', count: null, countPending: true }],
+        activeFilters: { ...state.activeFilters, subject: 'photolab' },
+      }),
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      formats: ['epub', 'pdf'],
+      smartViewCounts: { 'scanner-conflicts': 4 },
+      smartViewCountsPending: [],
+      savedCollections: [{ id: 9, name: 'Unread', count: 12, countPending: false }],
+    } } })
+
+    await wrapper.get('input[name="subjectSearch"]').setValue('photolab')
+    await wrapper.get('.library-subject-apply').trigger('click')
+
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Filtered result'))
+    expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?subject=photolab', expect.objectContaining({ credentials: 'same-origin' }))
+    expect(wrapper.get('select[name="format"]').findAll('option').map((option) => option.text())).toEqual(['All formats', 'EPUB', 'PDF'])
+    expect(wrapper.get('.library-saved-collection-count').text()).toContain('12')
   })
 
   it.each(['home', 'shelves'])('offers active filter resets on %s and navigates to the canonical catalogue', async (surface) => {

@@ -22,13 +22,15 @@ def test_index_uses_core_catalogue_and_defers_all_badge_counts():
         "private function savedCollectionsWithCounts", 1
     )[0]
 
-    assert "$includeFacets = $surface !== 'index'" in state
+    assert "$fastCatalogueApi = $surface === 'catalogue_api' && (string)$this->request->getParam('hydrate', '0') !== '1'" in state
+    assert "$includeFacets = $surface !== 'index' && !$fastCatalogueApi" in state
     assert "queryCatalogue($userId, $activeFilters, $pagination, $includeFacets)" in state
-    assert "$surface === 'index' ? [] :" in state
+    assert "$surface === 'index' || $fastCatalogueApi ? [] :" in state
     assert "$this->itemService->smartViewCounts($userId, false)" in state
-    assert "$surface === 'index'" in state
+    assert "$surface === 'index' || $fastCatalogueApi" in state
     assert "$this->savedCollectionsPending($userId)" in state
     assert "'smartViewCountsPending' => $smartViewCountsPending" in state
+    assert "'facetsDeferred' => $fastCatalogueApi" in state
     assert "'surface' => $surface" in state
 
 
@@ -62,11 +64,16 @@ def test_index_auxiliary_hydration_waits_for_an_animation_frame():
     )
 
 
-def test_catalogue_api_keeps_facets_and_badge_counts_enabled():
+def test_catalogue_api_defers_facets_and_badge_counts_unless_hydrating():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    app = (ROOT / "src" / "App.vue").read_text()
 
-    assert "$includeFacets = $surface !== 'index'" in page
+    assert "$fastCatalogueApi = $surface === 'catalogue_api' && (string)$this->request->getParam('hydrate', '0') !== '1'" in page
+    assert "$includeFacets = $surface !== 'index' && !$fastCatalogueApi" in page
+    assert "'facetsDeferred' => $fastCatalogueApi" in page
     assert "return new JSONResponse($this->buildCatalogueState($userId, [], [], 'catalogue_api'));" in page
+    assert "params.set('hydrate', '1')" in app
+    assert "nextState.facetsDeferred" in app
 
 
 def test_default_compact_view_is_not_an_active_instrumentation_filter():

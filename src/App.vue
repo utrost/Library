@@ -812,8 +812,13 @@ async function fetchPublicationSuggestions(query, generation) {
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
   reconcileSelectedItems()
+  const deferredKeys = new Set(nextState.facetsDeferred ? [
+    'shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext',
+    'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses',
+    'subjects', 'classifications', 'smartViewCounts', 'smartViewCountsPending', 'savedCollections',
+  ] : [])
   for (const key of ['shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'subjects', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'publicationSuggestionsUrl', 'creatorSuggestionsUrl', 'subjectSuggestionsUrl', 'yearSuggestionsUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'smartViewCountsPending', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
-    if (Object.prototype.hasOwnProperty.call(nextState, key)) {
+    if (!deferredKeys.has(key) && Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
   }
@@ -825,6 +830,7 @@ async function hydrateInitialAuxiliaryState() {
   const generation = catalogueRequestGeneration
   const filterSnapshot = JSON.stringify({ ...activeFilters })
   const params = new URLSearchParams()
+  params.set('hydrate', '1')
   for (const [key, value] of Object.entries(activeFilters)) {
     const normalized = String(value || '').trim()
     if (normalized !== '' && !(key === 'sort' && normalized === 'title') && !(key === 'view' && normalized === 'compact')) params.set(key, normalized)
