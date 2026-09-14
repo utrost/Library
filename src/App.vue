@@ -111,7 +111,6 @@ const publicationYears = computed(() => catalogueState.publicationYears || [])
 const creators = computed(() => catalogueState.creators || [])
 const scanStatuses = computed(() => catalogueState.scanStatuses || [])
 const workflowStatuses = computed(() => catalogueState.workflowStatuses || [])
-const subjects = computed(() => catalogueState.subjects || [])
 const classifications = computed(() => catalogueState.classifications || [])
 const pagination = computed(() => catalogueState.cataloguePagination || {
   page: 1,
@@ -201,6 +200,24 @@ watch(creatorSearch, (value) => {
   const generation = ++creatorSuggestionGeneration
   creatorSuggestionTimer = window.setTimeout(() => { void fetchCreatorSuggestions(query, generation) }, 200)
 })
+const subjectSearch = ref(activeFilters.subject)
+const subjectSearchFocused = ref(false)
+const remoteSubjectSuggestions = ref(null)
+const subjectSuggestions = computed(() => remoteSubjectSuggestions.value || [])
+watch(() => activeFilters.subject, (subject) => { subjectSearch.value = subject || '' })
+let subjectSuggestionTimer = null
+let subjectSuggestionController = null
+let subjectSuggestionGeneration = 0
+watch(subjectSearch, (value) => {
+  window.clearTimeout(subjectSuggestionTimer)
+  subjectSuggestionController?.abort()
+  subjectSuggestionController = null
+  remoteSubjectSuggestions.value = null
+  const query = String(value || '').trim()
+  if (query.length < 2) return
+  const generation = ++subjectSuggestionGeneration
+  subjectSuggestionTimer = window.setTimeout(() => { void fetchSubjectSuggestions(query, generation) }, 200)
+})
 const yearSearch = ref(activeFilters.year)
 const yearSearchFocused = ref(false)
 const remoteYearSuggestions = ref(null)
@@ -283,6 +300,7 @@ const catalogueEndpointUrl = computed(() => catalogueState.catalogueEndpointUrl 
 const shelfChildrenUrl = computed(() => catalogueState.shelfChildrenUrl || '/apps/library/shelves/children')
 const publicationSuggestionsUrl = computed(() => catalogueState.publicationSuggestionsUrl || '/apps/library/catalogue/publication-suggestions')
 const creatorSuggestionsUrl = computed(() => catalogueState.creatorSuggestionsUrl || '/apps/library/catalogue/creator-suggestions')
+const subjectSuggestionsUrl = computed(() => catalogueState.subjectSuggestionsUrl || '/apps/library/catalogue/subject-suggestions')
 const yearSuggestionsUrl = computed(() => catalogueState.yearSuggestionsUrl || '/apps/library/catalogue/year-suggestions')
 const itemSidebarUrlTemplate = computed(() => catalogueState.itemSidebarUrlTemplate || `${webroot}/apps/library/items/__ITEM_ID__/sidebar`)
 const batchTagUrl = computed(() => catalogueState.batchTagUrl || '/apps/library/bulk/tags')
@@ -709,6 +727,7 @@ function buildFilterParams(form) {
   const params = normalizedReviewParams(new FormData(form))
   params.delete('publicationSearch')
   params.delete('creatorSearch')
+  params.delete('subjectSearch')
   params.delete('publisherSearch')
   params.delete('yearSearch')
   for (const key of Array.from(params.keys())) {
@@ -732,27 +751,31 @@ async function fetchFacetSuggestions(facet, query, generation) {
   params.set(`${facet}Search`, query)
   const controller = new AbortController()
   if (facet === 'creator') creatorSuggestionController = controller
+  else if (facet === 'subject') subjectSuggestionController = controller
   else yearSuggestionController = controller
-  const url = facet === 'creator' ? creatorSuggestionsUrl.value : yearSuggestionsUrl.value
+  const url = facet === 'creator' ? creatorSuggestionsUrl.value : (facet === 'subject' ? subjectSuggestionsUrl.value : yearSuggestionsUrl.value)
   try {
     const response = await fetch(`${url}?${params}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin', signal: controller.signal })
     if (!response.ok) throw new Error(`${facet} suggestions request failed: ${response.status}`)
     const payload = await response.json()
-    const currentGeneration = facet === 'creator' ? creatorSuggestionGeneration : yearSuggestionGeneration
-    const currentSearch = facet === 'creator' ? creatorSearch.value : yearSearch.value
+    const currentGeneration = facet === 'creator' ? creatorSuggestionGeneration : (facet === 'subject' ? subjectSuggestionGeneration : yearSuggestionGeneration)
+    const currentSearch = facet === 'creator' ? creatorSearch.value : (facet === 'subject' ? subjectSearch.value : yearSearch.value)
     if (generation === currentGeneration && currentSearch.trim() === query) {
       if (facet === 'creator') remoteCreatorSuggestions.value = Array.isArray(payload.creators) ? payload.creators : []
+      else if (facet === 'subject') remoteSubjectSuggestions.value = Array.isArray(payload.subjects) ? payload.subjects : []
       else remoteYearSuggestions.value = Array.isArray(payload.years) ? payload.years : []
     }
   } catch (error) {
     if (error?.name !== 'AbortError') {
       if (facet === 'creator' && generation === creatorSuggestionGeneration) remoteCreatorSuggestions.value = null
+      if (facet === 'subject' && generation === subjectSuggestionGeneration) remoteSubjectSuggestions.value = null
       if (facet === 'year' && generation === yearSuggestionGeneration) remoteYearSuggestions.value = null
     }
   }
 }
 
 function fetchCreatorSuggestions(query, generation) { return fetchFacetSuggestions('creator', query, generation) }
+function fetchSubjectSuggestions(query, generation) { return fetchFacetSuggestions('subject', query, generation) }
 function fetchYearSuggestions(query, generation) { return fetchFacetSuggestions('year', query, generation) }
 
 async function fetchPublicationSuggestions(query, generation) {
@@ -787,7 +810,7 @@ async function fetchPublicationSuggestions(query, generation) {
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
   reconcileSelectedItems()
-  for (const key of ['shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'subjects', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'publicationSuggestionsUrl', 'creatorSuggestionsUrl', 'yearSuggestionsUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
+  for (const key of ['shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'subjects', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'publicationSuggestionsUrl', 'creatorSuggestionsUrl', 'subjectSuggestionsUrl', 'yearSuggestionsUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
     if (Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -949,9 +972,11 @@ async function applySearchFilters(form) {
   activeFilters.publication = String(publicationSearch.value || '').trim()
   activeFilters.publisher = String(publisherSearch.value || '').trim()
   activeFilters.creator = String(creatorSearch.value || '').trim()
+  activeFilters.subject = String(subjectSearch.value || '').trim()
   activeFilters.year = String(yearSearch.value || '').trim()
   publicationSearchFocused.value = false
   creatorSearchFocused.value = false
+  subjectSearchFocused.value = false
   yearSearchFocused.value = false
   await nextTick()
   void submitFiltersAjax({ currentTarget: form })
@@ -959,12 +984,21 @@ async function applySearchFilters(form) {
 async function applyFacetFilter(form, facet, value) {
   activeFilters[facet] = String(value || '').trim()
   if (facet === 'creator') { creatorSearch.value = activeFilters.creator; creatorSearchFocused.value = false }
+  else if (facet === 'subject') { subjectSearch.value = activeFilters.subject; subjectSearchFocused.value = false }
   else { yearSearch.value = activeFilters.year; yearSearchFocused.value = false }
   await nextTick()
   void submitFiltersAjax({ currentTarget: form })
 }
 function applyAllSearchFilters(event) { void applySearchFilters(event.currentTarget) }
 function selectCreatorSuggestion(creator, event) { void applyFacetFilter(event.currentTarget.form, 'creator', creator) }
+function applySubjectFilter(form, subject = subjectSearch.value) {
+  window.clearTimeout(subjectSuggestionTimer)
+  subjectSuggestionController?.abort()
+  subjectSuggestionController = null
+  void applyFacetFilter(form, 'subject', subject)
+}
+function applySubjectSearch(event) { applySubjectFilter(event.currentTarget.form) }
+function selectSubjectSuggestion(subject, event) { applySubjectFilter(event.currentTarget.form, subject) }
 function selectYearSuggestion(year, event) { void applyFacetFilter(event.currentTarget.form, 'year', year) }
 
 function filterChipRemoveParams(key) {
@@ -1246,9 +1280,11 @@ onBeforeUnmount(() => {
   window.removeEventListener('popstate', restoreCatalogueFromHistory)
   window.clearTimeout(publicationSuggestionTimer)
   window.clearTimeout(creatorSuggestionTimer)
+  window.clearTimeout(subjectSuggestionTimer)
   window.clearTimeout(yearSuggestionTimer)
   publicationSuggestionController?.abort()
   creatorSuggestionController?.abort()
+  subjectSuggestionController?.abort()
   yearSuggestionController?.abort()
   catalogueRequestGeneration += 1
   catalogueRequestController?.abort()
@@ -1319,7 +1355,7 @@ async function toggleStar(item, event) {
             <label>{{ t('library', 'Shelf') }}<select v-model="activeFilters.shelf" name="shelf" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All shelves') }}</option><option v-for="shelf in shelves" :key="shelf" :value="shelf">{{ shelf }}</option></select></label>
             <label>{{ t('library', 'Scan status') }}<select v-model="activeFilters.status" name="status" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All scan statuses') }}</option><option v-for="status in scanStatuses" :key="status" :value="status">{{ status }}</option></select></label>
             <label>{{ t('library', 'Workflow status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All workflow statuses') }}</option><option v-for="status in workflowStatuses" :key="status" :value="status">{{ status }}</option></select></label>
-            <label>{{ t('library', 'Subject') }}<select v-model="activeFilters.subject" name="subject" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All subjects') }}</option><option v-for="subject in subjects" :key="subject" :value="subject">{{ subject }}</option></select></label>
+            <div class="library-subject-filter"><label for="library-subject-search">{{ t('library', 'Subject') }}</label><input id="library-subject-search" v-model="subjectSearch" type="search" name="subjectSearch" autocomplete="off" :placeholder="t('library', 'Search subjects')" :title="t('library', 'Exact subject matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-subject-suggestions" :aria-expanded="subjectSearchFocused && subjectSuggestions.length > 0 ? 'true' : 'false'" @focus="subjectSearchFocused = true" @keydown.escape="subjectSearchFocused = false"><input type="hidden" name="subject" :value="activeFilters.subject"><ul v-if="subjectSearchFocused && subjectSuggestions.length > 0" id="library-subject-suggestions" class="library-subject-suggestions" role="listbox"><li v-for="subject in subjectSuggestions" :key="subject" role="option"><button type="button" class="library-subject-suggestion" @mousedown.prevent @click="selectSubjectSuggestion(subject, $event)">{{ subject }}</button></li></ul><button type="button" class="button secondary library-subject-apply" @click="applySubjectSearch">{{ t('library', 'Apply subject') }}</button></div>
             <label>{{ t('library', 'Classification') }}<select v-model="activeFilters.classification" name="classification" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All classifications') }}</option><option v-for="classification in classifications" :key="classification" :value="classification">{{ classification }}</option></select></label>
             <label>{{ t('library', 'Suggested updates') }}<select v-model="activeFilters.scannerConflicts" name="scannerConflicts" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All metadata') }}</option><option value="1">{{ t('library', 'Suggested updates') }}</option></select></label>
             <button type="submit" class="button primary">{{ t('library', 'Apply filters') }}</button><a href="?" class="button secondary">{{ t('library', 'Clear') }}</a>
@@ -2048,7 +2084,8 @@ async function toggleStar(item, event) {
 .library-sidebar-filters label,
 .library-sidebar-filters .library-publication-filter,
 .library-sidebar-filters .library-year-filter,
-.library-sidebar-filters .library-creator-filter {
+.library-sidebar-filters .library-creator-filter,
+.library-sidebar-filters .library-subject-filter {
   font-size: 12px;
   gap: 2px;
   min-width: 0;
@@ -2062,7 +2099,8 @@ async function toggleStar(item, event) {
 
 .library-sidebar-filters .library-publication-apply,
 .library-sidebar-filters .library-year-apply,
-.library-sidebar-filters .library-creator-apply {
+.library-sidebar-filters .library-creator-apply,
+.library-sidebar-filters .library-subject-apply {
   justify-self: stretch;
 }
 
@@ -3355,11 +3393,14 @@ async function toggleStar(item, event) {
 }
 .library-publication-filter,
 .library-year-filter,
-.library-creator-filter { display: grid; gap: 6px; position: relative; }
+.library-creator-filter,
+.library-subject-filter { display: grid; gap: 6px; position: relative; }
 .library-publication-suggestions,
 .library-year-suggestions,
-.library-creator-suggestions { background: var(--color-main-background); border: 1px solid var(--color-border); border-radius: var(--border-radius); box-shadow: 0 4px 12px var(--color-box-shadow); left: 0; list-style: none; margin: 0; max-height: min(18rem, 50vh); overflow-y: auto; padding: 4px; position: absolute; right: 0; top: 4.2rem; z-index: 20; }
+.library-creator-suggestions,
+.library-subject-suggestions { background: var(--color-main-background); border: 1px solid var(--color-border); border-radius: var(--border-radius); box-shadow: 0 4px 12px var(--color-box-shadow); left: 0; list-style: none; margin: 0; max-height: min(18rem, 50vh); overflow-y: auto; padding: 4px; position: absolute; right: 0; top: 4.2rem; z-index: 20; }
 .library-publication-suggestion,
 .library-year-suggestion,
-.library-creator-suggestion { justify-content: flex-start; overflow-wrap: anywhere; text-align: start; width: 100%; }
+.library-creator-suggestion,
+.library-subject-suggestion { justify-content: flex-start; overflow-wrap: anywhere; text-align: start; width: 100%; }
 </style>

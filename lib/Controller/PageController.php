@@ -31,8 +31,8 @@ use Throwable;
 
 class PageController extends Controller {
     private const APP_VERSION = '0.1.0-alpha.168';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-168-filterux';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-168-filterux';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-168-subjecttypeahead';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-168-subjecttypeahead';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -221,6 +221,20 @@ class PageController extends Controller {
 
         return new JSONResponse([
             'creators' => $userId === '' || $query === '' ? [] : $this->itemService->creatorSuggestions($userId, $filters, $query, 20),
+        ]);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function subjectSuggestions(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        $query = trim((string)$this->request->getParam('subjectSearch', ''));
+        $filters = $this->catalogueFiltersFromRequest();
+        unset($filters['subject']);
+
+        return new JSONResponse([
+            'subjects' => $userId === '' || mb_strlen($query) < 2 ? [] : $this->itemService->subjectSuggestions($userId, $filters, $query, 20),
         ]);
     }
 
@@ -468,7 +482,8 @@ class PageController extends Controller {
             'creatorLandingUrls' => [],
             'scanStatuses' => $catalogue['facets']['scanStatuses'],
             'workflowStatuses' => $catalogue['facets']['workflowStatuses'],
-            'subjects' => $catalogue['facets']['subjects'] ?? [],
+            // Subject matches are loaded from the normalized facet index on demand.
+            'subjects' => [],
             'classifications' => $catalogue['facets']['classifications'] ?? [],
             'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
@@ -485,6 +500,7 @@ class PageController extends Controller {
             'catalogueEndpointUrl' => $this->urlGenerator->linkToRoute('library.page.catalogue'),
             'publicationSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.publicationSuggestions'),
             'creatorSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.creatorSuggestions'),
+            'subjectSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.subjectSuggestions'),
             'yearSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.yearSuggestions'),
             'itemSidebarUrlTemplate' => str_replace('2147483647', '__ITEM_ID__', $this->urlGenerator->linkToRoute('library.item_page.sidebar', ['itemId' => '2147483647'])),
             'batchTagUrl' => $this->urlGenerator->linkToRoute('library.tag.batchassign'),
