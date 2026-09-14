@@ -45,6 +45,14 @@ EXPECTED_TABLES = {
             "library_ident_id", "library_ident_item", "library_ident_user_scheme_value",
         },
     },
+    "*dbprefix*library_item_facets": {
+        "fields": {
+            "id", "user_id", "item_id", "facet_type", "facet_value", "normalized_value",
+        },
+        "indexes": {
+            "library_facets_id", "library_facets_lookup", "library_facets_item_unique",
+        },
+    },
     "*dbprefix*library_scan_jobs": {
         "fields": {
             "id", "user_id", "status", "scope_type", "root_id", "roots_total", "files_indexed",

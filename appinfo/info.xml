@@ -29,4 +29,7 @@
         <personal>OCA\Library\Settings\Personal</personal>
         <personal-section>OCA\Library\Settings\PersonalSection</personal-section>
     </settings>
+    <commands>
+        <command>OCA\Library\Command\RebuildFacetIndex</command>
+    </commands>
 </info>

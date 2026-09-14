@@ -51,7 +51,7 @@ def test_each_catalogue_facet_uses_a_self_excluding_filter_context():
     assert "catalogueFilteredQueryBuilder($userId, $filters)" in facets
 
 
-def test_ordinary_catalogue_facets_skip_multi_value_json_scans_but_keep_filters():
+def test_ordinary_catalogue_facets_use_normalized_multi_value_index():
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
     facets = service.split("private function catalogueFacets", 1)[1].split(
         "private function facetFiltersFor", 1
@@ -60,10 +60,10 @@ def test_ordinary_catalogue_facets_skip_multi_value_json_scans_but_keep_filters(
         "private function", 1
     )[0]
 
-    assert "'subjects' => []" in facets
-    assert "'classifications' => []" in facets
-    assert "subjectFacetValues(" not in facets
-    assert "classificationFacetValues(" not in facets
-    assert "i.subjects_json" in predicates
-    assert "i.classifications_json" in predicates
-    assert "jsonArrayContainsFilter" in predicates
+    assert "'subjects' => $this->indexedFacetValues($userId, 'subject')" in facets
+    assert "'classifications' => $this->indexedFacetValues($userId, 'classification')" in facets
+    assert "subjects_json" not in facets
+    assert "classifications_json" not in facets
+    assert "indexedFacetFilter($qb, $userId, 'subject', $subject)" in predicates
+    assert "indexedFacetFilter($qb, $userId, 'classification', $classification)" in predicates
+    assert "jsonArrayContainsFilter" not in predicates
