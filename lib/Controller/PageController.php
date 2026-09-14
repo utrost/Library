@@ -226,20 +226,6 @@ class PageController extends Controller {
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    public function publisherSuggestions(): JSONResponse {
-        $user = $this->userSession->getUser();
-        $userId = $user !== null ? $user->getUID() : '';
-        $query = trim((string)$this->request->getParam('publisherSearch', ''));
-        $filters = $this->catalogueFiltersFromRequest();
-        unset($filters['publisher']);
-
-        return new JSONResponse([
-            'publishers' => $userId === '' || $query === '' ? [] : $this->itemService->publisherSuggestions($userId, $filters, $query, 20),
-        ]);
-    }
-
-    #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function yearSuggestions(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -499,7 +485,6 @@ class PageController extends Controller {
             'catalogueEndpointUrl' => $this->urlGenerator->linkToRoute('library.page.catalogue'),
             'publicationSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.publicationSuggestions'),
             'creatorSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.creatorSuggestions'),
-            'publisherSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.publisherSuggestions'),
             'yearSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.yearSuggestions'),
             'itemSidebarUrlTemplate' => str_replace('2147483647', '__ITEM_ID__', $this->urlGenerator->linkToRoute('library.item_page.sidebar', ['itemId' => '2147483647'])),
             'batchTagUrl' => $this->urlGenerator->linkToRoute('library.tag.batchassign'),

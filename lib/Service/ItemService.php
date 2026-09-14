@@ -1456,8 +1456,8 @@ final class ItemService {
         $facetFilters = $this->facetFiltersFor($filters);
         return [
             'publicationTypes' => $this->distinctCatalogueValues($userId, $facetFilters['publicationTypes'], 'i.publication_type', 'value'),
-            // High-cardinality publisher choices are fetched on demand by
-            // publisherSuggestions(); exact filtering remains in the query.
+            // High-cardinality publisher choices are entered manually; exact
+            // filtering remains in the query without eager facet fanout.
             'publishers' => [],
             'shelves' => $this->distinctCatalogueValues($userId, $facetFilters['shelves'], "COALESCE(NULLIF(r.label, ''), r.path)", 'shelf'),
             'formats' => $this->distinctCatalogueValues($userId, $facetFilters['formats'], 'LOWER(f.extension)', 'value'),
@@ -1742,30 +1742,6 @@ final class ItemService {
         }
         $result->closeCursor();
         return $creators;
-    }
-
-    /** @return array<int, string> */
-    public function publisherSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
-        unset($filters['publisher']);
-        $query = mb_strtolower(trim($query));
-        if ($query === '' || $limit < 1) return [];
-        $limit = min($limit, 25);
-
-        $qb = $this->catalogueFilteredQueryBuilder($userId, $filters);
-        $result = $qb->selectAlias($qb->createFunction('i.publisher'), 'publisher')
-            ->andWhere($qb->expr()->neq('i.publisher', $qb->createNamedParameter('')))
-            ->andWhere($qb->expr()->like($qb->createFunction('LOWER(i.publisher)'), $qb->createNamedParameter('%' . $this->escapeLikeParameter($query) . '%')))
-            ->groupBy('publisher')
-            ->orderBy('publisher', 'ASC')
-            ->setMaxResults($limit)
-            ->executeQuery();
-        $publishers = [];
-        while ($row = $result->fetch()) {
-            $publisher = trim((string)($row['publisher'] ?? ''));
-            if ($publisher !== '') $publishers[] = $publisher;
-        }
-        $result->closeCursor();
-        return $publishers;
     }
 
     /** @return array<int, string> */

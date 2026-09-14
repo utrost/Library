@@ -78,17 +78,17 @@ def test_controller_exposes_type_and_publisher_facets_and_filter():
     assert "'publishers' => $catalogue['facets']['publishers']" not in catalogue
 
 
-def test_vue_uses_ajax_refreshed_type_and_remote_publisher_suggestions():
+def test_vue_uses_ajax_refreshed_type_and_manual_publisher_filter():
     vue = (ROOT / "src" / "App.vue").read_text()
 
     assert "const publicationTypes = computed(() => catalogueState.publicationTypes" in vue
     assert "const publisherSearch = ref(activeFilters.publisher)" in vue
-    assert "const publisherSuggestions = computed(() => remotePublisherSuggestions.value || [])" in vue
-    assert "publisherSuggestionsUrl" in vue
+    assert "publisherSuggestionsUrl" not in vue
+    assert "remotePublisherSuggestions" not in vue
     assert "publisher: catalogueState.activeFilters?.publisher || ''" in vue
     assert "v-model=\"publisherSearch\"" in vue
     assert "name=\"publisher\" :value=\"activeFilters.publisher\"" in vue
-    assert "v-for=\"publisher in publisherSuggestions\"" in vue
+    assert "v-for=\"publisher in publisherSuggestions\"" not in vue
     assert "Apply publisher" in vue
 
     apply_state = vue.split("function applyCatalogueState", 1)[1].split(
@@ -96,25 +96,6 @@ def test_vue_uses_ajax_refreshed_type_and_remote_publisher_suggestions():
     )[0]
     assert "'publicationTypes'" in apply_state
     assert "'publishers'" in apply_state
-
-
-def test_publisher_suggestions_are_bounded_filter_aware_and_routed():
-    routes = (ROOT / "appinfo" / "routes.php").read_text()
-    controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
-    service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
-
-    assert "'page#publisherSuggestions'" in routes
-    assert "'/catalogue/publisher-suggestions'" in routes
-    assert "public function publisherSuggestions(): JSONResponse" in controller
-    assert "getParam('publisherSearch', '')" in controller
-    assert "unset($filters['publisher'])" in controller
-    assert "$this->itemService->publisherSuggestions($userId, $filters, $query, 20)" in controller
-    assert "'publisherSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.publisherSuggestions')" in controller
-    assert "public function publisherSuggestions(string $userId, array $filters, string $query, int $limit = 20): array" in service
-    assert "LOWER(i.publisher)" in service
-    assert "->groupBy('publisher')" in service
-    assert "->orderBy('publisher', 'ASC')" in service
-    assert "->setMaxResults($limit)" in service
 
 
 def test_publisher_lazy_payload_keeps_manual_exact_filter_and_active_label():
