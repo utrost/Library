@@ -78,17 +78,18 @@ def test_controller_exposes_type_and_publisher_facets_and_filter():
     assert "'publishers' => $catalogue['facets']['publishers']" not in catalogue
 
 
-def test_vue_uses_ajax_refreshed_type_and_manual_publisher_filter():
+def test_vue_uses_ajax_refreshed_type_and_server_backed_publisher_filter():
     vue = (ROOT / "src" / "App.vue").read_text()
 
     assert "const publicationTypes = computed(() => catalogueState.publicationTypes" in vue
     assert "const publisherSearch = ref(activeFilters.publisher)" in vue
-    assert "publisherSuggestionsUrl" not in vue
-    assert "remotePublisherSuggestions" not in vue
+    assert "const publisherSuggestions = computed(() => remotePublisherSuggestions.value || [])" in vue
+    assert "publisherSuggestionsUrl" in vue
     assert "publisher: catalogueState.activeFilters?.publisher || ''" in vue
     assert "v-model=\"publisherSearch\"" in vue
     assert "name=\"publisher\" :value=\"activeFilters.publisher\"" in vue
-    assert "v-for=\"publisher in publisherSuggestions\"" not in vue
+    assert "v-for=\"publisher in publisherSuggestions\"" in vue
+    assert "selectPublisherSuggestion(publisher, $event)" in vue
     assert "Apply publisher" in vue
 
     apply_state = vue.split("function applyCatalogueState", 1)[1].split(

@@ -9,6 +9,7 @@ return [
         ['name' => 'page#shelfChildren', 'url' => '/shelves/children', 'verb' => 'GET'],
         ['name' => 'page#publicationSuggestions', 'url' => '/catalogue/publication-suggestions', 'verb' => 'GET'],
         ['name' => 'page#creatorSuggestions', 'url' => '/catalogue/creator-suggestions', 'verb' => 'GET'],
+        ['name' => 'page#publisherSuggestions', 'url' => '/catalogue/publisher-suggestions', 'verb' => 'GET'],
         ['name' => 'page#subjectSuggestions', 'url' => '/catalogue/subject-suggestions', 'verb' => 'GET'],
         ['name' => 'page#yearSuggestions', 'url' => '/catalogue/year-suggestions', 'verb' => 'GET'],
         ['name' => 'page#publication', 'url' => '/publications/{publication}', 'verb' => 'GET', 'requirements' => ['publication' => '.+']],

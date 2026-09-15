@@ -26,8 +26,8 @@ def test_list_view_asset_path_is_cache_busted_after_alpha168_deploy():
 
     assert script != "library-main-0-1-0-alpha-168"
     assert style != "library-vue-0-1-0-alpha-168"
-    assert script == "library-main-0-1-0-alpha-168-initialhydrate"
-    assert style == "library-vue-0-1-0-alpha-168-initialhydrate"
+    assert script == "library-main-0-1-0-alpha-168-publishersearch"
+    assert style == "library-vue-0-1-0-alpha-168-publishersearch"
     assert f'data-library-main-script="{script}"' in read("templates/main.php")
     assert (ROOT / f"js/{script}.mjs").exists()
     assert (ROOT / f"css/{style}.css").exists()
@@ -36,6 +36,8 @@ def test_list_view_asset_path_is_cache_busted_after_alpha168_deploy():
     assert '"data-library-view-mode": "list"' in built_script
     assert 'name: "publicationSearch"' in built_script
     assert "publicationSuggestionsUrl" in built_script
+    assert "publisherSuggestionsUrl" in built_script
+    assert 'name: "publisherSearch"' in built_script
     assert 'id: "library-shelves"' not in built_script
     assert "library-shelf-tree" in built_style
     assert "library-periodical-groups" not in built_script
