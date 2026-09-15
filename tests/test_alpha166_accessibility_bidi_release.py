@@ -12,8 +12,8 @@ def test_alpha166_version_sources_and_unpackage_boundary():
     version = "0.1.0-alpha.168"
     for path in ["appinfo/info.xml", "package.json", "package-lock.json", "vite.config.js", "lib/Controller/PageController.php", "templates/main.php", "scripts/smoke-release-package.sh"]:
         assert version in read(path), path
-    assert "library-main-0-1-0-alpha-168-publishersearch" in read("lib/Controller/PageController.php")
-    assert "library-vue-0-1-0-alpha-168-publishersearch" in read("lib/Controller/PageController.php")
+    assert "library-main-0-1-0-alpha-168-pathlink" in read("lib/Controller/PageController.php")
+    assert "library-vue-0-1-0-alpha-168-pathlink" in read("lib/Controller/PageController.php")
 
 
 def test_vue_has_field_specific_bidi_and_semantic_names_without_controls():
