@@ -48,7 +48,7 @@ def test_facet_index_is_refreshed_on_all_multi_value_metadata_writes():
 
 def test_explicit_bounded_rebuild_exists_without_migration_backfill():
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
-    migration = max((ROOT / "lib" / "Migration").glob("Version*.php")).read_text()
+    migration = (ROOT / "lib" / "Migration" / "Version000100Date20260914120000.php").read_text()
     command = (ROOT / "lib" / "Command" / "RebuildFacetIndex.php").read_text()
     info = (ROOT / "appinfo" / "info.xml").read_text()
 

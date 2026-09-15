@@ -1,12 +1,12 @@
 # Changelog
 
-## v0.1.0-alpha.168 - 2026-09-13 (source candidate, unpackaged)
+## v0.1.0-alpha.169 - 2026-09-13 (source candidate, unpackaged)
 
 - Added bounded server-backed Home and Shelves surfaces, lazy shelf-tree children, additive catalogue facets/filters, publication suggestions, and list-view and responsive shelf refinements.
 - Added the ISBN/ISSN identifier spine with display-value preservation, checksum warnings, OPF extraction, normalized exact search, and distinct catalogue queries so multi-identifier joins do not duplicate publications.
 - Kept OPF precedence explicit: same-basename sidecars precede folder `metadata.opf`, sidecar metadata precedes embedded candidates but not user edits, paired OPFs stay out of normal catalogue results, and user-edited standalone OPF records are preserved.
 - Made Settings operations asynchronous, added per-root and total publication counts, retained cooperative cancellation, and added bounded heartbeat/current-path progress. Quiet running jobs are reported as stale without a destructive terminal transition.
-- Updated current documentation and focused docs contracts for alpha.168. No package, installation, deployment, or exact-package browser smoke was performed.
+- Updated current documentation and focused docs contracts for alpha.169. No package, installation, deployment, or exact-package browser smoke was performed.
 
 ## v0.1.0-alpha.167 - 2026-09-12 (source candidate, unpackaged)
 

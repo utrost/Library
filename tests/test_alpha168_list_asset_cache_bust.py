@@ -11,12 +11,12 @@ def read(path: str) -> str:
 
 
 def test_main_template_and_vite_define_report_the_alpha168_app_version():
-    assert 'data-library-version="0.1.0-alpha.168"' in read("templates/main.php")
-    assert "appVersion: JSON.stringify('0.1.0-alpha.168')" in read("vite.config.js")
+    assert 'data-library-version="0.1.0-alpha.169"' in read("templates/main.php")
+    assert "appVersion: JSON.stringify('0.1.0-alpha.169')" in read("vite.config.js")
 
 
 def test_list_view_asset_path_is_cache_busted_after_alpha168_deploy():
-    """List view shipped after alpha.168 assets were already cached as immutable on phones."""
+    """The active asset basename stays fresh while preserving the pathlink suffix."""
     controller = read("lib/Controller/PageController.php")
     app = read("src/App.vue")
     assert 'data-library-view-mode="list"' in app
@@ -24,10 +24,10 @@ def test_list_view_asset_path_is_cache_busted_after_alpha168_deploy():
     script = re.search(r"VUE_SCRIPT_ASSET = '([^']+)'", controller).group(1)
     style = re.search(r"VUE_STYLE_ASSET = '([^']+)'", controller).group(1)
 
-    assert script != "library-main-0-1-0-alpha-168"
-    assert style != "library-vue-0-1-0-alpha-168"
-    assert script == "library-main-0-1-0-alpha-168-pathlink"
-    assert style == "library-vue-0-1-0-alpha-168-pathlink"
+    assert script != "library-main-0-1-0-alpha-169"
+    assert style != "library-vue-0-1-0-alpha-169"
+    assert script == "library-main-0-1-0-alpha-169-pathlink"
+    assert style == "library-vue-0-1-0-alpha-169-pathlink"
     assert f'data-library-main-script="{script}"' in read("templates/main.php")
     assert (ROOT / f"js/{script}.mjs").exists()
     assert (ROOT / f"css/{style}.css").exists()
@@ -59,7 +59,7 @@ def test_release_packaging_uses_page_controller_wired_assets(tmp_path):
             "--input-type=module",
             "--eval",
             "import { releaseFrontendFiles } from './scripts/release-frontend-manifest.mjs'; "
-            "console.log(JSON.stringify(releaseFrontendFiles('0.1.0-alpha.168')))",
+            "console.log(JSON.stringify(releaseFrontendFiles('0.1.0-alpha.169')))",
         ],
         cwd=ROOT,
         check=True,
@@ -69,8 +69,8 @@ def test_release_packaging_uses_page_controller_wired_assets(tmp_path):
     frontend_files = json.loads(manifest.stdout)
     assert f"js/{script}.mjs" in frontend_files
     assert f"css/{style}.css" in frontend_files
-    assert "js/library-main-0-1-0-alpha-168.mjs" not in frontend_files
-    assert "css/library-vue-0-1-0-alpha-168.css" not in frontend_files
+    assert "js/library-main-0-1-0-alpha-169.mjs" not in frontend_files
+    assert "css/library-vue-0-1-0-alpha-169.css" not in frontend_files
 
     stage = tmp_path / "library"
     (stage / "js").mkdir(parents=True)
@@ -79,13 +79,13 @@ def test_release_packaging_uses_page_controller_wired_assets(tmp_path):
         path = stage / relative
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("release asset", encoding="utf-8")
-    stale_script = stage / "js/library-main-0-1-0-alpha-168.mjs"
-    stale_style = stage / "css/library-vue-0-1-0-alpha-168.css"
+    stale_script = stage / "js/library-main-0-1-0-alpha-169.mjs"
+    stale_style = stage / "css/library-vue-0-1-0-alpha-169.css"
     stale_script.write_text("Genre", encoding="utf-8")
     stale_style.write_text("Genre", encoding="utf-8")
 
     subprocess.run(
-        ["node", "scripts/stage-release-frontend.mjs", str(stage), "0.1.0-alpha.168"],
+        ["node", "scripts/stage-release-frontend.mjs", str(stage), "0.1.0-alpha.169"],
         cwd=ROOT,
         check=True,
         capture_output=True,

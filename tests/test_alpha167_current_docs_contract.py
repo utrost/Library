@@ -65,7 +65,7 @@ def test_alpha168_docs_keep_landed_data_and_scan_contracts_current():
         assert phrase in current
 
     operative = (ROOT / "RELEASE.md").read_text().split("## Alpha.165 legacy", 1)[0]
-    assert "0.1.0-alpha.168" in operative
+    assert "0.1.0-alpha.169" in operative
     assert "0.1.0-alpha.167" not in operative
 
 

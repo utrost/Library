@@ -7,10 +7,12 @@ const container = process.env.NC_CONTAINER || 'nextcloud'
 const tokenName = `library-catalogue-performance-${Date.now()}`
 const fastBudgetSeconds = Number(process.env.LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS || '1.0')
 const measureHydration = process.env.LIBRARY_CATALOGUE_MEASURE_HYDRATE === '1'
+const publisher = String(process.env.LIBRARY_CATALOGUE_PUBLISHER || '').trim()
 
 if (!Number.isFinite(fastBudgetSeconds) || fastBudgetSeconds <= 0) {
   throw new Error('LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS must be a positive number')
 }
+if (!publisher) throw new Error('LIBRARY_CATALOGUE_PUBLISHER publisher exact value is required')
 
 function occ(args) {
   return execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', 'occ', ...args], {
@@ -71,6 +73,9 @@ try {
 
   await timeCatalogue('catalogue_unfiltered_fast', '/apps/library/catalogue?limit=25', token, true)
   await timeCatalogue('catalogue_subject_photolab_fast', '/apps/library/catalogue?subject=photolab&limit=25', token, true)
+  const publisherUrl = new URL('/apps/library/catalogue?limit=25', upstream)
+  publisherUrl.searchParams.set('publisher', publisher)
+  await timeCatalogue('catalogue_publisher_exact_fast', `${publisherUrl.pathname}${publisherUrl.search}`, token, true)
   if (measureHydration) {
     await timeCatalogue('catalogue_hydrate_comparison', '/apps/library/catalogue?hydrate=1&limit=25', token, false)
   }
