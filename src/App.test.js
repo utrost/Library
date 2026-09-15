@@ -394,23 +394,56 @@ describe('Library catalogue Vue app', () => {
     expect(urls.map((url) => url.searchParams.get('hydrate'))).not.toContain('1')
   })
 
-  it('does not request subject suggestions until two trimmed characters are entered', async () => {
+  it.each([
+    ['publication', 3],
+    ['creator', 3],
+    ['publisher', 3],
+    ['subject', 3],
+    ['year', 2],
+  ])('does not request %s suggestions until %i trimmed characters are entered', async (facet, minimum) => {
     global.fetch = vi.fn()
     const wrapper = mount(App, { props: { state: {
       ...state,
-      subjectSuggestionsUrl: '/apps/library/catalogue/subject-suggestions',
+      [`${facet}SuggestionsUrl`]: `/apps/library/catalogue/${facet}-suggestions`,
     } } })
 
-    const input = wrapper.get('input[name="subjectSearch"]')
-    await input.setValue(' h ')
+    const input = wrapper.get(`input[name="${facet}Search"]`)
+    await input.setValue(` ${'a'.repeat(minimum - 1)} `)
     await new Promise((resolve) => window.setTimeout(resolve, 250))
     expect(global.fetch).not.toHaveBeenCalled()
 
-    await input.setValue(' hi ')
+    const query = 'a'.repeat(minimum)
+    await input.setValue(` ${query} `)
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      '/apps/library/catalogue/subject-suggestions?subjectSearch=hi',
+      `/apps/library/catalogue/${facet}-suggestions?${facet}Search=${query}`,
       expect.objectContaining({ credentials: 'same-origin' }),
     ), { timeout: 1000 })
+  })
+
+  it('keeps short active exact typeahead values representable and applies them immediately', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state }),
+    })
+    const shortValues = { publication: 'AB', creator: 'Li', publisher: 'Q', subject: 'AI', year: '19' }
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, ...shortValues },
+    } } })
+
+    for (const [facet, value] of Object.entries(shortValues)) {
+      expect(wrapper.get(`input[name="${facet}Search"]`).element.value).toBe(value)
+      expect(wrapper.get(`input[type="hidden"][name="${facet}"]`).element.value).toBe(value)
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 250))
+    expect(global.fetch).not.toHaveBeenCalled()
+
+    await wrapper.get('form.library-sidebar-filters').trigger('submit')
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?publisher=Q&publication=AB&year=19&creator=Li&subject=AI',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
   })
 
   it('fetches and applies an exact subject suggestion while preserving other filters', async () => {

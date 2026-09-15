@@ -1737,18 +1737,21 @@ final class ItemService {
     /** @return array<int, string> */
     public function publicationSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['publication']);
+        if (mb_strlen(trim($query)) < 3) return [];
         return $this->indexedSuggestionValues($userId, $filters, 'publication', 'publication_suggestion', 'publication', $query, $limit);
     }
 
     /** @return array<int, string> */
     public function creatorSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['creator']);
+        if (mb_strlen(trim($query)) < 3) return [];
         return $this->indexedSuggestionValues($userId, $filters, 'creator', 'creator_suggestion', 'creator', $query, $limit);
     }
 
     /** @return array<int, string> */
     public function publisherSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['publisher']);
+        if (mb_strlen(trim($query)) < 3) return [];
         return $this->indexedSuggestionValues($userId, $filters, 'publisher', 'publisher_suggestion', 'publisher', $query, $limit);
     }
 
@@ -1756,7 +1759,7 @@ final class ItemService {
     public function subjectSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['subject']);
         $query = mb_strtolower(trim($query));
-        if (mb_strlen($query) < 2 || $limit < 1) return [];
+        if (mb_strlen($query) < 3 || $limit < 1) return [];
         $limit = min($limit, 20);
         return $this->indexedSuggestionValues($userId, $filters, 'subject', 'subject_suggestion', 'subject', $query, $limit);
     }
@@ -1764,6 +1767,7 @@ final class ItemService {
     /** @return array<int, string> */
     public function yearSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['year']);
+        if (mb_strlen(trim($query)) < 2) return [];
         return $this->indexedSuggestionValues($userId, $filters, 'year', 'year_suggestion', 'year', $query, $limit);
     }
 

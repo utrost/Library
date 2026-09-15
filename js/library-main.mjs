@@ -7430,7 +7430,7 @@ try {
 const T_ = _p;
 let E_ = "";
 try {
-  E_ = "0.1.0-alpha.170";
+  E_ = "0.1.0-alpha.171";
 } catch {
   ma.error("The `@nextcloud/vue` library was used without setting / replacing the `appVersion`.");
 }
@@ -15610,7 +15610,7 @@ const RC = `<!--
     rt(ce, (v) => {
       window.clearTimeout(ge), ee?.abort(), ee = null, Y.value = null;
       const g = String(v || "").trim();
-      if (g === "") return;
+      if (g.length < 3) return;
       const d = ++ie;
       ge = window.setTimeout(() => {
         _v(g, d);
@@ -15624,7 +15624,7 @@ const RC = `<!--
     rt($, (v) => {
       window.clearTimeout(ne), pe?.abort(), pe = null, X.value = null;
       const g = String(v || "").trim();
-      if (g === "") return;
+      if (g.length < 3) return;
       const d = ++ve;
       ne = window.setTimeout(() => {
         mv(g, d);
@@ -15638,7 +15638,7 @@ const RC = `<!--
     rt(ye, (v) => {
       window.clearTimeout(st), ct?.abort(), ct = null, Ge.value = null;
       const g = String(v || "").trim();
-      if (g === "") return;
+      if (g.length < 3) return;
       const d = ++ft;
       st = window.setTimeout(() => {
         gv(g, d);
@@ -15652,7 +15652,7 @@ const RC = `<!--
     rt(ut, (v) => {
       window.clearTimeout(m), C?.abort(), C = null, qt.value = null;
       const g = String(v || "").trim();
-      if (g.length < 2) return;
+      if (g.length < 3) return;
       const d = ++k;
       m = window.setTimeout(() => {
         bv(g, d);
@@ -15666,7 +15666,7 @@ const RC = `<!--
     rt(L, (v) => {
       window.clearTimeout(V), Z?.abort(), Z = null, z.value = null;
       const g = String(v || "").trim();
-      if (g === "") return;
+      if (g.length < 2) return;
       const d = ++H;
       V = window.setTimeout(() => {
         yv(g, d);

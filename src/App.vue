@@ -176,7 +176,7 @@ watch(publicationSearch, (value) => {
   publicationSuggestionController = null
   remotePublicationSuggestions.value = null
   const query = String(value || '').trim()
-  if (query === '') return
+  if (query.length < 3) return
   const generation = ++publicationSuggestionGeneration
   publicationSuggestionTimer = window.setTimeout(() => { void fetchPublicationSuggestions(query, generation) }, 200)
 })
@@ -194,7 +194,7 @@ watch(publisherSearch, (value) => {
   publisherSuggestionController = null
   remotePublisherSuggestions.value = null
   const query = String(value || '').trim()
-  if (query === '') return
+  if (query.length < 3) return
   const generation = ++publisherSuggestionGeneration
   publisherSuggestionTimer = window.setTimeout(() => { void fetchPublisherSuggestions(query, generation) }, 200)
 })
@@ -212,7 +212,7 @@ watch(creatorSearch, (value) => {
   creatorSuggestionController = null
   remoteCreatorSuggestions.value = null
   const query = String(value || '').trim()
-  if (query === '') return
+  if (query.length < 3) return
   const generation = ++creatorSuggestionGeneration
   creatorSuggestionTimer = window.setTimeout(() => { void fetchCreatorSuggestions(query, generation) }, 200)
 })
@@ -230,7 +230,7 @@ watch(subjectSearch, (value) => {
   subjectSuggestionController = null
   remoteSubjectSuggestions.value = null
   const query = String(value || '').trim()
-  if (query.length < 2) return
+  if (query.length < 3) return
   const generation = ++subjectSuggestionGeneration
   subjectSuggestionTimer = window.setTimeout(() => { void fetchSubjectSuggestions(query, generation) }, 200)
 })
@@ -248,7 +248,7 @@ watch(yearSearch, (value) => {
   yearSuggestionController = null
   remoteYearSuggestions.value = null
   const query = String(value || '').trim()
-  if (query === '') return
+  if (query.length < 2) return
   const generation = ++yearSuggestionGeneration
   yearSuggestionTimer = window.setTimeout(() => { void fetchYearSuggestions(query, generation) }, 200)
 })

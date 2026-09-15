@@ -30,9 +30,9 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const APP_VERSION = '0.1.0-alpha.170';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-170-pathlink';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-170-pathlink';
+    private const APP_VERSION = '0.1.0-alpha.171';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-171-pathlink';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-171-pathlink';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -204,7 +204,7 @@ class PageController extends Controller {
         unset($filters['publication']);
 
         return new JSONResponse([
-            'publications' => $userId === '' || $query === ''
+            'publications' => $userId === '' || mb_strlen($query) < 3
                 ? []
                 : $this->itemService->publicationSuggestions($userId, $filters, $query, 20),
         ]);
@@ -220,7 +220,7 @@ class PageController extends Controller {
         unset($filters['creator']);
 
         return new JSONResponse([
-            'creators' => $userId === '' || $query === '' ? [] : $this->itemService->creatorSuggestions($userId, $filters, $query, 20),
+            'creators' => $userId === '' || mb_strlen($query) < 3 ? [] : $this->itemService->creatorSuggestions($userId, $filters, $query, 20),
         ]);
     }
 
@@ -234,7 +234,7 @@ class PageController extends Controller {
         unset($filters['publisher']);
 
         return new JSONResponse([
-            'publishers' => $userId === '' || $query === '' ? [] : $this->itemService->publisherSuggestions($userId, $filters, $query, 20),
+            'publishers' => $userId === '' || mb_strlen($query) < 3 ? [] : $this->itemService->publisherSuggestions($userId, $filters, $query, 20),
         ]);
     }
 
@@ -248,7 +248,7 @@ class PageController extends Controller {
         unset($filters['subject']);
 
         return new JSONResponse([
-            'subjects' => $userId === '' || mb_strlen($query) < 2 ? [] : $this->itemService->subjectSuggestions($userId, $filters, $query, 20),
+            'subjects' => $userId === '' || mb_strlen($query) < 3 ? [] : $this->itemService->subjectSuggestions($userId, $filters, $query, 20),
         ]);
     }
 
@@ -262,7 +262,7 @@ class PageController extends Controller {
         unset($filters['year']);
 
         return new JSONResponse([
-            'years' => $userId === '' || $query === '' ? [] : $this->itemService->yearSuggestions($userId, $filters, $query, 20),
+            'years' => $userId === '' || mb_strlen($query) < 2 ? [] : $this->itemService->yearSuggestions($userId, $filters, $query, 20),
         ]);
     }
 
