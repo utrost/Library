@@ -33,11 +33,11 @@ def test_item_service_searches_publications_beyond_seed_with_self_exclusion_and_
     assert "->setMaxResults($limit)" in service
 
 
-def test_creator_and_year_suggestions_route_controller_and_state_contract():
+def test_creator_publisher_and_year_suggestions_route_controller_and_state_contract():
     routes = read("appinfo/routes.php")
     controller = read("lib/Controller/PageController.php")
 
-    for facet in ("creator", "year"):
+    for facet in ("creator", "publisher", "year"):
         method = f"{facet}Suggestions"
         assert f"'page#{method}'" in routes
         assert f"'/catalogue/{facet}-suggestions'" in routes
@@ -48,7 +48,7 @@ def test_creator_and_year_suggestions_route_controller_and_state_contract():
         assert f"'{method}Url' => $this->urlGenerator->linkToRoute('library.page.{method}')" in controller
 
 
-def test_item_service_searches_creators_and_years_beyond_seed_with_self_exclusion_and_limit():
+def test_item_service_searches_creators_publishers_and_years_beyond_seed_with_self_exclusion_and_limit():
     service = read("lib/Service/ItemService.php")
 
     assert "public function creatorSuggestions(string $userId, array $filters, string $query, int $limit = 20): array" in service
@@ -56,9 +56,14 @@ def test_item_service_searches_creators_and_years_beyond_seed_with_self_exclusio
     assert "LOWER(i.creators)" in service
     assert "->groupBy('creator')" in service
     assert "->orderBy('creator', 'ASC')" in service
+    assert "public function publisherSuggestions(string $userId, array $filters, string $query, int $limit = 20): array" in service
+    assert "unset($filters['publisher'])" in service
+    assert "LOWER(i.publisher)" in service
+    assert "->groupBy('publisher')" in service
+    assert "->orderBy('publisher', 'ASC')" in service
     assert "public function yearSuggestions(string $userId, array $filters, string $query, int $limit = 20): array" in service
     assert "unset($filters['year'])" in service
     assert "SUBSTR(i.publication_date, 1, 4)" in service
     assert "->groupBy('year')" in service
     assert "->orderBy('year', 'ASC')" in service
-    assert service.count("->setMaxResults($limit)") >= 3
+    assert service.count("->setMaxResults($limit)") >= 4

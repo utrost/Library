@@ -1168,6 +1168,7 @@ describe('Library catalogue Vue app', () => {
 
   it.each([
     ['creator', 'Ada Remote', '1999', 'creators'],
+    ['publisher', 'Canonical Press', 'Ada Reader', 'publishers'],
     ['year', '1984', 'Ada Reader', 'years'],
   ])('fetches remote %s suggestions with its own canonical key omitted and applies the selection', async (facet, suggestion, otherValue, payloadKey) => {
     const ownUrl = `/apps/library/catalogue/${facet}-suggestions`
@@ -1196,8 +1197,13 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.findAll(`.library-${facet}-suggestion`).map((candidate) => candidate.text())).toEqual([suggestion]))
     await wrapper.get(`.library-${facet}-suggestion`).trigger('click')
 
+    const expectedQuery = facet === 'creator'
+      ? `year=1999&creator=${encodeURIComponent(suggestion).replace('%20', '+')}`
+      : facet === 'publisher'
+        ? `publisher=${encodeURIComponent(suggestion).replace('%20', '+')}&creator=${encodeURIComponent(otherValue).replace('%20', '+')}`
+        : `year=${suggestion}&creator=${encodeURIComponent(otherValue).replace('%20', '+')}`
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      `/apps/library/catalogue?${facet === 'creator' ? `year=1999&creator=${encodeURIComponent(suggestion).replace('%20', '+')}` : `year=${suggestion}&creator=${encodeURIComponent(otherValue).replace('%20', '+')}`}`,
+      `/apps/library/catalogue?${expectedQuery}`,
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
     const catalogueCall = global.fetch.mock.calls.find(([url]) => String(url).startsWith('/apps/library/catalogue?'))[0]

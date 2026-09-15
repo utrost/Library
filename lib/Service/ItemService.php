@@ -1782,6 +1782,30 @@ final class ItemService {
     }
 
     /** @return array<int, string> */
+    public function publisherSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
+        unset($filters['publisher']);
+        $query = mb_strtolower(trim($query));
+        if ($query === '' || $limit < 1) return [];
+        $limit = min($limit, 25);
+
+        $qb = $this->catalogueFilteredQueryBuilder($userId, $filters);
+        $result = $qb->selectAlias($qb->createFunction('i.publisher'), 'publisher')
+            ->andWhere($qb->expr()->neq('i.publisher', $qb->createNamedParameter('')))
+            ->andWhere($qb->expr()->like($qb->createFunction('LOWER(i.publisher)'), $qb->createNamedParameter('%' . $this->escapeLikeParameter($query) . '%')))
+            ->groupBy('publisher')
+            ->orderBy('publisher', 'ASC')
+            ->setMaxResults($limit)
+            ->executeQuery();
+        $publishers = [];
+        while ($row = $result->fetch()) {
+            $publisher = trim((string)($row['publisher'] ?? ''));
+            if ($publisher !== '') $publishers[] = $publisher;
+        }
+        $result->closeCursor();
+        return $publishers;
+    }
+
+    /** @return array<int, string> */
     public function subjectSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['subject']);
         $query = mb_strtolower(trim($query));
