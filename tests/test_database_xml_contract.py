@@ -50,7 +50,7 @@ EXPECTED_TABLES = {
             "id", "user_id", "item_id", "facet_type", "facet_value", "normalized_value",
         },
         "indexes": {
-            "library_facets_id", "library_facets_lookup", "library_facets_item_unique",
+            "library_facets_id", "library_facets_lookup", "library_facets_exact", "library_facets_item_unique",
         },
     },
     "*dbprefix*library_scan_jobs": {

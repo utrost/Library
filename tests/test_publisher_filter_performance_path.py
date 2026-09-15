@@ -20,12 +20,13 @@ def test_exact_publisher_filter_has_a_dedicated_user_scoped_lookup_index():
 
 def test_publisher_filter_remains_an_exact_sargable_predicate():
     source = SERVICE.read_text()
-
-    assert "$qb->expr()->eq('i.publisher', $qb->createNamedParameter($publisher))" in source
-    assert "$qb->expr()->like('i.publisher'" not in source
-    assert "LOWER(i.publisher)" not in source.split("private function applyCatalogueFilters", 1)[1].split(
+    filters = source.split("private function applyCatalogueFilters", 1)[1].split(
         "private function applySmartCollectionFilters", 1
     )[0]
+
+    assert "$qb->expr()->eq('i.publisher', $qb->createNamedParameter($publisher))" in filters
+    assert "$qb->expr()->like('i.publisher'" not in filters
+    assert "LOWER(i.publisher)" not in filters
 
 
 def test_performance_smoke_measures_the_exact_publisher_deferred_path():

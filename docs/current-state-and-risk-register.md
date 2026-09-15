@@ -1,6 +1,6 @@
 # Current state and risk register
 
-Current app version: `0.1.0-alpha.169` source candidate (unpackaged). Accessibility-tree evidence is not screen-reader testing; manual AT testing is pending.
+Current app version: `0.1.0-alpha.170` source candidate (unpackaged). Accessibility-tree evidence is not screen-reader testing; manual AT testing is pending.
 
 This snapshot prepares Library for the v0.1 alpha test pass. It documents what is implemented and verified now, where the app is safe to test, and which risks remain intentionally outside the current release candidate.
 
@@ -8,7 +8,7 @@ This snapshot prepares Library for the v0.1 alpha test pass. It documents what i
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current source-candidate version: `0.1.0-alpha.169`; exact-package live proof remains pending until packaging is authorized.
+- Current source-candidate version: `0.1.0-alpha.170`; exact-package live proof remains pending until packaging is authorized.
 - Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.

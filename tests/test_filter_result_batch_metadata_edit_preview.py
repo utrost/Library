@@ -72,6 +72,6 @@ def test_docs_and_version_track_preview_first_filtered_batch_metadata_edit():
     assert "apply writes matched corrected metadata" in guide.lower()
     assert "batch metadata apply" in roadmap.lower()
     assert "reports requested/applied/unchanged/skipped counts" in roadmap.lower()
-    assert "<version>0.1.0-alpha.169</version>" in info
-    assert '"version": "0.1.0-alpha.169"' in package
-    assert '"version": "0.1.0-alpha.169"' in lock
+    assert "<version>0.1.0-alpha.170</version>" in info
+    assert '"version": "0.1.0-alpha.170"' in package
+    assert '"version": "0.1.0-alpha.170"' in lock

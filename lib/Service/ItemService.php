@@ -143,7 +143,13 @@ final class ItemService {
         $existing = $this->findByLibraryFileId($userId, (int)$file['id']);
         $itemId = $existing !== null ? (int)$existing['id'] : 0;
         if ($itemId > 0) {
-            $this->refreshItemFacetIndex($userId, $itemId, $metadataCandidate['subjects'], $metadataCandidate['classifications']);
+            $this->refreshItemFacetIndex(
+                $userId,
+                $itemId,
+                $metadataCandidate['subjects'],
+                $metadataCandidate['classifications'],
+                $this->typeaheadScalarFacets($metadataCandidate)
+            );
             $this->syncItemIdentifiers($userId, $itemId, IdentifierService::normalizeIdentifierList($metadataCandidate['identifiers'] ?? [], $metadataCandidate['metadataSource'], false));
         }
     }
@@ -248,7 +254,8 @@ final class ItemService {
                 $userId,
                 $itemId,
                 $this->normalizeMultiValueField($metadata['subjects'] ?? []),
-                $this->normalizeMultiValueField($metadata['classifications'] ?? [])
+                $this->normalizeMultiValueField($metadata['classifications'] ?? []),
+                $this->typeaheadScalarFacets($metadata)
             );
         }
         $this->syncItemIdentifiers($userId, $itemId, IdentifierService::normalizeIdentifierList($metadata['identifiers'] ?? [], 'user', true));
@@ -1730,79 +1737,19 @@ final class ItemService {
     /** @return array<int, string> */
     public function publicationSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['publication']);
-        $query = mb_strtolower(trim($query));
-        if ($query === '' || $limit < 1) {
-            return [];
-        }
-        $limit = min($limit, 25);
-
-        $qb = $this->catalogueFilteredQueryBuilder($userId, $filters);
-        $result = $qb->selectAlias($qb->createFunction('i.publication'), 'publication')
-            ->andWhere($qb->expr()->neq('i.publication', $qb->createNamedParameter('')))
-            ->andWhere($qb->expr()->like(
-                $qb->createFunction('LOWER(i.publication)'),
-                $qb->createNamedParameter('%' . $this->escapeLikeParameter($query) . '%'),
-            ))
-            ->groupBy('publication')
-            ->orderBy('publication', 'ASC')
-            ->setMaxResults($limit)
-            ->executeQuery();
-
-        $publications = [];
-        while ($row = $result->fetch()) {
-            $publication = trim((string)($row['publication'] ?? ''));
-            if ($publication !== '') $publications[] = $publication;
-        }
-        $result->closeCursor();
-        return $publications;
+        return $this->indexedSuggestionValues($userId, $filters, 'publication', 'publication_suggestion', 'publication', $query, $limit);
     }
 
     /** @return array<int, string> */
     public function creatorSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['creator']);
-        $query = mb_strtolower(trim($query));
-        if ($query === '' || $limit < 1) return [];
-        $limit = min($limit, 25);
-
-        $qb = $this->catalogueFilteredQueryBuilder($userId, $filters);
-        $result = $qb->selectAlias($qb->createFunction('i.creators'), 'creator')
-            ->andWhere($qb->expr()->neq('i.creators', $qb->createNamedParameter('')))
-            ->andWhere($qb->expr()->like($qb->createFunction('LOWER(i.creators)'), $qb->createNamedParameter('%' . $this->escapeLikeParameter($query) . '%')))
-            ->groupBy('creator')
-            ->orderBy('creator', 'ASC')
-            ->setMaxResults($limit)
-            ->executeQuery();
-        $creators = [];
-        while ($row = $result->fetch()) {
-            $creator = trim((string)($row['creator'] ?? ''));
-            if ($creator !== '') $creators[] = $creator;
-        }
-        $result->closeCursor();
-        return $creators;
+        return $this->indexedSuggestionValues($userId, $filters, 'creator', 'creator_suggestion', 'creator', $query, $limit);
     }
 
     /** @return array<int, string> */
     public function publisherSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['publisher']);
-        $query = mb_strtolower(trim($query));
-        if ($query === '' || $limit < 1) return [];
-        $limit = min($limit, 25);
-
-        $qb = $this->catalogueFilteredQueryBuilder($userId, $filters);
-        $result = $qb->selectAlias($qb->createFunction('i.publisher'), 'publisher')
-            ->andWhere($qb->expr()->neq('i.publisher', $qb->createNamedParameter('')))
-            ->andWhere($qb->expr()->like($qb->createFunction('LOWER(i.publisher)'), $qb->createNamedParameter('%' . $this->escapeLikeParameter($query) . '%')))
-            ->groupBy('publisher')
-            ->orderBy('publisher', 'ASC')
-            ->setMaxResults($limit)
-            ->executeQuery();
-        $publishers = [];
-        while ($row = $result->fetch()) {
-            $publisher = trim((string)($row['publisher'] ?? ''));
-            if ($publisher !== '') $publishers[] = $publisher;
-        }
-        $result->closeCursor();
-        return $publishers;
+        return $this->indexedSuggestionValues($userId, $filters, 'publisher', 'publisher_suggestion', 'publisher', $query, $limit);
     }
 
     /** @return array<int, string> */
@@ -1811,48 +1758,82 @@ final class ItemService {
         $query = mb_strtolower(trim($query));
         if (mb_strlen($query) < 2 || $limit < 1) return [];
         $limit = min($limit, 20);
-
-        $qb = $this->catalogueFilteredQueryBuilder($userId, $filters);
-        $qb->innerJoin('i', 'library_item_facets', 'subject_suggestion', $qb->expr()->eq('subject_suggestion.item_id', 'i.id'));
-        $result = $qb->selectAlias($qb->createFunction('subject_suggestion.facet_value'), 'subject')
-            ->andWhere($qb->expr()->eq('subject_suggestion.user_id', $qb->createNamedParameter($userId)))
-            ->andWhere($qb->expr()->eq('subject_suggestion.facet_type', $qb->createNamedParameter('subject')))
-            ->andWhere($qb->expr()->like('subject_suggestion.normalized_value', $qb->createNamedParameter($this->escapeLikeParameter($query) . '%')))
-            ->groupBy('subject')
-            ->orderBy('subject', 'ASC')
-            ->setMaxResults($limit)
-            ->executeQuery();
-        $subjects = [];
-        while ($row = $result->fetch()) {
-            $subject = trim((string)($row['subject'] ?? ''));
-            if ($subject !== '') $subjects[] = $subject;
-        }
-        $result->closeCursor();
-        return $subjects;
+        return $this->indexedSuggestionValues($userId, $filters, 'subject', 'subject_suggestion', 'subject', $query, $limit);
     }
 
     /** @return array<int, string> */
     public function yearSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['year']);
+        return $this->indexedSuggestionValues($userId, $filters, 'year', 'year_suggestion', 'year', $query, $limit);
+    }
+
+    /** @return array<int, string> */
+    private function indexedSuggestionValues(string $userId, array $filters, string $facetType, string $alias, string $resultKey, string $query, int $limit = 20): array {
         $query = mb_strtolower(trim($query));
         if ($query === '' || $limit < 1) return [];
         $limit = min($limit, 25);
-        $expression = 'SUBSTR(i.publication_date, 1, 4)';
+
+        if ($this->suggestionFiltersAreEmpty($filters)) {
+            return $this->unfilteredIndexedSuggestionValues($userId, $facetType, $query, $limit);
+        }
+
         $qb = $this->catalogueFilteredQueryBuilder($userId, $filters);
-        $result = $qb->selectAlias($qb->createFunction($expression), 'year')
-            ->andWhere($qb->expr()->like('i.publication_date', $qb->createNamedParameter('____%')))
-            ->andWhere($qb->expr()->like($qb->createFunction('LOWER(' . $expression . ')'), $qb->createNamedParameter('%' . $this->escapeLikeParameter($query) . '%')))
-            ->groupBy('year')
-            ->orderBy('year', 'ASC')
+        $qb->innerJoin('i', 'library_item_facets', $alias, $qb->expr()->eq($alias . '.item_id', 'i.id'));
+        $result = $qb->selectAlias($qb->createFunction($alias . '.facet_value'), $resultKey)
+            ->andWhere($qb->expr()->eq($alias . '.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq($alias . '.facet_type', $qb->createNamedParameter($facetType)))
+            ->andWhere($qb->expr()->like($alias . '.normalized_value', $qb->createNamedParameter($this->escapeLikeParameter($query) . '%')))
+            ->groupBy($resultKey)
+            ->orderBy($resultKey, 'ASC')
             ->setMaxResults($limit)
             ->executeQuery();
-        $years = [];
+        $values = [];
         while ($row = $result->fetch()) {
-            $year = trim((string)($row['year'] ?? ''));
-            if (preg_match('/^\\d{4}$/', $year) === 1) $years[] = $year;
+            $value = trim((string)($row[$resultKey] ?? ''));
+            if ($value !== '') $values[] = $value;
         }
         $result->closeCursor();
-        return $years;
+        return $values;
+    }
+
+    /** @return array<int, string> */
+    private function unfilteredIndexedSuggestionValues(string $userId, string $facetType, string $query, int $limit): array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('facet_suggestion.normalized_value', 'facet_suggestion.facet_value')
+            ->from('library_item_facets', 'facet_suggestion')
+            ->where($qb->expr()->eq('facet_suggestion.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('facet_suggestion.facet_type', $qb->createNamedParameter($facetType)))
+            ->andWhere($qb->expr()->like('facet_suggestion.normalized_value', $qb->createNamedParameter($this->escapeLikeParameter($query) . '%')))
+            ->groupBy('facet_suggestion.normalized_value', 'facet_suggestion.facet_value')
+            ->orderBy('facet_suggestion.normalized_value', 'ASC')
+            ->addOrderBy('facet_suggestion.facet_value', 'ASC')
+            // One value can have at most 16 normalized search keys. Reading that
+            // many index groups keeps token matches discoverable without scanning
+            // every item row for a broad prefix such as a publication year.
+            ->setMaxResults($limit * 16)
+            ->executeQuery();
+
+        $values = [];
+        while ($row = $result->fetch()) {
+            $value = trim((string)($row['facet_value'] ?? ''));
+            if ($value !== '') $values[$value] = true;
+        }
+        $result->closeCursor();
+        $values = array_keys($values);
+        sort($values, SORT_NATURAL | SORT_FLAG_CASE);
+        return array_slice($values, 0, $limit);
+    }
+
+    private function suggestionFiltersAreEmpty(array $filters): bool {
+        foreach ($filters as $key => $value) {
+            if ($key === 'view' || $key === 'sort') {
+                continue;
+            }
+            if ($key === 'taggedFileIds' || (is_scalar($value) && trim((string)$value) !== '')) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1864,7 +1845,7 @@ final class ItemService {
             ->from('library_item_facets', 'facet')
             ->where($qb->expr()->eq('facet.user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('facet.facet_type', $qb->createNamedParameter($facetType)))
-            ->groupBy('facet.normalized_value')
+            ->groupBy('facet.facet_value')
             ->orderBy('facet_value', 'ASC')
             ->setMaxResults(self::MULTI_VALUE_FACET_LIMIT)
             ->executeQuery();
@@ -2101,13 +2082,13 @@ final class ItemService {
     }
 
     private function indexedFacetFilter(IQueryBuilder $qb, string $userId, string $facetType, string $value) {
-        $normalized = mb_strtolower(mb_substr(trim($value), 0, 255));
+        $facetValue = mb_substr(trim($value), 0, 255);
         $alias = $facetType === 'subject' ? 'subject_filter' : 'classification_filter';
         $qb->innerJoin('i', 'library_item_facets', $alias, $qb->expr()->eq($alias . '.item_id', 'i.id'));
         return $qb->expr()->andX(
             $qb->expr()->eq($alias . '.user_id', $qb->createNamedParameter($userId)),
             $qb->expr()->eq($alias . '.facet_type', $qb->createNamedParameter($facetType)),
-            $qb->expr()->eq($alias . '.normalized_value', $qb->createNamedParameter($normalized))
+            $qb->expr()->eq($alias . '.facet_value', $qb->createNamedParameter($facetValue))
         );
     }
 
@@ -2218,31 +2199,57 @@ final class ItemService {
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
-        $this->refreshItemFacetIndex($userId, $itemId, $metadataCandidate['subjects'], $metadataCandidate['classifications']);
+        $this->refreshItemFacetIndex(
+            $userId,
+            $itemId,
+            $metadataCandidate['subjects'],
+            $metadataCandidate['classifications'],
+            $this->typeaheadScalarFacets($metadataCandidate)
+        );
         $this->syncItemIdentifiers($userId, $itemId, IdentifierService::normalizeIdentifierList($metadataCandidate['identifiers'] ?? [], $metadataCandidate['metadataSource'], false));
     }
 
+    /** @return array<string, array<int, string>> */
+    private function typeaheadScalarFacets(array $metadata): array {
+        $publicationDate = PublicationDate::forEditor($metadata['publicationDate'] ?? $metadata['publication_date'] ?? '');
+        $year = mb_substr($publicationDate, 0, 4);
+        return [
+            'publication' => [(string)($metadata['publication'] ?? '')],
+            'creator' => [(string)($metadata['creators'] ?? '')],
+            'publisher' => [(string)($metadata['publisher'] ?? '')],
+            'year' => preg_match('/^\\d{4}$/', $year) === 1 ? [$year] : [],
+        ];
+    }
+
     /**
-     * Replace the derived subject/classification rows for one item.
+     * Replace the derived searchable facet rows for one item.
      *
      * @param array<int, string> $subjects
      * @param array<int, string> $classifications
+     * @param array<string, array<int, string>> $scalarFacets
      */
-    public function refreshItemFacetIndex(string $userId, int $itemId, array $subjects, array $classifications): void {
+    public function refreshItemFacetIndex(string $userId, int $itemId, array $subjects, array $classifications, array $scalarFacets = []): void {
         $this->deleteItemFacetIndex($userId, $itemId);
-        foreach (['subject' => $subjects, 'classification' => $classifications] as $facetType => $values) {
+        $facetValues = ['subject' => $subjects, 'classification' => $classifications] + $scalarFacets;
+        $scalarFacetTypes = array_fill_keys(array_keys($scalarFacets), true);
+        foreach ($facetValues as $facetType => $values) {
             foreach ($this->normalizeMultiValueField($values) as $value) {
                 $facetValue = mb_substr($value, 0, 255);
-                $qb = $this->db->getQueryBuilder();
-                $qb->insert('library_item_facets')
-                    ->values([
-                        'user_id' => $qb->createNamedParameter($userId),
-                        'item_id' => $qb->createNamedParameter($itemId),
-                        'facet_type' => $qb->createNamedParameter($facetType),
-                        'facet_value' => $qb->createNamedParameter($facetValue),
-                        'normalized_value' => $qb->createNamedParameter(mb_strtolower($facetValue)),
-                    ])
-                    ->executeStatement();
+                $searchKeys = isset($scalarFacetTypes[$facetType])
+                    ? FacetSearchKeyGenerator::forValue($facetValue)
+                    : [mb_strtolower($facetValue)];
+                foreach ($searchKeys as $searchKey) {
+                    $qb = $this->db->getQueryBuilder();
+                    $qb->insert('library_item_facets')
+                        ->values([
+                            'user_id' => $qb->createNamedParameter($userId),
+                            'item_id' => $qb->createNamedParameter($itemId),
+                            'facet_type' => $qb->createNamedParameter($facetType),
+                            'facet_value' => $qb->createNamedParameter($facetValue),
+                            'normalized_value' => $qb->createNamedParameter($searchKey),
+                        ])
+                        ->executeStatement();
+                }
             }
         }
     }
@@ -2266,7 +2273,7 @@ final class ItemService {
         $rebuilt = 0;
         do {
             $qb = $this->db->getQueryBuilder();
-            $result = $qb->select('id', 'subjects_json', 'classifications_json')
+            $result = $qb->select('id', 'subjects_json', 'classifications_json', 'publication', 'creators', 'publisher', 'publication_date')
                 ->from('library_items')
                 ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
                 ->andWhere($qb->expr()->gt('id', $qb->createNamedParameter($lastId)))
@@ -2282,7 +2289,8 @@ final class ItemService {
                     $userId,
                     $lastId,
                     $this->decodeJsonList($row['subjects_json'] ?? null),
-                    $this->decodeJsonList($row['classifications_json'] ?? null)
+                    $this->decodeJsonList($row['classifications_json'] ?? null),
+                    $this->typeaheadScalarFacets($row)
                 );
                 $rebuilt++;
             }
