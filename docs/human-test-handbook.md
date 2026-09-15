@@ -2,9 +2,9 @@
 
 ## Alpha.166/167 test status
 
-Version under test: `0.1.0-alpha.170`. The current Alice deployment includes alpha.166/167 accessibility/catalogue cleanup plus the first alpha.168 ISBN/ISSN identifier-spine slice.
+Version under test: `0.1.0-alpha.171`. The current Alice deployment includes alpha.166/167 accessibility/catalogue cleanup plus the first alpha.168 ISBN/ISSN identifier-spine slice.
 
-Packaging: **not used for this Alice deployment**. Deployment: **Alice checkout copy deployed**. Run the installed-instance cases against `http://100.123.149.120:8088/apps/library/`; treat archive/package-identity assertions as not applicable unless a separate `dist/library-0.1.0-alpha.170.tar.gz` candidate is generated and installed.
+Packaging: **not used for this Alice deployment**. Deployment: **Alice checkout copy deployed**. Run the installed-instance cases against `http://100.123.149.120:8088/apps/library/`; treat archive/package-identity assertions as not applicable unless a separate `dist/library-0.1.0-alpha.171.tar.gz` candidate is generated and installed.
 
 ## Alpha.168 identifier-spine first pass
 
@@ -175,7 +175,7 @@ Notes:
 
 For v0.1 testing to start, these must pass on the packaged app, not just the working checkout:
 
-1. The exact `dist/library-0.1.0-alpha.170.tar.gz` is installed and enabled on the private Nextcloud 34 test instance; confirm the visible behavior is the candidate described here.
+1. The exact `dist/library-0.1.0-alpha.171.tar.gz` is installed and enabled on the private Nextcloud 34 test instance; confirm the visible behavior is the candidate described here.
 2. `/apps/library/` and `/settings/user/library` load for a normal user without Library-specific console errors.
 3. Adding a root, scanning it, browsing compact cards, opening sidebar details, and using Open/Show in Files/Download works.
 4. Editing Library metadata survives a rescan and stays separate from Nextcloud tags/comments.
@@ -188,7 +188,7 @@ For v0.1 testing to start, these must pass on the packaged app, not just the wor
 
 Purpose: prove the tester is using the generated release archive.
 
-Setup: use the private Nextcloud 34 test instance where the exact `dist/library-0.1.0-alpha.170.tar.gz` candidate is installed and enabled.
+Setup: use the private Nextcloud 34 test instance where the exact `dist/library-0.1.0-alpha.171.tar.gz` candidate is installed and enabled.
 
 Steps:
 
@@ -197,7 +197,7 @@ Steps:
 3. Check the visible app version or installed app version if available.
 4. Open browser developer tools and inspect console output.
 
-Expected result: both pages load; the app is version `0.1.0-alpha.170`; no Library-specific JavaScript error appears. Home and Shelves load bounded server-backed summaries, Catalogue loads its paginated results and additive facets, Review shows the focused native cleanup destination, copied queue URLs preserve the selected filter, and Settings reaches the existing personal-settings page.
+Expected result: both pages load; the app is version `0.1.0-alpha.171`; no Library-specific JavaScript error appears. Home and Shelves load bounded server-backed summaries, Catalogue loads its paginated results and additive facets, Review shows the focused native cleanup destination, copied queue URLs preserve the selected filter, and Settings reaches the existing personal-settings page.
 
 Evidence to capture on failure: screenshot, URL, browser console errors, Nextcloud app version, and whether the app came from the generated archive.
 

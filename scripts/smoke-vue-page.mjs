@@ -22,7 +22,7 @@ import { execFileSync } from 'node:child_process'
 // value="details"
 // source_has_creator_filter
 // backend_searches_description
-// app_version=0.1.0-alpha.170
+// app_version=0.1.0-alpha.171
 // NcActions
 // grid-template-columns: repeat(2, minmax(0, 1fr))
 // download.bytes <= 0
@@ -339,7 +339,7 @@ try {
     const noTechnicalCatalogueDashboards = !bundle.includes('library-home-dashboard') && !bundle.includes('library-weak-metadata-dashboard') && !bundle.includes('library-import-health-dashboard') && !bundle.includes('Weak metadata cockpit')
     const reviewSuggestionSafety = bundleHas('library-metadata-review-workbench', 'Review next suggestion', 'Use suggested value', 'Skip to next suggestion', 'No source files are changed')
     const activeFilterChips = bundleHas('library-active-filter-chips', 'activeFilterChips', 'filterChipRemoveUrl', 'removeFilterChip')
-    const installedVersionAssetIdentity = scriptMatch?.[1]?.includes('0-1-0-alpha-170') && cssMatch?.[1]?.includes('0-1-0-alpha-170')
+    const installedVersionAssetIdentity = scriptMatch?.[1]?.includes('0-1-0-alpha-171') && cssMatch?.[1]?.includes('0-1-0-alpha-171')
     console.log(`source_has_primary_catalogue_controls=${primaryCatalogueControls}`)
     console.log(`source_has_calm_catalogue=${calmCatalogue}`)
     console.log(`source_has_selection_gated_actions=${selectionGatedActions}`)
@@ -351,7 +351,7 @@ try {
     console.log(`review_has_suggestion_workbench_and_source_safety=${reviewSuggestionSafety}`)
     console.log(`source_has_active_filter_chips=${activeFilterChips}`)
     console.log(`source_has_custom_saved_collections=${bundleHas('library-saved-collections', 'Custom collections', 'Save current view')}`)
-    console.log(`app_version=${installedVersionAssetIdentity ? '0.1.0-alpha.170' : 'unverified'}`)
+    console.log(`app_version=${installedVersionAssetIdentity ? '0.1.0-alpha.171' : 'unverified'}`)
     console.log(`source_has_mobile_cover_first_cards=${bundleHas('library-cover-link', 'library-cover-primary-actions') && css.text.includes('@media (max-width:520px)')}`)
     console.log(`source_has_compact_cover_cards_all_widths=${installedVersionAssetIdentity && bundleHas('library-cover-link') && css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))')}`)
     console.log(`served_css_has_compact_cover_defaults=${css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') && css.text.includes('min-height:0')}`)

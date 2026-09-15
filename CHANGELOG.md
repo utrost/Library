@@ -1,7 +1,8 @@
 # Changelog
 
-## v0.1.0-alpha.170 - 2026-09-13 (source candidate, unpackaged)
+## v0.1.0-alpha.171 - 2026-09-15 (source candidate, unpackaged)
 
+- Delayed server-backed publication/series, creator, publisher, and subject typeahead requests until three trimmed characters are entered, while retaining the two-character year threshold and immediate exact-value apply/clear behavior.
 - Added bounded server-backed Home and Shelves surfaces, lazy shelf-tree children, additive catalogue facets/filters, publication suggestions, and list-view and responsive shelf refinements.
 - Added the ISBN/ISSN identifier spine with display-value preservation, checksum warnings, OPF extraction, normalized exact search, and distinct catalogue queries so multi-identifier joins do not duplicate publications.
 - Kept OPF precedence explicit: same-basename sidecars precede folder `metadata.opf`, sidecar metadata precedes embedded candidates but not user edits, paired OPFs stay out of normal catalogue results, and user-edited standalone OPF records are preserved.

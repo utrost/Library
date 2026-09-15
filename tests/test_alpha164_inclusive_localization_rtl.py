@@ -20,12 +20,12 @@ def placeholders(value: str) -> list[str]:
 
 
 def test_current_versions_assets_and_package_smoke_are_exact():
-    assert '<version>0.1.0-alpha.170</version>' in read('appinfo/info.xml')
-    assert '"version": "0.1.0-alpha.170"' in read('package.json')
-    assert "appVersion: JSON.stringify('0.1.0-alpha.170')" in read('vite.config.js')
+    assert '<version>0.1.0-alpha.171</version>' in read('appinfo/info.xml')
+    assert '"version": "0.1.0-alpha.171"' in read('package.json')
+    assert "appVersion: JSON.stringify('0.1.0-alpha.171')" in read('vite.config.js')
     controller = read('lib/Controller/PageController.php')
-    assert "library-main-0-1-0-alpha-170-pathlink" in controller
-    assert "library-vue-0-1-0-alpha-170-pathlink" in controller
+    assert "library-main-0-1-0-alpha-171-pathlink" in controller
+    assert "library-vue-0-1-0-alpha-171-pathlink" in controller
     assert 'EXPECTED_VERSION="$(python3 - "$ROOT/appinfo/info.xml"' in read('scripts/smoke-release-package.sh')
 
 

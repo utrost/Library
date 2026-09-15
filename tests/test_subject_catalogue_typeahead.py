@@ -15,7 +15,7 @@ def test_subject_suggestions_route_controller_and_lazy_state_contract():
     method = page.split("public function subjectSuggestions()", 1)[1].split("public function yearSuggestions()", 1)[0]
     assert "getParam('subjectSearch', '')" in method
     assert "unset($filters['subject'])" in method
-    assert "mb_strlen($query) < 2" in method
+    assert "mb_strlen($query) < 3" in method
     assert "'subjects' =>" in method
     assert "subjectSuggestions($userId, $filters, $query, 20)" in method
     assert "'subjects' => []" in state
@@ -36,7 +36,7 @@ def test_subject_suggestions_use_normalized_index_and_do_not_eager_load_all_subj
     assert "subjects_json" not in method
     assert "setMaxResults($limit)" in helper
     assert "min($limit, 20)" in method
-    assert "mb_strlen($query) < 2" in method
+    assert "mb_strlen($query) < 3" in method
     assert "createNamedParameter($this->escapeLikeParameter($query) . '%')" in helper
     assert not re.search(r"createNamedParameter\([^\n]*['\"]%['\"]\s*\.", helper)
 
@@ -55,7 +55,7 @@ def test_vue_subject_filter_is_an_exact_match_typeahead_not_a_select():
     assert "Search subjects" in app
     assert "Apply subject" in app
     assert "subjectSuggestionsUrl" in app
-    assert "query.length < 2" in app
+    assert "query.length < 3" in app
 
 
 def test_current_typeahead_bundle_uses_the_cache_busted_asset_basename():
@@ -64,6 +64,6 @@ def test_current_typeahead_bundle_uses_the_cache_busted_asset_basename():
     template = (ROOT / "templates" / "main.php").read_text()
 
     assert "-pathlink`" in build
-    assert "library-main-0-1-0-alpha-170-pathlink" in controller
-    assert "library-vue-0-1-0-alpha-170-pathlink" in controller
-    assert 'data-library-main-script="library-main-0-1-0-alpha-170-pathlink"' in template
+    assert "library-main-0-1-0-alpha-171-pathlink" in controller
+    assert "library-vue-0-1-0-alpha-171-pathlink" in controller
+    assert 'data-library-main-script="library-main-0-1-0-alpha-171-pathlink"' in template

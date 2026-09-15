@@ -53,6 +53,24 @@ def test_creator_publisher_and_year_suggestions_route_controller_and_state_contr
         assert f"'{method}Url' => $this->urlGenerator->linkToRoute('library.page.{method}')" in controller
 
 
+def test_server_suggestion_endpoints_enforce_facet_specific_trimmed_minimums():
+    controller = read("lib/Controller/PageController.php")
+
+    boundaries = {
+        "publication": ("creator", 3),
+        "creator": ("publisher", 3),
+        "publisher": ("subject", 3),
+        "subject": ("year", 3),
+        "year": ("buildCatalogueState", 2),
+    }
+    for facet, (next_method, minimum) in boundaries.items():
+        method = controller.split(f"public function {facet}Suggestions()", 1)[1].split(
+            f"public function {next_method}" if next_method != "buildCatalogueState" else "private function buildCatalogueState",
+            1,
+        )[0]
+        assert f"mb_strlen($query) < {minimum}" in method
+
+
 def test_item_service_searches_creators_publishers_and_years_beyond_seed_with_self_exclusion_and_limit():
     service = read("lib/Service/ItemService.php")
     helper = service.split("private function indexedSuggestionValues", 1)[1].split("private function indexedFacetValues", 1)[0]
