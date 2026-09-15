@@ -60,6 +60,8 @@ def test_catalogues_are_complete_real_locales_with_matching_placeholders():
             for key, value in translated.items()
         )
     assert json.loads(read('l10n/de.json'))['translations']['Library'] == 'Bibliothek'
+    assert json.loads(read('l10n/de.json'))['translations']['Maintenance'] == 'Details'
+    assert json.loads(read('l10n/de.json'))['translations']['Maintenance (legacy)'] == 'Details'
     assert json.loads(read('l10n/ar.json'))['translations']['Library'] == 'المكتبة'
     assert json.loads(read('l10n/ar.json'))['pluralForm'].startswith('nplurals=6;')
 
