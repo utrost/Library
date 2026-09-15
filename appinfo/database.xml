@@ -11,7 +11,8 @@
             <field><name>facet_value</name><type>string</type><length>255</length><notnull>true</notnull></field>
             <field><name>normalized_value</name><type>string</type><length>255</length><notnull>true</notnull></field>
             <index><name>library_facets_id</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
-            <index><name>library_facets_lookup</name><field><name>user_id</name></field><field><name>facet_type</name></field><field><name>normalized_value</name></field></index>
+            <index><name>library_facets_lookup</name><field><name>user_id</name></field><field><name>facet_type</name></field><field><name>normalized_value</name></field><field><name>facet_value</name></field></index>
+            <index><name>library_facets_exact</name><field><name>user_id</name></field><field><name>facet_type</name></field><field><name>facet_value</name></field><field><name>item_id</name></field></index>
             <index><name>library_facets_item_unique</name><unique>true</unique><field><name>item_id</name></field><field><name>facet_type</name></field><field><name>normalized_value</name></field></index>
         </declaration>
     </table>

@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.1.0-alpha.169 - 2026-09-13 (source candidate, unpackaged)
+## v0.1.0-alpha.170 - 2026-09-13 (source candidate, unpackaged)
 
 - Added bounded server-backed Home and Shelves surfaces, lazy shelf-tree children, additive catalogue facets/filters, publication suggestions, and list-view and responsive shelf refinements.
 - Added the ISBN/ISSN identifier spine with display-value preservation, checksum warnings, OPF extraction, normalized exact search, and distinct catalogue queries so multi-identifier joins do not duplicate publications.

@@ -1,6 +1,6 @@
 # Library Roadmap
 
-Status: active planning roadmap; current source candidate `0.1.0-alpha.169` (unpackaged)
+Status: active planning roadmap; current source candidate `0.1.0-alpha.170` (unpackaged)
 Last updated: 2026-09-12
 Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md), [Alice scale pilot notes](alice-scale-pilot.md)
 

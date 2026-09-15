@@ -25,12 +25,17 @@ def test_item_service_searches_publications_beyond_seed_with_self_exclusion_and_
     service = read("lib/Service/ItemService.php")
 
     assert "public function publicationSuggestions(string $userId, array $filters, string $query, int $limit = 20): array" in service
-    assert "unset($filters['publication'])" in service
-    assert "LOWER(i.publication)" in service
-    assert "->like(" in service
-    assert "->groupBy('publication')" in service
-    assert "->orderBy('publication', 'ASC')" in service
-    assert "->setMaxResults($limit)" in service
+    publication_method = service.split("public function publicationSuggestions", 1)[1].split("public function creatorSuggestions", 1)[0]
+    helper = service.split("private function indexedSuggestionValues", 1)[1].split("private function indexedFacetValues", 1)[0]
+
+    assert "unset($filters['publication'])" in publication_method
+    assert "indexedSuggestionValues($userId, $filters, 'publication'" in publication_method
+    assert "library_item_facets" in helper
+    assert ".normalized_value" in helper
+    assert "createNamedParameter($this->escapeLikeParameter($query) . '%')" in helper
+    assert "LOWER(i.publication)" not in publication_method
+    assert "createNamedParameter('%' ." not in helper
+    assert "->setMaxResults($limit)" in helper
 
 
 def test_creator_publisher_and_year_suggestions_route_controller_and_state_contract():
@@ -50,20 +55,25 @@ def test_creator_publisher_and_year_suggestions_route_controller_and_state_contr
 
 def test_item_service_searches_creators_publishers_and_years_beyond_seed_with_self_exclusion_and_limit():
     service = read("lib/Service/ItemService.php")
+    helper = service.split("private function indexedSuggestionValues", 1)[1].split("private function indexedFacetValues", 1)[0]
 
-    assert "public function creatorSuggestions(string $userId, array $filters, string $query, int $limit = 20): array" in service
-    assert "unset($filters['creator'])" in service
-    assert "LOWER(i.creators)" in service
-    assert "->groupBy('creator')" in service
-    assert "->orderBy('creator', 'ASC')" in service
-    assert "public function publisherSuggestions(string $userId, array $filters, string $query, int $limit = 20): array" in service
-    assert "unset($filters['publisher'])" in service
-    assert "LOWER(i.publisher)" in service
-    assert "->groupBy('publisher')" in service
-    assert "->orderBy('publisher', 'ASC')" in service
-    assert "public function yearSuggestions(string $userId, array $filters, string $query, int $limit = 20): array" in service
-    assert "unset($filters['year'])" in service
-    assert "SUBSTR(i.publication_date, 1, 4)" in service
-    assert "->groupBy('year')" in service
-    assert "->orderBy('year', 'ASC')" in service
-    assert service.count("->setMaxResults($limit)") >= 4
+    boundaries = {
+        "creator": "publisher",
+        "publisher": "subject",
+        "year": "indexedSuggestionValues",
+    }
+    for facet, next_method in boundaries.items():
+        method = service.split(f"public function {facet}Suggestions", 1)[1].split(
+            f"private function {next_method}" if next_method == "indexedSuggestionValues" else f"public function {next_method}Suggestions",
+            1,
+        )[0]
+        assert f"unset($filters['{facet}'])" in method
+        assert f"indexedSuggestionValues($userId, $filters, '{facet}'" in method
+        assert "LOWER(i." not in method
+
+    assert "library_item_facets" in helper
+    assert "$query = mb_strtolower(trim($query))" in helper
+    assert ".normalized_value" in helper
+    assert "createNamedParameter($this->escapeLikeParameter($query) . '%')" in helper
+    assert "createNamedParameter('%' ." not in helper
+    assert "->setMaxResults($limit)" in helper
