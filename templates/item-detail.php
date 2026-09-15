@@ -96,6 +96,7 @@ $fileRowLabels = [
     'scanError' => $l->t('Scan error'),
 ];
 $fileRowMachineFields = ['fileId', 'libraryFileId', 'path', 'format', 'mimeType'];
+$fileOpenUrl = trim((string)($item['openUrl'] ?? ''));
 $scanStatusLabels = [
     'indexed' => $l->t('indexed'), 'missing' => $l->t('missing'),
     'metadata_error' => $l->t('metadata error'), 'unknown' => $l->t('unknown'),
@@ -329,7 +330,11 @@ $scanStatusLabels = [
             <dl class="library-item-metadata">
                 <?php foreach ($fileRows as $label => $value): ?>
                     <dt><?php p($fileRowLabels[$label]); ?></dt>
-                    <dd class="<?php p($label === 'scanError' && trim((string)$value) !== '' ? 'library-scan-error' : ''); ?>"><bdi class="<?php p(in_array($label, $fileRowMachineFields, true) ? 'library-bidi-machine' : 'library-bidi-human'); ?>" dir="<?php p(in_array($label, $fileRowMachineFields, true) ? 'ltr' : 'auto'); ?>"><?php p(trim((string)$value) !== '' ? (string)$value : '—'); ?></bdi></dd>
+                    <dd class="<?php p($label === 'scanError' && trim((string)$value) !== '' ? 'library-scan-error' : ''); ?>">
+                        <?php if ($label === 'path' && trim((string)$value) !== '' && $fileOpenUrl !== ''): ?><a href="<?php p($fileOpenUrl); ?>"><?php endif; ?>
+                        <bdi class="<?php p(in_array($label, $fileRowMachineFields, true) ? 'library-bidi-machine' : 'library-bidi-human'); ?>" dir="<?php p(in_array($label, $fileRowMachineFields, true) ? 'ltr' : 'auto'); ?>"><?php p(trim((string)$value) !== '' ? (string)$value : '—'); ?></bdi>
+                        <?php if ($label === 'path' && trim((string)$value) !== '' && $fileOpenUrl !== ''): ?></a><?php endif; ?>
+                    </dd>
                 <?php endforeach; ?>
             </dl>
             <?php if (($item['scanStatus'] ?? '') === 'missing'): ?>

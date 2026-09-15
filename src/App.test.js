@@ -1719,6 +1719,29 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-sidebar-review').text()).toContain('Suggestion: Scanner Title')
   })
 
+  it('links the Activity file path through the canonical open URL and preserves empty-url fallback text', async () => {
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
+    const wrapper = mount(App, { props: { state } })
+    await wrapper.find('.library-cover-link').trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+    await wrapper.findAll('.library-sidebar-sections button')[2].trigger('click')
+
+    const fileValue = wrapper.get('.library-detail-drawer-file')
+    expect(fileValue.text()).toBe(state.items[0].cachedPath)
+    expect(fileValue.get('a').attributes('href')).toBe(state.items[0].openUrl)
+
+    const itemWithoutOpenUrl = { ...state.items[0], openUrl: '' }
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: itemWithoutOpenUrl }) }))
+    await wrapper.find('.app-sidebar__close').trigger('click')
+    await wrapper.find('.library-cover-link').trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened', 2)
+    await wrapper.findAll('.library-sidebar-sections button')[2].trigger('click')
+
+    const fallbackValue = wrapper.get('.library-detail-drawer-file')
+    expect(fallbackValue.text()).toBe(itemWithoutOpenUrl.cachedPath)
+    expect(fallbackValue.find('a').exists()).toBe(false)
+  })
+
   it.each([
     ['2011-09-18T22:00:00+00:00', '2011-09-18'],
     ['2011-09-18T23:30:00-11:00', '2011-09-18'],
