@@ -376,6 +376,22 @@ describe('Library catalogue Vue app', () => {
       '/apps/library/catalogue?subject=Social+history',
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
+    expect(global.fetch.mock.calls.map(([url]) => new URL(url, window.location.origin).searchParams.get('hydrate'))).not.toContain('1')
+  })
+
+  it('keeps select-filter catalogue interactions on the non-hydrating fast path', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, type: 'book' } }),
+    })
+    const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+
+    await wrapper.get('select[name="type"]').setValue('book')
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalled())
+
+    const urls = global.fetch.mock.calls.map(([url]) => new URL(url, window.location.origin))
+    expect(urls.some((url) => url.pathname === '/apps/library/catalogue' && url.searchParams.get('type') === 'book')).toBe(true)
+    expect(urls.map((url) => url.searchParams.get('hydrate'))).not.toContain('1')
   })
 
   it('does not request subject suggestions until two trimmed characters are entered', async () => {
@@ -1018,6 +1034,7 @@ describe('Library catalogue Vue app', () => {
 
     expect(tap.defaultPrevented).toBe(true)
     expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?format=epub', expect.objectContaining({ credentials: 'same-origin' }))
+    expect(global.fetch.mock.calls.map(([url]) => new URL(url, window.location.origin).searchParams.get('hydrate'))).not.toContain('1')
     await vi.waitFor(() => expect(wrapper.findAll('.library-filter-chip').some((chip) => chip.text().includes('1999'))).toBe(false))
     expect(wrapper.find('.library-filter-bar input[name="yearSearch"]').element.value).toBe('')
     expect(wrapper.find('.library-filter-bar select[name="format"]').element.value).toBe('epub')
