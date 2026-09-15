@@ -32,7 +32,8 @@ def test_publisher_filter_remains_an_exact_sargable_predicate():
 def test_performance_smoke_measures_the_exact_publisher_deferred_path():
     source = SMOKE.read_text()
 
-    assert "LIBRARY_CATALOGUE_PUBLISHER" in source
-    assert "searchParams.set('publisher', publisher)" in source
+    assert "$out['publisher']" in source
+    assert "i.publisher IS NOT NULL AND i.publisher<>''" in source
+    assert "filteredUrl.searchParams.set(filter, value)" in source
     assert "catalogue_publisher_exact_fast" in source
-    assert "publisher exact value is required" in source
+    assert "LIBRARY_CATALOGUE_PUBLISHER" not in source

@@ -10,15 +10,9 @@ def test_fast_catalogue_smoke_never_hydrates_normal_paths_and_checks_deferred_re
     text = SMOKE.read_text()
 
     assert "'/apps/library/catalogue?limit=25'" in text
-    assert "'/apps/library/catalogue?subject=photolab&limit=25'" in text
     assert "url.searchParams.get('hydrate') === '1'" in text
     assert "payload.facetsDeferred !== true" in text
-    fast_paths = re.findall(r"timeCatalogue\([^\n]+,\s*'([^']+)'[^\n]+,\s*true\)", text)
-    assert fast_paths == [
-        "/apps/library/catalogue?limit=25",
-        "/apps/library/catalogue?subject=photolab&limit=25",
-    ]
-    assert all("hydrate=1" not in path for path in fast_paths)
+    assert "contentType.includes('json')" in text
 
 
 def test_catalogue_smoke_has_configurable_default_budget_and_optional_hydration_comparison():
@@ -57,3 +51,46 @@ def test_catalogue_smoke_metrics_are_stable_parseable_key_value_names():
     assert "`${label}_elapsed_seconds`" in text
     assert "`${label}_facets_deferred`" in text
     assert "console.log(`${name}=${value}`)" in text
+
+
+def test_catalogue_smoke_covers_every_request_filter_and_reports_live_value_skips():
+    text = SMOKE.read_text()
+    expected = {
+        "q", "type", "publisher", "publication", "year", "creator", "format", "tag",
+        "shelf", "folder", "status", "workflowStatus", "subject", "classification",
+        "scannerConflicts", "starred", "needsMetadata", "coverReview", "noCreator",
+        "noPublication", "noDate", "titleFromFilename", "noDescription",
+        "unsupportedContainer", "weakMetadata", "unreviewedImports",
+    }
+
+    filters_block = text.split("const FILTERS = [", 1)[1].split("]", 1)[0]
+    assert set(re.findall(r"'([A-Za-z]+)'", filters_block)) == expected
+    assert "discoverFilterValues()" in text
+    assert "dbtableprefix" in text and "new PDO" in text
+    assert "_skipped_reason`" in text
+    assert "no representative live value" in text
+
+
+def test_catalogue_smoke_covers_filter_removal_pagination_and_details_page():
+    text = SMOKE.read_text()
+
+    assert "filteredUrl.searchParams.delete(filter)" in text
+    assert "removed.activeFilters?.[filter]" in text
+    assert "catalogue_pagination_page_1_fast" in text
+    assert "String(path).startsWith('?')" in text
+    assert "catalogueApiPath(pageOne.cataloguePagination.nextUrl)" in text
+    assert "cataloguePagination.previousUrl" in text
+    assert "catalogueApiPath(pageTwo.cataloguePagination.previousUrl)" in text
+    assert "unfiltered.items?.find((item) => item.detailsUrl)?.detailsUrl" in text
+    assert "html.includes('library-item-detail')" in text
+
+
+def test_catalogue_smoke_accumulates_path_failures_so_later_paths_still_run():
+    text = SMOKE.read_text()
+
+    assert "const failures = []" in text
+    assert "const attempt = async" in text
+    assert "failures.push(`${label} exceeded" in text
+    assert "failures.push(error instanceof Error" in text
+    assert "failures.join('; ')" in text
+    assert "smokePassed = failures.length === 0" in text
