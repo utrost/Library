@@ -28,6 +28,7 @@
     "smoke:workflow-status": "node scripts/smoke-workflow-status.mjs",
     "smoke:subjects": "node scripts/smoke-subjects-classifications.mjs",
     "smoke:conflict-review": "node scripts/smoke-metadata-conflict-review.mjs",
+    "smoke:catalogue-performance": "node scripts/smoke-catalogue-performance.mjs",
     "smoke:scale": "node scripts/smoke-scale-pilot.mjs",
     "smoke:real-scale": "node scripts/smoke-real-scale-pilot.mjs"
   },

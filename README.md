@@ -64,6 +64,14 @@ Run local checks (for Docker dev/deploy, `bin/nextcloud-background-worker.sh` ru
 npm run check
 ```
 
+On the Alice dev instance, time the ordinary catalogue API paths with a temporary app password (removed on exit):
+
+```bash
+npm run smoke:catalogue-performance
+```
+
+The fast endpoint budget defaults to `1.0` second. Override it with `LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS`; set `LIBRARY_CATALOGUE_MEASURE_HYDRATE=1` to print the auxiliary `hydrate=1` comparison without applying the fast budget to it. `NC_URL`, `NC_USER`, and `NC_CONTAINER` select a different dev instance.
+
 Build a release archive:
 
 ```bash
