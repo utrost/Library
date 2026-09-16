@@ -27,6 +27,8 @@ def test_scalar_suggestions_use_normalized_facet_prefix_index_without_wrapping_i
         "publication": suggestion_method(source, "publication", "creator"),
         "creator": suggestion_method(source, "creator", "publisher"),
         "publisher": suggestion_method(source, "publisher", "subject"),
+        "subject": suggestion_method(source, "subject", "classification"),
+        "classification": suggestion_method(source, "classification", "year"),
         "year": suggestion_method(source, "year", "indexedSuggestionValues"),
     }
     helper = source.split("private function indexedSuggestionValues", 1)[1].split("private function indexedFacetValues", 1)[0]
@@ -71,12 +73,13 @@ def test_non_empty_filter_suggestions_keep_the_self_excluding_catalogue_path():
     assert "catalogueFilteredQueryBuilder($userId, $filters)" in helper
     assert "innerJoin('i', 'library_item_facets'" in helper
     assert "suggestionFiltersAreEmpty($filters)" in helper
-    for facet in ("publication", "creator", "publisher", "subject", "year"):
+    for facet in ("publication", "creator", "publisher", "subject", "classification", "year"):
         method_end = {
             "publication": "creator",
             "creator": "publisher",
             "publisher": "subject",
-            "subject": "year",
+            "subject": "classification",
+            "classification": "year",
             "year": "indexedSuggestionValues",
         }[facet]
         method = suggestion_method(source, facet, method_end)
@@ -102,6 +105,7 @@ def test_all_suggestion_paths_use_the_user_scoped_normalized_facet_index():
     assert "'publication' => [(string)($metadata['publication'] ?? '')]" in service
     assert "'creator' => [(string)($metadata['creators'] ?? '')]" in service
     assert "'publisher' => [(string)($metadata['publisher'] ?? '')]" in service
+    assert "'classification' => $this->normalizeMultiValueField($metadata['classifications'] ?? [])" in service
     assert "'year' => preg_match" in service
     assert "select('id', 'subjects_json', 'classifications_json', 'publication', 'creators', 'publisher', 'publication_date')" in service
 

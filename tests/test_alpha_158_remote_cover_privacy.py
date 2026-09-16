@@ -95,8 +95,8 @@ def test_alpha_158_version_assets_and_release_language_are_aligned():
     assert '"version": "0.1.0-alpha.171"' in read("package.json")
     assert '"version": "0.1.0-alpha.171"' in read("package-lock.json")
     page = read("lib/Controller/PageController.php")
-    assert "library-main-0-1-0-alpha-171-mobilefilters" in page
-    assert "library-vue-0-1-0-alpha-171-mobilefilters" in page
+    assert "library-main-0-1-0-alpha-171-typeaheads" in page
+    assert "library-vue-0-1-0-alpha-171-typeaheads" in page
     assert (ROOT / "js/library-main-0-1-0-alpha-157.mjs").exists()
     assert (ROOT / "css/library-vue-0-1-0-alpha-157.css").exists()
     release_text = "\n".join(read(path) for path in ("CHANGELOG.md", "RELEASE.md", "docs/architecture-review.md"))

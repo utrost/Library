@@ -123,6 +123,30 @@ final class FileTagService {
         return array_values($fileIds);
     }
 
+
+    /**
+     * @return array<int, string>
+     */
+    public function visibleAssignableTagSuggestions(string $query, int $limit = 20): array {
+        $prefix = mb_strtolower(trim($query));
+        if (mb_strlen($prefix) < 2) {
+            return [];
+        }
+        $user = $this->userSession->getUser();
+        $tagNames = [];
+        foreach ($this->tagManager->getAllTags(true, null) as $tag) {
+            if (!$this->tagManager->canUserSeeTag($tag, $user) || !$this->tagManager->canUserAssignTag($tag, $user)) {
+                continue;
+            }
+            $name = trim((string)$tag->getName());
+            if ($name !== '' && str_starts_with(mb_strtolower($name), $prefix)) {
+                $tagNames[$name] = $name;
+            }
+        }
+        natcasesort($tagNames);
+        return array_slice(array_values($tagNames), 0, max(1, $limit));
+    }
+
     /**
      * @return array<int, string>
      */

@@ -16,7 +16,7 @@ def read(relative: str) -> str:
 
 
 def test_alpha_160_packaged_runtime_size_and_checksum_sidecar_stay_consistent():
-    current = ROOT / "js/library-main-0-1-0-alpha-171-mobilefilters.mjs"
+    current = ROOT / "js/library-main-0-1-0-alpha-171-typeaheads.mjs"
     assert current.read_bytes() == (ROOT / "js/library-main.mjs").read_bytes()
     assert current.stat().st_size <= 2_000_000
     assert not (ROOT / "js/library-main.mjs.map").exists()

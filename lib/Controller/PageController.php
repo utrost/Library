@@ -31,8 +31,8 @@ use Throwable;
 
 class PageController extends Controller {
     private const APP_VERSION = '0.1.0-alpha.171';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-171-mobilefilters';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-171-mobilefilters';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-171-typeaheads';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-171-typeaheads';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -249,6 +249,34 @@ class PageController extends Controller {
 
         return new JSONResponse([
             'subjects' => $userId === '' || mb_strlen($query) < 3 ? [] : $this->itemService->subjectSuggestions($userId, $filters, $query, 20),
+        ]);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function classificationSuggestions(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        $query = trim((string)$this->request->getParam('classificationSearch', ''));
+        $filters = $this->catalogueFiltersFromRequest();
+        unset($filters['classification']);
+
+        return new JSONResponse([
+            'classifications' => $userId === '' || mb_strlen($query) < 3 ? [] : $this->itemService->classificationSuggestions($userId, $filters, $query, 20),
+        ]);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function tagSuggestions(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        $query = trim((string)$this->request->getParam('tagSearch', ''));
+        $filters = $this->catalogueFiltersFromRequest();
+        unset($filters['tag']);
+
+        return new JSONResponse([
+            'tags' => $userId === '' || mb_strlen($query) < 2 ? [] : $this->fileTagService->visibleAssignableTagSuggestions($query, 20),
         ]);
     }
 
@@ -524,7 +552,8 @@ class PageController extends Controller {
             'workflowStatuses' => $catalogue['facets']['workflowStatuses'],
             // Subject matches are loaded from the normalized facet index on demand.
             'subjects' => [],
-            'classifications' => $catalogue['facets']['classifications'] ?? [],
+            // High-cardinality classifications are fetched from the normalized facet index on demand.
+            'classifications' => [],
             'cataloguePagination' => $pagination,
             'activeFilters' => $activeFilters,
             'rootCount' => count($roots),
@@ -542,6 +571,8 @@ class PageController extends Controller {
             'creatorSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.creatorSuggestions'),
             'publisherSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.publisherSuggestions'),
             'subjectSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.subjectSuggestions'),
+            'classificationSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.classificationSuggestions'),
+            'tagSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.tagSuggestions'),
             'folderSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.folderSuggestions'),
             'yearSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.yearSuggestions'),
             'itemSidebarUrlTemplate' => str_replace('2147483647', '__ITEM_ID__', $this->urlGenerator->linkToRoute('library.item_page.sidebar', ['itemId' => '2147483647'])),
