@@ -21,7 +21,7 @@ EXPECTED_TABLES = {
         },
         "indexes": {
             "library_files_id", "library_files_user_id", "library_files_root_id", "library_files_file_id_unique",
-            "library_files_usr_root_status",
+            "library_files_usr_root_status", "library_files_usr_path",
         },
     },
     "*dbprefix*library_items": {

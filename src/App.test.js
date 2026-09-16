@@ -1243,6 +1243,40 @@ describe('Library catalogue Vue app', () => {
     expect(catalogueCall).not.toContain(`${facet}Search`)
   })
 
+  it('offers folder paths after three characters and applies the exact selected folder', async () => {
+    const folder = '/Calibre/Ada Lovelace'
+    global.fetch = vi.fn().mockImplementation(async (url) => {
+      if (String(url).startsWith('/apps/library/catalogue/folder-suggestions')) return { ok: true, json: async () => ({ folders: [folder] }) }
+      return { ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, folder } }) }
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      folderSuggestionsUrl: '/apps/library/catalogue/folder-suggestions',
+      activeFilters: { ...state.activeFilters, creator: 'Ada Reader' },
+    } } })
+
+    const search = wrapper.get('input[name="folderSearch"]')
+    await search.trigger('focus')
+    await search.setValue('/C')
+    await new Promise((resolve) => window.setTimeout(resolve, 250))
+    expect(global.fetch).not.toHaveBeenCalled()
+
+    await search.setValue('/Cal')
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue/folder-suggestions?creator=Ada+Reader&folderSearch=%2FCal',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+    await vi.waitFor(() => expect(wrapper.get('.library-folder-suggestion').text()).toBe(folder))
+    await wrapper.get('.library-folder-suggestion').trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?folder=%2FCalibre%2FAda+Lovelace&creator=Ada+Reader',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+    expect(wrapper.get('input[type="hidden"][name="folder"]').element.value).toBe(folder)
+  })
+
   it.each([
     ['Review to Library', { scannerConflicts: '1' }, '?q=camera'],
     ['Library to Review', { q: 'camera' }, '?scannerConflicts=1'],

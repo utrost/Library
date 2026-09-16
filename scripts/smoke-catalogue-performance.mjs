@@ -135,6 +135,20 @@ async function timeDetails(path, token) {
   if (elapsedSeconds > fastBudgetSeconds) failures.push(`catalogue details page exceeded ${fastBudgetSeconds.toFixed(3)}s budget`)
 }
 
+async function timeFolderSuggestions(folder, token) {
+  const url = new URL('/apps/library/catalogue/folder-suggestions', upstream)
+  url.searchParams.set('folderSearch', folder.slice(0, Math.max(3, Math.min(folder.length, 24))))
+  const started = performance.now()
+  const response = await fetch(url, { headers: authHeaders(token) })
+  const elapsedSeconds = (performance.now() - started) / 1000
+  const payload = await response.json().catch(() => null)
+  metric('catalogue_folder_suggestions_fast_http_status', response.status)
+  metric('catalogue_folder_suggestions_fast_elapsed_seconds', elapsedSeconds.toFixed(3))
+  metric('catalogue_folder_suggestions_fast_count', Array.isArray(payload?.folders) ? payload.folders.length : -1)
+  if (response.status !== 200 || !Array.isArray(payload?.folders)) throw new Error('catalogue folder suggestions returned an invalid response')
+  if (elapsedSeconds > fastBudgetSeconds) failures.push(`catalogue folder suggestions exceeded ${fastBudgetSeconds.toFixed(3)}s budget`)
+}
+
 const failures = []
 let token = ''
 let smokePassed = false
@@ -153,6 +167,8 @@ try {
   const discovered = discoverFilterValues()
   metric('catalogue_filter_discovery', 'live_db')
   const unfiltered = await timeCatalogue('catalogue_unfiltered_fast', '/apps/library/catalogue?limit=25', token)
+  if (String(discovered.folder || '').length >= 3) await attempt(() => timeFolderSuggestions(String(discovered.folder), token))
+  else metric('catalogue_folder_suggestions_fast_skipped_reason', JSON.stringify('no representative live folder'))
 
   for (const filter of FILTERS) {
     const key = labelKey(filter)

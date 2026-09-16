@@ -216,6 +216,24 @@ watch(creatorSearch, (value) => {
   const generation = ++creatorSuggestionGeneration
   creatorSuggestionTimer = window.setTimeout(() => { void fetchCreatorSuggestions(query, generation) }, 200)
 })
+const folderSearch = ref(activeFilters.folder)
+const folderSearchFocused = ref(false)
+const remoteFolderSuggestions = ref(null)
+const folderSuggestions = computed(() => remoteFolderSuggestions.value || [])
+watch(() => activeFilters.folder, (folder) => { folderSearch.value = folder || '' })
+let folderSuggestionTimer = null
+let folderSuggestionController = null
+let folderSuggestionGeneration = 0
+watch(folderSearch, (value) => {
+  window.clearTimeout(folderSuggestionTimer)
+  folderSuggestionController?.abort()
+  folderSuggestionController = null
+  remoteFolderSuggestions.value = null
+  const query = String(value || '').trim()
+  if (query.length < 3) return
+  const generation = ++folderSuggestionGeneration
+  folderSuggestionTimer = window.setTimeout(() => { void fetchFolderSuggestions(query, generation) }, 200)
+})
 const subjectSearch = ref(activeFilters.subject)
 const subjectSearchFocused = ref(false)
 const remoteSubjectSuggestions = ref(null)
@@ -318,6 +336,7 @@ const publicationSuggestionsUrl = computed(() => catalogueState.publicationSugge
 const creatorSuggestionsUrl = computed(() => catalogueState.creatorSuggestionsUrl || '/apps/library/catalogue/creator-suggestions')
 const publisherSuggestionsUrl = computed(() => catalogueState.publisherSuggestionsUrl || '/apps/library/catalogue/publisher-suggestions')
 const subjectSuggestionsUrl = computed(() => catalogueState.subjectSuggestionsUrl || '/apps/library/catalogue/subject-suggestions')
+const folderSuggestionsUrl = computed(() => catalogueState.folderSuggestionsUrl || '/apps/library/catalogue/folder-suggestions')
 const yearSuggestionsUrl = computed(() => catalogueState.yearSuggestionsUrl || '/apps/library/catalogue/year-suggestions')
 const itemSidebarUrlTemplate = computed(() => catalogueState.itemSidebarUrlTemplate || `${webroot}/apps/library/items/__ITEM_ID__/sidebar`)
 const batchTagUrl = computed(() => catalogueState.batchTagUrl || '/apps/library/bulk/tags')
@@ -430,7 +449,7 @@ const activeFilterChips = computed(() => Object.entries(filterLabels)
     && !(chip.key === 'sort' && chip.value === 'title')
     && !(chip.key === 'view' && chip.value === 'compact')))
 const sidebarVisibleFilterKeys = new Set([
-  'q', 'sort', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'tag', 'format', 'shelf',
+  'q', 'sort', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'tag', 'format', 'shelf', 'folder',
   'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts',
 ])
 const sidebarHiddenFilters = computed(() => Object.entries(canonicalReviewFilters(activeFilters))
@@ -748,6 +767,7 @@ function buildFilterParams(form) {
   params.delete('creatorSearch')
   params.delete('subjectSearch')
   params.delete('publisherSearch')
+  params.delete('folderSearch')
   params.delete('yearSearch')
   for (const key of Array.from(params.keys())) {
     if (String(params.get(key) || '').trim() === '') {
@@ -772,18 +792,20 @@ async function fetchFacetSuggestions(facet, query, generation) {
   if (facet === 'creator') creatorSuggestionController = controller
   else if (facet === 'publisher') publisherSuggestionController = controller
   else if (facet === 'subject') subjectSuggestionController = controller
+  else if (facet === 'folder') folderSuggestionController = controller
   else yearSuggestionController = controller
-  const url = facet === 'creator' ? creatorSuggestionsUrl.value : (facet === 'publisher' ? publisherSuggestionsUrl.value : (facet === 'subject' ? subjectSuggestionsUrl.value : yearSuggestionsUrl.value))
+  const url = facet === 'creator' ? creatorSuggestionsUrl.value : (facet === 'publisher' ? publisherSuggestionsUrl.value : (facet === 'subject' ? subjectSuggestionsUrl.value : (facet === 'folder' ? folderSuggestionsUrl.value : yearSuggestionsUrl.value)))
   try {
     const response = await fetch(`${url}?${params}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin', signal: controller.signal })
     if (!response.ok) throw new Error(`${facet} suggestions request failed: ${response.status}`)
     const payload = await response.json()
-    const currentGeneration = facet === 'creator' ? creatorSuggestionGeneration : (facet === 'publisher' ? publisherSuggestionGeneration : (facet === 'subject' ? subjectSuggestionGeneration : yearSuggestionGeneration))
-    const currentSearch = facet === 'creator' ? creatorSearch.value : (facet === 'publisher' ? publisherSearch.value : (facet === 'subject' ? subjectSearch.value : yearSearch.value))
+    const currentGeneration = facet === 'creator' ? creatorSuggestionGeneration : (facet === 'publisher' ? publisherSuggestionGeneration : (facet === 'subject' ? subjectSuggestionGeneration : (facet === 'folder' ? folderSuggestionGeneration : yearSuggestionGeneration)))
+    const currentSearch = facet === 'creator' ? creatorSearch.value : (facet === 'publisher' ? publisherSearch.value : (facet === 'subject' ? subjectSearch.value : (facet === 'folder' ? folderSearch.value : yearSearch.value)))
     if (generation === currentGeneration && currentSearch.trim() === query) {
       if (facet === 'creator') remoteCreatorSuggestions.value = Array.isArray(payload.creators) ? payload.creators : []
       else if (facet === 'publisher') remotePublisherSuggestions.value = Array.isArray(payload.publishers) ? payload.publishers : []
       else if (facet === 'subject') remoteSubjectSuggestions.value = Array.isArray(payload.subjects) ? payload.subjects : []
+      else if (facet === 'folder') remoteFolderSuggestions.value = Array.isArray(payload.folders) ? payload.folders : []
       else remoteYearSuggestions.value = Array.isArray(payload.years) ? payload.years : []
     }
   } catch (error) {
@@ -791,6 +813,7 @@ async function fetchFacetSuggestions(facet, query, generation) {
       if (facet === 'creator' && generation === creatorSuggestionGeneration) remoteCreatorSuggestions.value = null
       if (facet === 'publisher' && generation === publisherSuggestionGeneration) remotePublisherSuggestions.value = null
       if (facet === 'subject' && generation === subjectSuggestionGeneration) remoteSubjectSuggestions.value = null
+      if (facet === 'folder' && generation === folderSuggestionGeneration) remoteFolderSuggestions.value = null
       if (facet === 'year' && generation === yearSuggestionGeneration) remoteYearSuggestions.value = null
     }
   }
@@ -799,6 +822,7 @@ async function fetchFacetSuggestions(facet, query, generation) {
 function fetchCreatorSuggestions(query, generation) { return fetchFacetSuggestions('creator', query, generation) }
 function fetchPublisherSuggestions(query, generation) { return fetchFacetSuggestions('publisher', query, generation) }
 function fetchSubjectSuggestions(query, generation) { return fetchFacetSuggestions('subject', query, generation) }
+function fetchFolderSuggestions(query, generation) { return fetchFacetSuggestions('folder', query, generation) }
 function fetchYearSuggestions(query, generation) { return fetchFacetSuggestions('year', query, generation) }
 
 async function fetchPublicationSuggestions(query, generation) {
@@ -838,7 +862,7 @@ function applyCatalogueState(nextState) {
     'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses',
     'subjects', 'classifications', 'smartViewCounts', 'smartViewCountsPending', 'savedCollections',
   ] : [])
-  for (const key of ['shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'subjects', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'publicationSuggestionsUrl', 'creatorSuggestionsUrl', 'publisherSuggestionsUrl', 'subjectSuggestionsUrl', 'yearSuggestionsUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'smartViewCountsPending', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
+  for (const key of ['shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'subjects', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'publicationSuggestionsUrl', 'creatorSuggestionsUrl', 'publisherSuggestionsUrl', 'subjectSuggestionsUrl', 'folderSuggestionsUrl', 'yearSuggestionsUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'smartViewCountsPending', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
     if (!deferredKeys.has(key) && Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -1032,11 +1056,13 @@ async function applySearchFilters(form) {
   activeFilters.publisher = String(publisherSearch.value || '').trim()
   activeFilters.creator = String(creatorSearch.value || '').trim()
   activeFilters.subject = String(subjectSearch.value || '').trim()
+  activeFilters.folder = String(folderSearch.value || '').trim()
   activeFilters.year = String(yearSearch.value || '').trim()
   publicationSearchFocused.value = false
   publisherSearchFocused.value = false
   creatorSearchFocused.value = false
   subjectSearchFocused.value = false
+  folderSearchFocused.value = false
   yearSearchFocused.value = false
   await nextTick()
   void submitFiltersAjax({ currentTarget: form })
@@ -1046,6 +1072,7 @@ async function applyFacetFilter(form, facet, value) {
   if (facet === 'creator') { creatorSearch.value = activeFilters.creator; creatorSearchFocused.value = false }
   else if (facet === 'publisher') { publisherSearch.value = activeFilters.publisher; publisherSearchFocused.value = false }
   else if (facet === 'subject') { subjectSearch.value = activeFilters.subject; subjectSearchFocused.value = false }
+  else if (facet === 'folder') { folderSearch.value = activeFilters.folder; folderSearchFocused.value = false }
   else { yearSearch.value = activeFilters.year; yearSearchFocused.value = false }
   await nextTick()
   void submitFiltersAjax({ currentTarget: form })
@@ -1053,6 +1080,7 @@ async function applyFacetFilter(form, facet, value) {
 function applyAllSearchFilters(event) { void applySearchFilters(event.currentTarget) }
 function selectCreatorSuggestion(creator, event) { void applyFacetFilter(event.currentTarget.form, 'creator', creator) }
 function selectPublisherSuggestion(publisher, event) { void applyFacetFilter(event.currentTarget.form, 'publisher', publisher) }
+function selectFolderSuggestion(folder, event) { void applyFacetFilter(event.currentTarget.form, 'folder', folder) }
 function applySubjectFilter(form, subject = subjectSearch.value) {
   window.clearTimeout(subjectSuggestionTimer)
   subjectSuggestionController?.abort()
@@ -1415,6 +1443,7 @@ async function toggleStar(item, event) {
         <section class="library-sidebar-filter-section" aria-labelledby="library-sidebar-filters-heading">
           <h2 id="library-sidebar-filters-heading">{{ t('library', 'Filters') }}</h2>
           <form method="get" class="library-filter-bar library-sidebar-filters" :aria-label="t('library', 'Catalogue search and filters')" @submit.prevent="applyAllSearchFilters">
+            <input type="hidden" name="folder" :value="activeFilters.folder">
             <input v-for="filter in sidebarHiddenFilters" :key="`sidebar-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
             <input v-if="activeFilters.sort && activeFilters.sort !== 'title'" type="hidden" name="sort" :value="activeFilters.sort">
             <input v-if="activeFilters.view && activeFilters.view !== 'compact'" type="hidden" name="view" :value="activeFilters.view">
@@ -1427,6 +1456,7 @@ async function toggleStar(item, event) {
             <label>{{ t('library', 'Nextcloud tag') }}<input v-model="activeFilters.tag" type="text" name="tag" :placeholder="t('library', 'photography')"></label>
             <label>{{ t('library', 'Format') }}<select v-model="activeFilters.format" name="format" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All formats') }}</option><option v-for="format in formats" :key="format" :value="format">{{ upper(format) }}</option></select></label>
             <label>{{ t('library', 'Shelf') }}<select v-model="activeFilters.shelf" name="shelf" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All shelves') }}</option><option v-for="shelf in shelves" :key="shelf" :value="shelf">{{ shelf }}</option></select></label>
+            <div class="library-folder-filter"><label for="library-folder-search">{{ t('library', 'Folder') }}</label><input id="library-folder-search" v-model="folderSearch" type="search" name="folderSearch" autocomplete="off" :placeholder="t('library', 'Type at least 3 path characters')" :title="t('library', 'Select an exact folder path')" role="combobox" aria-autocomplete="list" aria-controls="library-folder-suggestions" :aria-expanded="folderSearchFocused && folderSuggestions.length > 0 ? 'true' : 'false'" @focus="folderSearchFocused = true" @keydown.escape="folderSearchFocused = false"><ul v-if="folderSearchFocused && folderSuggestions.length > 0" id="library-folder-suggestions" class="library-folder-suggestions" role="listbox"><li v-for="folder in folderSuggestions" :key="folder" role="option"><button type="button" class="library-folder-suggestion" @mousedown.prevent @click="selectFolderSuggestion(folder, $event)">{{ folder }}</button></li></ul><button type="submit" class="button secondary library-folder-apply">{{ t('library', 'Apply folder') }}</button></div>
             <label>{{ t('library', 'Scan status') }}<select v-model="activeFilters.status" name="status" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All scan statuses') }}</option><option v-for="status in scanStatuses" :key="status" :value="status">{{ status }}</option></select></label>
             <label>{{ t('library', 'Workflow status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All workflow statuses') }}</option><option v-for="status in workflowStatuses" :key="status" :value="status">{{ status }}</option></select></label>
             <div class="library-subject-filter"><label for="library-subject-search">{{ t('library', 'Subject') }}</label><input id="library-subject-search" v-model="subjectSearch" type="search" name="subjectSearch" autocomplete="off" :placeholder="t('library', 'Search subjects')" :title="t('library', 'Exact subject matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-subject-suggestions" :aria-expanded="subjectSearchFocused && subjectSuggestions.length > 0 ? 'true' : 'false'" @focus="subjectSearchFocused = true" @keydown.escape="subjectSearchFocused = false"><input type="hidden" name="subject" :value="activeFilters.subject"><ul v-if="subjectSearchFocused && subjectSuggestions.length > 0" id="library-subject-suggestions" class="library-subject-suggestions" role="listbox"><li v-for="subject in subjectSuggestions" :key="subject" role="option"><button type="button" class="library-subject-suggestion" @mousedown.prevent @click="selectSubjectSuggestion(subject, $event)">{{ subject }}</button></li></ul><button type="button" class="button secondary library-subject-apply" @click="applySubjectSearch">{{ t('library', 'Apply subject') }}</button></div>
@@ -2159,6 +2189,7 @@ async function toggleStar(item, event) {
 .library-sidebar-filters .library-publication-filter,
 .library-sidebar-filters .library-year-filter,
 .library-sidebar-filters .library-creator-filter,
+.library-sidebar-filters .library-folder-filter,
 .library-sidebar-filters .library-subject-filter {
   font-size: 12px;
   gap: 2px;
@@ -3469,15 +3500,18 @@ async function toggleStar(item, event) {
 .library-publisher-filter,
 .library-year-filter,
 .library-creator-filter,
+.library-folder-filter,
 .library-subject-filter { display: grid; gap: 6px; position: relative; }
 .library-publication-suggestions,
 .library-publisher-suggestions,
 .library-year-suggestions,
 .library-creator-suggestions,
+.library-folder-suggestions,
 .library-subject-suggestions { background: var(--color-main-background); border: 1px solid var(--color-border); border-radius: var(--border-radius); box-shadow: 0 4px 12px var(--color-box-shadow); left: 0; list-style: none; margin: 0; max-height: min(18rem, 50vh); overflow-y: auto; padding: 4px; position: absolute; right: 0; top: 4.2rem; z-index: 20; }
 .library-publication-suggestion,
 .library-publisher-suggestion,
 .library-year-suggestion,
 .library-creator-suggestion,
+.library-folder-suggestion,
 .library-subject-suggestion { justify-content: flex-start; overflow-wrap: anywhere; text-align: start; width: 100%; }
 </style>

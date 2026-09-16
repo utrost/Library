@@ -216,6 +216,16 @@
                 </field>
             </index>
             <index>
+                <name>library_files_usr_path</name>
+                <field>
+                    <name>user_id</name>
+                </field>
+                <field>
+                    <name>cached_path</name>
+                    <length>191</length>
+                </field>
+            </index>
+            <index>
                 <name>library_files_root_id</name>
                 <field>
                     <name>root_id</name>

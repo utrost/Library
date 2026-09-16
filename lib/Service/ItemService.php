@@ -1765,6 +1765,38 @@ final class ItemService {
     }
 
     /** @return array<int, string> */
+    public function folderSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
+        unset($filters['folder']);
+        $query = str_replace('\\', '/', trim($query));
+        if (mb_strlen($query) < 3 || $limit < 1) return [];
+        $limit = min($limit, 25);
+
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('folder_suggestion.cached_path')
+            ->from('library_files', 'folder_suggestion')
+            ->where($qb->expr()->eq('folder_suggestion.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->like('folder_suggestion.cached_path', $qb->createNamedParameter($this->escapeLikeParameter($query) . '%')))
+            ->orderBy('folder_suggestion.cached_path', 'ASC')
+            ->setMaxResults($limit * 16)
+            ->executeQuery();
+
+        $folders = [];
+        while (($row = $result->fetch()) && count($folders) < $limit) {
+            $folder = str_replace('\\', '/', dirname((string)($row['cached_path'] ?? '')));
+            while ($folder !== '.' && $folder !== '/' && mb_strlen($folder) >= mb_strlen($query)) {
+                if (str_starts_with($folder, $query)) $folders[$folder] = true;
+                $parent = dirname($folder);
+                if ($parent === $folder) break;
+                $folder = str_replace('\\', '/', $parent);
+            }
+        }
+        $result->closeCursor();
+        $values = array_keys($folders);
+        sort($values, SORT_NATURAL | SORT_FLAG_CASE);
+        return array_slice($values, 0, $limit);
+    }
+
+    /** @return array<int, string> */
     public function yearSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['year']);
         if (mb_strlen(trim($query)) < 2) return [];
@@ -1892,6 +1924,19 @@ final class ItemService {
         return $this->distinctCatalogueValues($userId, $filters, 'f.scan_status', 'value');
     }
 
+    private function folderFileIdSubquery(IQueryBuilder $qb, string $userId, string $folder): string {
+        $folder = str_replace('\\', '/', trim($folder));
+        $folder = $folder === '/' ? '/' : rtrim($folder, '/');
+        $folderPrefix = $folder === '/' ? '/' : $folder . '/';
+        $userParameter = $qb->createNamedParameter($userId);
+        $folderParameter = $qb->createNamedParameter($folder);
+        $prefixParameter = $qb->createNamedParameter($this->escapeLikeParameter($folderPrefix) . '%');
+
+        return "SELECT `folder_filter`.`id` FROM `*PREFIX*library_files` `folder_filter` "
+            . "WHERE `folder_filter`.`user_id` = {$userParameter} "
+            . "AND (`folder_filter`.`cached_path` = {$folderParameter} OR `folder_filter`.`cached_path` LIKE {$prefixParameter})";
+    }
+
     private function applyCatalogueFilters(IQueryBuilder $qb, string $userId, array $filters): void {
         $type = trim((string)($filters['type'] ?? ''));
         if ($type !== '') {
@@ -1955,11 +2000,7 @@ final class ItemService {
         $folder = str_replace('\\', '/', trim((string)($filters['folder'] ?? '')));
         $folder = $folder === '/' ? '/' : rtrim($folder, '/');
         if ($folder !== '') {
-            $folderPrefix = $folder === '/' ? '/' : $folder . '/';
-            $qb->andWhere($qb->expr()->orX(
-                $qb->expr()->eq('f.cached_path', $qb->createNamedParameter($folder)),
-                $qb->expr()->like('f.cached_path', $qb->createNamedParameter($this->escapeLikeParameter($folderPrefix) . '%')),
-            ));
+            $qb->andWhere($qb->expr()->in('i.library_file_id', $qb->createFunction($this->folderFileIdSubquery($qb, $userId, $folder))));
         }
 
         if (array_key_exists('taggedFileIds', $filters)) {

@@ -94,3 +94,12 @@ def test_catalogue_smoke_accumulates_path_failures_so_later_paths_still_run():
     assert "failures.push(error instanceof Error" in text
     assert "failures.join('; ')" in text
     assert "smokePassed = failures.length === 0" in text
+
+
+def test_catalogue_smoke_times_folder_suggestions_against_the_same_subsecond_budget():
+    text = SMOKE.read_text()
+    assert "catalogue_folder_suggestions_fast" in text
+    assert "'/apps/library/catalogue/folder-suggestions'" in text
+    assert "folderSearch" in text
+    assert "payload?.folders" in text
+    assert "elapsedSeconds > fastBudgetSeconds" in text
