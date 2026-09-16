@@ -244,6 +244,12 @@
                 </field>
             </index>
             <index>
+                <name>library_files_usr_status_scan</name>
+                <field><name>user_id</name></field>
+                <field><name>scan_status</name></field>
+                <field><name>last_scanned_at</name></field>
+            </index>
+            <index>
                 <name>library_files_file_id_unique</name>
                 <unique>true</unique>
                 <field>
@@ -477,6 +483,47 @@
                 <field>
                     <name>library_file_id</name>
                 </field>
+            </index>
+            <index>
+                <name>library_items_usr_title</name>
+                <field><name>user_id</name></field>
+                <field><name>title</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_file</name>
+                <field><name>user_id</name></field>
+                <field><name>library_file_id</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_pubdate</name>
+                <field><name>user_id</name></field>
+                <field><name>publication_date</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_publication</name>
+                <field><name>user_id</name></field>
+                <field><name>publication</name></field>
+                <field><name>publication_date</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_lastopen</name>
+                <field><name>user_id</name></field>
+                <field><name>last_opened_at</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_workflow</name>
+                <field><name>user_id</name></field>
+                <field><name>workflow_status</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_publisher</name>
+                <field><name>user_id</name></field>
+                <field><name>publisher</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_creator</name>
+                <field><name>user_id</name></field>
+                <field><name>creators</name><length>191</length></field>
             </index>
             <index>
                 <name>library_items_usr_type_title_file</name>

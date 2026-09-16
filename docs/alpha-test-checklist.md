@@ -1,8 +1,8 @@
 # Public alpha test checklist
 
-Alpha.169 is an unpackaged `0.1.0-alpha.171` source candidate. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+`0.1.0-alpha.171` is the current unpackaged source candidate. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
 
-Use this Public alpha checklist after an exact `0.1.0-alpha.171` package exists and before its v0.1 alpha test pass. Exact-package live proof is currently pending; for the full repeatable script, use the [human test handbook](human-test-handbook.md).
+Use this Public alpha checklist after an exact `0.1.0-alpha.171` package exists and before its v0.1 alpha test pass. Exact-package live proof for this candidate is currently pending; for the full repeatable script, use the [human test handbook](human-test-handbook.md).
 
 ## Setup
 

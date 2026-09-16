@@ -52,13 +52,13 @@ def test_roadmap_starts_with_roots_file_index_and_nextcloud_tags_before_metadata
     assert phase1 < phase2 < phase25 < phase3
 
     immediate = roadmap[roadmap.index("## Immediate next implementation slice") :]
-    assert "release-facing metadata repair and review polish" in immediate
-    assert "PDF/EPUB/OPF/CBZ fixture coverage" in immediate
+    assert "post-review release rehearsal and real-library evidence" in immediate
+    assert "fresh Nextcloud 34 database" in immediate
     assert "database-backed catalogue query path" in immediate
     assert "metadata export/import as the in-app portability boundary" in immediate
     assert "external file-first tooling" in immediate
-    assert "deleting source files from Nextcloud Files" in immediate
-    assert "cover cache or cover refresh" in immediate
+    assert "mobile filter panel" in immediate
+    assert "combobox keyboard interaction" in immediate
 
 
 def test_v01_spec_requires_extendable_user_specific_root_configuration():

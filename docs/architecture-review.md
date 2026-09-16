@@ -106,148 +106,83 @@ The packaged app ships built `js/` and `css/` assets; it does not require Node.j
 
 ## What is added to the Nextcloud database
 
-All schema changes are app-owned and use the `library_` prefix. Library does not alter Nextcloud core tables via migrations.
+All schema changes are app-owned and use the `library_` prefix. Library does not alter Nextcloud core tables via migrations. `appinfo/database.xml` is the current reviewer-facing schema declaration and should stay aligned with all migrations.
 
 ### `library_roots`
 
 Purpose: per-user catalogue roots. These are pointers to existing folders/files in Nextcloud Files; deleting a Library root removes only Library's root/index metadata, not source files.
 
+Columns: `id`, `user_id`, `path`, `label`, `enabled`, `last_scan_at`, `created_at`, `updated_at`.
+
+Indexes: primary `library_roots_id`, `library_roots_user_id`, and unique `library_roots_user_path_unique` on `user_id`, `path`.
+
 Repair resolves stable file IDs only through the current user's folder. After reading node metadata and immediately before each repair upsert, it makes one authoritative observation of the node's current path and the user's currently enabled roots. The resulting path/root pair is passed directly to the write; paths outside the observed enabled scope fail closed, and overlaps preserve the existing enabled root when possible. Nextcloud file/root state and Library's index write do not share a transaction, so a path or root change after that observation remains outside this physical boundary.
-
-Columns:
-
-- `id` integer unsigned autoincrement primary key
-- `user_id` string(64), not null
-- `path` string(1024), not null
-- `label` string(255), nullable
-- `enabled` boolean, not null, default true
-- `last_scan_at` integer unsigned, nullable
-- `created_at` integer unsigned, not null
-- `updated_at` integer unsigned, not null
-
-Indexes:
-
-- `library_roots_user_id` on `user_id`
-- `library_roots_user_path_unique` unique on `user_id`, `path`
 
 ### `library_files`
 
-Purpose: file-index rows keyed to stable Nextcloud file IDs and root membership. This table tracks scan state and file-level diagnostics.
+Purpose: file-index rows keyed to stable Nextcloud file IDs and root membership. This table tracks scan state, file identity and file-level diagnostics.
 
-Columns:
+Columns: `id`, `user_id`, `root_id`, `file_id`, `cached_path`, `mime_type`, `extension`, `etag`, `mtime`, `size`, `metadata_input_fingerprint`, `metadata_extractor_revision`, `scan_status`, `scan_error`, `last_scanned_at`, `created_at`, `updated_at`.
 
-- `id` integer unsigned autoincrement primary key
-- `user_id` string(64), not null
-- `root_id` integer unsigned, not null
-- `file_id` integer unsigned, not null; Nextcloud file id
-- `cached_path` string(1024), not null
-- `mime_type` string(255), not null
-- `extension` string(32), nullable
-- `etag` string(255), nullable
-- `mtime` integer unsigned, nullable
-- `size` bigint unsigned, nullable
-- `metadata_input_fingerprint` string(64), nullable; SHA-256 of trusted primary/selected-sidecar observations after a successful stable extraction
-- `metadata_extractor_revision` string(64), nullable; output-affecting metadata pipeline revision paired with the fingerprint
-- `scan_status` string(32), not null, default `indexed`
-- `scan_error` string(1024), nullable; added by a later migration
-- `last_scanned_at` integer unsigned, not null
-- `created_at` integer unsigned, not null
-- `updated_at` integer unsigned, not null
+Known scan statuses include `indexed`, `metadata_error`, `missing` and `sidecar`.
 
-Known scan statuses include:
-
-- `indexed`
-- `metadata_error`
-- `missing`
-- `sidecar`
-
-Indexes:
-
-- `library_files_user_id` on `user_id`
-- `library_files_root_id` on `root_id`
-- `library_files_file_id_unique` unique on `user_id`, `file_id`
-- `library_files_usr_status_scan` on `user_id`, `scan_status`, `last_scanned_at`
+Indexes: primary `library_files_id`, `library_files_user_id`, `library_files_root_id`, unique `library_files_file_id_unique` on `user_id`, `file_id`, `library_files_usr_root_status` on `user_id`, `root_id`, `scan_status`, `library_files_usr_status_scan` on `user_id`, `scan_status`, `last_scanned_at`, and `library_files_usr_path` on `user_id`, `cached_path(191)`.
 
 ### `library_items`
 
-Purpose: editable publication catalogue metadata. One item is normally attached to one indexed file row. Scanner-provided values are candidates; user-edited metadata is preserved across rescans.
+Purpose: editable publication catalogue metadata. One item is normally attached to one indexed primary file row. Scanner-provided values are candidates; user-edited metadata is preserved across rescans.
 
-Columns:
+Columns: `id`, `user_id`, `library_file_id`, `publication_type`, `title`, `subtitle`, `creators`, `publication`, `publication_date`, `language`, `publisher`, `metadata_source`, `user_edited`, `field_sources`, `field_values`, `starred`, `last_opened_at`, `description`, `workflow_status`, `subjects_json`, `classifications_json`, `personal_rating`, `cover_override_url`, `cover_override_data`, `cover_override_mime_type`, `needs_metadata`, `cover_review`, `no_publication`, `title_from_filename`, `no_description`, `weak_metadata`, `unreviewed_import`, `created_at`, `updated_at`.
 
-- `id` integer unsigned autoincrement primary key
-- `user_id` string(64), not null
-- `library_file_id` integer unsigned, not null
-- `publication_type` string(32), not null, default `other`
-- `title` string(512), not null
-- `subtitle` string(512), nullable
-- `creators` string(1024), nullable
-- `publication` string(512), nullable; series/periodical/publication grouping field
-- `publication_date` string(64), nullable
-- `language` string(64), nullable
-- `publisher` string(512), nullable
-- `metadata_source` string(32), not null, default `filename`
-- `user_edited` boolean, not null, default false
-- `field_sources` text, nullable; JSON object of per-field scanner provenance
-- `field_values` text, nullable; JSON object of latest stored scanner candidates
-- `starred` boolean, nullable; Library-native personal star/bookmark state
-- `last_opened_at` integer unsigned, nullable; Library-native read/open activity timestamp
-- `description` text, nullable; Library-native long description
-- `workflow_status` string(32), nullable; Library-native workflow state
-- `subjects_json` text, nullable; JSON array of Library-native subjects
-- `classifications_json` text, nullable; JSON array of Library-native classifications
-- `created_at` integer unsigned, not null
-- `updated_at` integer unsigned, not null
+Important defaults: `publication_type=other`, `metadata_source=filename`, `user_edited=false`, `starred=false`, and each review flag defaults to false.
 
-Indexes:
+Indexes: primary `library_items_id`, `library_items_user_id`, unique `library_items_file_unique` on `library_file_id`, legacy/user-sort indexes `library_items_usr_title`, `library_items_usr_file`, `library_items_usr_pubdate`, `library_items_usr_publication`, `library_items_usr_lastopen`, `library_items_usr_workflow`, suggestion indexes `library_items_usr_publisher`, `library_items_usr_creator`, publication-type indexes `library_items_usr_type_title_file`, `library_items_usr_type_file`, edit/star indexes `library_items_usr_edit_title`, `library_items_usr_star_title`, and review-flag indexes `library_items_usr_needmeta_title`, `library_items_usr_coverrev_title`, `library_items_usr_nopub_title`, `library_items_usr_titlefile_title`, `library_items_usr_nodesc_title`, `library_items_usr_weakmeta_title`, `library_items_usr_unrevimp_title`.
 
-- `library_items_user_id` on `user_id`
-- `library_items_file_unique` unique on `library_file_id`
-- `library_items_usr_title` on `user_id`, `title`
-- `library_items_usr_file` on `user_id`, `library_file_id`
-- `library_items_usr_pubdate` on `user_id`, `publication_date`
-- `library_items_usr_publication` on `user_id`, `publication`, `publication_date`
-- `library_items_usr_lastopen` on `user_id`, `last_opened_at`
-- `library_items_usr_workflow` on `user_id`, `workflow_status`
+### `library_item_search_grams`
 
-The seven newer indexes are additive and user-scoped for reviewed catalogue sort/filter and file diagnostic queries. Existing scan-job, root and saved-collection indexes are not duplicated, there is no starred index, and the redundant legacy single-user indexes are retained. Expressions using `LOWER(...)`, leading-wildcard matching, JSON predicates and scanner-conflict row inspection do not gain ordinary B-tree benefits from this slice.
+Purpose: materialized lowercased search grams for indexed arbitrary substring catalogue search without broad row scans over all text fields.
 
-Historical alpha.152 live MySQL migration evidence: upgrading the installed `0.1.0-alpha.151` app to `0.1.0-alpha.152` from the exact alpha.152 archive registered `Version000100Date20260911120000`, with item and file row counts unchanged at 7,120 each. `EXPLAIN` selected `library_items_usr_title` for title order and `library_items_usr_file` for recent order, with filesort absent in both cases; metadata-error diagnostics selected `library_files_usr_status_scan` without a full scan or filesort. Last-opened order selected `library_items_usr_lastopen`, although its title tie-break may still filesort. On this dataset, unfiltered `publicationDate` and `publication` orders with mixed directions or tie-breaks still filesorted; their indexes nevertheless support the relevant equality, filtering and grouping traversal. Scan jobs retained the existing `library_scan_jobs_user_started` index. These observations make no timing claim because no benchmark was run.
+Columns: `id`, `user_id`, `item_id`, `gram`.
 
-Alpha.153 adds nullable `metadata_input_fingerprint` and `metadata_extractor_revision` columns through `Version000100Date20260911130000`. The fingerprint covers root/file identity, path, ETag, mtime, size, MIME type and extension for the primary file and whichever same-basename or `metadata.opf` sidecar the extraction precedence selects. An ordinary file skips content extraction and ItemService writes only when it was unchanged/indexed, has an existing item, both markers match the current inputs/revision, and all provider signals are usable. Weak/unavailable observations fail open. Path/root/content/sidecar/revision changes, previous missing/metadata-error/sidecar state, missing items, retry and recheck extract normally. Markers are written only after successful extraction and equal non-null pre/post observations, so the first post-upgrade scan warms them. This relies on storage-provider metadata and still has a residual concurrent ABA/TOCTOU limit if inputs change and return to the identical observation. `PIPELINE_REVISION` must bump for every output-affecting extractor, normalization, sidecar precedence, filename/folder interpretation or ItemService candidate-mapping change. Alpha.154 now adds aggregate instrumentation; neither it nor the historical evidence establishes a measured speedup.
+Indexes: primary `library_search_grams_id`, lookup `library_search_grams_lookup` on `user_id`, `gram`, `item_id`, and unique `library_search_grams_item_unique` on `item_id`, `gram`.
 
-Historical exact-package migration evidence covers alpha.153 and migration `000100Date20260911130000`. Alpha.157 exact-package verification now covers checksum, install/enable, PHP lint, route listing, live Vue/API and browser smoke, plus two unchanged scans of a 40-file root. Both scans reported `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0`; browser console errors were zero and mutation restoration was verified. The package smoke ended with `release_package_smoke_ok=true`. The upgrade command reported `No upgrade required`, so alpha.157 still lacks a fresh database migration rehearsal.
+### `library_item_identifiers`
 
-Historical alpha.153 privacy-safe smallest-root validation scanned 40 files twice. Each scan reported one root, 40 indexed, zero missing and zero errors. Warm-up rewrote 40 item rows and established 40 markers; the unchanged second scan rewrote zero item rows and retained 40 markers. Item/file counts stayed at 40, and `source_observation_changes=0` confirmed equal before/after path/ETag/mtime/size/MIME observations. Vue, API and browser smokes passed against the installed alpha.153 package with zero browser console errors. This is measured write-elision evidence, not throughput or latency evidence.
+Purpose: child rows for exact identifiers such as ISBN and ISSN. Display punctuation is preserved while normalized values support exact search and duplicate-safe catalogue joins.
+
+Columns: `id`, `item_id`, `user_id`, `scheme`, `display_value`, `normalized_value`, `source`, `user_edited`, `valid`, `created_at`, `updated_at`.
+
+Indexes: primary `library_ident_id`, `library_ident_item`, and `library_ident_user_scheme_value` on `user_id`, `scheme`, `normalized_value`.
+
+### `library_item_facets`
+
+Purpose: normalized repeated facet values for subjects, classifications and Nextcloud tags. This keeps exact tag/classification/subject filters and high-cardinality typeahead suggestions indexed separately from the item JSON fields.
+
+Columns: `id`, `user_id`, `item_id`, `facet_type`, `facet_value`, `normalized_value`.
+
+Indexes: primary `library_facets_id`, `library_facets_lookup` on `user_id`, `facet_type`, `normalized_value`, `facet_value`, `library_facets_exact` on `user_id`, `facet_type`, `facet_value`, `item_id`, and unique `library_facets_item_unique` on `item_id`, `facet_type`, `normalized_value`.
 
 ### `library_scan_jobs`
 
 Purpose: durable progress/history rows for scans queued through Nextcloud background jobs.
 
-Columns:
+Columns: `id`, `user_id`, `status`, `scope_type`, `root_id`, `roots_total`, `files_indexed`, `files_added`, `paths_updated`, `files_unchanged`, `files_missing`, `error_count`, `metadata_errors`, `summary`, `started_at`, `finished_at`, `run_started_at`, `duration_ms`, `fingerprint_skips`, `metadata_extractions`, `item_refreshes`, `last_progress_at`, `current_path`.
 
-- `id` integer unsigned autoincrement primary key
-- `user_id` string(64), not null
-- `status` string(32), not null, default `running`
-- `scope_type` string(32), nullable; e.g. all roots, single root, metadata errors, missing files
-- `root_id` integer unsigned, nullable
-- `roots_total` integer unsigned, not null, default 0
-- `files_indexed` integer unsigned, not null, default 0
-- `error_count` integer unsigned, not null, default 0
-- `summary` text, nullable
-- `started_at` integer unsigned, not null
-- `finished_at` integer unsigned, nullable
+Known job statuses include `queued`, `running`, `completed`, `failed` and `cancelled`. `scope_type` defaults to `all`. Portable timestamp columns remain epoch seconds; completed/failed `duration_ms` comes from a monotonic worker clock.
 
-Known job statuses include:
+Index: primary `library_scan_jobs_id` and `library_scan_jobs_user_started` on `user_id`, `started_at`.
 
-- `queued`
-- `running`
-- `completed`
-- `failed`
-- `cancelled`
+### `library_saved_collections`
 
-Index:
+Purpose: named user-specific saved catalogue filter sets.
 
-- `library_scan_jobs_user_started` on `user_id`, `started_at`
+Columns: `id`, `user_id`, `name`, `filters_json`, `created_at`, `updated_at`.
+
+Indexes: primary `library_saved_collections_id`, `library_saved_coll_user`, and unique `library_saved_coll_user_name` on `user_id`, `name`.
+
+### Migration/release evidence notes
+
+Historical alpha.153 privacy-safe smallest-root validation remains recorded in release docs. Historical alpha.152 live MySQL migration evidence registered `Version000100Date20260911120000` and confirmed row counts unchanged while title/file/status indexes were usable. Alpha.153 added fingerprint/revision markers for trusted unchanged-file rescans. Later migrations added identifier rows, normalized facet rows, review-flag indexes, typeahead indexes and substring-search grams. The latest source tree declares the full current schema in `appinfo/database.xml`; fresh-database release rehearsal remains separate from this source-level declaration.
 
 ## Background jobs
 
@@ -337,7 +272,7 @@ Operational command-line interactions use existing Nextcloud and repository comm
   - `npm run smoke:browser`
   - other focused smoke scripts listed in `package.json` for metadata separation, multi-root, last-opened, descriptions, workflow status, subjects/classifications, conflict review, bulk reset and scale pilots.
 
-The catalogue exposes a dedicated count-only service path for Useful-view and saved-collection badges. Normal count filters execute a database count without materializing item rows or computing facets. Ordinary catalogue/AJAX item DTOs are explicitly projected: they omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs while retaining tags, descriptions, diagnostics and visible card actions. Their SQL query also avoids selecting cover override data. Scanner-conflict and weak-metadata review views intentionally retain the richer provenance needed by the review workbench; detail, cover, export and import paths remain full-fidelity. Scanner-conflict counts remain a deliberate exception: they read matching rows and apply the same PHP conflict predicate as the visible catalogue until an equivalent SQL predicate is implemented. Further scale work remains pending for duplicated creator landing URLs, description/lazy-detail loading, performance instrumentation, the saved raw-tag filter bug and SQL-native scanner-conflict counting.
+The catalogue exposes a dedicated count-only service path for Useful-view and saved-collection badges. Normal count filters execute a database count without materializing item rows or computing facets. Ordinary catalogue/AJAX item DTOs are explicitly projected: they omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs while retaining tags, descriptions, diagnostics and visible card actions. Their SQL query also avoids selecting cover override data. Scanner-conflict and weak-metadata review views intentionally retain the richer provenance needed by the review workbench; detail, cover, export and import paths remain full-fidelity. Workload-led indexes now cover common sort/filter paths, review flags, exact facets/typeaheads and arbitrary substring search grams. Scanner-conflict counts remain the deliberate exception: they read matching rows and apply the same PHP conflict predicate as the visible catalogue until an equivalent SQL predicate is implemented.
 
 ## Data ownership and side effects
 
@@ -347,6 +282,10 @@ Library owns:
 - `library_files`
 - `library_items`
 - `library_scan_jobs`
+- `library_saved_collections`
+- `library_item_identifiers`
+- `library_item_facets`
+- `library_item_search_grams`
 - app navigation/settings registrations
 - app assets under the installed `custom_apps/library` directory
 

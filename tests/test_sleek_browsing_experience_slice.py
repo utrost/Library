@@ -71,6 +71,7 @@ def test_smoke_and_docs_track_sleek_browsing_slice():
     assert "source_has_calm_catalogue" in smoke
     assert "source_has_detail_drawer" in smoke
     assert "source_has_visual_issue_strip" in smoke
-    assert "alpha.169" in docs
+    assert "0.1.0-alpha.171" in docs
+    assert "mobile filter" in docs or "filters panel" in docs
     assert "details drawer" in docs
     assert "visual issue strip" in docs

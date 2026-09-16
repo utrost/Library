@@ -21,7 +21,7 @@ EXPECTED_TABLES = {
         },
         "indexes": {
             "library_files_id", "library_files_user_id", "library_files_root_id", "library_files_file_id_unique",
-            "library_files_usr_root_status", "library_files_usr_path",
+            "library_files_usr_root_status", "library_files_usr_path", "library_files_usr_status_scan",
         },
     },
     "*dbprefix*library_items": {
@@ -35,6 +35,9 @@ EXPECTED_TABLES = {
         },
         "indexes": {
             "library_items_id", "library_items_user_id", "library_items_file_unique",
+            "library_items_usr_title", "library_items_usr_file", "library_items_usr_pubdate",
+            "library_items_usr_publication", "library_items_usr_lastopen", "library_items_usr_workflow",
+            "library_items_usr_publisher", "library_items_usr_creator",
             "library_items_usr_type_title_file", "library_items_usr_type_file",
             "library_items_usr_edit_title", "library_items_usr_star_title",
             "library_items_usr_needmeta_title", "library_items_usr_coverrev_title", "library_items_usr_nopub_title",

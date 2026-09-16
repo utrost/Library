@@ -57,7 +57,7 @@ Bug reports are most useful when they include the app version, Nextcloud version
 Prepare screenshots from a clean test instance with non-private sample files:
 
 1. Catalogue gallery or shelf view showing several covers and active search/filter controls.
-2. Details page or drawer showing editable publication metadata.
+2. Contextual drawer showing readable publication/file context, plus Advanced details/full details page showing editable publication metadata.
 3. Useful views or metadata review workbench showing cleanup-oriented navigation.
 4. Settings page showing configured library roots and scan controls without private paths.
 

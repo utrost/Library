@@ -33,6 +33,7 @@ Library owns:
 - exposure and editing of Nextcloud system tags on the backing file;
 - exposure and adding of Nextcloud file comments;
 - read-only corrected-metadata JSON export for user-edited catalogue rows;
+- reviewable corrected-metadata import preview/apply for matched existing rows;
 - read-only sidecar manifest export that maps corrected rows to suggested `.library.json` sidecar paths.
 
 For the next personal-library direction, see [Personal top features](personal-top-features.md): multi-root confidence, starring/bookmarking, last-opened activity, description search and Library-native workflow status now have checked implementation/smoke coverage; next priority is subjects/classifications.
@@ -48,13 +49,13 @@ Library does **not** own:
 - OPDS, Kobo or Kindle sync;
 - AI classification;
 - a shared global collection manager;
-- a complete import/write-back workflow for corrected metadata.
+- a complete fresh-install restore or source-folder write-back workflow for corrected metadata.
 
 ## Current app surfaces
 
 ### Library catalogue
 
-Open the **Library** app from Nextcloud navigation. The catalogue is the reader-facing entry point. Search is immediately visible; `/` focuses it without opening **Filter**. There is one **Filter**, **Sort**, and **View** control. Selecting a cover or title opens the contextual sidebar, **Open** opens the file, and **Advanced details** in that sidebar opens the full editor. Sidebar URLs can be copied and browser Back/Forward restores selection.
+Open the **Library** app from Nextcloud navigation. The catalogue is the reader-facing entry point. Search is immediately visible; `/` focuses it without opening **Filter** and does nothing while an editable field is active. Desktop uses visible Search/Filter/Sort/View controls; narrow mobile layouts expose filters through a grouped **Filters** panel with active-filter count, result count, **Clear all**, and a primary “show results” action. Selecting a cover or title opens the contextual sidebar, **Open** opens the file, and **Advanced details** in that sidebar opens the full editor. Sidebar URLs can be copied and browser Back/Forward restores selection.
 
 Current catalogue capabilities:
 
@@ -64,14 +65,14 @@ Current catalogue capabilities:
 - open the original file context through **Show in Files**;
 - fetch the original file through **Download**;
 - open contextual details in the sidebar and use **Advanced details** for editing;
-- search title, subtitle, creators, publication, description, exact normalized ISBN/ISSN and file path from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics;
-- use the visible toolbar for Search, Sort and View and the single **Filter** disclosure for facets; press `/` to focus search and `Escape` to clear it;
+- search title, subtitle, creators, publication, description, exact normalized ISBN/ISSN and file path from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics, and arbitrary substrings use the indexed search-gram path instead of broad row scans;
+- use the visible toolbar for Search, Sort and View, desktop filters, and the mobile **Filters** panel for grouped facets; press `/` to focus search and `Escape` to clear it;
 - filter by exact creator field and open a creator landing page as read-only discovery; creator identity splitting remains future work;
 - use server-backed **Starred** and **Recently opened** browse destinations;
 - enter through server-backed **Home**, browse root/folder counts in **Shelves**, and move into the paginated **Catalogue** without preloading full result sets;
 - use active filter chips to see current filters and remove one filter without clearing the whole search;
 - select visible publications to reveal batch controls; every batch request carries only the canonical non-empty explicit selection and remains ownership-checked and capped;
-- use Review’s five groups: **Suggested updates**, **Needs details**, **File problems**, **Cover problems**, and **Imported changes**;
+- use Review’s five groups: **Suggested updates**, **Needs details**, **File problems**, **Cover problems**, and **Imported changes**, with filter-change loading feedback outside Review as well;
 - compare current and suggested values and explicitly use a suggested value without changing source files;
 - see first-run guidance when no Library root exists, disabled-root guidance when roots are saved but disabled, and filter-specific recovery actions when a search returns no matches;
 - browse compact cover-first cards on mobile and desktop with a contextual sidebar; Escape closes it, arrow keys browse neighbours, and focus returns to the opener;
@@ -81,7 +82,7 @@ Current catalogue capabilities:
 - use the **Top publication years** panel to open a dedicated publication year discovery page for dated books, magazines, journals and comics;
 - use the **Top creators** panel to open a dedicated creator landing page for the exact full creator field;
 - see **No series or periodicals found yet** when the shortcut panel has no publication metadata yet; this is only guidance, with no new series schema;
-- filter by publication type, file format, scan status, workflow status, exact Nextcloud tag, shelf and starred state;
+- filter by publication type, file format, scan status, workflow status, exact Nextcloud tag, shelf, starred state and review-needed flags;
 - sort by title, recently added, recently opened, publication date, series/periodical or format;
 - choose page size up to the current 500-item clamp;
 - see page counts and previous/next links;
@@ -462,9 +463,9 @@ Implemented correction helpers:
 
 Visible gaps:
 
-- no bulk edit undo/history or multi-field apply workflow yet: arbitrary one-field batch metadata editing now has a preview-and-apply path across selected visible items, but richer cross-field validation rules, multi-field edits, and history remain future work;
+- no bulk edit undo/history or multi-field apply workflow yet: one-field batch metadata editing has a preview-and-apply path across selected visible items, but multi-field edits, undo/history and richer cross-field validation remain future work;
 - bulk editing remains future work for multi-field edits, undo/history, and richer cross-field validation rules;
-- scanner-conflict filtering is the first review view for scanner/sidecar/user metadata conflicts; richer queues remain future work.
+- scanner-conflict filtering is the first review view for scanner/sidecar/user metadata conflicts; Review now has five implemented cleanup groups, and deeper queue automation and bulk review decisions remain future work.
 
 ### Story 3: Classifying across projects
 
