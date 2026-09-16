@@ -61,8 +61,9 @@ def test_ordinary_catalogue_facets_use_normalized_multi_value_index():
     )[0]
 
     assert "'subjects' => []" in facets
+    assert "'classifications' => []" in facets
     assert "indexedFacetValues($userId, 'subject')" not in facets
-    assert "'classifications' => $this->indexedFacetValues($userId, 'classification')" in facets
+    assert "indexedFacetValues($userId, 'classification')" not in facets
     assert "subjects_json" not in facets
     assert "classifications_json" not in facets
     assert "indexedFacetFilter($qb, $userId, 'subject', $subject)" in predicates

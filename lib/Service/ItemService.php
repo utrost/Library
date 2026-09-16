@@ -1544,7 +1544,7 @@ final class ItemService {
             'creators' => [],
             // High-cardinality subjects are fetched on demand from the facet index.
             'subjects' => [],
-            'classifications' => $this->indexedFacetValues($userId, 'classification'),
+            'classifications' => [],
             'scanStatuses' => $this->scanStatusFacetValues($userId, $facetFilters['scanStatuses']),
             'workflowStatuses' => $this->distinctCatalogueValues($userId, $facetFilters['workflowStatuses'], 'i.workflow_status', 'value'),
         ];
@@ -1825,6 +1825,13 @@ final class ItemService {
         $values = array_keys($folders);
         sort($values, SORT_NATURAL | SORT_FLAG_CASE);
         return array_slice($values, 0, $limit);
+    }
+
+    /** @return array<int, string> */
+    public function classificationSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
+        unset($filters['classification']);
+        if (mb_strlen(trim($query)) < 3) return [];
+        return $this->indexedSuggestionValues($userId, $filters, 'classification', 'classification_suggestion', 'classification', $query, $limit);
     }
 
     /** @return array<int, string> */
@@ -2389,6 +2396,7 @@ final class ItemService {
             'publication' => [(string)($metadata['publication'] ?? '')],
             'creator' => [(string)($metadata['creators'] ?? '')],
             'publisher' => [(string)($metadata['publisher'] ?? '')],
+            'classification' => $this->normalizeMultiValueField($metadata['classifications'] ?? []),
             'year' => preg_match('/^\\d{4}$/', $year) === 1 ? [$year] : [],
         ];
     }
