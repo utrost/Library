@@ -3791,18 +3791,26 @@ async function toggleStar(item, event) {
 .library-detail-drawer-facts div {
   border-block-end: 1px solid var(--color-border);
   display: grid;
-  gap: 12px;
-  grid-template-columns: minmax(84px, .4fr) minmax(0, 1fr);
+  gap: 4px;
+  grid-template-columns: minmax(0, 1fr);
   padding-block: 8px;
 }
 
 .library-detail-drawer-facts dt {
   color: var(--color-text-maxcontrast);
+  font-size: 0.9em;
 }
 
 .library-detail-drawer-facts dd {
   margin: 0;
   overflow-wrap: anywhere;
+}
+
+@media (min-width: 900px) {
+  .library-detail-drawer-facts div {
+    column-gap: 18px;
+    grid-template-columns: minmax(7rem, max-content) minmax(0, 1fr);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
