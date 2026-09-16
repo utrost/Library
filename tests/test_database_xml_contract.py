@@ -35,7 +35,7 @@ EXPECTED_TABLES = {
         "indexes": {
             "library_items_id", "library_items_user_id", "library_items_file_unique",
             "library_items_usr_type_title_file", "library_items_usr_type_file",
-            "library_items_usr_edit_title",
+            "library_items_usr_edit_title", "library_items_usr_star_title",
         },
     },
     "*dbprefix*library_item_identifiers": {
