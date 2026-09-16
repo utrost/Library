@@ -88,7 +88,7 @@ def test_vue_uses_ajax_refreshed_type_and_server_backed_publisher_filter():
     assert "publisher: catalogueState.activeFilters?.publisher || ''" in vue
     assert "v-model=\"publisherSearch\"" in vue
     assert "name=\"publisher\" :value=\"activeFilters.publisher\"" in vue
-    assert "v-for=\"publisher in publisherSuggestions\"" in vue
+    assert "v-for=\"(publisher, index) in publisherSuggestions\"" in vue
     assert "selectPublisherSuggestion(publisher, $event)" in vue
     assert "Apply publisher" in vue
 
