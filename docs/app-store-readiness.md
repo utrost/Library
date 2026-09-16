@@ -1,6 +1,6 @@
 # App Store readiness roadmap
 
-Current status: `0.1.0-alpha.171` source candidate, unpackaged. Manual AT testing is pending; accessibility-tree evidence is not screen-reader testing.
+Current status: `0.1.0-alpha.171` unsigned package rehearsal complete for the current source candidate. Manual AT testing is pending; accessibility-tree evidence is not screen-reader testing.
 Current candidate baseline: `0.1.0-alpha.171`
 Future authorized signing uses `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.171.tar.gz`; no alpha.171 signed archive exists yet.
 
@@ -9,7 +9,7 @@ Target: signed Nextcloud App Store release for Nextcloud 34
 
 Library alpha.159 passed its full local gate, unsigned package build/audit, and exact-package smoke on a Nextcloud 34 instance. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
 
-The current candidate includes aggregate scan-job counters/duration, privacy-safe operation logs, throttled progress/cancellation checks, frontend request-race hardening, repair root-containment enforcement, workload-led catalogue/review indexes, materialized substring-search grams, lazy high-cardinality typeahead suggestions, the mobile filter panel and the review issue batch (#32-37). This is not external telemetry or proof of universal speedup. Alpha.159 exact-package/live evidence is complete and remains the latest packaged evidence; fresh-database migration rehearsal, realistic scale data gates, a signed package/App Store submission, and formal Trust-and-scale phase closure remain deferred.
+The current candidate includes aggregate scan-job counters/duration, privacy-safe operation logs, throttled progress/cancellation checks, frontend request-race hardening, repair root-containment enforcement, workload-led catalogue/review indexes, materialized substring-search grams, lazy high-cardinality typeahead suggestions, the mobile filter panel and the review issue batch (#32-37). This is not external telemetry or proof of universal speedup. Alpha.159 exact-package/live evidence is complete and remains preserved as historical package evidence. Alpha.171 exact-package and fresh SQLite Nextcloud 34 install evidence is complete for the unsigned archive; realistic scale data gates, a signed package/App Store submission, formal Trust-and-scale phase closure and manual AT testing remain deferred.
 
 ## Definition of ready
 
@@ -92,7 +92,7 @@ Acceptance checks:
 
 ### AS-004 — App Store release rehearsal
 
-Status: alpha.159 exact-package and live rehearsal complete; fresh database migration, realistic scale data, clean-checkout CI, signed stable package/App Store submission, and formal Trust-and-scale phase closure remain pending or deferred.
+Status: alpha.171 unsigned exact-package and fresh SQLite Nextcloud 34 install rehearsal complete; realistic scale data, clean-checkout CI, signed stable package/App Store submission, and formal Trust-and-scale phase closure remain pending or deferred.
 
 Goal: prove every step before the real stable upload.
 
@@ -115,6 +115,8 @@ Alpha.153 rehearsal evidence: the exact archive checksum passed and the package 
 Alpha.158 rehearsal evidence: the local gate passed 726 Python tests, 8 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. Packaging passed audit as an unsigned alpha, staged 118 entries, and created the archive/checksum. Exact-package smoke passed checksum verification, alpha.158 install/enable, PHP lint and route listing. Both runs over the unchanged 40-file root reported `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0`. Live Vue/API and browser smokes passed. The focused cover gate observed zero non-Nextcloud cover requests with a restored legacy tracker-style seed, proved upload/render/revert and deterministic temporary-second-user isolation, and completed cleanup. The upgrade reported `No upgrade required`, so this is not a fresh database migration rehearsal.
 
 Alpha.159 rehearsal evidence: the local gate passed 727 Python tests, 9 PHP runtime programs, 26 Vitest tests, the production build and Markdown-link checks. The unsigned package was built and audited with 120 archive entries. Exact-package smoke verified checksum, install/enable, PHP, routes, scanner, Vue/API/browser and privacy behavior and ended with `release_package_smoke_ok=true`; browser console errors and cross-origin cover requests were zero, and second-user isolation passed. The exact archive SHA-256 is `4287ec3f7a798ba6e6000900ca69aee1540b163146f53262a05e49095718c5d7`. The upgrade reported `No upgrade required`, so this is not a fresh-database migration rehearsal.
+
+Alpha.171 unsigned rehearsal evidence: the local package gate passed 1008 Python tests plus the PHP runtime programs, production Vue build and package audit. `npm run package:release` created `dist/library-0.1.0-alpha.171.tar.gz`; `sha256sum -c` passed and the archive SHA-256 was `8e9ef181f56772e2ad7a3e6e2bf102d44de2a9299abdb688de93a5a5baaeecab`. The package audit reported `release_package_audit_ok=true`, `unsigned_alpha_package=true`, `release_package_entries=130`, `package_frontend_bytes=885946`, one top-level `library/` directory and no dev-only paths. Exact-package smoke installed/enabled the archive on Nextcloud 34, linted packaged PHP, listed routes, ran the unchanged-file scanner contract, Vue/API smoke, sidebar HTTP smoke and a basic authenticated browser smoke with `browser_console_errors=0`, ending with `release_package_smoke_ok=true` and `release_package_version=0.1.0-alpha.171`. Fresh SQLite Nextcloud 34 install rehearsal in a disposable container enabled the same archive, reported `library_version=0.1.0-alpha.171`, created empty app tables `library_roots`, `library_files`, `library_items` and `library_item_search_grams`, recorded `migration_count=33`, `last_migration=000100Date20260916160000`, and ended with `fresh_install_smoke_ok=true`. During rehearsal, the subjects migration was changed to avoid unsupported DBAL `renameColumn()` on fresh install, and the search-gram migration was kept schema-only because synchronous full-catalogue backfill on the large dev catalogue produced 15M rows/lock contention; scanner and item writes maintain grams after install.
 
 ### AS-005 — Stable `0.1.0` App Store submission
 

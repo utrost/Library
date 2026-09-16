@@ -1217,12 +1217,45 @@ async function runBrowserSmoke(proxyBase, proxy) {
     const url = `${proxyBase}/apps/library/?browser-smoke=${Date.now()}`
     await client.send('Page.navigate', { url })
     await new Promise((resolve) => setTimeout(resolve, 2500))
+    if (process.env.LIBRARY_BROWSER_SMOKE_BASIC === '1') {
+      const basicResult = await client.send('Runtime.evaluate', {
+        returnByValue: true,
+        expression: `(() => ({
+          status: performance.getEntriesByType('navigation')[0]?.responseStatus || 0,
+          title: document.title,
+          mounted: Boolean(document.querySelector('#library-vue-root[data-v-app]')),
+          initialState: Boolean(document.querySelector('#initial-state-library-catalogue')),
+          cards: document.querySelectorAll('.library-cover-card').length,
+        }))()`,
+      })
+      const basic = unwrapCdpEvaluateResponse(basicResult, { phase: 'basic-browser-smoke' })
+      const consoleErrors = client.events.filter((event) => classifyBrowserEvent(event).fatal)
+      print('browser_basic_http_200', basic.status === 200)
+      print('browser_basic_vue_mounted', basic.mounted === true)
+      print('browser_basic_initial_state', basic.initialState === true)
+      print('browser_basic_cards', basic.cards)
+      print('browser_console_errors', consoleErrors.length)
+      if (basic.status !== 200 || basic.mounted !== true || basic.initialState !== true || consoleErrors.length > 0) {
+        if (consoleErrors.length > 0) console.log('browser_console_error_sample=' + JSON.stringify(consoleErrors.slice(0, 3)))
+        throw new Error('basic_browser_smoke_failed')
+      }
+      console.log('browser_smoke_ok=true')
+      return
+    }
     const realDetailCandidateObservation = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', {
       returnByValue: true,
-      expression: `({
-        hrefs: [...document.querySelectorAll('.library-cover-card a[href]')].map((anchor) => anchor.href),
-        origin: location.origin,
-      })`,
+      expression: `(() => {
+        let stateHrefs = []
+        try {
+          const raw = document.querySelector('#initial-state-library-catalogue')?.getAttribute('value') || document.querySelector('#initial-state-library-catalogue')?.textContent?.trim() || ''
+          const decoded = raw ? JSON.parse(atob(raw)) : {}
+          stateHrefs = (decoded.items || []).map((item) => item.detailsUrl).filter(Boolean)
+        } catch (_error) {}
+        return {
+          hrefs: [...document.querySelectorAll('.library-cover-card a[href]')].map((anchor) => anchor.href).concat(stateHrefs.map((href) => new URL(href, location.origin).href)),
+          origin: location.origin,
+        }
+      })()`,
     }), { phase: 'real-detail-candidate-capture' })
     const realDetailCandidates = captureCanonicalDetailCandidates(realDetailCandidateObservation)
     await client.send('Page.navigate', { url: `${proxyBase}/apps/library/?browser-smoke=${Date.now()}&localization-fixture=1` })

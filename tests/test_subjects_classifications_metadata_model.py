@@ -13,6 +13,8 @@ def test_subjects_classifications_have_schema_and_publication_field_model():
     assert "genres_json" not in schema
     assert "subjects_json" in migrations
     assert "genres_json" in migrations  # legacy migration source only
+    assert "renameColumn" not in migrations
+    assert "subjects_json = genres_json" in migrations
     assert "classifications_json" in migrations
     fields_block = service.split("private const PUBLICATION_FIELDS", 1)[1].split("];", 1)[0]
     assert "'subjects'" in fields_block
