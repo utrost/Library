@@ -591,7 +591,19 @@ OC.L10N.register(
         "_%n publication needs better details._::_%n publications need better details._": [
             "%n Publikation benötigt bessere Angaben.",
             "%n Publikationen benötigen bessere Angaben."
-        ]
+        ],
+        "Filters ({count})": "Filter ({count})",
+        "Mobile catalogue filters": "Katalogfilter für kleine Bildschirme",
+        "Open filters panel": "Filterbereich öffnen",
+        "Open filters panel; {count} active filters": "Filterbereich öffnen; {count} aktive Filter",
+        "_Show %n item_::_Show %n items_": [
+            "%n Element anzeigen",
+            "%n Elemente anzeigen"
+        ],
+        "Content": "Inhalt",
+        "Location": "Ort",
+        "Personal / display": "Persönlich / Anzeige",
+        "Clear all": "Alle löschen"
     },
     "nplurals=2; plural=(n != 1);"
 );
