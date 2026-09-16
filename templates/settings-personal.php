@@ -40,7 +40,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                 <div class="library-folder-path-field">
                     <label>
                         <?php p($l->t('Folder path')); ?>
-                        <input type="text" name="path" value="/LibrarySpike" placeholder="<?php p($l->t('/Media/Books')); ?>" aria-describedby="library-new-root-path-help" />
+                        <input type="text" name="path" value="" placeholder="<?php p($l->t('/Media/Books')); ?>" aria-describedby="library-new-root-path-help" required />
                     </label>
                     <button type="button" class="button secondary library-folder-picker-button" data-library-folder-picker data-picker-title="<?php p($l->t('Choose a folder for this Library shelf')); ?>" data-picker-error="<?php p($l->t('Could not open the folder picker. Enter the path manually.')); ?>" hidden><?php p($l->t('Choose folder')); ?></button>
                     <p id="library-new-root-path-help" class="library-muted library-folder-path-help"><?php p($l->t('Choose a folder from Nextcloud Files, or enter its path manually.')); ?></p>
@@ -315,18 +315,8 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                 <?php p($l->t('Preview metadata import')); ?>
                 <textarea name="metadataJson" rows="6" placeholder="<?php p($l->t('Paste a Library corrected metadata JSON export here.')); ?>"></textarea>
             </label>
-            <p class="library-muted"><?php p($l->t('No changes are written during preview. Use Apply metadata import only after reviewing the preview output.')); ?></p>
+            <p class="library-muted"><?php p($l->t('No changes are written during preview. Use Apply metadata import only after reviewing the preview output.')); ?> <strong><?php p($l->t('Apply metadata import')); ?></strong></p>
             <button type="submit" class="button secondary library-localization-long-control"><?php p($l->t('Preview metadata import')); ?></button>
-        </form>
-
-        <form method="post" action="<?php p($_['metadataImportApplyUrl']); ?>" class="library-form library-metadata-import-apply-form">
-            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-            <label>
-                <?php p($l->t('Apply metadata import')); ?>
-                <textarea name="metadataJson" rows="6" placeholder="<?php p($l->t('Paste the reviewed Library corrected metadata JSON export here.')); ?>"></textarea>
-            </label>
-            <p class="library-muted"><?php p($l->t('This writes matched corrected metadata to existing Library items. Missing items and unchanged items are skipped.')); ?></p>
-            <button type="submit" class="button primary"><?php p($l->t('Apply metadata import')); ?></button>
         </form>
 
     </details>
