@@ -481,6 +481,8 @@ describe('Library catalogue Vue app', () => {
     ['creator', 3],
     ['publisher', 3],
     ['subject', 3],
+    ['classification', 3],
+    ['tag', 2],
     ['year', 2],
   ])('does not request %s suggestions until %i trimmed characters are entered', async (facet, minimum) => {
     global.fetch = vi.fn()
@@ -507,7 +509,7 @@ describe('Library catalogue Vue app', () => {
       ok: true,
       json: async () => ({ ...state }),
     })
-    const shortValues = { publication: 'AB', creator: 'Li', publisher: 'Q', subject: 'AI', year: '19' }
+    const shortValues = { publication: 'AB', creator: 'Li', publisher: 'Q', subject: 'AI', classification: 'QA', tag: 'X', year: '19' }
     const wrapper = mount(App, { props: { state: {
       ...state,
       catalogueEndpointUrl: '/apps/library/catalogue',
@@ -523,7 +525,7 @@ describe('Library catalogue Vue app', () => {
 
     await wrapper.get('form.library-sidebar-filters').trigger('submit')
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      '/apps/library/catalogue?publisher=Q&publication=AB&year=19&creator=Li&subject=AI',
+      '/apps/library/catalogue?publisher=Q&publication=AB&year=19&creator=Li&tag=X&subject=AI&classification=QA',
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
   })
@@ -556,6 +558,60 @@ describe('Library catalogue Vue app', () => {
       '/apps/library/catalogue?format=epub&subject=Social+history',
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
+  })
+
+  it('fetches and applies tag and classification suggestions while preserving other filters', async () => {
+    global.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ tags: ['Research'] }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, tag: 'Research', format: 'epub' } }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ classifications: ['DDC 900'] }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, tag: 'Research', classification: 'DDC 900', format: 'epub' } }) })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      tagSuggestionsUrl: '/apps/library/catalogue/tag-suggestions',
+      classificationSuggestionsUrl: '/apps/library/catalogue/classification-suggestions',
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, tag: '', classification: '', format: 'epub' },
+    } } })
+
+    const tagInput = wrapper.get('input[name="tagSearch"]')
+    await tagInput.trigger('focus')
+    await tagInput.setValue('re')
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue/tag-suggestions?format=epub&tagSearch=re',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ), { timeout: 1000 })
+    await vi.waitFor(() => expect(wrapper.findAll('.library-tag-suggestion').length).toBeGreaterThan(0))
+    await wrapper.findAll('.library-tag-suggestion')[0].trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenLastCalledWith(
+      '/apps/library/catalogue?tag=Research&format=epub',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+
+    const classificationInput = wrapper.get('input[name="classificationSearch"]')
+    await classificationInput.trigger('focus')
+    await classificationInput.setValue('ddc')
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue/classification-suggestions?format=epub&tag=Research&classificationSearch=ddc',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ), { timeout: 1000 })
+    await vi.waitFor(() => expect(wrapper.findAll('.library-classification-suggestion').length).toBeGreaterThan(0))
+    await wrapper.findAll('.library-classification-suggestion')[0].trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenLastCalledWith(
+      '/apps/library/catalogue?tag=Research&format=epub&classification=DDC+900',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+  })
+
+  it('does not render classification as an eager dropdown facet', async () => {
+    const manyClassifications = Array.from({ length: 80 }, (_, index) => `Class ${index}`)
+    const wrapper = mount(App, { props: { state: { ...state, classifications: manyClassifications } } })
+
+    expect(wrapper.find('select[name="classification"]').exists()).toBe(false)
+    expect(wrapper.find('input[name="classificationSearch"]').exists()).toBe(true)
+    expect(wrapper.findAll('.library-classification-suggestion')).toHaveLength(0)
   })
 
   it('preserves active hidden catalogue constraints when applying sidebar filters', async () => {

@@ -251,6 +251,42 @@ watch(subjectSearch, (value) => {
   const generation = ++subjectSuggestionGeneration
   subjectSuggestionTimer = window.setTimeout(() => { void fetchSubjectSuggestions(query, generation) }, 200)
 })
+const classificationSearch = ref(activeFilters.classification)
+const classificationSearchFocused = ref(false)
+const remoteClassificationSuggestions = ref(null)
+const classificationSuggestions = computed(() => remoteClassificationSuggestions.value || [])
+watch(() => activeFilters.classification, (classification) => { classificationSearch.value = classification || '' })
+let classificationSuggestionTimer = null
+let classificationSuggestionController = null
+let classificationSuggestionGeneration = 0
+watch(classificationSearch, (value) => {
+  window.clearTimeout(classificationSuggestionTimer)
+  classificationSuggestionController?.abort()
+  classificationSuggestionController = null
+  remoteClassificationSuggestions.value = null
+  const query = String(value || '').trim()
+  if (query.length < 3) return
+  const generation = ++classificationSuggestionGeneration
+  classificationSuggestionTimer = window.setTimeout(() => { void fetchClassificationSuggestions(query, generation) }, 200)
+})
+const tagSearch = ref(activeFilters.tag)
+const tagSearchFocused = ref(false)
+const remoteTagSuggestions = ref(null)
+const tagSuggestions = computed(() => remoteTagSuggestions.value || [])
+watch(() => activeFilters.tag, (tag) => { tagSearch.value = tag || '' })
+let tagSuggestionTimer = null
+let tagSuggestionController = null
+let tagSuggestionGeneration = 0
+watch(tagSearch, (value) => {
+  window.clearTimeout(tagSuggestionTimer)
+  tagSuggestionController?.abort()
+  tagSuggestionController = null
+  remoteTagSuggestions.value = null
+  const query = String(value || '').trim()
+  if (query.length < 2) return
+  const generation = ++tagSuggestionGeneration
+  tagSuggestionTimer = window.setTimeout(() => { void fetchTagSuggestions(query, generation) }, 200)
+})
 const yearSearch = ref(activeFilters.year)
 const yearSearchFocused = ref(false)
 const remoteYearSuggestions = ref(null)
@@ -335,6 +371,8 @@ const publicationSuggestionsUrl = computed(() => catalogueState.publicationSugge
 const creatorSuggestionsUrl = computed(() => catalogueState.creatorSuggestionsUrl || '/apps/library/catalogue/creator-suggestions')
 const publisherSuggestionsUrl = computed(() => catalogueState.publisherSuggestionsUrl || '/apps/library/catalogue/publisher-suggestions')
 const subjectSuggestionsUrl = computed(() => catalogueState.subjectSuggestionsUrl || '/apps/library/catalogue/subject-suggestions')
+const classificationSuggestionsUrl = computed(() => catalogueState.classificationSuggestionsUrl || '/apps/library/catalogue/classification-suggestions')
+const tagSuggestionsUrl = computed(() => catalogueState.tagSuggestionsUrl || '/apps/library/catalogue/tag-suggestions')
 const folderSuggestionsUrl = computed(() => catalogueState.folderSuggestionsUrl || '/apps/library/catalogue/folder-suggestions')
 const yearSuggestionsUrl = computed(() => catalogueState.yearSuggestionsUrl || '/apps/library/catalogue/year-suggestions')
 const itemSidebarUrlTemplate = computed(() => catalogueState.itemSidebarUrlTemplate || `${webroot}/apps/library/items/__ITEM_ID__/sidebar`)
@@ -857,6 +895,8 @@ function buildFilterParams(form) {
   params.delete('creatorSearch')
   params.delete('subjectSearch')
   params.delete('publisherSearch')
+  params.delete('classificationSearch')
+  params.delete('tagSearch')
   params.delete('folderSearch')
   params.delete('yearSearch')
   for (const key of Array.from(params.keys())) {
@@ -885,19 +925,23 @@ async function fetchFacetSuggestions(facet, query, generation) {
   if (facet === 'creator') creatorSuggestionController = controller
   else if (facet === 'publisher') publisherSuggestionController = controller
   else if (facet === 'subject') subjectSuggestionController = controller
+  else if (facet === 'classification') classificationSuggestionController = controller
+  else if (facet === 'tag') tagSuggestionController = controller
   else if (facet === 'folder') folderSuggestionController = controller
   else yearSuggestionController = controller
-  const url = facet === 'creator' ? creatorSuggestionsUrl.value : (facet === 'publisher' ? publisherSuggestionsUrl.value : (facet === 'subject' ? subjectSuggestionsUrl.value : (facet === 'folder' ? folderSuggestionsUrl.value : yearSuggestionsUrl.value)))
+  const url = facet === 'creator' ? creatorSuggestionsUrl.value : (facet === 'publisher' ? publisherSuggestionsUrl.value : (facet === 'subject' ? subjectSuggestionsUrl.value : (facet === 'classification' ? classificationSuggestionsUrl.value : (facet === 'tag' ? tagSuggestionsUrl.value : (facet === 'folder' ? folderSuggestionsUrl.value : yearSuggestionsUrl.value)))))
   try {
     const response = await fetch(`${url}?${params}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin', signal: controller.signal })
     if (!response.ok) throw new Error(`${facet} suggestions request failed: ${response.status}`)
     const payload = await response.json()
-    const currentGeneration = facet === 'creator' ? creatorSuggestionGeneration : (facet === 'publisher' ? publisherSuggestionGeneration : (facet === 'subject' ? subjectSuggestionGeneration : (facet === 'folder' ? folderSuggestionGeneration : yearSuggestionGeneration)))
-    const currentSearch = facet === 'creator' ? creatorSearch.value : (facet === 'publisher' ? publisherSearch.value : (facet === 'subject' ? subjectSearch.value : (facet === 'folder' ? folderSearch.value : yearSearch.value)))
+    const currentGeneration = facet === 'creator' ? creatorSuggestionGeneration : (facet === 'publisher' ? publisherSuggestionGeneration : (facet === 'subject' ? subjectSuggestionGeneration : (facet === 'classification' ? classificationSuggestionGeneration : (facet === 'tag' ? tagSuggestionGeneration : (facet === 'folder' ? folderSuggestionGeneration : yearSuggestionGeneration)))))
+    const currentSearch = facet === 'creator' ? creatorSearch.value : (facet === 'publisher' ? publisherSearch.value : (facet === 'subject' ? subjectSearch.value : (facet === 'classification' ? classificationSearch.value : (facet === 'tag' ? tagSearch.value : (facet === 'folder' ? folderSearch.value : yearSearch.value)))))
     if (generation === currentGeneration && currentSearch.trim() === query) {
       if (facet === 'creator') remoteCreatorSuggestions.value = Array.isArray(payload.creators) ? payload.creators : []
       else if (facet === 'publisher') remotePublisherSuggestions.value = Array.isArray(payload.publishers) ? payload.publishers : []
       else if (facet === 'subject') remoteSubjectSuggestions.value = Array.isArray(payload.subjects) ? payload.subjects : []
+      else if (facet === 'classification') remoteClassificationSuggestions.value = Array.isArray(payload.classifications) ? payload.classifications : []
+      else if (facet === 'tag') remoteTagSuggestions.value = Array.isArray(payload.tags) ? payload.tags : []
       else if (facet === 'folder') remoteFolderSuggestions.value = Array.isArray(payload.folders) ? payload.folders : []
       else remoteYearSuggestions.value = Array.isArray(payload.years) ? payload.years : []
     }
@@ -906,6 +950,8 @@ async function fetchFacetSuggestions(facet, query, generation) {
       if (facet === 'creator' && generation === creatorSuggestionGeneration) remoteCreatorSuggestions.value = null
       if (facet === 'publisher' && generation === publisherSuggestionGeneration) remotePublisherSuggestions.value = null
       if (facet === 'subject' && generation === subjectSuggestionGeneration) remoteSubjectSuggestions.value = null
+      if (facet === 'classification' && generation === classificationSuggestionGeneration) remoteClassificationSuggestions.value = null
+      if (facet === 'tag' && generation === tagSuggestionGeneration) remoteTagSuggestions.value = null
       if (facet === 'folder' && generation === folderSuggestionGeneration) remoteFolderSuggestions.value = null
       if (facet === 'year' && generation === yearSuggestionGeneration) remoteYearSuggestions.value = null
     }
@@ -915,6 +961,8 @@ async function fetchFacetSuggestions(facet, query, generation) {
 function fetchCreatorSuggestions(query, generation) { return fetchFacetSuggestions('creator', query, generation) }
 function fetchPublisherSuggestions(query, generation) { return fetchFacetSuggestions('publisher', query, generation) }
 function fetchSubjectSuggestions(query, generation) { return fetchFacetSuggestions('subject', query, generation) }
+function fetchClassificationSuggestions(query, generation) { return fetchFacetSuggestions('classification', query, generation) }
+function fetchTagSuggestions(query, generation) { return fetchFacetSuggestions('tag', query, generation) }
 function fetchFolderSuggestions(query, generation) { return fetchFacetSuggestions('folder', query, generation) }
 function fetchYearSuggestions(query, generation) { return fetchFacetSuggestions('year', query, generation) }
 
@@ -955,7 +1003,7 @@ function applyCatalogueState(nextState) {
     'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses',
     'subjects', 'classifications', 'smartViewCounts', 'smartViewCountsPending', 'savedCollections',
   ] : [])
-  for (const key of ['shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'subjects', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'publicationSuggestionsUrl', 'creatorSuggestionsUrl', 'publisherSuggestionsUrl', 'subjectSuggestionsUrl', 'folderSuggestionsUrl', 'yearSuggestionsUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'smartViewCountsPending', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
+  for (const key of ['shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext', 'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses', 'subjects', 'classifications', 'cataloguePagination', 'catalogueRootUrl', 'reviewUrl', 'settingsUrl', 'metadataExportUrl', 'metadataSidecarManifestUrl', 'metadataSidecarBundleUrl', 'catalogueEndpointUrl', 'publicationSuggestionsUrl', 'creatorSuggestionsUrl', 'publisherSuggestionsUrl', 'subjectSuggestionsUrl', 'classificationSuggestionsUrl', 'tagSuggestionsUrl', 'folderSuggestionsUrl', 'yearSuggestionsUrl', 'itemSidebarUrlTemplate', 'batchTagUrl', 'batchTagRemoveUrl', 'batchMetadataResetUrl', 'batchMetadataEditPreviewUrl', 'batchCoverRefreshUrl', 'scannerConflictReviewUrl', 'metadataErrorsUrl', 'metadataErrorsTsvUrl', 'coverProbeUrl', 'importHealthSummaryUrl', 'smartViewCounts', 'smartViewCountsPending', 'savedCollections', 'savedCollectionSaveUrl', 'savedCollectionDeleteBaseUrl']) {
     if (!deferredKeys.has(key) && Object.prototype.hasOwnProperty.call(nextState, key)) {
       catalogueState[key] = nextState[key]
     }
@@ -1173,6 +1221,8 @@ async function applyFacetFilter(form, facet, value) {
 function applyAllSearchFilters(event) { void applySearchFilters(event.currentTarget) }
 function selectCreatorSuggestion(creator, event) { void applyFacetFilter(event.currentTarget.form, 'creator', creator) }
 function selectPublisherSuggestion(publisher, event) { void applyFacetFilter(event.currentTarget.form, 'publisher', publisher) }
+function selectClassificationSuggestion(classification, event) { void applyFacetFilter(event.currentTarget.form, 'classification', classification) }
+function selectTagSuggestion(tag, event) { void applyFacetFilter(event.currentTarget.form, 'tag', tag) }
 function selectFolderSuggestion(folder, event) { void applyFacetFilter(event.currentTarget.form, 'folder', folder) }
 function applySubjectFilter(form, subject = subjectSearch.value) {
   window.clearTimeout(subjectSuggestionTimer)
@@ -1546,14 +1596,14 @@ async function toggleStar(item, event) {
             <div class="library-publication-filter"><label for="library-publication-search">{{ t('library', 'Series / periodical') }}</label><input id="library-publication-search" v-model="publicationSearch" type="search" name="publicationSearch" autocomplete="off" :placeholder="t('library', 'Search series and periodicals')" role="combobox" aria-autocomplete="list" aria-controls="library-publication-suggestions" :aria-expanded="publicationSearchFocused && publicationSuggestions.length > 0 ? 'true' : 'false'" @focus="publicationSearchFocused = true" @keydown.escape="publicationSearchFocused = false"><input type="hidden" name="publication" :value="activeFilters.publication"><ul v-if="publicationSearchFocused && publicationSuggestions.length > 0" id="library-publication-suggestions" class="library-publication-suggestions" role="listbox"><li v-for="publication in publicationSuggestions" :key="publication" role="option"><button type="button" class="library-publication-suggestion" @mousedown.prevent @click="selectPublicationSuggestion(publication, $event)">{{ publication }}</button></li></ul><button type="submit" class="button secondary library-publication-apply">{{ t('library', 'Apply series') }}</button></div>
             <div class="library-year-filter"><label for="library-year-search">{{ t('library', 'Publication year') }}</label><input id="library-year-search" v-model="yearSearch" type="search" name="yearSearch" autocomplete="off" :placeholder="t('library', 'Search publication years')" role="combobox" aria-autocomplete="list" aria-controls="library-year-suggestions" :aria-expanded="yearSearchFocused && yearSuggestions.length > 0 ? 'true' : 'false'" @focus="yearSearchFocused = true" @keydown.escape="yearSearchFocused = false"><input type="hidden" name="year" :value="activeFilters.year"><ul v-if="yearSearchFocused && yearSuggestions.length > 0" id="library-year-suggestions" class="library-year-suggestions" role="listbox"><li v-for="year in yearSuggestions" :key="year" role="option"><button type="button" class="library-year-suggestion" @mousedown.prevent @click="selectYearSuggestion(year, $event)">{{ year }}</button></li></ul><button type="submit" class="button secondary library-year-apply">{{ t('library', 'Apply year') }}</button></div>
             <div class="library-creator-filter"><label for="library-creator-search">{{ t('library', 'Creator') }}</label><input id="library-creator-search" v-model="creatorSearch" type="search" name="creatorSearch" autocomplete="off" :placeholder="t('library', 'Search creators')" :title="t('library', 'Exact full-field creator matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-creator-suggestions" :aria-expanded="creatorSearchFocused && creatorSuggestions.length > 0 ? 'true' : 'false'" @focus="creatorSearchFocused = true" @keydown.escape="creatorSearchFocused = false"><input type="hidden" name="creator" :value="activeFilters.creator"><ul v-if="creatorSearchFocused && creatorSuggestions.length > 0" id="library-creator-suggestions" class="library-creator-suggestions" role="listbox"><li v-for="creator in creatorSuggestions" :key="creator" role="option"><button type="button" class="library-creator-suggestion" @mousedown.prevent @click="selectCreatorSuggestion(creator, $event)">{{ creator }}</button></li></ul><button type="submit" class="button secondary library-creator-apply">{{ t('library', 'Apply creator') }}</button></div>
-            <label>{{ t('library', 'Nextcloud tag') }}<input v-model="activeFilters.tag" type="text" name="tag" :placeholder="t('library', 'photography')"></label>
+            <div class="library-tag-filter"><label for="library-tag-search">{{ t('library', 'Nextcloud tag') }}</label><input id="library-tag-search" v-model="tagSearch" type="search" name="tagSearch" autocomplete="off" :placeholder="t('library', 'Search tags')" role="combobox" aria-autocomplete="list" aria-controls="library-tag-suggestions" :aria-expanded="tagSearchFocused && tagSuggestions.length > 0 ? 'true' : 'false'" @focus="tagSearchFocused = true" @keydown.escape="tagSearchFocused = false"><input type="hidden" name="tag" :value="activeFilters.tag"><ul v-if="tagSearchFocused && tagSuggestions.length > 0" id="library-tag-suggestions" class="library-tag-suggestions" role="listbox"><li v-for="tag in tagSuggestions" :key="tag" role="option"><button type="button" class="library-tag-suggestion" @mousedown.prevent @click="selectTagSuggestion(tag, $event)">{{ tag }}</button></li></ul><button type="submit" class="button secondary library-tag-apply">{{ t('library', 'Apply tag') }}</button></div>
             <label>{{ t('library', 'Format') }}<select v-model="activeFilters.format" name="format" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All formats') }}</option><option v-for="format in formats" :key="format" :value="format">{{ upper(format) }}</option></select></label>
             <label>{{ t('library', 'Shelf') }}<select v-model="activeFilters.shelf" name="shelf" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All shelves') }}</option><option v-for="shelf in shelves" :key="shelf" :value="shelf">{{ shelf }}</option></select></label>
             <div class="library-folder-filter"><label for="library-folder-search">{{ t('library', 'Folder') }}</label><input id="library-folder-search" v-model="folderSearch" type="search" name="folderSearch" autocomplete="off" :placeholder="t('library', 'Type at least 3 path characters')" :title="t('library', 'Select an exact folder path')" role="combobox" aria-autocomplete="list" aria-controls="library-folder-suggestions" :aria-expanded="folderSearchFocused && folderSuggestions.length > 0 ? 'true' : 'false'" @focus="folderSearchFocused = true" @keydown.escape="folderSearchFocused = false"><ul v-if="folderSearchFocused && folderSuggestions.length > 0" id="library-folder-suggestions" class="library-folder-suggestions" role="listbox"><li v-for="folder in folderSuggestions" :key="folder" role="option"><button type="button" class="library-folder-suggestion" @mousedown.prevent @click="selectFolderSuggestion(folder, $event)">{{ folder }}</button></li></ul><button type="submit" class="button secondary library-folder-apply">{{ t('library', 'Apply folder') }}</button></div>
             <label>{{ t('library', 'Scan status') }}<select v-model="activeFilters.status" name="status" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All scan statuses') }}</option><option v-for="status in scanStatuses" :key="status" :value="status">{{ status }}</option></select></label>
             <label>{{ t('library', 'Workflow status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All workflow statuses') }}</option><option v-for="status in workflowStatuses" :key="status" :value="status">{{ status }}</option></select></label>
             <div class="library-subject-filter"><label for="library-subject-search">{{ t('library', 'Subject') }}</label><input id="library-subject-search" v-model="subjectSearch" type="search" name="subjectSearch" autocomplete="off" :placeholder="t('library', 'Search subjects')" :title="t('library', 'Exact subject matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-subject-suggestions" :aria-expanded="subjectSearchFocused && subjectSuggestions.length > 0 ? 'true' : 'false'" @focus="subjectSearchFocused = true" @keydown.escape="subjectSearchFocused = false"><input type="hidden" name="subject" :value="activeFilters.subject"><ul v-if="subjectSearchFocused && subjectSuggestions.length > 0" id="library-subject-suggestions" class="library-subject-suggestions" role="listbox"><li v-for="subject in subjectSuggestions" :key="subject" role="option"><button type="button" class="library-subject-suggestion" @mousedown.prevent @click="selectSubjectSuggestion(subject, $event)">{{ subject }}</button></li></ul><button type="button" class="button secondary library-subject-apply" @click="applySubjectSearch">{{ t('library', 'Apply subject') }}</button></div>
-            <label>{{ t('library', 'Classification') }}<select v-model="activeFilters.classification" name="classification" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All classifications') }}</option><option v-for="classification in classifications" :key="classification" :value="classification">{{ classification }}</option></select></label>
+            <div class="library-classification-filter"><label for="library-classification-search">{{ t('library', 'Classification') }}</label><input id="library-classification-search" v-model="classificationSearch" type="search" name="classificationSearch" autocomplete="off" :placeholder="t('library', 'Search classifications')" :title="t('library', 'Exact classification matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-classification-suggestions" :aria-expanded="classificationSearchFocused && classificationSuggestions.length > 0 ? 'true' : 'false'" @focus="classificationSearchFocused = true" @keydown.escape="classificationSearchFocused = false"><input type="hidden" name="classification" :value="activeFilters.classification"><ul v-if="classificationSearchFocused && classificationSuggestions.length > 0" id="library-classification-suggestions" class="library-classification-suggestions" role="listbox"><li v-for="classification in classificationSuggestions" :key="classification" role="option"><button type="button" class="library-classification-suggestion" @mousedown.prevent @click="selectClassificationSuggestion(classification, $event)">{{ classification }}</button></li></ul><button type="submit" class="button secondary library-classification-apply">{{ t('library', 'Apply classification') }}</button></div>
             <label>{{ t('library', 'Suggested updates') }}<select v-model="activeFilters.scannerConflicts" name="scannerConflicts" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All metadata') }}</option><option value="1">{{ t('library', 'Suggested updates') }}</option></select></label>
             <button type="submit" class="button primary">{{ t('library', 'Apply filters') }}</button><a href="?" class="button secondary">{{ t('library', 'Clear') }}</a>
           </form>
@@ -1689,7 +1739,7 @@ async function toggleStar(item, event) {
           <div class="library-creator-filter"><label for="library-mobile-creator-search">{{ t('library', 'Creator') }}</label><input id="library-mobile-creator-search" v-model="creatorSearch" type="search" name="creatorSearch" autocomplete="off" :placeholder="t('library', 'Search creators')" :title="t('library', 'Exact full-field creator matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-creator-suggestions" :aria-expanded="creatorSearchFocused && creatorSuggestions.length > 0 ? 'true' : 'false'" @focus="creatorSearchFocused = true" @keydown.escape="creatorSearchFocused = false"><input type="hidden" name="creator" :value="activeFilters.creator"><ul v-if="mobileFilterPanelOpen && creatorSearchFocused && creatorSuggestions.length > 0" id="library-mobile-creator-suggestions" class="library-creator-suggestions" role="listbox"><li v-for="creator in creatorSuggestions" :key="`mobile-creator-${creator}`" role="option"><button type="button" class="library-creator-suggestion" @mousedown.prevent @click="selectCreatorSuggestion(creator, $event)">{{ creator }}</button></li></ul></div>
           <label>{{ t('library', 'Format') }}<select v-model="activeFilters.format" name="format" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All formats') }}</option><option v-for="format in formats" :key="`mobile-format-${format}`" :value="format">{{ upper(format) }}</option></select></label>
           <div class="library-subject-filter"><label for="library-mobile-subject-search">{{ t('library', 'Subject') }}</label><input id="library-mobile-subject-search" v-model="subjectSearch" type="search" name="subjectSearch" autocomplete="off" :placeholder="t('library', 'Search subjects')" :title="t('library', 'Exact subject matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-subject-suggestions" :aria-expanded="subjectSearchFocused && subjectSuggestions.length > 0 ? 'true' : 'false'" @focus="subjectSearchFocused = true" @keydown.escape="subjectSearchFocused = false"><input type="hidden" name="subject" :value="activeFilters.subject"><ul v-if="mobileFilterPanelOpen && subjectSearchFocused && subjectSuggestions.length > 0" id="library-mobile-subject-suggestions" class="library-subject-suggestions" role="listbox"><li v-for="subject in subjectSuggestions" :key="`mobile-subject-${subject}`" role="option"><button type="button" class="library-subject-suggestion" @mousedown.prevent @click="selectSubjectSuggestion(subject, $event)">{{ subject }}</button></li></ul></div>
-          <label>{{ t('library', 'Classification') }}<select v-model="activeFilters.classification" name="classification" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All classifications') }}</option><option v-for="classification in classifications" :key="`mobile-classification-${classification}`" :value="classification">{{ classification }}</option></select></label>
+          <div class="library-classification-filter"><label for="library-mobile-classification-search">{{ t('library', 'Classification') }}</label><input id="library-mobile-classification-search" v-model="classificationSearch" type="search" name="classificationSearch" autocomplete="off" :placeholder="t('library', 'Search classifications')" :title="t('library', 'Exact classification matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-classification-suggestions" :aria-expanded="classificationSearchFocused && classificationSuggestions.length > 0 ? 'true' : 'false'" @focus="classificationSearchFocused = true" @keydown.escape="classificationSearchFocused = false"><input type="hidden" name="classification" :value="activeFilters.classification"><ul v-if="mobileFilterPanelOpen && classificationSearchFocused && classificationSuggestions.length > 0" id="library-mobile-classification-suggestions" class="library-classification-suggestions" role="listbox"><li v-for="classification in classificationSuggestions" :key="`mobile-classification-${classification}`" role="option"><button type="button" class="library-classification-suggestion" @mousedown.prevent @click="selectClassificationSuggestion(classification, $event)">{{ classification }}</button></li></ul></div>
         </fieldset>
         <fieldset class="library-mobile-filter-group">
           <legend>{{ t('library', 'Location') }}</legend>
@@ -1704,7 +1754,7 @@ async function toggleStar(item, event) {
         </fieldset>
         <fieldset class="library-mobile-filter-group">
           <legend>{{ t('library', 'Personal / display') }}</legend>
-          <label>{{ t('library', 'Nextcloud tag') }}<input v-model="activeFilters.tag" type="text" name="tag" :placeholder="t('library', 'photography')"></label>
+          <div class="library-tag-filter"><label for="library-tag-search">{{ t('library', 'Nextcloud tag') }}</label><input id="library-tag-search" v-model="tagSearch" type="search" name="tagSearch" autocomplete="off" :placeholder="t('library', 'Search tags')" role="combobox" aria-autocomplete="list" aria-controls="library-tag-suggestions" :aria-expanded="tagSearchFocused && tagSuggestions.length > 0 ? 'true' : 'false'" @focus="tagSearchFocused = true" @keydown.escape="tagSearchFocused = false"><input type="hidden" name="tag" :value="activeFilters.tag"><ul v-if="tagSearchFocused && tagSuggestions.length > 0" id="library-tag-suggestions" class="library-tag-suggestions" role="listbox"><li v-for="tag in tagSuggestions" :key="tag" role="option"><button type="button" class="library-tag-suggestion" @mousedown.prevent @click="selectTagSuggestion(tag, $event)">{{ tag }}</button></li></ul><button type="submit" class="button secondary library-tag-apply">{{ t('library', 'Apply tag') }}</button></div>
           <label>{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
           <label>{{ t('library', 'View') }}<select v-model="activeFilters.view" name="view" @change="submitFiltersAjax"><option value="compact">{{ t('library', 'Compact') }}</option><option value="gallery">{{ t('library', 'Gallery') }}</option><option value="list">{{ t('library', 'List') }}</option><option value="shelf">{{ t('library', 'Shelf') }}</option></select></label>
         </fieldset>
@@ -3754,5 +3804,7 @@ async function toggleStar(item, event) {
 .library-year-suggestion,
 .library-creator-suggestion,
 .library-folder-suggestion,
-.library-subject-suggestion { justify-content: flex-start; overflow-wrap: anywhere; text-align: start; width: 100%; }
+.library-subject-suggestion,
+.library-classification-suggestion,
+.library-tag-suggestion { justify-content: flex-start; overflow-wrap: anywhere; text-align: start; width: 100%; }
 </style>
