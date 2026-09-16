@@ -21,16 +21,23 @@ Library is file-first and Nextcloud-native, but the publication catalogue is ric
 Stored in `library_files` and refreshed by scans:
 
 ```text
+id
+user_id
+root_id
 file_id
-storage_id
 cached_path
 mime_type
 extension
 etag
 mtime
 size
+metadata_input_fingerprint
+metadata_extractor_revision
 scan_status
 scan_error
+last_scanned_at
+created_at
+updated_at
 ```
 
 This answers: which Nextcloud file backs this catalogue item?
@@ -42,6 +49,9 @@ Metadata extraction is best-effort. If a supported file is corrupt or a local ex
 Stored in Library's own app tables, beginning with `library_items`:
 
 ```text
+id
+user_id
+library_file_id
 title
 subtitle
 publication_form / current column: publication_type
@@ -52,11 +62,30 @@ language
 publisher
 metadata_source
 user_edited
-scanner_field_sources_json
-scanner_candidates_json
+field_sources
+field_values
+starred
+last_opened_at
+description
+workflow_status
+subjects_json
+classifications_json
+personal_rating
+cover_override_url
+cover_override_data
+cover_override_mime_type
+needs_metadata
+cover_review
+no_publication
+title_from_filename
+no_description
+weak_metadata
+unreviewed_import
+created_at
+updated_at
 ```
 
-This answers: what publication-like object should Library display? The current implementation also stores scanner field sources and scanner candidate values as JSON maps so user-edited rows can compare current values with refreshed scanner candidates and reset one field or the whole item when wanted. ISBN and ISSN values live in the child `library_item_identifiers` table: display punctuation is preserved, normalized values support exact search, and invalid checksums remain reviewable instead of being silently rewritten.
+This answers: what publication-like object should Library display? The current implementation also stores scanner field sources and scanner candidate values as JSON maps so user-edited rows can compare current values with refreshed scanner candidates and reset one field or the whole item when wanted. ISBN and ISSN values live in the child `library_item_identifiers` table: display punctuation is preserved, normalized values support exact search, and invalid checksums remain reviewable instead of being silently rewritten. Repeated subjects, classifications and Nextcloud tag facets are also projected into `library_item_facets` for exact filters and high-cardinality suggestions. Arbitrary catalogue text search is accelerated by `library_item_search_grams`, a materialized per-item gram table.
 
 `publication_type` is the current implementation column name. The product language should move toward `publication_form` because this field describes the form of the publication, not the binary file format.
 

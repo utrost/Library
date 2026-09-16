@@ -73,7 +73,7 @@ def test_handbook_has_executable_combined_alpha166_alpha167_first_pass():
     handbook = (ROOT / "docs/human-test-handbook.md").read_text()
     first_pass = handbook.split("## Alpha.166/167 executable first pass", 1)[1].split("## Session header template", 1)[0]
 
-    assert "source candidate" not in handbook
+    assert "current source candidate" in handbook
     assert "Packaging: **not used for this Alice deployment**" in handbook
     assert "Deployment: **Alice checkout copy deployed**" in handbook
     assert first_pass.count("### A16") >= 6
@@ -88,7 +88,7 @@ def test_handbook_has_executable_combined_alpha166_alpha167_first_pass():
         "mobile modal",
         "manual AT matrix",
         "visible Search",
-        "one Filter, Sort, and View",
+        "grouped **Filters** trigger",
         "malformed-ID",
         "exactly five Review groups",
         "Completeness, Confidence, Attention, and Personal",

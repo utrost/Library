@@ -24,13 +24,13 @@ Implemented and ready for v0.1 testing:
 - EPUB, PDF, CBZ and OPF indexing with extractor failure isolation and missing-file diagnostics.
 - General editable publication metadata: title, subtitle, creators, publication/series, date, language, publisher, description, workflow status, subjects and classifications.
 - Scanner provenance/candidates, differs-from-scanner labels, correction counts, single-field reset, whole-item reset, conflict review filter and batch scanner-candidate reset.
-- Bounded server-backed Home, Shelves and Catalogue surfaces with lazy shelf children, database-backed search, additive filters/facets, sort modes, pagination and list/cover views. ISBN/ISSN exact normalized search uses the identifier child table; distinct catalogue selection prevents duplicate publications when one item has multiple matching identifier rows. Ordinary catalogue/AJAX item DTOs omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs; Review and detail paths retain the richer data they need.
+- Bounded server-backed Home, Shelves and Catalogue surfaces with lazy shelf children, database-backed search, additive filters/facets, lazy high-cardinality typeahead suggestions, sort modes, pagination and list/cover views. ISBN/ISSN exact normalized search uses the identifier child table; arbitrary text substrings use a materialized search-gram index; distinct catalogue selection prevents duplicate publications when one item has multiple matching identifier rows. Ordinary catalogue/AJAX item DTOs omit unbounded cover override blobs, raw provenance maps, comments and detail-only mutation URLs; Review and detail paths retain the richer data they need.
 - Dedicated publication/series, publication-year and creator discovery pages around the compact catalogue grid, with publication pages showing a compact **Publication contents** issue/date coverage summary.
 - Open, Show in Files and Download actions.
 - Detail workbench for publication metadata, Nextcloud tags/comments, cover refresh, scanner provenance and file diagnostics.
 - Nextcloud tag feedback, suggested tag buttons and explicit-selection batch tag add/remove.
 - Cover route using Nextcloud preview, EPUB package cover, CBZ first image and placeholder fallback with diagnostic headers and no-store refresh paths.
-- Corrected metadata JSON export, import preview, matched-item import apply, sidecar manifest export and sidecar ZIP export without writing into source folders.
+- Corrected metadata JSON export, reviewable import preview, connected matched-item import apply, sidecar manifest export and sidecar ZIP export without writing into source folders.
 - Cached Import Health metadata overview with explicit refresh, so heavy archive/container and cover diagnostics stay out of catalogue paging/search/filter paths.
 - Library-native starring/bookmarking, last-opened activity and recently opened sorting.
 
@@ -56,7 +56,7 @@ These are acceptable for the v0.1 alpha test pass but should stay visible:
 7. **Shared libraries:** users manage personal roots; admin-managed shared/global roots are not implemented.
 8. **Readers and content services:** Library delegates reading to Nextcloud and does not provide page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
 9. **Real-collection evidence:** generated scale and selected live smokes are strong for a v0.1 candidate, but Uwe's manual test pass should still use real mixed files to find weak metadata/cover cases.
-10. **Catalogue scale follow-ups:** alpha.154 added aggregate operation instrumentation and throttled progress/cancellation persistence, not external telemetry or proof of universal speedup. Alpha.155 closes the identified catalogue request, detail autosave and star-toggle races. Alpha.156 adds strict bounded JPEG/PNG/WebP validation for manual cover uploads. Alpha.158 removes direct remote-cover browser leakage without adding server fetching; archive budgets/cache, broader privacy review, query/payload completion, missing batching, root transaction/overlap, and representative scale gates remain pending.
+10. **Catalogue scale follow-ups:** aggregate operation instrumentation, request-race hardening, projected catalogue payloads, review-flag indexes, exact facet indexes, lazy typeahead suggestions and arbitrary-substring search grams have landed. Remaining scale risks are representative fresh-package/fresh-database evidence, non-preemptive filesystem/extraction operations, archive budgets/cache, broader privacy review, root transaction/overlap limits and any real-library query shape not covered by the current workload-led indexes.
 
 ## Verification evidence
 

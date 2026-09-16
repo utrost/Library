@@ -20,7 +20,7 @@ def test_alpha_160_packaged_runtime_size_and_checksum_sidecar_stay_consistent():
     assert current.read_bytes() == (ROOT / "js/library-main.mjs").read_bytes()
     assert current.stat().st_size <= 2_000_000
     assert not (ROOT / "js/library-main.mjs.map").exists()
-    assert "total-package" in read("ALPHA.160-IMPLEMENTATION-REPORT.md")
+    assert not (ROOT / "ALPHA.160-IMPLEMENTATION-REPORT.md").exists()
 
 
 def test_navigation_urls_are_same_origin_webroot_aware_initial_state():

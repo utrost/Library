@@ -7,7 +7,8 @@
 - Added the ISBN/ISSN identifier spine with display-value preservation, checksum warnings, OPF extraction, normalized exact search, and distinct catalogue queries so multi-identifier joins do not duplicate publications.
 - Kept OPF precedence explicit: same-basename sidecars precede folder `metadata.opf`, sidecar metadata precedes embedded candidates but not user edits, paired OPFs stay out of normal catalogue results, and user-edited standalone OPF records are preserved.
 - Made Settings operations asynchronous, added per-root and total publication counts, retained cooperative cancellation, and added bounded heartbeat/current-path progress. Quiet running jobs are reported as stale without a destructive terminal transition.
-- Updated current documentation and focused docs contracts for alpha.169. No package, installation, deployment, or exact-package browser smoke was performed.
+- Added lazy high-cardinality facet typeaheads, indexed arbitrary-substring catalogue search, the mobile filter panel, and the review issue batch for drawer keyboard safety, import preview/apply, loading feedback, first-run defaults, cover labels and combobox keyboarding.
+- Refreshed current documentation and `appinfo/database.xml` schema declarations through the current source candidate; exact-package/fresh-database release rehearsal remains pending.
 
 ## v0.1.0-alpha.167 - 2026-09-12 (source candidate, unpackaged)
 
