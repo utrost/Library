@@ -7,7 +7,6 @@ class="library-panel library-mobile-compact-chrome"
 class="library-catalogue-workspace library-workspace-menubar"
 id="library-catalogue-heading"
 class="library-shortcut-selectors"
-data-library-control="filter"
 library-workspace-panel--refine library-filter-panel
 class="library-shortcut-select-card library-creator-groups"
 <details class="library-workspace-panel library-workspace-panel--refine library-filter-panel" data-workspace-panel="refine">
@@ -379,6 +378,8 @@ const enabledRootCount = computed(() => Number(catalogueState.enabledRootCount |
 const hasNoConfiguredRoots = computed(() => rootCount.value === 0)
 const hasNoEnabledRoots = computed(() => rootCount.value > 0 && enabledRootCount.value === 0)
 const hasActiveFilters = computed(() => activeFilterChips.value.length > 0)
+const mobileFilterPanelOpen = ref(false)
+const mobileFilterSearchInput = ref(null)
 const filterLabels = {
   q: 'Search',
   sort: 'Sort',
@@ -522,6 +523,20 @@ const activeFilterChips = computed(() => Object.entries(filterLabels)
   .filter((chip) => chip.value !== ''
     && !(chip.key === 'sort' && chip.value === 'title')
     && !(chip.key === 'view' && chip.value === 'compact')))
+const activeFilterCount = computed(() => activeFilterChips.value.length)
+const mobileFilterSummaryLabel = computed(() => activeFilterCount.value > 0
+  ? t('library', 'Filters ({count})', { count: activeFilterCount.value })
+  : t('library', 'Filters'))
+const mobileFilterAriaLabel = computed(() => activeFilterCount.value > 0
+  ? t('library', 'Open filters panel; {count} active filters', { count: activeFilterCount.value })
+  : t('library', 'Open filters panel'))
+const mobileFilterResultLabel = computed(() => n('library', 'Show %n item', 'Show %n items', Number(pagination.value.total || 0)))
+
+function handleMobileFilterToggle(event) {
+  mobileFilterPanelOpen.value = event.currentTarget?.open === true
+  if (!mobileFilterPanelOpen.value) return
+  nextTick(() => { mobileFilterSearchInput.value?.focus?.() })
+}
 
 const sidebarVisibleFilterKeys = new Set([
   'q', 'sort', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'tag', 'format', 'shelf', 'folder',
@@ -852,6 +867,9 @@ function buildFilterParams(form) {
   params.delete('page')
   if (params.get('view') === 'compact') {
     params.delete('view')
+  }
+  if (params.get('sort') === 'title') {
+    params.delete('sort')
   }
   return params
 }
@@ -1653,6 +1671,49 @@ async function toggleStar(item, event) {
       <p v-if="isDiscoveryPage" class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
       <h2 id="library-catalogue-heading">{{ catalogueHeading }}</h2>
     </header>
+    <details class="library-mobile-filter-panel" data-library-control="filter" @toggle="handleMobileFilterToggle">
+      <summary class="library-mobile-filter-trigger" :aria-label="mobileFilterAriaLabel">
+        <span class="library-mobile-filter-count">{{ n('library', '%n item', '%n items', Number(pagination.total || 0)) }}</span>
+        <strong>{{ mobileFilterSummaryLabel }}</strong>
+      </summary>
+      <form method="get" class="library-mobile-filter-form" :aria-label="t('library', 'Mobile catalogue filters')" @submit.prevent="applyAllSearchFilters">
+        <input type="hidden" name="folder" :value="activeFilters.folder">
+        <input v-for="filter in sidebarHiddenFilters" :key="`mobile-hidden-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
+        <fieldset class="library-mobile-filter-group">
+          <legend>{{ t('library', 'Content') }}</legend>
+          <label class="library-quick-filter-search"><span>{{ t('library', 'Search') }}</span><input ref="mobileFilterSearchInput" v-model="quickSearch" data-library-mobile-filter-search type="search" name="q" :placeholder="t('library', 'Title, creator, description, filename or folder')"></label>
+          <label>{{ t('library', 'Type') }}<select v-model="activeFilters.type" name="type" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All types') }}</option><option v-for="type in publicationTypes" :key="`mobile-type-${type}`" :value="type">{{ type }}</option></select></label>
+          <div class="library-publisher-filter"><label for="library-mobile-publisher-search">{{ t('library', 'Publisher') }}</label><input id="library-mobile-publisher-search" v-model="publisherSearch" type="search" name="publisherSearch" autocomplete="off" :placeholder="t('library', 'Search publishers')" :title="t('library', 'Exact publisher matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-publisher-suggestions" :aria-expanded="publisherSearchFocused && publisherSuggestions.length > 0 ? 'true' : 'false'" @focus="publisherSearchFocused = true" @keydown.escape="publisherSearchFocused = false"><input type="hidden" name="publisher" :value="activeFilters.publisher"><ul v-if="mobileFilterPanelOpen && publisherSearchFocused && publisherSuggestions.length > 0" id="library-mobile-publisher-suggestions" class="library-publisher-suggestions" role="listbox"><li v-for="publisher in publisherSuggestions" :key="`mobile-publisher-${publisher}`" role="option"><button type="button" class="library-publisher-suggestion" @mousedown.prevent @click="selectPublisherSuggestion(publisher, $event)">{{ publisher }}</button></li></ul></div>
+          <div class="library-publication-filter"><label for="library-mobile-publication-search">{{ t('library', 'Series / periodical') }}</label><input id="library-mobile-publication-search" v-model="publicationSearch" type="search" name="publicationSearch" autocomplete="off" :placeholder="t('library', 'Search series and periodicals')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-publication-suggestions" :aria-expanded="publicationSearchFocused && publicationSuggestions.length > 0 ? 'true' : 'false'" @focus="publicationSearchFocused = true" @keydown.escape="publicationSearchFocused = false"><input type="hidden" name="publication" :value="activeFilters.publication"><ul v-if="mobileFilterPanelOpen && publicationSearchFocused && publicationSuggestions.length > 0" id="library-mobile-publication-suggestions" class="library-publication-suggestions" role="listbox"><li v-for="publication in publicationSuggestions" :key="`mobile-publication-${publication}`" role="option"><button type="button" class="library-publication-suggestion" @mousedown.prevent @click="selectPublicationSuggestion(publication, $event)">{{ publication }}</button></li></ul></div>
+          <div class="library-year-filter"><label for="library-mobile-year-search">{{ t('library', 'Publication year') }}</label><input id="library-mobile-year-search" v-model="yearSearch" type="search" name="yearSearch" autocomplete="off" :placeholder="t('library', 'Search publication years')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-year-suggestions" :aria-expanded="yearSearchFocused && yearSuggestions.length > 0 ? 'true' : 'false'" @focus="yearSearchFocused = true" @keydown.escape="yearSearchFocused = false"><input type="hidden" name="year" :value="activeFilters.year"><ul v-if="mobileFilterPanelOpen && yearSearchFocused && yearSuggestions.length > 0" id="library-mobile-year-suggestions" class="library-year-suggestions" role="listbox"><li v-for="year in yearSuggestions" :key="`mobile-year-${year}`" role="option"><button type="button" class="library-year-suggestion" @mousedown.prevent @click="selectYearSuggestion(year, $event)">{{ year }}</button></li></ul></div>
+          <div class="library-creator-filter"><label for="library-mobile-creator-search">{{ t('library', 'Creator') }}</label><input id="library-mobile-creator-search" v-model="creatorSearch" type="search" name="creatorSearch" autocomplete="off" :placeholder="t('library', 'Search creators')" :title="t('library', 'Exact full-field creator matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-creator-suggestions" :aria-expanded="creatorSearchFocused && creatorSuggestions.length > 0 ? 'true' : 'false'" @focus="creatorSearchFocused = true" @keydown.escape="creatorSearchFocused = false"><input type="hidden" name="creator" :value="activeFilters.creator"><ul v-if="mobileFilterPanelOpen && creatorSearchFocused && creatorSuggestions.length > 0" id="library-mobile-creator-suggestions" class="library-creator-suggestions" role="listbox"><li v-for="creator in creatorSuggestions" :key="`mobile-creator-${creator}`" role="option"><button type="button" class="library-creator-suggestion" @mousedown.prevent @click="selectCreatorSuggestion(creator, $event)">{{ creator }}</button></li></ul></div>
+          <label>{{ t('library', 'Format') }}<select v-model="activeFilters.format" name="format" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All formats') }}</option><option v-for="format in formats" :key="`mobile-format-${format}`" :value="format">{{ upper(format) }}</option></select></label>
+          <div class="library-subject-filter"><label for="library-mobile-subject-search">{{ t('library', 'Subject') }}</label><input id="library-mobile-subject-search" v-model="subjectSearch" type="search" name="subjectSearch" autocomplete="off" :placeholder="t('library', 'Search subjects')" :title="t('library', 'Exact subject matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-subject-suggestions" :aria-expanded="subjectSearchFocused && subjectSuggestions.length > 0 ? 'true' : 'false'" @focus="subjectSearchFocused = true" @keydown.escape="subjectSearchFocused = false"><input type="hidden" name="subject" :value="activeFilters.subject"><ul v-if="mobileFilterPanelOpen && subjectSearchFocused && subjectSuggestions.length > 0" id="library-mobile-subject-suggestions" class="library-subject-suggestions" role="listbox"><li v-for="subject in subjectSuggestions" :key="`mobile-subject-${subject}`" role="option"><button type="button" class="library-subject-suggestion" @mousedown.prevent @click="selectSubjectSuggestion(subject, $event)">{{ subject }}</button></li></ul></div>
+          <label>{{ t('library', 'Classification') }}<select v-model="activeFilters.classification" name="classification" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All classifications') }}</option><option v-for="classification in classifications" :key="`mobile-classification-${classification}`" :value="classification">{{ classification }}</option></select></label>
+        </fieldset>
+        <fieldset class="library-mobile-filter-group">
+          <legend>{{ t('library', 'Location') }}</legend>
+          <label>{{ t('library', 'Shelf') }}<select v-model="activeFilters.shelf" name="shelf" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All shelves') }}</option><option v-for="shelf in shelves" :key="`mobile-shelf-${shelf}`" :value="shelf">{{ shelf }}</option></select></label>
+          <div class="library-folder-filter"><label for="library-mobile-folder-search">{{ t('library', 'Folder') }}</label><input id="library-mobile-folder-search" v-model="folderSearch" type="search" name="folderSearch" autocomplete="off" :placeholder="t('library', 'Type at least 3 path characters')" :title="t('library', 'Select an exact folder path')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-folder-suggestions" :aria-expanded="folderSearchFocused && folderSuggestions.length > 0 ? 'true' : 'false'" @focus="folderSearchFocused = true" @keydown.escape="folderSearchFocused = false"><ul v-if="mobileFilterPanelOpen && folderSearchFocused && folderSuggestions.length > 0" id="library-mobile-folder-suggestions" class="library-folder-suggestions" role="listbox"><li v-for="folder in folderSuggestions" :key="`mobile-folder-${folder}`" role="option"><button type="button" class="library-folder-suggestion" @mousedown.prevent @click="selectFolderSuggestion(folder, $event)">{{ folder }}</button></li></ul></div>
+        </fieldset>
+        <fieldset class="library-mobile-filter-group">
+          <legend>{{ t('library', 'Review') }}</legend>
+          <label>{{ t('library', 'Scan status') }}<select v-model="activeFilters.status" name="status" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All scan statuses') }}</option><option v-for="status in scanStatuses" :key="`mobile-scan-${status}`" :value="status">{{ status }}</option></select></label>
+          <label>{{ t('library', 'Workflow status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All workflow statuses') }}</option><option v-for="status in workflowStatuses" :key="`mobile-workflow-${status}`" :value="status">{{ status }}</option></select></label>
+          <label>{{ t('library', 'Suggested updates') }}<select v-model="activeFilters.scannerConflicts" name="scannerConflicts" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All metadata') }}</option><option value="1">{{ t('library', 'Suggested updates') }}</option></select></label>
+        </fieldset>
+        <fieldset class="library-mobile-filter-group">
+          <legend>{{ t('library', 'Personal / display') }}</legend>
+          <label>{{ t('library', 'Nextcloud tag') }}<input v-model="activeFilters.tag" type="text" name="tag" :placeholder="t('library', 'photography')"></label>
+          <label>{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
+          <label>{{ t('library', 'View') }}<select v-model="activeFilters.view" name="view" @change="submitFiltersAjax"><option value="compact">{{ t('library', 'Compact') }}</option><option value="gallery">{{ t('library', 'Gallery') }}</option><option value="list">{{ t('library', 'List') }}</option><option value="shelf">{{ t('library', 'Shelf') }}</option></select></label>
+        </fieldset>
+        <div class="library-mobile-filter-actions">
+          <a href="?" class="button secondary library-mobile-filter-clear">{{ t('library', 'Clear all') }}</a>
+          <button type="submit" class="button primary library-mobile-filter-primary">{{ mobileFilterResultLabel }}</button>
+        </div>
+      </form>
+    </details>
     <nav class="library-catalogue-workspace library-workspace-menubar" :aria-label="t('library', 'One catalogue workspace')">
       <form method="get" class="library-quick-filter-bar library-catalogue-toolbar" :aria-label="t('library', 'Catalogue toolbar')" @submit.prevent="submitFiltersAjax">
         <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
@@ -3265,6 +3326,99 @@ async function toggleStar(item, event) {
   margin: 0;
 }
 
+.library-mobile-filter-panel {
+  display: none;
+  margin: 0.35rem 0 0.6rem;
+}
+
+.library-mobile-filter-trigger {
+  align-items: center;
+  background: var(--color-main-background);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  min-height: var(--default-clickable-area, 44px);
+  padding: 0.35rem 0.8rem;
+}
+
+.library-mobile-filter-trigger strong {
+  background: color-mix(in srgb, var(--color-primary-element, #0082c9) 12%, var(--color-main-background));
+  border: 1px solid var(--color-primary-element, #0082c9);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+}
+
+.library-mobile-filter-count {
+  color: var(--color-text-maxcontrast);
+  font-weight: 700;
+}
+
+.library-mobile-filter-form {
+  background: var(--color-main-background);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  box-shadow: 0 18px 44px color-mix(in srgb, #000 14%, transparent);
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.45rem;
+  max-height: min(78vh, 720px);
+  overflow: auto;
+  padding: 0.75rem;
+}
+
+.library-mobile-filter-group {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  min-width: 0;
+  padding: 0.7rem;
+}
+
+.library-mobile-filter-group legend {
+  font-weight: 800;
+  padding: 0 0.3rem;
+}
+
+.library-mobile-filter-group label,
+.library-mobile-filter-group .library-publication-filter,
+.library-mobile-filter-group .library-publisher-filter,
+.library-mobile-filter-group .library-year-filter,
+.library-mobile-filter-group .library-creator-filter,
+.library-mobile-filter-group .library-folder-filter,
+.library-mobile-filter-group .library-subject-filter {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.library-mobile-filter-group input,
+.library-mobile-filter-group select {
+  min-height: var(--default-clickable-area, 44px);
+  min-width: 0;
+  width: 100%;
+}
+
+.library-mobile-filter-actions {
+  background: var(--color-main-background);
+  bottom: 0;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  padding-top: 0.25rem;
+  position: sticky;
+}
+
+.library-mobile-filter-actions .button {
+  justify-content: center;
+  min-height: var(--default-clickable-area, 44px);
+  text-align: center;
+}
+
 .library-catalogue-utility-row {
   display: grid;
   gap: 0.35rem;
@@ -3537,6 +3691,18 @@ async function toggleStar(item, event) {
 }
 
 @media (max-width: 720px) {
+  .library-mobile-filter-panel {
+    display: block;
+  }
+
+  .library-sidebar-filter-section {
+    display: none;
+  }
+
+  .library-catalogue-workspace {
+    gap: 0.35rem;
+  }
+
   .library-detail-drawer {
     border-inline-start: 0;
     border-radius: 18px 18px 0 0;
