@@ -1937,6 +1937,34 @@ final class ItemService {
             . "AND (`folder_filter`.`cached_path` = {$folderParameter} OR `folder_filter`.`cached_path` LIKE {$prefixParameter})";
     }
 
+    /**
+     * Use the user/title index to recognize a specific exact-title search before
+     * building the deliberately broad substring fallback. Title equality uses
+     * the database column's case-insensitive collation on supported Nextcloud
+     * MySQL/MariaDB installations and avoids wrapping the indexed column.
+     *
+     * @return array<int, int>
+     */
+    private function exactTitleCandidateIds(string $userId, string $query): array {
+        if (mb_strlen($query) < 4 || mb_strlen($query) > 255) {
+            return [];
+        }
+
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('exact_title.id')
+            ->from('library_items', 'exact_title')
+            ->where($qb->expr()->eq('exact_title.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('exact_title.title', $qb->createNamedParameter($query)))
+            ->executeQuery();
+
+        $itemIds = [];
+        while ($row = $result->fetch()) {
+            $itemIds[] = (int)$row['id'];
+        }
+        $result->closeCursor();
+        return $itemIds;
+    }
+
     private function applyCatalogueFilters(IQueryBuilder $qb, string $userId, array $filters): void {
         $type = trim((string)($filters['type'] ?? ''));
         if ($type !== '') {
@@ -2012,30 +2040,36 @@ final class ItemService {
             }
         }
 
-        $query = mb_strtolower(trim((string)($filters['q'] ?? '')));
+        $query = trim((string)($filters['q'] ?? ''));
         if ($query !== '') {
-            // filename and folder path search is deliberate: many PDFs/comics have sparse embedded metadata,
-            // so the source path remains an important fallback signal for immediate discovery.
-            $like = $qb->createNamedParameter('%' . $this->escapeLikeParameter($query) . '%');
-            // ISBN/ISSN exact normalized search: punctuation-insensitive identifier terms match the child table.
-            $identifierSearch = IdentifierService::normalizeSearchQuery($query);
-            $textPredicates = [
-                $qb->expr()->like($qb->createFunction('LOWER(i.title)'), $like),
-                $qb->expr()->like($qb->createFunction('LOWER(i.subtitle)'), $like),
-                $qb->expr()->like($qb->createFunction('LOWER(i.creators)'), $like),
-                $qb->expr()->like($qb->createFunction('LOWER(i.publication)'), $like),
-                $qb->expr()->like($qb->createFunction('LOWER(i.description)'), $like),
-                $qb->expr()->like($qb->createFunction('LOWER(i.subjects_json)'), $like),
-                $qb->expr()->like($qb->createFunction('LOWER(i.classifications_json)'), $like),
-                $qb->expr()->like($qb->createFunction('LOWER(f.cached_path)'), $like),
-            ];
-            if ($identifierSearch !== null) {
-                $textPredicates[] = $qb->expr()->andX(
-                    $qb->expr()->eq('idn.scheme', $qb->createNamedParameter($identifierSearch['scheme'])),
-                    $qb->expr()->eq('idn.normalized_value', $qb->createNamedParameter($identifierSearch['normalizedValue']))
-                );
+            $exactTitleItemIds = $this->exactTitleCandidateIds($userId, $query);
+            if ($exactTitleItemIds !== []) {
+                $qb->andWhere($qb->expr()->in('i.id', $qb->createNamedParameter($exactTitleItemIds, IQueryBuilder::PARAM_INT_ARRAY)));
+            } else {
+                $query = mb_strtolower($query);
+                // filename and folder path search is deliberate: many PDFs/comics have sparse embedded metadata,
+                // so the source path remains an important fallback signal for immediate discovery.
+                $like = $qb->createNamedParameter('%' . $this->escapeLikeParameter($query) . '%');
+                // ISBN/ISSN exact normalized search: punctuation-insensitive identifier terms match the child table.
+                $identifierSearch = IdentifierService::normalizeSearchQuery($query);
+                $textPredicates = [
+                    $qb->expr()->like($qb->createFunction('LOWER(i.title)'), $like),
+                    $qb->expr()->like($qb->createFunction('LOWER(i.subtitle)'), $like),
+                    $qb->expr()->like($qb->createFunction('LOWER(i.creators)'), $like),
+                    $qb->expr()->like($qb->createFunction('LOWER(i.publication)'), $like),
+                    $qb->expr()->like($qb->createFunction('LOWER(i.description)'), $like),
+                    $qb->expr()->like($qb->createFunction('LOWER(i.subjects_json)'), $like),
+                    $qb->expr()->like($qb->createFunction('LOWER(i.classifications_json)'), $like),
+                    $qb->expr()->like($qb->createFunction('LOWER(f.cached_path)'), $like),
+                ];
+                if ($identifierSearch !== null) {
+                    $textPredicates[] = $qb->expr()->andX(
+                        $qb->expr()->eq('idn.scheme', $qb->createNamedParameter($identifierSearch['scheme'])),
+                        $qb->expr()->eq('idn.normalized_value', $qb->createNamedParameter($identifierSearch['normalizedValue']))
+                    );
+                }
+                $qb->andWhere($qb->expr()->orX(...$textPredicates));
             }
-            $qb->andWhere($qb->expr()->orX(...$textPredicates));
         }
     }
 
