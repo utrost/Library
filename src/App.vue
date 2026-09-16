@@ -406,8 +406,52 @@ const filterLabels = {
   titleFromFilename: 'Filename-derived title',
   noDescription: 'No description',
   unsupportedContainer: 'Unsupported archive/container',
-  weakMetadata: 'Needs details',
+  weakMetadata: 'Filename-derived metadata',
   unreviewedImports: 'Unreviewed imports',
+}
+const chipBooleanValues = {
+  scannerConflicts: '1',
+  starred: '1',
+  needsMetadata: '1',
+  noCreator: '1',
+  noPublication: '1',
+  noDate: '1',
+  titleFromFilename: '1',
+  noDescription: '1',
+  unsupportedContainer: '1',
+  unreviewedImports: '1',
+  weakMetadata: 'filename',
+  coverReview: 'placeholder',
+}
+const chipValueLabels = {
+  sort: {
+    title: 'Title',
+    recent: 'Date added',
+    publicationDate: 'Publication date',
+    publication: 'Series',
+    lastOpened: 'Recently opened',
+    format: 'Format',
+  },
+  view: {
+    compact: 'Compact',
+    gallery: 'Gallery',
+    list: 'List',
+    shelf: 'Shelf',
+  },
+  status: {
+    indexed: 'Indexed',
+    metadata_error: 'Metadata error',
+    missing: 'Missing',
+  },
+  workflowStatus: {
+    'to-read': 'To read',
+    reading: 'Reading',
+    finished: 'Finished',
+    reference: 'Reference',
+    paused: 'Paused',
+    abandoned: 'Abandoned',
+    'needs-action': 'Needs action',
+  },
 }
 const batchMetadataApplyMessage = computed(() => {
   if (typeof window === 'undefined') return ''
@@ -443,11 +487,42 @@ const coverGalleryClasses = computed(() => ({
   ['library-cover-' + 'gallery--shelf']: viewMode.value === 'shelf',
 }))
 
+function shortenChipPath(value) {
+  const path = String(value || '').trim()
+  if (path.length <= 32) return path
+  const parts = path.split('/').filter(Boolean)
+  return parts.length > 0 ? `…/${parts.at(-1)}` : path
+}
+
+function chipDisplayValue(key, rawValue) {
+  const value = String(rawValue || '').trim()
+  if (value === '') return ''
+  if (chipBooleanValues[key] === value) return ''
+  if (key === 'format') return value.toUpperCase()
+  if (key === 'folder') return shortenChipPath(value)
+  const mapped = chipValueLabels[key]?.[value]
+  return mapped ? t('library', mapped) : value
+}
+
+function activeFilterChipFor(key, label) {
+  const rawValue = String(activeFilters[key] || '').trim()
+  const displayValue = chipDisplayValue(key, rawValue)
+  const translatedLabel = t('library', label)
+  return {
+    key,
+    label: translatedLabel,
+    value: rawValue,
+    displayValue,
+    title: displayValue ? `${translatedLabel}: ${rawValue}` : translatedLabel,
+  }
+}
+
 const activeFilterChips = computed(() => Object.entries(filterLabels)
-  .map(([key, label]) => ({ key, label: t('library', label), value: activeFilters[key] || '' }))
-  .filter((chip) => String(chip.value).trim() !== ''
+  .map(([key, label]) => activeFilterChipFor(key, label))
+  .filter((chip) => chip.value !== ''
     && !(chip.key === 'sort' && chip.value === 'title')
     && !(chip.key === 'view' && chip.value === 'compact')))
+
 const sidebarVisibleFilterKeys = new Set([
   'q', 'sort', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'tag', 'format', 'shelf', 'folder',
   'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts',
@@ -1475,8 +1550,8 @@ async function toggleStar(item, event) {
   <div id="library-app" class="library-vue-catalogue library-app" :lang="catalogueState.language || 'en'" :dir="catalogueState.direction || 'ltr'" tabindex="-1">
   <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
     <span>{{ t('library', 'Active filters') }}</span>
-    <a v-for="chip in activeFilterChips" :key="chip.key" :href="filterChipRemoveUrl(chip.key)" class="library-filter-chip" :aria-label="`${t('library', 'Remove filter')}: ${chip.label}`" @click.prevent="removeFilterChip(chip.key)">
-      <strong>{{ chip.label }}:</strong> {{ chip.value }} <span aria-hidden="true">×</span>
+    <a v-for="chip in activeFilterChips" :key="chip.key" :href="filterChipRemoveUrl(chip.key)" class="library-filter-chip" :aria-label="`${t('library', 'Remove filter')}: ${chip.label}`" :title="chip.title" @click.prevent="removeFilterChip(chip.key)">
+      <strong>{{ chip.label }}<template v-if="chip.displayValue">:</template></strong><template v-if="chip.displayValue"> {{ ' ' }}<span class="library-filter-chip-value" :title="chip.value">{{ chip.displayValue }}</span></template> <span aria-hidden="true">×</span>
     </a>
   </nav>
   <section v-if="reviewActive" class="library-panel library-review-destination" aria-labelledby="library-review-heading">

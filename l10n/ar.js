@@ -296,6 +296,7 @@ OC.L10N.register(
         "File metadata": "البيانات الوصفية للملف",
         "file-level note...": "ملاحظة على مستوى الملف…",
         "Filename-derived title": "عنوان مشتق من اسم الملف",
+        "Filename-derived metadata": "بيانات وصفية مشتقة من اسم الملف",
         "Filename/path-derived metadata": "اسم الملف/بيانات التعريف المشتقة من المسار",
         "Files indexed": "الملفات المفهرسة",
         "Files whose metadata extraction needs review.": "الملفات التي يحتاج استخراج بياناتها التعريفية إلى المراجعة.",

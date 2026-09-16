@@ -714,8 +714,17 @@
     color: var(--color-main-text);
     display: inline-flex;
     gap: 0.25rem;
+    max-width: min(100%, 28rem);
     padding: 0.25rem 0.6rem;
     text-decoration: none;
+}
+
+.library-filter-chip-value {
+    display: inline-block;
+    max-width: 18rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .library-filter-chip:hover,
