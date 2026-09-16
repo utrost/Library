@@ -977,6 +977,7 @@ final class ItemService {
         unset($filtersWithoutConflict['scannerConflicts']);
 
         $qb = $this->catalogueQueryBuilder($userId, $filtersWithoutConflict, true);
+        $this->applyScannerConflictCandidateFilter($qb);
         $result = $qb->executeQuery();
 
         $count = 0;
@@ -996,6 +997,7 @@ final class ItemService {
         unset($filtersWithoutConflict['scannerConflicts']);
 
         $qb = $this->catalogueQueryBuilder($userId, $filtersWithoutConflict, true);
+        $this->applyScannerConflictCandidateFilter($qb);
         $this->applyCatalogueSort($qb, (string)($filtersWithoutConflict['sort'] ?? 'title'));
         $result = $qb->executeQuery();
 
@@ -1013,6 +1015,15 @@ final class ItemService {
             'total' => count($conflictingItems),
             'facets' => $includeFacets ? $this->catalogueFacets($userId, $filters) : $this->emptyCatalogueFacets(),
         ];
+    }
+
+    private function applyScannerConflictCandidateFilter(IQueryBuilder $qb): void {
+        // Exact conflict detection still happens in PHP so subject/classification
+        // normalization and null handling stay identical. This indexed prefilter
+        // bounds that pass to rows that can actually have user-vs-scanner drift.
+        $qb->andWhere($qb->expr()->eq('i.user_edited', $qb->createNamedParameter(1)))
+            ->andWhere($qb->expr()->isNotNull('i.field_values'))
+            ->andWhere($qb->expr()->notIn('i.field_values', $qb->createNamedParameter(['', '[]', '{}'], IQueryBuilder::PARAM_STR_ARRAY)));
     }
 
     private function itemHasScannerConflict(array $item): bool {

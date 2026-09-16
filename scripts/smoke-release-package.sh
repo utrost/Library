@@ -56,6 +56,7 @@ docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/li
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260911120000.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260911130000.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260911140000.php
+docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Migration/Version000100Date20260916150000.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Instrumentation/MonotonicClock.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Instrumentation/ScanProgressPolicy.php
 docker exec -u www-data "$CONTAINER" php -l /var/www/html/custom_apps/library/lib/Metadata/MetadataFastPathDecision.php
