@@ -436,6 +436,33 @@
                     <name>library_file_id</name>
                 </field>
             </index>
+            <index>
+                <name>library_items_usr_type_title_file</name>
+                <field>
+                    <name>user_id</name>
+                </field>
+                <field>
+                    <name>publication_type</name>
+                </field>
+                <field>
+                    <name>title</name>
+                </field>
+                <field>
+                    <name>library_file_id</name>
+                </field>
+            </index>
+            <index>
+                <name>library_items_usr_type_file</name>
+                <field>
+                    <name>user_id</name>
+                </field>
+                <field>
+                    <name>publication_type</name>
+                </field>
+                <field>
+                    <name>library_file_id</name>
+                </field>
+            </index>
         </declaration>
     </table>
     <table>
