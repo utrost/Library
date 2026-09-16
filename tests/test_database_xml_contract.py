@@ -30,12 +30,16 @@ EXPECTED_TABLES = {
             "publication", "publication_date", "language", "publisher", "metadata_source", "user_edited",
             "field_sources", "field_values", "starred", "last_opened_at", "description", "workflow_status",
             "subjects_json", "classifications_json", "personal_rating", "cover_override_url", "cover_override_data",
-            "cover_override_mime_type", "created_at", "updated_at",
+            "cover_override_mime_type", "needs_metadata", "cover_review", "no_publication", "title_from_filename",
+            "no_description", "weak_metadata", "unreviewed_import", "created_at", "updated_at",
         },
         "indexes": {
             "library_items_id", "library_items_user_id", "library_items_file_unique",
             "library_items_usr_type_title_file", "library_items_usr_type_file",
             "library_items_usr_edit_title", "library_items_usr_star_title",
+            "library_items_usr_needmeta_title", "library_items_usr_coverrev_title", "library_items_usr_nopub_title",
+            "library_items_usr_titlefile_title", "library_items_usr_nodesc_title", "library_items_usr_weakmeta_title",
+            "library_items_usr_unrevimp_title",
         },
     },
     "*dbprefix*library_item_identifiers": {

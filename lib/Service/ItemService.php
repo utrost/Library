@@ -143,6 +143,7 @@ final class ItemService {
         $existing = $this->findByLibraryFileId($userId, (int)$file['id']);
         $itemId = $existing !== null ? (int)$existing['id'] : 0;
         if ($itemId > 0) {
+            $this->refreshReviewFilterFlags($userId, $itemId);
             $this->refreshItemFacetIndex(
                 $userId,
                 $itemId,
@@ -250,6 +251,7 @@ final class ItemService {
             ->executeStatement();
 
         if ($affected > 0) {
+            $this->refreshReviewFilterFlags($userId, $itemId);
             $this->refreshItemFacetIndex(
                 $userId,
                 $itemId,
@@ -397,6 +399,9 @@ final class ItemService {
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
 
+        if ($affected > 0) {
+            $this->refreshReviewFilterFlags($userId, $itemId);
+        }
         return $affected > 0;
     }
 
@@ -445,6 +450,9 @@ final class ItemService {
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
 
+        if ($affected > 0) {
+            $this->refreshReviewFilterFlags($userId, $itemId);
+        }
         return $affected > 0;
     }
 
@@ -585,6 +593,9 @@ final class ItemService {
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
+        if ($affected > 0) {
+            $this->refreshReviewFilterFlags($userId, $itemId);
+        }
         return $affected > 0;
     }
 
@@ -2098,10 +2109,7 @@ final class ItemService {
         }
 
         if (trim((string)($filters['noPublication'] ?? '')) === '1') {
-            $qb->andWhere($qb->expr()->orX(
-                $qb->expr()->isNull('i.publication'),
-                $qb->expr()->eq('i.publication', $qb->createNamedParameter(''))
-            ));
+            $qb->andWhere($qb->expr()->eq('i.no_publication', $qb->createNamedParameter(1)));
         }
 
         if (trim((string)($filters['noDate'] ?? '')) === '1') {
@@ -2112,18 +2120,11 @@ final class ItemService {
         }
 
         if (trim((string)($filters['noDescription'] ?? '')) === '1') {
-            $qb->andWhere($qb->expr()->orX(
-                $qb->expr()->isNull('i.description'),
-                $qb->expr()->eq('i.description', $qb->createNamedParameter(''))
-            ));
+            $qb->andWhere($qb->expr()->eq('i.no_description', $qb->createNamedParameter(1)));
         }
 
         if (trim((string)($filters['titleFromFilename'] ?? '')) === '1') {
-            $qb->andWhere($qb->expr()->orX(
-                $qb->expr()->eq('i.metadata_source', $qb->createNamedParameter('filename-pattern')),
-                $qb->expr()->like('i.field_sources', $qb->createNamedParameter('%"title":"filename-pattern"%')),
-                $qb->expr()->like('i.field_sources', $qb->createNamedParameter('%"title":"filename"%'))
-            ));
+            $qb->andWhere($qb->expr()->eq('i.title_from_filename', $qb->createNamedParameter(1)));
         }
 
         if (trim((string)($filters['unsupportedContainer'] ?? '')) === '1') {
@@ -2131,44 +2132,78 @@ final class ItemService {
         }
 
         if (trim((string)($filters['needsMetadata'] ?? '')) === '1') {
-            $qb->andWhere($qb->expr()->orX(
-                $qb->expr()->eq('f.scan_status', $qb->createNamedParameter('metadata_error')),
-                $qb->expr()->isNull('i.creators'),
-                $qb->expr()->eq('i.creators', $qb->createNamedParameter('')),
-                $qb->expr()->isNull('i.publication'),
-                $qb->expr()->eq('i.publication', $qb->createNamedParameter('')),
-                $qb->expr()->isNull('i.publication_date'),
-                $qb->expr()->eq('i.publication_date', $qb->createNamedParameter('')),
-                $qb->expr()->eq('i.metadata_source', $qb->createNamedParameter('filename-pattern'))
-            ));
+            $qb->andWhere($qb->expr()->eq('i.needs_metadata', $qb->createNamedParameter(1)));
         }
 
         if (trim((string)($filters['weakMetadata'] ?? '')) === 'filename') {
-            $filenameSource = $qb->createNamedParameter('filename-pattern');
-            $filenameLike = $qb->createNamedParameter('%filename-pattern%');
-            $qb->andWhere($qb->expr()->orX(
-                $qb->expr()->eq('i.metadata_source', $filenameSource),
-                $qb->expr()->like('i.field_sources', $filenameLike)
-            ));
+            $qb->andWhere($qb->expr()->eq('i.weak_metadata', $qb->createNamedParameter(1)));
         }
 
         if (trim((string)($filters['unreviewedImports'] ?? '')) === '1') {
-            $qb->andWhere($qb->expr()->neq('i.metadata_source', $qb->createNamedParameter('user')))
-                ->andWhere($qb->expr()->eq('i.user_edited', $qb->createNamedParameter(0)));
+            $qb->andWhere($qb->expr()->eq('i.unreviewed_import', $qb->createNamedParameter(1)));
         }
 
         if (trim((string)($filters['coverReview'] ?? '')) === 'placeholder') {
-            $qb->andWhere($qb->expr()->andX(
-                $qb->expr()->orX(
-                    $qb->expr()->isNull('i.cover_override_url'),
-                    $qb->expr()->eq('i.cover_override_url', $qb->createNamedParameter(''))
-                ),
-                $qb->expr()->orX(
-                    $qb->expr()->eq('f.scan_status', $qb->createNamedParameter('metadata_error')),
-                    $qb->expr()->notIn($qb->createFunction('LOWER(f.extension)'), $qb->createNamedParameter(['pdf', 'epub', 'cbz'], IQueryBuilder::PARAM_STR_ARRAY))
-                )
-            ));
+            $qb->andWhere($qb->expr()->eq('i.cover_review', $qb->createNamedParameter(1)));
         }
+    }
+
+    private function refreshReviewFilterFlags(string $userId, int $itemId): void {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('i.creators', 'i.publication', 'i.publication_date', 'i.description', 'i.metadata_source', 'i.field_sources', 'i.user_edited', 'i.cover_override_url', 'i.cover_override_data', 'f.scan_status', 'f.extension')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->where($qb->expr()->eq('i.id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->executeQuery();
+        $row = $result->fetch();
+        $result->closeCursor();
+        if ($row === false) {
+            return;
+        }
+
+        $flags = $this->reviewFilterFlagsForRow($row);
+        $qb = $this->db->getQueryBuilder();
+        $qb->update('library_items')
+            ->set('needs_metadata', $qb->createNamedParameter($flags['needs_metadata'] ? 1 : 0))
+            ->set('cover_review', $qb->createNamedParameter($flags['cover_review'] ? 1 : 0))
+            ->set('no_publication', $qb->createNamedParameter($flags['no_publication'] ? 1 : 0))
+            ->set('title_from_filename', $qb->createNamedParameter($flags['title_from_filename'] ? 1 : 0))
+            ->set('no_description', $qb->createNamedParameter($flags['no_description'] ? 1 : 0))
+            ->set('weak_metadata', $qb->createNamedParameter($flags['weak_metadata'] ? 1 : 0))
+            ->set('unreviewed_import', $qb->createNamedParameter($flags['unreviewed_import'] ? 1 : 0))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->executeStatement();
+    }
+
+    /** @return array{needs_metadata:bool,cover_review:bool,no_publication:bool,title_from_filename:bool,no_description:bool,weak_metadata:bool,unreviewed_import:bool} */
+    private function reviewFilterFlagsForRow(array $row): array {
+        $metadataSource = (string)($row['metadata_source'] ?? '');
+        $fieldSources = (string)($row['field_sources'] ?? '');
+        $scanStatus = (string)($row['scan_status'] ?? '');
+        $extension = mb_strtolower((string)($row['extension'] ?? ''));
+        $coverOverride = trim((string)($row['cover_override_url'] ?? '')) !== '' || trim((string)($row['cover_override_data'] ?? '')) !== '';
+        $noPublication = $this->nullableString($row['publication'] ?? null) === null;
+        $noDescription = $this->nullableString($row['description'] ?? null) === null;
+        $titleFromFilename = $metadataSource === 'filename-pattern'
+            || str_contains($fieldSources, '"title":"filename-pattern"')
+            || str_contains($fieldSources, '"title":"filename"');
+        $weakMetadata = $metadataSource === 'filename-pattern' || str_contains($fieldSources, 'filename-pattern');
+
+        return [
+            'needs_metadata' => $scanStatus === 'metadata_error'
+                || $this->nullableString($row['creators'] ?? null) === null
+                || $noPublication
+                || $this->nullableString($row['publication_date'] ?? null) === null
+                || $metadataSource === 'filename-pattern',
+            'cover_review' => !$coverOverride && ($scanStatus === 'metadata_error' || !in_array($extension, ['pdf', 'epub', 'cbz'], true)),
+            'no_publication' => $noPublication,
+            'title_from_filename' => $titleFromFilename,
+            'no_description' => $noDescription,
+            'weak_metadata' => $weakMetadata,
+            'unreviewed_import' => $metadataSource !== 'user' && !(bool)($row['user_edited'] ?? false),
+        ];
     }
 
     private function indexedFacetFilter(IQueryBuilder $qb, string $userId, string $facetType, string $value) {
@@ -2265,6 +2300,7 @@ final class ItemService {
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('user_edited', $qb->createNamedParameter(1)))
             ->executeStatement();
+        $this->refreshReviewFilterFlags($userId, $itemId);
     }
 
     private function refreshInferredItem(string $userId, int $itemId, array $file, array $metadata = []): void {
@@ -2289,6 +2325,7 @@ final class ItemService {
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
+        $this->refreshReviewFilterFlags($userId, $itemId);
         $this->refreshItemFacetIndex(
             $userId,
             $itemId,
@@ -2684,6 +2721,9 @@ final class ItemService {
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
+        if ($affected > 0) {
+            $this->refreshReviewFilterFlags($userId, $itemId);
+        }
         return $affected > 0;
     }
 
@@ -2697,6 +2737,9 @@ final class ItemService {
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
+        if ($affected > 0) {
+            $this->refreshReviewFilterFlags($userId, $itemId);
+        }
         return $affected > 0;
     }
 

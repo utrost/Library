@@ -404,6 +404,48 @@
                 <notnull>false</notnull>
             </field>
             <field>
+                <name>needs_metadata</name>
+                <type>boolean</type>
+                <notnull>true</notnull>
+                <default>false</default>
+            </field>
+            <field>
+                <name>cover_review</name>
+                <type>boolean</type>
+                <notnull>true</notnull>
+                <default>false</default>
+            </field>
+            <field>
+                <name>no_publication</name>
+                <type>boolean</type>
+                <notnull>true</notnull>
+                <default>false</default>
+            </field>
+            <field>
+                <name>title_from_filename</name>
+                <type>boolean</type>
+                <notnull>true</notnull>
+                <default>false</default>
+            </field>
+            <field>
+                <name>no_description</name>
+                <type>boolean</type>
+                <notnull>true</notnull>
+                <default>false</default>
+            </field>
+            <field>
+                <name>weak_metadata</name>
+                <type>boolean</type>
+                <notnull>true</notnull>
+                <default>false</default>
+            </field>
+            <field>
+                <name>unreviewed_import</name>
+                <type>boolean</type>
+                <notnull>true</notnull>
+                <default>false</default>
+            </field>
+            <field>
                 <name>created_at</name>
                 <type>integer</type>
                 <unsigned>true</unsigned>
@@ -477,6 +519,55 @@
                 <field>
                     <name>library_file_id</name>
                 </field>
+            </index>
+            <index>
+                <name>library_items_usr_needmeta_title</name>
+                <field><name>user_id</name></field>
+                <field><name>needs_metadata</name></field>
+                <field><name>title</name></field>
+                <field><name>library_file_id</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_coverrev_title</name>
+                <field><name>user_id</name></field>
+                <field><name>cover_review</name></field>
+                <field><name>title</name></field>
+                <field><name>library_file_id</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_nopub_title</name>
+                <field><name>user_id</name></field>
+                <field><name>no_publication</name></field>
+                <field><name>title</name></field>
+                <field><name>library_file_id</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_titlefile_title</name>
+                <field><name>user_id</name></field>
+                <field><name>title_from_filename</name></field>
+                <field><name>title</name></field>
+                <field><name>library_file_id</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_nodesc_title</name>
+                <field><name>user_id</name></field>
+                <field><name>no_description</name></field>
+                <field><name>title</name></field>
+                <field><name>library_file_id</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_weakmeta_title</name>
+                <field><name>user_id</name></field>
+                <field><name>weak_metadata</name></field>
+                <field><name>title</name></field>
+                <field><name>library_file_id</name></field>
+            </index>
+            <index>
+                <name>library_items_usr_unrevimp_title</name>
+                <field><name>user_id</name></field>
+                <field><name>unreviewed_import</name></field>
+                <field><name>title</name></field>
+                <field><name>library_file_id</name></field>
             </index>
             <index>
                 <name>library_items_usr_star_title</name>
