@@ -63,7 +63,7 @@ def test_current_typeahead_bundle_uses_the_cache_busted_asset_basename():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     template = (ROOT / "templates" / "main.php").read_text()
 
-    assert "-pathlink`" in build
-    assert "library-main-0-1-0-alpha-171-pathlink" in controller
-    assert "library-vue-0-1-0-alpha-171-pathlink" in controller
-    assert 'data-library-main-script="library-main-0-1-0-alpha-171-pathlink"' in template
+    assert "-mobilefilters`" in build
+    assert "library-main-0-1-0-alpha-171-mobilefilters" in controller
+    assert "library-vue-0-1-0-alpha-171-mobilefilters" in controller
+    assert 'data-library-main-script="library-main-0-1-0-alpha-171-mobilefilters"' in template

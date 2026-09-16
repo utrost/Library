@@ -391,9 +391,57 @@ describe('Library catalogue Vue app', () => {
     expect(filters.find('select[name="subject"]').exists()).toBe(false)
     expect(filters.find('select[name="genre"]').exists()).toBe(false)
     expect(wrapper.find('#library-catalogue form.library-filter-bar').exists()).toBe(false)
-    expect(wrapper.find('#library-catalogue [data-library-control="filter"]').exists()).toBe(false)
+    expect(wrapper.find('#library-catalogue [data-library-control="filter"]').exists()).toBe(true)
     expect(wrapper.find('#library-catalogue [data-library-control="sort"]').exists()).toBe(true)
     expect(wrapper.find('#library-catalogue [data-library-control="view"]').exists()).toBe(true)
+  })
+
+  it('renders a mobile filter panel trigger with active count, result count, groups and clear-all action', () => {
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      cataloguePagination: { ...state.cataloguePagination, total: 842, from: 1, to: 25 },
+      activeFilters: { ...state.activeFilters, type: 'book', format: 'pdf', sort: 'title', view: 'compact' },
+    } } })
+    const panel = wrapper.get('[data-library-control="filter"]')
+    const summary = panel.get('summary')
+
+    expect(summary.text()).toContain('Filters (2)')
+    expect(summary.attributes('aria-label')).toBe('Open filters panel; 2 active filters')
+    expect(panel.get('.library-mobile-filter-count').text()).toBe('842 items')
+    expect(panel.findAll('.library-mobile-filter-group').map((group) => group.get('legend').text())).toEqual([
+      'Content',
+      'Location',
+      'Review',
+      'Personal / display',
+    ])
+    expect(panel.get('.library-mobile-filter-primary').text()).toBe('Show 842 items')
+    expect(panel.get('.library-mobile-filter-clear').attributes('href')).toBe('?')
+  })
+
+  it('focuses the mobile search field when opening the filter panel and submits via the fast catalogue path', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, q: 'bauhaus', type: 'book' } }),
+    })
+    const wrapper = mount(App, { attachTo: document.body, props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, type: 'book' },
+    } } })
+    const panel = wrapper.get('[data-library-control="filter"]')
+
+    panel.element.open = true
+    await panel.trigger('toggle')
+    await wrapper.vm.$nextTick()
+    expect(document.activeElement).toBe(panel.get('[data-library-mobile-filter-search]').element)
+
+    await panel.get('[data-library-mobile-filter-search]').setValue('bauhaus')
+    await panel.get('form.library-mobile-filter-form').trigger('submit')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?q=bauhaus&type=book',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
   })
 
   it('applies a manually typed exact subject without requiring a suggestion', async () => {
@@ -1476,13 +1524,13 @@ describe('Library catalogue Vue app', () => {
     expect(Boolean(headerBeforeCovers & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
   })
 
-  it('gives navigation filters a direct form identity without a details panel', () => {
+  it('gives navigation filters a direct form identity and exposes a catalogue mobile filter panel', () => {
     const wrapper = mount(App, { props: { state } })
     const navigation = wrapper.findComponent(NcAppNavigation)
 
     expect(navigation.findAll('form.library-sidebar-filters')).toHaveLength(1)
     expect(navigation.find('details').exists()).toBe(false)
-    expect(wrapper.find('#library-catalogue [data-library-control="filter"]').exists()).toBe(false)
+    expect(wrapper.find('#library-catalogue [data-library-control="filter"]').exists()).toBe(true)
   })
 
   it('renders the catalogue from Nextcloud initial state', () => {

@@ -16,7 +16,7 @@ def test_main_template_and_vite_define_report_the_alpha170_app_version():
 
 
 def test_list_view_asset_path_is_cache_busted_after_alpha170_deploy():
-    """The active asset basename stays fresh while preserving the pathlink suffix."""
+    """The active asset basename stays fresh while preserving the mobilefilters suffix."""
     controller = read("lib/Controller/PageController.php")
     app = read("src/App.vue")
     assert 'data-library-view-mode="list"' in app
@@ -26,8 +26,8 @@ def test_list_view_asset_path_is_cache_busted_after_alpha170_deploy():
 
     assert script != "library-main-0-1-0-alpha-169"
     assert style != "library-vue-0-1-0-alpha-169"
-    assert script == "library-main-0-1-0-alpha-171-pathlink"
-    assert style == "library-vue-0-1-0-alpha-171-pathlink"
+    assert script == "library-main-0-1-0-alpha-171-mobilefilters"
+    assert style == "library-vue-0-1-0-alpha-171-mobilefilters"
     assert f'data-library-main-script="{script}"' in read("templates/main.php")
     assert (ROOT / f"js/{script}.mjs").exists()
     assert (ROOT / f"css/{style}.css").exists()

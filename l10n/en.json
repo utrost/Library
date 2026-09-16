@@ -590,7 +590,19 @@
     "_%n publication needs better details._::_%n publications need better details._": [
       "%n publication needs better details.",
       "%n publications need better details."
-    ]
+    ],
+    "Filters ({count})": "Filters ({count})",
+    "Mobile catalogue filters": "Mobile catalogue filters",
+    "Open filters panel": "Open filters panel",
+    "Open filters panel; {count} active filters": "Open filters panel; {count} active filters",
+    "_Show %n item_::_Show %n items_": [
+      "Show %n item",
+      "Show %n items"
+    ],
+    "Content": "Content",
+    "Location": "Location",
+    "Personal / display": "Personal / display",
+    "Clear all": "Clear all"
   },
   "pluralForm": "nplurals=2; plural=(n != 1);"
 }

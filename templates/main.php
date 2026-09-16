@@ -11,7 +11,7 @@
       role="status"
       aria-live="polite"
       aria-atomic="true"
-     data-library-main-script="library-main-0-1-0-alpha-171-pathlink"
+     data-library-main-script="library-main-0-1-0-alpha-171-mobilefilters"
       data-library-startup-timeout="10000"
       hidden>
     <section class="library-panel" aria-labelledby="library-startup-heading">
