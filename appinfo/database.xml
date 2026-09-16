@@ -587,6 +587,18 @@
         </declaration>
     </table>
     <table>
+        <name>*dbprefix*library_item_search_grams</name>
+        <declaration>
+            <field><name>id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull><autoincrement>true</autoincrement></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>item_id</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <field><name>gram</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <index><name>library_search_grams_id</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>library_search_grams_lookup</name><field><name>user_id</name></field><field><name>gram</name></field><field><name>item_id</name></field></index>
+            <index><name>library_search_grams_item_unique</name><unique>true</unique><field><name>item_id</name></field><field><name>gram</name></field></index>
+        </declaration>
+    </table>
+    <table>
         <name>*dbprefix*library_item_identifiers</name>
         <declaration>
             <field><name>id</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull><autoincrement>true</autoincrement></field>

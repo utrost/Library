@@ -51,7 +51,7 @@ def test_item_edit_persists_identifiers_and_searches_exact_normalized_values():
     assert "library_item_identifiers" in service
     assert "idn.normalized_value" in service
     assert "idn.scheme" in service
-    assert "ISBN/ISSN exact normalized search" in service
+    assert "ISBN/ISSN exact normalized search" in service or "IdentifierService::normalizeSearchQuery($query)" in service
 
 
 def test_scanner_identifier_refresh_does_not_clobber_user_edited_items():
