@@ -283,6 +283,40 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Folder"]').exists()).toBe(false)
   })
 
+  it('renders active filter chips with human-readable labels and values', () => {
+    const longFolder = '/Very/Long/Imported/Calibre/Library/Comics'
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      activeFilters: {
+        ...state.activeFilters,
+        format: 'epub',
+        starred: '1',
+        scannerConflicts: '1',
+        needsMetadata: '1',
+        weakMetadata: 'filename',
+        sort: 'lastOpened',
+        folder: longFolder,
+      },
+    } } })
+
+    const chips = wrapper.findAll('.library-filter-chip')
+    const chipTexts = chips.map((chip) => chip.text().replace(/\s+/g, ' ').trim())
+
+    expect(chipTexts).toContain('Format: EPUB ×')
+    expect(chipTexts).toContain('Starred ×')
+    expect(chipTexts).toContain('Suggested updates ×')
+    expect(chipTexts).toContain('Needs details ×')
+    expect(chipTexts).toContain('Filename-derived metadata ×')
+    expect(chipTexts).toContain('Sort: Recently opened ×')
+    expect(chipTexts).toContain('Folder: …/Comics ×')
+    expect(chipTexts.join(' ')).not.toContain(': 1')
+    expect(chipTexts.filter((text) => text.includes('Needs details'))).toHaveLength(1)
+
+    const folderChip = wrapper.get('.library-filter-chip[aria-label="Remove filter: Folder"]')
+    expect(folderChip.attributes('title')).toBe(`Folder: ${longFolder}`)
+    expect(folderChip.get('.library-filter-chip-value').attributes('title')).toBe(longFolder)
+  })
+
   it('does not render an empty Shelves discovery section in the normal catalogue', () => {
     const wrapper = mount(App, { props: { state: { ...state, surface: 'catalogue' } } })
 
