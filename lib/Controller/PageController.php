@@ -254,6 +254,20 @@ class PageController extends Controller {
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
+    public function folderSuggestions(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        $query = trim((string)$this->request->getParam('folderSearch', ''));
+        $filters = $this->catalogueFiltersFromRequest();
+        unset($filters['folder']);
+
+        return new JSONResponse([
+            'folders' => $userId === '' || mb_strlen($query) < 3 ? [] : $this->itemService->folderSuggestions($userId, $filters, $query, 20),
+        ]);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
     public function yearSuggestions(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -528,6 +542,7 @@ class PageController extends Controller {
             'creatorSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.creatorSuggestions'),
             'publisherSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.publisherSuggestions'),
             'subjectSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.subjectSuggestions'),
+            'folderSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.folderSuggestions'),
             'yearSuggestionsUrl' => $this->urlGenerator->linkToRoute('library.page.yearSuggestions'),
             'itemSidebarUrlTemplate' => str_replace('2147483647', '__ITEM_ID__', $this->urlGenerator->linkToRoute('library.item_page.sidebar', ['itemId' => '2147483647'])),
             'batchTagUrl' => $this->urlGenerator->linkToRoute('library.tag.batchassign'),
