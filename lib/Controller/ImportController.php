@@ -9,7 +9,9 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
+use OCP\IURLGenerator;
 use OCP\IUserSession;
 
 class ImportController extends Controller {
@@ -18,16 +20,18 @@ class ImportController extends Controller {
         IRequest $request,
         private ItemService $itemService,
         private IUserSession $userSession,
+        private IURLGenerator $urlGenerator,
     ) {
         parent::__construct($appName, $request);
     }
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    public function preview(): JSONResponse {
+    public function preview(): JSONResponse|TemplateResponse {
+        $metadataJson = (string)$this->request->getParam('metadataJson', '');
         $user = $this->userSession->getUser();
         $payload = $user !== null
-            ? $this->itemService->previewCorrectedMetadataImport($user->getUID(), (string)$this->request->getParam('metadataJson', ''))
+            ? $this->itemService->previewCorrectedMetadataImport($user->getUID(), $metadataJson)
             : [
                 'schemaVersion' => 1,
                 'previewKind' => 'library-metadata-import-preview',
@@ -41,14 +45,28 @@ class ImportController extends Controller {
                 'items' => [],
             ];
 
-        return new JSONResponse($payload, 200, [
-            'Cache-Control' => 'private, no-store',
-            'X-Library-Import-Mode' => 'preview-only',
+        if ($this->expectsJson()) {
+            return new JSONResponse($payload, 200, [
+                'Cache-Control' => 'private, no-store',
+                'X-Library-Import-Mode' => 'preview-only',
+            ]);
+        }
+
+        $response = new TemplateResponse('library', 'metadata-import-result', [
+            'mode' => 'preview',
+            'preview' => $payload,
+            'metadataJson' => $metadataJson,
+            'metadataImportApplyUrl' => $this->urlGenerator->linkToRoute('library.import.apply'),
+            'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library'),
+            'requesttoken' => $this->request->getParam('requesttoken', ''),
         ]);
+        $response->addHeader('Cache-Control', 'private, no-store');
+        $response->addHeader('X-Library-Import-Mode', 'preview-only');
+        return $response;
     }
 
     #[NoAdminRequired]
-    public function apply(): JSONResponse {
+    public function apply(): JSONResponse|TemplateResponse {
         $user = $this->userSession->getUser();
         $payload = $user !== null
             ? $this->itemService->applyCorrectedMetadataImport($user->getUID(), (string)$this->request->getParam('metadataJson', ''))
@@ -67,9 +85,27 @@ class ImportController extends Controller {
                 'items' => [],
             ];
 
-        return new JSONResponse($payload, 200, [
-            'Cache-Control' => 'private, no-store',
-            'X-Library-Import-Mode' => 'apply',
+        if ($this->expectsJson()) {
+            return new JSONResponse($payload, 200, [
+                'Cache-Control' => 'private, no-store',
+                'X-Library-Import-Mode' => 'apply',
+            ]);
+        }
+
+        $response = new TemplateResponse('library', 'metadata-import-result', [
+            'mode' => 'apply',
+            'preview' => $payload,
+            'metadataJson' => '',
+            'metadataImportApplyUrl' => $this->urlGenerator->linkToRoute('library.import.apply'),
+            'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library'),
+            'requesttoken' => $this->request->getParam('requesttoken', ''),
         ]);
+        $response->addHeader('Cache-Control', 'private, no-store');
+        $response->addHeader('X-Library-Import-Mode', 'apply');
+        return $response;
+    }
+
+    private function expectsJson(): bool {
+        return str_contains(strtolower((string)$this->request->getHeader('Accept')), 'application/json');
     }
 }

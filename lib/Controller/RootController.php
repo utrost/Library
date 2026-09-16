@@ -27,12 +27,15 @@ final class RootController extends Controller {
     public function save(): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
-            $this->rootService->saveRoot(
-                $user->getUID(),
-                (string)$this->request->getParam('path', '/'),
-                (string)$this->request->getParam('label', ''),
-                true,
-            );
+            $path = trim((string)$this->request->getParam('path', ''));
+            if ($path !== '') {
+                $this->rootService->saveRoot(
+                    $user->getUID(),
+                    $path,
+                    (string)$this->request->getParam('label', ''),
+                    true,
+                );
+            }
         }
 
         return $this->redirectToSettings();

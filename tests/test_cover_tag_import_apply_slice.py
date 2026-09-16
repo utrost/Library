@@ -47,7 +47,7 @@ def test_metadata_import_apply_route_controller_service_and_settings_form_are_wi
 
     assert "import#apply" in routes
     assert "'/import/metadata/apply'" in routes
-    assert "public function apply(): JSONResponse" in controller
+    assert "public function apply(): JSONResponse|TemplateResponse" in controller
     assert "applyCorrectedMetadataImport($user->getUID()" in controller
     apply_method = controller.split("public function apply", 1)[1].split("}", 1)[0]
     assert "NoCSRFRequired" not in apply_method
@@ -63,9 +63,9 @@ def test_metadata_import_apply_route_controller_service_and_settings_form_are_wi
 
     assert "metadataImportApplyUrl" in settings
     assert "library.import.apply" in settings
-    assert "library-metadata-import-apply-form" in template
+    assert "library-metadata-import-apply-form" not in template
     assert "Apply metadata import" in template
-    assert "This writes matched corrected metadata" in template
+    assert "Use Apply metadata import only after reviewing" in template
 
 
 def test_docs_track_cover_tag_and_import_apply_as_landed_first_slices():

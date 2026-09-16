@@ -614,6 +614,67 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.findAll('.library-classification-suggestion')).toHaveLength(0)
   })
 
+  it('lets keyboard users navigate and select facet combobox suggestions', async () => {
+    global.fetch = vi.fn(async (url) => {
+      if (String(url).includes('publisher-suggestions')) return { ok: true, json: async () => ({ publishers: ['Alpha Press', 'Beta Press'] }) }
+      return { ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, publisher: 'Beta Press' } }) }
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      publisherSuggestionsUrl: '/apps/library/catalogue/publisher-suggestions',
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, publisher: '' },
+    } } })
+
+    const input = wrapper.get('input[name="publisherSearch"]')
+    await input.trigger('focus')
+    await input.setValue('pre')
+    await vi.waitFor(() => expect(wrapper.findAll('.library-publisher-suggestion')).toHaveLength(2))
+
+    await input.trigger('keydown', { key: 'ArrowDown' })
+    await input.trigger('keydown', { key: 'ArrowDown' })
+    expect(input.attributes('aria-activedescendant')).toBe('library-desktop-publisher-suggestion-1')
+    expect(wrapper.find('#library-desktop-publisher-suggestion-1').attributes('aria-selected')).toBe('true')
+
+    await input.trigger('keydown', { key: 'Enter' })
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenLastCalledWith(
+      '/apps/library/catalogue?publisher=Beta+Press',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+  })
+
+  it('announces ordinary catalogue loading outside Review without clearing stale results', async () => {
+    let resolveCatalogue
+    global.fetch = vi.fn().mockReturnValue(new Promise((resolve) => { resolveCatalogue = resolve }))
+    const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+
+    await wrapper.get('form.library-catalogue-toolbar select[name="sort"]').setValue('recent')
+    await wrapper.vm.$nextTick()
+
+    const catalogue = wrapper.get('#library-catalogue')
+    expect(catalogue.attributes('aria-busy')).toBe('true')
+    expect(wrapper.get('.library-catalogue-request-status').text()).toContain('Updating catalogue')
+    expect(wrapper.findAll('.library-cover-card')).toHaveLength(1)
+
+    resolveCatalogue({ ok: true, json: async () => ({ ...state, cataloguePagination: { ...state.cataloguePagination, total: 1 } }) })
+    await vi.waitFor(() => expect(catalogue.attributes('aria-busy')).toBe('false'))
+    expect(wrapper.get('.library-catalogue-request-status').text()).toContain('Catalogue updated')
+  })
+
+  it('gives Home cover image buttons stable accessible names', () => {
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      surface: 'home',
+      homeRows: { continueReading: [state.items[0]], recentlyAdded: [{ ...state.items[0], id: 8, title: 'New Book' }] },
+    } } })
+
+    const coverButtons = wrapper.findAll('.library-home-card .library-cover-link')
+    expect(coverButtons.map((button) => button.attributes('aria-label'))).toEqual([
+      'Details: Example Book',
+      'Details: New Book',
+    ])
+  })
+
   it('preserves active hidden catalogue constraints when applying sidebar filters', async () => {
     global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...state }) })
     const wrapper = mount(App, { props: { state: {
@@ -2173,7 +2234,39 @@ describe('Library catalogue Vue app', () => {
     expect(window.location.search).toBe('?item=7')
   })
 
-  it('supports keyboard navigation inside the details drawer', async () => {
+  it('does not hijack Left and Right while editing drawer metadata fields', async () => {
+    const keyboardState = {
+      ...state,
+      items: [
+        { ...state.items[0], id: 7, title: 'Example Book', coverUrl: '/apps/library/items/7/cover' },
+        { ...state.items[0], id: 8, title: 'Second Book', coverUrl: '/apps/library/items/8/cover' },
+      ],
+      cataloguePagination: { ...state.cataloguePagination, total: 2, visible: 2, to: 2 },
+    }
+    globalThis.fetch = vi.fn(async (url) => {
+      const item = url.includes('/8/') ? keyboardState.items[1] : keyboardState.items[0]
+      return { ok: true, json: async () => ({ item }) }
+    })
+    const wrapper = mount(App, { props: { state: keyboardState }, attachTo: document.body })
+
+    await wrapper.findAll('.library-cover-link')[0].trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+    await wrapper.findAll('.library-sidebar-sections button')[1].trigger('click')
+    const titleInput = wrapper.get('input[name="title"]')
+    titleInput.element.focus()
+    await titleInput.setValue('Unsaved Draft Title')
+
+    titleInput.element.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }))
+    titleInput.element.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true }))
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.library-sidebar-content').text()).toContain('Example Book')
+    expect(wrapper.find('.library-sidebar-content').text()).not.toContain('Second Book')
+    expect(wrapper.get('input[name="title"]').element.value).toBe('Unsaved Draft Title')
+    expect(globalThis.fetch.mock.calls.some(([url]) => String(url).includes('/items/8/sidebar'))).toBe(false)
+  })
+
+  it('supports keyboard navigation inside the details drawer from non-editable drawer surfaces', async () => {
     const keyboardState = {
       ...state,
       items: [

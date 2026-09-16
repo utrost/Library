@@ -887,7 +887,7 @@ let catalogueRequestGeneration = 0
 let catalogueRequestController = null
 let initialAuxiliaryHydrationController = null
 let initialAuxiliaryHydrationFrame = null
-const catalogueRequestState = reactive({ loading: false, error: '' })
+const catalogueRequestState = reactive({ loading: false, error: '', completed: false })
 
 function buildFilterParams(form) {
   const params = normalizedReviewParams(new FormData(form))
@@ -1098,6 +1098,7 @@ async function submitFiltersAjax(event, scheduled = null) {
   catalogueRequestController = controller
   catalogueRequestState.loading = true
   catalogueRequestState.error = ''
+  catalogueRequestState.completed = false
   try {
     const response = await fetch(catalogueEndpointUrl.value + endpointQuery, {
       headers: { Accept: 'application/json' },
@@ -1118,6 +1119,7 @@ async function submitFiltersAjax(event, scheduled = null) {
     const nextState = await response.json()
     if (generation !== catalogueRequestGeneration) return
     applyCatalogueState(nextState)
+    catalogueRequestState.completed = true
     if (historyMode !== 'none') {
       history[historyMode === 'push' ? 'pushState' : 'replaceState']({}, '', query ? `?${query}` : window.location.pathname)
       if (sidebarOpen.value) closeDetailsDrawer({ historyMode: 'none' })
@@ -1214,7 +1216,10 @@ async function applyFacetFilter(form, facet, value) {
   else if (facet === 'publisher') { publisherSearch.value = activeFilters.publisher; publisherSearchFocused.value = false }
   else if (facet === 'subject') { subjectSearch.value = activeFilters.subject; subjectSearchFocused.value = false }
   else if (facet === 'folder') { folderSearch.value = activeFilters.folder; folderSearchFocused.value = false }
+  else if (facet === 'classification') { classificationSearch.value = activeFilters.classification; classificationSearchFocused.value = false }
+  else if (facet === 'tag') { tagSearch.value = activeFilters.tag; tagSearchFocused.value = false }
   else { yearSearch.value = activeFilters.year; yearSearchFocused.value = false }
+  suggestionActiveIndexes[facet] = -1
   await nextTick()
   void submitFiltersAjax({ currentTarget: form })
 }
@@ -1233,6 +1238,73 @@ function applySubjectFilter(form, subject = subjectSearch.value) {
 function applySubjectSearch(event) { applySubjectFilter(event.currentTarget.form) }
 function selectSubjectSuggestion(subject, event) { applySubjectFilter(event.currentTarget.form, subject) }
 function selectYearSuggestion(year, event) { void applyFacetFilter(event.currentTarget.form, 'year', year) }
+
+const suggestionActiveIndexes = reactive({
+  publisher: -1,
+  publication: -1,
+  year: -1,
+  creator: -1,
+  tag: -1,
+  folder: -1,
+  subject: -1,
+  classification: -1,
+})
+function suggestionOptions(facet) {
+  if (facet === 'publisher') return publisherSuggestions.value
+  if (facet === 'publication') return publicationSuggestions.value
+  if (facet === 'year') return yearSuggestions.value
+  if (facet === 'creator') return creatorSuggestions.value
+  if (facet === 'tag') return tagSuggestions.value
+  if (facet === 'folder') return folderSuggestions.value
+  if (facet === 'subject') return subjectSuggestions.value
+  if (facet === 'classification') return classificationSuggestions.value
+  return []
+}
+function suggestionOptionId(scope, facet, index) { return `library-${scope}-${facet}-suggestion-${index}` }
+function activeSuggestionId(scope, facet) {
+  const index = suggestionActiveIndexes[facet]
+  return index >= 0 ? suggestionOptionId(scope, facet, index) : undefined
+}
+function setFacetSuggestionFocus(facet, focused) {
+  if (facet === 'publisher') publisherSearchFocused.value = focused
+  else if (facet === 'publication') publicationSearchFocused.value = focused
+  else if (facet === 'year') yearSearchFocused.value = focused
+  else if (facet === 'creator') creatorSearchFocused.value = focused
+  else if (facet === 'tag') tagSearchFocused.value = focused
+  else if (facet === 'folder') folderSearchFocused.value = focused
+  else if (facet === 'subject') subjectSearchFocused.value = focused
+  else if (facet === 'classification') classificationSearchFocused.value = focused
+  if (!focused) suggestionActiveIndexes[facet] = -1
+}
+function openSuggestionFacet(facet) {
+  suggestionActiveIndexes[facet] = -1
+  setFacetSuggestionFocus(facet, true)
+}
+function selectSuggestionValue(facet, value, form) {
+  if (facet === 'publication') void applyPublicationFilter(form, value)
+  else if (facet === 'subject') applySubjectFilter(form, value)
+  else void applyFacetFilter(form, facet, value)
+}
+function handleSuggestionKeydown(event, facet) {
+  const options = suggestionOptions(facet)
+  if (event.key === 'Escape') {
+    setFacetSuggestionFocus(facet, false)
+    return
+  }
+  if (!['ArrowDown', 'ArrowUp', 'Enter'].includes(event.key) || options.length === 0) return
+  if (event.key === 'Enter') {
+    const index = suggestionActiveIndexes[facet]
+    if (index < 0) return
+    event.preventDefault()
+    selectSuggestionValue(facet, options[index], event.currentTarget.form)
+    return
+  }
+  event.preventDefault()
+  setFacetSuggestionFocus(facet, true)
+  const current = suggestionActiveIndexes[facet]
+  const delta = event.key === 'ArrowDown' ? 1 : -1
+  suggestionActiveIndexes[facet] = current < 0 ? (delta > 0 ? 0 : options.length - 1) : (current + delta + options.length) % options.length
+}
 
 function filterChipRemoveParams(key) {
   const params = new URLSearchParams()
@@ -1475,6 +1547,7 @@ function handleDrawerKeyboardShortcuts(event) {
       return true
     }
   }
+  if (isEditableShortcutTarget(event.target)) return false
   if (event.key === 'ArrowLeft' && drawerPreviousItem.value) {
     event.preventDefault()
     showDrawerItem(drawerPreviousItem.value)
@@ -1592,7 +1665,7 @@ async function toggleStar(item, event) {
             <input v-if="activeFilters.view && activeFilters.view !== 'compact'" type="hidden" name="view" :value="activeFilters.view">
             <label class="library-quick-filter-search" :title="t('library', 'Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.')"><span>{{ t('library', 'Search') }} <kbd class="library-keyboard-hint">/</kbd></span><input ref="quickSearchInput" v-model="quickSearch" data-library-quick-search type="search" name="q" :placeholder="t('library', 'Title, creator, description, filename or folder')"></label>
             <label>{{ t('library', 'Type') }}<select v-model="activeFilters.type" name="type" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All types') }}</option><option v-for="type in publicationTypes" :key="type" :value="type">{{ type }}</option></select></label>
-            <div class="library-publisher-filter"><label for="library-publisher-search">{{ t('library', 'Publisher') }}</label><input id="library-publisher-search" v-model="publisherSearch" type="search" name="publisherSearch" autocomplete="off" :placeholder="t('library', 'Search publishers')" :title="t('library', 'Exact publisher matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-publisher-suggestions" :aria-expanded="publisherSearchFocused && publisherSuggestions.length > 0 ? 'true' : 'false'" @focus="publisherSearchFocused = true" @keydown.escape="publisherSearchFocused = false"><input type="hidden" name="publisher" :value="activeFilters.publisher"><ul v-if="publisherSearchFocused && publisherSuggestions.length > 0" id="library-publisher-suggestions" class="library-publisher-suggestions" role="listbox"><li v-for="publisher in publisherSuggestions" :key="publisher" role="option"><button type="button" class="library-publisher-suggestion" @mousedown.prevent @click="selectPublisherSuggestion(publisher, $event)">{{ publisher }}</button></li></ul><button type="submit" class="button secondary library-publisher-apply">{{ t('library', 'Apply publisher') }}</button></div>
+            <div class="library-publisher-filter"><label for="library-publisher-search">{{ t('library', 'Publisher') }}</label><input id="library-publisher-search" v-model="publisherSearch" type="search" name="publisherSearch" autocomplete="off" :placeholder="t('library', 'Search publishers')" :title="t('library', 'Exact publisher matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-publisher-suggestions" :aria-activedescendant="activeSuggestionId('desktop', 'publisher')" :aria-expanded="publisherSearchFocused && publisherSuggestions.length > 0 ? 'true' : 'false'" @focus="openSuggestionFacet('publisher')" @keydown="handleSuggestionKeydown($event, 'publisher')"><input type="hidden" name="publisher" :value="activeFilters.publisher"><ul v-if="publisherSearchFocused && publisherSuggestions.length > 0" id="library-publisher-suggestions" class="library-publisher-suggestions" role="listbox"><li v-for="(publisher, index) in publisherSuggestions" :id="suggestionOptionId('desktop', 'publisher', index)" :key="publisher" role="option" :aria-selected="suggestionActiveIndexes.publisher === index ? 'true' : 'false'"><button type="button" class="library-publisher-suggestion" @mousedown.prevent @click="selectPublisherSuggestion(publisher, $event)">{{ publisher }}</button></li></ul><button type="submit" class="button secondary library-publisher-apply">{{ t('library', 'Apply publisher') }}</button></div>
             <div class="library-publication-filter"><label for="library-publication-search">{{ t('library', 'Series / periodical') }}</label><input id="library-publication-search" v-model="publicationSearch" type="search" name="publicationSearch" autocomplete="off" :placeholder="t('library', 'Search series and periodicals')" role="combobox" aria-autocomplete="list" aria-controls="library-publication-suggestions" :aria-expanded="publicationSearchFocused && publicationSuggestions.length > 0 ? 'true' : 'false'" @focus="publicationSearchFocused = true" @keydown.escape="publicationSearchFocused = false"><input type="hidden" name="publication" :value="activeFilters.publication"><ul v-if="publicationSearchFocused && publicationSuggestions.length > 0" id="library-publication-suggestions" class="library-publication-suggestions" role="listbox"><li v-for="publication in publicationSuggestions" :key="publication" role="option"><button type="button" class="library-publication-suggestion" @mousedown.prevent @click="selectPublicationSuggestion(publication, $event)">{{ publication }}</button></li></ul><button type="submit" class="button secondary library-publication-apply">{{ t('library', 'Apply series') }}</button></div>
             <div class="library-year-filter"><label for="library-year-search">{{ t('library', 'Publication year') }}</label><input id="library-year-search" v-model="yearSearch" type="search" name="yearSearch" autocomplete="off" :placeholder="t('library', 'Search publication years')" role="combobox" aria-autocomplete="list" aria-controls="library-year-suggestions" :aria-expanded="yearSearchFocused && yearSuggestions.length > 0 ? 'true' : 'false'" @focus="yearSearchFocused = true" @keydown.escape="yearSearchFocused = false"><input type="hidden" name="year" :value="activeFilters.year"><ul v-if="yearSearchFocused && yearSuggestions.length > 0" id="library-year-suggestions" class="library-year-suggestions" role="listbox"><li v-for="year in yearSuggestions" :key="year" role="option"><button type="button" class="library-year-suggestion" @mousedown.prevent @click="selectYearSuggestion(year, $event)">{{ year }}</button></li></ul><button type="submit" class="button secondary library-year-apply">{{ t('library', 'Apply year') }}</button></div>
             <div class="library-creator-filter"><label for="library-creator-search">{{ t('library', 'Creator') }}</label><input id="library-creator-search" v-model="creatorSearch" type="search" name="creatorSearch" autocomplete="off" :placeholder="t('library', 'Search creators')" :title="t('library', 'Exact full-field creator matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-creator-suggestions" :aria-expanded="creatorSearchFocused && creatorSuggestions.length > 0 ? 'true' : 'false'" @focus="creatorSearchFocused = true" @keydown.escape="creatorSearchFocused = false"><input type="hidden" name="creator" :value="activeFilters.creator"><ul v-if="creatorSearchFocused && creatorSuggestions.length > 0" id="library-creator-suggestions" class="library-creator-suggestions" role="listbox"><li v-for="creator in creatorSuggestions" :key="creator" role="option"><button type="button" class="library-creator-suggestion" @mousedown.prevent @click="selectCreatorSuggestion(creator, $event)">{{ creator }}</button></li></ul><button type="submit" class="button secondary library-creator-apply">{{ t('library', 'Apply creator') }}</button></div>
@@ -1667,7 +1740,7 @@ async function toggleStar(item, event) {
       <header><div><h3 id="library-continue-heading">{{ t('library', 'Continue reading') }}</h3><p class="library-muted">{{ t('library', 'Pick up publications you opened recently.') }}</p></div><a :href="`${catalogueRootUrl}?sort=lastOpened`">{{ t('library', 'View all') }}</a></header>
       <div v-if="homeRows.continueReading.length" class="library-home-card-row">
         <article v-for="item in homeRows.continueReading" :key="`continue-${item.id}`" class="library-cover-card library-home-card">
-          <button type="button" class="library-cover-link" @click="openDetailsDrawer(item, $event)"><span class="library-cover-frame"><img class="library-cover-image" :src="item.coverUrl" alt="" loading="lazy"></span></button>
+          <button type="button" class="library-cover-link" :aria-label="`${t('library', 'Details')}: ${item.title}`" @click="openDetailsDrawer(item, $event)"><span class="library-cover-frame"><img class="library-cover-image" :src="item.coverUrl" alt="" loading="lazy"></span></button>
           <div class="library-cover-summary"><h4><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi dir="auto">{{ item.title }}</bdi></button></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Open') }}</a></div>
         </article>
       </div>
@@ -1678,7 +1751,7 @@ async function toggleStar(item, event) {
       <header><div><h3 id="library-recent-heading">{{ t('library', 'Recently added') }}</h3><p class="library-muted">{{ t('library', 'The latest publications indexed from your Library roots.') }}</p></div><a :href="`${catalogueRootUrl}?sort=recent`">{{ t('library', 'View all') }}</a></header>
       <div v-if="homeRows.recentlyAdded.length" class="library-home-card-row">
         <article v-for="item in homeRows.recentlyAdded" :key="`recent-${item.id}`" class="library-cover-card library-home-card">
-          <button type="button" class="library-cover-link" @click="openDetailsDrawer(item, $event)"><span class="library-cover-frame"><img class="library-cover-image" :src="item.coverUrl" alt="" loading="lazy"></span></button>
+          <button type="button" class="library-cover-link" :aria-label="`${t('library', 'Details')}: ${item.title}`" @click="openDetailsDrawer(item, $event)"><span class="library-cover-frame"><img class="library-cover-image" :src="item.coverUrl" alt="" loading="lazy"></span></button>
           <div class="library-cover-summary"><h4><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi dir="auto">{{ item.title }}</bdi></button></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Open') }}</a></div>
         </article>
       </div>
@@ -1716,7 +1789,7 @@ async function toggleStar(item, event) {
       </p>
     </section>
   </main>
-  <section v-else id="library-catalogue" class="library-panel library-mobile-compact-chrome" aria-labelledby="library-catalogue-heading">
+  <section v-else id="library-catalogue" class="library-panel library-mobile-compact-chrome" :class="{ 'library-catalogue--loading': catalogueRequestState.loading }" aria-labelledby="library-catalogue-heading" :aria-busy="catalogueRequestState.loading ? 'true' : 'false'">
     <header class="library-catalogue-header">
       <p v-if="isDiscoveryPage" class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
       <h2 id="library-catalogue-heading">{{ catalogueHeading }}</h2>
@@ -1733,7 +1806,7 @@ async function toggleStar(item, event) {
           <legend>{{ t('library', 'Content') }}</legend>
           <label class="library-quick-filter-search"><span>{{ t('library', 'Search') }}</span><input ref="mobileFilterSearchInput" v-model="quickSearch" data-library-mobile-filter-search type="search" name="q" :placeholder="t('library', 'Title, creator, description, filename or folder')"></label>
           <label>{{ t('library', 'Type') }}<select v-model="activeFilters.type" name="type" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All types') }}</option><option v-for="type in publicationTypes" :key="`mobile-type-${type}`" :value="type">{{ type }}</option></select></label>
-          <div class="library-publisher-filter"><label for="library-mobile-publisher-search">{{ t('library', 'Publisher') }}</label><input id="library-mobile-publisher-search" v-model="publisherSearch" type="search" name="publisherSearch" autocomplete="off" :placeholder="t('library', 'Search publishers')" :title="t('library', 'Exact publisher matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-publisher-suggestions" :aria-expanded="publisherSearchFocused && publisherSuggestions.length > 0 ? 'true' : 'false'" @focus="publisherSearchFocused = true" @keydown.escape="publisherSearchFocused = false"><input type="hidden" name="publisher" :value="activeFilters.publisher"><ul v-if="mobileFilterPanelOpen && publisherSearchFocused && publisherSuggestions.length > 0" id="library-mobile-publisher-suggestions" class="library-publisher-suggestions" role="listbox"><li v-for="publisher in publisherSuggestions" :key="`mobile-publisher-${publisher}`" role="option"><button type="button" class="library-publisher-suggestion" @mousedown.prevent @click="selectPublisherSuggestion(publisher, $event)">{{ publisher }}</button></li></ul></div>
+          <div class="library-publisher-filter"><label for="library-mobile-publisher-search">{{ t('library', 'Publisher') }}</label><input id="library-mobile-publisher-search" v-model="publisherSearch" type="search" name="publisherSearch" autocomplete="off" :placeholder="t('library', 'Search publishers')" :title="t('library', 'Exact publisher matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-publisher-suggestions" :aria-activedescendant="activeSuggestionId('mobile', 'publisher')" :aria-expanded="publisherSearchFocused && publisherSuggestions.length > 0 ? 'true' : 'false'" @focus="openSuggestionFacet('publisher')" @keydown="handleSuggestionKeydown($event, 'publisher')"><input type="hidden" name="publisher" :value="activeFilters.publisher"><ul v-if="mobileFilterPanelOpen && publisherSearchFocused && publisherSuggestions.length > 0" id="library-mobile-publisher-suggestions" class="library-publisher-suggestions" role="listbox"><li v-for="(publisher, index) in publisherSuggestions" :id="suggestionOptionId('mobile', 'publisher', index)" :key="`mobile-publisher-${publisher}`" role="option" :aria-selected="suggestionActiveIndexes.publisher === index ? 'true' : 'false'"><button type="button" class="library-publisher-suggestion" @mousedown.prevent @click="selectPublisherSuggestion(publisher, $event)">{{ publisher }}</button></li></ul></div>
           <div class="library-publication-filter"><label for="library-mobile-publication-search">{{ t('library', 'Series / periodical') }}</label><input id="library-mobile-publication-search" v-model="publicationSearch" type="search" name="publicationSearch" autocomplete="off" :placeholder="t('library', 'Search series and periodicals')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-publication-suggestions" :aria-expanded="publicationSearchFocused && publicationSuggestions.length > 0 ? 'true' : 'false'" @focus="publicationSearchFocused = true" @keydown.escape="publicationSearchFocused = false"><input type="hidden" name="publication" :value="activeFilters.publication"><ul v-if="mobileFilterPanelOpen && publicationSearchFocused && publicationSuggestions.length > 0" id="library-mobile-publication-suggestions" class="library-publication-suggestions" role="listbox"><li v-for="publication in publicationSuggestions" :key="`mobile-publication-${publication}`" role="option"><button type="button" class="library-publication-suggestion" @mousedown.prevent @click="selectPublicationSuggestion(publication, $event)">{{ publication }}</button></li></ul></div>
           <div class="library-year-filter"><label for="library-mobile-year-search">{{ t('library', 'Publication year') }}</label><input id="library-mobile-year-search" v-model="yearSearch" type="search" name="yearSearch" autocomplete="off" :placeholder="t('library', 'Search publication years')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-year-suggestions" :aria-expanded="yearSearchFocused && yearSuggestions.length > 0 ? 'true' : 'false'" @focus="yearSearchFocused = true" @keydown.escape="yearSearchFocused = false"><input type="hidden" name="year" :value="activeFilters.year"><ul v-if="mobileFilterPanelOpen && yearSearchFocused && yearSuggestions.length > 0" id="library-mobile-year-suggestions" class="library-year-suggestions" role="listbox"><li v-for="year in yearSuggestions" :key="`mobile-year-${year}`" role="option"><button type="button" class="library-year-suggestion" @mousedown.prevent @click="selectYearSuggestion(year, $event)">{{ year }}</button></li></ul></div>
           <div class="library-creator-filter"><label for="library-mobile-creator-search">{{ t('library', 'Creator') }}</label><input id="library-mobile-creator-search" v-model="creatorSearch" type="search" name="creatorSearch" autocomplete="off" :placeholder="t('library', 'Search creators')" :title="t('library', 'Exact full-field creator matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-creator-suggestions" :aria-expanded="creatorSearchFocused && creatorSuggestions.length > 0 ? 'true' : 'false'" @focus="creatorSearchFocused = true" @keydown.escape="creatorSearchFocused = false"><input type="hidden" name="creator" :value="activeFilters.creator"><ul v-if="mobileFilterPanelOpen && creatorSearchFocused && creatorSuggestions.length > 0" id="library-mobile-creator-suggestions" class="library-creator-suggestions" role="listbox"><li v-for="creator in creatorSuggestions" :key="`mobile-creator-${creator}`" role="option"><button type="button" class="library-creator-suggestion" @mousedown.prevent @click="selectCreatorSuggestion(creator, $event)">{{ creator }}</button></li></ul></div>
@@ -1790,6 +1863,10 @@ async function toggleStar(item, event) {
     <p v-if="batchLimitErrorMessage" class="library-warning library-batch-limit-error">{{ batchLimitErrorMessage }}</p>
     <p v-if="batchSelectionErrorMessage" class="library-warning library-batch-selection-error">{{ batchSelectionErrorMessage }}</p>
     <p v-if="batchMetadataApplyMessage" class="library-notice library-batch-metadata-apply-result">{{ batchMetadataApplyMessage }}</p>
+    <div class="library-catalogue-request-status" role="status" aria-live="polite">
+      <span v-if="catalogueRequestState.loading">{{ t('library', 'Updating catalogue…') }}</span>
+      <span v-else-if="catalogueRequestState.completed">{{ n('library', 'Catalogue updated. %n item.', 'Catalogue updated. %n items.', Number(pagination.total || 0)) }}</span>
+    </div>
 
 
     <section v-if="isDiscoveryPage" class="library-discovery-hero" aria-labelledby="library-discovery-heading">
