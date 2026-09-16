@@ -1,14 +1,14 @@
 # Library human test handbook
 
-## Alpha.166/167 test status
+## Current source-candidate test status
 
-Version under test: `0.1.0-alpha.171`. The current Alice deployment includes alpha.166/167 accessibility/catalogue cleanup plus the first alpha.168 ISBN/ISSN identifier-spine slice.
+Version under test: `0.1.0-alpha.171`. The current Alice deployment includes the accessibility/catalogue cleanup, ISBN/ISSN identifier spine, indexed substring search, mobile filter panel, high-cardinality typeaheads, and the review issue batch (#32-37).
 
 Packaging: **not used for this Alice deployment**. Deployment: **Alice checkout copy deployed**. Run the installed-instance cases against `http://100.123.149.120:8088/apps/library/`; treat archive/package-identity assertions as not applicable unless a separate `dist/library-0.1.0-alpha.171.tar.gz` candidate is generated and installed.
 
-## Alpha.168 identifier-spine first pass
+## Identifier and search first pass
 
-Run this focused pass only after the alpha.168 identifier spine is deployed. It covers ISBN/ISSN storage, validation warnings, and exact normalized search; it does not cover DOI/OCLC/LCCN, external metadata lookup, or full type-aware field layouts yet.
+Run this focused pass after the current source candidate is deployed. It covers ISBN/ISSN storage, validation warnings, exact normalized search, and the indexed arbitrary-substring catalogue search path; it does not cover DOI/OCLC/LCCN, external metadata lookup, or full type-aware field layouts yet.
 
 ### A168-01 — ISBN/ISSN edit, warning, and search
 
@@ -68,11 +68,11 @@ Setup: open a non-empty catalogue containing an item with valid Open, Files, Dow
 
 Steps:
 
-1. Confirm visible Search and exactly one Filter, Sort, and View control before opening anything.
-2. Search for a visible item, apply one filter, change sort and view, then clear the search/filter.
+1. On desktop, confirm visible Search/Filter/Sort/View controls; on mobile width, confirm the grouped **Filters** trigger shows active count, result count, **Clear all**, and a primary show-results action.
+2. Search for a visible item, search for a short middle substring of that item title/creator/path, apply one filter, change sort and view, then clear the search/filter.
 3. Open that item’s sidebar and activate or inspect, in order, **Open**, **Show in Files**, **Download**, and **Advanced details**.
 
-Expected result: there is one stable browse toolbar; results respond to each control; Open is the primary sidebar action and the other three are secondary and route to the selected item.
+Expected result: desktop and mobile filter controls are stable for their breakpoint; arbitrary substring search returns expected matches; results respond to each control; Open is the primary sidebar action and the other three are secondary and route to the selected item.
 
 Failure evidence: full toolbar/sidebar screenshot, search/filter/sort/view values, selected item ID, link text and destination, final URL/status, and console errors.
 

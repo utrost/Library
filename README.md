@@ -14,13 +14,13 @@ Current highlights:
 - server-backed Home, Shelves and Catalogue surfaces, plus custom collections and discovery pages for creators, years and publications/series;
 - count-only useful-view and saved-collection badges that avoid fetching catalogue rows or facets for normal filters, while scanner-conflict counts retain row inspection for correctness;
 - bounded ordinary catalogue/AJAX item payloads that keep tags, descriptions, diagnostics and visible card actions while leaving rich provenance to metadata-review and full detail/export/import paths;
-- seven additive user-scoped indexes for measured catalogue sort/filter and file diagnostic queries, without duplicating existing scan-job/root/saved-collection indexes or adding a speculative starred index;
-- in-page details drawer with keyboard browsing plus full details pages for editing;
+- workload-led database indexes for common catalogue filters/sorts, review flags, high-cardinality facet suggestions and indexed arbitrary substring search;
+- in-page details drawer with keyboard browsing that preserves native text-field arrow editing, plus full details pages for editing;
 - metadata editing for title, creators, publication/series, dates, subjects, classifications, workflow status, stars, descriptions and file comments;
-- search across title, creators, description, identifiers, filename and folder path;
-- scan, repair and review tools for missing files, metadata errors, weak metadata and scanner conflicts;
-- search and filter by metadata, file format, scan status, workflow status and collection context;
-- corrected-metadata export/import preview/apply for app metadata handoff;
+- indexed substring search across title, creators, publication, description, identifiers, filename and folder path;
+- scan, repair and review tools for missing files, metadata errors, weak metadata, scanner conflicts and imported metadata changes;
+- search and filter by metadata, file format, scan status, workflow status, review flags and collection context, with lazy high-cardinality typeahead suggestions;
+- corrected-metadata export/import preview/apply for app metadata handoff, including a reviewed preview-to-apply flow;
 - safe reader handoff to existing Nextcloud viewers/readers, Show in Files and Download actions.
 
 ## Current scope
@@ -48,8 +48,8 @@ Not in scope for v0.1:
 Current source candidate: `0.1.0-alpha.171`. This is an unpackaged source candidate. Library now has bounded server-backed Home, Shelves and Catalogue payloads; additive server-side facets and filters; and list, compact, gallery and shelf presentation. ISBN/ISSN values have a dedicated identifier spine with normalized exact search, and catalogue queries remain distinct when identifier joins match more than one row. OPF sidecars enrich their primary publication without becoming duplicate catalogue items. Open is the primary file action and the full PHP editor remains available as Advanced details.
 
 Settings scan operations submit asynchronously, show per-root publication counts, and keep cancellation responsive. Running jobs persist a bounded heartbeat and current path; a quiet job is reported as stale without being destructively changed to failed. Source files remain untouched.
-Alpha.159 fixes repair-scan root containment: missing-file recheck and metadata-error retry only restore a resolved stable-ID file when its current path is inside an enabled root owned by that user. Alpha.158 covered 726 Python tests; current verification passed 727 Python tests, 9 PHP runtime programs, 26 Vitest tests, production build, Markdown-link checks and `release_package_smoke_ok=true`; upgrade reported `No upgrade required`, so the fresh-database migration rehearsal remains pending. Verify the package checksum with its adjacent `.sha256` artifact; the excluded `RELEASE.md` records release evidence without embedding the digest. Alpha.154 added privacy-safe aggregate operation instrumentation, bounded scan progress/cancellation polling and conservative trusted-rescan fast paths.
 
+Alpha.159 fixes repair-scan root containment: missing-file recheck and metadata-error retry only restore a resolved stable-ID file when its current path is inside an enabled root owned by that user. Alpha.158 covered 726 Python tests; that packaged evidence later passed 727 Python tests, 9 PHP runtime programs, 26 Vitest tests and `release_package_smoke_ok=true`; upgrade reported `No upgrade required`, so the fresh-database migration rehearsal remains pending; verify packaged checksums with the adjacent `.sha256` artifact and use the excluded `RELEASE.md` for release evidence. Recent source-candidate work closed the highest-risk review backlog: arbitrary substring search uses a materialized gram index, mobile filter controls use a grouped panel, high-cardinality facets use lazy typeaheads, import preview connects directly to apply, cover buttons have accessible names, and first-run setup no longer suggests a development path. Exact-package signing and fresh-database release rehearsal remain App Store readiness work rather than current source-candidate claims.
 Run local checks (for Docker dev/deploy, `bin/nextcloud-background-worker.sh` runs the general Nextcloud background worker for a safe, repeatable five-minute interval):
 
 ```bash

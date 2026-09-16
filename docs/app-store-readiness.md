@@ -1,15 +1,15 @@
 # App Store readiness roadmap
 
-Alpha.169 status: `0.1.0-alpha.171` source candidate, unpackaged. Manual AT testing is pending; accessibility-tree evidence is not screen-reader testing.
+Current status: `0.1.0-alpha.171` source candidate, unpackaged. Manual AT testing is pending; accessibility-tree evidence is not screen-reader testing.
 Current candidate baseline: `0.1.0-alpha.171`
-Future authorized signing uses `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.171.tar.gz`; no alpha.169 archive exists yet.
+Future authorized signing uses `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.171.tar.gz`; no alpha.171 signed archive exists yet.
 
 Status: active release-readiness roadmap  
 Target: signed Nextcloud App Store release for Nextcloud 34
 
 Library alpha.159 passed its full local gate, unsigned package build/audit, and exact-package smoke on a Nextcloud 34 instance. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
 
-The current candidate includes aggregate scan-job counters/duration, privacy-safe operation logs, throttled progress/cancellation checks through `Version000100Date20260911140000`, frontend request-race hardening, and repair root-containment enforcement. This is not external telemetry or proof of universal speedup. Alpha.159 exact-package/live evidence is complete; fresh-database migration rehearsal, realistic scale data gates, the signed package/App Store submission, and formal Trust-and-scale phase closure remain deferred.
+The current candidate includes aggregate scan-job counters/duration, privacy-safe operation logs, throttled progress/cancellation checks, frontend request-race hardening, repair root-containment enforcement, workload-led catalogue/review indexes, materialized substring-search grams, lazy high-cardinality typeahead suggestions, the mobile filter panel and the review issue batch (#32-37). This is not external telemetry or proof of universal speedup. Alpha.159 exact-package/live evidence is complete and remains the latest packaged evidence; fresh-database migration rehearsal, realistic scale data gates, a signed package/App Store submission, and formal Trust-and-scale phase closure remain deferred.
 
 ## Definition of ready
 
