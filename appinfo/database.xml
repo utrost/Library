@@ -463,6 +463,21 @@
                     <name>library_file_id</name>
                 </field>
             </index>
+            <index>
+                <name>library_items_usr_edit_title</name>
+                <field>
+                    <name>user_id</name>
+                </field>
+                <field>
+                    <name>user_edited</name>
+                </field>
+                <field>
+                    <name>title</name>
+                </field>
+                <field>
+                    <name>library_file_id</name>
+                </field>
+            </index>
         </declaration>
     </table>
     <table>
