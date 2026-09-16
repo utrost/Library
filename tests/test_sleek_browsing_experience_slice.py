@@ -48,6 +48,16 @@ def test_sleek_browsing_css_adds_motion_depth_and_mobile_drawer():
     assert "@media (max-width: 720px)" in component
 
 
+def test_detail_drawer_facts_stack_on_narrow_screens_and_keep_desktop_gap():
+    component = read("src/App.vue")
+
+    assert ".library-detail-drawer-facts div" in component
+    assert "grid-template-columns: minmax(0, 1fr);" in component
+    assert "column-gap: 18px;" in component
+    assert "grid-template-columns: minmax(7rem, max-content) minmax(0, 1fr);" in component
+    assert "minmax(84px, .4fr)" not in component
+
+
 def test_vitest_exercises_compact_home_tools_and_drawer_interaction():
     test = read("src/App.test.js")
 
