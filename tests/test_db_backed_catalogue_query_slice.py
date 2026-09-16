@@ -13,8 +13,9 @@ def test_item_service_exposes_db_backed_catalogue_query_result():
     assert "->setFirstResult($offset)" in service
     assert "->setMaxResults($limit)" in service
     assert "COUNT(DISTINCT i.id)" in service
-    assert "LOWER(i.title)" in service
-    assert "LOWER(f.cached_path)" in service
+    assert "searchGramCandidateIds" in service
+    assert "searchDocumentForRow" in service
+    assert "(string)($row['cached_path'] ?? '')" in service
     assert "f.file_id" in service
     assert "taggedFileIds" in service
 

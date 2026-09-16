@@ -9,10 +9,10 @@ def read(path: str) -> str:
 
 def test_catalogue_text_search_includes_cached_filename_and_folder_path():
     service = read("lib/Service/ItemService.php")
-    search_block = service.split("$query = mb_strtolower", 1)[1].split("private function jsonArrayContainsFilter", 1)[0]
+    search_document = service.split("private function searchDocumentForRow", 1)[1].split("private function searchGramsForText", 1)[0]
 
-    assert "LOWER(f.cached_path)" in search_block
-    assert "filename and folder path" in service
+    assert "cached_path" in search_document
+    assert "searchGramCandidateIds" in service
 
 
 def test_vue_search_copy_explains_filename_and_folder_search():

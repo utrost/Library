@@ -13,6 +13,9 @@ final class ItemService {
     private const PUBLICATION_FACET_LIMIT = 100;
     private const MULTI_VALUE_FACET_LIMIT = 200;
     private const BULK_ITEM_LIMIT = 5000;
+    private const SEARCH_GRAM_LENGTH = 3;
+    private const SEARCH_GRAM_MAX_QUERY_GRAMS = 32;
+    private const SEARCH_GRAM_INLINE_CANDIDATE_LIMIT = 500;
 
     private const CATALOGUE_INTERNAL_COLUMNS = [
         'i.id',
@@ -152,6 +155,7 @@ final class ItemService {
                 $this->typeaheadScalarFacets($metadataCandidate)
             );
             $this->syncItemIdentifiers($userId, $itemId, IdentifierService::normalizeIdentifierList($metadataCandidate['identifiers'] ?? [], $metadataCandidate['metadataSource'], false));
+            $this->refreshItemSearchIndex($userId, $itemId);
         }
     }
 
@@ -165,6 +169,7 @@ final class ItemService {
             ->executeStatement();
         if ($existing !== null && !(bool)$existing['user_edited']) {
             $this->deleteItemFacetIndex($userId, (int)$existing['id']);
+            $this->deleteItemSearchIndex($userId, (int)$existing['id']);
         }
     }
 
@@ -209,6 +214,7 @@ final class ItemService {
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
         $this->deleteItemFacetIndex($userId, $itemId);
+        $this->deleteItemSearchIndex($userId, $itemId);
 
         $qb = $this->db->getQueryBuilder();
         $qb->delete('library_files')
@@ -261,6 +267,9 @@ final class ItemService {
             );
         }
         $this->syncItemIdentifiers($userId, $itemId, IdentifierService::normalizeIdentifierList($metadata['identifiers'] ?? [], 'user', true));
+        if ($affected > 0) {
+            $this->refreshItemSearchIndex($userId, $itemId);
+        }
     }
 
     /**
@@ -1987,6 +1996,46 @@ final class ItemService {
         return $itemIds;
     }
 
+    /** @return array<int, string> */
+    private function searchGramsForQuery(string $query): array {
+        $grams = $this->searchGramsForText($query);
+        return array_slice($grams, 0, self::SEARCH_GRAM_MAX_QUERY_GRAMS);
+    }
+
+    /** @return array<int, int> */
+    private function searchGramCandidateIds(string $userId, array $searchGrams): array {
+        if ($searchGrams === []) {
+            return [];
+        }
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('search_gram.item_id')
+            ->from('library_item_search_grams', 'search_gram')
+            ->where($qb->expr()->eq('search_gram.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->in('search_gram.gram', $qb->createNamedParameter($searchGrams, IQueryBuilder::PARAM_STR_ARRAY)))
+            ->groupBy('search_gram.item_id')
+            ->having($qb->expr()->eq($qb->createFunction('COUNT(DISTINCT search_gram.gram)'), $qb->createNamedParameter(count($searchGrams))))
+            ->setMaxResults(50000)
+            ->executeQuery();
+        $itemIds = [];
+        while ($row = $result->fetch()) {
+            $itemIds[] = (int)$row['item_id'];
+        }
+        $result->closeCursor();
+        return $itemIds;
+    }
+
+    /** @param array<int, string> $searchGrams */
+    private function searchGramCandidateSubquery(IQueryBuilder $qb, string $userId, array $searchGrams): string {
+        $gramCount = count($searchGrams);
+        $userParameter = $qb->createNamedParameter($userId);
+        $gramParameter = $qb->createNamedParameter($searchGrams, IQueryBuilder::PARAM_STR_ARRAY);
+        $countParameter = $qb->createNamedParameter($gramCount);
+        return "SELECT `search_gram`.`item_id` FROM `*PREFIX*library_item_search_grams` `search_gram` "
+            . "WHERE `search_gram`.`user_id` = {$userParameter} "
+            . "AND `search_gram`.`gram` IN ({$gramParameter}) "
+            . "GROUP BY `search_gram`.`item_id` HAVING COUNT(DISTINCT `search_gram`.`gram`) = {$countParameter}";
+    }
+
     private function applyCatalogueFilters(IQueryBuilder $qb, string $userId, array $filters): void {
         $type = trim((string)($filters['type'] ?? ''));
         if ($type !== '') {
@@ -2068,29 +2117,24 @@ final class ItemService {
             if ($exactTitleItemIds !== []) {
                 $qb->andWhere($qb->expr()->in('i.id', $qb->createNamedParameter($exactTitleItemIds, IQueryBuilder::PARAM_INT_ARRAY)));
             } else {
-                $query = mb_strtolower($query);
-                // filename and folder path search is deliberate: many PDFs/comics have sparse embedded metadata,
-                // so the source path remains an important fallback signal for immediate discovery.
-                $like = $qb->createNamedParameter('%' . $this->escapeLikeParameter($query) . '%');
-                // ISBN/ISSN exact normalized search: punctuation-insensitive identifier terms match the child table.
+                $searchGrams = $this->searchGramsForQuery($query);
                 $identifierSearch = IdentifierService::normalizeSearchQuery($query);
-                $textPredicates = [
-                    $qb->expr()->like($qb->createFunction('LOWER(i.title)'), $like),
-                    $qb->expr()->like($qb->createFunction('LOWER(i.subtitle)'), $like),
-                    $qb->expr()->like($qb->createFunction('LOWER(i.creators)'), $like),
-                    $qb->expr()->like($qb->createFunction('LOWER(i.publication)'), $like),
-                    $qb->expr()->like($qb->createFunction('LOWER(i.description)'), $like),
-                    $qb->expr()->like($qb->createFunction('LOWER(i.subjects_json)'), $like),
-                    $qb->expr()->like($qb->createFunction('LOWER(i.classifications_json)'), $like),
-                    $qb->expr()->like($qb->createFunction('LOWER(f.cached_path)'), $like),
-                ];
+                $searchPredicates = [];
+                if ($searchGrams !== []) {
+                    $searchGramItemIds = $this->searchGramCandidateIds($userId, $searchGrams);
+                    if ($searchGramItemIds !== [] && count($searchGramItemIds) <= self::SEARCH_GRAM_INLINE_CANDIDATE_LIMIT) {
+                        $searchPredicates[] = $qb->expr()->in('i.id', $qb->createNamedParameter($searchGramItemIds, IQueryBuilder::PARAM_INT_ARRAY));
+                    } elseif ($searchGramItemIds !== []) {
+                        $searchPredicates[] = $qb->expr()->in('i.id', $qb->createFunction($this->searchGramCandidateSubquery($qb, $userId, $searchGrams)));
+                    }
+                }
                 if ($identifierSearch !== null) {
-                    $textPredicates[] = $qb->expr()->andX(
+                    $searchPredicates[] = $qb->expr()->andX(
                         $qb->expr()->eq('idn.scheme', $qb->createNamedParameter($identifierSearch['scheme'])),
                         $qb->expr()->eq('idn.normalized_value', $qb->createNamedParameter($identifierSearch['normalizedValue']))
                     );
                 }
-                $qb->andWhere($qb->expr()->orX(...$textPredicates));
+                $qb->andWhere($searchPredicates === [] ? '1 = 0' : $qb->expr()->orX(...$searchPredicates));
             }
         }
     }
@@ -2334,6 +2378,7 @@ final class ItemService {
             $this->typeaheadScalarFacets($metadataCandidate)
         );
         $this->syncItemIdentifiers($userId, $itemId, IdentifierService::normalizeIdentifierList($metadataCandidate['identifiers'] ?? [], $metadataCandidate['metadataSource'], false));
+        $this->refreshItemSearchIndex($userId, $itemId);
     }
 
     /** @return array<string, array<int, string>> */
@@ -2346,6 +2391,83 @@ final class ItemService {
             'publisher' => [(string)($metadata['publisher'] ?? '')],
             'year' => preg_match('/^\\d{4}$/', $year) === 1 ? [$year] : [],
         ];
+    }
+
+    private function refreshItemSearchIndex(string $userId, int $itemId): void {
+        $this->deleteItemSearchIndex($userId, $itemId);
+        $row = $this->searchIndexSourceRow($userId, $itemId);
+        if ($row === null) {
+            return;
+        }
+        foreach ($this->searchGramsForText($this->searchDocumentForRow($row)) as $gram) {
+            $qb = $this->db->getQueryBuilder();
+            $qb->insert('library_item_search_grams')
+                ->values([
+                    'user_id' => $qb->createNamedParameter($userId),
+                    'item_id' => $qb->createNamedParameter($itemId),
+                    'gram' => $qb->createNamedParameter($gram),
+                ])
+                ->executeStatement();
+        }
+    }
+
+    private function deleteItemSearchIndex(string $userId, int $itemId): void {
+        $qb = $this->db->getQueryBuilder();
+        $qb->delete('library_item_search_grams')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('item_id', $qb->createNamedParameter($itemId)))
+            ->executeStatement();
+    }
+
+    private function searchIndexSourceRow(string $userId, int $itemId): ?array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.description', 'i.subjects_json', 'i.classifications_json', 'f.cached_path')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
+            ->where($qb->expr()->eq('i.id', $qb->createNamedParameter($itemId)))
+            ->andWhere($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->executeQuery();
+        $row = $result->fetch();
+        $result->closeCursor();
+        if ($row === false) {
+            return null;
+        }
+        $row['identifiers'] = implode(' ', array_map(
+            static fn (array $identifier): string => $identifier['displayValue'] . ' ' . $identifier['normalizedValue'],
+            $this->itemIdentifiers($itemId)
+        ));
+        return $row;
+    }
+
+    private function searchDocumentForRow(array $row): string {
+        return implode(' ', [
+            (string)($row['title'] ?? ''),
+            (string)($row['subtitle'] ?? ''),
+            (string)($row['creators'] ?? ''),
+            (string)($row['publication'] ?? ''),
+            (string)($row['description'] ?? ''),
+            (string)($row['subjects_json'] ?? ''),
+            (string)($row['classifications_json'] ?? ''),
+            (string)($row['cached_path'] ?? ''),
+            (string)($row['identifiers'] ?? ''),
+        ]);
+    }
+
+    /** @return array<int, string> */
+    private function searchGramsForText(string $text): array {
+        $normalized = mb_strtolower($text);
+        $normalized = preg_replace('/[^\p{L}\p{N}]+/u', ' ', $normalized) ?? '';
+        $grams = [];
+        foreach (preg_split('/\s+/u', trim($normalized)) ?: [] as $token) {
+            $length = mb_strlen($token);
+            if ($length < self::SEARCH_GRAM_LENGTH) {
+                continue;
+            }
+            for ($i = 0; $i <= $length - self::SEARCH_GRAM_LENGTH; $i++) {
+                $grams[mb_substr($token, $i, self::SEARCH_GRAM_LENGTH)] = true;
+            }
+        }
+        return array_keys($grams);
     }
 
     /**

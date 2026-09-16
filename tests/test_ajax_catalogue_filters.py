@@ -6,8 +6,9 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_catalogue_search_contract_includes_description_and_cached_path():
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
 
-    assert "$qb->expr()->like($qb->createFunction('LOWER(i.description)'), $like)" in service
-    assert "$qb->expr()->like($qb->createFunction('LOWER(f.cached_path)'), $like)" in service
+    assert "searchDocumentForRow" in service
+    assert "(string)($row['description'] ?? '')" in service
+    assert "(string)($row['cached_path'] ?? '')" in service
 
 
 def test_page_controller_exposes_json_catalogue_endpoint_reusing_catalogue_state():

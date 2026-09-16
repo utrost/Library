@@ -33,18 +33,25 @@ def test_q_filter_uses_indexed_exact_title_candidates_before_broad_scan():
     assert "orderBy(" not in candidates
 
 
-def test_q_filter_retains_broad_description_and_path_fallback():
+def test_q_filter_uses_indexed_description_and_path_fallback():
     source = SERVICE.read_text()
     filters = method_body(
         source,
         "private function applyCatalogueFilters(IQueryBuilder $qb, string $userId, array $filters): void",
         "private function applySmartCollectionFilters",
     )
+    search_document = method_body(
+        source,
+        "private function searchDocumentForRow(array $row): string",
+        "private function searchGramsForText",
+    )
 
     fallback = filters.split("if ($exactTitleItemIds !== [])", 1)[1]
-    assert "LOWER(i.description)" in fallback
-    assert "LOWER(f.cached_path)" in fallback
-    assert "%' . $this->escapeLikeParameter($query) . '%" in fallback
+    assert "searchGramCandidateIds" in fallback
+    assert "LOWER(i.description)" not in fallback
+    assert "LOWER(f.cached_path)" not in fallback
+    assert "description" in search_document
+    assert "cached_path" in search_document
 
 
 def test_exact_title_fast_path_only_applies_to_specific_queries():
