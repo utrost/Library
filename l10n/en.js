@@ -260,6 +260,7 @@ OC.L10N.register(
         "File metadata": "File metadata",
         "file-level note...": "file-level note...",
         "Filename-derived title": "Filename-derived title",
+        "Filename-derived metadata": "Filename-derived metadata",
         "Filename/path-derived metadata": "Filename/path-derived metadata",
         "Files indexed": "Files indexed",
         "Files whose metadata extraction needs review.": "Files whose metadata extraction needs review.",
