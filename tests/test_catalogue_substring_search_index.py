@@ -25,7 +25,7 @@ def test_database_declares_catalogue_substring_search_gram_table():
     assert "<name>gram</name>" in unique
 
 
-def test_migration_creates_search_gram_table_and_backfills_it():
+def test_migration_creates_search_gram_table_without_install_time_backfill():
     migration = MIGRATION.read_text()
     release_smoke = RELEASE_SMOKE.read_text()
 
@@ -33,8 +33,10 @@ def test_migration_creates_search_gram_table_and_backfills_it():
     assert "library_search_grams_lookup" in migration
     assert "library_search_grams_item_unique" in migration
     assert "postSchemaChange" in migration
-    assert "backfillSearchGrams" in migration
-    assert "searchGramsForRow" in migration
+    assert "schema-only" in migration
+    assert "backfillSearchGrams" not in migration
+    assert "insertSearchGramRows" not in migration
+    assert "INSERT IGNORE INTO" not in migration
     assert "Version000100Date20260916160000.php" in release_smoke
 
 

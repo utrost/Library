@@ -51,7 +51,13 @@ def test_review_filter_migration_adds_and_backfills_flags_idempotently():
         assert f"'{column}'" in migration
         assert f"'{index}'" in migration
     assert "backfillReviewFilterFlags" in migration
-    assert "UPDATE `*PREFIX*library_items`" not in migration
+    assert "$this->db->getPrefix()" not in migration
+    assert "UPDATE `$items`" not in migration
+    assert "$this->db->getDatabaseProvider() === 'mysql'" in migration
+    assert "UPDATE *PREFIX*library_items i INNER JOIN *PREFIX*library_files f" in migration
+    assert "->from('library_items', 'i')" in migration
+    assert "->innerJoin('i', 'library_files', 'f'" in migration
+    assert "->update('library_items')" in migration
     assert "Version000100Date20260916154000.php" in release_smoke
 
 

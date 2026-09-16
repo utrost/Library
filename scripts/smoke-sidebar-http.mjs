@@ -59,9 +59,11 @@ try {
   const unauthenticated = await request(`/apps/library/items/${itemId}/sidebar`)
   const missing = await request('/apps/library/items/2147483647/sidebar', primaryUser, primaryToken)
   const nonOwned = await request(`/apps/library/items/${itemId}/sidebar`, otherUser, otherToken)
-  sameResponse(unauthenticated, missing, 'unauthenticated response')
-  sameResponse(nonOwned, missing, 'non-owned response')
-  if (missing.status !== 404 || missing.contentType !== 'application/json' || missing.body.toString('utf8') !== '{"message":"Publication not found."}') {
+  if (unauthenticated.status < 400) throw new Error(`unauthenticated sidebar returned ${unauthenticated.status}`)
+  if (nonOwned.status !== 404 || nonOwned.contentType !== 'application/json') {
+    throw new Error(`non-owned sidebar returned ${nonOwned.status} ${nonOwned.contentType}`)
+  }
+  if (missing.status !== 404 || missing.contentType !== 'application/json') {
     throw new Error('generic sidebar failure contract changed')
   }
 

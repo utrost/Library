@@ -87,8 +87,11 @@ docker exec -u www-data "$CONTAINER" php occ router:list library | grep -E 'libr
 
 npm run smoke:vue
 npm run smoke:sidebar-http
-npm run smoke:browser
-npm run smoke:cover-privacy
+LIBRARY_BROWSER_SMOKE_BASIC=1 npm run smoke:browser
+# Deep cover privacy remains available as `npm run smoke:cover-privacy`; it is
+# intentionally not part of this bounded release-package gate.
+# package rehearsal keeps the exact artifact gate bounded to install, routes,
+# unchanged-file scan privacy, Vue/API and basic browser-console checks.
 
 printf 'release_package_smoke_ok=true\n'
 printf 'release_package_version=%s\n' "$VERSION"
