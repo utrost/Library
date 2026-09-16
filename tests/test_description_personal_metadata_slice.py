@@ -32,8 +32,8 @@ def test_description_searches_and_roundtrips_through_import_export():
     package = (ROOT / "package.json").read_text()
     smoke = (ROOT / "scripts" / "smoke-description.mjs").read_text()
 
-    search_block = service.split("$query = mb_strtolower", 1)[1].split("private function applyCatalogueSort", 1)[0]
-    assert "LOWER(i.description)" in search_block
+    search_document = service.split("private function searchDocumentForRow", 1)[1].split("private function searchGramsForText", 1)[0]
+    assert "description" in search_document
     assert "description" in service.split("public function exportCorrectedMetadata", 1)[1].split("public function previewCorrectedMetadataImport", 1)[0]
     changed_block = service.split("private function changedImportFields", 1)[1].split("private function emptyImportPreview", 1)[0]
     assert "foreach (self::PUBLICATION_FIELDS as $field)" in changed_block

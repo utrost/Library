@@ -42,6 +42,14 @@ EXPECTED_TABLES = {
             "library_items_usr_unrevimp_title",
         },
     },
+    "*dbprefix*library_item_search_grams": {
+        "fields": {
+            "id", "user_id", "item_id", "gram",
+        },
+        "indexes": {
+            "library_search_grams_id", "library_search_grams_lookup", "library_search_grams_item_unique",
+        },
+    },
     "*dbprefix*library_item_identifiers": {
         "fields": {
             "id", "item_id", "user_id", "scheme", "display_value", "normalized_value",

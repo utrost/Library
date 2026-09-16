@@ -71,6 +71,7 @@ $i = $p . 'library_items'; $f = $p . 'library_files'; $r = $p . 'library_roots';
 $base = " FROM $i i JOIN $f f ON f.id=i.library_file_id JOIN $r r ON r.id=f.root_id WHERE i.user_id=? AND f.scan_status<>'sidecar' ";
 $out = [];
 $out['q'] = $one("SELECT i.title $base AND i.title<>'' LIMIT 1");
+$out['qSubstring'] = 'labor';
 $out['type'] = $one("SELECT i.publication_type $base AND i.publication_type<>'' LIMIT 1");
 $out['publisher'] = $one("SELECT i.publisher $base AND i.publisher IS NOT NULL AND i.publisher<>'' LIMIT 1");
 $out['publication'] = $one("SELECT i.publication $base AND i.publication IS NOT NULL AND i.publication<>'' LIMIT 1");
@@ -167,6 +168,11 @@ try {
   const discovered = discoverFilterValues()
   metric('catalogue_filter_discovery', 'live_db')
   const unfiltered = await timeCatalogue('catalogue_unfiltered_fast', '/apps/library/catalogue?limit=25', token)
+  if (String(discovered.qSubstring || '').trim()) {
+    const substringUrl = new URL('/apps/library/catalogue?limit=25', upstream)
+    substringUrl.searchParams.set('q', String(discovered.qSubstring).trim())
+    await attempt(() => timeCatalogue('catalogue_filter_q_substring_fast', substringUrl, token))
+  }
   if (String(discovered.folder || '').length >= 3) await attempt(() => timeFolderSuggestions(String(discovered.folder), token))
   else metric('catalogue_folder_suggestions_fast_skipped_reason', JSON.stringify('no representative live folder'))
 
