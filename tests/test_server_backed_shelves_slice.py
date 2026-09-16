@@ -151,13 +151,14 @@ def test_folder_filter_is_parsed_preserved_and_segment_safe():
     saved = read("lib/Service/SavedCollectionService.php")
 
     filters = service.split("private function applyCatalogueFilters", 1)[1].split("private function applySmartCollectionFilters", 1)[0]
+    folder_subquery = service.split("private function folderFileIdSubquery", 1)[1].split("private function applyCatalogueFilters", 1)[0]
     assert "getParam('folder'" in page
     for source in (item, tag, cover, saved):
         assert "'folder'" in source
     assert "$filters['folder']" in filters
     assert "rtrim" in filters
-    assert "f.cached_path" in filters
-    assert "$folder . '/'" in filters
-    assert "expr()->orX" in filters
-    assert "expr()->eq('f.cached_path'" in filters
-    assert "escapeLikeParameter" in filters
+    assert "$this->folderFileIdSubquery($qb, $userId, $folder)" in filters
+    assert "in('i.library_file_id'" in filters
+    assert "`folder_filter`.`cached_path`" in folder_subquery
+    assert "$folder . '/'" in folder_subquery
+    assert "escapeLikeParameter" in folder_subquery
