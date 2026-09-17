@@ -45,6 +45,8 @@ def test_real_scale_pilot_script_is_wired_and_cleans_up():
     assert '"smoke:real-scale": "node scripts/smoke-real-scale-pilot.mjs"' in package
     assert "LibraryRealScale-${count}" in script
     assert "REAL_SCALE_SOURCES" in script
+    assert "const containerStageDir = `/tmp/${rootName}`" in script
+    assert "cp -a ${containerStageDir}/. ${dataDir}/" in script
     assert "sourceManifest" in script
     assert "stageRealFiles" in script
     assert "disableOtherRoots" in script

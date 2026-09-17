@@ -21,7 +21,8 @@ def test_alpha_159_real_gates_are_complete_but_deferred_gates_remain_explicit():
     assert "727 Python tests, 9 PHP runtime programs, 26 Vitest tests" in readme
     assert "`release_package_smoke_ok=true`" in readme
     assert "`No upgrade required`" in readme
-    assert "fresh-database migration rehearsal remains pending" in readme
+    assert "schema-only fresh-install rehearsal proved package enablement and migration creation" in readme
+    assert "fresh-database migration rehearsal remains pending" not in readme
     assert "performance instrumentation is still pending" not in readme
     assert "Alpha.159 exact-package/live evidence is complete" in readiness
     assert "Alpha.159 verification is complete" in risk
@@ -33,8 +34,10 @@ def test_alpha_159_real_gates_are_complete_but_deferred_gates_remain_explicit():
     for overstated_boundary in ("two matching", "jointly validated", "compare/reject boundary", "either observation"):
         assert overstated_boundary not in combined
     assert "4287ec3f7a798ba6e6000900ca69aee1540b163146f53262a05e49095718c5d7" in combined
-    for deferred in ("fresh-database migration rehearsal", "realistic scale data gates", "signed package and App Store submission", "formal Trust-and-scale phase closure"):
+    for deferred in ("signed package and App Store submission", "formal Trust-and-scale phase closure"):
         assert deferred in combined
+    assert "1,000-publication balanced synthetic mixed-corpus rehearsal complete" in readiness
+    assert "comparable real-world mixed corpus" in readiness
 
     stale_pending_claims = (
         "Exact alpha.158 package, checksum, install, migration, 40-file scan, API, and browser evidence is pending.",
