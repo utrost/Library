@@ -212,6 +212,21 @@
     return runMetadataAutosave(form, request)
   }
 
+  function setupSubmitOnChangeControls(root) {
+    const scope = root || document
+    const controls = scope.querySelectorAll('#library-app.library-item-detail [data-library-submit-on-change]')
+    controls.forEach((control) => {
+      if (control.dataset.librarySubmitOnChangeEnhanced === 'true') return
+      control.dataset.librarySubmitOnChangeEnhanced = 'true'
+      control.addEventListener('change', () => {
+        const form = control.form
+        if (!form) return
+        if (typeof form.requestSubmit === 'function') form.requestSubmit()
+        else form.submit()
+      })
+    })
+  }
+
   function setupMetadataAutosave(root) {
     const scope = root || document
     const forms = scope.querySelectorAll('#library-app.library-item-detail form.library-detail-edit-form--autosave')
@@ -319,6 +334,9 @@
     setupDetailStarToggles,
     applyState,
   }
+  window.LibraryDetailSubmitOnChange = {
+    setupSubmitOnChangeControls,
+  }
   window.LibraryDetailMetadataAutosave = {
     setupMetadataAutosave,
     submitMetadataAutosave,
@@ -326,11 +344,13 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       setupDetailStarToggles(document)
+      setupSubmitOnChangeControls(document)
       setupMetadataAutosave(document)
       setupCreatorChipEditors(document)
     }, { once: true })
   } else {
     setupDetailStarToggles(document)
+    setupSubmitOnChangeControls(document)
     setupMetadataAutosave(document)
     setupCreatorChipEditors(document)
   }

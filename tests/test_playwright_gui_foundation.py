@@ -35,16 +35,20 @@ def test_gui_catalogue_registers_initial_workflows():
 
     for marker in (
         "catalogue-search-detail",
+        "catalogue-filter-chips-clear-all",
+        "details-metadata-edit-persistence",
         "settings-folder-picker-existing-user",
         "mobile-catalogue-filters",
         "tags: [catalogue, detail, smoke]",
+        "tags: [catalogue, filters, regression, desktop]",
+        "tags: [details, metadata, smoke, mutation]",
         "tags: [settings, folder-picker, regression]",
         "tags: [catalogue, filters, mobile, smoke]",
     ):
         assert marker in catalogue
 
     files = [line.split(":", 1)[1].strip() for line in catalogue.splitlines() if line.strip().startswith("file:")]
-    assert len(files) == 3
+    assert len(files) == 5
     assert len(set(files)) == len(files)
     for relative_path in files:
         assert (ROOT / relative_path).is_file(), relative_path
@@ -52,10 +56,12 @@ def test_gui_catalogue_registers_initial_workflows():
 
 def test_gui_specs_attach_error_listeners_before_login_and_scope_known_exception():
     catalogue = (ROOT / "tests/gui/catalogue/catalogue-search-detail.spec.ts").read_text(encoding="utf-8")
+    filters = (ROOT / "tests/gui/catalogue/catalogue-filter-chips-clear-all.spec.ts").read_text(encoding="utf-8")
+    metadata = (ROOT / "tests/gui/details/metadata-edit-persistence.spec.ts").read_text(encoding="utf-8")
     settings = (ROOT / "tests/gui/settings/folder-picker-existing-user.spec.ts").read_text(encoding="utf-8")
     mobile = (ROOT / "tests/gui/mobile/mobile-catalogue-filters.spec.ts").read_text(encoding="utf-8")
 
-    for source in (catalogue, settings, mobile):
+    for source in (catalogue, filters, metadata, settings, mobile):
         assert source.index("collectBrowserFailures(page") < source.index("await login(page)")
         assert "assertKnownNextcloudLoginFailuresAndClear(browserFailures)" in source
     assert "FilePicker: No nodes selected" in settings
@@ -72,6 +78,10 @@ def test_disposable_rehearsal_runs_playwright_with_ephemeral_credentials():
     assert 'PW_USER="$ADMIN_USER"' in smoke
     assert 'PW_PASSWORD="$ADMIN_PASS"' in smoke
     assert 'PW_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS"' in smoke
+    assert 'PW_ROOT_PATH="$GUI_ROOT_PATH"' in smoke
+    assert 'PW_ITEM_ID="$GUI_ITEM_ID"' in smoke
+    assert 'PW_SEARCH_TITLE="$GUI_SEARCH_TITLE"' in smoke
+    assert "source_tree_unchanged_after_gui=true" in smoke
     assert "npm run test:gui" in smoke
     assert 'LIBRARY_BROWSER_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS"' in smoke
     assert "playwright_gui_ok=true" in smoke

@@ -89,6 +89,35 @@ describe('Library detail-page star toggle', () => {
   })
 })
 
+describe('Library detail CSP-safe change submission', () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <main id="library-app" class="library-item-detail">
+        <form>
+          <select name="workflowStatus" data-library-submit-on-change>
+            <option value="reading">Reading</option>
+            <option value="finished">Finished</option>
+          </select>
+        </form>
+      </main>`
+    window.LibraryDetailSubmitOnChange = undefined
+  })
+
+  it('submits a workflow form from an external listener without an inline handler', () => {
+    loadDetailStarScript()
+    const form = document.querySelector('form')
+    const requestSubmit = vi.spyOn(form, 'requestSubmit').mockImplementation(() => {})
+    const select = document.querySelector('select')
+
+    expect(select.hasAttribute('onchange')).toBe(false)
+    window.LibraryDetailSubmitOnChange.setupSubmitOnChangeControls(document)
+    select.value = 'finished'
+    select.dispatchEvent(new Event('change', { bubbles: true }))
+
+    expect(requestSubmit).toHaveBeenCalledTimes(1)
+  })
+})
+
 describe('Library detail metadata autosave request ownership', () => {
   beforeEach(() => {
     document.body.innerHTML = `
