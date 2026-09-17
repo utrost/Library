@@ -60,11 +60,19 @@ function discoverFilterValues() {
   const php = String.raw`
 $CONFIG = [];
 require '/var/www/html/config/config.php';
-$host = (string)($CONFIG['dbhost'] ?? '');
-$port = null;
-if (preg_match('/^(.+):(\d+)$/', $host, $m)) { $host = $m[1]; $port = $m[2]; }
-$dsn = 'mysql:host=' . $host . ';dbname=' . $CONFIG['dbname'] . ';charset=utf8mb4' . ($port ? ';port=' . $port : '');
-$pdo = new PDO($dsn, $CONFIG['dbuser'], $CONFIG['dbpassword'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$dbtype = (string)($CONFIG['dbtype'] ?? 'mysql');
+if ($dbtype === 'sqlite3') {
+  $dsn = 'sqlite:' . rtrim((string)$CONFIG['datadirectory'], '/') . '/owncloud.db';
+  $pdo = new PDO($dsn, null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+  $objectIdCast = 'CAST(m.objectid AS INTEGER)';
+} else {
+  $host = (string)($CONFIG['dbhost'] ?? '');
+  $port = null;
+  if (preg_match('/^(.+):(\d+)$/', $host, $m)) { $host = $m[1]; $port = $m[2]; }
+  $dsn = 'mysql:host=' . $host . ';dbname=' . $CONFIG['dbname'] . ';charset=utf8mb4' . ($port ? ';port=' . $port : '');
+  $pdo = new PDO($dsn, $CONFIG['dbuser'], $CONFIG['dbpassword'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+  $objectIdCast = 'CAST(m.objectid AS UNSIGNED)';
+}
 $p = (string)($CONFIG['dbtableprefix'] ?? 'oc_'); $u = $argv[1];
 $one = function ($sql, $params = []) use ($pdo, $u) { $s = $pdo->prepare($sql); $s->execute(array_merge([$u], $params)); $v = $s->fetchColumn(); return $v === false ? '' : trim((string)$v); };
 $i = $p . 'library_items'; $f = $p . 'library_files'; $r = $p . 'library_roots'; $x = $p . 'library_item_facets';
@@ -75,16 +83,17 @@ $out['qSubstring'] = 'labor';
 $out['type'] = $one("SELECT i.publication_type $base AND i.publication_type<>'' LIMIT 1");
 $out['publisher'] = $one("SELECT i.publisher $base AND i.publisher IS NOT NULL AND i.publisher<>'' LIMIT 1");
 $out['publication'] = $one("SELECT i.publication $base AND i.publication IS NOT NULL AND i.publication<>'' LIMIT 1");
-$out['year'] = substr($one("SELECT i.publication_date $base AND i.publication_date REGEXP '^[0-9]{4}' LIMIT 1"), 0, 4);
+$out['year'] = substr($one("SELECT i.publication_date $base AND i.publication_date IS NOT NULL AND i.publication_date<>'' LIMIT 1"), 0, 4);
 $out['creator'] = $one("SELECT i.creators $base AND i.creators IS NOT NULL AND i.creators<>'' LIMIT 1");
 $out['format'] = $one("SELECT LOWER(f.extension) $base AND f.extension IS NOT NULL AND f.extension<>'' LIMIT 1");
 $out['shelf'] = $one("SELECT COALESCE(NULLIF(r.label,''),r.path) $base LIMIT 1");
-$out['folder'] = $one("SELECT CASE WHEN LOCATE('/',f.cached_path)>0 THEN LEFT(f.cached_path,LENGTH(f.cached_path)-LOCATE('/',REVERSE(f.cached_path))) ELSE f.cached_path END $base AND f.cached_path<>'' LIMIT 1");
+$cachedPath = $one("SELECT f.cached_path $base AND f.cached_path<>'' LIMIT 1");
+$out['folder'] = $cachedPath === '' ? '' : str_replace('\\\\', '/', dirname($cachedPath));
 $out['status'] = $one("SELECT f.scan_status $base AND f.scan_status<>'' LIMIT 1");
 $out['workflowStatus'] = $one("SELECT i.workflow_status $base AND i.workflow_status IS NOT NULL AND i.workflow_status<>'' LIMIT 1");
 $out['subject'] = $one("SELECT x.facet_value FROM $x x WHERE x.user_id=? AND x.facet_type='subject' AND x.facet_value<>'' LIMIT 1");
 $out['classification'] = $one("SELECT x.facet_value FROM $x x WHERE x.user_id=? AND x.facet_type='classification' AND x.facet_value<>'' LIMIT 1");
-$out['tag'] = $one("SELECT t.name FROM {$p}systemtag_object_mapping m JOIN {$p}systemtag t ON t.id=m.systemtagid JOIN $f f ON f.file_id=CAST(m.objectid AS UNSIGNED) WHERE f.user_id=? AND m.objecttype='files' LIMIT 1");
+$out['tag'] = $one("SELECT t.name FROM {$p}systemtag_object_mapping m JOIN {$p}systemtag t ON t.id=m.systemtagid JOIN $f f ON f.file_id=$objectIdCast WHERE f.user_id=? AND m.objecttype='files' LIMIT 1");
 $checks = [
  'starred'=>"i.starred=1", 'needsMetadata'=>"f.scan_status='metadata_error' OR IFNULL(i.creators,'')='' OR IFNULL(i.publication,'')='' OR IFNULL(i.publication_date,'')='' OR i.metadata_source='filename-pattern'",
  'coverReview'=>"IFNULL(i.cover_override_url,'')='' AND (f.scan_status='metadata_error' OR LOWER(f.extension) NOT IN ('pdf','epub','cbz'))",
@@ -112,9 +121,9 @@ async function timeCatalogue(label, path, token, enforceBudget = true) {
   if (enforceBudget && url.searchParams.get('hydrate') === '1') throw new Error(`${label} fast path must not use hydrate=1`)
   const started = performance.now()
   const response = await fetch(url, { headers: authHeaders(token) })
-  const elapsedSeconds = (performance.now() - started) / 1000
   const contentType = response.headers.get('content-type') || ''
   const payload = contentType.includes('json') ? await response.json().catch(() => null) : null
+  const elapsedSeconds = (performance.now() - started) / 1000
   metric(`${label}_http_status`, response.status)
   metric(`${label}_elapsed_seconds`, elapsedSeconds.toFixed(3))
   metric(`${label}_facets_deferred`, payload?.facetsDeferred === true)
@@ -127,8 +136,8 @@ async function timeCatalogue(label, path, token, enforceBudget = true) {
 async function timeDetails(path, token) {
   const started = performance.now()
   const response = await fetch(new URL(path, upstream), { headers: authHeaders(token, 'text/html') })
-  const elapsedSeconds = (performance.now() - started) / 1000
   const html = await response.text()
+  const elapsedSeconds = (performance.now() - started) / 1000
   metric('catalogue_details_http_status', response.status)
   metric('catalogue_details_elapsed_seconds', elapsedSeconds.toFixed(3))
   metric('catalogue_details_marker', html.includes('library-item-detail'))
@@ -141,8 +150,8 @@ async function timeFolderSuggestions(folder, token) {
   url.searchParams.set('folderSearch', folder.slice(0, Math.max(3, Math.min(folder.length, 24))))
   const started = performance.now()
   const response = await fetch(url, { headers: authHeaders(token) })
-  const elapsedSeconds = (performance.now() - started) / 1000
   const payload = await response.json().catch(() => null)
+  const elapsedSeconds = (performance.now() - started) / 1000
   metric('catalogue_folder_suggestions_fast_http_status', response.status)
   metric('catalogue_folder_suggestions_fast_elapsed_seconds', elapsedSeconds.toFixed(3))
   metric('catalogue_folder_suggestions_fast_count', Array.isArray(payload?.folders) ? payload.folders.length : -1)

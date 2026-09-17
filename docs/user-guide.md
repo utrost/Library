@@ -8,6 +8,25 @@ Library is a Nextcloud-native catalogue for publication-like files that already 
 
 This guide describes the implemented state of the app, not the long-term design.
 
+## Fresh install and first scan
+
+Library currently supports Nextcloud 34. A Nextcloud administrator installs the packaged archive into the server's `custom_apps` directory and enables it with `occ app:enable library`; the [README install section](../README.md#install) contains the command-line example. Confirm that **Library** appears in the app navigation before asking users to configure folders.
+
+For the first catalogue:
+
+1. Upload or synchronize publication files into Nextcloud Files. Supported primary formats are PDF, EPUB, CBZ and standalone OPF.
+2. Open **Library settings** from the Library catalogue.
+3. Add a root using the same path shown in Nextcloud Files, give it a useful label, and leave it enabled.
+4. Select **Scan this root**. The request is queued; a working background-job runner must execute the scan.
+5. Watch the latest scan status. A completed scan reports indexed, missing and metadata-error counts without changing the source files.
+6. Return to **Library** and check the item count. Open a few PDF, EPUB, CBZ and OPF records, then try search, filters and the detail sidebar.
+
+Start with one bounded folder rather than an entire storage mount. After the result looks correct, add further roots or scan all enabled roots. Rescanning refreshes Library-owned index and metadata candidates while preserving manual Library edits and the original files.
+
+Administrators should ensure Nextcloud background jobs use **Cron**, not AJAX, for larger collections. Keep normal Nextcloud database and data-directory backups; Library's tables can be rebuilt by scanning, but manual catalogue corrections should also be exported from **Library settings**.
+
+See [FAQ and troubleshooting](faq.md) when the app is absent, a scan stays queued, counts differ from the number of files, metadata is sparse, or the catalogue feels slow.
+
 ## Who this guide is for
 
 - **Reader / collector:** wants to browse and open books, scans, manuals, comics, magazines or catalogues already stored in Nextcloud.

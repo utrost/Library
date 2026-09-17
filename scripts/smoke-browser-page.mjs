@@ -48,6 +48,7 @@ const container = process.env.NC_CONTAINER || 'nextcloud'
 const chromeBin = process.env.CHROME_BIN || 'google-chrome'
 const tokenName = `hermes-library-browser-smoke-${Date.now()}`
 const chromePort = Number(process.env.CHROME_DEBUG_PORT || 19223)
+const expectedBasicCards = Number(process.env.LIBRARY_BROWSER_EXPECTED_CARDS || 1)
 const inboundAuthorization = randomBytes(32).toString('base64url')
 const authenticatedFetch = (url, init = {}) => fetch(url, {
   ...init,
@@ -1218,6 +1219,7 @@ async function runBrowserSmoke(proxyBase, proxy) {
     await client.send('Page.navigate', { url })
     await new Promise((resolve) => setTimeout(resolve, 2500))
     if (process.env.LIBRARY_BROWSER_SMOKE_BASIC === '1') {
+      if (!Number.isInteger(expectedBasicCards) || expectedBasicCards < 1) throw new Error('LIBRARY_BROWSER_EXPECTED_CARDS must be a positive integer')
       const basicResult = await client.send('Runtime.evaluate', {
         returnByValue: true,
         expression: `(() => ({
@@ -1229,13 +1231,48 @@ async function runBrowserSmoke(proxyBase, proxy) {
         }))()`,
       })
       const basic = unwrapCdpEvaluateResponse(basicResult, { phase: 'basic-browser-smoke' })
+      const sidebarResult = await client.send('Runtime.evaluate', {
+        returnByValue: true,
+        awaitPromise: true,
+        expression: `(async () => {
+          const waitFor = async (predicate, timeoutMs = 8000) => {
+            const started = Date.now()
+            while (Date.now() - started < timeoutMs) {
+              if (predicate()) return true
+              await new Promise((resolve) => setTimeout(resolve, 50))
+            }
+            return false
+          }
+          const opener = document.querySelector('.library-cover-card .library-cover-link')
+          if (!opener) return { opened: false, rendered: false, closed: false }
+          opener.click()
+          const rendered = await waitFor(() => {
+            const sidebar = document.querySelector('#app-sidebar-vue')
+            return Boolean(sidebar && getComputedStyle(sidebar).display !== 'none' && sidebar.querySelector('.library-detail-drawer-facts'))
+          })
+          const sidebar = document.querySelector('#app-sidebar-vue')
+          const opened = Boolean(sidebar && getComputedStyle(sidebar).display !== 'none')
+          const close = sidebar?.querySelector('.app-sidebar__close')
+          close?.click()
+          const closed = await waitFor(() => {
+            const current = document.querySelector('#app-sidebar-vue')
+            return !current || getComputedStyle(current).display === 'none'
+          })
+          return { opened, rendered, closed }
+        })()`,
+      })
+      const sidebar = unwrapCdpEvaluateResponse(sidebarResult, { phase: 'basic-browser-sidebar-smoke' })
       const consoleErrors = client.events.filter((event) => classifyBrowserEvent(event).fatal)
       print('browser_basic_http_200', basic.status === 200)
       print('browser_basic_vue_mounted', basic.mounted === true)
       print('browser_basic_initial_state', basic.initialState === true)
       print('browser_basic_cards', basic.cards)
+      print('browser_basic_sidebar_opened', sidebar.opened === true)
+      print('browser_basic_sidebar_rendered', sidebar.rendered === true)
+      print('browser_basic_sidebar_closed', sidebar.closed === true)
       print('browser_console_errors', consoleErrors.length)
-      if (basic.status !== 200 || basic.mounted !== true || basic.initialState !== true || consoleErrors.length > 0) {
+      if (basic.status !== 200 || basic.mounted !== true || basic.initialState !== true || basic.cards !== expectedBasicCards
+        || sidebar.opened !== true || sidebar.rendered !== true || sidebar.closed !== true || consoleErrors.length > 0) {
         if (consoleErrors.length > 0) console.log('browser_console_error_sample=' + JSON.stringify(consoleErrors.slice(0, 3)))
         throw new Error('basic_browser_smoke_failed')
       }
@@ -2572,7 +2609,11 @@ try {
     }
     const remaining = runOcc(['user:auth-tokens:list', user]).includes(tokenName) ? 1 : 0
     print('temp_token_remaining', remaining)
+    print('browser_temp_token_remaining', remaining)
+    if (remaining !== 0) process.exitCode = 1
   } catch {
     print('temp_token_cleanup_error', true)
+    print('browser_temp_token_cleanup_error', true)
+    process.exitCode = 1
   }
 }
