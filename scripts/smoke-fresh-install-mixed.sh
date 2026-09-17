@@ -33,6 +33,7 @@ for command in docker node npm python3 curl sha256sum tar; do require_command "$
     echo "LIBRARY_FRESH_MIXED_COUNT must be a positive multiple of four" >&2
     exit 1
 }
+EXPECTED_BROWSER_CARDS=$(( COUNT < 100 ? COUNT : 100 ))
 [[ "$ADMIN_USER" =~ ^[A-Za-z0-9._@-]+$ ]] || { echo "LIBRARY_FRESH_USER contains unsupported characters" >&2; exit 1; }
 
 cd "$ROOT"
@@ -76,6 +77,7 @@ docker exec -u www-data "$CONTAINER" php occ maintenance:install \
     --admin-user "$ADMIN_USER" \
     --admin-pass "$ADMIN_PASS" \
     --data-dir /var/www/html/data
+docker exec -u www-data "$CONTAINER" php occ config:app:set --value false firstrunwizard wizard_enabled >/dev/null
 
 PORT="$(docker port "$CONTAINER" 80/tcp | python3 -c 'import sys; print(sys.stdin.read().strip().rsplit(":", 1)[1])')"
 BASE_URL="http://127.0.0.1:$PORT"
@@ -168,6 +170,34 @@ printf 'source_tree_sha256_after=%s\n' "$SOURCE_HASH_AFTER"
 [[ "$SOURCE_HASH_BEFORE" == "$SOURCE_HASH_AFTER" ]] || { echo 'source_tree_unchanged=false' >&2; exit 1; }
 echo 'source_tree_unchanged=true'
 
+GUI_ROOT_PATH="$(python3 - "$RUN_LOG" <<'PY'
+import sys
+from pathlib import Path
+for line in Path(sys.argv[1]).read_text().splitlines():
+    if line.startswith('stage_root='):
+        print(line.split('=', 1)[1])
+        break
+else:
+    raise SystemExit('stage_root marker missing')
+PY
+)"
+GUI_SEARCH_TITLE="$(docker exec -u www-data "$CONTAINER" php -r '
+require "/var/www/html/config/config.php";
+$pdo = new PDO("sqlite:" . $CONFIG["datadirectory"] . "/owncloud.db"); $p = $CONFIG["dbtableprefix"] ?? "oc_";
+$stmt = $pdo->query("SELECT i.title FROM {$p}library_items i INNER JOIN {$p}library_files f ON i.library_file_id=f.id WHERE f.extension=\"epub\" ORDER BY i.title ASC LIMIT 1");
+echo (string)$stmt->fetchColumn();
+')"
+[[ "$GUI_ROOT_PATH" == /* ]] || { echo 'Playwright root fixture path missing' >&2; exit 1; }
+[[ -n "$GUI_SEARCH_TITLE" ]] || { echo 'Playwright EPUB fixture title missing' >&2; exit 1; }
+PW_BASE_URL="$BASE_URL" \
+PW_USER="$ADMIN_USER" \
+PW_PASSWORD="$ADMIN_PASS" \
+PW_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS" \
+PW_ROOT_PATH="$GUI_ROOT_PATH" \
+PW_SEARCH_TITLE="$GUI_SEARCH_TITLE" \
+npm run test:gui | tee -a "$RUN_LOG"
+echo 'playwright_gui_ok=true' | tee -a "$RUN_LOG"
+
 docker exec -u www-data "$CONTAINER" php -r '
 require "/var/www/html/config/config.php";
 $pdo = new PDO("sqlite:" . $CONFIG["datadirectory"] . "/owncloud.db"); $p = $CONFIG["dbtableprefix"] ?? "oc_";
@@ -179,7 +209,7 @@ LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS="${LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS:-
 LIBRARY_CATALOGUE_MEASURE_HYDRATE=1 npm run smoke:catalogue-performance | tee -a "$RUN_LOG"
 npm run smoke:vue | tee -a "$RUN_LOG"
 npm run smoke:sidebar-http | tee -a "$RUN_LOG"
-LIBRARY_BROWSER_SMOKE_BASIC=1 LIBRARY_BROWSER_EXPECTED_CARDS=100 npm run smoke:browser | tee -a "$RUN_LOG"
+LIBRARY_BROWSER_SMOKE_BASIC=1 LIBRARY_BROWSER_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS" npm run smoke:browser | tee -a "$RUN_LOG"
 
 grep -q 'catalogue_temp_token_remaining=0' "$RUN_LOG"
 grep -q 'vue_temp_token_remaining=0' "$RUN_LOG"

@@ -97,6 +97,8 @@ forbidden_parts = {
     "scripts",
     "src",
     "coverage",
+    "playwright-report",
+    "test-results",
     "__pycache__",
 }
 forbidden_files = {
@@ -105,6 +107,7 @@ forbidden_files = {
     "RELEASE.md",
     "vite.config.js",
     "vitest.config.js",
+    "playwright.config.ts",
     "phpunit.xml",
     ".env",
     "private.key",
