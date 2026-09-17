@@ -415,7 +415,7 @@ describe('Library catalogue Vue app', () => {
       'Personal / display',
     ])
     expect(panel.get('.library-mobile-filter-primary').text()).toBe('Show 842 items')
-    expect(panel.get('.library-mobile-filter-clear').attributes('href')).toBe('?')
+    expect(panel.get('.library-mobile-filter-clear').attributes('href')).toBe(state.catalogueRootUrl)
   })
 
   it('focuses the mobile search field when opening the filter panel and submits via the fast catalogue path', async () => {
@@ -757,6 +757,103 @@ describe('Library catalogue Vue app', () => {
     ))
     expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Type"]').exists()).toBe(false)
     expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Format"]').exists()).toBe(true)
+  })
+
+  it('clears catalogue selection filters together while preserving sort and view', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...state,
+        activeFilters: { ...state.activeFilters, sort: 'recent', view: 'gallery' },
+      }),
+    })
+    const wrapper = mount(App, { attachTo: document.body, props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: {
+        ...state.activeFilters,
+        q: 'bauhaus',
+        type: 'book',
+        format: 'epub',
+        sort: 'recent',
+        view: 'gallery',
+      },
+      cataloguePagination: { ...state.cataloguePagination, page: 3 },
+    } } })
+
+    const clearAll = wrapper.get('.library-active-filter-clear-all')
+    clearAll.element.focus()
+    expect(document.activeElement).toBe(clearAll.element)
+    expect(clearAll.attributes('href')).toBe(`${state.catalogueRootUrl}?sort=recent&view=gallery`)
+    await clearAll.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(document.activeElement).toBe(wrapper.get('#library-catalogue-heading').element)
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?sort=recent&view=gallery',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+    expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Search"]').exists()).toBe(false)
+    expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Type"]').exists()).toBe(false)
+    expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Format"]').exists()).toBe(false)
+    expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Sort"]').exists()).toBe(true)
+    expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: View mode"]').exists()).toBe(true)
+  })
+
+  it('clears review selection filters through AJAX while preserving sort and view', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ...state,
+        activeFilters: { ...state.activeFilters, sort: 'recent', view: 'list' },
+      }),
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: {
+        ...state.activeFilters,
+        scannerConflicts: '1',
+        type: 'book',
+        sort: 'recent',
+        view: 'list',
+      },
+    } } })
+
+    await wrapper.get('.library-active-filter-clear-all').trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?sort=recent&view=list',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+  })
+
+  it.each(['home', 'shelves'])('clears filters from %s by navigating to the canonical catalogue', async (surface) => {
+    global.fetch = vi.fn()
+    const submissions = []
+    const nativeSubmit = vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(function () {
+      submissions.push({ action: this.getAttribute('action'), params: Object.fromEntries(new FormData(this)) })
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      surface,
+      activeFilters: {
+        ...state.activeFilters,
+        type: 'book',
+        format: 'epub',
+        sort: 'recent',
+        view: 'gallery',
+      },
+    } } })
+
+    await wrapper.get('.library-active-filter-clear-all').trigger('click')
+
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(submissions).toEqual([{
+      action: state.catalogueRootUrl,
+      params: { sort: 'recent', view: 'gallery' },
+    }])
+    nativeSubmit.mockRestore()
   })
 
   it('preserves hydrated facet choices when a fast catalogue refresh defers facets', async () => {
@@ -2429,6 +2526,6 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).toContain('No matches for the current filters')
     expect(wrapper.text()).toContain('Clear search')
     expect(wrapper.text()).toContain('Clear all filters')
-    expect(wrapper.find('a[href="?format=pdf"]').exists()).toBe(true)
+    expect(wrapper.find(`a[href="${state.catalogueRootUrl}?format=pdf"]`).exists()).toBe(true)
   })
 })
