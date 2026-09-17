@@ -12,7 +12,8 @@ def test_cover_controller_extracts_first_cbz_image_before_placeholder():
     assert "image/jpeg" in controller
     assert "image/png" in controller
     assert "image/webp" in controller
-    assert "getFromIndex" in controller
+    assert "readZipEntryBounded" in controller
+    assert "MAX_EXTRACTED_BYTES" in controller
 
 
 def test_cover_controller_prefers_preview_then_cbz_first_image_then_svg_placeholder():
