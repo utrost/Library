@@ -231,14 +231,36 @@ class CoverController extends Controller {
                 return null;
             }
 
-            $container = $zip->getFromName('META-INF/container.xml');
+            if ($zip->numFiles > ArchiveCoverService::MAX_ENTRY_COUNT) {
+                $zip->close();
+                return null;
+            }
+            $sourceBytes = max(1, (int)filesize($temporaryPath));
+            if (!$this->zipArchiveWithinBudget($zip, $sourceBytes)) {
+                $zip->close();
+                return null;
+            }
+            $containerStat = $zip->statName('META-INF/container.xml');
+            if (!$this->zipEntryAllowed($containerStat, $sourceBytes, ArchiveCoverService::MAX_METADATA_BYTES)) {
+                $zip->close();
+                return null;
+            }
+            $container = $this->archiveCoverService->readZipEntryBounded($zip, 'META-INF/container.xml', ArchiveCoverService::MAX_METADATA_BYTES);
             if (!is_string($container) || !preg_match("/full-path=[\"']([^\"']+)[\"']/i", $container, $containerMatch)) {
                 $zip->close();
                 return null;
             }
 
-            $opfPath = $containerMatch[1];
-            $opf = $zip->getFromName($opfPath);
+            $opfPath = html_entity_decode($containerMatch[1], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $opfStat = $zip->statName($opfPath);
+            $remainingMetadataBytes = ArchiveCoverService::MAX_METADATA_BYTES - strlen($container);
+            if (!$this->archiveCoverService->isSafeEntryName($opfPath)
+                || $remainingMetadataBytes < 1
+                || !$this->zipEntryAllowed($opfStat, $sourceBytes, $remainingMetadataBytes)) {
+                $zip->close();
+                return null;
+            }
+            $opf = $this->archiveCoverService->readZipEntryBounded($zip, $opfPath, $remainingMetadataBytes);
             if (!is_string($opf)) {
                 $zip->close();
                 return null;
@@ -266,17 +288,33 @@ class CoverController extends Controller {
                 return null;
             }
 
-            $coverPath = ltrim(dirname($opfPath) . '/' . $coverHref, './');
-            $content = $zip->getFromName($coverPath);
+            if (str_starts_with($coverHref, '/') || str_starts_with($coverHref, '\\')
+                || preg_match('/[\x00-\x1F\x7F]/', $coverHref) === 1) {
+                $zip->close();
+                return null;
+            }
+
+            $coverPath = $this->safeArchiveRelativePath(dirname($opfPath) . '/' . $coverHref);
+            if ($coverPath === null) {
+                $zip->close();
+                return null;
+            }
+            $coverStat = $zip->statName($coverPath);
+            if (!$this->zipEntryAllowed($coverStat, $sourceBytes, ArchiveCoverService::MAX_EXTRACTED_BYTES)) {
+                $zip->close();
+                return null;
+            }
+            $content = $this->archiveCoverService->readZipEntryBounded($zip, $coverPath, ArchiveCoverService::MAX_EXTRACTED_BYTES);
             $zip->close();
             if (!is_string($content) || $content === '') {
                 return null;
             }
-
-            $mimeType = $coverMimeType ?: $this->coverMimeType($coverPath) ?: 'image/jpeg';
-            if (!str_starts_with($mimeType, 'image/')) {
+            $validated = $this->archiveCoverService->validateExtractedCover($content);
+            if ($validated === null) {
                 return null;
             }
+            $content = $validated['content'];
+            $mimeType = $validated['mimeType'];
 
             return $this->coverResponse(
                 $content,
@@ -327,15 +365,34 @@ class CoverController extends Controller {
                 return null;
             }
 
+            if ($zip->numFiles > ArchiveCoverService::MAX_ENTRY_COUNT) {
+                $zip->close();
+                return null;
+            }
+            $sourceBytes = max(1, (int)filesize($temporaryPath));
+            if (!$this->zipArchiveWithinBudget($zip, $sourceBytes)) {
+                $zip->close();
+                return null;
+            }
+
             $imageEntries = [];
             for ($index = 0; $index < $zip->numFiles; $index++) {
                 $name = $zip->getNameIndex($index);
-                if (!is_string($name) || str_ends_with($name, '/')) {
+                if (!is_string($name) || !$this->archiveCoverService->isSafeEntryName($name)) {
+                    $zip->close();
+                    return null;
+                }
+                if (str_ends_with($name, '/')) {
                     continue;
+                }
+                $stat = $zip->statIndex($index);
+                if (!$this->zipEntryAllowed($stat, $sourceBytes, ArchiveCoverService::MAX_UNCOMPRESSED_BYTES)) {
+                    $zip->close();
+                    return null;
                 }
                 $mimeType = $this->coverMimeType($name);
                 if ($mimeType !== null) {
-                    $imageEntries[$name] = ['index' => $index, 'mimeType' => $mimeType];
+                    $imageEntries[$name] = ['index' => $index, 'mimeType' => $mimeType, 'stat' => $stat];
                 }
             }
 
@@ -346,16 +403,25 @@ class CoverController extends Controller {
 
             uksort($imageEntries, 'strnatcasecmp');
             $first = reset($imageEntries);
-            $content = $zip->getFromIndex((int)$first['index']);
+            $firstName = $zip->getNameIndex((int)$first['index']);
+            if (!is_string($firstName) || !$this->zipEntryAllowed($first['stat'], $sourceBytes, ArchiveCoverService::MAX_EXTRACTED_BYTES)) {
+                $zip->close();
+                return null;
+            }
+            $content = $this->archiveCoverService->readZipEntryBounded($zip, $firstName, ArchiveCoverService::MAX_EXTRACTED_BYTES);
             $zip->close();
             if (!is_string($content) || $content === '') {
                 return null;
             }
+            $validated = $this->archiveCoverService->validateExtractedCover($content);
+            if ($validated === null) {
+                return null;
+            }
 
             return $this->coverResponse(
-                $content,
-                'library-cover-' . $itemId . '.' . $this->coverExtension((string)$first['mimeType']),
-                (string)$first['mimeType'],
+                $validated['content'],
+                'library-cover-' . $itemId . '.' . $this->coverExtension($validated['mimeType']),
+                $validated['mimeType'],
                 'cbz-first-image',
                 'cbz-first-image',
                 3600,
@@ -427,20 +493,68 @@ class CoverController extends Controller {
 
     private function copyFileToTemporaryPath(File $file, string $temporaryPath): bool {
         $source = $file->fopen('r');
-        $target = fopen($temporaryPath, 'w');
-        if (!is_resource($source) || !is_resource($target)) {
-            if (is_resource($source)) {
-                fclose($source);
-            }
-            if (is_resource($target)) {
-                fclose($target);
-            }
+        if (!is_resource($source)) {
             return false;
         }
-        stream_copy_to_stream($source, $target);
-        fclose($source);
-        fclose($target);
+        try {
+            return $this->archiveCoverService->copyArchiveSource($source, $temporaryPath);
+        } finally {
+            fclose($source);
+        }
+    }
+
+    private function zipEntryAllowed(mixed $stat, int $sourceBytes, int $maximumBytes): bool {
+        if (!is_array($stat)) {
+            return false;
+        }
+        $size = (int)($stat['size'] ?? -1);
+        $compressedSize = (int)($stat['comp_size'] ?? 0);
+        return $size >= 0 && $size <= $maximumBytes
+            && $this->archiveCoverService->entryWithinBudget($size, $compressedSize, $sourceBytes);
+    }
+
+    /** Validate the whole ZIP while member sizes are available, not only the selected cover. */
+    private function zipArchiveWithinBudget(ZipArchive $zip, int $sourceBytes): bool {
+        $metadataBytes = 0;
+        $totalUncompressed = 0;
+        for ($index = 0; $index < $zip->numFiles; $index++) {
+            $name = $zip->getNameIndex($index);
+            $stat = $zip->statIndex($index);
+            if (!is_string($name) || !$this->archiveCoverService->isSafeEntryName($name) || !is_array($stat)) {
+                return false;
+            }
+            $nameBytes = strlen($name);
+            if ($nameBytes > ArchiveCoverService::MAX_METADATA_BYTES - $metadataBytes) {
+                return false;
+            }
+            $metadataBytes += $nameBytes;
+            $size = $stat['size'] ?? null;
+            if (!is_int($size) || $size < 0) {
+                return false;
+            }
+            $totalUncompressed = $this->archiveCoverService->addUncompressedToAggregate($totalUncompressed, $size, $sourceBytes);
+            if ($totalUncompressed === null) {
+                return false;
+            }
+        }
         return true;
+    }
+
+    private function safeArchiveRelativePath(string $path): ?string {
+        $segments = [];
+        foreach (explode('/', str_replace('\\', '/', $path)) as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+            if ($segment === '..') {
+                if ($segments === []) { return null; }
+                array_pop($segments);
+                continue;
+            }
+            $segments[] = $segment;
+        }
+        $normalized = implode('/', $segments);
+        return $this->archiveCoverService->isSafeEntryName($normalized) ? $normalized : null;
     }
 
     private function coverMimeType(string $name): ?string {
