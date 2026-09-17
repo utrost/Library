@@ -8,6 +8,9 @@ def test_vue_shows_active_filter_chips_with_remove_one_links():
 
     assert "activeFilterChips" in app
     assert "filterChipRemoveUrl" in app
+    assert "clearAllFilters" in app
+    assert "clearAllFilterParams" in app
+    assert 'href="?"' not in app
     assert "library-active-filter-chips" in app
     assert "Active filters" in app
     assert "Remove filter" in app
@@ -23,6 +26,7 @@ def test_active_filter_chips_have_compact_styles():
 
     assert ".library-active-filter-chips" in css
     assert ".library-filter-chip" in css
+    assert ".library-active-filter-clear-all" in css
     assert "border-radius: 999px" in css
 
 

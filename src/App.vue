@@ -418,6 +418,7 @@ const hasNoEnabledRoots = computed(() => rootCount.value > 0 && enabledRootCount
 const hasActiveFilters = computed(() => activeFilterChips.value.length > 0)
 const mobileFilterPanelOpen = ref(false)
 const mobileFilterSearchInput = ref(null)
+const catalogueHeadingElement = ref(null)
 const filterLabels = {
   q: 'Search',
   sort: 'Sort',
@@ -561,6 +562,8 @@ const activeFilterChips = computed(() => Object.entries(filterLabels)
   .filter((chip) => chip.value !== ''
     && !(chip.key === 'sort' && chip.value === 'title')
     && !(chip.key === 'view' && chip.value === 'compact')))
+const resettableFilterChips = computed(() => activeFilterChips.value
+  .filter((chip) => !['sort', 'view'].includes(chip.key)))
 const activeFilterCount = computed(() => activeFilterChips.value.length)
 const mobileFilterSummaryLabel = computed(() => activeFilterCount.value > 0
   ? t('library', 'Filters ({count})', { count: activeFilterCount.value })
@@ -1319,8 +1322,7 @@ function filterChipRemoveParams(key) {
 
 function filterChipRemoveUrl(key) {
   const query = filterChipRemoveParams(key).toString()
-  if (isHome.value || isShelves.value) return `${catalogueRootUrl.value}${query ? `?${query}` : ''}`
-  return query ? `?${query}` : '?'
+  return `${catalogueRootUrl.value}${query ? `?${query}` : ''}`
 }
 
 function removeFilterChip(key) {
@@ -1330,6 +1332,32 @@ function removeFilterChip(key) {
     params,
     generation: ++catalogueRequestGeneration,
   })
+}
+
+function clearAllFilterParams() {
+  const params = new URLSearchParams()
+  if (activeFilters.sort && activeFilters.sort !== 'title') params.set('sort', activeFilters.sort)
+  if (activeFilters.view && activeFilters.view !== 'compact') params.set('view', activeFilters.view)
+  return params
+}
+
+function clearAllFiltersUrl() {
+  const query = clearAllFilterParams().toString()
+  return `${catalogueRootUrl.value}${query ? `?${query}` : ''}`
+}
+
+function clearAllFilters() {
+  const params = clearAllFilterParams()
+  for (const key of Object.keys(activeFilters)) {
+    if (!['sort', 'view'].includes(key)) activeFilters[key] = activeFilterDefaults[key]
+  }
+  void submitFiltersAjax(null, {
+    params,
+    generation: ++catalogueRequestGeneration,
+  })
+  if (!isHome.value && !isShelves.value) {
+    nextTick(() => { catalogueHeadingElement.value?.focus?.() })
+  }
 }
 
 function selectReviewQueue(queue) {
@@ -1678,7 +1706,7 @@ async function toggleStar(item, event) {
             <div class="library-subject-filter"><label for="library-subject-search">{{ t('library', 'Subject') }}</label><input id="library-subject-search" v-model="subjectSearch" type="search" name="subjectSearch" autocomplete="off" :placeholder="t('library', 'Search subjects')" :title="t('library', 'Exact subject matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-subject-suggestions" :aria-expanded="subjectSearchFocused && subjectSuggestions.length > 0 ? 'true' : 'false'" @focus="subjectSearchFocused = true" @keydown.escape="subjectSearchFocused = false"><input type="hidden" name="subject" :value="activeFilters.subject"><ul v-if="subjectSearchFocused && subjectSuggestions.length > 0" id="library-subject-suggestions" class="library-subject-suggestions" role="listbox"><li v-for="subject in subjectSuggestions" :key="subject" role="option"><button type="button" class="library-subject-suggestion" @mousedown.prevent @click="selectSubjectSuggestion(subject, $event)">{{ subject }}</button></li></ul><button type="button" class="button secondary library-subject-apply" @click="applySubjectSearch">{{ t('library', 'Apply subject') }}</button></div>
             <div class="library-classification-filter"><label for="library-classification-search">{{ t('library', 'Classification') }}</label><input id="library-classification-search" v-model="classificationSearch" type="search" name="classificationSearch" autocomplete="off" :placeholder="t('library', 'Search classifications')" :title="t('library', 'Exact classification matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-classification-suggestions" :aria-expanded="classificationSearchFocused && classificationSuggestions.length > 0 ? 'true' : 'false'" @focus="classificationSearchFocused = true" @keydown.escape="classificationSearchFocused = false"><input type="hidden" name="classification" :value="activeFilters.classification"><ul v-if="classificationSearchFocused && classificationSuggestions.length > 0" id="library-classification-suggestions" class="library-classification-suggestions" role="listbox"><li v-for="classification in classificationSuggestions" :key="classification" role="option"><button type="button" class="library-classification-suggestion" @mousedown.prevent @click="selectClassificationSuggestion(classification, $event)">{{ classification }}</button></li></ul><button type="submit" class="button secondary library-classification-apply">{{ t('library', 'Apply classification') }}</button></div>
             <label>{{ t('library', 'Suggested updates') }}<select v-model="activeFilters.scannerConflicts" name="scannerConflicts" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All metadata') }}</option><option value="1">{{ t('library', 'Suggested updates') }}</option></select></label>
-            <button type="submit" class="button primary">{{ t('library', 'Apply filters') }}</button><a href="?" class="button secondary">{{ t('library', 'Clear') }}</a>
+            <button type="submit" class="button primary">{{ t('library', 'Apply filters') }}</button><a v-if="resettableFilterChips.length > 0" :href="clearAllFiltersUrl()" class="button secondary" @click.prevent="clearAllFilters">{{ t('library', 'Clear') }}</a>
           </form>
         </section>
         <a class="library-navigation-settings-link" :href="settingsUrl">
@@ -1694,6 +1722,7 @@ async function toggleStar(item, event) {
     <a v-for="chip in activeFilterChips" :key="chip.key" :href="filterChipRemoveUrl(chip.key)" class="library-filter-chip" :aria-label="`${t('library', 'Remove filter')}: ${chip.label}`" :title="chip.title" @click.prevent="removeFilterChip(chip.key)">
       <strong>{{ chip.label }}<template v-if="chip.displayValue">:</template></strong><template v-if="chip.displayValue"> {{ ' ' }}<span class="library-filter-chip-value" :title="chip.value">{{ chip.displayValue }}</span></template> <span aria-hidden="true">×</span>
     </a>
+    <a v-if="resettableFilterChips.length > 0" :href="clearAllFiltersUrl()" class="library-active-filter-clear-all" @click.prevent="clearAllFilters">{{ t('library', 'Clear all') }}</a>
   </nav>
   <section v-if="reviewActive" class="library-panel library-review-destination" aria-labelledby="library-review-heading">
     <header class="library-review-header">
@@ -1792,7 +1821,7 @@ async function toggleStar(item, event) {
   <section v-else id="library-catalogue" class="library-panel library-mobile-compact-chrome" :class="{ 'library-catalogue--loading': catalogueRequestState.loading }" aria-labelledby="library-catalogue-heading" :aria-busy="catalogueRequestState.loading ? 'true' : 'false'">
     <header class="library-catalogue-header">
       <p v-if="isDiscoveryPage" class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
-      <h2 id="library-catalogue-heading">{{ catalogueHeading }}</h2>
+      <h2 id="library-catalogue-heading" ref="catalogueHeadingElement" tabindex="-1">{{ catalogueHeading }}</h2>
     </header>
     <details class="library-mobile-filter-panel" data-library-control="filter" @toggle="handleMobileFilterToggle">
       <summary class="library-mobile-filter-trigger" :aria-label="mobileFilterAriaLabel">
@@ -1832,7 +1861,7 @@ async function toggleStar(item, event) {
           <label>{{ t('library', 'View') }}<select v-model="activeFilters.view" name="view" @change="submitFiltersAjax"><option value="compact">{{ t('library', 'Compact') }}</option><option value="gallery">{{ t('library', 'Gallery') }}</option><option value="list">{{ t('library', 'List') }}</option><option value="shelf">{{ t('library', 'Shelf') }}</option></select></label>
         </fieldset>
         <div class="library-mobile-filter-actions">
-          <a href="?" class="button secondary library-mobile-filter-clear">{{ t('library', 'Clear all') }}</a>
+          <a v-if="resettableFilterChips.length > 0" :href="clearAllFiltersUrl()" class="button secondary library-mobile-filter-clear" @click.prevent="clearAllFilters">{{ t('library', 'Clear all') }}</a>
           <button type="submit" class="button primary library-mobile-filter-primary">{{ mobileFilterResultLabel }}</button>
         </div>
       </form>
@@ -1918,7 +1947,7 @@ async function toggleStar(item, event) {
     </section>
 
     <div class="library-catalogue-status-row">
-      <p class="library-muted library-filter-result-summary">{{ t('library', 'Showing') }} {{ pagination.from }}–{{ pagination.to }} {{ t('library', 'of') }} {{ pagination.total }} {{ t('library', 'catalogue items') }}<span v-if="activeFilterChips.length > 0"> · <a href="?">{{ t('library', 'Clear all filters') }}</a></span></p>
+      <p class="library-muted library-filter-result-summary">{{ t('library', 'Showing') }} {{ pagination.from }}–{{ pagination.to }} {{ t('library', 'of') }} {{ pagination.total }} {{ t('library', 'catalogue items') }}<span v-if="resettableFilterChips.length > 0"> · <a :href="clearAllFiltersUrl()" @click.prevent="clearAllFilters">{{ t('library', 'Clear all filters') }}</a></span></p>
       <nav class="library-pagination library-pagination--top" :aria-label="t('library', 'Catalogue pagination')">
         <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
         <a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a>
@@ -1939,7 +1968,7 @@ async function toggleStar(item, event) {
       </template>
       <template v-else-if="hasActiveFilters">
         <h3 :title="t('library', 'Try a broader search, remove one active chip, or clear every catalogue filter.')">{{ t('library', 'No matches for the current filters') }}</h3>
-        <p class="library-empty-actions"><a :href="clearSearchUrl()" class="button secondary">{{ t('library', 'Clear search') }}</a><a href="?" class="button primary">{{ t('library', 'Clear all filters') }}</a></p>
+        <p class="library-empty-actions"><a :href="clearSearchUrl()" class="button secondary" @click.prevent="removeFilterChip('q')">{{ t('library', 'Clear search') }}</a><a v-if="resettableFilterChips.length > 0" :href="clearAllFiltersUrl()" class="button primary" @click.prevent="clearAllFilters">{{ t('library', 'Clear all filters') }}</a></p>
       </template>
       <template v-else>
         <h3 :title="t('library', 'Run a scan from settings to index enabled roots. Source files stay in Nextcloud Files.')">{{ t('library', 'No catalogue items yet') }}</h3>

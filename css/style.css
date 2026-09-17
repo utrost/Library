@@ -732,6 +732,18 @@
     border-color: var(--color-primary-element);
 }
 
+.library-active-filter-clear-all {
+    color: var(--color-primary-element);
+    font-weight: 600;
+    margin-inline-start: 0.25rem;
+    text-decoration: none;
+}
+
+.library-active-filter-clear-all:hover,
+.library-active-filter-clear-all:focus {
+    text-decoration: underline;
+}
+
 .library-pagination {
     align-items: center;
     display: flex;

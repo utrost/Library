@@ -89,7 +89,7 @@ Current catalogue capabilities:
 - filter by exact creator field and open a creator landing page as read-only discovery; creator identity splitting remains future work;
 - use server-backed **Starred** and **Recently opened** browse destinations;
 - enter through server-backed **Home**, browse root/folder counts in **Shelves**, and move into the paginated **Catalogue** without preloading full result sets;
-- use active filter chips to see current filters and remove one filter without clearing the whole search;
+- use active filter chips to see current filters, remove one filter without disturbing the others, or **Clear all** selection filters at once; clear-all resets pagination while preserving the chosen Sort and View mode;
 - select visible publications to reveal batch controls; every batch request carries only the canonical non-empty explicit selection and remains ownership-checked and capped;
 - use Review’s five groups: **Suggested updates**, **Needs details**, **File problems**, **Cover problems**, and **Imported changes**, with filter-change loading feedback outside Review as well;
 - compare current and suggested values and explicitly use a suggested value without changing source files;
