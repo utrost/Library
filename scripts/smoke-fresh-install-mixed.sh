@@ -187,16 +187,29 @@ $pdo = new PDO("sqlite:" . $CONFIG["datadirectory"] . "/owncloud.db"); $p = $CON
 $stmt = $pdo->query("SELECT i.title FROM {$p}library_items i INNER JOIN {$p}library_files f ON i.library_file_id=f.id WHERE f.extension=\"epub\" ORDER BY i.title ASC LIMIT 1");
 echo (string)$stmt->fetchColumn();
 ')"
+GUI_ITEM_ID="$(docker exec -u www-data "$CONTAINER" php -r '
+require "/var/www/html/config/config.php";
+$pdo = new PDO("sqlite:" . $CONFIG["datadirectory"] . "/owncloud.db"); $p = $CONFIG["dbtableprefix"] ?? "oc_";
+$stmt = $pdo->query("SELECT i.id FROM {$p}library_items i INNER JOIN {$p}library_files f ON i.library_file_id=f.id WHERE f.extension=\"epub\" ORDER BY i.title ASC LIMIT 1");
+echo (string)$stmt->fetchColumn();
+')"
 [[ "$GUI_ROOT_PATH" == /* ]] || { echo 'Playwright root fixture path missing' >&2; exit 1; }
+[[ "$GUI_ITEM_ID" =~ ^[1-9][0-9]*$ ]] || { echo 'Playwright item fixture ID missing' >&2; exit 1; }
 [[ -n "$GUI_SEARCH_TITLE" ]] || { echo 'Playwright EPUB fixture title missing' >&2; exit 1; }
 PW_BASE_URL="$BASE_URL" \
 PW_USER="$ADMIN_USER" \
 PW_PASSWORD="$ADMIN_PASS" \
 PW_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS" \
 PW_ROOT_PATH="$GUI_ROOT_PATH" \
+PW_ITEM_ID="$GUI_ITEM_ID" \
 PW_SEARCH_TITLE="$GUI_SEARCH_TITLE" \
 npm run test:gui | tee -a "$RUN_LOG"
 echo 'playwright_gui_ok=true' | tee -a "$RUN_LOG"
+
+SOURCE_HASH_AFTER_GUI="$(cd "$FIXTURE_DIR" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)"
+printf 'source_tree_sha256_after_gui=%s\n' "$SOURCE_HASH_AFTER_GUI"
+[[ "$SOURCE_HASH_BEFORE" == "$SOURCE_HASH_AFTER_GUI" ]] || { echo 'source_tree_unchanged_after_gui=false' >&2; exit 1; }
+echo 'source_tree_unchanged_after_gui=true'
 
 docker exec -u www-data "$CONTAINER" php -r '
 require "/var/www/html/config/config.php";
