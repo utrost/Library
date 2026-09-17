@@ -30,7 +30,8 @@
     "smoke:conflict-review": "node scripts/smoke-metadata-conflict-review.mjs",
     "smoke:catalogue-performance": "node scripts/smoke-catalogue-performance.mjs",
     "smoke:scale": "node scripts/smoke-scale-pilot.mjs",
-    "smoke:real-scale": "node scripts/smoke-real-scale-pilot.mjs"
+    "smoke:real-scale": "node scripts/smoke-real-scale-pilot.mjs",
+    "smoke:fresh-install-mixed": "bash scripts/smoke-fresh-install-mixed.sh"
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"

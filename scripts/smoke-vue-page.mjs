@@ -527,7 +527,11 @@ try {
     }
     const remaining = runDocker(['user:auth-tokens:list', user]).includes(tokenName) ? 1 : 0
     console.log(`temp_token_remaining=${remaining}`)
+    console.log(`vue_temp_token_remaining=${remaining}`)
+    if (remaining !== 0) process.exitCode = 1
   } catch {
     console.log('temp_token_cleanup_error=true')
+    console.log('vue_temp_token_cleanup_error=true')
+    process.exitCode = 1
   }
 }

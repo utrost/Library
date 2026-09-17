@@ -43,13 +43,26 @@ Not in scope for v0.1:
 - AI classification;
 - shared/admin-managed library roots.
 
-## Try it
+## Install
+Library currently targets Nextcloud 34. Until an App Store release exists, install a packaged archive as a Nextcloud administrator:
+```bash
+tar -xzf library-<version>.tar.gz -C /var/www/html/custom_apps
+chown -R www-data:www-data /var/www/html/custom_apps/library
+sudo -u www-data php /var/www/html/occ app:enable library
+```
 
-Current source candidate: `0.1.0-alpha.171`. This is an unpackaged source candidate. Library now has bounded server-backed Home, Shelves and Catalogue payloads; additive server-side facets and filters; and list, compact, gallery and shelf presentation. ISBN/ISSN values have a dedicated identifier spine with normalized exact search, and catalogue queries remain distinct when identifier joins match more than one row. OPF sidecars enrich their primary publication without becoming duplicate catalogue items. Open is the primary file action and the full PHP editor remains available as Advanced details.
+The archive must contain one top-level `library/` directory. Paths and the web-server account vary by installation; container users can run the same commands with `docker exec`. After enabling the app, each user opens **Library settings**, adds a folder already visible in Nextcloud Files, and selects **Scan this root**. See the [user and admin guide](docs/user-guide.md) for the full first-scan walkthrough and [FAQ and troubleshooting](docs/faq.md) for common problems.
+
+For a source checkout, install Node 24/npm 11 and run `npm ci && npm run package:release`; then install the resulting `dist/library-<version>.tar.gz` with the archive commands above. Source checkouts are for development; the release archive is the supported handoff format.
+## Try it
+Current source candidate: `0.1.0-alpha.171`. The current unsigned archive has passed exact-package installation and a schema-only fresh SQLite Nextcloud 34 rehearsal. Library now has bounded server-backed Home, Shelves and Catalogue payloads; additive server-side facets and filters; and list, compact, gallery and shelf presentation. ISBN/ISSN values have a dedicated identifier spine with normalized exact search, and catalogue queries remain distinct when identifier joins match more than one row. OPF sidecars enrich their primary publication without becoming duplicate catalogue items. Open is the primary file action and the full PHP editor remains available as Advanced details.
 
 Settings scan operations submit asynchronously, show per-root publication counts, and keep cancellation responsive. Running jobs persist a bounded heartbeat and current path; a quiet job is reported as stale without being destructively changed to failed. Source files remain untouched.
 
-Alpha.159 fixes repair-scan root containment: missing-file recheck and metadata-error retry only restore a resolved stable-ID file when its current path is inside an enabled root owned by that user. Alpha.158 covered 726 Python tests; that packaged evidence later passed 727 Python tests, 9 PHP runtime programs, 26 Vitest tests and `release_package_smoke_ok=true`; upgrade reported `No upgrade required`, so the fresh-database migration rehearsal remains pending; verify packaged checksums with the adjacent `.sha256` artifact and use the excluded `RELEASE.md` for release evidence. Recent source-candidate work closed the highest-risk review backlog: arbitrary substring search uses a materialized gram index, mobile filter controls use a grouped panel, high-cardinality facets use lazy typeaheads, import preview connects directly to apply, cover buttons have accessible names, and first-run setup no longer suggests a development path. Exact-package signing and fresh-database release rehearsal remain App Store readiness work rather than current source-candidate claims.
+Historical package evidence remains reproducible: Alpha.159 fixes repair-scan root containment: its lineage covered 726 Python tests and later passed 727 Python tests, 9 PHP runtime programs, 26 Vitest tests and `release_package_smoke_ok=true`; its upgrade reported `No upgrade required`. Verify a packaged candidate with its adjacent `.sha256` artifact; detailed evidence stays in the excluded `RELEASE.md`. The schema-only fresh-install rehearsal proved package enablement and migration creation but did not exercise a realistic first catalogue.
+
+The reproducible mixed-library gate (`npm run smoke:fresh-install-mixed`) covers a disposable Nextcloud 34 install followed by 1,000 balanced synthetic PDF, EPUB, CBZ and standalone OPF publications, catalogue/API/browser smoke and the one-second fast-endpoint budget. Exact run evidence is recorded in the App Store readiness roadmap. Package signing and human alpha acceptance remain separate release gates.
+
 Run local checks (for Docker dev/deploy, `bin/nextcloud-background-worker.sh` runs the general Nextcloud background worker for a safe, repeatable five-minute interval):
 
 ```bash
@@ -71,22 +84,9 @@ scripts/package-release.sh
 ```
 
 The package script builds Vue assets, runs Python contracts and writes `dist/library-<version>.tar.gz` plus a checksum.
-
 ## More documentation
-
-- [User and admin guide](docs/user-guide.md)
-- [Human test handbook](docs/human-test-handbook.md)
-- [Public alpha test checklist](docs/alpha-test-checklist.md)
-- [Current state and risk register](docs/current-state-and-risk-register.md)
-- [Release process](RELEASE.md)
-- [App Store listing draft](docs/app-store-listing.md)
-- [App Store readiness roadmap](docs/app-store-readiness.md)
-- [Changelog](CHANGELOG.md)
-- [Product concept](docs/product-concept.md)
-- [Active roadmap](docs/roadmap.md)
-- [Human architecture review notes](docs/architecture-review.md)
-- [UX concept](docs/ux-concept.md)
-- [Usefulness and UX feature list](docs/usefulness-and-ux-feature-list.md)
-- [Metadata storage and Nextcloud integration](docs/metadata-storage.md)
-- [Personal top features scope](docs/personal-top-features.md)
-- [Post-v0.1 roadmap](docs/post-v0.1-roadmap.md)
+- [User and admin guide](docs/user-guide.md) · [FAQ and troubleshooting](docs/faq.md) · [Human test handbook](docs/human-test-handbook.md)
+- [Public alpha test checklist](docs/alpha-test-checklist.md) · [Current state and risk register](docs/current-state-and-risk-register.md) · [Active roadmap](docs/roadmap.md)
+- [Release process](RELEASE.md) · [Changelog](CHANGELOG.md) · [App Store listing draft](docs/app-store-listing.md) · [App Store readiness roadmap](docs/app-store-readiness.md)
+- [Product concept](docs/product-concept.md) · [Human architecture review notes](docs/architecture-review.md) · [UX concept](docs/ux-concept.md) · [Usefulness and UX feature list](docs/usefulness-and-ux-feature-list.md)
+- [Metadata storage and Nextcloud integration](docs/metadata-storage.md) · [Personal top features scope](docs/personal-top-features.md) · [Post-v0.1 roadmap](docs/post-v0.1-roadmap.md)

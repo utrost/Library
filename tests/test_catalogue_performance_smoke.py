@@ -96,6 +96,17 @@ def test_catalogue_smoke_accumulates_path_failures_so_later_paths_still_run():
     assert "smokePassed = failures.length === 0" in text
 
 
+def test_catalogue_smoke_discovers_values_on_mysql_and_fresh_sqlite_instances():
+    text = SMOKE.read_text()
+
+    assert "$dbtype = (string)($CONFIG['dbtype'] ?? 'mysql')" in text
+    assert "$dbtype === 'sqlite3'" in text
+    assert "sqlite:" in text
+    assert "CAST(m.objectid AS INTEGER)" in text
+    assert "CAST(m.objectid AS UNSIGNED)" in text
+    assert "dirname($cachedPath)" in text
+
+
 def test_catalogue_smoke_times_folder_suggestions_against_the_same_subsecond_budget():
     text = SMOKE.read_text()
     assert "catalogue_folder_suggestions_fast" in text

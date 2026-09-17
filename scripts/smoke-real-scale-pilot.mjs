@@ -16,6 +16,7 @@ const keepStage = process.env.REAL_SCALE_KEEP_STAGE === '1'
 const rootName = `LibraryRealScale-${count}-${Date.now()}`
 const rootPath = `/${rootName}`
 const dataDir = `/var/www/html/data/${user}/files/${rootName}`
+const containerStageDir = `/tmp/${rootName}`
 const hostStageDir = join(tmpdir(), rootName)
 const tokenName = `hermes-library-real-scale-${count}-${Date.now()}`
 const timings = {}
@@ -96,9 +97,24 @@ function stageRealFiles(selected) {
   rmSync(hostStageDir, { recursive: true, force: true })
   mkdirSync(hostStageDir, { recursive: true })
   selected.forEach((row, index) => cpSync(row.path, join(hostStageDir, safeName(index, row.path))))
-  dockerRootShell(`rm -rf ${dataDir}; mkdir -p ${dataDir}`)
-  execFileSync('docker', ['cp', `${hostStageDir}/.`, `${container}:${dataDir}`], { encoding: 'utf8', timeout: 1800000 })
-  dockerRootShell(`chown -R www-data:www-data ${dataDir}; find ${dataDir} -type f | wc -l`, 1800000)
+  dockerRootShell(`rm -rf ${containerStageDir} ${dataDir}; mkdir -p ${containerStageDir} ${dataDir}`)
+  execFileSync('docker', ['cp', `${hostStageDir}/.`, `${container}:${containerStageDir}`], { encoding: 'utf8', timeout: 1800000 })
+  dockerRootShell(`cp -a ${containerStageDir}/. ${dataDir}/; rm -rf ${containerStageDir}; chown -R www-data:www-data ${dataDir}; find ${dataDir} -type f | wc -l`, 1800000)
+}
+function scannedTreeHash() {
+  const code = String.raw`
+$root = rtrim($argv[1], '/');
+$rows = [];
+$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
+foreach ($iterator as $file) {
+  if (!$file->isFile()) continue;
+  $path = $file->getPathname();
+  $rows[substr($path, strlen($root) + 1)] = hash_file('sha256', $path);
+}
+ksort($rows, SORT_STRING);
+echo hash('sha256', json_encode($rows, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
+`
+  return docker(['-u', 'root', container, 'php', '-r', code, dataDir], { timeout: 600000 }).trim()
 }
 function disableOtherRoots() {
   return php(`
@@ -253,10 +269,16 @@ try {
   console.log(`disabled_root_snapshot=${rootSnapshot}`)
   process.stdout.write(addRoot())
 
+  const scannedTreeHashBefore = scannedTreeHash()
+  console.log(`scanned_tree_sha256_before=${scannedTreeHashBefore}`)
   const libStart = now()
   process.stdout.write(runLibraryScan())
   timings.libraryScanMs = now() - libStart
   console.log(`library_scan_seconds=${sec(timings.libraryScanMs)}`)
+  const scannedTreeHashAfter = scannedTreeHash()
+  console.log(`scanned_tree_sha256_after=${scannedTreeHashAfter}`)
+  if (scannedTreeHashAfter !== scannedTreeHashBefore) throw new Error('Library scan changed the staged publication tree')
+  console.log('scanned_tree_unchanged=true')
   const countsText = dbCounts().trim()
   console.log(`db_counts=${countsText}`)
   const counts = JSON.parse(countsText)
@@ -296,8 +318,12 @@ try {
       for (const id of parseTokenIds(tokenList)) dockerWww(['php', 'occ', 'user:auth-tokens:delete', user, id])
       const remaining = dockerWww(['php', 'occ', 'user:auth-tokens:list', user]).includes(tokenName) ? 1 : 0
       console.log(`temp_token_remaining=${remaining}`)
+      console.log(`real_scale_temp_token_remaining=${remaining}`)
+      if (remaining !== 0) process.exitCode = 1
     } catch (error) {
       console.log('temp_token_cleanup_error=true')
+      console.log('real_scale_temp_token_cleanup_error=true')
+      process.exitCode = 1
       console.error(error?.message || error)
     }
   }
