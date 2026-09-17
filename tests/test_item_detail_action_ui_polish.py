@@ -29,7 +29,8 @@ def test_detail_actions_are_grouped_and_ordered_with_star_icon_and_autosave_stat
     assert "aria-pressed" in template
     assert "★" in template
     assert "☆" in template
-    assert "onchange=\"this.form.submit()\"" in template
+    assert "data-library-submit-on-change" in template
+    assert "onchange=" not in template
     assert "library-workflow-status-submit-fallback" in template
     workflow_form = template.split('class="library-inline-form library-workflow-status-form"', 1)[1].split('</form>', 1)[0]
     assert "<label>" not in workflow_form

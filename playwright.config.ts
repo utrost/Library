@@ -11,7 +11,8 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 1 : 2,
+  // Mutable metadata workflows share one disposable catalogue; keep projects serialized.
+  workers: 1,
   timeout: 45_000,
   expect: { timeout: 10_000 },
   reporter: process.env.CI

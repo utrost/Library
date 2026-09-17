@@ -5,6 +5,18 @@ scripts:
     file: tests/gui/catalogue/catalogue-search-detail.spec.ts
     command: npm run test:gui -- tests/gui/catalogue/catalogue-search-detail.spec.ts
 
+  catalogue-filter-chips-clear-all:
+    description: Apply desktop search and format filters, remove one chip, then clear selection filters while preserving Sort and View.
+    tags: [catalogue, filters, regression, desktop]
+    file: tests/gui/catalogue/catalogue-filter-chips-clear-all.spec.ts
+    command: npm run test:gui:desktop -- tests/gui/catalogue/catalogue-filter-chips-clear-all.spec.ts
+
+  details-metadata-edit-persistence:
+    description: Edit a deterministic publication title, prove it persists through catalogue search and details reload, then restore it.
+    tags: [details, metadata, smoke, mutation]
+    file: tests/gui/details/metadata-edit-persistence.spec.ts
+    command: npm run test:gui:desktop -- tests/gui/details/metadata-edit-persistence.spec.ts
+
   settings-folder-picker-existing-user:
     description: Open and close the real Nextcloud folder picker for an existing Library root without changing the saved path.
     tags: [settings, folder-picker, regression]
