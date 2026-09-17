@@ -21,6 +21,7 @@ def test_disposable_nc34_mixed_rehearsal_is_wired_and_fail_closed():
     assert '"smoke:fresh-install-mixed": "bash scripts/smoke-fresh-install-mixed.sh"' in package
     assert "nextcloud@sha256:" in script
     assert "maintenance:install" in script
+    assert "config:app:set --value false firstrunwizard wizard_enabled" in script
     assert "package:release" in script
     assert "sha256sum -c" in script
     assert "physical_table_count=8" in script
@@ -35,7 +36,8 @@ def test_disposable_nc34_mixed_rehearsal_is_wired_and_fail_closed():
     assert "real_scale_temp_token_remaining=0" in script
     assert "vue_temp_token_remaining=0" in script
     assert "browser_temp_token_remaining=0" in script
-    assert "LIBRARY_BROWSER_EXPECTED_CARDS=100" in script
+    assert "EXPECTED_BROWSER_CARDS=$(( COUNT < 100 ? COUNT : 100 ))" in script
+    assert 'LIBRARY_BROWSER_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS"' in script
     assert "smoke:catalogue-performance" in script
     assert "smoke:vue" in script
     assert "smoke:sidebar-http" in script

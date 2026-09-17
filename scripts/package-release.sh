@@ -54,6 +54,9 @@ tar \
   --exclude=.gitignore \
   --exclude=.github \
   --exclude=.pytest_cache \
+  --exclude=coverage \
+  --exclude=playwright-report \
+  --exclude=test-results \
   --exclude='__pycache__' \
   --exclude=node_modules \
   --exclude=build \
@@ -67,6 +70,7 @@ tar \
   --exclude=RELEASE.md \
   --exclude='ALPHA.*-IMPLEMENTATION-REPORT.md' \
   --exclude=vite.config.js \
+  --exclude=playwright.config.ts \
   --exclude='*.pyc' \
   -cf - . | tar -xf - -C "$STAGE_DIR"
 
