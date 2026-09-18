@@ -12,7 +12,6 @@ use OCA\Library\Service\ItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
-use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
@@ -40,7 +39,6 @@ final class ItemPageController extends Controller {
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    #[PublicPage]
     public function sidebar(string $itemId): JSONResponse {
         $canonicalItemId = $this->canonicalSidebarItemId($itemId);
         $user = $this->userSession->getUser();
