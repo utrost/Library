@@ -57,6 +57,7 @@ tar \
   --exclude=coverage \
   --exclude=playwright-report \
   --exclude=test-results \
+  --exclude=security-reports \
   --exclude='__pycache__' \
   --exclude=node_modules \
   --exclude=build \
@@ -67,6 +68,7 @@ tar \
   --exclude=docs \
   --exclude=package.json \
   --exclude=package-lock.json \
+  --exclude=requirements-ci.txt \
   --exclude=RELEASE.md \
   --exclude='ALPHA.*-IMPLEMENTATION-REPORT.md' \
   --exclude=vite.config.js \
@@ -82,6 +84,7 @@ fi
 
 bash "$ROOT/scripts/create-reproducible-archive.sh" "$DIST_DIR" "$APP_ID" "$ARCHIVE"
 (cd "$DIST_DIR" && sha256sum "$ARCHIVE_BASENAME" > "$ARCHIVE_BASENAME.sha256")
+node "$ROOT/scripts/generate-release-sbom.mjs" "$ARCHIVE" "$VERSION" "$DIST_DIR"
 if [ "$SIGNED" = true ]; then
   bash "$ROOT/scripts/audit-release-package.sh" "$VERSION" --require-signature
 else
@@ -89,3 +92,5 @@ else
 fi
 printf 'release_archive_created=true\n'
 printf 'release_checksum_created=true\n'
+printf 'release_sbom_created=true\n'
+printf 'release_provenance_created=true\n'
