@@ -28,8 +28,16 @@ class HealthController extends Controller {
     public function importSummary(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
-        $refresh = (string)$this->request->getParam('refresh', '0') === '1';
-        return new JSONResponse($this->libraryHealthService->cachedImportHealthSummary($userId, $refresh), 200, [
+        return new JSONResponse($this->libraryHealthService->cachedImportHealthSummary($userId, false), 200, [
+            'Cache-Control' => 'private, no-store',
+        ]);
+    }
+
+    #[NoAdminRequired]
+    public function refreshImportSummary(): JSONResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        return new JSONResponse($this->libraryHealthService->cachedImportHealthSummary($userId, true), 200, [
             'Cache-Control' => 'private, no-store',
         ]);
     }
@@ -64,13 +72,15 @@ class HealthController extends Controller {
     }
 
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function coverProbe(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
+        $limit = min(30, max(1, (int)$this->request->getParam('limit', 30)));
         return new JSONResponse($this->libraryHealthService->coverProbeReport(
             $userId,
-            (int)$this->request->getParam('limit', 30),
-        ));
+            $limit,
+        ), 200, [
+            'Cache-Control' => 'private, no-store',
+        ]);
     }
 }

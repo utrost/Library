@@ -34,7 +34,7 @@ def test_live_smoke_checks_refresh_cover_url_and_response_headers():
     assert "cover_refresh_http" in smoke
     assert "cover_refresh_cache_control" in smoke
     assert "cover_refresh_header" in smoke
-    assert "refresh=1" in smoke
+    assert "coverRefresh" in smoke
 
 
 def test_docs_mark_cover_refresh_affordance_and_manual_override_landed_but_cache_future():
