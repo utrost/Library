@@ -33,7 +33,8 @@ def test_release_and_manual_docs_name_the_actual_candidate_workflow():
     release = (ROOT / "RELEASE.md").read_text()
     handbook = (ROOT / "docs/human-test-handbook.md").read_text()
     checklist = (ROOT / "docs/alpha-test-checklist.md").read_text()
-    assert "Alpha.168 source candidate" in release
+    assert "Alpha.171 unsigned package candidate" in release
+    assert "safe-diagnostic live reflection" in release
     assert "visible search" in handbook and "selection-gated batch" in handbook
     assert "**Open**" in checklist and "**Read**" not in checklist
 
@@ -73,9 +74,9 @@ def test_handbook_has_executable_combined_alpha166_alpha167_first_pass():
     handbook = (ROOT / "docs/human-test-handbook.md").read_text()
     first_pass = handbook.split("## Alpha.166/167 executable first pass", 1)[1].split("## Session header template", 1)[0]
 
-    assert "current source candidate" in handbook
-    assert "Packaging: **not used for this Alice deployment**" in handbook
-    assert "Deployment: **Alice checkout copy deployed**" in handbook
+    assert "current candidate package" in handbook
+    assert "Packaging: **used for the current private deployment**" in handbook
+    assert "exact unsigned `dist/library-0.1.0-alpha.171.tar.gz` package is installed" in handbook
     assert first_pass.count("### A16") >= 6
     for case in first_pass.split("### A16")[1:]:
         assert "Setup:" in case

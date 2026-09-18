@@ -1,7 +1,7 @@
 # Library Roadmap
 
-Status: active planning roadmap; current source candidate `0.1.0-alpha.171` (unpackaged)
-Last updated: 2026-09-12
+Status: active planning roadmap; current unsigned packaged alpha `0.1.0-alpha.171` deployed to the private Nextcloud 34 test instance
+Last updated: 2026-09-18
 Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md), [Alice scale pilot notes](alice-scale-pilot.md)
 
 ## Roadmap stance
@@ -30,7 +30,7 @@ What exists now:
 - `library_items` table for one editable publication item per indexed file.
 - Bootstrap UI for saving an initial root path and manually scanning enabled roots.
 - Scanner that indexes PDF, EPUB, CBZ and standalone OPF files by stable Nextcloud file ID, then creates/refreshes inferred catalogue items.
-- Scan-job progress/history table and UI summary for the latest queued background scan plus recent scan history: auto-refreshing scan progress and live-ish scan progress, status, root count, indexed file count, added/moved/renamed/unchanged/missing/metadata-error counts, separate root/job failure count, duration, reload-safe post-scan completion summary, review smart-view links and metadata-error TSV export.
+- Scan-job progress/history table and UI summary for the latest queued background scan plus recent scan history: auto-refreshing scan progress and live-ish scan progress, status, root count, indexed file count, added/moved/renamed/unchanged/missing/metadata-error counts, separate root/job failure count, duration, reload-safe post-scan completion summary, review smart-view links and metadata-error TSV export with spreadsheet-formula neutralization.
 - First local metadata extraction for EPUB package OPF, standalone OPF files, filename/folder patterns and basic PDF info dictionaries including UTF-16 BOM encoded PDF Info strings, PDF hex Info strings, PDF literal octal escapes, nested PDF literal parentheses, PDF Subject-as-subtitle, normalized PDF CreationDate/ModDate values, plain PDF Info dates and PDF literal line continuations.
 - Four owned surfaces: **Open** for file handoff, **Catalogue** for browsing, **Review** for focused cleanup, and **Settings** for configuration and bounded diagnostics.
 - Publication catalogue gallery with preview/CBZ/placeholder covers and compact cover-first cards on mobile and desktop; cover/title open the contextual sidebar, where **Open** is primary and secondary actions include **Show in Files**, **Download**, and **Advanced details**.
@@ -45,7 +45,7 @@ What exists now:
 - Library-native personal starring and last-opened activity for catalogue items: detail-page star/unstar toggle, compact card marker, `starred=1` filter, Library-tracked **Open** redirects, recently-opened sort, and corrected-metadata export/import portability without altering scanner provenance.
 - metadata field audit: useful v0.1 fields are title, subtitle, type, creators, publication/series, publication date, language, publisher, description, subject/classification lists, workflow status, starred, last-opened activity and rating (0–5 stars). sub-subject remains a subject/classification value for now instead of a separate schema column, so the model avoids inventing a rigid taxonomy before real collection cleanup shows one is needed.
 - Detail-page metadata health score and weak-field jump list computed locally from transparent field completeness, plus a personal rating control.
-- Per-file metadata extraction error isolation, surfaced through **Review → File problems** with bounded technical evidence under **Settings → Diagnostics**.
+- Per-file metadata extraction error isolation, surfaced through **Review → File problems** with bounded safe diagnostics and `libdiag-...` correlation IDs; raw exception details remain server-only and legacy SQLSTATE/exception strings are sanitized before user-facing projection.
 - Batch actions apply only to explicitly selected visible items; zero selection exposes no actionable batch controls, and invalid selections fail closed.
 - Metadata storage decision documented: Library DB is canonical for publication metadata; Nextcloud system tags/comments are surfaced as file-level integration metadata.
 - metadata/tag/comment separation smoke is checked in: Nextcloud tag/comment actions do not mutate Library publication metadata.
@@ -283,7 +283,7 @@ expansion is scheduled for alpha.166.
 
 ### Phase 3 inclusive quality — alpha.166
 
-Source candidate, unpackaged: field-specific bidi presentation, semantic DOM and CDP accessibility-tree gates, and adaptation/reflow gates are implemented. AX-tree evidence is not screen-reader testing. Manual AT testing remains pending. ISBN schema/UI and new help or dialog surfaces remain out of scope.
+Alpha.166 source-candidate slice: field-specific bidi presentation, semantic DOM and CDP accessibility-tree gates, and adaptation/reflow gates are implemented. AX-tree evidence is not screen-reader testing. Manual AT testing remains pending. ISBN schema/UI and new help or dialog surfaces remain out of scope.
 
 ### Phase 3.1 — Preview-backed covers
 
@@ -552,11 +552,11 @@ The import-health review/probe cut remains landed background for the release reh
 
 ### Immediate next implementation slice
 
-Recommended next slice: **release-facing metadata repair and review polish** remains the historical post-MVP hardening label; the current next move is **post-review release rehearsal and real-library evidence**. The recent source-candidate work closed the known high-risk review issue and accessibility/UX batch (#32-37), added lazy high-cardinality typeaheads, and indexed arbitrary substring search. The next useful work is to prove the refreshed source candidate as a package/fresh install and run representative real-library smokes, rather than adding another broad feature before release evidence catches up.
+Recommended next slice: **release-facing metadata repair and review polish** remains the historical post-MVP hardening label; the current next move is **real-library alpha acceptance evidence and signing readiness**. The recent source-candidate work closed the known high-risk review issue and accessibility/UX batch (#32-37), added lazy high-cardinality typeaheads, indexed arbitrary substring search, neutralized metadata-error TSV formula injection, and replaced raw exception exposure with safe diagnostics. The exact unsigned package has now been built, deployed and live-smoked; the next useful work is to run representative real-library smokes, rather than adding another broad feature before release evidence catches up.
 
 Minimum next cuts:
 
-1. Build an exact `0.1.0-alpha.171` package, audit it, install it on a disposable/fresh Nextcloud 34 database, and verify migrations from empty state including `appinfo/database.xml` parity.
+1. Keep the exact `0.1.0-alpha.171` package evidence current after any further patch, then repeat the alpha checklist on real mixed files rather than only synthetic/fresh-install fixtures.
 2. Run live Catalogue/Home/Shelves/Review browser smokes on the installed package, including mobile filter panel, combobox keyboard interaction, drawer arrow-key editable-field preservation, and import preview-to-apply.
 3. Run the catalogue performance smoke for ordinary search, arbitrary substring search, review filters, typeahead suggestion routes and high-cardinality facets.
 4. Preserve the database-backed catalogue query path under text/type/format/tag/shelf/status/review filters during every smoke.

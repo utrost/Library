@@ -107,17 +107,18 @@ def test_browser_fixture_and_markers_are_observation_driven_fail_closed():
     assert "finally" in smoke[smoke.index("async function collectAccessibilityAndAdaptationEvidence"):smoke.index("function startAuthProxy")]
 
 
-def test_docs_are_truthful_source_candidate_with_manual_at_debt():
+def test_docs_are_truthful_candidate_with_manual_at_debt():
     handbook = read("docs/human-test-handbook.md")
     for product in ["NVDA", "VoiceOver", "Orca"]:
         assert product in handbook
     assert handbook.lower().count("manual at testing pending") >= 3
     release = read("RELEASE.md")
     assert "0.1.0-alpha.171" in release
-    assert "source candidate" in release.lower()
-    assert "unpackaged" in release.lower()
+    assert "unsigned packaged alpha candidate" in release.lower()
+    assert "deployed on the private nextcloud 34 test instance" in release.lower()
     assert "accessibility-tree" in release.lower()
     assert "not screen-reader testing" in release.lower()
+    assert "safe-diagnostic live reflection" in release.lower()
     assert "alpha.166" in read("CHANGELOG.md")
     for path in ["README.md", "CHANGELOG.md", "docs/roadmap.md", "docs/current-state-and-risk-register.md", "docs/app-store-readiness.md", "docs/architecture-review.md", "docs/alpha-test-checklist.md"]:
         assert "alpha.171" in read(path), path

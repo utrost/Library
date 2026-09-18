@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.1.0-alpha.171 - 2026-09-15 (source candidate, unpackaged)
+## v0.1.0-alpha.171 - 2026-09-18 (unsigned package deployed to private test instance)
 
 - Delayed server-backed publication/series, creator, publisher, and subject typeahead requests until three trimmed characters are entered, while retaining the two-character year threshold and immediate exact-value apply/clear behavior.
 - Added bounded server-backed Home and Shelves surfaces, lazy shelf-tree children, additive catalogue facets/filters, publication suggestions, and list-view and responsive shelf refinements.
@@ -8,7 +8,9 @@
 - Kept OPF precedence explicit: same-basename sidecars precede folder `metadata.opf`, sidecar metadata precedes embedded candidates but not user edits, paired OPFs stay out of normal catalogue results, and user-edited standalone OPF records are preserved.
 - Made Settings operations asynchronous, added per-root and total publication counts, retained cooperative cancellation, and added bounded heartbeat/current-path progress. Quiet running jobs are reported as stale without a destructive terminal transition.
 - Added lazy high-cardinality facet typeaheads, indexed arbitrary-substring catalogue search, the mobile filter panel, and the review issue batch for drawer keyboard safety, import preview/apply, loading feedback, first-run defaults, cover labels and combobox keyboarding.
-- Refreshed current documentation and `appinfo/database.xml` schema declarations through the current source candidate; exact-package/fresh-database release rehearsal remains pending.
+- Refreshed current documentation and `appinfo/database.xml` schema declarations through the current candidate; exact-package/fresh-database release rehearsal has been completed for the unsigned alpha archive.
+- Hardened metadata-error TSV exports against spreadsheet formula injection by neutralizing cells that begin with `=`, `+`, `-` or `@` after separator/control-character trimming.
+- Replaced raw parser/scanner/import/job exception exposure with bounded safe diagnostics (`libdiag-...` correlation IDs) while keeping detailed exception context server-only; legacy persisted SQLSTATE/exception strings are sanitized before user-facing projection.
 
 ## v0.1.0-alpha.167 - 2026-09-12 (source candidate, unpackaged)
 

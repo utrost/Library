@@ -4,11 +4,11 @@
 
 Version under test: `0.1.0-alpha.171`. The current Alice deployment includes the accessibility/catalogue cleanup, ISBN/ISSN identifier spine, indexed substring search, mobile filter panel, high-cardinality typeaheads, and the review issue batch (#32-37).
 
-Packaging: **not used for this Alice deployment**. Deployment: **Alice checkout copy deployed**. Run the installed-instance cases against `http://100.123.149.120:8088/apps/library/`; treat archive/package-identity assertions as not applicable unless a separate `dist/library-0.1.0-alpha.171.tar.gz` candidate is generated and installed.
+Packaging: **used for the current private deployment**. Deployment: the exact unsigned `dist/library-0.1.0-alpha.171.tar.gz` package is installed in the private Nextcloud 34 test container. Run the installed-instance cases against `http://100.123.149.120:8088/apps/library/`; archive/package-identity assertions are applicable after each documented package rebuild/deploy.
 
 ## Identifier and search first pass
 
-Run this focused pass after the current source candidate is deployed. It covers ISBN/ISSN storage, validation warnings, exact normalized search, and the indexed arbitrary-substring catalogue search path; it does not cover DOI/OCLC/LCCN, external metadata lookup, or full type-aware field layouts yet.
+Run this focused pass after the current candidate package is deployed. It covers ISBN/ISSN storage, validation warnings, exact normalized search, the indexed arbitrary-substring catalogue search path, safe diagnostics and metadata-error TSV hardening; it does not cover DOI/OCLC/LCCN, external metadata lookup, or full type-aware field layouts yet.
 
 ### A168-01 — ISBN/ISSN edit, warning, and search
 

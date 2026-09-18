@@ -17,7 +17,9 @@ def test_alpha_159_real_gates_are_complete_but_deferred_gates_remain_explicit():
     architecture = read("docs/architecture-review.md")
     combined = "\n".join((readme, changelog, release, readiness, risk, architecture))
 
-    assert "Current source candidate: `0.1.0-alpha.171`." in readme
+    assert "Current source candidate: `0.1.0-alpha.171`." not in readme
+    assert "Current candidate: `0.1.0-alpha.171`." in readme
+    assert "safe user-facing diagnostics" in readme
     assert "727 Python tests, 9 PHP runtime programs, 26 Vitest tests" in readme
     assert "`release_package_smoke_ok=true`" in readme
     assert "`No upgrade required`" in readme
@@ -25,7 +27,9 @@ def test_alpha_159_real_gates_are_complete_but_deferred_gates_remain_explicit():
     assert "fresh-database migration rehearsal remains pending" not in readme
     assert "performance instrumentation is still pending" not in readme
     assert "Alpha.159 exact-package/live evidence is complete" in readiness
+    assert "Alpha.171 security-hardening deployment evidence" in readiness
     assert "Alpha.159 verification is complete" in risk
+    assert "Alpha.171 exact-package and security-hardening evidence is current" in risk
     assert "Alpha.159 verification evidence" in release
     assert "one authoritative observation" in changelog
     assert "one authoritative observation" in architecture
@@ -65,5 +69,6 @@ def test_alpha_157_and_historical_alpha_153_evidence_are_distinct():
     assert "Historical alpha.153 privacy-safe smallest-root validation" in architecture
     assert "Alpha.153 rehearsal evidence" in readiness
     assert "Historical exact-package migration evidence for alpha.153" in risk
-    assert "Alpha.157 release baseline" in checklist
+    assert "Alpha.171 release baseline" in checklist
+    assert "Alpha.157 historical release baseline" in checklist
     assert "zero catalogue rewrites, 40 markers and `source_observation_changes=0`" in checklist
