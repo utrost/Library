@@ -1,8 +1,8 @@
 # Public alpha test checklist
 
-`0.1.0-alpha.171` is the current unpackaged source candidate. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+`0.1.0-alpha.171` is the current unsigned packaged alpha deployed on the private Nextcloud 34 test instance. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
 
-Use this Public alpha checklist after an exact `0.1.0-alpha.171` package exists and before its v0.1 alpha test pass. Exact-package live proof for this candidate is currently pending; for the full repeatable script, use the [human test handbook](human-test-handbook.md).
+Use this Public alpha checklist against the exact `0.1.0-alpha.171` package before the broader v0.1 alpha acceptance pass. Exact-package live proof exists for the private test deployment; for the full repeatable script, use the [human test handbook](human-test-handbook.md).
 
 ## Setup
 
@@ -51,7 +51,9 @@ Expected result: user-edited Library metadata survives the rescan. Nextcloud tag
 
 For an unchanged-root regression check, run the same root twice after the alpha.158 migration. The first run may warm nullable fingerprint/revision markers and may rewrite inferred rows; the second should preserve every item `updated_at` value while still reporting the fixture count as indexed. This verifies write avoidance, not a measured speedup.
 
-Alpha.157 release baseline: the exact package passed checksum verification, install/enable, PHP lint, route listing, and live Vue/API and browser smokes. Browser console errors were zero and mutation restoration was verified. Both scans of the privacy-safe 40-file root reported `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0`; the run ended with `release_package_smoke_ok=true`. This is write-elision evidence only, not throughput or latency evidence. Because the upgrade reported `No upgrade required`, a fresh database migration rehearsal remains pending.
+Alpha.171 release baseline: the unsigned exact package was built from merged `main`, audited, installed on the private Nextcloud 34 test instance and live-smoked. The latest package SHA-256 is `dee035479b847c091490ad7a57e9d04ef121180ddd6dd73ae7f6d5f00ac7e97f`; CI passed for the merged security-hardening commits, deployed checksums matched for the changed server files, safe-diagnostic reflection showed no SQLSTATE/table/exception leakage, and Vue route smoke ended with `vue_smoke_ok=true` plus temporary-token cleanup at zero.
+
+Alpha.157 historical release baseline: the exact package passed checksum verification, install/enable, PHP lint, route listing, and live Vue/API and browser smokes. Browser console errors were zero and mutation restoration was verified. Both scans of the privacy-safe 40-file root reported `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0`; the run ended with `release_package_smoke_ok=true`. This is write-elision evidence only, not throughput or latency evidence.
 
 Historical alpha.153 release baseline: the exact alpha.153 package also passed this check. Its warm-up rewrote 40 item rows and established 40 markers, while its unchanged second scan rewrote zero item rows and retained 40 markers. Keep this result labeled as historical alpha.153 evidence.
 

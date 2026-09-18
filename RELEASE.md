@@ -1,10 +1,10 @@
 # Release process
 
-## Alpha.168 source candidate — unpackaged
+## Alpha.171 unsigned package candidate — deployed private test instance
 
-Future authorized release commands use `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.171.tar.gz` and `(cd dist && sha256sum -c library-0.1.0-alpha.171.tar.gz.sha256)`; neither has been run for this source candidate.
+Future authorized signing uses `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.171.tar.gz`; the current alpha package is unsigned. Checksum verification is part of the package/deploy workflow.
 
-`0.1.0-alpha.171` is an unpackaged source candidate. It adds bounded server-backed Home and Shelves payloads, lazy shelf navigation, additive catalogue facets/filters and list refinements. Its identifier spine stores display ISBN/ISSN values, supports normalized exact search and keeps catalogue rows distinct across identifier joins. OPF sidecars follow documented suppression and precedence rules. Settings operations are asynchronous; scan status includes root publication counts, cooperative cancellation, heartbeat/current-path progress, and non-destructive stale-job reporting. Accessibility-tree automation is not screen-reader testing, and manual AT testing remains pending. Package identity, installation, deployment, and exact-package browser evidence remain pending until packaging is separately authorized.
+`0.1.0-alpha.171` is an unsigned packaged alpha candidate currently deployed on the private Nextcloud 34 test instance. It adds bounded server-backed Home and Shelves payloads, lazy shelf navigation, additive catalogue facets/filters and list refinements. Its identifier spine stores display ISBN/ISSN values, supports normalized exact search and keeps catalogue rows distinct across identifier joins. OPF sidecars follow documented suppression and precedence rules. Settings operations are asynchronous; scan status includes root publication counts, cooperative cancellation, heartbeat/current-path progress, and non-destructive stale-job reporting. Metadata-error TSV exports neutralize spreadsheet formulas, and public scanner/parser/import/job diagnostics use bounded safe messages plus `libdiag-...` correlation IDs instead of raw exception text. Accessibility-tree automation is not screen-reader testing, and manual AT testing remains pending. Package identity, installation, deployment, exact-package browser evidence, and safe-diagnostic live reflection are current for the unsigned private-test package; signing/App Store submission remains pending.
 
 ## Alpha.165 legacy server-rendered localization coverage
 
@@ -118,7 +118,7 @@ legacy PHP/settings/detail surfaces and broaden reviewed translations; alpha.166
 should extend assistive-technology and mixed-direction content coverage. Source
 files remain private and unchanged, and locale changes in smoke are restored.
 
-This repo is prepared for independent review from the unpackaged source candidate `0.1.0-alpha.171`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
+This repo is prepared for independent review from the unsigned packaged candidate `0.1.0-alpha.171`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
 
 ## Release type
 

@@ -42,7 +42,7 @@ updated_at
 
 This answers: which Nextcloud file backs this catalogue item?
 
-Metadata extraction is best-effort. If a supported file is corrupt or a local extractor fails, Library keeps the file-index row, records `scan_status=metadata_error` plus a short `scan_error`, and still attempts a filename-derived catalogue item. A bad file should be diagnostic noise, not a root-scan stopper.
+Metadata extraction is best-effort. If a supported file is corrupt or a local extractor fails, Library keeps the file-index row, records `scan_status=metadata_error` plus a bounded safe `scan_error`, and still attempts a filename-derived catalogue item. User-facing diagnostics use stable codes and `libdiag-...` correlation IDs; raw exception text, SQLSTATE/table names, absolute paths and token-looking details stay in server-only logs or are sanitized from legacy persisted values before projection. A bad file should be diagnostic noise, not a root-scan stopper.
 
 ### 2. Library publication metadata
 
