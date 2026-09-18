@@ -362,6 +362,26 @@ const catalogueNavigation = computed(() => [
   { key: 'collections', name: t('library', 'Collections'), href: `${catalogueRootUrl.value}#library-collections`, active: false },
 ])
 const requestToken = computed(() => catalogueState.requestToken || '')
+
+function recordOpenBeforeNavigate(item, event) {
+  const recordOpenUrl = String(item?.recordOpenUrl || '')
+  if (!recordOpenUrl || !requestToken.value) return
+  const body = new URLSearchParams({ requesttoken: requestToken.value })
+  try {
+    if (navigator.sendBeacon) {
+      const payload = new Blob([body.toString()], { type: 'application/x-www-form-urlencoded' })
+      navigator.sendBeacon(recordOpenUrl, payload)
+      return
+    }
+  } catch {}
+  fetch(recordOpenUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', requesttoken: requestToken.value },
+    body,
+    credentials: 'same-origin',
+    keepalive: true,
+  }).catch(() => {})
+}
 const metadataExportUrl = computed(() => catalogueState.metadataExportUrl || '')
 const metadataSidecarManifestUrl = computed(() => catalogueState.metadataSidecarManifestUrl || '')
 const metadataSidecarBundleUrl = computed(() => catalogueState.metadataSidecarBundleUrl || '')
@@ -1054,8 +1074,10 @@ async function fetchImportHealthSummary(refresh = false) {
   }
   importHealthState.error = ''
   try {
-    const response = await fetch(`${importHealthSummaryUrl.value}${refresh ? '?refresh=1' : ''}`, {
-      headers: { Accept: 'application/json' },
+    const response = await fetch(importHealthSummaryUrl.value, {
+      headers: refresh ? { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded', requesttoken: requestToken.value } : { Accept: 'application/json' },
+      method: refresh ? 'POST' : 'GET',
+      body: refresh ? new URLSearchParams({ requesttoken: requestToken.value }) : undefined,
       credentials: 'same-origin',
     })
     if (!response.ok) {
@@ -1754,7 +1776,7 @@ async function toggleStar(item, event) {
     <div v-else class="library-review-results" role="region" :aria-label="t('library', 'Review results')">
       <article v-for="item in items" :key="item.id" class="library-review-result-card">
         <div><h3><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></button></h3><p v-if="item.creators" class="library-muted"><bdi class="library-bidi-human" dir="auto">{{ item.creators }}</bdi></p><p v-if="item.scanError" class="library-scan-error"><bdi class="library-bidi-human" dir="auto">{{ item.scanError }}</bdi></p></div>
-        <p><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Details') }}</button><a class="button primary" :href="item.openUrl">{{ t('library', 'Open') }}</a></p>
+        <p><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Details') }}</button><a class="button primary" :href="item.openUrl" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></p>
       </article>
     </div>
     <nav v-if="items.length > 0" class="library-pagination" :aria-label="t('library', 'Review pagination')"><a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a><span v-else class="library-muted">{{ t('library', 'Previous') }}</span><span>{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span><a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a><span v-else class="library-muted">{{ t('library', 'Next') }}</span></nav>
@@ -1770,7 +1792,7 @@ async function toggleStar(item, event) {
       <div v-if="homeRows.continueReading.length" class="library-home-card-row">
         <article v-for="item in homeRows.continueReading" :key="`continue-${item.id}`" class="library-cover-card library-home-card">
           <button type="button" class="library-cover-link" :aria-label="`${t('library', 'Details')}: ${item.title}`" @click="openDetailsDrawer(item, $event)"><span class="library-cover-frame"><img class="library-cover-image" :src="item.coverUrl" alt="" loading="lazy"></span></button>
-          <div class="library-cover-summary"><h4><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi dir="auto">{{ item.title }}</bdi></button></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Open') }}</a></div>
+          <div class="library-cover-summary"><h4><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi dir="auto">{{ item.title }}</bdi></button></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></div>
         </article>
       </div>
       <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Publications you open will appear here.') }}</p>
@@ -1781,7 +1803,7 @@ async function toggleStar(item, event) {
       <div v-if="homeRows.recentlyAdded.length" class="library-home-card-row">
         <article v-for="item in homeRows.recentlyAdded" :key="`recent-${item.id}`" class="library-cover-card library-home-card">
           <button type="button" class="library-cover-link" :aria-label="`${t('library', 'Details')}: ${item.title}`" @click="openDetailsDrawer(item, $event)"><span class="library-cover-frame"><img class="library-cover-image" :src="item.coverUrl" alt="" loading="lazy"></span></button>
-          <div class="library-cover-summary"><h4><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi dir="auto">{{ item.title }}</bdi></button></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Open') }}</a></div>
+          <div class="library-cover-summary"><h4><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi dir="auto">{{ item.title }}</bdi></button></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></div>
         </article>
       </div>
       <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Recently indexed publications will appear here.') }}</p>
@@ -1990,7 +2012,7 @@ async function toggleStar(item, event) {
           <div v-if="item.extension || item.publicationType"><dt>{{ t('library', 'Format') }}</dt><dd><bdi :class="item.extension ? 'library-bidi-machine' : 'library-bidi-human'" :dir="item.extension ? 'ltr' : 'auto'">{{ item.extension ? upper(item.extension) : item.publicationType }}</bdi></dd></div>
           <div v-if="item.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ item.shelf }}</bdi></dd></div>
         </dl>
-        <div class="library-catalogue-list-actions"><a class="button primary" :href="item.openUrl">{{ t('library', 'Open') }}</a><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Details') }}</button></div>
+        <div class="library-catalogue-list-actions"><a class="button primary" :href="item.openUrl" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Details') }}</button></div>
       </li>
     </ul>
     <div v-else-if="items.length > 0" class="library-cover-gallery" :class="coverGalleryClasses">
@@ -2030,7 +2052,7 @@ async function toggleStar(item, event) {
               <span v-if="item.extension" class="library-cover-badge"><bdi class="library-bidi-machine" dir="ltr">{{ upper(item.extension) }}</bdi></span>
               <p v-if="cardContext(item)" class="library-cover-context"><bdi class="library-bidi-human" dir="auto">{{ cardContext(item) }}</bdi></p>
             </div>
-            <div class="library-cover-primary-actions"><a class="library-cover-read" :href="item.openUrl">{{ t('library', 'Open') }}</a><NcActions :aria-label="t('library', 'More actions')"><NcActionLink :href="item.filesUrl">{{ t('library', 'Show in Files') }}</NcActionLink><NcActionLink :href="item.downloadUrl">{{ t('library', 'Download') }}</NcActionLink><NcActionLink :href="item.detailsUrl">{{ t('library', 'Maintenance') }}</NcActionLink></NcActions></div>
+            <div class="library-cover-primary-actions"><a class="library-cover-read" :href="item.openUrl" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a><NcActions :aria-label="t('library', 'More actions')"><NcActionLink :href="item.filesUrl">{{ t('library', 'Show in Files') }}</NcActionLink><NcActionLink :href="item.downloadUrl">{{ t('library', 'Download') }}</NcActionLink><NcActionLink :href="item.detailsUrl">{{ t('library', 'Maintenance') }}</NcActionLink></NcActions></div>
           </div>
         </div>
       </article>
@@ -2077,7 +2099,7 @@ async function toggleStar(item, event) {
             <img class="library-detail-drawer-cover" :src="selectedDrawerItem.coverUrl" alt="" :aria-labelledby="'library-detail-drawer-cover-label library-detail-drawer-heading'" loading="lazy">
             <div class="library-sidebar-publication-summary">
               <p class="library-muted library-catalogue-eyebrow"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.publicationType || t('library', 'Publication') }}</bdi><span v-if="selectedDrawerItem.extension"> · <bdi class="library-bidi-machine" dir="ltr">{{ upper(selectedDrawerItem.extension) }}</bdi></span></p>
-              <div class="library-detail-drawer-actions"><a class="button primary" :href="selectedDrawerItem.openUrl">{{ t('library', 'Open') }}</a><NcActions :aria-label="t('library', 'File and maintenance actions')"><NcActionLink :href="selectedDrawerItem.filesUrl">{{ t('library', 'Show in Files') }}</NcActionLink><NcActionLink :href="selectedDrawerItem.downloadUrl">{{ t('library', 'Download') }}</NcActionLink><NcActionLink :href="selectedDrawerItem.detailsUrl">{{ t('library', 'Maintenance (legacy)') }}</NcActionLink></NcActions></div>
+              <div class="library-detail-drawer-actions"><a class="button primary" :href="selectedDrawerItem.openUrl" @click="recordOpenBeforeNavigate(selectedDrawerItem, $event)">{{ t('library', 'Open') }}</a><NcActions :aria-label="t('library', 'File and maintenance actions')"><NcActionLink :href="selectedDrawerItem.filesUrl">{{ t('library', 'Show in Files') }}</NcActionLink><NcActionLink :href="selectedDrawerItem.downloadUrl">{{ t('library', 'Download') }}</NcActionLink><NcActionLink :href="selectedDrawerItem.detailsUrl">{{ t('library', 'Maintenance (legacy)') }}</NcActionLink></NcActions></div>
             </div>
           </div>
           <nav class="library-sidebar-sections" :aria-label="t('library', 'Publication detail sections')">
@@ -2100,7 +2122,7 @@ async function toggleStar(item, event) {
             </form>
             <section v-if="reviewConflictFieldsFor(selectedDrawerItem).length" class="library-sidebar-review" aria-labelledby="library-sidebar-suggestions-heading"><h4 id="library-sidebar-suggestions-heading">{{ t('library', 'Scanner suggestions') }}</h4><p class="library-muted">{{ t('library', 'Suggestions are optional and never replace your edits automatically.') }}</p><dl><div v-for="field in reviewConflictFieldsFor(selectedDrawerItem)" :key="field.field"><dt>{{ field.field }} · {{ field.sourceProvenance }}</dt><dd>{{ t('library', 'Current') }}: {{ field.currentValue || '—' }}<br>{{ t('library', 'Suggestion') }}: {{ field.scannerCandidate || '—' }}</dd></div></dl></section>
           </section>
-          <section v-else class="library-sidebar-section" aria-labelledby="library-sidebar-activity-heading"><h3 id="library-sidebar-activity-heading">{{ t('library', 'Activity') }}</h3><dl class="library-detail-drawer-facts"><div><dt>{{ t('library', 'Scan status') }}</dt><dd>{{ selectedDrawerItem.scanStatus || '—' }}</dd></div><div v-if="selectedDrawerItem.workflowStatus"><dt>{{ t('library', 'Workflow') }}</dt><dd>{{ selectedDrawerItem.workflowStatus }}</dd></div><div v-if="selectedDrawerItem.metadataSource"><dt>{{ t('library', 'Metadata source') }}</dt><dd>{{ selectedDrawerItem.metadataSource }}</dd></div><div v-if="selectedDrawerItem.cachedPath"><dt>{{ t('library', 'File') }}</dt><dd class="library-detail-drawer-file"><a v-if="selectedDrawerItem.openUrl" :href="selectedDrawerItem.openUrl"><bdi dir="ltr">{{ selectedDrawerItem.cachedPath }}</bdi></a><bdi v-else dir="ltr">{{ selectedDrawerItem.cachedPath }}</bdi></dd></div></dl></section>
+          <section v-else class="library-sidebar-section" aria-labelledby="library-sidebar-activity-heading"><h3 id="library-sidebar-activity-heading">{{ t('library', 'Activity') }}</h3><dl class="library-detail-drawer-facts"><div><dt>{{ t('library', 'Scan status') }}</dt><dd>{{ selectedDrawerItem.scanStatus || '—' }}</dd></div><div v-if="selectedDrawerItem.workflowStatus"><dt>{{ t('library', 'Workflow') }}</dt><dd>{{ selectedDrawerItem.workflowStatus }}</dd></div><div v-if="selectedDrawerItem.metadataSource"><dt>{{ t('library', 'Metadata source') }}</dt><dd>{{ selectedDrawerItem.metadataSource }}</dd></div><div v-if="selectedDrawerItem.cachedPath"><dt>{{ t('library', 'File') }}</dt><dd class="library-detail-drawer-file"><a v-if="selectedDrawerItem.openUrl" :href="selectedDrawerItem.openUrl" @click="recordOpenBeforeNavigate(selectedDrawerItem, $event)"><bdi dir="ltr">{{ selectedDrawerItem.cachedPath }}</bdi></a><bdi v-else dir="ltr">{{ selectedDrawerItem.cachedPath }}</bdi></dd></div></dl></section>
           <nav class="library-detail-drawer-stepper" :aria-label="t('library', 'Browse neighbouring items')"><button type="button" class="button secondary" :disabled="!drawerPreviousItem" @click="showDrawerItem(drawerPreviousItem)">{{ t('library', 'Previous item') }}</button><button type="button" class="button secondary" :disabled="!drawerNextItem" @click="showDrawerItem(drawerNextItem)">{{ t('library', 'Next item') }}</button></nav>
         </template>
       </div>

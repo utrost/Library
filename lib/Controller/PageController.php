@@ -44,7 +44,7 @@ class PageController extends Controller {
         'publicationDate', 'description', 'starred', 'workflowStatus',
         'lastOpenedAt', 'extension', 'shelf', 'scanStatus', 'scanError',
         'hasScannerConflict', 'scannerConflictCount', 'nextcloudTags',
-        'coverUrl', 'starUrl', 'openUrl', 'filesUrl', 'downloadUrl',
+        'coverUrl', 'starUrl', 'openUrl', 'recordOpenUrl', 'filesUrl', 'downloadUrl',
         'detailsUrl', 'subjects', 'classifications',
     ];
 
@@ -663,6 +663,7 @@ class PageController extends Controller {
             ]);
             $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]);
             $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $itemId]);
+            $item['recordOpenUrl'] = $this->urlGenerator->linkToRoute('library.item.recordOpen', ['itemId' => $itemId]);
             $item['resetFieldUrl'] = $this->urlGenerator->linkToRoute('library.item.resetfield', ['itemId' => $itemId]);
             $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
             $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($userId, (string)($item['cachedPath'] ?? ''));

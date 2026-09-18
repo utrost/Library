@@ -9,7 +9,7 @@ NORMAL_KEYS = {
     "publicationDate", "description", "starred", "workflowStatus",
     "lastOpenedAt", "extension", "shelf", "scanStatus", "scanError",
     "hasScannerConflict", "scannerConflictCount", "nextcloudTags",
-    "coverUrl", "starUrl", "openUrl", "filesUrl", "downloadUrl",
+    "coverUrl", "starUrl", "openUrl", "recordOpenUrl", "filesUrl", "downloadUrl",
     "detailsUrl", "subjects", "classifications",
 }
 

@@ -7,8 +7,9 @@ def test_import_health_summary_endpoint_uses_cached_summary_unless_refresh_reque
     controller = (ROOT / "lib" / "Controller" / "HealthController.php").read_text()
     service = (ROOT / "lib" / "Service" / "LibraryHealthService.php").read_text()
 
-    assert "getParam('refresh', '0')" in controller
-    assert "cachedImportHealthSummary($userId" in controller
+    assert "refreshImportSummary(): JSONResponse" in controller
+    assert "cachedImportHealthSummary($userId, false)" in controller
+    assert "cachedImportHealthSummary($userId, true)" in controller
     assert "refreshImportHealthSummary" in service
     assert "cachedImportHealthSummary(string $userId, bool $refresh = false)" in service
     assert "import_health_summary_json" in service
@@ -31,7 +32,8 @@ def test_actions_metadata_overview_has_manual_refresh_affordance_and_cache_copy(
     app = (ROOT / "src" / "App.vue").read_text()
 
     assert "refreshImportHealthSummary" in app
-    assert "refresh=1" in app
+    assert "method: refresh ? 'POST' : 'GET'" in app
+    assert "requesttoken: requestToken.value" in app
     assert "Refresh metadata overview" not in app
     assert "Metadata overview" not in app
     assert "Review" in app

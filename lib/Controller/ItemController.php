@@ -36,13 +36,28 @@ final class ItemController extends Controller {
     public function open(int $itemId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
-            $item = $this->itemService->markOpened($user->getUID(), $itemId);
+            $item = $this->itemService->findItem($user->getUID(), $itemId);
             if ($item !== null) {
                 return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/f/' . (int)$item['fileId']));
             }
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
+
+    #[NoAdminRequired]
+    public function recordOpen(int $itemId): JSONResponse {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['recorded' => false], 401, [
+                'Cache-Control' => 'private, no-store',
+            ]);
+        }
+
+        $item = $this->itemService->markOpened($user->getUID(), $itemId);
+        return new JSONResponse(['recorded' => $item !== null], $item !== null ? 200 : 404, [
+            'Cache-Control' => 'private, no-store',
+        ]);
     }
 
     #[NoAdminRequired]
