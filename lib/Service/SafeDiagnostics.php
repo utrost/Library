@@ -124,6 +124,6 @@ final class SafeDiagnostics {
     }
 
     private static function looksSensitive(string $value): bool {
-        return preg_match('~(?:/[A-Za-z0-9._ -]+){2,}|[A-Za-z]:\\\\|\b(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|JOIN)\b|(?:token|secret|password|passwd|api[_-]?key)\s*[=:]|\b(?:sk|ghp|github_pat|xox[baprs])_[A-Za-z0-9_\-]{6,}|Stack trace|Traceback|Exception:|\.php:\d+~i', $value) === 1;
+        return preg_match('~(?:/[A-Za-z0-9._ -]+){2,}|[A-Za-z]:\\\\|\bSQLSTATE\b|\b(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|JOIN)\b|(?:token|secret|password|passwd|api[_-]?key)\s*[=:]|\b(?:sk|ghp|github_pat|xox[baprs])_[A-Za-z0-9_\-]{6,}|Stack trace|Traceback|\b[A-Za-z0-9_\\\\]*Exception\b|\.php:\d+~i', $value) === 1;
     }
 }
