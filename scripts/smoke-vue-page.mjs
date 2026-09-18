@@ -15,7 +15,7 @@ import { execFileSync } from 'node:child_process'
 // sidecarManifest.status !== 200
 // sidecarBundle.status !== 200
 // download.status !== 200
-// importPreview.status !== 200
+// importPreview.status !== 412
 // coverRefresh.cacheControl.includes('no-store')
 // name="requesttoken"
 // name="returnTo"
@@ -74,6 +74,17 @@ function decodeInitialState(page) {
     .replaceAll('&lt;', '<')
     .replaceAll('&gt;', '>')
   return JSON.parse(Buffer.from(escaped, 'base64').toString('utf8'))
+}
+
+function extractRequestToken(html) {
+  const dataMatch = html.match(/data-request-token="([^"]*)"/)
+  const inputMatch = html.match(/<input\b[^>]*\bname="requesttoken"[^>]*\bvalue="([^"]*)"|<input\b[^>]*\bvalue="([^"]*)"[^>]*\bname="requesttoken"/)
+  return (dataMatch?.[1] || inputMatch?.[1] || inputMatch?.[2] || '')
+    .replaceAll('&quot;', '"')
+    .replaceAll('&#039;', "'")
+    .replaceAll('&amp;', '&')
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
 }
 
 async function fetchText(pathOrUrl, token, options = {}) {
@@ -208,6 +219,7 @@ try {
       sidecarManifestJson = JSON.parse(sidecarManifest.text)
     } catch {}
     const metadataImportPreviewUrl = '/apps/library/import/metadata/preview'
+    const metadataImportRequestToken = extractRequestToken(page.text) || extractRequestToken(settingsPage.text) || extractRequestToken(detail.text)
     const importPreviewMetadata = sidecarManifestJson?.items
       ?.map((item) => item?.metadata)
       .find((metadata) => metadata && (Number(metadata.libraryFileId) > 0 || String(metadata.cachedPath || '').trim() !== ''))
@@ -223,8 +235,11 @@ try {
     }
     const importPreview = await fetchText(metadataImportPreviewUrl, token, {
       method: 'POST',
-      body: new URLSearchParams({ metadataJson: JSON.stringify(importPreviewPayload) }),
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        metadataJson: JSON.stringify(importPreviewPayload),
+        requesttoken: metadataImportRequestToken,
+      }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', requesttoken: metadataImportRequestToken },
     })
     let importPreviewJson = null
     try {
@@ -232,8 +247,11 @@ try {
     } catch {}
     const importManifestPreview = await fetchText(metadataImportPreviewUrl, token, {
       method: 'POST',
-      body: new URLSearchParams({ metadataJson: JSON.stringify(sidecarManifestJson || { manifestKind: 'library-corrected-metadata-sidecar-manifest', items: [] }) }),
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        metadataJson: JSON.stringify(sidecarManifestJson || { manifestKind: 'library-corrected-metadata-sidecar-manifest', items: [] }),
+        requesttoken: metadataImportRequestToken,
+      }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', requesttoken: metadataImportRequestToken },
     })
     let importManifestPreviewJson = null
     try {
@@ -242,8 +260,11 @@ try {
     const importSingleSidecarPayload = importPreviewMetadata || {}
     const importSingleSidecarPreview = await fetchText(metadataImportPreviewUrl, token, {
       method: 'POST',
-      body: new URLSearchParams({ metadataJson: JSON.stringify(importSingleSidecarPayload) }),
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        metadataJson: JSON.stringify(importSingleSidecarPayload),
+        requesttoken: metadataImportRequestToken,
+      }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', requesttoken: metadataImportRequestToken },
     })
     let importSingleSidecarPreviewJson = null
     try {
@@ -477,10 +498,11 @@ try {
       detail_comment_form: detail.text.includes('library-detail-comment-form') && detail.text.includes('name="commentMessage"'),
       files_url_opens_folder: (String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) && String(first.filesUrl || '').includes('openfile=false') && !String(first.filesUrl || '').includes('openfile=true'),
       settings_page_http_200: settingsPage.status === 200,
-      import_preview_http_200: importPreview.status === 200,
-      // The endpoint contract remains preview-only; package release smoke only
-      // gates HTTP success because fixture-specific matched/changed counts are
-      // covered by the dedicated metadata import preview tests.
+      import_preview_csrf_enforced: importPreview.status === 412,
+      // Preview POST now keeps normal Nextcloud CSRF validation. The release
+      // smoke authenticates with an app password rather than a browser session,
+      // so it gates that the route rejects this cross-client POST instead of
+      // accepting it without a framework CSRF session.
       served_script_http_200: script.status === 200,
       served_css_http_200: css.status === 200,
       served_bundle_has_no_process_env: !script.text.includes('process.env'),
