@@ -57,7 +57,7 @@ Source: `appinfo/info.xml`.
 
 There is no declared dependency on another app such as `epubviewer` in `info.xml`.
 
-Recent security hardening: public parser/scanner/import/job diagnostics are produced through `OCA\Library\Service\SafeDiagnostics`. User-facing text is bounded to stable diagnostic codes and `libdiag-...` correlation IDs; raw exception messages, SQL fragments, absolute paths and token-like details are kept server-side or sanitized when projecting legacy persisted `scan_error` values. Metadata-error TSV exports also neutralize spreadsheet formulas before download.
+Recent security hardening: public parser/scanner/import/job diagnostics are produced through `OCA\Library\Service\SafeDiagnostics`. User-facing text is bounded to stable diagnostic codes and `libdiag-...` correlation IDs; raw exception messages, SQL fragments, absolute paths and token-like details are kept server-side or sanitized when projecting legacy persisted `scan_error` values. Metadata-error TSV exports also neutralize spreadsheet formulas before download. The native item sidebar now uses normal Nextcloud framework authentication instead of a `PublicPage` boundary, while retaining generic unauthenticated/non-owned/invalid-item 404 responses and an explicit response allowlist.
 
 ## Prerequisites
 
@@ -214,6 +214,7 @@ Source: `appinfo/routes.php`.
 
 - `GET /apps/library/` — Vue-backed publication catalogue.
 - `GET /apps/library/items/{itemId}` — item detail/workbench page.
+- `GET /apps/library/items/{itemId}/sidebar` — authenticated native-sidebar JSON projection; invalid, unauthenticated, nonexistent and non-owned item IDs share the same generic 404 shape.
 - `GET /apps/library/items/{itemId}/open` — records Library `last_opened_at`, then redirects to Nextcloud `/f/{fileId}`.
 - `POST /apps/library/items/{itemId}` — update Library publication metadata.
 - `POST /apps/library/items/{itemId}/reset-field` — reset one field to stored scanner candidate.
