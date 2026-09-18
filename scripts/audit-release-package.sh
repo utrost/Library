@@ -99,6 +99,7 @@ forbidden_parts = {
     "coverage",
     "playwright-report",
     "test-results",
+    "security-reports",
     "__pycache__",
 }
 forbidden_files = {
@@ -219,3 +220,53 @@ node "$ROOT/scripts/validate-module-closure.mjs" \
   --archive "$ARCHIVE" \
   --entry "$TOP/js/${VUE_SCRIPT_ASSET}.mjs" \
   --reject-orphans
+
+python3 - "$ARCHIVE" "$ROOT/dist/${APP_ID}-${VERSION}.spdx.json" "$ROOT/dist/${APP_ID}-${VERSION}.provenance.json" <<'PY'
+from __future__ import annotations
+import json
+import re
+import sys
+import tarfile
+from pathlib import Path
+
+archive_path, sbom_path, provenance_path = map(Path, sys.argv[1:4])
+errors: list[str] = []
+if not sbom_path.is_file():
+    errors.append(f"missing release SBOM sidecar: {sbom_path}")
+if not provenance_path.is_file():
+    errors.append(f"missing release provenance sidecar: {provenance_path}")
+if errors:
+    print("release_sbom_audit_ok=false")
+    print("release_provenance_audit_ok=false")
+    print("\n".join(errors))
+    raise SystemExit(1)
+with tarfile.open(archive_path, "r:gz") as tar:
+    archive_files = {member.name for member in tar.getmembers() if member.isfile()}
+sbom = json.loads(sbom_path.read_text(encoding="utf-8"))
+provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+if sbom.get("spdxVersion") != "SPDX-2.3":
+    errors.append("SBOM is not SPDX-2.3 JSON")
+packages = sbom.get("packages", [])
+package_names = {package.get("name") for package in packages}
+missing_files = sorted(archive_files - package_names)
+if missing_files:
+    errors.append(f"SBOM missing packaged files: {', '.join(missing_files[:10])}")
+if not any(str(package.get("name", "")).startswith("npm:") for package in packages):
+    errors.append("SBOM missing npm dependency packages")
+subject = provenance.get("subject", [{}])[0]
+if subject.get("name") != archive_path.name:
+    errors.append("provenance subject does not name release archive")
+sha = subject.get("digest", {}).get("sha256", "")
+if not re.fullmatch(r"[0-9a-f]{64}", sha):
+    errors.append("provenance subject lacks sha256 digest")
+resolved = provenance.get("predicate", {}).get("buildDefinition", {}).get("resolvedDependencies", [])
+if not any(dep.get("uri") == "package-lock.json" for dep in resolved):
+    errors.append("provenance missing package-lock dependency")
+if errors:
+    print("release_sbom_audit_ok=false")
+    print("release_provenance_audit_ok=false")
+    print("\n".join(errors[:50]))
+    raise SystemExit(1)
+print("release_sbom_audit_ok=true")
+print("release_provenance_audit_ok=true")
+PY

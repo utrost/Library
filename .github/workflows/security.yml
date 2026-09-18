@@ -1,0 +1,58 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  codeql:
+    name: CodeQL SAST
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # reviewed=v7 source=https://github.com/actions/checkout/releases/tag/v7
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@d8073367669608af8fbcc5f63dd0a0d52bb90cff # reviewed=v4 source=https://github.com/github/codeql-action/releases/tag/v4
+        with:
+          languages: javascript-typescript,python
+          queries: security-extended,security-and-quality
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@d8073367669608af8fbcc5f63dd0a0d52bb90cff # reviewed=v4 source=https://github.com/github/codeql-action/releases/tag/v4
+        with:
+          category: /language:library
+
+  local-security-gates:
+    name: Secret and app-specific static gates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # reviewed=v7 source=https://github.com/actions/checkout/releases/tag/v7
+
+      - name: Run app-specific security gates
+        run: bash scripts/security-gates.sh
+
+      - name: Upload security reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # reviewed=v7 source=https://github.com/actions/upload-artifact/releases/tag/v7
+        with:
+          name: security-reports-${{ github.run_attempt }}
+          path: security-reports/
+          if-no-files-found: error
+          retention-days: 30

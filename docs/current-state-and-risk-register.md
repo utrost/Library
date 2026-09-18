@@ -45,13 +45,14 @@ Implemented and ready for v0.1 testing:
 - Metadata-error TSV exports neutralize spreadsheet formulas before download by prefixing formula-looking cells after separator/control-character trimming.
 - Parser/scanner/import/job failures use bounded public diagnostics with stable codes and `libdiag-...` correlation IDs; raw exception text, SQLSTATE/table names, absolute paths and token-looking details stay in server-only logs or are sanitized from legacy persisted strings before user-facing projection.
 - Item sidebar/detail/cover projections are user-scoped through normal authenticated Nextcloud routes; invalid IDs, unauthenticated requests and non-owned items retain generic not-found/placeholder responses, and the sidebar DTO is allowlisted.
+- Supply-chain gates now pin GitHub Actions by immutable commit SHA with reviewed update comments, install hashed Python CI requirements, run production `npm audit`, enable Dependabot for npm/actions/pip, run CodeQL plus local secret/app-static checks, and emit/audit SPDX SBOM plus provenance sidecars for release packages.
 
 ## Known weak points and deferred hardening
 
 These are acceptable for the v0.1 alpha test pass but should stay visible:
 
 1. **Nextcloud version scope:** only Nextcloud 34 has been targeted and smoke-tested.
-2. **Release packaging:** unsigned generated archive build/audit/install/live smoke is complete for alpha.171, but app signing/App Store packaging is still future work.
+2. **Release packaging:** unsigned generated archive build/audit/install/live smoke is complete for alpha.171, with SBOM/provenance sidecars generated and audited, but app signing/App Store packaging is still future work.
 3. **Cover lifecycle:** on-demand previews/fallbacks, refresh affordances and uploaded manual cover override/revert exist, but no app-owned cover cache or crop/rebuild workflow exists. Legacy remote URL values are inert and never rendered or fetched.
 4. **Metadata portability:** export/import/apply and sidecar manifest/ZIP exist, and source-folder OPF/JSON writing plus full sidecar restore are intentionally external-tool workflows rather than app responsibilities.
 5. **Scanning operations:** queued scans, progress, retry, recheck and cancellation exist; scheduled/resumable scans and notifications remain future work.
