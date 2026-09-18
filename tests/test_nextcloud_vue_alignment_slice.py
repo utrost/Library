@@ -42,8 +42,8 @@ def test_vue_component_css_is_built_to_nextcloud_css_asset_and_loaded():
     assert "versionedJsAssetName" in build_script
     assert "versionedCssAssetName" in build_script
     assert "copied_nextcloud_vue_assets=true" in build_script
-    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-171-typeaheads';" in controller
-    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-171-typeaheads';" in controller
+    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-171-filter-ux';" in controller
+    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-171-filter-ux';" in controller
     assert "Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);" in controller
     assert "Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);" in controller
     assert (ROOT / "css" / "library-vue.css").exists()
@@ -71,7 +71,7 @@ def test_catalogue_uses_public_nextcloud_vue_shell_components_without_router():
     assert "NcButton" not in app
     assert "NcEmptyContent" not in app
     assert "button type=\"submit\"" in app
-    assert "No matches for the current filters" in app
+    assert "No items match these filters" in app
     assert "Apply filters" in app
     assert "Library settings" in app
 

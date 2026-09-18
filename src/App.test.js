@@ -828,6 +828,94 @@ describe('Library catalogue Vue app', () => {
     ))
   })
 
+  it('offers grouped filter reset actions that preserve filters outside the group and reset pagination', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, shelf: 'Books', scannerConflicts: '1' } }),
+    })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: {
+        ...state.activeFilters,
+        q: 'bauhaus',
+        type: 'book',
+        shelf: 'Books',
+        scannerConflicts: '1',
+      },
+      cataloguePagination: { ...state.cataloguePagination, page: 4 },
+    } } })
+
+    const contentGroup = wrapper.get('[data-library-filter-group="content"]')
+    expect(contentGroup.text()).toContain('Content')
+    expect(contentGroup.get('.library-filter-group-clear').text()).toBe('Clear Content')
+    await contentGroup.get('.library-filter-group-clear').trigger('click')
+
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?shelf=Books&scannerConflicts=1',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+    const requested = new URL(global.fetch.mock.calls.at(-1)[0], window.location.origin)
+    expect(requested.searchParams.has('page')).toBe(false)
+  })
+
+  it.each(['home', 'shelves'])('explains active catalogue filters on the %s surface without loading results underneath', (surface) => {
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      surface,
+      items: [],
+      activeFilters: { ...state.activeFilters, type: 'book', folder: '/Books' },
+    } } })
+
+    const callout = wrapper.get('.library-active-filter-callout')
+    expect(callout.text()).toContain('Active catalogue filters')
+    expect(callout.text()).toContain('View filtered catalogue')
+    expect(callout.get('.library-filter-callout-view').attributes('href')).toBe(`${state.catalogueRootUrl}?type=book&folder=%2FBooks`)
+    expect(wrapper.find('#library-catalogue').exists()).toBe(false)
+    expect(surface === 'home' ? wrapper.find('#library-home').exists() : wrapper.find('#library-shelves-landing').exists()).toBe(true)
+  })
+
+  it('shows accessible pending draft indicators and keeps typing delayed until Apply', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, q: 'bauhaus', publisher: 'Acme Press' } }),
+    })
+    const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+
+    await wrapper.get('input[name="q"]').setValue('bauhaus')
+    await wrapper.get('input[name="publisherSearch"]').setValue('Acme Press')
+    await new Promise((resolve) => window.setTimeout(resolve, 400))
+    expect(global.fetch.mock.calls.map(([url]) => new URL(url, window.location.origin).pathname)).not.toContain('/apps/library/catalogue')
+    expect(wrapper.get('[data-library-pending-draft="q"]').text()).toContain('Not applied yet')
+    expect(wrapper.get('[data-library-pending-draft="publisher"]').text()).toContain('Press Enter or Apply')
+    expect(wrapper.get('.library-publisher-apply').classes()).toContain('library-filter-apply--pending')
+
+    await wrapper.get('form.library-sidebar-filters').trigger('submit')
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/apps/library/catalogue?q=bauhaus&publisher=Acme+Press',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+  })
+
+  it('turns filtered-empty states into chip-specific exits and only shows Clear search when search is active or pending', async () => {
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      items: [],
+      activeFilters: { ...state.activeFilters, type: 'book', format: 'epub' },
+      cataloguePagination: { ...state.cataloguePagination, total: 0, visible: 0, from: 0, to: 0 },
+    } } })
+
+    const empty = wrapper.get('.library-filter-empty-state')
+    expect(empty.text()).toContain('No items match these filters')
+    expect(empty.find('.library-empty-clear-search').exists()).toBe(false)
+    expect(empty.findAll('.library-filter-chip')).toHaveLength(2)
+    expect(empty.text()).toContain('Try removing Type: book')
+
+    await wrapper.get('input[name="q"]').setValue('bauhaus')
+    await wrapper.vm.$nextTick()
+    expect(empty.find('.library-empty-clear-search').exists()).toBe(true)
+  })
+
   it.each(['home', 'shelves'])('clears filters from %s by navigating to the canonical catalogue', async (surface) => {
     global.fetch = vi.fn()
     const submissions = []
@@ -2523,7 +2611,7 @@ describe('Library catalogue Vue app', () => {
     })
 
     expect(wrapper.find('.library-filter-empty-state').exists()).toBe(true)
-    expect(wrapper.text()).toContain('No matches for the current filters')
+    expect(wrapper.text()).toContain('No items match these filters')
     expect(wrapper.text()).toContain('Clear search')
     expect(wrapper.text()).toContain('Clear all filters')
     expect(wrapper.find(`a[href="${state.catalogueRootUrl}?format=pdf"]`).exists()).toBe(true)
