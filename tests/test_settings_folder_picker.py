@@ -20,7 +20,9 @@ def test_settings_folder_picker_progressively_enhances_path_fields():
     assert "button.hidden = false" in script
     assert "form?.querySelector('input[name=\"path\"]')" in script
     assert "'httpd/unix-directory'" in script
-    assert "true,\n                    undefined,\n                    pathInput.value || '/'" in script
+    assert "true,\n            undefined,\n            startPath" in script
+    assert "const initialPath = pathInput.value || '/'" in script
+    assert "pickerResult = openPicker('/')" in script
     assert "event.preventDefault()" in script
     assert "pickerResult.catch(() => {" in script
     assert "pickerResult.catch(showPickerError)" not in script

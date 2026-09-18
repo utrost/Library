@@ -51,7 +51,30 @@ describe('settings folder picker', () => {
     expect(document.querySelector('input[name="path"]').value).toBe('/')
   })
 
-  it('shows an accessible error when opening the picker throws synchronously', () => {
+  it('retries from the Files root when an existing saved path makes the picker throw', () => {
+    document.querySelector('input[name="path"]').value = '/Missing/Old/Root'
+    const dialogs = {
+      filepicker: vi.fn(function(_title, callback, _multiselect, _mime, _modal, _type, startPath) {
+        if (startPath === '/Missing/Old/Root') {
+          throw new Error('start path not found')
+        }
+        callback('/Books')
+      }),
+    }
+    loadFolderPicker(dialogs.filepicker, dialogs)
+    document.querySelector('button').click()
+
+    expect(dialogs.filepicker).toHaveBeenNthCalledWith(
+      1, 'Choose a folder', expect.any(Function), false, 'httpd/unix-directory', true, undefined, '/Missing/Old/Root',
+    )
+    expect(dialogs.filepicker).toHaveBeenNthCalledWith(
+      2, 'Choose a folder', expect.any(Function), false, 'httpd/unix-directory', true, undefined, '/',
+    )
+    expect(document.querySelector('[data-library-folder-picker-error]')).toBeNull()
+    expect(document.querySelector('input[name="path"]').value).toBe('/Books')
+  })
+
+  it('shows an accessible error when opening the picker throws synchronously even from root', () => {
     loadFolderPicker(vi.fn(() => { throw new Error('broken') }))
     document.querySelector('button').click()
 

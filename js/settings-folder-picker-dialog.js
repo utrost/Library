@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        if (button.dataset.libraryFolderPickerReady === '1') {
+            return;
+        }
+        button.dataset.libraryFolderPickerReady = '1';
         button.hidden = false;
         const showPickerError = () => {
             let feedback = form.querySelector('[data-library-folder-picker-error]');
@@ -24,25 +28,37 @@ document.addEventListener('DOMContentLoaded', () => {
             feedback.textContent = button.dataset.pickerError;
         };
 
+        const applySelection = (selection) => {
+            const selectedPath = Array.isArray(selection) ? selection[0] : selection;
+            if (typeof selectedPath === 'string' && selectedPath !== '') {
+                pathInput.value = selectedPath.startsWith('/') ? selectedPath : `/${selectedPath}`;
+                pathInput.dispatchEvent(new Event('change', { bubbles: true }));
+                pathInput.focus();
+            }
+        };
+        const openPicker = (startPath) => dialogs.filepicker(
+            button.dataset.pickerTitle,
+            applySelection,
+            false,
+            'httpd/unix-directory',
+            true,
+            undefined,
+            startPath
+        );
+
         button.addEventListener('click', (event) => {
             event.preventDefault();
             try {
-                const pickerResult = dialogs.filepicker(
-                    button.dataset.pickerTitle,
-                    (selection) => {
-                        const selectedPath = Array.isArray(selection) ? selection[0] : selection;
-                        if (typeof selectedPath === 'string' && selectedPath !== '') {
-                            pathInput.value = selectedPath.startsWith('/') ? selectedPath : `/${selectedPath}`;
-                            pathInput.dispatchEvent(new Event('change', { bubbles: true }));
-                            pathInput.focus();
-                        }
-                    },
-                    false,
-                    'httpd/unix-directory',
-                    true,
-                    undefined,
-                    pathInput.value || '/'
-                );
+                const initialPath = pathInput.value || '/';
+                let pickerResult;
+                try {
+                    pickerResult = openPicker(initialPath);
+                } catch (error) {
+                    if (initialPath === '/') {
+                        throw error;
+                    }
+                    pickerResult = openPicker('/');
+                }
                 if (pickerResult && typeof pickerResult.catch === 'function') {
                     pickerResult.catch(() => {
                         // A rejection can mean the already-open picker was closed.

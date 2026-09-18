@@ -22,7 +22,7 @@ def test_vue_and_fallback_distinguish_first_run_from_filtered_empty_state():
         assert "Add a Library root" in source
         assert "Run a scan after saving a root" in source
         assert "library-filter-empty-state" in source
-        assert "No matches for the current filters" in source
+        assert "No items match these filters" in source
         assert "Clear search" in source
         assert "Clear all filters" in source
 
