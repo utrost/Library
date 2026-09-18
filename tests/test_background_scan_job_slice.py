@@ -19,7 +19,8 @@ def test_scan_background_job_class_runs_existing_scanner_and_marks_job_lifecycle
     assert "$this->scanJobService->updateProgress($userId, $jobId, $progress);" in job
     assert "$this->scanner->scan($userId, $rootId, $progress)" in job
     assert "$this->scanJobService->finishJob($userId, $jobId, $result)" in job
-    assert "$this->scanJobService->failJob($userId, $jobId, $e->getMessage(), $metrics)" in job
+    assert "$this->scanJobService->failJob($userId, $jobId, SafeDiagnostics::publicText($diagnostic), $metrics)" in job
+    assert "library.scan.exception" in job
 
 
 def test_scan_controller_queues_background_job_and_returns_before_scanning():

@@ -22,7 +22,7 @@ namespace OCA\Library\Metadata {
     class PublicationMetadataService {
         public const PIPELINE_REVISION = 1; public bool $failExtraction = false;
         public function metadataInputFingerprint($node, int $root): string { return 'fp'; }
-        public function extractWithSidecar($node): array { if ($this->failExtraction) throw new \RuntimeException('extract failed'); return []; }
+        public function extractWithSidecar($node): array { if ($this->failExtraction) throw new \RuntimeException('extract failed at /var/www/html/data/alice/files/private.pdf SELECT token=sk_live_secret'); return []; }
         public function getLastError(): ?string { return null; }
     }
     class MetadataFastPathDecision { public static function shouldSkip(...$args): bool { return false; } public static function shouldMarkProcessed(...$args): bool { return true; } }
@@ -36,9 +36,10 @@ namespace OCA\Library\Service {
     }
     class FileIndexService {
         public array $missingRoots = [];
+        public array $scanErrors = [];
         public function markMissingExcept(string $u,int $r,array $ids): int { $this->missingRoots[] = $r; return 0; }
-        public function upsertFile(string $u,int $r,array $file): array { return ['id'=>$file['fileId'],'changeStatus'=>'added']; }
-        public function markScanError(string $u,int $id,string $error): void {} public function markMetadataProcessed(string $u,int $id,string $fp,int $rev): void {}
+        public function upsertFile(string $u,int $r,array $file): array { return ['id'=>$file['fileId'],'fileId'=>$file['fileId'],'cachedPath'=>$file['cachedPath'] ?? $file['fileId'],'extension'=>$file['extension'] ?? '','changeStatus'=>'added']; }
+        public function markScanError(string $u,int $id,string $error): void { $this->scanErrors[] = $error; } public function markMetadataProcessed(string $u,int $id,string $fp,int $rev): void {}
     }
     class ItemService {
         public bool $failRefresh = false;
@@ -48,6 +49,7 @@ namespace OCA\Library\Service {
 }
 namespace {
     require_once __DIR__ . '/../../lib/Exception/ScanCancelledException.php';
+    require_once __DIR__ . '/../../lib/Service/SafeDiagnostics.php';
     require_once __DIR__ . '/../../lib/Instrumentation/MonotonicClock.php';
     require_once __DIR__ . '/../../lib/Service/LibraryScanner.php';
     use OCA\Library\Instrumentation\MonotonicClock; use OCA\Library\Service\{LibraryScanner,RootService,FileIndexService,ItemService}; use OCP\Files\{File,Folder,IRootFolder};
@@ -67,9 +69,13 @@ namespace {
     traversalExpect(max(array_column($progress,'indexed')) === 0, 'checkpoint payload preserves indexed count');
 
     $metadata = new \OCA\Library\Metadata\PublicationMetadataService(); $metadata->failExtraction = true;
-    $scanner = new LibraryScanner(new RootService(), new FileIndexService(), new ItemService(), $metadata, new RootFolderStub(new Folder([new File('broken.pdf','application/pdf')])));
+    $failedIndex = new FileIndexService();
+    $scanner = new LibraryScanner(new RootService(), $failedIndex, new ItemService(), $metadata, new RootFolderStub(new Folder([new File('broken.pdf','application/pdf')])));
     $result = $scanner->scan('alice');
     traversalExpect($result['metadataExtractions'] === 1 && $result['itemRefreshes'] === 0, 'failed extraction counts an extraction attempt but no refresh success');
+    $persistedError = $failedIndex->scanErrors[0] ?? '';
+    traversalExpect(str_contains($persistedError, 'metadata_extraction_failed') && str_contains($persistedError, 'libdiag-'), 'failed extraction persists safe diagnostic code and id');
+    traversalExpect(!str_contains($persistedError, '/var/www/html') && !str_contains($persistedError, 'SELECT') && !str_contains($persistedError, 'sk_live'), 'failed extraction does not persist raw exception internals');
     $items = new ItemService(); $items->failRefresh = true;
     $scanner = new LibraryScanner(new RootService(), new FileIndexService(), $items, new \OCA\Library\Metadata\PublicationMetadataService(), new RootFolderStub(new Folder([new File('refresh.pdf','application/pdf')])));
     $result = $scanner->scan('alice');

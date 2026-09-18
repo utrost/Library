@@ -2391,7 +2391,7 @@ final class ItemService {
             'mimeType' => (string)($row['mime_type'] ?? ''),
             'extension' => $row['extension'] !== null ? (string)$row['extension'] : '',
             'scanStatus' => (string)$row['scan_status'],
-            'scanError' => $row['scan_error'] !== null ? (string)$row['scan_error'] : '',
+            'scanError' => $row['scan_error'] !== null ? SafeDiagnostics::sanitizePublicError((string)$row['scan_error']) : '',
             'publicationType' => (string)$row['publication_type'],
             'title' => (string)$row['title'],
             'subtitle' => $row['subtitle'] !== null ? (string)$row['subtitle'] : '',

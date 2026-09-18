@@ -6,6 +6,7 @@ namespace OCA\Library\BackgroundJob;
 
 use OCA\Library\Service\LibraryScanner;
 use OCA\Library\Service\ScanJobService;
+use OCA\Library\Service\SafeDiagnostics;
 use OCA\Library\Exception\ScanCancelledException;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
@@ -101,7 +102,18 @@ class ScanJob extends QueuedJob {
             return;
         } catch (Throwable $e) {
             $metrics = [...$latestProgress, 'scannerDurationMs' => $this->clock->elapsedMs($startedAt)];
-            if ($this->scanJobService->failJob($userId, $jobId, $e->getMessage(), $metrics)) {
+            $diagnostic = SafeDiagnostics::fromThrowable(
+                'scan_job_failed',
+                'Library scan job failed. Check server logs with the diagnostic id.',
+                $e,
+                ['userId' => $userId, 'jobId' => $jobId],
+            );
+            try {
+                $this->logger->error('library.scan.exception', ['event_schema' => 1, ...SafeDiagnostics::logContext($diagnostic)]);
+            } catch (Throwable) {
+                SafeDiagnostics::log($diagnostic);
+            }
+            if ($this->scanJobService->failJob($userId, $jobId, SafeDiagnostics::publicText($diagnostic), $metrics)) {
                 $this->logTerminal('failed', $userId, $jobId, $scopeType, $metrics, $progressWrites, $cancelChecks, $queueWaitMs);
             }
         }

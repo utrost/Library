@@ -42,18 +42,20 @@ namespace OCA\Library\Service {
         public int $finishes = 0;
         public int $failures = 0;
         public int $cancelChecks = 0;
+        public string $failureError = '';
         public function isCancelled(string $userId, int $jobId): bool { $this->cancelChecks++; return $this->status === 'cancelled'; }
         public function getJob(string $userId, int $jobId): ?array { return $this->job === [] ? null : $this->job; }
         public function markRunning(string $userId, int $jobId): bool { if ($this->status !== 'queued') return false; $this->status = 'running'; return true; }
         public function updateProgress(string $userId, int $jobId, array $progress): void {}
         public function finishJob(string $userId, int $jobId, array $result): bool { $this->finishes++; if ($this->status !== 'running') return false; $this->status = 'completed'; return true; }
-        public function failJob(string $userId, int $jobId, string $error, array $metrics = []): bool { $this->failures++; if ($this->status !== 'running') return false; $this->status = 'failed'; return true; }
+        public function failJob(string $userId, int $jobId, string $error, array $metrics = []): bool { $this->failureError = $error; $this->failures++; if ($this->status !== 'running') return false; $this->status = 'failed'; return true; }
     }
 }
 namespace {
     require_once __DIR__ . '/../../lib/Exception/ScanCancelledException.php';
     require_once __DIR__ . '/../../lib/Instrumentation/MonotonicClock.php';
     require_once __DIR__ . '/../../lib/Instrumentation/ScanProgressPolicy.php';
+    require_once __DIR__ . '/../../lib/Service/SafeDiagnostics.php';
     require_once __DIR__ . '/../../lib/BackgroundJob/ScanJob.php';
 
     use OCA\Library\BackgroundJob\ScanJob;
@@ -88,8 +90,11 @@ namespace {
     scanJobExpect($scanner->calls === [['scan', 'alice', null]], 'non-root persisted scope forces null root');
     [$scanner, $service, $logger] = executeJob(['scopeType' => 'root', 'rootId' => 0], ['userId' => 'alice', 'jobId' => 7]);
     scanJobExpect($scanner->calls === [] && $service->status === 'failed' && $service->failures === 1, 'invalid persisted root fails without scanning');
-    scanJobExpect(count($logger->events) === 2 && $logger->events[1][1] === 'library.scan.failed', 'invalid root emits one failed terminal event after its start event');
-    scanJobExpect($logger->events[1][2]['user_id'] === 'alice' && $logger->events[1][2]['job_id'] === 7, 'failed event includes correlation identifiers');
+    scanJobExpect(str_contains($service->failureError, 'scan_job_failed') && str_contains($service->failureError, 'libdiag-'), 'failed scan job stores safe diagnostic instead of raw exception');
+    scanJobExpect(!str_contains($service->failureError, 'Invalid persisted scan scope'), 'failed scan job summary hides raw exception message');
+    scanJobExpect(count($logger->events) === 3 && $logger->events[1][1] === 'library.scan.exception' && $logger->events[2][1] === 'library.scan.failed', 'invalid root emits detailed exception log before failed terminal event');
+    scanJobExpect($logger->events[1][2]['exception_message'] === 'Invalid persisted scan scope', 'exception detail stays in server log context');
+    scanJobExpect($logger->events[2][2]['user_id'] === 'alice' && $logger->events[2][2]['job_id'] === 7, 'failed event includes correlation identifiers');
 
     $raceService = null;
     $scanner = new LibraryScanner(); $raceService = new ScanJobService(); $logger = new LoggerStub();
