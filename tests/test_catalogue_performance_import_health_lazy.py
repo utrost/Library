@@ -17,8 +17,9 @@ def test_import_health_summary_has_dedicated_lazy_endpoint():
     controller = (ROOT / "lib" / "Controller" / "HealthController.php").read_text()
 
     assert "public function importSummary(): JSONResponse" in controller
-    assert "cachedImportHealthSummary($userId" in controller
-    assert "getParam('refresh', '0')" in controller
+    assert "cachedImportHealthSummary($userId, false)" in controller
+    assert "refreshImportSummary(): JSONResponse" in controller
+    assert "cachedImportHealthSummary($userId, true)" in controller
     assert "Cache-Control" in controller
 
 
@@ -29,6 +30,8 @@ def test_vue_loads_import_health_only_when_actions_menu_is_opened():
     assert "loadImportHealthSummary" in app
     assert "@toggle=\"loadImportHealthSummary\"" not in app
     assert "Admin tools" not in app
-    assert "fetch(`${importHealthSummaryUrl.value}${refresh ? '?refresh=1' : ''}`" in app
+    assert "fetch(importHealthSummaryUrl.value" in app
+    assert "method: refresh ? 'POST' : 'GET'" in app
+    assert "requesttoken: requestToken.value" in app
     assert "refreshImportHealthSummary" in app
     assert "hasImportHealthFindings" in app

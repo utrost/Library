@@ -57,6 +57,7 @@ final class ItemPageController extends Controller {
         $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $id]);
         $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $id]);
         $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $id]);
+        $item['recordOpenUrl'] = $this->urlGenerator->linkToRoute('library.item.recordOpen', ['itemId' => $id]);
         $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
         $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($user->getUID(), (string)($item['cachedPath'] ?? ''));
         return new JSONResponse(['item' => array_intersect_key($item, array_flip([
@@ -64,7 +65,7 @@ final class ItemPageController extends Controller {
             'language', 'publisher', 'description', 'subjects', 'classifications', 'personalRating',
             'extension', 'shelf', 'cachedPath', 'scanStatus', 'scanError', 'workflowStatus',
             'identifiers', 'metadataSource', 'fieldSources', 'fieldValues', 'userEdited', 'coverUrl',
-            'detailsUrl', 'updateUrl', 'openUrl', 'filesUrl', 'downloadUrl',
+            'detailsUrl', 'updateUrl', 'openUrl', 'recordOpenUrl', 'filesUrl', 'downloadUrl',
         ]))]);
     }
 
@@ -132,6 +133,7 @@ final class ItemPageController extends Controller {
         $item['tagUrl'] = $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => (string)$item['id']]);
         $item['commentUrl'] = $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => (string)$item['id']]);
         $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => (string)$item['id']]);
+        $item['recordOpenUrl'] = $this->urlGenerator->linkToRoute('library.item.recordOpen', ['itemId' => (string)$item['id']]);
         $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
         $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($user->getUID(), (string)($item['cachedPath'] ?? ''));
         $item['nextcloudTags'] = array_map(function (array $tag) use ($item): array {

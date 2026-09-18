@@ -279,7 +279,11 @@ try {
       importSummaryCachedJson = JSON.parse(importSummaryCached.text)
     } catch {}
     const importSummaryRefreshStarted = Date.now()
-    const importSummaryRefresh = await fetchText(`${importSummaryUrl}?refresh=1`, token, { headers: { Accept: 'application/json' } })
+    const importSummaryRefresh = await fetchText(importSummaryUrl, token, {
+      method: 'POST',
+      body: new URLSearchParams({ requesttoken: metadataImportRequestToken }),
+      headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded', requesttoken: metadataImportRequestToken },
+    })
     const importSummaryRefreshElapsedMs = Date.now() - importSummaryRefreshStarted
     let importSummaryRefreshJson = null
     try {
