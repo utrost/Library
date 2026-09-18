@@ -46,4 +46,15 @@ safeDiagnosticsExpect(($logContext['path'] ?? '') === '/Books/private.epub', 'lo
 $short = SafeDiagnostics::fromThrowable('root_scan_failed', 'Library root scan failed. Check server logs with the diagnostic id.', $exception);
 safeDiagnosticsExpect(strlen(SafeDiagnostics::publicText($short)) < 180, 'public text stays bounded');
 
+$sqlStateError = 'PDOException SQLSTATE[42S02]: Table oc_library_items missing';
+$sqlStatePublic = SafeDiagnostics::sanitizePublicError($sqlStateError);
+safeDiagnosticsExpect(str_contains($sqlStatePublic, 'metadata_extraction_failed'), 'legacy SQLSTATE errors are replaced with a safe message');
+safeDiagnosticsExpect(!str_contains($sqlStatePublic, 'SQLSTATE'), 'legacy SQLSTATE errors do not expose database details');
+safeDiagnosticsExpect(!str_contains($sqlStatePublic, 'oc_library_items'), 'legacy SQLSTATE errors do not expose table names');
+
+$exceptionClassError = 'RuntimeException failed while parsing /var/www/html/data/private.epub';
+$exceptionClassPublic = SafeDiagnostics::sanitizePublicError($exceptionClassError);
+safeDiagnosticsExpect(str_contains($exceptionClassPublic, 'metadata_extraction_failed'), 'legacy exception-class errors are replaced with a safe message');
+safeDiagnosticsExpect(!str_contains($exceptionClassPublic, 'RuntimeException'), 'legacy exception-class errors do not expose implementation detail');
+
 echo "safe diagnostics tests passed\n";
