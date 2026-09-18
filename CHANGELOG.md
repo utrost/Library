@@ -2,6 +2,8 @@
 
 ## v0.1.0-alpha.171 - 2026-09-18 (unsigned package deployed to private test instance)
 
+- Hardened the personal-settings folder picker for existing saved roots by retrying from the Files root when Nextcloud rejects a stale/nonexistent start path, while preserving accessible fallback copy for true picker failures.
+- Added grouped catalogue filter reset actions, Home/Shelves active-filter callouts, pending draft indicators for delayed search/typeahead fields, and richer filtered-empty recovery chips/actions.
 - Delayed server-backed publication/series, creator, publisher, and subject typeahead requests until three trimmed characters are entered, while retaining the two-character year threshold and immediate exact-value apply/clear behavior.
 - Added bounded server-backed Home and Shelves surfaces, lazy shelf-tree children, additive catalogue facets/filters, publication suggestions, and list-view and responsive shelf refinements.
 - Added the ISBN/ISSN identifier spine with display-value preservation, checksum warnings, OPF extraction, normalized exact search, and distinct catalogue queries so multi-identifier joins do not duplicate publications.
