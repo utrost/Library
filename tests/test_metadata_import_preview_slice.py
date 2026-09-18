@@ -19,8 +19,9 @@ def test_import_controller_returns_json_preview_without_mutating_files_or_items(
     assert "namespace OCA\\Library\\Controller" in controller
     assert "class ImportController extends Controller" in controller
     assert "use OCP\\AppFramework\\Http\\JSONResponse;" in controller
-    assert "use OCP\\AppFramework\\Http\\Attribute\\NoCSRFRequired;" in controller
-    assert "public function preview(): JSONResponse" in controller
+    assert "use OCP\\AppFramework\\Http\\Attribute\\NoCSRFRequired;" not in controller
+    assert "public function preview(): JSONResponse|TemplateResponse" in controller
+    assert "responseStatus($payload)" in controller
     assert "previewCorrectedMetadataImport($user->getUID()" in controller
     assert "getParam('metadataJson', '')" in controller
     assert "library-metadata-import-preview" in controller
@@ -34,7 +35,9 @@ def test_item_service_previews_import_matches_and_field_changes_without_writes()
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
 
     assert "public function previewCorrectedMetadataImport(string $userId, string $metadataJson): array" in service
-    assert "json_decode($metadataJson, true, 512, JSON_THROW_ON_ERROR)" in service
+    assert "decodeAndValidateImportPayload($metadataJson, false)" in service
+    assert "METADATA_IMPORT_MAX_JSON_BYTES" in service
+    assert "METADATA_IMPORT_MAX_NESTING_DEPTH" in service
     assert "exportKind" in service
     assert "library-corrected-metadata" in service
     assert "matchedItems" in service
@@ -66,6 +69,7 @@ def test_smoke_posts_export_to_import_preview_and_requires_non_mutating_counts()
     assert "metadataImportPreviewUrl" in smoke
     assert "settings_has_four_product_sections" in smoke
     assert "import_preview_http" in smoke
+    assert "import_preview_csrf_enforced" in smoke
     assert "import_preview_matched_items" in smoke
     assert "import_preview_changed_fields" in smoke
     assert "import_manifest_preview_http" in smoke
@@ -73,7 +77,9 @@ def test_smoke_posts_export_to_import_preview_and_requires_non_mutating_counts()
     assert "import_single_sidecar_preview_http" in smoke
     assert "import_single_sidecar_preview_kind" in smoke
     assert "X-Library-Import-Mode" in smoke
-    assert "preview-only" in smoke
+    assert "importPreview.status === 412" in smoke
+    assert "metadataImportRequestToken = extractRequestToken(page.text) || extractRequestToken(settingsPage.text) || extractRequestToken(detail.text)" in smoke
+    assert "requesttoken: metadataImportRequestToken" in smoke
 
 
 def test_item_service_import_accepts_sidecar_manifest_as_restore_source():

@@ -38,7 +38,7 @@ def test_direct_capability_and_safety_checks_remain_in_the_gate():
         "sidecarBundle.status !== 200",
         "download.status !== 200",
         "download.bytes <= 0",
-        "importPreview.status !== 200",
+        "importPreview.status !== 412",
         "importPreviewJson.matchedItems < 1",
         "coverRefresh.cacheControl.includes('no-store')",
         "name=\"requesttoken\"",
