@@ -7,7 +7,6 @@ namespace OCA\Library\Controller;
 use OCA\Library\Service\ItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
-use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
@@ -26,7 +25,6 @@ class ImportController extends Controller {
     }
 
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function preview(): JSONResponse|TemplateResponse {
         $metadataJson = (string)$this->request->getParam('metadataJson', '');
         $user = $this->userSession->getUser();
@@ -46,7 +44,7 @@ class ImportController extends Controller {
             ];
 
         if ($this->expectsJson()) {
-            return new JSONResponse($payload, 200, [
+            return new JSONResponse($payload, $this->responseStatus($payload), [
                 'Cache-Control' => 'private, no-store',
                 'X-Library-Import-Mode' => 'preview-only',
             ]);
@@ -86,7 +84,7 @@ class ImportController extends Controller {
             ];
 
         if ($this->expectsJson()) {
-            return new JSONResponse($payload, 200, [
+            return new JSONResponse($payload, $this->responseStatus($payload), [
                 'Cache-Control' => 'private, no-store',
                 'X-Library-Import-Mode' => 'apply',
             ]);
@@ -107,5 +105,10 @@ class ImportController extends Controller {
 
     private function expectsJson(): bool {
         return str_contains(strtolower((string)$this->request->getHeader('Accept')), 'application/json');
+    }
+
+    private function responseStatus(array $payload): int {
+        $status = (int)($payload['httpStatus'] ?? 200);
+        return $status >= 400 && $status <= 599 ? $status : 200;
     }
 }

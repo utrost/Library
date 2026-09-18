@@ -13,6 +13,15 @@ final class ItemService {
     private const PUBLICATION_FACET_LIMIT = 100;
     private const MULTI_VALUE_FACET_LIMIT = 200;
     private const BULK_ITEM_LIMIT = 5000;
+    /** Encoded metadata import JSON payloads larger than 1 MiB are rejected before json_decode(). */
+    public const METADATA_IMPORT_MAX_JSON_BYTES = 1048576;
+    /** Maximum normalized metadata items accepted in one preview/apply request. */
+    public const METADATA_IMPORT_MAX_ITEMS = self::BULK_ITEM_LIMIT;
+    public const METADATA_IMPORT_MAX_FIELDS_PER_ITEM = 64;
+    public const METADATA_IMPORT_MAX_LIST_VALUES = 200;
+    public const METADATA_IMPORT_MAX_STRING_BYTES = 8192;
+    public const METADATA_IMPORT_MAX_NESTING_DEPTH = 32;
+    public const METADATA_IMPORT_MAX_REPORT_ITEMS = 200;
     private const SEARCH_GRAM_LENGTH = 3;
     private const SEARCH_GRAM_MAX_QUERY_GRAMS = 32;
     private const SEARCH_GRAM_INLINE_CANDIDATE_LIMIT = 500;
@@ -1166,18 +1175,11 @@ final class ItemService {
     }
 
     public function previewCorrectedMetadataImport(string $userId, string $metadataJson): array {
-        try {
-            $payload = json_decode($metadataJson, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            return $this->emptyImportPreview(false, 'invalid_json');
+        $decoded = $this->decodeAndValidateImportPayload($metadataJson, false);
+        if ($decoded['error'] !== '') {
+            return $this->emptyImportPreview(false, $decoded['error'], $decoded['httpStatus']);
         }
-        if (!is_array($payload)) {
-            return $this->emptyImportPreview(false, 'unsupported_export');
-        }
-        $importItems = $this->importItemsFromPayload($payload);
-        if ($importItems === null) {
-            return $this->emptyImportPreview(false, 'unsupported_export');
-        }
+        $importItems = $decoded['items'];
 
         $previewItems = [];
         $matchedItems = 0;
@@ -1187,29 +1189,33 @@ final class ItemService {
         foreach ($importItems as $importItem) {
             if (!is_array($importItem)) {
                 $invalidItems++;
+                $this->appendImportReportItem($previewItems, [
+                    'status' => 'invalid',
+                    'changedFields' => [],
+                ]);
                 continue;
             }
             $current = $this->findItemForImportPreview($userId, $importItem);
             if ($current === null) {
                 $missingItems++;
-                $previewItems[] = [
+                $this->appendImportReportItem($previewItems, [
                     'status' => 'missing',
                     'cachedPath' => (string)($importItem['cachedPath'] ?? ''),
                     'changedFields' => [],
-                ];
+                ]);
                 continue;
             }
 
             $itemChangedFields = $this->changedImportFields($current, $importItem);
             $matchedItems++;
             $changedFields += count($itemChangedFields);
-            $previewItems[] = [
+            $this->appendImportReportItem($previewItems, [
                 'status' => 'matched',
                 'itemId' => (int)$current['id'],
                 'libraryFileId' => (int)$current['libraryFileId'],
                 'cachedPath' => (string)($current['cachedPath'] ?? ''),
                 'changedFields' => $itemChangedFields,
-            ];
+            ]);
         }
 
         return [
@@ -1223,22 +1229,16 @@ final class ItemService {
             'invalidItems' => $invalidItems,
             'changedFields' => $changedFields,
             'items' => $previewItems,
+            'reportTruncated' => count($importItems) > count($previewItems),
         ];
     }
 
     public function applyCorrectedMetadataImport(string $userId, string $metadataJson): array {
-        try {
-            $payload = json_decode($metadataJson, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            return $this->emptyImportApply(false, 'invalid_json');
+        $decoded = $this->decodeAndValidateImportPayload($metadataJson, true);
+        if ($decoded['error'] !== '') {
+            return $this->emptyImportApply(false, $decoded['error'], $decoded['httpStatus']);
         }
-        if (!is_array($payload)) {
-            return $this->emptyImportApply(false, 'unsupported_export');
-        }
-        $importItems = $this->importItemsFromPayload($payload);
-        if ($importItems === null) {
-            return $this->emptyImportApply(false, 'unsupported_export');
-        }
+        $importItems = $decoded['items'];
 
         $applyItems = [];
         $matchedItems = 0;
@@ -1250,16 +1250,20 @@ final class ItemService {
         foreach ($importItems as $importItem) {
             if (!is_array($importItem)) {
                 $invalidItems++;
+                $this->appendImportReportItem($applyItems, [
+                    'status' => 'invalid',
+                    'changedFields' => [],
+                ]);
                 continue;
             }
             $current = $this->findItemForImportPreview($userId, $importItem);
             if ($current === null) {
                 $missingItems++;
-                $applyItems[] = [
+                $this->appendImportReportItem($applyItems, [
                     'status' => 'missing',
                     'cachedPath' => (string)($importItem['cachedPath'] ?? ''),
                     'changedFields' => [],
-                ];
+                ]);
                 continue;
             }
 
@@ -1267,13 +1271,13 @@ final class ItemService {
             $matchedItems++;
             if ($itemChangedFields === []) {
                 $skippedItems++;
-                $applyItems[] = [
+                $this->appendImportReportItem($applyItems, [
                     'status' => 'unchanged',
                     'itemId' => (int)$current['id'],
                     'libraryFileId' => (int)$current['libraryFileId'],
                     'cachedPath' => (string)($current['cachedPath'] ?? ''),
                     'changedFields' => [],
-                ];
+                ]);
                 continue;
             }
 
@@ -1281,14 +1285,14 @@ final class ItemService {
                 $this->updateItem($userId, (int)$current['id'], $importItem);
             } catch (\InvalidArgumentException $e) {
                 $invalidItems++;
-                $applyItems[] = [
+                $this->appendImportReportItem($applyItems, [
                     'status' => 'invalid',
                     'itemId' => (int)$current['id'],
                     'libraryFileId' => (int)$current['libraryFileId'],
                     'cachedPath' => (string)($current['cachedPath'] ?? ''),
                     'changedFields' => $itemChangedFields,
                     'validationError' => $e->getMessage(),
-                ];
+                ]);
                 continue;
             }
             $changedFields += count($itemChangedFields);
@@ -1302,13 +1306,13 @@ final class ItemService {
                 $this->setLastOpenedAtForImport($userId, (int)$current['id'], $importItem['lastOpenedAt']);
             }
             $appliedItems++;
-            $applyItems[] = [
+            $this->appendImportReportItem($applyItems, [
                 'status' => 'applied',
                 'itemId' => (int)$current['id'],
                 'libraryFileId' => (int)$current['libraryFileId'],
                 'cachedPath' => (string)($current['cachedPath'] ?? ''),
                 'changedFields' => $itemChangedFields,
-            ];
+            ]);
         }
 
         return [
@@ -1324,7 +1328,97 @@ final class ItemService {
             'invalidItems' => $invalidItems,
             'changedFields' => $changedFields,
             'items' => $applyItems,
+            'reportTruncated' => count($importItems) > count($applyItems),
         ];
+    }
+
+    /**
+     * @return array{error:string,httpStatus:int,items:array<int, mixed>}
+     */
+    private function decodeAndValidateImportPayload(string $metadataJson, bool $forApply): array {
+        if (strlen($metadataJson) > self::METADATA_IMPORT_MAX_JSON_BYTES) {
+            return ['error' => 'payload_too_large', 'httpStatus' => 413, 'items' => []];
+        }
+
+        try {
+            $payload = json_decode($metadataJson, true, self::METADATA_IMPORT_MAX_NESTING_DEPTH, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return ['error' => 'invalid_json', 'httpStatus' => 400, 'items' => []];
+        }
+        if (!is_array($payload)) {
+            return ['error' => 'unsupported_export', 'httpStatus' => 400, 'items' => []];
+        }
+
+        $importItems = $this->importItemsFromPayload($payload);
+        if ($importItems === null) {
+            return ['error' => 'unsupported_export', 'httpStatus' => 400, 'items' => []];
+        }
+        if (count($importItems) > self::METADATA_IMPORT_MAX_ITEMS) {
+            return ['error' => 'too_many_items', 'httpStatus' => 413, 'items' => []];
+        }
+
+        foreach ($importItems as $importItem) {
+            if (!is_array($importItem)) {
+                continue;
+            }
+            if (count($importItem) > self::METADATA_IMPORT_MAX_FIELDS_PER_ITEM) {
+                return ['error' => 'too_many_fields', 'httpStatus' => 413, 'items' => []];
+            }
+            foreach (['subjects', 'classifications'] as $field) {
+                if (is_array($importItem[$field] ?? null) && count($importItem[$field]) > self::METADATA_IMPORT_MAX_LIST_VALUES) {
+                    return ['error' => 'too_many_list_values', 'httpStatus' => 413, 'items' => []];
+                }
+            }
+            $error = $this->validateImportValueLimits($importItem, 1);
+            if ($error !== '') {
+                return ['error' => $error, 'httpStatus' => 413, 'items' => []];
+            }
+            if ($forApply) {
+                try {
+                    $this->validateEditableMetadata($importItem);
+                } catch (\InvalidArgumentException) {
+                    return ['error' => 'invalid_item', 'httpStatus' => 400, 'items' => []];
+                }
+            }
+        }
+
+        return ['error' => '', 'httpStatus' => 200, 'items' => $importItems];
+    }
+
+    private function validateImportValueLimits(mixed $value, int $depth): string {
+        if ($depth > self::METADATA_IMPORT_MAX_NESTING_DEPTH) {
+            return 'nesting_too_deep';
+        }
+        if (is_string($value) && strlen($value) > self::METADATA_IMPORT_MAX_STRING_BYTES) {
+            return 'string_too_long';
+        }
+        if (!is_array($value)) {
+            return '';
+        }
+        foreach ($value as $child) {
+            $error = $this->validateImportValueLimits($child, $depth + 1);
+            if ($error !== '') {
+                return $error;
+            }
+        }
+        return '';
+    }
+
+    private function appendImportReportItem(array &$items, array $item): void {
+        if (count($items) < self::METADATA_IMPORT_MAX_REPORT_ITEMS) {
+            $items[] = $this->truncateImportReportItem($item);
+        }
+    }
+
+    private function truncateImportReportItem(array $item): array {
+        foreach ($item as $key => $value) {
+            if (is_string($value) && strlen($value) > 512) {
+                $item[$key] = substr($value, 0, 512);
+            } elseif (is_array($value) && count($value) > self::METADATA_IMPORT_MAX_LIST_VALUES) {
+                $item[$key] = array_slice($value, 0, self::METADATA_IMPORT_MAX_LIST_VALUES);
+            }
+        }
+        return $item;
     }
 
     /**
@@ -1409,27 +1503,30 @@ final class ItemService {
         return $changedFields;
     }
 
-    private function emptyImportPreview(bool $valid, string $error): array {
+    private function emptyImportPreview(bool $valid, string $error, int $httpStatus = 200): array {
         return [
             'schemaVersion' => 1,
             'previewKind' => 'library-metadata-import-preview',
             'valid' => $valid,
             'error' => $error,
+            'httpStatus' => $httpStatus,
             'totalItems' => 0,
             'matchedItems' => 0,
             'missingItems' => 0,
             'invalidItems' => 0,
             'changedFields' => 0,
             'items' => [],
+            'reportTruncated' => false,
         ];
     }
 
-    private function emptyImportApply(bool $valid, string $error): array {
+    private function emptyImportApply(bool $valid, string $error, int $httpStatus = 200): array {
         return [
             'schemaVersion' => 1,
             'applicationKind' => 'library-metadata-import-apply',
             'valid' => $valid,
             'error' => $error,
+            'httpStatus' => $httpStatus,
             'totalItems' => 0,
             'matchedItems' => 0,
             'appliedItems' => 0,
@@ -1438,6 +1535,7 @@ final class ItemService {
             'invalidItems' => 0,
             'changedFields' => 0,
             'items' => [],
+            'reportTruncated' => false,
         ];
     }
 
