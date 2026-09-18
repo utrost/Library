@@ -724,7 +724,19 @@ final class LibraryHealthService {
     }
 
     private function tsvCell(string $value): string {
-        return str_replace(["\t", "\r", "\n"], [' ', ' ', ' '], $value);
+        $cell = str_replace(["\t", "\r", "\n"], [' ', ' ', ' '], $value);
+        // Spreadsheet clients treat cells starting with these characters as
+        // formulas, even when user-controlled paths/errors arrive through an
+        // authenticated download. Normalize leading whitespace/control
+        // characters first, then prefix a single quote so Excel/LibreOffice
+        // import the value as text while keeping it readable.
+        $cell = preg_replace('/^[\p{Z}\p{Cc}]+/u', '', $cell) ?? $cell;
+        $startsWithFormulaPrefix = $cell !== '' && in_array($cell[0], ['=', '+', '-', '@'], true);
+        $startsWithQuotedFormulaPrefix = strlen($cell) > 1 && $cell[0] === '"' && in_array($cell[1], ['=', '+', '-', '@'], true);
+        if ($startsWithFormulaPrefix || $startsWithQuotedFormulaPrefix) {
+            return "'" . $cell;
+        }
+        return $cell;
     }
 
     /**
