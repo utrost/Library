@@ -22,7 +22,8 @@ def test_metadata_autosave_surfaces_current_server_validation_error_without_redi
     assert "JSONResponse" in controller
     assert "metadataAutosave" in controller
     assert "return new JSONResponse(['saved' => true]" in controller
-    assert "return new JSONResponse(['saved' => false, 'error' => $e->getMessage()]" in controller
+    assert "return new JSONResponse(['saved' => false, 'error' => $safeError]" in controller
+    assert "$safeError = $this->safeValidationError($e);" in controller
     assert "response.status === 422" in script
     assert "setMetadataValidationFeedback(form" in script
 

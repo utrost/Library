@@ -8,7 +8,7 @@ def test_item_service_exposes_scan_status_for_catalogue_filters():
     assert "f.scan_status" in service
     assert "f.scan_error" in service
     assert "'scanStatus' => (string)$row['scan_status']" in service
-    assert "'scanError' => $row['scan_error'] !== null ? (string)$row['scan_error'] : ''" in service
+    assert "'scanError' => $row['scan_error'] !== null ? SafeDiagnostics::sanitizePublicError((string)$row['scan_error']) : ''" in service
 
 
 def test_catalogue_supports_scan_status_filter():

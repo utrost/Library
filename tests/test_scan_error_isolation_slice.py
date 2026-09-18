@@ -34,7 +34,8 @@ def test_metadata_service_reports_corrupt_archives_as_non_fatal_errors():
     assert "$this->lastError = $extractor->getLastError();" in metadata
     assert "Unsupported or corrupt EPUB archive" in opf
     assert "Unsupported or corrupt CBZ archive" in cbz
-    assert "metadata extraction failed" in metadata
+    assert "metadata_extraction_failed" in metadata
+    assert "SafeDiagnostics::publicText" in metadata
 
 
 def test_template_shows_file_scan_error_state_for_diagnosis():

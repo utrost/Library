@@ -358,7 +358,7 @@ final class LibraryHealthService {
         $rows = [];
         while ($row = $result->fetch()) {
             $extension = strtolower((string)($row['extension'] ?? '')) ?: 'unknown';
-            $scanError = trim((string)($row['scan_error'] ?? '')) ?: (string)($row['scan_status'] ?? 'metadata_error');
+            $scanError = SafeDiagnostics::sanitizePublicError(trim((string)($row['scan_error'] ?? '')) ?: (string)($row['scan_status'] ?? 'metadata_error'));
             $actualContainerType = $this->actualContainerType($userId, (string)($row['cached_path'] ?? ''));
             $rows[] = [
                 'fileId' => (int)($row['file_id'] ?? 0),
@@ -399,7 +399,7 @@ final class LibraryHealthService {
                 'path' => $path,
                 'extension' => strtolower((string)($row['extension'] ?? '')) ?: 'unknown',
                 'scanStatus' => (string)($row['scan_status'] ?? ''),
-                'scanError' => (string)($row['scan_error'] ?? ''),
+                'scanError' => SafeDiagnostics::sanitizePublicError((string)($row['scan_error'] ?? '')),
                 'actualContainerType' => $this->actualContainerType($userId, $path),
                 'manualOverride' => (string)($row['cover_override_data'] ?? ''),
             ];

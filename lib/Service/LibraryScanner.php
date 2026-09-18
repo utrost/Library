@@ -72,7 +72,14 @@ final class LibraryScanner {
             } catch (ScanCancelledException $e) {
                 throw $e;
             } catch (Throwable $e) {
-                $errors[] = sprintf('%s: %s', (string)$root['path'], $e->getMessage());
+                $diagnostic = SafeDiagnostics::fromThrowable(
+                    'root_scan_failed',
+                    'Library root scan failed. Check server logs with the diagnostic id.',
+                    $e,
+                    ['userId' => $userId, 'rootId' => (int)$root['id'], 'path' => (string)$root['path']],
+                );
+                SafeDiagnostics::log($diagnostic);
+                $errors[] = sprintf('%s: %s', (string)$root['path'], SafeDiagnostics::publicText($diagnostic));
                 $this->reportProgress($progress, $rootsTotal, $indexed, count($errors), 'Scan error: ' . (string)$root['path'], $summary, $traversalUnits);
             }
         }
@@ -431,7 +438,14 @@ final class LibraryScanner {
             if ($summary !== null) {
                 $summary['metadataErrors']++;
             }
-            $this->fileIndexService->markScanError($userId, (int)$indexedFile['id'], 'metadata extraction failed: ' . $e->getMessage());
+            $diagnostic = SafeDiagnostics::fromThrowable(
+                'metadata_extraction_failed',
+                'Metadata extraction failed. Review the source file or retry later.',
+                $e,
+                ['userId' => $userId, 'fileId' => (int)$indexedFile['fileId'], 'path' => (string)$indexedFile['cachedPath'], 'extension' => (string)$indexedFile['extension']],
+            );
+            SafeDiagnostics::log($diagnostic);
+            $this->fileIndexService->markScanError($userId, (int)$indexedFile['id'], SafeDiagnostics::publicText($diagnostic));
         }
 
         return true;

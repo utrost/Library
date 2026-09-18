@@ -7,6 +7,7 @@ namespace OCA\Library\Controller;
 use OCA\Library\Exception\BatchLimitExceededException;
 use OCA\Library\Service\ItemService;
 use OCA\Library\Service\SelectedItemIds;
+use OCA\Library\Service\SafeDiagnostics;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -82,8 +83,9 @@ final class ItemController extends Controller {
                     'identifiers' => $this->normalizeIdentifierRequest($this->request->getParam('identifiers', [])),
                 ]);
             } catch (\InvalidArgumentException $e) {
+                $safeError = $this->safeValidationError($e);
                 if ($metadataAutosave) {
-                    return new JSONResponse(['saved' => false, 'error' => $e->getMessage()], 422, [
+                    return new JSONResponse(['saved' => false, 'error' => $safeError], 422, [
                         'Cache-Control' => 'private, no-store',
                     ]);
                 }
@@ -91,7 +93,7 @@ final class ItemController extends Controller {
                 if ($returnTo === 'details') {
                     return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', [
                         'itemId' => $itemId,
-                        'metadataError' => $e->getMessage(),
+                        'metadataError' => $safeError,
                     ]));
                 }
                 return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
@@ -364,5 +366,19 @@ final class ItemController extends Controller {
             }
         }
         return implode('; ', $normalized);
+    }
+
+    private function safeValidationError(\InvalidArgumentException $e): string {
+        $message = trim($e->getMessage());
+        if ($message !== '' && SafeDiagnostics::sanitizePublicError($message) === $message) {
+            return $message;
+        }
+        $diagnostic = SafeDiagnostics::fromThrowable(
+            'metadata_validation_failed',
+            'Metadata validation failed. Review the highlighted fields and try again.',
+            $e,
+        );
+        SafeDiagnostics::log($diagnostic);
+        return SafeDiagnostics::publicText($diagnostic);
     }
 }

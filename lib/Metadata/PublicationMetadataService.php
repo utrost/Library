@@ -6,6 +6,7 @@ namespace OCA\Library\Metadata;
 
 use OCP\Files\File;
 use OCP\Files\Folder;
+use OCA\Library\Service\SafeDiagnostics;
 use Throwable;
 
 final class PublicationMetadataService {
@@ -70,7 +71,7 @@ final class PublicationMetadataService {
 
             return array_merge($filenameMetadata, $embeddedMetadata, $sidecarMetadata);
         } catch (Throwable $e) {
-            $this->lastError = 'metadata extraction failed: ' . $e->getMessage();
+            $this->lastError = $this->safeMetadataExtractionError($e, $file);
             return [];
         }
     }
@@ -108,11 +109,26 @@ final class PublicationMetadataService {
                 return $metadata;
             }
         } catch (Throwable $e) {
-            $this->lastError = 'metadata extraction failed: ' . $e->getMessage();
+            $this->lastError = $this->safeMetadataExtractionError($e, $file);
             return [];
         }
 
         return [];
+    }
+
+    private function safeMetadataExtractionError(Throwable $e, File $file): string {
+        $diagnostic = SafeDiagnostics::fromThrowable(
+            'metadata_extraction_failed',
+            'Metadata extraction failed. Review the source file or retry later.',
+            $e,
+            [
+                'fileId' => $file->getId(),
+                'path' => $file->getPath(),
+                'extension' => strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION)),
+            ],
+        );
+        SafeDiagnostics::log($diagnostic);
+        return SafeDiagnostics::publicText($diagnostic);
     }
 
     private function findOpfSidecar(File $file): ?File {
