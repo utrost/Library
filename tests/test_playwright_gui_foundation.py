@@ -91,7 +91,10 @@ def test_ci_installs_pinned_browsers_and_runs_disposable_gui_rehearsal():
     workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
 
     assert "npx playwright install --with-deps chromium firefox" in workflow
-    assert workflow.count("python -m pip install --upgrade pytest") == 2
+    assert workflow.count("python -m pip install --require-hashes -r requirements-ci.txt") == 2
+    requirements = (ROOT / "requirements-ci.txt").read_text(encoding="utf-8")
+    assert "--require-hashes" in requirements
+    assert "pytest==" in requirements
     assert 'LIBRARY_FRESH_MIXED_COUNT: "40"' in workflow
     assert "npm run smoke:fresh-install-mixed" in workflow
     assert "playwright-report/" in workflow

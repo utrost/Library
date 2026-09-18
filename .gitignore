@@ -5,6 +5,7 @@
 /coverage/
 /playwright-report/
 /test-results/
+/security-reports/
 /.phpunit.result.cache
 /.pytest_cache/
 __pycache__/
