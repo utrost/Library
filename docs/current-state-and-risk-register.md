@@ -44,6 +44,7 @@ Implemented and ready for v0.1 testing:
 - Temporary app-password smoke tokens are created only for live verification and deleted afterwards; token values are never documented.
 - Metadata-error TSV exports neutralize spreadsheet formulas before download by prefixing formula-looking cells after separator/control-character trimming.
 - Parser/scanner/import/job failures use bounded public diagnostics with stable codes and `libdiag-...` correlation IDs; raw exception text, SQLSTATE/table names, absolute paths and token-looking details stay in server-only logs or are sanitized from legacy persisted strings before user-facing projection.
+- Item sidebar/detail/cover projections are user-scoped through normal authenticated Nextcloud routes; invalid IDs, unauthenticated requests and non-owned items retain generic not-found/placeholder responses, and the sidebar DTO is allowlisted.
 
 ## Known weak points and deferred hardening
 

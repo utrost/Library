@@ -16,7 +16,8 @@ def test_sidebar_route_is_positive_id_only_authenticated_user_scoped_projection(
     assert "'name' => 'item_page#sidebar'" in routes
     assert "'requirements' => ['itemId' => '[^/]+']" in routes
     sidebar = controller.split("public function sidebar", 1)[1].split("public function show", 1)[0]
-    assert "#[PublicPage]" in controller
+    assert "#[PublicPage]" not in controller
+    assert "Attribute\\PublicPage" not in controller
     assert "public function sidebar(string $itemId)" in controller
     assert "findItem($user->getUID(), $canonicalItemId)" in sidebar
     assert "2147483647" in sidebar
