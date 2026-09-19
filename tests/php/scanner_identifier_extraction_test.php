@@ -81,6 +81,18 @@ namespace {
     assertOpfMetadataValue('Collected Works', $opfFieldMetadata, 'publication', 'Calibre series metadata should map to Library publication');
     assertOpfMetadataValue('book', $opfFieldMetadata, 'publicationType', 'A clear OPF Text type should map to the existing book publication type');
 
+    $opfHtmlDescription = <<<'XML'
+    <?xml version="1.0"?>
+    <package xmlns="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/">
+      <metadata>
+        <dc:title>HTML description fixture</dc:title>
+        <dc:description>&lt;p&gt;First &lt;em&gt;rich&lt;/em&gt;&amp;nbsp;paragraph.&lt;/p&gt;&lt;p&gt;Second&lt;br/&gt;line.&lt;/p&gt;&lt;script&gt;alert(1)&lt;/script&gt;</dc:description>
+      </metadata>
+    </package>
+    XML;
+    $opfHtmlMetadata = (new OpfEpubMetadataExtractor())->parseOpfMetadata($opfHtmlDescription, 'opf');
+    assertOpfMetadataValue("First rich paragraph.\n\nSecond\nline.", $opfHtmlMetadata, 'description', 'OPF HTML descriptions should be normalized to readable plain text');
+
     $opf3Series = <<<'XML'
     <?xml version="1.0"?>
     <package xmlns="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/">
