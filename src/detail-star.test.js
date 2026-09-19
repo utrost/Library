@@ -201,3 +201,45 @@ describe('Library detail metadata autosave request ownership', () => {
     expect(form.querySelector('[name="metadataAutosave"]').value).toBe('0')
   })
 })
+
+describe('Library detail manual cover paste', () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <main id="library-app" class="library-item-detail">
+        <form action="/apps/library/items/7/cover/override" class="library-cover-override-form">
+          <input type="file" name="coverOverrideFile" accept="image/jpeg,image/png,image/webp">
+          <div data-library-cover-paste-target tabindex="0">Paste cover image here</div>
+          <p data-library-cover-paste-status role="status"></p>
+        </form>
+      </main>`
+    window.LibraryDetailCoverPaste = undefined
+  })
+
+  it('attaches a pasted image to the existing manual-cover upload input', () => {
+    loadDetailStarScript()
+    window.LibraryDetailCoverPaste.setupCoverPaste(document)
+    const form = document.querySelector('.library-cover-override-form')
+    const input = form.querySelector('input[type="file"]')
+    const file = new File(['png-bytes'], 'cover.png', { type: 'image/png' })
+    const paste = new Event('paste', { bubbles: true, cancelable: true })
+    Object.defineProperty(paste, 'clipboardData', {
+      value: { items: [{ type: 'image/png', getAsFile: () => file }] },
+    })
+
+    form.dispatchEvent(paste)
+
+    expect(paste.defaultPrevented).toBe(true)
+    expect(input.files[0]).toBe(file)
+    expect(form.querySelector('[data-library-cover-paste-status]').textContent).toContain('Pasted cover ready: cover.png')
+  })
+
+  it('rejects pasted non-cover image types before submit', () => {
+    loadDetailStarScript()
+    const form = document.querySelector('.library-cover-override-form')
+    const gif = new File(['gif-bytes'], 'animated.gif', { type: 'image/gif' })
+
+    expect(window.LibraryDetailCoverPaste.applyPastedCover(form, gif)).toBe(false)
+    expect(form.querySelector('[data-library-cover-paste-status]').textContent).toContain('not supported')
+    expect(form.querySelector('[data-library-cover-paste-status]').classList.contains('library-cover-paste-status--error')).toBe(true)
+  })
+})

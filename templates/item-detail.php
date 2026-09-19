@@ -167,9 +167,13 @@ $scanStatusLabels = [
                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                             <label>
                                 <?php p($l->t('Upload cover image')); ?>
-                                <input type="file" name="coverOverrideFile" accept="image/jpeg,image/png,image/webp" />
-                                <small><?php p($l->t('JPEG, PNG, or WebP; up to 10 MiB, 10,000 px per side, and 40 megapixels.')); ?></small>
+                                <input type="file" name="coverOverrideFile" accept="image/jpeg,image/png,image/webp" aria-describedby="library-cover-paste-help library-cover-paste-status" />
+                                <small id="library-cover-paste-help"><?php p($l->t('JPEG, PNG, or WebP; up to 10 MiB, 10,000 px per side, and 40 megapixels. You can also paste a copied cover image into the box below.')); ?></small>
                             </label>
+                            <div class="library-cover-paste-target" data-library-cover-paste-target tabindex="0" role="button" aria-describedby="library-cover-paste-help library-cover-paste-status">
+                                <?php p($l->t('Paste cover image here')); ?>
+                            </div>
+                            <p id="library-cover-paste-status" class="library-cover-paste-status" data-library-cover-paste-status role="status" aria-live="polite"></p>
                             <button type="submit" class="button secondary"><?php p($l->t('Use manual cover')); ?></button>
                         </form>
                         <form method="post" action="<?php p($item['coverRevertUrl'] ?? ''); ?>" class="library-cover-revert-form">

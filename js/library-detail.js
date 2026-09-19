@@ -324,6 +324,103 @@
     })
   }
 
+  const supportedCoverPasteTypes = new Set(['image/jpeg', 'image/png', 'image/webp'])
+
+  function coverPasteStatus(form) {
+    return form.querySelector('[data-library-cover-paste-status]')
+  }
+
+  function setCoverPasteStatus(form, text, isError) {
+    const status = coverPasteStatus(form)
+    if (!status) return
+    status.textContent = text
+    status.classList.toggle('library-cover-paste-status--error', Boolean(isError))
+  }
+
+  function extensionForCoverType(type) {
+    if (type === 'image/jpeg') return 'jpg'
+    if (type === 'image/webp') return 'webp'
+    return 'png'
+  }
+
+  function normalizedPastedCoverFile(file) {
+    if (!file || !supportedCoverPasteTypes.has(file.type)) return file
+    if (file.name) return file
+    try {
+      return new window.File([file], `pasted-cover.${extensionForCoverType(file.type)}`, { type: file.type })
+    } catch (_error) {
+      return file
+    }
+  }
+
+  function pastedImageFromEvent(event) {
+    const items = Array.from(event.clipboardData?.items || [])
+    const imageItem = items.find((item) => typeof item.type === 'string' && item.type.startsWith('image/'))
+    return imageItem?.getAsFile?.() || null
+  }
+
+  function setCoverInputFile(input, file) {
+    try {
+      const transfer = new window.DataTransfer()
+      transfer.items.add(file)
+      input.files = transfer.files
+    } catch (_error) {
+      try {
+        Object.defineProperty(input, 'files', { configurable: true, value: [file] })
+      } catch (_fallbackError) {
+        return false
+      }
+    }
+    input.dispatchEvent(new window.Event('change', { bubbles: true }))
+    return true
+  }
+
+  function applyPastedCover(form, file) {
+    const input = form.querySelector('input[type="file"][name="coverOverrideFile"]')
+    if (!input) return false
+    if (!file) {
+      setCoverPasteStatus(form, 'Clipboard does not contain an image.', true)
+      return false
+    }
+    if (!supportedCoverPasteTypes.has(file.type)) {
+      setCoverPasteStatus(form, 'Pasted image type is not supported. Use JPEG, PNG, or WebP.', true)
+      return false
+    }
+    const coverFile = normalizedPastedCoverFile(file)
+    if (!setCoverInputFile(input, coverFile)) {
+      setCoverPasteStatus(form, 'Could not attach the pasted image in this browser. Use the file picker instead.', true)
+      return false
+    }
+    setCoverPasteStatus(form, `Pasted cover ready: ${coverFile.name || 'clipboard image'}. Choose “Use manual cover” to save it.`, false)
+    return true
+  }
+
+  function setupCoverPaste(root) {
+    const scope = root || document
+    const forms = scope.querySelectorAll('#library-app.library-item-detail form.library-cover-override-form')
+    forms.forEach((form) => {
+      if (form.dataset.libraryCoverPasteEnhanced === 'true') return
+      form.dataset.libraryCoverPasteEnhanced = 'true'
+      form.addEventListener('paste', (event) => {
+        const file = pastedImageFromEvent(event)
+        if (!file) return
+        event.preventDefault()
+        applyPastedCover(form, file)
+      })
+      form.querySelector('[data-library-cover-paste-target]')?.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return
+        event.preventDefault()
+        form.querySelector('input[type="file"][name="coverOverrideFile"]')?.click()
+      })
+    })
+  }
+
+  window.LibraryDetailCoverPaste = {
+    setupCoverPaste,
+    applyPastedCover,
+    pastedImageFromEvent,
+  }
+
   window.LibraryDetailCreatorChips = {
     setupCreatorChipEditors,
     syncCreatorChipEditor,
@@ -347,11 +444,13 @@
       setupSubmitOnChangeControls(document)
       setupMetadataAutosave(document)
       setupCreatorChipEditors(document)
+      setupCoverPaste(document)
     }, { once: true })
   } else {
     setupDetailStarToggles(document)
     setupSubmitOnChangeControls(document)
     setupMetadataAutosave(document)
     setupCreatorChipEditors(document)
+    setupCoverPaste(document)
   }
 })()
