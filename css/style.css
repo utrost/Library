@@ -448,6 +448,29 @@
     margin-bottom: 1rem;
 }
 
+.library-cover-paste-target {
+    border: 1px dashed var(--color-border);
+    border-radius: 10px;
+    color: var(--color-text-maxcontrast);
+    cursor: text;
+    padding: 0.85rem;
+    text-align: center;
+}
+
+.library-cover-paste-target:focus-visible {
+    outline: 2px solid var(--color-primary-element);
+    outline-offset: 2px;
+}
+
+.library-cover-paste-status {
+    margin: 0;
+    min-block-size: 1.4em;
+}
+
+.library-cover-paste-status--error {
+    color: var(--color-error);
+}
+
 .library-metadata-health-details > summary,
 .library-detail-more-actions > summary {
     cursor: pointer;
