@@ -137,7 +137,10 @@ public function parseOpfMetadata(string $opfXml, string $source): array {
 
     $description = $this->firstXmlValue($dc->description ?? null);
     if ($description !== null) {
-        $metadata['description'] = $description;
+        $description = $this->normalizeDescription($description);
+        if ($description !== null) {
+            $metadata['description'] = $description;
+        }
     }
 
     $subjects = $this->xmlValues($dc->subject ?? null);
@@ -247,6 +250,34 @@ private function normalizePublicationType(?string $type): ?string {
         'other' => 'other',
         default => null,
     };
+}
+
+private function normalizeDescription(string $value): ?string {
+    $normalized = trim($value);
+    if ($normalized === '') {
+        return null;
+    }
+
+    for ($i = 0; $i < 2; $i++) {
+        $decoded = html_entity_decode($normalized, ENT_QUOTES | ENT_HTML5 | ENT_SUBSTITUTE, 'UTF-8');
+        if ($decoded === $normalized) {
+            break;
+        }
+        $normalized = $decoded;
+    }
+
+    $normalized = preg_replace('/<(script|style)\b[^>]*>.*?<\/\1\s*>/isu', ' ', $normalized) ?? $normalized;
+    $normalized = preg_replace('/<\s*(?:br|hr)\b[^>]*>/iu', "\n", $normalized) ?? $normalized;
+    $normalized = preg_replace('/<\s*\/\s*(?:p|div|section|article|blockquote|li|tr|h[1-6])\s*>/iu', "\n\n", $normalized) ?? $normalized;
+    $normalized = preg_replace('/<\s*(?:p|div|section|article|blockquote|li|tr|h[1-6])\b[^>]*>/iu', '', $normalized) ?? $normalized;
+    $normalized = strip_tags($normalized);
+    $normalized = str_replace("\xc2\xa0", ' ', $normalized);
+    $normalized = preg_replace('/[ \t]+/u', ' ', $normalized) ?? $normalized;
+    $normalized = preg_replace('/\h*\R\h*/u', "\n", $normalized) ?? $normalized;
+    $normalized = preg_replace('/\n{3,}/u', "\n\n", $normalized) ?? $normalized;
+    $normalized = trim($normalized);
+
+    return $normalized === '' ? null : $normalized;
 }
 
 private function firstXmlValue(mixed $nodes): ?string {
