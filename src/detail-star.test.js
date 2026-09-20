@@ -206,10 +206,13 @@ describe('Library detail manual cover paste', () => {
   beforeEach(() => {
     document.body.innerHTML = `
       <main id="library-app" class="library-item-detail">
-        <form action="/apps/library/items/7/cover/override" class="library-cover-override-form">
+        <form action="/apps/library/items/7/cover/override" class="library-cover-override-form library-detail-cover-form">
           <input type="file" name="coverOverrideFile" accept="image/jpeg,image/png,image/webp">
-          <div data-library-cover-paste-target tabindex="0">Paste cover image here</div>
-          <p data-library-cover-paste-status role="status"></p>
+          <div class="library-detail-cover-target" data-library-cover-paste-target tabindex="0" role="button">
+            <img class="library-detail-cover" src="/apps/library/covers/7" alt="">
+            <span class="library-detail-cover-overlay">Click to upload<br>or paste cover</span>
+          </div>
+          <p data-library-cover-paste-status aria-live="polite"></p>
         </form>
       </main>`
     window.LibraryDetailCoverPaste = undefined
@@ -226,7 +229,9 @@ describe('Library detail manual cover paste', () => {
       value: { items: [{ type: 'image/png', getAsFile: () => file }] },
     })
 
-    form.dispatchEvent(paste)
+    const target = form.querySelector('[data-library-cover-paste-target]')
+
+    target.dispatchEvent(paste)
 
     expect(paste.defaultPrevented).toBe(true)
     expect(input.files[0]).toBe(file)
@@ -241,5 +246,34 @@ describe('Library detail manual cover paste', () => {
     expect(window.LibraryDetailCoverPaste.applyPastedCover(form, gif)).toBe(false)
     expect(form.querySelector('[data-library-cover-paste-status]').textContent).toContain('not supported')
     expect(form.querySelector('[data-library-cover-paste-status]').classList.contains('library-cover-paste-status--error')).toBe(true)
+  })
+
+  it('opens the file picker from the cover target by click or keyboard', () => {
+    loadDetailStarScript()
+    window.LibraryDetailCoverPaste.setupCoverPaste(document)
+    const form = document.querySelector('.library-cover-override-form')
+    const input = form.querySelector('input[type="file"]')
+    const target = form.querySelector('[data-library-cover-paste-target]')
+    const click = vi.spyOn(input, 'click').mockImplementation(() => {})
+
+    target.click()
+    const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+    target.dispatchEvent(enter)
+
+    expect(click).toHaveBeenCalledTimes(2)
+    expect(enter.defaultPrevented).toBe(true)
+  })
+
+  it('announces a selected cover from the hidden upload input', () => {
+    loadDetailStarScript()
+    window.LibraryDetailCoverPaste.setupCoverPaste(document)
+    const form = document.querySelector('.library-cover-override-form')
+    const input = form.querySelector('input[type="file"]')
+    const file = new File(['jpg-bytes'], 'new-cover.jpg', { type: 'image/jpeg' })
+    Object.defineProperty(input, 'files', { configurable: true, value: [file] })
+
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+
+    expect(form.querySelector('[data-library-cover-paste-status]').textContent).toContain('Selected cover ready: new-cover.jpg')
   })
 })

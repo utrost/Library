@@ -17,6 +17,21 @@ def test_cover_explanation_is_contextual_help_on_refresh_action():
     assert "detail_has_visible_cover_quality_explanation=${detail.text.includes('library-cover-quality-explanation')}" in smoke
 
 
+def test_detail_cover_itself_is_upload_and_paste_target():
+    template = (ROOT / "templates" / "item-detail.php").read_text()
+    css = (ROOT / "css" / "style.css").read_text()
+
+    hero = template.split('class="library-detail-hero"', 1)[1].split('class="library-detail-actionbar"', 1)[0]
+    assert 'class="library-cover-override-form library-detail-cover-form"' in hero
+    assert 'class="hidden-visually" type="file" name="coverOverrideFile"' in hero
+    assert 'class="library-detail-cover-target" data-library-cover-paste-target' in hero
+    assert 'class="library-detail-cover"' in hero
+    assert "Click to upload" in hero and "or paste cover" in hero
+    assert "Click the cover to choose a file or paste a copied image" in hero
+    assert '.library-detail-cover-target:focus-visible' in css
+    assert '.library-detail-cover-overlay' in css
+
+
 def test_detail_actions_are_grouped_and_ordered_with_star_icon_and_autosave_status():
     template = (ROOT / "templates" / "item-detail.php").read_text()
     css = (ROOT / "css" / "style.css").read_text()
