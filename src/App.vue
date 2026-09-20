@@ -1206,6 +1206,11 @@ async function hydrateInitialAuxiliaryState() {
   }
 }
 
+function abortInitialAuxiliaryHydration() {
+  initialAuxiliaryHydrationController?.abort()
+  initialAuxiliaryHydrationController = null
+}
+
 async function fetchImportHealthSummary(refresh = false) {
   if (importHealthState.loading || importHealthState.refreshing) return
   if (refresh) {
@@ -1259,6 +1264,7 @@ async function submitFiltersAjax(event, scheduled = null) {
   const historyMode = scheduled?.historyMode ?? (requestedReviewDestination ? 'push' : 'replace')
   const historyTraversal = scheduled?.historyTraversal === true
   if (generation !== catalogueRequestGeneration) return
+  abortInitialAuxiliaryHydration()
   if (scheduled === null) catalogueRequestController?.abort()
   const controller = new AbortController()
   catalogueRequestController = controller
