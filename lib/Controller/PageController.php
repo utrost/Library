@@ -31,8 +31,8 @@ use Throwable;
 
 class PageController extends Controller {
     private const APP_VERSION = '0.1.0-alpha.171';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-171-filter-ux';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-171-filter-ux';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-171-cover-overlay-4';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-171-cover-overlay-4';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -327,6 +327,7 @@ class PageController extends Controller {
             'publisher' => trim((string)$this->request->getParam('publisher', '')),
             'publication' => trim((string)$this->request->getParam('publication', '')),
             'year' => trim((string)$this->request->getParam('year', '')),
+            'language' => trim((string)$this->request->getParam('language', '')),
             'creator' => trim((string)$this->request->getParam('creator', '')),
             'format' => trim((string)$this->request->getParam('format', '')),
             'tag' => trim((string)$this->request->getParam('tag', '')),

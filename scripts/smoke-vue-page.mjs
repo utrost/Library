@@ -18,6 +18,7 @@ import { execFileSync } from 'node:child_process'
 // importPreview.status !== 412
 // coverRefresh.cacheControl.includes('no-store')
 // name="requesttoken"
+// css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))')
 // name="returnTo"
 // value="details"
 // source_has_creator_filter
@@ -377,9 +378,12 @@ try {
     console.log(`source_has_active_filter_chips=${activeFilterChips}`)
     console.log(`source_has_custom_saved_collections=${bundleHas('library-saved-collections', 'Custom collections', 'Save current view')}`)
     console.log(`app_version=${installedVersionAssetIdentity ? '0.1.0-alpha.171' : 'unverified'}`)
-    console.log(`source_has_mobile_cover_first_cards=${bundleHas('library-cover-link', 'library-cover-primary-actions') && css.text.includes('@media (max-width:520px)')}`)
-    console.log(`source_has_compact_cover_cards_all_widths=${installedVersionAssetIdentity && bundleHas('library-cover-link') && css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))')}`)
-    console.log(`served_css_has_compact_cover_defaults=${css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') && css.text.includes('min-height:0')}`)
+    const coverOverlayCss = css.text.includes('grid-template-columns:repeat(auto-fill,minmax(150px,1fr))')
+      && css.text.includes('.library-cover-gallery .library-cover-summary')
+      && css.text.includes('.library-cover-gallery .library-cover-card:hover .library-cover-creator')
+    console.log(`source_has_mobile_cover_first_cards=${bundleHas('library-cover-link') && coverOverlayCss}`)
+    console.log(`source_has_compact_cover_cards_all_widths=${installedVersionAssetIdentity && bundleHas('library-cover-link') && coverOverlayCss}`)
+    console.log(`served_css_has_compact_cover_defaults=${coverOverlayCss && css.text.includes('min-height:0')}`)
     console.log(`source_has_publication_sort=${bundleHas('publication')}`)
     console.log(`source_has_series_periodical_filter=${bundleHas('publicationSearch', 'library-publication-suggestions', 'Series / periodical')}`)
     console.log(`source_has_no_periodical_shortcut=${!bundle.includes('library-periodical-groups') && !bundle.includes('Choose series')}`)
@@ -516,7 +520,7 @@ try {
       bundle_five_review_groups: fiveReviewGroups,
       bundle_no_technical_dashboards: noTechnicalCatalogueDashboards,
       bundle_review_suggestion_source_safety: reviewSuggestionSafety,
-      served_compact_cover_css: css.text.includes('grid-template-columns:repeat(auto-fill,minmax(120px,1fr))') && css.text.includes('min-height:0'),
+      served_compact_cover_css: coverOverlayCss && css.text.includes('min-height:0'),
       bundle_native_sidebar: bundleHas('library-native-item-sidebar'),
       bundle_view_modes: bundleHas('library-view-mode-toggle'),
       bundle_cover_card: bundleHas('library-cover-card', 'library-cover-image', 'library-cover-link'),

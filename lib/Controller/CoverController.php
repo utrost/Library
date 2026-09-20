@@ -16,6 +16,7 @@ use OCA\Library\Service\FileIndexService;
 use OCA\Library\Service\ManualCoverUploadService;
 use OCA\Library\Service\ManualCoverValidationException;
 use OCA\Library\Service\ManualCoverValidator;
+use OCA\Library\Service\SecurityAuditLogger;
 use OCA\Library\Service\SelectedItemIds;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
@@ -32,6 +33,7 @@ use OCA\Library\Instrumentation\MonotonicClock;
 class CoverController extends Controller {
     private MonotonicClock $clock;
     private ManualCoverUploadService $manualCoverUploadService;
+    private ?SecurityAuditLogger $securityAudit = null;
     private int $coverStartedAt = 0;
     public function __construct(
         string $appName,
@@ -47,8 +49,10 @@ class CoverController extends Controller {
         private LoggerInterface $logger,
         ?MonotonicClock $clock = null,
         ?ManualCoverUploadService $manualCoverUploadService = null,
+        ?SecurityAuditLogger $securityAudit = null,
     ) {
         parent::__construct($appName, $request);
+        $this->securityAudit = $securityAudit;
         $this->clock = $clock ?? new MonotonicClock();
         $this->manualCoverUploadService = $manualCoverUploadService ?? new ManualCoverUploadService(new ManualCoverValidator());
     }
@@ -136,14 +140,26 @@ class CoverController extends Controller {
                     $mimeType = $validated['mimeType'];
                 } catch (ManualCoverValidationException) {
                     // Keep decoder details private and expose only a bounded result code.
+                    $this->securityAudit?->warning('library.manual_cover.replace', $user->getUID(), 'replace', 'manual_cover', 'rejected', [
+                        'target_id' => $itemId,
+                        'reason' => 'invalid_upload',
+                    ]);
                     return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]) . '?coverUploadError=invalid');
                 }
             }
             if ($data === null && trim((string)$this->request->getParam('coverOverrideUrl', '')) !== '') {
+                $this->securityAudit?->warning('library.manual_cover.replace', $user->getUID(), 'replace', 'manual_cover', 'rejected', [
+                    'target_id' => $itemId,
+                    'reason' => 'remote_url_disabled',
+                ]);
                 return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]) . '?coverUploadError=remote-url-disabled');
             }
             if ($data !== null) {
                 $this->itemService->setManualCoverOverride($user->getUID(), $itemId, $data, $mimeType);
+                $this->securityAudit?->warning('library.manual_cover.replace', $user->getUID(), 'replace', 'manual_cover', 'success', [
+                    'target_id' => $itemId,
+                    'reason' => 'validated_upload',
+                ]);
             }
         }
 
@@ -155,6 +171,10 @@ class CoverController extends Controller {
         $user = $this->userSession->getUser();
         if ($user !== null) {
             $this->itemService->clearManualCoverOverride($user->getUID(), $itemId);
+            $this->securityAudit?->warning('library.manual_cover.revert', $user->getUID(), 'revert', 'manual_cover', 'success', [
+                'target_id' => $itemId,
+                'reason' => 'manual_cover_cleared',
+            ]);
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
@@ -453,6 +473,14 @@ class CoverController extends Controller {
             }
             $archiveCover = $this->archiveCoverService->firstImageCover($temporaryPath, $actualContainerType);
             if (($archiveCover['content'] ?? null) === null || ($archiveCover['mimeType'] ?? null) === null) {
+                $reason = (string)($archiveCover['status'] ?? 'blocked-archive-cover');
+                if (in_array($reason, ['blocked-extractor-timeout', 'blocked-resource-limit'], true)) {
+                    $user = $this->userSession->getUser();
+                    $this->securityAudit?->warning('library.archive_cover.blocked', $user !== null ? $user->getUID() : '', 'extract', 'archive_cover', 'blocked', [
+                        'target_id' => $itemId,
+                        'reason' => $reason,
+                    ]);
+                }
                 return null;
             }
             $status = $actualContainerType === 'application/x-7z-compressed' ? 'sevenzip-first-image' : 'rar-first-image';
