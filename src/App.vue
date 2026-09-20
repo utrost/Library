@@ -368,6 +368,14 @@ const catalogueNavigation = computed(() => [
   { key: 'shelves', name: t('library', 'Shelves'), href: shelvesUrl.value, active: isShelves.value || Boolean(activeFilters.shelf) },
   { key: 'collections', name: t('library', 'Collections'), href: `${catalogueRootUrl.value}#library-collections`, active: false },
 ])
+const savedCollectionNavigation = computed(() => savedCollections.value.map((collection) => ({
+  key: `collection-${collection.id}`,
+  name: collection.countPending
+    ? collection.name
+    : `${collection.name} (${n('library', '%n item', '%n items', Number(collection.count || 0))})`,
+  href: savedCollectionUrl(collection.filters),
+  active: collectionMatchesActiveFilters(collection.filters),
+})))
 const requestToken = computed(() => catalogueState.requestToken || '')
 
 function recordOpenBeforeNavigate(item, event) {
@@ -1643,6 +1651,13 @@ function savedCollectionUrl(filters) {
   return smartViewUrl(filters || {})
 }
 
+function collectionMatchesActiveFilters(filters) {
+  const collectionFilters = filters && typeof filters === 'object' ? filters : {}
+  const entries = Object.entries(collectionFilters).filter(([, value]) => String(value ?? '').trim() !== '')
+  if (entries.length === 0) return false
+  return entries.every(([key, value]) => String(activeFilters[key] ?? '') === String(value ?? ''))
+}
+
 function savedCollectionDeleteUrl(collectionId) {
   return savedCollectionDeleteBaseUrl.value.replace('__COLLECTION_ID__', encodeURIComponent(String(collectionId || '0')))
 }
@@ -1862,6 +1877,7 @@ async function toggleStar(item, event) {
       <template #list>
         <NcAppNavigationList>
           <NcAppNavigationItem v-for="destination in catalogueNavigation" :key="destination.key" :active="destination.active" :href="destination.href" :name="destination.name" />
+          <NcAppNavigationItem v-for="collection in savedCollectionNavigation" :key="collection.key" class="library-navigation-saved-collection" :active="collection.active" :href="collection.href" :name="collection.name" />
           <NcAppNavigationItem :active="reviewActive" :href="reviewUrl" :name="reviewCount > 0 ? `${t('library', 'Review')} (${reviewCount})` : t('library', 'Review')" />
         </NcAppNavigationList>
       </template>
@@ -2071,7 +2087,7 @@ async function toggleStar(item, event) {
         <label data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
         <nav class="library-view-mode-toggle" data-library-control="view" :aria-label="t('library', 'View')"><button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button><button type="button" data-library-view-mode="gallery" :class="{ active: viewMode === 'gallery' }" :aria-pressed="viewMode === 'gallery' ? 'true' : 'false'" @click="setViewMode('gallery')">{{ t('library', 'Gallery') }}</button><button type="button" data-library-view-mode="list" :class="{ active: viewMode === 'list' }" :aria-pressed="viewMode === 'list' ? 'true' : 'false'" @click="setViewMode('list')">{{ t('library', 'List') }}</button><button type="button" data-library-view-mode="shelf" :class="{ active: viewMode === 'shelf' }" :aria-pressed="viewMode === 'shelf' ? 'true' : 'false'" @click="setViewMode('shelf')">{{ t('library', 'Shelf') }}</button></nav>
       </form>
-      <section id="library-collections" class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form><nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')"><article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card"><a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)"><strong>{{ collection.name }}</strong><span class="library-saved-collection-count">{{ collection.countPending ? '—' : n('library', '%n item', '%n items', Number(collection.count || 0)) }}</span></a><form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form"><input type="hidden" name="requesttoken" :value="requestToken"><button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button></form></article></nav></section>
+      <section id="library-collections" class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form></section>
 
       <details v-if="selectedItemIds.length > 0" class="library-workspace-panel library-workspace-panel--batch library-batch-actions" data-workspace-panel="batch" :aria-label="t('library', 'Batch actions for selected publications')">
         <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">✓</span><span class="library-workspace-panel-title" :title="t('library', 'Batch actions for selected publications')">{{ t('library', 'Batch actions') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Batch actions for selected publications') }}</small><b class="library-workspace-scope-badge">{{ n('library', '%n publication selected', '%n publications selected', selectedItemIds.length) }}</b></summary>
@@ -3465,6 +3481,21 @@ async function toggleStar(item, event) {
 
 .library-saved-collection-link span {
   color: var(--color-text-maxcontrast, #6b6b6b);
+}
+
+.library-navigation-saved-collection {
+  --icon-size: 12px;
+  margin-inline-start: 1.15rem;
+}
+
+.library-navigation-saved-collection :is(a, button) {
+  font-size: 0.92em;
+}
+
+.library-navigation-saved-collection :is(a, button)::before {
+  content: '↳';
+  color: var(--color-text-maxcontrast, #6b6b6b);
+  margin-inline-end: 0.35rem;
 }
 
 .library-quick-search-row {
