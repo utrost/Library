@@ -8,6 +8,7 @@ use OCA\Library\Exception\BatchLimitExceededException;
 use OCA\Library\Service\ItemService;
 use OCA\Library\Service\SelectedItemIds;
 use OCA\Library\Service\SafeDiagnostics;
+use OCA\Library\Service\SecurityAuditLogger;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -21,6 +22,8 @@ use OCP\L10N\IFactory;
 use OCP\Util;
 
 final class ItemController extends Controller {
+    private ?SecurityAuditLogger $securityAudit = null;
+
     public function __construct(
         string $appName,
         IRequest $request,
@@ -28,8 +31,10 @@ final class ItemController extends Controller {
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
         private ?IFactory $l10nFactory = null,
+        ?SecurityAuditLogger $securityAudit = null,
     ) {
         parent::__construct($appName, $request);
+        $this->securityAudit = $securityAudit;
     }
 
     #[NoAdminRequired]
@@ -154,9 +159,21 @@ final class ItemController extends Controller {
             try {
                 $itemIds = SelectedItemIds::parse($this->request->getParam('itemIds', null));
                 $result = $this->itemService->bulkResetFieldsToScannerCandidates($user->getUID(), $itemIds);
+                $this->securityAudit?->warning('library.metadata_batch.reset', $user->getUID(), 'reset', 'metadata_batch', 'success', [
+                    'target_count' => (int)($result['requestedItems'] ?? count($itemIds)),
+                    'reason' => 'scanner_candidate_reset',
+                ]);
             } catch (BatchLimitExceededException $e) {
+                $this->securityAudit?->warning('library.metadata_batch.limit_rejected', $user->getUID(), 'reset', 'metadata_batch', 'rejected', [
+                    'target_count' => 0,
+                    'reason' => 'batch_limit_exceeded',
+                ]);
                 return $this->batchLimitRedirect($filters);
             } catch (\InvalidArgumentException $e) {
+                $this->securityAudit?->warning('library.metadata_batch.selection_rejected', $user->getUID(), 'reset', 'metadata_batch', 'rejected', [
+                    'target_count' => 0,
+                    'reason' => 'invalid_selection',
+                ]);
                 return $this->batchSelectionRedirect($filters);
             }
         }
@@ -228,9 +245,21 @@ final class ItemController extends Controller {
                         (string)$this->request->getParam('bulkEditField', ''),
                         (string)$this->request->getParam('bulkEditValue', ''),
                     );
+                $this->securityAudit?->warning('library.metadata_batch.edit', $user->getUID(), 'edit', 'metadata_batch', 'success', [
+                    'target_count' => (int)($result['requestedItems'] ?? count($explicitItemIds)),
+                    'reason' => 'batch_metadata_edit',
+                ]);
             } catch (BatchLimitExceededException $e) {
+                $this->securityAudit?->warning('library.metadata_batch.limit_rejected', $user->getUID(), 'edit', 'metadata_batch', 'rejected', [
+                    'target_count' => 0,
+                    'reason' => 'batch_limit_exceeded',
+                ]);
                 return $this->batchLimitRedirect($filters);
             } catch (\InvalidArgumentException $e) {
+                $this->securityAudit?->warning('library.metadata_batch.selection_rejected', $user->getUID(), 'edit', 'metadata_batch', 'rejected', [
+                    'target_count' => 0,
+                    'reason' => 'invalid_selection',
+                ]);
                 return $this->batchSelectionRedirect($filters);
             }
         }

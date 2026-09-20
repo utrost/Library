@@ -253,31 +253,28 @@ private function normalizePublicationType(?string $type): ?string {
 }
 
 private function normalizeDescription(string $value): ?string {
-    $normalized = trim($value);
-    if ($normalized === '') {
+    $text = trim($value);
+    if ($text === '') {
         return null;
     }
-
     for ($i = 0; $i < 2; $i++) {
-        $decoded = html_entity_decode($normalized, ENT_QUOTES | ENT_HTML5 | ENT_SUBSTITUTE, 'UTF-8');
-        if ($decoded === $normalized) {
+        $decoded = html_entity_decode($text, ENT_QUOTES | ENT_HTML5 | ENT_SUBSTITUTE, 'UTF-8');
+        if ($decoded === $text) {
             break;
         }
-        $normalized = $decoded;
+        $text = $decoded;
     }
-
-    $normalized = preg_replace('/<(script|style)\b[^>]*>.*?<\/\1\s*>/isu', ' ', $normalized) ?? $normalized;
-    $normalized = preg_replace('/<\s*(?:br|hr)\b[^>]*>/iu', "\n", $normalized) ?? $normalized;
-    $normalized = preg_replace('/<\s*\/\s*(?:p|div|section|article|blockquote|li|tr|h[1-6])\s*>/iu', "\n\n", $normalized) ?? $normalized;
-    $normalized = preg_replace('/<\s*(?:p|div|section|article|blockquote|li|tr|h[1-6])\b[^>]*>/iu', '', $normalized) ?? $normalized;
-    $normalized = strip_tags($normalized);
-    $normalized = str_replace("\xc2\xa0", ' ', $normalized);
-    $normalized = preg_replace('/[ \t]+/u', ' ', $normalized) ?? $normalized;
-    $normalized = preg_replace('/\h*\R\h*/u', "\n", $normalized) ?? $normalized;
-    $normalized = preg_replace('/\n{3,}/u', "\n\n", $normalized) ?? $normalized;
-    $normalized = trim($normalized);
-
-    return $normalized === '' ? null : $normalized;
+    $text = preg_replace('/<\s*(script|style)\b[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/iu', '', $text) ?? $text;
+    $text = preg_replace('/<\s*(br|hr)\b[^>]*\/?>/iu', "\n", $text) ?? $text;
+    $text = preg_replace('/<\s*\/\s*(p|div|section|article|blockquote|li|tr|h[1-6])\s*>/iu', "\n\n", $text) ?? $text;
+    $text = preg_replace('/<\s*(p|div|section|article|blockquote|ul|ol|li|table|tbody|thead|tr|td|th|h[1-6])\b[^>]*>/iu', '', $text) ?? $text;
+    $text = strip_tags($text);
+    $text = str_replace("\u{00a0}", ' ', $text);
+    $text = preg_replace('/[^\S\r\n]+/u', ' ', $text) ?? $text;
+    $text = preg_replace('/[ \t]*\n[ \t]*/u', "\n", $text) ?? $text;
+    $text = preg_replace('/\n{3,}/u', "\n\n", $text) ?? $text;
+    $text = trim($text);
+    return $text === '' ? null : $text;
 }
 
 private function firstXmlValue(mixed $nodes): ?string {

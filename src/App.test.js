@@ -162,7 +162,7 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.get('select[name="format"]').findAll('option')).toHaveLength(3))
     expect(wrapper.text()).toContain('Initial first-paint item')
     expect(wrapper.text()).not.toContain('API item must not replace first paint')
-    expect(wrapper.get('.library-saved-collection-count').text()).toContain('12')
+    expect(wrapper.get('.library-navigation-saved-collection').text()).toContain('12')
     expect(global.fetch).toHaveBeenCalledTimes(1)
   })
 
@@ -184,10 +184,10 @@ describe('Library catalogue Vue app', () => {
       savedCollections: [{ id: 9, name: 'Unread', filters: { workflowStatus: 'unread' }, count: null, countPending: true }],
     } } })
 
-    const collection = wrapper.get('.library-saved-collection-card')
+    const collection = wrapper.get('.library-navigation-saved-collection')
     expect(collection.text()).toContain('Unread')
     expect(collection.text()).not.toContain('0 items')
-    expect(collection.get('.library-saved-collection-count').text()).toBe('—')
+    expect(collection.text()).not.toContain('items')
   })
 
   it('renders server-backed Home rows independently from catalogue items', () => {
@@ -973,7 +973,7 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.text()).toContain('Filtered result'))
     expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?subject=photolab', expect.objectContaining({ credentials: 'same-origin' }))
     expect(wrapper.get('select[name="format"]').findAll('option').map((option) => option.text())).toEqual(['All formats', 'EPUB', 'PDF'])
-    expect(wrapper.get('.library-saved-collection-count').text()).toContain('12')
+    expect(wrapper.get('.library-navigation-saved-collection').text()).toContain('12')
   })
 
   it.each(['home', 'shelves'])('offers active filter resets on %s and navigates to the canonical catalogue', async (surface) => {
@@ -1842,14 +1842,14 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).not.toContain('Publication catalogue')
     expect(wrapper.text()).toContain('Example Book')
     expect(wrapper.find('.library-cover-creator').text()).toBe('Ada Reader')
+    expect(wrapper.find('.library-cover-context').text()).toBe('2026')
     expect(wrapper.find('.library-cover-detail-chip').exists()).toBe(false)
-    expect(wrapper.find('.library-cover-read').text()).toBe('Open')
-    expect(wrapper.find('.library-cover-primary-actions').exists()).toBe(true)
+    expect(wrapper.find('.library-cover-badge').exists()).toBe(false)
+    expect(wrapper.find('.library-cover-read').exists()).toBe(false)
+    expect(wrapper.find('.library-cover-primary-actions').exists()).toBe(false)
     expect(wrapper.findAll('.library-cover-card')).toHaveLength(1)
     expect(wrapper.find('.library-cover-image').attributes('src')).toBe('/apps/library/items/7/cover')
     expect(wrapper.find('.library-cover-link').attributes('type')).toBe('button')
-    expect(wrapper.find('.library-cover-read').attributes('href')).toBe('/f/178')
-    expect(wrapper.find('.library-cover-primary-actions').exists()).toBe(true)
     const starForm = wrapper.find('form.library-cover-star-form')
     expect(starForm.exists()).toBe(true)
     expect(starForm.attributes('action')).toBe('/apps/library/items/7/star')
@@ -2130,6 +2130,62 @@ describe('Library catalogue Vue app', () => {
     expect(window.location.search).toContain('item=7')
   })
 
+  it('turns drawer metadata facts into catalogue filter links', async () => {
+    window.history.replaceState({}, '', '/nc/index.php/apps/library/?format=epub&page=3')
+    const item = {
+      ...state.items[0],
+      publication: 'Viscount of Adrilankha',
+      publicationDate: '2004-04-15',
+      publisher: 'Tom Doherty Associates',
+      language: 'eng; de',
+    }
+    globalThis.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ item }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, format: 'epub', language: 'de' } }) })
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      items: [item],
+      catalogueEndpointUrl: '/apps/library/catalogue',
+      activeFilters: { ...state.activeFilters, format: 'epub' },
+    } } })
+
+    await wrapper.find('.library-cover-link').trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+
+    const links = wrapper.findAll('.library-detail-facet-link')
+    const hrefs = links.map((link) => link.attributes('href'))
+    expect(hrefs).toContain('/nc/index.php/apps/library/?format=epub&publication=Viscount+of+Adrilankha')
+    expect(hrefs).toContain('/nc/index.php/apps/library/?format=epub&year=2004')
+    expect(hrefs).toContain('/nc/index.php/apps/library/?format=epub&publisher=Tom+Doherty+Associates')
+    expect(hrefs).toContain('/nc/index.php/apps/library/?format=epub&language=eng')
+    expect(hrefs).toContain('/nc/index.php/apps/library/?format=epub&language=de')
+    expect(hrefs.join(' ')).not.toContain('page=3')
+
+    await links.find((link) => link.text() === 'de').trigger('click')
+    await vi.waitFor(() => expect(globalThis.fetch).toHaveBeenLastCalledWith(
+      '/apps/library/catalogue?format=epub&language=de',
+      expect.objectContaining({ credentials: 'same-origin' }),
+    ))
+  })
+
+  it('normalizes HTML-ish descriptions in the details drawer without rendering raw HTML', async () => {
+    const item = {
+      ...state.items[0],
+      description: '&lt;p&gt;Meet &lt;em&gt;Anita&lt;/em&gt;&amp;nbsp;Blake.&lt;/p&gt;&lt;p&gt;Second&lt;br/&gt;line.&lt;/p&gt;&lt;script&gt;alert(1)&lt;/script&gt;',
+    }
+    globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item }) }))
+    const wrapper = mount(App, { props: { state: { ...state, items: [item] } } })
+
+    await wrapper.find('.library-cover-link').trigger('click')
+    await waitForSidebarEvent(wrapper, 'opened')
+
+    const description = wrapper.get('.library-sidebar-description')
+    expect(description.text()).toBe('Meet Anita Blake.\n\nSecond\nline.')
+    expect(description.html()).not.toContain('<p>')
+    expect(description.html()).not.toContain('<em>')
+    expect(description.html()).not.toContain('alert(1)')
+  })
+
   it('marks selected cards independently from the opened publication', async () => {
     window.history.replaceState({}, '', '/nc/index.php/apps/library/')
     const wrapper = mount(App, { props: { state } })
@@ -2138,7 +2194,8 @@ describe('Library catalogue Vue app', () => {
 
     expect(wrapper.get('.library-cover-card').classes()).toContain('library-cover-card--selected')
     expect(wrapper.get('.library-cover-card').classes()).not.toContain('library-cover-card--open')
-    expect(wrapper.get('.library-cover-badge').text()).toBe('EPUB')
+    expect(wrapper.find('.library-cover-badge').exists()).toBe(false)
+    expect(wrapper.get('.library-cover-context').text()).toBe('2026')
   })
 
   it('keeps Open primary and groups file and legacy maintenance actions', async () => {

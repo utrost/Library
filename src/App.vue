@@ -31,6 +31,12 @@ All years
 Custom collections
 Useful views
 :title="t('library', view.description)"
+selectedDrawerItem.description
+:href="item.detailsUrl"
+library-cover-primary-actions
+item.filesUrl
+item.downloadUrl
+grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))
 keeps catalogue workspace panels collapsed so the cover shelf stays central
 */
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
@@ -128,6 +134,7 @@ const activeFilters = reactive({
   publisher: catalogueState.activeFilters?.publisher || '',
   publication: catalogueState.activeFilters?.publication || '',
   year: catalogueState.activeFilters?.year || '',
+  language: catalogueState.activeFilters?.language || '',
   creator: catalogueState.activeFilters?.creator || '',
   format: catalogueState.activeFilters?.format || '',
   tag: catalogueState.activeFilters?.tag || '',
@@ -361,6 +368,14 @@ const catalogueNavigation = computed(() => [
   { key: 'shelves', name: t('library', 'Shelves'), href: shelvesUrl.value, active: isShelves.value || Boolean(activeFilters.shelf) },
   { key: 'collections', name: t('library', 'Collections'), href: `${catalogueRootUrl.value}#library-collections`, active: false },
 ])
+const savedCollectionNavigation = computed(() => savedCollections.value.map((collection) => ({
+  key: `collection-${collection.id}`,
+  name: collection.countPending
+    ? collection.name
+    : `${collection.name} (${n('library', '%n item', '%n items', Number(collection.count || 0))})`,
+  href: savedCollectionUrl(collection.filters),
+  active: collectionMatchesActiveFilters(collection.filters),
+})))
 const requestToken = computed(() => catalogueState.requestToken || '')
 
 function recordOpenBeforeNavigate(item, event) {
@@ -447,6 +462,7 @@ const filterLabels = {
   publisher: 'Publisher',
   publication: 'Series / periodical',
   year: 'Publication year',
+  language: 'Language',
   creator: 'Creator',
   format: 'Format',
   tag: 'Nextcloud tag',
@@ -586,7 +602,7 @@ const resettableFilterChips = computed(() => activeFilterChips.value
   .filter((chip) => !['sort', 'view'].includes(chip.key)))
 const activeFilterCount = computed(() => activeFilterChips.value.length)
 const filterGroups = Object.freeze([
-  { key: 'content', label: 'Content', keys: ['q', 'type', 'publisher', 'publication', 'year', 'creator', 'format', 'subject', 'classification', 'tag'] },
+  { key: 'content', label: 'Content', keys: ['q', 'type', 'publisher', 'publication', 'year', 'language', 'creator', 'format', 'subject', 'classification', 'tag'] },
   { key: 'location', label: 'Location', keys: ['shelf', 'folder'] },
   { key: 'review', label: 'Review', keys: ['scannerConflicts', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'status'] },
   { key: 'personal', label: 'Personal / display', keys: ['starred', 'workflowStatus'] },
@@ -714,6 +730,9 @@ const MAX_ITEM_ID = 2147483647
 const selectedDrawerIndex = computed(() => selectedDrawerItem.value ? items.value.findIndex((item) => item.id === selectedDrawerItem.value.id) : -1)
 const drawerPreviousItem = computed(() => selectedDrawerIndex.value > 0 ? items.value[selectedDrawerIndex.value - 1] : null)
 const drawerNextItem = computed(() => selectedDrawerIndex.value >= 0 && selectedDrawerIndex.value < items.value.length - 1 ? items.value[selectedDrawerIndex.value + 1] : null)
+const selectedDrawerDescription = computed(() => normalizeDescriptionForDisplay(selectedDrawerItem.value?.description || ''))
+const selectedDrawerPublicationYear = computed(() => publicationYearFromDate(selectedDrawerItem.value?.publicationDate || ''))
+const selectedDrawerLanguages = computed(() => splitFacetValues(selectedDrawerItem.value?.language || ''))
 const reviewableMetadataFields = ['publicationType', 'title', 'subtitle', 'creators', 'publication', 'publicationDate', 'language', 'publisher', 'description', 'subjects', 'classifications']
 const sidebarSections = [
   { key: 'overview', label: 'Overview' },
@@ -725,6 +744,83 @@ function publicationDateForEditor(value) {
   const normalized = String(value ?? '').trim()
   const isoDateTime = normalized.match(/^(\d{4}-\d{2}-\d{2})[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/)
   return isoDateTime ? isoDateTime[1] : normalized
+}
+
+function publicationYearFromDate(value) {
+  const normalized = publicationDateForEditor(value)
+  const match = normalized.match(/^(\d{4})/u)
+  return match ? match[1] : ''
+}
+
+function splitFacetValues(value) {
+  return String(value ?? '').split(/[;,\n]+/u).map((part) => part.trim()).filter(Boolean)
+}
+
+function normalizedCatalogueParamsWithFacet(key, value) {
+  const params = new URLSearchParams()
+  for (const [filterKey, filterValue] of Object.entries(activeFilters)) {
+    const normalized = String(filterValue || '').trim()
+    if (normalized !== '' && !(filterKey === 'sort' && normalized === 'title') && !(filterKey === 'view' && normalized === 'compact')) {
+      params.set(filterKey, normalized)
+    }
+  }
+  params.set(key, String(value || '').trim())
+  params.delete('page')
+  return normalizedReviewParams(params)
+}
+
+function drawerFacetFilterUrl(key, value) {
+  const params = normalizedCatalogueParamsWithFacet(key, value)
+  const query = params.toString()
+  return `${catalogueRootUrl.value}${query ? `?${query}` : ''}`
+}
+
+function applyDrawerFacetFilter(event, key, value) {
+  const normalized = String(value || '').trim()
+  if (normalized === '') return
+  event?.preventDefault?.()
+  const params = normalizedCatalogueParamsWithFacet(key, normalized)
+  closeDetailsDrawer({ historyMode: 'none' })
+  void submitFiltersAjax(null, {
+    params,
+    generation: ++catalogueRequestGeneration,
+    historyMode: 'push',
+  })
+}
+
+function decodeHtmlEntitiesForDisplay(value) {
+  return String(value ?? '')
+    .replace(/&#x([0-9a-f]+);/giu, (_match, hex) => String.fromCodePoint(Number.parseInt(hex, 16)))
+    .replace(/&#(\d+);/gu, (_match, decimal) => String.fromCodePoint(Number.parseInt(decimal, 10)))
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
+    .replaceAll('&quot;', '"')
+    .replaceAll('&#039;', "'")
+    .replaceAll('&apos;', "'")
+    .replaceAll('&nbsp;', ' ')
+    .replaceAll('&amp;', '&')
+}
+
+function normalizeDescriptionForDisplay(value) {
+  let text = String(value ?? '').trim()
+  if (text === '') return ''
+  for (let i = 0; i < 2; i += 1) {
+    const decoded = decodeHtmlEntitiesForDisplay(text)
+    if (decoded === text) break
+    text = decoded
+  }
+  text = text
+    .replace(/<\s*(script|style)\b[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/giu, '')
+    .replace(/<\s*(br|hr)\b[^>]*\/?>/giu, '\n')
+    .replace(/<\s*\/\s*(p|div|section|article|blockquote|li|tr|h[1-6])\s*>/giu, '\n\n')
+    .replace(/<\s*(p|div|section|article|blockquote|ul|ol|li|table|tbody|thead|tr|td|th|h[1-6])\b[^>]*>/giu, '')
+    .replace(/<[^>]+>/gu, '')
+    .replace(/\u00a0/gu, ' ')
+    .replace(/[^\S\r\n]+/gu, ' ')
+    .replace(/[ \t]*\n[ \t]*/gu, '\n')
+    .replace(/\n{3,}/gu, '\n\n')
+    .trim()
+  return text
 }
 
 function normalizeSidebarItem(item) {
@@ -1555,6 +1651,13 @@ function savedCollectionUrl(filters) {
   return smartViewUrl(filters || {})
 }
 
+function collectionMatchesActiveFilters(filters) {
+  const collectionFilters = filters && typeof filters === 'object' ? filters : {}
+  const entries = Object.entries(collectionFilters).filter(([, value]) => String(value ?? '').trim() !== '')
+  if (entries.length === 0) return false
+  return entries.every(([key, value]) => String(activeFilters[key] ?? '') === String(value ?? ''))
+}
+
 function savedCollectionDeleteUrl(collectionId) {
   return savedCollectionDeleteBaseUrl.value.replace('__COLLECTION_ID__', encodeURIComponent(String(collectionId || '0')))
 }
@@ -1611,8 +1714,7 @@ function cardContext(item) {
   const publication = String(item?.publication || '').trim()
   const date = String(item?.publicationDate || '').trim()
   if (publication && date) return `${publication} · ${date}`
-  if (publication || date) return publication || date
-  return [item?.publicationType, upper(item?.extension)].filter(Boolean).join(' · ')
+  return publication || date
 }
 
 function isEditableShortcutTarget(target) {
@@ -1775,6 +1877,7 @@ async function toggleStar(item, event) {
       <template #list>
         <NcAppNavigationList>
           <NcAppNavigationItem v-for="destination in catalogueNavigation" :key="destination.key" :active="destination.active" :href="destination.href" :name="destination.name" />
+          <NcAppNavigationItem v-for="collection in savedCollectionNavigation" :key="collection.key" class="library-navigation-saved-collection" :active="collection.active" :href="collection.href" :name="collection.name" />
           <NcAppNavigationItem :active="reviewActive" :href="reviewUrl" :name="reviewCount > 0 ? `${t('library', 'Review')} (${reviewCount})` : t('library', 'Review')" />
         </NcAppNavigationList>
       </template>
@@ -1984,7 +2087,7 @@ async function toggleStar(item, event) {
         <label data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
         <nav class="library-view-mode-toggle" data-library-control="view" :aria-label="t('library', 'View')"><button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button><button type="button" data-library-view-mode="gallery" :class="{ active: viewMode === 'gallery' }" :aria-pressed="viewMode === 'gallery' ? 'true' : 'false'" @click="setViewMode('gallery')">{{ t('library', 'Gallery') }}</button><button type="button" data-library-view-mode="list" :class="{ active: viewMode === 'list' }" :aria-pressed="viewMode === 'list' ? 'true' : 'false'" @click="setViewMode('list')">{{ t('library', 'List') }}</button><button type="button" data-library-view-mode="shelf" :class="{ active: viewMode === 'shelf' }" :aria-pressed="viewMode === 'shelf' ? 'true' : 'false'" @click="setViewMode('shelf')">{{ t('library', 'Shelf') }}</button></nav>
       </form>
-      <section id="library-collections" class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form><nav v-if="savedCollections.length > 0" class="library-saved-collection-links" :aria-label="t('library', 'Saved custom collections')"><article v-for="collection in savedCollections" :key="collection.id" class="library-saved-collection-card"><a class="library-saved-collection-link" :href="savedCollectionUrl(collection.filters)"><strong>{{ collection.name }}</strong><span class="library-saved-collection-count">{{ collection.countPending ? '—' : n('library', '%n item', '%n items', Number(collection.count || 0)) }}</span></a><form method="post" :action="savedCollectionDeleteUrl(collection.id)" class="library-saved-collection-delete-form"><input type="hidden" name="requesttoken" :value="requestToken"><button type="submit" class="button tertiary">{{ t('library', 'Delete') }}</button></form></article></nav></section>
+      <section id="library-collections" class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form></section>
 
       <details v-if="selectedItemIds.length > 0" class="library-workspace-panel library-workspace-panel--batch library-batch-actions" data-workspace-panel="batch" :aria-label="t('library', 'Batch actions for selected publications')">
         <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">✓</span><span class="library-workspace-panel-title" :title="t('library', 'Batch actions for selected publications')">{{ t('library', 'Batch actions') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Batch actions for selected publications') }}</small><b class="library-workspace-scope-badge">{{ n('library', '%n publication selected', '%n publications selected', selectedItemIds.length) }}</b></summary>
@@ -2140,11 +2243,7 @@ async function toggleStar(item, event) {
           <div class="library-cover-primary">
             <h3 :id="`library-card-title-${item.id}`"><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></button></h3>
             <p v-if="item.creators" class="library-cover-creator"><bdi class="library-bidi-human" dir="auto">{{ item.creators }}</bdi></p>
-            <div v-if="cardContext(item) || item.extension" class="library-cover-badges">
-              <span v-if="item.extension" class="library-cover-badge"><bdi class="library-bidi-machine" dir="ltr">{{ upper(item.extension) }}</bdi></span>
-              <p v-if="cardContext(item)" class="library-cover-context"><bdi class="library-bidi-human" dir="auto">{{ cardContext(item) }}</bdi></p>
-            </div>
-            <div class="library-cover-primary-actions"><a class="library-cover-read" :href="item.openUrl" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a><NcActions :aria-label="t('library', 'More actions')"><NcActionLink :href="item.filesUrl">{{ t('library', 'Show in Files') }}</NcActionLink><NcActionLink :href="item.downloadUrl">{{ t('library', 'Download') }}</NcActionLink><NcActionLink :href="item.detailsUrl">{{ t('library', 'Maintenance') }}</NcActionLink></NcActions></div>
+            <p v-if="cardContext(item)" class="library-cover-context"><bdi class="library-bidi-human" dir="auto">{{ cardContext(item) }}</bdi></p>
           </div>
         </div>
       </article>
@@ -2199,8 +2298,8 @@ async function toggleStar(item, event) {
           </nav>
           <section v-if="sidebarSection === 'overview'" class="library-sidebar-section" aria-labelledby="library-sidebar-overview-heading">
             <h3 id="library-sidebar-overview-heading">{{ t('library', 'Overview') }}</h3>
-            <p v-if="selectedDrawerItem.description" class="library-sidebar-description"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.description }}</bdi></p>
-            <dl class="library-detail-drawer-facts"><div v-if="selectedDrawerItem.publication"><dt>{{ t('library', 'Series') }}</dt><dd>{{ selectedDrawerItem.publication }}</dd></div><div v-if="selectedDrawerItem.publicationDate"><dt>{{ t('library', 'Date') }}</dt><dd>{{ selectedDrawerItem.publicationDate }}</dd></div><div v-if="selectedDrawerItem.publisher"><dt>{{ t('library', 'Publisher') }}</dt><dd>{{ selectedDrawerItem.publisher }}</dd></div><div v-if="selectedDrawerItem.language"><dt>{{ t('library', 'Language') }}</dt><dd>{{ selectedDrawerItem.language }}</dd></div><div v-if="selectedDrawerItem.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd>{{ selectedDrawerItem.shelf }}</dd></div></dl>
+            <p v-if="selectedDrawerDescription" class="library-sidebar-description"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerDescription }}</bdi></p>
+            <dl class="library-detail-drawer-facts"><div v-if="selectedDrawerItem.publication"><dt>{{ t('library', 'Series') }}</dt><dd><a class="library-detail-facet-link" :href="drawerFacetFilterUrl('publication', selectedDrawerItem.publication)" :title="t('library', 'Filter catalogue by this series')" @click="applyDrawerFacetFilter($event, 'publication', selectedDrawerItem.publication)"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.publication }}</bdi></a></dd></div><div v-if="selectedDrawerItem.publicationDate"><dt>{{ t('library', 'Date') }}</dt><dd><a v-if="selectedDrawerPublicationYear" class="library-detail-facet-link" :href="drawerFacetFilterUrl('year', selectedDrawerPublicationYear)" :title="t('library', 'Filter catalogue by this publication year')" @click="applyDrawerFacetFilter($event, 'year', selectedDrawerPublicationYear)">{{ selectedDrawerPublicationYear }}</a><span v-if="selectedDrawerPublicationYear && selectedDrawerItem.publicationDate !== selectedDrawerPublicationYear"> · </span><span v-if="selectedDrawerItem.publicationDate !== selectedDrawerPublicationYear">{{ selectedDrawerItem.publicationDate }}</span></dd></div><div v-if="selectedDrawerItem.publisher"><dt>{{ t('library', 'Publisher') }}</dt><dd><a class="library-detail-facet-link" :href="drawerFacetFilterUrl('publisher', selectedDrawerItem.publisher)" :title="t('library', 'Filter catalogue by this publisher')" @click="applyDrawerFacetFilter($event, 'publisher', selectedDrawerItem.publisher)"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.publisher }}</bdi></a></dd></div><div v-if="selectedDrawerLanguages.length"><dt>{{ t('library', 'Language') }}</dt><dd class="library-detail-facet-list"><a v-for="language in selectedDrawerLanguages" :key="language" class="library-detail-facet-link" :href="drawerFacetFilterUrl('language', language)" :title="t('library', 'Filter catalogue by this language')" @click="applyDrawerFacetFilter($event, 'language', language)"><bdi class="library-bidi-machine" dir="ltr">{{ language }}</bdi></a></dd></div><div v-if="selectedDrawerItem.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd>{{ selectedDrawerItem.shelf }}</dd></div></dl>
           </section>
           <section v-else-if="sidebarSection === 'metadata'" class="library-sidebar-section" aria-labelledby="library-sidebar-metadata-heading">
             <h3 id="library-sidebar-metadata-heading">{{ t('library', 'Metadata') }}</h3>
@@ -2621,8 +2720,8 @@ async function toggleStar(item, event) {
 }
 
 .library-cover-gallery {
-  gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 
 .library-cover-card--selected,
@@ -3384,6 +3483,21 @@ async function toggleStar(item, event) {
   color: var(--color-text-maxcontrast, #6b6b6b);
 }
 
+.library-navigation-saved-collection {
+  --icon-size: 12px;
+  margin-inline-start: 1.15rem;
+}
+
+.library-navigation-saved-collection :is(a, button) {
+  font-size: 0.92em;
+}
+
+.library-navigation-saved-collection :is(a, button)::before {
+  content: '↳';
+  color: var(--color-text-maxcontrast, #6b6b6b);
+  margin-inline-end: 0.35rem;
+}
+
 .library-quick-search-row {
   align-items: end;
   display: grid;
@@ -3714,9 +3828,18 @@ async function toggleStar(item, event) {
 }
 
 .library-cover-card {
-  gap: 8px;
-  overflow-wrap: anywhere;
-  padding: 8px;
+  background: var(--color-main-background);
+  gap: 0;
+  overflow-wrap: normal;
+  padding: 4px;
+  position: relative;
+}
+
+.library-cover-gallery:not(.library-cover-gallery--shelf) .library-cover-link {
+  color: inherit;
+  display: block;
+  inline-size: 100%;
+  text-decoration: none;
 }
 
 .library-cover-frame {
@@ -3778,7 +3901,89 @@ async function toggleStar(item, event) {
 }
 
 .library-cover-primary {
-  gap: 6px;
+  gap: 4px;
+}
+
+.library-cover-gallery .library-cover-summary {
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, #000 30%, transparent) 32%, color-mix(in srgb, #000 62%, transparent) 100%);
+  border-radius: 0 0 var(--border-radius-large, 10px) var(--border-radius-large, 10px);
+  bottom: 4px;
+  color: #fff;
+  left: 4px;
+  opacity: 0.86;
+  padding: 18px 5px 5px;
+  position: absolute;
+  right: 4px;
+  text-shadow: 0 1px 2px color-mix(in srgb, #000 70%, transparent);
+  transition: background 160ms ease, opacity 160ms ease, padding 160ms ease;
+}
+
+.library-cover-gallery .library-cover-primary {
+  min-width: 0;
+}
+
+.library-cover-summary h3 {
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.08;
+  margin: 0;
+}
+
+.library-cover-title-button {
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  display: -webkit-box;
+  font: inherit;
+  max-inline-size: 100%;
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  padding: 0;
+  text-align: start;
+}
+
+.library-cover-gallery .library-cover-title-button {
+  color: inherit;
+}
+
+.library-cover-gallery .library-cover-creator,
+.library-cover-gallery .library-cover-context {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: max-height 160ms ease, opacity 160ms ease, transform 160ms ease;
+}
+
+.library-cover-gallery .library-cover-card:hover .library-cover-summary,
+.library-cover-gallery .library-cover-card:focus-within .library-cover-summary,
+.library-cover-gallery .library-cover-card--open .library-cover-summary {
+  background: linear-gradient(180deg, color-mix(in srgb, #000 12%, transparent) 0%, color-mix(in srgb, #000 48%, transparent) 38%, color-mix(in srgb, #000 76%, transparent) 100%);
+  max-height: calc(100% - 8px);
+  opacity: 0.94;
+  overflow-y: auto;
+  padding-top: 26px;
+}
+
+.library-cover-gallery .library-cover-card:hover .library-cover-title-button,
+.library-cover-gallery .library-cover-card:focus-within .library-cover-title-button,
+.library-cover-gallery .library-cover-card--open .library-cover-title-button {
+  -webkit-line-clamp: unset;
+  display: block;
+}
+
+.library-cover-gallery .library-cover-card:hover .library-cover-creator,
+.library-cover-gallery .library-cover-card:hover .library-cover-context,
+.library-cover-gallery .library-cover-card:focus-within .library-cover-creator,
+.library-cover-gallery .library-cover-card:focus-within .library-cover-context,
+.library-cover-gallery .library-cover-card--open .library-cover-creator,
+.library-cover-gallery .library-cover-card--open .library-cover-context {
+  max-height: 1.2rem;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .library-cover-details {
@@ -3833,8 +4038,10 @@ async function toggleStar(item, event) {
   white-space: nowrap;
 }
 
-.library-cover-creator { font-size: 0.9rem; }
-.library-cover-context { color: var(--color-text-maxcontrast); font-size: 0.78rem; }
+.library-cover-creator { color: var(--color-text-maxcontrast); font-size: 0.6rem; line-height: 1.08; }
+.library-cover-context { color: var(--color-text-maxcontrast); font-size: 0.58rem; line-height: 1.08; }
+.library-cover-gallery .library-cover-creator,
+.library-cover-gallery .library-cover-context { color: color-mix(in srgb, #fff 88%, transparent); }
 
 .library-navigation-section {
   border-block-start: 1px solid var(--color-border);
@@ -3947,6 +4154,30 @@ async function toggleStar(item, event) {
 .library-detail-drawer-facts dd {
   margin: 0;
   overflow-wrap: anywhere;
+}
+
+.library-detail-facet-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.library-detail-facet-link {
+  background: var(--color-background-hover, rgba(0, 0, 0, 0.05));
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 999px;
+  color: var(--color-main-text);
+  display: inline-flex;
+  max-width: 100%;
+  padding: 2px 9px;
+  text-decoration: none;
+}
+
+.library-detail-facet-link:hover,
+.library-detail-facet-link:focus-visible {
+  background: var(--color-primary-element-light, rgba(0, 130, 201, 0.12));
+  border-color: var(--color-primary-element, #0082c9);
+  color: var(--color-primary-element, #0082c9);
 }
 
 @media (min-width: 900px) {
