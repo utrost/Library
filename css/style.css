@@ -1023,10 +1023,32 @@
     transition: opacity 120ms ease;
 }
 
-.library-cover-paste-help {
-    color: var(--color-text-maxcontrast);
+.library-cover-paste-tooltip {
+    background: var(--color-main-background);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: 0 6px 18px var(--color-box-shadow);
+    color: var(--color-main-text);
     font-size: 0.85rem;
+    inset-inline-start: 0;
     line-height: 1.35;
+    margin-top: 0.5rem;
+    max-width: min(22rem, calc(100vw - 2rem));
+    opacity: 0;
+    padding: 0.6rem 0.75rem;
+    pointer-events: none;
+    position: absolute;
+    top: 100%;
+    transform: translateY(-0.25rem);
+    transition: opacity 120ms ease, transform 120ms ease;
+    width: max-content;
+    z-index: 20;
+}
+
+.library-detail-cover-target:hover .library-cover-paste-tooltip,
+.library-detail-cover-target:focus-visible .library-cover-paste-tooltip {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .library-detail-cover-actions {

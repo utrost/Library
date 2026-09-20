@@ -28,8 +28,13 @@ def test_detail_cover_itself_is_upload_and_paste_target():
     assert 'class="library-detail-cover"' in hero
     assert "Click to upload" in hero and "or paste cover" in hero
     assert "Click the cover to choose a file or paste a copied image" in hero
+    assert 'class="hidden-visually"><?php p($coverUploadHelp); ?></figcaption>' in hero
+    assert 'class="library-cover-paste-tooltip"' in hero
+    assert 'title="<?php p($coverUploadHelp); ?>"' in hero
     assert '.library-detail-cover-target:focus-visible' in css
     assert '.library-detail-cover-overlay' in css
+    assert '.library-cover-paste-tooltip' in css
+    assert '.library-detail-cover-target:hover .library-cover-paste-tooltip' in css
 
 
 def test_detail_actions_are_grouped_and_ordered_with_star_icon_and_autosave_status():

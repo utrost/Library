@@ -63,7 +63,7 @@ def test_current_typeahead_bundle_uses_the_cache_busted_asset_basename():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     template = (ROOT / "templates" / "main.php").read_text()
 
-    assert "-cover-overlay-4`" in build
-    assert "library-main-0-1-0-alpha-172-cover-overlay-4" in controller
-    assert "library-vue-0-1-0-alpha-172-cover-overlay-4" in controller
-    assert 'data-library-main-script="library-main-0-1-0-alpha-172-cover-overlay-4"' in template
+    assert "-cover-help-tooltip`" in build
+    assert "library-main-0-1-0-alpha-173-cover-help-tooltip" in controller
+    assert "library-vue-0-1-0-alpha-173-cover-help-tooltip" in controller
+    assert 'data-library-main-script="library-main-0-1-0-alpha-173-cover-help-tooltip"' in template

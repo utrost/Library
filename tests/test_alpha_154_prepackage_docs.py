@@ -17,8 +17,8 @@ def test_alpha_159_real_gates_are_complete_but_deferred_gates_remain_explicit():
     architecture = read("docs/architecture-review.md")
     combined = "\n".join((readme, changelog, release, readiness, risk, architecture))
 
-    assert "Current source candidate: `0.1.0-alpha.172`." not in readme
-    assert "Current candidate: `0.1.0-alpha.172`." in readme
+    assert "Current source candidate: `0.1.0-alpha.173`." not in readme
+    assert "Current candidate: `0.1.0-alpha.173`." in readme
     assert "safe user-facing diagnostics" in readme
     assert "727 Python tests, 9 PHP runtime programs, 26 Vitest tests" in readme
     assert "`release_package_smoke_ok=true`" in readme

@@ -1,6 +1,6 @@
 # Current state and risk register
 
-Current app version: `0.1.0-alpha.172` unsigned package, built from merged `main` and deployed on the private Nextcloud 34 test instance. Accessibility-tree evidence is not screen-reader testing; manual AT testing is pending.
+Current app version: `0.1.0-alpha.173` unsigned package, built from merged `main` and deployed on the private Nextcloud 34 test instance. Accessibility-tree evidence is not screen-reader testing; manual AT testing is pending.
 
 This snapshot prepares Library for the v0.1 alpha test pass. It documents what is implemented and verified now, where the app is safe to test, and which risks remain intentionally outside the current release candidate.
 
@@ -8,7 +8,7 @@ This snapshot prepares Library for the v0.1 alpha test pass. It documents what i
 
 - Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
 - App id: `library`.
-- Current deployed version: `0.1.0-alpha.172`; the unsigned exact package has been built, audited, installed on the private `nextcloud` container, and live-smoked.
+- Current deployed version: `0.1.0-alpha.173`; the unsigned exact package has been built, audited, installed on the private `nextcloud` container, and live-smoked.
 - Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
 - Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
@@ -86,7 +86,7 @@ The historical alpha.153 release-hardening evidence set also includes:
 
 Alpha.159 verification is complete for the local gate (727 Python tests, 9 PHP runtime programs, 26 Vitest tests, production build and Markdown links), unsigned 120-entry package build/audit, and exact-package checksum/install/enable, PHP, routes, scanner, live Vue/API, browser and privacy smoke. The package smoke ended with `release_package_smoke_ok=true`; browser console errors and cross-origin cover requests were zero, and deterministic second-user isolation passed. The exact `dist/library-0.1.0-alpha.159.tar.gz` SHA-256 is `4287ec3f7a798ba6e6000900ca69aee1540b163146f53262a05e49095718c5d7`. The upgrade reported `No upgrade required`, so this was not a fresh-database migration rehearsal.
 
-Alpha.171 exact-package and security-hardening evidence is current: PRs #69 and #70 merged on `main`, CI passed, `scripts/package-release.sh` built and audited `dist/library-0.1.0-alpha.172.tar.gz` with SHA-256 `dee035479b847c091490ad7a57e9d04ef121180ddd6dd73ae7f6d5f00ac7e97f`, and the package was installed into the private `nextcloud` container. Deployed checksums matched for `appinfo/info.xml` and `lib/Service/SafeDiagnostics.php`; live reflection showed legacy `PDOException SQLSTATE[...]` text becomes a safe `metadata_extraction_failed` diagnostic with no SQLSTATE/table/exception leakage; the Vue route smoke returned `vue_smoke_ok=true` with temporary-token cleanup at zero. Real-world mixed corpus acceptance, a signed package and App Store submission, manual AT testing, and formal Trust-and-scale phase closure remain deferred.
+Alpha.171 exact-package and security-hardening evidence is current: PRs #69 and #70 merged on `main`, CI passed, `scripts/package-release.sh` built and audited `dist/library-0.1.0-alpha.173.tar.gz` with SHA-256 `dee035479b847c091490ad7a57e9d04ef121180ddd6dd73ae7f6d5f00ac7e97f`, and the package was installed into the private `nextcloud` container. Deployed checksums matched for `appinfo/info.xml` and `lib/Service/SafeDiagnostics.php`; live reflection showed legacy `PDOException SQLSTATE[...]` text becomes a safe `metadata_extraction_failed` diagnostic with no SQLSTATE/table/exception leakage; the Vue route smoke returned `vue_smoke_ok=true` with temporary-token cleanup at zero. Real-world mixed corpus acceptance, a signed package and App Store submission, manual AT testing, and formal Trust-and-scale phase closure remain deferred.
 
 Historical alpha.158 verification completed its local, unsigned package, exact-package and live gates, including the privacy and 40-file unchanged-root evidence recorded in the release documents.
 
