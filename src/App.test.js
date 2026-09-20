@@ -162,7 +162,7 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.get('select[name="format"]').findAll('option')).toHaveLength(3))
     expect(wrapper.text()).toContain('Initial first-paint item')
     expect(wrapper.text()).not.toContain('API item must not replace first paint')
-    expect(wrapper.get('.library-saved-collection-count').text()).toContain('12')
+    expect(wrapper.get('.library-navigation-saved-collection').text()).toContain('12')
     expect(global.fetch).toHaveBeenCalledTimes(1)
   })
 
@@ -184,10 +184,10 @@ describe('Library catalogue Vue app', () => {
       savedCollections: [{ id: 9, name: 'Unread', filters: { workflowStatus: 'unread' }, count: null, countPending: true }],
     } } })
 
-    const collection = wrapper.get('.library-saved-collection-card')
+    const collection = wrapper.get('.library-navigation-saved-collection')
     expect(collection.text()).toContain('Unread')
     expect(collection.text()).not.toContain('0 items')
-    expect(collection.get('.library-saved-collection-count').text()).toBe('—')
+    expect(collection.text()).not.toContain('items')
   })
 
   it('renders server-backed Home rows independently from catalogue items', () => {
@@ -973,7 +973,7 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.text()).toContain('Filtered result'))
     expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?subject=photolab', expect.objectContaining({ credentials: 'same-origin' }))
     expect(wrapper.get('select[name="format"]').findAll('option').map((option) => option.text())).toEqual(['All formats', 'EPUB', 'PDF'])
-    expect(wrapper.get('.library-saved-collection-count').text()).toContain('12')
+    expect(wrapper.get('.library-navigation-saved-collection').text()).toContain('12')
   })
 
   it.each(['home', 'shelves'])('offers active filter resets on %s and navigates to the canonical catalogue', async (surface) => {
