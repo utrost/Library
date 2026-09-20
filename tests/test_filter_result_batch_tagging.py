@@ -58,5 +58,5 @@ def test_docs_and_version_track_filter_result_batch_tagging():
 
     assert "batch tagging exists" in guide.lower()
     assert "selected visible items" in roadmap.lower()
-    assert "<version>0.1.0-alpha.172</version>" in info
-    assert '"version": "0.1.0-alpha.172"' in package
+    assert "<version>0.1.0-alpha.173</version>" in info
+    assert '"version": "0.1.0-alpha.173"' in package
