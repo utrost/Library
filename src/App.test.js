@@ -166,6 +166,33 @@ describe('Library catalogue Vue app', () => {
     expect(global.fetch).toHaveBeenCalledTimes(1)
   })
 
+  it('aborts deferred facet hydration when a user applies a filter', async () => {
+    const animationFrames = []
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      animationFrames.push(callback)
+      return animationFrames.length
+    })
+    let hydrationSignal = null
+    global.fetch = vi.fn((url, init = {}) => {
+      const parsed = new URL(String(url), window.location.origin)
+      if (parsed.searchParams.get('hydrate') === '1') {
+        hydrationSignal = init.signal
+        return new Promise(() => {})
+      }
+      return Promise.resolve({ ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, type: 'book' } }) })
+    })
+    const wrapper = mount(App, { props: { state: { ...state, surface: 'index', catalogueEndpointUrl: '/apps/library/catalogue' } } })
+
+    for (const callback of animationFrames.splice(0)) callback(performance.now())
+    await vi.waitFor(() => expect(hydrationSignal).not.toBeNull())
+    expect(hydrationSignal.aborted).toBe(false)
+
+    await wrapper.get('select[name="type"]').setValue('book')
+
+    expect(hydrationSignal.aborted).toBe(true)
+    expect(global.fetch.mock.calls.map(([url]) => String(url))).toContain('/apps/library/catalogue?type=book')
+  })
+
   it('shows a pending marker instead of false zero review queue counts', () => {
     const wrapper = mount(App, { props: { state: {
       ...state,
