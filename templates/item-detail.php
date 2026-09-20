@@ -110,7 +110,30 @@ $scanStatusLabels = [
 
         <article class="library-panel" aria-labelledby="library-item-detail-heading">
             <div class="library-detail-hero">
-                <img class="library-detail-cover" src="<?php p($item['coverUrl'] ?? ''); ?>" alt="" loading="lazy" />
+                <div class="library-detail-cover-column">
+                    <?php if (($item['coverUploadError'] ?? '') !== ''): ?>
+                        <p class="library-validation-feedback" role="alert"><?php p((string)$item['coverUploadError']); ?></p>
+                    <?php endif; ?>
+                    <form method="post" enctype="multipart/form-data" action="<?php p($item['coverOverrideActionUrl'] ?? ''); ?>" class="library-cover-override-form library-detail-cover-form">
+                        <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                        <input id="library-cover-override-file" class="hidden-visually" type="file" name="coverOverrideFile" accept="image/jpeg,image/png,image/webp" aria-describedby="library-cover-paste-help library-cover-paste-status" />
+                        <figure class="library-detail-cover-frame">
+                            <div class="library-detail-cover-target" data-library-cover-paste-target tabindex="0" role="button" aria-label="<?php p($l->t('Replace cover image. Click to upload or paste a copied cover image.')); ?>" aria-describedby="library-cover-paste-help library-cover-paste-status">
+                                <img class="library-detail-cover" src="<?php p($item['coverUrl'] ?? ''); ?>" alt="" loading="lazy" />
+                                <span class="library-detail-cover-overlay" aria-hidden="true"><?php p($l->t('Click to upload')); ?><br /><?php p($l->t('or paste cover')); ?></span>
+                            </div>
+                            <figcaption id="library-cover-paste-help" class="library-cover-paste-help"><?php p($l->t('JPEG, PNG, or WebP; up to 10 MiB, 10,000 px per side, and 40 megapixels. Click the cover to choose a file or paste a copied image while the cover is focused.')); ?></figcaption>
+                        </figure>
+                        <p id="library-cover-paste-status" class="library-cover-paste-status" data-library-cover-paste-status aria-live="polite"></p>
+                        <div class="library-detail-cover-actions">
+                            <button type="submit" class="button secondary"><?php p($l->t('Use manual cover')); ?></button>
+                        </div>
+                    </form>
+                    <form method="post" action="<?php p($item['coverRevertUrl'] ?? ''); ?>" class="library-cover-revert-form library-detail-cover-revert-form">
+                        <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                        <button type="submit" class="button secondary"><?php p($l->t('Revert to extracted/preview cover')); ?></button>
+                    </form>
+                </div>
                 <div>
                     <p class="library-muted"><?php p($l->t('Publication details')); ?></p>
                     <h2 id="library-item-detail-heading"><bdi class="library-bidi-human" dir="auto"><?php p((string)($item['title'] ?? $l->t('Untitled publication'))); ?></bdi></h2>
@@ -158,29 +181,6 @@ $scanStatusLabels = [
                             </form>
                         </div>
                     </div>
-                    <details class="library-cover-override-panel">
-                        <summary><?php p($l->t('Manual cover override')); ?></summary>
-                        <?php if (($item['coverUploadError'] ?? '') !== ''): ?>
-                            <p class="library-validation-feedback" role="alert"><?php p((string)$item['coverUploadError']); ?></p>
-                        <?php endif; ?>
-                        <form method="post" enctype="multipart/form-data" action="<?php p($item['coverOverrideActionUrl'] ?? ''); ?>" class="library-cover-override-form">
-                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                            <label>
-                                <?php p($l->t('Upload cover image')); ?>
-                                <input type="file" name="coverOverrideFile" accept="image/jpeg,image/png,image/webp" aria-describedby="library-cover-paste-help library-cover-paste-status" />
-                                <small id="library-cover-paste-help"><?php p($l->t('JPEG, PNG, or WebP; up to 10 MiB, 10,000 px per side, and 40 megapixels. You can also paste a copied cover image into the box below.')); ?></small>
-                            </label>
-                            <div class="library-cover-paste-target" data-library-cover-paste-target tabindex="0" role="button" aria-describedby="library-cover-paste-help library-cover-paste-status">
-                                <?php p($l->t('Paste cover image here')); ?>
-                            </div>
-                            <p id="library-cover-paste-status" class="library-cover-paste-status" data-library-cover-paste-status role="status" aria-live="polite"></p>
-                            <button type="submit" class="button secondary"><?php p($l->t('Use manual cover')); ?></button>
-                        </form>
-                        <form method="post" action="<?php p($item['coverRevertUrl'] ?? ''); ?>" class="library-cover-revert-form">
-                            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                            <button type="submit" class="button secondary"><?php p($l->t('Revert to extracted/preview cover')); ?></button>
-                        </form>
-                    </details>
                 </div>
             </div>
         </article>

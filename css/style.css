@@ -448,20 +448,6 @@
     margin-bottom: 1rem;
 }
 
-.library-cover-paste-target {
-    border: 1px dashed var(--color-border);
-    border-radius: 10px;
-    color: var(--color-text-maxcontrast);
-    cursor: text;
-    padding: 0.85rem;
-    text-align: center;
-}
-
-.library-cover-paste-target:focus-visible {
-    outline: 2px solid var(--color-primary-element);
-    outline-offset: 2px;
-}
-
 .library-cover-paste-status {
     margin: 0;
     min-block-size: 1.4em;
@@ -972,12 +958,81 @@
     align-items: start;
 }
 
+.library-detail-cover-column {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.library-detail-cover-form,
+.library-detail-cover-revert-form {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+}
+
+.library-detail-cover-frame {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+}
+
+.library-detail-cover-target {
+    border-radius: 12px;
+    cursor: copy;
+    display: block;
+    position: relative;
+}
+
+.library-detail-cover-target:focus-visible {
+    outline: 3px solid var(--color-primary-element);
+    outline-offset: 3px;
+}
+
+.library-detail-cover-target:hover .library-detail-cover-overlay,
+.library-detail-cover-target:focus-visible .library-detail-cover-overlay {
+    opacity: 1;
+}
+
 .library-detail-cover {
-    width: 100%;
+    background: var(--color-background-darker);
+    border-radius: 12px;
+    display: block;
     min-height: 220px;
     object-fit: cover;
-    border-radius: 12px;
-    background: var(--color-background-darker);
+    width: 100%;
+}
+
+.library-detail-cover-overlay {
+    align-items: center;
+    background: color-mix(in srgb, var(--color-main-background) 82%, transparent);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    bottom: 10px;
+    box-shadow: 0 2px 10px var(--color-box-shadow);
+    color: var(--color-main-text);
+    display: inline-flex;
+    font-weight: 700;
+    inset-inline: 10px;
+    justify-content: center;
+    line-height: 1.25;
+    opacity: 0.92;
+    padding: 0.45rem 0.7rem;
+    pointer-events: none;
+    position: absolute;
+    text-align: center;
+    transition: opacity 120ms ease;
+}
+
+.library-cover-paste-help {
+    color: var(--color-text-maxcontrast);
+    font-size: 0.85rem;
+    line-height: 1.35;
+}
+
+.library-detail-cover-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .library-detail-actionbar {
