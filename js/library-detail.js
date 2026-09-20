@@ -401,16 +401,24 @@
     forms.forEach((form) => {
       if (form.dataset.libraryCoverPasteEnhanced === 'true') return
       form.dataset.libraryCoverPasteEnhanced = 'true'
+      const input = form.querySelector('input[type="file"][name="coverOverrideFile"]')
+      const target = form.querySelector('[data-library-cover-paste-target]')
       form.addEventListener('paste', (event) => {
         const file = pastedImageFromEvent(event)
         if (!file) return
         event.preventDefault()
         applyPastedCover(form, file)
       })
-      form.querySelector('[data-library-cover-paste-target]')?.addEventListener('keydown', (event) => {
+      input?.addEventListener('change', () => {
+        const file = input.files?.[0]
+        if (!file) return
+        setCoverPasteStatus(form, `Selected cover ready: ${file.name || 'uploaded image'}. Choose “Use manual cover” to save it.`, false)
+      })
+      target?.addEventListener('click', () => input?.click())
+      target?.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter' && event.key !== ' ') return
         event.preventDefault()
-        form.querySelector('input[type="file"][name="coverOverrideFile"]')?.click()
+        input?.click()
       })
     })
   }
