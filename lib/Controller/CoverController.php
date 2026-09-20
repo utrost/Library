@@ -160,6 +160,7 @@ class CoverController extends Controller {
                     'target_id' => $itemId,
                     'reason' => 'validated_upload',
                 ]);
+                return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]) . '?coverRefresh=1');
             }
         }
 
@@ -175,6 +176,7 @@ class CoverController extends Controller {
                 'target_id' => $itemId,
                 'reason' => 'manual_cover_cleared',
             ]);
+            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]) . '?coverRefresh=1');
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));

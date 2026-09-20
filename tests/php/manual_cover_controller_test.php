@@ -41,8 +41,12 @@ namespace OCA\Library\Instrumentation {
 namespace OCA\Library\Service {
     class ItemService {
         public array $calls = [];
+        public array $clearCalls = [];
         public function setManualCoverOverride(string $userId, int $itemId, ?string $data, ?string $mime): void {
             $this->calls[] = compact('userId', 'itemId', 'data', 'mime');
+        }
+        public function clearManualCoverOverride(string $userId, int $itemId): void {
+            $this->clearCalls[] = compact('userId', 'itemId');
         }
     }
     class ArchiveCoverService {}
@@ -125,11 +129,16 @@ namespace {
         $jpeg = base64_decode('/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAf/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAF//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABBQJ//8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAwEBPwF//8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAgEBPwF//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQAGPwJ//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPyF//9k=', true);
         file_put_contents($tmp, $jpeg);
         $_FILES['coverOverrideFile'] = ['tmp_name' => $tmp, 'error' => UPLOAD_ERR_OK, 'type' => 'text/html', 'size' => strlen((string)$jpeg)];
-        $controller->override(7);
+        $successfulResponse = $controller->override(7);
         expectController(count($itemService->calls) === 1, 'valid upload reaches persistence once');
         $call = $itemService->calls[0];
         expectController($call['mime'] === 'image/jpeg', 'server canonical MIME must be persisted');
         expectController(base64_decode((string)$call['data'], true) === $jpeg, 'validated bytes must be persisted');
+        expectController($successfulResponse->url === '/items/7?coverRefresh=1', 'successful upload redirects through a cache-busting detail render');
+
+        $revertResponse = $controller->revert(7);
+        expectController($itemService->clearCalls === [['userId' => 'alice', 'itemId' => 7]], 'revert clears the manual cover once');
+        expectController($revertResponse->url === '/items/7?coverRefresh=1', 'revert redirects through a cache-busting detail render');
     } finally {
         unset($_FILES['coverOverrideFile']);
         @unlink($tmp);

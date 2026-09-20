@@ -58,7 +58,8 @@ namespace {
 
     $request = new class implements \OCP\IRequest {
         public string $requestUri = '/apps/library/items/7/sidebar';
-        public function getParam(string $key, mixed $default = null): mixed { return $default; }
+        public array $params = [];
+        public function getParam(string $key, mixed $default = null): mixed { return $this->params[$key] ?? $default; }
         public function getRequestUri(): string { return $this->requestUri; }
     };
     $session = new class implements \OCP\IUserSession {
@@ -67,7 +68,10 @@ namespace {
     };
     $urls = new class implements \OCP\IURLGenerator {
         public function linkToRoute(string $route, array $params = []): string {
-            return $route === 'library.cover.show' ? '/apps/library/covers/' . ($params['itemId'] ?? '') : '/' . str_replace('.', '/', $route);
+            if ($route === 'library.cover.show') {
+                return '/apps/library/covers/' . ($params['itemId'] ?? '') . (isset($params['refresh']) ? '?refresh=' . $params['refresh'] : '');
+            }
+            return '/' . str_replace('.', '/', $route);
         }
     };
     $controller = new \OCA\Library\Controller\ItemPageController(
@@ -83,6 +87,12 @@ namespace {
     if (str_contains(json_encode($response->params, JSON_THROW_ON_ERROR), 'tracker.invalid')) {
         throw new \RuntimeException('legacy remote URL must not be exposed to the detail template');
     }
+    $request->params['coverRefresh'] = '1';
+    $refreshed = $controller->show(7);
+    if ($refreshed->params['item']['coverUrl'] !== '/apps/library/covers/7?refresh=1') {
+        throw new \RuntimeException('cover refresh detail render must use the no-store cover URL');
+    }
+    $request->params = [];
 
     foreach ([[false, true], [true, false]] as [$authenticated, $owned]) {
         $session->authenticated = $authenticated;
