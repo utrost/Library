@@ -8,6 +8,7 @@ use OCA\Library\Exception\BatchLimitExceededException;
 use OCA\Library\Service\FileTagService;
 use OCA\Library\Service\ItemService;
 use OCA\Library\Service\SelectedItemIds;
+use OCA\Library\Service\SecurityAuditLogger;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\RedirectResponse;
@@ -16,6 +17,8 @@ use OCP\IURLGenerator;
 use OCP\IUserSession;
 
 final class TagController extends Controller {
+    private ?SecurityAuditLogger $securityAudit = null;
+
     public function __construct(
         string $appName,
         IRequest $request,
@@ -23,8 +26,10 @@ final class TagController extends Controller {
         private ItemService $itemService,
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
+        ?SecurityAuditLogger $securityAudit = null,
     ) {
         parent::__construct($appName, $request);
+        $this->securityAudit = $securityAudit;
     }
 
     #[NoAdminRequired]
@@ -55,9 +60,21 @@ final class TagController extends Controller {
                     $itemIds,
                     (string)($this->request->getParam('nextcloudTagName', '') ?: $this->request->getParam('tagName', '')),
                 );
+                $this->securityAudit?->info('library.bulk_tag.assign', $user->getUID(), 'assign', 'tag_batch', 'success', [
+                    'target_count' => (int)($result['requestedItems'] ?? count($itemIds)),
+                    'reason' => 'batch_tag_assign',
+                ]);
             } catch (BatchLimitExceededException $e) {
+                $this->securityAudit?->warning('library.bulk_tag.limit_rejected', $user->getUID(), 'assign', 'tag_batch', 'rejected', [
+                    'target_count' => 0,
+                    'reason' => 'batch_limit_exceeded',
+                ]);
                 return $this->batchLimitRedirect($filters);
             } catch (\InvalidArgumentException $e) {
+                $this->securityAudit?->warning('library.bulk_tag.selection_rejected', $user->getUID(), 'assign', 'tag_batch', 'rejected', [
+                    'target_count' => 0,
+                    'reason' => 'invalid_selection',
+                ]);
                 return $this->batchSelectionRedirect($filters);
             }
         }
@@ -85,9 +102,21 @@ final class TagController extends Controller {
                     $itemIds,
                     (string)($this->request->getParam('nextcloudTagName', '') ?: $this->request->getParam('tagName', '')),
                 );
+                $this->securityAudit?->info('library.bulk_tag.remove', $user->getUID(), 'remove', 'tag_batch', 'success', [
+                    'target_count' => (int)($result['requestedItems'] ?? count($itemIds)),
+                    'reason' => 'batch_tag_remove',
+                ]);
             } catch (BatchLimitExceededException $e) {
+                $this->securityAudit?->warning('library.bulk_tag.limit_rejected', $user->getUID(), 'remove', 'tag_batch', 'rejected', [
+                    'target_count' => 0,
+                    'reason' => 'batch_limit_exceeded',
+                ]);
                 return $this->batchLimitRedirect($filters);
             } catch (\InvalidArgumentException $e) {
+                $this->securityAudit?->warning('library.bulk_tag.selection_rejected', $user->getUID(), 'remove', 'tag_batch', 'rejected', [
+                    'target_count' => 0,
+                    'reason' => 'invalid_selection',
+                ]);
                 return $this->batchSelectionRedirect($filters);
             }
         }

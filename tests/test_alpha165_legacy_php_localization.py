@@ -18,8 +18,8 @@ def test_alpha165_exact_versions_assets_and_package_contract():
     assert '"version": "0.1.0-alpha.171"' in read('package.json')
     assert "appVersion: JSON.stringify('0.1.0-alpha.171')" in read('vite.config.js')
     controller = read('lib/Controller/PageController.php')
-    assert 'library-main-0-1-0-alpha-171-filter-ux' in controller
-    assert 'library-vue-0-1-0-alpha-171-filter-ux' in controller
+    assert 'library-main-0-1-0-alpha-171-cover-overlay-4' in controller
+    assert 'library-vue-0-1-0-alpha-171-cover-overlay-4' in controller
     assert 'EXPECTED_VERSION="$(python3 - "$ROOT/appinfo/info.xml"' in read('scripts/smoke-release-package.sh')
 
 
@@ -36,7 +36,7 @@ def test_all_legacy_surfaces_resolve_and_render_locale_direction():
 def test_php_and_vue_inventory_is_complete_and_generated_catalogues_are_current():
     result = subprocess.run(['node', 'scripts/check-translations.mjs'], cwd=ROOT, text=True, capture_output=True)
     assert result.returncode == 0, result.stderr
-    assert re.search(r'keys=5[0-9][0-9]', result.stdout)
+    assert re.search(r'keys=60[0-9]', result.stdout)
     assert 'generated_catalogues_current=true' in result.stdout
     for locale in ['de', 'ar']:
         assert set(json.loads(read(f'l10n/{locale}.json'))['translations']) == set(json.loads(read('l10n/en.json'))['translations'])

@@ -16,6 +16,7 @@ if command -v php >/dev/null 2>&1; then
     php "$repo_dir/tests/php/metadata_import_limits_test.php"
     php "$repo_dir/tests/php/metadata_error_tsv_formula_test.php"
     php "$repo_dir/tests/php/safe_diagnostics_test.php"
+    php "$repo_dir/tests/php/security_audit_event_test.php"
     php "$repo_dir/tests/php/manual_cover_controller_test.php"
     php "$repo_dir/tests/php/item_page_cover_privacy_test.php"
     php "$repo_dir/tests/php/metadata_fast_path_test.php"
@@ -40,6 +41,7 @@ if command -v docker >/dev/null 2>&1 && docker image inspect php:8.3-cli >/dev/n
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/metadata_import_limits_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/metadata_error_tsv_formula_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/safe_diagnostics_test.php
+    docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/security_audit_event_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/manual_cover_controller_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/item_page_cover_privacy_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/metadata_fast_path_test.php

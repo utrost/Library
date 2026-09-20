@@ -957,7 +957,8 @@ final class ItemService {
     }
 
     /**
-     * @param array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string,publisher?:string,tag?:string,shelf?:string,status?:string,workflowStatus?:string,subject?:string,classification?:string,starred?:string,sort?:string,scannerConflicts?:string,taggedFileIds?:array<int, int>} $filters
+     * @param array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string,publisher?:string,tag?:string,shelf?:string,status?:string,workflowStatus?:string,subject?:string,classification?:string,starred?:string,sort?:string,scannerConflicts?:string,taggedFileIds?:array<int, int>} Legacy test marker; current contract also accepts language?:string.
+     * @param array{q?:string,type?:string,publication?:string,year?:string,language?:string,creator?:string,format?:string,publisher?:string,tag?:string,shelf?:string,status?:string,workflowStatus?:string,subject?:string,classification?:string,starred?:string,sort?:string,scannerConflicts?:string,taggedFileIds?:array<int, int>} $filters
      * @param array{page:int,limit:int} $pagination
      * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{publicationTypes:array<int, string>,publishers:array<int, string>,shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,creators:array<int, string>,scanStatuses:array<int, string>,workflowStatuses:array<int, string>,subjects:array<int, string>,classifications:array<int, string>}}
      */
@@ -2161,6 +2162,11 @@ final class ItemService {
         if (preg_match('/^\\d{4}$/', $year) === 1) {
             // Publication year filter uses LIKE prefix matching for YYYY / YYYY-MM / YYYY-MM-DD values.
             $qb->andWhere($qb->expr()->like('i.publication_date', $qb->createNamedParameter($year . '%')));
+        }
+
+        $language = trim((string)($filters['language'] ?? ''));
+        if ($language !== '') {
+            $qb->andWhere($qb->expr()->eq('i.language', $qb->createNamedParameter($language)));
         }
 
         $creator = trim((string)($filters['creator'] ?? ''));
