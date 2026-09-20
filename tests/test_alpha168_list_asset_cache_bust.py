@@ -11,8 +11,8 @@ def read(path: str) -> str:
 
 
 def test_main_template_and_vite_define_report_the_alpha170_app_version():
-    assert 'data-library-version="0.1.0-alpha.172"' in read("templates/main.php")
-    assert "appVersion: JSON.stringify('0.1.0-alpha.172')" in read("vite.config.js")
+    assert 'data-library-version="0.1.0-alpha.173"' in read("templates/main.php")
+    assert "appVersion: JSON.stringify('0.1.0-alpha.173')" in read("vite.config.js")
 
 
 def test_list_view_asset_path_is_cache_busted_after_alpha170_deploy():
@@ -26,8 +26,8 @@ def test_list_view_asset_path_is_cache_busted_after_alpha170_deploy():
 
     assert script != "library-main-0-1-0-alpha-169"
     assert style != "library-vue-0-1-0-alpha-169"
-    assert script == "library-main-0-1-0-alpha-172-cover-overlay-4"
-    assert style == "library-vue-0-1-0-alpha-172-cover-overlay-4"
+    assert script == "library-main-0-1-0-alpha-173-cover-help-tooltip"
+    assert style == "library-vue-0-1-0-alpha-173-cover-help-tooltip"
     assert f'data-library-main-script="{script}"' in read("templates/main.php")
     assert (ROOT / f"js/{script}.mjs").exists()
     assert (ROOT / f"css/{style}.css").exists()
@@ -59,7 +59,7 @@ def test_release_packaging_uses_page_controller_wired_assets(tmp_path):
             "--input-type=module",
             "--eval",
             "import { releaseFrontendFiles } from './scripts/release-frontend-manifest.mjs'; "
-            "console.log(JSON.stringify(releaseFrontendFiles('0.1.0-alpha.172')))",
+            "console.log(JSON.stringify(releaseFrontendFiles('0.1.0-alpha.173')))",
         ],
         cwd=ROOT,
         check=True,
@@ -85,7 +85,7 @@ def test_release_packaging_uses_page_controller_wired_assets(tmp_path):
     stale_style.write_text("Genre", encoding="utf-8")
 
     subprocess.run(
-        ["node", "scripts/stage-release-frontend.mjs", str(stage), "0.1.0-alpha.172"],
+        ["node", "scripts/stage-release-frontend.mjs", str(stage), "0.1.0-alpha.173"],
         cwd=ROOT,
         check=True,
         capture_output=True,

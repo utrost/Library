@@ -35,5 +35,5 @@ def test_docs_and_smoke_track_filename_path_search_as_landed():
     assert "filename and folder names" in roadmap.lower()
     assert "source_has_primary_catalogue_controls" in smoke
     assert "backend_searches_description" in smoke
-    assert "<version>0.1.0-alpha.172</version>" in info
-    assert '"version": "0.1.0-alpha.172"' in package
+    assert "<version>0.1.0-alpha.173</version>" in info
+    assert '"version": "0.1.0-alpha.173"' in package

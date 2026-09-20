@@ -1,6 +1,6 @@
 # Library Roadmap
 
-Status: active planning roadmap; current unsigned packaged alpha `0.1.0-alpha.172` deployed to the private Nextcloud 34 test instance
+Status: active planning roadmap; current unsigned packaged alpha `0.1.0-alpha.173` deployed to the private Nextcloud 34 test instance
 Last updated: 2026-09-18
 Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md), [Alice scale pilot notes](alice-scale-pilot.md)
 
@@ -556,7 +556,7 @@ Recommended next slice: **release-facing metadata repair and review polish** rem
 
 Minimum next cuts:
 
-1. Keep the exact `0.1.0-alpha.172` package evidence current after any further patch, then repeat the alpha checklist on real mixed files rather than only synthetic/fresh-install fixtures.
+1. Keep the exact `0.1.0-alpha.173` package evidence current after any further patch, then repeat the alpha checklist on real mixed files rather than only synthetic/fresh-install fixtures.
 2. Run live Catalogue/Home/Shelves/Review browser smokes on the installed package, including mobile filter panel, combobox keyboard interaction, drawer arrow-key editable-field preservation, and import preview-to-apply.
 3. Run the catalogue performance smoke for ordinary search, arbitrary substring search, review filters, typeahead suggestion routes and high-cardinality facets.
 4. Preserve the database-backed catalogue query path under text/type/format/tag/shelf/status/review filters during every smoke.
