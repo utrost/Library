@@ -127,6 +127,7 @@ OC.L10N.register(
         "Danger zone": "Gefahrenbereich",
         "Date": "Datum",
         "Date added": "Hinzugefügt am",
+        "Delete collection": "Sammlung löschen",
         "Delete root": "Stammordner löschen",
         "Deleting a Library root removes only Library index and catalogue rows for that root, but never deletes source files from Nextcloud Files.": "Beim Löschen eines Bibliotheks-Stammordners werden nur dessen Index- und Katalogzeilen entfernt; Quelldateien in Nextcloud Files werden niemals gelöscht.",
         "Description": "Beschreibung",

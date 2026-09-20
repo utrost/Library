@@ -47,6 +47,7 @@ import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
 import NcAppNavigationList from '@nextcloud/vue/components/NcAppNavigationList'
 import NcAppSidebar from '@nextcloud/vue/components/NcAppSidebar'
 import NcActions from '@nextcloud/vue/components/NcActions'
+import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import NcActionLink from '@nextcloud/vue/components/NcActionLink'
 import NcContent from '@nextcloud/vue/components/NcContent'
 import ShelfTreeNode from './components/ShelfTreeNode.vue'
@@ -370,6 +371,8 @@ const catalogueNavigation = computed(() => [
 ])
 const savedCollectionNavigation = computed(() => savedCollections.value.map((collection) => ({
   key: `collection-${collection.id}`,
+  rawName: collection.name,
+  id: collection.id,
   name: collection.countPending
     ? collection.name
     : `${collection.name} (${n('library', '%n item', '%n items', Number(collection.count || 0))})`,
@@ -1662,6 +1665,21 @@ function savedCollectionDeleteUrl(collectionId) {
   return savedCollectionDeleteBaseUrl.value.replace('__COLLECTION_ID__', encodeURIComponent(String(collectionId || '0')))
 }
 
+function submitSavedCollectionDelete(collectionId) {
+  if (!requestToken.value) return
+  const form = document.createElement('form')
+  form.method = 'post'
+  form.action = savedCollectionDeleteUrl(collectionId)
+  form.className = 'library-navigation-saved-collection-delete-form'
+  const token = document.createElement('input')
+  token.type = 'hidden'
+  token.name = 'requesttoken'
+  token.value = requestToken.value
+  form.appendChild(token)
+  document.body.appendChild(form)
+  form.submit()
+}
+
 function upper(value) {
   return String(value || '').toUpperCase()
 }
@@ -1877,7 +1895,11 @@ async function toggleStar(item, event) {
       <template #list>
         <NcAppNavigationList>
           <NcAppNavigationItem v-for="destination in catalogueNavigation" :key="destination.key" :active="destination.active" :href="destination.href" :name="destination.name" />
-          <NcAppNavigationItem v-for="collection in savedCollectionNavigation" :key="collection.key" class="library-navigation-saved-collection" :active="collection.active" :href="collection.href" :name="collection.name" />
+          <NcAppNavigationItem v-for="collection in savedCollectionNavigation" :key="collection.key" class="library-navigation-saved-collection" :active="collection.active" :href="collection.href" :name="collection.name" :inline-actions="1" force-display-actions>
+            <template #actions>
+              <NcActionButton type="button" class="library-navigation-saved-collection-delete-action" :aria-label="`${t('library', 'Delete collection')}: ${collection.rawName}`" @click="submitSavedCollectionDelete(collection.id)">{{ t('library', 'Delete collection') }}</NcActionButton>
+            </template>
+          </NcAppNavigationItem>
           <NcAppNavigationItem :active="reviewActive" :href="reviewUrl" :name="reviewCount > 0 ? `${t('library', 'Review')} (${reviewCount})` : t('library', 'Review')" />
         </NcAppNavigationList>
       </template>
@@ -3496,6 +3518,14 @@ async function toggleStar(item, event) {
   content: '↳';
   color: var(--color-text-maxcontrast, #6b6b6b);
   margin-inline-end: 0.35rem;
+}
+
+.library-navigation-saved-collection-delete-form {
+  margin: 0;
+}
+
+.library-navigation-saved-collection-delete-action::before {
+  content: none;
 }
 
 .library-quick-search-row {

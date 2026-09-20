@@ -126,7 +126,7 @@
     "Danger zone": "منطقة الخطر",
     "Date": "التاريخ",
     "Date added": "تاريخ الإضافة",
-
+    "Delete collection": "حذف المجموعة",
     "Delete root": "حذف جذر",
     "Deleting a Library root removes only Library index and catalogue rows for that root, but never deletes source files from Nextcloud Files.": "يؤدي حذف جذر المكتبة إلى إزالة صفوف الفهرس والكتالوج الخاصة به فقط، ولا يحذف مطلقًا الملفات المصدرية من ملفات Nextcloud.",
     "Description": "الوصف",

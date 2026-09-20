@@ -188,6 +188,8 @@ describe('Library catalogue Vue app', () => {
     expect(collection.text()).toContain('Unread')
     expect(collection.text()).not.toContain('0 items')
     expect(collection.text()).not.toContain('items')
+    const deleteAction = collection.get('.library-navigation-saved-collection-delete-action')
+    expect(deleteAction.attributes('aria-label')).toContain('Delete collection')
   })
 
   it('renders server-backed Home rows independently from catalogue items', () => {
