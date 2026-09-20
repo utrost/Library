@@ -1,0 +1,6 @@
+name: library-codeql
+
+paths-ignore:
+  - js/library-main*.mjs
+  - build/vue/**
+  - node_modules/**
