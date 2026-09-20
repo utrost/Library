@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONTAINER="${NEXTCLOUD_CONTAINER:-nextcloud}"
 APP_ID="library"
-# Current source candidate marker for documentation/tests: 0.1.0-alpha.172
+# Current source candidate marker for documentation/tests: 0.1.0-alpha.173
 EXPECTED_VERSION="$(python3 - "$ROOT/appinfo/info.xml" <<'PY'
 from pathlib import Path
 import re
@@ -87,7 +87,7 @@ docker exec -u www-data "$CONTAINER" php occ router:list library | grep -E 'libr
 
 npm run smoke:vue
 npm run smoke:sidebar-http
-LIBRARY_BROWSER_SMOKE_BASIC=1 npm run smoke:browser
+LIBRARY_BROWSER_SMOKE_BASIC=1 LIBRARY_BROWSER_EXPECTED_CARDS=100 npm run smoke:browser
 # Deep cover privacy remains available as `npm run smoke:cover-privacy`; it is
 # intentionally not part of this bounded release-package gate.
 # package rehearsal keeps the exact artifact gate bounded to install, routes,

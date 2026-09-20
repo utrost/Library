@@ -37,10 +37,10 @@ def test_settings_polish_version_bump_is_tracked_for_asset_refresh():
     lock = (ROOT / "package-lock.json").read_text()
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
-    assert "<version>0.1.0-alpha.172</version>" in info
-    assert '"version": "0.1.0-alpha.172"' in package
-    assert '"version": "0.1.0-alpha.172"' in lock
-    assert "'0.1.0-alpha.172'" in smoke
+    assert "<version>0.1.0-alpha.173</version>" in info
+    assert '"version": "0.1.0-alpha.173"' in package
+    assert '"version": "0.1.0-alpha.173"' in lock
+    assert "'0.1.0-alpha.173'" in smoke
 
 
 def test_root_add_and_scan_forms_use_global_operation_indicator_hook():

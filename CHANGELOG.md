@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.1.0-alpha.172 - 2026-09-18 (unsigned package deployed to private test instance)
+## v0.1.0-alpha.173 - 2026-09-18 (unsigned package deployed to private test instance)
 
 - Added automated supply-chain/security gates for the alpha release path: immutable SHA-pinned GitHub Actions with reviewed source comments, hashed Python CI requirements, production `npm audit`, Dependabot coverage for npm/actions/pip, CodeQL plus local secret/app-static gates, and SPDX/provenance sidecars for release packages.
 - Hardened the personal-settings folder picker for existing saved roots by retrying from the Files root when Nextcloud rejects a stale/nonexistent start path, while preserving accessible fallback copy and manual text entry.
