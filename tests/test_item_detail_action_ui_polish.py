@@ -24,7 +24,7 @@ def test_detail_cover_itself_is_upload_and_paste_target():
     hero = template.split('class="library-detail-hero"', 1)[1].split('class="library-detail-actionbar"', 1)[0]
     assert 'class="library-cover-override-form library-detail-cover-form"' in hero
     assert 'class="hidden-visually" type="file" name="coverOverrideFile"' in hero
-    assert 'class="library-detail-cover-target" data-library-cover-paste-target' in hero
+    assert 'for="library-cover-override-file" class="library-detail-cover-target" data-library-cover-paste-target' in hero
     assert 'class="library-detail-cover"' in hero
     assert "Click to upload" in hero and "or paste cover" in hero
     assert "Click the cover to choose a file or paste a copied image" in hero

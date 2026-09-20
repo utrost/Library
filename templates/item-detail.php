@@ -118,10 +118,10 @@ $scanStatusLabels = [
                         <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                         <input id="library-cover-override-file" class="hidden-visually" type="file" name="coverOverrideFile" accept="image/jpeg,image/png,image/webp" aria-describedby="library-cover-paste-help library-cover-paste-status" />
                         <figure class="library-detail-cover-frame">
-                            <div class="library-detail-cover-target" data-library-cover-paste-target tabindex="0" role="button" aria-label="<?php p($l->t('Replace cover image. Click to upload or paste a copied cover image.')); ?>" aria-describedby="library-cover-paste-help library-cover-paste-status">
+                            <label for="library-cover-override-file" class="library-detail-cover-target" data-library-cover-paste-target tabindex="0" role="button" aria-label="<?php p($l->t('Replace cover image. Click to upload or paste a copied cover image.')); ?>" aria-describedby="library-cover-paste-help library-cover-paste-status">
                                 <img class="library-detail-cover" src="<?php p($item['coverUrl'] ?? ''); ?>" alt="" loading="lazy" />
                                 <span class="library-detail-cover-overlay" aria-hidden="true"><?php p($l->t('Click to upload')); ?><br /><?php p($l->t('or paste cover')); ?></span>
-                            </div>
+                            </label>
                             <figcaption id="library-cover-paste-help" class="library-cover-paste-help"><?php p($l->t('JPEG, PNG, or WebP; up to 10 MiB, 10,000 px per side, and 40 megapixels. Click the cover to choose a file or paste a copied image while the cover is focused.')); ?></figcaption>
                         </figure>
                         <p id="library-cover-paste-status" class="library-cover-paste-status" data-library-cover-paste-status aria-live="polite"></p>

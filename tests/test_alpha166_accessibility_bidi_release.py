@@ -9,11 +9,11 @@ def read(path):
 
 
 def test_alpha166_version_sources_and_unpackage_boundary():
-    version = "0.1.0-alpha.171"
+    version = "0.1.0-alpha.172"
     for path in ["appinfo/info.xml", "package.json", "package-lock.json", "vite.config.js", "lib/Controller/PageController.php", "templates/main.php", "scripts/smoke-release-package.sh"]:
         assert version in read(path), path
-    assert "library-main-0-1-0-alpha-171-cover-overlay-4" in read("lib/Controller/PageController.php")
-    assert "library-vue-0-1-0-alpha-171-cover-overlay-4" in read("lib/Controller/PageController.php")
+    assert "library-main-0-1-0-alpha-172-cover-overlay-4" in read("lib/Controller/PageController.php")
+    assert "library-vue-0-1-0-alpha-172-cover-overlay-4" in read("lib/Controller/PageController.php")
 
 
 def test_vue_has_field_specific_bidi_and_semantic_names_without_controls():
@@ -113,7 +113,7 @@ def test_docs_are_truthful_candidate_with_manual_at_debt():
         assert product in handbook
     assert handbook.lower().count("manual at testing pending") >= 3
     release = read("RELEASE.md")
-    assert "0.1.0-alpha.171" in release
+    assert "0.1.0-alpha.172" in release
     assert "unsigned packaged alpha candidate" in release.lower()
     assert "deployed on the private nextcloud 34 test instance" in release.lower()
     assert "accessibility-tree" in release.lower()
@@ -121,7 +121,7 @@ def test_docs_are_truthful_candidate_with_manual_at_debt():
     assert "safe-diagnostic live reflection" in release.lower()
     assert "alpha.166" in read("CHANGELOG.md")
     for path in ["README.md", "CHANGELOG.md", "docs/roadmap.md", "docs/current-state-and-risk-register.md", "docs/app-store-readiness.md", "docs/architecture-review.md", "docs/alpha-test-checklist.md"]:
-        assert "alpha.171" in read(path), path
+        assert "alpha.172" in read(path), path
     assert "alpha.166" in read("CHANGELOG.md")
 
 
@@ -133,11 +133,11 @@ def test_operative_alpha_instructions_do_not_name_the_superseded_candidate():
 def test_release_operative_artifact_instructions_name_alpha166_only():
     release = read("RELEASE.md")
     required = [
-        "dist/library-0.1.0-alpha.171.tar.gz",
-        "dist/library-0.1.0-alpha.171.tar.gz.sha256",
-        "sha256sum -c library-0.1.0-alpha.171.tar.gz.sha256",
-        "tar -xzf dist/library-0.1.0-alpha.171.tar.gz",
-        "openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.171.tar.gz",
+        "dist/library-0.1.0-alpha.172.tar.gz",
+        "dist/library-0.1.0-alpha.172.tar.gz.sha256",
+        "sha256sum -c library-0.1.0-alpha.172.tar.gz.sha256",
+        "tar -xzf dist/library-0.1.0-alpha.172.tar.gz",
+        "openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.172.tar.gz",
     ]
     assert all(value in release for value in required)
     operative_lines = [line for line in release.splitlines() if line.startswith(("dist/", "openssl ", "(cd dist", "tar -xzf", "- `dist/"))]
@@ -204,7 +204,7 @@ def test_second_review_field_level_isolation_and_current_identity():
     assert "selectedDrawerItem.publicationType" in app and "selectedDrawerItem.language" in app
     assert "library-tag-feedback-value" in detail
     readiness = read("docs/app-store-readiness.md")
-    assert readiness.count("Current candidate baseline: `0.1.0-alpha.171`") == 1
+    assert readiness.count("Current candidate baseline: `0.1.0-alpha.172`") == 1
     release = read("RELEASE.md")
     operative = release[release.index("This repo is prepared for independent review"):release.index("## Local release gates")]
     assert "0.1.0-alpha.165" not in operative

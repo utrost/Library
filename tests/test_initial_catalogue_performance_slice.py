@@ -39,7 +39,7 @@ def test_index_deferred_state_has_a_fresh_immutable_asset_contract():
     template = (ROOT / "templates" / "main.php").read_text()
     build = (ROOT / "scripts" / "build-vue.mjs").read_text()
 
-    basename = "0-1-0-alpha-171-cover-overlay-4"
+    basename = "0-1-0-alpha-172-cover-overlay-4"
     assert f"library-main-{basename}" in page
     assert f"library-vue-{basename}" in page
     assert f'data-library-main-script="library-main-{basename}"' in template
