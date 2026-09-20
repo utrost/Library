@@ -403,12 +403,22 @@
       form.dataset.libraryCoverPasteEnhanced = 'true'
       const input = form.querySelector('input[type="file"][name="coverOverrideFile"]')
       const target = form.querySelector('[data-library-cover-paste-target]')
-      form.addEventListener('paste', (event) => {
+      const handlePaste = (event) => {
         const file = pastedImageFromEvent(event)
         if (!file) return
         event.preventDefault()
         applyPastedCover(form, file)
-      })
+      }
+      form.addEventListener('paste', handlePaste)
+      if (document?.body && document.body.dataset.libraryCoverDocumentPasteEnhanced !== 'true') {
+        document.body.dataset.libraryCoverDocumentPasteEnhanced = 'true'
+        document.addEventListener('paste', (event) => {
+          const targetElement = event.target
+          if (targetElement?.closest?.('input, textarea, [contenteditable="true"]')) return
+          const activeForm = document.querySelector('#library-app.library-item-detail form.library-cover-override-form')
+          if (activeForm) handlePaste.call(activeForm, event)
+        })
+      }
       input?.addEventListener('change', () => {
         const file = input.files?.[0]
         if (!file) return

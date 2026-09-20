@@ -207,11 +207,11 @@ describe('Library detail manual cover paste', () => {
     document.body.innerHTML = `
       <main id="library-app" class="library-item-detail">
         <form action="/apps/library/items/7/cover/override" class="library-cover-override-form library-detail-cover-form">
-          <input type="file" name="coverOverrideFile" accept="image/jpeg,image/png,image/webp">
-          <div class="library-detail-cover-target" data-library-cover-paste-target tabindex="0" role="button">
+          <input id="cover-file" type="file" name="coverOverrideFile" accept="image/jpeg,image/png,image/webp">
+          <label for="cover-file" class="library-detail-cover-target" data-library-cover-paste-target tabindex="0" role="button">
             <img class="library-detail-cover" src="/apps/library/covers/7" alt="">
             <span class="library-detail-cover-overlay">Click to upload<br>or paste cover</span>
-          </div>
+          </label>
           <p data-library-cover-paste-status aria-live="polite"></p>
         </form>
       </main>`
