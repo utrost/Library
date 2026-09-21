@@ -88,5 +88,5 @@ The package script builds Vue assets, runs Python contracts and writes `dist/lib
 - [User and admin guide](docs/user-guide.md) · [FAQ and troubleshooting](docs/faq.md) · [Human test handbook](docs/human-test-handbook.md)
 - [Public alpha test checklist](docs/alpha-test-checklist.md) · [Current state and risk register](docs/current-state-and-risk-register.md) · [Active roadmap](docs/roadmap.md)
 - [Release process](RELEASE.md) · [Changelog](CHANGELOG.md) · [App Store listing draft](docs/app-store-listing.md) · [App Store readiness roadmap](docs/app-store-readiness.md)
-- [Product concept](docs/product-concept.md) · [Human architecture review notes](docs/architecture-review.md) · [UX concept](docs/ux-concept.md) · [Usefulness and UX feature list](docs/usefulness-and-ux-feature-list.md)
-- [Metadata storage and Nextcloud integration](docs/metadata-storage.md) · [Personal top features scope](docs/personal-top-features.md) · [Post-v0.1 roadmap](docs/post-v0.1-roadmap.md)
+- [Product concept](docs/product-concept.md) · [Human architecture review notes](docs/architecture-review.md) · [Nextcloud app guidelines extracted from Library](docs/nextcloud-app-guidelines.md) · [UX concept](docs/ux-concept.md)
+- [Usefulness and UX feature list](docs/usefulness-and-ux-feature-list.md) · [Metadata storage and Nextcloud integration](docs/metadata-storage.md) · [Personal top features scope](docs/personal-top-features.md) · [Post-v0.1 roadmap](docs/post-v0.1-roadmap.md)
