@@ -14,12 +14,12 @@ def read(path: str) -> str:
 
 
 def test_alpha165_exact_versions_assets_and_package_contract():
-    assert '<version>0.1.0-alpha.173</version>' in read('appinfo/info.xml')
-    assert '"version": "0.1.0-alpha.173"' in read('package.json')
-    assert "appVersion: JSON.stringify('0.1.0-alpha.173')" in read('vite.config.js')
+    assert '<version>0.1.0-alpha.174</version>' in read('appinfo/info.xml')
+    assert '"version": "0.1.0-alpha.174"' in read('package.json')
+    assert "appVersion: JSON.stringify('0.1.0-alpha.174')" in read('vite.config.js')
     controller = read('lib/Controller/PageController.php')
-    assert 'library-main-0-1-0-alpha-173-cover-help-tooltip' in controller
-    assert 'library-vue-0-1-0-alpha-173-cover-help-tooltip' in controller
+    assert 'library-main-0-1-0-alpha-174-cover-auto-save' in controller
+    assert 'library-vue-0-1-0-alpha-174-cover-auto-save' in controller
     assert 'EXPECTED_VERSION="$(python3 - "$ROOT/appinfo/info.xml"' in read('scripts/smoke-release-package.sh')
 
 

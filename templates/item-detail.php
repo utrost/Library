@@ -127,9 +127,11 @@ $scanStatusLabels = [
                             <figcaption id="library-cover-paste-help" class="hidden-visually"><?php p($coverUploadHelp); ?></figcaption>
                         </figure>
                         <p id="library-cover-paste-status" class="library-cover-paste-status" data-library-cover-paste-status aria-live="polite"></p>
-                        <div class="library-detail-cover-actions">
-                            <button type="submit" class="button secondary" title="<?php p($coverUploadHelp); ?>"><?php p($l->t('Use manual cover')); ?></button>
-                        </div>
+                        <noscript>
+                            <div class="library-detail-cover-actions">
+                                <button type="submit" class="button secondary" title="<?php p($coverUploadHelp); ?>"><?php p($l->t('Use manual cover')); ?></button>
+                            </div>
+                        </noscript>
                     </form>
                     <form method="post" action="<?php p($item['coverRevertUrl'] ?? ''); ?>" class="library-cover-revert-form library-detail-cover-revert-form">
                         <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />

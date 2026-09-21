@@ -1,9 +1,9 @@
 # Human Architecture Review Notes
 
-Alpha.171 status: `0.1.0-alpha.173` unsigned package deployed to the private Nextcloud 34 test instance.
+Alpha.171 status: `0.1.0-alpha.174` unsigned package deployed to the private Nextcloud 34 test instance.
 
 Audience: Nextcloud administrators, architecture reviewers and security reviewers  
-Status: current implementation reference for Library `0.1.0-alpha.173` after unsigned-package deployment
+Status: current implementation reference for Library `0.1.0-alpha.174` after unsigned-package deployment
 
 Alpha.161 keeps one server-rendered catalogue route and its existing query/filter service contract, but selects a distinct native Review surface whenever any established review-needed filter is active. Queue links are same-origin server-root URLs, AJAX refinement retains the fail-closed request ownership from alpha.155, browser history traversal reloads authoritative server state, and failed Review requests remain visible as an accessible error instead of replacing the focused surface. No Vue Router, settings migration, detail/sidebar migration, schema change, or PHP fallback removal is included.
 
@@ -42,7 +42,7 @@ Source: `appinfo/info.xml`.
 - App id: `library`
 - Display name: `Library`
 - Namespace: `Library` / PHP namespace `OCA\Library`
-- Current deployed alpha version: `0.1.0-alpha.173` (unsigned package on private test instance)
+- Current deployed alpha version: `0.1.0-alpha.174` (unsigned package on private test instance)
 - Licence declaration: `agpl` in `info.xml`; repository license is `AGPL-3.0-or-later`.
 - Categories: `files`, `multimedia`
 - Nextcloud compatibility: `min-version="34"`, `max-version="34"`

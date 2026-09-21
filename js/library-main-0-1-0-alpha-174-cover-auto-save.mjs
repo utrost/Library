@@ -7430,7 +7430,7 @@ try {
 const Q1 = Nv;
 let e0 = "";
 try {
-  e0 = "0.1.0-alpha.173";
+  e0 = "0.1.0-alpha.174";
 } catch {
   Fa.error("The `@nextcloud/vue` library was used without setting / replacing the `appVersion`.");
 }

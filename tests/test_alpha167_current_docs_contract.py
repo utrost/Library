@@ -66,7 +66,7 @@ def test_alpha168_docs_keep_landed_data_and_scan_contracts_current():
         assert phrase in current
 
     operative = (ROOT / "RELEASE.md").read_text().split("## Alpha.165 legacy", 1)[0]
-    assert "0.1.0-alpha.173" in operative
+    assert "0.1.0-alpha.174" in operative
     assert "0.1.0-alpha.167" not in operative
 
 
@@ -76,7 +76,7 @@ def test_handbook_has_executable_combined_alpha166_alpha167_first_pass():
 
     assert "current candidate package" in handbook
     assert "Packaging: **used for the current private deployment**" in handbook
-    assert "exact unsigned `dist/library-0.1.0-alpha.173.tar.gz` package is installed" in handbook
+    assert "exact unsigned `dist/library-0.1.0-alpha.174.tar.gz` package is installed" in handbook
     assert first_pass.count("### A16") >= 6
     for case in first_pass.split("### A16")[1:]:
         assert "Setup:" in case
