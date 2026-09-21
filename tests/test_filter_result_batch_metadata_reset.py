@@ -48,5 +48,5 @@ def test_docs_and_version_track_filter_result_metadata_reset():
 
     assert "explicit catalogue selection" in guide.lower()
     assert "batch metadata reset" in roadmap.lower()
-    assert "<version>0.1.0-alpha.173</version>" in info
-    assert '"version": "0.1.0-alpha.173"' in package
+    assert "<version>0.1.0-alpha.174</version>" in info
+    assert '"version": "0.1.0-alpha.174"' in package

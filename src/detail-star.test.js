@@ -218,11 +218,12 @@ describe('Library detail manual cover paste', () => {
     window.LibraryDetailCoverPaste = undefined
   })
 
-  it('attaches a pasted image to the existing manual-cover upload input', () => {
+  it('attaches and automatically submits a pasted image', () => {
     loadDetailStarScript()
     window.LibraryDetailCoverPaste.setupCoverPaste(document)
     const form = document.querySelector('.library-cover-override-form')
     const input = form.querySelector('input[type="file"]')
+    const submit = vi.spyOn(form, 'requestSubmit').mockImplementation(() => {})
     const file = new File(['png-bytes'], 'cover.png', { type: 'image/png' })
     const paste = new Event('paste', { bubbles: true, cancelable: true })
     Object.defineProperty(paste, 'clipboardData', {
@@ -235,7 +236,8 @@ describe('Library detail manual cover paste', () => {
 
     expect(paste.defaultPrevented).toBe(true)
     expect(input.files[0]).toBe(file)
-    expect(form.querySelector('[data-library-cover-paste-status]').textContent).toContain('Pasted cover ready: cover.png')
+    expect(submit).toHaveBeenCalledTimes(1)
+    expect(form.querySelector('[data-library-cover-paste-status]').textContent).toContain('Pasted cover: cover.png. Saving…')
   })
 
   it('rejects pasted non-cover image types before submit', () => {
@@ -248,7 +250,7 @@ describe('Library detail manual cover paste', () => {
     expect(form.querySelector('[data-library-cover-paste-status]').classList.contains('library-cover-paste-status--error')).toBe(true)
   })
 
-  it('opens the file picker from the cover target by click or keyboard', () => {
+  it('opens the file picker from the cover target by keyboard', () => {
     loadDetailStarScript()
     window.LibraryDetailCoverPaste.setupCoverPaste(document)
     const form = document.querySelector('.library-cover-override-form')
@@ -256,24 +258,25 @@ describe('Library detail manual cover paste', () => {
     const target = form.querySelector('[data-library-cover-paste-target]')
     const click = vi.spyOn(input, 'click').mockImplementation(() => {})
 
-    target.click()
     const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
     target.dispatchEvent(enter)
 
-    expect(click).toHaveBeenCalledTimes(2)
+    expect(click).toHaveBeenCalledTimes(1)
     expect(enter.defaultPrevented).toBe(true)
   })
 
-  it('announces a selected cover from the hidden upload input', () => {
+  it('automatically submits a selected cover from the hidden upload input', () => {
     loadDetailStarScript()
     window.LibraryDetailCoverPaste.setupCoverPaste(document)
     const form = document.querySelector('.library-cover-override-form')
     const input = form.querySelector('input[type="file"]')
+    const submit = vi.spyOn(form, 'requestSubmit').mockImplementation(() => {})
     const file = new File(['jpg-bytes'], 'new-cover.jpg', { type: 'image/jpeg' })
     Object.defineProperty(input, 'files', { configurable: true, value: [file] })
 
     input.dispatchEvent(new Event('change', { bubbles: true }))
 
-    expect(form.querySelector('[data-library-cover-paste-status]').textContent).toContain('Selected cover ready: new-cover.jpg')
+    expect(submit).toHaveBeenCalledTimes(1)
+    expect(form.querySelector('[data-library-cover-paste-status]').textContent).toContain('Selected cover: new-cover.jpg. Saving…')
   })
 })

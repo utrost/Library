@@ -2,9 +2,9 @@
 
 ## Current source-candidate test status
 
-Version under test: `0.1.0-alpha.173`. The current Alice deployment includes the accessibility/catalogue cleanup, ISBN/ISSN identifier spine, indexed substring search, mobile filter panel, high-cardinality typeaheads, and the review issue batch (#32-37).
+Version under test: `0.1.0-alpha.174`. The current Alice deployment includes the accessibility/catalogue cleanup, ISBN/ISSN identifier spine, indexed substring search, mobile filter panel, high-cardinality typeaheads, and the review issue batch (#32-37).
 
-Packaging: **used for the current private deployment**. Deployment: the exact unsigned `dist/library-0.1.0-alpha.173.tar.gz` package is installed in the private Nextcloud 34 test container. Run the installed-instance cases against `http://100.123.149.120:8088/apps/library/`; archive/package-identity assertions are applicable after each documented package rebuild/deploy.
+Packaging: **used for the current private deployment**. Deployment: the exact unsigned `dist/library-0.1.0-alpha.174.tar.gz` package is installed in the private Nextcloud 34 test container. Run the installed-instance cases against `http://100.123.149.120:8088/apps/library/`; archive/package-identity assertions are applicable after each documented package rebuild/deploy.
 
 ## Identifier and search first pass
 
@@ -175,7 +175,7 @@ Notes:
 
 For v0.1 testing to start, these must pass on the packaged app, not just the working checkout:
 
-1. The exact `dist/library-0.1.0-alpha.173.tar.gz` is installed and enabled on the private Nextcloud 34 test instance; confirm the visible behavior is the candidate described here.
+1. The exact `dist/library-0.1.0-alpha.174.tar.gz` is installed and enabled on the private Nextcloud 34 test instance; confirm the visible behavior is the candidate described here.
 2. `/apps/library/` and `/settings/user/library` load for a normal user without Library-specific console errors.
 3. Adding a root, scanning it, browsing compact cards, opening sidebar details, and using Open/Show in Files/Download works.
 4. Editing Library metadata survives a rescan and stays separate from Nextcloud tags/comments.
@@ -188,7 +188,7 @@ For v0.1 testing to start, these must pass on the packaged app, not just the wor
 
 Purpose: prove the tester is using the generated release archive.
 
-Setup: use the private Nextcloud 34 test instance where the exact `dist/library-0.1.0-alpha.173.tar.gz` candidate is installed and enabled.
+Setup: use the private Nextcloud 34 test instance where the exact `dist/library-0.1.0-alpha.174.tar.gz` candidate is installed and enabled.
 
 Steps:
 
@@ -197,7 +197,7 @@ Steps:
 3. Check the visible app version or installed app version if available.
 4. Open browser developer tools and inspect console output.
 
-Expected result: both pages load; the app is version `0.1.0-alpha.173`; no Library-specific JavaScript error appears. Home and Shelves load bounded server-backed summaries, Catalogue loads its paginated results and additive facets, Review shows the focused native cleanup destination, copied queue URLs preserve the selected filter, and Settings reaches the existing personal-settings page.
+Expected result: both pages load; the app is version `0.1.0-alpha.174`; no Library-specific JavaScript error appears. Home and Shelves load bounded server-backed summaries, Catalogue loads its paginated results and additive facets, Review shows the focused native cleanup destination, copied queue URLs preserve the selected filter, and Settings reaches the existing personal-settings page.
 
 Evidence to capture on failure: screenshot, URL, browser console errors, Nextcloud app version, and whether the app came from the generated archive.
 
