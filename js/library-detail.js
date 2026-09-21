@@ -371,8 +371,24 @@
         return false
       }
     }
-    input.dispatchEvent(new window.Event('change', { bubbles: true }))
     return true
+  }
+
+  function submitCoverOverride(form, file, label) {
+    if (!file || form.dataset.libraryCoverSubmitting === 'true') return false
+    form.dataset.libraryCoverSubmitting = 'true'
+    setCoverPasteStatus(form, `${label}: ${file.name || 'cover image'}. Saving…`, false)
+    if (typeof form.requestSubmit === 'function') {
+      form.requestSubmit()
+      return true
+    }
+    if (typeof form.submit === 'function') {
+      form.submit()
+      return true
+    }
+    form.dataset.libraryCoverSubmitting = 'false'
+    setCoverPasteStatus(form, 'Could not save this cover automatically. Reload the page and try again.', true)
+    return false
   }
 
   function applyPastedCover(form, file) {
@@ -391,8 +407,7 @@
       setCoverPasteStatus(form, 'Could not attach the pasted image in this browser. Use the file picker instead.', true)
       return false
     }
-    setCoverPasteStatus(form, `Pasted cover ready: ${coverFile.name || 'clipboard image'}. Choose “Use manual cover” to save it.`, false)
-    return true
+    return submitCoverOverride(form, coverFile, 'Pasted cover')
   }
 
   function setupCoverPaste(root) {
@@ -422,9 +437,8 @@
       input?.addEventListener('change', () => {
         const file = input.files?.[0]
         if (!file) return
-        setCoverPasteStatus(form, `Selected cover ready: ${file.name || 'uploaded image'}. Choose “Use manual cover” to save it.`, false)
+        submitCoverOverride(form, file, 'Selected cover')
       })
-      target?.addEventListener('click', () => input?.click())
       target?.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter' && event.key !== ' ') return
         event.preventDefault()
@@ -437,6 +451,7 @@
     setupCoverPaste,
     applyPastedCover,
     pastedImageFromEvent,
+    submitCoverOverride,
   }
 
   window.LibraryDetailCreatorChips = {
