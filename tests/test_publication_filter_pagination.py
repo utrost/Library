@@ -8,9 +8,9 @@ def test_page_controller_pagination_preserves_publication_filter():
 
     assert "'publication' => trim((string)$this->request->getParam('publication', ''))" in controller
     pagination_method = controller.split("private function paginationUrl", 1)[1]
-    for param in ["publication", "year", "creator", "scannerConflicts", "starred", "needsMetadata", "coverReview", "noCreator", "noPublication", "weakMetadata", "unreviewedImports", "sort"]:
+    for param in ["publication", "year", "creator", "scannerConflicts", "starred", "recentlyOpened", "needsMetadata", "coverReview", "noCreator", "noPublication", "weakMetadata", "unreviewedImports", "sort"]:
         assert f"'{param}'" in pagination_method
-    assert "@param array{q:string,view:string,type:string,publisher:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,subject:string,classification:string,scannerConflicts:string,starred:string,needsMetadata:string,coverReview:string,noCreator:string,noPublication:string,weakMetadata:string,unreviewedImports:string,sort:string}" in controller
+    assert "@param array{q:string,view:string,type:string,publisher:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,subject:string,classification:string,scannerConflicts:string,starred:string,recentlyOpened:string,needsMetadata:string,coverReview:string,noCreator:string,noPublication:string,weakMetadata:string,unreviewedImports:string,sort:string}" in controller
 
 
 def test_smoke_requires_publication_filter_pagination_marker():
