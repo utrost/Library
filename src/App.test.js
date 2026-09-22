@@ -215,7 +215,7 @@ describe('Library catalogue Vue app', () => {
     expect(collection.text()).toContain('Unread')
     expect(collection.text()).not.toContain('0 items')
     expect(collection.text()).not.toContain('items')
-    const deleteAction = collection.get('.library-navigation-saved-collection-delete-action')
+    const deleteAction = wrapper.get('.library-navigation-saved-collection-delete-action')
     expect(deleteAction.attributes('aria-label')).toContain('Delete collection')
   })
 
@@ -857,11 +857,7 @@ describe('Library catalogue Vue app', () => {
     ))
   })
 
-  it('offers grouped filter reset actions that preserve filters outside the group and reset pagination', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ ...state, activeFilters: { ...state.activeFilters, shelf: 'Books', scannerConflicts: '1' } }),
-    })
+  it('keeps filter clearing focused on the single top clear-all action', async () => {
     const wrapper = mount(App, { props: { state: {
       ...state,
       catalogueEndpointUrl: '/apps/library/catalogue',
@@ -877,15 +873,10 @@ describe('Library catalogue Vue app', () => {
 
     const contentGroup = wrapper.get('[data-library-filter-group="content"]')
     expect(contentGroup.text()).toContain('Content')
-    expect(contentGroup.get('.library-filter-group-clear').text()).toBe('Clear Content')
-    await contentGroup.get('.library-filter-group-clear').trigger('click')
-
-    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      '/apps/library/catalogue?shelf=Books&scannerConflicts=1',
-      expect.objectContaining({ credentials: 'same-origin' }),
-    ))
-    const requested = new URL(global.fetch.mock.calls.at(-1)[0], window.location.origin)
-    expect(requested.searchParams.has('page')).toBe(false)
+    expect(wrapper.find('.library-filter-group-clear').exists()).toBe(false)
+    expect(wrapper.find('.library-filter-result-summary a').exists()).toBe(false)
+    expect(wrapper.find('.library-sidebar-filters .button.secondary[href]').exists()).toBe(false)
+    expect(wrapper.findAll('.library-active-filter-clear-all')).toHaveLength(1)
   })
 
   it.each(['home', 'shelves'])('explains active catalogue filters on the %s surface without loading results underneath', (surface) => {
@@ -2711,7 +2702,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-filter-empty-state').exists()).toBe(true)
     expect(wrapper.text()).toContain('No items match these filters')
     expect(wrapper.text()).toContain('Clear search')
-    expect(wrapper.text()).toContain('Clear all filters')
     expect(wrapper.find(`a[href="${state.catalogueRootUrl}?format=pdf"]`).exists()).toBe(true)
+    expect(wrapper.find('.library-filter-empty-state .button.primary').exists()).toBe(false)
   })
 })
