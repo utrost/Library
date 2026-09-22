@@ -753,6 +753,39 @@
     text-decoration: underline;
 }
 
+.library-navigation-saved-collection-row {
+    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.library-navigation-saved-collection-row .library-navigation-saved-collection {
+    min-width: 0;
+}
+
+.library-navigation-saved-collection-delete-action {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    color: var(--color-text-maxcontrast);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 1.2rem;
+    font-weight: 700;
+    height: 32px;
+    justify-content: center;
+    line-height: 1;
+    margin-inline-end: 0.35rem;
+    width: 32px;
+}
+
+.library-navigation-saved-collection-delete-action:hover,
+.library-navigation-saved-collection-delete-action:focus {
+    background: var(--color-background-hover);
+    color: var(--color-error);
+}
+
 .library-pagination {
     align-items: center;
     display: flex;
