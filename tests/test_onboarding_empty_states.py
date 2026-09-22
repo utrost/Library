@@ -24,7 +24,7 @@ def test_vue_and_fallback_distinguish_first_run_from_filtered_empty_state():
         assert "library-filter-empty-state" in source
         assert "No items match these filters" in source
         assert "Clear search" in source
-        assert "Clear all filters" in source
+        assert "Clear all filters" not in source
 
     assert "browser_first_run_guidance_source" in smoke
     assert "browser_filter_empty_state_source" in smoke

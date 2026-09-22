@@ -58,7 +58,8 @@ def test_catalogue_has_top_toolbar_filter_summary_empty_actions_and_structured_c
     for source in (app,):
         assert "library-catalogue-header" in source
         assert "library-filter-result-summary" in source
-        assert "Clear all filters" in source
+        assert "Clear all filters" not in source
+        assert "library-active-filter-clear-all" in source
         assert "library-empty-actions" in source
         assert "Run a scan from settings" in source
         assert "library-cover-primary-actions" in source

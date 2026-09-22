@@ -36,7 +36,7 @@ def test_all_legacy_surfaces_resolve_and_render_locale_direction():
 def test_php_and_vue_inventory_is_complete_and_generated_catalogues_are_current():
     result = subprocess.run(['node', 'scripts/check-translations.mjs'], cwd=ROOT, text=True, capture_output=True)
     assert result.returncode == 0, result.stderr
-    assert re.search(r'keys=60[0-9]', result.stdout)
+    assert re.search(r'keys=59[0-9]', result.stdout)
     assert 'generated_catalogues_current=true' in result.stdout
     for locale in ['de', 'ar']:
         assert set(json.loads(read(f'l10n/{locale}.json'))['translations']) == set(json.loads(read('l10n/en.json'))['translations'])
