@@ -276,7 +276,7 @@ final class ItemController extends Controller {
 
     private function catalogueFiltersFromRequest(): array {
         $filters = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $key) {
+        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $key) {
             $filters[$key] = trim((string)$this->request->getParam($key, ''));
         }
         if ($filters['sort'] === '') {

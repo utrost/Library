@@ -27,7 +27,7 @@ def test_vue_catalogue_renders_useful_views_strip_with_query_links():
     ]:
         assert label in source
     for query in [
-        "sort=lastOpened",
+        "recentlyOpened=1&sort=lastOpened",
         "starred=1",
         "workflowStatus=to-read",
         "workflowStatus=reading",

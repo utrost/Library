@@ -147,6 +147,7 @@ const activeFilters = reactive({
   classification: catalogueState.activeFilters?.classification || '',
   scannerConflicts: catalogueState.activeFilters?.scannerConflicts || '',
   starred: catalogueState.activeFilters?.starred || '',
+  recentlyOpened: catalogueState.activeFilters?.recentlyOpened || '',
   needsMetadata: catalogueState.activeFilters?.needsMetadata || '',
   coverReview: catalogueState.activeFilters?.coverReview || '',
   noCreator: catalogueState.activeFilters?.noCreator || '',
@@ -360,12 +361,12 @@ const reviewActive = computed(() => Object.entries(reviewFilterValues).some(([ke
 const reviewCount = computed(() => reviewQueueDefinitions.reduce((total, queue) => total + Number(smartViewCounts.value[queue.countKey] || 0), 0))
 const isHome = computed(() => catalogueState.surface === 'home')
 const isShelves = computed(() => catalogueState.surface === 'shelves')
-const allPublicationsActive = computed(() => !isHome.value && !isShelves.value && !reviewActive.value && !activeFilters.starred && activeFilters.sort !== 'lastOpened' && !activeFilters.shelf)
+const allPublicationsActive = computed(() => !isHome.value && !isShelves.value && !reviewActive.value && !activeFilters.starred && activeFilters.recentlyOpened !== '1' && !activeFilters.shelf)
 const catalogueNavigation = computed(() => [
   { key: 'home', name: t('library', 'Home'), href: homeUrl.value, active: isHome.value },
   { key: 'all', name: t('library', 'All publications'), href: catalogueRootUrl.value, active: allPublicationsActive.value },
   { key: 'starred', name: t('library', 'Starred'), href: `${catalogueRootUrl.value}?starred=1`, active: activeFilters.starred === '1' },
-  { key: 'continue', name: t('library', 'Continue reading'), href: `${catalogueRootUrl.value}?sort=lastOpened`, active: activeFilters.sort === 'lastOpened' },
+  { key: 'continue', name: t('library', 'Continue reading'), href: `${catalogueRootUrl.value}?recentlyOpened=1&sort=lastOpened`, active: activeFilters.recentlyOpened === '1' },
   { key: 'shelves', name: t('library', 'Shelves'), href: shelvesUrl.value, active: isShelves.value || Boolean(activeFilters.shelf) },
   { key: 'collections', name: t('library', 'Collections'), href: `${catalogueRootUrl.value}#library-collections`, active: false },
 ])
@@ -477,6 +478,7 @@ const filterLabels = {
   classification: 'Classification',
   scannerConflicts: 'Suggested updates',
   starred: 'Starred',
+  recentlyOpened: 'Recently opened',
   needsMetadata: 'Needs details',
   coverReview: 'Cover review',
   noCreator: 'No creator',
@@ -491,6 +493,7 @@ const filterLabels = {
 const chipBooleanValues = {
   scannerConflicts: '1',
   starred: '1',
+  recentlyOpened: '1',
   needsMetadata: '1',
   noCreator: '1',
   noPublication: '1',
@@ -608,7 +611,7 @@ const filterGroups = Object.freeze([
   { key: 'content', label: 'Content', keys: ['q', 'type', 'publisher', 'publication', 'year', 'language', 'creator', 'format', 'subject', 'classification', 'tag'] },
   { key: 'location', label: 'Location', keys: ['shelf', 'folder'] },
   { key: 'review', label: 'Review', keys: ['scannerConflicts', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'status'] },
-  { key: 'personal', label: 'Personal / display', keys: ['starred', 'workflowStatus'] },
+  { key: 'personal', label: 'Personal / display', keys: ['starred', 'recentlyOpened', 'workflowStatus'] },
 ])
 function activeGroupChips(group) {
   const keys = new Set(group.keys)
@@ -1591,7 +1594,7 @@ const currentSavableFilters = computed(() => {
 const currentSavableFiltersJson = computed(() => JSON.stringify(currentSavableFilters.value))
 const canSaveCurrentView = computed(() => Object.keys(currentSavableFilters.value).length > 0)
 const smartViews = computed(() => [
-  { key: 'recently-opened', label: 'Recently opened', description: 'Continue from the publications you opened through Library.', query: 'sort=lastOpened', filters: { sort: 'lastOpened' } },
+  { key: 'recently-opened', label: 'Recently opened', description: 'Continue from the publications you opened through Library.', query: 'recentlyOpened=1&sort=lastOpened', filters: { recentlyOpened: '1', sort: 'lastOpened' } },
   { key: 'starred', label: 'Starred', description: 'Your marked publications and reference items.', query: 'starred=1', filters: { starred: '1' } },
   { key: 'to-read', label: 'To read', description: 'Publications queued for later.', query: 'workflowStatus=to-read', filters: { workflowStatus: 'to-read' } },
   { key: 'reading', label: 'Reading', description: 'Publications currently in progress.', query: 'workflowStatus=reading', filters: { workflowStatus: 'reading' } },
@@ -2001,7 +2004,7 @@ async function toggleStar(item, event) {
       <p class="library-empty-actions"><a class="button primary library-filter-callout-view" :href="activeFilterCalloutUrl">{{ t('library', 'View filtered catalogue') }}</a><a class="button secondary" :href="clearAllFiltersUrl()" @click.prevent="clearAllFilters">{{ t('library', 'Clear all') }}</a></p>
     </aside>
     <section class="library-home-row" aria-labelledby="library-continue-heading">
-      <header><div><h3 id="library-continue-heading">{{ t('library', 'Continue reading') }}</h3><p class="library-muted">{{ t('library', 'Pick up publications you opened recently.') }}</p></div><a :href="`${catalogueRootUrl}?sort=lastOpened`">{{ t('library', 'View all') }}</a></header>
+      <header><div><h3 id="library-continue-heading">{{ t('library', 'Continue reading') }}</h3><p class="library-muted">{{ t('library', 'Pick up publications you opened recently.') }}</p></div><a :href="`${catalogueRootUrl}?recentlyOpened=1&sort=lastOpened`">{{ t('library', 'View all') }}</a></header>
       <div v-if="homeRows.continueReading.length" class="library-home-card-row">
         <article v-for="item in homeRows.continueReading" :key="`continue-${item.id}`" class="library-cover-card library-home-card">
           <button type="button" class="library-cover-link" :aria-label="`${t('library', 'Details')}: ${item.title}`" @click="openDetailsDrawer(item, $event)"><span class="library-cover-frame"><img class="library-cover-image" :src="item.coverUrl" alt="" loading="lazy"></span></button>

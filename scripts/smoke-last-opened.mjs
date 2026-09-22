@@ -36,26 +36,46 @@ function parseTokenIds(output) {
     .filter(Boolean)
 }
 
-function decodeInitialState(page) {
-  const match = page.match(/id="initial-state-library-catalogue" value="([^"]+)"/)
-  if (!match) return null
-  const escaped = match[1]
+function cookieHeaderFrom(response) {
+  const setCookies = typeof response.headers.getSetCookie === 'function'
+    ? response.headers.getSetCookie()
+    : (response.headers.get('set-cookie') ? [response.headers.get('set-cookie')] : [])
+  return setCookies
+    .map((cookie) => String(cookie).split(';', 1)[0].trim())
+    .filter(Boolean)
+    .join('; ')
+}
+
+function decodeHtmlAttribute(value) {
+  return value
     .replaceAll('&quot;', '"')
     .replaceAll('&#039;', "'")
     .replaceAll('&amp;', '&')
     .replaceAll('&lt;', '<')
     .replaceAll('&gt;', '>')
-  return JSON.parse(Buffer.from(escaped, 'base64').toString('utf8'))
+}
+
+function decodeInitialState(page) {
+  const match = page.match(/id="initial-state-library-catalogue" value="([^"]+)"/)
+  if (!match) return null
+  return JSON.parse(Buffer.from(decodeHtmlAttribute(match[1]), 'base64').toString('utf8'))
+}
+
+function decodeRequestToken(page) {
+  const match = page.match(/data-request-token="([^"]*)"/)
+  return match ? decodeHtmlAttribute(match[1]) : ''
 }
 
 async function fetchWithAuth(pathOrUrl, token, options = {}) {
   const url = pathOrUrl.startsWith('http') ? pathOrUrl : new URL(pathOrUrl, upstream).toString()
   const response = await fetch(url, {
+    method: options.method || 'GET',
     redirect: options.redirect || 'follow',
     headers: {
       Authorization: `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`,
       ...(options.headers || {}),
     },
+    body: options.body,
   })
   const body = await response.arrayBuffer()
   return {
@@ -88,60 +108,93 @@ function fail(reason, extra = {}) {
 let token = ''
 let itemId = 0
 let originalLastOpened = 0
+let contractPassed = false
 try {
   token = parseToken(runDocker(['user:add-app-password', '--no-interaction', '--name', tokenName, user]))
   if (!token) {
     fail('temporary_app_password_not_created')
   } else {
     const page = await fetchWithAuth('/apps/library/', token)
-    const pageText = await fetch(new URL('/apps/library/', upstream), {
+    const pageResponse = await fetch(new URL('/apps/library/', upstream), {
       headers: { Authorization: `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}` },
-    }).then((response) => response.text())
+    })
+    const sessionCookie = cookieHeaderFrom(pageResponse)
+    const pageText = await pageResponse.text()
     const state = decodeInitialState(pageText)
+    const requestToken = decodeRequestToken(pageText)
     const first = state?.items?.[0] || {}
     itemId = Number.parseInt(String(first.id || 0), 10)
-    if (!itemId || !first.openUrl || !first.filesUrl || !first.downloadUrl) {
+    if (!itemId || !first.openUrl || !first.recordOpenUrl || !first.filesUrl || !first.downloadUrl || !requestToken) {
       fail('catalogue_item_missing_urls')
     } else {
       originalLastOpened = lastOpenedFor(itemId)
+      restoreLastOpened(itemId, 0)
+      const resetLastOpened = lastOpenedFor(itemId)
       const open = await fetchWithAuth(first.openUrl, token)
+      const afterGetOpen = lastOpenedFor(itemId)
+      const recordOpen = await fetchWithAuth(first.recordOpenUrl, token, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'OCS-APIRequest': 'true',
+          requesttoken: requestToken,
+          ...(sessionCookie ? { Cookie: sessionCookie } : {}),
+        },
+        body: new URLSearchParams({ requesttoken: requestToken }),
+      })
       const afterOpen = lastOpenedFor(itemId)
       const files = await fetchWithAuth(first.filesUrl, token)
       const afterFiles = lastOpenedFor(itemId)
       const download = await fetchWithAuth(first.downloadUrl, token)
       const afterDownload = lastOpenedFor(itemId)
-      const recentlyOpenedPageText = await fetch(new URL('/apps/library/?sort=lastOpened&limit=1', upstream), {
+      const recentlyOpenedPath = '/apps/library/?recentlyOpened=1&sort=lastOpened&limit=1'
+      const recentlyOpenedPageText = await fetch(new URL(recentlyOpenedPath, upstream), {
         headers: { Authorization: `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}` },
       }).then((response) => response.text())
       const recentlyOpenedState = decodeInitialState(recentlyOpenedPageText)
       const sortedFirstId = Number.parseInt(String(recentlyOpenedState?.items?.[0]?.id || 0), 10)
+      const openRouteOk = String(first.openUrl).includes('/apps/library/items/') && String(first.openUrl).endsWith('/open')
+      const openRedirectedToFiles = open.url.includes('/f/') || open.url.includes('/apps/files/files/')
 
       console.log(`last_opened_item_id=${itemId}`)
       console.log(`last_opened_before=${originalLastOpened}`)
+      console.log(`last_opened_get_unchanged=${afterGetOpen === resetLastOpened}`)
       console.log(`last_opened_after_read=${afterOpen}`)
-      console.log(`last_opened_read_updated=${afterOpen > originalLastOpened}`)
-      console.log(`last_opened_open_url_is_library_route=${String(first.openUrl).includes('/apps/library/items/') && String(first.openUrl).endsWith('/open')}`)
-      console.log(`last_opened_redirected_to_files=${open.url.includes('/f/') || open.url.includes('/apps/files/files/')}`)
+      console.log(`last_opened_read_updated=${afterOpen > resetLastOpened}`)
+      console.log(`last_opened_record_http=${recordOpen.status}`)
+      console.log(`last_opened_open_http=${open.status}`)
+      console.log(`last_opened_open_url_is_library_route=${openRouteOk}`)
+      console.log(`last_opened_redirected_to_files=${openRedirectedToFiles}`)
       console.log(`last_opened_files_unchanged=${afterFiles === afterOpen}`)
       console.log(`last_opened_download_unchanged=${afterDownload === afterOpen}`)
       console.log(`last_opened_sort_first_matches=${sortedFirstId === itemId}`)
+      console.log(`last_opened_sort_url_filtered=${recentlyOpenedPath.includes('recentlyOpened=1&sort=lastOpened')}`)
       console.log(`last_opened_files_http=${files.status}`)
       console.log(`last_opened_download_http=${download.status}`)
       console.log(`last_opened_download_bytes=${download.bytes}`)
 
-      if (!(afterOpen > originalLastOpened) || afterFiles !== afterOpen || afterDownload !== afterOpen || sortedFirstId !== itemId || files.status !== 200 || download.status !== 200 || download.bytes <= 0) {
+      if (resetLastOpened !== 0 || afterGetOpen !== resetLastOpened || recordOpen.status !== 200 || !(afterOpen > resetLastOpened) || !openRouteOk || open.status !== 200 || !openRedirectedToFiles || afterFiles !== afterOpen || afterDownload !== afterOpen || sortedFirstId !== itemId || files.status !== 200 || download.status !== 200 || download.bytes <= 0) {
         fail('last_opened_contract_failed')
       } else {
-        console.log('last_opened_smoke_ok=true')
+        contractPassed = true
       }
     }
   }
 } catch (error) {
   fail('exception', { message: error instanceof Error ? error.message : String(error) })
 } finally {
+  let restored = itemId === 0
   if (itemId) {
-    try { restoreLastOpened(itemId, originalLastOpened) } catch {}
-    console.log(`last_opened_restored=${lastOpenedFor(itemId) === originalLastOpened}`)
+    try {
+      restoreLastOpened(itemId, originalLastOpened)
+      restored = lastOpenedFor(itemId) === originalLastOpened
+    } catch {
+      restored = false
+    }
+    console.log(`last_opened_restored=${restored}`)
+    if (!restored) {
+      fail('last_opened_restore_failed')
+    }
   }
   if (token) {
     try {
@@ -151,8 +204,15 @@ try {
       }
       const remaining = parseTokenIds(runDocker(['user:auth-tokens:list', user])).length
       console.log(`temp_token_remaining=${remaining}`)
+      if (remaining !== 0) {
+        fail('temporary_token_cleanup_failed')
+      }
     } catch (error) {
       console.log('temp_token_cleanup_failed=true')
+      fail('temporary_token_cleanup_failed')
     }
+  }
+  if (contractPassed && process.exitCode !== 1) {
+    console.log('last_opened_smoke_ok=true')
   }
 }

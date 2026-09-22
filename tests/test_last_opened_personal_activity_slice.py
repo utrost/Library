@@ -14,10 +14,13 @@ def test_last_opened_has_schema_route_and_service_boundary():
     assert "/items/{itemId}/open" in routes
     assert "public function markOpened(string $userId, int $itemId): ?array" in service
     assert "public function open(int $itemId): RedirectResponse" in controller
-    open_method = controller.split("public function open", 1)[1].split("public function update", 1)[0]
+    assert "public function recordOpen(int $itemId): JSONResponse" in controller
+    open_method = controller.split("public function open", 1)[1].split("public function recordOpen", 1)[0]
     open_attributes = controller.split("public function open", 1)[0].rsplit("#[NoAdminRequired]", 1)[1]
     assert "#[NoCSRFRequired]" in open_attributes
-    assert "markOpened" in open_method
+    assert "markOpened" not in open_method
+    record_method = controller.split("public function recordOpen", 1)[1].split("public function update", 1)[0]
+    assert "markOpened" in record_method
     assert "getAbsoluteURL('/f/' . (int)$item['fileId'])" in open_method
 
 
@@ -39,6 +42,9 @@ def test_read_links_route_through_library_but_files_and_download_do_not_mark_ope
 
 def test_catalogue_supports_recently_opened_sort_and_filter_preservation():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
+    item_controller = (ROOT / "lib" / "Controller" / "ItemController.php").read_text()
+    tag_controller = (ROOT / "lib" / "Controller" / "TagController.php").read_text()
+    cover_controller = (ROOT / "lib" / "Controller" / "CoverController.php").read_text()
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
     package = (ROOT / "package.json").read_text()
@@ -46,16 +52,25 @@ def test_catalogue_supports_recently_opened_sort_and_filter_preservation():
 
     assert "lastOpened" in page
     pagination_method = page.split("private function paginationUrl", 1)[1]
-    for param in ["lastOpened", "starred", "needsMetadata", "coverReview", "noCreator", "noPublication", "weakMetadata", "unreviewedImports", "sort"]:
+    for param in ["recentlyOpened", "starred", "needsMetadata", "coverReview", "noCreator", "noPublication", "weakMetadata", "unreviewedImports", "sort"]:
         assert param in pagination_method or param in page
+    for controller in [item_controller, tag_controller, cover_controller]:
+        assert "'recentlyOpened'" in controller.split("private function catalogueFiltersFromRequest", 1)[1]
     assert "lastOpened" in service
     assert "i.last_opened_at" in service
+    recently_opened_filter = service.split("if (trim((string)($filters['recentlyOpened']", 1)[1].split("$this->applySmartCollectionFilters", 1)[0]
+    assert "isNotNull('i.last_opened_at')" in recently_opened_filter
+    assert "gt('i.last_opened_at'" in recently_opened_filter
     assert "Recently opened" in vue
-    assert "sort=lastOpened" in vue
+    assert "recentlyOpened=1&sort=lastOpened" in vue
     assert '"smoke:last-opened"' in package
     assert "last_opened_smoke_ok=true" in smoke
     assert "last_opened_files_unchanged" in smoke
     assert "last_opened_download_unchanged" in smoke
+    assert "first.recordOpenUrl" in smoke
+    assert "method: 'POST'" in smoke
+    assert "requestToken = decodeRequestToken(pageText)" in smoke
+    assert "recentlyOpened=1&sort=lastOpened" in smoke
 
 
 def test_last_opened_is_exported_and_imported_without_touching_scanner_provenance():

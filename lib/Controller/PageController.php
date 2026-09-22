@@ -31,8 +31,8 @@ use Throwable;
 
 class PageController extends Controller {
     private const APP_VERSION = '0.1.0-alpha.174';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-174-cover-auto-save';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-174-cover-auto-save';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-alpha-174-recently-opened';
+    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-alpha-174-recently-opened';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -339,6 +339,7 @@ class PageController extends Controller {
             'classification' => trim((string)$this->request->getParam('classification', '')),
             'scannerConflicts' => $this->normalizeReviewFilter('scannerConflicts', $this->request->getParam('scannerConflicts', '')),
             'starred' => trim((string)$this->request->getParam('starred', '')),
+            'recentlyOpened' => trim((string)$this->request->getParam('recentlyOpened', '')),
             'needsMetadata' => $this->normalizeReviewFilter('needsMetadata', $this->request->getParam('needsMetadata', '')),
             'coverReview' => $this->normalizeReviewFilter('coverReview', $this->request->getParam('coverReview', '')),
             'noCreator' => $this->normalizeReviewFilter('noCreator', $this->request->getParam('noCreator', '')),
@@ -707,12 +708,12 @@ class PageController extends Controller {
     }
 
     /**
-     * @param array{q:string,view:string,type:string,publisher:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,subject:string,classification:string,scannerConflicts:string,starred:string,needsMetadata:string,coverReview:string,noCreator:string,noPublication:string,weakMetadata:string,unreviewedImports:string,sort:string} $activeFilters
+     * @param array{q:string,view:string,type:string,publisher:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,subject:string,classification:string,scannerConflicts:string,starred:string,recentlyOpened:string,needsMetadata:string,coverReview:string,noCreator:string,noPublication:string,weakMetadata:string,unreviewedImports:string,sort:string} $activeFilters
      * @param array{limit:int} $pagination
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
         $query = [];
-        foreach (['q', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
+        foreach (['q', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title') && !($param === 'view' && $value === 'compact')) {
                 $query[$param] = $value;

@@ -1138,6 +1138,18 @@ describe('Library catalogue Vue app', () => {
     expect(document.body.textContent).not.toContain('Open sidebar')
   })
 
+  it('activates Continue reading only for the opened-only filter', () => {
+    const sortedOnly = mount(App, { props: { state: { ...state, activeFilters: { ...state.activeFilters, sort: 'lastOpened' } } } })
+    expect(sortedOnly.findAllComponents(NcAppNavigationItem)[3].props('active')).toBe(false)
+
+    const openedOnly = mount(App, { props: { state: { ...state, activeFilters: { ...state.activeFilters, recentlyOpened: '1', sort: 'lastOpened' } } } })
+    const destinations = openedOnly.findAllComponents(NcAppNavigationItem)
+    expect(destinations[1].props('active')).toBe(false)
+    expect(destinations[3].props('active')).toBe(true)
+    expect(destinations[3].props('href')).toBe('/nc/index.php/apps/library/?recentlyOpened=1&sort=lastOpened')
+    expect(openedOnly.findComponent(NcAppNavigation).get('input[type="hidden"][name="recentlyOpened"]').element.value).toBe('1')
+  })
+
   it('implements the catalogue shell, toolbar, card hierarchy, and selection-only batch contract', () => {
     const wrapper = mount(App, { props: { state: { ...state, smartViewCounts: { 'scanner-conflicts': 2, 'needs-metadata': 3 } } } })
     const destinations = wrapper.findAllComponents(NcAppNavigationItem)
@@ -1172,7 +1184,7 @@ describe('Library catalogue Vue app', () => {
       '/nc/index.php/apps/library/?home=1',
       '/nc/index.php/apps/library/',
       '/nc/index.php/apps/library/?starred=1',
-      '/nc/index.php/apps/library/?sort=lastOpened',
+      '/nc/index.php/apps/library/?recentlyOpened=1&sort=lastOpened',
       '/nc/index.php/apps/library/?shelves=1',
       '/nc/index.php/apps/library/#library-collections',
       '/nc/index.php/apps/library/?scannerConflicts=1',
@@ -1197,7 +1209,7 @@ describe('Library catalogue Vue app', () => {
       '/nc/index.php/apps/library/?home=1',
       '/nc/index.php/apps/library/',
       '/nc/index.php/apps/library/?starred=1',
-      '/nc/index.php/apps/library/?sort=lastOpened',
+      '/nc/index.php/apps/library/?recentlyOpened=1&sort=lastOpened',
       '/nc/index.php/apps/library/?shelves=1',
       '/nc/index.php/apps/library/#library-collections',
       '/nc/index.php/apps/library/?scannerConflicts=1',
@@ -1228,7 +1240,7 @@ describe('Library catalogue Vue app', () => {
       '/nc/index.php/apps/library/?home=1',
       '/nc/index.php/apps/library/',
       '/nc/index.php/apps/library/?starred=1',
-      '/nc/index.php/apps/library/?sort=lastOpened',
+      '/nc/index.php/apps/library/?recentlyOpened=1&sort=lastOpened',
       '/nc/index.php/apps/library/?shelves=1',
       '/nc/index.php/apps/library/#library-collections',
       '/nc/index.php/apps/library/?scannerConflicts=1',

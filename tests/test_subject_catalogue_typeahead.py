@@ -63,7 +63,7 @@ def test_current_typeahead_bundle_uses_the_cache_busted_asset_basename():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     template = (ROOT / "templates" / "main.php").read_text()
 
-    assert "-cover-auto-save`" in build
-    assert "library-main-0-1-0-alpha-174-cover-auto-save" in controller
-    assert "library-vue-0-1-0-alpha-174-cover-auto-save" in controller
-    assert 'data-library-main-script="library-main-0-1-0-alpha-174-cover-auto-save"' in template
+    assert "-recently-opened`" in build
+    assert "library-main-0-1-0-alpha-174-recently-opened" in controller
+    assert "library-vue-0-1-0-alpha-174-recently-opened" in controller
+    assert 'data-library-main-script="library-main-0-1-0-alpha-174-recently-opened"' in template
