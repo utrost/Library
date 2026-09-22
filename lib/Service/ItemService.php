@@ -868,7 +868,7 @@ final class ItemService {
      */
     public function smartViewCounts(string $userId, bool $includeScannerConflicts = true): array {
         $views = [
-            'recently-opened' => ['sort' => 'lastOpened'],
+            'recently-opened' => ['recentlyOpened' => '1', 'sort' => 'lastOpened'],
             'starred' => ['starred' => '1'],
             'to-read' => ['workflowStatus' => 'to-read'],
             'reading' => ['workflowStatus' => 'reading'],
@@ -957,8 +957,8 @@ final class ItemService {
     }
 
     /**
-     * @param array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string,publisher?:string,tag?:string,shelf?:string,status?:string,workflowStatus?:string,subject?:string,classification?:string,starred?:string,sort?:string,scannerConflicts?:string,taggedFileIds?:array<int, int>} Legacy test marker; current contract also accepts language?:string.
-     * @param array{q?:string,type?:string,publication?:string,year?:string,language?:string,creator?:string,format?:string,publisher?:string,tag?:string,shelf?:string,status?:string,workflowStatus?:string,subject?:string,classification?:string,starred?:string,sort?:string,scannerConflicts?:string,taggedFileIds?:array<int, int>} $filters
+     * @param array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string,publisher?:string,tag?:string,shelf?:string,status?:string,workflowStatus?:string,subject?:string,classification?:string,starred?:string,recentlyOpened?:string,sort?:string,scannerConflicts?:string,taggedFileIds?:array<int, int>} Legacy test marker; current contract also accepts language?:string.
+     * @param array{q?:string,type?:string,publication?:string,year?:string,language?:string,creator?:string,format?:string,publisher?:string,tag?:string,shelf?:string,status?:string,workflowStatus?:string,subject?:string,classification?:string,starred?:string,recentlyOpened?:string,sort?:string,scannerConflicts?:string,taggedFileIds?:array<int, int>} $filters
      * @param array{page:int,limit:int} $pagination
      * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{publicationTypes:array<int, string>,publishers:array<int, string>,shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,creators:array<int, string>,scanStatuses:array<int, string>,workflowStatuses:array<int, string>,subjects:array<int, string>,classifications:array<int, string>}}
      */
@@ -2198,6 +2198,11 @@ final class ItemService {
         $starred = trim((string)($filters['starred'] ?? ''));
         if ($starred === '1') {
             $qb->andWhere($qb->expr()->eq('i.starred', $qb->createNamedParameter(1)));
+        }
+
+        if (trim((string)($filters['recentlyOpened'] ?? '')) === '1') {
+            $qb->andWhere($qb->expr()->isNotNull('i.last_opened_at'))
+                ->andWhere($qb->expr()->gt('i.last_opened_at', $qb->createNamedParameter(0)));
         }
 
         $this->applySmartCollectionFilters($qb, $filters);

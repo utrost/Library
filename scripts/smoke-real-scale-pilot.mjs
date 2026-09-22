@@ -49,10 +49,16 @@ function parseTokenIds(output) {
   return output.split(/\r?\n/).filter((line) => line.includes(tokenName)).map((line) => line.match(/\|\s*(\d+)\s*\|/)?.[1]).filter(Boolean)
 }
 async function fetchText(pathOrUrl, token) {
-  const url = pathOrUrl.startsWith('http') ? pathOrUrl : new URL(pathOrUrl, upstream).toString()
   const t0 = now()
-  const response = await fetch(url, { headers: { Authorization: `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}` } })
-  const text = await response.text()
+  const headers = { Authorization: `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}` }
+  const url = pathOrUrl.startsWith('http') ? pathOrUrl : new URL(pathOrUrl, upstream).toString()
+  let response = await fetch(url, { headers })
+  let text = await response.text()
+  if (response.status === 404 && !pathOrUrl.startsWith('http') && pathOrUrl.startsWith('/apps/')) {
+    const fallbackUrl = new URL(`/index.php${pathOrUrl}`, upstream).toString()
+    response = await fetch(fallbackUrl, { headers })
+    text = await response.text()
+  }
   return { status: response.status, text, ms: now() - t0 }
 }
 function decodeInitialState(page) {
