@@ -13,8 +13,8 @@ def test_alpha_157_version_assets_and_release_contracts_are_aligned():
     assert '"version": "0.1.0-alpha.174"' in read("package.json")
     assert '"version": "0.1.0-alpha.174"' in read("package-lock.json")
     controller = read("lib/Controller/PageController.php")
-    assert "library-main-0-1-0-alpha-174-collections-title2bdi-x" in controller
-    assert "library-vue-0-1-0-alpha-174-collections-title2bdi-x" in controller
+    assert "library-main-0-1-0-alpha-174-compact-list-selectfix" in controller
+    assert "library-vue-0-1-0-alpha-174-compact-list-selectfix" in controller
     assert (ROOT / "js/library-main-0-1-0-alpha-156.mjs").exists()
     assert (ROOT / "css/library-vue-0-1-0-alpha-156.css").exists()
     assert "v0.1.0-alpha.174" in read("CHANGELOG.md")

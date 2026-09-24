@@ -26,8 +26,8 @@ def test_list_view_asset_path_is_cache_busted_after_alpha170_deploy():
 
     assert script != "library-main-0-1-0-alpha-169"
     assert style != "library-vue-0-1-0-alpha-169"
-    assert script == "library-main-0-1-0-alpha-174-collections-title2bdi-x"
-    assert style == "library-vue-0-1-0-alpha-174-collections-title2bdi-x"
+    assert script == "library-main-0-1-0-alpha-174-compact-list-selectfix"
+    assert style == "library-vue-0-1-0-alpha-174-compact-list-selectfix"
     assert f'data-library-main-script="{script}"' in read("templates/main.php")
     assert (ROOT / f"js/{script}.mjs").exists()
     assert (ROOT / f"css/{style}.css").exists()

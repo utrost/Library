@@ -2224,7 +2224,7 @@ async function toggleStar(item, event) {
       </template>
     </div>
 
-    <label v-if="items.length > 0" class="library-select-visible"><input type="checkbox" :checked="selectedItemIds.length === items.length" @change="selectVisibleItems"> {{ t('library', 'Select all publications on this page') }}</label>
+    <label v-if="items.length > 0" class="library-select-visible"><input type="checkbox" :checked="selectedItemIds.length === items.length" @change="selectVisibleItems"><span>{{ t('library', 'Select all publications on this page') }}</span></label>
     <ul v-if="items.length > 0 && viewMode === 'list'" class="library-catalogue-list" data-library-catalogue-list>
       <li v-for="item in items" :key="item.id" class="library-catalogue-list-row" :class="{ 'library-catalogue-list-row--selected': selectedItemIdSet.has(Number(item.id)), 'library-catalogue-list-row--open': sidebarOpen && Number(sidebarRequestedId) === Number(item.id) }">
         <label class="library-item-selection"><input type="checkbox" :checked="selectedItemIdSet.has(Number(item.id))" :aria-label="`${t('library', 'Select publication')}: ${item.title}`" @change="toggleItemSelection(item.id, $event.currentTarget.checked)"></label>
@@ -2809,6 +2809,22 @@ async function toggleStar(item, event) {
   background: color-mix(in srgb, var(--color-primary-element, #0082c9) 12%, var(--color-main-background));
   border-color: var(--color-primary-element, #0082c9);
   transform: translateY(-2px);
+}
+
+.library-select-visible {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.45rem;
+  margin: 0.6rem 0 0.7rem;
+}
+
+.library-select-visible input {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.library-select-visible span {
+  line-height: 1.35;
 }
 
 .library-catalogue-list {

@@ -63,13 +63,13 @@ function Eb(e) {
     }
   }), t;
 }
-function _e(e) {
+function ye(e) {
   let t = "";
   if (lt(e))
     t = e;
   else if (Oe(e))
     for (let i = 0; i < e.length; i++) {
-      const n = _e(e[i]);
+      const n = ye(e[i]);
       n && (t += n + " ");
     }
   else if (et(e))
@@ -80,7 +80,7 @@ function _e(e) {
 function Os(e) {
   if (!e) return null;
   let { class: t, style: i } = e;
-  return t && !lt(t) && (e.class = _e(t)), i && (e.style = hi(i)), e;
+  return t && !lt(t) && (e.class = ye(t)), i && (e.style = hi(i)), e;
 }
 const Ab = "itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly", Ob = /* @__PURE__ */ $u(Ab);
 function Xp(e) {
@@ -3948,7 +3948,7 @@ function sy(e, t = null, i = null, n = 0, a = null, r = !1) {
   if (vy(e) && (e = e.__vccOpts), t) {
     t = ko(t);
     let { class: c, style: u } = t;
-    c && !lt(c) && (t.class = _e(c)), et(u) && (/* @__PURE__ */ Hu(u) && !Oe(u) && (u = yt({}, u)), t.style = hi(u));
+    c && !lt(c) && (t.class = ye(c)), et(u) && (/* @__PURE__ */ Hu(u) && !Oe(u) && (u = yt({}, u)), t.style = hi(u));
   }
   const o = lt(e) ? 1 : Qh(e) ? 128 : zl(e) ? 64 : et(e) ? 4 : $e(e) ? 2 : 0;
   return l(
@@ -4015,7 +4015,7 @@ function Yn(e, t, i = !1, n = !1) {
     u.clone(f)
   ), f;
 }
-function ye(e = " ", t = 0) {
+function _e(e = " ", t = 0) {
   return Ae(zo, null, e, t);
 }
 function F(e = "", t = !1) {
@@ -4056,7 +4056,7 @@ function Ds(e, t) {
     }
     t = { default: t, _ctx: $t }, i = 32;
   } else
-    t = String(t), n & 64 ? (i = 16, t = [ye(t)]) : i = 8;
+    t = String(t), n & 64 ? (i = 16, t = [_e(t)]) : i = 8;
   e.children = t, e.shapeFlag |= i;
 }
 function Yt(...e) {
@@ -4065,7 +4065,7 @@ function Yt(...e) {
     const n = e[i];
     for (const a in n)
       if (a === "class")
-        t.class !== n.class && (t.class = _e([t.class, n.class]));
+        t.class !== n.class && (t.class = ye([t.class, n.class]));
       else if (a === "style")
         t.style = hi([t.style, n.style]);
       else if (Ol(a)) {
@@ -7228,7 +7228,7 @@ const tt = (e, t) => {
           ]),
           l("span", I1, [
             De(R.$slots, "default", {}, () => [
-              ye(v(e.text), 1)
+              _e(v(e.text), 1)
             ], !0)
           ])
         ])
@@ -7263,7 +7263,7 @@ const tt = (e, t) => {
     return (a, r) => (m(), _("span", {
       "aria-hidden": e.name ? void 0 : "true",
       "aria-label": e.name || void 0,
-      class: _e(["icon-vue", {
+      class: ye(["icon-vue", {
         "icon-vue--directional": e.directional,
         "icon-vue--inline": e.inline
       }]),
@@ -7457,7 +7457,7 @@ const Z1 = /* @__PURE__ */ Ft({
     }
     return (n, a) => (m(), je(g(Yi), {
       "aria-label": g(Tt)("Go back to the list"),
-      class: _e(["app-details-toggle", { "app-details-toggle--mobile": g(t) }]),
+      class: ye(["app-details-toggle", { "app-details-toggle--mobile": g(t) }]),
       title: g(Tt)("Go back to the list"),
       variant: "tertiary"
     }, {
@@ -7687,13 +7687,13 @@ function a0(e, t, i, n, a, r) {
   const o = Ve("NcAppContentDetailsToggle"), c = Ve("Pane"), u = Ve("Splitpanes");
   return m(), _("main", {
     id: "app-content-vue",
-    class: _e(["app-content no-snapper", { "app-content--has-list": !!e.$slots.list }])
+    class: ye(["app-content no-snapper", { "app-content--has-list": !!e.$slots.list }])
   }, [
     i.pageHeading ? (m(), _("h1", t0, v(i.pageHeading), 1)) : F("", !0),
     e.$slots.list ? (m(), _(ae, { key: 1 }, [
       n.isMobile || i.layout === "no-split" ? (m(), _("div", {
         key: 0,
-        class: _e(["app-content-wrapper app-content-wrapper--no-split", {
+        class: ye(["app-content-wrapper app-content-wrapper--no-split", {
           "app-content-wrapper--show-details": i.showDetails,
           "app-content-wrapper--show-list": !i.showDetails,
           "app-content-wrapper--mobile": n.isMobile
@@ -7712,7 +7712,7 @@ function a0(e, t, i, n, a, r) {
       ], 2)) : i.layout === "vertical-split" || i.layout === "horizontal-split" ? (m(), _("div", n0, [
         Ae(u, {
           horizontal: i.layout === "horizontal-split",
-          class: _e(["default-theme", {
+          class: ye(["default-theme", {
             "splitpanes--horizontal": i.layout === "horizontal-split",
             "splitpanes--vertical": i.layout === "vertical-split"
           }]),
@@ -8690,13 +8690,13 @@ const Fv = /* @__PURE__ */ Symbol("nc:app-navigation-highlight"), P0 = /* @__PUR
 function $0(e, t, i, n, a, r) {
   return m(), _("ul", {
     ref: "list",
-    class: _e(["app-navigation-list", { "app-navigation-list--animated-highlight": e.visible }]),
+    class: ye(["app-navigation-list", { "app-navigation-list--animated-highlight": e.visible }]),
     onPointerleave: t[0] || (t[0] = (...o) => e.hideNow && e.hideNow(...o)),
     onFocusout: t[1] || (t[1] = (...o) => e.onFocusOut && e.onFocusOut(...o)),
     onScrollPassive: t[2] || (t[2] = (...o) => e.onScroll && e.onScroll(...o))
   }, [
     l("div", {
-      class: _e(["app-navigation-list__highlight", {
+      class: ye(["app-navigation-list__highlight", {
         "app-navigation-list__highlight--visible": e.visible,
         "app-navigation-list__highlight--animated": e.animated,
         "app-navigation-list__highlight--over-active": e.overActive
@@ -8824,7 +8824,7 @@ const D0 = { class: "app-navigation-toggle-wrapper" }, M0 = /* @__PURE__ */ Ft({
     }
     return (T, C) => (m(), _("div", {
       ref: "appNavigationContainer",
-      class: _e(["app-navigation", {
+      class: ye(["app-navigation", {
         "app-navigation--closed": !o.value,
         "app-navigation--legacy": g(Qn)
       }])
@@ -8842,7 +8842,7 @@ const D0 = { class: "app-navigation-toggle-wrapper" }, M0 = /* @__PURE__ */ Ft({
           De(T.$slots, "search", {}, void 0, !0)
         ]),
         l("div", {
-          class: _e(["app-navigation__body", { "app-navigation__body--no-list": !T.$slots.list }])
+          class: ye(["app-navigation__body", { "app-navigation__body--no-list": !T.$slots.list }])
         }, [
           De(T.$slots, "default", {}, void 0, !0)
         ], 2),
@@ -9086,7 +9086,7 @@ const gw = {
 function mw(e, t, i, n, a, r) {
   const o = Ve("IconArrowRight"), c = Ve("NcButton"), u = Ve("IconClose");
   return m(), _("div", {
-    class: _e(["app-navigation-input-confirm", { "app-navigation-input-confirm--legacy": n.isLegacy34 }])
+    class: ye(["app-navigation-input-confirm", { "app-navigation-input-confirm--legacy": n.isLegacy34 }])
   }, [
     l("form", {
       onSubmit: t[1] || (t[1] = ke((...y) => r.confirm && r.confirm(...y), ["prevent"])),
@@ -9351,7 +9351,7 @@ const nd = /* @__PURE__ */ Symbol.for("NcActions:isSemanticMenu"), Bv = /* @__PU
 function Nw(e, t, i, n, a, r) {
   const o = Ve("NcIconSvgWrapper");
   return m(), _("li", {
-    class: _e(["action", { "action--disabled": i.disabled }]),
+    class: ye(["action", { "action--disabled": i.disabled }]),
     role: r.isInSemanticMenu && "presentation"
   }, [
     l("button", Yt({
@@ -9368,7 +9368,7 @@ function Nw(e, t, i, n, a, r) {
     }), [
       De(e.$slots, "icon", {}, () => [
         l("span", {
-          class: _e([[e.isIconUrl ? "action-button__icon--url" : e.icon], "action-button__icon"]),
+          class: ye([[e.isIconUrl ? "action-button__icon--url" : e.icon], "action-button__icon"]),
           style: hi({ backgroundImage: e.isIconUrl ? `url(${e.icon})` : null }),
           "aria-hidden": "true"
         }, null, 6)
@@ -10981,7 +10981,7 @@ const lS = {
 function cS(e, t, i, n, a, r) {
   return m(), _("div", {
     ref: "reference",
-    class: _e(["v-popper", {
+    class: ye(["v-popper", {
       "v-popper--shown": e.slotData.isShown
     }])
   }, [
@@ -11109,7 +11109,7 @@ function wS(e, t, i, n, a, r) {
   return m(), _("div", {
     id: e.popperId,
     ref: "popover",
-    class: _e(["v-popper__popper", [
+    class: ye(["v-popper__popper", [
       e.themeClass,
       e.classes.popperClass,
       {
@@ -12610,7 +12610,7 @@ const sC = {
 function lC(e, t, i, n, a, r) {
   const o = Ve("ChevronUp"), c = Ve("ChevronDown"), u = Ve("NcButton");
   return m(), je(u, {
-    class: _e(["icon-collapse", {
+    class: ye(["icon-collapse", {
       "icon-collapse--active": i.active,
       "icon-collapse--open": i.open
     }]),
@@ -12963,7 +12963,7 @@ function mC(e, t, i, n, a, r) {
   const o = Ve("NcLoadingIcon"), c = Ve("NcInputConfirmCancel"), u = Ve("Pencil"), y = Ve("NcActionButton"), f = Ve("Undo"), h = Ve("NcActions"), T = Ve("NcAppNavigationIconCollapsible");
   return m(), _("li", {
     id: i.id,
-    class: _e([{
+    class: ye([{
       "app-navigation-entry--opened": a.opened,
       "app-navigation-entry--pinned": i.pinned,
       "app-navigation-entry--collapsible": i.allowCollapse && !!e.$slots.default
@@ -12973,7 +12973,7 @@ function mC(e, t, i, n, a, r) {
       default: Pe(({ href: C, navigate: N, isActive: E }) => [
         l("div", {
           ref: "entry",
-          class: _e(["app-navigation-entry", {
+          class: ye(["app-navigation-entry", {
             "app-navigation-entry--editing": a.editingActive,
             "app-navigation-entry--deleted": i.undo,
             "app-navigation-entry--legacy": n.isLegacy34,
@@ -12997,7 +12997,7 @@ function mC(e, t, i, n, a, r) {
             onKeydown: t[3] || (t[3] = at(ke((...R) => r.handleTab && r.handleTab(...R), ["exact"]), ["tab"]))
           }, [
             l("div", {
-              class: _e(["app-navigation-entry-icon", { [i.icon]: i.icon }])
+              class: ye(["app-navigation-entry-icon", { [i.icon]: i.icon }])
             }, [
               i.loading ? (m(), je(o, { key: 0 })) : De(e.$slots, "icon", {
                 key: 1,
@@ -13005,7 +13005,7 @@ function mC(e, t, i, n, a, r) {
               }, void 0, !0)
             ], 2),
             l("span", {
-              class: _e(["app-navigation-entry__name", { "hidden-visually": a.editingActive }])
+              class: ye(["app-navigation-entry__name", { "hidden-visually": a.editingActive }])
             }, v(i.name), 3),
             a.editingActive ? (m(), _("div", pC, [
               Ae(c, {
@@ -13024,7 +13024,7 @@ function mC(e, t, i, n, a, r) {
           ])) : F("", !0),
           (e.$slots.actions || e.$slots.counter || i.editable || i.undo) && !a.editingActive ? (m(), _("div", {
             key: 2,
-            class: _e(["app-navigation-entry__utils", { "app-navigation-entry__utils--display-actions": i.forceDisplayActions || a.menuOpenLocalValue || i.menuOpen }])
+            class: ye(["app-navigation-entry__utils", { "app-navigation-entry__utils--display-actions": i.forceDisplayActions || a.menuOpenLocalValue || i.menuOpen }])
           }, [
             e.$slots.counter ? (m(), _("div", gC, [
               De(e.$slots, "counter", {}, void 0, !0)
@@ -13056,7 +13056,7 @@ function mC(e, t, i, n, a, r) {
                     Ae(u, { size: 20 })
                   ]),
                   default: Pe(() => [
-                    ye(" " + v(i.editLabel), 1)
+                    _e(" " + v(i.editLabel), 1)
                   ]),
                   _: 1
                 }, 8, ["aria-label", "onClick"])) : F("", !0),
@@ -13823,7 +13823,7 @@ const UC = function(e, { value: t }) {
       tabindex: "-1",
       title: e.title
     }, [
-      ye(v(e.name), 1)
+      _e(v(e.name), 1)
     ], 8, jC)), [
       [g(UC), { text: e.name, linkify: e.linkify }]
     ]);
@@ -13860,12 +13860,12 @@ const UC = function(e, { value: t }) {
         class: "empty-content__name"
       }, [
         De(i.$slots, "name", {}, () => [
-          ye(v(e.name), 1)
+          _e(v(e.name), 1)
         ], !0)
       ], 8, KC)) : F("", !0),
       e.description !== "" || i.$slots.description ? (m(), _("p", GC, [
         De(i.$slots, "description", {}, () => [
-          ye(v(e.description), 1)
+          _e(v(e.description), 1)
         ], !0)
       ])) : F("", !0),
       i.$slots.action ? (m(), _("div", qC, [
@@ -14005,7 +14005,7 @@ const gT = /* @__PURE__ */ tt(uT, [["render", vT]]), bT = ["aria-selected", "tab
       });
     }
     return (a, r) => (m(), _("button", {
-      class: _e(["button-vue", [a.$style.sidebarTabsButton, {
+      class: ye(["button-vue", [a.$style.sidebarTabsButton, {
         [a.$style.sidebarTabsButton_selected]: t.value,
         [a.$style.sidebarTabsButton_legacy]: g(Qn),
         [a.$style.sidebarTabsButton_animatedHighlight]: e.animatedHighlight
@@ -14016,32 +14016,32 @@ const gT = /* @__PURE__ */ tt(uT, [["render", vT]]), bT = ["aria-selected", "tab
       onClick: n
     }, [
       l("span", {
-        class: _e([a.$style.sidebarTabsButton__icon, { [a.$style.sidebarTabsButton__icon_pop]: i.value }]),
+        class: ye([a.$style.sidebarTabsButton__icon, { [a.$style.sidebarTabsButton__icon_pop]: i.value }]),
         onAnimationend: r[0] || (r[0] = (o) => i.value = !1)
       }, [
         l("span", {
-          class: _e([a.$style.sidebarTabsButton__iconLayer, { [a.$style.sidebarTabsButton__iconLayer_hidden]: t.value }])
+          class: ye([a.$style.sidebarTabsButton__iconLayer, { [a.$style.sidebarTabsButton__iconLayer_hidden]: t.value }])
         }, [
           Ae(Eu, {
             vnodes: e.tab.renderIcon(!1)
           }, {
             default: Pe(() => [
               l("span", {
-                class: _e([a.$style.sidebarTabsButton__legacyIcon, e.tab.icon])
+                class: ye([a.$style.sidebarTabsButton__legacyIcon, e.tab.icon])
               }, null, 2)
             ]),
             _: 1
           }, 8, ["vnodes"])
         ], 2),
         l("span", {
-          class: _e([a.$style.sidebarTabsButton__iconLayer, { [a.$style.sidebarTabsButton__iconLayer_hidden]: !t.value }])
+          class: ye([a.$style.sidebarTabsButton__iconLayer, { [a.$style.sidebarTabsButton__iconLayer_hidden]: !t.value }])
         }, [
           Ae(Eu, {
             vnodes: e.tab.renderIcon(!0)
           }, {
             default: Pe(() => [
               l("span", {
-                class: _e([a.$style.sidebarTabsButton__legacyIcon, e.tab.icon])
+                class: ye([a.$style.sidebarTabsButton__legacyIcon, e.tab.icon])
               }, null, 2)
             ]),
             _: 1
@@ -14049,7 +14049,7 @@ const gT = /* @__PURE__ */ tt(uT, [["render", vT]]), bT = ["aria-selected", "tab
         ], 2)
       ], 34),
       l("span", {
-        class: _e(a.$style.sidebarTabsButton__name)
+        class: ye(a.$style.sidebarTabsButton__name)
       }, v(e.tab.name), 3)
     ], 10, bT));
   }
@@ -14279,7 +14279,7 @@ function PT(e, t, i, n, a, r) {
       key: 0,
       ref: "nav",
       role: "tablist",
-      class: _e(["app-sidebar-tabs__nav", { "app-sidebar-tabs__nav--legacy": a.isLegacy34 }]),
+      class: ye(["app-sidebar-tabs__nav", { "app-sidebar-tabs__nav--legacy": a.isLegacy34 }]),
       onKeydown: [
         t[0] || (t[0] = at(ke((...c) => r.focusPreviousTab && r.focusPreviousTab(...c), ["exact", "prevent", "stop"]), ["left"])),
         t[1] || (t[1] = at(ke((...c) => r.focusNextTab && r.focusNextTab(...c), ["exact", "prevent", "stop"]), ["right"])),
@@ -14296,7 +14296,7 @@ function PT(e, t, i, n, a, r) {
     }, [
       a.highlightEnabled ? (m(), _("div", {
         key: 0,
-        class: _e(["app-sidebar-tabs__highlight", {
+        class: ye(["app-sidebar-tabs__highlight", {
           "app-sidebar-tabs__highlight--visible": a.highlightVisible,
           "app-sidebar-tabs__highlight--animated": a.highlightAnimated,
           "app-sidebar-tabs__highlight--over-active": a.highlightOverActive
@@ -14316,7 +14316,7 @@ function PT(e, t, i, n, a, r) {
       }, null, 8, ["id", "aria-controls", "selected", "animatedHighlight", "tab", "onUpdate:selected"]))), 128))
     ], 34)) : F("", !0),
     l("div", {
-      class: _e(["app-sidebar-tabs__content", { "app-sidebar-tabs__content--multiple": r.hasMultipleTabs }])
+      class: ye(["app-sidebar-tabs__content", { "app-sidebar-tabs__content--multiple": r.hasMultipleTabs }])
     }, [
       De(e.$slots, "default", {}, void 0, !0)
     ], 2)
@@ -14727,7 +14727,7 @@ function KT(e, t, i, n, a, r) {
           }, 16, ["aria-label", "class"])
         ], 8, ["to"])) : F("", !0),
         l("header", {
-          class: _e(["app-sidebar-header", {
+          class: ye(["app-sidebar-header", {
             "app-sidebar-header--with-figure": r.isSlotPopulated(e.$slots.header?.()) || i.background,
             "app-sidebar-header--compact": i.compact
           }])
@@ -14741,7 +14741,7 @@ function KT(e, t, i, n, a, r) {
             l("div", MT, [
               r.isSlotPopulated(e.$slots.header?.()) || i.background ? (m(), _("div", {
                 key: 0,
-                class: _e(["app-sidebar-header__figure", {
+                class: ye(["app-sidebar-header__figure", {
                   "app-sidebar-header__figure--with-action": r.hasFigureClickListener
                 }]),
                 style: hi({
@@ -14754,7 +14754,7 @@ function KT(e, t, i, n, a, r) {
                 De(e.$slots, "header", { class: "app-sidebar-header__background" }, void 0, !0)
               ], 38)) : F("", !0),
               l("div", {
-                class: _e(["app-sidebar-header__desc", {
+                class: ye(["app-sidebar-header__desc", {
                   "app-sidebar-header__desc--with-tertiary-action": r.canStar || r.isSlotPopulated(e.$slots["tertiary-actions"]?.()),
                   "app-sidebar-header__desc--editable": i.nameEditable && !i.subname,
                   "app-sidebar-header__desc--with-subname--editable": i.nameEditable && i.subname,
@@ -14842,7 +14842,7 @@ function KT(e, t, i, n, a, r) {
                     class: "app-sidebar-header__subname"
                   }, [
                     De(e.$slots, "subname", {}, () => [
-                      ye(v(i.subname), 1)
+                      _e(v(i.subname), 1)
                     ], !0)
                   ], 8, HT)) : F("", !0)
                 ])
@@ -14965,7 +14965,7 @@ function tk(e, t, i, n, a, r) {
       De(e.$slots, "icon", {}, () => [
         l("span", {
           "aria-hidden": "true",
-          class: _e(["action-link__icon", [e.isIconUrl ? "action-link__icon--url" : e.icon]]),
+          class: ye(["action-link__icon", [e.isIconUrl ? "action-link__icon--url" : e.icon]]),
           style: hi({ backgroundImage: e.isIconUrl ? `url(${e.icon})` : null })
         }, null, 6)
       ], !0),
@@ -15062,7 +15062,7 @@ const ik = `<!--
     }
     return (u, y) => (m(), _("div", {
       id: "content-vue",
-      class: _e(["content", [`app-${e.appName.toLowerCase()}`, { "content--legacy": g(Qn) }]])
+      class: ye(["content", [`app-${e.appName.toLowerCase()}`, { "content--legacy": g(Qn) }]])
     }, [
       (m(), je(Ch, { to: "#skip-actions" }, [
         l("div", ak, [
@@ -15076,7 +15076,7 @@ const ik = `<!--
               onMouseover: y[1] || (y[1] = (f) => a.value = "navigation")
             }, {
               default: Pe(() => [
-                ye(v(g(Tt)("Skip to app navigation")), 1)
+                _e(v(g(Tt)("Skip to app navigation")), 1)
               ]),
               _: 1
             }, 512), [
@@ -15089,7 +15089,7 @@ const ik = `<!--
               onMouseover: y[3] || (y[3] = (f) => a.value = "content")
             }, {
               default: Pe(() => [
-                ye(v(g(Tt)("Skip to main content")), 1)
+                _e(v(g(Tt)("Skip to main content")), 1)
               ]),
               _: 1
             })
@@ -16778,7 +16778,7 @@ const ik = `<!--
                     title: g(b)("library", "Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.")
                   }, [
                     l("span", null, [
-                      ye(v(g(b)("library", "Search")) + " ", 1),
+                      _e(v(g(b)("library", "Search")) + " ", 1),
                       d[107] || (d[107] = l("kbd", { class: "library-keyboard-hint" }, "/", -1))
                     ]),
                     Ie(l("input", {
@@ -16795,7 +16795,7 @@ const ik = `<!--
                     oi("q") ? (m(), _("small", Rk, v(Ei("q")), 1)) : F("", !0)
                   ], 8, Nk),
                   l("label", null, [
-                    ye(v(g(b)("library", "Type")), 1),
+                    _e(v(g(b)("library", "Type")), 1),
                     Ie(l("select", {
                       "onUpdate:modelValue": d[1] || (d[1] = (s) => x.type = s),
                       name: "type",
@@ -16854,7 +16854,7 @@ const ik = `<!--
                     ])) : F("", !0),
                     l("button", {
                       type: "submit",
-                      class: _e(["button secondary library-publisher-apply", nn("publisher")])
+                      class: ye(["button secondary library-publisher-apply", nn("publisher")])
                     }, v(g(b)("library", "Apply publisher")), 3)
                   ]),
                   l("div", Hk, [
@@ -16897,7 +16897,7 @@ const ik = `<!--
                     ])) : F("", !0),
                     l("button", {
                       type: "submit",
-                      class: _e(["button secondary library-publication-apply", nn("publication")])
+                      class: ye(["button secondary library-publication-apply", nn("publication")])
                     }, v(g(b)("library", "Apply series")), 3)
                   ]),
                   l("div", Xk, [
@@ -16940,7 +16940,7 @@ const ik = `<!--
                     ])) : F("", !0),
                     l("button", {
                       type: "submit",
-                      class: _e(["button secondary library-year-apply", nn("year")])
+                      class: ye(["button secondary library-year-apply", nn("year")])
                     }, v(g(b)("library", "Apply year")), 3)
                   ]),
                   l("div", nE, [
@@ -16984,7 +16984,7 @@ const ik = `<!--
                     ])) : F("", !0),
                     l("button", {
                       type: "submit",
-                      class: _e(["button secondary library-creator-apply", nn("creator")])
+                      class: ye(["button secondary library-creator-apply", nn("creator")])
                     }, v(g(b)("library", "Apply creator")), 3)
                   ]),
                   l("div", uE, [
@@ -17026,11 +17026,11 @@ const ik = `<!--
                     ])) : F("", !0),
                     l("button", {
                       type: "submit",
-                      class: _e(["button secondary library-tag-apply", nn("tag")])
+                      class: ye(["button secondary library-tag-apply", nn("tag")])
                     }, v(g(b)("library", "Apply tag")), 3)
                   ]),
                   l("label", null, [
-                    ye(v(g(b)("library", "Format")), 1),
+                    _e(v(g(b)("library", "Format")), 1),
                     Ie(l("select", {
                       "onUpdate:modelValue": d[23] || (d[23] = (s) => x.format = s),
                       name: "format",
@@ -17049,7 +17049,7 @@ const ik = `<!--
                 l("fieldset", mE, [
                   l("legend", null, v(g(b)("library", "Location")), 1),
                   l("label", null, [
-                    ye(v(g(b)("library", "Shelf")), 1),
+                    _e(v(g(b)("library", "Shelf")), 1),
                     Ie(l("select", {
                       "onUpdate:modelValue": d[25] || (d[25] = (s) => x.shelf = s),
                       name: "shelf",
@@ -17099,14 +17099,14 @@ const ik = `<!--
                     ])) : F("", !0),
                     l("button", {
                       type: "submit",
-                      class: _e(["button secondary library-folder-apply", nn("folder")])
+                      class: ye(["button secondary library-folder-apply", nn("folder")])
                     }, v(g(b)("library", "Apply folder")), 3)
                   ])
                 ]),
                 l("fieldset", EE, [
                   l("legend", null, v(g(b)("library", "Review")), 1),
                   l("label", null, [
-                    ye(v(g(b)("library", "Scan status")), 1),
+                    _e(v(g(b)("library", "Scan status")), 1),
                     Ie(l("select", {
                       "onUpdate:modelValue": d[31] || (d[31] = (s) => x.status = s),
                       name: "status",
@@ -17122,7 +17122,7 @@ const ik = `<!--
                     ])
                   ]),
                   l("label", null, [
-                    ye(v(g(b)("library", "Workflow status")), 1),
+                    _e(v(g(b)("library", "Workflow status")), 1),
                     Ie(l("select", {
                       "onUpdate:modelValue": d[33] || (d[33] = (s) => x.workflowStatus = s),
                       name: "workflowStatus",
@@ -17178,7 +17178,7 @@ const ik = `<!--
                     ])) : F("", !0),
                     l("button", {
                       type: "button",
-                      class: _e(["button secondary library-subject-apply", nn("subject")]),
+                      class: ye(["button secondary library-subject-apply", nn("subject")]),
                       onClick: Qg
                     }, v(g(b)("library", "Apply subject")), 3)
                   ]),
@@ -17222,11 +17222,11 @@ const ik = `<!--
                     ])) : F("", !0),
                     l("button", {
                       type: "submit",
-                      class: _e(["button secondary library-classification-apply", nn("classification")])
+                      class: ye(["button secondary library-classification-apply", nn("classification")])
                     }, v(g(b)("library", "Apply classification")), 3)
                   ]),
                   l("label", null, [
-                    ye(v(g(b)("library", "Suggested updates")), 1),
+                    _e(v(g(b)("library", "Suggested updates")), 1),
                     Ie(l("select", {
                       "onUpdate:modelValue": d[43] || (d[43] = (s) => x.scannerConflicts = s),
                       name: "scannerConflicts",
@@ -17282,19 +17282,19 @@ const ik = `<!--
                   onClick: ke((O) => $r(s.key), ["prevent"])
                 }, [
                   l("strong", null, [
-                    ye(v(s.label), 1),
+                    _e(v(s.label), 1),
                     s.displayValue ? (m(), _(ae, { key: 0 }, [
-                      ye(":")
+                      _e(":")
                     ], 64)) : F("", !0)
                   ]),
                   s.displayValue ? (m(), _(ae, { key: 0 }, [
-                    d[109] || (d[109] = ye(v(" "), -1)),
+                    d[109] || (d[109] = _e(v(" "), -1)),
                     l("span", {
                       class: "library-filter-chip-value",
                       title: s.value
                     }, v(s.displayValue), 9, JE)
                   ], 64)) : F("", !0),
-                  d[110] || (d[110] = ye()),
+                  d[110] || (d[110] = _e()),
                   d[111] || (d[111] = l("span", { "aria-hidden": "true" }, "×", -1))
                 ], 8, ZE))), 128)),
                 He.value.length > 0 ? (m(), _("a", {
@@ -17316,7 +17316,7 @@ const ik = `<!--
                 }, [
                   (m(!0), _(ae, null, Ce(Dg.value, (s) => (m(), _("a", {
                     key: s.key,
-                    class: _e(["library-review-queue-link", { active: s.active }]),
+                    class: ye(["library-review-queue-link", { active: s.active }]),
                     href: s.href,
                     "aria-current": s.active ? "page" : void 0,
                     onClick: ke((O) => ib(s), ["prevent"])
@@ -17338,7 +17338,7 @@ const ik = `<!--
                     value: s.value
                   }, null, 8, sA))), 128)),
                   l("label", null, [
-                    ye(v(g(b)("library", "Search within this queue")), 1),
+                    _e(v(g(b)("library", "Search within this queue")), 1),
                     Ie(l("input", {
                       "onUpdate:modelValue": d[45] || (d[45] = (s) => x.q = s),
                       type: "search",
@@ -17509,7 +17509,7 @@ const ik = `<!--
                     href: Z.value.previousUrl
                   }, v(g(b)("library", "Previous")), 9, GA)) : (m(), _("span", qA, v(g(b)("library", "Previous")), 1)),
                   l("span", null, [
-                    ye(v(g(b)("library", "Page")) + " " + v(Z.value.page), 1),
+                    _e(v(g(b)("library", "Page")) + " " + v(Z.value.page), 1),
                     Z.value.total > 0 ? (m(), _("span", WA, " · " + v(Z.value.from) + "–" + v(Z.value.to), 1)) : F("", !0)
                   ]),
                   Z.value.nextUrl ? (m(), _("a", {
@@ -17540,19 +17540,19 @@ const ik = `<!--
                       onClick: ke((O) => $r(s.key), ["prevent"])
                     }, [
                       l("strong", null, [
-                        ye(v(s.label), 1),
+                        _e(v(s.label), 1),
                         s.displayValue ? (m(), _(ae, { key: 0 }, [
-                          ye(":")
+                          _e(":")
                         ], 64)) : F("", !0)
                       ]),
                       s.displayValue ? (m(), _(ae, { key: 0 }, [
-                        d[113] || (d[113] = ye(v(" "), -1)),
+                        d[113] || (d[113] = _e(v(" "), -1)),
                         l("span", {
                           class: "library-filter-chip-value",
                           title: s.value
                         }, v(s.displayValue), 9, a2)
                       ], 64)) : F("", !0),
-                      d[114] || (d[114] = ye()),
+                      d[114] || (d[114] = _e()),
                       d[115] || (d[115] = l("span", { "aria-hidden": "true" }, "×", -1))
                     ], 8, n2))), 128))
                   ], 8, i2),
@@ -17730,19 +17730,19 @@ const ik = `<!--
                       onClick: ke((O) => $r(s.key), ["prevent"])
                     }, [
                       l("strong", null, [
-                        ye(v(s.label), 1),
+                        _e(v(s.label), 1),
                         s.displayValue ? (m(), _(ae, { key: 0 }, [
-                          ye(":")
+                          _e(":")
                         ], 64)) : F("", !0)
                       ]),
                       s.displayValue ? (m(), _(ae, { key: 0 }, [
-                        d[116] || (d[116] = ye(v(" "), -1)),
+                        d[116] || (d[116] = _e(v(" "), -1)),
                         l("span", {
                           class: "library-filter-chip-value",
                           title: s.value
                         }, v(s.displayValue), 9, aO)
                       ], 64)) : F("", !0),
-                      d[117] || (d[117] = ye()),
+                      d[117] || (d[117] = _e()),
                       d[118] || (d[118] = l("span", { "aria-hidden": "true" }, "×", -1))
                     ], 8, nO))), 128))
                   ], 8, iO),
@@ -17786,7 +17786,7 @@ const ik = `<!--
               ])) : (m(), _("section", {
                 key: 4,
                 id: "library-catalogue",
-                class: _e(["library-panel library-mobile-compact-chrome", { "library-catalogue--loading": Nt.loading }]),
+                class: ye(["library-panel library-mobile-compact-chrome", { "library-catalogue--loading": Nt.loading }]),
                 "aria-labelledby": "library-catalogue-heading",
                 "aria-busy": Nt.loading ? "true" : "false"
               }, [
@@ -17845,7 +17845,7 @@ const ik = `<!--
                         ])
                       ]),
                       l("label", null, [
-                        ye(v(g(b)("library", "Type")), 1),
+                        _e(v(g(b)("library", "Type")), 1),
                         Ie(l("select", {
                           "onUpdate:modelValue": d[47] || (d[47] = (s) => x.type = s),
                           name: "type",
@@ -18022,7 +18022,7 @@ const ik = `<!--
                         ])) : F("", !0)
                       ]),
                       l("label", null, [
-                        ye(v(g(b)("library", "Format")), 1),
+                        _e(v(g(b)("library", "Format")), 1),
                         Ie(l("select", {
                           "onUpdate:modelValue": d[65] || (d[65] = (s) => x.format = s),
                           name: "format",
@@ -18120,7 +18120,7 @@ const ik = `<!--
                     l("fieldset", mx, [
                       l("legend", null, v(g(b)("library", "Location")), 1),
                       l("label", null, [
-                        ye(v(g(b)("library", "Shelf")), 1),
+                        _e(v(g(b)("library", "Shelf")), 1),
                         Ie(l("select", {
                           "onUpdate:modelValue": d[75] || (d[75] = (s) => x.shelf = s),
                           name: "shelf",
@@ -18173,7 +18173,7 @@ const ik = `<!--
                     l("fieldset", Ex, [
                       l("legend", null, v(g(b)("library", "Review")), 1),
                       l("label", null, [
-                        ye(v(g(b)("library", "Scan status")), 1),
+                        _e(v(g(b)("library", "Scan status")), 1),
                         Ie(l("select", {
                           "onUpdate:modelValue": d[81] || (d[81] = (s) => x.status = s),
                           name: "status",
@@ -18189,7 +18189,7 @@ const ik = `<!--
                         ])
                       ]),
                       l("label", null, [
-                        ye(v(g(b)("library", "Workflow status")), 1),
+                        _e(v(g(b)("library", "Workflow status")), 1),
                         Ie(l("select", {
                           "onUpdate:modelValue": d[83] || (d[83] = (s) => x.workflowStatus = s),
                           name: "workflowStatus",
@@ -18205,7 +18205,7 @@ const ik = `<!--
                         ])
                       ]),
                       l("label", null, [
-                        ye(v(g(b)("library", "Suggested updates")), 1),
+                        _e(v(g(b)("library", "Suggested updates")), 1),
                         Ie(l("select", {
                           "onUpdate:modelValue": d[85] || (d[85] = (s) => x.scannerConflicts = s),
                           name: "scannerConflicts",
@@ -18259,11 +18259,11 @@ const ik = `<!--
                         ])) : F("", !0),
                         l("button", {
                           type: "submit",
-                          class: _e(["button secondary library-tag-apply", nn("tag")])
+                          class: ye(["button secondary library-tag-apply", nn("tag")])
                         }, v(g(b)("library", "Apply tag")), 3)
                       ]),
                       l("label", null, [
-                        ye(v(g(b)("library", "Sort")), 1),
+                        _e(v(g(b)("library", "Sort")), 1),
                         Ie(l("select", {
                           "onUpdate:modelValue": d[91] || (d[91] = (s) => x.sort = s),
                           name: "sort",
@@ -18280,7 +18280,7 @@ const ik = `<!--
                         ])
                       ]),
                       l("label", null, [
-                        ye(v(g(b)("library", "View")), 1),
+                        _e(v(g(b)("library", "View")), 1),
                         Ie(l("select", {
                           "onUpdate:modelValue": d[92] || (d[92] = (s) => x.view = s),
                           name: "view",
@@ -18321,7 +18321,7 @@ const ik = `<!--
                       value: s.value
                     }, null, 8, Qx))), 128)),
                     l("label", e3, [
-                      ye(v(g(b)("library", "Sort")), 1),
+                      _e(v(g(b)("library", "Sort")), 1),
                       Ie(l("select", {
                         "onUpdate:modelValue": d[93] || (d[93] = (s) => x.sort = s),
                         name: "sort",
@@ -18345,14 +18345,14 @@ const ik = `<!--
                       l("button", {
                         type: "button",
                         "data-library-view-mode": "compact",
-                        class: _e({ active: S.value === "compact" }),
+                        class: ye({ active: S.value === "compact" }),
                         "aria-pressed": S.value === "compact" ? "true" : "false",
                         onClick: d[94] || (d[94] = (s) => Wd("compact"))
                       }, v(g(b)("library", "Compact")), 11, l3),
                       l("button", {
                         type: "button",
                         "data-library-view-mode": "list",
-                        class: _e({ active: S.value === "list" }),
+                        class: ye({ active: S.value === "list" }),
                         "aria-pressed": S.value === "list" ? "true" : "false",
                         onClick: d[95] || (d[95] = (s) => Wd("list"))
                       }, v(g(b)("library", "List")), 11, c3)
@@ -18379,7 +18379,7 @@ const ik = `<!--
                         value: ob.value
                       }, null, 8, h3),
                       l("label", null, [
-                        ye(v(g(b)("library", "Collection name")), 1),
+                        _e(v(g(b)("library", "Collection name")), 1),
                         l("input", {
                           type: "text",
                           name: "savedCollectionName",
@@ -18639,20 +18639,20 @@ const ik = `<!--
                             href: O.detailsUrl || "#"
                           }, v(O.title), 9, CN),
                           l("small", null, [
-                            ye(v(O.publicationType), 1),
+                            _e(v(O.publicationType), 1),
                             O.publicationDate ? (m(), _(ae, { key: 0 }, [
-                              ye(" · " + v(O.publicationDate), 1)
+                              _e(" · " + v(O.publicationDate), 1)
                             ], 64)) : F("", !0)
                           ]),
                           l("small", TN, [
                             Q > 0 ? (m(), _(ae, { key: 0 }, [
-                              ye(v(g(b)("library", "Previous issue")), 1)
+                              _e(v(g(b)("library", "Previous issue")), 1)
                             ], 64)) : F("", !0),
                             Q > 0 && Q < s.items.length - 1 ? (m(), _(ae, { key: 1 }, [
-                              ye(" · ")
+                              _e(" · ")
                             ], 64)) : F("", !0),
                             Q < s.items.length - 1 ? (m(), _(ae, { key: 2 }, [
-                              ye(v(g(b)("library", "Next issue")), 1)
+                              _e(v(g(b)("library", "Next issue")), 1)
                             ], 64)) : F("", !0)
                           ])
                         ]))), 128))
@@ -18678,7 +18678,7 @@ const ik = `<!--
                     "aria-label": g(b)("library", "Catalogue pagination")
                   }, [
                     l("span", LN, [
-                      ye(v(g(b)("library", "Page")) + " " + v(Z.value.page), 1),
+                      _e(v(g(b)("library", "Page")) + " " + v(Z.value.page), 1),
                       Z.value.total > 0 ? (m(), _("span", RN, " · " + v(Z.value.from) + "–" + v(Z.value.to), 1)) : F("", !0)
                     ]),
                     Z.value.previousUrl ? (m(), _("a", {
@@ -18693,7 +18693,7 @@ const ik = `<!--
                 ]),
                 C.value.length === 0 ? (m(), _("div", {
                   key: 4,
-                  class: _e(["library-empty-content", { "library-first-run-guidance": ni.value || mr.value, "library-filter-empty-state": ra.value && !ni.value && !mr.value }]),
+                  class: ye(["library-empty-content", { "library-first-run-guidance": ni.value || mr.value, "library-filter-empty-state": ra.value && !ni.value && !mr.value }]),
                   role: "status"
                 }, [
                   ni.value ? (m(), _(ae, { key: 0 }, [
@@ -18734,19 +18734,19 @@ const ik = `<!--
                         onClick: ke((O) => $r(s.key), ["prevent"])
                       }, [
                         l("strong", null, [
-                          ye(v(s.label), 1),
+                          _e(v(s.label), 1),
                           s.displayValue ? (m(), _(ae, { key: 0 }, [
-                            ye(":")
+                            _e(":")
                           ], 64)) : F("", !0)
                         ]),
                         s.displayValue ? (m(), _(ae, { key: 0 }, [
-                          d[121] || (d[121] = ye(v(" "), -1)),
+                          d[121] || (d[121] = _e(v(" "), -1)),
                           l("span", {
                             class: "library-filter-chip-value",
                             title: s.value
                           }, v(s.displayValue), 9, qN)
                         ], 64)) : F("", !0),
-                        d[122] || (d[122] = ye()),
+                        d[122] || (d[122] = _e()),
                         d[123] || (d[123] = l("span", { "aria-hidden": "true" }, "×", -1))
                       ], 8, GN))), 128))
                     ], 8, KN)) : F("", !0),
@@ -18777,12 +18777,12 @@ const ik = `<!--
                     checked: Ai.value.length === C.value.length,
                     onChange: kg
                   }, null, 40, tL),
-                  ye(" " + v(g(b)("library", "Select all publications on this page")), 1)
+                  l("span", null, v(g(b)("library", "Select all publications on this page")), 1)
                 ])) : F("", !0),
                 C.value.length > 0 && S.value === "list" ? (m(), _("ul", iL, [
                   (m(!0), _(ae, null, Ce(C.value, (s) => (m(), _("li", {
                     key: s.id,
-                    class: _e(["library-catalogue-list-row", { "library-catalogue-list-row--selected": Jo.value.has(Number(s.id)), "library-catalogue-list-row--open": Rn.value && Number(oa.value) === Number(s.id) }])
+                    class: ye(["library-catalogue-list-row", { "library-catalogue-list-row--selected": Jo.value.has(Number(s.id)), "library-catalogue-list-row--open": Rn.value && Number(oa.value) === Number(s.id) }])
                   }, [
                     l("label", nL, [
                       l("input", {
@@ -18831,7 +18831,7 @@ const ik = `<!--
                         l("dt", null, v(g(b)("library", "Format")), 1),
                         l("dd", null, [
                           l("bdi", {
-                            class: _e(s.extension ? "library-bidi-machine" : "library-bidi-human"),
+                            class: ye(s.extension ? "library-bidi-machine" : "library-bidi-human"),
                             dir: s.extension ? "ltr" : "auto"
                           }, v(s.extension ? ls(s.extension) : s.publicationType), 11, bL)
                         ])
@@ -18858,11 +18858,11 @@ const ik = `<!--
                   ], 2))), 128))
                 ])) : C.value.length > 0 ? (m(), _("div", {
                   key: 7,
-                  class: _e(["library-cover-gallery", P.value])
+                  class: ye(["library-cover-gallery", P.value])
                 }, [
                   (m(!0), _(ae, null, Ce(C.value, (s) => (m(), _("article", {
                     key: s.id,
-                    class: _e(["library-cover-card", { "library-cover-card--cover-loaded": Fr(s) === "loaded", "library-cover-card--cover-error": Fr(s) === "error", "library-cover-card--selected": Jo.value.has(Number(s.id)), "library-cover-card--open": Rn.value && Number(oa.value) === Number(s.id) }])
+                    class: ye(["library-cover-card", { "library-cover-card--cover-loaded": Fr(s) === "loaded", "library-cover-card--cover-error": Fr(s) === "error", "library-cover-card--selected": Jo.value.has(Number(s.id)), "library-cover-card--open": Rn.value && Number(oa.value) === Number(s.id) }])
                   }, [
                     l("label", CL, [
                       l("input", {
@@ -18886,7 +18886,7 @@ const ik = `<!--
                       l("span", AL, [
                         Fr(s) === "loading" ? (m(), _("span", OL)) : F("", !0),
                         l("img", {
-                          class: _e(["library-cover-image", { "library-cover-image--loaded": Fr(s) === "loaded" }]),
+                          class: ye(["library-cover-image", { "library-cover-image--loaded": Fr(s) === "loaded" }]),
                           src: s.coverUrl,
                           alt: "",
                           loading: "lazy",
@@ -18919,7 +18919,7 @@ const ik = `<!--
                       }, null, 8, IL),
                       l("button", {
                         type: "submit",
-                        class: _e(["library-cover-star-button", { "library-cover-star-button--starred": s.starred }]),
+                        class: ye(["library-cover-star-button", { "library-cover-star-button--starred": s.starred }]),
                         "aria-pressed": s.starred ? "true" : "false",
                         title: s.starred ? g(b)("library", "Unstar this publication") : g(b)("library", "Star this publication"),
                         "aria-label": s.starred ? g(b)("library", "Unstar this publication") : g(b)("library", "Star this publication"),
@@ -18963,7 +18963,7 @@ const ik = `<!--
                   "aria-label": g(b)("library", "Catalogue pagination")
                 }, [
                   l("span", GL, [
-                    ye(v(g(b)("library", "Page")) + " " + v(Z.value.page), 1),
+                    _e(v(g(b)("library", "Page")) + " " + v(Z.value.page), 1),
                     Z.value.total > 0 ? (m(), _("span", qL, " · " + v(Z.value.from) + "–" + v(Z.value.to), 1)) : F("", !0)
                   ]),
                   Z.value.previousUrl ? (m(), _("a", {
@@ -19033,7 +19033,7 @@ const ik = `<!--
                     l("p", oR, [
                       l("bdi", sR, v(Se.value.publicationType || g(b)("library", "Publication")), 1),
                       Se.value.extension ? (m(), _("span", lR, [
-                        d[125] || (d[125] = ye(" · ", -1)),
+                        d[125] || (d[125] = _e(" · ", -1)),
                         l("bdi", cR, v(ls(Se.value.extension)), 1)
                       ])) : F("", !0)
                     ]),
@@ -19051,7 +19051,7 @@ const ik = `<!--
                             href: Se.value.filesUrl
                           }, {
                             default: Pe(() => [
-                              ye(v(g(b)("library", "Show in Files")), 1)
+                              _e(v(g(b)("library", "Show in Files")), 1)
                             ]),
                             _: 1
                           }, 8, ["href"]),
@@ -19059,7 +19059,7 @@ const ik = `<!--
                             href: Se.value.downloadUrl
                           }, {
                             default: Pe(() => [
-                              ye(v(g(b)("library", "Download")), 1)
+                              _e(v(g(b)("library", "Download")), 1)
                             ]),
                             _: 1
                           }, 8, ["href"]),
@@ -19067,7 +19067,7 @@ const ik = `<!--
                             href: Se.value.detailsUrl
                           }, {
                             default: Pe(() => [
-                              ye(v(g(b)("library", "Maintenance (legacy)")), 1)
+                              _e(v(g(b)("library", "Maintenance (legacy)")), 1)
                             ]),
                             _: 1
                           }, 8, ["href"])
@@ -19084,7 +19084,7 @@ const ik = `<!--
                   (m(), _(ae, null, Ce(xg, (s) => l("button", {
                     key: s.key,
                     type: "button",
-                    class: _e({ active: sa.value === s.key }),
+                    class: ye({ active: sa.value === s.key }),
                     "aria-current": sa.value === s.key ? "page" : void 0,
                     onClick: (O) => sa.value = s.key
                   }, v(g(b)("library", s.label)), 11, pR)), 64))
@@ -19161,7 +19161,7 @@ const ik = `<!--
                     onSubmit: ke(Fg, ["prevent"])
                   }, [
                     l("label", null, [
-                      ye(v(g(b)("library", "Title")), 1),
+                      _e(v(g(b)("library", "Title")), 1),
                       Ie(l("input", {
                         "onUpdate:modelValue": d[102] || (d[102] = (s) => Ut.title = s),
                         name: "title",
@@ -19171,7 +19171,7 @@ const ik = `<!--
                       ])
                     ]),
                     l("label", null, [
-                      ye(v(g(b)("library", "Publication date")), 1),
+                      _e(v(g(b)("library", "Publication date")), 1),
                       Ie(l("input", {
                         "onUpdate:modelValue": d[103] || (d[103] = (s) => Ut.publicationDate = s),
                         name: "publicationDate",
@@ -19229,9 +19229,9 @@ const ik = `<!--
                       }, [
                         l("dt", null, v(s.field) + " · " + v(s.sourceProvenance), 1),
                         l("dd", null, [
-                          ye(v(g(b)("library", "Current")) + ": " + v(s.currentValue || "—"), 1),
+                          _e(v(g(b)("library", "Current")) + ": " + v(s.currentValue || "—"), 1),
                           d[126] || (d[126] = l("br", null, null, -1)),
-                          ye(v(g(b)("library", "Suggestion")) + ": " + v(s.scannerCandidate || "—"), 1)
+                          _e(v(g(b)("library", "Suggestion")) + ": " + v(s.scannerCandidate || "—"), 1)
                         ])
                       ]))), 128))
                     ])
