@@ -96,6 +96,10 @@ function hasCanonicalReviewDestination(params) {
 function canonicalReviewFilters(filters) {
   return Object.fromEntries(Object.entries(filters || {}).filter(([key, value]) => key === 'status' || !Object.prototype.hasOwnProperty.call(reviewFilterValues, key) || isCanonicalReviewFilter(key, value)))
 }
+const catalogueViewModes = Object.freeze(['compact', 'list'])
+function normalizeCatalogueView(value) {
+  return catalogueViewModes.includes(value) ? value : 'compact'
+}
 
 const catalogueState = reactive({
   ...props.state,
@@ -129,7 +133,7 @@ const pagination = computed(() => catalogueState.cataloguePagination || {
 })
 const activeFilters = reactive({
   q: catalogueState.activeFilters?.q || '',
-  view: catalogueState.activeFilters?.view || 'compact',
+  view: normalizeCatalogueView(catalogueState.activeFilters?.view),
   type: catalogueState.activeFilters?.type || '',
   publisher: catalogueState.activeFilters?.publisher || '',
   publication: catalogueState.activeFilters?.publication || '',
@@ -515,9 +519,7 @@ const chipValueLabels = {
   },
   view: {
     compact: 'Compact',
-    gallery: 'Gallery',
     list: 'List',
-    shelf: 'Shelf',
   },
   status: {
     indexed: 'Indexed',
@@ -560,12 +562,10 @@ const batchSelectionErrorMessage = computed(() => {
 const savedCollections = computed(() => catalogueState.savedCollections || [])
 const savedCollectionSaveUrl = computed(() => catalogueState.savedCollectionSaveUrl || '/apps/library/collections')
 const savedCollectionDeleteBaseUrl = computed(() => catalogueState.savedCollectionDeleteBaseUrl || '/apps/library/collections/__COLLECTION_ID__/delete')
-const viewModes = ['compact', 'gallery', 'list', 'shelf']
+const viewModes = catalogueViewModes
 const viewMode = computed(() => viewModes.includes(activeFilters.view) ? activeFilters.view : 'compact')
 const coverGalleryClasses = computed(() => ({
   ['library-cover-' + 'gallery--compact']: viewMode.value === 'compact',
-  ['library-cover-' + 'gallery--gallery']: viewMode.value === 'gallery',
-  ['library-cover-' + 'gallery--shelf']: viewMode.value === 'shelf',
 }))
 
 function shortenChipPath(value) {
@@ -1175,6 +1175,7 @@ function applyCatalogueState(nextState) {
     }
   }
   Object.assign(activeFilters, activeFilterDefaults, nextState.activeFilters || {})
+  activeFilters.view = normalizeCatalogueView(activeFilters.view)
 }
 
 async function hydrateInitialAuxiliaryState() {
@@ -1650,8 +1651,9 @@ function smartViewUrl(filters) {
   }
   params.delete('page')
   for (const [key, value] of Object.entries(filters)) {
-    if (String(value || '').trim() !== '') {
-      params.set(key, String(value))
+    const normalized = key === 'view' ? normalizeCatalogueView(value) : String(value || '').trim()
+    if (normalized !== '' && !(key === 'view' && normalized === 'compact')) {
+      params.set(key, normalized)
     }
   }
   const query = params.toString()
@@ -1905,7 +1907,7 @@ async function toggleStar(item, event) {
           <NcAppNavigationItem v-for="destination in catalogueNavigation" :key="destination.key" :active="destination.active" :href="destination.href" :name="destination.name" />
           <div v-for="collection in savedCollectionNavigation" :key="collection.key" class="library-navigation-saved-collection-row">
             <NcAppNavigationItem class="library-navigation-saved-collection" :active="collection.active" :href="collection.href" :name="collection.name" />
-            <button type="button" class="library-navigation-saved-collection-delete-action" :aria-label="`${t('library', 'Delete collection')}: ${collection.rawName}`" :title="`${t('library', 'Delete collection')}: ${collection.rawName}`" @click.stop.prevent="submitSavedCollectionDelete(collection.id)">×</button>
+            <button type="button" class="library-navigation-saved-collection-delete-action" style="background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.42); color: #fff;" :aria-label="`${t('library', 'Delete collection')}: ${collection.rawName}`" :title="`${t('library', 'Delete collection')}: ${collection.rawName}`" @click.stop.prevent="submitSavedCollectionDelete(collection.id)">✕</button>
           </div>
           <NcAppNavigationItem :active="reviewActive" :href="reviewUrl" :name="reviewCount > 0 ? `${t('library', 'Review')} (${reviewCount})` : t('library', 'Review')" />
         </NcAppNavigationList>
@@ -2102,7 +2104,7 @@ async function toggleStar(item, event) {
           <legend>{{ t('library', 'Personal / display') }}</legend>
           <div class="library-tag-filter"><label for="library-tag-search">{{ t('library', 'Nextcloud tag') }}</label><input id="library-tag-search" v-model="tagSearch" type="search" name="tagSearch" autocomplete="off" :placeholder="t('library', 'Search tags')" role="combobox" aria-autocomplete="list" aria-controls="library-tag-suggestions" :aria-expanded="tagSearchFocused && tagSuggestions.length > 0 ? 'true' : 'false'" @focus="tagSearchFocused = true" @keydown.escape="tagSearchFocused = false"><input type="hidden" name="tag" :value="activeFilters.tag"><ul v-if="tagSearchFocused && tagSuggestions.length > 0" id="library-tag-suggestions" class="library-tag-suggestions" role="listbox"><li v-for="tag in tagSuggestions" :key="tag" role="option"><button type="button" class="library-tag-suggestion" @mousedown.prevent @click="selectTagSuggestion(tag, $event)">{{ tag }}</button></li></ul><button type="submit" class="button secondary library-tag-apply" :class="pendingApplyClass('tag')">{{ t('library', 'Apply tag') }}</button></div>
           <label>{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
-          <label>{{ t('library', 'View') }}<select v-model="activeFilters.view" name="view" @change="submitFiltersAjax"><option value="compact">{{ t('library', 'Compact') }}</option><option value="gallery">{{ t('library', 'Gallery') }}</option><option value="list">{{ t('library', 'List') }}</option><option value="shelf">{{ t('library', 'Shelf') }}</option></select></label>
+          <label>{{ t('library', 'View') }}<select v-model="activeFilters.view" name="view" @change="submitFiltersAjax"><option value="compact">{{ t('library', 'Compact') }}</option><option value="list">{{ t('library', 'List') }}</option></select></label>
         </fieldset>
         <div class="library-mobile-filter-actions">
           <a v-if="resettableFilterChips.length > 0" :href="clearAllFiltersUrl()" class="button secondary library-mobile-filter-clear" @click.prevent="clearAllFilters">{{ t('library', 'Clear all') }}</a>
@@ -2114,7 +2116,7 @@ async function toggleStar(item, event) {
       <form method="get" class="library-quick-filter-bar library-catalogue-toolbar" :aria-label="t('library', 'Catalogue toolbar')" @submit.prevent="submitFiltersAjax">
         <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
         <label data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
-        <nav class="library-view-mode-toggle" data-library-control="view" :aria-label="t('library', 'View')"><button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button><button type="button" data-library-view-mode="gallery" :class="{ active: viewMode === 'gallery' }" :aria-pressed="viewMode === 'gallery' ? 'true' : 'false'" @click="setViewMode('gallery')">{{ t('library', 'Gallery') }}</button><button type="button" data-library-view-mode="list" :class="{ active: viewMode === 'list' }" :aria-pressed="viewMode === 'list' ? 'true' : 'false'" @click="setViewMode('list')">{{ t('library', 'List') }}</button><button type="button" data-library-view-mode="shelf" :class="{ active: viewMode === 'shelf' }" :aria-pressed="viewMode === 'shelf' ? 'true' : 'false'" @click="setViewMode('shelf')">{{ t('library', 'Shelf') }}</button></nav>
+        <nav class="library-view-mode-toggle" data-library-control="view" :aria-label="t('library', 'View')"><button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button><button type="button" data-library-view-mode="list" :class="{ active: viewMode === 'list' }" :aria-pressed="viewMode === 'list' ? 'true' : 'false'" @click="setViewMode('list')">{{ t('library', 'List') }}</button></nav>
       </form>
       <section id="library-collections" class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form></section>
 
@@ -2226,6 +2228,7 @@ async function toggleStar(item, event) {
     <ul v-if="items.length > 0 && viewMode === 'list'" class="library-catalogue-list" data-library-catalogue-list>
       <li v-for="item in items" :key="item.id" class="library-catalogue-list-row" :class="{ 'library-catalogue-list-row--selected': selectedItemIdSet.has(Number(item.id)), 'library-catalogue-list-row--open': sidebarOpen && Number(sidebarRequestedId) === Number(item.id) }">
         <label class="library-item-selection"><input type="checkbox" :checked="selectedItemIdSet.has(Number(item.id))" :aria-label="`${t('library', 'Select publication')}: ${item.title}`" @change="toggleItemSelection(item.id, $event.currentTarget.checked)"></label>
+        <button type="button" class="library-catalogue-list-cover" :aria-label="`${t('library', 'Details')}: ${item.title}`" @click="openDetailsDrawer(item, $event)"><img :src="item.coverUrl" alt="" loading="lazy"></button>
         <div class="library-catalogue-list-main">
           <button type="button" class="library-cover-title-button library-catalogue-list-title" @click="openDetailsDrawer(item, $event)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></button>
           <span v-if="item.creators" class="library-muted"><bdi class="library-bidi-human" dir="auto">{{ item.creators }}</bdi></span>
@@ -2808,36 +2811,6 @@ async function toggleStar(item, event) {
   transform: translateY(-2px);
 }
 
-.library-cover-gallery--gallery {
-  gap: 16px;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-}
-
-.library-cover-gallery--gallery .library-cover-card {
-  border-radius: 18px;
-  padding: 12px;
-}
-
-.library-cover-gallery--gallery .library-cover-image {
-  aspect-ratio: 2 / 3;
-  object-fit: cover;
-}
-
-.library-cover-gallery--shelf {
-  display: grid;
-  gap: 14px;
-  grid-auto-columns: minmax(148px, 190px);
-  grid-auto-flow: column;
-  grid-template-columns: none;
-  overflow-x: auto;
-  padding-bottom: 0.8rem;
-  scroll-snap-type: x mandatory;
-}
-
-.library-cover-gallery--shelf .library-cover-card {
-  scroll-snap-align: start;
-}
-
 .library-catalogue-list {
   border-block-start: 1px solid var(--color-border);
   list-style: none;
@@ -2850,7 +2823,7 @@ async function toggleStar(item, event) {
   border-block-end: 1px solid var(--color-border);
   display: grid;
   gap: 0.5rem;
-  grid-template-columns: auto minmax(12rem, 1.2fr) minmax(18rem, 2fr) auto;
+  grid-template-columns: auto auto minmax(12rem, 1.2fr) minmax(0, 2fr) auto;
   padding: 0.45rem 0.25rem;
 }
 
@@ -2862,6 +2835,26 @@ async function toggleStar(item, event) {
 .library-catalogue-list-main {
   display: grid;
   min-width: 0;
+}
+
+.library-catalogue-list-cover {
+  aspect-ratio: 2 / 3;
+  background: var(--color-background-hover);
+  border: 0;
+  border-radius: var(--border-radius, 3px);
+  box-shadow: none;
+  display: block;
+  inline-size: 40px;
+  min-block-size: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.library-catalogue-list-cover img {
+  block-size: 100%;
+  display: block;
+  inline-size: 100%;
+  object-fit: cover;
 }
 
 .library-catalogue-list-title {
@@ -2897,12 +2890,12 @@ async function toggleStar(item, event) {
 @media (max-width: 800px) {
   .library-catalogue-list-row {
     align-items: start;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto auto minmax(0, 1fr);
   }
 
   .library-catalogue-list-metadata,
   .library-catalogue-list-actions {
-    grid-column: 2;
+    grid-column: 3;
   }
 }
 
@@ -3312,13 +3305,20 @@ async function toggleStar(item, event) {
 }
 
 .library-saved-collections:not(.library-secondary-tool) {
-  background: var(--color-background-hover, #f6f6f6);
-  border: 1px solid var(--color-border, #d0d0d0);
+  align-items: end;
+  background: color-mix(in srgb, var(--color-background-hover, #f6f6f6) 64%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border, #d0d0d0) 76%, transparent);
   border-radius: var(--border-radius-large, 10px);
-  display: grid;
-  gap: 0.65rem;
-  margin: 0.5rem 0;
-  padding: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  margin: 0;
+  padding: 0.45rem 0.55rem;
+}
+
+.library-saved-collections:not(.library-secondary-tool) h3 {
+  align-self: center;
+  flex: 0 0 auto;
 }
 
 .library-useful-views h3,
@@ -3512,23 +3512,63 @@ async function toggleStar(item, event) {
   color: var(--color-text-maxcontrast, #6b6b6b);
 }
 
+.library-navigation-saved-collection-row {
+  align-items: center;
+  display: flex;
+  gap: 0.15rem;
+  min-height: 30px;
+  padding-inline-start: 0.75rem;
+}
+
 .library-navigation-saved-collection {
-  --icon-size: 12px;
-  margin-inline-start: 1.15rem;
+  --icon-size: 0px;
+  flex: 1 1 auto;
+  margin: 0;
+  min-width: 0;
 }
 
 .library-navigation-saved-collection :is(a, button) {
   font-size: 0.92em;
+  min-height: 30px;
+  padding-block: 0;
 }
 
 .library-navigation-saved-collection :is(a, button)::before {
-  content: '↳';
-  color: var(--color-text-maxcontrast, #6b6b6b);
-  margin-inline-end: 0.35rem;
+  content: none;
 }
 
 .library-navigation-saved-collection-delete-form {
   margin: 0;
+}
+
+.library-navigation-saved-collection-delete-action {
+  align-items: center;
+  appearance: none;
+  background: color-mix(in srgb, #fff 22%, transparent);
+  border: 1px solid color-mix(in srgb, #fff 36%, transparent);
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 28px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  height: 28px;
+  justify-content: center;
+  line-height: 28px;
+  min-height: 28px;
+  overflow: visible;
+  padding: 0;
+  text-align: center;
+  width: 28px;
+}
+
+.library-navigation-saved-collection-delete-action:hover,
+.library-navigation-saved-collection-delete-action:focus-visible {
+  background: color-mix(in srgb, #fff 34%, transparent);
+  border-color: color-mix(in srgb, #fff 54%, transparent);
+  color: #fff;
 }
 
 .library-navigation-saved-collection-delete-action::before {
@@ -3872,7 +3912,7 @@ async function toggleStar(item, event) {
   position: relative;
 }
 
-.library-cover-gallery:not(.library-cover-gallery--shelf) .library-cover-link {
+.library-cover-gallery .library-cover-link {
   color: inherit;
   display: block;
   inline-size: 100%;
@@ -3947,6 +3987,7 @@ async function toggleStar(item, event) {
   bottom: 4px;
   color: #fff;
   left: 4px;
+  min-block-size: calc((0.66rem * 1.08 * 2) + 23px);
   opacity: 0.86;
   padding: 18px 5px 5px;
   position: absolute;
@@ -3967,12 +4008,11 @@ async function toggleStar(item, event) {
 }
 
 .library-cover-title-button {
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  --library-cover-title-lines: 2;
   background: transparent;
   border: 0;
   box-shadow: none;
-  display: -webkit-box;
+  color: inherit;
   font: inherit;
   max-inline-size: 100%;
   min-block-size: 0;
@@ -3983,14 +4023,25 @@ async function toggleStar(item, event) {
   text-align: start;
 }
 
+.library-cover-title-button > bdi {
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--library-cover-title-lines);
+  display: -webkit-box;
+  line-height: inherit;
+  overflow: hidden;
+}
+
 .library-cover-gallery .library-cover-title-button {
+  --library-cover-title-lines: 2;
   color: inherit;
+  line-height: 1.08;
 }
 
 .library-cover-gallery .library-cover-creator,
 .library-cover-gallery .library-cover-context {
   max-height: 0;
   opacity: 0;
+  overflow: hidden;
   transform: translateY(2px);
   transition: max-height 160ms ease, opacity 160ms ease, transform 160ms ease;
 }
@@ -4005,11 +4056,18 @@ async function toggleStar(item, event) {
   padding-top: 26px;
 }
 
+.library-cover-gallery .library-cover-card:hover .library-cover-title-button > bdi,
+.library-cover-gallery .library-cover-card:focus-within .library-cover-title-button > bdi,
+.library-cover-gallery .library-cover-card--open .library-cover-title-button > bdi {
+  -webkit-line-clamp: unset;
+  display: block;
+}
+
 .library-cover-gallery .library-cover-card:hover .library-cover-title-button,
 .library-cover-gallery .library-cover-card:focus-within .library-cover-title-button,
 .library-cover-gallery .library-cover-card--open .library-cover-title-button {
-  -webkit-line-clamp: unset;
-  display: block;
+  max-block-size: none;
+  max-height: none;
 }
 
 .library-cover-gallery .library-cover-card:hover .library-cover-creator,
@@ -4274,13 +4332,6 @@ async function toggleStar(item, event) {
 
   .library-cover-gallery {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .library-cover-gallery--shelf {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-flow: row;
-    overflow-x: visible;
-    scroll-snap-type: none;
   }
 }
 .library-publication-filter,

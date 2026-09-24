@@ -26,8 +26,8 @@ def test_list_view_asset_path_is_cache_busted_after_alpha170_deploy():
 
     assert script != "library-main-0-1-0-alpha-169"
     assert style != "library-vue-0-1-0-alpha-169"
-    assert script == "library-main-0-1-0-alpha-174-recently-opened"
-    assert style == "library-vue-0-1-0-alpha-174-recently-opened"
+    assert script == "library-main-0-1-0-alpha-174-collections-title2bdi-x"
+    assert style == "library-vue-0-1-0-alpha-174-collections-title2bdi-x"
     assert f'data-library-main-script="{script}"' in read("templates/main.php")
     assert (ROOT / f"js/{script}.mjs").exists()
     assert (ROOT / f"css/{style}.css").exists()
@@ -45,7 +45,8 @@ def test_list_view_asset_path_is_cache_busted_after_alpha170_deploy():
     assert "library-publication-suggestions" in built_style
     assert "setViewMode('list')" in app
     assert "@media(max-width:520px)" in built_style
-    assert ".library-cover-gallery--shelf{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:row;overflow-x:visible;scroll-snap-type:none}" in built_style
+    assert "library-catalogue-list-cover" in built_style
+    assert ".library-cover-gallery--shelf" not in built_style
 
 
 def test_release_packaging_uses_page_controller_wired_assets(tmp_path):

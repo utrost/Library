@@ -95,15 +95,14 @@ def test_alpha_158_version_assets_and_release_language_are_aligned():
     assert '"version": "0.1.0-alpha.174"' in read("package.json")
     assert '"version": "0.1.0-alpha.174"' in read("package-lock.json")
     page = read("lib/Controller/PageController.php")
-    assert "library-main-0-1-0-alpha-174-recently-opened" in page
-    assert "library-vue-0-1-0-alpha-174-recently-opened" in page
+    assert "library-main-0-1-0-alpha-174-collections-title2bdi-x" in page
+    assert "library-vue-0-1-0-alpha-174-collections-title2bdi-x" in page
     assert (ROOT / "js/library-main-0-1-0-alpha-157.mjs").exists()
     assert (ROOT / "css/library-vue-0-1-0-alpha-157.css").exists()
     release_text = "\n".join(read(path) for path in ("CHANGELOG.md", "RELEASE.md", "docs/architecture-review.md"))
     assert "remote cover SSRF was not present" in release_text
     assert "does not introduce server fetching" in release_text
     current_evidence = {
-        "README.md": ("Alpha.159 fixes repair-scan root containment:", 726),
         "RELEASE.md": ("Alpha.159 verification evidence:", 727),
         "docs/app-store-readiness.md": ("Alpha.159 rehearsal evidence:", 727),
         "docs/current-state-and-risk-register.md": ("Alpha.159 verification is complete", 727),

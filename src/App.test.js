@@ -793,7 +793,7 @@ describe('Library catalogue Vue app', () => {
       ok: true,
       json: async () => ({
         ...state,
-        activeFilters: { ...state.activeFilters, sort: 'recent', view: 'gallery' },
+        activeFilters: { ...state.activeFilters, sort: 'recent', view: 'list' },
       }),
     })
     const wrapper = mount(App, { attachTo: document.body, props: { state: {
@@ -805,7 +805,7 @@ describe('Library catalogue Vue app', () => {
         type: 'book',
         format: 'epub',
         sort: 'recent',
-        view: 'gallery',
+        view: 'list',
       },
       cataloguePagination: { ...state.cataloguePagination, page: 3 },
     } } })
@@ -813,13 +813,13 @@ describe('Library catalogue Vue app', () => {
     const clearAll = wrapper.get('.library-active-filter-clear-all')
     clearAll.element.focus()
     expect(document.activeElement).toBe(clearAll.element)
-    expect(clearAll.attributes('href')).toBe(`${state.catalogueRootUrl}?sort=recent&view=gallery`)
+    expect(clearAll.attributes('href')).toBe(`${state.catalogueRootUrl}?sort=recent&view=list`)
     await clearAll.trigger('click')
     await wrapper.vm.$nextTick()
 
     expect(document.activeElement).toBe(wrapper.get('#library-catalogue-heading').element)
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      '/apps/library/catalogue?sort=recent&view=gallery',
+      '/apps/library/catalogue?sort=recent&view=list',
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
     expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Search"]').exists()).toBe(false)
@@ -950,7 +950,7 @@ describe('Library catalogue Vue app', () => {
         type: 'book',
         format: 'epub',
         sort: 'recent',
-        view: 'gallery',
+        view: 'list',
       },
     } } })
 
@@ -959,7 +959,7 @@ describe('Library catalogue Vue app', () => {
     expect(global.fetch).not.toHaveBeenCalled()
     expect(submissions).toEqual([{
       action: state.catalogueRootUrl,
-      params: { sort: 'recent', view: 'gallery' },
+      params: { sort: 'recent', view: 'list' },
     }])
     nativeSubmit.mockRestore()
   })
@@ -1902,6 +1902,9 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.findAll('.library-catalogue-list-row')).toHaveLength(1)
     expect(wrapper.find('.library-cover-gallery').exists()).toBe(false)
     expect(wrapper.find('.library-cover-card').exists()).toBe(false)
+    const thumbnail = wrapper.get('.library-catalogue-list-cover')
+    expect(thumbnail.attributes('aria-label')).toBe('Details: Example Book')
+    expect(thumbnail.get('img').attributes()).toEqual(expect.objectContaining({ src: '/apps/library/items/7/cover', alt: '', loading: 'lazy' }))
     expect(wrapper.find('.library-catalogue-list-row').text()).toContain('Ada Reader')
     expect(wrapper.find('.library-catalogue-list-row').text()).toContain('2026')
     expect(wrapper.find('.library-catalogue-list-row').text()).toContain('EPUB')
@@ -1909,7 +1912,8 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-catalogue-list-actions button').text()).toBe('Details')
   })
 
-  it.each(['list', 'gallery', 'shelf'])('immediately loads view=%s through the catalogue endpoint and preserves filters', async (view) => {
+  it('immediately loads view=list through the catalogue endpoint and preserves filters', async () => {
+    const view = 'list'
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ ...state, activeFilters: { ...state.activeFilters, type: 'book', q: 'camera', view } }),
@@ -2628,18 +2632,19 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-sidebar-content').text()).toContain('Second Book')
   })
 
-  it('switches between compact gallery and shelf cover modes without navigation', async () => {
+  it('offers only compact and list catalogue view modes without navigation', async () => {
     const wrapper = mount(App, { props: { state } })
 
     expect(wrapper.find('.library-view-mode-toggle').exists()).toBe(true)
     expect(wrapper.find('.library-cover-gallery').classes()).toContain('library-cover-gallery--compact')
+    expect(wrapper.find('[data-library-view-mode=compact]').exists()).toBe(true)
+    expect(wrapper.find('[data-library-view-mode=list]').exists()).toBe(true)
+    expect(wrapper.find('[data-library-view-mode=gallery]').exists()).toBe(false)
+    expect(wrapper.find('[data-library-view-mode=shelf]').exists()).toBe(false)
 
-    await wrapper.find('[data-library-view-mode=gallery]').trigger('click')
-    expect(wrapper.find('.library-cover-gallery').classes()).toContain('library-cover-gallery--gallery')
-
-    await wrapper.find('[data-library-view-mode=shelf]').trigger('click')
-    expect(wrapper.find('.library-cover-gallery').classes()).toContain('library-cover-gallery--shelf')
-    expect(wrapper.find('[data-library-view-mode=shelf]').attributes('aria-pressed')).toBe('true')
+    await wrapper.find('[data-library-view-mode=list]').trigger('click')
+    expect(wrapper.find('[data-library-catalogue-list]').exists()).toBe(true)
+    expect(wrapper.find('[data-library-view-mode=list]').attributes('aria-pressed')).toBe('true')
   })
 
   it('shows a review-next metadata workbench for scanner conflicts', () => {

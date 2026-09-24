@@ -7,7 +7,7 @@ const buildDir = 'build/vue'
 const jsDir = 'js'
 const cssDir = 'css'
 const packageVersion = JSON.parse(readFileSync('package.json', 'utf8')).version
-const assetBasename = `${packageVersion.replace(/[^a-zA-Z0-9]+/g, '-')}-recently-opened`
+const assetBasename = `${packageVersion.replace(/[^a-zA-Z0-9]+/g, '-')}-collections-title2bdi-x`
 const versionedJsAssetName = `library-main-${assetBasename}.mjs`
 const versionedCssAssetName = `library-vue-${assetBasename}.css`
 rmSync(buildDir, { recursive: true, force: true })
