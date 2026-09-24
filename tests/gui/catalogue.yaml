@@ -11,6 +11,24 @@ scripts:
     file: tests/gui/catalogue/catalogue-filter-chips-clear-all.spec.ts
     command: npm run test:gui:desktop -- tests/gui/catalogue/catalogue-filter-chips-clear-all.spec.ts
 
+  catalogue-empty-results-recovery:
+    description: Verify a guaranteed-missing search has consistent empty and active-filter state, then clears cleanly back to the catalogue.
+    tags: [catalogue, search, edge-case, regression]
+    file: tests/gui/catalogue/catalogue-empty-results-recovery.spec.ts
+    command: npm run test:gui:desktop -- tests/gui/catalogue/catalogue-empty-results-recovery.spec.ts
+
+  catalogue-history-navigation:
+    description: Preserve search, format, list view, card, and detail-sidebar state through browser back and forward navigation.
+    tags: [catalogue, navigation, timing, regression]
+    file: tests/gui/catalogue/catalogue-history-navigation.spec.ts
+    command: npm run test:gui:desktop -- tests/gui/catalogue/catalogue-history-navigation.spec.ts
+
+  catalogue-loading-state:
+    description: Delay one catalogue response and verify pending aria-busy/status behavior, stale results, and the final cleared loading state.
+    tags: [catalogue, loading, timing, regression]
+    file: tests/gui/catalogue/catalogue-loading-state.spec.ts
+    command: npm run test:gui:desktop -- tests/gui/catalogue/catalogue-loading-state.spec.ts
+
   details-metadata-edit-persistence:
     description: Edit a deterministic publication title, prove it persists through catalogue search and details reload, then restore it.
     tags: [details, metadata, smoke, mutation]
@@ -28,3 +46,9 @@ scripts:
     tags: [catalogue, filters, mobile, smoke]
     file: tests/gui/mobile/mobile-catalogue-filters.spec.ts
     command: npm run test:gui:mobile
+
+  mobile-no-horizontal-overflow:
+    description: Check document, visible catalogue controls, result cards, and the detail sidebar remain inside the phone viewport.
+    tags: [mobile, layout, css, regression]
+    file: tests/gui/mobile/mobile-no-horizontal-overflow.spec.ts
+    command: npm run test:gui:mobile -- tests/gui/mobile/mobile-no-horizontal-overflow.spec.ts
