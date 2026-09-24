@@ -466,7 +466,7 @@ try {
     console.log(`source_has_compact_mobile_hero=${bundleHas('library-catalogue-workspace', 'library-catalogue-header')}`)
     console.log(`source_has_detail_drawer=${bundleHas('library-native-item-sidebar', 'library-cover-link')}`)
     console.log(`source_has_visual_issue_strip=${bundleHas('library-publication-issue-strip', 'Visual issue strip')}`)
-    console.log(`source_has_gallery_shelf_view_modes=${bundleHas('library-view-mode-toggle', 'library-cover-gallery--gallery', 'library-cover-gallery--shelf')}`)
+    console.log(`source_has_compact_list_view_modes=${bundleHas('library-view-mode-toggle', 'data-library-view-mode="compact"', 'data-library-view-mode="list"')}`)
     console.log(`source_has_cover_loading_polish=${bundleHas('library-cover-frame', 'library-cover-loading-shimmer', 'library-cover-fallback')}`)
     console.log(`source_has_drawer_keyboard_polish=${bundleHas('library-detail-drawer-keyboard-hint', 'Escape', 'ArrowLeft', 'ArrowRight')}`)
     console.log(`bad_host_hrefs=${(page.text.match(/href="http:\/\/(?:f|settings)\//g) || []).length}`)

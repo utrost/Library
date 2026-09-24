@@ -188,7 +188,6 @@ OC.L10N.register(
         "Format: %s": "Dateiformat: %s",
         "French (fr)": "Französisch (fr)",
         "Fresh covers": "Aktuelle Cover",
-        "Gallery": "Galerie",
         "Gap": "Lücke",
         "German (de)": "Deutsch (de)",
         "Getting started": "Erste Schritte",

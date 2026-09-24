@@ -13,7 +13,8 @@ const visibleAttributes = new Set(['alt', 'aria-label', 'placeholder', 'title'])
 const allowedStaticText = /^(?:[\s\p{P}\p{S}\p{N}]|Ctrl|⌘K)+$/u
 
 function fail(marker, detail = '') {
-  throw new Error(`${marker}${detail ? `:${detail}` : ''}`)
+  console.error(`${marker}${detail ? `:${detail}` : ''}`)
+  process.exit(1)
 }
 
 function addKey(value) {
