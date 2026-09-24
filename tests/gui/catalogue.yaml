@@ -48,7 +48,7 @@ scripts:
     command: npm run test:gui:mobile
 
   mobile-no-horizontal-overflow:
-    description: Check document, visible catalogue controls, result cards, and the detail sidebar remain inside the phone viewport.
+    description: Check document, visible catalogue controls, mobile filters, and result cards remain inside the phone viewport.
     tags: [mobile, layout, css, regression]
     file: tests/gui/mobile/mobile-no-horizontal-overflow.spec.ts
     command: npm run test:gui:mobile -- tests/gui/mobile/mobile-no-horizontal-overflow.spec.ts

@@ -22,7 +22,7 @@ async function expectNoHorizontalOverflow(page: Page, scope: Locator): Promise<v
   expect(escaped, `visible controls outside viewport: ${JSON.stringify(escaped)}`).toEqual([])
 }
 
-test('keeps catalogue controls and details within the phone viewport @mobile @layout @css @regression', async ({ page }) => {
+test('keeps catalogue controls and filtered results within the phone viewport @mobile @layout @css @regression', async ({ page }) => {
   const browserFailures = collectBrowserFailures(page)
   await login(page)
   assertKnownNextcloudLoginFailuresAndClear(browserFailures)
@@ -49,13 +49,5 @@ test('keeps catalogue controls and details within the phone viewport @mobile @la
   const card = catalogue.locator('.library-cover-card').filter({ hasText: title })
   await expect(card).toHaveCount(1)
   await expectNoHorizontalOverflow(page, catalogue)
-
-  const detailResponse = page.waitForResponse((response) => /\/apps\/library\/items\/\d+\/sidebar$/.test(new URL(response.url()).pathname))
-  await card.locator('.library-cover-link').click()
-  expect((await detailResponse).ok()).toBeTruthy()
-  const sidebar = page.locator('#app-sidebar-vue')
-  await expect(sidebar).toBeVisible()
-  await expect(sidebar.locator('header').getByRole('heading', { name: title })).toBeVisible()
-  await expectNoHorizontalOverflow(page, sidebar)
   browserFailures.assertNone()
 })

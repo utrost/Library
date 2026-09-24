@@ -22,8 +22,8 @@ test('recovers after a search returns no catalogue results @catalogue @search @e
 
   await expect(page).toHaveURL((url) => url.searchParams.get('q') === missingQuery)
   await expect(filters.getByRole('searchbox', { name: /Search/ })).toHaveValue(missingQuery)
-  const activeFilters = page.getByRole('navigation', { name: 'Active filters' })
-  await expect(activeFilters.getByRole('link', { name: 'Remove filter: Search' })).toContainText(missingQuery)
+  const activeFilters = page.locator('nav.library-active-filter-chips[aria-label="Active filters"]')
+  await expect(activeFilters.locator(':scope > a.library-filter-chip[aria-label="Remove filter: Search"]')).toContainText(missingQuery)
   await expect(catalogue.locator('.library-cover-card')).toHaveCount(0)
   const emptyState = catalogue.locator('.library-filter-empty-state')
   await expect(emptyState).toHaveRole('status')
