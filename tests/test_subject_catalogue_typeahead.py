@@ -63,7 +63,7 @@ def test_current_typeahead_bundle_uses_the_cache_busted_asset_basename():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     template = (ROOT / "templates" / "main.php").read_text()
 
-    assert "-compact-list-selectfix`" in build
-    assert "library-main-0-1-0-alpha-174-compact-list-selectfix" in controller
-    assert "library-vue-0-1-0-alpha-174-compact-list-selectfix" in controller
-    assert 'data-library-main-script="library-main-0-1-0-alpha-174-compact-list-selectfix"' in template
+    assert "-collection-control-band`" in build
+    assert "library-main-0-1-0-alpha-174-collection-control-band" in controller
+    assert "library-vue-0-1-0-alpha-174-collection-control-band" in controller
+    assert 'data-library-main-script="library-main-0-1-0-alpha-174-collection-control-band"' in template

@@ -2635,6 +2635,30 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-sidebar-content').text()).toContain('Second Book')
   })
 
+  it('keeps collection saving separate from sorting in the compact control band', async () => {
+    const wrapper = mount(App, { props: { state: {
+      ...state,
+      savedCollectionSaveUrl: '/apps/library/collections/save',
+      activeFilters: { ...state.activeFilters, format: 'epub' },
+    } } })
+    const band = wrapper.get('.library-catalogue-control-band')
+    const save = band.get('.library-saved-collection-save-form')
+    expect(save.attributes('method')).toBe('post')
+    expect(save.attributes('action')).toBe('/apps/library/collections/save')
+    expect(save.get('[name="requesttoken"]').element.value).toBe('test-token')
+    expect(JSON.parse(save.get('[name="savedCollectionFilters"]').element.value)).toMatchObject({ format: 'epub' })
+    expect(save.get('label').text()).toBe('Collection name')
+    await save.get('[name="savedCollectionName"]').setValue('My books')
+    expect(save.get('button[type="submit"]').element.disabled).toBe(false)
+    expect(save.find('select').exists()).toBe(false)
+    expect(band.get('.library-catalogue-toolbar').find('form').exists()).toBe(false)
+    expect(band.find('.library-pagination').exists()).toBe(false)
+    await band.get('[data-library-view-mode="list"]').trigger('click')
+    expect(save.get('[name="savedCollectionName"]').element.value).toBe('My books')
+    await wrapper.get('.library-select-visible input').setValue(true)
+    expect(wrapper.get('.library-catalogue-list-row .library-item-selection input').element.checked).toBe(true)
+  })
+
   it('offers only compact and list catalogue view modes without navigation', async () => {
     const wrapper = mount(App, { props: { state } })
 
