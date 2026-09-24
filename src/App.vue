@@ -2113,12 +2113,25 @@ async function toggleStar(item, event) {
       </form>
     </details>
     <nav class="library-catalogue-workspace library-workspace-menubar" :aria-label="t('library', 'One catalogue workspace')">
-      <form method="get" class="library-quick-filter-bar library-catalogue-toolbar" :aria-label="t('library', 'Catalogue toolbar')" @submit.prevent="submitFiltersAjax">
-        <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
-        <label data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
-        <nav class="library-view-mode-toggle" data-library-control="view" :aria-label="t('library', 'View')"><button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button><button type="button" data-library-view-mode="list" :class="{ active: viewMode === 'list' }" :aria-pressed="viewMode === 'list' ? 'true' : 'false'" @click="setViewMode('list')">{{ t('library', 'List') }}</button></nav>
-      </form>
-      <section id="library-collections" class="library-saved-collections"><h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Collections') }}</h3><form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson"><label>{{ t('library', 'Collection name') }}<input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off"></label><button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button></form></section>
+      <div class="library-catalogue-control-band">
+        <section id="library-collections" class="library-saved-collections">
+          <h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Collections') }}</h3>
+          <form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''">
+            <input type="hidden" name="requesttoken" :value="requestToken">
+            <input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson">
+            <label>
+              <span class="library-control-label">{{ t('library', 'Collection name') }}</span>
+              <input type="text" name="savedCollectionName" :placeholder="t('library', 'e.g. Bremen photo books')" :disabled="!canSaveCurrentView" autocomplete="off">
+            </label>
+            <button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button>
+          </form>
+        </section>
+        <form method="get" class="library-quick-filter-bar library-catalogue-toolbar" :aria-label="t('library', 'Catalogue toolbar')" @submit.prevent="submitFiltersAjax">
+          <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
+          <label class="library-sort-control" data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
+          <nav class="library-view-mode-toggle" data-library-control="view" :aria-label="t('library', 'View')"><button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button><button type="button" data-library-view-mode="list" :class="{ active: viewMode === 'list' }" :aria-pressed="viewMode === 'list' ? 'true' : 'false'" @click="setViewMode('list')">{{ t('library', 'List') }}</button></nav>
+        </form>
+      </div>
 
       <details v-if="selectedItemIds.length > 0" class="library-workspace-panel library-workspace-panel--batch library-batch-actions" data-workspace-panel="batch" :aria-label="t('library', 'Batch actions for selected publications')">
         <summary class="library-workspace-panel-summary library-workspace-panel-summary--polished"><span class="library-workspace-panel-icon" aria-hidden="true">✓</span><span class="library-workspace-panel-title" :title="t('library', 'Batch actions for selected publications')">{{ t('library', 'Batch actions') }}</span><small class="library-workspace-panel-purpose">{{ t('library', 'Batch actions for selected publications') }}</small><b class="library-workspace-scope-badge">{{ n('library', '%n publication selected', '%n publications selected', selectedItemIds.length) }}</b></summary>
@@ -4370,4 +4383,122 @@ async function toggleStar(item, event) {
 .library-subject-suggestion,
 .library-classification-suggestion,
 .library-tag-suggestion { justify-content: flex-start; overflow-wrap: anywhere; text-align: start; width: 100%; }
+
+/* Keep the catalogue controls on one shared row, wrapping whole groups. */
+.library-catalogue-workspace.library-workspace-menubar {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  margin-block: 0 0.35rem;
+  padding: 0;
+}
+
+.library-catalogue-control-band {
+  align-items: center;
+  background: var(--color-main-background);
+  border-block-end: 1px solid var(--color-border);
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  min-inline-size: 0;
+  padding-block: 0.35rem;
+}
+
+.library-catalogue-control-band .library-saved-collections {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  flex: 1 1 22rem;
+  min-inline-size: 0;
+  padding: 0;
+}
+
+.library-catalogue-control-band .library-saved-collection-save-form {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  flex: 1 1 15rem;
+  flex-wrap: nowrap;
+  margin: 0;
+  min-inline-size: 0;
+  padding: 0;
+}
+
+.library-catalogue-control-band .library-saved-collection-save-form label {
+  flex: 1 1 10rem;
+  min-inline-size: 0;
+}
+
+.library-catalogue-control-band input[type="text"] {
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.library-control-label {
+  clip-path: inset(50%);
+  block-size: 1px;
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+
+.library-catalogue-control-band .library-catalogue-toolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.75rem;
+  justify-content: flex-start;
+  margin: 0;
+  min-inline-size: 0;
+}
+
+.library-catalogue-control-band .library-sort-control {
+  align-items: center;
+  display: flex;
+  gap: 0.4rem;
+  min-inline-size: 0;
+}
+
+.library-catalogue-control-band select {
+  inline-size: auto;
+  min-inline-size: 0;
+  max-inline-size: 12rem;
+}
+
+.library-catalogue-control-band :is(input[type="text"], select, button) {
+  box-sizing: border-box;
+  margin: 0;
+  min-block-size: var(--default-clickable-area, 44px);
+}
+
+.library-catalogue-control-band .library-view-mode-toggle {
+  flex-wrap: nowrap;
+  gap: 0;
+  margin: 0;
+}
+
+.library-catalogue-control-band .library-view-mode-toggle button {
+  border-radius: 0;
+  position: relative;
+  transform: none;
+}
+
+.library-catalogue-control-band .library-view-mode-toggle button:first-child {
+  border-start-start-radius: var(--border-radius, 8px);
+  border-end-start-radius: var(--border-radius, 8px);
+}
+
+.library-catalogue-control-band .library-view-mode-toggle button:last-child {
+  border-start-end-radius: var(--border-radius, 8px);
+  border-end-end-radius: var(--border-radius, 8px);
+  margin-inline-start: -1px;
+}
+
+.library-catalogue-control-band .library-view-mode-toggle button:is(.active, :focus-visible) {
+  z-index: 1;
+}
 </style>
