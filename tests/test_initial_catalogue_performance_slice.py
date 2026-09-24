@@ -39,11 +39,11 @@ def test_index_deferred_state_has_a_fresh_immutable_asset_contract():
     template = (ROOT / "templates" / "main.php").read_text()
     build = (ROOT / "scripts" / "build-vue.mjs").read_text()
 
-    basename = "0-1-0-alpha-174-collections-title2bdi-x"
+    basename = "0-1-0-alpha-174-compact-list-selectfix"
     assert f"library-main-{basename}" in page
     assert f"library-vue-{basename}" in page
     assert f'data-library-main-script="library-main-{basename}"' in template
-    assert "-collections-title2bdi-x`" in build
+    assert "-compact-list-selectfix`" in build
 
 
 def test_previous_deployed_asset_remains_byte_for_byte_immutable():
