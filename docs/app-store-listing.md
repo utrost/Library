@@ -1,8 +1,8 @@
 # App Store listing draft
 
-Status: draft copy for a future stable Nextcloud App Store submission.  
-Target app version: `0.1.0` after the alpha candidate is accepted.  
-Compatibility: Nextcloud 34 only until another version is tested.
+Status: beta listing draft for today’s submission candidate.
+Target app version: `0.1.0-beta.1`.
+Compatibility: Nextcloud 33–35 (the exact beta archive passed install and smoke checks on 33.0.9, 34.0.4 and 35.0.0 with 40 English Gutenberg books).
 
 ## Short description
 
@@ -65,4 +65,4 @@ Before uploading screenshots, verify that no real filenames, private folder name
 
 ## Release note draft
 
-Library `0.1.0` is the first stable App Store candidate for Nextcloud 34. It focuses on private publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. It is intentionally conservative: source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack.
+Library `0.1.0` is the first stable App Store candidate for Nextcloud 33–35. It focuses on publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. It is intentionally conservative: source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack.

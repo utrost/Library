@@ -10,7 +10,7 @@ This guide describes the implemented state of the app, not the long-term design.
 
 ## Fresh install and first scan
 
-Library currently supports Nextcloud 34. A Nextcloud administrator installs the packaged archive into the server's `custom_apps` directory and enables it with `occ app:enable library`; the [README install section](../README.md#install) contains the command-line example. Confirm that **Library** appears in the app navigation before asking users to configure folders.
+Library currently supports Nextcloud 33–35. Runtime smoke coverage used versions 33.0.9, 34.0.4 and 35.0.0. A Nextcloud administrator installs the packaged archive into the server's `custom_apps` directory and enables it with `occ app:enable library`; the [README install section](../README.md#install) contains the command-line example. Confirm that **Library** appears in the app navigation before asking users to configure folders.
 
 For the first catalogue:
 
@@ -357,7 +357,7 @@ Settings also provide **Preview metadata import** and **Apply metadata import**.
 
 ### Installing or enabling the app
 
-The current development target is a conventional Nextcloud 34 app with app id `library`.
+The current development target is a conventional Nextcloud app with id `library`, declared compatible with Nextcloud 33–35.
 
 A Nextcloud administrator should:
 

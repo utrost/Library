@@ -1,12 +1,14 @@
 # Public alpha test checklist
 
-`0.1.0-alpha.174` is the current unsigned packaged alpha deployed on the private Nextcloud 34 test instance. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+`0.1.0-beta.1` is the current beta release candidate; it has not yet been installed on the private test server. The previously deployed unsigned alpha was `0.1.0-alpha.174` on Nextcloud 34. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
 
-Use this Public alpha checklist against the exact `0.1.0-alpha.174` package before the broader v0.1 alpha acceptance pass. Exact-package live proof exists for the private test deployment; for the full repeatable script, use the [human test handbook](human-test-handbook.md).
+Use the [Playwright journey suite](playwright-journeys.md) for repeatable browser workflows against a disposable instance. Use this checklist for package identity, source-file safety, real-file coverage, and release-specific acceptance; several detailed UI steps in the [human test handbook](human-test-handbook.md) are historical.
 
 ## Setup
 
-1. Install the package produced by `scripts/package-release.sh` into a disposable or test Nextcloud 34 instance.
+Build the beta candidate with `scripts/package-release.sh`; add `--signed` after configuring the signing certificate and private-key paths as documented in [RELEASE.md](../RELEASE.md). The App Store package must be signed.
+
+1. Install the signed beta package into disposable Nextcloud 33.0.9, 34.0.4 and 35.0.0 instances. Use the alpha package only for explicitly historical cases.
 2. Enable the app as a Nextcloud administrator.
 3. Confirm background jobs are running.
 4. Open `/apps/library/` as a normal user.
@@ -82,7 +84,7 @@ Expected result: Library removes or updates app-owned rows only. It must not del
 
 ## Known alpha limitations
 
-- Nextcloud 34 is the only supported target for this alpha.
+- Supported range: Nextcloud 33–35. Runtime smoke coverage is documented for 33.0.9, 34.0.4 and 35.0.0.
 - Covers are on-demand; manual cover override/revert exists for individual items, but there is no app-owned cover cache or crop/rebuild workflow.
 - Sidecar manifest and sidecar ZIP are read-only/download-only. Source-folder OPF/JSON sidecar write-back is intentionally outside the app roadmap.
 - Metadata import applies only to matched existing Library catalogue rows; fresh-install restore from sidecars belongs to external file-first tooling rather than the app.

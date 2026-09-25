@@ -39,6 +39,8 @@ def test_gui_catalogue_registers_initial_workflows():
         "catalogue-empty-results-recovery",
         "catalogue-history-navigation",
         "catalogue-loading-state",
+        "scan-root-browse",
+        "metadata-export-import-roundtrip",
         "details-metadata-edit-persistence",
         "settings-folder-picker-existing-user",
         "mobile-catalogue-filters",
@@ -56,7 +58,7 @@ def test_gui_catalogue_registers_initial_workflows():
         assert marker in catalogue
 
     files = [line.split(":", 1)[1].strip() for line in catalogue.splitlines() if line.strip().startswith("file:")]
-    assert len(files) == 9
+    assert len(files) == 11
     assert len(set(files)) == len(files)
     for relative_path in files:
         assert (ROOT / relative_path).is_file(), relative_path

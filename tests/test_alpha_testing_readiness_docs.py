@@ -7,14 +7,15 @@ def read(path: str) -> str:
     return (ROOT / path).read_text()
 
 
-def test_human_test_handbook_targets_current_alpha_package():
+def test_human_test_handbook_distinguishes_beta_candidate_from_deployed_alpha():
     handbook = read("docs/human-test-handbook.md")
     checklist = read("docs/alpha-test-checklist.md")
 
     assert "0.1.0-alpha.174" in handbook
     assert "dist/library-0.1.0-alpha.174.tar.gz" in handbook
+    assert "0.1.0-beta.1" in read("README.md")
     assert "0.1.0-alpha.127" not in handbook
-    assert "0.1.0-alpha.174" in checklist
+    assert "0.1.0-beta.1" in checklist
 
 
 def test_human_test_handbook_covers_recent_browsing_and_review_surfaces():

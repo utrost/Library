@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test'
+import { expect, type Page, type TestInfo } from '@playwright/test'
 
 export function requiredEnvironment(name: string): string {
   const value = process.env[name]?.trim()
@@ -71,4 +71,33 @@ export async function openLibrary(page: Page): Promise<void> {
   await expect(page.locator('#library-vue-root[data-v-app]')).toBeAttached()
   await expect(page.locator('#library-catalogue')).toBeVisible()
   await expect(page.locator('#library-catalogue')).toHaveAttribute('aria-busy', 'false')
+}
+
+export async function latestScanJobId(page: Page): Promise<number> {
+  const response = await page.request.get(new URL('/apps/library/scan/progress', page.url()).toString())
+  expect(response.ok(), `scan progress returned ${response.status()}`).toBeTruthy()
+  const payload = await response.json() as { job?: { id?: number } | null }
+  return Number(payload.job?.id ?? 0)
+}
+
+export async function waitForScanCompletion(page: Page, previousJobId: number): Promise<void> {
+  await expect.poll(async () => {
+    const response = await page.request.get(new URL('/apps/library/scan/progress', page.url()).toString())
+    if (!response.ok()) return `http-${response.status()}`
+    const payload = await response.json() as { job?: { id?: number; status?: string } | null }
+    if (!payload.job || Number(payload.job.id ?? 0) <= previousJobId) return 'waiting-for-new-job'
+    return String(payload.job.status ?? 'unknown')
+  }, { timeout: 150_000, intervals: [500, 1000, 2000] }).toBe('completed')
+}
+
+export async function attachCheckpoint(
+  page: Page,
+  testInfo: TestInfo,
+  name: string,
+  selector?: string,
+): Promise<void> {
+  const image = selector
+    ? await page.locator(selector).screenshot({ animations: 'disabled' })
+    : await page.screenshot({ animations: 'disabled' })
+  await testInfo.attach(name, { body: image, contentType: 'image/png' })
 }

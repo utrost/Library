@@ -2238,23 +2238,37 @@ async function toggleStar(item, event) {
     </div>
 
     <label v-if="items.length > 0" class="library-select-visible"><input type="checkbox" :checked="selectedItemIds.length === items.length" @change="selectVisibleItems"><span>{{ t('library', 'Select all publications on this page') }}</span></label>
-    <ul v-if="items.length > 0 && viewMode === 'list'" class="library-catalogue-list" data-library-catalogue-list>
-      <li v-for="item in items" :key="item.id" class="library-catalogue-list-row" :class="{ 'library-catalogue-list-row--selected': selectedItemIdSet.has(Number(item.id)), 'library-catalogue-list-row--open': sidebarOpen && Number(sidebarRequestedId) === Number(item.id) }">
-        <label class="library-item-selection"><input type="checkbox" :checked="selectedItemIdSet.has(Number(item.id))" :aria-label="`${t('library', 'Select publication')}: ${item.title}`" @change="toggleItemSelection(item.id, $event.currentTarget.checked)"></label>
-        <button type="button" class="library-catalogue-list-cover" :aria-label="`${t('library', 'Details')}: ${item.title}`" @click="openDetailsDrawer(item, $event)"><img :src="item.coverUrl" alt="" loading="lazy"></button>
-        <div class="library-catalogue-list-main">
-          <button type="button" class="library-cover-title-button library-catalogue-list-title" @click="openDetailsDrawer(item, $event)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></button>
-          <span v-if="item.creators" class="library-muted"><bdi class="library-bidi-human" dir="auto">{{ item.creators }}</bdi></span>
-        </div>
-        <dl class="library-catalogue-list-metadata">
-          <div v-if="item.publication"><dt>{{ t('library', 'Series') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ item.publication }}</bdi></dd></div>
-          <div v-if="item.publicationDate"><dt>{{ t('library', 'Publication date') }}</dt><dd>{{ item.publicationDate }}</dd></div>
-          <div v-if="item.extension || item.publicationType"><dt>{{ t('library', 'Format') }}</dt><dd><bdi :class="item.extension ? 'library-bidi-machine' : 'library-bidi-human'" :dir="item.extension ? 'ltr' : 'auto'">{{ item.extension ? upper(item.extension) : item.publicationType }}</bdi></dd></div>
-          <div v-if="item.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ item.shelf }}</bdi></dd></div>
-        </dl>
-        <div class="library-catalogue-list-actions"><a class="button primary" :href="item.openUrl" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Details') }}</button></div>
-      </li>
-    </ul>
+    <div v-if="items.length > 0 && viewMode === 'list'" class="library-catalogue-list-scroll" data-library-catalogue-list-scroll>
+      <table class="library-catalogue-list" data-library-catalogue-list>
+        <caption class="hidden-visually">{{ t('library', 'Catalogue list') }}</caption>
+        <thead>
+          <tr>
+            <th class="library-catalogue-list-selection"><span class="hidden-visually">{{ t('library', 'Selection') }}</span></th>
+            <th class="library-catalogue-list-cover-heading"><span class="hidden-visually">{{ t('library', 'Cover') }}</span></th>
+            <th scope="col">{{ t('library', 'Title') }}</th>
+            <th scope="col">{{ t('library', 'Creators') }}</th>
+            <th scope="col">{{ t('library', 'Publication date') }}</th>
+            <th scope="col">{{ t('library', 'Series') }}</th>
+            <th scope="col">{{ t('library', 'Format') }}</th>
+            <th scope="col">{{ t('library', 'Shelf') }}</th>
+            <th scope="col">{{ t('library', 'Actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in items" :key="item.id" class="library-catalogue-list-row" :class="{ 'library-catalogue-list-row--selected': selectedItemIdSet.has(Number(item.id)), 'library-catalogue-list-row--open': sidebarOpen && Number(sidebarRequestedId) === Number(item.id) }">
+            <td class="library-catalogue-list-selection"><label class="library-item-selection"><input type="checkbox" :checked="selectedItemIdSet.has(Number(item.id))" :aria-label="`${t('library', 'Select publication')}: ${item.title}`" @change="toggleItemSelection(item.id, $event.currentTarget.checked)"></label></td>
+            <td class="library-catalogue-list-cover-cell"><button type="button" class="library-catalogue-list-cover" :aria-label="`${t('library', 'Details')}: ${item.title}`" @click="openDetailsDrawer(item, $event)"><img :src="item.coverUrl" alt="" loading="lazy"></button></td>
+            <th scope="row" class="library-catalogue-list-title-cell"><button type="button" class="library-cover-title-button library-catalogue-list-title" @click="openDetailsDrawer(item, $event)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></button></th>
+            <td class="library-catalogue-list-creators"><bdi v-if="item.creators" class="library-bidi-human" dir="auto">{{ item.creators }}</bdi><span v-else :aria-label="t('library', 'Unknown')">—</span></td>
+            <td><time v-if="item.publicationDate" :datetime="item.publicationDate">{{ item.publicationDate }}</time><span v-else :aria-label="t('library', 'Unknown')">—</span></td>
+            <td><bdi v-if="item.publication" class="library-bidi-human" dir="auto">{{ item.publication }}</bdi><span v-else :aria-label="t('library', 'Unknown')">—</span></td>
+            <td><bdi v-if="item.extension || item.publicationType" :class="item.extension ? 'library-bidi-machine' : 'library-bidi-human'" :dir="item.extension ? 'ltr' : 'auto'">{{ item.extension ? upper(item.extension) : item.publicationType }}</bdi><span v-else :aria-label="t('library', 'Unknown')">—</span></td>
+            <td><bdi v-if="item.shelf" class="library-bidi-human" dir="auto">{{ item.shelf }}</bdi><span v-else :aria-label="t('library', 'Unknown')">—</span></td>
+            <td class="library-catalogue-list-actions"><a class="button primary" :href="item.openUrl" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Details') }}</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <div v-else-if="items.length > 0" class="library-cover-gallery" :class="coverGalleryClasses">
       <article v-for="item in items" :key="item.id" class="library-cover-card" :class="{ 'library-cover-card--cover-loaded': coverImageState(item) === 'loaded', 'library-cover-card--cover-error': coverImageState(item) === 'error', 'library-cover-card--selected': selectedItemIdSet.has(Number(item.id)), 'library-cover-card--open': sidebarOpen && Number(sidebarRequestedId) === Number(item.id) }">
         <label class="library-item-selection"><input type="checkbox" :checked="selectedItemIdSet.has(Number(item.id))" :aria-label="`${t('library', 'Select publication')}: ${item.title}`" @change="toggleItemSelection(item.id, $event.currentTarget.checked)"></label>
@@ -2840,20 +2854,95 @@ async function toggleStar(item, event) {
   line-height: 1.35;
 }
 
-.library-catalogue-list {
+.library-catalogue-list-scroll {
   border-block-start: 1px solid var(--color-border);
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
 }
 
-.library-catalogue-list-row {
-  align-items: center;
+.library-catalogue-list {
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  inline-size: 100%;
+  min-inline-size: 68rem;
+  table-layout: fixed;
+}
+
+.library-catalogue-list th,
+.library-catalogue-list td {
   border-block-end: 1px solid var(--color-border);
-  display: grid;
-  gap: 0.5rem;
-  grid-template-columns: auto auto minmax(12rem, 1.2fr) minmax(0, 2fr) auto;
-  padding: 0.45rem 0.25rem;
+  padding: 0.45rem 0.55rem;
+  text-align: start;
+  vertical-align: middle;
+}
+
+.library-catalogue-list thead th {
+  background: var(--color-main-background);
+  color: var(--color-text-maxcontrast);
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.library-catalogue-list-selection {
+  inline-size: 2.5rem;
+  padding-inline: 0.35rem !important;
+}
+
+.library-catalogue-list-cover-heading,
+.library-catalogue-list-cover-cell {
+  inline-size: 7.5rem;
+  min-inline-size: 7.5rem;
+}
+
+.library-catalogue-list-title-cell {
+  inline-size: 12rem;
+  text-align: start !important;
+}
+
+.library-catalogue-list-creators {
+  inline-size: 12.5rem;
+}
+
+.library-catalogue-list-creators > bdi {
+  display: block;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.library-catalogue-list thead th:nth-child(3) {
+  inline-size: 12rem;
+}
+
+.library-catalogue-list thead th:nth-child(4) {
+  inline-size: 12.5rem;
+}
+
+.library-catalogue-list thead th:nth-child(5) {
+  inline-size: 8rem;
+}
+
+.library-catalogue-list thead th:nth-child(6) {
+  inline-size: 7.5rem;
+}
+
+.library-catalogue-list thead th:nth-child(7) {
+  inline-size: 4rem;
+}
+
+.library-catalogue-list thead th:nth-child(8) {
+  inline-size: 4rem;
+}
+
+.library-catalogue-list thead th:nth-child(9) {
+  inline-size: 10rem;
+}
+
+.library-catalogue-list-row > td,
+.library-catalogue-list-row > th {
+  overflow-wrap: anywhere;
 }
 
 .library-catalogue-list-row--selected,
@@ -2861,70 +2950,57 @@ async function toggleStar(item, event) {
   background: var(--color-primary-element-light, var(--color-background-hover));
 }
 
-.library-catalogue-list-main {
-  display: grid;
-  min-width: 0;
-}
-
 .library-catalogue-list-cover {
-  aspect-ratio: 2 / 3;
+  align-items: center;
+  block-size: 96px;
   background: var(--color-background-hover);
   border: 0;
   border-radius: var(--border-radius, 3px);
   box-shadow: none;
-  display: block;
-  inline-size: 40px;
+  display: flex;
+  inline-size: max-content;
+  justify-content: center;
+  max-inline-size: 100%;
+  min-inline-size: 2.5rem;
   min-block-size: 0;
   overflow: hidden;
   padding: 0;
 }
 
-.library-catalogue-list-cover img {
-  block-size: 100%;
+.library-catalogue-list .library-catalogue-list-cover img {
+  block-size: 96px;
   display: block;
-  inline-size: 100%;
-  object-fit: cover;
+  inline-size: auto;
+  max-block-size: none;
+  max-inline-size: 100%;
+  max-height: none;
+  object-fit: contain;
 }
 
-.library-catalogue-list-title {
+.library-catalogue-list .library-catalogue-list-title {
+  display: block;
   font-weight: 700;
+  inline-size: 100%;
+  overflow: visible;
+  overflow-wrap: anywhere;
   text-align: start;
-}
-
-.library-catalogue-list-metadata {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-  margin: 0;
-}
-
-.library-catalogue-list-metadata div {
-  display: flex;
-  gap: 0.3rem;
-}
-
-.library-catalogue-list-metadata dt {
-  color: var(--color-text-maxcontrast);
-}
-
-.library-catalogue-list-metadata dd {
-  margin: 0;
+  white-space: normal;
+  -webkit-line-clamp: unset;
 }
 
 .library-catalogue-list-actions {
-  display: flex;
-  gap: 0.35rem;
+  white-space: nowrap;
+  overflow-wrap: normal !important;
+}
+
+.library-catalogue-list-actions .button {
+  margin-inline-end: 0.25rem;
+  min-inline-size: 4.25rem;
 }
 
 @media (max-width: 800px) {
-  .library-catalogue-list-row {
-    align-items: start;
-    grid-template-columns: auto auto minmax(0, 1fr);
-  }
-
-  .library-catalogue-list-metadata,
-  .library-catalogue-list-actions {
-    grid-column: 3;
+  .library-catalogue-list {
+    min-inline-size: 68rem;
   }
 }
 
@@ -4058,6 +4134,13 @@ async function toggleStar(item, event) {
   display: -webkit-box;
   line-height: inherit;
   overflow: hidden;
+}
+
+.library-catalogue-list .library-catalogue-list-title > bdi {
+  -webkit-box-orient: initial;
+  -webkit-line-clamp: unset;
+  display: block;
+  overflow: visible;
 }
 
 .library-cover-gallery .library-cover-title-button {

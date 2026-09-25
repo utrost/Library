@@ -10,7 +10,7 @@ License: AGPL-3.0-or-later. See [LICENSE](LICENSE).
 
 ## What it does
 
-Current candidate: `0.1.0-alpha.174`. This is an alpha for Nextcloud 34, meant for private testing with real collections. Packages are unsigned for now.
+Current candidate: `0.1.0-beta.1`. The app declares Nextcloud 33–35 support; the exact beta package passed the release gate and runtime smoke on Nextcloud 33.0.9, 34.0.4, and 35.0.0 with a 40-book English Gutenberg corpus. App Store publication is pending the Nextcloud signing certificate and signed-package submission.
 
 What works today:
 
@@ -79,7 +79,7 @@ For GUI workflows, install the pinned browsers once with `npx playwright install
 
 ## More documentation
 
-- [User and admin guide](docs/user-guide.md), [FAQ and troubleshooting](docs/faq.md), [Human test handbook](docs/human-test-handbook.md), [Public alpha test checklist](docs/alpha-test-checklist.md)
+- [User and admin guide](docs/user-guide.md), [FAQ and troubleshooting](docs/faq.md), [Playwright journey coverage](docs/playwright-journeys.md), [Human test handbook](docs/human-test-handbook.md), [Public alpha test checklist](docs/alpha-test-checklist.md)
 - [Current state and risk register](docs/current-state-and-risk-register.md), [Active roadmap](docs/roadmap.md), [Post-v0.1 roadmap](docs/post-v0.1-roadmap.md), [Personal top features scope](docs/personal-top-features.md)
 - [Product concept](docs/product-concept.md), [UX concept](docs/ux-concept.md), [Usefulness and UX feature list](docs/usefulness-and-ux-feature-list.md)
 - [Release process](RELEASE.md), [Changelog](CHANGELOG.md), [App Store listing draft](docs/app-store-listing.md), [App Store readiness roadmap](docs/app-store-readiness.md)
