@@ -1,11 +1,11 @@
 # App Store readiness roadmap
 
-Current status: `0.1.0-alpha.174` unsigned package rehearsal complete for the current source candidate. Manual AT testing is pending; accessibility-tree evidence is not screen-reader testing.
-Current candidate baseline: `0.1.0-alpha.174`
-Future authorized signing uses `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.174.tar.gz`; no alpha.171 signed archive exists yet.
+Current status: `0.1.0-beta.1` is the beta release candidate. The exact package installed and passed all 9 Playwright smoke executions on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with 40 English Gutenberg books. Manual AT testing is pending; accessibility-tree evidence is not screen-reader testing.
+Current candidate baseline: `0.1.0-beta.1`
+The final signed release awaits the external Nextcloud signing certificate. Certificate request [PR #1268](https://github.com/nextcloud/app-certificate-requests/pull/1268) is open. Keep the private key outside the repository; the signed package and App Store submission remain pending certificate issuance.
 
 Status: active release-readiness roadmap  
-Target: signed Nextcloud App Store release for Nextcloud 34
+Target: signed Nextcloud App Store release for Nextcloud 33–35
 
 Library alpha.159 passed its full local gate, unsigned package build/audit, and exact-package smoke on a Nextcloud 34 instance. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
 
@@ -15,21 +15,21 @@ The current candidate includes aggregate scan-job counters/duration, privacy-saf
 
 Library is App-Store-ready when all of these are true:
 
-- `appinfo/info.xml` contains public metadata, support URLs, AGPL licensing, and an explicit Nextcloud 34 compatibility claim.
+- `appinfo/info.xml` contains public metadata, support URLs, AGPL licensing, and an explicit Nextcloud 33–35 compatibility claim.
 - `appinfo/database.xml` declares the current app-owned Library tables/fields/indexes and validates against `https://apps.nextcloud.com/schema/apps/database.xsd`.
 - The install archive contains one top-level `library/` folder that must match the app id `library`; it contains only runtime app files plus minimal public metadata files and does not ship tests, local smoke harnesses, source-only Vue files, local docs, caches, build directories, or dependency folders.
 - The release package audit passes before checksum generation is reported as usable.
 - A signing certificate and private-key handling process exists, and the final release package includes `appinfo/signature.json` produced after the archive staging directory is finalized.
-- The generated archive install smoke passes on a disposable Nextcloud 34 instance.
+- The generated archive install smoke passes on disposable Nextcloud 33.0.9, 34.0.4 and 35.0.0 instances.
 - The live catalogue/browser smoke passes with zero browser console errors.
 - App Store listing text, screenshots, privacy notes, limitations, and support expectations are prepared.
-- The final public version decision is made: publish `0.1.0` only after the alpha/manual pass accepts the candidate; prerelease uploads are optional rehearsal artifacts and may not be visible on managed hosting providers.
+- The beta is published as a prerelease after the exact-package and signing gates; stable `0.1.0` remains gated on beta feedback and the manual accessibility/release pass.
 
 ## Slices
 
 ### AS-001 — Runtime package hygiene
 
-Status: started.
+Status: implementation complete; retain the package audit and archive smoke as release gates.
 
 Goal: make the unsigned archive look like a real App Store runtime artifact, not a repository snapshot.
 
@@ -50,7 +50,7 @@ Acceptance checks:
 
 ### AS-002 — App metadata and reviewer-facing public information
 
-Status: started.
+Status: draft copy and public-surface checks are in place; final screenshots and final author/contact presentation remain open for release review.
 
 Goal: make `appinfo/info.xml`, README, release notes and App Store copy align with a public Nextcloud app.
 
@@ -64,23 +64,23 @@ Work:
 Acceptance checks:
 
 - Public metadata docs mention no private hostnames, local paths, or internal test names.
-- `info.xml` parses and names Nextcloud 34 compatibility only until another version is tested.
+- `info.xml` parses and names the tested Nextcloud 33–35 compatibility range.
 - App Store listing draft has description, privacy, limitations, support and screenshot sections.
 
 ### AS-003 — Signing certificate and signed package workflow
 
-Status: started; final signed release remains blocked on external certificate request.
+Status: signing/package workflow is implemented; certificate request [PR #1268](https://github.com/nextcloud/app-certificate-requests/pull/1268) is open and awaiting the external Nextcloud signing certificate.
 
 Goal: make signing repeatable and safe.
 
 Work:
 
-1. Document the local path policy for the private signing key: never commit it, never package it.
+1. Keep the documented local path policy for the private signing key: `~/.nextcloud/certificates/library.key`, never commit it, never package it.
 2. Add `scripts/sign-release-package.sh` plus `npm run package:release -- --signed` for staging the finalized app directory, running `occ integrity:sign-app`, and verifying `appinfo/signature.json` before tarball creation.
 3. Require `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` only at signing time; keep keys outside the repository and outside the archive.
 4. Document the Nextcloud certificate request step and the public repository URL required by the certificate request.
 5. Add package audit checks that fail if a stable App Store package lacks `appinfo/signature.json`, while allowing unsigned alpha rehearsal packages.
-6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and sign the exact release archive with `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.174.tar.gz | openssl base64`.
+6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and create the signed package with `npm run package:release -- --signed`.
 
 Guideline notes: App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`; the archive top folder must match the app id `library`; `info.xml` should use the current SPDX license identifier and include the public repository URL.
 
@@ -92,14 +92,14 @@ Acceptance checks:
 
 ### AS-004 — App Store release rehearsal
 
-Status: alpha.171 unsigned exact-package, fresh SQLite Nextcloud 34 install and 1,000-publication balanced synthetic mixed-corpus rehearsal complete; a comparable real-world mixed corpus, clean-checkout CI, signed stable package/App Store submission, and formal Trust-and-scale phase closure remain pending or deferred.
+Status: the alpha.171 unsigned exact-package, fresh SQLite Nextcloud 34 install and 1,000-publication balanced synthetic mixed-corpus rehearsal are complete historical gates. Beta.1 exact-package installation and all 9 smoke executions passed on each of Nextcloud 33.0.9, 34.0.4 and 35.0.0 using 40 English Gutenberg books. Earlier alpha.174 matrix attempts used a temporary compatibility declaration and brittle screenshot/geometry checks; their historical evidence is retained. A comparable real-world mixed corpus, signed beta package/App Store submission, and formal Trust-and-scale phase closure remain pending or deferred.
 
 Goal: prove every step before the real stable upload.
 
 Work:
 
 1. Build a release candidate archive from a clean checkout.
-2. Install it on a disposable Nextcloud 34 instance.
+2. Install it on disposable Nextcloud 33.0.9, 34.0.4 and 35.0.0 instances.
 3. Run local gate, generated archive install smoke (including the aggregate-only two-scan unchanged-file contract after migration), Vue/browser smoke, and a small real-file scan.
 4. Verify the checksum and tarball contents match the published artifact.
 5. Prepare GitHub release notes with known limitations and support scope.
@@ -126,7 +126,7 @@ Alpha.171 security-hardening deployment evidence: PRs #69 and #70 merged on `mai
 
 ### AS-005 — Stable `0.1.0` App Store submission
 
-Status: decision-gated.
+Status: stable 0.1.0 decision-gated; the immediate target is the signed `0.1.0-beta.1` prerelease.
 
 Goal: publish a stable App Store package once the alpha candidate is accepted.
 

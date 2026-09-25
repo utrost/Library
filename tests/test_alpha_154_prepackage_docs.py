@@ -17,8 +17,8 @@ def test_alpha_159_real_gates_are_complete_but_deferred_gates_remain_explicit():
     architecture = read("docs/architecture-review.md")
     combined = "\n".join((readme, changelog, release, readiness, risk, architecture))
 
-    assert "Current source candidate: `0.1.0-alpha.174`." not in readme
-    assert "Current candidate: `0.1.0-alpha.174`." in readme
+    assert "Current source candidate: `0.1.0-beta.1`." not in readme
+    assert "Current candidate: `0.1.0-beta.1`." in readme
     assert "safe user-facing diagnostics" in readme
     assert "727 Python tests, 9 PHP runtime programs, 26 Vitest tests" not in readme
     assert "`release_package_smoke_ok=true`" not in readme
@@ -40,7 +40,7 @@ def test_alpha_159_real_gates_are_complete_but_deferred_gates_remain_explicit():
     assert "4287ec3f7a798ba6e6000900ca69aee1540b163146f53262a05e49095718c5d7" in combined
     for deferred in ("signed package and App Store submission", "formal Trust-and-scale phase closure"):
         assert deferred in combined
-    assert "1,000-publication balanced synthetic mixed-corpus rehearsal complete" in readiness
+    assert "1,000-publication balanced synthetic mixed-corpus rehearsal are complete historical gates" in readiness
     assert "comparable real-world mixed corpus" in readiness
 
     stale_pending_claims = (

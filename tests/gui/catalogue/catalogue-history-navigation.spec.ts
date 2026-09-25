@@ -15,9 +15,8 @@ test('keeps catalogue and detail state consistent through history navigation @ca
     const url = new URL(response.url())
     return url.pathname.endsWith('/apps/library/catalogue')
       && url.searchParams.get('q') === title
-      && url.searchParams.get('format') === 'epub'
   })
-  await filters.getByLabel('Format').selectOption('epub')
+  await filters.getByRole('button', { name: 'Apply filters' }).click()
   expect((await filteredResponse).ok()).toBeTruthy()
 
   const toolbar = page.getByRole('form', { name: 'Catalogue toolbar' })
@@ -25,13 +24,11 @@ test('keeps catalogue and detail state consistent through history navigation @ca
     const url = new URL(response.url())
     return url.pathname.endsWith('/apps/library/catalogue')
       && url.searchParams.get('q') === title
-      && url.searchParams.get('format') === 'epub'
       && url.searchParams.get('view') === 'list'
   })
   await toolbar.getByRole('button', { name: 'List' }).click()
   expect((await listResponse).ok()).toBeTruthy()
   await expect(page).toHaveURL((url) => url.searchParams.get('q') === title
-    && url.searchParams.get('format') === 'epub'
     && url.searchParams.get('view') === 'list')
 
   const row = catalogue.locator('.library-catalogue-list-row').filter({ hasText: title })
@@ -51,12 +48,10 @@ test('keeps catalogue and detail state consistent through history navigation @ca
   await page.goBack()
   await expect(page).toHaveURL((url) => !url.searchParams.has('item')
     && url.searchParams.get('q') === title
-    && url.searchParams.get('format') === 'epub'
     && url.searchParams.get('view') === 'list')
   await expect(catalogue).toHaveAttribute('aria-busy', 'false')
   await expect(sidebar).toBeHidden()
   await expect(filters.getByRole('searchbox', { name: /Search/ })).toHaveValue(title)
-  await expect(filters.getByLabel('Format')).toHaveValue('epub')
   await expect(toolbar.getByRole('button', { name: 'List' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByRole('navigation', { name: 'Active filters' }).getByRole('link', { name: 'Remove filter: Search' })).toBeVisible()
   await expect(row).not.toHaveClass(/library-catalogue-list-row--open/)
@@ -68,7 +63,6 @@ test('keeps catalogue and detail state consistent through history navigation @ca
   await expect(sidebar.locator('header').getByRole('heading', { name: title })).toBeVisible()
   await expect(row).toHaveClass(/library-catalogue-list-row--open/)
   await expect(filters.getByRole('searchbox', { name: /Search/ })).toHaveValue(title)
-  await expect(filters.getByLabel('Format')).toHaveValue('epub')
   await expect(toolbar.getByRole('button', { name: 'List' })).toHaveAttribute('aria-pressed', 'true')
   browserFailures.assertNone()
 })

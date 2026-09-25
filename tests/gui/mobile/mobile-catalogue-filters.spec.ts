@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
-import { assertKnownNextcloudLoginFailuresAndClear, collectBrowserFailures, login, openLibrary, requiredEnvironment } from '../fixtures/nextcloud'
+import { assertKnownNextcloudLoginFailuresAndClear, attachCheckpoint, collectBrowserFailures, login, openLibrary, requiredEnvironment } from '../fixtures/nextcloud'
 
-test('applies and clears catalogue filters at a phone viewport @catalogue @filters @mobile @smoke', async ({ page }) => {
+test('applies and clears catalogue filters at a phone viewport @catalogue @filters @mobile @smoke', async ({ page }, testInfo) => {
   const browserFailures = collectBrowserFailures(page)
   await login(page)
   assertKnownNextcloudLoginFailuresAndClear(browserFailures)
@@ -26,19 +26,19 @@ test('applies and clears catalogue filters at a phone viewport @catalogue @filte
     const url = new URL(response.url())
     return url.pathname.endsWith('/apps/library/catalogue')
       && url.searchParams.get('q') === title
-      && url.searchParams.get('format') === 'epub'
   })
-  await form.getByRole('group', { name: 'Content' }).locator('select[name="format"]').selectOption('epub')
+  await form.locator('button.library-mobile-filter-primary').click()
   expect((await catalogueResponse).ok()).toBeTruthy()
 
-  await expect(page).toHaveURL((url) => url.searchParams.get('q') === title && url.searchParams.get('format') === 'epub')
-  await expect(trigger).toHaveAccessibleName('Open filters panel; 2 active filters')
-  await expect(trigger).toContainText('Filters (2)')
+  await expect(page).toHaveURL((url) => url.searchParams.get('q') === title && !url.searchParams.has('format'))
+  await expect(trigger).toHaveAccessibleName('Open filters panel; 1 active filters')
+  await expect(trigger).toContainText('Filters (1)')
   await expect(form.getByRole('button', { name: 'Show 1 item' })).toBeVisible()
   await expect(page.locator('.library-cover-card').filter({ hasText: title })).toHaveCount(1)
+  await attachCheckpoint(page, testInfo, 'mobile-filter-panel', '#library-catalogue')
 
   await Promise.all([
-    page.waitForURL((url) => !url.searchParams.has('q') && !url.searchParams.has('format')),
+    page.waitForURL((url) => !url.searchParams.has('q')),
     form.getByRole('link', { name: 'Clear all' }).click(),
   ])
   await expect(page.locator('#library-catalogue')).toHaveAttribute('aria-busy', 'false')

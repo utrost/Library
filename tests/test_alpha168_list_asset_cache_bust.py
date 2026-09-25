@@ -11,8 +11,8 @@ def read(path: str) -> str:
 
 
 def test_main_template_and_vite_define_report_the_alpha170_app_version():
-    assert 'data-library-version="0.1.0-alpha.174"' in read("templates/main.php")
-    assert "appVersion: JSON.stringify('0.1.0-alpha.174')" in read("vite.config.js")
+    assert 'data-library-version="0.1.0-beta.1"' in read("templates/main.php")
+    assert "appVersion: JSON.stringify('0.1.0-beta.1')" in read("vite.config.js")
 
 
 def test_list_view_asset_path_is_cache_busted_after_alpha170_deploy():
@@ -26,8 +26,8 @@ def test_list_view_asset_path_is_cache_busted_after_alpha170_deploy():
 
     assert script != "library-main-0-1-0-alpha-169"
     assert style != "library-vue-0-1-0-alpha-169"
-    assert script == "library-main-0-1-0-alpha-174-collection-control-band"
-    assert style == "library-vue-0-1-0-alpha-174-collection-control-band"
+    assert script == "library-main-0-1-0-beta-1-compact-list-table-cover-96-fit-v4"
+    assert style == "library-vue-0-1-0-beta-1-compact-list-table-cover-96-fit-v4"
     assert f'data-library-main-script="{script}"' in read("templates/main.php")
     assert (ROOT / f"js/{script}.mjs").exists()
     assert (ROOT / f"css/{style}.css").exists()
@@ -60,7 +60,7 @@ def test_release_packaging_uses_page_controller_wired_assets(tmp_path):
             "--input-type=module",
             "--eval",
             "import { releaseFrontendFiles } from './scripts/release-frontend-manifest.mjs'; "
-            "console.log(JSON.stringify(releaseFrontendFiles('0.1.0-alpha.174')))",
+            "console.log(JSON.stringify(releaseFrontendFiles('0.1.0-beta.1')))",
         ],
         cwd=ROOT,
         check=True,
@@ -86,7 +86,7 @@ def test_release_packaging_uses_page_controller_wired_assets(tmp_path):
     stale_style.write_text("Genre", encoding="utf-8")
 
     subprocess.run(
-        ["node", "scripts/stage-release-frontend.mjs", str(stage), "0.1.0-alpha.174"],
+        ["node", "scripts/stage-release-frontend.mjs", str(stage), "0.1.0-beta.1"],
         cwd=ROOT,
         check=True,
         capture_output=True,

@@ -1,0 +1,46 @@
+image=nextcloud:35.0.0-apache
+image_digest=nextcloud@sha256:23c101539e295aaf83888c9c1cae7df3fb6ce80b9ea9310248dad46af8c89936
+Nextcloud was successfully installed
+observed_version=35.0.0
+php_version=8.5.10
+library 0.1.0-beta.1 enabled
+No upgrade required.
+
+Note: This command triggers the upgrade actions associated with a new version. The new version's updated source files must be deployed in advance.
+See the upgrade documentation: https://docs.nextcloud.com/server/35/go.php?to=admin-update for more information.
+fixture_epub_count=40
+Starting scan for user 1 out of 1 (library-smoke)
++---------+-------+-----+---------+---------+--------+--------------+
+| Folders | Files | New | Updated | Removed | Errors | Elapsed time |
++---------+-------+-----+---------+---------+--------+--------------+
+| 1       | 40    | 0   | 41      | 0       | 0      | 00:00:00     |
++---------+-------+-----+---------+---------+--------+--------------+
+initial_scan={"roots":1,"indexed":40,"errors":[],"filesAdded":40,"pathsUpdated":0,"filesUnchanged":0,"filesMissing":0,"metadataErrors":0,"fingerprintSkips":0,"metadataExtractions":40,"itemRefreshes":40,"fileIndexDurationMs":32,"fingerprintDurationMs":27,"metadataExtractionDurationMs":533,"itemRefreshDurationMs":2618,"missingUpdateDurationMs":0,"scannerDurationMs":3383}
+gui_fixture={"id":4,"title":"A Rent In A Cloud"}
+fixture_item_id=4
+fixture_title=A Rent In A Cloud
+
+> library@0.1.0-beta.1 test:gui
+> playwright test --grep @smoke
+
+
+Running 9 tests using 1 worker
+
+(node:2135843) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop-chromium] › tests/gui/catalogue/catalogue-search-detail.spec.ts:4:1 › searches for a deterministic publication and opens and closes its details @catalogue @detail @smoke (7.4s)
+  ✓  2 [desktop-chromium] › tests/gui/details/metadata-edit-persistence.spec.ts:4:1 › edits metadata, rescans, then repairs the suggestion and restores the title @details @metadata @scan @review @smoke @mutation (40.3s)
+  ✓  3 [desktop-chromium] › tests/gui/settings/metadata-export-import-roundtrip.spec.ts:5:1 › exports a corrected item, previews and applies an imported title, then restores the item @metadata @import @export @smoke @mutation (7.2s)
+  ✓  4 [desktop-chromium] › tests/gui/settings/scan-root-browse.spec.ts:4:1 › scans a configured root and finds its publication in the catalogue @scan @catalogue @smoke @mutation (9.2s)
+(node:2137089) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 [desktop-firefox] › tests/gui/catalogue/catalogue-search-detail.spec.ts:4:1 › searches for a deterministic publication and opens and closes its details @catalogue @detail @smoke (6.9s)
+  ✓  6 [desktop-firefox] › tests/gui/details/metadata-edit-persistence.spec.ts:4:1 › edits metadata, rescans, then repairs the suggestion and restores the title @details @metadata @scan @review @smoke @mutation (12.7s)
+  ✓  7 [desktop-firefox] › tests/gui/settings/metadata-export-import-roundtrip.spec.ts:5:1 › exports a corrected item, previews and applies an imported title, then restores the item @metadata @import @export @smoke @mutation (10.1s)
+  ✓  8 [desktop-firefox] › tests/gui/settings/scan-root-browse.spec.ts:4:1 › scans a configured root and finds its publication in the catalogue @scan @catalogue @smoke @mutation (8.3s)
+(node:2137768) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  9 [mobile-chromium] › tests/gui/mobile/mobile-catalogue-filters.spec.ts:4:1 › applies and clears catalogue filters at a phone viewport @catalogue @filters @mobile @smoke (5.9s)
+
+  9 passed (1.8m)
+playwright_exit=0

@@ -4,7 +4,7 @@ This page covers the first installation and scan. For normal use, see the [user 
 
 ## How do I install Library?
 
-Library currently targets Nextcloud 34. Install the packaged archive so it creates one `custom_apps/library` directory, set ownership to the web-server account, and run:
+Library currently supports Nextcloud 33–35, with runtime smoke coverage on 33.0.9, 34.0.4 and 35.0.0. Install the packaged archive so it creates one `custom_apps/library` directory, set ownership to the web-server account, and run:
 
 ```bash
 sudo -u www-data php /var/www/html/occ app:enable library

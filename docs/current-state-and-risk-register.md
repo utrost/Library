@@ -1,6 +1,7 @@
 # Current state and risk register
 
 Current app version: `0.1.0-alpha.174` unsigned package, built from merged `main` and deployed on the private Nextcloud 34 test instance. Accessibility-tree evidence is not screen-reader testing; manual AT testing is pending.
+Release candidate in preparation: `0.1.0-beta.1`; it is not yet installed on that private instance or signed for App Store submission.
 
 This snapshot prepares Library for the v0.1 alpha test pass. It documents what is implemented and verified now, where the app is safe to test, and which risks remain intentionally outside the current release candidate.
 
@@ -10,7 +11,7 @@ This snapshot prepares Library for the v0.1 alpha test pass. It documents what i
 - App id: `library`.
 - Current deployed version: `0.1.0-alpha.174`; the unsigned exact package has been built, audited, installed on the private `nextcloud` container, and live-smoked.
 - Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
-- Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, multi-version Nextcloud compatibility, or a public-internet operational hardening guarantee.
+- Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, or a public-internet operational hardening guarantee. The app now declares Nextcloud 33–35 compatibility, with smoke runs on 33.0.9, 34.0.4 and 35.0.0 documented in [compatibility evidence](compatibility-evidence/nextcloud-33-35-playwright-results.md).
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
 
 ## Implemented product surface
@@ -51,7 +52,7 @@ Implemented and ready for v0.1 testing:
 
 These are acceptable for the v0.1 alpha test pass but should stay visible:
 
-1. **Nextcloud version scope:** only Nextcloud 34 has been targeted and smoke-tested.
+1. **Nextcloud version scope:** app metadata declares Nextcloud 33–35; runtime smoke coverage used 33.0.9, 34.0.4 and 35.0.0. Screenshot-gated journeys and exact-package installation on 33/35 remain follow-up checks.
 2. **Release packaging:** unsigned generated archive build/audit/install/live smoke is complete for alpha.171, with SBOM/provenance sidecars generated and audited, but app signing/App Store packaging is still future work.
 3. **Cover lifecycle:** on-demand previews/fallbacks, refresh affordances and uploaded manual cover override/revert exist, but no app-owned cover cache or crop/rebuild workflow exists. Legacy remote URL values are inert and never rendered or fetched.
 4. **Metadata portability:** export/import/apply and sidecar manifest/ZIP exist, and source-folder OPF/JSON writing plus full sidecar restore are intentionally external-tool workflows rather than app responsibilities.

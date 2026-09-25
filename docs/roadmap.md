@@ -1,6 +1,6 @@
 # Library Roadmap
 
-Status: active planning roadmap; current unsigned packaged alpha `0.1.0-alpha.174` deployed to the private Nextcloud 34 test instance
+Status: active planning roadmap; beta candidate `0.1.0-beta.1` is in preparation. The currently deployed private Nextcloud 34 instance still runs unsigned alpha `0.1.0-alpha.174`.
 Last updated: 2026-09-18
 Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md), [Alice scale pilot notes](alice-scale-pilot.md)
 
@@ -487,7 +487,7 @@ Immediate implementation stance: use the cleaner extractor boundary to support c
 
 ## App Store readiness track
 
-The App Store readiness plan lives in [App Store readiness roadmap](app-store-readiness.md). This track is separate from product expansion: it prepares Library for a signed Nextcloud App Store release while preserving the current Nextcloud 34-only compatibility claim.
+The App Store readiness plan lives in [App Store readiness roadmap](app-store-readiness.md). This track is separate from product expansion: it prepares Library for a signed Nextcloud App Store release while preserving the current Nextcloud 33–35 compatibility claim.
 
 Immediate slices:
 

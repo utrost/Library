@@ -1,5 +1,7 @@
 # Library human test handbook
 
+> **Status:** This detailed walkthrough is a historical test record and its UI instructions may be stale. Use the current [Playwright journey coverage](playwright-journeys.md) for repeatable browser checks. Keep human testing focused on dogfooding, metadata/cover judgment, unfamiliar real files, reader handoff, and the manual assistive-technology matrix below.
+
 ## Current source-candidate test status
 
 Version under test: `0.1.0-alpha.174`. The current Alice deployment includes the accessibility/catalogue cleanup, ISBN/ISSN identifier spine, indexed substring search, mobile filter panel, high-cardinality typeaheads, and the review issue batch (#32-37).
@@ -38,7 +40,7 @@ Automated DOM and CDP accessibility-tree evidence is not screen-reader testing. 
 | macOS + Safari + VoiceOver | Same checks, including modal announcement and rotor navigation | **manual AT testing pending** |
 | Linux + Firefox + Orca | Same checks, including table navigation and browse/forms modes | **manual AT testing pending** |
 
-This handbook is the repeatable human QA script for Library v0.1 testing. Uwe's browser testing is the controlling release-candidate verdict; automated checks cover non-browser contracts, packaging and server installation only.
+The current automated browser coverage is listed in [Playwright journey coverage](playwright-journeys.md). Human dogfooding remains the release-candidate verdict for subjective usefulness, real-file edge cases, reader handoff quality, and assistive-technology use.
 
 ## Alpha.166/167 executable first pass
 

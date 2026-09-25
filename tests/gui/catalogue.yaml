@@ -30,10 +30,22 @@ scripts:
     command: npm run test:gui:desktop -- tests/gui/catalogue/catalogue-loading-state.spec.ts
 
   details-metadata-edit-persistence:
-    description: Edit a deterministic publication title, prove it persists through catalogue search and details reload, then restore it.
+    description: Edit a deterministic publication title, prove it survives a root rescan, repair it through Suggested updates, and verify the original value.
     tags: [details, metadata, smoke, mutation]
     file: tests/gui/details/metadata-edit-persistence.spec.ts
     command: npm run test:gui:desktop -- tests/gui/details/metadata-edit-persistence.spec.ts
+
+  scan-root-browse:
+    description: Scan one configured test root, wait for its new job to complete, then find the expected publication in Catalogue.
+    tags: [scan, catalogue, smoke, mutation]
+    file: tests/gui/settings/scan-root-browse.spec.ts
+    command: npm run test:gui:desktop -- tests/gui/settings/scan-root-browse.spec.ts
+
+  metadata-export-import-roundtrip:
+    description: Export one corrected item, import a changed title through preview and apply, verify it, then restore the original title.
+    tags: [metadata, import, export, smoke, mutation]
+    file: tests/gui/settings/metadata-export-import-roundtrip.spec.ts
+    command: npm run test:gui:desktop -- tests/gui/settings/metadata-export-import-roundtrip.spec.ts
 
   settings-folder-picker-existing-user:
     description: Open and close the real Nextcloud folder picker for an existing Library root without changing the saved path.
@@ -42,7 +54,7 @@ scripts:
     command: npm run test:gui -- tests/gui/settings/folder-picker-existing-user.spec.ts
 
   mobile-catalogue-filters:
-    description: Apply a title and format filter at phone size, verify the result and active-filter state, then clear all filters.
+    description: Search from the phone filter panel, verify the result and active-filter state, then clear the search.
     tags: [catalogue, filters, mobile, smoke]
     file: tests/gui/mobile/mobile-catalogue-filters.spec.ts
     command: npm run test:gui:mobile

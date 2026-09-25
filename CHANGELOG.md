@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.0-beta.1 - 2026-09-25 (release candidate)
+
+- First beta release candidate for Nextcloud 33–35, following runtime smoke runs on 33.0.9, 34.0.4 and 35.0.0 with 40 English Gutenberg books.
+- Added a structured compact catalogue list with column headings, publication metadata, cover thumbnails, selection and row actions, contained in a horizontally scrollable region for narrow screens.
+- Includes the current accessibility, catalogue interaction and mobile-filter updates; the local release gate and exact-package compatibility matrix pass, while beta publication awaits code signing and App Store submission.
+
 ## v0.1.0-alpha.174 - 2026-09-18 (unsigned package deployed to private test instance)
 
 - Added automated supply-chain/security gates for the alpha release path: immutable SHA-pinned GitHub Actions with reviewed source comments, hashed Python CI requirements, production `npm audit`, Dependabot coverage for npm/actions/pip, CodeQL plus local secret/app-static gates, and SPDX/provenance sidecars for release packages.

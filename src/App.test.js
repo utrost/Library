@@ -1895,10 +1895,12 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).not.toContain('Export corrected metadata')
   })
 
-  it('renders view=list as metadata rows with open and details actions instead of cover cards', async () => {
+  it('renders view=list as a compact metadata table with full text and open and details actions', async () => {
     const wrapper = mount(App, { props: { state: { ...state, activeFilters: { ...state.activeFilters, view: 'list' } } } })
 
-    expect(wrapper.find('[data-library-catalogue-list]').exists()).toBe(true)
+    const list = wrapper.get('[data-library-catalogue-list]')
+    expect(list.element.tagName).toBe('TABLE')
+    expect(list.find('caption').text()).toBe('Catalogue list')
     expect(wrapper.findAll('.library-catalogue-list-row')).toHaveLength(1)
     expect(wrapper.find('.library-cover-gallery').exists()).toBe(false)
     expect(wrapper.find('.library-cover-card').exists()).toBe(false)
@@ -1908,6 +1910,10 @@ describe('Library catalogue Vue app', () => {
     const thumbnail = wrapper.get('.library-catalogue-list-cover')
     expect(thumbnail.attributes('aria-label')).toBe('Details: Example Book')
     expect(thumbnail.get('img').attributes()).toEqual(expect.objectContaining({ src: '/apps/library/items/7/cover', alt: '', loading: 'lazy' }))
+    expect(list.findAll('thead th[scope="col"]').map((header) => header.text())).toEqual([
+      'Title', 'Creators', 'Publication date', 'Series', 'Format', 'Shelf', 'Actions',
+    ])
+    expect(list.get('.library-catalogue-list-title').text()).toBe('Example Book')
     expect(wrapper.find('.library-catalogue-list-row').text()).toContain('Ada Reader')
     expect(wrapper.find('.library-catalogue-list-row').text()).toContain('2026')
     expect(wrapper.find('.library-catalogue-list-row').text()).toContain('EPUB')
