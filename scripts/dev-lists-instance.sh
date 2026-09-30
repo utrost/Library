@@ -3,7 +3,7 @@
 set -euo pipefail
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 nc_version="${NC_VERSION:-34.0.4}"
-instance="library-lists-${nc_version//./-}"
+instance="${LIBRARY_LISTS_PREFIX:-library-lists}-${nc_version//./-}"
 work_dir="${LIBRARY_LISTS_WORK_DIR:-/tmp/library-lists-dev}"
 mkdir -p "$work_dir"
 env_file="$work_dir/$nc_version.env"

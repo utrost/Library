@@ -146,7 +146,7 @@ final class DuplicateService {
                     }
                 } else {
                     if (!$state['group']) {
-                        $q=$this->db->getQueryBuilder(); $r=$q->select('match_key',$q->func()->count('*','n'))->from('library_dup_keys')->where($q->expr()->eq('job_id',$q->createNamedParameter($id)))->andWhere($q->expr()->eq('user_id',$q->createNamedParameter($uid)))->andWhere($q->expr()->gt('match_key',$q->createNamedParameter($state['key'])))->groupBy('match_key')->having($q->expr()->gt($q->func()->count('*'),$q->createNamedParameter(1)))->orderBy('match_key','ASC')->setMaxResults(1)->executeQuery(); $group=$r->fetch(); $r->closeCursor();
+                        $q=$this->db->getQueryBuilder(); $r=$q->select('match_key',$q->func()->count('*','n'))->from('library_dup_keys')->where($q->expr()->eq('job_id',$q->createNamedParameter($id)))->andWhere($q->expr()->eq('user_id',$q->createNamedParameter($uid)))->andWhere($q->expr()->gt('match_key',$q->createNamedParameter($state['key'])))->groupBy('match_key')->having($q->expr()->gt($q->func()->count('*'),$q->createNamedParameter(1,IQueryBuilder::PARAM_INT)))->orderBy('match_key','ASC')->setMaxResults(1)->executeQuery(); $group=$r->fetch(); $r->closeCursor();
                         if (!$group) $status=$state['broadGroups'] ? 'limited' : 'completed';
                         else {
                             $state['key']=$group['match_key']; if ((int)$group['n']>50) $state['broadGroups']++;
