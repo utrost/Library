@@ -42,9 +42,11 @@ test('edits metadata, rescans, then repairs the suggestion and restores the titl
     await expect(root).toHaveCount(1)
     const previousJobId = await latestScanJobId(page)
     await Promise.all([
-      page.waitForURL((url) => url.pathname.endsWith('/settings/user/library')),
+      // The POST redirects to this same URL; require a new document navigation.
+      page.waitForEvent('framenavigated', { predicate: frame => frame === page.mainFrame() && new URL(frame.url()).pathname.endsWith('/settings/user/library') }),
       root.getByRole('button', { name: 'Scan this root' }).click(),
     ])
+    await page.waitForLoadState('load')
     await waitForScanCompletion(page, previousJobId)
 
     const afterScanResponse = await page.goto(detailUrl)
