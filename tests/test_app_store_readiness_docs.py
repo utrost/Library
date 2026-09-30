@@ -194,6 +194,10 @@ def test_signed_release_workflow_is_documented_and_wired_without_packaging_keys(
     assert "stable releases require `appinfo/signature.json`" in release
     assert "npm run package:release -- --signed" in release
     assert "NEXTCLOUD_SIGNING_PRIVATE_KEY" in roadmap
+    assert "mktemp -d /tmp/library-signing.XXXXXXXX" in sign_script
+    assert 'chmod 0700 "$TMP_DIR"' in sign_script
+    assert 'chmod 0600 "$TMP_DIR/private.key"' in sign_script
+    assert sign_script.index('chown -R www-data:www-data') < sign_script.index('php occ integrity:sign-app')
 
     for private_key_pattern in [
         "private.key",
@@ -202,6 +206,17 @@ def test_signed_release_workflow_is_documented_and_wired_without_packaging_keys(
         "*.pem",
     ]:
         assert private_key_pattern in audit_script
+
+
+def test_store_archive_and_registration_signatures_are_verified_separately():
+    script = read("scripts/sign-app-store.sh")
+    assert 'printf library > "$work/app-id"' in script
+    assert script.count('openssl dgst -sha512 -verify') == 2
+    assert '"$archive.sig"' in script
+    assert '"$handoff/registration-signature.txt"' in script
+    assert 'umask 077' in script
+    assert 'js/library-help.js' in read('scripts/release-frontend-manifest.mjs')
+    assert 'js/library-help.js' in read('scripts/audit-release-package.sh')
 
 
 def test_stable_package_audit_requires_signature_while_alpha_allows_unsigned():
