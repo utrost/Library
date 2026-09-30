@@ -4,7 +4,7 @@ Alpha.29: **Suggest fields** now proposes editable path/filename assignments, pr
 
 Alpha.19: [possible duplicate review](duplicate-review.md) is implemented. Private background discovery, optional content hashes, comparison evidence and reversible review decisions are available. Automatic deletion, merging and work/edition grouping remain future scope.
 
-Status: `0.1.0-beta.1` source baseline is committed and tagged locally; the audited unsigned archive passed disposable Nextcloud 33–35 browser smokes. Development is now `0.2.0-alpha.29`, deployed on the private Nextcloud 34 instance with accepted private lists, faster list queries and whole-folder metadata analysis with saved rules, paged approval and conditional Undo. See the [alpha.18 developer verification](compatibility-evidence/2026-09-26-whole-folder-alpha18/README.md). The latest full development matrix, alpha.28, passed 105 browser executions and 74 scheduled-scan assertions per version on 33.0.9 / 34.0.4 / 35.0.0 with 40 English Gutenberg books; see the [verification report](performance/2026-09-28-alpha28/README.md) and [extraction guide](extracting-metadata.md). Signing and App Store submission of the separate beta baseline are pending.
+Status: `0.1.0-beta.1` source baseline is committed and tagged locally; the audited unsigned archive passed disposable Nextcloud 33–35 browser smokes. Development is now `0.2.0-alpha.29`, deployed on the private Nextcloud 34 instance with accepted private lists, faster list queries and whole-folder metadata analysis with saved rules, paged approval and conditional Undo. See the [alpha.18 developer verification](compatibility-evidence/2026-09-26-whole-folder-alpha18/README.md). The latest full development matrix, alpha.28, passed 105 browser executions and 74 scheduled-scan assertions per version on 33.0.9 / 34.0.4 / 35.0.0 with 40 English Gutenberg books; see the [verification report](performance/2026-09-28-alpha28/README.md) and [extraction guide](extracting-metadata.md). The current release candidate is now 0.2.0-beta.1; signed-package verification is in progress. See [release readiness](app-store-readiness.md).
 Last updated: 2026-09-28
 Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md), [Alice scale pilot notes](alice-scale-pilot.md)
 
@@ -31,7 +31,7 @@ Baseline and rerun instructions: [84k-book audit](performance/2026-09-27-alpha21
 - [x] Personal roots, scanning, metadata extraction/editing, catalogue/search, shelves and collections, Review, covers, and file handoff form the beta product baseline.
 - [x] Local release gate, package audit, unsigned archive, and local source commit/tag `v0.1.0-beta.1` are complete.
 - [x] The exact beta archive passed all 9 main Playwright smoke executions with 40 English Gutenberg books on Nextcloud 33.0.9, 34.0.4 and 35.0.0; see the [final compatibility assessment](compatibility-evidence/2026-09-25-beta1/final-compatibility-assessment.md).
-- [x] The signing key and CSR were generated privately; [certificate request PR #1268](https://github.com/nextcloud/app-certificate-requests/pull/1268) is open.
+- [x] The signing key and CSR were generated privately; [certificate request PR #1268](https://github.com/nextcloud/app-certificate-requests/pull/1268) was merged on 2026-09-29.
 - [ ] Publish the beta source branch/tag, run hosted CI on the exact commit, and prepare the public GitHub prerelease.
 - [ ] Receive the certificate, build and audit the signed archive, and submit the beta to the Nextcloud App Store.
 - [ ] Finalize listing screenshots and author/contact presentation; run manual assistive-technology and representative mixed-library acceptance before calling `0.1.0` stable.
@@ -531,7 +531,7 @@ Immediate slices:
 
 1. **AS-001 — Runtime package hygiene.** Complete for beta: the unsigned archive contains the audited runtime package.
 2. **AS-002 — App metadata and reviewer-facing public information.** Draft copy and metadata checks are complete; final screenshots and author/contact review remain.
-3. **AS-003 — Signing certificate and signed package workflow.** The workflow and private key/CSR are ready; certificate request PR #1268 is open. Certificate issuance and a signed package remain.
+3. **AS-003 — Signing certificate and signed package workflow.** The workflow and private key/CSR are ready; certificate request PR #1268 was merged on 2026-09-29. Certificate issuance and a signed package remain.
 4. **AS-004 — App Store release rehearsal.** Exact unsigned beta archive installed and passed 9/9 main browser smokes across Nextcloud 33–35. Hosted CI on the beta commit, a signed-package rehearsal and a public prerelease remain.
 5. **AS-005 — Stable `0.1.0` App Store submission.** The immediate submission target is signed `0.1.0-beta.1`; stable `0.1.0` follows beta feedback, manual accessibility testing and real mixed-library acceptance.
 

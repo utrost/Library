@@ -56,12 +56,21 @@ case "$action" in
       docker exec -u www-data "$instance" php occ app:enable library
     fi
     docker exec -u www-data "$instance" php occ background:cron >/dev/null
-    deploy
+    # With an older package installed, populate and correct real books before upgrading.
+    if [[ -z "${LIBRARY_BETA_ARCHIVE:-}" ]]; then deploy; fi
     if [[ -n "${LIBRARY_BOOK_FIXTURE_ARCHIVE:-}" ]]; then
       docker cp "$LIBRARY_BOOK_FIXTURE_ARCHIVE" "$instance:/tmp/books.tar.gz" >/dev/null
       docker exec "$instance" sh -c 'mkdir -p /var/www/html/data/library-smoke/files/LibraryLists && tar -xzf /tmp/books.tar.gz -C /var/www/html/data/library-smoke/files/LibraryLists && chown -R www-data:www-data /var/www/html/data/library-smoke'
       docker exec -u www-data "$instance" php occ files:scan --path=library-smoke/files/LibraryLists
       docker exec -u www-data "$instance" php -r 'require "/var/www/html/lib/base.php"; \OC::$server->get(\OCA\Library\Service\RootService::class)->saveRoot("library-smoke", "/LibraryLists", "Gutenberg English", true); $result = \OC::$server->get(\OCA\Library\Service\LibraryScanner::class)->scan("library-smoke"); echo json_encode($result), PHP_EOL;'
+    fi
+    if [[ -n "${LIBRARY_BETA_ARCHIVE:-}" ]]; then
+      docker cp "$repo_dir/scripts/performance/upgrade-fixture.php" "$instance:/tmp/library-upgrade-fixture.php"
+      docker exec -u www-data "$instance" php /tmp/library-upgrade-fixture.php seed
+      deploy
+      docker exec -u www-data "$instance" php /tmp/library-upgrade-fixture.php verify
+      docker exec -u www-data "$instance" php -r 'require "/var/www/html/lib/base.php"; $result = \OC::$server->get(\OCA\Library\Service\LibraryScanner::class)->scan("library-smoke"); if ($result["errors"]) exit(1);'
+      docker exec -u www-data "$instance" php /tmp/library-upgrade-fixture.php verify
     fi
     (umask 077; printf 'export PW_BASE_URL=%q\nexport PW_USER=library-smoke\nexport PW_PASSWORD=Disposable-lists-2026\nexport LIBRARY_LISTS_CONTAINER=%q\n' "http://127.0.0.1:$port" "$instance" > "$env_file")
     echo "ready=$instance environment=$env_file"
