@@ -49,6 +49,9 @@ test('keeps list covers readable and action buttons inside the table @catalogue 
   const creatorOverflow = await list.locator('.library-catalogue-list-creators > bdi').evaluateAll((creators: HTMLElement[]) =>
     creators.slice(0, 10).map((creator) => creator.scrollWidth > creator.clientWidth + 1))
   expect(creatorOverflow).not.toContain(true)
+  const metadataOverflow = await list.locator('.library-catalogue-list-row > td > bdi').evaluateAll((fields: HTMLElement[]) =>
+    fields.map((field) => field.scrollWidth > field.clientWidth + 1))
+  expect(metadataOverflow).not.toContain(true)
 
   const scroll = page.locator('[data-library-catalogue-list-scroll]')
   const geometry = await scroll.evaluate((container) => {

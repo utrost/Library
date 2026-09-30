@@ -3001,7 +3001,8 @@ async function toggleStar(item, event) {
   inline-size: 12.5rem;
 }
 
-.library-catalogue-list-creators > bdi {
+.library-catalogue-list-creators > bdi,
+.library-catalogue-list-row > td > bdi {
   display: block;
   max-inline-size: 100%;
   overflow-wrap: anywhere;
