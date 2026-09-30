@@ -57,7 +57,9 @@ https://github.com/utrost/Library/issues
 
 Bug reports are most useful when they include the app version, Nextcloud version, file type, expected behavior, actual behavior and any visible scan or browser-console error.
 
-## Screenshots for owner review
+## Screenshot checklist
+
+Prepared screenshots for owner review:
 
 Captured on disposable Nextcloud 34.0.4 using the public Gutenberg fixture and a synthetic metadata tutorial file. All are below 2 MiB, and contain no real-library filenames or credentials:
 
