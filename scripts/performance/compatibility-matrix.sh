@@ -46,7 +46,7 @@ for ver in ${NC_VERSIONS:-33.0.9 34.0.4 35.0.0}; do
         if [[ -n "${SCREENSHOT_DIR:-}" && "$ver" == 34.0.4 ]]; then
             node scripts/capture-app-store.mjs > "$target/screenshots.log" 2>&1
         fi
-        for check in performance_fixes_integration scan_paging_integration scheduled_scan_integration personal_lists_integration; do
+        for check in performance_fixes_integration scan_paging_integration scheduled_scan_integration scanner_warning_cache_integration personal_lists_integration; do
             docker cp "tests/php/$check.php" "$LIBRARY_LISTS_CONTAINER:/tmp/$check.php"
             docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php "/tmp/$check.php" > "$target/$check.log" 2>&1
             if [[ "$check" == personal_lists_integration ]]; then
@@ -62,6 +62,7 @@ CHECK
         docker exec -d -u www-data "$LIBRARY_LISTS_CONTAINER" php occ --no-warnings --quiet background-job:worker --stop_after=30m 'OCA\Library\BackgroundJob\ScanJob'
         PLAYWRIGHT_HTML_OUTPUT_DIR="$target/report" PLAYWRIGHT_JSON_OUTPUT_FILE="$target/results.json" npx playwright test --output="$target/artifacts" --reporter=line,html,json > "$target/playwright.log" 2>&1
         NC_URL="$PW_BASE_URL" NC_USER="$PW_USER" NC_CONTAINER="$LIBRARY_LISTS_CONTAINER" node scripts/smoke-inference-apply.mjs > "$target/inference-apply.log" 2>&1
+        NC_URL="$PW_BASE_URL" NC_USER="$PW_USER" NC_CONTAINER="$LIBRARY_LISTS_CONTAINER" EVIDENCE_DIR="$target/duplicates" node scripts/smoke-duplicates.mjs > "$target/duplicates.log" 2>&1
         NC_URL="$PW_BASE_URL" NC_USER="$PW_USER" NC_CONTAINER="$LIBRARY_LISTS_CONTAINER" EVIDENCE_DIR="$target/suggestions" node scripts/smoke-inference-suggestions.mjs > "$target/suggestions.log" 2>&1
         NC_URL="$PW_BASE_URL" NC_USER="$PW_USER" NC_CONTAINER="$LIBRARY_LISTS_CONTAINER" EVIDENCE_DIR="$target/schedules" node scripts/smoke-scheduled-scans.mjs > "$target/schedules.log" 2>&1
     ) > "$target/run.log" 2>&1
