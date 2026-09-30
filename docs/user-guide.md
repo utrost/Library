@@ -1,5 +1,7 @@
 # Library user and admin guide
 
+For duplicate discovery and private preferred-copy decisions, see [Finding possible duplicate books](duplicate-review.md).
+
 Status: current v0.1 development guide  
 Audience: early users, household admins, Nextcloud admins and product reviewers  
 Scope: what the app does today, how the main processes work, and which missing features are most visible from user stories
@@ -86,7 +88,7 @@ Current catalogue capabilities:
 - open contextual details in the sidebar and use **Advanced details** for editing;
 - search title, subtitle, creators, publication, description, exact normalized ISBN/ISSN and file path from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics, and arbitrary substrings use the indexed search-gram path instead of broad row scans;
 - use the visible toolbar for Search, Sort and View, desktop filters, and the mobile **Filters** panel for grouped facets; press `/` to focus search and `Escape` to clear it;
-- filter by exact creator field and open a creator landing page as read-only discovery; creator identity splitting remains future work;
+- filter by an individual author and open an author landing page; existing full-field saved filters remain compatible;
 - use server-backed **Starred** and **Recently opened** browse destinations;
 - enter through server-backed **Home**, browse root/folder counts in **Shelves**, and move into the paginated **Catalogue** without preloading full result sets;
 - use active filter chips to see current filters, remove one filter without disturbing the others, or **Clear all** selection filters at once; clear-all resets pagination while preserving the chosen Sort and View mode;
@@ -541,7 +543,7 @@ Acceptance checks:
 Visible gaps:
 
 - no full-text search inside documents;
-- publication/series, publication-year and creator landing pages exist so far, and publication pages show **Publication contents** read-only issue/date grouping with stable issue/date order, year/month and volume buckets, conservative gap hints, and an **Unknown issue/date** bucket that keeps weak comics and periodicals visible; richer creator identity splitting and editable issue management remain future work;
+- publication/series, publication-year and creator landing pages exist so far, and publication pages show **Publication contents** read-only issue/date grouping with stable issue/date order, year/month and volume buckets, conservative gap hints, and an **Unknown issue/date** bucket that keeps weak comics and periodicals visible; individual authors are supported; editable issue management remains future work;
 - built-in **Useful views** and in-app **Custom collections** provide saved smart-collection navigation without leaving Library;
 - no user-facing explanation of query performance limits for very large libraries.
 
@@ -653,7 +655,7 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 4. **Tag UX** — tag add/remove, tag suggestions, one-click suggested tag buttons, tag result feedback, and bulk tagging apply/remove for explicitly selected visible items work. Review queue shortcuts can **Tag metadata-error rows** or **Tag scanner-conflict rows**; richer taxonomy batch workflows remain future work.
 5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers, a refresh-cover retry affordance, and manual cover override/revert work, but app-owned cover cache and crop/rebuild workflows remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
-7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips, top-series shortcuts, Catalogue discovery links, Review's five focused groups, in-app **Custom collections** for named saved filter combinations, the first dedicated publication discovery page, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; richer creator identity splitting and publication grouping remain future work.
+7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips, top-series shortcuts, Catalogue discovery links, Review's five focused groups, in-app **Custom collections** for named saved filter combinations, the first dedicated publication discovery page, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; individual authors are supported; richer publication grouping remains future work.
 8. **User-facing onboarding and empty states** — first-run root guidance, disabled-root guidance and filtered-empty recovery actions exist; richer guided tours and sample/demo fixtures remain future work.
 9. **Metadata portability beyond export/preview/apply** — corrected Library metadata can be exported as JSON, previewed for restore matches/field changes, applied to matched existing Library items, mapped to suggested `.library.json` paths with a read-only sidecar manifest and downloaded as a sidecar ZIP, while source-folder OPF/JSON sidecar writing and fresh-install sidecar restore are intentionally left to external file-first tooling.
 10. **Real-collection metadata hardening** — PDF hardening has improved, but more real EPUB/OPF/CBZ/PDF samples are needed to find weak metadata, cover and sidecar cases before release.
@@ -683,3 +685,35 @@ If step 12 feels unsafe or unclear, continue root lifecycle polish. If step 13 f
 ## Detailed implementation status anchors
 
 This guide keeps detailed status anchors that are intentionally more specific than the public README. Current implementation terms include: queued background scan, cancel queued scan, running-job cancellation, catalogue-first, Vue/Vite-backed catalogue page, paginated catalogue, live-ish scan progress, auto-refreshing scan progress, recent scan history, absolute Nextcloud URLs, scan status filters, built-in useful views, in-app custom collections, metadata review workbench, scanner-conflict review filter, explicit selected-item scanner reset, catalogue cards are browse-only, details page owns publication metadata, tag and comment editing, preview-backed covers, EPUB cover extraction, Refresh cover preview, cover-quality explanation, CBZ ComicInfo.xml metadata, CBZ first-image covers, Library-native subjects and classifications, Library-native workflow status, preview corrected metadata imports, clean up stale sidecar OPF catalogue rows, filename/folder metadata patterns, middle-initial filename authors, PDF hex Info strings, PDF literal octal escapes, nested PDF literal parentheses, plain PDF Info dates, PDF literal line continuations, Recheck missing files, forget missing item, dedicated publication discovery page, dedicated publication year discovery page, dedicated creator discovery page, Publication contents and read-only issue/date grouping.
+
+## Extract metadata from paths
+
+See [Extracting metadata from filenames and folders](extracting-metadata.md) for the guided editor, patterns, multiple authors, examples, saved templates, selected-field Apply, conditional Undo and current limitations.
+
+### Series, part in series and genre
+
+In the publication sidebar, open **Metadata** to edit these fields. They are also available in the maintenance form and bulk metadata editor. Series and genre accept up to 255 characters; part in series accepts 64 and preserves `01`, `2.5` or `Volume II`. Clearing a value is saved and protected on rescan. The older Publication field remains separate. Corrected-metadata JSON includes these values, and a partial import preserves fields it omits. They do not yet have dedicated catalogue filters. Filename extraction compares against these fields and can apply explicitly reviewed selections. Authors can also be explicitly reviewed and applied as ordered names, with conditional Undo; see the extraction guide.
+
+## Keep the catalogue updated automatically
+
+In **Library settings → Folders and scanning → Automatic scans**, choose hourly, every six hours or daily. Scans discover additions, file/OPF changes and missing books while preserving your corrections. The default is Off; reliable unattended runs need Nextcloud Cron. See [Automatic scans](automatic-scans.md).
+
+
+## Covers and scan recovery (alpha.22)
+
+Library generates private thumbnails when covers are first viewed and reuses them. Large originals are resized to at most 360×520; generated covers are limited to 100 KiB. The source publication and its embedded artwork stay intact. Replacing a manual cover changes its cache revision. Malformed or excessively large raster images use a placeholder. Only cards near the viewport load their covers initially.
+
+If a running scan stops reporting progress for 15 minutes, background maintenance marks it failed with its last counters retained. You can scan again; abandoned jobs no longer keep automatic schedules blocked. Queued scans still need Nextcloud Cron to run.
+
+### Administrator thumbnail cache controls
+
+Since alpha.23, **Administration settings → Library** provides a per-account cache budget (128 MiB by default, 0 disables disk caching) and retention (168 hours by default). Data is split into 256 shards with byte and entry limits; filesystem overhead is additional. Expired entries are regenerated on demand and removed gradually by maintenance, including accounts whose Library roots were removed. Reducing the budget trims old entries gradually. Original publications remain intact.
+
+
+### Author metadata needs review
+
+If extracted author metadata exceeds the supported limits or contains invalid values, Library flags that book for metadata review and retains its other usable fields. Existing accepted authors and your corrections stay intact. Names are not silently truncated or split on commas. You can correct the catalogue author field; correcting the source metadata and rescanning also clears the source warning. Source warnings remain while unsupported source values persist.
+
+### Repeated scan warnings
+
+Unchanged archive or invalid-metadata warnings remain in Review, but subsequent scans can reuse their previous result. Use the explicit metadata Retry action to re-extract them. Changed source files or sidecars are checked again automatically. If a source value exceeds a field limit, edit that field instead of resetting to the invalid proposal; hover over the disabled control for an explanation.

@@ -15,6 +15,7 @@ export function releaseFrontendFiles(_version) {
     'css/style.css',
     `css/${styleAsset}.css`,
     'js/library-detail.js',
+    'js/library-help.js',
     `js/${scriptAsset}.mjs`,
     'js/library-shell.js',
     'js/scan-progress-worker.js',

@@ -1,8 +1,8 @@
 # App Store listing draft
 
-Status: beta listing draft for today’s submission candidate.
-Target app version: `0.1.0-beta.1`.
-Compatibility: Nextcloud 33–35 (the exact beta archive passed install and smoke checks on 33.0.9, 34.0.4 and 35.0.0 with 40 English Gutenberg books).
+Status: 0.2 beta listing draft for owner review.
+Target app version: `0.2.0-beta.1`.
+Compatibility: Nextcloud 33–35. See the release evidence for final archive verification.
 
 ## Short description
 
@@ -18,9 +18,14 @@ Library does not replace Nextcloud Files. It adds publication-oriented browsing 
 
 ## Current scope
 
-Included in the v0.1 line:
+Included in 0.2:
 
 - user-configured library roots;
+- private reading lists with ordering and notes;
+- filename/path metadata suggestions, saved rules, preview, per-book approval and Apply/Undo;
+- optional duplicate suggestions and explicit review decisions;
+- scheduled incremental scans with periodic full reconciliation;
+- private cover thumbnails and catalogue optimizations for large collections;
 - background scanning for EPUB, PDF and CBZ collections;
 - catalogue search, sorting, filters and paginated cover views;
 - metadata editing for publication fields, creators, dates, subjects, classifications, workflow status, stars, descriptions and comments;
@@ -28,7 +33,7 @@ Included in the v0.1 line:
 - corrected-metadata export and import preview/apply;
 - safe handoff to existing Nextcloud viewers, Show in Files and Download source actions.
 
-Not included in v0.1:
+Outside the 0.2 scope:
 
 - built-in EPUB, PDF or comic reader (Library does not provide a built-in reader);
 - page-position sync, annotations or reading statistics;
@@ -65,4 +70,4 @@ Before uploading screenshots, verify that no real filenames, private folder name
 
 ## Release note draft
 
-Library `0.1.0` is the first stable App Store candidate for Nextcloud 33–35. It focuses on publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. It is intentionally conservative: source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack.
+Library `0.2.0-beta.1` is the first public beta App Store candidate for Nextcloud 33–35. It focuses on publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. It is intentionally conservative: source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack.

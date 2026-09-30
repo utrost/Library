@@ -37,7 +37,7 @@ namespace OCA\Library\Metadata {
         public function extractWithSidecar($node): array { return []; }
         public function getLastError(): ?string { return null; }
     }
-    class MetadataFastPathDecision {
+    class MetadataFastPathDecision { public static function shouldSkipWarning(...$args):bool{return false;} public static function deterministicWarning(...$args):bool{return false;}
         public static function shouldSkip(...$args): bool { return false; }
         public static function shouldMarkProcessed(...$args): bool { return true; }
     }

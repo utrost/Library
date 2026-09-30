@@ -180,4 +180,15 @@ expect(!MetadataFastPathDecision::shouldMarkProcessed($baseline, str_repeat('f',
 expect(!MetadataFastPathDecision::shouldMarkProcessed($baseline, strtoupper($baseline), null), 'marker fingerprint comparison is exact');
 expect(!MetadataFastPathDecision::shouldMarkProcessed($baseline, $baseline, 'extractor warning'), 'getLastError blocks marker write');
 
+$warning='metadata_fields_invalid: Review fields. (diagnostic: libdiag-0123456789abcdef)';
+expect(MetadataFastPathDecision::deterministicWarning($warning),'field warning is deterministic');
+expect(MetadataFastPathDecision::deterministicWarning('Unsupported or corrupt EPUB archive'),'archive warning is deterministic');
+expect(!MetadataFastPathDecision::deterministicWarning('metadata_extraction_failed: Review file. (diagnostic: libdiag-0123456789abcdef)'),'transient failure not cached');
+expect(MetadataFastPathDecision::shouldSkipWarning(false,'unchanged','metadata_error',$warning,$baseline,$baseline,'v7','v7',fn()=>true),'stable persisted warning skipped');
+foreach ([true,false] as $force) {
+    expect(!MetadataFastPathDecision::shouldSkipWarning($force,'unchanged','metadata_error',$warning,$baseline,$baseline,'v7','v7',fn()=>false),'missing item always retries');
+}
+expect(!MetadataFastPathDecision::shouldSkipWarning(true,'unchanged','metadata_error',$warning,$baseline,$baseline,'v7','v7',fn()=>true),'explicit Retry ignores cache');
+expect(!MetadataFastPathDecision::shouldSkipWarning(false,'unchanged','metadata_error',$warning,$baseline,str_repeat('e',64),'v7','v7',fn()=>true),'changed sidecar fingerprint retries');
+expect(!MetadataFastPathDecision::shouldSkipWarning(false,'unchanged','metadata_error',$warning,$baseline,$baseline,'v8','v7',fn()=>true),'changed reader revision retries');
 fwrite(STDOUT, "metadata fast-path runtime tests: OK\n");

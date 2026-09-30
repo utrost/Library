@@ -117,7 +117,7 @@ try {
     predicate: {
       buildDefinition: {
         buildType: 'https://github.com/utrost/Library/scripts/package-release.sh',
-        externalParameters: { version, signed: false },
+        externalParameters: { version, signed: files.some(path => relative(tmp, path) === "library/appinfo/signature.json") },
         resolvedDependencies: [
           { uri: 'git+https://github.com/utrost/Library', digest: { gitCommit } },
           { uri: 'package-lock.json', digest: { sha256: sha256File('package-lock.json') } },

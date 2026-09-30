@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,8 +29,8 @@ def test_page_controller_provides_catalogue_initial_state_and_loads_vue_entrypoi
     assert "use OCP\\AppFramework\\Services\\IInitialState;" in controller
     assert "private IInitialState $initialState" in controller
     assert "$this->initialState->provideInitialState('catalogue'" in controller
-    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-beta-1-compact-list-table-cover-96-fit-v4';" in controller
-    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-beta-1-compact-list-table-cover-96-fit-v4';" in controller
+    assert f"private const VUE_SCRIPT_ASSET = 'library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4';" in controller
+    assert f"private const VUE_STYLE_ASSET = 'library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4';" in controller
     assert "Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);" in controller
     assert "'items' => $items" in controller
     assert "'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library'])" in controller

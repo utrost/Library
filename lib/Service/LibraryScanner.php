@@ -11,6 +11,7 @@ use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
+use OCP\Files\NotFoundException;
 use Throwable;
 use OCA\Library\Instrumentation\MonotonicClock;
 
@@ -34,8 +35,125 @@ final class LibraryScanner {
         private PublicationMetadataService $metadataService,
         private IRootFolder $rootFolder,
         ?MonotonicClock $clock = null,
+        private ?ScanChangeJournal $changeJournal = null,
     ) {
         $this->clock = $clock ?? new MonotonicClock();
+    }
+
+    /** Scan coalesced changed directories, leaving event generations intact on failure. */
+    public function scanIncremental(string $userId, ?callable $progress = null): array {
+        $started = $this->beginMetrics();
+        $snapshot = $this->journal()->snapshot($userId);
+        $roots = $this->rootService->listEnabledRoots($userId);
+        $userFolder = $this->rootFolder->getUserFolder($userId);
+        $summary = $this->emptyChangeSummary();
+        $indexed = 0; $units = 0; $errors = [];
+        $targets = [];
+        foreach ($snapshot as $entry) {
+            $dirty = $entry['path'];
+            foreach ($roots as $root) {
+                $rootPath = rtrim((string)$root['path'], '/') ?: '/';
+                if ($dirty !== '/' && $rootPath !== '/' && $dirty !== $rootPath
+                    && !str_starts_with($dirty, $rootPath . '/') && !str_starts_with($rootPath, rtrim($dirty, '/') . '/')) continue;
+                $aboveRoot = $dirty === '/' || str_starts_with($rootPath, rtrim($dirty, '/') . '/');
+                $path = $aboveRoot ? $rootPath : $dirty;
+                $folder = $aboveRoot || $entry['folder'];
+                $targets[(int)$root['id']][($folder ? 'd:' : 'f:') . $path] = ['path'=>$path,'folder'=>$folder];
+            }
+        }
+        $work = [];
+        foreach ($targets as $rootId => $entries) {
+            $sorted = array_values($entries);
+            usort($sorted, static fn($a, $b) => strlen($a['path']) <=> strlen($b['path']) ?: ((int)$b['folder'] <=> (int)$a['folder']));
+            $kept = [];
+            foreach ($sorted as $entry) {
+                $path = $entry['path'];
+                $covered = false;
+                foreach ($kept as $parent) {
+                    if (($parent['folder'] && ($parent['path'] === '/' || $path === $parent['path'] || str_starts_with($path, rtrim($parent['path'], '/') . '/')))
+                        || ($path === $parent['path'] && $entry['folder'] === $parent['folder'])) { $covered = true; break; }
+                }
+                if ($covered) continue;
+                $kept[] = $entry;
+            }
+            foreach ($kept as $entry) {
+                $entry['rootId'] = (int)$rootId;
+                $entry['priority'] = $entry['folder'] ? 1 : 2;
+                if (!$entry['folder']) try {
+                    $live = $userFolder->get(ltrim($entry['path'], '/'));
+                    if ($live instanceof File && $live->getStorage()->file_exists($live->getInternalPath())) $entry['priority'] = 0;
+                } catch (Throwable) {}
+                $work[] = $entry;
+            }
+        }
+        // Resolve live destinations before old/missing paths, including cross-root moves.
+        usort($work, static fn($a, $b) => $a['priority'] <=> $b['priority']);
+        foreach ($work as $entry) {
+            $path = $entry['path']; $rootId = $entry['rootId'];
+            try {
+                $seen = [];
+                if ($entry['folder']) {
+                    try {
+                        $folder = $this->resolveRootFolder($userFolder, $path);
+                    } catch (NotFoundException) {
+                        // A configured root can itself be deleted. The node event
+                        // proves that path changed, so mark its indexed subtree missing.
+                        $summary['filesMissing'] += $this->fileIndexService->markMissingUnderPathExcept($userId, $rootId, $path, []);
+                        continue;
+                    }
+                    $this->scanFolder($userId, $rootId, $folder, $seen, $summary, $indexed, $units,
+                        function (int $count, int $traversal, string $current) use ($progress, $roots, &$errors, &$summary): void {
+                            $this->reportProgress($progress, count($roots), $count, count($errors), 'Scanning changed directory', $summary, $traversal, $current);
+                        });
+                    $summary['filesMissing'] += $this->fileIndexService->markMissingUnderPathExcept($userId, $rootId, $path, $seen);
+                } else {
+                    $this->scanChangedFileTarget($userId, $rootId, $userFolder, $path, $summary, $indexed, $units, $progress, count($roots));
+                }
+            } catch (ScanCancelledException $e) { throw $e;
+            } catch (Throwable $e) {
+                $diagnostic = SafeDiagnostics::fromThrowable('root_scan_failed','Changed directory scan failed. Retry or run a full scan.', $e,
+                    ['userId'=>$userId,'rootId'=>$rootId,'path'=>$path]);
+                SafeDiagnostics::log($diagnostic);
+                $errors[] = SafeDiagnostics::publicText($diagnostic);
+            }
+        }
+        return ['roots'=>count($roots),'indexed'=>$indexed,'errors'=>$errors,...$summary,...$this->finishMetrics($started),'journalSnapshot'=>$snapshot];
+    }
+
+    private function journal(): ScanChangeJournal {
+        return $this->changeJournal ??= \OC::$server->get(ScanChangeJournal::class);
+    }
+
+    private function scanChangedFileTarget(string $userId, int $rootId, Folder $userFolder, string $path, array &$summary,
+        int &$indexed, int &$units, ?callable $progress, int $rootsTotal): void {
+        $parent = $this->resolveRootFolder($userFolder, dirname($path));
+        $name = basename($path);
+        $names = [$name];
+        $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        $stem = pathinfo($name, PATHINFO_FILENAME);
+        if ($extension === 'opf') {
+            foreach (['pdf','epub','cbz'] as $ext) $names[] = $stem . '.' . $ext;
+        } elseif (in_array($extension, ['pdf','epub','cbz'], true)) {
+            $names[] = $stem . '.opf';
+        }
+        foreach (array_unique($names) as $candidate) {
+            $candidatePath = (dirname($path) === '/' ? '' : dirname($path)) . '/' . $candidate;
+            $units++;
+            if ($progress) $this->reportProgress($progress, $rootsTotal, $indexed, 0, 'Checking changed publication', $summary, $units, $candidatePath);
+            $node = $parent->nodeExists($candidate) ? $parent->get($candidate) : null;
+            if (!$node instanceof File || !$node->getStorage()->file_exists($node->getInternalPath())) {
+                $summary['filesMissing'] += $this->fileIndexService->markMissingAtPath($userId, $rootId, $candidatePath);
+                continue;
+            }
+            if (!$node->isReadable()) throw new \RuntimeException('Changed publication is no longer readable');
+            if (!$this->isSupported($node)) continue;
+            if ($this->isSuppressedOpfSidecar($node)) {
+                if ($this->cleanupSuppressedOpfSidecar($userId, $rootId, $node) !== null) $indexed++;
+            } else {
+                $seen = [];
+                if ($this->scanFile($userId, $rootId, $node, $seen, false, null, $summary)) $indexed++;
+            }
+        }
     }
 
     /**
@@ -43,11 +161,14 @@ final class LibraryScanner {
      */
     public function scan(string $userId, ?int $onlyRootId = null, ?callable $progress = null): array {
         $scanStarted = $this->beginMetrics();
+        $journalSnapshot = $onlyRootId === null && ($this->changeJournal !== null || class_exists(\OC::class))
+            ? $this->journal()->snapshot($userId) : null;
         $indexed = 0;
         $summary = $this->emptyChangeSummary();
         $errors = [];
         $scopeRootId = $onlyRootId;
         $roots = $this->filterRootsForScope($userId, $scopeRootId);
+        $rootsDigest = $onlyRootId === null ? hash('sha256', implode("\n", array_map(static fn($root) => (int)$root['id'] . "\0" . (string)$root['path'], $roots)) . ($roots === [] ? '' : "\n")) : null;
         $rootsTotal = count($roots);
         $traversalUnits = 0;
         $userFolder = $this->rootFolder->getUserFolder($userId);
@@ -90,6 +211,8 @@ final class LibraryScanner {
             'errors' => $errors,
             ...$summary,
             ...$this->finishMetrics($scanStarted),
+            'journalSnapshot' => $journalSnapshot,
+            'rootsDigest' => $rootsDigest,
         ];
     }
 
@@ -259,14 +382,24 @@ final class LibraryScanner {
     }
 
     private function scanFolder(string $userId, int $rootId, Folder $folder, array &$seenLibraryFileIds, array &$summary, int &$indexed, int &$traversalUnits, ?callable $progress = null): void {
+        if (method_exists($folder, 'search')) {
+            $this->scanPagedFolder($userId, $rootId, $folder, $seenLibraryFileIds, $summary, $indexed, $traversalUnits, $progress);
+            return;
+        }
         $nodes = $folder->getDirectoryListing();
         $currentPath = $this->displayPath($folder, $userId);
         $traversalUnits++;
         if ($progress !== null) { $progress($indexed, $traversalUnits, $currentPath); }
-        foreach ($nodes as $node) {
+        // Retain only names for deferred subfolders, never an ancestor's Node array.
+        // Public Folder listing is eager: peak still includes the widest single folder.
+        $subfolders = [];
+        while ($nodes !== []) {
+            $key = array_key_first($nodes);
+            $node = $nodes[$key]; unset($nodes[$key]);
             $traversalUnits++;
             if ($node instanceof Folder) {
-                $this->scanFolder($userId, $rootId, $node, $seenLibraryFileIds, $summary, $indexed, $traversalUnits, $progress);
+                $subfolders[] = $node->getName();
+                unset($node);
                 continue;
             }
 
@@ -296,6 +429,56 @@ final class LibraryScanner {
                 }
             }
         }
+        unset($node, $nodes);
+        foreach ($subfolders as $name) {
+            $child = $folder->get($name);
+            if (!$child instanceof Folder) throw new \RuntimeException('Folder changed during scan');
+            $this->scanFolder($userId, $rootId, $child, $seenLibraryFileIds, $summary, $indexed, $traversalUnits, $progress);
+            unset($child);
+        }
+    }
+
+    /** Enumerate registered Nextcloud files with bounded public search pages, including submounts. */
+    private function scanPagedFolder(string $userId, int $rootId, Folder $folder, array &$seenLibraryFileIds, array &$summary, int &$indexed, int &$traversalUnits, ?callable $progress): void {
+        if (!$folder->isReadable()) throw new \RuntimeException('Root is no longer readable');
+        $offset = 0;
+        $etag = $folder->getEtag();
+        $traversalUnits++;
+        if ($progress) $progress($indexed,$traversalUnits,$this->displayPath($folder,$userId));
+        while (true) {
+            $nodes = $folder->search(new ScanSearchQuery($offset));
+            if ($nodes === []) break;
+            $observations = $this->fileIndexService->findByFileIds($userId,array_map(static fn($node)=>(int)$node->getId(),$nodes));
+            foreach ($nodes as $node) {
+                $traversalUnits++;
+                $path = $this->displayPath($node,$userId);
+                if ($progress) $progress($indexed,$traversalUnits,$path);
+                if (!$node->isReadable()) throw new \RuntimeException('Source access changed during scan');
+                if (!$node instanceof File || !$this->isSupported($node)) continue;
+                $expectedId = $node->getId();
+                $relative = $folder->getRelativePath($node->getPath());
+                if ($relative === null) throw new \RuntimeException('Search result outside root');
+                try { $node = $folder->get($relative); }
+                catch (\OCP\Files\NotFoundException) { continue; }
+                if (!$node instanceof File || $node->getId() !== $expectedId || !$node->isReadable()) throw new \RuntimeException('Source identity changed during scan');
+                // Resolve the live node: search cache-jail entries can carry relative storage paths.
+                // Search uses Nextcloud's registered file cache. Check physical existence
+                // so direct storage deletions cannot take the unchanged-fingerprint path.
+                if (!$node->getStorage()->file_exists($node->getInternalPath())) continue;
+                if ($this->isSuppressedOpfSidecar($node)) {
+                    $id = $this->cleanupSuppressedOpfSidecar($userId,$rootId,$node);
+                    if ($id !== null) { $seenLibraryFileIds[]=$id; $indexed++; }
+                } elseif ($this->scanFile($userId,$rootId,$node,$seenLibraryFileIds,false,null,$summary,$observations[(int)$node->getId()] ?? null)) $indexed++;
+                unset($observations[(int)$node->getId()]);
+                if ($progress) $progress($indexed,$traversalUnits,$path);
+            }
+            unset($node,$nodes,$observations);
+            $offset += 200;
+            // A changing root invalidates offset enumeration: never sweep missing
+            // entries from a traversal that could have skipped a shifted row.
+            $fresh = $folder->getParent()->get($folder->getName());
+            if ($fresh->getEtag() !== $etag) throw new \RuntimeException('Root changed during scan; retry');
+        }
     }
 
     private function emptyChangeSummary(): array {
@@ -310,7 +493,7 @@ final class LibraryScanner {
 
     private function beginMetrics(): int {
         $this->metrics = [
-            'fingerprintSkips' => 0, 'metadataExtractions' => 0, 'itemRefreshes' => 0,
+            'fingerprintSkips' => 0, 'cachedWarningSkips'=>0, 'metadataExtractions' => 0, 'itemRefreshes' => 0,
             'fileIndexDurationMs' => 0, 'fingerprintDurationMs' => 0,
             'metadataExtractionDurationMs' => 0, 'itemRefreshDurationMs' => 0,
             'missingUpdateDurationMs' => 0,
@@ -349,6 +532,7 @@ final class LibraryScanner {
             'filesMissing' => (int)($changeSummary['filesMissing'] ?? 0),
             'metadataErrors' => (int)($changeSummary['metadataErrors'] ?? 0),
             'fingerprintSkips' => $this->metrics['fingerprintSkips'],
+            'cachedWarningSkips'=>$this->metrics['cachedWarningSkips'],
             'metadataExtractions' => $this->metrics['metadataExtractions'],
             'itemRefreshes' => $this->metrics['itemRefreshes'],
             'fileIndexDurationMs' => $this->metrics['fileIndexDurationMs'],
@@ -360,7 +544,7 @@ final class LibraryScanner {
         ]);
     }
 
-    private function scanFile(string $userId, int $rootId, File $node, array &$seenLibraryFileIds, bool $force = false, ?int $repairOriginalRootId = null, ?array &$summary = null): bool {
+    private function scanFile(string $userId, int $rootId, File $node, array &$seenLibraryFileIds, bool $force = false, ?int $repairOriginalRootId = null, ?array &$summary = null, ?array $observation = null): bool {
         $fileIndexStarted = $this->clock->now();
         try {
             $file = [
@@ -383,7 +567,7 @@ final class LibraryScanner {
             }
             $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
                 ...$file,
-            ]);
+            ], $observation);
         } finally {
             $this->metrics['fileIndexDurationMs'] += $this->clock->elapsedMs($fileIndexStarted);
         }
@@ -397,6 +581,24 @@ final class LibraryScanner {
             try { $fingerprint = $this->metadataService->metadataInputFingerprint($node, $rootId); }
             finally { $this->metrics['fingerprintDurationMs'] += $this->clock->elapsedMs($fingerprintStarted); }
             $revision = PublicationMetadataService::PIPELINE_REVISION;
+            // Adopt v6 only for unchanged sources whose saved proposals already satisfy v7 bounds.
+            if ($revision==='metadata-pipeline-v7' && ($indexedFile['previousMetadataExtractorRevision']??null)==='metadata-pipeline-v6'
+                && MetadataFastPathDecision::shouldSkip($force,(string)($indexedFile['changeStatus']??'unchanged'),$indexedFile['previousScanStatus']??null,
+                    $fingerprint,$indexedFile['previousMetadataInputFingerprint']??null,'metadata-pipeline-v6','metadata-pipeline-v6',
+                    fn()=>$this->itemService->canReuseV6ScannerMetadata($userId,(int)$indexedFile['id']))) {
+                $this->fileIndexService->markMetadataProcessed($userId,(int)$indexedFile['id'],$fingerprint,$revision);
+                $indexedFile['previousMetadataExtractorRevision']=$revision;
+            }
+            if (MetadataFastPathDecision::shouldSkipWarning($force,(string)($indexedFile['changeStatus']??'unchanged'),
+                $indexedFile['previousScanStatus']??null,$indexedFile['previousScanError']??null,$fingerprint,
+                $indexedFile['previousMetadataInputFingerprint']??null,$revision,$indexedFile['previousMetadataExtractorRevision']??null,
+                fn()=>$this->itemService->hasItemForLibraryFile($userId,(int)$indexedFile['id']))) {
+                $this->fileIndexService->markScanError($userId,(int)$indexedFile['id'],$indexedFile['previousScanError'],$fingerprint,$revision);
+                if ($summary!==null) $summary['metadataErrors']++;
+                $this->metrics['fingerprintSkips']++;
+                $this->metrics['cachedWarningSkips']++;
+                return true;
+            }
             if (MetadataFastPathDecision::shouldSkip(
                 $force,
                 (string)($indexedFile['changeStatus'] ?? 'unchanged'),
@@ -428,7 +630,10 @@ final class LibraryScanner {
                 if ($summary !== null) {
                     $summary['metadataErrors']++;
                 }
-                $this->fileIndexService->markScanError($userId, (int)$indexedFile['id'], $metadataError);
+                $cacheable=MetadataFastPathDecision::deterministicWarning($metadataError)
+                    && MetadataFastPathDecision::shouldMarkProcessed($fingerprint,$postExtractionFingerprint,null);
+                $this->fileIndexService->markScanError($userId, (int)$indexedFile['id'], $metadataError,
+                    $cacheable?$fingerprint:null,$cacheable?$revision:null);
             } elseif (MetadataFastPathDecision::shouldMarkProcessed($fingerprint, $postExtractionFingerprint, $metadataError)) {
                 $this->fileIndexService->markMetadataProcessed($userId, (int)$indexedFile['id'], $fingerprint, $revision);
             }

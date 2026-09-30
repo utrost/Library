@@ -24,6 +24,6 @@ def test_creator_filter_remains_an_exact_sargable_predicate():
     )[0]
     creator_filter = filters.split("$creator =", 1)[1].split("$format =", 1)[0]
 
-    assert "$qb->expr()->eq('i.creators', $qb->createNamedParameter($creator))" in creator_filter
+    assert "$lookup->expr()->eq('creators', $lookup->createNamedParameter($creator))" in creator_filter
     assert "$qb->expr()->like('i.creators'" not in creator_filter
     assert "LOWER(i.creators)" not in creator_filter

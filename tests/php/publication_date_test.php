@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/lib/Presentation/PublicationDate.php';
+require_once dirname(__DIR__, 2) . '/lib/Service/AuthorNames.php';
+require_once __DIR__.'/../../lib/Metadata/ScannerMetadataFields.php';
 require_once dirname(__DIR__, 2) . '/lib/Service/ItemService.php';
 
 use OCA\Library\Presentation\PublicationDate;

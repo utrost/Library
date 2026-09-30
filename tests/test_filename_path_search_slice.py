@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,5 +36,5 @@ def test_docs_and_smoke_track_filename_path_search_as_landed():
     assert "filename and folder names" in roadmap.lower()
     assert "source_has_primary_catalogue_controls" in smoke
     assert "backend_searches_description" in smoke
-    assert "<version>0.1.0-beta.1</version>" in info
-    assert '"version": "0.1.0-beta.1"' in package
+    assert f"<version>{CURRENT_VERSION}</version>" in info
+    assert f'"version": "{CURRENT_VERSION}"' in package

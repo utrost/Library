@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION
 from pathlib import Path
 
 
@@ -18,7 +19,7 @@ def test_alpha_159_real_gates_are_complete_but_deferred_gates_remain_explicit():
     combined = "\n".join((readme, changelog, release, readiness, risk, architecture))
 
     assert "Current source candidate: `0.1.0-beta.1`." not in readme
-    assert "Current candidate: `0.1.0-beta.1`." in readme
+    assert f"Current candidate: `{CURRENT_VERSION}`." in readme
     assert "safe user-facing diagnostics" in readme
     assert "727 Python tests, 9 PHP runtime programs, 26 Vitest tests" not in readme
     assert "`release_package_smoke_ok=true`" not in readme

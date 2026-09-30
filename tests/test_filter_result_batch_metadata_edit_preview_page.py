@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,6 +66,6 @@ def test_docs_and_version_track_html_preview_page():
 
     assert "preview-and-apply" in guide.lower()
     assert "batch metadata apply" in roadmap.lower()
-    assert "<version>0.1.0-beta.1</version>" in info
-    assert '"version": "0.1.0-beta.1"' in package
-    assert '"version": "0.1.0-beta.1"' in lock
+    assert f"<version>{CURRENT_VERSION}</version>" in info
+    assert f'"version": "{CURRENT_VERSION}"' in package
+    assert f'"version": "{CURRENT_VERSION}"' in lock

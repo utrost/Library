@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 import json
 import re
 import shutil
@@ -20,12 +21,12 @@ def placeholders(value: str) -> list[str]:
 
 
 def test_current_versions_assets_and_package_smoke_are_exact():
-    assert '<version>0.1.0-beta.1</version>' in read('appinfo/info.xml')
-    assert '"version": "0.1.0-beta.1"' in read('package.json')
-    assert "appVersion: JSON.stringify('0.1.0-beta.1')" in read('vite.config.js')
+    assert f'<version>{CURRENT_VERSION}</version>' in read('appinfo/info.xml')
+    assert f'"version": "{CURRENT_VERSION}"' in read('package.json')
+    assert f"appVersion: JSON.stringify('{CURRENT_VERSION}')" in read('vite.config.js')
     controller = read('lib/Controller/PageController.php')
-    assert "library-main-0-1-0-beta-1-compact-list-table-cover-96-fit-v4" in controller
-    assert "library-vue-0-1-0-beta-1-compact-list-table-cover-96-fit-v4" in controller
+    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4" in controller
+    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4" in controller
     assert 'EXPECTED_VERSION="$(python3 - "$ROOT/appinfo/info.xml"' in read('scripts/smoke-release-package.sh')
 
 
@@ -113,7 +114,8 @@ def test_plural_catalogues_cover_german_and_all_six_arabic_forms():
         '%n عنصر', '%n عنصر', '%n عنصران', '%n عناصر', '%n عنصرًا', '%n عنصر',
     ]
     app = read('src/App.vue')
-    assert "import { n, t } from '@nextcloud/l10n'" in app
+    assert "t as translate" in app
+    assert "createCachedTranslator(translate," in app
     assert "n('library', '%n item', '%n items'" in app
     assert "t('library', 'items')" not in app
     plural_indexes = subprocess.run([

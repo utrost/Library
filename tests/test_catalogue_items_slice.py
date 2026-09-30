@@ -47,7 +47,7 @@ def test_scanner_ensures_catalogue_items_after_file_index_upsert():
     assert "upsertFile" in scanner
 
     file_index = (ROOT / "lib" / "Service" / "FileIndexService.php").read_text()
-    assert "public function upsertFile(string $userId, int $rootId, array $file): array" in file_index
+    assert "public function upsertFile(string $userId, int $rootId, array $file, ?array $observation = null): array" in file_index
     assert "findByFileId" in file_index
 
 

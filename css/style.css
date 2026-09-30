@@ -1954,3 +1954,9 @@
 .library-bidi-machine {
     unicode-bidi: isolate;
 }
+
+/* Label help: explanatory copy is a tooltip; errors and confirmations remain inline. */
+.library-context-help-caption { display: inline-flex; align-items: center; gap: 4px; }
+.library-context-help-button { min-height: 24px !important; min-width: 24px !important; width: 24px !important; max-width: 24px; flex: 0 0 24px; height: 24px; padding: 0 !important; margin: 0 4px !important; border-radius: 50%; font-size: 12px; line-height: 22px; vertical-align: middle; }
+.library-context-help-popup { position: fixed !important; z-index: 100001; width: 320px; max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px); overflow: auto; box-sizing: border-box; padding: 12px; margin: 0 !important; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-main-background); color: var(--color-main-text); box-shadow: 0 4px 16px #0003; font-size: 13px; white-space: normal; }
+.library-context-help-popup[hidden] { display: none !important; }

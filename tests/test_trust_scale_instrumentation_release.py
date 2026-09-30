@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 ROOT = Path(__file__).parents[1]
 def read(path: str) -> str: return (ROOT / path).read_text(encoding="utf-8")
@@ -23,7 +24,7 @@ def test_terminal_atomicity_throttling_and_private_logger_allowlists():
     assert "library.cover.built" in cover and "library.cover.slow" in cover
     assert "preview-error: " not in cover
 def test_alpha_154_release_assets_and_docs():
-    assert "0.1.0-beta.1" in read("appinfo/info.xml") and "0.1.0-beta.1" in read("package.json")
+    assert f"{CURRENT_VERSION}" in read("appinfo/info.xml") and f"{CURRENT_VERSION}" in read("package.json")
     assert (ROOT / "js/library-main-0-1-0-alpha-154.mjs").exists() and (ROOT / "css/library-vue-0-1-0-alpha-154.css").exists()
     combined = "\n".join(read(p) for p in ("README.md", "CHANGELOG.md", "RELEASE.md", "docs/post-v0.1-roadmap.md"))
     assert "aggregate" in combined.lower() and "external telemetry" in combined.lower() and "non-preemptive" in combined.lower()

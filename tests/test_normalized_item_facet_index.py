@@ -45,7 +45,7 @@ def test_facet_index_is_refreshed_on_all_multi_value_metadata_writes():
     assert "$userId," in update and "$itemId," in update
     assert scan.count("refreshItemFacetIndex(") >= 2
     assert "delete('library_item_facets')" in service
-    assert "insert('library_item_facets')" in service
+    assert "insertIfNotExist('*PREFIX*library_item_facets'" in service
 
 
 def test_explicit_bounded_rebuild_exists_without_migration_backfill():
@@ -91,12 +91,13 @@ def test_facet_rows_keep_full_value_while_suggestions_deduplicate_by_canonical_v
         "private function suggestionFiltersAreEmpty", 1
     )[0]
 
-    assert "FacetSearchKeyGenerator::forValue($facetValue)" in refresh
-    assert "$scalarFacetTypes = array_fill_keys(array_keys($scalarFacets), true)" in refresh
-    assert "? FacetSearchKeyGenerator::forValue($facetValue)" in refresh
-    assert ": [mb_strtolower($facetValue)]" in refresh
-    assert "'facet_value' => $qb->createNamedParameter($facetValue)" in refresh
-    assert "'normalized_value' => $qb->createNamedParameter($searchKey)" in refresh
+    assert "$this->insertFacetValues($userId, $itemId, $facetType, $values" in refresh
+    insert = service.split("private function insertFacetValues", 1)[1].split("/** @return", 1)[0]
+    assert "FacetSearchKeyGenerator::forValue($value)" in insert
+    assert "$pairs[] = [$value, mb_strtolower($value)]" in insert
+    assert "['item_id', 'facet_type', 'normalized_value']" in insert
+    assert "$rows[] = [$uid, $id, $type, $value, $key]" in insert
+    assert "ON CONFLICT (item_id,facet_type,normalized_value) DO NOTHING" in insert
     assert "->groupBy('facet_suggestion.normalized_value', 'facet_suggestion.facet_value')" in suggestion
     assert "$values[$value] = true" in suggestion
     assert "return array_slice($values, 0, $limit)" in suggestion

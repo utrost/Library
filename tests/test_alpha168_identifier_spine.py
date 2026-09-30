@@ -62,7 +62,8 @@ def test_scanner_identifier_refresh_does_not_clobber_user_edited_items():
     assert "$this->refreshScannerCandidatesForUserEditedItem" in branch
     assert "syncItemIdentifiers" not in branch
     inferred_method = service[service.index("private function refreshInferredItem"):]
-    assert "syncItemIdentifiers($userId, $itemId" in inferred_method
+    assert "persistScannerIndexes($userId,$itemId" in inferred_method
+    assert "syncItemIdentifiers($uid,$id,$identifiers,false)" in service
 
 
 def test_detail_page_exposes_identifier_inputs_and_invalid_identifier_attention():

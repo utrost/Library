@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,14 +41,14 @@ def test_cache_busting_version_bumped_for_compact_card_fix():
     package = (ROOT / "package.json").read_text()
     lock = (ROOT / "package-lock.json").read_text()
 
-    assert "<version>0.1.0-beta.1</version>" in info
-    assert '"version": "0.1.0-beta.1"' in package
-    assert '"version": "0.1.0-beta.1"' in lock
+    assert f"<version>{CURRENT_VERSION}</version>" in info
+    assert f'"version": "{CURRENT_VERSION}"' in package
+    assert f'"version": "{CURRENT_VERSION}"' in lock
 
 
 def test_smoke_requires_compact_card_default_and_version_marker():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
     assert "source_has_compact_cover_cards_all_widths" in smoke
-    assert "app_version=0.1.0-beta.1" in smoke
+    assert f"app_version={CURRENT_VERSION}" in smoke
     assert "served_css_has_compact_cover_defaults" in smoke

@@ -19,7 +19,7 @@ $languageOptions = [
 ];
 $publisherSuggestions = ['Packt', "O'Reilly Media", 'Manning', 'No Starch Press', 'Apress', 'Springer', 'Penguin', 'Taschen'];
 $metadataHelp = [
-    'creators' => $l->t('One creator per line. Existing semicolon-separated values are still accepted.'),
+    'creators' => $l->t('One creator per line. Each chip is one person; punctuation within a name is preserved.'),
     'identifiers' => $l->t('ISBN and ISSN preserve your display form, validate punctuation-insensitive checksums, and search by normalized exact value.'),
     'publicationDate' => $l->t('Use YYYY, YYYY-MM, or YYYY-MM-DD.'),
     'language' => $l->t('Choose one or more language codes.'),
@@ -28,7 +28,8 @@ $metadataHelp = [
 ];
 $selectedLanguages = array_values(array_filter(array_map('trim', preg_split('/[;,\n]+/u', (string)($item['language'] ?? '')) ?: []), static fn ($value) => $value !== ''));
 $selectedSubjects = is_array($item['subjects'] ?? null) ? $item['subjects'] : [];
-$creatorLines = implode("\n", array_filter(array_map('trim', preg_split('/[;\n]+/u', (string)($item['creators'] ?? '')) ?: []), static fn ($value) => $value !== ''));
+$creatorNames = $item['authors'] ?? [];
+$creatorLines = implode("\n", $creatorNames);
 $currentPublisher = trim((string)($item['publisher'] ?? ''));
 if ($currentPublisher !== '' && !in_array($currentPublisher, $publisherSuggestions, true)) {
     array_unshift($publisherSuggestions, $currentPublisher);
@@ -41,9 +42,12 @@ $workflowStatuses = [
 ];
 $fieldSources = is_array($item['fieldSources'] ?? null) ? $item['fieldSources'] : [];
 $fieldValues = is_array($item['fieldValues'] ?? null) ? $item['fieldValues'] : [];
+$rejectedFields = json_decode((string)($fieldValues['rejectedFields'] ?? '[]'), true);
+$rejectedFields = is_array($rejectedFields) ? $rejectedFields : [];
 $fieldProvenanceRows = [
     'publicationType' => $l->t('Publication type'), 'title' => $l->t('Title'),
     'subtitle' => $l->t('Subtitle'), 'creators' => $l->t('Creators'),
+    'series' => $l->t('Series'), 'seriesNumber' => $l->t('Part in series'), 'genre' => $l->t('Genre'),
     'publication' => $l->t('Publication'), 'publicationDate' => $l->t('Publication date'),
     'language' => $l->t('Language'), 'publisher' => $l->t('Publisher'),
     'description' => $l->t('Description'), 'subjects' => $l->t('Subjects'),
@@ -156,6 +160,7 @@ $scanStatusLabels = [
                     <div class="library-detail-actionbar">
                         <div class="library-detail-primary-actions">
                             <a href="<?php p($item['openUrl'] ?? '#'); ?>" class="button primary"><?php p($l->t('Open')); ?></a>
+                            <a href="<?php p($item['listsUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Add to list')); ?></a>
                             <details class="library-detail-more-actions">
                                 <summary><?php p($l->t('More actions')); ?></summary>
                                 <div>
@@ -245,11 +250,12 @@ $scanStatusLabels = [
                     <span class="library-field-label-help" title="<?php p($metadataHelp['creators']); ?>" aria-label="<?php p($l->t('Creators help: %s', [$metadataHelp['creators']])); ?>"><?php p($l->t('Creators')); ?></span>
                     <div class="library-creator-chip-editor" data-creator-chip-editor>
                         <div class="library-creator-chip-list" aria-label="<?php p($l->t('Creators')); ?>">
-                            <?php foreach (array_filter(array_map('trim', preg_split('/[;\n]+/u', (string)($item['creators'] ?? '')) ?: []), static fn ($value) => $value !== '') as $creator): ?>
+                            <?php foreach ($creatorNames as $creator): ?>
                                 <span class="library-creator-chip"><span><?php p($creator); ?></span><button type="button" class="library-creator-chip-remove" aria-label="<?php p($l->t('Remove creator: %s', [$creator])); ?>">×</button></span>
                             <?php endforeach; ?>
                         </div>
                         <input type="text" class="library-creator-chip-input" placeholder="<?php p($l->t('Add creator and press Enter')); ?>" />
+                        <input type="hidden" name="creatorFormat" value="lines" />
                         <input type="hidden" name="creators" value="<?php p($creatorLines); ?>" />
                     </div>
                 </label>
@@ -281,6 +287,9 @@ $scanStatusLabels = [
                     <?php p($l->t('Publication')); ?>
                     <input type="text" name="publication" value="<?php p((string)($item['publication'] ?? '')); ?>" />
                 </label>
+                <label id="library-field-series"><span class="library-field-label-help" title="<?php p($l->t('Book series name, stored separately from the existing Publication field.')); ?>"><?php p($l->t('Series')); ?></span><input type="text" name="series" maxlength="255" value="<?php p((string)($item['series'] ?? '')); ?>" /></label>
+                <label id="library-field-seriesNumber"><span class="library-field-label-help" title="<?php p($l->t('Text such as 01, 2.5 or Volume II. Leading zeros and labels are preserved.')); ?>"><?php p($l->t('Part in series')); ?></span><input type="text" name="seriesNumber" maxlength="64" value="<?php p((string)($item['seriesNumber'] ?? '')); ?>" /></label>
+                <label id="library-field-genre"><span class="library-field-label-help" title="<?php p($l->t('A genre label such as Science fiction. Separate from subjects, file format and publication type.')); ?>"><?php p($l->t('Genre')); ?></span><input type="text" name="genre" maxlength="255" value="<?php p((string)($item['genre'] ?? '')); ?>" /></label>
                 <label id="library-field-publicationDate">
                     <span class="library-field-label-help" title="<?php p($metadataHelp['publicationDate']); ?>" aria-label="<?php p($l->t('Publication date help: %s', [$metadataHelp['publicationDate']])); ?>"><?php p($l->t('Publication date')); ?></span>
                     <input type="text" name="publicationDate" value="<?php p((string)($item['publicationDate'] ?? '')); ?>" />
@@ -363,7 +372,7 @@ $scanStatusLabels = [
                 <dt data-library-field="userEdited"><?php p($l->t('User edited')); ?></dt>
                 <dd><?php p(($item['userEdited'] ?? false) ? $l->t('yes') : $l->t('no')); ?></dd>
             </dl>
-            <p class="library-muted"><?php p($l->t('User-edited publication metadata is preserved across rescans. Scanner values remain provenance-labelled.')); ?></p>
+            <p data-library-help class="library-muted"><?php p($l->t('User-edited publication metadata is preserved across rescans. Scanner values remain provenance-labelled.')); ?></p>
             <div class="library-field-provenance" aria-label="<?php p($l->t('Field sources')); ?>">
                 <h4><?php p($l->t('Field-level provenance')); ?></h4>
                 <div class="library-metadata-correction-summary" aria-label="<?php p($l->t('Metadata correction summary')); ?>">
@@ -376,11 +385,11 @@ $scanStatusLabels = [
                     <form method="post" action="<?php p($resetFieldsUrl); ?>" class="library-fields-reset-form">
                         <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                         <input type="hidden" name="returnTo" value="details" />
-                        <button type="submit" class="button secondary"><?php p($l->t('Reset all fields to scanner')); ?></button>
+                        <button type="submit" class="button secondary" <?php if ($rejectedFields !== []): ?>disabled title="<?php p($l->t('This source value exceeds field limits. Edit the field instead.')); ?>"<?php endif; ?>><?php p($l->t('Reset all fields to scanner')); ?></button>
                     </form>
                 <?php endif; ?>
                 <div class="library-provenance-differences">
-                    <p class="library-muted"><?php p($l->t('Only fields with suggested updates are shown first.')); ?></p>
+                    <p data-library-help class="library-muted"><?php p($l->t('Only fields with suggested updates are shown first.')); ?></p>
                     <?php if ($scannerConflictCount === 0): ?>
                         <p class="library-muted"><?php p($l->t('No scanner differences for this item.')); ?></p>
                     <?php else: ?>
@@ -411,7 +420,7 @@ $scanStatusLabels = [
                                                     <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                                                     <input type="hidden" name="returnTo" value="details" />
                                                     <input type="hidden" name="field" value="<?php p((string)$field); ?>" />
-                                                    <button type="submit" class="button secondary"><?php p($l->t('Reset to scanner')); ?></button>
+                                                    <button type="submit" class="button secondary" <?php if (in_array($field,$rejectedFields,true)): ?>disabled title="<?php p($l->t('This source value exceeds field limits. Edit the field instead.')); ?>"<?php endif; ?>><?php p($l->t('Reset to scanner')); ?></button>
                                                 </form>
                                             <?php endif; ?>
                                         </td>
@@ -456,7 +465,7 @@ $scanStatusLabels = [
                                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                                             <input type="hidden" name="returnTo" value="details" />
                                             <input type="hidden" name="field" value="<?php p((string)$field); ?>" />
-                                            <button type="submit" class="button secondary"><?php p($l->t('Reset to scanner')); ?></button>
+                                            <button type="submit" class="button secondary" <?php if (in_array($field,$rejectedFields,true)): ?>disabled title="<?php p($l->t('This source value exceeds field limits. Edit the field instead.')); ?>"<?php endif; ?>><?php p($l->t('Reset to scanner')); ?></button>
                                         </form>
                                     <?php endif; ?>
                                 </td>
@@ -511,7 +520,7 @@ $scanStatusLabels = [
                             <option value="<?php p((string)$tagName); ?>"></option>
                         <?php endforeach; ?>
                     </datalist>
-                    <p class="library-muted library-tag-feedback-help"><?php p($l->t('Tag result feedback can report: Tag already assigned, Tag is not assignable, or Empty tag ignored.')); ?></p>
+                    <p data-library-help class="library-muted library-tag-feedback-help"><?php p($l->t('Tag result feedback can report: Tag already assigned, Tag is not assignable, or Empty tag ignored.')); ?></p>
                     <button type="submit"><?php p($l->t('Add tag')); ?></button>
                 </form>
                 <div class="library-tag-suggestion-picker" aria-label="<?php p($l->t('Suggested Nextcloud tags')); ?>">

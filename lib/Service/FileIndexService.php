@@ -19,13 +19,15 @@ final class FileIndexService {
     /**
      * @param array<string, mixed> $file
      */
-    public function upsertFile(string $userId, int $rootId, array $file): array {
+    public function upsertFile(string $userId, int $rootId, array $file, ?array $observation = null): array {
         $now = time();
         $fileId = (int)$file['fileId'];
 
-        $existing = $this->findByFileId($userId, $fileId);
+        if ($observation !== null && (($observation['userId'] ?? '') !== $userId || (int)($observation['fileId'] ?? 0) !== $fileId)) throw new \InvalidArgumentException('invalid_file_observation');
+        $existing = $observation ?? $this->findByFileId($userId, $fileId);
         if ($existing !== null) {
             $previousScanStatus = $existing['scanStatus'];
+            $previousScanError = $existing['scanError'];
             $previousMetadataInputFingerprint = $existing['metadataInputFingerprint'];
             $previousMetadataExtractorRevision = $existing['metadataExtractorRevision'];
             $pathChanged = (string)$existing['cachedPath'] !== (string)$file['cachedPath'] || (int)$existing['rootId'] !== $rootId;
@@ -44,9 +46,11 @@ final class FileIndexService {
                 ->set('updated_at', $qb->createNamedParameter($now))
                 ->where($qb->expr()->eq('id', $qb->createNamedParameter($existing['id'])))
                 ->executeStatement();
-            $updated = $this->findByFileId($userId, $fileId) ?? $existing;
+            $updated = [...$existing, ...$file, 'rootId' => $rootId, 'scanStatus' => 'indexed',
+                'scanError' => null, 'lastScannedAt' => $now, 'updatedAt' => $now];
             $updated['changeStatus'] = $pathChanged ? 'path_updated' : 'unchanged';
             $updated['previousScanStatus'] = $previousScanStatus;
+            $updated['previousScanError'] = $previousScanError;
             $updated['previousMetadataInputFingerprint'] = $previousMetadataInputFingerprint;
             $updated['previousMetadataExtractorRevision'] = $previousMetadataExtractorRevision;
             return $updated;
@@ -105,11 +109,13 @@ final class FileIndexService {
             ->executeStatement();
     }
 
-    public function markScanError(string $userId, int $libraryFileId, string $message): void {
+    public function markScanError(string $userId, int $libraryFileId, string $message, ?string $fingerprint = null, ?string $revision = null): void {
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_files')
             ->set('scan_status', $qb->createNamedParameter('metadata_error'))
             ->set('scan_error', $qb->createNamedParameter(mb_substr($message, 0, 1024)))
+            ->set('metadata_input_fingerprint', $qb->createNamedParameter($fingerprint))
+            ->set('metadata_extractor_revision', $qb->createNamedParameter($revision))
             ->set('last_scanned_at', $qb->createNamedParameter(time()))
             ->set('updated_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($libraryFileId)))
@@ -155,6 +161,50 @@ final class FileIndexService {
         return $missing;
     }
 
+    /** Mark only the changed subtree; never infer deletion outside the scanned directory. */
+    public function markMissingUnderPathExcept(string $userId, int $rootId, string $directory, array $seenLibraryFileIds): int {
+        $seen = array_flip(array_map('intval', $seenLibraryFileIds));
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('id', 'cached_path')->from('library_files')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->neq('scan_status', $qb->createNamedParameter('sidecar')))
+            ->andWhere($qb->expr()->like('cached_path', $qb->createNamedParameter(($directory === '/' ? '/' : rtrim($directory, '/') . '/') . '%')))
+            ->executeQuery();
+        $missing = 0;
+        $prefix = $directory === '/' ? '/' : rtrim($directory, '/') . '/';
+        while ($row = $result->fetch()) {
+            $id = (int)$row['id'];
+            // LIKE metacharacters in real filenames may broaden the SQL read, never the update.
+            if (!str_starts_with((string)$row['cached_path'], $prefix) || isset($seen[$id])) continue;
+            $update = $this->db->getQueryBuilder();
+            $missing += $update->update('library_files')
+                ->set('scan_status', $update->createNamedParameter('missing'))
+                ->set('scan_error', $update->createNamedParameter('File was not found during the latest directory scan'))
+                ->set('updated_at', $update->createNamedParameter(time()))
+                ->where($update->expr()->eq('id', $update->createNamedParameter($id)))
+                ->andWhere($update->expr()->eq('user_id', $update->createNamedParameter($userId)))
+                ->andWhere($update->expr()->neq('scan_status', $update->createNamedParameter('missing')))
+                ->executeStatement();
+        }
+        $result->closeCursor();
+        return $missing;
+    }
+
+    public function markMissingAtPath(string $userId, int $rootId, string $path): int {
+        $qb = $this->db->getQueryBuilder();
+        return $qb->update('library_files')
+            ->set('scan_status', $qb->createNamedParameter('missing'))
+            ->set('scan_error', $qb->createNamedParameter('File was not found during the latest incremental scan'))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->eq('cached_path', $qb->createNamedParameter($path)))
+            ->andWhere($qb->expr()->neq('scan_status', $qb->createNamedParameter('missing')))
+            ->andWhere($qb->expr()->neq('scan_status', $qb->createNamedParameter('sidecar')))
+            ->executeStatement();
+    }
+
     /**
      * @return array<int, int>
      */
@@ -164,6 +214,7 @@ final class FileIndexService {
             ->from('library_files')
             ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->neq('scan_status', $qb->createNamedParameter('sidecar')))
             ->executeQuery();
 
         $ids = [];
@@ -376,6 +427,22 @@ final class FileIndexService {
             return null;
         }
 
+        return $this->normalizeIndexRow($row);
+    }
+
+    /** A scan page's previous observations, bounded and scoped to its owner. */
+    public function findByFileIds(string $uid, array $ids): array {
+        if ($ids === [] || count($ids) > 200) return [];
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('*')->from('library_files')
+            ->where($qb->expr()->eq('user_id',$qb->createNamedParameter($uid)))
+            ->andWhere($qb->expr()->in('file_id',$qb->createNamedParameter(array_map('intval',$ids),IQueryBuilder::PARAM_INT_ARRAY)))->executeQuery();
+        $files=[];
+        while ($row=$result->fetch()) $files[(int)$row['file_id']]=['userId'=>$uid,...$this->normalizeIndexRow($row)];
+        $result->closeCursor();return $files;
+    }
+
+    private function normalizeIndexRow(array $row): array {
         return [
             'id' => (int)$row['id'],
             'rootId' => (int)$row['root_id'],

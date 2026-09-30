@@ -79,8 +79,11 @@ test('edits metadata, rescans, then repairs the suggestion and restores the titl
     const suggestedTitle = (await suggestedTitleValue.innerText()).trim()
     expect(suggestedTitle).not.toBe('—')
     expect(suggestedTitle).not.toBe('')
+    const reviewUrl = page.url()
     await Promise.all([
-      page.waitForURL((url) => url.pathname.endsWith('/apps/library/')),
+      // The review page already has this pathname. Wait for its POST redirect,
+      // otherwise the next goto aborts core scripts while they are initializing.
+      page.waitForURL((url) => url.href !== reviewUrl && url.pathname.endsWith('/apps/library/'), { waitUntil: 'load' }),
       titleSuggestion.getByRole('button', { name: 'Use suggested value' }).click(),
     ])
 

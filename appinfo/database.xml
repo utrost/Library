@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
+<!-- Schema reference for 0.2.0-beta.1, through Version000200Date20260928090000.
+     lib/Migration is authoritative for installation and upgrades; see docs/database-schema.md. -->
 <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/database.xsd">
     <table>
@@ -222,9 +224,9 @@
                 </field>
                 <field>
                     <name>cached_path</name>
-                    <length>191</length>
                 </field>
             </index>
+            <index><name>library_files_usr_page</name><field><name>user_id</name></field><field><name>id</name></field><field><name>scan_status</name></field><field><name>root_id</name></field></index>
             <index>
                 <name>library_files_root_id</name>
                 <field>
@@ -264,6 +266,11 @@
     <table>
         <name>*dbprefix*library_items</name>
         <declaration>
+            <field><name>scanner_index_hash</name><type>string</type><length>64</length><notnull>false</notnull></field>
+            <field><name>authors_json</name><type>text</type><notnull>false</notnull></field>
+            <field><name>series_name</name><type>string</type><length>255</length><notnull>false</notnull></field>
+            <field><name>series_number</name><type>string</type><length>64</length><notnull>false</notnull></field>
+            <field><name>genre</name><type>string</type><length>255</length><notnull>false</notnull></field>
             <field>
                 <name>id</name>
                 <type>integer</type>
@@ -377,6 +384,8 @@
                 <length>32</length>
                 <notnull>false</notnull>
             </field>
+            <!-- Retained legacy column; the subject migration copies its data. -->
+            <field><name>genres_json</name><type>text</type><notnull>false</notnull></field>
             <field>
                 <name>subjects_json</name>
                 <type>text</type>
@@ -403,6 +412,7 @@
                 <type>text</type>
                 <notnull>false</notnull>
             </field>
+            <field><name>cover_revision</name><type>string</type><length>32</length><notnull>false</notnull></field>
             <field>
                 <name>cover_override_mime_type</name>
                 <type>string</type>
@@ -484,6 +494,7 @@
                     <name>library_file_id</name>
                 </field>
             </index>
+            <index><name>library_items_usr_title_page</name><field><name>user_id</name></field><field><name>title</name></field><field><name>id</name></field><field><name>library_file_id</name></field></index>
             <index>
                 <name>library_items_usr_title</name>
                 <field><name>user_id</name></field>
@@ -523,7 +534,7 @@
             <index>
                 <name>library_items_usr_creator</name>
                 <field><name>user_id</name></field>
-                <field><name>creators</name><length>191</length></field>
+                <field><name>creators</name></field>
             </index>
             <index>
                 <name>library_items_usr_type_title_file</name>
@@ -757,6 +768,7 @@
                 <default>0</default>
             </field>
             <field><name>fingerprint_skips</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull><default>0</default></field>
+            <field><name>cached_warning_skips</name><type>integer</type><length>4</length><notnull>true</notnull><default>0</default></field>
             <field><name>metadata_extractions</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull><default>0</default></field>
             <field><name>item_refreshes</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull><default>0</default></field>
             <field>
@@ -864,4 +876,367 @@
             </index>
         </declaration>
     </table>
+    <table>
+        <name>*dbprefix*library_lists</name>
+        <declaration>
+            <field>
+                <name>id</name>
+                <type>integer</type>
+                <unsigned>true</unsigned>
+                <notnull>true</notnull>
+                <autoincrement>true</autoincrement>
+            </field>
+            <field>
+                <name>user_id</name>
+                <type>string</type>
+                <length>64</length>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>name</name>
+                <type>string</type>
+                <length>120</length>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>description</name>
+                <type>text</type>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>revision</name>
+                <type>integer</type>
+                <notnull>true</notnull>
+                <default>1</default>
+            </field>
+            <field>
+                <name>created_at</name>
+                <type>integer</type>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>updated_at</name>
+                <type>integer</type>
+                <notnull>true</notnull>
+            </field>
+            <index>
+                <name>library_lists_id</name>
+                <primary>true</primary>
+                <unique>true</unique>
+                <field>
+                    <name>id</name>
+                </field>
+            </index>
+            <index>
+                <name>library_lists_owner</name>
+                <field>
+                    <name>user_id</name>
+                </field>
+                <field>
+                    <name>id</name>
+                </field>
+            </index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_list_entries</name>
+        <declaration>
+            <field>
+                <name>id</name>
+                <type>integer</type>
+                <unsigned>true</unsigned>
+                <notnull>true</notnull>
+                <autoincrement>true</autoincrement>
+            </field>
+            <field>
+                <name>list_id</name>
+                <type>integer</type>
+                <unsigned>true</unsigned>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>item_id</name>
+                <type>integer</type>
+                <unsigned>true</unsigned>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>file_id</name>
+                <type>bigint</type>
+                <unsigned>true</unsigned>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>position</name>
+                <type>integer</type>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>note</name>
+                <type>text</type>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>created_at</name>
+                <type>integer</type>
+                <notnull>true</notnull>
+            </field>
+            <index>
+                <name>library_list_entries_id</name>
+                <primary>true</primary>
+                <unique>true</unique>
+                <field>
+                    <name>id</name>
+                </field>
+            </index>
+            <index>
+                <name>library_list_entry_unique</name>
+                <unique>true</unique>
+                <field>
+                    <name>list_id</name>
+                </field>
+                <field>
+                    <name>item_id</name>
+                </field>
+            </index>
+            <index>
+                <name>library_list_entry_order</name>
+                <field>
+                    <name>list_id</name>
+                </field>
+                <field>
+                    <name>position</name>
+                </field>
+                <field>
+                    <name>id</name>
+                </field>
+            </index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_inference_batches</name>
+        <declaration>
+            <field>
+                <name>id</name>
+                <type>string</type>
+                <length>32</length>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>user_id</name>
+                <type>string</type>
+                <length>64</length>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>status</name>
+                <type>string</type>
+                <length>16</length>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>payload</name>
+                <type>text</type>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>created_at</name>
+                <type>bigint</type>
+                <notnull>true</notnull>
+            </field>
+            <field>
+                <name>expires_at</name>
+                <type>bigint</type>
+                <notnull>true</notnull>
+            </field>
+            <index>
+                <name>library_infer_batch_id</name>
+                <primary>true</primary>
+                <unique>true</unique>
+                <field>
+                    <name>id</name>
+                </field>
+            </index>
+            <index>
+                <name>library_infer_batch_user</name>
+                <field>
+                    <name>user_id</name>
+                </field>
+                <field>
+                    <name>created_at</name>
+                </field>
+            </index>
+            <index><name>library_infer_batch_expiry</name><field><name>expires_at</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_infer_jobs</name>
+        <declaration>
+            <field><name>id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>status</name><type>string</type><length>16</length><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><notnull>true</notnull></field>
+            <field><name>root_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>cursor_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>max_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>total</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>processed</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>bytes</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>created_at</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>expires_at</name><type>bigint</type><notnull>true</notnull></field>
+            <index><name>library_infer_job_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>library_infer_job_user</name><field><name>user_id</name></field><field><name>created_at</name></field></index>
+            <index><name>library_infer_job_expiry</name><field><name>expires_at</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_infer_results</name>
+        <declaration>
+            <field><name>job_id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>item_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>status</name><type>string</type><length>16</length><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><notnull>true</notnull></field>
+            <index><name>library_infer_result_pk</name><primary>true</primary><unique>true</unique><field><name>job_id</name></field><field><name>item_id</name></field></index>
+            <index><name>library_infer_result_page</name><field><name>job_id</name></field><field><name>status</name></field><field><name>item_id</name></field></index>
+            <index><name>library_infer_result_user</name><field><name>user_id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_dup_jobs</name>
+        <declaration>
+            <field><name>id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>status</name><type>string</type><length>16</length><notnull>true</notnull></field>
+            <field><name>created_at</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>expires_at</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><notnull>true</notnull></field>
+            <index><name>library_dup_job_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>library_dup_job_user</name><field><name>user_id</name></field><field><name>created_at</name></field></index>
+            <index><name>library_dup_job_expiry</name><field><name>expires_at</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_dup_books</name>
+        <declaration>
+            <field><name>job_id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>item_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><notnull>true</notnull></field>
+            <index><name>library_dup_book_pk</name><primary>true</primary><unique>true</unique><field><name>job_id</name></field><field><name>item_id</name></field></index>
+            <index><name>library_dup_book_user</name><field><name>user_id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_dup_keys</name>
+        <declaration>
+            <field><name>job_id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>match_key</name><type>string</type><length>66</length><notnull>true</notnull></field>
+            <field><name>item_id</name><type>bigint</type><notnull>true</notnull></field>
+            <index><name>library_dup_key_pk</name><primary>true</primary><unique>true</unique><field><name>job_id</name></field><field><name>match_key</name></field><field><name>item_id</name></field></index>
+            <index><name>library_dup_key_user</name><field><name>user_id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_dup_pairs</name>
+        <declaration>
+            <field><name>job_id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>pair_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>signature</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>decision</name><type>string</type><length>16</length><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><notnull>true</notnull></field>
+            <index><name>library_dup_pair_pk</name><primary>true</primary><unique>true</unique><field><name>job_id</name></field><field><name>pair_id</name></field></index>
+            <index><name>library_dup_pair_user</name><field><name>user_id</name></field></index>
+            <index><name>library_dup_pair_page</name><field><name>job_id</name></field><field><name>decision</name></field><field><name>pair_id</name></field></index>
+            <index><name>library_dup_pair_choice</name><field><name>user_id</name></field><field><name>signature</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_dup_choices</name>
+        <declaration>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>signature</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>decision</name><type>string</type><length>16</length><notnull>true</notnull></field>
+            <field><name>preferred_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>updated_at</name><type>bigint</type><notnull>true</notnull></field>
+            <index><name>library_dup_choice_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>signature</name></field></index>
+            <index><name>library_dup_choice_expiry</name><field><name>updated_at</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_dup_state</name>
+        <declaration>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>status</name><type>string</type><length>16</length><notnull>true</notnull></field>
+            <field><name>enabled</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>cursor_id</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>max_id</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>processed</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>total</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <index><name>library_dup_state_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_dup_index</name>
+        <declaration>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>item_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><notnull>true</notnull></field>
+            <index><name>library_dup_index_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>item_id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_dup_terms</name>
+        <declaration>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>match_key</name><type>string</type><length>66</length><notnull>true</notnull></field>
+            <field><name>item_id</name><type>bigint</type><notnull>true</notnull></field>
+            <index><name>library_dup_terms_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>match_key</name></field><field><name>item_id</name></field></index>
+            <index><name>library_dup_terms_item</name><field><name>user_id</name></field><field><name>item_id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_dup_hints</name>
+        <declaration>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>signature</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>decision</name><type>string</type><length>16</length><notnull>true</notnull></field>
+            <field><name>left_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>right_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>preferred_id</name><type>bigint</type><notnull>true</notnull></field>
+            <index><name>library_dup_hints_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>left_id</name></field><field><name>right_id</name></field></index>
+            <index><name>library_dup_hints_right</name><field><name>user_id</name></field><field><name>right_id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_scan_schedule</name>
+        <declaration>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>interval_seconds</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>next_run_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>last_job_id</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>last_full_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>last_full_revision</name><type>string</type><length>64</length><notnull>false</notnull></field>
+            <field><name>last_full_roots_hash</name><type>string</type><length>64</length><notnull>false</notnull></field>
+            <index><name>library_scan_schedule_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field></index>
+            <index><name>library_scan_schedule_due</name><field><name>next_run_at</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_scan_changes</name>
+        <declaration>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>path_hash</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>target_path</name><type>string</type><length>1024</length><notnull>true</notnull></field>
+            <field><name>is_directory</name><type>boolean</type><notnull>true</notnull><default>false</default></field>
+            <field><name>generation</name><type>bigint</type><notnull>true</notnull><default>1</default></field>
+            <index><name>library_scan_changes_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>path_hash</name></field></index>
+        </declaration>
+    </table>
+    <table><name>*dbprefix*library_thumbnail_users</name><declaration>
+        <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <index><name>library_thumbnail_user_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field></index>
+    </declaration></table>
 </database>

@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 
@@ -11,5 +12,5 @@ def test_failed_catalogue_star_feedback_keeps_the_overlay_visible():
 
 def test_alpha_155_controller_serves_the_versioned_race_hardened_assets():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text(encoding="utf-8")
-    assert "library-main-0-1-0-beta-1-compact-list-table-cover-96-fit-v4" in controller
-    assert "library-vue-0-1-0-beta-1-compact-list-table-cover-96-fit-v4" in controller
+    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4" in controller
+    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4" in controller

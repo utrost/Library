@@ -51,7 +51,7 @@ final class ItemPageController extends Controller {
         }
         $id = (string)$item['id'];
         $fileId = (int)$item['fileId'];
-        $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $id]);
+        $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $id, 'v' => $item['coverCacheRevision'] ?? '']);
         $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $id]);
         $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $id]);
         $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $id]);
@@ -59,7 +59,7 @@ final class ItemPageController extends Controller {
         $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
         $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($user->getUID(), (string)($item['cachedPath'] ?? ''));
         return new JSONResponse(['item' => array_intersect_key($item, array_flip([
-            'id', 'title', 'subtitle', 'creators', 'publicationType', 'publication', 'publicationDate',
+            'id', 'title', 'subtitle', 'creators', 'authors', 'publicationType', 'publication', 'publicationDate', 'series', 'seriesNumber', 'genre',
             'language', 'publisher', 'description', 'subjects', 'classifications', 'personalRating',
             'extension', 'shelf', 'cachedPath', 'scanStatus', 'scanError', 'workflowStatus',
             'identifiers', 'metadataSource', 'fieldSources', 'fieldValues', 'userEdited', 'coverUrl',
@@ -112,6 +112,7 @@ final class ItemPageController extends Controller {
             'library.cover.show',
             array_filter([
                 'itemId' => (string)$item['id'],
+                'v' => $item['coverCacheRevision'] ?? '',
                 'refresh' => $coverRefreshRequested ? '1' : null,
             ], static fn ($value) => $value !== null)
         );
@@ -130,6 +131,7 @@ final class ItemPageController extends Controller {
         $item['forgetMissingUrl'] = $this->urlGenerator->linkToRoute('library.item.forgetMissing', ['itemId' => (string)$item['id']]);
         $item['tagUrl'] = $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => (string)$item['id']]);
         $item['commentUrl'] = $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => (string)$item['id']]);
+        $item['listsUrl'] = $this->urlGenerator->linkToRoute('library.page.index') . '?lists=1&addItem=' . (int)$item['id'];
         $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => (string)$item['id']]);
         $item['recordOpenUrl'] = $this->urlGenerator->linkToRoute('library.item.recordOpen', ['itemId' => (string)$item['id']]);
         $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
@@ -158,6 +160,7 @@ final class ItemPageController extends Controller {
         $item['nextcloudComments'] = $comments[$fileId] ?? ['count' => 0, 'recent' => []];
 
         Util::addStyle(Application::APP_ID, 'style');
+        Util::addScript(Application::APP_ID, 'library-help');
         Util::addScript(Application::APP_ID, 'library-detail');
         $language = $this->l10nFactory?->findLanguage(Application::APP_ID) ?? 'en';
         return new TemplateResponse(Application::APP_ID, 'item-detail', [

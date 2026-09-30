@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 
@@ -91,12 +92,12 @@ def test_cover_privacy_browser_waits_for_vue_covers_and_captures_all_resource_ty
 
 
 def test_alpha_158_version_assets_and_release_language_are_aligned():
-    assert "<version>0.1.0-beta.1</version>" in read("appinfo/info.xml")
-    assert '"version": "0.1.0-beta.1"' in read("package.json")
-    assert '"version": "0.1.0-beta.1"' in read("package-lock.json")
+    assert f"<version>{CURRENT_VERSION}</version>" in read("appinfo/info.xml")
+    assert f'"version": "{CURRENT_VERSION}"' in read("package.json")
+    assert f'"version": "{CURRENT_VERSION}"' in read("package-lock.json")
     page = read("lib/Controller/PageController.php")
-    assert "library-main-0-1-0-beta-1-compact-list-table-cover-96-fit-v4" in page
-    assert "library-vue-0-1-0-beta-1-compact-list-table-cover-96-fit-v4" in page
+    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4" in page
+    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4" in page
     assert (ROOT / "js/library-main-0-1-0-alpha-157.mjs").exists()
     assert (ROOT / "css/library-vue-0-1-0-alpha-157.css").exists()
     release_text = "\n".join(read(path) for path in ("CHANGELOG.md", "RELEASE.md", "docs/architecture-review.md"))

@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,7 +18,10 @@ def test_package_exposes_vue_browser_smoke_script():
     assert "library-vue\\.css" in text
     assert "process.env" in text
     assert "temp_token_remaining" in text
-    assert "user:add-app-password" in text
+    assert "createTemporaryAppPassword(container, user, tokenName)" in text
+    helper = (ROOT / "scripts" / "temporary-app-password.mjs").read_text()
+    assert "user:add-app-password" in helper
+    assert 'The "login-name" option does not exist.' in helper
     assert "user:auth-tokens:delete" in text
 
 
@@ -42,8 +46,8 @@ def test_vue_component_css_is_built_to_nextcloud_css_asset_and_loaded():
     assert "versionedJsAssetName" in build_script
     assert "versionedCssAssetName" in build_script
     assert "copied_nextcloud_vue_assets=true" in build_script
-    assert "private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-beta-1-compact-list-table-cover-96-fit-v4';" in controller
-    assert "private const VUE_STYLE_ASSET = 'library-vue-0-1-0-beta-1-compact-list-table-cover-96-fit-v4';" in controller
+    assert f"private const VUE_SCRIPT_ASSET = 'library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4';" in controller
+    assert f"private const VUE_STYLE_ASSET = 'library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4';" in controller
     assert "Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);" in controller
     assert "Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);" in controller
     assert (ROOT / "css" / "library-vue.css").exists()

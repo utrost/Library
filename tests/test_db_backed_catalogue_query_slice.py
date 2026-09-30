@@ -10,7 +10,7 @@ def test_item_service_exposes_db_backed_catalogue_query_result():
     assert "private function catalogueQueryBuilder(string $userId" in service
     assert "private function countCatalogueItems(string $userId, array $filters): int" in service
     assert "private function catalogueFacets(string $userId, array $filters): array" in service
-    assert "->setFirstResult($offset)" in service
+    assert "->setFirstResult($cursor === null ? $offset : 0)" in service
     assert "->setMaxResults($limit)" in service
     assert "COUNT(DISTINCT i.id)" in service
     assert "searchGramCandidateIds" in service
