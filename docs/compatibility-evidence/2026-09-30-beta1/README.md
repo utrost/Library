@@ -1,6 +1,6 @@
 # Library 0.2.0-beta.1 release verification
 
-Candidate date: 2026-09-30. Final signed-archive matrix: PASS, all six installations, 210/210 Playwright executions with no skips or retries. GitHub mixed-fixture CI is still pending.
+Candidate date: 2026-09-30. Final signed-archive matrix: PASS, all six installations, 210/210 Playwright executions with no skips or retries. GitHub mixed-fixture CI also passes, including all 35 browser executions and the legacy browser/HTTP/performance checks.
 
 Archive: `library-0.2.0-beta.1.tar.gz`.
 SHA-256: `fcaf7090eda1163fba8a18bdb9f865dbbdee6f4849a8f70345a41be8afcdf9e3`.
@@ -40,7 +40,8 @@ A sleeping worker that had retained old PHP for more than two days was recycled 
 3. **CI harness:** mixed-fixture tests needed separate one-result search and total-card expectations, sample-dependent filename assertions, the scan worker, and the current 25-table schema check. The independent account was also missing from the mixed fixture, and its square covers exposed an assertion that ignored `object-fit: contain`. The screenshot showed intact, uncropped artwork; the check now accepts contained artwork or matching intrinsic aspect ratio while preserving geometry/action checks.
 4. **Release tooling:** corrected signing-directory/key ownership and permissions, allowed the already-required context-help asset in the package audit, corrected XML element order and SPDX/SLSA sidecar formats, and updated two vulnerable transitive brace-expansion versions.
 5. **List layout:** after correcting the image assertion, the mixed fixture exposed real overflow from long shelf names. Shelf/series metadata now uses the same bounded, wrapping block layout as author names. The browser checks still reject overflowing fields and inaccessible actions. The replacement signed archive repeated all six installations. A remaining four-pixel scroll measurement came from the trailing action margin: the screenshot showed all controls visible. The test now accounts for that computed margin and explicitly verifies the right edge of every action, retaining field-overflow checks.
-6. **Orchestration:** the initial upgrade run's three cases and cleanups passed, but editing the running shell harness caused a trailing parse error after the loop. Final runs use a frozen harness and separate instance prefixes/work directories; their results supersede those preliminary runs.
+6. **Legacy browser launcher:** the CI runner’s system Chrome did not expose its debug endpoint. The mixed-fixture harness now uses the same pinned Playwright Chrome executable as the GUI suite. Its full CI run and a read-only developer NC34 catalogue/sidebar check pass; temporary-token cleanup is confirmed.
+7. **Orchestration:** the initial upgrade run's three cases and cleanups passed, but editing the running shell harness caused a trailing parse error after the loop. Final runs use a frozen harness and separate instance prefixes/work directories; their results supersede those preliminary runs.
 
 ## Screenshots and limits
 
@@ -60,4 +61,4 @@ Raw logs, Playwright JSON, screenshots and cleanup records are retained locally 
 
 ## Aggregate evidence
 
-[Machine-readable matrix results](results.json). The signed archive reproduces byte-for-byte, and all 164 source files match the repository. Final local rerun: 1,043 Python tests passed. GitHub mixed-fixture CI rerun: [36726614904](https://github.com/utrost/Library/actions/runs/36726614904), pending at this checkpoint.
+[Machine-readable matrix results](results.json). The signed archive reproduces byte-for-byte, and all 164 source files match the repository. Final package gate: 1,043 Python tests passed; the subsequent CI gate also includes the added pinned-browser setup regression test. GitHub mixed-fixture CI rerun: [36727744264](https://github.com/utrost/Library/actions/runs/36727744264), PASS for both source/build/security checks and the complete mixed-fixture GUI/HTTP/performance rehearsal. Later source changes are documentation/evidence only.
