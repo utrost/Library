@@ -227,6 +227,9 @@ LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS="${LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS:-
 LIBRARY_CATALOGUE_MEASURE_HYDRATE=1 npm run smoke:catalogue-performance | tee -a "$RUN_LOG"
 npm run smoke:vue | tee -a "$RUN_LOG"
 npm run smoke:sidebar-http | tee -a "$RUN_LOG"
+# Use the browser installed by the pinned Playwright setup, not the runner's system Chrome.
+playwright_chrome_bin=$(node -e "console.log(require('@playwright/test').chromium.executablePath())")
+CHROME_BIN="${CHROME_BIN:-$playwright_chrome_bin}" \
 LIBRARY_BROWSER_SMOKE_BASIC=1 LIBRARY_BROWSER_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS" npm run smoke:browser | tee -a "$RUN_LOG"
 
 grep -q 'catalogue_temp_token_remaining=0' "$RUN_LOG"
