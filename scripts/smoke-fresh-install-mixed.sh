@@ -112,7 +112,7 @@ SCHEMA_JSON="$(docker exec -u www-data "$CONTAINER" php -r '
 require "/var/www/html/config/config.php";
 $pdo = new PDO("sqlite:" . $CONFIG["datadirectory"] . "/owncloud.db");
 $prefix = $CONFIG["dbtableprefix"] ?? "oc_";
-$expected = ["library_roots","library_files","library_items","library_item_search_grams","library_item_identifiers","library_item_facets","library_scan_jobs","library_saved_collections"];
+$expected = []; foreach (simplexml_load_file("/var/www/html/custom_apps/library/appinfo/database.xml")->table as $table) { $expected[] = str_replace("*dbprefix*", "", (string)$table->name); }
 $stmt = $pdo->query("SELECT name FROM sqlite_master WHERE type=\"table\"");
 $actual = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), "name");
 $present = array_values(array_filter($expected, fn($name) => in_array($prefix . $name, $actual, true)));
@@ -121,8 +121,8 @@ $migrations->execute(["library"]); $versions = $migrations->fetchAll(PDO::FETCH_
 echo json_encode(["physical_table_count"=>count($present),"tables"=>$present,"migration_count"=>count($versions),"last_migration"=>end($versions)]);
 ')"
 printf 'fresh_schema=%s\n' "$SCHEMA_JSON"
-python3 -c 'import json,sys; d=json.loads(sys.argv[1]); assert d["physical_table_count"] == 8, d; assert d["migration_count"] >= 33, d' "$SCHEMA_JSON"
-echo 'physical_table_count=8'
+python3 -c 'import json,sys; d=json.loads(sys.argv[1]); assert d["physical_table_count"] == 25, d; assert d["migration_count"] >= 47, d' "$SCHEMA_JSON"
+echo 'physical_table_count=25'
 printf 'migration_count=%s\n' "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["migration_count"])' "$SCHEMA_JSON")"
 printf 'last_migration=%s\n' "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["last_migration"])' "$SCHEMA_JSON")"
 
@@ -196,10 +196,13 @@ echo (string)$stmt->fetchColumn();
 [[ "$GUI_ROOT_PATH" == /* ]] || { echo 'Playwright root fixture path missing' >&2; exit 1; }
 [[ "$GUI_ITEM_ID" =~ ^[1-9][0-9]*$ ]] || { echo 'Playwright item fixture ID missing' >&2; exit 1; }
 [[ -n "$GUI_SEARCH_TITLE" ]] || { echo 'Playwright EPUB fixture title missing' >&2; exit 1; }
+docker exec -u www-data "$CONTAINER" php occ background:cron
+docker exec -d -u www-data "$CONTAINER" php occ --no-warnings --quiet background-job:worker --stop_after=30m 'OCA\Library\BackgroundJob\ScanJob'
 PW_BASE_URL="$BASE_URL" \
 PW_USER="$ADMIN_USER" \
 PW_PASSWORD="$ADMIN_PASS" \
-PW_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS" \
+PW_EXPECTED_CARDS=1 \
+PW_TOTAL_CARDS="$EXPECTED_BROWSER_CARDS" \
 PW_ROOT_PATH="$GUI_ROOT_PATH" \
 PW_ITEM_ID="$GUI_ITEM_ID" \
 PW_SEARCH_TITLE="$GUI_SEARCH_TITLE" \

@@ -24,7 +24,7 @@ def test_disposable_nc34_mixed_rehearsal_is_wired_and_fail_closed():
     assert "config:app:set --value false firstrunwizard wizard_enabled" in script
     assert "package:release" in script
     assert "sha256sum -c" in script
-    assert "physical_table_count=8" in script
+    assert "physical_table_count=25" in script
     assert "migration_count=" in script
     assert "selected_formats=" in script
     assert "source_tree_unchanged=true" in script
