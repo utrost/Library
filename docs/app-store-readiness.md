@@ -12,14 +12,14 @@ Completed:
 - [x] Build and audit the signed archive; verify installed integrity on all six disposable installations and developer NC34.
 - [x] Produce and verify separate App Store registration and archive signatures; generate the SPDX inventory and provenance sidecars.
 - [x] Verify fresh installs and populated upgrades with 40 English Gutenberg books, including preservation of manual metadata corrections.
+- [ ] Finish the separate GitHub mixed-fixture CI rerun.
 - [x] Deploy the corrected candidate on developer NC34 and pass Chromium/Firefox checks without modifying the real catalogue or source files.
 
 Remaining release steps:
 
-1. Finish the separate GitHub mixed-fixture CI rerun; its status is recorded in the verification report.
-2. Owner: accept the developer build and review the [listing text and screenshots](app-store-listing.md).
-3. Owner: sign in to the Nextcloud App Store and register `library` using the public certificate and registration proof. Prepared instructions are in local `dist/app-store-handoff/README.txt`; never upload the private key.
-4. After acceptance, publish the prepared GitHub prerelease and submit its exact archive URL and detached signature through the owner's App Store account. Confirm the store listing and install the store-distributed release.
+1. Owner: accept the developer build and review the [listing text and screenshots](app-store-listing.md).
+2. Owner: sign in to the Nextcloud App Store and register `library` using the public certificate and registration proof. Prepared instructions are in local `dist/app-store-handoff/README.txt`; never upload the private key.
+3. After acceptance, publish the prepared GitHub prerelease and submit its exact archive URL and detached signature through the owner's App Store account. Confirm the store listing and install the store-distributed release.
 
 The GitHub release remains a draft; no App Store submission has been made. Manual assistive-technology testing and PostgreSQL coverage remain documented limitations, not completed checks.
 

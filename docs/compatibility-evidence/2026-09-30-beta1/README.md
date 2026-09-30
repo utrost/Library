@@ -1,10 +1,10 @@
 # Library 0.2.0-beta.1 release verification
 
-Candidate date: 2026-09-30. Final signed-archive matrix: PASS, all six installations, 210/210 Playwright executions with no skips or retries. GitHub mixed-fixture CI is tracked separately below.
+Candidate date: 2026-09-30. Final signed-archive matrix: PASS, all six installations, 210/210 Playwright executions with no skips or retries. GitHub mixed-fixture CI is still pending.
 
 Archive: `library-0.2.0-beta.1.tar.gz`.
-SHA-256: `f24a8737e554f7cb5743939e9bc927e540ca8e7a1d45d33cce7f94209aa0c0e2`.
-The earlier `49c1eea…` candidate was superseded after the SQLite duplicate bug was found.
+SHA-256: `fcaf7090eda1163fba8a18bdb9f865dbbdee6f4849a8f70345a41be8afcdf9e3`.
+Earlier candidates `49c1eea…` and `f24a873…` were superseded after the SQLite duplicate bug and mixed-fixture list-column overflow were found, respectively. The matrix below tests the final replacement archive.
 
 ## Package and local gates
 
@@ -29,7 +29,7 @@ Each final case also runs performance/thumbnail fixtures, a 205-publication pagi
 
 ## Developer deployment
 
-The corrected signed archive is deployed on developer Nextcloud 34.0.3 (MariaDB). Installed integrity verification passes. The existing migrations are byte-identical, so no new migration is required. Maintenance mode is off. Catalogue size remains 107,717 items. Chromium/Firefox checks pass for cursor navigation, selection actions, mobile fit and 18 cover requests near the viewport, with no page errors. The earlier beta deployment also passed suggestion/saved-rule checks in both browsers; the subsequent change is limited to duplicate-query parameter typing and release notes.
+The corrected signed archive is deployed on developer Nextcloud 34.0.3 (MariaDB). Installed integrity verification passes. The existing migrations are byte-identical, so no new migration is required. Maintenance mode is off. Catalogue size remains 107,717 items. Chromium/Firefox checks pass for cursor navigation, selection actions, mobile fit and 18 cover requests near the viewport, with no page errors. The earlier beta deployment also passed suggestion/saved-rule checks in both browsers; the final replacement also wraps long shelf/series values inside their list columns, and its developer browser checks were repeated.
 
 A sleeping worker that had retained old PHP for more than two days was recycled after checking that no job was reserved. A same-version redeployment initially invoked `occ upgrade` unnecessarily while maintenance mode was on; the deployment restored the prior package and exited maintenance mode. The corrected redeployment skips that call when the installed version and migrations are unchanged. No catalogue data or source files were reset.
 
@@ -39,7 +39,8 @@ A sleeping worker that had retained old PHP for more than two days was recycled 
 2. **Browser harness:** an NC33 Firefox metadata test navigated away while Settings' same-URL POST redirect was still loading, causing `OC is not defined`. The test now requires a new main-frame navigation and completed load. Browser-error assertions remain strict.
 3. **CI harness:** mixed-fixture tests needed separate one-result search and total-card expectations, sample-dependent filename assertions, the scan worker, and the current 25-table schema check. The independent account was also missing from the mixed fixture, and its square covers exposed an assertion that ignored `object-fit: contain`. The screenshot showed intact, uncropped artwork; the check now accepts contained artwork or matching intrinsic aspect ratio while preserving geometry/action checks.
 4. **Release tooling:** corrected signing-directory/key ownership and permissions, allowed the already-required context-help asset in the package audit, corrected XML element order and SPDX/SLSA sidecar formats, and updated two vulnerable transitive brace-expansion versions.
-5. **Orchestration:** the initial upgrade run's three cases and cleanups passed, but editing the running shell harness caused a trailing parse error after the loop. Final runs use a frozen harness and separate instance prefixes/work directories; their results supersede those preliminary runs.
+5. **List layout:** after correcting the image assertion, the mixed fixture exposed real overflow from long shelf names. Shelf/series metadata now uses the same bounded, wrapping block layout as author names. The browser checks still reject overflowing fields and inaccessible actions. The replacement signed archive repeated all six installations. A remaining four-pixel scroll measurement came from the trailing action margin: the screenshot showed all controls visible. The test now accounts for that computed margin and explicitly verifies the right edge of every action, retaining field-overflow checks.
+6. **Orchestration:** the initial upgrade run's three cases and cleanups passed, but editing the running shell harness caused a trailing parse error after the loop. Final runs use a frozen harness and separate instance prefixes/work directories; their results supersede those preliminary runs.
 
 ## Screenshots and limits
 
@@ -55,8 +56,8 @@ Manual assistive-technology testing remains outstanding; browser accessibility a
 
 Use `scripts/performance/compatibility-matrix.sh` with `LIBRARY_TEST_ARCHIVE` pointing to the accepted signed archive and `REQUIRE_INTEGRITY=1`. Set `INSTALL_MODE=fresh` for a fresh installation; the default upgrades from `LIBRARY_BETA_ARCHIVE`. Supply `LIBRARY_BOOK_FIXTURE_ARCHIVE` for the Gutenberg corpus. `LIBRARY_LISTS_PREFIX` and `LIBRARY_LISTS_WORK_DIR` isolate simultaneous runs. Do not edit the harness while it is running.
 
-Raw logs, Playwright JSON, screenshots and cleanup records are retained locally under `/tmp/library-beta1-corrected-fresh/` and `/tmp/library-beta1-corrected-upgrade/`. Earlier failure evidence remains in `/tmp/library-beta1-fresh/`, `/tmp/library-beta1-fresh33-rerun/` and `/tmp/library-beta1-initial-artifacts/`. Developer evidence is under `/tmp/library-beta1-developer-final/`. Only aggregate results and public fixture screenshots belong in the repository.
+Raw logs, Playwright JSON, screenshots and cleanup records are retained locally under `/tmp/library-beta1-release-fresh/` and `/tmp/library-beta1-release-upgrade/`. Earlier failure evidence remains in `/tmp/library-beta1-fresh/`, `/tmp/library-beta1-fresh33-rerun/` and `/tmp/library-beta1-initial-artifacts/`. Developer evidence is under `/tmp/library-beta1-developer-release/`. Only aggregate results and public fixture screenshots belong in the repository.
 
 ## Aggregate evidence
 
-[Machine-readable matrix results](results.json). The signed archive reproduces byte-for-byte, and all 164 source files match the repository. Final local rerun: 1,043 Python tests passed. GitHub mixed-fixture CI rerun: [36722440544](https://github.com/utrost/Library/actions/runs/36722440544), pending at this checkpoint.
+[Machine-readable matrix results](results.json). The signed archive reproduces byte-for-byte, and all 164 source files match the repository. Final local rerun: 1,043 Python tests passed. GitHub mixed-fixture CI rerun: [36726614904](https://github.com/utrost/Library/actions/runs/36726614904), pending at this checkpoint.

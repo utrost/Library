@@ -1,6 +1,6 @@
 {
   "archive": "library-0.2.0-beta.1.tar.gz",
-  "sha256": "f24a8737e554f7cb5743939e9bc927e540ca8e7a1d45d33cce7f94209aa0c0e2",
+  "sha256": "fcaf7090eda1163fba8a18bdb9f865dbbdee6f4849a8f70345a41be8afcdf9e3",
   "cases": [
     {
       "mode": "fresh",
@@ -8,8 +8,8 @@
       "passed": true,
       "cleanupPassed": true,
       "playwright": {
-        "startTime": "2026-09-30T13:14:38.458Z",
-        "duration": 272462.44899999996,
+        "startTime": "2026-09-30T13:47:12.785Z",
+        "duration": 324675.53900000005,
         "expected": 35,
         "skipped": 0,
         "unexpected": 0,
@@ -63,8 +63,8 @@
       "passed": true,
       "cleanupPassed": true,
       "playwright": {
-        "startTime": "2026-09-30T13:20:56.207Z",
-        "duration": 247093.822,
+        "startTime": "2026-09-30T13:47:13.875Z",
+        "duration": 314747.776,
         "expected": 35,
         "skipped": 0,
         "unexpected": 0,
@@ -118,8 +118,8 @@
       "passed": true,
       "cleanupPassed": true,
       "playwright": {
-        "startTime": "2026-09-30T13:27:04.719Z",
-        "duration": 315965.271,
+        "startTime": "2026-09-30T13:47:15.092Z",
+        "duration": 308670.648,
         "expected": 35,
         "skipped": 0,
         "unexpected": 0,
@@ -173,8 +173,8 @@
       "passed": true,
       "cleanupPassed": true,
       "playwright": {
-        "startTime": "2026-09-30T13:14:53.036Z",
-        "duration": 267474.998,
+        "startTime": "2026-09-30T13:55:00.827Z",
+        "duration": 312754.088,
         "expected": 35,
         "skipped": 0,
         "unexpected": 0,
@@ -228,8 +228,8 @@
       "passed": true,
       "cleanupPassed": true,
       "playwright": {
-        "startTime": "2026-09-30T13:21:17.354Z",
-        "duration": 245299.769,
+        "startTime": "2026-09-30T13:55:07.125Z",
+        "duration": 300957.723,
         "expected": 35,
         "skipped": 0,
         "unexpected": 0,
@@ -283,8 +283,8 @@
       "passed": true,
       "cleanupPassed": true,
       "playwright": {
-        "startTime": "2026-09-30T13:27:29.342Z",
-        "duration": 318493.046,
+        "startTime": "2026-09-30T13:54:47.709Z",
+        "duration": 296056.941,
         "expected": 35,
         "skipped": 0,
         "unexpected": 0,
