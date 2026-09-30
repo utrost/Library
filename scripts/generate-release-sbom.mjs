@@ -46,7 +46,7 @@ try {
     SPDXID: appId,
     versionInfo: version,
     downloadLocation: 'NOASSERTION',
-    filesAnalyzed: true,
+    filesAnalyzed: false,
     checksums: [{ algorithm: 'SHA256', checksumValue: archiveSha }],
     licenseConcluded: 'NOASSERTION',
     licenseDeclared: 'NOASSERTION',
@@ -65,7 +65,6 @@ try {
       licenseConcluded: 'NOASSERTION',
       licenseDeclared: 'NOASSERTION',
       copyrightText: 'NOASSERTION',
-      PackageChecksum: sha256File(path),
     })
     relationships.push({ spdxElementId: appId, relationshipType: 'CONTAINS', relatedSpdxElement: id })
   }
@@ -73,22 +72,21 @@ try {
   const rootPackage = packageLock.packages?.[''] || {}
   for (const [lockPath, meta] of Object.entries(packageLock.packages || {})) {
     if (!lockPath.startsWith('node_modules/') || !meta.version) continue
-    const name = meta.name || lockPath.slice('node_modules/'.length)
-    const depId = `SPDXRef-NPM-${safeId(name)}-${safeId(meta.version)}`
+    const name = meta.name || lockPath.slice(lockPath.lastIndexOf('node_modules/') + 'node_modules/'.length)
+    const depId = `SPDXRef-NPM-${safeId(name)}-${safeId(meta.version)}-${createHash('sha256').update(lockPath).digest('hex').slice(0, 12)}`
     packages.push({
       name: `npm:${name}`,
       SPDXID: depId,
       versionInfo: meta.version,
       downloadLocation: meta.resolved || 'NOASSERTION',
       filesAnalyzed: false,
-      checksums: meta.integrity ? [{ algorithm: 'SHA512', checksumValue: meta.integrity }] : [],
+      checksums: meta.integrity?.startsWith('sha512-') ? [{ algorithm: 'SHA512', checksumValue: Buffer.from(meta.integrity.slice(7), 'base64').toString('hex') }] : [],
       licenseConcluded: meta.license || 'NOASSERTION',
       licenseDeclared: meta.license || 'NOASSERTION',
       copyrightText: 'NOASSERTION',
       supplier: 'NOASSERTION',
-      PackageChecksum: meta.integrity || 'NOASSERTION',
     })
-    relationships.push({ spdxElementId: appId, relationshipType: 'BUILD_DEPENDENCY_OF', relatedSpdxElement: depId })
+    relationships.push({ spdxElementId: depId, relationshipType: 'BUILD_DEPENDENCY_OF', relatedSpdxElement: appId })
   }
 
   const sbom = {
@@ -111,7 +109,7 @@ try {
   let gitCommit = 'unknown'
   try { gitCommit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() } catch {}
   const provenance = {
-    _type: 'https://slsa.dev/provenance/v1',
+    _type: 'https://in-toto.io/Statement/v1',
     subject: [{ name: basename(archivePath), digest: { sha256: archiveSha } }],
     predicateType: 'https://slsa.dev/provenance/v1',
     predicate: {
@@ -126,7 +124,7 @@ try {
       },
       runDetails: {
         builder: { id: 'scripts/package-release.sh' },
-        metadata: { invocationId: gitCommit, startedOn: new Date(0).toISOString(), finishedOn: new Date(0).toISOString() },
+        metadata: { invocationId: gitCommit },
       },
     },
   }

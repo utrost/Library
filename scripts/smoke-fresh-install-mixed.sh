@@ -196,6 +196,8 @@ echo (string)$stmt->fetchColumn();
 [[ "$GUI_ROOT_PATH" == /* ]] || { echo 'Playwright root fixture path missing' >&2; exit 1; }
 [[ "$GUI_ITEM_ID" =~ ^[1-9][0-9]*$ ]] || { echo 'Playwright item fixture ID missing' >&2; exit 1; }
 [[ -n "$GUI_SEARCH_TITLE" ]] || { echo 'Playwright EPUB fixture title missing' >&2; exit 1; }
+# The ownership/CSRF browser checks require an independent unprivileged account.
+docker exec -u www-data -e OC_PASS=Disposable-lists-other-2026 "$CONTAINER" php occ user:add --password-from-env library-lists-other
 docker exec -u www-data "$CONTAINER" php occ background:cron
 docker exec -d -u www-data "$CONTAINER" php occ --no-warnings --quiet background-job:worker --stop_after=30m 'OCA\Library\BackgroundJob\ScanJob'
 PW_BASE_URL="$BASE_URL" \

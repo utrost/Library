@@ -85,7 +85,9 @@ def test_release_package_emits_and_audits_sbom_and_provenance_metadata() -> None
     assert "release_sbom_created=true" in package
     assert "release_provenance_created=true" in package
     assert "SPDXID" in generator
-    assert "PackageChecksum" in generator
+    assert "PackageChecksum" not in generator
+    assert "Buffer.from(meta.integrity.slice(7), 'base64').toString('hex')" in generator
+    assert "https://in-toto.io/Statement/v1" in generator
     assert "release_sbom_audit_ok=true" in audit
     assert "release_provenance_audit_ok=true" in audit
 
