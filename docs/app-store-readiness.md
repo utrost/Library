@@ -2,7 +2,7 @@
 
 ## Release checkpoint — 2026-09-30
 
-Current candidate: **0.2.0-beta.1**, signed and deployed on developer Nextcloud 34.0.3. The exact archive passed fresh installation and upgrade from 0.1.0-beta.1 on Nextcloud 33.0.9, 34.0.4 and 35.0.0: **210/210 Playwright executions**, plus service, duplicate, inference and scheduled-scan checks. See [final verification and limitations](compatibility-evidence/2026-09-30-beta1/README.md).
+Current candidate baseline: `0.2.0-beta.1`, signed and deployed on developer Nextcloud 34.0.3. The exact archive passed fresh installation and upgrade from 0.1.0-beta.1 on Nextcloud 33.0.9, 34.0.4 and 35.0.0: **210/210 Playwright executions**, plus service, duplicate, inference and scheduled-scan checks. See [final verification and limitations](compatibility-evidence/2026-09-30-beta1/README.md).
 
 Completed:
 
