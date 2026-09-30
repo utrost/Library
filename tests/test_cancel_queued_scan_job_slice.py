@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,5 +57,5 @@ def test_smoke_docs_and_version_track_cancel_queued_scans_as_landed():
     assert "cancel queued scan" in readme.lower()
     assert "Cancel queued scan" in guide
     assert "cancel queued scan" in roadmap.lower()
-    assert "0.1.0-beta.1" in info
-    assert '"version": "0.1.0-beta.1"' in package
+    assert f"{CURRENT_VERSION}" in info
+    assert f'"version": "{CURRENT_VERSION}"' in package

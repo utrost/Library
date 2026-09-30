@@ -1,0 +1,85 @@
+{
+  "baselineProfiled": {
+    "processed": 500,
+    "durationMs": 71091.259136,
+    "filesPerSecond": 7.03321345094596,
+    "sqlCount": 22760,
+    "sqlMs": 44821.409418000236,
+    "sqlProfilingEnabled": true,
+    "peakMemoryBytes": 31457280,
+    "metadataWarnings": 0
+  },
+  "baselineUnprofiled": {
+    "processed": 500,
+    "durationMs": 74293.020996,
+    "filesPerSecond": 6.730107260369993,
+    "sqlCount": 0,
+    "sqlMs": 0,
+    "sqlProfilingEnabled": false,
+    "peakMemoryBytes": 31457280,
+    "metadataWarnings": 0
+  },
+  "baselineRepeatUnprofiled": {
+    "processed": 500,
+    "durationMs": 61924.11562,
+    "filesPerSecond": 8.07439872162683,
+    "sqlCount": 0,
+    "sqlMs": 0,
+    "sqlProfilingEnabled": false,
+    "peakMemoryBytes": 31457280,
+    "metadataWarnings": 0
+  },
+  "legacyProfiled": {
+    "processed": 500,
+    "durationMs": 20962.583374,
+    "filesPerSecond": 23.852022008897652,
+    "derivedIndexWriteStatements": 0,
+    "sqlCount": 16973,
+    "sqlMs": 6484.0760830000245,
+    "sqlProfilingEnabled": true,
+    "peakMemoryBytes": 31457280,
+    "metadataWarnings": 0
+  },
+  "legacyUnprofiled": {
+    "processed": 500,
+    "durationMs": 22954.75144,
+    "filesPerSecond": 21.781982754503744,
+    "derivedIndexWriteStatements": 0,
+    "sqlCount": 0,
+    "sqlMs": 0,
+    "sqlProfilingEnabled": false,
+    "peakMemoryBytes": 31457280,
+    "metadataWarnings": 0
+  },
+  "cachedUnprofiled": {
+    "processed": 500,
+    "durationMs": 20586.45191,
+    "filesPerSecond": 24.287818133299687,
+    "derivedIndexWriteStatements": 0,
+    "sqlCount": 0,
+    "sqlMs": 0,
+    "sqlProfilingEnabled": false,
+    "peakMemoryBytes": 31457280,
+    "metadataWarnings": 0
+  },
+  "rebuildUnprofiled": {
+    "processed": 500,
+    "durationMs": 63605.116887,
+    "filesPerSecond": 7.861002769451605,
+    "derivedIndexWriteStatements": 0,
+    "sqlCount": 0,
+    "sqlMs": 0,
+    "sqlProfilingEnabled": false,
+    "peakMemoryBytes": 31457280,
+    "metadataWarnings": 0
+  },
+  "integrity": {
+    "selected": 500,
+    "sourceVersionMarkersUnchanged": true,
+    "canonicalMetadataUnchanged": true,
+    "facetsUnchanged": true,
+    "searchGramsUnchanged": true,
+    "identifiersUnchanged": true,
+    "duplicatePayloadsUnchanged": true
+  }
+}

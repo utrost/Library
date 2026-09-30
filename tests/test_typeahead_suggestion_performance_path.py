@@ -103,11 +103,11 @@ def test_all_suggestion_paths_use_the_user_scoped_normalized_facet_index():
 
     assert "addIndex(['user_id', 'facet_type', 'normalized_value'], 'library_facets_lookup')" in facets
     assert "'publication' => [(string)($metadata['publication'] ?? '')]" in service
-    assert "'creator' => [(string)($metadata['creators'] ?? '')]" in service
+    assert "'creator' => isset($metadata['authors'])" in service
     assert "'publisher' => [(string)($metadata['publisher'] ?? '')]" in service
     assert "'classification' => $this->normalizeMultiValueField($metadata['classifications'] ?? [])" in service
     assert "'year' => preg_match" in service
-    assert "select('id', 'subjects_json', 'classifications_json', 'publication', 'creators', 'publisher', 'publication_date')" in service
+    assert "select('id', 'subjects_json', 'classifications_json', 'publication', 'creators', 'authors_json', 'publisher', 'publication_date')" in service
 
 
 def test_unfiltered_suggestion_index_covers_the_grouped_display_value():

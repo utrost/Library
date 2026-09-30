@@ -19,6 +19,20 @@ final class ScanJobService {
     ) {
     }
 
+    /** Fence abandoned workers without deleting history or losing their last counters. */
+    public function recoverStaleRunningJobs(?string $userId = null): int {
+        $now = time(); $cutoff = $now - self::STALE_RUNNING_AFTER_SECONDS;
+        $sql = "UPDATE *PREFIX*library_scan_jobs SET status = ?, summary = ?, finished_at = ? WHERE status = ? AND COALESCE(last_progress_at, run_started_at, started_at) <= ?";
+        $args = ['failed', 'Scan worker stopped reporting progress. Run the scan again.', $now, 'running', $cutoff];
+        if ($userId !== null) { $sql .= ' AND user_id = ?'; $args[] = $userId; }
+        // The heartbeat predicate is checked atomically: a worker that just reported stays active.
+        // SQLite expressions such as COALESCE have no column affinity: bind the cutoff
+        // as an integer so a fresh numeric heartbeat is not compared to SQL text.
+        $types = [\OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT];
+        if ($userId !== null) { $types[] = \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR; }
+        return $this->db->executeStatement($sql, $args, $types);
+    }
+
     public function queueJob(string $userId, string $scopeType = 'all', ?int $rootId = null): array {
         return $this->createJob($userId, 'queued', $scopeType, $rootId);
     }
@@ -55,6 +69,7 @@ final class ScanJobService {
             ->set('files_missing', $qb->createNamedParameter((int)($progress['filesMissing'] ?? 0)))
             ->set('metadata_errors', $qb->createNamedParameter((int)($progress['metadataErrors'] ?? 0)))
             ->set('fingerprint_skips', $qb->createNamedParameter((int)($progress['fingerprintSkips'] ?? 0)))
+            ->set('cached_warning_skips', $qb->createNamedParameter((int)($progress['cachedWarningSkips'] ?? 0)))
             ->set('metadata_extractions', $qb->createNamedParameter((int)($progress['metadataExtractions'] ?? 0)))
             ->set('item_refreshes', $qb->createNamedParameter((int)($progress['itemRefreshes'] ?? 0)))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($jobId)))
@@ -79,7 +94,22 @@ final class ScanJobService {
                 (int)($result['filesMissing'] ?? 0),
                 (int)($result['metadataErrors'] ?? 0),
             );
-        return $this->updateJob($userId, $jobId, 'completed', (int)($result['roots'] ?? 0), (int)($result['indexed'] ?? 0), count($errors), $summary, $result);
+        $finished = $this->updateJob($userId, $jobId, 'completed', (int)($result['roots'] ?? 0), (int)($result['indexed'] ?? 0), count($errors), $summary, $result);
+        if ($finished && $errors === []) {
+            try {
+                $r = $this->db->executeQuery('SELECT scope_type FROM *PREFIX*library_scan_jobs WHERE user_id = ? AND id = ?', [$userId, $jobId]);
+                $scope = $r->fetchOne(); $r->closeCursor();
+                if ($scope === 'all' && isset($result['rootsDigest'])
+                    && hash_equals((string)$result['rootsDigest'], ScheduledScanService::rootsDigest($this->db, $userId))) {
+                    $this->db->executeStatement('UPDATE *PREFIX*library_scan_schedule SET last_full_at = ?, last_full_revision = ?, last_full_roots_hash = ? WHERE user_id = ?',
+                        [time(), ScheduledScanService::currentRevision(), $result['rootsDigest'], $userId]);
+                }
+            } catch (Throwable $e) {
+                // An absent checkpoint safely causes another full scan later.
+                $this->logger->warning('Library full-scan checkpoint could not be saved', ['exception_class' => get_class($e)]);
+            }
+        }
+        return $finished;
     }
 
     public function failJob(string $userId, int $jobId, string $error, array $metrics = []): bool {
@@ -96,6 +126,7 @@ final class ScanJobService {
             ->set('files_missing', $qb->createNamedParameter((int)($metrics['filesMissing'] ?? 0)))
             ->set('metadata_errors', $qb->createNamedParameter((int)($metrics['metadataErrors'] ?? 0)))
             ->set('fingerprint_skips', $qb->createNamedParameter((int)($metrics['fingerprintSkips'] ?? 0)))
+            ->set('cached_warning_skips', $qb->createNamedParameter((int)($metrics['cachedWarningSkips'] ?? 0)))
             ->set('metadata_extractions', $qb->createNamedParameter((int)($metrics['metadataExtractions'] ?? 0)))
             ->set('item_refreshes', $qb->createNamedParameter((int)($metrics['itemRefreshes'] ?? 0)))
             ->set('duration_ms', $qb->createNamedParameter(max(0, (int)($metrics['scannerDurationMs'] ?? 0))))
@@ -159,7 +190,8 @@ final class ScanJobService {
         $row = $result->fetch();
         $result->closeCursor();
 
-        return $row !== false && (string)$row['status'] === 'cancelled';
+        // A recovered or otherwise terminal job must never resume writes as a running worker.
+        return $row === false || !in_array((string)$row['status'], ['queued', 'running'], true);
     }
 
     public function latestJob(string $userId): ?array {
@@ -221,6 +253,7 @@ final class ScanJobService {
             $scopeType === 'root' && $rootId !== null && $rootId > 0 => 'root',
             $scopeType === 'metadata_errors' => 'metadata_errors',
             $scopeType === 'missing_files' => 'missing_files',
+            $scopeType === 'incremental' => 'incremental',
             default => 'all',
         };
         $rootId = $scopeType === 'root' ? $rootId : null;
@@ -241,6 +274,7 @@ final class ScanJobService {
                 'files_missing' => $qb->createNamedParameter(0),
                 'metadata_errors' => $qb->createNamedParameter(0),
                 'fingerprint_skips' => $qb->createNamedParameter(0),
+                'cached_warning_skips' => $qb->createNamedParameter(0),
                 'metadata_extractions' => $qb->createNamedParameter(0),
                 'item_refreshes' => $qb->createNamedParameter(0),
                 'started_at' => $qb->createNamedParameter($now),
@@ -277,6 +311,7 @@ final class ScanJobService {
             ->set('files_missing', $qb->createNamedParameter((int)($changeSummary['filesMissing'] ?? 0)))
             ->set('metadata_errors', $qb->createNamedParameter((int)($changeSummary['metadataErrors'] ?? 0)))
             ->set('fingerprint_skips', $qb->createNamedParameter((int)($changeSummary['fingerprintSkips'] ?? 0)))
+            ->set('cached_warning_skips', $qb->createNamedParameter((int)($changeSummary['cachedWarningSkips'] ?? 0)))
             ->set('metadata_extractions', $qb->createNamedParameter((int)($changeSummary['metadataExtractions'] ?? 0)))
             ->set('item_refreshes', $qb->createNamedParameter((int)($changeSummary['itemRefreshes'] ?? 0)))
             ->set('duration_ms', $qb->createNamedParameter((int)($changeSummary['scannerDurationMs'] ?? 0)))
@@ -333,6 +368,7 @@ final class ScanJobService {
             'filesMissing' => (int)($row['files_missing'] ?? 0),
             'metadataErrors' => (int)($row['metadata_errors'] ?? 0),
             'fingerprintSkips' => (int)($row['fingerprint_skips'] ?? 0),
+            'cachedWarningSkips'=>(int)($row['cached_warning_skips']??0),
             'metadataExtractions' => (int)($row['metadata_extractions'] ?? 0),
             'itemRefreshes' => (int)($row['item_refreshes'] ?? 0),
             'summary' => $row['summary'] !== null ? (string)$row['summary'] : '',
@@ -376,7 +412,7 @@ final class ScanJobService {
             'event_schema' => 1,
             'job_id' => (int)($job['id'] ?? 0),
             'user_id' => (string)($job['userId'] ?? ''),
-            'scope_type' => in_array(($job['scopeType'] ?? 'all'), ['all', 'root', 'metadata_errors', 'missing_files'], true) ? $job['scopeType'] : 'all',
+            'scope_type' => in_array(($job['scopeType'] ?? 'all'), ['all', 'root', 'metadata_errors', 'missing_files', 'incremental'], true) ? $job['scopeType'] : 'all',
             'outcome' => $outcome,
             'worker_metrics_available' => false,
             'queue_wait_ms' => $queueWaitMs,

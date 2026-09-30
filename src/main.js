@@ -29,6 +29,7 @@ try {
 
   const state = {
     ...initialState,
+    duplicateSuggestions: loadState('library', 'duplicateSuggestions', false),
     requestToken: mountTarget.dataset.requestToken || initialState.requestToken || '',
   }
 

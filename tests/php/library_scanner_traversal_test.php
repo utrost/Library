@@ -13,7 +13,8 @@ namespace OCP\Files {
     class Folder extends Node {
         public function __construct(private array $children, private ?\Closure $onListing = null, private array $paths = [], private string $path = '/alice/files') {}
         public function getDirectoryListing(): array { if ($this->onListing) ($this->onListing)(); return $this->children; }
-        public function get(string $path): Node { return $this->paths[$path] ?? throw new \RuntimeException('missing path'); }
+        public function getName(): string { return 'folder-' . spl_object_id($this); }
+        public function get(string $path): Node { if (isset($this->paths[$path])) return $this->paths[$path]; foreach ($this->children as $child) if ($child instanceof Folder && $child->getName() === $path) return $child; throw new \RuntimeException('missing path'); }
         public function getPath(): string { return $this->path; }
     }
     interface IRootFolder { public function getUserFolder(string $userId); }
@@ -25,7 +26,7 @@ namespace OCA\Library\Metadata {
         public function extractWithSidecar($node): array { if ($this->failExtraction) throw new \RuntimeException('extract failed at /var/www/html/data/alice/files/private.pdf SELECT token=sk_live_secret'); return []; }
         public function getLastError(): ?string { return null; }
     }
-    class MetadataFastPathDecision { public static function shouldSkip(...$args): bool { return false; } public static function shouldMarkProcessed(...$args): bool { return true; } }
+    class MetadataFastPathDecision { public static function shouldSkipWarning(...$args):bool{return false;} public static function deterministicWarning(...$args):bool{return false;} public static function shouldSkip(...$args): bool { return false; } public static function shouldMarkProcessed(...$args): bool { return true; } }
 }
 namespace OCA\Library\Service {
     class RootService {

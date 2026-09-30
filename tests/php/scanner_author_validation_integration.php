@@ -1,0 +1,26 @@
+<?php
+// Disposable account; assertions use real Files, scanner, metadata and derived indexes.
+declare(strict_types=1);
+define('OC_CONSOLE',true);require '/var/www/html/lib/base.php';
+$manager=\OC::$server->get(\OCP\IUserManager::class);$uid='library-author-smoke-'.bin2hex(random_bytes(6));$account=null;$checks=0;$failed=false;
+function authorAssert(bool $ok,string $message):void{global $checks;if(!$ok)throw new RuntimeException($message);$checks++;}
+function authorOpf(string $title,array $authors):string{$xml='<package xmlns="http://www.idpf.org/2007/opf"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>'.$title.'</dc:title><dc:publisher>Fixture press</dc:publisher><dc:language>en</dc:language>';foreach($authors as $name)$xml.='<dc:creator>'.htmlspecialchars($name,ENT_XML1).'</dc:creator>';return $xml.'</metadata></package>';}
+try {
+ $account=$manager->createUser($uid,bin2hex(random_bytes(24)));$home=\OC::$server->get(\OCP\Files\IRootFolder::class)->getUserFolder($uid);$folder=$home->newFolder('Author validation');
+ $roots=\OC::$server->get(\OCA\Library\Service\RootService::class);$scanner=\OC::$server->get(\OCA\Library\Service\LibraryScanner::class);$items=\OC::$server->get(\OCA\Library\Service\ItemService::class);$db=\OC::$server->get(\OCP\IDBConnection::class);$root=$roots->saveRoot($uid,'/Author validation','Author validation',true);
+ $bad=['oversized'=>[str_repeat('x',256)],'newline'=>["Ada\nQuill"],'many'=>array_map(fn($n)=>'Author '.$n,range(1,33)),'combined'=>array_map(fn($n)=>str_repeat('x',220).$n,range(1,5))];
+ foreach($bad as $name=>$names)$folder->newFile($name.'.opf',authorOpf('Useful '.$name,$names));
+ $existing=$folder->newFile('existing.opf',authorOpf('Original title',['Abercrombie, Joe']));$protected=$folder->newFile('protected.opf',authorOpf('Protected title',['Ada Quill']));
+ $row=function($name)use($uid,$db){$r=$db->executeQuery('SELECT i.id,i.title,i.creators,i.authors_json,i.publisher,i.language,i.field_values,f.scan_status,f.scan_error FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id WHERE i.user_id=? AND f.cached_path=?',[$uid,'/Author validation/'.$name.'.opf']);$v=$r->fetch();$r->closeCursor();return $v;};
+ $first=$scanner->scan($uid,(int)$root['id']);authorAssert(count($first['errors'])===0,'No root failures');authorAssert($first['metadataErrors']===4,'Invalid fields have review warnings');
+ foreach($bad as $name=>$names){$v=$row($name);authorAssert($v['title']==='Useful '.$name&&$v['publisher']==='Fixture press'&&$v['language']==='en','Other valid metadata retained');authorAssert($v['creators']===null&&json_decode($v['authors_json'],true)===[],'Invalid author field omitted');authorAssert(str_starts_with($v['scan_error'],'metadata_authors_invalid:')&&$v['scan_status']==='metadata_error','Safe field review diagnostic');$fields=json_decode($v['field_values'],true);authorAssert(!array_key_exists('authors',$fields)&&!array_key_exists('creators',$fields),'No empty reset candidate for rejected field');}
+ $existing->putContent(authorOpf('Updated title',[str_repeat('x',256)]));$items->applyBatchMetadataEdit($uid,[(int)$row('protected')['id']],'title','My correction');$protected->putContent(authorOpf('New scanner title',["Bad\nAuthor"]));
+ $hashes=[];foreach($folder->getDirectoryListing() as $file)$hashes[$file->getName()]=hash('sha256',$file->getContent());
+ $second=$scanner->scan($uid,(int)$root['id']);authorAssert($second['metadataErrors']===6,'Existing invalid author warnings isolated');$v=$row('existing');authorAssert($v['title']==='Updated title'&&$v['creators']==='Abercrombie, Joe','Accepted author retained and other fields refreshed');$r=$db->executeQuery('SELECT COUNT(*) FROM *PREFIX*library_item_facets WHERE item_id=? AND facet_type=? AND facet_value=? AND normalized_value=?',[(int)$v['id'],'creator','Abercrombie, Joe','abercrombie, joe']);authorAssert((int)$r->fetchOne()===1,'Accepted author facet retained');$r->closeCursor();$v=$row('protected');authorAssert($v['title']==='My correction'&&$v['creators']==='Ada Quill','User correction and author preserved');authorAssert(str_contains($v['field_values'],'New scanner title')&&!str_contains($v['field_values'],'"authors"'),'Only valid new scanner candidates recorded');
+ foreach($folder->getDirectoryListing() as $file)authorAssert(hash('sha256',$file->getContent())===$hashes[$file->getName()],'Scan leaves source bytes unchanged');
+ foreach($folder->getDirectoryListing() as $file)$file->putContent(authorOpf('Recovered title',['Recovered Author']));
+ $third=$scanner->scan($uid,(int)$root['id']);authorAssert($third['metadataErrors']===0,'Corrected author clears warning');authorAssert($row('oversized')['creators']==='Recovered Author'&&$row('oversized')['scan_status']==='indexed','Corrected author imported');authorAssert($row('protected')['title']==='My correction','Correction survives recovery');
+ echo json_encode(['passed'=>true,'assertions'=>$checks,'fieldIsolation'=>true,'acceptedAuthorPreserved'=>true,'userCorrectionPreserved'=>true,'sourceBytesUnchanged'=>true,'recovery'=>true]),PHP_EOL;
+} catch(Throwable $e){$failed=true;fwrite(STDERR,get_class($e).': '.$e->getMessage().PHP_EOL);} finally {if($account)$account->delete();echo json_encode(['cleanup'=>true]),PHP_EOL;}
+
+if($failed)exit(1);

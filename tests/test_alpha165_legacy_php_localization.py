@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 import json
 import re
 import shutil
@@ -14,12 +15,12 @@ def read(path: str) -> str:
 
 
 def test_alpha165_exact_versions_assets_and_package_contract():
-    assert '<version>0.1.0-beta.1</version>' in read('appinfo/info.xml')
-    assert '"version": "0.1.0-beta.1"' in read('package.json')
-    assert "appVersion: JSON.stringify('0.1.0-beta.1')" in read('vite.config.js')
+    assert f'<version>{CURRENT_VERSION}</version>' in read('appinfo/info.xml')
+    assert f'"version": "{CURRENT_VERSION}"' in read('package.json')
+    assert f"appVersion: JSON.stringify('{CURRENT_VERSION}')" in read('vite.config.js')
     controller = read('lib/Controller/PageController.php')
-    assert 'library-main-0-1-0-beta-1-compact-list-table-cover-96-fit-v4' in controller
-    assert 'library-vue-0-1-0-beta-1-compact-list-table-cover-96-fit-v4' in controller
+    assert f'library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4' in controller
+    assert f'library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4' in controller
     assert 'EXPECTED_VERSION="$(python3 - "$ROOT/appinfo/info.xml"' in read('scripts/smoke-release-package.sh')
 
 
@@ -36,7 +37,7 @@ def test_all_legacy_surfaces_resolve_and_render_locale_direction():
 def test_php_and_vue_inventory_is_complete_and_generated_catalogues_are_current():
     result = subprocess.run(['node', 'scripts/check-translations.mjs'], cwd=ROOT, text=True, capture_output=True)
     assert result.returncode == 0, result.stderr
-    assert "keys=600" in result.stdout
+    assert f"keys={len(json.loads(read('l10n/en.json'))['translations'])}" in result.stdout
     assert 'generated_catalogues_current=true' in result.stdout
     for locale in ['de', 'ar']:
         assert set(json.loads(read(f'l10n/{locale}.json'))['translations']) == set(json.loads(read('l10n/en.json'))['translations'])

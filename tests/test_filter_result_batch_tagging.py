@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -58,5 +59,5 @@ def test_docs_and_version_track_filter_result_batch_tagging():
 
     assert "batch tagging exists" in guide.lower()
     assert "selected visible items" in roadmap.lower()
-    assert "<version>0.1.0-beta.1</version>" in info
-    assert '"version": "0.1.0-beta.1"' in package
+    assert f"<version>{CURRENT_VERSION}</version>" in info
+    assert f'"version": "{CURRENT_VERSION}"' in package

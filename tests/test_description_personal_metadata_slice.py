@@ -38,7 +38,7 @@ def test_description_searches_and_roundtrips_through_import_export():
     changed_block = service.split("private function changedImportFields", 1)[1].split("private function emptyImportPreview", 1)[0]
     assert "foreach (self::PUBLICATION_FIELDS as $field)" in changed_block
     apply_block = service.split("public function applyCorrectedMetadataImport", 1)[1].split("/**", 1)[0]
-    assert "updateItem($userId, (int)$current['id'], $importItem)" in apply_block
+    assert "updateItem($userId, (int)$current['id'], $merged)" in apply_block
     assert '"smoke:description"' in package
     assert "description_search_smoke_ok=true" in smoke
 

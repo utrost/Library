@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 NORMAL_KEYS = {
-    "id", "title", "creators", "publicationType", "publication",
+    "id", "title", "creators", "authors", "publicationType", "publication",
     "publicationDate", "description", "starred", "workflowStatus",
     "lastOpenedAt", "extension", "shelf", "scanStatus", "scanError",
     "hasScannerConflict", "scannerConflictCount", "nextcloudTags",
@@ -14,7 +14,7 @@ NORMAL_KEYS = {
 }
 
 CONFLICT_EXTRA_KEYS = {
-    "cachedPath", "subtitle", "language", "publisher",
+    "cachedPath", "subtitle", "language", "publisher", "series", "seriesNumber", "genre",
     "metadataSource", "fieldSources", "fieldValues",
     "resetFieldUrl",
 }

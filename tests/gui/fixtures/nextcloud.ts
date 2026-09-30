@@ -39,7 +39,11 @@ export type BrowserFailureCollector = {
 export function collectBrowserFailures(page: Page): BrowserFailureCollector {
   const failures: string[] = []
   const record = (failure: string) => failures.push(failure)
-  page.on('pageerror', (error) => record(`pageerror: ${error.message}`))
+  page.on('pageerror', (error) => {
+    record(`pageerror: ${error.message}`)
+    // Keep source locations for diagnosing core/app load failures; never waive them.
+    console.error(`[pageerror at ${page.url()}] ${error.stack || error.message}`)
+  })
   page.on('console', (message) => {
     if (message.type() === 'error') record(`console: ${message.text()}`)
   })

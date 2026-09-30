@@ -11,6 +11,7 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCA\Library\Service\ArchiveCoverService;
+use OCA\Library\Service\CoverThumbnailService;
 use OCA\Library\Service\ItemService;
 use OCA\Library\Service\FileIndexService;
 use OCA\Library\Service\ManualCoverUploadService;
@@ -35,6 +36,8 @@ class CoverController extends Controller {
     private ManualCoverUploadService $manualCoverUploadService;
     private ?SecurityAuditLogger $securityAudit = null;
     private int $coverStartedAt = 0;
+    private ?array $thumbnailContext = null;
+    private bool $thumbnailHit = false;
     public function __construct(
         string $appName,
         IRequest $request,
@@ -50,6 +53,7 @@ class CoverController extends Controller {
         ?MonotonicClock $clock = null,
         ?ManualCoverUploadService $manualCoverUploadService = null,
         ?SecurityAuditLogger $securityAudit = null,
+        private ?CoverThumbnailService $thumbnails = null,
     ) {
         parent::__construct($appName, $request);
         $this->securityAudit = $securityAudit;
@@ -61,6 +65,8 @@ class CoverController extends Controller {
     #[NoCSRFRequired]
     public function show(int $itemId): DataDownloadResponse {
         $this->coverStartedAt = $this->clock->now();
+        $this->thumbnailContext = null;
+        $this->thumbnailHit = false;
         $refreshRequested = $this->isRefreshRequest();
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
@@ -69,6 +75,26 @@ class CoverController extends Controller {
         }
 
         $item = $this->itemService->findItem($userId, $itemId);
+
+        $fileId = $this->findFileIdForItem($userId, $itemId);
+        if ($fileId === null) {
+            return $this->placeholderResponse('LIB', 'item-not-found');
+        }
+
+        $file = $this->findUserFileById($userId, $fileId);
+        if (!$file instanceof File) {
+            return $this->placeholderResponse('LIB', 'file-not-found');
+        }
+
+        $revision = hash('sha256', 'v1|' . $file->getId() . '|' . $file->getEtag() . '|' . ($item['coverOverrideData'] ?? '') . '|' . ($item['coverOverrideMimeType'] ?? ''));
+        $this->thumbnailContext = [$userId, $itemId, $revision];
+        if (!$refreshRequested && $this->thumbnails !== null) {
+            $cached = $this->thumbnails->get($userId, $itemId, $revision);
+            if ($cached !== null) {
+                $this->thumbnailHit = true;
+                return $this->coverResponse($cached['content'], $cached['filename'], $cached['mime'], $cached['status'], $cached['reason'], $cached['status'] === 'placeholder' ? 300 : 3600);
+            }
+        }
         if ($item !== null && trim((string)($item['coverOverrideData'] ?? '')) !== '') {
             return $this->coverResponse(
                 base64_decode((string)$item['coverOverrideData'], true) ?: '',
@@ -79,16 +105,6 @@ class CoverController extends Controller {
                 3600,
                 $refreshRequested
             );
-        }
-
-        $fileId = $this->findFileIdForItem($userId, $itemId);
-        if ($fileId === null) {
-            return $this->placeholderResponse('LIB', 'item-not-found');
-        }
-
-        $file = $this->findUserFileById($userId, $fileId);
-        if (!$file instanceof File) {
-            return $this->placeholderResponse('LIB', 'file-not-found');
         }
 
         try {
@@ -600,6 +616,7 @@ class CoverController extends Controller {
         return match ($mimeType) {
             'image/png' => 'png',
             'image/webp' => 'webp',
+            'image/svg+xml' => 'svg',
             default => 'jpg',
         };
     }
@@ -657,7 +674,18 @@ class CoverController extends Controller {
     }
 
     private function coverResponse(string $content, string $filename, string $mimeType, string $status, string $reason, int $maxAge, bool $refreshRequested = false): DataDownloadResponse {
+        if ($this->thumbnails !== null && $this->thumbnailContext !== null && !$this->thumbnailHit) {
+            $rendered = $this->thumbnails->render($content, $mimeType);
+            if ($rendered === null) {
+                // Generated SVG is small and never decoded as a raster.
+                return $this->placeholderResponse('LIB', 'thumbnail-unavailable');
+            }
+            [$content, $mimeType] = $rendered;
+            $filename = pathinfo($filename, PATHINFO_FILENAME) . '.' . $this->coverExtension($mimeType);
+            $this->thumbnails->put(...[...$this->thumbnailContext, ['content' => $content, 'mime' => $mimeType, 'filename' => $filename, 'status' => $status, 'reason' => $reason]]);
+        }
         $headers = [
+            'X-Library-Thumbnail-Cache' => $this->thumbnailHit ? 'hit' : 'miss',
             'Cache-Control' => $refreshRequested ? 'private, no-store' : 'private, max-age=' . $maxAge,
             'X-Library-Cover-Status' => $status,
             'X-Library-Cover-Reason' => mb_substr($reason, 0, 160),

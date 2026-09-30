@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process'
+import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 
 // Source-harness compatibility markers for historical alpha contract tests.
 // These are comments only; runtime assertions below own the actual pass/fail gate.
@@ -23,7 +24,7 @@ import { execFileSync } from 'node:child_process'
 // value="details"
 // source_has_creator_filter
 // backend_searches_description
-// app_version=0.1.0-beta.1
+// app_version=0.2.0-beta.1
 // NcActions
 // grid-template-columns: repeat(2, minmax(0, 1fr))
 // download.bytes <= 0
@@ -158,7 +159,7 @@ let restorePublicationRows = null
 let restoreCreatorRows = null
 let restoreYearRows = null
 try {
-  token = parseToken(runDocker(['user:add-app-password', '--no-interaction', '--name', tokenName, user]))
+  token = parseToken(createTemporaryAppPassword(container, user, tokenName))
   if (!token) {
     fail('temporary_app_password_not_created')
   } else {
@@ -365,7 +366,7 @@ try {
     const noTechnicalCatalogueDashboards = !bundle.includes('library-home-dashboard') && !bundle.includes('library-weak-metadata-dashboard') && !bundle.includes('library-import-health-dashboard') && !bundle.includes('Weak metadata cockpit')
     const reviewSuggestionSafety = bundleHas('library-metadata-review-workbench', 'Review next suggestion', 'Use suggested value', 'Skip to next suggestion', 'No source files are changed')
     const activeFilterChips = bundleHas('library-active-filter-chips', 'activeFilterChips', 'filterChipRemoveUrl', 'removeFilterChip')
-    const installedVersionAssetIdentity = scriptMatch?.[1]?.includes('0-1-0-beta-1') && cssMatch?.[1]?.includes('0-1-0-beta-1')
+    const installedVersionAssetIdentity = scriptMatch?.[1]?.includes('0-2-0-beta-1') && cssMatch?.[1]?.includes('0-2-0-beta-1')
     console.log(`source_has_primary_catalogue_controls=${primaryCatalogueControls}`)
     console.log(`source_has_calm_catalogue=${calmCatalogue}`)
     console.log(`source_has_selection_gated_actions=${selectionGatedActions}`)
@@ -377,7 +378,7 @@ try {
     console.log(`review_has_suggestion_workbench_and_source_safety=${reviewSuggestionSafety}`)
     console.log(`source_has_active_filter_chips=${activeFilterChips}`)
     console.log(`source_has_custom_saved_collections=${bundleHas('library-saved-collections', 'Custom collections', 'Save current view')}`)
-    console.log(`app_version=${installedVersionAssetIdentity ? '0.1.0-beta.1' : 'unverified'}`)
+    console.log(`app_version=${installedVersionAssetIdentity ? '0.2.0-beta.1' : 'unverified'}`)
     const coverOverlayCss = css.text.includes('grid-template-columns:repeat(auto-fill,minmax(150px,1fr))')
       && css.text.includes('.library-cover-gallery .library-cover-summary')
       && css.text.includes('.library-cover-gallery .library-cover-card:hover .library-cover-creator')

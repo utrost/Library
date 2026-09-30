@@ -8,7 +8,7 @@ def test_file_index_tracks_scan_error_without_losing_index_row():
     assert "scan_error" in migrations
 
     service = (ROOT / "lib" / "Service" / "FileIndexService.php").read_text()
-    assert "public function markScanError(string $userId, int $libraryFileId, string $message): void" in service
+    assert "public function markScanError(string $userId, int $libraryFileId, string $message, ?string $fingerprint = null, ?string $revision = null): void" in service
     assert "scan_status" in service
     assert "metadata_error" in service
     assert "scan_error" in service

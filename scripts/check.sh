@@ -4,6 +4,7 @@ set -euo pipefail
 python -m pytest -q
 npm run check:translations
 ./scripts/run-php-runtime-tests.sh
+node scripts/test-inference-parser.mjs
 npm test -- --run
 npm run build
 git diff --check

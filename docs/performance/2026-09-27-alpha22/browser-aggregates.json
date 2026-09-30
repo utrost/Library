@@ -1,0 +1,62 @@
+{
+  "passed": true,
+  "applicationRestored": true,
+  "surfaces": [
+    {
+      "surface": "catalogue-first",
+      "visibleMs": 920.4000005722046,
+      "transferMiB": 2.904388427734375,
+      "longTaskMs": 788,
+      "observedAtMs": 3013.7000007629395
+    },
+    {
+      "surface": "catalogue-repeat",
+      "visibleMs": 756.6000003814697,
+      "transferMiB": 0.05300712585449219,
+      "longTaskMs": 680,
+      "observedAtMs": 2720.5
+    },
+    {
+      "surface": "home",
+      "visibleMs": 819.6999998092651,
+      "transferMiB": 0.05384540557861328,
+      "longTaskMs": 155,
+      "observedAtMs": 2607.5999994277954
+    },
+    {
+      "surface": "shelves",
+      "visibleMs": 927.1000003814697,
+      "transferMiB": 0.0030164718627929688,
+      "longTaskMs": 69,
+      "observedAtMs": 2601.199999809265
+    },
+    {
+      "surface": "lists",
+      "visibleMs": 172.69999980926514,
+      "transferMiB": 0.0030164718627929688,
+      "longTaskMs": 81,
+      "observedAtMs": 1855.6999998092651
+    },
+    {
+      "surface": "inference",
+      "visibleMs": 201.19999980926514,
+      "transferMiB": 0.009440422058105469,
+      "longTaskMs": 146,
+      "observedAtMs": 1913.0999994277954
+    },
+    {
+      "surface": "review",
+      "visibleMs": 196.9000005722046,
+      "transferMiB": 0.006079673767089844,
+      "longTaskMs": 76,
+      "observedAtMs": 1872.6000003814697
+    },
+    {
+      "surface": "settings",
+      "visibleMs": 312.6000003814697,
+      "transferMiB": 0.04261207580566406,
+      "longTaskMs": 214,
+      "observedAtMs": 2236.8999996185303
+    }
+  ]
+}

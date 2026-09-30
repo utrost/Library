@@ -1,3 +1,4 @@
 {
-  "DELETE": "Controller-required technical confirmation token; must remain literal in every locale."
+  "DELETE": "Controller-required technical confirmation token; must remain literal in every locale.",
+  "Genre": "Genre is the standard German bibliographic term; Arabic remains translated."
 }

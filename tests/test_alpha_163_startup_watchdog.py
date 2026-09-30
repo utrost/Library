@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,7 +25,7 @@ def test_server_template_has_distinct_no_javascript_and_watchdog_surfaces():
     assert 'role="status"' in template
     assert 'aria-live="polite"' in template
     assert 'data-library-startup-timeout="10000"' in template
-    assert 'data-library-main-script="library-main-0-1-0-beta-1-compact-list-table-cover-96-fit-v4"' in template
+    assert f'data-library-main-script="library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4"' in template
     assert "data-library-retry" in template
     assert "settingsUrl" in template
     assert "<script" not in template

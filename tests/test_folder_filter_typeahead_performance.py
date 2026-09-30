@@ -18,7 +18,8 @@ def test_folder_filter_has_a_user_scoped_safe_prefix_index():
     schema = read("appinfo/database.xml")
     index = schema.split("<name>library_files_usr_path</name>", 1)[1].split("</index>", 1)[0]
     assert index.index("<name>user_id</name>") < index.index("<name>cached_path</name>")
-    assert "<length>191</length>" in index
+    # Prefix length is defined in the migration; Nextcloud XSD forbids it in index fields.
+    assert "<length>" not in index
 
 
 def test_folder_filter_remains_a_sargable_exact_or_escaped_prefix_lookup():

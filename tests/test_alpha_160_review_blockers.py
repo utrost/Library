@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 import hashlib
 import io
@@ -16,7 +17,7 @@ def read(relative: str) -> str:
 
 
 def test_alpha_160_packaged_runtime_size_and_checksum_sidecar_stay_consistent():
-    current = ROOT / "js/library-main-0-1-0-beta-1-compact-list-table-cover-96-fit-v4.mjs"
+    current = ROOT / f"js/library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4.mjs"
     assert current.read_bytes() == (ROOT / "js/library-main.mjs").read_bytes()
     assert current.stat().st_size <= 2_000_000
     assert not (ROOT / "js/library-main.mjs.map").exists()
@@ -68,11 +69,11 @@ def test_vite_defines_nextcloud_vue_app_identity_and_built_bundle_has_no_missing
     vite = read("vite.config.js")
 
     assert "appName: JSON.stringify('library')" in vite
-    assert "appVersion: JSON.stringify('0.1.0-beta.1')" in vite
+    assert f"appVersion: JSON.stringify('{CURRENT_VERSION}')" in vite
 
     bundle = read("js/library-main.mjs")
     assert '= "library";' in bundle
-    assert '= "0.1.0-beta.1";' in bundle
+    assert f'= "{CURRENT_VERSION}";' in bundle
 
 
 def test_settings_footer_does_not_use_component_slot_that_triggers_legacy_cross_origin_icon():

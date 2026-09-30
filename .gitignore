@@ -11,3 +11,27 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# Historical local browser output; curated reports already tracked remain tracked.
+/docs/compatibility-evidence/2026-09-24-*/
+/docs/compatibility-evidence/2026-09-25-beta1/*/
+/docs/compatibility-evidence/2026-09-25-beta1/summary.txt
+/docs/compatibility-evidence/2026-09-26-alpha12/*
+!/docs/compatibility-evidence/2026-09-26-alpha12/README.md
+!/docs/compatibility-evidence/2026-09-26-alpha12/help-audit.md
+# Obsolete generated cache-busting assets remain local; package staging selects current assets.
+/css/library-vue-0-2-0-alpha-*.css
+/js/library-main-0-2-0-alpha-*.mjs
+/css/library-vue-0-1-0-alpha-174-compact-list-table*.css
+/js/library-main-0-1-0-alpha-174-compact-list-table*.mjs
+
+/docs/compatibility-evidence/**/*.log
+/docs/compatibility-evidence/**/playwright-report/
+/docs/compatibility-evidence/**/test-results/
+/docs/compatibility-evidence/**/*.png
+/docs/performance/**/*.png
+/docs/performance/**/*.log
+
+/docs/compatibility-evidence/**/*.tar.gz
+/docs/compatibility-evidence/**/*.jsonl
+/docs/performance/**/*.jsonl

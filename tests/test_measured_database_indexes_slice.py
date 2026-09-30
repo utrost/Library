@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 import re
 from pathlib import Path
 
@@ -109,7 +110,7 @@ def test_alpha_153_release_docs_state_the_measured_index_boundary():
         ]
     )
 
-    assert "<version>0.1.0-beta.1</version>" in info
+    assert f"<version>{CURRENT_VERSION}</version>" in info
     assert "seven additive user-scoped" in release_docs.lower()
     assert "no starred index" in release_docs.lower()
     assert "leading-wildcard" in release_docs

@@ -1,0 +1,146 @@
+{
+  "sourceHashesRestored": true,
+  "accountDeleted": true,
+  "operations": [
+    {
+      "operation": "unchanged_scan_40",
+      "ms": 129.508577,
+      "sqlCount": 248,
+      "sqlMs": 61.276033999999996,
+      "failed": false
+    },
+    {
+      "operation": "list_create",
+      "ms": 1.794834,
+      "sqlCount": 3,
+      "sqlMs": 1.336613,
+      "failed": false
+    },
+    {
+      "operation": "list_add_40",
+      "ms": 375.341684,
+      "sqlCount": 142,
+      "sqlMs": 41.058572000000005,
+      "failed": false
+    },
+    {
+      "operation": "list_index",
+      "ms": 0.715984,
+      "sqlCount": 2,
+      "sqlMs": 0.41035999999999995,
+      "failed": false
+    },
+    {
+      "operation": "list_page",
+      "ms": 206.610164,
+      "sqlCount": 54,
+      "sqlMs": 18.410404,
+      "failed": false
+    },
+    {
+      "operation": "list_note",
+      "ms": 1.936075,
+      "sqlCount": 6,
+      "sqlMs": 1.6128299999999998,
+      "failed": false
+    },
+    {
+      "operation": "list_move",
+      "ms": 2.475226,
+      "sqlCount": 8,
+      "sqlMs": 2.034958,
+      "failed": false
+    },
+    {
+      "operation": "metadata_prepare_40",
+      "ms": 121.333309,
+      "sqlCount": 205,
+      "sqlMs": 60.08206599999998,
+      "failed": false
+    },
+    {
+      "operation": "metadata_apply_40",
+      "ms": 402.560996,
+      "sqlCount": 1322,
+      "sqlMs": 310.192544,
+      "failed": false
+    },
+    {
+      "operation": "metadata_undo_40",
+      "ms": 314.77362,
+      "sqlCount": 1202,
+      "sqlMs": 251.49522700000023,
+      "failed": false
+    },
+    {
+      "operation": "inference_start_40",
+      "ms": 8.60051,
+      "sqlCount": 15,
+      "sqlMs": 5.025340000000001,
+      "failed": false
+    },
+    {
+      "operation": "inference_analyse_40",
+      "ms": 170.725078,
+      "sqlCount": 421,
+      "sqlMs": 122.011588,
+      "failed": false
+    },
+    {
+      "operation": "inference_results_40",
+      "ms": 83.054982,
+      "sqlCount": 125,
+      "sqlMs": 42.30635900000001,
+      "failed": false
+    },
+    {
+      "operation": "duplicates_start_metadata",
+      "ms": 7.437093,
+      "sqlCount": 14,
+      "sqlMs": 4.4384239999999995,
+      "failed": false
+    },
+    {
+      "operation": "duplicates_complete_metadata",
+      "ms": 1698.23224,
+      "sqlCount": 2455,
+      "sqlMs": 531.5007890000004,
+      "failed": false
+    },
+    {
+      "operation": "duplicates_start_hash",
+      "ms": 7.186269,
+      "sqlCount": 14,
+      "sqlMs": 4.331344,
+      "failed": false
+    },
+    {
+      "operation": "duplicates_complete_hash",
+      "ms": 2298.383475,
+      "sqlCount": 3313,
+      "sqlMs": 726.5953869999993,
+      "failed": false
+    },
+    {
+      "operation": "list_index_150_lists_6000_entries",
+      "ms": 4.06763,
+      "sqlCount": 2,
+      "sqlMs": 3.389972,
+      "failed": false
+    },
+    {
+      "operation": "list_membership_150_lists",
+      "ms": 4.704989,
+      "sqlCount": 3,
+      "sqlMs": 3.9942050000000004,
+      "failed": false
+    },
+    {
+      "operation": "list_page_150_lists",
+      "ms": 212.656306,
+      "sqlCount": 54,
+      "sqlMs": 20.502839999999992,
+      "failed": false
+    }
+  ]
+}

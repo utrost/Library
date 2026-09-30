@@ -8,14 +8,14 @@ def read(path: str) -> str:
 
 
 def test_vue_cover_cards_have_loading_and_error_polish_hooks():
-    component = read("src/App.vue")
+    component = read("src/components/CatalogueCover.vue")
 
-    assert "coverImageState" in component
+    assert "state" in component
     assert "library-cover-frame" in component
     assert "library-cover-loading-shimmer" in component
     assert "library-cover-fallback" in component
-    assert "@load=\"markCoverLoaded(item)\"" in component
-    assert "@error=\"markCoverFailed(item)\"" in component
+    assert "@load=\"state = 'loaded'\"" in component
+    assert "@error=\"state = 'error'\"" in component
     assert "Cover unavailable" in component
 
 
@@ -26,7 +26,7 @@ def test_cover_loading_polish_has_shimmer_fallback_and_reduced_motion_css():
     assert ".library-cover-loading-shimmer" in component
     assert "@keyframes library-cover-shimmer" in component
     assert ".library-cover-image--loaded" in component
-    assert ".library-cover-card--cover-error" in component
+    assert ".library-cover-frame--error" in component
     assert "prefers-reduced-motion" in component
 
 

@@ -63,4 +63,4 @@ def test_item_service_uses_extracted_metadata_candidates_but_preserves_user_edit
     assert "pdf-info" in item
     assert "opf" in item
     assert "if ((bool)$existing['user_edited'])" in item
-    assert "refreshInferredItem($userId, (int)$existing['id'], $file, $metadata)" in item
+    assert "refreshInferredItem($userId, (int)$existing['id'], $file, $metadataCandidate, $existing, $invalidAuthors)" in item

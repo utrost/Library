@@ -1,0 +1,127 @@
+<?php
+// Real NC34 services, isolated account, with cleanup even on assertion failure.
+declare(strict_types=1);
+define('OC_CONSOLE', true); require '/var/www/html/lib/base.php';
+$db=\OC::$server->get(\OCP\IDBConnection::class);$users=\OC::$server->get(\OCP\IUserManager::class);
+$uid='library-perf-fixes-'.bin2hex(random_bytes(6));$account=null;$checks=0;$failed=false;
+function verifyPerf(bool $ok,string $message):void{global $checks;if(!$ok)throw new RuntimeException($message);$checks++;}
+try {
+ $account=$users->createUser($uid,bin2hex(random_bytes(24)));
+ $folder=\OC::$server->get(\OCP\Files\IRootFolder::class)->getUserFolder($uid)->newFolder('Performance fixture');
+ $file=$folder->newFile('Shared authors.pdf',"%PDF-1.4\nFixture\n%%EOF");
+ \OC::$server->get(\OCA\Library\Service\RootService::class)->saveRoot($uid,'/Performance fixture','Performance fixture',true);
+ \OC::$server->get(\OCA\Library\Service\LibraryScanner::class)->scan($uid);
+ $r=$db->executeQuery('SELECT id FROM *PREFIX*library_items WHERE user_id=?',[$uid]);$id=(int)$r->fetchOne();$r->closeCursor();verifyPerf($id>0,'Fixture item created');
+ $items=\OC::$server->get(\OCA\Library\Service\ItemService::class);
+ $names=['Anne R','Robert Smith','Robert Jones','R'];
+ $items->refreshItemFacetIndex($uid,$id,[],[],['creator'=>$names]);
+ $r=$db->executeQuery('SELECT facet_value,normalized_value FROM *PREFIX*library_item_facets WHERE item_id=? AND facet_type=?',[$id,'creator']);$facets=$r->fetchAll();$r->closeCursor();
+ foreach($names as $name)verifyPerf(in_array($name,array_column($facets,'facet_value'),true),'Every full author name preserved');
+ verifyPerf(count(array_column($facets,'normalized_value'))===count(array_unique(array_column($facets,'normalized_value'))),'Shared search keys deduplicated');
+ $db->executeStatement('UPDATE *PREFIX*library_items SET creators=?,authors_json=NULL,user_edited=0,field_sources=? WHERE id=?',[implode('; ',$names),'{"creators":"epub-opf"}',$id]);
+ verifyPerf($items->backfillAuthors(1,$uid)===1,'Colliding author backfill succeeds');
+ verifyPerf($items->findItem($uid,$id)['authors']===$names,'Author order retained');
+ $text='';for($i=0;$i<900;$i++)$text.=hash('sha256',(string)$i).' ';
+ $db->executeStatement('UPDATE *PREFIX*library_items SET description=? WHERE id=?',[$text,$id]);
+ (new ReflectionMethod($items,'refreshItemSearchIndex'))->invoke($items,$uid,$id);
+ $row=(new ReflectionMethod($items,'searchIndexSourceRow'))->invoke($items,$uid,$id);
+ $document=(new ReflectionMethod($items,'searchDocumentForRow'))->invoke($items,$row);
+ $expected=array_map('strval',(new ReflectionMethod($items,'searchGramsForText'))->invoke($items,$document));sort($expected,SORT_STRING);
+ $r=$db->executeQuery('SELECT gram FROM *PREFIX*library_item_search_grams WHERE item_id=?',[$id]);$actual=array_column($r->fetchAll(),'gram');$r->closeCursor();sort($actual,SORT_STRING);
+ verifyPerf(count($expected)>200 && $actual===$expected,'Multiple INSERT chunks preserve every gram exactly');
+ $folder->newFile('Second.pdf',"%PDF-1.4\nSecond\n%%EOF");$folder->newFile('Third.pdf',"%PDF-1.4\nThird\n%%EOF");
+ \OC::$server->get(\OCA\Library\Service\LibraryScanner::class)->scan($uid);
+ $db->executeStatement('UPDATE *PREFIX*library_items SET title=? WHERE user_id=?',['Tied title',$uid]);
+ $page1=$items->queryCatalogue($uid,[],['page'=>1,'limit'=>2],false);
+ $page2=$items->queryCatalogue($uid,[],['page'=>2,'limit'=>2,'cursor'=>$page1['nextCursor']],false);
+ verifyPerf(count($page1['items'])===2&&count($page2['items'])===1,'Cursor handles tied titles without skipped rows');
+ verifyPerf(count(array_unique(array_merge(array_column($page1['items'],'id'),array_column($page2['items'],'id'))))===3,'Cursor avoids duplicates');
+ $back=$items->queryCatalogue($uid,[],['page'=>1,'limit'=>2,'cursor'=>$page2['previousCursor']],false);
+ verifyPerf(array_column($back['items'],'id')===array_column($page1['items'],'id'),'Backward cursor returns same first page');
+ verifyPerf(\OCA\Library\Service\CatalogueCursor::decode($page1['nextCursor'],'different-user',[],2)===null,'Cursor rejects other user context');
+ verifyPerf(\OCA\Library\Service\CatalogueCursor::decode($page1['nextCursor'],$uid,['format'=>'epub'],2)===null,'Changed filters invalidate cursor');
+ verifyPerf(\OCA\Library\Service\CatalogueCursor::decode('invalid',$uid,[],2)===null,'Malformed cursor rejected');
+ $fileIndex=\OC::$server->get(\OCA\Library\Service\FileIndexService::class);
+ $observations=$fileIndex->findByFileIds($uid,[(int)$file->getId()]);
+ verifyPerf(isset($observations[$file->getId()]),'Scan observations are fetched in a bounded batch');
+ verifyPerf($fileIndex->findByFileIds('other-account',[(int)$file->getId()])===[],'Scan observations remain owner scoped');
+ $rejected=false;try{$fileIndex->upsertFile('other-account',1,['fileId'=>(int)$file->getId()],$observations[$file->getId()]);}catch(\InvalidArgumentException){$rejected=true;}
+ verifyPerf($rejected,'A foreign prefetched observation cannot update another account');
+ $direct=$items->queryCatalogue($uid,[],['page'=>2,'limit'=>2],false);
+ verifyPerf(array_column($direct['items'],'id')===array_column($page2['items'],'id'),'Direct page matches cursor for tied titles');
+ $batches=\OC::$server->get(\OCA\Library\Service\InferenceBatchService::class);
+ $snapshots=$batches->snapshots($uid,array_column($page1['items'],'id'));
+ foreach($snapshots as $itemId=>$snapshot) verifyPerf(\OCA\Library\Service\InferenceChangeSet::fingerprint($snapshot)===\OCA\Library\Service\InferenceChangeSet::fingerprint($batches->snapshot($uid,$itemId,true)),'Batched snapshot matches locked-write snapshot semantics');
+ verifyPerf($batches->snapshots('other-account',array_column($page1['items'],'id'))===[],'Batched snapshots remain user scoped');
+ $thumbnails=\OC::$server->get(\OCA\Library\Service\CoverThumbnailService::class);
+ $image=imagecreatetruecolor(1200,1800);
+ for($y=0;$y<1800;$y+=10)for($x=0;$x<1200;$x+=10)imagefilledrectangle($image,$x,$y,$x+9,$y+9,imagecolorallocate($image,($x*7)%256,($y*3)%256,($x+$y)%256));
+ ob_start();imagepng($image);$original=ob_get_clean();imagedestroy($image);
+ $rendered=$thumbnails->render($original,'image/png');verifyPerf($rendered!==null,'Large original converted');
+ $size=getimagesizefromstring($rendered[0]);verifyPerf($size[0]<=360&&$size[1]<=520&&strlen($rendered[0])<=102400,'Thumbnail dimensions and byte budget');
+ verifyPerf($thumbnails->render('broken bytes','image/jpeg')===null,'Malformed image rejected');
+ $value=['content'=>$rendered[0],'mime'=>$rendered[1],'status'=>'epub-cover','reason'=>'fixture','filename'=>'fixture.jpg'];
+ $thumbnails->put($uid,$id,'revision-a',$value);verifyPerf($thumbnails->get($uid,$id,'revision-a')['content']===$rendered[0],'Stored thumbnail reused');
+ verifyPerf($thumbnails->get($uid,$id,'revision-b')===null,'Changed source revision invalidates cache');
+ $thumbnails->put($uid,$id,'revision-b',$value);verifyPerf($thumbnails->get($uid,$id,'revision-a')===null,'Replacing thumbnail removes old revision');
+ $bucket=substr(hash('sha256',(string)$id),0,2);$ids=[];
+ for($candidate=1;count($ids)<17;$candidate++)if(substr(hash('sha256',(string)$candidate),0,2)===$bucket)$ids[]=$candidate;
+ foreach($ids as $candidate)$thumbnails->put($uid,$candidate,'eviction-test',$value);
+ $cached=0;foreach($ids as $candidate)if($thumbnails->get($uid,$candidate,'eviction-test'))$cached++;
+ verifyPerf($cached<=16,'Cache shard stays bounded');
+ $cacheConfig=\OC::$server->get(\OCP\IConfig::class);
+ $originalCacheSettings=$thumbnails->settings();
+ $thumbnails->configure(0,24);
+ verifyPerf($thumbnails->get($uid,$ids[16],'eviction-test')===null,'Disabled disk cache never returns cached thumbnails');
+ $thumbnails->configure(1,1);
+ $thumbnails->put($uid,$id,'too-large',$value);
+ verifyPerf($thumbnails->get($uid,$id,'too-large')===null,'Shard byte budget rejects oversized cache entry');
+ $thumbnails->configure(128,168);
+ $thumbnails->put($uid,$id,'expired-test',$value);
+ $cacheFolder=\OC::$server->get(\OCP\Files\AppData\IAppDataFactory::class)->get('library')->getFolder('cover-v1-'.hash('sha256',$uid).'-'.$bucket);
+ $cacheFile=$cacheFolder->getFile($id.'.json');$expired=json_decode($cacheFile->getContent(),true);$expired['expires']=time()-1;$cacheFile->putContent(json_encode($expired));
+ verifyPerf($thumbnails->get($uid,$id,'expired-test')===null,'Expired cache data cannot be served');
+ $cacheConfig->setAppValue('library','thumbnail_cleanup_user','');$cacheConfig->setAppValue('library','thumbnail_cleanup_shard',(string)hexdec($bucket));
+ $thumbnails->cleanupExpired();
+ verifyPerf(!$cacheFolder->fileExists($id.'.json'),'Maintenance deletes expired entries');
+ $thumbnails->configure($originalCacheSettings['budgetMiB'],$originalCacheSettings['retentionHours']);
+ $items->setManualCoverOverride($uid,$id,base64_encode($original),'image/png');
+ $beforeRevision=$items->findItem($uid,$id)['coverCacheRevision'];
+ $session=\OC::$server->get(\OCP\IUserSession::class);$session->setUser($account);
+ $controller=\OC::$server->get(\OCA\Library\Controller\CoverController::class);
+ $response=$controller->show($id);verifyPerf($response->getHeaders()['X-Library-Thumbnail-Cache']==='miss','Initial cover request generates thumbnail');
+ $response=$controller->show($id);verifyPerf($response->getHeaders()['X-Library-Thumbnail-Cache']==='hit','Second cover request uses disk cache');
+ $items->setManualCoverOverride($uid,$id,base64_encode($rendered[0]),$rendered[1]);
+ verifyPerf($items->findItem($uid,$id)['coverCacheRevision']!==$beforeRevision,'Browser URL revision changes even for rapid manual updates');
+ $response=$controller->show($id);verifyPerf($response->getHeaders()['X-Library-Thumbnail-Cache']==='miss','Changed manual cover invalidates cached thumbnail');
+ $file->delete();$response=$controller->show($id);verifyPerf($response->getHeaders()['X-Library-Cover-Status']==='placeholder','Deleted source cannot serve a cached or manual cover');
+ $session->setUser(null);
+ $thumbnails->put($uid,$id,'orphan-test',$value);
+ foreach(\OC::$server->get(\OCA\Library\Service\RootService::class)->listRoots($uid) as $root) \OC::$server->get(\OCA\Library\Service\RootService::class)->deleteRoot($uid,(int)$root['id']);
+ $cacheFile=$cacheFolder->getFile($id.'.json');$expired=json_decode($cacheFile->getContent(),true);$expired['expires']=time()-1;$cacheFile->putContent(json_encode($expired));
+ $cacheConfig->setAppValue('library','thumbnail_cleanup_user','');$cacheConfig->setAppValue('library','thumbnail_cleanup_shard',(string)hexdec($bucket));
+ $thumbnails->cleanupExpired();
+ verifyPerf(!$cacheFolder->fileExists($id.'.json'),'Expired cache is cleaned after the last Library root is removed');
+ $thumbnails->deleteUser($uid);
+ verifyPerf((int)$db->executeQuery('SELECT COUNT(*) FROM *PREFIX*library_thumbnail_users WHERE user_id=?',[$uid])->fetchOne()===0,'Account cache registry is deleted');
+ verifyPerf($thumbnails->get($uid,$ids[16],'eviction-test')===null,'Account cache removal');
+ // Large real Files streams must not allocate a whole publication in PHP.
+ $largePdf=$folder->newFile('Large stream.pdf');$output=$largePdf->fopen('wb');
+ try{fwrite($output,"%PDF-1.4\n/Title (Bounded stream title)\n");$chunk=str_repeat(' ',131072);for($n=0;$n<256;$n++)fwrite($output,$chunk);}finally{fclose($output);}unset($chunk);
+ memory_reset_peak_usage();$before=memory_get_usage(true);
+ $pdfMetadata=(new \OCA\Library\Metadata\PdfInfoMetadataExtractor())->extract($largePdf);
+ verifyPerf(($pdfMetadata['title']??'')==='Bounded stream title','Streamed PDF retains metadata');
+ verifyPerf(memory_get_peak_usage(true)-$before<4194304,'PDF reads only its bounded metadata prefix');
+ $archive=tempnam('/tmp','library-stream-test-');$payload=tempnam('/tmp','library-stream-payload-');
+ try{
+  $output=fopen($payload,'wb');ftruncate($output,33554432);fclose($output);
+  $zip=new ZipArchive();$zip->open($archive,ZipArchive::OVERWRITE);$zip->addFile($payload,'payload.bin');$zip->setCompressionName('payload.bin',ZipArchive::CM_STORE);$zip->addFromString('ComicInfo.xml','<ComicInfo><Title>Streamed comic</Title><Writer>Ada Quill</Writer></ComicInfo>');$zip->close();
+  $comic=$folder->newFile('Large stream.cbz');$input=fopen($archive,'rb');try{$comic->putContent($input);}finally{if(is_resource($input))fclose($input);}
+  memory_reset_peak_usage();$before=memory_get_usage(true);$comicMetadata=(new \OCA\Library\Metadata\CbzComicInfoMetadataExtractor())->extract($comic);
+  verifyPerf(($comicMetadata['title']??'')==='Streamed comic','Streamed archive retains ComicInfo metadata');
+  verifyPerf(memory_get_peak_usage(true)-$before<4194304,'Archive copying avoids a whole-publication PHP buffer');
+ }finally{@unlink($archive);@unlink($payload);}
+ echo json_encode(['passed'=>true,'assertions'=>$checks,'thumbnailBytes'=>strlen($rendered[0]),'originalBytes'=>strlen($original)]),PHP_EOL;
+} catch(Throwable $e) {fwrite(STDERR,get_class($e).': '.$e->getMessage().PHP_EOL);$failed=true;}
+finally {if(isset($originalCacheSettings))$thumbnails->configure($originalCacheSettings['budgetMiB'],$originalCacheSettings['retentionHours']);if($account)$account->delete();}
+if($failed)exit(1);

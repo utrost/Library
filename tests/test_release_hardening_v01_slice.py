@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 import re
 
@@ -15,7 +16,7 @@ def test_release_docs_are_current_for_v01_testing_candidate():
     changelog = read("CHANGELOG.md")
     checklist = read("docs/alpha-test-checklist.md")
 
-    assert "<version>0.1.0-beta.1</version>" in info
+    assert f"<version>{CURRENT_VERSION}</version>" in info
     for doc in (readme, release, checklist):
         assert "0.1.0-beta.1" in doc
         assert "0.1.0-alpha.82" not in doc

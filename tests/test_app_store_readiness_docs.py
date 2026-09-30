@@ -33,8 +33,8 @@ def test_app_store_readiness_defines_signing_listing_and_stable_submission():
         "privacy statement",
         "support URL",
         "screenshot",
-        "Stable `0.1.0` App Store submission",
-        "awaits the external Nextcloud signing certificate",
+        "AS-005 — App Store submission",
+        "certificate issued",
     ]:
         assert phrase in app_store
 
@@ -138,7 +138,7 @@ def test_app_store_listing_draft_has_reviewer_sections_and_public_scope():
     ]:
         assert phrase in listing
 
-    assert "first stable App Store candidate for Nextcloud 33–35" in listing
+    assert "first public beta App Store candidate for Nextcloud 33–35" in listing
 
 
 def test_app_store_public_surfaces_do_not_expose_internal_names_or_paths():

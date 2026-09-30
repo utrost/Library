@@ -1,6 +1,6 @@
 {
   "name": "library",
-  "version": "0.1.0-beta.1",
+  "version": "0.2.0-beta.1",
   "private": true,
   "description": "Nextcloud publication catalogue for files stored in Nextcloud",
   "license": "AGPL-3.0-or-later",
@@ -34,7 +34,15 @@
     "smoke:fresh-install-mixed": "bash scripts/smoke-fresh-install-mixed.sh",
     "test:gui": "playwright test",
     "test:gui:desktop": "playwright test --project=desktop-chromium --project=desktop-firefox",
-    "test:gui:mobile": "playwright test --project=mobile-chromium"
+    "test:gui:mobile": "playwright test --project=mobile-chromium",
+    "perf:quick": "node scripts/performance/run.mjs",
+    "perf:browser": "BROWSER=1 BENCH_CASES=catalogue-100 SAMPLES=1 node scripts/performance/run.mjs",
+    "perf:full": "COMPREHENSIVE=1 HYDRATE=1 DEEP_CURSOR=1 node scripts/performance/run.mjs",
+    "perf:processes": "node scripts/performance/run-fixture.mjs",
+    "perf:jobs": "node scripts/performance/run-cli.mjs maintenance",
+    "perf:scan": "node scripts/performance/run-cli.mjs scan",
+    "perf:matrix": "bash scripts/performance/compatibility-matrix.sh",
+    "perf:compare": "node scripts/performance/compare.mjs"
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"

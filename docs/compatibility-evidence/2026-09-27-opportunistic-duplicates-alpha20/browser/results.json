@@ -1,0 +1,32 @@
+{
+  "report": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "pageBatch14": true,
+      "badges": true,
+      "metadataSingleLookup": true,
+      "comparison": true,
+      "dismissalPersistent": true,
+      "reset": true,
+      "mobileFits": true,
+      "csrf": true,
+      "sourceAndMetadataUnchanged": true,
+      "pageErrors": []
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "pageBatch14": true,
+      "badges": true,
+      "metadataSingleLookup": true,
+      "comparison": true,
+      "dismissalPersistent": true,
+      "reset": true,
+      "mobileFits": true,
+      "csrf": true,
+      "sourceAndMetadataUnchanged": true,
+      "pageErrors": []
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+    "checkedAt": "2026-09-27T09:33:45+00:00",
+    "books": [
+        {
+            "count": 84261
+        }
+    ],
+    "fixtureUsers": [
+        {
+            "count": 0
+        }
+    ],
+    "temporaryTokens": [
+        {
+            "count": 0
+        }
+    ],
+    "scanJobs": [
+        {
+            "id": 14,
+            "status": "running"
+        },
+        {
+            "id": 56,
+            "status": "cancelled"
+        },
+        {
+            "id": 57,
+            "status": "completed"
+        }
+    ],
+    "secretAbsent": true,
+    "hookAbsent": true,
+    "applicationSha256": "ad5d72a9fd3edcbad71d04814309952d00eff651233beb722c7b815b2c27696d"
+}

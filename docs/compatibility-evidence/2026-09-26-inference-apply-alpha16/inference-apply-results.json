@@ -1,0 +1,42 @@
+{
+  "report": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "csrf": true,
+      "selectionInvalidation": true,
+      "explicitReplacementSelection": true,
+      "apply": true,
+      "reloadHistory": true,
+      "undo": true,
+      "mobile": true,
+      "staleRejection": "not-run"
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "csrf": true,
+      "selectionInvalidation": true,
+      "explicitReplacementSelection": true,
+      "apply": true,
+      "reloadHistory": true,
+      "undo": true,
+      "mobile": true,
+      "staleRejection": "passed"
+    }
+  ],
+  "integration": {
+    "integration": true,
+    "exactUndo": true,
+    "ownership": true,
+    "stalePreview": true,
+    "laterEditUndoBlocked": true,
+    "atomicRollback": true,
+    "derivedIndexRollback": true,
+    "rescanProtection": true,
+    "movedFileBlocked": true,
+    "expiry": true,
+    "idempotentRetries": true,
+    "sourceUnchanged": true
+  }
+}

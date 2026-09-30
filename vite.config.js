@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [vue()],
   define: {
     appName: JSON.stringify('library'),
-    appVersion: JSON.stringify('0.1.0-beta.1'),
+    appVersion: JSON.stringify('0.2.0-beta.1'),
     'process.env.NODE_ENV': JSON.stringify('production'),
     'process.env': '{}',
   },
@@ -32,6 +32,7 @@ export default defineConfig({
     },
   },
   test: {
+    maxWorkers: 2,
     include: ['src/**/*.test.js'],
     exclude: ['dist/**', 'build/**', 'node_modules/**'],
     environment: 'happy-dom',

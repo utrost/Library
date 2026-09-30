@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\Library\Controller;
 
 use OCA\Library\Service\RootService;
+use OCA\Library\Service\InferenceFolderRuleStore;
 use OCA\Library\Service\SecurityAuditLogger;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -23,6 +24,7 @@ final class RootController extends Controller {
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
         ?SecurityAuditLogger $securityAudit = null,
+        private ?InferenceFolderRuleStore $folderRules = null,
     ) {
         parent::__construct($appName, $request);
         $this->securityAudit = $securityAudit;
@@ -82,6 +84,7 @@ final class RootController extends Controller {
         $confirmDeleteText = trim((string)$this->request->getParam('confirmDeleteText', ''));
         if ($user !== null && $confirmDeleteText === 'DELETE') {
             $this->rootService->deleteRoot($user->getUID(), $rootId);
+            $this->folderRules?->deleteRoot($user->getUID(), $rootId);
             $this->securityAudit?->warning('library.root.delete', $user->getUID(), 'delete', 'root', 'success', [
                 'target_id' => $rootId,
                 'reason' => 'confirmed_delete',

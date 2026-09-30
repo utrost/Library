@@ -10,7 +10,7 @@ def test_subjects_classifications_have_schema_and_publication_field_model():
 
     schema = (ROOT / "appinfo" / "database.xml").read_text()
     assert "subjects_json" in schema
-    assert "genres_json" not in schema
+    assert "genres_json" in schema  # Retained legacy column; the migration does not drop it.
     assert "subjects_json" in migrations
     assert "genres_json" in migrations  # legacy migration source only
     assert "renameColumn" not in migrations
@@ -54,14 +54,14 @@ def test_subjects_classifications_are_visible_editable_filterable_and_not_genres
     assert "jsonArrayContainsFilter" not in service
     assert "Subjects" in detail
     assert 'name="subjects[]"' in detail
-    assert "Genre" not in detail
+    assert 'name="genre"' in detail  # A separate scalar field; subjects remain multi-valued.
     assert "genres[]" not in detail
     assert "Classifications" in detail
     assert 'name="classifications"' in detail
     assert "Subject" in vue
     assert 'name="subjectSearch"' in vue
     assert 'select v-model="activeFilters.subject" name="subject"' not in vue
-    assert "Genre" not in vue
+    assert 'name="genre"' in vue
     assert "genres" not in vue
     assert "activeFilters.genre" not in vue
     assert "classification" in vue
@@ -84,7 +84,7 @@ def test_subjects_classifications_roundtrip_through_import_export_and_filter_fac
     changed_block = service.split("private function changedImportFields", 1)[1].split("private function emptyImportPreview", 1)[0]
     assert "normalizeMultiValueField" in changed_block
     apply_block = service.split("public function applyCorrectedMetadataImport", 1)[1].split("/**", 1)[0]
-    assert "updateItem($userId, (int)$current['id'], $importItem)" in apply_block
+    assert "updateItem($userId, (int)$current['id'], $merged)" in apply_block
     assert "indexedFacetValues" in service
     assert "genreFacetValues" not in service
     assert "library_item_facets" in service

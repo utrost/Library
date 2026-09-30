@@ -7,12 +7,13 @@ namespace OCA\Library\Metadata;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCA\Library\Service\SafeDiagnostics;
+use OCA\Library\Service\AuthorNames;
 use Throwable;
 
 final class PublicationMetadataService {
     // Bump for any output-affecting extractor or normalization change, sidecar precedence
     // change, filename/folder interpretation change, or ItemService candidate mapping change.
-    public const PIPELINE_REVISION = 'metadata-pipeline-v3';
+    public const PIPELINE_REVISION = 'metadata-pipeline-v7';
 
     // realistic fixture notes: encoded PDF info dictionaries, CBZ without ComicInfo.xml, nested ComicInfo.xml, sidecar collisions.
     private ?string $lastError = null;
@@ -61,15 +62,16 @@ final class PublicationMetadataService {
             $embeddedMetadata = $this->extract($file);
             $sidecar = $this->findOpfSidecar($file);
             if ($sidecar === null) {
-                return array_merge($filenameMetadata, $embeddedMetadata);
+                return $this->validateScannerFields($this->validateScannerAuthors(array_merge($filenameMetadata, $embeddedMetadata), $file), $file);
             }
 
             $sidecarMetadata = (new OpfEpubMetadataExtractor())->parseOpfMetadata($sidecar->getContent(), 'sidecar-opf');
             if ($sidecarMetadata === []) {
-                return array_merge($filenameMetadata, $embeddedMetadata);
+                return $this->validateScannerFields($this->validateScannerAuthors(array_merge($filenameMetadata, $embeddedMetadata), $file), $file);
             }
 
-            return array_merge($filenameMetadata, $embeddedMetadata, $sidecarMetadata);
+            if (isset($sidecarMetadata['creators']) && !isset($sidecarMetadata['authors'])) unset($embeddedMetadata['authors']);
+            return $this->validateScannerFields($this->validateScannerAuthors(array_merge($filenameMetadata, $embeddedMetadata, $sidecarMetadata), $file), $file);
         } catch (Throwable $e) {
             $this->lastError = $this->safeMetadataExtractionError($e, $file);
             return [];
@@ -114,6 +116,43 @@ final class PublicationMetadataService {
         }
 
         return [];
+    }
+
+    /** Reject the author field alone; manual/import validation remains strict. */
+    private function validateScannerAuthors(array $metadata, File $file): array {
+        try {
+            if (isset($metadata['authors'])) AuthorNames::normalize($metadata['authors']);
+            else AuthorNames::fromText($metadata['creators'] ?? null);
+        } catch (\InvalidArgumentException $e) {
+            unset($metadata['authors'], $metadata['creators']);
+            $metadata['_invalidAuthors'] = true;
+            $diagnostic = SafeDiagnostics::fromThrowable(
+                'metadata_authors_invalid',
+                'Author metadata could not be imported. Other fields were retained. Review the author field.',
+                $e,
+                ['fileId' => $file->getId(), 'path' => $file->getPath(), 'extension' => strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION))],
+            );
+            SafeDiagnostics::log($diagnostic);
+            // Preserve an existing extraction failure rather than hiding it behind the author warning.
+            $this->lastError ??= SafeDiagnostics::publicText($diagnostic);
+        }
+        return $metadata;
+    }
+
+    /** Invalid source fields remain Review proposals, never canonical database writes. */
+    private function validateScannerFields(array $metadata, File $file): array {
+        $rejected=ScannerMetadataFields::rejected($metadata);
+        if ($rejected === []) return $metadata;
+        foreach($rejected as $field=>$value) unset($metadata[$field]);
+        $metadata['_invalidFields']=array_keys($rejected);
+        $metadata['_rejectedFields']=$rejected;
+        $diagnostic=SafeDiagnostics::fromThrowable('metadata_fields_invalid',
+            'Some source metadata exceeds field limits. Other fields were retained. Review the rejected fields.',
+            new \InvalidArgumentException('Unsupported scanner fields: '.implode(', ',array_keys($rejected))),
+            ['fileId'=>$file->getId(),'path'=>$file->getPath(),'extension'=>strtolower(pathinfo($file->getName(),PATHINFO_EXTENSION))]);
+        SafeDiagnostics::log($diagnostic);
+        $this->lastError ??= SafeDiagnostics::publicText($diagnostic);
+        return $metadata;
     }
 
     private function safeMetadataExtractionError(Throwable $e, File $file): string {

@@ -10,7 +10,7 @@ def read(path: str) -> str:
 
 def test_batch_ui_is_selection_gated_and_posts_explicit_ids():
     app = read("src/App.vue")
-    assert 'v-if="selectedItemIds.length > 0"' in app
+    assert 'v-if="selectedItemIds.length && selectedBatchAction"' in app
     assert 'aria-live="polite"' in app
     assert 'type="checkbox"' in app
     assert "input.name = 'itemIds[]'" in app

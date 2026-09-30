@@ -1,10 +1,29 @@
 # App Store readiness roadmap
 
-Current status: `0.1.0-beta.1` is the beta release candidate. The exact package installed and passed all 9 Playwright smoke executions on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with 40 English Gutenberg books. Manual AT testing is pending; accessibility-tree evidence is not screen-reader testing.
-Current candidate baseline: `0.1.0-beta.1`
-The final signed release awaits the external Nextcloud signing certificate. Certificate request [PR #1268](https://github.com/nextcloud/app-certificate-requests/pull/1268) is open. Keep the private key outside the repository; the signed package and App Store submission remain pending certificate issuance.
+## Release checkpoint — 2026-09-30
 
-Status: active release-readiness roadmap  
+Current candidate baseline: `0.2.0-beta.1`. Final signed-package verification is in progress. The earlier `0.1.0-beta.1` evidence below is historical.
+
+Certificate request [PR #1268](https://github.com/nextcloud/app-certificate-requests/pull/1268) merged on **2026-09-29 at 20:36 UTC**. The issued `library.crt` matches the existing local private key and passed OpenSSL verification against the developer Nextcloud instance's code-signing CA chain on 2026-09-30. Its subject is `CN=library`; validity ends 2037-01-04. The public certificate is installed at `~/.nextcloud/certificates/library.crt`. Keep the existing private key outside the repository and release archives.
+
+Completed evidence:
+
+- Alpha.28 passed the Nextcloud 33.0.9 / 34.0.4 / 35.0.0 matrix, including 40 English Gutenberg books, scheduled-scan checks and Playwright coverage. See [performance and compatibility report](performance/2026-09-28-alpha28/README.md).
+- Alpha.29 inference suggestions passed developer NC34 Chromium/Firefox checks, including mobile layout and saved-rule cleanup. See [suggestion evidence](compatibility-evidence/2026-09-29-inference-suggestions-alpha29/README.md). This does not certify a final signed beta archive on all three versions.
+
+Remaining release sequence:
+
+1. Freeze scope; review the accumulated development changes and create a coherent source baseline for `0.2.0-beta.1`. No new feature is required for this candidate.
+2. Align public metadata, changelog, listing text, screenshots and support/privacy expectations with 0.2. Review schema/documentation consistency and record remaining limitations, including manual assistive-technology testing.
+3. Install the issued certificate and rehearse signing. Inspect container ownership/permissions: the script currently copies a private key into a root-created temporary directory but runs the signer as `www-data`; access must be arranged without making the key publicly readable. Ensure cleanup on failures.
+4. Build and audit the exact signed release archive. Verify app integrity after installation. Produce the separate app-registration proof and detached SHA-512 archive signature required by the [App Store developer guide](https://nextcloudappstore.readthedocs.io/en/latest/developer.html); `appinfo/signature.json` alone is not the release-upload signature.
+5. Run fresh-install and upgrade checks plus the main Playwright scripts against that exact artifact on Nextcloud 33–35. Include the Gutenberg library and mixed metadata fixtures. Preserve screenshots, results and archive checksum. Reuse existing performance evidence unless these checks reveal a regression.
+6. Complete human acceptance on the developer instance. Publish the reviewed source tag and exact archive, then register/submit the app through the owner's App Store account. Record the resulting listing/release status and installation result.
+
+No beta tag, signed beta archive or App Store submission has been created at this checkpoint.
+
+## Historical readiness track
+
 Target: signed Nextcloud App Store release for Nextcloud 33–35
 
 Library alpha.159 passed its full local gate, unsigned package build/audit, and exact-package smoke on a Nextcloud 34 instance. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
@@ -69,7 +88,7 @@ Acceptance checks:
 
 ### AS-003 — Signing certificate and signed package workflow
 
-Status: signing/package workflow is implemented; certificate request [PR #1268](https://github.com/nextcloud/app-certificate-requests/pull/1268) is open and awaiting the external Nextcloud signing certificate.
+Status: certificate issued; PR #1268 merged on 2026-09-29. Key match and CA verification passed on 2026-09-30. Signing scripts exist; the final signed-package rehearsal remains pending (see current checkpoint above).
 
 Goal: make signing repeatable and safe.
 
@@ -124,15 +143,15 @@ Playwright-foundation rehearsal evidence: the pull-request-sized disposable rehe
 
 Alpha.171 security-hardening deployment evidence: PRs #69 and #70 merged on `main`, CI passed for both the PR branch and the post-merge `main` run, and the refreshed unsigned package was deployed to the private `nextcloud` container. The deployed archive SHA-256 is `dee035479b847c091490ad7a57e9d04ef121180ddd6dd73ae7f6d5f00ac7e97f`. Live reflection confirmed legacy `PDOException SQLSTATE[...]` text sanitizes to a public `metadata_extraction_failed` diagnostic without SQLSTATE/table/exception leakage, deployed checksums matched for `appinfo/info.xml` and `lib/Service/SafeDiagnostics.php`, and the authenticated Vue route smoke returned `vue_smoke_ok=true` with temporary-token cleanup markers at zero. This updates the private-test deployment evidence; it does not replace the earlier disposable mixed-corpus and Playwright-foundation rehearsal archives.
 
-### AS-005 — Stable `0.1.0` App Store submission
+### AS-005 — App Store submission
 
-Status: stable 0.1.0 decision-gated; the immediate target is the signed `0.1.0-beta.1` prerelease.
+Status: pending. The recommended current target is signed `0.2.0-beta.1`; stable release follows beta acceptance.
 
-Goal: publish a stable App Store package once the alpha candidate is accepted.
+Goal: publish the accepted beta candidate, then promote a subsequent accepted release to stable.
 
 Work:
 
-1. Bump from alpha to `0.1.0` only after the manual/alpha test pass accepts the candidate.
+1. Freeze and version the accepted candidate as `0.2.0-beta.1`.
 2. Build, sign, audit and smoke the final package.
 3. Create the GitHub release and upload the exact signed artifact/checksum.
 4. Submit/update the app on the Nextcloud App Store.
@@ -140,6 +159,6 @@ Work:
 
 Acceptance checks:
 
-- Stable package is signed, audited, smoke-tested and attached to a GitHub release.
+- Submitted package is signed, audited, smoke-tested and attached to a GitHub release.
 - App Store entry points to the exact package and public repository.
 - Support/issue tracker expectations are clear.

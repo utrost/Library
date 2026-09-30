@@ -1,0 +1,71 @@
+{
+  "candidateSha256": "1d5303afda6a65b59ec61add629ab361890b87dcd94c03d537c013ecdc4da7da",
+  "versions": [
+    {
+      "version": "33.0.9",
+      "passed": true,
+      "cleanupPassed": true,
+      "browserPassed": 35,
+      "browserUnexpected": 0,
+      "browserSkipped": 0,
+      "performance_fixes_integration": {
+        "passed": true,
+        "assertions": 45
+      },
+      "scan_paging_integration": {
+        "passed": true,
+        "assertions": 8
+      },
+      "scheduled_scan_integration": {
+        "passed": true,
+        "assertions": 36
+      },
+      "inferenceApplyUndoPassed": true,
+      "scheduleBrowserPassed": true
+    },
+    {
+      "version": "34.0.4",
+      "passed": true,
+      "cleanupPassed": true,
+      "browserPassed": 35,
+      "browserUnexpected": 0,
+      "browserSkipped": 0,
+      "performance_fixes_integration": {
+        "passed": true,
+        "assertions": 45
+      },
+      "scan_paging_integration": {
+        "passed": true,
+        "assertions": 8
+      },
+      "scheduled_scan_integration": {
+        "passed": true,
+        "assertions": 36
+      },
+      "inferenceApplyUndoPassed": true,
+      "scheduleBrowserPassed": true
+    },
+    {
+      "version": "35.0.0",
+      "passed": true,
+      "cleanupPassed": true,
+      "browserPassed": 35,
+      "browserUnexpected": 0,
+      "browserSkipped": 0,
+      "performance_fixes_integration": {
+        "passed": true,
+        "assertions": 45
+      },
+      "scan_paging_integration": {
+        "passed": true,
+        "assertions": 8
+      },
+      "scheduled_scan_integration": {
+        "passed": true,
+        "assertions": 36
+      },
+      "inferenceApplyUndoPassed": true,
+      "scheduleBrowserPassed": true
+    }
+  ]
+}

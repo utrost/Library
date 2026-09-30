@@ -4,12 +4,18 @@ set -euo pipefail
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if command -v php >/dev/null 2>&1; then
+    php "$repo_dir/tests/php/inference_change_set_test.php"
+    php "$repo_dir/tests/php/extended_metadata_migration_test.php"
+    php "$repo_dir/tests/php/extended_metadata_fields_test.php"
+    php "$repo_dir/tests/php/inference_folder_rules_test.php"
+    php "$repo_dir/tests/php/guided_rule_validator_test.php"
     php "$repo_dir/tests/php/catalogue_batch_controller_boundary_test.php"
     php "$repo_dir/tests/batch_apply_explicit_item_ids.php"
     php "$repo_dir/tests/php/metadata_status_test.php"
     php "$repo_dir/tests/php/publication_date_test.php"
     php "$repo_dir/tests/php/identifier_service_test.php"
     php "$repo_dir/tests/php/scanner_identifier_extraction_test.php"
+    php "$repo_dir/tests/php/scanner_author_validation_test.php"
     php "$repo_dir/tests/php/cover_selection_refresh_test.php"
     php "$repo_dir/tests/php/manual_cover_validator_test.php"
     php "$repo_dir/tests/php/archive_cover_hardening_test.php"
@@ -19,6 +25,7 @@ if command -v php >/dev/null 2>&1; then
     php "$repo_dir/tests/php/security_audit_event_test.php"
     php "$repo_dir/tests/php/manual_cover_controller_test.php"
     php "$repo_dir/tests/php/item_page_cover_privacy_test.php"
+    php "$repo_dir/tests/php/scanner_metadata_fields_test.php"
     php "$repo_dir/tests/php/metadata_fast_path_test.php"
     php "$repo_dir/tests/php/performance_instrumentation_test.php"
     php "$repo_dir/tests/php/review_query_policy_test.php"
@@ -29,12 +36,19 @@ if command -v php >/dev/null 2>&1; then
 fi
 
 if command -v docker >/dev/null 2>&1 && docker image inspect php:8.3-cli >/dev/null 2>&1; then
+    docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/inference_change_set_test.php
+    docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/extended_metadata_migration_test.php
+    docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/extended_metadata_fields_test.php
+    docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/inference_folder_rules_test.php
+    docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/guided_rule_validator_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/catalogue_batch_controller_boundary_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/batch_apply_explicit_item_ids.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/metadata_status_test.php
+    docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/duplicate_matcher_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/publication_date_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/identifier_service_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/scanner_identifier_extraction_test.php
+    docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/scanner_author_validation_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/cover_selection_refresh_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/manual_cover_validator_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/archive_cover_hardening_test.php
@@ -44,6 +58,7 @@ if command -v docker >/dev/null 2>&1 && docker image inspect php:8.3-cli >/dev/n
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/security_audit_event_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/manual_cover_controller_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/item_page_cover_privacy_test.php
+    docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/scanner_metadata_fields_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/metadata_fast_path_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/performance_instrumentation_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/review_query_policy_test.php

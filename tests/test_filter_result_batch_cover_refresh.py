@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,5 +60,5 @@ def test_docs_and_version_track_filter_result_cover_refresh():
     assert "fresh covers" in guide.lower() or "refresh cover preview" in guide.lower()
     assert "refresh cover preview" in guide.lower()
     assert "batch cover refresh" in roadmap.lower()
-    assert "<version>0.1.0-beta.1</version>" in info
-    assert '"version": "0.1.0-beta.1"' in package
+    assert f"<version>{CURRENT_VERSION}</version>" in info
+    assert f'"version": "{CURRENT_VERSION}"' in package

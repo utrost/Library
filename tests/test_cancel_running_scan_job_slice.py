@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,7 +44,7 @@ def test_cancelled_scan_job_terminal_state_is_not_overwritten_by_progress_or_fin
     finish_body = service.split("public function finishJob", 1)[1].split("public function", 1)[0]
     assert "updateJob($userId, $jobId, 'completed'" in finish_body
     assert "eq('status', $qb->createNamedParameter('running'))" in service
-    assert "return $this->updateJob" in finish_body
+    assert "return $finished;" in finish_body
 
 
 def test_settings_copy_and_docs_track_running_cancellation_boundary():
@@ -59,5 +60,5 @@ def test_settings_copy_and_docs_track_running_cancellation_boundary():
     assert "running-job cancellation" in readme.lower()
     assert "running-job cancellation" in guide.lower()
     assert "running-job cancellation" in roadmap.lower()
-    assert "0.1.0-beta.1" in info
-    assert '"version": "0.1.0-beta.1"' in package
+    assert f"{CURRENT_VERSION}" in info
+    assert f'"version": "{CURRENT_VERSION}"' in package

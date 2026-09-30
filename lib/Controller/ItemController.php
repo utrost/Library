@@ -71,12 +71,18 @@ final class ItemController extends Controller {
         $user = $this->userSession->getUser();
         if ($user !== null) {
             try {
+                $creatorNames = null;
+                if ($this->request->getParam('creatorFormat') === 'lines') {
+                    $input = $this->request->getParam('creators', '');
+                    $parts = is_array($input) ? $input : explode("\n", (string)$input);
+                    $creatorNames = \OCA\Library\Service\AuthorNames::normalize(array_values(array_filter(array_map(static fn($s) => is_string($s) ? trim($s) : $s, $parts), static fn($s) => $s !== '')));
+                }
                 $metadataAutosave = (string)$this->request->getParam('metadataAutosave', '0') === '1';
                 $this->itemService->updateItem($user->getUID(), $itemId, [
                     'publicationType' => (string)$this->request->getParam('publicationType', 'other'),
                     'title' => (string)$this->request->getParam('title', ''),
                     'subtitle' => (string)$this->request->getParam('subtitle', ''),
-                    'creators' => $this->normalizeCreatorInput($this->request->getParam('creators', '')),
+                    'creators' => $creatorNames !== null ? implode('; ', $creatorNames) : $this->normalizeCreatorInput($this->request->getParam('creators', '')),
                     'publication' => (string)$this->request->getParam('publication', ''),
                     'publicationDate' => (string)$this->request->getParam('publicationDate', ''),
                     'language' => $this->normalizeRequestList($this->request->getParam('language', $this->request->getParam('language[]', ''))),
@@ -86,6 +92,12 @@ final class ItemController extends Controller {
                     'classifications' => $this->normalizeRequestList($this->request->getParam('classifications', $this->request->getParam('classifications[]', ''))),
                     'personalRating' => (string)$this->request->getParam('personalRating', ''),
                     'identifiers' => $this->normalizeIdentifierRequest($this->request->getParam('identifiers', [])),
+                    ...array_filter([
+                        'authors' => $this->request->getParam('authors', $creatorNames),
+                        'series' => $this->request->getParam('series'),
+                        'seriesNumber' => $this->request->getParam('seriesNumber'),
+                        'genre' => $this->request->getParam('genre'),
+                    ], static fn(mixed $value): bool => $value !== null),
                 ]);
             } catch (\InvalidArgumentException $e) {
                 $safeError = $this->safeValidationError($e);

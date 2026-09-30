@@ -1,5 +1,205 @@
 # Changelog
 
+## 0.2.0-beta.1
+
+- Add private reading lists, book ordering and list-entry notes.
+- Extract metadata from filenames and folders using editable suggestions, saved guided/advanced rules, live preview, per-book approval and reversible Apply/Undo.
+- Review potential duplicates with optional suggestions while browsing; no automatic merging or deletion.
+- Schedule scans with a change journal, incremental updates and periodic full reconciliation while preserving manual corrections.
+- Improve large-library catalogue queries, indexing, metadata warning handling and cover delivery with bounded private thumbnails.
+- Prepare signed release packaging for Nextcloud 33–35. This is a beta; source documents remain in Nextcloud Files and reading uses the installed file viewers.
+
+## 0.2.0-alpha.29 — Suggested path assignments
+
+- Suggest editable guided rules from year, author, series and language/genre filename and folder clues, with visible cautions for ambiguous interpretations.
+- Preserve comma-separated surname/given-name forms as one author and retain numeric book titles such as `1984`.
+- Selecting a suggestion updates the live preview immediately and folds away the detailed editor; generated rules use existing save, per-book review, Apply and Undo workflows.
+- Bound detection to the selected path and current sample; suggestions make no metadata or source-file changes.
+
+## 0.2.0-alpha.28 — Incremental scheduled scans
+
+- Journal typed Nextcloud file changes, including before-delete folder events, by owner and target; coalesce repeated events without losing changes that arrive during a scan.
+- Process changed publications and same-basename OPF sidecars directly; scan affected subtrees for folder and shared `metadata.opf` changes.
+- Use a first full checkpoint, weekly full reconciliation and full fallback after root or scanner revision changes. Explicit manual scans remain full.
+- Keep deletions visible as missing, protect corrections, and retain change events after cancelled or failed jobs.
+
+
+## 0.2.0-alpha.27 — Metadata recovery and warning caching
+
+- Isolate oversized extracted scalar fields, preserve valid metadata and accepted/manual values, and retain bounded rejected proposals for Review.
+- Disable unsafe source-reset actions and provide hover explanations in English, German and Arabic.
+- Cache unchanged deterministic warnings while keeping Review visible and explicit Retry available; persist cached-warning counters in scan history.
+- Recover ten real PDFs and verify all 799 warning files, with browser and integration evidence.
+
+## 0.2.0-alpha.26 — Scanner index reuse
+
+- Reuse prepared scanner metadata and commit canonical/derived updates in short owner-scoped transactions.
+- Skip derived-index rewrites when their versioned fingerprint matches; verify existing legacy contents before establishing a marker and repair stale indexes.
+- Invalidate markers during explicit index repair; cover rollback, Unicode/numeric search grams, owner isolation and manual corrections.
+- Add repeatable fixed-sample indexing benchmarks, integrity comparisons and measured developer NC34 evidence.
+
+## 0.2.0-alpha.25 — Author-field scan recovery
+
+- Isolate invalid extracted author values as safe Review diagnostics while retaining other valid metadata and previously accepted author fields. Keep manual/import author validation strict.
+- Omit rejected author fields from scanner reset candidates; preserve user corrections and support recovery after source metadata is corrected.
+- Advance metadata pipeline revision to v6 and add author-field regression coverage plus a repeatable full scheduled-scan acceptance monitor.
+
+## 0.2.0-alpha.24 — Duplicate and catalogue CPU improvements
+
+- Synchronize the schema reference with migrations, including retained legacy subject data; refresh development status, metadata storage and schema ownership documentation.
+
+- Process duplicate work in bounded transactions, read frozen comparison groups in batches, and insert match keys together. Retain live revision checks for content hashing and review decisions.
+- Reuse sanitized static Nextcloud translations in the catalogue, with bounded storage and language/locale invalidation; keep substitutions and options on the native path.
+- Add repeatable catalogue CPU profiling and safe aggregate exports; update duplicate smoke selectors for the current UI.
+
+## 0.2.0-alpha.23
+
+- Stream PDF metadata prefixes and archive copies without buffering entire publications in PHP.
+- Bind stale-worker timestamp cutoffs as integers to preserve fresh workers on SQLite.
+- Enumerate registered Nextcloud publications in bounded Files search pages, resolve live nodes, check physical existence, and avoid missing sweeps when a root changes during traversal.
+- Batch facet writes with database collation conflict handling; batch read-only inference snapshots and avoid redundant file-index reads. Preserve fresh locked checks for Apply/Undo.
+- Load direct catalogue pages through narrow projections supported by covering indexes.
+- Add administrator thumbnail storage/retention settings, rotating expired-entry cleanup, and a cache-owner registry that survives root removal.
+- Add repeatable NC33–35 upgrade/browser/service checks and unprofiled scan memory measurements.
+
+## 0.2.0-alpha.22 — Measured performance improvements
+
+- Recover scans whose heartbeat stopped for 15 minutes, preserving history and preventing stale jobs from blocking scheduled runs.
+- Deduplicate shared author/facet search keys while preserving canonical names; repair maintenance backfill failures.
+- Batch search-gram INSERTs and catalogue identifier reads, and let status queries use the file-owner/status index.
+- Load lightweight catalogue filter choices; retain remote publication/author/year suggestions and defer expensive summary counts.
+- Use stable title/ID cursor anchors for Next/Previous catalogue navigation, retaining offset compatibility for direct page URLs and other sorts.
+- Generate private thumbnails on demand, capped at 360×520 / 100 KiB; reuse source-revision caches with bounded eviction, live file access checks and account cleanup.
+- Keep cover loading state inside each card and fetch covers near the visible viewport; add asynchronous image decoding.
+- Add repeatable HTTP/SQL, browser, process/job/scan benchmarks and explicit opcode invalidation for developer deployments.
+
+## 0.2.0-alpha.21 — Scheduled Library scans
+
+- Add per-account hourly, six-hourly and daily scans, using Nextcloud background jobs and the existing scan history.
+- Discover additions, source/OPF metadata changes and missing files while preserving corrections and skipping unchanged metadata extraction.
+- Defer automatic scans while another scan is pending or running; cancel queued scheduled work on disable and clean up schedules on account deletion.
+- Show the next due time and a Cron configuration warning, with contextual help in English, German and Arabic.
+- Fix sidecar records incorrectly inflating missing-book scan totals.
+
+## 0.2.0-alpha.20 — Duplicate suggestions while browsing
+
+- Add an opt-in, account-scoped metadata index built in background batches and updated by catalogue edits and scans.
+- Check up to 100 visible books in one asynchronous request, show possible-duplicate badges, and check individual books in the metadata sidebar.
+- Provide direct comparisons and reversible review decisions, with access checks and explicit partial results for broad matches. Automatic checks never hash publication contents.
+- Measure indexing, real HTTP lookups, storage and catalogue contention against 84,261 books on developer Nextcloud 34.0.3; verify Chromium/Firefox desktop and mobile workflows.
+
+## 0.2.0-alpha.19 — Possible duplicate books
+
+- Add private background duplicate discovery under Review, with paged comparisons and explainable title/author, valid ISBN and optional identical-content evidence.
+- Flag alternative formats and edition differences; save preferred-copy, keep-both and dismissal decisions without changing files or catalogue metadata.
+- Revalidate source access and revisions, bound scan work and history, and clean up private snapshots and account data.
+- Provide English, German and Arabic labels, contextual help, responsive comparisons and browser/integration evidence on developer Nextcloud 34.
+
+## 0.2.0-alpha.18 — Whole-folder metadata analysis
+
+- Analyse all indexed books in a chosen root/subfolder using a frozen guided/pattern/folder-rule definition, with background progress and cancellation.
+- Save private results for seven days, filter outcomes, and reopen bounded 40-book pages for explicit review, Apply and conditional Undo.
+- Share browser/server parser semantics, recheck live access and revisions, serialize worker retries, and bound history/result storage and cleanup.
+- Keep large result/approval lists in keyboard-accessible scroll regions so review controls stay close to their content.
+
+
+## 0.2.0-alpha.17 — Authors and metadata housekeeping
+
+- Schedule bounded expiry of inference history and remove app-owned data, private list entries, preferences and queued scans on account deletion.
+- Store ordered authors from structured EPUB/OPF metadata and approved path inference; preserve punctuation and exact deduplication.
+- Support individual-author suggestions, landing pages and filtering while retaining existing full-field saved filters.
+- Enable author review/Apply/Undo, scanner reset/protection and structured JSON round-trip; migrate legacy records in background batches.
+- Preserve author punctuation in Maintenance chips and refresh indexes for bulk edits and scanner resets.
+
+
+## v0.2.0-alpha.16 - development
+
+- Review and apply selected inferred fields from the current sample, with explicit replacement approval and server-confirmed before/after values. Author inference remains preview-only pending structured author storage.
+- Persist bounded review batches with source context, stale metadata/file checks, atomic Apply and conditional undo retained for seven days. Preserve unrelated fields and source files.
+- Keep review history available after reload; expire unapplied reviews after 30 minutes.
+
+## v0.2.0-alpha.15 - development
+
+- Store series name, part in series and genre independently of the existing publication field. Preserve text numbering such as 01, 2.5 and Volume II.
+- Edit these fields in the sidebar and publication maintenance form, preserve manual values on rescan, and round-trip them through corrected-metadata JSON. Partial imports retain omitted fields.
+- Compare inferred values against their dedicated stored fields; add the advanced %genre% placeholder. Extraction remains preview-only.
+
+## v0.2.0-alpha.14 - development
+
+- Assign saved guided rules or advanced patterns to a root or subfolder, optionally including descendants. Assignments preserve a fixed definition copy and remain preview-only.
+- Preview mixed folder conventions with deeper-folder precedence, ancestor fallback, rule provenance and explicit same-depth conflicts.
+- Recheck assignment folder identity and read access; isolate user preferences and clear assignments when their Library root is deleted.
+- Block assignment to an unsubmitted folder scope; retain compact contextual help.
+- Verify folder-rule workflows, guided-rule regression and read-only inference on the existing developer Nextcloud 34 instance.
+
+## v0.2.0-alpha.13 - development
+
+- Save, immediately load and delete private guided metadata rules, including nested splits, transformations and author settings.
+- Keep folder scope separate from reusable definitions; preserve existing advanced patterns.
+- Validate saved rule structure and size on the server; retain preview-only extraction.
+
+## v0.2.0-alpha.12 - development
+
+- Audit contextual help across catalogue, lists, inference, Settings and publication maintenance; retain visible errors, action consequences and user content.
+- Fix help accessible names, keyboard dismissal, focus scrolling and narrow-screen positioning.
+- Batch list counts, membership and book metadata reads; share concurrent client reads and avoid reloading a whole list after saving a note.
+- Document metadata extraction, saved patterns, author conventions and current preview-only limitations in `docs/extracting-metadata.md`.
+- Add inference, help and pattern ownership/CSRF regression coverage. Compatibility evidence is recorded in `docs/compatibility-evidence/2026-09-26-alpha12/README.md`.
+
+## v0.2.0-alpha.11 - development
+
+- Unify supplied and personal patterns in one selector; selecting immediately updates the preview.
+- Replace persistent inference help paragraphs with accessible label tooltips and remove duplicate pattern displays.
+- Allow deleting supplied presets from the current user’s list without affecting other users.
+
+## v0.2.0-alpha.10 - development
+
+- Include ten advanced-pattern presets with example paths for common library layouts.
+- Save private named advanced patterns to the Nextcloud account, load them into the preview and delete them with confirmation. Guided-rule persistence remains pending.
+
+## v0.2.0-alpha.9 - development
+
+- Add Part in series to guided assignments and `%seriesNumber%` to advanced patterns. Preserve decimal positions, leading zeros and textual labels; clearly mark the field as preview-only until catalogue storage is implemented.
+
+## v0.2.0-alpha.8 - development
+
+- Offer explicit author-separator presets and a custom separator, preserving names by default. Clarify that individual-author catalogue browsing remains a prerequisite for author Apply.
+
+## v0.2.0-alpha.7 - development
+
+- Split folder and filename parts at the first, last or every literal separator, including nested splits, with live field previews.
+- Add explicit affix removal, underscore replacement and value mapping; preview genre separately from subjects.
+- Preview individual authors with configurable separators, optional name-order conversion and explicit combination across parts.
+
+## v0.2.0-alpha.6 - development
+
+- Add a sticky live metadata preview for the selected path, including current values and conflicts. Field assignments update it immediately; switching examples preserves the active pattern.
+
+## v0.2.0-alpha.5 - development
+
+- Add a read-only path/filename inference prototype with folder scope, guided field assignments, literal patterns and comparison against current metadata.
+- Load bounded samples with live access checks; surface ambiguous matches and conflicts without applying changes.
+
+## v0.2.0-alpha.4 - development
+
+- Keep book movement and removal available while editing a list's name or description. Preserve the unsaved list draft while refreshing entries and revisions.
+
+## v0.2.0-alpha.3 - development
+
+- Add saved list shortcuts and Create a new list beneath Lists in navigation.
+- Consolidate selection into one compact toolbar; More actions reveals only the selected operation’s form.
+
+## v0.2.0-alpha.2 - development
+
+- Put the existing-list selector and Add to list action directly beside catalogue selection; remove the popup.
+- Expose inline list creation, place saved filters under Collections, and use new frontend asset URLs to invalidate earlier cached builds.
+
+## v0.2.0-alpha.1 - development
+
+- Add private, manually maintained book lists with descriptions, per-entry notes, ordering and catalogue selection.
+- Preserve unavailable entries and protect concurrent edits with list revisions.
+
+
 ## v0.1.0-beta.1 - 2026-09-25 (release candidate)
 
 - First beta release candidate for Nextcloud 33–35, following runtime smoke runs on 33.0.9, 34.0.4 and 35.0.0 with 40 English Gutenberg books.

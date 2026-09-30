@@ -82,7 +82,7 @@ def test_gui_specs_attach_error_listeners_before_login_and_scope_known_exception
     assert "browserFailures.assertNone()" in settings
     assert "browserFailures.assertNoneOrExactSetAndClear" in settings
     assert "requiredPositiveIntegerEnvironment('PW_EXPECTED_CARDS')" in catalogue
-    assert "requiredPositiveIntegerEnvironment('PW_EXPECTED_CARDS')" in empty_results
+    assert "requiredPositiveIntegerEnvironment('PW_TOTAL_CARDS')" in empty_results
 
 
 def test_disposable_rehearsal_runs_playwright_with_ephemeral_credentials():

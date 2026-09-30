@@ -30,9 +30,9 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const APP_VERSION = '0.1.0-beta.1';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-1-0-beta-1-compact-list-table-cover-96-fit-v4';
-    private const VUE_STYLE_ASSET = 'library-vue-0-1-0-beta-1-compact-list-table-cover-96-fit-v4';
+    private const APP_VERSION = '0.2.0-beta.1';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-2-0-beta-1-compact-list-table-cover-96-fit-v4';
+    private const VUE_STYLE_ASSET = 'library-vue-0-2-0-beta-1-compact-list-table-cover-96-fit-v4';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -40,7 +40,7 @@ class PageController extends Controller {
     private const READER_FIXTURE_FILE_ID = 82;
 
     private const CATALOGUE_ITEM_KEYS = [
-        'id', 'title', 'creators', 'publicationType', 'publication',
+        'id', 'title', 'creators', 'authors', 'publicationType', 'publication',
         'publicationDate', 'description', 'starred', 'workflowStatus',
         'lastOpenedAt', 'extension', 'shelf', 'scanStatus', 'scanError',
         'hasScannerConflict', 'scannerConflictCount', 'nextcloudTags',
@@ -49,7 +49,7 @@ class PageController extends Controller {
     ];
 
     private const SCANNER_CONFLICT_ITEM_EXTRA_KEYS = [
-        'cachedPath', 'subtitle', 'language', 'publisher',
+        'cachedPath', 'subtitle', 'language', 'publisher', 'series', 'seriesNumber', 'genre',
         'metadataSource', 'fieldSources', 'fieldValues',
         'resetFieldUrl',
     ];
@@ -71,6 +71,7 @@ class PageController extends Controller {
         private IURLGenerator $urlGenerator,
         private LoggerInterface $logger,
         ?MonotonicClock $clock = null,
+        private ?\OCA\Library\Service\DuplicateIndexService $duplicateIndex = null,
     ) {
         parent::__construct($appName, $request);
         $this->clock = $clock ?? new MonotonicClock();
@@ -86,8 +87,21 @@ class PageController extends Controller {
 
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
+        $this->initialState->provideInitialState('duplicateSuggestions', $this->duplicateIndex?->status($userId)['enabled'] ?? false);
         $showHome = (string)$this->request->getParam('home', '0') === '1';
         $showShelves = (string)$this->request->getParam('shelves', '0') === '1';
+        if ((string)$this->request->getParam('duplicates', '0') === '1' || (string)$this->request->getParam('lists', '0') === '1' || (string)$this->request->getParam('infer', '0') === '1') {
+            $catalogueUrl = $this->urlGenerator->linkToRoute('library.page.index');
+            $language = $this->l10nFactory->findLanguage(Application::APP_ID);
+            $this->initialState->provideInitialState('catalogue', [
+                'surface' => (string)$this->request->getParam('duplicates', '0') === '1' ? 'duplicates' : ((string)$this->request->getParam('infer', '0') === '1' ? 'inference' : 'lists'), 'items' => [], 'activeFilters' => (object)[], 'cataloguePagination' => (object)[],
+                'language' => $language, 'direction' => $this->l10nFactory->getLanguageDirection($language),
+                'catalogueRootUrl' => $catalogueUrl,
+                'homeUrl' => $catalogueUrl . '?home=1', 'shelvesUrl' => $catalogueUrl . '?shelves=1',
+                'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),
+            ]);
+            return $this->catalogueTemplateResponse();
+        }
         $this->initialState->provideInitialState(
             'catalogue',
             $showHome
@@ -191,6 +205,12 @@ class PageController extends Controller {
     public function catalogue(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
+        if ((string)$this->request->getParam('hydrate', '0') === 'counts') {
+            return new JSONResponse([
+                'smartViewCounts' => $userId === '' ? [] : $this->itemService->smartViewCounts($userId, false),
+                'smartViewCountsPending' => ['scanner-conflicts'],
+            ]);
+        }
         return new JSONResponse($this->buildCatalogueState($userId, [], [], 'catalogue_api'));
     }
 
@@ -470,25 +490,28 @@ class PageController extends Controller {
             (int)$this->request->getParam('page', 1),
             (int)$this->request->getParam('limit', 100),
         );
+        $pagination['cursor'] = (string)$this->request->getParam('cursor', '');
         $phaseStarted = $this->clock->now();
         $roots = $this->rootService->listRoots($userId);
         $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
         $phaseStarted = $this->clock->now();
         $fastCatalogueApi = $surface === 'catalogue_api' && (string)$this->request->getParam('hydrate', '0') !== '1';
-        $includeFacets = $surface !== 'index' && !$fastCatalogueApi;
+        $leanHydration = $surface === 'catalogue_api' && (string)$this->request->getParam('hydrate', '0') === '1';
+        $includeFacets = $surface !== 'index' && !$fastCatalogueApi && !$leanHydration;
         $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination, $includeFacets) : [
             'items' => [],
             'total' => 0,
             'facets' => ['publicationTypes' => [], 'publishers' => [], 'shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'workflowStatuses' => [], 'subjects' => [], 'classifications' => [], 'publications' => [], 'publicationSummaries' => [], 'publicationYears' => [], 'creators' => []],
         ];
         $durations['catalogue_query_ms'] = $this->clock->elapsedMs($phaseStarted);
+        if ($leanHydration) $catalogue['facets'] = $this->itemService->catalogueAuxiliaryFacets($userId, $activeFilters);
         $items = $catalogue['items'];
         $pagination['total'] = (int)$catalogue['total'];
         $pagination['visible'] = count($items);
         $pagination['from'] = $pagination['total'] === 0 ? 0 : (($pagination['page'] - 1) * $pagination['limit']) + 1;
         $pagination['to'] = $pagination['from'] === 0 ? 0 : $pagination['from'] + $pagination['visible'] - 1;
-        $pagination['previousUrl'] = $pagination['page'] > 1 ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] - 1) : '';
-        $pagination['nextUrl'] = $pagination['to'] < $pagination['total'] ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] + 1) : '';
+        $pagination['previousUrl'] = $pagination['page'] > 1 ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] - 1, $catalogue['previousCursor'] ?? '') : '';
+        $pagination['nextUrl'] = $pagination['to'] < $pagination['total'] ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] + 1, $catalogue['nextCursor'] ?? '') : '';
 
         $phaseStarted = $this->clock->now();
         $fileTagsByFileId = $this->fileTagService->tagsForItems($items);
@@ -506,14 +529,14 @@ class PageController extends Controller {
         $durations['projection_ms'] = $this->clock->elapsedMs($phaseStarted);
 
         $phaseStarted = $this->clock->now();
-        $smartViewCounts = $userId === '' ? [] : ($surface === 'index' || $fastCatalogueApi ? [] : $this->itemService->smartViewCounts($userId, false));
-        $smartViewCountsPending = $surface === 'index' || $fastCatalogueApi ? [
+        $smartViewCounts = $userId === '' ? [] : ($surface === 'index' || $fastCatalogueApi || $leanHydration ? [] : $this->itemService->smartViewCounts($userId, false));
+        $smartViewCountsPending = $surface === 'index' || $fastCatalogueApi || $leanHydration ? [
             'recently-opened', 'starred', 'to-read', 'reading', 'finished', 'needs-action',
             'needs-metadata', 'scanner-conflicts', 'metadata-errors', 'placeholder-covers',
             'no-creator', 'no-publication', 'missing-date', 'title-from-filename',
             'weak-filename-metadata', 'no-description', 'unsupported-containers', 'unreviewed-imports',
         ] : ['scanner-conflicts'];
-        $savedCollections = $userId === '' ? [] : ($surface === 'index' || $fastCatalogueApi
+        $savedCollections = $userId === '' ? [] : ($surface === 'index' || $fastCatalogueApi || $leanHydration
             ? $this->savedCollectionsPending($userId)
             : $this->savedCollectionsWithCounts($userId, false));
         $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
@@ -661,6 +684,7 @@ class PageController extends Controller {
             $item['starUrl'] = $this->urlGenerator->linkToRoute('library.item.star', ['itemId' => $itemId]);
             $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', [
                 'itemId' => $itemId,
+                'v' => $item['coverCacheRevision'] ?? '',
                 'refresh' => isset($coverRefreshItemIdSet[(int)$itemId]) ? '1' : null,
             ]);
             $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]);
@@ -711,7 +735,7 @@ class PageController extends Controller {
      * @param array{q:string,view:string,type:string,publisher:string,publication:string,year:string,creator:string,tag:string,shelf:string,format:string,status:string,workflowStatus:string,subject:string,classification:string,scannerConflicts:string,starred:string,recentlyOpened:string,needsMetadata:string,coverReview:string,noCreator:string,noPublication:string,weakMetadata:string,unreviewedImports:string,sort:string} $activeFilters
      * @param array{limit:int} $pagination
      */
-    private function paginationUrl(array $activeFilters, array $pagination, int $page): string {
+    private function paginationUrl(array $activeFilters, array $pagination, int $page, string $cursor = ''): string {
         $query = [];
         foreach (['q', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
@@ -721,6 +745,7 @@ class PageController extends Controller {
         }
         $query['limit'] = (string)$pagination['limit'];
         $query['page'] = (string)max(1, $page);
+        if ($cursor !== '') $query['cursor'] = $cursor;
         return '?' . http_build_query($query);
     }
 

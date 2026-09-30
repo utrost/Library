@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "realSampleUnchanged": true,
+      "commaAuthorPreserved": true,
+      "numericTitlePreserved": true,
+      "guidedRuleServerAccepted": true,
+      "mobileFits": true,
+      "pageErrors": 0
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "realSampleUnchanged": true,
+      "commaAuthorPreserved": true,
+      "numericTitlePreserved": true,
+      "guidedRuleServerAccepted": true,
+      "mobileFits": true,
+      "pageErrors": 0
+    }
+  ]
+}

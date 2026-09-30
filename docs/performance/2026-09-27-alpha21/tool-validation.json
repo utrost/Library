@@ -1,0 +1,18 @@
+{
+  "nodeSyntax": "All scripts/performance/*.mjs passed node --check",
+  "phpSyntax": "All scripts/performance/*.php passed PHP lint inside Nextcloud container",
+  "comparison": "Same-file comparison completed with 0.0% changes and no failures",
+  "liveApplicationMatchesLocal": true,
+  "scripts": {
+    "scripts/performance/http-hook.php": "09ea4842f920df32a7e6a1d7e12264d23d490afb51eadfe8f652af199dead58b",
+    "scripts/performance/run-fixture.mjs": "feb91e1f0252296f88f4a63f6b74c7d2294f3001db82aa8f5d1457fdf2cb8870",
+    "scripts/performance/compare.mjs": "e7ce7d36816c612c897b3cdef1224b7dd29d0b03000b01385b4d19f76c46b04d",
+    "scripts/performance/cli.php": "1098ae2792a1e0de0965ebe5770b2ca414292c0e50329775f3aa846ff8d6738b",
+    "scripts/performance/run.mjs": "533fa89d6ecd90c97b18a8506e5908f15dd8a6c04c9afe6d7846f5940bf5e19d",
+    "scripts/performance/fixture-work.php": "a64daa032c937cde6bef58b15027c1a50e78161c426b7f8bf40359e4e5fd48da",
+    "scripts/performance/sql-profiler.php": "943b5aef1044fab0cafc1dd7af43b51af6bedf7a27332ad3a7073b5b92ec4d60",
+    "scripts/performance/fixture-account.php": "052ea75e89b55cd9d045c548a16cbbec85b9d0b728ee39da4c95a59e89acf036",
+    "scripts/performance/inventory.php": "d32e05cbc4b2c9652791430afe51446fac65a5da7b1df98b6925e087ece91040",
+    "scripts/performance/run-cli.mjs": "20403c547923b4498bc409ffb6d2d218d81ede095bac0ab30b13b33d1c46c0a5"
+  }
+}

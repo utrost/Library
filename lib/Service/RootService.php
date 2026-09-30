@@ -9,6 +9,7 @@ use OCP\IDBConnection;
 final class RootService {
     public function __construct(
         private IDBConnection $db,
+        private ?DuplicateIndexService $duplicateIndex = null,
     ) {
     }
 
@@ -130,10 +131,19 @@ final class RootService {
             ->executeStatement();
 
         $qb = $this->db->getQueryBuilder();
-        $qb->delete('library_roots')
+        $removed = $qb->delete('library_roots')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($rootId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
+        // Root configuration changed: the next scheduled pass must reconcile all
+        // enabled roots, so stale target paths can be discarded now.
+        if ($removed > 0) {
+            $qb = $this->db->getQueryBuilder();
+            $qb->delete('library_scan_changes')
+                ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+                ->executeStatement();
+        }
+        $this->duplicateIndex?->prune($userId);
     }
 
     public function findRoot(string $userId, int $rootId): ?array {

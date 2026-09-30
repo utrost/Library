@@ -1,0 +1,26 @@
+{
+  "report": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "savePersists": true,
+      "nextDueVisible": true,
+      "offClearsDue": true,
+      "invalidRejected": true,
+      "csrf": true,
+      "mobileFits": true,
+      "pageErrors": []
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "savePersists": true,
+      "nextDueVisible": true,
+      "offClearsDue": true,
+      "invalidRejected": true,
+      "csrf": true,
+      "mobileFits": true,
+      "pageErrors": []
+    }
+  ]
+}

@@ -13,7 +13,17 @@ final class PdfInfoMetadataExtractor {
 public function extract(File $file): array {
     // PDF info dictionary keys: /Title and /Author. Real PDFs may use literal strings
     // such as /Author (J\374rgen) or UTF-16 hex strings such as /Title <FEFF...>.
-    $content = substr($file->getContent(), 0, 262144);
+    // Real Nextcloud files expose a stream; retain the legacy test adapter fallback.
+    if (method_exists($file, 'fopen')) {
+        $stream = $file->fopen('rb');
+        if (!is_resource($stream)) { throw new \RuntimeException('Unable to open PDF metadata stream'); }
+        try {
+            $content = stream_get_contents($stream, 262144);
+            if ($content === false) { throw new \RuntimeException('Unable to read PDF metadata stream'); }
+        } finally { fclose($stream); }
+    } else {
+        $content = substr($file->getContent(), 0, 262144);
+    }
     $metadata = [
         'metadataSource' => 'pdf-info',
         'publicationType' => 'other',

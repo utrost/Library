@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "sampleRoot": "65",
+  "sampleBooks": 20,
+  "checks": [
+    "UI assignment creation",
+    "root fallback",
+    "deeper rule precedence",
+    "conflicting same-depth proposals",
+    "unsubmitted scope blocks assignment",
+    "invalid scope and definition rejection",
+    "duplicate assignment rejection",
+    "cancel removal",
+    "confirmed removal",
+    "guided series/decimal position",
+    "snapshot after definition deletion",
+    "page reload persistence",
+    "ancestor fallback on unmatched child",
+    "ambiguous child blocks fallback",
+    "root switching isolation",
+    "mobile overflow",
+    "sample metadata unchanged",
+    "no unrelated Library writes",
+    "no uncaught exceptions"
+  ]
+}

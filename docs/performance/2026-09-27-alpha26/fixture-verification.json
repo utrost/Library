@@ -1,0 +1,62 @@
+{
+  "scannerIndexAssertions": 28,
+  "authorIntegrationAssertions": 32,
+  "performanceIntegrationAssertions": 45,
+  "schemaMethodsReplayed": 45,
+  "schemaTables": 24,
+  "schemaFieldSetsMatch": true,
+  "newScannerHashNullable": true,
+  "newScannerHashLength": 64,
+  "browser": {
+    "results": [
+      {
+        "engine": "chromium",
+        "passed": true,
+        "cursorForwardBackward": true,
+        "nearViewportCovers": 18,
+        "selectionActionVisible": true,
+        "mobileFits": true,
+        "pageErrors": []
+      },
+      {
+        "engine": "firefox",
+        "passed": true,
+        "cursorForwardBackward": true,
+        "nearViewportCovers": 18,
+        "selectionActionVisible": true,
+        "mobileFits": true,
+        "pageErrors": []
+      }
+    ]
+  },
+  "scheduledIntegrationAssertions": 36,
+  "pythonTests": 1041,
+  "frontendTests": 518,
+  "frontendFiles": 34,
+  "parserParityVectors": 518,
+  "deployedFilesChecked": 9,
+  "deployedFilesMatch": true,
+  "browserAfterFullScan": {
+    "results": [
+      {
+        "engine": "chromium",
+        "passed": true,
+        "cursorForwardBackward": true,
+        "nearViewportCovers": 18,
+        "selectionActionVisible": true,
+        "mobileFits": true,
+        "pageErrors": []
+      },
+      {
+        "engine": "firefox",
+        "passed": true,
+        "cursorForwardBackward": true,
+        "nearViewportCovers": 18,
+        "selectionActionVisible": true,
+        "mobileFits": true,
+        "pageErrors": []
+      }
+    ]
+  },
+  "desktopAndMobileScreenshotsInspected": true
+}

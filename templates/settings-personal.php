@@ -13,7 +13,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
         <div class="library-catalogue-header">
             <div>
                 <h2 id="library-settings-heading"><?php p($l->t('Library settings')); ?></h2>
-                <p class="library-muted"><?php p($l->t('Configure the folders that become Library shelves, run scans, and inspect scan/index diagnostics.')); ?></p>
+                <p data-library-help class="library-muted"><?php p($l->t('Configure the folders that become Library shelves, run scans, and inspect scan/index diagnostics.')); ?></p>
             </div>
             <p class="library-settings-quick-actions">
                 <a href="<?php p($_['catalogueUrl'] ?? ''); ?>" class="button secondary"><?php p($l->t('Back to catalogue')); ?></a>
@@ -27,14 +27,44 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
         <span data-library-operation-status-text><?php p($l->t('Settings operation in progress')); ?></span>
     </div>
 
+    <section class="section library-duplicate-settings">
+        <h3><?php p($l->t('Automatic duplicate suggestions')); ?></h3>
+        <form method="post" action="<?php p($_['duplicateSettingsUrl'] ?? ''); ?>">
+            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
+            <label><input type="checkbox" name="enabled" value="1" <?php if ($_['duplicateSuggestions'] ?? false) print_unescaped('checked'); ?>> <?php p($l->t('Show possible duplicates while browsing')); ?></label>
+            <p data-library-help class="library-muted"><?php p($l->t('Build a private metadata index in the background. Suggestions check the whole library without reading book contents.')); ?></p>
+            <button type="submit" class="button primary"><?php p($l->t('Save')); ?></button>
+        </form>
+    </section>
     <details class="library-panel library-settings-section library-settings-section-roots" open aria-labelledby="library-settings-roots-heading">
         <summary id="library-settings-roots-heading" class="library-settings-summary-row">
             <?php p($l->t('Folders and scanning')); ?>
             <span class="library-settings-count-badge"><?php p($l->n('%n root', '%n roots', count($roots))); ?></span>
         </summary>
+        <section class="library-scan-schedule" aria-labelledby="library-scan-schedule-heading">
+            <h3 id="library-scan-schedule-heading"><?php p($l->t('Automatic scans')); ?></h3>
+            <form method="post" action="<?php p($_['scanScheduleUrl'] ?? ''); ?>" class="library-form">
+                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                <label for="library-scan-interval"><?php p($l->t('Scan frequency')); ?></label>
+                <select id="library-scan-interval" name="interval" aria-describedby="library-scan-schedule-help">
+                    <option value="0" <?php if (($_['scanSchedule']['interval'] ?? 0) === 0) print_unescaped('selected'); ?>><?php p($l->t('Off')); ?></option>
+                    <option value="3600" <?php if (($_['scanSchedule']['interval'] ?? 0) === 3600) print_unescaped('selected'); ?>><?php p($l->t('Every hour')); ?></option>
+                    <option value="21600" <?php if (($_['scanSchedule']['interval'] ?? 0) === 21600) print_unescaped('selected'); ?>><?php p($l->t('Every 6 hours')); ?></option>
+                    <option value="86400" <?php if (($_['scanSchedule']['interval'] ?? 0) === 86400) print_unescaped('selected'); ?>><?php p($l->t('Every day')); ?></option>
+                </select>
+                <p id="library-scan-schedule-help" data-library-help class="library-muted"><?php p($l->t('Scan enabled Library folders for new, changed and missing books, including changed OPF sidecars. Preserve your corrections and skip metadata extraction for unchanged files. The first run is due after the selected interval.')); ?></p>
+                <button type="submit" class="button primary"><?php p($l->t('Save schedule')); ?></button>
+            </form>
+            <?php if (($_['scanSchedule']['nextRunAt'] ?? 0) > 0): ?>
+                <p class="library-muted" role="status"><?php p($l->t('Next scan due:')); ?> <time datetime="<?php p(gmdate('c', $_['scanSchedule']['nextRunAt'])); ?>"><?php p(gmdate('Y-m-d H:i', $_['scanSchedule']['nextRunAt']) . ' UTC'); ?></time></p>
+            <?php endif; ?>
+            <?php if (!($_['scanScheduleCron'] ?? false)): ?>
+                <p class="library-warning"><?php p($l->t('Reliable automatic scans need Nextcloud Cron. With other background modes, runs may be delayed. Ask your administrator to configure Cron.')); ?></p>
+            <?php endif; ?>
+        </section>
         <section class="library-add-shelf-card" aria-label="<?php p($l->t('Add Library shelf')); ?>">
             <h3><?php p($l->t('Add a shelf')); ?></h3>
-            <p class="library-muted"><?php p($l->t('Point Library at a Nextcloud folder; it becomes a browsable shelf after scanning.')); ?></p>
+            <p data-library-help class="library-muted"><?php p($l->t('Point Library at a Nextcloud folder; it becomes a browsable shelf after scanning.')); ?></p>
             <form method="post" action="<?php p($_['rootSaveUrl']); ?>" class="library-form library-add-shelf-form" data-library-operation="save-root">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <div class="library-folder-path-field">
@@ -43,7 +73,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                         <input type="text" name="path" value="" placeholder="<?php p($l->t('/Media/Books')); ?>" aria-describedby="library-new-root-path-help" required />
                     </label>
                     <button type="button" class="button secondary library-folder-picker-button" data-library-folder-picker data-picker-title="<?php p($l->t('Choose a folder for this Library shelf')); ?>" data-picker-error="<?php p($l->t('Could not open the folder picker. Enter the path manually.')); ?>" hidden><?php p($l->t('Choose folder')); ?></button>
-                    <p id="library-new-root-path-help" class="library-muted library-folder-path-help"><?php p($l->t('Choose a folder from Nextcloud Files, or enter its path manually.')); ?></p>
+                    <p data-library-help id="library-new-root-path-help" class="library-muted library-folder-path-help"><?php p($l->t('Choose a folder from Nextcloud Files, or enter its path manually.')); ?></p>
                 </div>
                 <label>
                     <?php p($l->t('Label')); ?>
@@ -87,7 +117,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                                     <input type="text" name="path" value="<?php p((string)$root['path']); ?>" aria-describedby="library-root-path-help-<?php p((string)$root['id']); ?>" />
                                 </label>
                                 <button type="button" class="button secondary library-folder-picker-button" data-library-folder-picker data-picker-title="<?php p($l->t('Choose a folder for this Library shelf')); ?>" data-picker-error="<?php p($l->t('Could not open the folder picker. Enter the path manually.')); ?>" hidden><?php p($l->t('Choose folder')); ?></button>
-                                <p id="library-root-path-help-<?php p((string)$root['id']); ?>" class="library-muted library-folder-path-help"><?php p($l->t('Choose a folder from Nextcloud Files, or edit its path manually.')); ?></p>
+                                <p data-library-help id="library-root-path-help-<?php p((string)$root['id']); ?>" class="library-muted library-folder-path-help"><?php p($l->t('Choose a folder from Nextcloud Files, or edit its path manually.')); ?></p>
                             </div>
                             <label>
                                 <?php p($l->t('Label')); ?>
@@ -145,13 +175,13 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <form method="post" action="<?php p($_['scanRetryMetadataErrorsUrl']); ?>" class="library-inline-form library-scan-retry-metadata-errors-form">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <button type="submit"><?php p($l->t('Retry metadata errors')); ?></button>
-                <span class="library-muted"><?php p($l->t('Only rows currently marked metadata_error are retried; unrelated indexed files are not marked missing.')); ?></span>
+                <span data-library-help class="library-muted"><?php p($l->t('Only rows currently marked metadata_error are retried; unrelated indexed files are not marked missing.')); ?></span>
             </form>
 
             <form method="post" action="<?php p($_['scanRecheckMissingFilesUrl']); ?>" class="library-inline-form library-scan-recheck-missing-files-form">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <button type="submit"><?php p($l->t('Recheck missing files')); ?></button>
-                <span class="library-muted"><?php p($l->t('Only rows currently marked as missing files are rechecked; unrelated indexed files are not marked missing.')); ?></span>
+                <span data-library-help class="library-muted"><?php p($l->t('Only rows currently marked as missing files are rechecked; unrelated indexed files are not marked missing.')); ?></span>
             </form>
         </div>
 
@@ -161,7 +191,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <?php if ($latestScanJob === null): ?>
                 <p class="library-muted"><?php p($l->t('No scan job has run yet.')); ?></p>
             <?php else: ?>
-                <p class="library-muted"><?php p($l->t('Scan counts update automatically while the background job is running; scan progress updates while the background job is running.')); ?></p>
+                <p data-library-help class="library-muted"><?php p($l->t('Scan counts update automatically while the background job is running; scan progress updates while the background job is running.')); ?></p>
                 <?php
                 $formatScanTimestamp = static fn($value): string => $value !== null && $value !== '' ? date('Y-m-d H:i', (int)$value) : '—';
                 $scanStatus = (string)($latestScanJob['status'] ?? '');
@@ -177,7 +207,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                 <?php if (in_array(($latestScanJob['status'] ?? ''), ['completed', 'failed'], true)): ?>
                     <section class="library-scan-completion-summary library-scan-completion-summary--<?php p((string)$latestScanJob['status']); ?>" data-library-scan-completion-summary aria-live="polite">
                         <h4 data-library-scan-completion-title><?php p(($latestScanJob['status'] ?? '') === 'failed' ? $l->t('Scan failed') : $l->t('Scan completed')); ?></h4>
-                        <p class="library-muted"><?php p($l->t('This post-scan completion summary survives page reloads and links each counter to the safest next review view.')); ?></p>
+                        <p data-library-help class="library-muted"><?php p($l->t('This post-scan completion summary survives page reloads and links each counter to the safest next review view.')); ?></p>
                         <?php if (($latestScanJob['finishedAt'] ?? null) !== null): ?>
                             <p class="library-muted"><?php p($l->t('Finished at')); ?> <time data-library-scan-finished-at datetime="<?php p(date('c', (int)$latestScanJob['finishedAt'])); ?>"><?php p(date('Y-m-d H:i', (int)$latestScanJob['finishedAt'])); ?></time></p>
                         <?php endif; ?>
@@ -211,7 +241,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                         <div class="library-scan-changes-heading">
                             <div>
                                 <h4><?php p($l->t('Changes found')); ?></h4>
-                                <p class="library-muted library-scan-changes-intro"><?php p($l->t('Library compared the scanned files with its catalogue index. Review anything that changed outside Library before forgetting missing rows.')); ?></p>
+                                <p data-library-help class="library-muted library-scan-changes-intro"><?php p($l->t('Library compared the scanned files with its catalogue index. Review anything that changed outside Library before forgetting missing rows.')); ?></p>
                             </div>
                             <span class="library-settings-count-badge"><?php p($l->t('safe review')); ?></span>
                         </div>
@@ -249,7 +279,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                     <form method="post" action="<?php p((string)$latestScanJob['cancelUrl']); ?>" class="library-inline-form library-scan-cancel-form">
                         <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                         <button type="submit"><?php p(($latestScanJob['status'] ?? '') === 'queued' ? $l->t('Cancel queued scan') : $l->t('Cancel scan')); ?></button>
-                        <span class="library-muted"><?php p($l->t('Cancel scan is available for queued or running jobs; running scans stop cooperatively at progress checkpoints.')); ?></span>
+                        <span data-library-help class="library-muted"><?php p($l->t('Cancel scan is available for queued or running jobs; running scans stop cooperatively at progress checkpoints.')); ?></span>
                     </form>
                 <?php endif; ?>
             <?php endif; ?>
@@ -294,7 +324,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
 
     <details class="library-panel library-settings-section library-settings-section-metadata" aria-labelledby="library-settings-metadata-heading">
         <summary id="library-settings-metadata-heading" class="library-settings-summary-row"><?php p($l->t('Metadata and covers')); ?></summary>
-        <p class="library-muted"><?php p($l->t('Metadata review and cover maintenance are available from publication details and Review.')); ?></p>
+        <p data-library-help class="library-muted"><?php p($l->t('Metadata review and cover maintenance are available from publication details and Review.')); ?></p>
     </details>
 
     <details class="library-panel library-settings-section library-settings-section-portability" aria-labelledby="library-settings-portability-heading">
@@ -307,7 +337,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <a href="<?php p($_['metadataSidecarManifestUrl']); ?>" class="button secondary"><?php p($l->t('Export sidecar manifest')); ?></a>
             <a href="<?php p($_['metadataSidecarBundleUrl']); ?>" class="button secondary"><?php p($l->t('Export sidecar ZIP')); ?></a>
         </p>
-        <p class="library-muted"><?php p($l->t('The sidecar manifest lists suggested .library.json paths for corrected metadata. Export sidecar ZIP downloads those JSON sidecars as a reviewable archive; neither export writes sidecar files into source folders.')); ?></p>
+        <p data-library-help class="library-muted"><?php p($l->t('The sidecar manifest lists suggested .library.json paths for corrected metadata. Export sidecar ZIP downloads those JSON sidecars as a reviewable archive; neither export writes sidecar files into source folders.')); ?></p>
 
         <form method="post" action="<?php p($_['metadataImportPreviewUrl']); ?>" class="library-form library-metadata-import-preview-form">
             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />

@@ -21,7 +21,7 @@ def test_scanner_conflict_review_queue_can_be_opened_or_tagged_without_metadata_
     assert "scannerConflictReviewUrl" in app
     assert "Suggested updates" in app
     assert "Tag scanner-conflict rows" not in app
-    assert 'v-if="selectedItemIds.length > 0"' in app
+    assert 'v-if="selectedItemIds.length && selectedBatchAction"' in app
 
 
 def test_review_queue_slice_stays_on_existing_safe_routes():

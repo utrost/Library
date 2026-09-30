@@ -1,0 +1,76 @@
+{
+  "authorUnitAssertions": 36,
+  "authorIntegration": {
+    "passed": true,
+    "assertions": 32,
+    "fieldIsolation": true,
+    "acceptedAuthorPreserved": true,
+    "userCorrectionPreserved": true,
+    "sourceBytesUnchanged": true,
+    "recovery": true
+  },
+  "incrementalScheduledIntegration": {
+    "passed": true,
+    "assertions": 36,
+    "firstFilesMissing": 0,
+    "incrementalFilesMissing": 1
+  },
+  "browserChecks": {
+    "results": [
+      {
+        "engine": "chromium",
+        "passed": true,
+        "cursorForwardBackward": true,
+        "nearViewportCovers": 18,
+        "selectionActionVisible": true,
+        "mobileFits": true,
+        "pageErrors": []
+      },
+      {
+        "engine": "firefox",
+        "passed": true,
+        "cursorForwardBackward": true,
+        "nearViewportCovers": 18,
+        "selectionActionVisible": true,
+        "mobileFits": true,
+        "pageErrors": []
+      }
+    ]
+  },
+  "sourceGate": {
+    "pythonPassed": 1041,
+    "frontendPassed": 518,
+    "frontendFiles": 34,
+    "parserParityVectors": 518
+  },
+  "realAuthorCase": {
+    "passed": true,
+    "casesVerified": 1,
+    "sourceAuthorCount": 71,
+    "validFieldChecks": 2,
+    "fieldReviewWarning": true,
+    "newCatalogueItems": 1
+  },
+  "postFullScanBrowserChecks": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "cursorForwardBackward": true,
+      "nearViewportCovers": 18,
+      "selectionActionVisible": true,
+      "mobileFits": true,
+      "pageErrors": []
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "cursorForwardBackward": true,
+      "nearViewportCovers": 18,
+      "selectionActionVisible": true,
+      "mobileFits": true,
+      "pageErrors": []
+    }
+  ],
+  "postFullScanCatalogueCount": 107707,
+  "finalSourceGatePassed": true
+}
