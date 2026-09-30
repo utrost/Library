@@ -31,7 +31,7 @@ for ver in ${NC_VERSIONS:-33.0.9 34.0.4 35.0.0}; do
     (
         set -e
         NC_VERSION="$ver" LIBRARY_TEST_ARCHIVE="$archive" LIBRARY_BETA_ARCHIVE="$beta" LIBRARY_BOOK_FIXTURE_ARCHIVE="$fixture" bash scripts/dev-lists-instance.sh start
-        source "/tmp/library-lists-dev/$ver.env"
+        source "${LIBRARY_LISTS_WORK_DIR:-/tmp/library-lists-dev}/$ver.env"
         if [[ "${REQUIRE_INTEGRITY:-0}" == 1 ]]; then
             docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php occ integrity:check-app library > "$target/integrity.log" 2>&1
             # An empty report and zero exit status indicate valid installed contents.

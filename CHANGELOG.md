@@ -2,6 +2,8 @@
 
 ## 0.2.0-beta.1
 
+- Fix manual duplicate-group detection on SQLite by binding aggregate thresholds as integers.
+
 - Add private reading lists, book ordering and list-entry notes.
 - Extract metadata from filenames and folders using editable suggestions, saved guided/advanced rules, live preview, per-book approval and reversible Apply/Undo.
 - Review potential duplicates with optional suggestions while browsing; no automatic merging or deletion.
