@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { login, openLibrary, collectBrowserFailures, assertKnownNextcloudLoginFailuresAndClear, attachCheckpoint } from '../fixtures/nextcloud'
+import { login, openLibrary, collectBrowserFailures, assertKnownNextcloudLoginFailuresAndClear, attachCheckpoint, requiredPositiveIntegerEnvironment } from '../fixtures/nextcloud'
 
 async function api(page: Page, path = '', body?: Record<string, unknown>) {
   return page.evaluate(async ({ path, body }) => {
@@ -78,7 +78,7 @@ test('maintains a private reading list with notes and ordering @lists @smoke', a
     await expect(panel.getByRole('status')).toHaveText('List deleted.')
     listId = undefined
     await openLibrary(page)
-    await expect(page.locator('#library-catalogue .library-item-selection input[type="checkbox"]')).toHaveCount(40)
+    await expect(page.locator('#library-catalogue .library-item-selection input[type="checkbox"]')).toHaveCount(requiredPositiveIntegerEnvironment('PW_TOTAL_CARDS'))
     failures.assertNone()
   } finally {
     if (listId) {

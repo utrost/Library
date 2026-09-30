@@ -92,7 +92,9 @@ def test_disposable_rehearsal_runs_playwright_with_ephemeral_credentials():
     assert 'PW_BASE_URL="$BASE_URL"' in smoke
     assert 'PW_USER="$ADMIN_USER"' in smoke
     assert 'PW_PASSWORD="$ADMIN_PASS"' in smoke
-    assert 'PW_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS"' in smoke
+    assert 'PW_EXPECTED_CARDS=1' in smoke
+    assert 'PW_TOTAL_CARDS="$EXPECTED_BROWSER_CARDS"' in smoke
+    assert 'background-job:worker' in smoke
     assert 'PW_ROOT_PATH="$GUI_ROOT_PATH"' in smoke
     assert 'PW_ITEM_ID="$GUI_ITEM_ID"' in smoke
     assert 'PW_SEARCH_TITLE="$GUI_SEARCH_TITLE"' in smoke

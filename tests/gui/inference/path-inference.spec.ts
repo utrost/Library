@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { login, attachCheckpoint, collectBrowserFailures, assertKnownNextcloudLoginFailuresAndClear } from '../fixtures/nextcloud'
+import { login, attachCheckpoint, collectBrowserFailures, assertKnownNextcloudLoginFailuresAndClear, requiredPositiveIntegerEnvironment } from '../fixtures/nextcloud'
 
 test('patterns select immediately, persist privately and delete; inference stays read-only @inference @smoke', async ({ page }, info) => {
   test.setTimeout(120_000)
@@ -8,7 +8,7 @@ test('patterns select immediately, persist privately and delete; inference stays
   await page.goto('/apps/library/?infer=1')
   const panel = page.locator('.library-inference')
   await expect(panel).toHaveAttribute('aria-busy','false')
-  await expect(panel.locator('.library-inference-step').filter({has:page.getByRole('heading',{name:'3. Review the sample',exact:true})}).locator('.library-inference-result')).toHaveCount(40)
+  await expect(panel.locator('.library-inference-step').filter({has:page.getByRole('heading',{name:'3. Review the sample',exact:true})}).locator('.library-inference-result')).toHaveCount(Math.min(40, requiredPositiveIntegerEnvironment('PW_TOTAL_CARDS')))
   const rootId = await panel.getByRole('combobox',{name:'Library root',exact:true}).inputValue()
   const before = await page.evaluate(async id=>(await fetch(`/apps/library/api/inference/sample?rootId=${id}`)).json(),rootId)
   await panel.getByRole('combobox',{name:'Rule editor',exact:true}).selectOption('pattern')
@@ -19,8 +19,10 @@ test('patterns select immediately, persist privately and delete; inference stays
   await picker.selectOption('preset-by')
   await expect(input).toHaveValue('%folders%/%title% by %author%.%extension%')
   await expect(templates.getByRole('button',{name:'Use this pattern'})).toHaveCount(0)
+  const examplePath = await panel.getByRole('combobox', { name: 'Example path', exact: true }).inputValue()
+  const expectedTitle = examplePath.split('/').at(-1)!.replace(/\.[^.]+$/, '')
   await picker.selectOption('preset-title')
-  await expect(panel.locator('.library-inference-live dd strong').first()).toContainText('pg')
+  await expect(panel.locator('.library-inference-live dd strong').first()).toHaveText(expectedTitle)
   // Keep syntax explanatory copy out of the layout, but accessible by focus and Escape.
   const help=panel.locator('label').filter({has:page.getByRole('textbox',{name:'Advanced pattern',exact:true})}).getByRole('button',{name:'Help',exact:true})
   await help.focus(); await expect(page.getByRole('tooltip')).toContainText('Placeholders capture text')
