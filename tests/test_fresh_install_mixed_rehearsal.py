@@ -106,3 +106,9 @@ def test_install_faq_and_first_scan_walkthrough_are_linked():
     assert "How do I install Library?" in faq
     assert "Why is my first scan still queued?" in faq
     assert "Does Library change or delete my source files?" in faq
+
+
+def test_basic_smoke_uses_pinned_playwright_chrome():
+    script = (ROOT / "scripts/smoke-fresh-install-mixed.sh").read_text()
+    assert "chromium.executablePath()" in script
+    assert 'CHROME_BIN="${CHROME_BIN:-$playwright_chrome_bin}"' in script
