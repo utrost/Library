@@ -118,7 +118,7 @@ forbidden_suffixes = (".pyc", ".pyo", ".key", ".pem")
 allowed_root_files = {"README.md", "LICENSE", "CHANGELOG.md"}
 allowed_frontend_files = {
     "css/style.css", f"css/{vue_style_asset}.css",
-    "js/library-detail.js", f"js/{vue_script_asset}.mjs",
+    "js/library-detail.js", "js/library-help.js", f"js/{vue_script_asset}.mjs",
     "js/library-shell.js", "js/scan-progress-worker.js", "js/settings-operations.js", "js/settings-folder-picker-dialog.js",
 }
 max_package_frontend_bytes = 1_200_000
