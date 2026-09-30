@@ -67,6 +67,8 @@ Captured on disposable Nextcloud 34.0.4 using the public Gutenberg fixture and a
 2. [Publication details](images/appstore-details.png)
 3. [Metadata extraction and live preview](images/appstore-inference.png)
 
+Before uploading, verify that no real filenames, private folder names, user names, server names or credentials are visible.
+
 The three release-tag URLs are included in `appinfo/info.xml`; they become public when the accepted source tag is pushed. Review the visible wording and presentation before publication.
 
 ## Release note draft
