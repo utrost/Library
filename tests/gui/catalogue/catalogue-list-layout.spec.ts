@@ -58,17 +58,24 @@ test('keeps list covers readable and action buttons inside the table @catalogue 
     const button = container.querySelector('.library-catalogue-list-actions a')
     if (!(button instanceof HTMLElement)) throw new Error('Open action is missing')
     const buttonRect = button.getBoundingClientRect()
+    const actions = [...container.querySelectorAll('.library-catalogue-list-actions a, .library-catalogue-list-actions button')] as HTMLElement[]
+    const trailingMargin = Math.max(0, ...actions.map(action => Number.parseFloat(getComputedStyle(action).marginInlineEnd) || 0))
+    const actionsRight = Math.max(...actions.map(action => action.getBoundingClientRect().right))
     const containerRect = container.getBoundingClientRect()
     return {
       scrollWidth: container.scrollWidth,
       clientWidth: container.clientWidth,
+      trailingMargin,
+      actionsRight,
       buttonLeft: buttonRect.left,
       buttonRight: buttonRect.right,
       containerLeft: containerRect.left,
       containerRight: containerRect.right,
     }
   })
-  expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth + 1)
+  // A trailing button margin can extend the scroll box without clipping an action.
+  expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth + geometry.trailingMargin + 1)
+  expect(geometry.actionsRight).toBeLessThanOrEqual(geometry.containerRight + 1)
   expect(geometry.buttonLeft).toBeGreaterThanOrEqual(geometry.containerLeft)
   expect(geometry.buttonRight).toBeLessThanOrEqual(geometry.containerRight + 1)
   await expect(list.locator('.library-catalogue-list-actions').first().getByRole('link', { name: 'Open', exact: true })).toBeVisible()
