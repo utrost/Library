@@ -12,7 +12,7 @@ Completed:
 - [x] Build and audit the signed archive; verify installed integrity on all six disposable installations and developer NC34.
 - [x] Produce and verify separate App Store registration and archive signatures; generate the SPDX inventory and provenance sidecars.
 - [x] Verify fresh installs and populated upgrades with 40 English Gutenberg books, including preservation of manual metadata corrections.
-- [ ] Finish the separate GitHub mixed-fixture CI rerun.
+- [x] Pass the separate GitHub mixed-fixture CI, including 35 browser executions, legacy browser, HTTP and performance checks.
 - [x] Deploy the corrected candidate on developer NC34 and pass Chromium/Firefox checks without modifying the real catalogue or source files.
 
 Remaining release steps:
