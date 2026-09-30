@@ -29,12 +29,22 @@ test('keeps list covers readable and action buttons inside the table @catalogue 
   const visibleCovers = list.locator('.library-catalogue-list-cover img').all()
   await expect.poll(async () => Promise.all((await visibleCovers).slice(0, 7).map((image) =>
     image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0)))).toEqual(Array(7).fill(true))
-  const coverAspectRatios = await list.locator('.library-catalogue-list-cover img').evaluateAll((images: HTMLImageElement[]) =>
+  const coverRendering = await list.locator('.library-catalogue-list-cover img').evaluateAll((images: HTMLImageElement[]) =>
     images.slice(0, 7).map((image) => {
       const box = image.getBoundingClientRect()
-      return Math.abs(box.width / box.height - image.naturalWidth / image.naturalHeight)
+      const style = getComputedStyle(image)
+      return {
+        ratioDifference: Math.abs(box.width / box.height - image.naturalWidth / image.naturalHeight),
+        objectFit: style.objectFit,
+        width: box.width,
+        height: box.height,
+      }
     }))
-  expect(coverAspectRatios.every((difference) => difference < 0.03), JSON.stringify(coverAspectRatios)).toBe(true)
+  // A constrained square/landscape image can have a narrower CSS box while
+  // object-fit: contain preserves the actual artwork without cropping it.
+  expect(coverRendering.every(({ ratioDifference, objectFit, width, height }) =>
+    width > 0 && height > 0 && (ratioDifference < 0.03 || objectFit === 'contain')),
+  JSON.stringify(coverRendering)).toBe(true)
 
   const creatorOverflow = await list.locator('.library-catalogue-list-creators > bdi').evaluateAll((creators: HTMLElement[]) =>
     creators.slice(0, 10).map((creator) => creator.scrollWidth > creator.clientWidth + 1))
