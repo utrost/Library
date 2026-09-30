@@ -2,25 +2,26 @@
 
 ## Release checkpoint — 2026-09-30
 
-Current candidate baseline: `0.2.0-beta.1`. Final signed-package verification is in progress. The earlier `0.1.0-beta.1` evidence below is historical.
+Current candidate: **0.2.0-beta.1**, signed and deployed on developer Nextcloud 34.0.3. The exact archive passed fresh installation and upgrade from 0.1.0-beta.1 on Nextcloud 33.0.9, 34.0.4 and 35.0.0: **210/210 Playwright executions**, plus service, duplicate, inference and scheduled-scan checks. See [final verification and limitations](compatibility-evidence/2026-09-30-beta1/README.md).
 
-Certificate request [PR #1268](https://github.com/nextcloud/app-certificate-requests/pull/1268) merged on **2026-09-29 at 20:36 UTC**. The issued `library.crt` matches the existing local private key and passed OpenSSL verification against the developer Nextcloud instance's code-signing CA chain on 2026-09-30. Its subject is `CN=library`; validity ends 2037-01-04. The public certificate is installed at `~/.nextcloud/certificates/library.crt`. Keep the existing private key outside the repository and release archives.
+Completed:
 
-Completed evidence:
+- [x] Freeze the 0.2 feature scope and commit the accumulated implementation on `develop/0.2`.
+- [x] Align public app metadata, changelog, listing draft and schema documentation; capture three public fixture screenshots.
+- [x] Obtain and verify the issued certificate (request #1268 merged 2026-09-29), match the private key and fix secure signing-directory ownership/cleanup.
+- [x] Build and audit the signed archive; verify installed integrity on all six disposable installations and developer NC34.
+- [x] Produce and verify separate App Store registration and archive signatures; generate the SPDX inventory and provenance sidecars.
+- [x] Verify fresh installs and populated upgrades with 40 English Gutenberg books, including preservation of manual metadata corrections.
+- [x] Deploy the corrected candidate on developer NC34 and pass Chromium/Firefox checks without modifying the real catalogue or source files.
 
-- Alpha.28 passed the Nextcloud 33.0.9 / 34.0.4 / 35.0.0 matrix, including 40 English Gutenberg books, scheduled-scan checks and Playwright coverage. See [performance and compatibility report](performance/2026-09-28-alpha28/README.md).
-- Alpha.29 inference suggestions passed developer NC34 Chromium/Firefox checks, including mobile layout and saved-rule cleanup. See [suggestion evidence](compatibility-evidence/2026-09-29-inference-suggestions-alpha29/README.md). This does not certify a final signed beta archive on all three versions.
+Remaining release steps:
 
-Remaining release sequence:
+1. Finish the separate GitHub mixed-fixture CI rerun; its status is recorded in the verification report.
+2. Owner: accept the developer build and review the [listing text and screenshots](app-store-listing.md).
+3. Owner: sign in to the Nextcloud App Store and register `library` using the public certificate and registration proof. Prepared instructions are in local `dist/app-store-handoff/README.txt`; never upload the private key.
+4. After acceptance, publish the prepared GitHub prerelease and submit its exact archive URL and detached signature through the owner's App Store account. Confirm the store listing and install the store-distributed release.
 
-1. Freeze scope; review the accumulated development changes and create a coherent source baseline for `0.2.0-beta.1`. No new feature is required for this candidate.
-2. Align public metadata, changelog, listing text, screenshots and support/privacy expectations with 0.2. Review schema/documentation consistency and record remaining limitations, including manual assistive-technology testing.
-3. Install the issued certificate and rehearse signing. Inspect container ownership/permissions: the script currently copies a private key into a root-created temporary directory but runs the signer as `www-data`; access must be arranged without making the key publicly readable. Ensure cleanup on failures.
-4. Build and audit the exact signed release archive. Verify app integrity after installation. Produce the separate app-registration proof and detached SHA-512 archive signature required by the [App Store developer guide](https://nextcloudappstore.readthedocs.io/en/latest/developer.html); `appinfo/signature.json` alone is not the release-upload signature.
-5. Run fresh-install and upgrade checks plus the main Playwright scripts against that exact artifact on Nextcloud 33–35. Include the Gutenberg library and mixed metadata fixtures. Preserve screenshots, results and archive checksum. Reuse existing performance evidence unless these checks reveal a regression.
-6. Complete human acceptance on the developer instance. Publish the reviewed source tag and exact archive, then register/submit the app through the owner's App Store account. Record the resulting listing/release status and installation result.
-
-No beta tag, signed beta archive or App Store submission has been created at this checkpoint.
+The GitHub release remains a draft; no App Store submission has been made. Manual assistive-technology testing and PostgreSQL coverage remain documented limitations, not completed checks.
 
 ## Historical readiness track
 

@@ -4,8 +4,10 @@ Alpha.29: **Suggest fields** now proposes editable path/filename assignments, pr
 
 Alpha.19: [possible duplicate review](duplicate-review.md) is implemented. Private background discovery, optional content hashes, comparison evidence and reversible review decisions are available. Automatic deletion, merging and work/edition grouping remain future scope.
 
-Status: `0.1.0-beta.1` source baseline is committed and tagged locally; the audited unsigned archive passed disposable Nextcloud 33–35 browser smokes. Development is now `0.2.0-alpha.29`, deployed on the private Nextcloud 34 instance with accepted private lists, faster list queries and whole-folder metadata analysis with saved rules, paged approval and conditional Undo. See the [alpha.18 developer verification](compatibility-evidence/2026-09-26-whole-folder-alpha18/README.md). The latest full development matrix, alpha.28, passed 105 browser executions and 74 scheduled-scan assertions per version on 33.0.9 / 34.0.4 / 35.0.0 with 40 English Gutenberg books; see the [verification report](performance/2026-09-28-alpha28/README.md) and [extraction guide](extracting-metadata.md). The current release candidate is now 0.2.0-beta.1; signed-package verification is in progress. See [release readiness](app-store-readiness.md).
-Last updated: 2026-09-28
+Status: **0.2.0-beta.1** is signed and deployed on developer NC34. The exact archive passed fresh installation and upgrade on NC33.0.9 / 34.0.4 / 35.0.0, including 210 browser executions and preservation of existing books/corrections. See [release verification](compatibility-evidence/2026-09-30-beta1/README.md) and [remaining publication steps](app-store-readiness.md). Feature scope is frozen; owner acceptance and App Store publication remain pending.
+
+Last updated: 2026-09-30
+
 Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md), [Alice scale pilot notes](alice-scale-pilot.md)
 
 ## Measured performance work — 2026-09-27
