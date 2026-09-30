@@ -57,16 +57,15 @@ https://github.com/utrost/Library/issues
 
 Bug reports are most useful when they include the app version, Nextcloud version, file type, expected behavior, actual behavior and any visible scan or browser-console error.
 
-## Screenshot checklist
+## Screenshots for owner review
 
-Prepare screenshots from a clean test instance with non-private sample files:
+Captured on disposable Nextcloud 34.0.4 using the public Gutenberg fixture and a synthetic metadata tutorial file. All are below 2 MiB, and contain no real-library filenames or credentials:
 
-1. Catalogue gallery or shelf view showing several covers and active search/filter controls.
-2. Contextual drawer showing readable publication/file context, plus Advanced details/full details page showing editable publication metadata.
-3. Useful views or metadata review workbench showing cleanup-oriented navigation.
-4. Settings page showing configured library roots and scan controls without private paths.
+1. [Catalogue](images/appstore-catalogue.png)
+2. [Publication details](images/appstore-details.png)
+3. [Metadata extraction and live preview](images/appstore-inference.png)
 
-Before uploading screenshots, verify that no real filenames, private folder names, user names, server names or credentials are visible.
+The three release-tag URLs are included in `appinfo/info.xml`; they become public when the accepted source tag is pushed. Review the visible wording and presentation before publication.
 
 ## Release note draft
 
