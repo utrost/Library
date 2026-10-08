@@ -2,13 +2,16 @@
 
 For duplicate discovery and private preferred-copy decisions, see [Finding possible duplicate books](duplicate-review.md).
 
-Status: current v0.1 development guide  
+Start with [Your first library](first-library.md) for a short illustrated walkthrough using English Gutenberg books.
+
+Status: reference guide with historical v0.1 development notes; use the first-library walkthrough and linked feature guides for the 0.2 onboarding flow
+
 Audience: early users, household admins, Nextcloud admins and product reviewers  
-Scope: what the app does today, how the main processes work, and which missing features are most visible from user stories
+Scope: detailed workflows, administrative reference and historical product-review notes
 
 Library is a Nextcloud-native catalogue for publication-like files that already live in Nextcloud Files. It does not import, move or render the original documents. Nextcloud Files remains the canonical storage layer; Library adds discovery, metadata, covers, browsing, search, diagnostics and reader handoff.
 
-This guide describes the implemented state of the app, not the long-term design.
+For the current release status, see the [roadmap](roadmap.md). The historical review sections preserve earlier design discussions.
 
 ## Fresh install and first scan
 
@@ -645,9 +648,9 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 6. Add discovery by publication structure. Search/filter/pagination, Catalogue discovery links, Review's five focused groups, in-app **Custom collections** for named saved filter combinations, the dedicated publication discovery page with **Publication contents** read-only issue/date grouping, stable issue/date order, year/month and volume buckets, conservative gap hints, an **Unknown issue/date** bucket, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; richer grouping/reordering polish does not.
 7. Polish root/onboarding/shared-library workflows. Root lifecycle exists with typed root-delete confirmation, root deletion recovery guidance and first-run guidance; richer validation and admin-managed shared roots remain future work.
 
-## Crucial missing-feature candidates exposed by the guide
+## Historical v0.1 missing-feature candidates exposed by the guide
 
-These are the highest-signal gaps to judge before pushing v0.1 further:
+This historical list predates 0.2. Scheduled scans, private lists and filename/path metadata extraction are now available; see the [current roadmap](roadmap.md). The original review notes below are retained for context:
 
 1. **Root management polish beyond the first lifecycle slice** — users can edit, enable/disable, delete and scan one root, and root deletion asks users to Type DELETE to confirm; the workflow still needs clearer recovery consequences and richer validation before release.
 2. **Scan lifecycle controls** — queued scans, metadata-error retry, missing-file recheck, queued-job cancellation and cooperative running-job cancellation work. Settings now keeps a post-scan completion summary after reload with added, moved/renamed, unchanged, missing and metadata-error counts, links counters to review smart views, and offers metadata-error TSV export; scheduled scans remain absent.

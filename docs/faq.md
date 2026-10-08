@@ -1,5 +1,7 @@
 # FAQ and troubleshooting
 
+For a guided introduction with screenshots, start with [Your first library](first-library.md).
+
 This page covers the first installation and scan. For normal use, see the [user and admin guide](user-guide.md).
 
 ## How do I install Library?
