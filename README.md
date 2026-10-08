@@ -84,6 +84,7 @@ For GUI workflows, install the pinned browsers once with `npx playwright install
 
 ## More documentation
 
+- [Your first library](docs/first-library.md) — configure a folder, scan Gutenberg books and browse your first catalogue.
 - [User and admin guide](docs/user-guide.md), [FAQ and troubleshooting](docs/faq.md), [Playwright journey coverage](docs/playwright-journeys.md), [Human test handbook](docs/human-test-handbook.md), [Public alpha test checklist](docs/alpha-test-checklist.md)
 - [Current state and risk register](docs/current-state-and-risk-register.md), [Active roadmap](docs/roadmap.md), [Post-v0.1 roadmap](docs/post-v0.1-roadmap.md), [Personal top features scope](docs/personal-top-features.md)
 - [Product concept](docs/product-concept.md), [UX concept](docs/ux-concept.md), [Usefulness and UX feature list](docs/usefulness-and-ux-feature-list.md)
