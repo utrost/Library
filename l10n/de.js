@@ -980,7 +980,37 @@ OC.L10N.register(
         "Choose a suggestion": "Vorschlag auswählen",
         "{matched} of {total} paths on this page match this structure.": "{matched} von {total} Pfaden auf dieser Seite entsprechen dieser Struktur.",
         "Edit pattern": "Muster bearbeiten",
-        "Suggested assignments": "Vorgeschlagene Zuordnungen"
+        "Suggested assignments": "Vorgeschlagene Zuordnungen",
+        "This author changed in another tab. Reload before saving again. Your draft is preserved.": "Dieser Autor wurde in einem anderen Browserfenster geändert. Lade vor dem Speichern neu. Dein Entwurf bleibt erhalten.",
+        "Could not load or save the author. Check the fields and reload before retrying.": "Autor konnte nicht geladen oder gespeichert werden. Prüfe die Felder und lade vor einem erneuten Versuch neu.",
+        "Author saved. Original book credits are preserved.": "Autor gespeichert. Ursprüngliche Buchangaben bleiben erhalten.",
+        "All authors": "Alle Autoren",
+        "Authors": "Autoren",
+        "Reload": "Neu laden",
+        "Loading": "Wird geladen",
+        "Search authors": "Autoren suchen",
+        "Matches the beginning of the preferred name or sort name.": "Sucht am Anfang des bevorzugten Namens oder Sortiernamens.",
+        "Unused authors": "Autoren ohne Bücher",
+        "Author migration: {pending} pending, {failed} failed, {conflict} need review.": "Autorenmigration: {pending} ausstehend, {failed} fehlgeschlagen, {conflict} zu prüfen.",
+        "Refresh": "Aktualisieren",
+        "No authors found.": "Keine Autoren gefunden.",
+        "Edit author": "Autor bearbeiten",
+        "This edits the shared author record. Book credits and files stay unchanged.": "Dies bearbeitet den gemeinsamen Autoreneintrag. Buchangaben und Dateien bleiben unverändert.",
+        "Preferred name": "Bevorzugter Name",
+        "Sort name": "Sortiername",
+        "For example: Doe, John. Controls author directory ordering.": "Zum Beispiel: Mustermann, Max. Bestimmt die Reihenfolge im Autorenverzeichnis.",
+        "Given name": "Vorname",
+        "Optional. Leave empty for organisations or names you cannot safely split.": "Freiwillig. Bei Organisationen oder nicht eindeutig aufteilbaren Namen leer lassen.",
+        "Family name": "Nachname",
+        "Save author": "Autor speichern",
+        "Original credit: {credit}": "Ursprüngliche Angabe: {credit}",
+        "Author pages": "Autorenseiten",
+        "Page {page}": "Seite {page}",
+        "_%n book_::_%n books_": [
+            "%n Buch",
+            "%n Bücher"
+        ],
+        "Author migration must finish before editing. Refresh to check progress.": "Die Autorenmigration muss vor der Bearbeitung abgeschlossen sein. Aktualisiere die Ansicht, um den Fortschritt zu prüfen."
     },
     "nplurals=2; plural=(n != 1);"
 );

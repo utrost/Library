@@ -2,11 +2,11 @@
 
 ## [Unreleased]
 
-- Library 0.2 beta for Nextcloud 33–35: private reading lists and notes, filename/path metadata extraction with preview and reversible approval, duplicate review, and scheduled incremental scans.
-- Import Calibre and EPUB 3 series names and positions while preserving manual corrections.
-- Reduce duplicate noise from different issues or series positions; keep shared ISBN and identical-content evidence.
-- Improve catalogue, indexing and cover performance. Source files remain in Nextcloud Files; reading uses installed viewers.
-- This is a beta release. Dedicated author identities and merging are planned for 0.3.
+- Begin 0.3 author management with additive identity/relationship storage and a resumable background migration.
+- Preserve source credits, author order and existing library metadata; compare names conservatively without guessing comma conventions or expanding initials.
+- Queue author changes from imports, edits and inference Apply/Undo; expose migration counts and retry through `occ library:authors:migrate`.
+- Add an Authors directory with prefix search, paged books, unused-author filtering and revision-protected name editing. Preserve preferred names on rescans.
+- This development slice retains existing catalogue author fields as authoritative. Merging, reassignment, canonical catalogue author filtering and the full 0.3 release verification are still pending. Version 0.3 will be the first App Store submission.
 
 ## 0.2.0-beta.3
 

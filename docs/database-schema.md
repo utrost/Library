@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.2.0-alpha.28**, 2026-09-28. Covers 25 app-owned tables through `Version000200Date20260928090000`.
+Snapshot: **0.3.0-alpha.1**, 2026-10-13. Covers 28 app-owned tables through `Version000300Date20261013120000`. The author additions passed fresh installation and populated upgrade on SQLite NC34 and are deployed on MariaDB developer NC34.
 
 ## Schema ownership
 
@@ -8,7 +8,7 @@ Snapshot: **0.2.0-alpha.28**, 2026-09-28. Covers 25 app-owned tables through `Ve
 
 The alpha.28 replay verifies the change journal and full-scan checkpoint fields. The alpha.27 replay also verifies integer `library_scan_jobs.cached_warning_skips` (default 0, non-null) and all table field sets. The alpha.26 replay verifies the new nullable string(64) `library_items.scanner_index_hash` column and all table field sets. The earlier maintenance pass compared complete field types and index definitions.
 
-This maintenance pass replayed all 47 migration schema methods against an empty in-memory Doctrine schema on developer NC34. It did not invoke data backfills or execute schema changes against the live database. Table/field definitions, ordered index columns and uniqueness were compared with the XML.
+The earlier alpha.28 maintenance pass replayed all 47 migration schema methods against an empty in-memory Doctrine schema on developer NC34. It did not invoke data backfills or execute schema changes against the live database. Table/field definitions, ordered index columns and uniqueness were compared with the XML.
 
 The XML uses `*dbprefix*`; migrations use unprefixed logical names and Nextcloud supplies the configured prefix. Six early migrations leave the primary-key name to Doctrine, which normalizes it to `primary`; their descriptive XML primary-key names are logical reference names. Compare those keys by columns and uniqueness. Prefix lengths used for database-specific indexes remain defined in migrations. The official XSD does not allow `<length>` inside index fields, so the XML omits the two 191-character prefix lengths for cached paths and creators; it retains the indexed columns and order.
 
@@ -18,9 +18,12 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 
 | Table | Fields | Indexes | Purpose |
 | --- | ---: | ---: | --- |
+| `library_authors` | 10 | 3 | Per-user identities, conservative comparison keys, preferred/sort names and provenance. |
+| `library_item_authors` | 9 | 3 | Ordered author relationships and original credits; unique user/item/position. |
+| `library_author_state` | 2 | 1 | Per-user transaction coordination for identity reuse. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
 | `library_files` | 17 | 8 | Nextcloud file identity, observed paths/revisions and scan diagnostics. |
-| `library_items` | 41 | 23 | Catalogue metadata, ordered authors, provenance, review flags and cover revision. |
+| `library_items` | 42 | 25 | Catalogue metadata, ordered authors, provenance, review flags and cover revision. |
 | `library_scan_jobs` | 24 | 2 | Scan history, counters, heartbeat and current progress. |
 | `library_saved_collections` | 6 | 3 | Named saved filter definitions. |
 | `library_item_identifiers` | 11 | 3 | Normalized ISBN/ISSN values and identifier provenance. |
@@ -59,3 +62,9 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 - System tags and file comments use Nextcloud APIs and core storage.
 
 Expiry and deletion behavior is documented in [metadata storage](metadata-storage.md), [duplicate review](duplicate-review.md), [automatic scans](automatic-scans.md) and the [user guide](user-guide.md). Current performance and verification limits are in the [alpha.24 report](performance/2026-09-27-alpha24/README.md).
+
+## Author storage transition (0.3.0-alpha.1)
+
+`library_items.author_sync_status` is an indexed small integer: 0 = synced shadow relationships, 1 = pending, 2 = protected-assignment conflict, 3 = failed. Existing and new rows default to pending. Author-changing writes requeue the row atomically; bounded cron batches reconcile current metadata under an item lock. Per-user coordination serializes identity reuse, while non-unique comparison keys allow homonyms. No full-library backfill runs during the schema upgrade.
+
+The old arrays remain authoritative until the later read-integration slice explicitly switches over. See the [author implementation concept and operator commands](v0.3-author-management.md#storage-slice--030-alpha1). Fresh and populated-upgrade checks and full-library backfill measurements are recorded in the [0.3-alpha.1 report](compatibility-evidence/2026-10-13-author-management-alpha1/README.md). The earlier complete Doctrine-to-XML replay above applies only to the older schema; the XML contract now includes all author fields and indexes.

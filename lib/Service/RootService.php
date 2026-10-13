@@ -143,6 +143,7 @@ final class RootService {
                 ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
                 ->executeStatement();
         }
+        $this->db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id = ? AND NOT EXISTS (SELECT 1 FROM *PREFIX*library_items i WHERE i.id = *PREFIX*library_item_authors.item_id AND i.user_id = *PREFIX*library_item_authors.user_id)', [$userId]);
         $this->duplicateIndex?->prune($userId);
     }
 

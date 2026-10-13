@@ -4,9 +4,9 @@ Alpha.29: **Suggest fields** now proposes editable path/filename assignments, pr
 
 Alpha.19: [possible duplicate review](duplicate-review.md) is implemented. Private background discovery, optional content hashes, comparison evidence and reversible review decisions are available. Automatic deletion, merging and work/edition grouping remain future scope.
 
-Status: **0.2.0-beta.1** is signed and deployed on developer NC34. The exact archive passed fresh installation and upgrade on NC33.0.9 / 34.0.4 / 35.0.0, including 210 browser executions and preservation of existing books/corrections. See [release verification](compatibility-evidence/2026-09-30-beta1/README.md) and [remaining publication steps](app-store-readiness.md). Feature scope is frozen; owner acceptance and App Store publication remain pending.
+Status: **0.3.0-alpha.1** development has started on `develop/0.3`. By owner decision, 0.3 will be the first App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is retained. The first [author-management slice](v0.3-author-management.md#storage-slice--030-alpha1), including migration, browsing and editing, is deployed on developer NC34. See the [verification and measurements](compatibility-evidence/2026-10-13-author-management-alpha1/README.md). Merging, reassignment, catalogue integration and the 0.3 release matrix remain ahead.
 
-Last updated: 2026-09-30
+Last updated: 2026-10-13
 
 Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [Alice reader compatibility notes](alice-reader-compatibility.md), [Alice scale pilot notes](alice-scale-pilot.md)
 

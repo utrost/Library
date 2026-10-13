@@ -1,5 +1,7 @@
 # Release process
 
+Development has moved to **0.3.0-alpha.1**, with author migration, browsing and editing deployed on developer NC34. The owner has chosen 0.3 as the first App Store release; **do not submit the 0.2 archive**. The signed 0.2 baseline below remains preserved. The [author verification report](docs/compatibility-evidence/2026-10-13-author-management-alpha1/README.md) covers this development slice, not a signed 0.3 release package.
+
 ## Current 0.2 beta release
 
 The current candidate is `0.2.0-beta.3`, signed, deployed on developer Nextcloud 34.0.3 and [published as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 fresh/upgrade cases passed, including 210 final main Playwright tests; hosted CI passed. Download and screenshot URLs are public and verified. The [beta.3 report](docs/compatibility-evidence/2026-10-13-beta3/README.md) records exact checksums, initial timeout failures and successful reruns. Owner acceptance and App Store account submission remain. Handoff instructions are in `dist/app-store-handoff-beta3/README.txt`. The beta.1 and beta.2 signed archives are preserved unchanged.

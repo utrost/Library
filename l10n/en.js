@@ -980,7 +980,37 @@ OC.L10N.register(
         "Choose a suggestion": "Choose a suggestion",
         "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure.",
         "Edit pattern": "Edit pattern",
-        "Suggested assignments": "Suggested assignments"
+        "Suggested assignments": "Suggested assignments",
+        "This author changed in another tab. Reload before saving again. Your draft is preserved.": "This author changed in another tab. Reload before saving again. Your draft is preserved.",
+        "Could not load or save the author. Check the fields and reload before retrying.": "Could not load or save the author. Check the fields and reload before retrying.",
+        "Author saved. Original book credits are preserved.": "Author saved. Original book credits are preserved.",
+        "All authors": "All authors",
+        "Authors": "Authors",
+        "Reload": "Reload",
+        "Loading": "Loading",
+        "Search authors": "Search authors",
+        "Matches the beginning of the preferred name or sort name.": "Matches the beginning of the preferred name or sort name.",
+        "Unused authors": "Unused authors",
+        "Author migration: {pending} pending, {failed} failed, {conflict} need review.": "Author migration: {pending} pending, {failed} failed, {conflict} need review.",
+        "Refresh": "Refresh",
+        "No authors found.": "No authors found.",
+        "Edit author": "Edit author",
+        "This edits the shared author record. Book credits and files stay unchanged.": "This edits the shared author record. Book credits and files stay unchanged.",
+        "Preferred name": "Preferred name",
+        "Sort name": "Sort name",
+        "For example: Doe, John. Controls author directory ordering.": "For example: Doe, John. Controls author directory ordering.",
+        "Given name": "Given name",
+        "Optional. Leave empty for organisations or names you cannot safely split.": "Optional. Leave empty for organisations or names you cannot safely split.",
+        "Family name": "Family name",
+        "Save author": "Save author",
+        "Original credit: {credit}": "Original credit: {credit}",
+        "Author pages": "Author pages",
+        "Page {page}": "Page {page}",
+        "_%n book_::_%n books_": [
+            "%n book",
+            "%n books"
+        ],
+        "Author migration must finish before editing. Refresh to check progress.": "Author migration must finish before editing. Refresh to check progress."
     },
     "nplurals=2; plural=(n != 1);"
 );

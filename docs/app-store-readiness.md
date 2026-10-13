@@ -1,8 +1,17 @@
 # App Store readiness roadmap
 
+## Submission decision — 2026-10-13
+
+The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submission. The signed 0.2.0-beta.3 archive and verification below remain the preserved baseline, not evidence for the new author schema. Author management has started on `develop/0.3`; see the [implementation status](v0.3-author-management.md#storage-slice--030-alpha1).
+
+Before submitting 0.3: complete author browsing/editing/merging, verify the populated 0.2 upgrade and interrupted migration, measure real-library performance, refresh documentation/screenshots, and repeat signing plus exact-package NC33–35 fresh/upgrade verification.
+
+
 ## Release checkpoint — 2026-10-13
 
-Current candidate baseline: `0.2.0-beta.3`. It is signed, deployed on developer NC34 and [publicly released as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 cases passed with 210 final main Playwright tests; hosted CI and public URL verification passed. See the [beta.3 report](compatibility-evidence/2026-10-13-beta3/README.md), including the earlier timeout attempts and successful reruns.
+Current candidate baseline: `0.3.0-alpha.1`. Author management is in development; the full 0.3 release matrix remains pending.
+
+Preserved baseline: `0.2.0-beta.3`. It is signed and [publicly released as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 cases passed with 210 final main Playwright tests; hosted CI and public URL verification passed. See the [beta.3 report](compatibility-evidence/2026-10-13-beta3/README.md), including the earlier timeout attempts and successful reruns.
 
 The signed [beta.2 baseline](compatibility-evidence/2026-10-13-beta2/README.md) passed six fresh/upgrade cases and 210/210 main Playwright executions. That evidence remains historical and does not certify beta.3.
 

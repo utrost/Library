@@ -30,9 +30,9 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const APP_VERSION = '0.2.0-beta.3';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-2-0-beta-3-compact-list-table-cover-96-fit-v4';
-    private const VUE_STYLE_ASSET = 'library-vue-0-2-0-beta-3-compact-list-table-cover-96-fit-v4';
+    private const APP_VERSION = '0.3.0-alpha.1';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-1-compact-list-table-cover-96-fit-v4';
+    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-1-compact-list-table-cover-96-fit-v4';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -90,11 +90,11 @@ class PageController extends Controller {
         $this->initialState->provideInitialState('duplicateSuggestions', $this->duplicateIndex?->status($userId)['enabled'] ?? false);
         $showHome = (string)$this->request->getParam('home', '0') === '1';
         $showShelves = (string)$this->request->getParam('shelves', '0') === '1';
-        if ((string)$this->request->getParam('duplicates', '0') === '1' || (string)$this->request->getParam('lists', '0') === '1' || (string)$this->request->getParam('infer', '0') === '1') {
+        if ((string)$this->request->getParam('authors', '0') === '1' || (string)$this->request->getParam('duplicates', '0') === '1' || (string)$this->request->getParam('lists', '0') === '1' || (string)$this->request->getParam('infer', '0') === '1') {
             $catalogueUrl = $this->urlGenerator->linkToRoute('library.page.index');
             $language = $this->l10nFactory->findLanguage(Application::APP_ID);
             $this->initialState->provideInitialState('catalogue', [
-                'surface' => (string)$this->request->getParam('duplicates', '0') === '1' ? 'duplicates' : ((string)$this->request->getParam('infer', '0') === '1' ? 'inference' : 'lists'), 'items' => [], 'activeFilters' => (object)[], 'cataloguePagination' => (object)[],
+                'surface' => (string)$this->request->getParam('authors', '0') === '1' ? 'authors' : ((string)$this->request->getParam('duplicates', '0') === '1' ? 'duplicates' : ((string)$this->request->getParam('infer', '0') === '1' ? 'inference' : 'lists')), 'items' => [], 'activeFilters' => (object)[], 'cataloguePagination' => (object)[],
                 'language' => $language, 'direction' => $this->l10nFactory->getLanguageDirection($language),
                 'catalogueRootUrl' => $catalogueUrl,
                 'homeUrl' => $catalogueUrl . '?home=1', 'shelvesUrl' => $catalogueUrl . '?shelves=1',
