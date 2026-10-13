@@ -2,6 +2,8 @@
 
 ## 0.2.0-beta.2
 
+- Update DOMPurify to 3.4.17 and source-map-js to 1.2.2 to resolve current dependency advisories.
+
 - Import dedicated series names and positions from Calibre and EPUB 3 metadata, preserving fractional positions and leading zeros.
 - Keep series positions paired with their source series when applying OPF sidecars; missing positions remain unknown.
 - Refresh cached metadata after the importer revision changes while preserving manual corrections.
