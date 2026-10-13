@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 NORMAL_KEYS = {
-    "id", "title", "creators", "authors", "publicationType", "publication",
+    "id", "title", "creators", "authors", "displayCreators", "canonicalAuthors", "publicationType", "publication",
     "publicationDate", "description", "starred", "workflowStatus",
     "lastOpenedAt", "extension", "shelf", "scanStatus", "scanError",
     "hasScannerConflict", "scannerConflictCount", "nextcloudTags",

@@ -1032,7 +1032,6 @@
         "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية.",
         "Edit pattern": "تحرير النمط",
         "Suggested assignments": "التعيينات المقترحة",
-        "This author changed in another tab. Reload before saving again. Your draft is preserved.": "تغيّر هذا المؤلف في علامة تبويب أخرى. أعد التحميل قبل الحفظ. ستبقى مسودتك محفوظة.",
         "Could not load or save the author. Check the fields and reload before retrying.": "تعذر تحميل المؤلف أو حفظه. تحقق من الحقول وأعد التحميل قبل المحاولة مجددًا.",
         "Author saved. Original book credits are preserved.": "تم حفظ المؤلف. حُفظت بيانات المؤلف الأصلية في الكتب.",
         "All authors": "كل المؤلفين",
@@ -1065,7 +1064,36 @@
             "%n كتابًا",
             "%n كتاب"
         ],
-        "Author migration must finish before editing. Refresh to check progress.": "يجب اكتمال ترحيل المؤلفين قبل التعديل. حدّث الصفحة للتحقق من التقدم."
+        "Author migration must finish before editing. Refresh to check progress.": "يجب اكتمال ترحيل المؤلفين قبل التعديل. حدّث الصفحة للتحقق من التقدم.",
+        "The author or affected books changed. Reload and review again. Your draft is preserved.": "تغيّر المؤلف أو الكتب المعنية. أعد التحميل والمراجعة. تم الاحتفاظ بمسودتك.",
+        "Author assignments saved. Original credits are preserved. Undo is available in Recent changes.": "حُفظت إسنادات المؤلفين مع الاحتفاظ بالبيانات الأصلية. يمكن التراجع ضمن التغييرات الأخيرة.",
+        "Author change undone.": "تم التراجع عن تغيير المؤلف.",
+        "Open merged author": "فتح المؤلف المدمج",
+        "Merge or reassign": "دمج أو إعادة إسناد",
+        "Books to change": "الكتب المراد تغييرها",
+        "Leave all books unselected to merge this author. Select individual books below to reassign only those credits, keeping both authors.": "اترك الكتب دون تحديد لدمج هذا المؤلف. حدد كتبًا أدناه لإعادة إسنادها فقط مع الاحتفاظ بكلا المؤلفين.",
+        "Merge all books into the chosen author": "دمج جميع الكتب ضمن المؤلف المختار",
+        "Find destination author": "البحث عن المؤلف الوجهة",
+        "Destination author": "المؤلف الوجهة",
+        "Choose an author": "اختر مؤلفًا",
+        "Review change": "مراجعة التغيير",
+        "Merge these authors. Future imports of the old name will use the destination author.": "دمج هذين المؤلفين. ستستخدم الواردات المستقبلية للاسم القديم المؤلف الوجهة.",
+        "Reassign these books. Both author records remain available.": "إعادة إسناد هذه الكتب. يبقى سجلا المؤلفين متاحين.",
+        "Confirm author change": "تأكيد تغيير المؤلف",
+        "Recent changes": "التغييرات الأخيرة",
+        "_%n selected book_::_%n selected books_": [
+            "%n كتب محددة",
+            "%n كتاب محدد",
+            "%n كتابان محددان",
+            "%n كتب محددة",
+            "%n كتابًا محددًا",
+            "%n كتاب محدد"
+        ],
+        "Select {title}": "تحديد {title}",
+        "Undo": "تراجع",
+        "Create separate author": "إنشاء مؤلف مستقل",
+        "Creates a new person using the entered name, even if someone with that name already exists.": "ينشئ شخصًا جديدًا بالاسم المُدخل، حتى إن وُجد شخص بهذا الاسم.",
+        "This change is too large. Select fewer books to reassign.": "هذا التغيير كبير جدًا. اختر كتبًا أقل لإعادة الإسناد."
     },
     "pluralForm": "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 }

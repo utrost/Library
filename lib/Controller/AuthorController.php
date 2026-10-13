@@ -13,7 +13,7 @@ use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
 final class AuthorController extends Controller {
-    public function __construct(string $appName, IRequest $request, private AuthorDirectoryService $authors, private IUserSession $session, private LoggerInterface $logger) { parent::__construct($appName, $request); }
+    public function __construct(string $appName, IRequest $request, private AuthorDirectoryService $authors, private \OCA\Library\Service\AuthorAssignmentService $assignments, private IUserSession $session, private LoggerInterface $logger) { parent::__construct($appName, $request); }
     #[NoAdminRequired]
     #[NoCSRFRequired]
     public function index(): JSONResponse {
@@ -33,6 +33,28 @@ final class AuthorController extends Controller {
             return $this->authors->page($uid, $authorId);
         });
     }
+    #[NoAdminRequired]
+    public function create(): JSONResponse { return $this->respond(fn($uid) => $this->authors->create($uid, $this->text('name'))); }
+    #[NoAdminRequired]
+    public function preview(int $authorId): JSONResponse {
+        return $this->respond(fn($uid) => $this->assignments->preview($uid, $authorId, $this->integer('target'), $this->selected()));
+    }
+    #[NoAdminRequired]
+    public function assign(int $authorId): JSONResponse {
+        return $this->respond(fn($uid) => $this->assignments->apply($uid, $authorId, $this->integer('target'), $this->selected(), $this->text('token')));
+    }
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function history(): JSONResponse { return $this->respond(fn($uid) => $this->assignments->history($uid)); }
+    #[NoAdminRequired]
+    public function undo(string $operationId): JSONResponse {
+        return $this->respond(function ($uid) use ($operationId) { $this->assignments->undo($uid, $operationId); return ['undone' => true]; });
+    }
+    private function selected(): array {
+        $ids = $this->request->getParam('items', []);
+        if (!is_array($ids) || !array_is_list($ids)) throw new \InvalidArgumentException('items');
+        return $ids;
+    }
     private function text(string $key): string { $v=$this->request->getParam($key,''); if (!is_string($v)) throw new \InvalidArgumentException($key); return $v; }
     private function integer(string $key, ?int $default=null): int {
         $v=$this->request->getParam($key,$default);
@@ -46,6 +68,7 @@ final class AuthorController extends Controller {
         catch (\OCA\Library\Exception\AuthorMigrationPendingException) { return new JSONResponse(['error'=>'migration_pending'],503,$headers); }
         catch (ListConflictException) { return new JSONResponse(['error'=>'conflict'],409,$headers); }
         catch (\OutOfBoundsException) { return new JSONResponse(['error'=>'not_found'],404,$headers); }
+        catch (\LengthException) { return new JSONResponse(['error'=>'author_operation_limit','limit'=>500],413,$headers); }
         catch (\InvalidArgumentException) { return new JSONResponse(['error'=>'invalid_input'],422,$headers); }
         catch (\Throwable $e) { $this->logger->error('Library author operation failed',['exception'=>$e]); return new JSONResponse(['error'=>'operation_failed'],500,$headers); }
     }

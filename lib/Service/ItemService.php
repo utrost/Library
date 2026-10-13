@@ -119,6 +119,7 @@ final class ItemService {
     public function __construct(
         private IDBConnection $db,
         private ?DuplicateIndexService $duplicateIndex = null,
+        private ?AuthorDisplayService $authorDisplay = null,
     ) {
     }
 
@@ -905,8 +906,8 @@ final class ItemService {
             ->addOrderBy('i.id', 'DESC');
 
         return [
-            'continueReading' => $this->fetchBoundedCatalogueRows($continueQuery, $rowLimit),
-            'recentlyAdded' => $this->fetchBoundedCatalogueRows($recentQuery, $rowLimit),
+            'continueReading' => $this->fetchBoundedCatalogueRows($continueQuery, $rowLimit, $userId),
+            'recentlyAdded' => $this->fetchBoundedCatalogueRows($recentQuery, $rowLimit, $userId),
         ];
     }
 
@@ -1076,14 +1077,14 @@ final class ItemService {
     }
 
     /** @return array<int, array<string, mixed>> */
-    private function fetchBoundedCatalogueRows(IQueryBuilder $qb, int $limit): array {
+    private function fetchBoundedCatalogueRows(IQueryBuilder $qb, int $limit, string $userId): array {
         $result = $qb->setFirstResult(0)->setMaxResults($limit)->executeQuery();
         $items = [];
         while ($row = $result->fetch()) {
             $items[] = $this->normalizeJoinedItemRow($row);
         }
         $result->closeCursor();
-        return $items;
+        return $this->authorDisplay?->decorate($userId, $items) ?? $items;
     }
 
     /**
@@ -1235,7 +1236,7 @@ final class ItemService {
         $items = array_map(fn(array $row): array => $this->normalizeJoinedItemRow($row, $identifiers[(int)$row['id']] ?? []), $rows);
 
         return [
-            'items' => $items,
+            'items' => $this->authorDisplay?->decorate($userId, $items) ?? $items,
             'nextCursor' => $sort === 'title' && $rows !== [] ? CatalogueCursor::encode($userId, $filters, $limit, $rows[array_key_last($rows)], 'next') : '',
             'previousCursor' => $sort === 'title' && $rows !== [] ? CatalogueCursor::encode($userId, $filters, $limit, $rows[0], 'previous') : '',
             'total' => $this->countCatalogueItems($userId, $filters),
@@ -1292,7 +1293,7 @@ final class ItemService {
         $result->closeCursor();
 
         return [
-            'items' => array_slice($conflictingItems, $offset, $limit),
+            'items' => $this->authorDisplay?->decorate($userId, array_slice($conflictingItems, $offset, $limit)) ?? array_slice($conflictingItems, $offset, $limit),
             'total' => count($conflictingItems),
             'facets' => $includeFacets ? $this->catalogueFacets($userId, $filters) : $this->emptyCatalogueFacets(),
         ];
@@ -1357,7 +1358,8 @@ final class ItemService {
             return null;
         }
 
-        return $this->normalizeJoinedItemRow($row);
+        $item = $this->normalizeJoinedItemRow($row);
+        return $this->authorDisplay?->decorate($userId, [$item])[0] ?? $item;
     }
 
     public function exportCorrectedMetadata(string $userId): array {

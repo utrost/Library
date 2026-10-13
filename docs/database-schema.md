@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3.0-alpha.1**, 2026-10-13. Covers 28 app-owned tables through `Version000300Date20261013120000`. The author additions passed fresh installation and populated upgrade on SQLite NC34 and are deployed on MariaDB developer NC34.
+Snapshot: **0.3.0-alpha.2**, 2026-10-13. Covers 29 app-owned tables through `Version000300Date20261013180000`. The author additions passed fresh installation and populated upgrade on SQLite NC34 and are deployed on MariaDB developer NC34.
 
 ## Schema ownership
 
@@ -18,8 +18,9 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 
 | Table | Fields | Indexes | Purpose |
 | --- | ---: | ---: | --- |
-| `library_authors` | 10 | 3 | Per-user identities, conservative comparison keys, preferred/sort names and provenance. |
+| `library_authors` | 11 | 3 | Per-user identities, conservative comparison keys, preferred/sort names and provenance. |
 | `library_item_authors` | 9 | 3 | Ordered author relationships and original credits; unique user/item/position. |
+| `library_author_operations` | 9 | 2 | Account-private before/after journal, bounded payload, small history summaries and conditional undo. |
 | `library_author_state` | 2 | 1 | Per-user transaction coordination for identity reuse. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
 | `library_files` | 17 | 8 | Nextcloud file identity, observed paths/revisions and scan diagnostics. |
@@ -68,3 +69,9 @@ Expiry and deletion behavior is documented in [metadata storage](metadata-storag
 `library_items.author_sync_status` is an indexed small integer: 0 = synced shadow relationships, 1 = pending, 2 = protected-assignment conflict, 3 = failed. Existing and new rows default to pending. Author-changing writes requeue the row atomically; bounded cron batches reconcile current metadata under an item lock. Per-user coordination serializes identity reuse, while non-unique comparison keys allow homonyms. No full-library backfill runs during the schema upgrade.
 
 The old arrays remain authoritative until the later read-integration slice explicitly switches over. See the [author implementation concept and operator commands](v0.3-author-management.md#storage-slice--030-alpha1). Fresh and populated-upgrade checks and full-library backfill measurements are recorded in the [0.3-alpha.1 report](compatibility-evidence/2026-10-13-author-management-alpha1/README.md). The earlier complete Doctrine-to-XML replay above applies only to the older schema; the XML contract now includes all author fields and indexes.
+
+### Assignment and display additions (0.3.0-alpha.2)
+
+`merged_into` is a nullable bigint redirect to the surviving identity, scoped and checked in the service. Existing identities and ordered relationships survive upgrade unchanged. `library_author_operations` stores a random 32-character operation ID, user, Unix creation time in seconds, undo flag, source/target name summaries, book count, merge flag and a text payload sized for up to 16 MiB; application writes cap it at 8 MiB. The user/time/ID index serves the recent-history view without fetching payloads. No history expiry is applied yet. Account cleanup deletes the journal with the other author tables.
+
+Preferred display fields are calculated for bounded read results; no new denormalized item columns are added. Source fields remain the input for metadata editing and exports. The previous alpha.1 transition description remains historical; see the current [assignment slice](v0.3-author-management.md#assignment-slice--030-alpha2).

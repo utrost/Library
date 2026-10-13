@@ -981,7 +981,6 @@ OC.L10N.register(
         "{matched} of {total} paths on this page match this structure.": "{matched} von {total} Pfaden auf dieser Seite entsprechen dieser Struktur.",
         "Edit pattern": "Muster bearbeiten",
         "Suggested assignments": "Vorgeschlagene Zuordnungen",
-        "This author changed in another tab. Reload before saving again. Your draft is preserved.": "Dieser Autor wurde in einem anderen Browserfenster geändert. Lade vor dem Speichern neu. Dein Entwurf bleibt erhalten.",
         "Could not load or save the author. Check the fields and reload before retrying.": "Autor konnte nicht geladen oder gespeichert werden. Prüfe die Felder und lade vor einem erneuten Versuch neu.",
         "Author saved. Original book credits are preserved.": "Autor gespeichert. Ursprüngliche Buchangaben bleiben erhalten.",
         "All authors": "Alle Autoren",
@@ -1010,7 +1009,32 @@ OC.L10N.register(
             "%n Buch",
             "%n Bücher"
         ],
-        "Author migration must finish before editing. Refresh to check progress.": "Die Autorenmigration muss vor der Bearbeitung abgeschlossen sein. Aktualisiere die Ansicht, um den Fortschritt zu prüfen."
+        "Author migration must finish before editing. Refresh to check progress.": "Die Autorenmigration muss vor der Bearbeitung abgeschlossen sein. Aktualisiere die Ansicht, um den Fortschritt zu prüfen.",
+        "The author or affected books changed. Reload and review again. Your draft is preserved.": "Der Autor oder betroffene Bücher wurden geändert. Laden und prüfen Sie erneut. Ihr Entwurf bleibt erhalten.",
+        "Author assignments saved. Original credits are preserved. Undo is available in Recent changes.": "Autorenzuordnungen gespeichert. Ursprüngliche Angaben bleiben erhalten. Rückgängig machen ist unter Letzte Änderungen verfügbar.",
+        "Author change undone.": "Autorenänderung rückgängig gemacht.",
+        "Open merged author": "Zusammengeführten Autor öffnen",
+        "Merge or reassign": "Zusammenführen oder neu zuordnen",
+        "Books to change": "Zu ändernde Bücher",
+        "Leave all books unselected to merge this author. Select individual books below to reassign only those credits, keeping both authors.": "Wählen Sie keine Bücher aus, um diesen Autor zusammenzuführen. Wählen Sie unten einzelne Bücher zur Neuzuordnung aus, wobei beide Autoren erhalten bleiben.",
+        "Merge all books into the chosen author": "Alle Bücher dem gewählten Autor zuordnen und Autoren zusammenführen",
+        "Find destination author": "Zielautor suchen",
+        "Destination author": "Zielautor",
+        "Choose an author": "Autor auswählen",
+        "Review change": "Änderung prüfen",
+        "Merge these authors. Future imports of the old name will use the destination author.": "Diese Autoren zusammenführen. Künftige Importe des alten Namens verwenden den Zielautor.",
+        "Reassign these books. Both author records remain available.": "Diese Bücher neu zuordnen. Beide Autoreneinträge bleiben verfügbar.",
+        "Confirm author change": "Autorenänderung bestätigen",
+        "Recent changes": "Letzte Änderungen",
+        "_%n selected book_::_%n selected books_": [
+            "%n ausgewähltes Buch",
+            "%n ausgewählte Bücher"
+        ],
+        "Select {title}": "{title} auswählen",
+        "Undo": "Rückgängig machen",
+        "Create separate author": "Eigenständigen Autor erstellen",
+        "Creates a new person using the entered name, even if someone with that name already exists.": "Erstellt einen eigenständigen Autor mit der eingegebenen Bezeichnung, auch wenn sie bereits vorhanden ist.",
+        "This change is too large. Select fewer books to reassign.": "Diese Änderung ist zu groß. Wählen Sie weniger Bücher zur Neuzuordnung."
     },
     "nplurals=2; plural=(n != 1);"
 );

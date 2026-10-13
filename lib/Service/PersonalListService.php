@@ -19,6 +19,7 @@ final class PersonalListService {
         private IDBConnection $db,
         private IRootFolder $rootFolder,
         private IURLGenerator $urlGenerator,
+        private ?AuthorDisplayService $authorDisplay = null,
     ) {}
 
     public function lists(string $userId, ?int $itemId = null): array {
@@ -257,7 +258,7 @@ final class PersonalListService {
         $rows = [];
         foreach ($result->fetchAll() as $row) $rows[(int)$row['id']] = $row;
         $result->closeCursor();
-        return $rows;
+        return $this->authorDisplay?->decorate($userId, $rows) ?? $rows;
     }
 
     /** Resolve current permissions before exposing bibliographic data, including after a share revocation. */
@@ -277,7 +278,7 @@ final class PersonalListService {
         }
         return [
             'id' => (int)$row['id'], 'fileId' => (int)$row['file_id'], 'title' => (string)$row['title'],
-            'creators' => (string)($row['creators'] ?? ''),
+            'creators' => (string)($row['displayCreators'] ?? $row['creators'] ?? ''),
             'openUrl' => $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $itemId]),
             'detailsUrl' => $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]),
             'coverUrl' => $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $itemId]),

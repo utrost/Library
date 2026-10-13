@@ -981,7 +981,6 @@ OC.L10N.register(
         "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure.",
         "Edit pattern": "Edit pattern",
         "Suggested assignments": "Suggested assignments",
-        "This author changed in another tab. Reload before saving again. Your draft is preserved.": "This author changed in another tab. Reload before saving again. Your draft is preserved.",
         "Could not load or save the author. Check the fields and reload before retrying.": "Could not load or save the author. Check the fields and reload before retrying.",
         "Author saved. Original book credits are preserved.": "Author saved. Original book credits are preserved.",
         "All authors": "All authors",
@@ -1010,7 +1009,32 @@ OC.L10N.register(
             "%n book",
             "%n books"
         ],
-        "Author migration must finish before editing. Refresh to check progress.": "Author migration must finish before editing. Refresh to check progress."
+        "Author migration must finish before editing. Refresh to check progress.": "Author migration must finish before editing. Refresh to check progress.",
+        "The author or affected books changed. Reload and review again. Your draft is preserved.": "The author or affected books changed. Reload and review again. Your draft is preserved.",
+        "Author assignments saved. Original credits are preserved. Undo is available in Recent changes.": "Author assignments saved. Original credits are preserved. Undo is available in Recent changes.",
+        "Author change undone.": "Author change undone.",
+        "Open merged author": "Open merged author",
+        "Merge or reassign": "Merge or reassign",
+        "Books to change": "Books to change",
+        "Leave all books unselected to merge this author. Select individual books below to reassign only those credits, keeping both authors.": "Leave all books unselected to merge this author. Select individual books below to reassign only those credits, keeping both authors.",
+        "Merge all books into the chosen author": "Merge all books into the chosen author",
+        "Find destination author": "Find destination author",
+        "Destination author": "Destination author",
+        "Choose an author": "Choose an author",
+        "Review change": "Review change",
+        "Merge these authors. Future imports of the old name will use the destination author.": "Merge these authors. Future imports of the old name will use the destination author.",
+        "Reassign these books. Both author records remain available.": "Reassign these books. Both author records remain available.",
+        "Confirm author change": "Confirm author change",
+        "Recent changes": "Recent changes",
+        "_%n selected book_::_%n selected books_": [
+            "%n selected book",
+            "%n selected books"
+        ],
+        "Select {title}": "Select {title}",
+        "Undo": "Undo",
+        "Create separate author": "Create separate author",
+        "Creates a new person using the entered name, even if someone with that name already exists.": "Creates a new person using the entered name, even if someone with that name already exists.",
+        "This change is too large. Select fewer books to reassign.": "This change is too large. Select fewer books to reassign."
     },
     "nplurals=2; plural=(n != 1);"
 );

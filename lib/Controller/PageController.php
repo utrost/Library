@@ -30,9 +30,9 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const APP_VERSION = '0.3.0-alpha.1';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-1-compact-list-table-cover-96-fit-v4';
-    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-1-compact-list-table-cover-96-fit-v4';
+    private const APP_VERSION = '0.3.0-alpha.2';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-2-compact-list-table-cover-96-fit-v4';
+    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-2-compact-list-table-cover-96-fit-v4';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -40,7 +40,7 @@ class PageController extends Controller {
     private const READER_FIXTURE_FILE_ID = 82;
 
     private const CATALOGUE_ITEM_KEYS = [
-        'id', 'title', 'creators', 'authors', 'publicationType', 'publication',
+        'id', 'title', 'creators', 'authors', 'displayCreators', 'canonicalAuthors', 'publicationType', 'publication',
         'publicationDate', 'description', 'starred', 'workflowStatus',
         'lastOpenedAt', 'extension', 'shelf', 'scanStatus', 'scanError',
         'hasScannerConflict', 'scannerConflictCount', 'nextcloudTags',

@@ -14,7 +14,7 @@ final class AuthorDirectoryService {
     }
     public function directory(string $uid, string $search = '', int $page = 1, bool $unused = false): array {
         if (mb_strlen($search) > 255 || $page < 1 || $page > 100000) throw new \InvalidArgumentException('page_or_search');
-        $where = 'a.user_id = ?'; $params = [$uid];
+        $where = 'a.user_id = ? AND a.merged_into IS NULL'; $params = [$uid];
         if ($search !== '') {
             // Literal prefix search avoids an unbounded leading-wildcard scan.
             $where .= " AND (LOWER(a.sort_name) LIKE ? ESCAPE '!' OR LOWER(a.display_name) LIKE ? ESCAPE '!')";
@@ -32,7 +32,22 @@ final class AuthorDirectoryService {
         $rows = $this->rows('SELECT DISTINCT i.id,i.title,i.creators FROM *PREFIX*library_item_authors l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id WHERE l.user_id=? AND l.author_id=? ORDER BY i.id LIMIT 51 OFFSET ' . (($page - 1) * 50), [$uid, $id]);
         $count = $this->rows('SELECT COUNT(DISTINCT item_id) AS n FROM *PREFIX*library_item_authors WHERE user_id=? AND author_id=?', [$uid, $id])[0];
         $migration = $this->storage->status($uid);
-        return ['canEdit' => $migration['pending'] === 0 && $migration['failed'] === 0, 'author' => $author, 'books' => array_slice($rows, 0, 50), 'bookCount' => (int)$count['n'], 'hasNext' => count($rows) > 50, 'page' => $page];
+        return ['canEdit' => $author['merged_into'] === null && $migration['pending'] === 0 && $migration['failed'] === 0, 'author' => $author, 'books' => array_slice($rows, 0, 50), 'bookCount' => (int)$count['n'], 'hasNext' => count($rows) > 50, 'page' => $page];
+    }
+    /** Explicit creation allows homonyms; no automatic name-based reuse. */
+    public function create(string $uid, string $name): array {
+        $values = AuthorIdentity::name($name) + ['user_id' => $uid, 'revision' => 1,
+            'field_sources' => json_encode(['display_name' => 'manual', 'sort_name' => 'manual'], JSON_THROW_ON_ERROR)];
+        $this->db->beginTransaction();
+        try {
+            $this->db->insertIfNotExist('*PREFIX*library_author_state', ['user_id' => $uid, 'updated_at' => 0], ['user_id']);
+            $this->db->executeStatement('UPDATE *PREFIX*library_author_state SET updated_at=? WHERE user_id=?', [time(), $uid]);
+            $q = $this->db->getQueryBuilder();
+            $q->insert('library_authors')->values(array_map(fn($v) => $q->createNamedParameter($v), $values))->executeStatement();
+            $id = (int)$this->db->lastInsertId('library_authors');
+            $this->db->commit();
+        } catch (\Throwable $e) { $this->db->rollBack(); throw $e; }
+        return $this->page($uid, $id)['author'];
     }
     public function update(string $uid, int $id, int $revision, array $fields): void {
         $migration = $this->storage->status($uid);
@@ -59,7 +74,8 @@ final class AuthorDirectoryService {
             $qb = $this->db->getQueryBuilder();
             $qb->update('library_authors')->where($qb->expr()->eq('user_id', $qb->createNamedParameter($uid)))
                 ->andWhere($qb->expr()->eq('id', $qb->createNamedParameter($id)))
-                ->andWhere($qb->expr()->eq('revision', $qb->createNamedParameter($revision)));
+                ->andWhere($qb->expr()->eq('revision', $qb->createNamedParameter($revision)))
+                ->andWhere($qb->expr()->isNull('merged_into'));
             foreach ($values as $key => $value) $qb->set($key, $qb->createNamedParameter($value));
             if ($qb->executeStatement() !== 1) {
                 $exists = $this->rows('SELECT id FROM *PREFIX*library_authors WHERE user_id=? AND id=?', [$uid, $id]);

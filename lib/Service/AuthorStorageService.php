@@ -103,8 +103,20 @@ final class AuthorStorageService {
 
     private function resolve(string $uid, string $credit): int {
         $name = AuthorIdentity::name($credit);
-        $matches = $this->rows('SELECT id FROM *PREFIX*library_authors WHERE user_id = ? AND comparison_key = ? AND normalization_version = ? ORDER BY id LIMIT 2' . ($this->db->getDatabaseProvider() === 'sqlite' ? '' : ' FOR UPDATE'), [$uid, $name['comparison_key'], AuthorIdentity::VERSION]);
-        if (count($matches) === 1) return (int)$matches[0]['id'];
+        $matches = $this->rows('SELECT id,merged_into FROM *PREFIX*library_authors WHERE user_id = ? AND comparison_key = ? AND normalization_version = ? ORDER BY id LIMIT 101' . ($this->db->getDatabaseProvider() === 'sqlite' ? '' : ' FOR UPDATE'), [$uid, $name['comparison_key'], AuthorIdentity::VERSION]);
+        $resolved = [];
+        if (count($matches) <= 100) foreach ($matches as $match) {
+            $id = (int)$match['id'];
+            for ($depth = 0; $depth < 32; $depth++) {
+                $author = $depth === 0 ? $match : ($this->rows('SELECT id,merged_into FROM *PREFIX*library_authors WHERE user_id=? AND id=?' . ($this->db->getDatabaseProvider() === 'sqlite' ? '' : ' FOR UPDATE'), [$uid, $id])[0] ?? null);
+                if ($author === null) throw new \RuntimeException('Missing merged author');
+                if ($author['merged_into'] === null) { $resolved[$id] = true; break; }
+                $id = (int)$author['merged_into'];
+            }
+            if ($depth === 32) throw new \RuntimeException('Author redirect chain too long');
+            if (count($resolved) > 1) break; // Distinct homonyms must remain ambiguous.
+        }
+        if (count($resolved) === 1) return (int)array_key_first($resolved);
         $qb = $this->db->getQueryBuilder();
         $values = $name + ['user_id' => $uid, 'revision' => 1, 'field_sources' => json_encode(['display_name' => 'credit', 'sort_name' => 'credit'], JSON_THROW_ON_ERROR)];
         $qb->insert('library_authors')->values(array_map(fn($value) => $qb->createNamedParameter($value), $values))->executeStatement();

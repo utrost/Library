@@ -1,0 +1,9 @@
+{
+  "firstMs": 1234.9796809999998,
+  "warmMedianMs": 996.8753099999994,
+  "warmMaxMs": 1042.6533929999996,
+  "samples": 6,
+  "rows": 50,
+  "pageErrors": 0,
+  "mobileFits": true
+}

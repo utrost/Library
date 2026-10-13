@@ -28,6 +28,8 @@ deploy() {
   docker exec "$instance" chown -R www-data:www-data /var/www/html/custom_apps/library
   docker exec -u www-data "$instance" php occ app:enable library
   docker exec -u www-data "$instance" php occ upgrade
+  # Same-version redeploys must invalidate Apache OPcache as well as CLI code.
+  docker exec "$instance" apache2ctl -k graceful
   echo "deployed=$instance"
 }
 
