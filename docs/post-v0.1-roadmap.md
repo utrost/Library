@@ -1,6 +1,6 @@
 # Rough roadmap after v0.1
 
-Development status: `0.3.0-alpha.1`, updated 2026-10-13. Version 0.3 is the first planned App Store release. Signed `0.2.0-beta.3` remains the verified release baseline; author storage, browsing and editing are deployed on developer NC34.
+Development status: `0.3.0-alpha.2`, updated 2026-10-13. Version 0.3 is the first planned App Store release. Signed `0.2.0-beta.3` remains the verified release baseline; author storage, browsing and editing are deployed on developer NC34.
 
 Alpha.21: [Automatic scans](automatic-scans.md) are implemented with per-account intervals, existing scan history and unchanged-file extraction skips. Alpha.23 implements bounded folder traversal; event-driven file updates and additional scan SQL reduction remain future work.
 
@@ -194,3 +194,5 @@ Prefer this order unless testing says otherwise:
 5. Integrate deeper reading state.
 
 That keeps Library faithful to its core idea: files stay in Nextcloud, metadata improvements stay inspectable, and user corrections stay safe.
+
+Latest author assignment implementation and developer verification: [0.3-alpha.2 report](compatibility-evidence/2026-10-13-author-assignments-alpha2/README.md).

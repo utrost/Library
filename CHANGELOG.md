@@ -6,7 +6,10 @@
 - Preserve source credits, author order and existing library metadata; compare names conservatively without guessing comma conventions or expanding initials.
 - Queue author changes from imports, edits and inference Apply/Undo; expose migration counts and retry through `occ library:authors:migrate`.
 - Add an Authors directory with prefix search, paged books, unused-author filtering and revision-protected name editing. Preserve preferred names on rescans.
-- This development slice retains existing catalogue author fields as authoritative. Merging, reassignment, canonical catalogue author filtering and the full 0.3 release verification are still pending. Version 0.3 will be the first App Store submission.
+- Add reviewed author merging, selected-book reassignment, explicit homonym creation and conditional undo, with private durable history and redirects for later imports.
+- Show preferred names on catalogue/Home, list entries and publication headings without rewriting source credits. Keep identity-linked sidebar navigation separate from legacy text filters.
+- Bound interactive author changes to 500 books / 8 MiB of history; larger background merges, canonical search/filter/duplicate integration and the full 0.3 release verification remain pending.
+- Reload Apache after disposable-instance redeploys so same-version route changes are not hidden by OPcache. Version 0.3 remains the first planned App Store submission.
 
 ## 0.2.0-beta.3
 

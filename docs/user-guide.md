@@ -729,4 +729,17 @@ Choose **Edit author** to set the preferred name, sort name and optional given/f
 
 The initial author migration runs in background batches. Progress and failures appear in the directory; editing becomes available once pending work and failures are resolved. Administrators can inspect or retry using `occ library:authors:migrate USER_ID` (see the [migration commands](v0.3-author-management.md#storage-slice--030-alpha1)).
 
-In this development slice, preferred names appear in author pages. Existing catalogue author strings, filters and duplicate detection still use their earlier metadata. Merging, reassigning books, creator-sort import and the canonical catalogue transition follow in later 0.3 slices. A changed source credit for a manually corrected author is flagged for review instead of silently replacing that identity.
+Preferred names appear on catalogue cards, Home, list entries and publication headings. Author chips in the publication sidebar open the corresponding identity. Original credits remain in the metadata editor and are not written back to ebook files. Creator text filters, sorting, free-text search and duplicate detection still use source metadata; full identity-based search is a later 0.3 step. A changed source credit for a manually corrected author is flagged for review instead of silently replacing that identity.
+
+### Merge duplicate author names or separate different people
+
+1. Open the source author and choose **Merge or reassign**.
+2. Leave books unselected to merge the whole author. To move only particular credits, select those books. Selection is limited to the displayed page and resets on pagination.
+3. Search for the **Destination author** and select it. For a different person who happens to have the same name, enter the name and choose **Create separate author**; creation never silently reuses another identity.
+4. Choose **Review change**, check the titles and original credits, then **Confirm author change**.
+
+The destination retains its preferred name. A merge retires the source identity and routes later imports of that spelling to the destination. A reassignment keeps both identities. When a book credits both merged names, the earliest position is retained and the original book metadata remains intact.
+
+**Recent changes** shows the latest 20 operations across your account and offers **Undo**. Undo restores affected relationships only if those books/assignments still match the recorded state. It preserves later imports and unrelated books. A changed or deleted affected book causes a conflict instead of overwriting newer work. Changes are transactional, account-private and protected against stale previews.
+
+Interactive operations are limited to 500 books and an 8 MiB undo payload. Larger merges need the planned background workflow. Operation history is retained until account deletion; there is no automatic expiry in this alpha.

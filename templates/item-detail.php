@@ -146,7 +146,7 @@ $scanStatusLabels = [
                     <p class="library-muted"><?php p($l->t('Publication details')); ?></p>
                     <h2 id="library-item-detail-heading"><bdi class="library-bidi-human" dir="auto"><?php p((string)($item['title'] ?? $l->t('Untitled publication'))); ?></bdi></h2>
                     <?php if (($item['creators'] ?? '') !== ''): ?>
-                        <p class="library-creator"><bdi class="library-bidi-human" dir="auto"><?php p((string)$item['creators']); ?></bdi></p>
+                        <p class="library-creator"><bdi class="library-bidi-human" dir="auto"><?php p((string)($item['displayCreators'] ?? $item['creators'])); ?></bdi></p>
                     <?php endif; ?>
                     <p class="library-muted"><bdi class="library-bidi-machine" dir="ltr"><?php p((string)($item['publicationDate'] ?? '')); ?></bdi>
                         <?php p($publicationTypes[(string)($item['publicationType'] ?? 'other')] ?? $publicationTypes['other']); ?>
