@@ -8147,7 +8147,7 @@ try {
 const K0 = wb;
 let G0 = "";
 try {
-  G0 = "0.2.0-beta.2";
+  G0 = "0.2.0-beta.3";
 } catch {
   ar.error("The `@nextcloud/vue` library was used without setting / replacing the `appVersion`.");
 }

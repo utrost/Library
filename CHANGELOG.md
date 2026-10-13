@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0-beta.3
+
+- Suppress title/author duplicate suggestions when issue, volume or stored series positions conflict.
+- Treat leading-zero and equivalent decimal positions consistently while retaining shared ISBN and identical-content evidence.
+- Include stored series metadata in both background duplicate scans and catalogue suggestions.
+- Point App Store screenshots to the matching public release tag.
+
 ## 0.2.0-beta.2
 
 - Update DOMPurify to 3.4.17 and source-map-js to 1.2.2 to resolve current dependency advisories.

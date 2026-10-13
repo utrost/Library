@@ -4,7 +4,7 @@ declare(strict_types=1);
 $count=0;function dupCheck(bool $ok,string $message):void {global $count;if(!$ok)throw new RuntimeException($message);$count++;}
 $all=function($id)use($duplicates,$user){$pairs=[];$page=1;do{$result=$duplicates->get($user,$id,$page++,'all');$pairs=[...$pairs,...$result['pairs']];}while($result['hasNext']);return $pairs;};
 $finish=function($id)use($duplicates,$user){for($i=0;$i<30&&$duplicates->get($user,$id)['status']==='running';$i++)$duplicates->advance($user,$id,100);dupCheck($duplicates->get($user,$id)['status']==='completed','Scan completed');};
-$job=$duplicates->start($user,$state['rootId'],true);$id=$job['id'];dupCheck($job['total']===14,'All 14 fixture books counted');
+$job=$duplicates->start($user,$state['rootId'],true);$id=$job['id'];dupCheck($job['total']===count($state['files']),'All fixture books counted');
 try{$duplicates->get('library-non-owner',$id);throw new RuntimeException('Cross-owner access accepted');}catch(OutOfBoundsException){}
 $duplicates->advance($user,$id,2);dupCheck($duplicates->get($user,$id)['processed']>=2,'Bounded progress');$duplicates->stop($user,$id);$duplicates->advance($user,$id);dupCheck($duplicates->get($user,$id)['status']==='cancelled','Cancellation');$duplicates->discard($user,$id);
 $job=$duplicates->start($user,$state['rootId'],true);$id=$job['id'];$finish($id);$pairs=$all($id);dupCheck(count($pairs)>10,'Pagination');dupCheck(count(array_unique(array_column($pairs,'id')))===count($pairs),'No repeated pairs');
@@ -32,4 +32,4 @@ $cleanup=\OC::$server->get(\OCA\Library\Service\LibraryCleanupService::class);$c
 foreach(['library_dup_books','library_dup_keys','library_dup_pairs','library_dup_jobs'] as $table){$q=$db->getQueryBuilder();$r=$q->select($q->func()->count('*','n'))->from($table)->where($q->expr()->eq($table==='library_dup_jobs'?'id':'job_id',$q->createNamedParameter($second['id'])))->executeQuery();dupCheck((int)$r->fetchOne()===0,'Expired table cleaned '.$table);$r->closeCursor();}
 foreach([$alternative,$isbn] as $pair)$duplicates->decide($user,$id,$pair['id'],$pair['signature'],'unreviewed',0);
 $duplicates->discard($user,$id);
-echo json_encode(['passed'=>true,'assertions'=>$count,'scope14'=>true,'ownership'=>true,'cancel'=>true,'exactRenamed'=>true,'alternativeFormats'=>true,'fuzzyTitle'=>true,'isbn'=>true,'editionFlags'=>true,'falsePositiveExcluded'=>true,'pagination'=>true,'persistentDecisions'=>true,'staleRejected'=>true,'quota'=>true,'expiryCleanup'=>true]),PHP_EOL;
+echo json_encode(['passed'=>true,'assertions'=>$count,'fixtureBooks'=>count($state['files']),'ownership'=>true,'cancel'=>true,'exactRenamed'=>true,'alternativeFormats'=>true,'fuzzyTitle'=>true,'isbn'=>true,'editionFlags'=>true,'falsePositiveExcluded'=>true,'pagination'=>true,'persistentDecisions'=>true,'staleRejected'=>true,'quota'=>true,'expiryCleanup'=>true]),PHP_EOL;

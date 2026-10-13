@@ -57,11 +57,17 @@ Acceptance checks:
 - User-edited metadata still wins across rescans.
 - Bad patterns are easy to identify from a report before broadening rules.
 
-## v0.3 — External metadata providers
+## v0.3 — Author management
+
+Direction updated 2026-10-13: [Author management for release 0.3](v0.3-author-management.md) defines normalised per-user author identities, ordered book relationships, import handling, author pages, editing, reviewed merging and conditional undo. No dedicated aliases table is planned. Migration, rescan protection and large-library performance are part of this feature.
+
+This replaces external metadata providers as the proposed 0.3 focus. The provider proposal below remains a later candidate; 0.2 release scope is unchanged.
+
+## Later candidate — External metadata providers
 
 Major feature: **Getting metadata from a provider**.
 
-Why this follows filename parsing: by v0.3, Library should know what it can infer locally and where it is weak. Provider lookup can then target missing/low-confidence rows instead of spraying external data over everything.
+Why this follows filename parsing and author management: Library should know what it can infer locally and where it is weak. Provider lookup can then target missing/low-confidence rows instead of spraying external data over everything.
 
 User outcome:
 
