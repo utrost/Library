@@ -2,7 +2,7 @@
 
 ## Release checkpoint — 2026-09-30
 
-Current candidate baseline: `0.2.0-beta.2`; series metadata verification and release packaging are in progress.
+Current candidate baseline: `0.2.0-beta.2`, signed and deployed on developer Nextcloud 34.0.3. Fresh installs and upgrades from beta.1 passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0: **210/210 final main Playwright executions**, plus service and supplementary browser checks. The production dependency audit reports zero vulnerabilities. Owner acceptance and publication remain; see [beta.2 verification and limitations](compatibility-evidence/2026-10-13-beta2/README.md).
 
 Historical signed baseline: `0.2.0-beta.1`, deployed on developer Nextcloud 34.0.3 before the series importer update. The exact archive passed fresh installation and upgrade from 0.1.0-beta.1 on Nextcloud 33.0.9, 34.0.4 and 35.0.0: **210/210 Playwright executions**, plus service, duplicate, inference and scheduled-scan checks. See [final verification and limitations](compatibility-evidence/2026-09-30-beta1/README.md).
 

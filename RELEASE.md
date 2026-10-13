@@ -2,7 +2,7 @@
 
 ## Current 0.2 beta release
 
-The current candidate is `0.2.0-beta.2`; the sections below preserve earlier release evidence. Follow the [current release checkpoint](docs/app-store-readiness.md) for its status. The certificate has been issued and verified. The [final signed-archive report](docs/compatibility-evidence/2026-09-30-beta1/README.md) records the historical beta.1 baseline: six passing fresh/upgrade installations and 210 Playwright executions. The GitHub prerelease remains a draft pending owner acceptance; local account-side instructions are in `dist/app-store-handoff/README.txt`.
+The current candidate is `0.2.0-beta.2`, signed and deployed on developer Nextcloud 34.0.3. See the [beta.2 verification report](docs/compatibility-evidence/2026-10-13-beta2/README.md) for six passing fresh/upgrade installations, 210 final main Playwright executions, the full developer refresh and documented limitations. Owner acceptance, public download/screenshot URL checks and App Store submission remain. Beta.2 is prepared locally and has not been published; handoff materials are in `dist/app-store-handoff-beta2/`. The sections below preserve earlier release evidence.
 
 Build with `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` pointing to the existing files outside this repository:
 

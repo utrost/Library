@@ -1,0 +1,564 @@
+{
+  "archive": "library-0.2.0-beta.2.tar.gz",
+  "sha256": "772160d4eee8bbdf5dcff9c317ffdd170a29922be884217b4373fda21db30bae",
+  "sourceCommit": "fa5f62c0c14dbc6948d2b545f5a3e69f472bc403",
+  "cases": [
+    {
+      "mode": "fresh",
+      "version": "33.0.9",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T11:53:20.300Z",
+        "duration": 337287.47599999997,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25,
+          "sourceBytesUnchanged": true
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74,
+          "firstFilesMissing": 0,
+          "incrementalFilesMissing": 1,
+          "incrementalFilesIndexed": 3,
+          "incrementalDurationMs": 85,
+          "emptyFilesIndexed": 0,
+          "emptyDurationMs": 1,
+          "movedFilesIndexed": 1,
+          "movedPathsUpdated": 1,
+          "movedFilesMissing": 0,
+          "folderMovePathsUpdated": 1,
+          "folderMoveFilesMissing": 0,
+          "sharedSidecarFilesIndexed": 4,
+          "crossRootPathsUpdated": 1,
+          "crossRootFilesMissing": 0
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8,
+          "fixtureBooks": 205
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45,
+          "thumbnailBytes": 64531,
+          "originalBytes": 12488
+        }
+      }
+    },
+    {
+      "mode": "fresh",
+      "version": "34.0.4",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T11:53:25.251Z",
+        "duration": 325530.908,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25,
+          "sourceBytesUnchanged": true
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74,
+          "firstFilesMissing": 0,
+          "incrementalFilesMissing": 1,
+          "incrementalFilesIndexed": 3,
+          "incrementalDurationMs": 85,
+          "emptyFilesIndexed": 0,
+          "emptyDurationMs": 0,
+          "movedFilesIndexed": 1,
+          "movedPathsUpdated": 1,
+          "movedFilesMissing": 0,
+          "folderMovePathsUpdated": 1,
+          "folderMoveFilesMissing": 0,
+          "sharedSidecarFilesIndexed": 4,
+          "crossRootPathsUpdated": 1,
+          "crossRootFilesMissing": 0
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8,
+          "fixtureBooks": 205
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45,
+          "thumbnailBytes": 64531,
+          "originalBytes": 12488
+        }
+      }
+    },
+    {
+      "mode": "fresh",
+      "version": "35.0.0",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T11:53:25.302Z",
+        "duration": 318799.52900000004,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25,
+          "sourceBytesUnchanged": true
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74,
+          "firstFilesMissing": 0,
+          "incrementalFilesMissing": 1,
+          "incrementalFilesIndexed": 3,
+          "incrementalDurationMs": 83,
+          "emptyFilesIndexed": 0,
+          "emptyDurationMs": 1,
+          "movedFilesIndexed": 1,
+          "movedPathsUpdated": 1,
+          "movedFilesMissing": 0,
+          "folderMovePathsUpdated": 1,
+          "folderMoveFilesMissing": 0,
+          "sharedSidecarFilesIndexed": 4,
+          "crossRootPathsUpdated": 1,
+          "crossRootFilesMissing": 0
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8,
+          "fixtureBooks": 205
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45,
+          "thumbnailBytes": 64531,
+          "originalBytes": 12488
+        }
+      }
+    },
+    {
+      "mode": "upgrade",
+      "version": "33.0.9",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T12:01:25.905Z",
+        "duration": 299533.569,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25,
+          "sourceBytesUnchanged": true
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74,
+          "firstFilesMissing": 0,
+          "incrementalFilesMissing": 1,
+          "incrementalFilesIndexed": 3,
+          "incrementalDurationMs": 73,
+          "emptyFilesIndexed": 0,
+          "emptyDurationMs": 1,
+          "movedFilesIndexed": 1,
+          "movedPathsUpdated": 1,
+          "movedFilesMissing": 0,
+          "folderMovePathsUpdated": 1,
+          "folderMoveFilesMissing": 0,
+          "sharedSidecarFilesIndexed": 4,
+          "crossRootPathsUpdated": 1,
+          "crossRootFilesMissing": 0
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8,
+          "fixtureBooks": 205
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45,
+          "thumbnailBytes": 64531,
+          "originalBytes": 12488
+        }
+      }
+    },
+    {
+      "mode": "upgrade",
+      "version": "34.0.4",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T12:08:48.925Z",
+        "duration": 202569.736,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25,
+          "sourceBytesUnchanged": true
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74,
+          "firstFilesMissing": 0,
+          "incrementalFilesMissing": 1,
+          "incrementalFilesIndexed": 3,
+          "incrementalDurationMs": 76,
+          "emptyFilesIndexed": 0,
+          "emptyDurationMs": 0,
+          "movedFilesIndexed": 1,
+          "movedPathsUpdated": 1,
+          "movedFilesMissing": 0,
+          "folderMovePathsUpdated": 1,
+          "folderMoveFilesMissing": 0,
+          "sharedSidecarFilesIndexed": 4,
+          "crossRootPathsUpdated": 1,
+          "crossRootFilesMissing": 0
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8,
+          "fixtureBooks": 205
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45,
+          "thumbnailBytes": 64531,
+          "originalBytes": 12488
+        }
+      }
+    },
+    {
+      "mode": "upgrade",
+      "version": "35.0.0",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T12:01:21.120Z",
+        "duration": 288463.546,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25,
+          "sourceBytesUnchanged": true
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74,
+          "firstFilesMissing": 0,
+          "incrementalFilesMissing": 1,
+          "incrementalFilesIndexed": 3,
+          "incrementalDurationMs": 87,
+          "emptyFilesIndexed": 0,
+          "emptyDurationMs": 1,
+          "movedFilesIndexed": 1,
+          "movedPathsUpdated": 1,
+          "movedFilesMissing": 0,
+          "folderMovePathsUpdated": 1,
+          "folderMoveFilesMissing": 0,
+          "sharedSidecarFilesIndexed": 4,
+          "crossRootPathsUpdated": 1,
+          "crossRootFilesMissing": 0
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8,
+          "fixtureBooks": 205
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45,
+          "thumbnailBytes": 64531,
+          "originalBytes": 12488
+        }
+      }
+    }
+  ],
+  "developerSample": {
+    "passed": true,
+    "count": 40,
+    "durationSeconds": 2.2280800342559814,
+    "sourceMarkersUnchanged": true,
+    "summary": {
+      "filesAdded": 0,
+      "pathsUpdated": 0,
+      "filesUnchanged": 40,
+      "filesMissing": 0,
+      "metadataErrors": 0
+    },
+    "metrics": {
+      "fingerprintSkips": 2,
+      "cachedWarningSkips": 0,
+      "metadataExtractions": 38,
+      "itemRefreshes": 38,
+      "fileIndexDurationMs": 48,
+      "fingerprintDurationMs": 115,
+      "metadataExtractionDurationMs": 702,
+      "itemRefreshDurationMs": 242,
+      "missingUpdateDurationMs": 0
+    }
+  },
+  "developerRealBrowser": {
+    "passed": true,
+    "books": 6,
+    "readOnly": true,
+    "catalogueVersion": "0.2.0-beta.2",
+    "catalogueMounted": true
+  },
+  "developerFullRefresh": {
+    "passed": true,
+    "scope": "all",
+    "observedScheduled": true,
+    "observedWorker": true,
+    "queuedArgumentObserved": false,
+    "allEnabledRootsCompleted": true,
+    "userCorrectionsUnchanged": true,
+    "sourceIdentityMarkersUnchanged": true,
+    "intervalUnchanged": true,
+    "job": {
+      "id": 401,
+      "status": "completed",
+      "scopeType": "all",
+      "rootId": null,
+      "rootsTotal": 7,
+      "filesIndexed": 7140,
+      "errorCount": 0,
+      "filesAdded": 0,
+      "pathsUpdated": 0,
+      "filesUnchanged": 7140,
+      "filesMissing": 100577,
+      "metadataErrors": 736,
+      "fingerprintSkips": 40,
+      "cachedWarningSkips": 0,
+      "metadataExtractions": 7100,
+      "itemRefreshes": 7100,
+      "startedAt": 1791891345,
+      "finishedAt": 1791892641,
+      "runStartedAt": 1791891346,
+      "lastProgressAt": 1791892640,
+      "durationMs": 1295126
+    },
+    "latestNextcloudRun": {
+      "run_id": "140078409332355072",
+      "pid": 60823,
+      "status": 1,
+      "duration": 1295135,
+      "ram_peak_usage": 68998
+    }
+  },
+  "developerCatalogue": {
+    "books": 107717,
+    "fileStatuses": [
+      {
+        "scan_status": "indexed",
+        "n": 6404
+      },
+      {
+        "scan_status": "metadata_error",
+        "n": 736
+      },
+      {
+        "scan_status": "missing",
+        "n": 100577
+      },
+      {
+        "scan_status": "sidecar",
+        "n": 98989
+      }
+    ],
+    "warnings": [
+      {
+        "category": "other_metadata",
+        "n": 736
+      }
+    ]
+  },
+  "developerInstalledVersion": "0.2.0-beta.2",
+  "developerIntegrityPassed": true,
+  "availableCatalogueSeries": {
+    "withSeries": 441,
+    "withPosition": 439
+  },
+  "productionAudit": {
+    "total": 0,
+    "critical": 0,
+    "high": 0,
+    "moderate": 0,
+    "low": 0
+  },
+  "priorNc34UpgradeAttempt": {
+    "reason": "Dashboard recommendation-preview failures at login before Library interactions",
+    "passed": 4,
+    "failed": 31,
+    "fixtureFix": "Set defaultapp=library on the disposable instance; error assertions unchanged",
+    "rerunPassed": true
+  }
+}
