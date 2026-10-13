@@ -101,10 +101,17 @@ final class DuplicateMatcher {
         $items=[$a['id']=>$a['revision'],$b['id']=>$b['revision']]; ksort($items,SORT_NUMERIC);
         return hash('sha256',json_encode($items,JSON_THROW_ON_ERROR));
     }
+    /** Existing decisions remain valid when upgrading the evidence schema. */
+    public static function hintMatches(string $signature,array $a,array $b): bool {
+        return hash_equals($signature,self::hintSignature($a,$b))
+            || hash_equals($signature,self::hintSignature($a,$b,false));
+    }
     /** Suggestions depend on matching metadata, not unrelated reading state or notes. */
-    public static function hintSignature(array $a,array $b): string {
+    public static function hintSignature(array $a,array $b,bool $includeSeries=true): string {
         $values=[];
-        foreach([$a,$b] as $book){$value=[];foreach(['fileId','title','authors','language','publicationDate','publisher','isbn','format','series','seriesNumber'] as $field)$value[$field]=$book[$field]??'';$values[$book['id']]=$value;}
+        $fields=['fileId','title','authors','language','publicationDate','publisher','isbn','format'];
+        if ($includeSeries) array_push($fields,'series','seriesNumber');
+        foreach([$a,$b] as $book){$value=[];foreach($fields as $field)$value[$field]=$book[$field]??'';$values[$book['id']]=$value;}
         ksort($values,SORT_NUMERIC);return hash('sha256',json_encode($values,JSON_THROW_ON_ERROR));
     }
 }
