@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+- Library 0.2 beta for Nextcloud 33–35: private reading lists and notes, filename/path metadata extraction with preview and reversible approval, duplicate review, and scheduled incremental scans.
+- Import Calibre and EPUB 3 series names and positions while preserving manual corrections.
+- Reduce duplicate noise from different issues or series positions; keep shared ISBN and identical-content evidence.
+- Improve catalogue, indexing and cover performance. Source files remain in Nextcloud Files; reading uses installed viewers.
+- This is a beta release. Dedicated author identities and merging are planned for 0.3.
+
 ## 0.2.0-beta.3
 
 - Suppress title/author duplicate suggestions when issue, volume or stored series positions conflict.

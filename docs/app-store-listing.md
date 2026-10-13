@@ -1,7 +1,7 @@
 # App Store listing draft
 
 Status: 0.2 beta listing draft for owner review.
-Target app version: `0.2.0-beta.1`.
+Target app version: `0.2.0-beta.3`.
 Compatibility: Nextcloud 33–35. See the release evidence for final archive verification.
 
 ## Short description
@@ -73,4 +73,4 @@ The three release-tag URLs are included in `appinfo/info.xml`; they become publi
 
 ## Release note draft
 
-Library `0.2.0-beta.1` is the first public beta App Store candidate for Nextcloud 33–35. It focuses on publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. It is intentionally conservative: source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack.
+Library `0.2.0-beta.3` is the first public beta App Store candidate for Nextcloud 33–35. It focuses on publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. It is intentionally conservative: source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack.
