@@ -26,7 +26,7 @@ final class DuplicateSuggestionService {
         foreach($ids as $id){$entry=$data['items'][$id]??null;if(!$entry||!$readable($entry['book'])){$result[(string)$id]=['status'=>'unavailable','count'=>0,'matches'=>[]];continue;}
             $matches=[];$reviewed=0;
             foreach($entry['matches'] as $other=>$evidence){$book=$data['books'][$other];$hint=$hints[min($id,$other).':'.max($id,$other)]??null;
-                if($hint&&hash_equals($hint['signature'],DuplicateMatcher::hintSignature($entry['book'],$book))){$reviewed++;continue;}
+                if($hint&&DuplicateMatcher::hintMatches($hint['signature'],$entry['book'],$book)){$reviewed++;continue;}
                 if(!$readable($book))continue;
                 $matches[]=['id'=>$other,'title'=>$book['title'],'authors'=>$book['authors'],'format'=>$book['format'],...$evidence,'url'=>$this->urls->linkToRoute('library.page.index',['duplicates'=>1,'bookId'=>$id,'compareId'=>$other])];
                 if(count($matches)>=20){$entry['limited']=true;break;}

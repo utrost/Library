@@ -12,7 +12,7 @@
 
 - Suppress title/author duplicate suggestions when issue, volume or stored series positions conflict.
 - Treat leading-zero and equivalent decimal positions consistently while retaining shared ISBN and identical-content evidence.
-- Include stored series metadata in both background duplicate scans and catalogue suggestions.
+- Include stored series metadata in both background duplicate scans and catalogue suggestions, preserving previously saved suggestion dismissals.
 - Point App Store screenshots to the matching public release tag.
 
 ## 0.2.0-beta.2
