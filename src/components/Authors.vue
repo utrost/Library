@@ -91,6 +91,11 @@ async function undo(operation) {
   try { await request(`/history/${operation.id}/undo`, {}); notice.value = t('library', 'Author change undone.'); await load(page.value) }
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
+async function removeUnused(author) {
+  busy.value = true; error.value = ''
+  try { await request(`/${author.id}/remove-unused`, { revision: Number(author.revision) }); notice.value = t('library', 'Unused author removed.'); await load(page.value) }
+  catch (e) { error.value = e.message } finally { busy.value = false }
+}
 onMounted(() => { if (!showConflicts) load() })
 </script>
 <template>
@@ -124,12 +129,14 @@ onMounted(() => { if (!showConflicts) load() })
           <a :href="`${catalogueUrl}?authors=1&authorId=${author.id}`" dir="auto">{{ author.display_name }}</a>
           <span dir="auto">{{ author.sort_name }}</span>
           <span>{{ n('library', '%n book', '%n books', Number(author.book_count)) }}</span>
+          <button v-if="unused && Number(author.book_count) === 0" :disabled="busy || data.migration.pending || data.migration.failed" @click="removeUnused(author)">{{ t('library', 'Remove unused author') }}</button>
         </li>
       </ul>
       <p v-if="data && !data.authors.length">{{ t('library', 'No authors found.') }}</p>
     </template>
     <template v-else-if="data?.author">
       <p>{{ n('library', '%n book', '%n books', data.bookCount) }}</p>
+      <p v-if="data.bookCount"><a :href="`${catalogueUrl}?authorId=${id}`">{{ t('library', 'Browse this author in the catalogue') }}</a></p>
       <section v-if="data.author.biography && !editing" class="author-biography">
         <h2>{{ t('library', 'Biography') }}</h2>
         <p dir="auto">{{ bioExpanded || data.author.biography.length <= 320 ? data.author.biography : data.author.biography.slice(0, 280) + '…' }}</p>

@@ -55,6 +55,7 @@ import ShelfTreeNode from './components/ShelfTreeNode.vue'
 import CatalogueCover from './components/CatalogueCover.vue'
 import PersonalLists from './components/PersonalLists.vue'
 import Authors from './components/Authors.vue'
+import Series from './components/Series.vue'
 import DuplicateSuggestions from './components/DuplicateSuggestions.vue'
 import { useDuplicateSuggestions } from './duplicate-suggestions.js'
 import PossibleDuplicates from './components/PossibleDuplicates.vue'
@@ -152,6 +153,8 @@ const activeFilters = reactive({
   year: catalogueState.activeFilters?.year || '',
   language: catalogueState.activeFilters?.language || '',
   creator: catalogueState.activeFilters?.creator || '',
+  authorId: catalogueState.activeFilters?.authorId || '',
+  seriesId: catalogueState.activeFilters?.seriesId || '',
   format: catalogueState.activeFilters?.format || '',
   tag: catalogueState.activeFilters?.tag || '',
   shelf: catalogueState.activeFilters?.shelf || '',
@@ -379,6 +382,7 @@ const isShelves = computed(() => catalogueState.surface === 'shelves')
 const isDuplicates = computed(() => catalogueState.surface === 'duplicates')
 const isInference = computed(() => catalogueState.surface === 'inference')
 const isAuthors = computed(() => catalogueState.surface === 'authors')
+const isSeries = computed(() => catalogueState.surface === 'series')
 const isLists = computed(() => catalogueState.surface === 'lists')
 const listsUrl = computed(() => `${catalogueRootUrl.value}?lists=1`)
 const addingToListId = Number(new URLSearchParams(window.location.search).get('addToList')) || null
@@ -388,7 +392,7 @@ async function refreshPersonalListNavigation() {
   try { personalListNavigation.value = (await listRequest()).lists } catch { /* Lists page provides retry and errors. */ }
 }
 onMounted(refreshPersonalListNavigation)
-const allPublicationsActive = computed(() => !isAuthors.value && !isDuplicates.value && !isInference.value && !isLists.value && !isHome.value && !isShelves.value && !reviewActive.value && !activeFilters.starred && activeFilters.recentlyOpened !== '1' && !activeFilters.shelf)
+const allPublicationsActive = computed(() => !isAuthors.value && !isSeries.value && !isDuplicates.value && !isInference.value && !isLists.value && !isHome.value && !isShelves.value && !reviewActive.value && !activeFilters.starred && activeFilters.recentlyOpened !== '1' && !activeFilters.shelf)
 const catalogueNavigation = computed(() => [
   { key: 'home', name: t('library', 'Home'), href: homeUrl.value, active: isHome.value },
   { key: 'all', name: t('library', 'All publications'), href: catalogueRootUrl.value, active: allPublicationsActive.value },
@@ -499,6 +503,8 @@ const filterLabels = {
   year: 'Publication year',
   language: 'Language',
   creator: 'Creator',
+  authorId: 'Author ID',
+  seriesId: 'Series ID',
   format: 'Format',
   tag: 'Nextcloud tag',
   shelf: 'Shelf',
@@ -635,7 +641,7 @@ const resettableFilterChips = computed(() => activeFilterChips.value
   .filter((chip) => !['sort', 'view'].includes(chip.key)))
 const activeFilterCount = computed(() => activeFilterChips.value.length)
 const filterGroups = Object.freeze([
-  { key: 'content', label: 'Content', keys: ['q', 'type', 'publisher', 'publication', 'year', 'language', 'creator', 'format', 'subject', 'classification', 'tag'] },
+  { key: 'content', label: 'Content', keys: ['q', 'type', 'publisher', 'publication', 'year', 'language', 'creator', 'authorId', 'seriesId', 'format', 'subject', 'classification', 'tag'] },
   { key: 'location', label: 'Location', keys: ['shelf', 'folder'] },
   { key: 'review', label: 'Review', keys: ['scannerConflicts', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'status'] },
   { key: 'personal', label: 'Personal / display', keys: ['starred', 'recentlyOpened', 'workflowStatus'] },
@@ -1862,7 +1868,7 @@ function handleCatalogueKeyboardShortcuts(event) {
 }
 
 onMounted(() => {
-  if (isAuthors.value || isLists.value || isInference.value || isDuplicates.value) return
+  if (isAuthors.value || isSeries.value || isLists.value || isInference.value || isDuplicates.value) return
   window.addEventListener('keydown', handleCatalogueKeyboardShortcuts)
   window.addEventListener('popstate', restoreCatalogueFromHistory)
   sidebarMobileQuery = window.matchMedia?.('(max-width: 1023px)') || null
@@ -1953,6 +1959,7 @@ async function toggleStar(item, event) {
             <button type="button" class="library-navigation-saved-collection-delete-action" style="background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.42); color: #fff;" :aria-label="`${t('library', 'Delete collection')}: ${collection.rawName}`" :title="`${t('library', 'Delete collection')}: ${collection.rawName}`" @click.stop.prevent="submitSavedCollectionDelete(collection.id)">✕</button>
           </div>
           <NcAppNavigationItem :active="isAuthors" :href="`${catalogueRootUrl}?authors=1`" :name="t('library', 'Authors')" />
+          <NcAppNavigationItem :active="isSeries" :href="`${catalogueRootUrl}?series=1`" :name="t('library', 'Series')" />
           <NcAppNavigationItem :active="isLists" :href="listsUrl" :name="t('library', 'Lists')" />
           <NcAppNavigationItem class="library-navigation-create-list" :href="`${listsUrl}&new=1`" :name="t('library', 'Create a new list')" />
           <NcAppNavigationItem v-for="list in personalListNavigation" :key="`personal-list-${list.id}`" class="library-navigation-personal-list" :href="`${listsUrl}&listId=${list.id}`" :name="list.name" />
@@ -1962,7 +1969,7 @@ async function toggleStar(item, event) {
         </NcAppNavigationList>
       </template>
       <template #footer>
-        <section v-if="!isAuthors && !isLists && !isInference && !isDuplicates" class="library-sidebar-filter-section" aria-labelledby="library-sidebar-filters-heading">
+        <section v-if="!isAuthors && !isSeries && !isLists && !isInference && !isDuplicates" class="library-sidebar-filter-section" aria-labelledby="library-sidebar-filters-heading">
           <h2 id="library-sidebar-filters-heading">{{ t('library', 'Filters') }}</h2>
           <form method="get" class="library-filter-bar library-sidebar-filters" :aria-label="t('library', 'Catalogue search and filters')" @submit.prevent="applyAllSearchFilters">
             <input type="hidden" name="folder" :value="activeFilters.folder">
@@ -1999,6 +2006,7 @@ async function toggleStar(item, event) {
   <PossibleDuplicates v-if="isDuplicates" :request-token="requestToken" :review-url="reviewUrl" />
   <PathInference v-else-if="isInference" :request-token="requestToken" />
   <Authors v-else-if="isAuthors" :request-token="requestToken" :catalogue-url="catalogueRootUrl" />
+  <Series v-else-if="isSeries" :request-token="requestToken" :catalogue-url="catalogueRootUrl" />
   <PersonalLists @changed="refreshPersonalListNavigation" v-else-if="isLists" :request-token="requestToken" :catalogue-url="catalogueRootUrl" :lists-url="listsUrl" />
   <template v-else>
   <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
@@ -2447,6 +2455,7 @@ async function toggleStar(item, event) {
           <section v-else class="library-sidebar-section" aria-labelledby="library-sidebar-activity-heading"><h3 id="library-sidebar-activity-heading">{{ t('library', 'Activity') }}</h3><dl class="library-detail-drawer-facts"><div><dt>{{ t('library', 'Scan status') }}</dt><dd>{{ selectedDrawerItem.scanStatus || '—' }}</dd></div><div v-if="selectedDrawerItem.workflowStatus"><dt>{{ t('library', 'Workflow') }}</dt><dd>{{ selectedDrawerItem.workflowStatus }}</dd></div><div v-if="selectedDrawerItem.metadataSource"><dt>{{ t('library', 'Metadata source') }}</dt><dd>{{ selectedDrawerItem.metadataSource }}</dd></div><div v-if="selectedDrawerItem.cachedPath"><dt>{{ t('library', 'File') }}</dt><dd class="library-detail-drawer-file"><a v-if="selectedDrawerItem.openUrl" :href="selectedDrawerItem.openUrl" @click="recordOpenBeforeNavigate(selectedDrawerItem, $event)"><bdi dir="ltr">{{ selectedDrawerItem.cachedPath }}</bdi></a><bdi v-else dir="ltr">{{ selectedDrawerItem.cachedPath }}</bdi></dd></div></dl></section>
           <nav v-if="selectedDrawerItem.canonicalAuthors?.length" class="library-author-links" :aria-label="t('library', 'Authors')"><a v-for="author in selectedDrawerItem.canonicalAuthors" :key="author.id" class="button secondary" :href="`${generateUrl('/apps/library/')}?authors=1&authorId=${author.id}`"><bdi dir="auto">{{ author.name }}</bdi></a></nav>
           <nav v-else-if="selectedDrawerItem.authors?.length" class="library-author-links" :aria-label="t('library', 'Creators')"><a v-for="author in selectedDrawerItem.authors" :key="author" class="button secondary" :href="creatorLandingUrl(author)"><bdi dir="auto">{{ author }}</bdi></a></nav>
+          <nav v-if="selectedDrawerItem.canonicalSeries?.length" class="library-author-links" :aria-label="t('library', 'Series')"><a v-for="series in selectedDrawerItem.canonicalSeries" :key="series.id" class="button secondary" :href="`${generateUrl('/apps/library/')}?series=1&seriesId=${series.id}`"><bdi dir="auto">{{ series.name }}<template v-if="series.part"> · {{ series.part }}</template></bdi></a></nav>
           <nav class="library-detail-drawer-stepper" :aria-label="t('library', 'Browse neighbouring items')"><button type="button" class="button secondary" :disabled="!drawerPreviousItem" @click="showDrawerItem(drawerPreviousItem)">{{ t('library', 'Previous item') }}</button><button type="button" class="button secondary" :disabled="!drawerNextItem" @click="showDrawerItem(drawerNextItem)">{{ t('library', 'Next item') }}</button></nav>
         </template>
       </div>

@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3.0-alpha.4**, 2026-10-13. Covers 29 app-owned tables through `Version000300Date20261013230000`. The author additions passed fresh installation and populated upgrade on SQLite NC34 and are deployed on MariaDB developer NC34.
+Snapshot: **0.3.0-alpha.5**, 2026-10-13. Covers 32 app-owned tables through `Version000300Date20261014010000`. The series additions passed fresh installation on SQLite NC33–35, populated upgrade on SQLite NC34, and upgrade on the MariaDB developer NC34.
 
 ## Schema ownership
 
@@ -22,9 +22,12 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_item_authors` | 9 | 3 | Ordered author relationships and original credits; unique user/item/position. |
 | `library_author_operations` | 9 | 2 | Account-private before/after journal, bounded payload, small history summaries and conditional undo. |
 | `library_author_state` | 2 | 1 | Per-user transaction coordination for identity reuse. |
+| `library_series` | 6 | 3 | Per-user preferred series names and descriptions. |
+| `library_item_series` | 8 | 2 | Book-to-series slots with source name and part number. |
+| `library_series_state` | 2 | 1 | Per-user series backfill and edit coordination. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
 | `library_files` | 17 | 8 | Nextcloud file identity, observed paths/revisions and scan diagnostics. |
-| `library_items` | 43 | 25 | Catalogue metadata, ordered authors, provenance, review flags and cover revision. |
+| `library_items` | 44 | 27 | Catalogue metadata, ordered authors, series migration status, provenance, review flags and cover revision. |
 | `library_scan_jobs` | 24 | 2 | Scan history, counters, heartbeat and current progress. |
 | `library_saved_collections` | 6 | 3 | Named saved filter definitions. |
 | `library_item_identifiers` | 11 | 3 | Normalized ISBN/ISSN values and identifier provenance. |

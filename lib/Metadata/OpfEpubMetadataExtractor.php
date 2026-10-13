@@ -134,6 +134,23 @@ public function parseOpfMetadata(string $opfXml, string $source): array {
     if ($creators !== []) {
         $metadata['creators'] = implode('; ', $creators);
         $metadata['authors'] = $creators;
+        $sortById = [];
+        foreach ($xml->xpath('//*[local-name()="metadata"]/*[local-name()="meta"]') ?: [] as $meta) {
+            if (strtolower(trim((string)($meta['property'] ?? ''))) !== 'file-as') continue;
+            $refines = trim((string)($meta['refines'] ?? ''));
+            if (!str_starts_with($refines, '#')) continue;
+            $sortById[substr($refines, 1)] = trim((string)$meta);
+        }
+        $sortNames = [];
+        foreach ($dc->creator as $creator) {
+            $credit = trim((string)$creator);
+            if ($credit === '') continue;
+            $id = trim((string)($creator->attributes()['id'] ?? ''));
+            $opfAttributes = $creator->attributes('http://www.idpf.org/2007/opf');
+            $sort = $id !== '' && isset($sortById[$id]) ? $sortById[$id] : trim((string)($opfAttributes['file-as'] ?? ''));
+            if ($sort !== '' && mb_check_encoding($sort, 'UTF-8') && mb_strlen($sort) <= 255 && !preg_match('/[\x00-\x1f\x7f]/u', $sort)) $sortNames[$credit] = $sort;
+        }
+        if ($sortNames) $metadata['authorSortNames'] = $sortNames;
     }
 
     $language = $this->firstXmlValue($dc->language ?? null);

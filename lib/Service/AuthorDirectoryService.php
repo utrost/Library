@@ -92,15 +92,20 @@ final class AuthorDirectoryService {
         $values['comparison_key'] = $normalized['comparison_key'];
         $values['normalization_version'] = AuthorIdentity::VERSION;
         $values['revision'] = $revision + 1;
-        $values['field_sources'] = json_encode(array_fill_keys(['display_name','sort_name','given_name','family_name'], 'manual'), JSON_THROW_ON_ERROR);
         $this->db->beginTransaction();
         try {
             // Serializes with migration's identity lookup, without rewriting source credits.
             $this->db->executeStatement('UPDATE *PREFIX*library_author_state SET updated_at=? WHERE user_id=?', [time(), $uid]);
-            $old = $this->rows('SELECT revision,photo_key FROM *PREFIX*library_authors WHERE user_id=? AND id=?' . ($this->db->getDatabaseProvider() === 'sqlite' ? '' : ' FOR UPDATE'), [$uid, $id])[0] ?? null;
+            $old = $this->rows('SELECT revision,photo_key,display_name,sort_name,given_name,family_name,field_sources FROM *PREFIX*library_authors WHERE user_id=? AND id=?' . ($this->db->getDatabaseProvider() === 'sqlite' ? '' : ' FOR UPDATE'), [$uid, $id])[0] ?? null;
             if ($old === null) throw new \OutOfBoundsException('author');
             if ((int)$old['revision'] !== $revision) throw new ListConflictException('author_revision');
             $oldPhoto = $old['photo_key'];
+            $sources = json_decode($old['field_sources'] ?: '{}', true);
+            if (!is_array($sources)) $sources = [];
+            foreach (['display_name', 'sort_name', 'given_name', 'family_name'] as $field) {
+                if ($values[$field] !== $old[$field]) $sources[$field] = 'manual';
+            }
+            $values['field_sources'] = json_encode($sources, JSON_THROW_ON_ERROR);
             if ($portrait !== null) $values['photo_key'] = $newPhoto = $this->photos->store($uid, $portrait);
             elseif ($removePhoto) $values['photo_key'] = null;
             $qb = $this->db->getQueryBuilder();
@@ -121,5 +126,38 @@ final class AuthorDirectoryService {
             throw $e;
         }
         if ($newPhoto !== null || $removePhoto) $this->photos?->remove($uid, $oldPhoto);
+    }
+
+    /** Delete only an unassigned identity with no live redirects or undo dependency. */
+    public function removeUnused(string $uid, int $id, int $revision): void {
+        if ($id < 1 || $revision < 1) throw new \InvalidArgumentException('author');
+        $migration = $this->storage->status($uid);
+        if ($migration['pending'] > 0 || $migration['failed'] > 0) throw new \OCA\Library\Exception\AuthorMigrationPendingException();
+        $photoKey = null;
+        $this->db->beginTransaction();
+        try {
+            $this->db->insertIfNotExist('*PREFIX*library_author_state', ['user_id' => $uid, 'updated_at' => 0], ['user_id']);
+            $this->db->executeStatement('UPDATE *PREFIX*library_author_state SET updated_at=? WHERE user_id=?', [time(), $uid]);
+            $author = $this->rows('SELECT revision,merged_into,photo_key FROM *PREFIX*library_authors WHERE user_id=? AND id=?' . ($this->db->getDatabaseProvider() === 'sqlite' ? '' : ' FOR UPDATE'), [$uid, $id])[0] ?? null;
+            if ($author === null) throw new \OutOfBoundsException('author');
+            if ((int)$author['revision'] !== $revision || $author['merged_into'] !== null) throw new ListConflictException('author_changed');
+            if ($this->rows('SELECT id FROM *PREFIX*library_item_authors WHERE user_id=? AND author_id=? LIMIT 1', [$uid, $id])
+                || $this->rows('SELECT id FROM *PREFIX*library_authors WHERE user_id=? AND merged_into=? LIMIT 1', [$uid, $id])) throw new ListConflictException('author_in_use');
+            // Old operations predate explicit source/target ID columns. Read only
+            // active undo records and fail closed on malformed journal payloads.
+            $result = $this->db->executeQuery('SELECT payload FROM *PREFIX*library_author_operations WHERE user_id=? AND undone=0', [$uid]);
+            try {
+                while ($row = $result->fetch()) {
+                    $payload = json_decode($row['payload'], true, 512, JSON_THROW_ON_ERROR);
+                    if (!is_array($payload) || !isset($payload['before']['source']['id'], $payload['before']['target']['id'])) throw new ListConflictException('history_unreadable');
+                    if ((int)$payload['before']['source']['id'] === $id || (int)$payload['before']['target']['id'] === $id) throw new ListConflictException('author_in_history');
+                }
+            } finally { $result->closeCursor(); }
+            $deleted = $this->db->executeStatement('DELETE FROM *PREFIX*library_authors WHERE user_id=? AND id=? AND revision=? AND merged_into IS NULL', [$uid, $id, $revision]);
+            if ($deleted !== 1) throw new ListConflictException('author_changed');
+            $photoKey = $author['photo_key'];
+            $this->db->commit();
+        } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
+        if ($photoKey !== null) $this->photos?->remove($uid, $photoKey);
     }
 }

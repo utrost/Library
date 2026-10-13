@@ -57,12 +57,13 @@ final class AuthorStorageService {
         try {
             $sqlite = $this->db->getDatabaseProvider() === 'sqlite';
             if ($sqlite) $this->db->executeStatement('UPDATE *PREFIX*library_items SET id=id WHERE user_id = ? AND id = ?', [$uid, $itemId]);
-            $item = $this->rows('SELECT authors_json,creators,author_sync_status,author_source_hash FROM *PREFIX*library_items WHERE user_id = ? AND id = ?' . ($sqlite ? '' : ' FOR UPDATE'), [$uid, $itemId])[0] ?? null;
+            $item = $this->rows('SELECT authors_json,creators,field_values,author_sync_status,author_source_hash FROM *PREFIX*library_items WHERE user_id = ? AND id = ?' . ($sqlite ? '' : ' FOR UPDATE'), [$uid, $itemId])[0] ?? null;
             if ($item === null || (int)$item['author_sync_status'] !== self::PENDING) { $this->db->commit(); return; }
             // Legacy parsing must not turn corrupt data into a successful empty author migration.
             $names = $item['authors_json'] !== null
                 ? AuthorNames::normalize(json_decode($item['authors_json'], true, 64, JSON_THROW_ON_ERROR))
                 : AuthorNames::fromText($item['creators']);
+            $sortNames = $this->sourceSortNames($item['field_values'], $names);
             $this->db->insertIfNotExist('*PREFIX*library_author_state', ['user_id' => $uid, 'updated_at' => 0], ['user_id']);
             // Serialize exact-name reuse across workers without a unique constraint on names.
             $this->db->executeStatement('UPDATE *PREFIX*library_author_state SET updated_at = ? WHERE user_id = ?', [time(), $uid]);
@@ -74,6 +75,13 @@ final class AuthorStorageService {
                 return;
             }
             if ($oldNames === $names) {
+                foreach ($links as $link) {
+                    if ($link['assignment_source'] !== 'import') continue;
+                    $sort = $sortNames[$link['source_name']] ?? null;
+                    if ($link['source_sort_name'] === $sort) continue;
+                    $this->db->executeStatement('UPDATE *PREFIX*library_item_authors SET source_sort_name=?,revision=revision+1 WHERE user_id=? AND id=?', [$sort, $uid, (int)$link['id']]);
+                    if ($sort !== null) $this->applySourceSort($uid, (int)$link['author_id'], $sort);
+                }
                 $this->setStatus($uid, $itemId, self::SYNCED);
                 $this->db->commit();
                 return;
@@ -92,10 +100,12 @@ final class AuthorStorageService {
             $this->db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id = ? AND item_id = ?', [$uid, $itemId]);
             foreach ($names as $position => $credit) {
                 $old = $byCredit[$credit] ?? null;
-                $authorId = $old === null ? $this->resolve($uid, $credit) : (int)$old['author_id'];
+                $sort = $sortNames[$credit] ?? null;
+                $authorId = $old === null ? $this->resolve($uid, $credit, $sort) : (int)$old['author_id'];
+                if ($old !== null && $sort !== null) $this->applySourceSort($uid, $authorId, $sort);
                 $qb = $this->db->getQueryBuilder();
                 $values = ['user_id' => $uid, 'item_id' => $itemId, 'author_id' => $authorId, 'position' => $position,
-                    'source_name' => $credit, 'source_sort_name' => $old['source_sort_name'] ?? null,
+                    'source_name' => $credit, 'source_sort_name' => $sort,
                     'assignment_source' => 'import', 'revision' => $old === null ? 1 : (int)$old['revision'] + 1];
                 // Keep relationship IDs stable for unchanged credits, even when order changes.
                 if ($old !== null) $values['id'] = (int)$old['id'];
@@ -108,6 +118,26 @@ final class AuthorStorageService {
 
     private function sourceHash(array $names): string {
         return hash('sha256', json_encode($names, JSON_THROW_ON_ERROR));
+    }
+    private function sourceSortNames(?string $fieldValues, array $names): array {
+        $values = json_decode($fieldValues ?: '{}', true);
+        if (!is_array($values) || !is_string($values['authorSortNames'] ?? null)) return [];
+        $sorts = json_decode($values['authorSortNames'], true);
+        if (!is_array($sorts) || count($sorts) > 32) return [];
+        $valid = [];
+        foreach ($sorts as $credit => $sort) {
+            if (!is_string($credit) || !in_array($credit, $names, true) || !is_string($sort)) continue;
+            try { $valid[$credit] = AuthorNames::normalize([$sort])[0]; } catch (\InvalidArgumentException) {}
+        }
+        return $valid;
+    }
+    private function applySourceSort(string $uid, int $authorId, string $sort): void {
+        $author = $this->rows('SELECT display_name,sort_name,field_sources FROM *PREFIX*library_authors WHERE user_id=? AND id=?', [$uid, $authorId])[0] ?? null;
+        if ($author === null) throw new \RuntimeException('Missing author');
+        $sources = json_decode($author['field_sources'] ?: '{}', true) ?: [];
+        if (($sources['sort_name'] ?? 'credit') !== 'credit' || $author['sort_name'] !== $author['display_name']) return;
+        $sources['sort_name'] = 'file-as';
+        $this->db->executeStatement('UPDATE *PREFIX*library_authors SET sort_name=?,field_sources=?,revision=revision+1 WHERE user_id=? AND id=?', [$sort, json_encode($sources, JSON_THROW_ON_ERROR), $uid, $authorId]);
     }
     private function acknowledge(string $uid, int $itemId, array $names): void {
         $this->db->executeStatement('UPDATE *PREFIX*library_items SET author_sync_status=?,author_source_hash=? WHERE user_id=? AND id=?', [self::SYNCED, $this->sourceHash($names), $uid, $itemId]);
@@ -160,7 +190,7 @@ final class AuthorStorageService {
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
     }
 
-    private function resolve(string $uid, string $credit): int {
+    private function resolve(string $uid, string $credit, ?string $sort = null): int {
         $name = AuthorIdentity::name($credit);
         $matches = $this->rows('SELECT id,merged_into FROM *PREFIX*library_authors WHERE user_id = ? AND comparison_key = ? AND normalization_version = ? ORDER BY id LIMIT 101' . ($this->db->getDatabaseProvider() === 'sqlite' ? '' : ' FOR UPDATE'), [$uid, $name['comparison_key'], AuthorIdentity::VERSION]);
         $resolved = [];
@@ -175,9 +205,14 @@ final class AuthorStorageService {
             if ($depth === 32) throw new \RuntimeException('Author redirect chain too long');
             if (count($resolved) > 1) break; // Distinct homonyms must remain ambiguous.
         }
-        if (count($resolved) === 1) return (int)array_key_first($resolved);
+        if (count($resolved) === 1) {
+            $id = (int)array_key_first($resolved);
+            if ($sort !== null) $this->applySourceSort($uid, $id, $sort);
+            return $id;
+        }
         $qb = $this->db->getQueryBuilder();
-        $values = $name + ['user_id' => $uid, 'revision' => 1, 'field_sources' => json_encode(['display_name' => 'credit', 'sort_name' => 'credit'], JSON_THROW_ON_ERROR)];
+        if ($sort !== null) $name['sort_name'] = $sort;
+        $values = $name + ['user_id' => $uid, 'revision' => 1, 'field_sources' => json_encode(['display_name' => 'credit', 'sort_name' => $sort === null ? 'credit' : 'file-as'], JSON_THROW_ON_ERROR)];
         $qb->insert('library_authors')->values(array_map(fn($value) => $qb->createNamedParameter($value), $values))->executeStatement();
         return (int)$this->db->lastInsertId('library_authors');
     }

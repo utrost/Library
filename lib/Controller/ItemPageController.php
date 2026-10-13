@@ -59,7 +59,7 @@ final class ItemPageController extends Controller {
         $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
         $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($user->getUID(), (string)($item['cachedPath'] ?? ''));
         return new JSONResponse(['item' => array_intersect_key($item, array_flip([
-            'id', 'title', 'subtitle', 'creators', 'authors', 'displayCreators', 'canonicalAuthors', 'publicationType', 'publication', 'publicationDate', 'series', 'seriesNumber', 'genre',
+            'id', 'title', 'subtitle', 'creators', 'authors', 'displayCreators', 'canonicalAuthors', 'canonicalSeries', 'publicationType', 'publication', 'publicationDate', 'series', 'seriesNumber', 'genre',
             'language', 'publisher', 'description', 'subjects', 'classifications', 'personalRating',
             'extension', 'shelf', 'cachedPath', 'scanStatus', 'scanError', 'workflowStatus',
             'identifiers', 'metadataSource', 'fieldSources', 'fieldValues', 'userEdited', 'coverUrl',

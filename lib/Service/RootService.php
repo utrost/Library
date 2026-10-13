@@ -116,6 +116,7 @@ final class RootService {
         }
         $result->closeCursor();
 
+        $this->db->executeStatement('DELETE FROM *PREFIX*library_item_series WHERE user_id=? AND item_id IN (SELECT i.id FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id WHERE i.user_id=? AND f.root_id=?)', [$userId, $userId, $rootId]);
         foreach ($libraryFileIds as $libraryFileId) {
             $qb = $this->db->getQueryBuilder();
             $qb->delete('library_items')
