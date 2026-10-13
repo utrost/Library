@@ -755,3 +755,15 @@ Open **Authors**, then select an author. The page shows books linked to that ide
 - Open a cover or title for the book. **More actions** contains merge/reassignment. The destination keeps its biography and photo when authors merge.
 
 Profiles are private to your account. Photos and biographies are entered manually; Library does not fetch them from external services. An outdated edit is rejected with the draft retained, so another update is not silently overwritten.
+
+### Review imported author changes
+
+If imported author credits change after you edited or reassigned an author, open **Authors → Review imported author changes**. The link appears when changes need review.
+
+1. Choose **Review change** for a book. Compare its current author assignments and original credits with the incoming credits.
+2. Choose **Keep current assignments** to preserve the linked people, or **Use imported authors** to replace those links using the importer's conservative identity matching. An empty incoming list means removing this book's author links.
+3. The resolved book leaves the queue. An unchanged rescan keeps the decision; different imported credits return it to review.
+
+These choices change author relationships and the review checkpoint only. They do not rewrite ebook files or the book's source metadata. Profile names, photos and biographies are preserved. There is no automatic Undo for this decision in alpha.4; the screen warns before applying it. A stale preview is rejected: reload, inspect the updated comparison, then choose again. Each book is resolved separately.
+
+Review pages contain at most 50 books. Books never manually protected or explicitly reviewed continue using the normal automatic import behavior. Failed migrations still use the existing administrator CLI retry; they are not silently treated as reviewable conflicts.

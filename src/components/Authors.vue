@@ -2,12 +2,14 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { generateUrl } from '@nextcloud/router'
 import { t, n } from '@nextcloud/l10n'
+import AuthorConflicts from './AuthorConflicts.vue'
 import CatalogueCover from './CatalogueCover.vue'
 import LabelHelp from './LabelHelp.vue'
 const props = defineProps({ requestToken: { type: String, default: '' }, catalogueUrl: { type: String, required: true } })
 const data = ref(null), busy = ref(false), error = ref(''), notice = ref(''), editing = ref(false)
 const selected = ref([]), targetSearch = ref(''), targets = ref([]), target = ref(''), review = ref(null), assigning = ref(false), history = ref([])
 const search = ref(''), unused = ref(false), page = ref(1)
+const showConflicts = new URLSearchParams(location.search).get('authorConflicts') === '1'
 const id = ref(Number(new URLSearchParams(location.search).get('authorId')) || null)
 const bookSearch = ref(''), bookSort = ref('title'), bookView = ref('grid'), bioExpanded = ref(false), photoFailed = ref(false)
 const photoFile = ref(null), removePhoto = ref(false)
@@ -89,10 +91,11 @@ async function undo(operation) {
   try { await request(`/history/${operation.id}/undo`, {}); notice.value = t('library', 'Author change undone.'); await load(page.value) }
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
-onMounted(() => load())
+onMounted(() => { if (!showConflicts) load() })
 </script>
 <template>
-  <section class="library-authors" :aria-busy="busy" aria-labelledby="authors-heading">
+  <AuthorConflicts v-if="showConflicts" :request-token="requestToken" :catalogue-url="catalogueUrl" />
+  <section v-else class="library-authors" :aria-busy="busy" aria-labelledby="authors-heading">
     <a v-if="id" :href="`${catalogueUrl}?authors=1`">{{ t('library', 'All authors') }}</a>
     <header class="author-profile-header">
       <div v-if="id && data?.author" class="author-portrait">
@@ -113,6 +116,7 @@ onMounted(() => load())
       </form>
       <p v-if="data?.migration && (data.migration.pending || data.migration.failed || data.migration.conflict)" role="status">
         {{ t('library', 'Author migration: {pending} pending, {failed} failed, {conflict} need review.', data.migration) }}
+        <a v-if="data.migration.conflict" :href="`${catalogueUrl}?authors=1&amp;authorConflicts=1`">{{ t('library', 'Review imported author changes') }}</a>
         <button :disabled="busy" @click="load(page)">{{ t('library', 'Refresh') }}</button>
       </p>
       <ul v-if="data" class="author-directory">

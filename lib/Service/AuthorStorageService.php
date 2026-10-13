@@ -57,7 +57,7 @@ final class AuthorStorageService {
         try {
             $sqlite = $this->db->getDatabaseProvider() === 'sqlite';
             if ($sqlite) $this->db->executeStatement('UPDATE *PREFIX*library_items SET id=id WHERE user_id = ? AND id = ?', [$uid, $itemId]);
-            $item = $this->rows('SELECT authors_json,creators,author_sync_status FROM *PREFIX*library_items WHERE user_id = ? AND id = ?' . ($sqlite ? '' : ' FOR UPDATE'), [$uid, $itemId])[0] ?? null;
+            $item = $this->rows('SELECT authors_json,creators,author_sync_status,author_source_hash FROM *PREFIX*library_items WHERE user_id = ? AND id = ?' . ($sqlite ? '' : ' FOR UPDATE'), [$uid, $itemId])[0] ?? null;
             if ($item === null || (int)$item['author_sync_status'] !== self::PENDING) { $this->db->commit(); return; }
             // Legacy parsing must not turn corrupt data into a successful empty author migration.
             $names = $item['authors_json'] !== null
@@ -68,6 +68,11 @@ final class AuthorStorageService {
             $this->db->executeStatement('UPDATE *PREFIX*library_author_state SET updated_at = ? WHERE user_id = ?', [time(), $uid]);
             $links = $this->rows('SELECT l.*,a.field_sources AS author_sources FROM *PREFIX*library_item_authors l INNER JOIN *PREFIX*library_authors a ON a.id=l.author_id AND a.user_id=l.user_id WHERE l.user_id = ? AND l.item_id = ? ORDER BY l.position', [$uid, $itemId]);
             $oldNames = array_column($links, 'source_name');
+            if ($item['author_source_hash'] !== null) {
+                $this->setStatus($uid, $itemId, $item['author_source_hash'] === $this->sourceHash($names) ? self::SYNCED : self::CONFLICT);
+                $this->db->commit();
+                return;
+            }
             if ($oldNames === $names) {
                 $this->setStatus($uid, $itemId, self::SYNCED);
                 $this->db->commit();
@@ -97,6 +102,60 @@ final class AuthorStorageService {
                 $qb->insert('library_item_authors')->values(array_map(fn($value) => $qb->createNamedParameter($value), $values))->executeStatement();
             }
             $this->setStatus($uid, $itemId, self::SYNCED);
+            $this->db->commit();
+        } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
+    }
+
+    private function sourceHash(array $names): string {
+        return hash('sha256', json_encode($names, JSON_THROW_ON_ERROR));
+    }
+    private function acknowledge(string $uid, int $itemId, array $names): void {
+        $this->db->executeStatement('UPDATE *PREFIX*library_items SET author_sync_status=?,author_source_hash=? WHERE user_id=? AND id=?', [self::SYNCED, $this->sourceHash($names), $uid, $itemId]);
+    }
+    /** Indexed, bounded review queue. Source documents and metadata are never changed here. */
+    public function conflicts(string $uid, int $page = 1): array {
+        if ($page < 1 || $page > 100000) throw new \InvalidArgumentException('page');
+        $rows = $this->rows('SELECT id,title FROM *PREFIX*library_items WHERE user_id=? AND author_sync_status=? ORDER BY id LIMIT 51 OFFSET ' . (($page - 1) * 50), [$uid, self::CONFLICT]);
+        return ['books' => array_slice($rows, 0, 50), 'page' => $page, 'hasNext' => count($rows) > 50];
+    }
+    private function conflictSnapshot(string $uid, int $itemId, bool $lock = false): array {
+        $sqlite = $this->db->getDatabaseProvider() === 'sqlite';
+        if ($lock && $sqlite) $this->db->executeStatement('UPDATE *PREFIX*library_items SET id=id WHERE user_id=? AND id=?', [$uid, $itemId]);
+        $item = $this->rows('SELECT id,title,authors_json,creators,author_sync_status,author_source_hash FROM *PREFIX*library_items WHERE user_id=? AND id=?' . ($lock && !$sqlite ? ' FOR UPDATE' : ''), [$uid, $itemId])[0] ?? null;
+        if ($item === null) throw new \OutOfBoundsException('book');
+        if ((int)$item['author_sync_status'] !== self::CONFLICT) throw new \OCA\Library\Exception\ListConflictException('conflict_resolved');
+        // Same item → account → authors/relationships lock order as imports and assignments.
+        if ($lock) $this->db->executeStatement('UPDATE *PREFIX*library_author_state SET updated_at=? WHERE user_id=?', [time(), $uid]);
+        $links = $this->rows('SELECT l.*,a.display_name,a.revision AS author_revision,a.merged_into FROM *PREFIX*library_item_authors l INNER JOIN *PREFIX*library_authors a ON a.id=l.author_id AND a.user_id=l.user_id WHERE l.user_id=? AND l.item_id=? ORDER BY l.position', [$uid, $itemId]);
+        $names = $item['authors_json'] !== null ? AuthorNames::normalize(json_decode($item['authors_json'], true, 64, JSON_THROW_ON_ERROR)) : AuthorNames::fromText($item['creators']);
+        return ['item' => $item, 'links' => $links, 'incoming' => $names];
+    }
+    private function conflictToken(array $snapshot): string {
+        return hash('sha256', json_encode($snapshot, JSON_THROW_ON_ERROR));
+    }
+    public function previewConflict(string $uid, int $itemId): array {
+        $snapshot = $this->conflictSnapshot($uid, $itemId);
+        return ['id' => $itemId, 'title' => $snapshot['item']['title'], 'token' => $this->conflictToken($snapshot),
+            'current' => array_map(fn($link) => ['name' => $link['display_name'], 'credit' => $link['source_name']], $snapshot['links']), 'incoming' => $snapshot['incoming']];
+    }
+    public function resolveConflict(string $uid, int $itemId, string $choice, string $token): void {
+        if (!in_array($choice, ['keep', 'import'], true)) throw new \InvalidArgumentException('choice');
+        $this->db->beginTransaction();
+        try {
+            $snapshot = $this->conflictSnapshot($uid, $itemId, true);
+            if (!hash_equals($this->conflictToken($snapshot), $token)) throw new \OCA\Library\Exception\ListConflictException('preview_stale');
+            if ($choice === 'import') {
+                $this->db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=?', [$uid, $itemId]);
+                foreach ($snapshot['incoming'] as $position => $credit) {
+                    $values = ['user_id' => $uid, 'item_id' => $itemId, 'author_id' => $this->resolve($uid, $credit), 'position' => $position, 'source_name' => $credit, 'source_sort_name' => null, 'assignment_source' => 'manual', 'revision' => 1];
+                    $q = $this->db->getQueryBuilder();
+                    $q->insert('library_item_authors')->values(array_map(fn($v) => $q->createNamedParameter($v), $values))->executeStatement();
+                }
+            } else {
+                // A reviewed decision protects these assignments from subsequent changed imports.
+                $this->db->executeStatement("UPDATE *PREFIX*library_item_authors SET assignment_source='manual',revision=revision+1 WHERE user_id=? AND item_id=?", [$uid, $itemId]);
+            }
+            $this->acknowledge($uid, $itemId, $snapshot['incoming']);
             $this->db->commit();
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
     }

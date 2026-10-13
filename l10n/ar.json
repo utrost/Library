@@ -1110,7 +1110,18 @@
         "Covers": "الأغلفة",
         "No books match this view.": "لا توجد كتب مطابقة لهذا العرض.",
         "No series recorded": "لم تُسجّل سلسلة",
-        "File missing": "الملف مفقود"
+        "File missing": "الملف مفقود",
+        "Review imported author changes": "مراجعة تغييرات المؤلفين المستوردة",
+        "This book or its author assignments changed. Reload and review again.": "تغيّر هذا الكتاب أو تعيين مؤلفيه. أعد التحميل والمراجعة.",
+        "Could not load or resolve the author change. Please retry.": "تعذّر تحميل تغيير المؤلف أو حسمه. حاول مجددًا.",
+        "Author change resolved. Book metadata and files are unchanged.": "تم حسم تغيير المؤلف. لم تتغير بيانات الكتاب أو ملفاته.",
+        "Current assignments": "التعيينات الحالية",
+        "Imported credits": "أسماء المؤلفين المستوردة",
+        "No authors recorded": "لم يُسجّل مؤلفون",
+        "Using imported authors replaces this book’s current assignments. Book metadata and files stay unchanged. This decision has no automatic undo.": "يؤدي استخدام المؤلفين المستوردين إلى استبدال تعيينات هذا الكتاب الحالية. لا تتغير بيانات الكتاب أو ملفاته. لا يمكن التراجع تلقائيًا عن هذا القرار.",
+        "Keep current assignments": "الاحتفاظ بالتعيينات الحالية",
+        "Use imported authors": "استخدام المؤلفين المستوردين",
+        "No author changes need review.": "لا توجد تغييرات مؤلفين تحتاج إلى مراجعة."
     },
     "pluralForm": "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 }

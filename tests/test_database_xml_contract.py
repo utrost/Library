@@ -135,7 +135,7 @@ EXPECTED_TABLES.update({
         "fields": {"user_id", "updated_at"}, "indexes": {"library_author_state_pk"},
     },
 })
-EXPECTED_TABLES["*dbprefix*library_items"]["fields"].add("author_sync_status")
+EXPECTED_TABLES["*dbprefix*library_items"]["fields"].update({"author_sync_status", "author_source_hash"})
 EXPECTED_TABLES["*dbprefix*library_items"]["indexes"].update({"library_author_pending", "library_author_user_status"})
 
 
