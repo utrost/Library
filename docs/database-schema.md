@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3.0-alpha.3**, 2026-10-13. Covers 29 app-owned tables through `Version000300Date20261013210000`. The author additions passed fresh installation and populated upgrade on SQLite NC34 and are deployed on MariaDB developer NC34.
+Snapshot: **0.3.0-alpha.4**, 2026-10-13. Covers 29 app-owned tables through `Version000300Date20261013230000`. The author additions passed fresh installation and populated upgrade on SQLite NC34 and are deployed on MariaDB developer NC34.
 
 ## Schema ownership
 
@@ -24,7 +24,7 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_author_state` | 2 | 1 | Per-user transaction coordination for identity reuse. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
 | `library_files` | 17 | 8 | Nextcloud file identity, observed paths/revisions and scan diagnostics. |
-| `library_items` | 42 | 25 | Catalogue metadata, ordered authors, provenance, review flags and cover revision. |
+| `library_items` | 43 | 25 | Catalogue metadata, ordered authors, provenance, review flags and cover revision. |
 | `library_scan_jobs` | 24 | 2 | Scan history, counters, heartbeat and current progress. |
 | `library_saved_collections` | 6 | 3 | Named saved filter definitions. |
 | `library_item_identifiers` | 11 | 3 | Normalized ISBN/ISSN values and identifier provenance. |
@@ -81,3 +81,9 @@ Preferred display fields are calculated for bounded read results; no new denorma
 `Version000300Date20261013210000` adds nullable `biography` text and `photo_key` string(36) to author identities. The API limits biography to 10,000 characters. A photo key references a private account-scoped app-data JPEG, never an external URL. Uploads are re-encoded to a square of at most 320 pixels and 100 KiB; originals are discarded. Names, biography and photo reference share the author revision guard. Replacement/removal deletes the previous portrait; account deletion removes the account portrait folder. Database rollback compensates newly stored portraits. Database and app-data storage are not a distributed transaction: an interrupted process can leave an unreferenced private file.
 
 Photo and biography are optional manual profile attributes. Merge retains the destination profile; the retired source profile remains available for conditional undo. Profile edits also participate in author-operation snapshot checks. No ebook metadata is rewritten by editing these attributes.
+
+## Reviewed author source checkpoint
+
+`Version000300Date20261013230000` adds nullable string(64) `library_items.author_source_hash`. It stores the SHA-256 hash of the ordered, normalized source credit array only after explicit conflict resolution. Existing and ordinarily imported books retain NULL; they need no backfill and preserve automatic import behavior.
+
+A reviewed book with the same incoming credit hash stays synchronized without changing its chosen relationships. A different hash returns it to conflict, including when the chosen relationship set is empty. This field is a comparison checkpoint, not an author identity or duplicate-detection key. The queue uses the existing `(user_id, author_sync_status, id)` index and a 51-row pagination probe. Resolution locks the item, then the account coordination row, rechecks its preview fingerprint and commits relationships/status/checkpoint together.

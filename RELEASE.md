@@ -1,6 +1,6 @@
 # Release process
 
-Development has moved to **0.3.0-alpha.3**, with author migration, browsing and editing deployed on developer NC34. The owner has chosen 0.3 as the first App Store release; **do not submit the 0.2 archive**. The signed 0.2 baseline below remains preserved. The [author profile verification report](docs/compatibility-evidence/2026-10-13-author-profiles-alpha3/README.md) covers this development slice, not a signed 0.3 release package.
+Development has moved to **0.3.0-alpha.4**, with author migration, browsing and editing deployed on developer NC34. The owner has chosen 0.3 as the first App Store release; **do not submit the 0.2 archive**. The signed 0.2 baseline below remains preserved. The [imported author review verification report](docs/compatibility-evidence/2026-10-13-author-conflicts-alpha4/README.md) covers this development slice, not a signed 0.3 release package.
 
 ## Current 0.2 beta release
 

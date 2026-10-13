@@ -13,7 +13,7 @@ use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
 final class AuthorController extends Controller {
-    public function __construct(string $appName, IRequest $request, private AuthorDirectoryService $authors, private \OCA\Library\Service\AuthorAssignmentService $assignments, private IUserSession $session, private LoggerInterface $logger, private \OCA\Library\Service\AuthorPhotoService $photos, private \OCA\Library\Service\ManualCoverUploadService $uploads) { parent::__construct($appName, $request); }
+    public function __construct(string $appName, IRequest $request, private AuthorDirectoryService $authors, private \OCA\Library\Service\AuthorAssignmentService $assignments, private IUserSession $session, private LoggerInterface $logger, private \OCA\Library\Service\AuthorStorageService $storage, private \OCA\Library\Service\AuthorPhotoService $photos, private \OCA\Library\Service\ManualCoverUploadService $uploads) { parent::__construct($appName, $request); }
     #[NoAdminRequired]
     #[NoCSRFRequired]
     public function index(): JSONResponse {
@@ -70,6 +70,19 @@ final class AuthorController extends Controller {
     #[NoAdminRequired]
     public function undo(string $operationId): JSONResponse {
         return $this->respond(function ($uid) use ($operationId) { $this->assignments->undo($uid, $operationId); return ['undone' => true]; });
+    }
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function conflicts(): JSONResponse { return $this->respond(fn($uid) => $this->storage->conflicts($uid, $this->integer('page', 1))); }
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function conflict(int $itemId): JSONResponse { return $this->respond(fn($uid) => $this->storage->previewConflict($uid, $itemId)); }
+    #[NoAdminRequired]
+    public function resolveConflict(int $itemId): JSONResponse {
+        return $this->respond(function ($uid) use ($itemId) {
+            $this->storage->resolveConflict($uid, $itemId, $this->text('choice'), $this->text('token'));
+            return ['resolved' => true];
+        });
     }
     private function selected(): array {
         $ids = $this->request->getParam('items', []);

@@ -1051,7 +1051,18 @@ OC.L10N.register(
         "Covers": "Covers",
         "No books match this view.": "No books match this view.",
         "No series recorded": "No series recorded",
-        "File missing": "File missing"
+        "File missing": "File missing",
+        "Review imported author changes": "Review imported author changes",
+        "This book or its author assignments changed. Reload and review again.": "This book or its author assignments changed. Reload and review again.",
+        "Could not load or resolve the author change. Please retry.": "Could not load or resolve the author change. Please retry.",
+        "Author change resolved. Book metadata and files are unchanged.": "Author change resolved. Book metadata and files are unchanged.",
+        "Current assignments": "Current assignments",
+        "Imported credits": "Imported credits",
+        "No authors recorded": "No authors recorded",
+        "Using imported authors replaces this book’s current assignments. Book metadata and files stay unchanged. This decision has no automatic undo.": "Using imported authors replaces this book’s current assignments. Book metadata and files stay unchanged. This decision has no automatic undo.",
+        "Keep current assignments": "Keep current assignments",
+        "Use imported authors": "Use imported authors",
+        "No author changes need review.": "No author changes need review."
     },
     "nplurals=2; plural=(n != 1);"
 );

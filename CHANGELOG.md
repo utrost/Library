@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- Fix seven author-pending updates to bind integer status values correctly on MariaDB, covering metadata editing, rescans, inference and scanner-candidate resets.
+
+- Add per-book review of imported author changes: compare current assignments and incoming credits, keep assignments or use imported authors, reject stale previews, and remember reviewed source credits across rescans.
+
 - Extend author profiles with optional private portraits and biographies, title search, covers/list views, date sorting and paged series grouping. Validate and resize uploads, reject stale edits, and remove portraits on account deletion.
 
 - Begin 0.3 author management with additive identity/relationship storage and a resumable background migration.

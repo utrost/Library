@@ -1051,7 +1051,18 @@ OC.L10N.register(
         "Covers": "Buchcover",
         "No books match this view.": "Keine Bücher entsprechen dieser Ansicht.",
         "No series recorded": "Keine Reihe erfasst",
-        "File missing": "Datei fehlt"
+        "File missing": "Datei fehlt",
+        "Review imported author changes": "Importierte Autorenänderungen prüfen",
+        "This book or its author assignments changed. Reload and review again.": "Dieses Buch oder seine Autorenzuordnungen wurden geändert. Laden Sie die Ansicht neu und prüfen Sie erneut.",
+        "Could not load or resolve the author change. Please retry.": "Die Autorenänderung konnte nicht geladen oder aufgelöst werden. Bitte versuchen Sie es erneut.",
+        "Author change resolved. Book metadata and files are unchanged.": "Autorenänderung aufgelöst. Buchmetadaten und Dateien bleiben unverändert.",
+        "Current assignments": "Aktuelle Zuordnungen",
+        "Imported credits": "Importierte Autorenangaben",
+        "No authors recorded": "Keine Autoren erfasst",
+        "Using imported authors replaces this book’s current assignments. Book metadata and files stay unchanged. This decision has no automatic undo.": "Die importierten Autoren ersetzen die aktuellen Zuordnungen dieses Buches. Buchmetadaten und Dateien bleiben unverändert. Diese Entscheidung lässt sich nicht automatisch rückgängig machen.",
+        "Keep current assignments": "Aktuelle Zuordnungen behalten",
+        "Use imported authors": "Importierte Autoren verwenden",
+        "No author changes need review.": "Keine Autorenänderungen müssen geprüft werden."
     },
     "nplurals=2; plural=(n != 1);"
 );

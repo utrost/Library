@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- Schema reference for 0.3.0-alpha.3, through Version000300Date20261013210000.
+<!-- Schema reference for 0.3.0-alpha.4, through Version000300Date20261013230000.
      lib/Migration is authoritative for installation and upgrades; see docs/database-schema.md. -->
 <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/database.xsd">
@@ -266,6 +266,7 @@
     <table>
         <name>*dbprefix*library_items</name>
         <declaration>
+            <field><name>author_source_hash</name><type>string</type><length>64</length><notnull>false</notnull></field>
             <field><name>author_sync_status</name><type>integer</type><length>2</length><notnull>true</notnull><default>1</default></field>
             <index><name>library_author_pending</name><field><name>author_sync_status</name></field><field><name>id</name></field></index>
             <index><name>library_author_user_status</name><field><name>user_id</name></field><field><name>author_sync_status</name></field><field><name>id</name></field></index>

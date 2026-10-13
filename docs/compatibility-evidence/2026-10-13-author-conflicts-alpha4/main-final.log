@@ -1,0 +1,61 @@
+
+Running 35 tests using 1 worker
+
+(node:2823074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/35] [desktop-chromium] › tests/gui/catalogue/catalogue-empty-results-recovery.spec.ts:4:1 › recovers after a search returns no catalogue results @catalogue @search @edge-case @regression
+[2/35] [desktop-chromium] › tests/gui/catalogue/catalogue-filter-chips-clear-all.spec.ts:4:1 › removes one desktop filter and clears selection filters while preserving sort and view @catalogue @filters @regression @desktop
+[3/35] [desktop-chromium] › tests/gui/catalogue/catalogue-history-navigation.spec.ts:4:1 › keeps catalogue and detail state consistent through history navigation @catalogue @navigation @timing @regression
+[4/35] [desktop-chromium] › tests/gui/catalogue/catalogue-list-layout.spec.ts:4:1 › keeps list covers readable and action buttons inside the table @catalogue @list @visual
+[5/35] [desktop-chromium] › tests/gui/catalogue/catalogue-loading-state.spec.ts:4:1 › announces a pending catalogue request and clears loading state @catalogue @loading @timing @regression
+[6/35] [desktop-chromium] › tests/gui/catalogue/catalogue-search-detail.spec.ts:4:1 › searches for a deterministic publication and opens and closes its details @catalogue @detail @smoke
+[7/35] [desktop-chromium] › tests/gui/details/metadata-edit-persistence.spec.ts:4:1 › edits metadata, rescans, then repairs the suggestion and restores the title @details @metadata @scan @review @smoke @mutation
+[8/35] [desktop-chromium] › tests/gui/inference/path-inference.spec.ts:4:1 › patterns select immediately, persist privately and delete; inference stays read-only @inference @smoke
+[9/35] [desktop-chromium] › tests/gui/inference/path-inference.spec.ts:73:1 › saved pattern API enforces ownership, validation and CSRF @inference @security
+[10/35] [desktop-chromium] › tests/gui/lists/personal-lists.spec.ts:15:1 › maintains a private reading list with notes and ordering @lists @smoke
+[11/35] [desktop-chromium] › tests/gui/settings/context-help.spec.ts:4:1 › settings explanations use accessible label help @help @smoke
+[12/35] [desktop-chromium] › tests/gui/settings/folder-picker-existing-user.spec.ts:4:1 › opens and closes the real folder picker for an existing root @settings @folder-picker @regression
+[13/35] [desktop-chromium] › tests/gui/settings/metadata-export-import-roundtrip.spec.ts:5:1 › exports a corrected item, previews and applies an imported title, then restores the item @metadata @import @export @smoke @mutation
+[14/35] [desktop-chromium] › tests/gui/settings/scan-root-browse.spec.ts:4:1 › scans a configured root and finds its publication in the catalogue @scan @catalogue @smoke @mutation
+[15/35] [desktop-chromium] › tests/gui/settings/thumbnail-cache.spec.ts:4:1 › administrator can configure thumbnail budget and retention @settings @performance
+(node:2828964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[16/35] [desktop-firefox] › tests/gui/catalogue/catalogue-empty-results-recovery.spec.ts:4:1 › recovers after a search returns no catalogue results @catalogue @search @edge-case @regression
+[17/35] [desktop-firefox] › tests/gui/catalogue/catalogue-filter-chips-clear-all.spec.ts:4:1 › removes one desktop filter and clears selection filters while preserving sort and view @catalogue @filters @regression @desktop
+[18/35] [desktop-firefox] › tests/gui/catalogue/catalogue-history-navigation.spec.ts:4:1 › keeps catalogue and detail state consistent through history navigation @catalogue @navigation @timing @regression
+[19/35] [desktop-firefox] › tests/gui/catalogue/catalogue-list-layout.spec.ts:4:1 › keeps list covers readable and action buttons inside the table @catalogue @list @visual
+[20/35] [desktop-firefox] › tests/gui/catalogue/catalogue-loading-state.spec.ts:4:1 › announces a pending catalogue request and clears loading state @catalogue @loading @timing @regression
+[21/35] [desktop-firefox] › tests/gui/catalogue/catalogue-search-detail.spec.ts:4:1 › searches for a deterministic publication and opens and closes its details @catalogue @detail @smoke
+[22/35] [desktop-firefox] › tests/gui/details/metadata-edit-persistence.spec.ts:4:1 › edits metadata, rescans, then repairs the suggestion and restores the title @details @metadata @scan @review @smoke @mutation
+[23/35] [desktop-firefox] › tests/gui/inference/path-inference.spec.ts:4:1 › patterns select immediately, persist privately and delete; inference stays read-only @inference @smoke
+[24/35] [desktop-firefox] › tests/gui/inference/path-inference.spec.ts:73:1 › saved pattern API enforces ownership, validation and CSRF @inference @security
+[25/35] [desktop-firefox] › tests/gui/lists/personal-lists.spec.ts:15:1 › maintains a private reading list with notes and ordering @lists @smoke
+[26/35] [desktop-firefox] › tests/gui/settings/context-help.spec.ts:4:1 › settings explanations use accessible label help @help @smoke
+[27/35] [desktop-firefox] › tests/gui/settings/folder-picker-existing-user.spec.ts:4:1 › opens and closes the real folder picker for an existing root @settings @folder-picker @regression
+[desktop-firefox] › tests/gui/settings/folder-picker-existing-user.spec.ts:4:1 › opens and closes the real folder picker for an existing root @settings @folder-picker @regression
+[pageerror at http://127.0.0.1:32800/settings/user/library] Error: FilePicker: No nodes selected
+    at pick (http://127.0.0.1:32800/dist/core-common.js?v=3de580ec-0:1:2540226)
+    at async*filepicker (http://127.0.0.1:32800/dist/core-main.js?v=3de580ec-0:1:57589)
+    at openPicker (http://127.0.0.1:32800/custom_apps/library/js/settings-folder-picker-dialog.js?v=3de580ec-0:39:51)
+    at  (http://127.0.0.1:32800/custom_apps/library/js/settings-folder-picker-dialog.js?v=3de580ec-0:55:36)
+    at EventListener.handleEvent* (http://127.0.0.1:32800/custom_apps/library/js/settings-folder-picker-dialog.js?v=3de580ec-0:49:16)
+    at  (http://127.0.0.1:32800/custom_apps/library/js/settings-folder-picker-dialog.js?v=3de580ec-0:7:81)
+    at EventListener.handleEvent* (http://127.0.0.1:32800/custom_apps/library/js/settings-folder-picker-dialog.js?v=3de580ec-0:1:10)
+
+[28/35] [desktop-firefox] › tests/gui/settings/metadata-export-import-roundtrip.spec.ts:5:1 › exports a corrected item, previews and applies an imported title, then restores the item @metadata @import @export @smoke @mutation
+[29/35] [desktop-firefox] › tests/gui/settings/scan-root-browse.spec.ts:4:1 › scans a configured root and finds its publication in the catalogue @scan @catalogue @smoke @mutation
+[30/35] [desktop-firefox] › tests/gui/settings/thumbnail-cache.spec.ts:4:1 › administrator can configure thumbnail budget and retention @settings @performance
+(node:2831835) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[31/35] [mobile-chromium] › tests/gui/catalogue/catalogue-list-layout.spec.ts:88:1 › keeps the list table horizontally usable on phones @catalogue @list @mobile
+[32/35] [mobile-chromium] › tests/gui/inference/path-inference.spec.ts:59:1 › inference label help works by tap without horizontal overflow @inference @mobile
+[33/35] [mobile-chromium] › tests/gui/lists/personal-lists.spec.ts:91:1 › list editor works on a narrow screen @lists @mobile
+[34/35] [mobile-chromium] › tests/gui/mobile/mobile-catalogue-filters.spec.ts:4:1 › applies and clears catalogue filters at a phone viewport @catalogue @filters @mobile @smoke
+[35/35] [mobile-chromium] › tests/gui/mobile/mobile-no-horizontal-overflow.spec.ts:25:1 › keeps catalogue controls and filtered results within the phone viewport @mobile @layout @css @regression
+  35 passed (3.4m)

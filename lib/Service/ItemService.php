@@ -142,7 +142,7 @@ final class ItemService {
                 $trusted = $live['user_edited'] === '0' && in_array($source, ['epub-opf', 'opf', 'sidecar-opf', 'cbz-comicinfo'], true);
                 try { $names = AuthorNames::fromText($live['creators'], $trusted); } catch (\InvalidArgumentException) { $names = []; }
                 $update = $this->db->getQueryBuilder();
-                $update->update('library_items')->set('author_sync_status', '1')->set('authors_json', $update->createNamedParameter(AuthorNames::encode($names)))
+                $update->update('library_items')->set('author_sync_status', $update->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT))->set('authors_json', $update->createNamedParameter(AuthorNames::encode($names)))
                     ->where($update->expr()->eq('id', $update->createNamedParameter($id)))
                     ->andWhere($update->expr()->eq('user_id', $update->createNamedParameter($uid)))->executeStatement();
                 $this->refreshAuthorFacetIndex($uid, $id, $names);
@@ -413,7 +413,7 @@ final class ItemService {
         $qb->update('library_items')->set('updated_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
-        if (array_key_exists('authors_json', $values) || array_key_exists('creators', $values)) $qb->set('author_sync_status', '1');
+        if (array_key_exists('authors_json', $values) || array_key_exists('creators', $values)) $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT));
         foreach ($values as $column => $value) $qb->set($column, $qb->createNamedParameter($value));
         $qb->executeStatement();
         $item = $this->findItem($userId, $itemId);
@@ -448,7 +448,7 @@ final class ItemService {
             ->set('title', $qb->createNamedParameter($title))
             ->set('subtitle', $qb->createNamedParameter($this->nullableString($metadata['subtitle'] ?? null)))
             ->set('creators', $qb->createNamedParameter($this->nullableString($metadata['creators'] ?? null)))
-            ->set('author_sync_status', '1')->set('authors_json', $qb->createNamedParameter(AuthorNames::encode($authors)))
+            ->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT))->set('authors_json', $qb->createNamedParameter(AuthorNames::encode($authors)))
             ->set('publication', $qb->createNamedParameter($this->nullableString($metadata['publication'] ?? null)))
             ->set('publication_date', $qb->createNamedParameter($this->nullableString($metadata['publicationDate'] ?? null)))
             ->set('language', $qb->createNamedParameter($this->nullableString($metadata['language'] ?? null)))
@@ -617,7 +617,7 @@ final class ItemService {
 
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items');
-        if ($field === 'creators') $qb->set('author_sync_status', '1')->set('authors_json', $qb->createNamedParameter($candidateValues['authors']));
+        if ($field === 'creators') $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT))->set('authors_json', $qb->createNamedParameter($candidateValues['authors']));
         $affected = $qb
             ->set($column, $qb->createNamedParameter($this->databaseValueForField($field, $candidateValues[$field])))
             ->set('metadata_source', $qb->createNamedParameter('mixed'))
@@ -667,7 +667,7 @@ final class ItemService {
             $candidateSources[$field] = $field === 'creators' ? ($candidateValues['authorsSource'] ?? 'scanner') : ($candidateSources[$field] ?? 'scanner');
             $candidateValues[$field] = (string)$candidateValues[$field];
             $update->set($column, $qb->createNamedParameter($this->databaseValueForField($field, $candidateValues[$field])));
-            if ($field === 'creators') $update->set('author_sync_status', '1')->set('authors_json', $qb->createNamedParameter($candidateValues['authors'] ?? AuthorNames::encode(AuthorNames::fromText($candidateValues[$field]))));
+            if ($field === 'creators') $update->set('author_sync_status', $update->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT))->set('authors_json', $qb->createNamedParameter($candidateValues['authors'] ?? AuthorNames::encode(AuthorNames::fromText($candidateValues[$field]))));
             $hasCandidate = true;
         }
         if (!$hasCandidate) {
@@ -821,7 +821,7 @@ final class ItemService {
 
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items');
-        if ($field === 'creators') $qb->set('author_sync_status', '1')->set('authors_json', $qb->createNamedParameter(AuthorNames::encode(AuthorNames::fromText($normalizedValue, true))));
+        if ($field === 'creators') $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT))->set('authors_json', $qb->createNamedParameter(AuthorNames::encode(AuthorNames::fromText($normalizedValue, true))));
         $affected = $qb
             ->set($column, $qb->createNamedParameter($normalizedValue))
             ->set('metadata_source', $qb->createNamedParameter('user'))
@@ -2788,7 +2788,7 @@ final class ItemService {
         }
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items');
-        if (AuthorNames::read($existing['authors_json'], $existing['creators']) !== $metadataCandidate['authors']) $qb->set('author_sync_status', '1');
+        if (AuthorNames::read($existing['authors_json'], $existing['creators']) !== $metadataCandidate['authors']) $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT));
         $qb
             ->set('publication_type', $qb->createNamedParameter($metadataCandidate['publicationType']))
             ->set('title', $qb->createNamedParameter($metadataCandidate['title']))
