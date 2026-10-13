@@ -1,6 +1,6 @@
 # Rough roadmap after v0.1
 
-Development status: `0.2.0-alpha.24`, updated 2026-09-27. [Alpha.23](performance/2026-09-27-alpha23/README.md) is the latest complete NC33–35 compatibility run; [alpha.24](performance/2026-09-27-alpha24/README.md) has developer NC34 verification.
+Development status: `0.3.0-alpha.1`, updated 2026-10-13. Version 0.3 is the first planned App Store release. Signed `0.2.0-beta.3` remains the verified release baseline; author storage, browsing and editing are deployed on developer NC34.
 
 Alpha.21: [Automatic scans](automatic-scans.md) are implemented with per-account intervals, existing scan history and unchanged-file extraction skips. Alpha.23 implements bounded folder traversal; event-driven file updates and additional scan SQL reduction remain future work.
 
@@ -61,7 +61,7 @@ Acceptance checks:
 
 Direction updated 2026-10-13: [Author management for release 0.3](v0.3-author-management.md) defines normalised per-user author identities, ordered book relationships, import handling, author pages, editing, reviewed merging and conditional undo. No dedicated aliases table is planned. Migration, rescan protection and large-library performance are part of this feature.
 
-This replaces external metadata providers as the proposed 0.3 focus. The provider proposal below remains a later candidate; 0.2 release scope is unchanged.
+This replaces external metadata providers as the proposed 0.3 focus. The provider proposal below remains a later candidate. App Store submission of 0.2 is on hold; author management will be included in the first Store release.
 
 ## Later candidate — External metadata providers
 

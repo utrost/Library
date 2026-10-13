@@ -720,3 +720,13 @@ If extracted author metadata exceeds the supported limits or contains invalid va
 ### Repeated scan warnings
 
 Unchanged archive or invalid-metadata warnings remain in Review, but subsequent scans can reuse their previous result. Use the explicit metadata Retry action to re-extract them. Changed source files or sidecars are checked again automatically. If a source value exceeds a field limit, edit that field instead of resetting to the invalid proposal; hover over the disabled control for an explanation.
+
+## Authors (0.3 development)
+
+Open **Authors** in the left navigation. Search matches the beginning of a preferred name or sort name. Open a name to see its linked books, or use **Unused authors** to find identities without linked books. Lists are paged in groups of 50.
+
+Choose **Edit author** to set the preferred name, sort name and optional given/family names. A sort name such as “Doe, John” controls directory ordering; it does not automatically change the preferred name. Help is available from the label's help control. Save updates the shared identity; original credits and ebook files are preserved. If another tab changed the author, your draft stays available while you reload the latest revision.
+
+The initial author migration runs in background batches. Progress and failures appear in the directory; editing becomes available once pending work and failures are resolved. Administrators can inspect or retry using `occ library:authors:migrate USER_ID` (see the [migration commands](v0.3-author-management.md#storage-slice--030-alpha1)).
+
+In this development slice, preferred names appear in author pages. Existing catalogue author strings, filters and duplicate detection still use their earlier metadata. Merging, reassigning books, creator-sort import and the canonical catalogue transition follow in later 0.3 slices. A changed source credit for a manually corrected author is flagged for review instead of silently replacing that identity.

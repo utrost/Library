@@ -121,6 +121,23 @@ EXPECTED_TABLES = {
 }
 
 
+EXPECTED_TABLES.update({
+    "*dbprefix*library_authors": {
+        "fields": {"id", "user_id", "display_name", "sort_name", "given_name", "family_name", "comparison_key", "normalization_version", "revision", "field_sources"},
+        "indexes": {"library_authors_pk", "library_authors_lookup", "library_authors_sort"},
+    },
+    "*dbprefix*library_item_authors": {
+        "fields": {"id", "user_id", "item_id", "author_id", "position", "source_name", "source_sort_name", "assignment_source", "revision"},
+        "indexes": {"library_item_authors_pk", "library_item_author_position", "library_author_books"},
+    },
+    "*dbprefix*library_author_state": {
+        "fields": {"user_id", "updated_at"}, "indexes": {"library_author_state_pk"},
+    },
+})
+EXPECTED_TABLES["*dbprefix*library_items"]["fields"].add("author_sync_status")
+EXPECTED_TABLES["*dbprefix*library_items"]["indexes"].update({"library_author_pending", "library_author_user_status"})
+
+
 def child_text(element: ET.Element, name: str) -> str:
     found = element.find(name)
     assert found is not None, f"missing <{name}> in {ET.tostring(element, encoding='unicode')}"

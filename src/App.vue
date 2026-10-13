@@ -54,6 +54,7 @@ import NcContent from '@nextcloud/vue/components/NcContent'
 import ShelfTreeNode from './components/ShelfTreeNode.vue'
 import CatalogueCover from './components/CatalogueCover.vue'
 import PersonalLists from './components/PersonalLists.vue'
+import Authors from './components/Authors.vue'
 import DuplicateSuggestions from './components/DuplicateSuggestions.vue'
 import { useDuplicateSuggestions } from './duplicate-suggestions.js'
 import PossibleDuplicates from './components/PossibleDuplicates.vue'
@@ -377,6 +378,7 @@ const isHome = computed(() => catalogueState.surface === 'home')
 const isShelves = computed(() => catalogueState.surface === 'shelves')
 const isDuplicates = computed(() => catalogueState.surface === 'duplicates')
 const isInference = computed(() => catalogueState.surface === 'inference')
+const isAuthors = computed(() => catalogueState.surface === 'authors')
 const isLists = computed(() => catalogueState.surface === 'lists')
 const listsUrl = computed(() => `${catalogueRootUrl.value}?lists=1`)
 const addingToListId = Number(new URLSearchParams(window.location.search).get('addToList')) || null
@@ -386,7 +388,7 @@ async function refreshPersonalListNavigation() {
   try { personalListNavigation.value = (await listRequest()).lists } catch { /* Lists page provides retry and errors. */ }
 }
 onMounted(refreshPersonalListNavigation)
-const allPublicationsActive = computed(() => !isDuplicates.value && !isInference.value && !isLists.value && !isHome.value && !isShelves.value && !reviewActive.value && !activeFilters.starred && activeFilters.recentlyOpened !== '1' && !activeFilters.shelf)
+const allPublicationsActive = computed(() => !isAuthors.value && !isDuplicates.value && !isInference.value && !isLists.value && !isHome.value && !isShelves.value && !reviewActive.value && !activeFilters.starred && activeFilters.recentlyOpened !== '1' && !activeFilters.shelf)
 const catalogueNavigation = computed(() => [
   { key: 'home', name: t('library', 'Home'), href: homeUrl.value, active: isHome.value },
   { key: 'all', name: t('library', 'All publications'), href: catalogueRootUrl.value, active: allPublicationsActive.value },
@@ -1860,7 +1862,7 @@ function handleCatalogueKeyboardShortcuts(event) {
 }
 
 onMounted(() => {
-  if (isLists.value || isInference.value || isDuplicates.value) return
+  if (isAuthors.value || isLists.value || isInference.value || isDuplicates.value) return
   window.addEventListener('keydown', handleCatalogueKeyboardShortcuts)
   window.addEventListener('popstate', restoreCatalogueFromHistory)
   sidebarMobileQuery = window.matchMedia?.('(max-width: 1023px)') || null
@@ -1950,6 +1952,7 @@ async function toggleStar(item, event) {
             <NcAppNavigationItem class="library-navigation-saved-collection" :active="collection.active" :href="collection.href" :name="collection.name" />
             <button type="button" class="library-navigation-saved-collection-delete-action" style="background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.42); color: #fff;" :aria-label="`${t('library', 'Delete collection')}: ${collection.rawName}`" :title="`${t('library', 'Delete collection')}: ${collection.rawName}`" @click.stop.prevent="submitSavedCollectionDelete(collection.id)">✕</button>
           </div>
+          <NcAppNavigationItem :active="isAuthors" :href="`${catalogueRootUrl}?authors=1`" :name="t('library', 'Authors')" />
           <NcAppNavigationItem :active="isLists" :href="listsUrl" :name="t('library', 'Lists')" />
           <NcAppNavigationItem class="library-navigation-create-list" :href="`${listsUrl}&new=1`" :name="t('library', 'Create a new list')" />
           <NcAppNavigationItem v-for="list in personalListNavigation" :key="`personal-list-${list.id}`" class="library-navigation-personal-list" :href="`${listsUrl}&listId=${list.id}`" :name="list.name" />
@@ -1959,7 +1962,7 @@ async function toggleStar(item, event) {
         </NcAppNavigationList>
       </template>
       <template #footer>
-        <section v-if="!isLists && !isInference && !isDuplicates" class="library-sidebar-filter-section" aria-labelledby="library-sidebar-filters-heading">
+        <section v-if="!isAuthors && !isLists && !isInference && !isDuplicates" class="library-sidebar-filter-section" aria-labelledby="library-sidebar-filters-heading">
           <h2 id="library-sidebar-filters-heading">{{ t('library', 'Filters') }}</h2>
           <form method="get" class="library-filter-bar library-sidebar-filters" :aria-label="t('library', 'Catalogue search and filters')" @submit.prevent="applyAllSearchFilters">
             <input type="hidden" name="folder" :value="activeFilters.folder">
@@ -1995,6 +1998,7 @@ async function toggleStar(item, event) {
   <div id="library-app" class="library-vue-catalogue library-app" :lang="catalogueState.language || 'en'" :dir="catalogueState.direction || 'ltr'" tabindex="-1">
   <PossibleDuplicates v-if="isDuplicates" :request-token="requestToken" :review-url="reviewUrl" />
   <PathInference v-else-if="isInference" :request-token="requestToken" />
+  <Authors v-else-if="isAuthors" :request-token="requestToken" :catalogue-url="catalogueRootUrl" />
   <PersonalLists @changed="refreshPersonalListNavigation" v-else-if="isLists" :request-token="requestToken" :catalogue-url="catalogueRootUrl" :lists-url="listsUrl" />
   <template v-else>
   <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">

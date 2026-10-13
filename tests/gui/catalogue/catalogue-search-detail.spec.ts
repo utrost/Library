@@ -29,7 +29,8 @@ test('searches for a deterministic publication and opens and closes its details 
   const card = catalogue.locator('.library-cover-card').filter({ hasText: title })
   await expect(card).toHaveCount(1)
   await attachCheckpoint(page, testInfo, 'catalogue-search-results', '#library-catalogue')
-  const opener = card.locator('.library-cover-link')
+  // The hover title can cover the image button on long titles; use the visible title action.
+  const opener = card.locator('.library-cover-title-button')
   const sidebarResponse = page.waitForResponse((response) => /\/apps\/library\/items\/\d+\/sidebar$/.test(new URL(response.url()).pathname))
   await opener.click()
   expect((await sidebarResponse).ok()).toBeTruthy()

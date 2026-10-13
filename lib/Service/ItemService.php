@@ -141,7 +141,7 @@ final class ItemService {
                 $trusted = $live['user_edited'] === '0' && in_array($source, ['epub-opf', 'opf', 'sidecar-opf', 'cbz-comicinfo'], true);
                 try { $names = AuthorNames::fromText($live['creators'], $trusted); } catch (\InvalidArgumentException) { $names = []; }
                 $update = $this->db->getQueryBuilder();
-                $update->update('library_items')->set('authors_json', $update->createNamedParameter(AuthorNames::encode($names)))
+                $update->update('library_items')->set('author_sync_status', '1')->set('authors_json', $update->createNamedParameter(AuthorNames::encode($names)))
                     ->where($update->expr()->eq('id', $update->createNamedParameter($id)))
                     ->andWhere($update->expr()->eq('user_id', $update->createNamedParameter($uid)))->executeStatement();
                 $this->refreshAuthorFacetIndex($uid, $id, $names);
@@ -292,12 +292,13 @@ final class ItemService {
     public function deleteItemForLibraryFile(string $userId, int $libraryFileId): void {
         $existing = $this->findByLibraryFileId($userId, $libraryFileId);
         $qb = $this->db->getQueryBuilder();
-        $qb->delete('library_items')
+        $deleted = $qb->delete('library_items')
             ->where($qb->expr()->eq('library_file_id', $qb->createNamedParameter($libraryFileId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('user_edited', $qb->createNamedParameter(0)))
             ->executeStatement();
-        if ($existing !== null && !(bool)$existing['user_edited']) {
+        if ($deleted > 0 && $existing !== null) {
+            $this->db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id = ? AND item_id = ?', [$userId, (int)$existing['id']]);
             $this->deleteItemFacetIndex($userId, (int)$existing['id']);
             $this->deleteItemSearchIndex($userId, (int)$existing['id']);
             $this->duplicateIndex?->remove($userId, (int)$existing['id']);
@@ -344,6 +345,7 @@ final class ItemService {
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
+        $this->db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id = ? AND item_id = ?', [$userId, $itemId]);
         $this->deleteItemFacetIndex($userId, $itemId);
         $this->deleteItemSearchIndex($userId, $itemId);
         $this->duplicateIndex?->remove($userId, $itemId);
@@ -410,6 +412,7 @@ final class ItemService {
         $qb->update('library_items')->set('updated_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
+        if (array_key_exists('authors_json', $values) || array_key_exists('creators', $values)) $qb->set('author_sync_status', '1');
         foreach ($values as $column => $value) $qb->set($column, $qb->createNamedParameter($value));
         $qb->executeStatement();
         $item = $this->findItem($userId, $itemId);
@@ -444,7 +447,7 @@ final class ItemService {
             ->set('title', $qb->createNamedParameter($title))
             ->set('subtitle', $qb->createNamedParameter($this->nullableString($metadata['subtitle'] ?? null)))
             ->set('creators', $qb->createNamedParameter($this->nullableString($metadata['creators'] ?? null)))
-            ->set('authors_json', $qb->createNamedParameter(AuthorNames::encode($authors)))
+            ->set('author_sync_status', '1')->set('authors_json', $qb->createNamedParameter(AuthorNames::encode($authors)))
             ->set('publication', $qb->createNamedParameter($this->nullableString($metadata['publication'] ?? null)))
             ->set('publication_date', $qb->createNamedParameter($this->nullableString($metadata['publicationDate'] ?? null)))
             ->set('language', $qb->createNamedParameter($this->nullableString($metadata['language'] ?? null)))
@@ -613,7 +616,7 @@ final class ItemService {
 
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items');
-        if ($field === 'creators') $qb->set('authors_json', $qb->createNamedParameter($candidateValues['authors']));
+        if ($field === 'creators') $qb->set('author_sync_status', '1')->set('authors_json', $qb->createNamedParameter($candidateValues['authors']));
         $affected = $qb
             ->set($column, $qb->createNamedParameter($this->databaseValueForField($field, $candidateValues[$field])))
             ->set('metadata_source', $qb->createNamedParameter('mixed'))
@@ -663,7 +666,7 @@ final class ItemService {
             $candidateSources[$field] = $field === 'creators' ? ($candidateValues['authorsSource'] ?? 'scanner') : ($candidateSources[$field] ?? 'scanner');
             $candidateValues[$field] = (string)$candidateValues[$field];
             $update->set($column, $qb->createNamedParameter($this->databaseValueForField($field, $candidateValues[$field])));
-            if ($field === 'creators') $update->set('authors_json', $qb->createNamedParameter($candidateValues['authors'] ?? AuthorNames::encode(AuthorNames::fromText($candidateValues[$field]))));
+            if ($field === 'creators') $update->set('author_sync_status', '1')->set('authors_json', $qb->createNamedParameter($candidateValues['authors'] ?? AuthorNames::encode(AuthorNames::fromText($candidateValues[$field]))));
             $hasCandidate = true;
         }
         if (!$hasCandidate) {
@@ -817,7 +820,7 @@ final class ItemService {
 
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items');
-        if ($field === 'creators') $qb->set('authors_json', $qb->createNamedParameter(AuthorNames::encode(AuthorNames::fromText($normalizedValue, true))));
+        if ($field === 'creators') $qb->set('author_sync_status', '1')->set('authors_json', $qb->createNamedParameter(AuthorNames::encode(AuthorNames::fromText($normalizedValue, true))));
         $affected = $qb
             ->set($column, $qb->createNamedParameter($normalizedValue))
             ->set('metadata_source', $qb->createNamedParameter('user'))
@@ -2782,7 +2785,9 @@ final class ItemService {
             if ($column !== null) $metadataCandidate[$field]=$existing[$column];
         }
         $qb = $this->db->getQueryBuilder();
-        $qb->update('library_items')
+        $qb->update('library_items');
+        if (AuthorNames::read($existing['authors_json'], $existing['creators']) !== $metadataCandidate['authors']) $qb->set('author_sync_status', '1');
+        $qb
             ->set('publication_type', $qb->createNamedParameter($metadataCandidate['publicationType']))
             ->set('title', $qb->createNamedParameter($metadataCandidate['title']))
             ->set('subtitle', $qb->createNamedParameter($metadataCandidate['subtitle']))
