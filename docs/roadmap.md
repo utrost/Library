@@ -635,3 +635,5 @@ The root/update/delete/scoped-rescan, missing-item forget, corrected-metadata ex
 - [x] Measure a successful 107,717-entry full checkpoint and an unchanged 3 ms incremental scan on developer NC34; repeat service and Playwright checks on disposable NC33–35.
 
 Latest author assignment implementation and developer verification: [0.3-alpha.2 report](compatibility-evidence/2026-10-13-author-assignments-alpha2/README.md).
+
+Author profiles, photos/biographies and paged catalogue implemented: [0.3-alpha.3 evidence](compatibility-evidence/2026-10-13-author-profiles-alpha3/README.md). Other metadata normalization priorities are documented in the [author concept](v0.3-author-management.md#other-metadata-worth-normalising): series first, subjects/genres later; languages need consistent codes and identifiers already have dedicated storage.

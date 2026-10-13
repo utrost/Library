@@ -1093,7 +1093,24 @@
         "Undo": "تراجع",
         "Create separate author": "إنشاء مؤلف مستقل",
         "Creates a new person using the entered name, even if someone with that name already exists.": "ينشئ شخصًا جديدًا بالاسم المُدخل، حتى إن وُجد شخص بهذا الاسم.",
-        "This change is too large. Select fewer books to reassign.": "هذا التغيير كبير جدًا. اختر كتبًا أقل لإعادة الإسناد."
+        "This change is too large. Select fewer books to reassign.": "هذا التغيير كبير جدًا. اختر كتبًا أقل لإعادة الإسناد.",
+        "Choose a valid JPEG, PNG or WebP image up to 10 MiB.": "اختر صورة JPEG أو PNG أو WebP صالحة بحجم أقصاه 10 MiB.",
+        "Portrait of {author}": "صورة {author}",
+        "Biography": "السيرة",
+        "Show less": "عرض أقل",
+        "Show more": "عرض المزيد",
+        "Optional plain text, up to 10,000 characters. This profile is private to your account.": "نص اختياري بحد أقصى 10,000 حرف. هذا الملف خاص بحسابك.",
+        "Author photo": "صورة المؤلف",
+        "JPEG, PNG or WebP, up to 10 MiB. Saved as a small square portrait; the original upload is discarded.": "JPEG أو PNG أو WebP بحجم أقصاه 10 MiB. تُحفظ صورة مربعة صغيرة ويُحذف الملف الأصلي المرفوع.",
+        "Remove photo": "إزالة الصورة",
+        "Books in your library": "الكتب في مكتبتك",
+        "Search titles": "البحث في العناوين",
+        "Publication date, newest first": "تاريخ النشر، الأحدث أولًا",
+        "Series, then title": "السلسلة ثم العنوان",
+        "Covers": "الأغلفة",
+        "No books match this view.": "لا توجد كتب مطابقة لهذا العرض.",
+        "No series recorded": "لم تُسجّل سلسلة",
+        "File missing": "الملف مفقود"
     },
     "pluralForm": "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 }

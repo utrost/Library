@@ -13,7 +13,7 @@ use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
 final class AuthorController extends Controller {
-    public function __construct(string $appName, IRequest $request, private AuthorDirectoryService $authors, private \OCA\Library\Service\AuthorAssignmentService $assignments, private IUserSession $session, private LoggerInterface $logger) { parent::__construct($appName, $request); }
+    public function __construct(string $appName, IRequest $request, private AuthorDirectoryService $authors, private \OCA\Library\Service\AuthorAssignmentService $assignments, private IUserSession $session, private LoggerInterface $logger, private \OCA\Library\Service\AuthorPhotoService $photos, private \OCA\Library\Service\ManualCoverUploadService $uploads) { parent::__construct($appName, $request); }
     #[NoAdminRequired]
     #[NoCSRFRequired]
     public function index(): JSONResponse {
@@ -22,16 +22,37 @@ final class AuthorController extends Controller {
     #[NoAdminRequired]
     #[NoCSRFRequired]
     public function show(int $authorId): JSONResponse {
-        return $this->respond(fn($uid) => $this->authors->page($uid, $authorId, $this->integer('page', 1)));
+        return $this->respond(fn($uid) => $this->authors->page($uid, $authorId, $this->integer('page', 1), $this->text('search'), $this->text('sort') ?: 'title'));
     }
     #[NoAdminRequired]
     public function update(int $authorId): JSONResponse {
         return $this->respond(function ($uid) use ($authorId) {
             $fields = [];
             foreach (['display_name','sort_name','given_name','family_name'] as $field) $fields[$field] = $this->text($field);
-            $this->authors->update($uid, $authorId, $this->integer('revision'), $fields);
+            $this->authors->profile($uid, $authorId); // Authorize before decoding an upload.
+            if ($this->request->getParam('biography', null) !== null) $fields['biography'] = $this->text('biography');
+            $upload = $_FILES['photo'] ?? null;
+            $photo = is_array($upload) && ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE ? $this->uploads->validateUpload($upload)['content'] : null;
+            $remove = $this->request->getParam('remove_photo', false);
+            if (!in_array($remove, [false, true, '0', '1'], true)) throw new \InvalidArgumentException('remove_photo');
+            $this->authors->update($uid, $authorId, $this->integer('revision'), $fields, $photo, $remove === true || $remove === '1');
             return $this->authors->page($uid, $authorId);
         });
+    }
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function photo(int $authorId): \OCP\AppFramework\Http\DataDownloadResponse|JSONResponse {
+        $user = $this->session->getUser();
+        $headers = ['Cache-Control' => 'private, no-store', 'X-Content-Type-Options' => 'nosniff'];
+        if ($user === null) return new JSONResponse(['error' => 'unauthenticated'], 401, $headers);
+        try {
+            $author = $this->authors->profile($user->getUID(), $authorId);
+            if ($author['photo_key'] === null) throw new \OutOfBoundsException('photo');
+            $response = new \OCP\AppFramework\Http\DataDownloadResponse($this->photos->get($user->getUID(), $author['photo_key']), 'author.jpg', 'image/jpeg');
+            foreach ($headers as $key => $value) $response->addHeader($key, $value);
+            $response->addHeader('Content-Disposition', 'inline; filename="author.jpg"');
+            return $response;
+        } catch (\OutOfBoundsException|\OCP\Files\NotFoundException) { return new JSONResponse(['error' => 'not_found'], 404, $headers); }
     }
     #[NoAdminRequired]
     public function create(): JSONResponse { return $this->respond(fn($uid) => $this->authors->create($uid, $this->text('name'))); }
@@ -69,6 +90,7 @@ final class AuthorController extends Controller {
         catch (ListConflictException) { return new JSONResponse(['error'=>'conflict'],409,$headers); }
         catch (\OutOfBoundsException) { return new JSONResponse(['error'=>'not_found'],404,$headers); }
         catch (\LengthException) { return new JSONResponse(['error'=>'author_operation_limit','limit'=>500],413,$headers); }
+        catch (\OCA\Library\Service\ManualCoverValidationException) { return new JSONResponse(['error'=>'invalid_photo'],422,$headers); }
         catch (\InvalidArgumentException) { return new JSONResponse(['error'=>'invalid_input'],422,$headers); }
         catch (\Throwable $e) { $this->logger->error('Library author operation failed',['exception'=>$e]); return new JSONResponse(['error'=>'operation_failed'],500,$headers); }
     }

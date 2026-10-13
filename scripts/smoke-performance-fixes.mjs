@@ -16,7 +16,7 @@ try{
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message))
   const catalogue=async(path)=>{const r=await context.request.get(base+'/apps/library/catalogue'+path);assert.equal(r.status(),200);return r.json()}
   const first=await catalogue('?limit=100');assert.ok(first.cataloguePagination.nextUrl.includes('cursor='))
-  await page.goto(base+'/apps/library/?limit=100');await expect(page.locator('#library-vue-root')).toHaveAttribute('data-library-version','0.3.0-alpha.2');await expect(page.locator('.library-cover-card')).toHaveCount(100)
+  await page.goto(base+'/apps/library/?limit=100');await expect(page.locator('#library-vue-root')).toHaveAttribute('data-library-version','0.3.0-alpha.3');await expect(page.locator('.library-cover-card')).toHaveCount(100)
   const ids=()=>page.locator('.library-cover-card form[action$="/star"]').evaluateAll(forms=>forms.map(f=>Number(f.action.match(/items\/(\d+)\/star/)[1])))
   assert.deepEqual(await ids(),first.items.map(i=>i.id))
   await expect(page.locator('.library-cover-card img').first()).toHaveAttribute('src',/\/cover/)

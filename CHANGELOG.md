@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Extend author profiles with optional private portraits and biographies, title search, covers/list views, date sorting and paged series grouping. Validate and resize uploads, reject stale edits, and remove portraits on account deletion.
+
 - Begin 0.3 author management with additive identity/relationship storage and a resumable background migration.
 - Preserve source credits, author order and existing library metadata; compare names conservatively without guessing comma conventions or expanding initials.
 - Queue author changes from imports, edits and inference Apply/Undo; expose migration counts and retry through `occ library:authors:migrate`.

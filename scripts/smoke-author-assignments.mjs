@@ -31,6 +31,7 @@ try {
     const panel = page.locator('.library-authors')
     await expect(panel.locator('.author-books li')).toHaveCount(2)
     for (const mode of ['reassign', 'merge']) {
+      await panel.locator('.author-actions summary').click()
       await panel.getByRole('button', { name: 'Merge or reassign', exact: true }).click()
       if (mode === 'reassign') await panel.locator('.author-books input[type=checkbox]').last().check()
       await panel.locator('#target-search').fill('Doe,')
@@ -60,6 +61,7 @@ try {
       await panel.locator('.author-history summary').click()
     }
     // Explicit homonym creation must not reuse the existing John Doe record.
+    await panel.locator('.author-actions summary').click()
     await panel.getByRole('button', { name: 'Merge or reassign', exact: true }).click()
     await panel.locator('.author-books input[type=checkbox]').last().check()
     await panel.locator('#target-search').fill('John Doe')
@@ -76,10 +78,14 @@ try {
     const homonymOperation = await (await assignResponse).json()
     await expect(panel.locator('.author-books li')).toHaveCount(1)
     await panel.locator('.author-history summary').click()
+    const undoResponse = page.waitForResponse(r => r.url().endsWith(`/history/${homonymOperation.id}/undo`))
     await panel.locator(`[data-operation-id="${homonymOperation.id}"]`).getByRole('button', { name: 'Undo', exact: true }).click()
+    const undoResult = await undoResponse
+    assert.equal(undoResult.status(), 200, await undoResult.text())
     await expect(panel.locator('.author-books li')).toHaveCount(2)
     await panel.locator('.author-history summary').click()
     await page.setViewportSize({ width: 390, height: 844 })
+    await panel.locator('.author-actions summary').click()
     await panel.getByRole('button', { name: 'Merge or reassign', exact: true }).click()
     await page.screenshot({ path: `${out}/${engine}-assignment-mobile.png`, animations: 'disabled' })
     assert.ok(await panel.evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'mobile panel fits')

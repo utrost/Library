@@ -733,7 +733,7 @@ Preferred names appear on catalogue cards, Home, list entries and publication he
 
 ### Merge duplicate author names or separate different people
 
-1. Open the source author and choose **Merge or reassign**.
+1. Open the source author and choose **More actions → Merge or reassign**.
 2. Leave books unselected to merge the whole author. To move only particular credits, select those books. Selection is limited to the displayed page and resets on pagination.
 3. Search for the **Destination author** and select it. For a different person who happens to have the same name, enter the name and choose **Create separate author**; creation never silently reuses another identity.
 4. Choose **Review change**, check the titles and original credits, then **Confirm author change**.
@@ -743,3 +743,15 @@ The destination retains its preferred name. A merge retires the source identity 
 **Recent changes** shows the latest 20 operations across your account and offers **Undo**. Undo restores affected relationships only if those books/assignments still match the recorded state. It preserves later imports and unrelated books. A changed or deleted affected book causes a conflict instead of overwriting newer work. Changes are transactional, account-private and protected against stale previews.
 
 Interactive operations are limited to 500 books and an 8 MiB undo payload. Larger merges need the planned background workflow. Operation history is retained until account deletion; there is no automatic expiry in this alpha.
+
+### Author profiles: photo, biography and books
+
+Open **Authors**, then select an author. The page shows books linked to that identity in your library, including records whose source file is currently missing. It is not a complete external bibliography.
+
+- **Edit author** lets you add a plain-text biography and upload an optional JPEG, PNG or WebP portrait (up to 10 MiB). Save applies all profile changes together. Without a photo, initials are shown.
+- The portrait is centre-cropped to a small square; the original upload is discarded. **Remove photo** restores initials. Biographies over 320 characters initially collapse behind **Show more**.
+- **Search titles** narrows this author's books. Choose title order, newest publication date, or **Series, then title**. Unknown dates/series sort last.
+- Switch between **Covers** and **List**. Pages contain up to 50 books. Series headings group the current page; a series may continue onto the next page. Series positions are displayed, but this view sorts titles within each series.
+- Open a cover or title for the book. **More actions** contains merge/reassignment. The destination keeps its biography and photo when authors merge.
+
+Profiles are private to your account. Photos and biographies are entered manually; Library does not fetch them from external services. An outdated edit is rejected with the draft retained, so another update is not silently overwritten.
