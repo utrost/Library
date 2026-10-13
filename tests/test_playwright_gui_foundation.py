@@ -131,3 +131,11 @@ def test_playwright_outputs_are_ignored_and_config_is_excluded_from_release():
     assert '"playwright.config.ts"' in audit
     assert '"playwright-report"' in audit
     assert '"test-results"' in audit
+
+
+def test_disposable_instance_opens_library_after_login():
+    script = (ROOT / 'scripts/dev-lists-instance.sh').read_text()
+    # Keep unrelated dashboard recommendation previews outside the Library gate.
+    landing = script.index('config:system:set defaultapp --value=library')
+    assert script.index("echo \"deployed=$instance\"") < landing
+    assert landing < script.index("export PW_BASE_URL=%q")

@@ -72,6 +72,9 @@ case "$action" in
       docker exec -u www-data "$instance" php -r 'require "/var/www/html/lib/base.php"; $result = \OC::$server->get(\OCA\Library\Service\LibraryScanner::class)->scan("library-smoke"); if ($result["errors"]) exit(1);'
       docker exec -u www-data "$instance" php /tmp/library-upgrade-fixture.php verify
     fi
+    # Authenticate directly into the app under test. Dashboard recommendation
+    # previews can fail independently before any Library page is opened.
+    docker exec -u www-data "$instance" php occ config:system:set defaultapp --value=library >/dev/null
     (umask 077; printf 'export PW_BASE_URL=%q\nexport PW_USER=library-smoke\nexport PW_PASSWORD=Disposable-lists-2026\nexport LIBRARY_LISTS_CONTAINER=%q\n' "http://127.0.0.1:$port" "$instance" > "$env_file")
     echo "ready=$instance environment=$env_file"
     ;;
