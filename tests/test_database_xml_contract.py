@@ -134,9 +134,20 @@ EXPECTED_TABLES.update({
     "*dbprefix*library_author_state": {
         "fields": {"user_id", "updated_at"}, "indexes": {"library_author_state_pk"},
     },
+    "*dbprefix*library_series": {
+        "fields": {"id", "user_id", "display_name", "comparison_key", "description", "revision"},
+        "indexes": {"library_series_pk", "library_series_lookup", "library_series_sort"},
+    },
+    "*dbprefix*library_item_series": {
+        "fields": {"user_id", "item_id", "slot", "series_id", "part_number", "source_name", "source_number", "revision"},
+        "indexes": {"library_item_series_pk", "library_series_books"},
+    },
+    "*dbprefix*library_series_state": {
+        "fields": {"user_id", "updated_at"}, "indexes": {"library_series_state_pk"},
+    },
 })
-EXPECTED_TABLES["*dbprefix*library_items"]["fields"].update({"author_sync_status", "author_source_hash"})
-EXPECTED_TABLES["*dbprefix*library_items"]["indexes"].update({"library_author_pending", "library_author_user_status"})
+EXPECTED_TABLES["*dbprefix*library_items"]["fields"].update({"author_sync_status", "author_source_hash", "series_sync_status"})
+EXPECTED_TABLES["*dbprefix*library_items"]["indexes"].update({"library_author_pending", "library_author_user_status", "library_series_pending", "library_series_user_status"})
 
 
 def child_text(element: ET.Element, name: str) -> str:

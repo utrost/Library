@@ -13,7 +13,7 @@ use Throwable;
 final class PublicationMetadataService {
     // Bump for any output-affecting extractor or normalization change, sidecar precedence
     // change, filename/folder interpretation change, or ItemService candidate mapping change.
-    public const PIPELINE_REVISION = 'metadata-pipeline-v8';
+    public const PIPELINE_REVISION = 'metadata-pipeline-v9';
 
     // realistic fixture notes: encoded PDF info dictionaries, CBZ without ComicInfo.xml, nested ComicInfo.xml, sidecar collisions.
     private ?string $lastError = null;
@@ -76,7 +76,10 @@ final class PublicationMetadataService {
                 && $sidecarMetadata['series'] !== ($embeddedMetadata['series'] ?? null)) {
                 unset($filenameMetadata['seriesNumber'], $embeddedMetadata['seriesNumber']);
             }
-            if (isset($sidecarMetadata['creators']) && !isset($sidecarMetadata['authors'])) unset($embeddedMetadata['authors']);
+            if (isset($sidecarMetadata['creators'])) {
+                unset($embeddedMetadata['authorSortNames']);
+                if (!isset($sidecarMetadata['authors'])) unset($embeddedMetadata['authors']);
+            }
             return $this->validateScannerFields($this->validateScannerAuthors(array_merge($filenameMetadata, $embeddedMetadata, $sidecarMetadata), $file), $file);
         } catch (Throwable $e) {
             $this->lastError = $this->safeMetadataExtractionError($e, $file);
@@ -129,8 +132,16 @@ final class PublicationMetadataService {
         try {
             if (isset($metadata['authors'])) AuthorNames::normalize($metadata['authors']);
             else AuthorNames::fromText($metadata['creators'] ?? null);
+            if (isset($metadata['authorSortNames'])) {
+                $names = isset($metadata['authors']) ? AuthorNames::normalize($metadata['authors']) : AuthorNames::fromText($metadata['creators'] ?? null);
+                $sorts = $metadata['authorSortNames'];
+                if (!is_array($sorts) || count($sorts) > 32) unset($metadata['authorSortNames']);
+                else foreach ($sorts as $credit => $sort) {
+                    if (!is_string($credit) || !in_array($credit, $names, true) || !is_string($sort) || !mb_check_encoding($sort, 'UTF-8') || mb_strlen($sort) > 255 || preg_match('/[\x00-\x1f\x7f]/u', $sort)) { unset($metadata['authorSortNames']); break; }
+                }
+            }
         } catch (\InvalidArgumentException $e) {
-            unset($metadata['authors'], $metadata['creators']);
+            unset($metadata['authors'], $metadata['creators'], $metadata['authorSortNames']);
             $metadata['_invalidAuthors'] = true;
             $diagnostic = SafeDiagnostics::fromThrowable(
                 'metadata_authors_invalid',

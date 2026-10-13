@@ -5,7 +5,7 @@
     <name>Library</name>
     <summary>Publication catalogue for files stored in Nextcloud Files</summary>
     <description><![CDATA[Library adds a publication-specific catalogue, metadata cleanup workflow, search and browsing interface on top of ordinary Nextcloud files. Source files remain canonical in Nextcloud Files; Library stores app-owned indexes, extracted metadata and user edits. Create private reading lists with notes, infer metadata from filenames and paths with preview and reversible approval, review potential duplicates, and schedule incremental scans. It does not contact external metadata services or provide a built-in reader. This beta supports Nextcloud 33–35.]]></description>
-    <version>0.3.0-alpha.4</version>
+    <version>0.3.0-alpha.5</version>
     <licence>AGPL-3.0-or-later</licence>
     <author>Library contributors</author>
     <namespace>Library</namespace>
@@ -24,6 +24,7 @@
         <job>OCA\Library\BackgroundJob\ScheduledScanJob</job>
         <job>OCA\Library\BackgroundJob\MaintenanceJob</job>
         <job>OCA\Library\BackgroundJob\AuthorBackfillJob</job>
+        <job>OCA\Library\BackgroundJob\SeriesBackfillJob</job>
     </background-jobs>
     <commands>
         <command>OCA\Library\Command\RebuildFacetIndex</command>

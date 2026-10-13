@@ -14,6 +14,11 @@ vi.mock('./personal-lists-api.js', () => ({ listRequest: vi.fn(async () => ({ li
 
 enableAutoUnmount(afterEach)
 
+// Existing destination assertions keep their prior order; Series has its own assertion.
+function existingNavigationItems(wrapper) {
+  return wrapper.findAllComponents(NcAppNavigationItem).filter(item => item.props('name') !== 'Series')
+}
+
 let mediaQuery
 let consoleError
 
@@ -124,6 +129,11 @@ afterEach(async () => {
 })
 
 describe('Library catalogue Vue app', () => {
+  it('shows a dedicated Series destination', () => {
+    const wrapper = mount(App, { props: { state } })
+    const series = wrapper.findAllComponents(NcAppNavigationItem).find(item => item.props('name') === 'Series')
+    expect(series?.props('href')).toBe(`${state.catalogueRootUrl}?series=1`)
+  })
   it('hydrates deferred index facets and counts once without replacing initial items', async () => {
     let resolveHydration
     const animationFrames = []
@@ -249,8 +259,8 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).toContain('Shelves')
     expect(wrapper.text()).toContain('Needs attention')
     expect(wrapper.find('[aria-labelledby="library-home-shelves-heading"] > header a').attributes('href')).toBe(state.shelvesUrl)
-    expect(wrapper.findAllComponents(NcAppNavigationItem)[0].props('active')).toBe(true)
-    expect(wrapper.findAllComponents(NcAppNavigationItem)[0].props('href')).toBe('/apps/library/?home=1')
+    expect(existingNavigationItems(wrapper)[0].props('active')).toBe(true)
+    expect(existingNavigationItems(wrapper)[0].props('href')).toBe('/apps/library/?home=1')
   })
 
   it('renders collapsed shelf roots and fetches bounded children once on expansion', async () => {
@@ -292,8 +302,8 @@ describe('Library catalogue Vue app', () => {
     await expand.trigger('click')
     await expand.trigger('click')
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(wrapper.findAllComponents(NcAppNavigationItem)[4].props('active')).toBe(true)
-    expect(wrapper.findAllComponents(NcAppNavigationItem)[4].props('href')).toBe(state.shelvesUrl)
+    expect(existingNavigationItems(wrapper)[4].props('active')).toBe(true)
+    expect(existingNavigationItems(wrapper)[4].props('href')).toBe(state.shelvesUrl)
 
     const empty = mount(App, { props: { state: { ...state, surface: 'shelves', shelfTree: [] } } })
     expect(empty.find('.library-shelves-empty').exists()).toBe(true)
@@ -1105,7 +1115,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.findComponent(NcAppNavigationList).exists()).toBe(true)
     expect(wrapper.findComponent(NcAppContent).exists()).toBe(true)
 
-    const destinations = wrapper.findAllComponents(NcAppNavigationItem)
+    const destinations = existingNavigationItems(wrapper)
     expect(destinations).toHaveLength(12)
     expect(destinations.map((destination) => destination.props('name'))).toEqual(['Home', 'All publications', 'Starred', 'Continue reading', 'Shelves', 'Collections', 'Authors', 'Lists', 'Create a new list', 'Extract metadata', 'Review', 'Possible duplicates'])
     expect(destinations[0].props('href')).toBe(state.homeUrl)
@@ -1134,10 +1144,10 @@ describe('Library catalogue Vue app', () => {
 
   it('activates Continue reading only for the opened-only filter', () => {
     const sortedOnly = mount(App, { props: { state: { ...state, activeFilters: { ...state.activeFilters, sort: 'lastOpened' } } } })
-    expect(sortedOnly.findAllComponents(NcAppNavigationItem)[3].props('active')).toBe(false)
+    expect(existingNavigationItems(sortedOnly)[3].props('active')).toBe(false)
 
     const openedOnly = mount(App, { props: { state: { ...state, activeFilters: { ...state.activeFilters, recentlyOpened: '1', sort: 'lastOpened' } } } })
-    const destinations = openedOnly.findAllComponents(NcAppNavigationItem)
+    const destinations = existingNavigationItems(openedOnly)
     expect(destinations[1].props('active')).toBe(false)
     expect(destinations[3].props('active')).toBe(true)
     expect(destinations[3].props('href')).toBe('/nc/index.php/apps/library/?recentlyOpened=1&sort=lastOpened')
@@ -1146,7 +1156,7 @@ describe('Library catalogue Vue app', () => {
 
   it('implements the catalogue shell, toolbar, card hierarchy, and selection-only batch contract', () => {
     const wrapper = mount(App, { props: { state: { ...state, smartViewCounts: { 'scanner-conflicts': 2, 'needs-metadata': 3 } } } })
-    const destinations = wrapper.findAllComponents(NcAppNavigationItem)
+    const destinations = existingNavigationItems(wrapper)
 
     expect(destinations.map((item) => item.props('name'))).toEqual([
       'Home', 'All publications', 'Starred', 'Continue reading', 'Shelves', 'Collections', 'Authors', 'Lists', 'Create a new list', 'Extract metadata', 'Review (5)', 'Possible duplicates',
@@ -1170,7 +1180,7 @@ describe('Library catalogue Vue app', () => {
     window.history.replaceState({}, '', '/nc/index.php/apps/library/creators/Ada%20Reader')
     const wrapper = mount(App, { props: { state } })
     const hrefs = [
-      ...wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('href')),
+      ...existingNavigationItems(wrapper).map((item) => item.props('href')),
       wrapper.find('.library-navigation-settings-link').attributes('href'),
     ]
 
@@ -1202,7 +1212,7 @@ describe('Library catalogue Vue app', () => {
   ])('falls back to safe webroot-aware navigation for %s initial-state URLs', (_kind, urls) => {
     window.history.replaceState({}, '', '/nc/index.php/apps/library/creators/Ada')
     const wrapper = mount(App, { props: { state: { ...state, ...urls } } })
-    const destinations = wrapper.findAllComponents(NcAppNavigationItem)
+    const destinations = existingNavigationItems(wrapper)
 
     expect(destinations.map((item) => item.props('href'))).toEqual([
       '/nc/index.php/apps/library/?home=1',
@@ -1240,7 +1250,7 @@ describe('Library catalogue Vue app', () => {
       },
     })
 
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('href'))).toEqual([
+    expect(existingNavigationItems(wrapper).map((item) => item.props('href'))).toEqual([
       '/nc/index.php/apps/library/?home=1',
       '/nc/index.php/apps/library/',
       '/nc/index.php/apps/library/?starred=1',
@@ -1264,7 +1274,7 @@ describe('Library catalogue Vue app', () => {
     window.history.replaceState({}, '', '/nc/index.php/apps/library/creators/Ada')
     const wrapper = mount(App, { props: { state: { ...state, catalogueRootUrl: encodedUrl } } })
 
-    expect(wrapper.findAllComponents(NcAppNavigationItem)[1].props('href')).toBe(encodedUrl)
+    expect(existingNavigationItems(wrapper)[1].props('href')).toBe(encodedUrl)
   })
 
   it.each(['publication', 'year', 'creator'])('returns from the nested %s discovery page through the generated catalogue root', (discoveryPage) => {
@@ -1300,7 +1310,7 @@ describe('Library catalogue Vue app', () => {
         },
       },
     })
-    const destinations = wrapper.findAllComponents(NcAppNavigationItem)
+    const destinations = existingNavigationItems(wrapper)
 
     expect(destinations[1].props('href')).toBe(state.catalogueRootUrl)
     expect(destinations[1].props('active')).toBe(false)
@@ -1309,12 +1319,12 @@ describe('Library catalogue Vue app', () => {
   })
 
   it('treats canonical weak-metadata review filters as Review and ordinary filters as Library', () => {
-    const review = mount(App, {
+    const review = existingNavigationItems(mount(App, {
       props: { state: { ...state, activeFilters: { ...state.activeFilters, weakMetadata: 'filename' } } },
-    }).findAllComponents(NcAppNavigationItem)
-    const library = mount(App, {
+    }))
+    const library = existingNavigationItems(mount(App, {
       props: { state: { ...state, activeFilters: { ...state.activeFilters, q: 'camera' } } },
-    }).findAllComponents(NcAppNavigationItem)
+    }))
 
     expect(review.map((item) => item.props('active'))).toEqual([false, false, false, false, false, false, false, false, false, false, true, false])
     expect(library.map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false, false, false, false, false, false])
@@ -1333,7 +1343,7 @@ describe('Library catalogue Vue app', () => {
 
     expect(wrapper.find('.library-review-destination').exists()).toBe(false)
     expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(true)
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false, false, false, false, false, false])
+    expect(existingNavigationItems(wrapper).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false, false, false, false, false, false])
     expect(wrapper.findAll('input[type="hidden"]').some((input) => input.attributes('name') === key && input.attributes('value') === value)).toBe(false)
   })
 
@@ -1351,7 +1361,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('#library-review-heading').text()).toBe('Review')
     expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(false)
     expect(wrapper.find('.library-view-mode-toggle').exists()).toBe(false)
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, false, false, false, false, false, false, false, false, false, true, false])
+    expect(existingNavigationItems(wrapper).map((item) => item.props('active'))).toEqual([false, false, false, false, false, false, false, false, false, false, true, false])
     expect(wrapper.find('.library-review-results').text()).toContain('Example Book')
   })
 
@@ -1411,7 +1421,7 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.find('.library-review-results').text()).toContain('Example Book'))
 
     expect(pushState).toHaveBeenCalledWith({}, '', '?scannerConflicts=1&q=camera')
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, false, false, false, false, false, false, false, false, false, true, false])
+    expect(existingNavigationItems(wrapper).map((item) => item.props('active'))).toEqual([false, false, false, false, false, false, false, false, false, false, true, false])
   })
 
   it('reloads the server-backed destination on browser history traversal', async () => {
@@ -1428,7 +1438,7 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(true))
 
     expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?q=camera', expect.objectContaining({ credentials: 'same-origin' }))
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false, false, false, false, false, false])
+    expect(existingNavigationItems(wrapper).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false, false, false, false, false, false])
   })
 
   it.each([
@@ -1454,7 +1464,7 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.find('.library-catalogue-workspace').exists()).toBe(true))
 
     expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue', expect.objectContaining({ credentials: 'same-origin' }))
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false, false, false, false, false, false])
+    expect(existingNavigationItems(wrapper).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false, false, false, false, false, false])
     expect(wrapper.findAll('.library-filter-bar input[type="hidden"], .library-review-filter-form input[type="hidden"]')
       .some((input) => ['scannerConflicts', 'status'].includes(input.attributes('name')))).toBe(false)
   })
@@ -1471,7 +1481,7 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalled())
 
     expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?status=indexed', expect.any(Object))
-    expect(wrapper.findAllComponents(NcAppNavigationItem).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false, false, false, false, false, false])
+    expect(existingNavigationItems(wrapper).map((item) => item.props('active'))).toEqual([false, true, false, false, false, false, false, false, false, false, false, false])
   })
 
   it('removes an active year filter chip through AJAX while preserving other filters', async () => {

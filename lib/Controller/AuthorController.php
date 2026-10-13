@@ -57,6 +57,11 @@ final class AuthorController extends Controller {
     #[NoAdminRequired]
     public function create(): JSONResponse { return $this->respond(fn($uid) => $this->authors->create($uid, $this->text('name'))); }
     #[NoAdminRequired]
+    public function removeUnused(int $authorId): JSONResponse { return $this->respond(function ($uid) use ($authorId) {
+        $this->authors->removeUnused($uid, $authorId, $this->integer('revision'));
+        return ['removed' => true];
+    }); }
+    #[NoAdminRequired]
     public function preview(int $authorId): JSONResponse {
         return $this->respond(fn($uid) => $this->assignments->preview($uid, $authorId, $this->integer('target'), $this->selected()));
     }

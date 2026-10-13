@@ -24,7 +24,7 @@ import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 // value="details"
 // source_has_creator_filter
 // backend_searches_description
-// app_version=0.3.0-alpha.4
+// app_version=0.3.0-alpha.5
 // NcActions
 // grid-template-columns: repeat(2, minmax(0, 1fr))
 // download.bytes <= 0
@@ -366,7 +366,7 @@ try {
     const noTechnicalCatalogueDashboards = !bundle.includes('library-home-dashboard') && !bundle.includes('library-weak-metadata-dashboard') && !bundle.includes('library-import-health-dashboard') && !bundle.includes('Weak metadata cockpit')
     const reviewSuggestionSafety = bundleHas('library-metadata-review-workbench', 'Review next suggestion', 'Use suggested value', 'Skip to next suggestion', 'No source files are changed')
     const activeFilterChips = bundleHas('library-active-filter-chips', 'activeFilterChips', 'filterChipRemoveUrl', 'removeFilterChip')
-    const installedVersionAssetIdentity = scriptMatch?.[1]?.includes('0-3-0-alpha-4') && cssMatch?.[1]?.includes('0-3-0-alpha-4')
+    const installedVersionAssetIdentity = scriptMatch?.[1]?.includes('0-3-0-alpha-5') && cssMatch?.[1]?.includes('0-3-0-alpha-5')
     console.log(`source_has_primary_catalogue_controls=${primaryCatalogueControls}`)
     console.log(`source_has_calm_catalogue=${calmCatalogue}`)
     console.log(`source_has_selection_gated_actions=${selectionGatedActions}`)
@@ -378,7 +378,7 @@ try {
     console.log(`review_has_suggestion_workbench_and_source_safety=${reviewSuggestionSafety}`)
     console.log(`source_has_active_filter_chips=${activeFilterChips}`)
     console.log(`source_has_custom_saved_collections=${bundleHas('library-saved-collections', 'Custom collections', 'Save current view')}`)
-    console.log(`app_version=${installedVersionAssetIdentity ? '0.3.0-alpha.4' : 'unverified'}`)
+    console.log(`app_version=${installedVersionAssetIdentity ? '0.3.0-alpha.5' : 'unverified'}`)
     const coverOverlayCss = css.text.includes('grid-template-columns:repeat(auto-fill,minmax(150px,1fr))')
       && css.text.includes('.library-cover-gallery .library-cover-summary')
       && css.text.includes('.library-cover-gallery .library-cover-card:hover .library-cover-creator')

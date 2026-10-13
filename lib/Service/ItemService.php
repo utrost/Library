@@ -120,6 +120,7 @@ final class ItemService {
         private IDBConnection $db,
         private ?DuplicateIndexService $duplicateIndex = null,
         private ?AuthorDisplayService $authorDisplay = null,
+        private ?SeriesDisplayService $seriesDisplay = null,
     ) {
     }
 
@@ -300,6 +301,7 @@ final class ItemService {
             ->executeStatement();
         if ($deleted > 0 && $existing !== null) {
             $this->db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id = ? AND item_id = ?', [$userId, (int)$existing['id']]);
+            $this->db->executeStatement('DELETE FROM *PREFIX*library_item_series WHERE user_id = ? AND item_id = ?', [$userId, (int)$existing['id']]);
             $this->deleteItemFacetIndex($userId, (int)$existing['id']);
             $this->deleteItemSearchIndex($userId, (int)$existing['id']);
             $this->duplicateIndex?->remove($userId, (int)$existing['id']);
@@ -347,6 +349,7 @@ final class ItemService {
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
         $this->db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id = ? AND item_id = ?', [$userId, $itemId]);
+        $this->db->executeStatement('DELETE FROM *PREFIX*library_item_series WHERE user_id = ? AND item_id = ?', [$userId, $itemId]);
         $this->deleteItemFacetIndex($userId, $itemId);
         $this->deleteItemSearchIndex($userId, $itemId);
         $this->duplicateIndex?->remove($userId, $itemId);
@@ -414,6 +417,7 @@ final class ItemService {
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
         if (array_key_exists('authors_json', $values) || array_key_exists('creators', $values)) $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT));
+        if (array_key_exists('series_name', $values) || array_key_exists('series_number', $values)) $qb->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
         foreach ($values as $column => $value) $qb->set($column, $qb->createNamedParameter($value));
         $qb->executeStatement();
         $item = $this->findItem($userId, $itemId);
@@ -467,6 +471,7 @@ final class ItemService {
         foreach (['series', 'seriesNumber', 'genre'] as $field) {
             if (array_key_exists($field, $metadata)) $qb->set($this->databaseColumnForField($field), $qb->createNamedParameter($metadata[$field]));
         }
+        if (array_key_exists('series', $metadata) || array_key_exists('seriesNumber', $metadata)) $qb->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
         $affected = $qb->executeStatement();
 
         if ($affected > 0) {
@@ -618,6 +623,7 @@ final class ItemService {
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items');
         if ($field === 'creators') $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT))->set('authors_json', $qb->createNamedParameter($candidateValues['authors']));
+        if ($field === 'series' || $field === 'seriesNumber') $qb->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
         $affected = $qb
             ->set($column, $qb->createNamedParameter($this->databaseValueForField($field, $candidateValues[$field])))
             ->set('metadata_source', $qb->createNamedParameter('mixed'))
@@ -668,6 +674,7 @@ final class ItemService {
             $candidateValues[$field] = (string)$candidateValues[$field];
             $update->set($column, $qb->createNamedParameter($this->databaseValueForField($field, $candidateValues[$field])));
             if ($field === 'creators') $update->set('author_sync_status', $update->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT))->set('authors_json', $qb->createNamedParameter($candidateValues['authors'] ?? AuthorNames::encode(AuthorNames::fromText($candidateValues[$field]))));
+            if ($field === 'series' || $field === 'seriesNumber') $update->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
             $hasCandidate = true;
         }
         if (!$hasCandidate) {
@@ -822,6 +829,7 @@ final class ItemService {
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items');
         if ($field === 'creators') $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT))->set('authors_json', $qb->createNamedParameter(AuthorNames::encode(AuthorNames::fromText($normalizedValue, true))));
+        if ($field === 'series' || $field === 'seriesNumber') $qb->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
         $affected = $qb
             ->set($column, $qb->createNamedParameter($normalizedValue))
             ->set('metadata_source', $qb->createNamedParameter('user'))
@@ -1076,6 +1084,12 @@ final class ItemService {
         return $path === '/' ? '/' : rtrim($path, '/');
     }
 
+    /** Keep source metadata editable while projecting preferred shared identities for display. */
+    private function decorateSharedMetadata(string $uid, array $items): array {
+        $items = $this->authorDisplay?->decorate($uid, $items) ?? $items;
+        return $this->seriesDisplay?->decorate($uid, $items) ?? $items;
+    }
+
     /** @return array<int, array<string, mixed>> */
     private function fetchBoundedCatalogueRows(IQueryBuilder $qb, int $limit, string $userId): array {
         $result = $qb->setFirstResult(0)->setMaxResults($limit)->executeQuery();
@@ -1084,7 +1098,7 @@ final class ItemService {
             $items[] = $this->normalizeJoinedItemRow($row);
         }
         $result->closeCursor();
-        return $this->authorDisplay?->decorate($userId, $items) ?? $items;
+        return $this->decorateSharedMetadata($userId, $items);
     }
 
     /**
@@ -1236,7 +1250,7 @@ final class ItemService {
         $items = array_map(fn(array $row): array => $this->normalizeJoinedItemRow($row, $identifiers[(int)$row['id']] ?? []), $rows);
 
         return [
-            'items' => $this->authorDisplay?->decorate($userId, $items) ?? $items,
+            'items' => $this->decorateSharedMetadata($userId, $items),
             'nextCursor' => $sort === 'title' && $rows !== [] ? CatalogueCursor::encode($userId, $filters, $limit, $rows[array_key_last($rows)], 'next') : '',
             'previousCursor' => $sort === 'title' && $rows !== [] ? CatalogueCursor::encode($userId, $filters, $limit, $rows[0], 'previous') : '',
             'total' => $this->countCatalogueItems($userId, $filters),
@@ -1293,7 +1307,7 @@ final class ItemService {
         $result->closeCursor();
 
         return [
-            'items' => $this->authorDisplay?->decorate($userId, array_slice($conflictingItems, $offset, $limit)) ?? array_slice($conflictingItems, $offset, $limit),
+            'items' => $this->decorateSharedMetadata($userId, array_slice($conflictingItems, $offset, $limit)),
             'total' => count($conflictingItems),
             'facets' => $includeFacets ? $this->catalogueFacets($userId, $filters) : $this->emptyCatalogueFacets(),
         ];
@@ -1359,7 +1373,7 @@ final class ItemService {
         }
 
         $item = $this->normalizeJoinedItemRow($row);
-        return $this->authorDisplay?->decorate($userId, [$item])[0] ?? $item;
+        return $this->decorateSharedMetadata($userId, [$item])[0] ?? $item;
     }
 
     public function exportCorrectedMetadata(string $userId): array {
@@ -2379,6 +2393,28 @@ final class ItemService {
         return $itemIds;
     }
 
+    /** Resolve a complete preferred author name through the indexed identity key. */
+    private function exactAuthorIds(string $userId, string $query): array {
+        if (mb_strlen($query) > 255) return [];
+        try { $key = AuthorIdentity::name($query)['comparison_key']; }
+        catch (\InvalidArgumentException) { return []; }
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('a.id')->from('library_authors', 'a')
+            ->where($qb->expr()->eq('a.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('a.comparison_key', $qb->createNamedParameter($key)))
+            ->andWhere($qb->expr()->isNull('a.merged_into'))->executeQuery();
+        try { return array_map('intval', array_column($result->fetchAll(), 'id')); }
+        finally { $result->closeCursor(); }
+    }
+
+    private function authorSearchSubquery(IQueryBuilder $qb, string $userId, array $authorIds): string {
+        $links = $this->db->getQueryBuilder();
+        $links->select('search_author.item_id')->from('library_item_authors', 'search_author')
+            ->where($links->expr()->eq('search_author.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($links->expr()->in('search_author.author_id', $qb->createNamedParameter($authorIds, IQueryBuilder::PARAM_INT_ARRAY)));
+        return $links->getSQL();
+    }
+
     /** @return array<int, string> */
     private function searchGramsForQuery(string $query): array {
         $grams = $this->searchGramsForText($query);
@@ -2447,6 +2483,32 @@ final class ItemService {
         }
 
         $creator = trim((string)($filters['creator'] ?? ''));
+        $authorId = trim((string)($filters['authorId'] ?? ''));
+        if ($authorId !== '') {
+            if (preg_match('/^[1-9][0-9]{0,8}$/D', $authorId) !== 1) {
+                $qb->andWhere($qb->expr()->eq('i.id', $qb->createNamedParameter(-1)));
+            } else {
+                // The relationship index is the source of truth for a chosen author.
+                // It includes credits manually reassigned from another spelling.
+                $links = $this->db->getQueryBuilder();
+                $links->select('author_link.item_id')->from('library_item_authors', 'author_link')
+                    ->where($links->expr()->eq('author_link.user_id', $qb->createNamedParameter($userId)))
+                    ->andWhere($links->expr()->eq('author_link.author_id', $qb->createNamedParameter((int)$authorId)));
+                $qb->andWhere($qb->expr()->in('i.id', $qb->createFunction($links->getSQL())));
+            }
+        }
+        $seriesId = trim((string)($filters['seriesId'] ?? ''));
+        if ($seriesId !== '') {
+            if (preg_match('/^[1-9][0-9]{0,8}$/D', $seriesId) !== 1) {
+                $qb->andWhere($qb->expr()->eq('i.id', $qb->createNamedParameter(-1)));
+            } else {
+                $links = $this->db->getQueryBuilder();
+                $links->select('series_link.item_id')->from('library_item_series', 'series_link')
+                    ->where($links->expr()->eq('series_link.user_id', $qb->createNamedParameter($userId)))
+                    ->andWhere($links->expr()->eq('series_link.series_id', $qb->createNamedParameter((int)$seriesId)));
+                $qb->andWhere($qb->expr()->in('i.id', $qb->createFunction($links->getSQL())));
+            }
+        }
         if ($creator !== '') {
             // Small indexed candidate sets avoid scanning a large catalogue for rare authors.
             $lookup = $this->db->getQueryBuilder();
@@ -2535,8 +2597,11 @@ final class ItemService {
         $query = trim((string)($filters['q'] ?? ''));
         if ($query !== '') {
             $exactTitleItemIds = $this->exactTitleCandidateIds($userId, $query);
+            $exactAuthorIds = $this->exactAuthorIds($userId, $query);
+            $authorPredicate = $exactAuthorIds === [] ? null : $qb->expr()->in('i.id', $qb->createFunction($this->authorSearchSubquery($qb, $userId, $exactAuthorIds)));
             if ($exactTitleItemIds !== []) {
-                $qb->andWhere($qb->expr()->in('i.id', $qb->createNamedParameter($exactTitleItemIds, IQueryBuilder::PARAM_INT_ARRAY)));
+                $titlePredicate = $qb->expr()->in('i.id', $qb->createNamedParameter($exactTitleItemIds, IQueryBuilder::PARAM_INT_ARRAY));
+                $qb->andWhere($authorPredicate === null ? $titlePredicate : $qb->expr()->orX($titlePredicate, $authorPredicate));
             } else {
                 $searchGrams = $this->searchGramsForQuery($query);
                 $identifierSearch = IdentifierService::normalizeSearchQuery($query);
@@ -2555,6 +2620,7 @@ final class ItemService {
                         $qb->expr()->eq('idn.normalized_value', $qb->createNamedParameter($identifierSearch['normalizedValue']))
                     );
                 }
+                if ($authorPredicate !== null) $searchPredicates[] = $authorPredicate;
                 $qb->andWhere($searchPredicates === [] ? '1 = 0' : $qb->expr()->orX(...$searchPredicates));
             }
         }
@@ -2788,7 +2854,8 @@ final class ItemService {
         }
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items');
-        if (AuthorNames::read($existing['authors_json'], $existing['creators']) !== $metadataCandidate['authors']) $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT));
+        if (AuthorNames::read($existing['authors_json'], $existing['creators']) !== $metadataCandidate['authors'] || in_array($metadataCandidate['metadataSource'], ['epub-opf', 'opf', 'sidecar-opf'], true)) $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT));
+        if ((string)$existing['series_name'] !== (string)$metadataCandidate['series'] || (string)$existing['series_number'] !== (string)$metadataCandidate['seriesNumber']) $qb->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
         $qb
             ->set('publication_type', $qb->createNamedParameter($metadataCandidate['publicationType']))
             ->set('title', $qb->createNamedParameter($metadataCandidate['title']))
@@ -3155,9 +3222,12 @@ final class ItemService {
         $candidate['fieldValues'] = $this->buildCurrentFieldValues($candidate);
         $candidate['fieldValues']['authors'] = AuthorNames::encode($candidate['authors']);
         $candidate['fieldValues']['authorsSource'] = $source;
+        if (!empty($metadata['authorSortNames']) && is_array($metadata['authorSortNames'])) {
+            $candidate['fieldValues']['authorSortNames'] = json_encode($metadata['authorSortNames'], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+        }
         if (!empty($metadata['_invalidAuthors'])) {
             // A rejected scanner field must not become an empty reset candidate.
-            unset($candidate['fieldValues']['creators'], $candidate['fieldValues']['authors'], $candidate['fieldValues']['authorsSource']);
+            unset($candidate['fieldValues']['creators'], $candidate['fieldValues']['authors'], $candidate['fieldValues']['authorsSource'], $candidate['fieldValues']['authorSortNames']);
             unset($candidate['fieldSources']['creators']);
         }
         foreach($metadata['_rejectedFields']??[] as $field=>$value) {
