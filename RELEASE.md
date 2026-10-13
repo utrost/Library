@@ -2,7 +2,7 @@
 
 ## Current 0.2 beta release
 
-The current candidate is `0.2.0-beta.3`, adding the series/issue duplicate correction. Exact-package verification and publication are being prepared; the final results will be recorded in the [beta.3 report](docs/compatibility-evidence/2026-10-13-beta3/README.md). App Store account registration/submission and owner acceptance remain separate steps. The signed beta.2 archive is preserved unchanged; its [verification report](docs/compatibility-evidence/2026-10-13-beta2/README.md) covers that earlier package only. Handoff materials for the new candidate belong in `dist/app-store-handoff-beta3/`.
+The current candidate is `0.2.0-beta.3`, signed, deployed on developer Nextcloud 34.0.3 and [published as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 fresh/upgrade cases passed, including 210 final main Playwright tests; hosted CI passed. Download and screenshot URLs are public and verified. The [beta.3 report](docs/compatibility-evidence/2026-10-13-beta3/README.md) records exact checksums, initial timeout failures and successful reruns. Owner acceptance and App Store account submission remain. Handoff instructions are in `dist/app-store-handoff-beta3/README.txt`. The beta.1 and beta.2 signed archives are preserved unchanged.
 
 **Historical evidence below is not the current checklist.** Earlier references to pending signing, fresh installation or beta.1 publication describe those earlier checkpoints. Use the current report and [readiness checklist](docs/app-store-readiness.md) for outstanding work.
 

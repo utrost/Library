@@ -44,6 +44,14 @@ if($action==='verify') {
  $snapshots=\OC::$server->get(\OCA\Library\Service\InferenceBatchService::class);
  foreach($state['files'] as $path=>$file){$node=$folder->get($path);if($node->getId()!==$file['fileId']||hash('sha256',$node->getContent())!==$file['hash'])throw new RuntimeException('Source changed');if($snapshots->snapshot($user,$file['itemId'])!==$file['snapshot'])throw new RuntimeException('Metadata changed');}echo '{"unchanged":true}';exit;
 }
+if($action==='legacy-hint'){
+ $left=$state['files']['original.epub']['itemId'];$right=$state['files']['alternative.pdf']['itemId'];
+ $books=\OCP\Server::get(\OCA\Library\Service\DuplicateIndexService::class)->books($user,[$left,$right]);
+ $signature=\OCA\Library\Service\DuplicateMatcher::hintSignature($books[$left],$books[$right],false);
+ $changed=$db->executeStatement('UPDATE *PREFIX*library_dup_hints SET signature=? WHERE user_id=? AND left_id=? AND right_id=?',[$signature,$user,min($left,$right),max($left,$right)]);
+ if($changed!==1)throw new RuntimeException('Expected one fixture dismissal');
+ echo json_encode(['passed'=>true]);exit;
+}
 if($action==='series-projection'){
  $ids=array_map(fn($name)=>$state['files'][$name]['itemId'],['series-one.epub','series-two.epub']);
  $books=\OCP\Server::get(\OCA\Library\Service\DuplicateIndexService::class)->books($user,$ids);

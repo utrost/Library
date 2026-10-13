@@ -48,7 +48,7 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 
 `library_items.genres_json` is a nullable legacy column created before the Subject model. The subject migration copies its contents to `subjects_json` when that field is empty; it does not drop the old column. The XML therefore retains it. Current dedicated single-value genre metadata uses `genre`; `genres_json` is not its backing field.
 
-`authors_json` stores ordered author names while `creators` remains the compatible display value. `series_name`, `series_number` and `genre` are separate from the older `publication` grouping field. Beta.2 imports EPUB/OPF series names and positions into the existing series columns; it requires no new schema migration. `cover_revision` invalidates browser covers without loading embedded cover blobs into catalogue responses.
+`authors_json` stores ordered author names while `creators` remains the compatible display value. `series_name`, `series_number` and `genre` are separate from the older `publication` grouping field. Beta.2 imports EPUB/OPF series names and positions into the existing series columns; it requires no new schema migration. Beta.3 uses those same columns for duplicate matching and also requires no schema change. `cover_revision` invalidates browser covers without loading embedded cover blobs into catalogue responses.
 
 ## Storage outside the schema
 
