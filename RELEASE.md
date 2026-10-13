@@ -2,16 +2,16 @@
 
 ## Current 0.2 beta release
 
-The current candidate is `0.2.0-beta.1`; the sections below preserve earlier release evidence. Follow the [current release checkpoint](docs/app-store-readiness.md) for its status. The certificate has been issued and verified. The [final signed-archive report](docs/compatibility-evidence/2026-09-30-beta1/README.md) records six passing fresh/upgrade installations and 210 Playwright executions. The GitHub prerelease remains a draft pending owner acceptance; local account-side instructions are in `dist/app-store-handoff/README.txt`.
+The current candidate is `0.2.0-beta.2`; the sections below preserve earlier release evidence. Follow the [current release checkpoint](docs/app-store-readiness.md) for its status. The certificate has been issued and verified. The [final signed-archive report](docs/compatibility-evidence/2026-09-30-beta1/README.md) records the historical beta.1 baseline: six passing fresh/upgrade installations and 210 Playwright executions. The GitHub prerelease remains a draft pending owner acceptance; local account-side instructions are in `dist/app-store-handoff/README.txt`.
 
 Build with `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` pointing to the existing files outside this repository:
 
 ```sh
 npm run package:release -- --signed
-bash scripts/sign-app-store.sh dist/library-0.2.0-beta.1.tar.gz /tmp/library-app-store-handoff
-LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.2.0-beta.1.tar.gz" REQUIRE_INTEGRITY=1 \
+bash scripts/sign-app-store.sh dist/library-0.2.0-beta.2.tar.gz /tmp/library-app-store-handoff
+LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.2.0-beta.2.tar.gz" REQUIRE_INTEGRITY=1 \
   EVIDENCE_DIR=/tmp/library-beta1-upgrade bash scripts/performance/compatibility-matrix.sh
-LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.2.0-beta.1.tar.gz" REQUIRE_INTEGRITY=1 \
+LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.2.0-beta.2.tar.gz" REQUIRE_INTEGRITY=1 \
   INSTALL_MODE=fresh EVIDENCE_DIR=/tmp/library-beta1-fresh bash scripts/performance/compatibility-matrix.sh
 ```
 

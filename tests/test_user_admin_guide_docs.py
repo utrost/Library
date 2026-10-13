@@ -23,7 +23,7 @@ def test_user_guide_covers_current_role_facing_surfaces():
         "## Everyday user processes",
         "## Admin processes",
         "## User stories for judging v0.1 usefulness",
-        "## Crucial missing-feature candidates exposed by the guide",
+        "## Historical v0.1 missing-feature candidates exposed by the guide",
         "## Practical review script",
     ]:
         assert heading in guide

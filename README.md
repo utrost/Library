@@ -8,7 +8,7 @@ Nextcloud Files remains the canonical storage. Library indexes those files with 
 
 License: AGPL-3.0-or-later. See [LICENSE](LICENSE).
 
-Current candidate: `0.2.0-beta.1`. Supported Nextcloud versions: **33–35**. Publication is pending final signed-package verification and acceptance. The signing certificate has been issued.
+Current candidate: `0.2.0-beta.2`. Supported Nextcloud versions: **33–35**. Publication is pending final signed-package verification and acceptance. The signing certificate has been issued.
 
 This release adds private reading lists and notes, path/filename metadata extraction with suggested assignments, saved rules and reviewed Apply/Undo, whole-folder analysis, optional duplicate checks, scheduled incremental scans, and bounded cover thumbnails.
 

@@ -7524,7 +7524,7 @@ try {
 const H0 = ob;
 let V0 = "";
 try {
-  V0 = "0.2.0-beta.1";
+  V0 = "0.2.0-beta.2";
 } catch {
   Va.error("The `@nextcloud/vue` library was used without setting / replacing the `appVersion`.");
 }

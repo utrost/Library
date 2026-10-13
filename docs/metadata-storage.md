@@ -1,6 +1,6 @@
 # Metadata Storage and Nextcloud Integration
 
-Status: implemented storage through `0.2.0-alpha.28`, updated 2026-09-27. The future-schema section is a proposal. See the [database schema reference](database-schema.md) for all 24 app tables and migration ownership.
+Status: `0.2.0-beta.2` candidate series importer; updated 2026-10-13. The future-schema section is a proposal. See the [database schema reference](database-schema.md) for all 24 app tables and migration ownership.
 
 The [v0.2 metadata and filing proposal](v0.2-metadata-and-filing.md) explores explicit OPF sidecar writing, later embedded metadata writers, and filing based on accepted metadata. Source-folder writes described there are proposed capabilities; the current development build keeps source documents intact.
 
@@ -22,7 +22,37 @@ The nullable `library_items.series_name`, `series_number` and `genre` columns st
 
 These fields participate in manual editing, scanner-candidate review/reset, bulk edits and corrected-metadata JSON export/import. Partial imports preserve omitted fields; older editor requests that omit the new fields preserve them. Manual changes use the existing item-level rescan protection.
 
-The migration adds nullable columns without rewriting historical metadata. `publication` continues to hold legacy series/periodical data; no ambiguous automatic backfill is performed. Reviewed inference Apply/Undo is implemented, including ordered authors. Dedicated series/genre filters and automatic embedded series/genre import remain future work. The current metadata pipeline revision is `metadata-pipeline-v6`; scans can re-evaluate older candidates. Source documents are never modified by these edits.
+The migration adds nullable columns without rewriting historical metadata. `publication` continues to hold legacy series/periodical data; no ambiguous automatic backfill is performed. Reviewed inference Apply/Undo is implemented, including ordered authors. The development importer now populates dedicated series fields from EPUB/OPF metadata as described below. Dedicated series/genre filters and automatic embedded genre import remain future work. The development metadata pipeline revision is `metadata-pipeline-v8`; a full scan after deployment re-evaluates older candidates, including unchanged files. Source documents are never modified by these edits.
+
+## Embedded ebook metadata
+
+Normal scans read EPUB package metadata and local OPF sidecars. Filename inference is useful for missing metadata; books with embedded metadata do not require an inference rule.
+
+| Source field | Library field and behaviour |
+| --- | --- |
+| `dc:title`, repeated `dc:creator` | Title and ordered authors |
+| Repeated `dc:subject` | Subjects; these do not automatically create Nextcloud system tags |
+| `dc:description` | Description; HTML becomes plain text with paragraph breaks; the first nonempty value is used |
+| `dc:language` | Language; the first nonempty value is used as supplied |
+| `dc:publisher`, `dc:date` | Publisher and publication date |
+| `calibre:series`, `calibre:series_index` | Series and part in series in the development importer |
+| EPUB 3 `belongs-to-collection`, refined `collection-type=series`, `group-position` | Series and part in series in the development importer |
+
+The new series importer also retains the legacy `publication` value for existing browsing. It preserves position text such as `1.0`; it does not invent a position when absent or import an orphan position without a series name. EPUB 3 positions must reference the same collection as the selected series. When both Calibre and EPUB 3 series declarations exist, the existing Calibre preference is retained and its position is used.
+
+Sidecars take precedence over embedded values; a same-basename `.opf` takes precedence over `metadata.opf`. If a sidecar changes the series name, an embedded position for the old series is discarded. If it names the same series and omits a position, the embedded position is retained. Manual Library corrections retain the existing rescan protection and can be compared with refreshed scanner candidates.
+
+Multiple languages, combining repeated descriptions, Calibre custom columns and importing Calibre ratings remain outside this slice. Library personal ratings and notes retain their existing meaning. No database migration or source-file write is required for the series improvement.
+
+### Developer library sample
+
+A read-only inspection on 2026-10-13 used the first 40 EPUB catalogue records by item ID under the developer user's `english_fiction` path. All 40 files were readable and below the 32 MiB audit limit; 22 contained `calibre:*` metadata. This is a convenience sample from one folder, not a representative estimate of the entire library.
+
+The installed `0.2.0-beta.1` catalogue contained descriptions for 32 books and 51 subjects across 18 books. Extractor description-presence and subject-count checks agreed with those catalogue values. Every file had one language entry. One file contained empty subject and description elements, which the importer correctly omitted. No sampled book had an OPF sidecar or repeated language/description entries.
+
+Six books declared a series, stored only in the legacy publication field. Five also declared a position that the old importer omitted: `2`, `1.0`, `24`, `3.0`, and `1.0`. One further book declared an orphan position without a series name. These findings motivated the dedicated series mapping and position extraction above.
+
+The importer has been deployed to developer Nextcloud 34.0.3. A targeted refresh of all 40 sampled records produced the expected series values with zero metadata warnings and unchanged source-file markers. Chromium verified all six series-bearing real books. Chromium and Firefox verified Calibre and EPUB 3 fixtures, manual corrections surviving re-extraction, and refreshed scanner candidates in an isolated account. The scheduled full refresh and exact-package NC33–35 checks are tracked separately in release evidence. The scheduler detects the extractor revision change and selects a full reconciliation; unchanged sources can then receive the new fields. The signed beta.1 archive remains unchanged.
 
 ## Three different metadata layers
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0-beta.2
+
+- Import dedicated series names and positions from Calibre and EPUB 3 metadata, preserving fractional positions and leading zeros.
+- Keep series positions paired with their source series when applying OPF sidecars; missing positions remain unknown.
+- Refresh cached metadata after the importer revision changes while preserving manual corrections.
+- Add regression and browser coverage for series extraction, sidecar precedence and corrected metadata after rescanning.
+
 ## 0.2.0-beta.1
 
 - Fix manual duplicate-group detection on SQLite by binding aggregate thresholds as integers.
