@@ -2,7 +2,7 @@
 
 ## Release checkpoint — 2026-10-13
 
-Current candidate baseline: `0.2.0-beta.3`. It adds the issue/series duplicate correction to the signed beta.2 baseline. The [beta.3 verification report](compatibility-evidence/2026-10-13-beta3/README.md) tracks developer and exact-package checks; these are in progress.
+Current candidate baseline: `0.2.0-beta.3`. It is signed, deployed on developer NC34 and [publicly released as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 cases passed with 210 final main Playwright tests; hosted CI and public URL verification passed. See the [beta.3 report](compatibility-evidence/2026-10-13-beta3/README.md), including the earlier timeout attempts and successful reruns.
 
 The signed [beta.2 baseline](compatibility-evidence/2026-10-13-beta2/README.md) passed six fresh/upgrade cases and 210/210 main Playwright executions. That evidence remains historical and does not certify beta.3.
 
@@ -11,11 +11,11 @@ Current checklist:
 - [x] Obtain and verify the signing certificate; request #1268 was merged.
 - [x] Prepare public listing text, Gutenberg screenshots and first-library documentation.
 - [x] Fix issue/series duplicate matching and add regression cases.
-- [ ] Verify beta.3 on developer NC34, including Chromium and Firefox.
-- [ ] Commit the runtime source and build, sign and audit beta.3.
-- [ ] Verify the exact beta.3 archive on NC33–35, fresh and upgrade.
-- [ ] Publish source/tag and release assets; verify public download and screenshot URLs.
-- [ ] Pass hosted CI for the release source.
+- [x] Verify beta.3 on developer NC34, including Chromium and Firefox.
+- [x] Commit the runtime source and build, sign and audit beta.3.
+- [x] Verify the exact beta.3 archive on NC33–35, fresh and upgrade.
+- [x] Publish source/tag and release assets; verify public download and screenshot URLs.
+- [x] Pass hosted CI for the release source.
 - [ ] Owner acceptance of the developer build and listing.
 - [ ] Owner App Store registration/submission, followed by Store installation verification.
 

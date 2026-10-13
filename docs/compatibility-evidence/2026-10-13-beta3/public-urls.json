@@ -1,0 +1,62 @@
+{
+  "authenticated": false,
+  "passed": true,
+  "files": [
+    {
+      "url": "https://github.com/utrost/Library/releases/download/v0.2.0-beta.3/library-0.2.0-beta.3.tar.gz.sha256",
+      "httpStatus": 200,
+      "sha256": "fe564437bcf79921271841a16616e51240fbb190a5576a3e251fdc4e4bd505eb",
+      "bytes": 94,
+      "matchesLocal": true
+    },
+    {
+      "url": "https://github.com/utrost/Library/releases/download/v0.2.0-beta.3/library-0.2.0-beta.3.spdx.json",
+      "httpStatus": 200,
+      "sha256": "8660727a6ca0299e4791729efd5d2866aebf9bedf7279214f9be953a642b594d",
+      "bytes": 472798,
+      "matchesLocal": true
+    },
+    {
+      "url": "https://github.com/utrost/Library/releases/download/v0.2.0-beta.3/library-0.2.0-beta.3.tar.gz",
+      "httpStatus": 200,
+      "sha256": "91e9e06d5113cfdc1111860e695442a4f58c0665f8e739b40ffde0cefa1ee91a",
+      "bytes": 612908,
+      "matchesLocal": true
+    },
+    {
+      "url": "https://github.com/utrost/Library/releases/download/v0.2.0-beta.3/library-0.2.0-beta.3.tar.gz.sig",
+      "httpStatus": 200,
+      "sha256": "4af42d78225a7936889dd2ddb8d3dbf8011ed3c93c3d9af93197a2d8ed4a9d37",
+      "bytes": 695,
+      "matchesLocal": true
+    },
+    {
+      "url": "https://github.com/utrost/Library/releases/download/v0.2.0-beta.3/library-0.2.0-beta.3.provenance.json",
+      "httpStatus": 200,
+      "sha256": "66e6c41cac1f12913311a47a77e785a0caa85cccffacdfa89811fbe533288bef",
+      "bytes": 1353,
+      "matchesLocal": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/utrost/Library/v0.2.0-beta.3/docs/images/appstore-inference.png",
+      "httpStatus": 200,
+      "sha256": "e70763ea47c2fd096d1b26ba10142265ff3f2a5e2aa8163cf2c63a2646693b00",
+      "bytes": 165313,
+      "matchesLocal": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/utrost/Library/v0.2.0-beta.3/docs/images/appstore-catalogue.png",
+      "httpStatus": 200,
+      "sha256": "5683f3378be52925aacaa2ec2a52af9dbc1070242c3d4992cf774cb3cb7cf38f",
+      "bytes": 526689,
+      "matchesLocal": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/utrost/Library/v0.2.0-beta.3/docs/images/appstore-details.png",
+      "httpStatus": 200,
+      "sha256": "7a47c52bdd50250bf4c6acee21e1616302cb1d7f9884fed91a93bbbcc29f9f1c",
+      "bytes": 317886,
+      "matchesLocal": true
+    }
+  ]
+}

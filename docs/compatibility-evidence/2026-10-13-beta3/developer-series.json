@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "manualCorrectionPreserved": true,
+      "candidatesRefreshed": true,
+      "sourceMarkersUnchanged": true
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "manualCorrectionPreserved": true,
+      "candidatesRefreshed": true,
+      "sourceMarkersUnchanged": true
+    }
+  ]
+}

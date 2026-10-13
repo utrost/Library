@@ -1,0 +1,707 @@
+{
+  "archive": "library-0.2.0-beta.3.tar.gz",
+  "sha256": "91e9e06d5113cfdc1111860e695442a4f58c0665f8e739b40ffde0cefa1ee91a",
+  "sourceCommit": "fee20308f70e740c40273097bd61c9870b89cd54",
+  "cases": [
+    {
+      "mode": "fresh",
+      "version": "33.0.9",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T14:21:41.471Z",
+        "duration": 604732.9839999999,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "duplicates": {
+        "report": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45
+        }
+      },
+      "inferenceApplyPassed": true
+    },
+    {
+      "mode": "fresh",
+      "version": "34.0.4",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T14:35:01.771Z",
+        "duration": 231204.66400000002,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "duplicates": {
+        "report": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45
+        }
+      },
+      "inferenceApplyPassed": true
+    },
+    {
+      "mode": "fresh",
+      "version": "35.0.0",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T14:21:51.543Z",
+        "duration": 584823.022,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "duplicates": {
+        "report": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45
+        }
+      },
+      "inferenceApplyPassed": true
+    },
+    {
+      "mode": "upgrade",
+      "version": "33.0.9",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T14:21:59.827Z",
+        "duration": 595398.651,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "duplicates": {
+        "report": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45
+        }
+      },
+      "inferenceApplyPassed": true
+    },
+    {
+      "mode": "upgrade",
+      "version": "34.0.4",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T14:35:09.839Z",
+        "duration": 229980.381,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "duplicates": {
+        "report": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45
+        }
+      },
+      "inferenceApplyPassed": true
+    },
+    {
+      "mode": "upgrade",
+      "version": "35.0.0",
+      "passed": true,
+      "cleanupPassed": true,
+      "playwright": {
+        "startTime": "2026-10-13T14:22:06.211Z",
+        "duration": 578452.311,
+        "expected": 35,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "integrityPassed": true,
+      "series": {
+        "passed": true,
+        "results": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "manualCorrectionPreserved": true,
+            "candidatesRefreshed": true,
+            "sourceMarkersUnchanged": true
+          }
+        ]
+      },
+      "duplicates": {
+        "report": [
+          {
+            "engine": "chromium",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          },
+          {
+            "engine": "firefox",
+            "passed": true,
+            "books": 19,
+            "seriesConflictsExcluded": true,
+            "sameIssueRetained": true,
+            "matches": 24,
+            "cancel": true,
+            "actualBackgroundJobs": true,
+            "reopen": true,
+            "pages": true,
+            "preferred": true,
+            "keepBoth": true,
+            "dismiss": true,
+            "reset": true,
+            "reloadPersistence": true,
+            "mobileFits": true,
+            "csrf": true,
+            "filesAndMetadataUnchanged": true,
+            "pageErrors": []
+          }
+        ]
+      },
+      "services": {
+        "scanner_warning_cache_integration": {
+          "passed": true,
+          "assertions": 25
+        },
+        "personal_lists_integration": {
+          "passed": true
+        },
+        "scheduled_scan_integration": {
+          "passed": true,
+          "assertions": 74
+        },
+        "scan_paging_integration": {
+          "passed": true,
+          "assertions": 8
+        },
+        "performance_fixes_integration": {
+          "passed": true,
+          "assertions": 45
+        }
+      },
+      "inferenceApplyPassed": true
+    }
+  ],
+  "mainPlaywrightPassed": 210,
+  "developer": {
+    "version": "34.0.3",
+    "appVersion": "0.2.0-beta.3",
+    "integrityPassed": true,
+    "duplicates": {
+      "report": [
+        {
+          "engine": "chromium",
+          "passed": true,
+          "books": 19,
+          "seriesConflictsExcluded": true,
+          "sameIssueRetained": true,
+          "matches": 24,
+          "cancel": true,
+          "actualBackgroundJobs": true,
+          "reopen": true,
+          "pages": true,
+          "preferred": true,
+          "keepBoth": true,
+          "dismiss": true,
+          "reset": true,
+          "reloadPersistence": true,
+          "mobileFits": true,
+          "csrf": true,
+          "filesAndMetadataUnchanged": true,
+          "pageErrors": []
+        },
+        {
+          "engine": "firefox",
+          "passed": true,
+          "books": 19,
+          "seriesConflictsExcluded": true,
+          "sameIssueRetained": true,
+          "matches": 24,
+          "cancel": true,
+          "actualBackgroundJobs": true,
+          "reopen": true,
+          "pages": true,
+          "preferred": true,
+          "keepBoth": true,
+          "dismiss": true,
+          "reset": true,
+          "reloadPersistence": true,
+          "mobileFits": true,
+          "csrf": true,
+          "filesAndMetadataUnchanged": true,
+          "pageErrors": []
+        }
+      ]
+    },
+    "series": {
+      "passed": true,
+      "results": [
+        {
+          "engine": "chromium",
+          "passed": true,
+          "manualCorrectionPreserved": true,
+          "candidatesRefreshed": true,
+          "sourceMarkersUnchanged": true
+        },
+        {
+          "engine": "firefox",
+          "passed": true,
+          "manualCorrectionPreserved": true,
+          "candidatesRefreshed": true,
+          "sourceMarkersUnchanged": true
+        }
+      ]
+    },
+    "realSeriesComparison": {
+      "readOnly": true,
+      "sample": "42-record real-library comic series sample",
+      "records": 42,
+      "missingRecords": 0,
+      "oldTitleAuthorPairs": 780,
+      "newTitleAuthorPairs": 12,
+      "removedTitleAuthorPairs": 768,
+      "bothMatchersTotalMs": 62.622,
+      "scope": "Catalogue metadata only; no ISBN/content or file availability comparison",
+      "limit": 100
+    }
+  },
+  "hostedCI": {
+    "run": "https://github.com/utrost/Library/actions/runs/38412388968",
+    "headSha": "fee20308f70e740c40273097bd61c9870b89cd54",
+    "conclusion": "success"
+  }
+}

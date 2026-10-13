@@ -1,0 +1,46 @@
+{
+  "report": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "books": 19,
+      "seriesConflictsExcluded": true,
+      "sameIssueRetained": true,
+      "matches": 24,
+      "cancel": true,
+      "actualBackgroundJobs": true,
+      "reopen": true,
+      "pages": true,
+      "preferred": true,
+      "keepBoth": true,
+      "dismiss": true,
+      "reset": true,
+      "reloadPersistence": true,
+      "mobileFits": true,
+      "csrf": true,
+      "filesAndMetadataUnchanged": true,
+      "pageErrors": []
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "books": 19,
+      "seriesConflictsExcluded": true,
+      "sameIssueRetained": true,
+      "matches": 24,
+      "cancel": true,
+      "actualBackgroundJobs": true,
+      "reopen": true,
+      "pages": true,
+      "preferred": true,
+      "keepBoth": true,
+      "dismiss": true,
+      "reset": true,
+      "reloadPersistence": true,
+      "mobileFits": true,
+      "csrf": true,
+      "filesAndMetadataUnchanged": true,
+      "pageErrors": []
+    }
+  ]
+}

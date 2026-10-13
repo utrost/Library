@@ -1,0 +1,12 @@
+{
+  "readOnly": true,
+  "sample": "42-record real-library comic series sample",
+  "records": 42,
+  "missingRecords": 0,
+  "oldTitleAuthorPairs": 780,
+  "newTitleAuthorPairs": 12,
+  "removedTitleAuthorPairs": 768,
+  "bothMatchersTotalMs": 62.622,
+  "scope": "Catalogue metadata only; no ISBN/content or file availability comparison",
+  "limit": 100
+}
