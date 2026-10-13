@@ -2,7 +2,9 @@
 
 ## Release checkpoint — 2026-09-30
 
-Current candidate baseline: `0.2.0-beta.1`, signed and deployed on developer Nextcloud 34.0.3. The exact archive passed fresh installation and upgrade from 0.1.0-beta.1 on Nextcloud 33.0.9, 34.0.4 and 35.0.0: **210/210 Playwright executions**, plus service, duplicate, inference and scheduled-scan checks. See [final verification and limitations](compatibility-evidence/2026-09-30-beta1/README.md).
+Current candidate baseline: `0.2.0-beta.2`; series metadata verification and release packaging are in progress.
+
+Historical signed baseline: `0.2.0-beta.1`, deployed on developer Nextcloud 34.0.3 before the series importer update. The exact archive passed fresh installation and upgrade from 0.1.0-beta.1 on Nextcloud 33.0.9, 34.0.4 and 35.0.0: **210/210 Playwright executions**, plus service, duplicate, inference and scheduled-scan checks. See [final verification and limitations](compatibility-evidence/2026-09-30-beta1/README.md).
 
 Completed:
 
@@ -146,13 +148,13 @@ Alpha.171 security-hardening deployment evidence: PRs #69 and #70 merged on `mai
 
 ### AS-005 — App Store submission
 
-Status: pending. The recommended current target is signed `0.2.0-beta.1`; stable release follows beta acceptance.
+Status: pending. The current target is `0.2.0-beta.2`; stable release follows beta acceptance.
 
 Goal: publish the accepted beta candidate, then promote a subsequent accepted release to stable.
 
 Work:
 
-1. Freeze and version the accepted candidate as `0.2.0-beta.1`.
+1. Freeze and version the accepted candidate as `0.2.0-beta.2`.
 2. Build, sign, audit and smoke the final package.
 3. Create the GitHub release and upload the exact signed artifact/checksum.
 4. Submit/update the app on the Nextcloud App Store.

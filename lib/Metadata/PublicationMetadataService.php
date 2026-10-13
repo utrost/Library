@@ -13,7 +13,7 @@ use Throwable;
 final class PublicationMetadataService {
     // Bump for any output-affecting extractor or normalization change, sidecar precedence
     // change, filename/folder interpretation change, or ItemService candidate mapping change.
-    public const PIPELINE_REVISION = 'metadata-pipeline-v7';
+    public const PIPELINE_REVISION = 'metadata-pipeline-v8';
 
     // realistic fixture notes: encoded PDF info dictionaries, CBZ without ComicInfo.xml, nested ComicInfo.xml, sidecar collisions.
     private ?string $lastError = null;
@@ -70,6 +70,12 @@ final class PublicationMetadataService {
                 return $this->validateScannerFields($this->validateScannerAuthors(array_merge($filenameMetadata, $embeddedMetadata), $file), $file);
             }
 
+            // A sidecar can replace the series name without specifying a position.
+            // Never carry an embedded position over to that different series.
+            if (isset($sidecarMetadata['series'])
+                && $sidecarMetadata['series'] !== ($embeddedMetadata['series'] ?? null)) {
+                unset($filenameMetadata['seriesNumber'], $embeddedMetadata['seriesNumber']);
+            }
             if (isset($sidecarMetadata['creators']) && !isset($sidecarMetadata['authors'])) unset($embeddedMetadata['authors']);
             return $this->validateScannerFields($this->validateScannerAuthors(array_merge($filenameMetadata, $embeddedMetadata, $sidecarMetadata), $file), $file);
         } catch (Throwable $e) {

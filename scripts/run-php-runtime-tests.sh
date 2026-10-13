@@ -14,6 +14,7 @@ if command -v php >/dev/null 2>&1; then
     php "$repo_dir/tests/php/metadata_status_test.php"
     php "$repo_dir/tests/php/publication_date_test.php"
     php "$repo_dir/tests/php/identifier_service_test.php"
+    php "$repo_dir/tests/php/opf_series_test.php"
     php "$repo_dir/tests/php/scanner_identifier_extraction_test.php"
     php "$repo_dir/tests/php/scanner_author_validation_test.php"
     php "$repo_dir/tests/php/cover_selection_refresh_test.php"
@@ -47,6 +48,7 @@ if command -v docker >/dev/null 2>&1 && docker image inspect php:8.3-cli >/dev/n
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/duplicate_matcher_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/publication_date_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/identifier_service_test.php
+    docker run --rm -v "$repo_dir:/app:ro" -w /app --entrypoint php nextcloud:34.0.4-apache tests/php/opf_series_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/scanner_identifier_extraction_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/scanner_author_validation_test.php
     docker run --rm -v "$repo_dir:/app:ro" -w /app php:8.3-cli php tests/php/cover_selection_refresh_test.php

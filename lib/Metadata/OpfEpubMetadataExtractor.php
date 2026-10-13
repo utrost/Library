@@ -15,7 +15,7 @@ public function getLastError(): ?string {
 }
 
 /**
- * @return array<string, string>
+ * @return array<string, mixed>
  */
 public function extractEpub(File $file): array {
     $this->lastError = null;
@@ -80,7 +80,7 @@ public function extractEpub(File $file): array {
 }
 
 /**
- * @return array<string, string>
+ * @return array<string, mixed>
  */
 public function extractStandaloneOpf(File $file): array {
     return $this->parseOpfMetadata($file->getContent(), 'opf'); // metadataSource' => 'opf'
@@ -108,7 +108,7 @@ private function findRootfilePath(string $containerXml): ?string {
 /**
  * OPF package metadata, including dc:title, dc:creator, dc:language, dc:publisher and dc:date.
  *
- * @return array<string, string>
+ * @return array<string, mixed>
  */
 public function parseOpfMetadata(string $opfXml, string $source): array {
     $xml = @simplexml_load_string($opfXml);
@@ -166,7 +166,11 @@ public function parseOpfMetadata(string $opfXml, string $source): array {
 
     $series = $this->extractSeries($xml);
     if ($series !== null) {
-        $metadata['publication'] = $series;
+        $metadata['publication'] = $series['name'];
+        $metadata['series'] = $series['name'];
+        if ($series['number'] !== null) {
+            $metadata['seriesNumber'] = $series['number'];
+        }
     }
 
     $publicationType = $this->normalizePublicationType($this->firstXmlValue($dc->type ?? null));
@@ -214,9 +218,13 @@ private function extractIdentifiers(mixed $nodes, string $source): array {
     return $identifiers;
 }
 
-private function extractSeries(\SimpleXMLElement $xml): ?string {
+/** @return array{name:string, number:?string}|null */
+private function extractSeries(\SimpleXMLElement $xml): ?array {
+    $calibreSeries = null;
+    $calibreNumber = null;
     $opf3Collections = [];
     $opf3SeriesIds = [];
+    $opf3Positions = [];
 
     foreach ($xml->xpath('//*[local-name()="metadata"]/*[local-name()="meta"]') ?: [] as $meta) {
         $name = strtolower(trim((string)($meta['name'] ?? '')));
@@ -225,27 +233,38 @@ private function extractSeries(\SimpleXMLElement $xml): ?string {
         if ($value === '') {
             $value = trim((string)$meta);
         }
-
-        if (($name === 'calibre:series' || $property === 'calibre:series') && $value !== '') {
-            return $value;
+        if ($value === '') {
+            continue;
         }
 
-        if ($property === 'belongs-to-collection' && $value !== '') {
+        if ($name === 'calibre:series' || $property === 'calibre:series') {
+            $calibreSeries ??= $value;
+        } elseif ($name === 'calibre:series_index' || $property === 'calibre:series_index') {
+            $calibreNumber ??= $value;
+        }
+
+        $refines = trim((string)($meta['refines'] ?? ''));
+        $refinedId = str_starts_with($refines, '#') ? substr($refines, 1) : '';
+        if ($property === 'belongs-to-collection') {
             $id = trim((string)($meta['id'] ?? ''));
             if ($id !== '') {
                 $opf3Collections[$id] = $value;
             }
-        } elseif ($property === 'collection-type' && strtolower($value) === 'series') {
-            $refines = ltrim(trim((string)($meta['refines'] ?? '')), '#');
-            if ($refines !== '') {
-                $opf3SeriesIds[] = $refines;
-            }
+        } elseif ($property === 'collection-type' && strtolower($value) === 'series' && $refinedId !== '') {
+            $opf3SeriesIds[] = $refinedId;
+        } elseif ($property === 'group-position' && $refinedId !== '') {
+            $opf3Positions[$refinedId] = $value;
         }
     }
 
+    // Preserve the existing Calibre-name precedence and keep its position paired
+    // with that name. A missing position stays unknown (never implicitly book 1).
+    if ($calibreSeries !== null) {
+        return ['name' => $calibreSeries, 'number' => $calibreNumber];
+    }
     foreach ($opf3SeriesIds as $id) {
         if (isset($opf3Collections[$id])) {
-            return $opf3Collections[$id];
+            return ['name' => $opf3Collections[$id], 'number' => $opf3Positions[$id] ?? null];
         }
     }
     return null;
