@@ -7,7 +7,7 @@ use OCA\Library\Exception\ListConflictException;
 
 /** Account-scoped author directory. Legacy book credits remain source observations. */
 final class AuthorDirectoryService {
-    public function __construct(private IDBConnection $db, private AuthorStorageService $storage) {}
+    public function __construct(private IDBConnection $db, private AuthorStorageService $storage, private ?AuthorPhotoService $photos = null) {}
     private function rows(string $sql, array $params): array {
         $r = $this->db->executeQuery($sql, $params);
         try { return $r->fetchAll(); } finally { $r->closeCursor(); }
@@ -25,14 +25,32 @@ final class AuthorDirectoryService {
         $rows = $this->rows('SELECT a.id,a.display_name,a.sort_name,a.revision,(SELECT COUNT(DISTINCT l.item_id) FROM *PREFIX*library_item_authors l WHERE l.user_id=a.user_id AND l.author_id=a.id) AS book_count FROM *PREFIX*library_authors a WHERE ' . $where . ' ORDER BY a.sort_name,a.id LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
         return ['authors' => array_slice($rows, 0, 50), 'hasNext' => count($rows) > 50, 'page' => $page, 'migration' => $this->storage->status($uid)];
     }
-    public function page(string $uid, int $id, int $page = 1): array {
-        if ($page < 1 || $page > 100000) throw new \InvalidArgumentException('page');
+    public function profile(string $uid, int $id): array {
         $author = $this->rows('SELECT * FROM *PREFIX*library_authors WHERE user_id=? AND id=?', [$uid, $id])[0] ?? null;
         if ($author === null) throw new \OutOfBoundsException('author');
-        $rows = $this->rows('SELECT DISTINCT i.id,i.title,i.creators FROM *PREFIX*library_item_authors l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id WHERE l.user_id=? AND l.author_id=? ORDER BY i.id LIMIT 51 OFFSET ' . (($page - 1) * 50), [$uid, $id]);
-        $count = $this->rows('SELECT COUNT(DISTINCT item_id) AS n FROM *PREFIX*library_item_authors WHERE user_id=? AND author_id=?', [$uid, $id])[0];
+        return $author;
+    }
+    public function page(string $uid, int $id, int $page = 1, string $search = '', string $sort = 'title'): array {
+        if ($page < 1 || $page > 100000 || mb_strlen($search) > 255) throw new \InvalidArgumentException('page_or_search');
+        $order = match ($sort) {
+            'title' => 'i.title,i.id',
+            'newest' => "CASE WHEN COALESCE(i.publication_date,'')='' THEN 1 ELSE 0 END,i.publication_date DESC,i.title,i.id",
+            'series' => "CASE WHEN COALESCE(i.series_name,'')='' THEN 1 ELSE 0 END,i.series_name,i.title,i.id",
+            default => throw new \InvalidArgumentException('sort'),
+        };
+        $author = $this->profile($uid, $id);
+        // Drive the bounded book lookup from the indexed account/author relationships.
+        $from = ' FROM (SELECT DISTINCT item_id FROM *PREFIX*library_item_authors WHERE user_id=? AND author_id=?) links INNER JOIN *PREFIX*library_items i ON i.id=links.item_id INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id WHERE i.user_id=?';
+        $params = [$uid, $id, $uid];
+        $total = $this->rows('SELECT COUNT(*) AS n' . $from, $params)[0];
+        if (trim($search) !== '') {
+            $from .= " AND LOWER(i.title) LIKE ? ESCAPE '!'";
+            $params[] = '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($search))) . '%';
+        }
+        $count = trim($search) === '' ? $total : $this->rows('SELECT COUNT(*) AS n' . $from, $params)[0];
+        $rows = $this->rows('SELECT i.id,i.title,i.creators,i.series_name,i.series_number,i.publication_date,i.cover_revision,f.etag,f.extension,f.scan_status' . $from . ' ORDER BY ' . $order . ' LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
         $migration = $this->storage->status($uid);
-        return ['canEdit' => $author['merged_into'] === null && $migration['pending'] === 0 && $migration['failed'] === 0, 'author' => $author, 'books' => array_slice($rows, 0, 50), 'bookCount' => (int)$count['n'], 'hasNext' => count($rows) > 50, 'page' => $page];
+        return ['canEdit' => $author['merged_into'] === null && $migration['pending'] === 0 && $migration['failed'] === 0, 'author' => $author, 'books' => array_slice($rows, 0, 50), 'bookCount' => (int)$total['n'], 'matchingCount' => (int)$count['n'], 'hasNext' => count($rows) > 50, 'page' => $page];
     }
     /** Explicit creation allows homonyms; no automatic name-based reuse. */
     public function create(string $uid, string $name): array {
@@ -49,7 +67,7 @@ final class AuthorDirectoryService {
         } catch (\Throwable $e) { $this->db->rollBack(); throw $e; }
         return $this->page($uid, $id)['author'];
     }
-    public function update(string $uid, int $id, int $revision, array $fields): void {
+    public function update(string $uid, int $id, int $revision, array $fields, ?string $photo = null, bool $removePhoto = false): void {
         $migration = $this->storage->status($uid);
         if ($migration['pending'] > 0 || $migration['failed'] > 0) throw new \OCA\Library\Exception\AuthorMigrationPendingException();
         if ($revision < 1) throw new \InvalidArgumentException('revision');
@@ -62,6 +80,14 @@ final class AuthorDirectoryService {
             elseif ($field === 'display_name' || $field === 'sort_name') throw new \InvalidArgumentException($field);
             $values[$field] = $value === '' ? null : $value;
         }
+        if (array_key_exists('biography', $fields)) {
+            if (!is_string($fields['biography']) || !mb_check_encoding($fields['biography'], 'UTF-8') || mb_strlen($fields['biography']) > 10000) throw new \InvalidArgumentException('biography');
+            $values['biography'] = trim($fields['biography']) === '' ? null : trim($fields['biography']);
+        }
+        if ($photo !== null && $removePhoto) throw new \InvalidArgumentException('photo');
+        $portrait = $photo === null ? null : $this->photos?->thumbnail($photo);
+        if ($photo !== null && $portrait === null) throw new \RuntimeException('photo_storage_unavailable');
+        $newPhoto = null; $oldPhoto = null;
         $normalized = AuthorIdentity::name($values['display_name']);
         $values['comparison_key'] = $normalized['comparison_key'];
         $values['normalization_version'] = AuthorIdentity::VERSION;
@@ -71,6 +97,12 @@ final class AuthorDirectoryService {
         try {
             // Serializes with migration's identity lookup, without rewriting source credits.
             $this->db->executeStatement('UPDATE *PREFIX*library_author_state SET updated_at=? WHERE user_id=?', [time(), $uid]);
+            $old = $this->rows('SELECT revision,photo_key FROM *PREFIX*library_authors WHERE user_id=? AND id=?' . ($this->db->getDatabaseProvider() === 'sqlite' ? '' : ' FOR UPDATE'), [$uid, $id])[0] ?? null;
+            if ($old === null) throw new \OutOfBoundsException('author');
+            if ((int)$old['revision'] !== $revision) throw new ListConflictException('author_revision');
+            $oldPhoto = $old['photo_key'];
+            if ($portrait !== null) $values['photo_key'] = $newPhoto = $this->photos->store($uid, $portrait);
+            elseif ($removePhoto) $values['photo_key'] = null;
             $qb = $this->db->getQueryBuilder();
             $qb->update('library_authors')->where($qb->expr()->eq('user_id', $qb->createNamedParameter($uid)))
                 ->andWhere($qb->expr()->eq('id', $qb->createNamedParameter($id)))
@@ -83,6 +115,11 @@ final class AuthorDirectoryService {
                 throw new ListConflictException('author_revision');
             }
             $this->db->commit();
-        } catch (\Throwable $e) { $this->db->rollBack(); throw $e; }
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            if ($newPhoto !== null) $this->photos?->remove($uid, $newPhoto);
+            throw $e;
+        }
+        if ($newPhoto !== null || $removePhoto) $this->photos?->remove($uid, $oldPhoto);
     }
 }

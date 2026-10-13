@@ -9,7 +9,7 @@ Before submitting 0.3: complete author browsing/editing/merging, verify the popu
 
 ## Release checkpoint — 2026-10-13
 
-Current candidate baseline: `0.3.0-alpha.2`. Author management is in development; the full 0.3 release matrix remains pending.
+Current candidate baseline: `0.3.0-alpha.3`. Author management is in development; the full 0.3 release matrix remains pending.
 
 Preserved baseline: `0.2.0-beta.3`. It is signed and [publicly released as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 cases passed with 210 final main Playwright tests; hosted CI and public URL verification passed. See the [beta.3 report](compatibility-evidence/2026-10-13-beta3/README.md), including the earlier timeout attempts and successful reruns.
 
@@ -174,3 +174,5 @@ Acceptance checks:
 - Support/issue tracker expectations are clear.
 
 Latest author assignment implementation and developer verification: [0.3-alpha.2 report](compatibility-evidence/2026-10-13-author-assignments-alpha2/README.md).
+
+Author profiles, photos/biographies and paged catalogue implemented: [0.3-alpha.3 evidence](compatibility-evidence/2026-10-13-author-profiles-alpha3/README.md). Other metadata normalization priorities are documented in the [author concept](v0.3-author-management.md#other-metadata-worth-normalising): series first, subjects/genres later; languages need consistent codes and identifiers already have dedicated storage.

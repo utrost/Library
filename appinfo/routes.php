@@ -78,6 +78,7 @@ return [
         ['name' => 'author#undo', 'url' => '/api/authors/history/{operationId}/undo', 'verb' => 'POST', 'requirements' => ['operationId' => '[a-f0-9]{32}']],
         ['name' => 'author#preview', 'url' => '/api/authors/{authorId}/preview', 'verb' => 'POST', 'requirements' => ['authorId' => '[1-9][0-9]*']],
         ['name' => 'author#assign', 'url' => '/api/authors/{authorId}/assign', 'verb' => 'POST', 'requirements' => ['authorId' => '[1-9][0-9]*']],
+        ['name' => 'author#photo', 'url' => '/api/authors/{authorId}/photo', 'verb' => 'GET', 'requirements' => ['authorId' => '[1-9][0-9]*']],
         ['name' => 'author#create', 'url' => '/api/authors', 'verb' => 'POST'],
         ['name' => 'author#index', 'url' => '/api/authors', 'verb' => 'GET'],
         ['name' => 'author#show', 'url' => '/api/authors/{authorId}', 'verb' => 'GET', 'requirements' => ['authorId' => '[1-9][0-9]*']],

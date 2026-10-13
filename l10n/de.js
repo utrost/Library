@@ -1034,7 +1034,24 @@ OC.L10N.register(
         "Undo": "Rückgängig machen",
         "Create separate author": "Eigenständigen Autor erstellen",
         "Creates a new person using the entered name, even if someone with that name already exists.": "Erstellt einen eigenständigen Autor mit der eingegebenen Bezeichnung, auch wenn sie bereits vorhanden ist.",
-        "This change is too large. Select fewer books to reassign.": "Diese Änderung ist zu groß. Wählen Sie weniger Bücher zur Neuzuordnung."
+        "This change is too large. Select fewer books to reassign.": "Diese Änderung ist zu groß. Wählen Sie weniger Bücher zur Neuzuordnung.",
+        "Choose a valid JPEG, PNG or WebP image up to 10 MiB.": "Wählen Sie ein gültiges JPEG-, PNG- oder WebP-Bild bis 10 MiB.",
+        "Portrait of {author}": "Porträt von {author}",
+        "Biography": "Biografie",
+        "Show less": "Weniger anzeigen",
+        "Show more": "Mehr anzeigen",
+        "Optional plain text, up to 10,000 characters. This profile is private to your account.": "Freiwilliger Klartext mit bis zu 10.000 Zeichen. Dieses Profil ist nur für Ihr Konto sichtbar.",
+        "Author photo": "Autorenfoto",
+        "JPEG, PNG or WebP, up to 10 MiB. Saved as a small square portrait; the original upload is discarded.": "JPEG, PNG oder WebP bis 10 MiB. Wird als kleines quadratisches Porträt gespeichert; die ursprüngliche Datei wird verworfen.",
+        "Remove photo": "Foto entfernen",
+        "Books in your library": "Bücher in Ihrer Bibliothek",
+        "Search titles": "Titel suchen",
+        "Publication date, newest first": "Erscheinungsdatum, neueste zuerst",
+        "Series, then title": "Reihe, dann Titel",
+        "Covers": "Buchcover",
+        "No books match this view.": "Keine Bücher entsprechen dieser Ansicht.",
+        "No series recorded": "Keine Reihe erfasst",
+        "File missing": "Datei fehlt"
     },
     "nplurals=2; plural=(n != 1);"
 );

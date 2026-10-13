@@ -1033,7 +1033,24 @@
         "Undo": "Undo",
         "Create separate author": "Create separate author",
         "Creates a new person using the entered name, even if someone with that name already exists.": "Creates a new person using the entered name, even if someone with that name already exists.",
-        "This change is too large. Select fewer books to reassign.": "This change is too large. Select fewer books to reassign."
+        "This change is too large. Select fewer books to reassign.": "This change is too large. Select fewer books to reassign.",
+        "Choose a valid JPEG, PNG or WebP image up to 10 MiB.": "Choose a valid JPEG, PNG or WebP image up to 10 MiB.",
+        "Portrait of {author}": "Portrait of {author}",
+        "Biography": "Biography",
+        "Show less": "Show less",
+        "Show more": "Show more",
+        "Optional plain text, up to 10,000 characters. This profile is private to your account.": "Optional plain text, up to 10,000 characters. This profile is private to your account.",
+        "Author photo": "Author photo",
+        "JPEG, PNG or WebP, up to 10 MiB. Saved as a small square portrait; the original upload is discarded.": "JPEG, PNG or WebP, up to 10 MiB. Saved as a small square portrait; the original upload is discarded.",
+        "Remove photo": "Remove photo",
+        "Books in your library": "Books in your library",
+        "Search titles": "Search titles",
+        "Publication date, newest first": "Publication date, newest first",
+        "Series, then title": "Series, then title",
+        "Covers": "Covers",
+        "No books match this view.": "No books match this view.",
+        "No series recorded": "No series recorded",
+        "File missing": "File missing"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

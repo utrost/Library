@@ -7,7 +7,7 @@ use OCP\BackgroundJob\IJobList;
 use OCA\Library\BackgroundJob\ScanJob;
 
 final class LibraryCleanupService {
-    public function __construct(private IDBConnection $db, private IConfig $config, private IJobList $jobs) {}
+    public function __construct(private IDBConnection $db, private IConfig $config, private IJobList $jobs, private ?AuthorPhotoService $authorPhotos = null) {}
     /** At most 500 expired approvals per run. Recheck expiry so concurrent transitions survive. */
     public function expireHistory(int $limit = 500): int {
         $now = time(); $qb = $this->db->getQueryBuilder();
@@ -73,6 +73,7 @@ final class LibraryCleanupService {
             }
             $this->db->commit();
         } catch (\Throwable $e) { $this->db->rollBack(); throw $e; }
+        $this->authorPhotos?->deleteUser($uid);
         foreach ([ScanJob::class, \OCA\Library\BackgroundJob\InferenceAnalysisJob::class, \OCA\Library\BackgroundJob\DuplicateJob::class, \OCA\Library\BackgroundJob\DuplicateIndexJob::class] as $class) {
         $arguments = [];
         foreach ($this->jobs->getJobsIterator($class, null, 0) as $job) {
