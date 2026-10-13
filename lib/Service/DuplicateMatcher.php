@@ -39,13 +39,57 @@ final class DuplicateMatcher {
         if (strlen($a)<=512 && strlen($b)<=512 && min(mb_strlen($a),mb_strlen($b))>=8) $edit=1-levenshtein($a,$b)/max(strlen($a),strlen($b));
         return max($dice,$edit);
     }
+    /** Normalize positions without losing decimal precision or treating 01 as a different issue. */
+    private static function position(string $value): string {
+        $value=trim(mb_strtolower($value));
+        if (preg_match('/^([0-9]+)(?:\.([0-9]+))?$/D',$value,$parts)) {
+            $integer=ltrim($parts[1],'0') ?: '0';
+            $fraction=rtrim($parts[2]??'','0');
+            return $integer.($fraction!=='' ? '.'.$fraction : '');
+        }
+        return self::text($value);
+    }
+    /** Extract only numbering clues; dates and release credits are not issue identities. */
+    private static function numbering(array $book): array {
+        $title=mb_strtolower((string)$book['title']);
+        // Filenames often become titles, including a year followed by scan/release credits.
+        $title=preg_replace('/\s*[([](?:18|19|20)[0-9]{2}[)\]].*$/u','',$title) ?? $title;
+        $result=[];
+        $number='([0-9]+(?:\.[0-9]+)?)';
+        $patterns=[
+            'volume'=>'/(?<![\p{L}\p{N}])(?:v|vol(?:ume)?)[.\s]*'.$number.'(?![\p{L}\p{N}])/u',
+            'issue'=>'/(?<![\p{L}\p{N}])(?:issue|no|number|book|part|#)[.\s]*'.$number.'(?![\p{L}\p{N}])/u',
+        ];
+        foreach ($patterns as $kind=>$pattern) {
+            if (preg_match($pattern,$title,$match)) $result[$kind]=self::position($match[1]);
+            $title=preg_replace($pattern,' ',$title) ?? $title;
+        }
+        // A trailing number is the usual bare comic issue / series position.
+        if (!isset($result['issue']) && preg_match('/(?<![\p{L}\p{N}])'.$number.'\s*$/u',$title,$match)
+            && !preg_match('/^(?:18|19|20)[0-9]{2}$/D',$match[1])) {
+            $result['issue']=self::position($match[1]);
+        }
+        return $result;
+    }
+    private static function conflictingParts(array $a,array $b): bool {
+        $seriesA=self::text((string)($a['series']??''));
+        $seriesB=self::text((string)($b['series']??''));
+        $partA=self::position((string)($a['seriesNumber']??''));
+        $partB=self::position((string)($b['seriesNumber']??''));
+        if ($seriesA!=='' && $seriesA===$seriesB && $partA!=='' && $partB!=='' && $partA!==$partB) return true;
+        $left=self::numbering($a); $right=self::numbering($b);
+        foreach (['volume','issue'] as $kind) {
+            if (isset($left[$kind],$right[$kind]) && $left[$kind]!==$right[$kind]) return true;
+        }
+        return false;
+    }
     public static function evidence(array $a,array $b): array {
         $reasons=[]; $flags=[];
         if (($a['hash']??'')!=='' && ($a['hash']??null)===($b['hash']??null)) $reasons[]='identical';
         if (array_intersect($a['isbn'],$b['isbn'])) $reasons[]='isbn';
         $sameAuthors=self::authors($a)!==[] && self::authors($a)===self::authors($b);
         $similarity=self::titleSimilarity($a['title'],$b['title']);
-        if ($sameAuthors && $similarity>=0.86) $reasons[]=$similarity===1.0 ? 'title_author' : 'similar_title_author';
+        if ($sameAuthors && $similarity>=0.86 && !self::conflictingParts($a,$b)) $reasons[]=$similarity===1.0 ? 'title_author' : 'similar_title_author';
         if ($a['format']!==$b['format']) $flags[]='formats';
         if ($a['language']!=='' && $b['language']!=='' && explode('-',strtolower($a['language']))[0]!==explode('-',strtolower($b['language']))[0]) $flags[]='languages';
         if ($a['publicationDate']!=='' && $b['publicationDate']!=='' && substr($a['publicationDate'],0,4)!==substr($b['publicationDate'],0,4)) $flags[]='years';
@@ -60,7 +104,7 @@ final class DuplicateMatcher {
     /** Suggestions depend on matching metadata, not unrelated reading state or notes. */
     public static function hintSignature(array $a,array $b): string {
         $values=[];
-        foreach([$a,$b] as $book){$value=[];foreach(['fileId','title','authors','language','publicationDate','publisher','isbn','format'] as $field)$value[$field]=$book[$field];$values[$book['id']]=$value;}
+        foreach([$a,$b] as $book){$value=[];foreach(['fileId','title','authors','language','publicationDate','publisher','isbn','format','series','seriesNumber'] as $field)$value[$field]=$book[$field]??'';$values[$book['id']]=$value;}
         ksort($values,SORT_NUMERIC);return hash('sha256',json_encode($values,JSON_THROW_ON_ERROR));
     }
 }

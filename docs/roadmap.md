@@ -469,7 +469,11 @@ The beta already includes a detail metadata workbench, custom collections, conse
 - Add richer magazine issue grouping and next/previous issue navigation.
 - Consider event-triggered incremental rescanning and duplicate hints.
 
-### 0.3 — Reading ecosystem
+### 0.3 — Author management
+
+Direction updated 2026-10-13: [Author management concept](v0.3-author-management.md). Add per-user author identities and ordered book relationships, conservative import normalisation, author directory/pages, editing, reviewed merges and conditional undo. Preserve source credits and manual decisions on rescans. No dedicated aliases table is planned.
+
+### Later candidate — Reading ecosystem
 
 - Reader-provider abstraction beyond the default file route.
 - Reading progress only where reader apps expose stable APIs.
@@ -542,7 +546,7 @@ Immediate slices:
 The rough roadmap after v0.1 lives in [Rough roadmap after v0.1](post-v0.1-roadmap.md). It intentionally assigns one major feature family to each minor release line:
 
 1. v0.2 — extend the already-landed filename/directory parsing against real mixed libraries; final scope remains open.
-2. v0.3 — external metadata providers.
+2. v0.3 — [author management](v0.3-author-management.md); external metadata providers move to later scope.
 3. v0.4 — shared libraries and admin-managed roots.
 4. v0.5 — reading integrations and activity.
 

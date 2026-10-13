@@ -42,6 +42,14 @@ An EPUB and a PDF may represent the same work while having different contents an
 
 Author normalization never edits stored names or splits authors on commas. Explicit author arrays remain separate identities. Rearranged names can still produce false positives; review the books before making a decision.
 
+## Different issues and series positions
+
+From 0.2.0-beta.3, conflicting stored positions within the same series or explicit issue/volume numbers in titles suppress title-and-author matches. For example, issue 004 and issue 008 are different publications; 004 and 4 represent the same position. Equivalent decimal positions such as 2.50 and 2.5 also match. Parenthesized publication years and following release credits do not identify an issue.
+
+Shared valid ISBNs and identical file contents remain independent evidence. Missing numbering does not prove a conflict, and Roman numerals or unstructured folder-only numbering are not inferred by this title matcher.
+
+Existing saved scans retain their original results. Run a new scan to apply the changed matching rules. Catalogue suggestions use the updated matcher on the next lookup; no full metadata refresh is needed.
+
 ## Scope and persistence
 
 - Only your indexed, currently accessible books participate. New files must first be scanned into Library. Other users' catalogues and decisions are not searched or exposed.

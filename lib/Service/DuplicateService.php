@@ -77,7 +77,7 @@ final class DuplicateService {
         $snapshot=$this->snapshots->snapshot($uid,$id); $s=$snapshot['state']; $f=$snapshot['file'];
         $q=$this->db->getQueryBuilder(); $r=$q->select('normalized_value')->from('library_item_identifiers')->where($q->expr()->eq('user_id',$q->createNamedParameter($uid)))->andWhere($q->expr()->eq('item_id',$q->createNamedParameter($id)))->andWhere($q->expr()->eq('scheme',$q->createNamedParameter('isbn')))->andWhere($q->expr()->eq('valid',$q->createNamedParameter(1)))->orderBy('normalized_value','ASC')->setMaxResults(20)->executeQuery(); $isbn=array_values(array_unique(array_column($r->fetchAll(),'normalized_value'))); $r->closeCursor();
         return ['id'=>$id,'fileId'=>$f['id'],'rootId'=>$f['rootId'],'rootPath'=>$f['rootPath'],'rootFileId'=>$f['rootFileId'],'path'=>$f['path'],'size'=>(int)$f['size'],'format'=>strtolower(pathinfo($f['path'],PATHINFO_EXTENSION)),
-            'title'=>(string)$s['title'],'authors'=>AuthorNames::read($s['authors_json']??null,$s['creators']),'language'=>(string)$s['language'],'publicationDate'=>(string)$s['publication_date'],'publisher'=>(string)$s['publisher'],'isbn'=>$isbn,
+            'title'=>(string)$s['title'],'authors'=>AuthorNames::read($s['authors_json']??null,$s['creators']),'language'=>(string)$s['language'],'series'=>(string)($s['series_name']??''),'seriesNumber'=>(string)($s['series_number']??''),'publicationDate'=>(string)$s['publication_date'],'publisher'=>(string)$s['publisher'],'isbn'=>$isbn,
             'revision'=>hash('sha256',json_encode([$snapshot,$isbn],JSON_THROW_ON_ERROR)),'hashState'=>'pending','hash'=>''];
     }
     /** Frozen job data, reused only while its locked transaction is held. */

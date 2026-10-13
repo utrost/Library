@@ -2,16 +2,18 @@
 
 ## Current 0.2 beta release
 
-The current candidate is `0.2.0-beta.2`, signed and deployed on developer Nextcloud 34.0.3. See the [beta.2 verification report](docs/compatibility-evidence/2026-10-13-beta2/README.md) for six passing fresh/upgrade installations, 210 final main Playwright executions, the full developer refresh and documented limitations. Owner acceptance, public download/screenshot URL checks and App Store submission remain. Beta.2 is prepared locally and has not been published; handoff materials are in `dist/app-store-handoff-beta2/`. The sections below preserve earlier release evidence.
+The current candidate is `0.2.0-beta.3`, adding the series/issue duplicate correction. Exact-package verification and publication are being prepared; the final results will be recorded in the [beta.3 report](docs/compatibility-evidence/2026-10-13-beta3/README.md). App Store account registration/submission and owner acceptance remain separate steps. The signed beta.2 archive is preserved unchanged; its [verification report](docs/compatibility-evidence/2026-10-13-beta2/README.md) covers that earlier package only. Handoff materials for the new candidate belong in `dist/app-store-handoff-beta3/`.
+
+**Historical evidence below is not the current checklist.** Earlier references to pending signing, fresh installation or beta.1 publication describe those earlier checkpoints. Use the current report and [readiness checklist](docs/app-store-readiness.md) for outstanding work.
 
 Build with `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` pointing to the existing files outside this repository:
 
 ```sh
 npm run package:release -- --signed
-bash scripts/sign-app-store.sh dist/library-0.2.0-beta.2.tar.gz /tmp/library-app-store-handoff
-LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.2.0-beta.2.tar.gz" REQUIRE_INTEGRITY=1 \
+bash scripts/sign-app-store.sh dist/library-0.2.0-beta.3.tar.gz /tmp/library-app-store-handoff
+LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.2.0-beta.3.tar.gz" REQUIRE_INTEGRITY=1 \
   EVIDENCE_DIR=/tmp/library-beta1-upgrade bash scripts/performance/compatibility-matrix.sh
-LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.2.0-beta.2.tar.gz" REQUIRE_INTEGRITY=1 \
+LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.2.0-beta.3.tar.gz" REQUIRE_INTEGRITY=1 \
   INSTALL_MODE=fresh EVIDENCE_DIR=/tmp/library-beta1-fresh bash scripts/performance/compatibility-matrix.sh
 ```
 

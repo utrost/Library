@@ -11,7 +11,8 @@ execFileSync('docker',['cp',new URL('./duplicate-books-fixture.php',import.meta.
 const fixture=action=>JSON.parse(execFileSync('docker',['exec','-u','www-data','-e',`LIBRARY_SMOKE_USER=${user}`,'-e',`LIBRARY_SMOKE_NAME=${name}`,container,'php','/tmp/library-duplicate-books-fixture.php',action],{encoding:'utf8',maxBuffer:5*1024*1024}))
 let browser,created=false;const report=[]
 try {
- created=true;const state=fixture('create')
+ created=true;const state=fixture('create');const bookCount=Object.keys(state.files).length
+ assert.equal(fixture('series-projection').passed,true)
  const output=createTemporaryAppPassword(container,user,tokenName),token=output.match(/app password is:\s*(\S+)/i)?.[1]||output.match(/app password:\s*\n\s*(\S+)/i)?.[1];assert.ok(token)
  const authorization=`Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`
  for(const [engine,launcher] of [['chromium',chromium],['firefox',firefox]]) {
@@ -22,7 +23,7 @@ try {
   await page.goto(`${upstream}/apps/library/?duplicates=1`);await ready();await expect(panel.getByRole('heading',{name:'Possible duplicates',exact:true})).toBeVisible()
   await panel.getByRole('combobox',{name:'Library root',exact:true}).selectOption(String(state.rootId));await expect(panel.getByRole('checkbox',{name:'Compare file contents',exact:true})).not.toBeChecked();await panel.getByRole('checkbox',{name:'Compare file contents',exact:true}).check()
   const start=async()=>{const pending=page.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/api/duplicates')&&r.request().method()==='POST');await panel.getByRole('button',{name:'Find possible duplicates',exact:true}).click();const r=await pending;assert.equal(r.status(),200);return r.json()}
-  const cancelled=await start();assert.equal(cancelled.total,14);await ready();await panel.getByRole('button',{name:'Cancel scan',exact:true}).click();await ready();await expect(panel).toContainText('Duplicate scan cancelled');await panel.getByRole('button',{name:'Discard scan',exact:true}).click();await ready()
+  const cancelled=await start();assert.equal(cancelled.total,bookCount);await ready();await panel.getByRole('button',{name:'Cancel scan',exact:true}).click();await ready();await expect(panel).toContainText('Duplicate scan cancelled');await panel.getByRole('button',{name:'Discard scan',exact:true}).click();await ready()
   const scan=await start();await ready();await page.goto('about:blank')
   const read=async()=>{const r=await context.request.get(`${upstream}/apps/library/api/duplicates/${scan.id}?filter=all`,{headers:{authorization}});assert.equal(r.status(),200);return r.json()}
   await expect.poll(async()=>{
@@ -32,7 +33,14 @@ try {
    if(entry){try{occ('background-job:execute',String(entry.id),'--force-execute')}catch(e){if(!String(e.stdout).includes('could not be found in the database'))throw e}}
    return (await read()).status
   },{timeout:120000,intervals:[500,1000]}).toBe('completed')
-  const complete=await read();assert.equal(complete.processed,14);assert.ok(complete.matches>10);assert.equal(complete.hashSkipped,0)
+  const complete=await read();assert.equal(complete.processed,bookCount);assert.ok(complete.matches>10);assert.equal(complete.hashSkipped,0)
+  const allPairs=[...complete.pairs];let next=complete
+  for(let p=2;next.hasNext;p++){const r=await context.request.get(`${upstream}/apps/library/api/duplicates/${scan.id}?filter=all&page=${p}`,{headers:{authorization}});assert.equal(r.status(),200);next=await r.json();allPairs.push(...next.pairs)}
+  writeFileSync(`${evidence}/${engine}-pairs.json`,JSON.stringify(allPairs,null,2))
+  const hasPair=(left,right)=>allPairs.some(p=>[left,right].every(name=>p.books.some(b=>b.id===state.files[name].itemId)))
+  assert.equal(hasPair('issue-004.epub','issue-008.epub'),false,'Different comic issues excluded from saved scan')
+  assert.equal(hasPair('series-one.epub','series-two.epub'),false,'Different stored positions excluded from saved scan')
+  assert.equal(hasPair('issue-004.epub','issue-004-copy.epub'),true,'Same issue still found')
   await page.goto(`${upstream}/apps/library/?duplicates=1`);await ready();await panel.getByRole('combobox',{name:'Saved duplicate scans',exact:true}).selectOption(scan.id);await ready()
   await expect(panel.getByRole('combobox',{name:'Library root',exact:true})).toHaveValue(String(state.rootId));await expect(panel.getByRole('checkbox',{name:'Compare file contents',exact:true})).toBeChecked()
   await panel.getByRole('heading',{level:1}).scrollIntoViewIfNeeded();await page.screenshot({path:`${evidence}/${engine}-overview.png`,animations:'disabled'})
@@ -50,7 +58,7 @@ try {
   const denied=await context.request.post(`${upstream}/apps/library/api/duplicates`,{headers:{authorization,requesttoken:'invalid'},data:{rootId:state.rootId,contents:false}});assert.equal(denied.status(),412)
   assert.equal(fixture('verify').unchanged,true);assert.deepEqual(errors,[])
   await panel.getByRole('button',{name:'Discard scan',exact:true}).click();await ready()
-  report.push({engine,passed:true,books:14,matches:complete.matches,cancel:true,actualBackgroundJobs:true,reopen:true,pages:true,preferred:true,keepBoth:true,dismiss:true,reset:true,reloadPersistence:true,mobileFits:true,csrf:true,filesAndMetadataUnchanged:true,pageErrors:errors})
+  report.push({engine,passed:true,books:bookCount,seriesConflictsExcluded:true,sameIssueRetained:true,matches:complete.matches,cancel:true,actualBackgroundJobs:true,reopen:true,pages:true,preferred:true,keepBoth:true,dismiss:true,reset:true,reloadPersistence:true,mobileFits:true,csrf:true,filesAndMetadataUnchanged:true,pageErrors:errors})
   await browser.close();browser=null
  }
  writeFileSync(`${evidence}/duplicates-results.json`,JSON.stringify({report},null,2));console.log(JSON.stringify({report}))
