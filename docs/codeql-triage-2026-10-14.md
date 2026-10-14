@@ -4,7 +4,9 @@
 
 The post-merge scan of PR #100 closed the seven targeted alerts and left **115 open**. [PR #102](https://github.com/utrost/Library/pull/102) addresses that inventory in maintained source scripts and tests. It uses private random evidence directories, replaces dynamic Chrome DevTools code construction with argument passing, decodes HTML attributes once, fixes the build output race and removes stale quality warnings. The benchmark runner also stops saving its CSRF token and no longer reads inventory back from disk before making its own Nextcloud requests.
 
-The `js/http-to-file-access` finding is an intentional benchmark operation: the developer runner records response timing and status metrics in its private evidence directory. Review its fresh CodeQL result before dismissing it individually; it is not a release runtime path. This follow-up is a change log for an open PR, not a claim that the 115 alerts have closed on `main`.
+The `js/http-to-file-access` finding is an intentional benchmark operation: the developer runner records response timing and status metrics in its private evidence directory. It is not a release runtime path.
+
+**Post-merge result:** PR #102 merged as `a5c8ae3`; its `main` CodeQL scan completed successfully and left two open alerts. The new `js/http-to-file-access` alert `1894` was dismissed individually as **won't fix** with the private benchmark evidence rationale. [PR #103](https://github.com/utrost/Library/pull/103) removes the remaining dynamic Chrome DevTools observation builder (`4`). Alert closure for that change awaits its merge and a new `main` scan.
 
 Scope: the merged 0.3 integration, [PR #99](https://github.com/utrost/Library/pull/99), and `main` at `775f5c6`. GitHub reported **93 annotations** on the PR and **126 open alerts** on `main` when reviewed. The PR's separate CodeQL alert status was red; the CodeQL analysis workflow, CI, disposable NC34 GUI rehearsal and app-specific security gate passed. A red alert status is still a finding to review, not evidence that the analysis job failed.
 
