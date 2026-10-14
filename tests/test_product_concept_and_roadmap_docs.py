@@ -53,12 +53,10 @@ def test_roadmap_starts_with_roots_file_index_and_nextcloud_tags_before_metadata
 
     immediate = roadmap[roadmap.index("## Immediate next implementation slice") :]
     assert "Current 0.3 sequence:" in immediate
-    assert "exact unsigned package has now been built, deployed and live-smoked" in immediate
-    assert "database-backed catalogue query path" in immediate
-    assert "metadata export/import as the in-app portability boundary" in immediate
-    assert "external file-first tooling" in immediate
-    assert "mobile filter panel" in immediate
-    assert "combobox keyboard interaction" in immediate
+    assert "build, sign and audit one exact 0.3 archive" in immediate
+    assert "fresh and upgraded NC33–35 package checks" in immediate
+    assert "40 English Gutenberg books" in immediate
+    assert "owner acceptance" in immediate
 
 
 def test_v01_spec_requires_extendable_user_specific_root_configuration():
