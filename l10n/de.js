@@ -520,7 +520,7 @@ OC.L10N.register(
         "Move down": "Nach unten",
         "Move or merge books": "Bücher verschieben oder Reihen zusammenführen",
         "Move up": "Nach oben",
-        "Moved or renamed": "Verschoben oder umbenannt",
+        "Moved, renamed or reconnected": "Verschoben, umbenannt oder wiederverbunden",
         "Needs action": "Handlungsbedarf",
         "Needs attention": "Aufmerksamkeit erforderlich",
         "Needs details": "Benötigt Details",

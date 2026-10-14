@@ -38,6 +38,7 @@ namespace OCA\Library\Service {
     class FileIndexService {
         public array $missingRoots = [];
         public array $scanErrors = [];
+        public function hasFilesForRoot(string $u, int $r): bool { return true; }
         public function markMissingExcept(string $u,int $r,array $ids): int { $this->missingRoots[] = $r; return 0; }
         public function upsertFile(string $u,int $r,array $file): array { return ['id'=>$file['fileId'],'fileId'=>$file['fileId'],'cachedPath'=>$file['cachedPath'] ?? $file['fileId'],'extension'=>$file['extension'] ?? '','changeStatus'=>'added']; }
         public function markScanError(string $u,int $id,string $error): void { $this->scanErrors[] = $error; } public function markMetadataProcessed(string $u,int $id,string $fp,int $rev): void {}
