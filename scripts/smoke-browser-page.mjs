@@ -1238,7 +1238,9 @@ async function runBrowserSmoke(proxyBase, proxy) {
   chrome.stderr.on('data', (chunk) => { stderr += String(chunk) })
 
   try {
-    await waitForJson(`http://127.0.0.1:${chromePort}/json/version`)
+    // The disposable NC34 install may still be CPU and I/O busy when
+    // Chromium starts; allow startup without weakening page assertions.
+    await waitForJson(`http://127.0.0.1:${chromePort}/json/version`, 30000)
     const targets = await waitForJson(`http://127.0.0.1:${chromePort}/json/list`)
     const pageTarget = targets.find((target) => target.type === 'page' && target.webSocketDebuggerUrl)
     if (!pageTarget) throw new Error('Chrome did not expose a page debugging target')
