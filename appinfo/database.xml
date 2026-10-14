@@ -1305,6 +1305,24 @@
         <index><name>library_author_ops_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
         <index><name>library_author_ops_user</name><field><name>user_id</name></field><field><name>created_at</name></field><field><name>id</name></field></index>
     </declaration></table>
+    <table><name>*dbprefix*library_author_tasks</name><declaration>
+        <field><name>id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+        <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>action</name><type>string</type><length>8</length><notnull>true</notnull></field>
+        <field><name>source_id</name><type>bigint</type><unsigned>true</unsigned><notnull>false</notnull></field>
+        <field><name>target_id</name><type>bigint</type><unsigned>true</unsigned><notnull>false</notnull></field>
+        <field><name>operation_id</name><type>string</type><length>32</length><notnull>false</notnull></field>
+        <field><name>preview_token</name><type>string</type><length>64</length><notnull>false</notnull></field>
+        <field><name>claim_token</name><type>string</type><length>32</length><notnull>false</notnull></field>
+        <field><name>book_count</name><type>integer</type><length>4</length><notnull>true</notnull></field>
+        <field><name>status</name><type>string</type><length>16</length><notnull>true</notnull></field>
+        <field><name>error_code</name><type>string</type><length>32</length><notnull>false</notnull></field>
+        <field><name>created_at</name><type>bigint</type><notnull>true</notnull></field>
+        <field><name>updated_at</name><type>bigint</type><notnull>true</notnull></field>
+        <index><name>library_author_tasks_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+        <index><name>library_author_tasks_user</name><field><name>user_id</name></field><field><name>created_at</name></field><field><name>id</name></field></index>
+        <index><name>library_author_tasks_due</name><field><name>status</name></field><field><name>updated_at</name></field></index>
+    </declaration></table>
     <table><name>*dbprefix*library_series</name><declaration>
         <field><name>id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull><autoincrement>true</autoincrement></field>
         <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>

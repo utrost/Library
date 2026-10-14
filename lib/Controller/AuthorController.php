@@ -73,8 +73,16 @@ final class AuthorController extends Controller {
     #[NoCSRFRequired]
     public function history(): JSONResponse { return $this->respond(fn($uid) => $this->assignments->history($uid)); }
     #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function tasks(): JSONResponse { return $this->respond(fn($uid) => $this->assignments->tasks($uid)); }
+    #[NoAdminRequired]
+    public function cancelTask(string $taskId): JSONResponse { return $this->respond(function ($uid) use ($taskId) {
+        $this->assignments->cancelTask($uid, $taskId);
+        return ['cancelled' => true];
+    }); }
+    #[NoAdminRequired]
     public function undo(string $operationId): JSONResponse {
-        return $this->respond(function ($uid) use ($operationId) { $this->assignments->undo($uid, $operationId); return ['undone' => true]; });
+        return $this->respond(fn($uid) => $this->assignments->undo($uid, $operationId));
     }
     #[NoAdminRequired]
     #[NoCSRFRequired]
@@ -107,7 +115,7 @@ final class AuthorController extends Controller {
         catch (\OCA\Library\Exception\AuthorMigrationPendingException) { return new JSONResponse(['error'=>'migration_pending'],503,$headers); }
         catch (ListConflictException) { return new JSONResponse(['error'=>'conflict'],409,$headers); }
         catch (\OutOfBoundsException) { return new JSONResponse(['error'=>'not_found'],404,$headers); }
-        catch (\LengthException) { return new JSONResponse(['error'=>'author_operation_limit','limit'=>500],413,$headers); }
+        catch (\LengthException) { return new JSONResponse(['error'=>'author_operation_limit','limit'=>\OCA\Library\Service\AuthorAssignmentService::MAX_LARGE_BOOKS],413,$headers); }
         catch (\OCA\Library\Service\ManualCoverValidationException) { return new JSONResponse(['error'=>'invalid_photo'],422,$headers); }
         catch (\InvalidArgumentException) { return new JSONResponse(['error'=>'invalid_input'],422,$headers); }
         catch (\Throwable $e) { $this->logger->error('Library author operation failed',['exception'=>$e]); return new JSONResponse(['error'=>'operation_failed'],500,$headers); }

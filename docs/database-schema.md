@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3.0-alpha.6**, 2026-10-14. Covers 32 app-owned tables through `Version000300Date20261014010000`. Alpha.6 changes duplicate matching and indexed projections without a schema migration. The series additions passed fresh installation on SQLite NC33–35, populated upgrade on SQLite NC34, and upgrade on the MariaDB developer NC34.
+Snapshot: **0.3.0-alpha.7**, 2026-10-14. Covers 33 app-owned tables through `Version000300Date20261014080000`. Alpha.7 adds persistent author operation tasks; the other author and series tables remain as described below. Earlier series additions passed fresh installation on SQLite NC33–35, populated upgrade on SQLite NC34, and upgrade on the MariaDB developer NC34. Alpha.7 verification is recorded separately.
 
 ## Schema ownership
 
@@ -21,6 +21,7 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_authors` | 13 | 3 | Per-user identities, conservative comparison keys, preferred/sort names and provenance. |
 | `library_item_authors` | 9 | 3 | Ordered author relationships and original credits; unique user/item/position. |
 | `library_author_operations` | 9 | 2 | Account-private before/after journal, bounded payload, small history summaries and conditional undo. |
+| `library_author_tasks` | 13 | 3 | Account-private queued merge/undo state, worker claim, preview checkpoint and completion result. |
 | `library_author_state` | 2 | 1 | Per-user transaction coordination for identity reuse. |
 | `library_series` | 6 | 3 | Per-user preferred series names and descriptions. |
 | `library_item_series` | 8 | 2 | Book-to-series slots with source name and part number. |
