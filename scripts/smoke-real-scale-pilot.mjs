@@ -54,12 +54,21 @@ async function fetchText(pathOrUrl, token) {
   const url = pathOrUrl.startsWith('http') ? pathOrUrl : new URL(pathOrUrl, upstream).toString()
   let response = await fetch(url, { headers })
   let text = await response.text()
+  const initialStatus = response.status
   if (response.status === 404 && !pathOrUrl.startsWith('http') && pathOrUrl.startsWith('/apps/')) {
     const fallbackUrl = new URL(`/index.php${pathOrUrl}`, upstream).toString()
     response = await fetch(fallbackUrl, { headers })
     text = await response.text()
   }
-  return { status: response.status, text, ms: now() - t0 }
+  return {
+    status: response.status,
+    initialStatus,
+    finalUrl: response.url,
+    contentType: response.headers.get('content-type') || '',
+    title: text.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() || '',
+    text,
+    ms: now() - t0,
+  }
 }
 function decodeInitialState(page) {
   const match = page.match(/id="initial-state-library-catalogue" value="([^"]+)"/)
@@ -303,6 +312,14 @@ try {
     const http = await fetchText(`/apps/library/?shelf=${encodeURIComponent(rootName)}&limit=${limit}&page=${page}`, token)
     console.log(`page_${limit}_${page}_http=${http.status}`)
     console.log(`page_${limit}_${page}_seconds=${sec(http.ms)}`)
+    if (http.status !== 200) {
+      console.log(`page_${limit}_${page}_diagnostic=${JSON.stringify({ initialStatus: http.initialStatus, finalUrl: http.finalUrl, contentType: http.contentType, title: http.title })}`)
+      for (const [name, path] of [['status', '/status.php'], ['index', '/index.php/apps/library/'], ['home', '/index.php/apps/library/?home=1']]) {
+        const probe = await fetchText(path, token)
+        console.log(`page_${limit}_${page}_probe_${name}=${JSON.stringify({ status: probe.status, finalUrl: probe.finalUrl, title: probe.title })}`)
+      }
+      throw new Error(`catalogue request returned HTTP ${http.status}`)
+    }
     const expectedFrom = count === 0 ? 0 : Math.min(count, ((page - 1) * limit) + 1)
     const expectedTo = Math.min(count, page * limit)
     const state = decodeInitialState(http.text)
