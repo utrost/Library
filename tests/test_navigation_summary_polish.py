@@ -7,7 +7,6 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_catalogue_uses_single_result_summary_and_compact_pagination_label():
     app = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
     assert "library-pagination-range" in app

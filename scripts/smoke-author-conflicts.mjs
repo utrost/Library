@@ -11,10 +11,9 @@ const out = createEvidenceDirectory('library-author-conflicts')
 const docker = args => execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 for (const name of ['author_directory_fixture', 'author_conflict_integration']) docker(['cp', `tests/php/${name}.php`, `${container}:/tmp/${name}.php`])
 const run = (name, action) => JSON.parse(docker(['exec', '-u', 'www-data', container, 'php', `/tmp/${name}.php`, action]))
-let browser, created = false
+let browser
 const results = []
 try {
-  created = true
   const fixture = run('author_directory_fixture', 'setup')
   const integration = run('author_conflict_integration', 'test')
   assert.ok(integration.assertions >= 41)
@@ -64,7 +63,7 @@ try {
 } catch (e) { results.push({ pass: false, error: e.message }); throw e }
 finally {
   if (browser) await browser.close()
-  if (created) run('author_directory_fixture', 'cleanup')
+  run('author_directory_fixture', 'cleanup')
   writeFileSync(`${out}/results.json`, JSON.stringify(results, null, 2))
 }
 console.log(JSON.stringify(results))

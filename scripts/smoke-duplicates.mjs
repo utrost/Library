@@ -10,9 +10,9 @@ const name=`Library duplicates smoke ${Date.now()}`,tokenName=name.replaceAll(' 
 const occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:5*1024*1024})
 execFileSync('docker',['cp',new URL('./duplicate-books-fixture.php',import.meta.url).pathname,`${container}:/tmp/library-duplicate-books-fixture.php`])
 const fixture=action=>JSON.parse(execFileSync('docker',['exec','-u','www-data','-e',`LIBRARY_SMOKE_USER=${user}`,'-e',`LIBRARY_SMOKE_NAME=${name}`,container,'php','/tmp/library-duplicate-books-fixture.php',action],{encoding:'utf8',maxBuffer:5*1024*1024}))
-let browser,created=false;const report=[]
+let browser;const report=[]
 try {
- created=true;const state=fixture('create');const bookCount=Object.keys(state.files).length
+ const state=fixture('create');const bookCount=Object.keys(state.files).length
  assert.equal(fixture('series-projection').passed,true)
  const output=createTemporaryAppPassword(container,user,tokenName),token=output.match(/app password is:\s*(\S+)/i)?.[1]||output.match(/app password:\s*\n\s*(\S+)/i)?.[1];assert.ok(token)
  const authorization=`Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`
@@ -65,6 +65,6 @@ try {
  writeFileSync(`${evidence}/duplicates-results.json`,JSON.stringify({report},null,2));console.log(JSON.stringify({report}))
 }finally{
  if(browser)await browser.close()
- if(created)assert.equal(fixture('cleanup').cleaned,true)
+ assert.equal(fixture('cleanup').cleaned,true)
  const tokens=JSON.parse(occ('user:auth-tokens:list',user,'--output=json'));for(const entry of tokens.filter(t=>t.name===tokenName))occ('user:auth-tokens:delete',user,String(entry.id))
 }

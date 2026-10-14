@@ -64,10 +64,10 @@ try {
    seriesRule.parts[1].split={delimiter:'_',occurrence:'every',children:[newPart('seriesNumber'),newPart('title'),newPart('author')]}
    const series=await createDefinition('guided-series',{kind:'guided',rule:seriesRule})
    await panel.getByRole('combobox',{name:'Rule editor',exact:true}).selectOption('folders');await rulesReady()
-   const rootAssignment=await attach(broad)
+   await attach(broad)
    await expect(live.locator('dd strong')).toHaveText(['Ada Quill - A Quiet Orchard'])
    await loadFolder('01 Author - Title')
-   const childAssignment=await attach(author)
+   await attach(author)
    await expect(live.locator('dd strong')).toHaveText(['Ada Quill','A Quiet Orchard'])
    await expect(live).toContainText(author.name)
    // Require loading a changed folder before creating an assignment.
@@ -92,7 +92,7 @@ try {
    await remove(conflictAssignment,conflict.name)
    await expect(live.locator('dd strong')).toHaveText(['Ada Quill','A Quiet Orchard'])
    await loadFolder('04 Series')
-   const seriesAssignment=await attach(series)
+   await attach(series)
    await expect(live.locator('dd strong')).toHaveText(['Orchard Notes','01','Soil Basics','Ada Quill'])
    await panel.getByRole('combobox',{name:'Example path',exact:true}).selectOption('Orchard Notes/2.5_Autumn Appendix_Ada Quill.epub')
    await expect(live.locator('dd strong')).toHaveText(['Orchard Notes','2.5','Autumn Appendix','Ada Quill'])
@@ -104,7 +104,7 @@ try {
    await panel.getByRole('combobox',{name:'Example path',exact:true}).selectOption('04 Series/Orchard Notes/2.5_Autumn Appendix_Ada Quill.epub')
    await expect(live.locator('dd strong')).toHaveText(['Orchard Notes','2.5','Autumn Appendix','Ada Quill'])
    // An unmatched child rule falls back; this file uses underscores, not " - ".
-   await loadFolder('06 Edge cases');const edgeAssignment=await attach(author)
+   await loadFolder('06 Edge cases');await attach(author)
    await panel.getByRole('combobox',{name:'Example path',exact:true}).selectOption('Ada Quill__Unexpected Separator.epub')
    await expect(live.locator('dd strong')).toHaveText(['Ada Quill__Unexpected Separator'])
    await live.getByText('Rule evaluation',{exact:true}).click()

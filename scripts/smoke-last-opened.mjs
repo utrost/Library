@@ -107,7 +107,6 @@ try {
   if (!token) {
     fail('temporary_app_password_not_created')
   } else {
-    const page = await fetchWithAuth('/apps/library/', token)
     const pageResponse = await fetch(new URL('/apps/library/', upstream), {
       headers: { Authorization: `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}` },
     })
@@ -176,8 +175,8 @@ try {
 } catch (error) {
   fail('exception', { message: error instanceof Error ? error.message : String(error) })
 } finally {
-  let restored = itemId === 0
   if (itemId) {
+    let restored
     try {
       restoreLastOpened(itemId, originalLastOpened)
       restored = lastOpenedFor(itemId) === originalLastOpened

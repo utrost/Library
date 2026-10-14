@@ -26,7 +26,6 @@ def test_page_controller_builds_year_discovery_state_and_urls():
 
 def test_vue_and_fallback_render_year_discovery_links_and_header():
     vue = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
 
     assert "isYearDiscoveryPage" in vue
     assert "yearLandingUrl(year)" in vue

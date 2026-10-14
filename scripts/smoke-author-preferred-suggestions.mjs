@@ -9,9 +9,7 @@ const out = process.env.EVIDENCE_DIR || '/tmp/library-author-preferred-suggestio
 mkdirSync(out, { recursive: true, mode: 0o700 })
 const docker = (...args) => execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 for (const name of ['author_directory_fixture', 'author_preferred_suggestions_integration']) docker('cp', `tests/php/${name}.php`, `${container}:/tmp/${name}.php`)
-let created = false
 try {
-  created = true
   docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', 'setup')
   const result = JSON.parse(docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_preferred_suggestions_integration.php'))
   const text = createTemporaryAppPassword(container, result.uid, 'author-preferred-smoke')
@@ -41,6 +39,6 @@ try {
   }
   console.log(JSON.stringify({ passed: true, preferredFromSortName: true, filteredSuggestions: true, sourceCreditsPreserved: true, engines: ['chromium', 'firefox'] }))
 } finally {
-  if (created) docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', 'cleanup')
+  docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', 'cleanup')
   for (const name of ['author_directory_fixture', 'author_preferred_suggestions_integration']) docker('exec', container, 'rm', '-f', `/tmp/${name}.php`)
 }

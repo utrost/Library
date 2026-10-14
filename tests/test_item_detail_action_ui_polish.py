@@ -71,7 +71,6 @@ def test_detail_actions_are_grouped_and_ordered_with_star_icon_and_autosave_stat
 
 def test_catalogue_cards_offer_hover_star_toggle_with_csrf_token():
     app = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
     css = (ROOT / "css" / "style.css").read_text()
 
     assert "library-cover-star-form" in app

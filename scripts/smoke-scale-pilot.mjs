@@ -1,6 +1,5 @@
 import { decodeHtmlAttribute } from './html-attribute.mjs'
 import { execFileSync } from 'node:child_process'
-import { rmSync } from 'node:fs'
 
 const count = Number(process.argv[2] || 100)
 const user = process.env.NC_USER || 'maintainer'

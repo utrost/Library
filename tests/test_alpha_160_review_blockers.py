@@ -1,6 +1,5 @@
 from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
-import hashlib
 import io
 import subprocess
 import tarfile

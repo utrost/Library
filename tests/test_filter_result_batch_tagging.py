@@ -35,7 +35,6 @@ def test_batch_tag_service_reports_added_duplicate_skipped_counts():
 
 def test_vue_and_fallback_expose_batch_actions_for_current_filter_results():
     app = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
     for source in (app,):

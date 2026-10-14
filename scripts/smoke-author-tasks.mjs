@@ -10,9 +10,7 @@ const out = process.env.EVIDENCE_DIR || '/tmp/library-author-tasks'
 mkdirSync(out, { recursive: true, mode: 0o700 })
 const docker = (...args) => execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 for (const name of ['author_directory_fixture', 'author_task_ui_fixture']) docker('cp', `tests/php/${name}.php`, `${container}:/tmp/${name}.php`)
-let created = false
 try {
-  created = true
   docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', 'setup')
   const fixture = JSON.parse(docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_task_ui_fixture.php'))
   const text = createTemporaryAppPassword(container, fixture.uid, 'author-tasks-smoke')
@@ -48,6 +46,6 @@ try {
   }
   console.log(JSON.stringify({ passed: true, engines: ['chromium', 'firefox'], queuedVisible: true, cancellationVisible: true }))
 } finally {
-  if (created) docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', 'cleanup')
+  docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', 'cleanup')
   for (const name of ['author_directory_fixture', 'author_task_ui_fixture']) docker('exec', container, 'rm', '-f', `/tmp/${name}.php`)
 }

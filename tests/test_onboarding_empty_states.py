@@ -13,7 +13,6 @@ def test_catalogue_state_exposes_root_counts_for_first_run_guidance():
 
 def test_vue_and_fallback_distinguish_first_run_from_filtered_empty_state():
     app = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
     for source in (app,):

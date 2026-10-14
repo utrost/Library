@@ -69,7 +69,6 @@ try {
     relationships.push({ spdxElementId: appId, relationshipType: 'CONTAINS', relatedSpdxElement: id })
   }
 
-  const rootPackage = packageLock.packages?.[''] || {}
   for (const [lockPath, meta] of Object.entries(packageLock.packages || {})) {
     if (!lockPath.startsWith('node_modules/') || !meta.version) continue
     const name = meta.name || lockPath.slice(lockPath.lastIndexOf('node_modules/') + 'node_modules/'.length)

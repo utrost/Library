@@ -20,7 +20,6 @@ def test_batch_apply_distinguishes_absent_item_ids_from_supplied_values():
 
 
 def test_controller_contains_closed_canonical_explicit_id_parser():
-    controller = (ROOT / "lib/Controller/ItemController.php").read_text()
 
     selected = (ROOT / "lib" / "Service" / "SelectedItemIds.php").read_text()
     assert "public static function parse(mixed $value): array" in selected

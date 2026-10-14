@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict'
 import {execFileSync} from 'node:child_process'
-import {mkdirSync,writeFileSync,appendFileSync,readFileSync} from 'node:fs'
-const container=process.env.NC_CONTAINER||'nextcloud',uid=process.env.NC_USER||'maintainer',out=process.env.EVIDENCE_DIR||'/tmp/library-full-scheduled-scan'
+import {writeFileSync,appendFileSync,readFileSync,lstatSync} from 'node:fs'
+import {resolve} from 'node:path'
+import {createEvidenceDirectory} from '../private-evidence-directory.mjs'
+const container=process.env.NC_CONTAINER||'nextcloud',uid=process.env.NC_USER||'maintainer'
+const resume=process.env.RESUME==='1'
+if(resume&&!process.env.EVIDENCE_DIR)throw new Error('RESUME requires the exact evidence_dir printed by the initial run')
+const out=resume?resolve(process.env.EVIDENCE_DIR):createEvidenceDirectory('library-full-scheduled-scan')
+if(resume){const stat=lstatSync(out);assert.ok(stat.isDirectory()&&!stat.isSymbolicLink()&&stat.uid===process.getuid()&&(stat.mode&0o077)===0,'Resume requires an owned private evidence directory')}
 const expectedScope=process.env.EXPECTED_SCOPE||'all';assert.ok(['all','incremental'].includes(expectedScope))
-mkdirSync(out,{recursive:true,mode:0o700})
 execFileSync('docker',['cp','scripts/performance/full-scheduled-scan.php',container+':/tmp/library-full-scheduled-scan.php'])
 const read=(action,preparedAt=0)=>JSON.parse(execFileSync('docker',['exec','-u','www-data','-e','LIBRARY_BENCHMARK_USER='+uid,'-e','LIBRARY_BENCHMARK_PREPARED_AT='+preparedAt,container,'php','/tmp/library-full-scheduled-scan.php',action],{encoding:'utf8',maxBuffer:2*1024*1024}))
 const before=process.env.RESUME==='1'?JSON.parse(readFileSync(out+'/before.json','utf8')):read('prepare');writeFileSync(out+'/before.json',JSON.stringify(before,null,2));console.log('Existing schedule made due; waiting for host Cron and Nextcloud worker')
