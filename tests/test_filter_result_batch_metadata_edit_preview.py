@@ -46,7 +46,6 @@ def test_item_service_previews_without_writing_and_limits_to_publication_fields(
 def test_catalogue_vue_and_fallback_render_batch_metadata_edit_preview_form():
     page = read("lib/Controller/PageController.php")
     app = read("src/App.vue")
-    fallback = read("src/main.js")
     smoke = read("scripts/smoke-browser-page.mjs")
 
     assert "batchMetadataEditPreviewUrl" in page

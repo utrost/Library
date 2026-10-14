@@ -1344,7 +1344,7 @@ async function runBrowserSmoke(proxyBase, proxy) {
     }))
     for (const [marker, passed] of Object.entries(inclusiveEvidence.accessibility.markers)) print(marker, passed)
     for (const [marker, passed] of Object.entries(inclusiveEvidence.adaptation.markers)) print(marker, passed)
-    let mixedDirectionEvidence = { markers: {}, ok: false }
+    let mixedDirectionEvidence
 
     const result = await client.send('Runtime.evaluate', {
       returnByValue: true,

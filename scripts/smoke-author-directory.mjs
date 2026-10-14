@@ -11,10 +11,9 @@ const out = createEvidenceDirectory('library-author-directory')
 const docker = args => execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 docker(['cp', 'tests/php/author_directory_fixture.php', `${container}:/tmp/library-author-directory-fixture.php`])
 const fixture = action => JSON.parse(docker(['exec', '-u', 'www-data', container, 'php', '/tmp/library-author-directory-fixture.php', action]))
-let created = false, browser
+let browser
 const results = []
 try {
-  created = true
   const state = fixture('setup')
   assert.equal(state.directory.authors.length, 1)
   assert.equal(Number(state.directory.authors[0].book_count), 2)
@@ -63,7 +62,7 @@ try {
   }
 } finally {
   if (browser) await browser.close()
-  if (created) fixture('cleanup')
+  fixture('cleanup')
   docker(['exec', container, 'rm', '-f', '/tmp/library-author-directory-fixture.php'])
 }
 writeFileSync(`${out}/results.json`, JSON.stringify(results, null, 2))

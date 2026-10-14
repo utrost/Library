@@ -31,7 +31,6 @@ def test_filter_result_tag_remove_route_uses_current_catalogue_filters():
 def test_catalogue_exposes_batch_tag_remove_form_separate_from_card_tag_editors():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     app = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
     assert "batchTagRemoveUrl" in page

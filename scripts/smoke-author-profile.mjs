@@ -17,10 +17,10 @@ const auth = uid => {
   assert.ok(token)
   return `Basic ${Buffer.from(`${uid}:${token}`).toString('base64')}`
 }
-let browser, created = false
+let browser
 const results = []
 try {
-  created = true; fixture('author-directory', 'setup')
+  fixture('author-directory', 'setup')
   const state = fixture('author-profile', 'setup')
   assert.equal(state.assertions, 7)
   docker(['cp', `${container}:/tmp/library-author-profile-upload.png`, `${out}/fixture-portrait.png`])
@@ -119,7 +119,7 @@ try {
   }
 } finally {
   if (browser) await browser.close()
-  if (created) { fixture('author-profile', 'cleanup'); fixture('author-directory', 'cleanup') }
+  fixture('author-profile', 'cleanup'); fixture('author-directory', 'cleanup')
 }
 writeFileSync(`${out}/results.json`, JSON.stringify(results, null, 2))
 console.log(JSON.stringify(results))

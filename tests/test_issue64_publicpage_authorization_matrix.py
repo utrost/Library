@@ -134,7 +134,6 @@ def test_mutation_routes_keep_csrf_protection_except_documented_preview_flow():
     for filename, methods in mutation_methods.items():
         source = controllers[filename]
         for index, method in enumerate(methods):
-            next_method = methods[index + 1] if index + 1 < len(methods) else None
             attrs = attributes_before(source, method)
             if (filename, method) in allowed_no_csrf_mutations:
                 assert "#[NoCSRFRequired]" in attrs
