@@ -740,10 +740,12 @@ function startAuthProxy(token, inboundAuthorization) {
           body = Buffer.from(rewriteUpstreamOrigin(body.toString('utf8'), proxyOrigin))
         }
         res.end(body)
-      } catch (error) {
+      } catch {
         res.statusCode = 502
         res.setHeader('content-type', 'text/plain')
-        res.end(`proxy error: ${error?.stack || error}`)
+        res.setHeader('x-content-type-options', 'nosniff')
+        res.setHeader('cache-control', 'no-store')
+        res.end('Smoke proxy upstream request failed')
       }
     })
   })
