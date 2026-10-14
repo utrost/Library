@@ -97,7 +97,7 @@ async function load({ silent = false } = {}) {
   finally { loading.value = false }
 }
 
-async function post(url, values = {}, file = null) {
+async function post(url, values = {}, file = null, { reload = true } = {}) {
   if (!url || busy.value) return false
   if (dirty.value && !window.confirm(t('library', 'Discard unsaved metadata edits?'))) return false
   busy.value = true
@@ -119,7 +119,7 @@ async function post(url, values = {}, file = null) {
     const tagResult = resultUrl.searchParams.get('tagResult')
     if (coverError) throw new Error(t('library', 'Choose a valid JPEG, PNG, or WebP cover within the upload limits.'))
     if (tagResult && !['added', 'created', 'already-assigned'].includes(tagResult)) throw new Error(t('library', 'The tag could not be assigned.'))
-    if (!await load({ silent: true })) throw new Error(t('library', 'The change was saved, but details could not be reloaded.'))
+    if (reload && !await load({ silent: true })) throw new Error(t('library', 'The change was saved, but details could not be reloaded.'))
     feedback.value = t('library', 'Saved')
     return true
   } catch (cause) { error.value = cause.message || t('library', 'The change could not be saved.'); return false }
@@ -173,7 +173,10 @@ async function addComment() {
 }
 async function forgetMissing() {
   if (!window.confirm(t('library', 'Forget this missing publication?'))) return
-  if (await post(context.value.actions.forgetMissing)) window.location.assign(props.catalogueUrl)
+  if (await post(context.value.actions.forgetMissing, {}, null, { reload: false })) {
+    savedDraft.value = JSON.stringify(draft)
+    window.location.assign(props.catalogueUrl)
+  }
 }
 function recordOpen() {
   if (!item.value?.recordOpenUrl) return
