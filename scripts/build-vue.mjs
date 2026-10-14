@@ -56,6 +56,17 @@ if (!existsSync(cssAsset)) {
 copyFileSync(join(jsDir, 'library-main.mjs'), join(jsDir, versionedJsAssetName))
 copyFileSync(cssAsset, join(cssDir, versionedCssAssetName))
 
+// A cached browser only needs the current versioned pair. Previous pairs remain
+// available in Git history and must not accumulate in the source checkout.
+for (const [directory, pattern, active] of [
+  [jsDir, /^library-main-[0-9][\w-]*\.mjs$/, versionedJsAssetName],
+  [cssDir, /^library-vue-[0-9][\w-]*\.css$/, versionedCssAssetName],
+]) {
+  for (const file of readdirSync(directory)) {
+    if (pattern.test(file) && file !== active) rmSync(join(directory, file), { force: true })
+  }
+}
+
 const required = [join(jsDir, 'library-main.mjs'), join(jsDir, 'library-detail.js'), join(jsDir, versionedJsAssetName), cssAsset, join(cssDir, versionedCssAssetName)]
 for (const file of required) {
   if (!existsSync(file)) {

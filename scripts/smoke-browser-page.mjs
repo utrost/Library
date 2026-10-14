@@ -18,6 +18,7 @@ import { unwrapCdpEvaluateResponse } from './cdp-evaluate-response.mjs'
 import { evaluateAccessibilitySnapshot, evaluateAdaptationRows, evaluateLegacyTableAxRows } from './browser-accessibility-gate.mjs'
 import { selectAuthenticatedDetailCandidate } from './browser-detail-candidate.mjs'
 import { captureCanonicalDetailCandidates } from './browser-detail-candidate-collection.mjs'
+import { releaseFrontendFiles } from './release-frontend-manifest.mjs'
 
 // Source-harness compatibility markers for historical alpha browser contract tests.
 // const mixedDirectionFixtureFields = [
@@ -43,6 +44,9 @@ import { assessAxFieldEvidence, assessAxSubtree, assessFocusTraversal, assessMix
 import { isCdpClickTargetReady, isFreshCatalogueReady, isSidebarCloseReady, waitForResponsiveReadiness } from './browser-responsive-readiness.mjs'
 
 const upstream = process.env.NC_URL || 'http://100.123.149.120:8088'
+const libraryScriptFile = releaseFrontendFiles().find((file) => file.startsWith('js/library-main-') && file.endsWith('.mjs'))?.slice(3)
+if (!libraryScriptFile) throw new Error('Current Library frontend asset is missing from the release manifest')
+const escapedLibraryScriptFile = libraryScriptFile.replaceAll('.', '\\.')
 const user = process.env.NC_USER || 'uwe'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const chromeBin = process.env.CHROME_BIN || 'google-chrome'
@@ -664,10 +668,10 @@ function startAuthProxy(token, inboundAuthorization) {
         }
         if (responseCookies.length > 0) res.setHeader('set-cookie', responseCookies)
         let body = Buffer.from(await response.arrayBuffer())
-        const isLibraryModule = requestUrl.pathname.includes('/js/library-main-0-1-0-alpha-167.mjs')
+        const isLibraryModule = requestUrl.pathname.endsWith(`/js/${libraryScriptFile}`)
         const effectiveFailureMode = requestUrl.searchParams.get('startupFailure') || startupFailureMode
         if (requestUrl.pathname.endsWith('/apps/library/') && requestUrl.searchParams.has('startupFailure')) {
-          body = Buffer.from(body.toString('utf8').replace(/(library-main-0-1-0-alpha-167\.mjs)([^"']*)(["'])/g, (match, asset, suffix, quote) => `${asset}${suffix}${suffix.includes('?') ? '&' : '?'}startupFailure=${startupFailureMode}${quote}`))
+          body = Buffer.from(body.toString('utf8').replace(new RegExp(`(${escapedLibraryScriptFile})([^"']*)(["'])`, 'g'), (match, asset, suffix, quote) => `${asset}${suffix}${suffix.includes('?') ? '&' : '?'}startupFailure=${startupFailureMode}${quote}`))
         }
         if (isLibraryModule && effectiveFailureMode === 'module-404') {
           res.statusCode = 404

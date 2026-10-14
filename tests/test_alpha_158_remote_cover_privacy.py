@@ -98,8 +98,8 @@ def test_alpha_158_version_assets_and_release_language_are_aligned():
     page = read("lib/Controller/PageController.php")
     assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in page
     assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in page
-    assert (ROOT / "js/library-main-0-1-0-alpha-157.mjs").exists()
-    assert (ROOT / "css/library-vue-0-1-0-alpha-157.css").exists()
+    assert (ROOT / f"js/library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6.mjs").exists()
+    assert (ROOT / f"css/library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6.css").exists()
     release_text = "\n".join(read(path) for path in ("CHANGELOG.md", "RELEASE.md", "docs/architecture-review.md"))
     assert "remote cover SSRF was not present" in release_text
     assert "does not introduce server fetching" in release_text

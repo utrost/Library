@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- Keep only the active versioned Vue JS/CSS bundle in the source checkout. Builds now prune obsolete bundle pairs; earlier versions remain available in Git history, and release archives continue to include only the active assets.
+
+- Reconcile changed Nextcloud file IDs during scans when a file remains at the same exact path and its former ID is no longer live. Retain the Library file and item IDs, update reading-list guards atomically, and refresh metadata from the newly identified file. Skip path-recovery lookups on a root's first import.
+
 - Restore publication sidebar details and author/series links for identity-linked books. An undefined URL helper caused a blank panel; the repaired alpha.9 asset has a new cache-busting filename.
 
 - Add reviewed series moves and whole-series merges with private Undo history. Preserve imported book metadata, redirect future imports after a merge, and review changed imports before replacing manual assignments.
