@@ -4,6 +4,8 @@ Current private deployment: **0.3.0-alpha.9** on developer Nextcloud 34.0.3 (`ht
 
 The alpha.9 `v5` frontend asset repairs a blank publication sidebar caused by an undefined author-link URL helper. The [hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md) includes the populated developer NC34 observation. The app version and database schema did not change; this asset has not yet had a new NC33–35 matrix.
 
+The current `v6` alpha.9 asset and merged main commit `47e1428` are deployed on developer NC34. The [handoff report](compatibility-evidence/2026-10-14-nc34-main-handoff/README.md) records the exact unsigned package hash, file-level deployment comparison, live catalogue/sidebar smoke and disposable author/series checks. The first catalogue smoke saw a transient Nextcloud core chunk error; the same run passed cleanly on repetition. Human testing remains the next gate.
+
 The immediate risks are human acceptance of the author/series workflows, an exact signed 0.3 archive with fresh/upgrade NC33–35 verification, manual assistive-technology testing and PostgreSQL runtime coverage. The [human test handbook](human-test-handbook.md#current-03-human-cases) defines the current manual pass. Sections dated September below preserve historical evidence and should not be read as current deployment claims.
 
 ## Alpha.25 author-field recovery — 2026-09-27

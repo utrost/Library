@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.9, Nextcloud 33–35.** The populated developer Nextcloud 34 instance runs alpha.9; use a disposable account and test books for changes. The [alpha.9 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers automated source-build checks on NC33–35 and the developer upgrade. It does not replace human judgment or the signed release-package matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.9, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://localhost:8088` runs main commit `47e1428`; the [deployment and smoke record](compatibility-evidence/2026-10-14-nc34-main-handoff/README.md) gives its archive checksum and the transient Nextcloud core-script error seen on the first browser run. Use a disposable account and test books for changes. The [alpha.9 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers automated source-build checks on NC33–35 and the developer upgrade. It does not replace human judgment or the signed release-package matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
