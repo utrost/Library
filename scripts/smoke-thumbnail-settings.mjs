@@ -1,12 +1,13 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 // Real HTTP admin/CSRF boundaries and desktop/mobile cache settings, with owned-token cleanup.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { randomBytes } from 'node:crypto'
-import { mkdirSync,writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium,expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
-const base=process.env.NC_URL||'http://100.123.149.120:8088',container=process.env.NC_CONTAINER||'nextcloud',admin=process.env.NC_USER||'uwe',out=process.env.EVIDENCE_DIR||'/tmp/library-thumbnail-settings'
-mkdirSync(out,{recursive:true,mode:0o700})
+const base=process.env.NC_URL||'http://100.123.149.120:8088',container=process.env.NC_CONTAINER||'nextcloud',admin=process.env.NC_USER||'uwe',out=createEvidenceDirectory('library-thumbnail-settings')
+
 const actor='library-thumbnail-smoke-'+randomBytes(6).toString('hex'),tokenName='library-thumbnail-settings-'+Date.now(),tokens=[]
 const docker=(args)=>execFileSync('docker',args,{encoding:'utf8',stdio:['ignore','pipe','pipe']}),occ=(...args)=>docker(['exec','-u','www-data',container,'php','occ',...args])
 let browser,created=false

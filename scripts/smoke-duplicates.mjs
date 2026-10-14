@@ -1,10 +1,11 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync,writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium,firefox,expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const upstream=process.env.NC_URL||'http://100.123.149.120:8088',user=process.env.NC_USER||'uwe',container=process.env.NC_CONTAINER||'nextcloud'
-const evidence=process.env.EVIDENCE_DIR||'/tmp/library-alpha19-evidence/browser';mkdirSync(evidence,{recursive:true})
+const evidence=createEvidenceDirectory('library-alpha19-evidence-browser');
 const name=`Library duplicates smoke ${Date.now()}`,tokenName=name.replaceAll(' ','-')
 const occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:5*1024*1024})
 execFileSync('docker',['cp',new URL('./duplicate-books-fixture.php',import.meta.url).pathname,`${container}:/tmp/library-duplicate-books-fixture.php`])
