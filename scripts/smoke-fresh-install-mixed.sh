@@ -118,11 +118,12 @@ $actual = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), "name");
 $present = array_values(array_filter($expected, fn($name) => in_array($prefix . $name, $actual, true)));
 $migrations = $pdo->prepare("SELECT version FROM " . $prefix . "migrations WHERE app = ? ORDER BY version");
 $migrations->execute(["library"]); $versions = $migrations->fetchAll(PDO::FETCH_COLUMN);
-echo json_encode(["physical_table_count"=>count($present),"tables"=>$present,"migration_count"=>count($versions),"last_migration"=>end($versions)]);
+$declaredMigrations = glob("/var/www/html/custom_apps/library/lib/Migration/Version*.php") ?: [];
+echo json_encode(["declared_table_count"=>count($expected),"physical_table_count"=>count($present),"tables"=>$present,"migration_file_count"=>count($declaredMigrations),"migration_count"=>count($versions),"last_migration"=>end($versions)]);
 ')"
 printf 'fresh_schema=%s\n' "$SCHEMA_JSON"
-python3 -c 'import json,sys; d=json.loads(sys.argv[1]); assert d["physical_table_count"] == 25, d; assert d["migration_count"] >= 47, d' "$SCHEMA_JSON"
-echo 'physical_table_count=25'
+python3 -c 'import json,sys; d=json.loads(sys.argv[1]); assert d["physical_table_count"] == d["declared_table_count"] > 0, d; assert d["migration_count"] == d["migration_file_count"] > 0, d' "$SCHEMA_JSON"
+printf 'physical_table_count=%s\n' "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["physical_table_count"])' "$SCHEMA_JSON")"
 printf 'migration_count=%s\n' "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["migration_count"])' "$SCHEMA_JSON")"
 printf 'last_migration=%s\n' "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["last_migration"])' "$SCHEMA_JSON")"
 
