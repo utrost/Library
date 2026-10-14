@@ -13,10 +13,10 @@ def test_card_details_are_sidebar_first_and_file_open_is_distinct():
     assert "{{ t('library', 'Open') }}" in APP
 
 
-def test_secondary_actions_use_nextcloud_menu_and_keep_php_fallback():
+def test_secondary_actions_use_nextcloud_menu_and_open_full_details():
     assert "import NcActions" in APP
     assert "import NcActionLink" in APP
-    for label in ("Show in Files", "Download", "Maintenance (legacy)"):
+    for label in ("Show in Files", "Download", "Full details"):
         assert f"t('library', '{label}')" in APP
 
 
@@ -28,10 +28,10 @@ def test_sidebar_action_block_routes_contextual_actions_with_one_primary():
         ('button primary', 'selectedDrawerItem.openUrl', 'Open'),
         (None, 'selectedDrawerItem.filesUrl', 'Show in Files'),
         (None, 'selectedDrawerItem.downloadUrl', 'Download'),
-        (None, 'selectedDrawerItem.detailsUrl', 'Maintenance (legacy)'),
+        ('button secondary', 'selectedDrawerItem.detailsUrl', 'Full details'),
     ]
-    assert actions.count('<a ') == 1
-    assert actions.count('<NcActionLink ') == 3
+    assert actions.count('<a ') == 2
+    assert actions.count('<NcActionLink ') == 2
     for classes, route, label in expected:
         if classes:
             assert f'class="{classes}" :href="{route}"' in actions

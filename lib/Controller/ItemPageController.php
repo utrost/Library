@@ -52,7 +52,7 @@ final class ItemPageController extends Controller {
         $id = (string)$item['id'];
         $fileId = (int)$item['fileId'];
         $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $id, 'v' => $item['coverCacheRevision'] ?? '']);
-        $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $id]);
+        $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.page.index') . '?details=' . $id;
         $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $id]);
         $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $id]);
         $item['recordOpenUrl'] = $this->urlGenerator->linkToRoute('library.item.recordOpen', ['itemId' => $id]);
@@ -61,10 +61,52 @@ final class ItemPageController extends Controller {
         return new JSONResponse(['item' => array_intersect_key($item, array_flip([
             'id', 'title', 'subtitle', 'creators', 'authors', 'displayCreators', 'canonicalAuthors', 'canonicalSeries', 'publicationType', 'publication', 'publicationDate', 'series', 'seriesNumber', 'genre',
             'language', 'publisher', 'description', 'subjects', 'classifications', 'personalRating',
-            'extension', 'shelf', 'cachedPath', 'scanStatus', 'scanError', 'workflowStatus',
+            'extension', 'shelf', 'cachedPath', 'scanStatus', 'scanError', 'workflowStatus', 'starred',
             'identifiers', 'metadataSource', 'fieldSources', 'fieldValues', 'userEdited', 'coverUrl',
             'detailsUrl', 'updateUrl', 'openUrl', 'recordOpenUrl', 'filesUrl', 'downloadUrl',
         ]))]);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function detailsContext(string $itemId): JSONResponse {
+        $canonicalItemId = $this->canonicalSidebarItemId($itemId);
+        $user = $this->userSession->getUser();
+        if ($user === null || $canonicalItemId === null) {
+            return $this->sidebarNotFoundResponse();
+        }
+        $item = $this->itemService->findItem($user->getUID(), $canonicalItemId);
+        if ($item === null) {
+            return $this->sidebarNotFoundResponse();
+        }
+        $id = (string)$item['id'];
+        $fileId = (int)$item['fileId'];
+        $tags = $this->fileTagService->tagsForItems([$item]);
+        $currentTags = array_map(function (array $tag) use ($id): array {
+            return [
+                'id' => (string)$tag['id'],
+                'name' => (string)$tag['name'],
+                'removeUrl' => $this->urlGenerator->linkToRoute('library.tag.remove', ['itemId' => $id, 'tagId' => (string)$tag['id']]),
+            ];
+        }, $tags[$fileId] ?? []);
+        $comments = $this->fileCommentService->commentsForItems([$item]);
+        $actions = [];
+        foreach ([
+            'coverOverride' => 'library.cover.override', 'coverRevert' => 'library.cover.revert',
+            'coverRefresh' => 'library.cover.show', 'star' => 'library.item.star',
+            'workflowStatus' => 'library.item.workflowStatus', 'resetField' => 'library.item.resetfield',
+            'resetFields' => 'library.item.resetfields', 'forgetMissing' => 'library.item.forgetMissing',
+            'tag' => 'library.tag.assign', 'comment' => 'library.comment.add',
+        ] as $name => $route) {
+            $actions[$name] = $this->urlGenerator->linkToRoute($route, ['itemId' => $id]);
+        }
+        return new JSONResponse([
+            'tags' => $currentTags,
+            'tagSuggestions' => $this->unassignedTagSuggestions($this->fileTagService->visibleAssignableTagNames(), $currentTags),
+            'comments' => $comments[$fileId] ?? ['count' => 0, 'recent' => []],
+            'actions' => $actions,
+            'file' => array_intersect_key($item, array_flip(['fileId', 'libraryFileId', 'mimeType'])),
+        ], 200, ['Cache-Control' => 'private, no-store']);
     }
 
     private function canonicalSidebarItemId(string $itemId): ?int {
@@ -78,7 +120,7 @@ final class ItemPageController extends Controller {
 
         // Reject percent-encoded signs/digits instead of accepting a decoded alias.
         $requestUri = $this->request->getRequestUri();
-        if (preg_match('~/items/([^/]*)/sidebar(?:[?#]|$)~', $requestUri, $matches)
+        if (preg_match('~/items/([^/]*)/(?:sidebar|details-context)(?:[?#]|$)~', $requestUri, $matches)
             && $matches[1] !== $itemId) {
             return null;
         }

@@ -111,6 +111,7 @@ return [
         ['name' => 'item#batchapplymetadataedit', 'url' => '/bulk/items/edit-apply', 'verb' => 'POST'],
         ['name' => 'cover#batchrefresh', 'url' => '/bulk/covers/refresh', 'verb' => 'POST'],
         ['name' => 'item_page#sidebar', 'url' => '/items/{itemId}/sidebar', 'verb' => 'GET', 'requirements' => ['itemId' => '[^/]+']],
+        ['name' => 'item_page#detailsContext', 'url' => '/items/{itemId}/details-context', 'verb' => 'GET', 'requirements' => ['itemId' => '[^/]+']],
         ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET', 'requirements' => ['itemId' => '[1-9][0-9]*']],
         ['name' => 'item#resetfield', 'url' => '/items/{itemId}/reset-field', 'verb' => 'POST'],
         ['name' => 'item#resetfields', 'url' => '/items/{itemId}/reset-fields', 'verb' => 'POST'],

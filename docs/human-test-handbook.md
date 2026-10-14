@@ -9,7 +9,7 @@
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
-For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06 and H03-09. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
+For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09 and H03-10. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
 Copy this result sheet into the session note. Write the installed asset or archive checksum in the session header, because an alpha.9 frontend hotfix uses the `v5` asset while retaining the same app version.
 
@@ -24,6 +24,7 @@ Copy this result sheet into the session note. Write the installed asset or archi
 | H03-07 |  |  |  |
 | H03-08 |  |  |  |
 | H03-09 |  |  |  |
+| H03-10 |  |  |  |
 
 After each case, capture the visible before/after state and note the selected book/author/series ID. A **Pass** requires the expected result and no relevant console error. Mark **Blocked** when setup or the instance prevents the action; a visible wrong result is **Fail**. Do not put private paths or book metadata in a public issue without redaction.
 
@@ -33,7 +34,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** A new or disposable account with the 40 English Gutenberg books in a Nextcloud Files folder.
 
-**Steps:** Add that folder under Library settings; run **Scan this root**; browse **Home**, **All publications**, **Shelves**, **Review**, and one item. Search for a known title, change a filter and sort, then open the item from its cover or title. Confirm the panel shows **Overview**, **Metadata** and **Activity**; choose an author chip and return to the book. Try **Open**, **Show in Files**, **Download**, and the full maintenance details route.
+**Steps:** Add that folder under Library settings; run **Scan this root**; browse **Home**, **All publications**, **Shelves**, **Review**, and one item. Search for a known title, change a filter and sort, then open the item from its cover or title. Confirm the panel shows **Overview**, **Metadata** and **Activity**; choose an author chip and return to the book. Try **Open**, **Show in Files**, **Download**, and **Full details**.
 
 **Expected:** The scan completes, the catalogue count is plausible, the contextual sidebar shows more than a title/header, and the author chip opens the correct profile. The detail page identifies the same file. **Open** launches the Nextcloud reader in a new tab while Library remains in the original tab; the book itself renders, rather than only a loading screen or Files root. No Library action in this case alters source bytes. A blank panel under the heading is a failure, even when the item API returns HTTP 200.
 
@@ -118,6 +119,16 @@ After each case, capture the visible before/after state and note the selected bo
 **Expected:** Controls remain reachable and understandable without sideways scrolling; keyboard and screen-reader users can identify what will change. Library-only organization leaves original publication files and OPF sidecars unchanged. Record manual AT testing pending for any platform not actually used.
 
 **Failure evidence:** OS/browser/AT version, viewport/zoom, focused control, screenshot or recording, exact task and any source-file difference.
+
+### H03-10 — Full details and item maintenance
+
+**Setup:** Use a disposable book with an ISBN or ISSN, an imported cover and at least one scanner suggestion. Have a valid JPEG, PNG or WebP cover ready. Record its original metadata and file checksum.
+
+**Steps:** Open the book sidebar and choose **Full details**. Edit title, creator names (one per line, including a name with a comma), subjects, an identifier and rating, then save. Replace the cover, refresh it and revert it. Add and remove a Nextcloud tag; add a comment. Star the book and change its workflow status. Review scanner provenance, reset one safe field, then return to the catalogue. Open the book in a new tab. If a disposable item is marked missing, exercise **Forget missing publication** separately.
+
+**Expected:** The full view loads without the catalogue's 100-book page, every action gives visible feedback and the changed values survive reload. A comma in a creator name stays within that creator. The old direct `/items/{id}` URL remains a fallback, while normal catalogue and list links open **Full details**. Cover, tags, comments, star and workflow changes do not overwrite unsaved metadata silently. Source publication bytes and sidecars remain unchanged.
+
+**Failure evidence:** Book ID, initial and final values, screenshots of the full view and provenance, network response for any failed action, browser console and source-file checksum.
 
 ## Historical alpha.174 walkthrough
 

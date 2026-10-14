@@ -280,7 +280,7 @@ final class PersonalListService {
             'id' => (int)$row['id'], 'fileId' => (int)$row['file_id'], 'title' => (string)$row['title'],
             'creators' => (string)($row['displayCreators'] ?? $row['creators'] ?? ''),
             'openUrl' => $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $itemId]),
-            'detailsUrl' => $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]),
+            'detailsUrl' => $this->urlGenerator->linkToRoute('library.page.index') . '?details=' . $itemId,
             'coverUrl' => $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $itemId]),
         ];
     }

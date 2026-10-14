@@ -31,8 +31,8 @@ use Throwable;
 
 class PageController extends Controller {
     private const APP_VERSION = '0.3.0-alpha.9';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-9-compact-list-table-cover-96-fit-v6';
-    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-9-compact-list-table-cover-96-fit-v6';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-9-compact-list-table-cover-96-fit-v7';
+    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-9-compact-list-table-cover-96-fit-v7';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -90,11 +90,24 @@ class PageController extends Controller {
         $this->initialState->provideInitialState('duplicateSuggestions', $this->duplicateIndex?->status($userId)['enabled'] ?? false);
         $showHome = (string)$this->request->getParam('home', '0') === '1';
         $showShelves = (string)$this->request->getParam('shelves', '0') === '1';
-        if ((string)$this->request->getParam('authors', '0') === '1' || (string)$this->request->getParam('series', '0') === '1' || (string)$this->request->getParam('duplicates', '0') === '1' || (string)$this->request->getParam('lists', '0') === '1' || (string)$this->request->getParam('infer', '0') === '1') {
+        $detailsId = (string)$this->request->getParam('details', '');
+        if ((string)$this->request->getParam('authors', '0') === '1' || (string)$this->request->getParam('series', '0') === '1' || (string)$this->request->getParam('duplicates', '0') === '1' || (string)$this->request->getParam('lists', '0') === '1' || (string)$this->request->getParam('infer', '0') === '1' || $detailsId !== '') {
             $catalogueUrl = $this->urlGenerator->linkToRoute('library.page.index');
             $language = $this->l10nFactory->findLanguage(Application::APP_ID);
+            $surface = 'lists';
+            if ($detailsId !== '') {
+                $surface = 'details';
+            } elseif ((string)$this->request->getParam('authors', '0') === '1') {
+                $surface = 'authors';
+            } elseif ((string)$this->request->getParam('series', '0') === '1') {
+                $surface = 'series';
+            } elseif ((string)$this->request->getParam('duplicates', '0') === '1') {
+                $surface = 'duplicates';
+            } elseif ((string)$this->request->getParam('infer', '0') === '1') {
+                $surface = 'inference';
+            }
             $this->initialState->provideInitialState('catalogue', [
-                'surface' => (string)$this->request->getParam('authors', '0') === '1' ? 'authors' : ((string)$this->request->getParam('series', '0') === '1' ? 'series' : ((string)$this->request->getParam('duplicates', '0') === '1' ? 'duplicates' : ((string)$this->request->getParam('infer', '0') === '1' ? 'inference' : 'lists'))), 'items' => [], 'activeFilters' => (object)[], 'cataloguePagination' => (object)[],
+                'surface' => $surface, 'detailsId' => $detailsId, 'items' => [], 'activeFilters' => (object)[], 'cataloguePagination' => (object)[],
                 'language' => $language, 'direction' => $this->l10nFactory->getLanguageDirection($language),
                 'catalogueRootUrl' => $catalogueUrl,
                 'homeUrl' => $catalogueUrl . '?home=1', 'shelvesUrl' => $catalogueUrl . '?shelves=1',
@@ -664,11 +677,11 @@ class PageController extends Controller {
     private function enrichPublicationIssueContextForVue(array $context): array {
         foreach (($context['issueGroups'] ?? []) as $groupIndex => $group) {
             foreach (($group['items'] ?? []) as $itemIndex => $issue) {
-                $context['issueGroups'][$groupIndex]['items'][$itemIndex]['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => (string)($issue['itemId'] ?? '0')]);
+                $context['issueGroups'][$groupIndex]['items'][$itemIndex]['detailsUrl'] = $this->urlGenerator->linkToRoute('library.page.index') . '?details=' . (int)($issue['itemId'] ?? 0);
             }
         }
         foreach (($context['unknownIssueItems'] ?? []) as $itemIndex => $issue) {
-            $context['unknownIssueItems'][$itemIndex]['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => (string)($issue['itemId'] ?? '0')]);
+            $context['unknownIssueItems'][$itemIndex]['detailsUrl'] = $this->urlGenerator->linkToRoute('library.page.index') . '?details=' . (int)($issue['itemId'] ?? 0);
         }
         return $context;
     }
@@ -689,7 +702,7 @@ class PageController extends Controller {
                 'v' => $item['coverCacheRevision'] ?? '',
                 'refresh' => isset($coverRefreshItemIdSet[(int)$itemId]) ? '1' : null,
             ]);
-            $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]);
+            $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.page.index') . '?details=' . $itemId;
             $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $itemId]);
             $item['recordOpenUrl'] = $this->urlGenerator->linkToRoute('library.item.recordOpen', ['itemId' => $itemId]);
             $item['resetFieldUrl'] = $this->urlGenerator->linkToRoute('library.item.resetfield', ['itemId' => $itemId]);
