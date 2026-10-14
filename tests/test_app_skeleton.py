@@ -13,8 +13,8 @@ def test_info_xml_declares_installable_nextcloud_navigation_app():
     assert xml.findtext("namespace") == "Library"
     deps = xml.find("dependencies/nextcloud")
     assert deps is not None
-    assert deps.attrib["min-version"] == "34"
-    assert deps.attrib["max-version"] == "34"
+    assert deps.attrib["min-version"] == "33"
+    assert deps.attrib["max-version"] == "35"
     navigation = xml.find("navigations/navigation")
     assert navigation is not None
     assert navigation.findtext("route") == "library.page.index"

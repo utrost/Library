@@ -1,35 +1,79 @@
 # App Store readiness roadmap
 
-Current status: `0.1.0-alpha.174` unsigned package rehearsal complete for the current source candidate. Manual AT testing is pending; accessibility-tree evidence is not screen-reader testing.
-Current candidate baseline: `0.1.0-alpha.174`
-Future authorized signing uses `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.174.tar.gz`; no alpha.171 signed archive exists yet.
+## Submission decision — 2026-10-13
 
-Status: active release-readiness roadmap  
-Target: signed Nextcloud App Store release for Nextcloud 34
+The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submission. The signed 0.2.0-beta.3 archive and verification below remain the preserved baseline, not evidence for the new author/series schema. Author and series work is implemented through alpha.9 on `develop/0.3`; see the [active roadmap](roadmap.md#active-03-track).
+
+Before submitting 0.3: obtain human acceptance of author and series workflows, resolve release-blocking findings, verify a populated upgrade from the preserved 0.2 baseline and interruption recovery, refresh listing/screenshots, then sign and run an exact-package NC33–35 fresh/upgrade matrix. Alpha.9's focused source checks and developer upgrade are encouraging but do not certify a signed release package.
+
+
+## Release checkpoint — 2026-10-14
+
+Current candidate baseline: `0.3.0-alpha.9`. Author and series management are in development. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The signed exact-package 0.3 release matrix remains pending.
+
+Alpha.9 is deployed on developer NC34/MariaDB. The app version is `0.3.0-alpha.9`; large catalogue catalogue books remained after migration and temporary fixture cleanup. Focused service and Chromium/Firefox series workflows passed on NC33.0.9, NC34.0.4, NC35.0.0 and the populated developer instance. See the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The [human test handbook](human-test-handbook.md#current-03-human-cases) now covers author/series acceptance.
+
+A later alpha.9 frontend asset fixes a blank publication panel when a book has linked authors: the template called an undefined URL helper. The developer NC34 panel now renders its sections and linked authors in Chromium; see the [sidebar hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md). This targeted check does not extend the earlier NC33–35 source evidence to the new asset, and the exact signed 0.3 package matrix remains open.
+
+Preserved baseline: `0.2.0-beta.3`. It is signed and [publicly released as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 cases passed with 210 final main Playwright tests; hosted CI and public URL verification passed. See the [beta.3 report](compatibility-evidence/2026-10-13-beta3/README.md), including the earlier timeout attempts and successful reruns.
+
+The signed [beta.2 baseline](compatibility-evidence/2026-10-13-beta2/README.md) passed six fresh/upgrade cases and 210/210 main Playwright executions. That evidence remains historical and does not certify beta.3.
+
+Current 0.3 checklist:
+
+- [x] Implement per-user author identities, profiles, reviewed relationships, large merge tasks and rescan conflict review.
+- [x] Implement per-user series identities, reviewed moves/merges, redirects, conditional Undo and changed-import review.
+- [x] Pass focused source-build service and two-browser checks on NC33–35; upgrade the populated developer NC34 instance without changing its large catalogue-book count.
+- [ ] Record owner and human-tester acceptance for author, series, lists, inference and mixed real-file workflows, including manual assistive-technology results where available.
+- [ ] Resolve release-blocking findings and decide explicitly whether remaining multiple-series, nonnumeric part ordering and canonical author search/sort limits are acceptable for the first Store version.
+- [ ] Build, sign and audit one exact 0.3 archive; verify the populated 0.2→0.3 upgrade and interruption/recovery path.
+- [ ] Run fresh and upgrade exact-package matrices on NC33.0.9, NC34.0.4 and NC35.0.0; refresh listing/screenshots for the accepted build.
+- [ ] Publish the accepted 0.3 source/tag and release assets, obtain hosted CI evidence, then submit and verify the App Store listing.
+
+Preserved 0.2 beta.3 checklist (historical):
+
+- [x] Obtain and verify the signing certificate; request #1268 was merged.
+- [x] Prepare public listing text, Gutenberg screenshots and first-library documentation.
+- [x] Fix issue/series duplicate matching and add regression cases.
+- [x] Verify beta.3 on developer NC34, including Chromium and Firefox.
+- [x] Commit the runtime source and build, sign and audit beta.3.
+- [x] Verify the exact beta.3 archive on NC33–35, fresh and upgrade.
+- [x] Publish source/tag and release assets; verify public download and screenshot URLs.
+- [x] Pass hosted CI for the release source.
+- [ ] Owner acceptance of the developer build and listing.
+- [ ] Owner App Store registration/submission, followed by Store installation verification.
+
+Manual assistive-technology testing and PostgreSQL coverage remain limitations. Author management is planned for 0.3.
+
+## Historical readiness track
+
+The dated alpha and beta records below preserve what was known at those checkpoints. Their pending items are not the current checklist; signing and older installation rehearsals have since completed.
+
+Target: signed Nextcloud App Store release for Nextcloud 33–35
 
 Library alpha.159 passed its full local gate, unsigned package build/audit, and exact-package smoke on a Nextcloud 34 instance. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
 
-The current candidate includes aggregate scan-job counters/duration, privacy-safe operation logs, throttled progress/cancellation checks, frontend request-race hardening, repair root-containment enforcement, workload-led catalogue/review indexes, materialized substring-search grams, lazy high-cardinality typeahead suggestions, the mobile filter panel and the review issue batch (#32-37). This is not external telemetry or proof of universal speedup. Alpha.159 exact-package/live evidence is complete and remains preserved as historical package evidence. Alpha.171 exact-package, fresh SQLite Nextcloud 34 installation and a reproducible 1,000-publication mixed synthetic first-scan rehearsal are complete for the unsigned archive. A signed package/App Store submission, formal Trust-and-scale phase closure, manual AT testing and a comparable real-world mixed corpus remain deferred.
+The historical alpha candidate included aggregate scan-job counters/duration, privacy-safe operation logs, throttled progress/cancellation checks, frontend request-race hardening, repair root-containment enforcement, workload-led catalogue/review indexes, materialized substring-search grams, lazy high-cardinality typeahead suggestions, the mobile filter panel and the review issue batch (#32-37). This is not external telemetry or proof of universal speedup. Alpha.159 exact-package/live evidence is complete and remains preserved as historical package evidence. Alpha.171 exact-package, fresh SQLite Nextcloud 34 installation and a reproducible 1,000-publication mixed synthetic first-scan rehearsal are complete for the unsigned archive. A signed package/App Store submission, formal Trust-and-scale phase closure, manual AT testing and a comparable real-world mixed corpus remain deferred.
 
 ## Definition of ready
 
 Library is App-Store-ready when all of these are true:
 
-- `appinfo/info.xml` contains public metadata, support URLs, AGPL licensing, and an explicit Nextcloud 34 compatibility claim.
+- `appinfo/info.xml` contains public metadata, support URLs, AGPL licensing, and an explicit Nextcloud 33–35 compatibility claim.
 - `appinfo/database.xml` declares the current app-owned Library tables/fields/indexes and validates against `https://apps.nextcloud.com/schema/apps/database.xsd`.
 - The install archive contains one top-level `library/` folder that must match the app id `library`; it contains only runtime app files plus minimal public metadata files and does not ship tests, local smoke harnesses, source-only Vue files, local docs, caches, build directories, or dependency folders.
 - The release package audit passes before checksum generation is reported as usable.
 - A signing certificate and private-key handling process exists, and the final release package includes `appinfo/signature.json` produced after the archive staging directory is finalized.
-- The generated archive install smoke passes on a disposable Nextcloud 34 instance.
+- The generated archive install smoke passes on disposable Nextcloud 33.0.9, 34.0.4 and 35.0.0 instances.
 - The live catalogue/browser smoke passes with zero browser console errors.
 - App Store listing text, screenshots, privacy notes, limitations, and support expectations are prepared.
-- The final public version decision is made: publish `0.1.0` only after the alpha/manual pass accepts the candidate; prerelease uploads are optional rehearsal artifacts and may not be visible on managed hosting providers.
+- The beta is published as a prerelease after the exact-package and signing gates; stable `0.1.0` remains gated on beta feedback and the manual accessibility/release pass.
 
 ## Slices
 
 ### AS-001 — Runtime package hygiene
 
-Status: started.
+Status: implementation complete; retain the package audit and archive smoke as release gates.
 
 Goal: make the unsigned archive look like a real App Store runtime artifact, not a repository snapshot.
 
@@ -50,7 +94,7 @@ Acceptance checks:
 
 ### AS-002 — App metadata and reviewer-facing public information
 
-Status: started.
+Status: draft copy and public-surface checks are in place; final screenshots and final author/contact presentation remain open for release review.
 
 Goal: make `appinfo/info.xml`, README, release notes and App Store copy align with a public Nextcloud app.
 
@@ -64,23 +108,23 @@ Work:
 Acceptance checks:
 
 - Public metadata docs mention no private hostnames, local paths, or internal test names.
-- `info.xml` parses and names Nextcloud 34 compatibility only until another version is tested.
+- `info.xml` parses and names the tested Nextcloud 33–35 compatibility range.
 - App Store listing draft has description, privacy, limitations, support and screenshot sections.
 
 ### AS-003 — Signing certificate and signed package workflow
 
-Status: started; final signed release remains blocked on external certificate request.
+Status: certificate issued and verified; signed beta.1 and beta.2 rehearsals completed. See the current checkpoint for beta.3.
 
 Goal: make signing repeatable and safe.
 
 Work:
 
-1. Document the local path policy for the private signing key: never commit it, never package it.
+1. Keep the documented local path policy for the private signing key: `~/.nextcloud/certificates/library.key`, never commit it, never package it.
 2. Add `scripts/sign-release-package.sh` plus `npm run package:release -- --signed` for staging the finalized app directory, running `occ integrity:sign-app`, and verifying `appinfo/signature.json` before tarball creation.
 3. Require `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` only at signing time; keep keys outside the repository and outside the archive.
 4. Document the Nextcloud certificate request step and the public repository URL required by the certificate request.
 5. Add package audit checks that fail if a stable App Store package lacks `appinfo/signature.json`, while allowing unsigned alpha rehearsal packages.
-6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and sign the exact release archive with `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.174.tar.gz | openssl base64`.
+6. Follow the Nextcloud certificate convention: keep `~/.nextcloud/certificates/library.key` private, generate `~/.nextcloud/certificates/library.csr` with `openssl req -nodes -newkey rsa:4096 -keyout library.key -out library.csr -subj "/CN=library"`, store the returned `~/.nextcloud/certificates/library.crt`, sign app registration with `echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key | openssl base64`, and create the signed package with `npm run package:release -- --signed`.
 
 Guideline notes: App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`; the archive top folder must match the app id `library`; `info.xml` should use the current SPDX license identifier and include the public repository URL.
 
@@ -92,14 +136,14 @@ Acceptance checks:
 
 ### AS-004 — App Store release rehearsal
 
-Status: alpha.171 unsigned exact-package, fresh SQLite Nextcloud 34 install and 1,000-publication balanced synthetic mixed-corpus rehearsal complete; a comparable real-world mixed corpus, clean-checkout CI, signed stable package/App Store submission, and formal Trust-and-scale phase closure remain pending or deferred.
+Status: the alpha.171 unsigned exact-package, fresh SQLite Nextcloud 34 install and 1,000-publication balanced synthetic mixed-corpus rehearsal are complete historical gates. Beta.1 exact-package installation and all 9 smoke executions passed on each of Nextcloud 33.0.9, 34.0.4 and 35.0.0 using 40 English Gutenberg books. Earlier alpha.174 matrix attempts used a temporary compatibility declaration and brittle screenshot/geometry checks; their historical evidence is retained. A comparable real-world mixed corpus, signed beta package/App Store submission, and formal Trust-and-scale phase closure remain pending or deferred.
 
 Goal: prove every step before the real stable upload.
 
 Work:
 
 1. Build a release candidate archive from a clean checkout.
-2. Install it on a disposable Nextcloud 34 instance.
+2. Install it on disposable Nextcloud 33.0.9, 34.0.4 and 35.0.0 instances.
 3. Run local gate, generated archive install smoke (including the aggregate-only two-scan unchanged-file contract after migration), Vue/browser smoke, and a small real-file scan.
 4. Verify the checksum and tarball contents match the published artifact.
 5. Prepare GitHub release notes with known limitations and support scope.
@@ -124,15 +168,15 @@ Playwright-foundation rehearsal evidence: the pull-request-sized disposable rehe
 
 Alpha.171 security-hardening deployment evidence: PRs #69 and #70 merged on `main`, CI passed for both the PR branch and the post-merge `main` run, and the refreshed unsigned package was deployed to the private `nextcloud` container. The deployed archive SHA-256 is `dee035479b847c091490ad7a57e9d04ef121180ddd6dd73ae7f6d5f00ac7e97f`. Live reflection confirmed legacy `PDOException SQLSTATE[...]` text sanitizes to a public `metadata_extraction_failed` diagnostic without SQLSTATE/table/exception leakage, deployed checksums matched for `appinfo/info.xml` and `lib/Service/SafeDiagnostics.php`, and the authenticated Vue route smoke returned `vue_smoke_ok=true` with temporary-token cleanup markers at zero. This updates the private-test deployment evidence; it does not replace the earlier disposable mixed-corpus and Playwright-foundation rehearsal archives.
 
-### AS-005 — Stable `0.1.0` App Store submission
+### AS-005 — App Store submission
 
-Status: decision-gated.
+Historical beta.3 checkpoint: owner submission was pending. The owner later chose 0.3 as the first App Store target; use the current 0.3 checklist above.
 
-Goal: publish a stable App Store package once the alpha candidate is accepted.
+Goal: publish the accepted beta candidate, then promote a subsequent accepted release to stable.
 
 Work:
 
-1. Bump from alpha to `0.1.0` only after the manual/alpha test pass accepts the candidate.
+1. Freeze and version the accepted candidate as `0.2.0-beta.3`.
 2. Build, sign, audit and smoke the final package.
 3. Create the GitHub release and upload the exact signed artifact/checksum.
 4. Submit/update the app on the Nextcloud App Store.
@@ -140,6 +184,14 @@ Work:
 
 Acceptance checks:
 
-- Stable package is signed, audited, smoke-tested and attached to a GitHub release.
+- Submitted package is signed, audited, smoke-tested and attached to a GitHub release.
 - App Store entry points to the exact package and public repository.
 - Support/issue tracker expectations are clear.
+
+Latest author assignment implementation and developer verification: [0.3-alpha.2 report](compatibility-evidence/2026-10-13-author-assignments-alpha2/README.md).
+
+Author profiles, photos/biographies and paged catalogue implemented: [0.3-alpha.3 evidence](compatibility-evidence/2026-10-13-author-profiles-alpha3/README.md). Other metadata normalization priorities are documented in the [author concept](v0.3-author-management.md#other-metadata-worth-normalising): series first, subjects/genres later; languages need consistent codes and identifiers already have dedicated storage.
+
+Imported author conflict review is implemented and deployed: [0.3-alpha.4 verification](compatibility-evidence/2026-10-13-author-conflicts-alpha4/README.md). Per-book decisions survive unchanged rescans; stale previews are rejected.
+
+Alpha.5 adds account-scoped author-ID catalogue filtering, guarded removal of unused authors, OPF creator sort-name import, and shared series records with a paged directory. Developer NC34 upgraded from alpha.4; large catalogue items reconciled to 188 series and 441 links with zero pending/failed records. Focused Chromium/Firefox checks on the 40 English Gutenberg books passed on NC33 and NC34 and in Chromium on NC35. The first NC35 Firefox pass completed the app flow but logged one failed Nextcloud core chunk; the rerun passed with no failed requests or page errors. These focused source-build checks do not replace the signed exact-package matrix. Remaining author work: large merge jobs, canonical search/sort and duplicate-index integration, and wider interruption/concurrency coverage. Series identity merging, multiple series per book editing, and natural ordering of nonnumeric part labels remain future work.

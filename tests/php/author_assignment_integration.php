@@ -1,0 +1,64 @@
+<?php
+declare(strict_types=1);
+define('OC_CONSOLE',true); require '/var/www/html/lib/base.php';
+$state=json_decode(file_get_contents('/tmp/library-author-directory-fixture.json'),true,512,JSON_THROW_ON_ERROR);
+$uid=$state['uid']; if(!preg_match('/^library-author-[a-f0-9]{12}$/D',$uid))throw new RuntimeException('Owned fixture required');
+$db=\OCP\Server::get(\OCP\IDBConnection::class);
+$storage=\OCP\Server::get(\OCA\Library\Service\AuthorStorageService::class);
+$directory=\OCP\Server::get(\OCA\Library\Service\AuthorDirectoryService::class);
+$service=\OCP\Server::get(\OCA\Library\Service\AuthorAssignmentService::class);
+$display=\OCP\Server::get(\OCA\Library\Service\AuthorDisplayService::class);
+$rows=function($sql,$params=[])use($db){$r=$db->executeQuery($sql,$params);try{return $r->fetchAll();}finally{$r->closeCursor();}};
+$assertions=0;$assert=function($ok,$label)use(&$assertions){if(!$ok)throw new RuntimeException($label);$assertions++;};
+$reject=function($fn,$class,$label)use($assert){try{$fn();}catch(Throwable $e){$assert($e instanceof $class,$label.': '.get_class($e));return;}$assert(false,$label);};
+$books=$rows('SELECT id,title,creators FROM *PREFIX*library_items WHERE user_id=? ORDER BY id',[$uid]);
+$first=(int)$books[0]['id'];$second=(int)$books[1]['id'];
+$db->executeStatement('UPDATE *PREFIX*library_items SET authors_json=?,creators=?,author_sync_status=1 WHERE user_id=? AND id=?',[json_encode(['John Doe','Doe, John']),'John Doe; Doe, John',$uid,$first]);
+$storage->advance($uid);
+$authors=$directory->directory($uid)['authors'];$source=$target=0;
+foreach($authors as $a){if($a['display_name']==='John Doe')$source=(int)$a['id'];if($a['display_name']==='Doe, John')$target=(int)$a['id'];}
+$assert($source>0&&$target>0,'two identities');
+$before=$rows('SELECT id,authors_json,creators,field_sources,field_values FROM *PREFIX*library_items WHERE user_id=? ORDER BY id',[$uid]);
+$preview=$service->preview($uid,$source,$target);$assert(count($preview['books'])===2,'merge previews both books');
+$reject(fn()=>$service->preview($uid.'-other',$source,$target),OutOfBoundsException::class,'cross account preview');
+$reject(fn()=>$service->preview($uid,$source,$source),InvalidArgumentException::class,'self merge rejected');
+$reject(fn()=>$service->preview($uid,$source,$target,range(1,501)),LengthException::class,'bounded selection');
+$db->executeStatement('UPDATE *PREFIX*library_authors SET revision=revision+1 WHERE user_id=? AND id=?',[$uid,$target]);
+$reject(fn()=>$service->apply($uid,$source,$target,[],$preview['token']),\OCA\Library\Exception\ListConflictException::class,'stale preview rejected');
+$start=microtime(true);$preview=$service->preview($uid,$source,$target);$op=$service->apply($uid,$source,$target,[],$preview['token']);$applyMs=round((microtime(true)-$start)*1000,2);
+$assert(count($directory->directory($uid)['authors'])===1,'retired author hidden');
+$links=$rows('SELECT * FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=? ORDER BY position',[$uid,$first]);
+$assert(count($links)===1&&(int)$links[0]['author_id']===$target&&(int)$links[0]['position']===0,'duplicate link collapsed at earliest position');
+$assert($before===$rows('SELECT id,authors_json,creators,field_sources,field_values FROM *PREFIX*library_items WHERE user_id=? ORDER BY id',[$uid]),'source metadata preserved');
+$decorated=$display->decorate($uid,$books);$assert($decorated[0]['displayCreators']==='Doe, John'&&$decorated[0]['creators']==='John Doe','display separated from credit');
+$reject(fn()=>$service->undo($uid.'-other',$op['id']),OutOfBoundsException::class,'cross account undo');
+// A later real EPUB import using the retired spelling follows the redirect.
+$folder=\OCP\Server::get(\OCP\Files\IRootFolder::class)->getUserFolder($uid)->get('Author fixtures');
+$folder->newFile('later.epub',$folder->get('calibre.epub')->getContent());
+\OCP\Server::get(\OCA\Library\Service\LibraryScanner::class)->scan($uid,$state['rootId']);
+$storage->advance($uid);
+$later=(int)$rows('SELECT MAX(id) AS id FROM *PREFIX*library_items WHERE user_id=?',[$uid])[0]['id'];
+$assert((int)$rows('SELECT author_id FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=?',[$uid,$later])[0]['author_id']===$target,'new import follows merged spelling');
+$service->undo($uid,$op['id']);$assert(count($directory->directory($uid)['authors'])===2,'merge undo reactivates source');
+$assert((int)$rows('SELECT author_id FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=?',[$uid,$later])[0]['author_id']===$target,'undo preserves later import');
+$assert(count($rows('SELECT id FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=?',[$uid,$first]))===2,'undo restores both source credits');
+$reject(fn()=>$service->undo($uid,$op['id']),\OCA\Library\Exception\ListConflictException::class,'repeat undo rejected');
+$p=$service->preview($uid,$source,$target,[$second]);$op=$service->apply($uid,$source,$target,[$second],$p['token']);
+$assert(count($directory->directory($uid)['authors'])===2,'reassign keeps both identities');
+$assert((int)$rows('SELECT author_id FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=?',[$uid,$second])[0]['author_id']===$target,'selected book reassigned');
+$db->executeStatement('UPDATE *PREFIX*library_items SET author_sync_status=1 WHERE user_id=? AND id=?',[$uid,$second]);$storage->advance($uid);
+$assert((int)$rows('SELECT author_id FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=?',[$uid,$second])[0]['author_id']===$target,'unchanged rescan preserves assignment');
+$service->undo($uid,$op['id']);
+$p=$service->preview($uid,$source,$target,[$second]);$op=$service->apply($uid,$source,$target,[$second],$p['token']);
+$db->executeStatement('UPDATE *PREFIX*library_item_authors SET revision=revision+1 WHERE user_id=? AND item_id=?',[$uid,$second]);
+$reject(fn()=>$service->undo($uid,$op['id']),\OCA\Library\Exception\ListConflictException::class,'changed assignment blocks undo');
+// Reset only the isolated fixture's second assignment for browser tests.
+$db->executeStatement('UPDATE *PREFIX*library_item_authors SET author_id=?,revision=revision+1 WHERE user_id=? AND item_id=?',[$source,$uid,$second]);
+$assert(count($service->history($uid))===3,'durable history');
+$assert($display->decorate($uid.'-other',$books)[0]===$books[0],'display account isolation');
+// Case/whitespace variants can retain separate source observations for one identity.
+$link=$rows('SELECT * FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=? ORDER BY position',[$uid,$first])[0];unset($link['id']);$link['position']=99;$link['source_name']='JOHN DOE';
+$q=$db->getQueryBuilder();$q->insert('library_item_authors')->values(array_map(fn($v)=>$q->createNamedParameter($v),$link))->executeStatement();$extra=(int)$db->lastInsertId('library_item_authors');
+$assert(count($display->decorate($uid,[['id'=>$first]])[0]['canonicalAuthors'])===2,'canonical display deduplicates one identity with multiple credits');
+$db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id=? AND id=?',[$uid,$extra]);
+echo json_encode(['pass'=>true,'assertions'=>$assertions,'previewAndApplyMs'=>$applyMs,'uid'=>$uid,'source'=>$source,'target'=>$target,'first'=>$first,'second'=>$second]),PHP_EOL;

@@ -42,6 +42,7 @@ ARCHIVE_BASENAME="${APP_ID}-${VERSION}.tar.gz"
 
 cd "$ROOT"
 npm ci
+npm audit --audit-level=high --omit=dev
 npm run build
 python -m pytest -q
 ./scripts/run-php-runtime-tests.sh

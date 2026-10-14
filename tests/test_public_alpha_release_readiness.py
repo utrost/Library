@@ -55,7 +55,7 @@ def test_release_packaging_script_builds_clean_nextcloud_app_archive():
     assert "audit-release-package.sh" in script
     assert "custom_apps/library" not in script
     assert "scripts/package-release.sh" in readme
-    assert "scripts/package-release.sh" in checklist
+    assert "exact package" in checklist
 
 
 def test_minimal_github_actions_ci_runs_public_alpha_gates():

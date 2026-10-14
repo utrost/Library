@@ -29,11 +29,11 @@ def test_item_service_filters_exact_creator_without_building_eager_creator_facet
     assert "'creators' => []" in facets
     assert "distinctCatalogueValues($userId, $facetFilters['creators']" not in facets
     assert "$creator = trim((string)($filters['creator'] ?? ''))" in service
-    assert "$qb->expr()->eq('i.creators', $qb->createNamedParameter($creator))" in service
-    assert "Exact creator filter intentionally matches the full creators field" in service
+    assert "$legacy->expr()->eq('legacy_author.creators', $qb->createNamedParameter($creator))" in service
+    assert "author_filter.facet_value" in service
 
 
-def test_vue_exposes_creator_filter_without_identity_splitting():
+def test_vue_exposes_individual_creator_filter():
     app = (ROOT / "src" / "App.vue").read_text()
 
     assert "const creators = computed(() => catalogueState.creators || [])" in app
@@ -42,7 +42,7 @@ def test_vue_exposes_creator_filter_without_identity_splitting():
     assert "name=\"creator\"" in app
     assert "All creators" in app
     assert "v-for=\"creator in creators\"" in app
-    assert "Exact full-field creator matches only" in app
+    assert "Match an individual author; existing full-field filters remain usable" in app
     assert "const creatorSearch = ref(activeFilters.creator)" in app
     assert "const creatorSuggestions = computed(() => remoteCreatorSuggestions.value || [])" in app
     assert "creatorSuggestionsUrl" in app
@@ -64,6 +64,6 @@ def test_docs_describe_creator_filter_as_read_only_exact_match():
     guide = (ROOT / "docs" / "user-guide.md").read_text()
     roadmap = (ROOT / "docs" / "roadmap.md").read_text()
 
-    assert "filter by exact creator field" in guide
-    assert "creator identity splitting remains future work" in guide
-    assert "Creator filtering has landed as exact full-field matching" in roadmap
+    assert "filter by an individual author" in guide
+    assert "existing full-field saved filters remain compatible" in guide
+    assert "Creator filtering supports indexed individual authors" in roadmap

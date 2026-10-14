@@ -39,6 +39,8 @@ def test_gui_catalogue_registers_initial_workflows():
         "catalogue-empty-results-recovery",
         "catalogue-history-navigation",
         "catalogue-loading-state",
+        "scan-root-browse",
+        "metadata-export-import-roundtrip",
         "details-metadata-edit-persistence",
         "settings-folder-picker-existing-user",
         "mobile-catalogue-filters",
@@ -56,7 +58,7 @@ def test_gui_catalogue_registers_initial_workflows():
         assert marker in catalogue
 
     files = [line.split(":", 1)[1].strip() for line in catalogue.splitlines() if line.strip().startswith("file:")]
-    assert len(files) == 9
+    assert len(files) == 11
     assert len(set(files)) == len(files)
     for relative_path in files:
         assert (ROOT / relative_path).is_file(), relative_path
@@ -80,7 +82,7 @@ def test_gui_specs_attach_error_listeners_before_login_and_scope_known_exception
     assert "browserFailures.assertNone()" in settings
     assert "browserFailures.assertNoneOrExactSetAndClear" in settings
     assert "requiredPositiveIntegerEnvironment('PW_EXPECTED_CARDS')" in catalogue
-    assert "requiredPositiveIntegerEnvironment('PW_EXPECTED_CARDS')" in empty_results
+    assert "requiredPositiveIntegerEnvironment('PW_TOTAL_CARDS')" in empty_results
 
 
 def test_disposable_rehearsal_runs_playwright_with_ephemeral_credentials():
@@ -90,7 +92,9 @@ def test_disposable_rehearsal_runs_playwright_with_ephemeral_credentials():
     assert 'PW_BASE_URL="$BASE_URL"' in smoke
     assert 'PW_USER="$ADMIN_USER"' in smoke
     assert 'PW_PASSWORD="$ADMIN_PASS"' in smoke
-    assert 'PW_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS"' in smoke
+    assert 'PW_EXPECTED_CARDS=1' in smoke
+    assert 'PW_TOTAL_CARDS="$EXPECTED_BROWSER_CARDS"' in smoke
+    assert 'background-job:worker' in smoke
     assert 'PW_ROOT_PATH="$GUI_ROOT_PATH"' in smoke
     assert 'PW_ITEM_ID="$GUI_ITEM_ID"' in smoke
     assert 'PW_SEARCH_TITLE="$GUI_SEARCH_TITLE"' in smoke
@@ -127,3 +131,11 @@ def test_playwright_outputs_are_ignored_and_config_is_excluded_from_release():
     assert '"playwright.config.ts"' in audit
     assert '"playwright-report"' in audit
     assert '"test-results"' in audit
+
+
+def test_disposable_instance_opens_library_after_login():
+    script = (ROOT / 'scripts/dev-lists-instance.sh').read_text()
+    # Keep unrelated dashboard recommendation previews outside the Library gate.
+    landing = script.index('config:system:set defaultapp --value=library')
+    assert script.index("echo \"deployed=$instance\"") < landing
+    assert landing < script.index("export PW_BASE_URL=%q")

@@ -8,17 +8,23 @@ Nextcloud Files remains the canonical storage. Library indexes those files with 
 
 License: AGPL-3.0-or-later. See [LICENSE](LICENSE).
 
+Current candidate: `0.3.0-alpha.9`. Supported Nextcloud versions: **33–35**. Author and series management are in development; 0.3 is the planned first App Store release. See [release status and verification](RELEASE.md) for publication and acceptance details.
+
+The current development build adds per-user author and series identities, author profiles, reviewed moves and merges, changed-import review and conditional Undo. Earlier 0.2 work includes private reading lists, path/filename metadata extraction, duplicate review, scheduled scans and bounded cover thumbnails.
+
+Verification: alpha.9 has focused source-build checks on Nextcloud 33.0.9 / 34.0.4 / 35.0.0 and a populated developer NC34 upgrade. The last signed, exact-package matrix belongs to the preserved `0.2.0-beta.3` baseline; an exact 0.3 release archive still needs that matrix. See the [release checklist](docs/app-store-readiness.md), [alpha.9 evidence](docs/compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) and [active roadmap](docs/roadmap.md).
+
 ## What it does
-
-Current candidate: `0.1.0-alpha.174`. This is an alpha for Nextcloud 34, meant for private testing with real collections. Packages are unsigned for now.
-
-What works today:
 
 - scan folders already visible in Nextcloud Files;
 - browse a cover-first catalogue and cover gallery in compact, gallery, shelf or list view;
 - search and filter titles, creators, series, descriptions, identifiers, file names and folders;
 - filter by type, format, year, creator, publisher, subject, classification, tag, scan state, workflow state and review flags;
 - use typeahead for large lists such as creators, publishers, series, subjects and folders;
+- maintain private reading lists with ordered books and notes;
+- browse and edit author profiles and series identities; review selected-book moves, whole-identity merges and changed imported relationships;
+- infer metadata from paths and filenames with preview, per-book review, Apply and Undo;
+- schedule scans and review optional potential-duplicate suggestions;
 - save the current filter setup as a collection and reopen it from the navigation;
 - open the file in the normal Nextcloud viewer, show it in Files or Download it;
 - edit catalogue metadata, workflow status, stars, descriptions and file comments;
@@ -31,7 +37,7 @@ The app has safe user-facing diagnostics for scan and metadata problems. Server 
 
 Library keeps source files in place. Scans and edits write to Library-owned tables and metadata records. Metadata import has a preview step before anything is applied.
 
-Not in v0.1:
+Outside the current 0.3 scope:
 
 - a built-in EPUB, PDF or comic reader;
 - reading-position sync or annotations;
@@ -79,8 +85,9 @@ For GUI workflows, install the pinned browsers once with `npx playwright install
 
 ## More documentation
 
-- [User and admin guide](docs/user-guide.md), [FAQ and troubleshooting](docs/faq.md), [Human test handbook](docs/human-test-handbook.md), [Public alpha test checklist](docs/alpha-test-checklist.md)
+- [Your first library](docs/first-library.md) — configure a folder, scan Gutenberg books and browse your first catalogue.
+- [User and admin guide](docs/user-guide.md), [FAQ and troubleshooting](docs/faq.md), [Playwright journey coverage](docs/playwright-journeys.md), [Human test handbook](docs/human-test-handbook.md), [Public alpha test checklist](docs/alpha-test-checklist.md)
 - [Current state and risk register](docs/current-state-and-risk-register.md), [Active roadmap](docs/roadmap.md), [Post-v0.1 roadmap](docs/post-v0.1-roadmap.md), [Personal top features scope](docs/personal-top-features.md)
 - [Product concept](docs/product-concept.md), [UX concept](docs/ux-concept.md), [Usefulness and UX feature list](docs/usefulness-and-ux-feature-list.md)
 - [Release process](RELEASE.md), [Changelog](CHANGELOG.md), [App Store listing draft](docs/app-store-listing.md), [App Store readiness roadmap](docs/app-store-readiness.md)
-- [Metadata storage and Nextcloud integration](docs/metadata-storage.md), [Human architecture review notes](docs/architecture-review.md)
+- [Database schema reference](docs/database-schema.md), [Metadata storage and Nextcloud integration](docs/metadata-storage.md), [Human architecture review notes](docs/architecture-review.md)

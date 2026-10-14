@@ -24,7 +24,9 @@ def test_disposable_nc34_mixed_rehearsal_is_wired_and_fail_closed():
     assert "config:app:set --value false firstrunwizard wizard_enabled" in script
     assert "package:release" in script
     assert "sha256sum -c" in script
-    assert "physical_table_count=8" in script
+    assert "declared_table_count" in script
+    assert "migration_file_count" in script
+    assert "physical_table_count=%s" in script
     assert "migration_count=" in script
     assert "selected_formats=" in script
     assert "source_tree_unchanged=true" in script
@@ -106,3 +108,9 @@ def test_install_faq_and_first_scan_walkthrough_are_linked():
     assert "How do I install Library?" in faq
     assert "Why is my first scan still queued?" in faq
     assert "Does Library change or delete my source files?" in faq
+
+
+def test_basic_smoke_uses_pinned_playwright_chrome():
+    script = (ROOT / "scripts/smoke-fresh-install-mixed.sh").read_text()
+    assert "chromium.executablePath()" in script
+    assert 'CHROME_BIN="${CHROME_BIN:-$playwright_chrome_bin}"' in script

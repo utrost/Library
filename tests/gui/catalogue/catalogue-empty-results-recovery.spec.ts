@@ -7,7 +7,7 @@ test('recovers after a search returns no catalogue results @catalogue @search @e
   assertKnownNextcloudLoginFailuresAndClear(browserFailures)
   await openLibrary(page)
 
-  const expectedCards = requiredPositiveIntegerEnvironment('PW_EXPECTED_CARDS')
+  const expectedCards = requiredPositiveIntegerEnvironment('PW_TOTAL_CARDS')
   const missingQuery = `pw-guaranteed-missing-${Date.now()}-${Math.random().toString(36).slice(2)}`
   const catalogue = page.locator('#library-catalogue')
   const filters = page.getByRole('form', { name: 'Catalogue search and filters' })

@@ -1,10 +1,133 @@
 # Library human test handbook
 
-## Current source-candidate test status
+**Current manual pass: 0.3.0-alpha.9, Nextcloud 33–35.** The populated developer Nextcloud 34 instance runs alpha.9; use a disposable account and test books for changes. The [alpha.9 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers automated source-build checks on NC33–35 and the developer upgrade. It does not replace human judgment or the signed release-package matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
-Version under test: `0.1.0-alpha.174`. The current development instance deployment includes the accessibility/catalogue cleanup, ISBN/ISSN identifier spine, indexed substring search, mobile filter panel, high-cardinality typeaheads, and the review issue batch (#32-37).
+## Before testing
 
-Packaging: **used for the current private deployment**. Deployment: the exact unsigned `dist/library-0.1.0-alpha.174.tar.gz` package is installed in the private Nextcloud 34 test container. Run the installed-instance cases against `http://localhost:8088/apps/library/`; archive/package-identity assertions are applicable after each documented package rebuild/deploy.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud is `0.3.0-alpha.9` for the developer pass. When testing a later signed candidate, record the exact archive name and checksum instead of assuming this source build is the release package.
+2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
+3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
+4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
+
+For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06 and H03-09. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
+
+Copy this result sheet into the session note. Write the installed asset or archive checksum in the session header, because an alpha.9 frontend hotfix uses the `v5` asset while retaining the same app version.
+
+| Case | Status | Evidence file/link | Defect or observation |
+| --- | --- | --- | --- |
+| H03-01 |  |  |  |
+| H03-02 |  |  |  |
+| H03-03 |  |  |  |
+| H03-04 |  |  |  |
+| H03-05 |  |  |  |
+| H03-06 |  |  |  |
+| H03-07 |  |  |  |
+| H03-08 |  |  |  |
+| H03-09 |  |  |  |
+
+After each case, capture the visible before/after state and note the selected book/author/series ID. A **Pass** requires the expected result and no relevant console error. Mark **Blocked** when setup or the instance prevents the action; a visible wrong result is **Fail**. Do not put private paths or book metadata in a public issue without redaction.
+
+## Current 0.3 human cases
+
+### H03-01 — First library and everyday browsing
+
+**Setup:** A new or disposable account with the 40 English Gutenberg books in a Nextcloud Files folder.
+
+**Steps:** Add that folder under Library settings; run **Scan this root**; browse **Home**, **All publications**, **Shelves**, **Review**, and one item. Search for a known title, change a filter and sort, then open the item from its cover or title. Confirm the panel shows **Overview**, **Metadata** and **Activity**; choose an author chip and return to the book. Try **Open**, **Show in Files**, **Download**, and the full maintenance details route.
+
+**Expected:** The scan completes, the catalogue count is plausible, the contextual sidebar shows more than a title/header, and the author chip opens the correct profile. The detail page identifies the same file. **Open** launches the Nextcloud reader in a new tab while Library remains in the original tab; the book itself renders, rather than only a loading screen or Files root. No Library action in this case alters source bytes. A blank panel under the heading is a failure, even when the item API returns HTTP 200.
+
+**Failure evidence:** Root label, scan status, item title/ID, URL, panel screenshot, browser console error, author-link target and whether the file still opens from Files.
+
+### H03-02 — Lists, filters and metadata extraction
+
+**Setup:** At least three indexed test books, including one filename/path with a useful title, author, year or series hint.
+
+**Steps:** Create a private list from **Lists**, select books in the catalogue and add them to it, reorder and remove one, and save a book note. Save a catalogue filter as a collection and confirm it appears separately from lists. In **Extract metadata**, select a root/rule, inspect the live selected-record preview, save a rule, review suggestions and apply one safe field; use Undo if available.
+
+**Expected:** Lists contain chosen books in the chosen order; saved collections remain filters rather than list membership. Preview distinguishes source and proposed values. Apply changes only accepted catalogue metadata, and Undo restores the approved snapshot when no later edit intervened.
+
+**Failure evidence:** List/filter names, book IDs, pattern and sample path, preview and result screenshots, before/after field values.
+
+### H03-03 — Author directory and profile
+
+**Setup:** Two or more books with the same imported author, plus a second author for comparison.
+
+**Steps:** Open **Authors**, search for the author and open the profile. Check the book list, cover/list views, search and sort. Edit the preferred name and an optional short biography or portrait, then revisit the catalogue and profile. Rescan unchanged files.
+
+**Expected:** The profile shows only that account's linked books. Preferred names appear in author browsing and creator suggestions while original source credits remain available. Biography and portrait stay private and unchanged after the rescan. A missing portrait shows initials.
+
+**Failure evidence:** Imported and preferred names, affected books, profile/catalogue screenshots, rescan status and any broken image or browser error.
+
+### H03-04 — Author reassignment, merge and Undo
+
+**Setup:** Two author identities in a disposable account; record their linked books and original credits. If they represent different people, test a selected-book move. If they represent the same person, test a whole-author merge.
+
+**Steps:** Open the source author, select a destination, inspect the preview and book count, confirm, then check both author pages and creator filtering. Use **Undo** before further edits. For an author with more than 500 linked books, record the queued-task state instead of waiting on the page.
+
+**Expected:** Only previewed relationships move; source credits and ebook files stay unchanged. A whole merge redirects later imports of the retired identity. Undo restores the original relationships when the operation is still current; stale operations explain that they cannot overwrite later work.
+
+**Failure evidence:** Source/destination IDs and names, preview count, before/after book membership, task status, Undo result and screenshots.
+
+### H03-05 — Series selected-book move and Undo
+
+**Setup:** Two active series with at least one book each. Record the source book's imported series name and part label.
+
+**Steps:** Open **Series**, choose the source, expand **Move or merge books**, select one book, find or create the destination and inspect **Review change**. Confirm, check the destination series and catalogue series link, rescan the unchanged source, then use **Recent changes → Undo**.
+
+**Expected:** The selected book alone moves; both series stay active. Its part label and imported source metadata remain visible and unchanged. The assignment survives the unchanged rescan. Undo returns the book to its original series and restores its original import behavior.
+
+**Failure evidence:** Book/series IDs, source and destination, part label, preview screenshot, membership before/after rescan and Undo result.
+
+### H03-06 — Whole-series merge, redirect and empty source
+
+**Setup:** Two active disposable series. Use the source from H03-05 after Undo or another test series.
+
+**Steps:** Open the source's **Move or merge books** panel, leave all book checkboxes clear, review the full book count and confirm. Check that the old series links to the destination. Import another disposable EPUB carrying the old series name and scan it. If testing a series larger than 500 books, move selected books in batches and merge the now-empty source identity.
+
+**Expected:** All previewed books move; the old identity leaves the active directory and later imports using its old name join the destination. An empty-source merge still creates the redirect. Each operation is capped at 500 books and 8 MiB of history; the UI should explain the limit. The original files and imported metadata remain unchanged.
+
+**Failure evidence:** Series IDs, exact book counts, redirect page, new book's assigned series, limit message if encountered and screenshots.
+
+### H03-07 — Changed imported author or series metadata
+
+**Setup:** Disposable books with manually reviewed author or series assignments. Modify a copy of the source EPUB/OPF metadata and rescan; do not alter a personal original.
+
+**Steps:** Open the author and series changed-import review queues. Compare the assigned identity, incoming source name/credits and part label. Use **Keep assignment** on one example and **Use imported series** or **Use imported authors** on another. Rescan unchanged inputs, then change the source again.
+
+**Expected:** A changed import enters review without silently replacing a manual assignment. Each choice affects only the selected book; the unchanged rescan keeps the decision, while another source change asks for review again. Stale previews must be rejected. Source file edits in this case are the tester's explicit setup, not a Library write.
+
+**Failure evidence:** Book ID, old/new source values, assignment before/after, queue screenshots, chosen action and rescan result.
+
+### H03-08 — Duplicate and mixed-format judgment
+
+**Setup:** A small pair of true duplicate files and two different issues/volumes from one comic or book series; include EPUB/PDF variants if available.
+
+**Steps:** Open **Possible duplicates**, inspect why a pair was suggested, choose **Keep both** or dismiss a false match, and check whether separate series issues are being suggested as duplicates. Reopen the queue and check the decision persists.
+
+**Expected:** Different issues/series positions should not be presented solely because their series title and creator match. Decisions change review state, not files. A PDF and EPUB of the same work may still need human judgment.
+
+**Failure evidence:** Both titles, format, issue/part numbers, matching reason, decision and screenshot. Keep private file paths out of public reports.
+
+### H03-09 — Safety, responsive UI and assistive technology
+
+**Setup:** One real mixed-format folder and a disposable account for mutations. Include long titles and, if possible, German/Arabic plus Latin text.
+
+**Steps:** Check desktop and phone-width catalogue, list, author and series pages at 200% and 400% zoom. Navigate controls by keyboard; inspect labels, focus return, review announcements and the **Move or merge books** disclosure. Exercise the available NVDA, VoiceOver or Orca row in the [manual AT matrix](#alpha166167-manual-assistive-technology-matrix). Check Nextcloud Files before and after list, author, series, inference and deletion-boundary actions.
+
+**Expected:** Controls remain reachable and understandable without sideways scrolling; keyboard and screen-reader users can identify what will change. Library-only organization leaves original publication files and OPF sidecars unchanged. Record manual AT testing pending for any platform not actually used.
+
+**Failure evidence:** OS/browser/AT version, viewport/zoom, focused control, screenshot or recording, exact task and any source-file difference.
+
+## Historical alpha.174 walkthrough
+
+The sections below retain older case IDs and detailed release-hardening evidence. They are not the operative candidate instructions. Recheck their visible labels against the installed 0.3 UI before reusing an individual case.
+
+## Historical source-candidate test status
+
+Version under test in this older record: `0.1.0-alpha.174`. That development instance deployment included accessibility/catalogue cleanup, ISBN/ISSN identifier spine, indexed substring search, mobile filter panel, high-cardinality typeaheads, and the review issue batch (#32-37).
+
+Packaging: **used for the current private deployment** was the historical alpha.174 status. At that time, the exact unsigned `dist/library-0.1.0-alpha.174.tar.gz` package was installed in the private Nextcloud 34 test container. The same address now serves alpha.9. Archive/package-identity assertions apply only to the artifact actually installed for a given test session.
 
 ## Identifier and search first pass
 
@@ -38,7 +161,7 @@ Automated DOM and CDP accessibility-tree evidence is not screen-reader testing. 
 | macOS + Safari + VoiceOver | Same checks, including modal announcement and rotor navigation | **manual AT testing pending** |
 | Linux + Firefox + Orca | Same checks, including table navigation and browse/forms modes | **manual AT testing pending** |
 
-This handbook is the repeatable human QA script for Library v0.1 testing. maintainer's browser testing is the controlling release-candidate verdict; automated checks cover non-browser contracts, packaging and server installation only.
+The current automated browser coverage is listed in [Playwright journey coverage](playwright-journeys.md). Human dogfooding remains the release-candidate verdict for subjective usefulness, real-file edge cases, reader handoff quality, and assistive-technology use.
 
 ## Alpha.166/167 executable first pass
 
@@ -154,8 +277,10 @@ Tester:
 Library app version:
 Nextcloud version:
 Install source: generated archive / checkout / other
+Archive checksum or commit (if known):
 URL:
 Device/browser:
+Database type (if known):
 Viewport or phone model:
 Network:
 Approximate files scanned:
@@ -251,7 +376,7 @@ Steps:
 2. Return and click **Show in Files**.
 3. Return and click **Download**.
 
-Expected result: Open hands off to Nextcloud's file/viewer route, Show in Files opens the containing Files context, and Download returns the original file bytes.
+Expected result: Open opens a new tab and hands off to Nextcloud's file/viewer route while Library stays in place; Show in Files opens the containing Files context, and Download returns the original file bytes.
 
 Evidence to capture on failure: item title, source extension, final URL, HTTP status if known, and whether the file opens directly in Nextcloud Files.
 
@@ -444,7 +569,7 @@ Setup: read the Known alpha limitations in [Public alpha test checklist](alpha-t
 
 Steps:
 
-1. Confirm the tester understands manual cover override/revert exists, but there is no app-owned cover cache or crop/rebuild workflow.
+1. Confirm the tester understands manual cover override/revert and bounded private thumbnails exist; a crop/rebuild workflow is still absent. This older case predates thumbnail caching.
 2. Confirm sidecar exports do not write source folders.
 3. Confirm Useful views and custom collections are part of the current test pass.
 4. Confirm creator pages are part of the current discovery surface.
@@ -485,8 +610,9 @@ Notes/privacy concerns:
 
 ## Quick regression subsets
 
-- Catalogue-only UI change: LIB-HARDEN-001, 003, 010, 011.
-- Details/editing change: LIB-HARDEN-001, 005, 006, 011.
-- Scan/root/settings change: LIB-HARDEN-001, 002, 009.
-- Portability change: LIB-HARDEN-001, 007, 008.
-- Release packaging change: LIB-HARDEN-001 after checksum, package audit, install/version and server-health verification.
+- Catalogue or navigation change: H03-01 and H03-09.
+- Lists or inference change: H03-02, then H03-09 for responsive controls.
+- Author change: H03-03, H03-04, H03-07 and H03-09.
+- Series change: H03-05, H03-06, H03-07 and H03-09.
+- Duplicate matching change: H03-08 with distinct issues and true duplicates.
+- Release-package change: H03-01, H03-03, H03-05 and H03-09 on the exact installed package, plus checksum and installed-version evidence. The historical LIB-HARDEN cases above can supply extra breadth when their labels still match the current UI.

@@ -15,7 +15,7 @@ def test_bulk_reset_route_controller_and_settings_form_are_available():
     assert "bulkResetFieldsUrl" not in settings
     assert "library-bulk-reset-fields-form" not in template
     assert 'name="itemIds"' not in template
-    assert 'v-if="selectedItemIds.length > 0"' in (ROOT / "src" / "App.vue").read_text()
+    assert 'v-if="selectedItemIds.length && selectedBatchAction"' in (ROOT / "src" / "App.vue").read_text()
 
 
 def test_item_service_bulk_reset_normalizes_ids_and_reports_counts():

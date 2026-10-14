@@ -56,12 +56,13 @@ def test_q_filter_uses_search_gram_candidates_not_broad_lower_like_scan():
 def test_item_writes_refresh_substring_search_index():
     service = SERVICE.read_text()
 
-    assert "private function refreshItemSearchIndex(string $userId, int $itemId): void" in service
+    assert "private function refreshItemSearchIndex(string $userId, int $itemId, ?array $sourceRow = null, bool $invalidate = true): void" in service
     assert "private function searchDocumentForRow(array $row): string" in service
     assert "private function searchGramsForText(string $text): array" in service
     assert "$this->refreshItemSearchIndex($userId, $itemId);" in service
     assert "delete('library_item_search_grams')" in service
-    assert "insert('library_item_search_grams')" in service
+    assert "INSERT INTO " in service
+    assert "array_chunk($this->searchGramsForText" in service
 
 
 def test_performance_smoke_covers_representative_substring_query():

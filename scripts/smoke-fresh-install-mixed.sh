@@ -112,17 +112,18 @@ SCHEMA_JSON="$(docker exec -u www-data "$CONTAINER" php -r '
 require "/var/www/html/config/config.php";
 $pdo = new PDO("sqlite:" . $CONFIG["datadirectory"] . "/owncloud.db");
 $prefix = $CONFIG["dbtableprefix"] ?? "oc_";
-$expected = ["library_roots","library_files","library_items","library_item_search_grams","library_item_identifiers","library_item_facets","library_scan_jobs","library_saved_collections"];
+$expected = []; foreach (simplexml_load_file("/var/www/html/custom_apps/library/appinfo/database.xml")->table as $table) { $expected[] = str_replace("*dbprefix*", "", (string)$table->name); }
 $stmt = $pdo->query("SELECT name FROM sqlite_master WHERE type=\"table\"");
 $actual = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), "name");
 $present = array_values(array_filter($expected, fn($name) => in_array($prefix . $name, $actual, true)));
 $migrations = $pdo->prepare("SELECT version FROM " . $prefix . "migrations WHERE app = ? ORDER BY version");
 $migrations->execute(["library"]); $versions = $migrations->fetchAll(PDO::FETCH_COLUMN);
-echo json_encode(["physical_table_count"=>count($present),"tables"=>$present,"migration_count"=>count($versions),"last_migration"=>end($versions)]);
+$declaredMigrations = glob("/var/www/html/custom_apps/library/lib/Migration/Version*.php") ?: [];
+echo json_encode(["declared_table_count"=>count($expected),"physical_table_count"=>count($present),"tables"=>$present,"migration_file_count"=>count($declaredMigrations),"migration_count"=>count($versions),"last_migration"=>end($versions)]);
 ')"
 printf 'fresh_schema=%s\n' "$SCHEMA_JSON"
-python3 -c 'import json,sys; d=json.loads(sys.argv[1]); assert d["physical_table_count"] == 8, d; assert d["migration_count"] >= 33, d' "$SCHEMA_JSON"
-echo 'physical_table_count=8'
+python3 -c 'import json,sys; d=json.loads(sys.argv[1]); assert d["physical_table_count"] == d["declared_table_count"] > 0, d; assert d["migration_count"] == d["migration_file_count"] > 0, d' "$SCHEMA_JSON"
+printf 'physical_table_count=%s\n' "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["physical_table_count"])' "$SCHEMA_JSON")"
 printf 'migration_count=%s\n' "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["migration_count"])' "$SCHEMA_JSON")"
 printf 'last_migration=%s\n' "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["last_migration"])' "$SCHEMA_JSON")"
 
@@ -196,10 +197,15 @@ echo (string)$stmt->fetchColumn();
 [[ "$GUI_ROOT_PATH" == /* ]] || { echo 'Playwright root fixture path missing' >&2; exit 1; }
 [[ "$GUI_ITEM_ID" =~ ^[1-9][0-9]*$ ]] || { echo 'Playwright item fixture ID missing' >&2; exit 1; }
 [[ -n "$GUI_SEARCH_TITLE" ]] || { echo 'Playwright EPUB fixture title missing' >&2; exit 1; }
+# The ownership/CSRF browser checks require an independent unprivileged account.
+docker exec -u www-data -e OC_PASS=Disposable-lists-other-2026 "$CONTAINER" php occ user:add --password-from-env library-lists-other
+docker exec -u www-data "$CONTAINER" php occ background:cron
+docker exec -d -u www-data "$CONTAINER" php occ --no-warnings --quiet background-job:worker --stop_after=30m 'OCA\Library\BackgroundJob\ScanJob'
 PW_BASE_URL="$BASE_URL" \
 PW_USER="$ADMIN_USER" \
 PW_PASSWORD="$ADMIN_PASS" \
-PW_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS" \
+PW_EXPECTED_CARDS=1 \
+PW_TOTAL_CARDS="$EXPECTED_BROWSER_CARDS" \
 PW_ROOT_PATH="$GUI_ROOT_PATH" \
 PW_ITEM_ID="$GUI_ITEM_ID" \
 PW_SEARCH_TITLE="$GUI_SEARCH_TITLE" \
@@ -222,6 +228,9 @@ LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS="${LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS:-
 LIBRARY_CATALOGUE_MEASURE_HYDRATE=1 npm run smoke:catalogue-performance | tee -a "$RUN_LOG"
 npm run smoke:vue | tee -a "$RUN_LOG"
 npm run smoke:sidebar-http | tee -a "$RUN_LOG"
+# Use the browser installed by the pinned Playwright setup, not the runner's system Chrome.
+playwright_chrome_bin=$(node -e "console.log(require('@playwright/test').chromium.executablePath())")
+CHROME_BIN="${CHROME_BIN:-$playwright_chrome_bin}" \
 LIBRARY_BROWSER_SMOKE_BASIC=1 LIBRARY_BROWSER_EXPECTED_CARDS="$EXPECTED_BROWSER_CARDS" npm run smoke:browser | tee -a "$RUN_LOG"
 
 grep -q 'catalogue_temp_token_remaining=0' "$RUN_LOG"

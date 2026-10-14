@@ -25,7 +25,7 @@ def test_roadmap_prioritizes_gaps_after_real_1k_pilot():
 def test_user_guide_exposes_prioritized_next_gaps():
     guide = (ROOT / "docs" / "user-guide.md").read_text()
 
-    assert "## Prioritized next gaps after the 1k real-corpus pilot" in guide
+    assert "## Historical prioritized gaps after the 1k real-corpus pilot" in guide
     assert "1. Keep metadata-quality work safe by splitting the extractor seam" in guide
     assert "2. Improve the metadata correction workflow" in guide
     assert "3. Make corrected metadata portable back into a fresh install or files" in guide

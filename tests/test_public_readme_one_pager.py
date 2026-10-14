@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION
 from pathlib import Path
 import re
 
@@ -9,11 +10,11 @@ def test_readme_is_public_one_page_overview_without_internal_names():
     readme = README.read_text()
     lines = readme.splitlines()
 
-    assert len(lines) <= 92
+    assert len(lines) <= 100
     assert "# Library" in readme
     assert "open-source Nextcloud app" in readme
     assert "Nextcloud Files remains the canonical storage" in readme
-    assert "Current candidate: `0.1.0-alpha.174`" in readme
+    assert f"Current candidate: `{CURRENT_VERSION}`" in readme
     assert "safe user-facing diagnostics" in readme
 
     internal_names = ["maintainer", "design review", "development instance", "/home/example"]
@@ -49,7 +50,7 @@ def test_readme_keeps_public_entry_links():
 
 def test_packaged_readme_does_not_embed_the_current_archive_checksum():
     readme = README.read_text(encoding="utf-8")
-    checksum_file = ROOT / "dist/library-0.1.0-alpha.174.tar.gz.sha256"
+    checksum_file = ROOT / "dist/library-0.1.0-beta.1.tar.gz.sha256"
 
     assert "adjacent `.sha256` artifact" in readme
     assert "excluded `RELEASE.md`" in readme

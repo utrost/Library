@@ -22,12 +22,16 @@ class Personal implements ISettings {
         private ScanJobService $scanJobService,
         private IURLGenerator $urlGenerator,
         private ?IFactory $l10nFactory = null,
+        private ?\OCA\Library\Service\DuplicateIndexService $duplicateIndex = null,
+        private ?\OCA\Library\Service\ScheduledScanService $scheduledScans = null,
+        private ?\OCP\IConfig $config = null,
     ) {
     }
 
     #[\Override]
     public function getForm(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
+        Util::addScript(Application::APP_ID, 'library-help');
         Util::addScript(Application::APP_ID, 'scan-progress-worker');
         Util::addScript(Application::APP_ID, 'settings-operations');
         Util::addScript(Application::APP_ID, 'settings-folder-picker-dialog');
@@ -36,6 +40,11 @@ class Personal implements ISettings {
         $publicationCountsByRoot = $this->fileIndexService->publicationCountsByRoot($this->userId);
         $roots = $this->rootsWithActionUrls($this->rootService->listRoots($this->userId), $publicationCountsByRoot);
         return new TemplateResponse(Application::APP_ID, 'settings-personal', [
+            'scanSchedule' => $this->scheduledScans?->status($this->userId) ?? ['interval' => 0, 'nextRunAt' => 0, 'lastJobId' => 0],
+            'scanScheduleUrl' => $this->urlGenerator->linkToRoute('library.scan_schedule.save'),
+            'scanScheduleCron' => $this->config?->getAppValue('core', 'backgroundjobs_mode', 'ajax') === 'cron',
+            'duplicateSuggestions' => $this->duplicateIndex?->status($this->userId)['enabled'] ?? false,
+            'duplicateSettingsUrl' => $this->urlGenerator->linkToRoute('library.duplicate_suggestion.settings'),
             'language' => $language,
             'direction' => $this->l10nFactory?->getLanguageDirection($language) ?? 'ltr',
             'roots' => $roots,

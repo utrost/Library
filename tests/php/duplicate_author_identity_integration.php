@@ -1,0 +1,61 @@
+<?php
+declare(strict_types=1);
+// The caller creates and later deletes the isolated author_directory_fixture account.
+define('OC_CONSOLE', true);
+require '/var/www/html/lib/base.php';
+try {
+$state = json_decode(file_get_contents('/tmp/library-author-directory-fixture.json'), true, 512, JSON_THROW_ON_ERROR);
+$uid = $state['uid'] ?? '';
+if (!preg_match('/^library-author-[a-f0-9]{12}$/D', $uid)) throw new RuntimeException('Owned fixture account required');
+$db = \OC::$server->get(\OCP\IDBConnection::class);
+$ids = array_map('intval', array_column($db->executeQuery('SELECT id FROM *PREFIX*library_items WHERE user_id=? ORDER BY id', [$uid])->fetchAll(), 'id'));
+if (count($ids) !== 2) throw new RuntimeException('Expected two fixture books');
+[$first, $second] = $ids;
+$items = \OC::$server->get(\OCA\Library\Service\ItemService::class);
+$items->applyBatchMetadataEdit($uid, [$first], 'title', 'Canonical Duplicate Fixture');
+$items->applyBatchMetadataEdit($uid, [$second], 'title', 'Canonical Duplicate Fixtures');
+$items->applyBatchMetadataEdit($uid, [$first], 'creators', 'M. Quill');
+$items->applyBatchMetadataEdit($uid, [$second], 'creators', 'Margaret Quill');
+$storage = \OC::$server->get(\OCA\Library\Service\AuthorStorageService::class);
+while ($storage->status($uid)['pending'] > 0) $storage->advance($uid, 500, 5);
+$links = $db->executeQuery('SELECT item_id,author_id,source_name FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id IN (?,?) ORDER BY item_id', [$uid, $first, $second])->fetchAll();
+if (count($links) !== 2 || (int)$links[0]['author_id'] === (int)$links[1]['author_id']) throw new RuntimeException('Distinct import identities required');
+$index = \OC::$server->get(\OCA\Library\Service\DuplicateIndexService::class);
+$index->configure($uid, true);
+while ($index->status($uid)['status'] === 'building') $index->advance($uid, 500);
+$before = $index->candidates($uid, [$first]);
+if (isset($before['items'][$first]['matches'][$second])) throw new RuntimeException('Unrelated import credits matched before merge');
+$beforeBooks = $index->books($uid, $ids);
+$db->executeStatement('INSERT INTO *PREFIX*library_dup_hints (user_id,left_id,right_id,signature,decision,preferred_id) VALUES (?,?,?,?,?,?)', [$uid, $first, $second, 'pre-merge', 'keep_both', 0]);
+$assignments = \OC::$server->get(\OCA\Library\Service\AuthorAssignmentService::class);
+$source = (int)$links[1]['author_id']; $target = (int)$links[0]['author_id'];
+$preview = $assignments->preview($uid, $source, $target);
+$assignments->apply($uid, $source, $target, [], $preview['token']);
+if ((int)$db->executeQuery('SELECT COUNT(*) FROM *PREFIX*library_dup_hints WHERE user_id=? AND left_id=? AND right_id=?', [$uid, $first, $second])->fetchOne() !== 0) throw new RuntimeException('Merge retained a duplicate decision');
+$afterBooks = $index->books($uid, $ids);
+if ($afterBooks[$first]['authorIds'] !== $afterBooks[$second]['authorIds'] || !$afterBooks[$second]['authorManual']) throw new RuntimeException('Reviewed author merge not projected');
+$after = $index->candidates($uid, [$first]);
+if (!in_array('similar_title_author', $after['items'][$first]['matches'][$second]['reasons'] ?? [], true)) throw new RuntimeException('Merged author missing from refreshed similar-title index');
+if (!$index->matchesCurrent($uid, $first) || !$index->matchesCurrent($uid, $second)) throw new RuntimeException('Merge left a stale duplicate index');
+$preferred = $items->queryCatalogue($uid, ['creator' => 'M. Quill'], ['page' => 1, 'limit' => 100], false);
+if (!in_array($second, array_map('intval', array_column($preferred['items'], 'id')), true)) throw new RuntimeException('Preferred author filter missed merged book with different source credit');
+$duplicates = \OC::$server->get(\OCA\Library\Service\DuplicateService::class);
+$comparison = $duplicates->compare($uid, $first, $second);
+if (!in_array('similar_title_author', $comparison['reasons'], true)) throw new RuntimeException('Manual duplicate comparison ignored merged identity');
+if (!empty($comparison['stale'])) throw new RuntimeException('Live comparison unexpectedly stale');
+if (\OCA\Library\Service\DuplicateMatcher::hintSignature($beforeBooks[$first], $beforeBooks[$second]) === \OCA\Library\Service\DuplicateMatcher::hintSignature($afterBooks[$first], $afterBooks[$second])) throw new RuntimeException('Author merge retained stale hint signature');
+$db->executeStatement('INSERT INTO *PREFIX*library_dup_hints (user_id,left_id,right_id,signature,decision,preferred_id) VALUES (?,?,?,?,?,?)', [$uid, $first, $second, 'post-merge', 'keep_both', 0]);
+$assignments->undo($uid, $assignments->history($uid)[0]['id']);
+if ((int)$db->executeQuery('SELECT COUNT(*) FROM *PREFIX*library_dup_hints WHERE user_id=? AND left_id=? AND right_id=?', [$uid, $first, $second])->fetchOne() !== 0) throw new RuntimeException('Undo retained a duplicate decision');
+$undone = $index->candidates($uid, [$first]);
+if (isset($undone['items'][$first]['matches'][$second])) throw new RuntimeException('Author undo retained the merged duplicate suggestion');
+if (!$index->matchesCurrent($uid, $first) || !$index->matchesCurrent($uid, $second)) throw new RuntimeException('Undo left a stale duplicate index');
+$preferredAfterUndo = $items->queryCatalogue($uid, ['creator' => 'M. Quill'], ['page' => 1, 'limit' => 100], false);
+if (in_array($second, array_map('intval', array_column($preferredAfterUndo['items'], 'id')), true)) throw new RuntimeException('Preferred author filter retained book after undo');
+$credits = $db->executeQuery('SELECT id,creators FROM *PREFIX*library_items WHERE user_id=? AND id IN (?,?) ORDER BY id', [$uid, $first, $second])->fetchAll();
+if (array_column($credits, 'creators') !== ['M. Quill', 'Margaret Quill']) throw new RuntimeException('Book source credits changed');
+echo json_encode(['passed' => true, 'beforeMatches' => count($before['items'][$first]['matches']), 'afterMatches' => count($after['items'][$first]['matches']), 'mergeAndUndoDecisionsInvalidated' => true, 'confirmedIdentity' => true, 'sourceCreditsPreserved' => true]), PHP_EOL;
+} catch (Throwable $error) {
+    fwrite(STDERR, get_class($error) . ': ' . $error->getMessage() . ' at ' . $error->getFile() . ':' . $error->getLine() . PHP_EOL);
+    exit(1);
+}

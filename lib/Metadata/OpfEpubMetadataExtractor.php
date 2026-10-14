@@ -15,7 +15,7 @@ public function getLastError(): ?string {
 }
 
 /**
- * @return array<string, string>
+ * @return array<string, mixed>
  */
 public function extractEpub(File $file): array {
     $this->lastError = null;
@@ -29,7 +29,22 @@ public function extractEpub(File $file): array {
     }
 
     try {
-        file_put_contents($temporaryPath, $file->getContent());
+        // Stream the archive to the temporary file, avoiding a whole-book PHP buffer.
+        if (method_exists($file, 'fopen')) {
+            $source = $file->fopen('rb');
+            if (!is_resource($source)) { throw new \RuntimeException('Unable to open archive metadata stream'); }
+            try {
+                $target = fopen($temporaryPath, 'wb');
+                if (!is_resource($target)) { throw new \RuntimeException('Unable to open temporary metadata archive'); }
+                try {
+                    if (stream_copy_to_stream($source, $target) === false) {
+                        throw new \RuntimeException('Unable to copy metadata archive');
+                    }
+                } finally { fclose($target); }
+            } finally { fclose($source); }
+        } elseif (file_put_contents($temporaryPath, $file->getContent()) === false) {
+            throw new \RuntimeException('Unable to copy metadata archive');
+        }
         $zip = new ZipArchive();
         if ($zip->open($temporaryPath) !== true) {
             $this->lastError = 'Unsupported or corrupt EPUB archive';
@@ -65,7 +80,7 @@ public function extractEpub(File $file): array {
 }
 
 /**
- * @return array<string, string>
+ * @return array<string, mixed>
  */
 public function extractStandaloneOpf(File $file): array {
     return $this->parseOpfMetadata($file->getContent(), 'opf'); // metadataSource' => 'opf'
@@ -93,7 +108,7 @@ private function findRootfilePath(string $containerXml): ?string {
 /**
  * OPF package metadata, including dc:title, dc:creator, dc:language, dc:publisher and dc:date.
  *
- * @return array<string, string>
+ * @return array<string, mixed>
  */
 public function parseOpfMetadata(string $opfXml, string $source): array {
     $xml = @simplexml_load_string($opfXml);
@@ -118,6 +133,24 @@ public function parseOpfMetadata(string $opfXml, string $source): array {
     $creators = $this->xmlValues($dc->creator ?? null);
     if ($creators !== []) {
         $metadata['creators'] = implode('; ', $creators);
+        $metadata['authors'] = $creators;
+        $sortById = [];
+        foreach ($xml->xpath('//*[local-name()="metadata"]/*[local-name()="meta"]') ?: [] as $meta) {
+            if (strtolower(trim((string)($meta['property'] ?? ''))) !== 'file-as') continue;
+            $refines = trim((string)($meta['refines'] ?? ''));
+            if (!str_starts_with($refines, '#')) continue;
+            $sortById[substr($refines, 1)] = trim((string)$meta);
+        }
+        $sortNames = [];
+        foreach ($dc->creator as $creator) {
+            $credit = trim((string)$creator);
+            if ($credit === '') continue;
+            $id = trim((string)($creator->attributes()['id'] ?? ''));
+            $opfAttributes = $creator->attributes('http://www.idpf.org/2007/opf');
+            $sort = $id !== '' && isset($sortById[$id]) ? $sortById[$id] : trim((string)($opfAttributes['file-as'] ?? ''));
+            if ($sort !== '' && mb_check_encoding($sort, 'UTF-8') && mb_strlen($sort) <= 255 && !preg_match('/[\x00-\x1f\x7f]/u', $sort)) $sortNames[$credit] = $sort;
+        }
+        if ($sortNames) $metadata['authorSortNames'] = $sortNames;
     }
 
     $language = $this->firstXmlValue($dc->language ?? null);
@@ -150,7 +183,11 @@ public function parseOpfMetadata(string $opfXml, string $source): array {
 
     $series = $this->extractSeries($xml);
     if ($series !== null) {
-        $metadata['publication'] = $series;
+        $metadata['publication'] = $series['name'];
+        $metadata['series'] = $series['name'];
+        if ($series['number'] !== null) {
+            $metadata['seriesNumber'] = $series['number'];
+        }
     }
 
     $publicationType = $this->normalizePublicationType($this->firstXmlValue($dc->type ?? null));
@@ -198,9 +235,13 @@ private function extractIdentifiers(mixed $nodes, string $source): array {
     return $identifiers;
 }
 
-private function extractSeries(\SimpleXMLElement $xml): ?string {
+/** @return array{name:string, number:?string}|null */
+private function extractSeries(\SimpleXMLElement $xml): ?array {
+    $calibreSeries = null;
+    $calibreNumber = null;
     $opf3Collections = [];
     $opf3SeriesIds = [];
+    $opf3Positions = [];
 
     foreach ($xml->xpath('//*[local-name()="metadata"]/*[local-name()="meta"]') ?: [] as $meta) {
         $name = strtolower(trim((string)($meta['name'] ?? '')));
@@ -209,27 +250,38 @@ private function extractSeries(\SimpleXMLElement $xml): ?string {
         if ($value === '') {
             $value = trim((string)$meta);
         }
-
-        if (($name === 'calibre:series' || $property === 'calibre:series') && $value !== '') {
-            return $value;
+        if ($value === '') {
+            continue;
         }
 
-        if ($property === 'belongs-to-collection' && $value !== '') {
+        if ($name === 'calibre:series' || $property === 'calibre:series') {
+            $calibreSeries ??= $value;
+        } elseif ($name === 'calibre:series_index' || $property === 'calibre:series_index') {
+            $calibreNumber ??= $value;
+        }
+
+        $refines = trim((string)($meta['refines'] ?? ''));
+        $refinedId = str_starts_with($refines, '#') ? substr($refines, 1) : '';
+        if ($property === 'belongs-to-collection') {
             $id = trim((string)($meta['id'] ?? ''));
             if ($id !== '') {
                 $opf3Collections[$id] = $value;
             }
-        } elseif ($property === 'collection-type' && strtolower($value) === 'series') {
-            $refines = ltrim(trim((string)($meta['refines'] ?? '')), '#');
-            if ($refines !== '') {
-                $opf3SeriesIds[] = $refines;
-            }
+        } elseif ($property === 'collection-type' && strtolower($value) === 'series' && $refinedId !== '') {
+            $opf3SeriesIds[] = $refinedId;
+        } elseif ($property === 'group-position' && $refinedId !== '') {
+            $opf3Positions[$refinedId] = $value;
         }
     }
 
+    // Preserve the existing Calibre-name precedence and keep its position paired
+    // with that name. A missing position stays unknown (never implicitly book 1).
+    if ($calibreSeries !== null) {
+        return ['name' => $calibreSeries, 'number' => $calibreNumber];
+    }
     foreach ($opf3SeriesIds as $id) {
         if (isset($opf3Collections[$id])) {
-            return $opf3Collections[$id];
+            return ['name' => $opf3Collections[$id], 'number' => $opf3Positions[$id] ?? null];
         }
     }
     return null;

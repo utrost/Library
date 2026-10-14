@@ -77,6 +77,15 @@ if (!sfc.descriptor.template || !sfc.descriptor.scriptSetup) fail('malformed_vue
 validateTemplate(parseTemplate(sfc.descriptor.template.content))
 walkJavaScript(parseJavaScript(sfc.descriptor.scriptSetup.content, { sourceType: 'module', plugins: ['optionalChaining'] }))
 
+// Feature components must pass the same visible-text and catalogue checks as the app shell.
+for (const file of fs.readdirSync(path.join(root, 'src/components')).filter((name) => name.endsWith('.vue'))) {
+  const component = parseSfc(fs.readFileSync(path.join(root, 'src/components', file), 'utf8'), { filename: file })
+  if (component.errors.length) fail('malformed_vue', String(component.errors[0]))
+  if (component.descriptor.template) validateTemplate(parseTemplate(component.descriptor.template.content))
+  if (component.descriptor.scriptSetup) walkJavaScript(parseJavaScript(component.descriptor.scriptSetup.content, { sourceType: 'module' }))
+}
+walkJavaScript(parseJavaScript(fs.readFileSync(path.join(root, 'src/personal-lists-api.js'), 'utf8'), { sourceType: 'module' }))
+
 const phpFiles = [
   ...fs.readdirSync(path.join(root, 'templates')).filter((name) => name.endsWith('.php')).map((name) => `templates/${name}`),
   ...fs.readdirSync(path.join(root, 'lib/Controller')).filter((name) => name.endsWith('.php')).map((name) => `lib/Controller/${name}`),
@@ -181,17 +190,18 @@ const permittedLatinTokens = new Set([
   'nextcloud', 'files', 'library', 'javascript', 'json', 'zip', 'tsv', 'cbz',
   'epub', 'pdf', 'pdfs', 'jpeg', 'png', 'webp', 'mime', 'isbn', 'opds', 'api',
   'rar', 'mib', 'px', 'yyyy', 'mm', 'dd', 'delete', 'enter', 'esc', 'escape',
-  'eco', 'rolleiflex', 'ocr', 'id', 'ids', 'url', 'urls',
+  'eco', 'rolleiflex', 'ocr', 'opf', 'cron', 'id', 'ids', 'url', 'urls',
 ])
 const permittedGermanSourceTokens = new Set([
   ...permittedLatinTokens,
   'admin', 'app', 'batch', 'chip', 'chips', 'comic', 'comics', 'container',
-  'cover', 'details', 'export', 'fiction', 'filter', 'subjects', 'index', 'limit',
+  'cover', 'details', 'export', 'fiction', 'genre', 'name', 'filter', 'subjects', 'index', 'limit',
   'manifest', 'plugin', 'plugins', 'route', 'scan', 'scans', 'scanner', 'science',
   'sidecar', 'status', 'store', 'tag', 'tags', 'tools', 'workflow',
 ])
 const latinTokens = (value) => value.match(/[A-Za-z][A-Za-z'-]*/g) || []
 const stripNonContentLatin = (value) => value
+  .replace(/%(?:folder|folders|ignore)%/g, '')
   .replace(/\{[A-Za-z][A-Za-z0-9_]*\}|%(?:n|s)/g, '')
   .replace(/\bYYYY(?:-MM(?:-DD)?)?\b/g, '')
   .replace(/(?:^|[\s(])(?:\.?[\w-]+\/)+(?:\.?[\w-]+)(?=$|[\s),.;])/g, ' ')

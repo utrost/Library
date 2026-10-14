@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,12 +43,12 @@ def test_manual_cover_validator_contract_is_strict_and_canonical():
 
 
 def test_alpha_156_release_assets_and_runtime_suite_are_wired():
-    assert "<version>0.1.0-alpha.174</version>" in read("appinfo/info.xml")
-    assert '"version": "0.1.0-alpha.174"' in read("package.json")
-    assert '"version": "0.1.0-alpha.174"' in read("package-lock.json")
-    assert (ROOT / "js/library-main-0-1-0-alpha-158.mjs").exists()
-    assert (ROOT / "css/library-vue-0-1-0-alpha-158.css").exists()
+    assert f"<version>{CURRENT_VERSION}</version>" in read("appinfo/info.xml")
+    assert f'"version": "{CURRENT_VERSION}"' in read("package.json")
+    assert f'"version": "{CURRENT_VERSION}"' in read("package-lock.json")
+    assert (ROOT / f"js/library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6.mjs").exists()
+    assert (ROOT / f"css/library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6.css").exists()
     runner = read("scripts/run-php-runtime-tests.sh")
     assert "manual_cover_validator_test.php" in runner
     assert "manual_cover_controller_test.php" in runner
-    assert "v0.1.0-alpha.174" in read("CHANGELOG.md")
+    assert "v0.1.0-beta.1" in read("CHANGELOG.md")
