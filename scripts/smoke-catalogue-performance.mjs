@@ -135,13 +135,20 @@ async function timeCatalogue(label, path, token, enforceBudget = true) {
 
 async function timeDetails(path, token) {
   const started = performance.now()
-  const response = await fetch(new URL(path, upstream), { headers: authHeaders(token, 'text/html') })
+  const url = new URL(path, upstream)
+  const response = await fetch(url, { headers: authHeaders(token, 'text/html') })
   const html = await response.text()
   const elapsedSeconds = (performance.now() - started) / 1000
+  const encodedState = html.match(/id="initial-state-library-catalogue" value="([^"]+)"/)?.[1]
+  let detailsState = null
+  try { detailsState = encodedState ? JSON.parse(Buffer.from(encodedState, 'base64').toString('utf8')) : null } catch {}
+  const marker = url.searchParams.has('details')
+    ? detailsState?.surface === 'details' && String(detailsState.detailsId) === url.searchParams.get('details')
+    : html.includes('library-item-detail')
   metric('catalogue_details_http_status', response.status)
   metric('catalogue_details_elapsed_seconds', elapsedSeconds.toFixed(3))
-  metric('catalogue_details_marker', html.includes('library-item-detail'))
-  if (response.status !== 200 || !html.includes('library-item-detail')) throw new Error('catalogue details page was invalid')
+  metric('catalogue_details_marker', marker)
+  if (response.status !== 200 || !marker) throw new Error('catalogue details page was invalid')
   if (elapsedSeconds > fastBudgetSeconds) failures.push(`catalogue details page exceeded ${fastBudgetSeconds.toFixed(3)}s budget`)
 }
 
