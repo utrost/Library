@@ -35,7 +35,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Steps:** Add that folder under Library settings; run **Scan this root**; browse **Home**, **All publications**, **Shelves**, **Review**, and one item. Search for a known title, change a filter and sort, then open the item from its cover or title. Confirm the panel shows **Overview**, **Metadata** and **Activity**; choose an author chip and return to the book. Try **Open**, **Show in Files**, **Download**, and the full maintenance details route.
 
-**Expected:** The scan completes, the catalogue count is plausible, the contextual sidebar shows more than a title/header, and the author chip opens the correct profile. The detail page identifies the same file, and the reader handoff reaches the original Nextcloud file. No Library action in this case alters source bytes. A blank panel under the heading is a failure, even when the item API returns HTTP 200.
+**Expected:** The scan completes, the catalogue count is plausible, the contextual sidebar shows more than a title/header, and the author chip opens the correct profile. The detail page identifies the same file. **Open** launches the Nextcloud reader in a new tab while Library remains in the original tab; the book itself renders, rather than only a loading screen or Files root. No Library action in this case alters source bytes. A blank panel under the heading is a failure, even when the item API returns HTTP 200.
 
 **Failure evidence:** Root label, scan status, item title/ID, URL, panel screenshot, browser console error, author-link target and whether the file still opens from Files.
 
@@ -376,7 +376,7 @@ Steps:
 2. Return and click **Show in Files**.
 3. Return and click **Download**.
 
-Expected result: Open hands off to Nextcloud's file/viewer route, Show in Files opens the containing Files context, and Download returns the original file bytes.
+Expected result: Open opens a new tab and hands off to Nextcloud's file/viewer route while Library stays in place; Show in Files opens the containing Files context, and Download returns the original file bytes.
 
 Evidence to capture on failure: item title, source extension, final URL, HTTP status if known, and whether the file opens directly in Nextcloud Files.
 

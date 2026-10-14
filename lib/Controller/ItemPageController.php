@@ -133,6 +133,7 @@ final class ItemPageController extends Controller {
         $item['commentUrl'] = $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => (string)$item['id']]);
         $item['listsUrl'] = $this->urlGenerator->linkToRoute('library.page.index') . '?lists=1&addItem=' . (int)$item['id'];
         $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => (string)$item['id']]);
+        $item['openUnavailable'] = (string)$this->request->getParam('openUnavailable', '') === '1';
         $item['recordOpenUrl'] = $this->urlGenerator->linkToRoute('library.item.recordOpen', ['itemId' => (string)$item['id']]);
         $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
         $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($user->getUID(), (string)($item['cachedPath'] ?? ''));

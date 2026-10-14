@@ -930,6 +930,7 @@ OC.L10N.register(
         "This edits the shared author record. Book credits and files stay unchanged.": "يعدّل هذا سجل المؤلف المشترك. تبقى بيانات الكتب والملفات دون تغيير.",
         "This example does not match the split. Adjust the separator or select another example.": "هذا المثال لا يطابق التقسيم. عدّل الفاصل أو اختر مثالاً آخر.",
         "This example has a different folder depth and does not match the rule.": "لهذا المثال عمق مجلدات مختلف ولا يطابق القاعدة.",
+        "This file is unavailable in Nextcloud Files. Check its storage connection or rescan the folder.": "هذا الملف غير متاح في ملفات Nextcloud. تحقّق من اتصال التخزين أو أعد فحص المجلد.",
         "This folder exceeds the analysis limit. Choose a smaller subfolder.": "يتجاوز هذا المجلد حد التحليل. اختر مجلداً فرعياً أصغر.",
         "This list changed in another tab. Reload the list before trying again. Your unsaved text is still here.": "تغيرت هذه القائمة في علامة تبويب أخرى. أعد تحميلها قبل المحاولة مجددًا. ما زال نصك غير المحفوظ موجودًا.",
         "This list is empty. Select books in the catalogue and choose Add to list.": "هذه القائمة فارغة. حدد كتبًا في الفهرس واختر إضافة إلى قائمة.",

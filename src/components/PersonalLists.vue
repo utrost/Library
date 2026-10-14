@@ -146,7 +146,7 @@ onMounted(async () => {
               <p v-if="entry.book?.creators" dir="auto">{{ entry.book.creators }}</p>
               <p v-if="!entry.book">{{ t('library', 'The file is missing or access is unavailable. Your note and place in the list are kept.') }}</p>
             </div>
-            <a v-if="entry.book" class="button secondary" :href="entry.book.openUrl">{{ t('library', 'Open') }}</a>
+            <a v-if="entry.book" class="button secondary" :href="entry.book.openUrl" target="_blank" rel="noopener">{{ t('library', 'Open') }}</a>
           </div>
           <p v-if="entry.note && draftEntry !== entry.id" class="library-list-note" dir="auto">{{ entry.note }}</p>
           <form v-if="draftEntry === entry.id" class="library-list-editor" @submit.prevent="action({ action: 'note', entryId: entry.id, note: noteDraft }, t('library', 'Note saved.'))">

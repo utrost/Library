@@ -930,6 +930,7 @@ OC.L10N.register(
         "This edits the shared author record. Book credits and files stay unchanged.": "This edits the shared author record. Book credits and files stay unchanged.",
         "This example does not match the split. Adjust the separator or select another example.": "This example does not match the split. Adjust the separator or select another example.",
         "This example has a different folder depth and does not match the rule.": "This example has a different folder depth and does not match the rule.",
+        "This file is unavailable in Nextcloud Files. Check its storage connection or rescan the folder.": "This file is unavailable in Nextcloud Files. Check its storage connection or rescan the folder.",
         "This folder exceeds the analysis limit. Choose a smaller subfolder.": "This folder exceeds the analysis limit. Choose a smaller subfolder.",
         "This list changed in another tab. Reload the list before trying again. Your unsaved text is still here.": "This list changed in another tab. Reload the list before trying again. Your unsaved text is still here.",
         "This list is empty. Select books in the catalogue and choose Add to list.": "This list is empty. Select books in the catalogue and choose Add to list.",

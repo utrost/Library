@@ -930,6 +930,7 @@ OC.L10N.register(
         "This edits the shared author record. Book credits and files stay unchanged.": "Dies bearbeitet den gemeinsamen Autoreneintrag. Buchangaben und Dateien bleiben unverändert.",
         "This example does not match the split. Adjust the separator or select another example.": "Dieses Beispiel passt nicht zur Aufteilung. Ändern Sie das Trennzeichen oder wählen Sie ein anderes Beispiel.",
         "This example has a different folder depth and does not match the rule.": "Dieses Beispiel hat eine andere Ordnertiefe und passt nicht zur Regel.",
+        "This file is unavailable in Nextcloud Files. Check its storage connection or rescan the folder.": "Diese Datei ist in Nextcloud Files nicht verfügbar. Prüfen Sie die Speicherverbindung oder scannen Sie den Ordner erneut.",
         "This folder exceeds the analysis limit. Choose a smaller subfolder.": "Dieser Ordner überschreitet die Analysegrenze. Wählen Sie einen kleineren Unterordner.",
         "This list changed in another tab. Reload the list before trying again. Your unsaved text is still here.": "Diese Liste wurde in einer anderen Registerkarte geändert. Lade sie vor einem erneuten Versuch neu. Deine ungespeicherte Eingabe bleibt erhalten.",
         "This list is empty. Select books in the catalogue and choose Add to list.": "Diese Liste ist leer. Wähle Bücher im Katalog und dann Zur Liste hinzufügen.",
