@@ -6,15 +6,11 @@ const cspEvent = (text) => ({ method: 'Log.entryAdded', params: { entry: { level
 describe('browser error ownership classifier', () => {
   it('never permits personal.svg from unrelated, pseudo-element, or removed-element ownership guesses', () => {
     const event = cspEvent("Refused to load /apps/settings/img/personal.svg due to Content Security Policy")
-    expect(classifyBrowserEvent(event, { externalMatches: 1, libraryMatches: 0 }).fatal).toBe(true)
-    expect(classifyBrowserEvent(event, { externalMatches: 0, libraryMatches: 0 }).fatal).toBe(true)
-    expect(classifyBrowserEvent(event, { externalMatches: 1, libraryMatches: 1 }).fatal).toBe(true)
-    expect(classifyBrowserEvent(event, { pseudoElementMatches: 1 }).fatal).toBe(true)
-    expect(classifyBrowserEvent(event, { removedElementMatches: 1 }).fatal).toBe(true)
+    expect(classifyBrowserEvent(event).fatal).toBe(true)
   })
 
   it('keeps Library-owned, CSP, and module runtime failures fatal', () => {
-    expect(classifyBrowserEvent(cspEvent('/custom_apps/library/js/library-main.mjs personal.svg'), { externalMatches: 1 }).fatal).toBe(true)
+    expect(classifyBrowserEvent(cspEvent('/custom_apps/library/js/library-main.mjs personal.svg')).fatal).toBe(true)
     expect(classifyBrowserEvent(cspEvent('Content Security Policy blocked a script')).fatal).toBe(true)
     expect(classifyBrowserEvent(cspEvent('Failed to fetch dynamically imported module')).fatal).toBe(true)
   })

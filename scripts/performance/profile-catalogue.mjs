@@ -1,12 +1,12 @@
 // Read-only CPU and long-task attribution; raw profiles remain in a private local directory.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { createTemporaryAppPassword } from '../temporary-app-password.mjs'
+import { createEvidenceDirectory } from '../private-evidence-directory.mjs'
 const base=process.env.NC_URL||'http://100.123.149.120:8088',user=process.env.NC_USER||'uwe',container=process.env.NC_CONTAINER||'nextcloud'
-const out=process.env.EVIDENCE_DIR||'/tmp/library-catalogue-cpu',name='library-performance-cpu-'+Date.now()
-mkdirSync(out,{recursive:true,mode:0o700})
+const out=createEvidenceDirectory('library-catalogue-cpu'),name='library-performance-cpu-'+Date.now()
 const occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8',stdio:['ignore','pipe','pipe']})
 let browser
 try {

@@ -1,14 +1,15 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { randomBytes,createHash } from 'node:crypto'
-import { mkdirSync,writeFileSync,readFileSync,existsSync,rmSync } from 'node:fs'
-import { dirname,resolve } from 'node:path'
+import { writeFileSync,readFileSync,rmSync } from 'node:fs'
+import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
 import { createTemporaryAppPassword } from '../temporary-app-password.mjs'
+import { createEvidenceDirectory } from '../private-evidence-directory.mjs'
 const here=dirname(fileURLToPath(import.meta.url)),base=process.env.NC_URL||'http://100.123.149.120:8088',user=process.env.NC_USER||'uwe',container=process.env.NC_CONTAINER||'nextcloud'
-const out=resolve(process.env.EVIDENCE_DIR||`/tmp/library-performance-${new Date().toISOString().replaceAll(':','-')}`),samples=Number(process.env.SAMPLES||3),runId=`library-performance-${Date.now()}`
-const browserEnabled=process.env.SKIP_BROWSER!=='1'&&(process.env.BROWSER==='1'||process.env.COMPREHENSIVE==='1'),sqlEnabled=process.env.SKIP_SQL!=='1';mkdirSync(out,{recursive:true,mode:0o700})
+const out=createEvidenceDirectory('library-performance'),samples=Number(process.env.SAMPLES||3),runId=`library-performance-${Date.now()}`
+const browserEnabled=process.env.SKIP_BROWSER!=='1'&&(process.env.BROWSER==='1'||process.env.COMPREHENSIVE==='1'),sqlEnabled=process.env.SKIP_SQL!=='1'
 const docker=(args,options={})=>execFileSync('docker',args,{encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:20*1024*1024,...options})
 const occ=(...args)=>docker(['exec','-u','www-data',container,'php','occ',...args])
 const cp=(source,target)=>docker(['cp',source,`${container}:${target}`])

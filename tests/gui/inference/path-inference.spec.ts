@@ -15,7 +15,6 @@ test('patterns select immediately, persist privately and delete; inference stays
   const templates=panel.locator('.library-inference-templates')
   await expect(templates).toHaveAttribute('aria-busy','false')
   const picker=templates.getByRole('combobox',{name:'Pattern',exact:true})
-  const input=panel.getByRole('textbox',{name:'Advanced pattern',exact:true})
   await picker.selectOption('preset-by')
   await expect(input).toHaveValue('%folders%/%title% by %author%.%extension%')
   await expect(templates.getByRole('button',{name:'Use this pattern'})).toHaveCount(0)
