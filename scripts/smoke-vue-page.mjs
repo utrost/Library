@@ -201,7 +201,9 @@ try {
     const creatorState = decodeInitialState(creatorPage.text)
     const creatorDiscoveryPage = await fetchText(`/apps/library/creators/${encodeURIComponent(smokeCreator)}?limit=1`, token)
     const creatorDiscoveryState = decodeInitialState(creatorDiscoveryPage.text)
-    const detail = first.detailsUrl ? await fetchText(first.detailsUrl, token) : { status: 0, text: '', headers: new Headers() }
+    const modernDetail = first.detailsUrl ? await fetchText(first.detailsUrl, token) : { status: 0, text: '', headers: new Headers() }
+    const modernDetailState = decodeInitialState(modernDetail.text)
+    const detail = first.id ? await fetchText(`/apps/library/items/${first.id}`, token) : { status: 0, text: '', headers: new Headers() }
     const settingsPage = await fetchText('/settings/user/library', token)
     const metadataSidecarManifestUrl = state?.metadataSidecarManifestUrl || '/apps/library/export/metadata/sidecar-manifest'
     const sidecarManifest = await fetchText(metadataSidecarManifestUrl, token)
@@ -314,7 +316,7 @@ try {
     console.log(`download_http=${download.status}`)
     console.log(`download_bytes=${download.bytes}`)
     console.log(`first_has_detailsUrl=${'detailsUrl' in first}`)
-    console.log(`first_detailsUrl_is_item_page=${String(first.detailsUrl || '').includes('/apps/library/items/')}`)
+    console.log(`first_detailsUrl_is_full_details=${String(first.detailsUrl || '').includes('/apps/library/?details=')}`)
     console.log(`state_has_metadataExportUrl=${String(state?.metadataExportUrl || '').includes('/apps/library/export/metadata')}`)
     console.log(`state_has_metadataSidecarManifestUrl=${String(state?.metadataSidecarManifestUrl || '').includes('/apps/library/export/metadata/sidecar-manifest')}`)
     console.log(`sidecar_manifest_http=${sidecarManifest.status}`)
@@ -491,7 +493,8 @@ try {
       files_url_present: 'filesUrl' in first,
       download_webdav_url_present: 'downloadUrl' in first && String(first.downloadUrl || '').includes('/remote.php/dav/files/'),
       download_http_and_bytes: download.status === 200 && download.bytes > 0,
-      detail_url_present: 'detailsUrl' in first && String(first.detailsUrl || '').includes('/apps/library/items/'),
+      detail_url_present: 'detailsUrl' in first && String(first.detailsUrl || '').includes('/apps/library/?details='),
+      full_details_surface: modernDetail.status === 200 && modernDetailState?.surface === 'details' && String(modernDetailState?.detailsId) === String(first.id),
       detail_page_http_200: detail.status === 200,
       detail_edit_csrf_return_contract: detail.text.includes('library-detail-edit-form') && detail.text.includes('name="requesttoken"') && detail.text.includes('name="returnTo"') && detail.text.includes('value="details"'),
       detail_tag_form: detail.text.includes('library-detail-tag-editor') && detail.text.includes('name="nextcloudTagName"'),

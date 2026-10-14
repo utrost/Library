@@ -74,10 +74,7 @@ final class ItemController extends Controller {
                     }
                 }
 
-                return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', [
-                    'itemId' => $itemId,
-                    'openUnavailable' => '1',
-                ]));
+                return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index') . '?details=' . $itemId . '&openUnavailable=1');
             }
         }
 

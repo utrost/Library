@@ -62,6 +62,7 @@ import PossibleDuplicates from './components/PossibleDuplicates.vue'
 import PathInference from './components/PathInference.vue'
 import LabelHelp from './components/LabelHelp.vue'
 import AddToList from './components/AddToList.vue'
+import FullDetails from './components/FullDetails.vue'
 import { listRequest } from './personal-lists-api.js'
 
 const props = defineProps({
@@ -384,6 +385,7 @@ const isInference = computed(() => catalogueState.surface === 'inference')
 const isAuthors = computed(() => catalogueState.surface === 'authors')
 const isSeries = computed(() => catalogueState.surface === 'series')
 const isLists = computed(() => catalogueState.surface === 'lists')
+const isDetails = computed(() => catalogueState.surface === 'details')
 const listsUrl = computed(() => `${catalogueRootUrl.value}?lists=1`)
 const addingToListId = Number(new URLSearchParams(window.location.search).get('addToList')) || null
 const personalListNavigation = ref([])
@@ -392,7 +394,7 @@ async function refreshPersonalListNavigation() {
   try { personalListNavigation.value = (await listRequest()).lists } catch { /* Lists page provides retry and errors. */ }
 }
 onMounted(refreshPersonalListNavigation)
-const allPublicationsActive = computed(() => !isAuthors.value && !isSeries.value && !isDuplicates.value && !isInference.value && !isLists.value && !isHome.value && !isShelves.value && !reviewActive.value && !activeFilters.starred && activeFilters.recentlyOpened !== '1' && !activeFilters.shelf)
+const allPublicationsActive = computed(() => !isAuthors.value && !isSeries.value && !isDuplicates.value && !isInference.value && !isLists.value && !isDetails.value && !isHome.value && !isShelves.value && !reviewActive.value && !activeFilters.starred && activeFilters.recentlyOpened !== '1' && !activeFilters.shelf)
 const catalogueNavigation = computed(() => [
   { key: 'home', name: t('library', 'Home'), href: homeUrl.value, active: isHome.value },
   { key: 'all', name: t('library', 'All publications'), href: catalogueRootUrl.value, active: allPublicationsActive.value },
@@ -1868,7 +1870,7 @@ function handleCatalogueKeyboardShortcuts(event) {
 }
 
 onMounted(() => {
-  if (isAuthors.value || isSeries.value || isLists.value || isInference.value || isDuplicates.value) return
+  if (isAuthors.value || isSeries.value || isLists.value || isInference.value || isDuplicates.value || isDetails.value) return
   window.addEventListener('keydown', handleCatalogueKeyboardShortcuts)
   window.addEventListener('popstate', restoreCatalogueFromHistory)
   sidebarMobileQuery = window.matchMedia?.('(max-width: 1023px)') || null
@@ -1969,7 +1971,7 @@ async function toggleStar(item, event) {
         </NcAppNavigationList>
       </template>
       <template #footer>
-        <section v-if="!isAuthors && !isSeries && !isLists && !isInference && !isDuplicates" class="library-sidebar-filter-section" aria-labelledby="library-sidebar-filters-heading">
+        <section v-if="!isAuthors && !isSeries && !isLists && !isInference && !isDuplicates && !isDetails" class="library-sidebar-filter-section" aria-labelledby="library-sidebar-filters-heading">
           <h2 id="library-sidebar-filters-heading">{{ t('library', 'Filters') }}</h2>
           <form method="get" class="library-filter-bar library-sidebar-filters" :aria-label="t('library', 'Catalogue search and filters')" @submit.prevent="applyAllSearchFilters">
             <input type="hidden" name="folder" :value="activeFilters.folder">
@@ -2008,6 +2010,7 @@ async function toggleStar(item, event) {
   <Authors v-else-if="isAuthors" :request-token="requestToken" :catalogue-url="catalogueRootUrl" />
   <Series v-else-if="isSeries" :request-token="requestToken" :catalogue-url="catalogueRootUrl" />
   <PersonalLists @changed="refreshPersonalListNavigation" v-else-if="isLists" :request-token="requestToken" :catalogue-url="catalogueRootUrl" :lists-url="listsUrl" />
+  <FullDetails v-else-if="isDetails" :item-id="String(catalogueState.detailsId || '')" :request-token="requestToken" :catalogue-url="catalogueRootUrl" />
   <template v-else>
   <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
     <span>{{ t('library', 'Active filters') }}</span>
@@ -2037,7 +2040,7 @@ async function toggleStar(item, event) {
       <span v-if="catalogueRequestState.loading">{{ t('library', 'Loading review queue…') }}</span>
     </div>
     <p v-if="catalogueRequestState.error" class="library-notice library-review-request-error" role="alert">{{ catalogueRequestState.error }}</p>
-    <section v-if="metadataReviewWorkbench.enabled" class="library-metadata-review-workbench" aria-labelledby="library-metadata-review-workbench-heading"><div class="library-metadata-review-workbench-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata review workbench') }}</p><h3 id="library-metadata-review-workbench-heading" :title="t('library', 'Shows current and suggested values with source provenance. No source files are changed; user-edited values are never silently overwritten.')">{{ t('library', 'Review next suggestion') }}</h3></div><article v-if="metadataReviewWorkbench.item" class="library-metadata-review-card"><header><strong><bdi class="library-bidi-human" dir="auto">{{ metadataReviewWorkbench.item.title }}</bdi></strong><span class="library-muted"><bdi class="library-bidi-machine" dir="ltr">{{ metadataReviewWorkbench.item.cachedPath }}</bdi></span></header><div class="library-metadata-review-fields"><article v-for="field in metadataReviewWorkbench.fields" :key="field.field" class="library-metadata-review-field"><h4><bdi class="library-bidi-human" dir="auto">{{ field.field }}</bdi></h4><dl><div><dt>{{ t('library', 'Current value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.currentValue || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Suggested value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.scannerCandidate || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Path-based suggestion') }}</dt><dd><bdi class="library-bidi-machine" dir="ltr">{{ field.pathTemplateCandidate || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Sidecar value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.sidecarValue || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Source') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.sourceProvenance || '—' }}</bdi></dd></div></dl><form method="post" :action="metadataReviewWorkbench.item.resetFieldUrl" class="library-metadata-review-accept-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="field" :value="field.field"><input type="hidden" name="returnTo" value="catalogue"><button type="submit" class="button secondary" :disabled="field.rejected" :title="field.rejected ? t('library', 'This source value exceeds field limits. Edit the field instead.') : undefined">{{ t('library', 'Use suggested value') }}</button></form></article></div><footer class="library-metadata-review-actions"><a class="button secondary" :href="metadataReviewWorkbench.item.detailsUrl">{{ t('library', 'Maintenance') }}</a><a class="button secondary" :href="metadataReviewWorkbench.skipUrl">{{ t('library', 'Skip to next suggestion') }}</a></footer></article></section>
+    <section v-if="metadataReviewWorkbench.enabled" class="library-metadata-review-workbench" aria-labelledby="library-metadata-review-workbench-heading"><div class="library-metadata-review-workbench-copy"><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata review workbench') }}</p><h3 id="library-metadata-review-workbench-heading" :title="t('library', 'Shows current and suggested values with source provenance. No source files are changed; user-edited values are never silently overwritten.')">{{ t('library', 'Review next suggestion') }}</h3></div><article v-if="metadataReviewWorkbench.item" class="library-metadata-review-card"><header><strong><bdi class="library-bidi-human" dir="auto">{{ metadataReviewWorkbench.item.title }}</bdi></strong><span class="library-muted"><bdi class="library-bidi-machine" dir="ltr">{{ metadataReviewWorkbench.item.cachedPath }}</bdi></span></header><div class="library-metadata-review-fields"><article v-for="field in metadataReviewWorkbench.fields" :key="field.field" class="library-metadata-review-field"><h4><bdi class="library-bidi-human" dir="auto">{{ field.field }}</bdi></h4><dl><div><dt>{{ t('library', 'Current value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.currentValue || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Suggested value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.scannerCandidate || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Path-based suggestion') }}</dt><dd><bdi class="library-bidi-machine" dir="ltr">{{ field.pathTemplateCandidate || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Sidecar value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.sidecarValue || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Source') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.sourceProvenance || '—' }}</bdi></dd></div></dl><form method="post" :action="metadataReviewWorkbench.item.resetFieldUrl" class="library-metadata-review-accept-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="field" :value="field.field"><input type="hidden" name="returnTo" value="catalogue"><button type="submit" class="button secondary" :disabled="field.rejected" :title="field.rejected ? t('library', 'This source value exceeds field limits. Edit the field instead.') : undefined">{{ t('library', 'Use suggested value') }}</button></form></article></div><footer class="library-metadata-review-actions"><a class="button secondary" :href="metadataReviewWorkbench.item.detailsUrl">{{ t('library', 'Full details') }}</a><a class="button secondary" :href="metadataReviewWorkbench.skipUrl">{{ t('library', 'Skip to next suggestion') }}</a></footer></article></section>
     <div v-if="items.length === 0 && !catalogueRequestState.loading && !catalogueRequestState.error" class="library-review-empty" role="status">
       <h3>{{ t('library', 'This review queue is clear') }}</h3>
       <p>{{ t('library', 'Choose another queue or return to the catalogue.') }}</p>
@@ -2424,7 +2427,7 @@ async function toggleStar(item, event) {
             <img class="library-detail-drawer-cover" :src="selectedDrawerItem.coverUrl" alt="" :aria-labelledby="'library-detail-drawer-cover-label library-detail-drawer-heading'" loading="lazy" decoding="async">
             <div class="library-sidebar-publication-summary">
               <p class="library-muted library-catalogue-eyebrow"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.publicationType || t('library', 'Publication') }}</bdi><span v-if="selectedDrawerItem.extension"> · <bdi class="library-bidi-machine" dir="ltr">{{ upper(selectedDrawerItem.extension) }}</bdi></span></p>
-              <div class="library-detail-drawer-actions"><a class="button primary" :href="selectedDrawerItem.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(selectedDrawerItem, $event)">{{ t('library', 'Open') }}</a><NcActions :aria-label="t('library', 'File and maintenance actions')"><NcActionLink :href="selectedDrawerItem.filesUrl">{{ t('library', 'Show in Files') }}</NcActionLink><NcActionLink :href="selectedDrawerItem.downloadUrl">{{ t('library', 'Download') }}</NcActionLink><NcActionLink :href="selectedDrawerItem.detailsUrl">{{ t('library', 'Maintenance (legacy)') }}</NcActionLink></NcActions></div>
+              <div class="library-detail-drawer-actions"><a class="button primary" :href="selectedDrawerItem.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(selectedDrawerItem, $event)">{{ t('library', 'Open') }}</a><a class="button secondary" :href="selectedDrawerItem.detailsUrl">{{ t('library', 'Full details') }}</a><NcActions :aria-label="t('library', 'File actions')"><NcActionLink :href="selectedDrawerItem.filesUrl">{{ t('library', 'Show in Files') }}</NcActionLink><NcActionLink :href="selectedDrawerItem.downloadUrl">{{ t('library', 'Download') }}</NcActionLink></NcActions></div>
             </div>
           </div>
           <AddToList :key="selectedDrawerItem.id" :item-ids="[Number(selectedDrawerItem.id)]" :request-token="requestToken" :lists-url="listsUrl" />

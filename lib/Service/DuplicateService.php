@@ -207,7 +207,7 @@ final class DuplicateService {
             try { $live=$this->book($uid,$book['id']); if ($live['revision']!==$book['revision']) $stale=true; }
             catch (\OutOfBoundsException) { return ['id'=>$row['pair_id'],'unavailable'=>true,'books'=>[],'reasons'=>[],'flags'=>[]]; }
             $book=array_intersect_key($book,array_flip(['id','title','authors','language','publicationDate','publisher','isbn','format','path','size','hashState']));
-            $book['coverUrl']=$this->urls->linkToRoute('library.cover.show',['itemId'=>$book['id']]); $book['detailsUrl']=$this->urls->linkToRoute('library.item_page.show',['itemId'=>$book['id']]); $book['openUrl']=$this->urls->linkToRoute('library.item.open',['itemId'=>$book['id']]); $books[]=$book;
+            $book['coverUrl']=$this->urls->linkToRoute('library.cover.show',['itemId'=>$book['id']]); $book['detailsUrl']=$this->urls->linkToRoute('library.page.index').'?details='.(int)$book['id']; $book['openUrl']=$this->urls->linkToRoute('library.item.open',['itemId'=>$book['id']]); $books[]=$book;
         }
         return ['id'=>$row['pair_id'],'signature'=>$row['signature'],'books'=>$books,'reasons'=>$pair['reasons'],'flags'=>$pair['flags'],'stale'=>$stale,...$this->choice($uid,$row['signature'])];
     }
