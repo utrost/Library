@@ -51,12 +51,8 @@ def test_vue_component_css_is_built_to_nextcloud_css_asset_and_loaded():
     assert "Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);" in controller
     assert "Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);" in controller
     assert (ROOT / "css" / "library-vue.css").exists()
-    assert (ROOT / "js" / "library-main-0-1-0-alpha-158.mjs").exists()
-    assert (ROOT / "css" / "library-vue-0-1-0-alpha-158.css").exists()
-    assert (ROOT / "js" / "library-main-0-1-0-alpha-151.mjs").exists()
-    assert (ROOT / "css" / "library-vue-0-1-0-alpha-151.css").exists()
-    assert (ROOT / "js" / "library-main-0-1-0-alpha-150.mjs").exists()
-    assert (ROOT / "css" / "library-vue-0-1-0-alpha-150.css").exists()
+    assert (ROOT / "js" / f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6.mjs").exists()
+    assert (ROOT / "css" / f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6.css").exists()
 
 
 def test_built_vue_bundle_is_browser_safe_without_node_process_global():

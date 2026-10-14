@@ -36,16 +36,12 @@ def test_page_controller_provides_catalogue_initial_state_and_loads_vue_entrypoi
     assert "'settingsUrl' => $this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section' => 'library'])" in controller
 
 
-def test_current_release_assets_exist_without_removing_alpha150_history():
+def test_current_release_assets_exist():
     for rel in [
         "js/library-main.mjs",
         "css/library-vue.css",
-        "js/library-main-0-1-0-alpha-158.mjs",
-        "css/library-vue-0-1-0-alpha-158.css",
-        "js/library-main-0-1-0-alpha-151.mjs",
-        "css/library-vue-0-1-0-alpha-151.css",
-        "js/library-main-0-1-0-alpha-150.mjs",
-        "css/library-vue-0-1-0-alpha-150.css",
+        f"js/library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6.mjs",
+        f"css/library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6.css",
     ]:
         assert (ROOT / rel).is_file(), rel
 

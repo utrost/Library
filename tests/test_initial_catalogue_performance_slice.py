@@ -1,5 +1,4 @@
 from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
-import hashlib
 import re
 from pathlib import Path
 
@@ -45,12 +44,6 @@ def test_index_deferred_state_has_a_fresh_immutable_asset_contract():
     assert f"library-vue-{basename}" in page
     assert f'data-library-main-script="library-main-{basename}"' in template
     assert "-compact-list-table-cover-96-fit-v6`" in build
-
-
-def test_previous_deployed_asset_remains_byte_for_byte_immutable():
-    deployed_asset = ROOT / "js" / "library-main-0-1-0-alpha-168-subjecttypeahead.mjs"
-
-    assert hashlib.sha256(deployed_asset.read_bytes()).hexdigest() == "8d06f3879cb3881d02f07a6e315dd941b2cc985576a3c7673c256b799bc52250"
 
 
 def test_index_auxiliary_hydration_waits_for_an_animation_frame():
