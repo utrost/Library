@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.9, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://localhost:8088` runs main commit `47e1428`; the [deployment and smoke record](compatibility-evidence/2026-10-14-nc34-main-handoff/README.md) gives its archive checksum and the transient Nextcloud core-script error seen on the first browser run. Use a disposable account and test books for changes. The [alpha.9 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers automated source-build checks on NC33–35 and the developer upgrade. It does not replace human judgment or the signed release-package matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.9, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://localhost:8088` runs main commit `47ed79e` with the modern **Full details** view. The [current deployment and smoke record](compatibility-evidence/2026-10-14-nc34-full-details/README.md) gives the exact archive checksum and observed results. Use a disposable account and test books for changes. The [alpha.9 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers earlier source-build checks on NC33–35. It does not replace human judgment or the signed release-package matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
@@ -11,7 +11,7 @@
 
 For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09 and H03-10. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the installed asset or archive checksum in the session header, because an alpha.9 frontend hotfix uses the `v5` asset while retaining the same app version.
+Copy this result sheet into the session note. Write the installed archive checksum in the session header, because several alpha.9 builds share the same app version. The current developer build serves the `v7` frontend asset.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -124,7 +124,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** Use a disposable book with an ISBN or ISSN, an imported cover and at least one scanner suggestion. Have a valid JPEG, PNG or WebP cover ready. Record its original metadata and file checksum.
 
-**Steps:** Open the book sidebar and choose **Full details**. Edit title, creator names (one per line, including a name with a comma), subjects, an identifier and rating, then save. Replace the cover, refresh it and revert it. Add and remove a Nextcloud tag; add a comment. Star the book and change its workflow status. Review scanner provenance, reset one safe field, then return to the catalogue. Open the book in a new tab. If a disposable item is marked missing, exercise **Forget missing publication** separately.
+**Steps:** Open the book sidebar and choose **Full details**; verify there is no **Maintenance (legacy)** entry. Edit title, creator names (one per line, including a name with a comma), subjects, an identifier and rating, then save. Replace the cover, refresh it and revert it. Add and remove a Nextcloud tag; add a comment. Star the book and change its workflow status. Review scanner provenance, reset one safe field, then return to the catalogue. Open the book in a new tab. If a disposable item is marked missing, exercise **Forget missing publication** separately.
 
 **Expected:** The full view loads without the catalogue's 100-book page, every action gives visible feedback and the changed values survive reload. A comma in a creator name stays within that creator. The old direct `/items/{id}` URL remains a fallback, while normal catalogue and list links open **Full details**. Cover, tags, comments, star and workflow changes do not overwrite unsaved metadata silently. Source publication bytes and sidecars remain unchanged.
 
