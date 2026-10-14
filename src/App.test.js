@@ -1666,7 +1666,7 @@ describe('Library catalogue Vue app', () => {
     await search.trigger('focus')
     await search.setValue(query)
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      `${ownUrl}?${otherFacet}=${encodeURIComponent(otherValue).replace('%20', '+')}&${facet}Search=${encodeURIComponent(query).replace('%20', '+')}`,
+      `${ownUrl}?${otherFacet}=${encodeURIComponent(otherValue).replaceAll('%20', '+')}&${facet}Search=${encodeURIComponent(query).replaceAll('%20', '+')}`,
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
     expect(global.fetch.mock.calls.filter(([url]) => /^\/apps\/library\/catalogue(?:\?|$)/.test(String(url)))).toHaveLength(0)
@@ -1675,10 +1675,10 @@ describe('Library catalogue Vue app', () => {
     await wrapper.get(`.library-${facet}-suggestion`).trigger('click')
 
     const expectedQuery = facet === 'creator'
-      ? `year=1999&creator=${encodeURIComponent(suggestion).replace('%20', '+')}`
+      ? `year=1999&creator=${encodeURIComponent(suggestion).replaceAll('%20', '+')}`
       : facet === 'publisher'
-        ? `publisher=${encodeURIComponent(suggestion).replace('%20', '+')}&creator=${encodeURIComponent(otherValue).replace('%20', '+')}`
-        : `year=${suggestion}&creator=${encodeURIComponent(otherValue).replace('%20', '+')}`
+        ? `publisher=${encodeURIComponent(suggestion).replaceAll('%20', '+')}&creator=${encodeURIComponent(otherValue).replaceAll('%20', '+')}`
+        : `year=${suggestion}&creator=${encodeURIComponent(otherValue).replaceAll('%20', '+')}`
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
       `/apps/library/catalogue?${expectedQuery}`,
       expect.objectContaining({ credentials: 'same-origin' }),
