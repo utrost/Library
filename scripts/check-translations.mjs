@@ -188,7 +188,7 @@ try {
 // no other Latin content token at all.
 const permittedLatinTokens = new Set([
   'nextcloud', 'files', 'library', 'javascript', 'json', 'zip', 'tsv', 'cbz',
-  'epub', 'pdf', 'pdfs', 'jpeg', 'png', 'webp', 'mime', 'isbn', 'opds', 'api',
+  'epub', 'pdf', 'pdfs', 'jpeg', 'png', 'webp', 'mime', 'isbn', 'issn', 'opds', 'api',
   'rar', 'mib', 'px', 'yyyy', 'mm', 'dd', 'delete', 'enter', 'esc', 'escape',
   'eco', 'rolleiflex', 'ocr', 'opf', 'cron', 'id', 'ids', 'url', 'urls',
 ])
