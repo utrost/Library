@@ -33,8 +33,8 @@ def test_app_store_readiness_defines_signing_listing_and_stable_submission():
         "privacy statement",
         "support URL",
         "screenshot",
-        "Stable `0.1.0` App Store submission",
-        "blocked on external certificate request",
+        "AS-005 — App Store submission",
+        "certificate issued",
     ]:
         assert phrase in app_store
 
@@ -131,12 +131,14 @@ def test_app_store_listing_draft_has_reviewer_sections_and_public_scope():
         assert heading in listing
 
     for phrase in [
-        "Nextcloud 34 only",
+        "Nextcloud 33–35",
         "does not contact external metadata services",
         "does not provide a built-in reader",
         "no real filenames, private folder names, user names, server names or credentials",
     ]:
         assert phrase in listing
+
+    assert "Library 0.3 is the planned first App Store candidate for Nextcloud 33–35" in listing
 
 
 def test_app_store_public_surfaces_do_not_expose_internal_names_or_paths():
@@ -153,7 +155,7 @@ def test_app_store_public_surfaces_do_not_expose_internal_names_or_paths():
             assert term not in content, f"{term!r} leaked into {path}"
 
 
-def test_info_xml_public_metadata_parses_and_stays_nextcloud_34_only():
+def test_info_xml_public_metadata_parses_and_declares_tested_nextcloud_range():
     info = read("appinfo/info.xml")
     root = ET.fromstring(info)
 
@@ -171,7 +173,7 @@ def test_info_xml_public_metadata_parses_and_stays_nextcloud_34_only():
 
     dependency = root.find("dependencies/nextcloud")
     assert dependency is not None
-    assert dependency.attrib == {"min-version": "34", "max-version": "34"}
+    assert dependency.attrib == {"min-version": "33", "max-version": "35"}
 
 
 def test_signed_release_workflow_is_documented_and_wired_without_packaging_keys():
@@ -192,6 +194,10 @@ def test_signed_release_workflow_is_documented_and_wired_without_packaging_keys(
     assert "stable releases require `appinfo/signature.json`" in release
     assert "npm run package:release -- --signed" in release
     assert "NEXTCLOUD_SIGNING_PRIVATE_KEY" in roadmap
+    assert "mktemp -d /tmp/library-signing.XXXXXXXX" in sign_script
+    assert 'chmod 0700 "$TMP_DIR"' in sign_script
+    assert 'chmod 0600 "$TMP_DIR/private.key"' in sign_script
+    assert sign_script.index('chown -R www-data:www-data') < sign_script.index('php occ integrity:sign-app')
 
     for private_key_pattern in [
         "private.key",
@@ -200,6 +206,17 @@ def test_signed_release_workflow_is_documented_and_wired_without_packaging_keys(
         "*.pem",
     ]:
         assert private_key_pattern in audit_script
+
+
+def test_store_archive_and_registration_signatures_are_verified_separately():
+    script = read("scripts/sign-app-store.sh")
+    assert 'printf library > "$work/app-id"' in script
+    assert script.count('openssl dgst -sha512 -verify') == 2
+    assert '"$archive.sig"' in script
+    assert '"$handoff/registration-signature.txt"' in script
+    assert 'umask 077' in script
+    assert 'js/library-help.js' in read('scripts/release-frontend-manifest.mjs')
+    assert 'js/library-help.js' in read('scripts/audit-release-package.sh')
 
 
 def test_stable_package_audit_requires_signature_while_alpha_allows_unsigned():
@@ -236,5 +253,8 @@ def test_nextcloud_app_store_guideline_steps_are_captured_for_submission():
         assert "~/.nextcloud/certificates/library.crt" in text
         assert "openssl req -nodes -newkey rsa:4096" in text
         assert "echo -n \"library\" | openssl dgst -sha512 -sign" in text
-        assert "openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.174.tar.gz" in text
+        if text is release:
+            assert "openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-beta.1.tar.gz" in text
+        else:
+            assert "npm run package:release -- --signed" in text
         assert "App metadata is read from `appinfo/info.xml` and `CHANGELOG.md`" in text

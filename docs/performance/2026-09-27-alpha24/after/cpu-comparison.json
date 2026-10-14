@@ -1,0 +1,44 @@
+{
+  "before": {
+    "visits": [
+      {
+        "run": 0,
+        "libraryCpuMs": 213.50200000000004,
+        "longTaskMs": 829
+      },
+      {
+        "run": 1,
+        "libraryCpuMs": 203.63299999999998,
+        "longTaskMs": 670
+      },
+      {
+        "run": 2,
+        "libraryCpuMs": 196.2660000000001,
+        "longTaskMs": 356
+      }
+    ],
+    "medianLibraryCpuMs": 203.63299999999998,
+    "medianLongTaskMs": 670
+  },
+  "after": {
+    "visits": [
+      {
+        "run": 0,
+        "libraryCpuMs": 135.602,
+        "longTaskMs": 684
+      },
+      {
+        "run": 1,
+        "libraryCpuMs": 109.82699999999998,
+        "longTaskMs": 570
+      },
+      {
+        "run": 2,
+        "libraryCpuMs": 72.52000000000001,
+        "longTaskMs": 271
+      }
+    ],
+    "medianLibraryCpuMs": 109.82699999999998,
+    "medianLongTaskMs": 570
+  }
+}

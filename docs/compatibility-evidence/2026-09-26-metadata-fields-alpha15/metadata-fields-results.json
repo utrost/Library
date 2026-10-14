@@ -1,0 +1,40 @@
+{
+  "report": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "maintenance": true,
+      "sidebar": true,
+      "rescan": true,
+      "legacyClient": true,
+      "invalidValueRejected": true,
+      "partialImport": true,
+      "exportRoundTrip": true,
+      "textNumbers": [
+        "01",
+        "2.5",
+        "Volume II"
+      ],
+      "sourceUnchanged": true
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "maintenance": true,
+      "sidebar": true,
+      "rescan": true,
+      "legacyClient": true,
+      "invalidValueRejected": true,
+      "partialImport": true,
+      "exportRoundTrip": true,
+      "textNumbers": [
+        "01",
+        "2.5",
+        "Volume II"
+      ],
+      "sourceUnchanged": true
+    }
+  ],
+  "fixtureRemoved": true,
+  "temporaryTokenRemoved": true
+}

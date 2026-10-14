@@ -1,0 +1,101 @@
+{
+  "duplicateIntegration": {
+    "passed": true,
+    "assertions": 28,
+    "scope14": true,
+    "ownership": true,
+    "cancel": true,
+    "exactRenamed": true,
+    "alternativeFormats": true,
+    "fuzzyTitle": true,
+    "isbn": true,
+    "editionFlags": true,
+    "falsePositiveExcluded": true,
+    "pagination": true,
+    "persistentDecisions": true,
+    "staleRejected": true,
+    "quota": true,
+    "expiryCleanup": true
+  },
+  "duplicateBrowsers": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "books": 14,
+      "matches": 23,
+      "cancel": true,
+      "actualBackgroundJobs": true,
+      "reopen": true,
+      "pages": true,
+      "preferred": true,
+      "keepBoth": true,
+      "dismiss": true,
+      "reset": true,
+      "reloadPersistence": true,
+      "mobileFits": true,
+      "csrf": true,
+      "filesAndMetadataUnchanged": true,
+      "pageErrors": []
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "books": 14,
+      "matches": 23,
+      "cancel": true,
+      "actualBackgroundJobs": true,
+      "reopen": true,
+      "pages": true,
+      "preferred": true,
+      "keepBoth": true,
+      "dismiss": true,
+      "reset": true,
+      "reloadPersistence": true,
+      "mobileFits": true,
+      "csrf": true,
+      "filesAndMetadataUnchanged": true,
+      "pageErrors": []
+    }
+  ],
+  "fixtureCleanup": {
+    "deleted": true
+  },
+  "sourceTests": {
+    "pythonPassed": 1041,
+    "frontendPassed": 518,
+    "frontendFiles": 34,
+    "parserParityVectors": 518
+  },
+  "catalogueBrowsers": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "cursorForwardBackward": true,
+      "nearViewportCovers": 18,
+      "selectionActionVisible": true,
+      "mobileFits": true,
+      "pageErrors": []
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "cursorForwardBackward": true,
+      "nearViewportCovers": 18,
+      "selectionActionVisible": true,
+      "mobileFits": true,
+      "pageErrors": []
+    }
+  ],
+  "deployment": {
+    "appVersion": "0.2.0-alpha.24",
+    "nextcloudVersion": "34.0.3",
+    "realCatalogueBooks": 84261,
+    "ownedFixtureAccounts": 0,
+    "ownedTemporaryTokens": 0,
+    "ownedDuplicateJobs": 0,
+    "applicationBootstrapRestored": true,
+    "maintenance": false,
+    "needsDbUpgrade": false
+  },
+  "repeatableDuplicateRunnerPassed": true
+}

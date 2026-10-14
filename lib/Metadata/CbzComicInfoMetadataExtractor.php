@@ -32,7 +32,22 @@ public function extract(File $file): array {
     }
 
     try {
-        file_put_contents($temporaryPath, $file->getContent());
+        // Stream the archive to the temporary file, avoiding a whole-book PHP buffer.
+        if (method_exists($file, 'fopen')) {
+            $source = $file->fopen('rb');
+            if (!is_resource($source)) { throw new \RuntimeException('Unable to open archive metadata stream'); }
+            try {
+                $target = fopen($temporaryPath, 'wb');
+                if (!is_resource($target)) { throw new \RuntimeException('Unable to open temporary metadata archive'); }
+                try {
+                    if (stream_copy_to_stream($source, $target) === false) {
+                        throw new \RuntimeException('Unable to copy metadata archive');
+                    }
+                } finally { fclose($target); }
+            } finally { fclose($source); }
+        } elseif (file_put_contents($temporaryPath, $file->getContent()) === false) {
+            throw new \RuntimeException('Unable to copy metadata archive');
+        }
         $zip = new ZipArchive();
         if ($zip->open($temporaryPath) !== true) {
             $this->lastError = 'Unsupported or corrupt CBZ archive';
@@ -97,6 +112,7 @@ private function parseComicInfoMetadata(string $comicInfoXml): array {
     $creators = $this->comicInfoCreators($xml);
     if ($creators !== []) {
         $metadata['creators'] = implode('; ', $creators);
+        $metadata['authors'] = $creators;
     }
 
     $publisher = $this->comicInfoValue($xml, 'Publisher');

@@ -1,0 +1,28 @@
+{
+  "budgetCancelled": true,
+  "ms": 120041.661915,
+  "peakMemoryBytes": 702693376,
+  "sqlCount": 64659,
+  "sqlMs": 72620.4417650006,
+  "searchGramInsertStatements": 1255,
+  "searchGramInsertMs": 8693.852403000015,
+  "metrics": {
+    "roots": 1,
+    "indexed": 1295,
+    "traversalUnits": 7871,
+    "filesAdded": 0,
+    "pathsUpdated": 0,
+    "filesUnchanged": 1295,
+    "filesMissing": 0,
+    "metadataErrors": 4,
+    "fingerprintSkips": 386,
+    "metadataExtractions": 909,
+    "itemRefreshes": 909,
+    "fileIndexDurationMs": 3001,
+    "fingerprintDurationMs": 7989,
+    "metadataExtractionDurationMs": 34217,
+    "itemRefreshDurationMs": 55997,
+    "missingUpdateDurationMs": 0,
+    "scannerDurationMs": 120005
+  }
+}

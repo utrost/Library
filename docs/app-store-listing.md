@@ -1,8 +1,8 @@
 # App Store listing draft
 
-Status: draft copy for a future stable Nextcloud App Store submission.  
-Target app version: `0.1.0` after the alpha candidate is accepted.  
-Compatibility: Nextcloud 34 only until another version is tested.
+Status: preserved 0.2 beta listing draft; refresh screenshots and copy against the signed 0.3 candidate before submission.
+Target app version: 0.3, subject to exact archive verification.
+Compatibility target: Nextcloud 33–35. Focused alpha.9 source checks are available; the signed 0.3 package matrix remains pending.
 
 ## Short description
 
@@ -18,9 +18,15 @@ Library does not replace Nextcloud Files. It adds publication-oriented browsing 
 
 ## Current scope
 
-Included in the v0.1 line:
+Included in the 0.3 development build:
 
 - user-configured library roots;
+- private reading lists with ordering and notes;
+- account-private author and series identities, author profiles, reviewed book moves and merges, changed-import review and conditional Undo;
+- filename/path metadata suggestions, saved rules, preview, per-book approval and Apply/Undo;
+- optional duplicate suggestions and explicit review decisions;
+- scheduled incremental scans with periodic full reconciliation;
+- private cover thumbnails and catalogue optimizations for large collections;
 - background scanning for EPUB, PDF and CBZ collections;
 - catalogue search, sorting, filters and paginated cover views;
 - metadata editing for publication fields, creators, dates, subjects, classifications, workflow status, stars, descriptions and comments;
@@ -28,7 +34,7 @@ Included in the v0.1 line:
 - corrected-metadata export and import preview/apply;
 - safe handoff to existing Nextcloud viewers, Show in Files and Download source actions.
 
-Not included in v0.1:
+Outside the planned 0.3 scope:
 
 - built-in EPUB, PDF or comic reader (Library does not provide a built-in reader);
 - page-position sync, annotations or reading statistics;
@@ -54,15 +60,18 @@ Bug reports are most useful when they include the app version, Nextcloud version
 
 ## Screenshot checklist
 
-Prepare screenshots from a clean test instance with non-private sample files:
+Prepared screenshots for owner review:
 
-1. Catalogue gallery or shelf view showing several covers and active search/filter controls.
-2. Contextual drawer showing readable publication/file context, plus Advanced details/full details page showing editable publication metadata.
-3. Useful views or metadata review workbench showing cleanup-oriented navigation.
-4. Settings page showing configured library roots and scan controls without private paths.
+Captured on disposable Nextcloud 34.0.4 using the public Gutenberg fixture and a synthetic metadata tutorial file. All are below 2 MiB, and contain no real-library filenames or credentials:
 
-Before uploading screenshots, verify that no real filenames, private folder names, user names, server names or credentials are visible.
+1. [Catalogue](images/appstore-catalogue.png)
+2. [Publication details](images/appstore-details.png)
+3. [Metadata extraction and live preview](images/appstore-inference.png)
+
+Before uploading, verify that no real filenames, private folder names, user names, server names or credentials are visible.
+
+The three release-tag URLs are included in `appinfo/info.xml`; they become public when the accepted source tag is pushed. Review the visible wording and presentation before publication.
 
 ## Release note draft
 
-Library `0.1.0` is the first stable App Store candidate for Nextcloud 34. It focuses on private publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. It is intentionally conservative: source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack.
+Library 0.3 is the planned first App Store candidate for Nextcloud 33–35. It adds reviewed author and series organization to publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. Source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack. Final release wording and screenshots must be reviewed against the exact signed candidate.

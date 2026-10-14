@@ -14,6 +14,7 @@ use Throwable;
 use Psr\Log\LoggerInterface;
 use OCA\Library\Instrumentation\MonotonicClock;
 use OCA\Library\Instrumentation\ScanProgressPolicy;
+use OCA\Library\Service\ScanChangeJournal;
 
 class ScanJob extends QueuedJob {
     private MonotonicClock $clock;
@@ -23,6 +24,7 @@ class ScanJob extends QueuedJob {
         private ScanJobService $scanJobService,
         private LoggerInterface $logger,
         ?MonotonicClock $clock = null,
+        private ?ScanChangeJournal $changeJournal = null,
     ) {
         parent::__construct($time);
         $this->setAllowParallelRuns(false);
@@ -71,7 +73,7 @@ class ScanJob extends QueuedJob {
             } catch (Throwable) {
                 // Operational logging must not interrupt the scan.
             }
-            if (!in_array($scopeType, ['all', 'root', 'metadata_errors', 'missing_files'], true)
+            if (!in_array($scopeType, ['all', 'root', 'metadata_errors', 'missing_files', 'incremental'], true)
                 || ($scopeType === 'root' && $rootId <= 0)) {
                 throw new \RuntimeException('Invalid persisted scan scope');
             }
@@ -88,6 +90,7 @@ class ScanJob extends QueuedJob {
             $result = match (true) {
                 $retryMetadataErrors => $this->scanner->retryMetadataErrors($userId, $progress),
                 $recheckMissingFiles => $this->scanner->recheckMissingFiles($userId, $progress),
+                $scopeType === 'incremental' => $this->scanner->scanIncremental($userId, $progress),
                 default => $this->scanner->scan($userId, $rootId, $progress),
             };
             $result['scannerDurationMs'] = max((int)($result['scannerDurationMs'] ?? 0), $this->clock->elapsedMs($startedAt));
@@ -96,6 +99,13 @@ class ScanJob extends QueuedJob {
                 return;
             }
             if ($this->scanJobService->finishJob($userId, $jobId, $result)) {
+                if ($result['errors'] === [] && isset($result['journalSnapshot']) && is_array($result['journalSnapshot'])) {
+                    try {
+                        ($this->changeJournal ??= \OC::$server->get(ScanChangeJournal::class))->acknowledge($userId, $result['journalSnapshot']);
+                    } catch (Throwable $e) {
+                        $this->logger->warning('Library scan completed but change-journal acknowledgement failed; changes will be retried', ['exception' => $e]);
+                    }
+                }
                 $this->logTerminal($result['errors'] === [] ? 'completed' : 'completed_with_errors', $userId, $jobId, $scopeType, $result, $progressWrites, $cancelChecks, $queueWaitMs);
             }
         } catch (ScanCancelledException) {
@@ -120,7 +130,7 @@ class ScanJob extends QueuedJob {
     }
 
     private function logTerminal(string $outcome, string $userId, int $jobId, string $scopeType, array $metrics, int $progressWrites, int $cancelChecks, int $queueWaitMs): void {
-        $scope = in_array($scopeType, ['all', 'root', 'metadata_errors', 'missing_files'], true) ? $scopeType : 'all';
+        $scope = in_array($scopeType, ['all', 'root', 'metadata_errors', 'missing_files', 'incremental'], true) ? $scopeType : 'all';
         $context = ['event_schema' => 1, 'job_id' => $jobId, 'user_id' => $userId, 'scope_type' => $scope, 'outcome' => $outcome, 'worker_metrics_available' => true,
             'queue_wait_ms' => $queueWaitMs, 'progress_writes' => $progressWrites, 'cancel_checks' => $cancelChecks];
         $metricKeys = [

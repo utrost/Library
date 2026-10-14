@@ -1,0 +1,83 @@
+{
+  "phases": {
+    "recover": {
+      "selected": 10,
+      "processed": 10,
+      "metadataWarnings": 10,
+      "catalogueItems": 107717,
+      "warningFilesWithoutCatalogueItem": 0,
+      "peakMemoryBytes": 27262976,
+      "metrics": {
+        "scannerDurationMs": 1064,
+        "metadataExtractions": 10,
+        "itemRefreshes": 10,
+        "fingerprintSkips": 0,
+        "cachedWarningSkips": 0
+      }
+    },
+    "prime": {
+      "selected": 799,
+      "processed": 799,
+      "metadataWarnings": 799,
+      "catalogueItems": 107717,
+      "warningFilesWithoutCatalogueItem": 0,
+      "peakMemoryBytes": 31457280,
+      "metrics": {
+        "scannerDurationMs": 94266,
+        "metadataExtractions": 789,
+        "itemRefreshes": 789,
+        "fingerprintSkips": 10,
+        "cachedWarningSkips": 10
+      }
+    },
+    "cached": {
+      "selected": 799,
+      "processed": 799,
+      "metadataWarnings": 799,
+      "catalogueItems": 107717,
+      "warningFilesWithoutCatalogueItem": 0,
+      "peakMemoryBytes": 31457280,
+      "metrics": {
+        "scannerDurationMs": 6814,
+        "metadataExtractions": 0,
+        "itemRefreshes": 0,
+        "fingerprintSkips": 799,
+        "cachedWarningSkips": 799
+      }
+    }
+  },
+  "sourceObservationCount": 206706,
+  "sourceObservationsUnchanged": true,
+  "manualCorrectionCount": 3,
+  "manualCorrectionsUnchanged": true,
+  "schemaTables": 24,
+  "schemaMigrations": 46,
+  "schemaFieldSetsMatch": true,
+  "tests": {
+    "python": 1041,
+    "frontend": 519,
+    "parserParity": 518,
+    "scalarBoundaryAssertions": 38,
+    "warningCacheIntegrationAssertions": 25,
+    "authorIntegrationAssertions": 32,
+    "scannerIndexIntegrationAssertions": 28,
+    "scheduledIntegrationAssertions": 36,
+    "performanceIntegrationAssertions": 45
+  },
+  "browser": {
+    "chromiumCatalogue": true,
+    "firefoxCatalogue": true,
+    "chromiumWarningRecovery": true,
+    "firefoxWarningRecovery": true
+  },
+  "deployedFilesMatch": 22,
+  "finalIntegrityVerified": true,
+  "cleanup": {
+    "fixtureAccounts": 0,
+    "temporaryBrowserTokens": 0,
+    "activeAccountScans": 0,
+    "scalarWarnings": 10,
+    "cachedWarnings": 799,
+    "maintenance": false
+  }
+}

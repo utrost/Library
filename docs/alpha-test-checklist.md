@@ -1,12 +1,14 @@
 # Public alpha test checklist
 
-`0.1.0-alpha.174` is the current unsigned packaged alpha deployed on the private Nextcloud 34 test instance. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+The current development candidate is **`0.3.0-alpha.9`**, deployed on the private developer Nextcloud 34 instance. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
 
-Use this Public alpha checklist against the exact `0.1.0-alpha.174` package before the broader v0.1 alpha acceptance pass. Exact-package live proof exists for the private test deployment; for the full repeatable script, use the [human test handbook](human-test-handbook.md).
+Use the [Playwright journey suite](playwright-journeys.md) for repeatable browser workflows against a disposable instance. Use the [current 0.3 human cases](human-test-handbook.md#current-03-human-cases) for personal acceptance. This checklist covers package identity, source-file safety, real-file coverage and release-specific acceptance.
 
 ## Setup
 
-1. Install the package produced by `scripts/package-release.sh` into a disposable or test Nextcloud 34 instance.
+For development acceptance, use the deployed alpha.9 developer instance or a disposable NC33–35 installation of the same source build. Record the installed version and commit. Once a signed 0.3 archive exists, repeat this checklist against the exact package, not a rebuild or checkout. The App Store package must be signed; see [RELEASE.md](../RELEASE.md).
+
+1. For the release rehearsal, install the same signed 0.3 package into disposable Nextcloud 33.0.9, 34.0.4 and 35.0.0 instances, both fresh and upgraded from the preserved baseline. The alpha.9 source checks are focused feature evidence, not that release rehearsal.
 2. Enable the app as a Nextcloud administrator.
 3. Confirm background jobs are running.
 4. Open `/apps/library/` as a normal user.
@@ -21,7 +23,7 @@ Expected result: Library opens without browser console errors, and the settings 
 3. Wait for scan progress/history to show completion.
    Confirm the operation returns immediately, per-root publication counts remain visible, the current path advances while work is active, and cancellation remains available. If a running job becomes quiet past the stale threshold, verify the UI reports it as stale without rewriting its status to failed.
 4. Browse the catalogue first, without using settings.
-5. Verify compact cards show cover, title and **Open**; cover/title open the sidebar and **Advanced details** stays secondary.
+5. Verify compact cards show cover, title and **Open**; cover/title open a populated sidebar with Overview, Metadata, Activity and clickable author links. A heading with an empty body fails this check. The full maintenance route stays secondary.
 6. Use search and at least one filter, preferably type, format, shelf, scan status, subject/classification or starred.
 7. Open **Details** for one PDF, one EPUB and one CBZ when available.
 8. Open one publication/series, publication-year and creator discovery page from the shortcut panels when the fixture contains matching metadata.
@@ -49,9 +51,18 @@ Expected result: Open hands off to Nextcloud's existing file/viewer route, Show 
 
 Expected result: user-edited Library metadata survives the rescan. Nextcloud tags/comments remain separate from Library-native subjects/classifications.
 
-For an unchanged-root regression check, run the same root twice after the alpha.158 migration. The first run may warm nullable fingerprint/revision markers and may rewrite inferred rows; the second should preserve every item `updated_at` value while still reporting the fixture count as indexed. This verifies write avoidance, not a measured speedup.
+For an unchanged-root regression check, run the same root twice after the current metadata pipeline has settled. The first run may warm fingerprint/revision markers; the second should preserve unchanged item timestamps while still reporting the fixture count as indexed. This verifies write avoidance, not a measured speedup.
 
-Alpha.171 release baseline: the unsigned exact package was built from merged `main`, audited, installed on the private Nextcloud 34 test instance and live-smoked. The latest package SHA-256 is `dee035479b847c091490ad7a57e9d04ef121180ddd6dd73ae7f6d5f00ac7e97f`; CI passed for the merged security-hardening commits, deployed checksums matched for the changed server files, safe-diagnostic reflection showed no SQLSTATE/table/exception leakage, and Vue route smoke ended with `vue_smoke_ok=true` plus temporary-token cleanup at zero.
+## 0.3 identity and organization smoke
+
+1. Run [H03-03 and H03-04](human-test-handbook.md#h03-03--author-directory-and-profile) for author profiles, selected-book reassignment, merge and conditional Undo.
+2. Run [H03-05 and H03-06](human-test-handbook.md#h03-05--series-selected-book-move-and-undo) for selected-book series moves, whole-series merge, empty-source redirect and future imports.
+3. Run [H03-07](human-test-handbook.md#h03-07--changed-imported-author-or-series-metadata) for a changed imported author or series field: manual relationships remain until reviewed, and a second source change returns to review.
+4. Run [H03-02](human-test-handbook.md#h03-02--lists-filters-and-metadata-extraction) for lists, saved filters and reviewable path inference. Run [H03-08](human-test-handbook.md#h03-08--duplicate-and-mixed-format-judgment) for true duplicates versus different series issues.
+
+Expected result: identity and organization changes affect account-owned catalogue relationships only. Imported names and source files remain available; stale previews and Undo refuse to overwrite later edits. Capture counts, names, part labels and before/after screenshots.
+
+Historical alpha.171 baseline: the unsigned exact package was built from merged `main`, audited, installed on the private Nextcloud 34 test instance and live-smoked. Its package SHA-256 was `dee035479b847c091490ad7a57e9d04ef121180ddd6dd73ae7f6d5f00ac7e97f`; CI passed for the merged security-hardening commits, deployed checksums matched for the changed server files, safe-diagnostic reflection showed no SQLSTATE/table/exception leakage, and Vue route smoke ended with `vue_smoke_ok=true` plus temporary-token cleanup at zero.
 
 Alpha.157 historical release baseline: the exact package passed checksum verification, install/enable, PHP lint, route listing, and live Vue/API and browser smokes. Browser console errors were zero and mutation restoration was verified. Both scans of the privacy-safe 40-file root reported `indexed=40`, `missing=0`, `errors=0`, zero catalogue rewrites, 40 markers and `source_observation_changes=0`; the run ended with `release_package_smoke_ok=true`. This is write-elision evidence only, not throughput or latency evidence.
 
@@ -82,13 +93,14 @@ Expected result: Library removes or updates app-owned rows only. It must not del
 
 ## Known alpha limitations
 
-- Nextcloud 34 is the only supported target for this alpha.
-- Covers are on-demand; manual cover override/revert exists for individual items, but there is no app-owned cover cache or crop/rebuild workflow.
+- Supported range: Nextcloud 33–35. Runtime smoke coverage is documented for 33.0.9, 34.0.4 and 35.0.0.
+- Private, bounded thumbnails are generated on demand and reused; manual cover override/revert exists for individual items. A crop/rebuild workflow is not available.
 - Sidecar manifest and sidecar ZIP are read-only/download-only. Source-folder OPF/JSON sidecar write-back is intentionally outside the app roadmap.
 - Metadata import applies only to matched existing Library catalogue rows; fresh-install restore from sidecars belongs to external file-first tooling rather than the app.
-- Scan scheduling, resumable scans and notifications are absent.
+- Scheduled incremental scans with periodic full reconciliation are available; admin Cron configuration and missed-event recovery still need observation during a release rehearsal. Scan notifications are not part of this pass.
 - publication, publication-year and creator discovery pages exist, publication pages show **Publication contents** plus a visual issue strip, and built-in Useful views, a weak-metadata cockpit and in-app Custom collections exist. The metadata review workbench is also part of the current test pass; richer publication issue grouping remains post-v0.1 feedback beyond the current read-only summary.
 - Shared/admin-managed roots are absent; users manage their own roots and Nextcloud permissions remain authoritative.
+- One series relationship per book is supported; multiple series memberships and natural ordering of nonnumeric part labels remain open. Interactive series operations are limited to 500 books; larger sources can be moved in batches and the empty identity merged for future-import redirects.
 - Library does not provide its own document reader, page-position sync, reader annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, shared/admin roots, internet metadata lookup or AI classification.
 
 ## Report format for testers

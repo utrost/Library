@@ -1,16 +1,21 @@
 # Library user and admin guide
 
-Status: current v0.1 development guide  
+For duplicate discovery and private preferred-copy decisions, see [Finding possible duplicate books](duplicate-review.md).
+
+Start with [Your first library](first-library.md) for a short illustrated walkthrough using English Gutenberg books.
+
+Status: 0.3.0-alpha.9 reference guide with historical v0.1 development notes. Use the first-library walkthrough for onboarding and the current author/series sections below for identity workflows.
+
 Audience: early users, household admins, Nextcloud admins and product reviewers  
-Scope: what the app does today, how the main processes work, and which missing features are most visible from user stories
+Scope: detailed workflows, administrative reference and historical product-review notes
 
 Library is a Nextcloud-native catalogue for publication-like files that already live in Nextcloud Files. It does not import, move or render the original documents. Nextcloud Files remains the canonical storage layer; Library adds discovery, metadata, covers, browsing, search, diagnostics and reader handoff.
 
-This guide describes the implemented state of the app, not the long-term design.
+For the current release status, see the [roadmap](roadmap.md). The historical review sections preserve earlier design discussions.
 
 ## Fresh install and first scan
 
-Library currently supports Nextcloud 34. A Nextcloud administrator installs the packaged archive into the server's `custom_apps` directory and enables it with `occ app:enable library`; the [README install section](../README.md#install) contains the command-line example. Confirm that **Library** appears in the app navigation before asking users to configure folders.
+Library currently supports Nextcloud 33–35. Runtime smoke coverage used versions 33.0.9, 34.0.4 and 35.0.0. A Nextcloud administrator installs the packaged archive into the server's `custom_apps` directory and enables it with `occ app:enable library`; the [README install section](../README.md#install) contains the command-line example. Confirm that **Library** appears in the app navigation before asking users to configure folders.
 
 For the first catalogue:
 
@@ -33,7 +38,7 @@ See [FAQ and troubleshooting](faq.md) when the app is absent, a scan stays queue
 - **Collection maintainer:** corrects titles, publication type, authors/creators, dates, tags and notes after scanning.
 - **Household / small-team admin:** prepares folders, installs/enables the app, asks users to configure roots, and watches scan health.
 - **Nextcloud administrator:** owns app deployment, background job execution, preview provider health, backups and server-level permissions.
-- **Product reviewer:** uses the flows below to judge whether the current v0.1 shape is useful enough and what crucial feature may be missing.
+- **Product reviewer:** uses the [current human test handbook](human-test-handbook.md#current-03-human-cases) to judge the 0.3 workflows and release risks.
 
 ## Product boundary
 
@@ -86,7 +91,7 @@ Current catalogue capabilities:
 - open contextual details in the sidebar and use **Advanced details** for editing;
 - search title, subtitle, creators, publication, description, exact normalized ISBN/ISSN and file path from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics, and arbitrary substrings use the indexed search-gram path instead of broad row scans;
 - use the visible toolbar for Search, Sort and View, desktop filters, and the mobile **Filters** panel for grouped facets; press `/` to focus search and `Escape` to clear it;
-- filter by exact creator field and open a creator landing page as read-only discovery; creator identity splitting remains future work;
+- filter by an individual author and open an author landing page; existing full-field saved filters remain compatible;
 - use server-backed **Starred** and **Recently opened** browse destinations;
 - enter through server-backed **Home**, browse root/folder counts in **Shelves**, and move into the paginated **Catalogue** without preloading full result sets;
 - use active filter chips to see current filters, remove one filter without disturbing the others, or **Clear all** selection filters at once; clear-all resets pagination while preserving the chosen Sort and View mode;
@@ -246,7 +251,7 @@ Library serves covers through its own item cover route:
 - returns a stable SVG placeholder when no cover provider succeeds, while the catalogue itself shows cover loading shimmer and a broken-cover fallback if an image request fails;
 - includes diagnostic response headers so smokes can distinguish preview, CBZ first-image and placeholder outcomes.
 
-There is no app-owned cover cache yet. **Refresh cover preview** is a request-level retry affordance, not a persistent cover-cache management UI. **Manual cover override** is available on item details for URL/upload fixes, with revert back to extracted or preview covers. Uploaded covers must be structurally complete JPEG, PNG, or WebP files no larger than 10 MiB, 10,000 pixels on either side, or 40 megapixels; the server-detected MIME type is authoritative and invalid uploads leave the current override untouched.
+Private, bounded cover thumbnails are generated on demand and reused. **Refresh cover preview** retries a cover request; it is not a crop or rebuild editor. **Manual cover override** is available on item details for upload fixes, with revert back to extracted or preview covers. Uploaded covers must be structurally complete JPEG, PNG, or WebP files no larger than 10 MiB, 10,000 pixels on either side, or 40 megapixels; the server-detected MIME type is authoritative and invalid uploads leave the current override untouched.
 
 ### Reader and source-file actions
 
@@ -357,7 +362,7 @@ Settings also provide **Preview metadata import** and **Apply metadata import**.
 
 ### Installing or enabling the app
 
-The current development target is a conventional Nextcloud 34 app with app id `library`.
+The current development target is a conventional Nextcloud app with id `library`, declared compatible with Nextcloud 33–35.
 
 A Nextcloud administrator should:
 
@@ -392,6 +397,8 @@ Library scan jobs currently expose progress/history, status, scope, indexed coun
 In the Docker development/deploy setup, `bin/nextcloud-background-worker.sh` runs the general Nextcloud background worker inside the `nextcloud` container as `www-data`, with unlimited PHP memory, a host-side non-overlap lock, and a bounded five-minute lifetime. It is safe to invoke repeatedly from cron/schedulers and consumes the normal Nextcloud queue rather than one manually selected `oc_jobs` ID. Use Nextcloud cron or a supervisor/scheduled loop for continuous deployments; a queued scan warning means no worker has started that Library job yet.
 
 **Retry metadata errors** and **Recheck missing files** follow current enabled-root scope. Their reported root total is the number of enabled roots when the repair operation starts, rather than the historical roots attached to queued rows. A stable-ID file moved within an enabled root, or into another enabled root, can be repaired without losing identity. A file observed outside every enabled root stays missing and is not restored to the active catalogue; disabled roots do not qualify.
+
+Full and incremental scans can reconnect a file whose Nextcloud ID changed at the same exact path, provided the former ID no longer points to a live file. Library keeps the file and publication record IDs, including metadata edits, author/series assignments and list membership; it updates stored list-entry file IDs in the same transaction. The scan's **Moved, renamed or reconnected** count includes these recoveries. A changed ID with an ambiguous path is left for repair rather than silently attached to a possibly unrelated book. Previously created duplicate catalogue rows are not merged automatically. This scan-time behavior is implemented locally and awaits disposable mount-recovery verification.
 
 ### Import health
 
@@ -541,7 +548,7 @@ Acceptance checks:
 Visible gaps:
 
 - no full-text search inside documents;
-- publication/series, publication-year and creator landing pages exist so far, and publication pages show **Publication contents** read-only issue/date grouping with stable issue/date order, year/month and volume buckets, conservative gap hints, and an **Unknown issue/date** bucket that keeps weak comics and periodicals visible; richer creator identity splitting and editable issue management remain future work;
+- publication/series, publication-year and creator landing pages exist so far, and publication pages show **Publication contents** read-only issue/date grouping with stable issue/date order, year/month and volume buckets, conservative gap hints, and an **Unknown issue/date** bucket that keeps weak comics and periodicals visible; individual authors are supported; editable issue management remains future work;
 - built-in **Useful views** and in-app **Custom collections** provide saved smart-collection navigation without leaving Library;
 - no user-facing explanation of query performance limits for very large libraries.
 
@@ -631,9 +638,9 @@ Visible gaps:
 - no guided uninstall/export checklist inside the UI;
 - no automated validation that an export can recreate a catalogue in a fresh install.
 
-## Prioritized next gaps after the 1k real-corpus pilot
+## Historical prioritized gaps after the 1k real-corpus pilot
 
-The 1k real-corpus pilot proved that the catalogue can handle a realistic staged shelf, but it also showed where the next work should concentrate. Real-corpus filename hardening landed after the pilot, so the next gap order is now:
+This dated v0.1 review is retained for context. Scheduled scans and bounded private thumbnails subsequently landed; use the current sections below for those workflows. The 1k real-corpus pilot proved that the catalogue could handle a realistic staged shelf, but it also showed where work needed to concentrate. The gap order at that time was:
 
 1. Keep metadata-quality work safe by splitting the extractor seam. `PublicationMetadataService` should remain the façade, but filename, PDF, OPF/EPUB and CBZ parsing should move into narrower adapters before more real-corpus rules accumulate. This refactor is now complete for the current extractor families: filename/folder parsing lives in `FilenameMetadataExtractor`, PDF Info parsing/decoding lives in `PdfInfoMetadataExtractor`, EPUB package/standalone OPF parsing lives in `OpfEpubMetadataExtractor`, and CBZ ComicInfo parsing lives in `CbzComicInfoMetadataExtractor`.
 2. Improve the metadata correction workflow. Details editing exists, field-level scanner candidates are recorded and shown on item details, manual edit keeps scanner candidates available for later reset, and rescans refresh scanner candidates while current user-edited values stay untouched. Individual fields can show a **Reset to scanner** action when a stored scanner candidate differs from the current value, and whole-item reset to scanner candidates can apply all stored candidates at once. The edit form shows hints for dates, language codes and creator separators; first hard validation now blocks invalid publication date and language values while creator separators remain guidance. Rows where the current value differs from the scanner candidate show a **Differs from scanner** label. The details page includes a read-only metadata correction summary with scanner candidate count and differing-field count. Scanner conflicts filter is available from the catalogue as the first review workflow, and review queue shortcuts can tag scanner-conflict rows for follow-up without changing Library metadata; bulk editing and richer validation remain future work.
@@ -643,9 +650,9 @@ The 1k real-corpus pilot proved that the catalogue can handle a realistic staged
 6. Add discovery by publication structure. Search/filter/pagination, Catalogue discovery links, Review's five focused groups, in-app **Custom collections** for named saved filter combinations, the dedicated publication discovery page with **Publication contents** read-only issue/date grouping, stable issue/date order, year/month and volume buckets, conservative gap hints, an **Unknown issue/date** bucket, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; richer grouping/reordering polish does not.
 7. Polish root/onboarding/shared-library workflows. Root lifecycle exists with typed root-delete confirmation, root deletion recovery guidance and first-run guidance; richer validation and admin-managed shared roots remain future work.
 
-## Crucial missing-feature candidates exposed by the guide
+## Historical v0.1 missing-feature candidates exposed by the guide
 
-These are the highest-signal gaps to judge before pushing v0.1 further:
+This historical list predates 0.2. Scheduled scans, private lists and filename/path metadata extraction are now available; see the [current roadmap](roadmap.md). The original review notes below are retained for context:
 
 1. **Root management polish beyond the first lifecycle slice** — users can edit, enable/disable, delete and scan one root, and root deletion asks users to Type DELETE to confirm; the workflow still needs clearer recovery consequences and richer validation before release.
 2. **Scan lifecycle controls** — queued scans, metadata-error retry, missing-file recheck, queued-job cancellation and cooperative running-job cancellation work. Settings now keeps a post-scan completion summary after reload with added, moved/renamed, unchanged, missing and metadata-error counts, links counters to review smart views, and offers metadata-error TSV export; scheduled scans remain absent.
@@ -653,7 +660,7 @@ These are the highest-signal gaps to judge before pushing v0.1 further:
 4. **Tag UX** — tag add/remove, tag suggestions, one-click suggested tag buttons, tag result feedback, and bulk tagging apply/remove for explicitly selected visible items work. Review queue shortcuts can **Tag metadata-error rows** or **Tag scanner-conflict rows**; richer taxonomy batch workflows remain future work.
 5. **Cover quality path** — preview/CBZ/EPUB/placeholder covers, a refresh-cover retry affordance, and manual cover override/revert work, but app-owned cover cache and crop/rebuild workflows remain missing.
 6. **Shared-library administration** — Library respects Nextcloud permissions, but does not yet have an admin-managed shared root/catalogue story.
-7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips, top-series shortcuts, Catalogue discovery links, Review's five focused groups, in-app **Custom collections** for named saved filter combinations, the first dedicated publication discovery page, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; richer creator identity splitting and publication grouping remain future work.
+7. **Discovery by publication structure** — search/filter, creator/publication/year filters, active chips, top-series shortcuts, Catalogue discovery links, Review's five focused groups, in-app **Custom collections** for named saved filter combinations, the first dedicated publication discovery page, the first dedicated publication year discovery page and the first dedicated creator discovery page exist; individual authors are supported; richer publication grouping remains future work.
 8. **User-facing onboarding and empty states** — first-run root guidance, disabled-root guidance and filtered-empty recovery actions exist; richer guided tours and sample/demo fixtures remain future work.
 9. **Metadata portability beyond export/preview/apply** — corrected Library metadata can be exported as JSON, previewed for restore matches/field changes, applied to matched existing Library items, mapped to suggested `.library.json` paths with a read-only sidecar manifest and downloaded as a sidecar ZIP, while source-folder OPF/JSON sidecar writing and fresh-install sidecar restore are intentionally left to external file-first tooling.
 10. **Real-collection metadata hardening** — PDF hardening has improved, but more real EPUB/OPF/CBZ/PDF samples are needed to find weak metadata, cover and sidecar cases before release.
@@ -683,3 +690,90 @@ If step 12 feels unsafe or unclear, continue root lifecycle polish. If step 13 f
 ## Detailed implementation status anchors
 
 This guide keeps detailed status anchors that are intentionally more specific than the public README. Current implementation terms include: queued background scan, cancel queued scan, running-job cancellation, catalogue-first, Vue/Vite-backed catalogue page, paginated catalogue, live-ish scan progress, auto-refreshing scan progress, recent scan history, absolute Nextcloud URLs, scan status filters, built-in useful views, in-app custom collections, metadata review workbench, scanner-conflict review filter, explicit selected-item scanner reset, catalogue cards are browse-only, details page owns publication metadata, tag and comment editing, preview-backed covers, EPUB cover extraction, Refresh cover preview, cover-quality explanation, CBZ ComicInfo.xml metadata, CBZ first-image covers, Library-native subjects and classifications, Library-native workflow status, preview corrected metadata imports, clean up stale sidecar OPF catalogue rows, filename/folder metadata patterns, middle-initial filename authors, PDF hex Info strings, PDF literal octal escapes, nested PDF literal parentheses, plain PDF Info dates, PDF literal line continuations, Recheck missing files, forget missing item, dedicated publication discovery page, dedicated publication year discovery page, dedicated creator discovery page, Publication contents and read-only issue/date grouping.
+
+## Extract metadata from paths
+
+See [Extracting metadata from filenames and folders](extracting-metadata.md) for the guided editor, patterns, multiple authors, examples, saved templates, selected-field Apply, conditional Undo and current limitations.
+
+### Series, part in series and genre
+
+In the publication sidebar, open **Metadata** to edit these fields. They are also available in the maintenance form and bulk metadata editor. Series and genre accept up to 255 characters; part in series accepts 64 and preserves `01`, `2.5` or `Volume II`. Clearing a value is saved and protected on rescan. The older Publication field remains separate. From beta.2, normal EPUB/OPF scans populate Series and Part in series from Calibre or EPUB 3 metadata when available; manual corrections remain protected. See [embedded ebook metadata](metadata-storage.md#embedded-ebook-metadata). Corrected-metadata JSON includes these values, and a partial import preserves fields it omits. They do not yet have dedicated catalogue filters. Filename extraction compares against these fields and can apply explicitly reviewed selections. Authors can also be explicitly reviewed and applied as ordered names, with conditional Undo; see the extraction guide.
+
+## Keep the catalogue updated automatically
+
+In **Library settings → Folders and scanning → Automatic scans**, choose hourly, every six hours or daily. Scans discover additions, file/OPF changes and missing books while preserving your corrections. The default is Off; reliable unattended runs need Nextcloud Cron. See [Automatic scans](automatic-scans.md).
+
+
+## Covers and scan recovery (alpha.22)
+
+Library generates private thumbnails when covers are first viewed and reuses them. Large originals are resized to at most 360×520; generated covers are limited to 100 KiB. The source publication and its embedded artwork stay intact. Replacing a manual cover changes its cache revision. Malformed or excessively large raster images use a placeholder. Only cards near the viewport load their covers initially.
+
+If a running scan stops reporting progress for 15 minutes, background maintenance marks it failed with its last counters retained. You can scan again; abandoned jobs no longer keep automatic schedules blocked. Queued scans still need Nextcloud Cron to run.
+
+### Administrator thumbnail cache controls
+
+Since alpha.23, **Administration settings → Library** provides a per-account cache budget (128 MiB by default, 0 disables disk caching) and retention (168 hours by default). Data is split into 256 shards with byte and entry limits; filesystem overhead is additional. Expired entries are regenerated on demand and removed gradually by maintenance, including accounts whose Library roots were removed. Reducing the budget trims old entries gradually. Original publications remain intact.
+
+
+### Author metadata needs review
+
+If extracted author metadata exceeds the supported limits or contains invalid values, Library flags that book for metadata review and retains its other usable fields. Existing accepted authors and your corrections stay intact. Names are not silently truncated or split on commas. You can correct the catalogue author field; correcting the source metadata and rescanning also clears the source warning. Source warnings remain while unsupported source values persist.
+
+### Repeated scan warnings
+
+Unchanged archive or invalid-metadata warnings remain in Review, but subsequent scans can reuse their previous result. Use the explicit metadata Retry action to re-extract them. Changed source files or sidecars are checked again automatically. If a source value exceeds a field limit, edit that field instead of resetting to the invalid proposal; hover over the disabled control for an explanation.
+
+## Authors (0.3 development)
+
+Open **Authors** in the left navigation. Search matches the beginning of a preferred name or sort name. Open a name to see its linked books, or use **Unused authors** to find identities without linked books. Lists are paged in groups of 50.
+
+Choose **Edit author** to set the preferred name, sort name and optional given/family names. A sort name such as “Doe, John” controls directory ordering; it does not automatically change the preferred name. Help is available from the label's help control. Save updates the shared identity; original credits and ebook files are preserved. If another tab changed the author, your draft stays available while you reload the latest revision.
+
+The initial author migration runs in background batches. Progress and failures appear in the directory; editing becomes available once pending work and failures are resolved. Administrators can inspect or retry using `occ library:authors:migrate USER_ID` (see the [migration commands](v0.3-author-management.md#storage-slice--030-alpha1)).
+
+Preferred names appear on catalogue cards, Home, list entries, publication headings and creator suggestions. Author chips in the publication sidebar open the corresponding identity. Original credits remain in the metadata editor and are not written back to ebook files. Identity-aware creator matching and duplicate suggestions are available; source credits remain stored and can still matter to text search and metadata review. A changed source credit for a manually corrected author is flagged for review instead of silently replacing that identity.
+
+### Merge duplicate author names or separate different people
+
+1. Open the source author and choose **More actions → Merge or reassign**.
+2. Leave books unselected to merge the whole author. To move only particular credits, select those books. Selection is limited to the displayed page and resets on pagination.
+3. Search for the **Destination author** and select it. For a different person who happens to have the same name, enter the name and choose **Create separate author**; creation never silently reuses another identity.
+4. Choose **Review change**, check the titles and original credits, then **Confirm author change**.
+
+The destination retains its preferred name. A merge retires the source identity and routes later imports of that spelling to the destination. A reassignment keeps both identities. When a book credits both merged names, the earliest position is retained and the original book metadata remains intact.
+
+**Recent changes** shows the latest 20 operations across your account and offers **Undo**. Undo restores affected relationships only if those books/assignments still match the recorded state. It preserves later imports and unrelated books. A changed or deleted affected book causes a conflict instead of overwriting newer work. Changes are transactional, account-private and protected against stale previews.
+
+Interactive operations are limited to 500 books and an 8 MiB undo payload. A whole-author merge with 501–5,000 linked books runs as a durable queued task; check its status in the author workflow. Larger operations need separate planning. Operation history is retained until account deletion; there is no automatic expiry in this alpha.
+
+### Author profiles: photo, biography and books
+
+Open **Authors**, then select an author. The page shows books linked to that identity in your library, including records whose source file is currently missing. It is not a complete external bibliography.
+
+- **Edit author** lets you add a plain-text biography and upload an optional JPEG, PNG or WebP portrait (up to 10 MiB). Save applies all profile changes together. Without a photo, initials are shown.
+- The portrait is centre-cropped to a small square; the original upload is discarded. **Remove photo** restores initials. Biographies over 320 characters initially collapse behind **Show more**.
+- **Search titles** narrows this author's books. Choose title order, newest publication date, or **Series, then title**. Unknown dates/series sort last.
+- Switch between **Covers** and **List**. Pages contain up to 50 books. Series headings group the current page; a series may continue onto the next page. Series positions are displayed, but this view sorts titles within each series.
+- Open a cover or title for the book. **More actions** contains merge/reassignment. The destination keeps its biography and photo when authors merge.
+
+Profiles are private to your account. Photos and biographies are entered manually; Library does not fetch them from external services. An outdated edit is rejected with the draft retained, so another update is not silently overwritten.
+
+### Review imported author changes
+
+If imported author credits change after you edited or reassigned an author, open **Authors → Review imported author changes**. The link appears when changes need review.
+
+1. Choose **Review change** for a book. Compare its current author assignments and original credits with the incoming credits.
+2. Choose **Keep current assignments** to preserve the linked people, or **Use imported authors** to replace those links using the importer's conservative identity matching. An empty incoming list means removing this book's author links.
+3. The resolved book leaves the queue. An unchanged rescan keeps the decision; different imported credits return it to review.
+
+These choices change author relationships and the review checkpoint only. They do not rewrite ebook files or the book's source metadata. Profile names, photos and biographies are preserved. There is no automatic Undo for this decision in alpha.4; the screen warns before applying it. A stale preview is rejected: reload, inspect the updated comparison, then choose again. Each book is resolved separately.
+
+Review pages contain at most 50 books. Books never manually protected or explicitly reviewed continue using the normal automatic import behavior. Failed migrations still use the existing administrator CLI retry; they are not silently treated as reviewable conflicts.
+
+## Series (0.3 development)
+
+Open **Series** in the left navigation to browse private series identities. A book currently has one linked series and one part label. The linked identity controls catalogue grouping; the imported series name and part remain available as source metadata. Editing a series name changes its preferred display name without rewriting an EPUB or OPF.
+
+To reorganize books, open a source series and expand **Move or merge books**. Select books to move only those books, or leave the selection empty to merge the whole source into a chosen destination. Review the exact book count before confirming. A whole merge retires the source identity and redirects later imports of its old name to the destination; a selected-book move leaves both series active. **Recent changes → Undo** is conditional on the affected assignments still matching the applied operation.
+
+If a later scan imports a different series name or part for a manually organized book, open **Review imported series changes**. Choose **Keep assignment** or **Use imported series** for that book. An unchanged rescan keeps the decision; another source change returns it to review. Interactive operations are capped at 500 books and 8 MiB of history. For a larger series, move books in batches, then merge the empty source to establish its redirect. See the [series workflow and limits](v0.3-series-management.md).

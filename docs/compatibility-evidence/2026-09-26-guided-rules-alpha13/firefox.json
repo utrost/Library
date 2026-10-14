@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "sampleRoot": "65",
+  "sampleBooks": 20,
+  "checks": [
+    "UI nested split creation",
+    "author custom separator and name formatting",
+    "complete definition save",
+    "duplicate and invalid rejection",
+    "unsaved draft isolation",
+    "reload persistence",
+    "immediate selection and live preview",
+    "split input restoration",
+    "scope preserved",
+    "delete cancellation",
+    "confirmed deletion keeps preview",
+    "mobile overflow",
+    "advanced preset regression",
+    "sample metadata unchanged",
+    "no unexpected writes",
+    "no page errors"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "appinfo/info.xml": {
+    "sha256": "8025e98779b5910d588255f3f324257fbadab629dcb23d9f609897c32cd653ad",
+    "matches": true
+  },
+  "appinfo/routes.php": {
+    "sha256": "6408ccf38923a8e4c206208dc7a5d93bd77e380296b99f808eb57aebc1f0ec6e",
+    "matches": true
+  },
+  "lib/Service/AuthorAssignmentService.php": {
+    "sha256": "a02406b7925ac5a05955377dc9d66238b1ba946d4e34135ad311518027e4186d",
+    "matches": true
+  },
+  "lib/Service/AuthorDirectoryService.php": {
+    "sha256": "c0ff113870a91b2c08ef546b81f84931fedeb09490200fdf256dadd86192c44c",
+    "matches": true
+  },
+  "lib/Service/AuthorDisplayService.php": {
+    "sha256": "84bcdc889ea3eb54038a06ae66b7dca4e5dee936ae449cda4a795481a5526a41",
+    "matches": true
+  },
+  "lib/Service/AuthorStorageService.php": {
+    "sha256": "8703685042e13b383bede9fb7faaa63e6d546b39405c68bf30b956953ac63ad2",
+    "matches": true
+  },
+  "lib/Service/ItemService.php": {
+    "sha256": "29b6eb5efbcaf5c0e8949903d518e166015ab3fe984dfd3d0fc1b608630dde59",
+    "matches": true
+  },
+  "lib/Service/PersonalListService.php": {
+    "sha256": "5c4181c9bdbc6d9deed9ca46cdbe013f347102f59f95252630f700bbf573e144",
+    "matches": true
+  },
+  "lib/Controller/AuthorController.php": {
+    "sha256": "fe73241aa2e1389170b703814b2cc4a5779bedb532484cab1541da3947f4d6cf",
+    "matches": true
+  },
+  "lib/Controller/PageController.php": {
+    "sha256": "6ac853e3ab5dd313caaf78585f61eecd48b36b3b2be99b3764404fa0c5a8a6a9",
+    "matches": true
+  },
+  "lib/Controller/ItemPageController.php": {
+    "sha256": "3a19b913a8c11b923907eced8dc92b3827660e258ebedfd2623fdcf80571abd8",
+    "matches": true
+  },
+  "lib/Migration/Version000300Date20261013180000.php": {
+    "sha256": "aff48cce172c602d12cec5c3d849a3365e7401319cef5f6284a508ff7b689175",
+    "matches": true
+  },
+  "js/library-main-0-3-0-alpha-2-compact-list-table-cover-96-fit-v4.mjs": {
+    "sha256": "22682980e4de00e790574315c16cc35e48dd89f8b5b27890348365518823d12f",
+    "matches": true
+  },
+  "css/library-vue-0-3-0-alpha-2-compact-list-table-cover-96-fit-v4.css": {
+    "sha256": "bd7289768b407397209cc6768eccaba7a8b379742088ccb021ae9eedfa6be173",
+    "matches": true
+  },
+  "l10n/en.js": {
+    "sha256": "8788ba3477aa8878edd61d4017b15a1a9e9fa508dcba90b8261b0b7155e4692e",
+    "matches": true
+  },
+  "l10n/de.js": {
+    "sha256": "7dc6be3908053422592d918db2ef0e318def9817a6c9da651ad5300452c3b514",
+    "matches": true
+  },
+  "l10n/ar.js": {
+    "sha256": "a3c77eadd1f7c33add7dbf0fff107394a24fa96897e1eb97f88df9aa840cad80",
+    "matches": true
+  }
+}

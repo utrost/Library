@@ -1,0 +1,26 @@
+[
+  {
+    "integration": 22,
+    "previewAndApplyMs": 3.54
+  },
+  {
+    "engine": "chromium",
+    "pass": true,
+    "merge": true,
+    "reassign": true,
+    "undo": true,
+    "canonicalCatalogue": true,
+    "distinctHomonym": true,
+    "mobileFits": true
+  },
+  {
+    "engine": "firefox",
+    "pass": true,
+    "merge": true,
+    "reassign": true,
+    "undo": true,
+    "canonicalCatalogue": true,
+    "distinctHomonym": true,
+    "mobileFits": true
+  }
+]

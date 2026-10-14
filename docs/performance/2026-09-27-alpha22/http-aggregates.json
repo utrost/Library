@@ -1,0 +1,367 @@
+{
+  "passed": true,
+  "applicationRestored": true,
+  "deepCursorAnchorMs": 10519.475804999998,
+  "operations": [
+    {
+      "operation": "catalogue-25",
+      "medianMs": 145.79561000000103,
+      "maxMs": 158.6812089999985,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 62017,
+      "sqlCount": 6,
+      "sqlMs": 124.543665
+    },
+    {
+      "operation": "catalogue-100",
+      "medianMs": 153.12498300000152,
+      "maxMs": 173.23957399999927,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 200175,
+      "sqlCount": 6,
+      "sqlMs": 127.12164100000001
+    },
+    {
+      "operation": "catalogue-recent",
+      "medianMs": 157.29952000000048,
+      "maxMs": 165.9301639999976,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 228332,
+      "sqlCount": 6,
+      "sqlMs": 125.10649
+    },
+    {
+      "operation": "search-word",
+      "medianMs": 389.36042299999826,
+      "maxMs": 716.659289999996,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 234393,
+      "sqlCount": 10,
+      "sqlMs": 351.139091
+    },
+    {
+      "operation": "filter-epub",
+      "medianMs": 162.38684600000124,
+      "maxMs": 169.2124449999974,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 217587,
+      "sqlCount": 6,
+      "sqlMs": 127.923502
+    },
+    {
+      "operation": "review-missing",
+      "medianMs": 18.83225300000049,
+      "maxMs": 18.87427700000262,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 3742,
+      "sqlCount": 4,
+      "sqlMs": 1.6598140000000001
+    },
+    {
+      "operation": "review-conflicts",
+      "medianMs": 19.07691299999715,
+      "maxMs": 20.91875599999912,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 9234,
+      "sqlCount": 7,
+      "sqlMs": 1.774153
+    },
+    {
+      "operation": "creator-typeahead",
+      "medianMs": 17.817627999997057,
+      "maxMs": 22.589366000000155,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 1015,
+      "sqlCount": 1,
+      "sqlMs": 0.624299
+    },
+    {
+      "operation": "publisher-typeahead",
+      "medianMs": 18.590990999997302,
+      "maxMs": 27.035552999994252,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 619,
+      "sqlCount": 1,
+      "sqlMs": 2.165043
+    },
+    {
+      "operation": "folder-typeahead",
+      "medianMs": 17.530514000005496,
+      "maxMs": 18.249766000000818,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 14,
+      "sqlCount": 1,
+      "sqlMs": 0.338866
+    },
+    {
+      "operation": "shelf-children",
+      "medianMs": 16.122260000003735,
+      "maxMs": 16.436821000002965,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 43,
+      "sqlCount": 0,
+      "sqlMs": 0
+    },
+    {
+      "operation": "home-html",
+      "medianMs": 467.2740630000044,
+      "maxMs": 621.6408389999997,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 44736,
+      "sqlCount": 30,
+      "sqlMs": 434.88652499999995
+    },
+    {
+      "operation": "shelves-html",
+      "medianMs": 676.2581989999962,
+      "maxMs": 770.791535999997,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 32688,
+      "sqlCount": 23,
+      "sqlMs": 643.3614739999999
+    },
+    {
+      "operation": "catalogue-html",
+      "medianMs": 172.9994699999952,
+      "maxMs": 174.47783300000447,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 290840,
+      "sqlCount": 20,
+      "sqlMs": 128.647617
+    },
+    {
+      "operation": "settings-html",
+      "medianMs": 204.36877699999604,
+      "maxMs": 267.4156609999991,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 90422,
+      "sqlCount": 21,
+      "sqlMs": 151.12927100000002
+    },
+    {
+      "operation": "sidebar",
+      "medianMs": 18.178391000001284,
+      "maxMs": 19.495905000003404,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 4748,
+      "sqlCount": 2,
+      "sqlMs": 0.6832469999999999
+    },
+    {
+      "operation": "detail",
+      "medianMs": 32.165344000000914,
+      "maxMs": 34.77619599999889,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 78234,
+      "sqlCount": 18,
+      "sqlMs": 4.138791
+    },
+    {
+      "operation": "lists-index",
+      "medianMs": 16.122395999998844,
+      "maxMs": 18.098971999999776,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 242,
+      "sqlCount": 2,
+      "sqlMs": 0.5420740000000001
+    },
+    {
+      "operation": "lists-membership",
+      "medianMs": 16.67773699999816,
+      "maxMs": 17.056953999999678,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 240,
+      "sqlCount": 3,
+      "sqlMs": 0.6906249999999999
+    },
+    {
+      "operation": "inference-roots",
+      "medianMs": 26.847271999999066,
+      "maxMs": 32.19426499999827,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 583,
+      "sqlCount": 25,
+      "sqlMs": 5.457103999999998
+    },
+    {
+      "operation": "scan-progress",
+      "medianMs": 16.868500999997195,
+      "maxMs": 17.245971999996982,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 780,
+      "sqlCount": 3,
+      "sqlMs": 0.7747200000000001
+    },
+    {
+      "operation": "duplicates-1",
+      "medianMs": 23.388872000003175,
+      "maxMs": 31.05948399999761,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 140,
+      "sqlCount": 20,
+      "sqlMs": 4.379818
+    },
+    {
+      "operation": "duplicates-100",
+      "medianMs": 197.923778999997,
+      "maxMs": 361.190125000001,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 9528,
+      "sqlCount": 236,
+      "sqlMs": 115.71859300000004
+    },
+    {
+      "operation": "catalogue-cursor-next",
+      "medianMs": 151.04407199999696,
+      "maxMs": 162.06057699999656,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 112856,
+      "sqlCount": 6,
+      "sqlMs": 125.61072999999999
+    },
+    {
+      "operation": "catalogue-cursor-deep",
+      "medianMs": 159.09600399999908,
+      "maxMs": 248.91953400000057,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 238938,
+      "sqlCount": 6,
+      "sqlMs": 128.543148
+    },
+    {
+      "operation": "review-counts",
+      "medianMs": 724.552979,
+      "maxMs": 1188.3996239999979,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 417,
+      "sqlCount": 17,
+      "sqlMs": 705.306486
+    },
+    {
+      "operation": "cover-first",
+      "medianMs": 27.07907400000113,
+      "maxMs": 46.519524000003,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 34257,
+      "sqlCount": 20,
+      "sqlMs": 5.165221999999999
+    },
+    {
+      "operation": "cover-pdf",
+      "medianMs": 27.28254300000117,
+      "maxMs": 27.30379399999947,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 34257,
+      "sqlCount": 20,
+      "sqlMs": 4.41327
+    },
+    {
+      "operation": "cover-epub",
+      "medianMs": 24.462854999997944,
+      "maxMs": 86.12084400000458,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 585,
+      "sqlCount": 20,
+      "sqlMs": 4.215391
+    },
+    {
+      "operation": "cover-cbz",
+      "medianMs": 22.25028800000291,
+      "maxMs": 29.009801000000152,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 87939,
+      "sqlCount": 12,
+      "sqlMs": 2.4752520000000002
+    },
+    {
+      "operation": "shelf-root-children",
+      "medianMs": 16.56465500000195,
+      "maxMs": 16.933948999998393,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 43,
+      "sqlCount": 1,
+      "sqlMs": 0.21183
+    },
+    {
+      "operation": "metadata-export",
+      "medianMs": 54.59120400000393,
+      "maxMs": 199.36395600000105,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 5381345,
+      "sqlCount": 6,
+      "sqlMs": 7.023751000000001
+    },
+    {
+      "operation": "sidecar-manifest",
+      "medianMs": 53.80094700000336,
+      "maxMs": 57.05779999999504,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 5384639,
+      "sqlCount": 6,
+      "sqlMs": 13.869914999999999
+    },
+    {
+      "operation": "inference-sample",
+      "medianMs": 177.41294299999572,
+      "maxMs": 225.83073400000285,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 19213,
+      "sqlCount": 348,
+      "sqlMs": 116.57420699999999
+    },
+    {
+      "operation": "list-page",
+      "medianMs": 51.76405800000066,
+      "maxMs": 75.65173399999912,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 8814,
+      "sqlCount": 90,
+      "sqlMs": 20.994623
+    },
+    {
+      "operation": "catalogue-hydrate",
+      "medianMs": 624.4338769999958,
+      "maxMs": 652.5538319999978,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 200519,
+      "sqlCount": 8,
+      "sqlMs": 598.2184149999999
+    }
+  ]
+}

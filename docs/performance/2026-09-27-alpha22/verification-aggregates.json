@@ -1,0 +1,42 @@
+{
+  "localGatePassed": true,
+  "pythonChecks": 1041,
+  "frontendTests": 514,
+  "phpRuntimeChecksPassed": true,
+  "productionIntegrationPassed": true,
+  "productionIntegrationAssertions": 28,
+  "scheduledIntegrationPassed": true,
+  "scheduledIntegrationAssertions": 36,
+  "jobs": [
+    {
+      "operation": "maintenance_job",
+      "ms": 1577.544205,
+      "sqlCount": 4357,
+      "failed": false
+    },
+    {
+      "operation": "scheduled_scan_dispatcher",
+      "ms": 0.81682,
+      "sqlCount": 1,
+      "failed": false
+    }
+  ],
+  "gui": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "cursorForwardBackward": true,
+      "nearViewportCovers": 18,
+      "selectionActionVisible": true,
+      "mobileFits": true
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "cursorForwardBackward": true,
+      "nearViewportCovers": 18,
+      "selectionActionVisible": true,
+      "mobileFits": true
+    }
+  ]
+}

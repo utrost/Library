@@ -1,0 +1,32 @@
+[
+  {
+    "engine": "chromium",
+    "pass": true,
+    "backendAssertions": 7,
+    "books": 53,
+    "pagination": true,
+    "biographyPlainText": true,
+    "photoUploadRemoval": true,
+    "private320pxPortrait": true,
+    "staleEditRejected": true,
+    "invalidUploadRejected": true,
+    "ownership": true,
+    "searchSortViews": true,
+    "mobileFits": true
+  },
+  {
+    "engine": "firefox",
+    "pass": true,
+    "backendAssertions": 7,
+    "books": 53,
+    "pagination": true,
+    "biographyPlainText": true,
+    "photoUploadRemoval": true,
+    "private320pxPortrait": true,
+    "staleEditRejected": true,
+    "invalidUploadRejected": true,
+    "ownership": true,
+    "searchSortViews": true,
+    "mobileFits": true
+  }
+]

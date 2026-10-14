@@ -1,0 +1,47 @@
+[
+  {
+    "file": "appinfo/info.xml",
+    "sha256": "75a7e05223c98f510a1ca9a6630d32019b63cd1fa62ef48b5c201db263eaf228",
+    "matches": true
+  },
+  {
+    "file": "appinfo/database.xml",
+    "sha256": "3640acb6201ec4295ebcd116806bb2e24a8137cab74b5f8382de8ea96afdee99",
+    "matches": true
+  },
+  {
+    "file": "appinfo/routes.php",
+    "sha256": "a5b8bcd707c5a761d08530d3edae136f0f9ad0142518467f3d30b7036f7c598d",
+    "matches": true
+  },
+  {
+    "file": "lib/Controller/AuthorController.php",
+    "sha256": "9a546f1d97fdf92e43aea2d1c336a26eab2e26bd3be418ff36f1edc216009f49",
+    "matches": true
+  },
+  {
+    "file": "lib/Service/AuthorStorageService.php",
+    "sha256": "630a46018e7382acd62aa729c21275a0783fbca9dbae2e76fe741d2430a322c1",
+    "matches": true
+  },
+  {
+    "file": "lib/Migration/Version000300Date20261013230000.php",
+    "sha256": "e44f42e8d6e3a194acd3aff5eaadea2899e7c989373493d1c854242871f242bf",
+    "matches": true
+  },
+  {
+    "file": "js/library-main-0-3-0-alpha-4-compact-list-table-cover-96-fit-v4.mjs",
+    "sha256": "edb13f24d8ee5d14e32080751cec70aeaa2b0bc2af8137f2f6e1a72ef99f6f27",
+    "matches": true
+  },
+  {
+    "file": "css/library-vue-0-3-0-alpha-4-compact-list-table-cover-96-fit-v4.css",
+    "sha256": "3caba8751b12a0a51b49d6ba69991c1b990b466f14fee3f430bc35d828cff9ef",
+    "matches": true
+  },
+  {
+    "file": "lib/Service/ItemService.php",
+    "sha256": "20039574968302be53acde32eb27f4204d5b23be51f12621100199f21e5a2bc3",
+    "matches": true
+  }
+]

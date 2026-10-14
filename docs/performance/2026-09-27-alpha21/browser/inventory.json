@@ -1,0 +1,274 @@
+{
+    "counts": {
+        "library_items": 84261,
+        "library_files": 160154,
+        "library_item_facets": 1203186,
+        "library_item_search_grams": 15347438,
+        "library_item_identifiers": 174615,
+        "library_lists": 2,
+        "library_scan_jobs": 22,
+        "library_dup_terms": 406059,
+        "library_dup_index": 84261
+    },
+    "formats": [
+        {
+            "extension": "cbz",
+            "n": 2000
+        },
+        {
+            "extension": "epub",
+            "n": 48826
+        },
+        {
+            "extension": "opf",
+            "n": 75896
+        },
+        {
+            "extension": "pdf",
+            "n": 33432
+        }
+    ],
+    "roots": [
+        {
+            "id": 55,
+            "enabled": 1,
+            "books": 5000
+        },
+        {
+            "id": 56,
+            "enabled": 1,
+            "books": 2000
+        },
+        {
+            "id": 61,
+            "enabled": 1,
+            "books": 40
+        },
+        {
+            "id": 62,
+            "enabled": 1,
+            "books": 40
+        },
+        {
+            "id": 63,
+            "enabled": 1,
+            "books": 40
+        },
+        {
+            "id": 64,
+            "enabled": 1,
+            "books": 77121
+        },
+        {
+            "id": 65,
+            "enabled": 1,
+            "books": 20
+        }
+    ],
+    "scanHistory": [
+        {
+            "status": "cancelled",
+            "n": 4,
+            "max_ms": 363000
+        },
+        {
+            "status": "completed",
+            "n": 16,
+            "max_ms": 7392
+        },
+        {
+            "status": "failed",
+            "n": 1,
+            "max_ms": 5032000
+        },
+        {
+            "status": "running",
+            "n": 1,
+            "max_ms": null
+        }
+    ],
+    "environment": {
+        "nextcloud": "34.0.3.2",
+        "app": "0.2.0-alpha.21",
+        "php": "8.5.10",
+        "memoryLimit": "1024M",
+        "cron": "cron",
+        "lastCron": "1789327250",
+        "database": "mysql",
+        "duplicateIndex": {
+            "enabled": true,
+            "status": "ready",
+            "processed": 84261,
+            "total": 84261,
+            "cursor": 102628,
+            "maxId": 102628
+        },
+        "scanSchedule": {
+            "interval": 86400,
+            "nextRunAt": 1790585634,
+            "lastJobId": 0
+        }
+    },
+    "storage": [
+        {
+            "table_name": "oc_library_item_search_grams",
+            "table_rows": 14556365,
+            "data_length": 630226944,
+            "index_length": 1489272832
+        },
+        {
+            "table_name": "oc_library_items",
+            "table_rows": 73431,
+            "data_length": 305971200,
+            "index_length": 133890048
+        },
+        {
+            "table_name": "oc_library_item_facets",
+            "table_rows": 1270461,
+            "data_length": 126009344,
+            "index_length": 311263232
+        },
+        {
+            "table_name": "oc_library_dup_terms",
+            "table_rows": 408924,
+            "data_length": 73646080,
+            "index_length": 51167232
+        },
+        {
+            "table_name": "oc_library_files",
+            "table_rows": 154869,
+            "data_length": 49872896,
+            "index_length": 42647552
+        },
+        {
+            "table_name": "oc_library_dup_index",
+            "table_rows": 81293,
+            "data_length": 43614208,
+            "index_length": 0
+        },
+        {
+            "table_name": "oc_library_item_identifiers",
+            "table_rows": 157223,
+            "data_length": 14172160,
+            "index_length": 11567104
+        },
+        {
+            "table_name": "oc_library_dup_pairs",
+            "table_rows": 0,
+            "data_length": 1081344,
+            "index_length": 278528
+        },
+        {
+            "table_name": "oc_library_inference_batches",
+            "table_rows": 0,
+            "data_length": 196608,
+            "index_length": 32768
+        },
+        {
+            "table_name": "oc_library_infer_results",
+            "table_rows": 0,
+            "data_length": 49152,
+            "index_length": 32768
+        },
+        {
+            "table_name": "oc_library_roots",
+            "table_rows": 7,
+            "data_length": 16384,
+            "index_length": 32768
+        },
+        {
+            "table_name": "oc_library_dup_jobs",
+            "table_rows": 0,
+            "data_length": 16384,
+            "index_length": 32768
+        },
+        {
+            "table_name": "oc_library_saved_collections",
+            "table_rows": 2,
+            "data_length": 16384,
+            "index_length": 32768
+        },
+        {
+            "table_name": "oc_library_list_entries",
+            "table_rows": 103,
+            "data_length": 16384,
+            "index_length": 32768
+        },
+        {
+            "table_name": "oc_library_infer_jobs",
+            "table_rows": 0,
+            "data_length": 16384,
+            "index_length": 32768
+        },
+        {
+            "table_name": "oc_library_dup_hints",
+            "table_rows": 0,
+            "data_length": 16384,
+            "index_length": 16384
+        },
+        {
+            "table_name": "oc_library_scan_schedule",
+            "table_rows": 1,
+            "data_length": 16384,
+            "index_length": 16384
+        },
+        {
+            "table_name": "oc_library_dup_keys",
+            "table_rows": 0,
+            "data_length": 16384,
+            "index_length": 16384
+        },
+        {
+            "table_name": "oc_library_scan_jobs",
+            "table_rows": 22,
+            "data_length": 16384,
+            "index_length": 16384
+        },
+        {
+            "table_name": "oc_library_dup_choices",
+            "table_rows": 0,
+            "data_length": 16384,
+            "index_length": 16384
+        },
+        {
+            "table_name": "oc_library_lists",
+            "table_rows": 2,
+            "data_length": 16384,
+            "index_length": 16384
+        },
+        {
+            "table_name": "oc_library_dup_books",
+            "table_rows": 0,
+            "data_length": 16384,
+            "index_length": 16384
+        },
+        {
+            "table_name": "oc_library_dup_state",
+            "table_rows": 1,
+            "data_length": 16384,
+            "index_length": 0
+        }
+    ],
+    "databaseSettings": [
+        {
+            "Variable_name": "innodb_buffer_pool_size",
+            "Value": "134217728"
+        },
+        {
+            "Variable_name": "max_connections",
+            "Value": "151"
+        },
+        {
+            "Variable_name": "performance_schema",
+            "Value": "OFF"
+        },
+        {
+            "Variable_name": "slow_query_log",
+            "Value": "OFF"
+        },
+        {
+            "Variable_name": "version",
+            "Value": "11.8.9-MariaDB-ubu2404"
+        }
+    ]
+}

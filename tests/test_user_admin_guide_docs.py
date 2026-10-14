@@ -23,7 +23,7 @@ def test_user_guide_covers_current_role_facing_surfaces():
         "## Everyday user processes",
         "## Admin processes",
         "## User stories for judging v0.1 usefulness",
-        "## Crucial missing-feature candidates exposed by the guide",
+        "## Historical v0.1 missing-feature candidates exposed by the guide",
         "## Practical review script",
     ]:
         assert heading in guide
@@ -126,7 +126,7 @@ def test_roadmap_recommends_root_lifecycle_and_per_root_scan_next():
     assert "Deletion/forget policy.** First slice landed" in roadmap
     assert "Metadata export foundation.** First slice landed" in roadmap
     assert "DB-backed catalogue query path.** First slice landed" in roadmap
-    assert "Recommended next slice: **release-facing metadata repair and review polish**" in roadmap
+    assert "Current 0.3 sequence:" in roadmap
     assert "forget missing item" in roadmap
     assert "cover cache or cover refresh" in roadmap
     assert "deleting source files from Nextcloud Files" in roadmap

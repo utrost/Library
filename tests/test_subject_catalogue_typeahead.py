@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 import re
 
@@ -63,7 +64,7 @@ def test_current_typeahead_bundle_uses_the_cache_busted_asset_basename():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     template = (ROOT / "templates" / "main.php").read_text()
 
-    assert "-collection-control-band`" in build
-    assert "library-main-0-1-0-alpha-174-collection-control-band" in controller
-    assert "library-vue-0-1-0-alpha-174-collection-control-band" in controller
-    assert 'data-library-main-script="library-main-0-1-0-alpha-174-collection-control-band"' in template
+    assert "-compact-list-table-cover-96-fit-v6`" in build
+    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in controller
+    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in controller
+    assert f'data-library-main-script="library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6"' in template

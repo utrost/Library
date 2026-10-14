@@ -1,0 +1,52 @@
+[
+  {
+    "file": "appinfo/info.xml",
+    "sha256": "cd1ac88b1380d724c9edd81a8e1b223c563a0ccd0e9c69e9496fcbffd4dda65f",
+    "matches": true
+  },
+  {
+    "file": "appinfo/database.xml",
+    "sha256": "69ef138c26205a7e667d770d095feea71d6331b95b0f568bc050eb44c868b223",
+    "matches": true
+  },
+  {
+    "file": "appinfo/routes.php",
+    "sha256": "fa388f9ebdb0be35269c89a17ff98cb3c65deff8cb7b8a24c564e3832e113377",
+    "matches": true
+  },
+  {
+    "file": "lib/Controller/AuthorController.php",
+    "sha256": "ce1b4a813c00a1d440b0448915dd00822bdfb4029c844cfbb6e0a89ea5f78c0d",
+    "matches": true
+  },
+  {
+    "file": "lib/Service/AuthorDirectoryService.php",
+    "sha256": "e1b3941197bb690b0c3cf00ad985c9d69b3a3c52fa4fb710073ef6c9d9516552",
+    "matches": true
+  },
+  {
+    "file": "lib/Service/AuthorPhotoService.php",
+    "sha256": "a0a6e46a8fbd44801c20393dc3c74f50afd3b23d0cbca651e226e7dbce2fc410",
+    "matches": true
+  },
+  {
+    "file": "lib/Service/LibraryCleanupService.php",
+    "sha256": "a2165a85ddf3627da14dad43a8787e69bc5920983d8a8a7ac1115bf241f37a38",
+    "matches": true
+  },
+  {
+    "file": "lib/Migration/Version000300Date20261013210000.php",
+    "sha256": "7448b2a29ba7116a6f09c29413d35af3e3245ee30884b3497b9d4c80c4f7e52c",
+    "matches": true
+  },
+  {
+    "file": "js/library-main-0-3-0-alpha-3-compact-list-table-cover-96-fit-v4.mjs",
+    "sha256": "a0da5680494d198178c38689a047a47b22d32b0c988c8d152b0b09372e593be8",
+    "matches": true
+  },
+  {
+    "file": "css/library-vue-0-3-0-alpha-3-compact-list-table-cover-96-fit-v4.css",
+    "sha256": "3182639d91d6a1edcb73f8e3fe1bc542faf1612d68d5f4be8c93709aa1b65e53",
+    "matches": true
+  }
+]

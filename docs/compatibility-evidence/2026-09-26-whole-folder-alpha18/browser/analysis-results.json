@@ -1,0 +1,36 @@
+{
+  "report": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "books": 83,
+      "cancel": true,
+      "actualBackgroundJobs": true,
+      "leaveAndReopen": true,
+      "threePages": true,
+      "statusFilter": true,
+      "explicit40Review": true,
+      "apply": true,
+      "durableUndo": true,
+      "mobileFits": true,
+      "csrf": true,
+      "sourceUnchanged": true
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "books": 83,
+      "cancel": true,
+      "actualBackgroundJobs": true,
+      "leaveAndReopen": true,
+      "threePages": true,
+      "statusFilter": true,
+      "explicit40Review": true,
+      "apply": true,
+      "durableUndo": true,
+      "mobileFits": true,
+      "csrf": true,
+      "sourceUnchanged": true
+    }
+  ]
+}

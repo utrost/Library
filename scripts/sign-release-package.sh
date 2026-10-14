@@ -7,7 +7,7 @@ CONTAINER="${NEXTCLOUD_CONTAINER:-nextcloud}"
 APP_ID="library"
 KEY_PATH="${NEXTCLOUD_SIGNING_PRIVATE_KEY:-}"
 CERT_PATH="${NEXTCLOUD_SIGNING_CERTIFICATE:-}"
-TMP_DIR="/tmp/${APP_ID}-signing-$$"
+TMP_DIR=""
 
 usage() {
   cat <<'USAGE'
@@ -26,6 +26,7 @@ USAGE
 }
 
 cleanup() {
+  [ -n "$TMP_DIR" ] || return 0
   docker exec -u root "$CONTAINER" sh -lc "rm -rf '$TMP_DIR'" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -51,10 +52,13 @@ if ! docker ps --format '{{.Names}}' | grep -Fxq "$CONTAINER"; then
 fi
 
 rm -f "$STAGE_DIR/appinfo/signature.json"
-docker exec -u root "$CONTAINER" sh -lc "rm -rf '$TMP_DIR' && mkdir -p '$TMP_DIR'"
+TMP_DIR="$(docker exec -u root "$CONTAINER" mktemp -d /tmp/library-signing.XXXXXXXX)"
 docker cp "$STAGE_DIR" "$CONTAINER:$TMP_DIR/$APP_ID"
 docker cp "$KEY_PATH" "$CONTAINER:$TMP_DIR/private.key"
 docker cp "$CERT_PATH" "$CONTAINER:$TMP_DIR/certificate.crt"
+docker exec -u root "$CONTAINER" chown -R www-data:www-data "$TMP_DIR"
+docker exec -u root "$CONTAINER" chmod 0700 "$TMP_DIR"
+docker exec -u root "$CONTAINER" chmod 0600 "$TMP_DIR/private.key"
 docker exec -u www-data "$CONTAINER" php occ integrity:sign-app \
   --path="$TMP_DIR/$APP_ID" \
   --privateKey="$TMP_DIR/private.key" \

@@ -1,0 +1,42 @@
+{
+  "warningsTotal": 799,
+  "syntheticArchiveWarnings": 736,
+  "syntheticEpubWarnings": 9,
+  "syntheticCbzWarnings": 727,
+  "realLibraryIssues": 63,
+  "realEpubArchiveWarnings": 50,
+  "realAuthorFieldWarnings": 3,
+  "realPdfImportFailures": 10,
+  "pdfOverflowCounts": {
+    "subtitle": 9,
+    "title": 1
+  },
+  "titleMaximumCharacters": 920,
+  "subtitleMinimumRejectedCharacters": 632,
+  "subtitleMaximumRejectedCharacters": 1529,
+  "databaseTitleAndSubtitleLimit": 512,
+  "zipFailureCounts": {
+    "multidisk": 14,
+    "notZip": 5,
+    "truncated": 30,
+    "inconsistent": 1
+  },
+  "independentZipOpenSuccess": 16,
+  "independentEpubMetadataReadable": 14,
+  "independentZipOpenFailure": 34,
+  "independentMetadataReadFailure": 2,
+  "authorCounts": [
+    36,
+    46,
+    71
+  ],
+  "authorCountLimit": 32,
+  "largestCombinedAuthorCharacters": 1225,
+  "combinedAuthorCharacterLimit": 1024,
+  "catalogueItemsExistForArchiveWarnings": 786,
+  "catalogueItemsExistForAuthorWarnings": 3,
+  "catalogueItemsAbsentForPdfFailures": 10,
+  "sourceFilesModified": false,
+  "catalogueMetadataModified": false,
+  "oversizedMetadataFromOpfSidecars": 10
+}

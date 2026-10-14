@@ -1,0 +1,48 @@
+import { afterEach, expect, it, vi } from 'vitest'
+import { mount, flushPromises, enableAutoUnmount } from '@vue/test-utils'
+import InferenceAnalysis from './InferenceAnalysis.vue'
+vi.mock('@nextcloud/router',()=>({generateUrl:path=>path}))
+enableAutoUnmount(afterEach)
+afterEach(()=>{vi.useRealTimers();vi.unstubAllGlobals()})
+const response=data=>({ok:true,json:async()=>data})
+const props={definition:{rootId:'1',folder:'',recursive:true,mode:'pattern',pattern:'%title%.epub'},labels:{title:'Title'},statuses:{ready:'Ready',conflict:'Conflict'},requestToken:'csrf'}
+const job={id:'j',status:'completed',scope:'/Books',total:83,processed:83,counts:{conflict:83},definition:{mode:'pattern',pattern:'%title%.epub'},items:[],page:1,hasNext:true}
+it('starts with a rule snapshot and pages saved results without changing the rule',async()=>{
+ const fetch=vi.fn().mockResolvedValue(response({jobs:[]}));vi.stubGlobal('fetch',fetch)
+ const wrapper=mount(InferenceAnalysis,{props,global:{stubs:{InferenceApply:true}}});await flushPromises()
+ fetch.mockResolvedValueOnce(response(job))
+ await wrapper.findAll('button').find(b=>b.text()==='Analyse whole folder').trigger('click');await flushPromises()
+ expect(JSON.parse(fetch.mock.calls[1][1].body)).toEqual({definition:props.definition})
+ expect(fetch.mock.calls[1][1].headers.requesttoken).toBe('csrf')
+ expect(wrapper.text()).toContain('83/83')
+ fetch.mockResolvedValueOnce(response({...job,page:2}))
+ await wrapper.findAll('button').find(b=>b.text()==='Next page').trigger('click');await flushPromises()
+ expect(fetch.mock.calls.at(-1)[0]).toContain('/j?page=2&filter=all')
+ await wrapper.setProps({definition:{...props.definition,pattern:'Changed'}})
+ expect(wrapper.text()).toContain('%title%.epub')
+})
+it('cancels polling and leaves partial results reviewable',async()=>{
+ vi.useFakeTimers()
+ const fetch=vi.fn().mockResolvedValue(response({jobs:[]}));vi.stubGlobal('fetch',fetch)
+ const wrapper=mount(InferenceAnalysis,{props,global:{stubs:{InferenceApply:true}}});await flushPromises()
+ fetch.mockResolvedValueOnce(response({...job,status:'running',processed:20}))
+ await wrapper.findAll('button').find(b=>b.text()==='Analyse whole folder').trigger('click');await flushPromises()
+ expect(wrapper.find('progress').attributes('value')).toBe('20')
+ expect(wrapper.findComponent({name:'InferenceApply'}).props('disabled')).toBe(true)
+ fetch.mockResolvedValueOnce(response({cancelled:true})).mockResolvedValueOnce(response({...job,status:'cancelled',processed:20}))
+ await wrapper.findAll('button').find(b=>b.text()==='Cancel analysis').trigger('click');await flushPromises()
+ const count=fetch.mock.calls.length;await vi.advanceTimersByTimeAsync(5000)
+ expect(fetch).toHaveBeenCalledTimes(count)
+ expect(wrapper.text()).toContain('Analysis cancelled')
+})
+it('shows quota errors and stops polling on unmount',async()=>{
+ vi.useFakeTimers()
+ const fetch=vi.fn().mockResolvedValue(response({jobs:[]}));vi.stubGlobal('fetch',fetch)
+ const wrapper=mount(InferenceAnalysis,{props,global:{stubs:{InferenceApply:true}}});await flushPromises()
+ fetch.mockResolvedValueOnce({ok:false,status:422,json:async()=>({error:'analysis_history_limit'})})
+ await wrapper.findAll('button').find(b=>b.text()==='Analyse whole folder').trigger('click');await flushPromises()
+ expect(wrapper.get('[role=alert]').text()).toContain('Discard an old analysis')
+ fetch.mockResolvedValueOnce(response({...job,status:'running'}))
+ await wrapper.findAll('button').find(b=>b.text()==='Analyse whole folder').trigger('click');await flushPromises()
+ wrapper.unmount();const count=fetch.mock.calls.length;await vi.advanceTimersByTimeAsync(5000);expect(fetch).toHaveBeenCalledTimes(count)
+})

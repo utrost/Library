@@ -22,7 +22,7 @@ def test_post_v01_roadmap_has_one_major_feature_per_release():
 
     expected = {
         "## v0.2 — Filename and directory metadata parsing": "Parsing metadata from filenames and directories",
-        "## v0.3 — External metadata providers": "Getting metadata from a provider",
+        "## v0.3 — Author management": "normalized per-user identities",
         "## v0.4 — Shared libraries and admin-managed roots": "Shared Library roots for households and teams",
         "## v0.5 — Reading integrations and activity": "Reader-aware activity beyond Library's own open timestamp",
         "## Later candidates": "not committed release promises",

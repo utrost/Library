@@ -8,7 +8,7 @@ def test_scan_changes_panel_uses_human_labels_and_explains_outcome():
 
     assert "library-scan-changes-intro" in template
     assert "Library compared the scanned files with its catalogue index." in template
-    assert "Moved or renamed" in template
+    assert "Moved, renamed or reconnected" in template
     assert "Added" in template
     assert "Unchanged" in template
     assert "Missing" in template

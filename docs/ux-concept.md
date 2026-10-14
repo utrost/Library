@@ -172,3 +172,9 @@ New UI surfaces should reuse this contract before adding another panel: clear sc
 - Tag filtering uses Nextcloud system tags attached to backing files.
 - Full-text document search is still out of scope for v0.1.
 - Search/filter/sort/pagination are server-side and database-backed; Vue renders the catalogue but should not become the permission/query source of truth.
+
+## General rule: compact contextual help (2026-09-25)
+
+The user prefers explanatory help in hover-overs on field labels, not permanent paragraphs. Apply this to new and revised screens throughout the app. Tooltips must also be available by keyboard focus and tap, dismissible with Escape, and readable without clipping at narrow viewport widths. Use the shared `LabelHelp` component where appropriate. Keep errors, current state, essential limitations, and actions visible; do not hide actionable failures in help.
+
+Pattern selection uses one list for supplied and personal patterns. Selecting an entry immediately updates the active pattern and preview; there is no additional activation button. Source distinctions belong in internal storage, not separate user-facing lists.

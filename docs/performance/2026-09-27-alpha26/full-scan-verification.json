@@ -1,0 +1,52 @@
+{
+  "passed": true,
+  "startedUtc": "2026-09-27T19:35:04+00:00",
+  "finishedUtc": "2026-09-27T20:25:07+00:00",
+  "durationMs": 3002416,
+  "publicationFilesPerSecond": 35.877,
+  "catalogueBefore": 107707,
+  "catalogueAfter": 107707,
+  "preExistingSourceIdentityCount": 206706,
+  "currentSourceIdentityCount": 206706,
+  "userEditedItemsVerified": 3,
+  "scan": {
+    "rootsTotal": 7,
+    "filesIndexed": 107717,
+    "filesAdded": 0,
+    "pathsUpdated": 0,
+    "filesUnchanged": 107717,
+    "filesMissing": 0,
+    "errorCount": 0,
+    "metadataErrors": 799,
+    "fingerprintSkips": 106918,
+    "metadataExtractions": 799,
+    "itemRefreshes": 789
+  },
+  "warningCounts": {
+    "archive_warning": 786,
+    "metadata_authors_invalid": 3,
+    "metadata_extraction_failed": 10
+  },
+  "extractionFailuresWithoutCatalogueItem": 10,
+  "verification": {
+    "observedScheduled": true,
+    "observedWorker": true,
+    "queuedArgumentObserved": false,
+    "allEnabledRootsCompleted": true,
+    "userCorrectionsUnchanged": true,
+    "sourceIdentityMarkersUnchanged": true,
+    "intervalUnchanged": true
+  },
+  "scheduleIntervalSeconds": 86400,
+  "nextScheduleDueInFuture": true,
+  "nativeWorkerSucceeded": true,
+  "nativeWorkerDurationMs": 3002421,
+  "nativePhpPeakKiB": 65793,
+  "observedProcessHighWaterKiB": 98848,
+  "cleanup": {
+    "fixtureUsersRemaining": 0,
+    "browserTokensRemaining": 0,
+    "forcedBenchmarkMarkersRemaining": 0,
+    "temporaryContainerHelpersRemoved": true
+  }
+}

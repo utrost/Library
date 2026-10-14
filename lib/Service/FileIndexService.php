@@ -19,18 +19,33 @@ final class FileIndexService {
     /**
      * @param array<string, mixed> $file
      */
-    public function upsertFile(string $userId, int $rootId, array $file): array {
+    public function upsertFile(string $userId, int $rootId, array $file, ?array $observation = null, ?callable $oldFileIdUnavailable = null): array {
         $now = time();
         $fileId = (int)$file['fileId'];
 
-        $existing = $this->findByFileId($userId, $fileId);
+        if ($observation !== null && (($observation['userId'] ?? '') !== $userId || (int)($observation['fileId'] ?? 0) !== $fileId)) throw new \InvalidArgumentException('invalid_file_observation');
+        $existing = $observation ?? $this->findByFileId($userId, $fileId);
+        $relinked = false;
+        if ($existing === null && $oldFileIdUnavailable !== null) {
+            // File IDs can change when an external mount is rebuilt. Only reuse an
+            // unambiguous row at the same owner/root/path after the scanner has
+            // established that its former Nextcloud ID is no longer live.
+            $candidate = $this->findUniqueByPath($userId, $rootId, (string)$file['cachedPath']);
+            if ($candidate !== null && (int)$candidate['fileId'] !== $fileId
+                && strtolower((string)$candidate['extension']) === strtolower((string)$file['extension'])
+                && $oldFileIdUnavailable((int)$candidate['fileId'])) {
+                $existing = $candidate;
+                $relinked = true;
+            }
+        }
         if ($existing !== null) {
             $previousScanStatus = $existing['scanStatus'];
+            $previousScanError = $existing['scanError'];
             $previousMetadataInputFingerprint = $existing['metadataInputFingerprint'];
             $previousMetadataExtractorRevision = $existing['metadataExtractorRevision'];
             $pathChanged = (string)$existing['cachedPath'] !== (string)$file['cachedPath'] || (int)$existing['rootId'] !== $rootId;
             $qb = $this->db->getQueryBuilder();
-            $qb->update('library_files')
+            $update = $qb->update('library_files')
                 ->set('root_id', $qb->createNamedParameter($rootId))
                 ->set('cached_path', $qb->createNamedParameter((string)$file['cachedPath']))
                 ->set('mime_type', $qb->createNamedParameter((string)$file['mimeType']))
@@ -43,10 +58,42 @@ final class FileIndexService {
                 ->set('last_scanned_at', $qb->createNamedParameter($now))
                 ->set('updated_at', $qb->createNamedParameter($now))
                 ->where($qb->expr()->eq('id', $qb->createNamedParameter($existing['id'])))
-                ->executeStatement();
-            $updated = $this->findByFileId($userId, $fileId) ?? $existing;
-            $updated['changeStatus'] = $pathChanged ? 'path_updated' : 'unchanged';
+                ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
+            if ($relinked) {
+                $update->set('file_id', $qb->createNamedParameter($fileId))
+                    ->andWhere($qb->expr()->eq('file_id', $qb->createNamedParameter((int)$existing['fileId'])))
+                    ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+                    ->andWhere($qb->expr()->eq('cached_path', $qb->createNamedParameter((string)$file['cachedPath'])));
+            }
+            if ($relinked) {
+                $this->db->beginTransaction();
+            }
+            try {
+                $affected = $update->executeStatement();
+                if ($relinked) {
+                    if ($affected !== 1) {
+                        throw new \RuntimeException('File identity changed during reconciliation; retry the scan');
+                    }
+                    // List entries retain the Nextcloud file ID as a guard against
+                    // stale item references. Keep that guard aligned with the
+                    // unchanged Library item and file row IDs.
+                    $this->db->executeStatement(
+                        'UPDATE *PREFIX*library_list_entries SET file_id = ? WHERE item_id IN (SELECT id FROM *PREFIX*library_items WHERE user_id = ? AND library_file_id = ?)',
+                        [$fileId, $userId, (int)$existing['id']],
+                    );
+                    $this->db->commit();
+                }
+            } catch (\Throwable $e) {
+                if ($relinked) {
+                    $this->db->rollBack();
+                }
+                throw $e;
+            }
+            $updated = [...$existing, ...$file, 'rootId' => $rootId, 'fileId' => $fileId, 'scanStatus' => 'indexed',
+                'scanError' => null, 'lastScannedAt' => $now, 'updatedAt' => $now];
+            $updated['changeStatus'] = $relinked ? 'relinked' : ($pathChanged ? 'path_updated' : 'unchanged');
             $updated['previousScanStatus'] = $previousScanStatus;
+            $updated['previousScanError'] = $previousScanError;
             $updated['previousMetadataInputFingerprint'] = $previousMetadataInputFingerprint;
             $updated['previousMetadataExtractorRevision'] = $previousMetadataExtractorRevision;
             return $updated;
@@ -83,6 +130,48 @@ final class FileIndexService {
         return $created;
     }
 
+    /** A non-unique path is unsafe to use as an identity recovery key. */
+    private function findUniqueByPath(string $userId, int $rootId, string $path): ?array {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('id', 'root_id', 'file_id', 'cached_path', 'mime_type', 'extension', 'etag', 'mtime', 'size', 'scan_status', 'scan_error', 'metadata_input_fingerprint', 'metadata_extractor_revision', 'last_scanned_at')
+            ->from('library_files')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->eq('cached_path', $qb->createNamedParameter($path)))
+            ->executeQuery();
+        $match = null;
+        $ambiguous = false;
+        while ($row = $result->fetch()) {
+            // Database collations may compare paths case insensitively. Nextcloud
+            // paths are identity keys here only when their bytes match exactly.
+            if ((string)$row['cached_path'] !== $path) {
+                continue;
+            }
+            if ($match !== null) {
+                $ambiguous = true;
+                break;
+            }
+            $match = $row;
+        }
+        $result->closeCursor();
+        if ($ambiguous) {
+            throw new \RuntimeException('Multiple Library records have the same path; resolve them before scanning this file');
+        }
+        return $match === null ? null : $this->normalizeIndexRow($match);
+    }
+
+    /** Avoid path lookups for every file on a root's first import. */
+    public function hasFilesForRoot(string $userId, int $rootId): bool {
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('id')->from('library_files')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+            ->setMaxResults(1)->executeQuery();
+        $found = $result->fetchOne() !== false;
+        $result->closeCursor();
+        return $found;
+    }
+
     public function markMetadataProcessed(string $userId, int $libraryFileId, string $fingerprint, string $revision): void {
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_files')
@@ -105,11 +194,13 @@ final class FileIndexService {
             ->executeStatement();
     }
 
-    public function markScanError(string $userId, int $libraryFileId, string $message): void {
+    public function markScanError(string $userId, int $libraryFileId, string $message, ?string $fingerprint = null, ?string $revision = null): void {
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_files')
             ->set('scan_status', $qb->createNamedParameter('metadata_error'))
             ->set('scan_error', $qb->createNamedParameter(mb_substr($message, 0, 1024)))
+            ->set('metadata_input_fingerprint', $qb->createNamedParameter($fingerprint))
+            ->set('metadata_extractor_revision', $qb->createNamedParameter($revision))
             ->set('last_scanned_at', $qb->createNamedParameter(time()))
             ->set('updated_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($libraryFileId)))
@@ -155,6 +246,50 @@ final class FileIndexService {
         return $missing;
     }
 
+    /** Mark only the changed subtree; never infer deletion outside the scanned directory. */
+    public function markMissingUnderPathExcept(string $userId, int $rootId, string $directory, array $seenLibraryFileIds): int {
+        $seen = array_flip(array_map('intval', $seenLibraryFileIds));
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('id', 'cached_path')->from('library_files')
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->neq('scan_status', $qb->createNamedParameter('sidecar')))
+            ->andWhere($qb->expr()->like('cached_path', $qb->createNamedParameter(($directory === '/' ? '/' : rtrim($directory, '/') . '/') . '%')))
+            ->executeQuery();
+        $missing = 0;
+        $prefix = $directory === '/' ? '/' : rtrim($directory, '/') . '/';
+        while ($row = $result->fetch()) {
+            $id = (int)$row['id'];
+            // LIKE metacharacters in real filenames may broaden the SQL read, never the update.
+            if (!str_starts_with((string)$row['cached_path'], $prefix) || isset($seen[$id])) continue;
+            $update = $this->db->getQueryBuilder();
+            $missing += $update->update('library_files')
+                ->set('scan_status', $update->createNamedParameter('missing'))
+                ->set('scan_error', $update->createNamedParameter('File was not found during the latest directory scan'))
+                ->set('updated_at', $update->createNamedParameter(time()))
+                ->where($update->expr()->eq('id', $update->createNamedParameter($id)))
+                ->andWhere($update->expr()->eq('user_id', $update->createNamedParameter($userId)))
+                ->andWhere($update->expr()->neq('scan_status', $update->createNamedParameter('missing')))
+                ->executeStatement();
+        }
+        $result->closeCursor();
+        return $missing;
+    }
+
+    public function markMissingAtPath(string $userId, int $rootId, string $path): int {
+        $qb = $this->db->getQueryBuilder();
+        return $qb->update('library_files')
+            ->set('scan_status', $qb->createNamedParameter('missing'))
+            ->set('scan_error', $qb->createNamedParameter('File was not found during the latest incremental scan'))
+            ->set('updated_at', $qb->createNamedParameter(time()))
+            ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->eq('cached_path', $qb->createNamedParameter($path)))
+            ->andWhere($qb->expr()->neq('scan_status', $qb->createNamedParameter('missing')))
+            ->andWhere($qb->expr()->neq('scan_status', $qb->createNamedParameter('sidecar')))
+            ->executeStatement();
+    }
+
     /**
      * @return array<int, int>
      */
@@ -164,6 +299,7 @@ final class FileIndexService {
             ->from('library_files')
             ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+            ->andWhere($qb->expr()->neq('scan_status', $qb->createNamedParameter('sidecar')))
             ->executeQuery();
 
         $ids = [];
@@ -376,6 +512,22 @@ final class FileIndexService {
             return null;
         }
 
+        return $this->normalizeIndexRow($row);
+    }
+
+    /** A scan page's previous observations, bounded and scoped to its owner. */
+    public function findByFileIds(string $uid, array $ids): array {
+        if ($ids === [] || count($ids) > 200) return [];
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('*')->from('library_files')
+            ->where($qb->expr()->eq('user_id',$qb->createNamedParameter($uid)))
+            ->andWhere($qb->expr()->in('file_id',$qb->createNamedParameter(array_map('intval',$ids),IQueryBuilder::PARAM_INT_ARRAY)))->executeQuery();
+        $files=[];
+        while ($row=$result->fetch()) $files[(int)$row['file_id']]=['userId'=>$uid,...$this->normalizeIndexRow($row)];
+        $result->closeCursor();return $files;
+    }
+
+    private function normalizeIndexRow(array $row): array {
         return [
             'id' => (int)$row['id'],
             'rootId' => (int)$row['root_id'],

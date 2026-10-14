@@ -1,0 +1,93 @@
+
+Running 35 tests using 1 worker
+
+(node:2678115) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop-chromium] › tests/gui/catalogue/catalogue-empty-results-recovery.spec.ts:4:1 › recovers after a search returns no catalogue results @catalogue @search @edge-case @regression (4.3s)
+  ✓   2 [desktop-chromium] › tests/gui/catalogue/catalogue-filter-chips-clear-all.spec.ts:4:1 › removes one desktop filter and clears selection filters while preserving sort and view @catalogue @filters @regression @desktop (4.5s)
+  ✓   3 [desktop-chromium] › tests/gui/catalogue/catalogue-history-navigation.spec.ts:4:1 › keeps catalogue and detail state consistent through history navigation @catalogue @navigation @timing @regression (4.4s)
+  ✓   4 [desktop-chromium] › tests/gui/catalogue/catalogue-list-layout.spec.ts:4:1 › keeps list covers readable and action buttons inside the table @catalogue @list @visual (4.7s)
+  ✓   5 [desktop-chromium] › tests/gui/catalogue/catalogue-loading-state.spec.ts:4:1 › announces a pending catalogue request and clears loading state @catalogue @loading @timing @regression (4.0s)
+  ✓   6 [desktop-chromium] › tests/gui/catalogue/catalogue-search-detail.spec.ts:4:1 › searches for a deterministic publication and opens and closes its details @catalogue @detail @smoke (5.3s)
+  ✓   7 [desktop-chromium] › tests/gui/details/metadata-edit-persistence.spec.ts:4:1 › edits metadata, rescans, then repairs the suggestion and restores the title @details @metadata @scan @review @smoke @mutation (10.2s)
+  ✓   8 [desktop-chromium] › tests/gui/inference/path-inference.spec.ts:4:1 › patterns select immediately, persist privately and delete; inference stays read-only @inference @smoke (5.3s)
+  ✘   9 [desktop-chromium] › tests/gui/inference/path-inference.spec.ts:73:1 › saved pattern API enforces ownership, validation and CSRF @inference @security (25.5s)
+(node:2679926) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [desktop-chromium] › tests/gui/lists/personal-lists.spec.ts:15:1 › maintains a private reading list with notes and ordering @lists @smoke (7.0s)
+  ✓  11 [desktop-chromium] › tests/gui/settings/context-help.spec.ts:4:1 › settings explanations use accessible label help @help @smoke (3.8s)
+[pageerror at http://127.0.0.1:32797/settings/user/library] y: FilePicker: No nodes selected
+    at C.pickNodes (http://127.0.0.1:32797/dist/core-common.js?v=71b8e2b9-0:1:2540146)
+    at async C.pick (http://127.0.0.1:32797/dist/core-common.js?v=71b8e2b9-0:1:2540215)
+  ✓  12 [desktop-chromium] › tests/gui/settings/folder-picker-existing-user.spec.ts:4:1 › opens and closes the real folder picker for an existing root @settings @folder-picker @regression (4.3s)
+  ✓  13 [desktop-chromium] › tests/gui/settings/metadata-export-import-roundtrip.spec.ts:5:1 › exports a corrected item, previews and applies an imported title, then restores the item @metadata @import @export @smoke @mutation (6.6s)
+  ✓  14 [desktop-chromium] › tests/gui/settings/scan-root-browse.spec.ts:4:1 › scans a configured root and finds its publication in the catalogue @scan @catalogue @smoke @mutation (6.2s)
+  ✓  15 [desktop-chromium] › tests/gui/settings/thumbnail-cache.spec.ts:4:1 › administrator can configure thumbnail budget and retention @settings @performance (6.1s)
+(node:2680895) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 [desktop-firefox] › tests/gui/catalogue/catalogue-empty-results-recovery.spec.ts:4:1 › recovers after a search returns no catalogue results @catalogue @search @edge-case @regression (5.4s)
+  ✓  17 [desktop-firefox] › tests/gui/catalogue/catalogue-filter-chips-clear-all.spec.ts:4:1 › removes one desktop filter and clears selection filters while preserving sort and view @catalogue @filters @regression @desktop (5.2s)
+  ✓  18 [desktop-firefox] › tests/gui/catalogue/catalogue-history-navigation.spec.ts:4:1 › keeps catalogue and detail state consistent through history navigation @catalogue @navigation @timing @regression (5.0s)
+  ✓  19 [desktop-firefox] › tests/gui/catalogue/catalogue-list-layout.spec.ts:4:1 › keeps list covers readable and action buttons inside the table @catalogue @list @visual (5.2s)
+  ✓  20 [desktop-firefox] › tests/gui/catalogue/catalogue-loading-state.spec.ts:4:1 › announces a pending catalogue request and clears loading state @catalogue @loading @timing @regression (4.8s)
+  ✓  21 [desktop-firefox] › tests/gui/catalogue/catalogue-search-detail.spec.ts:4:1 › searches for a deterministic publication and opens and closes its details @catalogue @detail @smoke (5.9s)
+  ✓  22 [desktop-firefox] › tests/gui/details/metadata-edit-persistence.spec.ts:4:1 › edits metadata, rescans, then repairs the suggestion and restores the title @details @metadata @scan @review @smoke @mutation (11.8s)
+  ✓  23 [desktop-firefox] › tests/gui/inference/path-inference.spec.ts:4:1 › patterns select immediately, persist privately and delete; inference stays read-only @inference @smoke (6.1s)
+  ✓  24 [desktop-firefox] › tests/gui/inference/path-inference.spec.ts:73:1 › saved pattern API enforces ownership, validation and CSRF @inference @security (9.7s)
+  ✓  25 [desktop-firefox] › tests/gui/lists/personal-lists.spec.ts:15:1 › maintains a private reading list with notes and ordering @lists @smoke (9.2s)
+  ✓  26 [desktop-firefox] › tests/gui/settings/context-help.spec.ts:4:1 › settings explanations use accessible label help @help @smoke (4.4s)
+[pageerror at http://127.0.0.1:32797/settings/user/library] Error: FilePicker: No nodes selected
+    at pick (http://127.0.0.1:32797/dist/core-common.js?v=71b8e2b9-0:1:2540226)
+    at async*filepicker (http://127.0.0.1:32797/dist/core-main.js?v=71b8e2b9-0:1:57589)
+    at openPicker (http://127.0.0.1:32797/custom_apps/library/js/settings-folder-picker-dialog.js?v=71b8e2b9-0:39:51)
+    at  (http://127.0.0.1:32797/custom_apps/library/js/settings-folder-picker-dialog.js?v=71b8e2b9-0:55:36)
+    at EventListener.handleEvent* (http://127.0.0.1:32797/custom_apps/library/js/settings-folder-picker-dialog.js?v=71b8e2b9-0:49:16)
+    at  (http://127.0.0.1:32797/custom_apps/library/js/settings-folder-picker-dialog.js?v=71b8e2b9-0:7:81)
+    at EventListener.handleEvent* (http://127.0.0.1:32797/custom_apps/library/js/settings-folder-picker-dialog.js?v=71b8e2b9-0:1:10)
+  ✓  27 [desktop-firefox] › tests/gui/settings/folder-picker-existing-user.spec.ts:4:1 › opens and closes the real folder picker for an existing root @settings @folder-picker @regression (5.0s)
+  ✓  28 [desktop-firefox] › tests/gui/settings/metadata-export-import-roundtrip.spec.ts:5:1 › exports a corrected item, previews and applies an imported title, then restores the item @metadata @import @export @smoke @mutation (8.8s)
+  ✓  29 [desktop-firefox] › tests/gui/settings/scan-root-browse.spec.ts:4:1 › scans a configured root and finds its publication in the catalogue @scan @catalogue @smoke @mutation (7.0s)
+  ✓  30 [desktop-firefox] › tests/gui/settings/thumbnail-cache.spec.ts:4:1 › administrator can configure thumbnail budget and retention @settings @performance (7.7s)
+(node:2682878) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  31 [mobile-chromium] › tests/gui/catalogue/catalogue-list-layout.spec.ts:88:1 › keeps the list table horizontally usable on phones @catalogue @list @mobile (4.3s)
+  ✓  32 [mobile-chromium] › tests/gui/inference/path-inference.spec.ts:59:1 › inference label help works by tap without horizontal overflow @inference @mobile (3.9s)
+  ✓  33 [mobile-chromium] › tests/gui/lists/personal-lists.spec.ts:91:1 › list editor works on a narrow screen @lists @mobile (3.7s)
+  ✓  34 [mobile-chromium] › tests/gui/mobile/mobile-catalogue-filters.spec.ts:4:1 › applies and clears catalogue filters at a phone viewport @catalogue @filters @mobile @smoke (4.2s)
+  ✓  35 [mobile-chromium] › tests/gui/mobile/mobile-no-horizontal-overflow.spec.ts:25:1 › keeps catalogue controls and filtered results within the phone viewport @mobile @layout @css @regression (3.9s)
+
+
+  1) [desktop-chromium] › tests/gui/inference/path-inference.spec.ts:73:1 › saved pattern API enforces ownership, validation and CSRF @inference @security
+
+    TimeoutError: page.waitForURL: Timeout 20000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+      navigated to "http://127.0.0.1:32797/login?direct=1&user=library-lists-other"
+    ============================================================
+
+      93 |     await other.goto(new URL('/login',page.url()).href)
+      94 |     await other.locator('#user').fill('library-lists-other');await other.locator('#password').fill('Disposable-lists-other-2026')
+    > 95 |     await Promise.all([other.waitForURL(url=>!url.pathname.endsWith('/login')),other.locator('button[type=submit]').click()])
+         |                              ^
+      96 |     await other.goto(new URL('/apps/library/?infer=1',page.url()).href)
+      97 |     const result=await other.evaluate(async id=>{
+      98 |       const before=await (await fetch('/apps/library/api/inference/patterns')).json()
+        at /home/uwe/Developer/utrost/Library/tests/gui/inference/path-inference.spec.ts:95:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../tmp/library-alpha3-authors/main-pass-results/inference-path-inference-s-d0745-and-CSRF-inference-security-desktop-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../tmp/library-alpha3-authors/main-pass-results/inference-path-inference-s-d0745-and-CSRF-inference-security-desktop-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../tmp/library-alpha3-authors/main-pass-results/inference-path-inference-s-d0745-and-CSRF-inference-security-desktop-chromium/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../tmp/library-alpha3-authors/main-pass-results/inference-path-inference-s-d0745-and-CSRF-inference-security-desktop-chromium/error-context.md
+
+  1 failed
+    [desktop-chromium] › tests/gui/inference/path-inference.spec.ts:73:1 › saved pattern API enforces ownership, validation and CSRF @inference @security
+  34 passed (3.8m)

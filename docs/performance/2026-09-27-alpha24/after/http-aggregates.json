@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "applicationRestored": true,
+  "deepCursorAnchorMs": 0,
+  "operations": [
+    {
+      "operation": "catalogue-100",
+      "medianMs": 154.44053600000188,
+      "maxMs": 157.85700499999803,
+      "samples": 3,
+      "allHttp200": true,
+      "responseBytes": 198373,
+      "sqlCount": 6,
+      "sqlMs": 126.38632000000001
+    }
+  ]
+}

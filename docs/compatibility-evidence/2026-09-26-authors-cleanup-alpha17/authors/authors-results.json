@@ -1,0 +1,38 @@
+{
+  "report": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "noneDefault": true,
+      "commaPreserved": true,
+      "orderedChips": true,
+      "exactDedupe": true,
+      "structuredPayload": true,
+      "apply": true,
+      "authorLinks": true,
+      "individualLanding": true,
+      "suggestions": true,
+      "durableUndo": true,
+      "mobile": true,
+      "maintenancePunctuation": true,
+      "maintenanceRescanProtection": true
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "noneDefault": true,
+      "commaPreserved": true,
+      "orderedChips": true,
+      "exactDedupe": true,
+      "structuredPayload": true,
+      "apply": true,
+      "authorLinks": true,
+      "individualLanding": true,
+      "suggestions": true,
+      "durableUndo": true,
+      "mobile": true,
+      "maintenancePunctuation": true,
+      "maintenanceRescanProtection": true
+    }
+  ]
+}

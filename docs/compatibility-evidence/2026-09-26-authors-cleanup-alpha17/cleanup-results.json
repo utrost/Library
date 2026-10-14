@@ -1,0 +1,14 @@
+{
+  "accountDeletionEvent": true,
+  "allAppTables": true,
+  "listEntries": true,
+  "preferences": true,
+  "scopedQueuedScans": true,
+  "otherUserPreserved": true,
+  "boundedExpiry": true,
+  "unexpiredHistoryPreserved": true,
+  "boundedAuthorBackfill": true,
+  "opaqueLegacyNames": true,
+  "trustedSemicolonConvention": true,
+  "backfillPreservesOtherIndexes": true
+}

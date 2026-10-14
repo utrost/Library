@@ -1,0 +1,24 @@
+[
+  {
+    "backendAssertions": 41,
+    "pass": true
+  },
+  {
+    "engine": "chromium",
+    "pass": true,
+    "keep": true,
+    "accept": true,
+    "stalePreviewRejected": true,
+    "emptyQueuePersists": true,
+    "mobileFits": true
+  },
+  {
+    "engine": "firefox",
+    "pass": true,
+    "keep": true,
+    "accept": true,
+    "stalePreviewRejected": true,
+    "emptyQueuePersists": true,
+    "mobileFits": true
+  }
+]

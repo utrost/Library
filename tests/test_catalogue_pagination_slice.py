@@ -10,7 +10,7 @@ def test_page_controller_accepts_limit_page_and_slices_catalogue_items():
     assert "limit" in page
     assert "buildPagination" in page
     assert "queryCatalogue($userId, $activeFilters, $pagination, $includeFacets)" in page
-    assert "->setFirstResult($offset)" in service
+    assert "->setFirstResult($cursor === null ? $offset : 0)" in service
     assert "->setMaxResults($limit)" in service
     assert "max(1, min(500" in service
 

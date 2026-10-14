@@ -1,0 +1,18 @@
+[
+  {
+    "engine": "chromium",
+    "pass": true,
+    "books": 2,
+    "sharedEdit": true,
+    "rescanPreserved": true,
+    "mobileFits": true
+  },
+  {
+    "engine": "firefox",
+    "pass": true,
+    "books": 2,
+    "sharedEdit": true,
+    "rescanPreserved": true,
+    "mobileFits": true
+  }
+]

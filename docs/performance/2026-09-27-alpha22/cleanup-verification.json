@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-09-27T10:24:54+00:00",
+  "books": 84261,
+  "fixtureAccountsRemaining": 0,
+  "benchmarkTokensRemaining": 0,
+  "activeDeveloperScans": 0,
+  "abandonedJobFailed": true,
+  "abandonedProgressRetained": true,
+  "secretAbsent": true,
+  "hookAbsent": true,
+  "opcodeHelpersRemaining": 0,
+  "applicationSha256": "ad5d72a9fd3edcbad71d04814309952d00eff651233beb722c7b815b2c27696d",
+  "extractionWarningCategories": {
+    "unsupported": 4
+  }
+}

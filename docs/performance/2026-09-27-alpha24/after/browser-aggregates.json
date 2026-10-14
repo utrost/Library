@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "applicationRestored": true,
+  "surfaces": [
+    {
+      "surface": "catalogue-first",
+      "visibleMs": 893.1000003814697,
+      "transferMiB": 2.9045257568359375,
+      "longTaskMs": 780,
+      "observedAtMs": 3006.6000003814697
+    },
+    {
+      "surface": "catalogue-repeat",
+      "visibleMs": 692.5,
+      "transferMiB": 0.05282878875732422,
+      "longTaskMs": 548,
+      "observedAtMs": 2632.2000007629395
+    }
+  ]
+}

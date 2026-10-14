@@ -1,0 +1,56 @@
+{
+  "report": [
+    {
+      "engine": "chromium",
+      "passed": true,
+      "csrf": true,
+      "selectionInvalidation": true,
+      "explicitReplacementSelection": true,
+      "apply": true,
+      "reloadHistory": true,
+      "undo": true,
+      "mobile": true,
+      "staleRejection": "not-run"
+    },
+    {
+      "engine": "firefox",
+      "passed": true,
+      "csrf": true,
+      "selectionInvalidation": true,
+      "explicitReplacementSelection": true,
+      "apply": true,
+      "reloadHistory": true,
+      "undo": true,
+      "mobile": true,
+      "staleRejection": "passed"
+    }
+  ],
+  "integration": {
+    "integration": true,
+    "exactUndo": true,
+    "ownership": true,
+    "stalePreview": true,
+    "laterEditUndoBlocked": true,
+    "atomicRollback": true,
+    "derivedIndexRollback": true,
+    "rescanProtection": true,
+    "movedFileBlocked": true,
+    "expiry": true,
+    "idempotentRetries": true,
+    "sourceUnchanged": true,
+    "orderedAuthors": true,
+    "individualAuthorFilter": true,
+    "legacyCreatorFilter": true,
+    "authorSuggestions": true,
+    "authorUndo": true,
+    "authorReset": true,
+    "authorImport": true,
+    "authorRescanProtection": true,
+    "authorQueryMs": [
+      6.500379,
+      3.60175,
+      2.940748
+    ],
+    "largeAuthorCandidateSet": true
+  }
+}

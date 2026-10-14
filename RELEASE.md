@@ -1,8 +1,32 @@
 # Release process
 
+Development has moved to **0.3.0-alpha.9**, adding reviewed series moves and merges, imported-change review and conditional Undo. Alpha.8 added preferred-author names to creator suggestions; its [verification report](docs/compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md) covers source checks. The [alpha.9 report](docs/compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers focused source-build checks. The signed exact-package NC33–35 release matrix remains pending. The owner has chosen 0.3 as the first App Store release; **do not submit the 0.2 archive**. The signed 0.2 baseline below remains preserved.
+
+Current release gate: run the [0.3 human test handbook](docs/human-test-handbook.md#current-03-human-cases) on a disposable account, resolve release-blocking findings, then sign one exact 0.3 archive and run fresh-install and populated-upgrade checks on NC33–35. Record the archive checksum, integrity result, browser artifacts and cleanup. The [readiness roadmap](docs/app-store-readiness.md) tracks the remaining handoff work.
+
+## Preserved 0.2 beta release baseline
+
+The preserved release baseline is `0.2.0-beta.3`, signed, previously deployed on developer Nextcloud 34.0.3 and [published as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 fresh/upgrade cases passed, including 210 final main Playwright tests; hosted CI passed. Download and screenshot URLs were verified. The [beta.3 report](docs/compatibility-evidence/2026-10-13-beta3/README.md) records exact checksums, initial timeout failures and successful reruns. Handoff instructions are in `dist/app-store-handoff-beta3/README.txt`. The beta.1 and beta.2 signed archives are preserved unchanged.
+
+**Historical evidence below is not the current checklist.** Earlier references to pending signing, fresh installation or beta.1 publication describe those earlier checkpoints. Use the current report and [readiness checklist](docs/app-store-readiness.md) for outstanding work.
+
+Build with `NEXTCLOUD_SIGNING_PRIVATE_KEY` and `NEXTCLOUD_SIGNING_CERTIFICATE` pointing to the existing files outside this repository:
+
+```sh
+npm run package:release -- --signed
+bash scripts/sign-app-store.sh dist/library-0.2.0-beta.3.tar.gz /tmp/library-app-store-handoff
+LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.2.0-beta.3.tar.gz" REQUIRE_INTEGRITY=1 \
+  EVIDENCE_DIR=/tmp/library-beta1-upgrade bash scripts/performance/compatibility-matrix.sh
+LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.2.0-beta.3.tar.gz" REQUIRE_INTEGRITY=1 \
+  INSTALL_MODE=fresh EVIDENCE_DIR=/tmp/library-beta1-fresh bash scripts/performance/compatibility-matrix.sh
+```
+
+The matrix uses the same 40-book English Gutenberg archive for both modes. It fails on installed signature errors, service-check failures, browser failures or cleanup failures. Do not rebuild or modify the accepted archive before upload. The `.tar.gz.sig` is the detached App Store signature; the private handoff directory contains the separate registration proof and public certificate. Never upload the private key.
+
+
 ## Alpha.171 unsigned package candidate — deployed private test instance
 
-Future authorized signing uses `openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.174.tar.gz`; the current alpha package is unsigned. Checksum verification is part of the package/deploy workflow.
+The requested `0.1.0-beta.1` candidate must be built, signed and audited before App Store submission. Checksum verification is part of the package/deploy workflow.
 
 `0.1.0-alpha.174` is an unsigned packaged alpha candidate currently deployed on the private Nextcloud 34 test instance. It adds bounded server-backed Home and Shelves payloads, lazy shelf navigation, additive catalogue facets/filters and list refinements. Its identifier spine stores display ISBN/ISSN values, supports normalized exact search and keeps catalogue rows distinct across identifier joins. OPF sidecars follow documented suppression and precedence rules. Settings operations are asynchronous; scan status includes root publication counts, cooperative cancellation, heartbeat/current-path progress, and non-destructive stale-job reporting. Metadata-error TSV exports neutralize spreadsheet formulas, and public scanner/parser/import/job diagnostics use bounded safe messages plus `libdiag-...` correlation IDs instead of raw exception text. Accessibility-tree automation is not screen-reader testing, and manual AT testing remains pending. Package identity, installation, deployment, exact-package browser evidence, and safe-diagnostic live reflection are current for the unsigned private-test package; signing/App Store submission remains pending.
 
@@ -118,14 +142,14 @@ legacy PHP/settings/detail surfaces and broaden reviewed translations; alpha.166
 should extend assistive-technology and mixed-direction content coverage. Source
 files remain private and unchanged, and locale changes in smoke are restored.
 
-This repo is prepared for independent review from the unsigned packaged candidate `0.1.0-alpha.174`. The existing public prerelease tag is `v0.1.0-alpha.1`; create a new tag only after the manual test pass is accepted.
+The beta candidate is `0.1.0-beta.1`. The existing public prerelease tag is `v0.1.0-alpha.1`. The local release gate and exact-package smoke matrix on Nextcloud 33–35 pass; the beta tag and signed App Store package are the remaining release steps.
 
 ## Release type
 
-- Private/early-tester v0.1 candidate on a Nextcloud 34 test instance.
-- App version in `appinfo/info.xml`: `0.1.0-alpha.174`.
+- Beta prerelease candidate for Nextcloud 33–35.
+- App version in `appinfo/info.xml`: `0.1.0-beta.1`.
 - License: AGPL-3.0-or-later.
-- Target runtime: Nextcloud 34.
+- Declared compatibility: Nextcloud 33–35. The exact `0.1.0-beta.1` archive installed and passed all 9 smoke executions on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with 40 English Gutenberg books. See [the final compatibility assessment](docs/compatibility-evidence/2026-09-25-beta1/final-compatibility-assessment.md).
 
 ## Local release gates
 
@@ -148,8 +172,8 @@ scripts/package-release.sh
 The script runs the test/build gates, applies the intentional frontend manifest, creates a reproducible archive, audits it, then writes:
 
 ```text
-dist/library-0.1.0-alpha.174.tar.gz
-dist/library-0.1.0-alpha.174.tar.gz.sha256
+dist/library-0.1.0-beta.1.tar.gz
+dist/library-0.1.0-beta.1.tar.gz.sha256
 ```
 
 The archive contains one `library/` directory and excludes development material. Its frontend manifest is the current versioned Vue JS/CSS plus referenced `style.css`, `library-detail.js`, `library-shell.js`, and `scan-progress-worker.js`. Historical assets, unversioned aliases, orphan chunks, and source maps are rejected. The active module closure is limited to 2,000,000 bytes/eight chunks; the complete frontend manifest is separately limited to 1,200,000 bytes. Entries are sorted and normalized to owner/group 0, directory mode 0755, file mode 0644, and one mtime. `SOURCE_DATE_EPOCH` selects it; the fallback is `946684800` (2000-01-01T00:00:00Z). Gzip name/timestamp metadata is disabled.
@@ -202,7 +226,7 @@ echo -n "library" | openssl dgst -sha512 -sign ~/.nextcloud/certificates/library
 - Upload a release by providing the tarball download URL and a signature over the exact archive:
 
 ```bash
-openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-alpha.174.tar.gz | openssl base64
+openssl dgst -sha512 -sign ~/.nextcloud/certificates/library.key dist/library-0.1.0-beta.1.tar.gz | openssl base64
 ```
 
 ## Generated archive install smoke
@@ -263,10 +287,10 @@ The 40-file results verify write elision only. Alpha.154 adds measured aggregate
 For a non-Docker disposable instance, the equivalent manual steps are:
 
 ```bash
-(cd dist && sha256sum -c library-0.1.0-alpha.174.tar.gz.sha256)
+(cd dist && sha256sum -c library-0.1.0-beta.1.tar.gz.sha256)
 rm -rf /var/www/html/custom_apps/library
 mkdir -p /var/www/html/custom_apps
-tar -xzf dist/library-0.1.0-alpha.174.tar.gz -C /var/www/html/custom_apps
+tar -xzf dist/library-0.1.0-beta.1.tar.gz -C /var/www/html/custom_apps
 chown -R www-data:www-data /var/www/html/custom_apps/library
 sudo -u www-data php -l /var/www/html/custom_apps/library/appinfo/routes.php
 sudo -u www-data php occ app:enable library
@@ -305,8 +329,8 @@ git push origin v0.1.0-alpha.2
 
 Create a GitHub prerelease from the accepted annotated tag and attach:
 
-- `dist/library-0.1.0-alpha.174.tar.gz`
-- `dist/library-0.1.0-alpha.174.tar.gz.sha256`
+- `dist/library-0.1.0-beta.1.tar.gz`
+- `dist/library-0.1.0-beta.1.tar.gz.sha256`
 
 Release note summary:
 

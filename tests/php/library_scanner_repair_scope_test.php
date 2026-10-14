@@ -37,7 +37,7 @@ namespace OCA\Library\Metadata {
         public function extractWithSidecar($node): array { return []; }
         public function getLastError(): ?string { return null; }
     }
-    class MetadataFastPathDecision {
+    class MetadataFastPathDecision { public static function shouldSkipWarning(...$args):bool{return false;} public static function deterministicWarning(...$args):bool{return false;}
         public static function shouldSkip(...$args): bool { return false; }
         public static function shouldMarkProcessed(...$args): bool { return true; }
     }
@@ -69,6 +69,7 @@ namespace OCA\Library\Service {
         public array $missingErrors = [];
         public array $metadataErrors = [];
         public function __construct(private array $missing, private array $metadata) {}
+        public function hasFilesForRoot(string $userId, int $rootId): bool { return true; }
         public function missingFiles(string $userId): array { return $this->missing[$userId] ?? []; }
         public function metadataErrorFiles(string $userId): array { return $this->metadata[$userId] ?? []; }
         public function upsertFile(string $userId, int $rootId, array $file): array {

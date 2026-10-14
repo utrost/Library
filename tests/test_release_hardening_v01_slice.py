@@ -1,3 +1,4 @@
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 import re
 
@@ -15,11 +16,11 @@ def test_release_docs_are_current_for_v01_testing_candidate():
     changelog = read("CHANGELOG.md")
     checklist = read("docs/alpha-test-checklist.md")
 
-    assert "<version>0.1.0-alpha.174</version>" in info
+    assert f"<version>{CURRENT_VERSION}</version>" in info
     for doc in (readme, release, checklist):
-        assert "0.1.0-alpha.174" in doc
+        assert "0.3.0-alpha.9" in doc
         assert "0.1.0-alpha.82" not in doc
-    assert "0.1.0-alpha.174" in changelog
+    assert "0.1.0-beta.1" in changelog
     assert "v0.1.0-alpha.1" in changelog
 
     assert "publication, publication-year and creator discovery pages exist" in checklist
@@ -38,7 +39,7 @@ def test_human_test_handbook_is_linked_and_executable():
     handbook = read("docs/human-test-handbook.md")
 
     assert "docs/human-test-handbook.md" in readme
-    assert "human test handbook" in checklist.lower()
+    assert "current 0.3 human cases" in checklist.lower()
 
     for test_id in [
         "LIB-HARDEN-001",
@@ -96,12 +97,12 @@ def test_release_docs_link_current_runtime_evidence_and_risk_register():
     release = read("RELEASE.md")
 
     assert "docs/current-state-and-risk-register.md" in readme
-    assert "Deployment posture" in risk
+    assert "Historical deployment posture" in risk
     assert "Implemented product surface" in risk
     assert "Known weak points and deferred hardening" in risk
     assert "Verification evidence" in risk
     assert "Practical next hardening slices" in risk
     assert "private Nextcloud 34 test instance" in risk
-    assert "app-owned cover cache" in risk
+    assert "bounded private thumbnails" in risk
     assert "source folders untouched" in risk
     assert "current-state-and-risk-register" in release
