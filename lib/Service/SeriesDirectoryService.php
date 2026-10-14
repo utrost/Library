@@ -14,7 +14,7 @@ final class SeriesDirectoryService {
     }
     public function directory(string $uid, string $search = '', int $page = 1): array {
         if ($page < 1 || $page > 100000 || mb_strlen($search) > 255) throw new \InvalidArgumentException('search_or_page');
-        $where = 's.user_id=?'; $params = [$uid];
+        $where = 's.user_id=? AND s.merged_into IS NULL'; $params = [$uid];
         if (trim($search) !== '') {
             $where .= " AND LOWER(s.display_name) LIKE ? ESCAPE '!'";
             $params[] = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($search))) . '%';
@@ -24,7 +24,7 @@ final class SeriesDirectoryService {
     }
     public function show(string $uid, int $id, int $page = 1): array {
         if ($page < 1 || $page > 100000) throw new \InvalidArgumentException('page');
-        $series = $this->rows('SELECT id,display_name,description,revision FROM *PREFIX*library_series WHERE user_id=? AND id=?', [$uid, $id])[0] ?? null;
+        $series = $this->rows('SELECT id,display_name,description,revision,merged_into FROM *PREFIX*library_series WHERE user_id=? AND id=?', [$uid, $id])[0] ?? null;
         if ($series === null) throw new \OutOfBoundsException('series');
         $count = $this->rows('SELECT COUNT(*) AS n FROM *PREFIX*library_item_series WHERE user_id=? AND series_id=?', [$uid, $id])[0];
         $books = $this->rows('SELECT i.id,i.title,i.creators,l.part_number,l.source_name,i.cover_revision,f.etag,f.extension,f.scan_status FROM *PREFIX*library_item_series l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id WHERE l.user_id=? AND l.series_id=? ORDER BY CASE WHEN l.part_number IS NULL THEN 1 ELSE 0 END,l.part_number,i.title,i.id LIMIT 51 OFFSET ' . (($page - 1) * 50), [$uid, $id]);
@@ -37,7 +37,7 @@ final class SeriesDirectoryService {
         $this->db->beginTransaction();
         try {
             $this->db->executeStatement('UPDATE *PREFIX*library_series_state SET updated_at=? WHERE user_id=?', [time(), $uid]);
-            $affected = $this->db->executeStatement('UPDATE *PREFIX*library_series SET display_name=?,description=?,revision=revision+1 WHERE user_id=? AND id=? AND revision=?', [$name, trim($description) === '' ? null : trim($description), $uid, $id, $revision]);
+            $affected = $this->db->executeStatement('UPDATE *PREFIX*library_series SET display_name=?,description=?,revision=revision+1 WHERE user_id=? AND id=? AND revision=? AND merged_into IS NULL', [$name, trim($description) === '' ? null : trim($description), $uid, $id, $revision]);
             if ($affected !== 1) {
                 $exists = $this->rows('SELECT id FROM *PREFIX*library_series WHERE user_id=? AND id=?', [$uid, $id]);
                 if (!$exists) throw new \OutOfBoundsException('series');

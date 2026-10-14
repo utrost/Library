@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3.0-alpha.8**, 2026-10-14. Covers 33 app-owned tables through `Version000300Date20261014080000`. Alpha.7 adds persistent author operation tasks; alpha.8 changes author suggestions without a schema migration. Earlier series additions passed fresh installation on SQLite NC33–35, populated upgrade on SQLite NC34, and upgrade on the MariaDB developer NC34. Alpha.7 verification is recorded separately.
+Snapshot: **0.3.0-alpha.9**, 2026-10-14. Covers 34 app-owned tables through `Version000300Date20261014120000`. Alpha.9 adds guarded series assignments, merge redirects and a private operation journal. Earlier series additions passed fresh installation on SQLite NC33–35, populated upgrade on SQLite NC34, and upgrade on the MariaDB developer NC34. The alpha.9 focused compatibility evidence is recorded separately.
 
 ## Schema ownership
 
@@ -23,9 +23,10 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_author_operations` | 9 | 2 | Account-private before/after journal, bounded payload, small history summaries and conditional undo. |
 | `library_author_tasks` | 13 | 3 | Account-private queued merge/undo state, worker claim, preview checkpoint and completion result. |
 | `library_author_state` | 2 | 1 | Per-user transaction coordination for identity reuse. |
-| `library_series` | 6 | 3 | Per-user preferred series names and descriptions. |
-| `library_item_series` | 8 | 2 | Book-to-series slots with source name and part number. |
+| `library_series` | 7 | 3 | Per-user preferred series names, descriptions and merge redirects. |
+| `library_item_series` | 9 | 2 | Book-to-series slots with source name, part number and assignment provenance. |
 | `library_series_state` | 2 | 1 | Per-user series backfill and edit coordination. |
+| `library_series_operations` | 9 | 2 | Account-private move/merge snapshots and conditional Undo history. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
 | `library_files` | 17 | 8 | Nextcloud file identity, observed paths/revisions and scan diagnostics. |
 | `library_items` | 44 | 27 | Catalogue metadata, ordered authors, series migration status, provenance, review flags and cover revision. |
@@ -67,6 +68,12 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 - System tags and file comments use Nextcloud APIs and core storage.
 
 Expiry and deletion behavior is documented in [metadata storage](metadata-storage.md), [duplicate review](duplicate-review.md), [automatic scans](automatic-scans.md) and the [user guide](user-guide.md). Current performance and verification limits are in the [alpha.24 report](performance/2026-09-27-alpha24/README.md).
+
+## Series assignments (0.3.0-alpha.9)
+
+`library_series.merged_into` redirects a retired series identity to the active destination on future imports. `library_item_series.assignment_source` defaults to `import` for existing rows; reviewed moves and merges set it to `manual`. `library_items.series_sync_status=3` marks a changed imported series on a manually assigned book for review. The source name and part fields stay in `library_items`, and the linked identity controls preferred catalogue grouping.
+
+`library_series_operations` stores an account-scoped before/after snapshot, 32-character operation ID, summaries and Undo state. The application caps each transaction at 500 books and 8 MiB of journal payload. Preview tokens guard the source and destination series, book set and link revisions. Conditional Undo restores original assignment provenance and refuses to overwrite later changes. Account deletion removes the journal. See the [series management guide](v0.3-series-management.md).
 
 ## Author storage transition (0.3.0-alpha.1)
 

@@ -1,6 +1,6 @@
 # Release process
 
-Development has moved to **0.3.0-alpha.8**, adding preferred-author names to creator suggestions while retaining source-name choices and respecting catalogue filters. Alpha.7 added durable background author merge and undo tasks for 501–5,000 linked books; its [verification report](docs/compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md) covers fresh NC33–35 and the populated NC34 developer upgrade. The signed exact-package NC33–35 release matrix remains pending. The owner has chosen 0.3 as the first App Store release; **do not submit the 0.2 archive**. The signed 0.2 baseline below remains preserved. The [alpha.8 verification report](docs/compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md) covers development source checks, not a signed 0.3 release package.
+Development has moved to **0.3.0-alpha.9**, adding reviewed series moves and merges, imported-change review and conditional Undo. Alpha.8 added preferred-author names to creator suggestions; its [verification report](docs/compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md) covers source checks. The [alpha.9 report](docs/compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers focused source-build checks. The signed exact-package NC33–35 release matrix remains pending. The owner has chosen 0.3 as the first App Store release; **do not submit the 0.2 archive**. The signed 0.2 baseline below remains preserved.
 
 ## Current 0.2 beta release
 
