@@ -12,7 +12,8 @@ EVIDENCE_DIR=/tmp/library-perf-before npm run perf:quick
 
 # Change/deploy one slice, then rerun under comparable conditions.
 EVIDENCE_DIR=/tmp/library-perf-after npm run perf:quick
-npm run perf:compare -- /tmp/library-perf-before/results.json /tmp/library-perf-after/results.json
+# Use the evidence_dir printed by each command:
+npm run perf:compare -- /tmp/library-perf-before/library-performance-XXXXXX/results.json /tmp/library-perf-after/library-performance-XXXXXX/results.json
 
 # Real browser surfaces, resource sizes, paint/long tasks, screenshots.
 EVIDENCE_DIR=/tmp/library-perf-browser npm run perf:browser
@@ -33,7 +34,8 @@ EVIDENCE_DIR=/tmp/library-cpu-before node scripts/performance/profile-catalogue.
 # Deploy the change, then repeat independently of other measurements.
 EVIDENCE_DIR=/tmp/library-cpu-after node scripts/performance/profile-catalogue.mjs
 python3 scripts/performance/export-aggregates.py \
-  --cpu_before /tmp/library-cpu-before --cpu_after /tmp/library-cpu-after \
+  --cpu_before /tmp/library-cpu-before/library-catalogue-cpu-XXXXXX \
+  --cpu_after /tmp/library-cpu-after/library-catalogue-cpu-XXXXXX \
   --out /tmp/library-cpu-safe
 ```
 
@@ -80,7 +82,7 @@ Root **0 or omitted means all roots**. Prefer an explicit small root first. The 
 
 ## Evidence and cleanup
 
-HTTP evidence defaults to a timestamped `/tmp/library-performance-*` folder. CLI/process tools have stable defaults; **set a new `EVIDENCE_DIR` for every retained run** to avoid overwriting previous results. Outputs include JSON/JSONL, inventory, normalized SQL and plans, screenshots for browser mode, and stderr for CLI jobs. Review screenshots, resource IDs and diagnostics before external publication; they can reveal library information. Never include app passwords, profiler secrets or database backups.
+HTTP, browser smoke and selected process tools create an owned private run folder with a random suffix. `EVIDENCE_DIR` is their parent directory; copy the exact `evidence_dir` printed by the command when comparing or resuming runs. Some older CLI tools still write directly to `EVIDENCE_DIR`; **set a new directory for every retained CLI run**. Outputs include JSON/JSONL, inventory, normalized SQL and plans, screenshots for browser mode, and stderr for CLI jobs. Review screenshots, resource IDs and diagnostics before external publication; they can reveal library information. Never include app passwords, profiler secrets or database backups.
 
 Normal cleanup restores the exact original `Application.php`, removes the secret/hook and revokes the temporary auth token. SIGINT/SIGTERM request shutdown; hard termination/host failure can bypass cleanup. Do not deploy while the temporary hook is installed. If recovery is needed:
 

@@ -1,3 +1,4 @@
+import { decodeHtmlAttribute } from './html-attribute.mjs'
 import { execFileSync } from 'node:child_process'
 
 const upstream = process.env.NC_URL || 'http://100.123.149.120:8088'
@@ -46,14 +47,6 @@ function cookieHeaderFrom(response) {
     .join('; ')
 }
 
-function decodeHtmlAttribute(value) {
-  return value
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#039;', "'")
-    .replaceAll('&amp;', '&')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
-}
 
 function decodeInitialState(page) {
   const match = page.match(/id="initial-state-library-catalogue" value="([^"]+)"/)
@@ -114,7 +107,6 @@ try {
   if (!token) {
     fail('temporary_app_password_not_created')
   } else {
-    const page = await fetchWithAuth('/apps/library/', token)
     const pageResponse = await fetch(new URL('/apps/library/', upstream), {
       headers: { Authorization: `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}` },
     })
@@ -183,8 +175,8 @@ try {
 } catch (error) {
   fail('exception', { message: error instanceof Error ? error.message : String(error) })
 } finally {
-  let restored = itemId === 0
   if (itemId) {
+    let restored
     try {
       restoreLastOpened(itemId, originalLastOpened)
       restored = lastOpenedFor(itemId) === originalLastOpened

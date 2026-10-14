@@ -27,7 +27,6 @@ def test_page_controller_builds_creator_discovery_state_without_eager_landing_ur
 
 def test_vue_and_fallback_render_creator_discovery_links_and_header():
     vue = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
 
     assert "isCreatorDiscoveryPage" in vue
     assert "creatorLandingUrl(creator)" in vue

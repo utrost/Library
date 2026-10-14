@@ -19,7 +19,6 @@ def test_catalogue_and_detail_expose_download_url_next_to_read_and_show_in_files
     detail_controller = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
     detail_template = (ROOT / "templates" / "item-detail.php").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
 
     expected = "$this->readerProvider->getDownloadUrl($userId, (string)($item['cachedPath'] ?? ''))"
     assert "downloadUrl" in page

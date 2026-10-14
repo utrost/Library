@@ -31,7 +31,6 @@ def test_filter_result_cover_refresh_route_counts_current_catalogue_filters():
 def test_catalogue_refresh_state_threads_refresh_into_cover_urls():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     app = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 
     assert "batchCoverRefreshRequested" in page

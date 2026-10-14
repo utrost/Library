@@ -1,19 +1,19 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const base = process.env.NC_URL || 'http://100.123.149.120:8088'
-const out = process.env.EVIDENCE_DIR || '/tmp/library-author-assignments'
-mkdirSync(out, { recursive: true, mode: 0o700 })
+const out = createEvidenceDirectory('library-author-assignments')
+
 const docker = args => execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 for (const file of ['author_directory_fixture', 'author_assignment_integration']) docker(['cp', `tests/php/${file}.php`, `${container}:/tmp/${file}.php`])
 const fixture = action => JSON.parse(docker(['exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', action]))
-let created = false, browser
+let browser
 const results = []
 try {
-  created = true
   fixture('setup')
   const state = JSON.parse(docker(['exec', '-u', 'www-data', container, 'php', '/tmp/author_assignment_integration.php']))
   results.push({ integration: state.assertions, previewAndApplyMs: state.previewAndApplyMs })
@@ -97,7 +97,7 @@ try {
   results.push({ pass: false, error: e.message }); throw e
 } finally {
   if (browser) await browser.close()
-  if (created) fixture('cleanup')
+  fixture('cleanup')
   for (const file of ['author_directory_fixture', 'author_assignment_integration']) docker(['exec', container, 'rm', '-f', `/tmp/${file}.php`])
   writeFileSync(`${out}/results.json`, JSON.stringify(results, null, 2))
 }

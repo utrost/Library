@@ -61,7 +61,7 @@ def test_release_packaging_uses_page_controller_wired_assets(tmp_path):
             "--input-type=module",
             "--eval",
             "import { releaseFrontendFiles } from './scripts/release-frontend-manifest.mjs'; "
-            "console.log(JSON.stringify(releaseFrontendFiles('0.1.0-beta.1')))",
+            + "console.log(JSON.stringify(releaseFrontendFiles('0.1.0-beta.1')))",
         ],
         cwd=ROOT,
         check=True,

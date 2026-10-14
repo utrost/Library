@@ -1,19 +1,19 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const upstream=process.env.NC_URL || 'http://100.123.149.120:8088', user=process.env.NC_USER || 'uwe', container=process.env.NC_CONTAINER || 'nextcloud'
-const evidence=process.env.EVIDENCE_DIR || '/tmp/library-alpha17-evidence/authors'
-mkdirSync(evidence,{recursive:true})
+const evidence=createEvidenceDirectory('authors')
+
 const name=`Library metadata smoke ${Date.now()}`,tokenName=name.replaceAll(' ','-')
 const occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8',stdio:['ignore','pipe','pipe']})
 execFileSync('docker',['cp',new URL('./metadata-fields-fixture.php',import.meta.url).pathname,`${container}:/tmp/library-metadata-fields-fixture.php`])
 const fixture=action=>JSON.parse(execFileSync('docker',['exec','-u','www-data','-e',`LIBRARY_SMOKE_USER=${user}`,'-e',`LIBRARY_SMOKE_NAME=${name}`,container,'php','/tmp/library-metadata-fields-fixture.php',action],{encoding:'utf8',maxBuffer:5*1024*1024}))
-let browser,created=false
+let browser
 const report=[]
 try {
- created=true
  const state=fixture('create')
  const output=createTemporaryAppPassword(container,user,tokenName)
  const token=output.match(/app password is:\s*(\S+)/i)?.[1] || output.match(/app password:\s*\n\s*(\S+)/i)?.[1];assert.ok(token)
@@ -89,7 +89,7 @@ try {
  writeFileSync(`${evidence}/authors-results.json`,JSON.stringify({report},null,2));console.log(JSON.stringify({report}))
 } finally {
  if(browser)await browser.close()
- if(created)assert.equal(fixture('cleanup').cleaned,true)
+ assert.equal(fixture('cleanup').cleaned,true)
  const tokens=JSON.parse(occ('user:auth-tokens:list',user,'--output=json'))
  for(const entry of tokens.filter(t=>t.name===tokenName))occ('user:auth-tokens:delete',user,String(entry.id))
 }

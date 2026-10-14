@@ -1,12 +1,13 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs'
+import { writeFileSync, readFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const base = process.env.NC_URL || 'http://100.123.149.120:8088'
-const out = process.env.EVIDENCE_DIR || '/tmp/library-author-profile'
-mkdirSync(out, { recursive: true, mode: 0o700 })
+const out = createEvidenceDirectory('library-author-profile')
+
 const docker = args => execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 for (const name of ['author_directory', 'author_profile']) docker(['cp', `tests/php/${name}_fixture.php`, `${container}:/tmp/library-${name.replaceAll('_', '-')}-fixture.php`])
 const fixture = (name, action) => JSON.parse(docker(['exec', '-u', 'www-data', container, 'php', `/tmp/library-${name}-fixture.php`, action]))
@@ -16,10 +17,10 @@ const auth = uid => {
   assert.ok(token)
   return `Basic ${Buffer.from(`${uid}:${token}`).toString('base64')}`
 }
-let browser, created = false
+let browser
 const results = []
 try {
-  created = true; fixture('author-directory', 'setup')
+  fixture('author-directory', 'setup')
   const state = fixture('author-profile', 'setup')
   assert.equal(state.assertions, 7)
   docker(['cp', `${container}:/tmp/library-author-profile-upload.png`, `${out}/fixture-portrait.png`])
@@ -118,7 +119,7 @@ try {
   }
 } finally {
   if (browser) await browser.close()
-  if (created) { fixture('author-profile', 'cleanup'); fixture('author-directory', 'cleanup') }
+  fixture('author-profile', 'cleanup'); fixture('author-directory', 'cleanup')
 }
 writeFileSync(`${out}/results.json`, JSON.stringify(results, null, 2))
 console.log(JSON.stringify(results))

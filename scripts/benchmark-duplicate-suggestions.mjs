@@ -1,10 +1,11 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync,writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium,expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const upstream=process.env.NC_URL||'http://100.123.149.120:8088',user=process.env.NC_USER||'uwe',container=process.env.NC_CONTAINER||'nextcloud'
-const evidence=process.env.EVIDENCE_DIR||'/tmp/library-alpha20-evidence';mkdirSync(evidence,{recursive:true});const name=`library-suggestion-benchmark-${Date.now()}`
+const evidence=createEvidenceDirectory('library-alpha20-evidence');const name=`library-suggestion-benchmark-${Date.now()}`
 const occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:5*1024*1024})
 const output=createTemporaryAppPassword(container,user,name),token=output.match(/app password is:\s*(\S+)/i)?.[1]||output.match(/app password:\s*\n\s*(\S+)/i)?.[1];assert.ok(token)
 const authorization=`Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`;let browser
