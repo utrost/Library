@@ -9,7 +9,7 @@ Before submitting 0.3: complete author browsing/editing/merging, verify the popu
 
 ## Release checkpoint — 2026-10-13
 
-Current candidate baseline: `0.3.0-alpha.5`. Author and series management are in development. Fresh source installs on NC33–35 and a populated NC34 upgrade passed; the signed exact-package 0.3 release matrix remains pending.
+Current candidate baseline: `0.3.0-alpha.6`. Author and series management are in development. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. The signed exact-package 0.3 release matrix remains pending.
 
 Preserved baseline: `0.2.0-beta.3`. It is signed and [publicly released as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 cases passed with 210 final main Playwright tests; hosted CI and public URL verification passed. See the [beta.3 report](compatibility-evidence/2026-10-13-beta3/README.md), including the earlier timeout attempts and successful reruns.
 

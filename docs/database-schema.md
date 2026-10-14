@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3.0-alpha.5**, 2026-10-13. Covers 32 app-owned tables through `Version000300Date20261014010000`. The series additions passed fresh installation on SQLite NC33–35, populated upgrade on SQLite NC34, and upgrade on the MariaDB developer NC34.
+Snapshot: **0.3.0-alpha.6**, 2026-10-14. Covers 32 app-owned tables through `Version000300Date20261014010000`. Alpha.6 changes duplicate matching and indexed projections without a schema migration. The series additions passed fresh installation on SQLite NC33–35, populated upgrade on SQLite NC34, and upgrade on the MariaDB developer NC34.
 
 ## Schema ownership
 

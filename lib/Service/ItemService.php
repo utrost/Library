@@ -2510,6 +2510,18 @@ final class ItemService {
             }
         }
         if ($creator !== '') {
+            // A chosen preferred name must include books whose original credit
+            // differs after an explicit author merge or reassignment.
+            $canonicalAuthorIds = $this->exactAuthorIds($userId, $creator);
+            $canonicalItemIds = [];
+            if ($canonicalAuthorIds) {
+                $lookup = $this->db->getQueryBuilder();
+                $result = $lookup->select('item_id')->from('library_item_authors')
+                    ->where($lookup->expr()->eq('user_id', $lookup->createNamedParameter($userId)))
+                    ->andWhere($lookup->expr()->in('author_id', $lookup->createNamedParameter($canonicalAuthorIds, IQueryBuilder::PARAM_INT_ARRAY)))
+                    ->groupBy('item_id')->setMaxResults(501)->executeQuery();
+                $canonicalItemIds = array_map('intval', array_column($result->fetchAll(), 'item_id')); $result->closeCursor();
+            }
             // Small indexed candidate sets avoid scanning a large catalogue for rare authors.
             $lookup = $this->db->getQueryBuilder();
             $result = $lookup->select('item_id')->from('library_item_facets')
@@ -2524,8 +2536,8 @@ final class ItemService {
                 ->andWhere($lookup->expr()->eq('creators', $lookup->createNamedParameter($creator)))
                 ->setMaxResults(501)->executeQuery();
             $legacyIds = array_map('intval', array_column($result->fetchAll(), 'id')); $result->closeCursor();
-            $ids = array_values(array_unique([...$authorIds, ...$legacyIds]));
-            if (count($authorIds) <= 500 && count($legacyIds) <= 500 && count($ids) <= 500) {
+            $ids = array_values(array_unique([...$canonicalItemIds, ...$authorIds, ...$legacyIds]));
+            if (count($canonicalItemIds) <= 500 && count($authorIds) <= 500 && count($legacyIds) <= 500 && count($ids) <= 500) {
                 $qb->andWhere($qb->expr()->in('i.id', $qb->createNamedParameter($ids ?: [-1], IQueryBuilder::PARAM_INT_ARRAY)));
             } else {
                 $author = $this->db->getQueryBuilder();
@@ -2538,7 +2550,9 @@ final class ItemService {
                     ->where($legacy->expr()->eq('legacy_author.user_id', $qb->createNamedParameter($userId)))
                     ->andWhere($legacy->expr()->eq('legacy_author.creators', $qb->createNamedParameter($creator)));
                 // Separate subqueries can be materialized; no correlated per-item lookup or truncated results.
-                $qb->andWhere($qb->expr()->orX($qb->expr()->in('i.id', $qb->createFunction($author->getSQL())), $qb->expr()->in('i.id', $qb->createFunction($legacy->getSQL()))));
+                $matches = [$qb->expr()->in('i.id', $qb->createFunction($author->getSQL())), $qb->expr()->in('i.id', $qb->createFunction($legacy->getSQL()))];
+                if ($canonicalAuthorIds) $matches[] = $qb->expr()->in('i.id', $qb->createFunction($this->authorSearchSubquery($qb, $userId, $canonicalAuthorIds)));
+                $qb->andWhere($qb->expr()->orX(...$matches));
             }
         }
 

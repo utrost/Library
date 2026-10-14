@@ -8,7 +8,7 @@ use OCA\Library\Exception\ListConflictException;
 /** Explicit, bounded author changes. Source book metadata is never rewritten. */
 final class AuthorAssignmentService {
     public const MAX_BOOKS = 500;
-    public function __construct(private IDBConnection $db) {}
+    public function __construct(private IDBConnection $db, private DuplicateIndexService $duplicateIndex) {}
     private function rows(string $sql, array $params = [], bool $lock = false): array {
         $r = $this->db->executeQuery($sql . ($lock && $this->db->getDatabaseProvider() !== 'sqlite' ? ' FOR UPDATE' : ''), $params);
         try { return $r->fetchAll(); } finally { $r->closeCursor(); }
@@ -70,6 +70,12 @@ final class AuthorAssignmentService {
         $this->db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=?', [$uid, $item]);
         foreach ($links as $link) $this->insert('library_item_authors', $link);
     }
+    private function invalidateDuplicateHints(string $uid, array $itemIds): void {
+        foreach (array_chunk($itemIds, 400) as $ids) {
+            $marks = implode(',', array_fill(0, count($ids), '?'));
+            $this->db->executeStatement('DELETE FROM *PREFIX*library_dup_hints WHERE user_id=? AND (left_id IN (' . $marks . ') OR right_id IN (' . $marks . '))', [$uid, ...$ids, ...$ids]);
+        }
+    }
     public function apply(string $uid, int $source, int $target, array $selected, string $token): array {
         $this->db->beginTransaction();
         try {
@@ -92,6 +98,11 @@ final class AuthorAssignmentService {
                 $after[$item] = $this->rows('SELECT * FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=? ORDER BY position', [$uid, $item]);
             }
             if ($s['merge']) $this->db->executeStatement('UPDATE *PREFIX*library_authors SET merged_into=?,revision=revision+1 WHERE user_id=? AND id=?', [$target, $uid, $source]);
+            // A reviewed identity change can alter duplicate evidence even when
+            // source credits remain identical. Drop only decisions touching the
+            // affected books; the other account's choices are untouched.
+            $this->invalidateDuplicateHints($uid, array_map('intval', array_keys($s['links'])));
+            $this->duplicateIndex->changedMany($uid, array_map('intval', array_keys($s['links'])));
             $id = bin2hex(random_bytes(16));
             $payload = ['before' => $s, 'after' => $after, 'sourceAfter' => $this->author($uid, $source)];
             $encoded = json_encode($payload, JSON_THROW_ON_ERROR);
@@ -131,6 +142,8 @@ final class AuthorAssignmentService {
                 $this->replace($uid, (int)$item, $links);
             }
             if ($s['merge']) $this->db->executeStatement('UPDATE *PREFIX*library_authors SET merged_into=NULL,revision=revision+1 WHERE user_id=? AND id=?', [$uid, $s['source']['id']]);
+            $this->invalidateDuplicateHints($uid, array_map('intval', array_keys($s['links'])));
+            $this->duplicateIndex->changedMany($uid, array_map('intval', array_keys($s['links'])));
             $this->db->executeStatement('UPDATE *PREFIX*library_author_operations SET undone=1 WHERE user_id=? AND id=?', [$uid, $id]);
             $this->db->commit();
         } catch (\Throwable $e) { $this->db->rollBack(); throw $e; }
