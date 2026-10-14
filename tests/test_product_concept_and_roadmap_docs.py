@@ -52,7 +52,7 @@ def test_roadmap_starts_with_roots_file_index_and_nextcloud_tags_before_metadata
     assert phase1 < phase2 < phase25 < phase3
 
     immediate = roadmap[roadmap.index("## Immediate next implementation slice") :]
-    assert "real-library alpha acceptance evidence and signing readiness" in immediate
+    assert "Current 0.3 sequence:" in immediate
     assert "exact unsigned package has now been built, deployed and live-smoked" in immediate
     assert "database-backed catalogue query path" in immediate
     assert "metadata export/import as the in-app portability boundary" in immediate

@@ -70,6 +70,6 @@ def test_alpha_157_and_historical_alpha_153_evidence_are_distinct():
     assert "Historical alpha.153 privacy-safe smallest-root validation" in architecture
     assert "Alpha.153 rehearsal evidence" in readiness
     assert "Historical exact-package migration evidence for alpha.153" in risk
-    assert "Alpha.171 release baseline" in checklist
+    assert "Historical alpha.171 baseline" in checklist
     assert "Alpha.157 historical release baseline" in checklist
     assert "zero catalogue rewrites, 40 markers and `source_observation_changes=0`" in checklist

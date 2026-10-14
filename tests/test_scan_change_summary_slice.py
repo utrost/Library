@@ -24,7 +24,7 @@ def test_file_upsert_returns_change_status_for_same_file_id_moves_without_duplic
     scanner = (ROOT / "lib" / "Service" / "LibraryScanner.php").read_text()
 
     assert "['changeStatus'] = 'added'" in service
-    assert "['changeStatus'] = $pathChanged ? 'path_updated' : 'unchanged'" in service
+    assert "['changeStatus'] = $relinked ? 'relinked' : ($pathChanged ? 'path_updated' : 'unchanged')" in service
     assert "findByFileId($userId, $fileId)" in service
     assert "->where($qb->expr()->eq('id', $qb->createNamedParameter($existing['id'])))" in service
     assert "incrementChangeCount($summary, (string)($indexedFile['changeStatus'] ?? 'unchanged'))" in scanner

@@ -18,7 +18,7 @@ def test_release_docs_are_current_for_v01_testing_candidate():
 
     assert f"<version>{CURRENT_VERSION}</version>" in info
     for doc in (readme, release, checklist):
-        assert "0.1.0-beta.1" in doc
+        assert "0.3.0-alpha.9" in doc
         assert "0.1.0-alpha.82" not in doc
     assert "0.1.0-beta.1" in changelog
     assert "v0.1.0-alpha.1" in changelog
@@ -39,7 +39,7 @@ def test_human_test_handbook_is_linked_and_executable():
     handbook = read("docs/human-test-handbook.md")
 
     assert "docs/human-test-handbook.md" in readme
-    assert "human test handbook" in checklist.lower()
+    assert "current 0.3 human cases" in checklist.lower()
 
     for test_id in [
         "LIB-HARDEN-001",
@@ -97,7 +97,7 @@ def test_release_docs_link_current_runtime_evidence_and_risk_register():
     release = read("RELEASE.md")
 
     assert "docs/current-state-and-risk-register.md" in readme
-    assert "Deployment posture" in risk
+    assert "Historical deployment posture" in risk
     assert "Implemented product surface" in risk
     assert "Known weak points and deferred hardening" in risk
     assert "Verification evidence" in risk

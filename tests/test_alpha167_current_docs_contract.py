@@ -20,13 +20,9 @@ def test_current_user_docs_describe_alpha168_workflow():
         assert "Use **Details**" not in current_instructions
 
     roadmap = (ROOT / "docs/roadmap.md").read_text()
-    current_baseline = roadmap.split("## Current baseline", 1)[1].split("## Phase 0", 1)[0]
-    current_priorities = roadmap.split("## Prioritized v0.1 gap stack", 1)[1].split("## App Store readiness track", 1)[0]
-    for current_section in (current_baseline, current_priorities):
-        for obsolete in ("Read and Details", "Indexed-file list", "visible indexed-file diagnostics", "weak-metadata cockpit", "filter-result bulk", "current-scanner-conflict results"):
-            assert obsolete not in current_section
-    for phrase in ("Catalogue", "Review", "Settings", "Suggested updates", "Needs details", "File problems", "Cover problems", "Imported changes", "selected visible items"):
-        assert phrase in current_baseline + current_priorities
+    current_track = roadmap.split("## Active 0.3 track", 1)[1].split("## Measured performance work", 1)[0]
+    for phrase in ("Author identities", "Series identities", "Reader handoff", "App Store"):
+        assert phrase in current_track
 
 
 def test_release_and_manual_docs_name_the_actual_candidate_workflow():
@@ -76,7 +72,8 @@ def test_handbook_has_executable_combined_alpha166_alpha167_first_pass():
 
     assert "current candidate package" in handbook
     assert "Packaging: **used for the current private deployment**" in handbook
-    assert "exact unsigned `dist/library-0.1.0-alpha.174.tar.gz` package is installed" in handbook
+    assert "## Current 0.3 human cases" in handbook
+    assert "0.3.0-alpha.9" in handbook
     assert first_pass.count("### A16") >= 6
     for case in first_pass.split("### A16")[1:]:
         assert "Setup:" in case
