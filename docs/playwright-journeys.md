@@ -1,6 +1,6 @@
 # Playwright journey coverage
 
-The Playwright suite covers repeatable browser workflows against an explicitly configured disposable Nextcloud instance. The test inventory is in [`tests/gui/catalogue.yaml`](../tests/gui/catalogue.yaml); run it with `npm run test:gui` after installing the pinned browsers with `npx playwright install chromium firefox`.
+The main Playwright suite covers repeatable browser workflows against an explicitly configured disposable Nextcloud instance. The test inventory is in [`tests/gui/catalogue.yaml`](../tests/gui/catalogue.yaml); run it with `npm run test:gui` after installing the pinned browsers with `npx playwright install chromium firefox`. The 0.3 author and series slices also have focused browser scripts; see the [alpha.9 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). Focused source-build checks do not replace an exact signed-package release matrix.
 
 ## Current journeys
 
@@ -29,4 +29,4 @@ Playwright projects are serialized because metadata and scan journeys use one sh
 
 ## Human checks that remain
 
-Keep a short dogfood pass for subjective metadata/cover usefulness, unfamiliar real-world files, actual reader handoff quality, and manual screen-reader use. Playwright assertions can prove browser-visible state and actions; screenshots cannot decide whether a suggested metadata value is correct for a person's collection. The detailed numbered walkthrough in the [human test handbook](human-test-handbook.md) is historical until refreshed against a current fixture.
+Keep a short dogfood pass for subjective metadata/cover usefulness, unfamiliar real-world files, actual reader handoff quality, author/series organization and manual screen-reader use. Playwright assertions can prove browser-visible state and actions; screenshots cannot decide whether a suggested metadata value is correct for a person's collection. Use the current [0.3 human test cases](human-test-handbook.md#current-03-human-cases); later alpha.174 cases in that handbook are historical.

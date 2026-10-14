@@ -2,20 +2,35 @@
 
 ## Submission decision — 2026-10-13
 
-The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submission. The signed 0.2.0-beta.3 archive and verification below remain the preserved baseline, not evidence for the new author schema. Author management has started on `develop/0.3`; see the [implementation status](v0.3-author-management.md#storage-slice--030-alpha1).
+The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submission. The signed 0.2.0-beta.3 archive and verification below remain the preserved baseline, not evidence for the new author/series schema. Author and series work is implemented through alpha.9 on `develop/0.3`; see the [active roadmap](roadmap.md#active-03-track).
 
-Before submitting 0.3: complete author browsing/editing/merging, verify the populated 0.2 upgrade and interrupted migration, measure real-library performance, refresh documentation/screenshots, and repeat signing plus exact-package NC33–35 fresh/upgrade verification.
+Before submitting 0.3: obtain human acceptance of author and series workflows, resolve release-blocking findings, verify a populated upgrade from the preserved 0.2 baseline and interruption recovery, refresh listing/screenshots, then sign and run an exact-package NC33–35 fresh/upgrade matrix. Alpha.9's focused source checks and developer upgrade are encouraging but do not certify a signed release package.
 
 
-## Release checkpoint — 2026-10-13
+## Release checkpoint — 2026-10-14
 
 Current candidate baseline: `0.3.0-alpha.9`. Author and series management are in development. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The signed exact-package 0.3 release matrix remains pending.
+
+Alpha.9 is deployed on developer NC34/MariaDB. The app version is `0.3.0-alpha.9`; 107,717 catalogue books remained after migration and temporary fixture cleanup. Focused service and Chromium/Firefox series workflows passed on NC33.0.9, NC34.0.4, NC35.0.0 and the populated developer instance. See the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The [human test handbook](human-test-handbook.md#current-03-human-cases) now covers author/series acceptance.
+
+A later alpha.9 frontend asset fixes a blank publication panel when a book has linked authors: the template called an undefined URL helper. The developer NC34 panel now renders its sections and linked authors in Chromium; see the [sidebar hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md). This targeted check does not extend the earlier NC33–35 source evidence to the new asset, and the exact signed 0.3 package matrix remains open.
 
 Preserved baseline: `0.2.0-beta.3`. It is signed and [publicly released as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 cases passed with 210 final main Playwright tests; hosted CI and public URL verification passed. See the [beta.3 report](compatibility-evidence/2026-10-13-beta3/README.md), including the earlier timeout attempts and successful reruns.
 
 The signed [beta.2 baseline](compatibility-evidence/2026-10-13-beta2/README.md) passed six fresh/upgrade cases and 210/210 main Playwright executions. That evidence remains historical and does not certify beta.3.
 
-Current checklist:
+Current 0.3 checklist:
+
+- [x] Implement per-user author identities, profiles, reviewed relationships, large merge tasks and rescan conflict review.
+- [x] Implement per-user series identities, reviewed moves/merges, redirects, conditional Undo and changed-import review.
+- [x] Pass focused source-build service and two-browser checks on NC33–35; upgrade the populated developer NC34 instance without changing its 107,717-book count.
+- [ ] Record owner and human-tester acceptance for author, series, lists, inference and mixed real-file workflows, including manual assistive-technology results where available.
+- [ ] Resolve release-blocking findings and decide explicitly whether remaining multiple-series, nonnumeric part ordering and canonical author search/sort limits are acceptable for the first Store version.
+- [ ] Build, sign and audit one exact 0.3 archive; verify the populated 0.2→0.3 upgrade and interruption/recovery path.
+- [ ] Run fresh and upgrade exact-package matrices on NC33.0.9, NC34.0.4 and NC35.0.0; refresh listing/screenshots for the accepted build.
+- [ ] Publish the accepted 0.3 source/tag and release assets, obtain hosted CI evidence, then submit and verify the App Store listing.
+
+Preserved 0.2 beta.3 checklist (historical):
 
 - [x] Obtain and verify the signing certificate; request #1268 was merged.
 - [x] Prepare public listing text, Gutenberg screenshots and first-library documentation.
@@ -155,7 +170,7 @@ Alpha.171 security-hardening deployment evidence: PRs #69 and #70 merged on `mai
 
 ### AS-005 — App Store submission
 
-Status: pending owner submission. The current target is `0.2.0-beta.3`; stable release follows beta acceptance.
+Historical beta.3 checkpoint: owner submission was pending. The owner later chose 0.3 as the first App Store target; use the current 0.3 checklist above.
 
 Goal: publish the accepted beta candidate, then promote a subsequent accepted release to stable.
 

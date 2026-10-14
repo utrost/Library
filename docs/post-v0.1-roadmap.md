@@ -1,16 +1,16 @@
 # Rough roadmap after v0.1
 
-Development status: `0.3.0-alpha.2`, updated 2026-10-13. Version 0.3 is the first planned App Store release. Signed `0.2.0-beta.3` remains the verified release baseline; author storage, browsing and editing are deployed on developer NC34.
+Development status: `0.3.0-alpha.9`, updated 2026-10-14. Version 0.3 is the first planned App Store release. Signed `0.2.0-beta.3` remains the verified release baseline; author and series identities, reviewed moves/merges, changed-import review and conditional Undo are deployed on developer NC34. Focused source-build checks passed on NC33–35; the signed 0.3 archive and exact-package matrix remain ahead. For the operative release sequence, use the [active roadmap](roadmap.md#active-03-track).
 
-Alpha.21: [Automatic scans](automatic-scans.md) are implemented with per-account intervals, existing scan history and unchanged-file extraction skips. Alpha.23 implements bounded folder traversal; event-driven file updates and additional scan SQL reduction remain future work.
+Historical 0.2 progression: alpha.21 implemented [automatic scans](automatic-scans.md) with per-account intervals, scan history and unchanged-file extraction skips. Alpha.23 added bounded folder traversal; alpha.28 added event-journal incremental scheduled scans and weekly full reconciliation.
 
-Alpha.20: Opportunistic catalogue badges and metadata-sidebar suggestions are implemented and measured against 84,261 books. See the [performance evidence](compatibility-evidence/2026-09-27-opportunistic-duplicates-alpha20/README.md). Further tuning should reduce index storage and initial-build contention; A complete 100k+ workload remains unmeasured; current version-wide compatibility evidence is linked above.
+Historical 0.2 progression: alpha.20 added opportunistic catalogue badges and metadata-sidebar suggestions measured against 84,261 books. See the [performance evidence](compatibility-evidence/2026-09-27-opportunistic-duplicates-alpha20/README.md). Later developer runs covered 107,717 catalogue items; this older measurement is not the current scale claim.
 
 Alpha.19: [possible duplicate review](duplicate-review.md) is implemented. Private background discovery, optional content hashes, comparison evidence and reversible review decisions are available. Automatic deletion, merging and work/edition grouping remain future scope.
 
 This is a deliberately rough post-v0.1 roadmap. It is not a promise of dates or exact scope. The intent is to keep each minor release centered on **one major feature family**, so Library can keep shipping coherent, testable slices instead of becoming a bag of unrelated improvements.
 
-Current scope note (2026-09-25): the `0.1.0-beta.1` candidate declares Nextcloud 33–35 support and passed the exact-package 40-book smoke matrix on 33.0.9, 34.0.4 and 35.0.0. Conservative filename/directory patterns, provenance, a metadata detail workbench and custom collections already landed in beta. The v0.2 section below records the original feature direction; its remaining scope will be chosen after real mixed-library and beta feedback.
+Historical scope note (2026-09-25): the `0.1.0-beta.1` candidate declared Nextcloud 33–35 support and passed the exact-package 40-book smoke matrix. Conservative filename/directory patterns, provenance, a metadata detail workbench and custom collections had landed. The v0.2 section below records the original feature direction, not today's release checklist.
 
 Baseline assumption: v0.1 is the first manually tested candidate for a safe personal publication catalogue on Nextcloud 33–35. Nextcloud Files remains canonical storage, and every later release must preserve the source-file safety and File-First boundaries proven in v0.1.
 
@@ -59,9 +59,9 @@ Acceptance checks:
 
 ## v0.3 — Author management
 
-Direction updated 2026-10-13: [Author management for release 0.3](v0.3-author-management.md) defines normalised per-user author identities, ordered book relationships, import handling, author pages, editing, reviewed merging and conditional undo. No dedicated aliases table is planned. Migration, rescan protection and large-library performance are part of this feature.
+Implemented through alpha.9: [author management](v0.3-author-management.md) provides normalized per-user identities, ordered book relationships, profiles, reviewed merging, conditional Undo and queued large-author operations. [Series management](v0.3-series-management.md) adds one linked series per book, selected-book moves, whole/empty-series merges, later-import redirects, changed-import review and conditional Undo. No dedicated author aliases table is planned. Human acceptance and exact signed 0.3 package verification are the next release gates.
 
-This replaces external metadata providers as the proposed 0.3 focus. The provider proposal below remains a later candidate. App Store submission of 0.2 is on hold; author management will be included in the first Store release.
+This replaces external metadata providers as the 0.3 focus. The provider proposal below remains a later candidate. The owner chose 0.3 as the first Store release; the signed 0.2 beta remains a preserved baseline.
 
 ## Later candidate — External metadata providers
 
@@ -173,9 +173,9 @@ Acceptance checks:
 
 These are **not committed release promises**. They can be pulled forward if v0.1 testing changes the priority:
 
-- Creator identity splitting and dedicated creator pages.
+- Additional contributor roles beyond the current author identity model.
 - Saved views and smart collections.
-- App-owned cover cache plus crop/rebuild workflows beyond the current manual cover override/revert.
+- Cover crop/rebuild workflows beyond the current bounded private thumbnails and manual override/revert.
 - OPDS/Kobo/Kindle export or sync.
 - OCR/full-text search for scanned PDFs.
 - Internet/AI classification only after provenance, privacy and review workflows are strong.

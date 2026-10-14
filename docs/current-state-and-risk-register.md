@@ -1,8 +1,10 @@
 # Current state and risk register
 
-Current private deployment: **0.2.0-beta.1**, the signed App Store candidate, on developer Nextcloud 34.0.3 (`http://100.123.149.120:8088`). Integrity verification and Chromium/Firefox checks pass; maintenance mode is off and the catalogue contains 107,717 items. The exact signed archive passed fresh-install and populated-upgrade checks on NC33–35, including 210/210 Playwright executions. See [final release verification](compatibility-evidence/2026-09-30-beta1/README.md). Owner acceptance, App Store account registration and publication remain pending. Manual assistive-technology testing and PostgreSQL coverage remain outstanding.
+Current private deployment: **0.3.0-alpha.9** on developer Nextcloud 34.0.3 (`http://100.123.149.120:8088`), with 107,717 catalogue items at the last recorded count. Alpha.9 adds reviewed series moves/merges, future-import redirects, changed-import review and conditional Undo on top of the alpha.8 author work. Focused source-build checks passed on NC33–35 and the populated developer NC34 upgrade; see [alpha.9 verification](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The last signed exact-package fresh/upgrade matrix belongs to **0.2.0-beta.3** and does not certify the new 0.3 schema; see its [preserved evidence](compatibility-evidence/2026-10-13-beta3/README.md).
 
-This snapshot records the beta release posture and the remaining risks; later sections preserve historical alpha evidence where useful.
+The alpha.9 `v5` frontend asset repairs a blank publication sidebar caused by an undefined author-link URL helper. The [hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md) includes the populated developer NC34 observation. The app version and database schema did not change; this asset has not yet had a new NC33–35 matrix.
+
+The immediate risks are human acceptance of the author/series workflows, an exact signed 0.3 archive with fresh/upgrade NC33–35 verification, manual assistive-technology testing and PostgreSQL runtime coverage. The [human test handbook](human-test-handbook.md#current-03-human-cases) defines the current manual pass. Sections dated September below preserve historical evidence and should not be read as current deployment claims.
 
 ## Alpha.25 author-field recovery — 2026-09-27
 
@@ -28,21 +30,21 @@ Invalid extracted authors now produce a field-level Review warning while retaini
 
 The current developer deployment adds optional indexed duplicate suggestions to catalogue pages and the metadata sidebar. [Measurements and verification](compatibility-evidence/2026-09-27-opportunistic-duplicates-alpha20/README.md) cover 84,261 real catalogue books on Nextcloud 34.0.3. Initial background indexing slows concurrent catalogue requests and uses approximately 161 MiB of database storage. Suggestions are bounded heuristics, never automatic deletion or a guarantee of uniqueness. Legacy alpha.19 decisions are retained but not backfilled into automatic hints. This slice has not been rerun on disposable NC33/35 or tested with concurrent users at production scale.
 
-## Deployment posture
+## Historical deployment posture and product baseline
 
-- Target: private Nextcloud 34 test instance, currently smoke-tested in the `nextcloud` Docker container.
+- Target: private Nextcloud 34 test instance in the `nextcloud` Docker container; current version is stated at the top of this document.
 - App id: `library`.
 - Historical alpha.29 deployment: `0.2.0-alpha.29`, installed on `nextcloud`, with frozen whole-folder analyses, cancellation, saved result pages, ordered authors and explicit 40-book Apply/Undo. See the [alpha.18 developer verification](compatibility-evidence/2026-09-26-whole-folder-alpha18/README.md). Alpha.28 passed 105 browser executions on disposable Nextcloud 33.0.9, 34.0.4 and 35.0.0 with 40 English Gutenberg books, plus service and extra smoke checks; see the [verification report](performance/2026-09-28-alpha28/README.md). Alpha.26 has developer NC34 scanner index reuse, transaction rollback and measured fixed-sample verification; see [measurements](performance/2026-09-27-alpha26/README.md). Recent process and mutation checks used owned disposable fixtures; the real catalogue remained unchanged. Earlier read-only list and inference evidence is in the [alpha.12 report](compatibility-evidence/2026-09-26-alpha12/README.md). That historical build was unsigned; the current signed beta is described above.
-- Latest UX check: private list movement/removal remains available during list editing, notes and drafts persist, and catalogue selection uses the inline list picker. Static help uses hover/focus/tap tooltips; fields retain their accessible names and original label associations. Versioned frontend URLs include alpha.22. Inference supports explicit whole-folder analysis and paged review/Apply with conditional Undo; authors are stored and browsable individually; see the [extraction guide](extracting-metadata.md).
+- Historical UX check: private list movement/removal remains available during list editing, notes and drafts persist, and catalogue selection uses the inline list picker. Static help uses hover/focus/tap tooltips; fields retain their accessible names and original label associations. Inference supports explicit whole-folder analysis and paged review/Apply with conditional Undo; see the [extraction guide](extracting-metadata.md). Current author and series behavior is linked above.
 - Development cadence: deploy small slices here, run minimal feature checks, obtain user UX feedback, then run deeper tests/all Playwright scenarios and the disposable compatibility matrix at a milestone. Do not recreate Nextcloud or run the full suite after every edit.
 - Deployment recovery (2026-09-25): app/database backups are in `/tmp/library-dev-before-alpha1-GhDlNl`. An old duplicate uppercase `custom_apps/Library` folder (alpha.171) caused the instance integrity check to fail; it was preserved at `/var/www/html/data/library-deployment-backups/Library-alpha171` inside the container. Maintenance mode is off and no database upgrade is pending. Keep backups until the development deployment has been accepted.
-- Intended audience now: trusted early testers on a disposable or private Nextcloud 34 instance.
-- Not yet claimed: public Nextcloud App Store readiness, signed release artifacts, or a public-internet operational hardening guarantee. The app declares Nextcloud 33–35 compatibility; the exact beta archive passed all 9 main Playwright smoke executions on 33.0.9, 34.0.4 and 35.0.0 with 40 English Gutenberg books, documented in the [final compatibility assessment](compatibility-evidence/2026-09-25-beta1/final-compatibility-assessment.md).
+- Intended audience for the 0.3 alpha: trusted early testers on disposable accounts or private Nextcloud 33–35 instances.
+- The app declares Nextcloud 33–35 compatibility. The preserved 0.2 beta archives passed signed package matrices; alpha.9 has focused source-build compatibility evidence. Public 0.3 App Store readiness still requires the exact signed 0.3 matrix and owner acceptance.
 - Storage model: Nextcloud Files remains canonical; Library stores app-owned root, file-index, scan-job and catalogue metadata rows. Source folders untouched is a release-critical boundary, and tester reports should explicitly confirm source folders untouched after repair/delete/export workflows.
 
 ## Implemented product surface
 
-Implemented and ready for v0.1 testing:
+The following v0.1 baseline is retained as a historical inventory. Current 0.3 identity workflows are described in the [author](v0.3-author-management.md) and [series](v0.3-series-management.md) guides.
 
 - Native Library/Review shell destinations. Review presents the existing scanner-conflict, weak-metadata, metadata-error, and missing-field filters as shareable, webroot-aware queues with focused results and explicit loading, error, and empty states. Settings remains `/settings/user/library`; detail and fallback rendering remain PHP-backed.
 - Per-user Library roots with add/edit/enable/disable/delete, typed delete confirmation and recovery guidance.
@@ -76,17 +78,17 @@ Implemented and ready for v0.1 testing:
 
 ## Known weak points and deferred hardening
 
-These remain visible for the beta release decision and stable follow-up:
+Updated for the 0.3 release decision; older details below this section are historical:
 
 1. **Nextcloud version scope:** app metadata declares Nextcloud 33–35. The exact beta archive installed and passed the main screenshot-producing Playwright journeys on 33.0.9, 34.0.4 and 35.0.0 with 40 English Gutenberg books. This matrix does not cover every UI path or a representative mixed-format library.
-2. **Release packaging:** the beta source is committed/tagged locally, and its unsigned archive passed package audit and the disposable matrix. A public branch/tag, hosted CI on the exact commit, signing certificate, signed archive and App Store submission remain open.
-3. **Cover lifecycle:** on-demand previews/fallbacks, refresh affordances and uploaded manual cover override/revert exist, but no app-owned cover cache or crop/rebuild workflow exists. Legacy remote URL values are inert and never rendered or fetched.
+2. **Release packaging:** signed 0.2.0-beta.3 is preserved; the 0.3 candidate is still a source build. Build, sign and audit one exact 0.3 archive, then repeat fresh/upgrade NC33–35 checks and hosted CI before App Store submission.
+3. **Cover lifecycle:** bounded private thumbnails, previews/fallbacks, refresh affordances and uploaded manual cover override/revert exist. There is no crop/rebuild editor. Legacy remote URL values are inert and never rendered or fetched.
 4. **Metadata portability:** export/import/apply and sidecar manifest/ZIP exist, and source-folder OPF/JSON writing plus full sidecar restore are intentionally external-tool workflows rather than app responsibilities.
-5. **Scanning operations:** queued scans, progress, retry, recheck and cancellation exist; scheduled/resumable scans and notifications remain future work.
-6. **Discovery:** publication/series, publication-year and creator pages exist, publication pages show compact issue/date coverage, and the weak-metadata cockpit links sparse/suspicious metadata counts back to filtered catalogue views; richer identity/issue grouping remain future work.
+5. **Scanning operations:** queued scans, progress, retry, recheck, cancellation, incremental scheduled runs and periodic full reconciliation exist. Non-preemptive filesystem/extraction work and notifications remain follow-ups.
+6. **Discovery:** publication, year, author and series pages exist. One series identity/part per book is supported; multiple series memberships and natural ordering of nonnumeric part labels remain future work.
 7. **Shared libraries:** users manage personal roots; admin-managed shared/global roots are not implemented.
 8. **Readers and content services:** Library delegates reading to Nextcloud and does not provide page-position sync, annotations, OCR/full-text search, OPDS/Kobo/Kindle integration, internet metadata lookup or AI classification.
-9. **Real-collection evidence:** generated scale and selected live smokes are strong for a v0.1 candidate, but Uwe's manual test pass should still use real mixed files to find weak metadata/cover cases.
+9. **Real-collection evidence:** alpha.9 was upgraded on the populated developer instance, but human author/series acceptance and representative mixed-format assessment remain open. The focused source-build matrix is not exact signed-package evidence.
 10. **Catalogue scale follow-ups:** aggregate operation instrumentation, request-race hardening, projected catalogue payloads, review-flag indexes, exact facet indexes, lazy typeahead suggestions and arbitrary-substring search grams have landed. Remaining scale risks are representative fresh-package/fresh-database evidence, non-preemptive filesystem/extraction operations, archive budgets/cache, broader privacy review, root transaction/overlap limits and any real-library query shape not covered by the current workload-led indexes.
 
 ## Verification evidence

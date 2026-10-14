@@ -4,7 +4,7 @@ function bd(e) {
   for (const a of e.split(",")) t[a] = 1;
   return (a) => a in t;
 }
-const at = {}, Er = [], Pa = () => {
+const it = {}, Er = [], Pa = () => {
 }, Up = () => !1, au = (e) => e.charCodeAt(0) === 111 && e.charCodeAt(1) === 110 && // uppercase letter
 (e.charCodeAt(2) > 122 || e.charCodeAt(2) < 97), iu = (e) => e.startsWith("onUpdate:"), Ot = Object.assign, gd = (e, t) => {
   const a = e.indexOf(t);
@@ -1066,7 +1066,7 @@ function oy(e, t = !1, a = Zn) {
     i || to.set(a, i = []), i.push(e);
   }
 }
-function uy(e, t, a = at) {
+function uy(e, t, a = it) {
   const { immediate: i, deep: n, once: l, scheduler: s, augmentJob: c, call: f } = a, _ = (L) => n ? L : /* @__PURE__ */ Da(L) || n === !1 || n === 0 ? Ii(L, 1) : Ii(L);
   let v, m, y, k, C = !1, S = !1;
   if (/* @__PURE__ */ ta(e) ? (m = () => e.value, C = /* @__PURE__ */ Da(e)) : /* @__PURE__ */ nr(e) ? (m = () => _(e), C = !0) : Le(e) ? (S = !0, C = e.some((L) => /* @__PURE__ */ nr(L) || /* @__PURE__ */ Da(L)), m = () => e.map((L) => {
@@ -1186,7 +1186,7 @@ function Fa(e, t, a, i) {
   }
 }
 function cu(e, t, a, i = !0) {
-  const n = t ? t.vnode : null, { errorHandler: l, throwUnhandledErrorInProduction: s } = t && t.appContext.config || at;
+  const n = t ? t.vnode : null, { errorHandler: l, throwUnhandledErrorInProduction: s } = t && t.appContext.config || it;
   if (t) {
     let c = t.parent;
     const f = t.proxy, _ = `https://vuejs.org/error-reference/#runtime-${a}`;
@@ -1331,7 +1331,7 @@ function be(e, t) {
     return e;
   const a = gu(Ht), i = e.dirs || (e.dirs = []);
   for (let n = 0; n < t.length; n++) {
-    let [l, s, c, f = at] = t[n];
+    let [l, s, c, f = it] = t[n];
     l && (ze(l) && (l = {
       mounted: l,
       updated: l
@@ -1391,7 +1391,7 @@ function my(e, t) {
 function Ge(e, t, a) {
   return fu(e, t, a);
 }
-function fu(e, t, a = at) {
+function fu(e, t, a = it) {
   const { immediate: i, deep: n, flush: l, once: s } = a, c = Ot({}, a), f = t && i || !t && l !== "post";
   let _;
   if (Kl) {
@@ -1895,7 +1895,7 @@ function kv(e) {
 function Ey(e) {
   const t = Tn(), a = /* @__PURE__ */ sv(null);
   if (t) {
-    const n = t.refs === at ? t.refs = {} : t.refs;
+    const n = t.refs === it ? t.refs = {} : t.refs;
     Object.defineProperty(n, e, {
       enumerable: !0,
       get: () => a.value,
@@ -1926,7 +1926,7 @@ function Tl(e, t, a, i, n = !1) {
     i.shapeFlag & 512 && i.type.__asyncResolved && i.component.subTree.component && Tl(e, t, a, i.component.subTree);
     return;
   }
-  const l = i.shapeFlag & 4 ? gu(i.component) : i.el, s = n ? null : l, { i: c, r: f } = e, _ = t && t.r, v = c.refs === at ? c.refs = {} : c.refs, m = c.setupState, y = /* @__PURE__ */ lt(m), k = m === at ? Up : (S) => Yf(v, S) ? !1 : st(y, S), C = (S, x) => !(x && Yf(v, x));
+  const l = i.shapeFlag & 4 ? gu(i.component) : i.el, s = n ? null : l, { i: c, r: f } = e, _ = t && t.r, v = c.refs === it ? c.refs = {} : c.refs, m = c.setupState, y = /* @__PURE__ */ lt(m), k = m === it ? Up : (S) => Yf(v, S) ? !1 : st(y, S), C = (S, x) => !(x && Yf(v, x));
   if (_ != null && _ !== f) {
     if (Zf(t), bt(_))
       v[_] = null, k(_) && (m[_] = null);
@@ -2160,7 +2160,7 @@ const jc = (e) => e ? Yv(e) ? gu(e) : jc(e.parent) : null, Al = (
     $nextTick: (e) => e.n || (e.n = Pt.bind(e.proxy)),
     $watch: (e) => yy.bind(e)
   })
-), Ju = (e, t) => e !== at && !e.__isScriptSetup && st(e, t), Fy = {
+), Ju = (e, t) => e !== it && !e.__isScriptSetup && st(e, t), Fy = {
   get({ _: e }, t) {
     if (t === "__v_skip")
       return !0;
@@ -2181,11 +2181,11 @@ const jc = (e) => e ? Yv(e) ? gu(e) : jc(e.parent) : null, Al = (
       else {
         if (Ju(i, t))
           return s[t] = 1, i[t];
-        if (n !== at && st(n, t))
+        if (n !== it && st(n, t))
           return s[t] = 2, n[t];
         if (st(l, t))
           return s[t] = 3, l[t];
-        if (a !== at && st(a, t))
+        if (a !== it && st(a, t))
           return s[t] = 4, a[t];
         Bc && (s[t] = 0);
       }
@@ -2199,7 +2199,7 @@ const jc = (e) => e ? Yv(e) ? gu(e) : jc(e.parent) : null, Al = (
       (v = c.__cssModules) && (v = v[t])
     )
       return v;
-    if (a !== at && st(a, t))
+    if (a !== it && st(a, t))
       return s[t] = 4, a[t];
     if (
       // global properties
@@ -2209,13 +2209,13 @@ const jc = (e) => e ? Yv(e) ? gu(e) : jc(e.parent) : null, Al = (
   },
   set({ _: e }, t, a) {
     const { data: i, setupState: n, ctx: l } = e;
-    return Ju(n, t) ? (n[t] = a, !0) : i !== at && st(i, t) ? (i[t] = a, !0) : st(e.props, t) || t[0] === "$" && t.slice(1) in e ? !1 : (l[t] = a, !0);
+    return Ju(n, t) ? (n[t] = a, !0) : i !== it && st(i, t) ? (i[t] = a, !0) : st(e.props, t) || t[0] === "$" && t.slice(1) in e ? !1 : (l[t] = a, !0);
   },
   has({
     _: { data: e, setupState: t, accessCache: a, ctx: i, appContext: n, props: l, type: s }
   }, c) {
     let f;
-    return !!(a[c] || e !== at && c[0] !== "$" && st(e, c) || Ju(t, c) || st(l, c) || st(i, c) || st(Al, c) || st(n.config.globalProperties, c) || (f = s.__cssModules) && f[c]);
+    return !!(a[c] || e !== it && c[0] !== "$" && st(e, c) || Ju(t, c) || st(l, c) || st(i, c) || st(Al, c) || st(n.config.globalProperties, c) || (f = s.__cssModules) && f[c]);
   },
   defineProperty(e, t, a) {
     return a.get != null ? e._.accessCache[t] = 0 : st(a, "value") && this.set(e, t, a.value, null), Reflect.defineProperty(e, t, a);
@@ -2544,9 +2544,9 @@ function Ky(e, t) {
   };
 }
 let Nr = null;
-function Rv(e, t, a = at) {
+function Rv(e, t, a = it) {
   const i = Tn(), n = ea(t), l = qi(t), s = Iv(e, n), c = ry((f, _) => {
-    let v, m = at, y;
+    let v, m = it, y;
     return my(() => {
       const k = e[n];
       jt(v, k) && (v = k, _());
@@ -2556,7 +2556,7 @@ function Rv(e, t, a = at) {
       },
       set(k) {
         const C = a.set ? a.set(k) : k;
-        if (!jt(C, v) && !(m !== at && jt(k, m)))
+        if (!jt(C, v) && !(m !== it && jt(k, m)))
           return;
         const S = i.vnode.props, x = !!(S && // check if parent has passed v-model
         (t in S || n in S || l in S) && (`onUpdate:${t}` in S || `onUpdate:${n}` in S || `onUpdate:${l}` in S));
@@ -2566,7 +2566,7 @@ function Rv(e, t, a = at) {
         // value before parent updates are flushed, the parent render can be
         // deduped as having no prop change. Force a local update so DOM state
         // such as an input's value is synchronized back to the current model.
-        x && m !== at && !jt(C, v)) && _(), m = k, y = C;
+        x && m !== it && !jt(C, v)) && _(), m = k, y = C;
       }
     };
   });
@@ -2574,7 +2574,7 @@ function Rv(e, t, a = at) {
     let f = 0;
     return {
       next() {
-        return f < 2 ? { value: f++ ? s || at : c, done: !1 } : { done: !0 };
+        return f < 2 ? { value: f++ ? s || it : c, done: !1 } : { done: !0 };
       }
     };
   }, c;
@@ -2582,7 +2582,7 @@ function Rv(e, t, a = at) {
 const Iv = (e, t) => t === "modelValue" || t === "model-value" ? e.modelModifiers : e[`${t}Modifiers`] || e[`${ea(t)}Modifiers`] || e[`${qi(t)}Modifiers`];
 function Wy(e, t, ...a) {
   if (e.isUnmounted) return;
-  const i = e.vnode.props || at;
+  const i = e.vnode.props || it;
   let n = a;
   const l = t.startsWith("update:"), s = l && Iv(i, t.slice(7));
   s && (s.trim && (n = a.map((v) => bt(v) ? v.trim() : v)), s.number && (n = n.map(lu)));
@@ -2827,7 +2827,7 @@ function Uv(e, t, a, i) {
       n && st(n, v = ea(f)) ? !l || !l.includes(v) ? a[v] = _ : (c || (c = {}))[v] = _ : bu(e.emitsOptions, f) || (!(f in i) || _ !== i[f]) && (i[f] = _, s = !0);
     }
   if (l) {
-    const f = /* @__PURE__ */ lt(a), _ = c || at;
+    const f = /* @__PURE__ */ lt(a), _ = c || it;
     for (let v = 0; v < l.length; v++) {
       const m = l[v];
       a[m] = Vc(
@@ -2893,7 +2893,7 @@ function zv(e, t, a = !1) {
   if (Le(l))
     for (let v = 0; v < l.length; v++) {
       const m = ea(l[v]);
-      nh(m) && (s[m] = at);
+      nh(m) && (s[m] = it);
     }
   else if (l)
     for (const v in l) {
@@ -2957,7 +2957,7 @@ const Od = (e) => e === "_" || e === "_ctx" || e === "$stable", Rd = (e) => Le(e
   } else t && Bv(e, t);
 }, r1 = (e, t, a) => {
   const { vnode: i, slots: n } = e;
-  let l = !0, s = at;
+  let l = !0, s = it;
   if (i.shapeFlag & 32) {
     const c = t._;
     c ? a && c === 1 ? l = !1 : Hv(n, t, a) : (l = !t.$stable, jv(t, n)), s = t;
@@ -3044,7 +3044,7 @@ function s1(e, t) {
           ne,
           de,
           ve,
-          nt
+          rt
         );
     }
     xe != null && N ? Tl(xe, A && A.ref, X, R || A, !R) : xe == null && A && A.ref != null && Tl(A.ref, null, X, A, !0);
@@ -3175,7 +3175,7 @@ function s1(e, t) {
     const de = R.el = A.el;
     let { patchFlag: ve, dynamicChildren: fe, dirs: xe } = R;
     ve |= A.patchFlag & 16;
-    const we = A.props || at, Ae = R.props || at;
+    const we = A.props || it, Ae = R.props || it;
     let Ne;
     if (I && qn(I, !1), (Ne = Ae.onVnodeBeforeUpdate) && ai(Ne, I, R, A), xe && Vn(R, A, I, "beforeUpdate"), I && qn(I, !0), // #6385 the old vnode may be a user-wrapped non-isomorphic block
     // Force full diff when block metadata is unstable.
@@ -3203,8 +3203,8 @@ function s1(e, t) {
       else if (ve & 2 && we.class !== Ae.class && l(de, "class", null, Ae.class, N), ve & 4 && l(de, "style", we.style, Ae.style, N), ve & 8) {
         const Ve = R.dynamicProps;
         for (let Ye = 0; Ye < Ve.length; Ye++) {
-          const qe = Ve[Ye], it = we[qe], dt = Ae[qe];
-          (dt !== it || qe === "value") && l(de, qe, it, dt, N, I);
+          const qe = Ve[Ye], nt = we[qe], dt = Ae[qe];
+          (dt !== nt || qe === "value") && l(de, qe, nt, dt, N, I);
         }
       }
       ve & 1 && A.children !== R.children && v(de, R.children);
@@ -3242,7 +3242,7 @@ function s1(e, t) {
     }
   }, re = (A, R, I, O, N) => {
     if (R !== I) {
-      if (R !== at)
+      if (R !== it)
         for (const X in R)
           !kl(X) && !(X in I) && l(
             A,
@@ -3327,7 +3327,7 @@ function s1(e, t) {
       O,
       N
     );
-    if (pu(A) && (de.ctx.renderer = nt), v1(de, !1, ne), de.asyncDep) {
+    if (pu(A) && (de.ctx.renderer = rt), v1(de, !1, ne), de.asyncDep) {
       if (N && N.registerDep(de, ae, ne), !A.el) {
         const ve = de.subTree = ce(Bt);
         F(null, ve, R, I), A.placeholder = ve.el;
@@ -3367,8 +3367,8 @@ function s1(e, t) {
             return;
           }
         }
-        let qe = we, it;
-        qn(A, !1), we ? (we.el = Ye.el, J(A, we, ne)) : we = Ye, Ae && Ys(Ae), (it = we.props && we.props.onVnodeBeforeUpdate) && ai(it, Ve, we, Ye), qn(A, !0);
+        let qe = we, nt;
+        qn(A, !1), we ? (we.el = Ye.el, J(A, we, ne)) : we = Ye, Ae && Ys(Ae), (nt = we.props && we.props.onVnodeBeforeUpdate) && ai(nt, Ve, we, Ye), qn(A, !0);
         const dt = ah(A), _t = A.subTree;
         A.subTree = dt, S(
           _t,
@@ -3380,16 +3380,16 @@ function s1(e, t) {
           A,
           N,
           X
-        ), we.el = dt.el, qe === null && Qy(A, dt.el), Ne && ua(Ne, N), (it = we.props && we.props.onVnodeUpdated) && ua(
-          () => ai(it, Ve, we, Ye),
+        ), we.el = dt.el, qe === null && Qy(A, dt.el), Ne && ua(Ne, N), (nt = we.props && we.props.onVnodeUpdated) && ua(
+          () => ai(nt, Ve, we, Ye),
           N
         );
       } else {
         let we;
-        const { el: Ae, props: Ne } = R, { bm: Ve, m: Ye, parent: qe, root: it, type: dt } = A, _t = xr(R);
+        const { el: Ae, props: Ne } = R, { bm: Ve, m: Ye, parent: qe, root: nt, type: dt } = A, _t = xr(R);
         qn(A, !1), Ve && Ys(Ve), !_t && (we = Ne && Ne.onVnodeBeforeMount) && ai(we, qe, R), qn(A, !0);
         {
-          it.ce && it.ce._hasShadowRoot() && it.ce._injectChildStyle(
+          nt.ce && nt.ce._hasShadowRoot() && nt.ce._injectChildStyle(
             dt,
             A.parent ? A.parent.type : void 0
           );
@@ -3575,14 +3575,14 @@ function s1(e, t) {
         const St = R[fe] = ve ? Oi(R[fe]) : oi(R[fe]);
         St.key != null && Ye.set(St.key, fe);
       }
-      let qe, it = 0;
+      let qe, nt = 0;
       const dt = Ae - Ve + 1;
       let _t = !1, gt = 0;
       const ia = new Array(dt);
       for (fe = 0; fe < dt; fe++) ia[fe] = 0;
       for (fe = Ne; fe <= we; fe++) {
         const St = A[fe];
-        if (it >= dt) {
+        if (nt >= dt) {
           $e(St, N, X, !0);
           continue;
         }
@@ -3605,7 +3605,7 @@ function s1(e, t) {
           ne,
           de,
           ve
-        ), it++);
+        ), nt++);
       }
       const pa = _t ? u1(ia) : Er;
       for (qe = pa.length - 1, fe = dt - 1; fe >= 0; fe--) {
@@ -3637,7 +3637,7 @@ function s1(e, t) {
       return;
     }
     if (fe & 64) {
-      ne.move(A, R, I, nt);
+      ne.move(A, R, I, rt);
       return;
     }
     if (ne === W) {
@@ -3688,8 +3688,8 @@ function s1(e, t) {
       return;
     }
     const Ye = xe & 1 && Ae, qe = !xr(A);
-    let it;
-    if (qe && (it = ne && ne.onVnodeBeforeUnmount) && ai(it, R, A), xe & 6)
+    let nt;
+    if (qe && (nt = ne && ne.onVnodeBeforeUnmount) && ai(nt, R, A), xe & 6)
       ct(A.component, I, O);
     else {
       if (xe & 128) {
@@ -3700,7 +3700,7 @@ function s1(e, t) {
         A,
         R,
         I,
-        nt,
+        rt,
         O
       ) : fe && // #5154
       // when v-once is used inside a block, setBlockTracking(-1) marks the
@@ -3717,8 +3717,8 @@ function s1(e, t) {
       ) : (X === W && we & 384 || !N && xe & 16) && _e(ve, R, I), O && Ue(A);
     }
     const dt = Ve != null && Ne == null;
-    (qe && (it = ne && ne.onVnodeUnmounted) || Ye || dt) && ua(() => {
-      it && ai(it, R, A), Ye && Vn(A, null, R, "unmounted"), dt && (A.el = null);
+    (qe && (nt = ne && ne.onVnodeUnmounted) || Ye || dt) && ua(() => {
+      nt && ai(nt, R, A), Ye && Vn(A, null, R, "unmounted"), dt && (A.el = null);
     }, I);
   }, Ue = (A) => {
     const { type: R, el: I, anchor: O, transition: N } = A;
@@ -3771,7 +3771,7 @@ function s1(e, t) {
       null,
       I
     ), R._vnode = A, ge || (ge = !0, Gf(O), hv(), ge = !1);
-  }, nt = {
+  }, rt = {
     p: S,
     um: $e,
     m: Re,
@@ -4129,17 +4129,17 @@ function p1(e, t, a) {
     // to be set immediately
     emitted: null,
     // props default value
-    propsDefaults: at,
+    propsDefaults: it,
     // inheritAttrs
     inheritAttrs: i.inheritAttrs,
     // state
-    ctx: at,
-    data: at,
-    props: at,
-    attrs: at,
-    slots: at,
-    refs: at,
-    setupState: at,
+    ctx: it,
+    data: it,
+    props: it,
+    attrs: it,
+    slots: it,
+    refs: it,
+    setupState: it,
     setupContext: null,
     // suspense related
     suspense: a,
@@ -4874,7 +4874,7 @@ function Sh(e, { value: t, oldValue: a }, i) {
   }
   e.checked !== n && (e.checked = n);
 }
-const tt = {
+const at = {
   // <select multiple> value need to be deep traversed
   deep: !0,
   created(e, { value: t, modifiers: { number: a } }, i) {
@@ -5132,7 +5132,7 @@ function sb(e) {
     return Wc(e, a);
   };
 }
-function et(e, t) {
+function tt(e, t) {
   let a = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : Xn;
   if ($h && $h(e, null), !Or(t)) return e;
   let i = t.length;
@@ -5866,7 +5866,7 @@ const Lh = Dt([
   documentType: 10,
   documentFragment: 11,
   notation: 12
-}, L_ = Dt(et({}, [
+}, L_ = Dt(tt({}, [
   "style",
   "script",
   "xmp",
@@ -5908,7 +5908,7 @@ const Lh = Dt([
     uponSanitizeShadowNode: []
   };
 }, un = function(t, a, i, n) {
-  return fa(t, a) && Or(t[a]) ? et(n.base ? wa(n.base) : {}, t[a], n.transform) : i;
+  return fa(t, a) && Or(t[a]) ? tt(n.base ? wa(n.base) : {}, t[a], n.transform) : i;
 }, fc = function(t, a, i) {
   const n = fa(t, a) ? t[a] : void 0;
   return n && typeof n == "object" ? wa(n) : i();
@@ -5956,9 +5956,9 @@ function ob() {
   }, ye = a, Re = ye.implementation, $e = ye.createNodeIterator, Ue = ye.createDocumentFragment, Ze = ye.getElementsByTagName, ct = i.importNode;
   let _e = jh();
   t.isSupported = typeof ib == "function" && typeof F == "function" && Re && Re.createHTMLDocument !== void 0;
-  const Oe = C_, ge = T_, De = A_, nt = E_, ie = $_, A = x_, R = N_, I = R_;
+  const Oe = C_, ge = T_, De = A_, rt = E_, ie = $_, A = x_, R = N_, I = R_;
   let O = Mh, N = null;
-  const X = et({}, [
+  const X = tt({}, [
     ...Lh,
     ...sc,
     ...oc,
@@ -5966,7 +5966,7 @@ function ob() {
     ...Ph
   ]);
   let ne = null;
-  const de = et({}, [
+  const de = tt({}, [
     ...Dh,
     ...cc,
     ...Fh,
@@ -6006,10 +6006,10 @@ function ob() {
       value: null
     }
   }));
-  let Ae = !0, Ne = !0, Ve = !1, Ye = !0, qe = !1, it = !0, dt = !1, _t = !1, gt = null, ia = null, pa = !1, St = !1, Rt = !1, Ma = !1, Gt = !0, va = !1;
+  let Ae = !0, Ne = !0, Ve = !1, Ye = !0, qe = !1, nt = !0, dt = !1, _t = !1, gt = null, ia = null, pa = !1, St = !1, Rt = !1, Ma = !1, Gt = !0, va = !1;
   const $n = "user-content-";
   let Ya = !0, xn = !1, Ta = null, Za = {}, Xa = null;
-  const Fr = et({}, [
+  const Fr = tt({}, [
     "annotation-xml",
     "audio",
     "colgroup",
@@ -6038,7 +6038,7 @@ function ob() {
     "xmp"
   ]);
   let hi = null;
-  const Ki = et({}, [
+  const Ki = tt({}, [
     "audio",
     "video",
     "img",
@@ -6047,7 +6047,7 @@ function ob() {
     "track"
   ]);
   let Wi = null;
-  const Yi = et({}, [
+  const Yi = tt({}, [
     "alt",
     "class",
     "for",
@@ -6062,10 +6062,10 @@ function ob() {
     "value",
     "style",
     "xmlns"
-  ]), rt = "http://www.w3.org/1998/Math/MathML", ur = "http://www.w3.org/2000/svg", ba = "http://www.w3.org/1999/xhtml";
+  ]), Qe = "http://www.w3.org/1998/Math/MathML", ur = "http://www.w3.org/2000/svg", ba = "http://www.w3.org/1999/xhtml";
   let pi = ba, Zi = !1, cr = null;
-  const Nn = et({}, [
-    rt,
+  const Nn = tt({}, [
+    Qe,
     ur,
     ba
   ], lc), Xi = Dt([
@@ -6075,10 +6075,10 @@ function ob() {
     "ms",
     "mtext"
   ]);
-  let vi = et({}, Xi);
+  let vi = tt({}, Xi);
   const Ji = Dt(["annotation-xml"]);
-  let bi = et({}, Ji);
-  const On = et({}, [
+  let bi = tt({}, Ji);
+  const On = tt({}, [
     "title",
     "style",
     "font",
@@ -6099,13 +6099,13 @@ function ob() {
     }), hi = un(E, "ADD_DATA_URI_TAGS", Ki, {
       transform: wt,
       base: Ki
-    }), Xa = un(E, "FORBID_CONTENTS", Fr, { transform: wt }), fe = un(E, "FORBID_TAGS", wa({}), { transform: wt }), xe = un(E, "FORBID_ATTR", wa({}), { transform: wt }), Za = fa(E, "USE_PROFILES") ? E.USE_PROFILES && typeof E.USE_PROFILES == "object" ? wa(E.USE_PROFILES) : E.USE_PROFILES : !1, Ae = E.ALLOW_ARIA_ATTR !== !1, Ne = E.ALLOW_DATA_ATTR !== !1, Ve = E.ALLOW_UNKNOWN_PROTOCOLS || !1, Ye = E.ALLOW_SELF_CLOSE_IN_ATTR !== !1, qe = E.SAFE_FOR_TEMPLATES || !1, it = E.SAFE_FOR_XML !== !1, dt = E.WHOLE_DOCUMENT || !1, St = E.RETURN_DOM || !1, Rt = E.RETURN_DOM_FRAGMENT || !1, Ma = E.RETURN_TRUSTED_TYPE || !1, pa = E.FORCE_BODY || !1, Gt = E.SANITIZE_DOM !== !1, va = E.SANITIZE_NAMED_PROPS || !1, Ya = E.KEEP_CONTENT !== !1, xn = E.IN_PLACE || !1, O = w_(E.ALLOWED_URI_REGEXP) ? E.ALLOWED_URI_REGEXP : Mh, pi = typeof E.NAMESPACE == "string" ? E.NAMESPACE : ba, vi = fc(E, "MATHML_TEXT_INTEGRATION_POINTS", () => et({}, Xi)), bi = fc(E, "HTML_INTEGRATION_POINTS", () => et({}, Ji));
+    }), Xa = un(E, "FORBID_CONTENTS", Fr, { transform: wt }), fe = un(E, "FORBID_TAGS", wa({}), { transform: wt }), xe = un(E, "FORBID_ATTR", wa({}), { transform: wt }), Za = fa(E, "USE_PROFILES") ? E.USE_PROFILES && typeof E.USE_PROFILES == "object" ? wa(E.USE_PROFILES) : E.USE_PROFILES : !1, Ae = E.ALLOW_ARIA_ATTR !== !1, Ne = E.ALLOW_DATA_ATTR !== !1, Ve = E.ALLOW_UNKNOWN_PROTOCOLS || !1, Ye = E.ALLOW_SELF_CLOSE_IN_ATTR !== !1, qe = E.SAFE_FOR_TEMPLATES || !1, nt = E.SAFE_FOR_XML !== !1, dt = E.WHOLE_DOCUMENT || !1, St = E.RETURN_DOM || !1, Rt = E.RETURN_DOM_FRAGMENT || !1, Ma = E.RETURN_TRUSTED_TYPE || !1, pa = E.FORCE_BODY || !1, Gt = E.SANITIZE_DOM !== !1, va = E.SANITIZE_NAMED_PROPS || !1, Ya = E.KEEP_CONTENT !== !1, xn = E.IN_PLACE || !1, O = w_(E.ALLOWED_URI_REGEXP) ? E.ALLOWED_URI_REGEXP : Mh, pi = typeof E.NAMESPACE == "string" ? E.NAMESPACE : ba, vi = fc(E, "MATHML_TEXT_INTEGRATION_POINTS", () => tt({}, Xi)), bi = fc(E, "HTML_INTEGRATION_POINTS", () => tt({}, Ji));
     const B = fc(E, "CUSTOM_ELEMENT_HANDLING", () => Tr(null));
-    if (ve = Tr(null), fa(B, "tagNameCheck") && ds(B.tagNameCheck) && (ve.tagNameCheck = B.tagNameCheck), fa(B, "attributeNameCheck") && ds(B.attributeNameCheck) && (ve.attributeNameCheck = B.attributeNameCheck), fa(B, "allowCustomizedBuiltInElements") && typeof B.allowCustomizedBuiltInElements == "boolean" && (ve.allowCustomizedBuiltInElements = B.allowCustomizedBuiltInElements), Vt(ve), qe && (Ne = !1), Rt && (St = !0), Za && (N = et({}, Ph), ne = Tr(null), Za.html === !0 && (et(N, Lh), et(ne, Dh)), Za.svg === !0 && (et(N, sc), et(ne, cc), et(ne, js)), Za.svgFilters === !0 && (et(N, oc), et(ne, cc), et(ne, js)), Za.mathMl === !0 && (et(N, uc), et(ne, Fh), et(ne, js))), we.tagCheck = null, we.attributeCheck = null, fa(E, "ADD_TAGS") && (typeof E.ADD_TAGS == "function" ? we.tagCheck = E.ADD_TAGS : Or(E.ADD_TAGS) && (N === X && (N = wa(N)), et(N, E.ADD_TAGS, wt))), fa(E, "ADD_ATTR") && (typeof E.ADD_ATTR == "function" ? we.attributeCheck = E.ADD_ATTR : Or(E.ADD_ATTR) && (ne === de && (ne = wa(ne)), et(ne, E.ADD_ATTR, wt))), fa(E, "ADD_FORBID_CONTENTS") && Or(E.ADD_FORBID_CONTENTS) && (Xa === Fr && (Xa = wa(Xa)), et(Xa, E.ADD_FORBID_CONTENTS, wt)), Ya && (N["#text"] = !0), dt && et(N, [
+    if (ve = Tr(null), fa(B, "tagNameCheck") && ds(B.tagNameCheck) && (ve.tagNameCheck = B.tagNameCheck), fa(B, "attributeNameCheck") && ds(B.attributeNameCheck) && (ve.attributeNameCheck = B.attributeNameCheck), fa(B, "allowCustomizedBuiltInElements") && typeof B.allowCustomizedBuiltInElements == "boolean" && (ve.allowCustomizedBuiltInElements = B.allowCustomizedBuiltInElements), Vt(ve), qe && (Ne = !1), Rt && (St = !0), Za && (N = tt({}, Ph), ne = Tr(null), Za.html === !0 && (tt(N, Lh), tt(ne, Dh)), Za.svg === !0 && (tt(N, sc), tt(ne, cc), tt(ne, js)), Za.svgFilters === !0 && (tt(N, oc), tt(ne, cc), tt(ne, js)), Za.mathMl === !0 && (tt(N, uc), tt(ne, Fh), tt(ne, js))), we.tagCheck = null, we.attributeCheck = null, fa(E, "ADD_TAGS") && (typeof E.ADD_TAGS == "function" ? we.tagCheck = E.ADD_TAGS : Or(E.ADD_TAGS) && (N === X && (N = wa(N)), tt(N, E.ADD_TAGS, wt))), fa(E, "ADD_ATTR") && (typeof E.ADD_ATTR == "function" ? we.attributeCheck = E.ADD_ATTR : Or(E.ADD_ATTR) && (ne === de && (ne = wa(ne)), tt(ne, E.ADD_ATTR, wt))), fa(E, "ADD_FORBID_CONTENTS") && Or(E.ADD_FORBID_CONTENTS) && (Xa === Fr && (Xa = wa(Xa)), tt(Xa, E.ADD_FORBID_CONTENTS, wt)), Ya && (N["#text"] = !0), dt && tt(N, [
       "html",
       "head",
       "body"
-    ]), N.table && (et(N, ["tbody"]), delete fe.tbody), E.TRUSTED_TYPES_POLICY) {
+    ]), N.table && (tt(N, ["tbody"]), delete fe.tbody), E.TRUSTED_TYPES_POLICY) {
       if (typeof E.TRUSTED_TYPES_POLICY.createHTML != "function") throw Ai('TRUSTED_TYPES_POLICY configuration option must provide a "createHTML" hook.');
       if (typeof E.TRUSTED_TYPES_POLICY.createScriptURL != "function") throw Ai('TRUSTED_TYPES_POLICY configuration option must provide a "createScriptURL" hook.');
       const ue = re;
@@ -6117,20 +6117,20 @@ function ob() {
       }
     } else E.TRUSTED_TYPES_POLICY === null ? (re = void 0, V = "") : (re === void 0 && (re = H()), re && typeof V == "string" && (V = J("")));
     Dt && Dt(E), Kt = E;
-  }, fs = et({}, [
+  }, fs = tt({}, [
     ...sc,
     ...oc,
     ...k_
-  ]), ht = et({}, [...uc, ...S_]), Ur = function(E, B, ue) {
-    return B.namespaceURI === ba ? E === "svg" : B.namespaceURI === rt ? E === "svg" && (ue === "annotation-xml" || vi[ue]) : !!fs[E];
+  ]), ht = tt({}, [...uc, ...S_]), Ur = function(E, B, ue) {
+    return B.namespaceURI === ba ? E === "svg" : B.namespaceURI === Qe ? E === "svg" && (ue === "annotation-xml" || vi[ue]) : !!fs[E];
   }, Au = function(E, B, ue) {
     return B.namespaceURI === ba ? E === "math" : B.namespaceURI === ur ? E === "math" && bi[ue] : !!ht[E];
   }, Eu = function(E, B, ue) {
-    return B.namespaceURI === ur && !bi[ue] || B.namespaceURI === rt && !vi[ue] ? !1 : !ht[E] && (On[E] || !fs[E]);
+    return B.namespaceURI === ur && !bi[ue] || B.namespaceURI === Qe && !vi[ue] ? !1 : !ht[E] && (On[E] || !fs[E]);
   }, gi = function(E) {
     const B = ee(E), ue = Xn(G(E)), se = F(E);
     let Ie, Fe;
-    return se && $(se) === xt.element ? (Ie = { namespaceURI: ee(se) }, Fe = Xn(G(se))) : (Ie = { namespaceURI: pi }, Fe = "template"), cr[B] ? B === ur ? Ur(ue, Ie, Fe) : B === rt ? Au(ue, Ie, Fe) : B === ba ? Eu(ue, Ie, Fe) : !!(Ua === "application/xhtml+xml" && cr[B]) : !1;
+    return se && $(se) === xt.element ? (Ie = { namespaceURI: ee(se) }, Fe = Xn(G(se))) : (Ie = { namespaceURI: pi }, Fe = "template"), cr[B] ? B === ur ? Ur(ue, Ie, Fe) : B === Qe ? Au(ue, Ie, Fe) : B === ba ? Eu(ue, Ie, Fe) : !!(Ua === "application/xhtml+xml" && cr[B]) : !1;
   }, Ja = function(E) {
     ul(t.removed, { element: E });
     try {
@@ -6254,9 +6254,9 @@ function ob() {
   }, Ru = function(E) {
     Ta && rc(Ta, E);
   }, vs = function(E, B) {
-    return it ? E === "patchsrc" ? !0 : E === "for" && B !== "label" && B !== "output" : !1;
+    return nt ? E === "patchsrc" ? !0 : E === "for" && B !== "label" && B !== "output" : !1;
   }, Iu = function(E) {
-    it && zr(E, (B) => {
+    nt && zr(E, (B) => {
       const ue = $(B);
       if (ue === xt.processingInstruction || ue === xt.comment && Ut(Uh, B.data)) {
         try {
@@ -6338,7 +6338,7 @@ function ob() {
     });
   }
   const gs = function(E, B) {
-    return !!(it && E.hasChildNodes() && !an(E.firstElementChild) && Ut(dc, E.textContent) && Ut(dc, E.innerHTML) || it && L_[B] && $(E) === xt.element && ee(E) === ba && (an(E.firstElementChild) || typeof E.textContent == "string" && Ut(dc, E.textContent)) || E.nodeType === xt.processingInstruction || it && E.nodeType === xt.comment && Ut(Uh, E.data));
+    return !!(nt && E.hasChildNodes() && !an(E.firstElementChild) && Ut(dc, E.textContent) && Ut(dc, E.innerHTML) || nt && L_[B] && $(E) === xt.element && ee(E) === ba && (an(E.firstElementChild) || typeof E.textContent == "string" && Ut(dc, E.textContent)) || E.nodeType === xt.processingInstruction || nt && E.nodeType === xt.comment && Ut(Uh, E.data));
   }, Pn = function(E, B) {
     if (E instanceof RegExp) return Ut(E, B);
     if (E instanceof Function) {
@@ -6388,8 +6388,8 @@ function ob() {
   }, Ea = function(E, B, ue) {
     if (xe[B] || vs(B, E) || Gt && (B === "id" || B === "name") && (ue in a || ue in cs)) return !1;
     const se = ne[B] || we.attributeCheck instanceof Function && we.attributeCheck(B, E);
-    return Ne && Ut(nt, B) || Ae && Ut(ie, B) ? !0 : se ? Wi[B] || Ut(O, dl(ue, R, "")) || (B === "src" || B === "xlink:href" || B === "href") && E !== "script" && Oh(ue, "data:") === 0 && hi[E] || Ve && !Ut(A, dl(ue, R, "")) ? !0 : !ue : Vr(E) && Pn(ve.tagNameCheck, E) && Pn(ve.attributeNameCheck, B, E) || B === "is" && ve.allowCustomizedBuiltInElements && Pn(ve.tagNameCheck, ue);
-  }, ms = et({}, [
+    return Ne && Ut(rt, B) || Ae && Ut(ie, B) ? !0 : se ? Wi[B] || Ut(O, dl(ue, R, "")) || (B === "src" || B === "xlink:href" || B === "href") && E !== "script" && Oh(ue, "data:") === 0 && hi[E] || Ve && !Ut(A, dl(ue, R, "")) ? !0 : !ue : Vr(E) && Pn(ve.tagNameCheck, E) && Pn(ve.attributeNameCheck, B, E) || B === "is" && ve.allowCustomizedBuiltInElements && Pn(ve.tagNameCheck, ue);
+  }, ms = tt({}, [
     "annotation-xml",
     "color-profile",
     "font-face",
@@ -6415,7 +6415,7 @@ function ob() {
       return en(B, E), !1;
     }
   }, _s = function(E, B) {
-    return it && Ut(/((--!?|])>)|<\/(style|script|title|xmp|textarea|noscript|iframe|noembed|noframes)/i, B) ? !0 : Xn(E) === "attributename" && Nh(B, "href") !== null;
+    return nt && Ut(/((--!?|])>)|<\/(style|script|title|xmp|textarea|noscript|iframe|noembed|noframes)/i, B) ? !0 : Xn(E) === "attributename" && Nh(B, "href") !== null;
   }, pr = function(E, B) {
     if (ga(_e.beforeSanitizeAttributes, E, null), Qa(E, B)) return;
     const ue = E.attributes;
@@ -7678,7 +7678,7 @@ var u0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
     })), Tt(() => {
       ae(), H(), Ze(), De("ready"), v.value = !0;
     }), Ca(() => v.value = !1);
-    let nt = () => {
+    let rt = () => {
       let { class: ie, ...A } = n;
       return da("div", {
         ref: _,
@@ -7686,7 +7686,7 @@ var u0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
         ...A
       }, l.default?.());
     };
-    return Ra("panes", s), Ra("indexedPanes", c), Ra("horizontal", q(() => i.horizontal)), Ra("requestUpdate", ye), Ra("onPaneAdd", $e), Ra("onPaneRemove", Ue), Ra("onPaneClick", te), (ie, A) => (d(), Pe(xd(nt)));
+    return Ra("panes", s), Ra("indexedPanes", c), Ra("horizontal", q(() => i.horizontal)), Ra("requestUpdate", ye), Ra("onPaneAdd", $e), Ra("onPaneRemove", Ue), Ra("onPaneClick", te), (ie, A) => (d(), Pe(xd(rt)));
   }
 }), c0 = {
   __name: "pane",
@@ -16025,7 +16025,7 @@ const AT = ["aria-busy"], ET = { class: "library-list-inline-actions" }, $T = ["
             value: String(k.id)
           }, o(k.name), 9, xT))), 128))
         ], 40, $T)), [
-          [tt, l.value]
+          [at, l.value]
         ]) : T("", !0),
         n.value.length ? (d(), p("button", {
           key: 1,
@@ -16845,7 +16845,7 @@ const AT = ["aria-busy"], ET = { class: "library-list-inline-actions" }, $T = ["
         i.value = !1;
       }
     }
-    async function nt() {
+    async function rt() {
       i.value = !0, n.value = "";
       try {
         const I = await H(`/${le.value}/assign`, { target: Number(v.value), items: c.value, token: m.value.token });
@@ -17122,7 +17122,7 @@ const AT = ["aria-busy"], ET = { class: "library-list-inline-actions" }, $T = ["
               value: N.id
             }, o(N.display_name) + " — " + o(N.sort_name) + " (#" + o(N.id) + ")", 9, y$))), 128))
           ], 40, g$), [
-            [tt, v.value]
+            [at, v.value]
           ]),
           r("div", null, [
             r("button", {
@@ -17152,7 +17152,7 @@ const AT = ["aria-busy"], ET = { class: "library-list-inline-actions" }, $T = ["
             r("button", {
               class: "primary",
               disabled: i.value,
-              onClick: nt
+              onClick: rt
             }, o(u(b)("library", "Confirm author change")), 9, C$)
           ], 8, k$)) : T("", !0)
         ], 8, c$)) : T("", !0),
@@ -17189,7 +17189,7 @@ const AT = ["aria-busy"], ET = { class: "library-list-inline-actions" }, $T = ["
               r("option", R$, o(u(b)("library", "Publication date, newest first")), 1),
               r("option", I$, o(u(b)("library", "Series, then title")), 1)
             ], 40, N$), [
-              [tt, $.value]
+              [at, $.value]
             ]),
             r("div", L$, [
               r("button", {
@@ -17651,7 +17651,7 @@ const AT = ["aria-busy"], ET = { class: "library-list-inline-actions" }, $T = ["
                 value: String(H.id)
               }, o(H.display_name) + " (#" + o(H.id) + ")", 9, Vx))), 128))
             ], 40, Bx), [
-              [tt, C.value]
+              [at, C.value]
             ]),
             r("div", null, [
               r("button", {
@@ -18225,7 +18225,7 @@ const m3 = ["aria-label", "aria-busy"], y3 = {
               value: String(U.id)
             }, o(U.label), 9, Q3))), 128))
           ], 8, X3), [
-            [tt, s.value]
+            [at, s.value]
           ])
         ]),
         r("label", e4, [
@@ -18326,7 +18326,7 @@ const m3 = ["aria-label", "aria-busy"], y3 = {
               value: H
             }, o(U) + " (" + o(f.value.counts[H] || 0) + ")", 9, m4))), 128))
           ], 40, b4), [
-            [tt, y.value]
+            [at, y.value]
           ])
         ]),
         !f.value.pairs.length && !x.value ? (d(), p("p", y4, o(u(b)("library", "No comparisons in this view.")), 1)) : T("", !0),
@@ -19081,7 +19081,7 @@ const Y4 = ["aria-label", "aria-busy"], Z4 = {
               value: Z
             }, o(G) + " (" + o(a.value.counts[Z] || 0) + ")", 9, BN))), 128))
           ], 40, zN), [
-            [tt, s.value]
+            [at, s.value]
           ])
         ]),
         r("div", {
@@ -19193,7 +19193,7 @@ const Y4 = ["aria-label", "aria-busy"], Z4 = {
                 r("option", QN, o(u(b)("library", "Last occurrence")), 1),
                 r("option", eO, o(u(b)("library", "Every occurrence")), 1)
               ], 544), [
-                [tt, i.value]
+                [at, i.value]
               ])
             ])
           ]),
@@ -19222,7 +19222,7 @@ const Y4 = ["aria-label", "aria-busy"], Z4 = {
                 value: m[0]
               }, o(m[1]), 9, nO))), 128))
             ], 8, aO), [
-              [tt, e.node.field]
+              [at, e.node.field]
             ])
           ]),
           e.depth < 6 ? (d(), p("button", {
@@ -19306,7 +19306,7 @@ const Y4 = ["aria-label", "aria-busy"], Z4 = {
                 r("option", dO, o(u(b)("library", "Word separator")) + ": " + o(Pp.trim()), 1),
                 r("option", fO, o(u(b)("library", "Custom separator")), 1)
               ], 512), [
-                [tt, l.value]
+                [at, l.value]
               ])
             ]),
             l.value === "custom" ? (d(), p("label", hO, [
@@ -19434,7 +19434,7 @@ const Y4 = ["aria-label", "aria-busy"], Z4 = {
             value: ee.id
           }, o(ee.name), 9, _O))), 128))
         ], 40, mO), [
-          [tt, _.value]
+          [at, _.value]
         ])
       ]),
       He(G.$slots, "default"),
@@ -19593,7 +19593,7 @@ const Y4 = ["aria-label", "aria-busy"], Z4 = {
               value: L.id
             }, o(L.name), 9, RO))), 128))
           ], 8, NO), [
-            [tt, s.value]
+            [at, s.value]
           ])
         ]),
         r("p", IO, [
@@ -19802,7 +19802,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
             value: y.id
           }, o(y.id === "filename" ? u(b)("library", "Title from filename") : u(b)("library", "Suggested assignments")), 9, JO))), 128))
         ], 40, ZO), [
-          [tt, n.value]
+          [at, n.value]
         ])
       ]),
       s.value ? (d(), p("div", QO, [
@@ -19904,13 +19904,13 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
         a.value && (ge.set("rootId", a.value), ge.set("folder", i.value), ge.set("recursive", n.value ? "1" : "0"), ge.set("page", String(_e)));
         const De = await fetch(`${Et("/apps/library/api/inference/sample")}?${ge}`, { credentials: "same-origin", cache: "no-store" });
         if (!De.ok) throw new Error(b("library", "Could not load this folder. Check its path and your access."));
-        const nt = await De.json();
+        const rt = await De.json();
         if (Oe !== le) return;
-        if (t.value = nt.roots, !a.value && (a.value = String(nt.roots[0]?.id || ""), a.value))
+        if (t.value = rt.roots, !a.value && (a.value = String(rt.roots[0]?.id || ""), a.value))
           return Ue();
         y.value !== a.value && (C.value = []), y.value = a.value;
-        const ie = nt.roots.find((A) => String(A.id) === a.value)?.path.replace(/\/$/, "") || "";
-        k.value = nt.scope.slice(ie.length).replace(/^\//, ""), l.value = nt.items || [], s.value = nt.page || 1, c.value = !!nt.hasNext, v.value = nt.scope || "", m.value = l.value[0]?.path || "", U();
+        const ie = rt.roots.find((A) => String(A.id) === a.value)?.path.replace(/\/$/, "") || "";
+        k.value = rt.scope.slice(ie.length).replace(/^\//, ""), l.value = rt.items || [], s.value = rt.page || 1, c.value = !!rt.hasNext, v.value = rt.scope || "", m.value = l.value[0]?.path || "", U();
       } catch (ge) {
         Oe === le && (_.value = ge.message);
       } finally {
@@ -19965,7 +19965,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                 value: String(ge.id)
               }, o(ge.label), 9, lR))), 128))
             ], 40, rR), [
-              [tt, a.value]
+              [at, a.value]
             ])
           ]),
           r("label", null, [
@@ -20036,7 +20036,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                     value: ge.path
                   }, o(ge.path), 9, yR))), 128))
                 ], 544), [
-                  [tt, m.value]
+                  [at, m.value]
                 ])
               ])
             ]),
@@ -20061,7 +20061,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                   r("option", kR, o(u(b)("library", "Advanced pattern")), 1),
                   r("option", SR, o(u(b)("library", "Folder rules")), 1)
                 ], 512), [
-                  [tt, x.value]
+                  [at, x.value]
                 ])
               ]),
               x.value === "folders" ? (d(), Pe(GO, {
@@ -20217,7 +20217,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
               value: De
             }, o(ge) + " (" + o(Y.value[De] || 0) + ")", 9, HR))), 128))
           ], 512), [
-            [tt, P.value]
+            [at, P.value]
           ])
         ]),
         !re.value.length && !f.value ? (d(), p("p", VR, o(u(b)("library", "No sample results here. Try another folder, page or result filter.")), 1)) : T("", !0),
@@ -20863,12 +20863,12 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
         qg(g, h);
       }, 200);
     });
-    const nt = /* @__PURE__ */ j($.folder), ie = /* @__PURE__ */ j(!1), A = /* @__PURE__ */ j(null), R = q(() => A.value || []);
+    const rt = /* @__PURE__ */ j($.folder), ie = /* @__PURE__ */ j(!1), A = /* @__PURE__ */ j(null), R = q(() => A.value || []);
     Ge(() => $.folder, (w) => {
-      nt.value = w || "";
+      rt.value = w || "";
     });
     let I = null, O = null, N = 0;
-    Ge(nt, (w) => {
+    Ge(rt, (w) => {
       window.clearTimeout(I), O?.abort(), O = null, A.value = null;
       const g = String(w || "").trim();
       if (g.length < 3) return;
@@ -20895,9 +20895,9 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
     Ge(() => $.classification, (w) => {
       Ae.value = w || "";
     });
-    let qe = null, it = null, dt = 0;
+    let qe = null, nt = null, dt = 0;
     Ge(Ae, (w) => {
-      window.clearTimeout(qe), it?.abort(), it = null, Ve.value = null;
+      window.clearTimeout(qe), nt?.abort(), nt = null, Ve.value = null;
       const g = String(w || "").trim();
       if (g.length < 3) return;
       const h = ++dt;
@@ -20957,16 +20957,16 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
               if (ei = ti, mr === 4) return g;
             }
           }
-          const Qe = decodeURI(z);
-          if (Qe === z) return w;
-          z = Qe;
+          const et = decodeURI(z);
+          if (et === z) return w;
+          z = et;
         }
         return g;
       } catch {
         return g;
       }
     }
-    const Yi = q(() => Wi(y.settingsUrl, Ki.settings)), rt = q(() => Wi(y.catalogueRootUrl, Ki.catalogue)), ur = q(() => Wi(y.homeUrl, `${Ki.catalogue}?home=1`)), ba = q(() => Wi(y.shelvesUrl, `${Ki.catalogue}?shelves=1`)), pi = q(() => Wi(y.reviewUrl || y.scannerConflictReviewUrl, Ki.review)), Zi = q(() => Object.entries(l).some(([w, g]) => $[w] === g)), cr = q(() => n.reduce((w, g) => w + Number(Vu.value[g.countKey] || 0), 0)), Nn = q(() => y.surface === "home"), Xi = q(() => y.surface === "shelves"), vi = q(() => y.surface === "duplicates"), Ji = q(() => y.surface === "inference"), bi = q(() => y.surface === "authors"), On = q(() => y.surface === "series"), Ua = q(() => y.surface === "lists"), Qi = q(() => `${rt.value}?lists=1`), Tu = Number(new URLSearchParams(window.location.search).get("addToList")) || null, wt = /* @__PURE__ */ j([]), Kt = /* @__PURE__ */ j("");
+    const Yi = q(() => Wi(y.settingsUrl, Ki.settings)), Qe = q(() => Wi(y.catalogueRootUrl, Ki.catalogue)), ur = q(() => Wi(y.homeUrl, `${Ki.catalogue}?home=1`)), ba = q(() => Wi(y.shelvesUrl, `${Ki.catalogue}?shelves=1`)), pi = q(() => Wi(y.reviewUrl || y.scannerConflictReviewUrl, Ki.review)), Zi = q(() => Object.entries(l).some(([w, g]) => $[w] === g)), cr = q(() => n.reduce((w, g) => w + Number(Vu.value[g.countKey] || 0), 0)), Nn = q(() => y.surface === "home"), Xi = q(() => y.surface === "shelves"), vi = q(() => y.surface === "duplicates"), Ji = q(() => y.surface === "inference"), bi = q(() => y.surface === "authors"), On = q(() => y.surface === "series"), Ua = q(() => y.surface === "lists"), Qi = q(() => `${Qe.value}?lists=1`), Tu = Number(new URLSearchParams(window.location.search).get("addToList")) || null, wt = /* @__PURE__ */ j([]), Kt = /* @__PURE__ */ j("");
     async function cs() {
       try {
         wt.value = (await mn()).lists;
@@ -20976,11 +20976,11 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
     Tt(cs);
     const ds = q(() => !bi.value && !On.value && !vi.value && !Ji.value && !Ua.value && !Nn.value && !Xi.value && !Zi.value && !$.starred && $.recentlyOpened !== "1" && !$.shelf), Mr = q(() => [
       { key: "home", name: t("library", "Home"), href: ur.value, active: Nn.value },
-      { key: "all", name: t("library", "All publications"), href: rt.value, active: ds.value },
-      { key: "starred", name: t("library", "Starred"), href: `${rt.value}?starred=1`, active: $.starred === "1" },
-      { key: "continue", name: t("library", "Continue reading"), href: `${rt.value}?recentlyOpened=1&sort=lastOpened`, active: $.recentlyOpened === "1" },
+      { key: "all", name: t("library", "All publications"), href: Qe.value, active: ds.value },
+      { key: "starred", name: t("library", "Starred"), href: `${Qe.value}?starred=1`, active: $.starred === "1" },
+      { key: "continue", name: t("library", "Continue reading"), href: `${Qe.value}?recentlyOpened=1&sort=lastOpened`, active: $.recentlyOpened === "1" },
       { key: "shelves", name: t("library", "Shelves"), href: ba.value, active: Xi.value || !!$.shelf },
-      { key: "collections", name: t("library", "Collections"), href: `${rt.value}#library-collections`, active: !1 }
+      { key: "collections", name: t("library", "Collections"), href: `${Qe.value}#library-collections`, active: !1 }
     ]), fs = q(() => pe.value.map((w) => ({
       key: `collection-${w.id}`,
       rawName: w.name,
@@ -21123,7 +21123,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
       const w = new URLSearchParams();
       for (const h of pt.value) w.set(h.key, h.value);
       const g = w.toString();
-      return `${rt.value}${g ? `?${g}` : ""}`;
+      return `${Qe.value}${g ? `?${g}` : ""}`;
     }), $t = q(() => pt.value[0] || null), ws = q(() => Z.value.trim() !== String($.q || "").trim()), kg = q(() => String($.q || "").trim() !== "" || ws.value);
     function ma(w) {
       return ({
@@ -21133,7 +21133,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
         creator: Ue,
         subject: X,
         year: Gt,
-        folder: nt,
+        folder: rt,
         classification: Ae,
         tag: _t
       }[w]?.value ?? "").trim() !== String($[w] || "").trim();
@@ -21168,7 +21168,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
       "subject",
       "classification",
       "scannerConflicts"
-    ]), nf = q(() => Object.entries(_($)).filter(([w, g]) => !Eg.has(w) && String(g || "").trim() !== "").map(([w, g]) => ({ key: w, value: g }))), $g = q(() => Object.entries($).filter(([w, g]) => !["q", "sort", "starred"].includes(w) && String(g || "").trim() !== "").map(([w, g]) => ({ key: w, value: g }))), ks = q(() => Object.entries(_($)).filter(([w, g]) => String(g || "").trim() !== "").map(([w, g]) => ({ key: w, value: g }))), xg = q(() => ks.value.filter(({ key: w, value: g }) => w !== "q" && !(w === "sort" && g === "title"))), Ss = q(() => y.homeRows || { continueReading: [], recentlyAdded: [] }), rf = q(() => y.homeShelves || []), lf = q(() => y.shelfTree || []), Du = q(() => y.needsAttention || { count: 0, url: `${rt.value}?needsMetadata=1` }), na = /* @__PURE__ */ j([]), Cs = q(() => new Set(na.value));
+    ]), nf = q(() => Object.entries(_($)).filter(([w, g]) => !Eg.has(w) && String(g || "").trim() !== "").map(([w, g]) => ({ key: w, value: g }))), $g = q(() => Object.entries($).filter(([w, g]) => !["q", "sort", "starred"].includes(w) && String(g || "").trim() !== "").map(([w, g]) => ({ key: w, value: g }))), ks = q(() => Object.entries(_($)).filter(([w, g]) => String(g || "").trim() !== "").map(([w, g]) => ({ key: w, value: g }))), xg = q(() => ks.value.filter(({ key: w, value: g }) => w !== "q" && !(w === "sort" && g === "title"))), Ss = q(() => y.homeRows || { continueReading: [], recentlyAdded: [] }), rf = q(() => y.homeShelves || []), lf = q(() => y.shelfTree || []), Du = q(() => y.needsAttention || { count: 0, url: `${Qe.value}?needsMetadata=1` }), na = /* @__PURE__ */ j([]), Cs = q(() => new Set(na.value));
     function sf(w, g) {
       const h = new Set(na.value);
       g ? h.add(Number(w)) : h.delete(Number(w)), na.value = [...h];
@@ -21218,7 +21218,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
     }
     function $s(w, g) {
       const z = df(w, g).toString();
-      return `${rt.value}${z ? `?${z}` : ""}`;
+      return `${Qe.value}${z ? `?${z}` : ""}`;
     }
     function xs(w, g, h) {
       const z = String(h || "").trim();
@@ -21302,7 +21302,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
     }), Bg = q(() => n.map((w) => ({
       ...w,
       label: t("library", w.label),
-      href: `${rt.value}?${encodeURIComponent(w.key)}=${encodeURIComponent(w.value)}`,
+      href: `${Qe.value}?${encodeURIComponent(w.key)}=${encodeURIComponent(w.value)}`,
       active: String($[w.key] || "") === w.value
     })));
     function zu(w) {
@@ -21318,8 +21318,8 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
       Array.isArray(h) || (h = []);
       const z = w.fieldSources || {};
       return Ig.filter((he) => Object.prototype.hasOwnProperty.call(g, he)).map((he) => {
-        const Ee = zu(w[he]), je = zu(g[he]), Qe = zu(z[he] || w.metadataSource || "scanner"), _a = Qe.includes("filename") || Qe.includes("path") ? je : "", ei = Qe.includes("sidecar") ? je : "";
-        return { field: he, currentValue: Ee, scannerCandidate: je, pathTemplateCandidate: _a, sidecarValue: ei, sourceProvenance: Qe, rejected: h.includes(he), differs: Ee !== je };
+        const Ee = zu(w[he]), je = zu(g[he]), et = zu(z[he] || w.metadataSource || "scanner"), _a = et.includes("filename") || et.includes("path") ? je : "", ei = et.includes("sidecar") ? je : "";
+        return { field: he, currentValue: Ee, scannerCandidate: je, pathTemplateCandidate: _a, sidecarValue: ei, sourceProvenance: et, rejected: h.includes(he), differs: Ee !== je };
       }).filter((he) => he.differs);
     }
     let jn = 0, Bn = null;
@@ -21344,13 +21344,13 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
           Ce.value = null, ra.missing = je.status === 404, ra.error = je.status === 404 ? t("library", "This publication is unavailable or you do not have access.") : t("library", "Could not load publication details. Try again.");
           return;
         }
-        const Qe = await je.json();
+        const et = await je.json();
         if (z !== jn) return;
-        if (typeof Qe?.item?.id != "number" || !Number.isSafeInteger(Qe.item.id) || Qe.item.id !== w) {
+        if (typeof et?.item?.id != "number" || !Number.isSafeInteger(et.item.id) || et.item.id !== w) {
           Ce.value = null, ra.missing = !1, ra.error = t("library", "Could not load publication details. Try again.");
           return;
         }
-        Ce.value = ff(Qe.item), hf(Ce.value), await Pt();
+        Ce.value = ff(et.item), hf(Ce.value), await Pt();
       } catch (Ee) {
         z === jn && Ee?.name !== "AbortError" && (Ce.value = null, ra.missing = !1, ra.error = t("library", "Could not load publication details. Try again."));
       } finally {
@@ -21395,19 +21395,19 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
     }
     async function Hn(w, g, h) {
       const z = new URLSearchParams();
-      for (const [je, Qe] of Object.entries($)) {
-        const _a = String(Qe || "").trim();
+      for (const [je, et] of Object.entries($)) {
+        const _a = String(et || "").trim();
         je !== w && _a !== "" && !(je === "sort" && _a === "title") && !(je === "view" && _a === "compact") && z.set(je, _a);
       }
       z.set(`${w}Search`, g);
       const he = new AbortController();
-      w === "creator" ? ge = he : w === "publisher" ? Re = he : w === "subject" ? xe = he : w === "classification" ? it = he : w === "tag" ? Rt = he : w === "folder" ? O = he : Ta = he;
+      w === "creator" ? ge = he : w === "publisher" ? Re = he : w === "subject" ? xe = he : w === "classification" ? nt = he : w === "tag" ? Rt = he : w === "folder" ? O = he : Ta = he;
       const Ee = w === "creator" ? zr.value : w === "publisher" ? jr.value : w === "subject" ? Br.value : w === "classification" ? $u.value : w === "tag" ? ps.value : w === "folder" ? xu.value : Nu.value;
       try {
         const je = await fetch(`${Ee}?${z}`, { headers: { Accept: "application/json" }, credentials: "same-origin", signal: he.signal });
         if (!je.ok) throw new Error(`${w} suggestions request failed: ${je.status}`);
-        const Qe = await je.json(), _a = w === "creator" ? De : w === "publisher" ? $e : w === "subject" ? we : w === "classification" ? dt : w === "tag" ? Ma : w === "folder" ? N : Za, ei = w === "creator" ? Ue.value : w === "publisher" ? ae.value : w === "subject" ? X.value : w === "classification" ? Ae.value : w === "tag" ? _t.value : w === "folder" ? nt.value : Gt.value;
-        h === _a && ei.trim() === g && (w === "creator" ? ct.value = Array.isArray(Qe.creators) ? Qe.creators : [] : w === "publisher" ? U.value = Array.isArray(Qe.publishers) ? Qe.publishers : [] : w === "subject" ? de.value = Array.isArray(Qe.subjects) ? Qe.subjects : [] : w === "classification" ? Ve.value = Array.isArray(Qe.classifications) ? Qe.classifications : [] : w === "tag" ? ia.value = Array.isArray(Qe.tags) ? Qe.tags : [] : w === "folder" ? A.value = Array.isArray(Qe.folders) ? Qe.folders : [] : $n.value = Array.isArray(Qe.years) ? Qe.years : []);
+        const et = await je.json(), _a = w === "creator" ? De : w === "publisher" ? $e : w === "subject" ? we : w === "classification" ? dt : w === "tag" ? Ma : w === "folder" ? N : Za, ei = w === "creator" ? Ue.value : w === "publisher" ? ae.value : w === "subject" ? X.value : w === "classification" ? Ae.value : w === "tag" ? _t.value : w === "folder" ? rt.value : Gt.value;
+        h === _a && ei.trim() === g && (w === "creator" ? ct.value = Array.isArray(et.creators) ? et.creators : [] : w === "publisher" ? U.value = Array.isArray(et.publishers) ? et.publishers : [] : w === "subject" ? de.value = Array.isArray(et.subjects) ? et.subjects : [] : w === "classification" ? Ve.value = Array.isArray(et.classifications) ? et.classifications : [] : w === "tag" ? ia.value = Array.isArray(et.tags) ? et.tags : [] : w === "folder" ? A.value = Array.isArray(et.folders) ? et.folders : [] : $n.value = Array.isArray(et.years) ? et.years : []);
       } catch (je) {
         je?.name !== "AbortError" && (w === "creator" && h === De && (ct.value = null), w === "publisher" && h === $e && (U.value = null), w === "subject" && h === we && (de.value = null), w === "classification" && h === dt && (Ve.value = null), w === "tag" && h === Ma && (ia.value = null), w === "folder" && h === N && (A.value = null), w === "year" && h === Za && ($n.value = null));
       }
@@ -21532,10 +21532,10 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
       if (!h && !g?.params) return;
       const z = c(g?.params ?? Vg(h));
       if (Nn.value || Xi.value) {
-        el(z, rt.value);
+        el(z, Qe.value);
         return;
       }
-      const he = z.toString(), Ee = he ? `?${he}` : "", je = g?.generation ?? ++la, Qe = f(z), _a = g?.historyMode ?? (Qe ? "push" : "replace"), ei = g?.historyTraversal === !0;
+      const he = z.toString(), Ee = he ? `?${he}` : "", je = g?.generation ?? ++la, et = f(z), _a = g?.historyMode ?? (et ? "push" : "replace"), ei = g?.historyTraversal === !0;
       if (je !== la) return;
       tm(), g === null && br?.abort();
       const mr = new AbortController();
@@ -21548,14 +21548,14 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
         });
         if (je !== la) return;
         if (!ti.ok) {
-          ei ? el(z) : Qe ? Mt.error = t("library", "Could not load this review queue. Try again.") : el(z);
+          ei ? el(z) : et ? Mt.error = t("library", "Could not load this review queue. Try again.") : el(z);
           return;
         }
         const wm = await ti.json();
         if (je !== la) return;
         Qg(wm), mf(), Mt.completed = !0, _a !== "none" && (history[_a === "push" ? "pushState" : "replaceState"]({}, "", he ? `?${he}` : window.location.pathname), rn.value && Yr({ historyMode: "none" }));
       } catch (ti) {
-        je === la && ti?.name !== "AbortError" && (ei ? el(z) : Qe ? Mt.error = t("library", "Could not load this review queue. Try again.") : el(z));
+        je === la && ti?.name !== "AbortError" && (ei ? el(z) : et ? Mt.error = t("library", "Could not load this review queue. Try again.") : el(z));
       } finally {
         je === la && (br = null, Mt.loading = !1);
       }
@@ -21593,10 +21593,10 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
       am(g.currentTarget.form, w);
     }
     async function im(w) {
-      $.q = String(Z.value || "").trim(), $.publication = String(G.value || "").trim(), $.publisher = String(ae.value || "").trim(), $.creator = String(Ue.value || "").trim(), $.subject = String(X.value || "").trim(), $.folder = String(nt.value || "").trim(), $.year = String(Gt.value || "").trim(), ee.value = !1, J.value = !1, Ze.value = !1, ne.value = !1, ie.value = !1, va.value = !1, await Pt(), Yt({ currentTarget: w });
+      $.q = String(Z.value || "").trim(), $.publication = String(G.value || "").trim(), $.publisher = String(ae.value || "").trim(), $.creator = String(Ue.value || "").trim(), $.subject = String(X.value || "").trim(), $.folder = String(rt.value || "").trim(), $.year = String(Gt.value || "").trim(), ee.value = !1, J.value = !1, Ze.value = !1, ne.value = !1, ie.value = !1, va.value = !1, await Pt(), Yt({ currentTarget: w });
     }
     async function sn(w, g, h) {
-      $[g] = String(h || "").trim(), g === "creator" ? (Ue.value = $.creator, Ze.value = !1) : g === "publisher" ? (ae.value = $.publisher, J.value = !1) : g === "subject" ? (X.value = $.subject, ne.value = !1) : g === "folder" ? (nt.value = $.folder, ie.value = !1) : g === "classification" ? (Ae.value = $.classification, Ne.value = !1) : g === "tag" ? (_t.value = $.tag, gt.value = !1) : (Gt.value = $.year, va.value = !1), ki[g] = -1, await Pt(), Yt({ currentTarget: w });
+      $[g] = String(h || "").trim(), g === "creator" ? (Ue.value = $.creator, Ze.value = !1) : g === "publisher" ? (ae.value = $.publisher, J.value = !1) : g === "subject" ? (X.value = $.subject, ne.value = !1) : g === "folder" ? (rt.value = $.folder, ie.value = !1) : g === "classification" ? (Ae.value = $.classification, Ne.value = !1) : g === "tag" ? (_t.value = $.tag, gt.value = !1) : (Gt.value = $.year, va.value = !1), ki[g] = -1, await Pt(), Yt({ currentTarget: w });
     }
     function wf(w) {
       im(w.currentTarget);
@@ -21684,7 +21684,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
     }
     function tl(w) {
       const g = If(w).toString();
-      return `${rt.value}${g ? `?${g}` : ""}`;
+      return `${Qe.value}${g ? `?${g}` : ""}`;
     }
     function al(w) {
       const g = If(w);
@@ -21699,7 +21699,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
     }
     function Rs() {
       const w = Lf().toString();
-      return `${rt.value}${w ? `?${w}` : ""}`;
+      return `${Qe.value}${w ? `?${w}` : ""}`;
     }
     function Is() {
       const w = Lf();
@@ -21879,12 +21879,12 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                 ]))), 128)),
                 ce(u(ii), {
                   active: bi.value,
-                  href: `${rt.value}?authors=1`,
+                  href: `${Qe.value}?authors=1`,
                   name: u(t)("library", "Authors")
                 }, null, 8, ["active", "href", "name"]),
                 ce(u(ii), {
                   active: On.value,
-                  href: `${rt.value}?series=1`,
+                  href: `${Qe.value}?series=1`,
                   name: u(t)("library", "Series")
                 }, null, 8, ["active", "href", "name"]),
                 ce(u(ii), {
@@ -21905,7 +21905,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                 }, null, 8, ["href", "name"]))), 128)),
                 ce(u(ii), {
                   active: Ji.value,
-                  href: `${rt.value}?infer=1`,
+                  href: `${Qe.value}?infer=1`,
                   name: u(t)("library", "Extract metadata")
                 }, null, 8, ["active", "href", "name"]),
                 ce(u(ii), {
@@ -21916,7 +21916,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                 ce(u(ii), {
                   class: "library-navigation-personal-list",
                   active: vi.value,
-                  href: `${rt.value}?duplicates=1`,
+                  href: `${Qe.value}?duplicates=1`,
                   name: u(t)("library", "Possible duplicates")
                 }, null, 8, ["active", "href", "name"])
               ]),
@@ -21991,7 +21991,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                         value: h
                       }, o(h), 9, dI))), 128))
                     ], 544), [
-                      [tt, $.type]
+                      [at, $.type]
                     ])
                   ]),
                   r("div", fI, [
@@ -22226,7 +22226,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                         value: h
                       }, o(Ls(h)), 9, WI))), 128))
                     ], 544), [
-                      [tt, $.format]
+                      [at, $.format]
                     ])
                   ])
                 ]),
@@ -22245,14 +22245,14 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                         value: h
                       }, o(h), 9, XI))), 128))
                     ], 544), [
-                      [tt, $.shelf]
+                      [at, $.shelf]
                     ])
                   ]),
                   r("div", JI, [
                     r("label", QI, o(u(t)("library", "Folder")), 1),
                     be(r("input", {
                       id: "library-folder-search",
-                      "onUpdate:modelValue": g[27] || (g[27] = (h) => nt.value = h),
+                      "onUpdate:modelValue": g[27] || (g[27] = (h) => rt.value = h),
                       type: "search",
                       name: "folderSearch",
                       autocomplete: "off",
@@ -22265,7 +22265,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                       onFocus: g[28] || (g[28] = (h) => ie.value = !0),
                       onKeydown: g[29] || (g[29] = ft((h) => ie.value = !1, ["escape"]))
                     }, null, 40, eL), [
-                      [Me, nt.value]
+                      [Me, rt.value]
                     ]),
                     ie.value && R.value.length > 0 ? (d(), p("ul", tL, [
                       (d(!0), p(W, null, oe(R.value, (h) => (d(), p("li", {
@@ -22302,7 +22302,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                         value: h
                       }, o(h), 9, rL))), 128))
                     ], 544), [
-                      [tt, $.status]
+                      [at, $.status]
                     ])
                   ]),
                   r("label", null, [
@@ -22318,7 +22318,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                         value: h
                       }, o(h), 9, sL))), 128))
                     ], 544), [
-                      [tt, $.workflowStatus]
+                      [at, $.workflowStatus]
                     ])
                   ]),
                   r("div", oL, [
@@ -22419,7 +22419,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                       r("option", wL, o(u(t)("library", "All metadata")), 1),
                       r("option", kL, o(u(t)("library", "Suggested updates")), 1)
                     ], 544), [
-                      [tt, $.scannerConflicts]
+                      [at, $.scannerConflicts]
                     ])
                   ])
                 ]),
@@ -22461,16 +22461,16 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
               }, null, 8, ["request-token"])) : bi.value ? (d(), Pe(lx, {
                 key: 2,
                 "request-token": ht.value,
-                "catalogue-url": rt.value
+                "catalogue-url": Qe.value
               }, null, 8, ["request-token", "catalogue-url"])) : On.value ? (d(), Pe(g3, {
                 key: 3,
                 "request-token": ht.value,
-                "catalogue-url": rt.value
+                "catalogue-url": Qe.value
               }, null, 8, ["request-token", "catalogue-url"])) : Ua.value ? (d(), Pe(BA, {
                 key: 4,
                 onChanged: cs,
                 "request-token": ht.value,
-                "catalogue-url": rt.value,
+                "catalogue-url": Qe.value,
                 "lists-url": Qi.value
               }, null, 8, ["request-token", "catalogue-url", "lists-url"])) : (d(), p(W, { key: 5 }, [
                 Wt.value.length > 0 ? (d(), p("nav", {
@@ -22674,7 +22674,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                     r("p", null, o(u(t)("library", "Choose another queue or return to the catalogue.")), 1),
                     r("a", {
                       class: "button primary",
-                      href: rt.value
+                      href: Qe.value
                     }, o(u(t)("library", "Back to Library")), 9, fP)
                   ])) : (d(), p("div", {
                     key: 3,
@@ -22801,7 +22801,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                         ])
                       ]),
                       r("a", {
-                        href: `${rt.value}?recentlyOpened=1&sort=lastOpened`
+                        href: `${Qe.value}?recentlyOpened=1&sort=lastOpened`
                       }, o(u(t)("library", "View all")), 9, jP)
                     ]),
                     Ss.value.continueReading.length ? (d(), p("div", BP, [
@@ -22862,7 +22862,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                         ])
                       ]),
                       r("a", {
-                        href: `${rt.value}?sort=recent`
+                        href: `${Qe.value}?sort=recent`
                       }, o(u(t)("library", "View all")), 9, t8)
                     ]),
                     Ss.value.recentlyAdded.length ? (d(), p("div", a8, [
@@ -23040,7 +23040,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                       }, o(u(t)("library", "Add a Library root")), 9, z8),
                       r("a", {
                         class: "button secondary",
-                        href: rt.value
+                        href: Qe.value
                       }, o(u(t)("library", "All publications")), 9, j8)
                     ])
                   ]))
@@ -23118,7 +23118,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                               value: h
                             }, o(h), 9, e5))), 128))
                           ], 544), [
-                            [tt, $.type]
+                            [at, $.type]
                           ])
                         ]),
                         r("div", t5, [
@@ -23295,7 +23295,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                               value: h
                             }, o(Ls(h)), 9, O5))), 128))
                           ], 544), [
-                            [tt, $.format]
+                            [at, $.format]
                           ])
                         ]),
                         r("div", R5, [
@@ -23393,14 +23393,14 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                               value: h
                             }, o(h), 9, K5))), 128))
                           ], 544), [
-                            [tt, $.shelf]
+                            [at, $.shelf]
                           ])
                         ]),
                         r("div", W5, [
                           r("label", Y5, o(u(t)("library", "Folder")), 1),
                           be(r("input", {
                             id: "library-mobile-folder-search",
-                            "onUpdate:modelValue": g[77] || (g[77] = (h) => nt.value = h),
+                            "onUpdate:modelValue": g[77] || (g[77] = (h) => rt.value = h),
                             type: "search",
                             name: "folderSearch",
                             autocomplete: "off",
@@ -23413,7 +23413,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                             onFocus: g[78] || (g[78] = (h) => ie.value = !0),
                             onKeydown: g[79] || (g[79] = ft((h) => ie.value = !1, ["escape"]))
                           }, null, 40, Z5), [
-                            [Me, nt.value]
+                            [Me, rt.value]
                           ]),
                           Ea.value && ie.value && R.value.length > 0 ? (d(), p("ul", X5, [
                             (d(!0), p(W, null, oe(R.value, (h) => (d(), p("li", {
@@ -23446,7 +23446,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                               value: h
                             }, o(h), 9, t9))), 128))
                           ], 544), [
-                            [tt, $.status]
+                            [at, $.status]
                           ])
                         ]),
                         r("label", null, [
@@ -23462,7 +23462,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                               value: h
                             }, o(h), 9, i9))), 128))
                           ], 544), [
-                            [tt, $.workflowStatus]
+                            [at, $.workflowStatus]
                           ])
                         ]),
                         r("label", null, [
@@ -23475,7 +23475,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                             r("option", n9, o(u(t)("library", "All metadata")), 1),
                             r("option", r9, o(u(t)("library", "Suggested updates")), 1)
                           ], 544), [
-                            [tt, $.scannerConflicts]
+                            [at, $.scannerConflicts]
                           ])
                         ])
                       ]),
@@ -23537,7 +23537,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                             r("option", g9, o(u(t)("library", "Recently opened")), 1),
                             r("option", m9, o(u(t)("library", "Format")), 1)
                           ], 544), [
-                            [tt, $.sort]
+                            [at, $.sort]
                           ])
                         ]),
                         r("label", null, [
@@ -23550,7 +23550,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                             r("option", y9, o(u(t)("library", "Compact")), 1),
                             r("option", _9, o(u(t)("library", "List")), 1)
                           ], 544), [
-                            [tt, $.view]
+                            [at, $.view]
                           ])
                         ])
                       ]),
@@ -23634,7 +23634,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                             r("option", j9, o(u(t)("library", "Recently opened")), 1),
                             r("option", B9, o(u(t)("library", "Format")), 1)
                           ], 544), [
-                            [tt, $.sort]
+                            [at, $.sort]
                           ])
                         ]),
                         r("nav", {
@@ -23757,7 +23757,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                     ])) : T("", !0),
                     r("p", null, [
                       r("a", {
-                        href: rt.value,
+                        href: Qe.value,
                         class: "button secondary library-discovery-back-link"
                       }, o(u(t)("library", "Back to full catalogue")), 9, yD)
                     ])
@@ -23899,7 +23899,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                         r("option", iF, o(u(t)("library", "Fresh covers")), 1),
                         r("option", nF, o(u(t)("library", "Reset metadata")), 1)
                       ], 8, JD)), [
-                        [tt, Kt.value]
+                        [at, Kt.value]
                       ]) : T("", !0)
                     ]),
                     na.value.length && Kt.value ? (d(), p("div", {
@@ -24131,7 +24131,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                             u(gi)[h.id]?.count ? (d(), p("a", {
                               key: 0,
                               class: "library-duplicate-badge",
-                              href: `${rt.value}?duplicates=1&bookId=${h.id}`
+                              href: `${Qe.value}?duplicates=1&bookId=${h.id}`
                             }, o(u(t)("library", "Possible duplicates")) + " · " + o(u(gi)[h.id].count) + o(u(gi)[h.id].status === "partial" ? "+" : ""), 9, u6)) : T("", !0)
                           ]),
                           r("td", c6, [
@@ -24260,7 +24260,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                           u(gi)[h.id]?.count ? (d(), p("a", {
                             key: 0,
                             class: "library-duplicate-badge",
-                            href: `${rt.value}?duplicates=1&bookId=${h.id}`
+                            href: `${Qe.value}?duplicates=1&bookId=${h.id}`
                           }, o(u(t)("library", "Possible duplicates")) + " · " + o(u(gi)[h.id].count) + o(u(gi)[h.id].status === "partial" ? "+" : ""), 9, P6)) : T("", !0),
                           r("h3", {
                             id: `library-card-title-${h.id}`
@@ -24678,7 +24678,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                   (d(!0), p(W, null, oe(Ce.value.canonicalAuthors, (h) => (d(), p("a", {
                     key: h.id,
                     class: "button secondary",
-                    href: `${w.generateUrl("/apps/library/")}?authors=1&authorId=${h.id}`
+                    href: `${Qe.value}?authors=1&authorId=${h.id}`
                   }, [
                     r("bdi", tU, o(h.name), 1)
                   ], 8, eU))), 128))
@@ -24703,7 +24703,7 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                   (d(!0), p(W, null, oe(Ce.value.canonicalSeries, (h) => (d(), p("a", {
                     key: h.id,
                     class: "button secondary",
-                    href: `${w.generateUrl("/apps/library/")}?series=1&seriesId=${h.id}`
+                    href: `${Qe.value}?series=1&seriesId=${h.id}`
                   }, [
                     r("bdi", sU, [
                       Q(o(h.name), 1),

@@ -4,7 +4,7 @@ For duplicate discovery and private preferred-copy decisions, see [Finding possi
 
 Start with [Your first library](first-library.md) for a short illustrated walkthrough using English Gutenberg books.
 
-Status: reference guide with historical v0.1 development notes; use the first-library walkthrough and linked feature guides for the 0.2 onboarding flow
+Status: 0.3.0-alpha.9 reference guide with historical v0.1 development notes. Use the first-library walkthrough for onboarding and the current author/series sections below for identity workflows.
 
 Audience: early users, household admins, Nextcloud admins and product reviewers  
 Scope: detailed workflows, administrative reference and historical product-review notes
@@ -38,7 +38,7 @@ See [FAQ and troubleshooting](faq.md) when the app is absent, a scan stays queue
 - **Collection maintainer:** corrects titles, publication type, authors/creators, dates, tags and notes after scanning.
 - **Household / small-team admin:** prepares folders, installs/enables the app, asks users to configure roots, and watches scan health.
 - **Nextcloud administrator:** owns app deployment, background job execution, preview provider health, backups and server-level permissions.
-- **Product reviewer:** uses the flows below to judge whether the current v0.1 shape is useful enough and what crucial feature may be missing.
+- **Product reviewer:** uses the [current human test handbook](human-test-handbook.md#current-03-human-cases) to judge the 0.3 workflows and release risks.
 
 ## Product boundary
 
@@ -251,7 +251,7 @@ Library serves covers through its own item cover route:
 - returns a stable SVG placeholder when no cover provider succeeds, while the catalogue itself shows cover loading shimmer and a broken-cover fallback if an image request fails;
 - includes diagnostic response headers so smokes can distinguish preview, CBZ first-image and placeholder outcomes.
 
-There is no app-owned cover cache yet. **Refresh cover preview** is a request-level retry affordance, not a persistent cover-cache management UI. **Manual cover override** is available on item details for URL/upload fixes, with revert back to extracted or preview covers. Uploaded covers must be structurally complete JPEG, PNG, or WebP files no larger than 10 MiB, 10,000 pixels on either side, or 40 megapixels; the server-detected MIME type is authoritative and invalid uploads leave the current override untouched.
+Private, bounded cover thumbnails are generated on demand and reused. **Refresh cover preview** retries a cover request; it is not a crop or rebuild editor. **Manual cover override** is available on item details for upload fixes, with revert back to extracted or preview covers. Uploaded covers must be structurally complete JPEG, PNG, or WebP files no larger than 10 MiB, 10,000 pixels on either side, or 40 megapixels; the server-detected MIME type is authoritative and invalid uploads leave the current override untouched.
 
 ### Reader and source-file actions
 
@@ -636,9 +636,9 @@ Visible gaps:
 - no guided uninstall/export checklist inside the UI;
 - no automated validation that an export can recreate a catalogue in a fresh install.
 
-## Prioritized next gaps after the 1k real-corpus pilot
+## Historical prioritized gaps after the 1k real-corpus pilot
 
-The 1k real-corpus pilot proved that the catalogue can handle a realistic staged shelf, but it also showed where the next work should concentrate. Real-corpus filename hardening landed after the pilot, so the next gap order is now:
+This dated v0.1 review is retained for context. Scheduled scans and bounded private thumbnails subsequently landed; use the current sections below for those workflows. The 1k real-corpus pilot proved that the catalogue could handle a realistic staged shelf, but it also showed where work needed to concentrate. The gap order at that time was:
 
 1. Keep metadata-quality work safe by splitting the extractor seam. `PublicationMetadataService` should remain the façade, but filename, PDF, OPF/EPUB and CBZ parsing should move into narrower adapters before more real-corpus rules accumulate. This refactor is now complete for the current extractor families: filename/folder parsing lives in `FilenameMetadataExtractor`, PDF Info parsing/decoding lives in `PdfInfoMetadataExtractor`, EPUB package/standalone OPF parsing lives in `OpfEpubMetadataExtractor`, and CBZ ComicInfo parsing lives in `CbzComicInfoMetadataExtractor`.
 2. Improve the metadata correction workflow. Details editing exists, field-level scanner candidates are recorded and shown on item details, manual edit keeps scanner candidates available for later reset, and rescans refresh scanner candidates while current user-edited values stay untouched. Individual fields can show a **Reset to scanner** action when a stored scanner candidate differs from the current value, and whole-item reset to scanner candidates can apply all stored candidates at once. The edit form shows hints for dates, language codes and creator separators; first hard validation now blocks invalid publication date and language values while creator separators remain guidance. Rows where the current value differs from the scanner candidate show a **Differs from scanner** label. The details page includes a read-only metadata correction summary with scanner candidate count and differing-field count. Scanner conflicts filter is available from the catalogue as the first review workflow, and review queue shortcuts can tag scanner-conflict rows for follow-up without changing Library metadata; bulk editing and richer validation remain future work.
@@ -729,7 +729,7 @@ Choose **Edit author** to set the preferred name, sort name and optional given/f
 
 The initial author migration runs in background batches. Progress and failures appear in the directory; editing becomes available once pending work and failures are resolved. Administrators can inspect or retry using `occ library:authors:migrate USER_ID` (see the [migration commands](v0.3-author-management.md#storage-slice--030-alpha1)).
 
-Preferred names appear on catalogue cards, Home, list entries and publication headings. Author chips in the publication sidebar open the corresponding identity. Original credits remain in the metadata editor and are not written back to ebook files. Creator text filters, sorting, free-text search and duplicate detection still use source metadata; full identity-based search is a later 0.3 step. A changed source credit for a manually corrected author is flagged for review instead of silently replacing that identity.
+Preferred names appear on catalogue cards, Home, list entries, publication headings and creator suggestions. Author chips in the publication sidebar open the corresponding identity. Original credits remain in the metadata editor and are not written back to ebook files. Identity-aware creator matching and duplicate suggestions are available; source credits remain stored and can still matter to text search and metadata review. A changed source credit for a manually corrected author is flagged for review instead of silently replacing that identity.
 
 ### Merge duplicate author names or separate different people
 
@@ -742,7 +742,7 @@ The destination retains its preferred name. A merge retires the source identity 
 
 **Recent changes** shows the latest 20 operations across your account and offers **Undo**. Undo restores affected relationships only if those books/assignments still match the recorded state. It preserves later imports and unrelated books. A changed or deleted affected book causes a conflict instead of overwriting newer work. Changes are transactional, account-private and protected against stale previews.
 
-Interactive operations are limited to 500 books and an 8 MiB undo payload. Larger merges need the planned background workflow. Operation history is retained until account deletion; there is no automatic expiry in this alpha.
+Interactive operations are limited to 500 books and an 8 MiB undo payload. A whole-author merge with 501–5,000 linked books runs as a durable queued task; check its status in the author workflow. Larger operations need separate planning. Operation history is retained until account deletion; there is no automatic expiry in this alpha.
 
 ### Author profiles: photo, biography and books
 
@@ -767,3 +767,11 @@ If imported author credits change after you edited or reassigned an author, open
 These choices change author relationships and the review checkpoint only. They do not rewrite ebook files or the book's source metadata. Profile names, photos and biographies are preserved. There is no automatic Undo for this decision in alpha.4; the screen warns before applying it. A stale preview is rejected: reload, inspect the updated comparison, then choose again. Each book is resolved separately.
 
 Review pages contain at most 50 books. Books never manually protected or explicitly reviewed continue using the normal automatic import behavior. Failed migrations still use the existing administrator CLI retry; they are not silently treated as reviewable conflicts.
+
+## Series (0.3 development)
+
+Open **Series** in the left navigation to browse private series identities. A book currently has one linked series and one part label. The linked identity controls catalogue grouping; the imported series name and part remain available as source metadata. Editing a series name changes its preferred display name without rewriting an EPUB or OPF.
+
+To reorganize books, open a source series and expand **Move or merge books**. Select books to move only those books, or leave the selection empty to merge the whole source into a chosen destination. Review the exact book count before confirming. A whole merge retires the source identity and redirects later imports of its old name to the destination; a selected-book move leaves both series active. **Recent changes → Undo** is conditional on the affected assignments still matching the applied operation.
+
+If a later scan imports a different series name or part for a manually organized book, open **Review imported series changes**. Choose **Keep assignment** or **Use imported series** for that book. An unchanged rescan keeps the decision; another source change returns it to review. Interactive operations are capped at 500 books and 8 MiB of history. For a larger series, move books in batches, then merge the empty source to establish its redirect. See the [series workflow and limits](v0.3-series-management.md).

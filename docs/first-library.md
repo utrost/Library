@@ -1,6 +1,6 @@
 # Your first library
 
-Turn a folder of English Project Gutenberg books into a catalogue you can search, browse and open. This walkthrough uses Library **0.2** on Nextcloud **34**, with 40 EPUB files. You can follow the same steps with just a few books.
+Turn a folder of English Project Gutenberg books into a catalogue you can search, browse and open. The screenshots were captured with Library **0.2** on Nextcloud **34**, using 40 EPUB files; the same onboarding flow is available in the **0.3 development build**. You can follow the steps with just a few books.
 
 ## Before you start
 
@@ -52,7 +52,7 @@ If the scan stays **queued**, ask your administrator to check Nextcloud's backgr
 
 ![The catalogue populated with 40 English Gutenberg books](images/first-library/04-browse.png)
 
-The sidebar lets you inspect the title, author and other metadata. **Open** hands the file to the viewer available in your Nextcloud installation. If EPUB reading is unavailable there, use **Download** from the sidebar’s **…** menu and open it in your reading app.
+The sidebar lets you inspect **Overview**, **Metadata** and **Activity**; author chips open the author's profile. **Open** hands the file to the viewer available in your Nextcloud installation. If EPUB reading is unavailable there, use **Download** from the sidebar’s **…** menu and open it in your reading app.
 
 ![A Gutenberg book open in the Library detail sidebar](images/first-library/05-book-details.png)
 

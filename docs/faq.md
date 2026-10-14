@@ -23,7 +23,7 @@ sudo -u www-data php /var/www/html/occ app:list
 sudo -u www-data php /var/www/html/occ status
 ```
 
-Library should be listed under enabled apps and Nextcloud should report version 34. If enabling fails, inspect the command output and Nextcloud log before retrying. Confirm that the archive extracted to `custom_apps/library/appinfo/info.xml`, not a nested versioned directory.
+Library should be listed under enabled apps and Nextcloud should report a supported version (33–35 for the current candidate). If enabling fails, inspect the command output and Nextcloud log before retrying. Confirm that the archive extracted to `custom_apps/library/appinfo/info.xml`, not a nested versioned directory.
 
 ## Why is my first scan still queued?
 
@@ -46,6 +46,18 @@ Library reads local embedded metadata and conservative filename/folder hints. It
 ## Does Library change or delete my source files?
 
 Normal scanning and Library metadata editing do not rewrite publication files. Library stores its index, corrected metadata and workflow state in app-owned database tables. Deleting a Library root removes that root's Library catalogue data, not the files in Nextcloud Files. Nextcloud tag and comment actions intentionally update the backing file's Nextcloud metadata.
+
+## Why does an author's preferred name differ from the book's credit?
+
+In 0.3, an author identity has a preferred display name while each book retains its imported credit. This lets “John Doe” and “Doe, John” point to one person after review without changing ebook metadata. Open **Authors** to edit the profile or reassign a book. Ambiguous initials and namesakes require your decision; Library does not silently merge them.
+
+## How do I move books between series?
+
+Open **Series**, choose the source and expand **Move or merge books**. Select books for a partial move, or leave the selection empty for a whole-series merge. Review the preview before confirming. The [series guide](v0.3-series-management.md) explains redirects, limits and conditional Undo.
+
+## Why does a changed author or series import need review?
+
+Library protects a manually chosen relationship when imported credits, series name or part change. Compare the current assignment with the incoming values in the relevant **Review imported … changes** queue, then keep your assignment or use the new import. An unchanged rescan preserves that decision; a later source change can ask again.
 
 ## What should I back up?
 
