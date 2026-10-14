@@ -11,7 +11,7 @@
       role="status"
       aria-live="polite"
       aria-atomic="true"
-     data-library-main-script="library-main-0-3-0-alpha-9-compact-list-table-cover-96-fit-v4"
+     data-library-main-script="library-main-0-3-0-alpha-9-compact-list-table-cover-96-fit-v5"
       data-library-startup-timeout="10000"
       hidden>
     <section class="library-panel" aria-labelledby="library-startup-heading">

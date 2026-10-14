@@ -31,7 +31,7 @@ It does **not** move, copy, rewrite or take ownership of source publication file
 - a queued background scan job class;
 - HTTP routes under `/apps/library/...`;
 - Vue/Vite browser assets shipped inside the app package;
-- no app-specific `occ` command classes at the moment.
+- app-specific `occ` commands for author backfill and facet-index maintenance.
 
 Current runtime dependencies are Nextcloud APIs used across the declared 33–35 range plus normal PHP extensions already expected by the deployed Nextcloud environment. Runtime smoke coverage used Nextcloud 33.0.9, 34.0.4 and 35.0.0. PHP `zip`/`ZipArchive` and XML parsing are important for EPUB/CBZ/OPF extraction and sidecar ZIP export. Reader/viewer behaviour is delegated to the installed Nextcloud viewer stack; the `epubviewer` app is useful for EPUB reading in the current development instance test environment but is not declared as a hard app dependency in `appinfo/info.xml`.
 
@@ -256,7 +256,7 @@ Read-only GET routes are annotated for no CSRF where appropriate. Mutating POST 
 
 ## Command-line elements
 
-Library currently does **not** register app-specific `occ` commands.
+Library registers `library:authors:migrate` for bounded author backfill/retry and `library:facets:rebuild` for facet-index maintenance. These commands operate on Library data; routine background scans use Nextcloud jobs.
 
 Operational command-line interactions use existing Nextcloud and repository commands:
 

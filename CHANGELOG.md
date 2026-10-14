@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Restore publication sidebar details and author/series links for identity-linked books. An undefined URL helper caused a blank panel; the repaired alpha.9 asset has a new cache-busting filename.
+
 - Add reviewed series moves and whole-series merges with private Undo history. Preserve imported book metadata, redirect future imports after a merge, and review changed imports before replacing manual assignments.
 
 - Include active preferred author names in creator suggestions, matching the preferred or sort-name prefix and respecting the current catalogue filters. Keep imported source-name suggestions and exact creator filtering available.

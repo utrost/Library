@@ -1,6 +1,6 @@
 # Metadata Storage and Nextcloud Integration
 
-Status: `0.2.0-beta.2` candidate series importer; updated 2026-10-13. The future-schema section is a proposal. See the [database schema reference](database-schema.md) for all 24 app tables and migration ownership.
+Status: current `0.3.0-alpha.9` storage model, updated 2026-10-14. The embedded-metadata importer section below records the beta.2 slice; the future-schema section is a proposal. See the [database schema reference](database-schema.md) for the current 34 app tables and migration ownership, and the [author](v0.3-author-management.md) and [series](v0.3-series-management.md) guides for identity relationships.
 
 The [v0.2 metadata and filing proposal](v0.2-metadata-and-filing.md) explores explicit OPF sidecar writing, later embedded metadata writers, and filing based on accepted metadata. Source-folder writes described there are proposed capabilities; the current development build keeps source documents intact.
 
@@ -22,7 +22,7 @@ The nullable `library_items.series_name`, `series_number` and `genre` columns st
 
 These fields participate in manual editing, scanner-candidate review/reset, bulk edits and corrected-metadata JSON export/import. Partial imports preserve omitted fields; older editor requests that omit the new fields preserve them. Manual changes use the existing item-level rescan protection.
 
-The migration adds nullable columns without rewriting historical metadata. `publication` continues to hold legacy series/periodical data; no ambiguous automatic backfill is performed. Reviewed inference Apply/Undo is implemented, including ordered authors. The development importer now populates dedicated series fields from EPUB/OPF metadata as described below. Dedicated series/genre filters and automatic embedded genre import remain future work. The development metadata pipeline revision is `metadata-pipeline-v8`; a full scan after deployment re-evaluates older candidates, including unchanged files. Source documents are never modified by these edits.
+The original beta.2 migration added nullable columns without rewriting historical metadata. `publication` continues to hold legacy series/periodical data; no ambiguous automatic backfill is performed. Reviewed inference Apply/Undo is implemented, including ordered authors. The importer populates dedicated series fields from EPUB/OPF metadata as described below. In 0.3, account-private series identities and `seriesId` browsing are available; a dedicated genre identity/filter and automatic embedded genre import remain future work. The metadata pipeline revision for the beta.2 importer was `metadata-pipeline-v8`; later revisions are described in the [schema reference](database-schema.md). Source documents are never modified by these edits.
 
 ## Embedded ebook metadata
 

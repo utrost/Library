@@ -2,9 +2,11 @@
 
 Development has moved to **0.3.0-alpha.9**, adding reviewed series moves and merges, imported-change review and conditional Undo. Alpha.8 added preferred-author names to creator suggestions; its [verification report](docs/compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md) covers source checks. The [alpha.9 report](docs/compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers focused source-build checks. The signed exact-package NC33–35 release matrix remains pending. The owner has chosen 0.3 as the first App Store release; **do not submit the 0.2 archive**. The signed 0.2 baseline below remains preserved.
 
-## Current 0.2 beta release
+Current release gate: run the [0.3 human test handbook](docs/human-test-handbook.md#current-03-human-cases) on a disposable account, resolve release-blocking findings, then sign one exact 0.3 archive and run fresh-install and populated-upgrade checks on NC33–35. Record the archive checksum, integrity result, browser artifacts and cleanup. The [readiness roadmap](docs/app-store-readiness.md) tracks the remaining handoff work.
 
-The current candidate is `0.2.0-beta.3`, signed, deployed on developer Nextcloud 34.0.3 and [published as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 fresh/upgrade cases passed, including 210 final main Playwright tests; hosted CI passed. Download and screenshot URLs are public and verified. The [beta.3 report](docs/compatibility-evidence/2026-10-13-beta3/README.md) records exact checksums, initial timeout failures and successful reruns. Owner acceptance and App Store account submission remain. Handoff instructions are in `dist/app-store-handoff-beta3/README.txt`. The beta.1 and beta.2 signed archives are preserved unchanged.
+## Preserved 0.2 beta release baseline
+
+The preserved release baseline is `0.2.0-beta.3`, signed, previously deployed on developer Nextcloud 34.0.3 and [published as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 fresh/upgrade cases passed, including 210 final main Playwright tests; hosted CI passed. Download and screenshot URLs were verified. The [beta.3 report](docs/compatibility-evidence/2026-10-13-beta3/README.md) records exact checksums, initial timeout failures and successful reruns. Handoff instructions are in `dist/app-store-handoff-beta3/README.txt`. The beta.1 and beta.2 signed archives are preserved unchanged.
 
 **Historical evidence below is not the current checklist.** Earlier references to pending signing, fresh installation or beta.1 publication describe those earlier checkpoints. Use the current report and [readiness checklist](docs/app-store-readiness.md) for outstanding work.
 

@@ -10,9 +10,9 @@ License: AGPL-3.0-or-later. See [LICENSE](LICENSE).
 
 Current candidate: `0.3.0-alpha.9`. Supported Nextcloud versions: **33–35**. Author and series management are in development; 0.3 is the planned first App Store release. See [release status and verification](RELEASE.md) for publication and acceptance details.
 
-This release adds private reading lists and notes, path/filename metadata extraction with suggested assignments, saved rules and reviewed Apply/Undo, whole-folder analysis, optional duplicate checks, scheduled incremental scans, and bounded cover thumbnails.
+The current development build adds per-user author and series identities, author profiles, reviewed moves and merges, changed-import review and conditional Undo. Earlier 0.2 work includes private reading lists, path/filename metadata extraction, duplicate review, scheduled scans and bounded cover thumbnails.
 
-Previous evidence: alpha.28 passed the full Nextcloud 33.0.9 / 34.0.4 / 35.0.0 matrix with 40 English Gutenberg books; alpha.29 suggestions passed developer NC34 browser checks. See the [release checklist](docs/app-store-readiness.md), [scan measurements](docs/performance/2026-09-28-alpha28/README.md) and [active roadmap](docs/roadmap.md). The previous baseline is `0.1.0-beta.1`.
+Verification: alpha.9 has focused source-build checks on Nextcloud 33.0.9 / 34.0.4 / 35.0.0 and a populated developer NC34 upgrade. The last signed, exact-package matrix belongs to the preserved `0.2.0-beta.3` baseline; an exact 0.3 release archive still needs that matrix. See the [release checklist](docs/app-store-readiness.md), [alpha.9 evidence](docs/compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) and [active roadmap](docs/roadmap.md).
 
 ## What it does
 
@@ -22,6 +22,7 @@ Previous evidence: alpha.28 passed the full Nextcloud 33.0.9 / 34.0.4 / 35.0.0 m
 - filter by type, format, year, creator, publisher, subject, classification, tag, scan state, workflow state and review flags;
 - use typeahead for large lists such as creators, publishers, series, subjects and folders;
 - maintain private reading lists with ordered books and notes;
+- browse and edit author profiles and series identities; review selected-book moves, whole-identity merges and changed imported relationships;
 - infer metadata from paths and filenames with preview, per-book review, Apply and Undo;
 - schedule scans and review optional potential-duplicate suggestions;
 - save the current filter setup as a collection and reopen it from the navigation;
@@ -36,7 +37,7 @@ The app has safe user-facing diagnostics for scan and metadata problems. Server 
 
 Library keeps source files in place. Scans and edits write to Library-owned tables and metadata records. Metadata import has a preview step before anything is applied.
 
-Outside the 0.2 scope:
+Outside the current 0.3 scope:
 
 - a built-in EPUB, PDF or comic reader;
 - reading-position sync or annotations;

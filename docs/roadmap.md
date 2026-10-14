@@ -1,12 +1,19 @@
 # Library Roadmap
 
-Alpha.29: **Suggest fields** now proposes editable path/filename assignments, preserves ambiguous numeric titles and comma names, and updates the live preview immediately. Developer NC34 browser and source checks passed; see the [verification](compatibility-evidence/2026-09-29-inference-suggestions-alpha29/README.md).
+Status: **0.3.0-alpha.9** on `develop/0.3`, deployed to developer Nextcloud 34 with the later `v5` sidebar asset hotfix. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3. See the [sidebar hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md) for the reported blank detail panel.
 
-Alpha.19: [possible duplicate review](duplicate-review.md) is implemented. Private background discovery, optional content hashes, comparison evidence and reversible review decisions are available. Automatic deletion, merging and work/edition grouping remain future scope.
+Last updated: 2026-10-14
 
-Status: **0.3.0-alpha.2** development has started on `develop/0.3`. By owner decision, 0.3 will be the first App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is retained. The first [author-management slice](v0.3-author-management.md#storage-slice--030-alpha1), including migration, browsing and editing, is deployed on developer NC34. See the [verification and measurements](compatibility-evidence/2026-10-13-author-management-alpha1/README.md). Reviewed merging/reassignment and preferred-name display are implemented in alpha.2. Large background merges, canonical search/filter/duplicate integration and the 0.3 release matrix remain ahead.
+## Active 0.3 track
 
-Last updated: 2026-10-13
+| Area | State | Next decision or work |
+| --- | --- | --- |
+| Author identities | Directory, profile, portrait/bio, source-preserving edits, reassignment, merge, changed-import review and durable 501–5,000-book background merge/Undo landed through alpha.8. | Human UX acceptance; finish or explicitly defer broader canonical search/sort and interruption/concurrency coverage. |
+| Series identities | Directory, selected-book moves, whole and empty-series merges, future-import redirects, changed-import review and conditional Undo landed in alpha.9. | Human UX acceptance; multiple series per book, nonnumeric part ordering and large background merges are later decisions. |
+| Other entities | Subjects/classifications and identifiers already have dedicated storage; languages and publishers remain current metadata fields. | Normalize another entity only after real browsing/editing need is demonstrated. |
+| App Store | Alpha.9 source checks pass on NC33–35 and the populated developer NC34 upgrade. | Sign one exact 0.3 archive, run the fresh/upgrade NC33–35 package matrix, refresh listing evidence and obtain owner acceptance. |
+
+Current feature behavior: [author management](v0.3-author-management.md), [series management](v0.3-series-management.md), [alpha.9 verification](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). Human acceptance cases are in the [test handbook](human-test-handbook.md#current-03-human-cases).
 
 Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [development instance reader compatibility notes](development instance-reader-compatibility.md), [development instance scale pilot notes](development instance-scale-pilot.md)
 
@@ -28,7 +35,7 @@ Baseline and rerun instructions: [84k-book audit](performance/2026-09-27-alpha21
 - [x] Complete and verify the full real-library scheduled scan: large catalogue publication files, seven roots, zero root failures, preserved source markers and user corrections; see [alpha.25 acceptance](performance/2026-09-27-alpha25/README.md).
 - [ ] Evaluate database buffer-pool sizing and concurrency under representative production load; optimize remaining transactional/access reads only with measured evidence.
 
-## v0.1 beta progress snapshot
+## Historical v0.1 beta progress snapshot
 
 - [x] Personal roots, scanning, metadata extraction/editing, catalogue/search, shelves and collections, Review, covers, and file handoff form the beta product baseline.
 - [x] Local release gate, package audit, unsigned archive, and local source commit/tag `v0.1.0-beta.1` are complete.
@@ -50,7 +57,7 @@ The roadmap is intentionally conservative:
 - External metadata, OCR, OPDS and device sync are later additions, not prerequisites.
 - Nextcloud system tags are the preferred cross-archive classification layer for interests, projects, collections and statuses.
 
-## Current baseline
+## Historical v0.1 baseline
 
 Filename and folder names remain searchable for sparse PDFs/comics, alongside title, creators, publication, description and exact normalized ISBN/ISSN search.
 
@@ -469,9 +476,9 @@ The beta already includes a detail metadata workbench, custom collections, conse
 - Add richer magazine issue grouping and next/previous issue navigation.
 - Consider event-triggered incremental rescanning and duplicate hints.
 
-### 0.3 — Author management
+### 0.3 — Author and series identities
 
-Direction updated 2026-10-13: [Author management concept](v0.3-author-management.md). Add per-user author identities and ordered book relationships, conservative import normalisation, author directory/pages, editing, reviewed merges and conditional undo. Preserve source credits and manual decisions on rescans. No dedicated aliases table is planned.
+The [author management concept](v0.3-author-management.md) is implemented through the alpha.8 slices: per-user identities, ordered book relationships, conservative import normalisation, profiles, reviewed merges, conditional Undo and large queued author operations. The [series workflow](v0.3-series-management.md) adds source-preserving grouping, moves, merges, redirects and changed-import review in alpha.9. No dedicated author aliases table is planned. Release acceptance and the signed package matrix remain ahead.
 
 ### Later candidate — Reading ecosystem
 
@@ -563,7 +570,7 @@ This section combines the role-facing gaps from the [User and admin guide](user-
 - **Deletion:** first item-forget slice landed. Root deletion removes Library catalogue/index data for that root without deleting source files; missing files are marked `missing` on rescan; the details page can forget missing item rows. Source-file deletion remains deliberately deferred to Nextcloud Files.
 - **Library removal/uninstall:** first guide/export slice landed. Original Nextcloud files remain canonical, disable/remove commands and consequences are documented, and corrected user-edited metadata can be downloaded as side-effect-free JSON before removal. Restore/import still requires DB backup or future import work.
 - **Folder/root-based rescan:** partly present. The scan route can queue all enabled roots or one selected root for the current user; arbitrary folder/subtree scans are still absent.
-- **Cover rescan:** not present as a separate process because covers are generated on request through Nextcloud preview/CBZ/placeholder responses; there is no app-owned cover cache yet.
+- **Cover rescan:** not present as a separate process. Covers are requested through Nextcloud preview/CBZ/placeholder responses; bounded private thumbnails are now generated on demand and reused.
 - **Cover extraction optionality:** present by behaviour. Cover failure must not block catalogue indexing or browsing; placeholders remain the safe fallback.
 
 ### Phase 3.5 — Operational lifecycle and scoped scans
@@ -596,13 +603,13 @@ The import-health review/probe cut remains landed background for the release reh
 
 ### Immediate next implementation slice
 
-Current beta release sequence: publish the local beta source/tag and obtain hosted CI evidence for that exact commit; after certificate issuance, sign and audit the archive, finalize App Store assets, and submit the beta. Use beta feedback, manual assistive-technology checks and representative mixed files to choose stable `0.1.0` fixes and the first 0.2 feature slice.
+Current 0.3 sequence: collect human feedback on alpha.9 author and series workflows using the [test handbook](human-test-handbook.md#current-03-human-cases); close release-blocking defects; build, sign and audit one exact 0.3 archive; run fresh and upgraded NC33–35 package checks with the 40 English Gutenberg books plus focused identity fixtures; then refresh App Store assets and obtain owner acceptance. The 0.2 beta.3 signature and matrix are a preserved baseline, not evidence for the new schema.
 
 Historical alpha acceptance plan (retained for context):
 
-Recommended next slice: **release-facing metadata repair and review polish** remains the historical post-MVP hardening label; the current next move is **real-library alpha acceptance evidence and signing readiness**. The recent source-candidate work closed the known high-risk review issue and accessibility/UX batch (#32-37), added lazy high-cardinality typeaheads, indexed arbitrary substring search, neutralized metadata-error TSV formula injection, and replaced raw exception exposure with safe diagnostics. The exact unsigned package has now been built, deployed and live-smoked; the next useful work is to run representative real-library smokes, rather than adding another broad feature before release evidence catches up.
+Historical post-MVP hardening plan: the earlier recommended slice was release-facing metadata repair and review polish. That source-candidate work closed the known review issue and accessibility/UX batch (#32-37), added lazy high-cardinality typeaheads, indexed arbitrary substring search, neutralized metadata-error TSV formula injection, and replaced raw exception exposure with safe diagnostics. The exact unsigned package was built, deployed and live-smoked. The operative 0.3 release sequence is in the [active track](#active-03-track).
 
-Minimum next cuts:
+Historical minimum cuts for that earlier candidate:
 
 1. Keep the exact `0.1.0-alpha.174` package evidence current after any further patch, then repeat the alpha checklist on real mixed files rather than only synthetic/fresh-install fixtures.
 2. Run live Catalogue/Home/Shelves/Review browser smokes on the installed package, including mobile filter panel, combobox keyboard interaction, drawer arrow-key editable-field preservation, and import preview-to-apply.

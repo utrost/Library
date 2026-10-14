@@ -40,11 +40,11 @@ def test_index_deferred_state_has_a_fresh_immutable_asset_contract():
     template = (ROOT / "templates" / "main.php").read_text()
     build = (ROOT / "scripts" / "build-vue.mjs").read_text()
 
-    basename = f"{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v4"
+    basename = f"{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v5"
     assert f"library-main-{basename}" in page
     assert f"library-vue-{basename}" in page
     assert f'data-library-main-script="library-main-{basename}"' in template
-    assert "-compact-list-table-cover-96-fit-v4`" in build
+    assert "-compact-list-table-cover-96-fit-v5`" in build
 
 
 def test_previous_deployed_asset_remains_byte_for_byte_immutable():

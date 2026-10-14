@@ -1,8 +1,8 @@
 # App Store listing draft
 
-Status: 0.2 beta listing draft for owner review.
-Target app version: `0.2.0-beta.3`.
-Compatibility: Nextcloud 33–35. See the release evidence for final archive verification.
+Status: preserved 0.2 beta listing draft; refresh screenshots and copy against the signed 0.3 candidate before submission.
+Target app version: 0.3, subject to exact archive verification.
+Compatibility target: Nextcloud 33–35. Focused alpha.9 source checks are available; the signed 0.3 package matrix remains pending.
 
 ## Short description
 
@@ -18,10 +18,11 @@ Library does not replace Nextcloud Files. It adds publication-oriented browsing 
 
 ## Current scope
 
-Included in 0.2:
+Included in the 0.3 development build:
 
 - user-configured library roots;
 - private reading lists with ordering and notes;
+- account-private author and series identities, author profiles, reviewed book moves and merges, changed-import review and conditional Undo;
 - filename/path metadata suggestions, saved rules, preview, per-book approval and Apply/Undo;
 - optional duplicate suggestions and explicit review decisions;
 - scheduled incremental scans with periodic full reconciliation;
@@ -33,7 +34,7 @@ Included in 0.2:
 - corrected-metadata export and import preview/apply;
 - safe handoff to existing Nextcloud viewers, Show in Files and Download source actions.
 
-Outside the 0.2 scope:
+Outside the planned 0.3 scope:
 
 - built-in EPUB, PDF or comic reader (Library does not provide a built-in reader);
 - page-position sync, annotations or reading statistics;
@@ -73,4 +74,4 @@ The three release-tag URLs are included in `appinfo/info.xml`; they become publi
 
 ## Release note draft
 
-Library `0.2.0-beta.3` is the first public beta App Store candidate for Nextcloud 33–35. It focuses on publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. It is intentionally conservative: source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack.
+Library 0.3 is the planned first App Store candidate for Nextcloud 33–35. It adds reviewed author and series organization to publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. Source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack. Final release wording and screenshots must be reviewed against the exact signed candidate.
