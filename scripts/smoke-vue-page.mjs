@@ -1,3 +1,4 @@
+import { decodeHtmlAttribute } from './html-attribute.mjs'
 import { execFileSync } from 'node:child_process'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 
@@ -69,24 +70,14 @@ function parseTokenIds(output) {
 function decodeInitialState(page) {
   const match = page.match(/id="initial-state-library-catalogue" value="([^"]+)"/)
   if (!match) return null
-  const escaped = match[1]
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#039;', "'")
-    .replaceAll('&amp;', '&')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
+  const escaped = decodeHtmlAttribute(match[1])
   return JSON.parse(Buffer.from(escaped, 'base64').toString('utf8'))
 }
 
 function extractRequestToken(html) {
   const dataMatch = html.match(/data-request-token="([^"]*)"/)
   const inputMatch = html.match(/<input\b[^>]*\bname="requesttoken"[^>]*\bvalue="([^"]*)"|<input\b[^>]*\bvalue="([^"]*)"[^>]*\bname="requesttoken"/)
-  return (dataMatch?.[1] || inputMatch?.[1] || inputMatch?.[2] || '')
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#039;', "'")
-    .replaceAll('&amp;', '&')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
+  return decodeHtmlAttribute(dataMatch?.[1] || inputMatch?.[1] || inputMatch?.[2] || '')
 }
 
 async function fetchText(pathOrUrl, token, options = {}) {

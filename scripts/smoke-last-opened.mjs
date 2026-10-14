@@ -1,3 +1,4 @@
+import { decodeHtmlAttribute } from './html-attribute.mjs'
 import { execFileSync } from 'node:child_process'
 
 const upstream = process.env.NC_URL || 'http://localhost:8088'
@@ -46,14 +47,6 @@ function cookieHeaderFrom(response) {
     .join('; ')
 }
 
-function decodeHtmlAttribute(value) {
-  return value
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#039;', "'")
-    .replaceAll('&amp;', '&')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
-}
 
 function decodeInitialState(page) {
   const match = page.match(/id="initial-state-library-catalogue" value="([^"]+)"/)
