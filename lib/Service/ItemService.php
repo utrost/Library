@@ -2166,7 +2166,38 @@ final class ItemService {
     public function creatorSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['creator']);
         if (mb_strlen(trim($query)) < 3) return [];
-        return $this->indexedSuggestionValues($userId, $filters, 'creator', 'creator_suggestion', 'creator', $query, $limit);
+        $limit = min(max($limit, 0), 20);
+        if ($limit === 0) return [];
+        $names = $this->indexedSuggestionValues($userId, $filters, 'creator', 'creator_suggestion', 'creator', $query, $limit);
+        foreach ($this->preferredCreatorSuggestions($userId, $filters, $query, $limit) as $name) $names[] = $name;
+        $names = array_values(array_unique($names));
+        sort($names, SORT_NATURAL | SORT_FLAG_CASE);
+        return array_slice($names, 0, $limit);
+    }
+
+    /** Suggest only active preferred identities linked to books in the current view. */
+    private function preferredCreatorSuggestions(string $userId, array $filters, string $query, int $limit): array {
+        $qb = $this->catalogueFilteredQueryBuilder($userId, $filters);
+        $qb->innerJoin('i', 'library_item_authors', 'suggested_link', $qb->expr()->andX(
+            $qb->expr()->eq('suggested_link.item_id', 'i.id'),
+            $qb->expr()->eq('suggested_link.user_id', $qb->createNamedParameter($userId))));
+        $qb->innerJoin('suggested_link', 'library_authors', 'suggested_author', $qb->expr()->andX(
+            $qb->expr()->eq('suggested_author.id', 'suggested_link.author_id'),
+            $qb->expr()->eq('suggested_author.user_id', $qb->createNamedParameter($userId))));
+        $prefix = $this->escapeLikeParameter(mb_strtolower(trim($query))) . '%';
+        $result = $qb->select('suggested_author.display_name', 'suggested_author.sort_name')
+            ->andWhere($qb->expr()->isNull('suggested_author.merged_into'))
+            ->andWhere($qb->expr()->orX(
+                $qb->expr()->like($qb->createFunction('LOWER(suggested_author.display_name)'), $qb->createNamedParameter($prefix)),
+                $qb->expr()->like($qb->createFunction('LOWER(suggested_author.sort_name)'), $qb->createNamedParameter($prefix))))
+            ->groupBy('suggested_author.display_name', 'suggested_author.sort_name')
+            ->orderBy('suggested_author.sort_name', 'ASC')
+            ->setMaxResults($limit)
+            ->executeQuery();
+        $values = [];
+        while ($row = $result->fetch()) $values[] = (string)$row['display_name'];
+        $result->closeCursor();
+        return $values;
     }
 
     /** @return array<int, string> */

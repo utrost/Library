@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3.0-alpha.7**, 2026-10-14. Covers 33 app-owned tables through `Version000300Date20261014080000`. Alpha.7 adds persistent author operation tasks; the other author and series tables remain as described below. Earlier series additions passed fresh installation on SQLite NC33–35, populated upgrade on SQLite NC34, and upgrade on the MariaDB developer NC34. Alpha.7 verification is recorded separately.
+Snapshot: **0.3.0-alpha.8**, 2026-10-14. Covers 33 app-owned tables through `Version000300Date20261014080000`. Alpha.7 adds persistent author operation tasks; alpha.8 changes author suggestions without a schema migration. Earlier series additions passed fresh installation on SQLite NC33–35, populated upgrade on SQLite NC34, and upgrade on the MariaDB developer NC34. Alpha.7 verification is recorded separately.
 
 ## Schema ownership
 
