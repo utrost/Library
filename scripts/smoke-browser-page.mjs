@@ -290,7 +290,7 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
   }), { phase })
   const waitForViewportWidth = async (width, mobile) => waitForResponsiveReadiness({
     phase: `${mobile ? 'mobile' : 'desktop'} viewport`,
-    observe: () => observeAfterAnimationFrame('sidebar-viewport-readiness', `() => ({ innerWidth, requestedWidth: ${JSON.stringify(width)} })`),
+    observe: () => observeAfterAnimationFrame('sidebar-viewport-readiness', '() => ({ innerWidth })'),
     accept: (observed) => observed?.innerWidth === width,
     onObservation: (evidence) => { dom.readiness[mobile ? 'mobileViewport' : 'desktopViewport'] = evidence },
   })
@@ -1160,7 +1160,27 @@ async function runLegacyLocalizationGate(client, proxyBase, { detailUrl, request
         records.push(await timedRow(locale, width, 'settings', '#library-settings', () => navigate(`${proxyBase}/settings/user/library?legacy-locale=${locale}&width=${width}`)))
         records.push(await timedRow(locale, width, 'batch', '.library-batch-metadata-edit-preview-page', async () => {
           const start = await navigate(`${proxyBase}/apps/library/?legacy-batch-fixture=${locale}-${width}`)
-          await client.send('Runtime.evaluate', { expression: `(() => { const form=document.createElement('form'); form.method='post'; form.action=${JSON.stringify(`${proxyBase}/apps/library/bulk/items/edit-preview`)}; for(const [name,value] of Object.entries(${JSON.stringify({ requesttoken: requestToken, bulkEditField: 'language', bulkEditValue: batchFixtureLanguage, 'itemIds[]': String(batchFixtureItem.id), limit: '25' })})){const input=document.createElement('input');input.name=name;input.value=value;form.append(input)}document.body.append(form);form.submit() })()` })
+          const globalObject = await client.send('Runtime.evaluate', { expression: 'globalThis' })
+          await client.send('Runtime.callFunctionOn', {
+            objectId: globalObject.result.objectId,
+            functionDeclaration: `function (action, fields) {
+              const form = document.createElement('form')
+              form.method = 'post'
+              form.action = action
+              for (const [name, value] of Object.entries(fields)) {
+                const input = document.createElement('input')
+                input.name = name
+                input.value = value
+                form.append(input)
+              }
+              document.body.append(form)
+              form.submit()
+            }`,
+            arguments: [
+              { value: `${proxyBase}/apps/library/bulk/items/edit-preview` },
+              { value: { requesttoken: requestToken, bulkEditField: 'language', bulkEditValue: batchFixtureLanguage, 'itemIds[]': String(batchFixtureItem.id), limit: '25' } },
+            ],
+          })
           await new Promise((resolve) => setTimeout(resolve, 1800))
           return start
         }))
@@ -1933,10 +1953,17 @@ async function runBrowserSmoke(proxyBase, proxy) {
     try {
       selectedDetail = await selectAuthenticatedDetailCandidate(realDetailCandidates, {
         origin: proxyBase,
-        preflight: async (url) => unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', {
-          returnByValue: true, awaitPromise: true,
-          expression: `(async () => { const response = await fetch(${JSON.stringify(url)}, { credentials: 'same-origin', redirect: 'manual' }); return { status: response.status, browserContext: true } })()`,
-        }), { phase: 'detail-candidate-preflight' }),
+        preflight: async (url) => {
+          const globalObject = await client.send('Runtime.evaluate', { expression: 'globalThis' })
+          return unwrapCdpEvaluateResponse(await client.send('Runtime.callFunctionOn', {
+            objectId: globalObject.result.objectId,
+            functionDeclaration: `async function (candidateUrl) {
+              const response = await fetch(candidateUrl, { credentials: 'same-origin', redirect: 'manual' })
+              return { status: response.status, browserContext: true }
+            }`,
+            arguments: [{ value: url }], returnByValue: true, awaitPromise: true,
+          }), { phase: 'detail-candidate-preflight' })
+        },
         navigate: async (url) => {
           const navigation = await client.send('Page.navigate', { url })
           if (navigation.errorText) return { status: 0, detailPage: false }

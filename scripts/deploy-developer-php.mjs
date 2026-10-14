@@ -2,10 +2,11 @@
 import { execFileSync } from 'node:child_process'
 import { randomBytes,createHash } from 'node:crypto'
 import { readFileSync,writeFileSync,mkdirSync,rmSync } from 'node:fs'
-import { dirname,resolve } from 'node:path'
+import { dirname } from 'node:path'
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 const files=process.argv.slice(2),container=process.env.NC_CONTAINER||'nextcloud',base=process.env.NC_URL||'http://localhost:8088'
 if(!files.length||files.some(f=>!/^(?:lib\/[a-zA-Z0-9_/]+|templates\/[a-zA-Z0-9_-]+)\.php$/.test(f)))throw new Error('Pass explicit lib/*.php or templates/*.php files')
-const out=resolve(process.env.EVIDENCE_DIR||`/tmp/library-php-deploy-${Date.now()}`);mkdirSync(out,{recursive:true,mode:0o700})
+const out=createEvidenceDirectory('library-php-deploy')
 const docker=args=>execFileSync('docker',args,{encoding:'utf8',stdio:['ignore','pipe','pipe']})
 const manifest=[]
 for(const file of files){const path='/var/www/html/custom_apps/library/'+file,backup=out+'/before/'+file;mkdirSync(dirname(backup),{recursive:true});let previous=null
