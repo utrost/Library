@@ -103,6 +103,6 @@ def test_release_docs_link_current_runtime_evidence_and_risk_register():
     assert "Verification evidence" in risk
     assert "Practical next hardening slices" in risk
     assert "private Nextcloud 34 test instance" in risk
-    assert "app-owned cover cache" in risk
+    assert "bounded private thumbnails" in risk
     assert "source folders untouched" in risk
     assert "current-state-and-risk-register" in release
