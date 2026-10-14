@@ -36,9 +36,11 @@ final class DuplicateIndexService {
     /** Current catalogue projections in two batched queries, including valid identifiers. */
     public function books(string $uid,array $ids):array {
         if(!$ids)return [];$marks=$this->marks($ids);
-        $rows=$this->rows('SELECT i.id,i.title,i.creators,i.authors_json,i.language,i.series_name,i.series_number,i.publication_date,i.publisher,f.file_id,f.cached_path,f.size,f.extension,f.root_id,r.path AS root_path FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id = i.library_file_id AND f.user_id = i.user_id INNER JOIN *PREFIX*library_roots r ON r.id = f.root_id AND r.user_id = i.user_id WHERE i.user_id = ? AND i.id IN ('.$marks.') AND f.scan_status <> ?',[$uid,...$ids,'missing']);
+        $rows=$this->rows('SELECT i.id,i.title,i.creators,i.authors_json,i.author_sync_status,i.language,i.series_name,i.series_number,i.publication_date,i.publisher,f.file_id,f.cached_path,f.size,f.extension,f.root_id,r.path AS root_path FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id = i.library_file_id AND f.user_id = i.user_id INNER JOIN *PREFIX*library_roots r ON r.id = f.root_id AND r.user_id = i.user_id WHERE i.user_id = ? AND i.id IN ('.$marks.') AND f.scan_status <> ?',[$uid,...$ids,'missing']);
         $books=[];
-        foreach($rows as $r){$id=(int)$r['id'];$books[$id]=['id'=>$id,'title'=>(string)$r['title'],'authors'=>AuthorNames::read($r['authors_json'],$r['creators']),'language'=>(string)$r['language'],'series'=>(string)$r['series_name'],'seriesNumber'=>(string)$r['series_number'],'publicationDate'=>(string)$r['publication_date'],'publisher'=>(string)$r['publisher'],'isbn'=>[],'format'=>strtolower((string)$r['extension']),'size'=>(int)$r['size'],'fileId'=>(int)$r['file_id'],'path'=>$r['cached_path'],'rootId'=>(int)$r['root_id'],'rootPath'=>$r['root_path']];}
+        foreach($rows as $r){$id=(int)$r['id'];$books[$id]=['id'=>$id,'title'=>(string)$r['title'],'authors'=>AuthorNames::read($r['authors_json'],$r['creators']),'language'=>(string)$r['language'],'series'=>(string)$r['series_name'],'seriesNumber'=>(string)$r['series_number'],'publicationDate'=>(string)$r['publication_date'],'publisher'=>(string)$r['publisher'],'isbn'=>[],'format'=>strtolower((string)$r['extension']),'size'=>(int)$r['size'],'fileId'=>(int)$r['file_id'],'path'=>$r['cached_path'],'rootId'=>(int)$r['root_id'],'rootPath'=>$r['root_path']];if(in_array((int)$r['author_sync_status'],[AuthorStorageService::SYNCED,AuthorStorageService::CONFLICT],true)){$books[$id]['authorIds']=[];$books[$id]['authorManual']=false;}}
+        $links=$this->rows('SELECT item_id,author_id,assignment_source FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id IN ('.$marks.') ORDER BY item_id,position',[$uid,...$ids]);
+        foreach($links as $link){$id=(int)$link['item_id'];if(isset($books[$id]['authorIds'])){$books[$id]['authorIds'][]=(int)$link['author_id'];if($link['assignment_source']==='manual')$books[$id]['authorManual']=true;}}
         $identifiers=$this->rows('SELECT item_id,normalized_value FROM *PREFIX*library_item_identifiers WHERE user_id = ? AND item_id IN ('.$marks.') AND scheme = ? AND valid = 1 ORDER BY item_id,normalized_value',[$uid,...$ids,'isbn']);
         foreach($identifiers as $r)if(isset($books[(int)$r['item_id']])&&!in_array($r['normalized_value'],$books[(int)$r['item_id']]['isbn'],true))$books[(int)$r['item_id']]['isbn'][]=$r['normalized_value'];
         return $books;
@@ -69,6 +71,17 @@ final class DuplicateIndexService {
         if(!$this->status($uid)['enabled'])return;
         $this->db->beginTransaction();try{$this->lock($uid);if($this->status($uid)['enabled'])$this->replace($uid,[$id]);$this->db->commit();}catch(\Throwable $e){$this->db->rollBack();throw $e;}
     }
+    /** Refresh reviewed identity changes as one bounded index operation. */
+    public function changedMany(string $uid,array $ids):void {
+        if(!$ids || !$this->status($uid)['enabled'])return;
+        $ids=array_values(array_unique(array_map('intval',$ids)));
+        $this->db->beginTransaction();
+        try {
+            $this->lock($uid);
+            if($this->status($uid)['enabled'])foreach(array_chunk($ids,400) as $chunk)$this->replace($uid,$chunk);
+            $this->db->commit();
+        }catch(\Throwable $e){$this->db->rollBack();throw $e;}
+    }
     public function remove(string $uid,int $id):void {
         $this->db->beginTransaction();try{$this->lock($uid);foreach(['library_dup_terms','library_dup_index'] as $table)$this->write('DELETE FROM *PREFIX*'.$table.' WHERE user_id = ? AND item_id = ?',[$uid,$id]);$this->db->commit();}catch(\Throwable $e){$this->db->rollBack();throw $e;}
     }
@@ -89,6 +102,30 @@ final class DuplicateIndexService {
         }catch(\Throwable $e){$this->db->rollBack();throw $e;}
         return $this->status($uid);
     }
+    /** An existing index may predate author identities; this indexed lookup also finds exact titles after a reviewed merge. */
+    private function identityTitlePairs(string $uid,array $source,array &$pairs,array &$limited):void {
+        $byAuthor=[];$titles=[];
+        foreach($source as $book){
+            if(empty($book['authorIds']) || trim($book['title'])==='')continue;
+            $titleKey=DuplicateMatcher::text($book['title']);
+            foreach($book['authorIds'] as $authorId)$byAuthor[(int)$authorId][$titleKey][]=$book['id'];
+            $titles[$book['title']]=true;
+        }
+        if(!$byAuthor)return;
+        $titleValues=array_keys($titles);
+        foreach(array_chunk(array_keys($byAuthor),400) as $authorIds){
+            $matches=$this->rows('SELECT l.author_id,i.id,i.title FROM *PREFIX*library_item_authors l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id WHERE l.user_id=? AND l.author_id IN ('.$this->marks($authorIds).') AND i.title IN ('.$this->marks($titleValues).') ORDER BY l.author_id,i.id LIMIT 8001',[$uid,...$authorIds,...$titleValues]);
+            if(count($matches)>8000){foreach($authorIds as $authorId)foreach($byAuthor[$authorId] as $ids)foreach($ids as $id)$limited[$id]=true;$matches=array_slice($matches,0,8000);}
+            foreach($matches as $match){
+                $other=(int)$match['id'];$authorId=(int)$match['author_id'];$titleKey=DuplicateMatcher::text($match['title']);
+                foreach($byAuthor[$authorId][$titleKey]??[] as $id){
+                    if($other===$id)continue;
+                    if(count($pairs[$id]??[])>=100){$limited[$id]=true;continue;}
+                    $pairs[$id][$other]=true;
+                }
+            }
+        }
+    }
     /** Bounded keyed lookup; broad terms are skipped explicitly, never expanded quadratically. */
     public function candidates(string $uid,array $ids):array {
         $source=$this->books($uid,$ids);$keySources=[];
@@ -102,6 +139,7 @@ final class DuplicateIndexService {
             if(count($matches)>8000){foreach($chunk as $key)foreach($keySources[$key] as $id)$limited[$id]=true;$matches=array_slice($matches,0,8000);}
             foreach($matches as $r)foreach($keySources[$r['match_key']] as $id){$other=(int)$r['item_id'];if($other===$id)continue;if(count($pairs[$id]??[])>=100){$limited[$id]=true;continue;}$pairs[$id][$other]=true;}
         }
+        $this->identityTitlePairs($uid,$source,$pairs,$limited);
         $candidateIds=[];foreach($pairs as $values)foreach($values as $id=>$_)$candidateIds[$id]=true;
         $books=[];foreach(array_chunk(array_keys($candidateIds),400) as $chunk)$books+=$this->books($uid,$chunk);
         $result=[];

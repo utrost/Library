@@ -8,7 +8,7 @@ Nextcloud Files remains the canonical storage. Library indexes those files with 
 
 License: AGPL-3.0-or-later. See [LICENSE](LICENSE).
 
-Current candidate: `0.3.0-alpha.5`. Supported Nextcloud versions: **33–35**. Author and series management are in development; 0.3 is the planned first App Store release. See [release status and verification](RELEASE.md) for publication and acceptance details.
+Current candidate: `0.3.0-alpha.6`. Supported Nextcloud versions: **33–35**. Author and series management are in development; 0.3 is the planned first App Store release. See [release status and verification](RELEASE.md) for publication and acceptance details.
 
 This release adds private reading lists and notes, path/filename metadata extraction with suggested assignments, saved rules and reviewed Apply/Undo, whole-folder analysis, optional duplicate checks, scheduled incremental scans, and bounded cover thumbnails.
 

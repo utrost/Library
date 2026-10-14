@@ -76,9 +76,19 @@ final class DuplicateService {
     private function book(string $uid,int $id): array {
         $snapshot=$this->snapshots->snapshot($uid,$id); $s=$snapshot['state']; $f=$snapshot['file'];
         $q=$this->db->getQueryBuilder(); $r=$q->select('normalized_value')->from('library_item_identifiers')->where($q->expr()->eq('user_id',$q->createNamedParameter($uid)))->andWhere($q->expr()->eq('item_id',$q->createNamedParameter($id)))->andWhere($q->expr()->eq('scheme',$q->createNamedParameter('isbn')))->andWhere($q->expr()->eq('valid',$q->createNamedParameter(1)))->orderBy('normalized_value','ASC')->setMaxResults(20)->executeQuery(); $isbn=array_values(array_unique(array_column($r->fetchAll(),'normalized_value'))); $r->closeCursor();
-        return ['id'=>$id,'fileId'=>$f['id'],'rootId'=>$f['rootId'],'rootPath'=>$f['rootPath'],'rootFileId'=>$f['rootFileId'],'path'=>$f['path'],'size'=>(int)$f['size'],'format'=>strtolower(pathinfo($f['path'],PATHINFO_EXTENSION)),
+        $r=$this->db->executeQuery('SELECT i.author_sync_status,l.author_id,l.assignment_source FROM *PREFIX*library_items i LEFT JOIN *PREFIX*library_item_authors l ON l.user_id=i.user_id AND l.item_id=i.id WHERE i.user_id=? AND i.id=? ORDER BY l.position',[$uid,$id]);
+        try{$links=$r->fetchAll();}finally{$r->closeCursor();}
+        if(!$links)throw new \OutOfBoundsException('missing_item');
+        $authorIds=in_array((int)$links[0]['author_sync_status'],[AuthorStorageService::SYNCED,AuthorStorageService::CONFLICT],true)
+            ? array_values(array_map('intval',array_filter(array_column($links,'author_id'),static fn($value)=>$value!==null))) : null;
+        $authorManual=$authorIds!==null && in_array('manual',array_column($links,'assignment_source'),true);
+        $book=['id'=>$id,'fileId'=>$f['id'],'rootId'=>$f['rootId'],'rootPath'=>$f['rootPath'],'rootFileId'=>$f['rootFileId'],'path'=>$f['path'],'size'=>(int)$f['size'],'format'=>strtolower(pathinfo($f['path'],PATHINFO_EXTENSION)),
             'title'=>(string)$s['title'],'authors'=>AuthorNames::read($s['authors_json']??null,$s['creators']),'language'=>(string)$s['language'],'series'=>(string)($s['series_name']??''),'seriesNumber'=>(string)($s['series_number']??''),'publicationDate'=>(string)$s['publication_date'],'publisher'=>(string)$s['publisher'],'isbn'=>$isbn,
-            'revision'=>hash('sha256',json_encode([$snapshot,$isbn],JSON_THROW_ON_ERROR)),'hashState'=>'pending','hash'=>''];
+            // Initial relationship backfill is a projection of unchanged book
+            // credits; it must not interrupt a content hash already in flight.
+            'revision'=>hash('sha256',json_encode([$snapshot,$isbn,$authorManual ? $authorIds : null],JSON_THROW_ON_ERROR)),'hashState'=>'pending','hash'=>''];
+        if($authorIds!==null){$book['authorIds']=$authorIds;$book['authorManual']=$authorManual;}
+        return $book;
     }
     /** Frozen job data, reused only while its locked transaction is held. */
     private function cachedBooks(string $uid,string $jobId,array $ids): array {

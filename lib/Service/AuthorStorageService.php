@@ -12,7 +12,7 @@ final class AuthorStorageService {
     public const CONFLICT = 2;
     public const FAILED = 3;
 
-    public function __construct(private IDBConnection $db, private LoggerInterface $logger) {}
+    public function __construct(private IDBConnection $db, private LoggerInterface $logger, private DuplicateIndexService $duplicateIndex) {}
 
     private function rows(string $sql, array $params = []): array {
         $result = $this->db->executeQuery($sql, $params);
@@ -185,6 +185,8 @@ final class AuthorStorageService {
                 // A reviewed decision protects these assignments from subsequent changed imports.
                 $this->db->executeStatement("UPDATE *PREFIX*library_item_authors SET assignment_source='manual',revision=revision+1 WHERE user_id=? AND item_id=?", [$uid, $itemId]);
             }
+            $this->db->executeStatement('DELETE FROM *PREFIX*library_dup_hints WHERE user_id=? AND (left_id=? OR right_id=?)', [$uid, $itemId, $itemId]);
+            $this->duplicateIndex->changedMany($uid, [$itemId]);
             $this->acknowledge($uid, $itemId, $snapshot['incoming']);
             $this->db->commit();
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }

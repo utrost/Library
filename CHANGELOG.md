@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Match likely duplicates using reviewed author identities while preserving conservative imported-name matching. Refresh affected duplicate indexes and discard stale decisions after author merge, reassignment, undo, or conflict resolution. Exact preferred-name creator filters now include books linked under different source credits.
+
 - Fix seven author-pending updates to bind integer status values correctly on MariaDB, covering metadata editing, rescans, inference and scanner-candidate resets.
 
 - Add per-book review of imported author changes: compare current assignments and incoming credits, keep assignments or use imported authors, reject stale previews, and remember reviewed source credits across rescans.

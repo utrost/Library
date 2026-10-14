@@ -15,6 +15,21 @@ final class DuplicateMatcher {
     private static function authors(array $book): array {
         $names=array_values(array_unique(array_filter(array_map(self::author(...),$book['authors'])))); sort($names,SORT_STRING); return $names;
     }
+    private static function authorIds(array $book): ?array {
+        if (!array_key_exists('authorIds',$book) || !is_array($book['authorIds'])) return null;
+        $ids=array_values(array_unique(array_map('intval',$book['authorIds'])));
+        $ids=array_values(array_filter($ids,static fn($id)=>$id>0));sort($ids,SORT_NUMERIC);return $ids;
+    }
+    private static function sameAuthors(array $a,array $b): bool {
+        $left=self::authorIds($a);$right=self::authorIds($b);
+        if ($left!==null && $right!==null) {
+            if ($left!==[] && $left===$right) return true;
+            // A reviewed reassignment is an explicit decision to keep these
+            // identities apart. Imported names remain tentative evidence.
+            if (!empty($a['authorManual']) || !empty($b['authorManual'])) return false;
+        }
+        return self::authors($a)!==[] && self::authors($a)===self::authors($b);
+    }
     public static function keys(array $book,bool $contents): array {
         $keys=[];
         foreach (array_slice($book['isbn'],0,4) as $isbn) $keys[]='i:'.hash('sha256',$isbn);
@@ -24,6 +39,11 @@ final class DuplicateMatcher {
             $title=self::text($book['title']);
             if ($title!=='') $keys[]='m:'.hash('sha256',$author.'|='.$title);
             foreach (array_slice($words,0,3) as $word) $keys[]='m:'.hash('sha256',$author.'|'.$word);
+        }
+        foreach (array_slice(self::authorIds($book)??[],0,3) as $authorId) {
+            $title=self::text($book['title']);
+            if ($title!=='') $keys[]='a:'.hash('sha256',$authorId.'|='.$title);
+            foreach (array_slice($words,0,3) as $word) $keys[]='a:'.hash('sha256',$authorId.'|'.$word);
         }
         if ($contents && $book['size']>0) $keys[]='s:'.hash('sha256',(string)$book['size']);
         return array_values(array_unique($keys));
@@ -87,7 +107,7 @@ final class DuplicateMatcher {
         $reasons=[]; $flags=[];
         if (($a['hash']??'')!=='' && ($a['hash']??null)===($b['hash']??null)) $reasons[]='identical';
         if (array_intersect($a['isbn'],$b['isbn'])) $reasons[]='isbn';
-        $sameAuthors=self::authors($a)!==[] && self::authors($a)===self::authors($b);
+        $sameAuthors=self::sameAuthors($a,$b);
         $similarity=self::titleSimilarity($a['title'],$b['title']);
         if ($sameAuthors && $similarity>=0.86 && !self::conflictingParts($a,$b)) $reasons[]=$similarity===1.0 ? 'title_author' : 'similar_title_author';
         if ($a['format']!==$b['format']) $flags[]='formats';
@@ -103,13 +123,23 @@ final class DuplicateMatcher {
     }
     /** Existing decisions remain valid when upgrading the evidence schema. */
     public static function hintMatches(string $signature,array $a,array $b): bool {
-        return hash_equals($signature,self::hintSignature($a,$b))
-            || hash_equals($signature,self::hintSignature($a,$b,false));
+        if (hash_equals($signature,self::hintSignature($a,$b))) return true;
+        // Older decisions remain valid across a pure relationship backfill.
+        // Explicit author changes remove affected hints in the same transaction.
+        return hash_equals($signature,self::hintSignature($a,$b,false))
+            || hash_equals($signature,self::legacyHintSignature($a,$b,true))
+            || hash_equals($signature,self::legacyHintSignature($a,$b,false));
     }
     /** Suggestions depend on matching metadata, not unrelated reading state or notes. */
     public static function hintSignature(array $a,array $b,bool $includeSeries=true): string {
         $values=[];
-        $fields=['fileId','title','authors','language','publicationDate','publisher','isbn','format'];
+        $fields=['fileId','title','authors','authorIds','authorManual','language','publicationDate','publisher','isbn','format'];
+        if ($includeSeries) array_push($fields,'series','seriesNumber');
+        foreach([$a,$b] as $book){$value=[];foreach($fields as $field)$value[$field]=$book[$field]??'';$values[$book['id']]=$value;}
+        ksort($values,SORT_NUMERIC);return hash('sha256',json_encode($values,JSON_THROW_ON_ERROR));
+    }
+    private static function legacyHintSignature(array $a,array $b,bool $includeSeries): string {
+        $values=[];$fields=['fileId','title','authors','language','publicationDate','publisher','isbn','format'];
         if ($includeSeries) array_push($fields,'series','seriesNumber');
         foreach([$a,$b] as $book){$value=[];foreach($fields as $field)$value[$field]=$book[$field]??'';$values[$book['id']]=$value;}
         ksort($values,SORT_NUMERIC);return hash('sha256',json_encode($values,JSON_THROW_ON_ERROR));
