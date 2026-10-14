@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { generateUrl } from '@nextcloud/router'
 import { t, n } from '@nextcloud/l10n'
 import AuthorConflicts from './AuthorConflicts.vue'
@@ -7,7 +7,9 @@ import CatalogueCover from './CatalogueCover.vue'
 import LabelHelp from './LabelHelp.vue'
 const props = defineProps({ requestToken: { type: String, default: '' }, catalogueUrl: { type: String, required: true } })
 const data = ref(null), busy = ref(false), error = ref(''), notice = ref(''), editing = ref(false)
-const selected = ref([]), targetSearch = ref(''), targets = ref([]), target = ref(''), review = ref(null), assigning = ref(false), history = ref([])
+const selected = ref([]), targetSearch = ref(''), targets = ref([]), target = ref(''), review = ref(null), assigning = ref(false), history = ref([]), tasks = ref([])
+const visibleTasks = computed(() => tasks.value.filter(task => task.status !== 'completed' && task.status !== 'cancelled'))
+let taskTimer = null
 const search = ref(''), unused = ref(false), page = ref(1)
 const showConflicts = new URLSearchParams(location.search).get('authorConflicts') === '1'
 const id = ref(Number(new URLSearchParams(location.search).get('authorId')) || null)
@@ -36,7 +38,7 @@ async function request(path, body = null) {
     ...(body === null ? {} : { body: body instanceof FormData ? body : JSON.stringify(body) }),
   })
   if (!response.ok && (await response.clone().json().catch(() => ({}))).error === 'invalid_photo') throw new Error(t('library', 'Choose a valid JPEG, PNG or WebP image up to 10 MiB.'))
-  if (!response.ok) throw new Error(response.status === 413 ? t('library', 'This change is too large. Select fewer books to reassign.') : response.status === 503 ? t('library', 'Author migration must finish before editing. Refresh to check progress.') : response.status === 409
+  if (!response.ok) throw new Error(response.status === 413 ? t('library', 'This change exceeds the supported size. Reassign books in smaller groups.') : response.status === 503 ? t('library', 'Author migration must finish before editing. Refresh to check progress.') : response.status === 409
     ? t('library', 'The author or affected books changed. Reload and review again. Your draft is preserved.')
     : t('library', 'Could not load or save the author. Check the fields and reload before retrying.'))
   return response.json()
@@ -47,7 +49,32 @@ async function load(next = 1) {
     data.value = await request(id.value ? `/${id.value}?page=${next}&search=${encodeURIComponent(bookSearch.value.trim())}&sort=${bookSort.value}` : `?page=${next}&search=${encodeURIComponent(search.value.trim())}&unused=${unused.value ? 1 : 0}`)
     page.value = next; review.value = null; selected.value = []; photoFailed.value = false
     history.value = await request('/history')
+    tasks.value = await request('/tasks')
+    scheduleTaskPoll()
   } catch (e) { error.value = e.message } finally { busy.value = false }
+}
+function scheduleTaskPoll() {
+  if (taskTimer !== null) clearTimeout(taskTimer)
+  taskTimer = null
+  if (tasks.value.some(task => task.status === 'queued' || task.status === 'running')) taskTimer = setTimeout(pollTasks, 5000)
+}
+async function pollTasks() {
+  taskTimer = null
+  try {
+    const activeBefore = tasks.value.some(task => task.status === 'queued' || task.status === 'running')
+    tasks.value = await request('/tasks')
+    if (activeBefore && !tasks.value.some(task => task.status === 'queued' || task.status === 'running')) {
+      await load(page.value)
+      return
+    }
+  } catch (e) { error.value = e.message }
+  scheduleTaskPoll()
+}
+function taskStatus(task) {
+  if (task.status === 'queued') return t('library', 'Queued')
+  if (task.status === 'running') return t('library', 'Running')
+  if (task.status === 'conflict') return t('library', 'Needs review')
+  return t('library', 'Failed')
 }
 function edit() { for (const key of Object.keys(draft)) draft[key] = data.value.author[key] || ''; editing.value = true; notice.value = ''; photoFile.value = null; removePhoto.value = false }
 async function save() {
@@ -80,15 +107,20 @@ async function previewAssignment() {
 async function applyAssignment() {
   busy.value = true; error.value = ''
   try {
-    await request(`/${id.value}/assign`, { target: Number(target.value), items: selected.value, token: review.value.token })
-    notice.value = t('library', 'Author assignments saved. Original credits are preserved. Undo is available in Recent changes.')
+    const result = await request(`/${id.value}/assign`, { target: Number(target.value), items: selected.value, token: review.value.token })
+    notice.value = result.queued ? t('library', 'Author change queued. The books will update together when the background job finishes.') : t('library', 'Author assignments saved. Original credits are preserved. Undo is available in Recent changes.')
     assigning.value = false; review.value = null
     await load(page.value)
   } catch (e) { error.value = e.message } finally { busy.value = false }
 }
 async function undo(operation) {
   busy.value = true; error.value = ''
-  try { await request(`/history/${operation.id}/undo`, {}); notice.value = t('library', 'Author change undone.'); await load(page.value) }
+  try { const result = await request(`/history/${operation.id}/undo`, {}); notice.value = result.queued ? t('library', 'Author undo queued. The books will update together when the background job finishes.') : t('library', 'Author change undone.'); await load(page.value) }
+  catch (e) { error.value = e.message } finally { busy.value = false }
+}
+async function cancelTask(task) {
+  busy.value = true; error.value = ''
+  try { await request(`/tasks/${task.id}/cancel`, {}); await load(page.value) }
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
 async function removeUnused(author) {
@@ -97,6 +129,7 @@ async function removeUnused(author) {
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
 onMounted(() => { if (!showConflicts) load() })
+onUnmounted(() => { if (taskTimer !== null) clearTimeout(taskTimer) })
 </script>
 <template>
   <AuthorConflicts v-if="showConflicts" :request-token="requestToken" :catalogue-url="catalogueUrl" />
@@ -184,7 +217,8 @@ onMounted(() => { if (!showConflicts) load() })
         <section v-if="review" class="author-review" :aria-label="t('library', 'Review change')">
           <h2>{{ review.source }} → {{ review.target }}</h2>
           <p>{{ review.merge ? t('library', 'Merge these authors. Future imports of the old name will use the destination author.') : t('library', 'Reassign these books. Both author records remain available.') }}</p>
-          <p>{{ n('library', '%n book', '%n books', review.books.length) }}</p>
+          <p>{{ n('library', '%n book', '%n books', review.bookCount) }}</p>
+          <p v-if="review.queued">{{ t('library', 'The first 20 books are shown. This change will run in the background.') }}</p>
           <ul><li v-for="book in review.books" :key="book.id">{{ book.title }} — {{ t('library', 'Original credit: {credit}', { credit: book.credit || '—' }) }}</li></ul>
           <button class="primary" :disabled="busy" @click="applyAssignment">{{ t('library', 'Confirm author change') }}</button>
         </section>
@@ -224,6 +258,14 @@ onMounted(() => { if (!showConflicts) load() })
         </section>
       </section>
     </template>
+    <details v-if="visibleTasks.length" class="author-history" open>
+      <summary>{{ t('library', 'Background author changes') }}</summary>
+      <ul><li v-for="task in visibleTasks" :key="task.id" :data-author-task-id="task.id">
+        <span>{{ taskStatus(task) }} · {{ n('library', '%n book', '%n books', Number(task.book_count)) }}</span>
+        <button v-if="task.status === 'queued'" :disabled="busy" @click="cancelTask(task)">{{ t('library', 'Cancel') }}</button>
+        <span v-if="task.status === 'conflict' || task.status === 'failed'">{{ t('library', 'Review the author and try again. No books were changed by this task.') }}</span>
+      </li></ul>
+    </details>
     <details v-if="history.length" class="author-history">
       <summary>{{ t('library', 'Recent changes') }}</summary>
       <ul><li v-for="operation in history" :key="operation.id" :data-operation-id="operation.id">

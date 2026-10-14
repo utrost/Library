@@ -123,6 +123,10 @@ EXPECTED_TABLES = {
 
 EXPECTED_TABLES.update({
     "*dbprefix*library_author_operations": {"fields": {"id", "user_id", "created_at", "undone", "source_name", "target_name", "book_count", "is_merge", "payload"}, "indexes": {"library_author_ops_pk", "library_author_ops_user"}},
+    "*dbprefix*library_author_tasks": {
+        "fields": {"id", "user_id", "action", "source_id", "target_id", "operation_id", "preview_token", "claim_token", "book_count", "status", "error_code", "created_at", "updated_at"},
+        "indexes": {"library_author_tasks_pk", "library_author_tasks_user", "library_author_tasks_due"},
+    },
     "*dbprefix*library_authors": {
         "fields": {"id", "user_id", "display_name", "sort_name", "given_name", "family_name", "comparison_key", "normalization_version", "revision", "field_sources", "merged_into", "biography", "photo_key"},
         "indexes": {"library_authors_pk", "library_authors_lookup", "library_authors_sort"},

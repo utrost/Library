@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Queue whole-author merges and conditional undo for 501–5,000 linked books as durable background tasks. Show status and cancellation in Authors; reclaim abandoned workers, reject changed previews without partial writes, and retain account-private task history.
+
 - Match likely duplicates using reviewed author identities while preserving conservative imported-name matching. Refresh affected duplicate indexes and discard stale decisions after author merge, reassignment, undo, or conflict resolution. Exact preferred-name creator filters now include books linked under different source credits.
 
 - Fix seven author-pending updates to bind integer status values correctly on MariaDB, covering metadata editing, rescans, inference and scanner-candidate resets.

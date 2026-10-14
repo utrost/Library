@@ -75,6 +75,8 @@ return [
         ['name' => 'inference_folder_rule#delete', 'url' => '/api/inference/folders/{assignmentId}/delete', 'verb' => 'POST', 'requirements' => ['assignmentId' => '[a-f0-9]{32}']],
         ['name' => 'inference#sample', 'url' => '/api/inference/sample', 'verb' => 'GET'],
         ['name' => 'author#history', 'url' => '/api/authors/history', 'verb' => 'GET'],
+        ['name' => 'author#tasks', 'url' => '/api/authors/tasks', 'verb' => 'GET'],
+        ['name' => 'author#cancelTask', 'url' => '/api/authors/tasks/{taskId}/cancel', 'verb' => 'POST', 'requirements' => ['taskId' => '[a-f0-9]{32}']],
         ['name' => 'author#undo', 'url' => '/api/authors/history/{operationId}/undo', 'verb' => 'POST', 'requirements' => ['operationId' => '[a-f0-9]{32}']],
         ['name' => 'author#preview', 'url' => '/api/authors/{authorId}/preview', 'verb' => 'POST', 'requirements' => ['authorId' => '[1-9][0-9]*']],
         ['name' => 'author#assign', 'url' => '/api/authors/{authorId}/assign', 'verb' => 'POST', 'requirements' => ['authorId' => '[1-9][0-9]*']],

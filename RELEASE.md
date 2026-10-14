@@ -1,6 +1,6 @@
 # Release process
 
-Development has moved to **0.3.0-alpha.6**, adding canonical-author duplicate matching and refreshing affected duplicate-index entries on reviewed author changes. Alpha.6 is deployed on developer NC34. Focused author/duplicate integration passed on fresh NC33–35; the broader alpha.5 installation/upgrade evidence remains separate. The signed exact-package NC33–35 release matrix remains pending. The owner has chosen 0.3 as the first App Store release; **do not submit the 0.2 archive**. The signed 0.2 baseline below remains preserved. The [alpha.6 verification report](docs/compatibility-evidence/2026-10-14-author-duplicates-alpha6/README.md) covers development source checks, not a signed 0.3 release package.
+Development has moved to **0.3.0-alpha.7**, adding durable background author merge and undo tasks for 501–5,000 linked books. The task preview is bounded, and a worker checks the complete snapshot before committing one atomic change. The signed exact-package NC33–35 release matrix remains pending. The owner has chosen 0.3 as the first App Store release; **do not submit the 0.2 archive**. The signed 0.2 baseline below remains preserved. The [alpha.7 verification report](docs/compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md) records development source checks, not a signed 0.3 release package.
 
 ## Current 0.2 beta release
 
