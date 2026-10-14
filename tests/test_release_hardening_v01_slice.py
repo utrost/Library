@@ -1,6 +1,5 @@
 from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
-import re
 
 ROOT = Path(__file__).resolve().parents[1]
 

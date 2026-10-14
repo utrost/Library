@@ -25,7 +25,6 @@ def test_page_controller_builds_publication_discovery_state():
 
 def test_vue_and_fallback_render_publication_discovery_header_and_links():
     vue = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
 
     assert "isPublicationDiscoveryPage" in vue
     assert "library-discovery-header" in vue

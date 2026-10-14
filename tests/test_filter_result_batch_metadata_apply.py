@@ -66,7 +66,6 @@ def test_preview_template_is_polished_and_contains_confirmed_apply_form():
 
 def test_catalogue_batch_form_labels_apply_capable_preview():
     vue = read("src/App.vue")
-    fallback = read("src/main.js")
 
     for source in (vue,):
         assert "Preview & apply metadata edit" in source or "Preview edit" in source

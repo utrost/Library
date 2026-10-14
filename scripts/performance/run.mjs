@@ -1,14 +1,15 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { randomBytes,createHash } from 'node:crypto'
-import { mkdirSync,writeFileSync,readFileSync,existsSync,rmSync } from 'node:fs'
-import { dirname,resolve } from 'node:path'
+import { randomBytes } from 'node:crypto'
+import { writeFileSync,rmSync } from 'node:fs'
+import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
 import { createTemporaryAppPassword } from '../temporary-app-password.mjs'
+import { createEvidenceDirectory } from '../private-evidence-directory.mjs'
 const here=dirname(fileURLToPath(import.meta.url)),base=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'maintainer',container=process.env.NC_CONTAINER||'nextcloud'
-const out=resolve(process.env.EVIDENCE_DIR||`/tmp/library-performance-${new Date().toISOString().replaceAll(':','-')}`),samples=Number(process.env.SAMPLES||3),runId=`library-performance-${Date.now()}`
-const browserEnabled=process.env.SKIP_BROWSER!=='1'&&(process.env.BROWSER==='1'||process.env.COMPREHENSIVE==='1'),sqlEnabled=process.env.SKIP_SQL!=='1';mkdirSync(out,{recursive:true,mode:0o700})
+const out=createEvidenceDirectory('library-performance'),samples=Number(process.env.SAMPLES||3),runId=`library-performance-${Date.now()}`
+const browserEnabled=process.env.SKIP_BROWSER!=='1'&&(process.env.BROWSER==='1'||process.env.COMPREHENSIVE==='1'),sqlEnabled=process.env.SKIP_SQL!=='1'
 const docker=(args,options={})=>execFileSync('docker',args,{encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:20*1024*1024,...options})
 const occ=(...args)=>docker(['exec','-u','www-data',container,'php','occ',...args])
 const cp=(source,target)=>docker(['cp',source,`${container}:${target}`])
@@ -22,10 +23,12 @@ async function invalidateApplication() {
  assert.equal(response.status,200,'Application opcode invalidation');
  assert.equal((await response.json()).ok,true);
 }
-function save(){writeFileSync(`${out}/results.json`,JSON.stringify(result,null,2))}
+function save(){const evidence={...result};delete evidence.csrf;writeFileSync(`${out}/results.json`,JSON.stringify(evidence,null,2),{mode:0o600})}
 function log(message){console.log(message)}
 try{
- cp(`${here}/inventory.php`,'/tmp/library-performance-inventory.php');writeFileSync(`${out}/inventory.json`,php('/tmp/library-performance-inventory.php'))
+ cp(`${here}/inventory.php`,'/tmp/library-performance-inventory.php')
+ const inventoryOutput=php('/tmp/library-performance-inventory.php')
+ writeFileSync(`${out}/inventory.json`,inventoryOutput)
  writeFileSync(`${out}/host.txt`,execFileSync('sh',['-c',"uname -sr; nproc; free -m; docker stats --no-stream --format '{{.Name}} CPU={{.CPUPerc}} Memory={{.MemUsage}} Limit={{.MemPerc}}'"],{encoding:'utf8'}))
  if(sqlEnabled){
   opcacheHelper='ocs-provider/library-performance-opcache-'+randomBytes(12).toString('hex')+'.php';
@@ -50,7 +53,7 @@ try{
  const initial=await request('/apps/library/');assert.equal(initial.status,200)
  result.csrf=initial.text?.match(/data-request-token="([^"]+)"/)?.[1]?.replaceAll('&amp;','&');assert.ok(result.csrf,'CSRF token available')
  const cat=await request('/apps/library/catalogue?limit=100');assert.equal(cat.status,200);const items=cat.data.items;assert.ok(items?.length);const first=items[0],id=first.id,ids=items.map(x=>x.id)
- const inventory=JSON.parse(readFileSync(`${out}/inventory.json`,'utf8')),root=inventory.roots.find(x=>Number(x.books)>0),lists=await request('/apps/library/api/lists'),list=lists.data?.lists?.[0]
+ const inventory=JSON.parse(inventoryOutput),root=inventory.roots.find(x=>Number(x.books)>0),lists=await request('/apps/library/api/lists'),list=lists.data?.lists?.[0]
  const cases=[['catalogue-25','/apps/library/catalogue?limit=25'],['catalogue-100','/apps/library/catalogue?limit=100'],['catalogue-page-400','/apps/library/catalogue?limit=100&page=400'],['catalogue-recent','/apps/library/catalogue?limit=100&sort=recent'],['search-word','/apps/library/catalogue?limit=100&q=science'],['filter-epub','/apps/library/catalogue?limit=100&format=epub'],['review-missing','/apps/library/catalogue?limit=100&status=missing'],['review-conflicts','/apps/library/catalogue?limit=100&scannerConflicts=1'],['creator-typeahead','/apps/library/catalogue/creator-suggestions?creatorSearch=San'],['publisher-typeahead','/apps/library/catalogue/publisher-suggestions?publisherSearch=Pen'],['folder-typeahead','/apps/library/catalogue/folder-suggestions?folderSearch=books'],['shelf-children','/apps/library/shelves/children'],['home-html','/apps/library/?home=1'],['shelves-html','/apps/library/?shelves=1'],['catalogue-html','/apps/library/'],['settings-html','/settings/user/library'],['sidebar','/apps/library/items/'+id+'/sidebar'],['detail','/apps/library/items/'+id],['lists-index','/apps/library/api/lists'],['lists-membership','/apps/library/api/lists?itemId='+id],['inference-roots','/apps/library/api/inference/sample'],['scan-progress','/apps/library/scan/progress'],['duplicates-1','/apps/library/api/duplicate-suggestions/lookup',{itemIds:[id]}],['duplicates-100','/apps/library/api/duplicate-suggestions/lookup',{itemIds:ids}]]
  if(cat.data.cataloguePagination?.nextUrl)cases.push(['catalogue-cursor-next','/apps/library/catalogue'+cat.data.cataloguePagination.nextUrl]);
  if(process.env.DEEP_CURSOR==='1'){

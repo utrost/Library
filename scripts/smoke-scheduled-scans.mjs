@@ -1,10 +1,11 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const upstream=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'maintainer',container=process.env.NC_CONTAINER||'nextcloud'
-const evidence=process.env.EVIDENCE_DIR||'/tmp/library-alpha21-evidence/browser';mkdirSync(evidence,{recursive:true})
+const evidence=createEvidenceDirectory('library-alpha21-evidence-browser');
 const name=`library-scheduled-scan-ui-${Date.now()}`,occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8',stdio:['ignore','pipe','pipe']})
 const output=createTemporaryAppPassword(container,user,name),token=output.match(/app password is:\s*(\S+)/i)?.[1]||output.match(/app password:\s*\n\s*(\S+)/i)?.[1];assert.ok(token)
 const authorization=`Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`;let browser,original

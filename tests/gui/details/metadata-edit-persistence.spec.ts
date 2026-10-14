@@ -21,7 +21,6 @@ test('edits metadata, rescans, then repairs the suggestion and restores the titl
 
     const title = page.getByRole('textbox', { name: 'Title', exact: true })
     await expect(title).toHaveValue(originalTitle)
-    const metadataForm = page.locator('form.library-detail-edit-form')
     await attachCheckpoint(page, testInfo, 'metadata-edit-form', 'form.library-detail-edit-form')
     titleWasRead = true
     const editedTitle = `Playwright metadata ${itemId} ${Date.now()}`

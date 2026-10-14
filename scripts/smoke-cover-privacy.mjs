@@ -188,7 +188,31 @@ async function browserProof(base, itemId) {
     stage = 'browser-dom'
     const dom = await send('Runtime.evaluate', { returnByValue: true, expression: `({cover:document.querySelector('.library-detail-cover')?.src||'', token:document.querySelector('.library-cover-override-form input[name=requesttoken]')?.value||'', urlInput:Boolean(document.querySelector('input[name=coverOverrideUrl]')), detail:Boolean(document.querySelector('.library-item-detail'))})` })
     stage = 'upload-render-revert'
-    const mutation = await send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `(async()=>{const encoded='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';const bytes=Uint8Array.from(atob(encoded),character=>character.charCodeAt(0));const form=new FormData();form.set('requesttoken',${JSON.stringify(dom.result.value.token)});form.set('coverOverrideFile',new Blob([bytes],{type:'image/png'}),'cover.png');const upload=await fetch('/apps/library/items/${itemId}/cover/override',{method:'POST',body:form,credentials:'same-origin'});const cover=await fetch('/apps/library/items/${itemId}/cover?refresh=1',{credentials:'same-origin'});const rendered=new Uint8Array(await cover.arrayBuffer());const same=rendered.length===bytes.length&&rendered.every((value,index)=>value===bytes[index]);const revert=await fetch('/apps/library/items/${itemId}/cover/revert',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded'},body:new URLSearchParams({requesttoken:${JSON.stringify(dom.result.value.token)}}),credentials:'same-origin'});return {uploadOk:upload.ok&&!upload.url.includes('coverUploadError'),rendered:cover.ok&&same,manualSource:cover.headers.get('x-library-cover-status')==='manual-cover',revertOk:revert.ok}})()` })
+    const globalObject = await send('Runtime.evaluate', { expression: 'globalThis' })
+    const mutation = await send('Runtime.callFunctionOn', {
+      objectId: globalObject.result.objectId,
+      returnByValue: true,
+      awaitPromise: true,
+      arguments: [{ value: dom.result.value.token }, { value: itemId }],
+      functionDeclaration: `async function (requestToken, publicationId) {
+        const encoded = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='
+        const bytes = Uint8Array.from(atob(encoded), character => character.charCodeAt(0))
+        const form = new FormData()
+        form.set('requesttoken', requestToken)
+        form.set('coverOverrideFile', new Blob([bytes], { type: 'image/png' }), 'cover.png')
+        const path = '/apps/library/items/' + publicationId + '/cover'
+        const upload = await fetch(path + '/override', { method: 'POST', body: form, credentials: 'same-origin' })
+        const cover = await fetch(path + '?refresh=1', { credentials: 'same-origin' })
+        const rendered = new Uint8Array(await cover.arrayBuffer())
+        const same = rendered.length === bytes.length && rendered.every((value, index) => value === bytes[index])
+        const revert = await fetch(path + '/revert', {
+          method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ requesttoken: requestToken }), credentials: 'same-origin',
+        })
+        return { uploadOk: upload.ok && !upload.url.includes('coverUploadError'), rendered: cover.ok && same,
+          manualSource: cover.headers.get('x-library-cover-status') === 'manual-cover', revertOk: revert.ok }
+      }`,
+    })
     socket.close(); socket = null
     const allowedOrigins = new Set([new URL(base).origin])
     const crossOrigin = requests.filter((request) => { try { const url = new URL(request.url); return ['http:', 'https:'].includes(url.protocol) && !allowedOrigins.has(url.origin) } catch { return true } })

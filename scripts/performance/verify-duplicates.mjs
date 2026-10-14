@@ -1,12 +1,12 @@
 // Repeatable duplicate service/browser regression in an owned disposable account.
 import { execFileSync, spawnSync } from 'node:child_process'
 import { randomBytes } from 'node:crypto'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
+import { createEvidenceDirectory } from '../private-evidence-directory.mjs'
 const uid = 'library-perf-' + randomBytes(6).toString('hex')
 const container = process.env.NC_CONTAINER || 'nextcloud'
-const out = process.env.EVIDENCE_DIR || '/tmp/library-duplicate-verification'
+const out = createEvidenceDirectory('library-duplicate-verification')
 const name = 'Library duplicates smoke ' + Date.now()
-mkdirSync(out, { recursive: true, mode: 0o700 })
 const docker = args => execFileSync('docker', args, { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 })
 const account = action => docker(['exec', '-u', 'www-data', '-e', 'LIBRARY_BENCHMARK_USER=' + uid, container, 'php', '/tmp/library-performance-fixture-account.php', action])
 const fixture = action => docker(['exec', '-u', 'www-data', '-e', 'LIBRARY_SMOKE_USER=' + uid, '-e', 'LIBRARY_SMOKE_NAME=' + name, container, 'php', '/tmp/library-duplicate-books-fixture.php', action])

@@ -50,8 +50,10 @@ for (const file of assets) {
 copyFileSync('src/detail-star.js', join(jsDir, 'library-detail.js'))
 
 const cssAsset = join(cssDir, 'library-vue.css')
-if (!existsSync(cssAsset)) {
-  writeFileSync(cssAsset, '/* No Vue component CSS emitted for this build. */\n')
+try {
+  writeFileSync(cssAsset, '/* No Vue component CSS emitted for this build. */\n', { flag: 'wx' })
+} catch (error) {
+  if (error.code !== 'EEXIST') throw error
 }
 copyFileSync(join(jsDir, 'library-main.mjs'), join(jsDir, versionedJsAssetName))
 copyFileSync(cssAsset, join(cssDir, versionedCssAssetName))

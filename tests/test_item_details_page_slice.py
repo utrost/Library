@@ -41,7 +41,6 @@ def test_item_service_has_current_user_item_lookup_with_file_context():
 def test_catalogue_cards_link_to_dedicated_details_page():
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     vue = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
 
     assert "detailsUrl" in page
     assert "linkToRoute('library.item_page.show'" in page

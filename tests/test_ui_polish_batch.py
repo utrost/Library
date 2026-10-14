@@ -52,7 +52,6 @@ def test_detail_page_workflow_status_is_pill_styled():
 
 def test_catalogue_has_top_toolbar_filter_summary_empty_actions_and_structured_card_details():
     app = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
     css = (ROOT / "css" / "style.css").read_text()
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 

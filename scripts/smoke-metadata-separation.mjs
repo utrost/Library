@@ -1,3 +1,4 @@
+import { decodeHtmlAttribute } from './html-attribute.mjs'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 
@@ -54,12 +55,7 @@ function cookieHeader() {
 function decodeInitialState(page) {
   const match = page.match(/id="initial-state-library-catalogue" value="([^"]+)"/)
   if (!match) throw new Error('missing initial state')
-  const escaped = match[1]
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#039;', "'")
-    .replaceAll('&amp;', '&')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
+  const escaped = decodeHtmlAttribute(match[1])
   return JSON.parse(Buffer.from(escaped, 'base64').toString('utf8'))
 }
 

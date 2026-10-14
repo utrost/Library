@@ -1,16 +1,17 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync,writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium,firefox,expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const upstream=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'maintainer',container=process.env.NC_CONTAINER||'nextcloud'
-const evidence=process.env.EVIDENCE_DIR||'/tmp/library-alpha20-evidence/browser';mkdirSync(evidence,{recursive:true});const name=`Library duplicates smoke ${Date.now()}`,tokenName=name.replaceAll(' ','-')
+const evidence=createEvidenceDirectory('library-alpha20-evidence-browser');const name=`Library duplicates smoke ${Date.now()}`,tokenName=name.replaceAll(' ','-')
 const occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:5*1024*1024})
 execFileSync('docker',['cp',new URL('./duplicate-books-fixture.php',import.meta.url).pathname,`${container}:/tmp/library-duplicate-books-fixture.php`])
 const fixture=action=>JSON.parse(execFileSync('docker',['exec','-u','www-data','-e',`LIBRARY_SMOKE_USER=${user}`,'-e',`LIBRARY_SMOKE_NAME=${name}`,container,'php','/tmp/library-duplicate-books-fixture.php',action],{encoding:'utf8',maxBuffer:5*1024*1024}))
-let browser,created=false;const report=[]
+let browser;const report=[]
 try{
- created=true;const state=fixture('create'),left=state.files['original.epub'].itemId,right=state.files['alternative.pdf'].itemId
+ const state=fixture('create'),left=state.files['original.epub'].itemId,right=state.files['alternative.pdf'].itemId
  const output=createTemporaryAppPassword(container,user,tokenName),token=output.match(/app password is:\s*(\S+)/i)?.[1]||output.match(/app password:\s*\n\s*(\S+)/i)?.[1];assert.ok(token);const authorization=`Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`
  for(const [engine,launcher] of [['chromium',chromium],['firefox',firefox]]){
   browser=await launcher.launch();const context=await browser.newContext({viewport:{width:1440,height:1000}});await context.route('**/*',route=>route.continue({headers:{...route.request().headers(),...(new URL(route.request().url()).origin===new URL(upstream).origin?{authorization}:{})}}))
@@ -32,4 +33,4 @@ try{
   assert.equal(fixture('verify').unchanged,true);assert.deepEqual(errors,[]);report.push({engine,passed:true,pageBatchBooks:Object.keys(state.files).length,legacyDismissalPreserved:true,badges:true,metadataSingleLookup:true,comparison:true,dismissalPersistent:true,reset:true,mobileFits:true,csrf:true,sourceAndMetadataUnchanged:true,pageErrors:errors});await browser.close();browser=null
  }
  writeFileSync(`${evidence}/results.json`,JSON.stringify({report},null,2));console.log(JSON.stringify({report}))
-}finally{if(browser)await browser.close();if(created)assert.equal(fixture('cleanup').cleaned,true);const tokens=JSON.parse(occ('user:auth-tokens:list',user,'--output=json'));for(const entry of tokens.filter(t=>t.name===tokenName))occ('user:auth-tokens:delete',user,String(entry.id))}
+}finally{if(browser)await browser.close();assert.equal(fixture('cleanup').cleaned,true);const tokens=JSON.parse(occ('user:auth-tokens:list',user,'--output=json'));for(const entry of tokens.filter(t=>t.name===tokenName))occ('user:auth-tokens:delete',user,String(entry.id))}

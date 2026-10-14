@@ -23,7 +23,6 @@ def test_filter_result_metadata_reset_route_uses_current_catalogue_filters():
 
 def test_vue_and_fallback_expose_metadata_reset_batch_action_separate_from_tagging():
     app = (ROOT / "src" / "App.vue").read_text()
-    fallback = (ROOT / "src" / "main.js").read_text()
     page = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     smoke = (ROOT / "scripts" / "smoke-browser-page.mjs").read_text()
 

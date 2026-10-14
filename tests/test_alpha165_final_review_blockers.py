@@ -29,7 +29,6 @@ def test_legacy_keyboard_gate_traverses_every_visible_natural_control_and_exits_
 
 
 def test_legacy_keyboard_dispatch_has_page_recorder_no_per_tab_evaluate_and_timings():
-    smoke = read("scripts/smoke-browser-page.mjs")
     gate = legacy_gate()
     dispatch = gate.split("const tabIntoSurface", 1)[1].split("const inspect", 1)[0]
     helper = read("scripts/browser-keyboard-focus-gate.mjs")
