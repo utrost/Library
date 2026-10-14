@@ -16,7 +16,7 @@ def read(relative: str) -> str:
 
 
 def test_alpha_160_packaged_runtime_size_and_checksum_sidecar_stay_consistent():
-    current = ROOT / f"js/library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6.mjs"
+    current = ROOT / f"js/library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7.mjs"
     assert current.read_bytes() == (ROOT / "js/library-main.mjs").read_bytes()
     assert current.stat().st_size <= 2_000_000
     assert not (ROOT / "js/library-main.mjs.map").exists()

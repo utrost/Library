@@ -64,7 +64,7 @@ def test_current_typeahead_bundle_uses_the_cache_busted_asset_basename():
     controller = (ROOT / "lib" / "Controller" / "PageController.php").read_text()
     template = (ROOT / "templates" / "main.php").read_text()
 
-    assert "-compact-list-table-cover-96-fit-v6`" in build
-    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in controller
-    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in controller
-    assert f'data-library-main-script="library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6"' in template
+    assert "-compact-list-table-cover-96-fit-v7`" in build
+    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7" in controller
+    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7" in controller
+    assert f'data-library-main-script="library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7"' in template

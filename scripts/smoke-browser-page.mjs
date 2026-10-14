@@ -1323,7 +1323,11 @@ async function runBrowserSmoke(proxyBase, proxy) {
         try {
           const raw = document.querySelector('#initial-state-library-catalogue')?.getAttribute('value') || document.querySelector('#initial-state-library-catalogue')?.textContent?.trim() || ''
           const decoded = raw ? JSON.parse(atob(raw)) : {}
-          stateHrefs = (decoded.items || []).map((item) => item.detailsUrl).filter(Boolean)
+          stateHrefs = (decoded.items || []).map((item) => {
+            const url = new URL(item.detailsUrl || '', location.origin)
+            const id = url.searchParams.get('details')
+            return id && /^[1-9][0-9]*$/.test(id) ? '/apps/library/items/' + id : item.detailsUrl
+          }).filter(Boolean)
         } catch (_error) {}
         return {
           hrefs: [...document.querySelectorAll('.library-cover-card a[href]')].map((anchor) => anchor.href).concat(stateHrefs.map((href) => new URL(href, location.origin).href)),

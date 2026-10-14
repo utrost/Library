@@ -43,7 +43,7 @@ def test_catalogue_cards_link_to_dedicated_details_page():
     vue = (ROOT / "src" / "App.vue").read_text()
 
     assert "detailsUrl" in page
-    assert "linkToRoute('library.item_page.show'" in page
+    assert "linkToRoute('library.page.index') . '?details='" in page
     assert ':href="item.detailsUrl"' in vue
     assert "t('library', 'Details')" in vue
 
