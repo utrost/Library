@@ -306,6 +306,22 @@ try {
 
   token = parseToken(dockerWww(['php', 'occ', 'user:add-app-password', '--no-interaction', '--name', tokenName, user]))
   if (!token) throw new Error('temporary app password was not created')
+  // The CLI route table does not prove that the web process serves the newly
+  // enabled app. Check the actual authenticated page before timing catalogue
+  // requests; a persistent 404 still fails with the response diagnostics.
+  let libraryHttpReady = false
+  for (let attempt = 1; attempt <= 8; attempt += 1) {
+    const probe = await fetchText('/apps/library/?home=1', token)
+    if (probe.status === 200 && probe.text.includes('id="initial-state-library-catalogue"')) {
+      console.log(`library_http_ready_attempt=${attempt}`)
+      libraryHttpReady = true
+      break
+    }
+    console.log(`library_http_readiness_${attempt}=${JSON.stringify({ status: probe.status, initialStatus: probe.initialStatus, finalUrl: probe.finalUrl, contentType: probe.contentType, title: probe.title })}`)
+    if (probe.status !== 404 && probe.status !== 503) throw new Error(`Library HTTP readiness returned ${probe.status} without initial state`)
+    if (attempt < 8) await new Promise((resolve) => setTimeout(resolve, 500))
+  }
+  if (!libraryHttpReady) throw new Error('Library HTTP route did not become ready')
   const pageCases = [[25,1], [100,1]]
   if (count > 25) pageCases.push([25,2])
   for (const [limit, page] of pageCases) {
