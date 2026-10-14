@@ -14,10 +14,10 @@ def test_alpha_157_version_assets_and_release_contracts_are_aligned():
     assert f'"version": "{CURRENT_VERSION}"' in read("package.json")
     assert f'"version": "{CURRENT_VERSION}"' in read("package-lock.json")
     controller = read("lib/Controller/PageController.php")
-    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in controller
-    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in controller
-    assert (ROOT / f"js/library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6.mjs").exists()
-    assert (ROOT / f"css/library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6.css").exists()
+    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7" in controller
+    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7" in controller
+    assert (ROOT / f"js/library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7.mjs").exists()
+    assert (ROOT / f"css/library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7.css").exists()
     assert "v0.1.0-beta.1" in read("CHANGELOG.md")
 
 
