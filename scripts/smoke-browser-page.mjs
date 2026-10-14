@@ -283,20 +283,30 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
       headingEntered: active?.id === 'library-detail-drawer-heading' && normalized(active?.textContent).length > 0,
       contained: Boolean(sidebar?.contains(active)), focusableCount: focusables.length, describedBy: sidebar?.getAttribute('aria-describedby') || '' }
   })()` }), { phase: 'sidebar-state' })
-  const observeAfterAnimationFrame = async (phase, expression) => unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', {
-    returnByValue: true,
-    awaitPromise: true,
-    expression: `(async () => { await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))); return (${expression})() })()`,
-  }), { phase })
+  const observeAfterAnimationFrame = async (phase, functionDeclaration, values = []) => {
+    unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', {
+      returnByValue: true,
+      awaitPromise: true,
+      expression: 'new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))',
+    }), { phase: `${phase}-frame` })
+    const globalObject = await client.send('Runtime.evaluate', { expression: 'globalThis' })
+    return unwrapCdpEvaluateResponse(await client.send('Runtime.callFunctionOn', {
+      objectId: globalObject.result.objectId,
+      returnByValue: true,
+      awaitPromise: true,
+      functionDeclaration,
+      arguments: values.map((value) => ({ value })),
+    }), { phase })
+  }
   const waitForViewportWidth = async (width, mobile) => waitForResponsiveReadiness({
     phase: `${mobile ? 'mobile' : 'desktop'} viewport`,
-    observe: () => observeAfterAnimationFrame('sidebar-viewport-readiness', '() => ({ innerWidth })'),
+    observe: () => observeAfterAnimationFrame('sidebar-viewport-readiness', 'function () { return { innerWidth } }'),
     accept: (observed) => observed?.innerWidth === width,
     onObservation: (evidence) => { dom.readiness[mobile ? 'mobileViewport' : 'desktopViewport'] = evidence },
   })
   const waitForMobileModal = async () => waitForResponsiveReadiness({
     phase: 'mobile modal',
-    observe: () => observeAfterAnimationFrame('sidebar-mobile-modal-readiness', `() => {
+    observe: () => observeAfterAnimationFrame('sidebar-mobile-modal-readiness', `function () {
       const sidebar = document.querySelector('#app-sidebar-vue')
       const style = sidebar ? getComputedStyle(sidebar) : null
       const selector = '.app-sidebar__close,button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])'
@@ -313,11 +323,11 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
   })
   const waitForSidebarClose = async (mobile, openerIndex) => waitForResponsiveReadiness({
     phase: `${mobile ? 'mobile' : 'desktop'} sidebar close transition`,
-    observe: () => observeAfterAnimationFrame('sidebar-close-readiness', `() => {
+    observe: () => observeAfterAnimationFrame('sidebar-close-readiness', `function (openerIndex) {
       const sidebar = document.querySelector('#app-sidebar-vue')
       const sidebarStyle = sidebar ? getComputedStyle(sidebar) : null
       const sidebarBox = sidebar?.getBoundingClientRect()
-      const opener = document.querySelectorAll('.library-cover-link')[${openerIndex}]
+      const opener = document.querySelectorAll('.library-cover-link')[openerIndex]
       const openerStyle = opener ? getComputedStyle(opener) : null
       const openerBox = opener?.getBoundingClientRect()
       const openerX = openerBox ? openerBox.left + openerBox.width / 2 : 0
@@ -335,7 +345,7 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
         openerRectCount: opener?.getClientRects().length || 0, openerWidth: openerBox?.width || 0, openerHeight: openerBox?.height || 0,
         openerDisabled: opener?.matches(':disabled') || false, openerAriaDisabled: opener?.getAttribute('aria-disabled') || '',
         openerObstructed: !openerHit || !(openerHit === opener || opener.contains(openerHit)), openerInert: Boolean(opener?.closest('[inert],[hidden],[aria-hidden="true"]')) }
-    }`),
+    }`, [openerIndex]),
     accept: (observed) => observed?.openerInert === false && isSidebarCloseReady(observed),
     onObservation: (evidence) => { dom.readiness.sidebarClose[mobile ? 'mobile' : 'desktop'] = evidence },
   })
@@ -467,8 +477,7 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
   const waitForFreshCatalogue = () => waitForResponsiveReadiness({
     phase: 'fresh catalogue after sidebar isolation reload',
     timeoutMs: 5000,
-    observe: () => observeAfterAnimationFrame('adaptation-fresh-catalogue-readiness', `() => {
-      const expectedUrl = ${JSON.stringify(adaptationReloadUrl)}
+    observe: () => observeAfterAnimationFrame('adaptation-fresh-catalogue-readiness', `function (expectedUrl, previousTimeOrigin) {
       const fixtureIds = ['910001', '910002', '910003']
       const cards = fixtureIds.map((id) => document.querySelector('#library-card-title-' + id)?.closest('.library-cover-card'))
       const buttons = cards.map((card) => card?.querySelector('.library-cover-link'))
@@ -484,7 +493,7 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
       const node = buttons[0]
       const style = node ? getComputedStyle(node) : null
       const box = node?.getBoundingClientRect()
-      return { urlMatches: location.href === expectedUrl, newDocument: performance.timeOrigin !== ${JSON.stringify(adaptationFixtureUrl.timeOrigin)},
+      return { urlMatches: location.href === expectedUrl, newDocument: performance.timeOrigin !== previousTimeOrigin,
         vueCatalogueMounted: Boolean(document.querySelector('#library-app .library-cover-gallery') && cards.every(Boolean)),
         fixtureCardCount: cards.filter(Boolean).length, fixtureButtonCount: buttons.filter(Boolean).length,
         sidebarClosed, activeOverlayCount, activeInertCount,
@@ -492,7 +501,7 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
           rectCount: node?.getClientRects().length || 0, width: box?.width || 0, height: box?.height || 0,
           disabled: node?.matches(':disabled') || false, ariaDisabled: node?.getAttribute('aria-disabled') || '',
           inert: Boolean(node?.closest('[inert],[hidden],[aria-hidden="true"]')) } }
-    }`),
+    }`, [adaptationReloadUrl, adaptationFixtureUrl.timeOrigin]),
     accept: isFreshCatalogueReady,
     onObservation: (evidence) => { dom.readiness.adaptationFreshCatalogue = evidence },
   })
