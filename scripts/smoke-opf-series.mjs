@@ -1,11 +1,12 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 // Isolated account on the selected server; never edits the user's own books.
 import assert from 'node:assert/strict'
 import {execFileSync} from 'node:child_process'
-import {mkdirSync,writeFileSync} from 'node:fs'
+import {writeFileSync} from 'node:fs'
 import {chromium,firefox,expect} from '@playwright/test'
 import {createTemporaryAppPassword} from './temporary-app-password.mjs'
-const container=process.env.NC_CONTAINER||'nextcloud',base=process.env.NC_URL||'http://localhost:8088',out=process.env.EVIDENCE_DIR||'/tmp/library-opf-series'
-mkdirSync(out,{recursive:true,mode:0o700})
+const container=process.env.NC_CONTAINER||'nextcloud',base=process.env.NC_URL||'http://localhost:8088',out=createEvidenceDirectory('library-opf-series')
+
 const docker=args=>execFileSync('docker',args,{encoding:'utf8',stdio:['ignore','pipe','pipe']})
 docker(['cp','tests/php/opf_series_integration.php',container+':/tmp/library-opf-series-integration.php'])
 const command=action=>JSON.parse(docker(['exec','-u','www-data',container,'php','/tmp/library-opf-series-integration.php',action]))

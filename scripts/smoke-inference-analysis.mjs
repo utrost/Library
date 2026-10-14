@@ -1,11 +1,12 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const upstream=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'maintainer',container=process.env.NC_CONTAINER||'nextcloud'
-const evidence=process.env.EVIDENCE_DIR||'/tmp/library-alpha18-evidence/browser'
-mkdirSync(evidence,{recursive:true})
+const evidence=createEvidenceDirectory('library-alpha18-evidence-browser')
+
 const name=`Library metadata smoke ${Date.now()}`,tokenName=name.replaceAll(' ','-')
 const occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:5*1024*1024})
 execFileSync('docker',['cp',new URL('./metadata-fields-fixture.php',import.meta.url).pathname,`${container}:/tmp/library-metadata-fields-fixture.php`])

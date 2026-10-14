@@ -1,12 +1,13 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const base = process.env.NC_URL || 'http://localhost:8088'
-const out = process.env.EVIDENCE_DIR || '/tmp/library-author-conflicts'
-mkdirSync(out, { recursive: true, mode: 0o700 })
+const out = createEvidenceDirectory('library-author-conflicts')
+
 const docker = args => execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 for (const name of ['author_directory_fixture', 'author_conflict_integration']) docker(['cp', `tests/php/${name}.php`, `${container}:/tmp/${name}.php`])
 const run = (name, action) => JSON.parse(docker(['exec', '-u', 'www-data', container, 'php', `/tmp/${name}.php`, action]))

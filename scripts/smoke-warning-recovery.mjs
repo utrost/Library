@@ -1,11 +1,12 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 // Read-only real-warning GUI checks; private screenshots and temporary authentication.
 import assert from 'node:assert/strict'
 import {execFileSync} from 'node:child_process'
-import {mkdirSync,writeFileSync} from 'node:fs'
+import {writeFileSync} from 'node:fs'
 import {chromium,firefox,expect} from '@playwright/test'
 import {createTemporaryAppPassword} from './temporary-app-password.mjs'
-const container=process.env.NC_CONTAINER||'nextcloud',base=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'maintainer',out=process.env.EVIDENCE_DIR||'/tmp/library-warning-browser'
-mkdirSync(out,{recursive:true,mode:0o700});const name='library-warning-gui-'+Date.now()
+const container=process.env.NC_CONTAINER||'nextcloud',base=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'maintainer',out=createEvidenceDirectory('library-warning-browser')
+const name='library-warning-gui-'+Date.now()
 const occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8'})
 const id=Number(execFileSync('docker',['exec','-u','www-data','-e','NC_USER='+user,container,'php','-r',`require '/var/www/html/lib/base.php';$db=\\OC::$server->get(\\OCP\\IDBConnection::class);echo $db->executeQuery('SELECT i.id FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id WHERE i.user_id=? AND f.scan_error LIKE ? ORDER BY i.id LIMIT 1',[getenv('NC_USER'),'metadata_fields_invalid:%'])->fetchOne();`],{encoding:'utf8'}));assert.ok(id>0,'Recovered warning item exists')
 const output=createTemporaryAppPassword(container,user,name),token=output.match(/app password is:\s*(\S+)/i)?.[1]||output.match(/app password:\s*\n\s*(\S+)/i)?.[1];assert.ok(token)

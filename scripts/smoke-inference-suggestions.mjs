@@ -1,14 +1,15 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 // Real developer Nextcloud UI with representative, read-only path fixtures.
 // Only a temporary saved rule is written; it and the app token are removed.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const base = process.env.NC_URL || 'http://localhost:8088'
 const container = process.env.NC_CONTAINER || 'nextcloud', user = process.env.NC_USER || 'maintainer'
-const out = process.env.EVIDENCE_DIR || '/tmp/library-alpha29-suggestions'
-mkdirSync(out, { recursive: true, mode: 0o700 })
+const out = createEvidenceDirectory('library-alpha29-suggestions')
+
 const tokenName = `library-suggestion-smoke-${Date.now()}`
 const occ = (...args) => execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', 'occ', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 const results = []

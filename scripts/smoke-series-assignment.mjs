@@ -1,14 +1,15 @@
+import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 // Browser checks for a temporary two-EPUB account. The fixture is always removed.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const base = process.env.NC_URL || 'http://localhost:8088'
-const out = process.env.EVIDENCE_DIR || '/tmp/library-series-assignment'
-mkdirSync(out, { recursive: true, mode: 0o700 })
+const out = createEvidenceDirectory('library-series-assignment')
+
 const docker = args => execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 docker(['cp', 'tests/php/opf_series_integration.php', `${container}:/tmp/library-opf-series-integration.php`])
 const fixtureCommand = action => JSON.parse(docker(['exec', '-u', 'www-data', container, 'php', '/tmp/library-opf-series-integration.php', action]))
