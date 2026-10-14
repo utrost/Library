@@ -2282,6 +2282,8 @@ describe('Library catalogue Vue app', () => {
     const primary = actions.get('a')
     expect(primary.text()).toBe('Open')
     expect(primary.attributes('href')).toBe(state.items[0].openUrl)
+    expect(primary.attributes('target')).toBe('_blank')
+    expect(primary.attributes('rel')).toBe('noopener')
     expect(primary.classes()).toEqual(expect.arrayContaining(['button', 'primary']))
     expect(actions.find('button').exists()).toBe(true)
   })
@@ -2310,6 +2312,7 @@ describe('Library catalogue Vue app', () => {
     const fileValue = wrapper.get('.library-detail-drawer-file')
     expect(fileValue.text()).toBe(state.items[0].cachedPath)
     expect(fileValue.get('a').attributes('href')).toBe(state.items[0].openUrl)
+    expect(fileValue.get('a').attributes('target')).toBe('_blank')
 
     const itemWithoutOpenUrl = { ...state.items[0], openUrl: '' }
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: itemWithoutOpenUrl }) }))

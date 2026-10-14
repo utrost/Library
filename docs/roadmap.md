@@ -1,6 +1,6 @@
 # Library Roadmap
 
-Status: **0.3.0-alpha.9** on `develop/0.3`, deployed to developer Nextcloud 34 with the later `v5` sidebar asset hotfix. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3. See the [sidebar hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md) for the reported blank detail panel.
+Status: **0.3.0-alpha.9** on `develop/0.3`, deployed to developer Nextcloud 34 with the `v6` reader-opening asset. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3. See the [sidebar hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md) and [reader-opening check](compatibility-evidence/2026-10-14-reader-open/README.md).
 
 Last updated: 2026-10-14
 
@@ -11,6 +11,7 @@ Last updated: 2026-10-14
 | Author identities | Directory, profile, portrait/bio, source-preserving edits, reassignment, merge, changed-import review and durable 501–5,000-book background merge/Undo landed through alpha.8. | Human UX acceptance; finish or explicitly defer broader canonical search/sort and interruption/concurrency coverage. |
 | Series identities | Directory, selected-book moves, whole and empty-series merges, future-import redirects, changed-import review and conditional Undo landed in alpha.9. | Human UX acceptance; multiple series per book, nonnumeric part ordering and large background merges are later decisions. |
 | Other entities | Subjects/classifications and identifiers already have dedicated storage; languages and publishers remain current metadata fields. | Normalize another entity only after real browsing/editing need is demonstrated. |
+| Reader handoff | Open uses the live Nextcloud file ID or resolves the saved path after external-storage ID changes. Reader links open in a new tab. The developer instance's 27 stale IDs were relinked in place. | Make full scans reconcile changed file IDs by path without duplicating catalogue items; test mount loss and recovery in the disposable matrix. |
 | App Store | Alpha.9 source checks pass on NC33–35 and the populated developer NC34 upgrade. | Sign one exact 0.3 archive, run the fresh/upgrade NC33–35 package matrix, refresh listing evidence and obtain owner acceptance. |
 
 Current feature behavior: [author management](v0.3-author-management.md), [series management](v0.3-series-management.md), [alpha.9 verification](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). Human acceptance cases are in the [test handbook](human-test-handbook.md#current-03-human-cases).

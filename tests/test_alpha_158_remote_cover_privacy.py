@@ -96,8 +96,8 @@ def test_alpha_158_version_assets_and_release_language_are_aligned():
     assert f'"version": "{CURRENT_VERSION}"' in read("package.json")
     assert f'"version": "{CURRENT_VERSION}"' in read("package-lock.json")
     page = read("lib/Controller/PageController.php")
-    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v5" in page
-    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v5" in page
+    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in page
+    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in page
     assert (ROOT / "js/library-main-0-1-0-alpha-157.mjs").exists()
     assert (ROOT / "css/library-vue-0-1-0-alpha-157.css").exists()
     release_text = "\n".join(read(path) for path in ("CHANGELOG.md", "RELEASE.md", "docs/architecture-review.md"))

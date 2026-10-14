@@ -111,6 +111,9 @@ $scanStatusLabels = [
         <nav class="library-detail-nav" aria-label="<?php p($l->t('Publication navigation')); ?>">
             <a href="<?php p($_['catalogueUrl'] ?? ''); ?>" class="button secondary"><?php p($l->t('Back to catalogue')); ?></a>
         </nav>
+        <?php if (!empty($item['openUnavailable'])): ?>
+            <p class="library-validation-feedback" role="alert"><?php p($l->t('This file is unavailable in Nextcloud Files. Check its storage connection or rescan the folder.')); ?></p>
+        <?php endif; ?>
 
         <article class="library-panel" aria-labelledby="library-item-detail-heading">
             <div class="library-detail-hero">
@@ -159,7 +162,7 @@ $scanStatusLabels = [
                     </p>
                     <div class="library-detail-actionbar">
                         <div class="library-detail-primary-actions">
-                            <a href="<?php p($item['openUrl'] ?? '#'); ?>" class="button primary"><?php p($l->t('Open')); ?></a>
+                            <a href="<?php p($item['openUrl'] ?? '#'); ?>" class="button primary" target="_blank" rel="noopener"><?php p($l->t('Open')); ?></a>
                             <a href="<?php p($item['listsUrl'] ?? '#'); ?>" class="button secondary"><?php p($l->t('Add to list')); ?></a>
                             <details class="library-detail-more-actions">
                                 <summary><?php p($l->t('More actions')); ?></summary>

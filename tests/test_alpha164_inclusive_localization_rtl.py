@@ -25,8 +25,8 @@ def test_current_versions_assets_and_package_smoke_are_exact():
     assert f'"version": "{CURRENT_VERSION}"' in read('package.json')
     assert f"appVersion: JSON.stringify('{CURRENT_VERSION}')" in read('vite.config.js')
     controller = read('lib/Controller/PageController.php')
-    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v5" in controller
-    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v5" in controller
+    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in controller
+    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6" in controller
     assert 'EXPECTED_VERSION="$(python3 - "$ROOT/appinfo/info.xml"' in read('scripts/smoke-release-package.sh')
 
 

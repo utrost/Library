@@ -46,8 +46,8 @@ def test_vue_component_css_is_built_to_nextcloud_css_asset_and_loaded():
     assert "versionedJsAssetName" in build_script
     assert "versionedCssAssetName" in build_script
     assert "copied_nextcloud_vue_assets=true" in build_script
-    assert f"private const VUE_SCRIPT_ASSET = 'library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v5';" in controller
-    assert f"private const VUE_STYLE_ASSET = 'library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v5';" in controller
+    assert f"private const VUE_SCRIPT_ASSET = 'library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6';" in controller
+    assert f"private const VUE_STYLE_ASSET = 'library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v6';" in controller
     assert "Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);" in controller
     assert "Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);" in controller
     assert (ROOT / "css" / "library-vue.css").exists()

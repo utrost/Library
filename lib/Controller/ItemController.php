@@ -15,6 +15,8 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\Files\File;
+use OCP\Files\IRootFolder;
 use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
@@ -30,6 +32,7 @@ final class ItemController extends Controller {
         private ItemService $itemService,
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
+        private IRootFolder $rootFolder,
         private ?IFactory $l10nFactory = null,
         ?SecurityAuditLogger $securityAudit = null,
     ) {
@@ -44,7 +47,37 @@ final class ItemController extends Controller {
         if ($user !== null) {
             $item = $this->itemService->findItem($user->getUID(), $itemId);
             if ($item !== null) {
-                return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/f/' . (int)$item['fileId']));
+                try {
+                    $folder = $this->rootFolder->getUserFolder($user->getUID());
+                } catch (\Throwable) {
+                    $folder = null;
+                }
+                if ($folder !== null) {
+                    try {
+                        foreach ($folder->getById((int)$item['fileId']) as $node) {
+                            if ($node instanceof File && $node->isReadable() && $node->getStorage()->file_exists($node->getInternalPath())) {
+                                return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/f/' . (int)$item['fileId']));
+                            }
+                        }
+                    } catch (\Throwable) {
+                        // A stale file ID must not prevent lookup by its saved path.
+                    }
+                    try {
+                        // External storage can assign new Nextcloud IDs after a remount.
+                        // Resolve the indexed path without changing Library's metadata or lists.
+                        $node = $folder->get((string)$item['cachedPath']);
+                        if ($node instanceof File && $node->isReadable() && $node->getStorage()->file_exists($node->getInternalPath())) {
+                            return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/f/' . $node->getId()));
+                        }
+                    } catch (\Throwable) {
+                        // A missing or inaccessible source should stay on this publication.
+                    }
+                }
+
+                return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', [
+                    'itemId' => $itemId,
+                    'openUnavailable' => '1',
+                ]));
             }
         }
 

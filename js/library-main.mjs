@@ -16412,7 +16412,9 @@ const AT = ["aria-busy"], ET = { class: "library-list-inline-actions" }, $T = ["
               D.book ? (d(), p("a", {
                 key: 1,
                 class: "button secondary",
-                href: D.book.openUrl
+                href: D.book.openUrl,
+                target: "_blank",
+                rel: "noopener"
               }, o(u(b)("library", "Open")), 9, yA)) : T("", !0)
             ]),
             D.note && m.value !== D.id ? (d(), p("p", _A, o(D.note), 1)) : T("", !0),
@@ -17988,7 +17990,9 @@ const m3 = ["aria-label", "aria-busy"], y3 = {
               }, o(u(b)("library", "Details")), 9, I3),
               r("a", {
                 class: "button secondary",
-                href: L.openUrl
+                href: L.openUrl,
+                target: "_blank",
+                rel: "noopener"
               }, o(u(b)("library", "Open")), 9, L3),
               r("button", {
                 class: "button primary",
@@ -18400,7 +18404,9 @@ const m3 = ["aria-label", "aria-busy"], y3 = {
                 r("div", P4, [
                   r("a", {
                     class: "button secondary",
-                    href: H.openUrl
+                    href: H.openUrl,
+                    target: "_blank",
+                    rel: "noopener"
                   }, o(u(b)("library", "Open")), 9, D4),
                   r("a", {
                     class: "button secondary",
@@ -22712,6 +22718,8 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                         r("a", {
                           class: "button primary",
                           href: h.openUrl,
+                          target: "_blank",
+                          rel: "noopener",
                           onClick: (z) => mi(h, z)
                         }, o(u(t)("library", "Open")), 9, wP)
                       ])
@@ -22841,6 +22849,8 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                           r("a", {
                             class: "library-cover-read",
                             href: h.openUrl,
+                            target: "_blank",
+                            rel: "noopener",
                             onClick: (z) => mi(h, z)
                           }, o(u(t)("library", "Open")), 9, XP)
                         ])
@@ -22902,6 +22912,8 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                           r("a", {
                             class: "library-cover-read",
                             href: h.openUrl,
+                            target: "_blank",
+                            rel: "noopener",
                             onClick: (z) => mi(h, z)
                           }, o(u(t)("library", "Open")), 9, d8)
                         ])
@@ -24175,6 +24187,8 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                             r("a", {
                               class: "button primary",
                               href: h.openUrl,
+                              target: "_blank",
+                              rel: "noopener",
                               onClick: (z) => mi(h, z)
                             }, o(u(t)("library", "Open")), 9, k6),
                             r("button", {
@@ -24369,6 +24383,8 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                       r("a", {
                         class: "button primary",
                         href: Ce.value.openUrl,
+                        target: "_blank",
+                        rel: "noopener",
                         onClick: g[100] || (g[100] = (h) => mi(Ce.value, h))
                       }, o(u(t)("library", "Open")), 9, uM),
                       ce(u(Gd), {
@@ -24662,6 +24678,8 @@ const YO = { class: "library-inference-suggestions" }, ZO = ["disabled"], XO = {
                         Ce.value.openUrl ? (d(), p("a", {
                           key: 0,
                           href: Ce.value.openUrl,
+                          target: "_blank",
+                          rel: "noopener",
                           onClick: g[109] || (g[109] = (h) => mi(Ce.value, h))
                         }, [
                           r("bdi", XM, o(Ce.value.cachedPath), 1)
