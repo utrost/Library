@@ -87,7 +87,7 @@ final class ScanJobService {
         $summary = $errors !== []
             ? implode("\n", array_map('strval', $errors))
             : sprintf(
-                'Scan completed: %d added, %d moved/renamed, %d unchanged, %d missing, %d metadata errors',
+                'Scan completed: %d added, %d moved/renamed/reconnected, %d unchanged, %d missing, %d metadata errors',
                 (int)($result['filesAdded'] ?? 0),
                 (int)($result['pathsUpdated'] ?? 0),
                 (int)($result['filesUnchanged'] ?? 0),

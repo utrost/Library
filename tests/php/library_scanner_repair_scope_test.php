@@ -69,6 +69,7 @@ namespace OCA\Library\Service {
         public array $missingErrors = [];
         public array $metadataErrors = [];
         public function __construct(private array $missing, private array $metadata) {}
+        public function hasFilesForRoot(string $userId, int $rootId): bool { return true; }
         public function missingFiles(string $userId): array { return $this->missing[$userId] ?? []; }
         public function metadataErrorFiles(string $userId): array { return $this->metadata[$userId] ?? []; }
         public function upsertFile(string $userId, int $rootId, array $file): array {

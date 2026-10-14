@@ -251,7 +251,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                                 <dd data-library-scan-files-added><?php p((string)($latestScanJob['filesAdded'] ?? 0)); ?></dd>
                             </a>
                             <a class="library-scan-change-card library-scan-change-card-link library-scan-change-card--attention" href="<?php p($_['scanMovedFilesUrl']); ?>">
-                                <dt><?php p($l->t('Moved or renamed')); ?></dt>
+                                <dt><?php p($l->t('Moved, renamed or reconnected')); ?></dt>
                                 <dd data-library-scan-paths-updated><?php p((string)($latestScanJob['pathsUpdated'] ?? 0)); ?></dd>
                             </a>
                             <div class="library-scan-change-card library-scan-change-card--calm">

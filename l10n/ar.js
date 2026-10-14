@@ -520,7 +520,7 @@ OC.L10N.register(
         "Move down": "تحريك لأسفل",
         "Move or merge books": "نقل الكتب أو دمج السلاسل",
         "Move up": "تحريك لأعلى",
-        "Moved or renamed": "نُقل أو أُعيدت تسميته",
+        "Moved, renamed or reconnected": "نُقل أو أُعيدت تسميته أو أُعيد ربطه",
         "Needs action": "يحتاج إلى إجراء",
         "Needs attention": "بحاجة إلى انتباه",
         "Needs details": "يحتاج إلى تفاصيل",

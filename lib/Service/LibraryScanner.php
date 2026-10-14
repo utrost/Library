@@ -19,6 +19,8 @@ final class LibraryScanner {
     private MonotonicClock $clock;
     /** @var array<string,int> */
     private array $metrics = [];
+    /** @var array<string,bool> Whether each root had file rows before this scan began. */
+    private array $reconciliationRoots = [];
     private int $scanStartedAt = 0;
     private const SUPPORTED_MIME_TYPES = [
         'application/pdf',
@@ -492,6 +494,7 @@ final class LibraryScanner {
     }
 
     private function beginMetrics(): int {
+        $this->reconciliationRoots = [];
         $this->metrics = [
             'fingerprintSkips' => 0, 'cachedWarningSkips'=>0, 'metadataExtractions' => 0, 'itemRefreshes' => 0,
             'fileIndexDurationMs' => 0, 'fingerprintDurationMs' => 0,
@@ -509,7 +512,7 @@ final class LibraryScanner {
     private function incrementChangeCount(array &$summary, string $changeStatus): void {
         match ($changeStatus) {
             'added' => $summary['filesAdded']++,
-            'path_updated' => $summary['pathsUpdated']++,
+            'path_updated', 'relinked' => $summary['pathsUpdated']++,
             default => $summary['filesUnchanged']++,
         };
     }
@@ -565,9 +568,11 @@ final class LibraryScanner {
             } else {
                 $file['cachedPath'] = $this->displayPath($node, $userId);
             }
-            $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
-                ...$file,
-            ], $observation);
+            $canReconcile = $this->rootHadFilesAtStart($userId, $rootId);
+            $indexedFile = $this->fileIndexService->upsertFile(
+                $userId, $rootId, $file, $observation,
+                $canReconcile ? fn (int $oldFileId): bool => $this->oldFileIdUnavailable($userId, $node, $oldFileId) : null,
+            );
         } finally {
             $this->metrics['fileIndexDurationMs'] += $this->clock->elapsedMs($fileIndexStarted);
         }
@@ -657,6 +662,7 @@ final class LibraryScanner {
     }
 
     private function cleanupSuppressedOpfSidecar(string $userId, int $rootId, File $file): ?int {
+        $canReconcile = $this->rootHadFilesAtStart($userId, $rootId);
         $indexedFile = $this->fileIndexService->upsertFile($userId, $rootId, [
             'fileId' => $file->getId(),
             'cachedPath' => $this->displayPath($file, $userId),
@@ -665,7 +671,7 @@ final class LibraryScanner {
             'etag' => $file->getEtag(),
             'mtime' => $file->getMTime(),
             'size' => $file->getSize(),
-        ]);
+        ], null, $canReconcile ? fn (int $oldFileId): bool => $this->oldFileIdUnavailable($userId, $file, $oldFileId) : null);
 
         if ($this->itemService->hasUserEditedItemForLibraryFile($userId, (int)$indexedFile['id'])) {
             return (int)$indexedFile['id'];
@@ -674,6 +680,40 @@ final class LibraryScanner {
         $this->fileIndexService->markAsSidecar($userId, (int)$indexedFile['id']);
         $this->itemService->deleteItemForLibraryFile($userId, (int)$indexedFile['id']);
         return null;
+    }
+
+    /** Never adopt a path while its former file ID still points to a live file. */
+    private function oldFileIdUnavailable(string $userId, File $current, int $oldFileId): bool {
+        if (!$current->isReadable() || !$current->getStorage()->file_exists($current->getInternalPath())) {
+            throw new \RuntimeException('Source file became unavailable during identity reconciliation');
+        }
+        try {
+            $nodes = $this->rootFolder->getUserFolder($userId)->getById($oldFileId);
+        } catch (NotFoundException) {
+            return true;
+        }
+        foreach ($nodes as $node) {
+            if (!$node instanceof File) {
+                return false;
+            }
+            try {
+                if ($node->getStorage()->file_exists($node->getInternalPath())) {
+                    return false;
+                }
+            } catch (Throwable) {
+                // An inaccessible old storage is not proof that its ID vanished.
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function rootHadFilesAtStart(string $userId, int $rootId): bool {
+        $key = $userId . "\0" . $rootId;
+        if (!array_key_exists($key, $this->reconciliationRoots)) {
+            $this->reconciliationRoots[$key] = $this->fileIndexService->hasFilesForRoot($userId, $rootId);
+        }
+        return $this->reconciliationRoots[$key];
     }
 
     private function isSupported(File $file): bool {
