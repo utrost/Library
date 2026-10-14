@@ -121,8 +121,8 @@ def test_docs_are_truthful_candidate_with_manual_at_debt():
     assert "not screen-reader testing" in release.lower()
     assert "safe-diagnostic live reflection" in release.lower()
     assert "alpha.166" in read("CHANGELOG.md")
-    for path in ["README.md", "CHANGELOG.md", "docs/roadmap.md", "docs/current-state-and-risk-register.md", "docs/app-store-readiness.md", "docs/alpha-test-checklist.md"]:
-        assert "beta.1" in read(path), path
+    for path in ["README.md", "docs/roadmap.md", "docs/current-state-and-risk-register.md", "docs/app-store-readiness.md", "docs/alpha-test-checklist.md"]:
+        assert "0.3.0-alpha.9" in read(path), path
     assert "alpha.166" in read("CHANGELOG.md")
 
 

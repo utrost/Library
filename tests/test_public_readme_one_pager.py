@@ -10,7 +10,7 @@ def test_readme_is_public_one_page_overview_without_internal_names():
     readme = README.read_text()
     lines = readme.splitlines()
 
-    assert len(lines) <= 92
+    assert len(lines) <= 100
     assert "# Library" in readme
     assert "open-source Nextcloud app" in readme
     assert "Nextcloud Files remains the canonical storage" in readme

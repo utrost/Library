@@ -31,7 +31,7 @@ def test_architecture_review_documents_tables_fields_jobs_routes_and_cli_boundar
 
     assert "OCA\\Library\\BackgroundJob\\ScanJob" in doc
     assert "QueuedJob" in doc
-    assert "does **not** register app-specific `occ` commands" in doc
+    assert "library:authors:migrate" in doc
     assert "GET /apps/library/" in doc
     assert "POST /apps/library/scan" in doc
     assert "GET /apps/library/export/metadata/sidecars.zip" in doc

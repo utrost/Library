@@ -47,7 +47,7 @@ def test_docs_mark_cover_refresh_affordance_and_manual_override_landed_but_cache
     assert "cover refresh affordance" in roadmap
     assert "Manual cover override" in guide
     assert "manual cover override" in roadmap
-    assert "no app-owned cover cache" in guide
+    assert "Private, bounded cover thumbnails are generated on demand and reused" in guide
     assert "app-owned cover cache" in roadmap
     assert "no manual cover override" not in guide
     assert "manual cover override do not" not in guide
