@@ -1330,6 +1330,7 @@
         <field><name>comparison_key</name><type>string</type><length>64</length><notnull>true</notnull></field>
         <field><name>description</name><type>text</type><notnull>false</notnull></field>
         <field><name>revision</name><type>bigint</type><notnull>true</notnull><default>1</default></field>
+        <field><name>merged_into</name><type>bigint</type><unsigned>true</unsigned><notnull>false</notnull></field>
         <index><name>library_series_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
         <index><name>library_series_lookup</name><field><name>user_id</name></field><field><name>comparison_key</name></field></index>
         <index><name>library_series_sort</name><field><name>user_id</name></field><field><name>display_name</name></field><field><name>id</name></field></index>
@@ -1343,6 +1344,7 @@
         <field><name>source_name</name><type>string</type><length>255</length><notnull>true</notnull></field>
         <field><name>source_number</name><type>string</type><length>64</length><notnull>false</notnull></field>
         <field><name>revision</name><type>bigint</type><notnull>true</notnull><default>1</default></field>
+        <field><name>assignment_source</name><type>string</type><length>16</length><notnull>true</notnull><default>import</default></field>
         <index><name>library_item_series_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>item_id</name></field><field><name>slot</name></field></index>
         <index><name>library_series_books</name><field><name>user_id</name></field><field><name>series_id</name></field><field><name>item_id</name></field></index>
     </declaration></table>
@@ -1350,5 +1352,18 @@
         <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
         <field><name>updated_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
         <index><name>library_series_state_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field></index>
+    </declaration></table>
+    <table><name>*dbprefix*library_series_operations</name><declaration>
+        <field><name>id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+        <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>created_at</name><type>bigint</type><notnull>true</notnull></field>
+        <field><name>undone</name><type>integer</type><length>2</length><notnull>true</notnull><default>0</default></field>
+        <field><name>source_name</name><type>string</type><length>255</length><notnull>true</notnull></field>
+        <field><name>target_name</name><type>string</type><length>255</length><notnull>true</notnull></field>
+        <field><name>book_count</name><type>integer</type><length>4</length><notnull>true</notnull></field>
+        <field><name>is_merge</name><type>integer</type><length>2</length><notnull>true</notnull></field>
+        <field><name>payload</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
+        <index><name>library_series_ops_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+        <index><name>library_series_ops_user</name><field><name>user_id</name></field><field><name>created_at</name></field><field><name>id</name></field></index>
     </declaration></table>
 </database>

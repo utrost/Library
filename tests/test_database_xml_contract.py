@@ -139,15 +139,19 @@ EXPECTED_TABLES.update({
         "fields": {"user_id", "updated_at"}, "indexes": {"library_author_state_pk"},
     },
     "*dbprefix*library_series": {
-        "fields": {"id", "user_id", "display_name", "comparison_key", "description", "revision"},
+        "fields": {"id", "user_id", "display_name", "comparison_key", "description", "revision", "merged_into"},
         "indexes": {"library_series_pk", "library_series_lookup", "library_series_sort"},
     },
     "*dbprefix*library_item_series": {
-        "fields": {"user_id", "item_id", "slot", "series_id", "part_number", "source_name", "source_number", "revision"},
+        "fields": {"user_id", "item_id", "slot", "series_id", "part_number", "source_name", "source_number", "revision", "assignment_source"},
         "indexes": {"library_item_series_pk", "library_series_books"},
     },
     "*dbprefix*library_series_state": {
         "fields": {"user_id", "updated_at"}, "indexes": {"library_series_state_pk"},
+    },
+    "*dbprefix*library_series_operations": {
+        "fields": {"id", "user_id", "created_at", "undone", "source_name", "target_name", "book_count", "is_merge", "payload"},
+        "indexes": {"library_series_ops_pk", "library_series_ops_user"},
     },
 })
 EXPECTED_TABLES["*dbprefix*library_items"]["fields"].update({"author_sync_status", "author_source_hash", "series_sync_status"})

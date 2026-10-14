@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Add reviewed series moves and whole-series merges with private Undo history. Preserve imported book metadata, redirect future imports after a merge, and review changed imports before replacing manual assignments.
+
 - Include active preferred author names in creator suggestions, matching the preferred or sort-name prefix and respecting the current catalogue filters. Keep imported source-name suggestions and exact creator filtering available.
 
 - Queue whole-author merges and conditional undo for 501–5,000 linked books as durable background tasks. Show status and cancellation in Authors; reclaim abandoned workers, reject changed previews without partial writes, and retain account-private task history.
