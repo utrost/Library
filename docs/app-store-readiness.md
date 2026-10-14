@@ -15,6 +15,8 @@ Alpha.9 is deployed on developer NC34/MariaDB. The app version is `0.3.0-alpha.9
 
 A later alpha.9 frontend asset fixes a blank publication panel when a book has linked authors: the template called an undefined URL helper. The developer NC34 panel now renders its sections and linked authors in Chromium; see the [sidebar hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md). This targeted check does not extend the earlier NC33–35 source evidence to the new asset, and the exact signed 0.3 package matrix remains open.
 
+The latest merged main (`47e1428`, including PRs #101–#103) is deployed to developer NC34. Its audited unsigned package matches the installed app files exactly; the catalogue/sidebar and disposable author/series browser smokes passed. See the [human-test handoff](compatibility-evidence/2026-10-14-nc34-main-handoff/README.md) for the checksum, results and the transient Nextcloud core-script error on the first browser run. Owner acceptance remains open.
+
 Preserved baseline: `0.2.0-beta.3`. It is signed and [publicly released as a GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.2.0-beta.3). All six NC33–35 cases passed with 210 final main Playwright tests; hosted CI and public URL verification passed. See the [beta.3 report](compatibility-evidence/2026-10-13-beta3/README.md), including the earlier timeout attempts and successful reruns.
 
 The signed [beta.2 baseline](compatibility-evidence/2026-10-13-beta2/README.md) passed six fresh/upgrade cases and 210/210 main Playwright executions. That evidence remains historical and does not certify beta.3.
