@@ -4209,10 +4209,16 @@ async function toggleStar(item, event) {
   min-block-size: calc((0.66rem * 1.08 * 2) + 23px);
   opacity: 0.86;
   padding: 18px 5px 5px;
+  pointer-events: none;
   position: absolute;
   right: 4px;
   text-shadow: 0 1px 2px color-mix(in srgb, #000 70%, transparent);
   transition: background 160ms ease, opacity 160ms ease, padding 160ms ease;
+}
+
+.library-cover-gallery .library-cover-summary .library-cover-title-button,
+.library-cover-gallery .library-cover-summary .library-duplicate-badge {
+  pointer-events: auto;
 }
 
 .library-cover-gallery .library-cover-primary {

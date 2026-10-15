@@ -13,8 +13,8 @@ def test_alpha166_version_sources_and_unpackage_boundary():
     version = f"{CURRENT_VERSION}"
     for path in ["appinfo/info.xml", "package.json", "package-lock.json", "vite.config.js", "lib/Controller/PageController.php", "templates/main.php", "scripts/smoke-release-package.sh"]:
         assert version in read(path), path
-    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7" in read("lib/Controller/PageController.php")
-    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7" in read("lib/Controller/PageController.php")
+    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v8" in read("lib/Controller/PageController.php")
+    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v8" in read("lib/Controller/PageController.php")
 
 
 def test_vue_has_field_specific_bidi_and_semantic_names_without_controls():
