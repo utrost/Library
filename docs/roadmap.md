@@ -1,8 +1,8 @@
 # Library Roadmap
 
-Status: **0.3.0-alpha.9** on `main`, deployed to developer Nextcloud 34 with the `v7` modern full-details asset. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3. See the [current NC34 deployment record](compatibility-evidence/2026-10-14-nc34-full-details/README.md), [sidebar hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md) and [reader-opening check](compatibility-evidence/2026-10-14-reader-open/README.md).
+Status: **0.3.0-alpha.9** on `main`, deployed to developer Nextcloud 34 with the `v8` cover hit-area fix and modern full-details view. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3. See the [current NC34 deployment record](compatibility-evidence/2026-10-15-cover-hit-area/README.md), [full-details deployment](compatibility-evidence/2026-10-14-nc34-full-details/README.md) and [reader-opening check](compatibility-evidence/2026-10-14-reader-open/README.md).
 
-Last updated: 2026-10-14
+Last updated: 2026-10-15
 
 ## Active 0.3 track
 

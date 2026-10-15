@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.9, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` runs main commit `47ed79e` with the modern **Full details** view. The [current deployment and smoke record](compatibility-evidence/2026-10-14-nc34-full-details/README.md) gives the exact archive checksum and observed results. Use a disposable account and test books for changes. The [alpha.9 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers earlier source-build checks on NC33–35. It does not replace human judgment or the signed release-package matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.9, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` runs main commit `94f35ac` with the modern **Full details** view and clickable catalogue covers. The [current deployment and smoke record](compatibility-evidence/2026-10-15-cover-hit-area/README.md) gives the exact archive checksum and observed results. Use a disposable account and test books for changes. The [alpha.9 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers earlier source-build checks on NC33–35. It does not replace human judgment or the signed release-package matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
@@ -11,7 +11,7 @@
 
 For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09 and H03-10. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the installed archive checksum in the session header, because several alpha.9 builds share the same app version. The current developer build serves the `v7` frontend asset.
+Copy this result sheet into the session note. Write the installed archive checksum in the session header, because several alpha.9 builds share the same app version. The current developer build serves the `v8` frontend asset.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -34,7 +34,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** A new or disposable account with the 40 English Gutenberg books in a Nextcloud Files folder.
 
-**Steps:** Add that folder under Library settings; run **Scan this root**; browse **Home**, **All publications**, **Shelves**, **Review**, and one item. Search for a known title, change a filter and sort, then open the item from its cover or title. Confirm the panel shows **Overview**, **Metadata** and **Activity**; choose an author chip and return to the book. Try **Open**, **Show in Files**, **Download**, and **Full details**.
+**Steps:** Add that folder under Library settings; run **Scan this root**; browse **Home**, **All publications**, **Shelves**, **Review**, and one item. Search for a known title, change a filter and sort, then open the item by clicking the middle of its cover image and again by clicking its title. Confirm the panel shows **Overview**, **Metadata** and **Activity**; choose an author chip and return to the book. Try **Open**, **Show in Files**, **Download**, and **Full details**.
 
 **Expected:** The scan completes, the catalogue count is plausible, the contextual sidebar shows more than a title/header, and the author chip opens the correct profile. The detail page identifies the same file. **Open** launches the Nextcloud reader in a new tab while Library remains in the original tab; the book itself renders, rather than only a loading screen or Files root. No Library action in this case alters source bytes. A blank panel under the heading is a failure, even when the item API returns HTTP 200.
 
