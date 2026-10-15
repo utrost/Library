@@ -46,8 +46,8 @@ def test_alpha_156_release_assets_and_runtime_suite_are_wired():
     assert f"<version>{CURRENT_VERSION}</version>" in read("appinfo/info.xml")
     assert f'"version": "{CURRENT_VERSION}"' in read("package.json")
     assert f'"version": "{CURRENT_VERSION}"' in read("package-lock.json")
-    assert (ROOT / f"js/library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7.mjs").exists()
-    assert (ROOT / f"css/library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7.css").exists()
+    assert (ROOT / f"js/library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v8.mjs").exists()
+    assert (ROOT / f"css/library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v8.css").exists()
     runner = read("scripts/run-php-runtime-tests.sh")
     assert "manual_cover_validator_test.php" in runner
     assert "manual_cover_controller_test.php" in runner

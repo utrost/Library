@@ -39,11 +39,11 @@ def test_index_deferred_state_has_a_fresh_immutable_asset_contract():
     template = (ROOT / "templates" / "main.php").read_text()
     build = (ROOT / "scripts" / "build-vue.mjs").read_text()
 
-    basename = f"{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v7"
+    basename = f"{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v8"
     assert f"library-main-{basename}" in page
     assert f"library-vue-{basename}" in page
     assert f'data-library-main-script="library-main-{basename}"' in template
-    assert "-compact-list-table-cover-96-fit-v7`" in build
+    assert "-compact-list-table-cover-96-fit-v8`" in build
 
 
 def test_index_auxiliary_hydration_waits_for_an_animation_frame():
