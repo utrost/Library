@@ -20,7 +20,7 @@ The modern **Full details** view replaced the visible **Maintenance (legacy)** a
 | Populated developer NC34 browser smoke | Passed: 100 cards, sidebar open/render/close, zero browser console errors; temporary token removed. |
 | Read-only Playwright full-details probe on developer NC34 | Passed: catalogue to sidebar to **Full details**, visible metadata, cover, tags and comments, zero page errors; temporary token removed. A screenshot stays in private local evidence at `/tmp/library-full-details-probe/nc34-full-details.png` because it contains real library content. |
 
-The first private probe clicked a covered part of the image button and timed out because the title overlay intercepted pointer events. Clicking the visible title opened the sidebar. A second probe used an outdated metadata selector; after matching the view's actual markup, the final probe passed. The image-button hit area may deserve a separate UX pass, but it did not prevent opening the book through its visible title.
+The first private probe clicked a covered part of the image button and timed out because the title overlay intercepted pointer events. Clicking the visible title opened the sidebar. A second probe used an outdated metadata selector; after matching the view's actual markup, the final probe passed. The cover hit area was [fixed and verified on 2026-10-15](../2026-10-15-cover-hit-area/README.md).
 
 ## Human handoff
 
