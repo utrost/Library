@@ -3,6 +3,8 @@ import { computed,ref,watch } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { useDuplicateSuggestions } from '../duplicate-suggestions.js'
+import { detailsUrlWithReturn } from '../details-return.js'
+const detailsLink=url=>detailsUrlWithReturn(url,window.location.pathname,window.location.href)
 const props=defineProps({itemId:Number,requestToken:String,enabled:{type:Boolean,default:true},compareId:{type:Number,default:0},full:{type:Boolean,default:false}})
 const version=ref(0),ids=computed(()=>{version.value;return props.itemId?[props.itemId]:[]}),enabled=computed(()=>props.enabled),token=computed(()=>props.requestToken)
 const {results,status}=useDuplicateSuggestions(ids,enabled,token)
@@ -33,7 +35,7 @@ watch(()=>[props.itemId,props.compareId],()=>{generation++;pair.value=null;if(pr
     <article v-for="book in pair.books" :key="book.id">
      <img :src="book.coverUrl" alt="" width="64" height="88"><h3><bdi>{{ book.title }}</bdi></h3><p><bdi>{{ book.authors.join('; ') }}</bdi></p>
      <p>{{ book.format.toUpperCase() }} · {{ book.language||'—' }} · {{ book.publicationDate||'—' }}</p><p><bdi>{{ book.publisher }}</bdi></p><p><bdi>{{ book.path }}</bdi></p>
-     <div class="library-duplicate-actions"><a class="button secondary" :href="book.detailsUrl">{{ t('library','Details') }}</a><a class="button secondary" :href="book.openUrl" target="_blank" rel="noopener">{{ t('library','Open') }}</a><button class="button primary" :disabled="busy" @click="decide('preferred',book.id)">{{ t('library','Prefer this copy') }}</button></div>
+     <div class="library-duplicate-actions"><a class="button secondary" :href="detailsLink(book.detailsUrl)">{{ t('library','Details') }}</a><a class="button secondary" :href="book.openUrl" target="_blank" rel="noopener">{{ t('library','Open') }}</a><button class="button primary" :disabled="busy" @click="decide('preferred',book.id)">{{ t('library','Prefer this copy') }}</button></div>
     </article>
    </div>
    <div class="library-duplicate-actions"><button class="button secondary" :disabled="busy" @click="decide('keep')">{{ t('library','Keep both') }}</button><button class="button secondary" :disabled="busy" @click="decide('dismissed')">{{ t('library','Dismiss match') }}</button><button class="button secondary" :disabled="busy" @click="decide('unreviewed')">{{ t('library','Reset review decision') }}</button></div>

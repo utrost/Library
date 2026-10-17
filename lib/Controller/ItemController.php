@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace OCA\Library\Controller;
 
+use OCA\Library\AppInfo\Application;
 use OCA\Library\Exception\BatchLimitExceededException;
+use OCA\Library\Exception\MetadataConflictException;
 use OCA\Library\Service\ItemService;
 use OCA\Library\Service\SelectedItemIds;
 use OCA\Library\Service\SafeDiagnostics;
@@ -97,18 +99,26 @@ final class ItemController extends Controller {
     }
 
     #[NoAdminRequired]
-    public function update(int $itemId): RedirectResponse|JSONResponse {
+    public function update(int $itemId): RedirectResponse|JSONResponse|TemplateResponse {
         $user = $this->userSession->getUser();
+        $metadataAutosave = (string)$this->request->getParam('metadataAutosave', '0') === '1';
+        if ($user === null) {
+            return $metadataAutosave
+                ? new JSONResponse(['saved' => false, 'error' => 'Sign in to edit this publication.'], 401, ['Cache-Control' => 'private, no-store'])
+                : new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+        }
         if ($user !== null) {
+            $draft = [];
             try {
+                $revision = (string)$this->request->getParam('metadataRevision', '');
+                if (preg_match('/^[a-f0-9]{64}$/D', $revision) !== 1) throw new MetadataConflictException('metadata_revision_required');
                 $creatorNames = null;
                 if ($this->request->getParam('creatorFormat') === 'lines') {
                     $input = $this->request->getParam('creators', '');
                     $parts = is_array($input) ? $input : explode("\n", (string)$input);
                     $creatorNames = \OCA\Library\Service\AuthorNames::normalize(array_values(array_filter(array_map(static fn($s) => is_string($s) ? trim($s) : $s, $parts), static fn($s) => $s !== '')));
                 }
-                $metadataAutosave = (string)$this->request->getParam('metadataAutosave', '0') === '1';
-                $this->itemService->updateItem($user->getUID(), $itemId, [
+                $draft = [
                     'publicationType' => (string)$this->request->getParam('publicationType', 'other'),
                     'title' => (string)$this->request->getParam('title', ''),
                     'subtitle' => (string)$this->request->getParam('subtitle', ''),
@@ -128,7 +138,27 @@ final class ItemController extends Controller {
                         'seriesNumber' => $this->request->getParam('seriesNumber'),
                         'genre' => $this->request->getParam('genre'),
                     ], static fn(mixed $value): bool => $value !== null),
-                ]);
+                ];
+                $this->itemService->updateItem($user->getUID(), $itemId, $draft, $revision);
+            } catch (\OutOfBoundsException $e) {
+                return $metadataAutosave
+                    ? new JSONResponse(['saved' => false, 'error' => 'Publication not found.'], 404, ['Cache-Control' => 'private, no-store'])
+                    : new TemplateResponse('core', '404', [], 'guest', 404);
+            } catch (MetadataConflictException $e) {
+                $message = 'This publication changed since you opened it. Reload the details before saving again.';
+                if ($metadataAutosave) return new JSONResponse(['saved' => false, 'error' => $message], 409, ['Cache-Control' => 'private, no-store']);
+                $current = $this->itemService->findItem($user->getUID(), $itemId);
+                if ($current === null) return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+                Util::addStyle(Application::APP_ID, 'style');
+                $response = new TemplateResponse(Application::APP_ID, 'metadata-conflict', [
+                    'message' => $message,
+                    'draft' => $draft,
+                    'current' => $current,
+                    'updateUrl' => $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $itemId]),
+                    'detailsUrl' => $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]),
+                ], 'user', 409);
+                $response->addHeader('Cache-Control', 'private, no-store');
+                return $response;
             } catch (\InvalidArgumentException $e) {
                 $safeError = $this->safeValidationError($e);
                 if ($metadataAutosave) {
@@ -148,9 +178,9 @@ final class ItemController extends Controller {
         }
 
         $returnTo = (string)$this->request->getParam('returnTo', '');
-        $metadataAutosave = (string)$this->request->getParam('metadataAutosave', '0') === '1';
         if ($metadataAutosave) {
-            return new JSONResponse(['saved' => true], 200, [
+            $saved = $this->itemService->findItem($user->getUID(), $itemId);
+            return new JSONResponse(['saved' => true, 'metadataRevision' => $saved['metadataRevision'] ?? null], 200, [
                 'Cache-Control' => 'private, no-store',
             ]);
         }
@@ -352,6 +382,25 @@ final class ItemController extends Controller {
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
+
+    #[NoAdminRequired]
+    public function personalRating(int $itemId): JSONResponse {
+        $headers = ['Cache-Control' => 'private, no-store'];
+        $user = $this->userSession->getUser();
+        if ($user === null) return new JSONResponse(['error' => 'unauthenticated'], 401, $headers);
+        try {
+            $rating = $this->request->getParam('personalRating', '');
+            $revision = $this->request->getParam('metadataRevision', '');
+            if ((!is_string($rating) && !is_int($rating)) || !is_string($revision)) throw new \InvalidArgumentException('rating');
+            return new JSONResponse($this->itemService->setPersonalRating($user->getUID(), $itemId, $rating, $revision), 200, $headers);
+        } catch (MetadataConflictException) {
+            return new JSONResponse(['error' => 'metadata_changed'], 409, $headers);
+        } catch (\OutOfBoundsException) {
+            return new JSONResponse(['error' => 'not_found'], 404, $headers);
+        } catch (\InvalidArgumentException) {
+            return new JSONResponse(['error' => 'invalid_rating'], 422, $headers);
+        }
     }
 
     #[NoAdminRequired]

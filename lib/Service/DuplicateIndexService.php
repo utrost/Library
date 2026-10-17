@@ -18,6 +18,8 @@ final class DuplicateIndexService {
         if($this->db->getDatabaseProvider()==='sqlite')$this->write('UPDATE *PREFIX*library_dup_state SET cursor_id = cursor_id WHERE user_id = ?',[$uid]);
         else $this->rows('SELECT user_id FROM *PREFIX*library_dup_state WHERE user_id = ? FOR UPDATE',[$uid]);
     }
+    /** Called inside a root-removal transaction to fence concurrent index writers. */
+    public function lockForDeletion(string $uid):void { $this->lock($uid); }
     public function configure(string $uid,bool $enabled):array {
         // Nextcloud's unique insert is safe when two settings requests arrive together.
         $this->db->insertIfNotExist('*PREFIX*library_dup_state',['user_id'=>$uid,'status'=>'disabled','enabled'=>0,'cursor_id'=>0,'max_id'=>0,'processed'=>0,'total'=>0],['user_id']);

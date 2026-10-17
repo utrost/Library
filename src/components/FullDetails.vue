@@ -1,7 +1,11 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { n, t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 import AddToList from './AddToList.vue'
+import StarRating from './StarRating.vue'
+import MetadataValuePicker from './MetadataValuePicker.vue'
+import { detailsReturnContext } from '../details-return.js'
 
 const props = defineProps({
   itemId: { type: String, required: true },
@@ -12,6 +16,27 @@ const props = defineProps({
 const item = ref(null)
 const context = ref(null)
 const draft = reactive({})
+const publisherSuggestions = ref([])
+let publisherTimer = null
+let publisherController = null
+watch(() => draft.publisher, value => {
+  clearTimeout(publisherTimer)
+  publisherController?.abort()
+  publisherSuggestions.value = []
+  if (typeof value !== 'string' || value.trim().length < 3) return
+  publisherTimer = setTimeout(async () => {
+    publisherController = new AbortController()
+    try {
+      const url = new URL(generateUrl('/apps/library/catalogue/publisher-suggestions'), window.location.origin)
+      url.searchParams.set('publisherSearch', value.trim())
+      const response = await fetch(url, { credentials: 'same-origin', signal: publisherController.signal })
+      if (response.ok) {
+        const result = await response.json()
+        if (draft.publisher === value) publisherSuggestions.value = Array.isArray(result.publishers) ? result.publishers.filter(entry => typeof entry === 'string') : []
+      }
+    } catch { /* Free text remains available when suggestions cannot be loaded. */ }
+  }, 200)
+})
 const loading = ref(true)
 const busy = ref(false)
 const error = ref('')
@@ -21,11 +46,17 @@ const commentMessage = ref('')
 const coverFile = ref(null)
 const coverInput = ref(null)
 const coverRevision = ref(0)
+const editingAuthor = ref(null)
+const authorSearch = ref('')
+const authorResults = ref([])
+const selectedAuthorId = ref('')
+const authorSearchBusy = ref(false)
 const openUnavailable = new URLSearchParams(window.location.search).get('openUnavailable') === '1'
 const savedDraft = ref('')
 const dirty = computed(() => savedDraft.value !== '' && JSON.stringify(draft) !== savedDraft.value)
 const itemId = computed(() => /^[1-9]\d{0,9}$/.test(props.itemId) && Number(props.itemId) <= 2147483647 ? props.itemId : '')
 const itemBase = computed(() => `${props.catalogueUrl.replace(/\/$/, '')}/items/${itemId.value}`)
+const returnContext = computed(() => detailsReturnContext(props.catalogueUrl, window.location.href))
 const workflowOptions = [
   { value: '', label: t('library', 'No workflow status') },
   { value: 'to-read', label: t('library', 'To read') },
@@ -64,12 +95,88 @@ const differences = computed(() => provenance.value.filter(row => row.candidate.
 function listText(value) {
   return Array.isArray(value) ? value.join('\n') : String(value || '').split(';').map(v => v.trim()).filter(Boolean).join('\n')
 }
+function languageText(value) {
+  return Array.isArray(value) ? value.join('\n') : String(value || '').split(/[;,\n]+/).map(v => v.trim()).filter(Boolean).join('\n')
+}
 function lines(value) { return String(value || '').split('\n').map(v => v.trim()).filter(Boolean) }
+
+const authorsApi = generateUrl('/apps/library/api/authors')
+async function authorRequest(path, body = null) {
+  const response = await fetch(authorsApi + path, {
+    credentials: 'same-origin',
+    cache: 'no-store',
+    method: body === null ? 'GET' : 'POST',
+    headers: {
+      Accept: 'application/json',
+      ...(body === null ? {} : { 'Content-Type': 'application/json', requesttoken: props.requestToken }),
+    },
+    ...(body === null ? {} : { body: JSON.stringify(body) }),
+  })
+  if (!response.ok) throw new Error(response.status === 409
+    ? t('library', 'The author assignment changed. Reload this publication and try again.')
+    : response.status === 503
+      ? t('library', 'Author migration must finish before editing. Refresh to check progress.')
+      : t('library', 'The author change could not be saved.'))
+  return response.json()
+}
+function cancelAuthorEdit() {
+  editingAuthor.value = null
+  authorSearch.value = ''
+  authorResults.value = []
+  selectedAuthorId.value = ''
+}
+function editAuthor(author) {
+  editingAuthor.value = author
+  authorSearch.value = ''
+  authorResults.value = []
+  selectedAuthorId.value = ''
+}
+async function findAuthors() {
+  authorSearchBusy.value = true
+  error.value = ''
+  selectedAuthorId.value = ''
+  try {
+    const result = await authorRequest(`?search=${encodeURIComponent(authorSearch.value.trim())}`)
+    authorResults.value = result.authors.filter(author => Number(author.id) !== Number(editingAuthor.value?.id))
+  } catch (cause) { error.value = cause.message }
+  finally { authorSearchBusy.value = false }
+}
+async function createAuthor() {
+  const name = authorSearch.value.trim()
+  if (!name) return
+  authorSearchBusy.value = true
+  error.value = ''
+  try {
+    const author = await authorRequest('', { name })
+    authorResults.value = [author]
+    selectedAuthorId.value = String(author.id)
+  } catch (cause) { error.value = cause.message }
+  finally { authorSearchBusy.value = false }
+}
+async function replaceAuthor() {
+  if (!editingAuthor.value || !selectedAuthorId.value || busy.value) return
+  if (dirty.value && !window.confirm(t('library', 'Discard unsaved metadata edits?'))) return
+  busy.value = true
+  error.value = ''
+  feedback.value = ''
+  try {
+    const sourceId = Number(editingAuthor.value.id)
+    const target = Number(selectedAuthorId.value)
+    const items = [Number(itemId.value)]
+    const preview = await authorRequest(`/${sourceId}/preview`, { target, items })
+    if (preview.bookCount !== 1 || preview.merge || Number(preview.books?.[0]?.id) !== items[0]) throw new Error(t('library', 'The author assignment changed. Reload this publication and try again.'))
+    await authorRequest(`/${sourceId}/assign`, { target, items, token: preview.token })
+    cancelAuthorEdit()
+    if (!await load({ silent: true })) throw new Error(t('library', 'The change was saved, but details could not be reloaded.'))
+    feedback.value = t('library', 'Author assignment saved. The book credit was preserved.')
+  } catch (cause) { error.value = cause.message || t('library', 'The author change could not be saved.') }
+  finally { busy.value = false }
+}
 
 function setDraft(source) {
   for (const key of ['publicationType', 'title', 'subtitle', 'publication', 'series', 'seriesNumber', 'genre', 'publicationDate', 'publisher', 'description']) draft[key] = source[key] || ''
   draft.creators = Array.isArray(source.authors) ? source.authors.join('\n') : listText(source.creators)
-  draft.language = listText(source.language)
+  draft.language = languageText(source.language)
   draft.subjects = listText(source.subjects)
   draft.classifications = listText(source.classifications)
   draft.personalRating = source.personalRating ?? ''
@@ -130,6 +237,7 @@ async function saveMetadata() {
   const body = new FormData()
   body.set('requesttoken', props.requestToken)
   body.set('metadataAutosave', '1')
+  body.set('metadataRevision', item.value?.metadataRevision || '')
   body.set('creatorFormat', 'lines')
   for (const key of ['publicationType', 'title', 'subtitle', 'creators', 'publication', 'series', 'seriesNumber', 'genre', 'publicationDate', 'publisher', 'description', 'personalRating']) body.set(key, String(draft[key] ?? ''))
   for (const key of ['language', 'subjects', 'classifications']) {
@@ -154,6 +262,37 @@ async function saveMetadata() {
   finally { busy.value = false }
 }
 
+async function saveRating(nextRating) {
+  if (busy.value || !item.value) return
+  const previous = draft.personalRating
+  draft.personalRating = nextRating
+  busy.value = true
+  error.value = ''
+  feedback.value = ''
+  try {
+    const body = new FormData()
+    body.set('requesttoken', props.requestToken)
+    body.set('metadataRevision', item.value.metadataRevision || '')
+    body.set('personalRating', String(nextRating ?? ''))
+    const response = await fetch(`${itemBase.value}/rating`, { method: 'POST', body, credentials: 'same-origin' })
+    if (!response.ok) throw new Error(response.status === 409
+      ? t('library', 'This publication changed. Reload its details before rating it.')
+      : t('library', 'The rating could not be saved.'))
+    const result = await response.json()
+    if (!/^[a-f0-9]{64}$/.test(result.metadataRevision || '') || (result.rating !== null && !Number.isInteger(result.rating))) throw new Error(t('library', 'The rating could not be saved.'))
+    item.value.personalRating = result.rating
+    item.value.metadataRevision = result.metadataRevision
+    draft.personalRating = result.rating ?? ''
+    const baseline = JSON.parse(savedDraft.value)
+    baseline.personalRating = draft.personalRating
+    savedDraft.value = JSON.stringify(baseline)
+    feedback.value = t('library', 'Rating saved')
+  } catch (cause) {
+    draft.personalRating = previous
+    error.value = cause.message || t('library', 'The rating could not be saved.')
+  } finally { busy.value = false }
+}
+
 async function uploadCover() {
   if (!coverFile.value) return
   const saved = await post(context.value.actions.coverOverride, {}, coverFile.value)
@@ -175,7 +314,7 @@ async function forgetMissing() {
   if (!window.confirm(t('library', 'Forget this missing publication?'))) return
   if (await post(context.value.actions.forgetMissing, {}, null, { reload: false })) {
     savedDraft.value = JSON.stringify(draft)
-    window.location.assign(props.catalogueUrl)
+    window.location.assign(returnContext.value.url)
   }
 }
 function recordOpen() {
@@ -190,12 +329,12 @@ function warnUnsaved(event) {
   event.returnValue = ''
 }
 onMounted(() => { window.addEventListener('beforeunload', warnUnsaved); load() })
-onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnsaved))
+onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved); clearTimeout(publisherTimer); publisherController?.abort() })
 </script>
 
 <template>
   <main class="library-full-details" @paste="pastedCover">
-    <a :href="catalogueUrl" class="library-full-details-back">← {{ t('library', 'All publications') }}</a>
+    <a :href="returnContext.url" class="library-full-details-back">← {{ returnContext.hasSource ? t('library', 'Back to results') : t('library', 'All publications') }}</a>
     <p v-if="openUnavailable" role="alert" class="library-full-details-error">{{ t('library', 'The source file could not be opened. Check the file in Nextcloud Files or rescan this root.') }}</p>
     <p v-if="loading" role="status">{{ t('library', 'Loading publication details…') }}</p>
     <p v-if="error" role="alert" class="library-full-details-error">{{ error }} <button v-if="!item" type="button" class="button secondary" @click="load">{{ t('library', 'Retry') }}</button></p>
@@ -207,7 +346,37 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnsaved))
       </header>
 
       <div class="library-full-details-columns">
-        <section class="library-full-details-card" aria-labelledby="library-full-details-metadata"><h2 id="library-full-details-metadata">{{ t('library', 'Publication metadata') }}</h2><form @submit.prevent="saveMetadata"><div class="library-full-details-fields"><label>{{ t('library', 'Title') }}<input v-model="draft.title" required></label><label>{{ t('library', 'Subtitle') }}<input v-model="draft.subtitle"></label><label>{{ t('library', 'Type') }}<select v-model="draft.publicationType"><option v-for="type in publicationTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label><label :title="t('library', 'One creator per line. Commas within a name are preserved.')">{{ t('library', 'Creators') }}<textarea v-model="draft.creators" rows="3"></textarea></label><label>{{ t('library', 'Publication') }}<input v-model="draft.publication"></label><label>{{ t('library', 'Series') }}<input v-model="draft.series"></label><label>{{ t('library', 'Part in series') }}<input v-model="draft.seriesNumber"></label><label>{{ t('library', 'Genre') }}<input v-model="draft.genre"></label><label :title="t('library', 'Use YYYY, YYYY-MM, or YYYY-MM-DD.')">{{ t('library', 'Publication date') }}<input v-model="draft.publicationDate"></label><label>{{ t('library', 'Publisher') }}<input v-model="draft.publisher"></label><label :title="t('library', 'One language code per line.')">{{ t('library', 'Language') }}<textarea v-model="draft.language" rows="2"></textarea></label><label :title="t('library', 'One subject per line.')">{{ t('library', 'Subjects') }}<textarea v-model="draft.subjects" rows="2"></textarea></label><label :title="t('library', 'One classification per line.')">{{ t('library', 'Classifications') }}<textarea v-model="draft.classifications" rows="2"></textarea></label><label>{{ t('library', 'Personal rating') }}<input v-model="draft.personalRating" type="number" min="0" max="5" step="1"></label><label class="library-full-details-wide">{{ t('library', 'Description') }}<textarea v-model="draft.description" rows="8"></textarea></label></div><fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in draft.identifiers" :key="index" class="library-full-details-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Scheme')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><span v-if="identifier.displayValue && identifier.valid === false" role="status">{{ t('library', 'Invalid identifier checksum') }}</span><button type="button" class="button secondary" :aria-label="t('library', 'Remove identifier')" @click="draft.identifiers.splice(index, 1)">×</button></div><button type="button" class="button secondary" @click="draft.identifiers.push({ scheme: 'isbn', displayValue: '' })">{{ t('library', 'Add identifier') }}</button></fieldset><button class="button primary" type="submit" :disabled="busy">{{ t('library', 'Save metadata') }}</button></form></section>
+        <section class="library-full-details-card library-full-details-authors" aria-labelledby="library-full-details-authors-heading">
+          <h2 id="library-full-details-authors-heading">{{ t('library', 'Authors') }}</h2>
+          <template v-if="item.canonicalAuthors?.length">
+            <div v-for="author in item.canonicalAuthors" :key="author.id" class="library-full-details-author-row">
+              <a :href="`${catalogueUrl}?authors=1&authorId=${author.id}`"><bdi dir="auto">{{ author.name }}</bdi></a>
+              <button v-if="item.authorSyncStatus === 0" type="button" class="button secondary" :disabled="busy || authorSearchBusy" @click="editAuthor(author)">{{ t('library', 'Change author') }}</button>
+            </div>
+            <p v-if="item.authorSyncStatus === 2"><a :href="`${catalogueUrl}?authors=1&authorConflicts=1`">{{ t('library', 'Review imported author changes') }}</a></p>
+            <p v-else-if="item.authorSyncStatus !== 0" class="library-muted">{{ t('library', 'Author migration must finish before editing. Refresh to check progress.') }}</p>
+            <div v-if="editingAuthor" class="library-full-details-author-picker">
+              <p>{{ t('library', 'Replace {author} for this publication', { author: editingAuthor.name }) }}</p>
+              <form @submit.prevent="findAuthors">
+                <label>{{ t('library', 'Search authors') }}<input v-model="authorSearch" type="search" maxlength="255" :disabled="busy || authorSearchBusy" @input="authorResults = []; selectedAuthorId = ''"></label>
+                <button type="submit" class="button secondary" :disabled="busy || authorSearchBusy">{{ t('library', 'Search') }}</button>
+              </form>
+              <label v-if="authorResults.length">{{ t('library', 'Choose an author') }}
+                <select v-model="selectedAuthorId" :disabled="busy || authorSearchBusy">
+                  <option value="">{{ t('library', 'Choose an author') }}</option>
+                  <option v-for="candidate in authorResults" :key="candidate.id" :value="String(candidate.id)">{{ candidate.display_name }} — {{ candidate.sort_name }} (#{{ candidate.id }})</option>
+                </select>
+              </label>
+              <div class="library-full-details-author-actions">
+                <button type="button" class="button secondary" :disabled="busy || authorSearchBusy || !authorSearch.trim()" :title="t('library', 'Creates a separate author identity, even if the name already exists.')" @click="createAuthor">{{ t('library', 'Create separate author') }}</button>
+                <button type="button" class="button primary" :disabled="busy || authorSearchBusy || !selectedAuthorId" @click="replaceAuthor">{{ t('library', 'Save author assignment') }}</button>
+                <button type="button" class="button secondary" :disabled="busy || authorSearchBusy" @click="cancelAuthorEdit">{{ t('library', 'Cancel') }}</button>
+              </div>
+            </div>
+          </template>
+          <p v-else class="library-muted">{{ t('library', 'No linked authors are available yet. Expand Source creator credits below to see the book credit.') }}</p>
+        </section>
+        <section class="library-full-details-card" aria-labelledby="library-full-details-metadata"><h2 id="library-full-details-metadata">{{ t('library', 'Publication metadata') }}</h2><form @submit.prevent="saveMetadata"><div class="library-full-details-fields"><label>{{ t('library', 'Title') }}<input v-model="draft.title" required></label><label>{{ t('library', 'Subtitle') }}<input v-model="draft.subtitle"></label><label>{{ t('library', 'Type') }}<select v-model="draft.publicationType"><option v-for="type in publicationTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label><details class="library-full-details-wide library-full-details-source-credit"><summary :title="t('library', 'This is the book credit used for source metadata and export. Change the linked person above for author browsing. One creator per line; commas within a name are preserved.')">{{ t('library', 'Source creator credits') }}</summary><label>{{ t('library', 'Source creator credits') }}<textarea v-model="draft.creators" rows="3"></textarea></label></details><label>{{ t('library', 'Publication') }}<input v-model="draft.publication"></label><label>{{ t('library', 'Series') }}<input v-model="draft.series"></label><label>{{ t('library', 'Part in series') }}<input v-model="draft.seriesNumber"></label><label>{{ t('library', 'Genre') }}<input v-model="draft.genre"></label><label :title="t('library', 'Use YYYY, YYYY-MM, or YYYY-MM-DD.')">{{ t('library', 'Publication date') }}<input v-model="draft.publicationDate"></label><label :title="t('library', 'Search publishers')">{{ t('library', 'Publisher') }}<input v-model="draft.publisher" list="library-details-publisher-suggestions" autocomplete="off"><datalist id="library-details-publisher-suggestions"><option v-for="name in publisherSuggestions" :key="name" :value="name"></option></datalist></label><MetadataValuePicker v-model="draft.language" kind="language" :disabled="busy" /><MetadataValuePicker v-model="draft.subjects" kind="subject" :disabled="busy" /><label :title="t('library', 'One classification per line.')">{{ t('library', 'Classifications') }}<textarea v-model="draft.classifications" rows="2"></textarea></label><StarRating :model-value="draft.personalRating" :disabled="busy" @update:model-value="saveRating" /><label class="library-full-details-wide">{{ t('library', 'Description') }}<textarea v-model="draft.description" rows="8"></textarea></label></div><fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in draft.identifiers" :key="index" class="library-full-details-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Scheme')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><span v-if="identifier.displayValue && identifier.valid === false" role="status">{{ t('library', 'Invalid identifier checksum') }}</span><button type="button" class="button secondary" :aria-label="t('library', 'Remove identifier')" @click="draft.identifiers.splice(index, 1)">×</button></div><button type="button" class="button secondary" @click="draft.identifiers.push({ scheme: 'isbn', displayValue: '' })">{{ t('library', 'Add identifier') }}</button></fieldset><button class="button primary" type="submit" :disabled="busy">{{ t('library', 'Save metadata') }}</button></form></section>
 
         <div class="library-full-details-aside"><section class="library-full-details-card"><h2>{{ t('library', 'File metadata') }}</h2><dl><dt>{{ t('library', 'Location') }}</dt><dd><bdi dir="ltr">{{ item.cachedPath }}</bdi></dd><dt>{{ t('library', 'Format') }}</dt><dd>{{ (item.extension || '').toUpperCase() }}</dd><dt>{{ t('library', 'Scan status') }}</dt><dd>{{ item.scanStatus || '—' }}</dd><dt>{{ t('library', 'Metadata source') }}</dt><dd>{{ item.metadataSource || '—' }}</dd><dt v-if="item.scanError">{{ t('library', 'Scan error') }}</dt><dd v-if="item.scanError">{{ item.scanError }}</dd><dt>{{ t('library', 'File ID') }}</dt><dd>{{ context.file.fileId || '—' }}</dd><dt>{{ t('library', 'MIME type') }}</dt><dd>{{ context.file.mimeType || '—' }}</dd><dt v-if="item.shelf">{{ t('library', 'Shelf') }}</dt><dd v-if="item.shelf">{{ item.shelf }}</dd></dl><button v-if="item.scanStatus === 'missing'" type="button" class="button secondary" :disabled="busy" @click="forgetMissing">{{ t('library', 'Forget missing publication') }}</button></section>
           <section class="library-full-details-card"><h2>{{ t('library', 'Nextcloud tags') }}</h2><div class="library-full-details-chips"><span v-for="tag in context.tags" :key="tag.id" class="library-full-details-chip"><bdi dir="auto">{{ tag.name }}</bdi><button type="button" :disabled="busy" :aria-label="`${t('library', 'Remove tag')}: ${tag.name}`" @click="post(tag.removeUrl)">×</button></span></div><form @submit.prevent="addTag()"><label>{{ t('library', 'Add Nextcloud tag') }}<input v-model="tagName" list="library-full-details-tag-suggestions"></label><datalist id="library-full-details-tag-suggestions"><option v-for="name in context.tagSuggestions" :key="name" :value="name"></option></datalist><button type="submit" class="button secondary" :disabled="busy || !tagName.trim()">{{ t('library', 'Add tag') }}</button></form></section>
@@ -231,6 +400,15 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnsaved))
 .library-full-details-summary h1 { margin: 4px 0; overflow-wrap: anywhere; }
 .library-full-details-actions, .library-full-details-personal, .library-full-details-links { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
 .library-full-details-columns { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 20px; align-items: start; }
+.library-full-details-authors { grid-column: 1 / -1; }
+.library-full-details-author-row, .library-full-details-author-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.library-full-details-author-row { margin: 8px 0; }
+.library-full-details-author-picker { display: grid; gap: 12px; margin-top: 16px; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; }
+.library-full-details-author-picker form { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; }
+.library-full-details-author-picker form label { flex: 1 1 260px; }
+.library-full-details-source-credit { border: 1px solid var(--color-border); border-radius: 8px; padding: 10px 12px; }
+.library-full-details-source-credit summary { cursor: pointer; }
+.library-full-details-source-credit label { margin-top: 10px; }
 .library-full-details-aside { display: grid; gap: 20px; }
 .library-full-details-card { border: 1px solid var(--color-border); border-radius: 12px; padding: 20px; min-width: 0; }
 .library-full-details-card h2 { margin: 0 0 16px; }

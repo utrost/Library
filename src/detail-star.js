@@ -148,18 +148,29 @@
     state.running = true
     setMetadataStatus(form, 'Saving metadata…')
     try {
+      const revision = form.querySelector('[name="metadataRevision"]')?.value
+      if (revision) request.body.set('metadataRevision', revision)
       const response = await window.fetch(form.getAttribute('action') || form.action, {
         method: 'POST',
         body: request.body,
         credentials: 'same-origin',
       })
       const ownsStatus = () => request.generation === state.generation && !state.manuallySubmitted
-      if (response.ok && ownsStatus()) {
-        setMetadataStatus(form, 'Metadata saved')
-        clearMetadataValidationFeedback(form)
+      if (response.ok) {
+        if (typeof response.json === 'function') {
+          try {
+            const payload = await response.json()
+            const field = form.querySelector('[name="metadataRevision"]')
+            if (payload?.metadataRevision && field) field.value = payload.metadataRevision
+          } catch (_jsonError) { /* A legacy success response can omit the token. */ }
+        }
+        if (ownsStatus()) {
+          setMetadataStatus(form, 'Metadata saved')
+          clearMetadataValidationFeedback(form)
+        }
       } else if (!response.ok && ownsStatus()) {
         let message = 'Metadata was not saved'
-        if (response.status === 422) {
+        if (response.status === 422 || response.status === 409) {
           try {
             const payload = await response.json()
             if (payload?.error) message = `Metadata was not saved: ${payload.error}`

@@ -8,6 +8,32 @@ use OCA\Library\BackgroundJob\ScanJob;
 
 final class LibraryCleanupService {
     public function __construct(private IDBConnection $db, private IConfig $config, private IJobList $jobs, private ?AuthorPhotoService $authorPhotos = null) {}
+    /** One-time, bounded repair for index rows left by older deletion and edit paths. */
+    public function repairOrphanIndexes(int $limit = 20000): int {
+        $tables = ['library_item_identifiers', 'library_item_facets', 'library_item_search_grams'];
+        $tableNumber = (int)$this->config->getAppValue('library', 'orphan_index_repair_table', '0');
+        if ($tableNumber >= count($tables)) return 0;
+        $table = $tables[max(0, $tableNumber)];
+        $cursor = max(0, (int)$this->config->getAppValue('library', 'orphan_index_repair_cursor', '0'));
+        $result = $this->db->executeQuery('SELECT id FROM *PREFIX*' . $table . ' WHERE id>? ORDER BY id LIMIT ' . max(1, min(20000, $limit)), [$cursor]);
+        $ids = array_map('intval', array_column($result->fetchAll(), 'id'));
+        $result->closeCursor();
+        if ($ids === []) {
+            $this->config->setAppValue('library', 'orphan_index_repair_table', (string)($tableNumber + 1));
+            $this->config->setAppValue('library', 'orphan_index_repair_cursor', '0');
+            return 0;
+        }
+        $end = max($ids);
+        $result = $this->db->executeQuery('SELECT d.id FROM *PREFIX*' . $table . ' d LEFT JOIN *PREFIX*library_items i '
+            . 'ON i.id=d.item_id AND i.user_id=d.user_id WHERE d.id>? AND d.id<=? AND i.id IS NULL', [$cursor, $end]);
+        $orphans = array_map('intval', array_column($result->fetchAll(), 'id'));
+        $result->closeCursor();
+        foreach (array_chunk($orphans, 400) as $chunk) {
+            $this->db->executeStatement('DELETE FROM *PREFIX*' . $table . ' WHERE id IN (' . implode(',', array_fill(0, count($chunk), '?')) . ')', $chunk);
+        }
+        $this->config->setAppValue('library', 'orphan_index_repair_cursor', (string)$end);
+        return count($orphans);
+    }
     /** At most 500 expired approvals per run. Recheck expiry so concurrent transitions survive. */
     public function expireHistory(int $limit = 500): int {
         $now = time(); $qb = $this->db->getQueryBuilder();

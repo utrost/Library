@@ -119,6 +119,7 @@ return [
         ['name' => 'item#recordOpen', 'url' => '/items/{itemId}/open', 'verb' => 'POST'],
         ['name' => 'item#update', 'url' => '/items/{itemId}', 'verb' => 'POST'],
         ['name' => 'item#star', 'url' => '/items/{itemId}/star', 'verb' => 'POST'],
+        ['name' => 'item#personalRating', 'url' => '/items/{itemId}/rating', 'verb' => 'POST'],
         ['name' => 'item#workflowStatus', 'url' => '/items/{itemId}/workflow-status', 'verb' => 'POST'],
         ['name' => 'item#forgetMissing', 'url' => '/items/{itemId}/forget-missing', 'verb' => 'POST'],
         ['name' => 'cover#show', 'url' => '/items/{itemId}/cover', 'verb' => 'GET'],

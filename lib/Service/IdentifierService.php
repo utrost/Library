@@ -42,7 +42,12 @@ final class IdentifierService {
         }
         $compact = strtoupper((string)preg_replace('/[\s-]+/u', '', $displayValue));
         if ($scheme === '') {
-            $scheme = strlen($compact) === 8 ? 'issn' : 'isbn';
+            // A bare eight-character ID in an ebook or PDF is usually not
+            // evidence of an ISSN. Importers and the editor must label it.
+            if (preg_match('/^(?:\d{9}[\dX]|\d{13})$/', $compact) !== 1) {
+                return null;
+            }
+            $scheme = 'isbn';
         }
         if (!in_array($scheme, ['isbn', 'issn'], true)) {
             return null;

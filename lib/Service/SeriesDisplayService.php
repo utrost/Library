@@ -18,7 +18,11 @@ final class SeriesDisplayService {
                 ->innerJoin('l', 'library_items', 'i', 'i.id=l.item_id AND i.user_id=l.user_id')
                 ->where($q->expr()->eq('l.user_id', $q->createNamedParameter($uid)))
                 ->andWhere($q->expr()->in('l.item_id', $q->createNamedParameter($ids, IQueryBuilder::PARAM_INT_ARRAY)))
-                ->andWhere($q->expr()->eq('i.series_sync_status', $q->createNamedParameter(SeriesStorageService::SYNCED, IQueryBuilder::PARAM_INT)))
+                // A changed import awaiting review must not hide a protected
+                // manual assignment from the book detail or catalogue.
+                ->andWhere($q->expr()->in('i.series_sync_status', $q->createNamedParameter(
+                    [SeriesStorageService::SYNCED, SeriesStorageService::CONFLICT], IQueryBuilder::PARAM_INT_ARRAY
+                )))
                 ->orderBy('l.item_id')->addOrderBy('l.slot')->executeQuery();
             foreach ($r->fetchAll() as $row) $series[(int)$row['item_id']][] = ['id' => (int)$row['id'], 'name' => $row['display_name'], 'part' => $row['part_number']];
             $r->closeCursor();

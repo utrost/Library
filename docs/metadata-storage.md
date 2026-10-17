@@ -113,7 +113,7 @@ last_opened_at
 description
 workflow_status
 subjects_json
-genres_json (retained legacy subject data)
+genres_json (historical subject data; copied and removed by the 0.3 forward migration)
 classifications_json
 personal_rating
 cover_override_url
@@ -131,7 +131,7 @@ created_at
 updated_at
 ```
 
-This answers: what publication-like object should Library display? The current implementation also stores scanner field sources and scanner candidate values as JSON maps so user-edited rows can compare current values with refreshed scanner candidates and reset one field or the whole item when wanted. ISBN and ISSN values live in the child `library_item_identifiers` table: display punctuation is preserved, normalized values support exact search, and invalid checksums remain reviewable instead of being silently rewritten. Repeated subjects, classifications and Nextcloud tag facets are also projected into `library_item_facets` for exact filters and high-cardinality suggestions. Arbitrary catalogue text search is accelerated by `library_item_search_grams`, a materialized per-item gram table.
+This answers: what publication-like object should Library display? The current implementation also stores scanner field sources and scanner candidate values as JSON maps so user-edited rows can compare current values with refreshed scanner candidates and reset one field or the whole item when wanted. ISBN and ISSN values live in the child `library_item_identifiers` table: display punctuation is preserved, normalized values support exact search, and invalid checksums remain reviewable instead of being silently rewritten. A bare eight-digit source identifier is not enough evidence for ISSN; importers require an explicit ISSN scheme or label. Explicitly labelled invalid ISSNs remain visible for review. Pipeline v10 selectively re-extracts v9 records with imported ISSNs on the next full scan, while unchanged records without imported ISSNs keep the fast path. Records whose publication metadata was edited by a user retain their existing identifier rows and need manual review, preserving user corrections. Repeated subjects, classifications and Nextcloud tag facets are also projected into `library_item_facets` for exact filters and high-cardinality suggestions. Arbitrary catalogue text search is accelerated by `library_item_search_grams`, a materialized per-item gram table.
 
 `publication_type` is the current implementation column name. The product language should move toward `publication_form` because this field describes the form of the publication, not the binary file format.
 

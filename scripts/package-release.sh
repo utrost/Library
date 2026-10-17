@@ -44,7 +44,12 @@ cd "$ROOT"
 npm ci
 npm audit --audit-level=high --omit=dev
 npm run build
-python -m pytest -q
+PYTHON_BIN="${PYTHON_BIN:-$(command -v python3 || command -v python || true)}"
+if [ -z "$PYTHON_BIN" ]; then
+  echo 'Python 3 is required to run release checks' >&2
+  exit 1
+fi
+"$PYTHON_BIN" -m pytest -q
 ./scripts/run-php-runtime-tests.sh
 
 rm -rf "$STAGE_DIR" "$ARCHIVE"

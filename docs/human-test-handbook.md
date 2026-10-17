@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.9, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` runs main commit `94f35ac` with the modern **Full details** view and clickable catalogue covers. The [current deployment and smoke record](compatibility-evidence/2026-10-15-cover-hit-area/README.md) gives the exact archive checksum and observed results. Use a disposable account and test books for changes. The [alpha.9 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers earlier source-build checks on NC33–35. It does not replace human judgment or the signed release-package matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.9, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` runs main commit `94f35ac` with the modern **Full details** view and clickable catalogue covers. The [current deployment and smoke record](compatibility-evidence/2026-10-15-cover-hit-area/README.md) gives the exact archive checksum and observed results. Use a disposable account and test books for changes. The [signed candidate evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; it does not replace human judgment or confirm the newer architecture code on the populated developer instance. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
@@ -9,7 +9,7 @@
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
-For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09 and H03-10. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
+For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10 and H03-11. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
 Copy this result sheet into the session note. Write the installed archive checksum in the session header, because several alpha.9 builds share the same app version. The current developer build serves the `v8` frontend asset.
 
@@ -25,6 +25,7 @@ Copy this result sheet into the session note. Write the installed archive checks
 | H03-08 |  |  |  |
 | H03-09 |  |  |  |
 | H03-10 |  |  |  |
+| H03-11 |  |  |  |
 
 After each case, capture the visible before/after state and note the selected book/author/series ID. A **Pass** requires the expected result and no relevant console error. Mark **Blocked** when setup or the instance prevents the action; a visible wrong result is **Fail**. Do not put private paths or book metadata in a public issue without redaction.
 
@@ -129,6 +130,16 @@ After each case, capture the visible before/after state and note the selected bo
 **Expected:** The full view loads without the catalogue's 100-book page, every action gives visible feedback and the changed values survive reload. A comma in a creator name stays within that creator. The old direct `/items/{id}` URL remains a fallback, while normal catalogue and list links open **Full details**. Cover, tags, comments, star and workflow changes do not overwrite unsaved metadata silently. Source publication bytes and sidecars remain unchanged.
 
 **Failure evidence:** Book ID, initial and final values, screenshots of the full view and provenance, network response for any failed action, browser console and source-file checksum.
+
+### H03-11 — Two-tab editing conflict
+
+**Setup:** Open the same disposable book in two browser tabs. Record its title before editing.
+
+**Steps:** Change and save the title in the first tab. Make a different title or description change in the second tab and save without reloading. Repeat with the direct `/apps/library/items/{id}` form with JavaScript disabled to exercise its native fallback.
+
+**Expected:** The stale save returns HTTP 409 and cannot silently overwrite the first tab. The JavaScript editor keeps the second draft visible. The native form shows a comparison page with the draft and latest saved values. **Use latest saved values** returns without a write; **Save my reviewed draft** applies the draft only after an explicit choice and another revision check.
+
+**Failure evidence:** Item ID, the two draft values, network status, comparison-page screenshot and final saved value. Use only a disposable book.
 
 ## Historical alpha.174 walkthrough
 

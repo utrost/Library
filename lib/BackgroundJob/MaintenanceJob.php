@@ -10,5 +10,5 @@ final class MaintenanceJob extends TimedJob {
     public function __construct(ITimeFactory $time, private LibraryCleanupService $cleanup, private ItemService $items, private ScanJobService $scans, private \OCA\Library\Service\CoverThumbnailService $covers) {
         parent::__construct($time); $this->setInterval(300); $this->setAllowParallelRuns(false);
     }
-    public function run($argument): void { $this->scans->recoverStaleRunningJobs(); $this->cleanup->expireHistory(); $this->cleanup->expireAnalyses(); $this->cleanup->expireDuplicates(); $this->items->backfillAuthors(200); $this->covers->cleanupExpired(); }
+    public function run($argument): void { $this->scans->recoverStaleRunningJobs(); $this->cleanup->repairOrphanIndexes(); $this->cleanup->expireHistory(); $this->cleanup->expireAnalyses(); $this->cleanup->expireDuplicates(); $this->items->backfillAuthors(200); $this->covers->cleanupExpired(); }
 }
