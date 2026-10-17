@@ -217,7 +217,10 @@ private function extractIdentifiers(mixed $nodes, string $source): array {
         if ($value === '') {
             continue;
         }
-        $scheme = strtolower(trim((string)($node['scheme'] ?? '')));
+        // The dc namespace can hide an unprefixed attribute from direct
+        // SimpleXML array access; read it from the node's own attributes.
+        $attributes = $node->attributes();
+        $scheme = strtolower(trim((string)($attributes['scheme'] ?? '')));
         $opfAttributes = $node->attributes('http://www.idpf.org/2007/opf');
         if ($scheme === '' && isset($opfAttributes['scheme'])) {
             $scheme = strtolower(trim((string)$opfAttributes['scheme']));
