@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.10, Nextcloud 33–35.** Verify the installed version and record the exact archive checksum before testing. The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` previously ran alpha.9; its [earlier deployment record](compatibility-evidence/2026-10-15-cover-hit-area/README.md) does not verify alpha.10. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.10 needs its own exact-package matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.10, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` now runs the [signed alpha.10 package](compatibility-evidence/2026-10-17-nc34-alpha10/README.md) from merged commit `ca65585`. Record its archive checksum before testing and use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.10 still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
@@ -11,7 +11,7 @@
 
 For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10 and H03-11. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the installed archive checksum in the session header, because several alpha.9 builds share the same app version. The current developer build serves the `v8` frontend asset.
+Copy this result sheet into the session note. Write the installed alpha.10 archive checksum in the session header: `f5eb90389a94e5390d7bc15700b3053bacb212e048d89435209218e9ba2abd0b`. The current developer build serves the alpha.10 `v8` frontend asset.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
