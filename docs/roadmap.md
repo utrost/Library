@@ -607,7 +607,7 @@ The import-health review/probe cut remains landed background for the release reh
 
 ### Immediate next implementation slice
 
-Current 0.3 sequence: collect human feedback on alpha.9 author and series workflows using the [test handbook](human-test-handbook.md#current-03-human-cases); complete populated-library architecture checks; resolve any release-blocking defects; refresh App Store assets and build the final versioned release from a committed tree. The signed alpha.9 candidate passed fresh and upgraded NC33–35 checks with the 40 English Gutenberg books; the 0.2 beta.3 signature and matrix remain a separate historical baseline.
+Current 0.3 sequence: collect human feedback on alpha.9 author and series workflows using the [test handbook](human-test-handbook.md#current-03-human-cases); complete populated-library architecture checks; resolve any release-blocking defects; refresh App Store assets; build, sign and audit one exact 0.3 archive from a committed tree; and run the fresh-install and upgrade matrix for that archive. The signed alpha.9 candidate passed fresh and upgraded NC33–35 checks with the 40 English Gutenberg books; the 0.2 beta.3 signature and matrix remain a separate historical baseline.
 
 Historical alpha acceptance plan (retained for context):
 

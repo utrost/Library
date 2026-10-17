@@ -122,7 +122,7 @@ def test_docs_are_truthful_candidate_with_manual_at_debt():
     assert "safe-diagnostic live reflection" in release.lower()
     assert "alpha.166" in read("CHANGELOG.md")
     for path in ["README.md", "docs/roadmap.md", "docs/current-state-and-risk-register.md", "docs/app-store-readiness.md", "docs/alpha-test-checklist.md"]:
-        assert "0.3.0-alpha.9" in read(path), path
+        assert CURRENT_VERSION in read(path), path
     assert "alpha.166" in read("CHANGELOG.md")
 
 
