@@ -601,7 +601,6 @@ OC.L10N.register(
         "Off": "Aus",
         "One catalogue workspace": "Ein Katalogarbeitsbereich",
         "One classification per line.": "Eine Klassifikation pro Zeile.",
-        "One creator per line. Commas within a name are preserved.": "Ein Urheber pro Zeile. Kommas innerhalb eines Namens bleiben erhalten.",
         "One creator per line. Each chip is one person; punctuation within a name is preserved.": "Ein Autor pro Zeile. Jeder Eintrag steht für einen Autor; Satzzeichen innerhalb eines Namens bleiben erhalten.",
         "One language code per line.": "Ein Sprachcode pro Zeile.",
         "One subject per line.": "Ein Thema pro Zeile.",
