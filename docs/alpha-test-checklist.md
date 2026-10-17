@@ -1,12 +1,12 @@
 # Public alpha test checklist
 
-The current development candidate is **`0.3.0-alpha.9`**, deployed on the private developer Nextcloud 34 instance. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+The current development candidate is **`0.3.0-alpha.10`**. Alpha.9 was deployed on the private developer Nextcloud 34 instance; confirm the installed version before testing alpha.10. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
 
 Use the [Playwright journey suite](playwright-journeys.md) for repeatable browser workflows against a disposable instance. Use the [current 0.3 human cases](human-test-handbook.md#current-03-human-cases) for personal acceptance. This checklist covers package identity, source-file safety, real-file coverage and release-specific acceptance.
 
 ## Setup
 
-For development acceptance, use the deployed alpha.9 developer instance or a disposable NC33–35 installation of the same source build. Record the installed version and commit. Once a signed 0.3 archive exists, repeat this checklist against the exact package, not a rebuild or checkout. The App Store package must be signed; see [RELEASE.md](../RELEASE.md).
+For development acceptance, use an alpha.10 developer instance after deployment or a disposable NC33–35 installation of the same source build. Record the installed version and commit. Once a signed 0.3 archive exists, repeat this checklist against the exact package, not a rebuild or checkout. The App Store package must be signed; see [RELEASE.md](../RELEASE.md).
 
 1. For the release rehearsal, install the same signed 0.3 package into disposable Nextcloud 33.0.9, 34.0.4 and 35.0.0 instances, both fresh and upgraded from the preserved baseline. The alpha.9 source checks are focused feature evidence, not that release rehearsal.
 2. Enable the app as a Nextcloud administrator.

@@ -125,6 +125,10 @@ function cancelAuthorEdit() {
   authorResults.value = []
   selectedAuthorId.value = ''
 }
+function clearAuthorSelection() {
+  authorResults.value = []
+  selectedAuthorId.value = ''
+}
 function editAuthor(author) {
   editingAuthor.value = author
   authorSearch.value = ''
@@ -358,7 +362,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
             <div v-if="editingAuthor" class="library-full-details-author-picker">
               <p>{{ t('library', 'Replace {author} for this publication', { author: editingAuthor.name }) }}</p>
               <form @submit.prevent="findAuthors">
-                <label>{{ t('library', 'Search authors') }}<input v-model="authorSearch" type="search" maxlength="255" :disabled="busy || authorSearchBusy" @input="authorResults = []; selectedAuthorId = ''"></label>
+                <label>{{ t('library', 'Search authors') }}<input v-model="authorSearch" type="search" maxlength="255" :disabled="busy || authorSearchBusy" @input="clearAuthorSelection"></label>
                 <button type="submit" class="button secondary" :disabled="busy || authorSearchBusy">{{ t('library', 'Search') }}</button>
               </form>
               <label v-if="authorResults.length">{{ t('library', 'Choose an author') }}

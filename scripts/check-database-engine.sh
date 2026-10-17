@@ -60,9 +60,7 @@ for entry in appinfo lib templates css js l10n img README.md CHANGELOG.md LICENS
 done
 docker exec "$nc" chown -R www-data:www-data /var/www/html/custom_apps/library
 if [[ -n "${LIBRARY_BASELINE_ARCHIVE:-}" ]]; then
-    # The source tree and committed baseline share an alpha version. A temporary
-    # candidate version exercises Nextcloud's real app upgrade runner.
-    docker exec "$nc" sed -i 's/<version>0.3.0-alpha.9<\/version>/<version>0.3.0-alpha.10<\/version>/' /var/www/html/custom_apps/library/appinfo/info.xml
+    # The candidate has a newer app version, so occ upgrade runs its migrations.
 else
     docker exec -u www-data "$nc" php occ app:enable library >/dev/null
 fi
