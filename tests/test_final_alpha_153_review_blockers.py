@@ -13,7 +13,7 @@ def read(path: str) -> str:
 def test_package_checksum_is_portable_private_and_runtime_tests_cannot_be_bypassed():
     script = read("scripts/package-release.sh")
 
-    python_tests = script.index("python -m pytest -q")
+    python_tests = script.index('"$PYTHON_BIN" -m pytest -q')
     runtime_tests = script.index("./scripts/run-php-runtime-tests.sh")
     staging = script.index('rm -rf "$STAGE_DIR"')
     assert python_tests < runtime_tests < staging

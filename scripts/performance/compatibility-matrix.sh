@@ -43,6 +43,8 @@ for ver in ${NC_VERSIONS:-33.0.9 34.0.4 35.0.0}; do
         export PW_ITEM_ID=$(node -p "require('$target/fixture.json').id")
         export PW_SEARCH_TITLE=$(node -p "require('$target/fixture.json').title")
         docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php occ status --output=json > "$target/server.json"
+        docker cp scripts/check-physical-schema.php "$LIBRARY_LISTS_CONTAINER:/tmp/library-check-physical-schema.php"
+        docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php /tmp/library-check-physical-schema.php > "$target/schema-parity.json"
         for check in performance_fixes_integration scan_paging_integration scheduled_scan_integration scanner_warning_cache_integration personal_lists_integration; do
             docker cp "tests/php/$check.php" "$LIBRARY_LISTS_CONTAINER:/tmp/$check.php"
             docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php "/tmp/$check.php" > "$target/$check.log" 2>&1

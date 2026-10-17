@@ -5,6 +5,8 @@ import { generateUrl } from '@nextcloud/router'
 import DuplicateSuggestions from './DuplicateSuggestions.vue'
 import DuplicateSuggestionSettings from './DuplicateSuggestionSettings.vue'
 import LabelHelp from './LabelHelp.vue'
+import { detailsUrlWithReturn } from '../details-return.js'
+const detailsLink=url=>detailsUrlWithReturn(url,window.location.pathname,window.location.href)
 const selectedBookId=Number(new URLSearchParams(window.location.search).get('bookId'))||0
 const selectedCompareId=Number(new URLSearchParams(window.location.search).get('compareId'))||0
 const props=defineProps({requestToken:String,reviewUrl:String})
@@ -91,7 +93,7 @@ onMounted(()=>run(refreshHistory));onBeforeUnmount(()=>{alive=false;generation++
       <section v-for="book in pair.books" :key="book.id" class="library-duplicate-book" :class="{'library-duplicate-preferred':pair.preferredId===book.id}">
        <div class="library-duplicate-book-heading"><img :src="book.coverUrl" alt="" loading="lazy"><div><h3 dir="auto">{{ book.title }}</h3><p dir="auto">{{ book.authors.join('; ')||'—' }}</p><strong v-if="pair.preferredId===book.id">{{ t('library','Preferred copy') }}</strong></div></div>
        <dl><div><dt>{{ t('library','Format') }}</dt><dd>{{ book.format.toUpperCase() }} · {{ size(book.size) }}</dd></div><div><dt>{{ t('library','Language') }}</dt><dd>{{ book.language||'—' }}</dd></div><div><dt>{{ t('library','Publication date') }}</dt><dd>{{ book.publicationDate||'—' }}</dd></div><div><dt>{{ t('library','Publisher') }}</dt><dd dir="auto">{{ book.publisher||'—' }}</dd></div><div><dt>{{ t('library','ISBN') }}</dt><dd dir="ltr">{{ book.isbn.join(', ')||'—' }}</dd></div><div><dt>{{ t('library','Location') }}</dt><dd dir="auto">{{ book.path }}</dd></div></dl>
-       <div class="library-duplicate-actions"><a class="button secondary" :href="book.openUrl" target="_blank" rel="noopener">{{ t('library','Open') }}</a><a class="button secondary" :href="book.detailsUrl">{{ t('library','Details') }}</a><button class="button primary" :disabled="busy||active||pair.stale" @click="decide(pair,'preferred',book.id)">{{ t('library','Prefer this copy') }}</button></div>
+       <div class="library-duplicate-actions"><a class="button secondary" :href="book.openUrl" target="_blank" rel="noopener">{{ t('library','Open') }}</a><a class="button secondary" :href="detailsLink(book.detailsUrl)">{{ t('library','Details') }}</a><button class="button primary" :disabled="busy||active||pair.stale" @click="decide(pair,'preferred',book.id)">{{ t('library','Prefer this copy') }}</button></div>
       </section>
      </div>
      <div class="library-duplicate-actions"><button class="button secondary" :disabled="busy||active||pair.stale" @click="decide(pair,'keep')">{{ t('library','Keep both') }}</button><button class="button secondary" :disabled="busy||active||pair.stale" @click="decide(pair,'dismissed')">{{ t('library','Dismiss match') }}</button><button v-if="pair.decision!=='unreviewed'" class="button secondary" :disabled="busy||active||pair.stale" @click="decide(pair,'unreviewed')">{{ t('library','Reset review decision') }}</button></div>

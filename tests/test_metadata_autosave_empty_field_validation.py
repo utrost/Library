@@ -9,8 +9,8 @@ def test_metadata_autosave_validation_clears_stale_warning_after_success():
     assert "metadataValidationFeedback" in script
     assert "clearMetadataValidationFeedback(form)" in script
     assert "response.ok" in script
-    success_start = script.index("if (response.ok && ownsStatus())")
-    success_block = script[success_start:script.index("} catch", success_start)]
+    success_start = script.index("if (response.ok) {")
+    success_block = script[success_start:script.index("} else if (!response.ok", success_start)]
     assert "clearMetadataValidationFeedback(form)" in success_block
     assert "request.generation === state.generation" in script
 
@@ -21,7 +21,7 @@ def test_metadata_autosave_surfaces_current_server_validation_error_without_redi
 
     assert "JSONResponse" in controller
     assert "metadataAutosave" in controller
-    assert "return new JSONResponse(['saved' => true]" in controller
+    assert "return new JSONResponse(['saved' => true, 'metadataRevision' =>" in controller
     assert "return new JSONResponse(['saved' => false, 'error' => $safeError]" in controller
     assert "$safeError = $this->safeValidationError($e);" in controller
     assert "response.status === 422" in script

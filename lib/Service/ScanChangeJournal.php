@@ -6,6 +6,7 @@ use OCP\IDBConnection;
 
 /** Coalesces Nextcloud node events by owner and file or directory target. */
 final class ScanChangeJournal {
+    public const PAGE_SIZE = 400;
     public function __construct(private IDBConnection $db) {}
 
     public function recordNodePath(string $nodePath, bool $folder = false, ?string $mimeType = null): void {
@@ -50,19 +51,47 @@ final class ScanChangeJournal {
         $this->db->executeStatement('UPDATE *PREFIX*library_scan_changes SET generation = generation + 1 WHERE user_id = ? AND path_hash = ?', [$uid, $hash]);
     }
 
-    /** @return list<array{path:string,folder:bool,hash:string,generation:int}> */
-    public function snapshot(string $uid): array {
-        $r = $this->db->executeQuery('SELECT path_hash,target_path,is_directory,generation FROM *PREFIX*library_scan_changes WHERE user_id = ? ORDER BY target_path', [$uid]);
+    /**
+     * A hash cursor keeps each job's memory bounded. Wrap after the last hash so
+     * targets changed during an earlier page are revisited on the next pass.
+     * @return list<array{path:string,folder:bool,hash:string,generation:int}>
+     */
+    public function page(string $uid, string $afterHash = '', int $limit = self::PAGE_SIZE): array {
+        $limit = max(1, min(self::PAGE_SIZE, $limit));
+        if ($afterHash !== '' && preg_match('/^[a-f0-9]{64}$/D', $afterHash) !== 1) throw new \InvalidArgumentException('invalid_journal_cursor');
+        $sql = 'SELECT path_hash,target_path,is_directory,generation FROM *PREFIX*library_scan_changes WHERE user_id = ?';
+        $args = [$uid];
+        if ($afterHash !== '') { $sql .= ' AND path_hash > ?'; $args[] = $afterHash; }
+        $r = $this->db->executeQuery($sql . ' ORDER BY path_hash LIMIT ' . $limit, $args);
         $rows = [];
         while ($row = $r->fetch()) $rows[] = ['path' => (string)$row['target_path'], 'folder' => (bool)$row['is_directory'], 'hash' => (string)$row['path_hash'], 'generation' => (int)$row['generation']];
         $r->closeCursor();
+        if ($rows === [] && $afterHash !== '') return $this->page($uid, '', $limit);
         return $rows;
+    }
+
+    /** Compatibility helper for bounded read-only diagnostics. */
+    public function snapshot(string $uid): array { return $this->page($uid); }
+
+    public function hasPending(string $uid): bool {
+        $r = $this->db->executeQuery('SELECT path_hash FROM *PREFIX*library_scan_changes WHERE user_id=? LIMIT 1', [$uid]);
+        $pending = $r->fetchOne() !== false;
+        $r->closeCursor();
+        return $pending;
     }
 
     /** Remove only generations captured before a successful scan. */
     public function acknowledge(string $uid, array $snapshot): void {
-        foreach ($snapshot as $row) {
-            $this->db->executeStatement('DELETE FROM *PREFIX*library_scan_changes WHERE user_id = ? AND path_hash = ? AND generation = ?', [$uid, $row['hash'], $row['generation']]);
+        $byGeneration = [];
+        foreach ($snapshot as $row) $byGeneration[(int)$row['generation']][] = (string)$row['hash'];
+        foreach ($byGeneration as $generation => $hashes) {
+            foreach (array_chunk($hashes, self::PAGE_SIZE) as $batch) {
+                $this->db->executeStatement(
+                    'DELETE FROM *PREFIX*library_scan_changes WHERE user_id=? AND generation=? AND path_hash IN ('
+                    . implode(',', array_fill(0, count($batch), '?')) . ')',
+                    [$uid, (int)$generation, ...$batch],
+                );
+            }
         }
     }
 }

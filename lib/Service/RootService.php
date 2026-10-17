@@ -10,6 +10,7 @@ final class RootService {
     public function __construct(
         private IDBConnection $db,
         private ?DuplicateIndexService $duplicateIndex = null,
+        private ?ItemDeletionService $itemDeletion = null,
     ) {
     }
 
@@ -104,48 +105,7 @@ final class RootService {
     }
 
     public function deleteRoot(string $userId, int $rootId): void {
-        $libraryFileIds = [];
-        $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('id')
-            ->from('library_files')
-            ->where($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
-            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
-            ->executeQuery();
-        while ($row = $result->fetch()) {
-            $libraryFileIds[] = (int)$row['id'];
-        }
-        $result->closeCursor();
-
-        $this->db->executeStatement('DELETE FROM *PREFIX*library_item_series WHERE user_id=? AND item_id IN (SELECT i.id FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id WHERE i.user_id=? AND f.root_id=?)', [$userId, $userId, $rootId]);
-        foreach ($libraryFileIds as $libraryFileId) {
-            $qb = $this->db->getQueryBuilder();
-            $qb->delete('library_items')
-                ->where($qb->expr()->eq('library_file_id', $qb->createNamedParameter($libraryFileId)))
-                ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
-                ->executeStatement();
-        }
-
-        $qb = $this->db->getQueryBuilder();
-        $qb->delete('library_files')
-            ->where($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
-            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
-            ->executeStatement();
-
-        $qb = $this->db->getQueryBuilder();
-        $removed = $qb->delete('library_roots')
-            ->where($qb->expr()->eq('id', $qb->createNamedParameter($rootId)))
-            ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
-            ->executeStatement();
-        // Root configuration changed: the next scheduled pass must reconcile all
-        // enabled roots, so stale target paths can be discarded now.
-        if ($removed > 0) {
-            $qb = $this->db->getQueryBuilder();
-            $qb->delete('library_scan_changes')
-                ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
-                ->executeStatement();
-        }
-        $this->db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id = ? AND NOT EXISTS (SELECT 1 FROM *PREFIX*library_items i WHERE i.id = *PREFIX*library_item_authors.item_id AND i.user_id = *PREFIX*library_item_authors.user_id)', [$userId]);
-        $this->duplicateIndex?->prune($userId);
+        ($this->itemDeletion ??= new ItemDeletionService($this->db, $this->duplicateIndex))->deleteRoot($userId, $rootId);
     }
 
     public function findRoot(string $userId, int $rootId): ?array {

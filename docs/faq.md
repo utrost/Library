@@ -61,7 +61,7 @@ Library protects a manually chosen relationship when imported credits, series na
 
 ## What should I back up?
 
-Use the normal Nextcloud backup procedure for the database, configuration and data directory. Export corrected Library metadata from **Library settings** if manual catalogue work matters to you. An index can be rebuilt by scanning, but a scan alone is not a backup of manual corrections.
+Use the normal Nextcloud backup procedure for the database, configuration, custom apps and data directory, including appdata. Keep those parts from the same backup point. This is the full recovery path for reading lists, author and series edits, biographies, portraits and manual book corrections. **Export corrected metadata** is a partial, book-level interchange file; it cannot restore those other records. See the [recovery guide](recovery.md).
 
 ## Why is the catalogue slow?
 

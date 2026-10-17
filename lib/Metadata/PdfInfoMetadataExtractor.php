@@ -102,8 +102,6 @@ private function extractIdentifiersFromText(string $text, bool $allowBare): arra
         $compact = strtoupper((string)preg_replace('/[\s-]+/u', '', $value));
         if (preg_match('/^\d{9}[\dX]$|^\d{13}$/', $compact) === 1) {
             $identifiers[] = ['scheme' => 'isbn', 'displayValue' => $value, 'source' => 'pdf-info', 'userEdited' => false];
-        } elseif (preg_match('/^\d{7}[\dX]$/', $compact) === 1) {
-            $identifiers[] = ['scheme' => 'issn', 'displayValue' => $value, 'source' => 'pdf-info', 'userEdited' => false];
         }
     }
     return $identifiers;

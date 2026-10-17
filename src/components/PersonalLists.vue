@@ -4,8 +4,10 @@ import { t } from '@nextcloud/l10n'
 import { listRequest } from '../personal-lists-api.js'
 import AddToList from './AddToList.vue'
 import LabelHelp from './LabelHelp.vue'
+import { detailsUrlWithReturn } from '../details-return.js'
 
 const props = defineProps({ requestToken: { type: String, default: '' }, catalogueUrl: { type: String, required: true }, listsUrl: { type: String, required: true } })
+function detailsLink(url) { return detailsUrlWithReturn(url, props.catalogueUrl, window.location.href) }
 const emit = defineEmits(['changed'])
 const lists = ref([])
 const detail = ref(null)
@@ -141,7 +143,7 @@ onMounted(async () => {
             <span class="library-list-drag" :draggable="canChange" :title="t('library', 'Drag to reorder, or use Move up and Move down')" aria-hidden="true" @dragstart="startDrag($event, entry)" @dragend="dragged = null">⠿</span>
             <img v-if="entry.book" :src="entry.book.coverUrl" alt="" width="48" height="64" loading="lazy">
             <div class="library-list-book">
-              <h2 v-if="entry.book"><a :href="entry.book.detailsUrl" dir="auto">{{ entry.book.title }}</a></h2>
+              <h2 v-if="entry.book"><a :href="detailsLink(entry.book.detailsUrl)" dir="auto">{{ entry.book.title }}</a></h2>
               <h2 v-else>{{ t('library', 'Unavailable book') }}</h2>
               <p v-if="entry.book?.creators" dir="auto">{{ entry.book.creators }}</p>
               <p v-if="!entry.book">{{ t('library', 'The file is missing or access is unavailable. Your note and place in the list are kept.') }}</p>
