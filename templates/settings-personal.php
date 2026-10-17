@@ -90,7 +90,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                     <li><?php p($l->t('Add one folder path that already exists in Nextcloud Files.')); ?></li>
                     <li><?php p($l->t('Run Scan enabled roots after saving the root.')); ?></li>
                     <li><?php p($l->t('Browse covers, open Details, then correct metadata only where needed.')); ?></li>
-                    <li><?php p($l->t('Export corrected metadata before uninstalling or moving to another install.')); ?></li>
+                    <li><?php p($l->t('Ask your administrator for a full Nextcloud database and data-directory backup before moving or uninstalling.')); ?></li>
                 </ol>
             </section>
             <p class="library-muted"><?php p($l->t('No roots configured yet. Start with one path; more roots can be added later.')); ?></p>
@@ -142,7 +142,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
                                 <p class="library-muted"><strong><?php p($l->t('Before deleting this Library root')); ?></strong></p>
                                 <ul>
                                     <li><?php p($l->t('Export corrected metadata if you want to keep manual corrections outside this app database.')); ?></li>
-                                    <li><?php p($l->t('Keep a database backup if you need an exact rollback of Library catalogue rows.')); ?></li>
+                                    <li><?php p($l->t('Keep a full Nextcloud database and data-directory backup for exact recovery of lists, author and series edits, and portraits.')); ?></li>
                                     <li><?php p($l->t('Re-add the same folder path and scan it again to rebuild catalogue rows from source files.')); ?></li>
                                     <li><?php p($l->t('The source files from Nextcloud Files are not deleted by this action.')); ?></li>
                                 </ul>
@@ -337,6 +337,7 @@ $scanJobHistory = $_['scanJobHistory'] ?? [];
             <a href="<?php p($_['metadataSidecarManifestUrl']); ?>" class="button secondary"><?php p($l->t('Export sidecar manifest')); ?></a>
             <a href="<?php p($_['metadataSidecarBundleUrl']); ?>" class="button secondary"><?php p($l->t('Export sidecar ZIP')); ?></a>
         </p>
+        <p class="library-warning"><?php p($l->t('These exports contain corrected book metadata only. They do not back up reading lists, author or series identities, biographies, portraits, or operation history. For full recovery, back up Nextcloud’s database and data directory together.')); ?></p>
         <p data-library-help class="library-muted"><?php p($l->t('The sidecar manifest lists suggested .library.json paths for corrected metadata. Export sidecar ZIP downloads those JSON sidecars as a reviewable archive; neither export writes sidecar files into source folders.')); ?></p>
 
         <form method="post" action="<?php p($_['metadataImportPreviewUrl']); ?>" class="library-form library-metadata-import-preview-form">

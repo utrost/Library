@@ -1,8 +1,10 @@
 # Library Roadmap
 
-Status: **0.3.0-alpha.9** on `main`, deployed to developer Nextcloud 34 with the `v8` cover hit-area fix and modern full-details view. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3. See the [current NC34 deployment record](compatibility-evidence/2026-10-15-cover-hit-area/README.md), [full-details deployment](compatibility-evidence/2026-10-14-nc34-full-details/README.md) and [reader-opening check](compatibility-evidence/2026-10-14-reader-open/README.md).
+Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are in the working tree. Disposable NC34 acceptance and the nine-combination fresh database matrix pass. The [signed exact-package fresh and upgrade matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed on NC33–35; populated-instance and owner acceptance remain.
 
-Last updated: 2026-10-15
+Status: **0.3.0-alpha.10** is the current candidate for the architecture migration and metadata detail UX. The previous alpha.9 build was deployed to developer Nextcloud 34 with the `v8` cover hit-area fix and modern full-details view. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3. See the [previous NC34 deployment record](compatibility-evidence/2026-10-15-cover-hit-area/README.md), [full-details deployment](compatibility-evidence/2026-10-14-nc34-full-details/README.md) and [reader-opening check](compatibility-evidence/2026-10-14-reader-open/README.md).
+
+Last updated: 2026-10-17
 
 ## Active 0.3 track
 
@@ -10,10 +12,10 @@ Last updated: 2026-10-15
 | --- | --- | --- |
 | Author identities | Directory, profile, portrait/bio, source-preserving edits, reassignment, merge, changed-import review and durable 501–5,000-book background merge/Undo landed through alpha.8. | Human UX acceptance; finish or explicitly defer broader canonical search/sort and interruption/concurrency coverage. |
 | Series identities | Directory, selected-book moves, whole and empty-series merges, future-import redirects, changed-import review and conditional Undo landed in alpha.9. | Human UX acceptance; multiple series per book, nonnumeric part ordering and large background merges are later decisions. |
-| Other entities | Subjects/classifications and identifiers already have dedicated storage; languages and publishers remain current metadata fields. | Normalize another entity only after real browsing/editing need is demonstrated. |
-| Item details | Catalogue and list links now open the modern full-details view; the old direct URL remains a bookmark fallback. The exact package passed the 40-book NC34 GUI rehearsal and was deployed to the populated NC34 developer instance. | Complete H03-10 human editing and cover acceptance; run the signed NC33–35 package matrix before release. |
+| Other entities | Identifiers have dedicated records. Subjects/classifications are per-book values with indexed facets, not shared identities. Languages and publishers remain metadata fields. The full-details editor now suggests existing subjects and publishers and provides a searchable language picker. | Add shared subject or publisher identities only when global rename/merge and dedicated browsing are needed. |
+| Item details | Catalogue and list links now open the modern full-details view; the old direct URL remains a bookmark fallback. The signed candidate passed the 40-book NC33–35 fresh and upgrade GUI matrix; the previous alpha.9 version is deployed to the populated NC34 developer instance. | Complete H03-10 human editing and cover acceptance; deploy the final committed candidate for populated-instance checks. |
 | Reader handoff | Open uses the live Nextcloud file ID or resolves the saved path after external-storage ID changes. Reader links open in a new tab. The developer instance's 27 stale IDs were relinked in place. Scan-time exact-path reconciliation is implemented locally, including reading-list guards. | Verify full and incremental scans after mount loss/recovery in the disposable matrix; the new scan code is not yet deployed or package-tested. Existing duplicate rows from earlier scans need separate review. |
-| App Store | Alpha.9 source checks pass on NC33–35 and the populated developer NC34 upgrade. | Sign one exact 0.3 archive, run the fresh/upgrade NC33–35 package matrix, refresh listing evidence and obtain owner acceptance. |
+| App Store | A signed alpha.9 candidate passed fresh and upgraded NC33–35 package checks with the Gutenberg fixture. | Complete populated-instance and owner acceptance, refresh listing evidence, then build the final versioned release from a committed tree. |
 
 Current feature behavior: [author management](v0.3-author-management.md), [series management](v0.3-series-management.md), [alpha.9 verification](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). Human acceptance cases are in the [test handbook](human-test-handbook.md#current-03-human-cases).
 
@@ -480,7 +482,7 @@ The beta already includes a detail metadata workbench, custom collections, conse
 
 ### 0.3 — Author and series identities
 
-The [author management concept](v0.3-author-management.md) is implemented through the alpha.8 slices: per-user identities, ordered book relationships, conservative import normalisation, profiles, reviewed merges, conditional Undo and large queued author operations. The [series workflow](v0.3-series-management.md) adds source-preserving grouping, moves, merges, redirects and changed-import review in alpha.9. No dedicated author aliases table is planned. Release acceptance and the signed package matrix remain ahead.
+The [author management concept](v0.3-author-management.md) is implemented through the alpha.8 slices: per-user identities, ordered book relationships, conservative import normalisation, profiles, reviewed merges, conditional Undo and large queued author operations. The [series workflow](v0.3-series-management.md) adds source-preserving grouping, moves, merges, redirects and changed-import review in alpha.9. No dedicated author aliases table is planned. The signed package matrix passed; populated-instance and owner acceptance remain.
 
 ### Later candidate — Reading ecosystem
 
@@ -605,7 +607,7 @@ The import-health review/probe cut remains landed background for the release reh
 
 ### Immediate next implementation slice
 
-Current 0.3 sequence: collect human feedback on alpha.9 author and series workflows using the [test handbook](human-test-handbook.md#current-03-human-cases); close release-blocking defects; build, sign and audit one exact 0.3 archive; run fresh and upgraded NC33–35 package checks with the 40 English Gutenberg books plus focused identity fixtures; then refresh App Store assets and obtain owner acceptance. The 0.2 beta.3 signature and matrix are a preserved baseline, not evidence for the new schema.
+Current 0.3 sequence: collect human feedback on alpha.10 author and series workflows using the [test handbook](human-test-handbook.md#current-03-human-cases); complete populated-library architecture checks; resolve any release-blocking defects; refresh App Store assets; build, sign and audit one exact 0.3 archive from a committed tree; and run fresh and upgraded NC33–35 package checks for that archive with the 40 English Gutenberg books before owner acceptance. The signed alpha.9 candidate passed fresh and upgraded NC33–35 checks with the 40 English Gutenberg books; the 0.2 beta.3 signature and matrix remain a separate historical baseline.
 
 Historical alpha acceptance plan (retained for context):
 
@@ -649,4 +651,4 @@ Author profiles, photos/biographies and paged catalogue implemented: [0.3-alpha.
 
 Imported author conflict review is implemented and deployed: [0.3-alpha.4 verification](compatibility-evidence/2026-10-13-author-conflicts-alpha4/README.md). Per-book decisions survive unchanged rescans; stale previews are rejected.
 
-Reviewed series moves and whole-series merges are implemented in alpha.9: account-private redirects, source-preserving manual assignments, changed-import review and conditional Undo. The [series guide](v0.3-series-management.md) describes the 500-book interactive cap and remaining multiple-series work; the [focused NC33–35 and developer NC34 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) records source-build verification. The signed exact-package 0.3 matrix remains outstanding.
+Reviewed series moves and whole-series merges are implemented in alpha.9: account-private redirects, source-preserving manual assignments, changed-import review and conditional Undo. The [series guide](v0.3-series-management.md) describes the 500-book interactive cap and remaining multiple-series work; the [focused NC33–35 and developer NC34 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) records source-build verification. The [signed candidate matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed fresh and upgraded installations.

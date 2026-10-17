@@ -18,15 +18,17 @@ def test_routes_expose_root_lifecycle_and_per_root_scan_actions():
 
 def test_root_service_has_update_toggle_delete_without_source_file_deletion():
     service = (ROOT / "lib" / "Service" / "RootService.php").read_text()
+    deletion = (ROOT / "lib" / "Service" / "ItemDeletionService.php").read_text()
 
     assert "public function updateRoot(string $userId, int $rootId" in service
     assert "public function setRootEnabled(string $userId, int $rootId, bool $enabled): void" in service
     assert "public function deleteRoot(string $userId, int $rootId): void" in service
-    assert "delete('library_items')" in service
-    assert "delete('library_files')" in service
-    assert "delete('library_roots')" in service
-    assert "getUserFolder" not in service
-    assert "->delete()" not in service
+    assert "->deleteRoot($userId, $rootId)" in service
+    assert "DELETE FROM *PREFIX*library_items" in deletion
+    assert "DELETE FROM *PREFIX*library_files" in deletion
+    assert "DELETE FROM *PREFIX*library_roots" in deletion
+    assert "getUserFolder" not in deletion
+    assert "->delete()" not in deletion
 
 
 def test_scan_jobs_record_scope_and_background_job_passes_root_id_to_scanner():

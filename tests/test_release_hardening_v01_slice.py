@@ -17,7 +17,7 @@ def test_release_docs_are_current_for_v01_testing_candidate():
 
     assert f"<version>{CURRENT_VERSION}</version>" in info
     for doc in (readme, release, checklist):
-        assert "0.3.0-alpha.9" in doc
+        assert CURRENT_VERSION in doc
         assert "0.1.0-alpha.82" not in doc
     assert "0.1.0-beta.1" in changelog
     assert "v0.1.0-alpha.1" in changelog

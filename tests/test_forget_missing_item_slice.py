@@ -13,15 +13,16 @@ def test_routes_expose_forget_missing_item_post_action():
 
 def test_item_service_forgets_only_missing_items_and_deletes_app_rows_only():
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
+    deletion = (ROOT / "lib" / "Service" / "ItemDeletionService.php").read_text()
 
     assert "public function forgetMissingItem(string $userId, int $itemId): bool" in service
-    assert "scan_status" in service
-    assert "missing" in service
-    assert "delete('library_items')" in service
-    assert "delete('library_files')" in service
-    assert "getUserFolder" not in service
-    assert "->delete()" not in service
-    assert "return false" in service
+    assert "->deleteItem($userId, $itemId, 'missing', false, true)" in service
+    assert "scan_status" in deletion
+    assert "DELETE FROM *PREFIX*library_items" in deletion
+    assert "DELETE FROM *PREFIX*library_files" in deletion
+    assert "getUserFolder" not in deletion
+    assert "->delete()" not in deletion
+    assert "return false" in deletion
 
 
 def test_item_controller_redirects_forget_missing_back_to_details_or_catalogue():

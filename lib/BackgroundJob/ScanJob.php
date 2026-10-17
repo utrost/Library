@@ -15,6 +15,7 @@ use Psr\Log\LoggerInterface;
 use OCA\Library\Instrumentation\MonotonicClock;
 use OCA\Library\Instrumentation\ScanProgressPolicy;
 use OCA\Library\Service\ScanChangeJournal;
+use OCA\Library\Service\ScheduledScanService;
 
 class ScanJob extends QueuedJob {
     private MonotonicClock $clock;
@@ -25,6 +26,7 @@ class ScanJob extends QueuedJob {
         private LoggerInterface $logger,
         ?MonotonicClock $clock = null,
         private ?ScanChangeJournal $changeJournal = null,
+        private ?ScheduledScanService $scheduledScans = null,
     ) {
         parent::__construct($time);
         $this->setAllowParallelRuns(false);
@@ -90,7 +92,9 @@ class ScanJob extends QueuedJob {
             $result = match (true) {
                 $retryMetadataErrors => $this->scanner->retryMetadataErrors($userId, $progress),
                 $recheckMissingFiles => $this->scanner->recheckMissingFiles($userId, $progress),
-                $scopeType === 'incremental' => $this->scanner->scanIncremental($userId, $progress),
+                $scopeType === 'incremental' => $this->scanner->scanIncremental(
+                    $userId, $progress, is_string($argument['journalCursor'] ?? null) ? $argument['journalCursor'] : ''
+                ),
                 default => $this->scanner->scan($userId, $rootId, $progress),
             };
             $result['scannerDurationMs'] = max((int)($result['scannerDurationMs'] ?? 0), $this->clock->elapsedMs($startedAt));
@@ -99,11 +103,23 @@ class ScanJob extends QueuedJob {
                 return;
             }
             if ($this->scanJobService->finishJob($userId, $jobId, $result)) {
+                $acknowledged = true;
                 if ($result['errors'] === [] && isset($result['journalSnapshot']) && is_array($result['journalSnapshot'])) {
                     try {
                         ($this->changeJournal ??= \OC::$server->get(ScanChangeJournal::class))->acknowledge($userId, $result['journalSnapshot']);
                     } catch (Throwable $e) {
+                        $acknowledged = false;
                         $this->logger->warning('Library scan completed but change-journal acknowledgement failed; changes will be retried', ['exception' => $e]);
+                    }
+                }
+                if ($acknowledged && $result['errors'] === [] && !empty($argument['scheduled'])
+                    && in_array($scopeType, ['all', 'incremental'], true)) {
+                    try {
+                        ($this->scheduledScans ??= \OC::$server->get(ScheduledScanService::class))->continuePending(
+                            $userId, (string)($result['journalCursor'] ?? ''), (int)($argument['continuationDepth'] ?? 0)
+                        );
+                    } catch (Throwable $e) {
+                        $this->logger->warning('Library scan completed but its next journal page could not be queued', ['exception' => $e]);
                     }
                 }
                 $this->logTerminal($result['errors'] === [] ? 'completed' : 'completed_with_errors', $userId, $jobId, $scopeType, $result, $progressWrites, $cancelChecks, $queueWaitMs);

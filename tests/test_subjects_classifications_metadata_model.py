@@ -10,9 +10,9 @@ def test_subjects_classifications_have_schema_and_publication_field_model():
 
     schema = (ROOT / "appinfo" / "database.xml").read_text()
     assert "subjects_json" in schema
-    assert "genres_json" in schema  # Retained legacy column; the migration does not drop it.
+    assert "genres_json" not in schema  # The current physical model has no legacy column.
     assert "subjects_json" in migrations
-    assert "genres_json" in migrations  # legacy migration source only
+    assert "genres_json" in migrations  # Historical migrations and the forward cleanup retain the source reference.
     assert "renameColumn" not in migrations
     assert "subjects_json = genres_json" in migrations
     assert "classifications_json" in migrations

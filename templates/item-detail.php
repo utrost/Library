@@ -27,6 +27,10 @@ $metadataHelp = [
     'classifications' => $l->t('Separate multiple classifications with semicolons. Use Nextcloud tags for ad-hoc cross-app labels.'),
 ];
 $selectedLanguages = array_values(array_filter(array_map('trim', preg_split('/[;,\n]+/u', (string)($item['language'] ?? '')) ?: []), static fn ($value) => $value !== ''));
+foreach ($selectedLanguages as $code) {
+    // The compact picker lists common codes, but must preserve imported codes such as deu.
+    if (!array_key_exists($code, $languageOptions)) $languageOptions[$code] = $code;
+}
 $selectedSubjects = is_array($item['subjects'] ?? null) ? $item['subjects'] : [];
 $creatorNames = $item['authors'] ?? [];
 $creatorLines = implode("\n", $creatorNames);
@@ -224,6 +228,7 @@ $scanStatusLabels = [
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                 <input type="hidden" name="returnTo" value="details" />
                 <input type="hidden" name="metadataAutosave" value="0" />
+                <input type="hidden" name="metadataRevision" value="<?php p((string)($item['metadataRevision'] ?? '')); ?>" />
                 <div class="library-detail-save-row">
                     <p class="library-save-feedback library-detail-autosave-status" role="status" aria-live="polite"><?php p($metadataSaved ? $l->t('Metadata saved') : $l->t('Changes save automatically.')); ?></p>
                     <button type="submit" class="button primary library-detail-save-button library-localization-long-control"><?php p($l->t('Save metadata')); ?></button>
@@ -331,10 +336,17 @@ $scanStatusLabels = [
                 </div>
                 <div class="library-detail-fieldset library-detail-fieldset-personal library-detail-field-full">
                     <h4><?php p($l->t('Personal')); ?></h4>
-                <label id="library-field-personalRating">
-                    <?php p($l->t('Personal rating')); ?>
-                    <input type="number" name="personalRating" min="0" max="5" step="1" value="<?php p($item['personalRating'] !== null ? (string)$item['personalRating'] : ''); ?>" />
-                </label>
+                <fieldset class="library-detail-rating" id="library-field-personalRating">
+                    <legend title="<?php p($l->t('Your private rating. Choose one to five stars, or clear it.')); ?>"><?php p($l->t('Personal rating')); ?></legend>
+                    <div class="library-detail-rating-stars">
+                        <?php for ($star = 5; $star >= 1; --$star): ?>
+                            <input type="radio" id="library-detail-rating-<?php p((string)$star); ?>" name="personalRating" value="<?php p((string)$star); ?>" <?php if ((int)($item['personalRating'] ?? 0) === $star) { print_unescaped('checked'); } ?> />
+                            <label for="library-detail-rating-<?php p((string)$star); ?>" title="<?php p($l->t('Personal rating') . ': ' . $star . '/5'); ?>" aria-label="<?php p($l->t('Personal rating') . ': ' . $star . '/5'); ?>">★</label>
+                        <?php endfor; ?>
+                    </div>
+                    <input type="radio" id="library-detail-rating-clear" name="personalRating" value="" <?php if (($item['personalRating'] ?? null) === null || (int)$item['personalRating'] === 0) { print_unescaped('checked'); } ?> />
+                    <label class="library-detail-rating-clear" for="library-detail-rating-clear"><?php p($l->t('Clear rating')); ?></label>
+                </fieldset>
                 <label class="library-detail-field-full library-detail-description-field" id="library-field-description">
                     <?php p($l->t('Description')); ?>
                     <textarea name="description" rows="10"><?php p((string)($item['description'] ?? '')); ?></textarea>

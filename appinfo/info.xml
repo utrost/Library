@@ -5,7 +5,7 @@
     <name>Library</name>
     <summary>Publication catalogue for files stored in Nextcloud Files</summary>
     <description><![CDATA[Library adds a publication-specific catalogue, metadata cleanup workflow, search and browsing interface on top of ordinary Nextcloud files. Source files remain canonical in Nextcloud Files; Library stores app-owned indexes, extracted metadata and user edits. Create private reading lists with notes, infer metadata from filenames and paths with preview and reversible approval, review potential duplicates, and schedule incremental scans. It does not contact external metadata services or provide a built-in reader. This beta supports Nextcloud 33–35.]]></description>
-    <version>0.3.0-alpha.9</version>
+    <version>0.3.0-alpha.10</version>
     <licence>AGPL-3.0-or-later</licence>
     <author>Library contributors</author>
     <namespace>Library</namespace>
@@ -18,6 +18,9 @@
     <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.2.0-beta.3/docs/images/appstore-details.png</screenshot>
     <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.2.0-beta.3/docs/images/appstore-inference.png</screenshot>
     <dependencies>
+        <database>sqlite</database>
+        <database>mysql</database>
+        <database>pgsql</database>
         <nextcloud min-version="33" max-version="35" />
     </dependencies>
     <background-jobs>

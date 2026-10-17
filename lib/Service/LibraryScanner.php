@@ -38,56 +38,28 @@ final class LibraryScanner {
         private IRootFolder $rootFolder,
         ?MonotonicClock $clock = null,
         private ?ScanChangeJournal $changeJournal = null,
+        private ?IncrementalScanPlanner $targetPlanner = null,
     ) {
         $this->clock = $clock ?? new MonotonicClock();
     }
 
     /** Scan coalesced changed directories, leaving event generations intact on failure. */
-    public function scanIncremental(string $userId, ?callable $progress = null): array {
+    public function scanIncremental(string $userId, ?callable $progress = null, string $afterHash = ''): array {
         $started = $this->beginMetrics();
-        $snapshot = $this->journal()->snapshot($userId);
+        $snapshot = $this->journal()->page($userId, $afterHash);
         $roots = $this->rootService->listEnabledRoots($userId);
         $userFolder = $this->rootFolder->getUserFolder($userId);
         $summary = $this->emptyChangeSummary();
         $indexed = 0; $units = 0; $errors = [];
-        $targets = [];
-        foreach ($snapshot as $entry) {
-            $dirty = $entry['path'];
-            foreach ($roots as $root) {
-                $rootPath = rtrim((string)$root['path'], '/') ?: '/';
-                if ($dirty !== '/' && $rootPath !== '/' && $dirty !== $rootPath
-                    && !str_starts_with($dirty, $rootPath . '/') && !str_starts_with($rootPath, rtrim($dirty, '/') . '/')) continue;
-                $aboveRoot = $dirty === '/' || str_starts_with($rootPath, rtrim($dirty, '/') . '/');
-                $path = $aboveRoot ? $rootPath : $dirty;
-                $folder = $aboveRoot || $entry['folder'];
-                $targets[(int)$root['id']][($folder ? 'd:' : 'f:') . $path] = ['path'=>$path,'folder'=>$folder];
-            }
+        $work = ($this->targetPlanner ??= new IncrementalScanPlanner())->plan($snapshot, $roots);
+        foreach ($work as &$entry) {
+            if ($entry['folder']) continue;
+            try {
+                $live = $userFolder->get(ltrim($entry['path'], '/'));
+                if ($live instanceof File && $live->getStorage()->file_exists($live->getInternalPath())) $entry['priority'] = 0;
+            } catch (Throwable) {}
         }
-        $work = [];
-        foreach ($targets as $rootId => $entries) {
-            $sorted = array_values($entries);
-            usort($sorted, static fn($a, $b) => strlen($a['path']) <=> strlen($b['path']) ?: ((int)$b['folder'] <=> (int)$a['folder']));
-            $kept = [];
-            foreach ($sorted as $entry) {
-                $path = $entry['path'];
-                $covered = false;
-                foreach ($kept as $parent) {
-                    if (($parent['folder'] && ($parent['path'] === '/' || $path === $parent['path'] || str_starts_with($path, rtrim($parent['path'], '/') . '/')))
-                        || ($path === $parent['path'] && $entry['folder'] === $parent['folder'])) { $covered = true; break; }
-                }
-                if ($covered) continue;
-                $kept[] = $entry;
-            }
-            foreach ($kept as $entry) {
-                $entry['rootId'] = (int)$rootId;
-                $entry['priority'] = $entry['folder'] ? 1 : 2;
-                if (!$entry['folder']) try {
-                    $live = $userFolder->get(ltrim($entry['path'], '/'));
-                    if ($live instanceof File && $live->getStorage()->file_exists($live->getInternalPath())) $entry['priority'] = 0;
-                } catch (Throwable) {}
-                $work[] = $entry;
-            }
-        }
+        unset($entry);
         // Resolve live destinations before old/missing paths, including cross-root moves.
         usort($work, static fn($a, $b) => $a['priority'] <=> $b['priority']);
         foreach ($work as $entry) {
@@ -119,7 +91,7 @@ final class LibraryScanner {
                 $errors[] = SafeDiagnostics::publicText($diagnostic);
             }
         }
-        return ['roots'=>count($roots),'indexed'=>$indexed,'errors'=>$errors,...$summary,...$this->finishMetrics($started),'journalSnapshot'=>$snapshot];
+        return ['roots'=>count($roots),'indexed'=>$indexed,'errors'=>$errors,...$summary,...$this->finishMetrics($started),'journalSnapshot'=>$snapshot,'journalCursor'=>$snapshot === [] ? $afterHash : $snapshot[array_key_last($snapshot)]['hash']];
     }
 
     private function journal(): ScanChangeJournal {
@@ -164,7 +136,7 @@ final class LibraryScanner {
     public function scan(string $userId, ?int $onlyRootId = null, ?callable $progress = null): array {
         $scanStarted = $this->beginMetrics();
         $journalSnapshot = $onlyRootId === null && ($this->changeJournal !== null || class_exists(\OC::class))
-            ? $this->journal()->snapshot($userId) : null;
+            ? $this->journal()->page($userId) : null;
         $indexed = 0;
         $summary = $this->emptyChangeSummary();
         $errors = [];
@@ -214,6 +186,7 @@ final class LibraryScanner {
             ...$summary,
             ...$this->finishMetrics($scanStarted),
             'journalSnapshot' => $journalSnapshot,
+            'journalCursor' => $journalSnapshot ? $journalSnapshot[array_key_last($journalSnapshot)]['hash'] : '',
             'rootsDigest' => $rootsDigest,
         ];
     }
@@ -586,6 +559,14 @@ final class LibraryScanner {
             try { $fingerprint = $this->metadataService->metadataInputFingerprint($node, $rootId); }
             finally { $this->metrics['fingerprintDurationMs'] += $this->clock->elapsedMs($fingerprintStarted); }
             $revision = PublicationMetadataService::PIPELINE_REVISION;
+            // Avoid reopening unaffected archives after the conservative ISSN change.
+            if ($revision==='metadata-pipeline-v10' && ($indexedFile['previousMetadataExtractorRevision']??null)==='metadata-pipeline-v9'
+                && MetadataFastPathDecision::shouldSkip($force,(string)($indexedFile['changeStatus']??'unchanged'),$indexedFile['previousScanStatus']??null,
+                    $fingerprint,$indexedFile['previousMetadataInputFingerprint']??null,'metadata-pipeline-v9','metadata-pipeline-v9',
+                    fn()=>$this->itemService->canReuseV9ScannerMetadata($userId,(int)$indexedFile['id']))) {
+                $this->fileIndexService->markMetadataProcessed($userId,(int)$indexedFile['id'],$fingerprint,$revision);
+                $indexedFile['previousMetadataExtractorRevision']=$revision;
+            }
             // Adopt v6 only for unchanged sources whose saved proposals already satisfy v7 bounds.
             if ($revision==='metadata-pipeline-v7' && ($indexedFile['previousMetadataExtractorRevision']??null)==='metadata-pipeline-v6'
                 && MetadataFastPathDecision::shouldSkip($force,(string)($indexedFile['changeStatus']??'unchanged'),$indexedFile['previousScanStatus']??null,

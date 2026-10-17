@@ -22,8 +22,10 @@ def test_file_index_service_can_mark_previously_indexed_files_as_sidecar():
 
 def test_item_service_can_remove_scanner_created_catalogue_item_for_sidecar_file():
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
+    deletion = (ROOT / "lib" / "Service" / "ItemDeletionService.php").read_text()
     assert "public function deleteItemForLibraryFile(string $userId, int $libraryFileId): void" in service
-    assert "delete('library_items')" in service
+    assert "->deleteItem($userId, (int)$existing['id'], 'sidecar', true)" in service
+    assert "DELETE FROM *PREFIX*library_items" in deletion
     assert "library_file_id" in service
     assert "user_id" in service
 

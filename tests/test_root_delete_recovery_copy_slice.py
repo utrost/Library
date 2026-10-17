@@ -14,7 +14,7 @@ def test_root_delete_form_shows_recovery_checklist_before_destructive_confirmati
     assert "library-root-recovery-checklist" in template
     assert "Before deleting this Library root" in template
     assert "Export corrected metadata" in template
-    assert "database backup" in template
+    assert "full Nextcloud database and data-directory backup" in template
     assert "Re-add the same folder path and scan it again" in template
     assert "source files from Nextcloud Files are not deleted" in template
     assert template.index("library-root-recovery-checklist") < template.index("confirmDeleteText")

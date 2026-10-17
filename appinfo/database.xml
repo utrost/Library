@@ -267,14 +267,12 @@
         <name>*dbprefix*library_items</name>
         <declaration>
             <field><name>author_source_hash</name><type>string</type><length>64</length><notnull>false</notnull></field>
-            <field><name>author_sync_status</name><type>integer</type><length>2</length><notnull>true</notnull><default>1</default></field>
-            <index><name>library_author_pending</name><field><name>author_sync_status</name></field><field><name>id</name></field></index>
-            <index><name>library_author_user_status</name><field><name>user_id</name></field><field><name>author_sync_status</name></field><field><name>id</name></field></index>
+            <field><name>author_sync_status</name><type>smallint</type><notnull>true</notnull><default>1</default></field>
             <field><name>scanner_index_hash</name><type>string</type><length>64</length><notnull>false</notnull></field>
             <field><name>authors_json</name><type>text</type><notnull>false</notnull></field>
             <field><name>series_name</name><type>string</type><length>255</length><notnull>false</notnull></field>
             <field><name>series_number</name><type>string</type><length>64</length><notnull>false</notnull></field>
-            <field><name>series_sync_status</name><type>integer</type><length>2</length><notnull>true</notnull><default>1</default></field>
+            <field><name>series_sync_status</name><type>smallint</type><notnull>true</notnull><default>1</default></field>
             <field><name>genre</name><type>string</type><length>255</length><notnull>false</notnull></field>
             <field>
                 <name>id</name>
@@ -390,7 +388,6 @@
                 <notnull>false</notnull>
             </field>
             <!-- Retained legacy column; the subject migration copies its data. -->
-            <field><name>genres_json</name><type>text</type><notnull>false</notnull></field>
             <field>
                 <name>subjects_json</name>
                 <type>text</type>
@@ -502,6 +499,8 @@
             <index><name>library_items_usr_title_page</name><field><name>user_id</name></field><field><name>title</name></field><field><name>id</name></field><field><name>library_file_id</name></field></index>
             <index><name>library_series_pending</name><field><name>series_sync_status</name></field><field><name>id</name></field></index>
             <index><name>library_series_user_status</name><field><name>user_id</name></field><field><name>series_sync_status</name></field><field><name>id</name></field></index>
+            <index><name>library_author_pending</name><field><name>author_sync_status</name></field><field><name>id</name></field></index>
+            <index><name>library_author_user_status</name><field><name>user_id</name></field><field><name>author_sync_status</name></field><field><name>id</name></field></index>
             <index>
                 <name>library_items_usr_title</name>
                 <field><name>user_id</name></field>
@@ -1256,15 +1255,15 @@
             <field><name>given_name</name><type>string</type><length>255</length><notnull>false</notnull></field>
             <field><name>family_name</name><type>string</type><length>255</length><notnull>false</notnull></field>
             <field><name>comparison_key</name><type>string</type><length>64</length><notnull>true</notnull></field>
-            <field><name>normalization_version</name><type>integer</type><length>2</length><notnull>true</notnull><default>1</default></field>
+            <field><name>normalization_version</name><type>smallint</type><notnull>true</notnull><default>1</default></field>
             <field><name>revision</name><type>bigint</type><notnull>true</notnull><default>1</default></field>
             <field><name>field_sources</name><type>text</type><notnull>false</notnull></field>
+            <field><name>merged_into</name><type>bigint</type><unsigned>true</unsigned><notnull>false</notnull></field>
+            <field><name>biography</name><type>text</type><notnull>false</notnull></field>
+            <field><name>photo_key</name><type>string</type><length>36</length><notnull>false</notnull></field>
             <index><name>library_authors_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
             <index><name>library_authors_lookup</name><field><name>user_id</name></field><field><name>comparison_key</name></field></index>
             <index><name>library_authors_sort</name><field><name>user_id</name></field><field><name>sort_name</name></field><field><name>id</name></field></index>
-        <field><name>merged_into</name><type>bigint</type><unsigned>true</unsigned><notnull>false</notnull></field>
-        <field><name>biography</name><type>text</type><notnull>false</notnull></field>
-        <field><name>photo_key</name><type>string</type><length>36</length><notnull>false</notnull></field>
         </declaration>
     </table>
     <table>
@@ -1296,11 +1295,11 @@
         <field><name>id</name><type>string</type><length>32</length><notnull>true</notnull></field>
         <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
         <field><name>created_at</name><type>bigint</type><notnull>true</notnull></field>
-        <field><name>undone</name><type>integer</type><length>2</length><notnull>true</notnull><default>0</default></field>
+        <field><name>undone</name><type>smallint</type><notnull>true</notnull><default>0</default></field>
         <field><name>source_name</name><type>string</type><length>255</length><notnull>true</notnull></field>
         <field><name>target_name</name><type>string</type><length>255</length><notnull>true</notnull></field>
         <field><name>book_count</name><type>integer</type><length>4</length><notnull>true</notnull></field>
-        <field><name>is_merge</name><type>integer</type><length>2</length><notnull>true</notnull></field>
+        <field><name>is_merge</name><type>smallint</type><notnull>true</notnull></field>
         <field><name>payload</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
         <index><name>library_author_ops_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
         <index><name>library_author_ops_user</name><field><name>user_id</name></field><field><name>created_at</name></field><field><name>id</name></field></index>
@@ -1338,7 +1337,7 @@
     <table><name>*dbprefix*library_item_series</name><declaration>
         <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
         <field><name>item_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
-        <field><name>slot</name><type>integer</type><length>2</length><notnull>true</notnull></field>
+        <field><name>slot</name><type>smallint</type><notnull>true</notnull></field>
         <field><name>series_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
         <field><name>part_number</name><type>string</type><length>64</length><notnull>false</notnull></field>
         <field><name>source_name</name><type>string</type><length>255</length><notnull>true</notnull></field>
@@ -1357,11 +1356,11 @@
         <field><name>id</name><type>string</type><length>32</length><notnull>true</notnull></field>
         <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
         <field><name>created_at</name><type>bigint</type><notnull>true</notnull></field>
-        <field><name>undone</name><type>integer</type><length>2</length><notnull>true</notnull><default>0</default></field>
+        <field><name>undone</name><type>smallint</type><notnull>true</notnull><default>0</default></field>
         <field><name>source_name</name><type>string</type><length>255</length><notnull>true</notnull></field>
         <field><name>target_name</name><type>string</type><length>255</length><notnull>true</notnull></field>
         <field><name>book_count</name><type>integer</type><length>4</length><notnull>true</notnull></field>
-        <field><name>is_merge</name><type>integer</type><length>2</length><notnull>true</notnull></field>
+        <field><name>is_merge</name><type>smallint</type><notnull>true</notnull></field>
         <field><name>payload</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
         <index><name>library_series_ops_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
         <index><name>library_series_ops_user</name><field><name>user_id</name></field><field><name>created_at</name></field><field><name>id</name></field></index>

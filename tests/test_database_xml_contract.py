@@ -58,7 +58,7 @@ EXPECTED_TABLES = {
             "id", "user_id", "library_file_id", "publication_type", "title", "subtitle", "creators", "authors_json",
             "publication", "publication_date", "language", "publisher", "metadata_source", "user_edited", "series_name", "series_number", "genre",
             "field_sources", "field_values", "starred", "last_opened_at", "description", "workflow_status",
-            "subjects_json", "genres_json", "classifications_json", "personal_rating", "cover_override_url", "cover_override_data",
+            "subjects_json", "classifications_json", "personal_rating", "cover_override_url", "cover_override_data",
             "cover_override_mime_type", "cover_revision", "scanner_index_hash", "needs_metadata", "cover_review", "no_publication", "title_from_filename",
             "no_description", "weak_metadata", "unreviewed_import", "created_at", "updated_at",
         },

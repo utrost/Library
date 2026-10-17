@@ -21,7 +21,7 @@ def test_item_service_creates_items_for_indexed_files_and_preserves_user_edits()
     assert "namespace OCA\\Library\\Service" in service
     assert "final class ItemService" in service
     assert "public function ensureItemForFile(string $userId, array $file, array $metadata = []): void" in service
-    assert "public function updateItem(string $userId, int $itemId, array $metadata): void" in service
+    assert "public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null): void" in service
     assert "public function listItems(string $userId): array" in service
     assert "user_edited" in service
     assert "metadata_source" in service
@@ -61,7 +61,7 @@ def test_item_edit_route_and_controller_are_wired():
     controller = controller_path.read_text()
     assert "final class ItemController" in controller
     assert "ItemService $itemService" in controller
-    assert "public function update(int $itemId): RedirectResponse" in controller
+    assert "public function update(int $itemId): RedirectResponse|JSONResponse|TemplateResponse" in controller
     assert "publicationType" in controller
 
 
