@@ -6,6 +6,10 @@ The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submis
 
 Before submitting 0.3: obtain human acceptance of author and series workflows, resolve release-blocking findings, verify a populated upgrade from the preserved 0.2 baseline and interruption recovery, refresh listing/screenshots, then sign and run an exact-package NC33–35 fresh/upgrade matrix. Alpha.9's focused source checks and developer upgrade are encouraging but do not certify a signed release package.
 
+## Alpha.10 developer handoff — 2026-10-17
+
+The signed `0.3.0-alpha.10` package from merged PR #109 is [deployed on populated developer NC34](compatibility-evidence/2026-10-17-nc34-alpha10/README.md). The migration completed, 107,717 catalogue rows remain, app integrity passed and the installed files match the audited archive. Owner testing with the [human handbook](human-test-handbook.md#current-03-human-cases) is next. The signed alpha.10 archive still needs the exact-package fresh/upgrade matrix on NC33–35 before App Store submission.
+
 
 ## Release checkpoint — 2026-10-14
 
