@@ -38,37 +38,44 @@ final class FileIndexService {
                 $relinked = true;
             }
         }
-        if ($existing !== null) {
-            $previousScanStatus = $existing['scanStatus'];
-            $previousScanError = $existing['scanError'];
-            $previousMetadataInputFingerprint = $existing['metadataInputFingerprint'];
-            $previousMetadataExtractorRevision = $existing['metadataExtractorRevision'];
-            $pathChanged = (string)$existing['cachedPath'] !== (string)$file['cachedPath'] || (int)$existing['rootId'] !== $rootId;
-            $qb = $this->db->getQueryBuilder();
-            $update = $qb->update('library_files')
-                ->set('root_id', $qb->createNamedParameter($rootId))
-                ->set('cached_path', $qb->createNamedParameter((string)$file['cachedPath']))
-                ->set('mime_type', $qb->createNamedParameter((string)$file['mimeType']))
-                ->set('extension', $qb->createNamedParameter($file['extension']))
-                ->set('etag', $qb->createNamedParameter($file['etag']))
-                ->set('mtime', $qb->createNamedParameter($file['mtime']))
-                ->set('size', $qb->createNamedParameter($file['size']))
-                ->set('scan_status', $qb->createNamedParameter('indexed'))
-                ->set('scan_error', $qb->createNamedParameter(null))
-                ->set('last_scanned_at', $qb->createNamedParameter($now))
-                ->set('updated_at', $qb->createNamedParameter($now))
-                ->where($qb->expr()->eq('id', $qb->createNamedParameter($existing['id'])))
-                ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
-            if ($relinked) {
-                $update->set('file_id', $qb->createNamedParameter($fileId))
-                    ->andWhere($qb->expr()->eq('file_id', $qb->createNamedParameter((int)$existing['fileId'])))
-                    ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
-                    ->andWhere($qb->expr()->eq('cached_path', $qb->createNamedParameter((string)$file['cachedPath'])));
-            }
-            if ($relinked) {
-                $this->db->beginTransaction();
-            }
-            try {
+        // Only an insert or a move to another root can create a file row under
+        // a deleted root. Keep unchanged-file scans on their existing fast path.
+        $guarded = $existing === null || (int)$existing['rootId'] !== $rootId || $relinked;
+        if ($guarded) $this->db->beginTransaction();
+        try {
+            if ($guarded) RootLifetimeGuard::lock($this->db, $userId, $rootId);
+            if ($existing !== null) {
+                $previousScanStatus = $existing['scanStatus'];
+                $previousScanError = $existing['scanError'];
+                $previousMetadataInputFingerprint = $existing['metadataInputFingerprint'];
+                $previousMetadataExtractorRevision = $existing['metadataExtractorRevision'];
+                $pathChanged = (string)$existing['cachedPath'] !== (string)$file['cachedPath'] || (int)$existing['rootId'] !== $rootId;
+                $qb = $this->db->getQueryBuilder();
+                $update = $qb->update('library_files')
+                    ->set('root_id', $qb->createNamedParameter($rootId))
+                    ->set('cached_path', $qb->createNamedParameter((string)$file['cachedPath']))
+                    ->set('mime_type', $qb->createNamedParameter((string)$file['mimeType']))
+                    ->set('extension', $qb->createNamedParameter($file['extension']))
+                    ->set('etag', $qb->createNamedParameter($file['etag']))
+                    ->set('mtime', $qb->createNamedParameter($file['mtime']))
+                    ->set('size', $qb->createNamedParameter($file['size']))
+                    ->set('scan_status', $qb->createNamedParameter('indexed'))
+                    ->set('scan_error', $qb->createNamedParameter(null))
+                    ->set('last_scanned_at', $qb->createNamedParameter($now))
+                    ->set('updated_at', $qb->createNamedParameter($now))
+                    ->where($qb->expr()->eq('id', $qb->createNamedParameter($existing['id'])))
+                    ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
+                if ($relinked) {
+                    $update->set('file_id', $qb->createNamedParameter($fileId))
+                        ->andWhere($qb->expr()->eq('file_id', $qb->createNamedParameter((int)$existing['fileId'])))
+                        ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter($rootId)))
+                        ->andWhere($qb->expr()->eq('cached_path', $qb->createNamedParameter((string)$file['cachedPath'])));
+                } else {
+                    // An observation from before a root move must not move the
+                    // same file row back under a root that was just deleted.
+                    $update->andWhere($qb->expr()->eq('file_id', $qb->createNamedParameter((int)$existing['fileId'])))
+                        ->andWhere($qb->expr()->eq('root_id', $qb->createNamedParameter((int)$existing['rootId'])));
+                }
                 $affected = $update->executeStatement();
                 if ($relinked) {
                     if ($affected !== 1) {
@@ -81,53 +88,62 @@ final class FileIndexService {
                         'UPDATE *PREFIX*library_list_entries SET file_id = ? WHERE item_id IN (SELECT id FROM *PREFIX*library_items WHERE user_id = ? AND library_file_id = ?)',
                         [$fileId, $userId, (int)$existing['id']],
                     );
-                    $this->db->commit();
+                } elseif ($affected === 0) {
+                    // MySQL may report zero for an unchanged row. Verify that it
+                    // still has this identity before using the stale observation.
+                    $current = $this->findByFileId($userId, $fileId);
+                    if ($current === null || (int)$current['id'] !== (int)$existing['id']
+                        || (int)$current['rootId'] !== $rootId
+                        || (string)$current['cachedPath'] !== (string)$file['cachedPath']
+                        || (string)$current['etag'] !== (string)$file['etag']) {
+                        throw new \RuntimeException('File index changed during scan; retry the file');
+                    }
                 }
-            } catch (\Throwable $e) {
-                if ($relinked) {
-                    $this->db->rollBack();
-                }
-                throw $e;
+                $updated = [...$existing, ...$file, 'rootId' => $rootId, 'fileId' => $fileId, 'scanStatus' => 'indexed',
+                    'scanError' => null, 'lastScannedAt' => $now, 'updatedAt' => $now];
+                $updated['changeStatus'] = $relinked ? 'relinked' : ($pathChanged ? 'path_updated' : 'unchanged');
+                $updated['previousScanStatus'] = $previousScanStatus;
+                $updated['previousScanError'] = $previousScanError;
+                $updated['previousMetadataInputFingerprint'] = $previousMetadataInputFingerprint;
+                $updated['previousMetadataExtractorRevision'] = $previousMetadataExtractorRevision;
+                if ($guarded) $this->db->commit();
+                return $updated;
             }
-            $updated = [...$existing, ...$file, 'rootId' => $rootId, 'fileId' => $fileId, 'scanStatus' => 'indexed',
-                'scanError' => null, 'lastScannedAt' => $now, 'updatedAt' => $now];
-            $updated['changeStatus'] = $relinked ? 'relinked' : ($pathChanged ? 'path_updated' : 'unchanged');
-            $updated['previousScanStatus'] = $previousScanStatus;
-            $updated['previousScanError'] = $previousScanError;
-            $updated['previousMetadataInputFingerprint'] = $previousMetadataInputFingerprint;
-            $updated['previousMetadataExtractorRevision'] = $previousMetadataExtractorRevision;
-            return $updated;
-        }
 
-        $qb = $this->db->getQueryBuilder();
-        $qb->insert('library_files')
-            ->values([
-                'user_id' => $qb->createNamedParameter($userId),
-                'root_id' => $qb->createNamedParameter($rootId),
-                'file_id' => $qb->createNamedParameter($fileId),
-                'cached_path' => $qb->createNamedParameter((string)$file['cachedPath']),
-                'mime_type' => $qb->createNamedParameter((string)$file['mimeType']),
-                'extension' => $qb->createNamedParameter($file['extension']),
-                'etag' => $qb->createNamedParameter($file['etag']),
-                'mtime' => $qb->createNamedParameter($file['mtime']),
-                'size' => $qb->createNamedParameter($file['size']),
-                'scan_status' => $qb->createNamedParameter('indexed'),
-                'scan_error' => $qb->createNamedParameter(null),
-                'last_scanned_at' => $qb->createNamedParameter($now),
-                'created_at' => $qb->createNamedParameter($now),
-                'updated_at' => $qb->createNamedParameter($now),
-            ])
-            ->executeStatement();
+            $qb = $this->db->getQueryBuilder();
+            $qb->insert('library_files')
+                ->values([
+                    'user_id' => $qb->createNamedParameter($userId),
+                    'root_id' => $qb->createNamedParameter($rootId),
+                    'file_id' => $qb->createNamedParameter($fileId),
+                    'cached_path' => $qb->createNamedParameter((string)$file['cachedPath']),
+                    'mime_type' => $qb->createNamedParameter((string)$file['mimeType']),
+                    'extension' => $qb->createNamedParameter($file['extension']),
+                    'etag' => $qb->createNamedParameter($file['etag']),
+                    'mtime' => $qb->createNamedParameter($file['mtime']),
+                    'size' => $qb->createNamedParameter($file['size']),
+                    'scan_status' => $qb->createNamedParameter('indexed'),
+                    'scan_error' => $qb->createNamedParameter(null),
+                    'last_scanned_at' => $qb->createNamedParameter($now),
+                    'created_at' => $qb->createNamedParameter($now),
+                    'updated_at' => $qb->createNamedParameter($now),
+                ])
+                ->executeStatement();
 
-        $created = $this->findByFileId($userId, $fileId);
-        if ($created === null) {
-            throw new \RuntimeException('Inserted library file could not be read back');
+            $created = $this->findByFileId($userId, $fileId);
+            if ($created === null) {
+                throw new \RuntimeException('Inserted library file could not be read back');
+            }
+            $created['changeStatus'] = 'added';
+            $created['previousScanStatus'] = null;
+            $created['previousMetadataInputFingerprint'] = null;
+            $created['previousMetadataExtractorRevision'] = null;
+            if ($guarded) $this->db->commit();
+            return $created;
+        } catch (\Throwable $e) {
+            if ($guarded) $this->db->rollBack();
+            throw $e;
         }
-        $created['changeStatus'] = 'added';
-        $created['previousScanStatus'] = null;
-        $created['previousMetadataInputFingerprint'] = null;
-        $created['previousMetadataExtractorRevision'] = null;
-        return $created;
     }
 
     /** A non-unique path is unsafe to use as an identity recovery key. */

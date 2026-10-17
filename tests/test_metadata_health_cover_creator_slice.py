@@ -40,7 +40,8 @@ def test_rating_is_first_class_personal_metadata_with_zero_to_five_bounds():
     assert "Personal rating must be between 0 and 5" in service
     assert "'personalRating' =>" in controller
     assert "name=\"personalRating\"" in template
-    assert "min=\"0\"" in template and "max=\"5\"" in template
+    assert 'type="radio"' in template and 'value="<?php p((string)$star); ?>"' in template
+    assert 'for ($star = 5; $star >= 1; --$star)' in template
 
 
 def test_manual_cover_override_has_upload_url_and_revert_routes():

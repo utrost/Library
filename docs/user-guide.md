@@ -28,7 +28,7 @@ For the first catalogue:
 
 Start with one bounded folder rather than an entire storage mount. After the result looks correct, add further roots or scan all enabled roots. Rescanning refreshes Library-owned index and metadata candidates while preserving manual Library edits and the original files.
 
-Administrators should ensure Nextcloud background jobs use **Cron**, not AJAX, for larger collections. Keep normal Nextcloud database and data-directory backups; Library's tables can be rebuilt by scanning, but manual catalogue corrections should also be exported from **Library settings**.
+Administrators should ensure Nextcloud background jobs use **Cron**, not AJAX, for larger collections. Keep a consistent Nextcloud database, configuration, custom-app and data-directory backup, including appdata. This is the recovery path for all Library data. Corrected-metadata export is useful for selected book corrections but is [not a full backup](recovery.md).
 
 See [FAQ and troubleshooting](faq.md) when the app is absent, a scan stays queued, counts differ from the number of files, metadata is sparse, or the catalogue feels slow.
 
@@ -121,6 +121,8 @@ Implementation note for reviewers: the catalogue is no longer an app-layer filte
 
 Select a cover or title to open the contextual sidebar, then choose **Advanced details** to open the full editor. This is the item workbench.
 
+When you open full details from a filtered catalogue, search, review result, or reading list, **Back to results** returns to that view with its query, sort, page, and display mode. A direct link without a source view returns to **All publications**.
+
 Current details capabilities:
 
 - view cover, title, creator, type, format and shelf;
@@ -142,10 +144,11 @@ Current details capabilities:
   - creators;
   - publication / series / periodical name;
   - publication date;
-  - publisher;
-  - language;
-  - personal rating (0–5 stars);
-  - subjects and classifications, where sub-subject remains a subject/classification value until a real taxonomy proves it needs a separate field;
+  - publisher: enter a name or choose a suggestion from publishers already in your library; publisher names remain free text;
+  - language: search the pick-list by name or code, including three-letter codes such as `deu`, and add more than one language; imported codes are preserved rather than silently converted;
+  - personal rating: choose one to five stars in the full details editor, or clear the private rating; each choice saves immediately without marking imported book metadata as manually edited;
+  - subjects: add several values as chips; suggestions come from subjects already indexed in your library, while new values remain allowed. Subjects are per-book values, not shared subject records;
+  - classifications, where sub-subject remains a subject/classification value until a real taxonomy proves it needs a separate field;
 - inspect backing file metadata:
   - Nextcloud file ID;
   - Library file-index ID;
@@ -162,6 +165,8 @@ Current details capabilities:
 - see recent Nextcloud comments for the backing file;
 - add a new Nextcloud file comment;
 - forget a missing item when the backing file row has already been marked `missing`.
+
+Bare eight-digit values in EPUB or PDF metadata are not automatically treated as ISSNs. The source must label them as ISSN. A full scan after the parser update rechecks previously imported ISSNs while reusing unchanged books without imported ISSNs. If you have edited a book's metadata, Library preserves its existing identifier choices; remove any old, wrongly inferred ISSN in that book's **Identifiers** field.
 
 Manual Library metadata edits set provenance to `user` and are preserved across rescans. Stored scanner candidates continue to refresh in the background on later scans, so a user can compare or reset fields without losing current manual values. Tag and comment changes are Nextcloud file-level changes; they do not mutate Library publication metadata.
 
@@ -339,7 +344,7 @@ Forgetting a missing item removes this Library catalogue entry and its app-owned
 
 ### Export corrected metadata
 
-Use **Export corrected metadata** from the catalogue or Library settings to download a side-effect-free JSON download of user-edited catalogue rows; this corrected-metadata export is the portable input for preview/apply.
+Use **Export corrected metadata** from the catalogue or Library settings to download a side-effect-free JSON file of selected edited catalogue rows. It is a **partial export** for preview/apply, not a full Library backup. It omits reading lists and notes, author and series identities and assignments, biographies, portraits, operation history, preferences and thumbnail appdata. Use a consistent [Nextcloud backup](recovery.md) for full recovery.
 
 The read-only corrected-metadata JSON export is implemented. It includes stable file identity and Library metadata needed for a first recovery/import story:
 
@@ -732,6 +737,8 @@ Choose **Edit author** to set the preferred name, sort name and optional given/f
 The initial author migration runs in background batches. Progress and failures appear in the directory; editing becomes available once pending work and failures are resolved. Administrators can inspect or retry using `occ library:authors:migrate USER_ID` (see the [migration commands](v0.3-author-management.md#storage-slice--030-alpha1)).
 
 Preferred names appear on catalogue cards, Home, list entries, publication headings and creator suggestions. Author chips in the publication sidebar open the corresponding identity. Original credits remain in the metadata editor and are not written back to ebook files. Identity-aware creator matching and duplicate suggestions are available; source credits remain stored and can still matter to text search and metadata review. A changed source credit for a manually corrected author is flagged for review instead of silently replacing that identity.
+
+On a publication's **Full details** page, **Authors** shows the linked identities. Choose **Change author**, search for an existing author and select the correct person. The same picker can explicitly create a separate identity when needed. **Save author assignment** changes this book's link only; it leaves the source credit and ebook file intact. If you need to correct what the book says, expand **Source creator credits** in **Publication metadata** and save that metadata separately. This field accepts one creator per line and preserves commas inside names. Changed source credits can enter the author import review queue when a curated assignment already exists. Adding or removing a credit is currently done through this source field or import review; the direct author picker replaces one linked identity at a time. When author migration is still pending, wait for it to finish before using the picker.
 
 ### Merge duplicate author names or separate different people
 

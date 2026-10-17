@@ -217,17 +217,21 @@ private function extractIdentifiers(mixed $nodes, string $source): array {
         if ($value === '') {
             continue;
         }
-        $scheme = strtolower(trim((string)($node['scheme'] ?? '')));
+        // The dc namespace can hide an unprefixed attribute from direct
+        // SimpleXML array access; read it from the node's own attributes.
+        $attributes = $node->attributes();
+        $scheme = strtolower(trim((string)($attributes['scheme'] ?? '')));
         $opfAttributes = $node->attributes('http://www.idpf.org/2007/opf');
         if ($scheme === '' && isset($opfAttributes['scheme'])) {
             $scheme = strtolower(trim((string)$opfAttributes['scheme']));
         }
 
         $compact = strtoupper((string)preg_replace('/[\s-]+/u', '', $value));
+        // Eight digits alone are common vendor IDs; require an ISSN label.
         if (($scheme === 'isbn' || preg_match('/^(?:(?:URN:)?ISBN:?)?(\d{9}[\dX]|\d{13})$/i', $compact) === 1)
             && preg_match('/(\d{9}[\dX]|\d{13})$/i', $compact) === 1) {
             $identifiers[] = ['scheme' => 'isbn', 'displayValue' => $value, 'source' => $source, 'userEdited' => false];
-        } elseif (($scheme === 'issn' || preg_match('/^(?:(?:URN:)?ISSN:?)?(\d{7}[\dX])$/i', $compact) === 1)
+        } elseif (($scheme === 'issn' || preg_match('/^(?:URN:)?ISSN:?(\d{7}[\dX])$/i', $compact) === 1)
             && preg_match('/(\d{7}[\dX])$/i', $compact) === 1) {
             $identifiers[] = ['scheme' => 'issn', 'displayValue' => $value, 'source' => $source, 'userEdited' => false];
         }

@@ -28,7 +28,7 @@ def test_sidebar_action_block_routes_contextual_actions_with_one_primary():
         ('button primary', 'selectedDrawerItem.openUrl', 'Open'),
         (None, 'selectedDrawerItem.filesUrl', 'Show in Files'),
         (None, 'selectedDrawerItem.downloadUrl', 'Download'),
-        ('button secondary', 'selectedDrawerItem.detailsUrl', 'Full details'),
+        ('button secondary', 'detailsLink(selectedDrawerItem.detailsUrl)', 'Full details'),
     ]
     assert actions.count('<a ') == 2
     assert actions.count('<NcActionLink ') == 2

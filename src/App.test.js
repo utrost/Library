@@ -2331,7 +2331,7 @@ describe('Library catalogue Vue app', () => {
     ['2011-09-18T23:30:00-11:00', '2011-09-18'],
   ])('renders and submits stored ISO publication dates as their calendar date for %s', async (storedDate, expectedDate) => {
     window.history.replaceState({}, '', '/nc/index.php/apps/library/')
-    const item = { ...state.items[0], publicationDate: storedDate }
+    const item = { ...state.items[0], publicationDate: storedDate, metadataRevision: 'fixture-revision' }
     globalThis.fetch = vi.fn()
       .mockResolvedValueOnce({ ok: true, json: async () => ({ item }) })
       .mockResolvedValueOnce({ ok: true, json: async () => ({ saved: true }) })
@@ -2353,7 +2353,7 @@ describe('Library catalogue Vue app', () => {
 
   it('accepts and clears an empty publication date without rendering placeholder text', async () => {
     window.history.replaceState({}, '', '/nc/index.php/apps/library/')
-    const item = { ...state.items[0], publicationDate: '' }
+    const item = { ...state.items[0], publicationDate: '', metadataRevision: 'fixture-revision' }
     globalThis.fetch = vi.fn()
       .mockResolvedValueOnce({ ok: true, json: async () => ({ item }) })
       .mockResolvedValueOnce({ ok: true, json: async () => ({ saved: true }) })

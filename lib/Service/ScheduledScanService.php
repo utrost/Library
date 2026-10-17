@@ -14,6 +14,7 @@ use OCA\Library\Metadata\PublicationMetadataService;
 final class ScheduledScanService {
     public const INTERVALS = [0, 3600, 21600, 86400];
     public const FULL_RECONCILIATION_SECONDS = 7 * 86400;
+    private const MAX_PAGE_CONTINUATIONS = 100;
     public function __construct(
         private IDBConnection $db,
         private ScanJobService $scans,
@@ -21,6 +22,7 @@ final class ScheduledScanService {
         private IUserManager $users,
         private ITimeFactory $time,
         private LoggerInterface $logger,
+        private ?ScanChangeJournal $changeJournal = null,
     ) {}
 
     public function status(string $uid): array {
@@ -92,6 +94,38 @@ final class ScheduledScanService {
             }
         }
         return $result;
+    }
+
+    /** Queue the next bounded journal page after successful acknowledgement. */
+    public function continuePending(string $uid, string $cursor, int $depth): bool {
+        $journal = $this->changeJournal ??= \OC::$server->get(ScanChangeJournal::class);
+        if (!$journal->hasPending($uid)) return false;
+        $this->db->beginTransaction();
+        try {
+            $this->lock($uid);
+            $state = $this->status($uid);
+            if ($state['interval'] <= 0) { $this->db->commit(); return false; }
+            if ($depth >= self::MAX_PAGE_CONTINUATIONS) {
+                $this->db->executeStatement('UPDATE *PREFIX*library_scan_schedule SET next_run_at=? WHERE user_id=?',
+                    [$this->time->getTime() + 60, $uid]);
+                $this->db->commit();
+                return false;
+            }
+            $r = $this->db->executeQuery('SELECT id FROM *PREFIX*library_scan_jobs WHERE user_id=? AND status IN (?,?) LIMIT 1',
+                [$uid, 'queued', 'running']);
+            $active = $r->fetchOne() !== false;
+            $r->closeCursor();
+            if ($active || !$journal->hasPending($uid)) { $this->db->commit(); return false; }
+            $job = $this->scans->queueJob($uid, 'incremental');
+            $this->jobs->add(ScanJob::class, [
+                'userId' => $uid, 'jobId' => (int)$job['id'], 'scheduled' => true,
+                'journalCursor' => $cursor, 'continuationDepth' => $depth + 1,
+            ]);
+            $this->db->executeStatement('UPDATE *PREFIX*library_scan_schedule SET last_job_id=?,next_run_at=? WHERE user_id=?',
+                [(int)$job['id'], $this->time->getTime() + $state['interval'], $uid]);
+            $this->db->commit();
+            return true;
+        } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
     }
 
     private function postpone(string $uid, int $until): void {

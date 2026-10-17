@@ -72,7 +72,7 @@ def test_docs_mark_metadata_export_foundation_landed_and_next_priority():
 
     assert "export corrected metadata" in readme.lower()
     assert "Export corrected metadata" in guide
-    assert "side-effect-free JSON download" in guide
+    assert "side-effect-free JSON file" in guide
     assert "user-edited catalogue rows" in guide
     assert "Metadata export foundation.** First slice landed" in roadmap
     assert "DB-backed catalogue query path.** First slice landed" in roadmap

@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3.0-alpha.9**, 2026-10-14. Covers 34 app-owned tables through `Version000300Date20261014120000`. Alpha.9 adds guarded series assignments, merge redirects and a private operation journal. Earlier series additions passed fresh installation on SQLite NC33–35, populated upgrade on SQLite NC34, and upgrade on the MariaDB developer NC34. The alpha.9 focused compatibility evidence is recorded separately.
+Snapshot: **0.3 development tree**, 2026-10-15. Covers 34 app-owned tables through `Version000300Date20261015120000`. The new forward migration finishes the legacy genres-to-subjects transition. Fresh physical-schema comparison now passes on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passes on NC34 with all three engines. These are source-tree database checks, not a signed release-package matrix.
 
 ## Schema ownership
 
@@ -8,7 +8,7 @@ Snapshot: **0.3.0-alpha.9**, 2026-10-14. Covers 34 app-owned tables through `Ver
 
 The alpha.28 replay verifies the change journal and full-scan checkpoint fields. The alpha.27 replay also verifies integer `library_scan_jobs.cached_warning_skips` (default 0, non-null) and all table field sets. The alpha.26 replay verifies the new nullable string(64) `library_items.scanner_index_hash` column and all table field sets. The earlier maintenance pass compared complete field types and index definitions.
 
-The earlier alpha.28 maintenance pass replayed all 47 migration schema methods against an empty in-memory Doctrine schema on developer NC34. It did not invoke data backfills or execute schema changes against the live database. Table/field definitions, ordered index columns and uniqueness were compared with the XML.
+The earlier alpha.28 maintenance pass replayed all 47 migration schema methods against an empty in-memory Doctrine schema on developer NC34. The current executable check, `scripts/check-physical-schema.php`, inspects installed physical tables and compares columns, types, lengths, nullability, defaults, index order and uniqueness with the XML. Run it inside each disposable installation. SQLite identity/unsigned and PostgreSQL unsigned/quoted-identifier representations are normalized; other differences fail.
 
 The XML uses `*dbprefix*`; migrations use unprefixed logical names and Nextcloud supplies the configured prefix. Six early migrations leave the primary-key name to Doctrine, which normalizes it to `primary`; their descriptive XML primary-key names are logical reference names. Compare those keys by columns and uniqueness. Prefix lengths used for database-specific indexes remain defined in migrations. The official XSD does not allow `<length>` inside index fields, so the XML omits the two 191-character prefix lengths for cached paths and creators; it retains the indexed columns and order.
 
@@ -29,7 +29,7 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_series_operations` | 9 | 2 | Account-private move/merge snapshots and conditional Undo history. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
 | `library_files` | 17 | 8 | Nextcloud file identity, observed paths/revisions and scan diagnostics. |
-| `library_items` | 44 | 27 | Catalogue metadata, ordered authors, series migration status, provenance, review flags and cover revision. |
+| `library_items` | 43 | 27 | Catalogue metadata, ordered authors, series migration status, provenance, review flags and cover revision. |
 | `library_scan_jobs` | 24 | 2 | Scan history, counters, heartbeat and current progress. |
 | `library_saved_collections` | 6 | 3 | Named saved filter definitions. |
 | `library_item_identifiers` | 11 | 3 | Normalized ISBN/ISSN values and identifier provenance. |
@@ -55,7 +55,7 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 
 ## Compatibility and retained columns
 
-`library_items.genres_json` is a nullable legacy column created before the Subject model. The subject migration copies its contents to `subjects_json` when that field is empty; it does not drop the old column. The XML therefore retains it. Current dedicated single-value genre metadata uses `genre`; `genres_json` is not its backing field.
+`library_items.genres_json` was a nullable legacy column created before the Subject model. `Version000300Date20261015120000` copies any remaining non-null value into an empty `subjects_json` field, then removes the old column if present. This handles both older installations that retained it and installations where it was already absent. Current single-value genre metadata uses `genre`; subjects use `subjects_json`.
 
 `authors_json` stores ordered author names while `creators` remains the compatible display value. `series_name`, `series_number` and `genre` are separate from the older `publication` grouping field. Beta.2 imports EPUB/OPF series names and positions into the existing series columns; it requires no new schema migration. Beta.3 uses those same columns for duplicate matching and also requires no schema change. `cover_revision` invalidates browser covers without loading embedded cover blobs into catalogue responses.
 
