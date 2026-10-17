@@ -1064,7 +1064,7 @@ OC.L10N.register(
         "Your library": "Deine Bibliothek",
         "Your marked publications and reference items.": "Ihre markierten Publikationen und Referenzwerke.",
         "Your note for this book in this list": "Deine Notiz zu diesem Buch in dieser Liste",
-        "Your private rating. Choose one to five stars, or clear it.": "Ihre private Bewertung. Wählen Sie einen bis fünf Sterne oder löschen Sie die Bewertung.",
+        "Your private rating. Choose one to five stars, or clear it.": "Ihre persönliche Bewertung. Wählen Sie einen bis fünf Sterne oder löschen Sie die Bewertung.",
         "Your submitted draft is preserved below. Compare it with the latest saved values before choosing what to keep.": "Ihr eingereichter Entwurf bleibt unten erhalten. Vergleichen Sie ihn mit den zuletzt gespeicherten Werten und entscheiden Sie, was Sie behalten möchten.",
         "_%n book_::_%n books_": [
             "%n Buch",
