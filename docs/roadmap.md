@@ -2,7 +2,7 @@
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are in the working tree. Disposable NC34 acceptance and the nine-combination fresh database matrix pass. The [signed exact-package fresh and upgrade matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed on NC33–35; populated-instance and owner acceptance remain.
 
-Status: **0.3.0-alpha.9** on `main`, deployed to developer Nextcloud 34 with the `v8` cover hit-area fix and modern full-details view. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3. See the [current NC34 deployment record](compatibility-evidence/2026-10-15-cover-hit-area/README.md), [full-details deployment](compatibility-evidence/2026-10-14-nc34-full-details/README.md) and [reader-opening check](compatibility-evidence/2026-10-14-reader-open/README.md).
+Status: **0.3.0-alpha.10** is the current candidate for the architecture migration and metadata detail UX. The previous alpha.9 build was deployed to developer Nextcloud 34 with the `v8` cover hit-area fix and modern full-details view. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3. See the [previous NC34 deployment record](compatibility-evidence/2026-10-15-cover-hit-area/README.md), [full-details deployment](compatibility-evidence/2026-10-14-nc34-full-details/README.md) and [reader-opening check](compatibility-evidence/2026-10-14-reader-open/README.md).
 
 Last updated: 2026-10-17
 
@@ -607,7 +607,7 @@ The import-health review/probe cut remains landed background for the release reh
 
 ### Immediate next implementation slice
 
-Current 0.3 sequence: collect human feedback on alpha.9 author and series workflows using the [test handbook](human-test-handbook.md#current-03-human-cases); complete populated-library architecture checks; resolve any release-blocking defects; refresh App Store assets; build, sign and audit one exact 0.3 archive from a committed tree; and run the fresh-install and upgrade matrix for that archive. The signed alpha.9 candidate passed fresh and upgraded NC33–35 checks with the 40 English Gutenberg books; the 0.2 beta.3 signature and matrix remain a separate historical baseline.
+Current 0.3 sequence: collect human feedback on alpha.10 author and series workflows using the [test handbook](human-test-handbook.md#current-03-human-cases); complete populated-library architecture checks; resolve any release-blocking defects; refresh App Store assets; build, sign and audit one exact 0.3 archive from a committed tree; and run fresh and upgraded NC33–35 package checks for that archive with the 40 English Gutenberg books before owner acceptance. The signed alpha.9 candidate passed fresh and upgraded NC33–35 checks with the 40 English Gutenberg books; the 0.2 beta.3 signature and matrix remain a separate historical baseline.
 
 Historical alpha acceptance plan (retained for context):
 
