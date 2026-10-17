@@ -602,8 +602,6 @@ OC.L10N.register(
         "One catalogue workspace": "مساحة عمل كتالوج واحد",
         "One classification per line.": "تصنيف واحد في كل سطر.",
         "One creator per line. Each chip is one person; punctuation within a name is preserved.": "مؤلف واحد في كل سطر. تمثل كل شريحة شخصًا واحدًا وتُحفظ علامات الترقيم داخل الاسم.",
-        "One language code per line.": "رمز لغة واحد في كل سطر.",
-        "One subject per line.": "موضوع واحد في كل سطر.",
         "Only fields with suggested updates are shown first.": "تظهر الحقول ذات التحديثات المقترحة أولاً.",
         "Only rows currently marked as missing files are rechecked; unrelated indexed files are not marked missing.": "يُعاد فحص الصفوف الموسومة حاليًا كملفات مفقودة فقط؛ ولا تُوسم الملفات المفهرسة الأخرى كمفقودة.",
         "Only rows currently marked metadata_error are retried; unrelated indexed files are not marked missing.": "تُعاد محاولة الصفوف الموسومة حاليًا بخطأ بيانات وصفية فقط؛ ولا تُوسم الملفات المفهرسة الأخرى كمفقودة.",

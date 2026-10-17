@@ -602,8 +602,6 @@ OC.L10N.register(
         "One catalogue workspace": "Ein Katalogarbeitsbereich",
         "One classification per line.": "Eine Klassifikation pro Zeile.",
         "One creator per line. Each chip is one person; punctuation within a name is preserved.": "Ein Autor pro Zeile. Jeder Eintrag steht für einen Autor; Satzzeichen innerhalb eines Namens bleiben erhalten.",
-        "One language code per line.": "Ein Sprachcode pro Zeile.",
-        "One subject per line.": "Ein Thema pro Zeile.",
         "Only fields with suggested updates are shown first.": "Felder mit vorgeschlagenen Änderungen werden zuerst angezeigt.",
         "Only rows currently marked as missing files are rechecked; unrelated indexed files are not marked missing.": "Nur derzeit als fehlend markierte Dateien werden erneut geprüft; andere indizierte Dateien werden nicht als fehlend markiert.",
         "Only rows currently marked metadata_error are retried; unrelated indexed files are not marked missing.": "Nur derzeit mit Metadatenfehler markierte Zeilen werden erneut versucht; andere indizierte Dateien werden nicht als fehlend markiert.",
