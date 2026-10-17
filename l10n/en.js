@@ -602,8 +602,6 @@ OC.L10N.register(
         "One catalogue workspace": "One catalogue workspace",
         "One classification per line.": "One classification per line.",
         "One creator per line. Each chip is one person; punctuation within a name is preserved.": "One creator per line. Each chip is one person; punctuation within a name is preserved.",
-        "One language code per line.": "One language code per line.",
-        "One subject per line.": "One subject per line.",
         "Only fields with suggested updates are shown first.": "Only fields with suggested updates are shown first.",
         "Only rows currently marked as missing files are rechecked; unrelated indexed files are not marked missing.": "Only rows currently marked as missing files are rechecked; unrelated indexed files are not marked missing.",
         "Only rows currently marked metadata_error are retried; unrelated indexed files are not marked missing.": "Only rows currently marked metadata_error are retried; unrelated indexed files are not marked missing.",
