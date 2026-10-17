@@ -11,7 +11,7 @@ Before submitting 0.3: obtain human acceptance of author and series workflows, r
 The signed `0.3.0-alpha.10` package from merged PR #109 is [deployed on populated developer NC34](compatibility-evidence/2026-10-17-nc34-alpha10/README.md). The migration completed, large catalogue catalogue rows remain, app integrity passed and the installed files match the audited archive. Owner testing with the [human handbook](human-test-handbook.md#current-03-human-cases) is next. The signed alpha.10 archive still needs the exact-package fresh/upgrade matrix on NC33–35 before App Store submission.
 
 
-## Release checkpoint — 2026-10-14
+## Release checkpoint — updated 2026-10-17
 
 Current candidate baseline: `0.3.0-alpha.10`. Author and series management are in development. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The signed exact-package alpha.10 release matrix remains pending.
 
