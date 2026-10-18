@@ -10,9 +10,9 @@ rewrites an EPUB, an OPF sidecar, or the source observation on the book.
 
 | State | Book metadata editor, corrected-metadata JSON and sidecar proposals | Catalogue book credit and identity links | Identity page and ID filter | Free-text search, legacy creator filter and sort |
 | --- | --- | --- | --- | --- |
-| Synced | Source observation | Preferred author names; linked series name and part | Curated links | Source text/index for search and sort; creator filter accepts both source credit and exact preferred identity name |
+| Synced | Source observation | Preferred author names; linked series name and part | Curated links | Source text/index and linked preferred/sort author names for free-text search; creator filter accepts both source credit and exact preferred identity name; sort remains source-based |
 | Pending backfill | Source observation | Source credit; no new identity link until sync commits | Existing links are not treated as current | Source text/index; legacy filter remains available |
-| Conflict after changed source | New source observation, with review candidate | Protected curated author/series links remain visible | Existing assignments remain authoritative until the user chooses a review action | Source text/index; exact preferred identity name also finds linked books |
+| Conflict after changed source | New source observation, with review candidate | Protected curated author/series links remain visible | Existing assignments remain authoritative until the user chooses a review action | Source text/index and linked preferred/sort author names find the book |
 | Failed sync | Source observation | Source credit; no unverified identity projection | Existing links require retry/review | Source text/index |
 
 The source observation is authoritative for **file-derived metadata, direct
@@ -21,9 +21,11 @@ The overlay is authoritative for **identity pages, merges, reviewed assignments,
 and ID-based filters**. Catalogue display uses the overlay only in synced or
 conflict state; otherwise it shows the source credit. The source-based title,
 creator, series and sort fields remain in the catalogue index until a later,
-explicit migration. This means a preferred author rename changes the displayed
-credit and author page immediately, while a free-text query for the new name may
-need the author ID filter. Full details shows the linked author identities above
+explicit migration. Free-text search also follows current author relationships
+for preferred and sort-name substrings of at least three characters. Thus a
+preferred author rename changes the displayed credit, author page, and general
+search results immediately without rewriting source credits or reindexing every
+linked book. The author ID filter remains the precise choice for homonyms. Full details shows the linked author identities above
 the metadata form. **Change author** searches the account's normalized author
 table and reassigns only this book through the preview-token workflow. The
 **Source creator credits** field is under an advanced disclosure in the metadata
