@@ -2,15 +2,19 @@
 
 ## Submission decision — 2026-10-13
 
-The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submission. The signed 0.2.0-beta.3 archive and verification below remain the preserved baseline, not evidence for the new author/series schema. Author and series work is implemented through alpha.9 on `develop/0.3`; see the [active roadmap](roadmap.md#active-03-track).
+The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submission. The signed 0.2.0-beta.3 archive and verification below remain the preserved baseline, not evidence for the new author/series schema. Author and series work is included in the current alpha.23 candidate; see the [active roadmap](roadmap.md#active-03-track).
 
-Before submitting 0.3: obtain human acceptance of author and series workflows, resolve release-blocking findings, verify a populated upgrade from the preserved 0.2 baseline and interruption recovery, refresh listing/screenshots, then sign and run an exact-package NC33–35 fresh/upgrade matrix. Alpha.9's focused source checks and developer upgrade are encouraging but do not certify a signed release package.
+Before submitting 0.3: obtain human acceptance of author and series workflows, resolve release-blocking findings, verify a populated upgrade from the preserved 0.2 baseline and interruption recovery, refresh listing/screenshots, then sign and run an exact-package NC33–35 fresh/upgrade matrix. The alpha.23 developer upgrade and focused source checks do not replace the exact signed NC33–35 release matrix.
+
+## Alpha.23 developer handoff — 2026-10-18
+
+The [signed alpha.23 package](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) is deployed on populated developer NC34. Upgrade and integrity checks passed, the catalogue remains at 107,717 items, and authenticated Chromium smoke covered the unified editor and an unreviewed imported-language record. Owner acceptance with the [human handbook](human-test-handbook.md#current-03-human-cases) and the exact signed NC33–35 fresh/upgrade matrix remain open.
+
+## Historical developer checkpoints
 
 ## Alpha.11 developer handoff — 2026-10-18
 
 The signed `0.3.0-alpha.11` package from merged PR #111 is [deployed on populated developer NC34](compatibility-evidence/2026-10-18-nc34-alpha11/README.md). Hosted checks passed; the additive metadata-protection migration completed, 107,717 catalogue rows remain, and app integrity and package identity passed. Owner acceptance with the [human handbook](human-test-handbook.md#current-03-human-cases) and an exact signed NC33–35 fresh/upgrade matrix remain open.
-
-## Historical developer checkpoints
 
 ## Alpha.10 developer handoff — 2026-10-17
 
@@ -21,7 +25,7 @@ The signed `0.3.0-alpha.10` package from merged PR #109 was [deployed on populat
 
 Current candidate baseline: `0.3.0-alpha.23`. Author and series management are in development. The [signed alpha.23 package](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) includes a unified book editor, updated NC34 UI, and documentation. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The signed exact-package alpha.23 release matrix remains pending.
 
-Alpha.9 was deployed on developer NC34/MariaDB. The app version is `0.3.0-alpha.9`; 107,717 catalogue books remained after migration and temporary fixture cleanup. Focused service and Chromium/Firefox series workflows passed on NC33.0.9, NC34.0.4, NC35.0.0 and the populated developer instance. See the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The [human test handbook](human-test-handbook.md#current-03-human-cases) now covers author/series acceptance.
+At the alpha.9 checkpoint, the app was deployed on developer NC34/MariaDB. Its app version was `0.3.0-alpha.9`; 107,717 catalogue books remained after migration and temporary fixture cleanup. Focused service and Chromium/Firefox series workflows passed on NC33.0.9, NC34.0.4, NC35.0.0 and the populated developer instance. See the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The [human test handbook](human-test-handbook.md#current-03-human-cases) now covers author/series acceptance.
 
 A later alpha.9 frontend asset fixes a blank publication panel when a book has linked authors: the template called an undefined URL helper. The developer NC34 panel now renders its sections and linked authors in Chromium; see the [sidebar hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md). This targeted check does not extend the earlier NC33–35 source evidence to the new asset, and the exact signed 0.3 package matrix remains open.
 
