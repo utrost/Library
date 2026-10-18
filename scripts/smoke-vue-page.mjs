@@ -25,7 +25,7 @@ import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 // value="details"
 // source_has_creator_filter
 // backend_searches_description
-// app_version=0.3.0-alpha.11
+// app_version=0.3.0-alpha.23
 // NcActions
 // grid-template-columns: repeat(2, minmax(0, 1fr))
 // download.bytes <= 0
@@ -371,7 +371,7 @@ try {
     console.log(`review_has_suggestion_workbench_and_source_safety=${reviewSuggestionSafety}`)
     console.log(`source_has_active_filter_chips=${activeFilterChips}`)
     console.log(`source_has_custom_saved_collections=${bundleHas('library-saved-collections', 'Custom collections', 'Save current view')}`)
-    console.log(`app_version=${installedVersionAssetIdentity ? '0.3.0-alpha.11' : 'unverified'}`)
+    console.log(`app_version=${installedVersionAssetIdentity ? '0.3.0-alpha.23' : 'unverified'}`)
     const coverOverlayCss = css.text.includes('grid-template-columns:repeat(auto-fill,minmax(150px,1fr))')
       && css.text.includes('.library-cover-gallery .library-cover-summary')
       && css.text.includes('.library-cover-gallery .library-cover-card:hover .library-cover-creator')

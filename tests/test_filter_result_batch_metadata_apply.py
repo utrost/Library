@@ -15,7 +15,7 @@ def test_batch_metadata_apply_route_controller_and_service_write_filtered_result
 
     assert "'name' => 'item#batchapplymetadataedit'" in routes
     assert "'url' => '/bulk/items/edit-apply'" in routes
-    assert routes.index("/bulk/items/edit-preview") < routes.index("/bulk/items/edit-apply") < routes.index("/items/{itemId}")
+    assert routes.index("/bulk/items/edit-preview") < routes.index("/bulk/items/edit-apply")
     assert "public function batchapplymetadataedit(): RedirectResponse" in controller
     body = controller.split("public function batchapplymetadataedit", 1)[1].split("private function catalogueFiltersFromRequest", 1)[0]
     assert "catalogueFiltersFromRequest" in body

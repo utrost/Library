@@ -154,8 +154,20 @@ EXPECTED_TABLES.update({
         "indexes": {"library_series_ops_pk", "library_series_ops_user"},
     },
 })
-EXPECTED_TABLES["*dbprefix*library_items"]["fields"].update({"author_sync_status", "author_source_hash", "series_sync_status"})
-EXPECTED_TABLES["*dbprefix*library_items"]["indexes"].update({"library_author_pending", "library_author_user_status", "library_series_pending", "library_series_user_status"})
+EXPECTED_TABLES.update({
+    '*dbprefix*library_genres': {"fields": {'comparison_key', 'user_id', 'id', 'display_name'}, "indexes": {'library_genres_pk', 'library_genres_unique', 'library_genres_sort'}},
+    '*dbprefix*library_item_genres': {"fields": {'active', 'item_id', 'assignment_source', 'user_id', 'genre_id'}, "indexes": {'library_genre_books', 'library_item_genres_pk'}},
+    '*dbprefix*library_genre_candidates': {"fields": {'source_kind', 'display_name', 'item_id', 'user_id', 'candidate_key'}, "indexes": {'library_genre_candidates_pk', 'library_genre_candidate_lookup'}},
+    '*dbprefix*library_language_candidates': {"fields": {'applied_code', 'source_value', 'item_id', 'source_key', 'user_id'}, "indexes": {'library_language_candidate_lookup', 'library_language_candidates_pk'}},
+    '*dbprefix*library_language_mappings': {"fields": {'language_codes', 'source_key', 'user_id'}, "indexes": {'library_language_mappings_pk'}},
+    '*dbprefix*library_value_mappings': {"fields": {'target_value', 'source_value', 'source_key', 'user_id', 'field_type', 'created_at'}, "indexes": {'library_value_mapping_target', 'library_value_mappings_pk'}},
+})
+EXPECTED_TABLES["*dbprefix*library_genre_mappings"] = {
+    "fields": {"user_id", "candidate_key", "genre_id"},
+    "indexes": {"library_genre_mappings_pk", "library_genre_mapping_target"},
+}
+EXPECTED_TABLES["*dbprefix*library_items"]["fields"].update({"author_sync_status", "author_source_hash", "series_sync_status", "genre_suggestion_hash", "language_review_hash", "search_index_version"})
+EXPECTED_TABLES["*dbprefix*library_items"]["indexes"].update({"library_author_pending", "library_author_user_status", "library_series_pending", "library_series_user_status", "library_genre_discovery", "library_language_discovery", "library_search_rebuild"})
 
 
 def child_text(element: ET.Element, name: str) -> str:

@@ -42,7 +42,7 @@ def test_subject_suggestions_use_normalized_index_and_do_not_eager_load_all_subj
     assert not re.search(r"createNamedParameter\([^\n]*['\"]%['\"]\s*\.", helper)
 
     subject_filter = service.split("$subject = trim((string)($filters['subject']", 1)[1].split("$classification =", 1)[0]
-    assert "indexedFacetFilter($qb, $userId, 'subject', $subject)" in subject_filter
+    assert "indexedFacetFilter($qb, $userId, 'subject', $values)" in subject_filter
     assert "subjects_json" not in subject_filter
 
 

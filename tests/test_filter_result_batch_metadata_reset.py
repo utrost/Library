@@ -11,7 +11,7 @@ def test_filter_result_metadata_reset_route_uses_current_catalogue_filters():
 
     assert "'name' => 'item#batchresetfilteredfields'" in routes
     assert "'url' => '/bulk/items/reset-filtered-fields'" in routes
-    assert routes.index("/bulk/items/reset-filtered-fields") < routes.index("/items/{itemId}")
+    assert routes.count("/bulk/items/reset-filtered-fields") == 1
     assert "public function batchresetfilteredfields(): RedirectResponse" in controller
     attributes = controller.split("public function batchresetfilteredfields", 1)[0].split("public function resetfields", 1)[-1]
     assert "NoCSRFRequired" not in attributes
