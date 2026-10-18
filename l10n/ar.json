@@ -1023,6 +1023,7 @@
         "Try removing {filter}.": "جرّب إزالة {filter}.",
         "Type": "نوع المنشور/الملف",
         "Type DELETE to confirm": "اكتب DELETE للتأكيد",
+        "Type at least 3 letters to search authors.": "اكتب 3 أحرف على الأقل للبحث عن المؤلفين.",
         "Type at least 3 path characters": "اكتب 3 أحرف على الأقل من المسار",
         "Unavailable book": "كتاب غير متاح",
         "Unavailable books": "كتب غير متاحة",
