@@ -2,6 +2,7 @@
 
 For duplicate discovery and private preferred-copy decisions, see [Finding possible duplicate books](duplicate-review.md).
 For curated genre labels and reviewed scan suggestions, see [Genre management](v0.3-genre-management.md).
+For source-language normalization and uncertain-value review, see [Language review](v0.3-language-review.md).
 
 Start with [Your first library](first-library.md) for a short illustrated walkthrough using English Gutenberg books.
 

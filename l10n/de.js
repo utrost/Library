@@ -1232,7 +1232,21 @@ OC.L10N.register(
         "The imported genre stays available as source metadata. Assign catalogue genres above for browsing.": "Das importierte Genre bleibt als Quellmetadatum erhalten. Wählen Sie oben Kataloggenres zum Durchsuchen.",
         "Source genre metadata": "Quellmetadaten zum Genre",
         "Source genre": "Quellgenre",
-        "The source genre is preserved for metadata export. Assign catalogue genres in Full details.": "Das Quellgenre bleibt für den Metadatenexport erhalten. Kataloggenres können Sie in den vollständigen Details zuordnen."
+        "The source genre is preserved for metadata export. Assign catalogue genres in Full details.": "Das Quellgenre bleibt für den Metadatenexport erhalten. Kataloggenres können Sie in den vollständigen Details zuordnen.",
+        "Review languages": "Sprachen prüfen",
+        "Review source languages": "Quellsprachen prüfen",
+        "Clear language names and codes are normalized automatically. Review only values Library could not interpret safely. Original source values are retained.": "Eindeutige Sprachnamen und Codes werden automatisch vereinheitlicht. Prüfen Sie nur Werte, die Library nicht sicher erkennen konnte. Die ursprünglichen Quellwerte bleiben erhalten.",
+        "Decision saved.": "Entscheidung gespeichert.",
+        "Enter one or more valid language codes.": "Geben Sie einen oder mehrere gültige Sprachcodes ein.",
+        "Discovery advanced.": "Erkennung fortgesetzt.",
+        "Approved mappings advanced.": "Bestätigte Zuordnungen fortgesetzt.",
+        "Discover existing books": "Vorhandene Bücher durchsuchen",
+        "Apply approved mappings": "Bestätigte Zuordnungen anwenden",
+        "No language values need review.": "Keine Sprachwerte müssen geprüft werden.",
+        "Map to language codes, separated by semicolons": "Sprachcodes zuordnen, durch Semikolon getrennt",
+        "Apply to matching books": "Auf passende Bücher anwenden",
+        "Ignore value": "Wert ignorieren",
+        "Review these values to reveal more suggestions.": "Prüfen Sie diese Werte, um weitere Vorschläge anzuzeigen."
     },
     "nplurals=2; plural=(n != 1);"
 );

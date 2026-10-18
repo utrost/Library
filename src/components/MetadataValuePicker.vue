@@ -39,9 +39,19 @@ function normalizedInput(value) {
   const match = /^([a-z]{2,3})(?:-([a-z]{2}))?$/i.exec(trimmed)
   return match ? match[1].toLowerCase() + (match[2] ? `-${match[2].toUpperCase()}` : '') : trimmed
 }
+function validLanguageCode(value) {
+  const match = /^([a-z]{2,3})(?:-([A-Z]{2}))?$/.exec(value)
+  if (!match) return false
+  if (typeof Intl.DisplayNames !== 'function') return true
+  const languageName = new Intl.DisplayNames(['en'], { type: 'language' }).of(match[1])
+  if (!languageName || languageName.toLowerCase() === match[1] || languageName === 'Unknown language') return false
+  if (!match[2]) return true
+  const name = new Intl.DisplayNames(['en'], { type: 'region' }).of(match[2])
+  return Boolean(name && name !== match[2] && name !== 'Unknown Region')
+}
 const candidate = computed(() => normalizedInput(search.value))
 const canAdd = computed(() => candidate.value.length > 0 && candidate.value.length <= 255
-  && (!isLanguage.value || /^[a-z]{2,3}(-[A-Z]{2})?$/.test(candidate.value))
+  && (!isLanguage.value || validLanguageCode(candidate.value))
   && !selected.value.some(value => value.toLowerCase() === candidate.value.toLowerCase()))
 const options = computed(() => {
   const query = search.value.trim().toLocaleLowerCase()
@@ -53,7 +63,7 @@ const options = computed(() => {
 })
 function add(value = candidate.value) {
   const next = normalizedInput(value)
-  if (!next || next.length > 255 || (isLanguage.value && !/^[a-z]{2,3}(-[A-Z]{2})?$/.test(next))) return
+  if (!next || next.length > 255 || (isLanguage.value && !validLanguageCode(next))) return
   if (!selected.value.some(entry => entry.toLowerCase() === next.toLowerCase())) emit('update:modelValue', [...selected.value, next].join('\n'))
   search.value = ''
   focused.value = false

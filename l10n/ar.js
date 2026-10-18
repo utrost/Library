@@ -1296,7 +1296,21 @@ OC.L10N.register(
         "The imported genre stays available as source metadata. Assign catalogue genres above for browsing.": "يبقى التصنيف المستورد متاحًا ضمن البيانات الوصفية المصدرية. أسند تصنيفات الفهرس أعلاه للتصفح.",
         "Source genre metadata": "بيانات التصنيف الوصفية المصدرية",
         "Source genre": "التصنيف المصدري",
-        "The source genre is preserved for metadata export. Assign catalogue genres in Full details.": "يُحفظ التصنيف المصدري لتصدير البيانات الوصفية. أسند تصنيفات الفهرس في التفاصيل الكاملة."
+        "The source genre is preserved for metadata export. Assign catalogue genres in Full details.": "يُحفظ التصنيف المصدري لتصدير البيانات الوصفية. أسند تصنيفات الفهرس في التفاصيل الكاملة.",
+        "Review languages": "مراجعة اللغات",
+        "Review source languages": "مراجعة لغات المصدر",
+        "Clear language names and codes are normalized automatically. Review only values Library could not interpret safely. Original source values are retained.": "تُوحَّد أسماء اللغات ورموزها الواضحة تلقائيًا. راجع فقط القيم التي تعذّر تفسيرها بأمان. تُحفظ قيم المصدر الأصلية.",
+        "Decision saved.": "تم حفظ القرار.",
+        "Enter one or more valid language codes.": "أدخل رمز لغة صالحًا واحدًا أو أكثر.",
+        "Discovery advanced.": "تقدمت عملية الاكتشاف.",
+        "Approved mappings advanced.": "تقدمت التعيينات المعتمدة.",
+        "Discover existing books": "اكتشاف الكتب الموجودة",
+        "Apply approved mappings": "تطبيق التعيينات المعتمدة",
+        "No language values need review.": "لا توجد قيم لغوية تحتاج إلى مراجعة.",
+        "Map to language codes, separated by semicolons": "تعيين رموز اللغات مفصولة بفواصل منقوطة",
+        "Apply to matching books": "تطبيق على الكتب المطابقة",
+        "Ignore value": "تجاهل القيمة",
+        "Review these values to reveal more suggestions.": "راجع هذه القيم لإظهار المزيد من الاقتراحات."
     },
     "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 );

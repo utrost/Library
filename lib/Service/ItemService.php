@@ -125,6 +125,7 @@ final class ItemService {
         private ?ItemDeletionService $itemDeletion = null,
         private ?GenreService $genreService = null,
         private ?GenreDisplayService $genreDisplay = null,
+        private ?LanguageReviewService $languageReviewService = null,
     ) {
     }
 
@@ -333,6 +334,7 @@ final class ItemService {
         $qb=$this->db->getQueryBuilder();$qb->update('library_items')->set('scanner_index_hash',$qb->createNamedParameter($hash))
             ->where($qb->expr()->eq('user_id',$qb->createNamedParameter($uid)))->andWhere($qb->expr()->eq('id',$qb->createNamedParameter($id)))->executeStatement();
         $this->genreService?->record($uid, $id, (string)($row['genre'] ?? ''), $this->decodeJsonList($row['subjects_json'] ?? null), (string)($file['cachedPath'] ?? ''));
+        $this->languageReviewService?->record($uid, $id, (string)($candidate['languageSource'] ?? $candidate['language'] ?? ''));
     }
 
     /** Legacy/invalidated fingerprints are trusted only after exact, bounded content verification. */
@@ -556,6 +558,56 @@ final class ItemService {
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
     }
 
+    /** Apply an approved source-language mapping while preserving existing manual corrections. */
+    public function applyReviewedLanguage(string $userId, int $itemId, string $codes): string {
+        $codes = LanguageNormalizer::reviewedCodes($codes);
+        $this->db->beginTransaction();
+        try {
+            $this->lockOwnedItem($userId, $itemId);
+            $result = $this->db->executeQuery('SELECT user_edited,protected_fields_json,field_sources FROM *PREFIX*library_items WHERE user_id=? AND id=?', [$userId, $itemId]);
+            $row = $result->fetch(); $result->closeCursor();
+            if ($row === false) { $this->db->commit(); return 'missing'; }
+            $edited = in_array($row['user_edited'], [true, 1, '1', 't', 'true'], true);
+            $protected = $this->decodeProtectedFields($row['protected_fields_json'] ?? null);
+            if ($edited && ($protected === null || in_array('language', $protected, true))) {
+                $this->db->commit(); return 'protected';
+            }
+            $protected = array_values(array_unique([...($protected ?? []), 'language']));
+            $sources = $this->decodeJsonMap($row['field_sources'] ?? null);
+            $sources['language'] = 'user';
+            $this->db->executeStatement('UPDATE *PREFIX*library_items SET language=?,user_edited=1,protected_fields_json=?,field_sources=?,metadata_source=?,scanner_index_hash=NULL,updated_at=? WHERE user_id=? AND id=?',
+                [$codes, json_encode($protected, JSON_THROW_ON_ERROR), json_encode($sources, JSON_THROW_ON_ERROR), 'user', time(), $userId, $itemId]);
+            $this->refreshReviewFilterFlags($userId, $itemId);
+            $this->db->commit();
+            return 'applied';
+        } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
+    }
+
+    /** Normalize an older imported value only if no language correction appeared meanwhile. */
+    public function normalizeImportedLanguage(string $userId, int $itemId, string $expectedReviewHash, string $codes): void {
+        $codes = LanguageNormalizer::reviewedCodes($codes);
+        $this->db->beginTransaction();
+        try {
+            $this->lockOwnedItem($userId, $itemId);
+            $result = $this->db->executeQuery('SELECT language,language_review_hash,user_edited,protected_fields_json,field_values FROM *PREFIX*library_items WHERE user_id=? AND id=?', [$userId, $itemId]);
+            $row = $result->fetch(); $result->closeCursor();
+            if ($row === false || $row['language_review_hash'] !== $expectedReviewHash || (string)($row['language'] ?? '') === $codes) {
+                $this->db->commit(); return;
+            }
+            $edited = in_array($row['user_edited'], [true, 1, '1', 't', 'true'], true);
+            $protected = $this->decodeProtectedFields($row['protected_fields_json'] ?? null);
+            if ($edited && ($protected === null || in_array('language', $protected, true))) {
+                $this->db->commit(); return;
+            }
+            $values = $this->decodeJsonMap($row['field_values'] ?? null);
+            if (!isset($values['languageOriginal'])) $values['languageOriginal'] = (string)($values['language'] ?? $row['language'] ?? '');
+            $values['language'] = $codes;
+            $this->db->executeStatement('UPDATE *PREFIX*library_items SET language=?,field_values=?,scanner_index_hash=NULL,updated_at=? WHERE user_id=? AND id=?',
+                [$codes, json_encode($values, JSON_THROW_ON_ERROR), time(), $userId, $itemId]);
+            $this->db->commit();
+        } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
+    }
+
     /** Lock the owned publication before reading its revision or changing derived rows. */
     private function lockOwnedItem(string $userId, int $itemId): void {
         if ($this->db->getDatabaseProvider() === 'sqlite') {
@@ -597,42 +649,18 @@ final class ItemService {
         }
 
         $language = trim((string)($metadata['language'] ?? ''));
-        foreach ($this->normalizeLanguageList($language) as $languageCode) {
-            if (preg_match('/^[a-z]{2,3}(?:-[a-z]{2})?$/iD', $languageCode) !== 1) {
-                throw new \InvalidArgumentException('Language must use short codes such as de, en, fr, or en-US.');
-            }
-        }
+        if ($language !== '') $metadata['language'] = LanguageNormalizer::reviewedCodes($language);
 
         $this->normalizePersonalRating($metadata['personalRating'] ?? null);
 
         return $metadata;
     }
 
-    /**
-     * @return array<int, string>
-     */
-    private function normalizeLanguageList(string $language): array {
-        $parts = preg_split('/[;,\n]+/u', $language) ?: [];
-        $normalized = [];
-        foreach ($parts as $part) {
-            $entry = trim($part);
-            if ($entry !== '') {
-                $normalized[] = $entry;
-            }
-        }
-        return $normalized;
-    }
-
     /** Normalize only clearly coded source lists; preserve ambiguous source text. */
     private function sourceLanguage(string $language): ?string {
         $language = trim($language);
         if ($language === '') return null;
-        $parts = $this->normalizeLanguageList($language);
-        if ($parts === []) return null;
-        foreach ($parts as $code) {
-            if (preg_match('/^[a-z]{2,3}(?:-[a-z]{2})?$/iD', $code) !== 1) return $language;
-        }
-        return implode('; ', $parts);
+        return LanguageNormalizer::normalize($language) ?? $language;
     }
 
     public function setStarred(string $userId, int $itemId, bool $starred): bool {
@@ -3481,6 +3509,8 @@ final class ItemService {
             'series' => $this->normalizeExtendedField('series', $metadata['series'] ?? null),
             'publicationDate' => $this->nullableString(PublicationDate::forEditor($metadata['publicationDate'] ?? null)),
             'language' => $this->sourceLanguage((string)($metadata['language'] ?? '')),
+            'languageSource' => mb_check_encoding((string)($metadata['language'] ?? ''), 'UTF-8')
+                ? mb_substr(trim((string)($metadata['language'] ?? '')), 0, 255, 'UTF-8') : '',
             'publisher' => $this->nullableString($metadata['publisher'] ?? null),
             'description' => $this->nullableString($metadata['description'] ?? null),
             'subjects' => $this->normalizeMultiValueField($metadata['subjects'] ?? []),
@@ -3494,6 +3524,7 @@ final class ItemService {
         $candidate['authors'] = isset($metadata['authors']) ? AuthorNames::normalize($metadata['authors']) : AuthorNames::fromText($candidate['creators']);
         $candidate['fieldSources'] = $this->buildInferredFieldSources($candidate);
         $candidate['fieldValues'] = $this->buildCurrentFieldValues($candidate);
+        if ($candidate['languageSource'] !== '') $candidate['fieldValues']['languageOriginal'] = $candidate['languageSource'];
         $candidate['fieldValues']['authors'] = AuthorNames::encode($candidate['authors']);
         $candidate['fieldValues']['authorsSource'] = $source;
         if (!empty($metadata['authorSortNames']) && is_array($metadata['authorSortNames'])) {

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- Schema reference for 0.3.0-alpha.4, through Version000300Date20261013230000.
+<!-- Schema reference for 0.3.0-alpha.14, through Version000300Date20261018030000.
      lib/Migration is authoritative for installation and upgrades; see docs/database-schema.md. -->
 <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/database.xsd">
@@ -275,6 +275,7 @@
             <field><name>series_sync_status</name><type>smallint</type><notnull>true</notnull><default>1</default></field>
             <field><name>genre</name><type>string</type><length>255</length><notnull>false</notnull></field>
             <field><name>genre_suggestion_hash</name><type>string</type><length>64</length><notnull>false</notnull></field>
+            <field><name>language_review_hash</name><type>string</type><length>64</length><notnull>false</notnull></field>
             <field>
                 <name>id</name>
                 <type>integer</type>
@@ -500,6 +501,7 @@
             </index>
             <index><name>library_items_usr_title_page</name><field><name>user_id</name></field><field><name>title</name></field><field><name>id</name></field><field><name>library_file_id</name></field></index>
             <index><name>library_genre_discovery</name><field><name>genre_suggestion_hash</name></field><field><name>id</name></field></index>
+            <index><name>library_language_discovery</name><field><name>language_review_hash</name></field><field><name>id</name></field></index>
             <index><name>library_series_pending</name><field><name>series_sync_status</name></field><field><name>id</name></field></index>
             <index><name>library_series_user_status</name><field><name>user_id</name></field><field><name>series_sync_status</name></field><field><name>id</name></field></index>
             <index><name>library_author_pending</name><field><name>author_sync_status</name></field><field><name>id</name></field></index>
@@ -1401,5 +1403,20 @@
         <field><name>genre_id</name><type>bigint</type><unsigned>true</unsigned><notnull>false</notnull></field>
         <index><name>library_genre_mappings_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>candidate_key</name></field></index>
         <index><name>library_genre_mapping_target</name><field><name>user_id</name></field><field><name>genre_id</name></field></index>
+    </declaration></table>
+    <table><name>*dbprefix*library_language_candidates</name><declaration>
+        <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>item_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
+        <field><name>source_key</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>source_value</name><type>string</type><length>255</length><notnull>true</notnull></field>
+        <field><name>applied_code</name><type>string</type><length>64</length><notnull>false</notnull></field>
+        <index><name>library_language_candidates_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>item_id</name></field></index>
+        <index><name>library_language_candidate_lookup</name><field><name>user_id</name></field><field><name>source_key</name></field><field><name>item_id</name></field></index>
+    </declaration></table>
+    <table><name>*dbprefix*library_language_mappings</name><declaration>
+        <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>source_key</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>language_codes</name><type>string</type><length>64</length><notnull>false</notnull></field>
+        <index><name>library_language_mappings_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>source_key</name></field></index>
     </declaration></table>
 </database>

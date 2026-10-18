@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3.0-alpha.12 source tree**, 2026-10-18. Covers 38 app-owned tables through `Version000300Date20261018020000`. The latest forward migration adds private curated genres, assignments, candidates and mapping decisions. Earlier physical-schema comparisons passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passed on NC34 with all three engines. The alpha.12 migration still needs its exact-package multi-version and physical-schema checks.
+Snapshot: **0.3.0-alpha.14 source tree**, 2026-10-18. Covers 40 app-owned tables through `Version000300Date20261018030000`. The latest forward migration adds source-language review evidence and mappings. Earlier physical-schema comparisons passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passed on NC34 with all three engines. The alpha.14 package still needs its exact-package multi-version and physical-schema checks.
 
 ## Schema ownership
 
@@ -31,9 +31,11 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_item_genres` | 5 | 2 | Book-to-genre assignments, including inactive manually removed links. |
 | `library_genre_candidates` | 5 | 2 | Per-book source, subject and folder suggestion evidence. |
 | `library_genre_mappings` | 3 | 2 | Account-wide accepted or ignored suggestion decisions. |
+| `library_language_candidates` | 5 | 2 | Per-book unresolved source-language evidence and application status. |
+| `library_language_mappings` | 3 | 1 | Account-wide language mapping or ignore decisions. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
 | `library_files` | 17 | 8 | Nextcloud file identity, observed paths/revisions and scan diagnostics. |
-| `library_items` | 45 | 28 | Catalogue metadata, ordered authors, series migration status, genre discovery marker, provenance, field protection, review flags and cover revision. |
+| `library_items` | 46 | 29 | Catalogue metadata, ordered authors, series migration status, genre/language discovery markers, provenance, field protection, review flags and cover revision. |
 | `library_scan_jobs` | 24 | 2 | Scan history, counters, heartbeat and current progress. |
 | `library_saved_collections` | 6 | 3 | Named saved filter definitions. |
 | `library_item_identifiers` | 11 | 3 | Normalized ISBN/ISSN values and identifier provenance. |
@@ -64,6 +66,8 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 `Version000300Date20261018010000` adds nullable text `library_items.protected_fields_json` without backfilling rows. A JSON array lists fields protected by new manual corrections, while NULL on a previously edited row preserves whole-item rescan protection. No existing correction is inferred or rewritten during the schema upgrade. See [metadata storage](metadata-storage.md) for the rescan contract.
 
 `Version000300Date20261018020000` adds `library_items.genre_suggestion_hash` and four private genre tables without rewriting older books. A bounded job discovers evidence for existing rows. Curated genre assignments are separate from the imported `genre` string and `subjects_json`; see [genre management](v0.3-genre-management.md).
+
+`Version000300Date20261018030000` adds `library_items.language_review_hash` and two private language-review tables without rewriting older books. Bounded discovery normalizes clear older values and records ambiguous source values for review. See [language review](v0.3-language-review.md).
 
 `authors_json` stores ordered author names while `creators` remains the compatible display value. `series_name`, `series_number` and `genre` are separate from the older `publication` grouping field. Beta.2 imports EPUB/OPF series names and positions into the existing series columns; it requires no new schema migration. Beta.3 uses those same columns for duplicate matching and also requires no schema change. `cover_revision` invalidates browser covers without loading embedded cover blobs into catalogue responses.
 
