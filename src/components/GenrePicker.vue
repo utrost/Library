@@ -3,8 +3,8 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 
-const props = defineProps({ itemId: { type: Number, required: true }, genres: { type: Array, default: () => [] }, requestToken: { type: String, required: true }, disabled: { type: Boolean, default: false }, catalogueUrl: { type: String, required: true } })
-const emit = defineEmits(['changed'])
+const props = defineProps({ itemId: { type: Number, required: true }, genres: { type: Array, default: () => [] }, requestToken: { type: String, required: true }, disabled: { type: Boolean, default: false }, catalogueUrl: { type: String, required: true }, draftMode: { type: Boolean, default: false } })
+const emit = defineEmits(['changed', 'update:genres'])
 const api = generateUrl('/apps/library/api/genres')
 const search = ref('')
 const results = ref([])
@@ -38,6 +38,11 @@ watch(search, value => {
 })
 async function assign(genre, action = 'add') {
   if (busy.value || props.disabled) return
+  if (props.draftMode) {
+    emit('update:genres', action === 'remove' ? props.genres.filter(entry => Number(entry.id) !== Number(genre.id)) : [...props.genres, { id: Number(genre.id), name: genre.display_name || genre.name }])
+    search.value = ''; focused.value = false; results.value = []
+    return
+  }
   busy.value = true; error.value = ''
   try {
     await request(`/items/${props.itemId}`, { genreId: Number(genre.id), action })
@@ -51,9 +56,10 @@ async function create() {
   busy.value = true; error.value = ''
   try {
     const genre = await request('', { name: search.value.trim() })
-    await request(`/items/${props.itemId}`, { genreId: Number(genre.id), action: 'add' })
+    if (props.draftMode) emit('update:genres', [...props.genres, { id: Number(genre.id), name: genre.display_name || genre.name }])
+    else await request(`/items/${props.itemId}`, { genreId: Number(genre.id), action: 'add' })
     search.value = ''; focused.value = false; results.value = []
-    emit('changed')
+    if (!props.draftMode) emit('changed')
   } catch (cause) { error.value = cause.message }
   finally { busy.value = false }
 }

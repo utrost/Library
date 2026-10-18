@@ -29,10 +29,14 @@ final class LanguageReviewController extends Controller {
     }
     #[NoAdminRequired]
     public function index(): TemplateResponse {
+        Util::addStyle('library', 'style');
         return new TemplateResponse('library', 'language-review', [
             'review' => $this->review->suggestions($this->uid()),
             'message' => (string)$this->request->getParam('message', ''),
             'catalogueUrl' => $this->urls->linkToRoute('library.page.catalogue'),
+            'languageUrl' => $this->urls->linkToRoute('library.language_review.index'),
+            'valueMappingsUrl' => $this->urls->linkToRoute('library.value_mapping.index'),
+            'settingsUrl' => $this->urls->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),
             'baseUrl' => $this->urls->linkToRoute('library.language_review.index'),
             'requesttoken' => Util::callRegister(),
         ]);

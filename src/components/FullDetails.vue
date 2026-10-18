@@ -67,8 +67,7 @@ const seriesSearch = ref('')
 const seriesSearchReady = computed(() => (seriesSearch.value.match(/\p{L}/gu) || []).length >= 3)
 const currentSeriesMatchesSearch = computed(() => {
   const query = seriesSearch.value.trim().toLocaleLowerCase()
-  return seriesSearchReady.value && (item.value?.canonicalSeries || []).some(series =>
-    String(series.name || '').toLocaleLowerCase().startsWith(query))
+  return seriesSearchReady.value && String(draft.seriesLink?.name || '').toLocaleLowerCase().startsWith(query)
 })
 const seriesInput = ref(null)
 const seriesResults = ref([])
@@ -103,7 +102,7 @@ const publicationTypes = [
   { value: 'other', label: t('library', 'other') },
 ]
 const fieldNames = {
-  publicationType: t('library', 'Type'), title: t('library', 'Title'), subtitle: t('library', 'Subtitle'), creators: t('library', 'Creators'),
+  publicationType: t('library', 'Type'), title: t('library', 'Title'), subtitle: t('library', 'Subtitle'), creators: t('library', 'Creator credit in file'),
   series: t('library', 'Series'), seriesNumber: t('library', 'Part in series'), genre: t('library', 'Genre'), publication: t('library', 'Publication'),
   publicationDate: t('library', 'Publication date'), language: t('library', 'Language'), publisher: t('library', 'Publisher'),
   description: t('library', 'Description'), subjects: t('library', 'Subjects'), classifications: t('library', 'Classifications'),
@@ -273,22 +272,14 @@ async function createAuthor() {
 }
 async function replaceAuthor() {
   if (!editingAuthor.value || !selectedAuthorId.value || busy.value) return
-  if (dirty.value && !window.confirm(t('library', 'Discard unsaved metadata edits?'))) return
-  busy.value = true
-  error.value = ''
-  feedback.value = ''
-  try {
-    const sourceId = Number(editingAuthor.value.id)
-    const target = Number(selectedAuthorId.value)
-    const items = [Number(itemId.value)]
-    const preview = await authorRequest(`/${sourceId}/preview`, { target, items })
-    if (preview.bookCount !== 1 || preview.merge || Number(preview.books?.[0]?.id) !== items[0]) throw new Error(t('library', 'The author assignment changed. Reload this publication and try again.'))
-    await authorRequest(`/${sourceId}/assign`, { target, items, token: preview.token })
-    cancelAuthorEdit()
-    if (!await load({ silent: true })) throw new Error(t('library', 'The change was saved, but details could not be reloaded.'))
-    feedback.value = t('library', 'Author assignment saved. The book credit was preserved.')
-  } catch (cause) { error.value = cause.message || t('library', 'The author change could not be saved.') }
-  finally { busy.value = false }
+  const candidate = authorResults.value.find(author => String(author.id) === selectedAuthorId.value)
+  if (!candidate) return
+  const position = draft.authorLinks.findIndex(author => Number(author.id) === Number(editingAuthor.value.id))
+  if (draft.authorLinks.some((author, index) => index !== position && Number(author.id) === Number(candidate.id))) return
+  if (position < 0 && Number(editingAuthor.value.id) === 0) draft.authorLinks.push({ id: Number(candidate.id), name: candidate.display_name })
+  else if (position >= 0) draft.authorLinks.splice(position, 1, { id: Number(candidate.id), name: candidate.display_name })
+  else return
+  cancelAuthorEdit()
 }
 
 const seriesApi = generateUrl('/apps/library/api/series')
@@ -352,7 +343,7 @@ async function findSeries(search = seriesSearch.value.trim()) {
   try {
     const result = await seriesRequest(`?search=${encodeURIComponent(search)}`, null, controller.signal)
     if (request !== seriesSearchRequest || !editingSeries.value) return
-    const currentId = Number(item.value?.canonicalSeries?.[0]?.id || 0)
+    const currentId = Number(draft.seriesLink?.id || 0)
     seriesResults.value = result.series.filter(candidate => Number(candidate.id) !== currentId)
     seriesHasNext.value = result.hasNext === true
   } catch (cause) {
@@ -399,26 +390,16 @@ async function createSeries() {
 }
 async function assignSeries() {
   if (!selectedSeries.value || busy.value) return
-  if (dirty.value && !window.confirm(t('library', 'Discard unsaved metadata edits?'))) return
-  busy.value = true
-  error.value = ''
-  feedback.value = ''
-  try {
-    const id = Number(itemId.value)
-    const target = Number(selectedSeries.value.id)
-    const preview = await seriesRequest(`/items/${id}/preview`, { target })
-    if (preview.bookCount !== 1 || Number(preview.books?.[0]?.id) !== id) throw new Error(t('library', 'The series assignment changed. Reload this publication and try again.'))
-    await seriesRequest(`/items/${id}/assign`, { target, token: preview.token })
-    cancelSeriesEdit()
-    if (!await load({ silent: true })) throw new Error(t('library', 'The change was saved, but details could not be reloaded.'))
-    feedback.value = t('library', 'Series assignment saved. The source metadata was preserved.')
-  } catch (cause) { error.value = cause.message || t('library', 'The series change could not be saved.') }
-  finally { busy.value = false }
+  draft.seriesLink = { id: Number(selectedSeries.value.id), name: selectedSeries.value.display_name }
+  cancelSeriesEdit()
 }
 
 function setDraft(source) {
-  for (const key of ['publicationType', 'title', 'subtitle', 'publication', 'series', 'seriesNumber', 'genre', 'publicationDate', 'publisher', 'description']) draft[key] = source[key] || ''
-  draft.creators = Array.isArray(source.authors) ? source.authors.join('\n') : listText(source.creators)
+  for (const key of ['publicationType', 'title', 'subtitle', 'publication', 'publicationDate', 'publisher', 'description']) draft[key] = source[key] || ''
+  draft.authorLinks = (source.canonicalAuthors || []).map(author => ({ id: Number(author.id), name: author.name }))
+  draft.seriesLink = source.canonicalSeries?.[0] ? { id: Number(source.canonicalSeries[0].id), name: source.canonicalSeries[0].name } : null
+  draft.seriesPart = String(source.canonicalSeries?.[0]?.part || '')
+  draft.genres = (source.canonicalGenres || []).map(genre => ({ id: Number(genre.id), name: genre.name }))
   draft.language = languageText(source.language)
   draft.subjects = listText(source.subjects)
   draft.classifications = listText(source.classifications)
@@ -482,8 +463,18 @@ async function saveMetadata() {
   body.set('requesttoken', props.requestToken)
   body.set('metadataAutosave', '1')
   body.set('metadataRevision', item.value?.metadataRevision || '')
-  body.set('creatorFormat', 'lines')
-  for (const key of ['publicationType', 'title', 'subtitle', 'creators', 'publication', 'series', 'seriesNumber', 'genre', 'publicationDate', 'publisher', 'description', 'personalRating']) body.set(key, String(draft[key] ?? ''))
+  body.set('simpleEditor', '1')
+  body.set('editorLinks', JSON.stringify({
+    beforeAuthors: (item.value.canonicalAuthors || []).map(author => Number(author.id)),
+    authors: draft.authorLinks.map(author => Number(author.id)),
+    beforeSeries: item.value.canonicalSeries?.[0] ? Number(item.value.canonicalSeries[0].id) : null,
+    series: draft.seriesLink ? Number(draft.seriesLink.id) : null,
+    beforePart: String(item.value.canonicalSeries?.[0]?.part || ''),
+    part: draft.seriesPart,
+    beforeGenres: (item.value.canonicalGenres || []).map(genre => Number(genre.id)),
+    genres: draft.genres.map(genre => Number(genre.id)),
+  }))
+  for (const key of ['publicationType', 'title', 'subtitle', 'publication', 'publicationDate', 'publisher', 'description', 'personalRating']) body.set(key, String(draft[key] ?? ''))
   for (const key of ['language', 'subjects', 'classifications']) {
     const entries = lines(draft[key])
     if (entries.length === 0) body.set(key, '')
@@ -501,40 +492,9 @@ async function saveMetadata() {
     const result = await response.json()
     if (!response.ok || !result.saved) throw new Error(result.error || t('library', 'Metadata was not saved.'))
     if (!await load({ silent: true })) throw new Error(t('library', 'Metadata was saved, but details could not be reloaded.'))
-    feedback.value = t('library', 'Metadata saved')
+    feedback.value = t('library', 'Book details saved')
   } catch (cause) { error.value = cause.message || t('library', 'Metadata was not saved.') }
   finally { busy.value = false }
-}
-
-async function saveRating(nextRating) {
-  if (busy.value || !item.value) return
-  const previous = draft.personalRating
-  draft.personalRating = nextRating
-  busy.value = true
-  error.value = ''
-  feedback.value = ''
-  try {
-    const body = new FormData()
-    body.set('requesttoken', props.requestToken)
-    body.set('metadataRevision', item.value.metadataRevision || '')
-    body.set('personalRating', String(nextRating ?? ''))
-    const response = await fetch(`${itemBase.value}/rating`, { method: 'POST', body, credentials: 'same-origin' })
-    if (!response.ok) throw new Error(response.status === 409
-      ? t('library', 'This publication changed. Reload its details before rating it.')
-      : t('library', 'The rating could not be saved.'))
-    const result = await response.json()
-    if (!/^[a-f0-9]{64}$/.test(result.metadataRevision || '') || (result.rating !== null && !Number.isInteger(result.rating))) throw new Error(t('library', 'The rating could not be saved.'))
-    item.value.personalRating = result.rating
-    item.value.metadataRevision = result.metadataRevision
-    draft.personalRating = result.rating ?? ''
-    const baseline = JSON.parse(savedDraft.value)
-    baseline.personalRating = draft.personalRating
-    savedDraft.value = JSON.stringify(baseline)
-    feedback.value = t('library', 'Rating saved')
-  } catch (cause) {
-    draft.personalRating = previous
-    error.value = cause.message || t('library', 'The rating could not be saved.')
-  } finally { busy.value = false }
 }
 
 async function uploadCover() {
@@ -637,23 +597,28 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
           <input ref="coverInput" class="library-cover-file-input" type="file" tabindex="-1" accept="image/jpeg,image/png,image/webp" :aria-label="t('library', 'Replace cover')" @change="chooseCover">
           <p v-if="coverPasteStatus" class="library-cover-paste-guide" role="status">{{ coverPasteStatus }}</p>
         </div>
-        <div class="library-full-details-summary"><p class="library-muted">{{ item.publicationType || t('library', 'Publication') }} · {{ (item.extension || '').toUpperCase() }}</p><h1><bdi dir="auto">{{ item.title || t('library', 'Untitled publication') }}</bdi></h1><p><bdi dir="auto">{{ item.displayCreators || item.creators }}</bdi></p><p v-if="item.canonicalAuthors?.length" class="library-full-details-links"><a v-for="author in item.canonicalAuthors" :key="author.id" :href="`${catalogueUrl}?authors=1&authorId=${author.id}`">{{ author.name }}</a></p><p v-if="item.canonicalSeries?.length" class="library-full-details-links"><a v-for="series in item.canonicalSeries" :key="series.id" :href="`${catalogueUrl}?series=1&seriesId=${series.id}`">{{ series.name }}<span v-if="series.part"> · {{ series.part }}</span></a></p><div class="library-full-details-actions"><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpen">{{ t('library', 'Open') }}</a><a class="button secondary" :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a><a class="button secondary" :href="item.downloadUrl">{{ t('library', 'Download source') }}</a></div><div class="library-full-details-personal"><button type="button" class="button secondary" :aria-pressed="!!item.starred" :disabled="busy" @click="post(context.actions.star, { starred: item.starred ? '0' : '1' })">{{ item.starred ? '★' : '☆' }} {{ t('library', 'Favorite') }}</button><label>{{ t('library', 'Workflow status') }} <select :value="item.workflowStatus || ''" :disabled="busy" @change="post(context.actions.workflowStatus, { workflowStatus: $event.target.value })"><option v-for="status in workflowOptions" :key="status.value" :value="status.value">{{ status.label }}</option></select></label></div><AddToList :item-ids="[Number(itemId)]" :request-token="requestToken" :lists-url="`${catalogueUrl}?lists=1`" /></div>
+        <div class="library-full-details-summary"><p class="library-muted">{{ item.publicationType || t('library', 'Publication') }} · {{ (item.extension || '').toUpperCase() }}</p><h1><bdi dir="auto">{{ item.title || t('library', 'Untitled publication') }}</bdi></h1><p v-if="!item.canonicalAuthors?.length"><bdi dir="auto">{{ item.creators }}</bdi></p><p v-if="item.canonicalAuthors?.length" class="library-full-details-links"><a v-for="author in item.canonicalAuthors" :key="author.id" :href="`${catalogueUrl}?authors=1&authorId=${author.id}`">{{ author.name }}</a></p><p v-if="item.canonicalSeries?.length" class="library-full-details-links"><a v-for="series in item.canonicalSeries" :key="series.id" :href="`${catalogueUrl}?series=1&seriesId=${series.id}`">{{ series.name }}<span v-if="series.part"> · {{ series.part }}</span></a></p><div class="library-full-details-actions"><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpen">{{ t('library', 'Open') }}</a><a class="button secondary" :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a><a class="button secondary" :href="item.downloadUrl">{{ t('library', 'Download source') }}</a></div><div class="library-full-details-personal"><button type="button" class="button secondary" :aria-pressed="!!item.starred" :disabled="busy" @click="post(context.actions.star, { starred: item.starred ? '0' : '1' })">{{ item.starred ? '★' : '☆' }} {{ t('library', 'Favorite') }}</button><label>{{ t('library', 'Workflow status') }} <select :value="item.workflowStatus || ''" :disabled="busy" @change="post(context.actions.workflowStatus, { workflowStatus: $event.target.value })"><option v-for="status in workflowOptions" :key="status.value" :value="status.value">{{ status.label }}</option></select></label></div><AddToList :item-ids="[Number(itemId)]" :request-token="requestToken" :lists-url="`${catalogueUrl}?lists=1`" /></div>
       </header>
 
       <div class="library-full-details-columns">
         <div class="library-full-details-main">
-          <section class="library-full-details-card" aria-labelledby="library-full-details-metadata"><h2 id="library-full-details-metadata">{{ t('library', 'Publication metadata') }}</h2><form id="library-full-details-metadata-form" @submit.prevent="saveMetadata"><div class="library-full-details-fields"><label>{{ t('library', 'Title') }}<input v-model="draft.title" required></label><label>{{ t('library', 'Subtitle') }}<input v-model="draft.subtitle"></label><label>{{ t('library', 'Type') }}<select v-model="draft.publicationType"><option v-for="type in publicationTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label><details class="library-full-details-wide library-full-details-source-credit"><summary :title="t('library', 'This book credit is retained for source metadata and export. Use the Authors section to change the linked person for browsing. One creator per line; commas within a name are preserved.')">{{ t('library', 'Source creator credits') }}</summary><label>{{ t('library', 'Source creator credits') }}<textarea v-model="draft.creators" rows="3"></textarea></label></details><label>{{ t('library', 'Publication') }}<input v-model="draft.publication"></label><details class="library-full-details-wide library-full-details-source-credit"><summary :title="t('library', 'These imported values are retained for metadata export. Use the Series section to choose the linked series for browsing.')">{{ t('library', 'Source series metadata') }}</summary><div class="library-full-details-fields"><label>{{ t('library', 'Source series') }}<input v-model="draft.series"></label><label>{{ t('library', 'Source part in series') }}<input v-model="draft.seriesNumber"></label></div></details><details class="library-full-details-wide library-full-details-source-credit"><summary :title="t('library', 'The imported genre stays available as source metadata. Use the Genres section to assign catalogue genres for browsing.')">{{ t('library', 'Source genre metadata') }}</summary><label>{{ t('library', 'Source genre') }}<input v-model="draft.genre"></label></details><label :title="t('library', 'Use YYYY, YYYY-MM, or YYYY-MM-DD.')">{{ t('library', 'Publication date') }}<input v-model="draft.publicationDate"></label><label :title="t('library', 'Search publishers')">{{ t('library', 'Publisher') }}<input v-model="draft.publisher" list="library-details-publisher-suggestions" autocomplete="off"><datalist id="library-details-publisher-suggestions"><option v-for="name in publisherSuggestions" :key="name" :value="name"></option></datalist></label><MetadataValuePicker v-model="draft.language" kind="language" :disabled="busy" /><MetadataValuePicker v-model="draft.subjects" kind="subject" :disabled="busy" /><label :title="t('library', 'One classification per line.')">{{ t('library', 'Classifications') }}<textarea v-model="draft.classifications" rows="2"></textarea></label><StarRating :model-value="draft.personalRating" :disabled="busy" @update:model-value="saveRating" /><label class="library-full-details-wide">{{ t('library', 'Description') }}<textarea v-model="draft.description" rows="8"></textarea></label></div><fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in draft.identifiers" :key="index" class="library-full-details-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Scheme')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><span v-if="identifier.displayValue && identifier.valid === false && identifier.scheme === identifier.originalScheme && identifier.displayValue === identifier.originalDisplayValue" role="status">{{ t('library', 'Invalid identifier checksum') }}</span><button type="button" class="button secondary" :aria-label="t('library', 'Remove identifier')" @click="draft.identifiers.splice(index, 1)">×</button></div><button type="button" class="button secondary" @click="draft.identifiers.push({ scheme: 'isbn', displayValue: '' })">{{ t('library', 'Add identifier') }}</button></fieldset></form></section>
+          <p v-if="dirty" class="library-full-details-unsaved" role="status">{{ t('library', 'Unsaved book changes') }}</p>
+          <p class="library-muted library-full-details-save-hint">{{ t('library', 'Edit the book below, then save all changes together.') }}</p>
+          <section class="library-full-details-card" aria-labelledby="library-full-details-metadata"><h2 id="library-full-details-metadata">{{ t('library', 'Book details') }}</h2><form id="library-full-details-metadata-form" @submit.prevent="saveMetadata"><div class="library-full-details-fields"><label>{{ t('library', 'Title') }}<input v-model="draft.title" required></label><label>{{ t('library', 'Subtitle') }}<input v-model="draft.subtitle"></label><label>{{ t('library', 'Type') }}<select v-model="draft.publicationType"><option v-for="type in publicationTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label><label>{{ t('library', 'Publication') }}<input v-model="draft.publication"></label><label :title="t('library', 'Use YYYY, YYYY-MM, or YYYY-MM-DD.')">{{ t('library', 'Publication date') }}<input v-model="draft.publicationDate"></label><label :title="t('library', 'Search publishers')">{{ t('library', 'Publisher') }}<input v-model="draft.publisher" list="library-details-publisher-suggestions" autocomplete="off"><datalist id="library-details-publisher-suggestions"><option v-for="name in publisherSuggestions" :key="name" :value="name"></option></datalist></label><MetadataValuePicker v-model="draft.language" kind="language" :disabled="busy" /><MetadataValuePicker v-model="draft.subjects" kind="subject" :disabled="busy" /><label :title="t('library', 'One classification per line.')">{{ t('library', 'Classifications') }}<textarea v-model="draft.classifications" rows="2"></textarea></label><StarRating :model-value="draft.personalRating" :disabled="busy" @update:model-value="draft.personalRating = $event" /><label class="library-full-details-wide">{{ t('library', 'Description') }}<textarea v-model="draft.description" rows="8"></textarea></label></div><fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in draft.identifiers" :key="index" class="library-full-details-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Scheme')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><span v-if="identifier.displayValue && identifier.valid === false && identifier.scheme === identifier.originalScheme && identifier.displayValue === identifier.originalDisplayValue" role="status">{{ t('library', 'Invalid identifier checksum') }}</span><button type="button" class="button secondary" :aria-label="t('library', 'Remove identifier')" @click="draft.identifiers.splice(index, 1)">×</button></div><button type="button" class="button secondary" @click="draft.identifiers.push({ scheme: 'isbn', displayValue: '' })">{{ t('library', 'Add identifier') }}</button></fieldset></form></section>
           <section class="library-full-details-card library-full-details-authors" aria-labelledby="library-full-details-authors-heading">
             <h2 id="library-full-details-authors-heading">{{ t('library', 'Authors') }}</h2>
-            <template v-if="item.canonicalAuthors?.length">
-              <div v-for="author in item.canonicalAuthors" :key="author.id" class="library-full-details-author-row">
+            <template v-if="draft.authorLinks?.length">
+              <div v-for="author in draft.authorLinks" :key="author.id" class="library-full-details-author-row">
                 <a :href="`${catalogueUrl}?authors=1&authorId=${author.id}`"><bdi dir="auto">{{ author.name }}</bdi></a>
-                <button v-if="item.authorSyncStatus === 0" type="button" class="button secondary" :disabled="busy" @click="editAuthor(author)">{{ t('library', 'Change author') }}</button>
+                <button v-if="item.authorSyncStatus === 0" type="button" class="button secondary" :disabled="busy" @click="editAuthor(author)">{{ t('library', 'Change') }}</button><button v-if="item.authorSyncStatus === 0" type="button" class="button secondary" :disabled="busy" :aria-label="`${t('library', 'Remove author')}: ${author.name}`" @click="draft.authorLinks = draft.authorLinks.filter(entry => entry.id !== author.id)">×</button>
               </div>
               <p v-if="item.authorSyncStatus === 2"><a :href="`${catalogueUrl}?authors=1&authorConflicts=1`">{{ t('library', 'Review imported author changes') }}</a></p>
               <p v-else-if="item.authorSyncStatus !== 0" class="library-muted">{{ t('library', 'Author migration must finish before editing. Refresh to check progress.') }}</p>
+            </template>
+            <p v-else class="library-muted">{{ t('library', 'No authors assigned yet.') }}</p>
+            <button v-if="item.authorSyncStatus === 0 && !editingAuthor" type="button" class="button secondary" :disabled="busy" @click="editAuthor({ id: 0, name: '' })">{{ t('library', 'Add author') }}</button>
               <div v-if="editingAuthor" class="library-full-details-author-picker">
-                <p>{{ t('library', 'Replace {author} for this publication', { author: editingAuthor.name }) }}</p>
+                <p v-if="editingAuthor.id">{{ t('library', 'Replace {author} for this publication', { author: editingAuthor.name }) }}</p>
                 <div class="library-full-details-author-search">
                   <label for="library-details-author-search">{{ t('library', 'Choose an author') }}</label>
                   <input id="library-details-author-search" ref="authorInput" v-model="authorSearch" type="search" maxlength="255" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="library-details-author-suggestions" :aria-expanded="authorSuggestionsOpen && authorResults.length > 0 ? 'true' : 'false'" :aria-activedescendant="authorActiveIndex >= 0 && authorSuggestionsOpen ? `library-details-author-option-${authorResults[authorActiveIndex]?.id}` : undefined" :placeholder="t('library', 'Search authors')" :disabled="busy" @focus="authorSuggestionsOpen = authorSearchReady" @keydown="authorPickerKeydown">
@@ -667,23 +632,23 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
                   <p v-if="selectedAuthorId" class="library-full-details-author-selected" role="status">{{ t('library', 'Selected author') }}: <strong>{{ authorResults.find(candidate => String(candidate.id) === selectedAuthorId)?.display_name }}</strong></p>
                 </div>
                 <div class="library-full-details-author-actions">
-                  <button type="button" class="button secondary" :disabled="busy || authorSearchBusy || !authorSearch.trim()" :title="t('library', 'Creates a separate author identity, even if the name already exists.')" @click="createAuthor">{{ t('library', 'Create separate author') }}</button>
-                  <button type="button" class="button primary" :disabled="busy || authorSearchBusy || !selectedAuthorId" @click="replaceAuthor">{{ t('library', 'Save author assignment') }}</button>
+                  <button type="button" class="button secondary" :disabled="busy || authorSearchBusy || !authorSearch.trim()" :title="t('library', 'Creates a separate author identity, even if the name already exists.')" @click="createAuthor">{{ t('library', 'Create new author') }}</button>
+                  <button type="button" class="button primary" :disabled="busy || authorSearchBusy || !selectedAuthorId" @click="replaceAuthor">{{ t('library', 'Use this author') }}</button>
                   <button type="button" class="button secondary" :disabled="busy" @click="cancelAuthorEdit">{{ t('library', 'Cancel') }}</button>
                 </div>
               </div>
-            </template>
-            <p v-else class="library-muted">{{ t('library', 'No linked authors are available yet. Expand Source creator credits in Publication metadata to see the book credit.') }}</p>
           </section>
           <section class="library-full-details-card library-full-details-authors" aria-labelledby="library-full-details-series-heading">
             <h2 id="library-full-details-series-heading">{{ t('library', 'Series') }}</h2>
-            <div v-for="series in item.canonicalSeries || []" :key="series.id" class="library-full-details-author-row">
-              <a :href="`${catalogueUrl}?series=1&seriesId=${series.id}`"><bdi dir="auto">{{ series.name }}</bdi><span v-if="series.part"> · {{ series.part }}</span></a>
+            <div v-for="series in draft.seriesLink ? [draft.seriesLink] : []" :key="series.id" class="library-full-details-author-row">
+              <a :href="`${catalogueUrl}?series=1&seriesId=${series.id}`"><bdi dir="auto">{{ series.name }}</bdi><span v-if="draft.seriesPart"> · {{ draft.seriesPart }}</span></a>
             </div>
-            <p v-if="!item.canonicalSeries?.length" class="library-muted">{{ t('library', 'No linked series yet.') }}</p>
+            <p v-if="!draft.seriesLink" class="library-muted">{{ t('library', 'No linked series yet.') }}</p>
             <p v-if="item.seriesSyncStatus === 3"><a :href="`${catalogueUrl}?series=1&seriesConflicts=1`">{{ t('library', 'Review imported series changes') }}</a></p>
             <p v-else-if="item.seriesSyncStatus !== 0" class="library-muted">{{ t('library', 'Series migration must finish before editing. Refresh to check progress.') }}</p>
-            <button v-else-if="!editingSeries" type="button" class="button secondary" :disabled="busy" @click="editSeries">{{ item.canonicalSeries?.length ? t('library', 'Change series') : t('library', 'Link a series') }}</button>
+            <button v-else-if="!editingSeries" type="button" class="button secondary" :disabled="busy" @click="editSeries">{{ draft.seriesLink ? t('library', 'Change series') : t('library', 'Choose series') }}</button>
+            <button v-if="draft.seriesLink && item.seriesSyncStatus === 0" type="button" class="button secondary" :disabled="busy" @click="draft.seriesLink = null; draft.seriesPart = ''">{{ t('library', 'Remove series') }}</button>
+            <label v-if="draft.seriesLink && item.seriesSyncStatus === 0" class="library-full-details-series-part">{{ t('library', 'Part in series') }}<input v-model="draft.seriesPart" maxlength="64"></label>
             <div v-if="editingSeries" class="library-full-details-author-picker">
               <div class="library-full-details-author-search">
                 <label for="library-details-series-search">{{ t('library', 'Choose a series') }}</label>
@@ -699,13 +664,13 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
               </div>
               <div class="library-full-details-author-actions">
                 <button type="button" class="button secondary" :disabled="busy || seriesSearchBusy || !seriesSearch.trim()" @click="createSeries">{{ t('library', 'Create series') }}</button>
-                <button type="button" class="button primary" :disabled="busy || seriesSearchBusy || !selectedSeries" @click="assignSeries">{{ t('library', 'Save series assignment') }}</button>
+                <button type="button" class="button primary" :disabled="busy || seriesSearchBusy || !selectedSeries" @click="assignSeries">{{ t('library', 'Use this series') }}</button>
                 <button type="button" class="button secondary" :disabled="busy" @click="cancelSeriesEdit">{{ t('library', 'Cancel') }}</button>
               </div>
             </div>
           </section>
-          <GenrePicker class="library-full-details-genres" :item-id="Number(itemId)" :genres="item.canonicalGenres || []" :request-token="requestToken" :catalogue-url="catalogueUrl" :disabled="busy || dirty" @changed="load({ silent: true })" />
-          <button class="button primary library-full-details-save" type="submit" form="library-full-details-metadata-form" :disabled="busy">{{ t('library', 'Save metadata') }}</button>
+          <GenrePicker class="library-full-details-genres" :item-id="Number(itemId)" :genres="draft.genres || []" :request-token="requestToken" :catalogue-url="catalogueUrl" :disabled="busy" draft-mode @update:genres="draft.genres = $event" />
+          <button class="button primary library-full-details-save" type="submit" form="library-full-details-metadata-form" :disabled="busy">{{ t('library', 'Save book details') }}</button>
         </div>
 
         <div class="library-full-details-aside">
@@ -714,7 +679,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
           <section class="library-full-details-card"><h2>{{ t('library', 'Nextcloud comments') }}</h2><p class="library-muted">{{ n('library', '%n comment', '%n comments', context.comments.count || 0) }}</p><ul v-if="context.comments.recent?.length" class="library-full-details-comments"><li v-for="comment in context.comments.recent" :key="comment.id"><small>{{ comment.actorId }} · {{ comment.createdAt }}</small><p>{{ comment.message }}</p></li></ul><form @submit.prevent="addComment"><label>{{ t('library', 'Add Nextcloud comment') }}<textarea v-model="commentMessage" rows="3"></textarea></label><button type="submit" class="button secondary" :disabled="busy || !commentMessage.trim()">{{ t('library', 'Add comment') }}</button></form></section>
         </div>
       </div>
-      <section class="library-full-details-card library-full-details-provenance"><h2>{{ t('library', 'Metadata provenance') }}</h2><p class="library-muted">{{ t('library', 'Scanner suggestions never replace your edits automatically.') }}</p><div v-if="differences.length" class="library-full-details-differences"><article v-for="row in differences" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><button type="button" class="button secondary" :disabled="busy || row.rejected" :title="row.rejected ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetField, { field: row.field })">{{ t('library', 'Reset to scanner') }}</button></article></div><p v-else>{{ t('library', 'No scanner differences for this item.') }}</p><details><summary>{{ t('library', 'Show all scanner provenance') }}</summary><div class="library-full-details-differences"><article v-for="row in provenance" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Scanner source') }}: {{ row.source || '—' }}</p><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><p v-if="row.sourceOriginal">{{ t('library', 'Original source value') }}: <bdi dir="auto">{{ row.sourceOriginal }}</bdi></p></article></div></details><button v-if="differences.length" type="button" class="button secondary" :disabled="busy || rejectedFields.length > 0" :title="rejectedFields.length ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetFields)">{{ t('library', 'Reset all fields to scanner') }}</button></section>
+      <details class="library-full-details-card library-full-details-provenance"><summary>{{ t('library', 'Imported metadata and scan suggestions') }}</summary><dl class="library-full-details-source-values"><dt>{{ t('library', 'Creator credit in file') }}</dt><dd>{{ item.creators || '—' }}</dd><dt>{{ t('library', 'Series in file') }}</dt><dd>{{ item.series || '—' }}<span v-if="item.seriesNumber"> · {{ item.seriesNumber }}</span></dd><dt>{{ t('library', 'Genre in file') }}</dt><dd>{{ item.genre || '—' }}</dd></dl><p class="library-muted">{{ t('library', 'Scanner suggestions never replace your edits automatically.') }}</p><div v-if="differences.length" class="library-full-details-differences"><article v-for="row in differences" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><button type="button" class="button secondary" :disabled="busy || row.rejected" :title="row.rejected ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetField, { field: row.field })">{{ t('library', 'Reset to scanner') }}</button></article></div><p v-else>{{ t('library', 'No scanner differences for this item.') }}</p><details><summary>{{ t('library', 'Show all scanner provenance') }}</summary><div class="library-full-details-differences"><article v-for="row in provenance" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Scanner source') }}: {{ row.source || '—' }}</p><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><p v-if="row.sourceOriginal">{{ t('library', 'Original source value') }}: <bdi dir="auto">{{ row.sourceOriginal }}</bdi></p></article></div></details><button v-if="differences.length" type="button" class="button secondary" :disabled="busy || rejectedFields.length > 0" :title="rejectedFields.length ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetFields)">{{ t('library', 'Reset all fields to scanner') }}</button></details>
     </template>
   </main>
 </template>
@@ -743,7 +708,9 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-actions, .library-full-details-personal, .library-full-details-links { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
 .library-full-details-columns { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 20px; align-items: start; }
 .library-full-details-main { display: grid; gap: 20px; min-width: 0; }
+.library-full-details-save-hint { margin: 0; }
 .library-full-details-save { width: 100%; }
+.library-full-details-series-part { max-width: 220px; margin-top: 12px; }
 .library-full-details-author-row, .library-full-details-author-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .library-full-details-author-row { margin: 8px 0; }
 .library-full-details-author-picker { display: grid; gap: 12px; margin-top: 16px; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; }
@@ -777,6 +744,10 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-comments { list-style: none; padding: 0; }
 .library-full-details-comments li { border-bottom: 1px solid var(--color-border); padding: 8px 0; overflow-wrap: anywhere; }
 .library-full-details-provenance { margin-top: 20px; }
+.library-full-details-provenance > summary { cursor: pointer; font-size: 1.2rem; font-weight: 600; }
+.library-full-details-source-values { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 12px; margin: 16px 0; }
+.library-full-details-source-values dt { font-weight: 600; }
+.library-full-details-source-values dd { margin: 0; overflow-wrap: anywhere; }
 .library-full-details-differences { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin: 16px 0; }
 .library-full-details-differences article { border: 1px solid var(--color-border); border-radius: 8px; padding: 12px; min-width: 0; overflow-wrap: anywhere; }
 .library-full-details-differences h3 { margin: 0 0 8px; }

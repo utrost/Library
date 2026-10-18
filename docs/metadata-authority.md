@@ -25,12 +25,7 @@ explicit migration. Free-text search also follows current author relationships
 for preferred and sort-name substrings of at least three characters. Thus a
 preferred author rename changes the displayed credit, author page, and general
 search results immediately without rewriting source credits or reindexing every
-linked book. The author ID filter remains the precise choice for homonyms. Full details shows the linked author identities above
-the metadata form. **Change author** searches the account's normalized author
-table and reassigns only this book through the preview-token workflow. The
-**Source creator credits** field is under an advanced disclosure in the metadata
-form. It changes the book's source observation, not the linked identity. Neither
-action edits the source file.
+linked book. The author ID filter remains the precise choice for homonyms. Full details shows linked author identities in the book editor. **Change** searches the account's normalized author table and stages a link change for this book. **Save book details** commits publication fields and author, series, and genre links in one transaction. Original credits and scan suggestions are available under **Imported metadata and scan suggestions**. The editor does not change the source file.
 
 ## Examples that must keep working
 
@@ -46,8 +41,8 @@ action edits the source file.
    review. The user chooses whether to keep the link or follow the new source.
 4. **Series conflict:** A book manually linked to “Mistborn” receives a changed
    imported series. The linked series stays visible in the catalogue and detail
-   page while review is pending. The imported name stays editable as book
-   metadata; resolving the conflict changes only the selected relationship.
+   page while review is pending. The imported name remains available for
+   comparison; resolving the conflict changes only the selected relationship.
 
 No automatic similarity match merges identities. IDs are account scoped, and
 book files remain owned by Nextcloud Files. See [author management](v0.3-author-management.md)

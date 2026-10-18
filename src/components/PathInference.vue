@@ -19,7 +19,7 @@ const items = ref([]), page = ref(1), hasNext = ref(false), busy = ref(false), e
 const scope = ref(''), example = ref(''), loadedRootId = ref(''), loadedFolder = ref(''), folderRules = ref([])
 const rule = ref(null), editorMode = ref('guided'), ruleGeneration = ref(0)
 const pattern = ref('%folders%/%title%.%extension%'), resultFilter = ref('all')
-const editorOpen = ref(true)
+const editorOpen = ref(false)
 let generation = 0
 
 const fields = computed(() => [
@@ -102,7 +102,7 @@ onMounted(() => load())
       </div>
       <InferenceSuggestions :path="example" :sample="items" :rule="editorMode === 'guided' ? rule : null" @choose="useSuggestedRule" />
       <details class="library-inference-customize" :open="editorOpen" @toggle="editorOpen = $event.target.open">
-      <summary>{{ t('library', 'Edit pattern') }}</summary>
+      <summary>{{ t('library', 'Adjust the rule (optional)') }}</summary>
       <label>{{ t('library', 'Rule editor') }}<select v-model="editorMode"><option value="guided">{{ t('library', 'Guided assignments') }}</option><option value="pattern">{{ t('library', 'Advanced pattern') }}</option><option value="folders">{{ t('library', 'Folder rules') }}</option></select></label>
       <InferenceFolderRules v-if="editorMode === 'folders'" :root-id="loadedRootId" :folder="loadedFolder" :request-token="requestToken" :disabled="busy" :scope-pending="scopePending" @loaded="rulesLoaded" />
       <template v-if="editorMode === 'guided' && rule">

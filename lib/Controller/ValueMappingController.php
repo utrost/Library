@@ -28,16 +28,21 @@ final class ValueMappingController extends Controller {
         return $field;
     }
     private function page(?array $preview = null, string $message = ''): TemplateResponse {
+        Util::addStyle('library', 'style');
         $uid = $this->uid();
         $field = $this->field();
         $search = trim((string)$this->request->getParam('search', ''));
         return new TemplateResponse('library', 'value-mappings', [
             'field'=>$field, 'search'=>$search,
+            'selectedSource' => trim((string)$this->request->getParam('source', '')),
             'values'=>mb_strlen($search) >= 3 ? $this->mappings->popularValues($uid, $field, $search) : [],
             'mappings'=>$this->mappings->mappings($uid, $field),
             'preview'=>$preview, 'message'=>$message,
             'baseUrl'=>$this->urls->linkToRoute('library.value_mapping.index'),
             'catalogueUrl'=>$this->urls->linkToRoute('library.page.catalogue'),
+            'languageUrl'=>$this->urls->linkToRoute('library.language_review.index'),
+            'valueMappingsUrl'=>$this->urls->linkToRoute('library.value_mapping.index'),
+            'settingsUrl'=>$this->urls->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),
             'requesttoken'=>Util::callRegister(),
         ]);
     }

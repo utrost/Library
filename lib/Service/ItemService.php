@@ -454,7 +454,7 @@ final class ItemService {
         $this->refreshItemSearchIndex($userId, $itemId);
     }
 
-    public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null): void {
+    public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null, ?array $editorLinks = null): void {
         $explicitAuthors = array_key_exists('authors', $metadata);
         $metadata = $this->validateEditableMetadata($metadata);
         $hasIdentifierUpdate = array_key_exists('identifiers', $metadata);
@@ -546,6 +546,8 @@ final class ItemService {
                     $this->normalizeMultiValueField($metadata['subjects'] ?? []), (string)($existing['cachedPath'] ?? ''));
             }
 
+            if ($editorLinks !== null) $this->applyEditorLinks($userId, $itemId, $existing, $editorLinks);
+
             $this->refreshReviewFilterFlags($userId, $itemId);
             $this->refreshItemFacetIndex(
                 $userId,
@@ -558,6 +560,80 @@ final class ItemService {
             $this->refreshItemSearchIndex($userId, $itemId);
             $this->db->commit();
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
+    }
+
+    /** Save the visible relationships with the publication fields in the same transaction. */
+    private function applyEditorLinks(string $uid, int $itemId, array $item, array $links): void {
+        $ids = static function (mixed $value): array {
+            if (!is_array($value) || !array_is_list($value) || count($value) > 128) throw new \InvalidArgumentException('editor_links');
+            $result = [];
+            foreach ($value as $id) {
+                if (!is_int($id) || $id < 1 || $id > 2147483647 || in_array($id, $result, true)) throw new \InvalidArgumentException('editor_links');
+                $result[] = $id;
+            }
+            return $result;
+        };
+        foreach (['beforeAuthors', 'authors', 'beforeGenres', 'genres'] as $key) if (!array_key_exists($key, $links)) throw new \InvalidArgumentException('editor_links');
+        $beforeAuthors = $ids($links['beforeAuthors']); $authors = $ids($links['authors']);
+        $beforeGenres = $ids($links['beforeGenres']); $genres = $ids($links['genres']);
+        foreach (['beforeSeries', 'series'] as $key) if (!array_key_exists($key, $links) || (!is_int($links[$key]) && $links[$key] !== null) || ($links[$key] !== null && ($links[$key] < 1 || $links[$key] > 2147483647))) throw new \InvalidArgumentException('editor_links');
+        foreach (['beforePart', 'part'] as $key) if (!array_key_exists($key, $links) || !is_string($links[$key]) || mb_strlen($links[$key]) > 64) throw new \InvalidArgumentException('editor_links');
+        $authorRows = $this->db->executeQuery('SELECT id,author_id,position FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=? ORDER BY position', [$uid, $itemId])->fetchAll();
+        $currentAuthors = array_map('intval', array_column($authorRows, 'author_id'));
+        $seriesRows = $this->db->executeQuery('SELECT series_id,part_number FROM *PREFIX*library_item_series WHERE user_id=? AND item_id=? AND slot=0', [$uid, $itemId])->fetchAll();
+        $currentSeries = isset($seriesRows[0]) ? (int)$seriesRows[0]['series_id'] : null;
+        $currentPart = (string)($seriesRows[0]['part_number'] ?? '');
+        $genreRows = $this->db->executeQuery('SELECT genre_id FROM *PREFIX*library_item_genres WHERE user_id=? AND item_id=? AND active=1', [$uid, $itemId])->fetchAll();
+        $currentGenres = array_map('intval', array_column($genreRows, 'genre_id'));
+        sort($currentGenres); $sortedBeforeGenres = $beforeGenres; sort($sortedBeforeGenres);
+        if ($currentAuthors !== $beforeAuthors || $currentSeries !== $links['beforeSeries'] || $currentPart !== $links['beforePart'] || $currentGenres !== $sortedBeforeGenres) throw new MetadataConflictException('relationships_changed');
+
+        if ($authors !== $currentAuthors) {
+            if ((int)$item['authorSyncStatus'] !== AuthorStorageService::SYNCED) throw new MetadataConflictException('authors_not_ready');
+            foreach ($authors as $authorId) {
+                $result = $this->db->executeQuery('SELECT display_name FROM *PREFIX*library_authors WHERE user_id=? AND id=? AND merged_into IS NULL', [$uid, $authorId]);
+                $author = $result->fetch(); $result->closeCursor();
+                if ($author === false) throw new \InvalidArgumentException('editor_author');
+                $names[$authorId] = (string)$author['display_name'];
+            }
+            for ($position = count($authors); $position < count($authorRows); $position++) $this->db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id=? AND id=?', [$uid, (int)$authorRows[$position]['id']]);
+            foreach ($authors as $position => $authorId) {
+                if (isset($authorRows[$position])) {
+                    if ((int)$authorRows[$position]['author_id'] !== $authorId) $this->db->executeStatement('UPDATE *PREFIX*library_item_authors SET author_id=?,assignment_source=?,revision=revision+1 WHERE user_id=? AND id=?', [$authorId, 'manual', $uid, (int)$authorRows[$position]['id']]);
+                } else {
+                    $this->db->executeStatement('INSERT INTO *PREFIX*library_item_authors (user_id,item_id,author_id,position,source_name,source_sort_name,assignment_source,revision) VALUES (?,?,?,?,?,?,?,?)', [$uid, $itemId, $authorId, $position, $names[$authorId], null, 'manual', 1]);
+                }
+            }
+            $this->db->executeStatement('DELETE FROM *PREFIX*library_dup_hints WHERE user_id=? AND (left_id=? OR right_id=?)', [$uid, $itemId, $itemId]);
+        }
+
+        $part = trim($links['part']);
+        if ($links['series'] !== $currentSeries || $part !== $currentPart) {
+            if ((int)$item['seriesSyncStatus'] !== SeriesStorageService::SYNCED) throw new MetadataConflictException('series_not_ready');
+            if ($links['series'] !== null) {
+                $result = $this->db->executeQuery('SELECT id FROM *PREFIX*library_series WHERE user_id=? AND id=? AND merged_into IS NULL', [$uid, $links['series']]);
+                $found = $result->fetch() !== false; $result->closeCursor();
+                if (!$found) throw new \InvalidArgumentException('editor_series');
+            } elseif ($part !== '') throw new \InvalidArgumentException('editor_part');
+            if ($currentSeries === null && $links['series'] !== null) {
+                $this->db->executeStatement('INSERT INTO *PREFIX*library_item_series (user_id,item_id,slot,series_id,part_number,source_name,source_number,revision,assignment_source) VALUES (?,?,?,?,?,?,?,?,?)', [$uid, $itemId, 0, $links['series'], $part === '' ? null : $part, (string)($item['series'] ?? ''), $item['seriesNumber'] ?? null, 1, 'manual']);
+            } elseif ($links['series'] === null) {
+                $this->db->executeStatement('DELETE FROM *PREFIX*library_item_series WHERE user_id=? AND item_id=? AND slot=0', [$uid, $itemId]);
+            } else {
+                $this->db->executeStatement('UPDATE *PREFIX*library_item_series SET series_id=?,part_number=?,assignment_source=?,revision=revision+1 WHERE user_id=? AND item_id=? AND slot=0', [$links['series'], $part === '' ? null : $part, 'manual', $uid, $itemId]);
+            }
+        }
+
+        foreach ($genres as $genreId) {
+            $result = $this->db->executeQuery('SELECT id FROM *PREFIX*library_genres WHERE user_id=? AND id=?', [$uid, $genreId]);
+            $found = $result->fetch() !== false; $result->closeCursor();
+            if (!$found) throw new \InvalidArgumentException('editor_genre');
+        }
+        foreach ($currentGenres as $genreId) if (!in_array($genreId, $genres, true)) $this->db->executeStatement('UPDATE *PREFIX*library_item_genres SET active=0,assignment_source=? WHERE user_id=? AND item_id=? AND genre_id=?', ['manual', $uid, $itemId, $genreId]);
+        foreach ($genres as $genreId) if (!in_array($genreId, $currentGenres, true)) {
+            $this->db->insertIfNotExist('*PREFIX*library_item_genres', ['user_id' => $uid, 'item_id' => $itemId, 'genre_id' => $genreId, 'active' => 1, 'assignment_source' => 'manual'], ['user_id', 'item_id', 'genre_id']);
+            $this->db->executeStatement('UPDATE *PREFIX*library_item_genres SET active=1,assignment_source=? WHERE user_id=? AND item_id=? AND genre_id=?', ['manual', $uid, $itemId, $genreId]);
+        }
     }
 
     /** Apply an approved source-language mapping while preserving existing manual corrections. */

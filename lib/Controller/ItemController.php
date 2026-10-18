@@ -113,7 +113,8 @@ final class ItemController extends Controller {
                 $revision = (string)$this->request->getParam('metadataRevision', '');
                 if (preg_match('/^[a-f0-9]{64}$/D', $revision) !== 1) throw new MetadataConflictException('metadata_revision_required');
                 $creatorNames = null;
-                if ($this->request->getParam('creatorFormat') === 'lines') {
+                $simpleEditor = (string)$this->request->getParam('simpleEditor', '0') === '1';
+                if (!$simpleEditor && $this->request->getParam('creatorFormat') === 'lines') {
                     $input = $this->request->getParam('creators', '');
                     $parts = is_array($input) ? $input : explode("\n", (string)$input);
                     $creatorNames = \OCA\Library\Service\AuthorNames::normalize(array_values(array_filter(array_map(static fn($s) => is_string($s) ? trim($s) : $s, $parts), static fn($s) => $s !== '')));
@@ -122,7 +123,6 @@ final class ItemController extends Controller {
                     'publicationType' => (string)$this->request->getParam('publicationType', 'other'),
                     'title' => (string)$this->request->getParam('title', ''),
                     'subtitle' => (string)$this->request->getParam('subtitle', ''),
-                    'creators' => $creatorNames !== null ? implode('; ', $creatorNames) : $this->normalizeCreatorInput($this->request->getParam('creators', '')),
                     'publication' => (string)$this->request->getParam('publication', ''),
                     'publicationDate' => (string)$this->request->getParam('publicationDate', ''),
                     'language' => $this->normalizeRequestList($this->request->getParam('language', $this->request->getParam('language[]', ''))),
@@ -132,14 +132,24 @@ final class ItemController extends Controller {
                     'classifications' => $this->normalizeRequestValueList($this->request->getParam('classifications', $this->request->getParam('classifications[]', ''))),
                     'personalRating' => (string)$this->request->getParam('personalRating', ''),
                     'identifiers' => $this->normalizeIdentifierRequest($this->request->getParam('identifiers', [])),
-                    ...array_filter([
+                ];
+                if (!$simpleEditor) {
+                    $draft['creators'] = $creatorNames !== null ? implode('; ', $creatorNames) : $this->normalizeCreatorInput($this->request->getParam('creators', ''));
+                    foreach (array_filter([
                         'authors' => $this->request->getParam('authors', $creatorNames),
                         'series' => $this->request->getParam('series'),
                         'seriesNumber' => $this->request->getParam('seriesNumber'),
                         'genre' => $this->request->getParam('genre'),
-                    ], static fn(mixed $value): bool => $value !== null),
-                ];
-                $this->itemService->updateItem($user->getUID(), $itemId, $draft, $revision);
+                    ], static fn(mixed $value): bool => $value !== null) as $field => $value) $draft[$field] = $value;
+                }
+                $links = null;
+                if ($simpleEditor) {
+                    $rawLinks = $this->request->getParam('editorLinks', '');
+                    if (!is_string($rawLinks) || strlen($rawLinks) > 8192) throw new \InvalidArgumentException('editor_links');
+                    $links = json_decode($rawLinks, true);
+                    if (!is_array($links) || array_is_list($links)) throw new \InvalidArgumentException('editor_links');
+                }
+                $this->itemService->updateItem($user->getUID(), $itemId, $draft, $revision, $links);
             } catch (\OutOfBoundsException $e) {
                 return $metadataAutosave
                     ? new JSONResponse(['saved' => false, 'error' => 'Publication not found.'], 404, ['Cache-Control' => 'private, no-store'])

@@ -149,7 +149,7 @@ onUnmounted(() => { if (taskTimer !== null) clearTimeout(taskTimer) })
       <form class="author-search" @submit.prevent="load(1)">
         <label for="author-search">{{ t('library', 'Search authors') }} <LabelHelp :text="t('library', 'Matches the beginning of the preferred name or sort name.')" /></label>
         <input id="author-search" v-model="search" maxlength="255" type="search" />
-        <label><input v-model="unused" type="checkbox" /> {{ t('library', 'Unused authors') }}</label>
+        <label class="author-search-unused"><input v-model="unused" type="checkbox" /> {{ t('library', 'Unused authors') }}</label>
         <button :disabled="busy" type="submit">{{ t('library', 'Search') }}</button>
       </form>
       <p v-if="data?.migration && (data.migration.pending || data.migration.failed || data.migration.conflict)" role="status">
@@ -285,7 +285,9 @@ onUnmounted(() => { if (taskTimer !== null) clearTimeout(taskTimer) })
 .library-authors { padding: 48px 24px 24px; max-width: 1100px; margin: auto; overflow-wrap: anywhere; }
 .library-authors h1 { margin-block: 16px; font-size: 24px; font-weight: 600; line-height: 1.35; }
 .author-search, .author-editor { display: flex; flex-direction: column; gap: 8px; margin-block: 20px; }
-.author-search input, .author-editor input { width: 100%; max-width: 100%; box-sizing: border-box; }
+.author-search input:not([type="checkbox"]), .author-editor input { width: 100%; max-width: 100%; box-sizing: border-box; }
+.author-search-unused { align-items: center; align-self: flex-start; display: inline-flex; gap: 8px; }
+.author-search-unused input[type="checkbox"] { flex: none; height: 18px; margin: 0; min-height: 18px; width: 18px; }
 .author-search button { align-self: flex-start; }
 .author-directory, .author-books { list-style: none; padding: 0; }
 .author-directory li { display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid var(--color-border); padding: 14px 0; }
