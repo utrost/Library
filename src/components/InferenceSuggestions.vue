@@ -39,7 +39,7 @@ function choose(event) {
     <label><LabelHelp :text="t('library', 'Suggest editable assignments from the selected example. Check the live preview and other books before applying. Matching counts describe this page and its structure, not verified metadata.') + (chosen ? '\n\n' + chosen.clues.map(clue => reasons[clue]).join('\n') : '')">{{ t('library', 'Suggest fields') }}</LabelHelp>
       <select v-model="selected" :disabled="!suggestions.length" @change="choose">
         <option value="" disabled>{{ t('library', 'Choose a suggestion') }}</option>
-        <option v-for="entry in suggestions" :key="entry.id" :value="entry.id">{{ entry.id === 'filename' ? t('library', 'Title from filename') : t('library', 'Suggested assignments') }}</option>
+        <option v-for="entry in suggestions" :key="entry.id" :value="entry.id">{{ entry.id === 'filename' ? t('library', 'Title from filename') : t('library', 'Suggested assignments') }} · {{ entry.matched }}/{{ entry.total }} {{ t('library', 'paths match') }}</option>
       </select>
     </label>
     <div v-if="chosen" aria-live="polite">

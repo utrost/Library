@@ -46,7 +46,7 @@ onMounted(load)
         <option v-for="list in lists" :key="list.id" :value="String(list.id)">{{ list.name }}</option>
       </select>
       <button v-if="lists.length" type="button" class="button primary" :disabled="busy || itemIds.length === 0 || !chosen" @click="add">{{ t('library', 'Add to list') }}</button>
-      <a v-if="!busy && !lists.length && !error" :href="`${listsUrl}&new=1`">{{ t('library', 'Create a new list') }}</a>
+      <a v-if="!busy && !lists.length && !error" class="button primary" :href="`${listsUrl}&new=1`">＋ {{ t('library', 'Create a new list') }}</a>
       <a v-if="message && chosen" :href="`${listsUrl}&listId=${chosen}`">{{ t('library', 'Back to list') }}</a>
     </div>
     <p v-if="busy" role="status">{{ t('library', 'Loading or saving…') }}</p>

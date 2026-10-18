@@ -1,0 +1,9 @@
+# NC34 developer deployment: series and language choices alpha.20
+
+The populated developer instance at `http://100.123.149.120:8088` runs signed `library 0.3.0-alpha.20` on Nextcloud `34.0.3.2`. The private archive is `/tmp/library-alpha20-release/library-0.3.0-alpha.20.tar.gz`, SHA-256 `418b6baf7d03c947da7297b9e12287d2ae50266fa1f8c995ac7c1e9e39b5fad3`. The previous alpha.19 app directory remains at `/tmp/library-before-alpha20` for rollback.
+
+The series shown in the reported screenshot, `The Books`, is already linked to the publication. The series search excludes the current link from replacement choices, so typing `The` incorrectly produced the generic “No matching series” message. The picker now says that the matching series is already assigned when the current link matches the search prefix. Read-only inspection of the developer database found `The Books` and `For Dummies` among the screenshot account's series.
+
+The language picker previously offered `de`, `ger`, and `deu` as separate suggestions. These are codes for the same language: German. The [Library of Congress ISO 639-2 list](https://www.loc.gov/standards/iso639-2/php/code_list.php) identifies `ger` as the bibliographic code, `deu` as the terminology code, and `de` as the two-letter code. The picker now suggests `German (de)` once and maps entered or previously selected `ger` and `deu` to `de`. The existing server-side language normalizer already maps these aliases to `de` on save.
+
+`npm run build` completed. The staged frontend contains 1,301,430 bytes, below the 1,320,000-byte budget. `occ upgrade` completed, Apache was reloaded, `occ integrity:check-app library` returned no issues, and `occ status` reported maintenance mode off with no pending database upgrade. Authenticated visual acceptance is left to the owner on the developer instance.

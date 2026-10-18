@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    let previousScanStatus = '';
     const reflectScanStatus = () => {
         const value = scanStatus.textContent.trim();
         if (['queued', 'running'].includes(value)) {
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 spinner.hidden = false;
             }
             statusText.textContent = status.dataset.runningText;
-        } else if (value === 'completed' || value === 'failed') {
+        } else if ((value === 'completed' || value === 'failed') && ['queued', 'running'].includes(previousScanStatus)) {
             status.hidden = false;
             status.removeAttribute('aria-busy');
             if (spinner) {
@@ -49,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             statusText.textContent = value === 'completed' ? status.dataset.completedText : status.dataset.failedText;
         }
+        previousScanStatus = value;
     };
 
     reflectScanStatus();

@@ -1,10 +1,13 @@
 # Library user and admin guide
 
 For duplicate discovery and private preferred-copy decisions, see [Finding possible duplicate books](duplicate-review.md).
+For curated genre labels and reviewed scan suggestions, see [Genre management](v0.3-genre-management.md).
+For source-language normalization and uncertain-value review, see [Language review](v0.3-language-review.md).
+For reversible publisher and subject spelling groups, see [Value mappings](metadata-value-mappings.md).
 
 Start with [Your first library](first-library.md) for a short illustrated walkthrough using English Gutenberg books.
 
-Status: 0.3.0-alpha.9 reference guide with historical v0.1 development notes. Use the first-library walkthrough for onboarding and the current author/series sections below for identity workflows.
+Status: 0.3.0-alpha.16 reference guide with historical v0.1 development notes. Use the first-library walkthrough for onboarding and the current author/series sections below for identity workflows.
 
 Audience: early users, household admins, Nextcloud admins and product reviewers  
 Scope: detailed workflows, administrative reference and historical product-review notes
@@ -89,7 +92,7 @@ Current catalogue capabilities:
 - open the original file context through **Show in Files**;
 - fetch the original file through **Download**;
 - open contextual details in the sidebar and use **Advanced details** for editing;
-- search title, subtitle, creators, publication, description, exact normalized ISBN/ISSN and file path from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics, and arbitrary substrings use the indexed search-gram path instead of broad row scans;
+- search title, subtitle, creators, publication, description, exact normalized ISBN/ISSN and file path, plus publisher and subjects from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics, and arbitrary substrings use the indexed search-gram path instead of broad row scans;
 - use the visible toolbar for Search, Sort and View, desktop filters, and the mobile **Filters** panel for grouped facets; press `/` to focus search and `Escape` to clear it;
 - filter by an individual author and open an author landing page; existing full-field saved filters remain compatible;
 - use server-backed **Starred** and **Recently opened** browse destinations;
@@ -144,10 +147,10 @@ Current details capabilities:
   - creators;
   - publication / series / periodical name;
   - publication date;
-  - publisher: enter a name or choose a suggestion from publishers already in your library; publisher names remain free text;
-  - language: search the pick-list by name or code, including three-letter codes such as `deu`, and add more than one language; imported codes are preserved rather than silently converted;
+  - publisher: enter a name or choose a suggestion from publishers already in your library; the source value remains free text, while account-private mappings can group spelling variants for browsing;
+  - language: search the pick-list by name or code and add more than one language; clear imported names and codes are normalized, while uncertain values keep their source text and enter language review;
   - personal rating: choose one to five stars in the full details editor, or clear the private rating; each choice saves immediately without marking imported book metadata as manually edited;
-  - subjects: add several values as chips; suggestions come from subjects already indexed in your library, while new values remain allowed. Subjects are per-book values, not shared subject records;
+  - subjects: add several values as chips; suggestions come from subjects already indexed in your library, while new values remain allowed. Subjects are per-book values; account-private mappings can group spelling variants without rewriting them;
   - classifications, where sub-subject remains a subject/classification value until a real taxonomy proves it needs a separate field;
 - inspect backing file metadata:
   - Nextcloud file ID;
@@ -396,6 +399,8 @@ Each user configures their own Library roots. There is no polished global root p
 2. Ensure background jobs are actually running on the server.
 3. Watch scan progress/history in the settings page.
 4. Use **Review → File problems** for visible metadata errors and missing files; use **Settings → Diagnostics** for bounded technical evidence. Unsupported files do not enter the catalogue, and OPF sidecar rows can support another item while staying out of normal Catalogue browsing.
+
+After saving a shelf, Library confirms the saved shelf and links to its card; run **Scan this root** there to index its books. The scan card shows the current state and key counts, with paths and timing under **Job details**. **Download diagnostics** exports a small TSV summary of current file statuses, including zero counts. The separate **Export metadata-error TSV** contains individual error rows and is offered only when metadata errors exist.
 
 Library scan jobs currently expose progress/history, status, scope, indexed counts, error counts, duration and summary. **Cancel queued scan** is available before a job starts, and **Cancel scan** is available for running jobs; running-job cancellation is cooperative and stops at the next scan progress checkpoint. Scheduled scan UI and notification flow remain future work.
 
@@ -713,6 +718,8 @@ In **Library settings → Folders and scanning → Automatic scans**, choose hou
 
 Library generates private thumbnails when covers are first viewed and reuses them. Large originals are resized to at most 360×520; generated covers are limited to 100 KiB. The source publication and its embedded artwork stay intact. Replacing a manual cover changes its cache revision. Malformed or excessively large raster images use a placeholder. Only cards near the viewport load their covers initially.
 
+On a publication's **Full details** page, choose **Replace cover** on the cover image to upload a JPEG, PNG or WebP file. To use an image already copied to the clipboard, choose **Paste image**, then press Ctrl+V (or ⌘V on a Mac). The small controls at the top of the image refresh its preview or revert a manual replacement. Revert appears only when a manual cover exists.
+
 If a running scan stops reporting progress for 15 minutes, background maintenance marks it failed with its last counters retained. You can scan again; abandoned jobs no longer keep automatic schedules blocked. Queued scans still need Nextcloud Cron to run.
 
 ### Administrator thumbnail cache controls
@@ -738,7 +745,7 @@ The initial author migration runs in background batches. Progress and failures a
 
 Preferred names appear on catalogue cards, Home, list entries, publication headings and creator suggestions. Author chips in the publication sidebar open the corresponding identity. Original credits remain in the metadata editor and are not written back to ebook files. Identity-aware creator matching and duplicate suggestions are available; source credits remain stored and can still matter to text search and metadata review. A changed source credit for a manually corrected author is flagged for review instead of silently replacing that identity.
 
-On a publication's **Full details** page, **Authors** shows the linked identities. Choose **Change author**, search for an existing author and select the correct person. The same picker can explicitly create a separate identity when needed. **Save author assignment** changes this book's link only; it leaves the source credit and ebook file intact. If you need to correct what the book says, expand **Source creator credits** in **Publication metadata** and save that metadata separately. This field accepts one creator per line and preserves commas inside names. Changed source credits can enter the author import review queue when a curated assignment already exists. Adding or removing a credit is currently done through this source field or import review; the direct author picker replaces one linked identity at a time. When author migration is still pending, wait for it to finish before using the picker.
+On a publication's **Full details** page, edit its visible fields in **Book details**, then choose **Save book details** once. Author, series, genre, rating, and publication fields are saved together. In **Authors**, choose **Change** and type at least three letters to see matching identities; **Use this author** stages the selection until the main Save button is pressed. The same applies to **Use this series** and genre chips. A stale book or relationship change is rejected and leaves your draft visible. The source ebook is never rewritten. Expand **Imported metadata and scan suggestions** to compare original creator credits, series, and genre with the curated values and review scanner candidates. Creating a new author, series, or genre creates the reusable identity immediately, but assigning it to this book still requires **Save book details**. When author or series migration is pending, finish that migration before editing its links.
 
 ### Merge duplicate author names or separate different people
 

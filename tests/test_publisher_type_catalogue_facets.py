@@ -17,7 +17,7 @@ def test_type_is_eager_and_publisher_filter_remains_exact_without_eager_facet():
     assert "distinctCatalogueValues($userId, $facetFilters['publishers']" not in facets
     assert "'i.publisher'" in service
     assert "$filters['publisher']" in service
-    assert "'i.publisher', $qb->createNamedParameter($publisher)" in service
+    assert "'i.publisher', $qb->createNamedParameter($values, IQueryBuilder::PARAM_STR_ARRAY)" in service
 
 
 def test_dropdown_facets_are_declared_in_one_exclusion_map():

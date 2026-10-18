@@ -168,6 +168,33 @@ final class LibraryHealthService {
         return implode("\n", $lines) . "\n";
     }
 
+    public function diagnosticsTsv(string $userId): string {
+        $counts = [];
+        if ($userId !== '') {
+            $qb = $this->db->getQueryBuilder();
+            $result = $qb->select('scan_status')->selectAlias($qb->func()->count('*'), 'file_count')
+                ->from('library_files')
+                ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+                ->groupBy('scan_status')
+                ->executeQuery();
+            while ($row = $result->fetch()) {
+                $counts[(string)$row['scan_status']] = (int)$row['file_count'];
+            }
+            $result->closeCursor();
+        }
+
+        $lines = ["metric\tvalue", 'total_files' . "\t" . array_sum($counts)];
+        foreach (['indexed', 'missing', 'metadata_error', 'sidecar'] as $status) {
+            $lines[] = $status . "\t" . ($counts[$status] ?? 0);
+            unset($counts[$status]);
+        }
+        ksort($counts);
+        foreach ($counts as $status => $count) {
+            $lines[] = $this->tsvCell($status) . "\t" . $count;
+        }
+        return implode("\n", $lines) . "\n";
+    }
+
     /**
      * @return array{totalChecked:int,mismatches:int,byExtensionAndContainer:array<int,array<string,mixed>>,examples:array<int,array<string,mixed>>}
      */

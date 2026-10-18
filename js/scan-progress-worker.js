@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         summary.classList.remove('library-scan-completion-summary--completed', 'library-scan-completion-summary--failed');
         summary.classList.add(`library-scan-completion-summary--${job.status}`);
+        summary.hidden = false;
     };
 
     const renderJob = (job) => {
@@ -42,7 +43,41 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
+        panel.dataset.libraryScanState = job.status;
         setText('[data-library-scan-status]', job.status);
+        const badge = panel.querySelector('[data-library-scan-state-badge]');
+        if (badge) {
+            badge.textContent = panel.dataset[`libraryScanStatus${job.status[0].toUpperCase()}${job.status.slice(1)}`] || job.status;
+        }
+        const cancelForm = panel.querySelector('[data-library-active-scan-cancel]');
+        if (cancelForm) {
+            cancelForm.hidden = !['queued', 'running'].includes(job.status);
+            const cancelButton = cancelForm.querySelector('[data-library-scan-cancel-button]');
+            if (cancelButton) {
+                cancelButton.textContent = job.status === 'queued'
+                    ? panel.dataset.libraryScanCancelQueuedText
+                    : panel.dataset.libraryScanCancelRunningText;
+            }
+        }
+        const changes = panel.querySelector('[data-library-scan-changes-panel]');
+        if (changes) {
+            changes.hidden = job.status !== 'completed';
+        }
+        const errorExport = panel.querySelector('[data-library-metadata-errors-export]');
+        if (errorExport) {
+            errorExport.hidden = Number(job.metadataErrors || 0) === 0;
+        }
+        const historyJob = document.querySelector(`[data-library-scan-history-job-id="${Number(job.id)}"]`);
+        if (historyJob) {
+            const historyStatus = historyJob.querySelector('dd');
+            if (historyStatus) {
+                historyStatus.textContent = job.status;
+            }
+            const historyCancel = historyJob.querySelector('.library-scan-cancel-form');
+            if (historyCancel) {
+                historyCancel.hidden = !['queued', 'running'].includes(job.status);
+            }
+        }
         setText('[data-library-scan-scope]', job.scopeLabel || job.scopeType || 'all');
         setText('[data-library-scan-roots-total]', job.rootsTotal);
         setText('[data-library-scan-files-indexed]', job.filesIndexed);

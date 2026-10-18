@@ -24,7 +24,7 @@ def test_publisher_filter_remains_an_exact_sargable_predicate():
         "private function applySmartCollectionFilters", 1
     )[0]
 
-    assert "$qb->expr()->eq('i.publisher', $qb->createNamedParameter($publisher))" in filters
+    assert "$qb->expr()->in('i.publisher', $qb->createNamedParameter($values, IQueryBuilder::PARAM_STR_ARRAY))" in filters
     assert "$qb->expr()->like('i.publisher'" not in filters
     assert "LOWER(i.publisher)" not in filters
 

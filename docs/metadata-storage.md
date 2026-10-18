@@ -1,6 +1,6 @@
 # Metadata Storage and Nextcloud Integration
 
-Status: `0.3.0-alpha.11` source model, updated 2026-10-18; deployment and compatibility verification remain pending. The embedded-metadata importer section below records the beta.2 slice; the future-schema section is a proposal. See the [database schema reference](database-schema.md) for the current 34 app tables and migration ownership, the [metadata field contract audit](metadata-field-contract-audit.md) for current editing and discovery gaps, and the [author](v0.3-author-management.md) and [series](v0.3-series-management.md) guides for identity relationships.
+Status: `0.3.0-alpha.23` source model, updated 2026-10-18; exact-package compatibility verification remains pending. The main book editor now saves publication fields and linked author, series and genre choices in one transaction while keeping imported credits and source-file bytes unchanged. The embedded-metadata importer section below records the beta.2 slice; the future-schema section is a proposal. See the [database schema reference](database-schema.md) for the current app tables and migration ownership, the [metadata field contract audit](metadata-field-contract-audit.md) for editing and discovery gaps, and the [author](v0.3-author-management.md) and [series](v0.3-series-management.md) guides for identity relationships.
 
 The [v0.2 metadata and filing proposal](v0.2-metadata-and-filing.md) explores explicit OPF sidecar writing, later embedded metadata writers, and filing based on accepted metadata. Source-folder writes described there are proposed capabilities; the current development build keeps source documents intact.
 
@@ -296,6 +296,8 @@ Deployment note: stop/restart long-running Nextcloud job workers when replacing 
 
 ## Other implemented storage
 
+- Curated genres use account-owned identities, book links, source candidate evidence and account-wide mapping decisions. The source `genre` value and subjects remain separate metadata. Accepting a candidate applies a curated link without changing files; deliberately removed links are not recreated by rescan. See [genre management](v0.3-genre-management.md).
+- Language review retains the source value in metadata provenance on new scans, normalizes clear names/codes to canonical catalogue codes, and stores ambiguous per-book evidence plus account-wide decisions. Approved mappings protect only the corrected language field; source files remain untouched. See [language review](v0.3-language-review.md).
 - Private lists use `library_lists` and `library_list_entries`; names, descriptions, order and per-book notes are app-owned and user-scoped through the list owner. They are distinct from `library_saved_collections`, which stores saved filters.
 - Manual duplicate scans use five `library_dup_*` job/snapshot/key/pair/choice tables. Optional browsing suggestions use four separate index/state/term/hint tables. These store comparison evidence and review choices; they do not delete or merge source publications. Alpha.24 batches worker SQL while retaining live access/revision checks. See [duplicate review](duplicate-review.md).
 - `library_scan_schedule` stores per-account automatic-scan intervals, due times and the last dispatched scan job. The scan history and counters remain in `library_scan_jobs`; reliable execution depends on Nextcloud Cron.

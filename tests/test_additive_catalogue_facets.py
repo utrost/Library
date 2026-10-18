@@ -66,6 +66,6 @@ def test_ordinary_catalogue_facets_use_normalized_multi_value_index():
     assert "indexedFacetValues($userId, 'classification')" not in facets
     assert "subjects_json" not in facets
     assert "classifications_json" not in facets
-    assert "indexedFacetFilter($qb, $userId, 'subject', $subject)" in predicates
+    assert "indexedFacetFilter($qb, $userId, 'subject', $values)" in predicates
     assert "indexedFacetFilter($qb, $userId, 'classification', $classification)" in predicates
     assert "jsonArrayContainsFilter" not in predicates

@@ -14,7 +14,7 @@ const focused = ref(false)
 const activeIndex = ref(-1)
 const listId = useId()
 const remoteSuggestions = ref([])
-const selected = computed(() => props.modelValue.split('\n').map(value => value.trim()).filter(Boolean))
+const selected = computed(() => [...new Set(props.modelValue.split('\n').map(normalizedInput).filter(Boolean))])
 const isLanguage = computed(() => props.kind === 'language')
 const label = computed(() => isLanguage.value ? t('library', 'Language') : t('library', 'Subjects'))
 const addLabel = computed(() => isLanguage.value ? t('library', 'Add language') : t('library', 'Add subject'))
@@ -22,8 +22,12 @@ const inputLabel = computed(() => isLanguage.value ? t('library', 'Search langua
 const languageCodes = [
   'ar', 'zh', 'da', 'nl', 'en', 'en-GB', 'en-US', 'fi', 'fr', 'de', 'el', 'hi', 'it',
   'ja', 'ko', 'no', 'pl', 'pt', 'pt-BR', 'ru', 'es', 'sv', 'tr', 'uk',
-  'ara', 'chi', 'zho', 'dut', 'nld', 'eng', 'fre', 'fra', 'ger', 'deu', 'ita', 'jpn', 'spa',
 ]
+const languageAliases = {
+  ara: 'ar', chi: 'zh', zho: 'zh', dut: 'nl', nld: 'nl', eng: 'en',
+  fre: 'fr', fra: 'fr', ger: 'de', deu: 'de', ita: 'it', jpn: 'ja', spa: 'es',
+  por: 'pt', rus: 'ru',
+}
 const languageNames = typeof Intl.DisplayNames === 'function'
   ? new Intl.DisplayNames([document.documentElement.lang || 'en'], { type: 'language' })
   : null
@@ -37,23 +41,33 @@ function normalizedInput(value) {
   const trimmed = value.trim()
   if (!isLanguage.value) return trimmed
   const match = /^([a-z]{2,3})(?:-([a-z]{2}))?$/i.exec(trimmed)
-  return match ? match[1].toLowerCase() + (match[2] ? `-${match[2].toUpperCase()}` : '') : trimmed
+  return match ? (languageAliases[match[1].toLowerCase()] || match[1].toLowerCase()) + (match[2] ? `-${match[2].toUpperCase()}` : '') : trimmed
+}
+function validLanguageCode(value) {
+  const match = /^([a-z]{2,3})(?:-([A-Z]{2}))?$/.exec(value)
+  if (!match) return false
+  if (typeof Intl.DisplayNames !== 'function') return true
+  const languageName = new Intl.DisplayNames(['en'], { type: 'language' }).of(match[1])
+  if (!languageName || languageName.toLowerCase() === match[1] || languageName === 'Unknown language') return false
+  if (!match[2]) return true
+  const name = new Intl.DisplayNames(['en'], { type: 'region' }).of(match[2])
+  return Boolean(name && name !== match[2] && name !== 'Unknown Region')
 }
 const candidate = computed(() => normalizedInput(search.value))
 const canAdd = computed(() => candidate.value.length > 0 && candidate.value.length <= 255
-  && (!isLanguage.value || /^[a-z]{2,3}(-[A-Z]{2})?$/.test(candidate.value))
+  && (!isLanguage.value || validLanguageCode(candidate.value))
   && !selected.value.some(value => value.toLowerCase() === candidate.value.toLowerCase()))
 const options = computed(() => {
   const query = search.value.trim().toLocaleLowerCase()
   if (!query) return []
   const values = isLanguage.value
-    ? languageCodes.filter(value => value.toLowerCase().includes(query) || display(value).toLocaleLowerCase().includes(query))
+    ? languageCodes.filter(value => value.toLowerCase().includes(query) || display(value).toLocaleLowerCase().includes(query) || languageAliases[query] === value)
     : remoteSuggestions.value
   return values.filter(value => !selected.value.some(chosen => chosen.toLowerCase() === value.toLowerCase())).slice(0, 12)
 })
 function add(value = candidate.value) {
   const next = normalizedInput(value)
-  if (!next || next.length > 255 || (isLanguage.value && !/^[a-z]{2,3}(-[A-Z]{2})?$/.test(next))) return
+  if (!next || next.length > 255 || (isLanguage.value && !validLanguageCode(next))) return
   if (!selected.value.some(entry => entry.toLowerCase() === next.toLowerCase())) emit('update:modelValue', [...selected.value, next].join('\n'))
   search.value = ''
   focused.value = false
@@ -120,9 +134,9 @@ onBeforeUnmount(() => { clearTimeout(timer); controller?.abort() })
 <style scoped>
 .library-metadata-picker { position: relative; min-width: 0; }
 .library-metadata-picker > label { display: block; margin-bottom: 5px; }
-.library-metadata-picker-input { display: flex; gap: 6px; }
-.library-metadata-picker-input input { flex: 1 1 auto; }
-.library-metadata-picker-input button { flex: 0 0 auto; }
+.library-metadata-picker-input { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; min-width: 0; }
+.library-metadata-picker-input input { box-sizing: border-box; min-width: 0; width: 100%; }
+.library-metadata-picker-input button { max-width: 9rem; white-space: normal; }
 .library-metadata-picker-options { position: absolute; z-index: 10; inset-inline: 0; top: 100%; max-height: 220px; overflow: auto; list-style: none; margin: 2px 0 0; padding: 4px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-main-background); box-shadow: 0 4px 12px var(--color-box-shadow); }
 .library-metadata-picker-options li { padding: 6px 8px; cursor: pointer; }
 .library-metadata-picker-options li:hover, .library-metadata-picker-options [aria-selected="true"] { background: var(--color-background-hover); }

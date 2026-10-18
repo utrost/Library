@@ -63,6 +63,7 @@ class Personal implements ISettings {
             'scanMissingFilesUrl' => $this->urlGenerator->linkToRoute('library.page.index', ['status' => 'missing']),
             'scanMetadataErrorsUrl' => $this->urlGenerator->linkToRoute('library.page.index', ['status' => 'metadata_error', 'needsMetadata' => '1']),
             'scanMetadataErrorsExportUrl' => $this->urlGenerator->linkToRoute('library.health.metadataErrorsTsv'),
+            'diagnosticsExportUrl' => $this->urlGenerator->linkToRoute('library.health.diagnosticsTsv'),
             'metadataExportUrl' => $this->urlGenerator->linkToRoute('library.export.metadata'),
             'metadataSidecarManifestUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarManifest'),
             'metadataSidecarBundleUrl' => $this->urlGenerator->linkToRoute('library.export.sidecarBundle'),
