@@ -42,7 +42,7 @@ def test_list_view_asset_path_is_cache_busted_after_alpha170_deploy():
     assert 'id: "library-shelves"' not in built_script
     assert "library-shelf-tree" in built_style
     assert "library-periodical-groups" not in built_script
-    assert "Choose series" not in built_script
+    assert "Choose series" in built_script
     assert "library-publication-suggestions" in built_style
     assert "setViewMode('list')" in app
     assert "@media(max-width:520px)" in built_style

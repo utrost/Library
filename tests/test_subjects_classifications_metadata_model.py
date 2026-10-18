@@ -45,7 +45,7 @@ def test_subjects_classifications_are_visible_editable_filterable_and_not_genres
     assert "getParam('genre'" not in page
     assert "'classification' => trim((string)$this->request->getParam('classification', ''))" in page
     assert "'subjects'" in page
-    assert "'genres'" not in page
+    assert "'genres'" in page  # Dedicated genre navigation is distinct from source subjects.
     assert "classifications" in page
     assert "i.subjects_json" in service
     assert "i.genres_json" not in service
@@ -62,8 +62,8 @@ def test_subjects_classifications_are_visible_editable_filterable_and_not_genres
     assert 'name="subjectSearch"' in vue
     assert 'select v-model="activeFilters.subject" name="subject"' not in vue
     assert 'name="genre"' in vue
-    assert "genres" not in vue
-    assert "activeFilters.genre" not in vue
+    assert "genres" in vue  # Separate curated genre surface.
+    assert "activeFilters.genreId" in vue  # Curated genre filter is separate from subjects.
     assert "classification" in vue
     assert "Nextcloud tag" in vue
     assert "subjects" in vue

@@ -1,17 +1,17 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.16, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://localhost:8088` runs the [signed private alpha.16 build](compatibility-evidence/2026-10-18-nc34-metadata-alpha16/README.md), including publisher/subject mapping and metadata review fixes. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.16 still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.23, Nextcloud 33–35.** Use the [signed alpha.23 package record](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) to identify the build on the populated developer Nextcloud 34 instance at `http://localhost:8088`. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.23 still needs its own exact-package version matrix. The earlier `0.3.0-alpha.11` developer handoff and the numbered alpha.174 cases later in this file are historical records; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
-1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the current private build reports alpha.16. Record the exact archive name and checksum instead of assuming the version string identifies the package.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the candidate reports alpha.23 once deployed. Record the exact archive name and checksum instead of assuming the version string identifies the package.
 2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
 For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12, H03-13, H03-14, H03-15 and H03-16. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the signed private archive checksum from the [alpha.16 deployment record](compatibility-evidence/2026-10-18-nc34-metadata-alpha16/README.md) in the session header. The developer build serves versioned frontend assets so browsers fetch the updated interface.
+Copy this result sheet into the session note. Write the signed private archive checksum from the [alpha.23 package record](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) in the session header. The developer build serves versioned frontend assets so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |

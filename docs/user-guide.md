@@ -92,7 +92,7 @@ Current catalogue capabilities:
 - open the original file context through **Show in Files**;
 - fetch the original file through **Download**;
 - open contextual details in the sidebar and use **Advanced details** for editing;
-- search title, subtitle, creators, publication, publisher, subjects, description, exact normalized ISBN/ISSN and file path from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics, and arbitrary substrings use the indexed search-gram path instead of broad row scans;
+- search title, subtitle, creators, publication, description, exact normalized ISBN/ISSN and file path, plus publisher and subjects from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics, and arbitrary substrings use the indexed search-gram path instead of broad row scans;
 - use the visible toolbar for Search, Sort and View, desktop filters, and the mobile **Filters** panel for grouped facets; press `/` to focus search and `Escape` to clear it;
 - filter by an individual author and open an author landing page; existing full-field saved filters remain compatible;
 - use server-backed **Starred** and **Recently opened** browse destinations;

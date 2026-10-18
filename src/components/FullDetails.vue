@@ -315,6 +315,10 @@ function editSeries() {
   seriesSuggestionsOpen.value = false
   nextTick(() => seriesInput.value?.focus())
 }
+function removeSeries() {
+  draft.seriesLink = null
+  draft.seriesPart = ''
+}
 watch(seriesSearch, value => {
   clearTimeout(seriesSearchTimer)
   seriesSearchController?.abort()
@@ -647,7 +651,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
             <p v-if="item.seriesSyncStatus === 3"><a :href="`${catalogueUrl}?series=1&seriesConflicts=1`">{{ t('library', 'Review imported series changes') }}</a></p>
             <p v-else-if="item.seriesSyncStatus !== 0" class="library-muted">{{ t('library', 'Series migration must finish before editing. Refresh to check progress.') }}</p>
             <button v-else-if="!editingSeries" type="button" class="button secondary" :disabled="busy" @click="editSeries">{{ draft.seriesLink ? t('library', 'Change series') : t('library', 'Choose series') }}</button>
-            <button v-if="draft.seriesLink && item.seriesSyncStatus === 0" type="button" class="button secondary" :disabled="busy" @click="draft.seriesLink = null; draft.seriesPart = ''">{{ t('library', 'Remove series') }}</button>
+            <button v-if="draft.seriesLink && item.seriesSyncStatus === 0" type="button" class="button secondary" :disabled="busy" @click="removeSeries">{{ t('library', 'Remove series') }}</button>
             <label v-if="draft.seriesLink && item.seriesSyncStatus === 0" class="library-full-details-series-part">{{ t('library', 'Part in series') }}<input v-model="draft.seriesPart" maxlength="64"></label>
             <div v-if="editingSeries" class="library-full-details-author-picker">
               <div class="library-full-details-author-search">

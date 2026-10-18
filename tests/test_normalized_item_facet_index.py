@@ -112,7 +112,7 @@ def test_exact_facet_filter_compares_the_full_canonical_value_not_search_keys():
     assert "LOWER(" not in method
     assert ".facet_value" in method
     assert ".normalized_value" not in method
-    assert "mb_substr(trim($value), 0, 255)" in method
+    assert "mb_substr(trim($v), 0, 255)" in method
     assert "mb_strtolower" not in method
 
 
