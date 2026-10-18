@@ -130,9 +130,9 @@ onBeforeUnmount(() => { clearTimeout(timer); controller?.abort() })
 <style scoped>
 .library-metadata-picker { position: relative; min-width: 0; }
 .library-metadata-picker > label { display: block; margin-bottom: 5px; }
-.library-metadata-picker-input { display: flex; gap: 6px; }
-.library-metadata-picker-input input { flex: 1 1 auto; }
-.library-metadata-picker-input button { flex: 0 0 auto; }
+.library-metadata-picker-input { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; min-width: 0; }
+.library-metadata-picker-input input { box-sizing: border-box; min-width: 0; width: 100%; }
+.library-metadata-picker-input button { max-width: 9rem; white-space: normal; }
 .library-metadata-picker-options { position: absolute; z-index: 10; inset-inline: 0; top: 100%; max-height: 220px; overflow: auto; list-style: none; margin: 2px 0 0; padding: 4px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-main-background); box-shadow: 0 4px 12px var(--color-box-shadow); }
 .library-metadata-picker-options li { padding: 6px 8px; cursor: pointer; }
 .library-metadata-picker-options li:hover, .library-metadata-picker-options [aria-selected="true"] { background: var(--color-background-hover); }
