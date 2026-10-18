@@ -129,6 +129,8 @@ foreach ($roots as $root) {
                             <p class="library-muted"><?php p($l->t('last scan:')); ?> <?php p(date('Y-m-d H:i', $root['lastScanAt'])); ?></p>
                         <?php endif; ?>
                         <p class="library-root-publication-count"><?php p($l->n('%n publication', '%n publications', (int)$root['publicationCount'])); ?></p>
+                        <details class="library-root-edit-details">
+                            <summary><?php p($l->t('Edit shelf')); ?></summary>
                         <form method="post" action="<?php p($root['rootUpdateUrl']); ?>" class="library-form library-root-edit-form">
                             <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                             <div class="library-folder-path-field">
@@ -145,6 +147,7 @@ foreach ($roots as $root) {
                             </label>
                             <button type="submit" class="button secondary"><?php p($l->t('Update root')); ?></button>
                         </form>
+                        </details>
                         <div class="library-root-card-actions">
                             <form method="post" action="<?php p($root['rootScanUrl']); ?>" class="library-inline-form" data-library-operation="scan-root">
                                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />

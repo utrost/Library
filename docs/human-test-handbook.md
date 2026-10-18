@@ -170,7 +170,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** Use a disposable account with two books carrying the same source genre, one book in a clearly named `english_science_fiction` folder, and one book with a misleading or unknown source genre. Record source metadata and file checksums.
 
-**Steps:** Open **Genres** and create a genre. In a book's **Full details**, type one or two letters in the genre picker, then at least three; select the genre, add a second genre, and remove one chip. Use the genre link to filter the catalogue. In **Genres**, advance discovery if needed. Map one suggested source name to an existing genre, accept another as a new genre, and ignore the misleading suggestion. Reopen the page and rescan the books. Change one book's source genre or subject in Full details and check the review queue again.
+**Steps:** Open **Genres** and create a genre. In a book's **Full details**, type one or two letters in the genre picker, then at least three; select the genre, add a second genre, and remove one chip. Confirm that the choices are staged until **Save book details**, then save. Use the genre link to filter the catalogue. In **Genres**, advance discovery if needed. Map one suggested source name to an existing genre, accept another as a new genre, and ignore the misleading suggestion. Reopen the page and rescan the books. Change a book's subject in Full details and check the review queue again.
 
 **Expected:** Short searches do not query the directory. Each accepted genre appears as a separate chip and filters to its linked books. A mapped suggestion reaches both matching books without changing their source genre or files. An ignored suggestion stays out of the queue after rescan. A manually removed chip stays removed. Edited source metadata updates suggestion evidence; source bytes remain unchanged. Unknown hints require human approval before they become curated genres.
 
@@ -190,11 +190,21 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** In a disposable root, use two books with publishers `St. Martin's Press` and `St Martins Press`, and two books with subjects `History, 19th century` and `History — 19th century`. Include one book whose source has no publisher or subjects. Record their original values and file checksums. Let the developer search-index rebuild finish before checking old-book publisher search.
 
-**Steps:** Search a publisher name in the general catalogue; search a term that is also an exact book title and confirm matches from other fields still appear. In **Publisher and subject names**, search for a source spelling, preview its affected books, map it to the preferred spelling and repeat for a subject. Confirm the preferred suggestion and filter include books with both spellings. Open a mapped book: its source value must remain unchanged. Remove one mapping and confirm the filter separates again. On a book with subjects, edit an unrelated field and inspect **Metadata provenance**; unchanged subjects must not appear as a difference. On the source-empty book, add a publisher or subject manually, rescan it, then use **Reset to scanner** to clear that one field. Check that a later rescan keeps other manual corrections.
+**Steps:** Search a publisher name in the general catalogue; search a term that is also an exact book title and confirm matches from other fields still appear. In **Publisher and subject names**, search for a source spelling, preview its affected books, map it to the preferred spelling and repeat for a subject. Confirm the preferred suggestion and filter include books with both spellings. Open a mapped book: its source value must remain unchanged. Remove one mapping and confirm the filter separates again. On a book with subjects, edit an unrelated field and inspect **Imported metadata and scan suggestions**; unchanged subjects must not appear as a difference. On the source-empty book, add a publisher or subject manually, rescan it, then use **Reset to scanner** to clear that one field. Check that a later rescan keeps other manual corrections.
 
 **Expected:** Mapping preview names the affected books before saving; mapping and removal change discovery immediately, without rewriting the book or source files. Publisher general search includes old and new books after the derived-index rebuild. Unchanged subject lists show no false scanner conflict; an explicit empty scanner value is reviewable and resettable. Source subject spelling/order, when normalization changed it on a new scan, appears under expanded provenance.
 
 **Failure evidence:** Source and preferred labels, preview count, filtered count, item IDs, scanner candidate and current value, before/after screenshots, console errors and file checksums.
+
+### H03-17 — One save for book details and linked metadata
+
+**Setup:** Use a disposable book with an author, series and genre. Record its current title, rating, linked IDs and imported credits. Prepare a second tab on the same book.
+
+**Steps:** Change the title, choose a different author and series, edit the part number, add a genre, remove a genre and select a rating. Before saving, reload the second tab and confirm it still shows the original values. Press **Save book details** once, reload both tabs and confirm every visible change persisted. Expand **Imported metadata and scan suggestions** and confirm the original creator, series and genre values are intact. Repeat with a second tab changing one link first; the stale first tab's save must return a conflict without applying any of its changes.
+
+**Expected:** Only the one main Save button commits edits to the book. A successful save applies all fields and links together. A conflict leaves the draft visible and changes nothing on the server. The ebook file remains untouched. Creating a new directory identity can happen before book Save, but the book link remains unchanged until Save.
+
+**Failure evidence:** Book and linked entity IDs, before/after screenshots, save response code, source file checksum and browser console errors.
 
 ## Historical alpha.174 walkthrough
 
