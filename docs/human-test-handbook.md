@@ -1,17 +1,17 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.12, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` runs a [signed private genre build](compatibility-evidence/2026-10-18-nc34-genre-alpha12/README.md) with the Full details author/series pickers, cover controls, settings feedback and curated genres. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.12 still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.14, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` runs a [signed private language build](compatibility-evidence/2026-10-18-nc34-language-alpha14/README.md) with the Full details author/series pickers, cover controls, settings feedback, curated genres and source-language review. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.14 still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
-1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the current signed private build reports alpha.12. Record the exact archive name and checksum instead of assuming the version string identifies the package.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the current signed private build reports alpha.14. Record the exact archive name and checksum instead of assuming the version string identifies the package.
 2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
-For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12, H03-13 and H03-14. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
+For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12, H03-13, H03-14 and H03-15. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the current signed private archive checksum in the session header: `ebf32a78bdda2c44ec4ae963e5ccbf1704c78ba0f19d79d7123e247358c4038f`. The developer build serves the alpha.12 `v12` frontend asset URL so browsers fetch the updated interface.
+Copy this result sheet into the session note. Write the current signed private archive checksum in the session header: `0f72fe0118e73fafe7650e91b0032493246f527615af45f2bd76c2c46d064925`. The developer build serves the alpha.14 `v14` frontend asset URL so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -29,6 +29,7 @@ Copy this result sheet into the session note. Write the current signed private a
 | H03-12 |  |  |  |
 | H03-13 |  |  |  |
 | H03-14 |  |  |  |
+| H03-15 |  |  |  |
 
 After each case, capture the visible before/after state and note the selected book/author/series ID. A **Pass** requires the expected result and no relevant console error. Mark **Blocked** when setup or the instance prevents the action; a visible wrong result is **Fail**. Do not put private paths or book metadata in a public issue without redaction.
 
@@ -173,6 +174,16 @@ After each case, capture the visible before/after state and note the selected bo
 **Expected:** Short searches do not query the directory. Each accepted genre appears as a separate chip and filters to its linked books. A mapped suggestion reaches both matching books without changing their source genre or files. An ignored suggestion stays out of the queue after rescan. A manually removed chip stays removed. Edited source metadata updates suggestion evidence; source bytes remain unchanged. Unknown hints require human approval before they become curated genres.
 
 **Failure evidence:** Book and genre IDs, suggestion name/source/count, before/after assignment screenshots, rescan status, network errors and file checksums.
+
+### H03-15 — Language normalization and uncertain source values
+
+**Setup:** In a disposable root, prepare source metadata with `en`, `EN`, `eng`, `en-us`, `EN-Us`, `3ng` and `en-en`; include one manually corrected book and two books with the same uncertain value. Record file checksums.
+
+**Steps:** Scan the files. Inspect the language chips and **Review languages**. Confirm that clear codes normalize and `3ng`/`en-en` require review. Map one repeated value to `en`, ignore the other, and advance approved mappings. Change the corrected book's language manually before mapping, then rescan. Try entering `en-en` in the per-book picker.
+
+**Expected:** Mixed case and familiar three-letter codes resolve to stable codes; `en-us` becomes `en-US`. Unknown or invalid values are not silently guessed. Mapping reaches matching unprotected books while preserving the original source value; an explicit manual correction survives mapping and rescan. An ignored value stays ignored. The picker does not accept `en-en`. No source file bytes change.
+
+**Failure evidence:** Source and resulting codes, item IDs, mapping decision, before/after screenshots, scan status, browser console error and file checksums.
 
 ## Historical alpha.174 walkthrough
 

@@ -1232,7 +1232,21 @@ OC.L10N.register(
         "The imported genre stays available as source metadata. Assign catalogue genres above for browsing.": "The imported genre stays available as source metadata. Assign catalogue genres above for browsing.",
         "Source genre metadata": "Source genre metadata",
         "Source genre": "Source genre",
-        "The source genre is preserved for metadata export. Assign catalogue genres in Full details.": "The source genre is preserved for metadata export. Assign catalogue genres in Full details."
+        "The source genre is preserved for metadata export. Assign catalogue genres in Full details.": "The source genre is preserved for metadata export. Assign catalogue genres in Full details.",
+        "Review languages": "Review languages",
+        "Review source languages": "Review source languages",
+        "Clear language names and codes are normalized automatically. Review only values Library could not interpret safely. Original source values are retained.": "Clear language names and codes are normalized automatically. Review only values Library could not interpret safely. Original source values are retained.",
+        "Decision saved.": "Decision saved.",
+        "Enter one or more valid language codes.": "Enter one or more valid language codes.",
+        "Discovery advanced.": "Discovery advanced.",
+        "Approved mappings advanced.": "Approved mappings advanced.",
+        "Discover existing books": "Discover existing books",
+        "Apply approved mappings": "Apply approved mappings",
+        "No language values need review.": "No language values need review.",
+        "Map to language codes, separated by semicolons": "Map to language codes, separated by semicolons",
+        "Apply to matching books": "Apply to matching books",
+        "Ignore value": "Ignore value",
+        "Review these values to reveal more suggestions.": "Review these values to reveal more suggestions."
     },
     "nplurals=2; plural=(n != 1);"
 );
