@@ -1183,7 +1183,23 @@ OC.L10N.register(
         "without dates yet": "without dates yet",
         "yes": "yes",
         "{count} of 5 stars": "{count} of 5 stars",
-        "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure."
+        "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure.",
+        "Change series": "Change series",
+        "Link a series": "Link a series",
+        "No linked series yet.": "No linked series yet.",
+        "No matching series. You can create one below.": "No matching series. You can create one below.",
+        "No series": "No series",
+        "Save series assignment": "Save series assignment",
+        "Selected series": "Selected series",
+        "Series assignment saved. The source metadata was preserved.": "Series assignment saved. The source metadata was preserved.",
+        "Series migration must finish before editing. Refresh to check progress.": "Series migration must finish before editing. Refresh to check progress.",
+        "Source part in series": "Source part in series",
+        "Source series": "Source series",
+        "Source series metadata": "Source series metadata",
+        "The series assignment changed. Reload this publication and try again.": "The series assignment changed. Reload this publication and try again.",
+        "The series change could not be saved.": "The series change could not be saved.",
+        "These imported values are retained for metadata export. Choose the linked series above for browsing.": "These imported values are retained for metadata export. Choose the linked series above for browsing.",
+        "Type at least 3 letters to search series.": "Type at least 3 letters to search series."
     },
     "nplurals=2; plural=(n != 1);"
 );

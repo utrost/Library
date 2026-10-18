@@ -31,8 +31,8 @@ use Throwable;
 
 class PageController extends Controller {
     private const APP_VERSION = '0.3.0-alpha.11';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-11-compact-list-table-cover-96-fit-v10';
-    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-11-compact-list-table-cover-96-fit-v10';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-11-compact-list-table-cover-96-fit-v11';
+    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-11-compact-list-table-cover-96-fit-v11';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];

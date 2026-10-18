@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.11, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` runs a [signed private update](compatibility-evidence/2026-10-18-nc34-ui-update/README.md) through commit `82bfec5`, including settings feedback and the Full details author/cover controls with three-letter author suggestions. It replaces the [original signed alpha.11 package](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) on this instance while keeping the same version string. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; this private update still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.11, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` runs a [signed private update](compatibility-evidence/2026-10-18-nc34-ui-update/README.md) with Full details author and series pickers, cover controls, and settings feedback. It replaces the [original signed alpha.11 package](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) on this instance while keeping the same version string. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; this private update still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
@@ -75,11 +75,11 @@ After each case, capture the visible before/after state and note the selected bo
 
 ### H03-05 — Series selected-book move and Undo
 
-**Setup:** Two active series with at least one book each. Record the source book's imported series name and part label.
+**Setup:** Two active series with at least one book each, plus one book with no linked series. Record the source book's imported series name and part label.
 
-**Steps:** Open **Series**, choose the source, expand **Move or merge books**, select one book, find or create the destination and inspect **Review change**. Confirm, check the destination series and catalogue series link, rescan the unchanged source, then use **Recent changes → Undo**.
+**Steps:** On the source book's **Full details** page, choose **Change series**. Confirm one or two letters do not search; type three letters, choose a result without a separate Search click, then save. Check the linked series and the separate **Source series metadata** fields. In **Series**, use **Recent changes → Undo**. Repeat from Full details with the book that has no linked series using **Link a series**; Undo should remove that new link. Then use **Series → Move or merge books** to move one selected book and inspect **Review change**.
 
-**Expected:** The selected book alone moves; both series stay active. Its part label and imported source metadata remain visible and unchanged. The assignment survives the unchanged rescan. Undo returns the book to its original series and restores its original import behavior.
+**Expected:** The selected book alone moves; both series stay active. Its part label and imported source metadata remain visible and unchanged. The assignment survives an unchanged rescan. Undo restores the previous link, or removes a newly created link, when no later changes make the operation stale.
 
 **Failure evidence:** Book/series IDs, source and destination, part label, preview screenshot, membership before/after rescan and Undo result.
 

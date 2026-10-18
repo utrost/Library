@@ -1182,7 +1182,23 @@
         "without dates yet": "noch ohne Datum",
         "yes": "ja",
         "{count} of 5 stars": "{count} von 5 Sternen",
-        "{matched} of {total} paths on this page match this structure.": "{matched} von {total} Pfaden auf dieser Seite entsprechen dieser Struktur."
+        "{matched} of {total} paths on this page match this structure.": "{matched} von {total} Pfaden auf dieser Seite entsprechen dieser Struktur.",
+        "Change series": "Serie ändern",
+        "Link a series": "Serie verknüpfen",
+        "No linked series yet.": "Noch keine Serie verknüpft.",
+        "No matching series. You can create one below.": "Keine passende Serie. Unten können Sie eine erstellen.",
+        "No series": "Keine Serie",
+        "Save series assignment": "Serienzuordnung speichern",
+        "Selected series": "Ausgewählte Serie",
+        "Series assignment saved. The source metadata was preserved.": "Serienzuordnung gespeichert. Die Quellmetadaten blieben erhalten.",
+        "Series migration must finish before editing. Refresh to check progress.": "Die Serienmigration muss vor der Bearbeitung abgeschlossen sein. Aktualisieren Sie die Seite, um den Fortschritt zu prüfen.",
+        "Source part in series": "Quellteil der Serie",
+        "Source series": "Quellserie",
+        "Source series metadata": "Quellmetadaten zur Serie",
+        "The series assignment changed. Reload this publication and try again.": "Die Serienzuordnung wurde geändert. Laden Sie diese Publikation neu und versuchen Sie es erneut.",
+        "The series change could not be saved.": "Die Serienänderung konnte nicht gespeichert werden.",
+        "These imported values are retained for metadata export. Choose the linked series above for browsing.": "Diese importierten Werte bleiben für den Metadatenexport erhalten. Wählen Sie oben die verknüpfte Serie zum Durchsuchen.",
+        "Type at least 3 letters to search series.": "Mindestens 3 Buchstaben eingeben, um Serien zu suchen."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

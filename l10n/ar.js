@@ -1247,7 +1247,23 @@ OC.L10N.register(
         "without dates yet": "بدون تواريخ بعد",
         "yes": "نعم",
         "{count} of 5 stars": "{count} من 5 نجوم",
-        "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية."
+        "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية.",
+        "Change series": "تغيير السلسلة",
+        "Link a series": "ربط سلسلة",
+        "No linked series yet.": "لا توجد سلسلة مرتبطة بعد.",
+        "No matching series. You can create one below.": "لا توجد سلسلة مطابقة. يمكنك إنشاء واحدة أدناه.",
+        "No series": "لا توجد سلسلة",
+        "Save series assignment": "حفظ ربط السلسلة",
+        "Selected series": "السلسلة المحددة",
+        "Series assignment saved. The source metadata was preserved.": "تم حفظ ربط السلسلة مع الحفاظ على البيانات الوصفية المصدرية.",
+        "Series migration must finish before editing. Refresh to check progress.": "يجب أن يكتمل ترحيل السلاسل قبل التحرير. حدّث الصفحة للتحقق من التقدم.",
+        "Source part in series": "رقم الجزء في السلسلة المصدرية",
+        "Source series": "السلسلة المصدرية",
+        "Source series metadata": "بيانات السلسلة الوصفية المصدرية",
+        "The series assignment changed. Reload this publication and try again.": "تغير ربط السلسلة. أعد تحميل هذا المنشور وحاول مرة أخرى.",
+        "The series change could not be saved.": "تعذر حفظ تغيير السلسلة.",
+        "These imported values are retained for metadata export. Choose the linked series above for browsing.": "تُحفظ القيم المستوردة لتصدير البيانات الوصفية. اختر السلسلة المرتبطة أعلاه للتصفح.",
+        "Type at least 3 letters to search series.": "اكتب 3 أحرف على الأقل للبحث عن السلاسل."
     },
     "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 );

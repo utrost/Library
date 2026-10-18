@@ -168,7 +168,7 @@ onMounted(() => load())
     <details v-if="history.length" class="series-history">
       <summary>{{ t('library', 'Recent changes') }}</summary>
       <ul><li v-for="operation in history" :key="operation.id" :data-series-operation-id="operation.id">
-        <span>{{ operation.source }} → {{ operation.target }} · {{ n('library', '%n book', '%n books', Number(operation.books)) }}</span>
+        <span>{{ operation.source || t('library', 'No series') }} → {{ operation.target }} · {{ n('library', '%n book', '%n books', Number(operation.books)) }}</span>
         <span v-if="Number(operation.undone)">{{ t('library', 'Undone') }}</span>
         <button v-else :disabled="busy" @click="undo(operation)">{{ t('library', 'Undo') }}</button>
       </li></ul>

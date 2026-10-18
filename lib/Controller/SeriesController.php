@@ -30,6 +30,10 @@ final class SeriesController extends Controller {
     #[NoAdminRequired]
     public function create(): JSONResponse { return $this->respond(fn($uid) => $this->series->show($uid, $this->storage->create($uid, $this->text('name')))); }
     #[NoAdminRequired]
+    public function previewItem(int $itemId): JSONResponse { return $this->respond(fn($uid) => $this->assignments->previewItem($uid, $itemId, $this->integer('target'))); }
+    #[NoAdminRequired]
+    public function assignItem(int $itemId): JSONResponse { return $this->respond(fn($uid) => $this->assignments->applyItem($uid, $itemId, $this->integer('target'), $this->text('token'))); }
+    #[NoAdminRequired]
     public function preview(int $seriesId): JSONResponse { return $this->respond(fn($uid) => $this->assignments->preview($uid, $seriesId, $this->integer('target'), $this->selected())); }
     #[NoAdminRequired]
     public function assign(int $seriesId): JSONResponse { return $this->respond(fn($uid) => $this->assignments->apply($uid, $seriesId, $this->integer('target'), $this->selected(), $this->text('token'))); }

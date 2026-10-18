@@ -92,6 +92,8 @@ return [
         ['name' => 'author#update', 'url' => '/api/authors/{authorId}', 'verb' => 'POST', 'requirements' => ['authorId' => '[1-9][0-9]*']],
         ['name' => 'series#index', 'url' => '/api/series', 'verb' => 'GET'],
         ['name' => 'series#create', 'url' => '/api/series', 'verb' => 'POST'],
+        ['name' => 'series#previewItem', 'url' => '/api/series/items/{itemId}/preview', 'verb' => 'POST', 'requirements' => ['itemId' => '[1-9][0-9]*']],
+        ['name' => 'series#assignItem', 'url' => '/api/series/items/{itemId}/assign', 'verb' => 'POST', 'requirements' => ['itemId' => '[1-9][0-9]*']],
         ['name' => 'series#history', 'url' => '/api/series/history', 'verb' => 'GET'],
         ['name' => 'series#undo', 'url' => '/api/series/history/{operationId}/undo', 'verb' => 'POST', 'requirements' => ['operationId' => '[a-f0-9]{32}']],
         ['name' => 'series#conflicts', 'url' => '/api/series/conflicts', 'verb' => 'GET'],
