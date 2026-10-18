@@ -1978,6 +1978,7 @@ async function toggleStar(item, event) {
           <NcAppNavigationItem :active="isSeries" :href="`${catalogueRootUrl}?series=1`" :name="t('library', 'Series')" />
           <NcAppNavigationItem :active="isGenres || !!activeFilters.genreId" :href="`${catalogueRootUrl}?genres=1`" :name="t('library', 'Genres')" />
           <NcAppNavigationItem :href="generateUrl('/apps/library/languages')" :name="t('library', 'Review languages')" />
+          <NcAppNavigationItem :href="generateUrl('/apps/library/value-mappings')" :name="t('library', 'Publisher and subject names')" />
           <NcAppNavigationItem :active="isLists" :href="listsUrl" :name="t('library', 'Lists')" />
           <NcAppNavigationItem class="library-navigation-create-list" :href="`${listsUrl}&new=1`" :name="t('library', 'Create a new list')" />
           <NcAppNavigationItem v-for="list in personalListNavigation" :key="`personal-list-${list.id}`" class="library-navigation-personal-list" :href="`${listsUrl}&listId=${list.id}`" :name="list.name" />

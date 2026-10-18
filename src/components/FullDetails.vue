@@ -109,12 +109,40 @@ const rejectedFields = computed(() => {
     return Array.isArray(value) ? value : []
   } catch { return [] }
 })
+function reviewList(value) {
+  if (Array.isArray(value)) return value
+  if (typeof value !== 'string') return []
+  try {
+    const parsed = JSON.parse(value)
+    if (Array.isArray(parsed)) return parsed
+  } catch { /* Older provenance can contain a scalar list. */ }
+  return value.split(/[;\n]+/)
+}
+function reviewValue(field, value) {
+  if (field === 'subjects' || field === 'classifications') {
+    return [...new Set(reviewList(value).map(entry => String(entry).trim().toLocaleLowerCase()).filter(Boolean))].sort().join('\u0000')
+  }
+  return String(value ?? '').trim()
+}
 const provenance = computed(() => Object.entries(fieldNames).map(([field, label]) => {
   const current = item.value?.[field]
-  const candidate = String(item.value?.fieldValues?.[field] ?? '')
-  return { field, label, current: Array.isArray(current) ? current.join('; ') : String(current ?? ''), candidate, source: item.value?.fieldSources?.[field] || item.value?.metadataSource || '', rejected: rejectedFields.value.includes(field) }
+  const values = item.value?.fieldValues || {}
+  const rawCandidate = values[field]
+  const isList = field === 'subjects' || field === 'classifications'
+  const original = values[`${field}Original`]
+  let sourceOriginal = ''
+  if (typeof original === 'string') {
+    try { sourceOriginal = JSON.stringify(JSON.parse(original)) } catch { sourceOriginal = original }
+  }
+  return {
+    field, label, current: Array.isArray(current) ? current.join('; ') : String(current ?? ''),
+    candidate: isList ? reviewList(rawCandidate).join('; ') : String(rawCandidate ?? ''),
+    hasCandidate: Object.hasOwn(values, field), changed: reviewValue(field, rawCandidate) !== reviewValue(field, current),
+    sourceOriginal, source: item.value?.fieldSources?.[field] || item.value?.metadataSource || '',
+    rejected: rejectedFields.value.includes(field),
+  }
 }))
-const differences = computed(() => provenance.value.filter(row => row.candidate.trim() && row.candidate !== row.current))
+const differences = computed(() => provenance.value.filter(row => row.hasCandidate && row.changed))
 
 function listText(value) {
   return Array.isArray(value) ? value.join('\n') : String(value || '').split(';').map(v => v.trim()).filter(Boolean).join('\n')
@@ -677,7 +705,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
           <section class="library-full-details-card"><h2>{{ t('library', 'Nextcloud comments') }}</h2><p class="library-muted">{{ n('library', '%n comment', '%n comments', context.comments.count || 0) }}</p><ul v-if="context.comments.recent?.length" class="library-full-details-comments"><li v-for="comment in context.comments.recent" :key="comment.id"><small>{{ comment.actorId }} · {{ comment.createdAt }}</small><p>{{ comment.message }}</p></li></ul><form @submit.prevent="addComment"><label>{{ t('library', 'Add Nextcloud comment') }}<textarea v-model="commentMessage" rows="3"></textarea></label><button type="submit" class="button secondary" :disabled="busy || !commentMessage.trim()">{{ t('library', 'Add comment') }}</button></form></section>
         </div>
       </div>
-      <section class="library-full-details-card library-full-details-provenance"><h2>{{ t('library', 'Metadata provenance') }}</h2><p class="library-muted">{{ t('library', 'Scanner suggestions never replace your edits automatically.') }}</p><div v-if="differences.length" class="library-full-details-differences"><article v-for="row in differences" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate }}</bdi></p><button type="button" class="button secondary" :disabled="busy || row.rejected" :title="row.rejected ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetField, { field: row.field })">{{ t('library', 'Reset to scanner') }}</button></article></div><p v-else>{{ t('library', 'No scanner differences for this item.') }}</p><details><summary>{{ t('library', 'Show all scanner provenance') }}</summary><div class="library-full-details-differences"><article v-for="row in provenance" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Scanner source') }}: {{ row.source || '—' }}</p><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p></article></div></details><button v-if="differences.length" type="button" class="button secondary" :disabled="busy || rejectedFields.length > 0" :title="rejectedFields.length ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetFields)">{{ t('library', 'Reset all fields to scanner') }}</button></section>
+      <section class="library-full-details-card library-full-details-provenance"><h2>{{ t('library', 'Metadata provenance') }}</h2><p class="library-muted">{{ t('library', 'Scanner suggestions never replace your edits automatically.') }}</p><div v-if="differences.length" class="library-full-details-differences"><article v-for="row in differences" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><button type="button" class="button secondary" :disabled="busy || row.rejected" :title="row.rejected ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetField, { field: row.field })">{{ t('library', 'Reset to scanner') }}</button></article></div><p v-else>{{ t('library', 'No scanner differences for this item.') }}</p><details><summary>{{ t('library', 'Show all scanner provenance') }}</summary><div class="library-full-details-differences"><article v-for="row in provenance" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Scanner source') }}: {{ row.source || '—' }}</p><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><p v-if="row.sourceOriginal">{{ t('library', 'Original source value') }}: <bdi dir="auto">{{ row.sourceOriginal }}</bdi></p></article></div></details><button v-if="differences.length" type="button" class="button secondary" :disabled="busy || rejectedFields.length > 0" :title="rejectedFields.length ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetFields)">{{ t('library', 'Reset all fields to scanner') }}</button></section>
     </template>
   </main>
 </template>

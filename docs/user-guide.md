@@ -3,10 +3,11 @@
 For duplicate discovery and private preferred-copy decisions, see [Finding possible duplicate books](duplicate-review.md).
 For curated genre labels and reviewed scan suggestions, see [Genre management](v0.3-genre-management.md).
 For source-language normalization and uncertain-value review, see [Language review](v0.3-language-review.md).
+For reversible publisher and subject spelling groups, see [Value mappings](metadata-value-mappings.md).
 
 Start with [Your first library](first-library.md) for a short illustrated walkthrough using English Gutenberg books.
 
-Status: 0.3.0-alpha.9 reference guide with historical v0.1 development notes. Use the first-library walkthrough for onboarding and the current author/series sections below for identity workflows.
+Status: 0.3.0-alpha.16 reference guide with historical v0.1 development notes. Use the first-library walkthrough for onboarding and the current author/series sections below for identity workflows.
 
 Audience: early users, household admins, Nextcloud admins and product reviewers  
 Scope: detailed workflows, administrative reference and historical product-review notes
@@ -91,7 +92,7 @@ Current catalogue capabilities:
 - open the original file context through **Show in Files**;
 - fetch the original file through **Download**;
 - open contextual details in the sidebar and use **Advanced details** for editing;
-- search title, subtitle, creators, publication, description, exact normalized ISBN/ISSN and file path from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics, and arbitrary substrings use the indexed search-gram path instead of broad row scans;
+- search title, subtitle, creators, publication, publisher, subjects, description, exact normalized ISBN/ISSN and file path from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics, and arbitrary substrings use the indexed search-gram path instead of broad row scans;
 - use the visible toolbar for Search, Sort and View, desktop filters, and the mobile **Filters** panel for grouped facets; press `/` to focus search and `Escape` to clear it;
 - filter by an individual author and open an author landing page; existing full-field saved filters remain compatible;
 - use server-backed **Starred** and **Recently opened** browse destinations;
@@ -146,10 +147,10 @@ Current details capabilities:
   - creators;
   - publication / series / periodical name;
   - publication date;
-  - publisher: enter a name or choose a suggestion from publishers already in your library; publisher names remain free text;
-  - language: search the pick-list by name or code, including three-letter codes such as `deu`, and add more than one language; imported codes are preserved rather than silently converted;
+  - publisher: enter a name or choose a suggestion from publishers already in your library; the source value remains free text, while account-private mappings can group spelling variants for browsing;
+  - language: search the pick-list by name or code and add more than one language; clear imported names and codes are normalized, while uncertain values keep their source text and enter language review;
   - personal rating: choose one to five stars in the full details editor, or clear the private rating; each choice saves immediately without marking imported book metadata as manually edited;
-  - subjects: add several values as chips; suggestions come from subjects already indexed in your library, while new values remain allowed. Subjects are per-book values, not shared subject records;
+  - subjects: add several values as chips; suggestions come from subjects already indexed in your library, while new values remain allowed. Subjects are per-book values; account-private mappings can group spelling variants without rewriting them;
   - classifications, where sub-subject remains a subject/classification value until a real taxonomy proves it needs a separate field;
 - inspect backing file metadata:
   - Nextcloud file ID;
