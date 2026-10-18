@@ -16,9 +16,9 @@ Status: code review on 2026-10-17, with local fixes on 2026-10-18. This is a sou
 | Genre | Path/manual proposals; scalar `genre` | Full details, sidebar and bulk edit | Details only | No dedicated genre filter or global text search. Decide whether this is a deliberate 0.3 limit before presenting genre as a discovery field. |
 | Publication date | EPUB/OPF, PDF metadata, CBZ, filename; `publication_date` | Full details and sidebar; calendar-format validation | Details and year filter | Aligned for YYYY, YYYY-MM and YYYY-MM-DD. PDF file creation date is weaker evidence of publication date and should retain provenance. |
 | Publisher | EPUB/OPF, CBZ; scalar `publisher` | Full details with suggestions; free text can create a new value | Exact publisher filter and suggestions | Aligned with current scalar model. No publisher identity/merge model yet. |
-| Language | First EPUB/OPF language; scalar `language`, with editor allowing multiple codes joined by delimiters | Full details chip picker; save validates code format | Individual language links in sidebar; catalogue filter matches complete delimited tokens | Exact-token filtering is implemented locally; large-library query cost needs measurement. |
-| Subjects | Repeated EPUB subjects; `subjects_json` and facet index | Full details chip picker and legacy editor; save rebuilds facets/search | Exact subject filter, suggestions and text search | Submitted chip boundaries and commas are preserved locally. |
-| Classifications | Mainly manual/imported values; `classifications_json` and facet index | Full details line editor and legacy editor; bulk edit | Exact classification filter, suggestions and text search | Submitted chip boundaries and commas are preserved locally. |
+| Language | First EPUB/OPF language; scalar `language`, with editor allowing multiple codes joined by delimiters | Full details chip picker; save validates code format | Individual language links in sidebar; catalogue filter matches complete delimited tokens | Exact-token filtering is deployed in alpha.11; large-library query cost needs measurement. |
+| Subjects | Repeated EPUB subjects; `subjects_json` and facet index | Full details chip picker and legacy editor; save rebuilds facets/search | Exact subject filter, suggestions and text search | Submitted chip boundaries and commas are preserved in alpha.11. |
+| Classifications | Mainly manual/imported values; `classifications_json` and facet index | Full details line editor and legacy editor; bulk edit | Exact classification filter, suggestions and text search | Submitted chip boundaries and commas are preserved in alpha.11. |
 | Description | EPUB/OPF or manual; `description` | Full details textarea | Details and text search | Aligned. |
 | ISBN/ISSN | Explicitly labelled or constrained extracted values; `library_item_identifiers` | Full details and sidebar; checksum is recorded, but invalid values are not rejected | Detail rows and identifier search | Sidebar now offers only supported schemes. Full details hides a previous checksum result once that row is changed. |
 | Personal rating | User-only `personal_rating` (1–5 or empty) | Star control with its own revision-checked endpoint | Details | Aligned; it is distinct from the binary “Starred” bookmark. No rating filter is currently offered. |
@@ -52,7 +52,7 @@ Evidence: [`CbzComicInfoMetadataExtractor.php`](../lib/Metadata/CbzComicInfoMeta
 
 ### A5 — Protect corrected fields while refreshing untouched fields (high)
 
-New manual edits now record the changed publication fields and identifiers in `protected_fields_json`. A rescan can refresh the untouched fields while preserving those corrections; scanner candidate values remain available for review/reset. The migration adds a nullable column with no data rewrite. NULL on an older edited book continues the previous whole-item protection, because its edited fields cannot be inferred safely. Reviewed inference Apply/Undo also retains whole-item protection until its snapshot contract records per-field intent. Resetting a scanner candidate removes that field from a new row's protected list. Browser, database and populated-upgrade verification remain pending.
+New manual edits now record the changed publication fields and identifiers in `protected_fields_json`. A rescan can refresh the untouched fields while preserving those corrections; scanner candidate values remain available for review/reset. The migration adds a nullable column with no data rewrite. NULL on an older edited book continues the previous whole-item protection, because its edited fields cannot be inferred safely. Reviewed inference Apply/Undo also retains whole-item protection until its snapshot contract records per-field intent. Resetting a scanner candidate removes that field from a new row's protected list. Hosted CI passed its check, security and disposable GUI jobs; the signed package upgraded the populated NC34 instance with the new column and unchanged catalogue count. Human editor/scanner acceptance and the exact signed NC33–35 matrix remain pending.
 
 Evidence: [`ItemService.php`](../lib/Service/ItemService.php), [`metadata-storage.md`](metadata-storage.md).
 
@@ -63,7 +63,7 @@ Evidence: [`ItemService.php`](../lib/Service/ItemService.php), [`metadata-storag
 - Removed the stale “Maintenance” label and help. Full details remains available from the sidebar action.
 - An old invalid-checksum badge in full details disappears when the user edits its scheme or value; a fresh result appears after save and reload.
 
-These are source changes only. A1–A5 are implemented locally, but require a build, database upgrade, browser checks and populated-library performance measurement before deployment or release.
+A1–A5 are merged and deployed in the signed alpha.11 developer package. CI and NC34 installation checks passed. Human browser acceptance, a full v11 rescan measurement and the exact signed NC33–35 matrix remain open before release.
 
 ## Repeatable review rule
 
