@@ -50,6 +50,7 @@ const coverRefreshRequested = ref(false)
 const coverPasteStatus = ref('')
 const editingAuthor = ref(null)
 const authorSearch = ref('')
+const authorSearchReady = computed(() => (authorSearch.value.match(/\p{L}/gu) || []).length >= 3)
 const authorInput = ref(null)
 const authorResults = ref([])
 const authorHasNext = ref(false)
@@ -148,8 +149,7 @@ function editAuthor(author) {
   authorSearch.value = ''
   authorResults.value = []
   selectedAuthorId.value = ''
-  authorSuggestionsOpen.value = true
-  findAuthors('')
+  authorSuggestionsOpen.value = false
   nextTick(() => authorInput.value?.focus())
 }
 watch(authorSearch, value => {
@@ -160,12 +160,17 @@ watch(authorSearch, value => {
   authorHasNext.value = false
   authorActiveIndex.value = -1
   selectedAuthorId.value = ''
-  if (!editingAuthor.value) return
+  if (!editingAuthor.value || !authorSearchReady.value) {
+    authorSuggestionsOpen.value = false
+    authorSearchBusy.value = false
+    return
+  }
   authorSuggestionsOpen.value = true
   authorSearchBusy.value = true
-  authorSearchTimer = setTimeout(() => findAuthors(value.trim()), value.trim() ? 220 : 0)
+  authorSearchTimer = setTimeout(() => findAuthors(value.trim()), 220)
 })
 async function findAuthors(search = authorSearch.value.trim()) {
+  if ((search.match(/\p{L}/gu) || []).length < 3) return
   const request = ++authorSearchRequest
   authorSearchController?.abort()
   const controller = new AbortController()
@@ -191,6 +196,7 @@ function selectAuthor(candidate) {
 function authorPickerKeydown(event) {
   if (event.key === 'Escape') { authorSuggestionsOpen.value = false; return }
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    if (!authorSearchReady.value) return
     event.preventDefault()
     authorSuggestionsOpen.value = true
     if (!authorResults.value.length) return
@@ -476,13 +482,14 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
               <p>{{ t('library', 'Replace {author} for this publication', { author: editingAuthor.name }) }}</p>
               <div class="library-full-details-author-search">
                 <label for="library-details-author-search">{{ t('library', 'Choose an author') }}</label>
-                <input id="library-details-author-search" ref="authorInput" v-model="authorSearch" type="search" maxlength="255" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="library-details-author-suggestions" :aria-expanded="authorSuggestionsOpen && authorResults.length > 0 ? 'true' : 'false'" :aria-activedescendant="authorActiveIndex >= 0 && authorSuggestionsOpen ? `library-details-author-option-${authorResults[authorActiveIndex]?.id}` : undefined" :placeholder="t('library', 'Search authors')" :disabled="busy" @focus="authorSuggestionsOpen = true" @keydown="authorPickerKeydown">
+                <input id="library-details-author-search" ref="authorInput" v-model="authorSearch" type="search" maxlength="255" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="library-details-author-suggestions" :aria-expanded="authorSuggestionsOpen && authorResults.length > 0 ? 'true' : 'false'" :aria-activedescendant="authorActiveIndex >= 0 && authorSuggestionsOpen ? `library-details-author-option-${authorResults[authorActiveIndex]?.id}` : undefined" :placeholder="t('library', 'Search authors')" :disabled="busy" @focus="authorSuggestionsOpen = authorSearchReady" @keydown="authorPickerKeydown">
+                <p v-if="!authorSearchReady && !selectedAuthorId" class="library-muted">{{ t('library', 'Type at least 3 letters to search authors.') }}</p>
                 <span v-if="authorSearchBusy" class="library-muted" role="status">{{ t('library', 'Searching…') }}</span>
                 <ul v-if="authorSuggestionsOpen && authorResults.length" id="library-details-author-suggestions" class="library-full-details-author-suggestions" role="listbox">
                   <li v-for="(candidate, index) in authorResults" :id="`library-details-author-option-${candidate.id}`" :key="candidate.id" role="option" :aria-selected="authorActiveIndex === index"><button type="button" :class="{ 'is-active': authorActiveIndex === index }" @mousedown.prevent @click="selectAuthor(candidate)"><strong>{{ candidate.display_name }}</strong><small>{{ candidate.sort_name }} · {{ n('library', '%n book', '%n books', Number(candidate.book_count || 0)) }}</small></button></li>
                 </ul>
                 <p v-if="authorSuggestionsOpen && authorHasNext" class="library-muted">{{ t('library', 'More matches. Keep typing to narrow the list.') }}</p>
-                <p v-if="authorSuggestionsOpen && !authorSearchBusy && !authorResults.length && authorSearch.trim()" class="library-muted">{{ t('library', 'No matching author. You can create a separate author below.') }}</p>
+                <p v-if="authorSuggestionsOpen && authorSearchReady && !authorSearchBusy && !authorResults.length" class="library-muted">{{ t('library', 'No matching author. You can create a separate author below.') }}</p>
                 <p v-if="selectedAuthorId" class="library-full-details-author-selected" role="status">{{ t('library', 'Selected author') }}: <strong>{{ authorResults.find(candidate => String(candidate.id) === selectedAuthorId)?.display_name }}</strong></p>
               </div>
               <div class="library-full-details-author-actions">

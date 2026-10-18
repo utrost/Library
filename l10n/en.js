@@ -1024,6 +1024,7 @@ OC.L10N.register(
         "Try removing {filter}.": "Try removing {filter}.",
         "Type": "Type",
         "Type DELETE to confirm": "Type DELETE to confirm",
+        "Type at least 3 letters to search authors.": "Type at least 3 letters to search authors.",
         "Type at least 3 path characters": "Type at least 3 path characters",
         "Unavailable book": "Unavailable book",
         "Unavailable books": "Unavailable books",

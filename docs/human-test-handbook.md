@@ -67,7 +67,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** Two author identities in a disposable account; record their linked books and original credits. If they represent different people, test a selected-book move. If they represent the same person, test a whole-author merge.
 
-**Steps:** On a book's **Full details** page, choose **Change author**, type part of a name and select a suggestion without a separate Search click; confirm that the selected author is visible before saving. Then open the source author, select a destination, inspect the preview and book count, confirm, and check both author pages and creator filtering. Use **Undo** before further edits. For an author with more than 500 linked books, record the queued-task state instead of waiting on the page.
+**Steps:** On a book's **Full details** page, choose **Change author**. Confirm that one or two typed letters do not start a search; type a third letter, select a suggestion without a separate Search click, and confirm that the selected author is visible before saving. Then open the source author, select a destination, inspect the preview and book count, confirm, and check both author pages and creator filtering. Use **Undo** before further edits. For an author with more than 500 linked books, record the queued-task state instead of waiting on the page.
 
 **Expected:** Only previewed relationships move; source credits and ebook files stay unchanged. A whole merge redirects later imports of the retired identity. Undo restores the original relationships when the operation is still current; stale operations explain that they cannot overwrite later work.
 

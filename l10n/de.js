@@ -1024,6 +1024,7 @@ OC.L10N.register(
         "Try removing {filter}.": "Entferne versuchsweise {filter}.",
         "Type": "Publikations-/Dateityp",
         "Type DELETE to confirm": "Geben Sie zur Bestätigung DELETE ein",
+        "Type at least 3 letters to search authors.": "Geben Sie mindestens 3 Buchstaben ein, um Autoren zu suchen.",
         "Type at least 3 path characters": "Mindestens 3 Pfadzeichen eingeben",
         "Unavailable book": "Nicht verfügbares Buch",
         "Unavailable books": "Nicht verfügbare Bücher",
