@@ -1,17 +1,17 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.11, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://localhost:8088` now runs the [signed alpha.10 package](compatibility-evidence/2026-10-17-nc34-alpha10/README.md) from merged commit `ca65585`. Record its archive checksum before testing and use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.10 still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.11, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://localhost:8088` now runs the [signed alpha.11 package](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) from merged commit `c6cce72`. Record its archive checksum before testing and use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.11 still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
-1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; alpha.11 is the current source candidate and alpha.10 is the last signed deployment pending upgrade. Record the exact archive name and checksum instead of assuming this source build is the release package.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; alpha.11 is the installed signed developer package. Record the exact archive name and checksum instead of assuming this source build is the release package.
 2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
-For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10 and H03-11. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
+For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12 and H03-13. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the installed alpha.10 archive checksum in the session header: `f5eb90389a94e5390d7bc15700b3053bacb212e048d89435209218e9ba2abd0b`. The current developer build serves the alpha.10 `v8` frontend asset.
+Copy this result sheet into the session note. Write the installed alpha.11 archive checksum in the session header: `909c0aa3debce5549fa7f3fec7e511e81147523a43382b2bf20bc13fbf487910`. The current developer build serves the alpha.11 `v8` frontend asset.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -26,6 +26,8 @@ Copy this result sheet into the session note. Write the installed alpha.10 archi
 | H03-09 |  |  |  |
 | H03-10 |  |  |  |
 | H03-11 |  |  |  |
+| H03-12 |  |  |  |
+| H03-13 |  |  |  |
 
 After each case, capture the visible before/after state and note the selected book/author/series ID. A **Pass** requires the expected result and no relevant console error. Mark **Blocked** when setup or the instance prevents the action; a visible wrong result is **Fail**. Do not put private paths or book metadata in a public issue without redaction.
 
@@ -140,6 +142,26 @@ After each case, capture the visible before/after state and note the selected bo
 **Expected:** The stale save returns HTTP 409 and cannot silently overwrite the first tab. The JavaScript editor keeps the second draft visible. The native form shows a comparison page with the draft and latest saved values. **Use latest saved values** returns without a write; **Save my reviewed draft** applies the draft only after an explicit choice and another revision check.
 
 **Failure evidence:** Item ID, the two draft values, network status, comparison-page screenshot and final saved value. Use only a disposable book.
+
+### H03-12 — Field-level rescan protection and metadata punctuation
+
+**Setup:** Use disposable EPUB and CBZ copies with source metadata you can edit. Record the original file checksums. Include a subject containing a comma, separate `en` and `en-US` language examples, a ComicInfo series and number, and one CBZ creator written as `Surname, Given`.
+
+**Steps:** In Full details, change only the EPUB title and save. Change an untouched source field such as publisher or publication date, rescan, and check both fields. Enter a comma-containing subject and classification, save and reload. Check the `en` language filter does not include the `en-US`-only item. Scan the CBZ and inspect creator, series and part number. Reset one corrected field to its scanner candidate and rescan. Repeat a rescan with an item manually edited before alpha.11 if available.
+
+**Expected:** A new title correction survives while untouched source fields refresh. Existing pre-alpha.11 manual edits retain whole-item protection. Commas stay within one subject, classification or creator name; ComicInfo series and number reach dedicated fields. Reset removes the new correction's field protection. Library does not alter source file bytes.
+
+**Failure evidence:** Disposable item IDs, before/after values, filter results, scanner candidate, screenshots and source checksums. Record whether the item was first edited before or after alpha.11.
+
+### H03-13 — Preferred-author search and loading feedback
+
+**Setup:** Use a disposable author linked to at least one book. Give the author a preferred name that does not appear in the book's imported creator text. Use enough catalogue items that search loading is visible.
+
+**Steps:** Search the general catalogue by a middle fragment of the preferred name and then by a middle fragment of the sort name. Confirm the linked book appears; confirm the imported creator credit remains unchanged. Repeat at phone width. Observe the search field immediately after submitting a query and while results load. Change the query during loading and submit it again.
+
+**Expected:** Search follows the current linked author identity and finds the book through either name. A compact loading indicator appears beside the desktop and mobile search field during a request and clears afterward. Newer typed text is retained, and a stale or failed request does not silently replace the newer query.
+
+**Failure evidence:** Preferred/sort and imported names, searched fragments, result book ID, network timing, desktop/mobile screenshots and console error if present.
 
 ## Historical alpha.174 walkthrough
 
