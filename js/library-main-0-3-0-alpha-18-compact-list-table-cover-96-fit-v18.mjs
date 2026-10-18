@@ -21838,6 +21838,15 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
               ])
             ])) : S("", !0)
           ]),
+          he(o8, {
+            class: "library-full-details-genres",
+            "item-id": Number(T.value),
+            genres: a.value.canonicalGenres || [],
+            "request-token": e.requestToken,
+            "catalogue-url": e.catalogueUrl,
+            disabled: g.value || oe.value,
+            onChanged: re[10] || (re[10] = (W) => Bt({ silent: !0 }))
+          }, null, 8, ["item-id", "genres", "request-token", "catalogue-url", "disabled"]),
           r("section", zP, [
             r("h2", BP, l(o(f)("library", "Publication metadata")), 1),
             r("form", {
@@ -21847,7 +21856,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 r("label", null, [
                   J(l(o(f)("library", "Title")), 1),
                   fe(r("input", {
-                    "onUpdate:modelValue": re[10] || (re[10] = (W) => n.title = W),
+                    "onUpdate:modelValue": re[11] || (re[11] = (W) => n.title = W),
                     required: ""
                   }, null, 512), [
                     [xe, n.title]
@@ -21856,7 +21865,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 r("label", null, [
                   J(l(o(f)("library", "Subtitle")), 1),
                   fe(r("input", {
-                    "onUpdate:modelValue": re[11] || (re[11] = (W) => n.subtitle = W)
+                    "onUpdate:modelValue": re[12] || (re[12] = (W) => n.subtitle = W)
                   }, null, 512), [
                     [xe, n.subtitle]
                   ])
@@ -21864,7 +21873,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 r("label", null, [
                   J(l(o(f)("library", "Type")), 1),
                   fe(r("select", {
-                    "onUpdate:modelValue": re[12] || (re[12] = (W) => n.publicationType = W)
+                    "onUpdate:modelValue": re[13] || (re[13] = (W) => n.publicationType = W)
                   }, [
                     (c(), h(K, null, ce(N, (W) => r("option", {
                       key: W.value,
@@ -21881,7 +21890,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                   r("label", null, [
                     J(l(o(f)("library", "Source creator credits")), 1),
                     fe(r("textarea", {
-                      "onUpdate:modelValue": re[13] || (re[13] = (W) => n.creators = W),
+                      "onUpdate:modelValue": re[14] || (re[14] = (W) => n.creators = W),
                       rows: "3"
                     }, null, 512), [
                       [xe, n.creators]
@@ -21891,7 +21900,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 r("label", null, [
                   J(l(o(f)("library", "Publication")), 1),
                   fe(r("input", {
-                    "onUpdate:modelValue": re[14] || (re[14] = (W) => n.publication = W)
+                    "onUpdate:modelValue": re[15] || (re[15] = (W) => n.publication = W)
                   }, null, 512), [
                     [xe, n.publication]
                   ])
@@ -21904,7 +21913,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     r("label", null, [
                       J(l(o(f)("library", "Source series")), 1),
                       fe(r("input", {
-                        "onUpdate:modelValue": re[15] || (re[15] = (W) => n.series = W)
+                        "onUpdate:modelValue": re[16] || (re[16] = (W) => n.series = W)
                       }, null, 512), [
                         [xe, n.series]
                       ])
@@ -21912,7 +21921,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     r("label", null, [
                       J(l(o(f)("library", "Source part in series")), 1),
                       fe(r("input", {
-                        "onUpdate:modelValue": re[16] || (re[16] = (W) => n.seriesNumber = W)
+                        "onUpdate:modelValue": re[17] || (re[17] = (W) => n.seriesNumber = W)
                       }, null, 512), [
                         [xe, n.seriesNumber]
                       ])
@@ -21926,7 +21935,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                   r("label", null, [
                     J(l(o(f)("library", "Source genre")), 1),
                     fe(r("input", {
-                      "onUpdate:modelValue": re[17] || (re[17] = (W) => n.genre = W)
+                      "onUpdate:modelValue": re[18] || (re[18] = (W) => n.genre = W)
                     }, null, 512), [
                       [xe, n.genre]
                     ])
@@ -21937,7 +21946,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 }, [
                   J(l(o(f)("library", "Publication date")), 1),
                   fe(r("input", {
-                    "onUpdate:modelValue": re[18] || (re[18] = (W) => n.publicationDate = W)
+                    "onUpdate:modelValue": re[19] || (re[19] = (W) => n.publicationDate = W)
                   }, null, 512), [
                     [xe, n.publicationDate]
                   ])
@@ -21947,7 +21956,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 }, [
                   J(l(o(f)("library", "Publisher")), 1),
                   fe(r("input", {
-                    "onUpdate:modelValue": re[19] || (re[19] = (W) => n.publisher = W),
+                    "onUpdate:modelValue": re[20] || (re[20] = (W) => n.publisher = W),
                     list: "library-details-publisher-suggestions",
                     autocomplete: "off"
                   }, null, 512), [
@@ -21962,13 +21971,13 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 ], 8, QP),
                 he(Bp, {
                   modelValue: n.language,
-                  "onUpdate:modelValue": re[20] || (re[20] = (W) => n.language = W),
+                  "onUpdate:modelValue": re[21] || (re[21] = (W) => n.language = W),
                   kind: "language",
                   disabled: g.value
                 }, null, 8, ["modelValue", "disabled"]),
                 he(Bp, {
                   modelValue: n.subjects,
-                  "onUpdate:modelValue": re[21] || (re[21] = (W) => n.subjects = W),
+                  "onUpdate:modelValue": re[22] || (re[22] = (W) => n.subjects = W),
                   kind: "subject",
                   disabled: g.value
                 }, null, 8, ["modelValue", "disabled"]),
@@ -21977,7 +21986,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 }, [
                   J(l(o(f)("library", "Classifications")), 1),
                   fe(r("textarea", {
-                    "onUpdate:modelValue": re[22] || (re[22] = (W) => n.classifications = W),
+                    "onUpdate:modelValue": re[23] || (re[23] = (W) => n.classifications = W),
                     rows: "2"
                   }, null, 512), [
                     [xe, n.classifications]
@@ -21991,7 +22000,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 r("label", iL, [
                   J(l(o(f)("library", "Description")), 1),
                   fe(r("textarea", {
-                    "onUpdate:modelValue": re[23] || (re[23] = (W) => n.description = W),
+                    "onUpdate:modelValue": re[24] || (re[24] = (W) => n.description = W),
                     rows: "8"
                   }, null, 512), [
                     [xe, n.description]
@@ -22030,7 +22039,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 r("button", {
                   type: "button",
                   class: "button secondary",
-                  onClick: re[24] || (re[24] = (W) => n.identifiers.push({ scheme: "isbn", displayValue: "" }))
+                  onClick: re[25] || (re[25] = (W) => n.identifiers.push({ scheme: "isbn", displayValue: "" }))
                 }, l(o(f)("library", "Add identifier")), 1)
               ]),
               r("button", {
@@ -22041,14 +22050,6 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
             ], 32)
           ]),
           r("div", dL, [
-            he(o8, {
-              "item-id": Number(T.value),
-              genres: a.value.canonicalGenres || [],
-              "request-token": e.requestToken,
-              "catalogue-url": e.catalogueUrl,
-              disabled: g.value || oe.value,
-              onChanged: re[25] || (re[25] = (W) => Bt({ silent: !0 }))
-            }, null, 8, ["item-id", "genres", "request-token", "catalogue-url", "disabled"]),
             r("section", fL, [
               r("h2", null, l(o(f)("library", "File metadata")), 1),
               r("dl", null, [
@@ -22212,7 +22213,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
       ], 64)) : S("", !0)
     ]));
   }
-}, HL = /* @__PURE__ */ Ln(VL, [["__scopeId", "data-v-a0c465dd"]]), qL = ["aria-label", "title", "onClick"], GL = {
+}, HL = /* @__PURE__ */ Ln(VL, [["__scopeId", "data-v-89f2a8bd"]]), qL = ["aria-label", "title", "onClick"], GL = {
   key: 0,
   class: "library-sidebar-filter-section",
   "aria-labelledby": "library-sidebar-filters-heading"
