@@ -11,7 +11,7 @@
 
 For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12 and H03-13. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the current signed private archive checksum in the session header: `951b2fdc35316f761b6275e9735220604617b940ecc8d07da3d230f025592cbd`. The developer build serves the alpha.11 `v9` frontend asset URL so browsers fetch the updated interface.
+Copy this result sheet into the session note. Write the current signed private archive checksum in the session header: `9d63a7d024207494a17a6d4d42736030dc9f3a037ec5edccfe53e86b181582d7`. The developer build serves the alpha.11 `v9` frontend asset URL so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
