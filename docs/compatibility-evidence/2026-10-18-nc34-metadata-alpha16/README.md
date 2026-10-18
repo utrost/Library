@@ -1,0 +1,9 @@
+# NC34 developer deployment: metadata consistency alpha.16
+
+The populated developer instance at `http://100.123.149.120:8088` runs signed `library 0.3.0-alpha.16` on Nextcloud `34.0.3.2`. The exact private archive is `/tmp/library-alpha16-release/library-0.3.0-alpha.16.tar.gz`, SHA-256 `a08a0137054813d540ad8d4c16db5fcc612e4c6b20762f547202a182d901fb8e`. The prior alpha.15 app directory is retained outside `custom_apps` at `/tmp/library-before-alpha16`; the alpha.14 directory is separately retained at `/tmp/library-before-alpha15`.
+
+The forward migration added `library_items.search_index_version` and `library_value_mappings`. `occ upgrade` completed the app update and code integrity check. Apache was reloaded. `occ status` reported maintenance off and no pending database upgrade; `occ app:list` reported alpha.16; `occ integrity:check-app library` returned cleanly. The frontend build completed with 1,299,532 bytes of staged frontend assets against the 1,300,000-byte package budget.
+
+The index rebuild command `occ library:search:rebuild` completed successfully after checking 93,237 items in approximately 30 minutes. It did not read publication files. Alpha.15's slower full rebuild had completed approximately 14,000 older rows before alpha.16 replaced it; those rows were already versioned and were skipped on resume. The final database check found 107,862 of 107,862 items at search index version 2, with zero pending rows. `occ status` again reported maintenance mode off and no pending database upgrade.
+
+This is package and deployment evidence. The owner will run [H03-16](../../human-test-handbook.md#h03-16--publishersubject-search-source-review-and-reversible-names) on the populated NC34 instance. Authenticated browser acceptance and the exact signed NC33–35 matrix remain open.

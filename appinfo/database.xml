@@ -269,6 +269,7 @@
             <field><name>author_source_hash</name><type>string</type><length>64</length><notnull>false</notnull></field>
             <field><name>author_sync_status</name><type>smallint</type><notnull>true</notnull><default>1</default></field>
             <field><name>scanner_index_hash</name><type>string</type><length>64</length><notnull>false</notnull></field>
+            <field><name>search_index_version</name><type>smallint</type><notnull>false</notnull></field>
             <field><name>authors_json</name><type>text</type><notnull>false</notnull></field>
             <field><name>series_name</name><type>string</type><length>255</length><notnull>false</notnull></field>
             <field><name>series_number</name><type>string</type><length>64</length><notnull>false</notnull></field>
@@ -502,6 +503,7 @@
             <index><name>library_items_usr_title_page</name><field><name>user_id</name></field><field><name>title</name></field><field><name>id</name></field><field><name>library_file_id</name></field></index>
             <index><name>library_genre_discovery</name><field><name>genre_suggestion_hash</name></field><field><name>id</name></field></index>
             <index><name>library_language_discovery</name><field><name>language_review_hash</name></field><field><name>id</name></field></index>
+            <index><name>library_search_rebuild</name><field><name>search_index_version</name></field><field><name>id</name></field></index>
             <index><name>library_series_pending</name><field><name>series_sync_status</name></field><field><name>id</name></field></index>
             <index><name>library_series_user_status</name><field><name>user_id</name></field><field><name>series_sync_status</name></field><field><name>id</name></field></index>
             <index><name>library_author_pending</name><field><name>author_sync_status</name></field><field><name>id</name></field></index>
@@ -1418,5 +1420,15 @@
         <field><name>source_key</name><type>string</type><length>64</length><notnull>true</notnull></field>
         <field><name>language_codes</name><type>string</type><length>64</length><notnull>false</notnull></field>
         <index><name>library_language_mappings_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>source_key</name></field></index>
+    </declaration></table>
+    <table><name>*dbprefix*library_value_mappings</name><declaration>
+        <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>field_type</name><type>string</type><length>16</length><notnull>true</notnull></field>
+        <field><name>source_key</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>source_value</name><type>string</type><length>255</length><notnull>true</notnull></field>
+        <field><name>target_value</name><type>string</type><length>255</length><notnull>true</notnull></field>
+        <field><name>created_at</name><type>integer</type><notnull>true</notnull></field>
+        <index><name>library_value_mappings_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>field_type</name></field><field><name>source_key</name></field></index>
+        <index><name>library_value_mapping_target</name><field><name>user_id</name></field><field><name>field_type</name></field><field><name>target_value</name></field></index>
     </declaration></table>
 </database>

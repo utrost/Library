@@ -1,17 +1,17 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.14, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` runs a [signed private language build](compatibility-evidence/2026-10-18-nc34-language-alpha14/README.md) with the Full details author/series pickers, cover controls, settings feedback, curated genres and source-language review. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.14 still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.16, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` runs the [signed private alpha.16 build](compatibility-evidence/2026-10-18-nc34-metadata-alpha16/README.md), including publisher/subject mapping and metadata review fixes. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.16 still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
-1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the current signed private build reports alpha.14. Record the exact archive name and checksum instead of assuming the version string identifies the package.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the current private build reports alpha.16. Record the exact archive name and checksum instead of assuming the version string identifies the package.
 2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
-For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12, H03-13, H03-14 and H03-15. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
+For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12, H03-13, H03-14, H03-15 and H03-16. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the current signed private archive checksum in the session header: `0f72fe0118e73fafe7650e91b0032493246f527615af45f2bd76c2c46d064925`. The developer build serves the alpha.14 `v14` frontend asset URL so browsers fetch the updated interface.
+Copy this result sheet into the session note. Write the signed private archive checksum from the [alpha.16 deployment record](compatibility-evidence/2026-10-18-nc34-metadata-alpha16/README.md) in the session header. The developer build serves versioned frontend assets so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -30,6 +30,7 @@ Copy this result sheet into the session note. Write the current signed private a
 | H03-13 |  |  |  |
 | H03-14 |  |  |  |
 | H03-15 |  |  |  |
+| H03-16 |  |  |  |
 
 After each case, capture the visible before/after state and note the selected book/author/series ID. A **Pass** requires the expected result and no relevant console error. Mark **Blocked** when setup or the instance prevents the action; a visible wrong result is **Fail**. Do not put private paths or book metadata in a public issue without redaction.
 
@@ -184,6 +185,16 @@ After each case, capture the visible before/after state and note the selected bo
 **Expected:** Mixed case and familiar three-letter codes resolve to stable codes; `en-us` becomes `en-US`. Unknown or invalid values are not silently guessed. Mapping reaches matching unprotected books while preserving the original source value; an explicit manual correction survives mapping and rescan. An ignored value stays ignored. The picker does not accept `en-en`. No source file bytes change.
 
 **Failure evidence:** Source and resulting codes, item IDs, mapping decision, before/after screenshots, scan status, browser console error and file checksums.
+
+### H03-16 — Publisher/subject search, source review and reversible names
+
+**Setup:** In a disposable root, use two books with publishers `St. Martin's Press` and `St Martins Press`, and two books with subjects `History, 19th century` and `History — 19th century`. Include one book whose source has no publisher or subjects. Record their original values and file checksums. Let the developer search-index rebuild finish before checking old-book publisher search.
+
+**Steps:** Search a publisher name in the general catalogue; search a term that is also an exact book title and confirm matches from other fields still appear. In **Publisher and subject names**, search for a source spelling, preview its affected books, map it to the preferred spelling and repeat for a subject. Confirm the preferred suggestion and filter include books with both spellings. Open a mapped book: its source value must remain unchanged. Remove one mapping and confirm the filter separates again. On a book with subjects, edit an unrelated field and inspect **Metadata provenance**; unchanged subjects must not appear as a difference. On the source-empty book, add a publisher or subject manually, rescan it, then use **Reset to scanner** to clear that one field. Check that a later rescan keeps other manual corrections.
+
+**Expected:** Mapping preview names the affected books before saving; mapping and removal change discovery immediately, without rewriting the book or source files. Publisher general search includes old and new books after the derived-index rebuild. Unchanged subject lists show no false scanner conflict; an explicit empty scanner value is reviewable and resettable. Source subject spelling/order, when normalization changed it on a new scan, appears under expanded provenance.
+
+**Failure evidence:** Source and preferred labels, preview count, filtered count, item IDs, scanner candidate and current value, before/after screenshots, console errors and file checksums.
 
 ## Historical alpha.174 walkthrough
 
