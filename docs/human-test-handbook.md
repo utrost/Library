@@ -1,17 +1,17 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.11, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` now runs the [signed alpha.11 package](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) from merged commit `c6cce72`. Record its archive checksum before testing and use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.11 still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.11, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://100.123.149.120:8088` runs a [signed private update](compatibility-evidence/2026-10-18-nc34-ui-update/README.md) from commit `adfe231`, including settings feedback and the Full details author/cover controls. It replaces the [original signed alpha.11 package](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) on this instance while keeping the same version string. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; this private update still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
-1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; alpha.11 is the installed signed developer package. Record the exact archive name and checksum instead of assuming this source build is the release package.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the current signed private build still reports alpha.11. Record the exact archive name and checksum instead of assuming the version string identifies the package.
 2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
 For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12 and H03-13. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the installed alpha.11 archive checksum in the session header: `909c0aa3debce5549fa7f3fec7e511e81147523a43382b2bf20bc13fbf487910`. The current developer build serves the alpha.11 `v8` frontend asset.
+Copy this result sheet into the session note. Write the current signed private archive checksum in the session header: `f94f7bd9bb51505f1dfb629cd794b03b9430e59d5acc186d266dc2cc834216be`. The developer build still serves the alpha.11 `v8` frontend asset name; hard refresh before testing because its contents changed.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -67,7 +67,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** Two author identities in a disposable account; record their linked books and original credits. If they represent different people, test a selected-book move. If they represent the same person, test a whole-author merge.
 
-**Steps:** Open the source author, select a destination, inspect the preview and book count, confirm, then check both author pages and creator filtering. Use **Undo** before further edits. For an author with more than 500 linked books, record the queued-task state instead of waiting on the page.
+**Steps:** On a book's **Full details** page, choose **Change author**, type part of a name and select a suggestion without a separate Search click; confirm that the selected author is visible before saving. Then open the source author, select a destination, inspect the preview and book count, confirm, and check both author pages and creator filtering. Use **Undo** before further edits. For an author with more than 500 linked books, record the queued-task state instead of waiting on the page.
 
 **Expected:** Only previewed relationships move; source credits and ebook files stay unchanged. A whole merge redirects later imports of the retired identity. Undo restores the original relationships when the operation is still current; stale operations explain that they cannot overwrite later work.
 
@@ -127,7 +127,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** Use a disposable book with an ISBN or ISSN, an imported cover and at least one scanner suggestion. Have a valid JPEG, PNG or WebP cover ready. Record its original metadata and file checksum.
 
-**Steps:** Open the book sidebar and choose **Full details**; verify there is no **Maintenance (legacy)** entry. Edit title, creator names (one per line, including a name with a comma), subjects, an identifier and rating, then save. Replace the cover, refresh it and revert it. Add and remove a Nextcloud tag; add a comment. Star the book and change its workflow status. Review scanner provenance, reset one safe field, then return to the catalogue. Open the book in a new tab. If a disposable item is marked missing, exercise **Forget missing publication** separately.
+**Steps:** Open the book sidebar and choose **Full details**; verify there is no **Maintenance (legacy)** entry. Edit title, creator names (one per line, including a name with a comma), subjects, an identifier and rating, then save. Use **Replace cover** on the image to choose a file, then try **Paste image** with a copied JPEG, PNG or WebP. Refresh and revert using the small image controls. Add and remove a Nextcloud tag; add a comment. Mark the book **Favorite** and change its workflow status. Check that **Create a new list** reads as an action. Review scanner provenance, reset one safe field, then return to the catalogue. Open the book in a new tab. If a disposable item is marked missing, exercise **Forget missing publication** separately.
 
 **Expected:** The full view loads without the catalogue's 100-book page, every action gives visible feedback and the changed values survive reload. A comma in a creator name stays within that creator. The old direct `/items/{id}` URL remains a fallback, while normal catalogue and list links open **Full details**. Cover, tags, comments, star and workflow changes do not overwrite unsaved metadata silently. Source publication bytes and sidecars remain unchanged.
 

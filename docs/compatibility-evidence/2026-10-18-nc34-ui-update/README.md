@@ -1,0 +1,11 @@
+# Signed NC34 private UI update — 2026-10-18
+
+The populated developer instance at `http://100.123.149.120:8088` runs Nextcloud 34.0.3.2 and Library 0.3.0-alpha.11. This private deployment uses committed runtime files through `adfe231` on `fix/settings-feedback-scan-diagnostics-20261018`, including settings feedback/diagnostics and the Full details author, list and cover controls. The branch has not been merged. This is an owner testing build, not an App Store upload artifact.
+
+The build was staged from the previously signed alpha.11 archive (SHA-256 `909c0aa3debce5549fa7f3fec7e511e81147523a43382b2bf20bc13fbf487910`), overlaid with the changed runtime files, and signed with the approved Library certificate. The exact private archive is retained at `/tmp/library-nc34-deploy-adfe231/library-0.3.0-alpha.11-adfe231.tar.gz` with SHA-256 `f94f7bd9bb51505f1dfb629cd794b03b9430e59d5acc186d266dc2cc834216be`. The installed app directory before the switch is retained in the container at `/tmp/library-installed-before-adfe231` and on the host at `/tmp/library-nc34-deploy-adfe231/installed-before`.
+
+The release frontend stage contains nine files totaling 1,266,505 bytes. The project package budget was raised from 1,250,000 to 1,300,000 bytes because the original signed package used 1,248,126 bytes. This is a project size gate, not a Nextcloud limit. The Vue production build and `ItemPageController.php` syntax check passed before deployment.
+
+The app directory was switched under maintenance mode and Apache was reloaded. After maintenance mode was disabled, `occ integrity:check-app library` exited 0, `occ status` reported maintenance off and no database upgrade pending, `/status.php` returned HTTP 200, and the installed versioned JavaScript hash matched the signed staging tree (`02b69fff9dac6b6b4f3d33d76d29e4297fd43d7c116ff2ce1df0b173436d47a0`). No schema migration, catalogue scan or browser test was run for this private update. The same alpha.11 version and `v8` asset filename were retained, so browser caches may require a hard refresh.
+
+Use the [current human test handbook](../../human-test-handbook.md), especially H03-04 and H03-10. The exact signed NC33–35 fresh/upgrade matrix remains pending before release.
