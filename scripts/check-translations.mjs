@@ -189,14 +189,14 @@ try {
 const permittedLatinTokens = new Set([
   'nextcloud', 'files', 'library', 'javascript', 'json', 'zip', 'tsv', 'cbz',
   'epub', 'pdf', 'pdfs', 'jpeg', 'png', 'webp', 'mime', 'isbn', 'issn', 'opds', 'api',
-  'rar', 'mib', 'px', 'yyyy', 'mm', 'dd', 'delete', 'enter', 'esc', 'escape',
+  'rar', 'mib', 'px', 'yyyy', 'mm', 'dd', 'ctrl', 'delete', 'enter', 'esc', 'escape',
   'eco', 'rolleiflex', 'ocr', 'opf', 'cron', 'id', 'ids', 'url', 'urls',
 ])
 const permittedGermanSourceTokens = new Set([
   ...permittedLatinTokens,
   'admin', 'app', 'batch', 'chip', 'chips', 'comic', 'comics', 'container',
-  'cover', 'details', 'export', 'fiction', 'genre', 'name', 'filter', 'subjects', 'index', 'limit',
-  'manifest', 'plugin', 'plugins', 'route', 'scan', 'scans', 'scanner', 'science',
+  'cover', 'details', 'export', 'fiction', 'genre', 'genres', 'name', 'filter', 'subjects', 'index', 'limit',
+  'manifest', 'plugin', 'plugins', 'private', 'route', 'scan', 'scans', 'scanner', 'science',
   'sidecar', 'status', 'store', 'tag', 'tags', 'tools', 'workflow',
 ])
 const latinTokens = (value) => value.match(/[A-Za-z][A-Za-z'-]*/g) || []

@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3.0-alpha.11 source tree**, 2026-10-18. Covers 34 app-owned tables through `Version000300Date20261018010000`. The latest forward migration adds per-field protection for newly edited publication metadata. Earlier physical-schema comparisons passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passed on NC34 with all three engines. The alpha.11 column and migration have not yet had a physical-schema or package check.
+Snapshot: **0.3.0-alpha.16 source tree**, 2026-10-18. Covers 41 app-owned tables through `Version000300Date20261018040000`. The latest forward migration adds a versioned search-index cursor and private publisher/subject mappings. Earlier physical-schema comparisons passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passed on NC34 with all three engines. The alpha.16 package still needs its exact-package multi-version and physical-schema checks.
 
 ## Schema ownership
 
@@ -27,9 +27,16 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_item_series` | 9 | 2 | Book-to-series slots with source name, part number and assignment provenance. |
 | `library_series_state` | 2 | 1 | Per-user series backfill and edit coordination. |
 | `library_series_operations` | 9 | 2 | Account-private move/merge snapshots and conditional Undo history. |
+| `library_genres` | 4 | 3 | Account-owned curated genre names and comparison keys. |
+| `library_item_genres` | 5 | 2 | Book-to-genre assignments, including inactive manually removed links. |
+| `library_genre_candidates` | 5 | 2 | Per-book source, subject and folder suggestion evidence. |
+| `library_genre_mappings` | 3 | 2 | Account-wide accepted or ignored suggestion decisions. |
+| `library_language_candidates` | 5 | 2 | Per-book unresolved source-language evidence and application status. |
+| `library_language_mappings` | 3 | 1 | Account-wide language mapping or ignore decisions. |
+| `library_value_mappings` | 6 | 2 | Reversible account-wide publisher and subject spelling groups; publication metadata stays unchanged. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
 | `library_files` | 17 | 8 | Nextcloud file identity, observed paths/revisions and scan diagnostics. |
-| `library_items` | 44 | 27 | Catalogue metadata, ordered authors, series migration status, provenance, field protection, review flags and cover revision. |
+| `library_items` | 47 | 30 | Catalogue metadata, ordered authors, series migration status, genre/language discovery markers, search-index version, provenance, field protection, review flags and cover revision. |
 | `library_scan_jobs` | 24 | 2 | Scan history, counters, heartbeat and current progress. |
 | `library_saved_collections` | 6 | 3 | Named saved filter definitions. |
 | `library_item_identifiers` | 11 | 3 | Normalized ISBN/ISSN values and identifier provenance. |
@@ -58,6 +65,12 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 `library_items.genres_json` was a nullable legacy column created before the Subject model. `Version000300Date20261015120000` copies any remaining non-null value into an empty `subjects_json` field, then removes the old column if present. This handles both older installations that retained it and installations where it was already absent. Current single-value genre metadata uses `genre`; subjects use `subjects_json`.
 
 `Version000300Date20261018010000` adds nullable text `library_items.protected_fields_json` without backfilling rows. A JSON array lists fields protected by new manual corrections, while NULL on a previously edited row preserves whole-item rescan protection. No existing correction is inferred or rewritten during the schema upgrade. See [metadata storage](metadata-storage.md) for the rescan contract.
+
+`Version000300Date20261018020000` adds `library_items.genre_suggestion_hash` and four private genre tables without rewriting older books. A bounded job discovers evidence for existing rows. Curated genre assignments are separate from the imported `genre` string and `subjects_json`; see [genre management](v0.3-genre-management.md).
+
+`Version000300Date20261018030000` adds `library_items.language_review_hash` and two private language-review tables without rewriting older books. Bounded discovery normalizes clear older values and records ambiguous source values for review. See [language review](v0.3-language-review.md).
+
+`Version000300Date20261018040000` adds nullable `library_items.search_index_version` and account-owned `library_value_mappings`. A bounded job or `occ library:search:rebuild` adds publisher grams to intact older indexes, rebuilding an item fully when its scanner fingerprint is missing. It does not open books or change scanner metadata. Publisher/subject mappings affect browsing, exact filters and suggestions through existing values; deleting a mapping restores separate results. See [value mappings](metadata-value-mappings.md).
 
 `authors_json` stores ordered author names while `creators` remains the compatible display value. `series_name`, `series_number` and `genre` are separate from the older `publication` grouping field. Beta.2 imports EPUB/OPF series names and positions into the existing series columns; it requires no new schema migration. Beta.3 uses those same columns for duplicate matching and also requires no schema change. `cover_revision` invalidates browser covers without loading embedded cover blobs into catalogue responses.
 

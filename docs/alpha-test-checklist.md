@@ -1,6 +1,6 @@
 # Public alpha test checklist
 
-The current candidate is **`0.3.0-alpha.11`**, [deployed as a signed package](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) on the private developer Nextcloud 34 instance. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+The current candidate is **`0.3.0-alpha.23`**, [deployed as a signed package](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) on the private developer Nextcloud 34 instance. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
 
 Use the [Playwright journey suite](playwright-journeys.md) for repeatable browser workflows against a disposable instance. Use the [current 0.3 human cases](human-test-handbook.md#current-03-human-cases) for personal acceptance. This checklist covers package identity, source-file safety, real-file coverage and release-specific acceptance.
 

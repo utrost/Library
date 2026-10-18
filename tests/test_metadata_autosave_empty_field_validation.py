@@ -30,7 +30,7 @@ def test_metadata_autosave_surfaces_current_server_validation_error_without_redi
 
 def test_blank_publication_date_remains_valid_metadata():
     service = (ROOT / "lib" / "Service" / "ItemService.php").read_text()
-    validation = service[service.index("private function validateEditableMetadata"):service.index("private function normalizeLanguageList")]
+    validation = service[service.index("private function validateEditableMetadata"):service.index("private function sourceLanguage")]
 
     assert "$publicationDate = trim" in validation
     assert "$publicationDate !== ''" in validation

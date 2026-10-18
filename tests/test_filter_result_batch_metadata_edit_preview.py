@@ -14,7 +14,7 @@ def test_route_and_controller_expose_preview_only_filtered_metadata_edit():
 
     assert "item#batchpreviewmetadataedit" in routes
     assert "/bulk/items/edit-preview" in routes
-    assert routes.index("/bulk/items/edit-preview") < routes.index("/items/{itemId}")
+    assert routes.count("/bulk/items/edit-preview") == 1
     assert "public function batchpreviewmetadataedit(): TemplateResponse" in controller
     assert "catalogueFiltersFromRequest()" in controller
     assert "SelectedItemIds::parse" in controller

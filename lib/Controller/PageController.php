@@ -30,9 +30,9 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const APP_VERSION = '0.3.0-alpha.11';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-11-compact-list-table-cover-96-fit-v8';
-    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-11-compact-list-table-cover-96-fit-v8';
+    private const APP_VERSION = '0.3.0-alpha.23';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-23-compact-list-table-cover-96-fit-v8';
+    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-23-compact-list-table-cover-96-fit-v8';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -40,7 +40,7 @@ class PageController extends Controller {
     
 
     private const CATALOGUE_ITEM_KEYS = [
-        'id', 'title', 'creators', 'authors', 'displayCreators', 'canonicalAuthors', 'canonicalSeries', 'publicationType', 'publication',
+        'id', 'title', 'creators', 'authors', 'displayCreators', 'canonicalAuthors', 'canonicalSeries', 'canonicalGenres', 'publicationType', 'publication',
         'publicationDate', 'description', 'starred', 'workflowStatus',
         'lastOpenedAt', 'extension', 'shelf', 'scanStatus', 'scanError',
         'hasScannerConflict', 'scannerConflictCount', 'nextcloudTags',
@@ -91,7 +91,7 @@ class PageController extends Controller {
         $showHome = (string)$this->request->getParam('home', '0') === '1';
         $showShelves = (string)$this->request->getParam('shelves', '0') === '1';
         $detailsId = (string)$this->request->getParam('details', '');
-        if ((string)$this->request->getParam('authors', '0') === '1' || (string)$this->request->getParam('series', '0') === '1' || (string)$this->request->getParam('duplicates', '0') === '1' || (string)$this->request->getParam('lists', '0') === '1' || (string)$this->request->getParam('infer', '0') === '1' || $detailsId !== '') {
+        if ((string)$this->request->getParam('authors', '0') === '1' || (string)$this->request->getParam('series', '0') === '1' || (string)$this->request->getParam('genres', '0') === '1' || (string)$this->request->getParam('duplicates', '0') === '1' || (string)$this->request->getParam('lists', '0') === '1' || (string)$this->request->getParam('infer', '0') === '1' || $detailsId !== '') {
             $catalogueUrl = $this->urlGenerator->linkToRoute('library.page.index');
             $language = $this->l10nFactory->findLanguage(Application::APP_ID);
             $surface = 'lists';
@@ -101,6 +101,8 @@ class PageController extends Controller {
                 $surface = 'authors';
             } elseif ((string)$this->request->getParam('series', '0') === '1') {
                 $surface = 'series';
+            } elseif ((string)$this->request->getParam('genres', '0') === '1') {
+                $surface = 'genres';
             } elseif ((string)$this->request->getParam('duplicates', '0') === '1') {
                 $surface = 'duplicates';
             } elseif ((string)$this->request->getParam('infer', '0') === '1') {
@@ -364,6 +366,7 @@ class PageController extends Controller {
             'creator' => trim((string)$this->request->getParam('creator', '')),
             'authorId' => trim((string)$this->request->getParam('authorId', '')),
             'seriesId' => trim((string)$this->request->getParam('seriesId', '')),
+            'genreId' => trim((string)$this->request->getParam('genreId', '')),
             'format' => trim((string)$this->request->getParam('format', '')),
             'tag' => trim((string)$this->request->getParam('tag', '')),
             'shelf' => trim((string)$this->request->getParam('shelf', '')),
@@ -752,7 +755,7 @@ class PageController extends Controller {
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page, string $cursor = ''): string {
         $query = [];
-        foreach (['q', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'authorId', 'seriesId', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
+        foreach (['q', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'authorId', 'seriesId', 'genreId', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title') && !($param === 'view' && $value === 'compact')) {
                 $query[$param] = $value;

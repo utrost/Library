@@ -1,17 +1,17 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.11, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://localhost:8088` now runs the [signed alpha.11 package](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) from merged commit `c6cce72`. Record its archive checksum before testing and use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.11 still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.23, Nextcloud 33–35.** Use the [signed alpha.23 package record](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) to identify the build on the populated developer Nextcloud 34 instance at `http://localhost:8088`. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.23 still needs its own exact-package version matrix. The earlier `0.3.0-alpha.11` developer handoff and the numbered alpha.174 cases later in this file are historical records; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
-1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; alpha.11 is the installed signed developer package. Record the exact archive name and checksum instead of assuming this source build is the release package.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the candidate reports alpha.23 once deployed. Record the exact archive name and checksum instead of assuming the version string identifies the package.
 2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
-For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12 and H03-13. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
+For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12, H03-13, H03-14, H03-15 and H03-16. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the installed alpha.11 archive checksum in the session header: `909c0aa3debce5549fa7f3fec7e511e81147523a43382b2bf20bc13fbf487910`. The current developer build serves the alpha.11 `v8` frontend asset.
+Copy this result sheet into the session note. Write the signed private archive checksum from the [alpha.23 package record](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) in the session header. The developer build serves versioned frontend assets so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -28,6 +28,9 @@ Copy this result sheet into the session note. Write the installed alpha.11 archi
 | H03-11 |  |  |  |
 | H03-12 |  |  |  |
 | H03-13 |  |  |  |
+| H03-14 |  |  |  |
+| H03-15 |  |  |  |
+| H03-16 |  |  |  |
 
 After each case, capture the visible before/after state and note the selected book/author/series ID. A **Pass** requires the expected result and no relevant console error. Mark **Blocked** when setup or the instance prevents the action; a visible wrong result is **Fail**. Do not put private paths or book metadata in a public issue without redaction.
 
@@ -67,7 +70,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** Two author identities in a disposable account; record their linked books and original credits. If they represent different people, test a selected-book move. If they represent the same person, test a whole-author merge.
 
-**Steps:** Open the source author, select a destination, inspect the preview and book count, confirm, then check both author pages and creator filtering. Use **Undo** before further edits. For an author with more than 500 linked books, record the queued-task state instead of waiting on the page.
+**Steps:** On a book's **Full details** page, choose **Change author**. Confirm that one or two typed letters do not start a search; type a third letter, select a suggestion without a separate Search click, and confirm that the selected author is visible before saving. Then open the source author, select a destination, inspect the preview and book count, confirm, and check both author pages and creator filtering. Use **Undo** before further edits. For an author with more than 500 linked books, record the queued-task state instead of waiting on the page.
 
 **Expected:** Only previewed relationships move; source credits and ebook files stay unchanged. A whole merge redirects later imports of the retired identity. Undo restores the original relationships when the operation is still current; stale operations explain that they cannot overwrite later work.
 
@@ -75,11 +78,11 @@ After each case, capture the visible before/after state and note the selected bo
 
 ### H03-05 — Series selected-book move and Undo
 
-**Setup:** Two active series with at least one book each. Record the source book's imported series name and part label.
+**Setup:** Two active series with at least one book each, plus one book with no linked series. Record the source book's imported series name and part label.
 
-**Steps:** Open **Series**, choose the source, expand **Move or merge books**, select one book, find or create the destination and inspect **Review change**. Confirm, check the destination series and catalogue series link, rescan the unchanged source, then use **Recent changes → Undo**.
+**Steps:** On the source book's **Full details** page, choose **Change series**. Confirm one or two letters do not search; type three letters, choose a result without a separate Search click, then save. Check the linked series and the separate **Source series metadata** fields. In **Series**, use **Recent changes → Undo**. Repeat from Full details with the book that has no linked series using **Link a series**; Undo should remove that new link. Then use **Series → Move or merge books** to move one selected book and inspect **Review change**.
 
-**Expected:** The selected book alone moves; both series stay active. Its part label and imported source metadata remain visible and unchanged. The assignment survives the unchanged rescan. Undo returns the book to its original series and restores its original import behavior.
+**Expected:** The selected book alone moves; both series stay active. Its part label and imported source metadata remain visible and unchanged. The assignment survives an unchanged rescan. Undo restores the previous link, or removes a newly created link, when no later changes make the operation stale.
 
 **Failure evidence:** Book/series IDs, source and destination, part label, preview screenshot, membership before/after rescan and Undo result.
 
@@ -127,7 +130,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** Use a disposable book with an ISBN or ISSN, an imported cover and at least one scanner suggestion. Have a valid JPEG, PNG or WebP cover ready. Record its original metadata and file checksum.
 
-**Steps:** Open the book sidebar and choose **Full details**; verify there is no **Maintenance (legacy)** entry. Edit title, creator names (one per line, including a name with a comma), subjects, an identifier and rating, then save. Replace the cover, refresh it and revert it. Add and remove a Nextcloud tag; add a comment. Star the book and change its workflow status. Review scanner provenance, reset one safe field, then return to the catalogue. Open the book in a new tab. If a disposable item is marked missing, exercise **Forget missing publication** separately.
+**Steps:** Open the book sidebar and choose **Full details**; verify there is no **Maintenance (legacy)** entry. Edit title, creator names (one per line, including a name with a comma), subjects, an identifier and rating, then save. Use **Replace cover** on the image to choose a file, then try **Paste image** with a copied JPEG, PNG or WebP. Refresh and revert using the small image controls. Add and remove a Nextcloud tag; add a comment. Mark the book **Favorite** and change its workflow status. Check that **Create a new list** reads as an action. Review scanner provenance, reset one safe field, then return to the catalogue. Open the book in a new tab. If a disposable item is marked missing, exercise **Forget missing publication** separately.
 
 **Expected:** The full view loads without the catalogue's 100-book page, every action gives visible feedback and the changed values survive reload. A comma in a creator name stays within that creator. The old direct `/items/{id}` URL remains a fallback, while normal catalogue and list links open **Full details**. Cover, tags, comments, star and workflow changes do not overwrite unsaved metadata silently. Source publication bytes and sidecars remain unchanged.
 
@@ -162,6 +165,46 @@ After each case, capture the visible before/after state and note the selected bo
 **Expected:** Search follows the current linked author identity and finds the book through either name. A compact loading indicator appears beside the desktop and mobile search field during a request and clears afterward. Newer typed text is retained, and a stale or failed request does not silently replace the newer query.
 
 **Failure evidence:** Preferred/sort and imported names, searched fragments, result book ID, network timing, desktop/mobile screenshots and console error if present.
+
+### H03-14 — Curated genres and scan suggestions
+
+**Setup:** Use a disposable account with two books carrying the same source genre, one book in a clearly named `english_science_fiction` folder, and one book with a misleading or unknown source genre. Record source metadata and file checksums.
+
+**Steps:** Open **Genres** and create a genre. In a book's **Full details**, type one or two letters in the genre picker, then at least three; select the genre, add a second genre, and remove one chip. Confirm that the choices are staged until **Save book details**, then save. Use the genre link to filter the catalogue. In **Genres**, advance discovery if needed. Map one suggested source name to an existing genre, accept another as a new genre, and ignore the misleading suggestion. Reopen the page and rescan the books. Change a book's subject in Full details and check the review queue again.
+
+**Expected:** Short searches do not query the directory. Each accepted genre appears as a separate chip and filters to its linked books. A mapped suggestion reaches both matching books without changing their source genre or files. An ignored suggestion stays out of the queue after rescan. A manually removed chip stays removed. Edited source metadata updates suggestion evidence; source bytes remain unchanged. Unknown hints require human approval before they become curated genres.
+
+**Failure evidence:** Book and genre IDs, suggestion name/source/count, before/after assignment screenshots, rescan status, network errors and file checksums.
+
+### H03-15 — Language normalization and uncertain source values
+
+**Setup:** In a disposable root, prepare source metadata with `en`, `EN`, `eng`, `en-us`, `EN-Us`, `3ng` and `en-en`; include one manually corrected book and two books with the same uncertain value. Record file checksums.
+
+**Steps:** Scan the files. Inspect the language chips and **Review languages**. Confirm that clear codes normalize and `3ng`/`en-en` require review. Map one repeated value to `en`, ignore the other, and advance approved mappings. Change the corrected book's language manually before mapping, then rescan. Try entering `en-en` in the per-book picker.
+
+**Expected:** Mixed case and familiar three-letter codes resolve to stable codes; `en-us` becomes `en-US`. Unknown or invalid values are not silently guessed. Mapping reaches matching unprotected books while preserving the original source value; an explicit manual correction survives mapping and rescan. An ignored value stays ignored. The picker does not accept `en-en`. No source file bytes change.
+
+**Failure evidence:** Source and resulting codes, item IDs, mapping decision, before/after screenshots, scan status, browser console error and file checksums.
+
+### H03-16 — Publisher/subject search, source review and reversible names
+
+**Setup:** In a disposable root, use two books with publishers `St. Martin's Press` and `St Martins Press`, and two books with subjects `History, 19th century` and `History — 19th century`. Include one book whose source has no publisher or subjects. Record their original values and file checksums. Let the developer search-index rebuild finish before checking old-book publisher search.
+
+**Steps:** Search a publisher name in the general catalogue; search a term that is also an exact book title and confirm matches from other fields still appear. In **Publisher and subject names**, search for a source spelling, preview its affected books, map it to the preferred spelling and repeat for a subject. Confirm the preferred suggestion and filter include books with both spellings. Open a mapped book: its source value must remain unchanged. Remove one mapping and confirm the filter separates again. On a book with subjects, edit an unrelated field and inspect **Imported metadata and scan suggestions**; unchanged subjects must not appear as a difference. On the source-empty book, add a publisher or subject manually, rescan it, then use **Reset to scanner** to clear that one field. Check that a later rescan keeps other manual corrections.
+
+**Expected:** Mapping preview names the affected books before saving; mapping and removal change discovery immediately, without rewriting the book or source files. Publisher general search includes old and new books after the derived-index rebuild. Unchanged subject lists show no false scanner conflict; an explicit empty scanner value is reviewable and resettable. Source subject spelling/order, when normalization changed it on a new scan, appears under expanded provenance.
+
+**Failure evidence:** Source and preferred labels, preview count, filtered count, item IDs, scanner candidate and current value, before/after screenshots, console errors and file checksums.
+
+### H03-17 — One save for book details and linked metadata
+
+**Setup:** Use a disposable book with an author, series and genre. Record its current title, rating, linked IDs and imported credits. Prepare a second tab on the same book.
+
+**Steps:** Change the title, choose a different author and series, edit the part number, add a genre, remove a genre and select a rating. Before saving, reload the second tab and confirm it still shows the original values. Press **Save book details** once, reload both tabs and confirm every visible change persisted. Expand **Imported metadata and scan suggestions** and confirm the original creator, series and genre values are intact. Repeat with a second tab changing one link first; the stale first tab's save must return a conflict without applying any of its changes.
+
+**Expected:** Only the one main Save button commits edits to the book. A successful save applies all fields and links together. A conflict leaves the draft visible and changes nothing on the server. The ebook file remains untouched. Creating a new directory identity can happen before book Save, but the book link remains unchanged until Save.
+
+**Failure evidence:** Book and linked entity IDs, before/after screenshots, save response code, source file checksum and browser console errors.
 
 ## Historical alpha.174 walkthrough
 

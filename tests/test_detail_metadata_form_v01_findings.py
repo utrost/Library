@@ -85,8 +85,7 @@ def test_detail_metadata_controller_accepts_autosave_and_array_multiselect_value
     assert "getParam('language', $this->request->getParam('language[]'" in controller
     assert "getParam('subjects', $this->request->getParam('subjects[]'" in controller
 
-    assert "normalizeLanguageList" in service
-    assert "preg_split('/[;,\\n]+/u', $language" in service
+    assert "LanguageNormalizer::reviewedCodes($language)" in service
 
     assert "LibraryDetailMetadataAutosave" in detail_js
     assert "setupMetadataAutosave" in detail_js

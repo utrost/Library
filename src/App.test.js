@@ -14,9 +14,24 @@ vi.mock('./personal-lists-api.js', () => ({ listRequest: vi.fn(async () => ({ li
 
 enableAutoUnmount(afterEach)
 
-// Existing destination assertions keep their prior order; Series has its own assertion.
+// Keep the historical destination order while reading Review links from their
+// current disclosure menu. Series and Genres have their own navigation checks.
 function existingNavigationItems(wrapper) {
-  return wrapper.findAllComponents(NcAppNavigationItem).filter(item => item.props('name') !== 'Series')
+  const items = wrapper.findAllComponents(NcAppNavigationItem)
+    .filter(item => !['Series', 'Genres'].includes(item.props('name')))
+  const tools = wrapper.findAll('.library-navigation-tools nav a')
+  const badge = wrapper.find('.library-navigation-tools-count')
+  const count = badge.exists() ? badge.text() : ''
+  const destination = (name) => {
+    const link = tools.find(item => item.text() === name)
+    return { props(key) {
+      if (key === 'name') return name === 'Review' && count ? `Review (${count})` : name
+      if (key === 'href') return link.attributes('href')
+      if (key === 'active') return link.attributes('aria-current') === 'page'
+      return undefined
+    } }
+  }
+  return [...items, destination('Extract metadata'), destination('Review'), destination('Possible duplicates')]
 }
 
 let mediaQuery
@@ -722,19 +737,18 @@ describe('Library catalogue Vue app', () => {
     const wrapper = mount(App, { props: { state: {
       ...state,
       catalogueEndpointUrl: '/apps/library/catalogue',
-      activeFilters: { ...state.activeFilters, folder: '/Books/Art', starred: '1', coverReview: 'placeholder' },
+      activeFilters: { ...state.activeFilters, folder: '/Books/Art', starred: '1' },
     } } })
     const form = wrapper.get('form.library-sidebar-filters')
 
     expect(form.findAll('input[name="folder"]')).toHaveLength(1)
     expect(form.findAll('input[name="starred"]')).toHaveLength(1)
-    expect(form.findAll('input[name="coverReview"]')).toHaveLength(1)
     expect(form.findAll('[name="scannerConflicts"]')).toHaveLength(1)
     await form.get('input[name="q"]').setValue('bauhaus')
     await form.trigger('submit')
 
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      '/apps/library/catalogue?folder=%2FBooks%2FArt&starred=1&coverReview=placeholder&q=bauhaus',
+      '/apps/library/catalogue?folder=%2FBooks%2FArt&starred=1&q=bauhaus',
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
   })
@@ -879,7 +893,6 @@ describe('Library catalogue Vue app', () => {
         q: 'bauhaus',
         type: 'book',
         shelf: 'Books',
-        scannerConflicts: '1',
       },
       cataloguePagination: { ...state.cataloguePagination, page: 4 },
     } } })
@@ -1073,29 +1086,14 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-filter-chip[aria-label="Remove filter: Sort"]').exists()).toBe(false)
   })
 
-  it.each(['home', 'shelves'])('full-navigates sidebar filter submissions from the %s surface', async (surface) => {
-    global.fetch = vi.fn()
-    const submissions = []
-    const nativeSubmit = vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(function () {
-      submissions.push({ action: this.getAttribute('action'), params: Object.fromEntries(new FormData(this)) })
-    })
+  it.each(['home', 'shelves'])('does not show catalogue filters on the %s surface', (surface) => {
     const wrapper = mount(App, { props: { state: {
       ...state,
       surface,
       activeFilters: { ...state.activeFilters, folder: '/Books' },
     } } })
-    const form = wrapper.get('form.library-sidebar-filters')
-
-    await form.get('input[name="q"]').setValue('design')
-    await form.trigger('submit')
-    await wrapper.vm.$nextTick()
-
-    expect(global.fetch).not.toHaveBeenCalled()
-    expect(submissions).toEqual([{
-      action: state.catalogueRootUrl,
-      params: { folder: '/Books', q: 'design' },
-    }])
-    nativeSubmit.mockRestore()
+    expect(wrapper.find('form.library-sidebar-filters').exists()).toBe(false)
+    expect(wrapper.find('[data-library-control="filter"]').exists()).toBe(false)
   })
 
   it('focuses the already-visible navigation search with slash', async () => {
@@ -1891,7 +1889,7 @@ describe('Library catalogue Vue app', () => {
     const navigation = wrapper.findComponent(NcAppNavigation)
 
     expect(navigation.findAll('form.library-sidebar-filters')).toHaveLength(1)
-    expect(navigation.find('details').exists()).toBe(false)
+    expect(navigation.find('.library-navigation-tools details').exists()).toBe(true)
     expect(wrapper.find('#library-catalogue [data-library-control="filter"]').exists()).toBe(true)
   })
 

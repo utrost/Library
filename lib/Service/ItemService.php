@@ -28,6 +28,7 @@ final class ItemService {
     public const SCANNER_INDEX_REVISION = 'scanner-index-v1';
     private const SEARCH_GRAM_MAX_QUERY_GRAMS = 32;
     private const SEARCH_GRAM_INLINE_CANDIDATE_LIMIT = 500;
+    private const SEARCH_INDEX_VERSION = 2;
 
     private const CATALOGUE_INTERNAL_COLUMNS = [
         'i.id',
@@ -123,6 +124,10 @@ final class ItemService {
         private ?AuthorDisplayService $authorDisplay = null,
         private ?SeriesDisplayService $seriesDisplay = null,
         private ?ItemDeletionService $itemDeletion = null,
+        private ?GenreService $genreService = null,
+        private ?GenreDisplayService $genreDisplay = null,
+        private ?LanguageReviewService $languageReviewService = null,
+        private ?MetadataValueMappingService $valueMappings = null,
     ) {
     }
 
@@ -330,6 +335,8 @@ final class ItemService {
         }
         $qb=$this->db->getQueryBuilder();$qb->update('library_items')->set('scanner_index_hash',$qb->createNamedParameter($hash))
             ->where($qb->expr()->eq('user_id',$qb->createNamedParameter($uid)))->andWhere($qb->expr()->eq('id',$qb->createNamedParameter($id)))->executeStatement();
+        $this->genreService?->record($uid, $id, (string)($row['genre'] ?? ''), $this->decodeJsonList($row['subjects_json'] ?? null), (string)($file['cachedPath'] ?? ''));
+        $this->languageReviewService?->record($uid, $id, (string)($candidate['languageSource'] ?? $candidate['language'] ?? ''));
     }
 
     /** Legacy/invalidated fingerprints are trusted only after exact, bounded content verification. */
@@ -447,7 +454,7 @@ final class ItemService {
         $this->refreshItemSearchIndex($userId, $itemId);
     }
 
-    public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null): void {
+    public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null, ?array $editorLinks = null): void {
         $explicitAuthors = array_key_exists('authors', $metadata);
         $metadata = $this->validateEditableMetadata($metadata);
         $hasIdentifierUpdate = array_key_exists('identifiers', $metadata);
@@ -534,6 +541,13 @@ final class ItemService {
             if (in_array('series', $changedFields, true) || in_array('seriesNumber', $changedFields, true)) $qb->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
             $qb->executeStatement();
 
+            if (in_array('genre', $changedFields, true) || in_array('subjects', $changedFields, true)) {
+                $this->genreService?->record($userId, $itemId, (string)($metadata['genre'] ?? ''),
+                    $this->normalizeMultiValueField($metadata['subjects'] ?? []), (string)($existing['cachedPath'] ?? ''));
+            }
+
+            if ($editorLinks !== null) $this->applyEditorLinks($userId, $itemId, $existing, $editorLinks);
+
             $this->refreshReviewFilterFlags($userId, $itemId);
             $this->refreshItemFacetIndex(
                 $userId,
@@ -544,6 +558,130 @@ final class ItemService {
             );
             if (in_array('identifiers', $changedFields, true)) $this->syncItemIdentifiers($userId, $itemId, $identifiers);
             $this->refreshItemSearchIndex($userId, $itemId);
+            $this->db->commit();
+        } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
+    }
+
+    /** Save the visible relationships with the publication fields in the same transaction. */
+    private function applyEditorLinks(string $uid, int $itemId, array $item, array $links): void {
+        $ids = static function (mixed $value): array {
+            if (!is_array($value) || !array_is_list($value) || count($value) > 128) throw new \InvalidArgumentException('editor_links');
+            $result = [];
+            foreach ($value as $id) {
+                if (!is_int($id) || $id < 1 || $id > 2147483647 || in_array($id, $result, true)) throw new \InvalidArgumentException('editor_links');
+                $result[] = $id;
+            }
+            return $result;
+        };
+        foreach (['beforeAuthors', 'authors', 'beforeGenres', 'genres'] as $key) if (!array_key_exists($key, $links)) throw new \InvalidArgumentException('editor_links');
+        $beforeAuthors = $ids($links['beforeAuthors']); $authors = $ids($links['authors']);
+        $beforeGenres = $ids($links['beforeGenres']); $genres = $ids($links['genres']);
+        foreach (['beforeSeries', 'series'] as $key) if (!array_key_exists($key, $links) || (!is_int($links[$key]) && $links[$key] !== null) || ($links[$key] !== null && ($links[$key] < 1 || $links[$key] > 2147483647))) throw new \InvalidArgumentException('editor_links');
+        foreach (['beforePart', 'part'] as $key) if (!array_key_exists($key, $links) || !is_string($links[$key]) || mb_strlen($links[$key]) > 64) throw new \InvalidArgumentException('editor_links');
+        $authorRows = $this->db->executeQuery('SELECT id,author_id,position FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id=? ORDER BY position', [$uid, $itemId])->fetchAll();
+        $currentAuthors = array_map('intval', array_column($authorRows, 'author_id'));
+        $seriesRows = $this->db->executeQuery('SELECT series_id,part_number FROM *PREFIX*library_item_series WHERE user_id=? AND item_id=? AND slot=0', [$uid, $itemId])->fetchAll();
+        $currentSeries = isset($seriesRows[0]) ? (int)$seriesRows[0]['series_id'] : null;
+        $currentPart = (string)($seriesRows[0]['part_number'] ?? '');
+        $genreRows = $this->db->executeQuery('SELECT genre_id FROM *PREFIX*library_item_genres WHERE user_id=? AND item_id=? AND active=1', [$uid, $itemId])->fetchAll();
+        $currentGenres = array_map('intval', array_column($genreRows, 'genre_id'));
+        sort($currentGenres); $sortedBeforeGenres = $beforeGenres; sort($sortedBeforeGenres);
+        if ($currentAuthors !== $beforeAuthors || $currentSeries !== $links['beforeSeries'] || $currentPart !== $links['beforePart'] || $currentGenres !== $sortedBeforeGenres) throw new MetadataConflictException('relationships_changed');
+
+        if ($authors !== $currentAuthors) {
+            if ((int)$item['authorSyncStatus'] !== AuthorStorageService::SYNCED) throw new MetadataConflictException('authors_not_ready');
+            foreach ($authors as $authorId) {
+                $result = $this->db->executeQuery('SELECT display_name FROM *PREFIX*library_authors WHERE user_id=? AND id=? AND merged_into IS NULL', [$uid, $authorId]);
+                $author = $result->fetch(); $result->closeCursor();
+                if ($author === false) throw new \InvalidArgumentException('editor_author');
+                $names[$authorId] = (string)$author['display_name'];
+            }
+            for ($position = count($authors); $position < count($authorRows); $position++) $this->db->executeStatement('DELETE FROM *PREFIX*library_item_authors WHERE user_id=? AND id=?', [$uid, (int)$authorRows[$position]['id']]);
+            foreach ($authors as $position => $authorId) {
+                if (isset($authorRows[$position])) {
+                    if ((int)$authorRows[$position]['author_id'] !== $authorId) $this->db->executeStatement('UPDATE *PREFIX*library_item_authors SET author_id=?,assignment_source=?,revision=revision+1 WHERE user_id=? AND id=?', [$authorId, 'manual', $uid, (int)$authorRows[$position]['id']]);
+                } else {
+                    $this->db->executeStatement('INSERT INTO *PREFIX*library_item_authors (user_id,item_id,author_id,position,source_name,source_sort_name,assignment_source,revision) VALUES (?,?,?,?,?,?,?,?)', [$uid, $itemId, $authorId, $position, $names[$authorId], null, 'manual', 1]);
+                }
+            }
+            $this->db->executeStatement('DELETE FROM *PREFIX*library_dup_hints WHERE user_id=? AND (left_id=? OR right_id=?)', [$uid, $itemId, $itemId]);
+        }
+
+        $part = trim($links['part']);
+        if ($links['series'] !== $currentSeries || $part !== $currentPart) {
+            if ((int)$item['seriesSyncStatus'] !== SeriesStorageService::SYNCED) throw new MetadataConflictException('series_not_ready');
+            if ($links['series'] !== null) {
+                $result = $this->db->executeQuery('SELECT id FROM *PREFIX*library_series WHERE user_id=? AND id=? AND merged_into IS NULL', [$uid, $links['series']]);
+                $found = $result->fetch() !== false; $result->closeCursor();
+                if (!$found) throw new \InvalidArgumentException('editor_series');
+            } elseif ($part !== '') throw new \InvalidArgumentException('editor_part');
+            if ($currentSeries === null && $links['series'] !== null) {
+                $this->db->executeStatement('INSERT INTO *PREFIX*library_item_series (user_id,item_id,slot,series_id,part_number,source_name,source_number,revision,assignment_source) VALUES (?,?,?,?,?,?,?,?,?)', [$uid, $itemId, 0, $links['series'], $part === '' ? null : $part, (string)($item['series'] ?? ''), $item['seriesNumber'] ?? null, 1, 'manual']);
+            } elseif ($links['series'] === null) {
+                $this->db->executeStatement('DELETE FROM *PREFIX*library_item_series WHERE user_id=? AND item_id=? AND slot=0', [$uid, $itemId]);
+            } else {
+                $this->db->executeStatement('UPDATE *PREFIX*library_item_series SET series_id=?,part_number=?,assignment_source=?,revision=revision+1 WHERE user_id=? AND item_id=? AND slot=0', [$links['series'], $part === '' ? null : $part, 'manual', $uid, $itemId]);
+            }
+        }
+
+        foreach ($genres as $genreId) {
+            $result = $this->db->executeQuery('SELECT id FROM *PREFIX*library_genres WHERE user_id=? AND id=?', [$uid, $genreId]);
+            $found = $result->fetch() !== false; $result->closeCursor();
+            if (!$found) throw new \InvalidArgumentException('editor_genre');
+        }
+        foreach ($currentGenres as $genreId) if (!in_array($genreId, $genres, true)) $this->db->executeStatement('UPDATE *PREFIX*library_item_genres SET active=0,assignment_source=? WHERE user_id=? AND item_id=? AND genre_id=?', ['manual', $uid, $itemId, $genreId]);
+        foreach ($genres as $genreId) if (!in_array($genreId, $currentGenres, true)) {
+            $this->db->insertIfNotExist('*PREFIX*library_item_genres', ['user_id' => $uid, 'item_id' => $itemId, 'genre_id' => $genreId, 'active' => 1, 'assignment_source' => 'manual'], ['user_id', 'item_id', 'genre_id']);
+            $this->db->executeStatement('UPDATE *PREFIX*library_item_genres SET active=1,assignment_source=? WHERE user_id=? AND item_id=? AND genre_id=?', ['manual', $uid, $itemId, $genreId]);
+        }
+    }
+
+    /** Apply an approved source-language mapping while preserving existing manual corrections. */
+    public function applyReviewedLanguage(string $userId, int $itemId, string $codes): string {
+        $codes = LanguageNormalizer::reviewedCodes($codes);
+        $this->db->beginTransaction();
+        try {
+            $this->lockOwnedItem($userId, $itemId);
+            $result = $this->db->executeQuery('SELECT user_edited,protected_fields_json,field_sources FROM *PREFIX*library_items WHERE user_id=? AND id=?', [$userId, $itemId]);
+            $row = $result->fetch(); $result->closeCursor();
+            if ($row === false) { $this->db->commit(); return 'missing'; }
+            $edited = in_array($row['user_edited'], [true, 1, '1', 't', 'true'], true);
+            $protected = $this->decodeProtectedFields($row['protected_fields_json'] ?? null);
+            if ($edited && ($protected === null || in_array('language', $protected, true))) {
+                $this->db->commit(); return 'protected';
+            }
+            $protected = array_values(array_unique([...($protected ?? []), 'language']));
+            $sources = $this->decodeJsonMap($row['field_sources'] ?? null);
+            $sources['language'] = 'user';
+            $this->db->executeStatement('UPDATE *PREFIX*library_items SET language=?,user_edited=1,protected_fields_json=?,field_sources=?,metadata_source=?,scanner_index_hash=NULL,updated_at=? WHERE user_id=? AND id=?',
+                [$codes, json_encode($protected, JSON_THROW_ON_ERROR), json_encode($sources, JSON_THROW_ON_ERROR), 'user', time(), $userId, $itemId]);
+            $this->refreshReviewFilterFlags($userId, $itemId);
+            $this->db->commit();
+            return 'applied';
+        } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
+    }
+
+    /** Normalize an older imported value only if no language correction appeared meanwhile. */
+    public function normalizeImportedLanguage(string $userId, int $itemId, string $expectedReviewHash, string $codes): void {
+        $codes = LanguageNormalizer::reviewedCodes($codes);
+        $this->db->beginTransaction();
+        try {
+            $this->lockOwnedItem($userId, $itemId);
+            $result = $this->db->executeQuery('SELECT language,language_review_hash,user_edited,protected_fields_json,field_values FROM *PREFIX*library_items WHERE user_id=? AND id=?', [$userId, $itemId]);
+            $row = $result->fetch(); $result->closeCursor();
+            if ($row === false || $row['language_review_hash'] !== $expectedReviewHash || (string)($row['language'] ?? '') === $codes) {
+                $this->db->commit(); return;
+            }
+            $edited = in_array($row['user_edited'], [true, 1, '1', 't', 'true'], true);
+            $protected = $this->decodeProtectedFields($row['protected_fields_json'] ?? null);
+            if ($edited && ($protected === null || in_array('language', $protected, true))) {
+                $this->db->commit(); return;
+            }
+            $values = $this->decodeJsonMap($row['field_values'] ?? null);
+            if (!isset($values['languageOriginal'])) $values['languageOriginal'] = (string)($values['language'] ?? $row['language'] ?? '');
+            $values['language'] = $codes;
+            $this->db->executeStatement('UPDATE *PREFIX*library_items SET language=?,field_values=?,scanner_index_hash=NULL,updated_at=? WHERE user_id=? AND id=?',
+                [$codes, json_encode($values, JSON_THROW_ON_ERROR), time(), $userId, $itemId]);
             $this->db->commit();
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
     }
@@ -589,42 +727,18 @@ final class ItemService {
         }
 
         $language = trim((string)($metadata['language'] ?? ''));
-        foreach ($this->normalizeLanguageList($language) as $languageCode) {
-            if (preg_match('/^[a-z]{2,3}(?:-[a-z]{2})?$/iD', $languageCode) !== 1) {
-                throw new \InvalidArgumentException('Language must use short codes such as de, en, fr, or en-US.');
-            }
-        }
+        if ($language !== '') $metadata['language'] = LanguageNormalizer::reviewedCodes($language);
 
         $this->normalizePersonalRating($metadata['personalRating'] ?? null);
 
         return $metadata;
     }
 
-    /**
-     * @return array<int, string>
-     */
-    private function normalizeLanguageList(string $language): array {
-        $parts = preg_split('/[;,\n]+/u', $language) ?: [];
-        $normalized = [];
-        foreach ($parts as $part) {
-            $entry = trim($part);
-            if ($entry !== '') {
-                $normalized[] = $entry;
-            }
-        }
-        return $normalized;
-    }
-
     /** Normalize only clearly coded source lists; preserve ambiguous source text. */
     private function sourceLanguage(string $language): ?string {
         $language = trim($language);
         if ($language === '') return null;
-        $parts = $this->normalizeLanguageList($language);
-        if ($parts === []) return null;
-        foreach ($parts as $code) {
-            if (preg_match('/^[a-z]{2,3}(?:-[a-z]{2})?$/iD', $code) !== 1) return $language;
-        }
-        return implode('; ', $parts);
+        return LanguageNormalizer::normalize($language) ?? $language;
     }
 
     public function setStarred(string $userId, int $itemId, bool $starred): bool {
@@ -1224,7 +1338,8 @@ final class ItemService {
     /** Keep source metadata editable while projecting preferred shared identities for display. */
     private function decorateSharedMetadata(string $uid, array $items): array {
         $items = $this->authorDisplay?->decorate($uid, $items) ?? $items;
-        return $this->seriesDisplay?->decorate($uid, $items) ?? $items;
+        $items = $this->seriesDisplay?->decorate($uid, $items) ?? $items;
+        return $this->genreDisplay?->decorate($uid, $items) ?? $items;
     }
 
     /** @return array<int, array<string, mixed>> */
@@ -1494,7 +1609,7 @@ final class ItemService {
 
     public function findItem(string $userId, int $itemId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.authors_json', 'i.author_sync_status', 'i.publication', 'i.series_name', 'i.series_number', 'i.genre', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.subjects_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.cover_revision', 'f.etag', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.authors_json', 'i.author_sync_status', 'i.series_sync_status', 'i.publication', 'i.series_name', 'i.series_number', 'i.genre', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.subjects_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.cover_revision', 'f.etag', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->andX(
                 $qb->expr()->eq('i.library_file_id', 'f.id'), $qb->expr()->eq('i.user_id', 'f.user_id')
@@ -2360,7 +2475,8 @@ final class ItemService {
     public function publisherSuggestions(string $userId, array $filters, string $query, int $limit = 20): array {
         unset($filters['publisher']);
         if (mb_strlen(trim($query)) < 3) return [];
-        return $this->indexedSuggestionValues($userId, $filters, 'publisher', 'publisher_suggestion', 'publisher', $query, $limit);
+        $values = $this->indexedSuggestionValues($userId, $filters, 'publisher', 'publisher_suggestion', 'publisher', $query, $limit);
+        return $this->valueMappings?->suggestions($userId, 'publisher', $values, $query, $limit) ?? $values;
     }
 
     /** @return array<int, string> */
@@ -2369,7 +2485,8 @@ final class ItemService {
         $query = mb_strtolower(trim($query));
         if (mb_strlen($query) < 3 || $limit < 1) return [];
         $limit = min($limit, 20);
-        return $this->indexedSuggestionValues($userId, $filters, 'subject', 'subject_suggestion', 'subject', $query, $limit);
+        $values = $this->indexedSuggestionValues($userId, $filters, 'subject', 'subject_suggestion', 'subject', $query, $limit);
+        return $this->valueMappings?->suggestions($userId, 'subject', $values, $query, $limit) ?? $values;
     }
 
     /** @return array<int, string> */
@@ -2672,7 +2789,8 @@ final class ItemService {
 
         $publisher = trim((string)($filters['publisher'] ?? ''));
         if ($publisher !== '') {
-            $qb->andWhere($qb->expr()->eq('i.publisher', $qb->createNamedParameter($publisher)));
+            $values = $this->valueMappings?->sourcesForSelection($userId, 'publisher', $publisher) ?? [$publisher];
+            $qb->andWhere($qb->expr()->in('i.publisher', $qb->createNamedParameter($values, IQueryBuilder::PARAM_STR_ARRAY)));
         }
 
         $publication = trim((string)($filters['publication'] ?? ''));
@@ -2732,6 +2850,19 @@ final class ItemService {
                 $qb->andWhere($qb->expr()->in('i.id', $qb->createFunction($links->getSQL())));
             }
         }
+        $genreId = trim((string)($filters['genreId'] ?? ''));
+        if ($genreId !== '') {
+            if (preg_match('/^[1-9][0-9]{0,8}$/D', $genreId) !== 1) {
+                $qb->andWhere($qb->expr()->eq('i.id', $qb->createNamedParameter(-1)));
+            } else {
+                $links = $this->db->getQueryBuilder();
+                $links->select('genre_link.item_id')->from('library_item_genres', 'genre_link')
+                    ->where($links->expr()->eq('genre_link.user_id', $qb->createNamedParameter($userId)))
+                    ->andWhere($links->expr()->eq('genre_link.genre_id', $qb->createNamedParameter((int)$genreId)))
+                    ->andWhere($links->expr()->eq('genre_link.active', $qb->createNamedParameter(1)));
+                $qb->andWhere($qb->expr()->in('i.id', $qb->createFunction($links->getSQL())));
+            }
+        }
         if ($creator !== '') {
             // A chosen preferred name must include books whose original credit
             // differs after an explicit author merge or reassignment.
@@ -2786,7 +2917,8 @@ final class ItemService {
 
         $subject = trim((string)($filters['subject'] ?? ''));
         if ($subject !== '') {
-            $qb->andWhere($this->indexedFacetFilter($qb, $userId, 'subject', $subject));
+            $values = $this->valueMappings?->sourcesForSelection($userId, 'subject', $subject) ?? [$subject];
+            $qb->andWhere($this->indexedFacetFilter($qb, $userId, 'subject', $values));
         }
 
         $classification = trim((string)($filters['classification'] ?? ''));
@@ -2840,30 +2972,43 @@ final class ItemService {
             $partialAuthorSql = $this->partialAuthorSearchSubquery($qb, $userId, $query);
             if ($partialAuthorSql !== null) $authorPredicates[] = $qb->expr()->in('i.id', $qb->createFunction($partialAuthorSql));
             $authorPredicate = $authorPredicates === [] ? null : $qb->expr()->orX(...$authorPredicates);
+            $searchGrams = $this->searchGramsForQuery($query);
+            $identifierSearch = IdentifierService::normalizeSearchQuery($query);
+            $searchPredicates = [];
             if ($exactTitleItemIds !== []) {
-                $titlePredicate = $qb->expr()->in('i.id', $qb->createNamedParameter($exactTitleItemIds, IQueryBuilder::PARAM_INT_ARRAY));
-                $qb->andWhere($authorPredicate === null ? $titlePredicate : $qb->expr()->orX($titlePredicate, $authorPredicate));
-            } else {
-                $searchGrams = $this->searchGramsForQuery($query);
-                $identifierSearch = IdentifierService::normalizeSearchQuery($query);
-                $searchPredicates = [];
-                if ($searchGrams !== []) {
-                    $searchGramItemIds = $this->searchGramCandidateIds($userId, $searchGrams);
-                    if ($searchGramItemIds !== [] && count($searchGramItemIds) <= self::SEARCH_GRAM_INLINE_CANDIDATE_LIMIT) {
-                        $searchPredicates[] = $qb->expr()->in('i.id', $qb->createNamedParameter($searchGramItemIds, IQueryBuilder::PARAM_INT_ARRAY));
-                    } elseif ($searchGramItemIds !== []) {
-                        $searchPredicates[] = $qb->expr()->in('i.id', $qb->createFunction($this->searchGramCandidateSubquery($qb, $userId, $searchGrams)));
-                    }
-                }
-                if ($identifierSearch !== null) {
-                    $searchPredicates[] = $qb->expr()->andX(
-                        $qb->expr()->eq('idn.scheme', $qb->createNamedParameter($identifierSearch['scheme'])),
-                        $qb->expr()->eq('idn.normalized_value', $qb->createNamedParameter($identifierSearch['normalizedValue']))
-                    );
-                }
-                if ($authorPredicate !== null) $searchPredicates[] = $authorPredicate;
-                $qb->andWhere($searchPredicates === [] ? '1 = 0' : $qb->expr()->orX(...$searchPredicates));
+                $searchPredicates[] = $qb->expr()->in('i.id', $qb->createNamedParameter($exactTitleItemIds, IQueryBuilder::PARAM_INT_ARRAY));
             }
+            if ($this->valueMappings !== null) {
+                $mappedPublishers = $this->valueMappings->sourcesForTarget($userId, 'publisher', $query);
+                if (count($mappedPublishers) > 1) {
+                    $searchPredicates[] = $qb->expr()->in('i.publisher', $qb->createNamedParameter($mappedPublishers, IQueryBuilder::PARAM_STR_ARRAY));
+                }
+                $mappedSubjects = $this->valueMappings->sourcesForTarget($userId, 'subject', $query);
+                if (count($mappedSubjects) > 1) {
+                    $mapped = $this->db->getQueryBuilder();
+                    $mapped->select('mapped_subject.item_id')->from('library_item_facets', 'mapped_subject')
+                        ->where($mapped->expr()->eq('mapped_subject.user_id', $qb->createNamedParameter($userId)))
+                        ->andWhere($mapped->expr()->eq('mapped_subject.facet_type', $qb->createNamedParameter('subject')))
+                        ->andWhere($mapped->expr()->in('mapped_subject.facet_value', $qb->createNamedParameter($mappedSubjects, IQueryBuilder::PARAM_STR_ARRAY)));
+                    $searchPredicates[] = $qb->expr()->in('i.id', $qb->createFunction($mapped->getSQL()));
+                }
+            }
+            if ($searchGrams !== []) {
+                $searchGramItemIds = $this->searchGramCandidateIds($userId, $searchGrams);
+                if ($searchGramItemIds !== [] && count($searchGramItemIds) <= self::SEARCH_GRAM_INLINE_CANDIDATE_LIMIT) {
+                    $searchPredicates[] = $qb->expr()->in('i.id', $qb->createNamedParameter($searchGramItemIds, IQueryBuilder::PARAM_INT_ARRAY));
+                } elseif ($searchGramItemIds !== []) {
+                    $searchPredicates[] = $qb->expr()->in('i.id', $qb->createFunction($this->searchGramCandidateSubquery($qb, $userId, $searchGrams)));
+                }
+            }
+            if ($identifierSearch !== null) {
+                $searchPredicates[] = $qb->expr()->andX(
+                    $qb->expr()->eq('idn.scheme', $qb->createNamedParameter($identifierSearch['scheme'])),
+                    $qb->expr()->eq('idn.normalized_value', $qb->createNamedParameter($identifierSearch['normalizedValue']))
+                );
+            }
+            if ($authorPredicate !== null) $searchPredicates[] = $authorPredicate;
+            $qb->andWhere($searchPredicates === [] ? '1 = 0' : $qb->expr()->orX(...$searchPredicates));
         }
     }
 
@@ -2982,14 +3127,14 @@ final class ItemService {
         ];
     }
 
-    private function indexedFacetFilter(IQueryBuilder $qb, string $userId, string $facetType, string $value) {
-        $facetValue = mb_substr(trim($value), 0, 255);
+    private function indexedFacetFilter(IQueryBuilder $qb, string $userId, string $facetType, string|array $value) {
+        $facetValues = array_map(static fn(string $v): string => mb_substr(trim($v), 0, 255), is_array($value) ? $value : [$value]);
         $alias = $facetType === 'subject' ? 'subject_filter' : 'classification_filter';
         $qb->innerJoin('i', 'library_item_facets', $alias, $qb->expr()->eq($alias . '.item_id', 'i.id'));
         return $qb->expr()->andX(
             $qb->expr()->eq($alias . '.user_id', $qb->createNamedParameter($userId)),
             $qb->expr()->eq($alias . '.facet_type', $qb->createNamedParameter($facetType)),
-            $qb->expr()->eq($alias . '.facet_value', $qb->createNamedParameter($facetValue))
+            $qb->expr()->in($alias . '.facet_value', $qb->createNamedParameter($facetValues, IQueryBuilder::PARAM_STR_ARRAY))
         );
     }
 
@@ -3025,6 +3170,7 @@ final class ItemService {
             'creators' => $row['creators'] !== null ? (string)$row['creators'] : '',
             'authors' => AuthorNames::read($row['authors_json'] ?? null, $row['creators'] ?? null),
             'authorSyncStatus' => isset($row['author_sync_status']) ? (int)$row['author_sync_status'] : null,
+            'seriesSyncStatus' => isset($row['series_sync_status']) ? (int)$row['series_sync_status'] : null,
             'publication' => $row['publication'] !== null ? (string)$row['publication'] : '',
             'genre' => (string)($row['genre'] ?? ''),
             'seriesNumber' => (string)($row['series_number'] ?? ''),
@@ -3190,9 +3336,9 @@ final class ItemService {
         ];
     }
 
-    private function refreshItemSearchIndex(string $userId, int $itemId, ?array $sourceRow = null, bool $invalidate = true): void {
+    private function refreshItemSearchIndex(string $userId, int $itemId, ?array $sourceRow = null, bool $invalidate = true, bool $notifyDuplicates = true): void {
         if ($invalidate) $this->invalidateScannerIndexHash($userId,$itemId);
-        $this->duplicateIndex?->changed($userId, $itemId);
+        if ($notifyDuplicates) $this->duplicateIndex?->changed($userId, $itemId);
         $this->deleteItemSearchIndex($userId, $itemId);
         $row = $sourceRow ?? $this->searchIndexSourceRow($userId, $itemId);
         if ($row === null) {
@@ -3208,6 +3354,63 @@ final class ItemService {
             }
             $this->db->executeStatement('INSERT INTO ' . $table . ' (user_id, item_id, gram) VALUES ' . implode(', ', $values), $parameters);
         }
+        $this->db->executeStatement('UPDATE *PREFIX*library_items SET search_index_version=? WHERE user_id=? AND id=?',
+            [self::SEARCH_INDEX_VERSION, $userId, $itemId]);
+    }
+
+    /** Rebuild search grams without reading publication files or re-extracting metadata. */
+    public function backfillSearchIndex(int $limit = 50): int {
+        $result = $this->db->executeQuery(
+            'SELECT id,user_id FROM *PREFIX*library_items WHERE search_index_version IS NULL OR search_index_version<>? ORDER BY id LIMIT ' . max(1, min(200, $limit)),
+            [self::SEARCH_INDEX_VERSION],
+        );
+        $rows = $result->fetchAll();
+        $result->closeCursor();
+        foreach ($rows as $row) {
+            $this->db->beginTransaction();
+            try {
+                $uid = (string)$row['user_id'];
+                $id = (int)$row['id'];
+                $this->lockOwnedItem($uid, $id);
+                $current = $this->db->executeQuery('SELECT search_index_version,scanner_index_hash,publisher FROM *PREFIX*library_items WHERE user_id=? AND id=?', [$uid, $id]);
+                $state = $current->fetch();
+                $current->closeCursor();
+                if ($state !== false && (int)($state['search_index_version'] ?? 0) !== self::SEARCH_INDEX_VERSION) {
+                    if ($state['scanner_index_hash'] === null) {
+                        $this->refreshItemSearchIndex($uid, $id, null, false, false);
+                    } else {
+                        $this->appendPublisherSearchGrams($uid, $id, (string)($state['publisher'] ?? ''));
+                        $this->db->executeStatement('UPDATE *PREFIX*library_items SET search_index_version=? WHERE user_id=? AND id=?',
+                            [self::SEARCH_INDEX_VERSION, $uid, $id]);
+                    }
+                }
+                $this->db->commit();
+            } catch (\OutOfBoundsException) {
+                $this->db->rollBack();
+                continue;
+            } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
+        }
+        return count($rows);
+    }
+
+    /** Existing v1 documents already contain every other field; add only missing publisher grams. */
+    private function appendPublisherSearchGrams(string $uid, int $id, string $publisher): void {
+        $grams = $this->searchGramsForText($publisher);
+        if ($grams === []) return;
+        $provider = $this->db->getDatabaseProvider();
+        if (!in_array($provider, ['mysql', 'sqlite', 'pgsql'], true)) {
+            foreach ($grams as $gram) $this->db->insertIfNotExist('*PREFIX*library_item_search_grams',
+                ['user_id'=>$uid, 'item_id'=>$id, 'gram'=>$gram], ['item_id','gram']);
+            return;
+        }
+        $table = $this->db->getQueryBuilder()->getTableName('library_item_search_grams');
+        foreach (array_chunk($grams, 200) as $chunk) {
+            $sql = 'INSERT INTO ' . $table . ' (user_id,item_id,gram) VALUES ' . implode(',', array_fill(0, count($chunk), '(?,?,?)'));
+            $sql .= $provider === 'mysql' ? ' ON DUPLICATE KEY UPDATE gram=gram' : ' ON CONFLICT (item_id,gram) DO NOTHING';
+            $parameters = [];
+            foreach ($chunk as $gram) array_push($parameters, $uid, $id, $gram);
+            $this->db->executeStatement($sql, $parameters);
+        }
     }
 
     private function deleteItemSearchIndex(string $userId, int $itemId): void {
@@ -3220,7 +3423,7 @@ final class ItemService {
 
     private function searchIndexSourceRow(string $userId, int $itemId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.title', 'i.subtitle', 'i.creators', 'i.authors_json', 'i.publication', 'i.description', 'i.subjects_json', 'i.classifications_json', 'f.cached_path')
+        $result = $qb->select('i.title', 'i.subtitle', 'i.creators', 'i.authors_json', 'i.publication', 'i.publisher', 'i.description', 'i.subjects_json', 'i.classifications_json', 'f.cached_path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->where($qb->expr()->eq('i.id', $qb->createNamedParameter($itemId)))
@@ -3244,6 +3447,7 @@ final class ItemService {
             (string)($row['subtitle'] ?? ''),
             (string)($row['creators'] ?? ''),
             (string)($row['publication'] ?? ''),
+            (string)($row['publisher'] ?? ''),
             (string)($row['description'] ?? ''),
             (string)($row['subjects_json'] ?? ''),
             (string)($row['classifications_json'] ?? ''),
@@ -3458,6 +3662,8 @@ final class ItemService {
             'series' => $this->normalizeExtendedField('series', $metadata['series'] ?? null),
             'publicationDate' => $this->nullableString(PublicationDate::forEditor($metadata['publicationDate'] ?? null)),
             'language' => $this->sourceLanguage((string)($metadata['language'] ?? '')),
+            'languageSource' => mb_check_encoding((string)($metadata['language'] ?? ''), 'UTF-8')
+                ? mb_substr(trim((string)($metadata['language'] ?? '')), 0, 255, 'UTF-8') : '',
             'publisher' => $this->nullableString($metadata['publisher'] ?? null),
             'description' => $this->nullableString($metadata['description'] ?? null),
             'subjects' => $this->normalizeMultiValueField($metadata['subjects'] ?? []),
@@ -3471,6 +3677,16 @@ final class ItemService {
         $candidate['authors'] = isset($metadata['authors']) ? AuthorNames::normalize($metadata['authors']) : AuthorNames::fromText($candidate['creators']);
         $candidate['fieldSources'] = $this->buildInferredFieldSources($candidate);
         $candidate['fieldValues'] = $this->buildCurrentFieldValues($candidate);
+        foreach (['subjects', 'classifications'] as $field) {
+            if (!array_key_exists($field, $metadata)) continue;
+            $raw = $metadata[$field];
+            if (!is_array($raw) && !is_string($raw)) continue;
+            $encoded = json_encode($raw, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+            if (strlen($encoded) <= 8192 && $encoded !== $candidate['fieldValues'][$field]) {
+                $candidate['fieldValues'][$field . 'Original'] = $encoded;
+            }
+        }
+        if ($candidate['languageSource'] !== '') $candidate['fieldValues']['languageOriginal'] = $candidate['languageSource'];
         $candidate['fieldValues']['authors'] = AuthorNames::encode($candidate['authors']);
         $candidate['fieldValues']['authorsSource'] = $source;
         if (!empty($metadata['authorSortNames']) && is_array($metadata['authorSortNames'])) {
@@ -3503,14 +3719,8 @@ final class ItemService {
         $source = (string)($metadataCandidate['metadataSource'] ?? 'filename');
         $sources = [];
         foreach (self::PUBLICATION_FIELDS as $field) {
-            $value = $metadataCandidate[$field] ?? null;
-            if (is_array($value)) {
-                if ($this->normalizeMultiValueField($value) !== []) {
-                    $sources[$field] = $source;
-                }
-            } elseif ($value !== null && trim((string)$value) !== '') {
-                $sources[$field] = $source;
-            }
+            // An explicit empty candidate is still a scanner observation.
+            $sources[$field] = $source;
         }
         return $sources;
     }
@@ -3545,12 +3755,9 @@ final class ItemService {
         foreach (self::PUBLICATION_FIELDS as $field) {
             $value = $values[$field] ?? null;
             if (is_array($value)) {
-                $encoded = $this->jsonEncodeList($value);
-                if ($encoded !== '[]') {
-                    $fieldValues[$field] = $encoded;
-                }
-            } elseif ($value !== null && trim((string)$value) !== '') {
-                $fieldValues[$field] = (string)$value;
+                $fieldValues[$field] = $this->jsonEncodeList($value);
+            } else {
+                $fieldValues[$field] = $value === null ? '' : (string)$value;
             }
         }
         return $fieldValues;

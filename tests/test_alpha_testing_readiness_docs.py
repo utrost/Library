@@ -13,7 +13,7 @@ def test_human_test_handbook_distinguishes_beta_candidate_from_deployed_alpha():
 
     assert "0.1.0-alpha.174" in handbook
     assert "dist/library-0.1.0-alpha.174.tar.gz" in handbook
-    assert "Current candidate: `0.3.0-alpha.11`" in read("README.md")
+    assert "Current candidate: `0.3.0-alpha.23`" in read("README.md")
     assert "0.1.0-alpha.127" not in handbook
     assert "0.1.0-beta.1" in checklist
 

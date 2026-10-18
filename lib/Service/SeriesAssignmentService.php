@@ -57,6 +57,53 @@ final class SeriesAssignmentService {
         return array_map('intval', array_column($this->rows('SELECT item_id FROM *PREFIX*library_item_series WHERE user_id=? AND series_id=? AND slot=0 ORDER BY item_id', [$uid, $source], $lock), 'item_id'));
     }
     private function fingerprint(array $snapshot): string { return hash('sha256', json_encode($snapshot, JSON_THROW_ON_ERROR)); }
+    /** One publication may be linked even when the importer supplied no series. */
+    private function itemSnapshot(string $uid, int $itemId, int $target, bool $lock = false): array {
+        if ($itemId < 1 || $target < 1) throw new \InvalidArgumentException('item_or_series');
+        if ($lock && $this->db->getDatabaseProvider() === 'sqlite') $this->db->executeStatement('UPDATE *PREFIX*library_items SET id=id WHERE user_id=? AND id=?', [$uid, $itemId]);
+        $item = $this->rows('SELECT id,title,series_name,series_number,series_sync_status FROM *PREFIX*library_items WHERE user_id=? AND id=?', [$uid, $itemId], $lock)[0] ?? null;
+        if ($item === null) throw new \OutOfBoundsException('book');
+        if ((int)$item['series_sync_status'] !== SeriesStorageService::SYNCED) throw new ListConflictException('series_migration_pending');
+        if ($lock) $this->db->executeStatement('UPDATE *PREFIX*library_series_state SET updated_at=? WHERE user_id=?', [time(), $uid]);
+        $link = $this->rows('SELECT * FROM *PREFIX*library_item_series WHERE user_id=? AND item_id=? AND slot=0', [$uid, $itemId], $lock)[0] ?? null;
+        $seriesIds = array_values(array_unique(array_filter([(int)($link['series_id'] ?? 0), $target])));
+        sort($seriesIds, SORT_NUMERIC);
+        $series = [];
+        foreach ($seriesIds as $id) $series[$id] = $this->series($uid, $id, $lock);
+        foreach ($series as $identity) if ($identity['merged_into'] !== null) throw new ListConflictException('series_retired');
+        if ($link !== null && (int)$link['series_id'] === $target) throw new ListConflictException('assignment_unchanged');
+        return ['item' => $item, 'link' => $link, 'source' => $link === null ? null : $series[(int)$link['series_id']], 'target' => $series[$target]];
+    }
+    public function previewItem(string $uid, int $itemId, int $target): array {
+        $snapshot = $this->itemSnapshot($uid, $itemId, $target);
+        return ['token' => $this->fingerprint($snapshot), 'source' => $snapshot['source']['display_name'] ?? '',
+            'target' => $snapshot['target']['display_name'], 'bookCount' => 1,
+            'books' => [['id' => (int)$snapshot['item']['id'], 'title' => $snapshot['item']['title']]]];
+    }
+    public function applyItem(string $uid, int $itemId, int $target, string $token): array {
+        $this->db->beginTransaction();
+        try {
+            $snapshot = $this->itemSnapshot($uid, $itemId, $target, true);
+            if (!hash_equals($this->fingerprint($snapshot), $token)) throw new ListConflictException('series_preview_stale');
+            if ($snapshot['link'] === null) {
+                $this->insert('library_item_series', ['user_id' => $uid, 'item_id' => $itemId, 'slot' => 0,
+                    'series_id' => $target, 'part_number' => $snapshot['item']['series_number'],
+                    'source_name' => (string)$snapshot['item']['series_name'], 'source_number' => $snapshot['item']['series_number'],
+                    'revision' => 1, 'assignment_source' => 'manual']);
+            } else {
+                $this->db->executeStatement('UPDATE *PREFIX*library_item_series SET series_id=?,assignment_source=?,revision=revision+1 WHERE user_id=? AND item_id=? AND slot=0',
+                    [$target, 'manual', $uid, $itemId]);
+            }
+            $after = $this->rows('SELECT * FROM *PREFIX*library_item_series WHERE user_id=? AND item_id=? AND slot=0', [$uid, $itemId])[0];
+            $payload = json_encode(['kind' => 'single_item', 'before' => $snapshot, 'after' => $after], JSON_THROW_ON_ERROR);
+            $id = bin2hex(random_bytes(16));
+            $this->insert('library_series_operations', ['id' => $id, 'user_id' => $uid, 'created_at' => time(), 'undone' => 0,
+                'source_name' => $snapshot['source']['display_name'] ?? '', 'target_name' => $snapshot['target']['display_name'],
+                'book_count' => 1, 'is_merge' => 0, 'payload' => $payload]);
+            $this->db->commit();
+            return ['id' => $id, 'books' => 1];
+        } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
+    }
     public function preview(string $uid, int $source, int $target, array $selected = []): array {
         $snapshot = $this->snapshot($uid, $source, $target, $selected);
         return ['token' => $this->fingerprint($snapshot), 'source' => $snapshot['source']['display_name'], 'target' => $snapshot['target']['display_name'],
@@ -100,6 +147,11 @@ final class SeriesAssignmentService {
             $operation = $this->rows('SELECT * FROM *PREFIX*library_series_operations WHERE user_id=? AND id=?', [$uid, $id])[0] ?? null;
             if ($operation === null) throw new \OutOfBoundsException('operation');
             $payload = json_decode($operation['payload'], true, 512, JSON_THROW_ON_ERROR);
+            if (($payload['kind'] ?? '') === 'single_item') {
+                $this->undoItem($uid, $id, $payload);
+                $this->db->commit();
+                return;
+            }
             $before = $payload['before'];
             foreach ($before['items'] as $item) {
                 if ($this->db->getDatabaseProvider() === 'sqlite') $this->db->executeStatement('UPDATE *PREFIX*library_items SET id=id WHERE user_id=? AND id=?', [$uid, (int)$item['id']]);
@@ -124,5 +176,28 @@ final class SeriesAssignmentService {
             $this->db->executeStatement('UPDATE *PREFIX*library_series_operations SET undone=1 WHERE user_id=? AND id=?', [$uid, $id]);
             $this->db->commit();
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
+    }
+    /** Called inside the undo transaction; never restores a stale or retired identity. */
+    private function undoItem(string $uid, string $id, array $payload): void {
+        $before = $payload['before'];
+        $item = $before['item'];
+        $itemId = (int)$item['id'];
+        if ($this->db->getDatabaseProvider() === 'sqlite') $this->db->executeStatement('UPDATE *PREFIX*library_items SET id=id WHERE user_id=? AND id=?', [$uid, $itemId]);
+        $currentItem = $this->rows('SELECT id,title,series_name,series_number,series_sync_status FROM *PREFIX*library_items WHERE user_id=? AND id=?', [$uid, $itemId], true)[0] ?? null;
+        if ($currentItem !== $item) throw new ListConflictException('book_changed');
+        $this->db->executeStatement('UPDATE *PREFIX*library_series_state SET updated_at=? WHERE user_id=?', [time(), $uid]);
+        $fresh = $this->rows('SELECT undone FROM *PREFIX*library_series_operations WHERE user_id=? AND id=?', [$uid, $id], true)[0] ?? null;
+        if ($fresh === null || (int)$fresh['undone'] !== 0) throw new ListConflictException('already_undone');
+        if ($before['source'] !== null && $this->series($uid, (int)$before['source']['id'], true)['merged_into'] !== null) throw new ListConflictException('source_retired');
+        if ($this->series($uid, (int)$before['target']['id'], true)['merged_into'] !== null) throw new ListConflictException('target_retired');
+        $current = $this->rows('SELECT * FROM *PREFIX*library_item_series WHERE user_id=? AND item_id=? AND slot=0', [$uid, $itemId], true)[0] ?? null;
+        if ($current !== $payload['after']) throw new ListConflictException('assignment_changed');
+        $this->db->executeStatement('DELETE FROM *PREFIX*library_item_series WHERE user_id=? AND item_id=? AND slot=0', [$uid, $itemId]);
+        if ($before['link'] !== null) {
+            $link = $before['link'];
+            $link['revision'] = (int)$payload['after']['revision'] + 1;
+            $this->insert('library_item_series', $link);
+        }
+        $this->db->executeStatement('UPDATE *PREFIX*library_series_operations SET undone=1 WHERE user_id=? AND id=?', [$uid, $id]);
     }
 }

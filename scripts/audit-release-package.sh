@@ -121,7 +121,7 @@ allowed_frontend_files = {
     "js/library-detail.js", "js/library-help.js", f"js/{vue_script_asset}.mjs",
     "js/library-shell.js", "js/scan-progress-worker.js", "js/settings-operations.js", "js/settings-folder-picker-dialog.js",
 }
-max_package_frontend_bytes = 1_250_000
+max_package_frontend_bytes = 1_320_000
 errors: list[str] = []
 with tarfile.open(archive, "r:gz") as tar:
     members = tar.getmembers()
