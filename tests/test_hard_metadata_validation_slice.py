@@ -13,7 +13,7 @@ def test_item_service_enforces_first_hard_metadata_validation_rules():
     assert "preg_match('/^\\d{4}(-\\d{2}){0,2}$/" in service
     assert "checkdate" in service
     assert "language" in service
-    assert "preg_match('/^[a-z]{2,3}(-[A-Z]{2})?$/'" in service
+    assert "preg_match('/^[a-z]{2,3}(?:-[a-z]{2})?$/iD'" in service
     update_block = service.split("public function updateItem", 1)[1].split("public function setStarred", 1)[0]
     assert "validateEditableMetadata($metadata)" in update_block
 
