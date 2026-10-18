@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.11, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://localhost:8088` runs a [signed private update](compatibility-evidence/2026-10-18-nc34-ui-update/README.md) from commit `adfe231`, including settings feedback and the Full details author/cover controls. It replaces the [original signed alpha.11 package](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) on this instance while keeping the same version string. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; this private update still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.11, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://localhost:8088` runs a [signed private update](compatibility-evidence/2026-10-18-nc34-ui-update/README.md) with runtime changes through commit `adfe231` and a `v9` asset URL correction, including settings feedback and the Full details author/cover controls. It replaces the [original signed alpha.11 package](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) on this instance while keeping the same version string. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; this private update still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
@@ -11,7 +11,7 @@
 
 For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12 and H03-13. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the current signed private archive checksum in the session header: `f94f7bd9bb51505f1dfb629cd794b03b9430e59d5acc186d266dc2cc834216be`. The developer build still serves the alpha.11 `v8` frontend asset name; hard refresh before testing because its contents changed.
+Copy this result sheet into the session note. Write the current signed private archive checksum in the session header: `951b2fdc35316f761b6275e9735220604617b940ecc8d07da3d230f025592cbd`. The developer build serves the alpha.11 `v9` frontend asset URL so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
