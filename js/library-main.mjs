@@ -20954,87 +20954,87 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
 }, O8 = ["href"], R8 = {
   key: 1,
   class: "library-full-details-links"
-}, I8 = ["href"], P8 = { key: 0 }, L8 = { class: "library-full-details-actions" }, D8 = ["href"], F8 = ["href"], M8 = ["href"], U8 = { class: "library-full-details-personal" }, j8 = ["aria-pressed", "disabled"], z8 = ["value", "disabled"], B8 = ["value"], V8 = { class: "library-full-details-columns" }, H8 = {
+}, I8 = ["href"], P8 = { key: 0 }, L8 = { class: "library-full-details-actions" }, D8 = ["href"], F8 = ["href"], M8 = ["href"], U8 = { class: "library-full-details-personal" }, j8 = ["aria-pressed", "disabled"], z8 = ["value", "disabled"], B8 = ["value"], V8 = { class: "library-full-details-columns" }, H8 = { class: "library-full-details-main" }, q8 = {
+  class: "library-full-details-card",
+  "aria-labelledby": "library-full-details-metadata"
+}, G8 = { id: "library-full-details-metadata" }, K8 = { class: "library-full-details-fields" }, W8 = ["value"], Y8 = { class: "library-full-details-wide library-full-details-source-credit" }, Z8 = ["title"], J8 = { class: "library-full-details-wide library-full-details-source-credit" }, X8 = ["title"], Q8 = { class: "library-full-details-fields" }, eP = { class: "library-full-details-wide library-full-details-source-credit" }, tP = ["title"], aP = ["title"], iP = ["title"], nP = { id: "library-details-publisher-suggestions" }, rP = ["value"], lP = ["title"], sP = { class: "library-full-details-wide" }, oP = ["onUpdate:modelValue", "aria-label"], uP = { value: "isbn" }, cP = { value: "issn" }, dP = ["onUpdate:modelValue", "aria-label"], fP = {
+  key: 0,
+  role: "status"
+}, hP = ["aria-label", "onClick"], pP = {
   class: "library-full-details-card library-full-details-authors",
   "aria-labelledby": "library-full-details-authors-heading"
-}, q8 = { id: "library-full-details-authors-heading" }, G8 = ["href"], K8 = { dir: "auto" }, W8 = ["disabled", "onClick"], Y8 = { key: 0 }, Z8 = ["href"], J8 = {
+}, vP = { id: "library-full-details-authors-heading" }, bP = ["href"], gP = { dir: "auto" }, yP = ["disabled", "onClick"], mP = { key: 0 }, _P = ["href"], wP = {
   key: 1,
   class: "library-muted"
-}, X8 = {
+}, kP = {
   key: 2,
   class: "library-full-details-author-picker"
-}, Q8 = { class: "library-full-details-author-search" }, eP = { for: "library-details-author-search" }, tP = ["aria-expanded", "aria-activedescendant", "placeholder", "disabled"], aP = {
+}, SP = { class: "library-full-details-author-search" }, CP = { for: "library-details-author-search" }, $P = ["aria-expanded", "aria-activedescendant", "placeholder", "disabled"], TP = {
   key: 0,
   class: "library-muted"
-}, iP = {
+}, AP = {
   key: 1,
   class: "library-muted",
   role: "status"
-}, nP = {
+}, EP = {
   key: 2,
   id: "library-details-author-suggestions",
   class: "library-full-details-author-suggestions",
   role: "listbox"
-}, rP = ["id", "aria-selected"], lP = ["onClick"], sP = {
+}, xP = ["id", "aria-selected"], NP = ["onClick"], OP = {
   key: 3,
   class: "library-muted"
-}, oP = {
+}, RP = {
   key: 4,
   class: "library-muted"
-}, uP = {
+}, IP = {
   key: 5,
   class: "library-full-details-author-selected",
   role: "status"
-}, cP = { class: "library-full-details-author-actions" }, dP = ["disabled", "title"], fP = ["disabled"], hP = ["disabled"], pP = {
+}, PP = { class: "library-full-details-author-actions" }, LP = ["disabled", "title"], DP = ["disabled"], FP = ["disabled"], MP = {
   key: 1,
   class: "library-muted"
-}, vP = {
+}, UP = {
   class: "library-full-details-card library-full-details-authors",
   "aria-labelledby": "library-full-details-series-heading"
-}, bP = { id: "library-full-details-series-heading" }, gP = ["href"], yP = { dir: "auto" }, mP = { key: 0 }, _P = {
+}, jP = { id: "library-full-details-series-heading" }, zP = ["href"], BP = { dir: "auto" }, VP = { key: 0 }, HP = {
   key: 0,
   class: "library-muted"
-}, wP = { key: 1 }, kP = ["href"], SP = {
+}, qP = { key: 1 }, GP = ["href"], KP = {
   key: 2,
   class: "library-muted"
-}, CP = ["disabled"], $P = {
+}, WP = ["disabled"], YP = {
   key: 4,
   class: "library-full-details-author-picker"
-}, TP = { class: "library-full-details-author-search" }, AP = { for: "library-details-series-search" }, EP = ["aria-expanded", "aria-activedescendant", "placeholder", "disabled"], xP = {
+}, ZP = { class: "library-full-details-author-search" }, JP = { for: "library-details-series-search" }, XP = ["aria-expanded", "aria-activedescendant", "placeholder", "disabled"], QP = {
   key: 0,
   class: "library-muted"
-}, NP = {
+}, eL = {
   key: 1,
   class: "library-muted",
   role: "status"
-}, OP = {
+}, tL = {
   key: 2,
   id: "library-details-series-suggestions",
   class: "library-full-details-author-suggestions",
   role: "listbox"
-}, RP = ["id", "aria-selected"], IP = ["onClick"], PP = {
+}, aL = ["id", "aria-selected"], iL = ["onClick"], nL = {
   key: 3,
   class: "library-muted"
-}, LP = {
+}, rL = {
   key: 4,
   class: "library-muted"
-}, DP = {
+}, lL = {
   key: 5,
   class: "library-full-details-author-selected",
   role: "status"
-}, FP = { class: "library-full-details-author-actions" }, MP = ["disabled"], UP = ["disabled"], jP = ["disabled"], zP = {
-  class: "library-full-details-card",
-  "aria-labelledby": "library-full-details-metadata"
-}, BP = { id: "library-full-details-metadata" }, VP = { class: "library-full-details-fields" }, HP = ["value"], qP = { class: "library-full-details-wide library-full-details-source-credit" }, GP = ["title"], KP = { class: "library-full-details-wide library-full-details-source-credit" }, WP = ["title"], YP = { class: "library-full-details-fields" }, ZP = { class: "library-full-details-wide library-full-details-source-credit" }, JP = ["title"], XP = ["title"], QP = ["title"], eL = { id: "library-details-publisher-suggestions" }, tL = ["value"], aL = ["title"], iL = { class: "library-full-details-wide" }, nL = ["onUpdate:modelValue", "aria-label"], rL = { value: "isbn" }, lL = { value: "issn" }, sL = ["onUpdate:modelValue", "aria-label"], oL = {
-  key: 0,
-  role: "status"
-}, uL = ["aria-label", "onClick"], cL = ["disabled"], dL = { class: "library-full-details-aside" }, fL = { class: "library-full-details-card" }, hL = { dir: "ltr" }, pL = { key: 0 }, vL = { key: 1 }, bL = { key: 2 }, gL = { key: 3 }, yL = ["disabled"], mL = { class: "library-full-details-card" }, _L = { class: "library-full-details-chips" }, wL = { dir: "auto" }, kL = ["disabled", "aria-label", "onClick"], SL = { id: "library-full-details-tag-suggestions" }, CL = ["value"], $L = ["disabled"], TL = { class: "library-full-details-card" }, AL = { class: "library-muted" }, EL = {
+}, sL = { class: "library-full-details-author-actions" }, oL = ["disabled"], uL = ["disabled"], cL = ["disabled"], dL = ["disabled"], fL = { class: "library-full-details-aside" }, hL = { class: "library-full-details-card" }, pL = { dir: "ltr" }, vL = { key: 0 }, bL = { key: 1 }, gL = { key: 2 }, yL = { key: 3 }, mL = ["disabled"], _L = { class: "library-full-details-card" }, wL = { class: "library-full-details-chips" }, kL = { dir: "auto" }, SL = ["disabled", "aria-label", "onClick"], CL = { id: "library-full-details-tag-suggestions" }, $L = ["value"], TL = ["disabled"], AL = { class: "library-full-details-card" }, EL = { class: "library-muted" }, xL = {
   key: 0,
   class: "library-full-details-comments"
-}, xL = ["disabled"], NL = { class: "library-full-details-card library-full-details-provenance" }, OL = { class: "library-muted" }, RL = {
+}, NL = ["disabled"], OL = { class: "library-full-details-card library-full-details-provenance" }, RL = { class: "library-muted" }, IL = {
   key: 0,
   class: "library-full-details-differences"
-}, IL = { dir: "auto" }, PL = { dir: "auto" }, LL = ["disabled", "title", "onClick"], DL = { key: 1 }, FL = { class: "library-full-details-differences" }, ML = { dir: "auto" }, UL = { dir: "auto" }, jL = { key: 0 }, zL = { dir: "auto" }, BL = ["disabled", "title"], VL = {
+}, PL = { dir: "auto" }, LL = { dir: "auto" }, DL = ["disabled", "title", "onClick"], FL = { key: 1 }, ML = { class: "library-full-details-differences" }, UL = { dir: "auto" }, jL = { dir: "auto" }, zL = { key: 0 }, BL = { dir: "auto" }, VL = ["disabled", "title"], HL = {
   __name: "FullDetails",
   props: {
     itemId: { type: String, required: !0 },
@@ -21639,423 +21639,427 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
           ])
         ]),
         r("div", V8, [
-          r("section", H8, [
-            r("h2", q8, l(o(f)("library", "Authors")), 1),
-            a.value.canonicalAuthors?.length ? (c(), h(K, { key: 0 }, [
-              (c(!0), h(K, null, ce(a.value.canonicalAuthors, (W) => (c(), h("div", {
+          r("div", H8, [
+            r("section", q8, [
+              r("h2", G8, l(o(f)("library", "Publication metadata")), 1),
+              r("form", {
+                id: "library-full-details-metadata-form",
+                onSubmit: $e(Qa, ["prevent"])
+              }, [
+                r("div", K8, [
+                  r("label", null, [
+                    J(l(o(f)("library", "Title")), 1),
+                    fe(r("input", {
+                      "onUpdate:modelValue": re[4] || (re[4] = (W) => n.title = W),
+                      required: ""
+                    }, null, 512), [
+                      [xe, n.title]
+                    ])
+                  ]),
+                  r("label", null, [
+                    J(l(o(f)("library", "Subtitle")), 1),
+                    fe(r("input", {
+                      "onUpdate:modelValue": re[5] || (re[5] = (W) => n.subtitle = W)
+                    }, null, 512), [
+                      [xe, n.subtitle]
+                    ])
+                  ]),
+                  r("label", null, [
+                    J(l(o(f)("library", "Type")), 1),
+                    fe(r("select", {
+                      "onUpdate:modelValue": re[6] || (re[6] = (W) => n.publicationType = W)
+                    }, [
+                      (c(), h(K, null, ce(N, (W) => r("option", {
+                        key: W.value,
+                        value: W.value
+                      }, l(W.label), 9, W8)), 64))
+                    ], 512), [
+                      [rt, n.publicationType]
+                    ])
+                  ]),
+                  r("details", Y8, [
+                    r("summary", {
+                      title: o(f)("library", "This book credit is retained for source metadata and export. Use the Authors section to change the linked person for browsing. One creator per line; commas within a name are preserved.")
+                    }, l(o(f)("library", "Source creator credits")), 9, Z8),
+                    r("label", null, [
+                      J(l(o(f)("library", "Source creator credits")), 1),
+                      fe(r("textarea", {
+                        "onUpdate:modelValue": re[7] || (re[7] = (W) => n.creators = W),
+                        rows: "3"
+                      }, null, 512), [
+                        [xe, n.creators]
+                      ])
+                    ])
+                  ]),
+                  r("label", null, [
+                    J(l(o(f)("library", "Publication")), 1),
+                    fe(r("input", {
+                      "onUpdate:modelValue": re[8] || (re[8] = (W) => n.publication = W)
+                    }, null, 512), [
+                      [xe, n.publication]
+                    ])
+                  ]),
+                  r("details", J8, [
+                    r("summary", {
+                      title: o(f)("library", "These imported values are retained for metadata export. Use the Series section to choose the linked series for browsing.")
+                    }, l(o(f)("library", "Source series metadata")), 9, X8),
+                    r("div", Q8, [
+                      r("label", null, [
+                        J(l(o(f)("library", "Source series")), 1),
+                        fe(r("input", {
+                          "onUpdate:modelValue": re[9] || (re[9] = (W) => n.series = W)
+                        }, null, 512), [
+                          [xe, n.series]
+                        ])
+                      ]),
+                      r("label", null, [
+                        J(l(o(f)("library", "Source part in series")), 1),
+                        fe(r("input", {
+                          "onUpdate:modelValue": re[10] || (re[10] = (W) => n.seriesNumber = W)
+                        }, null, 512), [
+                          [xe, n.seriesNumber]
+                        ])
+                      ])
+                    ])
+                  ]),
+                  r("details", eP, [
+                    r("summary", {
+                      title: o(f)("library", "The imported genre stays available as source metadata. Use the Genres section to assign catalogue genres for browsing.")
+                    }, l(o(f)("library", "Source genre metadata")), 9, tP),
+                    r("label", null, [
+                      J(l(o(f)("library", "Source genre")), 1),
+                      fe(r("input", {
+                        "onUpdate:modelValue": re[11] || (re[11] = (W) => n.genre = W)
+                      }, null, 512), [
+                        [xe, n.genre]
+                      ])
+                    ])
+                  ]),
+                  r("label", {
+                    title: o(f)("library", "Use YYYY, YYYY-MM, or YYYY-MM-DD.")
+                  }, [
+                    J(l(o(f)("library", "Publication date")), 1),
+                    fe(r("input", {
+                      "onUpdate:modelValue": re[12] || (re[12] = (W) => n.publicationDate = W)
+                    }, null, 512), [
+                      [xe, n.publicationDate]
+                    ])
+                  ], 8, aP),
+                  r("label", {
+                    title: o(f)("library", "Search publishers")
+                  }, [
+                    J(l(o(f)("library", "Publisher")), 1),
+                    fe(r("input", {
+                      "onUpdate:modelValue": re[13] || (re[13] = (W) => n.publisher = W),
+                      list: "library-details-publisher-suggestions",
+                      autocomplete: "off"
+                    }, null, 512), [
+                      [xe, n.publisher]
+                    ]),
+                    r("datalist", nP, [
+                      (c(!0), h(K, null, ce(s.value, (W) => (c(), h("option", {
+                        key: W,
+                        value: W
+                      }, null, 8, rP))), 128))
+                    ])
+                  ], 8, iP),
+                  he(Bp, {
+                    modelValue: n.language,
+                    "onUpdate:modelValue": re[14] || (re[14] = (W) => n.language = W),
+                    kind: "language",
+                    disabled: g.value
+                  }, null, 8, ["modelValue", "disabled"]),
+                  he(Bp, {
+                    modelValue: n.subjects,
+                    "onUpdate:modelValue": re[15] || (re[15] = (W) => n.subjects = W),
+                    kind: "subject",
+                    disabled: g.value
+                  }, null, 8, ["modelValue", "disabled"]),
+                  r("label", {
+                    title: o(f)("library", "One classification per line.")
+                  }, [
+                    J(l(o(f)("library", "Classifications")), 1),
+                    fe(r("textarea", {
+                      "onUpdate:modelValue": re[16] || (re[16] = (W) => n.classifications = W),
+                      rows: "2"
+                    }, null, 512), [
+                      [xe, n.classifications]
+                    ])
+                  ], 8, lP),
+                  he(PI, {
+                    "model-value": n.personalRating,
+                    disabled: g.value,
+                    "onUpdate:modelValue": vi
+                  }, null, 8, ["model-value", "disabled"]),
+                  r("label", sP, [
+                    J(l(o(f)("library", "Description")), 1),
+                    fe(r("textarea", {
+                      "onUpdate:modelValue": re[17] || (re[17] = (W) => n.description = W),
+                      rows: "8"
+                    }, null, 512), [
+                      [xe, n.description]
+                    ])
+                  ])
+                ]),
+                r("fieldset", null, [
+                  r("legend", null, l(o(f)("library", "Identifiers")), 1),
+                  (c(!0), h(K, null, ce(n.identifiers, (W, Re) => (c(), h("div", {
+                    key: Re,
+                    class: "library-full-details-identifier"
+                  }, [
+                    fe(r("select", {
+                      "onUpdate:modelValue": (Ge) => W.scheme = Ge,
+                      "aria-label": o(f)("library", "Scheme")
+                    }, [
+                      r("option", uP, l(o(f)("library", "ISBN")), 1),
+                      r("option", cP, l(o(f)("library", "ISSN")), 1)
+                    ], 8, oP), [
+                      [rt, W.scheme]
+                    ]),
+                    fe(r("input", {
+                      "onUpdate:modelValue": (Ge) => W.displayValue = Ge,
+                      "aria-label": o(f)("library", "Identifier value")
+                    }, null, 8, dP), [
+                      [xe, W.displayValue]
+                    ]),
+                    W.displayValue && W.valid === !1 && W.scheme === W.originalScheme && W.displayValue === W.originalDisplayValue ? (c(), h("span", fP, l(o(f)("library", "Invalid identifier checksum")), 1)) : S("", !0),
+                    r("button", {
+                      type: "button",
+                      class: "button secondary",
+                      "aria-label": o(f)("library", "Remove identifier"),
+                      onClick: (Ge) => n.identifiers.splice(Re, 1)
+                    }, "×", 8, hP)
+                  ]))), 128)),
+                  r("button", {
+                    type: "button",
+                    class: "button secondary",
+                    onClick: re[18] || (re[18] = (W) => n.identifiers.push({ scheme: "isbn", displayValue: "" }))
+                  }, l(o(f)("library", "Add identifier")), 1)
+                ])
+              ], 32)
+            ]),
+            r("section", pP, [
+              r("h2", vP, l(o(f)("library", "Authors")), 1),
+              a.value.canonicalAuthors?.length ? (c(), h(K, { key: 0 }, [
+                (c(!0), h(K, null, ce(a.value.canonicalAuthors, (W) => (c(), h("div", {
+                  key: W.id,
+                  class: "library-full-details-author-row"
+                }, [
+                  r("a", {
+                    href: `${e.catalogueUrl}?authors=1&authorId=${W.id}`
+                  }, [
+                    r("bdi", gP, l(W.name), 1)
+                  ], 8, bP),
+                  a.value.authorSyncStatus === 0 ? (c(), h("button", {
+                    key: 0,
+                    type: "button",
+                    class: "button secondary",
+                    disabled: g.value,
+                    onClick: (Re) => st(W)
+                  }, l(o(f)("library", "Change author")), 9, yP)) : S("", !0)
+                ]))), 128)),
+                a.value.authorSyncStatus === 2 ? (c(), h("p", mP, [
+                  r("a", {
+                    href: `${e.catalogueUrl}?authors=1&authorConflicts=1`
+                  }, l(o(f)("library", "Review imported author changes")), 9, _P)
+                ])) : a.value.authorSyncStatus !== 0 ? (c(), h("p", wP, l(o(f)("library", "Author migration must finish before editing. Refresh to check progress.")), 1)) : S("", !0),
+                P.value ? (c(), h("div", kP, [
+                  r("p", null, l(o(f)("library", "Replace {author} for this publication", { author: P.value.name })), 1),
+                  r("div", SP, [
+                    r("label", CP, l(o(f)("library", "Choose an author")), 1),
+                    fe(r("input", {
+                      id: "library-details-author-search",
+                      ref_key: "authorInput",
+                      ref: ee,
+                      "onUpdate:modelValue": re[19] || (re[19] = (W) => F.value = W),
+                      type: "search",
+                      maxlength: "255",
+                      autocomplete: "off",
+                      role: "combobox",
+                      "aria-autocomplete": "list",
+                      "aria-controls": "library-details-author-suggestions",
+                      "aria-expanded": Y.value && A.value.length > 0 ? "true" : "false",
+                      "aria-activedescendant": ae.value >= 0 && Y.value ? `library-details-author-option-${A.value[ae.value]?.id}` : void 0,
+                      placeholder: o(f)("library", "Search authors"),
+                      disabled: g.value,
+                      onFocus: re[20] || (re[20] = (W) => Y.value = X.value),
+                      onKeydown: kt
+                    }, null, 40, $P), [
+                      [xe, F.value]
+                    ]),
+                    !X.value && !te.value ? (c(), h("p", TP, l(o(f)("library", "Type at least 3 letters to search authors.")), 1)) : S("", !0),
+                    z.value ? (c(), h("span", AP, l(o(f)("library", "Searching…")), 1)) : S("", !0),
+                    Y.value && A.value.length ? (c(), h("ul", EP, [
+                      (c(!0), h(K, null, ce(A.value, (W, Re) => (c(), h("li", {
+                        id: `library-details-author-option-${W.id}`,
+                        key: W.id,
+                        role: "option",
+                        "aria-selected": ae.value === Re
+                      }, [
+                        r("button", {
+                          type: "button",
+                          class: Ne({ "is-active": ae.value === Re }),
+                          onMousedown: re[21] || (re[21] = $e(() => {
+                          }, ["prevent"])),
+                          onClick: (Ge) => wt(W)
+                        }, [
+                          r("strong", null, l(W.display_name), 1),
+                          r("small", null, l(W.sort_name) + " · " + l(o(ht)("library", "%n book", "%n books", Number(W.book_count || 0))), 1)
+                        ], 42, NP)
+                      ], 8, xP))), 128))
+                    ])) : S("", !0),
+                    Y.value && j.value ? (c(), h("p", OP, l(o(f)("library", "More matches. Keep typing to narrow the list.")), 1)) : S("", !0),
+                    Y.value && X.value && !z.value && !A.value.length ? (c(), h("p", RP, l(o(f)("library", "No matching author. You can create a separate author below.")), 1)) : S("", !0),
+                    te.value ? (c(), h("p", IP, [
+                      J(l(o(f)("library", "Selected author")) + ": ", 1),
+                      r("strong", null, l(A.value.find((W) => String(W.id) === te.value)?.display_name), 1)
+                    ])) : S("", !0)
+                  ]),
+                  r("div", PP, [
+                    r("button", {
+                      type: "button",
+                      class: "button secondary",
+                      disabled: g.value || z.value || !F.value.trim(),
+                      title: o(f)("library", "Creates a separate author identity, even if the name already exists."),
+                      onClick: qt
+                    }, l(o(f)("library", "Create separate author")), 9, LP),
+                    r("button", {
+                      type: "button",
+                      class: "button primary",
+                      disabled: g.value || z.value || !te.value,
+                      onClick: ha
+                    }, l(o(f)("library", "Save author assignment")), 9, DP),
+                    r("button", {
+                      type: "button",
+                      class: "button secondary",
+                      disabled: g.value,
+                      onClick: Ye
+                    }, l(o(f)("library", "Cancel")), 9, FP)
+                  ])
+                ])) : S("", !0)
+              ], 64)) : (c(), h("p", MP, l(o(f)("library", "No linked authors are available yet. Expand Source creator credits in Publication metadata to see the book credit.")), 1))
+            ]),
+            r("section", UP, [
+              r("h2", jP, l(o(f)("library", "Series")), 1),
+              (c(!0), h(K, null, ce(a.value.canonicalSeries || [], (W) => (c(), h("div", {
                 key: W.id,
                 class: "library-full-details-author-row"
               }, [
                 r("a", {
-                  href: `${e.catalogueUrl}?authors=1&authorId=${W.id}`
+                  href: `${e.catalogueUrl}?series=1&seriesId=${W.id}`
                 }, [
-                  r("bdi", K8, l(W.name), 1)
-                ], 8, G8),
-                a.value.authorSyncStatus === 0 ? (c(), h("button", {
-                  key: 0,
-                  type: "button",
-                  class: "button secondary",
-                  disabled: g.value,
-                  onClick: (Re) => st(W)
-                }, l(o(f)("library", "Change author")), 9, W8)) : S("", !0)
+                  r("bdi", BP, l(W.name), 1),
+                  W.part ? (c(), h("span", VP, " · " + l(W.part), 1)) : S("", !0)
+                ], 8, zP)
               ]))), 128)),
-              a.value.authorSyncStatus === 2 ? (c(), h("p", Y8, [
+              a.value.canonicalSeries?.length ? S("", !0) : (c(), h("p", HP, l(o(f)("library", "No linked series yet.")), 1)),
+              a.value.seriesSyncStatus === 3 ? (c(), h("p", qP, [
                 r("a", {
-                  href: `${e.catalogueUrl}?authors=1&authorConflicts=1`
-                }, l(o(f)("library", "Review imported author changes")), 9, Z8)
-              ])) : a.value.authorSyncStatus !== 0 ? (c(), h("p", J8, l(o(f)("library", "Author migration must finish before editing. Refresh to check progress.")), 1)) : S("", !0),
-              P.value ? (c(), h("div", X8, [
-                r("p", null, l(o(f)("library", "Replace {author} for this publication", { author: P.value.name })), 1),
-                r("div", Q8, [
-                  r("label", eP, l(o(f)("library", "Choose an author")), 1),
+                  href: `${e.catalogueUrl}?series=1&seriesConflicts=1`
+                }, l(o(f)("library", "Review imported series changes")), 9, GP)
+              ])) : a.value.seriesSyncStatus !== 0 ? (c(), h("p", KP, l(o(f)("library", "Series migration must finish before editing. Refresh to check progress.")), 1)) : se.value ? S("", !0) : (c(), h("button", {
+                key: 3,
+                type: "button",
+                class: "button secondary",
+                disabled: g.value,
+                onClick: zt
+              }, l(a.value.canonicalSeries?.length ? o(f)("library", "Change series") : o(f)("library", "Link a series")), 9, WP)),
+              se.value ? (c(), h("div", YP, [
+                r("div", ZP, [
+                  r("label", JP, l(o(f)("library", "Choose a series")), 1),
                   fe(r("input", {
-                    id: "library-details-author-search",
-                    ref_key: "authorInput",
-                    ref: ee,
-                    "onUpdate:modelValue": re[4] || (re[4] = (W) => F.value = W),
+                    id: "library-details-series-search",
+                    ref_key: "seriesInput",
+                    ref: V,
+                    "onUpdate:modelValue": re[22] || (re[22] = (W) => ie.value = W),
                     type: "search",
                     maxlength: "255",
                     autocomplete: "off",
                     role: "combobox",
                     "aria-autocomplete": "list",
-                    "aria-controls": "library-details-author-suggestions",
-                    "aria-expanded": Y.value && A.value.length > 0 ? "true" : "false",
-                    "aria-activedescendant": ae.value >= 0 && Y.value ? `library-details-author-option-${A.value[ae.value]?.id}` : void 0,
-                    placeholder: o(f)("library", "Search authors"),
+                    "aria-controls": "library-details-series-suggestions",
+                    "aria-expanded": Ae.value && ue.value.length > 0 ? "true" : "false",
+                    "aria-activedescendant": Fe.value >= 0 && Ae.value ? `library-details-series-option-${ue.value[Fe.value]?.id}` : void 0,
+                    placeholder: o(f)("library", "Search series"),
                     disabled: g.value,
-                    onFocus: re[5] || (re[5] = (W) => Y.value = X.value),
-                    onKeydown: kt
-                  }, null, 40, tP), [
-                    [xe, F.value]
+                    onFocus: re[23] || (re[23] = (W) => Ae.value = Q.value),
+                    onKeydown: Fa
+                  }, null, 40, XP), [
+                    [xe, ie.value]
                   ]),
-                  !X.value && !te.value ? (c(), h("p", aP, l(o(f)("library", "Type at least 3 letters to search authors.")), 1)) : S("", !0),
-                  z.value ? (c(), h("span", iP, l(o(f)("library", "Searching…")), 1)) : S("", !0),
-                  Y.value && A.value.length ? (c(), h("ul", nP, [
-                    (c(!0), h(K, null, ce(A.value, (W, Re) => (c(), h("li", {
-                      id: `library-details-author-option-${W.id}`,
+                  !Q.value && !He.value ? (c(), h("p", QP, l(o(f)("library", "Type at least 3 letters to search series.")), 1)) : S("", !0),
+                  tt.value ? (c(), h("span", eL, l(o(f)("library", "Searching…")), 1)) : S("", !0),
+                  Ae.value && ue.value.length ? (c(), h("ul", tL, [
+                    (c(!0), h(K, null, ce(ue.value, (W, Re) => (c(), h("li", {
+                      id: `library-details-series-option-${W.id}`,
                       key: W.id,
                       role: "option",
-                      "aria-selected": ae.value === Re
+                      "aria-selected": Fe.value === Re
                     }, [
                       r("button", {
                         type: "button",
-                        class: Ne({ "is-active": ae.value === Re }),
-                        onMousedown: re[6] || (re[6] = $e(() => {
+                        class: Ne({ "is-active": Fe.value === Re }),
+                        onMousedown: re[24] || (re[24] = $e(() => {
                         }, ["prevent"])),
-                        onClick: (Ge) => wt(W)
+                        onClick: (Ge) => pi(W)
                       }, [
                         r("strong", null, l(W.display_name), 1),
-                        r("small", null, l(W.sort_name) + " · " + l(o(ht)("library", "%n book", "%n books", Number(W.book_count || 0))), 1)
-                      ], 42, lP)
-                    ], 8, rP))), 128))
+                        r("small", null, l(o(ht)("library", "%n book", "%n books", Number(W.book_count || 0))), 1)
+                      ], 42, iL)
+                    ], 8, aL))), 128))
                   ])) : S("", !0),
-                  Y.value && j.value ? (c(), h("p", sP, l(o(f)("library", "More matches. Keep typing to narrow the list.")), 1)) : S("", !0),
-                  Y.value && X.value && !z.value && !A.value.length ? (c(), h("p", oP, l(o(f)("library", "No matching author. You can create a separate author below.")), 1)) : S("", !0),
-                  te.value ? (c(), h("p", uP, [
-                    J(l(o(f)("library", "Selected author")) + ": ", 1),
-                    r("strong", null, l(A.value.find((W) => String(W.id) === te.value)?.display_name), 1)
+                  Ae.value && Pe.value ? (c(), h("p", nL, l(o(f)("library", "More matches. Keep typing to narrow the list.")), 1)) : S("", !0),
+                  Ae.value && Q.value && !tt.value && !ue.value.length ? (c(), h("p", rL, l(o(f)("library", "No matching series. You can create one below.")), 1)) : S("", !0),
+                  He.value ? (c(), h("p", lL, [
+                    J(l(o(f)("library", "Selected series")) + ": ", 1),
+                    r("strong", null, l(He.value.display_name), 1)
                   ])) : S("", !0)
                 ]),
-                r("div", cP, [
+                r("div", sL, [
                   r("button", {
                     type: "button",
                     class: "button secondary",
-                    disabled: g.value || z.value || !F.value.trim(),
-                    title: o(f)("library", "Creates a separate author identity, even if the name already exists."),
-                    onClick: qt
-                  }, l(o(f)("library", "Create separate author")), 9, dP),
+                    disabled: g.value || tt.value || !ie.value.trim(),
+                    onClick: Oi
+                  }, l(o(f)("library", "Create series")), 9, oL),
                   r("button", {
                     type: "button",
                     class: "button primary",
-                    disabled: g.value || z.value || !te.value,
-                    onClick: ha
-                  }, l(o(f)("library", "Save author assignment")), 9, fP),
+                    disabled: g.value || tt.value || !He.value,
+                    onClick: Ca
+                  }, l(o(f)("library", "Save series assignment")), 9, uL),
                   r("button", {
                     type: "button",
                     class: "button secondary",
                     disabled: g.value,
-                    onClick: Ye
-                  }, l(o(f)("library", "Cancel")), 9, hP)
+                    onClick: Sa
+                  }, l(o(f)("library", "Cancel")), 9, cL)
                 ])
               ])) : S("", !0)
-            ], 64)) : (c(), h("p", pP, l(o(f)("library", "No linked authors are available yet. Expand Source creator credits below to see the book credit.")), 1))
+            ]),
+            he(o8, {
+              class: "library-full-details-genres",
+              "item-id": Number(T.value),
+              genres: a.value.canonicalGenres || [],
+              "request-token": e.requestToken,
+              "catalogue-url": e.catalogueUrl,
+              disabled: g.value || oe.value,
+              onChanged: re[25] || (re[25] = (W) => Bt({ silent: !0 }))
+            }, null, 8, ["item-id", "genres", "request-token", "catalogue-url", "disabled"]),
+            r("button", {
+              class: "button primary library-full-details-save",
+              type: "submit",
+              form: "library-full-details-metadata-form",
+              disabled: g.value
+            }, l(o(f)("library", "Save metadata")), 9, dL)
           ]),
-          r("section", vP, [
-            r("h2", bP, l(o(f)("library", "Series")), 1),
-            (c(!0), h(K, null, ce(a.value.canonicalSeries || [], (W) => (c(), h("div", {
-              key: W.id,
-              class: "library-full-details-author-row"
-            }, [
-              r("a", {
-                href: `${e.catalogueUrl}?series=1&seriesId=${W.id}`
-              }, [
-                r("bdi", yP, l(W.name), 1),
-                W.part ? (c(), h("span", mP, " · " + l(W.part), 1)) : S("", !0)
-              ], 8, gP)
-            ]))), 128)),
-            a.value.canonicalSeries?.length ? S("", !0) : (c(), h("p", _P, l(o(f)("library", "No linked series yet.")), 1)),
-            a.value.seriesSyncStatus === 3 ? (c(), h("p", wP, [
-              r("a", {
-                href: `${e.catalogueUrl}?series=1&seriesConflicts=1`
-              }, l(o(f)("library", "Review imported series changes")), 9, kP)
-            ])) : a.value.seriesSyncStatus !== 0 ? (c(), h("p", SP, l(o(f)("library", "Series migration must finish before editing. Refresh to check progress.")), 1)) : se.value ? S("", !0) : (c(), h("button", {
-              key: 3,
-              type: "button",
-              class: "button secondary",
-              disabled: g.value,
-              onClick: zt
-            }, l(a.value.canonicalSeries?.length ? o(f)("library", "Change series") : o(f)("library", "Link a series")), 9, CP)),
-            se.value ? (c(), h("div", $P, [
-              r("div", TP, [
-                r("label", AP, l(o(f)("library", "Choose a series")), 1),
-                fe(r("input", {
-                  id: "library-details-series-search",
-                  ref_key: "seriesInput",
-                  ref: V,
-                  "onUpdate:modelValue": re[7] || (re[7] = (W) => ie.value = W),
-                  type: "search",
-                  maxlength: "255",
-                  autocomplete: "off",
-                  role: "combobox",
-                  "aria-autocomplete": "list",
-                  "aria-controls": "library-details-series-suggestions",
-                  "aria-expanded": Ae.value && ue.value.length > 0 ? "true" : "false",
-                  "aria-activedescendant": Fe.value >= 0 && Ae.value ? `library-details-series-option-${ue.value[Fe.value]?.id}` : void 0,
-                  placeholder: o(f)("library", "Search series"),
-                  disabled: g.value,
-                  onFocus: re[8] || (re[8] = (W) => Ae.value = Q.value),
-                  onKeydown: Fa
-                }, null, 40, EP), [
-                  [xe, ie.value]
-                ]),
-                !Q.value && !He.value ? (c(), h("p", xP, l(o(f)("library", "Type at least 3 letters to search series.")), 1)) : S("", !0),
-                tt.value ? (c(), h("span", NP, l(o(f)("library", "Searching…")), 1)) : S("", !0),
-                Ae.value && ue.value.length ? (c(), h("ul", OP, [
-                  (c(!0), h(K, null, ce(ue.value, (W, Re) => (c(), h("li", {
-                    id: `library-details-series-option-${W.id}`,
-                    key: W.id,
-                    role: "option",
-                    "aria-selected": Fe.value === Re
-                  }, [
-                    r("button", {
-                      type: "button",
-                      class: Ne({ "is-active": Fe.value === Re }),
-                      onMousedown: re[9] || (re[9] = $e(() => {
-                      }, ["prevent"])),
-                      onClick: (Ge) => pi(W)
-                    }, [
-                      r("strong", null, l(W.display_name), 1),
-                      r("small", null, l(o(ht)("library", "%n book", "%n books", Number(W.book_count || 0))), 1)
-                    ], 42, IP)
-                  ], 8, RP))), 128))
-                ])) : S("", !0),
-                Ae.value && Pe.value ? (c(), h("p", PP, l(o(f)("library", "More matches. Keep typing to narrow the list.")), 1)) : S("", !0),
-                Ae.value && Q.value && !tt.value && !ue.value.length ? (c(), h("p", LP, l(o(f)("library", "No matching series. You can create one below.")), 1)) : S("", !0),
-                He.value ? (c(), h("p", DP, [
-                  J(l(o(f)("library", "Selected series")) + ": ", 1),
-                  r("strong", null, l(He.value.display_name), 1)
-                ])) : S("", !0)
-              ]),
-              r("div", FP, [
-                r("button", {
-                  type: "button",
-                  class: "button secondary",
-                  disabled: g.value || tt.value || !ie.value.trim(),
-                  onClick: Oi
-                }, l(o(f)("library", "Create series")), 9, MP),
-                r("button", {
-                  type: "button",
-                  class: "button primary",
-                  disabled: g.value || tt.value || !He.value,
-                  onClick: Ca
-                }, l(o(f)("library", "Save series assignment")), 9, UP),
-                r("button", {
-                  type: "button",
-                  class: "button secondary",
-                  disabled: g.value,
-                  onClick: Sa
-                }, l(o(f)("library", "Cancel")), 9, jP)
-              ])
-            ])) : S("", !0)
-          ]),
-          he(o8, {
-            class: "library-full-details-genres",
-            "item-id": Number(T.value),
-            genres: a.value.canonicalGenres || [],
-            "request-token": e.requestToken,
-            "catalogue-url": e.catalogueUrl,
-            disabled: g.value || oe.value,
-            onChanged: re[10] || (re[10] = (W) => Bt({ silent: !0 }))
-          }, null, 8, ["item-id", "genres", "request-token", "catalogue-url", "disabled"]),
-          r("section", zP, [
-            r("h2", BP, l(o(f)("library", "Publication metadata")), 1),
-            r("form", {
-              onSubmit: $e(Qa, ["prevent"])
-            }, [
-              r("div", VP, [
-                r("label", null, [
-                  J(l(o(f)("library", "Title")), 1),
-                  fe(r("input", {
-                    "onUpdate:modelValue": re[11] || (re[11] = (W) => n.title = W),
-                    required: ""
-                  }, null, 512), [
-                    [xe, n.title]
-                  ])
-                ]),
-                r("label", null, [
-                  J(l(o(f)("library", "Subtitle")), 1),
-                  fe(r("input", {
-                    "onUpdate:modelValue": re[12] || (re[12] = (W) => n.subtitle = W)
-                  }, null, 512), [
-                    [xe, n.subtitle]
-                  ])
-                ]),
-                r("label", null, [
-                  J(l(o(f)("library", "Type")), 1),
-                  fe(r("select", {
-                    "onUpdate:modelValue": re[13] || (re[13] = (W) => n.publicationType = W)
-                  }, [
-                    (c(), h(K, null, ce(N, (W) => r("option", {
-                      key: W.value,
-                      value: W.value
-                    }, l(W.label), 9, HP)), 64))
-                  ], 512), [
-                    [rt, n.publicationType]
-                  ])
-                ]),
-                r("details", qP, [
-                  r("summary", {
-                    title: o(f)("library", "This is the book credit used for source metadata and export. Change the linked person above for author browsing. One creator per line; commas within a name are preserved.")
-                  }, l(o(f)("library", "Source creator credits")), 9, GP),
-                  r("label", null, [
-                    J(l(o(f)("library", "Source creator credits")), 1),
-                    fe(r("textarea", {
-                      "onUpdate:modelValue": re[14] || (re[14] = (W) => n.creators = W),
-                      rows: "3"
-                    }, null, 512), [
-                      [xe, n.creators]
-                    ])
-                  ])
-                ]),
-                r("label", null, [
-                  J(l(o(f)("library", "Publication")), 1),
-                  fe(r("input", {
-                    "onUpdate:modelValue": re[15] || (re[15] = (W) => n.publication = W)
-                  }, null, 512), [
-                    [xe, n.publication]
-                  ])
-                ]),
-                r("details", KP, [
-                  r("summary", {
-                    title: o(f)("library", "These imported values are retained for metadata export. Choose the linked series above for browsing.")
-                  }, l(o(f)("library", "Source series metadata")), 9, WP),
-                  r("div", YP, [
-                    r("label", null, [
-                      J(l(o(f)("library", "Source series")), 1),
-                      fe(r("input", {
-                        "onUpdate:modelValue": re[16] || (re[16] = (W) => n.series = W)
-                      }, null, 512), [
-                        [xe, n.series]
-                      ])
-                    ]),
-                    r("label", null, [
-                      J(l(o(f)("library", "Source part in series")), 1),
-                      fe(r("input", {
-                        "onUpdate:modelValue": re[17] || (re[17] = (W) => n.seriesNumber = W)
-                      }, null, 512), [
-                        [xe, n.seriesNumber]
-                      ])
-                    ])
-                  ])
-                ]),
-                r("details", ZP, [
-                  r("summary", {
-                    title: o(f)("library", "The imported genre stays available as source metadata. Assign catalogue genres above for browsing.")
-                  }, l(o(f)("library", "Source genre metadata")), 9, JP),
-                  r("label", null, [
-                    J(l(o(f)("library", "Source genre")), 1),
-                    fe(r("input", {
-                      "onUpdate:modelValue": re[18] || (re[18] = (W) => n.genre = W)
-                    }, null, 512), [
-                      [xe, n.genre]
-                    ])
-                  ])
-                ]),
-                r("label", {
-                  title: o(f)("library", "Use YYYY, YYYY-MM, or YYYY-MM-DD.")
-                }, [
-                  J(l(o(f)("library", "Publication date")), 1),
-                  fe(r("input", {
-                    "onUpdate:modelValue": re[19] || (re[19] = (W) => n.publicationDate = W)
-                  }, null, 512), [
-                    [xe, n.publicationDate]
-                  ])
-                ], 8, XP),
-                r("label", {
-                  title: o(f)("library", "Search publishers")
-                }, [
-                  J(l(o(f)("library", "Publisher")), 1),
-                  fe(r("input", {
-                    "onUpdate:modelValue": re[20] || (re[20] = (W) => n.publisher = W),
-                    list: "library-details-publisher-suggestions",
-                    autocomplete: "off"
-                  }, null, 512), [
-                    [xe, n.publisher]
-                  ]),
-                  r("datalist", eL, [
-                    (c(!0), h(K, null, ce(s.value, (W) => (c(), h("option", {
-                      key: W,
-                      value: W
-                    }, null, 8, tL))), 128))
-                  ])
-                ], 8, QP),
-                he(Bp, {
-                  modelValue: n.language,
-                  "onUpdate:modelValue": re[21] || (re[21] = (W) => n.language = W),
-                  kind: "language",
-                  disabled: g.value
-                }, null, 8, ["modelValue", "disabled"]),
-                he(Bp, {
-                  modelValue: n.subjects,
-                  "onUpdate:modelValue": re[22] || (re[22] = (W) => n.subjects = W),
-                  kind: "subject",
-                  disabled: g.value
-                }, null, 8, ["modelValue", "disabled"]),
-                r("label", {
-                  title: o(f)("library", "One classification per line.")
-                }, [
-                  J(l(o(f)("library", "Classifications")), 1),
-                  fe(r("textarea", {
-                    "onUpdate:modelValue": re[23] || (re[23] = (W) => n.classifications = W),
-                    rows: "2"
-                  }, null, 512), [
-                    [xe, n.classifications]
-                  ])
-                ], 8, aL),
-                he(PI, {
-                  "model-value": n.personalRating,
-                  disabled: g.value,
-                  "onUpdate:modelValue": vi
-                }, null, 8, ["model-value", "disabled"]),
-                r("label", iL, [
-                  J(l(o(f)("library", "Description")), 1),
-                  fe(r("textarea", {
-                    "onUpdate:modelValue": re[24] || (re[24] = (W) => n.description = W),
-                    rows: "8"
-                  }, null, 512), [
-                    [xe, n.description]
-                  ])
-                ])
-              ]),
-              r("fieldset", null, [
-                r("legend", null, l(o(f)("library", "Identifiers")), 1),
-                (c(!0), h(K, null, ce(n.identifiers, (W, Re) => (c(), h("div", {
-                  key: Re,
-                  class: "library-full-details-identifier"
-                }, [
-                  fe(r("select", {
-                    "onUpdate:modelValue": (Ge) => W.scheme = Ge,
-                    "aria-label": o(f)("library", "Scheme")
-                  }, [
-                    r("option", rL, l(o(f)("library", "ISBN")), 1),
-                    r("option", lL, l(o(f)("library", "ISSN")), 1)
-                  ], 8, nL), [
-                    [rt, W.scheme]
-                  ]),
-                  fe(r("input", {
-                    "onUpdate:modelValue": (Ge) => W.displayValue = Ge,
-                    "aria-label": o(f)("library", "Identifier value")
-                  }, null, 8, sL), [
-                    [xe, W.displayValue]
-                  ]),
-                  W.displayValue && W.valid === !1 && W.scheme === W.originalScheme && W.displayValue === W.originalDisplayValue ? (c(), h("span", oL, l(o(f)("library", "Invalid identifier checksum")), 1)) : S("", !0),
-                  r("button", {
-                    type: "button",
-                    class: "button secondary",
-                    "aria-label": o(f)("library", "Remove identifier"),
-                    onClick: (Ge) => n.identifiers.splice(Re, 1)
-                  }, "×", 8, uL)
-                ]))), 128)),
-                r("button", {
-                  type: "button",
-                  class: "button secondary",
-                  onClick: re[25] || (re[25] = (W) => n.identifiers.push({ scheme: "isbn", displayValue: "" }))
-                }, l(o(f)("library", "Add identifier")), 1)
-              ]),
-              r("button", {
-                class: "button primary",
-                type: "submit",
-                disabled: g.value
-              }, l(o(f)("library", "Save metadata")), 9, cL)
-            ], 32)
-          ]),
-          r("div", dL, [
-            r("section", fL, [
+          r("div", fL, [
+            r("section", hL, [
               r("h2", null, l(o(f)("library", "File metadata")), 1),
               r("dl", null, [
                 r("dt", null, l(o(f)("library", "Location")), 1),
                 r("dd", null, [
-                  r("bdi", hL, l(a.value.cachedPath), 1)
+                  r("bdi", pL, l(a.value.cachedPath), 1)
                 ]),
                 r("dt", null, l(o(f)("library", "Format")), 1),
                 r("dd", null, l((a.value.extension || "").toUpperCase()), 1),
@@ -22063,14 +22067,14 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 r("dd", null, l(a.value.scanStatus || "—"), 1),
                 r("dt", null, l(o(f)("library", "Metadata source")), 1),
                 r("dd", null, l(a.value.metadataSource || "—"), 1),
-                a.value.scanError ? (c(), h("dt", pL, l(o(f)("library", "Scan error")), 1)) : S("", !0),
-                a.value.scanError ? (c(), h("dd", vL, l(a.value.scanError), 1)) : S("", !0),
+                a.value.scanError ? (c(), h("dt", vL, l(o(f)("library", "Scan error")), 1)) : S("", !0),
+                a.value.scanError ? (c(), h("dd", bL, l(a.value.scanError), 1)) : S("", !0),
                 r("dt", null, l(o(f)("library", "File ID")), 1),
                 r("dd", null, l(i.value.file.fileId || "—"), 1),
                 r("dt", null, l(o(f)("library", "MIME type")), 1),
                 r("dd", null, l(i.value.file.mimeType || "—"), 1),
-                a.value.shelf ? (c(), h("dt", bL, l(o(f)("library", "Shelf")), 1)) : S("", !0),
-                a.value.shelf ? (c(), h("dd", gL, l(a.value.shelf), 1)) : S("", !0)
+                a.value.shelf ? (c(), h("dt", gL, l(o(f)("library", "Shelf")), 1)) : S("", !0),
+                a.value.shelf ? (c(), h("dd", yL, l(a.value.shelf), 1)) : S("", !0)
               ]),
               a.value.scanStatus === "missing" ? (c(), h("button", {
                 key: 0,
@@ -22078,22 +22082,22 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 class: "button secondary",
                 disabled: g.value,
                 onClick: gi
-              }, l(o(f)("library", "Forget missing publication")), 9, yL)) : S("", !0)
+              }, l(o(f)("library", "Forget missing publication")), 9, mL)) : S("", !0)
             ]),
-            r("section", mL, [
+            r("section", _L, [
               r("h2", null, l(o(f)("library", "Nextcloud tags")), 1),
-              r("div", _L, [
+              r("div", wL, [
                 (c(!0), h(K, null, ce(i.value.tags, (W) => (c(), h("span", {
                   key: W.id,
                   class: "library-full-details-chip"
                 }, [
-                  r("bdi", wL, l(W.name), 1),
+                  r("bdi", kL, l(W.name), 1),
                   r("button", {
                     type: "button",
                     disabled: g.value,
                     "aria-label": `${o(f)("library", "Remove tag")}: ${W.name}`,
                     onClick: (Re) => aa(W.removeUrl)
-                  }, "×", 8, kL)
+                  }, "×", 8, SL)
                 ]))), 128))
               ]),
               r("form", {
@@ -22108,23 +22112,23 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     [xe, _.value]
                   ])
                 ]),
-                r("datalist", SL, [
+                r("datalist", CL, [
                   (c(!0), h(K, null, ce(i.value.tagSuggestions, (W) => (c(), h("option", {
                     key: W,
                     value: W
-                  }, null, 8, CL))), 128))
+                  }, null, 8, $L))), 128))
                 ]),
                 r("button", {
                   type: "submit",
                   class: "button secondary",
                   disabled: g.value || !_.value.trim()
-                }, l(o(f)("library", "Add tag")), 9, $L)
+                }, l(o(f)("library", "Add tag")), 9, TL)
               ], 32)
             ]),
-            r("section", TL, [
+            r("section", AL, [
               r("h2", null, l(o(f)("library", "Nextcloud comments")), 1),
-              r("p", AL, l(o(ht)("library", "%n comment", "%n comments", i.value.comments.count || 0)), 1),
-              i.value.comments.recent?.length ? (c(), h("ul", EL, [
+              r("p", EL, l(o(ht)("library", "%n comment", "%n comments", i.value.comments.count || 0)), 1),
+              i.value.comments.recent?.length ? (c(), h("ul", xL, [
                 (c(!0), h(K, null, ce(i.value.comments.recent, (W) => (c(), h("li", {
                   key: W.id
                 }, [
@@ -22148,26 +22152,26 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                   type: "submit",
                   class: "button secondary",
                   disabled: g.value || !k.value.trim()
-                }, l(o(f)("library", "Add comment")), 9, xL)
+                }, l(o(f)("library", "Add comment")), 9, NL)
               ], 32)
             ])
           ])
         ]),
-        r("section", NL, [
+        r("section", OL, [
           r("h2", null, l(o(f)("library", "Metadata provenance")), 1),
-          r("p", OL, l(o(f)("library", "Scanner suggestions never replace your edits automatically.")), 1),
-          Le.value.length ? (c(), h("div", RL, [
+          r("p", RL, l(o(f)("library", "Scanner suggestions never replace your edits automatically.")), 1),
+          Le.value.length ? (c(), h("div", IL, [
             (c(!0), h(K, null, ce(Le.value, (W) => (c(), h("article", {
               key: W.field
             }, [
               r("h3", null, l(W.label), 1),
               r("p", null, [
                 J(l(o(f)("library", "Current")) + ": ", 1),
-                r("bdi", IL, l(W.current || "—"), 1)
+                r("bdi", PL, l(W.current || "—"), 1)
               ]),
               r("p", null, [
                 J(l(o(f)("library", "Scanner candidate")) + ": ", 1),
-                r("bdi", PL, l(W.candidate || "—"), 1)
+                r("bdi", LL, l(W.candidate || "—"), 1)
               ]),
               r("button", {
                 type: "button",
@@ -22175,12 +22179,12 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 disabled: g.value || W.rejected,
                 title: W.rejected ? o(f)("library", "This source value exceeds field limits. Edit the field instead.") : "",
                 onClick: (Re) => aa(i.value.actions.resetField, { field: W.field })
-              }, l(o(f)("library", "Reset to scanner")), 9, LL)
+              }, l(o(f)("library", "Reset to scanner")), 9, DL)
             ]))), 128))
-          ])) : (c(), h("p", DL, l(o(f)("library", "No scanner differences for this item.")), 1)),
+          ])) : (c(), h("p", FL, l(o(f)("library", "No scanner differences for this item.")), 1)),
           r("details", null, [
             r("summary", null, l(o(f)("library", "Show all scanner provenance")), 1),
-            r("div", FL, [
+            r("div", ML, [
               (c(!0), h(K, null, ce(ve.value, (W) => (c(), h("article", {
                 key: W.field
               }, [
@@ -22188,15 +22192,15 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 r("p", null, l(o(f)("library", "Scanner source")) + ": " + l(W.source || "—"), 1),
                 r("p", null, [
                   J(l(o(f)("library", "Current")) + ": ", 1),
-                  r("bdi", ML, l(W.current || "—"), 1)
+                  r("bdi", UL, l(W.current || "—"), 1)
                 ]),
                 r("p", null, [
                   J(l(o(f)("library", "Scanner candidate")) + ": ", 1),
-                  r("bdi", UL, l(W.candidate || "—"), 1)
+                  r("bdi", jL, l(W.candidate || "—"), 1)
                 ]),
-                W.sourceOriginal ? (c(), h("p", jL, [
+                W.sourceOriginal ? (c(), h("p", zL, [
                   J(l(o(f)("library", "Original source value")) + ": ", 1),
-                  r("bdi", zL, l(W.sourceOriginal), 1)
+                  r("bdi", BL, l(W.sourceOriginal), 1)
                 ])) : S("", !0)
               ]))), 128))
             ])
@@ -22208,436 +22212,436 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
             disabled: g.value || de.value.length > 0,
             title: de.value.length ? o(f)("library", "This source value exceeds field limits. Edit the field instead.") : "",
             onClick: re[29] || (re[29] = (W) => aa(i.value.actions.resetFields))
-          }, l(o(f)("library", "Reset all fields to scanner")), 9, BL)) : S("", !0)
+          }, l(o(f)("library", "Reset all fields to scanner")), 9, VL)) : S("", !0)
         ])
       ], 64)) : S("", !0)
     ]));
   }
-}, HL = /* @__PURE__ */ Ln(VL, [["__scopeId", "data-v-89f2a8bd"]]), qL = ["aria-label", "title", "onClick"], GL = {
+}, qL = /* @__PURE__ */ Ln(HL, [["__scopeId", "data-v-449d48af"]]), GL = ["aria-label", "title", "onClick"], KL = {
   key: 0,
   class: "library-sidebar-filter-section",
   "aria-labelledby": "library-sidebar-filters-heading"
-}, KL = { id: "library-sidebar-filters-heading" }, WL = ["aria-label"], YL = ["value"], ZL = ["name", "value"], JL = ["value"], XL = ["value"], QL = {
+}, WL = { id: "library-sidebar-filters-heading" }, YL = ["aria-label"], ZL = ["value"], JL = ["name", "value"], XL = ["value"], QL = ["value"], e5 = {
   class: "library-filter-group",
   "data-library-filter-group": "content"
-}, e5 = ["title"], t5 = { class: "library-search-input-wrap" }, a5 = ["placeholder"], i5 = {
+}, t5 = ["title"], a5 = { class: "library-search-input-wrap" }, i5 = ["placeholder"], n5 = {
   key: 0,
   class: "library-search-spinner",
   "aria-hidden": "true"
-}, n5 = {
+}, r5 = {
   key: 0,
   class: "library-filter-draft-state",
   "data-library-pending-draft": "q"
-}, r5 = { value: "" }, l5 = ["value"], s5 = { class: "library-publisher-filter" }, o5 = { for: "library-publisher-search" }, u5 = ["placeholder", "title", "aria-activedescendant", "aria-expanded"], c5 = ["value"], d5 = {
+}, l5 = { value: "" }, s5 = ["value"], o5 = { class: "library-publisher-filter" }, u5 = { for: "library-publisher-search" }, c5 = ["placeholder", "title", "aria-activedescendant", "aria-expanded"], d5 = ["value"], f5 = {
   key: 0,
   class: "library-filter-draft-state",
   "data-library-pending-draft": "publisher"
-}, f5 = {
+}, h5 = {
   key: 1,
   id: "library-publisher-suggestions",
   class: "library-publisher-suggestions",
   role: "listbox"
-}, h5 = ["id", "aria-selected"], p5 = ["onClick"], v5 = { class: "library-publication-filter" }, b5 = { for: "library-publication-search" }, g5 = ["placeholder", "aria-expanded"], y5 = ["value"], m5 = {
+}, p5 = ["id", "aria-selected"], v5 = ["onClick"], b5 = { class: "library-publication-filter" }, g5 = { for: "library-publication-search" }, y5 = ["placeholder", "aria-expanded"], m5 = ["value"], _5 = {
   key: 0,
   class: "library-filter-draft-state",
   "data-library-pending-draft": "publication"
-}, _5 = {
+}, w5 = {
   key: 1,
   id: "library-publication-suggestions",
   class: "library-publication-suggestions",
   role: "listbox"
-}, w5 = ["onClick"], k5 = { class: "library-year-filter" }, S5 = { for: "library-year-search" }, C5 = ["placeholder", "aria-expanded"], $5 = ["value"], T5 = {
+}, k5 = ["onClick"], S5 = { class: "library-year-filter" }, C5 = { for: "library-year-search" }, $5 = ["placeholder", "aria-expanded"], T5 = ["value"], A5 = {
   key: 0,
   class: "library-filter-draft-state",
   "data-library-pending-draft": "year"
-}, A5 = {
+}, E5 = {
   key: 1,
   id: "library-year-suggestions",
   class: "library-year-suggestions",
   role: "listbox"
-}, E5 = ["onClick"], x5 = { class: "library-creator-filter" }, N5 = { for: "library-creator-search" }, O5 = ["placeholder", "title", "aria-expanded"], R5 = ["value"], I5 = {
+}, x5 = ["onClick"], N5 = { class: "library-creator-filter" }, O5 = { for: "library-creator-search" }, R5 = ["placeholder", "title", "aria-expanded"], I5 = ["value"], P5 = {
   key: 0,
   class: "library-filter-draft-state",
   "data-library-pending-draft": "creator"
-}, P5 = {
+}, L5 = {
   key: 1,
   id: "library-creator-suggestions",
   class: "library-creator-suggestions",
   role: "listbox"
-}, L5 = ["onClick"], D5 = { class: "library-tag-filter" }, F5 = { for: "library-tag-search" }, M5 = ["placeholder", "aria-expanded"], U5 = ["value"], j5 = {
+}, D5 = ["onClick"], F5 = { class: "library-tag-filter" }, M5 = { for: "library-tag-search" }, U5 = ["placeholder", "aria-expanded"], j5 = ["value"], z5 = {
   key: 0,
   id: "library-tag-suggestions",
   class: "library-tag-suggestions",
   role: "listbox"
-}, z5 = ["onClick"], B5 = { value: "" }, V5 = ["value"], H5 = {
+}, B5 = ["onClick"], V5 = { value: "" }, H5 = ["value"], q5 = {
   class: "library-filter-group",
   "data-library-filter-group": "location"
-}, q5 = { value: "" }, G5 = ["value"], K5 = { class: "library-folder-filter" }, W5 = { for: "library-folder-search" }, Y5 = ["placeholder", "title", "aria-expanded"], Z5 = {
+}, G5 = { value: "" }, K5 = ["value"], W5 = { class: "library-folder-filter" }, Y5 = { for: "library-folder-search" }, Z5 = ["placeholder", "title", "aria-expanded"], J5 = {
   key: 0,
   id: "library-folder-suggestions",
   class: "library-folder-suggestions",
   role: "listbox"
-}, J5 = ["onClick"], X5 = {
+}, X5 = ["onClick"], Q5 = {
   class: "library-filter-group",
   "data-library-filter-group": "review"
-}, Q5 = { value: "" }, e9 = ["value"], t9 = { value: "" }, a9 = ["value"], i9 = { class: "library-subject-filter" }, n9 = { for: "library-subject-search" }, r9 = ["placeholder", "title", "aria-expanded"], l9 = ["value"], s9 = {
+}, e9 = { value: "" }, t9 = ["value"], a9 = { value: "" }, i9 = ["value"], n9 = { class: "library-subject-filter" }, r9 = { for: "library-subject-search" }, l9 = ["placeholder", "title", "aria-expanded"], s9 = ["value"], o9 = {
   key: 0,
   class: "library-filter-draft-state",
   "data-library-pending-draft": "subject"
-}, o9 = {
+}, u9 = {
   key: 1,
   id: "library-subject-suggestions",
   class: "library-subject-suggestions",
   role: "listbox"
-}, u9 = ["onClick"], c9 = { class: "library-classification-filter" }, d9 = { for: "library-classification-search" }, f9 = ["placeholder", "title", "aria-expanded"], h9 = ["value"], p9 = {
+}, c9 = ["onClick"], d9 = { class: "library-classification-filter" }, f9 = { for: "library-classification-search" }, h9 = ["placeholder", "title", "aria-expanded"], p9 = ["value"], v9 = {
   key: 0,
   id: "library-classification-suggestions",
   class: "library-classification-suggestions",
   role: "listbox"
-}, v9 = ["onClick"], b9 = { value: "" }, g9 = { value: "1" }, y9 = {
+}, b9 = ["onClick"], g9 = { value: "" }, y9 = { value: "1" }, m9 = {
   class: "library-filter-group",
   "data-library-filter-group": "personal"
-}, m9 = {
+}, _9 = {
   type: "submit",
   class: "button primary"
-}, _9 = ["href"], w9 = ["lang", "dir"], k9 = ["aria-label"], S9 = ["href", "aria-label", "title", "onClick"], C9 = ["title"], $9 = ["href"], T9 = {
+}, w9 = ["href"], k9 = ["lang", "dir"], S9 = ["aria-label"], C9 = ["href", "aria-label", "title", "onClick"], $9 = ["title"], T9 = ["href"], A9 = {
   key: 1,
   class: "library-panel library-review-destination",
   "aria-labelledby": "library-review-heading"
-}, A9 = { class: "library-review-header" }, E9 = { class: "library-muted library-catalogue-eyebrow" }, x9 = { id: "library-review-heading" }, N9 = ["aria-label"], O9 = ["href", "aria-current", "onClick"], R9 = ["aria-label"], I9 = ["name", "value"], P9 = {
+}, E9 = { class: "library-review-header" }, x9 = { class: "library-muted library-catalogue-eyebrow" }, N9 = { id: "library-review-heading" }, O9 = ["aria-label"], R9 = ["href", "aria-current", "onClick"], I9 = ["aria-label"], P9 = ["name", "value"], L9 = {
   type: "submit",
   class: "button secondary"
-}, L9 = ["aria-busy"], D9 = { key: 0 }, F9 = {
+}, D9 = ["aria-busy"], F9 = { key: 0 }, M9 = {
   key: 0,
   class: "library-notice library-review-request-error",
   role: "alert"
-}, M9 = {
+}, U9 = {
   key: 1,
   class: "library-metadata-review-workbench",
   "aria-labelledby": "library-metadata-review-workbench-heading"
-}, U9 = { class: "library-metadata-review-workbench-copy" }, j9 = { class: "library-muted library-catalogue-eyebrow" }, z9 = ["title"], B9 = {
+}, j9 = { class: "library-metadata-review-workbench-copy" }, z9 = { class: "library-muted library-catalogue-eyebrow" }, B9 = ["title"], V9 = {
   key: 0,
   class: "library-metadata-review-card"
-}, V9 = {
+}, H9 = {
   class: "library-bidi-human",
   dir: "auto"
-}, H9 = { class: "library-muted" }, q9 = {
+}, q9 = { class: "library-muted" }, G9 = {
   class: "library-bidi-machine",
   dir: "ltr"
-}, G9 = { class: "library-metadata-review-fields" }, K9 = {
-  class: "library-bidi-human",
-  dir: "auto"
-}, W9 = {
+}, K9 = { class: "library-metadata-review-fields" }, W9 = {
   class: "library-bidi-human",
   dir: "auto"
 }, Y9 = {
   class: "library-bidi-human",
   dir: "auto"
 }, Z9 = {
-  class: "library-bidi-machine",
-  dir: "ltr"
-}, J9 = {
   class: "library-bidi-human",
   dir: "auto"
+}, J9 = {
+  class: "library-bidi-machine",
+  dir: "ltr"
 }, X9 = {
   class: "library-bidi-human",
   dir: "auto"
-}, Q9 = ["action"], eD = ["value"], tD = ["value"], aD = ["disabled", "title"], iD = { class: "library-metadata-review-actions" }, nD = ["href"], rD = ["href"], lD = {
+}, Q9 = {
+  class: "library-bidi-human",
+  dir: "auto"
+}, eD = ["action"], tD = ["value"], aD = ["value"], iD = ["disabled", "title"], nD = { class: "library-metadata-review-actions" }, rD = ["href"], lD = ["href"], sD = {
   key: 2,
   class: "library-review-empty",
   role: "status"
-}, sD = ["href"], oD = ["aria-label"], uD = ["onClick"], cD = {
+}, oD = ["href"], uD = ["aria-label"], cD = ["onClick"], dD = {
   class: "library-bidi-human",
   dir: "auto"
-}, dD = {
+}, fD = {
   key: 0,
   class: "library-muted"
-}, fD = {
+}, hD = {
   class: "library-bidi-human",
   dir: "auto"
-}, hD = {
+}, pD = {
   key: 1,
   class: "library-scan-error"
-}, pD = {
+}, vD = {
   class: "library-bidi-human",
   dir: "auto"
-}, vD = ["onClick"], bD = ["href", "onClick"], gD = ["aria-label"], yD = ["href"], mD = {
+}, bD = ["onClick"], gD = ["href", "onClick"], yD = ["aria-label"], mD = ["href"], _D = {
   key: 1,
   class: "library-muted"
-}, _D = { key: 0 }, wD = ["href"], kD = {
+}, wD = { key: 0 }, kD = ["href"], SD = {
   key: 3,
   class: "library-muted"
-}, SD = {
+}, CD = {
   key: 2,
   id: "library-home",
   class: "library-panel library-home",
   "aria-labelledby": "library-home-heading"
-}, CD = { class: "library-home-header" }, $D = { class: "library-muted library-catalogue-eyebrow" }, TD = { id: "library-home-heading" }, AD = ["aria-label"], ED = ["aria-label"], xD = ["href", "aria-label", "onClick"], ND = ["title"], OD = { class: "library-empty-actions" }, RD = ["href"], ID = ["href"], PD = {
+}, $D = { class: "library-home-header" }, TD = { class: "library-muted library-catalogue-eyebrow" }, AD = { id: "library-home-heading" }, ED = ["aria-label"], xD = ["aria-label"], ND = ["href", "aria-label", "onClick"], OD = ["title"], RD = { class: "library-empty-actions" }, ID = ["href"], PD = ["href"], LD = {
   class: "library-home-row",
   "aria-labelledby": "library-continue-heading"
-}, LD = { id: "library-continue-heading" }, DD = ["href"], FD = {
+}, DD = { id: "library-continue-heading" }, FD = ["href"], MD = {
   key: 0,
   class: "library-home-card-row"
-}, MD = ["aria-label", "onClick"], UD = { class: "library-cover-frame" }, jD = ["src"], zD = { class: "library-cover-summary" }, BD = ["onClick"], VD = { dir: "auto" }, HD = {
+}, UD = ["aria-label", "onClick"], jD = { class: "library-cover-frame" }, zD = ["src"], BD = { class: "library-cover-summary" }, VD = ["onClick"], HD = { dir: "auto" }, qD = {
   key: 0,
   class: "library-cover-creator"
-}, qD = { dir: "auto" }, GD = ["href", "onClick"], KD = {
+}, GD = { dir: "auto" }, KD = ["href", "onClick"], WD = {
   key: 1,
   class: "library-muted library-home-row-empty"
-}, WD = {
+}, YD = {
   class: "library-home-row",
   "aria-labelledby": "library-recent-heading"
-}, YD = { id: "library-recent-heading" }, ZD = ["href"], JD = {
+}, ZD = { id: "library-recent-heading" }, JD = ["href"], XD = {
   key: 0,
   class: "library-home-card-row"
-}, XD = ["aria-label", "onClick"], QD = { class: "library-cover-frame" }, e6 = ["src"], t6 = { class: "library-cover-summary" }, a6 = ["onClick"], i6 = { dir: "auto" }, n6 = {
+}, QD = ["aria-label", "onClick"], e6 = { class: "library-cover-frame" }, t6 = ["src"], a6 = { class: "library-cover-summary" }, i6 = ["onClick"], n6 = { dir: "auto" }, r6 = {
   key: 0,
   class: "library-cover-creator"
-}, r6 = { dir: "auto" }, l6 = ["href", "onClick"], s6 = {
+}, l6 = { dir: "auto" }, s6 = ["href", "onClick"], o6 = {
   key: 1,
   class: "library-muted library-home-row-empty"
-}, o6 = {
+}, u6 = {
   class: "library-home-row",
   "aria-labelledby": "library-home-shelves-heading"
-}, u6 = { id: "library-home-shelves-heading" }, c6 = ["href"], d6 = ["aria-label"], f6 = ["href"], h6 = { dir: "auto" }, p6 = {
+}, c6 = { id: "library-home-shelves-heading" }, d6 = ["href"], f6 = ["aria-label"], h6 = ["href"], p6 = { dir: "auto" }, v6 = {
   key: 1,
   class: "library-muted library-home-row-empty"
-}, v6 = {
+}, b6 = {
   key: 1,
   class: "library-home-attention",
   "aria-labelledby": "library-home-attention-heading"
-}, b6 = { id: "library-home-attention-heading" }, g6 = { class: "library-muted" }, y6 = ["href"], m6 = {
+}, g6 = { id: "library-home-attention-heading" }, y6 = { class: "library-muted" }, m6 = ["href"], _6 = {
   key: 3,
   id: "library-shelves-landing",
   class: "library-panel library-shelves-landing",
   "aria-labelledby": "library-shelves-landing-heading"
-}, _6 = { class: "library-home-header" }, w6 = { class: "library-muted library-catalogue-eyebrow" }, k6 = { id: "library-shelves-landing-heading" }, S6 = ["aria-label"], C6 = ["aria-label"], $6 = ["href", "aria-label", "onClick"], T6 = ["title"], A6 = { class: "library-empty-actions" }, E6 = ["href"], x6 = ["href"], N6 = ["aria-label"], O6 = { class: "library-shelf-tree" }, R6 = {
+}, w6 = { class: "library-home-header" }, k6 = { class: "library-muted library-catalogue-eyebrow" }, S6 = { id: "library-shelves-landing-heading" }, C6 = ["aria-label"], $6 = ["aria-label"], T6 = ["href", "aria-label", "onClick"], A6 = ["title"], E6 = { class: "library-empty-actions" }, x6 = ["href"], N6 = ["href"], O6 = ["aria-label"], R6 = { class: "library-shelf-tree" }, I6 = {
   key: 2,
   class: "library-shelves-empty",
   role: "status"
-}, I6 = { class: "library-muted" }, P6 = { class: "library-empty-actions" }, L6 = ["href"], D6 = ["href"], F6 = ["aria-busy"], M6 = { class: "library-catalogue-header" }, U6 = {
+}, P6 = { class: "library-muted" }, L6 = { class: "library-empty-actions" }, D6 = ["href"], F6 = ["href"], M6 = ["aria-busy"], U6 = { class: "library-catalogue-header" }, j6 = {
   key: 0,
   class: "library-muted library-catalogue-eyebrow"
-}, j6 = ["aria-label"], z6 = { class: "library-mobile-filter-count" }, B6 = ["aria-label"], V6 = ["value"], H6 = ["name", "value"], q6 = { class: "library-mobile-filter-group" }, G6 = { class: "library-quick-filter-search" }, K6 = { class: "library-search-input-wrap" }, W6 = ["placeholder"], Y6 = {
+}, z6 = ["aria-label"], B6 = { class: "library-mobile-filter-count" }, V6 = ["aria-label"], H6 = ["value"], q6 = ["name", "value"], G6 = { class: "library-mobile-filter-group" }, K6 = { class: "library-quick-filter-search" }, W6 = { class: "library-search-input-wrap" }, Y6 = ["placeholder"], Z6 = {
   key: 0,
   class: "library-search-spinner",
   "aria-hidden": "true"
-}, Z6 = { value: "" }, J6 = ["value"], X6 = { class: "library-publisher-filter" }, Q6 = { for: "library-mobile-publisher-search" }, eF = ["placeholder", "title", "aria-activedescendant", "aria-expanded"], tF = ["value"], aF = {
+}, J6 = { value: "" }, X6 = ["value"], Q6 = { class: "library-publisher-filter" }, eF = { for: "library-mobile-publisher-search" }, tF = ["placeholder", "title", "aria-activedescendant", "aria-expanded"], aF = ["value"], iF = {
   key: 0,
   class: "library-filter-draft-state",
   "data-library-pending-draft": "publisher"
-}, iF = {
+}, nF = {
   key: 1,
   id: "library-mobile-publisher-suggestions",
   class: "library-publisher-suggestions",
   role: "listbox"
-}, nF = ["id", "aria-selected"], rF = ["onClick"], lF = { class: "library-publication-filter" }, sF = { for: "library-mobile-publication-search" }, oF = ["placeholder", "aria-expanded"], uF = ["value"], cF = {
+}, rF = ["id", "aria-selected"], lF = ["onClick"], sF = { class: "library-publication-filter" }, oF = { for: "library-mobile-publication-search" }, uF = ["placeholder", "aria-expanded"], cF = ["value"], dF = {
   key: 0,
   class: "library-filter-draft-state",
   "data-library-pending-draft": "publication"
-}, dF = {
+}, fF = {
   key: 1,
   id: "library-mobile-publication-suggestions",
   class: "library-publication-suggestions",
   role: "listbox"
-}, fF = ["onClick"], hF = { class: "library-year-filter" }, pF = { for: "library-mobile-year-search" }, vF = ["placeholder", "aria-expanded"], bF = ["value"], gF = {
+}, hF = ["onClick"], pF = { class: "library-year-filter" }, vF = { for: "library-mobile-year-search" }, bF = ["placeholder", "aria-expanded"], gF = ["value"], yF = {
   key: 0,
   class: "library-filter-draft-state",
   "data-library-pending-draft": "year"
-}, yF = {
+}, mF = {
   key: 1,
   id: "library-mobile-year-suggestions",
   class: "library-year-suggestions",
   role: "listbox"
-}, mF = ["onClick"], _F = { class: "library-creator-filter" }, wF = { for: "library-mobile-creator-search" }, kF = ["placeholder", "title", "aria-expanded"], SF = ["value"], CF = {
+}, _F = ["onClick"], wF = { class: "library-creator-filter" }, kF = { for: "library-mobile-creator-search" }, SF = ["placeholder", "title", "aria-expanded"], CF = ["value"], $F = {
   key: 0,
   class: "library-filter-draft-state",
   "data-library-pending-draft": "creator"
-}, $F = {
+}, TF = {
   key: 1,
   id: "library-mobile-creator-suggestions",
   class: "library-creator-suggestions",
   role: "listbox"
-}, TF = ["onClick"], AF = { value: "" }, EF = ["value"], xF = { class: "library-subject-filter" }, NF = { for: "library-mobile-subject-search" }, OF = ["placeholder", "title", "aria-expanded"], RF = ["value"], IF = {
+}, AF = ["onClick"], EF = { value: "" }, xF = ["value"], NF = { class: "library-subject-filter" }, OF = { for: "library-mobile-subject-search" }, RF = ["placeholder", "title", "aria-expanded"], IF = ["value"], PF = {
   key: 0,
   class: "library-filter-draft-state",
   "data-library-pending-draft": "subject"
-}, PF = {
+}, LF = {
   key: 1,
   id: "library-mobile-subject-suggestions",
   class: "library-subject-suggestions",
   role: "listbox"
-}, LF = ["onClick"], DF = { class: "library-classification-filter" }, FF = { for: "library-mobile-classification-search" }, MF = ["placeholder", "title", "aria-expanded"], UF = ["value"], jF = {
+}, DF = ["onClick"], FF = { class: "library-classification-filter" }, MF = { for: "library-mobile-classification-search" }, UF = ["placeholder", "title", "aria-expanded"], jF = ["value"], zF = {
   key: 0,
   id: "library-mobile-classification-suggestions",
   class: "library-classification-suggestions",
   role: "listbox"
-}, zF = ["onClick"], BF = { class: "library-mobile-filter-group" }, VF = { value: "" }, HF = ["value"], qF = { class: "library-folder-filter" }, GF = { for: "library-mobile-folder-search" }, KF = ["placeholder", "title", "aria-expanded"], WF = {
+}, BF = ["onClick"], VF = { class: "library-mobile-filter-group" }, HF = { value: "" }, qF = ["value"], GF = { class: "library-folder-filter" }, KF = { for: "library-mobile-folder-search" }, WF = ["placeholder", "title", "aria-expanded"], YF = {
   key: 0,
   id: "library-mobile-folder-suggestions",
   class: "library-folder-suggestions",
   role: "listbox"
-}, YF = ["onClick"], ZF = { class: "library-mobile-filter-group" }, JF = { value: "" }, XF = ["value"], QF = { value: "" }, eM = ["value"], tM = { value: "" }, aM = { value: "1" }, iM = { class: "library-mobile-filter-group" }, nM = { class: "library-tag-filter" }, rM = { for: "library-tag-search" }, lM = ["placeholder", "aria-expanded"], sM = ["value"], oM = {
+}, ZF = ["onClick"], JF = { class: "library-mobile-filter-group" }, XF = { value: "" }, QF = ["value"], eM = { value: "" }, tM = ["value"], aM = { value: "" }, iM = { value: "1" }, nM = { class: "library-mobile-filter-group" }, rM = { class: "library-tag-filter" }, lM = { for: "library-tag-search" }, sM = ["placeholder", "aria-expanded"], oM = ["value"], uM = {
   key: 0,
   id: "library-tag-suggestions",
   class: "library-tag-suggestions",
   role: "listbox"
-}, uM = ["onClick"], cM = { value: "title" }, dM = { value: "recent" }, fM = { value: "publicationDate" }, hM = { value: "publication" }, pM = { value: "lastOpened" }, vM = { value: "format" }, bM = { value: "compact" }, gM = { value: "list" }, yM = { class: "library-mobile-filter-actions" }, mM = ["href"], _M = {
+}, cM = ["onClick"], dM = { value: "title" }, fM = { value: "recent" }, hM = { value: "publicationDate" }, pM = { value: "publication" }, vM = { value: "lastOpened" }, bM = { value: "format" }, gM = { value: "compact" }, yM = { value: "list" }, mM = { class: "library-mobile-filter-actions" }, _M = ["href"], wM = {
   type: "submit",
   class: "button primary library-mobile-filter-primary"
-}, wM = ["aria-label"], kM = { class: "library-catalogue-control-band" }, SM = {
+}, kM = ["aria-label"], SM = { class: "library-catalogue-control-band" }, CM = {
   id: "library-collections",
   class: "library-saved-collections"
-}, CM = ["title"], $M = ["action", "title"], TM = ["value"], AM = ["value"], EM = { class: "library-control-label" }, xM = ["placeholder", "disabled"], NM = ["disabled", "title"], OM = ["aria-label"], RM = ["name", "value"], IM = {
+}, $M = ["title"], TM = ["action", "title"], AM = ["value"], EM = ["value"], xM = { class: "library-control-label" }, NM = ["placeholder", "disabled"], OM = ["disabled", "title"], RM = ["aria-label"], IM = ["name", "value"], PM = {
   class: "library-sort-control",
   "data-library-control": "sort"
-}, PM = { value: "title" }, LM = { value: "recent" }, DM = { value: "publicationDate" }, FM = { value: "publication" }, MM = { value: "lastOpened" }, UM = { value: "format" }, jM = ["aria-label"], zM = ["aria-pressed"], BM = ["aria-pressed"], VM = {
+}, LM = { value: "title" }, DM = { value: "recent" }, FM = { value: "publicationDate" }, MM = { value: "publication" }, UM = { value: "lastOpened" }, jM = { value: "format" }, zM = ["aria-label"], BM = ["aria-pressed"], VM = ["aria-pressed"], HM = {
   key: 0,
   class: "library-warning library-batch-limit-error"
-}, HM = {
+}, qM = {
   key: 1,
   class: "library-warning library-batch-selection-error"
-}, qM = {
+}, GM = {
   key: 2,
   class: "library-notice library-batch-metadata-apply-result"
-}, GM = {
+}, KM = {
   class: "library-catalogue-request-status",
   role: "status",
   "aria-live": "polite"
-}, KM = { key: 0 }, WM = { key: 1 }, YM = {
+}, WM = { key: 0 }, YM = { key: 1 }, ZM = {
   key: 3,
   class: "library-discovery-hero",
   "aria-labelledby": "library-discovery-heading"
-}, ZM = { class: "library-muted library-catalogue-eyebrow" }, JM = ["title"], XM = ["aria-label"], QM = { key: 0 }, eU = { key: 1 }, tU = { key: 2 }, aU = ["aria-label"], iU = { key: 0 }, nU = { key: 1 }, rU = {
+}, JM = { class: "library-muted library-catalogue-eyebrow" }, XM = ["title"], QM = ["aria-label"], eU = { key: 0 }, tU = { key: 1 }, aU = { key: 2 }, iU = ["aria-label"], nU = { key: 0 }, rU = { key: 1 }, lU = {
   key: 1,
   class: "library-publication-issue-groups",
   "aria-labelledby": "library-publication-issue-groups-heading"
-}, lU = { class: "library-muted library-catalogue-eyebrow" }, sU = ["title"], oU = ["aria-label"], uU = ["href"], cU = {
+}, sU = { class: "library-muted library-catalogue-eyebrow" }, oU = ["title"], uU = ["aria-label"], cU = ["href"], dU = {
   key: 0,
   class: "library-notice"
-}, dU = { class: "library-publication-issue-label" }, fU = ["href"], hU = { class: "library-muted" }, pU = {
+}, fU = { class: "library-publication-issue-label" }, hU = ["href"], pU = { class: "library-muted" }, vU = {
   key: 1,
   class: "library-publication-unknown-issues"
-}, vU = ["title"], bU = ["href"], gU = { class: "library-catalogue-status-row" }, yU = { class: "library-muted library-filter-result-summary" }, mU = ["aria-label"], _U = { class: "library-pagination-range" }, wU = { key: 0 }, kU = ["href"], SU = {
+}, bU = ["title"], gU = ["href"], yU = { class: "library-catalogue-status-row" }, mU = { class: "library-muted library-filter-result-summary" }, _U = ["aria-label"], wU = { class: "library-pagination-range" }, kU = { key: 0 }, SU = ["href"], CU = {
   key: 1,
   class: "library-muted"
-}, CU = ["href"], $U = {
+}, $U = ["href"], TU = {
   key: 3,
   class: "library-muted"
-}, TU = ["title"], AU = { class: "library-empty-actions" }, EU = ["href"], xU = { class: "library-muted" }, NU = ["title"], OU = { class: "library-empty-actions" }, RU = ["href"], IU = ["title"], PU = ["aria-label"], LU = ["href", "aria-label", "onClick"], DU = ["title"], FU = {
+}, AU = ["title"], EU = { class: "library-empty-actions" }, xU = ["href"], NU = { class: "library-muted" }, OU = ["title"], RU = { class: "library-empty-actions" }, IU = ["href"], PU = ["title"], LU = ["aria-label"], DU = ["href", "aria-label", "onClick"], FU = ["title"], MU = {
   key: 1,
   class: "library-muted"
-}, MU = { class: "library-empty-actions" }, UU = ["href"], jU = ["title"], zU = { class: "library-empty-actions" }, BU = ["href"], VU = ["aria-label"], HU = { class: "library-list-selection-actions" }, qU = { class: "library-select-visible" }, GU = ["checked"], KU = ["title"], WU = {
+}, UU = { class: "library-empty-actions" }, jU = ["href"], zU = ["title"], BU = { class: "library-empty-actions" }, VU = ["href"], HU = ["aria-label"], qU = { class: "library-list-selection-actions" }, GU = { class: "library-select-visible" }, KU = ["checked"], WU = ["title"], YU = {
   key: 0,
   "aria-live": "polite"
-}, YU = ["aria-label"], ZU = { value: "" }, JU = { value: "tag" }, XU = { value: "untag" }, QU = { value: "edit" }, ej = { value: "covers" }, tj = { value: "reset" }, aj = ["action"], ij = ["value"], nj = ["placeholder"], rj = ["title"], lj = ["action"], sj = ["value"], oj = ["placeholder"], uj = ["title"], cj = ["action"], dj = ["value"], fj = ["name", "value"], hj = ["title"], pj = ["action"], vj = ["value"], bj = ["name", "value"], gj = { name: "bulkEditField" }, yj = { value: "publicationType" }, mj = { value: "subtitle" }, _j = { value: "creators" }, wj = { value: "publication" }, kj = { value: "series" }, Sj = { value: "seriesNumber" }, Cj = { value: "genre" }, $j = { value: "publicationDate" }, Tj = { value: "language" }, Aj = { value: "publisher" }, Ej = { value: "subjects" }, xj = { value: "classifications" }, Nj = ["placeholder"], Oj = ["title"], Rj = ["action"], Ij = ["value"], Pj = ["name", "value"], Lj = ["title"], Dj = {
+}, ZU = ["aria-label"], JU = { value: "" }, XU = { value: "tag" }, QU = { value: "untag" }, ej = { value: "edit" }, tj = { value: "covers" }, aj = { value: "reset" }, ij = ["action"], nj = ["value"], rj = ["placeholder"], lj = ["title"], sj = ["action"], oj = ["value"], uj = ["placeholder"], cj = ["title"], dj = ["action"], fj = ["value"], hj = ["name", "value"], pj = ["title"], vj = ["action"], bj = ["value"], gj = ["name", "value"], yj = { name: "bulkEditField" }, mj = { value: "publicationType" }, _j = { value: "subtitle" }, wj = { value: "creators" }, kj = { value: "publication" }, Sj = { value: "series" }, Cj = { value: "seriesNumber" }, $j = { value: "genre" }, Tj = { value: "publicationDate" }, Aj = { value: "language" }, Ej = { value: "publisher" }, xj = { value: "subjects" }, Nj = { value: "classifications" }, Oj = ["placeholder"], Rj = ["title"], Ij = ["action"], Pj = ["value"], Lj = ["name", "value"], Dj = ["title"], Fj = {
   key: 6,
   class: "library-duplicate-page-status",
   role: "status"
-}, Fj = {
+}, Mj = {
   key: 7,
   class: "library-catalogue-list-scroll",
   "data-library-catalogue-list-scroll": ""
-}, Mj = {
+}, Uj = {
   class: "library-catalogue-list",
   "data-library-catalogue-list": ""
-}, Uj = { class: "hidden-visually" }, jj = { class: "library-catalogue-list-selection" }, zj = { class: "hidden-visually" }, Bj = { class: "library-catalogue-list-cover-heading" }, Vj = { class: "hidden-visually" }, Hj = { scope: "col" }, qj = { scope: "col" }, Gj = { scope: "col" }, Kj = { scope: "col" }, Wj = { scope: "col" }, Yj = { scope: "col" }, Zj = { scope: "col" }, Jj = { class: "library-catalogue-list-selection" }, Xj = { class: "library-item-selection" }, Qj = ["checked", "aria-label", "onChange"], ez = { class: "library-catalogue-list-cover-cell" }, tz = ["aria-label", "onClick"], az = ["src"], iz = {
+}, jj = { class: "hidden-visually" }, zj = { class: "library-catalogue-list-selection" }, Bj = { class: "hidden-visually" }, Vj = { class: "library-catalogue-list-cover-heading" }, Hj = { class: "hidden-visually" }, qj = { scope: "col" }, Gj = { scope: "col" }, Kj = { scope: "col" }, Wj = { scope: "col" }, Yj = { scope: "col" }, Zj = { scope: "col" }, Jj = { scope: "col" }, Xj = { class: "library-catalogue-list-selection" }, Qj = { class: "library-item-selection" }, ez = ["checked", "aria-label", "onChange"], tz = { class: "library-catalogue-list-cover-cell" }, az = ["aria-label", "onClick"], iz = ["src"], nz = {
   scope: "row",
   class: "library-catalogue-list-title-cell"
-}, nz = ["onClick"], rz = {
+}, rz = ["onClick"], lz = {
   class: "library-bidi-human",
   dir: "auto"
-}, lz = ["href"], sz = { class: "library-catalogue-list-creators" }, oz = {
+}, sz = ["href"], oz = { class: "library-catalogue-list-creators" }, uz = {
   key: 0,
   class: "library-bidi-human",
   dir: "auto"
-}, uz = ["aria-label"], cz = ["datetime"], dz = ["aria-label"], fz = {
+}, cz = ["aria-label"], dz = ["datetime"], fz = ["aria-label"], hz = {
   key: 0,
   class: "library-bidi-human",
   dir: "auto"
-}, hz = ["aria-label"], pz = ["dir"], vz = ["aria-label"], bz = {
+}, pz = ["aria-label"], vz = ["dir"], bz = ["aria-label"], gz = {
   key: 0,
   class: "library-bidi-human",
   dir: "auto"
-}, gz = ["aria-label"], yz = { class: "library-catalogue-list-actions" }, mz = ["href", "onClick"], _z = ["onClick"], wz = { class: "library-item-selection" }, kz = ["checked", "aria-label", "onChange"], Sz = ["aria-labelledby", "aria-expanded", "onClick"], Cz = ["id"], $z = ["action", "onSubmit"], Tz = ["value"], Az = ["value"], Ez = ["aria-pressed", "title", "aria-label", "aria-busy", "disabled", "onClick"], xz = ["data-library-star-error"], Nz = { class: "library-cover-summary" }, Oz = { class: "library-cover-primary" }, Rz = ["href"], Iz = ["id"], Pz = ["onClick"], Lz = {
+}, yz = ["aria-label"], mz = { class: "library-catalogue-list-actions" }, _z = ["href", "onClick"], wz = ["onClick"], kz = { class: "library-item-selection" }, Sz = ["checked", "aria-label", "onChange"], Cz = ["aria-labelledby", "aria-expanded", "onClick"], $z = ["id"], Tz = ["action", "onSubmit"], Az = ["value"], Ez = ["value"], xz = ["aria-pressed", "title", "aria-label", "aria-busy", "disabled", "onClick"], Nz = ["data-library-star-error"], Oz = { class: "library-cover-summary" }, Rz = { class: "library-cover-primary" }, Iz = ["href"], Pz = ["id"], Lz = ["onClick"], Dz = {
   class: "library-bidi-human",
   dir: "auto"
-}, Dz = {
+}, Fz = {
   key: 1,
   class: "library-cover-creator"
-}, Fz = {
+}, Mz = {
   class: "library-bidi-human",
   dir: "auto"
-}, Mz = {
+}, Uz = {
   key: 2,
   class: "library-cover-context"
-}, Uz = {
+}, jz = {
   class: "library-bidi-human",
   dir: "auto"
-}, jz = ["aria-label"], zz = { class: "library-pagination-range" }, Bz = { key: 0 }, Vz = ["href"], Hz = {
+}, zz = ["aria-label"], Bz = { class: "library-pagination-range" }, Vz = { key: 0 }, Hz = ["href"], qz = {
   key: 1,
   class: "library-muted"
-}, qz = ["href"], Gz = {
+}, Gz = ["href"], Kz = {
   key: 3,
   class: "library-muted"
-}, Kz = { class: "library-sidebar-content" }, Wz = {
+}, Wz = { class: "library-sidebar-content" }, Yz = {
   key: 0,
   class: "library-muted",
   role: "status",
   "aria-live": "polite"
-}, Yz = ["role"], Zz = {
+}, Zz = ["role"], Jz = {
   id: "library-detail-drawer-keyboard-hint",
   class: "hidden-visually"
-}, Jz = { class: "library-sidebar-publication-header" }, Xz = {
+}, Xz = { class: "library-sidebar-publication-header" }, Qz = {
   id: "library-detail-drawer-cover-label",
   class: "hidden-visually"
-}, Qz = ["src"], e7 = { class: "library-sidebar-publication-summary" }, t7 = { class: "library-muted library-catalogue-eyebrow" }, a7 = {
+}, e7 = ["src"], t7 = { class: "library-sidebar-publication-summary" }, a7 = { class: "library-muted library-catalogue-eyebrow" }, i7 = {
   class: "library-bidi-human",
   dir: "auto"
-}, i7 = { key: 0 }, n7 = {
+}, n7 = { key: 0 }, r7 = {
   class: "library-bidi-machine",
   dir: "ltr"
-}, r7 = { class: "library-detail-drawer-actions" }, l7 = ["href"], s7 = ["href"], o7 = ["aria-label"], u7 = ["aria-current", "onClick"], c7 = {
+}, l7 = { class: "library-detail-drawer-actions" }, s7 = ["href"], o7 = ["href"], u7 = ["aria-label"], c7 = ["aria-current", "onClick"], d7 = {
   key: 0,
   class: "library-sidebar-section",
   "aria-labelledby": "library-sidebar-overview-heading"
-}, d7 = { id: "library-sidebar-overview-heading" }, f7 = {
+}, f7 = { id: "library-sidebar-overview-heading" }, h7 = {
   key: 0,
   class: "library-sidebar-description"
-}, h7 = {
+}, p7 = {
   class: "library-bidi-human",
   dir: "auto"
-}, p7 = { class: "library-detail-drawer-facts" }, v7 = { key: 0 }, b7 = ["href", "title"], g7 = {
+}, v7 = { class: "library-detail-drawer-facts" }, b7 = { key: 0 }, g7 = ["href", "title"], y7 = {
   class: "library-bidi-human",
   dir: "auto"
-}, y7 = { key: 1 }, m7 = ["href", "title"], _7 = { key: 1 }, w7 = { key: 2 }, k7 = { key: 2 }, S7 = ["href", "title"], C7 = {
+}, m7 = { key: 1 }, _7 = ["href", "title"], w7 = { key: 1 }, k7 = { key: 2 }, S7 = { key: 2 }, C7 = ["href", "title"], $7 = {
   class: "library-bidi-human",
   dir: "auto"
-}, $7 = { key: 3 }, T7 = { class: "library-detail-facet-list" }, A7 = ["href", "title", "onClick"], E7 = {
+}, T7 = { key: 3 }, A7 = { class: "library-detail-facet-list" }, E7 = ["href", "title", "onClick"], x7 = {
   class: "library-bidi-machine",
   dir: "ltr"
-}, x7 = { key: 4 }, N7 = {
+}, N7 = { key: 4 }, O7 = {
   key: 1,
   class: "library-sidebar-section",
   "aria-labelledby": "library-sidebar-metadata-heading"
-}, O7 = { id: "library-sidebar-metadata-heading" }, R7 = ["placeholder"], I7 = ["onUpdate:modelValue", "aria-label"], P7 = { value: "isbn" }, L7 = { value: "issn" }, D7 = ["onUpdate:modelValue", "aria-label"], F7 = ["onClick"], M7 = {
+}, R7 = { id: "library-sidebar-metadata-heading" }, I7 = ["placeholder"], P7 = ["onUpdate:modelValue", "aria-label"], L7 = { value: "isbn" }, D7 = { value: "issn" }, F7 = ["onUpdate:modelValue", "aria-label"], M7 = ["onClick"], U7 = {
   key: 0,
   role: "alert"
-}, U7 = {
+}, j7 = {
   key: 1,
   role: "status"
-}, j7 = ["disabled"], z7 = {
+}, z7 = ["disabled"], B7 = {
   key: 1,
   class: "library-sidebar-review",
   "aria-labelledby": "library-sidebar-suggestions-heading"
-}, B7 = { id: "library-sidebar-suggestions-heading" }, V7 = {
+}, V7 = { id: "library-sidebar-suggestions-heading" }, H7 = {
   key: 2,
   class: "library-sidebar-section",
   "aria-labelledby": "library-sidebar-activity-heading"
-}, H7 = { id: "library-sidebar-activity-heading" }, q7 = { class: "library-detail-drawer-facts" }, G7 = { key: 0 }, K7 = { key: 1 }, W7 = { key: 2 }, Y7 = { class: "library-detail-drawer-file" }, Z7 = ["href"], J7 = { dir: "ltr" }, X7 = {
+}, q7 = { id: "library-sidebar-activity-heading" }, G7 = { class: "library-detail-drawer-facts" }, K7 = { key: 0 }, W7 = { key: 1 }, Y7 = { key: 2 }, Z7 = { class: "library-detail-drawer-file" }, J7 = ["href"], X7 = { dir: "ltr" }, Q7 = {
   key: 1,
   dir: "ltr"
-}, Q7 = ["aria-label"], eB = ["href"], tB = { dir: "auto" }, aB = ["aria-label"], iB = ["href"], nB = { dir: "auto" }, rB = ["aria-label"], lB = ["href"], sB = { dir: "auto" }, oB = ["aria-label"], uB = ["href"], cB = { dir: "auto" }, dB = ["aria-label"], fB = ["disabled"], hB = ["disabled"], pB = 20, vB = "/apps/library", bB = 2147483647, gB = {
+}, eB = ["aria-label"], tB = ["href"], aB = { dir: "auto" }, iB = ["aria-label"], nB = ["href"], rB = { dir: "auto" }, lB = ["aria-label"], sB = ["href"], oB = { dir: "auto" }, uB = ["aria-label"], cB = ["href"], dB = { dir: "auto" }, fB = ["aria-label"], hB = ["disabled"], pB = ["disabled"], vB = 20, bB = "/apps/library", gB = 2147483647, yB = {
   __name: "App",
   props: {
     state: {
@@ -22744,7 +22748,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
       w !== "status" && (u(w, A[w]) || (A[w] = ""));
     const j = /* @__PURE__ */ M(A.publication), Y = /* @__PURE__ */ M(A.q), ae = /* @__PURE__ */ M(!1), te = /* @__PURE__ */ M(null), z = q(() => {
       const w = j.value.trim().toLocaleLowerCase();
-      return (w !== "" && te.value !== null ? te.value : I.value).filter((p) => w === "" || p.toLocaleLowerCase().includes(w)).slice(0, pB);
+      return (w !== "" && te.value !== null ? te.value : I.value).filter((p) => w === "" || p.toLocaleLowerCase().includes(w)).slice(0, vB);
     });
     qe(() => A.publication, (w) => {
       j.value = w || "";
@@ -22859,7 +22863,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
         iy(y, p);
       }, 200);
     });
-    const Bt = Object.fromEntries(Object.keys(A).map((w) => [w, w === "sort" ? "title" : w === "view" ? "compact" : ""])), aa = window.location.pathname.indexOf(vB), Qa = aa >= 0 ? window.location.pathname.slice(0, aa) : "", vi = {
+    const Bt = Object.fromEntries(Object.keys(A).map((w) => [w, w === "sort" ? "title" : w === "view" ? "compact" : ""])), aa = window.location.pathname.indexOf(bB), Qa = aa >= 0 ? window.location.pathname.slice(0, aa) : "", vi = {
       catalogue: `${Qa}/apps/library/`,
       review: `${Qa}/apps/library/?scannerConflicts=1`,
       settings: `${Qa}/settings/user/library`
@@ -23263,7 +23267,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
       const w = new URLSearchParams(window.location.search).getAll("item");
       if (w.length !== 1 || !/^[1-9][0-9]*$/.test(w[0])) return null;
       const y = Number(w[0]);
-      return Number.isSafeInteger(y) && y <= bB ? y : null;
+      return Number.isSafeInteger(y) && y <= gB ? y : null;
     }
     function gf(w, y = "push") {
       const p = new URL(window.location.href);
@@ -23811,7 +23815,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     "aria-label": `${o(t)("library", "Delete collection")}: ${p.rawName}`,
                     title: `${o(t)("library", "Delete collection")}: ${p.rawName}`,
                     onClick: $e((H) => ky(p.id), ["stop", "prevent"])
-                  }, "✕", 8, qL)
+                  }, "✕", 8, GL)
                 ]))), 128)),
                 he(o(Ia), {
                   active: Re.value,
@@ -23873,8 +23877,8 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
             })
           ]),
           footer: Te(() => [
-            !Re.value && !Ge.value && !Ut.value && !Ta.value && !W.value && !re.value && !ft.value ? (c(), h("section", GL, [
-              r("h2", KL, l(o(t)("library", "Filters")), 1),
+            !Re.value && !Ge.value && !Ut.value && !Ta.value && !W.value && !re.value && !ft.value ? (c(), h("section", KL, [
+              r("h2", WL, l(o(t)("library", "Filters")), 1),
               r("form", {
                 method: "get",
                 class: "library-filter-bar library-sidebar-filters",
@@ -23885,26 +23889,26 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                   type: "hidden",
                   name: "folder",
                   value: A.folder
-                }, null, 8, YL),
+                }, null, 8, ZL),
                 (c(!0), h(K, null, ce(lf.value, (p) => (c(), h("input", {
                   key: `sidebar-${p.key}`,
                   type: "hidden",
                   name: p.key,
                   value: p.value
-                }, null, 8, ZL))), 128)),
+                }, null, 8, JL))), 128)),
                 A.sort && A.sort !== "title" ? (c(), h("input", {
                   key: 0,
                   type: "hidden",
                   name: "sort",
                   value: A.sort
-                }, null, 8, JL)) : S("", !0),
+                }, null, 8, XL)) : S("", !0),
                 A.view && A.view !== "compact" ? (c(), h("input", {
                   key: 1,
                   type: "hidden",
                   name: "view",
                   value: A.view
-                }, null, 8, XL)) : S("", !0),
-                r("fieldset", QL, [
+                }, null, 8, QL)) : S("", !0),
+                r("fieldset", e5, [
                   r("legend", null, l(o(t)("library", "Content")), 1),
                   r("label", {
                     class: "library-quick-filter-search",
@@ -23914,7 +23918,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       J(l(o(t)("library", "Search")) + " ", 1),
                       y[112] || (y[112] = r("kbd", { class: "library-keyboard-hint" }, "/", -1))
                     ]),
-                    r("span", t5, [
+                    r("span", a5, [
                       fe(r("input", {
                         ref_key: "quickSearchInput",
                         ref: ll,
@@ -23923,13 +23927,13 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                         type: "search",
                         name: "q",
                         placeholder: o(t)("library", "Title, creator, description, filename or folder")
-                      }, null, 8, a5), [
+                      }, null, 8, i5), [
                         [xe, Y.value]
                       ]),
-                      jt.loading ? (c(), h("span", i5)) : S("", !0)
+                      jt.loading ? (c(), h("span", n5)) : S("", !0)
                     ]),
-                    Na("q") ? (c(), h("small", n5, l(ri("q")), 1)) : S("", !0)
-                  ], 8, e5),
+                    Na("q") ? (c(), h("small", r5, l(ri("q")), 1)) : S("", !0)
+                  ], 8, t5),
                   r("label", null, [
                     J(l(o(t)("library", "Type")), 1),
                     fe(r("select", {
@@ -23937,17 +23941,17 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       name: "type",
                       onChange: y[2] || (y[2] = (p) => Oa(p))
                     }, [
-                      r("option", r5, l(o(t)("library", "All types")), 1),
+                      r("option", l5, l(o(t)("library", "All types")), 1),
                       (c(!0), h(K, null, ce(D.value, (p) => (c(), h("option", {
                         key: p,
                         value: p
-                      }, l(p), 9, l5))), 128))
+                      }, l(p), 9, s5))), 128))
                     ], 544), [
                       [rt, A.type]
                     ])
                   ]),
-                  r("div", s5, [
-                    r("label", o5, l(o(t)("library", "Publisher")), 1),
+                  r("div", o5, [
+                    r("label", u5, l(o(t)("library", "Publisher")), 1),
                     fe(r("input", {
                       id: "library-publisher-search",
                       "onUpdate:modelValue": y[3] || (y[3] = (p) => se.value = p),
@@ -23963,16 +23967,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       "aria-expanded": ie.value && V.value.length > 0 ? "true" : "false",
                       onFocus: y[4] || (y[4] = (p) => If("publisher")),
                       onKeydown: y[5] || (y[5] = (p) => Pf(p, "publisher"))
-                    }, null, 40, u5), [
+                    }, null, 40, c5), [
                       [xe, se.value]
                     ]),
                     r("input", {
                       type: "hidden",
                       name: "publisher",
                       value: A.publisher
-                    }, null, 8, c5),
-                    Na("publisher") ? (c(), h("small", d5, l(ri("publisher")), 1)) : S("", !0),
-                    ie.value && V.value.length > 0 ? (c(), h("ul", f5, [
+                    }, null, 8, d5),
+                    Na("publisher") ? (c(), h("small", f5, l(ri("publisher")), 1)) : S("", !0),
+                    ie.value && V.value.length > 0 ? (c(), h("ul", h5, [
                       (c(!0), h(K, null, ce(V.value, (p, H) => (c(), h("li", {
                         id: Gu("desktop", "publisher", H),
                         key: p,
@@ -23985,16 +23989,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           onMousedown: y[6] || (y[6] = $e(() => {
                           }, ["prevent"])),
                           onClick: (ye) => $f(p, ye)
-                        }, l(p), 41, p5)
-                      ], 8, h5))), 128))
+                        }, l(p), 41, v5)
+                      ], 8, p5))), 128))
                     ])) : S("", !0),
                     r("button", {
                       type: "submit",
                       class: Ne(["button secondary library-publisher-apply", Di("publisher")])
                     }, l(o(t)("library", "Apply publisher")), 3)
                   ]),
-                  r("div", v5, [
-                    r("label", b5, l(o(t)("library", "Series / periodical")), 1),
+                  r("div", b5, [
+                    r("label", g5, l(o(t)("library", "Series / periodical")), 1),
                     fe(r("input", {
                       id: "library-publication-search",
                       "onUpdate:modelValue": y[7] || (y[7] = (p) => j.value = p),
@@ -24008,16 +24012,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       "aria-expanded": ae.value && z.value.length > 0 ? "true" : "false",
                       onFocus: y[8] || (y[8] = (p) => ae.value = !0),
                       onKeydown: y[9] || (y[9] = bt((p) => ae.value = !1, ["escape"]))
-                    }, null, 40, g5), [
+                    }, null, 40, y5), [
                       [xe, j.value]
                     ]),
                     r("input", {
                       type: "hidden",
                       name: "publication",
                       value: A.publication
-                    }, null, 8, y5),
-                    Na("publication") ? (c(), h("small", m5, l(ri("publication")), 1)) : S("", !0),
-                    ae.value && z.value.length > 0 ? (c(), h("ul", _5, [
+                    }, null, 8, m5),
+                    Na("publication") ? (c(), h("small", _5, l(ri("publication")), 1)) : S("", !0),
+                    ae.value && z.value.length > 0 ? (c(), h("ul", w5, [
                       (c(!0), h(K, null, ce(z.value, (p) => (c(), h("li", {
                         key: p,
                         role: "option"
@@ -24028,7 +24032,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           onMousedown: y[10] || (y[10] = $e(() => {
                           }, ["prevent"])),
                           onClick: (H) => kf(p, H)
-                        }, l(p), 41, w5)
+                        }, l(p), 41, k5)
                       ]))), 128))
                     ])) : S("", !0),
                     r("button", {
@@ -24036,8 +24040,8 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       class: Ne(["button secondary library-publication-apply", Di("publication")])
                     }, l(o(t)("library", "Apply series")), 3)
                   ]),
-                  r("div", k5, [
-                    r("label", S5, l(o(t)("library", "Publication year")), 1),
+                  r("div", S5, [
+                    r("label", C5, l(o(t)("library", "Publication year")), 1),
                     fe(r("input", {
                       id: "library-year-search",
                       "onUpdate:modelValue": y[11] || (y[11] = (p) => zt.value = p),
@@ -24051,16 +24055,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       "aria-expanded": pa.value && Fa.value.length > 0 ? "true" : "false",
                       onFocus: y[12] || (y[12] = (p) => pa.value = !0),
                       onKeydown: y[13] || (y[13] = bt((p) => pa.value = !1, ["escape"]))
-                    }, null, 40, C5), [
+                    }, null, 40, $5), [
                       [xe, zt.value]
                     ]),
                     r("input", {
                       type: "hidden",
                       name: "year",
                       value: A.year
-                    }, null, 8, $5),
-                    Na("year") ? (c(), h("small", T5, l(ri("year")), 1)) : S("", !0),
-                    pa.value && Fa.value.length > 0 ? (c(), h("ul", A5, [
+                    }, null, 8, T5),
+                    Na("year") ? (c(), h("small", A5, l(ri("year")), 1)) : S("", !0),
+                    pa.value && Fa.value.length > 0 ? (c(), h("ul", E5, [
                       (c(!0), h(K, null, ce(Fa.value, (p) => (c(), h("li", {
                         key: p,
                         role: "option"
@@ -24071,7 +24075,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           onMousedown: y[14] || (y[14] = $e(() => {
                           }, ["prevent"])),
                           onClick: (H) => Of(p, H)
-                        }, l(p), 41, E5)
+                        }, l(p), 41, x5)
                       ]))), 128))
                     ])) : S("", !0),
                     r("button", {
@@ -24079,8 +24083,8 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       class: Ne(["button secondary library-year-apply", Di("year")])
                     }, l(o(t)("library", "Apply year")), 3)
                   ]),
-                  r("div", x5, [
-                    r("label", N5, l(o(t)("library", "Creator")), 1),
+                  r("div", N5, [
+                    r("label", O5, l(o(t)("library", "Creator")), 1),
                     fe(r("input", {
                       id: "library-creator-search",
                       "onUpdate:modelValue": y[15] || (y[15] = (p) => Fe.value = p),
@@ -24095,16 +24099,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       "aria-expanded": He.value && Se.value.length > 0 ? "true" : "false",
                       onFocus: y[16] || (y[16] = (p) => He.value = !0),
                       onKeydown: y[17] || (y[17] = bt((p) => He.value = !1, ["escape"]))
-                    }, null, 40, O5), [
+                    }, null, 40, R5), [
                       [xe, Fe.value]
                     ]),
                     r("input", {
                       type: "hidden",
                       name: "creator",
                       value: A.creator
-                    }, null, 8, R5),
-                    Na("creator") ? (c(), h("small", I5, l(ri("creator")), 1)) : S("", !0),
-                    He.value && Se.value.length > 0 ? (c(), h("ul", P5, [
+                    }, null, 8, I5),
+                    Na("creator") ? (c(), h("small", P5, l(ri("creator")), 1)) : S("", !0),
+                    He.value && Se.value.length > 0 ? (c(), h("ul", L5, [
                       (c(!0), h(K, null, ce(Se.value, (p) => (c(), h("li", {
                         key: p,
                         role: "option"
@@ -24115,7 +24119,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           onMousedown: y[18] || (y[18] = $e(() => {
                           }, ["prevent"])),
                           onClick: (H) => Cf(p, H)
-                        }, l(p), 41, L5)
+                        }, l(p), 41, D5)
                       ]))), 128))
                     ])) : S("", !0),
                     r("button", {
@@ -24123,8 +24127,8 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       class: Ne(["button secondary library-creator-apply", Di("creator")])
                     }, l(o(t)("library", "Apply creator")), 3)
                   ]),
-                  r("div", D5, [
-                    r("label", F5, l(o(t)("library", "Nextcloud tag")), 1),
+                  r("div", F5, [
+                    r("label", M5, l(o(t)("library", "Nextcloud tag")), 1),
                     fe(r("input", {
                       id: "library-tag-search",
                       "onUpdate:modelValue": y[19] || (y[19] = (p) => wt.value = p),
@@ -24138,15 +24142,15 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       "aria-expanded": kt.value && ha.value.length > 0 ? "true" : "false",
                       onFocus: y[20] || (y[20] = (p) => kt.value = !0),
                       onKeydown: y[21] || (y[21] = bt((p) => kt.value = !1, ["escape"]))
-                    }, null, 40, M5), [
+                    }, null, 40, U5), [
                       [xe, wt.value]
                     ]),
                     r("input", {
                       type: "hidden",
                       name: "tag",
                       value: A.tag
-                    }, null, 8, U5),
-                    kt.value && ha.value.length > 0 ? (c(), h("ul", j5, [
+                    }, null, 8, j5),
+                    kt.value && ha.value.length > 0 ? (c(), h("ul", z5, [
                       (c(!0), h(K, null, ce(ha.value, (p) => (c(), h("li", {
                         key: p,
                         role: "option"
@@ -24157,7 +24161,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           onMousedown: y[22] || (y[22] = $e(() => {
                           }, ["prevent"])),
                           onClick: (H) => Af(p, H)
-                        }, l(p), 41, z5)
+                        }, l(p), 41, B5)
                       ]))), 128))
                     ])) : S("", !0),
                     r("button", {
@@ -24172,17 +24176,17 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       name: "format",
                       onChange: y[24] || (y[24] = (p) => Oa(p))
                     }, [
-                      r("option", B5, l(o(t)("library", "All formats")), 1),
+                      r("option", V5, l(o(t)("library", "All formats")), 1),
                       (c(!0), h(K, null, ce(x.value, (p) => (c(), h("option", {
                         key: p,
                         value: p
-                      }, l(Ms(p)), 9, V5))), 128))
+                      }, l(Ms(p)), 9, H5))), 128))
                     ], 544), [
                       [rt, A.format]
                     ])
                   ])
                 ]),
-                r("fieldset", H5, [
+                r("fieldset", q5, [
                   r("legend", null, l(o(t)("library", "Location")), 1),
                   r("label", null, [
                     J(l(o(t)("library", "Shelf")), 1),
@@ -24191,17 +24195,17 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       name: "shelf",
                       onChange: y[26] || (y[26] = (p) => Oa(p))
                     }, [
-                      r("option", q5, l(o(t)("library", "All shelves")), 1),
+                      r("option", G5, l(o(t)("library", "All shelves")), 1),
                       (c(!0), h(K, null, ce(C.value, (p) => (c(), h("option", {
                         key: p,
                         value: p
-                      }, l(p), 9, G5))), 128))
+                      }, l(p), 9, K5))), 128))
                     ], 544), [
                       [rt, A.shelf]
                     ])
                   ]),
-                  r("div", K5, [
-                    r("label", W5, l(o(t)("library", "Folder")), 1),
+                  r("div", W5, [
+                    r("label", Y5, l(o(t)("library", "Folder")), 1),
                     fe(r("input", {
                       id: "library-folder-search",
                       "onUpdate:modelValue": y[27] || (y[27] = (p) => nt.value = p),
@@ -24216,10 +24220,10 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       "aria-expanded": oe.value && O.value.length > 0 ? "true" : "false",
                       onFocus: y[28] || (y[28] = (p) => oe.value = !0),
                       onKeydown: y[29] || (y[29] = bt((p) => oe.value = !1, ["escape"]))
-                    }, null, 40, Y5), [
+                    }, null, 40, Z5), [
                       [xe, nt.value]
                     ]),
-                    oe.value && O.value.length > 0 ? (c(), h("ul", Z5, [
+                    oe.value && O.value.length > 0 ? (c(), h("ul", J5, [
                       (c(!0), h(K, null, ce(O.value, (p) => (c(), h("li", {
                         key: p,
                         role: "option"
@@ -24230,7 +24234,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           onMousedown: y[30] || (y[30] = $e(() => {
                           }, ["prevent"])),
                           onClick: (H) => Ef(p, H)
-                        }, l(p), 41, J5)
+                        }, l(p), 41, X5)
                       ]))), 128))
                     ])) : S("", !0),
                     r("button", {
@@ -24239,7 +24243,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     }, l(o(t)("library", "Apply folder")), 3)
                   ])
                 ]),
-                r("fieldset", X5, [
+                r("fieldset", Q5, [
                   r("legend", null, l(o(t)("library", "Review")), 1),
                   r("label", null, [
                     J(l(o(t)("library", "Scan status")), 1),
@@ -24248,11 +24252,11 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       name: "status",
                       onChange: y[32] || (y[32] = (p) => Oa(p))
                     }, [
-                      r("option", Q5, l(o(t)("library", "All scan statuses")), 1),
+                      r("option", e9, l(o(t)("library", "All scan statuses")), 1),
                       (c(!0), h(K, null, ce(F.value, (p) => (c(), h("option", {
                         key: p,
                         value: p
-                      }, l(p), 9, e9))), 128))
+                      }, l(p), 9, t9))), 128))
                     ], 544), [
                       [rt, A.status]
                     ])
@@ -24264,17 +24268,17 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       name: "workflowStatus",
                       onChange: y[34] || (y[34] = (p) => Oa(p))
                     }, [
-                      r("option", t9, l(o(t)("library", "All workflow statuses")), 1),
+                      r("option", a9, l(o(t)("library", "All workflow statuses")), 1),
                       (c(!0), h(K, null, ce(X.value, (p) => (c(), h("option", {
                         key: p,
                         value: p
-                      }, l(p), 9, a9))), 128))
+                      }, l(p), 9, i9))), 128))
                     ], 544), [
                       [rt, A.workflowStatus]
                     ])
                   ]),
-                  r("div", i9, [
-                    r("label", n9, l(o(t)("library", "Subject")), 1),
+                  r("div", n9, [
+                    r("label", r9, l(o(t)("library", "Subject")), 1),
                     fe(r("input", {
                       id: "library-subject-search",
                       "onUpdate:modelValue": y[35] || (y[35] = (p) => ne.value = p),
@@ -24289,16 +24293,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       "aria-expanded": de.value && me.value.length > 0 ? "true" : "false",
                       onFocus: y[36] || (y[36] = (p) => de.value = !0),
                       onKeydown: y[37] || (y[37] = bt((p) => de.value = !1, ["escape"]))
-                    }, null, 40, r9), [
+                    }, null, 40, l9), [
                       [xe, ne.value]
                     ]),
                     r("input", {
                       type: "hidden",
                       name: "subject",
                       value: A.subject
-                    }, null, 8, l9),
-                    Na("subject") ? (c(), h("small", s9, l(ri("subject")), 1)) : S("", !0),
-                    de.value && me.value.length > 0 ? (c(), h("ul", o9, [
+                    }, null, 8, s9),
+                    Na("subject") ? (c(), h("small", o9, l(ri("subject")), 1)) : S("", !0),
+                    de.value && me.value.length > 0 ? (c(), h("ul", u9, [
                       (c(!0), h(K, null, ce(me.value, (p) => (c(), h("li", {
                         key: p,
                         role: "option"
@@ -24309,7 +24313,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           onMousedown: y[38] || (y[38] = $e(() => {
                           }, ["prevent"])),
                           onClick: (H) => Nf(p, H)
-                        }, l(p), 41, u9)
+                        }, l(p), 41, c9)
                       ]))), 128))
                     ])) : S("", !0),
                     r("button", {
@@ -24318,8 +24322,8 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       onClick: cy
                     }, l(o(t)("library", "Apply subject")), 3)
                   ]),
-                  r("div", c9, [
-                    r("label", d9, l(o(t)("library", "Classification")), 1),
+                  r("div", d9, [
+                    r("label", f9, l(o(t)("library", "Classification")), 1),
                     fe(r("input", {
                       id: "library-classification-search",
                       "onUpdate:modelValue": y[39] || (y[39] = (p) => Oe.value = p),
@@ -24334,15 +24338,15 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       "aria-expanded": De.value && Xe.value.length > 0 ? "true" : "false",
                       onFocus: y[40] || (y[40] = (p) => De.value = !0),
                       onKeydown: y[41] || (y[41] = bt((p) => De.value = !1, ["escape"]))
-                    }, null, 40, f9), [
+                    }, null, 40, h9), [
                       [xe, Oe.value]
                     ]),
                     r("input", {
                       type: "hidden",
                       name: "classification",
                       value: A.classification
-                    }, null, 8, h9),
-                    De.value && Xe.value.length > 0 ? (c(), h("ul", p9, [
+                    }, null, 8, p9),
+                    De.value && Xe.value.length > 0 ? (c(), h("ul", v9, [
                       (c(!0), h(K, null, ce(Xe.value, (p) => (c(), h("li", {
                         key: p,
                         role: "option"
@@ -24353,7 +24357,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           onMousedown: y[42] || (y[42] = $e(() => {
                           }, ["prevent"])),
                           onClick: (H) => Tf(p, H)
-                        }, l(p), 41, v9)
+                        }, l(p), 41, b9)
                       ]))), 128))
                     ])) : S("", !0),
                     r("button", {
@@ -24368,18 +24372,18 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       name: "scannerConflicts",
                       onChange: y[44] || (y[44] = (p) => Oa(p))
                     }, [
-                      r("option", b9, l(o(t)("library", "All metadata")), 1),
-                      r("option", g9, l(o(t)("library", "Suggested updates")), 1)
+                      r("option", g9, l(o(t)("library", "All metadata")), 1),
+                      r("option", y9, l(o(t)("library", "Suggested updates")), 1)
                     ], 544), [
                       [rt, A.scannerConflicts]
                     ])
                   ])
                 ]),
-                r("fieldset", y9, [
+                r("fieldset", m9, [
                   r("legend", null, l(o(t)("library", "Personal / display")), 1)
                 ]),
-                r("button", m9, l(o(t)("library", "Apply filters")), 1)
-              ], 40, WL)
+                r("button", _9, l(o(t)("library", "Apply filters")), 1)
+              ], 40, YL)
             ])) : S("", !0),
             r("a", {
               class: "library-navigation-settings-link",
@@ -24390,7 +24394,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 "aria-hidden": "true"
               }, "⚙", -1)),
               r("span", null, l(o(t)("library", "Settings")), 1)
-            ], 8, _9)
+            ], 8, w9)
           ]),
           _: 1
         }, 8, ["aria-label"]),
@@ -24428,7 +24432,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 "request-token": St.value,
                 "catalogue-url": at.value,
                 "lists-url": ia.value
-              }, null, 8, ["request-token", "catalogue-url", "lists-url"])) : ft.value ? (c(), je(HL, {
+              }, null, 8, ["request-token", "catalogue-url", "lists-url"])) : ft.value ? (c(), je(qL, {
                 key: 6,
                 "item-id": String(_.detailsId || ""),
                 "request-token": St.value,
@@ -24459,22 +24463,22 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       r("span", {
                         class: "library-filter-chip-value",
                         title: p.value
-                      }, l(p.displayValue), 9, C9)
+                      }, l(p.displayValue), 9, $9)
                     ], 64)) : S("", !0),
                     y[115] || (y[115] = J()),
                     y[116] || (y[116] = r("span", { "aria-hidden": "true" }, "×", -1))
-                  ], 8, S9))), 128)),
+                  ], 8, C9))), 128)),
                   At.value.length > 0 ? (c(), h("a", {
                     key: 0,
                     href: Ds(),
                     class: "library-active-filter-clear-all",
                     onClick: $e(Fs, ["prevent"])
-                  }, l(o(t)("library", "Clear all")), 9, $9)) : S("", !0)
-                ], 8, k9)) : S("", !0),
-                gi.value ? (c(), h("section", T9, [
-                  r("header", A9, [
-                    r("p", E9, l(o(t)("library", "Metadata cleanup")), 1),
-                    r("h2", x9, l(o(t)("library", "Review")), 1),
+                  }, l(o(t)("library", "Clear all")), 9, T9)) : S("", !0)
+                ], 8, S9)) : S("", !0),
+                gi.value ? (c(), h("section", A9, [
+                  r("header", E9, [
+                    r("p", x9, l(o(t)("library", "Metadata cleanup")), 1),
+                    r("h2", N9, l(o(t)("library", "Review")), 1),
                     he(Qe, {
                       text: o(t)("library", "Work through catalogue items that need a metadata decision. Source files remain in Nextcloud Files.")
                     }, {
@@ -24497,8 +24501,8 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     }, [
                       r("span", null, l(p.label), 1),
                       r("b", null, l(by(p.countKey)), 1)
-                    ], 10, O9))), 128))
-                  ], 8, N9),
+                    ], 10, R9))), 128))
+                  ], 8, O9),
                   r("form", {
                     method: "get",
                     class: "library-review-filter-form",
@@ -24510,7 +24514,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       type: "hidden",
                       name: p.key,
                       value: p.value
-                    }, null, 8, I9))), 128)),
+                    }, null, 8, P9))), 128)),
                     r("label", null, [
                       J(l(o(t)("library", "Search within this queue")), 1),
                       fe(r("input", {
@@ -24521,71 +24525,71 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                         [xe, A.q]
                       ])
                     ]),
-                    r("button", P9, l(o(t)("library", "Apply")), 1)
-                  ], 40, R9),
+                    r("button", L9, l(o(t)("library", "Apply")), 1)
+                  ], 40, I9),
                   r("div", {
                     class: "library-review-request-status",
                     role: "status",
                     "aria-live": "polite",
                     "aria-busy": jt.loading ? "true" : "false"
                   }, [
-                    jt.loading ? (c(), h("span", D9, l(o(t)("library", "Loading review queue…")), 1)) : S("", !0)
-                  ], 8, L9),
-                  jt.error ? (c(), h("p", F9, l(jt.error), 1)) : S("", !0),
-                  hn.value.enabled ? (c(), h("section", M9, [
-                    r("div", U9, [
-                      r("p", j9, l(o(t)("library", "Metadata review workbench")), 1),
+                    jt.loading ? (c(), h("span", F9, l(o(t)("library", "Loading review queue…")), 1)) : S("", !0)
+                  ], 8, D9),
+                  jt.error ? (c(), h("p", M9, l(jt.error), 1)) : S("", !0),
+                  hn.value.enabled ? (c(), h("section", U9, [
+                    r("div", j9, [
+                      r("p", z9, l(o(t)("library", "Metadata review workbench")), 1),
                       r("h3", {
                         id: "library-metadata-review-workbench-heading",
                         title: o(t)("library", "Shows current and suggested values with source provenance. No source files are changed; user-edited values are never silently overwritten.")
-                      }, l(o(t)("library", "Review next suggestion")), 9, z9)
+                      }, l(o(t)("library", "Review next suggestion")), 9, B9)
                     ]),
-                    hn.value.item ? (c(), h("article", B9, [
+                    hn.value.item ? (c(), h("article", V9, [
                       r("header", null, [
                         r("strong", null, [
-                          r("bdi", V9, l(hn.value.item.title), 1)
+                          r("bdi", H9, l(hn.value.item.title), 1)
                         ]),
-                        r("span", H9, [
-                          r("bdi", q9, l(hn.value.item.cachedPath), 1)
+                        r("span", q9, [
+                          r("bdi", G9, l(hn.value.item.cachedPath), 1)
                         ])
                       ]),
-                      r("div", G9, [
+                      r("div", K9, [
                         (c(!0), h(K, null, ce(hn.value.fields, (p) => (c(), h("article", {
                           key: p.field,
                           class: "library-metadata-review-field"
                         }, [
                           r("h4", null, [
-                            r("bdi", K9, l(p.field), 1)
+                            r("bdi", W9, l(p.field), 1)
                           ]),
                           r("dl", null, [
                             r("div", null, [
                               r("dt", null, l(o(t)("library", "Current value")), 1),
                               r("dd", null, [
-                                r("bdi", W9, l(p.currentValue || "—"), 1)
+                                r("bdi", Y9, l(p.currentValue || "—"), 1)
                               ])
                             ]),
                             r("div", null, [
                               r("dt", null, l(o(t)("library", "Suggested value")), 1),
                               r("dd", null, [
-                                r("bdi", Y9, l(p.scannerCandidate || "—"), 1)
+                                r("bdi", Z9, l(p.scannerCandidate || "—"), 1)
                               ])
                             ]),
                             r("div", null, [
                               r("dt", null, l(o(t)("library", "Path-based suggestion")), 1),
                               r("dd", null, [
-                                r("bdi", Z9, l(p.pathTemplateCandidate || "—"), 1)
+                                r("bdi", J9, l(p.pathTemplateCandidate || "—"), 1)
                               ])
                             ]),
                             r("div", null, [
                               r("dt", null, l(o(t)("library", "Sidecar value")), 1),
                               r("dd", null, [
-                                r("bdi", J9, l(p.sidecarValue || "—"), 1)
+                                r("bdi", X9, l(p.sidecarValue || "—"), 1)
                               ])
                             ]),
                             r("div", null, [
                               r("dt", null, l(o(t)("library", "Source")), 1),
                               r("dd", null, [
-                                r("bdi", X9, l(p.sourceProvenance || "—"), 1)
+                                r("bdi", Q9, l(p.sourceProvenance || "—"), 1)
                               ])
                             ])
                           ]),
@@ -24598,12 +24602,12 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                               type: "hidden",
                               name: "requesttoken",
                               value: St.value
-                            }, null, 8, eD),
+                            }, null, 8, tD),
                             r("input", {
                               type: "hidden",
                               name: "field",
                               value: p.field
-                            }, null, 8, tD),
+                            }, null, 8, aD),
                             y[117] || (y[117] = r("input", {
                               type: "hidden",
                               name: "returnTo",
@@ -24614,29 +24618,29 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                               class: "button secondary",
                               disabled: p.rejected,
                               title: p.rejected ? o(t)("library", "This source value exceeds field limits. Edit the field instead.") : void 0
-                            }, l(o(t)("library", "Use suggested value")), 9, aD)
-                          ], 8, Q9)
+                            }, l(o(t)("library", "Use suggested value")), 9, iD)
+                          ], 8, eD)
                         ]))), 128))
                       ]),
-                      r("footer", iD, [
+                      r("footer", nD, [
                         r("a", {
                           class: "button secondary",
                           href: ei(hn.value.item.detailsUrl)
-                        }, l(o(t)("library", "Full details")), 9, nD),
+                        }, l(o(t)("library", "Full details")), 9, rD),
                         r("a", {
                           class: "button secondary",
                           href: hn.value.skipUrl
-                        }, l(o(t)("library", "Skip to next suggestion")), 9, rD)
+                        }, l(o(t)("library", "Skip to next suggestion")), 9, lD)
                       ])
                     ])) : S("", !0)
                   ])) : S("", !0),
-                  $.value.length === 0 && !jt.loading && !jt.error ? (c(), h("div", lD, [
+                  $.value.length === 0 && !jt.loading && !jt.error ? (c(), h("div", sD, [
                     r("h3", null, l(o(t)("library", "This review queue is clear")), 1),
                     r("p", null, l(o(t)("library", "Choose another queue or return to the catalogue.")), 1),
                     r("a", {
                       class: "button primary",
                       href: at.value
-                    }, l(o(t)("library", "Back to Library")), 9, sD)
+                    }, l(o(t)("library", "Back to Library")), 9, oD)
                   ])) : (c(), h("div", {
                     key: 3,
                     class: "library-review-results",
@@ -24654,14 +24658,14 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             class: "library-cover-title-button",
                             onClick: (H) => si(p, H)
                           }, [
-                            r("bdi", cD, l(p.title), 1)
-                          ], 8, uD)
+                            r("bdi", dD, l(p.title), 1)
+                          ], 8, cD)
                         ]),
-                        p.creators ? (c(), h("p", dD, [
-                          r("bdi", fD, l(p.displayCreators ?? p.creators), 1)
+                        p.creators ? (c(), h("p", fD, [
+                          r("bdi", hD, l(p.displayCreators ?? p.creators), 1)
                         ])) : S("", !0),
-                        p.scanError ? (c(), h("p", hD, [
-                          r("bdi", pD, l(p.scanError), 1)
+                        p.scanError ? (c(), h("p", pD, [
+                          r("bdi", vD, l(p.scanError), 1)
                         ])) : S("", !0)
                       ]),
                       r("p", null, [
@@ -24669,17 +24673,17 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           type: "button",
                           class: "button secondary",
                           onClick: (H) => si(p, H)
-                        }, l(o(t)("library", "Details")), 9, vD),
+                        }, l(o(t)("library", "Details")), 9, bD),
                         r("a", {
                           class: "button primary",
                           href: p.openUrl,
                           target: "_blank",
                           rel: "noopener",
                           onClick: (H) => Ii(p, H)
-                        }, l(o(t)("library", "Open")), 9, bD)
+                        }, l(o(t)("library", "Open")), 9, gD)
                       ])
                     ]))), 128))
-                  ], 8, oD)),
+                  ], 8, uD)),
                   $.value.length > 0 ? (c(), h("nav", {
                     key: 4,
                     class: "library-pagination",
@@ -24688,20 +24692,20 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     ee.value.previousUrl ? (c(), h("a", {
                       key: 0,
                       href: ee.value.previousUrl
-                    }, l(o(t)("library", "Previous")), 9, yD)) : (c(), h("span", mD, l(o(t)("library", "Previous")), 1)),
+                    }, l(o(t)("library", "Previous")), 9, mD)) : (c(), h("span", _D, l(o(t)("library", "Previous")), 1)),
                     r("span", null, [
                       J(l(o(t)("library", "Page")) + " " + l(ee.value.page), 1),
-                      ee.value.total > 0 ? (c(), h("span", _D, " · " + l(ee.value.from) + "–" + l(ee.value.to), 1)) : S("", !0)
+                      ee.value.total > 0 ? (c(), h("span", wD, " · " + l(ee.value.from) + "–" + l(ee.value.to), 1)) : S("", !0)
                     ]),
                     ee.value.nextUrl ? (c(), h("a", {
                       key: 2,
                       href: ee.value.nextUrl
-                    }, l(o(t)("library", "Next")), 9, wD)) : (c(), h("span", kD, l(o(t)("library", "Next")), 1))
-                  ], 8, gD)) : S("", !0)
-                ])) : ai.value ? (c(), h("main", SD, [
-                  r("header", CD, [
-                    r("p", $D, l(o(t)("library", "Your library")), 1),
-                    r("h2", TD, l(o(t)("library", "Home")), 1)
+                    }, l(o(t)("library", "Next")), 9, kD)) : (c(), h("span", SD, l(o(t)("library", "Next")), 1))
+                  ], 8, yD)) : S("", !0)
+                ])) : ai.value ? (c(), h("main", CD, [
+                  r("header", $D, [
+                    r("p", TD, l(o(t)("library", "Your library")), 1),
+                    r("h2", AD, l(o(t)("library", "Home")), 1)
                   ]),
                   At.value.length > 0 ? (c(), h("aside", {
                     key: 0,
@@ -24731,28 +24735,28 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           r("span", {
                             class: "library-filter-chip-value",
                             title: p.value
-                          }, l(p.displayValue), 9, ND)
+                          }, l(p.displayValue), 9, OD)
                         ], 64)) : S("", !0),
                         y[119] || (y[119] = J()),
                         y[120] || (y[120] = r("span", { "aria-hidden": "true" }, "×", -1))
-                      ], 8, xD))), 128))
-                    ], 8, ED),
-                    r("p", OD, [
+                      ], 8, ND))), 128))
+                    ], 8, xD),
+                    r("p", RD, [
                       r("a", {
                         class: "button primary library-filter-callout-view",
                         href: rf.value
-                      }, l(o(t)("library", "View filtered catalogue")), 9, RD),
+                      }, l(o(t)("library", "View filtered catalogue")), 9, ID),
                       r("a", {
                         class: "button secondary",
                         href: Ds(),
                         onClick: $e(Fs, ["prevent"])
-                      }, l(o(t)("library", "Clear all")), 9, ID)
+                      }, l(o(t)("library", "Clear all")), 9, PD)
                     ])
-                  ], 8, AD)) : S("", !0),
-                  r("section", PD, [
+                  ], 8, ED)) : S("", !0),
+                  r("section", LD, [
                     r("header", null, [
                       r("div", null, [
-                        r("h3", LD, [
+                        r("h3", DD, [
                           he(Qe, {
                             text: o(t)("library", "Pick up publications you opened recently.")
                           }, {
@@ -24765,9 +24769,9 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       ]),
                       r("a", {
                         href: `${at.value}?recentlyOpened=1&sort=lastOpened`
-                      }, l(o(t)("library", "View all")), 9, DD)
+                      }, l(o(t)("library", "View all")), 9, FD)
                     ]),
-                    As.value.continueReading.length ? (c(), h("div", FD, [
+                    As.value.continueReading.length ? (c(), h("div", MD, [
                       (c(!0), h(K, null, ce(As.value.continueReading, (p) => (c(), h("article", {
                         key: `continue-${p.id}`,
                         class: "library-cover-card library-home-card"
@@ -24778,28 +24782,28 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           "aria-label": `${o(t)("library", "Details")}: ${p.title}`,
                           onClick: (H) => si(p, H)
                         }, [
-                          r("span", UD, [
+                          r("span", jD, [
                             r("img", {
                               class: "library-cover-image",
                               src: p.coverUrl,
                               alt: "",
                               loading: "lazy",
                               decoding: "async"
-                            }, null, 8, jD)
+                            }, null, 8, zD)
                           ])
-                        ], 8, MD),
-                        r("div", zD, [
+                        ], 8, UD),
+                        r("div", BD, [
                           r("h4", null, [
                             r("button", {
                               type: "button",
                               class: "library-cover-title-button",
                               onClick: (H) => si(p, H)
                             }, [
-                              r("bdi", VD, l(p.title), 1)
-                            ], 8, BD)
+                              r("bdi", HD, l(p.title), 1)
+                            ], 8, VD)
                           ]),
-                          p.creators ? (c(), h("p", HD, [
-                            r("bdi", qD, l(p.displayCreators ?? p.creators), 1)
+                          p.creators ? (c(), h("p", qD, [
+                            r("bdi", GD, l(p.displayCreators ?? p.creators), 1)
                           ])) : S("", !0),
                           r("a", {
                             class: "library-cover-read",
@@ -24807,15 +24811,15 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             target: "_blank",
                             rel: "noopener",
                             onClick: (H) => Ii(p, H)
-                          }, l(o(t)("library", "Open")), 9, GD)
+                          }, l(o(t)("library", "Open")), 9, KD)
                         ])
                       ]))), 128))
-                    ])) : (c(), h("p", KD, l(o(t)("library", "Publications you open will appear here.")), 1))
+                    ])) : (c(), h("p", WD, l(o(t)("library", "Publications you open will appear here.")), 1))
                   ]),
-                  r("section", WD, [
+                  r("section", YD, [
                     r("header", null, [
                       r("div", null, [
-                        r("h3", YD, [
+                        r("h3", ZD, [
                           he(Qe, {
                             text: o(t)("library", "The latest publications indexed from your Library roots.")
                           }, {
@@ -24828,9 +24832,9 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       ]),
                       r("a", {
                         href: `${at.value}?sort=recent`
-                      }, l(o(t)("library", "View all")), 9, ZD)
+                      }, l(o(t)("library", "View all")), 9, JD)
                     ]),
-                    As.value.recentlyAdded.length ? (c(), h("div", JD, [
+                    As.value.recentlyAdded.length ? (c(), h("div", XD, [
                       (c(!0), h(K, null, ce(As.value.recentlyAdded, (p) => (c(), h("article", {
                         key: `recent-${p.id}`,
                         class: "library-cover-card library-home-card"
@@ -24841,28 +24845,28 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           "aria-label": `${o(t)("library", "Details")}: ${p.title}`,
                           onClick: (H) => si(p, H)
                         }, [
-                          r("span", QD, [
+                          r("span", e6, [
                             r("img", {
                               class: "library-cover-image",
                               src: p.coverUrl,
                               alt: "",
                               loading: "lazy",
                               decoding: "async"
-                            }, null, 8, e6)
+                            }, null, 8, t6)
                           ])
-                        ], 8, XD),
-                        r("div", t6, [
+                        ], 8, QD),
+                        r("div", a6, [
                           r("h4", null, [
                             r("button", {
                               type: "button",
                               class: "library-cover-title-button",
                               onClick: (H) => si(p, H)
                             }, [
-                              r("bdi", i6, l(p.title), 1)
-                            ], 8, a6)
+                              r("bdi", n6, l(p.title), 1)
+                            ], 8, i6)
                           ]),
-                          p.creators ? (c(), h("p", n6, [
-                            r("bdi", r6, l(p.displayCreators ?? p.creators), 1)
+                          p.creators ? (c(), h("p", r6, [
+                            r("bdi", l6, l(p.displayCreators ?? p.creators), 1)
                           ])) : S("", !0),
                           r("a", {
                             class: "library-cover-read",
@@ -24870,15 +24874,15 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             target: "_blank",
                             rel: "noopener",
                             onClick: (H) => Ii(p, H)
-                          }, l(o(t)("library", "Open")), 9, l6)
+                          }, l(o(t)("library", "Open")), 9, s6)
                         ])
                       ]))), 128))
-                    ])) : (c(), h("p", s6, l(o(t)("library", "Recently indexed publications will appear here.")), 1))
+                    ])) : (c(), h("p", o6, l(o(t)("library", "Recently indexed publications will appear here.")), 1))
                   ]),
-                  r("section", o6, [
+                  r("section", u6, [
                     r("header", null, [
                       r("div", null, [
-                        r("h3", u6, [
+                        r("h3", c6, [
                           he(Qe, {
                             text: o(t)("library", "Browse the folders that organize your publications.")
                           }, {
@@ -24889,7 +24893,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           }, 8, ["text"])
                         ])
                       ]),
-                      r("a", { href: ti.value }, l(o(t)("library", "View all")), 9, c6)
+                      r("a", { href: ti.value }, l(o(t)("library", "View all")), 9, d6)
                     ]),
                     sf.value.length ? (c(), h("nav", {
                       key: 0,
@@ -24901,26 +24905,26 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                         href: p.url
                       }, [
                         r("strong", null, [
-                          r("bdi", h6, l(p.shelf), 1)
+                          r("bdi", p6, l(p.shelf), 1)
                         ]),
                         r("span", null, l(o(ht)("library", "%n item", "%n items", Number(p.itemCount || 0))), 1)
-                      ], 8, f6))), 128))
-                    ], 8, d6)) : (c(), h("p", p6, l(o(t)("library", "Your enabled Library roots will appear as shelves.")), 1))
+                      ], 8, h6))), 128))
+                    ], 8, f6)) : (c(), h("p", v6, l(o(t)("library", "Your enabled Library roots will appear as shelves.")), 1))
                   ]),
-                  Number(ju.value.count || 0) > 0 ? (c(), h("aside", v6, [
+                  Number(ju.value.count || 0) > 0 ? (c(), h("aside", b6, [
                     r("div", null, [
-                      r("h3", b6, l(o(t)("library", "Needs attention")), 1),
-                      r("p", g6, l(o(ht)("library", "%n publication needs better details.", "%n publications need better details.", Number(ju.value.count || 0))), 1)
+                      r("h3", g6, l(o(t)("library", "Needs attention")), 1),
+                      r("p", y6, l(o(ht)("library", "%n publication needs better details.", "%n publications need better details.", Number(ju.value.count || 0))), 1)
                     ]),
                     r("a", {
                       class: "button tertiary",
                       href: ju.value.url
-                    }, l(o(t)("library", "Review")), 9, y6)
+                    }, l(o(t)("library", "Review")), 9, m6)
                   ])) : S("", !0)
-                ])) : le.value ? (c(), h("main", m6, [
-                  r("header", _6, [
-                    r("p", w6, l(o(t)("library", "Your library")), 1),
-                    r("h2", k6, [
+                ])) : le.value ? (c(), h("main", _6, [
+                  r("header", w6, [
+                    r("p", k6, l(o(t)("library", "Your library")), 1),
+                    r("h2", S6, [
                       he(Qe, {
                         text: o(t)("library", "Browse the folders that organize your publications.")
                       }, {
@@ -24959,36 +24963,36 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           r("span", {
                             class: "library-filter-chip-value",
                             title: p.value
-                          }, l(p.displayValue), 9, T6)
+                          }, l(p.displayValue), 9, A6)
                         ], 64)) : S("", !0),
                         y[122] || (y[122] = J()),
                         y[123] || (y[123] = r("span", { "aria-hidden": "true" }, "×", -1))
-                      ], 8, $6))), 128))
-                    ], 8, C6),
-                    r("p", A6, [
+                      ], 8, T6))), 128))
+                    ], 8, $6),
+                    r("p", E6, [
                       r("a", {
                         class: "button primary library-filter-callout-view",
                         href: rf.value
-                      }, l(o(t)("library", "View filtered catalogue")), 9, E6),
+                      }, l(o(t)("library", "View filtered catalogue")), 9, x6),
                       r("a", {
                         class: "button secondary",
                         href: Ds(),
                         onClick: $e(Fs, ["prevent"])
-                      }, l(o(t)("library", "Clear all")), 9, x6)
+                      }, l(o(t)("library", "Clear all")), 9, N6)
                     ])
-                  ], 8, S6)) : S("", !0),
+                  ], 8, C6)) : S("", !0),
                   of.value.length ? (c(), h("nav", {
                     key: 1,
                     "aria-label": o(t)("library", "Shelves")
                   }, [
-                    r("ul", O6, [
+                    r("ul", R6, [
                       (c(!0), h(K, null, ce(of.value, (p) => (c(), je(E$, {
                         key: p.id,
                         node: p,
                         "children-url": Br.value
                       }, null, 8, ["node", "children-url"]))), 128))
                     ])
-                  ], 8, N6)) : (c(), h("section", R6, [
+                  ], 8, O6)) : (c(), h("section", I6, [
                     r("h3", null, [
                       he(Qe, {
                         text: o(t)("library", "Browse the folders that organize your publications.")
@@ -24999,16 +25003,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                         _: 1
                       }, 8, ["text"])
                     ]),
-                    r("p", I6, l(o(t)("library", "Your enabled Library roots will appear as shelves.")), 1),
-                    r("p", P6, [
+                    r("p", P6, l(o(t)("library", "Your enabled Library roots will appear as shelves.")), 1),
+                    r("p", L6, [
                       r("a", {
                         class: "button primary",
                         href: bi.value
-                      }, l(o(t)("library", "Add a Library root")), 9, L6),
+                      }, l(o(t)("library", "Add a Library root")), 9, D6),
                       r("a", {
                         class: "button secondary",
                         href: at.value
-                      }, l(o(t)("library", "All publications")), 9, D6)
+                      }, l(o(t)("library", "All publications")), 9, F6)
                     ])
                   ]))
                 ])) : (c(), h("section", {
@@ -25018,8 +25022,8 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                   "aria-labelledby": "library-catalogue-heading",
                   "aria-busy": jt.loading ? "true" : "false"
                 }, [
-                  r("header", M6, [
-                    Gr.value ? (c(), h("p", U6, l(Kr.value), 1)) : S("", !0),
+                  r("header", U6, [
+                    Gr.value ? (c(), h("p", j6, l(Kr.value), 1)) : S("", !0),
                     r("h2", {
                       id: "library-catalogue-heading",
                       ref_key: "catalogueHeadingElement",
@@ -25036,9 +25040,9 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       class: "library-mobile-filter-trigger",
                       "aria-label": Ng.value
                     }, [
-                      r("span", z6, l(o(ht)("library", "%n item", "%n items", Number(ee.value.total || 0))), 1),
+                      r("span", B6, l(o(ht)("library", "%n item", "%n items", Number(ee.value.total || 0))), 1),
                       r("strong", null, l(xg.value), 1)
-                    ], 8, j6),
+                    ], 8, z6),
                     r("form", {
                       method: "get",
                       class: "library-mobile-filter-form",
@@ -25049,18 +25053,18 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                         type: "hidden",
                         name: "folder",
                         value: A.folder
-                      }, null, 8, V6),
+                      }, null, 8, H6),
                       (c(!0), h(K, null, ce(lf.value, (p) => (c(), h("input", {
                         key: `mobile-hidden-${p.key}`,
                         type: "hidden",
                         name: p.key,
                         value: p.value
-                      }, null, 8, H6))), 128)),
-                      r("fieldset", q6, [
+                      }, null, 8, q6))), 128)),
+                      r("fieldset", G6, [
                         r("legend", null, l(o(t)("library", "Content")), 1),
-                        r("label", G6, [
+                        r("label", K6, [
                           r("span", null, l(o(t)("library", "Search")), 1),
-                          r("span", K6, [
+                          r("span", W6, [
                             fe(r("input", {
                               ref_key: "mobileFilterSearchInput",
                               ref: $s,
@@ -25069,10 +25073,10 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                               type: "search",
                               name: "q",
                               placeholder: o(t)("library", "Title, creator, description, filename or folder")
-                            }, null, 8, W6), [
+                            }, null, 8, Y6), [
                               [xe, Y.value]
                             ]),
-                            jt.loading ? (c(), h("span", Y6)) : S("", !0)
+                            jt.loading ? (c(), h("span", Z6)) : S("", !0)
                           ])
                         ]),
                         r("label", null, [
@@ -25082,17 +25086,17 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             name: "type",
                             onChange: y[48] || (y[48] = (p) => Oa(p))
                           }, [
-                            r("option", Z6, l(o(t)("library", "All types")), 1),
+                            r("option", J6, l(o(t)("library", "All types")), 1),
                             (c(!0), h(K, null, ce(D.value, (p) => (c(), h("option", {
                               key: `mobile-type-${p}`,
                               value: p
-                            }, l(p), 9, J6))), 128))
+                            }, l(p), 9, X6))), 128))
                           ], 544), [
                             [rt, A.type]
                           ])
                         ]),
-                        r("div", X6, [
-                          r("label", Q6, l(o(t)("library", "Publisher")), 1),
+                        r("div", Q6, [
+                          r("label", eF, l(o(t)("library", "Publisher")), 1),
                           fe(r("input", {
                             id: "library-mobile-publisher-search",
                             "onUpdate:modelValue": y[49] || (y[49] = (p) => se.value = p),
@@ -25108,16 +25112,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             "aria-expanded": ie.value && V.value.length > 0 ? "true" : "false",
                             onFocus: y[50] || (y[50] = (p) => If("publisher")),
                             onKeydown: y[51] || (y[51] = (p) => Pf(p, "publisher"))
-                          }, null, 40, eF), [
+                          }, null, 40, tF), [
                             [xe, se.value]
                           ]),
                           r("input", {
                             type: "hidden",
                             name: "publisher",
                             value: A.publisher
-                          }, null, 8, tF),
-                          Na("publisher") ? (c(), h("small", aF, l(ri("publisher")), 1)) : S("", !0),
-                          ni.value && ie.value && V.value.length > 0 ? (c(), h("ul", iF, [
+                          }, null, 8, aF),
+                          Na("publisher") ? (c(), h("small", iF, l(ri("publisher")), 1)) : S("", !0),
+                          ni.value && ie.value && V.value.length > 0 ? (c(), h("ul", nF, [
                             (c(!0), h(K, null, ce(V.value, (p, H) => (c(), h("li", {
                               id: Gu("mobile", "publisher", H),
                               key: `mobile-publisher-${p}`,
@@ -25130,12 +25134,12 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                                 onMousedown: y[52] || (y[52] = $e(() => {
                                 }, ["prevent"])),
                                 onClick: (ye) => $f(p, ye)
-                              }, l(p), 41, rF)
-                            ], 8, nF))), 128))
+                              }, l(p), 41, lF)
+                            ], 8, rF))), 128))
                           ])) : S("", !0)
                         ]),
-                        r("div", lF, [
-                          r("label", sF, l(o(t)("library", "Series / periodical")), 1),
+                        r("div", sF, [
+                          r("label", oF, l(o(t)("library", "Series / periodical")), 1),
                           fe(r("input", {
                             id: "library-mobile-publication-search",
                             "onUpdate:modelValue": y[53] || (y[53] = (p) => j.value = p),
@@ -25149,16 +25153,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             "aria-expanded": ae.value && z.value.length > 0 ? "true" : "false",
                             onFocus: y[54] || (y[54] = (p) => ae.value = !0),
                             onKeydown: y[55] || (y[55] = bt((p) => ae.value = !1, ["escape"]))
-                          }, null, 40, oF), [
+                          }, null, 40, uF), [
                             [xe, j.value]
                           ]),
                           r("input", {
                             type: "hidden",
                             name: "publication",
                             value: A.publication
-                          }, null, 8, uF),
-                          Na("publication") ? (c(), h("small", cF, l(ri("publication")), 1)) : S("", !0),
-                          ni.value && ae.value && z.value.length > 0 ? (c(), h("ul", dF, [
+                          }, null, 8, cF),
+                          Na("publication") ? (c(), h("small", dF, l(ri("publication")), 1)) : S("", !0),
+                          ni.value && ae.value && z.value.length > 0 ? (c(), h("ul", fF, [
                             (c(!0), h(K, null, ce(z.value, (p) => (c(), h("li", {
                               key: `mobile-publication-${p}`,
                               role: "option"
@@ -25169,12 +25173,12 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                                 onMousedown: y[56] || (y[56] = $e(() => {
                                 }, ["prevent"])),
                                 onClick: (H) => kf(p, H)
-                              }, l(p), 41, fF)
+                              }, l(p), 41, hF)
                             ]))), 128))
                           ])) : S("", !0)
                         ]),
-                        r("div", hF, [
-                          r("label", pF, l(o(t)("library", "Publication year")), 1),
+                        r("div", pF, [
+                          r("label", vF, l(o(t)("library", "Publication year")), 1),
                           fe(r("input", {
                             id: "library-mobile-year-search",
                             "onUpdate:modelValue": y[57] || (y[57] = (p) => zt.value = p),
@@ -25188,16 +25192,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             "aria-expanded": pa.value && Fa.value.length > 0 ? "true" : "false",
                             onFocus: y[58] || (y[58] = (p) => pa.value = !0),
                             onKeydown: y[59] || (y[59] = bt((p) => pa.value = !1, ["escape"]))
-                          }, null, 40, vF), [
+                          }, null, 40, bF), [
                             [xe, zt.value]
                           ]),
                           r("input", {
                             type: "hidden",
                             name: "year",
                             value: A.year
-                          }, null, 8, bF),
-                          Na("year") ? (c(), h("small", gF, l(ri("year")), 1)) : S("", !0),
-                          ni.value && pa.value && Fa.value.length > 0 ? (c(), h("ul", yF, [
+                          }, null, 8, gF),
+                          Na("year") ? (c(), h("small", yF, l(ri("year")), 1)) : S("", !0),
+                          ni.value && pa.value && Fa.value.length > 0 ? (c(), h("ul", mF, [
                             (c(!0), h(K, null, ce(Fa.value, (p) => (c(), h("li", {
                               key: `mobile-year-${p}`,
                               role: "option"
@@ -25208,12 +25212,12 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                                 onMousedown: y[60] || (y[60] = $e(() => {
                                 }, ["prevent"])),
                                 onClick: (H) => Of(p, H)
-                              }, l(p), 41, mF)
+                              }, l(p), 41, _F)
                             ]))), 128))
                           ])) : S("", !0)
                         ]),
-                        r("div", _F, [
-                          r("label", wF, l(o(t)("library", "Creator")), 1),
+                        r("div", wF, [
+                          r("label", kF, l(o(t)("library", "Creator")), 1),
                           fe(r("input", {
                             id: "library-mobile-creator-search",
                             "onUpdate:modelValue": y[61] || (y[61] = (p) => Fe.value = p),
@@ -25228,16 +25232,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             "aria-expanded": He.value && Se.value.length > 0 ? "true" : "false",
                             onFocus: y[62] || (y[62] = (p) => He.value = !0),
                             onKeydown: y[63] || (y[63] = bt((p) => He.value = !1, ["escape"]))
-                          }, null, 40, kF), [
+                          }, null, 40, SF), [
                             [xe, Fe.value]
                           ]),
                           r("input", {
                             type: "hidden",
                             name: "creator",
                             value: A.creator
-                          }, null, 8, SF),
-                          Na("creator") ? (c(), h("small", CF, l(ri("creator")), 1)) : S("", !0),
-                          ni.value && He.value && Se.value.length > 0 ? (c(), h("ul", $F, [
+                          }, null, 8, CF),
+                          Na("creator") ? (c(), h("small", $F, l(ri("creator")), 1)) : S("", !0),
+                          ni.value && He.value && Se.value.length > 0 ? (c(), h("ul", TF, [
                             (c(!0), h(K, null, ce(Se.value, (p) => (c(), h("li", {
                               key: `mobile-creator-${p}`,
                               role: "option"
@@ -25248,7 +25252,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                                 onMousedown: y[64] || (y[64] = $e(() => {
                                 }, ["prevent"])),
                                 onClick: (H) => Cf(p, H)
-                              }, l(p), 41, TF)
+                              }, l(p), 41, AF)
                             ]))), 128))
                           ])) : S("", !0)
                         ]),
@@ -25259,17 +25263,17 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             name: "format",
                             onChange: y[66] || (y[66] = (p) => Oa(p))
                           }, [
-                            r("option", AF, l(o(t)("library", "All formats")), 1),
+                            r("option", EF, l(o(t)("library", "All formats")), 1),
                             (c(!0), h(K, null, ce(x.value, (p) => (c(), h("option", {
                               key: `mobile-format-${p}`,
                               value: p
-                            }, l(Ms(p)), 9, EF))), 128))
+                            }, l(Ms(p)), 9, xF))), 128))
                           ], 544), [
                             [rt, A.format]
                           ])
                         ]),
-                        r("div", xF, [
-                          r("label", NF, l(o(t)("library", "Subject")), 1),
+                        r("div", NF, [
+                          r("label", OF, l(o(t)("library", "Subject")), 1),
                           fe(r("input", {
                             id: "library-mobile-subject-search",
                             "onUpdate:modelValue": y[67] || (y[67] = (p) => ne.value = p),
@@ -25284,16 +25288,16 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             "aria-expanded": de.value && me.value.length > 0 ? "true" : "false",
                             onFocus: y[68] || (y[68] = (p) => de.value = !0),
                             onKeydown: y[69] || (y[69] = bt((p) => de.value = !1, ["escape"]))
-                          }, null, 40, OF), [
+                          }, null, 40, RF), [
                             [xe, ne.value]
                           ]),
                           r("input", {
                             type: "hidden",
                             name: "subject",
                             value: A.subject
-                          }, null, 8, RF),
-                          Na("subject") ? (c(), h("small", IF, l(ri("subject")), 1)) : S("", !0),
-                          ni.value && de.value && me.value.length > 0 ? (c(), h("ul", PF, [
+                          }, null, 8, IF),
+                          Na("subject") ? (c(), h("small", PF, l(ri("subject")), 1)) : S("", !0),
+                          ni.value && de.value && me.value.length > 0 ? (c(), h("ul", LF, [
                             (c(!0), h(K, null, ce(me.value, (p) => (c(), h("li", {
                               key: `mobile-subject-${p}`,
                               role: "option"
@@ -25304,12 +25308,12 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                                 onMousedown: y[70] || (y[70] = $e(() => {
                                 }, ["prevent"])),
                                 onClick: (H) => Nf(p, H)
-                              }, l(p), 41, LF)
+                              }, l(p), 41, DF)
                             ]))), 128))
                           ])) : S("", !0)
                         ]),
-                        r("div", DF, [
-                          r("label", FF, l(o(t)("library", "Classification")), 1),
+                        r("div", FF, [
+                          r("label", MF, l(o(t)("library", "Classification")), 1),
                           fe(r("input", {
                             id: "library-mobile-classification-search",
                             "onUpdate:modelValue": y[71] || (y[71] = (p) => Oe.value = p),
@@ -25324,15 +25328,15 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             "aria-expanded": De.value && Xe.value.length > 0 ? "true" : "false",
                             onFocus: y[72] || (y[72] = (p) => De.value = !0),
                             onKeydown: y[73] || (y[73] = bt((p) => De.value = !1, ["escape"]))
-                          }, null, 40, MF), [
+                          }, null, 40, UF), [
                             [xe, Oe.value]
                           ]),
                           r("input", {
                             type: "hidden",
                             name: "classification",
                             value: A.classification
-                          }, null, 8, UF),
-                          ni.value && De.value && Xe.value.length > 0 ? (c(), h("ul", jF, [
+                          }, null, 8, jF),
+                          ni.value && De.value && Xe.value.length > 0 ? (c(), h("ul", zF, [
                             (c(!0), h(K, null, ce(Xe.value, (p) => (c(), h("li", {
                               key: `mobile-classification-${p}`,
                               role: "option"
@@ -25343,12 +25347,12 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                                 onMousedown: y[74] || (y[74] = $e(() => {
                                 }, ["prevent"])),
                                 onClick: (H) => Tf(p, H)
-                              }, l(p), 41, zF)
+                              }, l(p), 41, BF)
                             ]))), 128))
                           ])) : S("", !0)
                         ])
                       ]),
-                      r("fieldset", BF, [
+                      r("fieldset", VF, [
                         r("legend", null, l(o(t)("library", "Location")), 1),
                         r("label", null, [
                           J(l(o(t)("library", "Shelf")), 1),
@@ -25357,17 +25361,17 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             name: "shelf",
                             onChange: y[76] || (y[76] = (p) => Oa(p))
                           }, [
-                            r("option", VF, l(o(t)("library", "All shelves")), 1),
+                            r("option", HF, l(o(t)("library", "All shelves")), 1),
                             (c(!0), h(K, null, ce(C.value, (p) => (c(), h("option", {
                               key: `mobile-shelf-${p}`,
                               value: p
-                            }, l(p), 9, HF))), 128))
+                            }, l(p), 9, qF))), 128))
                           ], 544), [
                             [rt, A.shelf]
                           ])
                         ]),
-                        r("div", qF, [
-                          r("label", GF, l(o(t)("library", "Folder")), 1),
+                        r("div", GF, [
+                          r("label", KF, l(o(t)("library", "Folder")), 1),
                           fe(r("input", {
                             id: "library-mobile-folder-search",
                             "onUpdate:modelValue": y[77] || (y[77] = (p) => nt.value = p),
@@ -25382,10 +25386,10 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             "aria-expanded": oe.value && O.value.length > 0 ? "true" : "false",
                             onFocus: y[78] || (y[78] = (p) => oe.value = !0),
                             onKeydown: y[79] || (y[79] = bt((p) => oe.value = !1, ["escape"]))
-                          }, null, 40, KF), [
+                          }, null, 40, WF), [
                             [xe, nt.value]
                           ]),
-                          ni.value && oe.value && O.value.length > 0 ? (c(), h("ul", WF, [
+                          ni.value && oe.value && O.value.length > 0 ? (c(), h("ul", YF, [
                             (c(!0), h(K, null, ce(O.value, (p) => (c(), h("li", {
                               key: `mobile-folder-${p}`,
                               role: "option"
@@ -25396,12 +25400,12 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                                 onMousedown: y[80] || (y[80] = $e(() => {
                                 }, ["prevent"])),
                                 onClick: (H) => Ef(p, H)
-                              }, l(p), 41, YF)
+                              }, l(p), 41, ZF)
                             ]))), 128))
                           ])) : S("", !0)
                         ])
                       ]),
-                      r("fieldset", ZF, [
+                      r("fieldset", JF, [
                         r("legend", null, l(o(t)("library", "Review")), 1),
                         r("label", null, [
                           J(l(o(t)("library", "Scan status")), 1),
@@ -25410,11 +25414,11 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             name: "status",
                             onChange: y[82] || (y[82] = (p) => Oa(p))
                           }, [
-                            r("option", JF, l(o(t)("library", "All scan statuses")), 1),
+                            r("option", XF, l(o(t)("library", "All scan statuses")), 1),
                             (c(!0), h(K, null, ce(F.value, (p) => (c(), h("option", {
                               key: `mobile-scan-${p}`,
                               value: p
-                            }, l(p), 9, XF))), 128))
+                            }, l(p), 9, QF))), 128))
                           ], 544), [
                             [rt, A.status]
                           ])
@@ -25426,11 +25430,11 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             name: "workflowStatus",
                             onChange: y[84] || (y[84] = (p) => Oa(p))
                           }, [
-                            r("option", QF, l(o(t)("library", "All workflow statuses")), 1),
+                            r("option", eM, l(o(t)("library", "All workflow statuses")), 1),
                             (c(!0), h(K, null, ce(X.value, (p) => (c(), h("option", {
                               key: `mobile-workflow-${p}`,
                               value: p
-                            }, l(p), 9, eM))), 128))
+                            }, l(p), 9, tM))), 128))
                           ], 544), [
                             [rt, A.workflowStatus]
                           ])
@@ -25442,17 +25446,17 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             name: "scannerConflicts",
                             onChange: y[86] || (y[86] = (p) => Oa(p))
                           }, [
-                            r("option", tM, l(o(t)("library", "All metadata")), 1),
-                            r("option", aM, l(o(t)("library", "Suggested updates")), 1)
+                            r("option", aM, l(o(t)("library", "All metadata")), 1),
+                            r("option", iM, l(o(t)("library", "Suggested updates")), 1)
                           ], 544), [
                             [rt, A.scannerConflicts]
                           ])
                         ])
                       ]),
-                      r("fieldset", iM, [
+                      r("fieldset", nM, [
                         r("legend", null, l(o(t)("library", "Personal / display")), 1),
-                        r("div", nM, [
-                          r("label", rM, l(o(t)("library", "Nextcloud tag")), 1),
+                        r("div", rM, [
+                          r("label", lM, l(o(t)("library", "Nextcloud tag")), 1),
                           fe(r("input", {
                             id: "library-tag-search",
                             "onUpdate:modelValue": y[87] || (y[87] = (p) => wt.value = p),
@@ -25466,15 +25470,15 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             "aria-expanded": kt.value && ha.value.length > 0 ? "true" : "false",
                             onFocus: y[88] || (y[88] = (p) => kt.value = !0),
                             onKeydown: y[89] || (y[89] = bt((p) => kt.value = !1, ["escape"]))
-                          }, null, 40, lM), [
+                          }, null, 40, sM), [
                             [xe, wt.value]
                           ]),
                           r("input", {
                             type: "hidden",
                             name: "tag",
                             value: A.tag
-                          }, null, 8, sM),
-                          kt.value && ha.value.length > 0 ? (c(), h("ul", oM, [
+                          }, null, 8, oM),
+                          kt.value && ha.value.length > 0 ? (c(), h("ul", uM, [
                             (c(!0), h(K, null, ce(ha.value, (p) => (c(), h("li", {
                               key: p,
                               role: "option"
@@ -25485,7 +25489,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                                 onMousedown: y[90] || (y[90] = $e(() => {
                                 }, ["prevent"])),
                                 onClick: (H) => Af(p, H)
-                              }, l(p), 41, uM)
+                              }, l(p), 41, cM)
                             ]))), 128))
                           ])) : S("", !0),
                           r("button", {
@@ -25500,12 +25504,12 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             name: "sort",
                             onChange: ra
                           }, [
-                            r("option", cM, l(o(t)("library", "Title")), 1),
-                            r("option", dM, l(o(t)("library", "Date added")), 1),
-                            r("option", fM, l(o(t)("library", "Publication date")), 1),
-                            r("option", hM, l(o(t)("library", "Series")), 1),
-                            r("option", pM, l(o(t)("library", "Recently opened")), 1),
-                            r("option", vM, l(o(t)("library", "Format")), 1)
+                            r("option", dM, l(o(t)("library", "Title")), 1),
+                            r("option", fM, l(o(t)("library", "Date added")), 1),
+                            r("option", hM, l(o(t)("library", "Publication date")), 1),
+                            r("option", pM, l(o(t)("library", "Series")), 1),
+                            r("option", vM, l(o(t)("library", "Recently opened")), 1),
+                            r("option", bM, l(o(t)("library", "Format")), 1)
                           ], 544), [
                             [rt, A.sort]
                           ])
@@ -25517,33 +25521,33 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             name: "view",
                             onChange: ra
                           }, [
-                            r("option", bM, l(o(t)("library", "Compact")), 1),
-                            r("option", gM, l(o(t)("library", "List")), 1)
+                            r("option", gM, l(o(t)("library", "Compact")), 1),
+                            r("option", yM, l(o(t)("library", "List")), 1)
                           ], 544), [
                             [rt, A.view]
                           ])
                         ])
                       ]),
-                      r("div", yM, [
+                      r("div", mM, [
                         At.value.length > 0 ? (c(), h("a", {
                           key: 0,
                           href: Ds(),
                           class: "button secondary library-mobile-filter-clear",
                           onClick: $e(Fs, ["prevent"])
-                        }, l(o(t)("library", "Clear all")), 9, mM)) : S("", !0),
-                        r("button", _M, l(Og.value), 1)
+                        }, l(o(t)("library", "Clear all")), 9, _M)) : S("", !0),
+                        r("button", wM, l(Og.value), 1)
                       ])
-                    ], 40, B6)
+                    ], 40, V6)
                   ], 32),
                   r("nav", {
                     class: "library-catalogue-workspace library-workspace-menubar",
                     "aria-label": o(t)("library", "One catalogue workspace")
                   }, [
-                    r("div", kM, [
-                      r("section", SM, [
+                    r("div", SM, [
+                      r("section", CM, [
                         r("h3", {
                           title: o(t)("library", "Save the current in-app filter setup as a named collection, then reopen it without leaving Library.")
-                        }, l(o(t)("library", "Collections")), 9, CM),
+                        }, l(o(t)("library", "Collections")), 9, $M),
                         r("form", {
                           method: "post",
                           action: ge.value,
@@ -25554,29 +25558,29 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             type: "hidden",
                             name: "requesttoken",
                             value: St.value
-                          }, null, 8, TM),
+                          }, null, 8, AM),
                           r("input", {
                             type: "hidden",
                             name: "savedCollectionFilters",
                             value: gy.value
-                          }, null, 8, AM),
+                          }, null, 8, EM),
                           r("label", null, [
-                            r("span", EM, l(o(t)("library", "Collection name")), 1),
+                            r("span", xM, l(o(t)("library", "Collection name")), 1),
                             r("input", {
                               type: "text",
                               name: "savedCollectionName",
                               placeholder: o(t)("library", "e.g. Bremen photo books"),
                               disabled: !Yu.value,
                               autocomplete: "off"
-                            }, null, 8, xM)
+                            }, null, 8, NM)
                           ]),
                           r("button", {
                             type: "submit",
                             class: "button secondary",
                             disabled: !Yu.value,
                             title: o(t)("library", "Save current view")
-                          }, l(o(t)("library", "Save")), 9, NM)
-                        ], 8, $M)
+                          }, l(o(t)("library", "Save")), 9, OM)
+                        ], 8, TM)
                       ]),
                       r("form", {
                         method: "get",
@@ -25589,20 +25593,20 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           type: "hidden",
                           name: p.key,
                           value: p.value
-                        }, null, 8, RM))), 128)),
-                        r("label", IM, [
+                        }, null, 8, IM))), 128)),
+                        r("label", PM, [
                           J(l(o(t)("library", "Sort")), 1),
                           fe(r("select", {
                             "onUpdate:modelValue": y[93] || (y[93] = (p) => A.sort = p),
                             name: "sort",
                             onChange: ra
                           }, [
-                            r("option", PM, l(o(t)("library", "Title")), 1),
-                            r("option", LM, l(o(t)("library", "Date added")), 1),
-                            r("option", DM, l(o(t)("library", "Publication date")), 1),
-                            r("option", FM, l(o(t)("library", "Series")), 1),
-                            r("option", MM, l(o(t)("library", "Recently opened")), 1),
-                            r("option", UM, l(o(t)("library", "Format")), 1)
+                            r("option", LM, l(o(t)("library", "Title")), 1),
+                            r("option", DM, l(o(t)("library", "Date added")), 1),
+                            r("option", FM, l(o(t)("library", "Publication date")), 1),
+                            r("option", MM, l(o(t)("library", "Series")), 1),
+                            r("option", UM, l(o(t)("library", "Recently opened")), 1),
+                            r("option", jM, l(o(t)("library", "Format")), 1)
                           ], 544), [
                             [rt, A.sort]
                           ])
@@ -25618,39 +25622,39 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             class: Ne({ active: Ke.value === "compact" }),
                             "aria-pressed": Ke.value === "compact" ? "true" : "false",
                             onClick: y[94] || (y[94] = (p) => Mf("compact"))
-                          }, l(o(t)("library", "Compact")), 11, zM),
+                          }, l(o(t)("library", "Compact")), 11, BM),
                           r("button", {
                             type: "button",
                             "data-library-view-mode": "list",
                             class: Ne({ active: Ke.value === "list" }),
                             "aria-pressed": Ke.value === "list" ? "true" : "false",
                             onClick: y[95] || (y[95] = (p) => Mf("list"))
-                          }, l(o(t)("library", "List")), 11, BM)
-                        ], 8, jM)
-                      ], 40, OM)
+                          }, l(o(t)("library", "List")), 11, VM)
+                        ], 8, zM)
+                      ], 40, RM)
                     ])
-                  ], 8, wM),
-                  E.value ? (c(), h("p", VM, l(E.value), 1)) : S("", !0),
-                  Z.value ? (c(), h("p", HM, l(Z.value), 1)) : S("", !0),
-                  _e.value ? (c(), h("p", qM, l(_e.value), 1)) : S("", !0),
-                  r("div", GM, [
-                    jt.loading ? (c(), h("span", KM, l(o(t)("library", "Updating catalogue…")), 1)) : jt.completed ? (c(), h("span", WM, l(o(ht)("library", "Catalogue updated. %n item.", "Catalogue updated. %n items.", Number(ee.value.total || 0))), 1)) : S("", !0)
+                  ], 8, kM),
+                  E.value ? (c(), h("p", HM, l(E.value), 1)) : S("", !0),
+                  Z.value ? (c(), h("p", qM, l(Z.value), 1)) : S("", !0),
+                  _e.value ? (c(), h("p", GM, l(_e.value), 1)) : S("", !0),
+                  r("div", KM, [
+                    jt.loading ? (c(), h("span", WM, l(o(t)("library", "Updating catalogue…")), 1)) : jt.completed ? (c(), h("span", YM, l(o(ht)("library", "Catalogue updated. %n item.", "Catalogue updated. %n items.", Number(ee.value.total || 0))), 1)) : S("", !0)
                   ]),
-                  Gr.value ? (c(), h("section", YM, [
-                    r("p", ZM, l(Kr.value), 1),
+                  Gr.value ? (c(), h("section", ZM, [
+                    r("p", JM, l(Kr.value), 1),
                     r("h3", {
                       id: "library-discovery-heading",
                       title: ba.value ? o(t)("library", "Items by this creator, sorted by publication context when available.") : Pi.value ? o(t)("library", "Items from this publication year, sorted by publication date when available.") : o(t)("library", "Items in this publication, sorted by issue/date context when available.")
-                    }, l(Mn.value), 9, JM),
+                    }, l(Mn.value), 9, XM),
                     r("div", {
                       class: "library-discovery-hero-metrics",
                       "aria-label": o(t)("library", "Discovery summary")
                     }, [
                       r("span", null, l(o(ht)("library", "%n item", "%n items", ee.value.total)), 1),
-                      P.value?.earliestYear && P.value?.latestYear ? (c(), h("span", QM, l(P.value.earliestYear) + "–" + l(P.value.latestYear), 1)) : S("", !0),
-                      P.value?.datedCount ? (c(), h("span", eU, l(P.value.datedCount) + " " + l(o(t)("library", "dated")), 1)) : S("", !0),
-                      P.value?.undatedCount > 0 ? (c(), h("span", tU, l(P.value.undatedCount) + " " + l(o(t)("library", "undated")), 1)) : S("", !0)
-                    ], 8, XM),
+                      P.value?.earliestYear && P.value?.latestYear ? (c(), h("span", eU, l(P.value.earliestYear) + "–" + l(P.value.latestYear), 1)) : S("", !0),
+                      P.value?.datedCount ? (c(), h("span", tU, l(P.value.datedCount) + " " + l(o(t)("library", "dated")), 1)) : S("", !0),
+                      P.value?.undatedCount > 0 ? (c(), h("span", aU, l(P.value.undatedCount) + " " + l(o(t)("library", "undated")), 1)) : S("", !0)
+                    ], 8, QM),
                     ja.value && P.value ? (c(), h("aside", {
                       key: 0,
                       class: "library-publication-issue-context",
@@ -25658,18 +25662,18 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     }, [
                       r("strong", null, l(o(t)("library", "Publication contents")), 1),
                       r("span", null, l(o(ht)("library", "%n item", "%n items", P.value.itemCount)), 1),
-                      P.value.earliestYear && P.value.latestYear ? (c(), h("span", iU, l(P.value.earliestYear) + "–" + l(P.value.latestYear), 1)) : S("", !0),
+                      P.value.earliestYear && P.value.latestYear ? (c(), h("span", nU, l(P.value.earliestYear) + "–" + l(P.value.latestYear), 1)) : S("", !0),
                       r("span", null, l(P.value.datedCount) + " " + l(o(t)("library", "with issue/date coverage")), 1),
-                      P.value.undatedCount > 0 ? (c(), h("span", nU, l(P.value.undatedCount) + " " + l(o(t)("library", "without dates yet")), 1)) : S("", !0),
+                      P.value.undatedCount > 0 ? (c(), h("span", rU, l(P.value.undatedCount) + " " + l(o(t)("library", "without dates yet")), 1)) : S("", !0),
                       r("span", null, l(o(t)("library", "read-only grouping")), 1)
-                    ], 8, aU)) : S("", !0),
-                    ja.value && P.value?.issueGroups?.length ? (c(), h("section", rU, [
+                    ], 8, iU)) : S("", !0),
+                    ja.value && P.value?.issueGroups?.length ? (c(), h("section", lU, [
                       r("div", null, [
-                        r("p", lU, l(o(t)("library", "Issue order")), 1),
+                        r("p", sU, l(o(t)("library", "Issue order")), 1),
                         r("h4", {
                           id: "library-publication-issue-groups-heading",
                           title: o(t)("library", "Comics, magazines and periodicals stay visible here even when Library only has dates or filename/path issue candidates. Use item details before editing metadata.")
-                        }, l(o(t)("library", "Read-only issue/date grouping")), 9, sU)
+                        }, l(o(t)("library", "Read-only issue/date grouping")), 9, oU)
                       ]),
                       r("div", {
                         class: "library-publication-issue-strip",
@@ -25683,9 +25687,9 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           r("span", null, l(p.label), 1),
                           r("strong", null, l(p.items?.[0]?.issueLabel || o(t)("library", "Issue")), 1),
                           r("small", null, l(o(ht)("library", "%n item", "%n items", p.items?.length || 0)), 1)
-                        ], 8, uU))), 128))
-                      ], 8, oU),
-                      P.value.gapRanges?.length ? (c(), h("p", cU, l(o(t)("library", "Gap")) + ": " + l(P.value.gapRanges.join(", ")), 1)) : S("", !0),
+                        ], 8, cU))), 128))
+                      ], 8, uU),
+                      P.value.gapRanges?.length ? (c(), h("p", dU, l(o(t)("library", "Gap")) + ": " + l(P.value.gapRanges.join(", ")), 1)) : S("", !0),
                       (c(!0), h(K, null, ce(P.value.issueGroups, (p) => (c(), h("div", {
                         key: p.label,
                         class: "library-publication-issue-group"
@@ -25695,17 +25699,17 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           (c(!0), h(K, null, ce(p.items, (H, ye) => (c(), h("li", {
                             key: H.itemId
                           }, [
-                            r("span", dU, l(H.issueLabel), 1),
+                            r("span", fU, l(H.issueLabel), 1),
                             r("a", {
                               href: ei(H.detailsUrl || "#")
-                            }, l(H.title), 9, fU),
+                            }, l(H.title), 9, hU),
                             r("small", null, [
                               J(l(H.publicationType), 1),
                               H.publicationDate ? (c(), h(K, { key: 0 }, [
                                 J(" · " + l(H.publicationDate), 1)
                               ], 64)) : S("", !0)
                             ]),
-                            r("small", hU, [
+                            r("small", pU, [
                               ye > 0 ? (c(), h(K, { key: 0 }, [
                                 J(l(o(t)("library", "Previous issue")), 1)
                               ], 64)) : S("", !0),
@@ -25719,38 +25723,38 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           ]))), 128))
                         ])
                       ]))), 128)),
-                      P.value.unknownIssueItems?.length ? (c(), h("details", pU, [
+                      P.value.unknownIssueItems?.length ? (c(), h("details", vU, [
                         r("summary", {
                           title: o(t)("library", "Unknown issue/date rows remain visible instead of disappearing from the publication page.")
-                        }, l(o(t)("library", "Unknown issue/date")) + " · " + l(P.value.unknownIssueItems.length), 9, vU)
+                        }, l(o(t)("library", "Unknown issue/date")) + " · " + l(P.value.unknownIssueItems.length), 9, bU)
                       ])) : S("", !0)
                     ])) : S("", !0),
                     r("p", null, [
                       r("a", {
                         href: at.value,
                         class: "button secondary library-discovery-back-link"
-                      }, l(o(t)("library", "Back to full catalogue")), 9, bU)
+                      }, l(o(t)("library", "Back to full catalogue")), 9, gU)
                     ])
                   ])) : S("", !0),
-                  r("div", gU, [
-                    r("p", yU, l(o(t)("library", "Showing")) + " " + l(ee.value.from) + "–" + l(ee.value.to) + " " + l(o(t)("library", "of")) + " " + l(ee.value.total) + " " + l(o(t)("library", "catalogue items")), 1),
+                  r("div", yU, [
+                    r("p", mU, l(o(t)("library", "Showing")) + " " + l(ee.value.from) + "–" + l(ee.value.to) + " " + l(o(t)("library", "of")) + " " + l(ee.value.total) + " " + l(o(t)("library", "catalogue items")), 1),
                     r("nav", {
                       class: "library-pagination library-pagination--top",
                       "aria-label": o(t)("library", "Catalogue pagination")
                     }, [
-                      r("span", _U, [
+                      r("span", wU, [
                         J(l(o(t)("library", "Page")) + " " + l(ee.value.page), 1),
-                        ee.value.total > 0 ? (c(), h("span", wU, " · " + l(ee.value.from) + "–" + l(ee.value.to), 1)) : S("", !0)
+                        ee.value.total > 0 ? (c(), h("span", kU, " · " + l(ee.value.from) + "–" + l(ee.value.to), 1)) : S("", !0)
                       ]),
                       ee.value.previousUrl ? (c(), h("a", {
                         key: 0,
                         href: ee.value.previousUrl
-                      }, l(o(t)("library", "Previous")), 9, kU)) : (c(), h("span", SU, l(o(t)("library", "Previous")), 1)),
+                      }, l(o(t)("library", "Previous")), 9, SU)) : (c(), h("span", CU, l(o(t)("library", "Previous")), 1)),
                       ee.value.nextUrl ? (c(), h("a", {
                         key: 2,
                         href: ee.value.nextUrl
-                      }, l(o(t)("library", "Next")), 9, CU)) : (c(), h("span", $U, l(o(t)("library", "Next")), 1))
-                    ], 8, mU)
+                      }, l(o(t)("library", "Next")), 9, $U)) : (c(), h("span", TU, l(o(t)("library", "Next")), 1))
+                    ], 8, _U)
                   ]),
                   $.value.length === 0 ? (c(), h("div", {
                     key: 4,
@@ -25760,28 +25764,28 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     gr.value ? (c(), h(K, { key: 0 }, [
                       r("h3", {
                         title: o(t)("library", "Add one folder path that already exists in Nextcloud Files, then run a scan to build the catalogue.")
-                      }, l(o(t)("library", "Start with one Library root")), 9, TU),
-                      r("p", AU, [
+                      }, l(o(t)("library", "Start with one Library root")), 9, AU),
+                      r("p", EU, [
                         r("a", {
                           href: bi.value,
                           class: "button primary"
-                        }, l(o(t)("library", "Add a Library root")), 9, EU),
-                        r("span", xU, l(o(t)("library", "Run a scan after saving a root")), 1)
+                        }, l(o(t)("library", "Add a Library root")), 9, xU),
+                        r("span", NU, l(o(t)("library", "Run a scan after saving a root")), 1)
                       ])
                     ], 64)) : Yr.value ? (c(), h(K, { key: 1 }, [
                       r("h3", {
                         title: o(t)("library", "Enable a saved root in settings, then scan enabled roots to refresh the catalogue.")
-                      }, l(o(t)("library", "No enabled Library roots")), 9, NU),
-                      r("p", OU, [
+                      }, l(o(t)("library", "No enabled Library roots")), 9, OU),
+                      r("p", RU, [
                         r("a", {
                           href: bi.value,
                           class: "button primary"
-                        }, l(o(t)("library", "Open Library settings")), 9, RU)
+                        }, l(o(t)("library", "Open Library settings")), 9, IU)
                       ])
                     ], 64)) : Zr.value ? (c(), h(K, { key: 2 }, [
                       r("h3", {
                         title: o(t)("library", "Try a broader search, remove one active chip, or clear every catalogue filter.")
-                      }, l(o(t)("library", "No items match these filters")), 9, IU),
+                      }, l(o(t)("library", "No items match these filters")), 9, PU),
                       At.value.length > 0 ? (c(), h("nav", {
                         key: 0,
                         class: "library-empty-filter-chips",
@@ -25805,30 +25809,30 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             r("span", {
                               class: "library-filter-chip-value",
                               title: p.value
-                            }, l(p.displayValue), 9, DU)
+                            }, l(p.displayValue), 9, FU)
                           ], 64)) : S("", !0),
                           y[125] || (y[125] = J()),
                           y[126] || (y[126] = r("span", { "aria-hidden": "true" }, "×", -1))
-                        ], 8, LU))), 128))
-                      ], 8, PU)) : S("", !0),
-                      Qr.value ? (c(), h("p", FU, l(o(t)("library", "Try removing {filter}.", { filter: Qr.value.displayValue ? `${Qr.value.label}: ${Qr.value.displayValue}` : Qr.value.label })), 1)) : S("", !0),
-                      r("p", MU, [
+                        ], 8, DU))), 128))
+                      ], 8, LU)) : S("", !0),
+                      Qr.value ? (c(), h("p", MU, l(o(t)("library", "Try removing {filter}.", { filter: Qr.value.displayValue ? `${Qr.value.label}: ${Qr.value.displayValue}` : Qr.value.label })), 1)) : S("", !0),
+                      r("p", UU, [
                         Eg.value ? (c(), h("a", {
                           key: 0,
                           href: py(),
                           class: "button secondary library-empty-clear-search",
                           onClick: y[96] || (y[96] = $e((p) => dl("q"), ["prevent"]))
-                        }, l(o(t)("library", "Clear search")), 9, UU)) : S("", !0)
+                        }, l(o(t)("library", "Clear search")), 9, jU)) : S("", !0)
                       ])
                     ], 64)) : (c(), h(K, { key: 3 }, [
                       r("h3", {
                         title: o(t)("library", "Run a scan from settings to index enabled roots. Source files stay in Nextcloud Files.")
-                      }, l(o(t)("library", "No catalogue items yet")), 9, jU),
-                      r("p", zU, [
+                      }, l(o(t)("library", "No catalogue items yet")), 9, zU),
+                      r("p", BU, [
                         r("a", {
                           href: bi.value,
                           class: "button primary"
-                        }, l(o(t)("library", "Run a scan from settings")), 9, BU)
+                        }, l(o(t)("library", "Run a scan from settings")), 9, VU)
                       ])
                     ], 64))
                   ], 2)) : S("", !0),
@@ -25837,18 +25841,18 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     class: Ne(["library-list-selection", { "library-list-selection--active": ga.value.length }]),
                     "aria-label": o(t)("library", "Selection")
                   }, [
-                    r("div", HU, [
-                      r("label", qU, [
+                    r("div", qU, [
+                      r("label", GU, [
                         r("input", {
                           type: "checkbox",
                           checked: ga.value.length === $.value.length,
                           onChange: Dg
-                        }, null, 40, GU),
+                        }, null, 40, KU),
                         r("span", {
                           title: o(t)("library", "Select all publications on this page")
-                        }, l(o(t)("library", "Select all")), 9, KU)
+                        }, l(o(t)("library", "Select all")), 9, WU)
                       ]),
-                      ga.value.length ? (c(), h("span", WU, l(o(ht)("library", "%n publication selected", "%n publications selected", ga.value.length)), 1)) : S("", !0),
+                      ga.value.length ? (c(), h("span", YU, l(o(ht)("library", "%n publication selected", "%n publications selected", ga.value.length)), 1)) : S("", !0),
                       fe(he(nu, {
                         "item-ids": ga.value,
                         "request-token": St.value,
@@ -25862,13 +25866,13 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                         "onUpdate:modelValue": y[97] || (y[97] = (p) => va.value = p),
                         "aria-label": o(t)("library", "More actions")
                       }, [
-                        r("option", ZU, l(o(t)("library", "More actions")), 1),
-                        r("option", JU, l(o(t)("library", "Add tag")), 1),
-                        r("option", XU, l(o(t)("library", "Remove tag")), 1),
-                        r("option", QU, l(o(t)("library", "Preview edit")), 1),
-                        r("option", ej, l(o(t)("library", "Fresh covers")), 1),
-                        r("option", tj, l(o(t)("library", "Reset metadata")), 1)
-                      ], 8, YU)), [
+                        r("option", JU, l(o(t)("library", "More actions")), 1),
+                        r("option", XU, l(o(t)("library", "Add tag")), 1),
+                        r("option", QU, l(o(t)("library", "Remove tag")), 1),
+                        r("option", ej, l(o(t)("library", "Preview edit")), 1),
+                        r("option", tj, l(o(t)("library", "Fresh covers")), 1),
+                        r("option", aj, l(o(t)("library", "Reset metadata")), 1)
+                      ], 8, ZU)), [
                         [rt, va.value]
                       ]) : S("", !0)
                     ]),
@@ -25887,7 +25891,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           type: "hidden",
                           name: "requesttoken",
                           value: St.value
-                        }, null, 8, ij),
+                        }, null, 8, nj),
                         r("label", null, [
                           r("span", null, l(o(t)("library", "Add tag")), 1),
                           r("input", {
@@ -25896,14 +25900,14 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             list: "library-nextcloud-tag-suggestions",
                             placeholder: o(t)("library", "e.g. Review"),
                             autocomplete: "off"
-                          }, null, 8, nj)
+                          }, null, 8, rj)
                         ]),
                         r("button", {
                           type: "submit",
                           class: "button primary",
                           title: o(t)("library", "Applies only to the selected publications.")
-                        }, l(o(t)("library", "Apply")), 9, rj)
-                      ], 8, aj)) : S("", !0),
+                        }, l(o(t)("library", "Apply")), 9, lj)
+                      ], 8, ij)) : S("", !0),
                       va.value === "untag" ? (c(), h("form", {
                         key: 1,
                         method: "post",
@@ -25914,7 +25918,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           type: "hidden",
                           name: "requesttoken",
                           value: St.value
-                        }, null, 8, sj),
+                        }, null, 8, oj),
                         r("label", null, [
                           r("span", null, l(o(t)("library", "Remove tag")), 1),
                           r("input", {
@@ -25923,14 +25927,14 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             list: "library-nextcloud-tag-suggestions",
                             placeholder: o(t)("library", "e.g. Review"),
                             autocomplete: "off"
-                          }, null, 8, oj)
+                          }, null, 8, uj)
                         ]),
                         r("button", {
                           type: "submit",
                           class: "button secondary",
                           title: o(t)("library", "Removes the tag only from the selected publications.")
-                        }, l(o(t)("library", "Remove")), 9, uj)
-                      ], 8, lj)) : S("", !0),
+                        }, l(o(t)("library", "Remove")), 9, cj)
+                      ], 8, sj)) : S("", !0),
                       va.value === "reset" ? (c(), h("form", {
                         key: 2,
                         method: "post",
@@ -25941,13 +25945,13 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           type: "hidden",
                           name: "requesttoken",
                           value: St.value
-                        }, null, 8, dj),
+                        }, null, 8, fj),
                         (c(!0), h(K, null, ce(Ts.value, (p) => (c(), h("input", {
                           key: `reset-${p.key}`,
                           type: "hidden",
                           name: p.key,
                           value: p.value
-                        }, null, 8, fj))), 128)),
+                        }, null, 8, hj))), 128)),
                         y[127] || (y[127] = r("input", {
                           type: "hidden",
                           name: "scannerConflicts",
@@ -25957,8 +25961,8 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           type: "submit",
                           class: "button secondary",
                           title: o(t)("library", "Batch actions for selected publications")
-                        }, l(o(t)("library", "Reset metadata")), 9, hj)
-                      ], 8, cj)) : S("", !0),
+                        }, l(o(t)("library", "Reset metadata")), 9, pj)
+                      ], 8, dj)) : S("", !0),
                       va.value === "edit" ? (c(), h("form", {
                         key: 3,
                         method: "post",
@@ -25970,28 +25974,28 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           type: "hidden",
                           name: "requesttoken",
                           value: St.value
-                        }, null, 8, vj),
+                        }, null, 8, bj),
                         (c(!0), h(K, null, ce(Ts.value, (p) => (c(), h("input", {
                           key: `edit-preview-${p.key}`,
                           type: "hidden",
                           name: p.key,
                           value: p.value
-                        }, null, 8, bj))), 128)),
+                        }, null, 8, gj))), 128)),
                         r("label", null, [
                           r("span", null, l(o(t)("library", "Field")), 1),
-                          r("select", gj, [
-                            r("option", yj, l(o(t)("library", "Publication type")), 1),
-                            r("option", mj, l(o(t)("library", "Subtitle")), 1),
-                            r("option", _j, l(o(t)("library", "Creators")), 1),
-                            r("option", wj, l(o(t)("library", "Series / periodical")), 1),
-                            r("option", kj, l(o(t)("library", "Series")), 1),
-                            r("option", Sj, l(o(t)("library", "Part in series")), 1),
-                            r("option", Cj, l(o(t)("library", "Genre")), 1),
-                            r("option", $j, l(o(t)("library", "Publication date")), 1),
-                            r("option", Tj, l(o(t)("library", "Language")), 1),
-                            r("option", Aj, l(o(t)("library", "Publisher")), 1),
-                            r("option", Ej, l(o(t)("library", "Subjects")), 1),
-                            r("option", xj, l(o(t)("library", "Classifications")), 1)
+                          r("select", yj, [
+                            r("option", mj, l(o(t)("library", "Publication type")), 1),
+                            r("option", _j, l(o(t)("library", "Subtitle")), 1),
+                            r("option", wj, l(o(t)("library", "Creators")), 1),
+                            r("option", kj, l(o(t)("library", "Series / periodical")), 1),
+                            r("option", Sj, l(o(t)("library", "Series")), 1),
+                            r("option", Cj, l(o(t)("library", "Part in series")), 1),
+                            r("option", $j, l(o(t)("library", "Genre")), 1),
+                            r("option", Tj, l(o(t)("library", "Publication date")), 1),
+                            r("option", Aj, l(o(t)("library", "Language")), 1),
+                            r("option", Ej, l(o(t)("library", "Publisher")), 1),
+                            r("option", xj, l(o(t)("library", "Subjects")), 1),
+                            r("option", Nj, l(o(t)("library", "Classifications")), 1)
                           ])
                         ]),
                         r("label", null, [
@@ -26001,14 +26005,14 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                             name: "bulkEditValue",
                             placeholder: o(t)("library", "magazine, de, photography…"),
                             autocomplete: "off"
-                          }, null, 8, Nj)
+                          }, null, 8, Oj)
                         ]),
                         r("button", {
                           type: "submit",
                           class: "button secondary",
                           title: o(t)("library", "Preview first, then apply from the review page.")
-                        }, l(o(t)("library", "Preview edit")), 9, Oj)
-                      ], 8, pj)) : S("", !0),
+                        }, l(o(t)("library", "Preview edit")), 9, Rj)
+                      ], 8, vj)) : S("", !0),
                       va.value === "covers" ? (c(), h("form", {
                         key: 4,
                         method: "post",
@@ -26019,45 +26023,45 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           type: "hidden",
                           name: "requesttoken",
                           value: St.value
-                        }, null, 8, Ij),
+                        }, null, 8, Pj),
                         (c(!0), h(K, null, ce(Ts.value, (p) => (c(), h("input", {
                           key: `cover-${p.key}`,
                           type: "hidden",
                           name: p.key,
                           value: p.value
-                        }, null, 8, Pj))), 128)),
+                        }, null, 8, Lj))), 128)),
                         r("button", {
                           type: "submit",
                           class: "button secondary",
                           title: o(t)("library", "Batch actions for selected publications")
-                        }, l(o(t)("library", "Fresh covers")), 9, Lj)
-                      ], 8, Rj)) : S("", !0),
+                        }, l(o(t)("library", "Fresh covers")), 9, Dj)
+                      ], 8, Ij)) : S("", !0),
                       r("button", {
                         type: "button",
                         class: "button secondary",
                         onClick: y[98] || (y[98] = (p) => va.value = "")
                       }, l(o(t)("library", "Cancel")), 1)
                     ], 32)) : S("", !0)
-                  ], 10, VU)) : S("", !0),
-                  zr.value && (o(dn) === "building" || Object.values(o(ii)).some((p) => p.status === "partial")) ? (c(), h("p", Dj, l(o(t)("library", "Suggestions are incomplete while indexing or when candidate limits are reached.")), 1)) : S("", !0),
-                  $.value.length > 0 && Ke.value === "list" ? (c(), h("div", Fj, [
-                    r("table", Mj, [
-                      r("caption", Uj, l(o(t)("library", "Catalogue list")), 1),
+                  ], 10, HU)) : S("", !0),
+                  zr.value && (o(dn) === "building" || Object.values(o(ii)).some((p) => p.status === "partial")) ? (c(), h("p", Fj, l(o(t)("library", "Suggestions are incomplete while indexing or when candidate limits are reached.")), 1)) : S("", !0),
+                  $.value.length > 0 && Ke.value === "list" ? (c(), h("div", Mj, [
+                    r("table", Uj, [
+                      r("caption", jj, l(o(t)("library", "Catalogue list")), 1),
                       r("thead", null, [
                         r("tr", null, [
-                          r("th", jj, [
-                            r("span", zj, l(o(t)("library", "Selection")), 1)
+                          r("th", zj, [
+                            r("span", Bj, l(o(t)("library", "Selection")), 1)
                           ]),
-                          r("th", Bj, [
-                            r("span", Vj, l(o(t)("library", "Cover")), 1)
+                          r("th", Vj, [
+                            r("span", Hj, l(o(t)("library", "Cover")), 1)
                           ]),
-                          r("th", Hj, l(o(t)("library", "Title")), 1),
-                          r("th", qj, l(o(t)("library", "Creators")), 1),
-                          r("th", Gj, l(o(t)("library", "Publication date")), 1),
-                          r("th", Kj, l(o(t)("library", "Series")), 1),
-                          r("th", Wj, l(o(t)("library", "Format")), 1),
-                          r("th", Yj, l(o(t)("library", "Shelf")), 1),
-                          r("th", Zj, l(o(t)("library", "Actions")), 1)
+                          r("th", qj, l(o(t)("library", "Title")), 1),
+                          r("th", Gj, l(o(t)("library", "Creators")), 1),
+                          r("th", Kj, l(o(t)("library", "Publication date")), 1),
+                          r("th", Wj, l(o(t)("library", "Series")), 1),
+                          r("th", Yj, l(o(t)("library", "Format")), 1),
+                          r("th", Zj, l(o(t)("library", "Shelf")), 1),
+                          r("th", Jj, l(o(t)("library", "Actions")), 1)
                         ])
                       ]),
                       r("tbody", null, [
@@ -26065,17 +26069,17 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           key: p.id,
                           class: Ne(["library-catalogue-list-row", { "library-catalogue-list-row--selected": Es.value.has(Number(p.id)), "library-catalogue-list-row--open": fn.value && Number(zn.value) === Number(p.id) }])
                         }, [
-                          r("td", Jj, [
-                            r("label", Xj, [
+                          r("td", Xj, [
+                            r("label", Qj, [
                               r("input", {
                                 type: "checkbox",
                                 checked: Es.value.has(Number(p.id)),
                                 "aria-label": `${o(t)("library", "Select publication")}: ${p.title}`,
                                 onChange: (H) => uf(p.id, H.currentTarget.checked)
-                              }, null, 40, Qj)
+                              }, null, 40, ez)
                             ])
                           ]),
-                          r("td", ez, [
+                          r("td", tz, [
                             r("button", {
                               type: "button",
                               class: "library-catalogue-list-cover",
@@ -26087,73 +26091,73 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                                 alt: "",
                                 loading: "lazy",
                                 decoding: "async"
-                              }, null, 8, az)
-                            ], 8, tz)
+                              }, null, 8, iz)
+                            ], 8, az)
                           ]),
-                          r("th", iz, [
+                          r("th", nz, [
                             r("button", {
                               type: "button",
                               class: "library-cover-title-button library-catalogue-list-title",
                               onClick: (H) => si(p, H)
                             }, [
-                              r("bdi", rz, l(p.title), 1)
-                            ], 8, nz),
+                              r("bdi", lz, l(p.title), 1)
+                            ], 8, rz),
                             o(ii)[p.id]?.count ? (c(), h("a", {
                               key: 0,
                               class: "library-duplicate-badge",
                               href: `${at.value}?duplicates=1&bookId=${p.id}`
-                            }, l(o(t)("library", "Possible duplicates")) + " · " + l(o(ii)[p.id].count) + l(o(ii)[p.id].status === "partial" ? "+" : ""), 9, lz)) : S("", !0)
+                            }, l(o(t)("library", "Possible duplicates")) + " · " + l(o(ii)[p.id].count) + l(o(ii)[p.id].status === "partial" ? "+" : ""), 9, sz)) : S("", !0)
                           ]),
-                          r("td", sz, [
-                            p.creators ? (c(), h("bdi", oz, l(p.displayCreators ?? p.creators), 1)) : (c(), h("span", {
+                          r("td", oz, [
+                            p.creators ? (c(), h("bdi", uz, l(p.displayCreators ?? p.creators), 1)) : (c(), h("span", {
                               key: 1,
                               "aria-label": o(t)("library", "Unknown")
-                            }, "—", 8, uz))
+                            }, "—", 8, cz))
                           ]),
                           r("td", null, [
                             p.publicationDate ? (c(), h("time", {
                               key: 0,
                               datetime: p.publicationDate
-                            }, l(p.publicationDate), 9, cz)) : (c(), h("span", {
+                            }, l(p.publicationDate), 9, dz)) : (c(), h("span", {
                               key: 1,
                               "aria-label": o(t)("library", "Unknown")
-                            }, "—", 8, dz))
+                            }, "—", 8, fz))
                           ]),
                           r("td", null, [
-                            p.publication ? (c(), h("bdi", fz, l(p.publication), 1)) : (c(), h("span", {
+                            p.publication ? (c(), h("bdi", hz, l(p.publication), 1)) : (c(), h("span", {
                               key: 1,
                               "aria-label": o(t)("library", "Unknown")
-                            }, "—", 8, hz))
+                            }, "—", 8, pz))
                           ]),
                           r("td", null, [
                             p.extension || p.publicationType ? (c(), h("bdi", {
                               key: 0,
                               class: Ne(p.extension ? "library-bidi-machine" : "library-bidi-human"),
                               dir: p.extension ? "ltr" : "auto"
-                            }, l(p.extension ? Ms(p.extension) : p.publicationType), 11, pz)) : (c(), h("span", {
+                            }, l(p.extension ? Ms(p.extension) : p.publicationType), 11, vz)) : (c(), h("span", {
                               key: 1,
                               "aria-label": o(t)("library", "Unknown")
-                            }, "—", 8, vz))
+                            }, "—", 8, bz))
                           ]),
                           r("td", null, [
-                            p.shelf ? (c(), h("bdi", bz, l(p.shelf), 1)) : (c(), h("span", {
+                            p.shelf ? (c(), h("bdi", gz, l(p.shelf), 1)) : (c(), h("span", {
                               key: 1,
                               "aria-label": o(t)("library", "Unknown")
-                            }, "—", 8, gz))
+                            }, "—", 8, yz))
                           ]),
-                          r("td", yz, [
+                          r("td", mz, [
                             r("a", {
                               class: "button primary",
                               href: p.openUrl,
                               target: "_blank",
                               rel: "noopener",
                               onClick: (H) => Ii(p, H)
-                            }, l(o(t)("library", "Open")), 9, mz),
+                            }, l(o(t)("library", "Open")), 9, _z),
                             r("button", {
                               type: "button",
                               class: "button secondary",
                               onClick: (H) => si(p, H)
-                            }, l(o(t)("library", "Details")), 9, _z)
+                            }, l(o(t)("library", "Details")), 9, wz)
                           ])
                         ], 2))), 128))
                       ])
@@ -26166,13 +26170,13 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       key: p.id,
                       class: Ne(["library-cover-card", { "library-cover-card--selected": Es.value.has(Number(p.id)), "library-cover-card--open": fn.value && Number(zn.value) === Number(p.id) }])
                     }, [
-                      r("label", wz, [
+                      r("label", kz, [
                         r("input", {
                           type: "checkbox",
                           checked: Es.value.has(Number(p.id)),
                           "aria-label": `${o(t)("library", "Select publication")}: ${p.title}`,
                           onChange: (H) => uf(p.id, H.currentTarget.checked)
-                        }, null, 40, kz)
+                        }, null, 40, Sz)
                       ]),
                       r("button", {
                         type: "button",
@@ -26184,11 +26188,11 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                         r("span", {
                           id: `library-details-action-${p.id}`,
                           class: "hidden-visually"
-                        }, l(o(t)("library", "Details")), 9, Cz),
+                        }, l(o(t)("library", "Details")), 9, $z),
                         he(af, {
                           src: p.coverUrl
                         }, null, 8, ["src"])
-                      ], 8, Sz),
+                      ], 8, Cz),
                       r("form", {
                         method: "post",
                         action: p.starUrl,
@@ -26199,7 +26203,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           type: "hidden",
                           name: "requesttoken",
                           value: St.value
-                        }, null, 8, Tz),
+                        }, null, 8, Az),
                         y[128] || (y[128] = r("input", {
                           type: "hidden",
                           name: "returnTo",
@@ -26209,7 +26213,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           type: "hidden",
                           name: "starred",
                           value: p.starred ? "0" : "1"
-                        }, null, 8, Az),
+                        }, null, 8, Ez),
                         r("button", {
                           type: "submit",
                           class: Ne(["library-cover-star-button", { "library-cover-star-button--starred": p.starred }]),
@@ -26219,21 +26223,21 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           "aria-busy": fl[p.id] ? "true" : void 0,
                           disabled: fl[p.id],
                           onClick: $e((H) => Bf(p, H), ["prevent"])
-                        }, l(p.starred ? "★" : "☆"), 11, Ez),
+                        }, l(p.starred ? "★" : "☆"), 11, xz),
                         hl[p.id] ? (c(), h("span", {
                           key: 0,
                           "data-library-star-error": p.id,
                           class: "library-star-feedback",
                           role: "alert"
-                        }, l(hl[p.id]), 9, xz)) : S("", !0)
-                      ], 40, $z),
-                      r("div", Nz, [
-                        r("div", Oz, [
+                        }, l(hl[p.id]), 9, Nz)) : S("", !0)
+                      ], 40, Tz),
+                      r("div", Oz, [
+                        r("div", Rz, [
                           o(ii)[p.id]?.count ? (c(), h("a", {
                             key: 0,
                             class: "library-duplicate-badge",
                             href: `${at.value}?duplicates=1&bookId=${p.id}`
-                          }, l(o(t)("library", "Possible duplicates")) + " · " + l(o(ii)[p.id].count) + l(o(ii)[p.id].status === "partial" ? "+" : ""), 9, Rz)) : S("", !0),
+                          }, l(o(t)("library", "Possible duplicates")) + " · " + l(o(ii)[p.id].count) + l(o(ii)[p.id].status === "partial" ? "+" : ""), 9, Iz)) : S("", !0),
                           r("h3", {
                             id: `library-card-title-${p.id}`
                           }, [
@@ -26242,14 +26246,14 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                               class: "library-cover-title-button",
                               onClick: (H) => si(p, H)
                             }, [
-                              r("bdi", Lz, l(p.title), 1)
-                            ], 8, Pz)
-                          ], 8, Iz),
-                          p.creators ? (c(), h("p", Dz, [
-                            r("bdi", Fz, l(p.displayCreators ?? p.creators), 1)
+                              r("bdi", Dz, l(p.title), 1)
+                            ], 8, Lz)
+                          ], 8, Pz),
+                          p.creators ? (c(), h("p", Fz, [
+                            r("bdi", Mz, l(p.displayCreators ?? p.creators), 1)
                           ])) : S("", !0),
-                          Uf(p) ? (c(), h("p", Mz, [
-                            r("bdi", Uz, l(Uf(p)), 1)
+                          Uf(p) ? (c(), h("p", Uz, [
+                            r("bdi", jz, l(Uf(p)), 1)
                           ])) : S("", !0)
                         ])
                       ])
@@ -26260,22 +26264,22 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     class: "library-pagination library-pagination--bottom",
                     "aria-label": o(t)("library", "Catalogue pagination")
                   }, [
-                    r("span", zz, [
+                    r("span", Bz, [
                       J(l(o(t)("library", "Page")) + " " + l(ee.value.page), 1),
-                      ee.value.total > 0 ? (c(), h("span", Bz, " · " + l(ee.value.from) + "–" + l(ee.value.to), 1)) : S("", !0)
+                      ee.value.total > 0 ? (c(), h("span", Vz, " · " + l(ee.value.from) + "–" + l(ee.value.to), 1)) : S("", !0)
                     ]),
                     ee.value.previousUrl ? (c(), h("a", {
                       key: 0,
                       href: ee.value.previousUrl
-                    }, l(o(t)("library", "Previous")), 9, Vz)) : (c(), h("span", Hz, l(o(t)("library", "Previous")), 1)),
+                    }, l(o(t)("library", "Previous")), 9, Hz)) : (c(), h("span", qz, l(o(t)("library", "Previous")), 1)),
                     ee.value.nextUrl ? (c(), h("a", {
                       key: 2,
                       href: ee.value.nextUrl
-                    }, l(o(t)("library", "Next")), 9, qz)) : (c(), h("span", Gz, l(o(t)("library", "Next")), 1))
-                  ], 8, jz)) : S("", !0)
-                ], 10, F6))
+                    }, l(o(t)("library", "Next")), 9, Gz)) : (c(), h("span", Kz, l(o(t)("library", "Next")), 1))
+                  ], 8, zz)) : S("", !0)
+                ], 10, M6))
               ], 64))
-            ], 8, w9)
+            ], 8, k9)
           ]),
           _: 1
         }),
@@ -26297,7 +26301,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
           onClose: nl
         }, {
           default: Te(() => [
-            r("div", Kz, [
+            r("div", Wz, [
               r("h2", {
                 id: "library-detail-drawer-heading",
                 ref_key: "sidebarHeading",
@@ -26305,7 +26309,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                 class: "hidden-visually",
                 tabindex: "-1"
               }, l(Ee.value?.title || o(t)("library", "Publication details")), 513),
-              Kt.loading && !Ee.value ? (c(), h("p", Wz, l(o(t)("library", "Loading publication details…")), 1)) : Kt.error ? (c(), h("div", {
+              Kt.loading && !Ee.value ? (c(), h("p", Yz, l(o(t)("library", "Loading publication details…")), 1)) : Kt.error ? (c(), h("div", {
                 key: 1,
                 class: "library-sidebar-state",
                 role: Kt.missing ? "status" : "alert"
@@ -26317,10 +26321,10 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                   class: "button secondary",
                   onClick: y[99] || (y[99] = (p) => il(zn.value, { historyMode: "none" }))
                 }, l(o(t)("library", "Try again")), 1))
-              ], 8, Yz)) : Ee.value ? (c(), h(K, { key: 2 }, [
-                r("p", Zz, l(o(t)("library", "Escape closes; arrow keys browse neighbouring visible items.")), 1),
-                r("div", Jz, [
-                  r("span", Xz, l(o(t)("library", "Cover for")), 1),
+              ], 8, Zz)) : Ee.value ? (c(), h(K, { key: 2 }, [
+                r("p", Jz, l(o(t)("library", "Escape closes; arrow keys browse neighbouring visible items.")), 1),
+                r("div", Xz, [
+                  r("span", Qz, l(o(t)("library", "Cover for")), 1),
                   r("img", {
                     class: "library-detail-drawer-cover",
                     src: Ee.value.coverUrl,
@@ -26328,27 +26332,27 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     "aria-labelledby": "library-detail-drawer-cover-label library-detail-drawer-heading",
                     loading: "lazy",
                     decoding: "async"
-                  }, null, 8, Qz),
-                  r("div", e7, [
-                    r("p", t7, [
-                      r("bdi", a7, l(Ee.value.publicationType || o(t)("library", "Publication")), 1),
-                      Ee.value.extension ? (c(), h("span", i7, [
+                  }, null, 8, e7),
+                  r("div", t7, [
+                    r("p", a7, [
+                      r("bdi", i7, l(Ee.value.publicationType || o(t)("library", "Publication")), 1),
+                      Ee.value.extension ? (c(), h("span", n7, [
                         y[129] || (y[129] = J(" · ", -1)),
-                        r("bdi", n7, l(Ms(Ee.value.extension)), 1)
+                        r("bdi", r7, l(Ms(Ee.value.extension)), 1)
                       ])) : S("", !0)
                     ]),
-                    r("div", r7, [
+                    r("div", l7, [
                       r("a", {
                         class: "button primary",
                         href: Ee.value.openUrl,
                         target: "_blank",
                         rel: "noopener",
                         onClick: y[100] || (y[100] = (p) => Ii(Ee.value, p))
-                      }, l(o(t)("library", "Open")), 9, l7),
+                      }, l(o(t)("library", "Open")), 9, s7),
                       r("a", {
                         class: "button secondary",
                         href: ei(Ee.value.detailsUrl)
-                      }, l(o(t)("library", "Full details")), 9, s7),
+                      }, l(o(t)("library", "Full details")), 9, o7),
                       he(o(Wd), {
                         "aria-label": o(t)("library", "File actions")
                       }, {
@@ -26391,15 +26395,15 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     class: Ne({ active: Bn.value === p.key }),
                     "aria-current": Bn.value === p.key ? "page" : void 0,
                     onClick: (H) => Bn.value = p.key
-                  }, l(o(t)("library", p.label)), 11, u7)), 64))
-                ], 8, o7),
-                Bn.value === "overview" ? (c(), h("section", c7, [
-                  r("h3", d7, l(o(t)("library", "Overview")), 1),
-                  df.value ? (c(), h("p", f7, [
-                    r("bdi", h7, l(df.value), 1)
+                  }, l(o(t)("library", p.label)), 11, c7)), 64))
+                ], 8, u7),
+                Bn.value === "overview" ? (c(), h("section", d7, [
+                  r("h3", f7, l(o(t)("library", "Overview")), 1),
+                  df.value ? (c(), h("p", h7, [
+                    r("bdi", p7, l(df.value), 1)
                   ])) : S("", !0),
-                  r("dl", p7, [
-                    Ee.value.publication ? (c(), h("div", v7, [
+                  r("dl", v7, [
+                    Ee.value.publication ? (c(), h("div", b7, [
                       r("dt", null, l(o(t)("library", "Series / periodical")), 1),
                       r("dd", null, [
                         r("a", {
@@ -26408,11 +26412,11 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           title: o(t)("library", "Filter catalogue by this series or periodical"),
                           onClick: y[101] || (y[101] = (p) => Is(p, "publication", Ee.value.publication))
                         }, [
-                          r("bdi", g7, l(Ee.value.publication), 1)
-                        ], 8, b7)
+                          r("bdi", y7, l(Ee.value.publication), 1)
+                        ], 8, g7)
                       ])
                     ])) : S("", !0),
-                    Ee.value.publicationDate ? (c(), h("div", y7, [
+                    Ee.value.publicationDate ? (c(), h("div", m7, [
                       r("dt", null, l(o(t)("library", "Date")), 1),
                       r("dd", null, [
                         qn.value ? (c(), h("a", {
@@ -26421,12 +26425,12 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           href: Rs("year", qn.value),
                           title: o(t)("library", "Filter catalogue by this publication year"),
                           onClick: y[102] || (y[102] = (p) => Is(p, "year", qn.value))
-                        }, l(qn.value), 9, m7)) : S("", !0),
-                        qn.value && Ee.value.publicationDate !== qn.value ? (c(), h("span", _7, " · ")) : S("", !0),
-                        Ee.value.publicationDate !== qn.value ? (c(), h("span", w7, l(Ee.value.publicationDate), 1)) : S("", !0)
+                        }, l(qn.value), 9, _7)) : S("", !0),
+                        qn.value && Ee.value.publicationDate !== qn.value ? (c(), h("span", w7, " · ")) : S("", !0),
+                        Ee.value.publicationDate !== qn.value ? (c(), h("span", k7, l(Ee.value.publicationDate), 1)) : S("", !0)
                       ])
                     ])) : S("", !0),
-                    Ee.value.publisher ? (c(), h("div", k7, [
+                    Ee.value.publisher ? (c(), h("div", S7, [
                       r("dt", null, l(o(t)("library", "Publisher")), 1),
                       r("dd", null, [
                         r("a", {
@@ -26435,13 +26439,13 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           title: o(t)("library", "Filter catalogue by this publisher"),
                           onClick: y[103] || (y[103] = (p) => Is(p, "publisher", Ee.value.publisher))
                         }, [
-                          r("bdi", C7, l(Ee.value.publisher), 1)
-                        ], 8, S7)
+                          r("bdi", $7, l(Ee.value.publisher), 1)
+                        ], 8, C7)
                       ])
                     ])) : S("", !0),
-                    ff.value.length ? (c(), h("div", $7, [
+                    ff.value.length ? (c(), h("div", T7, [
                       r("dt", null, l(o(t)("library", "Language")), 1),
-                      r("dd", T7, [
+                      r("dd", A7, [
                         (c(!0), h(K, null, ce(ff.value, (p) => (c(), h("a", {
                           key: p,
                           class: "library-detail-facet-link",
@@ -26449,22 +26453,22 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           title: o(t)("library", "Filter catalogue by this language"),
                           onClick: (H) => Is(H, "language", p)
                         }, [
-                          r("bdi", E7, l(p), 1)
-                        ], 8, A7))), 128))
+                          r("bdi", x7, l(p), 1)
+                        ], 8, E7))), 128))
                       ])
                     ])) : S("", !0),
-                    Ee.value.shelf ? (c(), h("div", x7, [
+                    Ee.value.shelf ? (c(), h("div", N7, [
                       r("dt", null, l(o(t)("library", "Shelf")), 1),
                       r("dd", null, l(Ee.value.shelf), 1)
                     ])) : S("", !0)
                   ])
-                ])) : Bn.value === "metadata" ? (c(), h("section", N7, [
+                ])) : Bn.value === "metadata" ? (c(), h("section", O7, [
                   zr.value ? (c(), je(wg, {
                     key: `${Ee.value.id}:${Ee.value.title}:${Ee.value.creators}`,
                     "item-id": Number(Ee.value.id),
                     "request-token": St.value
                   }, null, 8, ["item-id", "request-token"])) : S("", !0),
-                  r("h3", O7, l(o(t)("library", "Metadata")), 1),
+                  r("h3", R7, l(o(t)("library", "Metadata")), 1),
                   r("form", {
                     class: "library-sidebar-metadata-form",
                     onSubmit: $e(Kg, ["prevent"])
@@ -26537,7 +26541,7 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                         name: "publicationDate",
                         inputmode: "numeric",
                         placeholder: o(t)("library", "e.g. 2026")
-                      }, null, 8, R7), [
+                      }, null, 8, I7), [
                         [xe, Et.publicationDate]
                       ])
                     ]),
@@ -26551,22 +26555,22 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           "onUpdate:modelValue": (ye) => p.scheme = ye,
                           "aria-label": o(t)("library", "Identifier type")
                         }, [
-                          r("option", P7, l(o(t)("library", "ISBN")), 1),
-                          r("option", L7, l(o(t)("library", "ISSN")), 1)
-                        ], 8, I7), [
+                          r("option", L7, l(o(t)("library", "ISBN")), 1),
+                          r("option", D7, l(o(t)("library", "ISSN")), 1)
+                        ], 8, P7), [
                           [rt, p.scheme]
                         ]),
                         fe(r("input", {
                           "onUpdate:modelValue": (ye) => p.displayValue = ye,
                           "aria-label": o(t)("library", "Identifier value")
-                        }, null, 8, D7), [
+                        }, null, 8, F7), [
                           [xe, p.displayValue]
                         ]),
                         r("button", {
                           type: "button",
                           class: "button secondary",
                           onClick: (ye) => Gg(H)
-                        }, l(o(t)("library", "Remove")), 9, F7)
+                        }, l(o(t)("library", "Remove")), 9, M7)
                       ]))), 128)),
                       r("button", {
                         type: "button",
@@ -26574,15 +26578,15 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                         onClick: qg
                       }, l(o(t)("library", "Add identifier")), 1)
                     ]),
-                    li.error ? (c(), h("p", M7, l(li.error), 1)) : li.saved ? (c(), h("p", U7, l(o(t)("library", "Metadata saved.")), 1)) : S("", !0),
+                    li.error ? (c(), h("p", U7, l(li.error), 1)) : li.saved ? (c(), h("p", j7, l(o(t)("library", "Metadata saved.")), 1)) : S("", !0),
                     r("button", {
                       type: "submit",
                       class: "button primary",
                       disabled: Kt.loading || !Ee.value.metadataRevision || li.saving
-                    }, l(li.saving ? o(t)("library", "Saving…") : o(t)("library", "Save metadata")), 9, j7)
+                    }, l(li.saving ? o(t)("library", "Saving…") : o(t)("library", "Save metadata")), 9, z7)
                   ], 32),
-                  Ps(Ee.value).length ? (c(), h("section", z7, [
-                    r("h4", B7, [
+                  Ps(Ee.value).length ? (c(), h("section", B7, [
+                    r("h4", V7, [
                       he(Qe, {
                         text: o(t)("library", "Suggestions are optional and never replace your edits automatically.")
                       }, {
@@ -26605,24 +26609,24 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                       ]))), 128))
                     ])
                   ])) : S("", !0)
-                ])) : (c(), h("section", V7, [
-                  r("h3", H7, l(o(t)("library", "Activity")), 1),
-                  r("dl", q7, [
+                ])) : (c(), h("section", H7, [
+                  r("h3", q7, l(o(t)("library", "Activity")), 1),
+                  r("dl", G7, [
                     r("div", null, [
                       r("dt", null, l(o(t)("library", "Scan status")), 1),
                       r("dd", null, l(Ee.value.scanStatus || "—"), 1)
                     ]),
-                    Ee.value.workflowStatus ? (c(), h("div", G7, [
+                    Ee.value.workflowStatus ? (c(), h("div", K7, [
                       r("dt", null, l(o(t)("library", "Workflow")), 1),
                       r("dd", null, l(Ee.value.workflowStatus), 1)
                     ])) : S("", !0),
-                    Ee.value.metadataSource ? (c(), h("div", K7, [
+                    Ee.value.metadataSource ? (c(), h("div", W7, [
                       r("dt", null, l(o(t)("library", "Metadata source")), 1),
                       r("dd", null, l(Ee.value.metadataSource), 1)
                     ])) : S("", !0),
-                    Ee.value.cachedPath ? (c(), h("div", W7, [
+                    Ee.value.cachedPath ? (c(), h("div", Y7, [
                       r("dt", null, l(o(t)("library", "File")), 1),
-                      r("dd", Y7, [
+                      r("dd", Z7, [
                         Ee.value.openUrl ? (c(), h("a", {
                           key: 0,
                           href: Ee.value.openUrl,
@@ -26630,8 +26634,8 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                           rel: "noopener",
                           onClick: y[109] || (y[109] = (p) => Ii(Ee.value, p))
                         }, [
-                          r("bdi", J7, l(Ee.value.cachedPath), 1)
-                        ], 8, Z7)) : (c(), h("bdi", X7, l(Ee.value.cachedPath), 1))
+                          r("bdi", X7, l(Ee.value.cachedPath), 1)
+                        ], 8, J7)) : (c(), h("bdi", Q7, l(Ee.value.cachedPath), 1))
                       ])
                     ])) : S("", !0)
                   ])
@@ -26646,9 +26650,9 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     class: "button secondary",
                     href: `${at.value}?authors=1&authorId=${p.id}`
                   }, [
-                    r("bdi", tB, l(p.name), 1)
-                  ], 8, eB))), 128))
-                ], 8, Q7)) : Ee.value.authors?.length ? (c(), h("nav", {
+                    r("bdi", aB, l(p.name), 1)
+                  ], 8, tB))), 128))
+                ], 8, eB)) : Ee.value.authors?.length ? (c(), h("nav", {
                   key: 4,
                   class: "library-author-links",
                   "aria-label": o(t)("library", "Creators")
@@ -26658,9 +26662,9 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     class: "button secondary",
                     href: Sy(p)
                   }, [
-                    r("bdi", nB, l(p), 1)
-                  ], 8, iB))), 128))
-                ], 8, aB)) : S("", !0),
+                    r("bdi", rB, l(p), 1)
+                  ], 8, nB))), 128))
+                ], 8, iB)) : S("", !0),
                 Ee.value.canonicalSeries?.length ? (c(), h("nav", {
                   key: 5,
                   class: "library-author-links",
@@ -26671,14 +26675,14 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     class: "button secondary",
                     href: `${at.value}?series=1&seriesId=${p.id}`
                   }, [
-                    r("bdi", sB, [
+                    r("bdi", oB, [
                       J(l(p.name), 1),
                       p.part ? (c(), h(K, { key: 0 }, [
                         J(" · " + l(p.part), 1)
                       ], 64)) : S("", !0)
                     ])
-                  ], 8, lB))), 128))
-                ], 8, rB)) : S("", !0),
+                  ], 8, sB))), 128))
+                ], 8, lB)) : S("", !0),
                 Ee.value.canonicalGenres?.length ? (c(), h("nav", {
                   key: 6,
                   class: "library-author-links",
@@ -26689,9 +26693,9 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     class: "button secondary",
                     href: `${at.value}?genreId=${p.id}`
                   }, [
-                    r("bdi", cB, l(p.name), 1)
-                  ], 8, uB))), 128))
-                ], 8, oB)) : S("", !0),
+                    r("bdi", dB, l(p.name), 1)
+                  ], 8, cB))), 128))
+                ], 8, uB)) : S("", !0),
                 r("nav", {
                   class: "library-detail-drawer-stepper",
                   "aria-label": o(t)("library", "Browse neighbouring items")
@@ -26701,14 +26705,14 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
                     class: "button secondary",
                     disabled: !Ns.value,
                     onClick: y[110] || (y[110] = (p) => Ls(Ns.value))
-                  }, l(o(t)("library", "Previous item")), 9, fB),
+                  }, l(o(t)("library", "Previous item")), 9, hB),
                   r("button", {
                     type: "button",
                     class: "button secondary",
                     disabled: !Os.value,
                     onClick: y[111] || (y[111] = (p) => Ls(Os.value))
-                  }, l(o(t)("library", "Next item")), 9, hB)
-                ], 8, dB)
+                  }, l(o(t)("library", "Next item")), 9, pB)
+                ], 8, fB)
               ], 64)) : S("", !0)
             ])
           ]),
@@ -26719,22 +26723,22 @@ const SR = { class: "library-inference-suggestions" }, CR = ["disabled"], $R = {
     }));
   }
 };
-function yB() {
+function mB() {
   window.LibraryStartupWatchdog?.fail();
 }
-function mB(e) {
+function _B(e) {
   return e !== null && typeof e == "object" && !Array.isArray(e) && Array.isArray(e.items) && e.activeFilters !== null && typeof e.activeFilters == "object" && !Array.isArray(e.activeFilters) && e.cataloguePagination !== null && typeof e.cataloguePagination == "object" && !Array.isArray(e.cataloguePagination);
 }
 try {
   const e = yo("library", "catalogue", null), t = document.querySelector("#library-vue-root");
-  if (!t || !mB(e))
+  if (!t || !_B(e))
     throw new Error("Library startup prerequisites are unavailable");
   const a = {
     ...e,
     duplicateSuggestions: yo("library", "duplicateSuggestions", !1),
     requestToken: t.dataset.requestToken || e.requestToken || ""
   };
-  s_(gB, { state: a }).mount(t), window.LibraryStartupWatchdog?.mounted();
+  s_(yB, { state: a }).mount(t), window.LibraryStartupWatchdog?.mounted();
 } catch (e) {
-  yB(), console.error("[library] Vue startup failed", e);
+  mB(), console.error("[library] Vue startup failed", e);
 }
