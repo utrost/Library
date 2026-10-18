@@ -29,9 +29,9 @@ def test_subjects_classifications_have_schema_and_publication_field_model():
     assert "->set('subjects_json'" in update_block
     assert "->set('genres_json'" not in update_block
     assert "->set('classifications_json'" in update_block
-    assert "'subjects' => $this->normalizeRequestList($this->request->getParam('subjects', $this->request->getParam('subjects[]', '')))" in controller
+    assert "'subjects' => $this->normalizeRequestValueList($this->request->getParam('subjects', $this->request->getParam('subjects[]', '')))" in controller
     assert "getParam('genres'" not in controller
-    assert "'classifications' => $this->normalizeRequestList($this->request->getParam('classifications', $this->request->getParam('classifications[]', '')))" in controller
+    assert "'classifications' => $this->normalizeRequestValueList($this->request->getParam('classifications', $this->request->getParam('classifications[]', '')))" in controller
 
 
 def test_subjects_classifications_are_visible_editable_filterable_and_not_genres():
@@ -53,7 +53,7 @@ def test_subjects_classifications_are_visible_editable_filterable_and_not_genres
     assert "indexedFacetFilter" in service
     assert "jsonArrayContainsFilter" not in service
     assert "Subjects" in detail
-    assert 'name="subjects[]"' in detail
+    assert 'name="subjects"' in detail
     assert 'name="genre"' in detail  # A separate scalar field; subjects remain multi-valued.
     assert "genres[]" not in detail
     assert "Classifications" in detail

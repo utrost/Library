@@ -201,9 +201,37 @@ final class ItemService {
         $existing = $this->scannerItemRow($userId, (int)$file['id']);
         if ($existing !== null) {
             if ((bool)$existing['user_edited']) {
-                $this->refreshScannerCandidatesForUserEditedItem($userId, (int)$existing['id'], $metadataCandidate);
+                $protected = $this->decodeProtectedFields($existing['protected_fields_json'] ?? null);
+                if ($protected === null) {
+                    $this->refreshScannerCandidatesForUserEditedItem($userId, (int)$existing['id'], $metadataCandidate);
+                    return;
+                }
+                $largeColumns = [];
+                foreach (['description', 'subjects', 'classifications'] as $field) {
+                    if (in_array($field, $protected, true) || in_array($field, $metadataCandidate['invalidFields'] ?? [], true)) $largeColumns[] = $this->databaseColumnForField($field);
+                }
+                $existing = $this->loadScannerLargeColumns($userId, $existing, $largeColumns);
+                foreach ($protected as $field) {
+                    if ($field === 'identifiers') {
+                        $metadataCandidate['identifiers'] = $this->itemIdentifiers((int)$existing['id']);
+                    } elseif ($field === 'creators') {
+                        $metadataCandidate['creators'] = $existing['creators'];
+                        $metadataCandidate['authors'] = AuthorNames::read($existing['authors_json'], $existing['creators']);
+                    } elseif ($field === 'subjects' || $field === 'classifications') {
+                        $metadataCandidate[$field] = $this->decodeJsonList($existing[$this->databaseColumnForField($field)] ?? null);
+                    } elseif (in_array($field, self::PUBLICATION_FIELDS, true)) {
+                        $column = $this->databaseColumnForField($field);
+                        if ($column !== null) $metadataCandidate[$field] = $existing[$column];
+                    }
+                }
+                $this->refreshInferredItem($userId, (int)$existing['id'], $file, $metadataCandidate, $existing, $invalidAuthors, true);
                 return;
             }
+            $largeColumns = [];
+            foreach (['description', 'subjects', 'classifications'] as $field) {
+                if (in_array($field, $metadataCandidate['invalidFields'] ?? [], true)) $largeColumns[] = $this->databaseColumnForField($field);
+            }
+            $existing = $this->loadScannerLargeColumns($userId, $existing, $largeColumns);
             $this->refreshInferredItem($userId, (int)$existing['id'], $file, $metadataCandidate, $existing, $invalidAuthors);
             return;
         }
@@ -250,13 +278,27 @@ final class ItemService {
             $this->db->executeStatement('UPDATE *PREFIX*library_items SET id=id WHERE user_id=? AND library_file_id=?', [$uid,$libraryFileId]);
         }
         $qb=$this->db->getQueryBuilder();
-        $qb->select('id','user_edited','scanner_index_hash','creators','authors_json','title','subtitle','publication','series_name','series_number','genre','publication_date','language','publisher')
+        $qb->select('id','user_edited','protected_fields_json','scanner_index_hash','creators','authors_json','publication_type','title','subtitle','publication','series_name','series_number','genre','publication_date','language','publisher')
             ->addSelect($qb->createFunction("CASE WHEN (cover_override_url IS NOT NULL AND cover_override_url <> '') OR (cover_override_data IS NOT NULL AND cover_override_data <> '') THEN 1 ELSE 0 END AS has_cover_override"))
             ->from('library_items')->where($qb->expr()->eq('user_id',$qb->createNamedParameter($uid)))
             ->andWhere($qb->expr()->eq('library_file_id',$qb->createNamedParameter($libraryFileId)));
         if ($this->db->getDatabaseProvider() !== 'sqlite') $qb->forUpdate();
         $r=$qb->executeQuery();$row=$r->fetch();$r->closeCursor();if($row===false)return null;
         $row['user_edited']=in_array($row['user_edited'],[true,1,'1','t','true'],true);return $row;
+    }
+
+    /** Load large values only when a correction or rejected extractor field needs them. */
+    private function loadScannerLargeColumns(string $userId, array $existing, array $columns): array {
+        if ($columns === []) return $existing;
+        $details = $this->db->getQueryBuilder();
+        $result = $details->select(...$columns)->from('library_items')
+            ->where($details->expr()->eq('user_id', $details->createNamedParameter($userId)))
+            ->andWhere($details->expr()->eq('id', $details->createNamedParameter((int)$existing['id'])))
+            ->executeQuery();
+        $values = $result->fetch();
+        $result->closeCursor();
+        if ($values === false) throw new \OutOfBoundsException('item_not_found');
+        return $existing + $values;
     }
 
     /** Canonical values already produced by metadataCandidate; no database round trip. */
@@ -395,6 +437,9 @@ final class ItemService {
         if (array_key_exists('authors_json', $values) || array_key_exists('creators', $values)) $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT));
         if (array_key_exists('series_name', $values) || array_key_exists('series_number', $values)) $qb->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
         foreach ($values as $column => $value) $qb->set($column, $qb->createNamedParameter($value));
+        // Inference Apply/Undo has its own snapshot contract. Keep the older,
+        // conservative whole-item protection until it records per-field intent.
+        if (array_key_exists('user_edited', $values)) $qb->set('protected_fields_json', $qb->createNamedParameter(null));
         $qb->executeStatement();
         $item = $this->findItem($userId, $itemId);
         $this->refreshReviewFilterFlags($userId, $itemId);
@@ -405,7 +450,8 @@ final class ItemService {
     public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null): void {
         $explicitAuthors = array_key_exists('authors', $metadata);
         $metadata = $this->validateEditableMetadata($metadata);
-        $identifiers = IdentifierService::normalizeIdentifierList($metadata['identifiers'] ?? [], 'user', true);
+        $hasIdentifierUpdate = array_key_exists('identifiers', $metadata);
+        $identifiers = $hasIdentifierUpdate ? IdentifierService::normalizeIdentifierList($metadata['identifiers'], 'user', true) : [];
         $this->db->beginTransaction();
         try {
             $this->lockOwnedItem($userId, $itemId);
@@ -414,6 +460,12 @@ final class ItemService {
             if ($expectedRevision !== null && !hash_equals($existing['metadataRevision'], $expectedRevision)) {
                 throw new MetadataConflictException('metadata_changed');
             }
+            // Import and API callers may submit only the fields they changed.
+            $submittedFields = array_fill_keys(array_keys($metadata), true);
+            foreach (self::PUBLICATION_FIELDS as $field) {
+                if (!array_key_exists($field, $metadata)) $metadata[$field] = $existing[$field] ?? null;
+            }
+            if (!array_key_exists('personalRating', $metadata)) $metadata['personalRating'] = $existing['personalRating'];
             $authors = array_key_exists('authors', $metadata)
                 ? AuthorNames::normalize($metadata['authors'])
                 : ((string)($metadata['creators'] ?? '') === ($existing['creators'] ?? '')
@@ -423,12 +475,34 @@ final class ItemService {
             $now = time();
             $publicationType = $this->normalizePublicationType((string)($metadata['publicationType'] ?? 'other'));
             $title = trim((string)($metadata['title'] ?? '')) ?: 'Untitled publication';
-            $existingProvenance = $this->existingFieldProvenance($userId, $itemId);
-            if ($authors !== ($existing['authors'] ?? []) || (string)($metadata['creators'] ?? '') !== ($existing['creators'] ?? '')) $existingProvenance['fieldSources']['creators'] = 'user';
-
-            foreach (['series', 'seriesNumber', 'genre'] as $field) {
-                if (array_key_exists($field, $metadata)) $existingProvenance['fieldSources'][$field] = 'user';
+            $changedFields = [];
+            foreach (self::PUBLICATION_FIELDS as $field) {
+                if (!isset($submittedFields[$field]) && !($field === 'creators' && $explicitAuthors)) continue;
+                if ($field === 'subjects' || $field === 'classifications') {
+                    if ($this->normalizeMultiValueField($metadata[$field]) !== ($existing[$field] ?? [])) $changedFields[] = $field;
+                    continue;
+                }
+                $nextValue = $field === 'publicationType' ? $publicationType : ($field === 'title' ? $title : trim((string)($metadata[$field] ?? '')));
+                if ($nextValue !== trim((string)($existing[$field] ?? '')) || ($field === 'creators' && $authors !== ($existing['authors'] ?? []))) $changedFields[] = $field;
             }
+            if ($hasIdentifierUpdate) {
+                $before = array_map(static fn(array $row): string => $row['scheme'] . ':' . $row['displayValue'], $existing['identifiers']);
+                $after = array_map(static fn(array $row): string => $row['scheme'] . ':' . $row['displayValue'], $identifiers);
+                sort($before, SORT_STRING); sort($after, SORT_STRING);
+                if ($before !== $after) $changedFields[] = 'identifiers';
+            }
+            $protected = [];
+            if ($existing['userEdited']) {
+                $protectionQuery = $this->db->executeQuery('SELECT protected_fields_json FROM *PREFIX*library_items WHERE user_id=? AND id=?', [$userId, $itemId]);
+                $protectedRow = $protectionQuery->fetch();
+                $protectionQuery->closeCursor();
+                $protected = $this->decodeProtectedFields($protectedRow['protected_fields_json'] ?? null);
+            }
+            // NULL means an older edit whose individual corrections are unknown.
+            $userEdited = $existing['userEdited'] || $changedFields !== [];
+            $protected = $existing['userEdited'] && $protected === null ? null : array_values(array_unique(array_merge($protected ?? [], $changedFields)));
+            $existingProvenance = $this->existingFieldProvenance($userId, $itemId);
+            foreach ($changedFields as $field) if ($field !== 'identifiers') $existingProvenance['fieldSources'][$field] = 'user';
 
             $qb = $this->db->getQueryBuilder();
             $qb->update('library_items')
@@ -436,7 +510,7 @@ final class ItemService {
                 ->set('title', $qb->createNamedParameter($title))
                 ->set('subtitle', $qb->createNamedParameter($this->nullableString($metadata['subtitle'] ?? null)))
                 ->set('creators', $qb->createNamedParameter($this->nullableString($metadata['creators'] ?? null)))
-                ->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT))->set('authors_json', $qb->createNamedParameter(AuthorNames::encode($authors)))
+                ->set('authors_json', $qb->createNamedParameter(AuthorNames::encode($authors)))
                 ->set('publication', $qb->createNamedParameter($this->nullableString($metadata['publication'] ?? null)))
                 ->set('publication_date', $qb->createNamedParameter($this->nullableString($metadata['publicationDate'] ?? null)))
                 ->set('language', $qb->createNamedParameter($this->nullableString($metadata['language'] ?? null)))
@@ -445,17 +519,19 @@ final class ItemService {
                 ->set('subjects_json', $qb->createNamedParameter($this->jsonEncodeList($this->normalizeMultiValueField($metadata['subjects'] ?? []))))
                 ->set('classifications_json', $qb->createNamedParameter($this->jsonEncodeList($this->normalizeMultiValueField($metadata['classifications'] ?? []))))
                 ->set('personal_rating', $qb->createNamedParameter($this->normalizePersonalRating($metadata['personalRating'] ?? null)))
-                ->set('metadata_source', $qb->createNamedParameter('user'))
+                ->set('metadata_source', $qb->createNamedParameter($userEdited ? 'user' : $existing['metadataSource']))
                 ->set('field_sources', $qb->createNamedParameter(json_encode($existingProvenance['fieldSources'], JSON_THROW_ON_ERROR)))
                 ->set('field_values', $qb->createNamedParameter(json_encode($existingProvenance['fieldValues'], JSON_THROW_ON_ERROR)))
-                ->set('user_edited', $qb->createNamedParameter(1))
+                ->set('user_edited', $qb->createNamedParameter($userEdited ? 1 : 0))
+                ->set('protected_fields_json', $qb->createNamedParameter($userEdited && $protected !== null ? json_encode($protected, JSON_THROW_ON_ERROR) : null))
                 ->set('updated_at', $qb->createNamedParameter($now))
                 ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
                 ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
             foreach (['series', 'seriesNumber', 'genre'] as $field) {
                 if (array_key_exists($field, $metadata)) $qb->set($this->databaseColumnForField($field), $qb->createNamedParameter($metadata[$field]));
             }
-            if (array_key_exists('series', $metadata) || array_key_exists('seriesNumber', $metadata)) $qb->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
+            if (in_array('creators', $changedFields, true)) $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT));
+            if (in_array('series', $changedFields, true) || in_array('seriesNumber', $changedFields, true)) $qb->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
             $qb->executeStatement();
 
             $this->refreshReviewFilterFlags($userId, $itemId);
@@ -466,7 +542,7 @@ final class ItemService {
                 $this->normalizeMultiValueField($metadata['classifications'] ?? []),
                 $this->typeaheadScalarFacets($metadata)
             );
-            $this->syncItemIdentifiers($userId, $itemId, $identifiers);
+            if (in_array('identifiers', $changedFields, true)) $this->syncItemIdentifiers($userId, $itemId, $identifiers);
             $this->refreshItemSearchIndex($userId, $itemId);
             $this->db->commit();
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
@@ -514,7 +590,7 @@ final class ItemService {
 
         $language = trim((string)($metadata['language'] ?? ''));
         foreach ($this->normalizeLanguageList($language) as $languageCode) {
-            if (preg_match('/^[a-z]{2,3}(-[A-Z]{2})?$/', $languageCode) !== 1) {
+            if (preg_match('/^[a-z]{2,3}(?:-[a-z]{2})?$/iD', $languageCode) !== 1) {
                 throw new \InvalidArgumentException('Language must use short codes such as de, en, fr, or en-US.');
             }
         }
@@ -537,6 +613,18 @@ final class ItemService {
             }
         }
         return $normalized;
+    }
+
+    /** Normalize only clearly coded source lists; preserve ambiguous source text. */
+    private function sourceLanguage(string $language): ?string {
+        $language = trim($language);
+        if ($language === '') return null;
+        $parts = $this->normalizeLanguageList($language);
+        if ($parts === []) return null;
+        foreach ($parts as $code) {
+            if (preg_match('/^[a-z]{2,3}(?:-[a-z]{2})?$/iD', $code) !== 1) return $language;
+        }
+        return implode('; ', $parts);
     }
 
     public function setStarred(string $userId, int $itemId, bool $starred): bool {
@@ -621,7 +709,7 @@ final class ItemService {
         }
 
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('field_sources', 'field_values')
+        $result = $qb->select('field_sources', 'field_values', 'protected_fields_json')
             ->from('library_items')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
@@ -634,6 +722,7 @@ final class ItemService {
 
         $candidateValues = $this->decodeJsonMap($row['field_values'] ?? null);
         $candidateSources = $this->decodeJsonMap($row['field_sources'] ?? null);
+        $protected = $this->decodeProtectedFields($row['protected_fields_json'] ?? null);
         if (!array_key_exists($field, $candidateValues)) {
             return false;
         }
@@ -650,6 +739,7 @@ final class ItemService {
             ->set($column, $qb->createNamedParameter($this->databaseValueForField($field, $candidateValues[$field])))
             ->set('metadata_source', $qb->createNamedParameter('mixed'))
             ->set('user_edited', $qb->createNamedParameter(1))
+            ->set('protected_fields_json', $qb->createNamedParameter($protected === null ? null : json_encode(array_values(array_diff($protected, [$field])), JSON_THROW_ON_ERROR)))
             ->set('field_sources', $qb->createNamedParameter(json_encode($candidateSources, JSON_THROW_ON_ERROR)))
             ->set('field_values', $qb->createNamedParameter(json_encode($candidateValues, JSON_THROW_ON_ERROR)))
             ->set('updated_at', $qb->createNamedParameter(time()))
@@ -668,7 +758,7 @@ final class ItemService {
 
     public function resetAllFieldsToScannerCandidates(string $userId, int $itemId): bool {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('field_sources', 'field_values')
+        $result = $qb->select('field_sources', 'field_values', 'protected_fields_json')
             ->from('library_items')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
@@ -681,9 +771,11 @@ final class ItemService {
 
         $candidateValues = $this->decodeJsonMap($row['field_values'] ?? null);
         $candidateSources = $this->decodeJsonMap($row['field_sources'] ?? null);
+        $protected = $this->decodeProtectedFields($row['protected_fields_json'] ?? null);
         $qb = $this->db->getQueryBuilder();
         $update = $qb->update('library_items');
         $hasCandidate = false;
+        $resetFields = [];
         foreach (self::PUBLICATION_FIELDS as $field) {
             if (!array_key_exists($field, $candidateValues)) {
                 continue;
@@ -698,6 +790,7 @@ final class ItemService {
             if ($field === 'creators') $update->set('author_sync_status', $update->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT))->set('authors_json', $qb->createNamedParameter($candidateValues['authors'] ?? AuthorNames::encode(AuthorNames::fromText($candidateValues[$field]))));
             if ($field === 'series' || $field === 'seriesNumber') $update->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
             $hasCandidate = true;
+            $resetFields[] = $field;
         }
         if (!$hasCandidate) {
             return false;
@@ -706,6 +799,7 @@ final class ItemService {
         $affected = $update
             ->set('metadata_source', $qb->createNamedParameter('mixed'))
             ->set('user_edited', $qb->createNamedParameter(1))
+            ->set('protected_fields_json', $qb->createNamedParameter($protected === null ? null : json_encode(array_values(array_diff($protected, $resetFields)), JSON_THROW_ON_ERROR)))
             ->set('field_sources', $qb->createNamedParameter(json_encode($candidateSources, JSON_THROW_ON_ERROR)))
             ->set('field_values', $qb->createNamedParameter(json_encode($candidateValues, JSON_THROW_ON_ERROR)))
             ->set('updated_at', $qb->createNamedParameter(time()))
@@ -855,6 +949,11 @@ final class ItemService {
             }
             $existingProvenance = $this->existingFieldProvenance($userId, $itemId);
             $existingProvenance['fieldSources'][$field] = 'user';
+            $protectionQuery = $this->db->executeQuery('SELECT protected_fields_json FROM *PREFIX*library_items WHERE user_id=? AND id=?', [$userId, $itemId]);
+            $protectionRow = $protectionQuery->fetch();
+            $protectionQuery->closeCursor();
+            $protected = $current['userEdited'] ? $this->decodeProtectedFields($protectionRow['protected_fields_json'] ?? null) : [];
+            if ($protected !== null) $protected = array_values(array_unique([...$protected, $field]));
 
             $qb = $this->db->getQueryBuilder();
             $qb->update('library_items');
@@ -866,6 +965,7 @@ final class ItemService {
                 ->set('field_sources', $qb->createNamedParameter(json_encode($existingProvenance['fieldSources'], JSON_THROW_ON_ERROR)))
                 ->set('field_values', $qb->createNamedParameter(json_encode($existingProvenance['fieldValues'], JSON_THROW_ON_ERROR)))
                 ->set('user_edited', $qb->createNamedParameter(1))
+                ->set('protected_fields_json', $qb->createNamedParameter($protected === null ? null : json_encode($protected, JSON_THROW_ON_ERROR)))
                 ->set('updated_at', $qb->createNamedParameter(time()))
                 ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
                 ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
@@ -2502,6 +2602,28 @@ final class ItemService {
         return $links->getSQL();
     }
 
+    /** Search curated names through book-author links so a rename needs no book reindex. */
+    private function partialAuthorSearchSubquery(IQueryBuilder $qb, string $userId, string $query): ?string {
+        $length = mb_strlen($query);
+        if ($length < self::SEARCH_GRAM_LENGTH || $length > 255) return null;
+        $literal = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower($query));
+        $displayPattern = $qb->createNamedParameter('%' . $literal . '%');
+        $sortPattern = $qb->createNamedParameter('%' . $literal . '%');
+        $links = $this->db->getQueryBuilder();
+        $links->select('search_author.item_id')->from('library_item_authors', 'search_author')
+            ->innerJoin('search_author', 'library_authors', 'search_identity', $links->expr()->andX(
+                $links->expr()->eq('search_identity.id', 'search_author.author_id'),
+                $links->expr()->eq('search_identity.user_id', 'search_author.user_id')
+            ))
+            ->where($links->expr()->eq('search_author.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($links->expr()->isNull('search_identity.merged_into'))
+            ->andWhere($links->expr()->orX(
+                $links->createFunction("LOWER(search_identity.display_name) LIKE {$displayPattern} ESCAPE '!'"),
+                $links->createFunction("LOWER(search_identity.sort_name) LIKE {$sortPattern} ESCAPE '!'"),
+            ));
+        return $links->getSQL();
+    }
+
     /** @return array<int, string> */
     private function searchGramsForQuery(string $query): array {
         $grams = $this->searchGramsForText($query);
@@ -2566,7 +2688,21 @@ final class ItemService {
 
         $language = trim((string)($filters['language'] ?? ''));
         if ($language !== '') {
-            $qb->andWhere($qb->expr()->eq('i.language', $qb->createNamedParameter($language)));
+            // The editor stores multiple codes as "en; de". Match complete tokens,
+            // so the link for "de" still finds that book without matching "de-AT".
+            if (preg_match('/^[a-z]{2,3}(?:-[a-z]{2})?$/iD', $language) !== 1) {
+                $qb->andWhere($qb->expr()->eq('i.id', $qb->createNamedParameter(-1)));
+            } else {
+                $code = strtolower($language);
+                $qb->andWhere($qb->expr()->orX(
+                    $qb->expr()->eq('LOWER(i.language)', $qb->createNamedParameter($code)),
+                    $qb->expr()->like('LOWER(i.language)', $qb->createNamedParameter($code . ';%')),
+                    $qb->expr()->like('LOWER(i.language)', $qb->createNamedParameter('%;' . $code)),
+                    $qb->expr()->like('LOWER(i.language)', $qb->createNamedParameter('%; ' . $code)),
+                    $qb->expr()->like('LOWER(i.language)', $qb->createNamedParameter('%;' . $code . ';%')),
+                    $qb->expr()->like('LOWER(i.language)', $qb->createNamedParameter('%; ' . $code . ';%')),
+                ));
+            }
         }
 
         $creator = trim((string)($filters['creator'] ?? ''));
@@ -2699,7 +2835,11 @@ final class ItemService {
         if ($query !== '') {
             $exactTitleItemIds = $this->exactTitleCandidateIds($userId, $query);
             $exactAuthorIds = $this->exactAuthorIds($userId, $query);
-            $authorPredicate = $exactAuthorIds === [] ? null : $qb->expr()->in('i.id', $qb->createFunction($this->authorSearchSubquery($qb, $userId, $exactAuthorIds)));
+            $authorPredicates = [];
+            if ($exactAuthorIds !== []) $authorPredicates[] = $qb->expr()->in('i.id', $qb->createFunction($this->authorSearchSubquery($qb, $userId, $exactAuthorIds)));
+            $partialAuthorSql = $this->partialAuthorSearchSubquery($qb, $userId, $query);
+            if ($partialAuthorSql !== null) $authorPredicates[] = $qb->expr()->in('i.id', $qb->createFunction($partialAuthorSql));
+            $authorPredicate = $authorPredicates === [] ? null : $qb->expr()->orX(...$authorPredicates);
             if ($exactTitleItemIds !== []) {
                 $titlePredicate = $qb->expr()->in('i.id', $qb->createNamedParameter($exactTitleItemIds, IQueryBuilder::PARAM_INT_ARRAY));
                 $qb->andWhere($authorPredicate === null ? $titlePredicate : $qb->expr()->orX($titlePredicate, $authorPredicate));
@@ -2945,14 +3085,18 @@ final class ItemService {
         $this->refreshReviewFilterFlags($userId, $itemId);
     }
 
-    private function refreshInferredItem(string $userId, int $itemId, array $file, array $metadataCandidate, array $existing, bool $invalidAuthors): void {
+    private function refreshInferredItem(string $userId, int $itemId, array $file, array $metadataCandidate, array $existing, bool $invalidAuthors, bool $userEdited = false): void {
         if ($invalidAuthors) {
             $metadataCandidate['creators']=$existing['creators'];
             $metadataCandidate['authors']=AuthorNames::read($existing['authors_json'],$existing['creators']);
         }
         foreach ($metadataCandidate['invalidFields']??[] as $field) {
             $column=$this->databaseColumnForField($field);
-            if ($column !== null) $metadataCandidate[$field]=$existing[$column];
+            if ($column !== null) {
+                $metadataCandidate[$field] = ($field === 'subjects' || $field === 'classifications')
+                    ? $this->decodeJsonList($existing[$column] ?? null)
+                    : ($existing[$column] ?? null);
+            }
         }
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items');
@@ -2974,14 +3118,15 @@ final class ItemService {
             ->set('description', $qb->createNamedParameter($metadataCandidate['description']))
             ->set('subjects_json', $qb->createNamedParameter($this->jsonEncodeList($metadataCandidate['subjects'])))
             ->set('classifications_json', $qb->createNamedParameter($this->jsonEncodeList($metadataCandidate['classifications'])))
-            ->set('metadata_source', $qb->createNamedParameter($metadataCandidate['metadataSource']))
+            ->set('metadata_source', $qb->createNamedParameter($userEdited ? 'user' : $metadataCandidate['metadataSource']))
             ->set('field_sources', $qb->createNamedParameter(json_encode($metadataCandidate['fieldSources'], JSON_THROW_ON_ERROR)))
             ->set('field_values', $qb->createNamedParameter(json_encode($metadataCandidate['fieldValues'], JSON_THROW_ON_ERROR)))
             ->set('updated_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
-        $row=$this->scannerDatabaseValues($metadataCandidate) + ['user_edited'=>0,'has_cover_override'=>(int)$existing['has_cover_override']];
+        $row=$this->scannerDatabaseValues($metadataCandidate) + ['user_edited'=>$userEdited ? 1 : 0,'has_cover_override'=>(int)$existing['has_cover_override']];
+        if ($userEdited) $row['metadata_source'] = 'user';
         $this->persistScannerIndexes($userId,$itemId,$file,$metadataCandidate,$row,$existing['scanner_index_hash'],true);
     }
 
@@ -3312,7 +3457,7 @@ final class ItemService {
             'seriesNumber' => $this->normalizeExtendedField('seriesNumber', $metadata['seriesNumber'] ?? null),
             'series' => $this->normalizeExtendedField('series', $metadata['series'] ?? null),
             'publicationDate' => $this->nullableString(PublicationDate::forEditor($metadata['publicationDate'] ?? null)),
-            'language' => $this->nullableString($metadata['language'] ?? null),
+            'language' => $this->sourceLanguage((string)($metadata['language'] ?? '')),
             'publisher' => $this->nullableString($metadata['publisher'] ?? null),
             'description' => $this->nullableString($metadata['description'] ?? null),
             'subjects' => $this->normalizeMultiValueField($metadata['subjects'] ?? []),
@@ -3424,7 +3569,7 @@ final class ItemService {
                     $decoded = null;
                 }
             }
-            $parts = is_array($decoded) ? $decoded : (preg_split('/[;,\n]+/u', $value) ?: []);
+            $parts = is_array($decoded) ? $decoded : (preg_split('/[;\n]+/u', $value) ?: []);
         } elseif (is_array($value)) {
             $parts = $value;
         } else {
@@ -3439,6 +3584,16 @@ final class ItemService {
         }
         ksort($normalized, SORT_NATURAL | SORT_FLAG_CASE);
         return array_values($normalized);
+    }
+
+    /** NULL means that the older whole-item protection contract still applies. */
+    private function decodeProtectedFields(mixed $value): ?array {
+        if (!is_string($value) || $value === '') return null;
+        try { $fields = json_decode($value, true, 32, JSON_THROW_ON_ERROR); }
+        catch (\JsonException) { return null; }
+        if (!is_array($fields) || !array_is_list($fields)) return null;
+        foreach ($fields as $field) if (!is_string($field) || !in_array($field, [...self::PUBLICATION_FIELDS, 'identifiers'], true)) return null;
+        return array_values(array_unique($fields));
     }
 
     private function jsonEncodeList(array $values): string {

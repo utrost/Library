@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3 development tree**, 2026-10-15. Covers 34 app-owned tables through `Version000300Date20261015120000`. The new forward migration finishes the legacy genres-to-subjects transition. Fresh physical-schema comparison now passes on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passes on NC34 with all three engines. These are source-tree database checks, not a signed release-package matrix.
+Snapshot: **0.3.0-alpha.11 source tree**, 2026-10-18. Covers 34 app-owned tables through `Version000300Date20261018010000`. The latest forward migration adds per-field protection for newly edited publication metadata. Earlier physical-schema comparisons passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passed on NC34 with all three engines. The alpha.11 column and migration have not yet had a physical-schema or package check.
 
 ## Schema ownership
 
@@ -29,7 +29,7 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_series_operations` | 9 | 2 | Account-private move/merge snapshots and conditional Undo history. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
 | `library_files` | 17 | 8 | Nextcloud file identity, observed paths/revisions and scan diagnostics. |
-| `library_items` | 43 | 27 | Catalogue metadata, ordered authors, series migration status, provenance, review flags and cover revision. |
+| `library_items` | 44 | 27 | Catalogue metadata, ordered authors, series migration status, provenance, field protection, review flags and cover revision. |
 | `library_scan_jobs` | 24 | 2 | Scan history, counters, heartbeat and current progress. |
 | `library_saved_collections` | 6 | 3 | Named saved filter definitions. |
 | `library_item_identifiers` | 11 | 3 | Normalized ISBN/ISSN values and identifier provenance. |
@@ -56,6 +56,8 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 ## Compatibility and retained columns
 
 `library_items.genres_json` was a nullable legacy column created before the Subject model. `Version000300Date20261015120000` copies any remaining non-null value into an empty `subjects_json` field, then removes the old column if present. This handles both older installations that retained it and installations where it was already absent. Current single-value genre metadata uses `genre`; subjects use `subjects_json`.
+
+`Version000300Date20261018010000` adds nullable text `library_items.protected_fields_json` without backfilling rows. A JSON array lists fields protected by new manual corrections, while NULL on a previously edited row preserves whole-item rescan protection. No existing correction is inferred or rewritten during the schema upgrade. See [metadata storage](metadata-storage.md) for the rescan contract.
 
 `authors_json` stores ordered author names while `creators` remains the compatible display value. `series_name`, `series_number` and `genre` are separate from the older `publication` grouping field. Beta.2 imports EPUB/OPF series names and positions into the existing series columns; it requires no new schema migration. Beta.3 uses those same columns for duplicate matching and also requires no schema change. `cover_revision` invalidates browser covers without loading embedded cover blobs into catalogue responses.
 

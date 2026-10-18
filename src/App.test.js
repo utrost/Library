@@ -2076,12 +2076,13 @@ describe('Library catalogue Vue app', () => {
     await input.setValue('first')
     await form.trigger('submit')
     await vi.waitFor(() => expect(rejectRequest).toBeTypeOf('function'))
-    input.element.value = 'latest'
+    // Typing after the loading indicator appears updates the Vue model, as a real input event does.
+    await wrapper.find('form.library-sidebar-filters input[name="q"]').setValue('latest')
     rejectRequest(new Error('network down'))
     await Promise.resolve()
     await Promise.resolve()
 
-    expect(input.element.value).toBe('latest')
+    expect(wrapper.find('form.library-sidebar-filters input[name="q"]').element.value).toBe('latest')
     expect(submitted).toEqual([{ q: 'first' }])
     nativeSubmit.mockRestore()
   })

@@ -1,6 +1,6 @@
 # Metadata Storage and Nextcloud Integration
 
-Status: current `0.3.0-alpha.9` storage model, updated 2026-10-14. The embedded-metadata importer section below records the beta.2 slice; the future-schema section is a proposal. See the [database schema reference](database-schema.md) for the current 34 app tables and migration ownership, and the [author](v0.3-author-management.md) and [series](v0.3-series-management.md) guides for identity relationships.
+Status: `0.3.0-alpha.11` source model, updated 2026-10-18; deployment and compatibility verification remain pending. The embedded-metadata importer section below records the beta.2 slice; the future-schema section is a proposal. See the [database schema reference](database-schema.md) for the current 34 app tables and migration ownership, the [metadata field contract audit](metadata-field-contract-audit.md) for current editing and discovery gaps, and the [author](v0.3-author-management.md) and [series](v0.3-series-management.md) guides for identity relationships.
 
 The [v0.2 metadata and filing proposal](v0.2-metadata-and-filing.md) explores explicit OPF sidecar writing, later embedded metadata writers, and filing based on accepted metadata. Source-folder writes described there are proposed capabilities; the current development build keeps source documents intact.
 
@@ -20,7 +20,7 @@ Library is file-first and Nextcloud-native, but the publication catalogue is ric
 
 The nullable `library_items.series_name`, `series_number` and `genre` columns store the API fields `series`, `seriesNumber` and `genre`. Series and genre are limited to 255 Unicode characters; series position is text limited to 64 characters. Control characters and non-string values are rejected. Empty strings clear values. Leading zeros, decimals and labels remain intact.
 
-These fields participate in manual editing, scanner-candidate review/reset, bulk edits and corrected-metadata JSON export/import. Partial imports preserve omitted fields; older editor requests that omit the new fields preserve them. Manual changes use the existing item-level rescan protection.
+These fields participate in manual editing, scanner-candidate review/reset, bulk edits and corrected-metadata JSON export/import. Partial imports preserve omitted fields; older editor requests that omit the new fields preserve them. New manual edits protect changed fields during rescans; older edited rows retain whole-item protection.
 
 The original beta.2 migration added nullable columns without rewriting historical metadata. `publication` continues to hold legacy series/periodical data; no ambiguous automatic backfill is performed. Reviewed inference Apply/Undo is implemented, including ordered authors. The importer populates dedicated series fields from EPUB/OPF metadata as described below. In 0.3, account-private series identities and `seriesId` browsing are available; a dedicated genre identity/filter and automatic embedded genre import remain future work. The metadata pipeline revision for the beta.2 importer was `metadata-pipeline-v8`; later revisions are described in the [schema reference](database-schema.md). Source documents are never modified by these edits.
 
@@ -106,6 +106,7 @@ language
 publisher
 metadata_source
 user_edited
+protected_fields_json
 field_sources
 field_values
 starred
@@ -131,7 +132,11 @@ created_at
 updated_at
 ```
 
-This answers: what publication-like object should Library display? The current implementation also stores scanner field sources and scanner candidate values as JSON maps so user-edited rows can compare current values with refreshed scanner candidates and reset one field or the whole item when wanted. ISBN and ISSN values live in the child `library_item_identifiers` table: display punctuation is preserved, normalized values support exact search, and invalid checksums remain reviewable instead of being silently rewritten. A bare eight-digit source identifier is not enough evidence for ISSN; importers require an explicit ISSN scheme or label. Explicitly labelled invalid ISSNs remain visible for review. Pipeline v10 selectively re-extracts v9 records with imported ISSNs on the next full scan, while unchanged records without imported ISSNs keep the fast path. Records whose publication metadata was edited by a user retain their existing identifier rows and need manual review, preserving user corrections. Repeated subjects, classifications and Nextcloud tag facets are also projected into `library_item_facets` for exact filters and high-cardinality suggestions. Arbitrary catalogue text search is accelerated by `library_item_search_grams`, a materialized per-item gram table.
+This answers: what publication-like object should Library display? The current implementation also stores scanner field sources and scanner candidate values as JSON maps so user-edited rows can compare current values with refreshed scanner candidates and reset one field or the whole item when wanted. ISBN and ISSN values live in the child `library_item_identifiers` table: display punctuation is preserved, normalized values support exact search, and invalid checksums remain reviewable instead of being silently rewritten. A bare eight-digit source identifier is not enough evidence for ISSN; importers require an explicit ISSN scheme or label. Explicitly labelled invalid ISSNs remain visible for review. Pipeline v11 re-extracts unchanged files on the next full scan to apply the new CBZ series and creator rules. Repeated subjects, classifications and Nextcloud tag facets are also projected into `library_item_facets` for exact filters and high-cardinality suggestions. Arbitrary catalogue text search is accelerated by `library_item_search_grams`, a materialized per-item gram table.
+
+`protected_fields_json` is a nullable JSON list of publication field names and, when manually changed, `identifiers`. New edits record only fields whose canonical value changed. A subsequent scan refreshes unprotected values and derived indexes while preserving protected values. Resetting a field to its scanner candidate removes it from this list. For a book edited before this migration, NULL deliberately retains the previous whole-item rescan protection; no migration guesses which fields the user corrected. Inference Apply/Undo also uses whole-item protection until its snapshots track per-field ownership. Scanner candidates remain separate from canonical edits for review. Personal rating, stars and reading status do not protect publication metadata.
+
+Subject and classification values submitted as separate editor chips remain separate JSON values, including names containing commas. Legacy text input uses semicolon or newline separators. Valid multi-language source codes are stored in the same semicolon convention as the editor; catalogue language links match complete codes case-insensitively. The current exact-token language predicate needs a populated-library performance measurement before release. Source documents are not rewritten.
 
 `publication_type` is the current implementation column name. The product language should move toward `publication_form` because this field describes the form of the publication, not the binary file format.
 
