@@ -114,11 +114,11 @@ try {
       console.log(`classification_filter_first_matches=${Number(classificationFirst.id || 0) === itemId}`)
       console.log(`classification_filter_result_contains_classification=${classificationFirst.classifications?.includes(desiredClassification)}`)
       console.log(`subjects_detail_http=${detail.status}`)
-      console.log(`subjects_detail_has_fields=${detail.text.includes('name="subjects[]"') && detail.text.includes('name="classifications"')}`)
+      console.log(`subjects_detail_has_fields=${detail.text.includes('name="subjects"') && detail.text.includes('name="classifications"')}`)
       console.log(`subjects_export_http=${exported.status}`)
       console.log(`subjects_export_contains_values=${exportedItem?.subjects?.includes(desiredSubject) && exportedItem?.classifications?.includes(desiredClassification)}`)
 
-      if (subjectPage.status !== 200 || Number(subjectFirst.id || 0) !== itemId || !subjectFirst.subjects?.includes(desiredSubject) || classificationPage.status !== 200 || Number(classificationFirst.id || 0) !== itemId || !classificationFirst.classifications?.includes(desiredClassification) || detail.status !== 200 || !detail.text.includes('name="subjects[]"') || !detail.text.includes('name="classifications"') || exported.status !== 200 || !exportedItem?.subjects?.includes(desiredSubject) || !exportedItem?.classifications?.includes(desiredClassification)) {
+      if (subjectPage.status !== 200 || Number(subjectFirst.id || 0) !== itemId || !subjectFirst.subjects?.includes(desiredSubject) || classificationPage.status !== 200 || Number(classificationFirst.id || 0) !== itemId || !classificationFirst.classifications?.includes(desiredClassification) || detail.status !== 200 || !detail.text.includes('name="subjects"') || !detail.text.includes('name="classifications"') || exported.status !== 200 || !exportedItem?.subjects?.includes(desiredSubject) || !exportedItem?.classifications?.includes(desiredClassification)) {
         fail('subjects_classifications_contract_failed')
       } else {
         console.log('subjects_classifications_smoke_ok=true')

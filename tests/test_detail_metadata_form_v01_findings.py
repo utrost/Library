@@ -39,7 +39,7 @@ def test_detail_metadata_form_replaces_semicolon_only_editing_with_assisted_mult
     assert "'de' => $l->t('German (de)')" in template
     assert "'en' => $l->t('English (en)')" in template
 
-    assert 'name="subjects[]"' in template
+    assert 'name="subjects"' in template
     assert "Separate multiple subjects with semicolons" in template
     assert "$subjectOptions" not in template
 

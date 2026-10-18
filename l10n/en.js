@@ -368,7 +368,7 @@ OC.L10N.register(
         "Filter catalogue by this language": "Filter catalogue by this language",
         "Filter catalogue by this publication year": "Filter catalogue by this publication year",
         "Filter catalogue by this publisher": "Filter catalogue by this publisher",
-        "Filter catalogue by this series": "Filter catalogue by this series",
+        "Filter catalogue by this series or periodical": "Filter catalogue by this series or periodical",
         "Filter current review queue": "Filter current review queue",
         "Filters": "Filters",
         "Filters ({count})": "Filters ({count})",

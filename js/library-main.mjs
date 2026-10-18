@@ -8170,7 +8170,7 @@ try {
 const tw = Eb;
 let aw = "";
 try {
-  aw = "0.3.0-alpha.10";
+  aw = "0.3.0-alpha.11";
 } catch {
   ir.error("The `@nextcloud/vue` library was used without setting / replacing the `appVersion`.");
 }
