@@ -1,5 +1,6 @@
 import { decodeHtmlAttribute } from './html-attribute.mjs'
 import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 
 // Source-harness compatibility markers for historical alpha contract tests.
@@ -35,6 +36,8 @@ const upstream = process.env.NC_URL || 'http://localhost:8088'
 const user = process.env.NC_USER || 'maintainer'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const tokenName = `design review-library-vue-smoke-${Date.now()}`
+const packageVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version
+const assetVersion = `${packageVersion.replace(/[^a-zA-Z0-9]+/g, '-')}-compact-list-table-cover-96-fit-v8`
 
 function runDocker(args) {
   return execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', 'occ', ...args], {
@@ -359,7 +362,10 @@ try {
     const noTechnicalCatalogueDashboards = !bundle.includes('library-home-dashboard') && !bundle.includes('library-weak-metadata-dashboard') && !bundle.includes('library-import-health-dashboard') && !bundle.includes('Weak metadata cockpit')
     const reviewSuggestionSafety = bundleHas('library-metadata-review-workbench', 'Review next suggestion', 'Use suggested value', 'Skip to next suggestion', 'No source files are changed')
     const activeFilterChips = bundleHas('library-active-filter-chips', 'activeFilterChips', 'filterChipRemoveUrl', 'removeFilterChip')
-    const installedVersionAssetIdentity = scriptMatch?.[1]?.includes('0-3-0-alpha-11') && cssMatch?.[1]?.includes('0-3-0-alpha-11')
+    const installedVersionAssetIdentity = scriptMatch
+      && cssMatch
+      && new URL(scriptMatch[1], upstream).pathname.split('/').at(-1) === `library-main-${assetVersion}.mjs`
+      && new URL(cssMatch[1], upstream).pathname.split('/').at(-1) === `library-vue-${assetVersion}.css`
     console.log(`source_has_primary_catalogue_controls=${primaryCatalogueControls}`)
     console.log(`source_has_calm_catalogue=${calmCatalogue}`)
     console.log(`source_has_selection_gated_actions=${selectionGatedActions}`)
@@ -371,7 +377,7 @@ try {
     console.log(`review_has_suggestion_workbench_and_source_safety=${reviewSuggestionSafety}`)
     console.log(`source_has_active_filter_chips=${activeFilterChips}`)
     console.log(`source_has_custom_saved_collections=${bundleHas('library-saved-collections', 'Custom collections', 'Save current view')}`)
-    console.log(`app_version=${installedVersionAssetIdentity ? '0.3.0-alpha.23' : 'unverified'}`)
+    console.log(`app_version=${installedVersionAssetIdentity ? packageVersion : 'unverified'}`)
     const coverOverlayCss = css.text.includes('grid-template-columns:repeat(auto-fill,minmax(150px,1fr))')
       && css.text.includes('.library-cover-gallery .library-cover-summary')
       && css.text.includes('.library-cover-gallery .library-cover-card:hover .library-cover-creator')

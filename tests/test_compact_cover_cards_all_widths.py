@@ -50,5 +50,7 @@ def test_smoke_requires_compact_card_default_and_version_marker():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
     assert "source_has_compact_cover_cards_all_widths" in smoke
-    assert f"app_version={CURRENT_VERSION}" in smoke
+    assert "app_version=${installedVersionAssetIdentity ? packageVersion : 'unverified'}" in smoke
+    assert "readFileSync(new URL('../package.json', import.meta.url), 'utf8')" in smoke
+    assert "0-3-0-alpha-11" not in smoke
     assert "served_css_has_compact_cover_defaults" in smoke
