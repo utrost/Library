@@ -14,7 +14,7 @@ const focused = ref(false)
 const activeIndex = ref(-1)
 const listId = useId()
 const remoteSuggestions = ref([])
-const selected = computed(() => props.modelValue.split('\n').map(value => value.trim()).filter(Boolean))
+const selected = computed(() => [...new Set(props.modelValue.split('\n').map(normalizedInput).filter(Boolean))])
 const isLanguage = computed(() => props.kind === 'language')
 const label = computed(() => isLanguage.value ? t('library', 'Language') : t('library', 'Subjects'))
 const addLabel = computed(() => isLanguage.value ? t('library', 'Add language') : t('library', 'Add subject'))
@@ -22,8 +22,12 @@ const inputLabel = computed(() => isLanguage.value ? t('library', 'Search langua
 const languageCodes = [
   'ar', 'zh', 'da', 'nl', 'en', 'en-GB', 'en-US', 'fi', 'fr', 'de', 'el', 'hi', 'it',
   'ja', 'ko', 'no', 'pl', 'pt', 'pt-BR', 'ru', 'es', 'sv', 'tr', 'uk',
-  'ara', 'chi', 'zho', 'dut', 'nld', 'eng', 'fre', 'fra', 'ger', 'deu', 'ita', 'jpn', 'spa',
 ]
+const languageAliases = {
+  ara: 'ar', chi: 'zh', zho: 'zh', dut: 'nl', nld: 'nl', eng: 'en',
+  fre: 'fr', fra: 'fr', ger: 'de', deu: 'de', ita: 'it', jpn: 'ja', spa: 'es',
+  por: 'pt', rus: 'ru',
+}
 const languageNames = typeof Intl.DisplayNames === 'function'
   ? new Intl.DisplayNames([document.documentElement.lang || 'en'], { type: 'language' })
   : null
@@ -37,7 +41,7 @@ function normalizedInput(value) {
   const trimmed = value.trim()
   if (!isLanguage.value) return trimmed
   const match = /^([a-z]{2,3})(?:-([a-z]{2}))?$/i.exec(trimmed)
-  return match ? match[1].toLowerCase() + (match[2] ? `-${match[2].toUpperCase()}` : '') : trimmed
+  return match ? (languageAliases[match[1].toLowerCase()] || match[1].toLowerCase()) + (match[2] ? `-${match[2].toUpperCase()}` : '') : trimmed
 }
 function validLanguageCode(value) {
   const match = /^([a-z]{2,3})(?:-([A-Z]{2}))?$/.exec(value)
@@ -57,7 +61,7 @@ const options = computed(() => {
   const query = search.value.trim().toLocaleLowerCase()
   if (!query) return []
   const values = isLanguage.value
-    ? languageCodes.filter(value => value.toLowerCase().includes(query) || display(value).toLocaleLowerCase().includes(query))
+    ? languageCodes.filter(value => value.toLowerCase().includes(query) || display(value).toLocaleLowerCase().includes(query) || languageAliases[query] === value)
     : remoteSuggestions.value
   return values.filter(value => !selected.value.some(chosen => chosen.toLowerCase() === value.toLowerCase())).slice(0, 12)
 })

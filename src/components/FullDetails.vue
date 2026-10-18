@@ -65,6 +65,11 @@ let authorSearchRequest = 0
 const editingSeries = ref(false)
 const seriesSearch = ref('')
 const seriesSearchReady = computed(() => (seriesSearch.value.match(/\p{L}/gu) || []).length >= 3)
+const currentSeriesMatchesSearch = computed(() => {
+  const query = seriesSearch.value.trim().toLocaleLowerCase()
+  return seriesSearchReady.value && (item.value?.canonicalSeries || []).some(series =>
+    String(series.name || '').toLocaleLowerCase().startsWith(query))
+})
 const seriesInput = ref(null)
 const seriesResults = ref([])
 const seriesHasNext = ref(false)
@@ -689,7 +694,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
                   <li v-for="(candidate, index) in seriesResults" :id="`library-details-series-option-${candidate.id}`" :key="candidate.id" role="option" :aria-selected="seriesActiveIndex === index"><button type="button" :class="{ 'is-active': seriesActiveIndex === index }" @mousedown.prevent @click="selectSeries(candidate)"><strong>{{ candidate.display_name }}</strong><small>{{ n('library', '%n book', '%n books', Number(candidate.book_count || 0)) }}</small></button></li>
                 </ul>
                 <p v-if="seriesSuggestionsOpen && seriesHasNext" class="library-muted">{{ t('library', 'More matches. Keep typing to narrow the list.') }}</p>
-                <p v-if="seriesSuggestionsOpen && seriesSearchReady && !seriesSearchBusy && !seriesResults.length" class="library-muted">{{ t('library', 'No matching series. You can create one below.') }}</p>
+                <p v-if="seriesSuggestionsOpen && seriesSearchReady && !seriesSearchBusy && !seriesResults.length" class="library-muted">{{ currentSeriesMatchesSearch ? t('library', 'The matching series is already assigned to this book. Search another name to change it.') : t('library', 'No matching series. You can create one below.') }}</p>
                 <p v-if="selectedSeries" class="library-full-details-author-selected" role="status">{{ t('library', 'Selected series') }}: <strong>{{ selectedSeries.display_name }}</strong></p>
               </div>
               <div class="library-full-details-author-actions">

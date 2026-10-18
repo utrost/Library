@@ -1252,6 +1252,7 @@ OC.L10N.register(
         "Link a series": "ربط سلسلة",
         "No linked series yet.": "لا توجد سلسلة مرتبطة بعد.",
         "No matching series. You can create one below.": "لا توجد سلسلة مطابقة. يمكنك إنشاء واحدة أدناه.",
+        "The matching series is already assigned to this book. Search another name to change it.": "السلسلة المطابقة مرتبطة بهذا الكتاب بالفعل. ابحث عن اسم آخر لتغييرها.",
         "No series": "لا توجد سلسلة",
         "Save series assignment": "حفظ ربط السلسلة",
         "Selected series": "السلسلة المحددة",
