@@ -61,6 +61,7 @@ return [
         ['name' => 'health#refreshImportSummary', 'url' => '/health/import-summary', 'verb' => 'POST'],
         ['name' => 'health#metadataErrors', 'url' => '/health/metadata-errors', 'verb' => 'GET'],
         ['name' => 'health#metadataErrorsTsv', 'url' => '/health/metadata-errors.tsv', 'verb' => 'GET'],
+        ['name' => 'health#diagnosticsTsv', 'url' => '/health/diagnostics.tsv', 'verb' => 'GET'],
         ['name' => 'health#coverProbe', 'url' => '/health/covers/probe', 'verb' => 'POST'],
         ['name' => 'export#sidecarManifest', 'url' => '/export/metadata/sidecar-manifest', 'verb' => 'GET'],
         ['name' => 'export#sidecarBundle', 'url' => '/export/metadata/sidecars.zip', 'verb' => 'GET'],
