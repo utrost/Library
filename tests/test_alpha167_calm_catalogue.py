@@ -31,4 +31,4 @@ def test_catalogue_exposes_target_navigation_and_card_information_contract():
         assert f"'{label}'" in app
     assert 'class="library-cover-creator"' in app
     assert 'class="library-cover-context"' in app
-    assert "t('library', 'Maintenance')" in app
+    assert "t('library', 'Full details')" in app

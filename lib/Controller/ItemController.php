@@ -128,8 +128,8 @@ final class ItemController extends Controller {
                     'language' => $this->normalizeRequestList($this->request->getParam('language', $this->request->getParam('language[]', ''))),
                     'publisher' => (string)$this->request->getParam('publisher', ''),
                     'description' => (string)$this->request->getParam('description', ''),
-                    'subjects' => $this->normalizeRequestList($this->request->getParam('subjects', $this->request->getParam('subjects[]', ''))),
-                    'classifications' => $this->normalizeRequestList($this->request->getParam('classifications', $this->request->getParam('classifications[]', ''))),
+                    'subjects' => $this->normalizeRequestValueList($this->request->getParam('subjects', $this->request->getParam('subjects[]', ''))),
+                    'classifications' => $this->normalizeRequestValueList($this->request->getParam('classifications', $this->request->getParam('classifications[]', ''))),
                     'personalRating' => (string)$this->request->getParam('personalRating', ''),
                     'identifiers' => $this->normalizeIdentifierRequest($this->request->getParam('identifiers', [])),
                     ...array_filter([
@@ -486,6 +486,18 @@ final class ItemController extends Controller {
             }
         }
         return implode('; ', $normalized);
+    }
+
+    /** Keep each submitted chip intact, including punctuation in its name. */
+    private function normalizeRequestValueList(mixed $value): array {
+        $parts = is_array($value) ? $value : (preg_split('/[;\n]+/u', (string)$value) ?: []);
+        $normalized = [];
+        foreach ($parts as $part) {
+            if (!is_string($part)) continue;
+            $entry = trim($part);
+            if ($entry !== '') $normalized[] = $entry;
+        }
+        return $normalized;
     }
 
     private function safeValidationError(\InvalidArgumentException $e): string {

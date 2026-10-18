@@ -880,7 +880,7 @@ function resetSidebarMetadataDraft(item) {
 }
 
 function addSidebarIdentifier() {
-  sidebarMetadataDraft.identifiers.push({ scheme: '', displayValue: '' })
+  sidebarMetadataDraft.identifiers.push({ scheme: 'isbn', displayValue: '' })
 }
 
 function removeSidebarIdentifier(index) {
@@ -895,9 +895,14 @@ async function saveSidebarMetadata() {
   body.set('requesttoken', requestToken.value)
   body.set('metadataAutosave', '1')
   body.set('metadataRevision', item.metadataRevision || '')
-  for (const field of ['publicationType', 'subtitle', 'creators', 'publication', 'language', 'publisher', 'description', 'subjects', 'classifications', 'personalRating']) {
+  for (const field of ['publicationType', 'subtitle', 'creators', 'publication', 'language', 'publisher', 'description', 'personalRating']) {
     const value = item[field]
     body.set(field, Array.isArray(value) ? value.join(', ') : String(value ?? ''))
+  }
+  for (const field of ['subjects', 'classifications']) {
+    const value = item[field]
+    if (!Array.isArray(value) || value.length === 0) body.set(field, Array.isArray(value) ? '' : String(value ?? ''))
+    else value.forEach((entry) => body.append(`${field}[]`, String(entry)))
   }
   for (const field of ['series', 'seriesNumber', 'genre']) body.set(field, sidebarMetadataDraft[field])
   body.set('title', sidebarMetadataDraft.title)
@@ -914,7 +919,7 @@ async function saveSidebarMetadata() {
     for (const field of ['series', 'seriesNumber', 'genre']) item[field] = sidebarMetadataDraft[field].trim()
     item.title = sidebarMetadataDraft.title.trim()
     item.publicationDate = publicationDateForEditor(sidebarMetadataDraft.publicationDate)
-    item.identifiers = sidebarMetadataDraft.identifiers.filter((identifier) => identifier.scheme.trim() || identifier.displayValue.trim()).map((identifier) => ({ ...identifier }))
+    item.identifiers = sidebarMetadataDraft.identifiers.filter((identifier) => identifier.displayValue.trim()).map((identifier) => ({ ...identifier }))
     const catalogueItem = items.value.find((candidate) => Number(candidate.id) === Number(item.id))
     if (catalogueItem) {
       catalogueItem.title = item.title
@@ -1983,7 +1988,7 @@ async function toggleStar(item, event) {
             <input v-if="activeFilters.sort && activeFilters.sort !== 'title'" type="hidden" name="sort" :value="activeFilters.sort">
             <input v-if="activeFilters.view && activeFilters.view !== 'compact'" type="hidden" name="view" :value="activeFilters.view">
             <fieldset class="library-filter-group" data-library-filter-group="content"><legend>{{ t('library', 'Content') }}</legend>
-            <label class="library-quick-filter-search" :title="t('library', 'Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.')"><span>{{ t('library', 'Search') }} <kbd class="library-keyboard-hint">/</kbd></span><input ref="quickSearchInput" v-model="quickSearch" data-library-quick-search type="search" name="q" :placeholder="t('library', 'Title, creator, description, filename or folder')"><small v-if="pendingDraftValue('q')" class="library-filter-draft-state" data-library-pending-draft="q">{{ pendingDraftText('q') }}</small></label>
+            <label class="library-quick-filter-search" :title="t('library', 'Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.')"><span>{{ t('library', 'Search') }} <kbd class="library-keyboard-hint">/</kbd></span><span class="library-search-input-wrap"><input ref="quickSearchInput" v-model="quickSearch" data-library-quick-search type="search" name="q" :placeholder="t('library', 'Title, creator, description, filename or folder')"><span v-if="catalogueRequestState.loading" class="library-search-spinner" aria-hidden="true"></span></span><small v-if="pendingDraftValue('q')" class="library-filter-draft-state" data-library-pending-draft="q">{{ pendingDraftText('q') }}</small></label>
             <label>{{ t('library', 'Type') }}<select v-model="activeFilters.type" name="type" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All types') }}</option><option v-for="type in publicationTypes" :key="type" :value="type">{{ type }}</option></select></label>
             <div class="library-publisher-filter"><label for="library-publisher-search">{{ t('library', 'Publisher') }}</label><input id="library-publisher-search" v-model="publisherSearch" type="search" name="publisherSearch" autocomplete="off" :placeholder="t('library', 'Search publishers')" :title="t('library', 'Exact publisher matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-publisher-suggestions" :aria-activedescendant="activeSuggestionId('desktop', 'publisher')" :aria-expanded="publisherSearchFocused && publisherSuggestions.length > 0 ? 'true' : 'false'" @focus="openSuggestionFacet('publisher')" @keydown="handleSuggestionKeydown($event, 'publisher')"><input type="hidden" name="publisher" :value="activeFilters.publisher"><small v-if="pendingDraftValue('publisher')" class="library-filter-draft-state" data-library-pending-draft="publisher">{{ pendingDraftText('publisher') }}</small><ul v-if="publisherSearchFocused && publisherSuggestions.length > 0" id="library-publisher-suggestions" class="library-publisher-suggestions" role="listbox"><li v-for="(publisher, index) in publisherSuggestions" :id="suggestionOptionId('desktop', 'publisher', index)" :key="publisher" role="option" :aria-selected="suggestionActiveIndexes.publisher === index ? 'true' : 'false'"><button type="button" class="library-publisher-suggestion" @mousedown.prevent @click="selectPublisherSuggestion(publisher, $event)">{{ publisher }}</button></li></ul><button type="submit" class="button secondary library-publisher-apply" :class="pendingApplyClass('publisher')">{{ t('library', 'Apply publisher') }}</button></div>
             <div class="library-publication-filter"><label for="library-publication-search">{{ t('library', 'Series / periodical') }}</label><input id="library-publication-search" v-model="publicationSearch" type="search" name="publicationSearch" autocomplete="off" :placeholder="t('library', 'Search series and periodicals')" role="combobox" aria-autocomplete="list" aria-controls="library-publication-suggestions" :aria-expanded="publicationSearchFocused && publicationSuggestions.length > 0 ? 'true' : 'false'" @focus="publicationSearchFocused = true" @keydown.escape="publicationSearchFocused = false"><input type="hidden" name="publication" :value="activeFilters.publication"><small v-if="pendingDraftValue('publication')" class="library-filter-draft-state" data-library-pending-draft="publication">{{ pendingDraftText('publication') }}</small><ul v-if="publicationSearchFocused && publicationSuggestions.length > 0" id="library-publication-suggestions" class="library-publication-suggestions" role="listbox"><li v-for="publication in publicationSuggestions" :key="publication" role="option"><button type="button" class="library-publication-suggestion" @mousedown.prevent @click="selectPublicationSuggestion(publication, $event)">{{ publication }}</button></li></ul><button type="submit" class="button secondary library-publication-apply" :class="pendingApplyClass('publication')">{{ t('library', 'Apply series') }}</button></div>
@@ -2148,7 +2153,7 @@ async function toggleStar(item, event) {
         <input v-for="filter in sidebarHiddenFilters" :key="`mobile-hidden-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value">
         <fieldset class="library-mobile-filter-group">
           <legend>{{ t('library', 'Content') }}</legend>
-          <label class="library-quick-filter-search"><span>{{ t('library', 'Search') }}</span><input ref="mobileFilterSearchInput" v-model="quickSearch" data-library-mobile-filter-search type="search" name="q" :placeholder="t('library', 'Title, creator, description, filename or folder')"></label>
+          <label class="library-quick-filter-search"><span>{{ t('library', 'Search') }}</span><span class="library-search-input-wrap"><input ref="mobileFilterSearchInput" v-model="quickSearch" data-library-mobile-filter-search type="search" name="q" :placeholder="t('library', 'Title, creator, description, filename or folder')"><span v-if="catalogueRequestState.loading" class="library-search-spinner" aria-hidden="true"></span></span></label>
           <label>{{ t('library', 'Type') }}<select v-model="activeFilters.type" name="type" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All types') }}</option><option v-for="type in publicationTypes" :key="`mobile-type-${type}`" :value="type">{{ type }}</option></select></label>
           <div class="library-publisher-filter"><label for="library-mobile-publisher-search">{{ t('library', 'Publisher') }}</label><input id="library-mobile-publisher-search" v-model="publisherSearch" type="search" name="publisherSearch" autocomplete="off" :placeholder="t('library', 'Search publishers')" :title="t('library', 'Exact publisher matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-publisher-suggestions" :aria-activedescendant="activeSuggestionId('mobile', 'publisher')" :aria-expanded="publisherSearchFocused && publisherSuggestions.length > 0 ? 'true' : 'false'" @focus="openSuggestionFacet('publisher')" @keydown="handleSuggestionKeydown($event, 'publisher')"><input type="hidden" name="publisher" :value="activeFilters.publisher"><small v-if="pendingDraftValue('publisher')" class="library-filter-draft-state" data-library-pending-draft="publisher">{{ pendingDraftText('publisher') }}</small><ul v-if="mobileFilterPanelOpen && publisherSearchFocused && publisherSuggestions.length > 0" id="library-mobile-publisher-suggestions" class="library-publisher-suggestions" role="listbox"><li v-for="(publisher, index) in publisherSuggestions" :id="suggestionOptionId('mobile', 'publisher', index)" :key="`mobile-publisher-${publisher}`" role="option" :aria-selected="suggestionActiveIndexes.publisher === index ? 'true' : 'false'"><button type="button" class="library-publisher-suggestion" @mousedown.prevent @click="selectPublisherSuggestion(publisher, $event)">{{ publisher }}</button></li></ul></div>
           <div class="library-publication-filter"><label for="library-mobile-publication-search">{{ t('library', 'Series / periodical') }}</label><input id="library-mobile-publication-search" v-model="publicationSearch" type="search" name="publicationSearch" autocomplete="off" :placeholder="t('library', 'Search series and periodicals')" role="combobox" aria-autocomplete="list" aria-controls="library-mobile-publication-suggestions" :aria-expanded="publicationSearchFocused && publicationSuggestions.length > 0 ? 'true' : 'false'" @focus="publicationSearchFocused = true" @keydown.escape="publicationSearchFocused = false"><input type="hidden" name="publication" :value="activeFilters.publication"><small v-if="pendingDraftValue('publication')" class="library-filter-draft-state" data-library-pending-draft="publication">{{ pendingDraftText('publication') }}</small><ul v-if="mobileFilterPanelOpen && publicationSearchFocused && publicationSuggestions.length > 0" id="library-mobile-publication-suggestions" class="library-publication-suggestions" role="listbox"><li v-for="publication in publicationSuggestions" :key="`mobile-publication-${publication}`" role="option"><button type="button" class="library-publication-suggestion" @mousedown.prevent @click="selectPublicationSuggestion(publication, $event)">{{ publication }}</button></li></ul></div>
@@ -2441,7 +2446,7 @@ async function toggleStar(item, event) {
           <section v-if="sidebarSection === 'overview'" class="library-sidebar-section" aria-labelledby="library-sidebar-overview-heading">
             <h3 id="library-sidebar-overview-heading">{{ t('library', 'Overview') }}</h3>
             <p v-if="selectedDrawerDescription" class="library-sidebar-description"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerDescription }}</bdi></p>
-            <dl class="library-detail-drawer-facts"><div v-if="selectedDrawerItem.publication"><dt>{{ t('library', 'Series') }}</dt><dd><a class="library-detail-facet-link" :href="drawerFacetFilterUrl('publication', selectedDrawerItem.publication)" :title="t('library', 'Filter catalogue by this series')" @click="applyDrawerFacetFilter($event, 'publication', selectedDrawerItem.publication)"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.publication }}</bdi></a></dd></div><div v-if="selectedDrawerItem.publicationDate"><dt>{{ t('library', 'Date') }}</dt><dd><a v-if="selectedDrawerPublicationYear" class="library-detail-facet-link" :href="drawerFacetFilterUrl('year', selectedDrawerPublicationYear)" :title="t('library', 'Filter catalogue by this publication year')" @click="applyDrawerFacetFilter($event, 'year', selectedDrawerPublicationYear)">{{ selectedDrawerPublicationYear }}</a><span v-if="selectedDrawerPublicationYear && selectedDrawerItem.publicationDate !== selectedDrawerPublicationYear"> · </span><span v-if="selectedDrawerItem.publicationDate !== selectedDrawerPublicationYear">{{ selectedDrawerItem.publicationDate }}</span></dd></div><div v-if="selectedDrawerItem.publisher"><dt>{{ t('library', 'Publisher') }}</dt><dd><a class="library-detail-facet-link" :href="drawerFacetFilterUrl('publisher', selectedDrawerItem.publisher)" :title="t('library', 'Filter catalogue by this publisher')" @click="applyDrawerFacetFilter($event, 'publisher', selectedDrawerItem.publisher)"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.publisher }}</bdi></a></dd></div><div v-if="selectedDrawerLanguages.length"><dt>{{ t('library', 'Language') }}</dt><dd class="library-detail-facet-list"><a v-for="language in selectedDrawerLanguages" :key="language" class="library-detail-facet-link" :href="drawerFacetFilterUrl('language', language)" :title="t('library', 'Filter catalogue by this language')" @click="applyDrawerFacetFilter($event, 'language', language)"><bdi class="library-bidi-machine" dir="ltr">{{ language }}</bdi></a></dd></div><div v-if="selectedDrawerItem.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd>{{ selectedDrawerItem.shelf }}</dd></div></dl>
+            <dl class="library-detail-drawer-facts"><div v-if="selectedDrawerItem.publication"><dt>{{ t('library', 'Series / periodical') }}</dt><dd><a class="library-detail-facet-link" :href="drawerFacetFilterUrl('publication', selectedDrawerItem.publication)" :title="t('library', 'Filter catalogue by this series or periodical')" @click="applyDrawerFacetFilter($event, 'publication', selectedDrawerItem.publication)"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.publication }}</bdi></a></dd></div><div v-if="selectedDrawerItem.publicationDate"><dt>{{ t('library', 'Date') }}</dt><dd><a v-if="selectedDrawerPublicationYear" class="library-detail-facet-link" :href="drawerFacetFilterUrl('year', selectedDrawerPublicationYear)" :title="t('library', 'Filter catalogue by this publication year')" @click="applyDrawerFacetFilter($event, 'year', selectedDrawerPublicationYear)">{{ selectedDrawerPublicationYear }}</a><span v-if="selectedDrawerPublicationYear && selectedDrawerItem.publicationDate !== selectedDrawerPublicationYear"> · </span><span v-if="selectedDrawerItem.publicationDate !== selectedDrawerPublicationYear">{{ selectedDrawerItem.publicationDate }}</span></dd></div><div v-if="selectedDrawerItem.publisher"><dt>{{ t('library', 'Publisher') }}</dt><dd><a class="library-detail-facet-link" :href="drawerFacetFilterUrl('publisher', selectedDrawerItem.publisher)" :title="t('library', 'Filter catalogue by this publisher')" @click="applyDrawerFacetFilter($event, 'publisher', selectedDrawerItem.publisher)"><bdi class="library-bidi-human" dir="auto">{{ selectedDrawerItem.publisher }}</bdi></a></dd></div><div v-if="selectedDrawerLanguages.length"><dt>{{ t('library', 'Language') }}</dt><dd class="library-detail-facet-list"><a v-for="language in selectedDrawerLanguages" :key="language" class="library-detail-facet-link" :href="drawerFacetFilterUrl('language', language)" :title="t('library', 'Filter catalogue by this language')" @click="applyDrawerFacetFilter($event, 'language', language)"><bdi class="library-bidi-machine" dir="ltr">{{ language }}</bdi></a></dd></div><div v-if="selectedDrawerItem.shelf"><dt>{{ t('library', 'Shelf') }}</dt><dd>{{ selectedDrawerItem.shelf }}</dd></div></dl>
           </section>
           <section v-else-if="sidebarSection === 'metadata'" class="library-sidebar-section" aria-labelledby="library-sidebar-metadata-heading">
             <DuplicateSuggestions v-if="duplicateSuggestionsEnabled" :key="`${selectedDrawerItem.id}:${selectedDrawerItem.title}:${selectedDrawerItem.creators}`" :item-id="Number(selectedDrawerItem.id)" :request-token="requestToken" />
@@ -2452,8 +2457,7 @@ async function toggleStar(item, event) {
               <label><LabelHelp :text="t('library', 'Text such as 01, 2.5 or Volume II. Leading zeros and labels are preserved.')">{{ t('library', 'Part in series') }}</LabelHelp><input v-model="sidebarMetadataDraft.seriesNumber" name="seriesNumber" maxlength="64"></label>
               <label><LabelHelp :text="t('library', 'A genre label such as Science fiction. Separate from subjects, file format and publication type.')">{{ t('library', 'Genre') }}</LabelHelp><input v-model="sidebarMetadataDraft.genre" name="genre" maxlength="255"></label>
               <label>{{ t('library', 'Publication date') }}<input v-model="sidebarMetadataDraft.publicationDate" name="publicationDate" inputmode="numeric" :placeholder="t('library', 'e.g. 2026')"></label>
-              <fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in sidebarMetadataDraft.identifiers" :key="index" class="library-sidebar-identifier"><input v-model="identifier.scheme" :aria-label="t('library', 'Identifier type')" :placeholder="t('library', 'Identifier type')"><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><button type="button" class="button secondary" @click="removeSidebarIdentifier(index)">{{ t('library', 'Remove') }}</button></div><button type="button" class="button secondary" @click="addSidebarIdentifier">{{ t('library', 'Add identifier') }}</button></fieldset>
-              <LabelHelp :text="t('library', 'Creator, publisher, language, and other fields remain available in Maintenance while sidebar editing expands.')">{{ t('library', 'Maintenance') }}</LabelHelp>
+              <fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in sidebarMetadataDraft.identifiers" :key="index" class="library-sidebar-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Identifier type')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><button type="button" class="button secondary" @click="removeSidebarIdentifier(index)">{{ t('library', 'Remove') }}</button></div><button type="button" class="button secondary" @click="addSidebarIdentifier">{{ t('library', 'Add identifier') }}</button></fieldset>
               <p v-if="sidebarMetadataState.error" role="alert">{{ sidebarMetadataState.error }}</p><p v-else-if="sidebarMetadataState.saved" role="status">{{ t('library', 'Metadata saved.') }}</p>
               <button type="submit" class="button primary" :disabled="sidebarState.loading || !selectedDrawerItem.metadataRevision || sidebarMetadataState.saving">{{ sidebarMetadataState.saving ? t('library', 'Saving…') : t('library', 'Save metadata') }}</button>
             </form>
@@ -3836,6 +3840,37 @@ async function toggleStar(item, event) {
   min-width: 0;
 }
 
+.library-search-input-wrap {
+  display: block;
+  min-width: 0;
+  position: relative;
+}
+
+.library-search-input-wrap input {
+  box-sizing: border-box;
+  padding-inline-end: 3rem;
+  width: 100%;
+}
+
+.library-search-spinner {
+  animation: library-search-spin 0.75s linear infinite;
+  border: 2px solid var(--color-main-text, currentColor);
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  box-sizing: border-box;
+  height: 1rem;
+  inset-block-start: 50%;
+  inset-inline-end: 2.1rem;
+  margin-block-start: -0.5rem;
+  pointer-events: none;
+  position: absolute;
+  width: 1rem;
+}
+
+@keyframes library-search-spin {
+  to { transform: rotate(360deg); }
+}
+
 .library-keyboard-hint {
   border: 1px solid var(--color-border, #d0d0d0);
   border-radius: 4px;
@@ -4524,6 +4559,7 @@ async function toggleStar(item, event) {
   .library-cover-card,
   .library-cover-image,
   .library-cover-loading-shimmer,
+  .library-search-spinner,
   .library-view-mode-toggle button {
     animation: none;
     transition: none;

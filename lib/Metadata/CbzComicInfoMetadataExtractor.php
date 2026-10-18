@@ -96,15 +96,16 @@ private function parseComicInfoMetadata(string $comicInfoXml): array {
     }
 
     $series = $this->comicInfoValue($xml, 'Series');
+    $number = $this->comicInfoValue($xml, 'Number');
     if ($series !== null) {
         $metadata['publication'] = $series;
+        $metadata['series'] = $series;
+        if ($number !== null) $metadata['seriesNumber'] = $number;
         if (!isset($metadata['title'])) {
-            $number = $this->comicInfoValue($xml, 'Number');
             $metadata['title'] = $number !== null ? $series . ' #' . $number : $series;
         }
     }
 
-    $number = $this->comicInfoValue($xml, 'Number');
     if ($number !== null && $title !== null && $series !== null) {
         $metadata['subtitle'] = $series . ' #' . $number;
     }
@@ -143,7 +144,8 @@ private function comicInfoCreators(\SimpleXMLElement $xml): array {
         if ($value === null) {
             continue;
         }
-        foreach (preg_split('/[,;]+/', $value) ?: [] as $creator) {
+        // A comma can be part of a single person's displayed name: "Doe, John".
+        foreach (preg_split('/[;]+/', $value) ?: [] as $creator) {
             $creator = trim($creator);
             if ($creator !== '') {
                 $creators[$creator] = $creator;
