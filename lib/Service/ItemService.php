@@ -123,6 +123,8 @@ final class ItemService {
         private ?AuthorDisplayService $authorDisplay = null,
         private ?SeriesDisplayService $seriesDisplay = null,
         private ?ItemDeletionService $itemDeletion = null,
+        private ?GenreService $genreService = null,
+        private ?GenreDisplayService $genreDisplay = null,
     ) {
     }
 
@@ -330,6 +332,7 @@ final class ItemService {
         }
         $qb=$this->db->getQueryBuilder();$qb->update('library_items')->set('scanner_index_hash',$qb->createNamedParameter($hash))
             ->where($qb->expr()->eq('user_id',$qb->createNamedParameter($uid)))->andWhere($qb->expr()->eq('id',$qb->createNamedParameter($id)))->executeStatement();
+        $this->genreService?->record($uid, $id, (string)($row['genre'] ?? ''), $this->decodeJsonList($row['subjects_json'] ?? null), (string)($file['cachedPath'] ?? ''));
     }
 
     /** Legacy/invalidated fingerprints are trusted only after exact, bounded content verification. */
@@ -533,6 +536,11 @@ final class ItemService {
             if (in_array('creators', $changedFields, true)) $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT));
             if (in_array('series', $changedFields, true) || in_array('seriesNumber', $changedFields, true)) $qb->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
             $qb->executeStatement();
+
+            if (in_array('genre', $changedFields, true) || in_array('subjects', $changedFields, true)) {
+                $this->genreService?->record($userId, $itemId, (string)($metadata['genre'] ?? ''),
+                    $this->normalizeMultiValueField($metadata['subjects'] ?? []), (string)($existing['cachedPath'] ?? ''));
+            }
 
             $this->refreshReviewFilterFlags($userId, $itemId);
             $this->refreshItemFacetIndex(
@@ -1224,7 +1232,8 @@ final class ItemService {
     /** Keep source metadata editable while projecting preferred shared identities for display. */
     private function decorateSharedMetadata(string $uid, array $items): array {
         $items = $this->authorDisplay?->decorate($uid, $items) ?? $items;
-        return $this->seriesDisplay?->decorate($uid, $items) ?? $items;
+        $items = $this->seriesDisplay?->decorate($uid, $items) ?? $items;
+        return $this->genreDisplay?->decorate($uid, $items) ?? $items;
     }
 
     /** @return array<int, array<string, mixed>> */
@@ -2729,6 +2738,19 @@ final class ItemService {
                 $links->select('series_link.item_id')->from('library_item_series', 'series_link')
                     ->where($links->expr()->eq('series_link.user_id', $qb->createNamedParameter($userId)))
                     ->andWhere($links->expr()->eq('series_link.series_id', $qb->createNamedParameter((int)$seriesId)));
+                $qb->andWhere($qb->expr()->in('i.id', $qb->createFunction($links->getSQL())));
+            }
+        }
+        $genreId = trim((string)($filters['genreId'] ?? ''));
+        if ($genreId !== '') {
+            if (preg_match('/^[1-9][0-9]{0,8}$/D', $genreId) !== 1) {
+                $qb->andWhere($qb->expr()->eq('i.id', $qb->createNamedParameter(-1)));
+            } else {
+                $links = $this->db->getQueryBuilder();
+                $links->select('genre_link.item_id')->from('library_item_genres', 'genre_link')
+                    ->where($links->expr()->eq('genre_link.user_id', $qb->createNamedParameter($userId)))
+                    ->andWhere($links->expr()->eq('genre_link.genre_id', $qb->createNamedParameter((int)$genreId)))
+                    ->andWhere($links->expr()->eq('genre_link.active', $qb->createNamedParameter(1)));
                 $qb->andWhere($qb->expr()->in('i.id', $qb->createFunction($links->getSQL())));
             }
         }

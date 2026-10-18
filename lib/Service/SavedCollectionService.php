@@ -13,6 +13,7 @@ final class SavedCollectionService {
         'publication',
         'year',
         'creator',
+        'genreId',
         'format',
         'tag',
         'shelf',

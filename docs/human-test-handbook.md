@@ -1,17 +1,17 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.11, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://localhost:8088` runs a [signed private update](compatibility-evidence/2026-10-18-nc34-ui-update/README.md) with Full details author and series pickers, cover controls, and settings feedback. It replaces the [original signed alpha.11 package](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) on this instance while keeping the same version string. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; this private update still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.12, Nextcloud 33–35.** The populated developer Nextcloud 34.0.3 instance at `http://localhost:8088` runs a [signed private genre build](compatibility-evidence/2026-10-18-nc34-genre-alpha12/README.md) with the Full details author/series pickers, cover controls, settings feedback and curated genres. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.12 still needs its own exact-package version matrix. The numbered alpha.174 cases later in this file are retained as a historical record; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
-1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the current signed private build still reports alpha.11. Record the exact archive name and checksum instead of assuming the version string identifies the package.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the current signed private build reports alpha.12. Record the exact archive name and checksum instead of assuming the version string identifies the package.
 2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
-For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12 and H03-13. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
+For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12, H03-13 and H03-14. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the current signed private archive checksum in the session header: `71ad0d6d6bd165b1dfed61a8e9f02b92563f702b4e08c2341aa9d9c5c2ffbf78`. The developer build serves the alpha.11 `v10` frontend asset URL so browsers fetch the updated interface.
+Copy this result sheet into the session note. Write the current signed private archive checksum in the session header: `ebf32a78bdda2c44ec4ae963e5ccbf1704c78ba0f19d79d7123e247358c4038f`. The developer build serves the alpha.12 `v12` frontend asset URL so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -28,6 +28,7 @@ Copy this result sheet into the session note. Write the current signed private a
 | H03-11 |  |  |  |
 | H03-12 |  |  |  |
 | H03-13 |  |  |  |
+| H03-14 |  |  |  |
 
 After each case, capture the visible before/after state and note the selected book/author/series ID. A **Pass** requires the expected result and no relevant console error. Mark **Blocked** when setup or the instance prevents the action; a visible wrong result is **Fail**. Do not put private paths or book metadata in a public issue without redaction.
 
@@ -162,6 +163,16 @@ After each case, capture the visible before/after state and note the selected bo
 **Expected:** Search follows the current linked author identity and finds the book through either name. A compact loading indicator appears beside the desktop and mobile search field during a request and clears afterward. Newer typed text is retained, and a stale or failed request does not silently replace the newer query.
 
 **Failure evidence:** Preferred/sort and imported names, searched fragments, result book ID, network timing, desktop/mobile screenshots and console error if present.
+
+### H03-14 — Curated genres and scan suggestions
+
+**Setup:** Use a disposable account with two books carrying the same source genre, one book in a clearly named `english_science_fiction` folder, and one book with a misleading or unknown source genre. Record source metadata and file checksums.
+
+**Steps:** Open **Genres** and create a genre. In a book's **Full details**, type one or two letters in the genre picker, then at least three; select the genre, add a second genre, and remove one chip. Use the genre link to filter the catalogue. In **Genres**, advance discovery if needed. Map one suggested source name to an existing genre, accept another as a new genre, and ignore the misleading suggestion. Reopen the page and rescan the books. Change one book's source genre or subject in Full details and check the review queue again.
+
+**Expected:** Short searches do not query the directory. Each accepted genre appears as a separate chip and filters to its linked books. A mapped suggestion reaches both matching books without changing their source genre or files. An ignored suggestion stays out of the queue after rescan. A manually removed chip stays removed. Edited source metadata updates suggestion evidence; source bytes remain unchanged. Unknown hints require human approval before they become curated genres.
+
+**Failure evidence:** Book and genre IDs, suggestion name/source/count, before/after assignment screenshots, rescan status, network errors and file checksums.
 
 ## Historical alpha.174 walkthrough
 

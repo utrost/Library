@@ -1,6 +1,7 @@
 # Library user and admin guide
 
 For duplicate discovery and private preferred-copy decisions, see [Finding possible duplicate books](duplicate-review.md).
+For curated genre labels and reviewed scan suggestions, see [Genre management](v0.3-genre-management.md).
 
 Start with [Your first library](first-library.md) for a short illustrated walkthrough using English Gutenberg books.
 

@@ -274,6 +274,7 @@
             <field><name>series_number</name><type>string</type><length>64</length><notnull>false</notnull></field>
             <field><name>series_sync_status</name><type>smallint</type><notnull>true</notnull><default>1</default></field>
             <field><name>genre</name><type>string</type><length>255</length><notnull>false</notnull></field>
+            <field><name>genre_suggestion_hash</name><type>string</type><length>64</length><notnull>false</notnull></field>
             <field>
                 <name>id</name>
                 <type>integer</type>
@@ -498,6 +499,7 @@
                 </field>
             </index>
             <index><name>library_items_usr_title_page</name><field><name>user_id</name></field><field><name>title</name></field><field><name>id</name></field><field><name>library_file_id</name></field></index>
+            <index><name>library_genre_discovery</name><field><name>genre_suggestion_hash</name></field><field><name>id</name></field></index>
             <index><name>library_series_pending</name><field><name>series_sync_status</name></field><field><name>id</name></field></index>
             <index><name>library_series_user_status</name><field><name>user_id</name></field><field><name>series_sync_status</name></field><field><name>id</name></field></index>
             <index><name>library_author_pending</name><field><name>author_sync_status</name></field><field><name>id</name></field></index>
@@ -1365,5 +1367,39 @@
         <field><name>payload</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
         <index><name>library_series_ops_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
         <index><name>library_series_ops_user</name><field><name>user_id</name></field><field><name>created_at</name></field><field><name>id</name></field></index>
+    </declaration></table>
+    <table><name>*dbprefix*library_genres</name><declaration>
+        <field><name>id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull><autoincrement>true</autoincrement></field>
+        <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>display_name</name><type>string</type><length>255</length><notnull>true</notnull></field>
+        <field><name>comparison_key</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <index><name>library_genres_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+        <index><name>library_genres_unique</name><unique>true</unique><field><name>user_id</name></field><field><name>comparison_key</name></field></index>
+        <index><name>library_genres_sort</name><field><name>user_id</name></field><field><name>display_name</name></field></index>
+    </declaration></table>
+    <table><name>*dbprefix*library_item_genres</name><declaration>
+        <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>item_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
+        <field><name>genre_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
+        <field><name>active</name><type>smallint</type><notnull>true</notnull><default>1</default></field>
+        <field><name>assignment_source</name><type>string</type><length>16</length><notnull>true</notnull></field>
+        <index><name>library_item_genres_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>item_id</name></field><field><name>genre_id</name></field></index>
+        <index><name>library_genre_books</name><field><name>user_id</name></field><field><name>genre_id</name></field><field><name>active</name></field><field><name>item_id</name></field></index>
+    </declaration></table>
+    <table><name>*dbprefix*library_genre_candidates</name><declaration>
+        <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>item_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
+        <field><name>candidate_key</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>display_name</name><type>string</type><length>255</length><notnull>true</notnull></field>
+        <field><name>source_kind</name><type>string</type><length>16</length><notnull>true</notnull></field>
+        <index><name>library_genre_candidates_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>item_id</name></field><field><name>candidate_key</name></field></index>
+        <index><name>library_genre_candidate_lookup</name><field><name>user_id</name></field><field><name>candidate_key</name></field><field><name>item_id</name></field></index>
+    </declaration></table>
+    <table><name>*dbprefix*library_genre_mappings</name><declaration>
+        <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>candidate_key</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>genre_id</name><type>bigint</type><unsigned>true</unsigned><notnull>false</notnull></field>
+        <index><name>library_genre_mappings_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>candidate_key</name></field></index>
+        <index><name>library_genre_mapping_target</name><field><name>user_id</name></field><field><name>genre_id</name></field></index>
     </declaration></table>
 </database>

@@ -9,7 +9,7 @@ use OCP\IDBConnection;
 final class ItemDeletionService {
     private const ITEM_CHILDREN = [
         'library_item_facets', 'library_item_search_grams', 'library_item_identifiers',
-        'library_item_authors', 'library_item_series', 'library_infer_results',
+        'library_item_authors', 'library_item_series', 'library_item_genres', 'library_genre_candidates', 'library_infer_results',
         'library_dup_terms', 'library_dup_index',
     ];
 
