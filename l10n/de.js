@@ -1188,6 +1188,7 @@ OC.L10N.register(
         "Link a series": "Serie verknüpfen",
         "No linked series yet.": "Noch keine Serie verknüpft.",
         "No matching series. You can create one below.": "Keine passende Serie. Unten können Sie eine erstellen.",
+        "The matching series is already assigned to this book. Search another name to change it.": "Die passende Serie ist diesem Buch bereits zugeordnet. Suchen Sie nach einem anderen Namen, um sie zu ändern.",
         "No series": "Keine Serie",
         "Save series assignment": "Serienzuordnung speichern",
         "Selected series": "Ausgewählte Serie",

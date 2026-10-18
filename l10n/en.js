@@ -1188,6 +1188,7 @@ OC.L10N.register(
         "Link a series": "Link a series",
         "No linked series yet.": "No linked series yet.",
         "No matching series. You can create one below.": "No matching series. You can create one below.",
+        "The matching series is already assigned to this book. Search another name to change it.": "The matching series is already assigned to this book. Search another name to change it.",
         "No series": "No series",
         "Save series assignment": "Save series assignment",
         "Selected series": "Selected series",
