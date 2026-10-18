@@ -9,7 +9,7 @@ const ft = {}, Or = [], Ja = () => {
 (e.charCodeAt(2) > 122 || e.charCodeAt(2) < 97), ou = (e) => e.startsWith("onUpdate:"), Mt = Object.assign, md = (e, t) => {
   const a = e.indexOf(t);
   a > -1 && e.splice(a, 1);
-}, Ny = Object.prototype.hasOwnProperty, gt = (e, t) => Ny.call(e, t), Be = Array.isArray, $n = (e) => hs(e) === "[object Map]", Qi = (e) => hs(e) === "[object Set]", Vf = (e) => hs(e) === "[object Date]", Ke = (e) => typeof e == "function", $t = (e) => typeof e == "string", fi = (e) => typeof e == "symbol", yt = (e) => e !== null && typeof e == "object", Hp = (e) => (yt(e) || Ke(e)) && Ke(e.then) && Ke(e.catch), qp = Object.prototype.toString, hs = (e) => qp.call(e), Oy = (e) => hs(e).slice(8, -1), Gp = (e) => hs(e) === "[object Object]", _d = (e) => $t(e) && e !== "NaN" && e[0] !== "-" && "" + parseInt(e, 10) === e, Ol = /* @__PURE__ */ yd(
+}, Ny = Object.prototype.hasOwnProperty, gt = (e, t) => Ny.call(e, t), Be = Array.isArray, $n = (e) => hs(e) === "[object Map]", Qi = (e) => hs(e) === "[object Set]", Vf = (e) => hs(e) === "[object Date]", We = (e) => typeof e == "function", $t = (e) => typeof e == "string", fi = (e) => typeof e == "symbol", yt = (e) => e !== null && typeof e == "object", Hp = (e) => (yt(e) || We(e)) && We(e.then) && We(e.catch), qp = Object.prototype.toString, hs = (e) => qp.call(e), Oy = (e) => hs(e).slice(8, -1), Gp = (e) => hs(e) === "[object Object]", _d = (e) => $t(e) && e !== "NaN" && e[0] !== "-" && "" + parseInt(e, 10) === e, Ol = /* @__PURE__ */ yd(
   // the leading comma is intentional so empty string "" is also included
   ",key,ref,ref_for,ref_key,onVnodeBeforeMount,onVnodeMounted,onVnodeBeforeUpdate,onVnodeUpdated,onVnodeBeforeUnmount,onVnodeUnmounted"
 ), uu = (e) => {
@@ -21,7 +21,7 @@ const ft = {}, Or = [], Ja = () => {
   (e) => e.replace(Iy, "-$1").toLowerCase()
 ), cu = uu((e) => e.charAt(0).toUpperCase() + e.slice(1)), Zu = uu(
   (e) => e ? `on${cu(e)}` : ""
-), Jt = (e, t) => !Object.is(e, t), Qs = (e, ...t) => {
+), Xt = (e, t) => !Object.is(e, t), Qs = (e, ...t) => {
   for (let a = 0; a < e.length; a++)
     e[a](...t);
 }, Kp = (e, t, a, i = !1) => {
@@ -63,13 +63,13 @@ function My(e) {
     }
   }), t;
 }
-function xe(e) {
+function Ne(e) {
   let t = "";
   if ($t(e))
     t = e;
   else if (Be(e))
     for (let a = 0; a < e.length; a++) {
-      const i = xe(e[a]);
+      const i = Ne(e[a]);
       i && (t += i + " ");
     }
   else if (yt(e))
@@ -80,7 +80,7 @@ function xe(e) {
 function no(e) {
   if (!e) return null;
   let { class: t, style: a } = e;
-  return t && !$t(t) && (e.class = xe(t)), a && (e.style = Ea(a)), e;
+  return t && !$t(t) && (e.class = Ne(t)), a && (e.style = Ea(a)), e;
 }
 const Uy = "itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly", jy = /* @__PURE__ */ yd(Uy);
 function Wp(e) {
@@ -136,7 +136,7 @@ function en(e, t) {
 function wd(e, t) {
   return e.findIndex((a) => en(a, t));
 }
-const Yp = (e) => !!(e && e.__v_isRef === !0), l = (e) => $t(e) ? e : e == null ? "" : Be(e) || yt(e) && (e.toString === qp || !Ke(e.toString)) ? Yp(e) ? l(e.value) : JSON.stringify(e, Zp, 2) : String(e), Zp = (e, t) => Yp(t) ? Zp(e, t.value) : $n(t) ? {
+const Yp = (e) => !!(e && e.__v_isRef === !0), l = (e) => $t(e) ? e : e == null ? "" : Be(e) || yt(e) && (e.toString === qp || !We(e.toString)) ? Yp(e) ? l(e.value) : JSON.stringify(e, Zp, 2) : String(e), Zp = (e, t) => Yp(t) ? Zp(e, t.value) : $n(t) ? {
   [`Map(${t.size})`]: [...t.entries()].reduce(
     (a, [i, n], s) => (a[Ju(i, s) + " =>"] = n, a),
     {}
@@ -154,11 +154,11 @@ const Yp = (e) => !!(e && e.__v_isRef === !0), l = (e) => $t(e) ? e : e == null 
 function By(e) {
   return e == null ? "initial" : typeof e == "string" ? e === "" ? " " : e : String(e);
 }
-let Zt;
+let Jt;
 class Vy {
   // TODO isolatedDeclarations "__v_skip"
   constructor(t = !1) {
-    this.detached = t, this._active = !0, this._on = 0, this.effects = [], this.cleanups = [], this._isPaused = !1, this._warnOnRun = !0, this.__v_skip = !0, !t && Zt && (Zt.active ? (this.parent = Zt, this.index = (Zt.scopes || (Zt.scopes = [])).push(
+    this.detached = t, this._active = !0, this._on = 0, this.effects = [], this.cleanups = [], this._isPaused = !1, this._warnOnRun = !0, this.__v_skip = !0, !t && Jt && (Jt.active ? (this.parent = Jt, this.index = (Jt.scopes || (Jt.scopes = [])).push(
       this
     ) - 1) : (this._active = !1, this._warnOnRun = !1));
   }
@@ -197,11 +197,11 @@ class Vy {
   }
   run(t) {
     if (this._active) {
-      const a = Zt;
+      const a = Jt;
       try {
-        return Zt = this, t();
+        return Jt = this, t();
       } finally {
-        Zt = a;
+        Jt = a;
       }
     }
   }
@@ -210,7 +210,7 @@ class Vy {
    * @internal
    */
   on() {
-    ++this._on === 1 && (this.prevScope = Zt, Zt = this);
+    ++this._on === 1 && (this.prevScope = Jt, Jt = this);
   }
   /**
    * This should only be called on non-detached scopes
@@ -218,10 +218,10 @@ class Vy {
    */
   off() {
     if (this._on > 0 && --this._on === 0) {
-      if (Zt === this)
-        Zt = this.prevScope;
+      if (Jt === this)
+        Jt = this.prevScope;
       else {
-        let t = Zt;
+        let t = Jt;
         for (; t; ) {
           if (t.prevScope === this) {
             t.prevScope = this.prevScope;
@@ -256,13 +256,13 @@ class Vy {
   }
 }
 function Hy() {
-  return Zt;
+  return Jt;
 }
 let Ct;
 const Xu = /* @__PURE__ */ new WeakSet();
 class Jp {
   constructor(t) {
-    this.fn = t, this.deps = void 0, this.depsTail = void 0, this.flags = 5, this.next = void 0, this.cleanup = void 0, this.scheduler = void 0, Zt && (Zt.active ? Zt.effects.push(this) : this.flags &= -2);
+    this.fn = t, this.deps = void 0, this.depsTail = void 0, this.flags = 5, this.next = void 0, this.cleanup = void 0, this.scheduler = void 0, Jt && (Jt.active ? Jt.effects.push(this) : this.flags &= -2);
   }
   pause() {
     this.flags |= 64;
@@ -372,7 +372,7 @@ function av(e) {
   try {
     ev(e);
     const n = e.fn(e._value);
-    (t.version === 0 || Jt(n, e._value)) && (e.flags |= 128, e._value = n, t.version++);
+    (t.version === 0 || Xt(n, e._value)) && (e.flags |= 128, e._value = n, t.version++);
   } catch (n) {
     throw t.version++, n;
   } finally {
@@ -742,7 +742,7 @@ class sv extends lv {
       i,
       /* @__PURE__ */ da(t) ? t : n
     );
-    return t === /* @__PURE__ */ vt(n) && v && (d ? Jt(i, s) && Gi(t, "set", a, i) : Gi(t, "add", a, i)), v;
+    return t === /* @__PURE__ */ vt(n) && v && (d ? Xt(i, s) && Gi(t, "set", a, i) : Gi(t, "add", a, i)), v;
   }
   deleteProperty(t, a) {
     const i = gt(t, a);
@@ -807,7 +807,7 @@ function am(e, t) {
   const a = {
     get(n) {
       const s = this.__v_raw, u = /* @__PURE__ */ vt(s), d = /* @__PURE__ */ vt(n);
-      e || (Jt(n, d) && sa(u, "get", n), sa(u, "get", d));
+      e || (Xt(n, d) && sa(u, "get", n), sa(u, "get", d));
       const { has: v } = Us(u), g = t ? jc : e ? Mr : hi;
       if (v.call(u, n))
         return g(s.get(n));
@@ -821,7 +821,7 @@ function am(e, t) {
     },
     has(n) {
       const s = this.__v_raw, u = /* @__PURE__ */ vt(s), d = /* @__PURE__ */ vt(n);
-      return e || (Jt(n, d) && sa(u, "has", n), sa(u, "has", d)), n === d ? s.has(n) : s.has(n) || s.has(d);
+      return e || (Xt(n, d) && sa(u, "has", n), sa(u, "has", d)), n === d ? s.has(n) : s.has(n) || s.has(d);
     },
     forEach(n, s) {
       const u = this, d = u.__v_raw, v = /* @__PURE__ */ vt(d), g = t ? jc : e ? Mr : hi;
@@ -838,7 +838,7 @@ function am(e, t) {
     } : {
       add(n) {
         const s = /* @__PURE__ */ vt(this), u = Us(s), d = /* @__PURE__ */ vt(n), v = !t && !/* @__PURE__ */ Xa(n) && !/* @__PURE__ */ nn(n) ? d : n;
-        return u.has.call(s, v) || Jt(n, v) && u.has.call(s, n) || Jt(d, v) && u.has.call(s, d) || (s.add(v), Gi(s, "add", v, v)), this;
+        return u.has.call(s, v) || Xt(n, v) && u.has.call(s, n) || Xt(d, v) && u.has.call(s, d) || (s.add(v), Gi(s, "add", v, v)), this;
       },
       set(n, s) {
         !t && !/* @__PURE__ */ Xa(s) && !/* @__PURE__ */ nn(s) && (s = /* @__PURE__ */ vt(s));
@@ -846,7 +846,7 @@ function am(e, t) {
         let g = d.call(u, n);
         g || (n = /* @__PURE__ */ vt(n), g = d.call(u, n));
         const b = v.call(u, n);
-        return u.set(n, s), g ? Jt(s, b) && Gi(u, "set", n, s) : Gi(u, "add", n, s), this;
+        return u.set(n, s), g ? Xt(s, b) && Gi(u, "set", n, s) : Gi(u, "add", n, s), this;
       },
       delete(n) {
         const s = /* @__PURE__ */ vt(this), { has: u, get: d } = Us(s);
@@ -998,14 +998,14 @@ class cm {
   }
   set value(t) {
     const a = this._rawValue, i = this.__v_isShallow || /* @__PURE__ */ Xa(t) || /* @__PURE__ */ nn(t);
-    t = i ? t : /* @__PURE__ */ vt(t), Jt(t, a) && (this._rawValue = t, this._value = i ? t : hi(t), this.dep.trigger());
+    t = i ? t : /* @__PURE__ */ vt(t), Xt(t, a) && (this._rawValue = t, this._value = i ? t : hi(t), this.dep.trigger());
   }
 }
 function o(e) {
   return /* @__PURE__ */ da(e) ? e.value : e;
 }
 function Zi(e) {
-  return Ke(e) ? e() : o(e);
+  return We(e) ? e() : o(e);
 }
 const dm = {
   get: (e, t, a) => t === "__v_raw" ? e : o(Reflect.get(e, t, a)),
@@ -1056,7 +1056,7 @@ class pm {
 // @__NO_SIDE_EFFECTS__
 function vm(e, t, a = !1) {
   let i, n;
-  return Ke(e) ? i = e : (i = e.get, n = e.set), new pm(i, n, a);
+  return We(e) ? i = e : (i = e.get, n = e.set), new pm(i, n, a);
 }
 const zs = {}, ro = /* @__PURE__ */ new WeakMap();
 let ar;
@@ -1074,9 +1074,9 @@ function gm(e, t, a = ft) {
       return M.value;
     if (/* @__PURE__ */ cr(M))
       return g(M);
-    if (Ke(M))
+    if (We(M))
       return v ? v(M, 2) : M();
-  })) : Ke(e) ? t ? m = v ? () => v(e, 2) : e : m = () => {
+  })) : We(e) ? t ? m = v ? () => v(e, 2) : e : m = () => {
     if (_) {
       tn();
       try {
@@ -1102,8 +1102,8 @@ function gm(e, t, a = ft) {
   if (s && t) {
     const M = t;
     t = (...ee) => {
-      const J = M(...ee);
-      return D(), J;
+      const Z = M(...ee);
+      return D(), Z;
     };
   }
   let I = C ? new Array(e.length).fill(zs) : zs;
@@ -1111,9 +1111,9 @@ function gm(e, t, a = ft) {
     if (!(!(b.flags & 1) || !b.dirty && !M))
       if (t) {
         const ee = b.run();
-        if (M || n || $ || (C ? ee.some((J, T) => Jt(J, I[T])) : Jt(ee, I))) {
+        if (M || n || $ || (C ? ee.some((Z, T) => Xt(Z, I[T])) : Xt(ee, I))) {
           _ && _();
-          const J = ar;
+          const Z = ar;
           ar = b;
           try {
             const T = [
@@ -1127,7 +1127,7 @@ function gm(e, t, a = ft) {
               t(...T)
             );
           } finally {
-            ar = J;
+            ar = Z;
           }
         }
       } else
@@ -1172,7 +1172,7 @@ function ps(e, t, a, i) {
   }
 }
 function Qa(e, t, a, i) {
-  if (Ke(e)) {
+  if (We(e)) {
     const n = ps(e, t, a, i);
     return n && Hp(n) && n.catch((s) => {
       vu(s, t, a);
@@ -1297,10 +1297,10 @@ function yv(e) {
     _i = -1, wa.length = 0, gv(), lo = null, (wa.length || Rr.length) && yv();
   }
 }
-let Qt = null, bu = null;
+let ea = null, bu = null;
 function so(e) {
-  const t = Qt;
-  return Qt = e, bu = e && e.type.__scopeId || null, t;
+  const t = ea;
+  return ea = e, bu = e && e.type.__scopeId || null, t;
 }
 function _m(e) {
   bu = e;
@@ -1308,8 +1308,8 @@ function _m(e) {
 function wm() {
   bu = null;
 }
-const km = (e) => Te;
-function Te(e, t = Qt, a) {
+const km = (e) => Ae;
+function Ae(e, t = ea, a) {
   if (!t || e._n)
     return e;
   const i = (...n) => {
@@ -1327,12 +1327,12 @@ function Te(e, t = Qt, a) {
   return i._n = !0, i._c = !0, i._d = !0, i;
 }
 function fe(e, t) {
-  if (Qt === null)
+  if (ea === null)
     return e;
-  const a = ku(Qt), i = e.dirs || (e.dirs = []);
+  const a = ku(ea), i = e.dirs || (e.dirs = []);
   for (let n = 0; n < t.length; n++) {
     let [s, u, d, v = ft] = t[n];
-    s && (Ke(s) && (s = {
+    s && (We(s) && (s = {
       mounted: s,
       updated: s
     }), s.deep && Ki(u), i.push({
@@ -1374,7 +1374,7 @@ function oa(e, t, a = !1) {
     if (n && e in n)
       return n[e];
     if (arguments.length > 1)
-      return a && Ke(t) ? t.call(i && i.proxy) : t;
+      return a && We(t) ? t.call(i && i.proxy) : t;
   }
 }
 const Sm = /* @__PURE__ */ Symbol.for("v-scx"), Cm = () => oa(Sm);
@@ -1388,7 +1388,7 @@ function Tm(e, t) {
     { flush: "sync" }
   );
 }
-function qe(e, t, a) {
+function Ge(e, t, a) {
   return gu(e, t, a);
 }
 function gu(e, t, a = ft) {
@@ -1420,7 +1420,7 @@ function gu(e, t, a = ft) {
 function Am(e, t, a) {
   const i = this.proxy, n = $t(e) ? e.includes(".") ? mv(i, e) : () => i[e] : e.bind(i, i);
   let s;
-  Ke(t) ? s = t : (s = t.handler, a = t);
+  We(t) ? s = t : (s = t.handler, a = t);
   const u = bs(this), d = gu(n, s.bind(i), a);
   return u(), d;
 }
@@ -1459,9 +1459,9 @@ const yn = /* @__PURE__ */ new WeakMap(), _v = /* @__PURE__ */ Symbol("_vte"), y
         v
       );
     }, ee = (T = t) => {
-      const j = nr(T.props), W = T.target = zc(T.props, $), ie = Bc(W, T, C, k);
-      W && (u !== "svg" && Yf(W) ? u = "svg" : u !== "mathml" && Zf(W) && (u = "mathml"), n && n.isCE && (n.ce._teleportTargets || (n.ce._teleportTargets = /* @__PURE__ */ new Set())).add(W), j || (M(T, W, ie), $l(T, !1)));
-    }, J = (T) => {
+      const j = nr(T.props), W = T.target = zc(T.props, $), ae = Bc(W, T, C, k);
+      W && (u !== "svg" && Yf(W) ? u = "svg" : u !== "mathml" && Zf(W) && (u = "mathml"), n && n.isCE && (n.ce._teleportTargets || (n.ce._teleportTargets = /* @__PURE__ */ new Set())).add(W), j || (M(T, W, ae), $l(T, !1)));
+    }, Z = (T) => {
       const j = () => {
         if (yn.get(T) === j) {
           if (yn.delete(T), nr(T.props)) {
@@ -1476,7 +1476,7 @@ const yn = /* @__PURE__ */ new WeakMap(), _v = /* @__PURE__ */ Symbol("_vte"), y
     if (e == null) {
       const T = t.el = C(""), j = t.anchor = C("");
       if (k(T, a, i), k(j, a, i), Em(t.props) || s && s.pendingBranch) {
-        J(t);
+        Z(t);
         return;
       }
       I && (M(t, a, j), $l(t, !0)), ee();
@@ -1484,11 +1484,11 @@ const yn = /* @__PURE__ */ new WeakMap(), _v = /* @__PURE__ */ Symbol("_vte"), y
       t.el = e.el;
       const T = t.anchor = e.anchor, j = yn.get(e);
       if (j) {
-        j.flags |= 8, yn.delete(e), J(t);
+        j.flags |= 8, yn.delete(e), Z(t);
         return;
       }
       t.targetStart = e.targetStart;
-      const W = t.target = e.target, ie = t.targetAnchor = e.targetAnchor, se = nr(e.props), V = se ? a : W, B = se ? T : ie;
+      const W = t.target = e.target, ae = t.targetAnchor = e.targetAnchor, se = nr(e.props), V = se ? a : W, B = se ? T : ae;
       if (u === "svg" || Yf(W) ? u = "svg" : (u === "mathml" || Zf(W)) && (u = "mathml"), L ? (_(
         e.dynamicChildren,
         L,
@@ -1527,7 +1527,7 @@ const yn = /* @__PURE__ */ new WeakMap(), _v = /* @__PURE__ */ Symbol("_vte"), y
       } else se && Bs(
         t,
         W,
-        ie,
+        ae,
         g,
         1
       );
@@ -1650,7 +1650,7 @@ function Om() {
   };
   return xt(() => {
     e.isMounted = !0;
-  }), aa(() => {
+  }), ia(() => {
     e.isUnmounting = !0;
   }), e;
 }
@@ -1703,20 +1703,20 @@ const Ha = [Function, Array], wv = {
         // #11061, ensure enterHooks is fresh after clone
         (m) => g = m
       );
-      v.type !== Xt && Jl(v, g);
+      v.type !== Qt && Jl(v, g);
       let b = a.subTree && oo(a.subTree);
-      if (b && b.type !== Xt && !rr(b, v) && kv(a).type !== Xt) {
+      if (b && b.type !== Qt && !rr(b, v) && kv(a).type !== Qt) {
         let m = Vc(
           b,
           u,
           i,
           a
         );
-        if (Jl(b, m), d === "out-in" && v.type !== Xt)
+        if (Jl(b, m), d === "out-in" && v.type !== Qt)
           return i.isLeaving = !0, m.afterLeave = () => {
             i.isLeaving = !1, a.job.flags & 8 || a.update(), delete m.afterLeave, b = void 0;
           }, tc(s);
-        d === "in-out" && v.type !== Xt ? m.delayLeave = (_, k, $) => {
+        d === "in-out" && v.type !== Qt ? m.delayLeave = (_, k, $) => {
           const C = Cv(
             i,
             b
@@ -1736,7 +1736,7 @@ function Sv(e) {
   let t = e[0];
   if (e.length > 1) {
     for (const a of e)
-      if (a.type !== Xt) {
+      if (a.type !== Qt) {
         t = a;
         break;
       }
@@ -1766,24 +1766,24 @@ function Vc(e, t, a, i, n) {
     onAppear: D,
     onAfterAppear: I,
     onAppearCancelled: L
-  } = t, M = String(e.key), ee = Cv(a, e), J = (W, ie) => {
+  } = t, M = String(e.key), ee = Cv(a, e), Z = (W, ae) => {
     W && Qa(
       W,
       i,
       9,
-      ie
+      ae
     );
-  }, T = (W, ie) => {
-    const se = ie[1];
-    J(W, ie), Be(W) ? W.every((V) => V.length <= 1) && se() : W.length <= 1 && se();
+  }, T = (W, ae) => {
+    const se = ae[1];
+    Z(W, ae), Be(W) ? W.every((V) => V.length <= 1) && se() : W.length <= 1 && se();
   }, j = {
     mode: u,
     persisted: d,
     beforeEnter(W) {
-      let ie = v;
+      let ae = v;
       if (!a.isMounted)
         if (s)
-          ie = x || v;
+          ae = x || v;
         else
           return;
       W[Ya] && W[Ya](
@@ -1791,47 +1791,47 @@ function Vc(e, t, a, i, n) {
         /* cancelled */
       );
       const se = ee[M];
-      se && rr(e, se) && se.el[Ya] && se.el[Ya](), J(ie, [W]);
+      se && rr(e, se) && se.el[Ya] && se.el[Ya](), Z(ae, [W]);
     },
     enter(W) {
       if (ee[M] === e) return;
-      let ie = g, se = b, V = m;
+      let ae = g, se = b, V = m;
       if (!a.isMounted)
         if (s)
-          ie = D || g, se = I || b, V = L || m;
+          ae = D || g, se = I || b, V = L || m;
         else
           return;
       let B = !1;
       W[vl] = (z) => {
-        B || (B = !0, z ? J(V, [W]) : J(se, [W]), j.delayedLeave && j.delayedLeave(), W[vl] = void 0);
+        B || (B = !0, z ? Z(V, [W]) : Z(se, [W]), j.delayedLeave && j.delayedLeave(), W[vl] = void 0);
       };
       const F = W[vl].bind(null, !1);
-      ie ? T(ie, [W, F]) : F();
+      ae ? T(ae, [W, F]) : F();
     },
-    leave(W, ie) {
+    leave(W, ae) {
       const se = String(e.key);
       if (W[vl] && W[vl](
         !0
         /* cancelled */
       ), a.isUnmounting)
-        return ie();
-      J(_, [W]);
+        return ae();
+      Z(_, [W]);
       let V = !1;
       W[Ya] = (F) => {
-        V || (V = !0, ie(), F ? J(C, [W]) : J($, [W]), W[Ya] = void 0, ee[se] === e && delete ee[se]);
+        V || (V = !0, ae(), F ? Z(C, [W]) : Z($, [W]), W[Ya] = void 0, ee[se] === e && delete ee[se]);
       };
       const B = W[Ya].bind(null, !1);
       ee[se] = e, k ? T(k, [W, B]) : B();
     },
     clone(W) {
-      const ie = Vc(
+      const ae = Vc(
         W,
         t,
         a,
         i,
         n
       );
-      return n && n(ie), ie;
+      return n && n(ae), ae;
     }
   };
   return j;
@@ -1849,7 +1849,7 @@ function oo(e) {
   if (a) {
     if (t & 16)
       return a[0];
-    if (t & 32 && Ke(a.default))
+    if (t & 32 && We(a.default))
       return a.default();
   }
 }
@@ -1870,7 +1870,7 @@ function $v(e, t = !1, a) {
     const d = a == null ? u.key : String(a) + String(u.key != null ? u.key : s);
     u.type === K ? (u.patchFlag & 128 && n++, i = i.concat(
       $v(u.children, t, d)
-    )) : (t || u.type !== Xt) && i.push(d != null ? xn(u, { key: d }) : u);
+    )) : (t || u.type !== Qt) && i.push(d != null ? xn(u, { key: d }) : u);
   }
   if (n > 1)
     for (let s = 0; s < i.length; s++)
@@ -1878,8 +1878,8 @@ function $v(e, t = !1, a) {
   return i;
 }
 // @__NO_SIDE_EFFECTS__
-function ta(e, t) {
-  return Ke(e) ? (
+function aa(e, t) {
+  return We(e) ? (
     // #8236: extend call and options.name access are considered side-effects
     // by Rollup, so we have to wrap it in a pure-annotated IIFE.
     Mt({ name: e.name }, t, { setup: e })
@@ -1935,7 +1935,7 @@ function Ll(e, t, a, i, n = !1) {
       $(g, C.k) && (g.value = null), C.k && (b[C.k] = null);
     }
   }
-  if (Ke(v))
+  if (We(v))
     ps(v, d, 12, [u, b]);
   else {
     const C = $t(v), x = /* @__PURE__ */ da(v);
@@ -2020,7 +2020,7 @@ const sn = (e) => (t, a = ua) => {
   (!as || e === "sp") && _u(e, (...i) => t(...i), a);
 }, xv = sn("bm"), xt = sn("m"), Nv = sn(
   "bu"
-), Mm = sn("u"), aa = sn(
+), Mm = sn("u"), ia = sn(
   "bum"
 ), jr = sn("um"), Um = sn(
   "sp"
@@ -2040,7 +2040,7 @@ function Qf(e) {
   return Rd(Vm, e);
 }
 function Rd(e, t, a = !0, i = !1) {
-  const n = Qt || ua;
+  const n = ea || ua;
   if (n) {
     const s = n.type;
     if (e === Nd) {
@@ -2099,8 +2099,8 @@ function ue(e, t, a, i) {
     n = [];
   return n;
 }
-function Xe(e, t, a, i, n, s) {
-  if (a == null && (a = {}), Qt.ce || Qt.parent && Ir(Qt.parent) && Qt.parent.ce) {
+function Qe(e, t, a, i, n, s) {
+  if (a == null && (a = {}), ea.ce || ea.parent && Ir(ea.parent) && ea.parent.ce) {
     const g = a, b = Object.keys(g).length > 0;
     return t !== "default" && (g.name = t), c(), ze(
       K,
@@ -2136,7 +2136,7 @@ function Xe(e, t, a, i, n, s) {
   return !n && v.scopeId && (v.slotScopeIds = [v.scopeId + "-s"]), v;
 }
 function Rv(e) {
-  return e.some((t) => Ql(t) ? !(t.type === Xt || t.type === K && !Rv(t.children)) : !0) ? e : null;
+  return e.some((t) => Ql(t) ? !(t.type === Qt || t.type === K && !Rv(t.children)) : !0) ? e : null;
 }
 const Hc = (e) => e ? eb(e) ? ku(e) : Hc(e.parent) : null, Pl = (
   // Move PURE marker to new line to workaround compiler discarding it
@@ -2265,12 +2265,12 @@ function Wm(e) {
     destroyed: L,
     unmounted: M,
     render: ee,
-    renderTracked: J,
+    renderTracked: Z,
     renderTriggered: T,
     errorCaptured: j,
     serverPrefetch: W,
     // public API
-    expose: ie,
+    expose: ae,
     inheritAttrs: se,
     // assets
     components: V,
@@ -2279,8 +2279,8 @@ function Wm(e) {
   } = t;
   if (g && Ym(g, i, null), u)
     for (const te in u) {
-      const X = u[te];
-      Ke(X) && (i[te] = X.bind(a));
+      const J = u[te];
+      We(J) && (i[te] = J.bind(a));
     }
   if (n) {
     const te = n.call(a, a);
@@ -2288,37 +2288,37 @@ function Wm(e) {
   }
   if (qc = !0, s)
     for (const te in s) {
-      const X = s[te], H = Ke(X) ? X.bind(a, a) : Ke(X.get) ? X.get.bind(a, a) : Ja, de = !Ke(X) && Ke(X.set) ? X.set.bind(a) : Ja, Ae = G({
+      const J = s[te], H = We(J) ? J.bind(a, a) : We(J.get) ? J.get.bind(a, a) : Ja, de = !We(J) && We(J.set) ? J.set.bind(a) : Ja, Ee = G({
         get: H,
         set: de
       });
       Object.defineProperty(i, te, {
         enumerable: !0,
         configurable: !0,
-        get: () => Ae.value,
-        set: (Ie) => Ae.value = Ie
+        get: () => Ee.value,
+        set: (Ie) => Ee.value = Ie
       });
     }
   if (d)
     for (const te in d)
       Lv(d[te], i, a, te);
   if (v) {
-    const te = Ke(v) ? v.call(a) : v;
-    Reflect.ownKeys(te).forEach((X) => {
-      Wa(X, te[X]);
+    const te = We(v) ? v.call(a) : v;
+    Reflect.ownKeys(te).forEach((J) => {
+      Wa(J, te[J]);
     });
   }
   b && th(b, e, "c");
-  function re(te, X) {
-    Be(X) ? X.forEach((H) => te(H.bind(a))) : X && te(X.bind(a));
+  function re(te, J) {
+    Be(J) ? J.forEach((H) => te(H.bind(a))) : J && te(J.bind(a));
   }
-  if (re(xv, m), re(xt, _), re(Nv, k), re(Mm, $), re(Pm, C), re(Dm, x), re(Bm, j), re(zm, J), re(jm, T), re(aa, I), re(jr, M), re(Um, W), Be(ie))
-    if (ie.length) {
+  if (re(xv, m), re(xt, _), re(Nv, k), re(Mm, $), re(Pm, C), re(Dm, x), re(Bm, j), re(zm, Z), re(jm, T), re(ia, I), re(jr, M), re(Um, W), Be(ae))
+    if (ae.length) {
       const te = e.exposed || (e.exposed = {});
-      ie.forEach((X) => {
-        Object.defineProperty(te, X, {
-          get: () => a[X],
-          set: (H) => a[X] = H,
+      ae.forEach((J) => {
+        Object.defineProperty(te, J, {
+          get: () => a[J],
+          set: (H) => a[J] = H,
           enumerable: !0
         });
       });
@@ -2353,15 +2353,15 @@ function Lv(e, t, a, i) {
   let n = i.includes(".") ? mv(a, i) : () => a[i];
   if ($t(e)) {
     const s = t[e];
-    Ke(s) && qe(n, s);
-  } else if (Ke(e))
-    qe(n, e.bind(a));
+    We(s) && Ge(n, s);
+  } else if (We(e))
+    Ge(n, e.bind(a));
   else if (yt(e))
     if (Be(e))
       e.forEach((s) => Lv(s, t, a, i));
     else {
-      const s = Ke(e.handler) ? e.handler.bind(a) : t[e.handler];
-      Ke(s) && qe(n, s, e);
+      const s = We(e.handler) ? e.handler.bind(a) : t[e.handler];
+      We(s) && Ge(n, s, e);
     }
 }
 function Pv(e) {
@@ -2421,8 +2421,8 @@ const Zm = {
 function ah(e, t) {
   return t ? e ? function() {
     return Mt(
-      Ke(e) ? e.call(this, this) : e,
-      Ke(t) ? t.call(this, this) : t
+      We(e) ? e.call(this, this) : e,
+      We(t) ? t.call(this, this) : t
     );
   } : t : e;
 }
@@ -2483,7 +2483,7 @@ function Dv() {
 let Qm = 0;
 function e1(e, t) {
   return function(i, n = null) {
-    Ke(i) || (i = Mt({}, i)), n != null && !yt(n) && (n = null);
+    We(i) || (i = Mt({}, i)), n != null && !yt(n) && (n = null);
     const s = Dv(), u = /* @__PURE__ */ new WeakSet(), d = [];
     let v = !1;
     const g = s.app = {
@@ -2500,7 +2500,7 @@ function e1(e, t) {
       set config(b) {
       },
       use(b, ...m) {
-        return u.has(b) || (b && Ke(b.install) ? (u.add(b), b.install(g, ...m)) : Ke(b) && (u.add(b), b(g, ...m))), g;
+        return u.has(b) || (b && We(b.install) ? (u.add(b), b.install(g, ...m)) : We(b) && (u.add(b), b(g, ...m))), g;
       },
       mixin(b) {
         return s.mixins.includes(b) || s.mixins.push(b), g;
@@ -2549,24 +2549,24 @@ function Fv(e, t, a = ft) {
     let b, m = ft, _;
     return Tm(() => {
       const k = e[n];
-      Jt(b, k) && (b = k, g());
+      Xt(b, k) && (b = k, g());
     }), {
       get() {
         return v(), a.get ? a.get(b) : b;
       },
       set(k) {
         const $ = a.set ? a.set(k) : k;
-        if (!Jt($, b) && !(m !== ft && Jt(k, m)))
+        if (!Xt($, b) && !(m !== ft && Xt(k, m)))
           return;
         const C = i.vnode.props, x = !!(C && // check if parent has passed v-model
         (t in C || n in C || s in C) && (`onUpdate:${t}` in C || `onUpdate:${n}` in C || `onUpdate:${s}` in C));
-        x || (b = k, g()), i.emit(`update:${t}`, $), Jt(k, m) && (Jt(k, $) && !Jt($, _) || // #13524: browsers differ in when they flush microtasks between
+        x || (b = k, g()), i.emit(`update:${t}`, $), Xt(k, m) && (Xt(k, $) && !Xt($, _) || // #13524: browsers differ in when they flush microtasks between
         // event listeners. If a v-model listener emits an intermediate value
         // and a following listener restores the model to its previous prop
         // value before parent updates are flushed, the parent render can be
         // deduped as having no prop change. Force a local update so DOM state
         // such as an input's value is synchronized back to the current model.
-        x && m !== ft && !Jt($, b)) && g(), m = k, _ = $;
+        x && m !== ft && !Xt($, b)) && g(), m = k, _ = $;
       }
     };
   });
@@ -2615,7 +2615,7 @@ function Uv(e, t, a = !1) {
     return n;
   const s = e.emits;
   let u = {}, d = !1;
-  if (!Ke(e)) {
+  if (!We(e)) {
     const v = (g) => {
       const b = Uv(g, t, !0);
       b && (d = !0, Mt(u, b));
@@ -2673,7 +2673,7 @@ function nh(e) {
       ), I = t.props ? d : i1(d);
     }
   } catch (M) {
-    Ji.length = 0, vu(M, e, 1), D = ve(Xt);
+    Ji.length = 0, vu(M, e, 1), D = ve(Qt);
   }
   let L = D;
   if (I && C !== !1) {
@@ -2848,7 +2848,7 @@ function Kc(e, t, a, i, n, s) {
     const d = gt(u, "default");
     if (d && i === void 0) {
       const v = u.default;
-      if (u.type !== Function && !u.skipFactory && Ke(v)) {
+      if (u.type !== Function && !u.skipFactory && We(v)) {
         const { propsDefaults: g } = n;
         if (a in g)
           i = g[a];
@@ -2880,7 +2880,7 @@ function qv(e, t, a = !1) {
     return n;
   const s = e.props, u = {}, d = [];
   let v = !1;
-  if (!Ke(e)) {
+  if (!We(e)) {
     const b = (m) => {
       v = !0;
       const [_, k] = qv(m, t, !0);
@@ -2899,18 +2899,18 @@ function qv(e, t, a = !1) {
     for (const b in s) {
       const m = ca(b);
       if (lh(m)) {
-        const _ = s[b], k = u[m] = Be(_) || Ke(_) ? { type: _ } : Mt({}, _), $ = k.type;
+        const _ = s[b], k = u[m] = Be(_) || We(_) ? { type: _ } : Mt({}, _), $ = k.type;
         let C = !1, x = !0;
         if (Be($))
           for (let D = 0; D < $.length; ++D) {
-            const I = $[D], L = Ke(I) && I.name;
+            const I = $[D], L = We(I) && I.name;
             if (L === "Boolean") {
               C = !0;
               break;
             } else L === "String" && (x = !1);
           }
         else
-          C = Ke($) && $.name === "Boolean";
+          C = We($) && $.name === "Boolean";
         k[
           0
           /* shouldCast */
@@ -2929,14 +2929,14 @@ function lh(e) {
 const Id = (e) => e === "_" || e === "_ctx" || e === "$stable", Ld = (e) => Be(e) ? e.map(Ci) : [Ci(e)], c1 = (e, t, a) => {
   if (t._n)
     return t;
-  const i = Te((...n) => Ld(t(...n)), a);
+  const i = Ae((...n) => Ld(t(...n)), a);
   return i._c = !1, i;
 }, Gv = (e, t, a) => {
   const i = e._ctx;
   for (const n in e) {
     if (Id(n)) continue;
     const s = e[n];
-    if (Ke(s))
+    if (We(s))
       t[n] = c1(n, s, i);
     else if (s != null) {
       const u = Ld(s);
@@ -2985,16 +2985,16 @@ function p1(e, t) {
     nextSibling: _,
     setScopeId: k = Ja,
     insertStaticContent: $
-  } = e, C = (A, O, P, R = null, N = null, ne = null, ce = void 0, he = null, me = !!O.dynamicChildren) => {
+  } = e, C = (A, O, P, R = null, N = null, ie = null, ce = void 0, he = null, me = !!O.dynamicChildren) => {
     if (A === O)
       return;
-    A && !rr(A, O) && (R = Pe(A), Ie(A, N, ne, !0), A = null), O.patchFlag === -2 && (me = !1, O.dynamicChildren = null);
-    const { type: pe, ref: De, shapeFlag: Ce } = O;
+    A && !rr(A, O) && (R = Pe(A), Ie(A, N, ie, !0), A = null), O.patchFlag === -2 && (me = !1, O.dynamicChildren = null);
+    const { type: pe, ref: De, shapeFlag: $e } = O;
     switch (pe) {
       case vs:
         x(A, O, P, R);
         break;
-      case Xt:
+      case Qt:
         D(A, O, P, R);
         break;
       case eo:
@@ -3007,47 +3007,47 @@ function p1(e, t) {
           P,
           R,
           N,
-          ne,
+          ie,
           ce,
           he,
           me
         );
         break;
       default:
-        Ce & 1 ? ee(
+        $e & 1 ? ee(
           A,
           O,
           P,
           R,
           N,
-          ne,
+          ie,
           ce,
           he,
           me
-        ) : Ce & 6 ? B(
+        ) : $e & 6 ? B(
           A,
           O,
           P,
           R,
           N,
-          ne,
+          ie,
           ce,
           he,
           me
-        ) : (Ce & 64 || Ce & 128) && pe.process(
+        ) : ($e & 64 || $e & 128) && pe.process(
           A,
           O,
           P,
           R,
           N,
-          ne,
+          ie,
           ce,
           he,
           me,
           ot
         );
     }
-    De != null && N ? Ll(De, A && A.ref, ne, O || A, !O) : De == null && A && A.ref != null && Ll(A.ref, null, ne, A, !0);
+    De != null && N ? Ll(De, A && A.ref, ie, O || A, !O) : De == null && A && A.ref != null && Ll(A.ref, null, ie, A, !0);
   }, x = (A, O, P, R) => {
     if (A == null)
       i(
@@ -3084,14 +3084,14 @@ function p1(e, t) {
     for (; A && A !== O; )
       P = _(A), n(A), A = P;
     n(O);
-  }, ee = (A, O, P, R, N, ne, ce, he, me) => {
+  }, ee = (A, O, P, R, N, ie, ce, he, me) => {
     if (O.type === "svg" ? ce = "svg" : O.type === "math" && (ce = "mathml"), A == null)
-      J(
+      Z(
         O,
         P,
         R,
         N,
-        ne,
+        ie,
         ce,
         he,
         me
@@ -3103,7 +3103,7 @@ function p1(e, t) {
           A,
           O,
           N,
-          ne,
+          ie,
           ce,
           he,
           me
@@ -3112,40 +3112,40 @@ function p1(e, t) {
         pe && pe._endPatch();
       }
     }
-  }, J = (A, O, P, R, N, ne, ce, he) => {
+  }, Z = (A, O, P, R, N, ie, ce, he) => {
     let me, pe;
-    const { props: De, shapeFlag: Ce, transition: Ne, dirs: Fe } = A;
+    const { props: De, shapeFlag: $e, transition: Oe, dirs: Fe } = A;
     if (me = A.el = u(
       A.type,
-      ne,
+      ie,
       De && De.is,
       De
-    ), Ce & 8 ? b(me, A.children) : Ce & 16 && j(
+    ), $e & 8 ? b(me, A.children) : $e & 16 && j(
       A.children,
       me,
       null,
       R,
       N,
-      ic(A, ne),
+      ic(A, ie),
       ce,
       he
     ), Fe && Zn(A, null, R, "created"), T(me, A, A.scopeId, ce, R), De) {
-      for (const et in De)
-        et !== "value" && !Ol(et) && s(me, et, null, De[et], ne, R);
-      "value" in De && s(me, "value", null, De.value, ne), (pe = De.onVnodeBeforeMount) && mi(pe, R, A);
+      for (const tt in De)
+        tt !== "value" && !Ol(tt) && s(me, tt, null, De[tt], ie, R);
+      "value" in De && s(me, "value", null, De.value, ie), (pe = De.onVnodeBeforeMount) && mi(pe, R, A);
     }
     Fe && Zn(A, null, R, "beforeMount");
-    const Ze = v1(N, Ne);
-    Ze && Ne.beforeEnter(me), i(me, O, P), ((pe = De && De.onVnodeMounted) || Ze || Fe) && _a(() => {
-      pe && mi(pe, R, A), Ze && Ne.enter(me), Fe && Zn(A, null, R, "mounted");
+    const Je = v1(N, Oe);
+    Je && Oe.beforeEnter(me), i(me, O, P), ((pe = De && De.onVnodeMounted) || Je || Fe) && _a(() => {
+      pe && mi(pe, R, A), Je && Oe.enter(me), Fe && Zn(A, null, R, "mounted");
     }, N);
   }, T = (A, O, P, R, N) => {
     if (P && k(A, P), R)
-      for (let ne = 0; ne < R.length; ne++)
-        k(A, R[ne]);
+      for (let ie = 0; ie < R.length; ie++)
+        k(A, R[ie]);
     if (N) {
-      let ne = N.subTree;
-      if (O === ne || Jv(ne.type) && (ne.ssContent === O || ne.ssFallback === O)) {
+      let ie = N.subTree;
+      if (O === ie || Jv(ie.type) && (ie.ssContent === O || ie.ssFallback === O)) {
         const ce = N.vnode;
         T(
           A,
@@ -3156,7 +3156,7 @@ function p1(e, t) {
         );
       }
     }
-  }, j = (A, O, P, R, N, ne, ce, he, me = 0) => {
+  }, j = (A, O, P, R, N, ie, ce, he, me = 0) => {
     for (let pe = me; pe < A.length; pe++) {
       const De = A[pe] = he ? qi(A[pe]) : Ci(A[pe]);
       C(
@@ -3166,28 +3166,28 @@ function p1(e, t) {
         P,
         R,
         N,
-        ne,
+        ie,
         ce,
         he
       );
     }
-  }, W = (A, O, P, R, N, ne, ce) => {
+  }, W = (A, O, P, R, N, ie, ce) => {
     const he = O.el = A.el;
     let { patchFlag: me, dynamicChildren: pe, dirs: De } = O;
     me |= A.patchFlag & 16;
-    const Ce = A.props || ft, Ne = O.props || ft;
+    const $e = A.props || ft, Oe = O.props || ft;
     let Fe;
-    if (P && Jn(P, !1), (Fe = Ne.onVnodeBeforeUpdate) && mi(Fe, P, O, A), De && Zn(O, A, P, "beforeUpdate"), P && Jn(P, !0), // #6385 the old vnode may be a user-wrapped non-isomorphic block
+    if (P && Jn(P, !1), (Fe = Oe.onVnodeBeforeUpdate) && mi(Fe, P, O, A), De && Zn(O, A, P, "beforeUpdate"), P && Jn(P, !0), // #6385 the old vnode may be a user-wrapped non-isomorphic block
     // Force full diff when block metadata is unstable.
-    pe && (!A.dynamicChildren || A.dynamicChildren.length !== pe.length) && (me = 0, ce = !1, pe = null), (Ce.innerHTML && Ne.innerHTML == null || Ce.textContent && Ne.textContent == null) && b(he, ""), pe ? ie(
+    pe && (!A.dynamicChildren || A.dynamicChildren.length !== pe.length) && (me = 0, ce = !1, pe = null), ($e.innerHTML && Oe.innerHTML == null || $e.textContent && Oe.textContent == null) && b(he, ""), pe ? ae(
       A.dynamicChildren,
       pe,
       he,
       P,
       R,
       ic(O, N),
-      ne
-    ) : ce || X(
+      ie
+    ) : ce || J(
       A,
       O,
       he,
@@ -3195,24 +3195,24 @@ function p1(e, t) {
       P,
       R,
       ic(O, N),
-      ne,
+      ie,
       !1
     ), me > 0) {
       if (me & 16)
-        se(he, Ce, Ne, P, N);
-      else if (me & 2 && Ce.class !== Ne.class && s(he, "class", null, Ne.class, N), me & 4 && s(he, "style", Ce.style, Ne.style, N), me & 8) {
-        const Ze = O.dynamicProps;
-        for (let et = 0; et < Ze.length; et++) {
-          const We = Ze[et], lt = Ce[We], ht = Ne[We];
-          (ht !== lt || We === "value") && s(he, We, lt, ht, N, P);
+        se(he, $e, Oe, P, N);
+      else if (me & 2 && $e.class !== Oe.class && s(he, "class", null, Oe.class, N), me & 4 && s(he, "style", $e.style, Oe.style, N), me & 8) {
+        const Je = O.dynamicProps;
+        for (let tt = 0; tt < Je.length; tt++) {
+          const Ye = Je[tt], lt = $e[Ye], ht = Oe[Ye];
+          (ht !== lt || Ye === "value") && s(he, Ye, lt, ht, N, P);
         }
       }
       me & 1 && A.children !== O.children && b(he, O.children);
-    } else !ce && pe == null && se(he, Ce, Ne, P, N);
-    ((Fe = Ne.onVnodeUpdated) || De) && _a(() => {
+    } else !ce && pe == null && se(he, $e, Oe, P, N);
+    ((Fe = Oe.onVnodeUpdated) || De) && _a(() => {
       Fe && mi(Fe, P, O, A), De && Zn(O, A, P, "updated");
     }, R);
-  }, ie = (A, O, P, R, N, ne, ce) => {
+  }, ae = (A, O, P, R, N, ie, ce) => {
     for (let he = 0; he < O.length; he++) {
       const me = A[he], pe = O[he], De = (
         // oldVNode may be an errored async setup() component inside Suspense
@@ -3235,7 +3235,7 @@ function p1(e, t) {
         null,
         R,
         N,
-        ne,
+        ie,
         ce,
         !0
       );
@@ -3243,25 +3243,25 @@ function p1(e, t) {
   }, se = (A, O, P, R, N) => {
     if (O !== P) {
       if (O !== ft)
-        for (const ne in O)
-          !Ol(ne) && !(ne in P) && s(
+        for (const ie in O)
+          !Ol(ie) && !(ie in P) && s(
             A,
-            ne,
-            O[ne],
+            ie,
+            O[ie],
             null,
             N,
             R
           );
-      for (const ne in P) {
-        if (Ol(ne)) continue;
-        const ce = P[ne], he = O[ne];
-        ce !== he && ne !== "value" && s(A, ne, he, ce, N, R);
+      for (const ie in P) {
+        if (Ol(ie)) continue;
+        const ce = P[ie], he = O[ie];
+        ce !== he && ie !== "value" && s(A, ie, he, ce, N, R);
       }
       "value" in P && s(A, "value", O.value, P.value, N);
     }
-  }, V = (A, O, P, R, N, ne, ce, he, me) => {
+  }, V = (A, O, P, R, N, ie, ce, he, me) => {
     const pe = O.el = A ? A.el : d(""), De = O.anchor = A ? A.anchor : d("");
-    let { patchFlag: Ce, dynamicChildren: Ne, slotScopeIds: Fe } = O;
+    let { patchFlag: $e, dynamicChildren: Oe, slotScopeIds: Fe } = O;
     Fe && (he = he ? he.concat(Fe) : Fe), A == null ? (i(pe, P, R), i(De, P, R), j(
       // #10007
       // such fragment like `<></>` will be compiled into
@@ -3271,18 +3271,18 @@ function p1(e, t) {
       P,
       De,
       N,
-      ne,
+      ie,
       ce,
       he,
       me
-    )) : Ce > 0 && Ce & 64 && Ne && // #2715 the previous fragment could've been a BAILed one as a result
+    )) : $e > 0 && $e & 64 && Oe && // #2715 the previous fragment could've been a BAILed one as a result
     // of renderSlot() with no valid children
-    A.dynamicChildren && A.dynamicChildren.length === Ne.length ? (ie(
+    A.dynamicChildren && A.dynamicChildren.length === Oe.length ? (ae(
       A.dynamicChildren,
-      Ne,
+      Oe,
       P,
       N,
-      ne,
+      ie,
       ce,
       he
     ), // #2080 if the stable fragment has a key, it's a <template v-for> that may
@@ -3294,18 +3294,18 @@ function p1(e, t) {
       O,
       !0
       /* shallow */
-    )) : X(
+    )) : J(
       A,
       O,
       P,
       De,
       N,
-      ne,
+      ie,
       ce,
       he,
       me
     );
-  }, B = (A, O, P, R, N, ne, ce, he, me) => {
+  }, B = (A, O, P, R, N, ie, ce, he, me) => {
     O.slotScopeIds = he, A == null ? O.shapeFlag & 512 ? N.ctx.activate(
       O,
       P,
@@ -3317,11 +3317,11 @@ function p1(e, t) {
       P,
       R,
       N,
-      ne,
+      ie,
       ce,
       me
     ) : z(A, O, me);
-  }, F = (A, O, P, R, N, ne, ce) => {
+  }, F = (A, O, P, R, N, ie, ce) => {
     const he = A.component = w1(
       A,
       R,
@@ -3329,7 +3329,7 @@ function p1(e, t) {
     );
     if (mu(A) && (he.ctx.renderer = ot), k1(he, !1, ce), he.asyncDep) {
       if (N && N.registerDep(he, re, ce), !A.el) {
-        const me = he.subTree = ve(Xt);
+        const me = he.subTree = ve(Qt);
         D(null, me, O, P), A.placeholder = me.el;
       }
     } else
@@ -3339,7 +3339,7 @@ function p1(e, t) {
         O,
         P,
         N,
-        ne,
+        ie,
         ce
       );
   }, z = (A, O, P) => {
@@ -3352,14 +3352,14 @@ function p1(e, t) {
         R.next = O, R.update();
     else
       O.el = A.el, R.vnode = O;
-  }, re = (A, O, P, R, N, ne, ce) => {
+  }, re = (A, O, P, R, N, ie, ce) => {
     const he = () => {
       if (A.isMounted) {
-        let { next: Ce, bu: Ne, u: Fe, parent: Ze, vnode: et } = A;
+        let { next: $e, bu: Oe, u: Fe, parent: Je, vnode: tt } = A;
         {
           const wt = Yv(A);
           if (wt) {
-            Ce && (Ce.el = et.el, te(A, Ce, ce)), wt.asyncDep.then(() => {
+            $e && ($e.el = tt.el, te(A, $e, ce)), wt.asyncDep.then(() => {
               _a(() => {
                 A.isUnmounted || pe();
               }, N);
@@ -3367,8 +3367,8 @@ function p1(e, t) {
             return;
           }
         }
-        let We = Ce, lt;
-        Jn(A, !1), Ce ? (Ce.el = et.el, te(A, Ce, ce)) : Ce = et, Ne && Qs(Ne), (lt = Ce.props && Ce.props.onVnodeBeforeUpdate) && mi(lt, Ze, Ce, et), Jn(A, !0);
+        let Ye = $e, lt;
+        Jn(A, !1), $e ? ($e.el = tt.el, te(A, $e, ce)) : $e = tt, Oe && Qs(Oe), (lt = $e.props && $e.props.onVnodeBeforeUpdate) && mi(lt, Je, $e, tt), Jn(A, !0);
         const ht = nh(A), St = A.subTree;
         A.subTree = ht, C(
           St,
@@ -3379,15 +3379,15 @@ function p1(e, t) {
           Pe(St),
           A,
           N,
-          ne
-        ), Ce.el = ht.el, We === null && l1(A, ht.el), Fe && _a(Fe, N), (lt = Ce.props && Ce.props.onVnodeUpdated) && _a(
-          () => mi(lt, Ze, Ce, et),
+          ie
+        ), $e.el = ht.el, Ye === null && l1(A, ht.el), Fe && _a(Fe, N), (lt = $e.props && $e.props.onVnodeUpdated) && _a(
+          () => mi(lt, Je, $e, tt),
           N
         );
       } else {
-        let Ce;
-        const { el: Ne, props: Fe } = O, { bm: Ze, m: et, parent: We, root: lt, type: ht } = A, St = Ir(O);
-        Jn(A, !1), Ze && Qs(Ze), !St && (Ce = Fe && Fe.onVnodeBeforeMount) && mi(Ce, We, O), Jn(A, !0);
+        let $e;
+        const { el: Oe, props: Fe } = O, { bm: Je, m: tt, parent: Ye, root: lt, type: ht } = A, St = Ir(O);
+        Jn(A, !1), Je && Qs(Je), !St && ($e = Fe && Fe.onVnodeBeforeMount) && mi($e, Ye, O), Jn(A, !0);
         {
           lt.ce && lt.ce._hasShadowRoot() && lt.ce._injectChildStyle(
             ht,
@@ -3401,17 +3401,17 @@ function p1(e, t) {
             R,
             A,
             N,
-            ne
+            ie
           ), O.el = wt.el;
         }
-        if (et && _a(et, N), !St && (Ce = Fe && Fe.onVnodeMounted)) {
+        if (tt && _a(tt, N), !St && ($e = Fe && Fe.onVnodeMounted)) {
           const wt = O;
           _a(
-            () => mi(Ce, We, wt),
+            () => mi($e, Ye, wt),
             N
           );
         }
-        (O.shapeFlag & 256 || We && Ir(We.vnode) && We.vnode.shapeFlag & 256) && A.a && _a(A.a, N), A.isMounted = !0, O = P = R = null;
+        (O.shapeFlag & 256 || Ye && Ir(Ye.vnode) && Ye.vnode.shapeFlag & 256) && A.a && _a(A.a, N), A.isMounted = !0, O = P = R = null;
       }
     };
     A.scope.on();
@@ -3423,30 +3423,30 @@ function p1(e, t) {
     O.component = A;
     const R = A.vnode.props;
     A.vnode = O, A.next = null, o1(A, O.props, R, P), f1(A, O.children, P), tn(), Wf(A), an();
-  }, X = (A, O, P, R, N, ne, ce, he, me = !1) => {
-    const pe = A && A.children, De = A ? A.shapeFlag : 0, Ce = O.children, { patchFlag: Ne, shapeFlag: Fe } = O;
-    if (Ne > 0) {
-      if (Ne & 128) {
+  }, J = (A, O, P, R, N, ie, ce, he, me = !1) => {
+    const pe = A && A.children, De = A ? A.shapeFlag : 0, $e = O.children, { patchFlag: Oe, shapeFlag: Fe } = O;
+    if (Oe > 0) {
+      if (Oe & 128) {
         de(
           pe,
-          Ce,
+          $e,
           P,
           R,
           N,
-          ne,
+          ie,
           ce,
           he,
           me
         );
         return;
-      } else if (Ne & 256) {
+      } else if (Oe & 256) {
         H(
           pe,
-          Ce,
+          $e,
           P,
           R,
           N,
-          ne,
+          ie,
           ce,
           he,
           me
@@ -3454,39 +3454,39 @@ function p1(e, t) {
         return;
       }
     }
-    Fe & 8 ? (De & 16 && ke(pe, N, ne), Ce !== pe && b(P, Ce)) : De & 16 ? Fe & 16 ? de(
+    Fe & 8 ? (De & 16 && ke(pe, N, ie), $e !== pe && b(P, $e)) : De & 16 ? Fe & 16 ? de(
       pe,
-      Ce,
+      $e,
       P,
       R,
       N,
-      ne,
+      ie,
       ce,
       he,
       me
-    ) : ke(pe, N, ne, !0) : (De & 8 && b(P, ""), Fe & 16 && j(
-      Ce,
+    ) : ke(pe, N, ie, !0) : (De & 8 && b(P, ""), Fe & 16 && j(
+      $e,
       P,
       R,
       N,
-      ne,
+      ie,
       ce,
       he,
       me
     ));
-  }, H = (A, O, P, R, N, ne, ce, he, me) => {
+  }, H = (A, O, P, R, N, ie, ce, he, me) => {
     A = A || Or, O = O || Or;
-    const pe = A.length, De = O.length, Ce = Math.min(pe, De);
-    let Ne;
-    for (Ne = 0; Ne < Ce; Ne++) {
-      const Fe = O[Ne] = me ? qi(O[Ne]) : Ci(O[Ne]);
+    const pe = A.length, De = O.length, $e = Math.min(pe, De);
+    let Oe;
+    for (Oe = 0; Oe < $e; Oe++) {
+      const Fe = O[Oe] = me ? qi(O[Oe]) : Ci(O[Oe]);
       C(
-        A[Ne],
+        A[Oe],
         Fe,
         P,
         null,
         N,
-        ne,
+        ie,
         ce,
         he,
         me
@@ -3495,35 +3495,35 @@ function p1(e, t) {
     pe > De ? ke(
       A,
       N,
-      ne,
+      ie,
       !0,
       !1,
-      Ce
+      $e
     ) : j(
       O,
       P,
       R,
       N,
-      ne,
+      ie,
       ce,
       he,
       me,
-      Ce
+      $e
     );
-  }, de = (A, O, P, R, N, ne, ce, he, me) => {
+  }, de = (A, O, P, R, N, ie, ce, he, me) => {
     let pe = 0;
     const De = O.length;
-    let Ce = A.length - 1, Ne = De - 1;
-    for (; pe <= Ce && pe <= Ne; ) {
-      const Fe = A[pe], Ze = O[pe] = me ? qi(O[pe]) : Ci(O[pe]);
-      if (rr(Fe, Ze))
+    let $e = A.length - 1, Oe = De - 1;
+    for (; pe <= $e && pe <= Oe; ) {
+      const Fe = A[pe], Je = O[pe] = me ? qi(O[pe]) : Ci(O[pe]);
+      if (rr(Fe, Je))
         C(
           Fe,
-          Ze,
+          Je,
           P,
           null,
           N,
-          ne,
+          ie,
           ce,
           he,
           me
@@ -3532,104 +3532,104 @@ function p1(e, t) {
         break;
       pe++;
     }
-    for (; pe <= Ce && pe <= Ne; ) {
-      const Fe = A[Ce], Ze = O[Ne] = me ? qi(O[Ne]) : Ci(O[Ne]);
-      if (rr(Fe, Ze))
+    for (; pe <= $e && pe <= Oe; ) {
+      const Fe = A[$e], Je = O[Oe] = me ? qi(O[Oe]) : Ci(O[Oe]);
+      if (rr(Fe, Je))
         C(
           Fe,
-          Ze,
+          Je,
           P,
           null,
           N,
-          ne,
+          ie,
           ce,
           he,
           me
         );
       else
         break;
-      Ce--, Ne--;
+      $e--, Oe--;
     }
-    if (pe > Ce) {
-      if (pe <= Ne) {
-        const Fe = Ne + 1, Ze = Fe < De ? O[Fe].el : R;
-        for (; pe <= Ne; )
+    if (pe > $e) {
+      if (pe <= Oe) {
+        const Fe = Oe + 1, Je = Fe < De ? O[Fe].el : R;
+        for (; pe <= Oe; )
           C(
             null,
             O[pe] = me ? qi(O[pe]) : Ci(O[pe]),
             P,
-            Ze,
+            Je,
             N,
-            ne,
+            ie,
             ce,
             he,
             me
           ), pe++;
       }
-    } else if (pe > Ne)
-      for (; pe <= Ce; )
-        Ie(A[pe], N, ne, !0), pe++;
+    } else if (pe > Oe)
+      for (; pe <= $e; )
+        Ie(A[pe], N, ie, !0), pe++;
     else {
-      const Fe = pe, Ze = pe, et = /* @__PURE__ */ new Map();
-      for (pe = Ze; pe <= Ne; pe++) {
+      const Fe = pe, Je = pe, tt = /* @__PURE__ */ new Map();
+      for (pe = Je; pe <= Oe; pe++) {
         const Tt = O[pe] = me ? qi(O[pe]) : Ci(O[pe]);
-        Tt.key != null && et.set(Tt.key, pe);
+        Tt.key != null && tt.set(Tt.key, pe);
       }
-      let We, lt = 0;
-      const ht = Ne - Ze + 1;
+      let Ye, lt = 0;
+      const ht = Oe - Je + 1;
       let St = !1, wt = 0;
-      const qt = new Array(ht);
-      for (pe = 0; pe < ht; pe++) qt[pe] = 0;
-      for (pe = Fe; pe <= Ce; pe++) {
+      const Gt = new Array(ht);
+      for (pe = 0; pe < ht; pe++) Gt[pe] = 0;
+      for (pe = Fe; pe <= $e; pe++) {
         const Tt = A[pe];
         if (lt >= ht) {
-          Ie(Tt, N, ne, !0);
+          Ie(Tt, N, ie, !0);
           continue;
         }
         let Rt;
         if (Tt.key != null)
-          Rt = et.get(Tt.key);
+          Rt = tt.get(Tt.key);
         else
-          for (We = Ze; We <= Ne; We++)
-            if (qt[We - Ze] === 0 && rr(Tt, O[We])) {
-              Rt = We;
+          for (Ye = Je; Ye <= Oe; Ye++)
+            if (Gt[Ye - Je] === 0 && rr(Tt, O[Ye])) {
+              Rt = Ye;
               break;
             }
-        Rt === void 0 ? Ie(Tt, N, ne, !0) : (qt[Rt - Ze] = pe + 1, Rt >= wt ? wt = Rt : St = !0, C(
+        Rt === void 0 ? Ie(Tt, N, ie, !0) : (Gt[Rt - Je] = pe + 1, Rt >= wt ? wt = Rt : St = !0, C(
           Tt,
           O[Rt],
           P,
           null,
           N,
-          ne,
+          ie,
           ce,
           he,
           me
         ), lt++);
       }
-      const ha = St ? b1(qt) : Or;
-      for (We = ha.length - 1, pe = ht - 1; pe >= 0; pe--) {
-        const Tt = Ze + pe, Rt = O[Tt], ka = O[Tt + 1], Ut = Tt + 1 < De ? (
+      const ha = St ? b1(Gt) : Or;
+      for (Ye = ha.length - 1, pe = ht - 1; pe >= 0; pe--) {
+        const Tt = Je + pe, Rt = O[Tt], ka = O[Tt + 1], Ut = Tt + 1 < De ? (
           // #13559, #14173 fallback to el placeholder for unresolved async component
           ka.el || Zv(ka)
         ) : R;
-        qt[pe] === 0 ? C(
+        Gt[pe] === 0 ? C(
           null,
           Rt,
           P,
           Ut,
           N,
-          ne,
+          ie,
           ce,
           he,
           me
-        ) : St && (We < 0 || pe !== ha[We] ? Ae(Rt, P, Ut, 2) : We--);
+        ) : St && (Ye < 0 || pe !== ha[Ye] ? Ee(Rt, P, Ut, 2) : Ye--);
       }
     }
-  }, Ae = (A, O, P, R, N = null) => {
-    const { el: ne, type: ce, transition: he, children: me, shapeFlag: pe } = A;
+  }, Ee = (A, O, P, R, N = null) => {
+    const { el: ie, type: ce, transition: he, children: me, shapeFlag: pe } = A;
     if (pe & 6) {
-      Ae(A.component.subTree, O, P, R);
+      Ee(A.component.subTree, O, P, R);
       return;
     }
     if (pe & 128) {
@@ -3641,9 +3641,9 @@ function p1(e, t) {
       return;
     }
     if (ce === K) {
-      i(ne, O, P);
-      for (let Ce = 0; Ce < me.length; Ce++)
-        Ae(me[Ce], O, P, R);
+      i(ie, O, P);
+      for (let $e = 0; $e < me.length; $e++)
+        Ee(me[$e], O, P, R);
       i(A.anchor, O, P);
       return;
     }
@@ -3653,50 +3653,50 @@ function p1(e, t) {
     }
     if (R !== 2 && pe & 1 && he)
       if (R === 0)
-        he.persisted && !ne[Ya] ? i(ne, O, P) : (he.beforeEnter(ne), i(ne, O, P), _a(() => he.enter(ne), N));
+        he.persisted && !ie[Ya] ? i(ie, O, P) : (he.beforeEnter(ie), i(ie, O, P), _a(() => he.enter(ie), N));
       else {
-        const { leave: Ce, delayLeave: Ne, afterLeave: Fe } = he, Ze = () => {
-          A.ctx.isUnmounted ? n(ne) : i(ne, O, P);
-        }, et = () => {
-          const We = ne._isLeaving || !!ne[Ya];
-          ne._isLeaving && ne[Ya](
+        const { leave: $e, delayLeave: Oe, afterLeave: Fe } = he, Je = () => {
+          A.ctx.isUnmounted ? n(ie) : i(ie, O, P);
+        }, tt = () => {
+          const Ye = ie._isLeaving || !!ie[Ya];
+          ie._isLeaving && ie[Ya](
             !0
             /* cancelled */
-          ), he.persisted && !We ? Ze() : Ce(ne, () => {
-            Ze(), Fe && Fe();
+          ), he.persisted && !Ye ? Je() : $e(ie, () => {
+            Je(), Fe && Fe();
           });
         };
-        Ne ? Ne(ne, Ze, et) : et();
+        Oe ? Oe(ie, Je, tt) : tt();
       }
     else
-      i(ne, O, P);
+      i(ie, O, P);
   }, Ie = (A, O, P, R = !1, N = !1) => {
     const {
-      type: ne,
+      type: ie,
       props: ce,
       ref: he,
       children: me,
       dynamicChildren: pe,
       shapeFlag: De,
-      patchFlag: Ce,
-      dirs: Ne,
+      patchFlag: $e,
+      dirs: Oe,
       cacheIndex: Fe,
-      memo: Ze
+      memo: Je
     } = A;
-    if (Ce === -2 && (N = !1), he != null && (tn(), Ll(he, null, P, A, !0), an()), Fe != null && (O.renderCache[Fe] = void 0), De & 256) {
+    if ($e === -2 && (N = !1), he != null && (tn(), Ll(he, null, P, A, !0), an()), Fe != null && (O.renderCache[Fe] = void 0), De & 256) {
       O.ctx.deactivate(A);
       return;
     }
-    const et = De & 1 && Ne, We = !Ir(A);
+    const tt = De & 1 && Oe, Ye = !Ir(A);
     let lt;
-    if (We && (lt = ce && ce.onVnodeBeforeUnmount) && mi(lt, O, A), De & 6)
-      Qe(A.component, P, R);
+    if (Ye && (lt = ce && ce.onVnodeBeforeUnmount) && mi(lt, O, A), De & 6)
+      et(A.component, P, R);
     else {
       if (De & 128) {
         A.suspense.unmount(P, R);
         return;
       }
-      et && Zn(A, null, O, "beforeUnmount"), De & 64 ? A.type.remove(
+      tt && Zn(A, null, O, "beforeUnmount"), De & 64 ? A.type.remove(
         A,
         O,
         P,
@@ -3708,17 +3708,17 @@ function p1(e, t) {
       // so that it doesn't take the fast path during unmount - otherwise
       // components nested in v-once are never unmounted.
       !pe.hasOnce && // #1153: fast path should not be taken for non-stable (v-for) fragments
-      (ne !== K || Ce > 0 && Ce & 64) ? ke(
+      (ie !== K || $e > 0 && $e & 64) ? ke(
         pe,
         O,
         P,
         !1,
         !0
-      ) : (ne === K && Ce & 384 || !N && De & 16) && ke(me, O, P), R && Le(A);
+      ) : (ie === K && $e & 384 || !N && De & 16) && ke(me, O, P), R && Le(A);
     }
-    const ht = Ze != null && Fe == null;
-    (We && (lt = ce && ce.onVnodeUnmounted) || et || ht) && _a(() => {
-      lt && mi(lt, O, A), et && Zn(A, null, O, "unmounted"), ht && (A.el = null);
+    const ht = Je != null && Fe == null;
+    (Ye && (lt = ce && ce.onVnodeUnmounted) || tt || ht) && _a(() => {
+      lt && mi(lt, O, A), tt && Zn(A, null, O, "unmounted"), ht && (A.el = null);
     }, P);
   }, Le = (A) => {
     const { type: O, el: P, anchor: R, transition: N } = A;
@@ -3730,26 +3730,26 @@ function p1(e, t) {
       M(A);
       return;
     }
-    const ne = () => {
+    const ie = () => {
       n(P), N && !N.persisted && N.afterLeave && N.afterLeave();
     };
     if (A.shapeFlag & 1 && N && !N.persisted) {
-      const { leave: ce, delayLeave: he } = N, me = () => ce(P, ne);
-      he ? he(A.el, ne, me) : me();
+      const { leave: ce, delayLeave: he } = N, me = () => ce(P, ie);
+      he ? he(A.el, ie, me) : me();
     } else
-      ne();
+      ie();
   }, He = (A, O) => {
     let P;
     for (; A !== O; )
       P = _(A), n(A), A = P;
     n(O);
-  }, Qe = (A, O, P) => {
-    const { bum: R, scope: N, job: ne, subTree: ce, um: he, m: me, a: pe } = A;
-    sh(me), sh(pe), R && Qs(R), N.stop(), ne && (ne.flags |= 8, Ie(ce, A, O, P)), he && _a(he, O), _a(() => {
+  }, et = (A, O, P) => {
+    const { bum: R, scope: N, job: ie, subTree: ce, um: he, m: me, a: pe } = A;
+    sh(me), sh(pe), R && Qs(R), N.stop(), ie && (ie.flags |= 8, Ie(ce, A, O, P)), he && _a(he, O), _a(() => {
       A.isUnmounted = !0;
     }, O);
-  }, ke = (A, O, P, R = !1, N = !1, ne = 0) => {
-    for (let ce = ne; ce < A.length; ce++)
+  }, ke = (A, O, P, R = !1, N = !1, ie = 0) => {
+    for (let ce = ie; ce < A.length; ce++)
       Ie(A[ce], O, P, R, N);
   }, Pe = (A) => {
     if (A.shapeFlag & 6)
@@ -3774,12 +3774,12 @@ function p1(e, t) {
   }, ot = {
     p: C,
     um: Ie,
-    m: Ae,
+    m: Ee,
     r: Le,
     mt: F,
     mc: j,
-    pc: X,
-    pbc: ie,
+    pc: J,
+    pbc: ae,
     n: Pe,
     o: e
   };
@@ -3804,7 +3804,7 @@ function Pd(e, t, a = !1) {
     for (let s = 0; s < i.length; s++) {
       const u = i[s];
       let d = n[s];
-      d.shapeFlag & 1 && !d.dynamicChildren && ((d.patchFlag <= 0 || d.patchFlag === 32) && (d = n[s] = qi(n[s]), d.el = u.el), !a && d.patchFlag !== -2 && Pd(u, d)), d.type === vs && (d.patchFlag === -1 && (d = n[s] = qi(d)), d.el = u.el), d.type === Xt && !d.el && (d.el = u.el);
+      d.shapeFlag & 1 && !d.dynamicChildren && ((d.patchFlag <= 0 || d.patchFlag === 32) && (d = n[s] = qi(n[s]), d.el = u.el), !a && d.patchFlag !== -2 && Pd(u, d)), d.type === vs && (d.patchFlag === -1 && (d = n[s] = qi(d)), d.el = u.el), d.type === Qt && !d.el && (d.el = u.el);
     }
 }
 function b1(e) {
@@ -3847,7 +3847,7 @@ const Jv = (e) => e.__isSuspense;
 function g1(e, t) {
   t && t.pendingBranch ? Be(e) ? t.effects.push(...e) : t.effects.push(e) : bv(e);
 }
-const K = /* @__PURE__ */ Symbol.for("v-fgt"), vs = /* @__PURE__ */ Symbol.for("v-txt"), Xt = /* @__PURE__ */ Symbol.for("v-cmt"), eo = /* @__PURE__ */ Symbol.for("v-stc"), Ji = [];
+const K = /* @__PURE__ */ Symbol.for("v-fgt"), vs = /* @__PURE__ */ Symbol.for("v-txt"), Qt = /* @__PURE__ */ Symbol.for("v-cmt"), eo = /* @__PURE__ */ Symbol.for("v-stc"), Ji = [];
 let Pa = null;
 function c(e = !1) {
   Ji.push(Pa = e ? null : []);
@@ -3897,7 +3897,7 @@ const Qv = ({ key: e }) => e ?? null, to = ({
   ref: e,
   ref_key: t,
   ref_for: a
-}) => (typeof e == "number" && (e = "" + e), e != null ? $t(e) || /* @__PURE__ */ da(e) || Ke(e) ? { i: Qt, r: e, k: t, f: !!a } : e : null);
+}) => (typeof e == "number" && (e = "" + e), e != null ? $t(e) || /* @__PURE__ */ da(e) || We(e) ? { i: ea, r: e, k: t, f: !!a } : e : null);
 function r(e, t = null, a = null, i = 0, n = null, s = e === K ? 0 : 1, u = !1, d = !1) {
   const v = {
     __v_isVNode: !0,
@@ -3926,7 +3926,7 @@ function r(e, t = null, a = null, i = 0, n = null, s = e === K ? 0 : 1, u = !1, 
     dynamicProps: n,
     dynamicChildren: null,
     appContext: null,
-    ctx: Qt
+    ctx: ea
   };
   return d ? (po(v, a), s & 128 && e.normalize(v)) : a && (v.shapeFlag |= $t(a) ? 8 : 16), Xl > 0 && // avoid a block node from tracking itself
   !u && // has current parent block
@@ -3940,7 +3940,7 @@ function r(e, t = null, a = null, i = 0, n = null, s = e === K ? 0 : 1, u = !1, 
 }
 const ve = y1;
 function y1(e, t = null, a = null, i = 0, n = null, s = !1) {
-  if ((!e || e === Ov) && (e = Xt), Ql(e)) {
+  if ((!e || e === Ov) && (e = Qt), Ql(e)) {
     const d = xn(
       e,
       t,
@@ -3952,9 +3952,9 @@ function y1(e, t = null, a = null, i = 0, n = null, s = !1) {
   if (T1(e) && (e = e.__vccOpts), t) {
     t = es(t);
     let { class: d, style: v } = t;
-    d && !$t(d) && (t.class = xe(d)), yt(v) && (/* @__PURE__ */ Ad(v) && !Be(v) && (v = Mt({}, v)), t.style = Ea(v));
+    d && !$t(d) && (t.class = Ne(d)), yt(v) && (/* @__PURE__ */ Ad(v) && !Be(v) && (v = Mt({}, v)), t.style = Ea(v));
   }
-  const u = $t(e) ? 1 : Jv(e) ? 128 : yu(e) ? 64 : yt(e) ? 4 : Ke(e) ? 2 : 0;
+  const u = $t(e) ? 1 : Jv(e) ? 128 : yu(e) ? 64 : yt(e) ? 4 : We(e) ? 2 : 0;
   return r(
     e,
     t,
@@ -4019,14 +4019,14 @@ function xn(e, t, a = !1, i = !1) {
     v.clone(b)
   ), b;
 }
-function Q(e = " ", t = 0) {
+function X(e = " ", t = 0) {
   return ve(vs, null, e, t);
 }
 function S(e = "", t = !1) {
-  return t ? (c(), ze(Xt, null, e)) : ve(Xt, null, e);
+  return t ? (c(), ze(Qt, null, e)) : ve(Qt, null, e);
 }
 function Ci(e) {
-  return e == null || typeof e == "boolean" ? ve(Xt) : Be(e) ? ve(
+  return e == null || typeof e == "boolean" ? ve(Qt) : Be(e) ? ve(
     K,
     null,
     // #3666, avoid reference pollution when reusing vnode
@@ -4051,16 +4051,16 @@ function po(e, t) {
     } else {
       a = 32;
       const n = t._;
-      !n && !Vv(t) ? t._ctx = Qt : n === 3 && Qt && (Qt.slots._ === 1 ? t._ = 1 : (t._ = 2, e.patchFlag |= 1024));
+      !n && !Vv(t) ? t._ctx = ea : n === 3 && ea && (ea.slots._ === 1 ? t._ = 1 : (t._ = 2, e.patchFlag |= 1024));
     }
-  else if (Ke(t)) {
+  else if (We(t)) {
     if (i & 65) {
       po(e, { default: t });
       return;
     }
-    t = { default: t, _ctx: Qt }, a = 32;
+    t = { default: t, _ctx: ea }, a = 32;
   } else
-    t = String(t), i & 64 ? (a = 16, t = [Q(t)]) : a = 8;
+    t = String(t), i & 64 ? (a = 16, t = [X(t)]) : a = 8;
   e.children = t, e.shapeFlag |= a;
 }
 function fa(...e) {
@@ -4069,7 +4069,7 @@ function fa(...e) {
     const i = e[a];
     for (const n in i)
       if (n === "class")
-        t.class !== i.class && (t.class = xe([t.class, i.class]));
+        t.class !== i.class && (t.class = Ne([t.class, i.class]));
       else if (n === "style")
         t.style = Ea([t.style, i.style]);
       else if (su(n)) {
@@ -4169,7 +4169,7 @@ function w1(e, t, a) {
   return s.ctx = { _: s }, s.root = t ? t.root : s, s.emit = t1.bind(null, s), e.ce && e.ce(s), s;
 }
 let ua = null;
-const On = () => ua || Qt;
+const On = () => ua || ea;
 let vo, ts;
 {
   const e = fu(), t = (a, i) => {
@@ -4239,7 +4239,7 @@ function S1(e, t) {
     tb(e);
 }
 function uh(e, t, a) {
-  Ke(t) ? e.type.__ssrInlineRender ? e.ssrRender = t : e.render = t : yt(t) && (e.setupState = hv(t)), tb(e);
+  We(t) ? e.type.__ssrInlineRender ? e.ssrRender = t : e.render = t : yt(t) && (e.setupState = hv(t)), tb(e);
 }
 function tb(e, t, a) {
   const i = e.type;
@@ -4284,10 +4284,10 @@ function ku(e) {
   })) : e.proxy;
 }
 function $1(e, t = !0) {
-  return Ke(e) ? e.displayName || e.name : e.name || t && e.__name;
+  return We(e) ? e.displayName || e.name : e.name || t && e.__name;
 }
 function T1(e) {
-  return Ke(e) && "__vccOpts" in e;
+  return We(e) && "__vccOpts" in e;
 }
 const G = (e, t) => /* @__PURE__ */ vm(e, t, as);
 function Ta(e, t, a) {
@@ -4415,12 +4415,12 @@ function P1(e) {
     onEnterCancelled: L,
     onLeave: M,
     onLeaveCancelled: ee,
-    onBeforeAppear: J = D,
+    onBeforeAppear: Z = D,
     onAppear: T = I,
     onAppearCancelled: j = L
   } = t, W = (V, B, F, z) => {
     V._enterCancelled = z, Qn(V, B ? b : d), Qn(V, B ? g : u), F && F();
-  }, ie = (V, B) => {
+  }, ae = (V, B) => {
     V._isLeaving = !1, Qn(V, m), Qn(V, k), Qn(V, _), B && B();
   }, se = (V) => (B, F) => {
     const z = V ? T : I, re = () => W(B, V, F);
@@ -4433,13 +4433,13 @@ function P1(e) {
       Xn(D, [V]), Mi(V, s), Mi(V, u);
     },
     onBeforeAppear(V) {
-      Xn(J, [V]), Mi(V, v), Mi(V, g);
+      Xn(Z, [V]), Mi(V, v), Mi(V, g);
     },
     onEnter: se(!1),
     onAppear: se(!0),
     onLeave(V, B) {
       V._isLeaving = !0;
-      const F = () => ie(V, B);
+      const F = () => ae(V, B);
       Mi(V, m), V._enterCancelled ? (Mi(V, _), gh(V)) : (gh(V), Mi(V, _)), hh(() => {
         V._isLeaving && (Qn(V, m), Mi(V, k), fh(M) || ph(V, i, x, F));
       }), Xn(M, [V, F]);
@@ -4451,7 +4451,7 @@ function P1(e) {
       W(V, !0, void 0, !0), Xn(j, [V]);
     },
     onLeaveCancelled(V) {
-      ie(V), Xn(ee, [V]);
+      ae(V), Xn(ee, [V]);
     }
   });
 }
@@ -4568,7 +4568,7 @@ function j1(e) {
   Nv(() => {
     bv(i);
   }), xt(() => {
-    qe(i, Ja, { flush: "post" });
+    Ge(i, Ja, { flush: "post" });
     const n = new MutationObserver(i);
     n.observe(t.subTree.el.parentNode, { childList: !0 }), jr(() => n.disconnect());
   });
@@ -4775,7 +4775,7 @@ e.charCodeAt(2) > 96 && e.charCodeAt(2) < 123, Q1 = (e, t, a, i, n, s) => {
 };
 function e_(e, t, a, i) {
   if (i)
-    return !!(t === "innerHTML" || t === "textContent" || t in e && Sh(t) && Ke(a));
+    return !!(t === "innerHTML" || t === "textContent" || t in e && Sh(t) && We(a));
   if (t === "spellcheck" || t === "draggable" || t === "translate" || t === "autocorrect" || t === "sandbox" && e.tagName === "IFRAME" || t === "form" || t === "list" && e.tagName === "INPUT" || t === "type" && e.tagName === "TEXTAREA")
     return !1;
   if (t === "width" || t === "height") {
@@ -4810,7 +4810,7 @@ const $i = /* @__PURE__ */ Symbol("_assign"), Hs = /* @__PURE__ */ Symbol("_init
 function sc(e, t, a) {
   return t && (e = e.trim()), a && (e = du(e)), e;
 }
-const Oe = {
+const Re = {
   created(e, { modifiers: { lazy: t, trim: a, number: i } }, n) {
     e.parentNode && (e.type === "text" ? e[Hs] = e.defaultValue.replace(/[\r\n]/g, "") : e.type === "textarea" && (e[Hs] = e.defaultValue.replace(/\r\n?/g, `
 `))), e[$i] = Ur(n);
@@ -4955,7 +4955,7 @@ const n_ = ["ctrl", "shift", "alt", "meta"], r_ = {
   middle: (e) => "button" in e && e.button !== 1,
   right: (e) => "button" in e && e.button !== 2,
   exact: (e, t) => n_.some((a) => e[`${a}Key`] && !t.includes(a))
-}, $e = (e, t) => {
+}, Te = (e, t) => {
   if (!e) return e;
   const a = e._withMods || (e._withMods = {}), i = t.join(".");
   return a[i] || (a[i] = ((n, ...s) => {
@@ -4995,7 +4995,7 @@ const u_ = ((...e) => {
     const n = d_(i);
     if (!n) return;
     const s = t._component;
-    !Ke(s) && !s.render && !s.template && (s.template = n.innerHTML), n.nodeType === 1 && (n.textContent = "");
+    !We(s) && !s.render && !s.template && (s.template = n.innerHTML), n.nodeType === 1 && (n.textContent = "");
     const u = a(n, !1, c_(n));
     return n instanceof Element && (n.removeAttribute("v-cloak"), n.setAttribute("data-v-app", "")), u;
   }, t;
@@ -5103,11 +5103,11 @@ function g_(e, t) {
   }
 }
 const ob = Object.entries, Nh = Object.setPrototypeOf, y_ = Object.isFrozen, ub = Object.getPrototypeOf, cb = Object.getOwnPropertyDescriptor;
-let Vt = Object.freeze, ea = Object.seal, xr = Object.create, db = typeof Reflect < "u" && Reflect, Zc = db.apply, Jc = db.construct;
-Vt || (Vt = function(t) {
+let Ht = Object.freeze, ta = Object.seal, xr = Object.create, db = typeof Reflect < "u" && Reflect, Zc = db.apply, Jc = db.construct;
+Ht || (Ht = function(t) {
   return t;
 });
-ea || (ea = function(t) {
+ta || (ta = function(t) {
   return t;
 });
 Zc || (Zc = function(t, a) {
@@ -5118,7 +5118,7 @@ Jc || (Jc = function(t) {
   for (var a = arguments.length, i = new Array(a > 1 ? a - 1 : 0), n = 1; n < a; n++) i[n - 1] = arguments[n];
   return new t(...i);
 });
-const Ui = Nt(Array.prototype.forEach), m_ = Nt(Array.prototype.lastIndexOf), Oh = Nt(Array.prototype.pop), yl = Nt(Array.prototype.push), __ = Nt(Array.prototype.slice), w_ = Nt(Array.prototype.splice), Pr = Array.isArray, oc = fb(Set), uc = Nt(Set.prototype.add), ml = Nt(Set.prototype.has), ir = Nt(String.prototype.toLowerCase), cc = Nt(String.prototype.toString), Rh = Nt(String.prototype.match), _l = Nt(String.prototype.replace), Ih = Nt(String.prototype.indexOf), k_ = Nt(String.prototype.trim), S_ = Nt(Number.prototype.toString), C_ = Nt(Boolean.prototype.toString), Lh = typeof BigInt > "u" ? null : Nt(BigInt.prototype.toString), Ph = typeof Symbol > "u" ? null : Nt(Symbol.prototype.toString), Aa = Nt(Object.prototype.hasOwnProperty), wl = Nt(Object.prototype.toString), Yt = Nt(RegExp.prototype.test), ji = fb(TypeError);
+const Ui = Nt(Array.prototype.forEach), m_ = Nt(Array.prototype.lastIndexOf), Oh = Nt(Array.prototype.pop), yl = Nt(Array.prototype.push), __ = Nt(Array.prototype.slice), w_ = Nt(Array.prototype.splice), Pr = Array.isArray, oc = fb(Set), uc = Nt(Set.prototype.add), ml = Nt(Set.prototype.has), ir = Nt(String.prototype.toLowerCase), cc = Nt(String.prototype.toString), Rh = Nt(String.prototype.match), _l = Nt(String.prototype.replace), Ih = Nt(String.prototype.indexOf), k_ = Nt(String.prototype.trim), S_ = Nt(Number.prototype.toString), C_ = Nt(Boolean.prototype.toString), Lh = typeof BigInt > "u" ? null : Nt(BigInt.prototype.toString), Ph = typeof Symbol > "u" ? null : Nt(Symbol.prototype.toString), Aa = Nt(Object.prototype.hasOwnProperty), wl = Nt(Object.prototype.toString), Zt = Nt(RegExp.prototype.test), ji = fb(TypeError);
 function Nt(e) {
   return function(t) {
     t instanceof RegExp && (t.lastIndex = 0);
@@ -5211,12 +5211,12 @@ function A_(e, t) {
 }
 function E_(e) {
   try {
-    return Yt(e, ""), !0;
+    return Zt(e, ""), !0;
   } catch {
     return !1;
   }
 }
-const Dh = Vt([
+const Dh = Ht([
   "a",
   "abbr",
   "acronym",
@@ -5336,7 +5336,7 @@ const Dh = Vt([
   "var",
   "video",
   "wbr"
-]), dc = Vt([
+]), dc = Ht([
   "svg",
   "a",
   "altglyph",
@@ -5384,7 +5384,7 @@ const Dh = Vt([
   "tspan",
   "view",
   "vkern"
-]), fc = Vt([
+]), fc = Ht([
   "feBlend",
   "feColorMatrix",
   "feComponentTransfer",
@@ -5410,7 +5410,7 @@ const Dh = Vt([
   "feSpotLight",
   "feTile",
   "feTurbulence"
-]), x_ = Vt([
+]), x_ = Ht([
   "animate",
   "color-profile",
   "cursor",
@@ -5433,7 +5433,7 @@ const Dh = Vt([
   "solidcolor",
   "unknown",
   "use"
-]), hc = Vt([
+]), hc = Ht([
   "math",
   "menclose",
   "merror",
@@ -5464,7 +5464,7 @@ const Dh = Vt([
   "munder",
   "munderover",
   "mprescripts"
-]), N_ = Vt([
+]), N_ = Ht([
   "maction",
   "maligngroup",
   "malignmark",
@@ -5480,7 +5480,7 @@ const Dh = Vt([
   "annotation-xml",
   "mprescripts",
   "none"
-]), Fh = Vt(["#text"]), Mh = Vt([
+]), Fh = Ht(["#text"]), Mh = Ht([
   "accept",
   "action",
   "align",
@@ -5599,7 +5599,7 @@ const Dh = Vt([
   "width",
   "wrap",
   "xmlns"
-]), pc = Vt([
+]), pc = Ht([
   "accent-height",
   "accumulate",
   "additive",
@@ -5792,7 +5792,7 @@ const Dh = Vt([
   "y2",
   "z",
   "zoomandpan"
-]), Uh = Vt([
+]), Uh = Ht([
   "accent",
   "accentunder",
   "align",
@@ -5847,13 +5847,13 @@ const Dh = Vt([
   "voffset",
   "width",
   "xmlns"
-]), qs = Vt([
+]), qs = Ht([
   "xlink:href",
   "xml:id",
   "xlink:title",
   "xml:space",
   "xmlns:xlink"
-]), O_ = ea(/{{[\w\W]*|^[\w\W]*}}/g), R_ = ea(/<%[\w\W]*|^[\w\W]*%>/g), I_ = ea(/\${[\w\W]*/g), L_ = ea(/^data-[\-\w.\u00B7-\uFFFF]+$/), P_ = ea(/^aria-[\-\w]+$/), jh = ea(/^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i), D_ = ea(/^(?:\w+script|data):/i), F_ = ea(/[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g), M_ = ea(/^html$/i), U_ = ea(/^[a-z][.\w]*(-[.\w]+)+$/i), vc = ea(/<[/\w!]/g), zh = ea(/<[/\w]/g), j_ = ea(/<\/no(script|embed|frames)/i), Bh = ea(/\/>/i), Pt = {
+]), O_ = ta(/{{[\w\W]*|^[\w\W]*}}/g), R_ = ta(/<%[\w\W]*|^[\w\W]*%>/g), I_ = ta(/\${[\w\W]*/g), L_ = ta(/^data-[\-\w.\u00B7-\uFFFF]+$/), P_ = ta(/^aria-[\-\w]+$/), jh = ta(/^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i), D_ = ta(/^(?:\w+script|data):/i), F_ = ta(/[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g), M_ = ta(/^html$/i), U_ = ta(/^[a-z][.\w]*(-[.\w]+)+$/i), vc = ta(/<[/\w!]/g), zh = ta(/<[/\w]/g), j_ = ta(/<\/no(script|embed|frames)/i), Bh = ta(/\/>/i), Pt = {
   element: 1,
   attribute: 2,
   text: 3,
@@ -5866,7 +5866,7 @@ const Dh = Vt([
   documentType: 10,
   documentFragment: 11,
   notation: 12
-}, z_ = Vt(dt({}, [
+}, z_ = Ht(dt({}, [
   "style",
   "script",
   "xmp",
@@ -5923,11 +5923,11 @@ function hb() {
   e.DocumentFragment;
   const s = e.HTMLTemplateElement, u = e.Node, d = e.Element, v = e.NodeFilter;
   e.NamedNodeMap === void 0 && (e.NamedNodeMap || e.MozNamedAttrMap), e.HTMLFormElement;
-  const g = e.DOMParser, b = e.trustedTypes, m = d.prototype, _ = Ga(m, "cloneNode"), k = Ga(m, "remove"), $ = Ga(m, "removeAttributeNode"), C = Ga(m, "nextSibling"), x = Ga(m, "childNodes"), D = Ga(m, "parentNode"), I = Ga(m, "shadowRoot"), L = Ga(m, "attributes"), M = u && u.prototype ? Ga(u.prototype, "nodeType") : null, ee = u && u.prototype ? Ga(u.prototype, "nodeName") : null, J = u && u.prototype ? Ga(u.prototype, "ownerDocument") : null, T = function(E) {
+  const g = e.DOMParser, b = e.trustedTypes, m = d.prototype, _ = Ga(m, "cloneNode"), k = Ga(m, "remove"), $ = Ga(m, "removeAttributeNode"), C = Ga(m, "nextSibling"), x = Ga(m, "childNodes"), D = Ga(m, "parentNode"), I = Ga(m, "shadowRoot"), L = Ga(m, "attributes"), M = u && u.prototype ? Ga(u.prototype, "nodeType") : null, ee = u && u.prototype ? Ga(u.prototype, "nodeName") : null, Z = u && u.prototype ? Ga(u.prototype, "ownerDocument") : null, T = function(E) {
     return M ? M(E) : E.nodeType;
   }, j = function(E) {
     return ee ? ee(E) : E.nodeName;
-  }, W = A_(m, "namespaceURI"), ie = function(E) {
+  }, W = A_(m, "namespaceURI"), ae = function(E) {
     return W ? W(E) : E.namespaceURI;
   };
   if (typeof s == "function") {
@@ -5944,7 +5944,7 @@ function hb() {
     } finally {
       z--;
     }
-  }, X = function(E) {
+  }, J = function(E) {
     re(), z++;
     try {
       return se.createScriptURL(E);
@@ -5953,12 +5953,12 @@ function hb() {
     }
   }, H = function() {
     return F || (B = V_(b, n), F = !0), B;
-  }, de = a, Ae = de.implementation, Ie = de.createNodeIterator, Le = de.createDocumentFragment, He = de.getElementsByTagName, Qe = i.importNode;
+  }, de = a, Ee = de.implementation, Ie = de.createNodeIterator, Le = de.createDocumentFragment, He = de.getElementsByTagName, et = i.importNode;
   let ke = Vh();
-  t.isSupported = typeof ob == "function" && typeof D == "function" && Ae && Ae.createHTMLDocument !== void 0;
+  t.isSupported = typeof ob == "function" && typeof D == "function" && Ee && Ee.createHTMLDocument !== void 0;
   const Pe = O_, we = R_, Me = I_, ot = L_, oe = P_, A = D_, O = F_, P = U_;
   let R = jh, N = null;
-  const ne = dt({}, [
+  const ie = dt({}, [
     ...Dh,
     ...dc,
     ...fc,
@@ -5992,7 +5992,7 @@ function hb() {
       value: !1
     }
   })), pe = null, De = null;
-  const Ce = Object.seal(xr(null, {
+  const $e = Object.seal(xr(null, {
     tagCheck: {
       writable: !0,
       configurable: !1,
@@ -6006,7 +6006,7 @@ function hb() {
       value: null
     }
   }));
-  let Ne = !0, Fe = !0, Ze = !1, et = !0, We = !1, lt = !0, ht = !1, St = !1, wt = null, qt = null, ha = !1, Tt = !1, Rt = !1, ka = !1, Ut = !0, pa = !1;
+  let Oe = !0, Fe = !0, Je = !1, tt = !0, Ye = !1, lt = !0, ht = !1, St = !1, wt = null, Gt = null, ha = !1, Tt = !1, Rt = !1, ka = !1, Ut = !0, pa = !1;
   const xi = "user-content-";
   let Da = !0, pi = !1, Sa = null, Fa = {}, Ma = null;
   const Pn = dt({}, [
@@ -6062,13 +6062,13 @@ function hb() {
     "value",
     "style",
     "xmlns"
-  ]), tt = "http://www.w3.org/1998/Math/MathML", ei = "http://www.w3.org/2000/svg", $a = "http://www.w3.org/1999/xhtml";
+  ]), at = "http://www.w3.org/1998/Math/MathML", ei = "http://www.w3.org/2000/svg", $a = "http://www.w3.org/1999/xhtml";
   let ti = $a, on = !1, ja = null;
   const vr = dt({}, [
-    tt,
+    at,
     ei,
     $a
-  ], cc), ai = Vt([
+  ], cc), ai = Ht([
     "mi",
     "mo",
     "mn",
@@ -6076,32 +6076,32 @@ function hb() {
     "mtext"
   ]);
   let xa = dt({}, ai);
-  const le = Vt(["annotation-xml"]);
-  let ae = dt({}, le);
-  const Z = dt({}, [
+  const le = Ht(["annotation-xml"]);
+  let ne = dt({}, le);
+  const Q = dt({}, [
     "title",
     "style",
     "font",
     "a",
     "script"
   ]);
-  let Re = null;
-  const it = ["application/xhtml+xml", "text/html"], ia = "text/html";
+  let Se = null;
+  const qe = ["application/xhtml+xml", "text/html"], Vt = "text/html";
   let ut = null, zt = null;
   const br = a.createElement("form"), un = function(E) {
     return E instanceof RegExp || E instanceof Function;
-  }, Gt = function() {
+  }, Kt = function() {
     let E = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
     if (zt && zt === E) return;
-    (!E || typeof E != "object") && (E = {}), E = Ia(E), Re = it.indexOf(E.PARSER_MEDIA_TYPE) === -1 ? ia : E.PARSER_MEDIA_TYPE, ut = Re === "application/xhtml+xml" ? cc : ir, N = pn(E, "ALLOWED_TAGS", ne, { transform: ut }), ce = pn(E, "ALLOWED_ATTR", he, { transform: ut }), ja = pn(E, "ALLOWED_NAMESPACES", vr, { transform: cc }), vi = pn(E, "ADD_URI_SAFE_ATTR", Ua, {
+    (!E || typeof E != "object") && (E = {}), E = Ia(E), Se = qe.indexOf(E.PARSER_MEDIA_TYPE) === -1 ? Vt : E.PARSER_MEDIA_TYPE, ut = Se === "application/xhtml+xml" ? cc : ir, N = pn(E, "ALLOWED_TAGS", ie, { transform: ut }), ce = pn(E, "ALLOWED_ATTR", he, { transform: ut }), ja = pn(E, "ALLOWED_NAMESPACES", vr, { transform: cc }), vi = pn(E, "ADD_URI_SAFE_ATTR", Ua, {
       transform: ut,
       base: Ua
     }), Ca = pn(E, "ADD_DATA_URI_TAGS", jt, {
       transform: ut,
       base: jt
-    }), Ma = pn(E, "FORBID_CONTENTS", Pn, { transform: ut }), pe = pn(E, "FORBID_TAGS", Ia({}), { transform: ut }), De = pn(E, "FORBID_ATTR", Ia({}), { transform: ut }), Fa = Aa(E, "USE_PROFILES") ? E.USE_PROFILES && typeof E.USE_PROFILES == "object" ? Ia(E.USE_PROFILES) : E.USE_PROFILES : !1, Ne = E.ALLOW_ARIA_ATTR !== !1, Fe = E.ALLOW_DATA_ATTR !== !1, Ze = E.ALLOW_UNKNOWN_PROTOCOLS || !1, et = E.ALLOW_SELF_CLOSE_IN_ATTR !== !1, We = E.SAFE_FOR_TEMPLATES || !1, lt = E.SAFE_FOR_XML !== !1, ht = E.WHOLE_DOCUMENT || !1, Tt = E.RETURN_DOM || !1, Rt = E.RETURN_DOM_FRAGMENT || !1, ka = E.RETURN_TRUSTED_TYPE || !1, ha = E.FORCE_BODY || !1, Ut = E.SANITIZE_DOM !== !1, pa = E.SANITIZE_NAMED_PROPS || !1, Da = E.KEEP_CONTENT !== !1, pi = E.IN_PLACE || !1, R = E_(E.ALLOWED_URI_REGEXP) ? E.ALLOWED_URI_REGEXP : jh, ti = typeof E.NAMESPACE == "string" ? E.NAMESPACE : $a, xa = bc(E, "MATHML_TEXT_INTEGRATION_POINTS", () => dt({}, ai)), ae = bc(E, "HTML_INTEGRATION_POINTS", () => dt({}, le));
+    }), Ma = pn(E, "FORBID_CONTENTS", Pn, { transform: ut }), pe = pn(E, "FORBID_TAGS", Ia({}), { transform: ut }), De = pn(E, "FORBID_ATTR", Ia({}), { transform: ut }), Fa = Aa(E, "USE_PROFILES") ? E.USE_PROFILES && typeof E.USE_PROFILES == "object" ? Ia(E.USE_PROFILES) : E.USE_PROFILES : !1, Oe = E.ALLOW_ARIA_ATTR !== !1, Fe = E.ALLOW_DATA_ATTR !== !1, Je = E.ALLOW_UNKNOWN_PROTOCOLS || !1, tt = E.ALLOW_SELF_CLOSE_IN_ATTR !== !1, Ye = E.SAFE_FOR_TEMPLATES || !1, lt = E.SAFE_FOR_XML !== !1, ht = E.WHOLE_DOCUMENT || !1, Tt = E.RETURN_DOM || !1, Rt = E.RETURN_DOM_FRAGMENT || !1, ka = E.RETURN_TRUSTED_TYPE || !1, ha = E.FORCE_BODY || !1, Ut = E.SANITIZE_DOM !== !1, pa = E.SANITIZE_NAMED_PROPS || !1, Da = E.KEEP_CONTENT !== !1, pi = E.IN_PLACE || !1, R = E_(E.ALLOWED_URI_REGEXP) ? E.ALLOWED_URI_REGEXP : jh, ti = typeof E.NAMESPACE == "string" ? E.NAMESPACE : $a, xa = bc(E, "MATHML_TEXT_INTEGRATION_POINTS", () => dt({}, ai)), ne = bc(E, "HTML_INTEGRATION_POINTS", () => dt({}, le));
     const Y = bc(E, "CUSTOM_ELEMENT_HANDLING", () => xr(null));
-    if (me = xr(null), Aa(Y, "tagNameCheck") && un(Y.tagNameCheck) && (me.tagNameCheck = Y.tagNameCheck), Aa(Y, "attributeNameCheck") && un(Y.attributeNameCheck) && (me.attributeNameCheck = Y.attributeNameCheck), Aa(Y, "allowCustomizedBuiltInElements") && typeof Y.allowCustomizedBuiltInElements == "boolean" && (me.allowCustomizedBuiltInElements = Y.allowCustomizedBuiltInElements), ea(me), We && (Fe = !1), Rt && (Tt = !0), Fa && (N = dt({}, Fh), ce = xr(null), Fa.html === !0 && (dt(N, Dh), dt(ce, Mh)), Fa.svg === !0 && (dt(N, dc), dt(ce, pc), dt(ce, qs)), Fa.svgFilters === !0 && (dt(N, fc), dt(ce, pc), dt(ce, qs)), Fa.mathMl === !0 && (dt(N, hc), dt(ce, Uh), dt(ce, qs))), Ce.tagCheck = null, Ce.attributeCheck = null, Aa(E, "ADD_TAGS") && (typeof E.ADD_TAGS == "function" ? Ce.tagCheck = E.ADD_TAGS : Pr(E.ADD_TAGS) && (N === ne && (N = Ia(N)), dt(N, E.ADD_TAGS, ut))), Aa(E, "ADD_ATTR") && (typeof E.ADD_ATTR == "function" ? Ce.attributeCheck = E.ADD_ATTR : Pr(E.ADD_ATTR) && (ce === he && (ce = Ia(ce)), dt(ce, E.ADD_ATTR, ut))), Aa(E, "ADD_FORBID_CONTENTS") && Pr(E.ADD_FORBID_CONTENTS) && (Ma === Pn && (Ma = Ia(Ma)), dt(Ma, E.ADD_FORBID_CONTENTS, ut)), Da && (N["#text"] = !0), ht && dt(N, [
+    if (me = xr(null), Aa(Y, "tagNameCheck") && un(Y.tagNameCheck) && (me.tagNameCheck = Y.tagNameCheck), Aa(Y, "attributeNameCheck") && un(Y.attributeNameCheck) && (me.attributeNameCheck = Y.attributeNameCheck), Aa(Y, "allowCustomizedBuiltInElements") && typeof Y.allowCustomizedBuiltInElements == "boolean" && (me.allowCustomizedBuiltInElements = Y.allowCustomizedBuiltInElements), ta(me), Ye && (Fe = !1), Rt && (Tt = !0), Fa && (N = dt({}, Fh), ce = xr(null), Fa.html === !0 && (dt(N, Dh), dt(ce, Mh)), Fa.svg === !0 && (dt(N, dc), dt(ce, pc), dt(ce, qs)), Fa.svgFilters === !0 && (dt(N, fc), dt(ce, pc), dt(ce, qs)), Fa.mathMl === !0 && (dt(N, hc), dt(ce, Uh), dt(ce, qs))), $e.tagCheck = null, $e.attributeCheck = null, Aa(E, "ADD_TAGS") && (typeof E.ADD_TAGS == "function" ? $e.tagCheck = E.ADD_TAGS : Pr(E.ADD_TAGS) && (N === ie && (N = Ia(N)), dt(N, E.ADD_TAGS, ut))), Aa(E, "ADD_ATTR") && (typeof E.ADD_ATTR == "function" ? $e.attributeCheck = E.ADD_ATTR : Pr(E.ADD_ATTR) && (ce === he && (ce = Ia(ce)), dt(ce, E.ADD_ATTR, ut))), Aa(E, "ADD_FORBID_CONTENTS") && Pr(E.ADD_FORBID_CONTENTS) && (Ma === Pn && (Ma = Ia(Ma)), dt(Ma, E.ADD_FORBID_CONTENTS, ut)), Da && (N["#text"] = !0), ht && dt(N, [
       "html",
       "head",
       "body"
@@ -6116,21 +6116,21 @@ function hb() {
         throw se = be, ge;
       }
     } else E.TRUSTED_TYPES_POLICY === null ? (se = void 0, V = "") : (se === void 0 && (se = H()), se && typeof V == "string" && (V = te("")));
-    Vt && Vt(E), zt = E;
+    Ht && Ht(E), zt = E;
   }, Dn = dt({}, [
     ...dc,
     ...fc,
     ...x_
   ]), ms = dt({}, [...hc, ...N_]), Ou = function(E, Y, be) {
-    return Y.namespaceURI === $a ? E === "svg" : Y.namespaceURI === tt ? E === "svg" && (be === "annotation-xml" || xa[be]) : !!Dn[E];
+    return Y.namespaceURI === $a ? E === "svg" : Y.namespaceURI === at ? E === "svg" && (be === "annotation-xml" || xa[be]) : !!Dn[E];
   }, Ru = function(E, Y, be) {
-    return Y.namespaceURI === $a ? E === "math" : Y.namespaceURI === ei ? E === "math" && ae[be] : !!ms[E];
+    return Y.namespaceURI === $a ? E === "math" : Y.namespaceURI === ei ? E === "math" && ne[be] : !!ms[E];
   }, kt = function(E, Y, be) {
-    return Y.namespaceURI === ei && !ae[be] || Y.namespaceURI === tt && !xa[be] ? !1 : !ms[E] && (Z[E] || !Dn[E]);
+    return Y.namespaceURI === ei && !ne[be] || Y.namespaceURI === at && !xa[be] ? !1 : !ms[E] && (Q[E] || !Dn[E]);
   }, zr = function(E) {
-    const Y = ie(E), be = ir(j(E)), ge = D(E);
+    const Y = ae(E), be = ir(j(E)), ge = D(E);
     let je, Ve;
-    return ge && T(ge) === Pt.element ? (je = { namespaceURI: ie(ge) }, Ve = ir(j(ge))) : (je = { namespaceURI: ti }, Ve = "template"), ja[Y] ? Y === ei ? Ou(be, je, Ve) : Y === tt ? Ru(be, je, Ve) : Y === $a ? kt(be, je, Ve) : !!(Re === "application/xhtml+xml" && ja[Y]) : !1;
+    return ge && T(ge) === Pt.element ? (je = { namespaceURI: ae(ge) }, Ve = ir(j(ge))) : (je = { namespaceURI: ti }, Ve = "template"), ja[Y] ? Y === ei ? Ou(be, je, Ve) : Y === at ? Ru(be, je, Ve) : Y === $a ? kt(be, je, Ve) : !!(Se === "application/xhtml+xml" && ja[Y]) : !1;
   }, bi = function(E) {
     yl(t.removed, { element: E });
     try {
@@ -6202,11 +6202,11 @@ function hb() {
       const je = ge.pop();
       if (Y(je) === !1) continue;
       if (be && T(je) === Pt.element) {
-        const Ge = I(je);
-        za(Ge) && ge.push(Ge);
+        const Ke = I(je);
+        za(Ke) && ge.push(Ke);
       }
       const Ve = x(je);
-      if (Ve) for (let Ge = Ve.length - 1; Ge >= 0; --Ge) ge.push(Ve[Ge]);
+      if (Ve) for (let Ke = Ve.length - 1; Ke >= 0; --Ke) ge.push(Ve[Ke]);
     }
   }, Br = function(E) {
     Fn(E, (Y) => {
@@ -6236,14 +6236,14 @@ function hb() {
       uc(ge, Ve);
     })), ge);
     for (let Ve = 0; ; Ve++) {
-      const Ge = Vr(E), It = [E];
+      const Ke = Vr(E), It = [E];
       let Ba = !1;
-      if (Ui(Ge, (Kt) => {
-        T(Kt) === Pt.documentFragment ? yl(It, Kt) : !Ba && !ml(be, Kt) && (Ba = ml(je(), Kt));
+      if (Ui(Ke, (Wt) => {
+        T(Wt) === Pt.documentFragment ? yl(It, Wt) : !Ba && !ml(be, Wt) && (Ba = ml(je(), Wt));
       }), !Ba) return;
       if (Ve >= Lu) throw ji("the tree kept changing during in-place sanitization; refusing to return it");
-      Ui(It, (Kt, na) => {
-        Du(Kt, na > 0, E, je());
+      Ui(It, (Wt, na) => {
+        Du(Wt, na > 0, E, je());
       });
     }
   }, Du = function(E, Y, be, ge) {
@@ -6258,7 +6258,7 @@ function hb() {
   }, Mu = function(E) {
     lt && Fn(E, (Y) => {
       const be = T(Y);
-      if (be === Pt.processingInstruction || be === Pt.comment && Yt(zh, Y.data)) {
+      if (be === Pt.processingInstruction || be === Pt.comment && Zt(zh, Y.data)) {
         try {
           k(Y);
         } catch {
@@ -6281,14 +6281,14 @@ function hb() {
       const Ve = Rh(E, /^[\r\n\t ]+/);
       be = Ve && Ve[0];
     }
-    Re === "application/xhtml+xml" && ti === $a && (E = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>' + E + "</body></html>");
+    Se === "application/xhtml+xml" && ti === $a && (E = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>' + E + "</body></html>");
     const ge = se ? te(E) : E;
     if (ti === $a) try {
-      Y = new g().parseFromString(ge, Re);
+      Y = new g().parseFromString(ge, Se);
     } catch {
     }
     if (!Y || !Y.documentElement) {
-      Y = Ae.createDocument(ti, "template", null);
+      Y = Ee.createDocument(ti, "template", null);
       try {
         Y.documentElement.innerHTML = on ? V : ge;
       } catch {
@@ -6297,7 +6297,7 @@ function hb() {
     const je = Y.body || Y.documentElement;
     return E && be && je.insertBefore(a.createTextNode(be), je.childNodes[0] || null), ti === $a ? He.call(Y, ht ? "html" : "body")[0] : ht ? Y.documentElement : je;
   }, Hr = function(E) {
-    const Y = J ? J(E) : E.ownerDocument;
+    const Y = Z ? Z(E) : E.ownerDocument;
     return Ie.call(Y || E, E, v.SHOW_ELEMENT | v.SHOW_COMMENT | v.SHOW_TEXT | v.SHOW_PROCESSING_INSTRUCTION | v.SHOW_CDATA_SECTION, null);
   }, gr = function(E) {
     return E = _l(E, Pe, " "), E = _l(E, we, " "), E = _l(E, Me, " "), E;
@@ -6310,7 +6310,7 @@ function hb() {
     });
   }, Cs = function(E) {
     E.normalize();
-    const Y = J ? J(E) : E.ownerDocument, be = Ie.call(Y || E, E, v.SHOW_TEXT | v.SHOW_COMMENT | v.SHOW_CDATA_SECTION | v.SHOW_PROCESSING_INSTRUCTION, null);
+    const Y = Z ? Z(E) : E.ownerDocument, be = Ie.call(Y || E, E, v.SHOW_TEXT | v.SHOW_COMMENT | v.SHOW_CDATA_SECTION | v.SHOW_PROCESSING_INSTRUCTION, null);
     let ge = be.nextNode();
     for (; ge; )
       ge.data = gr(ge.data), ge = be.nextNode();
@@ -6338,9 +6338,9 @@ function hb() {
     });
   }
   const Gr = function(E, Y) {
-    return !!(lt && E.hasChildNodes() && !Oi(E.firstElementChild) && Yt(vc, E.textContent) && Yt(vc, E.innerHTML) || lt && z_[Y] && T(E) === Pt.element && ie(E) === $a && (Oi(E.firstElementChild) || typeof E.textContent == "string" && Yt(vc, E.textContent)) || E.nodeType === Pt.processingInstruction || lt && E.nodeType === Pt.comment && Yt(zh, E.data));
+    return !!(lt && E.hasChildNodes() && !Oi(E.firstElementChild) && Zt(vc, E.textContent) && Zt(vc, E.innerHTML) || lt && z_[Y] && T(E) === Pt.element && ae(E) === $a && (Oi(E.firstElementChild) || typeof E.textContent == "string" && Zt(vc, E.textContent)) || E.nodeType === Pt.processingInstruction || lt && E.nodeType === Pt.comment && Zt(zh, E.data));
   }, Un = function(E, Y) {
-    if (E instanceof RegExp) return Yt(E, Y);
+    if (E instanceof RegExp) return Zt(E, Y);
     if (E instanceof Function) {
       for (var be = arguments.length, ge = new Array(be > 2 ? be - 2 : 0), je = 2; je < be; je++) ge[je - 2] = arguments[je];
       return !!E(Y, ...ge);
@@ -6352,8 +6352,8 @@ function hb() {
       const ge = D(E), je = x(E);
       if (je && ge) {
         const Ve = je.length;
-        for (let Ge = Ve - 1; Ge >= 0; --Ge) {
-          const It = E === be ? _(je[Ge], !0) : je[Ge];
+        for (let Ke = Ve - 1; Ke >= 0; --Ke) {
+          const It = E === be ? _(je[Ke], !0) : je[Ke];
           ge.insertBefore(It, C(E));
         }
       }
@@ -6368,27 +6368,27 @@ function hb() {
     if (Mn(E))
       return bi(E), !0;
     const be = ut(j(E));
-    if (N = Kr(ke.uponSanitizeElement, N, ne, wt), va(ke.uponSanitizeElement, E, {
+    if (N = Kr(ke.uponSanitizeElement, N, ie, wt), va(ke.uponSanitizeElement, E, {
       tagName: be,
       allowedTags: N
     }), Ri(E, Y)) return !0;
     if (Gr(E, be))
       return bi(E), !0;
-    if (pe[be] || !(Ce.tagCheck instanceof Function && Ce.tagCheck(be)) && !N[be]) {
+    if (pe[be] || !($e.tagCheck instanceof Function && $e.tagCheck(be)) && !N[be]) {
       const ge = Uu(E, be, Y);
       return ge === !1 && (va(ke.afterSanitizeElements, E, null), Ri(E, Y)) ? !0 : ge;
     }
-    if (T(E) === Pt.element && !zr(E) || (be === "noscript" || be === "noembed" || be === "noframes") && Yt(j_, E.innerHTML))
+    if (T(E) === Pt.element && !zr(E) || (be === "noscript" || be === "noembed" || be === "noframes") && Zt(j_, E.innerHTML))
       return bi(E), !0;
-    if (We && E.nodeType === Pt.text) {
+    if (Ye && E.nodeType === Pt.text) {
       const ge = gr(E.textContent);
       E.textContent !== ge && (yl(t.removed, { element: E.cloneNode() }), E.textContent = ge);
     }
     return va(ke.afterSanitizeElements, E, null), Ri(E, Y);
   }, yr = function(E, Y, be) {
     if (De[Y] || ks(Y, E) || Ut && (Y === "id" || Y === "name") && (be in a || be in br)) return !1;
-    const ge = ce[Y] || Ce.attributeCheck instanceof Function && Ce.attributeCheck(Y, E);
-    return Fe && Yt(ot, Y) || Ne && Yt(oe, Y) ? !0 : ge ? vi[Y] || Yt(R, _l(be, O, "")) || (Y === "src" || Y === "xlink:href" || Y === "href") && E !== "script" && Ih(be, "data:") === 0 && Ca[E] || Ze && !Yt(A, _l(be, O, "")) ? !0 : !be : Zr(E) && Un(me.tagNameCheck, E) && Un(me.attributeNameCheck, Y, E) || Y === "is" && me.allowCustomizedBuiltInElements && Un(me.tagNameCheck, be);
+    const ge = ce[Y] || $e.attributeCheck instanceof Function && $e.attributeCheck(Y, E);
+    return Fe && Zt(ot, Y) || Oe && Zt(oe, Y) ? !0 : ge ? vi[Y] || Zt(R, _l(be, O, "")) || (Y === "src" || Y === "xlink:href" || Y === "href") && E !== "script" && Ih(be, "data:") === 0 && Ca[E] || Je && !Zt(A, _l(be, O, "")) ? !0 : !be : Zr(E) && Un(me.tagNameCheck, E) && Un(me.attributeNameCheck, Y, E) || Y === "is" && me.allowCustomizedBuiltInElements && Un(me.tagNameCheck, be);
   }, Yr = dt({}, [
     "annotation-xml",
     "color-profile",
@@ -6399,13 +6399,13 @@ function hb() {
     "font-face-uri",
     "missing-glyph"
   ]), Zr = function(E) {
-    return !Yr[ir(E)] && Yt(P, E);
+    return !Yr[ir(E)] && Zt(P, E);
   }, ni = function(E, Y, be, ge) {
     if (se && typeof b == "object" && typeof b.getAttributeType == "function" && !be) switch (b.getAttributeType(E, Y)) {
       case "TrustedHTML":
         return te(ge);
       case "TrustedScriptURL":
-        return X(ge);
+        return J(ge);
     }
     return ge;
   }, $s = function(E, Y, be, ge) {
@@ -6415,12 +6415,12 @@ function hb() {
       return cn(Y, E), !1;
     }
   }, Jr = function(E, Y) {
-    return lt && Yt(/((--!?|])>)|<\/(style|script|title|xmp|textarea|noscript|iframe|noembed|noframes)/i, Y) ? !0 : ir(E) === "attributename" && Rh(Y, "href") !== null;
+    return lt && Zt(/((--!?|])>)|<\/(style|script|title|xmp|textarea|noscript|iframe|noembed|noframes)/i, Y) ? !0 : ir(E) === "attributename" && Rh(Y, "href") !== null;
   }, mr = function(E, Y) {
     if (va(ke.beforeSanitizeAttributes, E, null), Ri(E, Y)) return;
     const be = E.attributes;
     if (!be || Mn(E)) return;
-    ce = Kr(ke.uponSanitizeAttribute, ce, he, qt);
+    ce = Kr(ke.uponSanitizeAttribute, ce, he, Gt);
     const ge = {
       attrName: "",
       attrValue: "",
@@ -6431,23 +6431,23 @@ function hb() {
     let je = be.length;
     const Ve = ut(E.nodeName);
     for (; je--; ) {
-      const Ge = be[je], It = Ge.name, Ba = Ge.namespaceURI, Kt = Ge.value, na = ut(It), Va = Kt;
+      const Ke = be[je], It = Ke.name, Ba = Ke.namespaceURI, Wt = Ke.value, na = ut(It), Va = Wt;
       let At = It === "value" ? Va : k_(Va), zn = !1;
-      if (ge.attrName = na, ge.attrValue = At, ge.keepAttr = !0, ge.forceKeepAttr = void 0, va(ke.uponSanitizeAttribute, E, ge), At = ge.attrValue, pa && (na === "id" || na === "name") && Ih(At, xi) !== 0 && (cn(It, E, Ge), At = xi + At, zn = !0), Jr(It, At)) {
-        cn(It, E, Ge);
+      if (ge.attrName = na, ge.attrValue = At, ge.keepAttr = !0, ge.forceKeepAttr = void 0, va(ke.uponSanitizeAttribute, E, ge), At = ge.attrValue, pa && (na === "id" || na === "name") && Ih(At, xi) !== 0 && (cn(It, E, Ke), At = xi + At, zn = !0), Jr(It, At)) {
+        cn(It, E, Ke);
         continue;
       }
       if (!ge.forceKeepAttr) {
         if (!ge.keepAttr) {
-          cn(It, E, Ge);
+          cn(It, E, Ke);
           continue;
         }
-        if (!et && Yt(Bh, At)) {
-          cn(It, E, Ge);
+        if (!tt && Zt(Bh, At)) {
+          cn(It, E, Ke);
           continue;
         }
-        if (We && (At = gr(At)), !yr(Ve, na, At)) {
-          cn(It, E, Ge);
+        if (Ye && (At = gr(At)), !yr(Ve, na, At)) {
+          cn(It, E, Ke);
           continue;
         }
         At = ni(Ve, na, Ba, At), At !== Va && $s(E, It, Ba, At) && zn && Oh(t.removed);
@@ -6462,7 +6462,7 @@ function hb() {
         const ge = I(Y);
         za(ge) && (Xr(ge), jn(ge));
       }
-    We && Cs(E), va(ke.afterSanitizeShadowDOM, E, null);
+    Ye && Cs(E), va(ke.afterSanitizeShadowDOM, E, null);
   }, Xr = function(E) {
     const Y = [{
       node: E,
@@ -6475,13 +6475,13 @@ function hb() {
         continue;
       }
       const ge = be.node, je = T(ge) === Pt.element, Ve = x(ge);
-      if (Ve) for (let Ge = Ve.length - 1; Ge >= 0; --Ge) Y.push({
-        node: Ve[Ge],
+      if (Ve) for (let Ke = Ve.length - 1; Ke >= 0; --Ke) Y.push({
+        node: Ve[Ke],
         shadow: null
       });
       if (je) {
-        const Ge = ee ? ee(ge) : null;
-        if (typeof Ge == "string" && ut(Ge) === "template") {
+        const Ke = ee ? ee(ge) : null;
+        if (typeof Ke == "string" && ut(Ke) === "template") {
           const It = ge.content;
           za(It) && Y.push({
             node: It,
@@ -6490,12 +6490,12 @@ function hb() {
         }
       }
       if (je) {
-        const Ge = I(ge);
-        za(Ge) && Y.push({
+        const Ke = I(ge);
+        za(Ke) && Y.push({
           node: null,
-          shadow: Ge
+          shadow: Ke
         }, {
-          node: Ge,
+          node: Ke,
           shadow: null
         });
       }
@@ -6506,9 +6506,9 @@ function hb() {
     if (on = !_e, on && (_e = "<!-->"), typeof _e != "string" && !Oi(_e) && (_e = T_(_e), typeof _e != "string"))
       throw ji("dirty is not a string, aborting");
     if (!t.isSupported) return _e;
-    St ? (N = wt, ce = qt) : Gt(E), (ke.uponSanitizeElement.length > 0 || ke.uponSanitizeAttribute.length > 0) && (N = Ia(N)), ke.uponSanitizeAttribute.length > 0 && (ce = Ia(ce)), t.removed = [];
+    St ? (N = wt, ce = Gt) : Kt(E), (ke.uponSanitizeElement.length > 0 || ke.uponSanitizeAttribute.length > 0) && (N = Ia(N)), ke.uponSanitizeAttribute.length > 0 && (ce = Ia(ce)), t.removed = [];
     const Ve = pi && typeof _e != "string" && Oi(_e);
-    let Ge = [];
+    let Ke = [];
     const It = Sa;
     if (Ve) {
       Mu(_e);
@@ -6520,11 +6520,11 @@ function hb() {
       }
       if (Mn(_e))
         throw ii(_e), ji("root node is clobbered and cannot be sanitized in-place");
-      Ge = Vr(_e), Sa = oc();
+      Ke = Vr(_e), Sa = oc();
     } else if (Oi(_e))
       Y = Ss("<!---->"), be = Y.ownerDocument.importNode(_e, !0), be.nodeType === Pt.element && be.nodeName === "BODY" || be.nodeName === "HTML" ? Y = be : Y.appendChild(be), Xr(Y);
     else {
-      if (!Tt && !We && !ht && _e.indexOf("<") === -1) return se && ka ? te(_e) : _e;
+      if (!Tt && !Ye && !ht && _e.indexOf("<") === -1) return se && ka ? te(_e) : _e;
       if (Y = Ss(_e), !Y) return Tt ? null : ka ? V : "";
     }
     Y && ha && bi(Y.firstChild);
@@ -6534,34 +6534,34 @@ function hb() {
       const na = Hr(Ba);
       for (; ge = na.nextNode(); )
         Wr(ge, Ba), mr(ge, Ba), za(ge.content) && jn(ge.content);
-      Ve && Pu(_e, Ge);
+      Ve && Pu(_e, Ke);
     } catch (na) {
-      throw Ve && (ii(_e), ws(_e, Ge)), na;
+      throw Ve && (ii(_e), ws(_e, Ke)), na;
     } finally {
       Sa = It;
     }
     if (Ve) {
-      if (ws(_e, Ge)) throw ji("a node selected for removal could not be safely returned; refusing to sanitize in place");
-      return We && qr(_e), _e;
+      if (ws(_e, Ke)) throw ji("a node selected for removal could not be safely returned; refusing to sanitize in place");
+      return Ye && qr(_e), _e;
     }
     if (Tt) {
-      if (We && qr(Y), Rt)
+      if (Ye && qr(Y), Rt)
         for (je = Le.call(Y.ownerDocument); Y.firstChild; ) je.appendChild(Y.firstChild);
       else je = Y;
-      return (ce.shadowroot || ce.shadowrootmode) && (je = Qe.call(i, je, !0)), je;
+      return (ce.shadowroot || ce.shadowrootmode) && (je = et.call(i, je, !0)), je;
     }
-    let Kt = ht ? Y.outerHTML : Y.innerHTML;
-    return ht && N["!doctype"] && Y.ownerDocument && Y.ownerDocument.doctype && Y.ownerDocument.doctype.name && Yt(M_, Y.ownerDocument.doctype.name) && (Kt = "<!DOCTYPE " + Y.ownerDocument.doctype.name + `>
-` + Kt), We && (Kt = gr(Kt)), se && ka ? te(Kt) : Kt;
+    let Wt = ht ? Y.outerHTML : Y.innerHTML;
+    return ht && N["!doctype"] && Y.ownerDocument && Y.ownerDocument.doctype && Y.ownerDocument.doctype.name && Zt(M_, Y.ownerDocument.doctype.name) && (Wt = "<!DOCTYPE " + Y.ownerDocument.doctype.name + `>
+` + Wt), Ye && (Wt = gr(Wt)), se && ka ? te(Wt) : Wt;
   }, t.setConfig = function() {
     let _e = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
-    Gt(_e), St = !0, wt = N, qt = ce;
+    Kt(_e), St = !0, wt = N, Gt = ce;
   }, t.clearConfig = function() {
-    zt = null, St = !1, wt = null, qt = null, se = B, V = "";
+    zt = null, St = !1, wt = null, Gt = null, se = B, V = "";
   }, t.isValidAttribute = function(_e, E, Y) {
-    zt || Gt({});
+    zt || Kt({});
     const be = ut(_e), ge = ut(E);
-    return typeof Y == "string" && (Jr(E, Y) || !et && Yt(Bh, Y)) ? !1 : yr(be, ge, Y);
+    return typeof Y == "string" && (Jr(E, Y) || !tt && Zt(Bh, Y)) ? !1 : yr(be, ge, Y);
   }, t.addHook = function(_e, E) {
     typeof E == "function" && Aa(ke, _e) && yl(ke[_e], E);
   }, t.removeHook = function(_e, E) {
@@ -7304,7 +7304,7 @@ function Tc(e) {
   return Array.isArray(e) ? e : [e];
 }
 function v0(e, t, a) {
-  return qe(e, t, {
+  return Ge(e, t, {
     ...a,
     immediate: !0
   });
@@ -7507,8 +7507,8 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
     }, x = (oe, A) => {
       let O = oe.target.closest(".splitpanes__splitter");
       if (O) {
-        let { left: P, top: R } = O.getBoundingClientRect(), { clientX: N, clientY: ne } = "ontouchstart" in window && oe.touches ? oe.touches[0] : oe;
-        m.value.cursorOffset = i.horizontal ? ne - R : N - P;
+        let { left: P, top: R } = O.getBoundingClientRect(), { clientX: N, clientY: ie } = "ontouchstart" in window && oe.touches ? oe.touches[0] : oe;
+        m.value.cursorOffset = i.horizontal ? ie - R : N - P;
       }
       $(), m.value.mouseDown = !0, m.value.activeSplitter = A, document.documentElement.style.cursor = i.horizontal ? "row-resize" : "col-resize";
     }, D = (oe) => {
@@ -7545,8 +7545,8 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
       if (!O && !P) return;
       oe.preventDefault(), m.value.activeSplitter = A;
       let R = (O ? 1 : -1) * (i.rtl && !i.horizontal ? -1 : 1), N = V(A) + u.value[A].size;
-      ie(Math.min(Math.max(N + R * i.keyboardStep, 0), 100)), Me("resize", { event: oe }, !0), Me("resized", { event: oe }, !0), m.value.activeSplitter = null;
-    }, J = (oe, A) => {
+      ae(Math.min(Math.max(N + R * i.keyboardStep, 0), 100)), Me("resize", { event: oe }, !0), Me("resized", { event: oe }, !0), m.value.activeSplitter = null;
+    }, Z = (oe, A) => {
       let O = d.value[A];
       O && Me("pane-click", {
         event: oe,
@@ -7564,8 +7564,8 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
       let A = g.value[i.horizontal ? "clientHeight" : "clientWidth"];
       return i.rtl && !i.horizontal && (oe = A - oe), oe * 100 / A;
     }, W = (oe) => {
-      ie(j(oe));
-    }, ie = (oe) => {
+      ae(j(oe));
+    }, ae = (oe) => {
       let A = m.value.activeSplitter;
       if (A === null || A >= u.value.length - 1) return;
       let O = {
@@ -7575,17 +7575,17 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
         nextReachedMinPanes: 0
       }, P = 0 + (i.pushOtherPanes ? 0 : O.prevPanesSize), R = 100 - (i.pushOtherPanes ? 0 : O.nextPanesSize);
       oe = Math.max(Math.min(oe, R), P);
-      let N = [A, A + 1], ne = u.value[N[0]] || null, ce = u.value[N[1]] || null, he = ne !== null && ne.max < 100 && oe >= ne.max + O.prevPanesSize, me = ce !== null && ce.max < 100 && oe <= 100 - (ce.max + B(A + 1));
+      let N = [A, A + 1], ie = u.value[N[0]] || null, ce = u.value[N[1]] || null, he = ie !== null && ie.max < 100 && oe >= ie.max + O.prevPanesSize, me = ce !== null && ce.max < 100 && oe <= 100 - (ce.max + B(A + 1));
       if (he || me) {
-        he ? (ne.size = ne.max, ce.size = Math.min(Math.max(100 - ne.max - O.prevPanesSize - O.nextPanesSize, ce.min), ce.max)) : (ne.size = Math.min(Math.max(100 - ce.max - O.prevPanesSize - B(A + 1), ne.min), ne.max), ce.size = ce.max);
+        he ? (ie.size = ie.max, ce.size = Math.min(Math.max(100 - ie.max - O.prevPanesSize - O.nextPanesSize, ce.min), ce.max)) : (ie.size = Math.min(Math.max(100 - ce.max - O.prevPanesSize - B(A + 1), ie.min), ie.max), ce.size = ce.max);
         return;
       }
       if (i.pushOtherPanes) {
         let pe = se(O, oe);
         if (!pe) return;
-        ({ sums: O, panesToResize: N } = pe), ne = u.value[N[0]] || null, ce = u.value[N[1]] || null;
+        ({ sums: O, panesToResize: N } = pe), ie = u.value[N[0]] || null, ce = u.value[N[1]] || null;
       }
-      ne !== null && (ne.size = Math.min(Math.max(oe - O.prevPanesSize - O.prevReachedMinPanes, ne.min), ne.max)), ce !== null && (ce.size = Math.min(Math.max(100 - oe - O.nextPanesSize - O.nextReachedMinPanes, ce.min), ce.max));
+      ie !== null && (ie.size = Math.min(Math.max(oe - O.prevPanesSize - O.prevReachedMinPanes, ie.min), ie.max)), ce !== null && (ce.size = Math.min(Math.max(100 - oe - O.nextPanesSize - O.nextReachedMinPanes, ce.min), ce.max));
     }, se = (oe, A) => {
       let O = m.value.activeSplitter, P = [O, O + 1];
       if (A < oe.prevPanesSize + u.value[P[0]].min) {
@@ -7613,23 +7613,23 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
     }, te = (oe, A, O = !1) => {
       let P = oe - 1, R = document.createElement("div");
       R.classList.add("splitpanes__splitter"), O || (R.onmousedown = (N) => x(N, P), typeof window < "u" && "ontouchstart" in window && (R.ontouchstart = (N) => x(N, P)), R.onclick = (N) => L(N, P + 1), i.keyboardStep && (R.setAttribute("tabindex", "0"), R.setAttribute("role", "separator"), R.setAttribute("aria-orientation", i.horizontal ? "horizontal" : "vertical"), R.onkeydown = (N) => ee(N, P))), R.ondblclick = (N) => M(N, P + 1), A.parentNode.insertBefore(R, A);
-    }, X = (oe) => {
+    }, J = (oe) => {
       oe.onmousedown = null, oe.onclick = null, oe.ondblclick = null, oe.onkeydown = null, oe.remove();
     }, H = () => {
       let oe = Array.from(g.value?.children || []);
-      for (let O of oe) O.className.includes("splitpanes__splitter") && X(O);
+      for (let O of oe) O.className.includes("splitpanes__splitter") && J(O);
       let A = 0;
       for (let O of oe) O.className.includes("splitpanes__pane") && (!A && i.firstSplitter ? te(A, O, !0) : A && te(A, O), A++);
     }, de = ({ uid: oe, ...A }) => {
       let O = d.value[oe];
       for (let [P, R] of Object.entries(A)) O[P] = R;
-    }, Ae = !1, Ie = (oe) => {
+    }, Ee = !1, Ie = (oe) => {
       let A = -1;
       Array.from(g.value?.children || []).some((O) => (O.className.includes("splitpanes__pane") && A++, O.isSameNode(oe.el))), u.value.splice(A, 0, {
         ...oe,
         index: A
-      }), u.value.forEach((O, P) => O.index = P), b.value && !Ae && (Ae = !0, Lt(() => {
-        H(), He({ addedPane: u.value[A] }), Me("pane-add", { pane: u.value[A] }), Ae = !1;
+      }), u.value.forEach((O, P) => O.index = P), b.value && !Ee && (Ee = !0, Lt(() => {
+        H(), He({ addedPane: u.value[A] }), Me("pane-add", { pane: u.value[A] }), Ee = !1;
       }));
     }, Le = (oe) => {
       let A = u.value.findIndex((P) => P.id === oe);
@@ -7641,8 +7641,8 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
         } });
       });
     }, He = (oe = {}) => {
-      !oe.addedPane && !oe.removedPane ? ke() : u.value.some((A) => A.givenSize !== null || A.min || A.max < 100) ? Pe(oe) : Qe(), b.value && Me("resized");
-    }, Qe = () => {
+      !oe.addedPane && !oe.removedPane ? ke() : u.value.some((A) => A.givenSize !== null || A.min || A.max < 100) ? Pe(oe) : et(), b.value && Me("resized");
+    }, et = () => {
       let oe = 100 / v.value, A = 100, O = [], P = [];
       for (let R of u.value) R.size = Math.max(Math.min(oe, R.max), R.min), A -= R.size, R.size >= R.max && O.push(R.id), R.size <= R.min && P.push(R.id);
       Math.abs(A) > 0.1 && we(A, O, P);
@@ -7655,22 +7655,22 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
         R > 0.1 && we(R, A, O);
       }
     }, Pe = ({ addedPane: oe, removedPane: A } = {}) => {
-      let O = u.value.reduce((he, me) => he + (me.givenSize === null ? 0 : me.givenSize), 0), P = u.value.filter((he) => he.givenSize === null).length, R = P > 0 ? (100 - O) / P : 0, N = 0, ne = [], ce = [];
-      for (let he of u.value) N -= he.size, he.size >= he.max && ne.push(he.id), he.size <= he.min && ce.push(he.id);
+      let O = u.value.reduce((he, me) => he + (me.givenSize === null ? 0 : me.givenSize), 0), P = u.value.filter((he) => he.givenSize === null).length, R = P > 0 ? (100 - O) / P : 0, N = 0, ie = [], ce = [];
+      for (let he of u.value) N -= he.size, he.size >= he.max && ie.push(he.id), he.size <= he.min && ce.push(he.id);
       if (!(Math.abs(N) < 0.1)) {
         N = 100;
-        for (let he of u.value) he.givenSize === null && (he.size = Math.max(Math.min(R, he.max), he.min)), N -= he.size, he.size >= he.max && ne.push(he.id), he.size <= he.min && ce.push(he.id);
-        Math.abs(N) > 0.1 && we(N, ne, ce);
+        for (let he of u.value) he.givenSize === null && (he.size = Math.max(Math.min(R, he.max), he.min)), N -= he.size, he.size >= he.max && ie.push(he.id), he.size <= he.min && ce.push(he.id);
+        Math.abs(N) > 0.1 && we(N, ie, ce);
       }
     }, we = (oe, A, O) => {
       let P;
       P = oe > 0 ? oe / (v.value - A.length) : oe / (v.value - O.length), u.value.forEach((R, N) => {
         if (oe > 0 && !A.includes(R.id)) {
-          let ne = Math.max(Math.min(R.size + P, R.max), R.min), ce = ne - R.size;
-          oe -= ce, R.size = ne;
+          let ie = Math.max(Math.min(R.size + P, R.max), R.min), ce = ie - R.size;
+          oe -= ce, R.size = ie;
         } else if (!O.includes(R.id)) {
-          let ne = Math.max(Math.min(R.size + P, R.max), R.min), ce = ne - R.size;
-          oe -= ce, R.size = ne;
+          let ie = Math.max(Math.min(R.size + P, R.max), R.min), ce = ie - R.size;
+          oe -= ce, R.size = ie;
         }
       }), Math.abs(oe) > 0.1 && b.value && console.warn("Splitpanes: Could not resize panes correctly due to their constraints.");
     }, Me = (oe, A = void 0, O = !1) => {
@@ -7689,7 +7689,7 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
         }))
       });
     };
-    qe(() => i.firstSplitter, () => H()), qe(() => i.horizontal, (oe) => Lt(() => {
+    Ge(() => i.firstSplitter, () => H()), Ge(() => i.horizontal, (oe) => Lt(() => {
       a("direction-changed", {
         horizontal: oe,
         panes: u.value.map((A) => ({
@@ -7700,7 +7700,7 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
       });
     })), xt(() => {
       re(), H(), He(), Me("ready"), b.value = !0;
-    }), aa(() => b.value = !1);
+    }), ia(() => b.value = !1);
     let ot = () => {
       let { class: oe, ...A } = n;
       return Ta("div", {
@@ -7709,7 +7709,7 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
         ...A
       }, s.default?.());
     };
-    return Wa("panes", u), Wa("indexedPanes", d), Wa("horizontal", G(() => i.horizontal)), Wa("requestUpdate", de), Wa("onPaneAdd", Ie), Wa("onPaneRemove", Le), Wa("onPaneClick", J), (oe, A) => (c(), ze(Od(ot)));
+    return Wa("panes", u), Wa("indexedPanes", d), Wa("horizontal", G(() => i.horizontal)), Wa("requestUpdate", de), Wa("onPaneAdd", Ie), Wa("onPaneRemove", Le), Wa("onPaneClick", Z), (oe, A) => (c(), ze(Od(ot)));
   }
 }), y0 = {
   __name: "pane",
@@ -7738,13 +7738,13 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
       let C = g.value?.size ?? (t.size === void 0 ? void 0 : m.value);
       return C === void 0 ? "" : `${n.value ? "height" : "width"}: ${C}%`;
     });
-    return qe(() => m.value, (C) => a({
+    return Ge(() => m.value, (C) => a({
       uid: d,
       size: C
-    })), qe(() => _.value, (C) => a({
+    })), Ge(() => _.value, (C) => a({
       uid: d,
       min: C
-    })), qe(() => k.value, (C) => a({
+    })), Ge(() => k.value, (C) => a({
       uid: d,
       max: C
     })), xt(() => {
@@ -7756,13 +7756,13 @@ var g0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
         givenSize: t.size === void 0 ? null : m.value,
         size: m.value
       });
-    }), aa(() => s(d)), (C, x) => (c(), f("div", {
+    }), ia(() => s(d)), (C, x) => (c(), f("div", {
       ref_key: "paneEl",
       ref: b,
       class: "splitpanes__pane",
       onClick: x[0] ||= (D) => o(u)(D, C._.uid),
       style: Ea($.value)
-    }, [Xe(C.$slots, "default")], 4));
+    }, [Qe(C.$slots, "default")], 4));
   }
 }, m0 = "M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z", _0 = "M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z", w0 = "M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z", k0 = "M20 4H4A2 2 0 0 0 2 6V18A2 2 0 0 0 4 20H20A2 2 0 0 0 22 18V6A2 2 0 0 0 20 4M20 18H9V6H20Z";
 const Ud = 1024, Cb = Ud / 2, wo = (e) => document.documentElement.clientWidth < e, $b = /* @__PURE__ */ U(wo(Ud)), Tb = /* @__PURE__ */ U(wo(Cb));
@@ -7865,7 +7865,7 @@ class $0 {
 function T0() {
   return new $0();
 }
-const Ab = T0().detectLanguage().build(), Ht = (...e) => Ab.gettext(...e);
+const Ab = T0().detectLanguage().build(), qt = (...e) => Ab.gettext(...e);
 function Rn(...e) {
   for (const t of e)
     if (!t.registered) {
@@ -7902,7 +7902,7 @@ const mt = (e, t) => {
   for (const [i, n] of t)
     a[i] = n;
   return a;
-}, z0 = { class: "button-vue__wrapper" }, B0 = { class: "button-vue__icon" }, V0 = { class: "button-vue__text" }, H0 = /* @__PURE__ */ ta({
+}, z0 = { class: "button-vue__wrapper" }, B0 = { class: "button-vue__icon" }, V0 = { class: "button-vue__text" }, H0 = /* @__PURE__ */ aa({
   __name: "NcButton",
   props: {
     alignment: { default: "center" },
@@ -7961,14 +7961,14 @@ const mt = (e, t) => {
       ]],
       "aria-label": e.ariaLabel
     }, $.value, { onClick: C }), {
-      default: Te(() => [
+      default: Ae(() => [
         r("span", z0, [
           r("span", B0, [
-            Xe(x.$slots, "icon", {}, void 0, !0)
+            Qe(x.$slots, "icon", {}, void 0, !0)
           ]),
           r("span", V0, [
-            Xe(x.$slots, "default", {}, () => [
-              Q(l(e.text), 1)
+            Qe(x.$slots, "default", {}, () => [
+              X(l(e.text), 1)
             ], !0)
           ])
         ])
@@ -7980,7 +7980,7 @@ const mt = (e, t) => {
   key: 0,
   viewBox: "0 0 24 24",
   xmlns: "http://www.w3.org/2000/svg"
-}, K0 = ["d"], W0 = ["innerHTML"], Y0 = /* @__PURE__ */ ta({
+}, K0 = ["d"], W0 = ["innerHTML"], Y0 = /* @__PURE__ */ aa({
   __name: "NcIconSvgWrapper",
   props: {
     directional: { type: Boolean },
@@ -8003,7 +8003,7 @@ const mt = (e, t) => {
     return (n, s) => (c(), f("span", {
       "aria-hidden": e.name ? void 0 : "true",
       "aria-label": e.name || void 0,
-      class: xe(["icon-vue", {
+      class: Ne(["icon-vue", {
         "icon-vue--directional": e.directional,
         "icon-vue--inline": e.inline
       }]),
@@ -8182,13 +8182,13 @@ const lw = iw(() => {
   return e.find(({ id: a }) => a === t)?.name ?? t;
 }), Xc = K_();
 Rn(I0);
-const sw = /* @__PURE__ */ ta({
+const sw = /* @__PURE__ */ aa({
   __name: "NcAppContentDetailsToggle",
   setup(e) {
     const t = ys();
-    qe(t, a), xt(() => {
+    Ge(t, a), xt(() => {
       a(t.value);
-    }), aa(() => {
+    }), ia(() => {
       t.value && a(!1);
     });
     function a(i = !0) {
@@ -8196,12 +8196,12 @@ const sw = /* @__PURE__ */ ta({
       n && (n.style.display = i ? "none" : "", i === !0 && Xi("toggle-navigation", { open: !1 }));
     }
     return (i, n) => (c(), ze(o(Ti), {
-      "aria-label": o(Ht)("Go back to the list"),
-      class: xe(["app-details-toggle", { "app-details-toggle--mobile": o(t) }]),
-      title: o(Ht)("Go back to the list"),
+      "aria-label": o(qt)("Go back to the list"),
+      class: Ne(["app-details-toggle", { "app-details-toggle--mobile": o(t) }]),
+      title: o(qt)("Go back to the list"),
       variant: "tertiary"
     }, {
-      icon: Te(() => [
+      icon: Ae(() => [
         ve(o(Cu), {
           directional: "",
           path: o(m0)
@@ -8427,13 +8427,13 @@ function pw(e, t, a, i, n, s) {
   const u = rt("NcAppContentDetailsToggle"), d = rt("Pane"), v = rt("Splitpanes");
   return c(), f("main", {
     id: "app-content-vue",
-    class: xe(["app-content no-snapper", { "app-content--has-list": !!e.$slots.list }])
+    class: Ne(["app-content no-snapper", { "app-content--has-list": !!e.$slots.list }])
   }, [
     a.pageHeading ? (c(), f("h1", dw, l(a.pageHeading), 1)) : S("", !0),
     e.$slots.list ? (c(), f(K, { key: 1 }, [
       i.isMobile || a.layout === "no-split" ? (c(), f("div", {
         key: 0,
-        class: xe(["app-content-wrapper app-content-wrapper--no-split", {
+        class: Ne(["app-content-wrapper app-content-wrapper--no-split", {
           "app-content-wrapper--show-details": a.showDetails,
           "app-content-wrapper--show-list": !a.showDetails,
           "app-content-wrapper--mobile": i.isMobile
@@ -8441,33 +8441,33 @@ function pw(e, t, a, i, n, s) {
       }, [
         a.showDetails ? (c(), ze(u, {
           key: 0,
-          onClick: $e(s.hideDetails, ["stop", "prevent"])
+          onClick: Te(s.hideDetails, ["stop", "prevent"])
         }, null, 8, ["onClick"])) : S("", !0),
         fe(r("div", fw, [
-          Xe(e.$slots, "list", {}, void 0, !0)
+          Qe(e.$slots, "list", {}, void 0, !0)
         ], 512), [
           [dr, !a.showDetails]
         ]),
-        a.showDetails ? Xe(e.$slots, "default", { key: 1 }, void 0, !0) : S("", !0)
+        a.showDetails ? Qe(e.$slots, "default", { key: 1 }, void 0, !0) : S("", !0)
       ], 2)) : a.layout === "vertical-split" || a.layout === "horizontal-split" ? (c(), f("div", hw, [
         ve(v, {
           horizontal: a.layout === "horizontal-split",
-          class: xe(["default-theme", {
+          class: Ne(["default-theme", {
             "splitpanes--horizontal": a.layout === "horizontal-split",
             "splitpanes--vertical": a.layout === "vertical-split"
           }]),
           rtl: i.isRtl,
           onResized: s.handlePaneResize
         }, {
-          default: Te(() => [
+          default: Ae(() => [
             ve(d, {
               class: "splitpanes__pane-list",
               size: n.listPaneSize || s.paneDefaults.list.size,
               minSize: s.paneDefaults.list.min,
               maxSize: s.paneDefaults.list.max
             }, {
-              default: Te(() => [
-                Xe(e.$slots, "list", {}, void 0, !0)
+              default: Ae(() => [
+                Qe(e.$slots, "list", {}, void 0, !0)
               ]),
               _: 3
             }, 8, ["size", "minSize", "maxSize"]),
@@ -8477,8 +8477,8 @@ function pw(e, t, a, i, n, s) {
               minSize: s.paneDefaults.details.min,
               maxSize: s.paneDefaults.details.max
             }, {
-              default: Te(() => [
-                Xe(e.$slots, "default", {}, void 0, !0)
+              default: Ae(() => [
+                Qe(e.$slots, "default", {}, void 0, !0)
               ]),
               _: 3
             }, 8, ["size", "minSize", "maxSize"])
@@ -8487,7 +8487,7 @@ function pw(e, t, a, i, n, s) {
         }, 8, ["horizontal", "class", "rtl", "onResized"])
       ])) : S("", !0)
     ], 64)) : S("", !0),
-    e.$slots.list ? S("", !0) : Xe(e.$slots, "default", { key: 2 }, void 0, !0)
+    e.$slots.list ? S("", !0) : Qe(e.$slots, "default", { key: 2 }, void 0, !0)
   ], 2);
 }
 const vw = /* @__PURE__ */ mt(cw, [["render", pw], ["__scopeId", "data-v-51427d61"]]);
@@ -8918,29 +8918,29 @@ var Wi = {
   }, g = function(F, z) {
     var re = typeof z?.composedPath == "function" ? z.composedPath() : void 0;
     return u.containerGroups.findIndex(function(te) {
-      var X = te.container, H = te.tabbableNodes;
-      return X.contains(F) || re?.includes(X) || H.find(function(de) {
+      var J = te.container, H = te.tabbableNodes;
+      return J.contains(F) || re?.includes(J) || H.find(function(de) {
         return de === F;
       });
     });
   }, b = function(F) {
-    var z = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, re = z.hasFallback, te = re === void 0 ? !1 : re, X = z.params, H = X === void 0 ? [] : X, de = s[F];
+    var z = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, re = z.hasFallback, te = re === void 0 ? !1 : re, J = z.params, H = J === void 0 ? [] : J, de = s[F];
     if (typeof de == "function" && (de = de.apply(void 0, Dw(H))), de === !0 && (de = void 0), !de) {
       if (de === void 0 || de === !1)
         return de;
       throw new Error("`".concat(F, "` was specified but was not a node, or did not return a node"));
     }
-    var Ae = de;
+    var Ee = de;
     if (typeof de == "string") {
       try {
-        Ae = i.querySelector(de);
+        Ee = i.querySelector(de);
       } catch (Ie) {
         throw new Error("`".concat(F, '` appears to be an invalid selector; error="').concat(Ie.message, '"'));
       }
-      if (!Ae && !te)
+      if (!Ee && !te)
         throw new Error("`".concat(F, "` as selector refers to no known node"));
     }
-    return Ae;
+    return Ee;
   }, m = function(F) {
     var z = F.activeElement;
     return z ? z.shadowRoot && z.shadowRoot.activeElement !== null ? m(z.shadowRoot) : z : null;
@@ -8964,11 +8964,11 @@ var Wi = {
     return F;
   }, k = function() {
     if (u.containerGroups = u.containers.map(function(F) {
-      var z = xw(F, s.tabbableOptions), re = Nw(F, s.tabbableOptions), te = z.length > 0 ? z[0] : void 0, X = z.length > 0 ? z[z.length - 1] : void 0, H = re.find(function(Ie) {
+      var z = xw(F, s.tabbableOptions), re = Nw(F, s.tabbableOptions), te = z.length > 0 ? z[0] : void 0, J = z.length > 0 ? z[z.length - 1] : void 0, H = re.find(function(Ie) {
         return Tr(Ie);
       }), de = re.slice().reverse().find(function(Ie) {
         return Tr(Ie);
-      }), Ae = !!z.find(function(Ie) {
+      }), Ee = !!z.find(function(Ie) {
         return lr(Ie) > 0;
       });
       return {
@@ -8976,11 +8976,11 @@ var Wi = {
         tabbableNodes: z,
         focusableNodes: re,
         /** True if at least one node with positive `tabindex` was found in this container. */
-        posTabIndexesFound: Ae,
+        posTabIndexesFound: Ee,
         /** First tabbable node in container, __tabindex__ order; `undefined` if none. */
         firstTabbableNode: te,
         /** Last tabbable node in container, __tabindex__ order; `undefined` if none. */
-        lastTabbableNode: X,
+        lastTabbableNode: J,
         // NOTE: DOM order is NOT NECESSARILY "document position" order, but figuring that out
         //  would require more than just https://developer.mozilla.org/en-US/docs/Web/API/Node/compareDocumentPosition
         //  because that API doesn't work with Shadow DOM as well as it should (@see
@@ -9001,12 +9001,12 @@ var Wi = {
          * @returns {HTMLElement|undefined} The next tabbable node, if any.
          */
         nextTabbableNode: function(Le) {
-          var He = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : !0, Qe = z.indexOf(Le);
-          return Qe < 0 ? He ? re.slice(re.indexOf(Le) + 1).find(function(ke) {
+          var He = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : !0, et = z.indexOf(Le);
+          return et < 0 ? He ? re.slice(re.indexOf(Le) + 1).find(function(ke) {
             return Tr(ke);
           }) : re.slice(0, re.indexOf(Le)).reverse().find(function(ke) {
             return Tr(ke);
-          }) : z[Qe + (He ? 1 : -1)];
+          }) : z[et + (He ? 1 : -1)];
         }
       };
     }), u.tabbableGroups = u.containerGroups.filter(function(F) {
@@ -9033,31 +9033,31 @@ var Wi = {
     });
     return z || (z === !1 ? !1 : F);
   }, x = function(F) {
-    var z = F.target, re = F.event, te = F.isBackward, X = te === void 0 ? !1 : te;
+    var z = F.target, re = F.event, te = F.isBackward, J = te === void 0 ? !1 : te;
     z = z || Ks(re), k();
     var H = null;
     if (u.tabbableGroups.length > 0) {
-      var de = g(z, re), Ae = de >= 0 ? u.containerGroups[de] : void 0;
+      var de = g(z, re), Ee = de >= 0 ? u.containerGroups[de] : void 0;
       if (de < 0)
-        X ? H = u.tabbableGroups[u.tabbableGroups.length - 1].lastTabbableNode : H = u.tabbableGroups[0].firstTabbableNode;
-      else if (X) {
+        J ? H = u.tabbableGroups[u.tabbableGroups.length - 1].lastTabbableNode : H = u.tabbableGroups[0].firstTabbableNode;
+      else if (J) {
         var Ie = u.tabbableGroups.findIndex(function(we) {
           var Me = we.firstTabbableNode;
           return z === Me;
         });
-        if (Ie < 0 && (Ae.container === z || Ac(z, s.tabbableOptions) && !Tr(z, s.tabbableOptions) && !Ae.nextTabbableNode(z, !1)) && (Ie = de), Ie >= 0) {
+        if (Ie < 0 && (Ee.container === z || Ac(z, s.tabbableOptions) && !Tr(z, s.tabbableOptions) && !Ee.nextTabbableNode(z, !1)) && (Ie = de), Ie >= 0) {
           var Le = Ie === 0 ? u.tabbableGroups.length - 1 : Ie - 1, He = u.tabbableGroups[Le];
           H = lr(z) >= 0 ? He.lastTabbableNode : He.lastDomTabbableNode;
-        } else Dl(re) || (H = Ae.nextTabbableNode(z, !1));
+        } else Dl(re) || (H = Ee.nextTabbableNode(z, !1));
       } else {
-        var Qe = u.tabbableGroups.findIndex(function(we) {
+        var et = u.tabbableGroups.findIndex(function(we) {
           var Me = we.lastTabbableNode;
           return z === Me;
         });
-        if (Qe < 0 && (Ae.container === z || Ac(z, s.tabbableOptions) && !Tr(z, s.tabbableOptions) && !Ae.nextTabbableNode(z)) && (Qe = de), Qe >= 0) {
-          var ke = Qe === u.tabbableGroups.length - 1 ? 0 : Qe + 1, Pe = u.tabbableGroups[ke];
+        if (et < 0 && (Ee.container === z || Ac(z, s.tabbableOptions) && !Tr(z, s.tabbableOptions) && !Ee.nextTabbableNode(z)) && (et = de), et >= 0) {
+          var ke = et === u.tabbableGroups.length - 1 ? 0 : et + 1, Pe = u.tabbableGroups[ke];
           H = lr(z) >= 0 ? Pe.firstTabbableNode : Pe.firstDomTabbableNode;
-        } else Dl(re) || (H = Ae.nextTabbableNode(z));
+        } else Dl(re) || (H = Ee.nextTabbableNode(z));
       }
     } else
       H = b("fallbackFocus");
@@ -9085,25 +9085,25 @@ var Wi = {
       re && (u.mostRecentlyFocusedNode = z);
     else {
       F.stopImmediatePropagation();
-      var te, X = !0;
+      var te, J = !0;
       if (u.mostRecentlyFocusedNode)
         if (lr(u.mostRecentlyFocusedNode) > 0) {
           var H = g(u.mostRecentlyFocusedNode), de = u.containerGroups[H].tabbableNodes;
           if (de.length > 0) {
-            var Ae = de.findIndex(function(Ie) {
+            var Ee = de.findIndex(function(Ie) {
               return Ie === u.mostRecentlyFocusedNode;
             });
-            Ae >= 0 && (s.isKeyForward(u.recentNavEvent) ? Ae + 1 < de.length && (te = de[Ae + 1], X = !1) : Ae - 1 >= 0 && (te = de[Ae - 1], X = !1));
+            Ee >= 0 && (s.isKeyForward(u.recentNavEvent) ? Ee + 1 < de.length && (te = de[Ee + 1], J = !1) : Ee - 1 >= 0 && (te = de[Ee - 1], J = !1));
           }
         } else
           u.containerGroups.some(function(Ie) {
             return Ie.tabbableNodes.some(function(Le) {
               return lr(Le) > 0;
             });
-          }) || (X = !1);
+          }) || (J = !1);
       else
-        X = !1;
-      X && (te = x({
+        J = !1;
+      J && (te = x({
         // move FROM the MRU node, not event-related node (which will be the node that is
         //  outside the trap causing the focus escape we're trying to fix)
         target: u.mostRecentlyFocusedNode,
@@ -9123,7 +9123,7 @@ var Wi = {
     (s.isKeyForward(F) || s.isKeyBackward(F)) && L(F, s.isKeyBackward(F));
   }, ee = function(F) {
     jw(F) && Sl(s.escapeDeactivates, F) !== !1 && (F.preventDefault(), d.deactivate());
-  }, J = function(F) {
+  }, Z = function(F) {
     var z = Ks(F);
     g(z, F) >= 0 || Sl(s.clickOutsideDeactivates, F) || Sl(s.allowOutsideClick, F) || (F.preventDefault(), F.stopImmediatePropagation());
   }, T = function() {
@@ -9140,7 +9140,7 @@ var Wi = {
       }), i.addEventListener("touchstart", D, {
         capture: !0,
         passive: !1
-      }), i.addEventListener("click", J, {
+      }), i.addEventListener("click", Z, {
         capture: !0,
         passive: !1
       }), i.addEventListener("keydown", M, {
@@ -9150,19 +9150,19 @@ var Wi = {
     }
   }, j = function(F) {
     u.active && !u.paused && d._setSubtreeIsolation(!1), u.adjacentElements.clear(), u.alreadySilent.clear();
-    var z = /* @__PURE__ */ new Set(), re = /* @__PURE__ */ new Set(), te = lp(F), X;
+    var z = /* @__PURE__ */ new Set(), re = /* @__PURE__ */ new Set(), te = lp(F), J;
     try {
-      for (te.s(); !(X = te.n()).done; ) {
-        var H = X.value;
+      for (te.s(); !(J = te.n()).done; ) {
+        var H = J.value;
         z.add(H);
-        for (var de = typeof ShadowRoot < "u" && H.getRootNode() instanceof ShadowRoot, Ae = H; Ae; ) {
-          z.add(Ae);
-          var Ie = Ae.parentElement, Le = [];
-          Ie ? Le = Ie.children : !Ie && de && (Le = Ae.getRootNode().children, Ie = Ae.getRootNode().host, de = typeof ShadowRoot < "u" && Ie.getRootNode() instanceof ShadowRoot);
-          var He = lp(Le), Qe;
+        for (var de = typeof ShadowRoot < "u" && H.getRootNode() instanceof ShadowRoot, Ee = H; Ee; ) {
+          z.add(Ee);
+          var Ie = Ee.parentElement, Le = [];
+          Ie ? Le = Ie.children : !Ie && de && (Le = Ee.getRootNode().children, Ie = Ee.getRootNode().host, de = typeof ShadowRoot < "u" && Ie.getRootNode() instanceof ShadowRoot);
+          var He = lp(Le), et;
           try {
-            for (He.s(); !(Qe = He.n()).done; ) {
-              var ke = Qe.value;
+            for (He.s(); !(et = He.n()).done; ) {
+              var ke = et.value;
               re.add(ke);
             }
           } catch (Pe) {
@@ -9170,7 +9170,7 @@ var Wi = {
           } finally {
             He.f();
           }
-          Ae = Ie;
+          Ee = Ie;
         }
       }
     } catch (Pe) {
@@ -9183,25 +9183,25 @@ var Wi = {
     }), u.adjacentElements = re;
   }, W = function() {
     if (u.active)
-      return i.removeEventListener("focusin", I, !0), i.removeEventListener("mousedown", D, !0), i.removeEventListener("touchstart", D, !0), i.removeEventListener("click", J, !0), i.removeEventListener("keydown", M, !0), i.removeEventListener("keydown", ee), d;
-  }, ie = function(F) {
+      return i.removeEventListener("focusin", I, !0), i.removeEventListener("mousedown", D, !0), i.removeEventListener("touchstart", D, !0), i.removeEventListener("click", Z, !0), i.removeEventListener("keydown", M, !0), i.removeEventListener("keydown", ee), d;
+  }, ae = function(F) {
     var z = u.mostRecentlyFocusedNode;
     if (z) {
-      var re = F.some(function(X) {
-        var H = Array.from(X.removedNodes);
+      var re = F.some(function(J) {
+        var H = Array.from(J.removedNodes);
         return H.some(function(de) {
           return de === z || typeof de.contains == "function" && de.contains(z);
         });
       });
-      if (re && u.containers.some(function(X) {
-        return X?.isConnected;
+      if (re && u.containers.some(function(J) {
+        return J?.isConnected;
       })) {
         k();
         var te = _();
         $(te);
       }
     }
-  }, se = typeof window < "u" && "MutationObserver" in window ? new MutationObserver(ie) : void 0, V = function() {
+  }, se = typeof window < "u" && "MutationObserver" in window ? new MutationObserver(ae) : void 0, V = function() {
     se && (se.disconnect(), u.active && !u.paused && u.containers.map(function(F) {
       se.observe(F, {
         subtree: !0,
@@ -9219,31 +9219,31 @@ var Wi = {
     activate: function(F) {
       if (u.active)
         return this;
-      var z = v(F, "onActivate"), re = v(F, "onPostActivate"), te = v(F, "checkCanFocusTrap"), X = Wi.getActiveTrap(n), H = !1;
-      if (X && !X.paused) {
+      var z = v(F, "onActivate"), re = v(F, "onPostActivate"), te = v(F, "checkCanFocusTrap"), J = Wi.getActiveTrap(n), H = !1;
+      if (J && !J.paused) {
         var de;
-        (de = X._setSubtreeIsolation) === null || de === void 0 || de.call(X, !1), H = !0;
+        (de = J._setSubtreeIsolation) === null || de === void 0 || de.call(J, !1), H = !0;
       }
       try {
         te || k(), u.active = !0, u.paused = !1, u.nodeFocusedBeforeActivation = m(i), z?.({
           trap: d
         });
-        var Ae = function() {
+        var Ee = function() {
           te && k();
           var He = function() {
             d._setSubtreeIsolation(!0), V(), re?.({
               trap: d
             });
-          }, Qe = T();
-          Qe ? Qe.then(He) : He();
+          }, et = T();
+          et ? et.then(He) : He();
         };
         if (te)
-          return te(u.containers.concat()).then(Ae, Ae), this;
-        Ae();
+          return te(u.containers.concat()).then(Ee, Ee), this;
+        Ee();
       } catch (Le) {
-        if (X === Wi.getActiveTrap(n) && H) {
+        if (J === Wi.getActiveTrap(n) && H) {
           var Ie;
-          (Ie = X._setSubtreeIsolation) === null || Ie === void 0 || Ie.call(X, !0);
+          (Ie = J._setSubtreeIsolation) === null || Ie === void 0 || Ie.call(J, !0);
         }
         throw Le;
       }
@@ -9258,18 +9258,18 @@ var Wi = {
         checkCanReturnFocus: s.checkCanReturnFocus
       }, F);
       clearTimeout(u.delayInitialFocusTimer), u.delayInitialFocusTimer = void 0, u.paused || d._setSubtreeIsolation(!1), u.alreadySilent.clear(), W(), u.active = !1, u.paused = !1, V(), Wi.deactivateTrap(n, d);
-      var re = v(z, "onDeactivate"), te = v(z, "onPostDeactivate"), X = v(z, "checkCanReturnFocus"), H = v(z, "delayReturnFocus"), de = v(z, "returnFocus", "returnFocusOnDeactivate");
+      var re = v(z, "onDeactivate"), te = v(z, "onPostDeactivate"), J = v(z, "checkCanReturnFocus"), H = v(z, "delayReturnFocus"), de = v(z, "returnFocus", "returnFocusOnDeactivate");
       re?.({
         trap: d
       });
-      var Ae = function() {
+      var Ee = function() {
         de && $(C(u.nodeFocusedBeforeActivation)), te?.({
           trap: d
         });
       }, Ie = function() {
-        H && de ? up(Ae) : Ae();
+        H && de ? up(Ee) : Ee();
       };
-      return de && X ? (X(C(u.nodeFocusedBeforeActivation)).then(Ie, Ie), this) : (Ie(), this);
+      return de && J ? (J(C(u.nodeFocusedBeforeActivation)).then(Ie, Ie), this) : (Ie(), this);
     },
     pause: function(F) {
       return u.active ? (u.manuallyPaused = !0, this._setPausedState(!0, F)) : this;
@@ -9301,8 +9301,8 @@ var Wi = {
             trap: d
           });
         } else {
-          var X = v(z, "onUnpause"), H = v(z, "onPostUnpause");
-          X?.({
+          var J = v(z, "onUnpause"), H = v(z, "onPostUnpause");
+          J?.({
             trap: d
           });
           var de = function() {
@@ -9329,7 +9329,7 @@ var Wi = {
     }
   }), d.updateContainerElements(t), d;
 };
-const Mb = /* @__PURE__ */ Symbol("nc:app-navigation-highlight"), Hw = /* @__PURE__ */ ta({
+const Mb = /* @__PURE__ */ Symbol("nc:app-navigation-highlight"), Hw = /* @__PURE__ */ aa({
   name: "NcAppNavigationList",
   provide() {
     return {
@@ -9430,13 +9430,13 @@ const Mb = /* @__PURE__ */ Symbol("nc:app-navigation-highlight"), Hw = /* @__PUR
 function qw(e, t, a, i, n, s) {
   return c(), f("ul", {
     ref: "list",
-    class: xe(["app-navigation-list", { "app-navigation-list--animated-highlight": e.visible }]),
+    class: Ne(["app-navigation-list", { "app-navigation-list--animated-highlight": e.visible }]),
     onPointerleave: t[0] || (t[0] = (...u) => e.hideNow && e.hideNow(...u)),
     onFocusout: t[1] || (t[1] = (...u) => e.onFocusOut && e.onFocusOut(...u)),
     onScrollPassive: t[2] || (t[2] = (...u) => e.onScroll && e.onScroll(...u))
   }, [
     r("div", {
-      class: xe(["app-navigation-list__highlight", {
+      class: Ne(["app-navigation-list__highlight", {
         "app-navigation-list__highlight--visible": e.visible,
         "app-navigation-list__highlight--animated": e.animated,
         "app-navigation-list__highlight--over-active": e.overActive
@@ -9444,7 +9444,7 @@ function qw(e, t, a, i, n, s) {
       style: Ea(e.highlightStyle),
       "aria-hidden": "true"
     }, null, 6),
-    Xe(e.$slots, "default", {}, void 0, !0)
+    Qe(e.$slots, "default", {}, void 0, !0)
   ], 34);
 }
 const Ub = /* @__PURE__ */ mt(Hw, [["render", qw], ["__scopeId", "data-v-3e73e246"]]);
@@ -9476,7 +9476,7 @@ function Gw() {
 }
 const jb = /* @__PURE__ */ Symbol.for("NcContent:setHasAppNavigation"), zb = /* @__PURE__ */ Symbol.for("NcContent:selector");
 Rn(N0);
-const Kw = { class: "app-navigation-toggle-wrapper" }, Ww = /* @__PURE__ */ ta({
+const Kw = { class: "app-navigation-toggle-wrapper" }, Ww = /* @__PURE__ */ aa({
   __name: "NcAppNavigationToggle",
   props: {
     open: { type: Boolean, required: !0 },
@@ -9484,7 +9484,7 @@ const Kw = { class: "app-navigation-toggle-wrapper" }, Ww = /* @__PURE__ */ ta({
   },
   emits: ["update:open"],
   setup(e) {
-    const t = Fv(e, "open"), a = G(() => t.value ? Ht("Close navigation") : Ht("Open navigation"));
+    const t = Fv(e, "open"), a = G(() => t.value ? qt("Close navigation") : qt("Open navigation"));
     return (i, n) => (c(), f("div", Kw, [
       ve(o(Ti), {
         class: "app-navigation-toggle",
@@ -9495,7 +9495,7 @@ const Kw = { class: "app-navigation-toggle-wrapper" }, Ww = /* @__PURE__ */ ta({
         variant: "tertiary",
         onClick: n[0] || (n[0] = (s) => t.value = !t.value)
       }, {
-        icon: Te(() => [
+        icon: Ae(() => [
           ve(Cu, {
             path: o(k0),
             directional: ""
@@ -9505,7 +9505,7 @@ const Kw = { class: "app-navigation-toggle-wrapper" }, Ww = /* @__PURE__ */ ta({
       }, 8, ["aria-expanded", "aria-label", "title"])
     ]));
   }
-}), Yw = /* @__PURE__ */ mt(Ww, [["__scopeId", "data-v-e8177cc7"]]), Zw = ["aria-hidden", "aria-label", "aria-labelledby", "inert"], Jw = { class: "app-navigation__search" }, Xw = /* @__PURE__ */ ta({
+}), Yw = /* @__PURE__ */ mt(Ww, [["__scopeId", "data-v-e8177cc7"]]), Zw = ["aria-hidden", "aria-label", "aria-labelledby", "inert"], Jw = { class: "app-navigation__search" }, Xw = /* @__PURE__ */ aa({
   __name: "NcAppNavigation",
   props: {
     ariaLabel: {},
@@ -9521,9 +9521,9 @@ const Kw = { class: "app-navigation-toggle-wrapper" }, Ww = /* @__PURE__ */ ta({
     ), n = Lm("appNavigationContainer"), s = ys(), u = /* @__PURE__ */ U(!s.value), d = G(() => s.value && u.value);
     $m(() => {
       !t.ariaLabel && t.ariaLabelledby;
-    }), qe(s, () => {
+    }), Ge(s, () => {
       u.value = !s.value;
-    }), qe(d, () => {
+    }), Ge(d, () => {
       b();
     }), xt(() => {
       i(!0), wb("toggle-navigation", g), Xi("navigation-toggled", {
@@ -9564,7 +9564,7 @@ const Kw = { class: "app-navigation-toggle-wrapper" }, Ww = /* @__PURE__ */ ta({
     }
     return (_, k) => (c(), f("div", {
       ref: "appNavigationContainer",
-      class: xe(["app-navigation", {
+      class: Ne(["app-navigation", {
         "app-navigation--closed": !u.value,
         "app-navigation--legacy": o(In)
       }])
@@ -9579,23 +9579,23 @@ const Kw = { class: "app-navigation-toggle-wrapper" }, Ww = /* @__PURE__ */ ta({
         onKeydown: bt(m, ["esc"])
       }, [
         r("div", Jw, [
-          Xe(_.$slots, "search", {}, void 0, !0)
+          Qe(_.$slots, "search", {}, void 0, !0)
         ]),
         r("div", {
-          class: xe(["app-navigation__body", { "app-navigation__body--no-list": !_.$slots.list }])
+          class: Ne(["app-navigation__body", { "app-navigation__body--no-list": !_.$slots.list }])
         }, [
-          Xe(_.$slots, "default", {}, void 0, !0)
+          Qe(_.$slots, "default", {}, void 0, !0)
         ], 2),
         _.$slots.list ? (c(), ze(Ub, {
           key: 0,
           class: "app-navigation__list"
         }, {
-          default: Te(() => [
-            Xe(_.$slots, "list", {}, void 0, !0)
+          default: Ae(() => [
+            Qe(_.$slots, "list", {}, void 0, !0)
           ]),
           _: 3
         })) : S("", !0),
-        Xe(_.$slots, "footer", {}, void 0, !0)
+        Qe(_.$slots, "footer", {}, void 0, !0)
       ], 40, Zw),
       ve(Yw, {
         open: u.value,
@@ -9797,8 +9797,8 @@ const Tk = {
   },
   data() {
     return {
-      labelConfirm: Ht("Confirm changes"),
-      labelCancel: Ht("Cancel changes")
+      labelConfirm: qt("Confirm changes"),
+      labelCancel: qt("Cancel changes")
     };
   },
   computed: {
@@ -9826,12 +9826,12 @@ const Tk = {
 function Ek(e, t, a, i, n, s) {
   const u = rt("IconArrowRight"), d = rt("NcButton"), v = rt("IconClose");
   return c(), f("div", {
-    class: xe(["app-navigation-input-confirm", { "app-navigation-input-confirm--legacy": i.isLegacy34 }])
+    class: Ne(["app-navigation-input-confirm", { "app-navigation-input-confirm--legacy": i.isLegacy34 }])
   }, [
     r("form", {
-      onSubmit: t[1] || (t[1] = $e((...g) => s.confirm && s.confirm(...g), ["prevent"])),
-      onKeydown: t[2] || (t[2] = bt($e((...g) => s.cancel && s.cancel(...g), ["exact", "stop", "prevent"]), ["esc"])),
-      onClick: t[3] || (t[3] = $e(() => {
+      onSubmit: t[1] || (t[1] = Te((...g) => s.confirm && s.confirm(...g), ["prevent"])),
+      onKeydown: t[2] || (t[2] = bt(Te((...g) => s.cancel && s.cancel(...g), ["exact", "stop", "prevent"]), ["esc"])),
+      onClick: t[3] || (t[3] = Te(() => {
       }, ["stop", "prevent"]))
     }, [
       fe(r("input", {
@@ -9841,15 +9841,15 @@ function Ek(e, t, a, i, n, s) {
         class: "app-navigation-input-confirm__input",
         placeholder: a.placeholder
       }, null, 8, Ak), [
-        [Oe, s.valueModel]
+        [Re, s.valueModel]
       ]),
       ve(d, {
         "aria-label": n.labelConfirm,
         type: "submit",
         variant: "primary",
-        onClick: $e(s.confirm, ["stop", "prevent"])
+        onClick: Te(s.confirm, ["stop", "prevent"])
       }, {
-        icon: Te(() => [
+        icon: Ae(() => [
           ve(u, { size: 20 })
         ]),
         _: 1
@@ -9858,9 +9858,9 @@ function Ek(e, t, a, i, n, s) {
         "aria-label": n.labelCancel,
         type: "reset",
         variant: a.primary ? "primary" : "tertiary",
-        onClick: $e(s.cancel, ["stop", "prevent"])
+        onClick: Te(s.cancel, ["stop", "prevent"])
       }, {
-        icon: Te(() => [
+        icon: Ae(() => [
           ve(v, { size: 20 })
         ]),
         _: 1
@@ -10091,7 +10091,7 @@ const zd = /* @__PURE__ */ Symbol.for("NcActions:isSemanticMenu"), Hb = /* @__PU
 function jk(e, t, a, i, n, s) {
   const u = rt("NcIconSvgWrapper");
   return c(), f("li", {
-    class: xe(["action", { "action--disabled": a.disabled }]),
+    class: Ne(["action", { "action--disabled": a.disabled }]),
     role: s.isInSemanticMenu && "presentation"
   }, [
     r("button", fa({
@@ -10106,9 +10106,9 @@ function jk(e, t, a, i, n, s) {
     }, s.buttonAttributes, {
       onClick: t[0] || (t[0] = (...d) => s.handleClick && s.handleClick(...d))
     }), [
-      Xe(e.$slots, "icon", {}, () => [
+      Qe(e.$slots, "icon", {}, () => [
         r("span", {
-          class: xe([[e.isIconUrl ? "action-button__icon--url" : e.icon], "action-button__icon"]),
+          class: Ne([[e.isIconUrl ? "action-button__icon--url" : e.icon], "action-button__icon"]),
           style: Ea({ backgroundImage: e.isIconUrl ? `url(${e.icon})` : null }),
           "aria-hidden": "true"
         }, null, 6)
@@ -10143,7 +10143,7 @@ function jk(e, t, a, i, n, s) {
 const zk = /* @__PURE__ */ mt(Ok, [["render", jk], ["__scopeId", "data-v-6c2daf4e"]]);
 function Bk(e, t = {}) {
   const a = Gw();
-  qe(e, () => {
+  Ge(e, () => {
     Zi(t.disabled) || (Zi(e) ? a.pause() : a.unpause());
   }), jr(() => {
     a.unpause();
@@ -10363,7 +10363,7 @@ const Xk = 50, Qk = async (e, t, a) => {
       x: L,
       y: M,
       data: ee,
-      reset: J
+      reset: Z
     } = await I({
       x: b,
       y: m,
@@ -10381,11 +10381,11 @@ const Xk = 50, Qk = async (e, t, a) => {
     b = L ?? b, m = M ?? m, $[D] = {
       ...$[D],
       ...ee
-    }, J && k < Xk && (k++, typeof J == "object" && (J.placement && (_ = J.placement), J.rects && (g = J.rects === !0 ? await u.getElementRects({
+    }, Z && k < Xk && (k++, typeof Z == "object" && (Z.placement && (_ = Z.placement), Z.rects && (g = Z.rects === !0 ? await u.getElementRects({
       reference: e,
       floating: t,
       strategy: n
-    }) : J.rects), {
+    }) : Z.rects), {
       x: b,
       y: m
     } = pp(g, _, v)), C = -1);
@@ -10418,10 +10418,10 @@ const Xk = 50, Qk = async (e, t, a) => {
     const m = Yb(b), _ = {
       x: a,
       y: i
-    }, k = Vd(n), $ = Bd(k), C = await u.getDimensions(g), x = k === "y", D = x ? "top" : "left", I = x ? "bottom" : "right", L = x ? "clientHeight" : "clientWidth", M = s.reference[$] + s.reference[k] - _[k] - s.floating[$], ee = _[k] - s.reference[k], J = await (u.getOffsetParent == null ? void 0 : u.getOffsetParent(g));
-    let T = J ? J[L] : 0;
-    (!T || !await (u.isElement == null ? void 0 : u.isElement(J))) && (T = d.floating[L] || s.floating[$]);
-    const j = M / 2 - ee / 2, W = T / 2 - C[$] / 2 - 1, ie = ls(m[D], W), se = ls(m[I], W), V = T - C[$] - se, B = T / 2 - C[$] / 2 + j, F = Gb(ie, B, V), z = !v.arrow && di(n) != null && B !== F && s.reference[$] / 2 - (B < ie ? ie : se) - C[$] / 2 < 0, re = z ? B < ie ? B - ie : B - V : 0;
+    }, k = Vd(n), $ = Bd(k), C = await u.getDimensions(g), x = k === "y", D = x ? "top" : "left", I = x ? "bottom" : "right", L = x ? "clientHeight" : "clientWidth", M = s.reference[$] + s.reference[k] - _[k] - s.floating[$], ee = _[k] - s.reference[k], Z = await (u.getOffsetParent == null ? void 0 : u.getOffsetParent(g));
+    let T = Z ? Z[L] : 0;
+    (!T || !await (u.isElement == null ? void 0 : u.isElement(Z))) && (T = d.floating[L] || s.floating[$]);
+    const j = M / 2 - ee / 2, W = T / 2 - C[$] / 2 - 1, ae = ls(m[D], W), se = ls(m[I], W), V = T - C[$] - se, B = T / 2 - C[$] / 2 + j, F = Gb(ae, B, V), z = !v.arrow && di(n) != null && B !== F && s.reference[$] / 2 - (B < ae ? ae : se) - C[$] / 2 < 0, re = z ? B < ae ? B - ae : B - V : 0;
     return {
       [k]: _[k] + re,
       data: {
@@ -10468,31 +10468,31 @@ const aS = function(e) {
       const I = await v.detectOverflow(t, $), L = Wb(D, s, await (v.isRTL == null ? void 0 : v.isRTL(g.floating))), M = [I[rn(D)], I[L[0]], I[L[1]]], ee = [...((i = u.autoPlacement) == null ? void 0 : i.overflows) || [], {
         placement: D,
         overflows: M
-      }], J = C[x + 1];
-      if (J)
+      }], Z = C[x + 1];
+      if (Z)
         return {
           data: {
             index: x + 1,
             overflows: ee
           },
           reset: {
-            placement: J
+            placement: Z
           }
         };
-      const T = ee.map((ie) => {
-        const se = di(ie.placement);
-        return [ie.placement, se && b ? (
+      const T = ee.map((ae) => {
+        const se = di(ae.placement);
+        return [ae.placement, se && b ? (
           // Check along the mainAxis and main crossAxis side.
-          ie.overflows.slice(0, 2).reduce((V, B) => V + B, 0)
+          ae.overflows.slice(0, 2).reduce((V, B) => V + B, 0)
         ) : (
           // Check only the mainAxis.
-          ie.overflows[0]
-        ), ie.overflows];
-      }).sort((ie, se) => ie[1] - se[1]), W = ((n = T.filter((ie) => ie[2].slice(
+          ae.overflows[0]
+        ), ae.overflows];
+      }).sort((ae, se) => ae[1] - se[1]), W = ((n = T.filter((ae) => ae[2].slice(
         0,
         // Aligned placements should not check their opposite crossAxis
         // side.
-        di(ie[0]) ? 2 : 3
+        di(ae[0]) ? 2 : 3
       ).every((se) => se <= 0))[0]) == null ? void 0 : n[0]) || T[0][0];
       return W !== d ? {
         data: {
@@ -10529,15 +10529,15 @@ const aS = function(e) {
       } = pr(e, t);
       if ((a = s.arrow) != null && a.alignmentOffset)
         return {};
-      const D = rn(n), I = Yi(d), L = rn(d) === d, M = await (v.isRTL == null ? void 0 : v.isRTL(g.floating)), ee = _ || (L || !C ? [Eo(d)] : qk(d)), J = $ !== "none";
-      !_ && J && ee.push(...Yk(d, C, $, M));
+      const D = rn(n), I = Yi(d), L = rn(d) === d, M = await (v.isRTL == null ? void 0 : v.isRTL(g.floating)), ee = _ || (L || !C ? [Eo(d)] : qk(d)), Z = $ !== "none";
+      !_ && Z && ee.push(...Yk(d, C, $, M));
       const T = [d, ...ee], j = await v.detectOverflow(t, x), W = [];
-      let ie = ((i = s.flip) == null ? void 0 : i.overflows) || [];
+      let ae = ((i = s.flip) == null ? void 0 : i.overflows) || [];
       if (b && W.push(j[D]), m) {
         const F = Wb(n, u, M);
         W.push(j[F[0]], j[F[1]]);
       }
-      if (ie = [...ie, {
+      if (ae = [...ae, {
         placement: n,
         overflows: W
       }], !W.every((F) => F <= 0)) {
@@ -10545,30 +10545,30 @@ const aS = function(e) {
         const F = (((se = s.flip) == null ? void 0 : se.index) || 0) + 1, z = T[F];
         if (z && (!(m === "alignment" ? I !== Yi(z) : !1) || // We leave the current main axis only if every placement on that axis
         // overflows the main axis.
-        ie.every((X) => Yi(X.placement) === I ? X.overflows[0] > 0 : !0)))
+        ae.every((J) => Yi(J.placement) === I ? J.overflows[0] > 0 : !0)))
           return {
             data: {
               index: F,
-              overflows: ie
+              overflows: ae
             },
             reset: {
               placement: z
             }
           };
-        let re = (V = ie.filter((te) => te.overflows[0] <= 0).sort((te, X) => te.overflows[1] - X.overflows[1])[0]) == null ? void 0 : V.placement;
+        let re = (V = ae.filter((te) => te.overflows[0] <= 0).sort((te, J) => te.overflows[1] - J.overflows[1])[0]) == null ? void 0 : V.placement;
         if (!re)
           switch (k) {
             case "bestFit": {
               var B;
-              const te = (B = ie.filter((X) => {
-                if (J) {
-                  const H = Yi(X.placement);
+              const te = (B = ae.filter((J) => {
+                if (Z) {
+                  const H = Yi(J.placement);
                   return H === I || // Create a bias to the `y` side axis due to horizontal
                   // reading directions favoring greater width.
                   H === "y";
                 }
                 return !0;
-              }).map((X) => [X.placement, X.overflows.filter((H) => H > 0).reduce((H, de) => H + de, 0)]).sort((X, H) => X[1] - H[1])[0]) == null ? void 0 : B[0];
+              }).map((J) => [J.placement, J.overflows.filter((H) => H > 0).reduce((H, de) => H + de, 0)]).sort((J, H) => J[1] - H[1])[0]) == null ? void 0 : B[0];
               te && (re = te);
               break;
             }
@@ -10708,11 +10708,11 @@ const lS = function(e) {
       let $, C;
       g === "top" || g === "bottom" ? ($ = g, C = b === (await (n.isRTL == null ? void 0 : n.isRTL(s.floating)) ? "start" : "end") ? "left" : "right") : (C = g, $ = b === "end" ? "top" : "bottom");
       const x = k - v.top - v.bottom, D = _ - v.left - v.right, I = ls(k - v[$], x), L = ls(_ - v[C], D), M = t.middlewareData.shift, ee = !M;
-      let J = I, T = L;
-      M != null && M.enabled.x && (T = D), M != null && M.enabled.y && (J = x), ee && !b && (m ? T = _ - 2 * td(v.left, v.right) : J = k - 2 * td(v.top, v.bottom)), await u({
+      let Z = I, T = L;
+      M != null && M.enabled.x && (T = D), M != null && M.enabled.y && (Z = x), ee && !b && (m ? T = _ - 2 * td(v.left, v.right) : Z = k - 2 * td(v.top, v.bottom)), await u({
         ...t,
         availableWidth: T,
-        availableHeight: J
+        availableHeight: Z
       });
       const j = await n.getDimensions(s.floating);
       return _ !== j.width || k !== j.height ? {
@@ -11073,7 +11073,7 @@ function st(e) {
     return id(t.theme, e);
   };
 }
-const xc = "__floating-vue__popper", rg = () => /* @__PURE__ */ ta({
+const xc = "__floating-vue__popper", rg = () => /* @__PURE__ */ aa({
   name: "VPopper",
   provide() {
     return {
@@ -11721,11 +11721,11 @@ const yS = {
 function mS(e, t, a, i, n, s) {
   return c(), f("div", {
     ref: "reference",
-    class: xe(["v-popper", {
+    class: Ne(["v-popper", {
       "v-popper--shown": e.slotData.isShown
     }])
   }, [
-    Xe(e.$slots, "default", no(es(e.slotData)))
+    Qe(e.$slots, "default", no(es(e.slotData)))
   ], 2);
 }
 const _S = /* @__PURE__ */ qd(yS, [["render", mS]]);
@@ -11809,7 +11809,7 @@ const lg = (e = "theme") => ({
       return hS(this[e]);
     }
   }
-}), $S = /* @__PURE__ */ ta({
+}), $S = /* @__PURE__ */ aa({
   name: "VPopperContent",
   components: {
     ResizeObserver: Eu
@@ -11849,7 +11849,7 @@ function OS(e, t, a, i, n, s) {
   return c(), f("div", {
     id: e.popperId,
     ref: "popover",
-    class: xe(["v-popper__popper", [
+    class: Ne(["v-popper__popper", [
       e.themeClass,
       e.classes.popperClass,
       {
@@ -11886,7 +11886,7 @@ function OS(e, t, a, i, n, s) {
       r("div", AS, [
         e.mounted ? (c(), f(K, { key: 0 }, [
           r("div", null, [
-            Xe(e.$slots, "default")
+            Qe(e.$slots, "default")
           ]),
           e.handleResize ? (c(), ze(u, {
             key: 0,
@@ -11924,7 +11924,7 @@ const sg = /* @__PURE__ */ qd($S, [["render", OS]]), og = {
 let ld = function() {
 };
 typeof window < "u" && (ld = window.Element);
-const RS = /* @__PURE__ */ ta({
+const RS = /* @__PURE__ */ aa({
   name: "VPopperWrapper",
   components: {
     Popper: _S,
@@ -12139,7 +12139,7 @@ function IS(e, t, a, i, n, s) {
     onAutoHide: t[7] || (t[7] = () => e.$emit("auto-hide")),
     onResize: t[8] || (t[8] = () => e.$emit("resize"))
   }), {
-    default: Te(({
+    default: Ae(({
       popperId: v,
       isShown: g,
       shouldMountContent: b,
@@ -12152,7 +12152,7 @@ function IS(e, t, a, i, n, s) {
       classes: D,
       result: I
     }) => [
-      Xe(e.$slots, "default", {
+      Qe(e.$slots, "default", {
         shown: g,
         show: k,
         hide: $
@@ -12171,8 +12171,8 @@ function IS(e, t, a, i, n, s) {
         onHide: $,
         onResize: x
       }, {
-        default: Te(() => [
-          Xe(e.$slots, "popper", {
+        default: Ae(() => [
+          Qe(e.$slots, "popper", {
             shown: g,
             hide: $
           })
@@ -12195,7 +12195,7 @@ const Gd = /* @__PURE__ */ qd(RS, [["render", IS]]), LS = {
   ...Gd
 });
 rg();
-const xp = En, PS = LS, DS = /* @__PURE__ */ ta({
+const xp = En, PS = LS, DS = /* @__PURE__ */ aa({
   name: "NcPopoverTriggerProvider",
   provide() {
     return {
@@ -12547,16 +12547,16 @@ function jS(e, t, a, i, n, s) {
     onApplyShow: s.afterShow,
     onApplyHide: s.afterHide
   }, {
-    popper: Te((v) => [
-      Xe(e.$slots, "default", no(es(v)))
+    popper: Ae((v) => [
+      Qe(e.$slots, "default", no(es(v)))
     ]),
-    default: Te(() => [
+    default: Ae(() => [
       ve(u, {
         shown: n.internalShown,
         popupRole: a.popupRole
       }, {
-        default: Te((v) => [
-          Xe(e.$slots, "trigger", no(es(v)))
+        default: Ae((v) => [
+          Qe(e.$slots, "trigger", no(es(v)))
         ]),
         _: 3
       }, 8, ["shown", "popupRole"])
@@ -12612,7 +12612,7 @@ function Kd(e) {
       return !1;
     if (typeof t == "object") {
       const a = t;
-      if (a.type === Xt)
+      if (a.type === Qt)
         return !1;
       if (a.type === K && !Kd(a.children))
         return !1;
@@ -12708,7 +12708,7 @@ const YS = ".focusable", ZS = {
      */
     ariaLabel: {
       type: String,
-      default: Ht("Actions")
+      default: qt("Actions")
     },
     /**
      * Wanted direction of the menu
@@ -13179,7 +13179,7 @@ const YS = ".focusable", ZS = {
       ]
     ));
   }
-}, Wd = /* @__PURE__ */ mt(ZS, [["__scopeId", "data-v-7206c1f1"]]), JS = ["aria-label"], XS = ["width", "height"], QS = ["fill"], eC = ["fill"], tC = { key: 0 }, aC = /* @__PURE__ */ ta({
+}, Wd = /* @__PURE__ */ mt(ZS, [["__scopeId", "data-v-7206c1f1"]]), JS = ["aria-label"], XS = ["width", "height"], QS = ["fill"], eC = ["fill"], tC = { key: 0 }, aC = /* @__PURE__ */ aa({
   __name: "NcLoadingIcon",
   props: {
     appearance: { default: "auto" },
@@ -13214,7 +13214,7 @@ const YS = ".focusable", ZS = {
       ], 8, XS))
     ], 8, JS));
   }
-}), cg = /* @__PURE__ */ mt(aC, [["__scopeId", "data-v-cf399190"]]), sd = /* @__PURE__ */ ta({
+}), cg = /* @__PURE__ */ mt(aC, [["__scopeId", "data-v-cf399190"]]), sd = /* @__PURE__ */ aa({
   name: "NcVNodes",
   props: {
     /**
@@ -13338,7 +13338,7 @@ const gC = {
   },
   computed: {
     labelButton() {
-      return this.open ? Ht("Collapse menu") : Ht("Open menu");
+      return this.open ? qt("Collapse menu") : qt("Open menu");
     }
   },
   methods: {
@@ -13350,7 +13350,7 @@ const gC = {
 function yC(e, t, a, i, n, s) {
   const u = rt("ChevronUp"), d = rt("ChevronDown"), v = rt("NcButton");
   return c(), ze(v, {
-    class: xe(["icon-collapse", {
+    class: Ne(["icon-collapse", {
       "icon-collapse--active": a.active,
       "icon-collapse--open": a.open
     }]),
@@ -13358,7 +13358,7 @@ function yC(e, t, a, i, n, s) {
     variant: a.active && i.isLegacy34 ? "tertiary-on-primary" : "tertiary",
     onClick: s.onClick
   }, {
-    icon: Te(() => [
+    icon: Ae(() => [
       a.open ? (c(), ze(u, {
         key: 0,
         size: 20
@@ -13592,10 +13592,10 @@ const _C = {
       return this.$parent.$options._componentTag !== "AppNavigationItem";
     },
     editButtonAriaLabel() {
-      return this.editLabel ? this.editLabel : Ht("Edit item");
+      return this.editLabel ? this.editLabel : qt("Edit item");
     },
     undoButtonAriaLabel() {
-      return Ht("Undo changes");
+      return qt("Undo changes");
     }
   },
   watch: {
@@ -13703,17 +13703,17 @@ function EC(e, t, a, i, n, s) {
   const u = rt("NcLoadingIcon"), d = rt("NcInputConfirmCancel"), v = rt("Pencil"), g = rt("NcActionButton"), b = rt("Undo"), m = rt("NcActions"), _ = rt("NcAppNavigationIconCollapsible");
   return c(), f("li", {
     id: a.id,
-    class: xe([{
+    class: Ne([{
       "app-navigation-entry--opened": n.opened,
       "app-navigation-entry--pinned": a.pinned,
       "app-navigation-entry--collapsible": a.allowCollapse && !!e.$slots.default
     }, "app-navigation-entry-wrapper"])
   }, [
     (c(), ze(Od(s.isRouterLink ? "router-link" : "NcVNodes"), no(es({ ...s.isRouterLink && { custom: !0, to: a.to } })), {
-      default: Te(({ href: k, navigate: $, isActive: C }) => [
+      default: Ae(({ href: k, navigate: $, isActive: C }) => [
         r("div", {
           ref: "entry",
-          class: xe(["app-navigation-entry", {
+          class: Ne(["app-navigation-entry", {
             "app-navigation-entry--editing": n.editingActive,
             "app-navigation-entry--deleted": a.undo,
             "app-navigation-entry--legacy": i.isLegacy34,
@@ -13734,18 +13734,18 @@ function EC(e, t, a, i, n, s) {
             onBlur: t[1] || (t[1] = (...x) => s.handleBlur && s.handleBlur(...x)),
             onClick: (x) => s.onClick(x, $, k),
             onFocus: t[2] || (t[2] = (...x) => s.handleFocus && s.handleFocus(...x)),
-            onKeydown: t[3] || (t[3] = bt($e((...x) => s.handleTab && s.handleTab(...x), ["exact"]), ["tab"]))
+            onKeydown: t[3] || (t[3] = bt(Te((...x) => s.handleTab && s.handleTab(...x), ["exact"]), ["tab"]))
           }, [
             r("div", {
-              class: xe(["app-navigation-entry-icon", { [a.icon]: a.icon }])
+              class: Ne(["app-navigation-entry-icon", { [a.icon]: a.icon }])
             }, [
-              a.loading ? (c(), ze(u, { key: 0 })) : Xe(e.$slots, "icon", {
+              a.loading ? (c(), ze(u, { key: 0 })) : Qe(e.$slots, "icon", {
                 key: 1,
                 active: a.active || a.to && C
               }, void 0, !0)
             ], 2),
             r("span", {
-              class: xe(["app-navigation-entry__name", { "hidden-visually": n.editingActive }])
+              class: Ne(["app-navigation-entry__name", { "hidden-visually": n.editingActive }])
             }, l(a.name), 3),
             n.editingActive ? (c(), f("div", SC, [
               ve(d, {
@@ -13764,10 +13764,10 @@ function EC(e, t, a, i, n, s) {
           ])) : S("", !0),
           (e.$slots.actions || e.$slots.counter || a.editable || a.undo) && !n.editingActive ? (c(), f("div", {
             key: 2,
-            class: xe(["app-navigation-entry__utils", { "app-navigation-entry__utils--display-actions": a.forceDisplayActions || n.menuOpenLocalValue || a.menuOpen }])
+            class: Ne(["app-navigation-entry__utils", { "app-navigation-entry__utils--display-actions": a.forceDisplayActions || n.menuOpenLocalValue || a.menuOpen }])
           }, [
             e.$slots.counter ? (c(), f("div", TC, [
-              Xe(e.$slots, "counter", {}, void 0, !0)
+              Qe(e.$slots, "counter", {}, void 0, !0)
             ])) : S("", !0),
             e.$slots.actions || a.editable && !n.editingActive || a.undo ? (c(), ze(m, {
               key: 1,
@@ -13783,20 +13783,20 @@ function EC(e, t, a, i, n, s) {
               variant: "tertiary",
               "onUpdate:open": s.onMenuToggle
             }, {
-              icon: Te(() => [
-                Xe(e.$slots, "menu-icon", {}, void 0, !0)
+              icon: Ae(() => [
+                Qe(e.$slots, "menu-icon", {}, void 0, !0)
               ]),
-              default: Te(() => [
+              default: Ae(() => [
                 a.editable && !n.editingActive ? (c(), ze(g, {
                   key: 0,
                   "aria-label": s.editButtonAriaLabel,
                   onClick: s.handleEdit
                 }, {
-                  icon: Te(() => [
+                  icon: Ae(() => [
                     ve(v, { size: 20 })
                   ]),
-                  default: Te(() => [
-                    Q(" " + l(a.editLabel), 1)
+                  default: Ae(() => [
+                    X(" " + l(a.editLabel), 1)
                   ]),
                   _: 1
                 }, 8, ["aria-label", "onClick"])) : S("", !0),
@@ -13805,12 +13805,12 @@ function EC(e, t, a, i, n, s) {
                   "aria-label": s.undoButtonAriaLabel,
                   onClick: s.handleUndo
                 }, {
-                  icon: Te(() => [
+                  icon: Ae(() => [
                     ve(b, { size: 20 })
                   ]),
                   _: 1
                 }, 8, ["aria-label", "onClick"])) : S("", !0),
-                Xe(e.$slots, "actions", {}, void 0, !0)
+                Qe(e.$slots, "actions", {}, void 0, !0)
               ]),
               _: 3
             }, 8, ["boundariesElement", "inline", "placement", "open", "forceMenu", "defaultIcon", "onUpdate:open"])) : S("", !0)
@@ -13819,15 +13819,15 @@ function EC(e, t, a, i, n, s) {
             key: 3,
             active: a.to && C || a.active,
             open: n.opened,
-            onClick: $e(s.toggleCollapse, ["prevent", "stop"])
+            onClick: Te(s.toggleCollapse, ["prevent", "stop"])
           }, null, 8, ["active", "open", "onClick"])) : S("", !0),
-          Xe(e.$slots, "extra", {}, void 0, !0)
+          Qe(e.$slots, "extra", {}, void 0, !0)
         ], 34)
       ]),
       _: 3
     }, 16)),
     s.canHaveChildren && e.$slots.default ? (c(), f("ul", AC, [
-      Xe(e.$slots, "default", {}, void 0, !0)
+      Qe(e.$slots, "default", {}, void 0, !0)
     ])) : S("", !0)
   ], 10, wC);
 }
@@ -13991,7 +13991,7 @@ La.prototype = {
     return n.j[e] = u, u;
   }
 };
-const at = (e, t, a, i, n) => e.ta(t, a, i, n), Ot = (e, t, a, i, n) => e.tr(t, a, i, n), Op = (e, t, a, i, n) => e.ts(t, a, i, n), Se = (e, t, a, i, n) => e.tt(t, a, i, n), Vi = "WORD", fd = "UWORD", fg = "ASCIINUMERICAL", hg = "ALPHANUMERICAL", cs = "LOCALHOST", hd = "TLD", pd = "UTLD", io = "SCHEME", Nr = "SLASH_SCHEME", Yd = "NUM", vd = "WS", Zd = "NL", Bl = "OPENBRACE", Vl = "CLOSEBRACE", Oo = "OPENBRACKET", Ro = "CLOSEBRACKET", Io = "OPENPAREN", Lo = "CLOSEPAREN", Po = "OPENANGLEBRACKET", Do = "CLOSEANGLEBRACKET", Fo = "FULLWIDTHLEFTPAREN", Mo = "FULLWIDTHRIGHTPAREN", Uo = "LEFTCORNERBRACKET", jo = "RIGHTCORNERBRACKET", zo = "LEFTWHITECORNERBRACKET", Bo = "RIGHTWHITECORNERBRACKET", Vo = "FULLWIDTHLESSTHAN", Ho = "FULLWIDTHGREATERTHAN", qo = "AMPERSAND", Go = "APOSTROPHE", Ko = "ASTERISK", kn = "AT", Wo = "BACKSLASH", Yo = "BACKTICK", Zo = "CARET", or = "COLON", Jd = "COMMA", Jo = "DOLLAR", wi = "DOT", Xo = "EQUALS", Xd = "EXCLAMATION", Ka = "HYPHEN", Hl = "PERCENT", Qo = "PIPE", eu = "PLUS", tu = "POUND", ql = "QUERY", Qd = "QUOTE", pg = "FULLWIDTHMIDDLEDOT", ef = "SEMI", ki = "SLASH", Gl = "TILDE", au = "UNDERSCORE", vg = "EMOJI", iu = "SYM";
+const it = (e, t, a, i, n) => e.ta(t, a, i, n), Ot = (e, t, a, i, n) => e.tr(t, a, i, n), Op = (e, t, a, i, n) => e.ts(t, a, i, n), Ce = (e, t, a, i, n) => e.tt(t, a, i, n), Vi = "WORD", fd = "UWORD", fg = "ASCIINUMERICAL", hg = "ALPHANUMERICAL", cs = "LOCALHOST", hd = "TLD", pd = "UTLD", io = "SCHEME", Nr = "SLASH_SCHEME", Yd = "NUM", vd = "WS", Zd = "NL", Bl = "OPENBRACE", Vl = "CLOSEBRACE", Oo = "OPENBRACKET", Ro = "CLOSEBRACKET", Io = "OPENPAREN", Lo = "CLOSEPAREN", Po = "OPENANGLEBRACKET", Do = "CLOSEANGLEBRACKET", Fo = "FULLWIDTHLEFTPAREN", Mo = "FULLWIDTHRIGHTPAREN", Uo = "LEFTCORNERBRACKET", jo = "RIGHTCORNERBRACKET", zo = "LEFTWHITECORNERBRACKET", Bo = "RIGHTWHITECORNERBRACKET", Vo = "FULLWIDTHLESSTHAN", Ho = "FULLWIDTHGREATERTHAN", qo = "AMPERSAND", Go = "APOSTROPHE", Ko = "ASTERISK", kn = "AT", Wo = "BACKSLASH", Yo = "BACKTICK", Zo = "CARET", or = "COLON", Jd = "COMMA", Jo = "DOLLAR", wi = "DOT", Xo = "EQUALS", Xd = "EXCLAMATION", Ka = "HYPHEN", Hl = "PERCENT", Qo = "PIPE", eu = "PLUS", tu = "POUND", ql = "QUERY", Qd = "QUOTE", pg = "FULLWIDTHMIDDLEDOT", ef = "SEMI", ki = "SLASH", Gl = "TILDE", au = "UNDERSCORE", vg = "EMOJI", iu = "SYM";
 var bg = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   ALPHANUMERICAL: hg,
@@ -14057,7 +14057,7 @@ function UC(e = []) {
   const t = {};
   La.groups = t;
   const a = new La();
-  Zs == null && (Zs = Ip(OC)), Js == null && (Js = Ip(RC)), Se(a, "'", Go), Se(a, "{", Bl), Se(a, "}", Vl), Se(a, "[", Oo), Se(a, "]", Ro), Se(a, "(", Io), Se(a, ")", Lo), Se(a, "<", Po), Se(a, ">", Do), Se(a, "（", Fo), Se(a, "）", Mo), Se(a, "「", Uo), Se(a, "」", jo), Se(a, "『", zo), Se(a, "』", Bo), Se(a, "＜", Vo), Se(a, "＞", Ho), Se(a, "&", qo), Se(a, "*", Ko), Se(a, "@", kn), Se(a, "`", Yo), Se(a, "^", Zo), Se(a, ":", or), Se(a, ",", Jd), Se(a, "$", Jo), Se(a, ".", wi), Se(a, "=", Xo), Se(a, "!", Xd), Se(a, "-", Ka), Se(a, "%", Hl), Se(a, "|", Qo), Se(a, "+", eu), Se(a, "#", tu), Se(a, "?", ql), Se(a, '"', Qd), Se(a, "/", ki), Se(a, ";", ef), Se(a, "~", Gl), Se(a, "_", au), Se(a, "\\", Wo), Se(a, "・", pg);
+  Zs == null && (Zs = Ip(OC)), Js == null && (Js = Ip(RC)), Ce(a, "'", Go), Ce(a, "{", Bl), Ce(a, "}", Vl), Ce(a, "[", Oo), Ce(a, "]", Ro), Ce(a, "(", Io), Ce(a, ")", Lo), Ce(a, "<", Po), Ce(a, ">", Do), Ce(a, "（", Fo), Ce(a, "）", Mo), Ce(a, "「", Uo), Ce(a, "」", jo), Ce(a, "『", zo), Ce(a, "』", Bo), Ce(a, "＜", Vo), Ce(a, "＞", Ho), Ce(a, "&", qo), Ce(a, "*", Ko), Ce(a, "@", kn), Ce(a, "`", Yo), Ce(a, "^", Zo), Ce(a, ":", or), Ce(a, ",", Jd), Ce(a, "$", Jo), Ce(a, ".", wi), Ce(a, "=", Xo), Ce(a, "!", Xd), Ce(a, "-", Ka), Ce(a, "%", Hl), Ce(a, "|", Qo), Ce(a, "+", eu), Ce(a, "#", tu), Ce(a, "?", ql), Ce(a, '"', Qd), Ce(a, "/", ki), Ce(a, ";", ef), Ce(a, "~", Gl), Ce(a, "_", au), Ce(a, "\\", Wo), Ce(a, "・", pg);
   const i = Ot(a, Bi, Yd, {
     [od]: !0
   });
@@ -14074,20 +14074,20 @@ function UC(e = []) {
     [cd]: !0
   });
   Ot(d, zi), Ot(d, Bi, s), Ot(d, Cl, d), Ot(s, Bi, s), Ot(s, zi), Ot(s, Cl, s);
-  const v = Se(a, Lc, Zd, {
+  const v = Ce(a, Lc, Zd, {
     [Oc]: !0
-  }), g = Se(a, Rp, vd, {
+  }), g = Ce(a, Rp, vd, {
     [Oc]: !0
   }), b = Ot(a, Ic, vd, {
     [Oc]: !0
   });
-  Se(a, Pc, b), Se(g, Lc, v), Se(g, Pc, b), Ot(g, Ic, b), Se(b, Rp), Se(b, Lc), Ot(b, Ic, b), Se(b, Pc, b);
+  Ce(a, Pc, b), Ce(g, Lc, v), Ce(g, Pc, b), Ot(g, Ic, b), Ce(b, Rp), Ce(b, Lc), Ot(b, Ic, b), Ce(b, Pc, b);
   const m = Ot(a, Rc, vg, {
     [dg]: !0
   });
-  Se(m, "#"), Ot(m, Rc, m), Se(m, FC, m);
-  const _ = Se(m, MC);
-  Se(_, "#"), Ot(_, Rc, m);
+  Ce(m, "#"), Ot(m, Rc, m), Ce(m, FC, m);
+  const _ = Ce(m, MC);
+  Ce(_, "#"), Ot(_, Rc, m);
   const k = [[zi, u], [Bi, n]], $ = [[zi, null], [Cl, d], [Bi, s]];
   for (let C = 0; C < Zs.length; C++)
     bn(a, Zs[C], hd, Vi, k);
@@ -14413,33 +14413,33 @@ const zC = xu("email", {
 function VC({
   groups: e
 }) {
-  const t = e.domain.concat([qo, Ko, kn, Wo, Yo, Zo, Jo, Xo, Ka, Yd, Hl, Qo, eu, tu, ki, iu, Gl, au]), a = [Go, or, Jd, wi, Xd, Hl, ql, Qd, ef, Po, Do, Bl, Vl, Ro, Oo, Io, Lo, Fo, Mo, Uo, jo, zo, Bo, Vo, Ho], i = [qo, Go, Ko, Wo, Yo, Zo, Jo, Xo, Ka, Bl, Vl, Hl, Qo, eu, tu, ql, ki, iu, Gl, au], n = qa(), s = Se(n, Gl);
-  at(s, i, s), at(s, e.domain, s);
+  const t = e.domain.concat([qo, Ko, kn, Wo, Yo, Zo, Jo, Xo, Ka, Yd, Hl, Qo, eu, tu, ki, iu, Gl, au]), a = [Go, or, Jd, wi, Xd, Hl, ql, Qd, ef, Po, Do, Bl, Vl, Ro, Oo, Io, Lo, Fo, Mo, Uo, jo, zo, Bo, Vo, Ho], i = [qo, Go, Ko, Wo, Yo, Zo, Jo, Xo, Ka, Bl, Vl, Hl, Qo, eu, tu, ql, ki, iu, Gl, au], n = qa(), s = Ce(n, Gl);
+  it(s, i, s), it(s, e.domain, s);
   const u = qa(), d = qa(), v = qa();
-  at(n, e.domain, u), at(n, e.scheme, d), at(n, e.slashscheme, v), at(u, i, s), at(u, e.domain, u);
-  const g = Se(u, kn);
-  Se(s, kn, g), Se(d, kn, g), Se(v, kn, g);
-  const b = Se(s, wi);
-  at(b, i, s), at(b, e.domain, s);
+  it(n, e.domain, u), it(n, e.scheme, d), it(n, e.slashscheme, v), it(u, i, s), it(u, e.domain, u);
+  const g = Ce(u, kn);
+  Ce(s, kn, g), Ce(d, kn, g), Ce(v, kn, g);
+  const b = Ce(s, wi);
+  it(b, i, s), it(b, e.domain, s);
   const m = qa();
-  at(g, e.domain, m), at(m, e.domain, m);
-  const _ = Se(m, wi);
-  at(_, e.domain, m);
+  it(g, e.domain, m), it(m, e.domain, m);
+  const _ = Ce(m, wi);
+  it(_, e.domain, m);
   const k = qa(zC);
-  at(_, e.tld, k), at(_, e.utld, k), Se(g, cs, k);
-  const $ = Se(m, Ka);
-  Se($, Ka, $), at($, e.domain, m), at(k, e.domain, m), Se(k, wi, _), Se(k, Ka, $);
-  const C = Se(u, Ka), x = Se(u, wi);
-  Se(C, Ka, C), at(C, e.domain, u), at(x, i, s), at(x, e.domain, u);
+  it(_, e.tld, k), it(_, e.utld, k), Ce(g, cs, k);
+  const $ = Ce(m, Ka);
+  Ce($, Ka, $), it($, e.domain, m), it(k, e.domain, m), Ce(k, wi, _), Ce(k, Ka, $);
+  const C = Ce(u, Ka), x = Ce(u, wi);
+  Ce(C, Ka, C), it(C, e.domain, u), it(x, i, s), it(x, e.domain, u);
   const D = qa(Xs);
-  at(x, e.tld, D), at(x, e.utld, D), at(D, e.domain, u), at(D, i, s), Se(D, wi, x), Se(D, Ka, C), Se(D, kn, g);
-  const I = Se(D, or), L = qa(Xs);
-  at(I, e.numeric, L);
+  it(x, e.tld, D), it(x, e.utld, D), it(D, e.domain, u), it(D, i, s), Ce(D, wi, x), Ce(D, Ka, C), Ce(D, kn, g);
+  const I = Ce(D, or), L = qa(Xs);
+  it(I, e.numeric, L);
   const M = qa(Xs), ee = qa();
-  at(M, t, M), at(M, a, ee), at(ee, t, M), at(ee, a, ee), Se(D, ki, M), Se(L, ki, M);
-  const J = Se(d, or), T = Se(v, or), j = Se(T, ki), W = Se(j, ki);
-  at(d, e.domain, u), Se(d, wi, x), Se(d, Ka, C), at(v, e.domain, u), Se(v, wi, x), Se(v, Ka, C), at(J, e.domain, M), Se(J, ki, M), Se(J, ql, M), at(W, e.domain, M), at(W, t, M), Se(W, ki, M);
-  const ie = [
+  it(M, t, M), it(M, a, ee), it(ee, t, M), it(ee, a, ee), Ce(D, ki, M), Ce(L, ki, M);
+  const Z = Ce(d, or), T = Ce(v, or), j = Ce(T, ki), W = Ce(j, ki);
+  it(d, e.domain, u), Ce(d, wi, x), Ce(d, Ka, C), it(v, e.domain, u), Ce(v, wi, x), Ce(v, Ka, C), it(Z, e.domain, M), Ce(Z, ki, M), Ce(Z, ql, M), it(W, e.domain, M), it(W, t, M), Ce(W, ki, M);
+  const ae = [
     [Bl, Vl],
     // {}
     [Oo, Ro],
@@ -14457,15 +14457,15 @@ function VC({
     [Vo, Ho]
     // ＜＞
   ];
-  for (let se = 0; se < ie.length; se++) {
-    const [V, B] = ie[se], F = Se(M, V);
-    Se(ee, V, F);
+  for (let se = 0; se < ae.length; se++) {
+    const [V, B] = ae[se], F = Ce(M, V);
+    Ce(ee, V, F);
     const z = qa(Xs);
-    at(F, t, z);
+    it(F, t, z);
     const re = qa();
-    at(F, a, re), Se(F, B, M), at(z, t, z), at(z, a, re), at(re, t, z), at(re, a, re), Se(z, B, M), Se(re, B, M);
+    it(F, a, re), Ce(F, B, M), it(z, t, z), it(z, a, re), it(re, t, z), it(re, a, re), Ce(z, B, M), Ce(re, B, M);
   }
-  return Se(n, cs, D), Se(n, Zd, BC), {
+  return Ce(n, cs, D), Ce(n, Zd, BC), {
     start: n,
     tokens: bg
   };
@@ -14548,7 +14548,7 @@ function YC({ tagName: e, attributes: t, content: a }) {
 }
 const ZC = function(e, { value: t }) {
   t?.linkify === !0 && (e.innerHTML = GC(t.text));
-}, JC = ["title"], XC = /* @__PURE__ */ ta({
+}, JC = ["title"], XC = /* @__PURE__ */ aa({
   __name: "NcAppSidebarHeader",
   props: {
     name: {},
@@ -14563,7 +14563,7 @@ const ZC = function(e, { value: t }) {
       tabindex: "-1",
       title: e.title
     }, [
-      Q(l(e.name), 1)
+      X(l(e.name), 1)
     ], 8, JC)), [
       [o(ZC), { text: e.name, linkify: e.linkify }]
     ]);
@@ -14578,7 +14578,7 @@ const ZC = function(e, { value: t }) {
 }, i2 = {
   key: 3,
   class: "empty-content__action"
-}, n2 = /* @__PURE__ */ ta({
+}, n2 = /* @__PURE__ */ aa({
   __name: "NcEmptyContent",
   props: {
     description: { default: "" },
@@ -14592,24 +14592,24 @@ const ZC = function(e, { value: t }) {
       role: "note"
     }, [
       a.$slots.icon ? (c(), f("div", e2, [
-        Xe(a.$slots, "icon", {}, void 0, !0)
+        Qe(a.$slots, "icon", {}, void 0, !0)
       ])) : S("", !0),
       e.name !== "" || a.$slots.name ? (c(), f("div", {
         key: 1,
         id: o(t),
         class: "empty-content__name"
       }, [
-        Xe(a.$slots, "name", {}, () => [
-          Q(l(e.name), 1)
+        Qe(a.$slots, "name", {}, () => [
+          X(l(e.name), 1)
         ], !0)
       ], 8, t2)) : S("", !0),
       e.description !== "" || a.$slots.description ? (c(), f("p", a2, [
-        Xe(a.$slots, "description", {}, () => [
-          Q(l(e.description), 1)
+        Qe(a.$slots, "description", {}, () => [
+          X(l(e.description), 1)
         ], !0)
       ])) : S("", !0),
       a.$slots.action ? (c(), f("div", i2, [
-        Xe(a.$slots, "action", {}, void 0, !0)
+        Qe(a.$slots, "action", {}, void 0, !0)
       ])) : S("", !0)
     ], 8, QC));
   }
@@ -14727,7 +14727,7 @@ function $2(e, t, a, i, n, s) {
     ], 8, k2))
   ], 16, w2);
 }
-const T2 = /* @__PURE__ */ mt(_2, [["render", $2]]), A2 = ["aria-selected", "tabindex"], E2 = /* @__PURE__ */ ta({
+const T2 = /* @__PURE__ */ mt(_2, [["render", $2]]), A2 = ["aria-selected", "tabindex"], E2 = /* @__PURE__ */ aa({
   __name: "NcAppSidebarTabsButton",
   props: /* @__PURE__ */ Km({
     tab: {},
@@ -14745,7 +14745,7 @@ const T2 = /* @__PURE__ */ mt(_2, [["render", $2]]), A2 = ["aria-selected", "tab
       });
     }
     return (n, s) => (c(), f("button", {
-      class: xe(["button-vue", [n.$style.sidebarTabsButton, {
+      class: Ne(["button-vue", [n.$style.sidebarTabsButton, {
         [n.$style.sidebarTabsButton_selected]: t.value,
         [n.$style.sidebarTabsButton_legacy]: o(In),
         [n.$style.sidebarTabsButton_animatedHighlight]: e.animatedHighlight
@@ -14756,32 +14756,32 @@ const T2 = /* @__PURE__ */ mt(_2, [["render", $2]]), A2 = ["aria-selected", "tab
       onClick: i
     }, [
       r("span", {
-        class: xe([n.$style.sidebarTabsButton__icon, { [n.$style.sidebarTabsButton__icon_pop]: a.value }]),
+        class: Ne([n.$style.sidebarTabsButton__icon, { [n.$style.sidebarTabsButton__icon_pop]: a.value }]),
         onAnimationend: s[0] || (s[0] = (u) => a.value = !1)
       }, [
         r("span", {
-          class: xe([n.$style.sidebarTabsButton__iconLayer, { [n.$style.sidebarTabsButton__iconLayer_hidden]: t.value }])
+          class: Ne([n.$style.sidebarTabsButton__iconLayer, { [n.$style.sidebarTabsButton__iconLayer_hidden]: t.value }])
         }, [
           ve(sd, {
             vnodes: e.tab.renderIcon(!1)
           }, {
-            default: Te(() => [
+            default: Ae(() => [
               r("span", {
-                class: xe([n.$style.sidebarTabsButton__legacyIcon, e.tab.icon])
+                class: Ne([n.$style.sidebarTabsButton__legacyIcon, e.tab.icon])
               }, null, 2)
             ]),
             _: 1
           }, 8, ["vnodes"])
         ], 2),
         r("span", {
-          class: xe([n.$style.sidebarTabsButton__iconLayer, { [n.$style.sidebarTabsButton__iconLayer_hidden]: !t.value }])
+          class: Ne([n.$style.sidebarTabsButton__iconLayer, { [n.$style.sidebarTabsButton__iconLayer_hidden]: !t.value }])
         }, [
           ve(sd, {
             vnodes: e.tab.renderIcon(!0)
           }, {
-            default: Te(() => [
+            default: Ae(() => [
               r("span", {
-                class: xe([n.$style.sidebarTabsButton__legacyIcon, e.tab.icon])
+                class: Ne([n.$style.sidebarTabsButton__legacyIcon, e.tab.icon])
               }, null, 2)
             ]),
             _: 1
@@ -14789,7 +14789,7 @@ const T2 = /* @__PURE__ */ mt(_2, [["render", $2]]), A2 = ["aria-selected", "tab
         ], 2)
       ], 34),
       r("span", {
-        class: xe(n.$style.sidebarTabsButton__name)
+        class: Ne(n.$style.sidebarTabsButton__name)
       }, l(e.tab.name), 3)
     ], 10, A2));
   }
@@ -15019,15 +15019,15 @@ function H2(e, t, a, i, n, s) {
       key: 0,
       ref: "nav",
       role: "tablist",
-      class: xe(["app-sidebar-tabs__nav", { "app-sidebar-tabs__nav--legacy": n.isLegacy34 }]),
+      class: Ne(["app-sidebar-tabs__nav", { "app-sidebar-tabs__nav--legacy": n.isLegacy34 }]),
       onKeydown: [
-        t[0] || (t[0] = bt($e((...d) => s.focusPreviousTab && s.focusPreviousTab(...d), ["exact", "prevent", "stop"]), ["left"])),
-        t[1] || (t[1] = bt($e((...d) => s.focusNextTab && s.focusNextTab(...d), ["exact", "prevent", "stop"]), ["right"])),
-        t[2] || (t[2] = bt($e((...d) => s.focusActiveTabContent && s.focusActiveTabContent(...d), ["exact", "prevent", "stop"]), ["tab"])),
-        t[3] || (t[3] = bt($e((...d) => s.focusFirstTab && s.focusFirstTab(...d), ["exact", "prevent", "stop"]), ["home"])),
-        t[4] || (t[4] = bt($e((...d) => s.focusLastTab && s.focusLastTab(...d), ["exact", "prevent", "stop"]), ["end"])),
-        t[5] || (t[5] = bt($e((...d) => s.focusFirstTab && s.focusFirstTab(...d), ["exact", "prevent", "stop"]), ["page-up"])),
-        t[6] || (t[6] = bt($e((...d) => s.focusLastTab && s.focusLastTab(...d), ["exact", "prevent", "stop"]), ["page-down"]))
+        t[0] || (t[0] = bt(Te((...d) => s.focusPreviousTab && s.focusPreviousTab(...d), ["exact", "prevent", "stop"]), ["left"])),
+        t[1] || (t[1] = bt(Te((...d) => s.focusNextTab && s.focusNextTab(...d), ["exact", "prevent", "stop"]), ["right"])),
+        t[2] || (t[2] = bt(Te((...d) => s.focusActiveTabContent && s.focusActiveTabContent(...d), ["exact", "prevent", "stop"]), ["tab"])),
+        t[3] || (t[3] = bt(Te((...d) => s.focusFirstTab && s.focusFirstTab(...d), ["exact", "prevent", "stop"]), ["home"])),
+        t[4] || (t[4] = bt(Te((...d) => s.focusLastTab && s.focusLastTab(...d), ["exact", "prevent", "stop"]), ["end"])),
+        t[5] || (t[5] = bt(Te((...d) => s.focusFirstTab && s.focusFirstTab(...d), ["exact", "prevent", "stop"]), ["page-up"])),
+        t[6] || (t[6] = bt(Te((...d) => s.focusLastTab && s.focusLastTab(...d), ["exact", "prevent", "stop"]), ["page-down"]))
       ],
       onPointerover: t[7] || (t[7] = (...d) => s.handleHighlight && s.handleHighlight(...d)),
       onPointerleave: t[8] || (t[8] = (...d) => s.hideHighlight && s.hideHighlight(...d)),
@@ -15036,7 +15036,7 @@ function H2(e, t, a, i, n, s) {
     }, [
       n.highlightEnabled ? (c(), f("div", {
         key: 0,
-        class: xe(["app-sidebar-tabs__highlight", {
+        class: Ne(["app-sidebar-tabs__highlight", {
           "app-sidebar-tabs__highlight--visible": n.highlightVisible,
           "app-sidebar-tabs__highlight--animated": n.highlightAnimated,
           "app-sidebar-tabs__highlight--over-active": n.highlightOverActive
@@ -15056,9 +15056,9 @@ function H2(e, t, a, i, n, s) {
       }, null, 8, ["id", "aria-controls", "selected", "animatedHighlight", "tab", "onUpdate:selected"]))), 128))
     ], 34)) : S("", !0),
     r("div", {
-      class: xe(["app-sidebar-tabs__content", { "app-sidebar-tabs__content--multiple": s.hasMultipleTabs }])
+      class: Ne(["app-sidebar-tabs__content", { "app-sidebar-tabs__content--multiple": s.hasMultipleTabs }])
     }, [
-      Xe(e.$slots, "default", {}, void 0, !0)
+      Qe(e.$slots, "default", {}, void 0, !0)
     ], 2)
   ]);
 }
@@ -15266,9 +15266,9 @@ const G2 = {
   },
   data() {
     return {
-      changeNameTranslated: Ht("Change name"),
-      closeTranslated: Ht("Close sidebar"),
-      favoriteTranslated: Ht("Favorite"),
+      changeNameTranslated: qt("Change name"),
+      closeTranslated: qt("Close sidebar"),
+      favoriteTranslated: qt("Favorite"),
       isStarred: this.starred,
       focusTrap: null,
       elementToReturnFocus: null
@@ -15301,7 +15301,7 @@ const G2 = {
   },
   methods: {
     isSlotPopulated: Kd,
-    t: Ht,
+    t: qt,
     preserveElementToReturnFocus() {
       if (document.activeElement && document.activeElement !== document.body && (this.elementToReturnFocus = document.activeElement, this.elementToReturnFocus.getAttribute("role") === "menuitem")) {
         const e = this.elementToReturnFocus.closest('[role="menu"]');
@@ -15438,7 +15438,7 @@ function t$(e, t, a, i, n, s) {
     onAfterEnter: s.onAfterEnter,
     onAfterLeave: s.onAfterLeave
   }, {
-    default: Te(() => [
+    default: Ae(() => [
       fe(r("aside", {
         id: "app-sidebar-vue",
         ref: "sidebar",
@@ -15458,8 +15458,8 @@ function t$(e, t, a, i, n, s) {
           }, a.toggleAttrs, {
             onClick: t[0] || (t[0] = (L) => e.$emit("update:open", !0))
           }), {
-            icon: Te(() => [
-              Xe(e.$slots, "toggle-icon", {}, () => [
+            icon: Ae(() => [
+              Qe(e.$slots, "toggle-icon", {}, () => [
                 ve(u, { size: 20 })
               ], !0)
             ]),
@@ -15467,7 +15467,7 @@ function t$(e, t, a, i, n, s) {
           }, 16, ["aria-label", "class"])
         ], 8, ["to"])) : S("", !0),
         r("header", {
-          class: xe(["app-sidebar-header", {
+          class: Ne(["app-sidebar-header", {
             "app-sidebar-header--with-figure": s.isSlotPopulated(e.$slots.header?.()) || a.background,
             "app-sidebar-header--compact": a.compact
           }])
@@ -15477,11 +15477,11 @@ function t$(e, t, a, i, n, s) {
             class: "app-sidebar-header__mainname--hidden",
             name: a.name,
             tabindex: "-1"
-          }, null, 8, ["name"])) : Xe(e.$slots, "info", { key: 0 }, () => [
+          }, null, 8, ["name"])) : Qe(e.$slots, "info", { key: 0 }, () => [
             r("div", W2, [
               s.isSlotPopulated(e.$slots.header?.()) || a.background ? (c(), f("div", {
                 key: 0,
-                class: xe(["app-sidebar-header__figure", {
+                class: Ne(["app-sidebar-header__figure", {
                   "app-sidebar-header__figure--with-action": s.hasFigureClickListener
                 }]),
                 style: Ea({
@@ -15491,10 +15491,10 @@ function t$(e, t, a, i, n, s) {
                 onClick: t[1] || (t[1] = (...L) => s.onFigureClick && s.onFigureClick(...L)),
                 onKeydown: t[2] || (t[2] = bt((...L) => s.onFigureClick && s.onFigureClick(...L), ["enter"]))
               }, [
-                Xe(e.$slots, "header", { class: "app-sidebar-header__background" }, void 0, !0)
+                Qe(e.$slots, "header", { class: "app-sidebar-header__background" }, void 0, !0)
               ], 38)) : S("", !0),
               r("div", {
-                class: xe(["app-sidebar-header__desc", {
+                class: Ne(["app-sidebar-header__desc", {
                   "app-sidebar-header__desc--with-tertiary-action": s.canStar || s.isSlotPopulated(e.$slots["tertiary-actions"]?.()),
                   "app-sidebar-header__desc--editable": a.nameEditable && !a.subname,
                   "app-sidebar-header__desc--with-subname--editable": a.nameEditable && a.subname,
@@ -15502,16 +15502,16 @@ function t$(e, t, a, i, n, s) {
                 }])
               }, [
                 s.canStar || s.isSlotPopulated(e.$slots["tertiary-actions"]?.()) ? (c(), f("div", Y2, [
-                  Xe(e.$slots, "tertiary-actions", {}, () => [
+                  Qe(e.$slots, "tertiary-actions", {}, () => [
                     s.canStar ? (c(), ze(d, {
                       key: 0,
                       "aria-label": n.favoriteTranslated,
                       pressed: n.isStarred,
                       class: "app-sidebar-header__star",
                       variant: "secondary",
-                      onClick: $e(s.toggleStarred, ["prevent"])
+                      onClick: Te(s.toggleStarred, ["prevent"])
                     }, {
-                      icon: Te(() => [
+                      icon: Ae(() => [
                         a.starLoading ? (c(), ze(v, { key: 0 })) : n.isStarred ? (c(), ze(g, {
                           key: 1,
                           size: 20
@@ -15532,14 +15532,14 @@ function t$(e, t, a, i, n, s) {
                       linkify: a.linkifyName,
                       title: a.title,
                       tabindex: a.nameEditable ? 0 : -1,
-                      onClick: $e(s.editName, ["self"])
+                      onClick: Te(s.editName, ["self"])
                     }, null, 8, ["name", "linkify", "title", "tabindex", "onClick"]), [
                       [dr, !a.nameEditable]
                     ]),
                     a.nameEditable ? fe((c(), f("form", {
                       key: 0,
                       class: "app-sidebar-header__mainname-form",
-                      onSubmit: t[5] || (t[5] = $e((...L) => s.onSubmitName && s.onSubmitName(...L), ["prevent"]))
+                      onSubmit: t[5] || (t[5] = Te((...L) => s.onSubmitName && s.onSubmitName(...L), ["prevent"]))
                     }, [
                       fe(r("input", {
                         ref: "nameInput",
@@ -15547,7 +15547,7 @@ function t$(e, t, a, i, n, s) {
                         type: "text",
                         placeholder: a.namePlaceholder,
                         value: a.name,
-                        onKeydown: t[3] || (t[3] = bt($e((...L) => s.onDismissEditing && s.onDismissEditing(...L), ["stop"]), ["esc"])),
+                        onKeydown: t[3] || (t[3] = bt(Te((...L) => s.onDismissEditing && s.onDismissEditing(...L), ["stop"]), ["esc"])),
                         onInput: t[4] || (t[4] = (...L) => s.onNameInput && s.onNameInput(...L))
                       }, null, 40, X2), [
                         [D]
@@ -15557,7 +15557,7 @@ function t$(e, t, a, i, n, s) {
                         type: "submit",
                         variant: "tertiary-no-background"
                       }, {
-                        icon: Te(() => [
+                        icon: Ae(() => [
                           ve(_, { size: 20 })
                         ]),
                         _: 1
@@ -15570,8 +15570,8 @@ function t$(e, t, a, i, n, s) {
                       class: "app-sidebar-header__menu",
                       forceMenu: a.forceMenu
                     }, {
-                      default: Te(() => [
-                        Xe(e.$slots, "secondary-actions", {}, void 0, !0)
+                      default: Ae(() => [
+                        Qe(e.$slots, "secondary-actions", {}, void 0, !0)
                       ]),
                       _: 3
                     }, 8, ["forceMenu"])) : S("", !0)
@@ -15581,8 +15581,8 @@ function t$(e, t, a, i, n, s) {
                     title: a.subtitle || void 0,
                     class: "app-sidebar-header__subname"
                   }, [
-                    Xe(e.$slots, "subname", {}, () => [
-                      Q(l(a.subname), 1)
+                    Qe(e.$slots, "subname", {}, () => [
+                      X(l(a.subname), 1)
                     ], !0)
                   ], 8, Q2)) : S("", !0)
                 ])
@@ -15595,15 +15595,15 @@ function t$(e, t, a, i, n, s) {
             title: n.closeTranslated,
             class: "app-sidebar__close",
             variant: "tertiary",
-            onClick: $e(s.closeSidebar, ["prevent"])
+            onClick: Te(s.closeSidebar, ["prevent"])
           }, {
-            icon: Te(() => [
+            icon: Ae(() => [
               ve($, { size: 20 })
             ]),
             _: 1
           }, 8, ["aria-label", "title", "onClick"]),
           s.isSlotPopulated(e.$slots.description?.()) && !a.empty ? (c(), f("div", e$, [
-            Xe(e.$slots, "description", {}, void 0, !0)
+            Qe(e.$slots, "description", {}, void 0, !0)
           ])) : S("", !0)
         ], 2),
         fe(ve(C, {
@@ -15612,15 +15612,15 @@ function t$(e, t, a, i, n, s) {
           forceTabs: a.forceTabs,
           "onUpdate:active": s.onUpdateActive
         }, {
-          default: Te(() => [
-            Xe(e.$slots, "default", {}, void 0, !0)
+          default: Ae(() => [
+            Qe(e.$slots, "default", {}, void 0, !0)
           ]),
           _: 3
         }, 8, ["active", "forceTabs", "onUpdate:active"]), [
           [dr, !a.loading]
         ]),
         a.loading ? (c(), ze(x, { key: 1 }, {
-          icon: Te(() => [
+          icon: Ae(() => [
             ve(v, { size: 64 })
           ]),
           _: 1
@@ -15702,10 +15702,10 @@ function d$(e, t, a, i, n, s) {
       role: s.isInSemanticMenu && "menuitem",
       onClick: t[0] || (t[0] = (...u) => e.onClick && e.onClick(...u))
     }, [
-      Xe(e.$slots, "icon", {}, () => [
+      Qe(e.$slots, "icon", {}, () => [
         r("span", {
           "aria-hidden": "true",
-          class: xe(["action-link__icon", [e.isIconUrl ? "action-link__icon--url" : e.icon]]),
+          class: Ne(["action-link__icon", [e.isIconUrl ? "action-link__icon--url" : e.icon]]),
           style: Ea({ backgroundImage: e.isIconUrl ? `url(${e.icon})` : null })
         }, null, 6)
       ], !0),
@@ -15779,7 +15779,7 @@ const f$ = `<!--
 <rect x="179" y="20" width="8" height="8" rx="4" fill="white"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.37258 0 0 5.37259 0 12V302C0 308.627 5.37259 314 12 314H383C389.627 314 395 308.627 395 302V12C395 5.37258 389.627 0 383 0H12ZM112 44C119.732 44 126 50.268 126 58V292C126 299.732 119.732 306 112 306H20C12.268 306 6 299.732 6 292V58C6 50.268 12.268 44 20 44H112Z" fill="black" fill-opacity="0.35"/>
 </svg>
-`, p$ = { class: "vue-skip-actions__container" }, v$ = { class: "vue-skip-actions__headline" }, b$ = { class: "vue-skip-actions__buttons" }, g$ = /* @__PURE__ */ ta({
+`, p$ = { class: "vue-skip-actions__container" }, v$ = { class: "vue-skip-actions__headline" }, b$ = { class: "vue-skip-actions__buttons" }, g$ = /* @__PURE__ */ aa({
   __name: "NcContent",
   props: {
     appName: {}
@@ -15802,21 +15802,21 @@ const f$ = `<!--
     }
     return (v, g) => (c(), f("div", {
       id: "content-vue",
-      class: xe(["content", [`app-${e.appName.toLowerCase()}`, { "content--legacy": o(In) }]])
+      class: Ne(["content", [`app-${e.appName.toLowerCase()}`, { "content--legacy": o(In) }]])
     }, [
       (c(), ze(xd, { to: "#skip-actions" }, [
         r("div", p$, [
-          r("div", v$, l(o(Ht)("Keyboard navigation help")), 1),
+          r("div", v$, l(o(qt)("Keyboard navigation help")), 1),
           r("div", b$, [
             fe(ve(Ti, {
               href: "#app-navigation-vue",
               variant: "tertiary",
-              onClick: $e(u, ["prevent"]),
+              onClick: Te(u, ["prevent"]),
               onFocusin: g[0] || (g[0] = (b) => n.value = "navigation"),
               onMouseover: g[1] || (g[1] = (b) => n.value = "navigation")
             }, {
-              default: Te(() => [
-                Q(l(o(Ht)("Skip to app navigation")), 1)
+              default: Ae(() => [
+                X(l(o(qt)("Skip to app navigation")), 1)
               ]),
               _: 1
             }, 512), [
@@ -15828,8 +15828,8 @@ const f$ = `<!--
               onFocusin: g[2] || (g[2] = (b) => n.value = "content"),
               onMouseover: g[3] || (g[3] = (b) => n.value = "content")
             }, {
-              default: Te(() => [
-                Q(l(o(Ht)("Skip to main content")), 1)
+              default: Ae(() => [
+                X(l(o(qt)("Skip to main content")), 1)
               ]),
               _: 1
             })
@@ -15843,7 +15843,7 @@ const f$ = `<!--
           ])
         ])
       ])),
-      Xe(v.$slots, "default", {}, void 0, !0)
+      Qe(v.$slots, "default", {}, void 0, !0)
     ], 2));
   }
 }), y$ = /* @__PURE__ */ mt(g$, [["__scopeId", "data-v-d13dcb98"]]), m$ = { class: "library-shelf-tree-node" }, _$ = ["aria-expanded", "aria-label"], w$ = ["href"], k$ = { class: "library-shelf-summary-title" }, S$ = { dir: "auto" }, C$ = { class: "library-muted" }, $$ = { dir: "auto" }, T$ = {
@@ -15937,21 +15937,21 @@ const f$ = `<!--
   setup(e) {
     const t = e, a = /* @__PURE__ */ U(null), i = /* @__PURE__ */ U(typeof IntersectionObserver > "u"), n = /* @__PURE__ */ U("loading");
     let s;
-    return qe(() => t.src, () => {
+    return Ge(() => t.src, () => {
       n.value = "loading";
     }), xt(() => {
       i.value || (s = new IntersectionObserver((u) => {
         u.some((d) => d.isIntersecting) && (i.value = !0, s.disconnect());
       }, { rootMargin: "240px" }), s.observe(a.value));
-    }), aa(() => s?.disconnect()), (u, d) => (c(), f("span", {
+    }), ia(() => s?.disconnect()), (u, d) => (c(), f("span", {
       ref_key: "frame",
       ref: a,
-      class: xe(["library-cover-frame", { "library-cover-frame--error": n.value === "error" }])
+      class: Ne(["library-cover-frame", { "library-cover-frame--error": n.value === "error" }])
     }, [
       n.value === "loading" ? (c(), f("span", O$)) : S("", !0),
       (c(), f("img", {
         key: e.src,
-        class: xe(["library-cover-image", { "library-cover-image--loaded": n.value === "loaded" }]),
+        class: Ne(["library-cover-image", { "library-cover-image--loaded": n.value === "loaded" }]),
         src: i.value ? e.src : void 0,
         alt: "",
         loading: "lazy",
@@ -16029,7 +16029,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
         u.value = !1;
       }
     }
-    return qe(() => a.itemIds.join(","), () => {
+    return Ge(() => a.itemIds.join(","), () => {
       v.value = "";
     }), xt(g), (m, _) => (c(), f("div", {
       class: "library-add-to-list",
@@ -16079,7 +16079,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       v.value ? (c(), f("p", H$, l(v.value), 1)) : S("", !0)
     ], 8, L$));
   }
-}, q$ = ["onKeydown"], G$ = ["aria-label", "aria-describedby"], K$ = ["id"], Je = {
+}, q$ = ["onKeydown"], G$ = ["aria-label", "aria-describedby"], K$ = ["id"], Xe = {
   __name: "LabelHelp",
   props: { text: { type: String, required: !0 } },
   setup(e) {
@@ -16120,7 +16120,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
     function C(x) {
       n.value && (!(x.target instanceof Node) || !i.value?.contains(x.target)) && g();
     }
-    return document.addEventListener("keydown", $), document.addEventListener("pointerdown", k), window.addEventListener("scroll", C, !0), aa(() => {
+    return document.addEventListener("keydown", $), document.addEventListener("pointerdown", k), window.addEventListener("scroll", C, !0), ia(() => {
       clearTimeout(u), document.removeEventListener("pointerdown", k), window.removeEventListener("scroll", C, !0), document.removeEventListener("keydown", $);
     }), (x, D) => (c(), f("span", {
       ref_key: "anchor",
@@ -16128,10 +16128,10 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       class: "library-label-help",
       onPointerenter: D[0] || (D[0] = (I) => I.pointerType !== "touch" && v()),
       onPointerleave: _,
-      onKeydown: bt($e(m, ["stop", "prevent"]), ["esc"])
+      onKeydown: bt(Te(m, ["stop", "prevent"]), ["esc"])
     }, [
       r("span", { id: d }, [
-        Xe(x.$slots, "default")
+        Qe(x.$slots, "default")
       ]),
       r("button", {
         type: "button",
@@ -16140,7 +16140,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
         "aria-describedby": n.value ? o(t) : void 0,
         onFocus: v,
         onBlur: _,
-        onClick: $e(v, ["stop", "prevent"])
+        onClick: Te(v, ["stop", "prevent"])
       }, "?", 40, G$),
       (c(), ze(xd, { to: "body" }, [
         n.value ? (c(), f("span", {
@@ -16215,7 +16215,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
         d.value = !1;
       }
     }
-    function J() {
+    function Z() {
       m.name = u.value?.list.name || "", m.description = u.value?.list.description || "", b.value = !0, $.value = !1, v.value = "";
     }
     async function T() {
@@ -16258,7 +16258,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
     function W(B) {
       _.value = B.id, k.value = B.note, C.value = null;
     }
-    function ie(B, F) {
+    function ae(B, F) {
       return j({ action: "move", entryId: B.id, direction: F }, h("library", "Reading order saved."));
     }
     function se(B, F) {
@@ -16270,7 +16270,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       return x.value = null, j({ action: "move", entryId: F, beforeId: B }, h("library", "Reading order saved."));
     }
     return xt(async () => {
-      await ee(), !I.value && new URLSearchParams(window.location.search).get("new") === "1" && J();
+      await ee(), !I.value && new URLSearchParams(window.location.search).get("new") === "1" && Z();
     }), (B, F) => (c(), f("section", {
       class: "library-personal-lists",
       "aria-label": o(h)("library", "Personal lists"),
@@ -16287,11 +16287,11 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             ref: D,
             tabindex: "-1"
           }, [
-            ve(Je, {
+            ve(Xe, {
               text: o(h)("library", "Private reading lists, in your own order, with your own notes.")
             }, {
-              default: Te(() => [
-                Q(l(u.value?.list.name || o(h)("library", "Lists")), 1)
+              default: Ae(() => [
+                X(l(u.value?.list.name || o(h)("library", "Lists")), 1)
               ]),
               _: 1
             }, 8, ["text"])
@@ -16302,7 +16302,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
           type: "button",
           class: "button primary",
           disabled: d.value || b.value,
-          onClick: J
+          onClick: Z
         }, l(o(h)("library", "New list")), 9, J$)) : S("", !0)
       ]),
       v.value ? (c(), f("p", X$, l(v.value), 1)) : S("", !0),
@@ -16318,28 +16318,28 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       b.value ? (c(), f("form", {
         key: 4,
         class: "library-list-editor",
-        onSubmit: $e(T, ["prevent"])
+        onSubmit: Te(T, ["prevent"])
       }, [
         r("label", null, [
-          Q(l(o(h)("library", "List name")), 1),
+          X(l(o(h)("library", "List name")), 1),
           fe(r("input", {
             "onUpdate:modelValue": F[1] || (F[1] = (z) => m.name = z),
             required: "",
             maxlength: "120",
             disabled: d.value
           }, null, 8, aT), [
-            [Oe, m.name]
+            [Re, m.name]
           ])
         ]),
         r("label", null, [
-          Q(l(o(h)("library", "Description / list note")), 1),
+          X(l(o(h)("library", "Description / list note")), 1),
           fe(r("textarea", {
             "onUpdate:modelValue": F[2] || (F[2] = (z) => m.description = z),
             rows: "3",
             maxlength: "10000",
             disabled: d.value
           }, null, 8, iT), [
-            [Oe, m.description]
+            [Re, m.description]
           ])
         ]),
         r("div", nT, [
@@ -16367,7 +16367,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             type: "button",
             class: "button secondary",
             disabled: !M.value,
-            onClick: J
+            onClick: Z
           }, l(o(h)("library", "Edit list")), 9, cT),
           r("button", {
             type: "button",
@@ -16406,9 +16406,9 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             key: z.id,
             class: "library-list-entry",
             tabindex: "-1",
-            onDragover: F[11] || (F[11] = $e(() => {
+            onDragover: F[11] || (F[11] = Te(() => {
             }, ["prevent"])),
-            onDrop: $e((re) => V(z.id), ["prevent"])
+            onDrop: Te((re) => V(z.id), ["prevent"])
           }, [
             r("div", yT, [
               r("span", {
@@ -16449,17 +16449,17 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             _.value === z.id ? (c(), f("form", {
               key: 1,
               class: "library-list-editor",
-              onSubmit: $e((re) => j({ action: "note", entryId: z.id, note: k.value }, o(h)("library", "Note saved.")), ["prevent"])
+              onSubmit: Te((re) => j({ action: "note", entryId: z.id, note: k.value }, o(h)("library", "Note saved.")), ["prevent"])
             }, [
               r("label", null, [
-                Q(l(o(h)("library", "Your note for this book in this list")), 1),
+                X(l(o(h)("library", "Your note for this book in this list")), 1),
                 fe(r("textarea", {
                   "onUpdate:modelValue": F[8] || (F[8] = (re) => k.value = re),
                   maxlength: "10000",
                   rows: "3",
                   disabled: d.value
                 }, null, 8, NT), [
-                  [Oe, k.value]
+                  [Re, k.value]
                 ])
               ]),
               r("div", OT, [
@@ -16486,13 +16486,13 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
                 type: "button",
                 class: "button secondary",
                 disabled: !M.value || z.number === 1,
-                onClick: (re) => ie(z, "up")
+                onClick: (re) => ae(z, "up")
               }, l(o(h)("library", "Move up")), 9, DT),
               r("button", {
                 type: "button",
                 class: "button secondary",
                 disabled: !M.value || z.number === u.value.total,
-                onClick: (re) => ie(z, "down")
+                onClick: (re) => ae(z, "down")
               }, l(o(h)("library", "Move down")), 9, FT),
               r("button", {
                 type: "button",
@@ -16634,7 +16634,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       n.value ? (c(), f("p", eA, l(o(h)("library", "Loading")), 1)) : S("", !0),
       u.value ? (c(), f("p", tA, l(u.value), 1)) : S("", !0),
       s.value ? (c(), f("p", aA, [
-        Q(l(s.value) + " ", 1),
+        X(l(s.value) + " ", 1),
         r("button", {
           disabled: n.value,
           onClick: $[0] || ($[0] = (C) => b(d.value))
@@ -16769,7 +16769,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
   setup(e) {
     const t = e, a = /* @__PURE__ */ U(null), i = /* @__PURE__ */ U(!1), n = /* @__PURE__ */ U(""), s = /* @__PURE__ */ U(""), u = /* @__PURE__ */ U(!1), d = /* @__PURE__ */ U([]), v = /* @__PURE__ */ U(""), g = /* @__PURE__ */ U([]), b = /* @__PURE__ */ U(""), m = /* @__PURE__ */ U(null), _ = /* @__PURE__ */ U(!1), k = /* @__PURE__ */ U([]), $ = /* @__PURE__ */ U([]), C = G(() => $.value.filter((P) => P.status !== "completed" && P.status !== "cancelled"));
     let x = null;
-    const D = /* @__PURE__ */ U(""), I = /* @__PURE__ */ U(!1), L = /* @__PURE__ */ U(1), M = new URLSearchParams(location.search).get("authorConflicts") === "1", ee = /* @__PURE__ */ U(Number(new URLSearchParams(location.search).get("authorId")) || null), J = /* @__PURE__ */ U(""), T = /* @__PURE__ */ U("title"), j = /* @__PURE__ */ U("grid"), W = /* @__PURE__ */ U(!1), ie = /* @__PURE__ */ U(!1), se = /* @__PURE__ */ U(null), V = /* @__PURE__ */ U(!1), B = /* @__PURE__ */ Ft({ display_name: "", sort_name: "", given_name: "", family_name: "", biography: "" }), F = G(() => (a.value?.author?.display_name || "").trim().split(/\s+/u).slice(0, 2).map((P) => Array.from(P)[0] || "").join("").toLocaleUpperCase()), z = G(() => _t("/apps/library/api/authors/{id}/photo", { id: ee.value }) + "?v=" + encodeURIComponent(a.value?.author?.photo_key || "")), re = G(() => {
+    const D = /* @__PURE__ */ U(""), I = /* @__PURE__ */ U(!1), L = /* @__PURE__ */ U(1), M = new URLSearchParams(location.search).get("authorConflicts") === "1", ee = /* @__PURE__ */ U(Number(new URLSearchParams(location.search).get("authorId")) || null), Z = /* @__PURE__ */ U(""), T = /* @__PURE__ */ U("title"), j = /* @__PURE__ */ U("grid"), W = /* @__PURE__ */ U(!1), ae = /* @__PURE__ */ U(!1), se = /* @__PURE__ */ U(null), V = /* @__PURE__ */ U(!1), B = /* @__PURE__ */ Ft({ display_name: "", sort_name: "", given_name: "", family_name: "", biography: "" }), F = G(() => (a.value?.author?.display_name || "").trim().split(/\s+/u).slice(0, 2).map((P) => Array.from(P)[0] || "").join("").toLocaleUpperCase()), z = G(() => _t("/apps/library/api/authors/{id}/photo", { id: ee.value }) + "?v=" + encodeURIComponent(a.value?.author?.photo_key || "")), re = G(() => {
       if (T.value !== "series") return [{ name: null, books: a.value?.books || [] }];
       const P = /* @__PURE__ */ new Map();
       for (const R of a.value?.books || []) {
@@ -16781,7 +16781,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
     function te(P) {
       return _t("/apps/library/items/{id}/cover", { id: P.id }) + "?v=" + encodeURIComponent(`${P.cover_revision || ""}-${P.etag || ""}`);
     }
-    function X(P) {
+    function J(P) {
       se.value = P.target.files?.[0] || null, se.value && (V.value = !1);
     }
     async function H(P, R = null) {
@@ -16799,14 +16799,14 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
     async function de(P = 1) {
       i.value = !0, n.value = "";
       try {
-        a.value = await H(ee.value ? `/${ee.value}?page=${P}&search=${encodeURIComponent(J.value.trim())}&sort=${T.value}` : `?page=${P}&search=${encodeURIComponent(D.value.trim())}&unused=${I.value ? 1 : 0}`), L.value = P, m.value = null, d.value = [], ie.value = !1, k.value = await H("/history"), $.value = await H("/tasks"), Ae();
+        a.value = await H(ee.value ? `/${ee.value}?page=${P}&search=${encodeURIComponent(Z.value.trim())}&sort=${T.value}` : `?page=${P}&search=${encodeURIComponent(D.value.trim())}&unused=${I.value ? 1 : 0}`), L.value = P, m.value = null, d.value = [], ae.value = !1, k.value = await H("/history"), $.value = await H("/tasks"), Ee();
       } catch (R) {
         n.value = R.message;
       } finally {
         i.value = !1;
       }
     }
-    function Ae() {
+    function Ee() {
       x !== null && clearTimeout(x), x = null, $.value.some((P) => P.status === "queued" || P.status === "running") && (x = setTimeout(Ie, 5e3));
     }
     async function Ie() {
@@ -16820,7 +16820,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       } catch (P) {
         n.value = P.message;
       }
-      Ae();
+      Ee();
     }
     function Le(P) {
       return P.status === "queued" ? h("library", "Queued") : P.status === "running" ? h("library", "Running") : P.status === "conflict" ? h("library", "Needs review") : h("library", "Failed");
@@ -16829,12 +16829,12 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       for (const P of Object.keys(B)) B[P] = a.value.author[P] || "";
       u.value = !0, s.value = "", se.value = null, V.value = !1;
     }
-    async function Qe() {
+    async function et() {
       i.value = !0, n.value = "";
       try {
         const P = new FormData();
         for (const [R, N] of Object.entries(B)) P.set(R, N);
-        P.set("revision", String(a.value.author.revision)), P.set("remove_photo", V.value ? "1" : "0"), se.value && P.set("photo", se.value), await H(`/${ee.value}`, P), u.value = !1, ie.value = !1, await de(1), s.value = h("library", "Author saved. Original book credits are preserved.");
+        P.set("revision", String(a.value.author.revision)), P.set("remove_photo", V.value ? "1" : "0"), se.value && P.set("photo", se.value), await H(`/${ee.value}`, P), u.value = !1, ae.value = !1, await de(1), s.value = h("library", "Author saved. Original book credits are preserved.");
       } catch (P) {
         n.value = P.message;
       } finally {
@@ -16937,17 +16937,17 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       }, l(o(h)("library", "All authors")), 9, CA)) : S("", !0),
       r("header", $A, [
         ee.value && a.value?.author ? (c(), f("div", TA, [
-          a.value.author.photo_key && !ie.value ? (c(), f("img", {
+          a.value.author.photo_key && !ae.value ? (c(), f("img", {
             key: a.value.author.photo_key,
             src: z.value,
             alt: o(h)("library", "Portrait of {author}", { author: a.value.author.display_name }),
-            onError: R[0] || (R[0] = (N) => ie.value = !0)
+            onError: R[0] || (R[0] = (N) => ae.value = !0)
           }, null, 40, AA)) : (c(), f("span", EA, l(F.value), 1))
         ])) : S("", !0),
         r("h1", xA, l(a.value?.author?.display_name || o(h)("library", "Authors")), 1)
       ]),
       n.value ? (c(), f("p", NA, [
-        Q(l(n.value) + " ", 1),
+        X(l(n.value) + " ", 1),
         r("button", {
           disabled: i.value,
           onClick: R[1] || (R[1] = (N) => de(L.value))
@@ -16977,7 +16977,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
           }, l(o(h)("library", "Open merged author")), 9, JA)
         ])) : S("", !0),
         !a.value.canEdit && !a.value.author.merged_into ? (c(), f("p", XA, [
-          Q(l(o(h)("library", "Author migration must finish before editing. Refresh to check progress.")) + " ", 1),
+          X(l(o(h)("library", "Author migration must finish before editing. Refresh to check progress.")) + " ", 1),
           r("button", {
             disabled: i.value,
             onClick: R[7] || (R[7] = (N) => de(L.value))
@@ -16991,7 +16991,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
         u.value ? (c(), f("form", {
           key: 5,
           class: "author-editor",
-          onSubmit: $e(Qe, ["prevent"])
+          onSubmit: Te(et, ["prevent"])
         }, [
           r("p", null, l(o(h)("library", "This edits the shared author record. Book credits and files stay unchanged.")), 1),
           r("label", tE, l(o(h)("library", "Preferred name")), 1),
@@ -17002,11 +17002,11 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             required: "",
             disabled: i.value
           }, null, 8, aE), [
-            [Oe, B.display_name]
+            [Re, B.display_name]
           ]),
           r("label", iE, [
-            Q(l(o(h)("library", "Sort name")) + " ", 1),
-            ve(Je, {
+            X(l(o(h)("library", "Sort name")) + " ", 1),
+            ve(Xe, {
               text: o(h)("library", "For example: Doe, John. Controls author directory ordering.")
             }, null, 8, ["text"])
           ]),
@@ -17017,11 +17017,11 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             required: "",
             disabled: i.value
           }, null, 8, nE), [
-            [Oe, B.sort_name]
+            [Re, B.sort_name]
           ]),
           r("label", rE, [
-            Q(l(o(h)("library", "Given name")) + " ", 1),
-            ve(Je, {
+            X(l(o(h)("library", "Given name")) + " ", 1),
+            ve(Xe, {
               text: o(h)("library", "Optional. Leave empty for organisations or names you cannot safely split.")
             }, null, 8, ["text"])
           ]),
@@ -17031,7 +17031,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             maxlength: "255",
             disabled: i.value
           }, null, 8, lE), [
-            [Oe, B.given_name]
+            [Re, B.given_name]
           ]),
           r("label", sE, l(o(h)("library", "Family name")), 1),
           fe(r("input", {
@@ -17040,11 +17040,11 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             maxlength: "255",
             disabled: i.value
           }, null, 8, oE), [
-            [Oe, B.family_name]
+            [Re, B.family_name]
           ]),
           r("label", uE, [
-            Q(l(o(h)("library", "Biography")) + " ", 1),
-            ve(Je, {
+            X(l(o(h)("library", "Biography")) + " ", 1),
+            ve(Xe, {
               text: o(h)("library", "Optional plain text, up to 10,000 characters. This profile is private to your account.")
             }, null, 8, ["text"])
           ]),
@@ -17055,11 +17055,11 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             rows: "5",
             disabled: i.value
           }, null, 8, cE), [
-            [Oe, B.biography]
+            [Re, B.biography]
           ]),
           r("label", dE, [
-            Q(l(o(h)("library", "Author photo")) + " ", 1),
-            ve(Je, {
+            X(l(o(h)("library", "Author photo")) + " ", 1),
+            ve(Xe, {
               text: o(h)("library", "JPEG, PNG or WebP, up to 10 MiB. Saved as a small square portrait; the original upload is discarded.")
             }, null, 8, ["text"])
           ]),
@@ -17068,7 +17068,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             type: "file",
             accept: "image/jpeg,image/png,image/webp",
             disabled: i.value,
-            onChange: X
+            onChange: J
           }, null, 40, fE),
           a.value.author.photo_key ? (c(), f("label", hE, [
             fe(r("input", {
@@ -17078,7 +17078,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             }, null, 8, pE), [
               [ci, V.value]
             ]),
-            Q(" " + l(o(h)("library", "Remove photo")), 1)
+            X(" " + l(o(h)("library", "Remove photo")), 1)
           ])) : S("", !0),
           r("div", null, [
             r("button", {
@@ -17086,7 +17086,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
               disabled: i.value,
               type: "submit"
             }, l(o(h)("library", "Save author")), 9, vE),
-            R[29] || (R[29] = Q()),
+            R[29] || (R[29] = X()),
             r("button", {
               disabled: i.value,
               type: "button",
@@ -17107,15 +17107,15 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
           "aria-label": o(h)("library", "Merge or reassign")
         }, [
           r("label", null, [
-            Q(l(o(h)("library", "Books to change")) + " ", 1),
-            ve(Je, {
+            X(l(o(h)("library", "Books to change")) + " ", 1),
+            ve(Xe, {
               text: o(h)("library", "Leave all books unselected to merge this author. Select individual books below to reassign only those credits, keeping both authors.")
             }, null, 8, ["text"])
           ]),
           r("p", _E, l(d.value.length ? o(pt)("library", "%n selected book", "%n selected books", d.value.length) : o(h)("library", "Merge all books into the chosen author")), 1),
           r("form", {
             class: "author-search",
-            onSubmit: $e(Pe, ["prevent"])
+            onSubmit: Te(Pe, ["prevent"])
           }, [
             r("label", wE, l(o(h)("library", "Find destination author")), 1),
             fe(r("input", {
@@ -17125,7 +17125,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
               maxlength: "255",
               disabled: i.value
             }, null, 8, kE), [
-              [Oe, v.value]
+              [Re, v.value]
             ]),
             r("button", { disabled: i.value }, l(o(h)("library", "Search")), 9, SE)
           ], 32),
@@ -17134,8 +17134,8 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
               disabled: i.value || !v.value.trim(),
               onClick: we
             }, l(o(h)("library", "Create separate author")), 9, CE),
-            R[30] || (R[30] = Q()),
-            ve(Je, {
+            R[30] || (R[30] = X()),
+            ve(Xe, {
               text: o(h)("library", "Creates a new person using the entered name, even if someone with that name already exists.")
             }, null, 8, ["text"])
           ]),
@@ -17159,7 +17159,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
               disabled: i.value || !b.value,
               onClick: Me
             }, l(o(h)("library", "Review change")), 9, xE),
-            R[31] || (R[31] = Q()),
+            R[31] || (R[31] = X()),
             r("button", {
               disabled: i.value,
               onClick: ke
@@ -17193,17 +17193,17 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
           r("h2", null, l(o(h)("library", "Books in your library")), 1),
           r("form", {
             class: "author-book-controls",
-            onSubmit: R[24] || (R[24] = $e((N) => de(1), ["prevent"]))
+            onSubmit: R[24] || (R[24] = Te((N) => de(1), ["prevent"]))
           }, [
             r("label", PE, l(o(h)("library", "Search titles")), 1),
             fe(r("input", {
               id: "author-book-search",
-              "onUpdate:modelValue": R[19] || (R[19] = (N) => J.value = N),
+              "onUpdate:modelValue": R[19] || (R[19] = (N) => Z.value = N),
               type: "search",
               maxlength: "255",
               disabled: i.value || u.value
             }, null, 8, DE), [
-              [Oe, J.value]
+              [Re, Z.value]
             ]),
             r("button", {
               disabled: i.value || u.value
@@ -17227,7 +17227,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
                 "aria-pressed": j.value === "grid",
                 onClick: R[22] || (R[22] = (N) => j.value = "grid")
               }, l(o(h)("library", "Covers")), 9, HE),
-              R[32] || (R[32] = Q()),
+              R[32] || (R[32] = X()),
               r("button", {
                 type: "button",
                 "aria-pressed": j.value === "list",
@@ -17235,7 +17235,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
               }, l(o(h)("library", "List")), 9, qE)
             ])
           ], 32),
-          J.value ? (c(), f("p", GE, l(o(pt)("library", "%n book", "%n books", a.value.matchingCount)), 1)) : S("", !0),
+          Z.value ? (c(), f("p", GE, l(o(pt)("library", "%n book", "%n books", a.value.matchingCount)), 1)) : S("", !0),
           a.value.books.length ? S("", !0) : (c(), f("p", KE, l(o(h)("library", "No books match this view.")), 1)),
           (c(!0), f(K, null, ue(re.value, (N) => (c(), f("section", {
             key: N.name ?? "all",
@@ -17243,17 +17243,17 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
           }, [
             N.name !== null ? (c(), f("h3", WE, l(N.name || o(h)("library", "No series recorded")), 1)) : S("", !0),
             r("ul", {
-              class: xe(["author-books", { "author-books-grid": j.value === "grid" }])
+              class: Ne(["author-books", { "author-books-grid": j.value === "grid" }])
             }, [
-              (c(!0), f(K, null, ue(N.books, (ne) => (c(), f("li", {
-                key: ne.id
+              (c(!0), f(K, null, ue(N.books, (ie) => (c(), f("li", {
+                key: ie.id
               }, [
                 _.value ? fe((c(), f("input", {
                   key: 0,
                   "onUpdate:modelValue": R[25] || (R[25] = (ce) => d.value = ce),
                   type: "checkbox",
-                  value: Number(ne.id),
-                  "aria-label": o(h)("library", "Select {title}", { title: ne.title }),
+                  value: Number(ie.id),
+                  "aria-label": o(h)("library", "Select {title}", { title: ie.title }),
                   disabled: i.value,
                   onChange: R[26] || (R[26] = (ce) => m.value = null)
                 }, null, 40, YE)), [
@@ -17261,29 +17261,29 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
                 ]) : S("", !0),
                 r("a", {
                   class: "author-book-cover",
-                  href: o(_t)("/apps/library/items/{id}", { id: ne.id }),
-                  "aria-label": ne.title
+                  href: o(_t)("/apps/library/items/{id}", { id: ie.id }),
+                  "aria-label": ie.title
                 }, [
                   ve(af, {
-                    src: te(ne)
+                    src: te(ie)
                   }, null, 8, ["src"])
                 ], 8, ZE),
                 r("div", JE, [
                   r("a", {
                     class: "author-book-title",
-                    href: o(_t)("/apps/library/items/{id}", { id: ne.id }),
+                    href: o(_t)("/apps/library/items/{id}", { id: ie.id }),
                     dir: "auto"
-                  }, l(ne.title), 9, XE),
-                  ne.series_name ? (c(), f("span", QE, [
-                    Q(l(ne.series_name), 1),
-                    ne.series_number ? (c(), f(K, { key: 0 }, [
-                      Q(" · " + l(ne.series_number), 1)
+                  }, l(ie.title), 9, XE),
+                  ie.series_name ? (c(), f("span", QE, [
+                    X(l(ie.series_name), 1),
+                    ie.series_number ? (c(), f(K, { key: 0 }, [
+                      X(" · " + l(ie.series_number), 1)
                     ], 64)) : S("", !0)
                   ])) : S("", !0),
-                  ne.publication_date ? (c(), f("span", ex, l(ne.publication_date), 1)) : S("", !0),
-                  r("span", null, l(ne.extension?.toUpperCase()), 1),
-                  ne.scan_status === "missing" ? (c(), f("span", tx, l(o(h)("library", "File missing")), 1)) : S("", !0),
-                  _.value ? (c(), f("span", ax, l(o(h)("library", "Original credit: {credit}", { credit: ne.creators || "—" })), 1)) : S("", !0)
+                  ie.publication_date ? (c(), f("span", ex, l(ie.publication_date), 1)) : S("", !0),
+                  r("span", null, l(ie.extension?.toUpperCase()), 1),
+                  ie.scan_status === "missing" ? (c(), f("span", tx, l(o(h)("library", "File missing")), 1)) : S("", !0),
+                  _.value ? (c(), f("span", ax, l(o(h)("library", "Original credit: {credit}", { credit: ie.creators || "—" })), 1)) : S("", !0)
                 ])
               ]))), 128))
             ], 2)
@@ -17292,11 +17292,11 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       ], 64)) : S("", !0) : (c(), f(K, { key: 4 }, [
         r("form", {
           class: "author-search",
-          onSubmit: R[4] || (R[4] = $e((N) => de(1), ["prevent"]))
+          onSubmit: R[4] || (R[4] = Te((N) => de(1), ["prevent"]))
         }, [
           r("label", LA, [
-            Q(l(o(h)("library", "Search authors")) + " ", 1),
-            ve(Je, {
+            X(l(o(h)("library", "Search authors")) + " ", 1),
+            ve(Xe, {
               text: o(h)("library", "Matches the beginning of the preferred name or sort name.")
             }, null, 8, ["text"])
           ]),
@@ -17306,7 +17306,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             maxlength: "255",
             type: "search"
           }, null, 512), [
-            [Oe, D.value]
+            [Re, D.value]
           ]),
           r("label", PA, [
             fe(r("input", {
@@ -17315,7 +17315,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             }, null, 512), [
               [ci, I.value]
             ]),
-            Q(" " + l(o(h)("library", "Unused authors")), 1)
+            X(" " + l(o(h)("library", "Unused authors")), 1)
           ]),
           r("button", {
             disabled: i.value,
@@ -17323,7 +17323,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
           }, l(o(h)("library", "Search")), 9, DA)
         ], 32),
         a.value?.migration && (a.value.migration.pending || a.value.migration.failed || a.value.migration.conflict) ? (c(), f("p", FA, [
-          Q(l(o(h)("library", "Author migration: {pending} pending, {failed} failed, {conflict} need review.", a.value.migration)) + " ", 1),
+          X(l(o(h)("library", "Author migration: {pending} pending, {failed} failed, {conflict} need review.", a.value.migration)) + " ", 1),
           a.value.migration.conflict ? (c(), f("a", {
             key: 0,
             href: `${e.catalogueUrl}?authors=1&authorConflicts=1`
@@ -17346,7 +17346,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             I.value && Number(N.book_count) === 0 ? (c(), f("button", {
               key: 0,
               disabled: i.value || a.value.migration.pending || a.value.migration.failed,
-              onClick: (ne) => O(N)
+              onClick: (ie) => O(N)
             }, l(o(h)("library", "Remove unused author")), 9, VA)) : S("", !0)
           ]))), 128))
         ])) : S("", !0),
@@ -17363,7 +17363,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             N.status === "queued" ? (c(), f("button", {
               key: 0,
               disabled: i.value,
-              onClick: (ne) => A(N)
+              onClick: (ie) => A(N)
             }, l(o(h)("library", "Cancel")), 9, rx)) : S("", !0),
             N.status === "conflict" || N.status === "failed" ? (c(), f("span", lx, l(o(h)("library", "Review the author and try again. No books were changed by this task.")), 1)) : S("", !0)
           ], 8, nx))), 128))
@@ -17380,7 +17380,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             Number(N.undone) ? (c(), f("span", ux, l(o(h)("library", "Undone")), 1)) : (c(), f("button", {
               key: 1,
               disabled: i.value,
-              onClick: (ne) => oe(N)
+              onClick: (ie) => oe(N)
             }, l(o(h)("library", "Undo")), 9, cx))
           ], 8, ox))), 128))
         ])
@@ -17439,13 +17439,13 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
   props: { requestToken: { type: String, default: "" }, catalogueUrl: { type: String, required: !0 } },
   setup(e) {
     const t = e, a = Number(new URLSearchParams(location.search).get("seriesId")) || null, i = /* @__PURE__ */ U(null), n = /* @__PURE__ */ U(1), s = /* @__PURE__ */ U(""), u = /* @__PURE__ */ U(!1), d = /* @__PURE__ */ U(""), v = /* @__PURE__ */ U(""), g = /* @__PURE__ */ U(!1), b = /* @__PURE__ */ U(!1), m = /* @__PURE__ */ U([]), _ = /* @__PURE__ */ U(""), k = /* @__PURE__ */ U([]), $ = /* @__PURE__ */ U(""), C = /* @__PURE__ */ U(null), x = /* @__PURE__ */ U([]), D = /* @__PURE__ */ U({ items: [], page: 1, hasNext: !1 }), I = /* @__PURE__ */ U(1), L = /* @__PURE__ */ Ft({ name: "", description: "" });
-    async function M(te, X = null) {
+    async function M(te, J = null) {
       const H = await fetch(_t("/apps/library/api/series") + te, {
         credentials: "same-origin",
         cache: "no-store",
-        method: X === null ? "GET" : "POST",
-        headers: { Accept: "application/json", ...X === null ? {} : { "Content-Type": "application/json", requesttoken: t.requestToken } },
-        ...X === null ? {} : { body: JSON.stringify(X) }
+        method: J === null ? "GET" : "POST",
+        headers: { Accept: "application/json", ...J === null ? {} : { "Content-Type": "application/json", requesttoken: t.requestToken } },
+        ...J === null ? {} : { body: JSON.stringify(J) }
       });
       if (!H.ok) throw new Error(H.status === 413 ? h("library", "Choose at most 500 books for one series change.") : H.status === 409 ? h("library", "This series changed. Reload and review your edit.") : h("library", "Could not load or save the series."));
       return H.json();
@@ -17453,19 +17453,19 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
     async function ee(te = 1) {
       u.value = !0, d.value = "";
       try {
-        const [X, H, de] = await Promise.all([
+        const [J, H, de] = await Promise.all([
           M(a ? `/${a}?page=${te}` : `?page=${te}&search=${encodeURIComponent(s.value.trim())}`),
           M("/history"),
           M(`/conflicts?page=${I.value}`)
         ]);
-        i.value = X, x.value = H, D.value = de, C.value = null, n.value = te;
-      } catch (X) {
-        d.value = X.message;
+        i.value = J, x.value = H, D.value = de, C.value = null, n.value = te;
+      } catch (J) {
+        d.value = J.message;
       } finally {
         u.value = !1;
       }
     }
-    function J() {
+    function Z() {
       L.name = i.value.series.display_name, L.description = i.value.series.description || "", g.value = !0, v.value = "";
     }
     async function T() {
@@ -17491,7 +17491,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
         u.value = !1;
       }
     }
-    async function ie() {
+    async function ae() {
       u.value = !0, d.value = "", C.value = null;
       try {
         const te = await M("", { name: _.value.trim() });
@@ -17529,16 +17529,16 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       u.value = !0, d.value = "";
       try {
         await M(`/history/${te.id}/undo`, {}), await ee(n.value), v.value = h("library", "Series change undone.");
-      } catch (X) {
-        d.value = X.message;
+      } catch (J) {
+        d.value = J.message;
       } finally {
         u.value = !1;
       }
     }
-    async function z(te, X) {
+    async function z(te, J) {
       u.value = !0, d.value = "";
       try {
-        await M(`/conflicts/${te.id}/resolve`, { choice: X, token: te.token }), I.value = 1, await ee(n.value), v.value = h("library", "Imported series change reviewed.");
+        await M(`/conflicts/${te.id}/resolve`, { choice: J, token: te.token }), I.value = 1, await ee(n.value), v.value = h("library", "Imported series change reviewed.");
       } catch (H) {
         d.value = H.message;
       } finally {
@@ -17548,7 +17548,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
     async function re(te) {
       I.value = te, await ee(n.value);
     }
-    return xt(() => ee()), (te, X) => (c(), f("section", {
+    return xt(() => ee()), (te, J) => (c(), f("section", {
       class: "library-series",
       "aria-busy": u.value,
       "aria-labelledby": "library-series-heading"
@@ -17559,10 +17559,10 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       }, l(o(h)("library", "All series")), 9, gx)) : S("", !0),
       r("h1", yx, l(i.value?.series?.display_name || o(h)("library", "Series")), 1),
       d.value ? (c(), f("p", mx, [
-        Q(l(d.value) + " ", 1),
+        X(l(d.value) + " ", 1),
         r("button", {
           disabled: u.value,
-          onClick: X[0] || (X[0] = (H) => ee(n.value))
+          onClick: J[0] || (J[0] = (H) => ee(n.value))
         }, l(o(h)("library", "Reload")), 9, _x)
       ])) : S("", !0),
       v.value ? (c(), f("p", wx, l(v.value), 1)) : S("", !0),
@@ -17583,37 +17583,37 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
         !g.value && !i.value.series.merged_into ? (c(), f("button", {
           key: 3,
           disabled: u.value,
-          onClick: J
+          onClick: Z
         }, l(o(h)("library", "Edit series")), 9, Dx)) : S("", !0),
         g.value ? (c(), f("form", {
           key: 4,
           class: "series-editor",
-          onSubmit: $e(T, ["prevent"])
+          onSubmit: Te(T, ["prevent"])
         }, [
           r("label", Fx, [
-            Q(l(o(h)("library", "Preferred name")) + " ", 1),
-            ve(Je, {
+            X(l(o(h)("library", "Preferred name")) + " ", 1),
+            ve(Xe, {
               text: o(h)("library", "Renaming this shared series changes its display name; the original text in each book stays unchanged.")
             }, null, 8, ["text"])
           ]),
           fe(r("input", {
             id: "series-name",
-            "onUpdate:modelValue": X[4] || (X[4] = (H) => L.name = H),
+            "onUpdate:modelValue": J[4] || (J[4] = (H) => L.name = H),
             maxlength: "255",
             required: "",
             disabled: u.value
           }, null, 8, Mx), [
-            [Oe, L.name]
+            [Re, L.name]
           ]),
           r("label", Ux, l(o(h)("library", "Description")), 1),
           fe(r("textarea", {
             id: "series-description",
-            "onUpdate:modelValue": X[5] || (X[5] = (H) => L.description = H),
+            "onUpdate:modelValue": J[5] || (J[5] = (H) => L.description = H),
             maxlength: "10000",
             rows: "4",
             disabled: u.value
           }, null, 8, jx), [
-            [Oe, L.description]
+            [Re, L.description]
           ]),
           r("div", null, [
             r("button", {
@@ -17621,11 +17621,11 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
               class: "primary",
               disabled: u.value
             }, l(o(h)("library", "Save series")), 9, zx),
-            X[17] || (X[17] = Q()),
+            J[17] || (J[17] = X()),
             r("button", {
               type: "button",
               disabled: u.value,
-              onClick: X[6] || (X[6] = (H) => g.value = !1)
+              onClick: J[6] || (J[6] = (H) => g.value = !1)
             }, l(o(h)("library", "Cancel")), 9, Bx)
           ])
         ], 32)) : S("", !0),
@@ -17634,28 +17634,28 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
           b.value ? S("", !0) : (c(), f("button", {
             key: 0,
             disabled: u.value,
-            onClick: X[7] || (X[7] = (H) => b.value = !0)
+            onClick: J[7] || (J[7] = (H) => b.value = !0)
           }, l(o(h)("library", "Choose destination series")), 9, Hx)),
           b.value ? (c(), f("section", qx, [
             r("label", null, [
-              Q(l(o(h)("library", "Books to change")) + " ", 1),
-              ve(Je, {
+              X(l(o(h)("library", "Books to change")) + " ", 1),
+              ve(Xe, {
                 text: o(h)("library", "Leave books unselected to merge the whole series. Select books below to move only those books. Original file metadata remains unchanged.")
               }, null, 8, ["text"])
             ]),
             r("p", Gx, l(m.value.length ? o(pt)("library", "%n selected book", "%n selected books", m.value.length) : o(h)("library", "Merge all books into the destination series")), 1),
             r("form", {
               class: "series-search",
-              onSubmit: $e(W, ["prevent"])
+              onSubmit: Te(W, ["prevent"])
             }, [
               r("label", Kx, l(o(h)("library", "Find destination series")), 1),
               fe(r("input", {
                 id: "series-target-search",
-                "onUpdate:modelValue": X[8] || (X[8] = (H) => _.value = H),
+                "onUpdate:modelValue": J[8] || (J[8] = (H) => _.value = H),
                 type: "search",
                 maxlength: "255"
               }, null, 512), [
-                [Oe, _.value]
+                [Re, _.value]
               ]),
               r("button", {
                 type: "submit",
@@ -17665,15 +17665,15 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             r("div", null, [
               r("button", {
                 disabled: u.value || !_.value.trim(),
-                onClick: ie
+                onClick: ae
               }, l(o(h)("library", "Create series")), 9, Yx)
             ]),
             r("label", Zx, l(o(h)("library", "Destination series")), 1),
             fe(r("select", {
               id: "series-target",
-              "onUpdate:modelValue": X[9] || (X[9] = (H) => $.value = H),
+              "onUpdate:modelValue": J[9] || (J[9] = (H) => $.value = H),
               disabled: u.value,
-              onChange: X[10] || (X[10] = (H) => C.value = null)
+              onChange: J[10] || (J[10] = (H) => C.value = null)
             }, [
               r("option", Xx, l(o(h)("library", "Choose a series")), 1),
               (c(!0), f(K, null, ue(k.value, (H) => (c(), f("option", {
@@ -17688,7 +17688,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
                 disabled: u.value || !$.value,
                 onClick: se
               }, l(o(h)("library", "Review change")), 9, e3),
-              X[18] || (X[18] = Q()),
+              J[18] || (J[18] = X()),
               r("button", {
                 disabled: u.value,
                 onClick: V
@@ -17722,12 +17722,12 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
           }, [
             b.value ? fe((c(), f("input", {
               key: 0,
-              "onUpdate:modelValue": X[11] || (X[11] = (de) => m.value = de),
+              "onUpdate:modelValue": J[11] || (J[11] = (de) => m.value = de),
               type: "checkbox",
               value: Number(H.id),
               "aria-label": o(h)("library", "Select {title}", { title: H.title }),
               disabled: u.value,
-              onChange: X[12] || (X[12] = (de) => C.value = null)
+              onChange: J[12] || (J[12] = (de) => C.value = null)
             }, null, 40, r3)), [
               [ci, m.value]
             ]) : S("", !0),
@@ -17748,21 +17748,21 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       ], 64)) : S("", !0) : (c(), f(K, { key: 4 }, [
         r("form", {
           class: "series-search",
-          onSubmit: X[2] || (X[2] = $e((H) => ee(1), ["prevent"]))
+          onSubmit: J[2] || (J[2] = Te((H) => ee(1), ["prevent"]))
         }, [
           r("label", Sx, [
-            Q(l(o(h)("library", "Search series")) + " ", 1),
-            ve(Je, {
+            X(l(o(h)("library", "Search series")) + " ", 1),
+            ve(Xe, {
               text: o(h)("library", "Matches the beginning of a preferred series name.")
             }, null, 8, ["text"])
           ]),
           fe(r("input", {
             id: "series-search",
-            "onUpdate:modelValue": X[1] || (X[1] = (H) => s.value = H),
+            "onUpdate:modelValue": J[1] || (J[1] = (H) => s.value = H),
             type: "search",
             maxlength: "255"
           }, null, 512), [
-            [Oe, s.value]
+            [Re, s.value]
           ]),
           r("button", {
             disabled: u.value,
@@ -17770,11 +17770,11 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
           }, l(o(h)("library", "Search")), 9, Cx)
         ], 32),
         i.value?.migration && (i.value.migration.pending || i.value.migration.failed || i.value.migration.conflict) ? (c(), f("p", $x, [
-          Q(l(o(h)("library", "Series migration: {pending} pending, {failed} failed.", i.value.migration)) + " ", 1),
+          X(l(o(h)("library", "Series migration: {pending} pending, {failed} failed.", i.value.migration)) + " ", 1),
           i.value.migration.conflict ? (c(), f("span", Tx, l(o(pt)("library", "%n imported series change to review", "%n imported series changes to review", Number(i.value.migration.conflict))), 1)) : S("", !0),
           r("button", {
             disabled: u.value,
-            onClick: X[3] || (X[3] = (H) => ee(n.value))
+            onClick: J[3] || (J[3] = (H) => ee(n.value))
           }, l(o(h)("library", "Refresh")), 9, Ax)
         ])) : S("", !0),
         i.value ? (c(), f("ul", Ex, [
@@ -17798,20 +17798,20 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
           }, [
             r("strong", d3, l(H.title), 1),
             r("span", null, [
-              Q(l(o(h)("library", "Assigned series")) + ": ", 1),
+              X(l(o(h)("library", "Assigned series")) + ": ", 1),
               r("span", f3, [
-                Q(l(H.assignedName), 1),
+                X(l(H.assignedName), 1),
                 H.assignedNumber ? (c(), f(K, { key: 0 }, [
-                  Q(" · " + l(H.assignedNumber), 1)
+                  X(" · " + l(H.assignedNumber), 1)
                 ], 64)) : S("", !0)
               ])
             ]),
             r("span", null, [
-              Q(l(o(h)("library", "New imported series")) + ": ", 1),
+              X(l(o(h)("library", "New imported series")) + ": ", 1),
               r("span", h3, [
-                Q(l(H.incomingName || "—"), 1),
+                X(l(H.incomingName || "—"), 1),
                 H.incomingNumber ? (c(), f(K, { key: 0 }, [
-                  Q(" · " + l(H.incomingNumber), 1)
+                  X(" · " + l(H.incomingNumber), 1)
                 ], 64)) : S("", !0)
               ])
             ]),
@@ -17820,7 +17820,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
                 disabled: u.value,
                 onClick: (de) => z(H, "keep")
               }, l(o(h)("library", "Keep assignment")), 9, p3),
-              X[19] || (X[19] = Q()),
+              J[19] || (J[19] = X()),
               r("button", {
                 disabled: u.value,
                 onClick: (de) => z(H, "import")
@@ -17831,12 +17831,12 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
         r("div", null, [
           r("button", {
             disabled: u.value || I.value === 1,
-            onClick: X[13] || (X[13] = (H) => re(I.value - 1))
+            onClick: J[13] || (J[13] = (H) => re(I.value - 1))
           }, l(o(h)("library", "Previous")), 9, b3),
-          X[20] || (X[20] = Q()),
+          J[20] || (J[20] = X()),
           r("button", {
             disabled: u.value || !D.value.hasNext,
-            onClick: X[14] || (X[14] = (H) => re(I.value + 1))
+            onClick: J[14] || (J[14] = (H) => re(I.value + 1))
           }, l(o(h)("library", "Next")), 9, g3)
         ])
       ])) : S("", !0),
@@ -17863,12 +17863,12 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       }, [
         r("button", {
           disabled: u.value || n.value === 1,
-          onClick: X[15] || (X[15] = (H) => ee(n.value - 1))
+          onClick: J[15] || (J[15] = (H) => ee(n.value - 1))
         }, l(o(h)("library", "Previous")), 9, S3),
         r("span", null, l(o(h)("library", "Page {page}", { page: n.value })), 1),
         r("button", {
           disabled: u.value || !i.value.hasNext,
-          onClick: X[16] || (X[16] = (H) => ee(n.value + 1))
+          onClick: J[16] || (J[16] = (H) => ee(n.value + 1))
         }, l(o(h)("library", "Next")), 9, C3)
       ], 8, k3)) : S("", !0)
     ], 8, bx));
@@ -17888,8 +17888,8 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
   setup(e) {
     const t = e, a = _t("/apps/library/api/genres"), i = /* @__PURE__ */ U([]), n = /* @__PURE__ */ U([]), s = /* @__PURE__ */ U(0), u = /* @__PURE__ */ U(""), d = /* @__PURE__ */ U(""), v = /* @__PURE__ */ U({}), g = /* @__PURE__ */ U(!1), b = /* @__PURE__ */ U(!1), m = /* @__PURE__ */ U(""), _ = /* @__PURE__ */ U("");
     let k = !1, $ = null, C = 0;
-    async function x(J = "", T = null) {
-      const j = await fetch(a + J, {
+    async function x(Z = "", T = null) {
+      const j = await fetch(a + Z, {
         credentials: "same-origin",
         cache: "no-store",
         method: T === null ? "GET" : "POST",
@@ -17900,16 +17900,16 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       return j.json();
     }
     async function D() {
-      const [J, T] = await Promise.all([x(`?search=${encodeURIComponent(d.value.trim())}`), x("/suggestions")]);
-      i.value = J.genres || [], n.value = T.suggestions || [], s.value = Number(T.remaining || 0);
+      const [Z, T] = await Promise.all([x(`?search=${encodeURIComponent(d.value.trim())}`), x("/suggestions")]);
+      i.value = Z.genres || [], n.value = T.suggestions || [], s.value = Number(T.remaining || 0);
       for (const j of n.value) v.value[j.candidate_key] || (v.value[j.candidate_key] = j.display_name);
     }
-    qe(d, (J) => {
+    Ge(d, (Z) => {
       clearTimeout($);
       const T = ++C;
       $ = setTimeout(async () => {
         try {
-          const j = await x(`?search=${encodeURIComponent(J.trim())}`);
+          const j = await x(`?search=${encodeURIComponent(Z.trim())}`);
           T === C && (i.value = j.genres || []);
         } catch (j) {
           T === C && (m.value = j.message);
@@ -17920,26 +17920,26 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       if (!(!u.value.trim() || g.value)) {
         g.value = !0, m.value = "", _.value = "";
         try {
-          const J = await x("", { name: u.value.trim() });
-          u.value = "", await D(), _.value = h("library", "Genre created: {name}", { name: J.display_name });
-        } catch (J) {
-          m.value = J.message;
+          const Z = await x("", { name: u.value.trim() });
+          u.value = "", await D(), _.value = h("library", "Genre created: {name}", { name: Z.display_name });
+        } catch (Z) {
+          m.value = Z.message;
         } finally {
           g.value = !1;
         }
       }
     }
-    async function L(J, T = !1) {
+    async function L(Z, T = !1) {
       if (!g.value) {
         g.value = !0, m.value = "", _.value = "";
         try {
           if (T)
-            await x(`/suggestions/${J.candidate_key}`, { action: "ignore" }), _.value = h("library", "Suggestion dismissed.");
+            await x(`/suggestions/${Z.candidate_key}`, { action: "ignore" }), _.value = h("library", "Suggestion dismissed.");
           else {
-            const j = String(v.value[J.candidate_key] || "").trim();
+            const j = String(v.value[Z.candidate_key] || "").trim();
             if (!j) throw new Error(h("library", "Enter a genre name."));
             const W = await x("", { name: j });
-            await x(`/suggestions/${J.candidate_key}`, { action: "map", genreId: Number(W.id) }), _.value = h("library", "Books with this suggestion are being assigned to {name}.", { name: W.display_name });
+            await x(`/suggestions/${Z.candidate_key}`, { action: "map", genreId: Number(W.id) }), _.value = h("library", "Books with this suggestion are being assigned to {name}.", { name: W.display_name });
           }
           await D();
         } catch (j) {
@@ -17957,13 +17957,13 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       k = !1, b.value = !0, m.value = "", _.value = "";
       try {
         for (; !k; ) {
-          const J = await x("/discover", {});
-          if (!J.processed || (s.value = Math.max(0, s.value - Number(J.processed)), s.value === 0)) break;
+          const Z = await x("/discover", {});
+          if (!Z.processed || (s.value = Math.max(0, s.value - Number(Z.processed)), s.value === 0)) break;
           await new Promise((T) => setTimeout(T, 50));
         }
         await D(), _.value = k ? h("library", "Genre discovery paused.") : h("library", "Genre discovery is up to date.");
-      } catch (J) {
-        m.value = J.message;
+      } catch (Z) {
+        m.value = Z.message;
       } finally {
         b.value = !1;
       }
@@ -17972,26 +17972,26 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       if (!g.value) {
         g.value = !0, m.value = "", _.value = "";
         try {
-          let J = 0;
+          let Z = 0;
           for (let T = 0; T < 1e3 && !k; T++) {
             const j = await x("/apply", {});
-            if (J += Number(j.applied || 0), !j.applied) break;
+            if (Z += Number(j.applied || 0), !j.applied) break;
           }
-          await D(), _.value = pt("library", "%n genre assignment applied.", "%n genre assignments applied.", J);
-        } catch (J) {
-          m.value = J.message;
+          await D(), _.value = pt("library", "%n genre assignment applied.", "%n genre assignments applied.", Z);
+        } catch (Z) {
+          m.value = Z.message;
         } finally {
           g.value = !1;
         }
       }
     }
     return xt(() => {
-      D().catch((J) => {
-        m.value = J.message;
+      D().catch((Z) => {
+        m.value = Z.message;
       });
-    }), aa(() => {
+    }), ia(() => {
       k = !0, clearTimeout($);
-    }), (J, T) => (c(), f("main", A3, [
+    }), (Z, T) => (c(), f("main", A3, [
       r("h1", null, l(o(h)("library", "Genres")), 1),
       r("p", E3, l(o(h)("library", "Genres are private catalogue labels. Scans suggest names; you decide which ones become genres.")), 1),
       m.value ? (c(), f("p", x3, l(m.value), 1)) : S("", !0),
@@ -17999,16 +17999,16 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
       r("section", O3, [
         r("h2", null, l(o(h)("library", "My genres")), 1),
         r("form", {
-          onSubmit: $e(I, ["prevent"])
+          onSubmit: Te(I, ["prevent"])
         }, [
           r("label", null, [
-            Q(l(o(h)("library", "Create a genre")), 1),
+            X(l(o(h)("library", "Create a genre")), 1),
             fe(r("input", {
               "onUpdate:modelValue": T[0] || (T[0] = (j) => u.value = j),
               maxlength: "255",
               autocomplete: "off"
             }, null, 512), [
-              [Oe, u.value]
+              [Re, u.value]
             ])
           ]),
           r("button", {
@@ -18018,12 +18018,12 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
           }, l(o(h)("library", "Create genre")), 9, R3)
         ], 32),
         r("label", null, [
-          Q(l(o(h)("library", "Find a genre")), 1),
+          X(l(o(h)("library", "Find a genre")), 1),
           fe(r("input", {
             "onUpdate:modelValue": T[1] || (T[1] = (j) => d.value = j),
             type: "search"
           }, null, 512), [
-            [Oe, d.value]
+            [Re, d.value]
           ])
         ]),
         r("ul", null, [
@@ -18033,7 +18033,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             r("a", {
               href: `${e.catalogueUrl}?genreId=${j.id}`
             }, l(j.display_name), 9, I3),
-            T[2] || (T[2] = Q()),
+            T[2] || (T[2] = X()),
             r("span", L3, l(o(pt)("library", "%n book", "%n books", Number(j.book_count))), 1)
           ]))), 128))
         ])
@@ -18060,16 +18060,16 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
             key: j.candidate_key
           }, [
             r("strong", null, l(j.display_name), 1),
-            T[3] || (T[3] = Q()),
+            T[3] || (T[3] = X()),
             r("span", z3, l(j.source_kind) + " · " + l(o(pt)("library", "%n book", "%n books", Number(j.book_count))), 1),
             r("label", null, [
-              Q(l(o(h)("library", "Use genre name")), 1),
+              X(l(o(h)("library", "Use genre name")), 1),
               fe(r("input", {
                 "onUpdate:modelValue": (W) => v.value[j.candidate_key] = W,
                 list: "library-genre-names",
                 maxlength: "255"
               }, null, 8, B3), [
-                [Oe, v.value[j.candidate_key]]
+                [Re, v.value[j.candidate_key]]
               ])
             ]),
             r("button", {
@@ -18099,7 +18099,7 @@ const L$ = ["aria-busy"], P$ = { class: "library-list-inline-actions" }, D$ = ["
 function _g(e, t, a) {
   const i = /* @__PURE__ */ U({}), n = /* @__PURE__ */ U("idle");
   let s, u, d = 0;
-  return qe([e, t], () => {
+  return Ge([e, t], () => {
     clearTimeout(s), u?.abort();
     const v = ++d;
     i.value = {}, n.value = t.value ? "pending" : "disabled", !(!t.value || !e.value.length) && (s = setTimeout(async () => {
@@ -18114,7 +18114,7 @@ function _g(e, t, a) {
         v === d && g.name !== "AbortError" && (n.value = "error");
       }
     }, 250));
-  }, { immediate: !0 }), aa(() => {
+  }, { immediate: !0 }), ia(() => {
     d++, clearTimeout(s), u?.abort();
   }), { results: i, status: n };
 }
@@ -18169,7 +18169,7 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
         m.value = !1;
       }
     }
-    return qe(() => [a.itemId, a.compareId], () => {
+    return Ge(() => [a.itemId, a.compareId], () => {
       C++, b.value = null, a.full && a.compareId && D(a.compareId);
     }, { immediate: !0 }), (L, M) => (c(), f("section", {
       class: "library-duplicate-suggestions",
@@ -18192,16 +18192,16 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
             type: "button",
             class: "button secondary",
             disabled: m.value,
-            onClick: (J) => D(ee.id)
+            onClick: (Z) => D(ee.id)
           }, [
             r("bdi", null, l(ee.title), 1),
-            Q(" · " + l(ee.format.toUpperCase()), 1)
+            X(" · " + l(ee.format.toUpperCase()), 1)
           ], 8, n4)) : (c(), f("a", {
             key: 0,
             href: ee.url
           }, [
             r("bdi", null, l(ee.title), 1),
-            Q(" · " + l(ee.format.toUpperCase()), 1)
+            X(" · " + l(ee.format.toUpperCase()), 1)
           ], 8, i4))
         ]))), 128))
       ])) : S("", !0),
@@ -18247,7 +18247,7 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
               r("button", {
                 class: "button primary",
                 disabled: m.value,
-                onClick: (J) => I("preferred", ee.id)
+                onClick: (Z) => I("preferred", ee.id)
               }, l(o(h)("library", "Prefer this copy")), 9, f4)
             ])
           ]))), 128))
@@ -18312,7 +18312,7 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
         i.value = !1;
       }
     }
-    return xt(d), aa(() => {
+    return xt(d), ia(() => {
       s = !1, clearTimeout(u);
     }), (g, b) => (c(), f("section", {
       class: "library-auto-duplicate-settings",
@@ -18325,11 +18325,11 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
           disabled: i.value,
           onChange: v
         }, null, 40, y4),
-        ve(Je, {
+        ve(Xe, {
           text: o(h)("library", "Build a private metadata index in the background. Suggestions check the whole library without reading book contents.")
         }, {
-          default: Te(() => [
-            Q(l(o(h)("library", "Show possible duplicates while browsing")), 1)
+          default: Ae(() => [
+            X(l(o(h)("library", "Show possible duplicates while browsing")), 1)
           ]),
           _: 1
         }, 8, ["text"])
@@ -18370,9 +18370,9 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
   setup(e) {
     const t = (te) => Su(te, window.location.pathname, window.location.href), a = Number(new URLSearchParams(window.location.search).get("bookId")) || 0, i = Number(new URLSearchParams(window.location.search).get("compareId")) || 0, n = e, s = /* @__PURE__ */ U([]), u = /* @__PURE__ */ U([]), d = /* @__PURE__ */ U("0"), v = /* @__PURE__ */ U(!1), g = /* @__PURE__ */ U(null), b = /* @__PURE__ */ U(!1), m = /* @__PURE__ */ U(""), _ = /* @__PURE__ */ U(""), k = /* @__PURE__ */ U("unreviewed");
     let $, C = !0, x = 0;
-    const D = G(() => g.value?.status === "running"), I = G(() => ({ running: h("library", "Finding possible duplicates"), completed: h("library", "Duplicate scan complete"), cancelled: h("library", "Duplicate scan cancelled"), failed: h("library", "Duplicate scan failed"), limited: h("library", "Duplicate scan reached its limit") })), L = G(() => ({ unreviewed: h("library", "To review"), preferred: h("library", "Preferred copy selected"), keep: h("library", "Keep both"), dismissed: h("library", "Dismissed") })), M = G(() => ({ identical: h("library", "Identical file contents"), isbn: h("library", "Same ISBN"), title_author: h("library", "Same normalized title and authors"), similar_title_author: h("library", "Similar title and matching authors") })), ee = G(() => ({ formats: h("library", "Alternative formats"), languages: h("library", "Different languages"), years: h("library", "Different publication years"), publishers: h("library", "Different publishers"), identifiers: h("library", "Different ISBNs") })), J = (te) => te < 1048576 ? new Intl.NumberFormat(document.documentElement.lang || "en", { style: "unit", unit: te < 1e3 ? "byte" : "kilobyte", maximumFractionDigits: 2 }).format(te < 1e3 ? te : te / 1e3) : new Intl.NumberFormat(document.documentElement.lang || "en", { maximumFractionDigits: 2 }).format(te / 1048576) + " " + h("library", "MiB");
-    async function T(te = "", X) {
-      const H = await fetch(_t(`/apps/library/api/duplicates${te}`), { credentials: "same-origin", cache: "no-store", method: X === void 0 ? "GET" : "POST", headers: { "Content-Type": "application/json", requesttoken: n.requestToken }, ...X === void 0 ? {} : { body: JSON.stringify(X) } }), de = await H.json().catch(() => ({}));
+    const D = G(() => g.value?.status === "running"), I = G(() => ({ running: h("library", "Finding possible duplicates"), completed: h("library", "Duplicate scan complete"), cancelled: h("library", "Duplicate scan cancelled"), failed: h("library", "Duplicate scan failed"), limited: h("library", "Duplicate scan reached its limit") })), L = G(() => ({ unreviewed: h("library", "To review"), preferred: h("library", "Preferred copy selected"), keep: h("library", "Keep both"), dismissed: h("library", "Dismissed") })), M = G(() => ({ identical: h("library", "Identical file contents"), isbn: h("library", "Same ISBN"), title_author: h("library", "Same normalized title and authors"), similar_title_author: h("library", "Similar title and matching authors") })), ee = G(() => ({ formats: h("library", "Alternative formats"), languages: h("library", "Different languages"), years: h("library", "Different publication years"), publishers: h("library", "Different publishers"), identifiers: h("library", "Different ISBNs") })), Z = (te) => te < 1048576 ? new Intl.NumberFormat(document.documentElement.lang || "en", { style: "unit", unit: te < 1e3 ? "byte" : "kilobyte", maximumFractionDigits: 2 }).format(te < 1e3 ? te : te / 1e3) : new Intl.NumberFormat(document.documentElement.lang || "en", { maximumFractionDigits: 2 }).format(te / 1048576) + " " + h("library", "MiB");
+    async function T(te = "", J) {
+      const H = await fetch(_t(`/apps/library/api/duplicates${te}`), { credentials: "same-origin", cache: "no-store", method: J === void 0 ? "GET" : "POST", headers: { "Content-Type": "application/json", requesttoken: n.requestToken }, ...J === void 0 ? {} : { body: JSON.stringify(J) } }), de = await H.json().catch(() => ({}));
       if (!H.ok)
         throw H.status === 409 ? new Error(h("library", "These books changed after the scan. Run a new scan before reviewing this comparison.")) : de.error === "decision_limit" ? new Error(h("library", "This account has 10,000 saved review decisions. Reset an old decision before saving another.")) : de.error === "history_limit" ? new Error(h("library", "Three duplicate scans are already saved. Discard an old scan before starting another.")) : de.error === "scope_limit" ? new Error(h("library", "This scope is too large. Choose a smaller library root.")) : H.status === 404 ? new Error(h("library", "This scan or these books are no longer available.")) : new Error(h("library", "Could not complete the duplicate review. Please try again."));
       return de;
@@ -18385,21 +18385,21 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
       b.value = !0, m.value = "";
       try {
         await te();
-      } catch (X) {
-        C && (m.value = X.message);
+      } catch (J) {
+        C && (m.value = J.message);
       } finally {
         C && (b.value = !1);
       }
     }
-    function ie() {
+    function ae() {
       if (clearTimeout($), !C || !D.value) return;
-      const te = x, X = g.value.id;
+      const te = x, J = g.value.id;
       $ = setTimeout(async () => {
         try {
-          if (await T(`/${X}/advance`, {}), !C || te !== x) return;
-          const H = await T(`/${X}?page=${g.value.page}&filter=${k.value}`);
+          if (await T(`/${J}/advance`, {}), !C || te !== x) return;
+          const H = await T(`/${J}?page=${g.value.page}&filter=${k.value}`);
           if (!C || te !== x) return;
-          g.value = H, D.value || await j(), ie();
+          g.value = H, D.value || await j(), ae();
         } catch (H) {
           C && te === x && (m.value = H.message);
         }
@@ -18407,14 +18407,14 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
     }
     async function se() {
       await W(async () => {
-        g.value = await T("", { rootId: Number(d.value), contents: v.value }), x++, k.value = "unreviewed", _.value = "", await j(), ie();
+        g.value = await T("", { rootId: Number(d.value), contents: v.value }), x++, k.value = "unreviewed", _.value = "", await j(), ae();
       });
     }
-    async function V(te, X = 1) {
+    async function V(te, J = 1) {
       const H = ++x;
       clearTimeout($), await W(async () => {
-        const de = await T(`/${te}?page=${X}&filter=${k.value}`);
-        C && H === x && (g.value = de, d.value = String(de.rootId), v.value = !!de.contents, ie());
+        const de = await T(`/${te}?page=${J}&filter=${k.value}`);
+        C && H === x && (g.value = de, d.value = String(de.rootId), v.value = !!de.contents, ae());
       });
     }
     function B(te) {
@@ -18430,25 +18430,25 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
         await T(`/${g.value.id}/discard`, {}), g.value = null, await j();
       });
     }
-    async function re(te, X, H = 0) {
+    async function re(te, J, H = 0) {
       x++, clearTimeout($), await W(async () => {
-        await T(`/${g.value.id}/pairs/${te.id}`, { signature: te.signature, decision: X, preferredId: H }), _.value = h("library", "Review saved. Your files and catalogue metadata were not changed."), g.value = await T(`/${g.value.id}?page=${g.value.page}&filter=${k.value}`), ie();
+        await T(`/${g.value.id}/pairs/${te.id}`, { signature: te.signature, decision: J, preferredId: H }), _.value = h("library", "Review saved. Your files and catalogue metadata were not changed."), g.value = await T(`/${g.value.id}?page=${g.value.page}&filter=${k.value}`), ae();
       });
     }
-    return xt(() => W(j)), aa(() => {
+    return xt(() => W(j)), ia(() => {
       C = !1, x++, clearTimeout($);
-    }), (te, X) => (c(), f("section", {
+    }), (te, J) => (c(), f("section", {
       class: "library-duplicates",
       "aria-label": o(h)("library", "Possible duplicates"),
       "aria-busy": b.value ? "true" : "false"
     }, [
       r("a", { href: e.reviewUrl }, "← " + l(o(h)("library", "Review")), 9, $4),
       r("h1", null, [
-        ve(Je, {
+        ve(Xe, {
           text: o(h)("library", "Find possible copies from titles, authors and valid ISBNs. Name order and punctuation are normalized for comparison only. Editions and translations can be different books. Review decisions are private and never delete, merge or hide publications.")
         }, {
-          default: Te(() => [
-            Q(l(o(h)("library", "Possible duplicates")), 1)
+          default: Ae(() => [
+            X(l(o(h)("library", "Possible duplicates")), 1)
           ]),
           _: 1
         }, 8, ["text"])
@@ -18465,12 +18465,12 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
       _.value ? (c(), f("p", A4, l(_.value), 1)) : S("", !0),
       r("form", {
         class: "library-duplicate-toolbar",
-        onSubmit: $e(se, ["prevent"])
+        onSubmit: Te(se, ["prevent"])
       }, [
         r("label", null, [
-          Q(l(o(h)("library", "Library root")), 1),
+          X(l(o(h)("library", "Library root")), 1),
           fe(r("select", {
-            "onUpdate:modelValue": X[0] || (X[0] = (H) => d.value = H),
+            "onUpdate:modelValue": J[0] || (J[0] = (H) => d.value = H),
             disabled: b.value || D.value
           }, [
             r("option", x4, l(o(h)("library", "All library roots")), 1),
@@ -18484,17 +18484,17 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
         ]),
         r("label", O4, [
           fe(r("input", {
-            "onUpdate:modelValue": X[1] || (X[1] = (H) => v.value = H),
+            "onUpdate:modelValue": J[1] || (J[1] = (H) => v.value = H),
             type: "checkbox",
             disabled: b.value || D.value
           }, null, 8, R4), [
             [ci, v.value]
           ]),
-          ve(Je, {
+          ve(Xe, {
             text: o(h)("library", "Read equal-size candidates to confirm identical contents, including renamed copies with different metadata. This can take longer on remote storage. Checks are limited to 64 MiB per file and 512 MiB per scan; skipped checks are reported.")
           }, {
-            default: Te(() => [
-              Q(l(o(h)("library", "Compare file contents")), 1)
+            default: Ae(() => [
+              X(l(o(h)("library", "Compare file contents")), 1)
             ]),
             _: 1
           }, 8, ["text"])
@@ -18505,11 +18505,11 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
         }, l(o(h)("library", "Find possible duplicates")), 9, I4)
       ], 32),
       r("label", null, [
-        ve(Je, {
+        ve(Xe, {
           text: o(h)("library", "Scans continue through Nextcloud background jobs and can be reopened for seven days. Review decisions are reused when the same books have not changed. Each comparison is independent; choosing a preferred copy does not change catalogue ordering.")
         }, {
-          default: Te(() => [
-            Q(l(o(h)("library", "Saved duplicate scans")), 1)
+          default: Ae(() => [
+            X(l(o(h)("library", "Saved duplicate scans")), 1)
           ]),
           _: 1
         }, 8, ["text"]),
@@ -18532,11 +18532,11 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
         }, [
           r("strong", null, l(g.value.rootId ? g.value.label : o(h)("library", "All library roots")), 1),
           r("p", M4, [
-            Q(l(I.value[g.value.status]), 1),
+            X(l(I.value[g.value.status]), 1),
             D.value ? (c(), f(K, { key: 0 }, [
-              Q(" · " + l(g.value.phase === "index" ? o(h)("library", "Indexing metadata") : o(h)("library", "Comparing candidates")), 1)
+              X(" · " + l(g.value.phase === "index" ? o(h)("library", "Indexing metadata") : o(h)("library", "Comparing candidates")), 1)
             ], 64)) : S("", !0),
-            Q(" · " + l(g.value.processed) + "/" + l(g.value.total), 1)
+            X(" · " + l(g.value.processed) + "/" + l(g.value.total), 1)
           ]),
           D.value ? (c(), f("progress", {
             key: 0,
@@ -18558,7 +18558,7 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
             r("button", {
               class: "button secondary",
               disabled: b.value,
-              onClick: X[2] || (X[2] = (H) => V(g.value.id, g.value.page))
+              onClick: J[2] || (J[2] = (H) => V(g.value.id, g.value.page))
             }, l(o(h)("library", "Refresh results")), 9, q4),
             r("button", {
               class: "button secondary",
@@ -18568,11 +18568,11 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
           ])
         ], 8, F4),
         r("label", null, [
-          Q(l(o(h)("library", "Show comparisons")), 1),
+          X(l(o(h)("library", "Show comparisons")), 1),
           fe(r("select", {
-            "onUpdate:modelValue": X[3] || (X[3] = (H) => k.value = H),
+            "onUpdate:modelValue": J[3] || (J[3] = (H) => k.value = H),
             disabled: b.value,
-            onChange: X[4] || (X[4] = (H) => V(g.value.id))
+            onChange: J[4] || (J[4] = (H) => V(g.value.id))
           }, [
             r("option", W4, l(o(h)("library", "All")) + " (" + l(g.value.matches) + ")", 1),
             (c(!0), f(K, null, ue(L.value, (H, de) => (c(), f("option", {
@@ -18611,7 +18611,7 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
             r("div", iN, [
               (c(!0), f(K, null, ue(H.books, (de) => (c(), f("section", {
                 key: de.id,
-                class: xe(["library-duplicate-book", { "library-duplicate-preferred": H.preferredId === de.id }])
+                class: Ne(["library-duplicate-book", { "library-duplicate-preferred": H.preferredId === de.id }])
               }, [
                 r("div", nN, [
                   r("img", {
@@ -18628,7 +18628,7 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
                 r("dl", null, [
                   r("div", null, [
                     r("dt", null, l(o(h)("library", "Format")), 1),
-                    r("dd", null, l(de.format.toUpperCase()) + " · " + l(J(de.size)), 1)
+                    r("dd", null, l(de.format.toUpperCase()) + " · " + l(Z(de.size)), 1)
                   ]),
                   r("div", null, [
                     r("dt", null, l(o(h)("library", "Language")), 1),
@@ -18665,7 +18665,7 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
                   r("button", {
                     class: "button primary",
                     disabled: b.value || D.value || H.stale,
-                    onClick: (Ae) => re(H, "preferred", de.id)
+                    onClick: (Ee) => re(H, "preferred", de.id)
                   }, l(o(h)("library", "Prefer this copy")), 9, vN)
                 ])
               ], 2))), 128))
@@ -18697,13 +18697,13 @@ const Y3 = ["aria-label", "aria-busy"], Z3 = {
           r("button", {
             class: "button secondary",
             disabled: b.value || g.value.page === 1,
-            onClick: X[5] || (X[5] = (H) => V(g.value.id, g.value.page - 1))
+            onClick: J[5] || (J[5] = (H) => V(g.value.id, g.value.page - 1))
           }, l(o(h)("library", "Previous page")), 9, wN),
           r("span", null, l(g.value.page), 1),
           r("button", {
             class: "button secondary",
             disabled: b.value || !g.value.hasNext,
-            onClick: X[6] || (X[6] = (H) => V(g.value.id, g.value.page + 1))
+            onClick: J[6] || (J[6] = (H) => V(g.value.id, g.value.page + 1))
           }, l(o(h)("library", "Next page")), 9, kN)
         ], 8, _N)
       ], 64)) : S("", !0)
@@ -18810,7 +18810,7 @@ function lu(e, t, a = {}) {
         d = "unmatched";
         return;
       }
-      M.forEach((ee, J) => v(ee, L[J], k + 1));
+      M.forEach((ee, Z) => v(ee, L[Z], k + 1));
       return;
     }
     if (_.field === "ignore") return;
@@ -18886,9 +18886,9 @@ const TN = ["aria-label", "aria-busy"], AN = {
   setup(e, { emit: t }) {
     const a = e, i = t, n = /* @__PURE__ */ U([]), s = /* @__PURE__ */ U(null), u = /* @__PURE__ */ U([]), d = /* @__PURE__ */ U(!1), v = /* @__PURE__ */ U(""), g = /* @__PURE__ */ U(""), b = /* @__PURE__ */ U(""), m = /* @__PURE__ */ new Set(["author", "title", "subtitle", "series", "seriesNumber", "genre", "language", "publisher", "subject", "year"]), _ = G(() => a.results.filter((se) => ["ready", "conflict"].includes(se.status) && se.revision).map((se) => ({ ...se, changes: se.changes.filter((V) => m.has(V.field) && ["ready", "conflict"].includes(V.status)) })).filter((se) => se.changes.length)), k = (se, V) => `${se.id}:${V.field}`, $ = G(() => _.value.map((se) => ({ id: se.id, revision: se.revision, changes: Object.fromEntries(se.changes.filter((V) => n.value.includes(k(se, V))).map((V) => [V.field, V.field === "author" ? V.values || [V.value] : V.value])) })).filter((se) => Object.keys(se.changes).length)), C = G(() => ({ prepared: h("library", "Awaiting approval"), applied: h("library", "Applied"), undone: h("library", "Undone") }));
     let x = 0;
-    qe(() => JSON.stringify([a.results, a.context]), () => {
+    Ge(() => JSON.stringify([a.results, a.context]), () => {
       n.value = [], s.value?.status === "prepared" && (s.value = null), b.value = "", x++;
-    }), qe(() => JSON.stringify(n.value), () => {
+    }), Ge(() => JSON.stringify(n.value), () => {
       s.value?.status === "prepared" && (s.value = null), b.value = "", x++;
     });
     function D() {
@@ -18916,7 +18916,7 @@ const TN = ["aria-label", "aria-busy"], AN = {
     function ee() {
       s.value = null, v.value = "", b.value = "", i("changed");
     }
-    async function J() {
+    async function Z() {
       const se = x;
       await M(async () => {
         const V = await I("", { proposals: $.value, context: a.context });
@@ -18943,7 +18943,7 @@ const TN = ["aria-label", "aria-busy"], AN = {
         s.value = { ...se, ...B }, b.value = "", g.value = h("library", "The batch was undone. Previous metadata and provenance were restored."), await L(), i("changed");
       });
     }
-    async function ie() {
+    async function ae() {
       await M(async () => {
         await I(`/${s.value.id}/discard`, {}), s.value = null, await L();
       });
@@ -18954,11 +18954,11 @@ const TN = ["aria-label", "aria-busy"], AN = {
       "aria-busy": d.value ? "true" : "false"
     }, [
       r("h2", null, [
-        ve(Je, {
+        ve(Xe, {
           text: e.wholeFolder ? o(h)("library", "Choose fields from this page only. Existing values require individual selection. Apply and Undo operate on this reviewed batch of at most 40 books.") : o(h)("library", "Choose fields from this sample only. Replacements require individual selection. Authors are stored in their preview order, with exact duplicates removed.")
         }, {
-          default: Te(() => [
-            Q(l(e.wholeFolder ? o(h)("library", "Review and apply metadata") : o(h)("library", "4. Review and apply metadata")), 1)
+          default: Ae(() => [
+            X(l(e.wholeFolder ? o(h)("library", "Review and apply metadata") : o(h)("library", "4. Review and apply metadata")), 1)
           ]),
           _: 1
         }, 8, ["text"])
@@ -18989,11 +18989,11 @@ const TN = ["aria-label", "aria-busy"], AN = {
           r("button", {
             class: "button primary",
             disabled: !$.value.length || s.value?.status === "prepared",
-            onClick: J
+            onClick: Z
           }, l(o(h)("library", "Review selected changes")) + " (" + l(n.value.length) + ")", 9, LN)
         ]),
         r("div", {
-          class: xe(["library-inference-approval-candidates", { "library-inference-approval-scroll": _.value.length > 8 }]),
+          class: Ne(["library-inference-approval-candidates", { "library-inference-approval-scroll": _.value.length > 8 }]),
           role: "region",
           tabindex: "0",
           "aria-label": o(h)("library", "Select metadata fields")
@@ -19035,18 +19035,18 @@ const TN = ["aria-label", "aria-busy"], AN = {
       }, [
         r("h3", null, l(C.value[s.value.status]), 1),
         r("p", null, [
-          ve(Je, {
+          ve(Xe, {
             text: o(h)("library", "Reviews expire after 30 minutes. Applied batches can be undone for seven days, provided their metadata, source file and access have not changed. A stale item blocks the entire batch.")
           }, {
-            default: Te(() => [
-              Q(l(o(h)("library", "Available until")), 1)
+            default: Ae(() => [
+              X(l(o(h)("library", "Available until")), 1)
             ]),
             _: 1
           }, 8, ["text"]),
-          Q(": " + l(new Date(s.value.expiresAt * 1e3).toLocaleString()), 1)
+          X(": " + l(new Date(s.value.expiresAt * 1e3).toLocaleString()), 1)
         ]),
         r("div", {
-          class: xe(["library-inference-confirm-entries", { "library-inference-approval-scroll": s.value.entries.length > 4 }]),
+          class: Ne(["library-inference-confirm-entries", { "library-inference-approval-scroll": s.value.entries.length > 4 }]),
           role: "region",
           tabindex: "0",
           "aria-label": o(h)("library", "Reviewed metadata changes")
@@ -19079,7 +19079,7 @@ const TN = ["aria-label", "aria-busy"], AN = {
             key: 1,
             class: "button secondary",
             disabled: d.value,
-            onClick: ie
+            onClick: ae
           }, l(o(h)("library", "Discard review")), 9, HN)) : S("", !0),
           s.value.status === "applied" && !b.value ? (c(), f("button", {
             key: 2,
@@ -19136,11 +19136,11 @@ const TN = ["aria-label", "aria-busy"], AN = {
       ]))), 128)),
       e.result.attempts?.length ? (c(), f("details", JN, [
         r("summary", null, [
-          ve(Je, {
+          ve(Xe, {
             text: o(h)("library", "Evaluated from the deepest assigned folder upward. An ambiguous match stops fallback. Rules above a successful match are not used. Conflicting fields have no single proposed value.")
           }, {
-            default: Te(() => [
-              Q(l(o(h)("library", "Rule evaluation")), 1)
+            default: Ae(() => [
+              X(l(o(h)("library", "Rule evaluation")), 1)
             ]),
             _: 1
           }, 8, ["text"])
@@ -19177,20 +19177,20 @@ const TN = ["aria-label", "aria-busy"], AN = {
     const t = e, a = /* @__PURE__ */ U(null), i = /* @__PURE__ */ U([]), n = /* @__PURE__ */ U(!1), s = /* @__PURE__ */ U(""), u = /* @__PURE__ */ U("all");
     let d, v = 0, g = !0;
     const b = G(() => a.value?.status === "running"), m = G(() => ({ running: h("library", "Analysing"), completed: h("library", "Analysis complete"), cancelled: h("library", "Analysis cancelled"), failed: h("library", "Analysis failed"), limited: h("library", "Analysis limit reached") })), _ = G(() => ({ ...t.statuses, unavailable: h("library", "Changed or unavailable books") }));
-    async function k(J = "", T) {
-      const j = await fetch(_t(`/apps/library/api/inference/analyses${J}`), { credentials: "same-origin", cache: "no-store", method: T === void 0 ? "GET" : "POST", headers: { "Content-Type": "application/json", requesttoken: t.requestToken }, ...T === void 0 ? {} : { body: JSON.stringify(T) } }), W = await j.json();
+    async function k(Z = "", T) {
+      const j = await fetch(_t(`/apps/library/api/inference/analyses${Z}`), { credentials: "same-origin", cache: "no-store", method: T === void 0 ? "GET" : "POST", headers: { "Content-Type": "application/json", requesttoken: t.requestToken }, ...T === void 0 ? {} : { body: JSON.stringify(T) } }), W = await j.json();
       if (!j.ok)
         throw W.error === "analysis_history_limit" ? new Error(h("library", "Five folder analyses are already saved. Discard an old analysis before starting another.")) : W.error === "analysis_limit" ? new Error(h("library", "This folder exceeds the analysis limit. Choose a smaller subfolder.")) : j.status === 404 ? new Error(h("library", "This analysis or its folder is no longer available.")) : new Error(h("library", "Could not analyse this folder. Check the rule, folder and your access."));
       return W;
     }
     async function $() {
-      const J = await k();
-      g && (i.value = J.jobs);
+      const Z = await k();
+      g && (i.value = Z.jobs);
     }
-    async function C(J) {
+    async function C(Z) {
       n.value = !0, s.value = "";
       try {
-        await J();
+        await Z();
       } catch (T) {
         g && (s.value = T.message);
       } finally {
@@ -19199,11 +19199,11 @@ const TN = ["aria-label", "aria-busy"], AN = {
     }
     function x() {
       if (clearTimeout(d), !g || !b.value) return;
-      const J = a.value.id, T = v;
+      const Z = a.value.id, T = v;
       d = setTimeout(async () => {
         try {
-          if (await k(`/${J}/advance`, {}), !g || v !== T) return;
-          const j = await k(`/${J}?page=${a.value.page}&filter=${u.value}`);
+          if (await k(`/${Z}/advance`, {}), !g || v !== T) return;
+          const j = await k(`/${Z}?page=${a.value.page}&filter=${u.value}`);
           if (!g || v !== T) return;
           a.value = j, b.value || await $(), x();
         } catch (j) {
@@ -19213,45 +19213,45 @@ const TN = ["aria-label", "aria-busy"], AN = {
     }
     async function D() {
       await C(async () => {
-        const J = await k("", { definition: t.definition });
-        v++, u.value = "all", a.value = J, await $(), x();
+        const Z = await k("", { definition: t.definition });
+        v++, u.value = "all", a.value = Z, await $(), x();
       });
     }
-    async function I(J, T = 1) {
+    async function I(Z, T = 1) {
       const j = ++v;
       clearTimeout(d), await C(async () => {
-        const W = await k(`/${J}?page=${T}&filter=${u.value}`);
+        const W = await k(`/${Z}?page=${T}&filter=${u.value}`);
         g && j === v && (a.value = W, x());
       });
     }
-    function L(J) {
-      u.value = "all", J.target.value && I(J.target.value);
+    function L(Z) {
+      u.value = "all", Z.target.value && I(Z.target.value);
     }
     async function M() {
-      const J = a.value.id;
+      const Z = a.value.id;
       v++, clearTimeout(d), await C(async () => {
-        await k(`/${J}/cancel`, {}), a.value = await k(`/${J}?filter=${u.value}`), await $();
+        await k(`/${Z}/cancel`, {}), a.value = await k(`/${Z}?filter=${u.value}`), await $();
       });
     }
     async function ee() {
-      const J = a.value.id;
+      const Z = a.value.id;
       v++, clearTimeout(d), await C(async () => {
-        await k(`/${J}/discard`, {}), a.value = null, await $();
+        await k(`/${Z}/discard`, {}), a.value = null, await $();
       });
     }
-    return xt(() => C($)), aa(() => {
+    return xt(() => C($)), ia(() => {
       g = !1, v++, clearTimeout(d);
-    }), (J, T) => (c(), f("section", {
+    }), (Z, T) => (c(), f("section", {
       class: "library-inference-analysis library-inference-step",
       "aria-label": o(h)("library", "Whole-folder analysis"),
       "aria-busy": n.value ? "true" : "false"
     }, [
       r("h2", null, [
-        ve(Je, {
+        ve(Xe, {
           text: o(h)("library", "Analyse all indexed books in the loaded folder using a snapshot of the current rule. Analysis continues through Nextcloud background jobs after you leave. Results are saved for seven days. New books require a new analysis; source files remain unchanged.")
         }, {
-          default: Te(() => [
-            Q(l(o(h)("library", "5. Analyse the whole folder")), 1)
+          default: Ae(() => [
+            X(l(o(h)("library", "5. Analyse the whole folder")), 1)
           ]),
           _: 1
         }, 8, ["text"])
@@ -19264,11 +19264,11 @@ const TN = ["aria-label", "aria-busy"], AN = {
           onClick: D
         }, l(o(h)("library", "Analyse whole folder")), 9, tO),
         r("label", null, [
-          ve(Je, {
+          ve(Xe, {
             text: o(h)("library", "Select a saved analysis to reopen its results. Each page contains at most 40 books. Changes and Undo remain separate for each approved batch.")
           }, {
-            default: Te(() => [
-              Q(l(o(h)("library", "Saved analyses")), 1)
+            default: Ae(() => [
+              X(l(o(h)("library", "Saved analyses")), 1)
             ]),
             _: 1
           }, 8, ["text"]),
@@ -19325,7 +19325,7 @@ const TN = ["aria-label", "aria-busy"], AN = {
           ]))
         ]),
         r("label", null, [
-          Q(l(o(h)("library", "Show results")), 1),
+          X(l(o(h)("library", "Show results")), 1),
           fe(r("select", {
             "onUpdate:modelValue": T[1] || (T[1] = (j) => u.value = j),
             disabled: n.value,
@@ -19430,17 +19430,17 @@ const TN = ["aria-label", "aria-busy"], AN = {
         e.node.split ? (c(), f(K, { key: 0 }, [
           r("div", EO, [
             r("label", null, [
-              Q(l(o(h)("library", "Separator")), 1),
+              X(l(o(h)("library", "Separator")), 1),
               fe(r("input", {
                 "onUpdate:modelValue": g[0] || (g[0] = (m) => a.value = m),
                 maxlength: "100",
                 onInput: d
               }, null, 544), [
-                [Oe, a.value]
+                [Re, a.value]
               ])
             ]),
             r("label", null, [
-              Q(l(o(h)("library", "Split at")), 1),
+              X(l(o(h)("library", "Split at")), 1),
               fe(r("select", {
                 "onUpdate:modelValue": g[1] || (g[1] = (m) => i.value = m),
                 onChange: d
@@ -19467,7 +19467,7 @@ const TN = ["aria-label", "aria-busy"], AN = {
           }, null, 8, ["node", "value", "fields", "depth"]))), 128))
         ], 64)) : (c(), f(K, { key: 1 }, [
           r("label", null, [
-            Q(l(o(h)("library", "Field")), 1),
+            X(l(o(h)("library", "Field")), 1),
             fe(r("select", {
               "onUpdate:modelValue": g[3] || (g[3] = (m) => e.node.field = m),
               "aria-label": `${o(h)("library", "Field")}: ${e.value}`
@@ -19490,21 +19490,21 @@ const TN = ["aria-label", "aria-busy"], AN = {
             r("summary", null, l(o(h)("library", "Transform this value")), 1),
             r("div", FO, [
               r("label", null, [
-                Q(l(o(h)("library", "Remove prefix")), 1),
+                X(l(o(h)("library", "Remove prefix")), 1),
                 fe(r("input", {
                   "onUpdate:modelValue": g[4] || (g[4] = (m) => e.node.prefix = m),
                   maxlength: "100"
                 }, null, 512), [
-                  [Oe, e.node.prefix]
+                  [Re, e.node.prefix]
                 ])
               ]),
               r("label", null, [
-                Q(l(o(h)("library", "Remove suffix")), 1),
+                X(l(o(h)("library", "Remove suffix")), 1),
                 fe(r("input", {
                   "onUpdate:modelValue": g[5] || (g[5] = (m) => e.node.suffix = m),
                   maxlength: "100"
                 }, null, 512), [
-                  [Oe, e.node.suffix]
+                  [Re, e.node.suffix]
                 ])
               ]),
               r("label", MO, [
@@ -19514,14 +19514,14 @@ const TN = ["aria-label", "aria-busy"], AN = {
                 }, null, 512), [
                   [ci, e.node.underscores]
                 ]),
-                Q(l(o(h)("library", "Replace underscores with spaces")), 1)
+                X(l(o(h)("library", "Replace underscores with spaces")), 1)
               ]),
               r("label", null, [
-                ve(Je, {
+                ve(Xe, {
                   text: o(h)("library", "Affixes must match. Value mapping follows affix removal and underscore replacement.")
                 }, {
-                  default: Te(() => [
-                    Q(l(o(h)("library", "Map exact value")), 1)
+                  default: Ae(() => [
+                    X(l(o(h)("library", "Map exact value")), 1)
                   ]),
                   _: 1
                 }, 8, ["text"]),
@@ -19529,27 +19529,27 @@ const TN = ["aria-label", "aria-busy"], AN = {
                   "onUpdate:modelValue": g[7] || (g[7] = (m) => e.node.mapFrom = m),
                   maxlength: "200"
                 }, null, 512), [
-                  [Oe, e.node.mapFrom]
+                  [Re, e.node.mapFrom]
                 ])
               ]),
               r("label", null, [
-                Q(l(o(h)("library", "Replacement value")), 1),
+                X(l(o(h)("library", "Replacement value")), 1),
                 fe(r("input", {
                   "onUpdate:modelValue": g[8] || (g[8] = (m) => e.node.mapTo = m),
                   maxlength: "200"
                 }, null, 512), [
-                  [Oe, e.node.mapTo]
+                  [Re, e.node.mapTo]
                 ])
               ])
             ])
           ])) : S("", !0),
           e.node.field === "author" ? (c(), f("div", UO, [
             r("label", null, [
-              ve(Je, {
+              ve(Xe, {
                 text: o(h)("library", "Author order is preserved and exact duplicates are removed. Commas are only separators if you specify them.") + (s.value === "and" ? " " + o(h)("library", "Spaces around the word are required.") : "")
               }, {
-                default: Te(() => [
-                  Q(l(o(h)("library", "Separate authors by")), 1)
+                default: Ae(() => [
+                  X(l(o(h)("library", "Separate authors by")), 1)
                 ]),
                 _: 1
               }, 8, ["text"]),
@@ -19566,7 +19566,7 @@ const TN = ["aria-label", "aria-busy"], AN = {
               ])
             ]),
             s.value === "custom" ? (c(), f("label", HO, [
-              Q(l(o(h)("library", "Custom separator")), 1),
+              X(l(o(h)("library", "Custom separator")), 1),
               r("input", {
                 value: e.node.customAuthorSeparator || "",
                 maxlength: "100",
@@ -19580,7 +19580,7 @@ const TN = ["aria-label", "aria-busy"], AN = {
               }, null, 512), [
                 [ci, e.node.reverseName]
               ]),
-              Q(l(o(h)("library", "Convert Surname, Given name to Given name Surname")), 1)
+              X(l(o(h)("library", "Convert Surname, Given name to Given name Surname")), 1)
             ])
           ])) : S("", !0)
         ], 64))
@@ -19613,26 +19613,26 @@ const TN = ["aria-label", "aria-busy"], AN = {
       { id: "language-subject-by", name: h("library", "books / Language_Subject / Title by Author"), pattern: "books/%language%_%subject%/%folders%/%title% by %author%.%extension%", example: "books/english_fiction/A String in Her Tale by Mark Ezra.epub" },
       { id: "series-underscore", name: h("library", "Series folder / Number_Title_Author"), pattern: "%folders%/%series%/%seriesNumber%_%title%_%author%.%extension%", example: "Orchard Notes/2.5_Autumn Appendix_Ada Quill.epub" }
     ]), x = G(() => [...n.value ? [] : C.value.map((j) => ({ ...j, id: `preset-${j.id}` })).filter((j) => !$.value.includes(j.id)), ...d.value.filter((j) => (j.kind || "pattern") === a.mode)].sort((j, W) => j.name.localeCompare(W.name))), D = G(() => x.value.find((j) => j.id === g.value));
-    qe([s, x], () => {
+    Ge([s, x], () => {
       k.value = "", (!D.value || u(D.value) !== s.value) && (g.value = x.value.find((j) => u(j) === s.value)?.id || "");
     }, { immediate: !0 });
     const I = G(() => [h("library", "Patterns match paths relative to the selected folder. Adjust literal prefixes such as books/ when needed. Ambiguous names still need review."), D.value?.example ? `${h("library", "Example path")}: ${D.value.example}` : ""].filter(Boolean).join(`
 
 `));
     function L(j) {
-      const W = x.value.find((ie) => ie.id === j.target.value);
+      const W = x.value.find((ae) => ae.id === j.target.value);
       W && (g.value = W.id, n.value ? i("choose-rule", JSON.parse(JSON.stringify(W.rule))) : i("choose", W.pattern), _.value = "", k.value = "");
     }
     async function M(j = "", W = null) {
-      const ie = await fetch(`${_t("/apps/library/api/inference/patterns")}${j}`, {
+      const ae = await fetch(`${_t("/apps/library/api/inference/patterns")}${j}`, {
         method: W === null ? "GET" : "POST",
         credentials: "same-origin",
         cache: "no-store",
         headers: { Accept: "application/json", ...W === null ? {} : { "Content-Type": "application/json", requesttoken: a.requestToken } },
         ...W === null ? {} : { body: JSON.stringify(W) }
       });
-      if (!ie.ok) throw new Error(ie.status === 409 ? h("library", "That name already exists. Choose a different name.") : ie.status === 422 ? h("library", "Check the definition and name. You can save up to 100 rules and patterns.") : h("library", "Could not load or save rules and patterns. Check your connection and try again."));
-      return ie.json();
+      if (!ae.ok) throw new Error(ae.status === 409 ? h("library", "That name already exists. Choose a different name.") : ae.status === 422 ? h("library", "Check the definition and name. You can save up to 100 rules and patterns.") : h("library", "Could not load or save rules and patterns. Check your connection and try again."));
+      return ae.json();
     }
     async function ee() {
       b.value = !0, m.value = "";
@@ -19645,11 +19645,11 @@ const TN = ["aria-label", "aria-busy"], AN = {
         b.value = !1;
       }
     }
-    async function J() {
+    async function Z() {
       b.value = !0, m.value = "", _.value = "";
       try {
         const j = await M("", { name: v.value, ...n.value ? { kind: "guided", rule: a.rule } : { pattern: a.pattern } });
-        d.value = [...d.value, j.saved].sort((W, ie) => W.name.localeCompare(ie.name)), g.value = j.saved.id, v.value = "", _.value = n.value ? h("library", "Rule saved to your account.") : h("library", "Pattern saved to your account.");
+        d.value = [...d.value, j.saved].sort((W, ae) => W.name.localeCompare(ae.name)), g.value = j.saved.id, v.value = "", _.value = n.value ? h("library", "Rule saved to your account.") : h("library", "Pattern saved to your account.");
       } catch (j) {
         m.value = j.message;
       } finally {
@@ -19671,48 +19671,48 @@ const TN = ["aria-label", "aria-busy"], AN = {
       "aria-busy": b.value ? "true" : "false"
     }, [
       r("label", null, [
-        ve(Je, {
+        ve(Xe, {
           text: n.value ? o(h)("library", "Select a rule to restore its assignments, splits, transformations and author options. Folder scope stays unchanged.") : I.value
         }, {
-          default: Te(() => [
-            Q(l(n.value ? o(h)("library", "Saved rule") : o(h)("library", "Pattern")), 1)
+          default: Ae(() => [
+            X(l(n.value ? o(h)("library", "Saved rule") : o(h)("library", "Pattern")), 1)
           ]),
           _: 1
         }, 8, ["text"]),
         fe(r("select", {
-          "onUpdate:modelValue": W[0] || (W[0] = (ie) => g.value = ie),
+          "onUpdate:modelValue": W[0] || (W[0] = (ae) => g.value = ae),
           disabled: b.value,
           onChange: L
         }, [
           r("option", ZO, l(n.value ? o(h)("library", "Custom rule") : o(h)("library", "Custom pattern")), 1),
-          (c(!0), f(K, null, ue(x.value, (ie) => (c(), f("option", {
-            key: ie.id,
-            value: ie.id
-          }, l(ie.name), 9, JO))), 128))
+          (c(!0), f(K, null, ue(x.value, (ae) => (c(), f("option", {
+            key: ae.id,
+            value: ae.id
+          }, l(ae.name), 9, JO))), 128))
         ], 40, YO), [
           [nt, g.value]
         ])
       ]),
-      Xe(j.$slots, "default"),
+      Qe(j.$slots, "default"),
       r("form", {
-        onSubmit: $e(J, ["prevent"])
+        onSubmit: Te(Z, ["prevent"])
       }, [
         r("label", null, [
-          ve(Je, {
+          ve(Xe, {
             text: o(h)("library", "Saved privately to your account. Save changes under a new name; existing definitions are not overwritten. Folder scope and example paths are not saved.")
           }, {
-            default: Te(() => [
-              Q(l(n.value ? o(h)("library", "Rule name") : o(h)("library", "Pattern name")), 1)
+            default: Ae(() => [
+              X(l(n.value ? o(h)("library", "Rule name") : o(h)("library", "Pattern name")), 1)
             ]),
             _: 1
           }, 8, ["text"]),
           fe(r("input", {
-            "onUpdate:modelValue": W[1] || (W[1] = (ie) => v.value = ie),
+            "onUpdate:modelValue": W[1] || (W[1] = (ae) => v.value = ae),
             maxlength: "120",
             required: "",
             disabled: b.value
           }, null, 8, XO), [
-            [Oe, v.value]
+            [Re, v.value]
           ])
         ]),
         r("button", {
@@ -19724,25 +19724,25 @@ const TN = ["aria-label", "aria-busy"], AN = {
           type: "button",
           class: "button secondary",
           disabled: b.value,
-          onClick: W[2] || (W[2] = (ie) => k.value = D.value.id)
+          onClick: W[2] || (W[2] = (ae) => k.value = D.value.id)
         }, l(n.value ? o(h)("library", "Delete rule") : o(h)("library", "Delete pattern")), 9, eR)) : S("", !0),
         k.value ? (c(), f(K, { key: 1 }, [
           r("button", {
             type: "button",
             class: "button secondary",
             disabled: b.value,
-            onClick: W[3] || (W[3] = (ie) => T(k.value))
+            onClick: W[3] || (W[3] = (ae) => T(k.value))
           }, l(o(h)("library", "Confirm deletion")), 9, tR),
           r("button", {
             type: "button",
             class: "button secondary",
             disabled: b.value,
-            onClick: W[4] || (W[4] = (ie) => k.value = "")
+            onClick: W[4] || (W[4] = (ae) => k.value = "")
           }, l(o(h)("library", "Cancel")), 9, aR)
         ], 64)) : S("", !0)
       ], 32),
       m.value ? (c(), f("p", iR, [
-        Q(l(m.value) + " ", 1),
+        X(l(m.value) + " ", 1),
         r("button", {
           class: "button secondary",
           disabled: b.value,
@@ -19789,7 +19789,7 @@ const TN = ["aria-label", "aria-busy"], AN = {
         try {
           const [M, ee] = await Promise.all([$("patterns"), $(`folders?rootId=${encodeURIComponent(L)}`)]);
           if (I !== k) return;
-          n.value = M.patterns, s.value = ee.assignments, n.value.some((J) => J.id === u.value) || (u.value = ""), i("loaded", { rootId: L, assignments: ee.assignments });
+          n.value = M.patterns, s.value = ee.assignments, n.value.some((Z) => Z.id === u.value) || (u.value = ""), i("loaded", { rootId: L, assignments: ee.assignments });
         } catch (M) {
           I === k && (b.value = M.message);
         } finally {
@@ -19821,21 +19821,21 @@ const TN = ["aria-label", "aria-busy"], AN = {
         }
       }
     }
-    return qe(() => a.rootId, C, { immediate: !0 }), aa(() => {
+    return Ge(() => a.rootId, C, { immediate: !0 }), ia(() => {
       k++;
     }), (I, L) => (c(), f("div", {
       class: "library-inference-folder-rules",
       "aria-busy": _.value ? "true" : "false"
     }, [
       r("form", {
-        onSubmit: $e(x, ["prevent"])
+        onSubmit: Te(x, ["prevent"])
       }, [
         r("label", null, [
-          ve(Je, {
+          ve(Xe, {
             text: o(h)("library", "Save a guided rule or advanced pattern first. Assignments keep a fixed copy, even if the saved definition is later deleted. Rules only generate previews; they do not run on scans or change books.")
           }, {
-            default: Te(() => [
-              Q(l(o(h)("library", "Saved rule or pattern")), 1)
+            default: Ae(() => [
+              X(l(o(h)("library", "Saved rule or pattern")), 1)
             ]),
             _: 1
           }, 8, ["text"]),
@@ -19853,7 +19853,7 @@ const TN = ["aria-label", "aria-busy"], AN = {
           ])
         ]),
         r("p", cR, [
-          Q(l(o(h)("library", "Assignment folder")) + ": ", 1),
+          X(l(o(h)("library", "Assignment folder")) + ": ", 1),
           r("bdi", null, l(e.folder || "/"), 1)
         ]),
         r("label", dR, [
@@ -19864,7 +19864,7 @@ const TN = ["aria-label", "aria-busy"], AN = {
           }, null, 8, fR), [
             [ci, d.value]
           ]),
-          Q(l(o(h)("library", "Use in subfolders")), 1)
+          X(l(o(h)("library", "Use in subfolders")), 1)
         ]),
         r("button", {
           class: "button primary",
@@ -19879,11 +19879,11 @@ const TN = ["aria-label", "aria-busy"], AN = {
         onClick: C
       }, l(o(h)("library", "Reload folder rules")), 9, bR),
       r("h3", null, [
-        ve(Je, {
+        ve(Xe, {
           text: o(h)("library", "Rules match paths relative to their assigned folder. A deeper matching folder wins; if it does not match, an ancestor can be used. Equally specific conflicting rules require review. All assignments for this root are listed here.")
         }, {
-          default: Te(() => [
-            Q(l(o(h)("library", "Rules for this root")), 1)
+          default: Ae(() => [
+            X(l(o(h)("library", "Rules for this root")), 1)
           ]),
           _: 1
         }, 8, ["text"])
@@ -19965,35 +19965,35 @@ function gn(e, t, ...a) {
 function $R(e, t = []) {
   if (typeof e != "string" || !e || e.length > 2e3 || fs(e).length > 64) return [];
   const a = fs(e), i = a.length - 1, n = a[i], s = a.slice(0, -1), u = ru(e), d = [], v = [];
-  let g = n, b = (ie) => ie, m = (ie) => ie, _ = "", k = ya("title"), $ = !1;
+  let g = n, b = (ae) => ae, m = (ae) => ae, _ = "", k = ya("title"), $ = !1;
   const C = /^(.*\S) \(((?:18|19|20)\d{2})\)$/.exec(g), x = !C && /^(.*\S) ((?:18|19|20)\d{2})$/.exec(g);
-  C ? (g = C[1], b = (ie) => gn(" (", "last", ie, ya("year", { suffix: ")" })), d.push("year-parentheses")) : x && (g = x[1], b = (ie) => gn(" ", "last", ie, ya("year")), d.push("year-trailing"), v.push("year-may-be-title"));
-  const D = /^(.*\S) by (.+)$/.exec(g), I = /^(.*\S) - (.+)$/.exec(g), L = D || I, M = !D && I && (Nl(I[1]) || zp(I[1]) && s.some((ie) => Ar(ie) === Ar(I[1]))), ee = /^.+ #\d{1,3}(?:\.\d+)? - .+$/.test(g) && g.split(" - ").length === 2;
-  M ? (_ = I[1], g = I[2], m = (ie) => gn(" - ", "first", ya("author"), ie), d.push("author-first"), v.push("author-needs-review")) : L && !ee && (zp(L[2]) || Nl(L[2])) && (_ = L[2], g = L[1], m = (ie) => gn(D ? " by " : " - ", "last", ie, ya("author")), d.push(D ? "author-by" : "author-dash"), s.some((ie) => Ar(ie) === Ar(_)) ? d.push("author-folder-agrees") : v.push("author-needs-review"));
-  const J = /^(.*\S) #(\d{1,3}(?:\.\d+)?) - (.+)$/.exec(g), T = /^(\d{1,3}(?:\.\d+)?)\. (.+)$/.exec(g);
-  if (J)
+  C ? (g = C[1], b = (ae) => gn(" (", "last", ae, ya("year", { suffix: ")" })), d.push("year-parentheses")) : x && (g = x[1], b = (ae) => gn(" ", "last", ae, ya("year")), d.push("year-trailing"), v.push("year-may-be-title"));
+  const D = /^(.*\S) by (.+)$/.exec(g), I = /^(.*\S) - (.+)$/.exec(g), L = D || I, M = !D && I && (Nl(I[1]) || zp(I[1]) && s.some((ae) => Ar(ae) === Ar(I[1]))), ee = /^.+ #\d{1,3}(?:\.\d+)? - .+$/.test(g) && g.split(" - ").length === 2;
+  M ? (_ = I[1], g = I[2], m = (ae) => gn(" - ", "first", ya("author"), ae), d.push("author-first"), v.push("author-needs-review")) : L && !ee && (zp(L[2]) || Nl(L[2])) && (_ = L[2], g = L[1], m = (ae) => gn(D ? " by " : " - ", "last", ae, ya("author")), d.push(D ? "author-by" : "author-dash"), s.some((ae) => Ar(ae) === Ar(_)) ? d.push("author-folder-agrees") : v.push("author-needs-review"));
+  const Z = /^(.*\S) #(\d{1,3}(?:\.\d+)?) - (.+)$/.exec(g), T = /^(\d{1,3}(?:\.\d+)?)\. (.+)$/.exec(g);
+  if (Z)
     k = gn(" #", "first", ya("series"), gn(" - ", "first", ya("seriesNumber"), ya("title"))), $ = !0, d.push("series-inline");
   else if (T && s.length) {
-    const ie = s.at(-1);
-    !Nl(ie) && !(_ && Ar(ie) === Ar(_)) && !jp.has(ie.toLowerCase()) && !ie.includes("_") && (k = gn(". ", "first", ya("seriesNumber"), ya("title")), u.parts[i - 1] = ya("series"), $ = !0, d.push("series-folder"), v.push("series-needs-review"));
+    const ae = s.at(-1);
+    !Nl(ae) && !(_ && Ar(ae) === Ar(_)) && !jp.has(ae.toLowerCase()) && !ae.includes("_") && (k = gn(". ", "first", ya("seriesNumber"), ya("title")), u.parts[i - 1] = ya("series"), $ = !0, d.push("series-folder"), v.push("series-needs-review"));
   }
   if (u.parts[i] = b(m(k)), !_) {
-    const ie = $ ? i - 2 : i - 1;
-    ie >= 0 && Nl(a[ie]) && (u.parts[ie] = ya("author"), d.push("author-comma"), v.push("author-needs-review"));
+    const ae = $ ? i - 2 : i - 1;
+    ae >= 0 && Nl(a[ae]) && (u.parts[ae] = ya("author"), d.push("author-comma"), v.push("author-needs-review"));
   }
-  for (let ie = s.length - 1; ie >= 0; ie--) {
-    if (u.parts[ie].field !== "ignore") continue;
-    const se = s[ie], V = se.indexOf("_"), B = V < 0 ? se : se.slice(0, V);
+  for (let ae = s.length - 1; ae >= 0; ae--) {
+    if (u.parts[ae].field !== "ignore") continue;
+    const se = s[ae], V = se.indexOf("_"), B = V < 0 ? se : se.slice(0, V);
     if (jp.has(B.toLowerCase())) {
-      u.parts[ie] = V < 0 ? ya("language") : gn("_", "first", ya("language"), ya("genre", { underscores: !0 })), d.push(V < 0 ? "language-folder" : "language-genre-folder");
+      u.parts[ae] = V < 0 ? ya("language") : gn("_", "first", ya("language"), ya("genre", { underscores: !0 })), d.push(V < 0 ? "language-folder" : "language-genre-folder");
       break;
     }
   }
-  const j = [], W = (ie, se, V, B) => {
+  const j = [], W = (ae, se, V, B) => {
     const F = lu(e, se);
     if (!["ready", "conflict", "unchanged"].includes(F.status)) return;
     const z = t.slice(0, 40).map((te) => typeof te == "string" ? te : te.path).filter((te) => typeof te == "string"), re = z.filter((te) => ["ready", "conflict", "unchanged"].includes(lu(te, se).status)).length;
-    j.push({ id: ie, rule: se, clues: V, warnings: [...new Set(B)], preview: F.changes, matched: re, total: z.length });
+    j.push({ id: ae, rule: se, clues: V, warnings: [...new Set(B)], preview: F.changes, matched: re, total: z.length });
   };
   return d.length && W("detected", u, d, v), W("filename", ru(e), ["filename-title"], /(?:^|\D)(?:18|19|20)\d{2}(?:\D|$)/.test(n) ? ["year-may-be-title"] : []), j;
 }
@@ -20026,9 +20026,9 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       "author-needs-review": h("library", "A name-shaped phrase may be a title or several people. Check the author; commas are preserved."),
       "series-needs-review": h("library", "Check that the parent folder names a series and the number is its position.")
     }));
-    qe(() => a.path, () => {
+    Ge(() => a.path, () => {
       n.value = "";
-    }), qe(() => JSON.stringify(a.rule), (b) => {
+    }), Ge(() => JSON.stringify(a.rule), (b) => {
       u.value && JSON.stringify(u.value.rule) !== b && (n.value = "");
     });
     function g(b) {
@@ -20036,14 +20036,14 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     }
     return (b, m) => (c(), f("div", TR, [
       r("label", null, [
-        ve(Je, {
+        ve(Xe, {
           text: o(h)("library", "Suggest editable assignments from the selected example. Check the live preview and other books before applying. Matching counts describe this page and its structure, not verified metadata.") + (u.value ? `
 
 ` + u.value.clues.map((_) => d.value[_]).join(`
 `) : "")
         }, {
-          default: Te(() => [
-            Q(l(o(h)("library", "Suggest fields")), 1)
+          default: Ae(() => [
+            X(l(o(h)("library", "Suggest fields")), 1)
           ]),
           _: 1
         }, 8, ["text"]),
@@ -20111,7 +20111,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
   setup(e) {
     const t = /* @__PURE__ */ U([]), a = /* @__PURE__ */ U(""), i = /* @__PURE__ */ U(""), n = /* @__PURE__ */ U(!0), s = /* @__PURE__ */ U([]), u = /* @__PURE__ */ U(1), d = /* @__PURE__ */ U(!1), v = /* @__PURE__ */ U(!1), g = /* @__PURE__ */ U(""), b = /* @__PURE__ */ U(""), m = /* @__PURE__ */ U(""), _ = /* @__PURE__ */ U(""), k = /* @__PURE__ */ U(""), $ = /* @__PURE__ */ U([]), C = /* @__PURE__ */ U(null), x = /* @__PURE__ */ U("guided"), D = /* @__PURE__ */ U(0), I = /* @__PURE__ */ U("%folders%/%title%.%extension%"), L = /* @__PURE__ */ U("all"), M = /* @__PURE__ */ U(!1);
     let ee = 0;
-    const J = G(() => [
+    const Z = G(() => [
       ["title", h("library", "Title")],
       ["subtitle", h("library", "Subtitle")],
       ["author", h("library", "Creators")],
@@ -20122,14 +20122,14 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       ["publisher", h("library", "Publisher")],
       ["subject", h("library", "Subjects")],
       ["year", h("library", "Publication year")]
-    ]), T = G(() => Object.fromEntries(J.value)), j = G(() => ({
+    ]), T = G(() => Object.fromEntries(Z.value)), j = G(() => ({
       ready: h("library", "Empty field suggestions"),
       conflict: h("library", "Existing values need review"),
       unmatched: h("library", "Unmatched paths"),
       ambiguous: h("library", "Ambiguous matches"),
       invalid: h("library", "Invalid pattern or value"),
       unchanged: h("library", "No changes")
-    })), W = G(() => s.value.map((ke) => ({ ...ke, ...x.value === "folders" ? CR(ke.path, k.value, $.value, ke.current) : x.value === "guided" ? lu(ke.path, C.value, ke.current) : kg(ke.path, I.value, ke.current) }))), ie = G(() => W.value.find((ke) => ke.path === m.value)), se = G(() => W.value.filter((ke) => L.value === "all" || ke.status === L.value)), V = G(() => [...new Set(s.value.filter((ke) => ke.path.includes("/")).map((ke) => ke.path.split("/")[0]))]);
+    })), W = G(() => s.value.map((ke) => ({ ...ke, ...x.value === "folders" ? CR(ke.path, k.value, $.value, ke.current) : x.value === "guided" ? lu(ke.path, C.value, ke.current) : kg(ke.path, I.value, ke.current) }))), ae = G(() => W.value.find((ke) => ke.path === m.value)), se = G(() => W.value.filter((ke) => L.value === "all" || ke.status === L.value)), V = G(() => [...new Set(s.value.filter((ke) => ke.path.includes("/")).map((ke) => ke.path.split("/")[0]))]);
     function B(ke) {
       i.value = [i.value.replace(/\/$/, ""), ke].filter(Boolean).join("/"), Le();
     }
@@ -20137,7 +20137,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       i.value = i.value.replace(/\/$/, "").split("/").slice(0, -1).join("/"), Le();
     }
     const z = G(() => W.value.reduce((ke, Pe) => (ke[Pe.status] = (ke[Pe.status] || 0) + 1, ke), {})), re = G(() => a.value !== _.value || i.value.replace(/^\/+|\/+$/g, "") !== k.value), te = G(() => fs(m.value));
-    function X() {
+    function J() {
       !C.value && m.value && (C.value = ru(m.value));
     }
     function H() {
@@ -20146,7 +20146,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     function de(ke) {
       C.value = ke, D.value++, x.value = "guided";
     }
-    function Ae(ke) {
+    function Ee(ke) {
       de(ke), M.value = !1;
     }
     function Ie(ke) {
@@ -20166,7 +20166,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
           return Le();
         _.value !== a.value && ($.value = []), _.value = a.value;
         const oe = ot.roots.find((A) => String(A.id) === a.value)?.path.replace(/\/$/, "") || "";
-        k.value = ot.scope.slice(oe.length).replace(/^\//, ""), s.value = ot.items || [], u.value = ot.page || 1, d.value = !!ot.hasNext, b.value = ot.scope || "", m.value = s.value[0]?.path || "", X();
+        k.value = ot.scope.slice(oe.length).replace(/^\//, ""), s.value = ot.items || [], u.value = ot.page || 1, d.value = !!ot.hasNext, b.value = ot.scope || "", m.value = s.value[0]?.path || "", J();
       } catch (we) {
         Pe === ee && (g.value = we.message);
       } finally {
@@ -20176,7 +20176,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     function He(ke) {
       ke.rootId === _.value && ($.value = ke.assignments);
     }
-    function Qe() {
+    function et() {
       i.value = "", Le();
     }
     return xt(() => Le()), (ke, Pe) => (c(), f("section", {
@@ -20185,11 +20185,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       "aria-busy": v.value ? "true" : "false"
     }, [
       r("h1", null, [
-        ve(Je, {
+        ve(Xe, {
           text: o(h)("library", "Preview a naming rule, select fields and review before applying. Source files are never changed.")
         }, {
-          default: Te(() => [
-            Q(l(o(h)("library", "Extract metadata from paths")), 1)
+          default: Ae(() => [
+            X(l(o(h)("library", "Extract metadata from paths")), 1)
           ]),
           _: 1
         }, 8, ["text"])
@@ -20200,21 +20200,21 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         r("h2", null, l(o(h)("library", "1. Choose a folder")), 1),
         r("form", {
           class: "library-inference-scope",
-          onSubmit: Pe[3] || (Pe[3] = $e((we) => Le(), ["prevent"]))
+          onSubmit: Pe[3] || (Pe[3] = Te((we) => Le(), ["prevent"]))
         }, [
           r("label", null, [
-            ve(Je, {
+            ve(Xe, {
               text: o(h)("library", "Up to 40 accessible indexed books per page. Counts below describe this sample, not the entire folder.")
             }, {
-              default: Te(() => [
-                Q(l(o(h)("library", "Library root")), 1)
+              default: Ae(() => [
+                X(l(o(h)("library", "Library root")), 1)
               ]),
               _: 1
             }, 8, ["text"]),
             fe(r("select", {
               "onUpdate:modelValue": Pe[0] || (Pe[0] = (we) => a.value = we),
               disabled: v.value || !t.value.length,
-              onChange: Qe
+              onChange: et
             }, [
               (c(!0), f(K, null, ue(t.value, (we) => (c(), f("option", {
                 key: we.id,
@@ -20225,14 +20225,14 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
             ])
           ]),
           r("label", null, [
-            Q(l(o(h)("library", "Subfolder relative to this root")), 1),
+            X(l(o(h)("library", "Subfolder relative to this root")), 1),
             fe(r("input", {
               "onUpdate:modelValue": Pe[1] || (Pe[1] = (we) => i.value = we),
               type: "text",
               disabled: v.value,
               placeholder: o(h)("library", "Leave empty for the whole root")
             }, null, 8, MR), [
-              [Oe, i.value]
+              [Re, i.value]
             ])
           ]),
           r("label", UR, [
@@ -20243,7 +20243,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
             }, null, 8, jR), [
               [ci, n.value]
             ]),
-            Q(l(o(h)("library", "Include subfolders")), 1)
+            X(l(o(h)("library", "Include subfolders")), 1)
           ]),
           r("button", {
             class: "button primary",
@@ -20275,17 +20275,17 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
           r("div", WR, [
             r("div", YR, [
               r("label", null, [
-                ve(Je, {
+                ve(Xe, {
                   text: o(h)("library", "Assignments stay the same when you select another example. Reset them to use a different folder structure.")
                 }, {
-                  default: Te(() => [
-                    Q(l(o(h)("library", "Example path")), 1)
+                  default: Ae(() => [
+                    X(l(o(h)("library", "Example path")), 1)
                   ]),
                   _: 1
                 }, 8, ["text"]),
                 fe(r("select", {
                   "onUpdate:modelValue": Pe[4] || (Pe[4] = (we) => m.value = we),
-                  onChange: Pe[5] || (Pe[5] = (we) => X())
+                  onChange: Pe[5] || (Pe[5] = (we) => J())
                 }, [
                   (c(!0), f(K, null, ue(s.value, (we) => (c(), f("option", {
                     key: we.id,
@@ -20300,7 +20300,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
               path: m.value,
               sample: s.value,
               rule: x.value === "guided" ? C.value : null,
-              onChoose: Ae
+              onChoose: Ee
             }, null, 8, ["path", "sample", "rule"]),
             r("details", {
               class: "library-inference-customize",
@@ -20309,7 +20309,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
             }, [
               r("summary", null, l(o(h)("library", "Adjust the rule (optional)")), 1),
               r("label", null, [
-                Q(l(o(h)("library", "Rule editor")), 1),
+                X(l(o(h)("library", "Rule editor")), 1),
                 fe(r("select", {
                   "onUpdate:modelValue": Pe[6] || (Pe[6] = (we) => x.value = we)
                 }, [
@@ -20348,7 +20348,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   ve(KO, {
                     node: we,
                     value: te.value[Me] || "",
-                    fields: J.value
+                    fields: Z.value
                   }, null, 8, ["node", "value", "fields"])
                 ]))), 128)),
                 r("label", aI, [
@@ -20358,11 +20358,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   }, null, 512), [
                     [ci, C.value.combineAuthors]
                   ]),
-                  ve(Je, {
+                  ve(Xe, {
                     text: o(h)("library", "Author order is preserved and exact duplicates are removed. Commas are only separators if you specify them.") + " " + o(h)("library", "Each author is stored separately and can be used to filter the catalogue.")
                   }, {
-                    default: Te(() => [
-                      Q(l(o(h)("library", "Combine authors from multiple parts")), 1)
+                    default: Ae(() => [
+                      X(l(o(h)("library", "Combine authors from multiple parts")), 1)
                     ]),
                     _: 1
                   }, 8, ["text"])
@@ -20375,15 +20375,15 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   "request-token": e.requestToken,
                   onChoose: Ie
                 }, {
-                  default: Te(() => [
+                  default: Ae(() => [
                     r("label", null, [
-                      ve(Je, {
+                      ve(Xe, {
                         text: o(h)("library", "Placeholders capture text. Separators must match exactly. %folder% ignores one folder; %folders%/ ignores any folder depth; %ignore% ignores one filename part.") + `
 
-` + J.value.map((we) => `%${we[0]}%`).join(" · ")
+` + Z.value.map((we) => `%${we[0]}%`).join(" · ")
                       }, {
-                        default: Te(() => [
-                          Q(l(o(h)("library", "Advanced pattern")), 1)
+                        default: Ae(() => [
+                          X(l(o(h)("library", "Advanced pattern")), 1)
                         ]),
                         _: 1
                       }, 8, ["text"]),
@@ -20393,7 +20393,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         spellcheck: "false",
                         dir: "ltr"
                       }, null, 512), [
-                        [Oe, I.value]
+                        [Re, I.value]
                       ])
                     ])
                   ]),
@@ -20411,18 +20411,18 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
               class: "library-inference-live-path",
               title: m.value
             }, l(m.value), 9, rI),
-            ie.value ? (c(), f("div", lI, [
-              r("p", sI, l(j.value[ie.value.status]), 1),
+            ae.value ? (c(), f("div", lI, [
+              r("p", sI, l(j.value[ae.value.status]), 1),
               x.value === "folders" ? (c(), ze(gd, {
                 key: 0,
-                result: ie.value,
+                result: ae.value,
                 labels: T.value,
                 statuses: j.value
               }, null, 8, ["result", "labels", "statuses"])) : S("", !0),
-              ie.value.changes.length ? (c(), f("dl", oI, [
-                (c(!0), f(K, null, ue(ie.value.changes, (we) => (c(), f("div", {
+              ae.value.changes.length ? (c(), f("dl", oI, [
+                (c(!0), f(K, null, ue(ae.value.changes, (we) => (c(), f("div", {
                   key: we.field,
-                  class: xe(["library-inference-live-field", `library-inference-live-field--${we.status}`])
+                  class: Ne(["library-inference-live-field", `library-inference-live-field--${we.status}`])
                 }, [
                   r("dt", null, l(T.value[we.field]), 1),
                   r("dd", null, [
@@ -20433,18 +20433,18 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       }, l(Me), 1))), 128))
                     ])) : (c(), f("strong", cI, l(we.value || "—"), 1)),
                     r("small", null, [
-                      Q(l(o(h)("library", "Current value")) + ": ", 1),
+                      X(l(o(h)("library", "Current value")) + ": ", 1),
                       r("span", dI, l(we.before || "—"), 1)
                     ]),
                     we.raw !== we.value ? (c(), f("small", fI, [
-                      Q(l(o(h)("library", "Source text")) + ": ", 1),
+                      X(l(o(h)("library", "Source text")) + ": ", 1),
                       r("span", hI, l(we.raw), 1)
                     ])) : S("", !0),
                     r("small", null, l(j.value[we.status]), 1),
                     we.sources ? (c(), f("small", pI, l(o(h)("library", "Matched rule")) + ": " + l(we.sources.map((Me) => Me.name).join(", ")), 1)) : S("", !0)
                   ])
                 ], 2))), 128))
-              ])) : ie.value.conflicts?.length ? S("", !0) : (c(), f("p", vI, l(o(h)("library", "No fields extracted from this example. Check the rule, separators and transformations.")), 1))
+              ])) : ae.value.conflicts?.length ? S("", !0) : (c(), f("p", vI, l(o(h)("library", "No fields extracted from this example. Check the rule, separators and transformations.")), 1))
             ])) : S("", !0),
             x.value === "pattern" ? (c(), f("details", bI, [
               r("summary", null, l(o(h)("library", "Active pattern")), 1),
@@ -20456,11 +20456,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       r("section", yI, [
         r("h2", null, l(o(h)("library", "3. Review the sample")), 1),
         r("label", null, [
-          ve(Je, {
+          ve(Xe, {
             text: o(h)("library", "Fill empty fields first. Existing values are flagged for review. No changes are applied in this preview.")
           }, {
-            default: Te(() => [
-              Q(l(o(h)("library", "Show results")), 1)
+            default: Ae(() => [
+              X(l(o(h)("library", "Show results")), 1)
             ]),
             _: 1
           }, 8, ["text"]),
@@ -20508,7 +20508,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   r("th", null, l(T.value[Me.field]), 1),
                   r("td", null, l(Me.before || "—"), 1),
                   r("td", null, [
-                    Q(l(Me.value), 1),
+                    X(l(Me.value), 1),
                     r("small", null, l(j.value[Me.status]), 1)
                   ]),
                   r("td", null, l(Me.raw), 1)
@@ -20594,7 +20594,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
               onChange: (m) => i("update:modelValue", b)
             }, null, 40, II),
             r("span", {
-              class: xe(["library-star-rating-glyph", { active: b <= u.value }]),
+              class: Ne(["library-star-rating-glyph", { active: b <= u.value }]),
               "aria-hidden": "true"
             }, "★", 2)
           ], 40, RI)), 64))
@@ -20689,7 +20689,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       const z = new Intl.DisplayNames(["en"], { type: "region" }).of(B[2]);
       return !!(z && z !== B[2] && z !== "Unknown Region");
     }
-    const M = G(() => I(n.value)), ee = G(() => M.value.length > 0 && M.value.length <= 255 && (!b.value || L(M.value)) && !g.value.some((V) => V.toLowerCase() === M.value.toLowerCase())), J = G(() => {
+    const M = G(() => I(n.value)), ee = G(() => M.value.length > 0 && M.value.length <= 255 && (!b.value || L(M.value)) && !g.value.some((V) => V.toLowerCase() === M.value.toLowerCase())), Z = G(() => {
       const V = n.value.trim().toLocaleLowerCase();
       return V ? (b.value ? $.filter((F) => F.toLowerCase().includes(V) || D(F).toLocaleLowerCase().includes(V) || C[V] === F) : v.value).filter((F) => !g.value.some((z) => z.toLowerCase() === F.toLowerCase())).slice(0, 12) : [];
     });
@@ -20707,11 +20707,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         s.value = !1, u.value = -1;
         return;
       }
-      V.key === "ArrowDown" && J.value.length ? (V.preventDefault(), s.value = !0, u.value = (u.value + 1) % J.value.length) : V.key === "ArrowUp" && J.value.length ? (V.preventDefault(), s.value = !0, u.value = (u.value + J.value.length - 1) % J.value.length) : V.key === "Enter" && (V.preventDefault(), T(u.value >= 0 ? J.value[u.value] : M.value), u.value = -1);
+      V.key === "ArrowDown" && Z.value.length ? (V.preventDefault(), s.value = !0, u.value = (u.value + 1) % Z.value.length) : V.key === "ArrowUp" && Z.value.length ? (V.preventDefault(), s.value = !0, u.value = (u.value + Z.value.length - 1) % Z.value.length) : V.key === "Enter" && (V.preventDefault(), T(u.value >= 0 ? Z.value[u.value] : M.value), u.value = -1);
     }
-    let ie = null, se = null;
-    return qe(n, (V) => {
-      u.value = -1, clearTimeout(ie), se?.abort(), v.value = [], !(b.value || V.trim().length < 3) && (ie = setTimeout(async () => {
+    let ae = null, se = null;
+    return Ge(n, (V) => {
+      u.value = -1, clearTimeout(ae), se?.abort(), v.value = [], !(b.value || V.trim().length < 3) && (ae = setTimeout(async () => {
         se = new AbortController();
         try {
           const B = new URL(_t("/apps/library/catalogue/subject-suggestions"), window.location.origin);
@@ -20724,8 +20724,8 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         } catch {
         }
       }, 200));
-    }), aa(() => {
-      clearTimeout(ie), se?.abort();
+    }), ia(() => {
+      clearTimeout(ae), se?.abort();
     }), (V, B) => (c(), f("div", MI, [
       r("label", {
         for: `${o(d)}-input`,
@@ -20740,7 +20740,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
           role: "combobox",
           "aria-autocomplete": "list",
           "aria-controls": o(d),
-          "aria-expanded": s.value && J.value.length > 0,
+          "aria-expanded": s.value && Z.value.length > 0,
           "aria-activedescendant": u.value >= 0 ? `${o(d)}-${u.value}` : void 0,
           "aria-label": k.value,
           placeholder: k.value,
@@ -20750,7 +20750,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
           onBlur: B[3] || (B[3] = (F) => s.value = !1),
           onKeydown: W
         }, null, 40, zI), [
-          [Oe, n.value]
+          [Re, n.value]
         ]),
         r("button", {
           type: "button",
@@ -20759,19 +20759,19 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
           onClick: B[4] || (B[4] = (F) => T())
         }, l(_.value), 9, BI)
       ]),
-      s.value && J.value.length ? (c(), f("ul", {
+      s.value && Z.value.length ? (c(), f("ul", {
         key: 0,
         id: o(d),
         class: "library-metadata-picker-options",
         role: "listbox",
         "aria-label": k.value
       }, [
-        (c(!0), f(K, null, ue(J.value, (F, z) => (c(), f("li", {
+        (c(!0), f(K, null, ue(Z.value, (F, z) => (c(), f("li", {
           id: `${o(d)}-${z}`,
           key: F,
           role: "option",
           "aria-selected": z === u.value,
-          onMousedown: B[5] || (B[5] = $e(() => {
+          onMousedown: B[5] || (B[5] = Te(() => {
           }, ["prevent"])),
           onClick: (re) => T(F)
         }, l(D(F)), 41, HI))), 128))
@@ -20827,7 +20827,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       if (!M.ok) throw new Error(h("library", "The genre change could not be saved."));
       return M.json();
     }
-    qe(s, (D) => {
+    Ge(s, (D) => {
       if (clearTimeout(m), _?.abort(), k++, u.value = [], !b.value) return;
       const I = k;
       m = setTimeout(async () => {
@@ -20869,7 +20869,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         }
       }
     }
-    return aa(() => {
+    return ia(() => {
       clearTimeout(m), _?.abort();
     }), (D, I) => (c(), f("section", YI, [
       r("h2", ZI, l(o(h)("library", "Genres")), 1),
@@ -20908,7 +20908,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
           onBlur: I[2] || (I[2] = (L) => g.value = !1),
           onKeydown: I[3] || (I[3] = bt((L) => g.value = !1, ["escape"]))
         }, null, 40, n8), [
-          [Oe, s.value]
+          [Re, s.value]
         ]),
         !b.value && s.value ? (c(), f("p", r8, l(o(h)("library", "Type at least 3 letters to search genres.")), 1)) : S("", !0),
         g.value && u.value.length ? (c(), f("ul", l8, [
@@ -20918,7 +20918,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
           }, [
             r("button", {
               type: "button",
-              onMousedown: I[4] || (I[4] = $e(() => {
+              onMousedown: I[4] || (I[4] = Te(() => {
               }, ["prevent"])),
               onClick: (M) => C(L)
             }, l(L.display_name), 41, s8)
@@ -21058,27 +21058,27 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
   setup(e) {
     const t = e, a = /* @__PURE__ */ U(null), i = /* @__PURE__ */ U(null), n = /* @__PURE__ */ Ft({}), s = /* @__PURE__ */ U([]);
     let u = null, d = null;
-    qe(() => n.publisher, (le) => {
+    Ge(() => n.publisher, (le) => {
       clearTimeout(u), d?.abort(), s.value = [], !(typeof le != "string" || le.trim().length < 3) && (u = setTimeout(async () => {
         d = new AbortController();
         try {
-          const ae = new URL(_t("/apps/library/catalogue/publisher-suggestions"), window.location.origin);
-          ae.searchParams.set("publisherSearch", le.trim());
-          const Z = await fetch(ae, { credentials: "same-origin", signal: d.signal });
-          if (Z.ok) {
-            const Re = await Z.json();
-            n.publisher === le && (s.value = Array.isArray(Re.publishers) ? Re.publishers.filter((it) => typeof it == "string") : []);
+          const ne = new URL(_t("/apps/library/catalogue/publisher-suggestions"), window.location.origin);
+          ne.searchParams.set("publisherSearch", le.trim());
+          const Q = await fetch(ne, { credentials: "same-origin", signal: d.signal });
+          if (Q.ok) {
+            const Se = await Q.json();
+            n.publisher === le && (s.value = Array.isArray(Se.publishers) ? Se.publishers.filter((qe) => typeof qe == "string") : []);
           }
         } catch {
         }
       }, 200));
     });
-    const v = /* @__PURE__ */ U(!0), g = /* @__PURE__ */ U(!1), b = /* @__PURE__ */ U(""), m = /* @__PURE__ */ U(""), _ = /* @__PURE__ */ U(""), k = /* @__PURE__ */ U(""), $ = /* @__PURE__ */ U(null), C = /* @__PURE__ */ U(null), x = /* @__PURE__ */ U(0), D = /* @__PURE__ */ U(!1), I = /* @__PURE__ */ U(""), L = /* @__PURE__ */ U(null), M = /* @__PURE__ */ U(""), ee = G(() => (M.value.match(new RegExp("\\p{L}", "gu")) || []).length >= 3), J = /* @__PURE__ */ U(null), T = /* @__PURE__ */ U([]), j = /* @__PURE__ */ U(!1), W = /* @__PURE__ */ U(!1), ie = /* @__PURE__ */ U(-1), se = /* @__PURE__ */ U(""), V = /* @__PURE__ */ U(!1);
+    const v = /* @__PURE__ */ U(!0), g = /* @__PURE__ */ U(!1), b = /* @__PURE__ */ U(""), m = /* @__PURE__ */ U(""), _ = /* @__PURE__ */ U(""), k = /* @__PURE__ */ U(""), $ = /* @__PURE__ */ U(null), C = /* @__PURE__ */ U(null), x = /* @__PURE__ */ U(0), D = /* @__PURE__ */ U(!1), I = /* @__PURE__ */ U(""), L = /* @__PURE__ */ U(null), M = /* @__PURE__ */ U(""), ee = G(() => (M.value.match(new RegExp("\\p{L}", "gu")) || []).length >= 3), Z = /* @__PURE__ */ U(null), T = /* @__PURE__ */ U([]), j = /* @__PURE__ */ U(!1), W = /* @__PURE__ */ U(!1), ae = /* @__PURE__ */ U(-1), se = /* @__PURE__ */ U(""), V = /* @__PURE__ */ U(!1);
     let B = null, F = null, z = 0;
-    const re = /* @__PURE__ */ U(!1), te = /* @__PURE__ */ U(""), X = G(() => (te.value.match(new RegExp("\\p{L}", "gu")) || []).length >= 3), H = G(() => {
+    const re = /* @__PURE__ */ U(!1), te = /* @__PURE__ */ U(""), J = G(() => (te.value.match(new RegExp("\\p{L}", "gu")) || []).length >= 3), H = G(() => {
       const le = te.value.trim().toLocaleLowerCase();
-      return X.value && String(n.seriesLink?.name || "").toLocaleLowerCase().startsWith(le);
-    }), de = /* @__PURE__ */ U(null), Ae = /* @__PURE__ */ U([]), Ie = /* @__PURE__ */ U(!1), Le = /* @__PURE__ */ U(!1), He = /* @__PURE__ */ U(-1), Qe = /* @__PURE__ */ U(null), ke = /* @__PURE__ */ U(!1);
+      return J.value && String(n.seriesLink?.name || "").toLocaleLowerCase().startsWith(le);
+    }), de = /* @__PURE__ */ U(null), Ee = /* @__PURE__ */ U([]), Ie = /* @__PURE__ */ U(!1), Le = /* @__PURE__ */ U(!1), He = /* @__PURE__ */ U(-1), et = /* @__PURE__ */ U(null), ke = /* @__PURE__ */ U(!1);
     let Pe = null, we = null, Me = 0;
     const ot = new URLSearchParams(window.location.search).get("openUnavailable") === "1", oe = /* @__PURE__ */ U(""), A = G(() => oe.value !== "" && JSON.stringify(n) !== oe.value), O = G(() => /^[1-9]\d{0,9}$/.test(t.itemId) && Number(t.itemId) <= 2147483647 ? t.itemId : ""), P = G(() => `${t.catalogueUrl.replace(/\/$/, "")}/items/${O.value}`), R = G(() => Z_(t.catalogueUrl, window.location.href)), N = [
       { value: "", label: h("library", "No workflow status") },
@@ -21089,7 +21089,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       { value: "paused", label: h("library", "Paused") },
       { value: "abandoned", label: h("library", "Abandoned") },
       { value: "needs-action", label: h("library", "Needs action") }
-    ], ne = [
+    ], ie = [
       { value: "book", label: h("library", "book") },
       { value: "comic", label: h("library", "comic") },
       { value: "magazine", label: h("library", "magazine") },
@@ -21124,17 +21124,17 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       if (Array.isArray(le)) return le;
       if (typeof le != "string") return [];
       try {
-        const ae = JSON.parse(le);
-        if (Array.isArray(ae)) return ae;
+        const ne = JSON.parse(le);
+        if (Array.isArray(ne)) return ne;
       } catch {
       }
       return le.split(/[;\n]+/);
     }
-    function pe(le, ae) {
-      return le === "subjects" || le === "classifications" ? [...new Set(me(ae).map((Z) => String(Z).trim().toLocaleLowerCase()).filter(Boolean))].sort().join("\0") : String(ae ?? "").trim();
+    function pe(le, ne) {
+      return le === "subjects" || le === "classifications" ? [...new Set(me(ne).map((Q) => String(Q).trim().toLocaleLowerCase()).filter(Boolean))].sort().join("\0") : String(ne ?? "").trim();
     }
-    const De = G(() => Object.entries(ce).map(([le, ae]) => {
-      const Z = a.value?.[le], Re = a.value?.fieldValues || {}, it = Re[le], ia = le === "subjects" || le === "classifications", ut = Re[`${le}Original`];
+    const De = G(() => Object.entries(ce).map(([le, ne]) => {
+      const Q = a.value?.[le], Se = a.value?.fieldValues || {}, qe = Se[le], Vt = le === "subjects" || le === "classifications", ut = Se[`${le}Original`];
       let zt = "";
       if (typeof ut == "string")
         try {
@@ -21144,54 +21144,54 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         }
       return {
         field: le,
-        label: ae,
-        current: Array.isArray(Z) ? Z.join("; ") : String(Z ?? ""),
-        candidate: ia ? me(it).join("; ") : String(it ?? ""),
-        hasCandidate: Object.hasOwn(Re, le),
-        changed: pe(le, it) !== pe(le, Z),
+        label: ne,
+        current: Array.isArray(Q) ? Q.join("; ") : String(Q ?? ""),
+        candidate: Vt ? me(qe).join("; ") : String(qe ?? ""),
+        hasCandidate: Object.hasOwn(Se, le),
+        changed: pe(le, qe) !== pe(le, Q),
         sourceOriginal: zt,
         source: a.value?.fieldSources?.[le] || a.value?.metadataSource || "",
         rejected: he.value.includes(le)
       };
-    })), Ce = G(() => De.value.filter((le) => le.hasCandidate && le.changed));
-    function Ne(le) {
+    })), $e = G(() => De.value.filter((le) => le.hasCandidate && le.changed));
+    function Oe(le) {
       return Array.isArray(le) ? le.join(`
-`) : String(le || "").split(";").map((ae) => ae.trim()).filter(Boolean).join(`
+`) : String(le || "").split(";").map((ne) => ne.trim()).filter(Boolean).join(`
 `);
     }
     function Fe(le) {
       return Array.isArray(le) ? le.join(`
-`) : String(le || "").split(/[;,\n]+/).map((ae) => ae.trim()).filter(Boolean).join(`
+`) : String(le || "").split(/[;,\n]+/).map((ne) => ne.trim()).filter(Boolean).join(`
 `);
     }
-    function Ze(le) {
+    function Je(le) {
       return String(le || "").split(`
-`).map((ae) => ae.trim()).filter(Boolean);
+`).map((ne) => ne.trim()).filter(Boolean);
     }
-    const et = _t("/apps/library/api/authors");
-    async function We(le, ae = null, Z = null) {
-      const Re = await fetch(et + le, {
+    const tt = _t("/apps/library/api/authors");
+    async function Ye(le, ne = null, Q = null) {
+      const Se = await fetch(tt + le, {
         credentials: "same-origin",
         cache: "no-store",
-        ...Z ? { signal: Z } : {},
-        method: ae === null ? "GET" : "POST",
+        ...Q ? { signal: Q } : {},
+        method: ne === null ? "GET" : "POST",
         headers: {
           Accept: "application/json",
-          ...ae === null ? {} : { "Content-Type": "application/json", requesttoken: t.requestToken }
+          ...ne === null ? {} : { "Content-Type": "application/json", requesttoken: t.requestToken }
         },
-        ...ae === null ? {} : { body: JSON.stringify(ae) }
+        ...ne === null ? {} : { body: JSON.stringify(ne) }
       });
-      if (!Re.ok) throw new Error(Re.status === 409 ? h("library", "The author assignment changed. Reload this publication and try again.") : Re.status === 503 ? h("library", "Author migration must finish before editing. Refresh to check progress.") : h("library", "The author change could not be saved."));
-      return Re.json();
+      if (!Se.ok) throw new Error(Se.status === 409 ? h("library", "The author assignment changed. Reload this publication and try again.") : Se.status === 503 ? h("library", "Author migration must finish before editing. Refresh to check progress.") : h("library", "The author change could not be saved."));
+      return Se.json();
     }
     function lt() {
       clearTimeout(B), F?.abort(), z++, L.value = null, M.value = "", T.value = [], j.value = !1, W.value = !1, V.value = !1, se.value = "";
     }
     function ht(le) {
-      clearTimeout(B), F?.abort(), L.value = le, M.value = "", T.value = [], se.value = "", W.value = !1, Lt(() => J.value?.focus());
+      clearTimeout(B), F?.abort(), L.value = le, M.value = "", T.value = [], se.value = "", W.value = !1, Lt(() => Z.value?.focus());
     }
-    qe(M, (le) => {
-      if (clearTimeout(B), F?.abort(), z++, T.value = [], j.value = !1, ie.value = -1, se.value = "", !L.value || !ee.value) {
+    Ge(M, (le) => {
+      if (clearTimeout(B), F?.abort(), z++, T.value = [], j.value = !1, ae.value = -1, se.value = "", !L.value || !ee.value) {
         W.value = !1, V.value = !1;
         return;
       }
@@ -21199,42 +21199,42 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     });
     async function St(le = M.value.trim()) {
       if ((le.match(new RegExp("\\p{L}", "gu")) || []).length < 3) return;
-      const ae = ++z;
+      const ne = ++z;
       F?.abort();
-      const Z = new AbortController();
-      F = Z, V.value = !0, b.value = "";
+      const Q = new AbortController();
+      F = Q, V.value = !0, b.value = "";
       try {
-        const Re = await We(`?search=${encodeURIComponent(le)}`, null, Z.signal);
-        if (ae !== z || !L.value) return;
-        T.value = Re.authors.filter((it) => Number(it.id) !== Number(L.value?.id)), j.value = Re.hasNext === !0;
-      } catch (Re) {
-        Re.name !== "AbortError" && ae === z && (b.value = Re.message);
+        const Se = await Ye(`?search=${encodeURIComponent(le)}`, null, Q.signal);
+        if (ne !== z || !L.value) return;
+        T.value = Se.authors.filter((qe) => Number(qe.id) !== Number(L.value?.id)), j.value = Se.hasNext === !0;
+      } catch (Se) {
+        Se.name !== "AbortError" && ne === z && (b.value = Se.message);
       } finally {
-        ae === z && (V.value = !1);
+        ne === z && (V.value = !1);
       }
     }
     function wt(le) {
-      se.value = String(le.id), W.value = !1, ie.value = -1;
+      se.value = String(le.id), W.value = !1, ae.value = -1;
     }
-    function qt(le) {
+    function Gt(le) {
       if (le.key === "Escape") {
         W.value = !1;
         return;
       }
       if (le.key === "ArrowDown" || le.key === "ArrowUp") {
         if (!ee.value || (le.preventDefault(), W.value = !0, !T.value.length)) return;
-        ie.value = le.key === "ArrowDown" ? (ie.value + 1) % T.value.length : ie.value < 0 ? T.value.length - 1 : (ie.value - 1 + T.value.length) % T.value.length;
-      } else le.key === "Enter" && W.value && T.value.length && (le.preventDefault(), wt(T.value[Math.max(0, ie.value)]));
+        ae.value = le.key === "ArrowDown" ? (ae.value + 1) % T.value.length : ae.value < 0 ? T.value.length - 1 : (ae.value - 1 + T.value.length) % T.value.length;
+      } else le.key === "Enter" && W.value && T.value.length && (le.preventDefault(), wt(T.value[Math.max(0, ae.value)]));
     }
     async function ha() {
       const le = M.value.trim();
       if (le) {
         clearTimeout(B), F?.abort(), z++, V.value = !0, b.value = "";
         try {
-          const ae = await We("", { name: le });
-          T.value = [ae], se.value = String(ae.id), W.value = !1;
-        } catch (ae) {
-          b.value = ae.message;
+          const ne = await Ye("", { name: le });
+          T.value = [ne], se.value = String(ne.id), W.value = !1;
+        } catch (ne) {
+          b.value = ne.message;
         } finally {
           V.value = !1;
         }
@@ -21242,40 +21242,40 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     }
     async function Tt() {
       if (!L.value || !se.value || g.value) return;
-      const le = T.value.find((Z) => String(Z.id) === se.value);
+      const le = T.value.find((Q) => String(Q.id) === se.value);
       if (!le) return;
-      const ae = n.authorLinks.findIndex((Z) => Number(Z.id) === Number(L.value.id));
-      if (!n.authorLinks.some((Z, Re) => Re !== ae && Number(Z.id) === Number(le.id))) {
-        if (ae < 0 && Number(L.value.id) === 0) n.authorLinks.push({ id: Number(le.id), name: le.display_name });
-        else if (ae >= 0) n.authorLinks.splice(ae, 1, { id: Number(le.id), name: le.display_name });
+      const ne = n.authorLinks.findIndex((Q) => Number(Q.id) === Number(L.value.id));
+      if (!n.authorLinks.some((Q, Se) => Se !== ne && Number(Q.id) === Number(le.id))) {
+        if (ne < 0 && Number(L.value.id) === 0) n.authorLinks.push({ id: Number(le.id), name: le.display_name });
+        else if (ne >= 0) n.authorLinks.splice(ne, 1, { id: Number(le.id), name: le.display_name });
         else return;
         lt();
       }
     }
     const Rt = _t("/apps/library/api/series");
-    async function ka(le, ae = null, Z = null) {
-      const Re = await fetch(Rt + le, {
+    async function ka(le, ne = null, Q = null) {
+      const Se = await fetch(Rt + le, {
         credentials: "same-origin",
         cache: "no-store",
-        ...Z ? { signal: Z } : {},
-        method: ae === null ? "GET" : "POST",
-        headers: { Accept: "application/json", ...ae === null ? {} : { "Content-Type": "application/json", requesttoken: t.requestToken } },
-        ...ae === null ? {} : { body: JSON.stringify(ae) }
+        ...Q ? { signal: Q } : {},
+        method: ne === null ? "GET" : "POST",
+        headers: { Accept: "application/json", ...ne === null ? {} : { "Content-Type": "application/json", requesttoken: t.requestToken } },
+        ...ne === null ? {} : { body: JSON.stringify(ne) }
       });
-      if (!Re.ok) throw new Error(Re.status === 409 ? h("library", "The series assignment changed. Reload this publication and try again.") : h("library", "The series change could not be saved."));
-      return Re.json();
+      if (!Se.ok) throw new Error(Se.status === 409 ? h("library", "The series assignment changed. Reload this publication and try again.") : h("library", "The series change could not be saved."));
+      return Se.json();
     }
     function Ut() {
-      clearTimeout(Pe), we?.abort(), Me++, re.value = !1, te.value = "", Ae.value = [], Ie.value = !1, Le.value = !1, ke.value = !1, Qe.value = null;
+      clearTimeout(Pe), we?.abort(), Me++, re.value = !1, te.value = "", Ee.value = [], Ie.value = !1, Le.value = !1, ke.value = !1, et.value = null;
     }
     function pa() {
-      re.value = !0, te.value = "", Ae.value = [], Qe.value = null, Le.value = !1, Lt(() => de.value?.focus());
+      re.value = !0, te.value = "", Ee.value = [], et.value = null, Le.value = !1, Lt(() => de.value?.focus());
     }
     function xi() {
       n.seriesLink = null, n.seriesPart = "";
     }
-    qe(te, (le) => {
-      if (clearTimeout(Pe), we?.abort(), Me++, Ae.value = [], Ie.value = !1, He.value = -1, Qe.value = null, !re.value || !X.value) {
+    Ge(te, (le) => {
+      if (clearTimeout(Pe), we?.abort(), Me++, Ee.value = [], Ie.value = !1, He.value = -1, et.value = null, !re.value || !J.value) {
         Le.value = !1, ke.value = !1;
         return;
       }
@@ -21283,23 +21283,23 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     });
     async function Da(le = te.value.trim()) {
       if ((le.match(new RegExp("\\p{L}", "gu")) || []).length < 3) return;
-      const ae = ++Me;
+      const ne = ++Me;
       we?.abort();
-      const Z = new AbortController();
-      we = Z, ke.value = !0, b.value = "";
+      const Q = new AbortController();
+      we = Q, ke.value = !0, b.value = "";
       try {
-        const Re = await ka(`?search=${encodeURIComponent(le)}`, null, Z.signal);
-        if (ae !== Me || !re.value) return;
-        const it = Number(n.seriesLink?.id || 0);
-        Ae.value = Re.series.filter((ia) => Number(ia.id) !== it), Ie.value = Re.hasNext === !0;
-      } catch (Re) {
-        Re.name !== "AbortError" && ae === Me && (b.value = Re.message);
+        const Se = await ka(`?search=${encodeURIComponent(le)}`, null, Q.signal);
+        if (ne !== Me || !re.value) return;
+        const qe = Number(n.seriesLink?.id || 0);
+        Ee.value = Se.series.filter((Vt) => Number(Vt.id) !== qe), Ie.value = Se.hasNext === !0;
+      } catch (Se) {
+        Se.name !== "AbortError" && ne === Me && (b.value = Se.message);
       } finally {
-        ae === Me && (ke.value = !1);
+        ne === Me && (ke.value = !1);
       }
     }
     function pi(le) {
-      Qe.value = le, Le.value = !1, He.value = -1;
+      et.value = le, Le.value = !1, He.value = -1;
     }
     function Sa(le) {
       if (le.key === "Escape") {
@@ -21307,30 +21307,30 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         return;
       }
       if (le.key === "ArrowDown" || le.key === "ArrowUp") {
-        if (!X.value || (le.preventDefault(), Le.value = !0, !Ae.value.length)) return;
-        He.value = le.key === "ArrowDown" ? (He.value + 1) % Ae.value.length : He.value < 0 ? Ae.value.length - 1 : (He.value - 1 + Ae.value.length) % Ae.value.length;
-      } else le.key === "Enter" && Le.value && Ae.value.length && (le.preventDefault(), pi(Ae.value[Math.max(0, He.value)]));
+        if (!J.value || (le.preventDefault(), Le.value = !0, !Ee.value.length)) return;
+        He.value = le.key === "ArrowDown" ? (He.value + 1) % Ee.value.length : He.value < 0 ? Ee.value.length - 1 : (He.value - 1 + Ee.value.length) % Ee.value.length;
+      } else le.key === "Enter" && Le.value && Ee.value.length && (le.preventDefault(), pi(Ee.value[Math.max(0, He.value)]));
     }
     async function Fa() {
       const le = te.value.trim();
       if (le) {
         clearTimeout(Pe), we?.abort(), Me++, ke.value = !0, b.value = "";
         try {
-          const ae = await ka("", { name: le });
-          Qe.value = ae.series, Ae.value = [ae.series], Le.value = !1;
-        } catch (ae) {
-          b.value = ae.message;
+          const ne = await ka("", { name: le });
+          et.value = ne.series, Ee.value = [ne.series], Le.value = !1;
+        } catch (ne) {
+          b.value = ne.message;
         } finally {
           ke.value = !1;
         }
       }
     }
     async function Ma() {
-      !Qe.value || g.value || (n.seriesLink = { id: Number(Qe.value.id), name: Qe.value.display_name }, Ut());
+      !et.value || g.value || (n.seriesLink = { id: Number(et.value.id), name: et.value.display_name }, Ut());
     }
     function Pn(le) {
-      for (const ae of ["publicationType", "title", "subtitle", "publication", "publicationDate", "publisher", "description"]) n[ae] = le[ae] || "";
-      n.authorLinks = (le.canonicalAuthors || []).map((ae) => ({ id: Number(ae.id), name: ae.name })), n.seriesLink = le.canonicalSeries?.[0] ? { id: Number(le.canonicalSeries[0].id), name: le.canonicalSeries[0].name } : null, n.seriesPart = String(le.canonicalSeries?.[0]?.part || ""), n.genres = (le.canonicalGenres || []).map((ae) => ({ id: Number(ae.id), name: ae.name })), n.language = Fe(le.language), n.subjects = Ne(le.subjects), n.classifications = Ne(le.classifications), n.personalRating = le.personalRating ?? "", n.identifiers = Array.isArray(le.identifiers) ? le.identifiers.map((ae) => ({ scheme: ae.scheme, displayValue: ae.displayValue || "", valid: ae.valid, originalScheme: ae.scheme, originalDisplayValue: ae.displayValue || "" })) : [], oe.value = JSON.stringify(n);
+      for (const ne of ["publicationType", "title", "subtitle", "publication", "publicationDate", "publisher", "description"]) n[ne] = le[ne] || "";
+      n.authorLinks = (le.canonicalAuthors || []).map((ne) => ({ id: Number(ne.id), name: ne.name })), n.seriesLink = le.canonicalSeries?.[0] ? { id: Number(le.canonicalSeries[0].id), name: le.canonicalSeries[0].name } : null, n.seriesPart = String(le.canonicalSeries?.[0]?.part || ""), n.genres = (le.canonicalGenres || []).map((ne) => ({ id: Number(ne.id), name: ne.name })), n.language = Fe(le.language), n.subjects = Oe(le.subjects), n.classifications = Oe(le.classifications), n.personalRating = le.personalRating ?? "", n.identifiers = Array.isArray(le.identifiers) ? le.identifiers.map((ne) => ({ scheme: ne.scheme, displayValue: ne.displayValue || "", valid: ne.valid, originalScheme: ne.scheme, originalDisplayValue: ne.displayValue || "" })) : [], oe.value = JSON.stringify(n);
     }
     async function Ca({ silent: le = !1 } = {}) {
       if (!O.value) {
@@ -21339,37 +21339,37 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       }
       le || (v.value = !0), b.value = "";
       try {
-        const [ae, Z] = await Promise.all([
+        const [ne, Q] = await Promise.all([
           fetch(`${P.value}/sidebar`, { credentials: "same-origin", cache: "no-store" }),
           fetch(`${P.value}/details-context`, { credentials: "same-origin", cache: "no-store" })
         ]);
-        if (!ae.ok || !Z.ok) throw new Error(h("library", "Publication details could not be loaded."));
-        if (a.value = (await ae.json()).item, i.value = await Z.json(), !a.value || !i.value) throw new Error(h("library", "Publication not found."));
+        if (!ne.ok || !Q.ok) throw new Error(h("library", "Publication details could not be loaded."));
+        if (a.value = (await ne.json()).item, i.value = await Q.json(), !a.value || !i.value) throw new Error(h("library", "Publication not found."));
         return Pn(a.value), x.value++, D.value = !1, !0;
-      } catch (ae) {
-        b.value = ae.message || h("library", "Publication details could not be loaded.");
+      } catch (ne) {
+        b.value = ne.message || h("library", "Publication details could not be loaded.");
       } finally {
         v.value = !1;
       }
     }
-    async function jt(le, ae = {}, Z = null, { reload: Re = !0 } = {}) {
+    async function jt(le, ne = {}, Q = null, { reload: Se = !0 } = {}) {
       if (!le || g.value || A.value && !window.confirm(h("library", "Discard unsaved metadata edits?"))) return !1;
       g.value = !0, b.value = "", m.value = "";
       try {
-        const it = new FormData();
-        it.set("requesttoken", t.requestToken), it.set("returnTo", "details");
-        for (const [un, Gt] of Object.entries(ae))
-          Array.isArray(Gt) ? Gt.forEach((Dn) => it.append(`${un}[]`, Dn)) : it.set(un, String(Gt ?? ""));
-        Z && it.set("coverOverrideFile", Z, Z.name || "cover.png");
-        const ia = await fetch(le, { method: "POST", body: it, credentials: "same-origin" });
-        if (!ia.ok) throw new Error(h("library", "The change could not be saved."));
-        const ut = new URL(ia.url), zt = ut.searchParams.get("coverUploadError"), br = ut.searchParams.get("tagResult");
+        const qe = new FormData();
+        qe.set("requesttoken", t.requestToken), qe.set("returnTo", "details");
+        for (const [un, Kt] of Object.entries(ne))
+          Array.isArray(Kt) ? Kt.forEach((Dn) => qe.append(`${un}[]`, Dn)) : qe.set(un, String(Kt ?? ""));
+        Q && qe.set("coverOverrideFile", Q, Q.name || "cover.png");
+        const Vt = await fetch(le, { method: "POST", body: qe, credentials: "same-origin" });
+        if (!Vt.ok) throw new Error(h("library", "The change could not be saved."));
+        const ut = new URL(Vt.url), zt = ut.searchParams.get("coverUploadError"), br = ut.searchParams.get("tagResult");
         if (zt) throw new Error(h("library", "Choose a valid JPEG, PNG, or WebP cover within the upload limits."));
         if (br && !["added", "created", "already-assigned"].includes(br)) throw new Error(h("library", "The tag could not be assigned."));
-        if (Re && !await Ca({ silent: !0 })) throw new Error(h("library", "The change was saved, but details could not be reloaded."));
+        if (Se && !await Ca({ silent: !0 })) throw new Error(h("library", "The change was saved, but details could not be reloaded."));
         return m.value = h("library", "Saved"), !0;
-      } catch (it) {
-        return b.value = it.message || h("library", "The change could not be saved."), !1;
+      } catch (qe) {
+        return b.value = qe.message || h("library", "The change could not be saved."), !1;
       } finally {
         g.value = !1;
       }
@@ -21377,30 +21377,34 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     async function vi() {
       const le = new FormData();
       le.set("requesttoken", t.requestToken), le.set("metadataAutosave", "1"), le.set("metadataRevision", a.value?.metadataRevision || ""), le.set("simpleEditor", "1"), le.set("editorLinks", JSON.stringify({
-        beforeAuthors: (a.value.canonicalAuthors || []).map((ae) => Number(ae.id)),
-        authors: n.authorLinks.map((ae) => Number(ae.id)),
+        beforeAuthors: (a.value.canonicalAuthors || []).map((Se) => Number(Se.id)),
+        authors: n.authorLinks.map((Se) => Number(Se.id)),
         beforeSeries: a.value.canonicalSeries?.[0] ? Number(a.value.canonicalSeries[0].id) : null,
         series: n.seriesLink ? Number(n.seriesLink.id) : null,
         beforePart: String(a.value.canonicalSeries?.[0]?.part || ""),
         part: n.seriesPart,
-        beforeGenres: (a.value.canonicalGenres || []).map((ae) => Number(ae.id)),
-        genres: n.genres.map((ae) => Number(ae.id))
+        beforeGenres: (a.value.canonicalGenres || []).map((Se) => Number(Se.id)),
+        genres: n.genres.map((Se) => Number(Se.id))
       }));
-      for (const ae of ["publicationType", "title", "subtitle", "publication", "publicationDate", "publisher", "description", "personalRating"]) le.set(ae, String(n[ae] ?? ""));
-      for (const ae of ["language", "subjects", "classifications"]) {
-        const Z = Ze(n[ae]);
-        Z.length === 0 ? le.set(ae, "") : Z.forEach((Re) => le.append(`${ae}[]`, Re));
+      const ne = JSON.parse(oe.value || "{}");
+      for (const Se of ["publicationType", "title", "subtitle", "publication", "publicationDate", "publisher", "description", "personalRating"])
+        n[Se] !== ne[Se] && le.set(Se, String(n[Se] ?? ""));
+      for (const Se of ["language", "subjects", "classifications"]) {
+        if (n[Se] === ne[Se]) continue;
+        const qe = Je(n[Se]);
+        qe.length === 0 ? le.set(Se, "") : qe.forEach((Vt) => le.append(`${Se}[]`, Vt));
       }
-      n.identifiers.forEach((ae, Z) => {
-        le.set(`identifiers[${Z}][scheme]`, ae.scheme), le.set(`identifiers[${Z}][displayValue]`, ae.displayValue);
-      }), g.value = !0, b.value = "", m.value = "";
+      const Q = (Se) => (Se || []).map((qe) => [qe.scheme, qe.displayValue]);
+      JSON.stringify(Q(n.identifiers)) !== JSON.stringify(Q(ne.identifiers)) && (le.set("identifiersPresent", "1"), n.identifiers.forEach((Se, qe) => {
+        le.set(`identifiers[${qe}][scheme]`, Se.scheme), le.set(`identifiers[${qe}][displayValue]`, Se.displayValue);
+      })), g.value = !0, b.value = "", m.value = "";
       try {
-        const ae = await fetch(a.value.updateUrl, { method: "POST", body: le, credentials: "same-origin" }), Z = await ae.json();
-        if (!ae.ok || !Z.saved) throw new Error(Z.error || h("library", "Metadata was not saved."));
+        const Se = await fetch(a.value.updateUrl, { method: "POST", body: le, credentials: "same-origin" }), qe = await Se.json();
+        if (!Se.ok || !qe.saved) throw new Error(qe.error || h("library", "Metadata was not saved."));
         if (!await Ca({ silent: !0 })) throw new Error(h("library", "Metadata was saved, but details could not be reloaded."));
         m.value = h("library", "Book details saved");
-      } catch (ae) {
-        b.value = ae.message || h("library", "Metadata was not saved.");
+      } catch (Se) {
+        b.value = Se.message || h("library", "Metadata was not saved.");
       } finally {
         g.value = !1;
       }
@@ -21409,18 +21413,18 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       if (!$.value) return;
       await jt(i.value.actions.coverOverride, {}, $.value) ? ($.value = null, I.value = h("library", "Cover updated."), C.value && (C.value.value = "")) : I.value = b.value || h("library", "The change could not be saved.");
     }
-    function tt(le) {
+    function at(le) {
       $.value = le.target.files?.[0] || null, $.value && Ua();
     }
     async function ei() {
       if (I.value = h("library", "Press Ctrl+V or ⌘V to paste a copied image."), !!navigator.clipboard?.read)
         try {
-          const le = await navigator.clipboard.read(), ae = ["image/png", "image/jpeg", "image/webp"];
-          for (const Z of le) {
-            const Re = ae.find((ia) => Z.types.includes(ia));
-            if (!Re) continue;
-            const it = await Z.getType(Re);
-            $.value = new File([it], "pasted-cover", { type: Re }), I.value = h("library", "Saving pasted cover…"), await Ua();
+          const le = await navigator.clipboard.read(), ne = ["image/png", "image/jpeg", "image/webp"];
+          for (const Q of le) {
+            const Se = ne.find((Vt) => Q.types.includes(Vt));
+            if (!Se) continue;
+            const qe = await Q.getType(Se);
+            $.value = new File([qe], "pasted-cover", { type: Se }), I.value = h("library", "Saving pasted cover…"), await Ua();
             return;
           }
         } catch {
@@ -21430,12 +21434,12 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       x.value++, D.value = !0;
     }
     function ti(le) {
-      const ae = ["image/jpeg", "image/png", "image/webp"], Z = [...le.clipboardData?.files || []].find((Re) => ae.includes(Re.type)) || [...le.clipboardData?.items || []].find((Re) => ae.includes(Re.type))?.getAsFile();
-      if (le.preventDefault(), !Z) {
+      const ne = ["image/jpeg", "image/png", "image/webp"], Q = [...le.clipboardData?.files || []].find((Se) => ne.includes(Se.type)) || [...le.clipboardData?.items || []].find((Se) => ne.includes(Se.type))?.getAsFile();
+      if (le.preventDefault(), !Q) {
         I.value = h("library", "Clipboard has no JPEG, PNG, or WebP image.");
         return;
       }
-      I.value = h("library", "Saving pasted cover…"), $.value = Z, Ua();
+      I.value = h("library", "Saving pasted cover…"), $.value = Q, Ua();
     }
     async function on(le = _.value) {
       le.trim() && await jt(i.value.actions.tag, { nextcloudTagName: le.trim() }) && (_.value = "");
@@ -21457,9 +21461,9 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     }
     return xt(() => {
       window.addEventListener("beforeunload", xa), Ca();
-    }), aa(() => {
+    }), ia(() => {
       window.removeEventListener("beforeunload", xa), clearTimeout(u), d?.abort(), clearTimeout(B), F?.abort(), clearTimeout(Pe), we?.abort();
-    }), (le, ae) => (c(), f("main", f8, [
+    }), (le, ne) => (c(), f("main", f8, [
       r("a", {
         href: R.value.url,
         class: "library-full-details-back"
@@ -21467,7 +21471,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       ot ? (c(), f("p", p8, l(o(h)("library", "The source file could not be opened. Check the file in Nextcloud Files or rescan this root.")), 1)) : S("", !0),
       v.value ? (c(), f("p", v8, l(o(h)("library", "Loading publication details…")), 1)) : S("", !0),
       b.value ? (c(), f("p", b8, [
-        Q(l(b.value) + " ", 1),
+        X(l(b.value) + " ", 1),
         a.value ? S("", !0) : (c(), f("button", {
           key: 0,
           type: "button",
@@ -21494,8 +21498,8 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   disabled: g.value,
                   title: o(h)("library", "Revert cover"),
                   "aria-label": o(h)("library", "Revert cover"),
-                  onClick: ae[0] || (ae[0] = (Z) => jt(i.value.actions.coverRevert))
-                }, [...ae[29] || (ae[29] = [
+                  onClick: ne[0] || (ne[0] = (Q) => jt(i.value.actions.coverRevert))
+                }, [...ne[29] || (ne[29] = [
                   r("svg", {
                     viewBox: "0 0 24 24",
                     fill: "none",
@@ -21516,7 +21520,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   title: o(h)("library", "Refresh cover preview"),
                   "aria-label": o(h)("library", "Refresh cover preview"),
                   onClick: $a
-                }, [...ae[30] || (ae[30] = [
+                }, [...ne[30] || (ne[30] = [
                   r("svg", {
                     viewBox: "0 0 24 24",
                     fill: "none",
@@ -21537,10 +21541,10 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   type: "button",
                   class: "library-cover-primary-action",
                   disabled: g.value,
-                  onClick: ae[1] || (ae[1] = (Z) => C.value?.click())
+                  onClick: ne[1] || (ne[1] = (Q) => C.value?.click())
                 }, [
-                  ae[31] || (ae[31] = r("span", { "aria-hidden": "true" }, "✎", -1)),
-                  Q(" " + l(o(h)("library", "Replace cover")), 1)
+                  ne[31] || (ne[31] = r("span", { "aria-hidden": "true" }, "✎", -1)),
+                  X(" " + l(o(h)("library", "Replace cover")), 1)
                 ], 8, $8),
                 r("button", {
                   type: "button",
@@ -21558,7 +21562,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
               tabindex: "-1",
               accept: "image/jpeg,image/png,image/webp",
               "aria-label": o(h)("library", "Replace cover"),
-              onChange: tt
+              onChange: at
             }, null, 40, A8),
             I.value ? (c(), f("p", E8, l(I.value), 1)) : S("", !0)
           ], 32),
@@ -21571,18 +21575,18 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
               r("bdi", I8, l(a.value.creators), 1)
             ])),
             a.value.canonicalAuthors?.length ? (c(), f("p", L8, [
-              (c(!0), f(K, null, ue(a.value.canonicalAuthors, (Z) => (c(), f("a", {
-                key: Z.id,
-                href: `${e.catalogueUrl}?authors=1&authorId=${Z.id}`
-              }, l(Z.name), 9, P8))), 128))
+              (c(!0), f(K, null, ue(a.value.canonicalAuthors, (Q) => (c(), f("a", {
+                key: Q.id,
+                href: `${e.catalogueUrl}?authors=1&authorId=${Q.id}`
+              }, l(Q.name), 9, P8))), 128))
             ])) : S("", !0),
             a.value.canonicalSeries?.length ? (c(), f("p", D8, [
-              (c(!0), f(K, null, ue(a.value.canonicalSeries, (Z) => (c(), f("a", {
-                key: Z.id,
-                href: `${e.catalogueUrl}?series=1&seriesId=${Z.id}`
+              (c(!0), f(K, null, ue(a.value.canonicalSeries, (Q) => (c(), f("a", {
+                key: Q.id,
+                href: `${e.catalogueUrl}?series=1&seriesId=${Q.id}`
               }, [
-                Q(l(Z.name), 1),
-                Z.part ? (c(), f("span", M8, " · " + l(Z.part), 1)) : S("", !0)
+                X(l(Q.name), 1),
+                Q.part ? (c(), f("span", M8, " · " + l(Q.part), 1)) : S("", !0)
               ], 8, F8))), 128))
             ])) : S("", !0),
             r("div", U8, [
@@ -21608,19 +21612,19 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                 class: "button secondary",
                 "aria-pressed": !!a.value.starred,
                 disabled: g.value,
-                onClick: ae[2] || (ae[2] = (Z) => jt(i.value.actions.star, { starred: a.value.starred ? "0" : "1" }))
+                onClick: ne[2] || (ne[2] = (Q) => jt(i.value.actions.star, { starred: a.value.starred ? "0" : "1" }))
               }, l(a.value.starred ? "★" : "☆") + " " + l(o(h)("library", "Favorite")), 9, H8),
               r("label", null, [
-                Q(l(o(h)("library", "Workflow status")) + " ", 1),
+                X(l(o(h)("library", "Workflow status")) + " ", 1),
                 r("select", {
                   value: a.value.workflowStatus || "",
                   disabled: g.value,
-                  onChange: ae[3] || (ae[3] = (Z) => jt(i.value.actions.workflowStatus, { workflowStatus: Z.target.value }))
+                  onChange: ne[3] || (ne[3] = (Q) => jt(i.value.actions.workflowStatus, { workflowStatus: Q.target.value }))
                 }, [
-                  (c(), f(K, null, ue(N, (Z) => r("option", {
-                    key: Z.value,
-                    value: Z.value
-                  }, l(Z.label), 9, G8)), 64))
+                  (c(), f(K, null, ue(N, (Q) => r("option", {
+                    key: Q.value,
+                    value: Q.value
+                  }, l(Q.label), 9, G8)), 64))
                 ], 40, q8)
               ])
             ]),
@@ -21639,146 +21643,146 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
               r("h2", X8, l(o(h)("library", "Book details")), 1),
               r("form", {
                 id: "library-full-details-metadata-form",
-                onSubmit: $e(vi, ["prevent"])
+                onSubmit: Te(vi, ["prevent"])
               }, [
                 r("div", Q8, [
                   r("label", null, [
-                    Q(l(o(h)("library", "Title")), 1),
+                    X(l(o(h)("library", "Title")), 1),
                     fe(r("input", {
-                      "onUpdate:modelValue": ae[4] || (ae[4] = (Z) => n.title = Z),
+                      "onUpdate:modelValue": ne[4] || (ne[4] = (Q) => n.title = Q),
                       required: ""
                     }, null, 512), [
-                      [Oe, n.title]
+                      [Re, n.title]
                     ])
                   ]),
                   r("label", null, [
-                    Q(l(o(h)("library", "Subtitle")), 1),
+                    X(l(o(h)("library", "Subtitle")), 1),
                     fe(r("input", {
-                      "onUpdate:modelValue": ae[5] || (ae[5] = (Z) => n.subtitle = Z)
+                      "onUpdate:modelValue": ne[5] || (ne[5] = (Q) => n.subtitle = Q)
                     }, null, 512), [
-                      [Oe, n.subtitle]
+                      [Re, n.subtitle]
                     ])
                   ]),
                   r("label", null, [
-                    Q(l(o(h)("library", "Type")), 1),
+                    X(l(o(h)("library", "Type")), 1),
                     fe(r("select", {
-                      "onUpdate:modelValue": ae[6] || (ae[6] = (Z) => n.publicationType = Z)
+                      "onUpdate:modelValue": ne[6] || (ne[6] = (Q) => n.publicationType = Q)
                     }, [
-                      (c(), f(K, null, ue(ne, (Z) => r("option", {
-                        key: Z.value,
-                        value: Z.value
-                      }, l(Z.label), 9, eL)), 64))
+                      (c(), f(K, null, ue(ie, (Q) => r("option", {
+                        key: Q.value,
+                        value: Q.value
+                      }, l(Q.label), 9, eL)), 64))
                     ], 512), [
                       [nt, n.publicationType]
                     ])
                   ]),
                   r("label", null, [
-                    Q(l(o(h)("library", "Publication")), 1),
+                    X(l(o(h)("library", "Publication")), 1),
                     fe(r("input", {
-                      "onUpdate:modelValue": ae[7] || (ae[7] = (Z) => n.publication = Z)
+                      "onUpdate:modelValue": ne[7] || (ne[7] = (Q) => n.publication = Q)
                     }, null, 512), [
-                      [Oe, n.publication]
+                      [Re, n.publication]
                     ])
                   ]),
                   r("label", {
                     title: o(h)("library", "Use YYYY, YYYY-MM, or YYYY-MM-DD.")
                   }, [
-                    Q(l(o(h)("library", "Publication date")), 1),
+                    X(l(o(h)("library", "Publication date")), 1),
                     fe(r("input", {
-                      "onUpdate:modelValue": ae[8] || (ae[8] = (Z) => n.publicationDate = Z)
+                      "onUpdate:modelValue": ne[8] || (ne[8] = (Q) => n.publicationDate = Q)
                     }, null, 512), [
-                      [Oe, n.publicationDate]
+                      [Re, n.publicationDate]
                     ])
                   ], 8, tL),
                   r("label", {
                     title: o(h)("library", "Search publishers")
                   }, [
-                    Q(l(o(h)("library", "Publisher")), 1),
+                    X(l(o(h)("library", "Publisher")), 1),
                     fe(r("input", {
-                      "onUpdate:modelValue": ae[9] || (ae[9] = (Z) => n.publisher = Z),
+                      "onUpdate:modelValue": ne[9] || (ne[9] = (Q) => n.publisher = Q),
                       list: "library-details-publisher-suggestions",
                       autocomplete: "off"
                     }, null, 512), [
-                      [Oe, n.publisher]
+                      [Re, n.publisher]
                     ]),
                     r("datalist", iL, [
-                      (c(!0), f(K, null, ue(s.value, (Z) => (c(), f("option", {
-                        key: Z,
-                        value: Z
+                      (c(!0), f(K, null, ue(s.value, (Q) => (c(), f("option", {
+                        key: Q,
+                        value: Q
                       }, null, 8, nL))), 128))
                     ])
                   ], 8, aL),
                   ve(Bp, {
                     modelValue: n.language,
-                    "onUpdate:modelValue": ae[10] || (ae[10] = (Z) => n.language = Z),
+                    "onUpdate:modelValue": ne[10] || (ne[10] = (Q) => n.language = Q),
                     kind: "language",
                     disabled: g.value
                   }, null, 8, ["modelValue", "disabled"]),
                   ve(Bp, {
                     modelValue: n.subjects,
-                    "onUpdate:modelValue": ae[11] || (ae[11] = (Z) => n.subjects = Z),
+                    "onUpdate:modelValue": ne[11] || (ne[11] = (Q) => n.subjects = Q),
                     kind: "subject",
                     disabled: g.value
                   }, null, 8, ["modelValue", "disabled"]),
                   r("label", {
                     title: o(h)("library", "One classification per line.")
                   }, [
-                    Q(l(o(h)("library", "Classifications")), 1),
+                    X(l(o(h)("library", "Classifications")), 1),
                     fe(r("textarea", {
-                      "onUpdate:modelValue": ae[12] || (ae[12] = (Z) => n.classifications = Z),
+                      "onUpdate:modelValue": ne[12] || (ne[12] = (Q) => n.classifications = Q),
                       rows: "2"
                     }, null, 512), [
-                      [Oe, n.classifications]
+                      [Re, n.classifications]
                     ])
                   ], 8, rL),
                   ve(FI, {
                     "model-value": n.personalRating,
                     disabled: g.value,
-                    "onUpdate:modelValue": ae[13] || (ae[13] = (Z) => n.personalRating = Z)
+                    "onUpdate:modelValue": ne[13] || (ne[13] = (Q) => n.personalRating = Q)
                   }, null, 8, ["model-value", "disabled"]),
                   r("label", lL, [
-                    Q(l(o(h)("library", "Description")), 1),
+                    X(l(o(h)("library", "Description")), 1),
                     fe(r("textarea", {
-                      "onUpdate:modelValue": ae[14] || (ae[14] = (Z) => n.description = Z),
+                      "onUpdate:modelValue": ne[14] || (ne[14] = (Q) => n.description = Q),
                       rows: "8"
                     }, null, 512), [
-                      [Oe, n.description]
+                      [Re, n.description]
                     ])
                   ])
                 ]),
                 r("fieldset", null, [
                   r("legend", null, l(o(h)("library", "Identifiers")), 1),
-                  (c(!0), f(K, null, ue(n.identifiers, (Z, Re) => (c(), f("div", {
-                    key: Re,
+                  (c(!0), f(K, null, ue(n.identifiers, (Q, Se) => (c(), f("div", {
+                    key: Se,
                     class: "library-full-details-identifier"
                   }, [
                     fe(r("select", {
-                      "onUpdate:modelValue": (it) => Z.scheme = it,
+                      "onUpdate:modelValue": (qe) => Q.scheme = qe,
                       "aria-label": o(h)("library", "Scheme")
                     }, [
                       r("option", oL, l(o(h)("library", "ISBN")), 1),
                       r("option", uL, l(o(h)("library", "ISSN")), 1)
                     ], 8, sL), [
-                      [nt, Z.scheme]
+                      [nt, Q.scheme]
                     ]),
                     fe(r("input", {
-                      "onUpdate:modelValue": (it) => Z.displayValue = it,
+                      "onUpdate:modelValue": (qe) => Q.displayValue = qe,
                       "aria-label": o(h)("library", "Identifier value")
                     }, null, 8, cL), [
-                      [Oe, Z.displayValue]
+                      [Re, Q.displayValue]
                     ]),
-                    Z.displayValue && Z.valid === !1 && Z.scheme === Z.originalScheme && Z.displayValue === Z.originalDisplayValue ? (c(), f("span", dL, l(o(h)("library", "Invalid identifier checksum")), 1)) : S("", !0),
+                    Q.displayValue && Q.valid === !1 && Q.scheme === Q.originalScheme && Q.displayValue === Q.originalDisplayValue ? (c(), f("span", dL, l(o(h)("library", "Invalid identifier checksum")), 1)) : S("", !0),
                     r("button", {
                       type: "button",
                       class: "button secondary",
                       "aria-label": o(h)("library", "Remove identifier"),
-                      onClick: (it) => n.identifiers.splice(Re, 1)
+                      onClick: (qe) => n.identifiers.splice(Se, 1)
                     }, "×", 8, fL)
                   ]))), 128)),
                   r("button", {
                     type: "button",
                     class: "button secondary",
-                    onClick: ae[15] || (ae[15] = (Z) => n.identifiers.push({ scheme: "isbn", displayValue: "" }))
+                    onClick: ne[15] || (ne[15] = (Q) => n.identifiers.push({ scheme: "isbn", displayValue: "" }))
                   }, l(o(h)("library", "Add identifier")), 1)
                 ])
               ], 32)
@@ -21786,29 +21790,29 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
             r("section", hL, [
               r("h2", pL, l(o(h)("library", "Authors")), 1),
               n.authorLinks?.length ? (c(), f(K, { key: 0 }, [
-                (c(!0), f(K, null, ue(n.authorLinks, (Z) => (c(), f("div", {
-                  key: Z.id,
+                (c(!0), f(K, null, ue(n.authorLinks, (Q) => (c(), f("div", {
+                  key: Q.id,
                   class: "library-full-details-author-row"
                 }, [
                   r("a", {
-                    href: `${e.catalogueUrl}?authors=1&authorId=${Z.id}`
+                    href: `${e.catalogueUrl}?authors=1&authorId=${Q.id}`
                   }, [
-                    r("bdi", bL, l(Z.name), 1)
+                    r("bdi", bL, l(Q.name), 1)
                   ], 8, vL),
                   a.value.authorSyncStatus === 0 ? (c(), f("button", {
                     key: 0,
                     type: "button",
                     class: "button secondary",
                     disabled: g.value,
-                    onClick: (Re) => ht(Z)
+                    onClick: (Se) => ht(Q)
                   }, l(o(h)("library", "Change")), 9, gL)) : S("", !0),
                   a.value.authorSyncStatus === 0 ? (c(), f("button", {
                     key: 1,
                     type: "button",
                     class: "button secondary",
                     disabled: g.value,
-                    "aria-label": `${o(h)("library", "Remove author")}: ${Z.name}`,
-                    onClick: (Re) => n.authorLinks = n.authorLinks.filter((it) => it.id !== Z.id)
+                    "aria-label": `${o(h)("library", "Remove author")}: ${Q.name}`,
+                    onClick: (Se) => n.authorLinks = n.authorLinks.filter((qe) => qe.id !== Q.id)
                   }, "×", 8, yL)) : S("", !0)
                 ]))), 128)),
                 a.value.authorSyncStatus === 2 ? (c(), f("p", mL, [
@@ -21822,7 +21826,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                 type: "button",
                 class: "button secondary",
                 disabled: g.value,
-                onClick: ae[16] || (ae[16] = (Z) => ht({ id: 0, name: "" }))
+                onClick: ne[16] || (ne[16] = (Q) => ht({ id: 0, name: "" }))
               }, l(o(h)("library", "Add author")), 9, SL)) : S("", !0),
               L.value ? (c(), f("div", CL, [
                 L.value.id ? (c(), f("p", $L, l(o(h)("library", "Replace {author} for this publication", { author: L.value.name })), 1)) : S("", !0),
@@ -21831,8 +21835,8 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   fe(r("input", {
                     id: "library-details-author-search",
                     ref_key: "authorInput",
-                    ref: J,
-                    "onUpdate:modelValue": ae[17] || (ae[17] = (Z) => M.value = Z),
+                    ref: Z,
+                    "onUpdate:modelValue": ne[17] || (ne[17] = (Q) => M.value = Q),
                     type: "search",
                     maxlength: "255",
                     autocomplete: "off",
@@ -21840,40 +21844,40 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     "aria-autocomplete": "list",
                     "aria-controls": "library-details-author-suggestions",
                     "aria-expanded": W.value && T.value.length > 0 ? "true" : "false",
-                    "aria-activedescendant": ie.value >= 0 && W.value ? `library-details-author-option-${T.value[ie.value]?.id}` : void 0,
+                    "aria-activedescendant": ae.value >= 0 && W.value ? `library-details-author-option-${T.value[ae.value]?.id}` : void 0,
                     placeholder: o(h)("library", "Search authors"),
                     disabled: g.value,
-                    onFocus: ae[18] || (ae[18] = (Z) => W.value = ee.value),
-                    onKeydown: qt
+                    onFocus: ne[18] || (ne[18] = (Q) => W.value = ee.value),
+                    onKeydown: Gt
                   }, null, 40, EL), [
-                    [Oe, M.value]
+                    [Re, M.value]
                   ]),
                   !ee.value && !se.value ? (c(), f("p", xL, l(o(h)("library", "Type at least 3 letters to search authors.")), 1)) : S("", !0),
                   V.value ? (c(), f("span", NL, l(o(h)("library", "Searching…")), 1)) : S("", !0),
                   W.value && T.value.length ? (c(), f("ul", OL, [
-                    (c(!0), f(K, null, ue(T.value, (Z, Re) => (c(), f("li", {
-                      id: `library-details-author-option-${Z.id}`,
-                      key: Z.id,
+                    (c(!0), f(K, null, ue(T.value, (Q, Se) => (c(), f("li", {
+                      id: `library-details-author-option-${Q.id}`,
+                      key: Q.id,
                       role: "option",
-                      "aria-selected": ie.value === Re
+                      "aria-selected": ae.value === Se
                     }, [
                       r("button", {
                         type: "button",
-                        class: xe({ "is-active": ie.value === Re }),
-                        onMousedown: ae[19] || (ae[19] = $e(() => {
+                        class: Ne({ "is-active": ae.value === Se }),
+                        onMousedown: ne[19] || (ne[19] = Te(() => {
                         }, ["prevent"])),
-                        onClick: (it) => wt(Z)
+                        onClick: (qe) => wt(Q)
                       }, [
-                        r("strong", null, l(Z.display_name), 1),
-                        r("small", null, l(Z.sort_name) + " · " + l(o(pt)("library", "%n book", "%n books", Number(Z.book_count || 0))), 1)
+                        r("strong", null, l(Q.display_name), 1),
+                        r("small", null, l(Q.sort_name) + " · " + l(o(pt)("library", "%n book", "%n books", Number(Q.book_count || 0))), 1)
                       ], 42, IL)
                     ], 8, RL))), 128))
                   ])) : S("", !0),
                   W.value && j.value ? (c(), f("p", LL, l(o(h)("library", "More matches. Keep typing to narrow the list.")), 1)) : S("", !0),
                   W.value && ee.value && !V.value && !T.value.length ? (c(), f("p", PL, l(o(h)("library", "No matching author. You can create a separate author below.")), 1)) : S("", !0),
                   se.value ? (c(), f("p", DL, [
-                    Q(l(o(h)("library", "Selected author")) + ": ", 1),
-                    r("strong", null, l(T.value.find((Z) => String(Z.id) === se.value)?.display_name), 1)
+                    X(l(o(h)("library", "Selected author")) + ": ", 1),
+                    r("strong", null, l(T.value.find((Q) => String(Q.id) === se.value)?.display_name), 1)
                   ])) : S("", !0)
                 ]),
                 r("div", FL, [
@@ -21901,14 +21905,14 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
             ]),
             r("section", zL, [
               r("h2", BL, l(o(h)("library", "Series")), 1),
-              (c(!0), f(K, null, ue(n.seriesLink ? [n.seriesLink] : [], (Z) => (c(), f("div", {
-                key: Z.id,
+              (c(!0), f(K, null, ue(n.seriesLink ? [n.seriesLink] : [], (Q) => (c(), f("div", {
+                key: Q.id,
                 class: "library-full-details-author-row"
               }, [
                 r("a", {
-                  href: `${e.catalogueUrl}?series=1&seriesId=${Z.id}`
+                  href: `${e.catalogueUrl}?series=1&seriesId=${Q.id}`
                 }, [
-                  r("bdi", HL, l(Z.name), 1),
+                  r("bdi", HL, l(Q.name), 1),
                   n.seriesPart ? (c(), f("span", qL, " · " + l(n.seriesPart), 1)) : S("", !0)
                 ], 8, VL)
               ]))), 128)),
@@ -21932,12 +21936,12 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                 onClick: xi
               }, l(o(h)("library", "Remove series")), 9, JL)) : S("", !0),
               n.seriesLink && a.value.seriesSyncStatus === 0 ? (c(), f("label", XL, [
-                Q(l(o(h)("library", "Part in series")), 1),
+                X(l(o(h)("library", "Part in series")), 1),
                 fe(r("input", {
-                  "onUpdate:modelValue": ae[20] || (ae[20] = (Z) => n.seriesPart = Z),
+                  "onUpdate:modelValue": ne[20] || (ne[20] = (Q) => n.seriesPart = Q),
                   maxlength: "64"
                 }, null, 512), [
-                  [Oe, n.seriesPart]
+                  [Re, n.seriesPart]
                 ])
               ])) : S("", !0),
               re.value ? (c(), f("div", QL, [
@@ -21947,48 +21951,48 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     id: "library-details-series-search",
                     ref_key: "seriesInput",
                     ref: de,
-                    "onUpdate:modelValue": ae[21] || (ae[21] = (Z) => te.value = Z),
+                    "onUpdate:modelValue": ne[21] || (ne[21] = (Q) => te.value = Q),
                     type: "search",
                     maxlength: "255",
                     autocomplete: "off",
                     role: "combobox",
                     "aria-autocomplete": "list",
                     "aria-controls": "library-details-series-suggestions",
-                    "aria-expanded": Le.value && Ae.value.length > 0 ? "true" : "false",
-                    "aria-activedescendant": He.value >= 0 && Le.value ? `library-details-series-option-${Ae.value[He.value]?.id}` : void 0,
+                    "aria-expanded": Le.value && Ee.value.length > 0 ? "true" : "false",
+                    "aria-activedescendant": He.value >= 0 && Le.value ? `library-details-series-option-${Ee.value[He.value]?.id}` : void 0,
                     placeholder: o(h)("library", "Search series"),
                     disabled: g.value,
-                    onFocus: ae[22] || (ae[22] = (Z) => Le.value = X.value),
+                    onFocus: ne[22] || (ne[22] = (Q) => Le.value = J.value),
                     onKeydown: Sa
                   }, null, 40, aP), [
-                    [Oe, te.value]
+                    [Re, te.value]
                   ]),
-                  !X.value && !Qe.value ? (c(), f("p", iP, l(o(h)("library", "Type at least 3 letters to search series.")), 1)) : S("", !0),
+                  !J.value && !et.value ? (c(), f("p", iP, l(o(h)("library", "Type at least 3 letters to search series.")), 1)) : S("", !0),
                   ke.value ? (c(), f("span", nP, l(o(h)("library", "Searching…")), 1)) : S("", !0),
-                  Le.value && Ae.value.length ? (c(), f("ul", rP, [
-                    (c(!0), f(K, null, ue(Ae.value, (Z, Re) => (c(), f("li", {
-                      id: `library-details-series-option-${Z.id}`,
-                      key: Z.id,
+                  Le.value && Ee.value.length ? (c(), f("ul", rP, [
+                    (c(!0), f(K, null, ue(Ee.value, (Q, Se) => (c(), f("li", {
+                      id: `library-details-series-option-${Q.id}`,
+                      key: Q.id,
                       role: "option",
-                      "aria-selected": He.value === Re
+                      "aria-selected": He.value === Se
                     }, [
                       r("button", {
                         type: "button",
-                        class: xe({ "is-active": He.value === Re }),
-                        onMousedown: ae[23] || (ae[23] = $e(() => {
+                        class: Ne({ "is-active": He.value === Se }),
+                        onMousedown: ne[23] || (ne[23] = Te(() => {
                         }, ["prevent"])),
-                        onClick: (it) => pi(Z)
+                        onClick: (qe) => pi(Q)
                       }, [
-                        r("strong", null, l(Z.display_name), 1),
-                        r("small", null, l(o(pt)("library", "%n book", "%n books", Number(Z.book_count || 0))), 1)
+                        r("strong", null, l(Q.display_name), 1),
+                        r("small", null, l(o(pt)("library", "%n book", "%n books", Number(Q.book_count || 0))), 1)
                       ], 42, sP)
                     ], 8, lP))), 128))
                   ])) : S("", !0),
                   Le.value && Ie.value ? (c(), f("p", oP, l(o(h)("library", "More matches. Keep typing to narrow the list.")), 1)) : S("", !0),
-                  Le.value && X.value && !ke.value && !Ae.value.length ? (c(), f("p", uP, l(H.value ? o(h)("library", "The matching series is already assigned to this book. Search another name to change it.") : o(h)("library", "No matching series. You can create one below.")), 1)) : S("", !0),
-                  Qe.value ? (c(), f("p", cP, [
-                    Q(l(o(h)("library", "Selected series")) + ": ", 1),
-                    r("strong", null, l(Qe.value.display_name), 1)
+                  Le.value && J.value && !ke.value && !Ee.value.length ? (c(), f("p", uP, l(H.value ? o(h)("library", "The matching series is already assigned to this book. Search another name to change it.") : o(h)("library", "No matching series. You can create one below.")), 1)) : S("", !0),
+                  et.value ? (c(), f("p", cP, [
+                    X(l(o(h)("library", "Selected series")) + ": ", 1),
+                    r("strong", null, l(et.value.display_name), 1)
                   ])) : S("", !0)
                 ]),
                 r("div", dP, [
@@ -22001,7 +22005,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   r("button", {
                     type: "button",
                     class: "button primary",
-                    disabled: g.value || ke.value || !Qe.value,
+                    disabled: g.value || ke.value || !et.value,
                     onClick: Ma
                   }, l(o(h)("library", "Use this series")), 9, hP),
                   r("button", {
@@ -22021,7 +22025,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
               "catalogue-url": e.catalogueUrl,
               disabled: g.value,
               "draft-mode": "",
-              "onUpdate:genres": ae[24] || (ae[24] = (Z) => n.genres = Z)
+              "onUpdate:genres": ne[24] || (ne[24] = (Q) => n.genres = Q)
             }, null, 8, ["item-id", "genres", "request-token", "catalogue-url", "disabled"]),
             r("button", {
               class: "button primary library-full-details-save",
@@ -22064,35 +22068,35 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
             r("section", CP, [
               r("h2", null, l(o(h)("library", "Nextcloud tags")), 1),
               r("div", $P, [
-                (c(!0), f(K, null, ue(i.value.tags, (Z) => (c(), f("span", {
-                  key: Z.id,
+                (c(!0), f(K, null, ue(i.value.tags, (Q) => (c(), f("span", {
+                  key: Q.id,
                   class: "library-full-details-chip"
                 }, [
-                  r("bdi", TP, l(Z.name), 1),
+                  r("bdi", TP, l(Q.name), 1),
                   r("button", {
                     type: "button",
                     disabled: g.value,
-                    "aria-label": `${o(h)("library", "Remove tag")}: ${Z.name}`,
-                    onClick: (Re) => jt(Z.removeUrl)
+                    "aria-label": `${o(h)("library", "Remove tag")}: ${Q.name}`,
+                    onClick: (Se) => jt(Q.removeUrl)
                   }, "×", 8, AP)
                 ]))), 128))
               ]),
               r("form", {
-                onSubmit: ae[26] || (ae[26] = $e((Z) => on(), ["prevent"]))
+                onSubmit: ne[26] || (ne[26] = Te((Q) => on(), ["prevent"]))
               }, [
                 r("label", null, [
-                  Q(l(o(h)("library", "Add Nextcloud tag")), 1),
+                  X(l(o(h)("library", "Add Nextcloud tag")), 1),
                   fe(r("input", {
-                    "onUpdate:modelValue": ae[25] || (ae[25] = (Z) => _.value = Z),
+                    "onUpdate:modelValue": ne[25] || (ne[25] = (Q) => _.value = Q),
                     list: "library-full-details-tag-suggestions"
                   }, null, 512), [
-                    [Oe, _.value]
+                    [Re, _.value]
                   ])
                 ]),
                 r("datalist", EP, [
-                  (c(!0), f(K, null, ue(i.value.tagSuggestions, (Z) => (c(), f("option", {
-                    key: Z,
-                    value: Z
+                  (c(!0), f(K, null, ue(i.value.tagSuggestions, (Q) => (c(), f("option", {
+                    key: Q,
+                    value: Q
                   }, null, 8, xP))), 128))
                 ]),
                 r("button", {
@@ -22106,23 +22110,23 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
               r("h2", null, l(o(h)("library", "Nextcloud comments")), 1),
               r("p", RP, l(o(pt)("library", "%n comment", "%n comments", i.value.comments.count || 0)), 1),
               i.value.comments.recent?.length ? (c(), f("ul", IP, [
-                (c(!0), f(K, null, ue(i.value.comments.recent, (Z) => (c(), f("li", {
-                  key: Z.id
+                (c(!0), f(K, null, ue(i.value.comments.recent, (Q) => (c(), f("li", {
+                  key: Q.id
                 }, [
-                  r("small", null, l(Z.actorId) + " · " + l(Z.createdAt), 1),
-                  r("p", null, l(Z.message), 1)
+                  r("small", null, l(Q.actorId) + " · " + l(Q.createdAt), 1),
+                  r("p", null, l(Q.message), 1)
                 ]))), 128))
               ])) : S("", !0),
               r("form", {
-                onSubmit: $e(ja, ["prevent"])
+                onSubmit: Te(ja, ["prevent"])
               }, [
                 r("label", null, [
-                  Q(l(o(h)("library", "Add Nextcloud comment")), 1),
+                  X(l(o(h)("library", "Add Nextcloud comment")), 1),
                   fe(r("textarea", {
-                    "onUpdate:modelValue": ae[27] || (ae[27] = (Z) => k.value = Z),
+                    "onUpdate:modelValue": ne[27] || (ne[27] = (Q) => k.value = Q),
                     rows: "3"
                   }, null, 512), [
-                    [Oe, k.value]
+                    [Re, k.value]
                   ])
                 ]),
                 r("button", {
@@ -22141,71 +22145,71 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
             r("dd", null, l(a.value.creators || "—"), 1),
             r("dt", null, l(o(h)("library", "Series in file")), 1),
             r("dd", null, [
-              Q(l(a.value.series || "—"), 1),
+              X(l(a.value.series || "—"), 1),
               a.value.seriesNumber ? (c(), f("span", FP, " · " + l(a.value.seriesNumber), 1)) : S("", !0)
             ]),
             r("dt", null, l(o(h)("library", "Genre in file")), 1),
             r("dd", null, l(a.value.genre || "—"), 1)
           ]),
           r("p", MP, l(o(h)("library", "Scanner suggestions never replace your edits automatically.")), 1),
-          Ce.value.length ? (c(), f("div", UP, [
-            (c(!0), f(K, null, ue(Ce.value, (Z) => (c(), f("article", {
-              key: Z.field
+          $e.value.length ? (c(), f("div", UP, [
+            (c(!0), f(K, null, ue($e.value, (Q) => (c(), f("article", {
+              key: Q.field
             }, [
-              r("h3", null, l(Z.label), 1),
+              r("h3", null, l(Q.label), 1),
               r("p", null, [
-                Q(l(o(h)("library", "Current")) + ": ", 1),
-                r("bdi", jP, l(Z.current || "—"), 1)
+                X(l(o(h)("library", "Current")) + ": ", 1),
+                r("bdi", jP, l(Q.current || "—"), 1)
               ]),
               r("p", null, [
-                Q(l(o(h)("library", "Scanner candidate")) + ": ", 1),
-                r("bdi", zP, l(Z.candidate || "—"), 1)
+                X(l(o(h)("library", "Scanner candidate")) + ": ", 1),
+                r("bdi", zP, l(Q.candidate || "—"), 1)
               ]),
               r("button", {
                 type: "button",
                 class: "button secondary",
-                disabled: g.value || Z.rejected,
-                title: Z.rejected ? o(h)("library", "This source value exceeds field limits. Edit the field instead.") : "",
-                onClick: (Re) => jt(i.value.actions.resetField, { field: Z.field })
+                disabled: g.value || Q.rejected,
+                title: Q.rejected ? o(h)("library", "This source value exceeds field limits. Edit the field instead.") : "",
+                onClick: (Se) => jt(i.value.actions.resetField, { field: Q.field })
               }, l(o(h)("library", "Reset to scanner")), 9, BP)
             ]))), 128))
           ])) : (c(), f("p", VP, l(o(h)("library", "No scanner differences for this item.")), 1)),
           r("details", null, [
             r("summary", null, l(o(h)("library", "Show all scanner provenance")), 1),
             r("div", HP, [
-              (c(!0), f(K, null, ue(De.value, (Z) => (c(), f("article", {
-                key: Z.field
+              (c(!0), f(K, null, ue(De.value, (Q) => (c(), f("article", {
+                key: Q.field
               }, [
-                r("h3", null, l(Z.label), 1),
-                r("p", null, l(o(h)("library", "Scanner source")) + ": " + l(Z.source || "—"), 1),
+                r("h3", null, l(Q.label), 1),
+                r("p", null, l(o(h)("library", "Scanner source")) + ": " + l(Q.source || "—"), 1),
                 r("p", null, [
-                  Q(l(o(h)("library", "Current")) + ": ", 1),
-                  r("bdi", qP, l(Z.current || "—"), 1)
+                  X(l(o(h)("library", "Current")) + ": ", 1),
+                  r("bdi", qP, l(Q.current || "—"), 1)
                 ]),
                 r("p", null, [
-                  Q(l(o(h)("library", "Scanner candidate")) + ": ", 1),
-                  r("bdi", GP, l(Z.candidate || "—"), 1)
+                  X(l(o(h)("library", "Scanner candidate")) + ": ", 1),
+                  r("bdi", GP, l(Q.candidate || "—"), 1)
                 ]),
-                Z.sourceOriginal ? (c(), f("p", KP, [
-                  Q(l(o(h)("library", "Original source value")) + ": ", 1),
-                  r("bdi", WP, l(Z.sourceOriginal), 1)
+                Q.sourceOriginal ? (c(), f("p", KP, [
+                  X(l(o(h)("library", "Original source value")) + ": ", 1),
+                  r("bdi", WP, l(Q.sourceOriginal), 1)
                 ])) : S("", !0)
               ]))), 128))
             ])
           ]),
-          Ce.value.length ? (c(), f("button", {
+          $e.value.length ? (c(), f("button", {
             key: 2,
             type: "button",
             class: "button secondary",
             disabled: g.value || he.value.length > 0,
             title: he.value.length ? o(h)("library", "This source value exceeds field limits. Edit the field instead.") : "",
-            onClick: ae[28] || (ae[28] = (Z) => jt(i.value.actions.resetFields))
+            onClick: ne[28] || (ne[28] = (Q) => jt(i.value.actions.resetFields))
           }, l(o(h)("library", "Reset all fields to scanner")), 9, YP)) : S("", !0)
         ])
       ], 64)) : S("", !0)
     ]));
   }
-}, JP = /* @__PURE__ */ Ln(ZP, [["__scopeId", "data-v-39fc37aa"]]), XP = {
+}, JP = /* @__PURE__ */ Ln(ZP, [["__scopeId", "data-v-2efc21f2"]]), XP = {
   class: "library-navigation-group-label",
   role: "presentation"
 }, QP = ["aria-label", "title", "onClick"], e5 = {
@@ -22673,7 +22677,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     function d(w) {
       const y = new URLSearchParams(w);
       for (const p of Object.keys(s)) {
-        const q = [...new Set([...y.keys()].filter((Ue) => Ue === p || Ue.startsWith(`${p}[`)))], ye = q.reduce((Ue, Ye) => Ue + y.getAll(Ye).length, 0);
+        const q = [...new Set([...y.keys()].filter((Ue) => Ue === p || Ue.startsWith(`${p}[`)))], ye = q.reduce((Ue, Ze) => Ue + y.getAll(Ze).length, 0);
         if (ye > 1 || q.some((Ue) => Ue !== p)) {
           for (const Ue of q) y.delete(Ue);
           continue;
@@ -22697,7 +22701,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       items: a.state.items || [],
       activeFilters: a.state.activeFilters || {},
       cataloguePagination: a.state.cataloguePagination || {}
-    }), k = /* @__PURE__ */ Ft((_.items || []).map((w) => ({ ...w }))), $ = G(() => k), C = G(() => _.shelves || []), x = G(() => _.formats || []), D = G(() => _.publicationTypes?.length ? _.publicationTypes : i), I = G(() => _.publications || []), L = G(() => _.publicationIssueContext || null), M = G(() => _.scanStatuses || []), ee = G(() => _.workflowStatuses || []), J = G(() => _.cataloguePagination || {
+    }), k = /* @__PURE__ */ Ft((_.items || []).map((w) => ({ ...w }))), $ = G(() => k), C = G(() => _.shelves || []), x = G(() => _.formats || []), D = G(() => _.publicationTypes?.length ? _.publicationTypes : i), I = G(() => _.publications || []), L = G(() => _.publicationIssueContext || null), M = G(() => _.scanStatuses || []), ee = G(() => _.workflowStatuses || []), Z = G(() => _.cataloguePagination || {
       page: 1,
       limit: 100,
       total: $.value.length,
@@ -22743,17 +22747,17 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     });
     for (const w of Object.keys(s))
       w !== "status" && (u(w, T[w]) || (T[w] = ""));
-    const j = /* @__PURE__ */ U(T.publication), W = /* @__PURE__ */ U(T.q), ie = /* @__PURE__ */ U(!1), se = /* @__PURE__ */ U(null), V = G(() => {
+    const j = /* @__PURE__ */ U(T.publication), W = /* @__PURE__ */ U(T.q), ae = /* @__PURE__ */ U(!1), se = /* @__PURE__ */ U(null), V = G(() => {
       const w = j.value.trim().toLocaleLowerCase();
       return (w !== "" && se.value !== null ? se.value : I.value).filter((p) => w === "" || p.toLocaleLowerCase().includes(w)).slice(0, LB);
     });
-    qe(() => T.publication, (w) => {
+    Ge(() => T.publication, (w) => {
       j.value = w || "";
-    }), qe(() => T.q, (w) => {
+    }), Ge(() => T.q, (w) => {
       W.value = w || "";
     });
     let B = null, F = null, z = 0;
-    qe(j, (w) => {
+    Ge(j, (w) => {
       window.clearTimeout(B), F?.abort(), F = null, se.value = null;
       const y = String(w || "").trim();
       if (y.length < 3) return;
@@ -22762,13 +22766,13 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         ly(y, p);
       }, 200);
     });
-    const re = /* @__PURE__ */ U(T.publisher), te = /* @__PURE__ */ U(!1), X = /* @__PURE__ */ U(null), H = G(() => X.value || []);
-    qe(() => T.publisher, (w) => {
+    const re = /* @__PURE__ */ U(T.publisher), te = /* @__PURE__ */ U(!1), J = /* @__PURE__ */ U(null), H = G(() => J.value || []);
+    Ge(() => T.publisher, (w) => {
       re.value = w || "";
     });
-    let de = null, Ae = null, Ie = 0;
-    qe(re, (w) => {
-      window.clearTimeout(de), Ae?.abort(), Ae = null, X.value = null;
+    let de = null, Ee = null, Ie = 0;
+    Ge(re, (w) => {
+      window.clearTimeout(de), Ee?.abort(), Ee = null, J.value = null;
       const y = String(w || "").trim();
       if (y.length < 3) return;
       const p = ++Ie;
@@ -22776,13 +22780,13 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         ey(y, p);
       }, 200);
     });
-    const Le = /* @__PURE__ */ U(T.creator), He = /* @__PURE__ */ U(!1), Qe = /* @__PURE__ */ U(null), ke = G(() => Qe.value || []);
-    qe(() => T.creator, (w) => {
+    const Le = /* @__PURE__ */ U(T.creator), He = /* @__PURE__ */ U(!1), et = /* @__PURE__ */ U(null), ke = G(() => et.value || []);
+    Ge(() => T.creator, (w) => {
       Le.value = w || "";
     });
     let Pe = null, we = null, Me = 0;
-    qe(Le, (w) => {
-      window.clearTimeout(Pe), we?.abort(), we = null, Qe.value = null;
+    Ge(Le, (w) => {
+      window.clearTimeout(Pe), we?.abort(), we = null, et.value = null;
       const y = String(w || "").trim();
       if (y.length < 3) return;
       const p = ++Me;
@@ -22791,11 +22795,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       }, 200);
     });
     const ot = /* @__PURE__ */ U(T.folder), oe = /* @__PURE__ */ U(!1), A = /* @__PURE__ */ U(null), O = G(() => A.value || []);
-    qe(() => T.folder, (w) => {
+    Ge(() => T.folder, (w) => {
       ot.value = w || "";
     });
     let P = null, R = null, N = 0;
-    qe(ot, (w) => {
+    Ge(ot, (w) => {
       window.clearTimeout(P), R?.abort(), R = null, A.value = null;
       const y = String(w || "").trim();
       if (y.length < 3) return;
@@ -22804,41 +22808,41 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         ny(y, p);
       }, 200);
     });
-    const ne = /* @__PURE__ */ U(T.subject), ce = /* @__PURE__ */ U(!1), he = /* @__PURE__ */ U(null), me = G(() => he.value || []);
-    qe(() => T.subject, (w) => {
-      ne.value = w || "";
+    const ie = /* @__PURE__ */ U(T.subject), ce = /* @__PURE__ */ U(!1), he = /* @__PURE__ */ U(null), me = G(() => he.value || []);
+    Ge(() => T.subject, (w) => {
+      ie.value = w || "";
     });
-    let pe = null, De = null, Ce = 0;
-    qe(ne, (w) => {
+    let pe = null, De = null, $e = 0;
+    Ge(ie, (w) => {
       window.clearTimeout(pe), De?.abort(), De = null, he.value = null;
       const y = String(w || "").trim();
       if (y.length < 3) return;
-      const p = ++Ce;
+      const p = ++$e;
       pe = window.setTimeout(() => {
         ty(y, p);
       }, 200);
     });
-    const Ne = /* @__PURE__ */ U(T.classification), Fe = /* @__PURE__ */ U(!1), Ze = /* @__PURE__ */ U(null), et = G(() => Ze.value || []);
-    qe(() => T.classification, (w) => {
-      Ne.value = w || "";
+    const Oe = /* @__PURE__ */ U(T.classification), Fe = /* @__PURE__ */ U(!1), Je = /* @__PURE__ */ U(null), tt = G(() => Je.value || []);
+    Ge(() => T.classification, (w) => {
+      Oe.value = w || "";
     });
-    let We = null, lt = null, ht = 0;
-    qe(Ne, (w) => {
-      window.clearTimeout(We), lt?.abort(), lt = null, Ze.value = null;
+    let Ye = null, lt = null, ht = 0;
+    Ge(Oe, (w) => {
+      window.clearTimeout(Ye), lt?.abort(), lt = null, Je.value = null;
       const y = String(w || "").trim();
       if (y.length < 3) return;
       const p = ++ht;
-      We = window.setTimeout(() => {
+      Ye = window.setTimeout(() => {
         ay(y, p);
       }, 200);
     });
-    const St = /* @__PURE__ */ U(T.tag), wt = /* @__PURE__ */ U(!1), qt = /* @__PURE__ */ U(null), ha = G(() => qt.value || []);
-    qe(() => T.tag, (w) => {
+    const St = /* @__PURE__ */ U(T.tag), wt = /* @__PURE__ */ U(!1), Gt = /* @__PURE__ */ U(null), ha = G(() => Gt.value || []);
+    Ge(() => T.tag, (w) => {
       St.value = w || "";
     });
     let Tt = null, Rt = null, ka = 0;
-    qe(St, (w) => {
-      window.clearTimeout(Tt), Rt?.abort(), Rt = null, qt.value = null;
+    Ge(St, (w) => {
+      window.clearTimeout(Tt), Rt?.abort(), Rt = null, Gt.value = null;
       const y = String(w || "").trim();
       if (y.length < 2) return;
       const p = ++ka;
@@ -22847,11 +22851,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       }, 200);
     });
     const Ut = /* @__PURE__ */ U(T.year), pa = /* @__PURE__ */ U(!1), xi = /* @__PURE__ */ U(null), Da = G(() => xi.value || []);
-    qe(() => T.year, (w) => {
+    Ge(() => T.year, (w) => {
       Ut.value = w || "";
     });
     let pi = null, Sa = null, Fa = 0;
-    qe(Ut, (w) => {
+    Ge(Ut, (w) => {
       window.clearTimeout(pi), Sa?.abort(), Sa = null, xi.value = null;
       const y = String(w || "").trim();
       if (y.length < 2) return;
@@ -22874,8 +22878,8 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
           if (!q.startsWith("/") || q.startsWith("//") || /[\\\u0000-\u001f\u007f]/.test(q)) return y;
           const Ue = new URL(q, window.location.origin);
           if (Ue.origin !== window.location.origin || !Ue.pathname.startsWith(p)) return y;
-          const Ye = q.split(/[?#]/, 1)[0];
-          for (const Ra of Ye.split("/")) {
+          const Ze = q.split(/[?#]/, 1)[0];
+          for (const Ra of Ze.split("/")) {
             let gi = Ra;
             for (let kr = 0; kr < 5; kr += 1) {
               const yi = decodeURIComponent(gi);
@@ -22893,11 +22897,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         return y;
       }
     }
-    const Ua = G(() => vi(_.settingsUrl, jt.settings)), tt = G(() => vi(_.catalogueRootUrl, jt.catalogue));
+    const Ua = G(() => vi(_.settingsUrl, jt.settings)), at = G(() => vi(_.catalogueRootUrl, jt.catalogue));
     function ei(w) {
-      return Su(w, tt.value, window.location.href);
+      return Su(w, at.value, window.location.href);
     }
-    const $a = G(() => vi(_.homeUrl, `${jt.catalogue}?home=1`)), ti = G(() => vi(_.shelvesUrl, `${jt.catalogue}?shelves=1`)), on = G(() => vi(_.reviewUrl || _.scannerConflictReviewUrl, jt.review)), ja = G(() => Object.entries(s).some(([w, y]) => T[w] === y)), vr = G(() => n.reduce((w, y) => w + Number(Wu.value[y.countKey] || 0), 0)), ai = G(() => _.surface === "home"), xa = G(() => _.surface === "shelves"), le = G(() => _.surface === "duplicates"), ae = G(() => _.surface === "inference"), Z = G(() => _.surface === "authors"), Re = G(() => _.surface === "series"), it = G(() => _.surface === "genres"), ia = G(() => _.surface === "lists"), ut = G(() => _.surface === "details"), zt = G(() => `${tt.value}?lists=1`), br = Number(new URLSearchParams(window.location.search).get("addToList")) || null, un = /* @__PURE__ */ U([]), Gt = /* @__PURE__ */ U("");
+    const $a = G(() => vi(_.homeUrl, `${jt.catalogue}?home=1`)), ti = G(() => vi(_.shelvesUrl, `${jt.catalogue}?shelves=1`)), on = G(() => vi(_.reviewUrl || _.scannerConflictReviewUrl, jt.review)), ja = G(() => Object.entries(s).some(([w, y]) => T[w] === y)), vr = G(() => n.reduce((w, y) => w + Number(Wu.value[y.countKey] || 0), 0)), ai = G(() => _.surface === "home"), xa = G(() => _.surface === "shelves"), le = G(() => _.surface === "duplicates"), ne = G(() => _.surface === "inference"), Q = G(() => _.surface === "authors"), Se = G(() => _.surface === "series"), qe = G(() => _.surface === "genres"), Vt = G(() => _.surface === "lists"), ut = G(() => _.surface === "details"), zt = G(() => `${at.value}?lists=1`), br = Number(new URLSearchParams(window.location.search).get("addToList")) || null, un = /* @__PURE__ */ U([]), Kt = /* @__PURE__ */ U("");
     async function Dn() {
       try {
         un.value = (await Cn()).lists;
@@ -22905,13 +22909,13 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       }
     }
     xt(Dn);
-    const ms = G(() => !Z.value && !Re.value && !it.value && !le.value && !ae.value && !ia.value && !ut.value && !ai.value && !xa.value && !ja.value && !T.starred && !T.genreId && T.recentlyOpened !== "1" && !T.shelf), Ou = G(() => [
+    const ms = G(() => !Q.value && !Se.value && !qe.value && !le.value && !ne.value && !Vt.value && !ut.value && !ai.value && !xa.value && !ja.value && !T.starred && !T.genreId && T.recentlyOpened !== "1" && !T.shelf), Ou = G(() => [
       { key: "home", name: t("library", "Home"), href: $a.value, active: ai.value },
-      { key: "all", name: t("library", "All publications"), href: tt.value, active: ms.value },
-      { key: "starred", name: t("library", "Starred"), href: `${tt.value}?starred=1`, active: T.starred === "1" },
-      { key: "continue", name: t("library", "Continue reading"), href: `${tt.value}?recentlyOpened=1&sort=lastOpened`, active: T.recentlyOpened === "1" },
+      { key: "all", name: t("library", "All publications"), href: at.value, active: ms.value },
+      { key: "starred", name: t("library", "Starred"), href: `${at.value}?starred=1`, active: T.starred === "1" },
+      { key: "continue", name: t("library", "Continue reading"), href: `${at.value}?recentlyOpened=1&sort=lastOpened`, active: T.recentlyOpened === "1" },
       { key: "shelves", name: t("library", "Shelves"), href: ti.value, active: xa.value || !!T.shelf },
-      { key: "collections", name: t("library", "Collections"), href: `${tt.value}#library-collections`, active: !1 }
+      { key: "collections", name: t("library", "Collections"), href: `${at.value}#library-collections`, active: !1 }
     ]), Ru = G(() => be.value.map((w) => ({
       key: `collection-${w.id}`,
       rawName: w.name,
@@ -23024,8 +23028,8 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       if (w.get("batchMetadataApplyResult") !== "1") return "";
       const y = w.get("batchMetadataField") || "field", p = w.get("batchMetadataApplied") || "0", q = w.get("batchMetadataUnchanged") || "0", ye = w.get("batchMetadataSkipped") || "0";
       return t("library", "Batch metadata apply updated {applied} {field} values; {unchanged} already matched, {skipped} skipped.", { applied: p, field: y, unchanged: q, skipped: ye });
-    }), E = G(() => typeof window > "u" ? "" : new URLSearchParams(window.location.search).get("batchLimitError") === "1" ? t("library", "This batch matches more than 5,000 items. Narrow the selection and try again.") : ""), Y = G(() => typeof window > "u" ? "" : new URLSearchParams(window.location.search).get("batchSelectionError") === "1" ? t("library", "The selected items were invalid. Select items in the catalogue and try again.") : ""), be = G(() => _.savedCollections || []), ge = G(() => _.savedCollectionSaveUrl || "/apps/library/collections"), je = G(() => _.savedCollectionDeleteBaseUrl || "/apps/library/collections/__COLLECTION_ID__/delete"), Ve = b, Ge = G(() => Ve.includes(T.view) ? T.view : "compact"), It = G(() => ({
-      "library-cover-gallery--compact": Ge.value === "compact"
+    }), E = G(() => typeof window > "u" ? "" : new URLSearchParams(window.location.search).get("batchLimitError") === "1" ? t("library", "This batch matches more than 5,000 items. Narrow the selection and try again.") : ""), Y = G(() => typeof window > "u" ? "" : new URLSearchParams(window.location.search).get("batchSelectionError") === "1" ? t("library", "The selected items were invalid. Select items in the catalogue and try again.") : ""), be = G(() => _.savedCollections || []), ge = G(() => _.savedCollectionSaveUrl || "/apps/library/collections"), je = G(() => _.savedCollectionDeleteBaseUrl || "/apps/library/collections/__COLLECTION_ID__/delete"), Ve = b, Ke = G(() => Ve.includes(T.view) ? T.view : "compact"), It = G(() => ({
+      "library-cover-gallery--compact": Ke.value === "compact"
     }));
     function Ba(w) {
       const y = String(w || "").trim();
@@ -23033,7 +23037,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       const p = y.split("/").filter(Boolean);
       return p.length > 0 ? `…/${p.at(-1)}` : y;
     }
-    function Kt(w, y) {
+    function Wt(w, y) {
       const p = String(y || "").trim();
       if (p === "" || jn[w] === p) return "";
       if (w === "format") return p.toUpperCase();
@@ -23042,7 +23046,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       return q ? t("library", q) : p;
     }
     function na(w, y) {
-      const p = String(T[w] || "").trim(), q = Kt(w, p), ye = t("library", y);
+      const p = String(T[w] || "").trim(), q = Wt(w, p), ye = t("library", y);
       return {
         key: w,
         label: ye,
@@ -23055,7 +23059,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       const w = new URLSearchParams();
       for (const p of At.value) w.set(p.key, p.value);
       const y = w.toString();
-      return `${tt.value}${y ? `?${y}` : ""}`;
+      return `${at.value}${y ? `?${y}` : ""}`;
     }), Qr = G(() => At.value[0] || null), Ag = G(() => W.value.trim() !== String(T.q || "").trim()), Eg = G(() => String(T.q || "").trim() !== "" || Ag.value);
     function Na(w) {
       return ({
@@ -23063,10 +23067,10 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         publisher: re,
         publication: j,
         creator: Le,
-        subject: ne,
+        subject: ie,
         year: Ut,
         folder: ot,
-        classification: Ne,
+        classification: Oe,
         tag: St
       }[w]?.value ?? "").trim() !== String(T[w] || "").trim();
     }
@@ -23076,7 +23080,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     function Ii(w) {
       return { "library-filter-apply--pending": Na(w) };
     }
-    const xg = G(() => zn.value > 0 ? t("library", "Filters ({count})", { count: zn.value }) : t("library", "Filters")), Ng = G(() => zn.value > 0 ? t("library", "Open filters panel; {count} active filters", { count: zn.value }) : t("library", "Open filters panel")), Og = G(() => pt("library", "Show %n item", "Show %n items", Number(J.value.total || 0)));
+    const xg = G(() => zn.value > 0 ? t("library", "Filters ({count})", { count: zn.value }) : t("library", "Filters")), Ng = G(() => zn.value > 0 ? t("library", "Open filters panel; {count} active filters", { count: zn.value }) : t("library", "Open filters panel")), Og = G(() => pt("library", "Show %n item", "Show %n items", Number(Z.value.total || 0)));
     function Rg(w) {
       ni.value = w.currentTarget?.open === !0, ni.value && Lt(() => {
         $s.value?.focus?.();
@@ -23100,7 +23104,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       "subject",
       "classification",
       "scannerConflicts"
-    ]), lf = G(() => Object.entries(g(T)).filter(([w, y]) => !Ig.has(w) && String(y || "").trim() !== "").map(([w, y]) => ({ key: w, value: y }))), Lg = G(() => Object.entries(T).filter(([w, y]) => !["q", "sort", "starred"].includes(w) && String(y || "").trim() !== "").map(([w, y]) => ({ key: w, value: y }))), Ts = G(() => Object.entries(g(T)).filter(([w, y]) => String(y || "").trim() !== "").map(([w, y]) => ({ key: w, value: y }))), Pg = G(() => Ts.value.filter(({ key: w, value: y }) => w !== "q" && !(w === "sort" && y === "title"))), As = G(() => _.homeRows || { continueReading: [], recentlyAdded: [] }), sf = G(() => _.homeShelves || []), of = G(() => _.shelfTree || []), ju = G(() => _.needsAttention || { count: 0, url: `${tt.value}?needsMetadata=1` }), ba = /* @__PURE__ */ U([]), Es = G(() => new Set(ba.value));
+    ]), lf = G(() => Object.entries(g(T)).filter(([w, y]) => !Ig.has(w) && String(y || "").trim() !== "").map(([w, y]) => ({ key: w, value: y }))), Lg = G(() => Object.entries(T).filter(([w, y]) => !["q", "sort", "starred"].includes(w) && String(y || "").trim() !== "").map(([w, y]) => ({ key: w, value: y }))), Ts = G(() => Object.entries(g(T)).filter(([w, y]) => String(y || "").trim() !== "").map(([w, y]) => ({ key: w, value: y }))), Pg = G(() => Ts.value.filter(({ key: w, value: y }) => w !== "q" && !(w === "sort" && y === "title"))), As = G(() => _.homeRows || { continueReading: [], recentlyAdded: [] }), sf = G(() => _.homeShelves || []), of = G(() => _.shelfTree || []), ju = G(() => _.needsAttention || { count: 0, url: `${at.value}?needsMetadata=1` }), ba = /* @__PURE__ */ U([]), Es = G(() => new Set(ba.value));
     function uf(w, y) {
       const p = new Set(ba.value);
       y ? p.add(Number(w)) : p.delete(Number(w)), ba.value = [...p];
@@ -23122,9 +23126,9 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         }
       }
     }
-    const Ee = /* @__PURE__ */ U(null), Bn = /* @__PURE__ */ U(null), Wt = /* @__PURE__ */ Ft({ loading: !1, error: "", missing: !1 }), Vn = /* @__PURE__ */ U("overview"), li = /* @__PURE__ */ Ft({ saving: !1, saved: !1, error: "" }), Et = /* @__PURE__ */ Ft({ title: "", publicationDate: "", series: "", seriesNumber: "", genre: "", identifiers: [] }), cf = /* @__PURE__ */ U(null), Hn = /* @__PURE__ */ U(null), qn = /* @__PURE__ */ U(!1);
+    const xe = /* @__PURE__ */ U(null), Bn = /* @__PURE__ */ U(null), Yt = /* @__PURE__ */ Ft({ loading: !1, error: "", missing: !1 }), Vn = /* @__PURE__ */ U("overview"), li = /* @__PURE__ */ Ft({ saving: !1, saved: !1, error: "" }), Et = /* @__PURE__ */ Ft({ title: "", publicationDate: "", series: "", seriesNumber: "", genre: "", identifiers: [] }), cf = /* @__PURE__ */ U(null), Hn = /* @__PURE__ */ U(null), qn = /* @__PURE__ */ U(!1);
     let zu = null, Li = null, xs = null, Bu = !1, el = null, Vu = 0;
-    const dn = G(() => Bn.value !== null), tl = G(() => Ee.value ? $.value.findIndex((w) => w.id === Ee.value.id) : -1), Ns = G(() => tl.value > 0 ? $.value[tl.value - 1] : null), Os = G(() => tl.value >= 0 && tl.value < $.value.length - 1 ? $.value[tl.value + 1] : null), df = G(() => Gg(Ee.value?.description || "")), Gn = G(() => Vg(Ee.value?.publicationDate || "")), ff = G(() => Hg(Ee.value?.language || "")), Ug = ["publicationType", "title", "subtitle", "creators", "publication", "series", "seriesNumber", "genre", "publicationDate", "language", "publisher", "description", "subjects", "classifications"], jg = {
+    const dn = G(() => Bn.value !== null), tl = G(() => xe.value ? $.value.findIndex((w) => w.id === xe.value.id) : -1), Ns = G(() => tl.value > 0 ? $.value[tl.value - 1] : null), Os = G(() => tl.value >= 0 && tl.value < $.value.length - 1 ? $.value[tl.value + 1] : null), df = G(() => Gg(xe.value?.description || "")), Gn = G(() => Vg(xe.value?.publicationDate || "")), ff = G(() => Hg(xe.value?.language || "")), Ug = ["publicationType", "title", "subtitle", "creators", "publication", "series", "seriesNumber", "genre", "publicationDate", "language", "publisher", "description", "subjects", "classifications"], jg = {
       publicationType: "Publication type",
       title: "Title",
       subtitle: "Subtitle",
@@ -23169,7 +23173,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     }
     function Rs(w, y) {
       const q = hf(w, y).toString();
-      return `${tt.value}${q ? `?${q}` : ""}`;
+      return `${at.value}${q ? `?${q}` : ""}`;
     }
     function Is(w, y, p) {
       const q = String(p || "").trim();
@@ -23215,8 +23219,8 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       Et.identifiers.splice(w, 1);
     }
     async function Yg() {
-      const w = Ee.value;
-      if (!w?.updateUrl || !w?.metadataRevision || Wt.loading || li.saving) return;
+      const w = xe.value;
+      if (!w?.updateUrl || !w?.metadataRevision || Yt.loading || li.saving) return;
       Object.assign(li, { saving: !0, saved: !1, error: "" });
       const y = new FormData();
       y.set("requesttoken", kt.value), y.set("metadataAutosave", "1"), y.set("metadataRevision", w.metadataRevision || "");
@@ -23253,12 +23257,12 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         item: y,
         fields: y ? Ls(y) : [],
         reviewNextUrl: Mn.value,
-        skipUrl: J.value.nextUrl || Mn.value
+        skipUrl: Z.value.nextUrl || Mn.value
       };
     }), Zg = G(() => n.map((w) => ({
       ...w,
       label: t("library", w.label),
-      href: `${tt.value}?${encodeURIComponent(w.key)}=${encodeURIComponent(w.value)}`,
+      href: `${at.value}?${encodeURIComponent(w.key)}=${encodeURIComponent(w.value)}`,
       active: String(T[w.key] || "") === w.value
     })));
     function Hu(w) {
@@ -23274,8 +23278,8 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       Array.isArray(p) || (p = []);
       const q = w.fieldSources || {};
       return Ug.filter((ye) => Object.prototype.hasOwnProperty.call(y, ye)).map((ye) => {
-        const Ue = Hu(w[ye]), Ye = Hu(y[ye]), ct = Hu(q[ye] || w.metadataSource || "scanner"), Ra = ct.includes("filename") || ct.includes("path") ? Ye : "", gi = ct.includes("sidecar") ? Ye : "";
-        return { field: ye, currentValue: Ue, scannerCandidate: Ye, pathTemplateCandidate: Ra, sidecarValue: gi, sourceProvenance: ct, rejected: p.includes(ye), differs: Ue !== Ye };
+        const Ue = Hu(w[ye]), Ze = Hu(y[ye]), ct = Hu(q[ye] || w.metadataSource || "scanner"), Ra = ct.includes("filename") || ct.includes("path") ? Ze : "", gi = ct.includes("sidecar") ? Ze : "";
+        return { field: ye, currentValue: Ue, scannerCandidate: Ze, pathTemplateCandidate: Ra, sidecarValue: gi, sourceProvenance: ct, rejected: p.includes(ye), differs: Ue !== Ze };
       }).filter((ye) => ye.differs);
     }
     let Kn = 0, Wn = null;
@@ -23292,32 +23296,32 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     async function il(w, { historyMode: y = "push", seed: p = null } = {}) {
       Wn?.abort();
       const q = ++Kn, ye = new AbortController();
-      Wn = ye, Bn.value = w, Vn.value = "overview", Ee.value = p && Number(p.id) === w ? pf(p) : null, Ee.value && vf(Ee.value), Object.assign(Wt, { loading: !0, error: "", missing: !1 }), y !== "none" && gf(w, y);
+      Wn = ye, Bn.value = w, Vn.value = "overview", xe.value = p && Number(p.id) === w ? pf(p) : null, xe.value && vf(xe.value), Object.assign(Yt, { loading: !0, error: "", missing: !1 }), y !== "none" && gf(w, y);
       try {
-        const Ue = Mu.value.replace("__ITEM_ID__", encodeURIComponent(String(w))), Ye = await fetch(Ue, { headers: { Accept: "application/json" }, credentials: "same-origin", signal: ye.signal });
+        const Ue = Mu.value.replace("__ITEM_ID__", encodeURIComponent(String(w))), Ze = await fetch(Ue, { headers: { Accept: "application/json" }, credentials: "same-origin", signal: ye.signal });
         if (q !== Kn) return;
-        if (!Ye.ok) {
-          Ee.value = null, Wt.missing = Ye.status === 404, Wt.error = Ye.status === 404 ? t("library", "This publication is unavailable or you do not have access.") : t("library", "Could not load publication details. Try again.");
+        if (!Ze.ok) {
+          xe.value = null, Yt.missing = Ze.status === 404, Yt.error = Ze.status === 404 ? t("library", "This publication is unavailable or you do not have access.") : t("library", "Could not load publication details. Try again.");
           return;
         }
-        const ct = await Ye.json();
+        const ct = await Ze.json();
         if (q !== Kn) return;
         if (typeof ct?.item?.id != "number" || !Number.isSafeInteger(ct.item.id) || ct.item.id !== w) {
-          Ee.value = null, Wt.missing = !1, Wt.error = t("library", "Could not load publication details. Try again.");
+          xe.value = null, Yt.missing = !1, Yt.error = t("library", "Could not load publication details. Try again.");
           return;
         }
-        Ee.value = pf(ct.item), vf(Ee.value), await Lt();
+        xe.value = pf(ct.item), vf(xe.value), await Lt();
       } catch (Ue) {
-        q === Kn && Ue?.name !== "AbortError" && (Ee.value = null, Wt.missing = !1, Wt.error = t("library", "Could not load publication details. Try again."));
+        q === Kn && Ue?.name !== "AbortError" && (xe.value = null, Yt.missing = !1, Yt.error = t("library", "Could not load publication details. Try again."));
       } finally {
-        q === Kn && (Wt.loading = !1, Wn = null);
+        q === Kn && (Yt.loading = !1, Wn = null);
       }
     }
     function si(w, y) {
       qu(), zu = y?.currentTarget instanceof HTMLElement ? y.currentTarget : null, il(Number(w.id), { seed: w });
     }
     function nl({ historyMode: w = "push", restoreFocus: y = !0 } = {}) {
-      xs = y ? zu : null, zu = null, Wn?.abort(), Wn = null, Kn += 1, Bn.value = null, Ee.value = null, Vn.value = "overview", Object.assign(Wt, { loading: !1, error: "", missing: !1 }), w !== "none" && gf(null, w);
+      xs = y ? zu : null, zu = null, Wn?.abort(), Wn = null, Kn += 1, Bn.value = null, xe.value = null, Vn.value = "overview", Object.assign(Yt, { loading: !1, error: "", missing: !1 }), w !== "none" && gf(null, w);
     }
     function yf() {
       qn.value ? (Hn.value?.$refs?.sidebar || Hn.value?.$el)?.querySelector?.(".app-sidebar__close")?.focus() : cf.value?.focus();
@@ -23351,21 +23355,21 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     }
     async function Yn(w, y, p) {
       const q = new URLSearchParams();
-      for (const [Ye, ct] of Object.entries(T)) {
+      for (const [Ze, ct] of Object.entries(T)) {
         const Ra = String(ct || "").trim();
-        Ye !== w && Ra !== "" && !(Ye === "sort" && Ra === "title") && !(Ye === "view" && Ra === "compact") && q.set(Ye, Ra);
+        Ze !== w && Ra !== "" && !(Ze === "sort" && Ra === "title") && !(Ze === "view" && Ra === "compact") && q.set(Ze, Ra);
       }
       q.set(`${w}Search`, y);
       const ye = new AbortController();
-      w === "creator" ? we = ye : w === "publisher" ? Ae = ye : w === "subject" ? De = ye : w === "classification" ? lt = ye : w === "tag" ? Rt = ye : w === "folder" ? R = ye : Sa = ye;
+      w === "creator" ? we = ye : w === "publisher" ? Ee = ye : w === "subject" ? De = ye : w === "classification" ? lt = ye : w === "tag" ? Rt = ye : w === "folder" ? R = ye : Sa = ye;
       const Ue = w === "creator" ? Iu.value : w === "publisher" ? ws.value : w === "subject" ? Lu.value : w === "classification" ? Pu.value : w === "tag" ? Du.value : w === "folder" ? Fu.value : ks.value;
       try {
-        const Ye = await fetch(`${Ue}?${q}`, { headers: { Accept: "application/json" }, credentials: "same-origin", signal: ye.signal });
-        if (!Ye.ok) throw new Error(`${w} suggestions request failed: ${Ye.status}`);
-        const ct = await Ye.json(), Ra = w === "creator" ? Me : w === "publisher" ? Ie : w === "subject" ? Ce : w === "classification" ? ht : w === "tag" ? ka : w === "folder" ? N : Fa, gi = w === "creator" ? Le.value : w === "publisher" ? re.value : w === "subject" ? ne.value : w === "classification" ? Ne.value : w === "tag" ? St.value : w === "folder" ? ot.value : Ut.value;
-        p === Ra && gi.trim() === y && (w === "creator" ? Qe.value = Array.isArray(ct.creators) ? ct.creators : [] : w === "publisher" ? X.value = Array.isArray(ct.publishers) ? ct.publishers : [] : w === "subject" ? he.value = Array.isArray(ct.subjects) ? ct.subjects : [] : w === "classification" ? Ze.value = Array.isArray(ct.classifications) ? ct.classifications : [] : w === "tag" ? qt.value = Array.isArray(ct.tags) ? ct.tags : [] : w === "folder" ? A.value = Array.isArray(ct.folders) ? ct.folders : [] : xi.value = Array.isArray(ct.years) ? ct.years : []);
-      } catch (Ye) {
-        Ye?.name !== "AbortError" && (w === "creator" && p === Me && (Qe.value = null), w === "publisher" && p === Ie && (X.value = null), w === "subject" && p === Ce && (he.value = null), w === "classification" && p === ht && (Ze.value = null), w === "tag" && p === ka && (qt.value = null), w === "folder" && p === N && (A.value = null), w === "year" && p === Fa && (xi.value = null));
+        const Ze = await fetch(`${Ue}?${q}`, { headers: { Accept: "application/json" }, credentials: "same-origin", signal: ye.signal });
+        if (!Ze.ok) throw new Error(`${w} suggestions request failed: ${Ze.status}`);
+        const ct = await Ze.json(), Ra = w === "creator" ? Me : w === "publisher" ? Ie : w === "subject" ? $e : w === "classification" ? ht : w === "tag" ? ka : w === "folder" ? N : Fa, gi = w === "creator" ? Le.value : w === "publisher" ? re.value : w === "subject" ? ie.value : w === "classification" ? Oe.value : w === "tag" ? St.value : w === "folder" ? ot.value : Ut.value;
+        p === Ra && gi.trim() === y && (w === "creator" ? et.value = Array.isArray(ct.creators) ? ct.creators : [] : w === "publisher" ? J.value = Array.isArray(ct.publishers) ? ct.publishers : [] : w === "subject" ? he.value = Array.isArray(ct.subjects) ? ct.subjects : [] : w === "classification" ? Je.value = Array.isArray(ct.classifications) ? ct.classifications : [] : w === "tag" ? Gt.value = Array.isArray(ct.tags) ? ct.tags : [] : w === "folder" ? A.value = Array.isArray(ct.folders) ? ct.folders : [] : xi.value = Array.isArray(ct.years) ? ct.years : []);
+      } catch (Ze) {
+        Ze?.name !== "AbortError" && (w === "creator" && p === Me && (et.value = null), w === "publisher" && p === Ie && (J.value = null), w === "subject" && p === $e && (he.value = null), w === "classification" && p === ht && (Je.value = null), w === "tag" && p === ka && (Gt.value = null), w === "folder" && p === N && (A.value = null), w === "year" && p === Fa && (xi.value = null));
       }
     }
     function Qg(w, y) {
@@ -23392,8 +23396,8 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     async function ly(w, y) {
       const p = new URLSearchParams();
       for (const [ye, Ue] of Object.entries(T)) {
-        const Ye = String(Ue || "").trim();
-        ye !== "publication" && Ye !== "" && !(ye === "sort" && Ye === "title") && !(ye === "view" && Ye === "compact") && p.set(ye, Ye);
+        const Ze = String(Ue || "").trim();
+        ye !== "publication" && Ze !== "" && !(ye === "sort" && Ze === "title") && !(ye === "view" && Ze === "compact") && p.set(ye, Ze);
       }
       p.set("publicationSearch", w);
       const q = new AbortController();
@@ -23444,8 +23448,8 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       const w = ga, y = JSON.stringify({ ...T }), p = new URLSearchParams();
       p.set("hydrate", "1");
       for (const [ye, Ue] of Object.entries(T)) {
-        const Ye = String(Ue || "").trim();
-        Ye !== "" && !(ye === "sort" && Ye === "title") && !(ye === "view" && Ye === "compact") && p.set(ye, Ye);
+        const Ze = String(Ue || "").trim();
+        Ze !== "" && !(ye === "sort" && Ze === "title") && !(ye === "view" && Ze === "compact") && p.set(ye, Ze);
       }
       const q = new AbortController();
       wr = q;
@@ -23458,8 +23462,8 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
         if (!ye.ok) return;
         const Ue = await ye.json();
         if (w !== ga || y !== JSON.stringify({ ...T })) return;
-        for (const Ye of ["shelves", "formats", "publicationTypes", "publications", "publicationSummaries", "publicationIssueContext", "publicationYears", "publicationYearLandingUrls", "scanStatuses", "workflowStatuses", "classifications", "smartViewCounts", "smartViewCountsPending", "savedCollections"])
-          Object.prototype.hasOwnProperty.call(Ue, Ye) && (_[Ye] = Ue[Ye]);
+        for (const Ze of ["shelves", "formats", "publicationTypes", "publications", "publicationSummaries", "publicationIssueContext", "publicationYears", "publicationYearLandingUrls", "scanStatuses", "workflowStatuses", "classifications", "smartViewCounts", "smartViewCountsPending", "savedCollections"])
+          Object.prototype.hasOwnProperty.call(Ue, Ze) && (_[Ze] = Ue[Ze]);
       } catch (ye) {
         if (ye?.name !== "AbortError") return;
       } finally {
@@ -23488,11 +23492,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       if (!p && !y?.params) return;
       const q = d(y?.params ?? Xg(p));
       if (ai.value || xa.value) {
-        ul(q, tt.value);
+        ul(q, at.value);
         return;
       }
-      const ye = q.toString(), Ue = ye ? `?${ye}` : "", Ye = y?.generation ?? ++ga, ct = v(q), Ra = y?.historyMode ?? (ct ? "push" : "replace"), gi = y?.historyTraversal === !0;
-      if (Ye !== ga) return;
+      const ye = q.toString(), Ue = ye ? `?${ye}` : "", Ze = y?.generation ?? ++ga, ct = v(q), Ra = y?.historyMode ?? (ct ? "push" : "replace"), gi = y?.historyTraversal === !0;
+      if (Ze !== ga) return;
       uy(), y === null && _r?.abort();
       const kr = new AbortController();
       _r = kr, Bt.loading = !0, Bt.error = "", Bt.completed = !1;
@@ -23502,18 +23506,18 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
           credentials: "same-origin",
           signal: kr.signal
         });
-        if (Ye !== ga) return;
+        if (Ze !== ga) return;
         if (!yi.ok) {
           gi ? ul(q) : ct ? Bt.error = t("library", "Could not load this review queue. Try again.") : ul(q);
           return;
         }
         const xy = await yi.json();
-        if (Ye !== ga) return;
+        if (Ze !== ga) return;
         sy(xy), _f(), Bt.completed = !0, Ra !== "none" && (history[Ra === "push" ? "pushState" : "replaceState"]({}, "", ye ? `?${ye}` : window.location.pathname), dn.value && nl({ historyMode: "none" }));
       } catch (yi) {
-        Ye === ga && yi?.name !== "AbortError" && (gi ? ul(q) : ct ? Bt.error = t("library", "Could not load this review queue. Try again.") : ul(q));
+        Ze === ga && yi?.name !== "AbortError" && (gi ? ul(q) : ct ? Bt.error = t("library", "Could not load this review queue. Try again.") : ul(q));
       } finally {
-        Ye === ga && (_r = null, Bt.loading = !1);
+        Ze === ga && (_r = null, Bt.loading = !1);
       }
     }
     function wf() {
@@ -23543,16 +23547,16 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       ra({ currentTarget: w }, { params: y, generation: p });
     }
     async function cy(w, y = j.value) {
-      T.publication = String(y || "").trim(), j.value = T.publication, ie.value = !1, await Lt(), ra({ currentTarget: w });
+      T.publication = String(y || "").trim(), j.value = T.publication, ae.value = !1, await Lt(), ra({ currentTarget: w });
     }
     function kf(w, y) {
       cy(y.currentTarget.form, w);
     }
     async function dy(w) {
-      T.q = String(W.value || "").trim(), T.publication = String(j.value || "").trim(), T.publisher = String(re.value || "").trim(), T.creator = String(Le.value || "").trim(), T.subject = String(ne.value || "").trim(), T.folder = String(ot.value || "").trim(), T.year = String(Ut.value || "").trim(), ie.value = !1, te.value = !1, He.value = !1, ce.value = !1, oe.value = !1, pa.value = !1, await Lt(), ra({ currentTarget: w });
+      T.q = String(W.value || "").trim(), T.publication = String(j.value || "").trim(), T.publisher = String(re.value || "").trim(), T.creator = String(Le.value || "").trim(), T.subject = String(ie.value || "").trim(), T.folder = String(ot.value || "").trim(), T.year = String(Ut.value || "").trim(), ae.value = !1, te.value = !1, He.value = !1, ce.value = !1, oe.value = !1, pa.value = !1, await Lt(), ra({ currentTarget: w });
     }
     async function fn(w, y, p) {
-      T[y] = String(p || "").trim(), y === "creator" ? (Le.value = T.creator, He.value = !1) : y === "publisher" ? (re.value = T.publisher, te.value = !1) : y === "subject" ? (ne.value = T.subject, ce.value = !1) : y === "folder" ? (ot.value = T.folder, oe.value = !1) : y === "classification" ? (Ne.value = T.classification, Fe.value = !1) : y === "tag" ? (St.value = T.tag, wt.value = !1) : (Ut.value = T.year, pa.value = !1), Di[y] = -1, await Lt(), ra({ currentTarget: w });
+      T[y] = String(p || "").trim(), y === "creator" ? (Le.value = T.creator, He.value = !1) : y === "publisher" ? (re.value = T.publisher, te.value = !1) : y === "subject" ? (ie.value = T.subject, ce.value = !1) : y === "folder" ? (ot.value = T.folder, oe.value = !1) : y === "classification" ? (Oe.value = T.classification, Fe.value = !1) : y === "tag" ? (St.value = T.tag, wt.value = !1) : (Ut.value = T.year, pa.value = !1), Di[y] = -1, await Lt(), ra({ currentTarget: w });
     }
     function Sf(w) {
       dy(w.currentTarget);
@@ -23572,7 +23576,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     function Ef(w, y) {
       fn(y.currentTarget.form, "folder", w);
     }
-    function xf(w, y = ne.value) {
+    function xf(w, y = ie.value) {
       window.clearTimeout(pe), De?.abort(), De = null, fn(w, "subject", y);
     }
     function fy(w) {
@@ -23640,7 +23644,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     }
     function cl(w) {
       const y = Pf(w).toString();
-      return `${tt.value}${y ? `?${y}` : ""}`;
+      return `${at.value}${y ? `?${y}` : ""}`;
     }
     function dl(w) {
       const y = Pf(w);
@@ -23655,7 +23659,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
     }
     function Ds() {
       const w = Df().toString();
-      return `${tt.value}${w ? `?${w}` : ""}`;
+      return `${at.value}${w ? `?${w}` : ""}`;
     }
     function Fs() {
       const w = Df();
@@ -23773,13 +23777,13 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       document.querySelector("dialog[open]") || Ey(w) || (Ty(w), Ay(w));
     }
     xt(() => {
-      if (Z.value || Re.value || it.value || ia.value || ae.value || le.value || ut.value) return;
+      if (Q.value || Se.value || qe.value || Vt.value || ne.value || le.value || ut.value) return;
       window.addEventListener("keydown", zf), window.addEventListener("popstate", wf), Li = window.matchMedia?.("(max-width: 1023px)") || null, rl(), Li?.addEventListener ? Li.addEventListener("change", rl) : Li?.addListener?.(rl);
       const w = new URLSearchParams(window.location.search), y = bf();
       w.has("item") && y === null ? (w.delete("item"), history.replaceState({}, "", `${window.location.pathname}${w.toString() ? `?${w}` : ""}${window.location.hash}`)) : y !== null && il(y, { historyMode: "none", seed: $.value.find((p) => Number(p.id) === y) || null }), ol = window.requestAnimationFrame(() => {
         ol = null, oy();
       });
-    }), aa(() => {
+    }), ia(() => {
       Bu = !0, qu(), window.removeEventListener("keydown", zf), window.removeEventListener("popstate", wf), window.clearTimeout(B), window.clearTimeout(Pe), window.clearTimeout(pe), window.clearTimeout(pi), F?.abort(), we?.abort(), De?.abort(), Sa?.abort(), ga += 1, ol !== null && window.cancelAnimationFrame(ol), ol = null, wr?.abort(), sl?.abort(), _r?.abort(), _r = null, Kn += 1, Wn?.abort(), Wn = null, Li?.removeEventListener ? Li.removeEventListener("change", rl) : Li?.removeListener?.(rl), Li = null, xs = null;
     });
     const fl = /* @__PURE__ */ Ft({}), hl = /* @__PURE__ */ Ft({});
@@ -23801,13 +23805,13 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       }
     }
     return (w, y) => (c(), ze(o(y$), { "app-name": "library" }, {
-      default: Te(() => [
+      default: Ae(() => [
         ve(o(Qw), {
           "aria-label": o(t)("library", "Library navigation")
         }, {
-          list: Te(() => [
+          list: Ae(() => [
             ve(o(Ub), null, {
-              default: Te(() => [
+              default: Ae(() => [
                 r("li", XP, l(o(t)("library", "Browse")), 1),
                 (c(!0), f(K, null, ue(Ou.value, (p) => (c(), ze(o(vn), {
                   key: p.key,
@@ -23831,27 +23835,27 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     style: { background: "rgba(255,255,255,.22)", border: "1px solid rgba(255,255,255,.42)", color: "#fff" },
                     "aria-label": `${o(t)("library", "Delete collection")}: ${p.rawName}`,
                     title: `${o(t)("library", "Delete collection")}: ${p.rawName}`,
-                    onClick: $e((q) => Cy(p.id), ["stop", "prevent"])
+                    onClick: Te((q) => Cy(p.id), ["stop", "prevent"])
                   }, "✕", 8, QP)
                 ]))), 128)),
                 ve(o(vn), {
-                  active: Z.value,
-                  href: `${tt.value}?authors=1`,
+                  active: Q.value,
+                  href: `${at.value}?authors=1`,
                   name: o(t)("library", "Authors")
                 }, null, 8, ["active", "href", "name"]),
                 ve(o(vn), {
-                  active: Re.value,
-                  href: `${tt.value}?series=1`,
+                  active: Se.value,
+                  href: `${at.value}?series=1`,
                   name: o(t)("library", "Series")
                 }, null, 8, ["active", "href", "name"]),
                 ve(o(vn), {
-                  active: it.value || !!T.genreId,
-                  href: `${tt.value}?genres=1`,
+                  active: qe.value || !!T.genreId,
+                  href: `${at.value}?genres=1`,
                   name: o(t)("library", "Genres")
                 }, null, 8, ["active", "href", "name"]),
                 r("li", e5, l(o(t)("library", "Your lists")), 1),
                 ve(o(vn), {
-                  active: ia.value,
+                  active: Vt.value,
                   href: zt.value,
                   name: o(t)("library", "Lists")
                 }, null, 8, ["active", "href", "name"]),
@@ -23868,10 +23872,10 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                 }, null, 8, ["href", "name"]))), 128)),
                 r("li", t5, [
                   r("details", {
-                    open: ae.value || ja.value || le.value
+                    open: ne.value || ja.value || le.value
                   }, [
                     r("summary", null, [
-                      Q(l(o(t)("library", "Review and cleanup")), 1),
+                      X(l(o(t)("library", "Review and cleanup")), 1),
                       vr.value > 0 ? (c(), f("span", i5, l(vr.value), 1)) : S("", !0)
                     ]),
                     r("nav", {
@@ -23882,11 +23886,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         "aria-current": ja.value ? "page" : void 0
                       }, l(o(t)("library", "Review")), 9, r5),
                       r("a", {
-                        href: `${tt.value}?infer=1`,
-                        "aria-current": ae.value ? "page" : void 0
+                        href: `${at.value}?infer=1`,
+                        "aria-current": ne.value ? "page" : void 0
                       }, l(o(t)("library", "Extract metadata")), 9, l5),
                       r("a", {
-                        href: `${tt.value}?duplicates=1`,
+                        href: `${at.value}?duplicates=1`,
                         "aria-current": le.value ? "page" : void 0
                       }, l(o(t)("library", "Possible duplicates")), 9, s5),
                       r("a", {
@@ -23902,14 +23906,14 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
               _: 1
             })
           ]),
-          footer: Te(() => [
-            !Z.value && !Re.value && !it.value && !ia.value && !ae.value && !le.value && !ut.value && !ai.value && !xa.value && !ja.value ? (c(), f("section", c5, [
+          footer: Ae(() => [
+            !Q.value && !Se.value && !qe.value && !Vt.value && !ne.value && !le.value && !ut.value && !ai.value && !xa.value && !ja.value ? (c(), f("section", c5, [
               r("h2", d5, l(o(t)("library", "Filters")), 1),
               r("form", {
                 method: "get",
                 class: "library-filter-bar library-sidebar-filters",
                 "aria-label": o(t)("library", "Catalogue search and filters"),
-                onSubmit: $e(Sf, ["prevent"])
+                onSubmit: Te(Sf, ["prevent"])
               }, [
                 r("input", {
                   type: "hidden",
@@ -23941,7 +23945,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     title: o(t)("library", "Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.")
                   }, [
                     r("span", null, [
-                      Q(l(o(t)("library", "Search")) + " ", 1),
+                      X(l(o(t)("library", "Search")) + " ", 1),
                       y[112] || (y[112] = r("kbd", { class: "library-keyboard-hint" }, "/", -1))
                     ]),
                     r("span", m5, [
@@ -23954,14 +23958,14 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         name: "q",
                         placeholder: o(t)("library", "Title, creator, description, filename or folder")
                       }, null, 8, _5), [
-                        [Oe, W.value]
+                        [Re, W.value]
                       ]),
                       Bt.loading ? (c(), f("span", w5)) : S("", !0)
                     ]),
                     Na("q") ? (c(), f("small", k5, l(ri("q")), 1)) : S("", !0)
                   ], 8, y5),
                   r("label", null, [
-                    Q(l(o(t)("library", "Type")), 1),
+                    X(l(o(t)("library", "Type")), 1),
                     fe(r("select", {
                       "onUpdate:modelValue": y[1] || (y[1] = (p) => T.type = p),
                       name: "type",
@@ -23994,7 +23998,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       onFocus: y[4] || (y[4] = (p) => If("publisher")),
                       onKeydown: y[5] || (y[5] = (p) => Lf(p, "publisher"))
                     }, null, 40, A5), [
-                      [Oe, re.value]
+                      [Re, re.value]
                     ]),
                     r("input", {
                       type: "hidden",
@@ -24012,7 +24016,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         r("button", {
                           type: "button",
                           class: "library-publisher-suggestion",
-                          onMousedown: y[6] || (y[6] = $e(() => {
+                          onMousedown: y[6] || (y[6] = Te(() => {
                           }, ["prevent"])),
                           onClick: (ye) => $f(p, ye)
                         }, l(p), 41, R5)
@@ -24020,7 +24024,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])) : S("", !0),
                     r("button", {
                       type: "submit",
-                      class: xe(["button secondary library-publisher-apply", Ii("publisher")])
+                      class: Ne(["button secondary library-publisher-apply", Ii("publisher")])
                     }, l(o(t)("library", "Apply publisher")), 3)
                   ]),
                   r("div", I5, [
@@ -24035,11 +24039,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       role: "combobox",
                       "aria-autocomplete": "list",
                       "aria-controls": "library-publication-suggestions",
-                      "aria-expanded": ie.value && V.value.length > 0 ? "true" : "false",
-                      onFocus: y[8] || (y[8] = (p) => ie.value = !0),
-                      onKeydown: y[9] || (y[9] = bt((p) => ie.value = !1, ["escape"]))
+                      "aria-expanded": ae.value && V.value.length > 0 ? "true" : "false",
+                      onFocus: y[8] || (y[8] = (p) => ae.value = !0),
+                      onKeydown: y[9] || (y[9] = bt((p) => ae.value = !1, ["escape"]))
                     }, null, 40, P5), [
-                      [Oe, j.value]
+                      [Re, j.value]
                     ]),
                     r("input", {
                       type: "hidden",
@@ -24047,7 +24051,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       value: T.publication
                     }, null, 8, D5),
                     Na("publication") ? (c(), f("small", F5, l(ri("publication")), 1)) : S("", !0),
-                    ie.value && V.value.length > 0 ? (c(), f("ul", M5, [
+                    ae.value && V.value.length > 0 ? (c(), f("ul", M5, [
                       (c(!0), f(K, null, ue(V.value, (p) => (c(), f("li", {
                         key: p,
                         role: "option"
@@ -24055,7 +24059,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         r("button", {
                           type: "button",
                           class: "library-publication-suggestion",
-                          onMousedown: y[10] || (y[10] = $e(() => {
+                          onMousedown: y[10] || (y[10] = Te(() => {
                           }, ["prevent"])),
                           onClick: (q) => kf(p, q)
                         }, l(p), 41, U5)
@@ -24063,7 +24067,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])) : S("", !0),
                     r("button", {
                       type: "submit",
-                      class: xe(["button secondary library-publication-apply", Ii("publication")])
+                      class: Ne(["button secondary library-publication-apply", Ii("publication")])
                     }, l(o(t)("library", "Apply series")), 3)
                   ]),
                   r("div", j5, [
@@ -24082,7 +24086,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       onFocus: y[12] || (y[12] = (p) => pa.value = !0),
                       onKeydown: y[13] || (y[13] = bt((p) => pa.value = !1, ["escape"]))
                     }, null, 40, B5), [
-                      [Oe, Ut.value]
+                      [Re, Ut.value]
                     ]),
                     r("input", {
                       type: "hidden",
@@ -24098,7 +24102,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         r("button", {
                           type: "button",
                           class: "library-year-suggestion",
-                          onMousedown: y[14] || (y[14] = $e(() => {
+                          onMousedown: y[14] || (y[14] = Te(() => {
                           }, ["prevent"])),
                           onClick: (q) => Of(p, q)
                         }, l(p), 41, G5)
@@ -24106,7 +24110,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])) : S("", !0),
                     r("button", {
                       type: "submit",
-                      class: xe(["button secondary library-year-apply", Ii("year")])
+                      class: Ne(["button secondary library-year-apply", Ii("year")])
                     }, l(o(t)("library", "Apply year")), 3)
                   ]),
                   r("div", K5, [
@@ -24126,7 +24130,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       onFocus: y[16] || (y[16] = (p) => He.value = !0),
                       onKeydown: y[17] || (y[17] = bt((p) => He.value = !1, ["escape"]))
                     }, null, 40, Y5), [
-                      [Oe, Le.value]
+                      [Re, Le.value]
                     ]),
                     r("input", {
                       type: "hidden",
@@ -24142,7 +24146,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         r("button", {
                           type: "button",
                           class: "library-creator-suggestion",
-                          onMousedown: y[18] || (y[18] = $e(() => {
+                          onMousedown: y[18] || (y[18] = Te(() => {
                           }, ["prevent"])),
                           onClick: (q) => Cf(p, q)
                         }, l(p), 41, Q5)
@@ -24150,7 +24154,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])) : S("", !0),
                     r("button", {
                       type: "submit",
-                      class: xe(["button secondary library-creator-apply", Ii("creator")])
+                      class: Ne(["button secondary library-creator-apply", Ii("creator")])
                     }, l(o(t)("library", "Apply creator")), 3)
                   ]),
                   r("div", e9, [
@@ -24169,7 +24173,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       onFocus: y[20] || (y[20] = (p) => wt.value = !0),
                       onKeydown: y[21] || (y[21] = bt((p) => wt.value = !1, ["escape"]))
                     }, null, 40, a9), [
-                      [Oe, St.value]
+                      [Re, St.value]
                     ]),
                     r("input", {
                       type: "hidden",
@@ -24184,7 +24188,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         r("button", {
                           type: "button",
                           class: "library-tag-suggestion",
-                          onMousedown: y[22] || (y[22] = $e(() => {
+                          onMousedown: y[22] || (y[22] = Te(() => {
                           }, ["prevent"])),
                           onClick: (q) => Af(p, q)
                         }, l(p), 41, r9)
@@ -24192,11 +24196,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])) : S("", !0),
                     r("button", {
                       type: "submit",
-                      class: xe(["button secondary library-tag-apply", Ii("tag")])
+                      class: Ne(["button secondary library-tag-apply", Ii("tag")])
                     }, l(o(t)("library", "Apply tag")), 3)
                   ]),
                   r("label", null, [
-                    Q(l(o(t)("library", "Format")), 1),
+                    X(l(o(t)("library", "Format")), 1),
                     fe(r("select", {
                       "onUpdate:modelValue": y[23] || (y[23] = (p) => T.format = p),
                       name: "format",
@@ -24215,7 +24219,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                 r("fieldset", o9, [
                   r("legend", null, l(o(t)("library", "Location")), 1),
                   r("label", null, [
-                    Q(l(o(t)("library", "Shelf")), 1),
+                    X(l(o(t)("library", "Shelf")), 1),
                     fe(r("select", {
                       "onUpdate:modelValue": y[25] || (y[25] = (p) => T.shelf = p),
                       name: "shelf",
@@ -24247,7 +24251,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       onFocus: y[28] || (y[28] = (p) => oe.value = !0),
                       onKeydown: y[29] || (y[29] = bt((p) => oe.value = !1, ["escape"]))
                     }, null, 40, h9), [
-                      [Oe, ot.value]
+                      [Re, ot.value]
                     ]),
                     oe.value && O.value.length > 0 ? (c(), f("ul", p9, [
                       (c(!0), f(K, null, ue(O.value, (p) => (c(), f("li", {
@@ -24257,7 +24261,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         r("button", {
                           type: "button",
                           class: "library-folder-suggestion",
-                          onMousedown: y[30] || (y[30] = $e(() => {
+                          onMousedown: y[30] || (y[30] = Te(() => {
                           }, ["prevent"])),
                           onClick: (q) => Ef(p, q)
                         }, l(p), 41, v9)
@@ -24265,14 +24269,14 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])) : S("", !0),
                     r("button", {
                       type: "submit",
-                      class: xe(["button secondary library-folder-apply", Ii("folder")])
+                      class: Ne(["button secondary library-folder-apply", Ii("folder")])
                     }, l(o(t)("library", "Apply folder")), 3)
                   ])
                 ]),
                 r("fieldset", b9, [
                   r("legend", null, l(o(t)("library", "Review")), 1),
                   r("label", null, [
-                    Q(l(o(t)("library", "Scan status")), 1),
+                    X(l(o(t)("library", "Scan status")), 1),
                     fe(r("select", {
                       "onUpdate:modelValue": y[31] || (y[31] = (p) => T.status = p),
                       name: "status",
@@ -24288,7 +24292,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])
                   ]),
                   r("label", null, [
-                    Q(l(o(t)("library", "Workflow status")), 1),
+                    X(l(o(t)("library", "Workflow status")), 1),
                     fe(r("select", {
                       "onUpdate:modelValue": y[33] || (y[33] = (p) => T.workflowStatus = p),
                       name: "workflowStatus",
@@ -24307,7 +24311,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     r("label", k9, l(o(t)("library", "Subject")), 1),
                     fe(r("input", {
                       id: "library-subject-search",
-                      "onUpdate:modelValue": y[35] || (y[35] = (p) => ne.value = p),
+                      "onUpdate:modelValue": y[35] || (y[35] = (p) => ie.value = p),
                       type: "search",
                       name: "subjectSearch",
                       autocomplete: "off",
@@ -24320,7 +24324,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       onFocus: y[36] || (y[36] = (p) => ce.value = !0),
                       onKeydown: y[37] || (y[37] = bt((p) => ce.value = !1, ["escape"]))
                     }, null, 40, S9), [
-                      [Oe, ne.value]
+                      [Re, ie.value]
                     ]),
                     r("input", {
                       type: "hidden",
@@ -24336,7 +24340,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         r("button", {
                           type: "button",
                           class: "library-subject-suggestion",
-                          onMousedown: y[38] || (y[38] = $e(() => {
+                          onMousedown: y[38] || (y[38] = Te(() => {
                           }, ["prevent"])),
                           onClick: (q) => Nf(p, q)
                         }, l(p), 41, A9)
@@ -24344,7 +24348,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])) : S("", !0),
                     r("button", {
                       type: "button",
-                      class: xe(["button secondary library-subject-apply", Ii("subject")]),
+                      class: Ne(["button secondary library-subject-apply", Ii("subject")]),
                       onClick: fy
                     }, l(o(t)("library", "Apply subject")), 3)
                   ]),
@@ -24352,7 +24356,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     r("label", x9, l(o(t)("library", "Classification")), 1),
                     fe(r("input", {
                       id: "library-classification-search",
-                      "onUpdate:modelValue": y[39] || (y[39] = (p) => Ne.value = p),
+                      "onUpdate:modelValue": y[39] || (y[39] = (p) => Oe.value = p),
                       type: "search",
                       name: "classificationSearch",
                       autocomplete: "off",
@@ -24361,26 +24365,26 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       role: "combobox",
                       "aria-autocomplete": "list",
                       "aria-controls": "library-classification-suggestions",
-                      "aria-expanded": Fe.value && et.value.length > 0 ? "true" : "false",
+                      "aria-expanded": Fe.value && tt.value.length > 0 ? "true" : "false",
                       onFocus: y[40] || (y[40] = (p) => Fe.value = !0),
                       onKeydown: y[41] || (y[41] = bt((p) => Fe.value = !1, ["escape"]))
                     }, null, 40, N9), [
-                      [Oe, Ne.value]
+                      [Re, Oe.value]
                     ]),
                     r("input", {
                       type: "hidden",
                       name: "classification",
                       value: T.classification
                     }, null, 8, O9),
-                    Fe.value && et.value.length > 0 ? (c(), f("ul", R9, [
-                      (c(!0), f(K, null, ue(et.value, (p) => (c(), f("li", {
+                    Fe.value && tt.value.length > 0 ? (c(), f("ul", R9, [
+                      (c(!0), f(K, null, ue(tt.value, (p) => (c(), f("li", {
                         key: p,
                         role: "option"
                       }, [
                         r("button", {
                           type: "button",
                           class: "library-classification-suggestion",
-                          onMousedown: y[42] || (y[42] = $e(() => {
+                          onMousedown: y[42] || (y[42] = Te(() => {
                           }, ["prevent"])),
                           onClick: (q) => Tf(p, q)
                         }, l(p), 41, I9)
@@ -24388,11 +24392,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])) : S("", !0),
                     r("button", {
                       type: "submit",
-                      class: xe(["button secondary library-classification-apply", Ii("classification")])
+                      class: Ne(["button secondary library-classification-apply", Ii("classification")])
                     }, l(o(t)("library", "Apply classification")), 3)
                   ]),
                   r("label", null, [
-                    Q(l(o(t)("library", "Suggested updates")), 1),
+                    X(l(o(t)("library", "Suggested updates")), 1),
                     fe(r("select", {
                       "onUpdate:modelValue": y[43] || (y[43] = (p) => T.scannerConflicts = p),
                       name: "scannerConflicts",
@@ -24425,7 +24429,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
           _: 1
         }, 8, ["aria-label"]),
         ve(o(vw), null, {
-          default: Te(() => [
+          default: Ae(() => [
             r("div", {
               id: "library-app",
               class: "library-vue-catalogue library-app",
@@ -24437,32 +24441,32 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                 key: 0,
                 "request-token": kt.value,
                 "review-url": on.value
-              }, null, 8, ["request-token", "review-url"])) : ae.value ? (c(), ze(EI, {
+              }, null, 8, ["request-token", "review-url"])) : ne.value ? (c(), ze(EI, {
                 key: 1,
                 "request-token": kt.value
-              }, null, 8, ["request-token"])) : Z.value ? (c(), ze(vx, {
+              }, null, 8, ["request-token"])) : Q.value ? (c(), ze(vx, {
                 key: 2,
                 "request-token": kt.value,
-                "catalogue-url": tt.value
-              }, null, 8, ["request-token", "catalogue-url"])) : Re.value ? (c(), ze(T3, {
+                "catalogue-url": at.value
+              }, null, 8, ["request-token", "catalogue-url"])) : Se.value ? (c(), ze(T3, {
                 key: 3,
                 "request-token": kt.value,
-                "catalogue-url": tt.value
-              }, null, 8, ["request-token", "catalogue-url"])) : it.value ? (c(), ze(W3, {
+                "catalogue-url": at.value
+              }, null, 8, ["request-token", "catalogue-url"])) : qe.value ? (c(), ze(W3, {
                 key: 4,
                 "request-token": kt.value,
-                "catalogue-url": tt.value
-              }, null, 8, ["request-token", "catalogue-url"])) : ia.value ? (c(), ze(ZT, {
+                "catalogue-url": at.value
+              }, null, 8, ["request-token", "catalogue-url"])) : Vt.value ? (c(), ze(ZT, {
                 key: 5,
                 onChanged: Dn,
                 "request-token": kt.value,
-                "catalogue-url": tt.value,
+                "catalogue-url": at.value,
                 "lists-url": zt.value
               }, null, 8, ["request-token", "catalogue-url", "lists-url"])) : ut.value ? (c(), ze(JP, {
                 key: 6,
                 "item-id": String(_.detailsId || ""),
                 "request-token": kt.value,
-                "catalogue-url": tt.value
+                "catalogue-url": at.value
               }, null, 8, ["item-id", "request-token", "catalogue-url"])) : (c(), f(K, { key: 7 }, [
                 Va.value.length > 0 ? (c(), f("nav", {
                   key: 0,
@@ -24476,40 +24480,40 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     class: "library-filter-chip",
                     "aria-label": `${o(t)("library", "Remove filter")}: ${p.label}`,
                     title: p.title,
-                    onClick: $e((q) => dl(p.key), ["prevent"])
+                    onClick: Te((q) => dl(p.key), ["prevent"])
                   }, [
                     r("strong", null, [
-                      Q(l(p.label), 1),
+                      X(l(p.label), 1),
                       p.displayValue ? (c(), f(K, { key: 0 }, [
-                        Q(":")
+                        X(":")
                       ], 64)) : S("", !0)
                     ]),
                     p.displayValue ? (c(), f(K, { key: 0 }, [
-                      y[114] || (y[114] = Q(l(" "), -1)),
+                      y[114] || (y[114] = X(l(" "), -1)),
                       r("span", {
                         class: "library-filter-chip-value",
                         title: p.value
                       }, l(p.displayValue), 9, B9)
                     ], 64)) : S("", !0),
-                    y[115] || (y[115] = Q()),
+                    y[115] || (y[115] = X()),
                     y[116] || (y[116] = r("span", { "aria-hidden": "true" }, "×", -1))
                   ], 8, z9))), 128)),
                   At.value.length > 0 ? (c(), f("a", {
                     key: 0,
                     href: Ds(),
                     class: "library-active-filter-clear-all",
-                    onClick: $e(Fs, ["prevent"])
+                    onClick: Te(Fs, ["prevent"])
                   }, l(o(t)("library", "Clear all")), 9, V9)) : S("", !0)
                 ], 8, j9)) : S("", !0),
                 ja.value ? (c(), f("section", H9, [
                   r("header", q9, [
                     r("p", G9, l(o(t)("library", "Metadata cleanup")), 1),
                     r("h2", K9, l(o(t)("library", "Review")), 1),
-                    ve(Je, {
+                    ve(Xe, {
                       text: o(t)("library", "Work through catalogue items that need a metadata decision. Source files remain in Nextcloud Files.")
                     }, {
-                      default: Te(() => [
-                        Q(l(o(t)("library", "Metadata cleanup")), 1)
+                      default: Ae(() => [
+                        X(l(o(t)("library", "Metadata cleanup")), 1)
                       ]),
                       _: 1
                     }, 8, ["text"])
@@ -24520,10 +24524,10 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   }, [
                     (c(!0), f(K, null, ue(Zg.value, (p) => (c(), f("a", {
                       key: p.key,
-                      class: xe(["library-review-queue-link", { active: p.active }]),
+                      class: Ne(["library-review-queue-link", { active: p.active }]),
                       href: p.href,
                       "aria-current": p.active ? "page" : void 0,
-                      onClick: $e((q) => vy(p), ["prevent"])
+                      onClick: Te((q) => vy(p), ["prevent"])
                     }, [
                       r("span", null, l(p.label), 1),
                       r("b", null, l(yy(p.countKey)), 1)
@@ -24533,7 +24537,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     method: "get",
                     class: "library-review-filter-form",
                     "aria-label": o(t)("library", "Filter current review queue"),
-                    onSubmit: $e(ra, ["prevent"])
+                    onSubmit: Te(ra, ["prevent"])
                   }, [
                     (c(!0), f(K, null, ue(Pg.value, (p) => (c(), f("input", {
                       key: `review-${p.key}`,
@@ -24542,13 +24546,13 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       value: p.value
                     }, null, 8, J9))), 128)),
                     r("label", null, [
-                      Q(l(o(t)("library", "Search within this queue")), 1),
+                      X(l(o(t)("library", "Search within this queue")), 1),
                       fe(r("input", {
                         "onUpdate:modelValue": y[45] || (y[45] = (p) => T.q = p),
                         type: "search",
                         name: "q"
                       }, null, 512), [
-                        [Oe, T.q]
+                        [Re, T.q]
                       ])
                     ]),
                     r("button", X9, l(o(t)("library", "Apply")), 1)
@@ -24676,7 +24680,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     r("p", null, l(o(t)("library", "Choose another queue or return to the catalogue.")), 1),
                     r("a", {
                       class: "button primary",
-                      href: tt.value
+                      href: at.value
                     }, l(o(t)("library", "Back to Library")), 9, AD)
                   ])) : (c(), f("div", {
                     key: 3,
@@ -24726,17 +24730,17 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     class: "library-pagination",
                     "aria-label": o(t)("library", "Review pagination")
                   }, [
-                    J.value.previousUrl ? (c(), f("a", {
+                    Z.value.previousUrl ? (c(), f("a", {
                       key: 0,
-                      href: J.value.previousUrl
+                      href: Z.value.previousUrl
                     }, l(o(t)("library", "Previous")), 9, MD)) : (c(), f("span", UD, l(o(t)("library", "Previous")), 1)),
                     r("span", null, [
-                      Q(l(o(t)("library", "Page")) + " " + l(J.value.page), 1),
-                      J.value.total > 0 ? (c(), f("span", jD, " · " + l(J.value.from) + "–" + l(J.value.to), 1)) : S("", !0)
+                      X(l(o(t)("library", "Page")) + " " + l(Z.value.page), 1),
+                      Z.value.total > 0 ? (c(), f("span", jD, " · " + l(Z.value.from) + "–" + l(Z.value.to), 1)) : S("", !0)
                     ]),
-                    J.value.nextUrl ? (c(), f("a", {
+                    Z.value.nextUrl ? (c(), f("a", {
                       key: 2,
-                      href: J.value.nextUrl
+                      href: Z.value.nextUrl
                     }, l(o(t)("library", "Next")), 9, zD)) : (c(), f("span", BD, l(o(t)("library", "Next")), 1))
                   ], 8, FD)) : S("", !0)
                 ])) : ai.value ? (c(), f("main", VD, [
@@ -24759,22 +24763,22 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         href: cl(p.key),
                         class: "library-filter-chip",
                         "aria-label": `${o(t)("library", "Remove filter")}: ${p.label}`,
-                        onClick: $e((q) => dl(p.key), ["prevent"])
+                        onClick: Te((q) => dl(p.key), ["prevent"])
                       }, [
                         r("strong", null, [
-                          Q(l(p.label), 1),
+                          X(l(p.label), 1),
                           p.displayValue ? (c(), f(K, { key: 0 }, [
-                            Q(":")
+                            X(":")
                           ], 64)) : S("", !0)
                         ]),
                         p.displayValue ? (c(), f(K, { key: 0 }, [
-                          y[118] || (y[118] = Q(l(" "), -1)),
+                          y[118] || (y[118] = X(l(" "), -1)),
                           r("span", {
                             class: "library-filter-chip-value",
                             title: p.value
                           }, l(p.displayValue), 9, ZD)
                         ], 64)) : S("", !0),
-                        y[119] || (y[119] = Q()),
+                        y[119] || (y[119] = X()),
                         y[120] || (y[120] = r("span", { "aria-hidden": "true" }, "×", -1))
                       ], 8, YD))), 128))
                     ], 8, WD),
@@ -24786,7 +24790,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       r("a", {
                         class: "button secondary",
                         href: Ds(),
-                        onClick: $e(Fs, ["prevent"])
+                        onClick: Te(Fs, ["prevent"])
                       }, l(o(t)("library", "Clear all")), 9, QD)
                     ])
                   ], 8, KD)) : S("", !0),
@@ -24794,18 +24798,18 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     r("header", null, [
                       r("div", null, [
                         r("h3", t6, [
-                          ve(Je, {
+                          ve(Xe, {
                             text: o(t)("library", "Pick up publications you opened recently.")
                           }, {
-                            default: Te(() => [
-                              Q(l(o(t)("library", "Continue reading")), 1)
+                            default: Ae(() => [
+                              X(l(o(t)("library", "Continue reading")), 1)
                             ]),
                             _: 1
                           }, 8, ["text"])
                         ])
                       ]),
                       r("a", {
-                        href: `${tt.value}?recentlyOpened=1&sort=lastOpened`
+                        href: `${at.value}?recentlyOpened=1&sort=lastOpened`
                       }, l(o(t)("library", "View all")), 9, a6)
                     ]),
                     As.value.continueReading.length ? (c(), f("div", i6, [
@@ -24857,18 +24861,18 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     r("header", null, [
                       r("div", null, [
                         r("h3", v6, [
-                          ve(Je, {
+                          ve(Xe, {
                             text: o(t)("library", "The latest publications indexed from your Library roots.")
                           }, {
-                            default: Te(() => [
-                              Q(l(o(t)("library", "Recently added")), 1)
+                            default: Ae(() => [
+                              X(l(o(t)("library", "Recently added")), 1)
                             ]),
                             _: 1
                           }, 8, ["text"])
                         ])
                       ]),
                       r("a", {
-                        href: `${tt.value}?sort=recent`
+                        href: `${at.value}?sort=recent`
                       }, l(o(t)("library", "View all")), 9, b6)
                     ]),
                     As.value.recentlyAdded.length ? (c(), f("div", g6, [
@@ -24920,11 +24924,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     r("header", null, [
                       r("div", null, [
                         r("h3", x6, [
-                          ve(Je, {
+                          ve(Xe, {
                             text: o(t)("library", "Browse the folders that organize your publications.")
                           }, {
-                            default: Te(() => [
-                              Q(l(o(t)("library", "Shelves")), 1)
+                            default: Ae(() => [
+                              X(l(o(t)("library", "Shelves")), 1)
                             ]),
                             _: 1
                           }, 8, ["text"])
@@ -24962,11 +24966,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   r("header", j6, [
                     r("p", z6, l(o(t)("library", "Your library")), 1),
                     r("h2", B6, [
-                      ve(Je, {
+                      ve(Xe, {
                         text: o(t)("library", "Browse the folders that organize your publications.")
                       }, {
-                        default: Te(() => [
-                          Q(l(o(t)("library", "Shelves")), 1)
+                        default: Ae(() => [
+                          X(l(o(t)("library", "Shelves")), 1)
                         ]),
                         _: 1
                       }, 8, ["text"])
@@ -24987,22 +24991,22 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         href: cl(p.key),
                         class: "library-filter-chip",
                         "aria-label": `${o(t)("library", "Remove filter")}: ${p.label}`,
-                        onClick: $e((q) => dl(p.key), ["prevent"])
+                        onClick: Te((q) => dl(p.key), ["prevent"])
                       }, [
                         r("strong", null, [
-                          Q(l(p.label), 1),
+                          X(l(p.label), 1),
                           p.displayValue ? (c(), f(K, { key: 0 }, [
-                            Q(":")
+                            X(":")
                           ], 64)) : S("", !0)
                         ]),
                         p.displayValue ? (c(), f(K, { key: 0 }, [
-                          y[121] || (y[121] = Q(l(" "), -1)),
+                          y[121] || (y[121] = X(l(" "), -1)),
                           r("span", {
                             class: "library-filter-chip-value",
                             title: p.value
                           }, l(p.displayValue), 9, G6)
                         ], 64)) : S("", !0),
-                        y[122] || (y[122] = Q()),
+                        y[122] || (y[122] = X()),
                         y[123] || (y[123] = r("span", { "aria-hidden": "true" }, "×", -1))
                       ], 8, q6))), 128))
                     ], 8, H6),
@@ -25014,7 +25018,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       r("a", {
                         class: "button secondary",
                         href: Ds(),
-                        onClick: $e(Fs, ["prevent"])
+                        onClick: Te(Fs, ["prevent"])
                       }, l(o(t)("library", "Clear all")), 9, Y6)
                     ])
                   ], 8, V6)) : S("", !0),
@@ -25031,11 +25035,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])
                   ], 8, Z6)) : (c(), f("section", X6, [
                     r("h3", null, [
-                      ve(Je, {
+                      ve(Xe, {
                         text: o(t)("library", "Browse the folders that organize your publications.")
                       }, {
-                        default: Te(() => [
-                          Q(l(o(t)("library", "Shelves")), 1)
+                        default: Ae(() => [
+                          X(l(o(t)("library", "Shelves")), 1)
                         ]),
                         _: 1
                       }, 8, ["text"])
@@ -25048,14 +25052,14 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       }, l(o(t)("library", "Add a Library root")), 9, tF),
                       r("a", {
                         class: "button secondary",
-                        href: tt.value
+                        href: at.value
                       }, l(o(t)("library", "All publications")), 9, aF)
                     ])
                   ]))
                 ])) : (c(), f("section", {
                   key: 4,
                   id: "library-catalogue",
-                  class: xe(["library-panel library-mobile-compact-chrome", { "library-catalogue--loading": Bt.loading }]),
+                  class: Ne(["library-panel library-mobile-compact-chrome", { "library-catalogue--loading": Bt.loading }]),
                   "aria-labelledby": "library-catalogue-heading",
                   "aria-busy": Bt.loading ? "true" : "false"
                 }, [
@@ -25077,14 +25081,14 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       class: "library-mobile-filter-trigger",
                       "aria-label": Ng.value
                     }, [
-                      r("span", sF, l(o(pt)("library", "%n item", "%n items", Number(J.value.total || 0))), 1),
+                      r("span", sF, l(o(pt)("library", "%n item", "%n items", Number(Z.value.total || 0))), 1),
                       r("strong", null, l(xg.value), 1)
                     ], 8, lF),
                     r("form", {
                       method: "get",
                       class: "library-mobile-filter-form",
                       "aria-label": o(t)("library", "Mobile catalogue filters"),
-                      onSubmit: $e(Sf, ["prevent"])
+                      onSubmit: Te(Sf, ["prevent"])
                     }, [
                       r("input", {
                         type: "hidden",
@@ -25111,13 +25115,13 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                               name: "q",
                               placeholder: o(t)("library", "Title, creator, description, filename or folder")
                             }, null, 8, pF), [
-                              [Oe, W.value]
+                              [Re, W.value]
                             ]),
                             Bt.loading ? (c(), f("span", vF)) : S("", !0)
                           ])
                         ]),
                         r("label", null, [
-                          Q(l(o(t)("library", "Type")), 1),
+                          X(l(o(t)("library", "Type")), 1),
                           fe(r("select", {
                             "onUpdate:modelValue": y[47] || (y[47] = (p) => T.type = p),
                             name: "type",
@@ -25150,7 +25154,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                             onFocus: y[50] || (y[50] = (p) => If("publisher")),
                             onKeydown: y[51] || (y[51] = (p) => Lf(p, "publisher"))
                           }, null, 40, _F), [
-                            [Oe, re.value]
+                            [Re, re.value]
                           ]),
                           r("input", {
                             type: "hidden",
@@ -25168,7 +25172,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                               r("button", {
                                 type: "button",
                                 class: "library-publisher-suggestion",
-                                onMousedown: y[52] || (y[52] = $e(() => {
+                                onMousedown: y[52] || (y[52] = Te(() => {
                                 }, ["prevent"])),
                                 onClick: (ye) => $f(p, ye)
                               }, l(p), 41, $F)
@@ -25187,11 +25191,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                             role: "combobox",
                             "aria-autocomplete": "list",
                             "aria-controls": "library-mobile-publication-suggestions",
-                            "aria-expanded": ie.value && V.value.length > 0 ? "true" : "false",
-                            onFocus: y[54] || (y[54] = (p) => ie.value = !0),
-                            onKeydown: y[55] || (y[55] = bt((p) => ie.value = !1, ["escape"]))
+                            "aria-expanded": ae.value && V.value.length > 0 ? "true" : "false",
+                            onFocus: y[54] || (y[54] = (p) => ae.value = !0),
+                            onKeydown: y[55] || (y[55] = bt((p) => ae.value = !1, ["escape"]))
                           }, null, 40, EF), [
-                            [Oe, j.value]
+                            [Re, j.value]
                           ]),
                           r("input", {
                             type: "hidden",
@@ -25199,7 +25203,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                             value: T.publication
                           }, null, 8, xF),
                           Na("publication") ? (c(), f("small", NF, l(ri("publication")), 1)) : S("", !0),
-                          ni.value && ie.value && V.value.length > 0 ? (c(), f("ul", OF, [
+                          ni.value && ae.value && V.value.length > 0 ? (c(), f("ul", OF, [
                             (c(!0), f(K, null, ue(V.value, (p) => (c(), f("li", {
                               key: `mobile-publication-${p}`,
                               role: "option"
@@ -25207,7 +25211,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                               r("button", {
                                 type: "button",
                                 class: "library-publication-suggestion",
-                                onMousedown: y[56] || (y[56] = $e(() => {
+                                onMousedown: y[56] || (y[56] = Te(() => {
                                 }, ["prevent"])),
                                 onClick: (q) => kf(p, q)
                               }, l(p), 41, RF)
@@ -25230,7 +25234,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                             onFocus: y[58] || (y[58] = (p) => pa.value = !0),
                             onKeydown: y[59] || (y[59] = bt((p) => pa.value = !1, ["escape"]))
                           }, null, 40, PF), [
-                            [Oe, Ut.value]
+                            [Re, Ut.value]
                           ]),
                           r("input", {
                             type: "hidden",
@@ -25246,7 +25250,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                               r("button", {
                                 type: "button",
                                 class: "library-year-suggestion",
-                                onMousedown: y[60] || (y[60] = $e(() => {
+                                onMousedown: y[60] || (y[60] = Te(() => {
                                 }, ["prevent"])),
                                 onClick: (q) => Of(p, q)
                               }, l(p), 41, UF)
@@ -25270,7 +25274,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                             onFocus: y[62] || (y[62] = (p) => He.value = !0),
                             onKeydown: y[63] || (y[63] = bt((p) => He.value = !1, ["escape"]))
                           }, null, 40, BF), [
-                            [Oe, Le.value]
+                            [Re, Le.value]
                           ]),
                           r("input", {
                             type: "hidden",
@@ -25286,7 +25290,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                               r("button", {
                                 type: "button",
                                 class: "library-creator-suggestion",
-                                onMousedown: y[64] || (y[64] = $e(() => {
+                                onMousedown: y[64] || (y[64] = Te(() => {
                                 }, ["prevent"])),
                                 onClick: (q) => Cf(p, q)
                               }, l(p), 41, GF)
@@ -25294,7 +25298,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           ])) : S("", !0)
                         ]),
                         r("label", null, [
-                          Q(l(o(t)("library", "Format")), 1),
+                          X(l(o(t)("library", "Format")), 1),
                           fe(r("select", {
                             "onUpdate:modelValue": y[65] || (y[65] = (p) => T.format = p),
                             name: "format",
@@ -25313,7 +25317,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           r("label", ZF, l(o(t)("library", "Subject")), 1),
                           fe(r("input", {
                             id: "library-mobile-subject-search",
-                            "onUpdate:modelValue": y[67] || (y[67] = (p) => ne.value = p),
+                            "onUpdate:modelValue": y[67] || (y[67] = (p) => ie.value = p),
                             type: "search",
                             name: "subjectSearch",
                             autocomplete: "off",
@@ -25326,7 +25330,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                             onFocus: y[68] || (y[68] = (p) => ce.value = !0),
                             onKeydown: y[69] || (y[69] = bt((p) => ce.value = !1, ["escape"]))
                           }, null, 40, JF), [
-                            [Oe, ne.value]
+                            [Re, ie.value]
                           ]),
                           r("input", {
                             type: "hidden",
@@ -25342,7 +25346,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                               r("button", {
                                 type: "button",
                                 class: "library-subject-suggestion",
-                                onMousedown: y[70] || (y[70] = $e(() => {
+                                onMousedown: y[70] || (y[70] = Te(() => {
                                 }, ["prevent"])),
                                 onClick: (q) => Nf(p, q)
                               }, l(p), 41, tM)
@@ -25353,7 +25357,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           r("label", iM, l(o(t)("library", "Classification")), 1),
                           fe(r("input", {
                             id: "library-mobile-classification-search",
-                            "onUpdate:modelValue": y[71] || (y[71] = (p) => Ne.value = p),
+                            "onUpdate:modelValue": y[71] || (y[71] = (p) => Oe.value = p),
                             type: "search",
                             name: "classificationSearch",
                             autocomplete: "off",
@@ -25362,26 +25366,26 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                             role: "combobox",
                             "aria-autocomplete": "list",
                             "aria-controls": "library-mobile-classification-suggestions",
-                            "aria-expanded": Fe.value && et.value.length > 0 ? "true" : "false",
+                            "aria-expanded": Fe.value && tt.value.length > 0 ? "true" : "false",
                             onFocus: y[72] || (y[72] = (p) => Fe.value = !0),
                             onKeydown: y[73] || (y[73] = bt((p) => Fe.value = !1, ["escape"]))
                           }, null, 40, nM), [
-                            [Oe, Ne.value]
+                            [Re, Oe.value]
                           ]),
                           r("input", {
                             type: "hidden",
                             name: "classification",
                             value: T.classification
                           }, null, 8, rM),
-                          ni.value && Fe.value && et.value.length > 0 ? (c(), f("ul", lM, [
-                            (c(!0), f(K, null, ue(et.value, (p) => (c(), f("li", {
+                          ni.value && Fe.value && tt.value.length > 0 ? (c(), f("ul", lM, [
+                            (c(!0), f(K, null, ue(tt.value, (p) => (c(), f("li", {
                               key: `mobile-classification-${p}`,
                               role: "option"
                             }, [
                               r("button", {
                                 type: "button",
                                 class: "library-classification-suggestion",
-                                onMousedown: y[74] || (y[74] = $e(() => {
+                                onMousedown: y[74] || (y[74] = Te(() => {
                                 }, ["prevent"])),
                                 onClick: (q) => Tf(p, q)
                               }, l(p), 41, sM)
@@ -25392,7 +25396,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       r("fieldset", oM, [
                         r("legend", null, l(o(t)("library", "Location")), 1),
                         r("label", null, [
-                          Q(l(o(t)("library", "Shelf")), 1),
+                          X(l(o(t)("library", "Shelf")), 1),
                           fe(r("select", {
                             "onUpdate:modelValue": y[75] || (y[75] = (p) => T.shelf = p),
                             name: "shelf",
@@ -25424,7 +25428,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                             onFocus: y[78] || (y[78] = (p) => oe.value = !0),
                             onKeydown: y[79] || (y[79] = bt((p) => oe.value = !1, ["escape"]))
                           }, null, 40, hM), [
-                            [Oe, ot.value]
+                            [Re, ot.value]
                           ]),
                           ni.value && oe.value && O.value.length > 0 ? (c(), f("ul", pM, [
                             (c(!0), f(K, null, ue(O.value, (p) => (c(), f("li", {
@@ -25434,7 +25438,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                               r("button", {
                                 type: "button",
                                 class: "library-folder-suggestion",
-                                onMousedown: y[80] || (y[80] = $e(() => {
+                                onMousedown: y[80] || (y[80] = Te(() => {
                                 }, ["prevent"])),
                                 onClick: (q) => Ef(p, q)
                               }, l(p), 41, vM)
@@ -25445,7 +25449,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       r("fieldset", bM, [
                         r("legend", null, l(o(t)("library", "Review")), 1),
                         r("label", null, [
-                          Q(l(o(t)("library", "Scan status")), 1),
+                          X(l(o(t)("library", "Scan status")), 1),
                           fe(r("select", {
                             "onUpdate:modelValue": y[81] || (y[81] = (p) => T.status = p),
                             name: "status",
@@ -25461,7 +25465,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           ])
                         ]),
                         r("label", null, [
-                          Q(l(o(t)("library", "Workflow status")), 1),
+                          X(l(o(t)("library", "Workflow status")), 1),
                           fe(r("select", {
                             "onUpdate:modelValue": y[83] || (y[83] = (p) => T.workflowStatus = p),
                             name: "workflowStatus",
@@ -25477,7 +25481,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           ])
                         ]),
                         r("label", null, [
-                          Q(l(o(t)("library", "Suggested updates")), 1),
+                          X(l(o(t)("library", "Suggested updates")), 1),
                           fe(r("select", {
                             "onUpdate:modelValue": y[85] || (y[85] = (p) => T.scannerConflicts = p),
                             name: "scannerConflicts",
@@ -25508,7 +25512,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                             onFocus: y[88] || (y[88] = (p) => wt.value = !0),
                             onKeydown: y[89] || (y[89] = bt((p) => wt.value = !1, ["escape"]))
                           }, null, 40, TM), [
-                            [Oe, St.value]
+                            [Re, St.value]
                           ]),
                           r("input", {
                             type: "hidden",
@@ -25523,7 +25527,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                               r("button", {
                                 type: "button",
                                 class: "library-tag-suggestion",
-                                onMousedown: y[90] || (y[90] = $e(() => {
+                                onMousedown: y[90] || (y[90] = Te(() => {
                                 }, ["prevent"])),
                                 onClick: (q) => Af(p, q)
                               }, l(p), 41, xM)
@@ -25531,11 +25535,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           ])) : S("", !0),
                           r("button", {
                             type: "submit",
-                            class: xe(["button secondary library-tag-apply", Ii("tag")])
+                            class: Ne(["button secondary library-tag-apply", Ii("tag")])
                           }, l(o(t)("library", "Apply tag")), 3)
                         ]),
                         r("label", null, [
-                          Q(l(o(t)("library", "Sort")), 1),
+                          X(l(o(t)("library", "Sort")), 1),
                           fe(r("select", {
                             "onUpdate:modelValue": y[91] || (y[91] = (p) => T.sort = p),
                             name: "sort",
@@ -25552,7 +25556,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           ])
                         ]),
                         r("label", null, [
-                          Q(l(o(t)("library", "View")), 1),
+                          X(l(o(t)("library", "View")), 1),
                           fe(r("select", {
                             "onUpdate:modelValue": y[92] || (y[92] = (p) => T.view = p),
                             name: "view",
@@ -25570,7 +25574,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           key: 0,
                           href: Ds(),
                           class: "button secondary library-mobile-filter-clear",
-                          onClick: $e(Fs, ["prevent"])
+                          onClick: Te(Fs, ["prevent"])
                         }, l(o(t)("library", "Clear all")), 9, UM)) : S("", !0),
                         r("button", jM, l(Og.value), 1)
                       ])
@@ -25623,7 +25627,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         method: "get",
                         class: "library-quick-filter-bar library-catalogue-toolbar",
                         "aria-label": o(t)("library", "Catalogue toolbar"),
-                        onSubmit: $e(ra, ["prevent"])
+                        onSubmit: Te(ra, ["prevent"])
                       }, [
                         (c(!0), f(K, null, ue(Lg.value, (p) => (c(), f("input", {
                           key: p.key,
@@ -25632,7 +25636,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           value: p.value
                         }, null, 8, XM))), 128)),
                         r("label", QM, [
-                          Q(l(o(t)("library", "Sort")), 1),
+                          X(l(o(t)("library", "Sort")), 1),
                           fe(r("select", {
                             "onUpdate:modelValue": y[93] || (y[93] = (p) => T.sort = p),
                             name: "sort",
@@ -25656,15 +25660,15 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           r("button", {
                             type: "button",
                             "data-library-view-mode": "compact",
-                            class: xe({ active: Ge.value === "compact" }),
-                            "aria-pressed": Ge.value === "compact" ? "true" : "false",
+                            class: Ne({ active: Ke.value === "compact" }),
+                            "aria-pressed": Ke.value === "compact" ? "true" : "false",
                             onClick: y[94] || (y[94] = (p) => Mf("compact"))
                           }, l(o(t)("library", "Compact")), 11, sU),
                           r("button", {
                             type: "button",
                             "data-library-view-mode": "list",
-                            class: xe({ active: Ge.value === "list" }),
-                            "aria-pressed": Ge.value === "list" ? "true" : "false",
+                            class: Ne({ active: Ke.value === "list" }),
+                            "aria-pressed": Ke.value === "list" ? "true" : "false",
                             onClick: y[95] || (y[95] = (p) => Mf("list"))
                           }, l(o(t)("library", "List")), 11, oU)
                         ], 8, lU)
@@ -25675,7 +25679,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   Y.value ? (c(), f("p", cU, l(Y.value), 1)) : S("", !0),
                   _e.value ? (c(), f("p", dU, l(_e.value), 1)) : S("", !0),
                   r("div", fU, [
-                    Bt.loading ? (c(), f("span", hU, l(o(t)("library", "Updating catalogue…")), 1)) : Bt.completed ? (c(), f("span", pU, l(o(pt)("library", "Catalogue updated. %n item.", "Catalogue updated. %n items.", Number(J.value.total || 0))), 1)) : S("", !0)
+                    Bt.loading ? (c(), f("span", hU, l(o(t)("library", "Updating catalogue…")), 1)) : Bt.completed ? (c(), f("span", pU, l(o(pt)("library", "Catalogue updated. %n item.", "Catalogue updated. %n items.", Number(Z.value.total || 0))), 1)) : S("", !0)
                   ]),
                   Gr.value ? (c(), f("section", vU, [
                     r("p", bU, l(Kr.value), 1),
@@ -25687,7 +25691,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       class: "library-discovery-hero-metrics",
                       "aria-label": o(t)("library", "Discovery summary")
                     }, [
-                      r("span", null, l(o(pt)("library", "%n item", "%n items", J.value.total)), 1),
+                      r("span", null, l(o(pt)("library", "%n item", "%n items", Z.value.total)), 1),
                       L.value?.earliestYear && L.value?.latestYear ? (c(), f("span", mU, l(L.value.earliestYear) + "–" + l(L.value.latestYear), 1)) : S("", !0),
                       L.value?.datedCount ? (c(), f("span", _U, l(L.value.datedCount) + " " + l(o(t)("library", "dated")), 1)) : S("", !0),
                       L.value?.undatedCount > 0 ? (c(), f("span", wU, l(L.value.undatedCount) + " " + l(o(t)("library", "undated")), 1)) : S("", !0)
@@ -25741,20 +25745,20 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                               href: ei(q.detailsUrl || "#")
                             }, l(q.title), 9, RU),
                             r("small", null, [
-                              Q(l(q.publicationType), 1),
+                              X(l(q.publicationType), 1),
                               q.publicationDate ? (c(), f(K, { key: 0 }, [
-                                Q(" · " + l(q.publicationDate), 1)
+                                X(" · " + l(q.publicationDate), 1)
                               ], 64)) : S("", !0)
                             ]),
                             r("small", IU, [
                               ye > 0 ? (c(), f(K, { key: 0 }, [
-                                Q(l(o(t)("library", "Previous issue")), 1)
+                                X(l(o(t)("library", "Previous issue")), 1)
                               ], 64)) : S("", !0),
                               ye > 0 && ye < p.items.length - 1 ? (c(), f(K, { key: 1 }, [
-                                Q(" · ")
+                                X(" · ")
                               ], 64)) : S("", !0),
                               ye < p.items.length - 1 ? (c(), f(K, { key: 2 }, [
-                                Q(l(o(t)("library", "Next issue")), 1)
+                                X(l(o(t)("library", "Next issue")), 1)
                               ], 64)) : S("", !0)
                             ])
                           ]))), 128))
@@ -25768,34 +25772,34 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])) : S("", !0),
                     r("p", null, [
                       r("a", {
-                        href: tt.value,
+                        href: at.value,
                         class: "button secondary library-discovery-back-link"
                       }, l(o(t)("library", "Back to full catalogue")), 9, DU)
                     ])
                   ])) : S("", !0),
                   r("div", FU, [
-                    r("p", MU, l(o(t)("library", "Showing")) + " " + l(J.value.from) + "–" + l(J.value.to) + " " + l(o(t)("library", "of")) + " " + l(J.value.total) + " " + l(o(t)("library", "catalogue items")), 1),
+                    r("p", MU, l(o(t)("library", "Showing")) + " " + l(Z.value.from) + "–" + l(Z.value.to) + " " + l(o(t)("library", "of")) + " " + l(Z.value.total) + " " + l(o(t)("library", "catalogue items")), 1),
                     r("nav", {
                       class: "library-pagination library-pagination--top",
                       "aria-label": o(t)("library", "Catalogue pagination")
                     }, [
                       r("span", jU, [
-                        Q(l(o(t)("library", "Page")) + " " + l(J.value.page), 1),
-                        J.value.total > 0 ? (c(), f("span", zU, " · " + l(J.value.from) + "–" + l(J.value.to), 1)) : S("", !0)
+                        X(l(o(t)("library", "Page")) + " " + l(Z.value.page), 1),
+                        Z.value.total > 0 ? (c(), f("span", zU, " · " + l(Z.value.from) + "–" + l(Z.value.to), 1)) : S("", !0)
                       ]),
-                      J.value.previousUrl ? (c(), f("a", {
+                      Z.value.previousUrl ? (c(), f("a", {
                         key: 0,
-                        href: J.value.previousUrl
+                        href: Z.value.previousUrl
                       }, l(o(t)("library", "Previous")), 9, BU)) : (c(), f("span", VU, l(o(t)("library", "Previous")), 1)),
-                      J.value.nextUrl ? (c(), f("a", {
+                      Z.value.nextUrl ? (c(), f("a", {
                         key: 2,
-                        href: J.value.nextUrl
+                        href: Z.value.nextUrl
                       }, l(o(t)("library", "Next")), 9, HU)) : (c(), f("span", qU, l(o(t)("library", "Next")), 1))
                     ], 8, UU)
                   ]),
                   $.value.length === 0 ? (c(), f("div", {
                     key: 4,
-                    class: xe(["library-empty-content", { "library-first-run-guidance": yr.value || Yr.value, "library-filter-empty-state": Zr.value && !yr.value && !Yr.value }]),
+                    class: Ne(["library-empty-content", { "library-first-run-guidance": yr.value || Yr.value, "library-filter-empty-state": Zr.value && !yr.value && !Yr.value }]),
                     role: "status"
                   }, [
                     yr.value ? (c(), f(K, { key: 0 }, [
@@ -25833,22 +25837,22 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           href: cl(p.key),
                           class: "library-filter-chip",
                           "aria-label": `${o(t)("library", "Remove filter")}: ${p.label}`,
-                          onClick: $e((q) => dl(p.key), ["prevent"])
+                          onClick: Te((q) => dl(p.key), ["prevent"])
                         }, [
                           r("strong", null, [
-                            Q(l(p.label), 1),
+                            X(l(p.label), 1),
                             p.displayValue ? (c(), f(K, { key: 0 }, [
-                              Q(":")
+                              X(":")
                             ], 64)) : S("", !0)
                           ]),
                           p.displayValue ? (c(), f(K, { key: 0 }, [
-                            y[124] || (y[124] = Q(l(" "), -1)),
+                            y[124] || (y[124] = X(l(" "), -1)),
                             r("span", {
                               class: "library-filter-chip-value",
                               title: p.value
                             }, l(p.displayValue), 9, aj)
                           ], 64)) : S("", !0),
-                          y[125] || (y[125] = Q()),
+                          y[125] || (y[125] = X()),
                           y[126] || (y[126] = r("span", { "aria-hidden": "true" }, "×", -1))
                         ], 8, tj))), 128))
                       ], 8, ej)) : S("", !0),
@@ -25858,7 +25862,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           key: 0,
                           href: by(),
                           class: "button secondary library-empty-clear-search",
-                          onClick: y[96] || (y[96] = $e((p) => dl("q"), ["prevent"]))
+                          onClick: y[96] || (y[96] = Te((p) => dl("q"), ["prevent"]))
                         }, l(o(t)("library", "Clear search")), 9, rj)) : S("", !0)
                       ])
                     ], 64)) : (c(), f(K, { key: 3 }, [
@@ -25875,7 +25879,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   ], 2)) : S("", !0),
                   $.value.length > 0 ? (c(), f("section", {
                     key: 5,
-                    class: xe(["library-list-selection", { "library-list-selection--active": ba.value.length }]),
+                    class: Ne(["library-list-selection", { "library-list-selection--active": ba.value.length }]),
                     "aria-label": o(t)("library", "Selection")
                   }, [
                     r("div", cj, [
@@ -25900,7 +25904,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       ]),
                       ba.value.length ? fe((c(), f("select", {
                         key: 1,
-                        "onUpdate:modelValue": y[97] || (y[97] = (p) => Gt.value = p),
+                        "onUpdate:modelValue": y[97] || (y[97] = (p) => Kt.value = p),
                         "aria-label": o(t)("library", "More actions")
                       }, [
                         r("option", bj, l(o(t)("library", "More actions")), 1),
@@ -25910,15 +25914,15 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         r("option", _j, l(o(t)("library", "Fresh covers")), 1),
                         r("option", wj, l(o(t)("library", "Reset metadata")), 1)
                       ], 8, vj)), [
-                        [nt, Gt.value]
+                        [nt, Kt.value]
                       ]) : S("", !0)
                     ]),
-                    ba.value.length && Gt.value ? (c(), f("div", {
+                    ba.value.length && Kt.value ? (c(), f("div", {
                       key: 0,
                       class: "library-selection-action",
                       onSubmitCapture: Mg
                     }, [
-                      Gt.value === "tag" ? (c(), f("form", {
+                      Kt.value === "tag" ? (c(), f("form", {
                         key: 0,
                         method: "post",
                         action: Ss.value,
@@ -25945,7 +25949,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           title: o(t)("library", "Applies only to the selected publications.")
                         }, l(o(t)("library", "Apply")), 9, $j)
                       ], 8, kj)) : S("", !0),
-                      Gt.value === "untag" ? (c(), f("form", {
+                      Kt.value === "untag" ? (c(), f("form", {
                         key: 1,
                         method: "post",
                         action: Hr.value,
@@ -25972,7 +25976,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           title: o(t)("library", "Removes the tag only from the selected publications.")
                         }, l(o(t)("library", "Remove")), 9, xj)
                       ], 8, Tj)) : S("", !0),
-                      Gt.value === "reset" ? (c(), f("form", {
+                      Kt.value === "reset" ? (c(), f("form", {
                         key: 2,
                         method: "post",
                         action: gr.value,
@@ -26000,7 +26004,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           title: o(t)("library", "Batch actions for selected publications")
                         }, l(o(t)("library", "Reset metadata")), 9, Ij)
                       ], 8, Nj)) : S("", !0),
-                      Gt.value === "edit" ? (c(), f("form", {
+                      Kt.value === "edit" ? (c(), f("form", {
                         key: 3,
                         method: "post",
                         action: qr.value,
@@ -26050,7 +26054,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           title: o(t)("library", "Preview first, then apply from the review page.")
                         }, l(o(t)("library", "Preview edit")), 9, Jj)
                       ], 8, Lj)) : S("", !0),
-                      Gt.value === "covers" ? (c(), f("form", {
+                      Kt.value === "covers" ? (c(), f("form", {
                         key: 4,
                         method: "post",
                         action: Cs.value,
@@ -26076,12 +26080,12 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       r("button", {
                         type: "button",
                         class: "button secondary",
-                        onClick: y[98] || (y[98] = (p) => Gt.value = "")
+                        onClick: y[98] || (y[98] = (p) => Kt.value = "")
                       }, l(o(t)("library", "Cancel")), 1)
                     ], 32)) : S("", !0)
                   ], 10, uj)) : S("", !0),
                   zr.value && (o(cn) === "building" || Object.values(o(ii)).some((p) => p.status === "partial")) ? (c(), f("p", az, l(o(t)("library", "Suggestions are incomplete while indexing or when candidate limits are reached.")), 1)) : S("", !0),
-                  $.value.length > 0 && Ge.value === "list" ? (c(), f("div", iz, [
+                  $.value.length > 0 && Ke.value === "list" ? (c(), f("div", iz, [
                     r("table", nz, [
                       r("caption", rz, l(o(t)("library", "Catalogue list")), 1),
                       r("thead", null, [
@@ -26104,7 +26108,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                       r("tbody", null, [
                         (c(!0), f(K, null, ue($.value, (p) => (c(), f("tr", {
                           key: p.id,
-                          class: xe(["library-catalogue-list-row", { "library-catalogue-list-row--selected": Es.value.has(Number(p.id)), "library-catalogue-list-row--open": dn.value && Number(Bn.value) === Number(p.id) }])
+                          class: Ne(["library-catalogue-list-row", { "library-catalogue-list-row--selected": Es.value.has(Number(p.id)), "library-catalogue-list-row--open": dn.value && Number(Bn.value) === Number(p.id) }])
                         }, [
                           r("td", gz, [
                             r("label", yz, [
@@ -26142,7 +26146,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                             o(ii)[p.id]?.count ? (c(), f("a", {
                               key: 0,
                               class: "library-duplicate-badge",
-                              href: `${tt.value}?duplicates=1&bookId=${p.id}`
+                              href: `${at.value}?duplicates=1&bookId=${p.id}`
                             }, l(o(t)("library", "Possible duplicates")) + " · " + l(o(ii)[p.id].count) + l(o(ii)[p.id].status === "partial" ? "+" : ""), 9, Tz)) : S("", !0)
                           ]),
                           r("td", Az, [
@@ -26169,7 +26173,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           r("td", null, [
                             p.extension || p.publicationType ? (c(), f("bdi", {
                               key: 0,
-                              class: xe(p.extension ? "library-bidi-machine" : "library-bidi-human"),
+                              class: Ne(p.extension ? "library-bidi-machine" : "library-bidi-human"),
                               dir: p.extension ? "ltr" : "auto"
                             }, l(p.extension ? Ms(p.extension) : p.publicationType), 11, Lz)) : (c(), f("span", {
                               key: 1,
@@ -26201,11 +26205,11 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     ])
                   ])) : $.value.length > 0 ? (c(), f("div", {
                     key: 8,
-                    class: xe(["library-cover-gallery", It.value])
+                    class: Ne(["library-cover-gallery", It.value])
                   }, [
                     (c(!0), f(K, null, ue($.value, (p) => (c(), f("article", {
                       key: p.id,
-                      class: xe(["library-cover-card", { "library-cover-card--selected": Es.value.has(Number(p.id)), "library-cover-card--open": dn.value && Number(Bn.value) === Number(p.id) }])
+                      class: Ne(["library-cover-card", { "library-cover-card--selected": Es.value.has(Number(p.id)), "library-cover-card--open": dn.value && Number(Bn.value) === Number(p.id) }])
                     }, [
                       r("label", zz, [
                         r("input", {
@@ -26234,7 +26238,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         method: "post",
                         action: p.starUrl,
                         class: "library-cover-star-form",
-                        onSubmit: $e((q) => Bf(p, q), ["prevent"])
+                        onSubmit: Te((q) => Bf(p, q), ["prevent"])
                       }, [
                         r("input", {
                           type: "hidden",
@@ -26253,13 +26257,13 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         }, null, 8, Kz),
                         r("button", {
                           type: "submit",
-                          class: xe(["library-cover-star-button", { "library-cover-star-button--starred": p.starred }]),
+                          class: Ne(["library-cover-star-button", { "library-cover-star-button--starred": p.starred }]),
                           "aria-pressed": p.starred ? "true" : "false",
                           title: p.starred ? o(t)("library", "Unstar this publication") : o(t)("library", "Star this publication"),
                           "aria-label": p.starred ? o(t)("library", "Unstar this publication") : o(t)("library", "Star this publication"),
                           "aria-busy": fl[p.id] ? "true" : void 0,
                           disabled: fl[p.id],
-                          onClick: $e((q) => Bf(p, q), ["prevent"])
+                          onClick: Te((q) => Bf(p, q), ["prevent"])
                         }, l(p.starred ? "★" : "☆"), 11, Wz),
                         hl[p.id] ? (c(), f("span", {
                           key: 0,
@@ -26273,7 +26277,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           o(ii)[p.id]?.count ? (c(), f("a", {
                             key: 0,
                             class: "library-duplicate-badge",
-                            href: `${tt.value}?duplicates=1&bookId=${p.id}`
+                            href: `${at.value}?duplicates=1&bookId=${p.id}`
                           }, l(o(t)("library", "Possible duplicates")) + " · " + l(o(ii)[p.id].count) + l(o(ii)[p.id].status === "partial" ? "+" : ""), 9, Xz)) : S("", !0),
                           r("h3", {
                             id: `library-card-title-${p.id}`
@@ -26302,16 +26306,16 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     "aria-label": o(t)("library", "Catalogue pagination")
                   }, [
                     r("span", s7, [
-                      Q(l(o(t)("library", "Page")) + " " + l(J.value.page), 1),
-                      J.value.total > 0 ? (c(), f("span", o7, " · " + l(J.value.from) + "–" + l(J.value.to), 1)) : S("", !0)
+                      X(l(o(t)("library", "Page")) + " " + l(Z.value.page), 1),
+                      Z.value.total > 0 ? (c(), f("span", o7, " · " + l(Z.value.from) + "–" + l(Z.value.to), 1)) : S("", !0)
                     ]),
-                    J.value.previousUrl ? (c(), f("a", {
+                    Z.value.previousUrl ? (c(), f("a", {
                       key: 0,
-                      href: J.value.previousUrl
+                      href: Z.value.previousUrl
                     }, l(o(t)("library", "Previous")), 9, u7)) : (c(), f("span", c7, l(o(t)("library", "Previous")), 1)),
-                    J.value.nextUrl ? (c(), f("a", {
+                    Z.value.nextUrl ? (c(), f("a", {
                       key: 2,
-                      href: J.value.nextUrl
+                      href: Z.value.nextUrl
                     }, l(o(t)("library", "Next")), 9, d7)) : (c(), f("span", f7, l(o(t)("library", "Next")), 1))
                   ], 8, l7)) : S("", !0)
                 ], 10, iF))
@@ -26326,18 +26330,18 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
           class: "library-native-item-sidebar",
           open: dn.value,
           "no-toggle": "",
-          loading: Wt.loading,
-          name: Ee.value?.title || o(t)("library", "Publication details"),
-          subname: Ee.value?.displayCreators ?? Ee.value?.creators ?? "",
+          loading: Yt.loading,
+          name: xe.value?.title || o(t)("library", "Publication details"),
+          subname: xe.value?.displayCreators ?? xe.value?.creators ?? "",
           role: qn.value ? "dialog" : void 0,
           "aria-modal": qn.value ? "true" : void 0,
           "aria-labelledby": qn.value ? "library-detail-drawer-heading" : void 0,
-          "aria-describedby": qn.value && Ee.value ? "library-detail-drawer-keyboard-hint" : void 0,
+          "aria-describedby": qn.value && xe.value ? "library-detail-drawer-keyboard-hint" : void 0,
           onOpened: yf,
           onClosed: Jg,
           onClose: nl
         }, {
-          default: Te(() => [
+          default: Ae(() => [
             r("div", h7, [
               r("h2", {
                 id: "library-detail-drawer-heading",
@@ -26345,26 +26349,26 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                 ref: cf,
                 class: "hidden-visually",
                 tabindex: "-1"
-              }, l(Ee.value?.title || o(t)("library", "Publication details")), 513),
-              Wt.loading && !Ee.value ? (c(), f("p", p7, l(o(t)("library", "Loading publication details…")), 1)) : Wt.error ? (c(), f("div", {
+              }, l(xe.value?.title || o(t)("library", "Publication details")), 513),
+              Yt.loading && !xe.value ? (c(), f("p", p7, l(o(t)("library", "Loading publication details…")), 1)) : Yt.error ? (c(), f("div", {
                 key: 1,
                 class: "library-sidebar-state",
-                role: Wt.missing ? "status" : "alert"
+                role: Yt.missing ? "status" : "alert"
               }, [
-                r("p", null, l(Wt.error), 1),
-                Wt.missing ? S("", !0) : (c(), f("button", {
+                r("p", null, l(Yt.error), 1),
+                Yt.missing ? S("", !0) : (c(), f("button", {
                   key: 0,
                   type: "button",
                   class: "button secondary",
                   onClick: y[99] || (y[99] = (p) => il(Bn.value, { historyMode: "none" }))
                 }, l(o(t)("library", "Try again")), 1))
-              ], 8, v7)) : Ee.value ? (c(), f(K, { key: 2 }, [
+              ], 8, v7)) : xe.value ? (c(), f(K, { key: 2 }, [
                 r("p", b7, l(o(t)("library", "Escape closes; arrow keys browse neighbouring visible items.")), 1),
                 r("div", g7, [
                   r("span", y7, l(o(t)("library", "Cover for")), 1),
                   r("img", {
                     class: "library-detail-drawer-cover",
-                    src: Ee.value.coverUrl,
+                    src: xe.value.coverUrl,
                     alt: "",
                     "aria-labelledby": "library-detail-drawer-cover-label library-detail-drawer-heading",
                     loading: "lazy",
@@ -26372,41 +26376,41 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   }, null, 8, m7),
                   r("div", _7, [
                     r("p", w7, [
-                      r("bdi", k7, l(Ee.value.publicationType || o(t)("library", "Publication")), 1),
-                      Ee.value.extension ? (c(), f("span", S7, [
-                        y[129] || (y[129] = Q(" · ", -1)),
-                        r("bdi", C7, l(Ms(Ee.value.extension)), 1)
+                      r("bdi", k7, l(xe.value.publicationType || o(t)("library", "Publication")), 1),
+                      xe.value.extension ? (c(), f("span", S7, [
+                        y[129] || (y[129] = X(" · ", -1)),
+                        r("bdi", C7, l(Ms(xe.value.extension)), 1)
                       ])) : S("", !0)
                     ]),
                     r("div", $7, [
                       r("a", {
                         class: "button primary",
-                        href: Ee.value.openUrl,
+                        href: xe.value.openUrl,
                         target: "_blank",
                         rel: "noopener",
-                        onClick: y[100] || (y[100] = (p) => Ni(Ee.value, p))
+                        onClick: y[100] || (y[100] = (p) => Ni(xe.value, p))
                       }, l(o(t)("library", "Open")), 9, T7),
                       r("a", {
                         class: "button secondary",
-                        href: ei(Ee.value.detailsUrl)
+                        href: ei(xe.value.detailsUrl)
                       }, l(o(t)("library", "Full details")), 9, A7),
                       ve(o(Wd), {
                         "aria-label": o(t)("library", "File actions")
                       }, {
-                        default: Te(() => [
+                        default: Ae(() => [
                           ve(o(Dp), {
-                            href: Ee.value.filesUrl
+                            href: xe.value.filesUrl
                           }, {
-                            default: Te(() => [
-                              Q(l(o(t)("library", "Show in Files")), 1)
+                            default: Ae(() => [
+                              X(l(o(t)("library", "Show in Files")), 1)
                             ]),
                             _: 1
                           }, 8, ["href"]),
                           ve(o(Dp), {
-                            href: Ee.value.downloadUrl
+                            href: xe.value.downloadUrl
                           }, {
-                            default: Te(() => [
-                              Q(l(o(t)("library", "Download")), 1)
+                            default: Ae(() => [
+                              X(l(o(t)("library", "Download")), 1)
                             ]),
                             _: 1
                           }, 8, ["href"])
@@ -26417,8 +26421,8 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   ])
                 ]),
                 (c(), ze(nu, {
-                  key: Ee.value.id,
-                  "item-ids": [Number(Ee.value.id)],
+                  key: xe.value.id,
+                  "item-ids": [Number(xe.value.id)],
                   "request-token": kt.value,
                   "lists-url": zt.value
                 }, null, 8, ["item-ids", "request-token", "lists-url"])),
@@ -26429,7 +26433,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   (c(), f(K, null, ue(Bg, (p) => r("button", {
                     key: p.key,
                     type: "button",
-                    class: xe({ active: Vn.value === p.key }),
+                    class: Ne({ active: Vn.value === p.key }),
                     "aria-current": Vn.value === p.key ? "page" : void 0,
                     onClick: (q) => Vn.value = p.key
                   }, l(o(t)("library", p.label)), 11, x7)), 64))
@@ -26440,20 +26444,20 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     r("bdi", I7, l(df.value), 1)
                   ])) : S("", !0),
                   r("dl", L7, [
-                    Ee.value.publication ? (c(), f("div", P7, [
+                    xe.value.publication ? (c(), f("div", P7, [
                       r("dt", null, l(o(t)("library", "Series / periodical")), 1),
                       r("dd", null, [
                         r("a", {
                           class: "library-detail-facet-link",
-                          href: Rs("publication", Ee.value.publication),
+                          href: Rs("publication", xe.value.publication),
                           title: o(t)("library", "Filter catalogue by this series or periodical"),
-                          onClick: y[101] || (y[101] = (p) => Is(p, "publication", Ee.value.publication))
+                          onClick: y[101] || (y[101] = (p) => Is(p, "publication", xe.value.publication))
                         }, [
-                          r("bdi", F7, l(Ee.value.publication), 1)
+                          r("bdi", F7, l(xe.value.publication), 1)
                         ], 8, D7)
                       ])
                     ])) : S("", !0),
-                    Ee.value.publicationDate ? (c(), f("div", M7, [
+                    xe.value.publicationDate ? (c(), f("div", M7, [
                       r("dt", null, l(o(t)("library", "Date")), 1),
                       r("dd", null, [
                         Gn.value ? (c(), f("a", {
@@ -26463,20 +26467,20 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           title: o(t)("library", "Filter catalogue by this publication year"),
                           onClick: y[102] || (y[102] = (p) => Is(p, "year", Gn.value))
                         }, l(Gn.value), 9, U7)) : S("", !0),
-                        Gn.value && Ee.value.publicationDate !== Gn.value ? (c(), f("span", j7, " · ")) : S("", !0),
-                        Ee.value.publicationDate !== Gn.value ? (c(), f("span", z7, l(Ee.value.publicationDate), 1)) : S("", !0)
+                        Gn.value && xe.value.publicationDate !== Gn.value ? (c(), f("span", j7, " · ")) : S("", !0),
+                        xe.value.publicationDate !== Gn.value ? (c(), f("span", z7, l(xe.value.publicationDate), 1)) : S("", !0)
                       ])
                     ])) : S("", !0),
-                    Ee.value.publisher ? (c(), f("div", B7, [
+                    xe.value.publisher ? (c(), f("div", B7, [
                       r("dt", null, l(o(t)("library", "Publisher")), 1),
                       r("dd", null, [
                         r("a", {
                           class: "library-detail-facet-link",
-                          href: Rs("publisher", Ee.value.publisher),
+                          href: Rs("publisher", xe.value.publisher),
                           title: o(t)("library", "Filter catalogue by this publisher"),
-                          onClick: y[103] || (y[103] = (p) => Is(p, "publisher", Ee.value.publisher))
+                          onClick: y[103] || (y[103] = (p) => Is(p, "publisher", xe.value.publisher))
                         }, [
-                          r("bdi", H7, l(Ee.value.publisher), 1)
+                          r("bdi", H7, l(xe.value.publisher), 1)
                         ], 8, V7)
                       ])
                     ])) : S("", !0),
@@ -26494,38 +26498,38 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         ], 8, K7))), 128))
                       ])
                     ])) : S("", !0),
-                    Ee.value.shelf ? (c(), f("div", Y7, [
+                    xe.value.shelf ? (c(), f("div", Y7, [
                       r("dt", null, l(o(t)("library", "Shelf")), 1),
-                      r("dd", null, l(Ee.value.shelf), 1)
+                      r("dd", null, l(xe.value.shelf), 1)
                     ])) : S("", !0)
                   ])
                 ])) : Vn.value === "metadata" ? (c(), f("section", Z7, [
                   zr.value ? (c(), ze(wg, {
-                    key: `${Ee.value.id}:${Ee.value.title}:${Ee.value.creators}`,
-                    "item-id": Number(Ee.value.id),
+                    key: `${xe.value.id}:${xe.value.title}:${xe.value.creators}`,
+                    "item-id": Number(xe.value.id),
                     "request-token": kt.value
                   }, null, 8, ["item-id", "request-token"])) : S("", !0),
                   r("h3", J7, l(o(t)("library", "Metadata")), 1),
                   r("form", {
                     class: "library-sidebar-metadata-form",
-                    onSubmit: $e(Yg, ["prevent"])
+                    onSubmit: Te(Yg, ["prevent"])
                   }, [
                     r("label", null, [
-                      Q(l(o(t)("library", "Title")), 1),
+                      X(l(o(t)("library", "Title")), 1),
                       fe(r("input", {
                         "onUpdate:modelValue": y[104] || (y[104] = (p) => Et.title = p),
                         name: "title",
                         required: ""
                       }, null, 512), [
-                        [Oe, Et.title]
+                        [Re, Et.title]
                       ])
                     ]),
                     r("label", null, [
-                      ve(Je, {
+                      ve(Xe, {
                         text: o(t)("library", "Book series name, stored separately from the existing Publication field.")
                       }, {
-                        default: Te(() => [
-                          Q(l(o(t)("library", "Series")), 1)
+                        default: Ae(() => [
+                          X(l(o(t)("library", "Series")), 1)
                         ]),
                         _: 1
                       }, 8, ["text"]),
@@ -26534,15 +26538,15 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         name: "series",
                         maxlength: "255"
                       }, null, 512), [
-                        [Oe, Et.series]
+                        [Re, Et.series]
                       ])
                     ]),
                     r("label", null, [
-                      ve(Je, {
+                      ve(Xe, {
                         text: o(t)("library", "Text such as 01, 2.5 or Volume II. Leading zeros and labels are preserved.")
                       }, {
-                        default: Te(() => [
-                          Q(l(o(t)("library", "Part in series")), 1)
+                        default: Ae(() => [
+                          X(l(o(t)("library", "Part in series")), 1)
                         ]),
                         _: 1
                       }, 8, ["text"]),
@@ -26551,15 +26555,15 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         name: "seriesNumber",
                         maxlength: "64"
                       }, null, 512), [
-                        [Oe, Et.seriesNumber]
+                        [Re, Et.seriesNumber]
                       ])
                     ]),
                     r("label", null, [
-                      ve(Je, {
+                      ve(Xe, {
                         text: o(t)("library", "The source genre is preserved for metadata export. Assign catalogue genres in Full details.")
                       }, {
-                        default: Te(() => [
-                          Q(l(o(t)("library", "Source genre")), 1)
+                        default: Ae(() => [
+                          X(l(o(t)("library", "Source genre")), 1)
                         ]),
                         _: 1
                       }, 8, ["text"]),
@@ -26568,18 +26572,18 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                         name: "genre",
                         maxlength: "255"
                       }, null, 512), [
-                        [Oe, Et.genre]
+                        [Re, Et.genre]
                       ])
                     ]),
                     r("label", null, [
-                      Q(l(o(t)("library", "Publication date")), 1),
+                      X(l(o(t)("library", "Publication date")), 1),
                       fe(r("input", {
                         "onUpdate:modelValue": y[108] || (y[108] = (p) => Et.publicationDate = p),
                         name: "publicationDate",
                         inputmode: "numeric",
                         placeholder: o(t)("library", "e.g. 2026")
                       }, null, 8, X7), [
-                        [Oe, Et.publicationDate]
+                        [Re, Et.publicationDate]
                       ])
                     ]),
                     r("fieldset", null, [
@@ -26601,7 +26605,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                           "onUpdate:modelValue": (ye) => p.displayValue = ye,
                           "aria-label": o(t)("library", "Identifier value")
                         }, null, 8, aB), [
-                          [Oe, p.displayValue]
+                          [Re, p.displayValue]
                         ]),
                         r("button", {
                           type: "button",
@@ -26619,29 +26623,29 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     r("button", {
                       type: "submit",
                       class: "button primary",
-                      disabled: Wt.loading || !Ee.value.metadataRevision || li.saving
+                      disabled: Yt.loading || !xe.value.metadataRevision || li.saving
                     }, l(li.saving ? o(t)("library", "Saving…") : o(t)("library", "Save metadata")), 9, lB)
                   ], 32),
-                  Ls(Ee.value).length ? (c(), f("section", sB, [
+                  Ls(xe.value).length ? (c(), f("section", sB, [
                     r("h4", oB, [
-                      ve(Je, {
+                      ve(Xe, {
                         text: o(t)("library", "Suggestions are optional and never replace your edits automatically.")
                       }, {
-                        default: Te(() => [
-                          Q(l(o(t)("library", "Scanner suggestions")), 1)
+                        default: Ae(() => [
+                          X(l(o(t)("library", "Scanner suggestions")), 1)
                         ]),
                         _: 1
                       }, 8, ["text"])
                     ]),
                     r("dl", null, [
-                      (c(!0), f(K, null, ue(Ls(Ee.value), (p) => (c(), f("div", {
+                      (c(!0), f(K, null, ue(Ls(xe.value), (p) => (c(), f("div", {
                         key: p.field
                       }, [
                         r("dt", null, l(p.field) + " · " + l(p.sourceProvenance), 1),
                         r("dd", null, [
-                          Q(l(o(t)("library", "Current")) + ": " + l(p.currentValue || "—"), 1),
+                          X(l(o(t)("library", "Current")) + ": " + l(p.currentValue || "—"), 1),
                           y[130] || (y[130] = r("br", null, null, -1)),
-                          Q(l(o(t)("library", "Suggestion")) + ": " + l(p.scannerCandidate || "—"), 1)
+                          X(l(o(t)("library", "Suggestion")) + ": " + l(p.scannerCandidate || "—"), 1)
                         ])
                       ]))), 128))
                     ])
@@ -26651,50 +26655,50 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                   r("dl", dB, [
                     r("div", null, [
                       r("dt", null, l(o(t)("library", "Scan status")), 1),
-                      r("dd", null, l(Ee.value.scanStatus || "—"), 1)
+                      r("dd", null, l(xe.value.scanStatus || "—"), 1)
                     ]),
-                    Ee.value.workflowStatus ? (c(), f("div", fB, [
+                    xe.value.workflowStatus ? (c(), f("div", fB, [
                       r("dt", null, l(o(t)("library", "Workflow")), 1),
-                      r("dd", null, l(Ee.value.workflowStatus), 1)
+                      r("dd", null, l(xe.value.workflowStatus), 1)
                     ])) : S("", !0),
-                    Ee.value.metadataSource ? (c(), f("div", hB, [
+                    xe.value.metadataSource ? (c(), f("div", hB, [
                       r("dt", null, l(o(t)("library", "Metadata source")), 1),
-                      r("dd", null, l(Ee.value.metadataSource), 1)
+                      r("dd", null, l(xe.value.metadataSource), 1)
                     ])) : S("", !0),
-                    Ee.value.cachedPath ? (c(), f("div", pB, [
+                    xe.value.cachedPath ? (c(), f("div", pB, [
                       r("dt", null, l(o(t)("library", "File")), 1),
                       r("dd", vB, [
-                        Ee.value.openUrl ? (c(), f("a", {
+                        xe.value.openUrl ? (c(), f("a", {
                           key: 0,
-                          href: Ee.value.openUrl,
+                          href: xe.value.openUrl,
                           target: "_blank",
                           rel: "noopener",
-                          onClick: y[109] || (y[109] = (p) => Ni(Ee.value, p))
+                          onClick: y[109] || (y[109] = (p) => Ni(xe.value, p))
                         }, [
-                          r("bdi", gB, l(Ee.value.cachedPath), 1)
-                        ], 8, bB)) : (c(), f("bdi", yB, l(Ee.value.cachedPath), 1))
+                          r("bdi", gB, l(xe.value.cachedPath), 1)
+                        ], 8, bB)) : (c(), f("bdi", yB, l(xe.value.cachedPath), 1))
                       ])
                     ])) : S("", !0)
                   ])
                 ])),
-                Ee.value.canonicalAuthors?.length ? (c(), f("nav", {
+                xe.value.canonicalAuthors?.length ? (c(), f("nav", {
                   key: 3,
                   class: "library-author-links",
                   "aria-label": o(t)("library", "Authors")
                 }, [
-                  (c(!0), f(K, null, ue(Ee.value.canonicalAuthors, (p) => (c(), f("a", {
+                  (c(!0), f(K, null, ue(xe.value.canonicalAuthors, (p) => (c(), f("a", {
                     key: p.id,
                     class: "button secondary",
-                    href: `${tt.value}?authors=1&authorId=${p.id}`
+                    href: `${at.value}?authors=1&authorId=${p.id}`
                   }, [
                     r("bdi", wB, l(p.name), 1)
                   ], 8, _B))), 128))
-                ], 8, mB)) : Ee.value.authors?.length ? (c(), f("nav", {
+                ], 8, mB)) : xe.value.authors?.length ? (c(), f("nav", {
                   key: 4,
                   class: "library-author-links",
                   "aria-label": o(t)("library", "Creators")
                 }, [
-                  (c(!0), f(K, null, ue(Ee.value.authors, (p) => (c(), f("a", {
+                  (c(!0), f(K, null, ue(xe.value.authors, (p) => (c(), f("a", {
                     key: p,
                     class: "button secondary",
                     href: $y(p)
@@ -26702,33 +26706,33 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
                     r("bdi", CB, l(p), 1)
                   ], 8, SB))), 128))
                 ], 8, kB)) : S("", !0),
-                Ee.value.canonicalSeries?.length ? (c(), f("nav", {
+                xe.value.canonicalSeries?.length ? (c(), f("nav", {
                   key: 5,
                   class: "library-author-links",
                   "aria-label": o(t)("library", "Series")
                 }, [
-                  (c(!0), f(K, null, ue(Ee.value.canonicalSeries, (p) => (c(), f("a", {
+                  (c(!0), f(K, null, ue(xe.value.canonicalSeries, (p) => (c(), f("a", {
                     key: p.id,
                     class: "button secondary",
-                    href: `${tt.value}?series=1&seriesId=${p.id}`
+                    href: `${at.value}?series=1&seriesId=${p.id}`
                   }, [
                     r("bdi", AB, [
-                      Q(l(p.name), 1),
+                      X(l(p.name), 1),
                       p.part ? (c(), f(K, { key: 0 }, [
-                        Q(" · " + l(p.part), 1)
+                        X(" · " + l(p.part), 1)
                       ], 64)) : S("", !0)
                     ])
                   ], 8, TB))), 128))
                 ], 8, $B)) : S("", !0),
-                Ee.value.canonicalGenres?.length ? (c(), f("nav", {
+                xe.value.canonicalGenres?.length ? (c(), f("nav", {
                   key: 6,
                   class: "library-author-links",
                   "aria-label": o(t)("library", "Genres")
                 }, [
-                  (c(!0), f(K, null, ue(Ee.value.canonicalGenres, (p) => (c(), f("a", {
+                  (c(!0), f(K, null, ue(xe.value.canonicalGenres, (p) => (c(), f("a", {
                     key: p.id,
                     class: "button secondary",
-                    href: `${tt.value}?genreId=${p.id}`
+                    href: `${at.value}?genreId=${p.id}`
                   }, [
                     r("bdi", NB, l(p.name), 1)
                   ], 8, xB))), 128))

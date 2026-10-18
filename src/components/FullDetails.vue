@@ -478,16 +478,24 @@ async function saveMetadata() {
     beforeGenres: (item.value.canonicalGenres || []).map(genre => Number(genre.id)),
     genres: draft.genres.map(genre => Number(genre.id)),
   }))
-  for (const key of ['publicationType', 'title', 'subtitle', 'publication', 'publicationDate', 'publisher', 'description', 'personalRating']) body.set(key, String(draft[key] ?? ''))
+  const original = JSON.parse(savedDraft.value || '{}')
+  for (const key of ['publicationType', 'title', 'subtitle', 'publication', 'publicationDate', 'publisher', 'description', 'personalRating']) {
+    if (draft[key] !== original[key]) body.set(key, String(draft[key] ?? ''))
+  }
   for (const key of ['language', 'subjects', 'classifications']) {
+    if (draft[key] === original[key]) continue
     const entries = lines(draft[key])
     if (entries.length === 0) body.set(key, '')
     else entries.forEach(entry => body.append(`${key}[]`, entry))
   }
-  draft.identifiers.forEach((identifier, index) => {
-    body.set(`identifiers[${index}][scheme]`, identifier.scheme)
-    body.set(`identifiers[${index}][displayValue]`, identifier.displayValue)
-  })
+  const identifierValues = rows => (rows || []).map(row => [row.scheme, row.displayValue])
+  if (JSON.stringify(identifierValues(draft.identifiers)) !== JSON.stringify(identifierValues(original.identifiers))) {
+    body.set('identifiersPresent', '1')
+    draft.identifiers.forEach((identifier, index) => {
+      body.set(`identifiers[${index}][scheme]`, identifier.scheme)
+      body.set(`identifiers[${index}][displayValue]`, identifier.displayValue)
+    })
+  }
   busy.value = true
   error.value = ''
   feedback.value = ''

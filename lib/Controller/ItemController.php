@@ -133,7 +133,17 @@ final class ItemController extends Controller {
                     'personalRating' => (string)$this->request->getParam('personalRating', ''),
                     'identifiers' => $this->normalizeIdentifierRequest($this->request->getParam('identifiers', [])),
                 ];
-                if (!$simpleEditor) {
+                if ($simpleEditor) {
+                    // The compact editor sends only changed fields. Preserve imported
+                    // values that may need separate review, such as an unknown language.
+                    foreach (array_keys($draft) as $field) {
+                        if ($field === 'identifiers') {
+                            if ((string)$this->request->getParam('identifiersPresent', '0') !== '1') unset($draft[$field]);
+                        } elseif ($this->request->getParam($field, $this->request->getParam($field . '[]', null)) === null) {
+                            unset($draft[$field]);
+                        }
+                    }
+                } else {
                     $draft['creators'] = $creatorNames !== null ? implode('; ', $creatorNames) : $this->normalizeCreatorInput($this->request->getParam('creators', ''));
                     foreach (array_filter([
                         'authors' => $this->request->getParam('authors', $creatorNames),
