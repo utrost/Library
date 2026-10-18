@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+- Show a compact, reduced-motion-aware spinner beside desktop and mobile catalogue search while a catalogue request is loading.
+
+- Find books through partial preferred or sort names of their linked authors in general catalogue search. Author renames affect results immediately; source creator credits remain searchable and unchanged.
+
+- Preserve comma-containing subjects and classifications through full-details, sidebar and legacy saves; use semicolons or newlines for scalar text entry.
+- Match individual language codes inside multi-language metadata without matching regional-code prefixes, and normalize valid source code lists to the editor's delimiter convention.
+- Import ComicInfo Series/Number into dedicated series fields while retaining legacy publication data; preserve commas within a CBZ creator credit.
+- Add per-field rescan protection for new manual publication edits. Existing edited books retain conservative whole-item protection; scanner candidates remain available for review. Pipeline v11 refreshes unchanged files on the next full scan.
+- Align sidebar identifier choices with ISBN/ISSN and remove stale metadata help and checksum feedback.
+
 - Keep only the active versioned Vue JS/CSS bundle in the source checkout. Builds now prune obsolete bundle pairs; earlier versions remain available in Git history, and release archives continue to include only the active assets.
 
 - Reconcile changed Nextcloud file IDs during scans when a file remains at the same exact path and its former ID is no longer live. Retain the Library file and item IDs, update reading-list guards atomically, and refresh metadata from the newly identified file. Skip path-recovery lookups on a root's first import.

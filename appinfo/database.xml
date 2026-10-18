@@ -355,6 +355,7 @@
                 <notnull>true</notnull>
                 <default>false</default>
             </field>
+            <field><name>protected_fields_json</name><type>text</type><notnull>false</notnull></field>
             <field>
                 <name>field_sources</name>
                 <type>text</type>

@@ -321,7 +321,7 @@ $scanStatusLabels = [
                 </label>
                 <label class="library-detail-field-wide" id="library-field-subjects">
                     <span class="library-field-label-help" title="<?php p($metadataHelp['subjects']); ?>" aria-label="<?php p($l->t('Subjects help: %s', [$metadataHelp['subjects']])); ?>"><?php p($l->t('Subjects')); ?></span>
-                    <input type="text" name="subjects[]" class="library-subject-field" value="<?php p(implode('; ', $selectedSubjects)); ?>" />
+                    <input type="text" name="subjects" class="library-subject-field" value="<?php p(implode('; ', $selectedSubjects)); ?>" />
                 </label>
                 <label class="library-detail-field-wide" id="library-field-classifications">
                     <span class="library-field-label-help" title="<?php p($metadataHelp['classifications']); ?>" aria-label="<?php p($l->t('Classifications help: %s', [$metadataHelp['classifications']])); ?>"><?php p($l->t('Classifications')); ?></span>
