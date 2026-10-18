@@ -36,12 +36,13 @@ final class RootController extends Controller {
         if ($user !== null) {
             $path = trim((string)$this->request->getParam('path', ''));
             if ($path !== '') {
-                $this->rootService->saveRoot(
+                $root = $this->rootService->saveRoot(
                     $user->getUID(),
                     $path,
                     (string)$this->request->getParam('label', ''),
                     true,
                 );
+                return $this->redirectToSettings((int)($root['id'] ?? 0));
             }
         }
 
@@ -99,7 +100,11 @@ final class RootController extends Controller {
         return $this->redirectToSettings();
     }
 
-    private function redirectToSettings(): RedirectResponse {
-        return new RedirectResponse($this->urlGenerator->getAbsoluteURL('/settings/user/library'));
+    private function redirectToSettings(int $savedRootId = 0): RedirectResponse {
+        $url = $this->urlGenerator->getAbsoluteURL('/settings/user/library');
+        if ($savedRootId > 0) {
+            $url .= '?rootSaved=' . $savedRootId;
+        }
+        return new RedirectResponse($url);
     }
 }

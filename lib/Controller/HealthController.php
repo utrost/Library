@@ -72,6 +72,23 @@ class HealthController extends Controller {
     }
 
     #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function diagnosticsTsv(): DataDownloadResponse {
+        $user = $this->userSession->getUser();
+        $userId = $user !== null ? $user->getUID() : '';
+        return new DataDownloadResponse(
+            $this->libraryHealthService->diagnosticsTsv($userId),
+            'library-index-diagnostics.tsv',
+            'text/tab-separated-values; charset=utf-8',
+            200,
+            [
+                'Cache-Control' => 'private, no-store',
+                'X-Library-Export-Type' => 'index-diagnostics',
+            ]
+        );
+    }
+
+    #[NoAdminRequired]
     public function coverProbe(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
