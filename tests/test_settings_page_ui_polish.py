@@ -41,7 +41,9 @@ def test_settings_polish_version_bump_is_tracked_for_asset_refresh():
     assert f"<version>{CURRENT_VERSION}</version>" in info
     assert f'"version": "{CURRENT_VERSION}"' in package
     assert f'"version": "{CURRENT_VERSION}"' in lock
-    assert f"'{CURRENT_VERSION}'" in smoke
+    assert "readFileSync(new URL('../package.json', import.meta.url), 'utf8')" in smoke
+    assert "library-main-${assetVersion}.mjs" in smoke
+    assert "library-vue-${assetVersion}.css" in smoke
 
 
 def test_root_add_and_scan_forms_use_global_operation_indicator_hook():
