@@ -14,6 +14,7 @@ test('opens and closes the real folder picker for an existing root @settings @fo
 
   const rootCard = settings.locator('.library-root-card').filter({ hasText: rootPath })
   await expect(rootCard).toHaveCount(1)
+  await rootCard.locator('.library-root-edit-details > summary').click()
   const pathInput = rootCard.getByRole('textbox', { name: 'Folder path' })
   await expect(pathInput).toHaveValue(rootPath)
 
