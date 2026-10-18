@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { n, t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import AddToList from './AddToList.vue'
@@ -46,11 +46,20 @@ const commentMessage = ref('')
 const coverFile = ref(null)
 const coverInput = ref(null)
 const coverRevision = ref(0)
+const coverRefreshRequested = ref(false)
+const coverPasteStatus = ref('')
 const editingAuthor = ref(null)
 const authorSearch = ref('')
+const authorInput = ref(null)
 const authorResults = ref([])
+const authorHasNext = ref(false)
+const authorSuggestionsOpen = ref(false)
+const authorActiveIndex = ref(-1)
 const selectedAuthorId = ref('')
 const authorSearchBusy = ref(false)
+let authorSearchTimer = null
+let authorSearchController = null
+let authorSearchRequest = 0
 const openUnavailable = new URLSearchParams(window.location.search).get('openUnavailable') === '1'
 const savedDraft = ref('')
 const dirty = computed(() => savedDraft.value !== '' && JSON.stringify(draft) !== savedDraft.value)
@@ -101,10 +110,11 @@ function languageText(value) {
 function lines(value) { return String(value || '').split('\n').map(v => v.trim()).filter(Boolean) }
 
 const authorsApi = generateUrl('/apps/library/api/authors')
-async function authorRequest(path, body = null) {
+async function authorRequest(path, body = null, signal = null) {
   const response = await fetch(authorsApi + path, {
     credentials: 'same-origin',
     cache: 'no-store',
+    ...(signal ? { signal } : {}),
     method: body === null ? 'GET' : 'POST',
     headers: {
       Accept: 'application/json',
@@ -120,40 +130,91 @@ async function authorRequest(path, body = null) {
   return response.json()
 }
 function cancelAuthorEdit() {
+  clearTimeout(authorSearchTimer)
+  authorSearchController?.abort()
+  authorSearchRequest++
   editingAuthor.value = null
   authorSearch.value = ''
   authorResults.value = []
-  selectedAuthorId.value = ''
-}
-function clearAuthorSelection() {
-  authorResults.value = []
+  authorHasNext.value = false
+  authorSuggestionsOpen.value = false
+  authorSearchBusy.value = false
   selectedAuthorId.value = ''
 }
 function editAuthor(author) {
+  clearTimeout(authorSearchTimer)
+  authorSearchController?.abort()
   editingAuthor.value = author
   authorSearch.value = ''
   authorResults.value = []
   selectedAuthorId.value = ''
+  authorSuggestionsOpen.value = true
+  findAuthors('')
+  nextTick(() => authorInput.value?.focus())
 }
-async function findAuthors() {
+watch(authorSearch, value => {
+  clearTimeout(authorSearchTimer)
+  authorSearchController?.abort()
+  authorSearchRequest++
+  authorResults.value = []
+  authorHasNext.value = false
+  authorActiveIndex.value = -1
+  selectedAuthorId.value = ''
+  if (!editingAuthor.value) return
+  authorSuggestionsOpen.value = true
+  authorSearchBusy.value = true
+  authorSearchTimer = setTimeout(() => findAuthors(value.trim()), value.trim() ? 220 : 0)
+})
+async function findAuthors(search = authorSearch.value.trim()) {
+  const request = ++authorSearchRequest
+  authorSearchController?.abort()
+  const controller = new AbortController()
+  authorSearchController = controller
   authorSearchBusy.value = true
   error.value = ''
-  selectedAuthorId.value = ''
   try {
-    const result = await authorRequest(`?search=${encodeURIComponent(authorSearch.value.trim())}`)
+    const result = await authorRequest(`?search=${encodeURIComponent(search)}`, null, controller.signal)
+    if (request !== authorSearchRequest || !editingAuthor.value) return
     authorResults.value = result.authors.filter(author => Number(author.id) !== Number(editingAuthor.value?.id))
-  } catch (cause) { error.value = cause.message }
-  finally { authorSearchBusy.value = false }
+    authorHasNext.value = result.hasNext === true
+  } catch (cause) {
+    if (cause.name !== 'AbortError' && request === authorSearchRequest) error.value = cause.message
+  } finally {
+    if (request === authorSearchRequest) authorSearchBusy.value = false
+  }
+}
+function selectAuthor(candidate) {
+  selectedAuthorId.value = String(candidate.id)
+  authorSuggestionsOpen.value = false
+  authorActiveIndex.value = -1
+}
+function authorPickerKeydown(event) {
+  if (event.key === 'Escape') { authorSuggestionsOpen.value = false; return }
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    event.preventDefault()
+    authorSuggestionsOpen.value = true
+    if (!authorResults.value.length) return
+    authorActiveIndex.value = event.key === 'ArrowDown'
+      ? (authorActiveIndex.value + 1) % authorResults.value.length
+      : (authorActiveIndex.value < 0 ? authorResults.value.length - 1 : (authorActiveIndex.value - 1 + authorResults.value.length) % authorResults.value.length)
+  } else if (event.key === 'Enter' && authorSuggestionsOpen.value && authorResults.value.length) {
+    event.preventDefault()
+    selectAuthor(authorResults.value[Math.max(0, authorActiveIndex.value)])
+  }
 }
 async function createAuthor() {
   const name = authorSearch.value.trim()
   if (!name) return
+  clearTimeout(authorSearchTimer)
+  authorSearchController?.abort()
+  authorSearchRequest++
   authorSearchBusy.value = true
   error.value = ''
   try {
     const author = await authorRequest('', { name })
     authorResults.value = [author]
     selectedAuthorId.value = String(author.id)
+    authorSuggestionsOpen.value = false
   } catch (cause) { error.value = cause.message }
   finally { authorSearchBusy.value = false }
 }
@@ -203,6 +264,7 @@ async function load({ silent = false } = {}) {
     if (!item.value || !context.value) throw new Error(t('library', 'Publication not found.'))
     setDraft(item.value)
     coverRevision.value++
+    coverRefreshRequested.value = false
     return true
   } catch (cause) { error.value = cause.message || t('library', 'Publication details could not be loaded.') }
   finally { loading.value = false }
@@ -300,11 +362,48 @@ async function saveRating(nextRating) {
 async function uploadCover() {
   if (!coverFile.value) return
   const saved = await post(context.value.actions.coverOverride, {}, coverFile.value)
-  if (saved) { coverFile.value = null; if (coverInput.value) coverInput.value.value = '' }
+  if (saved) {
+    coverFile.value = null
+    coverPasteStatus.value = t('library', 'Cover updated.')
+    if (coverInput.value) coverInput.value.value = ''
+  } else {
+    coverPasteStatus.value = error.value || t('library', 'The change could not be saved.')
+  }
+}
+function chooseCover(event) {
+  coverFile.value = event.target.files?.[0] || null
+  if (coverFile.value) uploadCover()
+}
+async function prepareCoverPaste() {
+  coverPasteStatus.value = t('library', 'Press Ctrl+V or ⌘V to paste a copied image.')
+  if (!navigator.clipboard?.read) return
+  try {
+    const clipboardItems = await navigator.clipboard.read()
+    const supported = ['image/png', 'image/jpeg', 'image/webp']
+    for (const entry of clipboardItems) {
+      const type = supported.find(candidate => entry.types.includes(candidate))
+      if (!type) continue
+      const blob = await entry.getType(type)
+      coverFile.value = new File([blob], 'pasted-cover', { type })
+      coverPasteStatus.value = t('library', 'Saving pasted cover…')
+      await uploadCover()
+      return
+    }
+  } catch { /* Keyboard paste remains available if clipboard read is unavailable or denied. */ }
+}
+function refreshCoverPreview() {
+  coverRevision.value++
+  coverRefreshRequested.value = true
 }
 function pastedCover(event) {
-  const file = [...(event.clipboardData?.files || [])].find(entry => ['image/jpeg', 'image/png', 'image/webp'].includes(entry.type))
-  if (file) { event.preventDefault(); coverFile.value = file; uploadCover() }
+  const supported = ['image/jpeg', 'image/png', 'image/webp']
+  const file = [...(event.clipboardData?.files || [])].find(entry => supported.includes(entry.type))
+    || [...(event.clipboardData?.items || [])].find(entry => supported.includes(entry.type))?.getAsFile()
+  event.preventDefault()
+  if (!file) { coverPasteStatus.value = t('library', 'Clipboard has no JPEG, PNG, or WebP image.'); return }
+  coverPasteStatus.value = t('library', 'Saving pasted cover…')
+  coverFile.value = file
+  uploadCover()
 }
 async function addTag(value = tagName.value) {
   if (!value.trim()) return
@@ -333,11 +432,11 @@ function warnUnsaved(event) {
   event.returnValue = ''
 }
 onMounted(() => { window.addEventListener('beforeunload', warnUnsaved); load() })
-onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved); clearTimeout(publisherTimer); publisherController?.abort() })
+onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved); clearTimeout(publisherTimer); publisherController?.abort(); clearTimeout(authorSearchTimer); authorSearchController?.abort() })
 </script>
 
 <template>
-  <main class="library-full-details" @paste="pastedCover">
+  <main class="library-full-details">
     <a :href="returnContext.url" class="library-full-details-back">← {{ returnContext.hasSource ? t('library', 'Back to results') : t('library', 'All publications') }}</a>
     <p v-if="openUnavailable" role="alert" class="library-full-details-error">{{ t('library', 'The source file could not be opened. Check the file in Nextcloud Files or rescan this root.') }}</p>
     <p v-if="loading" role="status">{{ t('library', 'Loading publication details…') }}</p>
@@ -345,8 +444,22 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
     <p v-if="feedback" role="status" class="library-full-details-feedback">{{ feedback }}</p>
     <template v-if="item && context">
       <header class="library-full-details-hero">
-        <div class="library-full-details-cover"><img :src="`${item.coverUrl}${item.coverUrl.includes('?') ? '&' : '?'}view=${coverRevision}`" alt="" /><div class="library-full-details-cover-actions"><label>{{ t('library', 'Replace cover') }} <input ref="coverInput" type="file" accept="image/jpeg,image/png,image/webp" @change="coverFile = $event.target.files?.[0] || null"></label><button type="button" class="button secondary" :disabled="busy || !coverFile" @click="uploadCover">{{ t('library', 'Upload cover') }}</button><button type="button" class="button secondary" :disabled="busy" @click="post(context.actions.coverRevert)">{{ t('library', 'Revert cover') }}</button><button type="button" class="button secondary" :disabled="busy" @click="coverRevision++">{{ t('library', 'Refresh cover preview') }}</button></div></div>
-        <div class="library-full-details-summary"><p class="library-muted">{{ item.publicationType || t('library', 'Publication') }} · {{ (item.extension || '').toUpperCase() }}</p><h1><bdi dir="auto">{{ item.title || t('library', 'Untitled publication') }}</bdi></h1><p><bdi dir="auto">{{ item.displayCreators || item.creators }}</bdi></p><p v-if="item.canonicalAuthors?.length" class="library-full-details-links"><a v-for="author in item.canonicalAuthors" :key="author.id" :href="`${catalogueUrl}?authors=1&authorId=${author.id}`">{{ author.name }}</a></p><p v-if="item.canonicalSeries?.length" class="library-full-details-links"><a v-for="series in item.canonicalSeries" :key="series.id" :href="`${catalogueUrl}?series=1&seriesId=${series.id}`">{{ series.name }}<span v-if="series.part"> · {{ series.part }}</span></a></p><div class="library-full-details-actions"><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpen">{{ t('library', 'Open') }}</a><a class="button secondary" :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a><a class="button secondary" :href="item.downloadUrl">{{ t('library', 'Download source') }}</a></div><div class="library-full-details-personal"><button type="button" class="button secondary" :aria-pressed="!!item.starred" :disabled="busy" @click="post(context.actions.star, { starred: item.starred ? '0' : '1' })">{{ item.starred ? '★' : '☆' }} {{ item.starred ? t('library', 'Starred') : t('library', 'Star') }}</button><label>{{ t('library', 'Workflow status') }} <select :value="item.workflowStatus || ''" :disabled="busy" @change="post(context.actions.workflowStatus, { workflowStatus: $event.target.value })"><option v-for="status in workflowOptions" :key="status.value" :value="status.value">{{ status.label }}</option></select></label></div><AddToList :item-ids="[Number(itemId)]" :request-token="requestToken" :lists-url="`${catalogueUrl}?lists=1`" /></div>
+        <div class="library-full-details-cover" @paste="pastedCover">
+          <div class="library-full-details-cover-frame">
+            <img :src="`${item.coverUrl}${item.coverUrl.includes('?') ? '&' : '?'}view=${coverRevision}${coverRefreshRequested ? '&refresh=1' : ''}`" alt="">
+            <div class="library-full-details-cover-tools">
+              <button v-if="item.hasManualCover" type="button" :disabled="busy" :title="t('library', 'Revert cover')" :aria-label="t('library', 'Revert cover')" @click="post(context.actions.coverRevert)"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 5 4 10l5 5M4 10h10a6 6 0 0 1 0 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button type="button" :disabled="busy" :title="t('library', 'Refresh cover preview')" :aria-label="t('library', 'Refresh cover preview')" @click="refreshCoverPreview"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6.1 9A7 7 0 0 1 19 7l1 5M4 12l1 5a7 7 0 0 0 12.9-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
+            <div class="library-full-details-cover-actions">
+              <button type="button" class="library-cover-primary-action" :disabled="busy" @click="coverInput?.click()"><span aria-hidden="true">✎</span> {{ t('library', 'Replace cover') }}</button>
+              <button type="button" class="library-cover-paste-action" :disabled="busy" @click="prepareCoverPaste">{{ t('library', 'Paste image') }}</button>
+            </div>
+          </div>
+          <input ref="coverInput" class="library-cover-file-input" type="file" tabindex="-1" accept="image/jpeg,image/png,image/webp" :aria-label="t('library', 'Replace cover')" @change="chooseCover">
+          <p v-if="coverPasteStatus" class="library-cover-paste-guide" role="status">{{ coverPasteStatus }}</p>
+        </div>
+        <div class="library-full-details-summary"><p class="library-muted">{{ item.publicationType || t('library', 'Publication') }} · {{ (item.extension || '').toUpperCase() }}</p><h1><bdi dir="auto">{{ item.title || t('library', 'Untitled publication') }}</bdi></h1><p><bdi dir="auto">{{ item.displayCreators || item.creators }}</bdi></p><p v-if="item.canonicalAuthors?.length" class="library-full-details-links"><a v-for="author in item.canonicalAuthors" :key="author.id" :href="`${catalogueUrl}?authors=1&authorId=${author.id}`">{{ author.name }}</a></p><p v-if="item.canonicalSeries?.length" class="library-full-details-links"><a v-for="series in item.canonicalSeries" :key="series.id" :href="`${catalogueUrl}?series=1&seriesId=${series.id}`">{{ series.name }}<span v-if="series.part"> · {{ series.part }}</span></a></p><div class="library-full-details-actions"><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpen">{{ t('library', 'Open') }}</a><a class="button secondary" :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a><a class="button secondary" :href="item.downloadUrl">{{ t('library', 'Download source') }}</a></div><div class="library-full-details-personal"><button type="button" class="button secondary" :aria-pressed="!!item.starred" :disabled="busy" @click="post(context.actions.star, { starred: item.starred ? '0' : '1' })">{{ item.starred ? '★' : '☆' }} {{ t('library', 'Favorite') }}</button><label>{{ t('library', 'Workflow status') }} <select :value="item.workflowStatus || ''" :disabled="busy" @change="post(context.actions.workflowStatus, { workflowStatus: $event.target.value })"><option v-for="status in workflowOptions" :key="status.value" :value="status.value">{{ status.label }}</option></select></label></div><AddToList :item-ids="[Number(itemId)]" :request-token="requestToken" :lists-url="`${catalogueUrl}?lists=1`" /></div>
       </header>
 
       <div class="library-full-details-columns">
@@ -355,26 +468,27 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
           <template v-if="item.canonicalAuthors?.length">
             <div v-for="author in item.canonicalAuthors" :key="author.id" class="library-full-details-author-row">
               <a :href="`${catalogueUrl}?authors=1&authorId=${author.id}`"><bdi dir="auto">{{ author.name }}</bdi></a>
-              <button v-if="item.authorSyncStatus === 0" type="button" class="button secondary" :disabled="busy || authorSearchBusy" @click="editAuthor(author)">{{ t('library', 'Change author') }}</button>
+              <button v-if="item.authorSyncStatus === 0" type="button" class="button secondary" :disabled="busy" @click="editAuthor(author)">{{ t('library', 'Change author') }}</button>
             </div>
             <p v-if="item.authorSyncStatus === 2"><a :href="`${catalogueUrl}?authors=1&authorConflicts=1`">{{ t('library', 'Review imported author changes') }}</a></p>
             <p v-else-if="item.authorSyncStatus !== 0" class="library-muted">{{ t('library', 'Author migration must finish before editing. Refresh to check progress.') }}</p>
             <div v-if="editingAuthor" class="library-full-details-author-picker">
               <p>{{ t('library', 'Replace {author} for this publication', { author: editingAuthor.name }) }}</p>
-              <form @submit.prevent="findAuthors">
-                <label>{{ t('library', 'Search authors') }}<input v-model="authorSearch" type="search" maxlength="255" :disabled="busy || authorSearchBusy" @input="clearAuthorSelection"></label>
-                <button type="submit" class="button secondary" :disabled="busy || authorSearchBusy">{{ t('library', 'Search') }}</button>
-              </form>
-              <label v-if="authorResults.length">{{ t('library', 'Choose an author') }}
-                <select v-model="selectedAuthorId" :disabled="busy || authorSearchBusy">
-                  <option value="">{{ t('library', 'Choose an author') }}</option>
-                  <option v-for="candidate in authorResults" :key="candidate.id" :value="String(candidate.id)">{{ candidate.display_name }} — {{ candidate.sort_name }} (#{{ candidate.id }})</option>
-                </select>
-              </label>
+              <div class="library-full-details-author-search">
+                <label for="library-details-author-search">{{ t('library', 'Choose an author') }}</label>
+                <input id="library-details-author-search" ref="authorInput" v-model="authorSearch" type="search" maxlength="255" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="library-details-author-suggestions" :aria-expanded="authorSuggestionsOpen && authorResults.length > 0 ? 'true' : 'false'" :aria-activedescendant="authorActiveIndex >= 0 && authorSuggestionsOpen ? `library-details-author-option-${authorResults[authorActiveIndex]?.id}` : undefined" :placeholder="t('library', 'Search authors')" :disabled="busy" @focus="authorSuggestionsOpen = true" @keydown="authorPickerKeydown">
+                <span v-if="authorSearchBusy" class="library-muted" role="status">{{ t('library', 'Searching…') }}</span>
+                <ul v-if="authorSuggestionsOpen && authorResults.length" id="library-details-author-suggestions" class="library-full-details-author-suggestions" role="listbox">
+                  <li v-for="(candidate, index) in authorResults" :id="`library-details-author-option-${candidate.id}`" :key="candidate.id" role="option" :aria-selected="authorActiveIndex === index"><button type="button" :class="{ 'is-active': authorActiveIndex === index }" @mousedown.prevent @click="selectAuthor(candidate)"><strong>{{ candidate.display_name }}</strong><small>{{ candidate.sort_name }} · {{ n('library', '%n book', '%n books', Number(candidate.book_count || 0)) }}</small></button></li>
+                </ul>
+                <p v-if="authorSuggestionsOpen && authorHasNext" class="library-muted">{{ t('library', 'More matches. Keep typing to narrow the list.') }}</p>
+                <p v-if="authorSuggestionsOpen && !authorSearchBusy && !authorResults.length && authorSearch.trim()" class="library-muted">{{ t('library', 'No matching author. You can create a separate author below.') }}</p>
+                <p v-if="selectedAuthorId" class="library-full-details-author-selected" role="status">{{ t('library', 'Selected author') }}: <strong>{{ authorResults.find(candidate => String(candidate.id) === selectedAuthorId)?.display_name }}</strong></p>
+              </div>
               <div class="library-full-details-author-actions">
                 <button type="button" class="button secondary" :disabled="busy || authorSearchBusy || !authorSearch.trim()" :title="t('library', 'Creates a separate author identity, even if the name already exists.')" @click="createAuthor">{{ t('library', 'Create separate author') }}</button>
                 <button type="button" class="button primary" :disabled="busy || authorSearchBusy || !selectedAuthorId" @click="replaceAuthor">{{ t('library', 'Save author assignment') }}</button>
-                <button type="button" class="button secondary" :disabled="busy || authorSearchBusy" @click="cancelAuthorEdit">{{ t('library', 'Cancel') }}</button>
+                <button type="button" class="button secondary" :disabled="busy" @click="cancelAuthorEdit">{{ t('library', 'Cancel') }}</button>
               </div>
             </div>
           </template>
@@ -398,9 +512,20 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-error { color: var(--color-error); }
 .library-full-details-feedback { color: var(--color-success); }
 .library-full-details-hero { display: grid; grid-template-columns: minmax(150px, 220px) 1fr; gap: 24px; margin-bottom: 24px; }
-.library-full-details-cover img { width: 100%; max-height: 330px; object-fit: contain; border-radius: 8px; background: var(--color-background-dark); }
-.library-full-details-cover-actions { display: grid; gap: 8px; margin-top: 12px; }
-.library-full-details-cover-actions input { width: 100%; }
+.library-full-details-cover-frame { background: var(--color-background-dark); border: 1px solid var(--color-border); border-radius: 12px; isolation: isolate; overflow: hidden; position: relative; }
+.library-full-details-cover-frame img { display: block; width: 100%; max-height: 330px; min-height: 220px; object-fit: contain; }
+.library-full-details-cover-tools { display: flex; gap: 5px; inset-block-start: 8px; inset-inline-end: 8px; position: absolute; z-index: 2; }
+.library-full-details-cover-tools button { align-items: center; backdrop-filter: blur(8px); background: #101820c9; border: 1px solid #ffffff80; border-radius: 9px; color: #fff; cursor: pointer; display: inline-flex; font-size: 1.3rem; height: 38px; justify-content: center; line-height: 1; padding: 0; width: 38px; }
+.library-full-details-cover-tools button:hover, .library-full-details-cover-tools button:focus-visible { background: #101820; outline: 2px solid #fff; outline-offset: 2px; }
+.library-full-details-cover-tools svg { height: 18px; width: 18px; }
+.library-full-details-cover-tools button:disabled { opacity: .5; }
+.library-full-details-cover-actions { background: linear-gradient(transparent, #101820dc 35%, #101820f0); display: flex; flex-wrap: wrap; gap: 5px; inset-block-end: 0; inset-inline: 0; padding: 28px 9px 9px; position: absolute; z-index: 2; }
+.library-full-details-cover-actions button { align-items: center; border-radius: 8px; cursor: pointer; display: inline-flex; font-size: .82rem; font-weight: 700; gap: 4px; justify-content: center; min-height: 36px; padding: 4px 7px; }
+.library-full-details-cover-actions button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.library-cover-primary-action { background: var(--color-primary-element, #0082c9); border: 1px solid var(--color-primary-element, #0082c9); color: var(--color-primary-text, #fff); flex: 1 1 auto; }
+.library-cover-paste-action { background: #101820bd; border: 1px solid #ffffff80; color: #fff; flex: 1 1 auto; }
+.library-cover-file-input { clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; width: 1px; }
+.library-cover-paste-guide { background: var(--color-background-hover); border-radius: 8px; font-size: .85rem; margin: 8px 0 0; padding: 7px 9px; }
 .library-full-details-summary h1 { margin: 4px 0; overflow-wrap: anywhere; }
 .library-full-details-actions, .library-full-details-personal, .library-full-details-links { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
 .library-full-details-columns { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 20px; align-items: start; }
@@ -408,8 +533,15 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-author-row, .library-full-details-author-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .library-full-details-author-row { margin: 8px 0; }
 .library-full-details-author-picker { display: grid; gap: 12px; margin-top: 16px; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; }
-.library-full-details-author-picker form { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; }
-.library-full-details-author-picker form label { flex: 1 1 260px; }
+.library-full-details-author-search { min-width: 0; position: relative; }
+.library-full-details-author-search > label { display: block; margin-bottom: 5px; }
+.library-full-details-author-search > input { width: 100%; }
+.library-full-details-author-suggestions { background: var(--color-main-background); border: 1px solid var(--color-border); border-radius: 10px; box-shadow: 0 12px 32px #0003; inset-inline: 0; list-style: none; margin: 4px 0 0; max-height: 270px; overflow-y: auto; padding: 4px; position: absolute; top: 100%; z-index: 10; }
+.library-full-details-author-suggestions li { margin: 0; }
+.library-full-details-author-suggestions button { background: transparent; border: 0; border-radius: 7px; color: var(--color-main-text); cursor: pointer; display: grid; gap: 2px; padding: 8px 10px; text-align: start; width: 100%; }
+.library-full-details-author-suggestions button:hover, .library-full-details-author-suggestions button.is-active { background: var(--color-background-hover); }
+.library-full-details-author-suggestions small { color: var(--color-text-maxcontrast); }
+.library-full-details-author-selected { background: color-mix(in srgb, var(--color-primary-element, #0082c9) 12%, var(--color-main-background)); border-radius: 8px; margin: 8px 0 0; padding: 8px 10px; }
 .library-full-details-source-credit { border: 1px solid var(--color-border); border-radius: 8px; padding: 10px 12px; }
 .library-full-details-source-credit summary { cursor: pointer; }
 .library-full-details-source-credit label { margin-top: 10px; }

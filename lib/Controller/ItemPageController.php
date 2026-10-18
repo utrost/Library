@@ -51,6 +51,7 @@ final class ItemPageController extends Controller {
         }
         $id = (string)$item['id'];
         $fileId = (int)$item['fileId'];
+        $item['hasManualCover'] = trim((string)($item['coverOverrideData'] ?? '')) !== '';
         $item['coverUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $id, 'v' => $item['coverCacheRevision'] ?? '']);
         $item['detailsUrl'] = $this->urlGenerator->linkToRoute('library.page.index') . '?details=' . $id;
         $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $id]);
@@ -62,7 +63,7 @@ final class ItemPageController extends Controller {
             'id', 'title', 'subtitle', 'creators', 'authors', 'authorSyncStatus', 'displayCreators', 'canonicalAuthors', 'canonicalSeries', 'publicationType', 'publication', 'publicationDate', 'series', 'seriesNumber', 'genre',
             'language', 'publisher', 'description', 'subjects', 'classifications', 'personalRating',
             'extension', 'shelf', 'cachedPath', 'scanStatus', 'scanError', 'workflowStatus', 'starred',
-            'identifiers', 'metadataRevision', 'metadataSource', 'fieldSources', 'fieldValues', 'userEdited', 'coverUrl',
+            'identifiers', 'metadataRevision', 'metadataSource', 'fieldSources', 'fieldValues', 'userEdited', 'coverUrl', 'hasManualCover',
             'detailsUrl', 'updateUrl', 'openUrl', 'recordOpenUrl', 'filesUrl', 'downloadUrl',
         ]))]);
     }

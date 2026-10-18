@@ -4744,4 +4744,29 @@ async function toggleStar(item, event) {
 .library-catalogue-control-band .library-view-mode-toggle button:is(.active, :focus-visible) {
   z-index: 1;
 }
+
+.library-navigation-create-list {
+  background: color-mix(in srgb, var(--color-primary-element, #0082c9) 12%, var(--color-main-background));
+  border: 1px dashed var(--color-primary-element, #0082c9);
+  border-radius: 10px;
+  margin: 4px 10px 6px;
+  padding-inline-start: 19px;
+  position: relative;
+}
+.library-navigation-create-list:hover,
+.library-navigation-create-list:focus-within {
+  background: color-mix(in srgb, var(--color-primary-element, #0082c9) 20%, var(--color-main-background));
+  border-style: solid;
+}
+.library-navigation-create-list::before {
+  color: var(--color-primary-element, #0082c9);
+  content: '+';
+  font-size: 1.2rem;
+  font-weight: 800;
+  inset-block-start: 7px;
+  inset-inline-start: 10px;
+  pointer-events: none;
+  position: absolute;
+}
+
 </style>
