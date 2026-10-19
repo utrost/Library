@@ -271,10 +271,8 @@ OC.L10N.register(
         "Create and add genre": "Create and add genre",
         "Create and choose series": "Create and choose series",
         "Create genre": "Create genre",
-        "Create separate author": "Create separate author",
         "Create series": "Create series",
         "Create your first list for a reading plan, a project or books to return to.": "Create your first list for a reading plan, a project or books to return to.",
-        "Creates a new person using the entered name, even if someone with that name already exists.": "Creates a new person using the entered name, even if someone with that name already exists.",
         "Creates a separate author identity, even if the name already exists.": "Creates a separate author identity, even if the name already exists.",
         "Creator": "Creator",
         "Creator credit in file": "Creator credit in file",
@@ -412,7 +410,6 @@ OC.L10N.register(
         "Filters": "Filters",
         "Filters ({count})": "Filters ({count})",
         "Find a genre": "Find a genre",
-        "Find destination author": "Find destination author",
         "Find destination series": "Find destination series",
         "Find possible copies from titles, authors and valid ISBNs. Name order and punctuation are normalized for comparison only. Editions and translations can be different books. Review decisions are private and never delete, merge or hide publications.": "Find possible copies from titles, authors and valid ISBNs. Name order and punctuation are normalized for comparison only. Editions and translations can be different books. Review decisions are private and never delete, merge or hide publications.",
         "Find possible duplicates": "Find possible duplicates",
@@ -1296,7 +1293,10 @@ OC.L10N.register(
         "without dates yet": "without dates yet",
         "yes": "yes",
         "{count} of 5 stars": "{count} of 5 stars",
-        "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure."
+        "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure.",
+        "Type at least three letters to search authors.": "Type at least three letters to search authors.",
+        "Destination selected. Review the change before applying it.": "Destination selected. Review the change before applying it.",
+        "Create new author": "Create new author"
     },
     "nplurals=2; plural=(n != 1);"
 );
