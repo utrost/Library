@@ -35,9 +35,7 @@ try {
       await panel.getByRole('button', { name: 'Merge or reassign', exact: true }).click()
       if (mode === 'reassign') await panel.locator('.author-books input[type=checkbox]').last().check()
       await panel.locator('#target-search').fill('Doe,')
-      await panel.locator('.author-assignment').getByRole('button', { name: 'Search', exact: true }).click()
-      await expect(panel.locator('#target-author option')).toHaveCount(2)
-      await panel.locator('#target-author').selectOption(String(state.target))
+      await panel.getByRole('option').filter({ hasText: `#${state.target}` }).click()
       await panel.getByRole('button', { name: 'Review change', exact: true }).click()
       await expect(panel.locator('.author-review li')).toHaveCount(mode === 'merge' ? 2 : 1)
       await page.screenshot({ path: `${out}/${engine}-${mode}-preview.png`, animations: 'disabled' })
@@ -60,13 +58,13 @@ try {
       await expect(panel.locator('.author-books li')).toHaveCount(2)
       await panel.locator('.author-history summary').click()
     }
-    // Explicit homonym creation must not reuse the existing John Doe record.
+    // An empty search offers explicit creation; no books move before confirmation.
     await panel.locator('.author-actions summary').click()
     await panel.getByRole('button', { name: 'Merge or reassign', exact: true }).click()
     await panel.locator('.author-books input[type=checkbox]').last().check()
-    await panel.locator('#target-search').fill('John Doe')
+    await panel.locator('#target-search').fill(`New destination ${engine}`)
     const createdResponse = page.waitForResponse(r => r.url().endsWith('/api/authors') && r.request().method() === 'POST')
-    await panel.getByRole('button', { name: 'Create separate author', exact: true }).click()
+    await panel.getByRole('button', { name: 'Create new author', exact: true }).click()
     const createResult = await createdResponse
     assert.equal(createResult.status(), 200, `Create author status: ${createResult.status()} ${createResult.headers().location || ''}`)
     const newAuthor = await createResult.json()
@@ -90,7 +88,7 @@ try {
     await page.screenshot({ path: `${out}/${engine}-assignment-mobile.png`, animations: 'disabled' })
     assert.ok(await panel.evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'mobile panel fits')
     assert.deepEqual(errors, [])
-    results.push({ engine, pass: true, merge: true, reassign: true, undo: true, canonicalCatalogue: true, distinctHomonym: true, mobileFits: true })
+    results.push({ engine, pass: true, merge: true, reassign: true, undo: true, canonicalCatalogue: true, createAfterEmptySearch: true, mobileFits: true })
     await browser.close(); browser = null
   }
 } catch (e) {
