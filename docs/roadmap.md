@@ -2,9 +2,9 @@
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The [signed alpha.9 fresh and upgrade matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed on NC33–35. The [alpha.11 populated NC34 deployment](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) is complete; owner acceptance remains.
 
-Status: **0.3.0-alpha.23** is signed and audited for the populated developer Nextcloud 34 instance. The unified book editor and recent UI improvements need developer and owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3. See the [alpha.23 package record](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md).
+Status: **0.3.0-alpha.24** is the current development candidate, adding a persistent Save/Discard bar and direct author/series selection. The preceding [alpha.23 package](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) is signed and audited on the populated developer Nextcloud 34 instance. The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
 
-Last updated: 2026-10-18
+Last updated: 2026-10-19
 
 ## Active 0.3 track
 

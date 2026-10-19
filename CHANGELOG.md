@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Keep Save/Discard visible while editing book details, and stage a chosen author or series with one selection instead of an extra confirmation click.
+
 - Show a compact, reduced-motion-aware spinner beside desktop and mobile catalogue search while a catalogue request is loading.
 
 - Find books through partial preferred or sort names of their linked authors in general catalogue search. Author renames affect results immediately; source creator credits remain searchable and unchanged.
