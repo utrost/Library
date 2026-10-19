@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Combine authors, series and genres into compact responsive rows, with linked names, accessible edit/remove icons and inline suggestions. Show the series part once and retain one Save/Discard workflow.
+
 - Keep Save/Discard visible while editing book details, and stage a chosen author or series with one selection instead of an extra confirmation click.
 
 - Show a compact, reduced-motion-aware spinner beside desktop and mobile catalogue search while a catalogue request is loading.

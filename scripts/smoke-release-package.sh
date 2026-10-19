@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONTAINER="${NEXTCLOUD_CONTAINER:-nextcloud}"
 APP_ID="library"
-# Current source candidate marker for documentation/tests: 0.3.0-alpha.25
+# Current source candidate marker for documentation/tests: 0.3.0-alpha.26
 EXPECTED_VERSION="$(python3 - "$ROOT/appinfo/info.xml" <<'PY'
 from pathlib import Path
 import re
