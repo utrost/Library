@@ -271,10 +271,8 @@ OC.L10N.register(
         "Create and add genre": "إنشاء تصنيف وإضافته",
         "Create and choose series": "إنشاء سلسلة واختيارها",
         "Create genre": "إنشاء تصنيف",
-        "Create separate author": "إنشاء مؤلف مستقل",
         "Create series": "إنشاء سلسلة",
         "Create your first list for a reading plan, a project or books to return to.": "أنشئ قائمتك الأولى لخطة قراءة أو مشروع أو كتب للعودة إليها.",
-        "Creates a new person using the entered name, even if someone with that name already exists.": "ينشئ شخصًا جديدًا بالاسم المُدخل، حتى إن وُجد شخص بهذا الاسم.",
         "Creates a separate author identity, even if the name already exists.": "ينشئ هوية مؤلف مستقلة حتى إذا كان الاسم موجودًا بالفعل.",
         "Creator": "المبدع",
         "Creator credit in file": "اسم المؤلف في الملف",
@@ -412,7 +410,6 @@ OC.L10N.register(
         "Filters": "عوامل التصفية",
         "Filters ({count})": "الفلاتر ({count})",
         "Find a genre": "البحث عن تصنيف",
-        "Find destination author": "البحث عن المؤلف الوجهة",
         "Find destination series": "البحث عن السلسلة الوجهة",
         "Find possible copies from titles, authors and valid ISBNs. Name order and punctuation are normalized for comparison only. Editions and translations can be different books. Review decisions are private and never delete, merge or hide publications.": "ابحث عن نسخ محتملة من العناوين والمؤلفين وأرقام ISBN الصالحة. يُوحّد ترتيب الأسماء وعلامات الترقيم للمقارنة فقط. قد تكون الطبعات والترجمات كتبًا مختلفة. قرارات المراجعة خاصة ولا تحذف المنشورات أو تدمجها أو تخفيها.",
         "Find possible duplicates": "البحث عن نسخ مكررة محتملة",
@@ -1380,7 +1377,10 @@ OC.L10N.register(
         "without dates yet": "بدون تواريخ بعد",
         "yes": "نعم",
         "{count} of 5 stars": "{count} من 5 نجوم",
-        "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية."
+        "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية.",
+        "Type at least three letters to search authors.": "اكتب ثلاثة أحرف على الأقل للبحث عن المؤلفين.",
+        "Destination selected. Review the change before applying it.": "تم اختيار المؤلف الوجهة. راجع التغيير قبل تطبيقه.",
+        "Create new author": "إنشاء مؤلف جديد"
     },
     "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 );

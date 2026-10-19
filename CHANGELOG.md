@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0-alpha.28
+
+- Replace destination-author Search and select controls with a three-letter typeahead, direct keyboard/pointer selection and explicit creation after no matches.
+- Cancel stale searches and invalidate the previous review when the destination changes. Keep reviewed confirmation and Undo. No database migration.
+
 ## 0.3.0-alpha.27
 
 - Consolidate Authors, Series, conflict review and legacy bookmarks on one book editor, preserving Back context and redirect feedback.

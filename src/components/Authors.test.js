@@ -1,0 +1,106 @@
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { mount, flushPromises, enableAutoUnmount } from '@vue/test-utils'
+import Authors from './Authors.vue'
+vi.mock('@nextcloud/router', () => ({ generateUrl: path => path }))
+enableAutoUnmount(afterEach)
+const author = { id: 7, display_name: 'Beth Pickens', sort_name: 'Pickens, Beth' }
+const response = data => ({ ok: true, json: async () => data })
+const button = (wrapper, name) => wrapper.findAll('button').find(b => b.text() === name)
+let fetchMock
+beforeEach(() => {
+  vi.useFakeTimers()
+  window.history.replaceState({}, '', '/?authors=1&authorId=1')
+  fetchMock = vi.fn(async url => response(url.includes('/1?') ? { author: { id: 1, display_name: 'Source author' }, books: [], bookCount: 0, canEdit: true } : url.includes('?search=') ? { authors: [author] } : []))
+  vi.stubGlobal('fetch', fetchMock)
+})
+afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); window.history.replaceState({}, '', '/') })
+async function open() {
+  const wrapper = mount(Authors, { props: { catalogueUrl: '/apps/library/', requestToken: 'token' }, global: { stubs: { AuthorConflicts: true, CatalogueCover: true, LabelHelp: true } } })
+  await flushPromises()
+  await button(wrapper, 'Merge or reassign').trigger('click')
+  return wrapper
+}
+const searches = () => fetchMock.mock.calls.filter(([url]) => url.includes('?search='))
+async function type(wrapper, value) {
+  await wrapper.get('#target-search').setValue(value)
+  await vi.advanceTimersByTimeAsync(250)
+  await flushPromises()
+}
+it('debounces three Unicode letters, selects by keyboard and keeps review explicit', async () => {
+  const w = await open()
+  await type(w, 'Be12'); expect(searches()).toHaveLength(0)
+  await w.get('#target-search').setValue('Bét')
+  await vi.advanceTimersByTimeAsync(150)
+  await w.get('#target-search').setValue('Béth')
+  await vi.advanceTimersByTimeAsync(249); expect(searches()).toHaveLength(0)
+  await vi.advanceTimersByTimeAsync(1); await flushPromises()
+  expect(searches()).toHaveLength(1)
+  expect(button(w, 'Create new author')).toBeUndefined()
+  await w.get('#target-search').trigger('keydown', { key: 'ArrowDown' })
+  expect(w.get('#target-search').attributes('aria-activedescendant')).toBe('target-option-0')
+  await w.get('#target-search').trigger('keydown', { key: 'Enter' })
+  expect(w.get('#target-search').element.value).toBe('Beth Pickens')
+  expect(button(w, 'Review change').attributes('disabled')).toBeUndefined()
+  expect(fetchMock.mock.calls.filter(([, options]) => options.method === 'POST')).toHaveLength(0)
+  fetchMock.mockResolvedValueOnce(response({ source: 'Source author', target: author.display_name, bookCount: 0, books: [], merge: true, token: 'review-token' }))
+  await button(w, 'Review change').trigger('click'); await flushPromises()
+  expect(JSON.parse(fetchMock.mock.calls.at(-1)[1].body)).toEqual({ target: 7, items: [] })
+  expect(button(w, 'Confirm author change')).toBeDefined()
+  await w.get('#target-search').setValue('New name')
+  expect(button(w, 'Confirm author change')).toBeUndefined()
+  expect(button(w, 'Review change').attributes('disabled')).toBeDefined()
+})
+it('creates only after a successful empty search, then selects the new author without assigning books', async () => {
+  const w = await open()
+  expect(button(w, 'Create new author')).toBeUndefined()
+  fetchMock.mockResolvedValueOnce(response({ authors: [] }))
+  await w.get('#target-search').setValue('New person')
+  expect(button(w, 'Create new author')).toBeUndefined()
+  await vi.advanceTimersByTimeAsync(250); await flushPromises()
+  fetchMock.mockResolvedValueOnce(response({ ...author, display_name: 'New person' }))
+  await button(w, 'Create new author').trigger('click'); await flushPromises()
+  expect(JSON.parse(fetchMock.mock.calls.at(-1)[1].body)).toEqual({ name: 'New person' })
+  expect(button(w, 'Review change').attributes('disabled')).toBeUndefined()
+  expect(fetchMock.mock.calls.some(([url]) => url.endsWith('/assign'))).toBe(false)
+})
+it('ignores out-of-order results even when the server ignores cancellation', async () => {
+  const w = await open(); let resolveOld
+  fetchMock.mockImplementationOnce(() => new Promise(resolve => { resolveOld = resolve }))
+  await type(w, 'Older')
+  const oldSignal = searches()[0][1].signal
+  fetchMock.mockResolvedValueOnce(response({ authors: [{ ...author, display_name: 'Latest' }] }))
+  await type(w, 'Latest')
+  expect(oldSignal.aborted).toBe(true)
+  resolveOld(response({ authors: [] })); await flushPromises()
+  expect(w.get('[role=option]').text()).toContain('Latest')
+  expect(button(w, 'Create new author')).toBeUndefined()
+})
+it('shows search failures without offering creation or retaining an old destination', async () => {
+  const w = await open(); await type(w, 'Beth')
+  await w.get('[role=option]').trigger('click')
+  fetchMock.mockRejectedValueOnce(new Error('Offline'))
+  await type(w, 'Other')
+  expect(w.get('[role=alert]').text()).toBe('Offline')
+  expect(button(w, 'Create new author')).toBeUndefined()
+  expect(button(w, 'Review change').attributes('disabled')).toBeDefined()
+})
+it('excludes the source author, closes with Escape and resets on cancel', async () => {
+  const w = await open()
+  fetchMock.mockResolvedValueOnce(response({ authors: [{ ...author, id: 1 }, author] }))
+  await type(w, 'Beth'); expect(w.findAll('[role=option]')).toHaveLength(1)
+  await w.get('#target-search').trigger('keydown', { key: 'Escape' }); expect(w.find('[role=listbox]').exists()).toBe(false)
+  await w.get('#target-search').trigger('focus'); expect(w.find('[role=listbox]').exists()).toBe(true)
+  await button(w, 'Cancel').trigger('click')
+  await button(w, 'Merge or reassign').trigger('click')
+  expect(w.get('#target-search').element.value).toBe('')
+  expect(button(w, 'Review change').attributes('disabled')).toBeDefined()
+})
+it('aborts search on unmount and cancels pending debounce on cancel', async () => {
+  const w = await open()
+  await w.get('#target-search').setValue('Beth'); await button(w, 'Cancel').trigger('click')
+  await vi.advanceTimersByTimeAsync(1000); expect(searches()).toHaveLength(0)
+  await button(w, 'Merge or reassign').trigger('click')
+  fetchMock.mockImplementationOnce(() => new Promise(() => {}))
+  await type(w, 'Beth'); const signal = searches()[0][1].signal
+  w.unmount(); expect(signal.aborted).toBe(true)
+})
