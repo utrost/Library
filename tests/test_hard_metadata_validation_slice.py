@@ -26,8 +26,8 @@ def test_item_controller_redirects_invalid_detail_edits_to_visible_feedback_with
     assert "catch (\\InvalidArgumentException $e)" in controller
     assert "metadataError" in controller
     assert "metadataSaved' => '1'" in controller
-    assert "metadataError" in detail_controller
-    assert "metadataValidationError" in detail_controller
+    assert "BookDetailsUrl::FEEDBACK" in detail_controller
+    assert "Metadata was not saved: %s" in (ROOT / "src/components/FullDetails.vue").read_text()
     assert "library-validation-feedback" in template
     assert "role=\"alert\"" in template
     assert "Metadata was not saved" in template

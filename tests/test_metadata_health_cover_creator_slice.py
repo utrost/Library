@@ -57,7 +57,7 @@ def test_manual_cover_override_has_upload_url_and_revert_routes():
     assert "setManualCoverOverride" in controller
     assert "clearManualCoverOverride" in controller
     assert "manual-cover" in controller
-    assert "coverOverrideUrl" in page_controller
+    assert "'coverOverride' => 'library.cover.override'" in page_controller
     assert "library-cover-override-form" in template
     assert "name=\"coverOverrideUrl\"" not in template
     assert "name=\"coverOverrideFile\"" in template

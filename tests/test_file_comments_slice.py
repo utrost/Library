@@ -27,7 +27,7 @@ def test_catalogue_payload_omits_comments_while_detail_comments_remain_available
     assert "commentsForItems($items)" not in page
     assert "fileCommentsByFileId" not in page
     assert "commentsForItems([$item])" in detail
-    assert "nextcloudComments" in detail
+    assert "'comments' => $comments[$fileId]" in detail
 
 
 def test_detail_template_renders_nextcloud_comments_as_discussion_not_metadata():

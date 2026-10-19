@@ -207,6 +207,9 @@ try {
     const modernDetail = first.detailsUrl ? await fetchText(first.detailsUrl, token) : { status: 0, text: '', headers: new Headers() }
     const modernDetailState = decodeInitialState(modernDetail.text)
     const detail = first.id ? await fetchText(`/apps/library/items/${first.id}`, token) : { status: 0, text: '', headers: new Headers() }
+    const detailState = decodeInitialState(detail.text)
+    const detailContextResponse = await fetchText(`/apps/library/items/${first.id}/details-context`, token)
+    const detailContext = JSON.parse(detailContextResponse.text)
     const settingsPage = await fetchText('/settings/user/library', token)
     const metadataSidecarManifestUrl = state?.metadataSidecarManifestUrl || '/apps/library/export/metadata/sidecar-manifest'
     const sidecarManifest = await fetchText(metadataSidecarManifestUrl, token)
@@ -356,7 +359,7 @@ try {
     const calmCatalogue = bundleHas('sort=lastOpened', 'starred=1') && !bundle.includes('library-home-dashboard') && !bundle.includes('featuredHomeItems')
     const selectionGatedActions = bundleHas('itemIds[]', 'selectedItemIds', 'aria-live', 'checkbox')
     const fiveReviewGroups = ['Suggested updates', 'Needs details', 'File problems', 'Cover problems', 'Imported changes'].every((label) => bundle.includes(label))
-    const fourMetadataStatusConcepts = ['Completeness', 'Confidence', 'Attention', 'Personal'].every((label) => detail.text.includes(label))
+    const fourMetadataStatusConcepts = ['Completeness', 'Confidence', 'Attention', 'Personal'].every((label) => bundle.includes(label))
     const fourSettingsSections = ['Folders and scanning', 'Metadata and covers', 'Import and export', 'Diagnostics'].every((label) => settingsPage.text.includes(label))
     const contextualSidebarActions = bundleHas('library-detail-drawer-actions', 'openUrl', 'filesUrl', 'downloadUrl', 'detailsUrl', 'Open', 'Show in Files', 'Download', 'Advanced details')
     const noTechnicalCatalogueDashboards = !bundle.includes('library-home-dashboard') && !bundle.includes('library-weak-metadata-dashboard') && !bundle.includes('library-import-health-dashboard') && !bundle.includes('Weak metadata cockpit')
@@ -403,24 +406,23 @@ try {
     console.log(`cover_refresh_cache_control=${coverRefresh.cacheControl}`)
     console.log(`cover_refresh_header=${coverRefresh.coverRefresh}`)
     console.log(`detail_http=${detail.status}`)
-    console.log(`detail_has_edit_form=${detail.text.includes('library-detail-edit-form')}`)
-    console.log(`detail_has_single_metadata_surface=${detail.status === 200 && detail.text.includes('library-detail-edit-form')}`)
-    console.log(`detail_has_requesttoken=${detail.text.includes('name="requesttoken"')}`)
-    console.log(`detail_has_return_to_details=${detail.text.includes('name="returnTo"') && detail.text.includes('value="details"')}`)
-    console.log(`detail_has_tag_editor=${detail.text.includes('library-detail-tag-editor') && detail.text.includes('nextcloudTagEditor')}`)
-    console.log(`detail_has_tag_return_to_details=${detail.text.includes('name="returnTo"') && detail.text.includes('value="details"') && detail.text.includes('name="nextcloudTagName"')}`)
-    console.log(`detail_has_tag_suggestion_picker=${detail.text.includes('library-tag-suggestion-picker') && detail.text.includes('Suggested Nextcloud tags') && detail.text.includes('Add suggested tag')}`)
-    console.log(`detail_has_comment_form=${detail.text.includes('library-detail-comment-form') && detail.text.includes('name="commentMessage"')}`)
-    console.log(`detail_has_comment_return_to_details=${detail.text.includes('name="returnTo"') && detail.text.includes('value="details"') && detail.text.includes('name="commentMessage"')}`)
-    console.log(`detail_has_user_edited_marker=${detail.text.includes('data-library-field="userEdited"')}`)
-    console.log(`detail_has_v01_metadata_form_polish=${detail.text.includes('library-detail-edit-form--autosave') && detail.text.includes('library-detail-title-field') && detail.text.includes('library-creators-field') && detail.text.includes('name="language[]"') && detail.text.includes('library-language-picklist') && detail.text.includes('name="subjects"') && detail.text.includes('library-subject-field') && detail.text.includes('library-publisher-suggestions') && detail.text.includes('library-detail-description-field')}`)
-    console.log(`detail_has_validation_feedback_contract=${detail.text.includes('library-validation-feedback') && detail.text.includes('Metadata was not saved') && detail.text.includes('role="alert"')}`)
-    console.log(`detail_has_field_provenance=${detail.text.includes('library-field-provenance') && detail.text.includes('Scanner candidate')}`)
-    console.log(`detail_has_field_reset_form=${detail.text.includes('library-field-reset-form') && detail.text.includes('Reset to scanner')}`)
-    console.log(`detail_has_fields_reset_form=${detail.text.includes('library-fields-reset-form') && detail.text.includes('Reset all fields to scanner')}`)
-    console.log(`detail_has_field_conflict_marker=${detail.text.includes('library-field-conflict') && detail.text.includes('Differs from scanner')}`)
-    console.log(`detail_has_metadata_correction_summary=${detail.text.includes('library-metadata-correction-summary') && detail.text.includes('Fields differing from scanner')}`)
-    console.log(`detail_has_metadata_guidance=${detail.text.includes('library-metadata-guidance') && detail.text.includes('Use YYYY, YYYY-MM, or YYYY-MM-DD')}`)
+    const unifiedEditor = detailState?.surface === 'details' && String(detailState?.detailsId) === String(first.id) && !detail.text.includes('library-detail-edit-form--autosave')
+    console.log(`detail_has_edit_form=${unifiedEditor && bundleHas('library-full-details-metadata-form')}`)
+    console.log(`detail_has_single_metadata_surface=${unifiedEditor}`)
+    console.log(`detail_has_requesttoken=${Boolean(extractRequestToken(detail.text))}`)
+    console.log(`detail_has_return_to_details=${bundleHas('returnTo', 'details')}`)
+    console.log(`detail_has_tag_editor=${Boolean(detailContext.actions?.tag) && bundleHas('nextcloudTagName')}`)
+    console.log(`detail_has_tag_return_to_details=${bundleHas('returnTo', 'nextcloudTagName')}`)
+    console.log(`detail_has_tag_suggestion_picker=${Array.isArray(detailContext.tagSuggestions) && bundleHas('library-full-details-tag-suggestions')}`)
+    console.log(`detail_has_comment_form=${Boolean(detailContext.actions?.comment) && bundleHas('commentMessage')}`)
+    console.log(`detail_has_comment_return_to_details=${bundleHas('returnTo', 'commentMessage')}`)
+    console.log(`detail_has_user_edited_marker=${Boolean(detailContext.metadataStatus?.confidence)}`)
+    console.log(`detail_has_explicit_save_discard=${bundleHas('Save book details', 'Discard changes')}`)
+    console.log(`detail_has_validation_feedback_contract=${bundleHas('library-full-details-error', 'Metadata was not saved')}`)
+    console.log(`detail_has_field_provenance=${bundleHas('library-full-details-provenance', 'Scanner candidate')}`)
+    console.log(`detail_has_field_reset_form=${Boolean(detailContext.actions?.resetField) && bundleHas('Reset to scanner')}`)
+    console.log(`detail_has_fields_reset_form=${Boolean(detailContext.actions?.resetFields) && bundleHas('Reset all fields to scanner')}`)
+    console.log(`detail_has_metadata_correction_summary=${fourMetadataStatusConcepts && Boolean(detailContext.metadataStatus)}`)
     console.log(`settings_has_scan_changes_panel=${settingsPage.text.includes('library-scan-changes-panel') && settingsPage.text.includes('Changes found')}`)
     console.log(`settings_has_scan_changes_ux=${settingsPage.text.includes('library-scan-change-grid') && settingsPage.text.includes('Moved or renamed')}`)
     console.log(`settings_has_scan_completion_summary=${settingsPage.text.includes('library-scan-completion-summary') && settingsPage.text.includes('Export metadata-error TSV')}`)
@@ -451,10 +453,7 @@ try {
     console.log(`import_summary_after_refresh_http=${importSummaryAfterRefresh.status}`)
     console.log(`import_summary_after_refresh_elapsed_ms=${importSummaryAfterRefreshElapsedMs}`)
     console.log(`import_summary_after_refresh_cache_status=${importSummaryAfterRefreshJson?.cacheStatus || ''}`)
-    const scannerConflictCountMatch = detail.text.match(/Fields differing from scanner:\s*([0-9]+)/)
-    const scannerConflictCount = scannerConflictCountMatch ? Number.parseInt(scannerConflictCountMatch[1], 10) : 0
-    console.log(`detail_seeded_conflict_count=${scannerConflictCount}`)
-    console.log(`detail_has_seeded_conflict_count=${scannerConflictCount >= 1}`)
+    console.log(`detail_saved_metadata_status_present=${Boolean(detailContext.metadataStatus?.completeness)}`)
     console.log(`first_filesUrl_has_dir=${String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')}`)
     console.log(`first_filesUrl_opens_reader=${String(first.filesUrl || '').includes('openfile=true')}`)
     console.log(`first_filesUrl_shows_folder=${String(first.filesUrl || '').includes('openfile=false')}`)
@@ -502,9 +501,9 @@ try {
       detail_url_present: 'detailsUrl' in first && String(first.detailsUrl || '').includes('/apps/library/?details='),
       full_details_surface: modernDetail.status === 200 && modernDetailState?.surface === 'details' && String(modernDetailState?.detailsId) === String(first.id),
       detail_page_http_200: detail.status === 200,
-      detail_edit_csrf_return_contract: detail.text.includes('library-detail-edit-form') && detail.text.includes('name="requesttoken"') && detail.text.includes('name="returnTo"') && detail.text.includes('value="details"'),
-      detail_tag_form: detail.text.includes('library-detail-tag-editor') && detail.text.includes('name="nextcloudTagName"'),
-      detail_comment_form: detail.text.includes('library-detail-comment-form') && detail.text.includes('name="commentMessage"'),
+      detail_edit_csrf_return_contract: detailState?.surface === 'details' && String(detailState?.detailsId) === String(first.id) && !detail.text.includes('library-detail-edit-form--autosave') && bundleHas('Save book details', 'Discard changes', 'requesttoken'),
+      detail_tag_form: Boolean(detailContext.actions?.tag) && bundleHas('Nextcloud tags', 'nextcloudTagName'),
+      detail_comment_form: Boolean(detailContext.actions?.comment) && bundleHas('Nextcloud comments', 'commentMessage'),
       files_url_opens_folder: (String(first.filesUrl || '').includes('?dir=') || String(first.filesUrl || '').includes('&dir=')) && String(first.filesUrl || '').includes('openfile=false') && !String(first.filesUrl || '').includes('openfile=true'),
       settings_page_http_200: settingsPage.status === 200,
       import_preview_csrf_enforced: importPreview.status === 412,

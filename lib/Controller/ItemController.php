@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OCA\Library\Controller;
 
+use OCA\Library\Presentation\BookDetailsUrl;
+
 use OCA\Library\AppInfo\Application;
 use OCA\Library\Exception\BatchLimitExceededException;
 use OCA\Library\Exception\MetadataConflictException;
@@ -175,7 +177,7 @@ final class ItemController extends Controller {
                     'draft' => $draft,
                     'current' => $current,
                     'updateUrl' => $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => $itemId]),
-                    'detailsUrl' => $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]),
+                    'detailsUrl' => BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]),
                 ], 'user', 409);
                 $response->addHeader('Cache-Control', 'private, no-store');
                 return $response;
@@ -188,7 +190,7 @@ final class ItemController extends Controller {
                 }
                 $returnTo = (string)$this->request->getParam('returnTo', '');
                 if ($returnTo === 'details') {
-                    return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', [
+                    return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, [
                         'itemId' => $itemId,
                         'metadataError' => $safeError,
                     ]));
@@ -205,7 +207,7 @@ final class ItemController extends Controller {
             ]);
         }
         if ($returnTo === 'details') {
-            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId, 'metadataSaved' => '1']));
+            return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId, 'metadataSaved' => '1']));
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
@@ -221,7 +223,7 @@ final class ItemController extends Controller {
 
         $returnTo = (string)$this->request->getParam('returnTo', '');
         if ($returnTo === 'details') {
-            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+            return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]));
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
@@ -236,7 +238,7 @@ final class ItemController extends Controller {
 
         $returnTo = (string)$this->request->getParam('returnTo', '');
         if ($returnTo === 'details') {
-            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+            return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]));
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
@@ -398,7 +400,7 @@ final class ItemController extends Controller {
 
         $returnTo = (string)$this->request->getParam('returnTo', '');
         if ($returnTo === 'details') {
-            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+            return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]));
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
@@ -432,7 +434,7 @@ final class ItemController extends Controller {
 
         $returnTo = (string)$this->request->getParam('returnTo', '');
         if ($returnTo === 'details') {
-            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+            return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]));
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
@@ -449,7 +451,7 @@ final class ItemController extends Controller {
         if ($returnTo === 'details') {
             $item = $user !== null ? $this->itemService->findItem($user->getUID(), $itemId) : null;
             if ($item !== null) {
-                return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+                return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]));
             }
         }
 

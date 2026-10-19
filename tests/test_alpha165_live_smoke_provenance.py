@@ -17,7 +17,7 @@ def test_user_edited_provenance_uses_locale_independent_marker_in_detail_and_smo
     assert marker in detail
     assert json.loads(read("l10n/de.json"))["translations"]["User edited"] != "User edited"
     assert json.loads(read("l10n/ar.json"))["translations"]["User edited"] != "User edited"
-    assert f"detail.text.includes('{marker}')" in smoke
+    assert "detailContext.metadataStatus?.confidence" in smoke
     assert "detail_mentions_userEdited" not in smoke
     assert "!detail.text.includes('userEdited')" not in smoke
 
