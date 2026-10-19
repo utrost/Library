@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OCA\Library\Controller;
 
+use OCA\Library\Presentation\BookDetailsUrl;
+
 use OCA\Library\Service\FileCommentService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -36,7 +38,7 @@ final class CommentController extends Controller {
 
         $returnTo = (string)$this->request->getParam('returnTo', '');
         if ($returnTo === 'details') {
-            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+            return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]));
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));

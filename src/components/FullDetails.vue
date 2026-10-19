@@ -149,6 +149,46 @@ const provenance = computed(() => Object.entries(fieldNames).map(([field, label]
   }
 }))
 const differences = computed(() => provenance.value.filter(row => row.hasCandidate && row.changed))
+const metadataStatus = computed(() => context.value?.metadataStatus)
+const confidenceLabels = {
+  'user-edited': t('library', 'User edited'), mixed: t('library', 'Mixed sources'),
+  inferred: t('library', 'Filename/path inferred'), extracted: t('library', 'Extracted'),
+}
+const attentionLabels = {
+  'file-status': t('library', 'File status needs attention'), 'scan-error': t('library', 'Metadata extraction problem'),
+  suggestions: t('library', 'Suggested updates available'), 'identifier-problems': t('library', 'Invalid identifier checksum'),
+}
+const statusAttention = computed(() => {
+  const entries = (metadataStatus.value?.attention || []).filter(key => key !== 'suggestions')
+  if (differences.value.length) entries.push('suggestions')
+  return entries.map(key => attentionLabels[key]).filter(Boolean).join(' · ') || t('library', 'No current problems')
+})
+const completenessPercent = computed(() => {
+  const value = metadataStatus.value?.completeness
+  return value?.total ? Math.round(value.complete / value.total * 100) : 100
+})
+let redirectFeedbackPending = true
+function applyRedirectFeedback() {
+  if (!redirectFeedbackPending) return
+  redirectFeedbackPending = false
+  const query = new URLSearchParams(window.location.search)
+  coverRefreshRequested.value = query.get('coverRefresh') === '1'
+  if (query.get('metadataSaved') === '1') feedback.value = t('library', 'Saved')
+  const metadataError = query.get('metadataError')
+  if (metadataError) error.value = t('library', 'Metadata was not saved: %s', [metadataError.slice(0, 4096)])
+  const coverError = query.get('coverUploadError')
+  if (coverError === 'invalid') error.value = t('library', 'Cover was not saved. Choose a valid JPEG, PNG, or WebP within the upload limits.')
+  if (coverError === 'remote-url-disabled') error.value = t('library', 'Cover was not saved. Upload a JPEG, PNG, or WebP image.')
+  const tag = (query.get('tagName') || t('library', 'tag')).slice(0, 4096)
+  switch (query.get('tagResult')) {
+    case 'added': case 'created': feedback.value = t('library', 'Tag added: %s', [tag]); break
+    case 'already-assigned': feedback.value = t('library', 'Tag already assigned: %s', [tag]); break
+    case 'empty': feedback.value = t('library', 'Empty tag ignored.'); break
+    case 'not-assignable': error.value = t('library', 'Tag is not assignable: %s', [tag]); break
+    case 'item-not-found': error.value = t('library', 'Publication not found for tag update.'); break
+  }
+}
+
 
 function listText(value) {
   return Array.isArray(value) ? value.join('\n') : String(value || '').split(';').map(v => v.trim()).filter(Boolean).join('\n')
@@ -417,6 +457,7 @@ async function load({ silent = false } = {}) {
     setDraft(item.value)
     coverRevision.value++
     coverRefreshRequested.value = false
+    applyRedirectFeedback()
     return true
   } catch (cause) { error.value = cause.message || t('library', 'Publication details could not be loaded.') }
   finally { loading.value = false }
@@ -688,6 +729,18 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
           <section class="library-full-details-card"><h2>{{ t('library', 'Nextcloud comments') }}</h2><p class="library-muted">{{ n('library', '%n comment', '%n comments', context.comments.count || 0) }}</p><ul v-if="context.comments.recent?.length" class="library-full-details-comments"><li v-for="comment in context.comments.recent" :key="comment.id"><small>{{ comment.actorId }} · {{ comment.createdAt }}</small><p>{{ comment.message }}</p></li></ul><form @submit.prevent="addComment"><label>{{ t('library', 'Add Nextcloud comment') }}<textarea v-model="commentMessage" rows="3"></textarea></label><button type="submit" class="button secondary" :disabled="busy || !commentMessage.trim()">{{ t('library', 'Add comment') }}</button></form></section>
         </div>
       </div>
+      <details v-if="metadataStatus" class="library-full-details-card library-full-details-status">
+        <summary>{{ t('library', 'Metadata status') }}</summary>
+        <dl class="library-full-details-source-values">
+          <dt>{{ t('library', 'Completeness') }}</dt>
+          <dd>{{ completenessPercent }}% · {{ metadataStatus.completeness.complete }}/{{ metadataStatus.completeness.total }}
+            <span v-if="metadataStatus.completeness.missing.length" class="library-status-missing">{{ t('library', 'Missing details') }} {{ metadataStatus.completeness.missing.map(field => field === 'creators' ? t('library', 'Authors') : fieldNames[field] || field).join(', ') }}</span>
+          </dd>
+          <dt>{{ t('library', 'Confidence') }}</dt><dd>{{ confidenceLabels[metadataStatus.confidence] || '—' }}</dd>
+          <dt>{{ t('library', 'Attention') }}</dt><dd>{{ statusAttention }}</dd>
+          <dt>{{ t('library', 'Personal') }}</dt><dd>{{ t('library', 'Favorite') }}: {{ metadataStatus.personal.starred ? t('library', 'Yes') : t('library', 'No') }} · {{ metadataStatus.personal.rating ? `${metadataStatus.personal.rating}/5` : t('library', 'Not rated') }} · {{ workflowOptions.find(option => option.value === metadataStatus.personal.workflow)?.label || t('library', 'No workflow status') }}</dd>
+        </dl>
+      </details>
       <details class="library-full-details-card library-full-details-provenance"><summary>{{ t('library', 'Imported metadata and scan suggestions') }}</summary><dl class="library-full-details-source-values"><dt>{{ t('library', 'Creator credit in file') }}</dt><dd>{{ item.creators || '—' }}</dd><dt>{{ t('library', 'Series in file') }}</dt><dd>{{ item.series || '—' }}<span v-if="item.seriesNumber"> · {{ item.seriesNumber }}</span></dd><dt>{{ t('library', 'Genre in file') }}</dt><dd>{{ item.genre || '—' }}</dd></dl><p class="library-muted">{{ t('library', 'Scanner suggestions never replace your edits automatically.') }}</p><div v-if="differences.length" class="library-full-details-differences"><article v-for="row in differences" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><button type="button" class="button secondary" :disabled="busy || row.rejected" :title="row.rejected ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetField, { field: row.field })">{{ t('library', 'Reset to scanner') }}</button></article></div><p v-else>{{ t('library', 'No scanner differences for this item.') }}</p><details><summary>{{ t('library', 'Show all scanner provenance') }}</summary><div class="library-full-details-differences"><article v-for="row in provenance" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Scanner source') }}: {{ row.source || '—' }}</p><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><p v-if="row.sourceOriginal">{{ t('library', 'Original source value') }}: <bdi dir="auto">{{ row.sourceOriginal }}</bdi></p></article></div></details><button v-if="differences.length" type="button" class="button secondary" :disabled="busy || rejectedFields.length > 0" :title="rejectedFields.length ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetFields)">{{ t('library', 'Reset all fields to scanner') }}</button></details>
       <details class="library-full-details-card library-full-details-file"><summary>{{ t('library', 'File metadata') }}</summary><dl class="library-full-details-source-values"><dt>{{ t('library', 'Location') }}</dt><dd><a v-if="item.filesUrl" :href="item.filesUrl" :title="t('library', 'Show in Files')"><bdi dir="ltr">{{ item.cachedPath }}</bdi></a><bdi v-else dir="ltr">{{ item.cachedPath }}</bdi></dd><dt>{{ t('library', 'File size') }}</dt><dd :title="exactFileSize">{{ fileSize }}</dd><dt>{{ t('library', 'Format') }}</dt><dd>{{ (item.extension || '').toUpperCase() }}</dd><dt>{{ t('library', 'Scan status') }}</dt><dd>{{ item.scanStatus || '—' }}</dd><dt>{{ t('library', 'Metadata source') }}</dt><dd>{{ item.metadataSource || '—' }}</dd><dt v-if="item.scanError">{{ t('library', 'Scan error') }}</dt><dd v-if="item.scanError">{{ item.scanError }}</dd><dt>{{ t('library', 'File ID') }}</dt><dd>{{ context.file.fileId || '—' }}</dd><dt>{{ t('library', 'MIME type') }}</dt><dd>{{ context.file.mimeType || '—' }}</dd><dt v-if="item.shelf">{{ t('library', 'Shelf') }}</dt><dd v-if="item.shelf">{{ item.shelf }}</dd></dl><button v-if="item.scanStatus === 'missing'" type="button" class="button secondary" :disabled="busy" @click="forgetMissing">{{ t('library', 'Forget missing publication') }}</button></details>
     </template>
@@ -698,7 +751,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details { box-sizing: border-box; container-type: inline-size; max-width: 1280px; margin: 0 auto; padding: 24px; }
 .library-full-details-back { display: inline-block; margin-bottom: 20px; }
 .library-full-details-error { color: var(--color-error); }
-.library-full-details-feedback { color: var(--color-success); }
+.library-full-details-feedback { color: var(--color-success-text, #176b35); }
 .library-full-details-hero { display: grid; grid-template-columns: minmax(150px, 220px) 1fr; gap: 24px; margin-bottom: 24px; }
 .library-full-details-cover-frame { background: var(--color-background-dark); border: 1px solid var(--color-border); border-radius: 12px; isolation: isolate; overflow: hidden; position: relative; }
 .library-full-details-cover-frame img { display: block; width: 100%; max-height: 330px; min-height: 220px; object-fit: contain; }
@@ -750,9 +803,9 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-chip button { border: 0; background: transparent; cursor: pointer; }
 .library-full-details-comments { list-style: none; padding: 0; }
 .library-full-details-comments li { border-bottom: 1px solid var(--color-border); padding: 8px 0; overflow-wrap: anywhere; }
-.library-full-details-provenance > summary, .library-full-details-file > summary { cursor: pointer; font-size: 1.2rem; font-weight: 600; }
-.library-full-details-provenance, .library-full-details-file { margin-top: 20px; }
-.library-full-details-provenance > summary:focus-visible, .library-full-details-file > summary:focus-visible { outline: 2px solid var(--color-primary-element); outline-offset: 4px; border-radius: 3px; }
+.library-full-details-status > summary, .library-full-details-provenance > summary, .library-full-details-file > summary { cursor: pointer; font-size: 1.2rem; font-weight: 600; }
+.library-full-details-status, .library-full-details-provenance, .library-full-details-file { margin-top: 20px; }
+.library-full-details-status > summary:focus-visible, .library-full-details-provenance > summary:focus-visible, .library-full-details-file > summary:focus-visible { outline: 2px solid var(--color-primary-element); outline-offset: 4px; border-radius: 3px; }
 .library-full-details-source-values { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 12px; margin: 16px 0; }
 .library-full-details-source-values dt, .library-full-details-source-values dd { float: none; width: auto; min-width: 0; padding: 0; margin: 0; text-align: start; }
 .library-full-details-source-values dt { font-weight: 600; }
@@ -762,6 +815,8 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-differences h3 { margin: 0 0 8px; }
 @container (max-width: 1100px) { .library-full-details-columns { grid-template-columns: minmax(0, 1fr); } }
 @container (max-width: 760px) { .library-full-details-fields { grid-template-columns: minmax(0, 1fr); } }
+.library-status-missing { display: block; }
+.library-full-details-status dt { font-weight: 600; }
 @container (max-width: 560px) { .library-full-details-file .library-full-details-source-values { grid-template-columns: minmax(0, 1fr); } .library-full-details-file .library-full-details-source-values dd { margin-bottom: 8px; } .library-full-details-savebar { align-items: stretch; flex-direction: column; } .library-full-details-savebar-actions > button { flex: 1 1 auto; } }
 @media (max-width: 600px) { .library-full-details { padding: 16px; } .library-full-details-hero { grid-template-columns: 1fr; } .library-full-details-cover { max-width: 200px; } }
 </style>
@@ -778,6 +833,8 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-identity-panel .library-identity-series { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; max-width: 100%; }
 .library-identity-panel .library-identity-series > a { min-width: 0; overflow-wrap: anywhere; }
 .library-identity-panel .library-full-details-author-actions button { max-width: 100%; white-space: normal; }
+.library-status-missing { display: block; }
+.library-full-details-status dt { font-weight: 600; }
 @container (max-width: 560px) {
   .library-identity-panel .library-identity-row { grid-template-columns: minmax(0, 1fr); }
   .library-identity-panel .library-identity-row > h2 { margin: 0; }

@@ -1,6 +1,16 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.26, Nextcloud 33–35.** Confirm the installed version and archive checksum before using the populated developer Nextcloud 34 instance at `http://100.123.149.120:8088`; use the [alpha.26 verification and deployment record](compatibility-evidence/2026-10-19-nc34-compact-identities-alpha26/README.md) to identify the installed package. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.26 still needs its own exact-package version matrix. The earlier `0.3.0-alpha.11` developer handoff and the numbered alpha.174 cases later in this file are historical records; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.27, Nextcloud 33–35.** Confirm the installed version and archive checksum before using the populated developer Nextcloud 34 instance at `http://100.123.149.120:8088`; use the [alpha.26 verification and deployment record](compatibility-evidence/2026-10-19-nc34-compact-identities-alpha26/README.md) to identify the installed package. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.26 still needs its own exact-package version matrix. The earlier `0.3.0-alpha.11` developer handoff and the numbered alpha.174 cases later in this file are historical records; follow the current pass below for 0.3 acceptance.
+
+## H03-18: One editor from every entry point
+
+1. From an author page, open a book title or cover. Repeat from a series page and imported-author conflict review. Expect **Book details**, the compact Authors → Series → Genres panel and explicit Save/Discard; never the old Creators field or automatic-save message.
+2. Use Back to results. Expect the author/series or originating catalogue search view. Open an old `/apps/library/items/{id}` bookmark: it should reach the same editor. Another user's book must remain inaccessible.
+3. Stage a title, author, series part and genre change. Scroll to the bottom: Save/Discard remains available. Discard restores all saved values. On a disposable sample, Save applies all changes once; another stale tab must be rejected.
+4. Below Nextcloud tags/comments, expect collapsed **Metadata status → Imported metadata and scan suggestions → File metadata**. Tab to each heading and press Enter to expand. Status uses normal-sized labels and reflects saved values, not staged edits; it refreshes after Save.
+5. Repeat at a narrow mobile width and in light/dark themes. Check readable wrapping, visible focus, no horizontal scrolling and no obscured actions. In File metadata, verify size and the underlined location link to Files.
+
+Use a disposable account for Save/stale-edit checks. Developer smoke only stages and discards changes; it does not update real books. Release certification on NC33–35 remains separate.
 
 ## Before testing
 

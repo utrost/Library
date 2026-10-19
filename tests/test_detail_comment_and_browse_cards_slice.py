@@ -13,7 +13,7 @@ def test_detail_page_owns_nextcloud_comment_form():
     assert "value=\"details\"" in template
     assert "$l->t('Add Nextcloud comment')" in template
     assert "$l->t('Add comment')" in template
-    assert "linkToRoute('library.comment.add'" in controller
+    assert "'comment' => 'library.comment.add'" in controller
 
 
 def test_detail_page_owns_publication_metadata_edit_form():
@@ -42,7 +42,7 @@ def test_detail_page_owns_publication_metadata_edit_form():
     assert 'name=\"language[]\"' in template
     assert "getParam('language'" in item_controller
     assert "returnTo === 'details'" in item_controller
-    assert "linkToRoute('library.item_page.show'" in item_controller
+    assert "BookDetailsUrl::forItem" in item_controller
 
 
 def test_comment_controller_can_redirect_comment_changes_back_to_detail():
@@ -50,7 +50,7 @@ def test_comment_controller_can_redirect_comment_changes_back_to_detail():
 
     assert "getParam('returnTo', '')" in controller
     assert "returnTo === 'details'" in controller
-    assert "linkToRoute('library.item_page.show'" in controller
+    assert "BookDetailsUrl::forItem" in controller
     assert "linkToRoute('library.page.index')" in controller
 
 

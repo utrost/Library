@@ -22,7 +22,7 @@ def test_item_page_controller_resolves_current_user_item_and_renders_detail_temp
     assert "findItem($user->getUID(), $itemId)" in controller
     assert "FileTagService $fileTagService" in controller
     assert "FileCommentService $fileCommentService" in controller
-    assert "return new TemplateResponse(Application::APP_ID, 'item-detail'" in controller
+    assert "new RedirectResponse(BookDetailsUrl::forItem" in controller
     assert "return $this->notFoundResponse()" in controller
     assert "new TemplateResponse('core', '404', [], 'guest', 404)" in controller
 

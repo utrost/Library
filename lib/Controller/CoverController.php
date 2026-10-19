@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OCA\Library\Controller;
 
+use OCA\Library\Presentation\BookDetailsUrl;
+
 use OCA\Library\Exception\BatchLimitExceededException;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -160,7 +162,7 @@ class CoverController extends Controller {
                         'target_id' => $itemId,
                         'reason' => 'invalid_upload',
                     ]);
-                    return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]) . '?coverUploadError=invalid');
+                    return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]) . '&coverUploadError=invalid');
                 }
             }
             if ($data === null && trim((string)$this->request->getParam('coverOverrideUrl', '')) !== '') {
@@ -168,7 +170,7 @@ class CoverController extends Controller {
                     'target_id' => $itemId,
                     'reason' => 'remote_url_disabled',
                 ]);
-                return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]) . '?coverUploadError=remote-url-disabled');
+                return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]) . '&coverUploadError=remote-url-disabled');
             }
             if ($data !== null) {
                 $this->itemService->setManualCoverOverride($user->getUID(), $itemId, $data, $mimeType);
@@ -176,11 +178,11 @@ class CoverController extends Controller {
                     'target_id' => $itemId,
                     'reason' => 'validated_upload',
                 ]);
-                return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]) . '?coverRefresh=1');
+                return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]) . '&coverRefresh=1');
             }
         }
 
-        return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+        return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]));
     }
 
     #[NoAdminRequired]
@@ -192,10 +194,10 @@ class CoverController extends Controller {
                 'target_id' => $itemId,
                 'reason' => 'manual_cover_cleared',
             ]);
-            return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]) . '?coverRefresh=1');
+            return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]) . '&coverRefresh=1');
         }
 
-        return new RedirectResponse($this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]));
+        return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]));
     }
 
     #[NoAdminRequired]

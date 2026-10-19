@@ -21,6 +21,9 @@ final class MetadataStatus {
         $missing = [];
         foreach ($fields as $field) {
             $value = $item[$field] ?? '';
+            if ($field === 'creators' && ($item['authorSyncStatus'] ?? null) === 0) {
+                $value = array_column($item['canonicalAuthors'] ?? [], 'name');
+            }
             $present = is_array($value)
                 ? count(array_filter($value, static fn ($entry): bool => trim((string)$entry) !== '')) > 0
                 : trim((string)$value) !== '';

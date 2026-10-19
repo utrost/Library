@@ -83,6 +83,6 @@ def test_entry_fails_closed_for_missing_or_malformed_state_and_signals_mount():
 
 
 def test_php_details_and_personal_settings_are_preserved():
-    assert "new TemplateResponse(Application::APP_ID, 'item-detail'" in read("lib/Controller/ItemPageController.php")
+    assert "new RedirectResponse(BookDetailsUrl::forItem" in read("lib/Controller/ItemPageController.php")
     assert "library-item-detail" in read("templates/item-detail.php")
     assert 'id="library-settings"' in read("templates/settings-personal.php")

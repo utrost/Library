@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace OCA\Library\Controller;
 
 use OCA\Library\AppInfo\Application;
+use OCA\Library\Presentation\BookDetailsUrl;
+use OCA\Library\Presentation\MetadataStatus;
 use OCA\Library\Reader\DefaultNextcloudFileProvider;
 use OCA\Library\Service\FileCommentService;
 use OCA\Library\Service\FileTagService;
@@ -14,12 +16,12 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\AppFramework\Http\RedirectResponse;
 use OCP\IRequest;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
 use OCP\L10N\IFactory;
-use OCP\Util;
 
 final class ItemPageController extends Controller {
     public function __construct(
@@ -106,6 +108,7 @@ final class ItemPageController extends Controller {
             'tagSuggestions' => $this->unassignedTagSuggestions($this->fileTagService->visibleAssignableTagNames(), $currentTags),
             'comments' => $comments[$fileId] ?? ['count' => 0, 'recent' => []],
             'actions' => $actions,
+            'metadataStatus' => MetadataStatus::forItem($item),
             'file' => array_intersect_key($item, array_flip(['fileId', 'libraryFileId', 'mimeType'])),
         ], 200, ['Cache-Control' => 'private, no-store']);
     }
@@ -135,84 +138,18 @@ final class ItemPageController extends Controller {
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    public function show(int $itemId): TemplateResponse {
+    public function show(int $itemId): TemplateResponse|RedirectResponse {
         $user = $this->userSession->getUser();
-        if ($user === null) {
+        if ($user === null || $this->itemService->findItem($user->getUID(), $itemId) === null) {
             return $this->notFoundResponse();
         }
-
-        $item = $this->itemService->findItem($user->getUID(), $itemId);
-        if ($item === null) {
-            return $this->notFoundResponse();
+        $parameters = ['itemId' => $itemId];
+        foreach (BookDetailsUrl::FEEDBACK as $key) {
+            $parameters[$key] = $this->request->getParam($key, '');
         }
-
-        $fileId = (int)$item['fileId'];
-        $tags = $this->fileTagService->tagsForItems([$item]);
-        $comments = $this->fileCommentService->commentsForItems([$item]);
-
-        $coverRefreshRequested = (string)$this->request->getParam('coverRefresh', '0') === '1';
-        $item['coverUrl'] = $this->urlGenerator->linkToRoute(
-            'library.cover.show',
-            array_filter([
-                'itemId' => (string)$item['id'],
-                'v' => $item['coverCacheRevision'] ?? '',
-                'refresh' => $coverRefreshRequested ? '1' : null,
-            ], static fn ($value) => $value !== null)
-        );
-        // The compatibility column is intentionally inert and never reaches browser markup.
-        unset($item['coverOverrideUrl']);
-        $item['coverOverrideActionUrl'] = $this->urlGenerator->linkToRoute('library.cover.override', ['itemId' => (string)$item['id']]);
-        $item['coverRevertUrl'] = $this->urlGenerator->linkToRoute('library.cover.revert', ['itemId' => (string)$item['id']]);
-        $item['coverRefreshUrl'] = $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => (string)$item['id'], 'refresh' => '1']);
-        $item['coverRefreshPageUrl'] = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => (string)$item['id'], 'coverRefresh' => '1']);
-        $item['coverQualityExplanation'] = $this->coverQualityExplanation($item);
-        $item['updateUrl'] = $this->urlGenerator->linkToRoute('library.item.update', ['itemId' => (string)$item['id']]);
-        $item['starUrl'] = $this->urlGenerator->linkToRoute('library.item.star', ['itemId' => (string)$item['id']]);
-        $item['workflowStatusUrl'] = $this->urlGenerator->linkToRoute('library.item.workflowStatus', ['itemId' => (string)$item['id']]);
-        $item['resetFieldUrl'] = $this->urlGenerator->linkToRoute('library.item.resetfield', ['itemId' => (string)$item['id']]);
-        $item['resetFieldsUrl'] = $this->urlGenerator->linkToRoute('library.item.resetfields', ['itemId' => (string)$item['id']]);
-        $item['forgetMissingUrl'] = $this->urlGenerator->linkToRoute('library.item.forgetMissing', ['itemId' => (string)$item['id']]);
-        $item['tagUrl'] = $this->urlGenerator->linkToRoute('library.tag.assign', ['itemId' => (string)$item['id']]);
-        $item['commentUrl'] = $this->urlGenerator->linkToRoute('library.comment.add', ['itemId' => (string)$item['id']]);
-        $item['listsUrl'] = $this->urlGenerator->linkToRoute('library.page.index') . '?lists=1&addItem=' . (int)$item['id'];
-        $item['openUrl'] = $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => (string)$item['id']]);
-        $item['openUnavailable'] = (string)$this->request->getParam('openUnavailable', '') === '1';
-        $item['recordOpenUrl'] = $this->urlGenerator->linkToRoute('library.item.recordOpen', ['itemId' => (string)$item['id']]);
-        $item['filesUrl'] = $this->readerProvider->getShowInFilesUrl($fileId, (string)($item['cachedPath'] ?? ''));
-        $item['downloadUrl'] = $this->readerProvider->getDownloadUrl($user->getUID(), (string)($item['cachedPath'] ?? ''));
-        $item['nextcloudTags'] = array_map(function (array $tag) use ($item): array {
-            $tag['removeUrl'] = $this->urlGenerator->linkToRoute('library.tag.remove', [
-                'itemId' => (string)$item['id'],
-                'tagId' => (string)$tag['id'],
-            ]);
-            return $tag;
-        }, $tags[$fileId] ?? []);
-        $item['tagSuggestions'] = $this->unassignedTagSuggestions($this->fileTagService->visibleAssignableTagNames(), $item['nextcloudTags']);
-        $item['tagFeedback'] = $this->tagFeedback(
-            (string)$this->request->getParam('tagResult', ''),
-            (string)$this->request->getParam('tagName', '')
-        );
-        $item['metadataSaved'] = (string)$this->request->getParam('metadataSaved', '0') === '1';
-        $item['metadataError'] = trim((string)$this->request->getParam('metadataError', ''));
-        $item['metadataValidationError'] = $item['metadataError'] !== '' ? $this->translate('Metadata was not saved: %s', [$item['metadataError']]) : '';
-        $coverUploadResult = (string)$this->request->getParam('coverUploadError', '');
-        $item['coverUploadError'] = match ($coverUploadResult) {
-            'invalid' => $this->translate('Cover was not saved. Choose a valid JPEG, PNG, or WebP within the upload limits.'),
-            'remote-url-disabled' => $this->translate('Cover was not saved. Upload a JPEG, PNG, or WebP image.'),
-            default => '',
-        };
-        $item['nextcloudComments'] = $comments[$fileId] ?? ['count' => 0, 'recent' => []];
-
-        Util::addStyle(Application::APP_ID, 'style');
-        Util::addScript(Application::APP_ID, 'library-help');
-        Util::addScript(Application::APP_ID, 'library-detail');
-        $language = $this->l10nFactory?->findLanguage(Application::APP_ID) ?? 'en';
-        return new TemplateResponse(Application::APP_ID, 'item-detail', [
-            'item' => $item,
-            'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
-            'language' => $language,
-            'direction' => $this->l10nFactory?->getLanguageDirection($language) ?? 'ltr',
-        ]);
+        $response = new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, $parameters));
+        $response->addHeader('Cache-Control', 'private, no-store');
+        return $response;
     }
 
     private function notFoundResponse(): TemplateResponse {

@@ -27,7 +27,7 @@ def test_detail_page_has_inline_tag_chip_remove_and_save_feedback():
     item_controller = (ROOT / "lib" / "Controller" / "ItemController.php").read_text()
     css = (ROOT / "css" / "style.css").read_text()
 
-    assert "metadataSaved" in controller
+    assert "metadataSaved" in (ROOT / "lib/Presentation/BookDetailsUrl.php").read_text()
     assert "metadataSaved" in item_controller
     assert "library-save-feedback" in template
     assert "Metadata saved" in template

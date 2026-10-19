@@ -14,7 +14,7 @@ def test_detail_page_owns_nextcloud_tag_editor():
     assert "value=\"details\"" in template
     assert "Remove tag" in template
     assert "tag['removeUrl']" in template
-    assert "linkToRoute('library.tag.assign'" in controller
+    assert "'tag' => 'library.tag.assign'" in controller
     assert "linkToRoute('library.tag.remove'" in controller
 
 
@@ -23,7 +23,7 @@ def test_tag_controller_can_redirect_tag_changes_back_to_detail():
 
     assert "getParam('returnTo', '')" in controller
     assert "returnTo === 'details'" in controller
-    assert "linkToRoute('library.item_page.show'" in controller
+    assert "BookDetailsUrl::forItem" in controller
     assert "linkToRoute('library.page.index')" in controller
 
 

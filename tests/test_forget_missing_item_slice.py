@@ -32,7 +32,7 @@ def test_item_controller_redirects_forget_missing_back_to_details_or_catalogue()
     assert "forgetMissingItem($user->getUID(), $itemId)" in controller
     assert "getParam('returnTo', '')" in controller
     assert "returnTo === 'details'" in controller
-    assert "library.item_page.show" in controller
+    assert "BookDetailsUrl::forItem" in controller
     assert "library.page.index" in controller
 
 
@@ -40,7 +40,7 @@ def test_item_detail_page_only_renders_forget_action_for_missing_items():
     controller = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
     template = (ROOT / "templates" / "item-detail.php").read_text()
 
-    assert "forgetMissingUrl" in controller
+    assert "'forgetMissing' => 'library.item.forgetMissing'" in controller
     assert "library.item.forgetMissing" in controller
     assert "library-forget-missing-form" in template
     assert "scanStatus'] ?? '') === 'missing'" in template

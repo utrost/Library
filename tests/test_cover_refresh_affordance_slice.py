@@ -4,16 +4,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_detail_controller_exposes_refresh_cover_url_with_refresh_query():
-    controller = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
-    template = (ROOT / "templates" / "item-detail.php").read_text()
-
-    assert "coverRefreshUrl" in controller
-    assert "'refresh' => '1'" in controller
-    assert "library.cover.show" in controller
-    assert "coverRefreshPageUrl" in template
-    assert "coverRefreshUrl" in controller
-    assert "Refresh cover preview" in template
-    assert "library-cover-refresh-action" in template
+    controller = (ROOT / "lib/Controller/ItemPageController.php").read_text()
+    editor = (ROOT / "src/components/FullDetails.vue").read_text()
+    assert "'coverRefresh' => 'library.cover.show'" in controller
+    assert "coverRefreshRequested" in editor
+    assert "refresh" in editor
 
 
 def test_cover_route_marks_refresh_requests_no_store_with_diagnostic_header():
