@@ -57,7 +57,6 @@ const authorResults = ref([])
 const authorHasNext = ref(false)
 const authorSuggestionsOpen = ref(false)
 const authorActiveIndex = ref(-1)
-const selectedAuthorId = ref('')
 const authorSearchBusy = ref(false)
 let authorSearchTimer = null
 let authorSearchController = null
@@ -74,7 +73,6 @@ const seriesResults = ref([])
 const seriesHasNext = ref(false)
 const seriesSuggestionsOpen = ref(false)
 const seriesActiveIndex = ref(-1)
-const selectedSeries = ref(null)
 const seriesSearchBusy = ref(false)
 let seriesSearchTimer = null
 let seriesSearchController = null
@@ -186,7 +184,6 @@ function cancelAuthorEdit() {
   authorHasNext.value = false
   authorSuggestionsOpen.value = false
   authorSearchBusy.value = false
-  selectedAuthorId.value = ''
 }
 function editAuthor(author) {
   clearTimeout(authorSearchTimer)
@@ -194,7 +191,6 @@ function editAuthor(author) {
   editingAuthor.value = author
   authorSearch.value = ''
   authorResults.value = []
-  selectedAuthorId.value = ''
   authorSuggestionsOpen.value = false
   nextTick(() => authorInput.value?.focus())
 }
@@ -205,7 +201,6 @@ watch(authorSearch, value => {
   authorResults.value = []
   authorHasNext.value = false
   authorActiveIndex.value = -1
-  selectedAuthorId.value = ''
   if (!editingAuthor.value || !authorSearchReady.value) {
     authorSuggestionsOpen.value = false
     authorSearchBusy.value = false
@@ -235,9 +230,13 @@ async function findAuthors(search = authorSearch.value.trim()) {
   }
 }
 function selectAuthor(candidate) {
-  selectedAuthorId.value = String(candidate.id)
-  authorSuggestionsOpen.value = false
-  authorActiveIndex.value = -1
+  if (!editingAuthor.value || busy.value) return
+  const position = draft.authorLinks.findIndex(author => Number(author.id) === Number(editingAuthor.value.id))
+  if (draft.authorLinks.some((author, index) => index !== position && Number(author.id) === Number(candidate.id))) return
+  if (position < 0 && Number(editingAuthor.value.id) === 0) draft.authorLinks.push({ id: Number(candidate.id), name: candidate.display_name })
+  else if (position >= 0) draft.authorLinks.splice(position, 1, { id: Number(candidate.id), name: candidate.display_name })
+  else return
+  cancelAuthorEdit()
 }
 function authorPickerKeydown(event) {
   if (event.key === 'Escape') { authorSuggestionsOpen.value = false; return }
@@ -264,22 +263,9 @@ async function createAuthor() {
   error.value = ''
   try {
     const author = await authorRequest('', { name })
-    authorResults.value = [author]
-    selectedAuthorId.value = String(author.id)
-    authorSuggestionsOpen.value = false
+    selectAuthor(author)
   } catch (cause) { error.value = cause.message }
   finally { authorSearchBusy.value = false }
-}
-async function replaceAuthor() {
-  if (!editingAuthor.value || !selectedAuthorId.value || busy.value) return
-  const candidate = authorResults.value.find(author => String(author.id) === selectedAuthorId.value)
-  if (!candidate) return
-  const position = draft.authorLinks.findIndex(author => Number(author.id) === Number(editingAuthor.value.id))
-  if (draft.authorLinks.some((author, index) => index !== position && Number(author.id) === Number(candidate.id))) return
-  if (position < 0 && Number(editingAuthor.value.id) === 0) draft.authorLinks.push({ id: Number(candidate.id), name: candidate.display_name })
-  else if (position >= 0) draft.authorLinks.splice(position, 1, { id: Number(candidate.id), name: candidate.display_name })
-  else return
-  cancelAuthorEdit()
 }
 
 const seriesApi = generateUrl('/apps/library/api/series')
@@ -305,13 +291,11 @@ function cancelSeriesEdit() {
   seriesHasNext.value = false
   seriesSuggestionsOpen.value = false
   seriesSearchBusy.value = false
-  selectedSeries.value = null
 }
 function editSeries() {
   editingSeries.value = true
   seriesSearch.value = ''
   seriesResults.value = []
-  selectedSeries.value = null
   seriesSuggestionsOpen.value = false
   nextTick(() => seriesInput.value?.focus())
 }
@@ -326,7 +310,6 @@ watch(seriesSearch, value => {
   seriesResults.value = []
   seriesHasNext.value = false
   seriesActiveIndex.value = -1
-  selectedSeries.value = null
   if (!editingSeries.value || !seriesSearchReady.value) {
     seriesSuggestionsOpen.value = false
     seriesSearchBusy.value = false
@@ -357,9 +340,9 @@ async function findSeries(search = seriesSearch.value.trim()) {
   }
 }
 function selectSeries(candidate) {
-  selectedSeries.value = candidate
-  seriesSuggestionsOpen.value = false
-  seriesActiveIndex.value = -1
+  if (!editingSeries.value || busy.value) return
+  draft.seriesLink = { id: Number(candidate.id), name: candidate.display_name }
+  cancelSeriesEdit()
 }
 function seriesPickerKeydown(event) {
   if (event.key === 'Escape') { seriesSuggestionsOpen.value = false; return }
@@ -386,16 +369,9 @@ async function createSeries() {
   error.value = ''
   try {
     const created = await seriesRequest('', { name })
-    selectedSeries.value = created.series
-    seriesResults.value = [created.series]
-    seriesSuggestionsOpen.value = false
+    selectSeries(created.series)
   } catch (cause) { error.value = cause.message }
   finally { seriesSearchBusy.value = false }
-}
-async function assignSeries() {
-  if (!selectedSeries.value || busy.value) return
-  draft.seriesLink = { id: Number(selectedSeries.value.id), name: selectedSeries.value.display_name }
-  cancelSeriesEdit()
 }
 
 function setDraft(source) {
@@ -410,6 +386,15 @@ function setDraft(source) {
   draft.personalRating = source.personalRating ?? ''
   draft.identifiers = Array.isArray(source.identifiers) ? source.identifiers.map(row => ({ scheme: row.scheme, displayValue: row.displayValue || '', valid: row.valid, originalScheme: row.scheme, originalDisplayValue: row.displayValue || '' })) : []
   savedDraft.value = JSON.stringify(draft)
+}
+
+function discardBookChanges() {
+  if (busy.value || !item.value) return
+  cancelAuthorEdit()
+  cancelSeriesEdit()
+  setDraft(item.value)
+  error.value = ''
+  feedback.value = t('library', 'Book changes discarded')
 }
 
 async function load({ silent = false } = {}) {
@@ -614,8 +599,13 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 
       <div class="library-full-details-columns">
         <div class="library-full-details-main">
-          <p v-if="dirty" class="library-full-details-unsaved" role="status">{{ t('library', 'Unsaved book changes') }}</p>
-          <p class="library-muted library-full-details-save-hint">{{ t('library', 'Edit the book below, then save all changes together.') }}</p>
+          <div v-if="dirty" class="library-full-details-savebar" role="group" :aria-label="t('library', 'Book changes')">
+            <span role="status">{{ t('library', 'Unsaved book changes') }}</span>
+            <div class="library-full-details-savebar-actions">
+              <button type="button" class="button secondary" :disabled="busy" @click="discardBookChanges">{{ t('library', 'Discard changes') }}</button>
+              <button type="submit" form="library-full-details-metadata-form" class="button primary" :disabled="busy">{{ busy ? t('library', 'Saving…') : t('library', 'Save book details') }}</button>
+            </div>
+          </div>
           <section class="library-full-details-card" aria-labelledby="library-full-details-metadata"><h2 id="library-full-details-metadata">{{ t('library', 'Book details') }}</h2><form id="library-full-details-metadata-form" @submit.prevent="saveMetadata"><div class="library-full-details-fields"><label>{{ t('library', 'Title') }}<input v-model="draft.title" required></label><label>{{ t('library', 'Subtitle') }}<input v-model="draft.subtitle"></label><label>{{ t('library', 'Type') }}<select v-model="draft.publicationType"><option v-for="type in publicationTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label><label>{{ t('library', 'Publication') }}<input v-model="draft.publication"></label><label :title="t('library', 'Use YYYY, YYYY-MM, or YYYY-MM-DD.')">{{ t('library', 'Publication date') }}<input v-model="draft.publicationDate"></label><label :title="t('library', 'Search publishers')">{{ t('library', 'Publisher') }}<input v-model="draft.publisher" list="library-details-publisher-suggestions" autocomplete="off"><datalist id="library-details-publisher-suggestions"><option v-for="name in publisherSuggestions" :key="name" :value="name"></option></datalist></label><MetadataValuePicker v-model="draft.language" kind="language" :disabled="busy" /><MetadataValuePicker v-model="draft.subjects" kind="subject" :disabled="busy" /><label :title="t('library', 'One classification per line.')">{{ t('library', 'Classifications') }}<textarea v-model="draft.classifications" rows="2"></textarea></label><StarRating :model-value="draft.personalRating" :disabled="busy" @update:model-value="draft.personalRating = $event" /><label class="library-full-details-wide">{{ t('library', 'Description') }}<textarea v-model="draft.description" rows="8"></textarea></label></div><fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in draft.identifiers" :key="index" class="library-full-details-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Scheme')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><span v-if="identifier.displayValue && identifier.valid === false && identifier.scheme === identifier.originalScheme && identifier.displayValue === identifier.originalDisplayValue" role="status">{{ t('library', 'Invalid identifier checksum') }}</span><button type="button" class="button secondary" :aria-label="t('library', 'Remove identifier')" @click="draft.identifiers.splice(index, 1)">×</button></div><button type="button" class="button secondary" @click="draft.identifiers.push({ scheme: 'isbn', displayValue: '' })">{{ t('library', 'Add identifier') }}</button></fieldset></form></section>
           <section class="library-full-details-card library-full-details-authors" aria-labelledby="library-full-details-authors-heading">
             <h2 id="library-full-details-authors-heading">{{ t('library', 'Authors') }}</h2>
@@ -634,18 +624,16 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
                 <div class="library-full-details-author-search">
                   <label for="library-details-author-search">{{ t('library', 'Choose an author') }}</label>
                   <input id="library-details-author-search" ref="authorInput" v-model="authorSearch" type="search" maxlength="255" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="library-details-author-suggestions" :aria-expanded="authorSuggestionsOpen && authorResults.length > 0 ? 'true' : 'false'" :aria-activedescendant="authorActiveIndex >= 0 && authorSuggestionsOpen ? `library-details-author-option-${authorResults[authorActiveIndex]?.id}` : undefined" :placeholder="t('library', 'Search authors')" :disabled="busy" @focus="authorSuggestionsOpen = authorSearchReady" @keydown="authorPickerKeydown">
-                  <p v-if="!authorSearchReady && !selectedAuthorId" class="library-muted">{{ t('library', 'Type at least 3 letters to search authors.') }}</p>
+                  <p v-if="!authorSearchReady" class="library-muted">{{ t('library', 'Type at least 3 letters to search authors.') }}</p>
                   <span v-if="authorSearchBusy" class="library-muted" role="status">{{ t('library', 'Searching…') }}</span>
                   <ul v-if="authorSuggestionsOpen && authorResults.length" id="library-details-author-suggestions" class="library-full-details-author-suggestions" role="listbox">
                     <li v-for="(candidate, index) in authorResults" :id="`library-details-author-option-${candidate.id}`" :key="candidate.id" role="option" :aria-selected="authorActiveIndex === index"><button type="button" :class="{ 'is-active': authorActiveIndex === index }" @mousedown.prevent @click="selectAuthor(candidate)"><strong>{{ candidate.display_name }}</strong><small>{{ candidate.sort_name }} · {{ n('library', '%n book', '%n books', Number(candidate.book_count || 0)) }}</small></button></li>
                   </ul>
                   <p v-if="authorSuggestionsOpen && authorHasNext" class="library-muted">{{ t('library', 'More matches. Keep typing to narrow the list.') }}</p>
                   <p v-if="authorSuggestionsOpen && authorSearchReady && !authorSearchBusy && !authorResults.length" class="library-muted">{{ t('library', 'No matching author. You can create a separate author below.') }}</p>
-                  <p v-if="selectedAuthorId" class="library-full-details-author-selected" role="status">{{ t('library', 'Selected author') }}: <strong>{{ authorResults.find(candidate => String(candidate.id) === selectedAuthorId)?.display_name }}</strong></p>
                 </div>
                 <div class="library-full-details-author-actions">
-                  <button type="button" class="button secondary" :disabled="busy || authorSearchBusy || !authorSearch.trim()" :title="t('library', 'Creates a separate author identity, even if the name already exists.')" @click="createAuthor">{{ t('library', 'Create new author') }}</button>
-                  <button type="button" class="button primary" :disabled="busy || authorSearchBusy || !selectedAuthorId" @click="replaceAuthor">{{ t('library', 'Use this author') }}</button>
+                  <button type="button" class="button secondary" :disabled="busy || authorSearchBusy || !authorSearch.trim()" :title="t('library', 'Creates a separate author identity, even if the name already exists.')" @click="createAuthor">{{ t('library', 'Create and add author') }}</button>
                   <button type="button" class="button secondary" :disabled="busy" @click="cancelAuthorEdit">{{ t('library', 'Cancel') }}</button>
                 </div>
               </div>
@@ -665,24 +653,21 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
               <div class="library-full-details-author-search">
                 <label for="library-details-series-search">{{ t('library', 'Choose a series') }}</label>
                 <input id="library-details-series-search" ref="seriesInput" v-model="seriesSearch" type="search" maxlength="255" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="library-details-series-suggestions" :aria-expanded="seriesSuggestionsOpen && seriesResults.length > 0 ? 'true' : 'false'" :aria-activedescendant="seriesActiveIndex >= 0 && seriesSuggestionsOpen ? `library-details-series-option-${seriesResults[seriesActiveIndex]?.id}` : undefined" :placeholder="t('library', 'Search series')" :disabled="busy" @focus="seriesSuggestionsOpen = seriesSearchReady" @keydown="seriesPickerKeydown">
-                <p v-if="!seriesSearchReady && !selectedSeries" class="library-muted">{{ t('library', 'Type at least 3 letters to search series.') }}</p>
+                <p v-if="!seriesSearchReady" class="library-muted">{{ t('library', 'Type at least 3 letters to search series.') }}</p>
                 <span v-if="seriesSearchBusy" class="library-muted" role="status">{{ t('library', 'Searching…') }}</span>
                 <ul v-if="seriesSuggestionsOpen && seriesResults.length" id="library-details-series-suggestions" class="library-full-details-author-suggestions" role="listbox">
                   <li v-for="(candidate, index) in seriesResults" :id="`library-details-series-option-${candidate.id}`" :key="candidate.id" role="option" :aria-selected="seriesActiveIndex === index"><button type="button" :class="{ 'is-active': seriesActiveIndex === index }" @mousedown.prevent @click="selectSeries(candidate)"><strong>{{ candidate.display_name }}</strong><small>{{ n('library', '%n book', '%n books', Number(candidate.book_count || 0)) }}</small></button></li>
                 </ul>
                 <p v-if="seriesSuggestionsOpen && seriesHasNext" class="library-muted">{{ t('library', 'More matches. Keep typing to narrow the list.') }}</p>
                 <p v-if="seriesSuggestionsOpen && seriesSearchReady && !seriesSearchBusy && !seriesResults.length" class="library-muted">{{ currentSeriesMatchesSearch ? t('library', 'The matching series is already assigned to this book. Search another name to change it.') : t('library', 'No matching series. You can create one below.') }}</p>
-                <p v-if="selectedSeries" class="library-full-details-author-selected" role="status">{{ t('library', 'Selected series') }}: <strong>{{ selectedSeries.display_name }}</strong></p>
               </div>
               <div class="library-full-details-author-actions">
-                <button type="button" class="button secondary" :disabled="busy || seriesSearchBusy || !seriesSearch.trim()" @click="createSeries">{{ t('library', 'Create series') }}</button>
-                <button type="button" class="button primary" :disabled="busy || seriesSearchBusy || !selectedSeries" @click="assignSeries">{{ t('library', 'Use this series') }}</button>
+                <button type="button" class="button secondary" :disabled="busy || seriesSearchBusy || !seriesSearch.trim()" @click="createSeries">{{ t('library', 'Create and choose series') }}</button>
                 <button type="button" class="button secondary" :disabled="busy" @click="cancelSeriesEdit">{{ t('library', 'Cancel') }}</button>
               </div>
             </div>
           </section>
           <GenrePicker class="library-full-details-genres" :item-id="Number(itemId)" :genres="draft.genres || []" :request-token="requestToken" :catalogue-url="catalogueUrl" :disabled="busy" draft-mode @update:genres="draft.genres = $event" />
-          <button class="button primary library-full-details-save" type="submit" form="library-full-details-metadata-form" :disabled="busy">{{ t('library', 'Save book details') }}</button>
         </div>
 
         <div class="library-full-details-aside">
@@ -720,8 +705,9 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-actions, .library-full-details-personal, .library-full-details-links { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
 .library-full-details-columns { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 20px; align-items: start; }
 .library-full-details-main { display: grid; gap: 20px; min-width: 0; }
-.library-full-details-save-hint { margin: 0; }
-.library-full-details-save { width: 100%; }
+.library-full-details-savebar { align-items: center; background: var(--color-main-background); border: 2px solid var(--color-primary-element, #0082c9); border-radius: 12px; box-shadow: 0 10px 28px #0003; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; padding: 12px 16px; position: sticky; top: 12px; z-index: 20; }
+.library-full-details-savebar > span { font-weight: 600; }
+.library-full-details-savebar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .library-full-details-series-part { max-width: 220px; margin-top: 12px; }
 .library-full-details-author-row, .library-full-details-author-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .library-full-details-author-row { margin: 8px 0; }
@@ -734,7 +720,6 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-author-suggestions button { background: transparent; border: 0; border-radius: 7px; color: var(--color-main-text); cursor: pointer; display: grid; gap: 2px; padding: 8px 10px; text-align: start; width: 100%; }
 .library-full-details-author-suggestions button:hover, .library-full-details-author-suggestions button.is-active { background: var(--color-background-hover); }
 .library-full-details-author-suggestions small { color: var(--color-text-maxcontrast); }
-.library-full-details-author-selected { background: color-mix(in srgb, var(--color-primary-element, #0082c9) 12%, var(--color-main-background)); border-radius: 8px; margin: 8px 0 0; padding: 8px 10px; }
 .library-full-details-source-credit { border: 1px solid var(--color-border); border-radius: 8px; padding: 10px 12px; }
 .library-full-details-source-credit summary { cursor: pointer; }
 .library-full-details-source-credit label { margin-top: 10px; }
@@ -765,5 +750,6 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-differences h3 { margin: 0 0 8px; }
 @container (max-width: 1100px) { .library-full-details-columns { grid-template-columns: minmax(0, 1fr); } }
 @container (max-width: 760px) { .library-full-details-fields { grid-template-columns: minmax(0, 1fr); } }
+@container (max-width: 560px) { .library-full-details-savebar { align-items: stretch; flex-direction: column; } .library-full-details-savebar-actions > button { flex: 1 1 auto; } }
 @media (max-width: 600px) { .library-full-details { padding: 16px; } .library-full-details-hero { grid-template-columns: 1fr; } .library-full-details-cover { max-width: 200px; } }
 </style>
