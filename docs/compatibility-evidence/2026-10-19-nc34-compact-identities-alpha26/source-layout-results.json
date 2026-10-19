@@ -1,0 +1,55 @@
+{
+  "measurements": [
+    {
+      "layout": "before",
+      "scenario": "sample",
+      "width": 1440,
+      "height": 841.5
+    },
+    {
+      "layout": "compact",
+      "scenario": "sample",
+      "width": 1440,
+      "height": 225.5,
+      "controlsOverflow": false
+    },
+    {
+      "layout": "compact",
+      "scenario": "empty",
+      "width": 1440,
+      "height": 221.5,
+      "controlsOverflow": false
+    },
+    {
+      "layout": "compact",
+      "scenario": "long",
+      "width": 1440,
+      "height": 509.5,
+      "controlsOverflow": false
+    },
+    {
+      "layout": "compact",
+      "scenario": "sample",
+      "width": 390,
+      "height": 553.5,
+      "controlsOverflow": false
+    },
+    {
+      "layout": "compact",
+      "scenario": "empty",
+      "width": 390,
+      "height": 358,
+      "controlsOverflow": false
+    },
+    {
+      "layout": "compact",
+      "scenario": "long",
+      "width": 390,
+      "height": 1302.5,
+      "controlsOverflow": false
+    }
+  ],
+  "browserErrors": [],
+  "libraryWrites": 0,
+  "desktopReductionPercent": 73.2
+}
