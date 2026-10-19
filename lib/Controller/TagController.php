@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OCA\Library\Controller;
 
+use OCA\Library\Presentation\BookDetailsUrl;
+
 use OCA\Library\Exception\BatchLimitExceededException;
 use OCA\Library\Service\FileTagService;
 use OCA\Library\Service\ItemService;
@@ -167,9 +169,9 @@ final class TagController extends Controller {
     private function redirectAfterTagChange(int $itemId, array $result = []): RedirectResponse {
         $returnTo = (string)$this->request->getParam('returnTo', '');
         if ($returnTo === 'details') {
-            $url = $this->urlGenerator->linkToRoute('library.item_page.show', ['itemId' => $itemId]);
+            $url = BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]);
             if ($result !== []) {
-                $url .= '?' . http_build_query([
+                $url .= '&' . http_build_query([
                     'tagResult' => (string)($result['status'] ?? ''),
                     'tagName' => (string)($result['tagName'] ?? ''),
                 ]);

@@ -7,19 +7,11 @@ def test_refresh_cover_preview_reloads_detail_page_not_raw_cover_download():
     controller = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
     template = (ROOT / "templates" / "item-detail.php").read_text()
 
-    assert "coverRefreshPageUrl" in controller
-    assert "coverRefreshPageUrl" in template
-    assert "coverRefreshRequested" in controller
-    assert "getParam('coverRefresh', '0')" in controller
-    assert "'coverRefresh' => '1'" in controller
-    assert "'refresh' => '1'" in controller
-
-    refresh_link_line = next(
-        line for line in template.splitlines()
-        if "library-cover-refresh-action" in line
-    )
-    assert "coverRefreshPageUrl" in refresh_link_line
-    assert "coverRefreshUrl" not in refresh_link_line
+    editor = (ROOT / "src/components/FullDetails.vue").read_text()
+    assert "BookDetailsUrl::FEEDBACK" in controller
+    assert "coverRefresh" in (ROOT / "lib/Presentation/BookDetailsUrl.php").read_text()
+    assert "coverRefreshRequested.value = query.get('coverRefresh') === '1'" in editor
+    assert "applyRedirectFeedback()" in editor
 
 
 def test_compact_catalogue_card_text_and_open_details_stay_inside_card():

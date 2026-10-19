@@ -23,7 +23,7 @@ def test_route_and_controller_reset_one_metadata_field_to_scanner_candidate():
     assert "public function resetfield(int $itemId): RedirectResponse" in controller
     assert "getParam('field', '')" in controller
     assert "resetFieldToScannerCandidate($user->getUID(), $itemId, $field)" in controller
-    assert "linkToRoute('library.item_page.show'" in controller
+    assert "BookDetailsUrl::forItem" in controller
 
 
 def test_item_service_resets_only_known_field_from_stored_candidate_and_keeps_item_user_edited():
@@ -50,8 +50,8 @@ def test_detail_page_exposes_reset_to_scanner_buttons_only_inside_field_provenan
     detail = (ROOT / "templates" / "item-detail.php").read_text()
     page_controller = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
 
-    assert "resetFieldUrl" in page_controller
-    assert "linkToRoute('library.item.resetfield'" in page_controller
+    assert "'resetField' => 'library.item.resetfield'" in page_controller
+    assert "$this->urlGenerator->linkToRoute($route" in page_controller
     assert "library-field-reset-form" in detail
     assert "Reset to scanner" in detail
     assert "returnTo" in detail

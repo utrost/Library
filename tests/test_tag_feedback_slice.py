@@ -24,7 +24,7 @@ def test_tag_controller_preserves_assignment_result_in_details_redirect():
     assert "tagName" in controller
     assert "redirectAfterTagChange($itemId, $result)" in controller
     assert "http_build_query" in controller
-    assert "library.item_page.show" in controller
+    assert "BookDetailsUrl::forItem" in controller
 
 
 def test_detail_controller_and_template_render_tag_feedback_messages():

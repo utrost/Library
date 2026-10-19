@@ -53,5 +53,5 @@ def test_uploaded_cover_data_is_authoritative_and_detail_route_is_local():
     page = read("lib/Controller/ItemPageController.php")
     assert cover.index("findUserFileById") < cover.index("coverOverrideData")
     assert cover.index("coverOverrideData") < cover.index("previewManager->isAvailable")
-    assert "unset($item['coverOverrideUrl'])" in page
+    assert "'coverOverrideUrl'" not in page
     assert "library.cover.show" in page

@@ -57,7 +57,7 @@ def test_detail_page_has_star_toggle_separate_from_metadata_form():
     assert "Star this publication" in template
     assert "Unstar this publication" in template
     assert "starUrl" in template
-    assert "Util::addScript(Application::APP_ID, 'library-detail')" in controller
+    assert "Util::addScript(Application::APP_ID, 'library-detail')" not in controller
     assert "setupDetailStarToggles" in detail_script
     assert "event.preventDefault()" in detail_script
     assert "fetch(form.getAttribute('action') || form.action" in detail_script

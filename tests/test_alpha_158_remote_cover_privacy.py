@@ -13,7 +13,8 @@ def test_detail_cover_is_same_origin_and_legacy_url_is_not_exposed():
     controller = read("lib/Controller/ItemPageController.php")
     template = read("templates/item-detail.php")
     show = controller[controller.index("public function show"):]
-    assert "'library.cover.show'" in show
+    assert "BookDetailsUrl::forItem" in show
+    assert "'library.cover.show'" in controller
     assert "$manualCoverUrl" not in show
     assert "coverOverrideUrl" not in template
     assert 'type="url"' not in template

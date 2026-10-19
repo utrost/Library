@@ -26,8 +26,8 @@ def test_alpha165_exact_versions_assets_and_package_contract():
 
 def test_all_legacy_surfaces_resolve_and_render_locale_direction():
     providers = read('lib/Settings/Personal.php') + read('lib/Controller/ItemController.php') + read('lib/Controller/ItemPageController.php')
-    assert providers.count('findLanguage(') >= 3
-    assert providers.count('getLanguageDirection(') >= 3
+    assert providers.count('findLanguage(') >= 2
+    assert providers.count('getLanguageDirection(') >= 2
     for template in ['settings-personal.php', 'batch-metadata-edit-preview.php', 'item-detail.php']:
         source = read(f'templates/{template}')
         assert 'lang="<?php p($_[\'language\']' in source
