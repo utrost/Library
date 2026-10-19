@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
+import { openBookDetails, saveBookDetails } from '../fixtures/book-details'
 import { assertKnownNextcloudLoginFailuresAndClear, attachCheckpoint, collectBrowserFailures, login, requiredEnvironment, requiredPositiveIntegerEnvironment } from '../fixtures/nextcloud'
 
 test('exports a corrected item, previews and applies an imported title, then restores the item @metadata @import @export @smoke @mutation', async ({ page }, testInfo) => {
@@ -10,21 +11,16 @@ test('exports a corrected item, previews and applies an imported title, then res
 
   const itemId = requiredPositiveIntegerEnvironment('PW_ITEM_ID')
   const originalTitle = requiredEnvironment('PW_SEARCH_TITLE')
-  const detailUrl = `/apps/library/items/${itemId}`
   let titleWasRead = false
 
   try {
-    const detailResponse = await page.goto(detailUrl)
-    expect(detailResponse?.ok(), `Item details returned ${detailResponse?.status()}`).toBeTruthy()
+    await openBookDetails(page, itemId)
     const title = page.getByRole('textbox', { name: 'Title', exact: true })
     await expect(title).toHaveValue(originalTitle)
     titleWasRead = true
     const exportTitle = `Playwright export ${itemId} ${Date.now()}`
     await title.fill(exportTitle)
-    await Promise.all([
-      page.waitForURL((url) => url.pathname.endsWith(detailUrl) && url.searchParams.get('metadataSaved') === '1'),
-      page.getByRole('button', { name: 'Save metadata' }).click(),
-    ])
+    await saveBookDetails(page, itemId)
 
     const settingsResponse = await page.goto('/settings/user/library')
     expect(settingsResponse?.ok(), `Library settings returned ${settingsResponse?.status()}`).toBeTruthy()
@@ -75,20 +71,15 @@ test('exports a corrected item, previews and applies an imported title, then res
     expect(await metric(result, 'Skipped items')).toBe(0)
     await attachCheckpoint(page, testInfo, 'metadata-import-applied', '.library-metadata-import-result')
 
-    const importedItemResponse = await page.goto(detailUrl)
-    expect(importedItemResponse?.ok(), `Imported item details returned ${importedItemResponse?.status()}`).toBeTruthy()
+    await openBookDetails(page, itemId)
     await expect(page.getByRole('textbox', { name: 'Title', exact: true })).toHaveValue(importedTitle)
     browserFailures.assertNone()
   } finally {
     if (titleWasRead) {
-      const restoreResponse = await page.goto(detailUrl)
-      expect(restoreResponse?.ok(), `Title restore details returned ${restoreResponse?.status()}`).toBeTruthy()
+      await openBookDetails(page, itemId)
       const title = page.getByRole('textbox', { name: 'Title', exact: true })
       await title.fill(originalTitle)
-      await Promise.all([
-        page.waitForURL((url) => url.pathname.endsWith(detailUrl) && url.searchParams.get('metadataSaved') === '1'),
-        page.getByRole('button', { name: 'Save metadata' }).click(),
-      ])
+      await saveBookDetails(page, itemId)
       await expect(page.getByRole('textbox', { name: 'Title', exact: true })).toHaveValue(originalTitle)
     }
   }
