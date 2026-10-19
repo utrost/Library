@@ -42,6 +42,7 @@ def test_gui_catalogue_registers_initial_workflows():
         "scan-root-browse",
         "metadata-export-import-roundtrip",
         "details-metadata-edit-persistence",
+        "details-unified-book-editor",
         "settings-folder-picker-existing-user",
         "mobile-catalogue-filters",
         "mobile-no-horizontal-overflow",
@@ -58,7 +59,7 @@ def test_gui_catalogue_registers_initial_workflows():
         assert marker in catalogue
 
     files = [line.split(":", 1)[1].strip() for line in catalogue.splitlines() if line.strip().startswith("file:")]
-    assert len(files) == 11
+    assert len(files) == 12
     assert len(set(files)) == len(files)
     for relative_path in files:
         assert (ROOT / relative_path).is_file(), relative_path

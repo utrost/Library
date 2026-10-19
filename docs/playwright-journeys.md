@@ -8,8 +8,9 @@ The main Playwright suite covers repeatable browser workflows against an explici
 |---|---|---|
 | Search/filter → open | `catalogue-search-detail.spec.ts`, `mobile-catalogue-filters.spec.ts` | Query state, result count, sidebar content, keyboard close/focus return, and phone filter state. |
 | Scan → browse | `scan-root-browse.spec.ts` | A newly completed scan for the named root is followed by finding the expected publication in Catalogue. |
-| Edit → rescan → review → repair | `metadata-edit-persistence.spec.ts` | A user title survives a root scan, appears as a scanner conflict, and can be restored to the displayed scanner suggestion through **Suggested updates**. The test then restores the original title. |
-| Export → preview → apply | `metadata-export-import-roundtrip.spec.ts` | One corrected item is exported, its title is changed in a portable JSON copy, preview reports exactly one matched field, apply updates it, and the original title is restored. |
+| Edit book details once | `unified-book-editor.spec.ts` | Title, rating, author, series, and genre changes remain drafts until **Save book details**; one save persists them, a stale tab is rejected, and the fixture is restored. |
+| Edit → rescan → review → repair | `metadata-edit-persistence.spec.ts` | A title edited in **Book details** survives a root scan, appears as a scanner conflict, and can be restored through **Suggested updates**. The test then restores the original title. |
+| Export → preview → apply | `metadata-export-import-roundtrip.spec.ts` | One item corrected in **Book details** is exported, its title is changed in a portable JSON copy, preview reports exactly one matched field, apply updates it, and the original title is restored. |
 
 Selected journeys compare the compact catalogue, sidebar, metadata form, and phone filter panel against Playwright screenshot baselines. Fixture-specific text and covers are masked so the comparisons focus on layout. The tests also attach screenshots at useful checkpoints; Playwright retains a screenshot and video on failure and records a trace on retry. Review baseline updates deliberately on the pinned browser/OS environment.
 
@@ -26,6 +27,10 @@ npm run test:gui:desktop -- tests/gui/settings/scan-root-browse.spec.ts
 ```
 
 Playwright projects are serialized because metadata and scan journeys use one shared test account. Checkpoint attachments and failure artifacts can contain catalogue titles and paths; retain them as test data.
+
+## Latest full rehearsal
+
+On 2026-10-19, `LIBRARY_FRESH_MIXED_COUNT=40 npm run smoke:fresh-install-mixed` passed against a disposable Nextcloud 34.0.4 instance with Library 0.3.0-alpha.23 installed from its release package. All 40 generated EPUB, PDF, CBZ, and sidecar fixtures were indexed; author and series backfills completed before browser testing. Results: 1,045 source checks passed, all 37 Playwright cases passed across desktop Chromium, desktop Firefox, and mobile Chromium, and the subsequent Vue, sidebar HTTP, and basic browser smoke checks passed. The harness verified that the fixture source tree was unchanged and removed the instance afterward. This run does not establish Nextcloud 33 or 35 compatibility for alpha.23.
 
 ## Human checks that remain
 
