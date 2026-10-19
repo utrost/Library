@@ -270,10 +270,8 @@
         "Create and add genre": "Genre erstellen und hinzufügen",
         "Create and choose series": "Reihe erstellen und auswählen",
         "Create genre": "Genre erstellen",
-        "Create separate author": "Eigenständigen Autor erstellen",
         "Create series": "Reihe erstellen",
         "Create your first list for a reading plan, a project or books to return to.": "Erstelle deine erste Liste für einen Leseplan, ein Projekt oder Bücher zum Wiederlesen.",
-        "Creates a new person using the entered name, even if someone with that name already exists.": "Erstellt einen eigenständigen Autor mit der eingegebenen Bezeichnung, auch wenn sie bereits vorhanden ist.",
         "Creates a separate author identity, even if the name already exists.": "Erstellt eine eigenständige Autorenidentität, auch wenn der Name bereits existiert.",
         "Creator": "Urheber",
         "Creator credit in file": "Urheberangabe in der Datei",
@@ -411,7 +409,6 @@
         "Filters": "Filter",
         "Filters ({count})": "Filter ({count})",
         "Find a genre": "Genre suchen",
-        "Find destination author": "Zielautor suchen",
         "Find destination series": "Zielreihe suchen",
         "Find possible copies from titles, authors and valid ISBNs. Name order and punctuation are normalized for comparison only. Editions and translations can be different books. Review decisions are private and never delete, merge or hide publications.": "Sucht mögliche Kopien anhand von Titel, Autoren und gültigen ISBN-Nummern. Namensreihenfolge und Satzzeichen werden nur zum Vergleich vereinheitlicht. Ausgaben und Übersetzungen können verschiedene Bücher sein. Prüfentscheidungen sind privat und löschen, vereinigen oder verbergen keine Publikationen.",
         "Find possible duplicates": "Mögliche Duplikate suchen",
@@ -1295,7 +1292,10 @@
         "without dates yet": "noch ohne Datum",
         "yes": "ja",
         "{count} of 5 stars": "{count} von 5 Sternen",
-        "{matched} of {total} paths on this page match this structure.": "{matched} von {total} Pfaden auf dieser Seite entsprechen dieser Struktur."
+        "{matched} of {total} paths on this page match this structure.": "{matched} von {total} Pfaden auf dieser Seite entsprechen dieser Struktur.",
+        "Type at least three letters to search authors.": "Gib mindestens drei Buchstaben ein, um nach Autoren zu suchen.",
+        "Destination selected. Review the change before applying it.": "Zielautor ausgewählt. Prüfe die Änderung vor dem Anwenden.",
+        "Create new author": "Neuen Autor erstellen"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

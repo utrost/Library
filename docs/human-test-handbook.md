@@ -1,6 +1,17 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.27, Nextcloud 33–35.** Confirm the installed version and archive checksum before using the populated developer Nextcloud 34 instance at `http://100.123.149.120:8088`; use the [alpha.26 verification and deployment record](compatibility-evidence/2026-10-19-nc34-compact-identities-alpha26/README.md) to identify the installed package. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.26 still needs its own exact-package version matrix. The earlier `0.3.0-alpha.11` developer handoff and the numbered alpha.174 cases later in this file are historical records; follow the current pass below for 0.3 acceptance.
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). Signed alpha.27 remains installed until the new deployment is verified.
+
+**Current manual pass: 0.3.0-alpha.28, Nextcloud 33–35.** Confirm the installed version and archive checksum before using the populated developer Nextcloud 34 instance at `http://100.123.149.120:8088`; use the [alpha.27 verification and deployment record](compatibility-evidence/2026-10-19-nc34-single-editor-alpha27/README.md) to identify the installed package. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.27 still needs its own exact-package version matrix. The earlier `0.3.0-alpha.11` developer handoff and the numbered alpha.174 cases later in this file are historical records; follow the current pass below for 0.3 acceptance.
+
+## H03-19: Destination author selection
+
+1. Open an author, then **More actions → Merge or reassign**. Leave books unselected for a merge, or select books to reassign only those credits.
+2. Type two letters in **Destination author**: no search is sent. At three letters, suggestions appear automatically. Select a result directly, or use Arrow Up/Down and Enter. Escape closes suggestions; Tab moves onward.
+3. Review the change. Change the destination text: the old selection and review must clear. Search quickly for a different name; outdated results must not replace the latest results.
+4. Search for a new name. Only after no matches are found should **Create new author** appear. Click it explicitly; the new author is selected but no books have moved. Review again, then Cancel. The new unused author record remains available.
+5. On disposable books only, repeat and confirm a reassignment/merge, then Undo through Recent changes. Check the affected books and preserved original credits.
+6. Repeat with long names at mobile width. Check readable suggestions, comfortable targets and no horizontal overflow. A failed search must show an error, never an invitation to create a duplicate.
 
 ## H03-18: One editor from every entry point
 
@@ -14,14 +25,14 @@ Use a disposable account for Save/stale-edit checks. Developer smoke only stages
 
 ## Before testing
 
-1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; confirm alpha.26 is installed using its deployment record. Record the exact archive name and checksum instead of assuming the version string identifies the package.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; confirm alpha.27 is installed using its deployment record. Record the exact archive name and checksum instead of assuming the version string identifies the package.
 2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
 For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12, H03-13, H03-14, H03-15, H03-16 and H03-17. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [alpha.26 package record](compatibility-evidence/2026-10-19-nc34-compact-identities-alpha26/README.md) for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
+Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [alpha.27 package record](compatibility-evidence/2026-10-19-nc34-single-editor-alpha27/README.md) for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |

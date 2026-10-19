@@ -55,7 +55,7 @@ try {
     assert.ok(await panel.evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'mobile panel fits')
     await panel.getByRole('button', { name: 'Cancel', exact: true }).click()
     await panel.locator('.author-books a').first().click()
-    await expect(page).toHaveURL(/\/items\/[0-9]+/)
+    await expect(page).toHaveURL(/[?&]details=[0-9]+/)
     assert.deepEqual(errors, [])
     results.push({ engine, pass: true, books: 2, sharedEdit: true, rescanPreserved: true, mobileFits: true })
     await browser.close(); browser = null

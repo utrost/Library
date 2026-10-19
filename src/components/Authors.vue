@@ -1,6 +1,6 @@
 <script setup>
 import { bookDetailsUrl } from '../details-return.js'
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, watch, nextTick } from 'vue'
 import { generateUrl } from '@nextcloud/router'
 import { t, n } from '@nextcloud/l10n'
 import AuthorConflicts from './AuthorConflicts.vue'
@@ -10,6 +10,10 @@ const props = defineProps({ requestToken: { type: String, default: '' }, catalog
 const data = ref(null), busy = ref(false), error = ref(''), notice = ref(''), editing = ref(false)
 const selected = ref([]), targetSearch = ref(''), targets = ref([]), target = ref(''), review = ref(null), assigning = ref(false), history = ref([]), tasks = ref([])
 const visibleTasks = computed(() => tasks.value.filter(task => task.status !== 'completed' && task.status !== 'cancelled'))
+const targetSearching = ref(false), targetSearched = ref(false), targetError = ref(''), targetMenuOpen = ref(false), targetActive = ref(-1)
+const targetHasLetters = computed(() => (targetSearch.value.match(/\p{L}/gu) || []).length >= 3)
+const targetCanCreate = computed(() => targetSearched.value && !targetSearching.value && !targetError.value && !target.value && targets.value.length === 0)
+let targetTimer = null, targetController = null, targetSequence = 0
 let taskTimer = null
 const search = ref(''), unused = ref(false), page = ref(1)
 const showConflicts = new URLSearchParams(location.search).get('authorConflicts') === '1'
@@ -41,9 +45,9 @@ function bookUrl(book) {
 function coverUrl(book) { return generateUrl('/apps/library/items/{id}/cover', { id: book.id }) + '?v=' + encodeURIComponent(`${book.cover_revision || ''}-${book.etag || ''}`) }
 function choosePhoto(event) { photoFile.value = event.target.files?.[0] || null; if (photoFile.value) removePhoto.value = false }
 
-async function request(path, body = null) {
+async function request(path, body = null, signal = undefined) {
   const response = await fetch(generateUrl('/apps/library/api/authors') + path, {
-    credentials: 'same-origin', cache: 'no-store', method: body === null ? 'GET' : 'POST',
+    signal, credentials: 'same-origin', cache: 'no-store', method: body === null ? 'GET' : 'POST',
     headers: { Accept: 'application/json', ...(body === null ? {} : { ...(body instanceof FormData ? {} : { 'Content-Type': 'application/json' }), requesttoken: props.requestToken }) },
     ...(body === null ? {} : { body: body instanceof FormData ? body : JSON.stringify(body) }),
   })
@@ -98,15 +102,62 @@ async function save() {
     await request(`/${id.value}`, body); editing.value = false; photoFailed.value = false; await load(1); notice.value = t('library', 'Author saved. Original book credits are preserved.') }
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
-function cancelAssignment() { assigning.value = false; review.value = null; selected.value = [] }
+function stopTargetSearch() {
+  clearTimeout(targetTimer); targetTimer = null
+  targetController?.abort(); targetController = null
+  targetSequence++
+  targetSearching.value = false
+}
+function cancelAssignment() {
+  assigning.value = false; stopTargetSearch()
+  targetSearch.value = ''; targets.value = []; target.value = ''; review.value = null; selected.value = []
+  targetSearched.value = false; targetError.value = ''; targetMenuOpen.value = false
+}
+watch(targetSearch, () => {
+  stopTargetSearch()
+  target.value = ''; review.value = null; targets.value = []; targetSearched.value = false; targetError.value = ''; targetActive.value = -1
+  targetMenuOpen.value = assigning.value
+  if (!assigning.value || !targetHasLetters.value) return
+  targetSearching.value = true
+  targetTimer = setTimeout(findTargets, 250)
+}, { flush: 'sync' })
 async function findTargets() {
-  busy.value = true; error.value = ''; review.value = null
-  try { targets.value = (await request(`?search=${encodeURIComponent(targetSearch.value.trim())}`)).authors.filter(a => Number(a.id) !== id.value); target.value = '' }
-  catch (e) { error.value = e.message } finally { busy.value = false }
+  const sequence = targetSequence
+  const controller = new AbortController()
+  targetController = controller
+  try {
+    const result = await request(`?search=${encodeURIComponent(targetSearch.value.trim())}`, null, controller.signal)
+    if (sequence !== targetSequence) return
+    targets.value = result.authors.filter(a => Number(a.id) !== id.value)
+    targetSearched.value = true
+  } catch (e) {
+    if (sequence === targetSequence && e.name !== 'AbortError') targetError.value = e.message
+  } finally {
+    if (sequence === targetSequence) { targetSearching.value = false; targetController = null }
+  }
+}
+function chooseTarget(author) {
+  targetSearch.value = author.display_name
+  stopTargetSearch()
+  target.value = String(author.id); targets.value = []; targetSearched.value = false; targetMenuOpen.value = false; targetActive.value = -1
+  review.value = null
+  nextTick(() => document.getElementById('target-search')?.focus())
+}
+function targetKeydown(event) {
+  if (event.key === 'Escape') { targetMenuOpen.value = false; targetActive.value = -1; return }
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    if (!targets.value.length) return
+    event.preventDefault(); targetMenuOpen.value = true
+    targetActive.value = targetActive.value < 0 ? (event.key === 'ArrowDown' ? 0 : targets.value.length - 1) : (targetActive.value + (event.key === 'ArrowDown' ? 1 : -1) + targets.value.length) % targets.value.length
+    nextTick(() => document.getElementById(`target-option-${targetActive.value}`)?.scrollIntoView?.({ block: 'nearest' }))
+  } else if (event.key === 'Enter' && targetMenuOpen.value && targetActive.value >= 0) {
+    event.preventDefault(); chooseTarget(targets.value[targetActive.value])
+  }
 }
 async function createTarget() {
+  if (busy.value || !targetCanCreate.value) return
   busy.value = true; error.value = ''; review.value = null
-  try { const author = await request('', { name: targetSearch.value.trim() }); targets.value = [author]; target.value = String(author.id) }
+  try { chooseTarget(await request('', { name: targetSearch.value.trim() })) }
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
 async function previewAssignment() {
@@ -119,7 +170,7 @@ async function applyAssignment() {
   try {
     const result = await request(`/${id.value}/assign`, { target: Number(target.value), items: selected.value, token: review.value.token })
     notice.value = result.queued ? t('library', 'Author change queued. The books will update together when the background job finishes.') : t('library', 'Author assignments saved. Original credits are preserved. Undo is available in Recent changes.')
-    assigning.value = false; review.value = null
+    cancelAssignment()
     await load(page.value)
   } catch (e) { error.value = e.message } finally { busy.value = false }
 }
@@ -139,7 +190,7 @@ async function removeUnused(author) {
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
 onMounted(() => { if (!showConflicts) load(Math.max(1, Math.min(100000, Number(viewQuery.get('bookPage')) || 1))) })
-onUnmounted(() => { if (taskTimer !== null) clearTimeout(taskTimer) })
+onUnmounted(() => { stopTargetSearch(); if (taskTimer !== null) clearTimeout(taskTimer) })
 </script>
 <template>
   <AuthorConflicts v-if="showConflicts" :request-token="requestToken" :catalogue-url="catalogueUrl" />
@@ -212,17 +263,23 @@ onUnmounted(() => { if (taskTimer !== null) clearTimeout(taskTimer) })
       <section v-if="assigning" class="author-assignment" :aria-label="t('library', 'Merge or reassign')">
         <label>{{ t('library', 'Books to change') }} <LabelHelp :text="t('library', 'Leave all books unselected to merge this author. Select individual books below to reassign only those credits, keeping both authors.')" /></label>
         <p role="status">{{ selected.length ? n('library', '%n selected book', '%n selected books', selected.length) : t('library', 'Merge all books into the chosen author') }}</p>
-        <form class="author-search" @submit.prevent="findTargets">
-          <label for="target-search">{{ t('library', 'Find destination author') }}</label>
-          <input id="target-search" v-model="targetSearch" type="search" maxlength="255" :disabled="busy" />
-          <button :disabled="busy">{{ t('library', 'Search') }}</button>
-        </form>
-        <div><button :disabled="busy || !targetSearch.trim()" @click="createTarget">{{ t('library', 'Create separate author') }}</button> <LabelHelp :text="t('library', 'Creates a new person using the entered name, even if someone with that name already exists.')" /></div>
-        <label for="target-author">{{ t('library', 'Destination author') }}</label>
-        <select id="target-author" v-model="target" :disabled="busy" @change="review = null">
-          <option value="">{{ t('library', 'Choose an author') }}</option>
-          <option v-for="a in targets" :key="a.id" :value="a.id">{{ a.display_name }} — {{ a.sort_name }} (#{{ a.id }})</option>
-        </select>
+        <div class="author-destination">
+          <label for="target-search">{{ t('library', 'Destination author') }} <LabelHelp :text="t('library', 'Type at least three letters to search authors.')" /></label>
+          <input id="target-search" v-model="targetSearch" type="search" maxlength="255" :disabled="busy" role="combobox" :placeholder="t('library', 'Type at least three letters to search authors.')" autocomplete="off" aria-autocomplete="list" aria-controls="target-options" :aria-expanded="targetMenuOpen && targets.length > 0" :aria-activedescendant="targetMenuOpen && targetActive >= 0 ? `target-option-${targetActive}` : undefined" @keydown="targetKeydown" @focus="targetMenuOpen = true" @blur="targetMenuOpen = false" />
+          <ul v-if="targetMenuOpen && targets.length" id="target-options" role="listbox" :aria-label="t('library', 'Destination author')">
+            <li v-for="(author, index) in targets" :id="`target-option-${index}`" :key="author.id" role="option" :aria-selected="index === targetActive" @mousedown.prevent @click="chooseTarget(author)">
+              <span dir="auto">{{ author.display_name }}</span>
+              <small dir="auto">{{ author.sort_name }} · #{{ author.id }}</small>
+            </li>
+          </ul>
+          <span v-if="targetSearching" role="status">{{ t('library', 'Searching…') }}</span>
+          <span v-else-if="target" role="status">{{ t('library', 'Destination selected. Review the change before applying it.') }}</span>
+          <p v-if="targetError" role="alert">{{ targetError }}</p>
+          <div v-if="targetCanCreate" class="author-destination-create">
+            <span role="status">{{ t('library', 'No authors found.') }}</span>
+            <button :disabled="busy" @click="createTarget">{{ t('library', 'Create new author') }}</button>
+          </div>
+        </div>
         <div><button :disabled="busy || !target" @click="previewAssignment">{{ t('library', 'Review change') }}</button> <button :disabled="busy" @click="cancelAssignment">{{ t('library', 'Cancel') }}</button></div>
         <section v-if="review" class="author-review" :aria-label="t('library', 'Review change')">
           <h2>{{ review.source }} → {{ review.target }}</h2>
@@ -304,7 +361,14 @@ onUnmounted(() => { if (taskTimer !== null) clearTimeout(taskTimer) })
 .author-directory a, .author-books a { font-weight: bold; text-decoration: underline; }
 .author-directory span, .author-books span { color: var(--color-text-maxcontrast); }
 .author-assignment { border: 1px solid var(--color-border); border-radius: 8px; padding: 16px; margin-block: 16px; }
-.author-assignment select { width: 100%; margin-block: 8px; }
+.author-destination { display: flex; flex-direction: column; gap: 8px; margin-block: 16px; min-width: 0; }
+.author-destination input { width: 100%; min-width: 0; box-sizing: border-box; }
+.author-destination ul { list-style: none; margin: 0; padding: 4px; max-height: 260px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-main-background); }
+.author-destination [role="option"] { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 10px; min-height: 44px; box-sizing: border-box; cursor: pointer; border-radius: 4px; }
+.author-destination [role="option"] small { color: var(--color-text-maxcontrast); }
+.author-destination [role="option"]:hover, .author-destination [aria-selected="true"] { background: var(--color-primary-element-light); outline: 2px solid var(--color-primary-element); outline-offset: -2px; }
+.author-destination-create { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.author-destination input:focus-visible { outline: 2px solid var(--color-primary-element); outline-offset: 2px; }
 .author-review ul { max-height: 240px; overflow: auto; }
 .author-history li { display: flex; align-items: center; gap: 12px; margin-block: 8px; flex-wrap: wrap; }
 .author-books input[type="checkbox"] { width: 20px; height: 20px; min-height: 20px; flex: 0 0 20px; margin: 0; }

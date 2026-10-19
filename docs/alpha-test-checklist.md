@@ -1,8 +1,10 @@
 # Public alpha test checklist
 
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). Signed alpha.27 remains installed until the new deployment is verified.
+
 Alpha.27 consolidates every book entry point on the current editor and adds compact saved-state metadata status at the bottom. See the [alpha.27 verification record](compatibility-evidence/2026-10-19-nc34-single-editor-alpha27/README.md). Signed alpha.27 is deployed on developer NC34 with clean integrity and an unchanged 107,717-book catalogue.
 
-The current development candidate is **`0.3.0-alpha.27`**; the [alpha.27 verification and deployment record](compatibility-evidence/2026-10-19-nc34-single-editor-alpha27/README.md) identifies the package installed on private developer Nextcloud 34. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+The current development candidate is **`0.3.0-alpha.28`**; the [alpha.27 verification and deployment record](compatibility-evidence/2026-10-19-nc34-single-editor-alpha27/README.md) identifies the package installed on private developer Nextcloud 34. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
 
 Use the [Playwright journey suite](playwright-journeys.md) for repeatable browser workflows against a disposable instance. Use the [current 0.3 human cases](human-test-handbook.md#current-03-human-cases) for personal acceptance. This checklist covers package identity, source-file safety, real-file coverage and release-specific acceptance.
 
