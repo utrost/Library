@@ -6,13 +6,13 @@ The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submis
 
 Before submitting 0.3: obtain human acceptance of author and series workflows, resolve release-blocking findings, verify a populated upgrade from the preserved 0.2 baseline and interruption recovery, refresh listing/screenshots, then sign and run an exact-package NC33–35 fresh/upgrade matrix. Developer upgrades and focused source checks do not replace the exact signed NC33–35 release matrix.
 
-## Alpha.26 compact editor candidate — 2026-10-19
+## Alpha.26 compact editor handoff — 2026-10-19
 
-Authors, series and genres now share compact rows with inline selection and accessible icon actions. The [verification and deployment record](compatibility-evidence/2026-10-19-nc34-compact-identities-alpha26/README.md) tracks checks and deployment status. Owner acceptance and the exact signed NC33–35 matrix remain open.
+The signed alpha.26 package is deployed on developer NC34 with clean integrity and an unchanged large catalogue-book catalogue. Authors, series and genres now share compact rows with inline selection and accessible icon actions. Text links are underlined; File metadata is collapsed at the bottom with a Files link and indexed size. The [verification and deployment record](compatibility-evidence/2026-10-19-nc34-compact-identities-alpha26/README.md) tracks checks and deployment status. Owner acceptance and the exact signed NC33–35 matrix remain open.
 
 ## Alpha.25 editor handoff — 2026-10-19
 
-The signed alpha.25 package is deployed on developer NC34 with clean integrity and the unchanged large catalogue-book catalogue. It keeps Save/Discard visible through the whole details page and preserves direct author/series selection. The [verification and deployment record](compatibility-evidence/2026-10-19-nc34-editor-actions-alpha25/README.md) tracks its signed package and browser checks. Owner acceptance and the exact signed NC33–35 release matrix remain open.
+The signed alpha.25 package was deployed on developer NC34 with clean integrity and the unchanged large catalogue-book catalogue. It keeps Save/Discard visible through the whole details page and preserves direct author/series selection. The [verification and deployment record](compatibility-evidence/2026-10-19-nc34-editor-actions-alpha25/README.md) tracks its signed package and browser checks. Owner acceptance and the exact signed NC33–35 release matrix remain open.
 
 ## Historical developer checkpoints
 
