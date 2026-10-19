@@ -200,6 +200,22 @@ echo (string)$stmt->fetchColumn();
 # The ownership/CSRF browser checks require an independent unprivileged account.
 docker exec -u www-data -e OC_PASS=Disposable-lists-other-2026 "$CONTAINER" php occ user:add --password-from-env library-lists-other
 docker exec -u www-data "$CONTAINER" php occ background:cron
+# The fixture was just indexed. Timed backfill jobs may not yet be due, but the
+# unified editor must see completed author and series links before GUI tests.
+for job_class in AuthorBackfillJob SeriesBackfillJob; do
+    job_id="$(docker exec -u www-data "$CONTAINER" php occ background-job:list --output=json | python3 -c 'import json,sys; matches=[job for job in json.load(sys.stdin) if job["class"].endswith(sys.argv[1])]; assert len(matches)==1, matches; print(matches[0]["id"])' "$job_class")"
+    docker exec -u www-data "$CONTAINER" php occ background-job:execute "$job_id" --force-execute >/dev/null
+done
+MIGRATION_PENDING="$(docker exec -u www-data "$CONTAINER" php -r '
+require "/var/www/html/config/config.php";
+$pdo = new PDO("sqlite:" . $CONFIG["datadirectory"] . "/owncloud.db");
+$prefix = $CONFIG["dbtableprefix"] ?? "oc_";
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM {$prefix}library_items WHERE user_id=? AND (author_sync_status<>0 OR series_sync_status<>0)");
+$stmt->execute([$argv[1]]);
+echo $stmt->fetchColumn();
+' "$ADMIN_USER")"
+[[ "$MIGRATION_PENDING" == "0" ]] || { echo "author_or_series_migration_pending=$MIGRATION_PENDING" >&2; exit 1; }
+echo 'author_and_series_migration_ready=true'
 docker exec -d -u www-data "$CONTAINER" php occ --no-warnings --quiet background-job:worker --stop_after=30m 'OCA\Library\BackgroundJob\ScanJob'
 PW_BASE_URL="$BASE_URL" \
 PW_USER="$ADMIN_USER" \
