@@ -62,7 +62,7 @@ final class ItemPageController extends Controller {
         return new JSONResponse(['item' => array_intersect_key($item, array_flip([
             'id', 'title', 'subtitle', 'creators', 'authors', 'authorSyncStatus', 'seriesSyncStatus', 'displayCreators', 'canonicalAuthors', 'canonicalSeries', 'canonicalGenres', 'publicationType', 'publication', 'publicationDate', 'series', 'seriesNumber', 'genre',
             'language', 'publisher', 'description', 'subjects', 'classifications', 'personalRating',
-            'extension', 'shelf', 'cachedPath', 'scanStatus', 'scanError', 'workflowStatus', 'starred',
+            'extension', 'shelf', 'cachedPath', 'fileSize', 'scanStatus', 'scanError', 'workflowStatus', 'starred',
             'identifiers', 'metadataRevision', 'metadataSource', 'fieldSources', 'fieldValues', 'userEdited', 'coverUrl', 'hasManualCover',
             'detailsUrl', 'updateUrl', 'openUrl', 'recordOpenUrl', 'filesUrl', 'downloadUrl',
         ]))]);

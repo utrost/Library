@@ -1,12 +1,12 @@
 # Public alpha test checklist
 
-The current development candidate is **`0.3.0-alpha.25`**; the [alpha.25 verification and deployment record](compatibility-evidence/2026-10-19-nc34-editor-actions-alpha25/README.md) identifies the package installed on private developer Nextcloud 34. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+The current development candidate is **`0.3.0-alpha.26`**; the [alpha.26 verification and deployment record](compatibility-evidence/2026-10-19-nc34-compact-identities-alpha26/README.md) identifies the package installed on private developer Nextcloud 34. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
 
 Use the [Playwright journey suite](playwright-journeys.md) for repeatable browser workflows against a disposable instance. Use the [current 0.3 human cases](human-test-handbook.md#current-03-human-cases) for personal acceptance. This checklist covers package identity, source-file safety, real-file coverage and release-specific acceptance.
 
 ## Setup
 
-For development acceptance, use the deployed alpha.10 developer instance or a disposable NC33–35 installation of the same signed package. Record the installed version, commit and archive checksum. Repeat the final release checklist against its exact package, not a rebuild or checkout. The App Store package must be signed; see [RELEASE.md](../RELEASE.md).
+For development acceptance, use the current developer instance after checking its installed package or a disposable NC33–35 installation of the same signed package. Record the installed version, commit and archive checksum. Repeat the final release checklist against its exact package, not a rebuild or checkout. The App Store package must be signed; see [RELEASE.md](../RELEASE.md).
 
 1. For the release rehearsal, install the same signed 0.3 package into disposable Nextcloud 33.0.9, 34.0.4 and 35.0.0 instances, both fresh and upgraded from the preserved baseline. The alpha.9 source checks are focused feature evidence, not that release rehearsal.
 2. Enable the app as a Nextcloud administrator.

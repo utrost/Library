@@ -2440,3 +2440,19 @@
     .library-maintenance-links { max-height: 55dvh; overflow-y: auto; }
     .library-maintenance-main { overflow: visible; padding: 20px 16px 56px; }
 }
+
+/* Text links stay identifiable without relying on colour or hover alone. */
+.library-text-link, .library-full-details a:not(.button) {
+    color: var(--color-primary-element);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: .18em;
+    border-radius: 3px;
+}
+.library-text-link:hover, .library-full-details a:not(.button):hover {
+    text-decoration-thickness: 2px;
+}
+.library-text-link:focus-visible, .library-full-details a:not(.button):focus-visible {
+    outline: 2px solid var(--color-primary-element);
+    outline-offset: 3px;
+}
