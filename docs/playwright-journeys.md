@@ -10,7 +10,7 @@ The main Playwright suite covers repeatable browser workflows against an explici
 | Scan → browse | `scan-root-browse.spec.ts` | A newly completed scan for the named root is followed by finding the expected publication in Catalogue. |
 | Destination author | `author-destination.spec.ts` | Three-letter search, direct keyboard selection, creation only after no matches, review cancellation, unchanged assignments and mobile wrapping. Temporary authors are removed. |
 | Editor entry points | `editor-entry-points.spec.ts` | Author/series links, old bookmarks, Back context, authorization, feedback and consistent bottom disclosures. |
-| Edit book details once | `unified-book-editor.spec.ts` | Title, rating, author, series, and genre changes remain drafts until **Save**; one save persists them, a stale tab is rejected, and the fixture is restored. |
+| Edit book details once | `unified-book-editor.spec.ts` | Title, rating, author, series, and genre changes remain drafts until **Save book details**; one save persists them, a stale tab is rejected, and the fixture is restored. |
 | Edit → rescan → review → repair | `metadata-edit-persistence.spec.ts` | A title edited in **Book details** survives a root scan, appears as a scanner conflict, and can be restored through **Suggested updates**. The test then restores the original title. |
 | Export → preview → apply | `metadata-export-import-roundtrip.spec.ts` | One item corrected in **Book details** is exported, its title is changed in a portable JSON copy, preview reports exactly one matched field, apply updates it, and the original title is restored. |
 
@@ -32,7 +32,7 @@ Playwright projects are serialized because metadata and scan journeys use one sh
 
 ## Recorded rehearsals
 
-Alpha.27 passed 41/41 hosted CI journeys; alpha.28 adds three destination-author cases. See the [alpha.28 record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md) for current results. The alpha.23 rehearsal below is retained as historical evidence.
+Alpha.27 passed 41/41 hosted CI journeys; alpha.28 passed all 44/44 hosted CI journeys, including three destination-author cases. See the [alpha.28 record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md) for current results. The alpha.23 rehearsal below is retained as historical evidence.
 
 On 2026-10-19, `LIBRARY_FRESH_MIXED_COUNT=40 npm run smoke:fresh-install-mixed` passed against a disposable Nextcloud 34.0.4 instance with Library 0.3.0-alpha.23 installed from its release package. All 40 generated EPUB, PDF, CBZ, and sidecar fixtures were indexed; author and series backfills completed before browser testing. Results: 1,045 source checks passed, all 37 Playwright cases passed across desktop Chromium, desktop Firefox, and mobile Chromium, and the subsequent Vue, sidebar HTTP, and basic browser smoke checks passed. The harness verified that the fixture source tree was unchanged and removed the instance afterward. This run does not establish Nextcloud 33 or 35 compatibility for alpha.23.
 

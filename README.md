@@ -1,7 +1,5 @@
 # Library
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](docs/compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). Signed alpha.27 remains installed until the new deployment is verified.
-
 Library is an open-source Nextcloud app for people who keep books, comics, papers and sidecar metadata in Nextcloud Files.
 
 Nextcloud Files remains the canonical storage. Library indexes those files with a file-ID-based index and adds a catalogue on top: covers, search, filters, shelves, saved collections, detail editing, review queues and handoff to the normal Nextcloud file viewers.
@@ -10,7 +8,7 @@ Nextcloud Files remains the canonical storage. Library indexes those files with 
 
 License: AGPL-3.0-or-later. See [LICENSE](LICENSE).
 
-Current candidate: `0.3.0-alpha.28`. All book links and old bookmarks open one editor, with compact Authors → Series → Genres rows and a single Save/Discard workflow. Metadata status, imported suggestions and file information are collapsed at the bottom. See the [alpha.27 verification and deployment record](docs/compatibility-evidence/2026-10-19-nc34-single-editor-alpha27/README.md) for current checks and installed status. Supported Nextcloud versions: **33–35**. The exact signed NC33–35 matrix and owner acceptance remain release gates. See [release status](RELEASE.md).
+Current candidate: `0.3.0-alpha.28`. Destination-author selection searches automatically after three letters and offers creation when no author matches. All book links and old bookmarks open one editor, with compact Authors → Series → Genres rows and a single Save/Discard workflow. Metadata status, imported suggestions and file information are collapsed at the bottom. See the [alpha.28 verification and deployment record](docs/compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md) for current checks and installed status. Supported Nextcloud versions: **33–35**. The exact signed NC33–35 matrix and owner acceptance remain release gates. See [release status](RELEASE.md).
 
 The current development build adds per-user author and series identities, author profiles, reviewed moves and merges, changed-import review and conditional Undo. Earlier 0.2 work includes private reading lists, path/filename metadata extraction, duplicate review, scheduled scans and bounded cover thumbnails.
 
