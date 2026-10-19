@@ -101,7 +101,7 @@ test('stages book fields and linked names, saves once, and rejects a stale tab @
 
   try {
     await expect(page.locator('.library-full-details-main > section h2')).toHaveText(['Book details', 'Authors', 'Series', 'Genres'])
-    await expect(page.getByRole('button', { name: 'Save book details' })).toHaveCount(1)
+    await expect(page.getByRole('button', { name: 'Save book details' })).toHaveCount(0)
     await expect(provenance).not.toHaveAttribute('open')
     await page.getByRole('textbox', { name: 'Title', exact: true }).fill(editedTitle)
     await page.getByRole('radio', { name: `Set ${rating} of 5 stars` }).check()
@@ -109,16 +109,12 @@ test('stages book fields and linked names, saves once, and rejects a stale tab @
     if (before.canonicalAuthors.length) await authors.locator('.library-full-details-author-row').first().getByRole('button', { name: 'Change' }).click()
     else await authors.getByRole('button', { name: 'Add author' }).click()
     await authors.getByRole('combobox', { name: 'Choose an author' }).fill(authorName)
-    await authors.getByRole('button', { name: 'Create new author' }).click()
-    await expect(authors.locator('.library-full-details-author-selected')).toContainText(`Selected author: ${authorName}`)
-    await authors.getByRole('button', { name: 'Use this author' }).click()
+    await authors.getByRole('button', { name: 'Create and add author' }).click()
     await expect(authors.getByRole('link', { name: authorName })).toBeVisible()
 
     await series.getByRole('button', { name: before.canonicalSeries.length ? 'Change series' : 'Choose series' }).click()
     await series.getByRole('combobox', { name: 'Choose a series' }).fill(seriesName)
-    await series.getByRole('button', { name: 'Create series', exact: true }).click()
-    await expect(series.locator('.library-full-details-author-selected')).toContainText(`Selected series: ${seriesName}`)
-    await series.getByRole('button', { name: 'Use this series' }).click()
+    await series.getByRole('button', { name: 'Create and choose series' }).click()
     await series.getByRole('textbox', { name: 'Part in series' }).fill('2')
     await expect(series.getByRole('link', { name: `${seriesName} · 2` })).toBeVisible()
 

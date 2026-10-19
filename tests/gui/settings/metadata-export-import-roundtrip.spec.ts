@@ -78,8 +78,10 @@ test('exports a corrected item, previews and applies an imported title, then res
     if (titleWasRead) {
       await openBookDetails(page, itemId)
       const title = page.getByRole('textbox', { name: 'Title', exact: true })
-      await title.fill(originalTitle)
-      await saveBookDetails(page, itemId)
+      if (await title.inputValue() !== originalTitle) {
+        await title.fill(originalTitle)
+        await saveBookDetails(page, itemId)
+      }
       await expect(page.getByRole('textbox', { name: 'Title', exact: true })).toHaveValue(originalTitle)
     }
   }
