@@ -167,6 +167,7 @@ OC.L10N.register(
         "Catalogue pagination": "ترقيم صفحات الفهرس",
         "Catalogue search and filters": "بحث الكتالوج والتصفية",
         "Catalogue toolbar": "شريط أدوات الفهرس",
+        "Change author": "تغيير المؤلف",
         "Change series": "تغيير السلسلة",
         "Changed fields": "الحقول المتغيرة",
         "Changed or unavailable books": "كتب تغيرت أو لم تعد متاحة",
@@ -393,6 +394,7 @@ OC.L10N.register(
         "File metadata": "البيانات الوصفية للملف",
         "File missing": "الملف مفقود",
         "File problems": "مشكلات الملفات",
+        "File size": "حجم الملف",
         "File status needs attention": "تحتاج حالة الملف إلى الانتباه",
         "Filename": "اسم الملف",
         "Filename-derived metadata": "بيانات وصفية مشتقة من اسم الملف",
@@ -1378,8 +1380,7 @@ OC.L10N.register(
         "without dates yet": "بدون تواريخ بعد",
         "yes": "نعم",
         "{count} of 5 stars": "{count} من 5 نجوم",
-        "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية.",
-        "Change author": "تغيير المؤلف"
+        "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية."
     },
     "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 );

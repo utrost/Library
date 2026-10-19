@@ -167,6 +167,7 @@ OC.L10N.register(
         "Catalogue pagination": "Catalogue pagination",
         "Catalogue search and filters": "Catalogue search and filters",
         "Catalogue toolbar": "Catalogue toolbar",
+        "Change author": "Change author",
         "Change series": "Change series",
         "Changed fields": "Changed fields",
         "Changed or unavailable books": "Changed or unavailable books",
@@ -393,6 +394,7 @@ OC.L10N.register(
         "File metadata": "File metadata",
         "File missing": "File missing",
         "File problems": "File problems",
+        "File size": "File size",
         "File status needs attention": "File status needs attention",
         "Filename": "Filename",
         "Filename-derived metadata": "Filename-derived metadata",
@@ -1294,8 +1296,7 @@ OC.L10N.register(
         "without dates yet": "without dates yet",
         "yes": "yes",
         "{count} of 5 stars": "{count} of 5 stars",
-        "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure.",
-        "Change author": "Change author"
+        "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure."
     },
     "nplurals=2; plural=(n != 1);"
 );

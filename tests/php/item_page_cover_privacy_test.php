@@ -38,7 +38,7 @@ namespace OCA\Library\Service {
         public function findItem(string $userId, int $itemId): ?array {
             if (!self::$owned) { return null; }
             return [
-                'id' => $itemId, 'fileId' => 21, 'cachedPath' => '/fixture.epub',
+                'id' => $itemId, 'fileId' => 21, 'fileSize' => 1234567, 'cachedPath' => '/fixture.epub',
                 'coverOverrideUrl' => 'https://tracker.invalid/pixel', 'extension' => 'epub',
                 'scanStatus' => 'indexed',
             ];
@@ -115,6 +115,9 @@ namespace {
     $sidebar = $controller->sidebar('7');
     if ($sidebar->status !== 200 || ($sidebar->data['item']['id'] ?? null) !== 7 || isset($sidebar->data['item']['coverOverrideUrl'])) {
         throw new \RuntimeException('owned sidebar projection must remain narrow and privacy safe');
+    }
+    if (($sidebar->data['item']['fileSize'] ?? null) !== 1234567) {
+        throw new \RuntimeException('owned sidebar must expose the indexed file size');
     }
     foreach (['0', '-1', '+7', '007', '2147483648', '999999999999999999999999999999', '7[]', '7x'] as $invalidId) {
         $request->requestUri = '/apps/library/items/' . $invalidId . '/sidebar';

@@ -7,6 +7,7 @@ import StarRating from './StarRating.vue'
 import MetadataValuePicker from './MetadataValuePicker.vue'
 import GenrePicker from './GenrePicker.vue'
 import IdentityAction from './IdentityAction.vue'
+import { formatFileSize } from '../file-size.js'
 import { detailsReturnContext } from '../details-return.js'
 
 const props = defineProps({
@@ -17,6 +18,8 @@ const props = defineProps({
 
 const item = ref(null)
 const context = ref(null)
+const fileSize = computed(() => formatFileSize(item.value?.fileSize, document.documentElement.lang || 'en'))
+const exactFileSize = computed(() => formatFileSize(item.value?.fileSize, document.documentElement.lang || 'en', true))
 const draft = reactive({})
 const publisherSuggestions = ref([])
 let publisherTimer = null
@@ -680,12 +683,13 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
         </div>
 
         <div class="library-full-details-aside">
-          <section class="library-full-details-card"><h2>{{ t('library', 'File metadata') }}</h2><dl><dt>{{ t('library', 'Location') }}</dt><dd><bdi dir="ltr">{{ item.cachedPath }}</bdi></dd><dt>{{ t('library', 'Format') }}</dt><dd>{{ (item.extension || '').toUpperCase() }}</dd><dt>{{ t('library', 'Scan status') }}</dt><dd>{{ item.scanStatus || '—' }}</dd><dt>{{ t('library', 'Metadata source') }}</dt><dd>{{ item.metadataSource || '—' }}</dd><dt v-if="item.scanError">{{ t('library', 'Scan error') }}</dt><dd v-if="item.scanError">{{ item.scanError }}</dd><dt>{{ t('library', 'File ID') }}</dt><dd>{{ context.file.fileId || '—' }}</dd><dt>{{ t('library', 'MIME type') }}</dt><dd>{{ context.file.mimeType || '—' }}</dd><dt v-if="item.shelf">{{ t('library', 'Shelf') }}</dt><dd v-if="item.shelf">{{ item.shelf }}</dd></dl><button v-if="item.scanStatus === 'missing'" type="button" class="button secondary" :disabled="busy" @click="forgetMissing">{{ t('library', 'Forget missing publication') }}</button></section>
+
           <section class="library-full-details-card"><h2>{{ t('library', 'Nextcloud tags') }}</h2><div class="library-full-details-chips"><span v-for="tag in context.tags" :key="tag.id" class="library-full-details-chip"><bdi dir="auto">{{ tag.name }}</bdi><button type="button" :disabled="busy" :aria-label="`${t('library', 'Remove tag')}: ${tag.name}`" @click="post(tag.removeUrl)">×</button></span></div><form @submit.prevent="addTag()"><label>{{ t('library', 'Add Nextcloud tag') }}<input v-model="tagName" list="library-full-details-tag-suggestions"></label><datalist id="library-full-details-tag-suggestions"><option v-for="name in context.tagSuggestions" :key="name" :value="name"></option></datalist><button type="submit" class="button secondary" :disabled="busy || !tagName.trim()">{{ t('library', 'Add tag') }}</button></form></section>
           <section class="library-full-details-card"><h2>{{ t('library', 'Nextcloud comments') }}</h2><p class="library-muted">{{ n('library', '%n comment', '%n comments', context.comments.count || 0) }}</p><ul v-if="context.comments.recent?.length" class="library-full-details-comments"><li v-for="comment in context.comments.recent" :key="comment.id"><small>{{ comment.actorId }} · {{ comment.createdAt }}</small><p>{{ comment.message }}</p></li></ul><form @submit.prevent="addComment"><label>{{ t('library', 'Add Nextcloud comment') }}<textarea v-model="commentMessage" rows="3"></textarea></label><button type="submit" class="button secondary" :disabled="busy || !commentMessage.trim()">{{ t('library', 'Add comment') }}</button></form></section>
         </div>
       </div>
       <details class="library-full-details-card library-full-details-provenance"><summary>{{ t('library', 'Imported metadata and scan suggestions') }}</summary><dl class="library-full-details-source-values"><dt>{{ t('library', 'Creator credit in file') }}</dt><dd>{{ item.creators || '—' }}</dd><dt>{{ t('library', 'Series in file') }}</dt><dd>{{ item.series || '—' }}<span v-if="item.seriesNumber"> · {{ item.seriesNumber }}</span></dd><dt>{{ t('library', 'Genre in file') }}</dt><dd>{{ item.genre || '—' }}</dd></dl><p class="library-muted">{{ t('library', 'Scanner suggestions never replace your edits automatically.') }}</p><div v-if="differences.length" class="library-full-details-differences"><article v-for="row in differences" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><button type="button" class="button secondary" :disabled="busy || row.rejected" :title="row.rejected ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetField, { field: row.field })">{{ t('library', 'Reset to scanner') }}</button></article></div><p v-else>{{ t('library', 'No scanner differences for this item.') }}</p><details><summary>{{ t('library', 'Show all scanner provenance') }}</summary><div class="library-full-details-differences"><article v-for="row in provenance" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Scanner source') }}: {{ row.source || '—' }}</p><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><p v-if="row.sourceOriginal">{{ t('library', 'Original source value') }}: <bdi dir="auto">{{ row.sourceOriginal }}</bdi></p></article></div></details><button v-if="differences.length" type="button" class="button secondary" :disabled="busy || rejectedFields.length > 0" :title="rejectedFields.length ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetFields)">{{ t('library', 'Reset all fields to scanner') }}</button></details>
+      <details class="library-full-details-card library-full-details-file"><summary>{{ t('library', 'File metadata') }}</summary><dl class="library-full-details-source-values"><dt>{{ t('library', 'Location') }}</dt><dd><a v-if="item.filesUrl" :href="item.filesUrl" :title="t('library', 'Show in Files')"><bdi dir="ltr">{{ item.cachedPath }}</bdi></a><bdi v-else dir="ltr">{{ item.cachedPath }}</bdi></dd><dt>{{ t('library', 'File size') }}</dt><dd :title="exactFileSize">{{ fileSize }}</dd><dt>{{ t('library', 'Format') }}</dt><dd>{{ (item.extension || '').toUpperCase() }}</dd><dt>{{ t('library', 'Scan status') }}</dt><dd>{{ item.scanStatus || '—' }}</dd><dt>{{ t('library', 'Metadata source') }}</dt><dd>{{ item.metadataSource || '—' }}</dd><dt v-if="item.scanError">{{ t('library', 'Scan error') }}</dt><dd v-if="item.scanError">{{ item.scanError }}</dd><dt>{{ t('library', 'File ID') }}</dt><dd>{{ context.file.fileId || '—' }}</dd><dt>{{ t('library', 'MIME type') }}</dt><dd>{{ context.file.mimeType || '—' }}</dd><dt v-if="item.shelf">{{ t('library', 'Shelf') }}</dt><dd v-if="item.shelf">{{ item.shelf }}</dd></dl><button v-if="item.scanStatus === 'missing'" type="button" class="button secondary" :disabled="busy" @click="forgetMissing">{{ t('library', 'Forget missing publication') }}</button></details>
     </template>
   </main>
 </template>
@@ -751,9 +755,11 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-chip button { border: 0; background: transparent; cursor: pointer; }
 .library-full-details-comments { list-style: none; padding: 0; }
 .library-full-details-comments li { border-bottom: 1px solid var(--color-border); padding: 8px 0; overflow-wrap: anywhere; }
-.library-full-details-provenance { margin-top: 20px; }
-.library-full-details-provenance > summary { cursor: pointer; font-size: 1.2rem; font-weight: 600; }
+.library-full-details-provenance > summary, .library-full-details-file > summary { cursor: pointer; font-size: 1.2rem; font-weight: 600; }
+.library-full-details-provenance, .library-full-details-file { margin-top: 20px; }
+.library-full-details-provenance > summary:focus-visible, .library-full-details-file > summary:focus-visible { outline: 2px solid var(--color-primary-element); outline-offset: 4px; border-radius: 3px; }
 .library-full-details-source-values { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 12px; margin: 16px 0; }
+.library-full-details-source-values dt, .library-full-details-source-values dd { float: none; width: auto; min-width: 0; padding: 0; margin: 0; text-align: start; }
 .library-full-details-source-values dt { font-weight: 600; }
 .library-full-details-source-values dd { margin: 0; overflow-wrap: anywhere; }
 .library-full-details-differences { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin: 16px 0; }
@@ -761,7 +767,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-differences h3 { margin: 0 0 8px; }
 @container (max-width: 1100px) { .library-full-details-columns { grid-template-columns: minmax(0, 1fr); } }
 @container (max-width: 760px) { .library-full-details-fields { grid-template-columns: minmax(0, 1fr); } }
-@container (max-width: 560px) { .library-full-details-savebar { align-items: stretch; flex-direction: column; } .library-full-details-savebar-actions > button { flex: 1 1 auto; } }
+@container (max-width: 560px) { .library-full-details-file .library-full-details-source-values { grid-template-columns: minmax(0, 1fr); } .library-full-details-file .library-full-details-source-values dd { margin-bottom: 8px; } .library-full-details-savebar { align-items: stretch; flex-direction: column; } .library-full-details-savebar-actions > button { flex: 1 1 auto; } }
 @media (max-width: 600px) { .library-full-details { padding: 16px; } .library-full-details-hero { grid-template-columns: 1fr; } .library-full-details-cover { max-width: 200px; } }
 </style>
 
