@@ -22306,7 +22306,7 @@ const m8 = { class: "library-full-details" }, _8 = ["href"], w8 = {
       ], 64)) : S("", !0)
     ]));
   }
-}, s5 = /* @__PURE__ */ cn(l5, [["__scopeId", "data-v-fc39c562"]]), o5 = {
+}, s5 = /* @__PURE__ */ cn(l5, [["__scopeId", "data-v-e78037cd"]]), o5 = {
   class: "library-navigation-group-label",
   role: "presentation"
 }, u5 = ["aria-label", "title", "onClick"], c5 = {
