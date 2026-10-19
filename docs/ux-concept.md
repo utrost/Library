@@ -178,3 +178,9 @@ New UI surfaces should reuse this contract before adding another panel: clear sc
 The user prefers explanatory help in hover-overs on field labels, not permanent paragraphs. Apply this to new and revised screens throughout the app. Tooltips must also be available by keyboard focus and tap, dismissible with Escape, and readable without clipping at narrow viewport widths. Use the shared `LabelHelp` component where appropriate. Keep errors, current state, essential limitations, and actions visible; do not hide actionable failures in help.
 
 Pattern selection uses one list for supplied and personal patterns. Selecting an entry immediately updates the active pattern and preview; there is no additional activation button. Source distinctions belong in internal storage, not separate user-facing lists.
+
+## Text links and secondary details
+
+Use underlined, theme-coloured text for navigation links, with a thicker underline on hover and a visible keyboard focus outline. Colour alone must not communicate clickability. The shared `library-text-link` style provides this convention; it also applies throughout the full book details page, including linked authors, series, genres and the file location. Actions use buttons; collapsible sections use a disclosure marker.
+
+File metadata is collapsed initially at the bottom of book details, after imported metadata and scan suggestions. The location opens Nextcloud Files. File size comes from the existing scan index, uses readable decimal units, and exposes exact bytes on hover. Unknown size is shown as a dash; zero bytes remains distinct.

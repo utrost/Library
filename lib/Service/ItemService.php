@@ -1609,7 +1609,7 @@ final class ItemService {
 
     public function findItem(string $userId, int $itemId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.authors_json', 'i.author_sync_status', 'i.series_sync_status', 'i.publication', 'i.series_name', 'i.series_number', 'i.genre', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.subjects_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.cover_revision', 'f.etag', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.authors_json', 'i.author_sync_status', 'i.series_sync_status', 'i.publication', 'i.series_name', 'i.series_number', 'i.genre', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.subjects_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.cover_revision', 'f.etag', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.size', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->andX(
                 $qb->expr()->eq('i.library_file_id', 'f.id'), $qb->expr()->eq('i.user_id', 'f.user_id')
@@ -1629,6 +1629,8 @@ final class ItemService {
         }
 
         $item = $this->normalizeJoinedItemRow($row);
+        // Already indexed; no filesystem read or additional query on details loads.
+        $item['fileSize'] = isset($row['size']) && (int)$row['size'] >= 0 ? (int)$row['size'] : null;
         $item['metadataRevision'] = $this->metadataRevisionForItem($item);
         return $this->decorateSharedMetadata($userId, [$item])[0] ?? $item;
     }

@@ -9,6 +9,8 @@ type BookSnapshot = {
   genre: string
   personalRating: number | null
   metadataRevision: string
+  fileSize: number | null
+  filesUrl: string
   authorSyncStatus: number
   seriesSyncStatus: number
   canonicalAuthors: LinkedIdentity[]
@@ -21,6 +23,24 @@ async function snapshot(page: Page, itemId: number): Promise<BookSnapshot> {
   expect(response.ok(), `Book snapshot returned ${response.status()}`).toBeTruthy()
   const item = (await response.json() as { item: BookSnapshot }).item
   return { ...item, canonicalAuthors: item.canonicalAuthors || [], canonicalSeries: item.canonicalSeries || [], canonicalGenres: item.canonicalGenres || [] }
+}
+
+async function verifyFileMetadata(page: Page, before: BookSnapshot): Promise<void> {
+  const file = page.locator('details.library-full-details-file')
+  await expect(file).not.toHaveAttribute('open')
+  expect(await file.evaluate(node => node.nextElementSibling === null)).toBe(true)
+  await file.locator('summary').focus()
+  await page.keyboard.press('Enter')
+  await expect(file).toHaveAttribute('open', '')
+  const location = file.getByRole('link')
+  await expect(location).toHaveAttribute('href', before.filesUrl)
+  expect(await location.evaluate(node => getComputedStyle(node).textDecorationLine)).toContain('underline')
+  expect(before.fileSize).not.toBeNull()
+  expect(before.fileSize).toBeGreaterThan(0)
+  const size = file.locator('dt').filter({ hasText: /^File size$/ }).locator('xpath=following-sibling::dd[1]')
+  await expect(size).not.toHaveText('—')
+  await expect(size).toHaveAttribute('title', /[0-9]/)
+  await file.locator('summary').click()
 }
 
 async function restoreBook(page: Page, itemId: number, before: BookSnapshot): Promise<void> {
@@ -81,6 +101,7 @@ test('stages book fields and linked names, saves once, and rejects a stale tab @
   expect(response?.ok(), `Full details returned ${response?.status()}`).toBeTruthy()
   await expect(page.getByRole('heading', { name: 'Book details' })).toBeVisible()
   const before = await snapshot(page, itemId)
+  await verifyFileMetadata(page, before)
   expect(before.authorSyncStatus).toBe(0)
   expect(before.seriesSyncStatus).toBe(0)
   const suffix = `${testInfo.project.name.replace(/[^a-z]+/gi, '')} ${Date.now()}`
@@ -223,6 +244,7 @@ test('compact identities wrap, select directly and discard on phones @details @m
   const series = panel.locator('[aria-labelledby="library-full-details-series-heading"]')
   const genres = panel.locator('.library-genre-picker')
   await expect(panel.getByRole('heading')).toHaveText(['Authors', 'Series', 'Genres'])
+  await verifyFileMetadata(page, await snapshot(page, itemId))
   await expect(authors.getByRole('button', { name: 'Add author' })).toBeVisible()
   await expect(series.getByRole('button', { name: 'Choose series' })).toBeVisible()
   await expect(genres.getByRole('button', { name: 'Create and add genre' })).toHaveCount(0)
@@ -263,8 +285,9 @@ test('compact identities wrap, select directly and discard on phones @details @m
   await genreSearch.press('ArrowDown')
   await genreSearch.press('Enter')
   await expect(genres.getByRole('link', { name: 'Selected genres' })).toBeVisible()
-  const imported = page.locator('details.library-full-details-provenance')
-  await imported.scrollIntoViewIfNeeded()
+  const file = page.locator('details.library-full-details-file')
+  await file.locator('summary').click()
+  await file.scrollIntoViewIfNeeded()
   const bar = await page.locator('.library-full-details-savebar').boundingBox()
   const scrollport = await page.locator('main.app-content').boundingBox()
   expect(bar!.y).toBeGreaterThanOrEqual(scrollport!.y)
