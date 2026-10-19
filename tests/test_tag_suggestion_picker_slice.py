@@ -35,7 +35,7 @@ def test_smoke_vue_page_checks_detail_tag_suggestion_picker():
     smoke = (ROOT / "scripts" / "smoke-vue-page.mjs").read_text()
 
     assert "detail_has_tag_suggestion_picker" in smoke
-    assert "library-tag-suggestion-picker" in smoke
+    assert "library-full-details-tag-suggestions" in smoke
 
 
 def test_docs_mark_richer_picker_landed_and_bulk_tagging_future():

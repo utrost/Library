@@ -14,7 +14,6 @@ export function releaseFrontendFiles(_version) {
   return [
     'css/style.css',
     `css/${styleAsset}.css`,
-    'js/library-detail.js',
     'js/library-help.js',
     `js/${scriptAsset}.mjs`,
     'js/library-shell.js',

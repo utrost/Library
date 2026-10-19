@@ -28,7 +28,7 @@ def test_sidebar_route_is_positive_id_only_authenticated_user_scoped_projection(
     assert "coverOverrideUrl" not in sidebar
 
 def test_php_full_details_and_fallback_renderer_remain_available():
-    assert "new TemplateResponse(Application::APP_ID, 'item-detail'" in read("lib/Controller/ItemPageController.php")
+    assert "new RedirectResponse(BookDetailsUrl::forItem" in read("lib/Controller/ItemPageController.php")
     assert "library-item-detail" in read("templates/item-detail.php")
     assert "<noscript>" in read("templates/main.php")
 

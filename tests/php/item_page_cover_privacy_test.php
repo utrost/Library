@@ -12,6 +12,11 @@ namespace OCP\AppFramework {
     class Controller { public function __construct(protected string $appName, protected \OCP\IRequest $request) {} }
 }
 namespace OCP\AppFramework\Http {
+    class RedirectResponse {
+        public array $headers = [];
+        public function __construct(public string $url) {}
+        public function addHeader(string $key, string $value): void { $this->headers[$key] = $value; }
+    }
     class JSONResponse {
         public function __construct(public array $data = [], public int $status = 200) {}
     }
@@ -54,6 +59,8 @@ namespace OCA\Library\Reader {
     }
 }
 namespace {
+    require_once __DIR__ . '/../../lib/Presentation/BookDetailsUrl.php';
+    require_once __DIR__ . '/../../lib/Presentation/MetadataStatus.php';
     require_once __DIR__ . '/../../lib/Controller/ItemPageController.php';
 
     $request = new class implements \OCP\IRequest {
@@ -80,17 +87,17 @@ namespace {
         new \OCA\Library\Reader\DefaultNextcloudFileProvider(), $session, $urls,
     );
     $response = $controller->show(7);
-    $item = $response->params['item'];
-    if ($item['coverUrl'] !== '/apps/library/covers/7') {
-        throw new \RuntimeException('legacy remote URL must be inert and detail cover must use the local cover route');
+    if ($response->url !== '/library/page/index?details=7' || $response->headers['Cache-Control'] !== 'private, no-store') {
+        throw new \RuntimeException('owned legacy bookmark must redirect without rendering an editor');
     }
-    if (str_contains(json_encode($response->params, JSON_THROW_ON_ERROR), 'tracker.invalid')) {
-        throw new \RuntimeException('legacy remote URL must not be exposed to the detail template');
+    $request->params = ['coverRefresh' => '1', 'metadataSaved' => '1', 'metadataError' => '<script>test</script>', 'tagResult' => 'added', 'tagName' => 'a&b', 'returnTo' => '/library/page/index?authors=1&authorId=9', 'untrusted' => 'ignored'];
+    parse_str(parse_url($controller->show(7)->url, PHP_URL_QUERY), $query);
+    if ($query !== ['details' => '7', ...array_diff_key($request->params, ['untrusted' => true])]) {
+        throw new \RuntimeException('supported feedback and return context must survive URL encoding');
     }
-    $request->params['coverRefresh'] = '1';
-    $refreshed = $controller->show(7);
-    if ($refreshed->params['item']['coverUrl'] !== '/apps/library/covers/7?refresh=1') {
-        throw new \RuntimeException('cover refresh detail render must use the no-store cover URL');
+    foreach (['https://evil.invalid/', '//evil.invalid/', '/elsewhere', '/library/page/index?details=8', '/library/page/index?returnTo=x', '/library/page/index?item=8', '/library/page/index\\evil', "/library/page/index\n", ['array']] as $invalidReturn) {
+        $request->params = ['returnTo' => $invalidReturn];
+        if (str_contains($controller->show(7)->url, 'returnTo')) throw new \RuntimeException('unsafe return destination accepted');
     }
     $request->params = [];
 
@@ -112,6 +119,8 @@ namespace {
     }
     $session->authenticated = true;
     \OCA\Library\Service\ItemService::$owned = true;
+    $status = $controller->detailsContext('7')->data['metadataStatus'];
+    if (!isset($status['completeness'], $status['confidence'], $status['attention'], $status['personal'])) throw new \RuntimeException('details context missing saved metadata status');
     $sidebar = $controller->sidebar('7');
     if ($sidebar->status !== 200 || ($sidebar->data['item']['id'] ?? null) !== 7 || isset($sidebar->data['item']['coverOverrideUrl'])) {
         throw new \RuntimeException('owned sidebar projection must remain narrow and privacy safe');

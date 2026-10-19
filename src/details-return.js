@@ -31,3 +31,8 @@ export function detailsReturnContext(catalogueUrl, currentHref) {
     return { url: `${source.pathname}${source.search}${source.hash}`, hasSource: source.search !== '' || source.hash !== '' }
   } catch { return fallback }
 }
+
+/** Link from any Library view to the canonical book editor, retaining that view. */
+export function bookDetailsUrl(catalogueUrl, itemId, sourceHref = window.location.href) {
+  return detailsUrlWithReturn(`${catalogueUrl}?details=${encodeURIComponent(itemId)}`, catalogueUrl, sourceHref)
+}

@@ -1,4 +1,5 @@
 <script setup>
+import { bookDetailsUrl } from '../details-return.js'
 import { nextTick, onMounted, ref } from 'vue'
 import { generateUrl } from '@nextcloud/router'
 import { t } from '@nextcloud/l10n'
@@ -64,7 +65,7 @@ onMounted(() => load())
     </section>
     <template v-else-if="data">
       <p v-if="!data.books.length">{{ t('library', 'No author changes need review.') }}</p>
-      <ul class="author-conflict-books"><li v-for="book in data.books" :key="book.id"><a :href="generateUrl('/apps/library/items/{id}', { id: book.id })" dir="auto">{{ book.title }}</a><button :disabled="busy" @click="inspect(book)">{{ t('library', 'Review change') }}</button></li></ul>
+      <ul class="author-conflict-books"><li v-for="book in data.books" :key="book.id"><a :href="bookDetailsUrl(catalogueUrl, book.id)" dir="auto">{{ book.title }}</a><button :disabled="busy" @click="inspect(book)">{{ t('library', 'Review change') }}</button></li></ul>
       <nav :aria-label="t('library', 'Author pages')"><button :disabled="busy || page === 1" @click="load(page - 1)">{{ t('library', 'Previous') }}</button><span>{{ t('library', 'Page {page}', { page }) }}</span><button :disabled="busy || !data.hasNext" @click="load(page + 1)">{{ t('library', 'Next') }}</button></nav>
     </template>
   </section>

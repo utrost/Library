@@ -56,6 +56,7 @@ namespace {
     require_once __DIR__ . '/../../lib/Service/ManualCoverValidationException.php';
     require_once __DIR__ . '/../../lib/Service/ManualCoverValidator.php';
     require_once __DIR__ . '/../../lib/Service/ManualCoverUploadService.php';
+    require_once __DIR__ . '/../../lib/Presentation/BookDetailsUrl.php';
     require_once __DIR__ . '/../../lib/Controller/CoverController.php';
 
     use OCA\Library\Controller\CoverController;
@@ -107,7 +108,7 @@ namespace {
     unset($_FILES['coverOverrideFile']);
     $urlOnlyResponse = $controller->override(7);
     expectController(count($itemService->calls) === 0, 'URL-only override must not reach persistence');
-    expectController($urlOnlyResponse->url === '/items/7?coverUploadError=remote-url-disabled', 'URL-only override returns bounded feedback code');
+    expectController($urlOnlyResponse->url === '/items/?details=7&coverUploadError=remote-url-disabled', 'URL-only override returns bounded feedback code');
     expectController(!str_contains($urlOnlyResponse->url, 'old.example'), 'URL-only feedback excludes submitted URL');
 
     $tmp = tempnam(sys_get_temp_dir(), 'manual-cover-test-');
@@ -119,7 +120,7 @@ namespace {
         $_FILES['coverOverrideFile'] = ['tmp_name' => $tmp, 'error' => UPLOAD_ERR_OK, 'type' => 'image/png', 'size' => 19];
         $response = $controller->override(7);
         expectController(count($itemService->calls) === 0, 'invalid upload must not reach persistence');
-        expectController($response->url === '/items/7?coverUploadError=invalid', 'invalid upload returns bounded feedback code');
+        expectController($response->url === '/items/?details=7&coverUploadError=invalid', 'invalid upload returns bounded feedback code');
         expectController(!str_contains($response->url, 'spoof'), 'invalid upload feedback excludes decoder details');
 
         $_FILES['coverOverrideFile']['error'] = UPLOAD_ERR_PARTIAL;
@@ -134,11 +135,11 @@ namespace {
         $call = $itemService->calls[0];
         expectController($call['mime'] === 'image/jpeg', 'server canonical MIME must be persisted');
         expectController(base64_decode((string)$call['data'], true) === $jpeg, 'validated bytes must be persisted');
-        expectController($successfulResponse->url === '/items/7?coverRefresh=1', 'successful upload redirects through a cache-busting detail render');
+        expectController($successfulResponse->url === '/items/?details=7&coverRefresh=1', 'successful upload redirects through a cache-busting detail render');
 
         $revertResponse = $controller->revert(7);
         expectController($itemService->clearCalls === [['userId' => 'development instance', 'itemId' => 7]], 'revert clears the manual cover once');
-        expectController($revertResponse->url === '/items/7?coverRefresh=1', 'revert redirects through a cache-busting detail render');
+        expectController($revertResponse->url === '/items/?details=7&coverRefresh=1', 'revert redirects through a cache-busting detail render');
     } finally {
         unset($_FILES['coverOverrideFile']);
         @unlink($tmp);

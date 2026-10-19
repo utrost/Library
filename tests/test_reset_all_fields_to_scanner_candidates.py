@@ -22,7 +22,7 @@ def test_route_and_controller_reset_all_metadata_fields_to_scanner_candidates():
     assert "/items/{itemId}/reset-fields" in routes
     assert "public function resetfields(int $itemId): RedirectResponse" in controller
     assert "resetAllFieldsToScannerCandidates($user->getUID(), $itemId)" in controller
-    assert "linkToRoute('library.item_page.show'" in controller
+    assert "BookDetailsUrl::forItem" in controller
     reset_method_attributes = controller.split("public function resetfields", 1)[0].rsplit("public function resetfield", 1)[1]
     assert "NoCSRFRequired" not in reset_method_attributes
 
@@ -49,8 +49,8 @@ def test_detail_page_exposes_whole_item_reset_form_near_field_provenance():
     detail = (ROOT / "templates" / "item-detail.php").read_text()
     page_controller = (ROOT / "lib" / "Controller" / "ItemPageController.php").read_text()
 
-    assert "resetFieldsUrl" in page_controller
-    assert "linkToRoute('library.item.resetfields'" in page_controller
+    assert "'resetFields' => 'library.item.resetfields'" in page_controller
+    assert "$this->urlGenerator->linkToRoute($route" in page_controller
     assert "library-fields-reset-form" in detail
     assert "Reset all fields to scanner" in detail
     assert "returnTo" in detail

@@ -34,7 +34,7 @@ def test_item_controller_can_redirect_back_to_detail_after_save():
 
     assert "getParam('returnTo', '')" in controller
     assert "returnTo === 'details'" in controller
-    assert "linkToRoute('library.item_page.show'" in controller
+    assert "BookDetailsUrl::forItem" in controller
     assert "linkToRoute('library.page.index')" in controller
 
 
@@ -45,4 +45,4 @@ def test_detail_smoke_asserts_edit_form_and_user_edit_provenance():
     assert "detail_has_requesttoken" in smoke
     assert "detail_has_return_to_details" in smoke
     assert "detail_has_user_edited_marker" in smoke
-    assert "data-library-field=\"userEdited\"" in smoke
+    assert "detailContext.metadataStatus?.confidence" in smoke

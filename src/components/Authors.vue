@@ -1,4 +1,5 @@
 <script setup>
+import { bookDetailsUrl } from '../details-return.js'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { generateUrl } from '@nextcloud/router'
 import { t, n } from '@nextcloud/l10n'
@@ -13,7 +14,8 @@ let taskTimer = null
 const search = ref(''), unused = ref(false), page = ref(1)
 const showConflicts = new URLSearchParams(location.search).get('authorConflicts') === '1'
 const id = ref(Number(new URLSearchParams(location.search).get('authorId')) || null)
-const bookSearch = ref(''), bookSort = ref('title'), bookView = ref('grid'), bioExpanded = ref(false), photoFailed = ref(false)
+const viewQuery = new URLSearchParams(location.search)
+const bookSearch = ref((viewQuery.get('bookSearch') || '').slice(0, 255)), bookSort = ref(['title', 'newest', 'series'].includes(viewQuery.get('bookSort')) ? viewQuery.get('bookSort') : 'title'), bookView = ref(viewQuery.get('bookView') === 'list' ? 'list' : 'grid'), bioExpanded = ref(false), photoFailed = ref(false)
 const photoFile = ref(null), removePhoto = ref(false)
 const draft = reactive({ display_name: '', sort_name: '', given_name: '', family_name: '', biography: '' })
 const initials = computed(() => (data.value?.author?.display_name || '').trim().split(/\s+/u).slice(0, 2).map(part => Array.from(part)[0] || '').join('').toLocaleUpperCase())
@@ -28,6 +30,14 @@ const bookGroups = computed(() => {
   }
   return Array.from(groups, ([name, books]) => ({ name, books }))
 })
+function bookUrl(book) {
+  const source = new URL(location.href)
+  for (const [key, value, fallback] of [['bookSearch', bookSearch.value.trim(), ''], ['bookSort', bookSort.value, 'title'], ['bookView', bookView.value, 'grid'], ['bookPage', String(page.value), '1']]) {
+    if (value !== fallback) source.searchParams.set(key, value)
+    else source.searchParams.delete(key)
+  }
+  return bookDetailsUrl(props.catalogueUrl, book.id, source.href)
+}
 function coverUrl(book) { return generateUrl('/apps/library/items/{id}/cover', { id: book.id }) + '?v=' + encodeURIComponent(`${book.cover_revision || ''}-${book.etag || ''}`) }
 function choosePhoto(event) { photoFile.value = event.target.files?.[0] || null; if (photoFile.value) removePhoto.value = false }
 
@@ -128,7 +138,7 @@ async function removeUnused(author) {
   try { await request(`/${author.id}/remove-unused`, { revision: Number(author.revision) }); notice.value = t('library', 'Unused author removed.'); await load(page.value) }
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
-onMounted(() => { if (!showConflicts) load() })
+onMounted(() => { if (!showConflicts) load(Math.max(1, Math.min(100000, Number(viewQuery.get('bookPage')) || 1))) })
 onUnmounted(() => { if (taskTimer !== null) clearTimeout(taskTimer) })
 </script>
 <template>
@@ -244,9 +254,9 @@ onUnmounted(() => { if (taskTimer !== null) clearTimeout(taskTimer) })
           <ul class="author-books" :class="{ 'author-books-grid': bookView === 'grid' }">
             <li v-for="book in group.books" :key="book.id">
               <input v-if="assigning" v-model="selected" type="checkbox" :value="Number(book.id)" :aria-label="t('library', 'Select {title}', { title: book.title })" :disabled="busy" @change="review = null" />
-              <a class="author-book-cover" :href="generateUrl('/apps/library/items/{id}', { id: book.id })" :aria-label="book.title"><CatalogueCover :src="coverUrl(book)" /></a>
+              <a class="author-book-cover" :href="bookUrl(book)" :aria-label="book.title"><CatalogueCover :src="coverUrl(book)" /></a>
               <div class="author-book-description">
-                <a class="author-book-title" :href="generateUrl('/apps/library/items/{id}', { id: book.id })" dir="auto">{{ book.title }}</a>
+                <a class="author-book-title" :href="bookUrl(book)" dir="auto">{{ book.title }}</a>
                 <span v-if="book.series_name" dir="auto">{{ book.series_name }}<template v-if="book.series_number"> · {{ book.series_number }}</template></span>
                 <span v-if="book.publication_date">{{ book.publication_date }}</span>
                 <span>{{ book.extension?.toUpperCase() }}</span>

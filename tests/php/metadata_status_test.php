@@ -48,3 +48,12 @@ if ($personal !== ['starred' => true, 'rating' => 2, 'workflow' => 'reading']) {
 }
 
 echo "Metadata status: " . (count($cases) + count($provenance) + 3) . " cases passed\n";
+
+foreach ([
+    [['authorSyncStatus' => 0, 'creators' => '', 'canonicalAuthors' => [['id' => 1, 'name' => 'Canonical author']]], false],
+    [['authorSyncStatus' => 0, 'creators' => 'Imported author', 'canonicalAuthors' => []], true],
+    [['authorSyncStatus' => 1, 'creators' => 'Imported author', 'canonicalAuthors' => []], false],
+] as [$fields, $missingAuthor]) {
+    $result = MetadataStatus::forItem([...$base, ...$fields]);
+    if (in_array('creators', $result['completeness']['missing'], true) !== $missingAuthor) throw new RuntimeException('canonical author completeness mismatch');
+}

@@ -1,4 +1,5 @@
 <script setup>
+import { bookDetailsUrl } from '../details-return.js'
 import { onMounted, reactive, ref } from 'vue'
 import { generateUrl } from '@nextcloud/router'
 import { t, n } from '@nextcloud/l10n'
@@ -40,6 +41,12 @@ async function save() {
     editing.value = false; notice.value = t('library', 'Series saved. Original book metadata is preserved.')
   } catch (e) { error.value = e.message } finally { busy.value = false }
 }
+function bookUrl(book) {
+  const source = new URL(location.href)
+  if (page.value > 1) source.searchParams.set('bookPage', String(page.value))
+  else source.searchParams.delete('bookPage')
+  return bookDetailsUrl(props.catalogueUrl, book.id, source.href)
+}
 function coverUrl(book) { return generateUrl('/apps/library/items/{id}/cover', { id: book.id }) + '?v=' + encodeURIComponent(`${book.cover_revision || ''}-${book.etag || ''}`) }
 async function findTargets() {
   busy.value = true; error.value = ''; review.value = null
@@ -75,7 +82,7 @@ async function resolveConflict(entry, choice) {
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
 async function changeConflictPage(next) { conflictPage.value = next; await load(page.value) }
-onMounted(() => load())
+onMounted(() => load(Math.max(1, Math.min(100000, Number(new URLSearchParams(location.search).get('bookPage')) || 1))))
 </script>
 <template>
   <section class="library-series" :aria-busy="busy" aria-labelledby="library-series-heading">
@@ -148,7 +155,7 @@ onMounted(() => load())
           <input v-if="assigning" v-model="selected" type="checkbox" :value="Number(book.id)" :aria-label="t('library', 'Select {title}', { title: book.title })" :disabled="busy" @change="review = null" />
           <CatalogueCover :src="coverUrl(book)" />
           <div><span v-if="book.part_number">{{ t('library', 'Part {number}', { number: book.part_number }) }}</span>
-            <a :href="generateUrl('/apps/library/items/{id}', { id: book.id })" dir="auto">{{ book.title }}</a>
+            <a :href="bookUrl(book)" dir="auto">{{ book.title }}</a>
             <small dir="auto">{{ book.creators || '—' }}</small>
             <small v-if="book.scan_status === 'missing'">{{ t('library', 'File missing') }}</small>
           </div>

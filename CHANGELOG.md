@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0-alpha.27
+
+- Consolidate Authors, Series, conflict review and legacy bookmarks on one book editor, preserving Back context and redirect feedback.
+- Show compact saved metadata status below Nextcloud interactions, before imported suggestions and file metadata. Use assigned authors for completeness once migration is ready.
+- Omit the unused legacy editor bundle from release packages; retain compatible mutation endpoints. No database migration.
+- Add browser entry-point and mobile disclosure journeys, and redirect/ownership/status runtime checks.
+
+
 ## [Unreleased]
 
 - Make book-detail text links visibly underlined, link the file location to Nextcloud Files, and collapse file metadata at the bottom with indexed file size.
