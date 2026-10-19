@@ -1,4 +1,16 @@
 scripts:
+  author-destination:
+    description: Search after three letters, select or explicitly create a destination, review and cancel without moving books; repeat on mobile.
+    tags: [authors, smoke, mobile]
+    file: tests/gui/details/author-destination.spec.ts
+    command: npm run test:gui -- tests/gui/details/author-destination.spec.ts
+
+  editor-entry-points:
+    description: Open the single editor from author and series pages or a legacy bookmark; verify Back, authorization, feedback and disclosures.
+    tags: [details, smoke, mobile]
+    file: tests/gui/details/editor-entry-points.spec.ts
+    command: npm run test:gui -- tests/gui/details/editor-entry-points.spec.ts
+
   catalogue-search-detail:
     description: Search for one deterministic publication, open its details drawer, and close it with restored focus.
     tags: [catalogue, detail, smoke]
