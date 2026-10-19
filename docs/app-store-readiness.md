@@ -1,16 +1,16 @@
 # App Store readiness roadmap
 
-Alpha.27 consolidates every book entry point on the current editor and adds compact saved-state metadata status at the bottom. See the [alpha.27 verification record](compatibility-evidence/2026-10-19-nc34-single-editor-alpha27/README.md). Alpha.26 deployment evidence below remains historical until the new package passes deployment checks.
+Alpha.27 consolidates every book entry point on the current editor and adds compact saved-state metadata status at the bottom. See the [alpha.27 verification record](compatibility-evidence/2026-10-19-nc34-single-editor-alpha27/README.md). Signed alpha.27 is deployed on developer NC34 with clean integrity and an unchanged 107,717-book catalogue.
 
 ## Submission decision — 2026-10-13
 
-The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submission. The signed 0.2.0-beta.3 archive and verification below remain the preserved baseline, not evidence for the new author/series schema. Author and series work is included in the current alpha.26 development candidate; see the [active roadmap](roadmap.md#active-03-track).
+The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submission. The signed 0.2.0-beta.3 archive and verification below remain the preserved baseline, not evidence for the new author/series schema. Author and series work is included in the current alpha.27 development candidate; see the [active roadmap](roadmap.md#active-03-track).
 
 Before submitting 0.3: obtain human acceptance of author and series workflows, resolve release-blocking findings, verify a populated upgrade from the preserved 0.2 baseline and interruption recovery, refresh listing/screenshots, then sign and run an exact-package NC33–35 fresh/upgrade matrix. Developer upgrades and focused source checks do not replace the exact signed NC33–35 release matrix.
 
 ## Alpha.26 compact editor handoff — 2026-10-19
 
-The signed alpha.26 package is deployed on developer NC34 with clean integrity and an unchanged 107,717-book catalogue. Authors, series and genres now share compact rows with inline selection and accessible icon actions. Text links are underlined; File metadata is collapsed at the bottom with a Files link and indexed size. The [verification and deployment record](compatibility-evidence/2026-10-19-nc34-compact-identities-alpha26/README.md) tracks checks and deployment status. Owner acceptance and the exact signed NC33–35 matrix remain open.
+The signed alpha.27 package is deployed on developer NC34 with clean integrity and an unchanged 107,717-book catalogue. Authors, series and genres now share compact rows with inline selection and accessible icon actions. Text links are underlined; File metadata is collapsed at the bottom with a Files link and indexed size. The [verification and deployment record](compatibility-evidence/2026-10-19-nc34-single-editor-alpha27/README.md) tracks checks and deployment status. Owner acceptance and the exact signed NC33–35 matrix remain open.
 
 ## Alpha.25 editor handoff — 2026-10-19
 
@@ -33,7 +33,7 @@ The signed `0.3.0-alpha.10` package from merged PR #109 was [deployed on populat
 
 ## Release checkpoint — updated 2026-10-19
 
-Current candidate baseline: `0.3.0-alpha.27`. Author and series management are in development. The [signed alpha.23 package](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) includes the unified book editor; alpha.24 adds Save/Discard and direct author/series selection, and alpha.25 fixes the bar's full-page scrolling boundary. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The signed exact-package alpha.26 release matrix remains pending.
+Current candidate baseline: `0.3.0-alpha.27`. Author and series management are in development. The [signed alpha.23 package](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) includes the unified book editor; alpha.24 adds Save/Discard and direct author/series selection, and alpha.25 fixes the bar's full-page scrolling boundary. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The signed exact-package alpha.27 release matrix remains pending.
 
 At the alpha.9 checkpoint, the app was deployed on developer NC34/MariaDB. Its app version was `0.3.0-alpha.9`; 107,717 catalogue books remained after migration and temporary fixture cleanup. Focused service and Chromium/Firefox series workflows passed on NC33.0.9, NC34.0.4, NC35.0.0 and the populated developer instance. See the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The [human test handbook](human-test-handbook.md#current-03-human-cases) now covers author/series acceptance.
 
