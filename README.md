@@ -8,7 +8,7 @@ Nextcloud Files remains the canonical storage. Library indexes those files with 
 
 License: AGPL-3.0-or-later. See [LICENSE](LICENSE).
 
-Current candidate: `0.3.0-alpha.25`. Save/Discard remains available throughout Book details, with direct author and series selection. See the [alpha.25 verification and deployment record](docs/compatibility-evidence/2026-10-19-nc34-editor-actions-alpha25/README.md) for the installed-package status. Supported Nextcloud versions: **33–35**. Author and series management are in development; 0.3 is the planned first App Store release. See [release status and verification](RELEASE.md) for publication and acceptance details.
+Current candidate: `0.3.0-alpha.26`. Authors, series and genres share a compact panel below Book details, with direct selection and persistent Save/Discard actions. See the [alpha.26 verification and deployment record](docs/compatibility-evidence/2026-10-19-nc34-compact-identities-alpha26/README.md) for the installed-package status. Supported Nextcloud versions: **33–35**. Author and series management are in development; 0.3 is the planned first App Store release. See [release status and verification](RELEASE.md) for publication and acceptance details.
 
 The current development build adds per-user author and series identities, author profiles, reviewed moves and merges, changed-import review and conditional Undo. Earlier 0.2 work includes private reading lists, path/filename metadata extraction, duplicate review, scheduled scans and bounded cover thumbnails.
 

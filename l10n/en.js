@@ -167,7 +167,6 @@ OC.L10N.register(
         "Catalogue pagination": "Catalogue pagination",
         "Catalogue search and filters": "Catalogue search and filters",
         "Catalogue toolbar": "Catalogue toolbar",
-        "Change": "Change",
         "Change series": "Change series",
         "Changed fields": "Changed fields",
         "Changed or unavailable books": "Changed or unavailable books",
@@ -634,10 +633,8 @@ OC.L10N.register(
         "No enabled Library roots": "No enabled Library roots",
         "No fields extracted from this example. Check the rule, separators and transformations.": "No fields extracted from this example. Check the rule, separators and transformations.",
         "No folder rules assigned yet.": "No folder rules assigned yet.",
-        "No genres assigned yet.": "No genres assigned yet.",
         "No items match these filters": "No items match these filters",
         "No language values need review.": "No language values need review.",
-        "No linked series yet.": "No linked series yet.",
         "No mappings yet.": "No mappings yet.",
         "No matching author. You can create a separate author below.": "No matching author. You can create a separate author below.",
         "No matching items were found for this preview.": "No matching items were found for this preview.",
@@ -1297,7 +1294,8 @@ OC.L10N.register(
         "without dates yet": "without dates yet",
         "yes": "yes",
         "{count} of 5 stars": "{count} of 5 stars",
-        "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure."
+        "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure.",
+        "Change author": "Change author"
     },
     "nplurals=2; plural=(n != 1);"
 );

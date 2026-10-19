@@ -167,7 +167,6 @@ OC.L10N.register(
         "Catalogue pagination": "ترقيم صفحات الفهرس",
         "Catalogue search and filters": "بحث الكتالوج والتصفية",
         "Catalogue toolbar": "شريط أدوات الفهرس",
-        "Change": "تغيير",
         "Change series": "تغيير السلسلة",
         "Changed fields": "الحقول المتغيرة",
         "Changed or unavailable books": "كتب تغيرت أو لم تعد متاحة",
@@ -634,10 +633,8 @@ OC.L10N.register(
         "No enabled Library roots": "لا توجد جذور مكتبة مُفعّلة",
         "No fields extracted from this example. Check the rule, separators and transformations.": "لم تُستخرج حقول من هذا المثال. تحقق من القاعدة والفواصل والتحويلات.",
         "No folder rules assigned yet.": "لم تُعيّن قواعد للمجلدات بعد.",
-        "No genres assigned yet.": "لم تُسند تصنيفات بعد.",
         "No items match these filters": "لا توجد عناصر تطابق هذه المرشحات",
         "No language values need review.": "لا توجد قيم لغوية تحتاج إلى مراجعة.",
-        "No linked series yet.": "لا توجد سلسلة مرتبطة بعد.",
         "No mappings yet.": "لا توجد تعيينات بعد.",
         "No matching author. You can create a separate author below.": "لم يُعثر على مؤلف مطابق. يمكنك إنشاء مؤلف منفصل أدناه.",
         "No matching items were found for this preview.": "لم يُعثر على عناصر مطابقة لهذه المعاينة.",
@@ -1381,7 +1378,8 @@ OC.L10N.register(
         "without dates yet": "بدون تواريخ بعد",
         "yes": "نعم",
         "{count} of 5 stars": "{count} من 5 نجوم",
-        "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية."
+        "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية.",
+        "Change author": "تغيير المؤلف"
     },
     "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 );

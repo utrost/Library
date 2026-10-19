@@ -6,6 +6,7 @@ import AddToList from './AddToList.vue'
 import StarRating from './StarRating.vue'
 import MetadataValuePicker from './MetadataValuePicker.vue'
 import GenrePicker from './GenrePicker.vue'
+import IdentityAction from './IdentityAction.vue'
 import { detailsReturnContext } from '../details-return.js'
 
 const props = defineProps({
@@ -608,24 +609,27 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
       <div class="library-full-details-columns">
         <div class="library-full-details-main">
           <section class="library-full-details-card" aria-labelledby="library-full-details-metadata"><h2 id="library-full-details-metadata">{{ t('library', 'Book details') }}</h2><form id="library-full-details-metadata-form" @submit.prevent="saveMetadata"><div class="library-full-details-fields"><label>{{ t('library', 'Title') }}<input v-model="draft.title" required></label><label>{{ t('library', 'Subtitle') }}<input v-model="draft.subtitle"></label><label>{{ t('library', 'Type') }}<select v-model="draft.publicationType"><option v-for="type in publicationTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label><label>{{ t('library', 'Publication') }}<input v-model="draft.publication"></label><label :title="t('library', 'Use YYYY, YYYY-MM, or YYYY-MM-DD.')">{{ t('library', 'Publication date') }}<input v-model="draft.publicationDate"></label><label :title="t('library', 'Search publishers')">{{ t('library', 'Publisher') }}<input v-model="draft.publisher" list="library-details-publisher-suggestions" autocomplete="off"><datalist id="library-details-publisher-suggestions"><option v-for="name in publisherSuggestions" :key="name" :value="name"></option></datalist></label><MetadataValuePicker v-model="draft.language" kind="language" :disabled="busy" /><MetadataValuePicker v-model="draft.subjects" kind="subject" :disabled="busy" /><label :title="t('library', 'One classification per line.')">{{ t('library', 'Classifications') }}<textarea v-model="draft.classifications" rows="2"></textarea></label><StarRating :model-value="draft.personalRating" :disabled="busy" @update:model-value="draft.personalRating = $event" /><label class="library-full-details-wide">{{ t('library', 'Description') }}<textarea v-model="draft.description" rows="8"></textarea></label></div><fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in draft.identifiers" :key="index" class="library-full-details-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Scheme')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><span v-if="identifier.displayValue && identifier.valid === false && identifier.scheme === identifier.originalScheme && identifier.displayValue === identifier.originalDisplayValue" role="status">{{ t('library', 'Invalid identifier checksum') }}</span><button type="button" class="button secondary" :aria-label="t('library', 'Remove identifier')" @click="draft.identifiers.splice(index, 1)">×</button></div><button type="button" class="button secondary" @click="draft.identifiers.push({ scheme: 'isbn', displayValue: '' })">{{ t('library', 'Add identifier') }}</button></fieldset></form></section>
-          <section class="library-full-details-card library-full-details-authors" aria-labelledby="library-full-details-authors-heading">
+          <div class="library-full-details-card library-identity-panel">
+          <section class="library-identity-row" aria-labelledby="library-full-details-authors-heading">
             <h2 id="library-full-details-authors-heading">{{ t('library', 'Authors') }}</h2>
+            <div class="library-identity-content">
+            <div class="library-identity-values">
             <template v-if="draft.authorLinks?.length">
               <div v-for="author in draft.authorLinks" :key="author.id" class="library-full-details-author-row">
                 <a :href="`${catalogueUrl}?authors=1&authorId=${author.id}`"><bdi dir="auto">{{ author.name }}</bdi></a>
-                <button v-if="item.authorSyncStatus === 0" type="button" class="button secondary" :disabled="busy" @click="editAuthor(author)">{{ t('library', 'Change') }}</button><button v-if="item.authorSyncStatus === 0" type="button" class="button secondary" :disabled="busy" :aria-label="`${t('library', 'Remove author')}: ${author.name}`" @click="draft.authorLinks = draft.authorLinks.filter(entry => entry.id !== author.id)">×</button>
+                <span class="library-identity-controls"><IdentityAction v-if="item.authorSyncStatus === 0" icon="edit" :disabled="busy" :label="`${t('library', 'Change author')}: ${author.name}`" @click="editAuthor(author)" /><IdentityAction v-if="item.authorSyncStatus === 0" :disabled="busy" :label="`${t('library', 'Remove author')}: ${author.name}`" @click="draft.authorLinks = draft.authorLinks.filter(entry => entry.id !== author.id)" /></span>
               </div>
               <p v-if="item.authorSyncStatus === 2"><a :href="`${catalogueUrl}?authors=1&authorConflicts=1`">{{ t('library', 'Review imported author changes') }}</a></p>
               <p v-else-if="item.authorSyncStatus !== 0" class="library-muted">{{ t('library', 'Author migration must finish before editing. Refresh to check progress.') }}</p>
             </template>
             <p v-else class="library-muted">{{ t('library', 'No authors assigned yet.') }}</p>
             <button v-if="item.authorSyncStatus === 0 && !editingAuthor" type="button" class="button secondary" :disabled="busy" @click="editAuthor({ id: 0, name: '' })">{{ t('library', 'Add author') }}</button>
+            </div>
               <div v-if="editingAuthor" class="library-full-details-author-picker">
                 <p v-if="editingAuthor.id">{{ t('library', 'Replace {author} for this publication', { author: editingAuthor.name }) }}</p>
                 <div class="library-full-details-author-search">
-                  <label for="library-details-author-search">{{ t('library', 'Choose an author') }}</label>
+                  <label for="library-details-author-search" :title="t('library', 'Type at least 3 letters to search authors.')">{{ t('library', 'Choose an author') }}</label>
                   <input id="library-details-author-search" ref="authorInput" v-model="authorSearch" type="search" maxlength="255" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="library-details-author-suggestions" :aria-expanded="authorSuggestionsOpen && authorResults.length > 0 ? 'true' : 'false'" :aria-activedescendant="authorActiveIndex >= 0 && authorSuggestionsOpen ? `library-details-author-option-${authorResults[authorActiveIndex]?.id}` : undefined" :placeholder="t('library', 'Search authors')" :disabled="busy" @focus="authorSuggestionsOpen = authorSearchReady" @keydown="authorPickerKeydown">
-                  <p v-if="!authorSearchReady" class="library-muted">{{ t('library', 'Type at least 3 letters to search authors.') }}</p>
                   <span v-if="authorSearchBusy" class="library-muted" role="status">{{ t('library', 'Searching…') }}</span>
                   <ul v-if="authorSuggestionsOpen && authorResults.length" id="library-details-author-suggestions" class="library-full-details-author-suggestions" role="listbox">
                     <li v-for="(candidate, index) in authorResults" :id="`library-details-author-option-${candidate.id}`" :key="candidate.id" role="option" :aria-selected="authorActiveIndex === index"><button type="button" :class="{ 'is-active': authorActiveIndex === index }" @mousedown.prevent @click="selectAuthor(candidate)"><strong>{{ candidate.display_name }}</strong><small>{{ candidate.sort_name }} · {{ n('library', '%n book', '%n books', Number(candidate.book_count || 0)) }}</small></button></li>
@@ -634,27 +638,29 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
                   <p v-if="authorSuggestionsOpen && authorSearchReady && !authorSearchBusy && !authorResults.length" class="library-muted">{{ t('library', 'No matching author. You can create a separate author below.') }}</p>
                 </div>
                 <div class="library-full-details-author-actions">
-                  <button type="button" class="button secondary" :disabled="busy || authorSearchBusy || !authorSearch.trim()" :title="t('library', 'Creates a separate author identity, even if the name already exists.')" @click="createAuthor">{{ t('library', 'Create and add author') }}</button>
+                  <button v-if="authorSearch.trim()" type="button" class="button secondary" :disabled="busy || authorSearchBusy" :title="t('library', 'Creates a separate author identity, even if the name already exists.')" @click="createAuthor">{{ t('library', 'Create and add author') }}</button>
                   <button type="button" class="button secondary" :disabled="busy" @click="cancelAuthorEdit">{{ t('library', 'Cancel') }}</button>
                 </div>
               </div>
-          </section>
-          <section class="library-full-details-card library-full-details-authors" aria-labelledby="library-full-details-series-heading">
-            <h2 id="library-full-details-series-heading">{{ t('library', 'Series') }}</h2>
-            <div v-for="series in draft.seriesLink ? [draft.seriesLink] : []" :key="series.id" class="library-full-details-author-row">
-              <a :href="`${catalogueUrl}?series=1&seriesId=${series.id}`"><bdi dir="auto">{{ series.name }}</bdi><span v-if="draft.seriesPart"> · {{ draft.seriesPart }}</span></a>
             </div>
-            <p v-if="!draft.seriesLink" class="library-muted">{{ t('library', 'No linked series yet.') }}</p>
+          </section>
+          <section class="library-identity-row" aria-labelledby="library-full-details-series-heading">
+            <h2 id="library-full-details-series-heading">{{ t('library', 'Series') }}</h2>
+            <div class="library-identity-content">
+            <div class="library-identity-values">
+              <div v-if="draft.seriesLink" class="library-identity-series">
+                <a :href="`${catalogueUrl}?series=1&seriesId=${draft.seriesLink.id}`"><bdi dir="auto">{{ draft.seriesLink.name }}</bdi></a>
+                <span v-if="item.seriesSyncStatus === 0" class="library-identity-controls"><IdentityAction v-if="!editingSeries" icon="edit" :disabled="busy" :label="t('library', 'Change series')" @click="editSeries" /><IdentityAction :disabled="busy" :label="t('library', 'Remove series')" @click="removeSeries" /></span>
+              </div>
+              <button v-else-if="item.seriesSyncStatus === 0 && !editingSeries" type="button" class="button secondary" :disabled="busy" @click="editSeries">{{ t('library', 'Choose series') }}</button>
+              <label v-if="draft.seriesLink && item.seriesSyncStatus === 0" class="library-full-details-series-part">{{ t('library', 'Part in series') }}<input v-model="draft.seriesPart" maxlength="64"></label>
+            </div>
             <p v-if="item.seriesSyncStatus === 3"><a :href="`${catalogueUrl}?series=1&seriesConflicts=1`">{{ t('library', 'Review imported series changes') }}</a></p>
             <p v-else-if="item.seriesSyncStatus !== 0" class="library-muted">{{ t('library', 'Series migration must finish before editing. Refresh to check progress.') }}</p>
-            <button v-else-if="!editingSeries" type="button" class="button secondary" :disabled="busy" @click="editSeries">{{ draft.seriesLink ? t('library', 'Change series') : t('library', 'Choose series') }}</button>
-            <button v-if="draft.seriesLink && item.seriesSyncStatus === 0" type="button" class="button secondary" :disabled="busy" @click="removeSeries">{{ t('library', 'Remove series') }}</button>
-            <label v-if="draft.seriesLink && item.seriesSyncStatus === 0" class="library-full-details-series-part">{{ t('library', 'Part in series') }}<input v-model="draft.seriesPart" maxlength="64"></label>
             <div v-if="editingSeries" class="library-full-details-author-picker">
               <div class="library-full-details-author-search">
-                <label for="library-details-series-search">{{ t('library', 'Choose a series') }}</label>
+                <label for="library-details-series-search" :title="t('library', 'Type at least 3 letters to search series.')">{{ t('library', 'Choose a series') }}</label>
                 <input id="library-details-series-search" ref="seriesInput" v-model="seriesSearch" type="search" maxlength="255" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="library-details-series-suggestions" :aria-expanded="seriesSuggestionsOpen && seriesResults.length > 0 ? 'true' : 'false'" :aria-activedescendant="seriesActiveIndex >= 0 && seriesSuggestionsOpen ? `library-details-series-option-${seriesResults[seriesActiveIndex]?.id}` : undefined" :placeholder="t('library', 'Search series')" :disabled="busy" @focus="seriesSuggestionsOpen = seriesSearchReady" @keydown="seriesPickerKeydown">
-                <p v-if="!seriesSearchReady" class="library-muted">{{ t('library', 'Type at least 3 letters to search series.') }}</p>
                 <span v-if="seriesSearchBusy" class="library-muted" role="status">{{ t('library', 'Searching…') }}</span>
                 <ul v-if="seriesSuggestionsOpen && seriesResults.length" id="library-details-series-suggestions" class="library-full-details-author-suggestions" role="listbox">
                   <li v-for="(candidate, index) in seriesResults" :id="`library-details-series-option-${candidate.id}`" :key="candidate.id" role="option" :aria-selected="seriesActiveIndex === index"><button type="button" :class="{ 'is-active': seriesActiveIndex === index }" @mousedown.prevent @click="selectSeries(candidate)"><strong>{{ candidate.display_name }}</strong><small>{{ n('library', '%n book', '%n books', Number(candidate.book_count || 0)) }}</small></button></li>
@@ -663,12 +669,14 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
                 <p v-if="seriesSuggestionsOpen && seriesSearchReady && !seriesSearchBusy && !seriesResults.length" class="library-muted">{{ currentSeriesMatchesSearch ? t('library', 'The matching series is already assigned to this book. Search another name to change it.') : t('library', 'No matching series. You can create one below.') }}</p>
               </div>
               <div class="library-full-details-author-actions">
-                <button type="button" class="button secondary" :disabled="busy || seriesSearchBusy || !seriesSearch.trim()" @click="createSeries">{{ t('library', 'Create and choose series') }}</button>
+                <button v-if="seriesSearch.trim()" type="button" class="button secondary" :disabled="busy || seriesSearchBusy" @click="createSeries">{{ t('library', 'Create and choose series') }}</button>
                 <button type="button" class="button secondary" :disabled="busy" @click="cancelSeriesEdit">{{ t('library', 'Cancel') }}</button>
               </div>
             </div>
+            </div>
           </section>
           <GenrePicker class="library-full-details-genres" :item-id="Number(itemId)" :genres="draft.genres || []" :request-token="requestToken" :catalogue-url="catalogueUrl" :disabled="busy" draft-mode @update:genres="draft.genres = $event" />
+          </div>
         </div>
 
         <div class="library-full-details-aside">
@@ -709,10 +717,12 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-savebar { align-items: center; background: var(--color-main-background); border: 2px solid var(--color-primary-element, #0082c9); border-radius: 12px; box-shadow: 0 10px 28px #0003; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-bottom: 20px; padding: 12px 16px; position: sticky; top: 12px; z-index: 20; }
 .library-full-details-savebar > span { font-weight: 600; }
 .library-full-details-savebar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.library-full-details-series-part { max-width: 220px; margin-top: 12px; }
+.library-full-details-card .library-full-details-series-part { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; }
+.library-full-details-card .library-full-details-series-part input { width: 80px; }
 .library-full-details-author-row, .library-full-details-author-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.library-full-details-author-row { margin: 8px 0; }
-.library-full-details-author-picker { display: grid; gap: 12px; margin-top: 16px; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; }
+.library-full-details-author-row { background: var(--color-background-dark); border-radius: 18px; gap: 2px; margin: 0; max-width: 100%; padding: 2px 4px 2px 10px; }
+.library-full-details-author-row > a { min-width: 0; overflow-wrap: anywhere; flex: 1 1 auto; }
+.library-full-details-author-picker { display: grid; gap: 8px; margin-top: 8px; min-width: 0; }
 .library-full-details-author-search { min-width: 0; position: relative; }
 .library-full-details-author-search > label { display: block; margin-bottom: 5px; }
 .library-full-details-author-search > input { width: 100%; }
@@ -753,4 +763,22 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 @container (max-width: 760px) { .library-full-details-fields { grid-template-columns: minmax(0, 1fr); } }
 @container (max-width: 560px) { .library-full-details-savebar { align-items: stretch; flex-direction: column; } .library-full-details-savebar-actions > button { flex: 1 1 auto; } }
 @media (max-width: 600px) { .library-full-details { padding: 16px; } .library-full-details-hero { grid-template-columns: 1fr; } .library-full-details-cover { max-width: 200px; } }
+</style>
+
+<style>
+.library-full-details-card.library-identity-panel { padding: 0 16px; }
+.library-identity-panel .library-identity-row { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 8px 16px; padding: 12px 0; min-width: 0; }
+.library-identity-panel .library-identity-row + .library-identity-row { border-top: 1px solid var(--color-border); }
+.library-identity-panel .library-identity-row > h2 { font-size: 16px; line-height: 24px; font-weight: 600; margin: 6px 0 0; }
+.library-identity-panel .library-identity-content { min-width: 0; }
+.library-identity-panel .library-identity-content p { margin: 6px 0; }
+.library-identity-panel .library-identity-values { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-width: 0; }
+.library-identity-panel .library-identity-controls { display: inline-flex; flex: 0 0 auto; }
+.library-identity-panel .library-identity-series { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; max-width: 100%; }
+.library-identity-panel .library-identity-series > a { min-width: 0; overflow-wrap: anywhere; }
+.library-identity-panel .library-full-details-author-actions button { max-width: 100%; white-space: normal; }
+@container (max-width: 560px) {
+  .library-identity-panel .library-identity-row { grid-template-columns: minmax(0, 1fr); }
+  .library-identity-panel .library-identity-row > h2 { margin: 0; }
+}
 </style>

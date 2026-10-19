@@ -166,7 +166,6 @@
         "Catalogue pagination": "Katalogpaginierung",
         "Catalogue search and filters": "Katalogsuche und Filter",
         "Catalogue toolbar": "Katalog-Werkzeugleiste",
-        "Change": "Ändern",
         "Change series": "Serie ändern",
         "Changed fields": "Geänderte Felder",
         "Changed or unavailable books": "Geänderte oder nicht verfügbare Bücher",
@@ -633,10 +632,8 @@
         "No enabled Library roots": "Keine aktivierten Bibliotheksstämme",
         "No fields extracted from this example. Check the rule, separators and transformations.": "Keine Felder aus diesem Beispiel extrahiert. Prüfen Sie Regel, Trennzeichen und Umwandlungen.",
         "No folder rules assigned yet.": "Noch keine Ordnerregeln zugeordnet.",
-        "No genres assigned yet.": "Noch keine Genres zugeordnet.",
         "No items match these filters": "Keine Einträge passen zu diesen Filtern",
         "No language values need review.": "Keine Sprachwerte müssen geprüft werden.",
-        "No linked series yet.": "Noch keine Serie verknüpft.",
         "No mappings yet.": "Noch keine Zuordnungen.",
         "No matching author. You can create a separate author below.": "Kein passender Autor gefunden. Unten kann ein separater Autor erstellt werden.",
         "No matching items were found for this preview.": "Für diese Vorschau wurden keine passenden Elemente gefunden.",
@@ -1296,7 +1293,8 @@
         "without dates yet": "noch ohne Datum",
         "yes": "ja",
         "{count} of 5 stars": "{count} von 5 Sternen",
-        "{matched} of {total} paths on this page match this structure.": "{matched} von {total} Pfaden auf dieser Seite entsprechen dieser Struktur."
+        "{matched} of {total} paths on this page match this structure.": "{matched} von {total} Pfaden auf dieser Seite entsprechen dieser Struktur.",
+        "Change author": "Autor ändern"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
