@@ -297,12 +297,12 @@ Library does not implement a reader in v0.1.
 ### Correcting a bad catalogue item
 
 1. Open the item's **Details** page.
-2. Edit publication metadata in the single metadata workbench. Title and description use roomier fields; creators can be entered one per line; language and subject are multi-select picklists; publisher has type-ahead/autocomplete suggestions.
-3. Let the autosave enhancement save changes after edits, or press **Save metadata** as the accessible fallback/manual save action.
-4. Confirm provenance shows the item is user-edited.
-5. Use the scanner-candidate table to see where the scanner agrees or differs.
-6. Use **Reset to scanner** on a single field, or the whole-item reset action, only when the stored scanner candidate is preferable.
-7. Rescan later without fear that scanner metadata will overwrite your correction; scanner candidates refresh separately.
+2. Edit **Book details** and use the compact **Authors**, **Series** and **Genres** rows to select existing records or explicitly create a new one. Author and series searches start after three letters.
+3. Press **Save** once to apply the staged book edits, or **Discard** to restore saved values. The action bar stays visible while scrolling.
+4. Expand **Metadata status** at the bottom to inspect completeness, confidence and attention for saved values.
+5. Expand **Imported metadata and scan suggestions** to compare scanner values and review differences. Apply a scanner suggestion only when it is preferable.
+6. Manually edited fields remain protected during rescans; untouched fields can refresh automatically.
+7. **File metadata** is collapsed at the bottom, with indexed size and a clickable location in Nextcloud Files. Old book bookmarks open this same editor.
 
 ### Using Nextcloud tags from Library
 
