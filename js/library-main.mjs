@@ -8170,7 +8170,7 @@ try {
 const nw = xb;
 let rw = "";
 try {
-  rw = "0.3.0-alpha.24";
+  rw = "0.3.0-alpha.25";
 } catch {
   dr.error("The `@nextcloud/vue` library was used without setting / replacing the `appVersion`.");
 }
@@ -20961,7 +20961,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
 }, P8 = ["href"], D8 = {
   key: 2,
   class: "library-full-details-links"
-}, F8 = ["href"], M8 = { key: 0 }, U8 = { class: "library-full-details-actions" }, j8 = ["href"], z8 = ["href"], B8 = ["href"], V8 = { class: "library-full-details-personal" }, H8 = ["aria-pressed", "disabled"], q8 = ["value", "disabled"], G8 = ["value"], K8 = { class: "library-full-details-columns" }, W8 = { class: "library-full-details-main" }, Y8 = ["aria-label"], Z8 = { role: "status" }, J8 = { class: "library-full-details-savebar-actions" }, X8 = ["disabled"], Q8 = ["disabled"], eL = {
+}, F8 = ["href"], M8 = { key: 0 }, U8 = { class: "library-full-details-actions" }, j8 = ["href"], z8 = ["href"], B8 = ["href"], V8 = { class: "library-full-details-personal" }, H8 = ["aria-pressed", "disabled"], q8 = ["value", "disabled"], G8 = ["value"], K8 = ["aria-label"], W8 = { role: "status" }, Y8 = { class: "library-full-details-savebar-actions" }, Z8 = ["disabled"], J8 = ["disabled"], X8 = { class: "library-full-details-columns" }, Q8 = { class: "library-full-details-main" }, eL = {
   class: "library-full-details-card",
   "aria-labelledby": "library-full-details-metadata"
 }, tL = { id: "library-full-details-metadata" }, aL = { class: "library-full-details-fields" }, iL = ["value"], nL = ["title"], rL = ["title"], lL = { id: "library-details-publisher-suggestions" }, sL = ["value"], oL = ["title"], uL = { class: "library-full-details-wide" }, cL = ["onUpdate:modelValue", "aria-label"], dL = { value: "isbn" }, fL = { value: "issn" }, hL = ["onUpdate:modelValue", "aria-label"], pL = {
@@ -21618,30 +21618,30 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
             }, null, 8, ["item-ids", "request-token", "lists-url"])
           ])
         ]),
-        r("div", K8, [
-          r("div", W8, [
-            lt.value ? (c(), f("div", {
-              key: 0,
-              class: "library-full-details-savebar",
-              role: "group",
-              "aria-label": o(h)("library", "Book changes")
-            }, [
-              r("span", Z8, l(o(h)("library", "Unsaved book changes")), 1),
-              r("div", J8, [
-                r("button", {
-                  type: "button",
-                  class: "button secondary",
-                  disabled: g.value,
-                  onClick: Sa
-                }, l(o(h)("library", "Discard changes")), 9, X8),
-                r("button", {
-                  type: "submit",
-                  form: "library-full-details-metadata-form",
-                  class: "button primary",
-                  disabled: g.value
-                }, l(g.value ? o(h)("library", "Saving…") : o(h)("library", "Save book details")), 9, Q8)
-              ])
-            ], 8, Y8)) : S("", !0),
+        lt.value ? (c(), f("div", {
+          key: 0,
+          class: "library-full-details-savebar",
+          role: "group",
+          "aria-label": o(h)("library", "Book changes")
+        }, [
+          r("span", W8, l(o(h)("library", "Unsaved book changes")), 1),
+          r("div", Y8, [
+            r("button", {
+              type: "button",
+              class: "button secondary",
+              disabled: g.value,
+              onClick: Sa
+            }, l(o(h)("library", "Discard changes")), 9, Z8),
+            r("button", {
+              type: "submit",
+              form: "library-full-details-metadata-form",
+              class: "button primary",
+              disabled: g.value
+            }, l(g.value ? o(h)("library", "Saving…") : o(h)("library", "Save book details")), 9, J8)
+          ])
+        ], 8, K8)) : S("", !0),
+        r("div", X8, [
+          r("div", Q8, [
             r("section", eL, [
               r("h2", tL, l(o(h)("library", "Book details")), 1),
               r("form", {
@@ -22186,7 +22186,7 @@ const TR = { class: "library-inference-suggestions" }, AR = ["disabled"], ER = {
       ], 64)) : S("", !0)
     ]));
   }
-}, YP = /* @__PURE__ */ Ln(WP, [["__scopeId", "data-v-dbe80c6e"]]), ZP = {
+}, YP = /* @__PURE__ */ Ln(WP, [["__scopeId", "data-v-95d5cfbd"]]), ZP = {
   class: "library-navigation-group-label",
   role: "presentation"
 }, JP = ["aria-label", "title", "onClick"], XP = {
