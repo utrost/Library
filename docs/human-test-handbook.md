@@ -1,17 +1,17 @@
 # Library human test handbook
 
-**Current manual pass: 0.3.0-alpha.24, Nextcloud 33–35.** Confirm the installed version and archive checksum before using the populated developer Nextcloud 34 instance at `http://localhost:8088`; the [signed alpha.23 package record](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) remains the preceding deployment evidence. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.24 still needs its own exact-package version matrix. The earlier `0.3.0-alpha.11` developer handoff and the numbered alpha.174 cases later in this file are historical records; follow the current pass below for 0.3 acceptance.
+**Current manual pass: 0.3.0-alpha.25, Nextcloud 33–35.** Confirm the installed version and archive checksum before using the populated developer Nextcloud 34 instance at `http://localhost:8088`; use the [alpha.25 verification and deployment record](compatibility-evidence/2026-10-19-nc34-editor-actions-alpha25/README.md) to identify the installed package. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.25 still needs its own exact-package version matrix. The earlier `0.3.0-alpha.11` developer handoff and the numbered alpha.174 cases later in this file are historical records; follow the current pass below for 0.3 acceptance.
 
 ## Before testing
 
-1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the new candidate reports alpha.24 once deployed. Record the exact archive name and checksum instead of assuming the version string identifies the package.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the candidate reports alpha.25 once deployed. Record the exact archive name and checksum instead of assuming the version string identifies the package.
 2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
-For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12, H03-13, H03-14, H03-15 and H03-16. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
+For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12, H03-13, H03-14, H03-15, H03-16 and H03-17. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [alpha.23 package record](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) only if that remains the installed build. The developer build serves versioned frontend assets so browsers fetch the updated interface.
+Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [alpha.25 package record](compatibility-evidence/2026-10-19-nc34-editor-actions-alpha25/README.md) for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -31,6 +31,7 @@ Copy this result sheet into the session note. Write the checksum of the installe
 | H03-14 |  |  |  |
 | H03-15 |  |  |  |
 | H03-16 |  |  |  |
+| H03-17 |  |  |  |
 
 After each case, capture the visible before/after state and note the selected book/author/series ID. A **Pass** requires the expected result and no relevant console error. Mark **Blocked** when setup or the instance prevents the action; a visible wrong result is **Fail**. Do not put private paths or book metadata in a public issue without redaction.
 
@@ -200,7 +201,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** Use a disposable book with an author, series and genre. Record its current title, rating, linked IDs and imported credits. Prepare a second tab on the same book.
 
-**Steps:** Change the title, choose a different author and series directly from their suggestions, edit the part number, add a genre, remove a genre and select a rating. Confirm the Save/Discard bar stays visible while scrolling through the editor. Before saving, reload the second tab and confirm it still shows the original values. Press **Save book details** once, reload both tabs and confirm every visible change persisted. Make another edit, press **Discard changes**, and confirm the original saved value returns. Expand **Imported metadata and scan suggestions** and confirm the original creator, series and genre values are intact. Repeat with a second tab changing one link first; the stale first tab's save must return a conflict without applying any of its changes.
+**Steps:** Change the title, choose a different author and series directly from their suggestions, edit the part number, add a genre, remove a genre and select a rating. Confirm the Save/Discard bar stays visible while scrolling through the editor, file information and imported metadata, on desktop and mobile. Before saving, reload the second tab and confirm it still shows the original values. Press **Save book details** once, reload both tabs and confirm every visible change persisted. Make another edit, press **Discard changes**, and confirm the original saved value returns. Expand **Imported metadata and scan suggestions** and confirm the original creator, series and genre values are intact. Repeat with a second tab changing one link first; the stale first tab's save must return a conflict without applying any of its changes.
 
 **Expected:** Only the one main Save button commits edits to the book. A successful save applies all fields and links together. A conflict leaves the draft visible and changes nothing on the server. The ebook file remains untouched. Creating a new directory identity can happen before book Save, but the book link remains unchanged until Save.
 
