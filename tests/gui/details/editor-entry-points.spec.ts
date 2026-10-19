@@ -27,6 +27,7 @@ test('author, series and bookmarked links use one editor and retain Back context
     await page.goto(source)
     const link = page.locator(selector).first()
     await expect(link).toBeVisible()
+    await expect(page.locator('.library-authors, .library-series')).toHaveAttribute('aria-busy', 'false')
     const href = await link.getAttribute('href')
     expect(new URL(href!, page.url()).searchParams.get('returnTo')).toBe(source)
     await link.click()
@@ -35,6 +36,11 @@ test('author, series and bookmarked links use one editor and retain Back context
     await expect(page.locator('.library-identity-panel')).toBeVisible()
     await page.locator('.library-full-details-back').click()
     await expect(page).toHaveURL(new RegExp(source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'))
+    // A changed URL is not a loaded destination. Finish Back navigation before
+    // starting the next journey so Firefox does not abort Nextcloud startup.
+    await expect(page.locator(selector).first()).toBeVisible()
+    await expect(page.locator('.library-authors, .library-series')).toHaveAttribute('aria-busy', 'false')
+    await page.waitForLoadState('networkidle')
   }
   const source = '/apps/library/?search=fixture&sort=title'
   const oldUrl = `/apps/library/items/${id}?metadataSaved=1&returnTo=${encodeURIComponent(source)}`
