@@ -1,10 +1,10 @@
 # Release process
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](docs/compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). Signed alpha.27 remains installed until the new deployment is verified.
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](docs/compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). Signed alpha.28 is deployed on developer NC34 with clean integrity and an unchanged large catalogue-book catalogue.
 
 Development candidate **0.3.0-alpha.28** consolidates book navigation on the current editor. Owned legacy bookmarks redirect with validated return context and feedback; author/series/conflict links open the editor directly. Metadata status uses the existing presenter and saved canonical authors, with normalized scanner attention in the editor. The three bottom disclosures are Metadata status, Imported metadata and scan suggestions, and File metadata. The unused legacy editor bundle is excluded from packaging; the frontend size budget is unchanged. No database migration is added.
 
-The [alpha.27 verification and deployment record](docs/compatibility-evidence/2026-10-19-nc34-single-editor-alpha27/README.md) tracks checks and deployment. Signed alpha.27 is deployed on developer NC34 with clean integrity and an unchanged large catalogue-book catalogue. The exact signed NC33–35 fresh/upgrade matrix and owner acceptance remain pending for 0.3. The owner chose 0.3 as the first App Store release; **do not submit the 0.2 archive**. Historical baselines below remain preserved.
+The [alpha.28 verification and deployment record](docs/compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md) tracks checks and deployment. Signed alpha.28 is deployed on developer NC34 with clean integrity and an unchanged large catalogue-book catalogue. The exact signed NC33–35 fresh/upgrade matrix and owner acceptance remain pending for 0.3. The owner chose 0.3 as the first App Store release; **do not submit the 0.2 archive**. Historical baselines below remain preserved.
 
 Current release gate: run the [0.3 human test handbook](docs/human-test-handbook.md#current-03-human-cases) on a disposable account, resolve release-blocking findings, then sign one exact 0.3 archive and run fresh-install and populated-upgrade checks on NC33–35. Record the archive checksum, integrity result, browser artifacts and cleanup. The [readiness roadmap](docs/app-store-readiness.md) tracks the remaining handoff work.
 
@@ -26,7 +26,6 @@ LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.2.0-beta.3.tar.gz" REQUIRE_INTEGRITY=1
 ```
 
 The matrix uses the same 40-book English Gutenberg archive for both modes. It fails on installed signature errors, service-check failures, browser failures or cleanup failures. Do not rebuild or modify the accepted archive before upload. The `.tar.gz.sig` is the detached App Store signature; the private handoff directory contains the separate registration proof and public certificate. Never upload the private key.
-
 
 ## Alpha.171 unsigned package candidate — deployed private test instance
 
