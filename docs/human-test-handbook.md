@@ -4,7 +4,7 @@
 
 ## Before testing
 
-1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the candidate reports alpha.25 once deployed. Record the exact archive name and checksum instead of assuming the version string identifies the package.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; the developer instance reports alpha.25. Record the exact archive name and checksum instead of assuming the version string identifies the package.
 2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.

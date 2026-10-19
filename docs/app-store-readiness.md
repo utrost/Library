@@ -8,7 +8,7 @@ Before submitting 0.3: obtain human acceptance of author and series workflows, r
 
 ## Alpha.25 editor handoff — 2026-10-19
 
-Alpha.25 keeps Save/Discard visible through the whole details page and preserves direct author/series selection. The [verification and deployment record](compatibility-evidence/2026-10-19-nc34-editor-actions-alpha25/README.md) tracks its signed package and browser checks. Owner acceptance and the exact signed NC33–35 release matrix remain open.
+The signed alpha.25 package is deployed on developer NC34 with clean integrity and the unchanged large catalogue-book catalogue. It keeps Save/Discard visible through the whole details page and preserves direct author/series selection. The [verification and deployment record](compatibility-evidence/2026-10-19-nc34-editor-actions-alpha25/README.md) tracks its signed package and browser checks. Owner acceptance and the exact signed NC33–35 release matrix remain open.
 
 ## Historical developer checkpoints
 
