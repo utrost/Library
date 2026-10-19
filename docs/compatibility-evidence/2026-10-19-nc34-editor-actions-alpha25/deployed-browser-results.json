@@ -1,0 +1,29 @@
+{
+  "version": "0.3.0-alpha.25",
+  "frontendOverlay": false,
+  "checks": [
+    {
+      "viewport": "desktop",
+      "stickyBarVisible": true,
+      "buttonsReachable": true,
+      "noOverflow": true,
+      "titleDiscarded": true,
+      "authorSelectionDirect": true,
+      "seriesSelectionDirect": true,
+      "storedMetadataUnchanged": true
+    },
+    {
+      "viewport": "mobile",
+      "stickyBarVisible": true,
+      "buttonsReachable": true,
+      "noOverflow": true,
+      "titleDiscarded": true,
+      "authorSelectionDirect": true,
+      "seriesSelectionDirect": true,
+      "storedMetadataUnchanged": true
+    }
+  ],
+  "libraryMutations": 0,
+  "pageErrors": [],
+  "tokenRemoved": true
+}
