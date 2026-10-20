@@ -1694,6 +1694,12 @@ describe('Library catalogue Vue app', () => {
     ))
     const catalogueCall = global.fetch.mock.calls.find(([url]) => String(url).startsWith('/apps/library/catalogue?'))[0]
     expect(catalogueCall).not.toContain(`${facet}Search`)
+    if (facet === 'creator') {
+      // Applying hides suggestions without blurring the input. Further typing
+      // must reopen them, even when no second focus event occurs.
+      await search.setValue(`${query}x`)
+      await vi.waitFor(() => expect(wrapper.findAll('.library-creator-suggestion')).toHaveLength(1))
+    }
   })
 
   it('offers folder paths after three characters and applies the exact selected folder', async () => {
