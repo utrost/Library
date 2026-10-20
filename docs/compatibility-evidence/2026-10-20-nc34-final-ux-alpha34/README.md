@@ -15,11 +15,11 @@ Status: **candidate**, implementing all eight findings from the [alpha.33 final 
 
 ## Verification
 
-- Local source checks: **1,047 passed**; frontend checks: **589 in 48 files passed**; PHP runtime suites and **518 inference vectors** passed.
+- Local source checks: **1,047 passed**; frontend checks: **591 in 48 files passed**; PHP runtime suites and **518 inference vectors** passed.
 - English/German/Arabic catalogues: **1,275 keys**, **92 semantic sentinels**; generated output current.
 - Added profile draft/applied/cleared-query tests, all-facet desktop/mobile keyboard tests, language-form serialization and distinct-row accessibility tests.
 - Added Playwright profile/view/Back journeys, publication/year/publisher keyboard and failed-lookup/retry journeys, maintenance navigation/Escape/focus and light/dark error-contrast checks. These join the existing Save/Discard, stale edits, typeahead, deletion and directory journeys.
-- All **nine focused Playwright journeys passed** in Chromium, Firefox and mobile Chromium after the corrections. The full packaged rehearsal is in progress. Early installed-package screenshots exposed a mobile spacing specificity conflict and Nextcloud styles exposing a closed native dialog; both were corrected. The desktop active-option style also needed to cover the navigation sidebar, which sits outside the content root. The mobile run also exposed deferred filter-panel autofocus stealing a newly selected field and unreliable native Escape handling; both now have explicit guards and regression tests. Failed preliminary runs are not acceptance evidence.
+- All **nine focused Playwright journeys passed** in Chromium, Firefox and mobile Chromium after the corrections. All **77 packaged browser journeys passed locally**. A subsequent preferred-author smoke still used immediate Enter for free-text search; it now uses the explicit Apply author action. Final CI and remaining backend smokes are in progress. Early installed-package screenshots exposed a mobile spacing specificity conflict and Nextcloud styles exposing a closed native dialog; both were corrected. The desktop active-option style also needed to cover the navigation sidebar, which sits outside the content root. The mobile run also exposed deferred filter-panel autofocus stealing a newly selected field and unreliable native Escape handling; both now have explicit guards and regression tests. Failed preliminary runs are not acceptance evidence.
 
 Human acceptance: **H03-26** in the [handbook](../../human-test-handbook.md), retaining the existing editor/deletion regression cases.
 
