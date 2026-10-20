@@ -29,6 +29,7 @@ $_['maintenanceActive'] = 'languages';
                 <form class="library-maintenance-decision" action="<?php p($base . '/' . $suggestion['source_key'] . '/decide'); ?>" method="post">
                     <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken']); ?>">
                     <div class="library-review-values"><div><strong><?php p($l->t('Current value')); ?></strong><p><bdi dir="auto"><?php p($suggestion['source_value']); ?></bdi></p></div><div><strong><?php p($l->t('Proposed value')); ?></strong>
+                    <div data-library-language-picker hidden></div>
                     <label><?php p($l->t('Map to language codes, separated by semicolons')); ?><input name="codes" type="text" maxlength="64" placeholder="<?php p($l->t('en; de')); ?>" required></label></div></div>
                     <button class="button primary" name="action" value="map" type="submit"><?php p($l->t('Save mapping and apply next 100 books')); ?></button>
                     <button class="button secondary" name="action" value="ignore" type="submit" formnovalidate><?php p($l->t('Ignore value')); ?></button>

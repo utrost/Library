@@ -64,14 +64,14 @@ onMounted(()=>run(refreshHistory));onBeforeUnmount(()=>{alive=false;generation++
   <DuplicateSuggestions v-if="selectedBookId" :item-id="selectedBookId" :compare-id="selectedCompareId" :request-token="requestToken" full />
   <p v-if="error" role="alert">{{ error }}</p><p v-if="message" role="status">{{ message }}</p>
   <form class="library-duplicate-toolbar" @submit.prevent="start">
-   <label>{{ t('library','Library root') }}<select v-model="rootId" :disabled="busy||active"><option value="0">{{ t('library','All library roots') }}</option><option v-for="root in roots" :key="root.id" :value="String(root.id)">{{ root.label }}</option></select></label>
+   <label>{{ t('library','Shelf') }}<select v-model="rootId" :disabled="busy||active"><option value="0">{{ t('library','All shelves') }}</option><option v-for="root in roots" :key="root.id" :value="String(root.id)">{{ root.label }}</option></select></label>
    <label class="library-duplicate-checkbox"><input v-model="contents" type="checkbox" :disabled="busy||active"><LabelHelp :text="t('library','Read equal-size candidates to confirm identical contents, including renamed copies with different metadata. This can take longer on remote storage. Checks are limited to 64 MiB per file and 512 MiB per scan; skipped checks are reported.')">{{ t('library','Compare file contents') }}</LabelHelp></label>
    <button class="button primary" :disabled="busy||active||!roots.length">{{ t('library','Find possible duplicates') }}</button>
   </form>
   <label><LabelHelp :text="t('library','Scans continue through Nextcloud background jobs and can be reopened for seven days. Review decisions are reused when the same books have not changed. Each comparison is independent; choosing a preferred copy does not change catalogue ordering.')">{{ t('library','Saved duplicate scans') }}</LabelHelp><select :value="job?.id||''" :disabled="busy" @change="selectHistory"><option value="">{{ t('library','Choose a scan') }}</option><option v-for="entry in history" :key="entry.id" :value="entry.id">{{ new Date(Number(entry.created_at)*1000).toLocaleString() }} · {{ stateLabels[entry.status] }}</option></select></label>
   <template v-if="job">
    <section class="library-duplicate-progress" :aria-label="t('library','Duplicate scan progress')">
-    <strong>{{ job.rootId ? job.label : t('library','All library roots') }}</strong>
+    <strong>{{ job.rootId ? job.label : t('library','All shelves') }}</strong>
     <p role="status">{{ stateLabels[job.status] }}<template v-if="active"> · {{ job.phase==='index' ? t('library','Indexing metadata') : t('library','Comparing candidates') }}</template> · {{ job.processed }}/{{ job.total }}</p>
     <progress v-if="active" :value="job.phase==='index'?job.processed:undefined" :max="Math.max(job.total,1)" :aria-label="t('library','Duplicate scan progress')" />
     <p>{{ t('library','Possible matches') }}: {{ job.matches }} · {{ t('library','Comparisons checked') }}: {{ job.examined }}</p>

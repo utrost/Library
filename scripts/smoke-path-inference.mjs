@@ -25,7 +25,7 @@ try {
   await expect(panel).toHaveAttribute('aria-busy', 'false', { timeout: 30000 })
   await expect(panel.getByRole('alert')).toHaveCount(0)
   assert.ok(await panel.locator('.library-inference-result').count() > 0, 'Expected a real indexed sample')
-  const rootId = await panel.getByRole('combobox', { name: 'Library root', exact: true }).inputValue()
+  const rootId = await panel.getByRole('combobox', { name: 'Shelf', exact: true }).inputValue()
   const endpoint = `/apps/library/api/inference/sample?rootId=${rootId}`
   const original = await page.evaluate(async (url) => (await fetch(url)).json(), endpoint)
   assert.ok(original.items.length > 0 && original.items.length <= 40)

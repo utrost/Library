@@ -23,7 +23,7 @@ try {
   const page=await context.newPage(),errors=[];page.setDefaultTimeout(30000);page.on('pageerror',e=>errors.push(e.message))
   const panel=page.locator('.library-inference'),analysis=panel.locator('.library-inference-analysis'),approval=analysis.locator('.library-inference-apply')
   const ready=async()=>{await expect(panel).toHaveAttribute('aria-busy','false');await expect(analysis).toHaveAttribute('aria-busy','false')}
-  const selectRoot=async()=>{await ready();await panel.getByRole('combobox',{name:'Library root',exact:true}).selectOption(String(state.rootId));await ready()}
+  const selectRoot=async()=>{await ready();await panel.getByRole('combobox',{name:'Shelf',exact:true}).selectOption(String(state.rootId));await ready()}
   await page.goto(`${upstream}/apps/library/?infer=1`);await selectRoot()
   await panel.getByRole('combobox',{name:'Rule editor',exact:true}).selectOption('pattern')
   await panel.getByRole('textbox',{name:'Advanced pattern',exact:true}).fill('%folders%/%seriesNumber%_%title%.%extension%')

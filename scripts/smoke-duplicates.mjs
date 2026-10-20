@@ -22,7 +22,7 @@ try {
   const page=await context.newPage(),errors=[];page.setDefaultTimeout(30000);page.on('pageerror',e=>errors.push(e.message))
   const panel=page.locator('.library-duplicates');const ready=()=>expect(panel).toHaveAttribute('aria-busy','false')
   await page.goto(`${upstream}/apps/library/?duplicates=1`);await ready();await expect(panel.getByRole('heading',{name:'Possible duplicates',exact:true})).toBeVisible()
-  await panel.getByRole('combobox',{name:'Library root',exact:true}).selectOption(String(state.rootId));await expect(panel.getByRole('checkbox',{name:'Compare file contents',exact:true})).not.toBeChecked();await panel.getByRole('checkbox',{name:'Compare file contents',exact:true}).check()
+  await panel.getByRole('combobox',{name:'Shelf',exact:true}).selectOption(String(state.rootId));await expect(panel.getByRole('checkbox',{name:'Compare file contents',exact:true})).not.toBeChecked();await panel.getByRole('checkbox',{name:'Compare file contents',exact:true}).check()
   const start=async()=>{const pending=page.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/api/duplicates')&&r.request().method()==='POST');await panel.getByRole('button',{name:'Find possible duplicates',exact:true}).click();const r=await pending;assert.equal(r.status(),200);return r.json()}
   const cancelled=await start();assert.equal(cancelled.total,bookCount);await ready();await panel.getByRole('button',{name:'Cancel scan',exact:true}).click();await ready();await expect(panel).toContainText('Duplicate scan cancelled');await panel.getByRole('button',{name:'Discard scan',exact:true}).click();await ready()
   const scan=await start();await ready();await page.goto('about:blank')
@@ -43,7 +43,7 @@ try {
   assert.equal(hasPair('series-one.epub','series-two.epub'),false,'Different stored positions excluded from saved scan')
   assert.equal(hasPair('issue-004.epub','issue-004-copy.epub'),true,'Same issue still found')
   await page.goto(`${upstream}/apps/library/?duplicates=1`);await ready();await panel.getByRole('combobox',{name:'Saved duplicate scans',exact:true}).selectOption(scan.id);await ready()
-  await expect(panel.getByRole('combobox',{name:'Library root',exact:true})).toHaveValue(String(state.rootId));await expect(panel.getByRole('checkbox',{name:'Compare file contents',exact:true})).toBeChecked()
+  await expect(panel.getByRole('combobox',{name:'Shelf',exact:true})).toHaveValue(String(state.rootId));await expect(panel.getByRole('checkbox',{name:'Compare file contents',exact:true})).toBeChecked()
   await panel.getByRole('heading',{level:1}).scrollIntoViewIfNeeded();await page.screenshot({path:`${evidence}/${engine}-overview.png`,animations:'disabled'})
   const cards=panel.locator('.library-duplicate-pair');await expect(cards).toHaveCount(10)
   await panel.getByRole('button',{name:'Next page',exact:true}).click();await ready();assert.ok(await cards.count()>0);await panel.getByRole('button',{name:'Previous page',exact:true}).click();await ready()

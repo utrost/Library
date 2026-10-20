@@ -31,6 +31,7 @@ final class ValueMappingController extends Controller {
     private function page(?array $preview = null, string $message = ''): TemplateResponse {
         Util::addStyle('library', 'style');
         \OCP\Util::addStyle('library', 'ui-contract');
+        \OCA\Library\Service\UiAssets::maintenance();
         $uid = $this->uid();
         $field = $this->field();
         $search = trim((string)$this->request->getParam('search', ''));

@@ -388,7 +388,7 @@ try {
     console.log(`source_has_compact_cover_cards_all_widths=${installedVersionAssetIdentity && bundleHas('library-cover-link') && coverOverlayCss}`)
     console.log(`served_css_has_compact_cover_defaults=${coverOverlayCss && css.text.includes('min-height:0')}`)
     console.log(`source_has_publication_sort=${bundleHas('publication')}`)
-    console.log(`source_has_series_periodical_filter=${bundleHas('publicationSearch', 'library-publication-suggestions', 'Series / periodical')}`)
+    console.log(`source_has_series_periodical_filter=${bundleHas('publicationSearch', 'library-publication-suggestions', 'Publication / periodical')}`)
     console.log(`source_has_no_periodical_shortcut=${!bundle.includes('library-periodical-groups') && !bundle.includes('Choose series')}`)
     console.log(`source_has_publication_year_filter=${bundleHas('Publication year', 'All years')}`)
     console.log(`source_has_publication_discovery_page=${publicationDiscoveryPage.status === 200 && publicationDiscoveryState?.discoveryPage === 'publication'}`)

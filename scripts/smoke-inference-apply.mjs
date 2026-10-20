@@ -26,7 +26,7 @@ try {
   page.on('pageerror',e=>errors.push(e.message))
   const panel=page.locator('.library-inference'),approval=panel.locator('.library-inference-apply')
   const ready=async()=>{await expect(panel).toHaveAttribute('aria-busy','false',{timeout:30000});await expect(approval).toHaveAttribute('aria-busy','false')}
-  const open=async()=>{await page.goto(`${upstream}/apps/library/?infer=1`);await ready();await panel.getByRole('combobox',{name:'Library root',exact:true}).selectOption(String(state.rootId));await ready();await panel.getByRole('combobox',{name:'Rule editor',exact:true}).selectOption('pattern');await panel.getByRole('textbox',{name:'Advanced pattern',exact:true}).fill('%genre%/%series%/%seriesNumber%_%title%.%extension%')}
+  const open=async()=>{await page.goto(`${upstream}/apps/library/?infer=1`);await ready();await panel.getByRole('combobox',{name:'Shelf',exact:true}).selectOption(String(state.rootId));await ready();await panel.getByRole('combobox',{name:'Rule editor',exact:true}).selectOption('pattern');await panel.getByRole('textbox',{name:'Advanced pattern',exact:true}).fill('%genre%/%series%/%seriesNumber%_%title%.%extension%')}
   const review=async()=>{
    await approval.getByRole('button',{name:'Select empty fields',exact:true}).click()
    await expect(approval.getByRole('button',{name:'Review selected changes (3)',exact:true})).toBeEnabled()

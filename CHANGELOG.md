@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.3.0-alpha.34 — final UI consistency fixes (candidate)
+
+- Use readable theme foregrounds for errors and destructive controls.
+- Keep profile search drafts separate from applied result and return contexts.
+- Share catalogue filter keyboard selection and lookup feedback.
+- Reserve mobile navigation clearance and align view switches and toolbars.
+- Align Publication / periodical, Shelf and Covers terminology.
+- Reuse the language picker in cleanup forms and align maintenance navigation.
+- Normalize review typography, card context and directory framing.
+- No database migration; verification and deployment pending.
+
 ## 0.3.0-alpha.33 — 2026-10-20
 
 - Align picker keyboard selection and explicit subject creation; fix initial ArrowUp navigation.

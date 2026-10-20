@@ -1,5 +1,7 @@
 # Current state and risk register
 
+**Current work: 0.3.0-alpha.34** addresses the eight final UX findings: theme contrast, profile search state, filter keyboards, navigation clearance, view controls, terminology, language cleanup and page framing. Verification is in progress; developer NC34 still runs alpha.33. No database migration.
+
 Signed **0.3.0-alpha.33** is deployed on developer NC34. The ten follow-up fixes cover keyboard pickers, directory search state, Back position/focus, compact catalogue controls, readable book cards, shared Series/Author browsing, preview widths and settings/review clarity. All required CI checks passed, including **68 browser journeys**. Integrity is clean and the catalogue remains **large catalogue books**. No database migration. See the [alpha.33 verification and deployment record](compatibility-evidence/2026-10-20-nc34-ux-follow-up-alpha33/README.md) and human acceptance **H03-25**.
 
 Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.33 is now installed.
