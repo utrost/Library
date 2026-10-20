@@ -19,7 +19,7 @@ def test_catalogue_text_search_includes_cached_filename_and_folder_path():
 def test_vue_search_copy_explains_filename_and_folder_search():
     app = read("src/App.vue")
 
-    assert "Title, creator, description, filename or folder" in app
+    assert "Title, author, description, filename or folder" in app
     assert "Descriptions, filename and folder names are searchable" in app
 
 

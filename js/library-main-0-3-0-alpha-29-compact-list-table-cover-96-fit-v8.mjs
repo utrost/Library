@@ -8173,7 +8173,7 @@ try {
 const sw = Rb;
 let ow = "";
 try {
-  ow = "0.3.0-alpha.28";
+  ow = "0.3.0-alpha.29";
 } catch {
   br.error("The `@nextcloud/vue` library was used without setting / replacing the `appVersion`.");
 }
@@ -23184,7 +23184,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
       publication: "Series / periodical",
       year: "Publication year",
       language: "Language",
-      creator: "Creator",
+      creator: "Author",
       authorId: "Author ID",
       seriesId: "Series ID",
       genreId: "Genre ID",
@@ -24184,7 +24184,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         "data-library-quick-search": "",
                         type: "search",
                         name: "q",
-                        placeholder: u(t)("library", "Title, creator, description, filename or folder")
+                        placeholder: u(t)("library", "Title, author, description, filename or folder")
                       }, null, 8, U5), [
                         [De, K.value]
                       ]),
@@ -24342,15 +24342,15 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     }, l(u(t)("library", "Apply year")), 3)
                   ]),
                   n("div", f9, [
-                    n("label", h9, l(u(t)("library", "Creator")), 1),
+                    n("label", h9, l(u(t)("library", "Author")), 1),
                     pe(n("input", {
                       id: "library-creator-search",
                       "onUpdate:modelValue": _[15] || (_[15] = (v) => qe.value = v),
                       type: "search",
                       name: "creatorSearch",
                       autocomplete: "off",
-                      placeholder: u(t)("library", "Search creators"),
-                      title: u(t)("library", "Match an individual author; existing full-field filters remain usable"),
+                      placeholder: u(t)("library", "Search authors"),
+                      title: u(t)("library", "Search by author name or surname (at least 3 characters), or choose a suggested author."),
                       role: "combobox",
                       "aria-autocomplete": "list",
                       "aria-controls": "library-creator-suggestions",
@@ -24383,7 +24383,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     n("button", {
                       type: "submit",
                       class: Le(["button secondary library-creator-apply", Ui("creator")])
-                    }, l(u(t)("library", "Apply creator")), 3)
+                    }, l(u(t)("library", "Apply author")), 3)
                   ]),
                   n("div", m9, [
                     n("label", _9, l(u(t)("library", "Nextcloud tag")), 1),
@@ -25341,7 +25341,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                               "data-library-mobile-filter-search": "",
                               type: "search",
                               name: "q",
-                              placeholder: u(t)("library", "Title, creator, description, filename or folder")
+                              placeholder: u(t)("library", "Title, author, description, filename or folder")
                             }, null, 8, IF), [
                               [De, K.value]
                             ]),
@@ -25486,15 +25486,15 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           ])) : S("", !0)
                         ]),
                         n("div", rM, [
-                          n("label", lM, l(u(t)("library", "Creator")), 1),
+                          n("label", lM, l(u(t)("library", "Author")), 1),
                           pe(n("input", {
                             id: "library-mobile-creator-search",
                             "onUpdate:modelValue": _[61] || (_[61] = (v) => qe.value = v),
                             type: "search",
                             name: "creatorSearch",
                             autocomplete: "off",
-                            placeholder: u(t)("library", "Search creators"),
-                            title: u(t)("library", "Match an individual author; existing full-field filters remain usable"),
+                            placeholder: u(t)("library", "Search authors"),
+                            title: u(t)("library", "Search by author name or surname (at least 3 characters), or choose a suggested author."),
                             role: "combobox",
                             "aria-autocomplete": "list",
                             "aria-controls": "library-mobile-creator-suggestions",

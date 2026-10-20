@@ -25,7 +25,7 @@ def test_scalar_suggestions_use_normalized_facet_prefix_index_without_wrapping_i
     source = SERVICE.read_text()
     methods = {
         "publication": suggestion_method(source, "publication", "creator"),
-        "creator": suggestion_method(source, "creator", "publisher"),
+        "creator": suggestion_method(source, "creator", "publisher").split("private function preferredCreatorSuggestions", 1)[0],
         "publisher": suggestion_method(source, "publisher", "subject"),
         "subject": suggestion_method(source, "subject", "classification"),
         "classification": suggestion_method(source, "classification", "year"),

@@ -42,7 +42,7 @@ def test_vue_exposes_individual_creator_filter():
     assert "name=\"creator\"" in app
     assert "All creators" in app
     assert "v-for=\"creator in creators\"" in app
-    assert "Match an individual author; existing full-field filters remain usable" in app
+    assert "Search by author name or surname (at least 3 characters), or choose a suggested author." in app
     assert "const creatorSearch = ref(activeFilters.creator)" in app
     assert "const creatorSuggestions = computed(() => remoteCreatorSuggestions.value || [])" in app
     assert "creatorSuggestionsUrl" in app

@@ -256,4 +256,6 @@ grep -q 'browser_basic_sidebar_opened=true' "$RUN_LOG"
 grep -q 'browser_basic_sidebar_rendered=true' "$RUN_LOG"
 grep -q 'browser_basic_sidebar_closed=true' "$RUN_LOG"
 
+NC_CONTAINER="$CONTAINER" NC_URL="$BASE_URL" node scripts/smoke-author-preferred-suggestions.mjs
+
 echo 'fresh_install_mixed_smoke_ok=true'
