@@ -6,7 +6,7 @@ Library is an open-source Nextcloud app ([AGPL-3.0-or-later](LICENSE)) with a se
 
 ![Library catalogue with English Project Gutenberg books](docs/images/appstore-catalogue.png)
 
-Current candidate: `0.3.0-alpha.34`. **Pre-release:** 0.3 is the planned first App Store release. The declared compatibility range is **Nextcloud 33–35**; final exact-package compatibility checks and human acceptance remain release gates. Earlier signed candidates have their own verification records. See [release status](RELEASE.md), the [current verification record](docs/compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and the [release checklist](docs/app-store-readiness.md).
+Current candidate: `0.3.0-alpha.35`. **Pre-release:** 0.3 is the planned first App Store release. The declared compatibility range is **Nextcloud 33–35**; final exact-package compatibility checks and human acceptance remain release gates. Earlier signed candidates have their own verification records. See [release status](RELEASE.md), the [current verification record](docs/compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) and the [release checklist](docs/app-store-readiness.md).
 
 ## What it does
 

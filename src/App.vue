@@ -57,6 +57,7 @@ import NcActions from '@nextcloud/vue/components/NcActions'
 import NcActionLink from '@nextcloud/vue/components/NcActionLink'
 import NcContent from '@nextcloud/vue/components/NcContent'
 import ShelfTreeNode from './components/ShelfTreeNode.vue'
+import NavigationIcon from './components/NavigationIcon.vue'
 import CatalogueCover from './components/CatalogueCover.vue'
 import PersonalLists from './components/PersonalLists.vue'
 import Authors from './components/Authors.vue'
@@ -2033,28 +2034,36 @@ async function toggleStar(item, event) {
     <NcAppNavigation :aria-label="t('library', 'Library navigation')">
       <template #list>
         <NcAppNavigationList>
-          <li class="library-navigation-group-label" role="presentation">{{ t('library', 'Browse') }}</li>
-          <NcAppNavigationItem v-for="destination in catalogueNavigation" :key="destination.key" :active="destination.active" :href="destination.href" :name="destination.name" />
+          <li class="library-navigation-group-label library-navigation-group-label--first"><h2>{{ t('library', 'Library') }}</h2></li>
+          <NcAppNavigationItem v-for="destination in catalogueNavigation.slice(0, 4)" :key="destination.key" :active="destination.active" :href="destination.href" :name="destination.name">
+            <template #icon><NavigationIcon :name="destination.key" /></template>
+          </NcAppNavigationItem>
+          <li class="library-navigation-group-label"><h2>{{ t('library', 'Discover') }}</h2></li>
+          <NcAppNavigationItem v-for="destination in catalogueNavigation.slice(4)" :key="destination.key" :active="destination.active" :href="destination.href" :name="destination.name">
+            <template #icon><NavigationIcon :name="destination.key" /></template>
+          </NcAppNavigationItem>
           <div v-for="collection in savedCollectionNavigation" :key="collection.key" class="library-navigation-saved-collection-row">
-            <NcAppNavigationItem class="library-navigation-saved-collection" :active="collection.active" :href="collection.href" :name="collection.name" />
+            <NcAppNavigationItem class="library-navigation-saved-collection" :active="collection.active" :href="collection.href" :name="collection.name">
+              <template #icon><NavigationIcon name="collections" /></template>
+            </NcAppNavigationItem>
             <button type="button" class="library-navigation-saved-collection-delete-action" :aria-label="`${t('library', 'Delete collection')}: ${collection.rawName}`" :title="`${t('library', 'Delete collection')}: ${collection.rawName}`" @click.stop.prevent="submitSavedCollectionDelete(collection.id)">✕</button>
           </div>
-          <NcAppNavigationItem :active="isAuthors" :href="`${catalogueRootUrl}?authors=1`" :name="t('library', 'Authors')" />
-          <NcAppNavigationItem :active="isSeries" :href="`${catalogueRootUrl}?series=1`" :name="t('library', 'Series')" />
-          <NcAppNavigationItem :active="isGenres || !!activeFilters.genreId" :href="`${catalogueRootUrl}?genres=1`" :name="t('library', 'Genres')" />
-          <li class="library-navigation-group-label" role="presentation">{{ t('library', 'Your lists') }}</li>
-          <NcAppNavigationItem :active="isLists" :href="listsUrl" :name="t('library', 'Lists')" />
-          <NcAppNavigationItem class="library-navigation-create-list" :href="`${listsUrl}&new=1`" :name="t('library', 'Create a new list')" />
-          <NcAppNavigationItem v-for="list in personalListNavigation" :key="`personal-list-${list.id}`" class="library-navigation-personal-list" :href="`${listsUrl}&listId=${list.id}`" :name="list.name" />
+          <NcAppNavigationItem :active="isAuthors" :href="`${catalogueRootUrl}?authors=1`" :name="t('library', 'Authors')"><template #icon><NavigationIcon name="authors" /></template></NcAppNavigationItem>
+          <NcAppNavigationItem :active="isSeries" :href="`${catalogueRootUrl}?series=1`" :name="t('library', 'Series')"><template #icon><NavigationIcon name="series" /></template></NcAppNavigationItem>
+          <NcAppNavigationItem :active="isGenres || !!activeFilters.genreId" :href="`${catalogueRootUrl}?genres=1`" :name="t('library', 'Genres')"><template #icon><NavigationIcon name="genres" /></template></NcAppNavigationItem>
+          <li class="library-navigation-group-label"><h2>{{ t('library', 'Your lists') }}</h2></li>
+          <NcAppNavigationItem :active="isLists" :href="listsUrl" :name="t('library', 'Lists')"><template #icon><NavigationIcon name="lists" /></template></NcAppNavigationItem>
+          <NcAppNavigationItem class="library-navigation-create-list" :href="`${listsUrl}&new=1`" :name="t('library', 'Create a new list')"><template #icon><NavigationIcon name="add" /></template></NcAppNavigationItem>
+          <NcAppNavigationItem v-for="list in personalListNavigation" :key="`personal-list-${list.id}`" class="library-navigation-personal-list" :href="`${listsUrl}&listId=${list.id}`" :name="list.name"><template #icon><NavigationIcon name="lists" /></template></NcAppNavigationItem>
           <li class="library-navigation-tools">
             <details :open="isInference || reviewActive || isDuplicates">
-              <summary>{{ t('library', 'Review and cleanup') }}<span v-if="reviewCount > 0" class="library-navigation-tools-count">{{ reviewCount }}</span></summary>
+              <summary><NavigationIcon name="chevron" class="library-navigation-disclosure-icon" /><span>{{ t('library', 'Review and cleanup') }}</span><span v-if="reviewCount > 0" class="library-navigation-tools-count">{{ reviewCount }}</span></summary>
               <nav :aria-label="t('library', 'Review and cleanup')">
-                <a :href="reviewUrl" :aria-current="reviewActive ? 'page' : undefined">{{ t('library', 'Review') }}</a>
-                <a :href="`${catalogueRootUrl}?infer=1`" :aria-current="isInference ? 'page' : undefined">{{ t('library', 'Extract metadata') }}</a>
-                <a :href="`${catalogueRootUrl}?duplicates=1`" :aria-current="isDuplicates ? 'page' : undefined">{{ t('library', 'Possible duplicates') }}</a>
-                <a :href="generateUrl('/apps/library/languages')">{{ t('library', 'Review languages') }}</a>
-                <a :href="generateUrl('/apps/library/value-mappings')">{{ t('library', 'Publisher and subject names') }}</a>
+                <a :href="reviewUrl" :aria-current="reviewActive ? 'page' : undefined"><NavigationIcon name="review" /><span>{{ t('library', 'Review') }}</span></a>
+                <a :href="`${catalogueRootUrl}?infer=1`" :aria-current="isInference ? 'page' : undefined"><NavigationIcon name="infer" /><span>{{ t('library', 'Extract metadata') }}</span></a>
+                <a :href="`${catalogueRootUrl}?duplicates=1`" :aria-current="isDuplicates ? 'page' : undefined"><NavigationIcon name="duplicates" /><span>{{ t('library', 'Possible duplicates') }}</span></a>
+                <a :href="generateUrl('/apps/library/languages')"><NavigationIcon name="languages" /><span>{{ t('library', 'Review languages') }}</span></a>
+                <a :href="generateUrl('/apps/library/value-mappings')"><NavigationIcon name="mappings" /><span>{{ t('library', 'Publisher and subject names') }}</span></a>
               </nav>
             </details>
           </li>
@@ -2087,7 +2096,7 @@ async function toggleStar(item, event) {
           </form>
         </section>
         <a class="library-navigation-settings-link" :href="settingsUrl">
-          <span class="library-navigation-settings-icon" aria-hidden="true">⚙</span>
+          <NavigationIcon name="settings" />
           <span>{{ t('library', 'Settings') }}</span>
         </a>
       </template>
@@ -2928,32 +2937,54 @@ async function toggleStar(item, event) {
   }
 }
 
-.library-navigation-group-label {
-  color: var(--color-text-maxcontrast);
-  font-size: 0.75rem;
-  font-weight: 700;
-  list-style: none;
-  margin: 14px 16px 4px;
+@media (max-width: 1024px) {
+  /* A solid panel stays legible above catalogue text in Firefox and dark themes. */
+  #app-navigation-vue { background-color: var(--color-main-background); }
 }
-.library-navigation-tools { list-style: none; margin: 10px 8px; }
+
+.library-navigation-group-label {
+  border-block-start: 1px solid var(--color-border, #ddd);
+  list-style: none;
+  margin: 12px 12px 4px;
+  padding-block-start: 10px;
+}
+.library-navigation-group-label--first { border: 0; margin-block-start: 4px; padding-block-start: 0; }
+.library-navigation-group-label h2 {
+  color: var(--color-text-maxcontrast);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 0;
+}
+.library-navigation-tools { border-block-start: 1px solid var(--color-border, #ddd); list-style: none; margin: 12px 12px 4px; padding-block-start: 4px; }
 .library-navigation-tools > details > summary {
   align-items: center;
   border-radius: var(--border-radius-element, 8px);
+  color: var(--color-text-maxcontrast);
   cursor: pointer;
   display: flex;
+  font-size: 0.8rem;
   font-weight: 700;
-  justify-content: space-between;
-  padding: 9px 12px;
+  gap: 6px;
+  min-height: 44px;
+  padding: 4px 0;
 }
+.library-navigation-tools > details > summary::-webkit-details-marker { display: none; }
 .library-navigation-tools > details > summary:hover,
 .library-navigation-tools > details > summary:focus-visible { background: var(--color-background-hover); }
-.library-navigation-tools nav { display: grid; gap: 2px; padding: 4px 0 4px 10px; }
+.library-navigation-tools > details[open] .library-navigation-disclosure-icon { transform: rotate(90deg); }
+.library-navigation-tools nav { display: grid; gap: 2px; margin-inline: -12px; }
 .library-navigation-tools nav a {
+  align-items: center;
   border-radius: var(--border-radius-element, 8px);
   color: var(--color-main-text);
-  padding: 8px 12px;
+  display: flex;
+  gap: 12px;
+  min-height: 44px;
+  padding: 6px 2px;
   text-decoration: none;
 }
+.library-navigation-tools nav a span { overflow-wrap: anywhere; min-width: 0; }
 .library-navigation-tools nav a:hover,
 .library-navigation-tools nav a:focus-visible { background: var(--color-background-hover); }
 .library-navigation-tools nav a[aria-current="page"] {
@@ -2961,7 +2992,7 @@ async function toggleStar(item, event) {
   border-inline-start: 3px solid var(--color-primary-element);
   font-weight: 700;
 }
-.library-navigation-tools-count { background: var(--color-background-hover); border-radius: 12px; font-size: 0.75rem; padding: 2px 6px; }
+.library-navigation-tools-count { background: var(--color-background-hover); border-radius: 12px; font-size: 0.75rem; margin-inline-start: auto; padding: 2px 6px; }
 .library-navigation-settings-link {
   align-items: center;
   border-radius: var(--border-radius-large);
@@ -2977,11 +3008,6 @@ async function toggleStar(item, event) {
 .library-navigation-settings-link:hover,
 .library-navigation-settings-link:focus-visible {
   background-color: var(--color-background-hover);
-}
-
-.library-navigation-settings-icon {
-  font-size: 20px;
-  line-height: 1;
 }
 
 .library-sidebar-filter-section {
@@ -3100,7 +3126,7 @@ async function toggleStar(item, event) {
 .library-selection-action { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; border-top: 1px solid var(--color-border); padding-top: 12px; margin-top: 12px; }
 .library-selection-action .library-batch-action-card { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; min-width: 0; }
 .library-selection-action .library-batch-action-card label { min-width: 0; }
-.library-navigation-personal-list, .library-navigation-create-list { padding-inline-start: 12px; }
+.library-navigation-personal-list { padding-inline-start: 12px; }
 .library-list-selection-actions > .library-add-to-list { flex: 1 1 auto; }
 
 .library-list-selection p { margin-bottom: 8px; }
@@ -4924,27 +4950,12 @@ async function toggleStar(item, event) {
 }
 
 .library-navigation-create-list {
-  background: color-mix(in srgb, var(--color-primary-element, #0082c9) 12%, var(--color-main-background));
-  border: 1px dashed var(--color-primary-element, #0082c9);
-  border-radius: 10px;
-  margin: 4px 10px 6px;
-  padding-inline-start: 19px;
-  position: relative;
+  background: var(--color-primary-element-light);
+  border-radius: var(--border-radius-element, 8px);
+  margin-block: 4px;
 }
 .library-navigation-create-list:hover,
-.library-navigation-create-list:focus-within {
-  background: color-mix(in srgb, var(--color-primary-element, #0082c9) 20%, var(--color-main-background));
-  border-style: solid;
-}
-.library-navigation-create-list::before {
-  color: var(--color-primary-element, #0082c9);
-  content: '+';
-  font-size: 1.2rem;
-  font-weight: 800;
-  inset-block-start: 7px;
-  inset-inline-start: 10px;
-  pointer-events: none;
-  position: absolute;
-}
+.library-navigation-create-list:focus-within { background: var(--color-background-hover); }
+.library-navigation-create-list .library-navigation-icon { color: var(--color-primary-element); }
 
 </style>
