@@ -30,7 +30,7 @@ def test_playwright_config_defines_reproducible_projects_and_diagnostics():
         assert marker in config
 
 
-def test_gui_catalogue_registers_initial_workflows():
+def test_gui_catalogue_registers_every_discovered_spec():
     catalogue = (ROOT / "tests/gui/catalogue.yaml").read_text(encoding="utf-8")
 
     for marker in (
@@ -61,7 +61,8 @@ def test_gui_catalogue_registers_initial_workflows():
         assert marker in catalogue
 
     files = [line.split(":", 1)[1].strip() for line in catalogue.splitlines() if line.strip().startswith("file:")]
-    assert len(files) == 15
+    discovered = {str(path.relative_to(ROOT)) for path in (ROOT / "tests/gui").rglob("*.spec.ts")}
+    assert set(files) == discovered
     assert len(set(files)) == len(files)
     for relative_path in files:
         assert (ROOT / relative_path).is_file(), relative_path
@@ -142,3 +143,26 @@ def test_disposable_instance_opens_library_after_login():
     landing = script.index('config:system:set defaultapp --value=library')
     assert script.index("echo \"deployed=$instance\"") < landing
     assert landing < script.index("export PW_BASE_URL=%q")
+
+
+def test_gui_has_no_orphaned_visual_baselines_or_conditional_language_pass():
+    specs = "\n".join(path.read_text() for path in (ROOT / "tests/gui").rglob("*.spec.ts"))
+    baselines = list((ROOT / "tests/gui").glob("**/*-snapshots/*.png"))
+    for baseline in baselines:
+        assert baseline.name in specs, f"Unreferenced visual baseline: {baseline}"
+    maintenance = (ROOT / "tests/gui/details/final-ui-consistency.spec.ts").read_text()
+    assert "if (await picker.count())" not in maintenance
+    assert "toHaveValue('de;en')" in maintenance
+    assert "--language-review" in (ROOT / "scripts/smoke-fresh-install-mixed.sh").read_text()
+
+
+def test_historical_browser_replays_fail_before_authentication_or_fixtures():
+    import os
+    import subprocess
+    environment = dict(os.environ)
+    environment.pop("LIBRARY_RUN_HISTORICAL_SMOKE", None)
+    for name in ("smoke-authors.mjs", "smoke-metadata-fields.mjs", "smoke-warning-recovery.mjs", "verify-ux-alpha22.mjs"):
+        result = subprocess.run(["node", str(ROOT / "scripts" / name)], env=environment, capture_output=True, text=True)
+        assert result.returncode != 0, name
+        assert "not a current acceptance gate" in result.stderr, (name, result.stderr)
+        assert "evidence_dir=" not in result.stdout, name

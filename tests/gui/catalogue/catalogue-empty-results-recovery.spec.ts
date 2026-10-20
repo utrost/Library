@@ -10,14 +10,14 @@ test('recovers after a search returns no catalogue results @catalogue @search @e
   const expectedCards = requiredPositiveIntegerEnvironment('PW_TOTAL_CARDS')
   const missingQuery = `pw-guaranteed-missing-${Date.now()}-${Math.random().toString(36).slice(2)}`
   const catalogue = page.locator('#library-catalogue')
-  const filters = page.getByRole('form', { name: 'Catalogue search and filters' })
+  const search = page.locator('.library-catalogue-search')
 
   await page.locator('#library-main-search').fill(missingQuery)
   const emptyResponse = page.waitForResponse((response) => {
     const url = new URL(response.url())
     return url.pathname.endsWith('/apps/library/catalogue') && url.searchParams.get('q') === missingQuery
   })
-  await filters.getByRole('button', { name: 'Apply filters' }).click()
+  await search.getByRole('button', { name: 'Search', exact: true }).click()
   expect((await emptyResponse).ok()).toBeTruthy()
 
   await expect(page).toHaveURL((url) => url.searchParams.get('q') === missingQuery)

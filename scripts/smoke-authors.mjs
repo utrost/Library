@@ -1,3 +1,7 @@
+import { historicalSmoke } from './historical-smoke-guard.mjs'
+historicalSmoke('smoke-authors.mjs')
+// Historical diagnostic: known obsolete UI assumptions; not a current acceptance gate.
+// See docs/playwright-journeys.md#older-standalone-diagnostics before reuse.
 import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'

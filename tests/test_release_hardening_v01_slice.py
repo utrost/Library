@@ -40,6 +40,7 @@ def test_human_test_handbook_is_linked_and_executable():
     assert "docs/human-test-handbook.md" in readme
     assert "current 0.3 human cases" in checklist.lower()
 
+    archive = read("docs/human-test-handbook-v0.1-archive.md")
     for test_id in [
         "LIB-HARDEN-001",
         "LIB-HARDEN-002",
@@ -54,13 +55,13 @@ def test_human_test_handbook_is_linked_and_executable():
         "LIB-HARDEN-011",
         "LIB-HARDEN-012",
     ]:
-        assert f"### {test_id}" in handbook
+        assert f"### {test_id}" in archive
 
     assert "Critical pass criteria" in handbook
     assert "0.1.0-alpha.111" not in handbook
     assert "Publication contents" in handbook
-    assert "creator pages are part of the current discovery surface" in handbook
-    assert "Evidence to capture on failure" in handbook
+    assert "Author directory and profile" in handbook
+    assert "**Failure evidence:**" in handbook
     assert "Result vocabulary" in handbook
     assert "Failure report template" in handbook
 
