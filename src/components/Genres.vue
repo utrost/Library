@@ -28,8 +28,9 @@ async function request(path = '', body = null, signal = undefined) {
   if (!response.ok) throw new Error(response.status === 422 ? t('library', 'Enter a valid genre name.') : t('library', 'The genre change could not be saved.'))
   return response.json()
 }
-async function load() {
-  const [, review] = await Promise.all([directory.value?.reload(), request('/suggestions')])
+async function load() { await Promise.all([directory.value?.reload(), loadReview()]) }
+async function loadReview() {
+  const review = await request('/suggestions')
   suggestions.value = review.suggestions || []
   remaining.value = Number(review.remaining || 0)
   for (const suggestion of suggestions.value) if (!targetNames.value[suggestion.candidate_key]) targetNames.value[suggestion.candidate_key] = suggestion.display_name
@@ -94,7 +95,7 @@ async function applyApproved() {
   } catch (cause) { error.value = cause.message }
   finally { busy.value = false }
 }
-onMounted(async () => { try { const review = await request('/suggestions'); suggestions.value = review.suggestions || []; remaining.value = Number(review.remaining || 0); for (const suggestion of suggestions.value) targetNames.value[suggestion.candidate_key] = suggestion.display_name } catch (cause) { error.value = cause.message } })
+onMounted(() => { loadReview().catch(cause => { error.value = cause.message }) })
 onBeforeUnmount(() => { cancelled = true })
 </script>
 
@@ -103,8 +104,8 @@ onBeforeUnmount(() => { cancelled = true })
     <h1>{{ t('library', 'Genres') }} <LabelHelp :text="t('library', 'Genres are private catalogue labels. Scans suggest names; you decide which ones become genres.')" /></h1>
     <p v-if="error" role="alert">{{ error }}</p><p v-if="feedback" role="status">{{ feedback }}</p>
     <section class="library-genres-card">
-      <h2>{{ t('library', 'My genres') }}</h2>
-      <form @submit.prevent="create"><label>{{ t('library', 'Create a genre') }}<input v-model="name" maxlength="255" autocomplete="off"></label><button type="submit" class="button primary" :disabled="busy || !name.trim()">{{ t('library', 'Create genre') }}</button></form>
+      <details class="genre-create"><summary>{{ t('library', 'Create a genre') }}</summary>
+      <form @submit.prevent="create"><label>{{ t('library', 'Create a genre') }}<input v-model="name" maxlength="255" autocomplete="off"></label><button type="submit" class="button primary" :disabled="busy || !name.trim()">{{ t('library', 'Create genre') }}</button></form></details>
       <DirectoryBrowser ref="directory" kind="genre" collection="genres" :request="request" :catalogue-url="catalogueUrl" :search-label="t('library', 'Find a genre')" :search-help="t('library', 'Type at least 3 letters to search genres.')" :empty-label="t('library', 'No matching genres.')" @loaded="genres = $event.genres" />
     </section>
     <section class="library-genres-card">
@@ -125,7 +126,9 @@ onBeforeUnmount(() => { cancelled = true })
 </template>
 
 <style scoped>
-.library-genres { margin: 24px auto; max-width: 1100px; padding: 0 20px 50px; }
+.library-genres { margin: auto; max-width: 1100px; padding: 48px 20px 24px; }
+.library-genres h1 { font-size: 24px; font-weight: 600; line-height: 1.35; }
+.genre-create summary { cursor: pointer; text-decoration: underline; }
 .library-genres-card { background: var(--color-main-background); border: 1px solid var(--color-border); border-radius: 12px; margin: 20px 0; padding: 20px; }
 .library-genres form, .library-genres-card li { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
 .library-genres-card label { display: grid; gap: 5px; min-width: min(280px, 100%); }

@@ -589,7 +589,6 @@ OC.L10N.register(
         "Move or merge books": "نقل الكتب أو دمج السلاسل",
         "Move up": "تحريك لأعلى",
         "Moved, renamed or reconnected": "نُقل أو أُعيدت تسميته أو أُعيد ربطه",
-        "My genres": "تصنيفاتي",
         "Name to browse under": "اسم العرض",
         "Needs action": "يحتاج إلى إجراء",
         "Needs attention": "بحاجة إلى انتباه",
