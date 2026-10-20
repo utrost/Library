@@ -1,5 +1,19 @@
 # Library human test handbook
 
+## Alpha.34 final consistency acceptance (H03-26)
+
+Candidate **0.3.0-alpha.34**; verification/deployment is in progress. Confirm the installed version before testing. Keep H03-25 and H03-24 regression cases. Use disposable books for persisted changes.
+
+1. **Readable feedback:** inspect scanner errors and failed requests in light and dark themes. Error text and danger labels must remain readable.
+2. **Profile search draft:** on both Authors and Series, type a nonmatching query without Search, switch Covers/List, open a book, then Back. The previous results and the typed draft must return. Repeat reload, browser Back, submitting/clearing the query and pagination.
+3. **Filter keyboards:** in desktop/mobile filters, test Publisher, Publication / periodical, Year, Author, Subject, Classification, Tag and Folder. A visible selected suggestion receives Enter; arrows wrap, Escape closes, pending/error states are explicit and Retry works. An explicit Apply author still accepts a free-text author search.
+4. **Header hit targets:** at 320/390 px, tap the start of Author, Series and List Back links. They must navigate back rather than open navigation. Review filter labels must also be unobscured.
+5. **View controls:** selected Covers/List is visually obvious and keyboard accessible in catalogue and profiles. Mobile Search remains beside its field; Sort and View wrap together without clipped controls.
+6. **Vocabulary:** Publication / periodical is distinct from Series in filters, Details, Quick view, Review and bulk previews. Folder selection uses Shelf.
+7. **Language cleanup:** select German by name, add another language and remove a chip. Only valid selected codes reach the existing mapping form. Ignore remains usable without a selection; bulk scope stays explicit. Do not apply decisions to real library books for this check.
+8. **Page framing:** compare Authors/Series/Genres, maintenance and Review in both themes. Dates remain readable; book-result titles are subordinate to the page title. Mobile maintenance navigation opens as a menu, supports Escape and returns focus to its trigger.
+
+
 ## Alpha.33 follow-up acceptance (H03-25)
 
 Installed on developer NC34: signed **0.3.0-alpha.33**. See the [verified package and deployment record](compatibility-evidence/2026-10-20-nc34-ux-follow-up-alpha33/README.md). Use a disposable account for persisted changes; stage and discard when browsing the real catalogue.

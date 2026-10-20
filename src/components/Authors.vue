@@ -26,7 +26,8 @@ let loadController, loadSequence = 0, auxiliaryLoaded = false
 const showConflicts = new URLSearchParams(location.search).get('authorConflicts') === '1'
 const id = ref(Number(new URLSearchParams(location.search).get('authorId')) || null)
 const viewQuery = new URLSearchParams(location.search)
-const bookSearch = ref((viewQuery.get('bookSearch') || '').slice(0, 255)), bookSort = ref(['title', 'newest', 'series'].includes(viewQuery.get('bookSort')) ? viewQuery.get('bookSort') : 'title'), bookView = ref(viewQuery.get('bookView') === 'list' ? 'list' : 'grid'), bioExpanded = ref(false), photoFailed = ref(false)
+const appliedBookSearch = ref((viewQuery.get('bookSearch') || '').slice(0, 255))
+const bookSearch = ref((viewQuery.get('bookDraft') ?? appliedBookSearch.value).slice(0, 255)), bookSort = ref(['title', 'newest', 'series'].includes(viewQuery.get('bookSort')) ? viewQuery.get('bookSort') : 'title'), bookView = ref(viewQuery.get('bookView') === 'list' ? 'list' : 'grid'), bioExpanded = ref(false), photoFailed = ref(false)
 const photoFile = ref(null), removePhoto = ref(false)
 const draft = reactive({ display_name: '', sort_name: '', given_name: '', family_name: '', biography: '' })
 useUnsavedChanges(() => editing.value && (photoFile.value !== null || removePhoto.value || Object.keys(draft).some(key => draft[key] !== (data.value?.author?.[key] || ''))))
@@ -42,17 +43,22 @@ const bookGroups = computed(() => {
   }
   return Array.from(groups, ([name, books]) => ({ name, books }))
 })
-function bookUrl(book) {
+function collectionUrl() {
   const source = new URL(location.href)
-  for (const [key, value, fallback] of [['bookSearch', bookSearch.value.trim(), ''], ['bookSort', bookSort.value, 'title'], ['bookView', bookView.value, 'grid'], ['bookPage', String(page.value), '1']]) {
+  for (const [key, value, fallback] of [['bookSearch', appliedBookSearch.value, ''], ['bookSort', bookSort.value, 'title'], ['bookView', bookView.value, 'grid'], ['bookPage', String(page.value), '1']]) {
     if (value !== fallback) source.searchParams.set(key, value)
     else source.searchParams.delete(key)
   }
-  return bookDetailsUrl(props.catalogueUrl, book.id, source.href)
+  if (bookSearch.value.trim() !== appliedBookSearch.value) source.searchParams.set('bookDraft', bookSearch.value)
+  else source.searchParams.delete('bookDraft')
+  return source
 }
+function rememberBooks() { window.history.replaceState(window.history.state, '', collectionUrl()) }
+watch([bookSearch, bookView], rememberBooks)
+function bookUrl(book) { return bookDetailsUrl(props.catalogueUrl, book.id, collectionUrl().href) }
 function directoryUrl() {
   const source = new URL(location.href)
-  for (const key of ['authorId', 'bookSearch', 'bookSort', 'bookView', 'bookPage']) source.searchParams.delete(key)
+  for (const key of ['authorId', 'bookSearch', 'bookDraft', 'bookSort', 'bookView', 'bookPage']) source.searchParams.delete(key)
   return source.pathname + source.search
 }
 function choosePhoto(event) { photoFile.value = event.target.files?.[0] || null; if (photoFile.value) removePhoto.value = false }
@@ -77,17 +83,18 @@ async function loadAuxiliary(signal) {
   [history.value, tasks.value] = result
   auxiliaryLoaded = true; scheduleTaskPoll()
 }
-async function load(next = 1) {
+async function load(next = 1, search = appliedBookSearch.value) {
   const sequence = ++loadSequence
   loadController?.abort()
   const controller = new AbortController(); loadController = controller
   busy.value = true; error.value = ''
   try {
     if (!id.value) { await directory.value?.reload(next); if (!auxiliaryLoaded) await loadAuxiliary(); return }
-    const result = await request(`/${id.value}?page=${next}&search=${encodeURIComponent(bookSearch.value.trim())}&sort=${bookSort.value}`, null, controller.signal)
+    const result = await request(`/${id.value}?page=${next}&search=${encodeURIComponent(search)}&sort=${bookSort.value}`, null, controller.signal)
     if (sequence !== loadSequence) return
     data.value = result
-    page.value = next; review.value = null; selected.value = []; photoFailed.value = false
+    appliedBookSearch.value = search
+    page.value = next; rememberBooks(); review.value = null; selected.value = []; photoFailed.value = false
     if (!auxiliaryLoaded) await loadAuxiliary(controller.signal)
   } catch (e) { if (sequence === loadSequence && e.name !== 'AbortError') error.value = e.message }
   finally { if (sequence === loadSequence) busy.value = false }
@@ -317,8 +324,9 @@ onUnmounted(() => { loadController?.abort(); loadSequence++; stopTargetSearch();
       </section>
       <section id="author-books" class="author-catalogue" :aria-label="t('library', 'Books in your library')">
         <h2>{{ t('library', 'Books in your library') }}</h2>
-        <BookCollectionToolbar v-model:search="bookSearch" v-model:sort="bookSort" v-model:view="bookView" :sorts="[{ value: 'title', label: t('library', 'Title') }, { value: 'newest', label: t('library', 'Publication date, newest first') }, { value: 'series', label: t('library', 'Series, then title') }]" :disabled="busy || editing" @apply="load(1)" />
-        <p v-if="bookSearch">{{ n('library', '%n book', '%n books', data.matchingCount) }}</p>
+        <BookCollectionToolbar v-model:search="bookSearch" v-model:sort="bookSort" v-model:view="bookView" :sorts="[{ value: 'title', label: t('library', 'Title') }, { value: 'newest', label: t('library', 'Publication date, newest first') }, { value: 'series', label: t('library', 'Series, then title') }]" :disabled="busy || editing" @apply="load(1, bookSearch.trim())" />
+        <p v-if="bookSearch.trim() !== appliedBookSearch" role="status" class="library-query-draft">{{ t('library', 'Press Search to apply the typed query.') }}</p>
+        <p v-if="appliedBookSearch">{{ n('library', '%n book', '%n books', data.matchingCount) }}</p>
         <p v-if="!data.books.length">{{ t('library', 'No books match this view.') }}</p>
         <section v-for="group in bookGroups" :key="group.name ?? 'all'" class="author-book-group">
           <h3 v-if="group.name !== null">{{ group.name || t('library', 'No series recorded') }}</h3>

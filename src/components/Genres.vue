@@ -107,7 +107,7 @@ onBeforeUnmount(() => { cancelled = true })
   <main class="library-genres">
     <h1>{{ t('library', 'Genres') }} <LabelHelp :text="t('library', 'Genres are private catalogue labels. Scans suggest names; you decide which ones become genres.')" /></h1>
     <OperationStatus :loading="busy || discovering" :error="error" :message="feedback" @retry="load" />
-    <section class="library-genres-card">
+    <section class="library-genres-directory">
       <details class="genre-create"><summary>{{ t('library', 'Create a genre') }}</summary>
       <form @submit.prevent="create"><label>{{ t('library', 'Create a genre') }}<input v-model="name" maxlength="255" autocomplete="off"></label><button type="submit" class="button primary" :disabled="busy || !name.trim()">{{ t('library', 'Create genre') }}</button></form></details>
       <DirectoryBrowser ref="directory" kind="genre" collection="genres" :request="request" :catalogue-url="catalogueUrl" :search-label="t('library', 'Find a genre')" :search-help="t('library', 'Type at least 3 letters to search genres.')" :empty-label="t('library', 'No matching genres.')" @loaded="genres = $event.genres" />

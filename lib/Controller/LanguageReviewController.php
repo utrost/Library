@@ -33,6 +33,7 @@ final class LanguageReviewController extends Controller {
     public function index(): TemplateResponse {
         Util::addStyle('library', 'style');
         \OCP\Util::addStyle('library', 'ui-contract');
+        \OCA\Library\Service\UiAssets::maintenance();
         return new TemplateResponse('library', 'language-review', [
             'review' => $this->review->suggestions($this->uid()),
             'message' => (string)$this->request->getParam('message', ''),

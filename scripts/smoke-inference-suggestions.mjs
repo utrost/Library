@@ -31,7 +31,7 @@ try {
       await page.goto(new URL('/apps/library/?infer=1', base).href)
       const panel = page.locator('.library-inference')
       await expect(panel).toHaveAttribute('aria-busy', 'false', { timeout: 30000 })
-      const rootId = await panel.getByRole('combobox', { name: 'Library root', exact: true }).inputValue()
+      const rootId = await panel.getByRole('combobox', { name: 'Shelf', exact: true }).inputValue()
       const endpoint = `/apps/library/api/inference/sample?rootId=${rootId}`
       const original = await page.evaluate(async url => (await fetch(url)).json(), endpoint)
       assert.ok(original.items.length > 0)
