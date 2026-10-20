@@ -98,7 +98,7 @@ defineExpose({ reload })
 .author-search-unused input { width: 18px; height: 18px; min-height: 18px; flex: none; }
 .directory-rows { list-style: none; padding: 0; }
 .directory-row { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(0, 2fr); gap: 20px; align-items: center; border-bottom: 1px solid var(--color-border); padding-block: 16px; }
-.directory-identity { display: grid; gap: 4px; justify-items: start; min-width: 0; }
+.directory-identity { overflow-wrap: anywhere; display: grid; gap: 4px; justify-items: start; min-width: 0; }
 .directory-name { font-size: 17px; font-weight: bold; }
 .directory-previews { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; min-width: 0; }
 .directory-book { display: flex; gap: 10px; align-items: center; min-width: 0; }

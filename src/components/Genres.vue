@@ -135,5 +135,4 @@ onBeforeUnmount(() => { cancelled = true })
 .library-genres-card input { width: 100%; }
 .library-genres-card ul { list-style: none; padding: 0; }
 .library-genres-card li { border-top: 1px solid var(--color-border); padding: 12px 0; }
-.library-genres-card li strong { min-width: 180px; }
 </style>

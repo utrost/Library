@@ -16901,7 +16901,7 @@ const U$ = ["aria-busy"], j$ = { class: "library-list-inline-actions" }, z$ = ["
       ], 8, YA)) : S("", !0)
     ], 8, EA));
   }
-}, of = /* @__PURE__ */ Ni(XA, [["__scopeId", "data-v-c1a20598"]]), QA = ["aria-busy"], eE = ["href"], tE = { class: "author-profile-header" }, aE = {
+}, of = /* @__PURE__ */ Ni(XA, [["__scopeId", "data-v-cf721294"]]), QA = ["aria-busy"], eE = ["href"], tE = { class: "author-profile-header" }, aE = {
   key: 0,
   class: "author-portrait"
 }, iE = ["src", "alt"], nE = {
@@ -18328,7 +18328,7 @@ const U$ = ["aria-busy"], j$ = { class: "library-list-inline-actions" }, z$ = ["
       ])
     ]));
   }
-}, p4 = /* @__PURE__ */ Ni(h4, [["__scopeId", "data-v-6c7f9ad1"]]);
+}, p4 = /* @__PURE__ */ Ni(h4, [["__scopeId", "data-v-cb0bb04a"]]);
 function $g(e, t, a) {
   const i = /* @__PURE__ */ I({}), r = /* @__PURE__ */ I("idle");
   let s, o, h = 0;
@@ -20785,10 +20785,10 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
       }, null, 8, ["definition", "labels", "statuses", "request-token", "disabled"])
     ], 8, XR));
   }
-}, YI = ["disabled"], ZI = ["title"], JI = { class: "library-star-rating-controls" }, XI = ["title", "onMouseenter"], QI = ["value", "checked", "aria-label", "onChange"], e8 = {
+}, YI = ["disabled"], ZI = ["title"], JI = { class: "library-star-rating-controls" }, XI = ["title", "onMouseenter"], QI = ["value", "checked", "aria-label", "onChange"], eP = {
   class: "library-star-rating-value",
   role: "status"
-}, t8 = ["disabled"], a8 = {
+}, tP = ["disabled"], aP = {
   __name: "StarRating",
   props: {
     modelValue: { type: [Number, String], default: "" },
@@ -20832,20 +20832,20 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
             }, "★", 2)
           ], 40, XI)), 64))
         ], 32),
-        n("span", e8, l(h.value ? u(d)("library", "{count} of 5 stars", { count: s.value }) : u(d)("library", "Not rated")), 1),
+        n("span", eP, l(h.value ? u(d)("library", "{count} of 5 stars", { count: s.value }) : u(d)("library", "Not rated")), 1),
         n("button", {
           type: "button",
           class: "button secondary",
           disabled: e.disabled || !h.value,
           onClick: g[1] || (g[1] = (b) => i("update:modelValue", ""))
-        }, l(u(d)("library", "Clear rating")), 9, t8)
+        }, l(u(d)("library", "Clear rating")), 9, tP)
       ])
     ], 8, YI));
   }
-}, i8 = /* @__PURE__ */ Ni(a8, [["__scopeId", "data-v-027a2641"]]), n8 = { class: "library-metadata-picker" }, r8 = ["for", "title"], l8 = { class: "library-metadata-picker-input" }, s8 = ["id", "aria-controls", "aria-expanded", "aria-activedescendant", "aria-label", "placeholder", "disabled"], o8 = ["disabled"], u8 = ["id", "aria-label"], c8 = ["id", "aria-selected", "onClick"], d8 = {
+}, iP = /* @__PURE__ */ Ni(aP, [["__scopeId", "data-v-027a2641"]]), nP = { class: "library-metadata-picker" }, rP = ["for", "title"], lP = { class: "library-metadata-picker-input" }, sP = ["id", "aria-controls", "aria-expanded", "aria-activedescendant", "aria-label", "placeholder", "disabled"], oP = ["disabled"], uP = ["id", "aria-label"], cP = ["id", "aria-selected", "onClick"], dP = {
   key: 1,
   class: "library-metadata-picker-values"
-}, f8 = { dir: "auto" }, h8 = ["disabled", "aria-label", "onClick"], p8 = {
+}, fP = { dir: "auto" }, hP = ["disabled", "aria-label", "onClick"], pP = {
   __name: "MetadataValuePicker",
   props: {
     modelValue: { type: String, default: "" },
@@ -20959,12 +20959,12 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
       }, 200));
     }), Vt(() => {
       clearTimeout(Y), re?.abort();
-    }), (U, G) => (c(), f("div", n8, [
+    }), (U, G) => (c(), f("div", nP, [
       n("label", {
         for: `${u(h)}-input`,
         title: b.value ? u(d)("library", "Choose one or more language codes.") : u(d)("library", "Existing subjects are suggested as you type. You can add a new subject.")
-      }, l(y.value), 9, r8),
-      n("div", l8, [
+      }, l(y.value), 9, rP),
+      n("div", lP, [
         be(n("input", {
           id: `${u(h)}-input`,
           "onUpdate:modelValue": G[0] || (G[0] = (R) => r.value = R),
@@ -20982,7 +20982,7 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
           onInput: G[2] || (G[2] = (R) => s.value = !0),
           onBlur: G[3] || (G[3] = (R) => s.value = !1),
           onKeydown: B
-        }, null, 40, s8), [
+        }, null, 40, sP), [
           [ze, r.value]
         ]),
         n("button", {
@@ -20990,7 +20990,7 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
           class: "button secondary",
           disabled: e.disabled || !z.value,
           onClick: G[4] || (G[4] = (R) => A())
-        }, l(m.value), 9, o8)
+        }, l(m.value), 9, oP)
       ]),
       s.value && H.value.length ? (c(), f("ul", {
         key: 0,
@@ -21007,35 +21007,35 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
           onMousedown: G[5] || (G[5] = Re(() => {
           }, ["prevent"])),
           onClick: (ie) => A(R)
-        }, l(P(R)), 41, c8))), 128))
-      ], 8, u8)) : S("", !0),
-      g.value.length ? (c(), f("div", d8, [
+        }, l(P(R)), 41, cP))), 128))
+      ], 8, uP)) : S("", !0),
+      g.value.length ? (c(), f("div", dP, [
         (c(!0), f(K, null, ue(g.value, (R) => (c(), f("span", {
           key: R,
           class: "library-metadata-picker-chip"
         }, [
-          n("bdi", f8, l(P(R)), 1),
+          n("bdi", fP, l(P(R)), 1),
           n("button", {
             type: "button",
             disabled: e.disabled,
             "aria-label": `${u(d)("library", "Remove")}: ${R}`,
             onClick: (F) => M(R)
-          }, "×", 8, h8)
+          }, "×", 8, hP)
         ]))), 128))
       ])) : S("", !0)
     ]));
   }
-}, Kp = /* @__PURE__ */ Ni(p8, [["__scopeId", "data-v-3d58a3b2"]]), v8 = ["disabled", "aria-label", "aria-describedby"], b8 = {
+}, Kp = /* @__PURE__ */ Ni(pP, [["__scopeId", "data-v-3d58a3b2"]]), vP = ["disabled", "aria-label", "aria-describedby"], bP = {
   key: 0,
   viewBox: "0 0 24 24",
   fill: "none",
   "aria-hidden": "true"
-}, g8 = {
+}, gP = {
   key: 1,
   viewBox: "0 0 24 24",
   fill: "none",
   "aria-hidden": "true"
-}, y8 = ["id"], m8 = {
+}, yP = ["id"], mP = {
   __name: "IdentityAction",
   props: { label: { type: String, required: !0 }, icon: { type: String, default: "remove" }, disabled: Boolean },
   emits: ["click"],
@@ -21068,7 +21068,7 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
         onBlur: h,
         onKeydown: mt(h, ["esc"])
       }, [
-        e.icon === "edit" ? (c(), f("svg", b8, [...b[2] || (b[2] = [
+        e.icon === "edit" ? (c(), f("svg", bP, [...b[2] || (b[2] = [
           n("path", {
             d: "m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15v5Z",
             stroke: "currentColor",
@@ -21076,7 +21076,7 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
             "stroke-linecap": "round",
             "stroke-linejoin": "round"
           }, null, -1)
-        ])])) : (c(), f("svg", g8, [...b[3] || (b[3] = [
+        ])])) : (c(), f("svg", gP, [...b[3] || (b[3] = [
           n("path", {
             d: "m6 6 12 12M18 6 6 18",
             stroke: "currentColor",
@@ -21084,7 +21084,7 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
             "stroke-linecap": "round"
           }, null, -1)
         ])]))
-      ], 40, v8),
+      ], 40, vP),
       (c(), He(Su, { to: "body" }, [
         r.value ? (c(), f("span", {
           key: 0,
@@ -21094,24 +21094,24 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
           class: "library-identity-action-tooltip",
           role: "tooltip",
           style: ka(s.value)
-        }, l(e.label), 13, y8)) : S("", !0)
+        }, l(e.label), 13, yP)) : S("", !0)
       ]))
     ], 64));
   }
-}, Pl = /* @__PURE__ */ Ni(m8, [["__scopeId", "data-v-7b4d1065"]]), _8 = {
+}, Pl = /* @__PURE__ */ Ni(mP, [["__scopeId", "data-v-7b4d1065"]]), _P = {
   class: "library-identity-row library-genre-picker",
   "aria-labelledby": "library-details-genres-heading"
-}, w8 = { id: "library-details-genres-heading" }, k8 = { class: "library-identity-content" }, S8 = {
+}, wP = { id: "library-details-genres-heading" }, kP = { class: "library-identity-content" }, SP = {
   key: 0,
   role: "alert"
-}, C8 = { class: "library-identity-values" }, $8 = ["href"], T8 = { class: "library-genre-input" }, A8 = { class: "library-genre-search-control" }, E8 = {
+}, CP = { class: "library-identity-values" }, $P = ["href"], TP = { class: "library-genre-input" }, AP = { class: "library-genre-search-control" }, EP = {
   class: "library-genre-search-label",
   for: "library-details-genre-search"
-}, x8 = ["aria-expanded", "aria-activedescendant", "placeholder", "title", "disabled"], N8 = {
+}, xP = ["aria-expanded", "aria-activedescendant", "placeholder", "title", "disabled"], NP = {
   key: 0,
   id: "library-details-genre-suggestions",
   role: "listbox"
-}, O8 = ["id", "aria-selected"], R8 = ["onClick"], I8 = ["disabled"], P8 = ["href"], L8 = {
+}, OP = ["id", "aria-selected"], RP = ["onClick"], IP = ["disabled"], PP = ["href"], LP = {
   __name: "GenrePicker",
   props: { itemId: { type: Number, required: !0 }, genres: { type: Array, default: () => [] }, requestToken: { type: String, required: !0 }, disabled: { type: Boolean, default: !1 }, catalogueUrl: { type: String, required: !0 }, draftMode: { type: Boolean, default: !1 } },
   emits: ["changed", "update:genres"],
@@ -21181,27 +21181,27 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
     }
     return Vt(() => {
       clearTimeout(m), k?.abort();
-    }), (L, N) => (c(), f("section", _8, [
-      n("h2", w8, l(u(d)("library", "Genres")), 1),
-      n("div", k8, [
-        p.value ? (c(), f("p", S8, l(p.value), 1)) : S("", !0),
-        n("div", C8, [
+    }), (L, N) => (c(), f("section", _P, [
+      n("h2", wP, l(u(d)("library", "Genres")), 1),
+      n("div", kP, [
+        p.value ? (c(), f("p", SP, l(p.value), 1)) : S("", !0),
+        n("div", CP, [
           (c(!0), f(K, null, ue(e.genres, (z) => (c(), f("span", {
             key: z.id,
             class: "library-genre-chip"
           }, [
             n("a", {
               href: `${e.catalogueUrl}?genreId=${z.id}`
-            }, l(z.name), 9, $8),
+            }, l(z.name), 9, $P),
             pe(Pl, {
               disabled: h.value || e.disabled,
               label: `${u(d)("library", "Remove genre")}: ${z.name}`,
               onClick: (H) => x(z, "remove")
             }, null, 8, ["disabled", "label", "onClick"])
           ]))), 128)),
-          n("div", T8, [
-            n("div", A8, [
-              n("label", E8, l(u(d)("library", "Add a genre")), 1),
+          n("div", TP, [
+            n("div", AP, [
+              n("label", EP, l(u(d)("library", "Add a genre")), 1),
               be(n("input", {
                 id: "library-details-genre-search",
                 "onUpdate:modelValue": N[0] || (N[0] = (z) => s.value = z),
@@ -21219,10 +21219,10 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
                 onInput: N[2] || (N[2] = (z) => g.value = !0),
                 onBlur: N[3] || (N[3] = (z) => g.value = !1),
                 onKeydown: D
-              }, null, 40, x8), [
+              }, null, 40, xP), [
                 [ze, s.value]
               ]),
-              g.value && o.value.length ? (c(), f("ul", N8, [
+              g.value && o.value.length ? (c(), f("ul", NP, [
                 (c(!0), f(K, null, ue(o.value, (z, H) => (c(), f("li", {
                   id: `library-details-genre-option-${z.id}`,
                   key: z.id,
@@ -21235,8 +21235,8 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
                     onMousedown: N[4] || (N[4] = Re(() => {
                     }, ["prevent"])),
                     onClick: (A) => x(z)
-                  }, l(z.display_name), 43, R8)
-                ], 8, O8))), 128))
+                  }, l(z.display_name), 43, RP)
+                ], 8, OP))), 128))
               ])) : S("", !0)
             ]),
             s.value.trim() ? (c(), f("button", {
@@ -21245,17 +21245,17 @@ const GR = { class: "library-inference-suggestions" }, KR = ["disabled"], WR = {
               class: "button secondary",
               disabled: h.value || e.disabled,
               onClick: P
-            }, l(u(d)("library", "Create and add genre")), 9, I8)) : S("", !0)
+            }, l(u(d)("library", "Create and add genre")), 9, IP)) : S("", !0)
           ])
         ]),
         n("a", {
           class: "library-genre-review",
           href: `${e.catalogueUrl}?genres=1`
-        }, l(u(d)("library", "Review genre suggestions")), 9, P8)
+        }, l(u(d)("library", "Review genre suggestions")), 9, PP)
       ])
     ]));
   }
-}, D8 = /* @__PURE__ */ Ni(L8, [["__scopeId", "data-v-52a18247"]]);
+}, DP = /* @__PURE__ */ Ni(LP, [["__scopeId", "data-v-52a18247"]]);
 function Wp(e, t = "en", a = !1) {
   if (e == null || e === "") return "—";
   const i = Number(e);
@@ -21263,47 +21263,47 @@ function Wp(e, t = "en", a = !1) {
   const r = ["byte", "kilobyte", "megabyte", "gigabyte", "terabyte"], s = a || i < 1e3 ? 0 : Math.min(4, Math.floor(Math.log10(i) / 3));
   return new Intl.NumberFormat(t, { style: "unit", unit: r[s], maximumFractionDigits: s ? 2 : 0 }).format(i / 1e3 ** s);
 }
-const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
+const FP = { class: "library-full-details" }, MP = ["href"], UP = {
   key: 0,
   role: "alert",
   class: "library-full-details-error"
-}, j8 = {
+}, jP = {
   key: 1,
   role: "status"
-}, z8 = {
+}, zP = {
   key: 2,
   role: "alert",
   class: "library-full-details-error"
-}, B8 = {
+}, BP = {
   key: 3,
   role: "status",
   class: "library-full-details-feedback"
-}, V8 = { class: "library-full-details-hero" }, H8 = { class: "library-full-details-cover-frame" }, q8 = ["src"], G8 = { class: "library-full-details-cover-tools" }, K8 = ["disabled", "title", "aria-label"], W8 = ["disabled", "title", "aria-label"], Y8 = { class: "library-full-details-cover-actions" }, Z8 = ["disabled"], J8 = ["disabled"], X8 = ["aria-label"], Q8 = {
+}, VP = { class: "library-full-details-hero" }, HP = { class: "library-full-details-cover-frame" }, qP = ["src"], GP = { class: "library-full-details-cover-tools" }, KP = ["disabled", "title", "aria-label"], WP = ["disabled", "title", "aria-label"], YP = { class: "library-full-details-cover-actions" }, ZP = ["disabled"], JP = ["disabled"], XP = ["aria-label"], QP = {
   key: 0,
   class: "library-cover-paste-guide",
   role: "status"
-}, eP = { class: "library-full-details-summary" }, tP = { class: "library-muted" }, aP = { dir: "auto" }, iP = { key: 0 }, nP = { dir: "auto" }, rP = {
+}, e8 = { class: "library-full-details-summary" }, t8 = { class: "library-muted" }, a8 = { dir: "auto" }, i8 = { key: 0 }, n8 = { dir: "auto" }, r8 = {
   key: 1,
   class: "library-full-details-links"
-}, lP = ["href"], sP = {
+}, l8 = ["href"], s8 = {
   key: 2,
   class: "library-full-details-links"
-}, oP = ["href"], uP = { key: 0 }, cP = { class: "library-full-details-actions" }, dP = ["href"], fP = ["href"], hP = ["href"], pP = { class: "library-full-details-personal" }, vP = ["aria-pressed", "disabled"], bP = ["value", "disabled"], gP = ["value"], yP = ["aria-label"], mP = { role: "status" }, _P = { class: "library-full-details-savebar-actions" }, wP = ["disabled"], kP = ["disabled"], SP = { class: "library-full-details-columns" }, CP = { class: "library-full-details-main" }, $P = {
+}, o8 = ["href"], u8 = { key: 0 }, c8 = { class: "library-full-details-actions" }, d8 = ["href"], f8 = ["href"], h8 = ["href"], p8 = { class: "library-full-details-personal" }, v8 = ["aria-pressed", "disabled"], b8 = ["value", "disabled"], g8 = ["value"], y8 = ["aria-label"], m8 = { role: "status" }, _8 = { class: "library-full-details-savebar-actions" }, w8 = ["disabled"], k8 = ["disabled"], S8 = { class: "library-full-details-columns" }, C8 = { class: "library-full-details-main" }, $8 = {
   class: "library-full-details-card",
   "aria-labelledby": "library-full-details-metadata"
-}, TP = { id: "library-full-details-metadata" }, AP = { class: "library-full-details-fields" }, EP = ["value"], xP = ["title"], NP = ["title"], OP = { id: "library-details-publisher-suggestions" }, RP = ["value"], IP = ["title"], PP = { class: "library-full-details-wide" }, LP = ["onUpdate:modelValue", "aria-label"], DP = { value: "isbn" }, FP = { value: "issn" }, MP = ["onUpdate:modelValue", "aria-label"], UP = {
+}, T8 = { id: "library-full-details-metadata" }, A8 = { class: "library-full-details-fields" }, E8 = ["value"], x8 = ["title"], N8 = ["title"], O8 = { id: "library-details-publisher-suggestions" }, R8 = ["value"], I8 = ["title"], P8 = { class: "library-full-details-wide" }, L8 = ["onUpdate:modelValue", "aria-label"], D8 = { value: "isbn" }, F8 = { value: "issn" }, M8 = ["onUpdate:modelValue", "aria-label"], U8 = {
   key: 0,
   role: "status"
-}, jP = ["aria-label", "onClick"], zP = { class: "library-full-details-card library-identity-panel" }, BP = {
+}, j8 = ["aria-label", "onClick"], z8 = { class: "library-full-details-card library-identity-panel" }, B8 = {
   class: "library-identity-row",
   "aria-labelledby": "library-full-details-authors-heading"
-}, VP = { id: "library-full-details-authors-heading" }, HP = { class: "library-identity-content" }, qP = { class: "library-identity-values" }, GP = ["href"], KP = { dir: "auto" }, WP = { class: "library-identity-controls" }, YP = { key: 0 }, ZP = ["href"], JP = {
+}, V8 = { id: "library-full-details-authors-heading" }, H8 = { class: "library-identity-content" }, q8 = { class: "library-identity-values" }, G8 = ["href"], K8 = { dir: "auto" }, W8 = { class: "library-identity-controls" }, Y8 = { key: 0 }, Z8 = ["href"], J8 = {
   key: 1,
   class: "library-muted"
-}, XP = {
+}, X8 = {
   key: 1,
   class: "library-muted"
-}, QP = ["disabled"], eL = {
+}, Q8 = ["disabled"], eL = {
   key: 0,
   class: "library-full-details-author-picker"
 }, tL = { key: 0 }, aL = { class: "library-full-details-author-search" }, iL = ["title"], nL = ["aria-expanded", "aria-activedescendant", "placeholder", "disabled"], rL = {
@@ -21825,14 +21825,14 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
       window.addEventListener("beforeunload", gi), Wt();
     }), Vt(() => {
       window.removeEventListener("beforeunload", gi), clearTimeout(p), g?.abort(), clearTimeout(R), F?.abort(), clearTimeout(je), Ae?.abort();
-    }), (Q, te) => (c(), f("main", F8, [
+    }), (Q, te) => (c(), f("main", FP, [
       n("a", {
         href: J.value.url,
         class: "library-full-details-back"
-      }, "← " + l(J.value.hasSource ? u(d)("library", "Back to results") : u(d)("library", "All publications")), 9, M8),
-      dt ? (c(), f("p", U8, l(u(d)("library", "The source file could not be opened. Check the file in Nextcloud Files or rescan this root.")), 1)) : S("", !0),
-      b.value ? (c(), f("p", j8, l(u(d)("library", "Loading publication details…")), 1)) : S("", !0),
-      m.value ? (c(), f("p", z8, [
+      }, "← " + l(J.value.hasSource ? u(d)("library", "Back to results") : u(d)("library", "All publications")), 9, MP),
+      dt ? (c(), f("p", UP, l(u(d)("library", "The source file could not be opened. Check the file in Nextcloud Files or rescan this root.")), 1)) : S("", !0),
+      b.value ? (c(), f("p", jP, l(u(d)("library", "Loading publication details…")), 1)) : S("", !0),
+      m.value ? (c(), f("p", zP, [
         X(l(m.value) + " ", 1),
         a.value ? S("", !0) : (c(), f("button", {
           key: 0,
@@ -21841,19 +21841,19 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
           onClick: Wt
         }, l(u(d)("library", "Retry")), 1))
       ])) : S("", !0),
-      k.value ? (c(), f("p", B8, l(k.value), 1)) : S("", !0),
+      k.value ? (c(), f("p", BP, l(k.value), 1)) : S("", !0),
       a.value && i.value ? (c(), f(K, { key: 4 }, [
-        n("header", V8, [
+        n("header", VP, [
           n("div", {
             class: "library-full-details-cover",
             onPaste: ai
           }, [
-            n("div", H8, [
+            n("div", HP, [
               n("img", {
                 src: `${a.value.coverUrl}${a.value.coverUrl.includes("?") ? "&" : "?"}view=${D.value}${L.value ? "&refresh=1" : ""}`,
                 alt: ""
-              }, null, 8, q8),
-              n("div", G8, [
+              }, null, 8, qP),
+              n("div", GP, [
                 a.value.hasManualCover ? (c(), f("button", {
                   key: 0,
                   type: "button",
@@ -21875,7 +21875,7 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                       "stroke-linejoin": "round"
                     })
                   ], -1)
-                ])], 8, K8)) : S("", !0),
+                ])], 8, KP)) : S("", !0),
                 n("button", {
                   type: "button",
                   disabled: y.value,
@@ -21896,9 +21896,9 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                       "stroke-linejoin": "round"
                     })
                   ], -1)
-                ])], 8, W8)
+                ])], 8, WP)
               ]),
-              n("div", Y8, [
+              n("div", YP, [
                 n("button", {
                   type: "button",
                   class: "library-cover-primary-action",
@@ -21907,13 +21907,13 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                 }, [
                   te[31] || (te[31] = n("span", { "aria-hidden": "true" }, "✎", -1)),
                   X(" " + l(u(d)("library", "Replace cover")), 1)
-                ], 8, Z8),
+                ], 8, ZP),
                 n("button", {
                   type: "button",
                   class: "library-cover-paste-action",
                   disabled: y.value,
                   onClick: ti
-                }, l(u(d)("library", "Paste image")), 9, J8)
+                }, l(u(d)("library", "Paste image")), 9, JP)
               ])
             ]),
             n("input", {
@@ -21925,57 +21925,57 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
               accept: "image/jpeg,image/png,image/webp",
               "aria-label": u(d)("library", "Replace cover"),
               onChange: mr
-            }, null, 40, X8),
-            N.value ? (c(), f("p", Q8, l(N.value), 1)) : S("", !0)
+            }, null, 40, XP),
+            N.value ? (c(), f("p", QP, l(N.value), 1)) : S("", !0)
           ], 32),
-          n("div", eP, [
-            n("p", tP, l(a.value.publicationType || u(d)("library", "Publication")) + " · " + l((a.value.extension || "").toUpperCase()), 1),
+          n("div", e8, [
+            n("p", t8, l(a.value.publicationType || u(d)("library", "Publication")) + " · " + l((a.value.extension || "").toUpperCase()), 1),
             n("h1", null, [
-              n("bdi", aP, l(a.value.title || u(d)("library", "Untitled publication")), 1)
+              n("bdi", a8, l(a.value.title || u(d)("library", "Untitled publication")), 1)
             ]),
-            a.value.canonicalAuthors?.length ? S("", !0) : (c(), f("p", iP, [
-              n("bdi", nP, l(a.value.creators), 1)
+            a.value.canonicalAuthors?.length ? S("", !0) : (c(), f("p", i8, [
+              n("bdi", n8, l(a.value.creators), 1)
             ])),
-            a.value.canonicalAuthors?.length ? (c(), f("p", rP, [
+            a.value.canonicalAuthors?.length ? (c(), f("p", r8, [
               (c(!0), f(K, null, ue(a.value.canonicalAuthors, (ee) => (c(), f("a", {
                 key: ee.id,
                 href: `${e.catalogueUrl}?authors=1&authorId=${ee.id}`
-              }, l(ee.name), 9, lP))), 128))
+              }, l(ee.name), 9, l8))), 128))
             ])) : S("", !0),
-            a.value.canonicalSeries?.length ? (c(), f("p", sP, [
+            a.value.canonicalSeries?.length ? (c(), f("p", s8, [
               (c(!0), f(K, null, ue(a.value.canonicalSeries, (ee) => (c(), f("a", {
                 key: ee.id,
                 href: `${e.catalogueUrl}?series=1&seriesId=${ee.id}`
               }, [
                 X(l(ee.name), 1),
-                ee.part ? (c(), f("span", uP, " · " + l(ee.part), 1)) : S("", !0)
-              ], 8, oP))), 128))
+                ee.part ? (c(), f("span", u8, " · " + l(ee.part), 1)) : S("", !0)
+              ], 8, o8))), 128))
             ])) : S("", !0),
-            n("div", cP, [
+            n("div", c8, [
               n("a", {
                 class: "button primary",
                 href: a.value.openUrl,
                 target: "_blank",
                 rel: "noopener",
                 onClick: Pi
-              }, l(u(d)("library", "Open")), 9, dP),
+              }, l(u(d)("library", "Open")), 9, d8),
               n("a", {
                 class: "button secondary",
                 href: a.value.filesUrl
-              }, l(u(d)("library", "Show in Files")), 9, fP),
+              }, l(u(d)("library", "Show in Files")), 9, f8),
               n("a", {
                 class: "button secondary",
                 href: a.value.downloadUrl
-              }, l(u(d)("library", "Download source")), 9, hP)
+              }, l(u(d)("library", "Download source")), 9, h8)
             ]),
-            n("div", pP, [
+            n("div", p8, [
               n("button", {
                 type: "button",
                 class: "button secondary",
                 "aria-pressed": !!a.value.starred,
                 disabled: y.value,
                 onClick: te[2] || (te[2] = (ee) => Ft(i.value.actions.star, { starred: a.value.starred ? "0" : "1" }))
-              }, l(a.value.starred ? "★" : "☆") + " " + l(u(d)("library", "Favorite")), 9, vP),
+              }, l(a.value.starred ? "★" : "☆") + " " + l(u(d)("library", "Favorite")), 9, v8),
               n("label", null, [
                 X(l(u(d)("library", "Workflow status")) + " ", 1),
                 n("select", {
@@ -21986,8 +21986,8 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                   (c(), f(K, null, ue(W, (ee) => n("option", {
                     key: ee.value,
                     value: ee.value
-                  }, l(ee.label), 9, gP)), 64))
-                ], 40, bP)
+                  }, l(ee.label), 9, g8)), 64))
+                ], 40, b8)
               ])
             ]),
             pe(ou, {
@@ -22003,31 +22003,31 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
           role: "group",
           "aria-label": u(d)("library", "Book changes")
         }, [
-          n("span", mP, l(u(d)("library", "Unsaved book changes")), 1),
-          n("div", _P, [
+          n("span", m8, l(u(d)("library", "Unsaved book changes")), 1),
+          n("div", _8, [
             n("button", {
               type: "button",
               class: "button secondary",
               disabled: y.value,
               onClick: ei
-            }, l(u(d)("library", "Discard changes")), 9, wP),
+            }, l(u(d)("library", "Discard changes")), 9, w8),
             n("button", {
               type: "submit",
               form: "library-full-details-metadata-form",
               class: "button primary",
               disabled: y.value
-            }, l(y.value ? u(d)("library", "Saving…") : u(d)("library", "Save book details")), 9, kP)
+            }, l(y.value ? u(d)("library", "Saving…") : u(d)("library", "Save book details")), 9, k8)
           ])
-        ], 8, yP)) : S("", !0),
-        n("div", SP, [
-          n("div", CP, [
-            n("section", $P, [
-              n("h2", TP, l(u(d)("library", "Book details")), 1),
+        ], 8, y8)) : S("", !0),
+        n("div", S8, [
+          n("div", C8, [
+            n("section", $8, [
+              n("h2", T8, l(u(d)("library", "Book details")), 1),
               n("form", {
                 id: "library-full-details-metadata-form",
                 onSubmit: Re(vn, ["prevent"])
               }, [
-                n("div", AP, [
+                n("div", A8, [
                   n("label", null, [
                     X(l(u(d)("library", "Title")), 1),
                     be(n("input", {
@@ -22053,7 +22053,7 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                       (c(), f(K, null, ue(le, (ee) => n("option", {
                         key: ee.value,
                         value: ee.value
-                      }, l(ee.label), 9, EP)), 64))
+                      }, l(ee.label), 9, E8)), 64))
                     ], 512), [
                       [ut, o.publicationType]
                     ])
@@ -22075,7 +22075,7 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                     }, null, 512), [
                       [ze, o.publicationDate]
                     ])
-                  ], 8, xP),
+                  ], 8, x8),
                   n("label", {
                     title: u(d)("library", "Search publishers")
                   }, [
@@ -22087,13 +22087,13 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                     }, null, 512), [
                       [ze, o.publisher]
                     ]),
-                    n("datalist", OP, [
+                    n("datalist", O8, [
                       (c(!0), f(K, null, ue(h.value, (ee) => (c(), f("option", {
                         key: ee,
                         value: ee
-                      }, null, 8, RP))), 128))
+                      }, null, 8, R8))), 128))
                     ])
-                  ], 8, NP),
+                  ], 8, N8),
                   pe(Kp, {
                     modelValue: o.language,
                     "onUpdate:modelValue": te[10] || (te[10] = (ee) => o.language = ee),
@@ -22116,13 +22116,13 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                     }, null, 512), [
                       [ze, o.classifications]
                     ])
-                  ], 8, IP),
-                  pe(i8, {
+                  ], 8, I8),
+                  pe(iP, {
                     "model-value": o.personalRating,
                     disabled: y.value,
                     "onUpdate:modelValue": te[13] || (te[13] = (ee) => o.personalRating = ee)
                   }, null, 8, ["model-value", "disabled"]),
-                  n("label", PP, [
+                  n("label", P8, [
                     X(l(u(d)("library", "Description")), 1),
                     be(n("textarea", {
                       "onUpdate:modelValue": te[14] || (te[14] = (ee) => o.description = ee),
@@ -22142,24 +22142,24 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                       "onUpdate:modelValue": (We) => ee.scheme = We,
                       "aria-label": u(d)("library", "Scheme")
                     }, [
-                      n("option", DP, l(u(d)("library", "ISBN")), 1),
-                      n("option", FP, l(u(d)("library", "ISSN")), 1)
-                    ], 8, LP), [
+                      n("option", D8, l(u(d)("library", "ISBN")), 1),
+                      n("option", F8, l(u(d)("library", "ISSN")), 1)
+                    ], 8, L8), [
                       [ut, ee.scheme]
                     ]),
                     be(n("input", {
                       "onUpdate:modelValue": (We) => ee.displayValue = We,
                       "aria-label": u(d)("library", "Identifier value")
-                    }, null, 8, MP), [
+                    }, null, 8, M8), [
                       [ze, ee.displayValue]
                     ]),
-                    ee.displayValue && ee.valid === !1 && ee.scheme === ee.originalScheme && ee.displayValue === ee.originalDisplayValue ? (c(), f("span", UP, l(u(d)("library", "Invalid identifier checksum")), 1)) : S("", !0),
+                    ee.displayValue && ee.valid === !1 && ee.scheme === ee.originalScheme && ee.displayValue === ee.originalDisplayValue ? (c(), f("span", U8, l(u(d)("library", "Invalid identifier checksum")), 1)) : S("", !0),
                     n("button", {
                       type: "button",
                       class: "button secondary",
                       "aria-label": u(d)("library", "Remove identifier"),
                       onClick: (We) => o.identifiers.splice(xe, 1)
-                    }, "×", 8, jP)
+                    }, "×", 8, j8)
                   ]))), 128)),
                   n("button", {
                     type: "button",
@@ -22169,11 +22169,11 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                 ])
               ], 32)
             ]),
-            n("div", zP, [
-              n("section", BP, [
-                n("h2", VP, l(u(d)("library", "Authors")), 1),
-                n("div", HP, [
-                  n("div", qP, [
+            n("div", z8, [
+              n("section", B8, [
+                n("h2", V8, l(u(d)("library", "Authors")), 1),
+                n("div", H8, [
+                  n("div", q8, [
                     o.authorLinks?.length ? (c(), f(K, { key: 0 }, [
                       (c(!0), f(K, null, ue(o.authorLinks, (ee) => (c(), f("div", {
                         key: ee.id,
@@ -22182,9 +22182,9 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                         n("a", {
                           href: `${e.catalogueUrl}?authors=1&authorId=${ee.id}`
                         }, [
-                          n("bdi", KP, l(ee.name), 1)
-                        ], 8, GP),
-                        n("span", WP, [
+                          n("bdi", K8, l(ee.name), 1)
+                        ], 8, G8),
+                        n("span", W8, [
                           a.value.authorSyncStatus === 0 ? (c(), He(Pl, {
                             key: 0,
                             icon: "edit",
@@ -22200,19 +22200,19 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                           }, null, 8, ["disabled", "label", "onClick"])) : S("", !0)
                         ])
                       ]))), 128)),
-                      a.value.authorSyncStatus === 2 ? (c(), f("p", YP, [
+                      a.value.authorSyncStatus === 2 ? (c(), f("p", Y8, [
                         n("a", {
                           href: `${e.catalogueUrl}?authors=1&authorConflicts=1`
-                        }, l(u(d)("library", "Review imported author changes")), 9, ZP)
-                      ])) : a.value.authorSyncStatus !== 0 ? (c(), f("p", JP, l(u(d)("library", "Author migration must finish before editing. Refresh to check progress.")), 1)) : S("", !0)
-                    ], 64)) : (c(), f("p", XP, l(u(d)("library", "No authors assigned yet.")), 1)),
+                        }, l(u(d)("library", "Review imported author changes")), 9, Z8)
+                      ])) : a.value.authorSyncStatus !== 0 ? (c(), f("p", J8, l(u(d)("library", "Author migration must finish before editing. Refresh to check progress.")), 1)) : S("", !0)
+                    ], 64)) : (c(), f("p", X8, l(u(d)("library", "No authors assigned yet.")), 1)),
                     a.value.authorSyncStatus === 0 && !z.value ? (c(), f("button", {
                       key: 2,
                       type: "button",
                       class: "button secondary",
                       disabled: y.value,
                       onClick: te[16] || (te[16] = (ee) => Lt({ id: 0, name: "" }))
-                    }, l(u(d)("library", "Add author")), 9, QP)) : S("", !0)
+                    }, l(u(d)("library", "Add author")), 9, Q8)) : S("", !0)
                   ]),
                   z.value ? (c(), f("div", eL, [
                     z.value.id ? (c(), f("p", tL, l(u(d)("library", "Replace {author} for this publication", { author: z.value.name })), 1)) : S("", !0),
@@ -22396,7 +22396,7 @@ const F8 = { class: "library-full-details" }, M8 = ["href"], U8 = {
                   ])) : S("", !0)
                 ])
               ]),
-              pe(D8, {
+              pe(DP, {
                 class: "library-full-details-genres",
                 "item-id": Number(O.value),
                 genres: o.genres || [],
