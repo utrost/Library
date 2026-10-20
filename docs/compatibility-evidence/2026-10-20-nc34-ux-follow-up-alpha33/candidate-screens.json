@@ -1,0 +1,89 @@
+{
+  "kind": "candidate assets over alpha.32 API (not installed-package smoke)",
+  "version": "0.3.0-alpha.33",
+  "captures": 16,
+  "pageErrors": [],
+  "blockedMutationAttempts": [],
+  "screens": [
+    {
+      "label": "catalogue-1440-light",
+      "overflow": 0,
+      "firstCoverY": 347.640625
+    },
+    {
+      "label": "home-1440-light",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "authors-1440-light",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "settings-1440-light",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "settings-1440-light-middle",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "settings-1440-light-bottom",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "catalogue-390-light",
+      "overflow": 0,
+      "firstCoverY": 374.140625
+    },
+    {
+      "label": "home-390-light",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "authors-390-light",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "settings-390-light",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "settings-390-light-middle",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "settings-390-light-bottom",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "catalogue-390-dark",
+      "overflow": 0,
+      "firstCoverY": 374.140625
+    },
+    {
+      "label": "home-390-dark",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "authors-390-dark",
+      "overflow": 0,
+      "firstCoverY": null
+    },
+    {
+      "label": "settings-390-dark",
+      "overflow": 0,
+      "firstCoverY": null
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "version": "0.3.0-alpha.33",
+  "installedPackage": true,
+  "captures": 111,
+  "viewportThemePairs": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark"
+    }
+  ],
+  "pageErrors": [],
+  "blockedMutationAttempts": [],
+  "failedCaptures": [],
+  "overflowCaptures": [],
+  "firstCardMobileBefore": 503.484375,
+  "firstCardMobileAfter": 374.140625,
+  "privateArtifacts": "/tmp/library-ui-review-awMJrk",
+  "limits": [
+    "Representative visual inspection plus layout checks on all captures; not a screen-reader or device certification.",
+    "Pre-existing mobile profile Back-link overlap with the Nextcloud navigation toggle remains a separate follow-up."
+  ]
+}

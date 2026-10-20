@@ -1,0 +1,159 @@
+{
+  "archive_sha256": "2f2ba6c37252d3d02c2df147078ac2ee0bbee7985616e40530e123ae2ce476ee",
+  "assets": [
+    {
+      "path": "library/css/library-vue-0-3-0-alpha-33-compact-list-table-cover-96-fit-v8.css",
+      "bytes": 158403,
+      "sha256": "3e43809adf0425ba08cb6e68e916bb320c1088c8581e2308e665f3b779e07192",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/css/style.css",
+      "bytes": 57781,
+      "sha256": "4430c1c1f3756d2bb312a2ee7544acd3297cdd41a6f1f53eb20aa1fd65a166ee",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/css/ui-contract.css",
+      "bytes": 12596,
+      "sha256": "337b38b0425721067e5c94ed2887b149a92151d00f7eae94adee8478053010b1",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/js/library-main-0-3-0-alpha-33-compact-list-table-cover-96-fit-v8.mjs",
+      "bytes": 746420,
+      "sha256": "caa218b0747bb0013e1ee4a1865b2583b65ffdb94c94bb0a7e35dad39d67ed72",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/l10n/en.js",
+      "bytes": 104347,
+      "sha256": "dfc0ad520570f23b35ab578c6bece57047072b809347374a07b0e5998a1a456a",
+      "http_matches_package": true
+    }
+  ],
+  "version": "0.3.0-alpha.33",
+  "nextcloud": "34.0.3.2",
+  "runtimeCommit": "35f9dd4eeb1f9934ef7aeb3c65c12b0a4e96e91d",
+  "ciRun": 39440912102,
+  "securityRun": 39440911547,
+  "pythonChecks": 1047,
+  "frontendTests": 578,
+  "frontendTestFiles": 46,
+  "playwrightJourneys": 68,
+  "inferenceVectors": 518,
+  "translationKeys": 1276,
+  "semanticSentinels": 92,
+  "packageFrontendBytes": 994807,
+  "packageFrontendLimit": 1320000,
+  "catalogueBefore": 107717,
+  "catalogueAfter": 107717,
+  "integrityClean": true,
+  "maintenance": false,
+  "rollbackDirectory": "/tmp/library-before-alpha33-20261020T145420Z",
+  "liveChecks": [
+    {
+      "viewport": "desktop",
+      "stickyBarVisible": true,
+      "buttonsReachable": true,
+      "noOverflow": true,
+      "titleDiscarded": true,
+      "authorSelectionDirect": true,
+      "seriesSelectionDirect": true,
+      "storedMetadataUnchanged": true,
+      "fileMetadataCollapsedInitially": true,
+      "fileLocationLink": true,
+      "indexedSizeVisible": true
+    },
+    {
+      "viewport": "desktop",
+      "directoryDraftRetained": true,
+      "restoredScroll": 2343,
+      "originalScroll": 2371,
+      "recordedScroll": 2371,
+      "restoredAnchorOffset": 386.140625,
+      "recordedAnchorOffset": 386.140625
+    },
+    {
+      "viewport": "mobile",
+      "stickyBarVisible": true,
+      "buttonsReachable": true,
+      "noOverflow": true,
+      "titleDiscarded": true,
+      "authorSelectionDirect": true,
+      "seriesSelectionDirect": true,
+      "storedMetadataUnchanged": true,
+      "fileMetadataCollapsedInitially": true,
+      "fileLocationLink": true,
+      "indexedSizeVisible": true
+    },
+    {
+      "viewport": "mobile",
+      "directoryDraftRetained": true,
+      "restoredScroll": 7764,
+      "originalScroll": 7764,
+      "recordedScroll": 7764,
+      "restoredAnchorOffset": 333.28125,
+      "recordedAnchorOffset": 333.28125
+    }
+  ],
+  "libraryMutations": 0,
+  "pageErrors": [],
+  "credentialRemoved": true,
+  "linkedEntryPoints": true,
+  "legacyBookmarkAndFeedback": true,
+  "keyboardSuggestionsDiscarded": true,
+  "fileLocationOpenedInFiles": true,
+  "coverAndTitleReturn": {
+    "overlay": false,
+    "results": [
+      {
+        "width": 1440,
+        "kind": "cover",
+        "before": 2427,
+        "after": 2427,
+        "focused": true
+      },
+      {
+        "width": 1440,
+        "kind": "title",
+        "before": 2427,
+        "after": 2427,
+        "focused": true
+      },
+      {
+        "width": 390,
+        "kind": "cover",
+        "before": 7820,
+        "after": 7820,
+        "focused": true
+      },
+      {
+        "width": 390,
+        "kind": "title",
+        "before": 7820,
+        "after": 7820,
+        "focused": true
+      }
+    ],
+    "errors": [],
+    "blocked": []
+  },
+  "externalFilesConsoleDiagnostic": "Existing duplicate viewer handler registration; no Library-page console errors.",
+  "privateArtifacts": [
+    "/tmp/library-alpha33-deployed-smoke-2BBbCI",
+    "/tmp/library-alpha33-return-FfcJSu"
+  ],
+  "finalCatalogueCount": 107717,
+  "finalIntegrityClean": true,
+  "finalMaintenance": false,
+  "reviewCredentialsRemaining": 0,
+  "installedSeriesIntegrationMySQL": true,
+  "installedAuthorProfileEngines": [
+    "chromium",
+    "firefox"
+  ],
+  "installedAuthorProfileBooks": 53,
+  "installedAuthorProfileBackendAssertions": 7,
+  "installedVisualCaptures": 111
+}
