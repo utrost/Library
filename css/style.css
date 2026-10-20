@@ -311,7 +311,7 @@
 }
 
 .library-root-danger-zone > summary {
-    color: var(--color-error);
+    color: var(--color-error-text, var(--color-error));
     cursor: pointer;
     font-weight: 700;
 }
@@ -359,7 +359,7 @@
 }
 
 .library-scan-error {
-    color: var(--color-error);
+    color: var(--color-error-text, var(--color-error));
 }
 
 .library-index-row dt {
@@ -479,7 +479,7 @@
 }
 
 .library-cover-paste-status--error {
-    color: var(--color-error);
+    color: var(--color-error-text, var(--color-error));
 }
 
 .library-metadata-health-details > summary,
@@ -808,7 +808,7 @@
 .library-navigation-saved-collection-delete-action:hover,
 .library-navigation-saved-collection-delete-action:focus {
     background: var(--color-background-hover);
-    color: var(--color-error);
+    color: var(--color-error-text, var(--color-error));
 }
 
 .library-pagination {

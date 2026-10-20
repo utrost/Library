@@ -27,7 +27,7 @@ try {
   const panel=page.locator('.library-inference'),approval=panel.locator('.library-inference-apply')
   const ready=async()=>{await expect(panel).toHaveAttribute('aria-busy','false',{timeout:30000});await expect(approval).toHaveAttribute('aria-busy','false')}
   await page.goto(`${upstream}/apps/library/?infer=1`);await ready()
-  await panel.getByRole('combobox',{name:'Library root',exact:true}).selectOption(String(state.rootId));await ready()
+  await panel.getByRole('combobox',{name:'Shelf',exact:true}).selectOption(String(state.rootId));await ready()
   await panel.getByRole('combobox',{name:'Rule editor',exact:true}).selectOption('guided')
   await panel.getByRole('button',{name:'Reset assignments from this example',exact:true}).click()
   const author=panel.locator('.library-inference-part').first()

@@ -32,7 +32,7 @@ try {
    return{status:r.status,data:await r.json()}
   },{path,body})
   const beforeDefinitions=(await api('patterns')).data
-  const rootPicker=panel.getByRole('combobox',{name:'Library root',exact:true})
+  const rootPicker=panel.getByRole('combobox',{name:'Shelf',exact:true})
   const roots=await rootPicker.locator('option').evaluateAll(xs=>xs.map(x=>({value:x.value,label:x.textContent})))
   const sampleRoot=roots.find(r=>r.label==='Path parsing samples');assert.ok(sampleRoot)
   await rootPicker.selectOption(sampleRoot.value);await ready()

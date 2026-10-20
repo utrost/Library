@@ -1954,7 +1954,7 @@ async function runBrowserSmoke(proxyBase, proxy) {
 
     const publicationDiscoveryUrl = dom.firstPublicationLanding ? new URL(dom.firstPublicationLanding, proxyBase).href : ''
     const publicationDiscoveryDom = await inspectDiscoveryRoute(client, publicationDiscoveryUrl, 'publication')
-    publicationDiscoveryDom.activePublication = publicationDiscoveryDom.activeFilterLabels?.some((label) => label.includes('Series / periodical')) === true
+    publicationDiscoveryDom.activePublication = publicationDiscoveryDom.activeFilterLabels?.some((label) => label.includes('Publication / periodical')) === true
 
     const yearDiscoveryUrl = dom.firstYearLanding ? new URL(dom.firstYearLanding, proxyBase).href : ''
     const yearDiscoveryDom = await inspectDiscoveryRoute(client, yearDiscoveryUrl, 'year')

@@ -23,7 +23,7 @@ namespace OCP {
     interface IURLGenerator { public function linkToRoute(string $route, array $params = []): string; public function getAbsoluteURL(string $url): string; }
     interface IDBConnection {}
     interface IPreview {}
-    final class Util { public static function addStyle(string $app, string $style): void {} }
+    final class Util { public static function addStyle(string $app, string $style): void {} public static function addScript(string $app, string $script): void {} }
 }
 namespace OCP\L10N { interface IFactory {} }
 namespace OCP\Files { interface IRootFolder {} class File {} }
@@ -71,6 +71,7 @@ namespace OCA\Library\Service {
 namespace {
     require_once __DIR__ . '/../../lib/Exception/BatchLimitExceededException.php';
     require_once __DIR__ . '/../../lib/Service/SelectedItemIds.php';
+    require_once __DIR__ . '/../../lib/Service/UiAssets.php';
     require_once __DIR__ . '/../../lib/Controller/ItemController.php';
     require_once __DIR__ . '/../../lib/Controller/TagController.php';
     require_once __DIR__ . '/../../lib/Controller/CoverController.php';

@@ -33,10 +33,10 @@ try {
   }, { suffix, body })
   const before = (await api()).data
   try {
-   const roots = await panel.getByRole('combobox', { name: 'Library root', exact: true }).locator('option').evaluateAll(options => options.map(o => ({ value: o.value, label: o.textContent })))
+   const roots = await panel.getByRole('combobox', { name: 'Shelf', exact: true }).locator('option').evaluateAll(options => options.map(o => ({ value: o.value, label: o.textContent })))
    const sampleRoot = roots.find(r => /sample|inference|extract/i.test(r.label))
-   if (sampleRoot) { await panel.getByRole('combobox', { name: 'Library root', exact: true }).selectOption(sampleRoot.value); await panel.getByRole('button', { name: 'Load sample', exact: true }).click(); await ready() }
-   const rootId = await panel.getByRole('combobox', { name: 'Library root', exact: true }).inputValue()
+   if (sampleRoot) { await panel.getByRole('combobox', { name: 'Shelf', exact: true }).selectOption(sampleRoot.value); await panel.getByRole('button', { name: 'Load sample', exact: true }).click(); await ready() }
+   const rootId = await panel.getByRole('combobox', { name: 'Shelf', exact: true }).inputValue()
    const sample = async () => page.evaluate(async rootId => (await fetch(`/apps/library/api/inference/sample?rootId=${rootId}`)).json(), rootId)
    const original = await sample()
    const example = panel.getByRole('combobox', { name: 'Example path', exact: true })
@@ -88,8 +88,8 @@ try {
    await expect(panel.getByRole('combobox', { name:'Saved rule',exact:true })).toHaveValue('')
    assert.deepEqual((await api()).data.patterns.find(p=>p.id===saved.id).rule,saved.rule)
    await page.reload(); await ready()
-   if (await panel.getByRole('combobox', { name: 'Library root', exact: true }).inputValue() !== rootId) {
-    await panel.getByRole('combobox', { name: 'Library root', exact: true }).selectOption(rootId)
+   if (await panel.getByRole('combobox', { name: 'Shelf', exact: true }).inputValue() !== rootId) {
+    await panel.getByRole('combobox', { name: 'Shelf', exact: true }).selectOption(rootId)
     await panel.getByRole('button', { name: 'Load sample', exact: true }).click(); await ready()
    }
    await example.selectOption(path)
