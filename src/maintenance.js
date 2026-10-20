@@ -14,6 +14,9 @@ export function mountMaintenance() {
       const rect = menu.getBoundingClientRect()
       if (event.target === menu && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) menu.close()
     })
+    menu.addEventListener('keydown', event => {
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); menu.close() }
+    })
     menu.addEventListener('close', () => { toggle.setAttribute('aria-expanded', 'false'); toggle.focus() })
     const desktop = window.matchMedia('(min-width: 1025px)')
     desktop.addEventListener('change', () => { if (desktop.matches && menu.open) menu.close() })

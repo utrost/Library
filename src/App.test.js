@@ -501,6 +501,17 @@ describe('Library catalogue Vue app', () => {
     ))
   })
 
+  it('does not steal focus from a field chosen before the mobile panel toggle settles', async () => {
+    const wrapper = mount(App, { attachTo: document.body, props: { state } })
+    const panel = wrapper.get('[data-library-control="filter"]')
+    panel.element.open = true
+    panel.element.dispatchEvent(new Event('toggle'))
+    const publisher = panel.get('input[name="publisherSearch"]')
+    publisher.element.focus()
+    await wrapper.vm.$nextTick()
+    expect(document.activeElement).toBe(publisher.element)
+  })
+
   it('applies a manually typed exact subject without requiring a suggestion', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,

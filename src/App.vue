@@ -727,7 +727,11 @@ const mobileFilterResultLabel = computed(() => n('library', 'Show %n item', 'Sho
 function handleMobileFilterToggle(event) {
   mobileFilterPanelOpen.value = event.currentTarget?.open === true
   if (!mobileFilterPanelOpen.value) return
-  nextTick(() => { document.querySelector('.library-mobile-filter-form select')?.focus() })
+  nextTick(() => {
+    const form = document.querySelector('.library-mobile-filter-form')
+    // A fast pointer/keyboard interaction may already have chosen another field.
+    if (form && !form.contains(document.activeElement)) form.querySelector('select')?.focus()
+  })
 }
 
 const sidebarVisibleFilterKeys = new Set([
