@@ -60,6 +60,7 @@ class ImportController extends Controller {
 
         Util::addStyle('library', 'style');
         \OCP\Util::addStyle('library', 'ui-contract');
+        \OCA\Library\Service\UiAssets::maintenance();
         $response = new TemplateResponse('library', 'metadata-import-result', [
             'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
             'languageUrl' => $this->urlGenerator->linkToRoute('library.language_review.index'),
@@ -108,6 +109,7 @@ class ImportController extends Controller {
 
         Util::addStyle('library', 'style');
         \OCP\Util::addStyle('library', 'ui-contract');
+        \OCA\Library\Service\UiAssets::maintenance();
         $response = new TemplateResponse('library', 'metadata-import-result', [
             'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
             'languageUrl' => $this->urlGenerator->linkToRoute('library.language_review.index'),

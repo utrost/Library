@@ -13,7 +13,7 @@ def test_vue_has_only_compact_and_list_view_mode_controls():
     assert "viewMode" in component
     assert "activeFilters.view" in component
     assert "library-view-mode-toggle" in component
-    assert "Compact" in component
+    assert "Covers" in component
     assert "List" in component
     assert "setViewMode('compact')" in component
     assert "setViewMode('list')" in component

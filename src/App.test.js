@@ -501,6 +501,17 @@ describe('Library catalogue Vue app', () => {
     ))
   })
 
+  it('does not steal focus from a field chosen before the mobile panel toggle settles', async () => {
+    const wrapper = mount(App, { attachTo: document.body, props: { state } })
+    const panel = wrapper.get('[data-library-control="filter"]')
+    panel.element.open = true
+    panel.element.dispatchEvent(new Event('toggle'))
+    const publisher = panel.get('input[name="publisherSearch"]')
+    publisher.element.focus()
+    await wrapper.vm.$nextTick()
+    expect(document.activeElement).toBe(publisher.element)
+  })
+
   it('applies a manually typed exact subject without requiring a suggestion', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -688,7 +699,7 @@ describe('Library catalogue Vue app', () => {
     await input.setValue('pre')
     await vi.waitFor(() => expect(wrapper.findAll('.library-publisher-suggestion')).toHaveLength(2))
 
-    await input.trigger('keydown', { key: 'ArrowDown' })
+    expect(input.attributes('aria-activedescendant')).toBe('library-desktop-publisher-suggestion-0')
     await input.trigger('keydown', { key: 'ArrowDown' })
     expect(input.attributes('aria-activedescendant')).toBe('library-desktop-publisher-suggestion-1')
     expect(wrapper.find('#library-desktop-publisher-suggestion-1').attributes('aria-selected')).toBe('true')
@@ -698,6 +709,26 @@ describe('Library catalogue Vue app', () => {
       '/apps/library/catalogue?publisher=Beta+Press',
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
+  })
+
+  it.each(['publication', 'year', 'creator', 'tag', 'folder', 'subject', 'classification'])('shares keyboard selection for desktop/mobile %s filters', async facet => {
+    const plural = { publication: 'publications', year: 'years', creator: 'creators', tag: 'tags', folder: 'folders', subject: 'subjects', classification: 'classifications' }[facet]
+    const values = facet === 'year' ? ['2000', '2001'] : ['Matching One', 'Matching Two']
+    global.fetch = vi.fn(async url => ({ ok: true, json: async () => String(url).includes('suggestions') ? { [plural]: values } : { ...state, activeFilters: { ...state.activeFilters, [facet]: values[1] } } }))
+    for (const scope of ['desktop', 'mobile']) {
+      const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+      if (scope === 'mobile') { const panel = wrapper.get('.library-mobile-filter-panel'); panel.element.open = true; await panel.trigger('toggle') }
+      const input = wrapper.get(`#library-${scope === 'mobile' ? 'mobile-' : ''}${facet}-search`)
+      await input.trigger('focus')
+      await input.setValue(facet === 'year' ? '200' : 'Mat')
+      await vi.waitFor(() => expect(input.attributes('aria-activedescendant')).toBe(`library-${scope}-${facet}-suggestion-0`))
+      await input.trigger('keydown', { key: 'ArrowUp' })
+      expect(input.attributes('aria-activedescendant')).toBe(`library-${scope}-${facet}-suggestion-1`)
+      await input.trigger('keydown', { key: 'Enter' })
+      await vi.waitFor(() => expect(global.fetch.mock.calls.some(([url]) => String(url).startsWith('/apps/library/catalogue?') && new URL(url, location.origin).searchParams.get(facet) === values[1])).toBe(true))
+      wrapper.unmount()
+      global.fetch.mockClear()
+    }
   })
 
   it('announces ordinary catalogue loading outside Review without clearing stale results', async () => {
@@ -1545,7 +1576,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.findAll('.library-filter-chip').some((chip) => chip.text().includes('1999'))).toBe(true)
   })
 
-  it('renders a capped publication typeahead instead of a publication select', async () => {
+  it('waits for three characters before publication lookup instead of an eager select', async () => {
     const publications = Array.from({ length: 40 }, (_, index) => `Series ${String(index + 1).padStart(2, '0')}`)
     const wrapper = mount(App, { props: { state: { ...state, publications, publicationSummaries: [{ publication: 'Series 01', itemCount: 2 }] } } })
 
@@ -1555,7 +1586,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).not.toContain('Choose series')
     expect(wrapper.find('input[type="hidden"][name="publication"]').exists()).toBe(true)
     await wrapper.get('input[name="publicationSearch"]').trigger('focus')
-    expect(wrapper.findAll('.library-publication-suggestion')).toHaveLength(20)
+    expect(wrapper.findAll('.library-publication-suggestion')).toHaveLength(0)
   })
 
   it('filters publication suggestions and applies a selected exact value through AJAX', async () => {
@@ -1574,7 +1605,7 @@ describe('Library catalogue Vue app', () => {
     const search = wrapper.get('input[name="publicationSearch"]')
     await search.trigger('focus')
     await search.setValue('weekly')
-    expect(wrapper.findAll('.library-publication-suggestion').map((candidate) => candidate.text())).toEqual(['Nature Weekly'])
+    await vi.waitFor(() => expect(wrapper.findAll('.library-publication-suggestion').map((candidate) => candidate.text())).toEqual(['Nature Weekly']))
     await wrapper.get('.library-publication-suggestion').trigger('click')
 
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?publication=Nature+Weekly', expect.objectContaining({ credentials: 'same-origin' })))

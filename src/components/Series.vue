@@ -15,17 +15,18 @@ import DirectoryBrowser from './DirectoryBrowser.vue'
 
 const props = defineProps({ requestToken: { type: String, default: '' }, catalogueUrl: { type: String, required: true } })
 const viewQuery = new URLSearchParams(location.search)
-const bookSearch = ref((viewQuery.get('bookSearch') || '').slice(0, 255)), bookSort = ref(['part', 'title', 'newest'].includes(viewQuery.get('bookSort')) ? viewQuery.get('bookSort') : 'part'), bookView = ref(viewQuery.get('bookView') === 'grid' ? 'grid' : 'list')
+const appliedBookSearch = ref((viewQuery.get('bookSearch') || '').slice(0, 255))
+const bookSearch = ref((viewQuery.get('bookDraft') ?? appliedBookSearch.value).slice(0, 255)), bookSort = ref(['part', 'title', 'newest'].includes(viewQuery.get('bookSort')) ? viewQuery.get('bookSort') : 'part'), bookView = ref(viewQuery.get('bookView') === 'grid' ? 'grid' : 'list')
 const bookSorts = [{ value: 'part', label: t('library', 'Part in series') }, { value: 'title', label: t('library', 'Title') }, { value: 'newest', label: t('library', 'Publication date, newest first') }]
-function rememberBooks() { const url = new URL(location.href); for (const [key, value, fallback] of [['bookSearch', bookSearch.value.trim(), ''], ['bookSort', bookSort.value, 'part'], ['bookView', bookView.value, 'list'], ['bookPage', String(page.value), '1']]) { if (value === fallback) url.searchParams.delete(key); else url.searchParams.set(key, value) } historyReplace(url) }
+function rememberBooks() { const url = new URL(location.href); for (const [key, value, fallback] of [['bookSearch', appliedBookSearch.value, ''], ['bookSort', bookSort.value, 'part'], ['bookView', bookView.value, 'list'], ['bookPage', String(page.value), '1']]) { if (value === fallback) url.searchParams.delete(key); else url.searchParams.set(key, value) } if (bookSearch.value.trim() !== appliedBookSearch.value) url.searchParams.set('bookDraft', bookSearch.value); else url.searchParams.delete('bookDraft'); historyReplace(url) }
 function historyReplace(url) { window.history.replaceState(window.history.state, '', url) }
-watch(bookView, rememberBooks)
+watch([bookSearch, bookView], rememberBooks)
 const selectedId = Number(new URLSearchParams(location.search).get('seriesId')) || null
 const data = ref(null), page = ref(1), busy = ref(false), error = ref(''), notice = ref(''), editing = ref(false)
 const assigning = ref(false), selected = ref([]), targetSearch = ref(''), targets = ref([]), target = ref(''), review = ref(null)
 const history = ref([]), conflicts = ref({ items: [], page: 1, hasNext: false }), conflictPage = ref(1)
 const directory = ref(null)
-function directoryUrl() { const url = new URL(location.href); url.searchParams.delete('seriesId'); for (const key of ['bookPage', 'bookSearch', 'bookSort', 'bookView']) url.searchParams.delete(key); url.hash = ''; return url.pathname + url.search }
+function directoryUrl() { const url = new URL(location.href); url.searchParams.delete('seriesId'); for (const key of ['bookPage', 'bookSearch', 'bookDraft', 'bookSort', 'bookView']) url.searchParams.delete(key); url.hash = ''; return url.pathname + url.search }
 const draft = reactive({ name: '', description: '' })
 useUnsavedChanges(() => editing.value && (draft.name !== (data.value?.series?.display_name || '') || draft.description !== (data.value?.series?.description || '')))
 function directoryLoaded(result) { data.value = result; page.value = result.page }
@@ -39,14 +40,15 @@ async function request(path, body = null, signal = undefined) {
   return response.json()
 }
 async function loadAuxiliary() { [history.value, conflicts.value] = await Promise.all([request('/history'), request(`/conflicts?page=${conflictPage.value}`)]) }
-async function load(next = 1) {
+async function load(next = 1, search = appliedBookSearch.value) {
   busy.value = true; error.value = ''
   try {
     if (!selectedId) { await directory.value?.reload(next); await loadAuxiliary(); return }
     const [series, recent, changed] = await Promise.all([
-      request(`/${selectedId}?page=${next}&search=${encodeURIComponent(bookSearch.value.trim())}&sort=${bookSort.value}`),
+      request(`/${selectedId}?page=${next}&search=${encodeURIComponent(search)}&sort=${bookSort.value}`),
       request('/history'), request(`/conflicts?page=${conflictPage.value}`),
     ])
+    appliedBookSearch.value = search
     data.value = series; history.value = recent; conflicts.value = changed
     review.value = null
     page.value = next; rememberBooks()
@@ -147,8 +149,9 @@ onMounted(async () => { if (selectedId) { await load(Math.max(1, Math.min(100000
         </section>
       </details>
       <section id="series-books" :aria-label="t('library', 'Books in your library')">
-        <BookCollectionToolbar v-model:search="bookSearch" v-model:sort="bookSort" v-model:view="bookView" :sorts="bookSorts" :disabled="busy || editing || assigning" @apply="load(1)" />
-        <p v-if="bookSearch">{{ n('library', '%n book', '%n books', Number(data.matchingCount)) }}</p>
+        <BookCollectionToolbar v-model:search="bookSearch" v-model:sort="bookSort" v-model:view="bookView" :sorts="bookSorts" :disabled="busy || editing || assigning" @apply="load(1, bookSearch.trim())" />
+        <p v-if="bookSearch.trim() !== appliedBookSearch" role="status" class="library-query-draft">{{ t('library', 'Press Search to apply the typed query.') }}</p>
+        <p v-if="appliedBookSearch">{{ n('library', '%n book', '%n books', Number(data.matchingCount)) }}</p>
         <p v-if="!data.books.length">{{ t('library', 'No books match this view.') }}</p>
         <ol class="series-books" :class="{ 'library-collection-grid': bookView === 'grid' }">
           <BookCollectionItem v-for="book in data.books" :key="book.id" :book="book" :href="bookUrl(book)">

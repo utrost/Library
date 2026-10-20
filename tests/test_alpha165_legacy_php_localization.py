@@ -88,7 +88,7 @@ def test_legacy_plural_and_domain_translation_sentinels():
     assert de['Metadata source'] == 'Metadatenquelle'
     assert ar['Field sources'] == 'مصادر الحقول'
     assert ar['File metadata'] == 'البيانات الوصفية للملف'
-    assert ar['Series / periodical'] == 'سلسلة / دورية'
+    assert ar['Publication / periodical'] == 'المنشور / الدورية'
     assert ar['Would change'] == 'قد يتغيّر'
     assert ar['Will change'] == 'سيتغيّر'
     assert ar['Would change'] != ar['Will change']
@@ -118,7 +118,7 @@ def test_fragment_and_ui_semantic_mutations_fail_closed_without_flagging_paths()
         ('ar', 'Escape closes; arrow keys browse neighbouring visible items.', 'الهروب يغلق. مفاتيح الأسهم تصفح العناصر المرئية المجاورة.', 'semantic_sentinel_mismatch'),
         ('ar', 'Recently opened', 'آخر افتتاح', 'semantic_sentinel_mismatch'),
         ('ar', 'File metadata', 'ملف البيانات الوصفية', 'semantic_sentinel_mismatch'),
-        ('ar', 'Series / periodical', 'مسلسل / دورية', 'semantic_sentinel_mismatch'),
+        ('ar', 'Publication / periodical', 'مسلسل / دورية', 'semantic_sentinel_mismatch'),
         ('ar', 'Would change', 'سيتغيّر', 'semantic_sentinel_mismatch'),
     ]
     for locale, key, value, marker in mutations:

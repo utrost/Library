@@ -28,7 +28,8 @@ try {
       page.on('pageerror', error => errors.push(error.message))
       await page.goto(`${base}/apps/library/`)
       await page.locator('#library-creator-search').fill('Preferred')
-      await page.locator('#library-creator-search').press('Enter')
+      // Apply deliberately submits a free-text author query; Enter selects a loaded suggestion.
+      await page.getByRole('button', { name: 'Apply author', exact: true }).click()
       await expect(page.locator('.library-cover-card')).toHaveCount(2)
       await expect(page).toHaveURL(url => url.searchParams.get('creator') === 'Preferred')
       await page.locator('#library-creator-search').fill('Doe')

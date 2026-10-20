@@ -41,7 +41,7 @@
 .library-confirm-dialog { background: var(--color-main-background); color: var(--color-main-text); border: 1px solid var(--color-border); border-radius: 12px; padding: 24px; width: min(480px, calc(100vw - 32px)); box-sizing: border-box; }
 .library-confirm-dialog::backdrop { background: #0008; }
 .library-confirm-dialog h2 { font-size: 20px; margin: 0 0 16px; }
-.library-danger-action { color: var(--color-error); border: 1px solid var(--color-error); }
+.library-danger-action { color: var(--color-error-text, var(--color-error)); border: 1px solid var(--color-error); }
 :is(#library-app, #library-settings, .library-maintenance-shell, .library-confirm-dialog) :is(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--color-primary-element); outline-offset: 3px; }
 :is(#library-app, #library-settings, .library-maintenance-shell) :is([role="alert"], .library-warning) { border-inline-start: 3px solid var(--color-warning); padding: 8px 12px; overflow-wrap: anywhere; }
 :is(#library-app, #library-settings, .library-maintenance-shell) summary { cursor: pointer; min-height: 34px; align-content: center; font-weight: 600; }
@@ -78,8 +78,6 @@
 #library-app .library-cover-gallery .library-cover-summary { opacity: 1; }
 #library-app .library-list-selection:not(.library-list-selection--active) { margin-block: 4px; padding-block: 0; }
 @media (max-width: 600px) {
-  #library-app :is(#library-catalogue-heading, #library-home-heading, #library-shelves-landing-heading),
-  #library-app :is(.library-authors, .library-series, .library-genres, .library-personal-lists, .library-inference, .library-duplicates) > h1 { padding-inline-start: 32px; }
   #library-app .library-catalogue-toolbar { gap: 8px; }
   #library-app .library-sort-control select { max-inline-size: 9rem; }
   #library-app .library-catalogue-status-row { padding-block: 0; }
@@ -91,9 +89,6 @@
 #library-app :is(.library-home, .library-shelves-landing, #library-catalogue) { box-sizing: border-box; max-width: 1200px; padding: var(--library-page-gutter); }
 #library-app .author-profile-header:not(:has(.author-portrait)) { margin: 0; }
 #library-app :is(.library-home, .library-shelves-landing, .library-personal-lists, .library-authors, .library-series, .library-genres, .library-inference, .library-duplicates) a:not(.button):not(.library-cover-link) { text-decoration: underline; text-underline-offset: 2px; }
-@media (max-width: 600px) {
-  #library-app .author-profile-header:not(:has(.author-portrait)) h1 { padding-inline-start: 32px; }
-}
 .library-confirm-dialog button { min-height: 44px; min-width: 44px; }
 
 /* Follow-up: one search, a compact control band and book identity before actions. */
@@ -146,3 +141,35 @@
 /* Keep cover text stable on hover and keyboard focus. Full titles remain on Details. */
 #library-app .library-cover-gallery .library-cover-title-button > bdi { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 #library-app .library-cover-gallery .library-cover-creator { white-space: normal; overflow-wrap: anywhere; }
+
+/* Reserve the navigation toggle once, for every page's first content row. */
+@media (max-width: 1024px) {
+  #library-app.library-app { padding-block-start: 36px; }
+}
+#library-app .library-view-mode-toggle { display: inline-flex; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; gap: 0; }
+#library-app .library-view-mode-toggle button { border: 0; border-radius: 0; margin: 0; min-height: 44px; padding-inline: 10px; background: var(--color-main-background); color: var(--color-main-text); }
+#library-app .library-view-mode-toggle button[aria-pressed="true"] { background: var(--color-primary-element); color: var(--color-primary-element-text); box-shadow: inset 0 -3px currentColor; }
+#library-app .library-view-mode-toggle button:focus-visible { outline-offset: -3px; }
+#library-app .library-cover-gallery .library-cover-context { font-size: var(--library-meta-size); }
+#library-app .library-review-destination > header h2 { font-size: var(--library-title-size); }
+#library-app .library-review-result-card h3 { font-size: 18px; line-height: 1.4; }
+.library-maintenance-main { padding: 24px 24px 80px; }
+.library-maintenance-main > * { max-width: 1152px; }
+.library-maintenance-card h2 { font-size: 20px; }
+.library-query-draft { color: var(--color-text-maxcontrast); font-size: 13px; }
+.library-maintenance-toggle { display: none; }
+.library-maintenance-menu { background: var(--color-main-background); color: var(--color-main-text); border: 0; border-radius: 12px; padding: 12px; margin: 50px 0 0 8px; width: min(300px, calc(100vw - 16px)); height: calc(100dvh - 58px); max-height: none; box-sizing: border-box; }
+.library-maintenance-menu:not([open]) { display: none; }
+.library-maintenance-menu::backdrop { background: #0006; }
+.library-maintenance-menu [data-library-navigation-close] { min-width: 44px; min-height: 44px; }
+.library-maintenance-menu .library-maintenance-links { max-height: none; }
+.library-maintenance-shell [hidden] { display: none !important; }
+@media (max-width: 1024px) {
+  #app-content.library-maintenance-shell { display: block; overflow-y: auto; }
+  .library-maintenance-navigation-desktop { display: none; }
+  .library-maintenance-main { padding: 60px 24px 56px; }
+  .library-maintenance-toggle:not([hidden]) { display: block; position: absolute; z-index: 2; top: 8px; inset-inline-start: 8px; margin: 0; padding: 0; min-width: 34px; min-height: 34px; width: 34px; height: 34px; background: var(--color-main-background); color: var(--color-main-text); border: 0; }
+}
+
+/* The keyboard selection must be visible, not only announced. */
+:is(#library-app, #app-navigation-vue) [role="listbox"] > [role="option"][aria-selected="true"] > button { background: var(--color-primary-element); color: var(--color-primary-element-text); box-shadow: inset 3px 0 currentColor; }

@@ -1,0 +1,708 @@
+{
+  "review": "Final UX/UI sweep",
+  "date": "2026-10-20",
+  "installedLibrary": "0.3.0-alpha.33",
+  "nextcloud": "34.0.3.2",
+  "runtimeCommit": "35f9dd4eeb1f9934ef7aeb3c65c12b0a4e96e91d",
+  "reviewCheckout": "1d1a367",
+  "verdict": "Four reproduced defects and four consistency improvements remain; no runtime changes made.",
+  "broadSweep": {
+    "captures": 111,
+    "screenConfigurations": 29,
+    "allRoutesHttp200": true,
+    "pageErrors": 0,
+    "blockedMutationAttempts": 0,
+    "rootOverflowCaptures": 0,
+    "states": [
+      {
+        "label": "home-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-list-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "search-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "search-empty-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "favorites-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "continue-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "shelves-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "collections-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "lists-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "new-list-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "authors-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "series-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "genres-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-1440-light-middle",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-1440-light-bottom",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-missing-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-files-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-covers-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "author-conflicts-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "duplicates-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "inference-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "inference-1440-light-middle",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "inference-1440-light-bottom",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "languages-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "mappings-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "settings-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "settings-1440-light-middle",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "settings-1440-light-bottom",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "admin-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-1440-light-middle",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-1440-light-bottom",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-1440-light-middle",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-1440-light-bottom",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "list-detail-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "details-1440-light",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "details-1440-light-middle",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "details-1440-light-bottom",
+        "viewportWidth": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "home-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-list-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "search-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "search-empty-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "favorites-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "continue-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "shelves-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "collections-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "lists-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "new-list-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "authors-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "genres-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-390-light-middle",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-390-light-bottom",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-missing-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-files-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-covers-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-conflicts-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "duplicates-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "inference-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "inference-390-light-middle",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "inference-390-light-bottom",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "languages-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "mappings-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "settings-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "settings-390-light-middle",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "settings-390-light-bottom",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "admin-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-390-light-middle",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-390-light-bottom",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-390-light-middle",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-390-light-bottom",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "list-detail-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "details-390-light",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "details-390-light-middle",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "details-390-light-bottom",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "home-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-list-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "search-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "search-empty-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "favorites-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "continue-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "shelves-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "collections-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "lists-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "new-list-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "authors-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "genres-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-missing-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-files-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-covers-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-conflicts-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "duplicates-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "inference-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "languages-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "mappings-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "settings-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "admin-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "list-detail-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      },
+      {
+        "label": "details-390-dark",
+        "viewportWidth": 390,
+        "overflow": 0
+      }
+    ]
+  },
+  "focused": {
+    "desktopDarkScreens": 7,
+    "narrowScreens": 10,
+    "widths": [
+      1440,
+      390,
+      320
+    ],
+    "profileDraftReturn": [
+      {
+        "kind": "authors",
+        "booksBefore": 1,
+        "booksAfterReturn": 0
+      },
+      {
+        "kind": "series",
+        "booksBefore": 3,
+        "booksAfterReturn": 0
+      }
+    ],
+    "quickViewSettledFocus": [
+      {
+        "width": 1440,
+        "restored": true
+      },
+      {
+        "width": 390,
+        "restored": true
+      }
+    ],
+    "mobileBackLinks": [
+      {
+        "screen": "author-390",
+        "leftHitOwn": false,
+        "hitLabel": "Open navigation",
+        "toolbarHeight": 186
+      },
+      {
+        "screen": "series-390",
+        "leftHitOwn": false,
+        "hitLabel": "Open navigation",
+        "toolbarHeight": 186
+      },
+      {
+        "screen": "list-390",
+        "leftHitOwn": false,
+        "hitLabel": "Open navigation",
+        "toolbarHeight": null
+      },
+      {
+        "screen": "author-320",
+        "leftHitOwn": false,
+        "hitLabel": "Open navigation",
+        "toolbarHeight": 199
+      },
+      {
+        "screen": "series-320",
+        "leftHitOwn": false,
+        "hitLabel": "Open navigation",
+        "toolbarHeight": 199
+      },
+      {
+        "screen": "list-320",
+        "leftHitOwn": false,
+        "hitLabel": "Open navigation",
+        "toolbarHeight": null
+      }
+    ],
+    "scannerErrorContrast": {
+      "light": {
+        "text": "#FFE7E7",
+        "background": "#FFFFFF",
+        "ratio": 1.18
+      },
+      "dark": {
+        "text": "#552121",
+        "background": "#171717",
+        "ratio": 1.39
+      }
+    },
+    "catalogueFontPx": {
+      "title": 14,
+      "author": 13,
+      "context": 8.7
+    },
+    "pageErrors": 0,
+    "blockedMutationAttempts": 0
+  },
+  "installedEditorSmoke": {
+    "passed": true,
+    "viewports": [
+      "desktop",
+      "mobile"
+    ],
+    "storedMetadataUnchanged": true,
+    "stickyActionsReachable": true,
+    "authorSeriesDirectSelection": true,
+    "keyboardSuggestionsDiscarded": true,
+    "legacyRedirectFeedback": true,
+    "bottomDisclosures": true,
+    "filesHandoff": true,
+    "normalReturnAnchorPreserved": true,
+    "libraryMutationAttempts": 0,
+    "pageErrors": 0,
+    "externalKnownDiagnostic": "Files viewer duplicate handler registration"
+  },
+  "safeguards": {
+    "catalogueBefore": 107717,
+    "catalogueAfter": 107717,
+    "remainingReviewCredentials": 0,
+    "savedBookChanges": 0,
+    "runtimeChanges": false,
+    "deployment": false
+  },
+  "harnessNotes": [
+    "Initial profile and drawer selectors were obsolete; corrected probes were rerun.",
+    "Quick view accessible name includes the book title; strict-name probe corrected.",
+    "Focus checked again after sidebar animation settled; desktop and mobile passed.",
+    "Initial database count helper used a removed service accessor; read-only count succeeded through OCP Server."
+  ],
+  "limits": [
+    "Read-only/stage-discard review; no new destructive, scan-job, full Save/stale-edit or import/apply suite.",
+    "Chromium; physical touch devices and screen readers not tested.",
+    "Browser-applied themes; not a formal accessibility audit.",
+    "No fresh performance or NC33\u201335 certification."
+  ],
+  "privateEvidence": [
+    "/tmp/library-ui-review-VeSHuE",
+    "/tmp/library-final-ux-probes-iRMIYt",
+    "/tmp/library-final-ux-probes-6bThrL",
+    "/tmp/library-final-ux-probes-77U2MA",
+    "/tmp/library-final-ux-probes-PONZnr",
+    "/tmp/library-alpha33-deployed-smoke-sfWmOx"
+  ]
+}

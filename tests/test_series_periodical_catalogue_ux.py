@@ -27,7 +27,7 @@ def test_vue_catalogue_exposes_series_periodical_filter_and_metadata_on_cards():
 
     assert "const publications = computed(() => catalogueState.publications || [])" in vue
     assert "publication: catalogueState.activeFilters?.publication || ''" in vue
-    assert "Series / periodical" in vue
+    assert "Publication / periodical" in vue
     assert 'name="publicationSearch"' in vue
     assert 'type="hidden" name="publication"' in vue
     assert 'select name="publication"' not in vue
@@ -52,7 +52,7 @@ def test_smoke_requires_series_periodical_filter_contract():
     assert "state_has_publications" in smoke
     assert "source_has_series_periodical_filter" in smoke
     assert "source_has_publication_sort" in smoke
-    assert "Series / periodical" in smoke
+    assert "Publication / periodical" in smoke
     assert "publicationSearch" in smoke
 
 

@@ -29,7 +29,7 @@ try {
   const example = JSON.parse(execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', '/tmp/library-store-example.php'], { encoding: 'utf8' }))
   await page.goto(base + '/apps/library/?infer=1')
   await expect(page.locator('.library-inference')).toHaveAttribute('aria-busy', 'false')
-  await page.getByRole('combobox', { name: 'Library root', exact: true }).selectOption(String(example.rootId))
+  await page.getByRole('combobox', { name: 'Shelf', exact: true }).selectOption(String(example.rootId))
   await page.getByRole('button', { name: 'Load sample', exact: true }).click()
   await expect(page.locator('.library-inference')).toHaveAttribute('aria-busy', 'false')
   await page.getByRole('combobox', { name: 'Suggest fields', exact: true }).selectOption('detected')

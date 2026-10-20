@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { loadState } from '@nextcloud/initial-state'
 import App from './App.vue'
+import { mountMaintenance } from './maintenance.js'
 import '../css/ui-contract.css'
 
 function reportStartupFailure() {
@@ -21,21 +22,25 @@ function validInitialState(value) {
 }
 
 try {
-  const initialState = loadState('library', 'catalogue', null)
-  const mountTarget = document.querySelector('#library-vue-root')
+  if (document.querySelector('.library-maintenance-shell')) {
+    mountMaintenance()
+  } else {
+    const initialState = loadState('library', 'catalogue', null)
+    const mountTarget = document.querySelector('#library-vue-root')
 
-  if (!mountTarget || !validInitialState(initialState)) {
-    throw new Error('Library startup prerequisites are unavailable')
+    if (!mountTarget || !validInitialState(initialState)) {
+      throw new Error('Library startup prerequisites are unavailable')
+    }
+
+    const state = {
+      ...initialState,
+      duplicateSuggestions: loadState('library', 'duplicateSuggestions', false),
+      requestToken: mountTarget.dataset.requestToken || initialState.requestToken || '',
+    }
+
+    createApp(App, { state }).mount(mountTarget)
+    window.LibraryStartupWatchdog?.mounted()
   }
-
-  const state = {
-    ...initialState,
-    duplicateSuggestions: loadState('library', 'duplicateSuggestions', false),
-    requestToken: mountTarget.dataset.requestToken || initialState.requestToken || '',
-  }
-
-  createApp(App, { state }).mount(mountTarget)
-  window.LibraryStartupWatchdog?.mounted()
 } catch (error) {
   reportStartupFailure()
   console.error('[library] Vue startup failed', error)

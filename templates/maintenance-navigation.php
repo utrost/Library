@@ -13,3 +13,8 @@ $active = $_['maintenanceActive'] ?? '';
     <summary><?php p($l->t('Library navigation')); ?></summary>
     <?php include __DIR__ . '/maintenance-navigation-links.php'; ?>
 </details>
+<button type="button" class="library-maintenance-toggle" data-library-navigation-open hidden aria-label="<?php p($l->t('Open navigation')); ?>" aria-controls="library-maintenance-menu" aria-expanded="false"><span aria-hidden="true">☰</span></button>
+<dialog id="library-maintenance-menu" class="library-maintenance-menu" aria-label="<?php p($l->t('Library navigation')); ?>">
+    <button type="button" data-library-navigation-close aria-label="<?php p($l->t('Close navigation')); ?>">×</button>
+    <?php include __DIR__ . '/maintenance-navigation-links.php'; ?>
+</dialog>

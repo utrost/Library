@@ -65,4 +65,6 @@ Sanitized results and hashes: [verification summary](verification.json), [candid
 
 ## Limits
 
+The subsequent [final alpha.33 UI/UX sweep](../../ui-ux-final-sweep-alpha33-2026-10-20.md) reproduces four remaining defects and records four consistency improvements. The successful journeys above do not establish complete UI/UX sign-off.
+
 This is developer NC34 verification, not the exact signed NC33–35 fresh/upgrade certification. Manual screen-reader and physical touch-device checks, owner acceptance and App Store certification remain separate gates. Screenshot inspection cannot establish accessibility conformance. Private screenshots include catalogue data and remain local.

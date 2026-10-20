@@ -18,7 +18,7 @@ def test_vue_shows_active_filter_chips_with_remove_one_links():
     assert "params.set(param, normalized)" in app
     assert "Creator" in app
     assert "Publication year" in app
-    assert "Series / periodical" in app
+    assert "Publication / periodical" in app
 
 
 def test_active_filter_chips_have_compact_styles():

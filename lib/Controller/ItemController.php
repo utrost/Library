@@ -173,6 +173,7 @@ final class ItemController extends Controller {
                 if ($current === null) return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
                 Util::addStyle(Application::APP_ID, 'style');
                 \OCP\Util::addStyle('library', 'ui-contract');
+        \OCA\Library\Service\UiAssets::maintenance();
                 $response = new TemplateResponse(Application::APP_ID, 'metadata-conflict', [
                     'message' => $message,
                     'draft' => $draft,
@@ -315,6 +316,7 @@ final class ItemController extends Controller {
         }
         Util::addStyle('library', 'style');
         \OCP\Util::addStyle('library', 'ui-contract');
+        \OCA\Library\Service\UiAssets::maintenance();
         $language = $this->l10nFactory?->findLanguage($this->appName) ?? 'en';
         return new TemplateResponse($this->appName, 'batch-metadata-edit-preview', [
             'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
