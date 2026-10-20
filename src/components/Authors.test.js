@@ -104,3 +104,47 @@ it('aborts search on unmount and cancels pending debounce on cancel', async () =
   await type(w, 'Beth'); const signal = searches()[0][1].signal
   w.unmount(); expect(signal.aborted).toBe(true)
 })
+
+async function directory(query = '') {
+  window.history.replaceState({}, '', '/apps/library/?authors=1' + query)
+  fetchMock.mockImplementation(async url => response(url.includes('?page=') ? { authors: [{ ...author, book_count: 1, books: [{ id: 42, title: 'A book' }] }], migration: {}, hasNext: true } : []))
+  const w = mount(Authors, { props: { catalogueUrl: '/apps/library/' }, global: { stubs: { AuthorConflicts: true, CatalogueCover: true, LabelHelp: true } } })
+  await flushPromises(); return w
+}
+const directoryRequests = () => fetchMock.mock.calls.filter(([url]) => url.includes('?page='))
+it('defaults to displayed name order, includes bounded previews and links to the canonical editor', async () => {
+  const w = await directory()
+  expect(directoryRequests()[0][0]).toContain('sort=name&previews=1')
+  expect(w.get('.author-directory-name').text()).toBe('Beth Pickens')
+  expect(w.text()).not.toContain('Pickens, Beth')
+  expect(w.get('.author-directory-book').attributes('href')).toContain('?details=42&returnTo=')
+  expect(w.get('.author-directory-count').attributes('href')).toContain('#author-books')
+  await w.get('#author-directory-sort').setValue('name_desc'); await flushPromises()
+  expect(directoryRequests().at(-1)[0]).toContain('sort=name_desc')
+  expect(location.search).toContain('authorSort=name_desc')
+  expect(fetchMock.mock.calls.filter(([url]) => url.endsWith('/history'))).toHaveLength(1)
+})
+it('restores directory state and carries it through author and book navigation', async () => {
+  const w = await directory('&authorSearch=Beth&authorPage=2&authorSort=surname&authorUnused=1')
+  expect(directoryRequests()[0][0]).toContain('?page=2&search=Beth&unused=1&sort=surname')
+  expect(w.get('#author-search').element.value).toBe('Beth')
+  expect(w.get('.author-directory-name').attributes('href')).toContain('authorPage=2')
+  expect(decodeURIComponent(w.get('.author-directory-book').attributes('href'))).toContain('authorPage=2')
+})
+it('debounces directory searches, aborts obsolete requests and restores all authors on clear', async () => {
+  const w = await directory()
+  await w.get('#author-search').setValue('Be'); await vi.advanceTimersByTimeAsync(300)
+  expect(directoryRequests()).toHaveLength(1)
+  let resolveOld
+  fetchMock.mockImplementationOnce(() => new Promise(resolve => { resolveOld = resolve }))
+  await w.get('#author-search').setValue('Beth'); await vi.advanceTimersByTimeAsync(250)
+  const oldSignal = directoryRequests().at(-1)[1].signal
+  await w.get('#author-search').setValue('New'); await vi.advanceTimersByTimeAsync(250); await flushPromises()
+  resolveOld(response({ authors: [], migration: {} })); await flushPromises()
+  expect(oldSignal.aborted).toBe(true)
+  expect(w.findAll('.author-directory-row')).toHaveLength(1)
+  expect(location.search).toContain('authorSearch=New')
+  await w.get('#author-search').setValue(''); await vi.advanceTimersByTimeAsync(250); await flushPromises()
+  expect(directoryRequests().at(-1)[0]).toContain('search=&')
+  expect(location.search).not.toContain('authorSearch')
+})

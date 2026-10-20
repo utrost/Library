@@ -1,10 +1,11 @@
 <script setup>
-import { bookDetailsUrl } from '../details-return.js'
+import { bookDetailsUrl, bookCoverUrl as coverUrl } from '../details-return.js'
 import { computed, onMounted, onUnmounted, reactive, ref, watch, nextTick } from 'vue'
 import { generateUrl } from '@nextcloud/router'
 import { t, n } from '@nextcloud/l10n'
 import AuthorConflicts from './AuthorConflicts.vue'
 import CatalogueCover from './CatalogueCover.vue'
+import DirectoryBrowser from './DirectoryBrowser.vue'
 import LabelHelp from './LabelHelp.vue'
 const props = defineProps({ requestToken: { type: String, default: '' }, catalogueUrl: { type: String, required: true } })
 const data = ref(null), busy = ref(false), error = ref(''), notice = ref(''), editing = ref(false)
@@ -15,7 +16,8 @@ const targetHasLetters = computed(() => (targetSearch.value.match(/\p{L}/gu) || 
 const targetCanCreate = computed(() => targetSearched.value && !targetSearching.value && !targetError.value && !target.value && targets.value.length === 0)
 let targetTimer = null, targetController = null, targetSequence = 0
 let taskTimer = null
-const search = ref(''), unused = ref(false), page = ref(1)
+const directory = ref(null), page = ref(1)
+let loadController, loadSequence = 0, auxiliaryLoaded = false
 const showConflicts = new URLSearchParams(location.search).get('authorConflicts') === '1'
 const id = ref(Number(new URLSearchParams(location.search).get('authorId')) || null)
 const viewQuery = new URLSearchParams(location.search)
@@ -42,9 +44,14 @@ function bookUrl(book) {
   }
   return bookDetailsUrl(props.catalogueUrl, book.id, source.href)
 }
-function coverUrl(book) { return generateUrl('/apps/library/items/{id}/cover', { id: book.id }) + '?v=' + encodeURIComponent(`${book.cover_revision || ''}-${book.etag || ''}`) }
+function directoryUrl() {
+  const source = new URL(location.href)
+  for (const key of ['authorId', 'bookSearch', 'bookSort', 'bookView', 'bookPage']) source.searchParams.delete(key)
+  return source.pathname + source.search
+}
 function choosePhoto(event) { photoFile.value = event.target.files?.[0] || null; if (photoFile.value) removePhoto.value = false }
 
+function directoryLoaded(result) { data.value = result; page.value = result.page }
 async function request(path, body = null, signal = undefined) {
   const response = await fetch(generateUrl('/apps/library/api/authors') + path, {
     signal, credentials: 'same-origin', cache: 'no-store', method: body === null ? 'GET' : 'POST',
@@ -55,17 +62,29 @@ async function request(path, body = null, signal = undefined) {
   if (!response.ok) throw new Error(response.status === 413 ? t('library', 'This change exceeds the supported size. Reassign books in smaller groups.') : response.status === 503 ? t('library', 'Author migration must finish before editing. Refresh to check progress.') : response.status === 409
     ? t('library', 'The author or affected books changed. Reload and review again. Your draft is preserved.')
     : t('library', 'Could not load or save the author. Check the fields and reload before retrying.'))
+  if (body !== null) auxiliaryLoaded = false
   return response.json()
 }
+async function loadAuxiliary(signal) {
+  const result = await Promise.all([request('/history', null, signal), request('/tasks', null, signal)])
+  if (signal?.aborted) return
+  [history.value, tasks.value] = result
+  auxiliaryLoaded = true; scheduleTaskPoll()
+}
 async function load(next = 1) {
+  const sequence = ++loadSequence
+  loadController?.abort()
+  const controller = new AbortController(); loadController = controller
   busy.value = true; error.value = ''
   try {
-    data.value = await request(id.value ? `/${id.value}?page=${next}&search=${encodeURIComponent(bookSearch.value.trim())}&sort=${bookSort.value}` : `?page=${next}&search=${encodeURIComponent(search.value.trim())}&unused=${unused.value ? 1 : 0}`)
+    if (!id.value) { await directory.value?.reload(next); if (!auxiliaryLoaded) await loadAuxiliary(); return }
+    const result = await request(`/${id.value}?page=${next}&search=${encodeURIComponent(bookSearch.value.trim())}&sort=${bookSort.value}`, null, controller.signal)
+    if (sequence !== loadSequence) return
+    data.value = result
     page.value = next; review.value = null; selected.value = []; photoFailed.value = false
-    history.value = await request('/history')
-    tasks.value = await request('/tasks')
-    scheduleTaskPoll()
-  } catch (e) { error.value = e.message } finally { busy.value = false }
+    if (!auxiliaryLoaded) await loadAuxiliary(controller.signal)
+  } catch (e) { if (sequence === loadSequence && e.name !== 'AbortError') error.value = e.message }
+  finally { if (sequence === loadSequence) busy.value = false }
 }
 function scheduleTaskPoll() {
   if (taskTimer !== null) clearTimeout(taskTimer)
@@ -78,6 +97,7 @@ async function pollTasks() {
     const activeBefore = tasks.value.some(task => task.status === 'queued' || task.status === 'running')
     tasks.value = await request('/tasks')
     if (activeBefore && !tasks.value.some(task => task.status === 'queued' || task.status === 'running')) {
+      auxiliaryLoaded = false
       await load(page.value)
       return
     }
@@ -189,13 +209,19 @@ async function removeUnused(author) {
   try { await request(`/${author.id}/remove-unused`, { revision: Number(author.revision) }); notice.value = t('library', 'Unused author removed.'); await load(page.value) }
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
-onMounted(() => { if (!showConflicts) load(Math.max(1, Math.min(100000, Number(viewQuery.get('bookPage')) || 1))) })
-onUnmounted(() => { stopTargetSearch(); if (taskTimer !== null) clearTimeout(taskTimer) })
+onMounted(async () => {
+  if (!showConflicts && id.value) await load(Math.max(1, Math.min(100000, Number(viewQuery.get('bookPage')) || 1)))
+  if (!showConflicts && !id.value) {
+    try { await loadAuxiliary() } catch (e) { error.value = e.message }
+  }
+  if (id.value && location.hash === '#author-books') { await nextTick(); document.getElementById('author-books')?.scrollIntoView() }
+})
+onUnmounted(() => { loadController?.abort(); loadSequence++; stopTargetSearch(); if (taskTimer !== null) clearTimeout(taskTimer) })
 </script>
 <template>
   <AuthorConflicts v-if="showConflicts" :request-token="requestToken" :catalogue-url="catalogueUrl" />
   <section v-else class="library-authors" :aria-busy="busy" aria-labelledby="authors-heading">
-    <a v-if="id" :href="`${catalogueUrl}?authors=1`">{{ t('library', 'All authors') }}</a>
+    <a v-if="id" :href="directoryUrl()">{{ t('library', 'All authors') }}</a>
     <header class="author-profile-header">
       <div v-if="id && data?.author" class="author-portrait">
         <img v-if="data.author.photo_key && !photoFailed" :key="data.author.photo_key" :src="photoUrl" :alt="t('library', 'Portrait of {author}', { author: data.author.display_name })" @error="photoFailed = true" />
@@ -205,28 +231,18 @@ onUnmounted(() => { stopTargetSearch(); if (taskTimer !== null) clearTimeout(tas
     </header>
     <p v-if="error" role="alert">{{ error }} <button :disabled="busy" @click="load(page)">{{ t('library', 'Reload') }}</button></p>
     <p v-if="notice" role="status">{{ notice }}</p>
-    <p v-if="busy" role="status">{{ t('library', 'Loading') }}</p>
+    <p v-if="busy && id" role="status">{{ t('library', 'Loading') }}</p>
     <template v-if="!id">
-      <form class="author-search" @submit.prevent="load(1)">
-        <label for="author-search">{{ t('library', 'Search authors') }} <LabelHelp :text="t('library', 'Matches the beginning of the preferred name or sort name.')" /></label>
-        <input id="author-search" v-model="search" maxlength="255" type="search" />
-        <label class="author-search-unused"><input v-model="unused" type="checkbox" /> {{ t('library', 'Unused authors') }}</label>
-        <button :disabled="busy" type="submit">{{ t('library', 'Search') }}</button>
-      </form>
+      <DirectoryBrowser ref="directory" kind="author" collection="authors" :request="request" :catalogue-url="catalogueUrl" :search-label="t('library', 'Search authors')" :search-help="t('library', 'Matches the beginning of the preferred name or sort name.')" :empty-label="t('library', 'No authors found.')" surname unused-filter @loaded="directoryLoaded" @busy="busy = $event">
+        <template #actions="{ entry, unused }">
+          <button v-if="unused && Number(entry.book_count) === 0" :disabled="busy || data?.migration.pending || data?.migration.failed" @click="removeUnused(entry)">{{ t('library', 'Remove unused author') }}</button>
+        </template>
+      </DirectoryBrowser>
       <p v-if="data?.migration && (data.migration.pending || data.migration.failed || data.migration.conflict)" role="status">
         {{ t('library', 'Author migration: {pending} pending, {failed} failed, {conflict} need review.', data.migration) }}
         <a v-if="data.migration.conflict" :href="`${catalogueUrl}?authors=1&amp;authorConflicts=1`">{{ t('library', 'Review imported author changes') }}</a>
         <button :disabled="busy" @click="load(page)">{{ t('library', 'Refresh') }}</button>
       </p>
-      <ul v-if="data" class="author-directory">
-        <li v-for="author in data.authors" :key="author.id">
-          <a :href="`${catalogueUrl}?authors=1&authorId=${author.id}`" dir="auto">{{ author.display_name }}</a>
-          <span dir="auto">{{ author.sort_name }}</span>
-          <span>{{ n('library', '%n book', '%n books', Number(author.book_count)) }}</span>
-          <button v-if="unused && Number(author.book_count) === 0" :disabled="busy || data.migration.pending || data.migration.failed" @click="removeUnused(author)">{{ t('library', 'Remove unused author') }}</button>
-        </li>
-      </ul>
-      <p v-if="data && !data.authors.length">{{ t('library', 'No authors found.') }}</p>
     </template>
     <template v-else-if="data?.author">
       <p>{{ n('library', '%n book', '%n books', data.bookCount) }}</p>
@@ -243,7 +259,7 @@ onUnmounted(() => { stopTargetSearch(); if (taskTimer !== null) clearTimeout(tas
         <p>{{ t('library', 'This edits the shared author record. Book credits and files stay unchanged.') }}</p>
         <label for="author-display">{{ t('library', 'Preferred name') }}</label>
         <input id="author-display" v-model="draft.display_name" maxlength="255" required :disabled="busy" />
-        <label for="author-sort">{{ t('library', 'Sort name') }} <LabelHelp :text="t('library', 'For example: Doe, John. Controls author directory ordering.')" /></label>
+        <label for="author-sort">{{ t('library', 'Sort name') }} <LabelHelp :text="t('library', 'For example: Doe, John. Used for surname sorting.')" /></label>
         <input id="author-sort" v-model="draft.sort_name" maxlength="255" required :disabled="busy" />
         <label for="author-given">{{ t('library', 'Given name') }} <LabelHelp :text="t('library', 'Optional. Leave empty for organisations or names you cannot safely split.')" /></label>
         <input id="author-given" v-model="draft.given_name" maxlength="255" :disabled="busy" />
@@ -290,7 +306,7 @@ onUnmounted(() => { stopTargetSearch(); if (taskTimer !== null) clearTimeout(tas
           <button class="primary" :disabled="busy" @click="applyAssignment">{{ t('library', 'Confirm author change') }}</button>
         </section>
       </section>
-      <section class="author-catalogue" :aria-label="t('library', 'Books in your library')">
+      <section id="author-books" class="author-catalogue" :aria-label="t('library', 'Books in your library')">
         <h2>{{ t('library', 'Books in your library') }}</h2>
         <form class="author-book-controls" @submit.prevent="load(1)">
           <label for="author-book-search">{{ t('library', 'Search titles') }}</label>
@@ -341,7 +357,7 @@ onUnmounted(() => { stopTargetSearch(); if (taskTimer !== null) clearTimeout(tas
         <button v-else :disabled="busy" @click="undo(operation)">{{ t('library', 'Undo') }}</button>
       </li></ul>
     </details>
-    <nav v-if="data" class="author-pagination" :aria-label="t('library', 'Author pages')">
+    <nav v-if="data && id" class="author-pagination" :aria-label="t('library', 'Author pages')">
       <button :disabled="busy || editing || page === 1" @click="load(page - 1)">{{ t('library', 'Previous') }}</button>
       <span>{{ t('library', 'Page {page}', { page }) }}</span>
       <button :disabled="busy || editing || !data.hasNext" @click="load(page + 1)">{{ t('library', 'Next') }}</button>
@@ -349,17 +365,13 @@ onUnmounted(() => { stopTargetSearch(); if (taskTimer !== null) clearTimeout(tas
   </section>
 </template>
 <style scoped>
-.library-authors { padding: 48px 24px 24px; max-width: 1100px; margin: auto; overflow-wrap: anywhere; }
+.library-authors { padding: 24px; max-width: 1100px; margin: auto; overflow-wrap: anywhere; }
 .library-authors h1 { margin-block: 16px; font-size: 24px; font-weight: 600; line-height: 1.35; }
-.author-search, .author-editor { display: flex; flex-direction: column; gap: 8px; margin-block: 20px; }
-.author-search input:not([type="checkbox"]), .author-editor input { width: 100%; max-width: 100%; box-sizing: border-box; }
-.author-search-unused { align-items: center; align-self: flex-start; display: inline-flex; gap: 8px; }
-.author-search-unused input[type="checkbox"] { flex: none; height: 18px; margin: 0; min-height: 18px; width: 18px; }
-.author-search button { align-self: flex-start; }
-.author-directory, .author-books { list-style: none; padding: 0; }
-.author-directory li { display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid var(--color-border); padding: 14px 0; }
-.author-directory a, .author-books a { font-weight: bold; text-decoration: underline; }
-.author-directory span, .author-books span { color: var(--color-text-maxcontrast); }
+.author-editor { display: flex; flex-direction: column; gap: 8px; margin-block: 20px; }
+.author-editor input { width: 100%; max-width: 100%; box-sizing: border-box; }
+.author-books { list-style: none; padding: 0; }
+.author-books a { font-weight: bold; text-decoration: underline; }
+.author-books span { color: var(--color-text-maxcontrast); }
 .author-assignment { border: 1px solid var(--color-border); border-radius: 8px; padding: 16px; margin-block: 16px; }
 .author-destination { display: flex; flex-direction: column; gap: 8px; margin-block: 16px; min-width: 0; }
 .author-destination input { width: 100%; min-width: 0; box-sizing: border-box; }
@@ -400,5 +412,5 @@ onUnmounted(() => { stopTargetSearch(); if (taskTimer !== null) clearTimeout(tas
   .author-profile-header { gap: 12px; }
   .author-books-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 }
-@media (max-width: 600px) { .library-authors { padding: 48px 12px 12px; } }
+@media (max-width: 600px) { .library-authors { padding: 24px 12px 12px; } }
 </style>

@@ -113,3 +113,7 @@ Photo and biography are optional manual profile attributes. Merge retains the de
 `Version000300Date20261013230000` adds nullable string(64) `library_items.author_source_hash`. It stores the SHA-256 hash of the ordered, normalized source credit array only after explicit conflict resolution. Existing and ordinarily imported books retain NULL; they need no backfill and preserve automatic import behavior.
 
 A reviewed book with the same incoming credit hash stays synchronized without changing its chosen relationships. A different hash returns it to conflict, including when the chosen relationship set is empty. This field is a comparison checkpoint, not an author identity or duplicate-detection key. The queue uses the existing `(user_id, author_sync_status, id)` index and a 51-row pagination probe. Resolution locks the item, then the account coordination row, rechecks its preview fingerprint and commits relationships/status/checkpoint together.
+
+## Author directory ordering (alpha.30)
+
+`Version000300Date20261020120000` adds `library_authors_display` on `(user_id, merged_into, display_name, id)`. Active authors use this index for displayed-name ordering in either direction. The existing surname index remains. Preview queries read at most three distinct item IDs per displayed author using `library_author_books`, then join owned items/files in one batch. No identities or book metadata are rewritten. Rollback to alpha.29 can leave this additive index in place.

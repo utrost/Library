@@ -129,7 +129,7 @@ EXPECTED_TABLES.update({
     },
     "*dbprefix*library_authors": {
         "fields": {"id", "user_id", "display_name", "sort_name", "given_name", "family_name", "comparison_key", "normalization_version", "revision", "field_sources", "merged_into", "biography", "photo_key"},
-        "indexes": {"library_authors_pk", "library_authors_lookup", "library_authors_sort"},
+        "indexes": {"library_authors_pk", "library_authors_lookup", "library_authors_sort", "library_authors_display"},
     },
     "*dbprefix*library_item_authors": {
         "fields": {"id", "user_id", "item_id", "author_id", "position", "source_name", "source_sort_name", "assignment_source", "revision"},

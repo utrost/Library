@@ -12,8 +12,14 @@ final class AuthorDirectoryService {
         $r = $this->db->executeQuery($sql, $params);
         try { return $r->fetchAll(); } finally { $r->closeCursor(); }
     }
-    public function directory(string $uid, string $search = '', int $page = 1, bool $unused = false): array {
+    public function directory(string $uid, string $search = '', int $page = 1, bool $unused = false, string $sort = 'surname', bool $previews = false): array {
         if (mb_strlen($search) > 255 || $page < 1 || $page > 100000) throw new \InvalidArgumentException('page_or_search');
+        $order = match ($sort) {
+            'name' => 'a.display_name,a.id',
+            'name_desc' => 'a.display_name DESC,a.id DESC',
+            'surname' => 'a.sort_name,a.id',
+            default => throw new \InvalidArgumentException('sort'),
+        };
         $where = 'a.user_id = ? AND a.merged_into IS NULL'; $params = [$uid];
         if ($search !== '') {
             // Literal prefix search avoids an unbounded leading-wildcard scan.
@@ -22,8 +28,14 @@ final class AuthorDirectoryService {
             array_push($params, $query, $query);
         }
         if ($unused) $where .= ' AND NOT EXISTS (SELECT 1 FROM *PREFIX*library_item_authors l WHERE l.user_id=a.user_id AND l.author_id=a.id)';
-        $rows = $this->rows('SELECT a.id,a.display_name,a.sort_name,a.revision,(SELECT COUNT(DISTINCT l.item_id) FROM *PREFIX*library_item_authors l WHERE l.user_id=a.user_id AND l.author_id=a.id) AS book_count FROM *PREFIX*library_authors a WHERE ' . $where . ' ORDER BY a.sort_name,a.id LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
-        return ['authors' => array_slice($rows, 0, 50), 'hasNext' => count($rows) > 50, 'page' => $page, 'migration' => $this->storage->status($uid)];
+        $rows = $this->rows('SELECT a.id,a.display_name,a.sort_name,a.revision,(SELECT COUNT(DISTINCT l.item_id) FROM *PREFIX*library_item_authors l WHERE l.user_id=a.user_id AND l.author_id=a.id) AS book_count FROM *PREFIX*library_authors a WHERE ' . $where . ' ORDER BY ' . $order . ' LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
+        $authors = array_slice($rows, 0, 50);
+        if ($previews) {
+            $books = (new DirectoryPreviewService($this->db))->books($uid, array_column($authors, 'id'), 'author');
+            foreach ($authors as &$author) $author['books'] = $books[(int)$author['id']] ?? [];
+            unset($author);
+        }
+        return ['authors' => $authors, 'hasNext' => count($rows) > 50, 'page' => $page, 'migration' => $this->storage->status($uid)];
     }
     public function profile(string $uid, int $id): array {
         $author = $this->rows('SELECT * FROM *PREFIX*library_authors WHERE user_id=? AND id=?', [$uid, $id])[0] ?? null;

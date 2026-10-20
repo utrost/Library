@@ -18,7 +18,7 @@ final class SeriesController extends Controller {
     public function __construct(string $appName, IRequest $request, private SeriesDirectoryService $series, private SeriesAssignmentService $assignments, private SeriesStorageService $storage, private IUserSession $session, private LoggerInterface $logger) { parent::__construct($appName, $request); }
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    public function index(): JSONResponse { return $this->respond(fn($uid) => $this->series->directory($uid, $this->text('search'), $this->integer('page', 1))); }
+    public function index(): JSONResponse { return $this->respond(fn($uid) => $this->series->directory($uid, $this->text('search'), $this->integer('page', 1), $this->text('sort') ?: 'name', $this->request->getParam('previews', '0') === '1')); }
     #[NoAdminRequired]
     #[NoCSRFRequired]
     public function show(int $seriesId): JSONResponse { return $this->respond(fn($uid) => $this->series->show($uid, $seriesId, $this->integer('page', 1))); }

@@ -12,15 +12,22 @@ final class SeriesDirectoryService {
         $r = $this->db->executeQuery($sql, $params);
         try { return $r->fetchAll(); } finally { $r->closeCursor(); }
     }
-    public function directory(string $uid, string $search = '', int $page = 1): array {
+    public function directory(string $uid, string $search = '', int $page = 1, string $sort = 'name', bool $previews = false): array {
         if ($page < 1 || $page > 100000 || mb_strlen($search) > 255) throw new \InvalidArgumentException('search_or_page');
+        $order = match ($sort) { 'name' => 's.display_name,s.id', 'name_desc' => 's.display_name DESC,s.id DESC', default => throw new \InvalidArgumentException('sort') };
         $where = 's.user_id=? AND s.merged_into IS NULL'; $params = [$uid];
         if (trim($search) !== '') {
             $where .= " AND LOWER(s.display_name) LIKE ? ESCAPE '!'";
             $params[] = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($search))) . '%';
         }
-        $list = $this->rows('SELECT s.id,s.display_name,s.revision,(SELECT COUNT(*) FROM *PREFIX*library_item_series l WHERE l.user_id=s.user_id AND l.series_id=s.id) AS book_count FROM *PREFIX*library_series s WHERE ' . $where . ' ORDER BY s.display_name,s.id LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
-        return ['series' => array_slice($list, 0, 50), 'page' => $page, 'hasNext' => count($list) > 50, 'migration' => $this->storage->status($uid)];
+        $list = $this->rows('SELECT s.id,s.display_name,s.revision,(SELECT COUNT(*) FROM *PREFIX*library_item_series l WHERE l.user_id=s.user_id AND l.series_id=s.id) AS book_count FROM *PREFIX*library_series s WHERE ' . $where . ' ORDER BY ' . $order . ' LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
+        $entries = array_slice($list, 0, 50);
+        if ($previews) {
+            $books = (new DirectoryPreviewService($this->db))->books($uid, array_column($entries, 'id'), 'series');
+            foreach ($entries as &$entry) $entry['books'] = $books[(int)$entry['id']] ?? [];
+            unset($entry);
+        }
+        return ['series' => $entries, 'page' => $page, 'hasNext' => count($list) > 50, 'migration' => $this->storage->status($uid)];
     }
     public function show(string $uid, int $id, int $page = 1): array {
         if ($page < 1 || $page > 100000) throw new \InvalidArgumentException('page');
