@@ -2988,8 +2988,8 @@ function g1(e, t) {
   } = e, C = (T, O, B, Q = null, Z = null, se = null, de = void 0, ve = null, we = !!O.dynamicChildren) => {
     if (T === O)
       return;
-    T && !ur(T, O) && (Q = Fe(T), xe(T, Z, se, !0), T = null), O.patchFlag === -2 && (we = !1, O.dynamicChildren = null);
-    const { type: be, ref: Me, shapeFlag: Ee } = O;
+    T && !ur(T, O) && (Q = Me(T), xe(T, Z, se, !0), T = null), O.patchFlag === -2 && (we = !1, O.dynamicChildren = null);
+    const { type: be, ref: Ue, shapeFlag: Ee } = O;
     switch (be) {
       case ms:
         x(T, O, B, Q);
@@ -3047,7 +3047,7 @@ function g1(e, t) {
           dt
         );
     }
-    Me != null && Z ? Ml(Me, T && T.ref, se, O || T, !O) : Me == null && T && T.ref != null && Ml(T.ref, null, se, T, !0);
+    Ue != null && Z ? Ml(Ue, T && T.ref, se, O || T, !O) : Ue == null && T && T.ref != null && Ml(T.ref, null, se, T, !0);
   }, x = (T, O, B, Q) => {
     if (T == null)
       i(
@@ -3114,12 +3114,12 @@ function g1(e, t) {
     }
   }, G = (T, O, B, Q, Z, se, de, ve) => {
     let we, be;
-    const { props: Me, shapeFlag: Ee, transition: Ne, dirs: Ue } = T;
+    const { props: Ue, shapeFlag: Ee, transition: Ne, dirs: je } = T;
     if (we = T.el = s(
       T.type,
       se,
-      Me && Me.is,
-      Me
+      Ue && Ue.is,
+      Ue
     ), Ee & 8 ? b(we, T.children) : Ee & 16 && M(
       T.children,
       we,
@@ -3129,15 +3129,15 @@ function g1(e, t) {
       rc(T, se),
       de,
       ve
-    ), Ue && er(T, null, Q, "created"), A(we, T, T.scopeId, de, Q), Me) {
-      for (const nt in Me)
-        nt !== "value" && !Ll(nt) && o(we, nt, null, Me[nt], se, Q);
-      "value" in Me && o(we, "value", null, Me.value, se), (be = Me.onVnodeBeforeMount) && _i(be, Q, T);
+    ), je && er(T, null, Q, "created"), A(we, T, T.scopeId, de, Q), Ue) {
+      for (const nt in Ue)
+        nt !== "value" && !Ll(nt) && o(we, nt, null, Ue[nt], se, Q);
+      "value" in Ue && o(we, "value", null, Ue.value, se), (be = Ue.onVnodeBeforeMount) && _i(be, Q, T);
     }
-    Ue && er(T, null, Q, "beforeMount");
+    je && er(T, null, Q, "beforeMount");
     const Je = y1(Z, Ne);
-    Je && Ne.beforeEnter(we), i(we, O, B), ((be = Me && Me.onVnodeMounted) || Je || Ue) && ma(() => {
-      be && _i(be, Q, T), Je && Ne.enter(we), Ue && er(T, null, Q, "mounted");
+    Je && Ne.beforeEnter(we), i(we, O, B), ((be = Ue && Ue.onVnodeMounted) || Je || je) && ma(() => {
+      be && _i(be, Q, T), Je && Ne.enter(we), je && er(T, null, Q, "mounted");
     }, Z);
   }, A = (T, O, B, Q, Z) => {
     if (B && k(T, B), Q)
@@ -3158,10 +3158,10 @@ function g1(e, t) {
     }
   }, M = (T, O, B, Q, Z, se, de, ve, we = 0) => {
     for (let be = we; be < T.length; be++) {
-      const Me = T[be] = ve ? Ji(T[be]) : $i(T[be]);
+      const Ue = T[be] = ve ? Ji(T[be]) : $i(T[be]);
       C(
         null,
-        Me,
+        Ue,
         O,
         B,
         Q,
@@ -3173,11 +3173,11 @@ function g1(e, t) {
     }
   }, K = (T, O, B, Q, Z, se, de) => {
     const ve = O.el = T.el;
-    let { patchFlag: we, dynamicChildren: be, dirs: Me } = O;
+    let { patchFlag: we, dynamicChildren: be, dirs: Ue } = O;
     we |= T.patchFlag & 16;
     const Ee = T.props || pt, Ne = O.props || pt;
-    let Ue;
-    if (B && tr(B, !1), (Ue = Ne.onVnodeBeforeUpdate) && _i(Ue, B, O, T), Me && er(O, T, B, "beforeUpdate"), B && tr(B, !0), // #6385 the old vnode may be a user-wrapped non-isomorphic block
+    let je;
+    if (B && tr(B, !1), (je = Ne.onVnodeBeforeUpdate) && _i(je, B, O, T), Ue && er(O, T, B, "beforeUpdate"), B && tr(B, !0), // #6385 the old vnode may be a user-wrapped non-isomorphic block
     // Force full diff when block metadata is unstable.
     be && (!T.dynamicChildren || T.dynamicChildren.length !== be.length) && (we = 0, de = !1, be = null), (Ee.innerHTML && Ne.innerHTML == null || Ee.textContent && Ne.textContent == null) && b(ve, ""), be ? ie(
       T.dynamicChildren,
@@ -3209,12 +3209,12 @@ function g1(e, t) {
       }
       we & 1 && T.children !== O.children && b(ve, O.children);
     } else !de && be == null && ue(ve, Ee, Ne, B, Z);
-    ((Ue = Ne.onVnodeUpdated) || Me) && ma(() => {
-      Ue && _i(Ue, B, O, T), Me && er(O, T, B, "updated");
+    ((je = Ne.onVnodeUpdated) || Ue) && ma(() => {
+      je && _i(je, B, O, T), Ue && er(O, T, B, "updated");
     }, Q);
   }, ie = (T, O, B, Q, Z, se, de) => {
     for (let ve = 0; ve < O.length; ve++) {
-      const we = T[ve], be = O[ve], Me = (
+      const we = T[ve], be = O[ve], Ue = (
         // oldVNode may be an errored async setup() component inside Suspense
         // which will not have a mounted element
         we.el && // - In the case of a Fragment, we need to provide the actual parent
@@ -3231,7 +3231,7 @@ function g1(e, t) {
       C(
         we,
         be,
-        Me,
+        Ue,
         null,
         Q,
         Z,
@@ -3260,16 +3260,16 @@ function g1(e, t) {
       "value" in B && o(T, "value", O.value, B.value, Z);
     }
   }, z = (T, O, B, Q, Z, se, de, ve, we) => {
-    const be = O.el = T ? T.el : f(""), Me = O.anchor = T ? T.anchor : f("");
-    let { patchFlag: Ee, dynamicChildren: Ne, slotScopeIds: Ue } = O;
-    Ue && (ve = ve ? ve.concat(Ue) : Ue), T == null ? (i(be, B, Q), i(Me, B, Q), M(
+    const be = O.el = T ? T.el : f(""), Ue = O.anchor = T ? T.anchor : f("");
+    let { patchFlag: Ee, dynamicChildren: Ne, slotScopeIds: je } = O;
+    je && (ve = ve ? ve.concat(je) : je), T == null ? (i(be, B, Q), i(Ue, B, Q), M(
       // #10007
       // such fragment like `<></>` will be compiled into
       // a fragment which doesn't have a children.
       // In this case fallback to an empty array
       O.children || [],
       B,
-      Me,
+      Ue,
       Z,
       se,
       de,
@@ -3298,7 +3298,7 @@ function g1(e, t) {
       T,
       O,
       B,
-      Me,
+      Ue,
       Z,
       se,
       de,
@@ -3355,11 +3355,11 @@ function g1(e, t) {
   }, re = (T, O, B, Q, Z, se, de) => {
     const ve = () => {
       if (T.isMounted) {
-        let { next: Ee, bu: Ne, u: Ue, parent: Je, vnode: nt } = T;
+        let { next: Ee, bu: Ne, u: je, parent: Je, vnode: nt } = T;
         {
-          const je = Xv(T);
-          if (je) {
-            Ee && (Ee.el = nt.el, oe(T, Ee, de)), je.asyncDep.then(() => {
+          const ze = Xv(T);
+          if (ze) {
+            Ee && (Ee.el = nt.el, oe(T, Ee, de)), ze.asyncDep.then(() => {
               ma(() => {
                 T.isUnmounted || be();
               }, Z);
@@ -3376,38 +3376,38 @@ function g1(e, t) {
           // parent may have changed if it's in a teleport
           y(he.el),
           // anchor may have changed if it's in a fragment
-          Fe(he),
+          Me(he),
           T,
           Z,
           se
-        ), Ee.el = fe.el, Xe === null && u1(T, fe.el), Ue && ma(Ue, Z), (_e = Ee.props && Ee.props.onVnodeUpdated) && ma(
+        ), Ee.el = fe.el, Xe === null && u1(T, fe.el), je && ma(je, Z), (_e = Ee.props && Ee.props.onVnodeUpdated) && ma(
           () => _i(_e, Je, Ee, nt),
           Z
         );
       } else {
         let Ee;
-        const { el: Ne, props: Ue } = O, { bm: Je, m: nt, parent: Xe, root: _e, type: fe } = T, he = Fr(O);
-        tr(T, !1), Je && io(Je), !he && (Ee = Ue && Ue.onVnodeBeforeMount) && _i(Ee, Xe, O), tr(T, !0);
+        const { el: Ne, props: je } = O, { bm: Je, m: nt, parent: Xe, root: _e, type: fe } = T, he = Fr(O);
+        tr(T, !1), Je && io(Je), !he && (Ee = je && je.onVnodeBeforeMount) && _i(Ee, Xe, O), tr(T, !0);
         {
           _e.ce && _e.ce._hasShadowRoot() && _e.ce._injectChildStyle(
             fe,
             T.parent ? T.parent.type : void 0
           );
-          const je = T.subTree = sh(T);
+          const ze = T.subTree = sh(T);
           C(
             null,
-            je,
+            ze,
             B,
             Q,
             T,
             Z,
             se
-          ), O.el = je.el;
+          ), O.el = ze.el;
         }
-        if (nt && ma(nt, Z), !he && (Ee = Ue && Ue.onVnodeMounted)) {
-          const je = O;
+        if (nt && ma(nt, Z), !he && (Ee = je && je.onVnodeMounted)) {
+          const ze = O;
           ma(
-            () => _i(Ee, Xe, je),
+            () => _i(Ee, Xe, ze),
             Z
           );
         }
@@ -3417,14 +3417,14 @@ function g1(e, t) {
     T.scope.on();
     const we = T.effect = new tv(ve);
     T.scope.off();
-    const be = T.update = we.run.bind(we), Me = T.job = we.runIfDirty.bind(we);
-    Me.i = T, Me.id = T.uid, we.scheduler = () => Nd(Me), tr(T, !0), be();
+    const be = T.update = we.run.bind(we), Ue = T.job = we.runIfDirty.bind(we);
+    Ue.i = T, Ue.id = T.uid, we.scheduler = () => Nd(Ue), tr(T, !0), be();
   }, oe = (T, O, B) => {
     O.component = T;
     const Q = T.vnode.props;
     T.vnode = O, T.next = null, d1(T, O.props, Q, B), v1(T, O.children, B), on(), Jf(T), un();
   }, ae = (T, O, B, Q, Z, se, de, ve, we = !1) => {
-    const be = T && T.children, Me = T ? T.shapeFlag : 0, Ee = O.children, { patchFlag: Ne, shapeFlag: Ue } = O;
+    const be = T && T.children, Ue = T ? T.shapeFlag : 0, Ee = O.children, { patchFlag: Ne, shapeFlag: je } = O;
     if (Ne > 0) {
       if (Ne & 128) {
         J(
@@ -3454,7 +3454,7 @@ function g1(e, t) {
         return;
       }
     }
-    Ue & 8 ? (Me & 16 && $e(be, Z, se), Ee !== be && b(B, Ee)) : Me & 16 ? Ue & 16 ? J(
+    je & 8 ? (Ue & 16 && $e(be, Z, se), Ee !== be && b(B, Ee)) : Ue & 16 ? je & 16 ? J(
       be,
       Ee,
       B,
@@ -3464,7 +3464,7 @@ function g1(e, t) {
       de,
       ve,
       we
-    ) : $e(be, Z, se, !0) : (Me & 8 && b(B, ""), Ue & 16 && M(
+    ) : $e(be, Z, se, !0) : (Ue & 8 && b(B, ""), je & 16 && M(
       Ee,
       B,
       Q,
@@ -3476,13 +3476,13 @@ function g1(e, t) {
     ));
   }, W = (T, O, B, Q, Z, se, de, ve, we) => {
     T = T || Lr, O = O || Lr;
-    const be = T.length, Me = O.length, Ee = Math.min(be, Me);
+    const be = T.length, Ue = O.length, Ee = Math.min(be, Ue);
     let Ne;
     for (Ne = 0; Ne < Ee; Ne++) {
-      const Ue = O[Ne] = we ? Ji(O[Ne]) : $i(O[Ne]);
+      const je = O[Ne] = we ? Ji(O[Ne]) : $i(O[Ne]);
       C(
         T[Ne],
-        Ue,
+        je,
         B,
         null,
         Z,
@@ -3492,7 +3492,7 @@ function g1(e, t) {
         we
       );
     }
-    be > Me ? $e(
+    be > Ue ? $e(
       T,
       Z,
       se,
@@ -3512,13 +3512,13 @@ function g1(e, t) {
     );
   }, J = (T, O, B, Q, Z, se, de, ve, we) => {
     let be = 0;
-    const Me = O.length;
-    let Ee = T.length - 1, Ne = Me - 1;
+    const Ue = O.length;
+    let Ee = T.length - 1, Ne = Ue - 1;
     for (; be <= Ee && be <= Ne; ) {
-      const Ue = T[be], Je = O[be] = we ? Ji(O[be]) : $i(O[be]);
-      if (ur(Ue, Je))
+      const je = T[be], Je = O[be] = we ? Ji(O[be]) : $i(O[be]);
+      if (ur(je, Je))
         C(
-          Ue,
+          je,
           Je,
           B,
           null,
@@ -3533,10 +3533,10 @@ function g1(e, t) {
       be++;
     }
     for (; be <= Ee && be <= Ne; ) {
-      const Ue = T[Ee], Je = O[Ne] = we ? Ji(O[Ne]) : $i(O[Ne]);
-      if (ur(Ue, Je))
+      const je = T[Ee], Je = O[Ne] = we ? Ji(O[Ne]) : $i(O[Ne]);
+      if (ur(je, Je))
         C(
-          Ue,
+          je,
           Je,
           B,
           null,
@@ -3552,7 +3552,7 @@ function g1(e, t) {
     }
     if (be > Ee) {
       if (be <= Ne) {
-        const Ue = Ne + 1, Je = Ue < Me ? O[Ue].el : Q;
+        const je = Ne + 1, Je = je < Ue ? O[je].el : Q;
         for (; be <= Ne; )
           C(
             null,
@@ -3570,17 +3570,17 @@ function g1(e, t) {
       for (; be <= Ee; )
         xe(T[be], Z, se, !0), be++;
     else {
-      const Ue = be, Je = be, nt = /* @__PURE__ */ new Map();
+      const je = be, Je = be, nt = /* @__PURE__ */ new Map();
       for (be = Je; be <= Ne; be++) {
         const kt = O[be] = we ? Ji(O[be]) : $i(O[be]);
         kt.key != null && nt.set(kt.key, be);
       }
       let Xe, _e = 0;
       const fe = Ne - Je + 1;
-      let he = !1, je = 0;
+      let he = !1, ze = 0;
       const Ot = new Array(fe);
       for (be = 0; be < fe; be++) Ot[be] = 0;
-      for (be = Ue; be <= Ee; be++) {
+      for (be = je; be <= Ee; be++) {
         const kt = T[be];
         if (_e >= fe) {
           xe(kt, Z, se, !0);
@@ -3595,7 +3595,7 @@ function g1(e, t) {
               Rt = Xe;
               break;
             }
-        Rt === void 0 ? xe(kt, Z, se, !0) : (Ot[Rt - Je] = be + 1, Rt >= je ? je = Rt : he = !0, C(
+        Rt === void 0 ? xe(kt, Z, se, !0) : (Ot[Rt - Je] = be + 1, Rt >= ze ? ze = Rt : he = !0, C(
           kt,
           O[Rt],
           B,
@@ -3609,7 +3609,7 @@ function g1(e, t) {
       }
       const fa = he ? m1(Ot) : Lr;
       for (Xe = fa.length - 1, be = fe - 1; be >= 0; be--) {
-        const kt = Je + be, Rt = O[kt], ka = O[kt + 1], zt = kt + 1 < Me ? (
+        const kt = Je + be, Rt = O[kt], ka = O[kt + 1], zt = kt + 1 < Ue ? (
           // #13559, #14173 fallback to el placeholder for unresolved async component
           ka.el || Qv(ka)
         ) : Q;
@@ -3655,7 +3655,7 @@ function g1(e, t) {
       if (Q === 0)
         ve.persisted && !se[Wa] ? i(se, O, B) : (ve.beforeEnter(se), i(se, O, B), ma(() => ve.enter(se), Z));
       else {
-        const { leave: Ee, delayLeave: Ne, afterLeave: Ue } = ve, Je = () => {
+        const { leave: Ee, delayLeave: Ne, afterLeave: je } = ve, Je = () => {
           T.ctx.isUnmounted ? r(se) : i(se, O, B);
         }, nt = () => {
           const Xe = se._isLeaving || !!se[Wa];
@@ -3663,7 +3663,7 @@ function g1(e, t) {
             !0
             /* cancelled */
           ), ve.persisted && !Xe ? Je() : Ee(se, () => {
-            Je(), Ue && Ue();
+            Je(), je && je();
           });
         };
         Ne ? Ne(se, Je, nt) : nt();
@@ -3677,26 +3677,26 @@ function g1(e, t) {
       ref: ve,
       children: we,
       dynamicChildren: be,
-      shapeFlag: Me,
+      shapeFlag: Ue,
       patchFlag: Ee,
       dirs: Ne,
-      cacheIndex: Ue,
+      cacheIndex: je,
       memo: Je
     } = T;
-    if (Ee === -2 && (Z = !1), ve != null && (on(), Ml(ve, null, B, T, !0), un()), Ue != null && (O.renderCache[Ue] = void 0), Me & 256) {
+    if (Ee === -2 && (Z = !1), ve != null && (on(), Ml(ve, null, B, T, !0), un()), je != null && (O.renderCache[je] = void 0), Ue & 256) {
       O.ctx.deactivate(T);
       return;
     }
-    const nt = Me & 1 && Ne, Xe = !Fr(T);
+    const nt = Ue & 1 && Ne, Xe = !Fr(T);
     let _e;
-    if (Xe && (_e = de && de.onVnodeBeforeUnmount) && _i(_e, O, T), Me & 6)
+    if (Xe && (_e = de && de.onVnodeBeforeUnmount) && _i(_e, O, T), Ue & 6)
       lt(T.component, B, Q);
     else {
-      if (Me & 128) {
+      if (Ue & 128) {
         T.suspense.unmount(B, Q);
         return;
       }
-      nt && er(T, null, O, "beforeUnmount"), Me & 64 ? T.type.remove(
+      nt && er(T, null, O, "beforeUnmount"), Ue & 64 ? T.type.remove(
         T,
         O,
         B,
@@ -3714,16 +3714,16 @@ function g1(e, t) {
         B,
         !1,
         !0
-      ) : (se === H && Ee & 384 || !Z && Me & 16) && $e(we, O, B), Q && qe(T);
+      ) : (se === H && Ee & 384 || !Z && Ue & 16) && $e(we, O, B), Q && qe(T);
     }
-    const fe = Je != null && Ue == null;
+    const fe = Je != null && je == null;
     (Xe && (_e = de && de.onVnodeUnmounted) || nt || fe) && ma(() => {
       _e && _i(_e, O, T), nt && er(T, null, O, "unmounted"), fe && (T.el = null);
     }, B);
   }, qe = (T) => {
     const { type: O, el: B, anchor: Q, transition: Z } = T;
     if (O === H) {
-      ze(B, Q);
+      Fe(B, Q);
       return;
     }
     if (O === no) {
@@ -3738,7 +3738,7 @@ function g1(e, t) {
       ve ? ve(T.el, se, we) : we();
     } else
       se();
-  }, ze = (T, O) => {
+  }, Fe = (T, O) => {
     let B;
     for (; T !== O; )
       B = m(T), r(T), T = B;
@@ -3751,9 +3751,9 @@ function g1(e, t) {
   }, $e = (T, O, B, Q = !1, Z = !1, se = 0) => {
     for (let de = se; de < T.length; de++)
       xe(T[de], O, B, Q, Z);
-  }, Fe = (T) => {
+  }, Me = (T) => {
     if (T.shapeFlag & 6)
-      return Fe(T.component.subTree);
+      return Me(T.component.subTree);
     if (T.shapeFlag & 128)
       return T.suspense.next();
     const O = m(T.anchor || T.el), B = O && O[Cv];
@@ -3780,7 +3780,7 @@ function g1(e, t) {
     mc: M,
     pc: ae,
     pbc: ie,
-    n: Fe,
+    n: Me,
     o: e
   };
   return {
@@ -5953,10 +5953,10 @@ function bb() {
     }
   }, W = function() {
     return R || (U = G_(b, r), R = !0), U;
-  }, J = a, Pe = J.implementation, xe = J.createNodeIterator, qe = J.createDocumentFragment, ze = J.getElementsByTagName, lt = i.importNode;
+  }, J = a, Pe = J.implementation, xe = J.createNodeIterator, qe = J.createDocumentFragment, Fe = J.getElementsByTagName, lt = i.importNode;
   let $e = Gh();
   t.isSupported = typeof db == "function" && typeof L == "function" && Pe && Pe.createHTMLDocument !== void 0;
-  const Fe = P_, Ce = L_, Be = D_, dt = F_, le = M_, T = U_, O = j_, B = B_;
+  const Me = P_, Ce = L_, Be = D_, dt = F_, le = M_, T = U_, O = j_, B = B_;
   let Q = Vh, Z = null;
   const se = ht({}, [
     ...Uh,
@@ -5991,7 +5991,7 @@ function bb() {
       enumerable: !0,
       value: !1
     }
-  })), be = null, Me = null;
+  })), be = null, Ue = null;
   const Ee = Object.seal(Ir(null, {
     tagCheck: {
       writable: !0,
@@ -6006,7 +6006,7 @@ function bb() {
       value: null
     }
   }));
-  let Ne = !0, Ue = !0, Je = !1, nt = !0, Xe = !1, _e = !0, fe = !1, he = !1, je = null, Ot = null, fa = !1, kt = !1, Rt = !1, ka = !1, zt = !0, qt = !1;
+  let Ne = !0, je = !0, Je = !1, nt = !0, Xe = !1, _e = !0, fe = !1, he = !1, ze = null, Ot = null, fa = !1, kt = !1, Rt = !1, ka = !1, zt = !0, qt = !1;
   const Ni = "user-content-";
   let La = !0, Oi = !1, ha = null, Sa = {}, Aa = null;
   const jn = ht({}, [
@@ -6099,9 +6099,9 @@ function bb() {
     }), Qa = _n(E, "ADD_DATA_URI_TAGS", Da, {
       transform: ee,
       base: Da
-    }), Aa = _n(E, "FORBID_CONTENTS", jn, { transform: ee }), be = _n(E, "FORBID_TAGS", Ra({}), { transform: ee }), Me = _n(E, "FORBID_ATTR", Ra({}), { transform: ee }), Sa = Ta(E, "USE_PROFILES") ? E.USE_PROFILES && typeof E.USE_PROFILES == "object" ? Ra(E.USE_PROFILES) : E.USE_PROFILES : !1, Ne = E.ALLOW_ARIA_ATTR !== !1, Ue = E.ALLOW_DATA_ATTR !== !1, Je = E.ALLOW_UNKNOWN_PROTOCOLS || !1, nt = E.ALLOW_SELF_CLOSE_IN_ATTR !== !1, Xe = E.SAFE_FOR_TEMPLATES || !1, _e = E.SAFE_FOR_XML !== !1, fe = E.WHOLE_DOCUMENT || !1, kt = E.RETURN_DOM || !1, Rt = E.RETURN_DOM_FRAGMENT || !1, ka = E.RETURN_TRUSTED_TYPE || !1, fa = E.FORCE_BODY || !1, zt = E.SANITIZE_DOM !== !1, qt = E.SANITIZE_NAMED_PROPS || !1, La = E.KEEP_CONTENT !== !1, Oi = E.IN_PLACE || !1, Q = O_(E.ALLOWED_URI_REGEXP) ? E.ALLOWED_URI_REGEXP : Vh, Lt = typeof E.NAMESPACE == "string" ? E.NAMESPACE : Gt, Fa = yc(E, "MATHML_TEXT_INTEGRATION_POINTS", () => ht({}, ti)), Ma = yc(E, "HTML_INTEGRATION_POINTS", () => ht({}, ai));
+    }), Aa = _n(E, "FORBID_CONTENTS", jn, { transform: ee }), be = _n(E, "FORBID_TAGS", Ra({}), { transform: ee }), Ue = _n(E, "FORBID_ATTR", Ra({}), { transform: ee }), Sa = Ta(E, "USE_PROFILES") ? E.USE_PROFILES && typeof E.USE_PROFILES == "object" ? Ra(E.USE_PROFILES) : E.USE_PROFILES : !1, Ne = E.ALLOW_ARIA_ATTR !== !1, je = E.ALLOW_DATA_ATTR !== !1, Je = E.ALLOW_UNKNOWN_PROTOCOLS || !1, nt = E.ALLOW_SELF_CLOSE_IN_ATTR !== !1, Xe = E.SAFE_FOR_TEMPLATES || !1, _e = E.SAFE_FOR_XML !== !1, fe = E.WHOLE_DOCUMENT || !1, kt = E.RETURN_DOM || !1, Rt = E.RETURN_DOM_FRAGMENT || !1, ka = E.RETURN_TRUSTED_TYPE || !1, fa = E.FORCE_BODY || !1, zt = E.SANITIZE_DOM !== !1, qt = E.SANITIZE_NAMED_PROPS || !1, La = E.KEEP_CONTENT !== !1, Oi = E.IN_PLACE || !1, Q = O_(E.ALLOWED_URI_REGEXP) ? E.ALLOWED_URI_REGEXP : Vh, Lt = typeof E.NAMESPACE == "string" ? E.NAMESPACE : Gt, Fa = yc(E, "MATHML_TEXT_INTEGRATION_POINTS", () => ht({}, ti)), Ma = yc(E, "HTML_INTEGRATION_POINTS", () => ht({}, ai));
     const Y = yc(E, "CUSTOM_ELEMENT_HANDLING", () => Ir(null));
-    if (we = Ir(null), Ta(Y, "tagNameCheck") && Ae(Y.tagNameCheck) && (we.tagNameCheck = Y.tagNameCheck), Ta(Y, "attributeNameCheck") && Ae(Y.attributeNameCheck) && (we.attributeNameCheck = Y.attributeNameCheck), Ta(Y, "allowCustomizedBuiltInElements") && typeof Y.allowCustomizedBuiltInElements == "boolean" && (we.allowCustomizedBuiltInElements = Y.allowCustomizedBuiltInElements), ea(we), Xe && (Ue = !1), Rt && (kt = !0), Sa && (Z = ht({}, jh), de = Ir(null), Sa.html === !0 && (ht(Z, Uh), ht(de, zh)), Sa.svg === !0 && (ht(Z, hc), ht(de, bc), ht(de, Ys)), Sa.svgFilters === !0 && (ht(Z, pc), ht(de, bc), ht(de, Ys)), Sa.mathMl === !0 && (ht(Z, vc), ht(de, Bh), ht(de, Ys))), Ee.tagCheck = null, Ee.attributeCheck = null, Ta(E, "ADD_TAGS") && (typeof E.ADD_TAGS == "function" ? Ee.tagCheck = E.ADD_TAGS : Ur(E.ADD_TAGS) && (Z === se && (Z = Ra(Z)), ht(Z, E.ADD_TAGS, ee))), Ta(E, "ADD_ATTR") && (typeof E.ADD_ATTR == "function" ? Ee.attributeCheck = E.ADD_ATTR : Ur(E.ADD_ATTR) && (de === ve && (de = Ra(de)), ht(de, E.ADD_ATTR, ee))), Ta(E, "ADD_FORBID_CONTENTS") && Ur(E.ADD_FORBID_CONTENTS) && (Aa === jn && (Aa = Ra(Aa)), ht(Aa, E.ADD_FORBID_CONTENTS, ee)), La && (Z["#text"] = !0), fe && ht(Z, [
+    if (we = Ir(null), Ta(Y, "tagNameCheck") && Ae(Y.tagNameCheck) && (we.tagNameCheck = Y.tagNameCheck), Ta(Y, "attributeNameCheck") && Ae(Y.attributeNameCheck) && (we.attributeNameCheck = Y.attributeNameCheck), Ta(Y, "allowCustomizedBuiltInElements") && typeof Y.allowCustomizedBuiltInElements == "boolean" && (we.allowCustomizedBuiltInElements = Y.allowCustomizedBuiltInElements), ea(we), Xe && (je = !1), Rt && (kt = !0), Sa && (Z = ht({}, jh), de = Ir(null), Sa.html === !0 && (ht(Z, Uh), ht(de, zh)), Sa.svg === !0 && (ht(Z, hc), ht(de, bc), ht(de, Ys)), Sa.svgFilters === !0 && (ht(Z, pc), ht(de, bc), ht(de, Ys)), Sa.mathMl === !0 && (ht(Z, vc), ht(de, Bh), ht(de, Ys))), Ee.tagCheck = null, Ee.attributeCheck = null, Ta(E, "ADD_TAGS") && (typeof E.ADD_TAGS == "function" ? Ee.tagCheck = E.ADD_TAGS : Ur(E.ADD_TAGS) && (Z === se && (Z = Ra(Z)), ht(Z, E.ADD_TAGS, ee))), Ta(E, "ADD_ATTR") && (typeof E.ADD_ATTR == "function" ? Ee.attributeCheck = E.ADD_ATTR : Ur(E.ADD_ATTR) && (de === ve && (de = Ra(de)), ht(de, E.ADD_ATTR, ee))), Ta(E, "ADD_FORBID_CONTENTS") && Ur(E.ADD_FORBID_CONTENTS) && (Aa === jn && (Aa = Ra(Aa)), ht(Aa, E.ADD_FORBID_CONTENTS, ee)), La && (Z["#text"] = !0), fe && ht(Z, [
       "html",
       "head",
       "body"
@@ -6295,12 +6295,12 @@ function bb() {
       }
     }
     const Ge = Y.body || Y.documentElement;
-    return E && ye && Ge.insertBefore(a.createTextNode(ye), Ge.childNodes[0] || null), Lt === Gt ? ze.call(Y, fe ? "html" : "body")[0] : fe ? Y.documentElement : Ge;
+    return E && ye && Ge.insertBefore(a.createTextNode(ye), Ge.childNodes[0] || null), Lt === Gt ? Fe.call(Y, fe ? "html" : "body")[0] : fe ? Y.documentElement : Ge;
   }, Kr = function(E) {
     const Y = G ? G(E) : E.ownerDocument;
     return xe.call(Y || E, E, p.SHOW_ELEMENT | p.SHOW_COMMENT | p.SHOW_TEXT | p.SHOW_PROCESSING_INSTRUCTION | p.SHOW_CDATA_SECTION, null);
   }, wr = function(E) {
-    return E = Sl(E, Fe, " "), E = Sl(E, Ce, " "), E = Sl(E, Be, " "), E;
+    return E = Sl(E, Me, " "), E = Sl(E, Ce, " "), E = Sl(E, Be, " "), E;
   }, Wr = function(E) {
     var Y;
     Es(E);
@@ -6368,7 +6368,7 @@ function bb() {
     if (Bn(E))
       return Ua(E), !0;
     const ye = ee(M(E));
-    if (Z = Zr($e.uponSanitizeElement, Z, se, je), pa($e.uponSanitizeElement, E, {
+    if (Z = Zr($e.uponSanitizeElement, Z, se, ze), pa($e.uponSanitizeElement, E, {
       tagName: ye,
       allowedTags: Z
     }), Mi(E, Y)) return !0;
@@ -6386,9 +6386,9 @@ function bb() {
     }
     return pa($e.afterSanitizeElements, E, null), Mi(E, Y);
   }, kr = function(E, Y, ye) {
-    if (Me[Y] || Ts(Y, E) || zt && (Y === "id" || Y === "name") && (ye in a || ye in te)) return !1;
+    if (Ue[Y] || Ts(Y, E) || zt && (Y === "id" || Y === "name") && (ye in a || ye in te)) return !1;
     const me = de[Y] || Ee.attributeCheck instanceof Function && Ee.attributeCheck(Y, E);
-    return Ue && Yt(dt, Y) || Ne && Yt(le, Y) ? !0 : me ? vi[Y] || Yt(Q, Sl(ye, O, "")) || (Y === "src" || Y === "xlink:href" || Y === "href") && E !== "script" && Dh(ye, "data:") === 0 && Qa[E] || Je && !Yt(T, Sl(ye, O, "")) ? !0 : !ye : Qr(E) && Vn(we.tagNameCheck, E) && Vn(we.attributeNameCheck, Y, E) || Y === "is" && we.allowCustomizedBuiltInElements && Vn(we.tagNameCheck, ye);
+    return je && Yt(dt, Y) || Ne && Yt(le, Y) ? !0 : me ? vi[Y] || Yt(Q, Sl(ye, O, "")) || (Y === "src" || Y === "xlink:href" || Y === "href") && E !== "script" && Dh(ye, "data:") === 0 && Qa[E] || Je && !Yt(T, Sl(ye, O, "")) ? !0 : !ye : Qr(E) && Vn(we.tagNameCheck, E) && Vn(we.attributeNameCheck, Y, E) || Y === "is" && we.allowCustomizedBuiltInElements && Vn(we.tagNameCheck, ye);
   }, Xr = ht({}, [
     "annotation-xml",
     "color-profile",
@@ -6506,7 +6506,7 @@ function bb() {
     if (vn = !Se, vn && (Se = "<!-->"), typeof Se != "string" && !Fi(Se) && (Se = x_(Se), typeof Se != "string"))
       throw Gi("dirty is not a string, aborting");
     if (!t.isSupported) return Se;
-    he ? (Z = je, de = Ot) : We(E), ($e.uponSanitizeElement.length > 0 || $e.uponSanitizeAttribute.length > 0) && (Z = Ra(Z)), $e.uponSanitizeAttribute.length > 0 && (de = Ra(de)), t.removed = [];
+    he ? (Z = ze, de = Ot) : We(E), ($e.uponSanitizeElement.length > 0 || $e.uponSanitizeAttribute.length > 0) && (Z = Ra(Z)), $e.uponSanitizeAttribute.length > 0 && (de = Ra(de)), t.removed = [];
     const Ye = Oi && typeof Se != "string" && Fi(Se);
     let Qe = [];
     const Pt = ha;
@@ -6555,9 +6555,9 @@ function bb() {
 ` + Kt), Xe && (Kt = wr(Kt)), ue && ka ? oe(Kt) : Kt;
   }, t.setConfig = function() {
     let Se = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
-    We(Se), he = !0, je = Z, Ot = de;
+    We(Se), he = !0, ze = Z, Ot = de;
   }, t.clearConfig = function() {
-    ne = null, he = !1, je = null, Ot = null, ue = U, z = "";
+    ne = null, he = !1, ze = null, Ot = null, ue = U, z = "";
   }, t.isValidAttribute = function(Se, E, Y) {
     ne || We({});
     const ye = ee(Se), me = ee(E);
@@ -7632,19 +7632,19 @@ var _0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
         ...le,
         index: T
       }), s.value.forEach((O, B) => O.index = B), b.value && !Pe && (Pe = !0, Et(() => {
-        W(), ze({ addedPane: s.value[T] }), Be("pane-add", { pane: s.value[T] }), Pe = !1;
+        W(), Fe({ addedPane: s.value[T] }), Be("pane-add", { pane: s.value[T] }), Pe = !1;
       }));
     }, qe = (le) => {
       let T = s.value.findIndex((B) => B.id === le);
       s.value[T].el = null;
       let O = s.value.splice(T, 1)[0];
       s.value.forEach((B, Q) => B.index = Q), Et(() => {
-        W(), Be("pane-remove", { pane: O }), ze({ removedPane: {
+        W(), Be("pane-remove", { pane: O }), Fe({ removedPane: {
           ...O
         } });
       });
-    }, ze = (le = {}) => {
-      !le.addedPane && !le.removedPane ? $e() : s.value.some((T) => T.givenSize !== null || T.min || T.max < 100) ? Fe(le) : lt(), b.value && Be("resized");
+    }, Fe = (le = {}) => {
+      !le.addedPane && !le.removedPane ? $e() : s.value.some((T) => T.givenSize !== null || T.min || T.max < 100) ? Me(le) : lt(), b.value && Be("resized");
     }, lt = () => {
       let le = 100 / p.value, T = 100, O = [], B = [];
       for (let Q of s.value) Q.size = Math.max(Math.min(le, Q.max), Q.min), T -= Q.size, Q.size >= Q.max && O.push(Q.id), Q.size <= Q.min && B.push(Q.id);
@@ -7657,7 +7657,7 @@ var _0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
         for (let Z of s.value) Z.givenSize === null && (Z.size = Math.max(Math.min(le / (p.value - B), Z.max), Z.min)), Q -= Z.size;
         Q > 0.1 && Ce(Q, T, O);
       }
-    }, Fe = ({ addedPane: le, removedPane: T } = {}) => {
+    }, Me = ({ addedPane: le, removedPane: T } = {}) => {
       let O = s.value.reduce((ve, we) => ve + (we.givenSize === null ? 0 : we.givenSize), 0), B = s.value.filter((ve) => ve.givenSize === null).length, Q = B > 0 ? (100 - O) / B : 0, Z = 0, se = [], de = [];
       for (let ve of s.value) Z -= ve.size, ve.size >= ve.max && se.push(ve.id), ve.size <= ve.min && de.push(ve.id);
       if (!(Math.abs(Z) < 0.1)) {
@@ -7702,7 +7702,7 @@ var _0 = /* @__PURE__ */ Object.assign({ inheritAttrs: !1 }, {
         }))
       });
     })), xt(() => {
-      re(), W(), ze(), Be("ready"), b.value = !0;
+      re(), W(), Fe(), Be("ready"), b.value = !0;
     }), Ht(() => b.value = !1);
     let dt = () => {
       let { class: le, ...T } = r;
@@ -8173,7 +8173,7 @@ try {
 const sw = Rb;
 let ow = "";
 try {
-  ow = "0.3.0-alpha.28";
+  ow = "0.3.0-alpha.29";
 } catch {
   br.error("The `@nextcloud/vue` library was used without setting / replacing the `appVersion`.");
 }
@@ -9004,12 +9004,12 @@ var en = {
          * @returns {HTMLElement|undefined} The next tabbable node, if any.
          */
         nextTabbableNode: function(qe) {
-          var ze = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : !0, lt = F.indexOf(qe);
-          return lt < 0 ? ze ? re.slice(re.indexOf(qe) + 1).find(function($e) {
+          var Fe = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : !0, lt = F.indexOf(qe);
+          return lt < 0 ? Fe ? re.slice(re.indexOf(qe) + 1).find(function($e) {
             return Nr($e);
           }) : re.slice(0, re.indexOf(qe)).reverse().find(function($e) {
             return Nr($e);
-          }) : F[lt + (ze ? 1 : -1)];
+          }) : F[lt + (Fe ? 1 : -1)];
         }
       };
     }), s.tabbableGroups = s.containerGroups.filter(function(R) {
@@ -9049,8 +9049,8 @@ var en = {
           return F === Be;
         });
         if (xe < 0 && (Pe.container === F || xc(F, o.tabbableOptions) && !Nr(F, o.tabbableOptions) && !Pe.nextTabbableNode(F, !1)) && (xe = J), xe >= 0) {
-          var qe = xe === 0 ? s.tabbableGroups.length - 1 : xe - 1, ze = s.tabbableGroups[qe];
-          W = cr(F) >= 0 ? ze.lastTabbableNode : ze.lastDomTabbableNode;
+          var qe = xe === 0 ? s.tabbableGroups.length - 1 : xe - 1, Fe = s.tabbableGroups[qe];
+          W = cr(F) >= 0 ? Fe.lastTabbableNode : Fe.lastDomTabbableNode;
         } else jl(re) || (W = Pe.nextTabbableNode(F, !1));
       } else {
         var lt = s.tabbableGroups.findIndex(function(Ce) {
@@ -9058,8 +9058,8 @@ var en = {
           return F === Be;
         });
         if (lt < 0 && (Pe.container === F || xc(F, o.tabbableOptions) && !Nr(F, o.tabbableOptions) && !Pe.nextTabbableNode(F)) && (lt = J), lt >= 0) {
-          var $e = lt === s.tabbableGroups.length - 1 ? 0 : lt + 1, Fe = s.tabbableGroups[$e];
-          W = cr(F) >= 0 ? Fe.firstTabbableNode : Fe.firstDomTabbableNode;
+          var $e = lt === s.tabbableGroups.length - 1 ? 0 : lt + 1, Me = s.tabbableGroups[$e];
+          W = cr(F) >= 0 ? Me.firstTabbableNode : Me.firstDomTabbableNode;
         } else jl(re) || (W = Pe.nextTabbableNode(F));
       }
     } else
@@ -9162,27 +9162,27 @@ var en = {
           F.add(Pe);
           var xe = Pe.parentElement, qe = [];
           xe ? qe = xe.children : !xe && J && (qe = Pe.getRootNode().children, xe = Pe.getRootNode().host, J = typeof ShadowRoot < "u" && xe.getRootNode() instanceof ShadowRoot);
-          var ze = up(qe), lt;
+          var Fe = up(qe), lt;
           try {
-            for (ze.s(); !(lt = ze.n()).done; ) {
+            for (Fe.s(); !(lt = Fe.n()).done; ) {
               var $e = lt.value;
               re.add($e);
             }
-          } catch (Fe) {
-            ze.e(Fe);
+          } catch (Me) {
+            Fe.e(Me);
           } finally {
-            ze.f();
+            Fe.f();
           }
           Pe = xe;
         }
       }
-    } catch (Fe) {
-      oe.e(Fe);
+    } catch (Me) {
+      oe.e(Me);
     } finally {
       oe.f();
     }
-    F.forEach(function(Fe) {
-      re.delete(Fe);
+    F.forEach(function(Me) {
+      re.delete(Me);
     }), s.adjacentElements = re;
   }, K = function() {
     if (s.active)
@@ -9233,12 +9233,12 @@ var en = {
         });
         var Pe = function() {
           oe && k();
-          var ze = function() {
+          var Fe = function() {
             f._setSubtreeIsolation(!0), z(), re?.({
               trap: f
             });
           }, lt = A();
-          lt ? lt.then(ze) : ze();
+          lt ? lt.then(Fe) : Fe();
         };
         if (oe)
           return oe(s.containers.concat()).then(Pe, Pe), this;
@@ -16784,7 +16784,7 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
   setup(e) {
     const t = e, a = /* @__PURE__ */ P(null), i = /* @__PURE__ */ P(!1), r = /* @__PURE__ */ P(""), o = /* @__PURE__ */ P(""), s = /* @__PURE__ */ P(!1), f = /* @__PURE__ */ P([]), p = /* @__PURE__ */ P(""), g = /* @__PURE__ */ P([]), b = /* @__PURE__ */ P(""), y = /* @__PURE__ */ P(null), m = /* @__PURE__ */ P(!1), k = /* @__PURE__ */ P([]), $ = /* @__PURE__ */ P([]), C = j(() => $.value.filter((_e) => _e.status !== "completed" && _e.status !== "cancelled")), x = /* @__PURE__ */ P(!1), L = /* @__PURE__ */ P(!1), D = /* @__PURE__ */ P(""), I = /* @__PURE__ */ P(!1), N = /* @__PURE__ */ P(-1), q = j(() => (p.value.match(new RegExp("\\p{L}", "gu")) || []).length >= 3), G = j(() => L.value && !x.value && !D.value && !b.value && g.value.length === 0);
     let A = null, M = null, K = 0, ie = null;
-    const ue = /* @__PURE__ */ P(""), z = /* @__PURE__ */ P(!1), U = /* @__PURE__ */ P(1), R = new URLSearchParams(location.search).get("authorConflicts") === "1", F = /* @__PURE__ */ P(Number(new URLSearchParams(location.search).get("authorId")) || null), re = new URLSearchParams(location.search), oe = /* @__PURE__ */ P((re.get("bookSearch") || "").slice(0, 255)), ae = /* @__PURE__ */ P(["title", "newest", "series"].includes(re.get("bookSort")) ? re.get("bookSort") : "title"), W = /* @__PURE__ */ P(re.get("bookView") === "list" ? "list" : "grid"), J = /* @__PURE__ */ P(!1), Pe = /* @__PURE__ */ P(!1), xe = /* @__PURE__ */ P(null), qe = /* @__PURE__ */ P(!1), ze = /* @__PURE__ */ Mt({ display_name: "", sort_name: "", given_name: "", family_name: "", biography: "" }), lt = j(() => (a.value?.author?.display_name || "").trim().split(/\s+/u).slice(0, 2).map((_e) => Array.from(_e)[0] || "").join("").toLocaleUpperCase()), $e = j(() => At("/apps/library/api/authors/{id}/photo", { id: F.value }) + "?v=" + encodeURIComponent(a.value?.author?.photo_key || "")), Fe = j(() => {
+    const ue = /* @__PURE__ */ P(""), z = /* @__PURE__ */ P(!1), U = /* @__PURE__ */ P(1), R = new URLSearchParams(location.search).get("authorConflicts") === "1", F = /* @__PURE__ */ P(Number(new URLSearchParams(location.search).get("authorId")) || null), re = new URLSearchParams(location.search), oe = /* @__PURE__ */ P((re.get("bookSearch") || "").slice(0, 255)), ae = /* @__PURE__ */ P(["title", "newest", "series"].includes(re.get("bookSort")) ? re.get("bookSort") : "title"), W = /* @__PURE__ */ P(re.get("bookView") === "list" ? "list" : "grid"), J = /* @__PURE__ */ P(!1), Pe = /* @__PURE__ */ P(!1), xe = /* @__PURE__ */ P(null), qe = /* @__PURE__ */ P(!1), Fe = /* @__PURE__ */ Mt({ display_name: "", sort_name: "", given_name: "", family_name: "", biography: "" }), lt = j(() => (a.value?.author?.display_name || "").trim().split(/\s+/u).slice(0, 2).map((_e) => Array.from(_e)[0] || "").join("").toLocaleUpperCase()), $e = j(() => At("/apps/library/api/authors/{id}/photo", { id: F.value }) + "?v=" + encodeURIComponent(a.value?.author?.photo_key || "")), Me = j(() => {
       if (ae.value !== "series") return [{ name: null, books: a.value?.books || [] }];
       const _e = /* @__PURE__ */ new Map();
       for (const fe of a.value?.books || []) {
@@ -16795,8 +16795,8 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
     });
     function Ce(_e) {
       const fe = new URL(location.href);
-      for (const [he, je, Ot] of [["bookSearch", oe.value.trim(), ""], ["bookSort", ae.value, "title"], ["bookView", W.value, "grid"], ["bookPage", String(U.value), "1"]])
-        je !== Ot ? fe.searchParams.set(he, je) : fe.searchParams.delete(he);
+      for (const [he, ze, Ot] of [["bookSearch", oe.value.trim(), ""], ["bookSort", ae.value, "title"], ["bookView", W.value, "grid"], ["bookPage", String(U.value), "1"]])
+        ze !== Ot ? fe.searchParams.set(he, ze) : fe.searchParams.delete(he);
       return jd(t.catalogueUrl, _e.id, fe.href);
     }
     function Be(_e) {
@@ -16806,7 +16806,7 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
       xe.value = _e.target.files?.[0] || null, xe.value && (qe.value = !1);
     }
     async function le(_e, fe = null, he = void 0) {
-      const je = await fetch(At("/apps/library/api/authors") + _e, {
+      const ze = await fetch(At("/apps/library/api/authors") + _e, {
         signal: he,
         credentials: "same-origin",
         cache: "no-store",
@@ -16814,9 +16814,9 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
         headers: { Accept: "application/json", ...fe === null ? {} : { ...fe instanceof FormData ? {} : { "Content-Type": "application/json" }, requesttoken: t.requestToken } },
         ...fe === null ? {} : { body: fe instanceof FormData ? fe : JSON.stringify(fe) }
       });
-      if (!je.ok && (await je.clone().json().catch(() => ({}))).error === "invalid_photo") throw new Error(d("library", "Choose a valid JPEG, PNG or WebP image up to 10 MiB."));
-      if (!je.ok) throw new Error(je.status === 413 ? d("library", "This change exceeds the supported size. Reassign books in smaller groups.") : je.status === 503 ? d("library", "Author migration must finish before editing. Refresh to check progress.") : je.status === 409 ? d("library", "The author or affected books changed. Reload and review again. Your draft is preserved.") : d("library", "Could not load or save the author. Check the fields and reload before retrying."));
-      return je.json();
+      if (!ze.ok && (await ze.clone().json().catch(() => ({}))).error === "invalid_photo") throw new Error(d("library", "Choose a valid JPEG, PNG or WebP image up to 10 MiB."));
+      if (!ze.ok) throw new Error(ze.status === 413 ? d("library", "This change exceeds the supported size. Reassign books in smaller groups.") : ze.status === 503 ? d("library", "Author migration must finish before editing. Refresh to check progress.") : ze.status === 409 ? d("library", "The author or affected books changed. Reload and review again. Your draft is preserved.") : d("library", "Could not load or save the author. Check the fields and reload before retrying."));
+      return ze.json();
     }
     async function T(_e = 1) {
       i.value = !0, r.value = "";
@@ -16848,14 +16848,14 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
       return _e.status === "queued" ? d("library", "Queued") : _e.status === "running" ? d("library", "Running") : _e.status === "conflict" ? d("library", "Needs review") : d("library", "Failed");
     }
     function Z() {
-      for (const _e of Object.keys(ze)) ze[_e] = a.value.author[_e] || "";
+      for (const _e of Object.keys(Fe)) Fe[_e] = a.value.author[_e] || "";
       s.value = !0, o.value = "", xe.value = null, qe.value = !1;
     }
     async function se() {
       i.value = !0, r.value = "";
       try {
         const _e = new FormData();
-        for (const [fe, he] of Object.entries(ze)) _e.set(fe, he);
+        for (const [fe, he] of Object.entries(Fe)) _e.set(fe, he);
         _e.set("revision", String(a.value.author.revision)), _e.set("remove_photo", qe.value ? "1" : "0"), xe.value && _e.set("photo", xe.value), await le(`/${F.value}`, _e), s.value = !1, Pe.value = !1, await T(1), o.value = d("library", "Author saved. Original book credits are preserved.");
       } catch (_e) {
         r.value = _e.message;
@@ -16878,7 +16878,7 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
       try {
         const he = await le(`?search=${encodeURIComponent(p.value.trim())}`, null, fe.signal);
         if (_e !== K) return;
-        g.value = he.authors.filter((je) => Number(je.id) !== F.value), L.value = !0;
+        g.value = he.authors.filter((ze) => Number(ze.id) !== F.value), L.value = !0;
       } catch (he) {
         _e === K && he.name !== "AbortError" && (D.value = he.message);
       } finally {
@@ -16888,7 +16888,7 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
     function be(_e) {
       p.value = _e.display_name, de(), b.value = String(_e.id), g.value = [], L.value = !1, I.value = !1, N.value = -1, y.value = null, Et(() => document.getElementById("target-search")?.focus());
     }
-    function Me(_e) {
+    function Ue(_e) {
       if (_e.key === "Escape") {
         I.value = !1, N.value = -1;
         return;
@@ -16920,7 +16920,7 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
         i.value = !1;
       }
     }
-    async function Ue() {
+    async function je() {
       i.value = !0, r.value = "";
       try {
         const _e = await le(`/${F.value}/assign`, { target: Number(b.value), items: f.value, token: y.value.token });
@@ -17042,12 +17042,12 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
           n("label", nE, l(u(d)("library", "Preferred name")), 1),
           pe(n("input", {
             id: "author-display",
-            "onUpdate:modelValue": fe[8] || (fe[8] = (he) => ze.display_name = he),
+            "onUpdate:modelValue": fe[8] || (fe[8] = (he) => Fe.display_name = he),
             maxlength: "255",
             required: "",
             disabled: i.value
           }, null, 8, rE), [
-            [De, ze.display_name]
+            [De, Fe.display_name]
           ]),
           n("label", lE, [
             X(l(u(d)("library", "Sort name")) + " ", 1),
@@ -17057,12 +17057,12 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
           ]),
           pe(n("input", {
             id: "author-sort",
-            "onUpdate:modelValue": fe[9] || (fe[9] = (he) => ze.sort_name = he),
+            "onUpdate:modelValue": fe[9] || (fe[9] = (he) => Fe.sort_name = he),
             maxlength: "255",
             required: "",
             disabled: i.value
           }, null, 8, sE), [
-            [De, ze.sort_name]
+            [De, Fe.sort_name]
           ]),
           n("label", oE, [
             X(l(u(d)("library", "Given name")) + " ", 1),
@@ -17072,20 +17072,20 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
           ]),
           pe(n("input", {
             id: "author-given",
-            "onUpdate:modelValue": fe[10] || (fe[10] = (he) => ze.given_name = he),
+            "onUpdate:modelValue": fe[10] || (fe[10] = (he) => Fe.given_name = he),
             maxlength: "255",
             disabled: i.value
           }, null, 8, uE), [
-            [De, ze.given_name]
+            [De, Fe.given_name]
           ]),
           n("label", cE, l(u(d)("library", "Family name")), 1),
           pe(n("input", {
             id: "author-family",
-            "onUpdate:modelValue": fe[11] || (fe[11] = (he) => ze.family_name = he),
+            "onUpdate:modelValue": fe[11] || (fe[11] = (he) => Fe.family_name = he),
             maxlength: "255",
             disabled: i.value
           }, null, 8, dE), [
-            [De, ze.family_name]
+            [De, Fe.family_name]
           ]),
           n("label", fE, [
             X(l(u(d)("library", "Biography")) + " ", 1),
@@ -17095,12 +17095,12 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
           ]),
           pe(n("textarea", {
             id: "author-bio",
-            "onUpdate:modelValue": fe[12] || (fe[12] = (he) => ze.biography = he),
+            "onUpdate:modelValue": fe[12] || (fe[12] = (he) => Fe.biography = he),
             maxlength: "10000",
             rows: "5",
             disabled: i.value
           }, null, 8, hE), [
-            [De, ze.biography]
+            [De, Fe.biography]
           ]),
           n("label", pE, [
             X(l(u(d)("library", "Author photo")) + " ", 1),
@@ -17178,7 +17178,7 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
               "aria-controls": "target-options",
               "aria-expanded": I.value && g.value.length > 0,
               "aria-activedescendant": I.value && N.value >= 0 ? `target-option-${N.value}` : void 0,
-              onKeydown: Me,
+              onKeydown: Ue,
               onFocus: fe[17] || (fe[17] = (he) => I.value = !0),
               onBlur: fe[18] || (fe[18] = (he) => I.value = !1)
             }, null, 40, TE), [
@@ -17190,11 +17190,11 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
               role: "listbox",
               "aria-label": u(d)("library", "Destination author")
             }, [
-              (c(!0), h(H, null, ce(g.value, (he, je) => (c(), h("li", {
-                id: `target-option-${je}`,
+              (c(!0), h(H, null, ce(g.value, (he, ze) => (c(), h("li", {
+                id: `target-option-${ze}`,
                 key: he.id,
                 role: "option",
-                "aria-selected": je === N.value,
+                "aria-selected": ze === N.value,
                 onMousedown: fe[19] || (fe[19] = Oe(() => {
                 }, ["prevent"])),
                 onClick: (Ot) => be(he)
@@ -17241,7 +17241,7 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
             n("button", {
               class: "primary",
               disabled: i.value,
-              onClick: Ue
+              onClick: je
             }, l(u(d)("library", "Confirm author change")), 9, zE)
           ], 8, UE)) : S("", !0)
         ], 8, kE)) : S("", !0),
@@ -17296,7 +17296,7 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
           ], 32),
           oe.value ? (c(), h("p", ex, l(u(vt)("library", "%n book", "%n books", a.value.matchingCount)), 1)) : S("", !0),
           a.value.books.length ? S("", !0) : (c(), h("p", tx, l(u(d)("library", "No books match this view.")), 1)),
-          (c(!0), h(H, null, ce(Fe.value, (he) => (c(), h("section", {
+          (c(!0), h(H, null, ce(Me.value, (he) => (c(), h("section", {
             key: he.name ?? "all",
             class: "author-book-group"
           }, [
@@ -17304,15 +17304,15 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
             n("ul", {
               class: Le(["author-books", { "author-books-grid": W.value === "grid" }])
             }, [
-              (c(!0), h(H, null, ce(he.books, (je) => (c(), h("li", {
-                key: je.id
+              (c(!0), h(H, null, ce(he.books, (ze) => (c(), h("li", {
+                key: ze.id
               }, [
                 m.value ? pe((c(), h("input", {
                   key: 0,
                   "onUpdate:modelValue": fe[26] || (fe[26] = (Ot) => f.value = Ot),
                   type: "checkbox",
-                  value: Number(je.id),
-                  "aria-label": u(d)("library", "Select {title}", { title: je.title }),
+                  value: Number(ze.id),
+                  "aria-label": u(d)("library", "Select {title}", { title: ze.title }),
                   disabled: i.value,
                   onChange: fe[27] || (fe[27] = (Ot) => y.value = null)
                 }, null, 40, ix)), [
@@ -17320,29 +17320,29 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
                 ]) : S("", !0),
                 n("a", {
                   class: "author-book-cover",
-                  href: Ce(je),
-                  "aria-label": je.title
+                  href: Ce(ze),
+                  "aria-label": ze.title
                 }, [
                   ge(lf, {
-                    src: Be(je)
+                    src: Be(ze)
                   }, null, 8, ["src"])
                 ], 8, nx),
                 n("div", rx, [
                   n("a", {
                     class: "author-book-title",
-                    href: Ce(je),
+                    href: Ce(ze),
                     dir: "auto"
-                  }, l(je.title), 9, lx),
-                  je.series_name ? (c(), h("span", sx, [
-                    X(l(je.series_name), 1),
-                    je.series_number ? (c(), h(H, { key: 0 }, [
-                      X(" · " + l(je.series_number), 1)
+                  }, l(ze.title), 9, lx),
+                  ze.series_name ? (c(), h("span", sx, [
+                    X(l(ze.series_name), 1),
+                    ze.series_number ? (c(), h(H, { key: 0 }, [
+                      X(" · " + l(ze.series_number), 1)
                     ], 64)) : S("", !0)
                   ])) : S("", !0),
-                  je.publication_date ? (c(), h("span", ox, l(je.publication_date), 1)) : S("", !0),
-                  n("span", null, l(je.extension?.toUpperCase()), 1),
-                  je.scan_status === "missing" ? (c(), h("span", ux, l(u(d)("library", "File missing")), 1)) : S("", !0),
-                  m.value ? (c(), h("span", cx, l(u(d)("library", "Original credit: {credit}", { credit: je.creators || "—" })), 1)) : S("", !0)
+                  ze.publication_date ? (c(), h("span", ox, l(ze.publication_date), 1)) : S("", !0),
+                  n("span", null, l(ze.extension?.toUpperCase()), 1),
+                  ze.scan_status === "missing" ? (c(), h("span", ux, l(u(d)("library", "File missing")), 1)) : S("", !0),
+                  m.value ? (c(), h("span", cx, l(u(d)("library", "Original credit: {credit}", { credit: ze.creators || "—" })), 1)) : S("", !0)
                 ])
               ]))), 128))
             ], 2)
@@ -17405,7 +17405,7 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
             z.value && Number(he.book_count) === 0 ? (c(), h("button", {
               key: 0,
               disabled: i.value || a.value.migration.pending || a.value.migration.failed,
-              onClick: (je) => Xe(he)
+              onClick: (ze) => Xe(he)
             }, l(u(d)("library", "Remove unused author")), 9, GA)) : S("", !0)
           ]))), 128))
         ])) : S("", !0),
@@ -17422,7 +17422,7 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
             he.status === "queued" ? (c(), h("button", {
               key: 0,
               disabled: i.value,
-              onClick: (je) => nt(he)
+              onClick: (ze) => nt(he)
             }, l(u(d)("library", "Cancel")), 9, hx)) : S("", !0),
             he.status === "conflict" || he.status === "failed" ? (c(), h("span", px, l(u(d)("library", "Review the author and try again. No books were changed by this task.")), 1)) : S("", !0)
           ], 8, fx))), 128))
@@ -17439,7 +17439,7 @@ const F$ = ["aria-busy"], M$ = { class: "library-list-inline-actions" }, U$ = ["
             Number(he.undone) ? (c(), h("span", gx, l(u(d)("library", "Undone")), 1)) : (c(), h("button", {
               key: 1,
               disabled: i.value,
-              onClick: (je) => Je(he)
+              onClick: (ze) => Je(he)
             }, l(u(d)("library", "Undo")), 9, yx))
           ], 8, bx))), 128))
         ])
@@ -20199,7 +20199,7 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
     function R() {
       i.value = i.value.replace(/\/$/, "").split("/").slice(0, -1).join("/"), qe();
     }
-    const F = j(() => K.value.reduce(($e, Fe) => ($e[Fe.status] = ($e[Fe.status] || 0) + 1, $e), {})), re = j(() => a.value !== m.value || i.value.replace(/^\/+|\/+$/g, "") !== k.value), oe = j(() => bs(y.value));
+    const F = j(() => K.value.reduce(($e, Me) => ($e[Me.status] = ($e[Me.status] || 0) + 1, $e), {})), re = j(() => a.value !== m.value || i.value.replace(/^\/+|\/+$/g, "") !== k.value), oe = j(() => bs(y.value));
     function ae() {
       !C.value && y.value && (C.value = uu(y.value));
     }
@@ -20216,7 +20216,7 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
       D.value = $e, x.value = "pattern";
     }
     async function qe($e = 1) {
-      const Fe = ++q;
+      const Me = ++q;
       p.value = !0, g.value = "", o.value = [];
       try {
         const Ce = new URLSearchParams();
@@ -20224,25 +20224,25 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
         const Be = await fetch(`${At("/apps/library/api/inference/sample")}?${Ce}`, { credentials: "same-origin", cache: "no-store" });
         if (!Be.ok) throw new Error(d("library", "Could not load this folder. Check its path and your access."));
         const dt = await Be.json();
-        if (Fe !== q) return;
+        if (Me !== q) return;
         if (t.value = dt.roots, !a.value && (a.value = String(dt.roots[0]?.id || ""), a.value))
           return qe();
         m.value !== a.value && ($.value = []), m.value = a.value;
         const le = dt.roots.find((T) => String(T.id) === a.value)?.path.replace(/\/$/, "") || "";
         k.value = dt.scope.slice(le.length).replace(/^\//, ""), o.value = dt.items || [], s.value = dt.page || 1, f.value = !!dt.hasNext, b.value = dt.scope || "", y.value = o.value[0]?.path || "", ae();
       } catch (Ce) {
-        Fe === q && (g.value = Ce.message);
+        Me === q && (g.value = Ce.message);
       } finally {
-        Fe === q && (p.value = !1);
+        Me === q && (p.value = !1);
       }
     }
-    function ze($e) {
+    function Fe($e) {
       $e.rootId === m.value && ($.value = $e.assignments);
     }
     function lt() {
       i.value = "", qe();
     }
-    return xt(() => qe()), ($e, Fe) => (c(), h("section", {
+    return xt(() => qe()), ($e, Me) => (c(), h("section", {
       class: "library-inference",
       "aria-label": u(d)("library", "Extract metadata from paths"),
       "aria-busy": p.value ? "true" : "false"
@@ -20263,7 +20263,7 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
         n("h2", null, l(u(d)("library", "1. Choose a folder")), 1),
         n("form", {
           class: "library-inference-scope",
-          onSubmit: Fe[3] || (Fe[3] = Oe((Ce) => qe(), ["prevent"]))
+          onSubmit: Me[3] || (Me[3] = Oe((Ce) => qe(), ["prevent"]))
         }, [
           n("label", null, [
             ge(at, {
@@ -20275,7 +20275,7 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
               _: 1
             }, 8, ["text"]),
             pe(n("select", {
-              "onUpdate:modelValue": Fe[0] || (Fe[0] = (Ce) => a.value = Ce),
+              "onUpdate:modelValue": Me[0] || (Me[0] = (Ce) => a.value = Ce),
               disabled: p.value || !t.value.length,
               onChange: lt
             }, [
@@ -20290,7 +20290,7 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
           n("label", null, [
             X(l(u(d)("library", "Subfolder relative to this root")), 1),
             pe(n("input", {
-              "onUpdate:modelValue": Fe[1] || (Fe[1] = (Ce) => i.value = Ce),
+              "onUpdate:modelValue": Me[1] || (Me[1] = (Ce) => i.value = Ce),
               type: "text",
               disabled: p.value,
               placeholder: u(d)("library", "Leave empty for the whole root")
@@ -20300,7 +20300,7 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
           ]),
           n("label", KR, [
             pe(n("input", {
-              "onUpdate:modelValue": Fe[2] || (Fe[2] = (Ce) => r.value = Ce),
+              "onUpdate:modelValue": Me[2] || (Me[2] = (Ce) => r.value = Ce),
               type: "checkbox",
               disabled: p.value
             }, null, 8, WR), [
@@ -20347,8 +20347,8 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
                   _: 1
                 }, 8, ["text"]),
                 pe(n("select", {
-                  "onUpdate:modelValue": Fe[4] || (Fe[4] = (Ce) => y.value = Ce),
-                  onChange: Fe[5] || (Fe[5] = (Ce) => ae())
+                  "onUpdate:modelValue": Me[4] || (Me[4] = (Ce) => y.value = Ce),
+                  onChange: Me[5] || (Me[5] = (Ce) => ae())
                 }, [
                   (c(!0), h(H, null, ce(o.value, (Ce) => (c(), h("option", {
                     key: Ce.id,
@@ -20368,13 +20368,13 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
             n("details", {
               class: "library-inference-customize",
               open: N.value,
-              onToggle: Fe[9] || (Fe[9] = (Ce) => N.value = Ce.target.open)
+              onToggle: Me[9] || (Me[9] = (Ce) => N.value = Ce.target.open)
             }, [
               n("summary", null, l(u(d)("library", "Adjust the rule (optional)")), 1),
               n("label", null, [
                 X(l(u(d)("library", "Rule editor")), 1),
                 pe(n("select", {
-                  "onUpdate:modelValue": Fe[6] || (Fe[6] = (Ce) => x.value = Ce)
+                  "onUpdate:modelValue": Me[6] || (Me[6] = (Ce) => x.value = Ce)
                 }, [
                   n("option", lI, l(u(d)("library", "Guided assignments")), 1),
                   n("option", sI, l(u(d)("library", "Advanced pattern")), 1),
@@ -20390,7 +20390,7 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
                 "request-token": e.requestToken,
                 disabled: p.value,
                 "scope-pending": re.value,
-                onLoaded: ze
+                onLoaded: Fe
               }, null, 8, ["root-id", "folder", "request-token", "disabled", "scope-pending"])) : S("", !0),
               x.value === "guided" && C.value ? (c(), h(H, { key: 1 }, [
                 ge(Bp, {
@@ -20416,7 +20416,7 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
                 ]))), 128)),
                 n("label", cI, [
                   pe(n("input", {
-                    "onUpdate:modelValue": Fe[7] || (Fe[7] = (Ce) => C.value.combineAuthors = Ce),
+                    "onUpdate:modelValue": Me[7] || (Me[7] = (Ce) => C.value.combineAuthors = Ce),
                     type: "checkbox"
                   }, null, 512), [
                     [di, C.value.combineAuthors]
@@ -20451,7 +20451,7 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
                         _: 1
                       }, 8, ["text"]),
                       pe(n("input", {
-                        "onUpdate:modelValue": Fe[8] || (Fe[8] = (Ce) => D.value = Ce),
+                        "onUpdate:modelValue": Me[8] || (Me[8] = (Ce) => D.value = Ce),
                         maxlength: "1000",
                         spellcheck: "false",
                         dir: "ltr"
@@ -20528,7 +20528,7 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
             _: 1
           }, 8, ["text"]),
           pe(n("select", {
-            "onUpdate:modelValue": Fe[10] || (Fe[10] = (Ce) => I.value = Ce)
+            "onUpdate:modelValue": Me[10] || (Me[10] = (Ce) => I.value = Ce)
           }, [
             n("option", AI, l(u(d)("library", "All")) + " (" + l(K.value.length) + ")", 1),
             (c(!0), h(H, null, ce(M.value, (Ce, Be) => (c(), h("option", {
@@ -20587,13 +20587,13 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
           n("button", {
             class: "button secondary",
             disabled: p.value || s.value === 1,
-            onClick: Fe[11] || (Fe[11] = (Ce) => qe(s.value - 1))
+            onClick: Me[11] || (Me[11] = (Ce) => qe(s.value - 1))
           }, l(u(d)("library", "Previous page")), 9, PI),
           n("span", null, l(s.value), 1),
           n("button", {
             class: "button secondary",
             disabled: p.value || !f.value,
-            onClick: Fe[12] || (Fe[12] = (Ce) => qe(s.value + 1))
+            onClick: Me[12] || (Me[12] = (Ce) => qe(s.value + 1))
           }, l(u(d)("library", "Next page")), 9, LI)
         ], 8, II)
       ]),
@@ -20604,7 +20604,7 @@ const PR = { class: "library-inference-suggestions" }, LR = ["disabled"], DR = {
         "request-token": e.requestToken,
         disabled: p.value || re.value,
         context: JSON.stringify({ mode: x.value, pattern: x.value === "pattern" ? D.value : void 0, rule: x.value === "guided" ? C.value : void 0, folderRules: x.value === "folders" ? $.value : void 0, rootId: m.value, folder: k.value }),
-        onChanged: Fe[13] || (Fe[13] = (Ce) => qe(s.value))
+        onChanged: Me[13] || (Me[13] = (Ce) => qe(s.value))
       }, null, 8, ["results", "labels", "request-token", "disabled", "context"]),
       ge(IO, {
         definition: { mode: x.value, pattern: D.value, rule: C.value, rootId: m.value, folder: k.value, recursive: r.value },
@@ -21229,8 +21229,8 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
     const oe = /* @__PURE__ */ P(!1), ae = /* @__PURE__ */ P(""), W = j(() => (ae.value.match(new RegExp("\\p{L}", "gu")) || []).length >= 3), J = j(() => {
       const ee = ae.value.trim().toLocaleLowerCase();
       return W.value && String(s.seriesLink?.name || "").toLocaleLowerCase().startsWith(ee);
-    }), Pe = /* @__PURE__ */ P(null), xe = /* @__PURE__ */ P([]), qe = /* @__PURE__ */ P(!1), ze = /* @__PURE__ */ P(!1), lt = /* @__PURE__ */ P(-1), $e = /* @__PURE__ */ P(!1);
-    let Fe = null, Ce = null, Be = 0;
+    }), Pe = /* @__PURE__ */ P(null), xe = /* @__PURE__ */ P([]), qe = /* @__PURE__ */ P(!1), Fe = /* @__PURE__ */ P(!1), lt = /* @__PURE__ */ P(-1), $e = /* @__PURE__ */ P(!1);
+    let Me = null, Ce = null, Be = 0;
     const dt = new URLSearchParams(window.location.search).get("openUnavailable") === "1", le = /* @__PURE__ */ P(""), T = j(() => le.value !== "" && JSON.stringify(s) !== le.value), O = j(() => /^[1-9]\d{0,9}$/.test(t.itemId) && Number(t.itemId) <= 2147483647 ? t.itemId : ""), B = j(() => `${t.catalogueUrl.replace(/\/$/, "")}/items/${O.value}`), Q = j(() => Q_(t.catalogueUrl, window.location.href)), Z = [
       { value: "", label: d("library", "No workflow status") },
       { value: "to-read", label: d("library", "To read") },
@@ -21284,7 +21284,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
     function be(ee, ne) {
       return ee === "subjects" || ee === "classifications" ? [...new Set(we(ne).map((te) => String(te).trim().toLocaleLowerCase()).filter(Boolean))].sort().join("\0") : String(ne ?? "").trim();
     }
-    const Me = j(() => Object.entries(de).map(([ee, ne]) => {
+    const Ue = j(() => Object.entries(de).map(([ee, ne]) => {
       const te = a.value?.[ee], Ae = a.value?.fieldValues || {}, We = Ae[ee], aa = ee === "subjects" || ee === "classifications", ii = Ae[`${ee}Original`];
       let Pi = "";
       if (typeof ii == "string")
@@ -21304,7 +21304,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
         source: a.value?.fieldSources?.[ee] || a.value?.metadataSource || "",
         rejected: ve.value.includes(ee)
       };
-    })), Ee = j(() => Me.value.filter((ee) => ee.hasCandidate && ee.changed)), Ne = j(() => i.value?.metadataStatus), Ue = {
+    })), Ee = j(() => Ue.value.filter((ee) => ee.hasCandidate && ee.changed)), Ne = j(() => i.value?.metadataStatus), je = {
       "user-edited": d("library", "User edited"),
       mixed: d("library", "Mixed sources"),
       inferred: d("library", "Filename/path inferred"),
@@ -21356,7 +21356,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
 `) : String(ee || "").split(";").map((ne) => ne.trim()).filter(Boolean).join(`
 `);
     }
-    function je(ee) {
+    function ze(ee) {
       return Array.isArray(ee) ? ee.join(`
 `) : String(ee || "").split(/[;,\n]+/).map((ne) => ne.trim()).filter(Boolean).join(`
 `);
@@ -21458,20 +21458,20 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
       return Ae.json();
     }
     function Sa() {
-      clearTimeout(Fe), Ce?.abort(), Be++, oe.value = !1, ae.value = "", xe.value = [], qe.value = !1, ze.value = !1, $e.value = !1;
+      clearTimeout(Me), Ce?.abort(), Be++, oe.value = !1, ae.value = "", xe.value = [], qe.value = !1, Fe.value = !1, $e.value = !1;
     }
     function Aa() {
-      oe.value = !0, ae.value = "", xe.value = [], ze.value = !1, Et(() => Pe.value?.focus());
+      oe.value = !0, ae.value = "", xe.value = [], Fe.value = !1, Et(() => Pe.value?.focus());
     }
     function jn() {
       s.seriesLink = null, s.seriesPart = "";
     }
     Ze(ae, (ee) => {
-      if (clearTimeout(Fe), Ce?.abort(), Be++, xe.value = [], qe.value = !1, lt.value = -1, !oe.value || !W.value) {
-        ze.value = !1, $e.value = !1;
+      if (clearTimeout(Me), Ce?.abort(), Be++, xe.value = [], qe.value = !1, lt.value = -1, !oe.value || !W.value) {
+        Fe.value = !1, $e.value = !1;
         return;
       }
-      ze.value = !0, $e.value = !0, Fe = setTimeout(() => Qa(ee.trim()), 220);
+      Fe.value = !0, $e.value = !0, Me = setTimeout(() => Qa(ee.trim()), 220);
     });
     async function Qa(ee = ae.value.trim()) {
       if ((ee.match(new RegExp("\\p{L}", "gu")) || []).length < 3) return;
@@ -21495,18 +21495,18 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
     }
     function vi(ee) {
       if (ee.key === "Escape") {
-        ze.value = !1;
+        Fe.value = !1;
         return;
       }
       if (ee.key === "ArrowDown" || ee.key === "ArrowUp") {
-        if (!W.value || (ee.preventDefault(), ze.value = !0, !xe.value.length)) return;
+        if (!W.value || (ee.preventDefault(), Fe.value = !0, !xe.value.length)) return;
         lt.value = ee.key === "ArrowDown" ? (lt.value + 1) % xe.value.length : lt.value < 0 ? xe.value.length - 1 : (lt.value - 1 + xe.value.length) % xe.value.length;
-      } else ee.key === "Enter" && ze.value && xe.value.length && (ee.preventDefault(), Da(xe.value[Math.max(0, lt.value)]));
+      } else ee.key === "Enter" && Fe.value && xe.value.length && (ee.preventDefault(), Da(xe.value[Math.max(0, lt.value)]));
     }
     async function bi() {
       const ee = ae.value.trim();
       if (ee) {
-        clearTimeout(Fe), Ce?.abort(), Be++, $e.value = !0, m.value = "";
+        clearTimeout(Me), Ce?.abort(), Be++, $e.value = !0, m.value = "";
         try {
           const ne = await ha("", { name: ee });
           Da(ne.series);
@@ -21519,7 +21519,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
     }
     function rt(ee) {
       for (const ne of ["publicationType", "title", "subtitle", "publication", "publicationDate", "publisher", "description"]) s[ne] = ee[ne] || "";
-      s.authorLinks = (ee.canonicalAuthors || []).map((ne) => ({ id: Number(ne.id), name: ne.name })), s.seriesLink = ee.canonicalSeries?.[0] ? { id: Number(ee.canonicalSeries[0].id), name: ee.canonicalSeries[0].name } : null, s.seriesPart = String(ee.canonicalSeries?.[0]?.part || ""), s.genres = (ee.canonicalGenres || []).map((ne) => ({ id: Number(ne.id), name: ne.name })), s.language = je(ee.language), s.subjects = he(ee.subjects), s.classifications = he(ee.classifications), s.personalRating = ee.personalRating ?? "", s.identifiers = Array.isArray(ee.identifiers) ? ee.identifiers.map((ne) => ({ scheme: ne.scheme, displayValue: ne.displayValue || "", valid: ne.valid, originalScheme: ne.scheme, originalDisplayValue: ne.displayValue || "" })) : [], le.value = JSON.stringify(s);
+      s.authorLinks = (ee.canonicalAuthors || []).map((ne) => ({ id: Number(ne.id), name: ne.name })), s.seriesLink = ee.canonicalSeries?.[0] ? { id: Number(ee.canonicalSeries[0].id), name: ee.canonicalSeries[0].name } : null, s.seriesPart = String(ee.canonicalSeries?.[0]?.part || ""), s.genres = (ee.canonicalGenres || []).map((ne) => ({ id: Number(ne.id), name: ne.name })), s.language = ze(ee.language), s.subjects = he(ee.subjects), s.classifications = he(ee.classifications), s.personalRating = ee.personalRating ?? "", s.identifiers = Array.isArray(ee.identifiers) ? ee.identifiers.map((ne) => ({ scheme: ne.scheme, displayValue: ne.displayValue || "", valid: ne.valid, originalScheme: ne.scheme, originalDisplayValue: ne.displayValue || "" })) : [], le.value = JSON.stringify(s);
     }
     function ei() {
       y.value || !a.value || (Rt(), Sa(), rt(a.value), m.value = "", k.value = d("library", "Book changes discarded"));
@@ -21654,7 +21654,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
     return xt(() => {
       window.addEventListener("beforeunload", gi), Gt();
     }), Ht(() => {
-      window.removeEventListener("beforeunload", gi), clearTimeout(p), g?.abort(), clearTimeout(R), F?.abort(), clearTimeout(Fe), Ce?.abort();
+      window.removeEventListener("beforeunload", gi), clearTimeout(p), g?.abort(), clearTimeout(R), F?.abort(), clearTimeout(Me), Ce?.abort();
     }), (ee, ne) => (c(), h("main", $8, [
       n("a", {
         href: Q.value.url,
@@ -22176,17 +22176,17 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         role: "combobox",
                         "aria-autocomplete": "list",
                         "aria-controls": "library-details-series-suggestions",
-                        "aria-expanded": ze.value && xe.value.length > 0 ? "true" : "false",
-                        "aria-activedescendant": lt.value >= 0 && ze.value ? `library-details-series-option-${xe.value[lt.value]?.id}` : void 0,
+                        "aria-expanded": Fe.value && xe.value.length > 0 ? "true" : "false",
+                        "aria-activedescendant": lt.value >= 0 && Fe.value ? `library-details-series-option-${xe.value[lt.value]?.id}` : void 0,
                         placeholder: u(d)("library", "Search series"),
                         disabled: y.value,
-                        onFocus: ne[22] || (ne[22] = (te) => ze.value = W.value),
+                        onFocus: ne[22] || (ne[22] = (te) => Fe.value = W.value),
                         onKeydown: vi
                       }, null, 40, yL), [
                         [De, ae.value]
                       ]),
                       $e.value ? (c(), h("span", mL, l(u(d)("library", "Searching…")), 1)) : S("", !0),
-                      ze.value && xe.value.length ? (c(), h("ul", _L, [
+                      Fe.value && xe.value.length ? (c(), h("ul", _L, [
                         (c(!0), h(H, null, ce(xe.value, (te, Ae) => (c(), h("li", {
                           id: `library-details-series-option-${te.id}`,
                           key: te.id,
@@ -22205,8 +22205,8 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           ], 42, kL)
                         ], 8, wL))), 128))
                       ])) : S("", !0),
-                      ze.value && qe.value ? (c(), h("p", SL, l(u(d)("library", "More matches. Keep typing to narrow the list.")), 1)) : S("", !0),
-                      ze.value && W.value && !$e.value && !xe.value.length ? (c(), h("p", CL, l(J.value ? u(d)("library", "The matching series is already assigned to this book. Search another name to change it.") : u(d)("library", "No matching series. You can create one below.")), 1)) : S("", !0)
+                      Fe.value && qe.value ? (c(), h("p", SL, l(u(d)("library", "More matches. Keep typing to narrow the list.")), 1)) : S("", !0),
+                      Fe.value && W.value && !$e.value && !xe.value.length ? (c(), h("p", CL, l(J.value ? u(d)("library", "The matching series is already assigned to this book. Search another name to change it.") : u(d)("library", "No matching series. You can create one below.")), 1)) : S("", !0)
                     ]),
                     n("div", $L, [
                       ae.value.trim() ? (c(), h("button", {
@@ -22321,7 +22321,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
               Ne.value.completeness.missing.length ? (c(), h("span", BL, l(u(d)("library", "Missing details")) + " " + l(Ne.value.completeness.missing.map((te) => te === "creators" ? u(d)("library", "Authors") : de[te] || te).join(", ")), 1)) : S("", !0)
             ]),
             n("dt", null, l(u(d)("library", "Confidence")), 1),
-            n("dd", null, l(Ue[Ne.value.confidence] || "—"), 1),
+            n("dd", null, l(je[Ne.value.confidence] || "—"), 1),
             n("dt", null, l(u(d)("library", "Attention")), 1),
             n("dd", null, l(nt.value), 1),
             n("dt", null, l(u(d)("library", "Personal")), 1),
@@ -22367,7 +22367,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
           n("details", null, [
             n("summary", null, l(u(d)("library", "Show all scanner provenance")), 1),
             n("div", XL, [
-              (c(!0), h(H, null, ce(Me.value, (te) => (c(), h("article", {
+              (c(!0), h(H, null, ce(Ue.value, (te) => (c(), h("article", {
                 key: te.field
               }, [
                 n("h3", null, l(te.label), 1),
@@ -23008,17 +23008,17 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
         iy(_, v);
       }, 200);
     });
-    const qe = /* @__PURE__ */ P(A.creator), ze = /* @__PURE__ */ P(!1), lt = /* @__PURE__ */ P(null), $e = j(() => lt.value || []);
+    const qe = /* @__PURE__ */ P(A.creator), Fe = /* @__PURE__ */ P(!1), lt = /* @__PURE__ */ P(null), $e = j(() => lt.value || []);
     Ze(() => A.creator, (w) => {
       qe.value = w || "";
     });
-    let Fe = null, Ce = null, Be = 0;
+    let Me = null, Ce = null, Be = 0;
     Ze(qe, (w) => {
-      window.clearTimeout(Fe), Ce?.abort(), Ce = null, lt.value = null;
+      window.clearTimeout(Me), Ce?.abort(), Ce = null, lt.value = null;
       const _ = String(w || "").trim();
       if (_.length < 3) return;
       const v = ++Be;
-      Fe = window.setTimeout(() => {
+      Me = window.setTimeout(() => {
         ay(_, v);
       }, 200);
     });
@@ -23040,9 +23040,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
     Ze(() => A.subject, (w) => {
       se.value = w || "";
     });
-    let be = null, Me = null, Ee = 0;
+    let be = null, Ue = null, Ee = 0;
     Ze(se, (w) => {
-      window.clearTimeout(be), Me?.abort(), Me = null, ve.value = null;
+      window.clearTimeout(be), Ue?.abort(), Ue = null, ve.value = null;
       const _ = String(w || "").trim();
       if (_.length < 3) return;
       const v = ++Ee;
@@ -23050,7 +23050,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
         ny(_, v);
       }, 200);
     });
-    const Ne = /* @__PURE__ */ P(A.classification), Ue = /* @__PURE__ */ P(!1), Je = /* @__PURE__ */ P(null), nt = j(() => Je.value || []);
+    const Ne = /* @__PURE__ */ P(A.classification), je = /* @__PURE__ */ P(!1), Je = /* @__PURE__ */ P(null), nt = j(() => Je.value || []);
     Ze(() => A.classification, (w) => {
       Ne.value = w || "";
     });
@@ -23064,7 +23064,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
         ry(_, v);
       }, 200);
     });
-    const he = /* @__PURE__ */ P(A.tag), je = /* @__PURE__ */ P(!1), Ot = /* @__PURE__ */ P(null), fa = j(() => Ot.value || []);
+    const he = /* @__PURE__ */ P(A.tag), ze = /* @__PURE__ */ P(!1), Ot = /* @__PURE__ */ P(null), fa = j(() => Ot.value || []);
     Ze(() => A.tag, (w) => {
       he.value = w || "";
     });
@@ -23184,7 +23184,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
       publication: "Series / periodical",
       year: "Publication year",
       language: "Language",
-      creator: "Creator",
+      creator: "Author",
       authorId: "Author ID",
       seriesId: "Series ID",
       genreId: "Genre ID",
@@ -23589,7 +23589,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
       }
       V.set(`${w}Search`, _);
       const ke = new AbortController();
-      w === "creator" ? Ce = ke : w === "publisher" ? Pe = ke : w === "subject" ? Me = ke : w === "classification" ? _e = ke : w === "tag" ? Rt = ke : w === "folder" ? Q = ke : ha = ke;
+      w === "creator" ? Ce = ke : w === "publisher" ? Pe = ke : w === "subject" ? Ue = ke : w === "classification" ? _e = ke : w === "tag" ? Rt = ke : w === "folder" ? Q = ke : ha = ke;
       const Ve = w === "creator" ? Lu.value : w === "publisher" ? $s.value : w === "subject" ? Du.value : w === "classification" ? Fu.value : w === "tag" ? Mu.value : w === "folder" ? Uu.value : Ts.value;
       try {
         const tt = await fetch(`${Ve}?${V}`, { headers: { Accept: "application/json" }, credentials: "same-origin", signal: ke.signal });
@@ -23781,10 +23781,10 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
       hy(_.currentTarget.form, w);
     }
     async function py(w) {
-      A.q = String(K.value || "").trim(), A.publication = String(M.value || "").trim(), A.publisher = String(re.value || "").trim(), A.creator = String(qe.value || "").trim(), A.subject = String(se.value || "").trim(), A.folder = String(dt.value || "").trim(), A.year = String(zt.value || "").trim(), ie.value = !1, oe.value = !1, ze.value = !1, de.value = !1, le.value = !1, qt.value = !1, await Et(), na({ currentTarget: w });
+      A.q = String(K.value || "").trim(), A.publication = String(M.value || "").trim(), A.publisher = String(re.value || "").trim(), A.creator = String(qe.value || "").trim(), A.subject = String(se.value || "").trim(), A.folder = String(dt.value || "").trim(), A.year = String(zt.value || "").trim(), ie.value = !1, oe.value = !1, Fe.value = !1, de.value = !1, le.value = !1, qt.value = !1, await Et(), na({ currentTarget: w });
     }
     async function yn(w, _, v) {
-      A[_] = String(v || "").trim(), _ === "creator" ? (qe.value = A.creator, ze.value = !1) : _ === "publisher" ? (re.value = A.publisher, oe.value = !1) : _ === "subject" ? (se.value = A.subject, de.value = !1) : _ === "folder" ? (dt.value = A.folder, le.value = !1) : _ === "classification" ? (Ne.value = A.classification, Ue.value = !1) : _ === "tag" ? (he.value = A.tag, je.value = !1) : (zt.value = A.year, qt.value = !1), Bi[_] = -1, await Et(), na({ currentTarget: w });
+      A[_] = String(v || "").trim(), _ === "creator" ? (qe.value = A.creator, Fe.value = !1) : _ === "publisher" ? (re.value = A.publisher, oe.value = !1) : _ === "subject" ? (se.value = A.subject, de.value = !1) : _ === "folder" ? (dt.value = A.folder, le.value = !1) : _ === "classification" ? (Ne.value = A.classification, je.value = !1) : _ === "tag" ? (he.value = A.tag, ze.value = !1) : (zt.value = A.year, qt.value = !1), Bi[_] = -1, await Et(), na({ currentTarget: w });
     }
     function Tf(w) {
       py(w.currentTarget);
@@ -23805,7 +23805,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
       yn(_.currentTarget.form, "folder", w);
     }
     function Rf(w, _ = se.value) {
-      window.clearTimeout(be), Me?.abort(), Me = null, yn(w, "subject", _);
+      window.clearTimeout(be), Ue?.abort(), Ue = null, yn(w, "subject", _);
     }
     function vy(w) {
       Rf(w.currentTarget.form);
@@ -24012,7 +24012,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
         dl = null, dy();
       });
     }), Ht(() => {
-      Hu = !0, Ku(), window.removeEventListener("keydown", Hf), window.removeEventListener("popstate", Cf), window.clearTimeout(U), window.clearTimeout(Fe), window.clearTimeout(be), window.clearTimeout(Oi), R?.abort(), Ce?.abort(), Me?.abort(), ha?.abort(), ba += 1, dl !== null && window.cancelAnimationFrame(dl), dl = null, $r?.abort(), cl?.abort(), Cr?.abort(), Cr = null, Jn += 1, Xn?.abort(), Xn = null, ji?.removeEventListener ? ji.removeEventListener("change", ol) : ji?.removeListener?.(ol), ji = null, Is = null;
+      Hu = !0, Ku(), window.removeEventListener("keydown", Hf), window.removeEventListener("popstate", Cf), window.clearTimeout(U), window.clearTimeout(Me), window.clearTimeout(be), window.clearTimeout(Oi), R?.abort(), Ce?.abort(), Ue?.abort(), ha?.abort(), ba += 1, dl !== null && window.cancelAnimationFrame(dl), dl = null, $r?.abort(), cl?.abort(), Cr?.abort(), Cr = null, Jn += 1, Xn?.abort(), Xn = null, ji?.removeEventListener ? ji.removeEventListener("change", ol) : ji?.removeListener?.(ol), ji = null, Is = null;
     });
     const vl = /* @__PURE__ */ Mt({}), bl = /* @__PURE__ */ Mt({});
     async function qf(w, _) {
@@ -24174,7 +24174,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                   }, [
                     n("span", null, [
                       X(l(u(t)("library", "Search")) + " ", 1),
-                      _[112] || (_[112] = n("kbd", { class: "library-keyboard-hint" }, "/", -1))
+                      _[114] || (_[114] = n("kbd", { class: "library-keyboard-hint" }, "/", -1))
                     ]),
                     n("span", M5, [
                       pe(n("input", {
@@ -24184,7 +24184,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         "data-library-quick-search": "",
                         type: "search",
                         name: "q",
-                        placeholder: u(t)("library", "Title, creator, description, filename or folder")
+                        placeholder: u(t)("library", "Title, author, description, filename or folder")
                       }, null, 8, U5), [
                         [De, K.value]
                       ]),
@@ -24342,21 +24342,22 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     }, l(u(t)("library", "Apply year")), 3)
                   ]),
                   n("div", f9, [
-                    n("label", h9, l(u(t)("library", "Creator")), 1),
+                    n("label", h9, l(u(t)("library", "Author")), 1),
                     pe(n("input", {
                       id: "library-creator-search",
                       "onUpdate:modelValue": _[15] || (_[15] = (v) => qe.value = v),
                       type: "search",
                       name: "creatorSearch",
                       autocomplete: "off",
-                      placeholder: u(t)("library", "Search creators"),
-                      title: u(t)("library", "Match an individual author; existing full-field filters remain usable"),
+                      placeholder: u(t)("library", "Search authors"),
+                      title: u(t)("library", "Search by author name or surname (at least 3 characters), or choose a suggested author."),
                       role: "combobox",
                       "aria-autocomplete": "list",
                       "aria-controls": "library-creator-suggestions",
-                      "aria-expanded": ze.value && $e.value.length > 0 ? "true" : "false",
-                      onFocus: _[16] || (_[16] = (v) => ze.value = !0),
-                      onKeydown: _[17] || (_[17] = yt((v) => ze.value = !1, ["escape"]))
+                      "aria-expanded": Fe.value && $e.value.length > 0 ? "true" : "false",
+                      onFocus: _[16] || (_[16] = (v) => Fe.value = !0),
+                      onInput: _[17] || (_[17] = (v) => Fe.value = !0),
+                      onKeydown: _[18] || (_[18] = yt((v) => Fe.value = !1, ["escape"]))
                     }, null, 40, p9), [
                       [De, qe.value]
                     ]),
@@ -24366,7 +24367,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                       value: A.creator
                     }, null, 8, v9),
                     xa("creator") ? (c(), h("small", b9, l(li("creator")), 1)) : S("", !0),
-                    ze.value && $e.value.length > 0 ? (c(), h("ul", g9, [
+                    Fe.value && $e.value.length > 0 ? (c(), h("ul", g9, [
                       (c(!0), h(H, null, ce($e.value, (v) => (c(), h("li", {
                         key: v,
                         role: "option"
@@ -24374,7 +24375,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("button", {
                           type: "button",
                           class: "library-creator-suggestion",
-                          onMousedown: _[18] || (_[18] = Oe(() => {
+                          onMousedown: _[19] || (_[19] = Oe(() => {
                           }, ["prevent"])),
                           onClick: (V) => Af(v, V)
                         }, l(v), 41, y9)
@@ -24383,13 +24384,13 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     n("button", {
                       type: "submit",
                       class: Le(["button secondary library-creator-apply", Ui("creator")])
-                    }, l(u(t)("library", "Apply creator")), 3)
+                    }, l(u(t)("library", "Apply author")), 3)
                   ]),
                   n("div", m9, [
                     n("label", _9, l(u(t)("library", "Nextcloud tag")), 1),
                     pe(n("input", {
                       id: "library-tag-search",
-                      "onUpdate:modelValue": _[19] || (_[19] = (v) => he.value = v),
+                      "onUpdate:modelValue": _[20] || (_[20] = (v) => he.value = v),
                       type: "search",
                       name: "tagSearch",
                       autocomplete: "off",
@@ -24397,9 +24398,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                       role: "combobox",
                       "aria-autocomplete": "list",
                       "aria-controls": "library-tag-suggestions",
-                      "aria-expanded": je.value && fa.value.length > 0 ? "true" : "false",
-                      onFocus: _[20] || (_[20] = (v) => je.value = !0),
-                      onKeydown: _[21] || (_[21] = yt((v) => je.value = !1, ["escape"]))
+                      "aria-expanded": ze.value && fa.value.length > 0 ? "true" : "false",
+                      onFocus: _[21] || (_[21] = (v) => ze.value = !0),
+                      onKeydown: _[22] || (_[22] = yt((v) => ze.value = !1, ["escape"]))
                     }, null, 40, w9), [
                       [De, he.value]
                     ]),
@@ -24408,7 +24409,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                       name: "tag",
                       value: A.tag
                     }, null, 8, k9),
-                    je.value && fa.value.length > 0 ? (c(), h("ul", S9, [
+                    ze.value && fa.value.length > 0 ? (c(), h("ul", S9, [
                       (c(!0), h(H, null, ce(fa.value, (v) => (c(), h("li", {
                         key: v,
                         role: "option"
@@ -24416,7 +24417,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("button", {
                           type: "button",
                           class: "library-tag-suggestion",
-                          onMousedown: _[22] || (_[22] = Oe(() => {
+                          onMousedown: _[23] || (_[23] = Oe(() => {
                           }, ["prevent"])),
                           onClick: (V) => Nf(v, V)
                         }, l(v), 41, C9)
@@ -24430,9 +24431,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                   n("label", null, [
                     X(l(u(t)("library", "Format")), 1),
                     pe(n("select", {
-                      "onUpdate:modelValue": _[23] || (_[23] = (v) => A.format = v),
+                      "onUpdate:modelValue": _[24] || (_[24] = (v) => A.format = v),
                       name: "format",
-                      onChange: _[24] || (_[24] = (v) => Na(v))
+                      onChange: _[25] || (_[25] = (v) => Na(v))
                     }, [
                       n("option", $9, l(u(t)("library", "All formats")), 1),
                       (c(!0), h(H, null, ce(x.value, (v) => (c(), h("option", {
@@ -24449,9 +24450,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                   n("label", null, [
                     X(l(u(t)("library", "Shelf")), 1),
                     pe(n("select", {
-                      "onUpdate:modelValue": _[25] || (_[25] = (v) => A.shelf = v),
+                      "onUpdate:modelValue": _[26] || (_[26] = (v) => A.shelf = v),
                       name: "shelf",
-                      onChange: _[26] || (_[26] = (v) => Na(v))
+                      onChange: _[27] || (_[27] = (v) => Na(v))
                     }, [
                       n("option", E9, l(u(t)("library", "All shelves")), 1),
                       (c(!0), h(H, null, ce(C.value, (v) => (c(), h("option", {
@@ -24466,7 +24467,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     n("label", O9, l(u(t)("library", "Folder")), 1),
                     pe(n("input", {
                       id: "library-folder-search",
-                      "onUpdate:modelValue": _[27] || (_[27] = (v) => dt.value = v),
+                      "onUpdate:modelValue": _[28] || (_[28] = (v) => dt.value = v),
                       type: "search",
                       name: "folderSearch",
                       autocomplete: "off",
@@ -24476,8 +24477,8 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                       "aria-autocomplete": "list",
                       "aria-controls": "library-folder-suggestions",
                       "aria-expanded": le.value && O.value.length > 0 ? "true" : "false",
-                      onFocus: _[28] || (_[28] = (v) => le.value = !0),
-                      onKeydown: _[29] || (_[29] = yt((v) => le.value = !1, ["escape"]))
+                      onFocus: _[29] || (_[29] = (v) => le.value = !0),
+                      onKeydown: _[30] || (_[30] = yt((v) => le.value = !1, ["escape"]))
                     }, null, 40, R9), [
                       [De, dt.value]
                     ]),
@@ -24489,7 +24490,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("button", {
                           type: "button",
                           class: "library-folder-suggestion",
-                          onMousedown: _[30] || (_[30] = Oe(() => {
+                          onMousedown: _[31] || (_[31] = Oe(() => {
                           }, ["prevent"])),
                           onClick: (V) => Of(v, V)
                         }, l(v), 41, P9)
@@ -24506,9 +24507,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                   n("label", null, [
                     X(l(u(t)("library", "Scan status")), 1),
                     pe(n("select", {
-                      "onUpdate:modelValue": _[31] || (_[31] = (v) => A.status = v),
+                      "onUpdate:modelValue": _[32] || (_[32] = (v) => A.status = v),
                       name: "status",
-                      onChange: _[32] || (_[32] = (v) => Na(v))
+                      onChange: _[33] || (_[33] = (v) => Na(v))
                     }, [
                       n("option", D9, l(u(t)("library", "All scan statuses")), 1),
                       (c(!0), h(H, null, ce(N.value, (v) => (c(), h("option", {
@@ -24522,9 +24523,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                   n("label", null, [
                     X(l(u(t)("library", "Workflow status")), 1),
                     pe(n("select", {
-                      "onUpdate:modelValue": _[33] || (_[33] = (v) => A.workflowStatus = v),
+                      "onUpdate:modelValue": _[34] || (_[34] = (v) => A.workflowStatus = v),
                       name: "workflowStatus",
-                      onChange: _[34] || (_[34] = (v) => Na(v))
+                      onChange: _[35] || (_[35] = (v) => Na(v))
                     }, [
                       n("option", M9, l(u(t)("library", "All workflow statuses")), 1),
                       (c(!0), h(H, null, ce(q.value, (v) => (c(), h("option", {
@@ -24539,7 +24540,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     n("label", z9, l(u(t)("library", "Subject")), 1),
                     pe(n("input", {
                       id: "library-subject-search",
-                      "onUpdate:modelValue": _[35] || (_[35] = (v) => se.value = v),
+                      "onUpdate:modelValue": _[36] || (_[36] = (v) => se.value = v),
                       type: "search",
                       name: "subjectSearch",
                       autocomplete: "off",
@@ -24549,8 +24550,8 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                       "aria-autocomplete": "list",
                       "aria-controls": "library-subject-suggestions",
                       "aria-expanded": de.value && we.value.length > 0 ? "true" : "false",
-                      onFocus: _[36] || (_[36] = (v) => de.value = !0),
-                      onKeydown: _[37] || (_[37] = yt((v) => de.value = !1, ["escape"]))
+                      onFocus: _[37] || (_[37] = (v) => de.value = !0),
+                      onKeydown: _[38] || (_[38] = yt((v) => de.value = !1, ["escape"]))
                     }, null, 40, B9), [
                       [De, se.value]
                     ]),
@@ -24568,7 +24569,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("button", {
                           type: "button",
                           class: "library-subject-suggestion",
-                          onMousedown: _[38] || (_[38] = Oe(() => {
+                          onMousedown: _[39] || (_[39] = Oe(() => {
                           }, ["prevent"])),
                           onClick: (V) => If(v, V)
                         }, l(v), 41, G9)
@@ -24584,7 +24585,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     n("label", W9, l(u(t)("library", "Classification")), 1),
                     pe(n("input", {
                       id: "library-classification-search",
-                      "onUpdate:modelValue": _[39] || (_[39] = (v) => Ne.value = v),
+                      "onUpdate:modelValue": _[40] || (_[40] = (v) => Ne.value = v),
                       type: "search",
                       name: "classificationSearch",
                       autocomplete: "off",
@@ -24593,9 +24594,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                       role: "combobox",
                       "aria-autocomplete": "list",
                       "aria-controls": "library-classification-suggestions",
-                      "aria-expanded": Ue.value && nt.value.length > 0 ? "true" : "false",
-                      onFocus: _[40] || (_[40] = (v) => Ue.value = !0),
-                      onKeydown: _[41] || (_[41] = yt((v) => Ue.value = !1, ["escape"]))
+                      "aria-expanded": je.value && nt.value.length > 0 ? "true" : "false",
+                      onFocus: _[41] || (_[41] = (v) => je.value = !0),
+                      onKeydown: _[42] || (_[42] = yt((v) => je.value = !1, ["escape"]))
                     }, null, 40, Y9), [
                       [De, Ne.value]
                     ]),
@@ -24604,7 +24605,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                       name: "classification",
                       value: A.classification
                     }, null, 8, Z9),
-                    Ue.value && nt.value.length > 0 ? (c(), h("ul", J9, [
+                    je.value && nt.value.length > 0 ? (c(), h("ul", J9, [
                       (c(!0), h(H, null, ce(nt.value, (v) => (c(), h("li", {
                         key: v,
                         role: "option"
@@ -24612,7 +24613,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("button", {
                           type: "button",
                           class: "library-classification-suggestion",
-                          onMousedown: _[42] || (_[42] = Oe(() => {
+                          onMousedown: _[43] || (_[43] = Oe(() => {
                           }, ["prevent"])),
                           onClick: (V) => xf(v, V)
                         }, l(v), 41, X9)
@@ -24626,9 +24627,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                   n("label", null, [
                     X(l(u(t)("library", "Suggested updates")), 1),
                     pe(n("select", {
-                      "onUpdate:modelValue": _[43] || (_[43] = (v) => A.scannerConflicts = v),
+                      "onUpdate:modelValue": _[44] || (_[44] = (v) => A.scannerConflicts = v),
                       name: "scannerConflicts",
-                      onChange: _[44] || (_[44] = (v) => Na(v))
+                      onChange: _[45] || (_[45] = (v) => Na(v))
                     }, [
                       n("option", Q9, l(u(t)("library", "All metadata")), 1),
                       n("option", eD, l(u(t)("library", "Suggested updates")), 1)
@@ -24647,7 +24648,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
               class: "library-navigation-settings-link",
               href: bi.value
             }, [
-              _[113] || (_[113] = n("span", {
+              _[115] || (_[115] = n("span", {
                 class: "library-navigation-settings-icon",
                 "aria-hidden": "true"
               }, "⚙", -1)),
@@ -24717,14 +24718,14 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                       ], 64)) : S("", !0)
                     ]),
                     v.displayValue ? (c(), h(H, { key: 0 }, [
-                      _[114] || (_[114] = X(l(" "), -1)),
+                      _[116] || (_[116] = X(l(" "), -1)),
                       n("span", {
                         class: "library-filter-chip-value",
                         title: v.value
                       }, l(v.displayValue), 9, sD)
                     ], 64)) : S("", !0),
-                    _[115] || (_[115] = X()),
-                    _[116] || (_[116] = n("span", { "aria-hidden": "true" }, "×", -1))
+                    _[117] || (_[117] = X()),
+                    _[118] || (_[118] = n("span", { "aria-hidden": "true" }, "×", -1))
                   ], 8, lD))), 128)),
                   $t.value.length > 0 ? (c(), h("a", {
                     key: 0,
@@ -24776,7 +24777,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     n("label", null, [
                       X(l(u(t)("library", "Search within this queue")), 1),
                       pe(n("input", {
-                        "onUpdate:modelValue": _[45] || (_[45] = (v) => A.q = v),
+                        "onUpdate:modelValue": _[46] || (_[46] = (v) => A.q = v),
                         type: "search",
                         name: "q"
                       }, null, 512), [
@@ -24857,7 +24858,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                                 name: "field",
                                 value: v.field
                               }, null, 8, FD),
-                              _[117] || (_[117] = n("input", {
+                              _[119] || (_[119] = n("input", {
                                 type: "hidden",
                                 name: "returnTo",
                                 value: "catalogue"
@@ -25000,14 +25001,14 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           ], 64)) : S("", !0)
                         ]),
                         v.displayValue ? (c(), h(H, { key: 0 }, [
-                          _[118] || (_[118] = X(l(" "), -1)),
+                          _[120] || (_[120] = X(l(" "), -1)),
                           n("span", {
                             class: "library-filter-chip-value",
                             title: v.value
                           }, l(v.displayValue), 9, v6)
                         ], 64)) : S("", !0),
-                        _[119] || (_[119] = X()),
-                        _[120] || (_[120] = n("span", { "aria-hidden": "true" }, "×", -1))
+                        _[121] || (_[121] = X()),
+                        _[122] || (_[122] = n("span", { "aria-hidden": "true" }, "×", -1))
                       ], 8, p6))), 128))
                     ], 8, h6),
                     n("p", b6, [
@@ -25228,14 +25229,14 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           ], 64)) : S("", !0)
                         ]),
                         v.displayValue ? (c(), h(H, { key: 0 }, [
-                          _[121] || (_[121] = X(l(" "), -1)),
+                          _[123] || (_[123] = X(l(" "), -1)),
                           n("span", {
                             class: "library-filter-chip-value",
                             title: v.value
                           }, l(v.displayValue), 9, dF)
                         ], 64)) : S("", !0),
-                        _[122] || (_[122] = X()),
-                        _[123] || (_[123] = n("span", { "aria-hidden": "true" }, "×", -1))
+                        _[124] || (_[124] = X()),
+                        _[125] || (_[125] = n("span", { "aria-hidden": "true" }, "×", -1))
                       ], 8, cF))), 128))
                     ], 8, uF),
                     n("p", fF, [
@@ -25337,11 +25338,11 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             pe(n("input", {
                               ref_key: "mobileFilterSearchInput",
                               ref: xs,
-                              "onUpdate:modelValue": _[46] || (_[46] = (v) => K.value = v),
+                              "onUpdate:modelValue": _[47] || (_[47] = (v) => K.value = v),
                               "data-library-mobile-filter-search": "",
                               type: "search",
                               name: "q",
-                              placeholder: u(t)("library", "Title, creator, description, filename or folder")
+                              placeholder: u(t)("library", "Title, author, description, filename or folder")
                             }, null, 8, IF), [
                               [De, K.value]
                             ]),
@@ -25351,9 +25352,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("label", null, [
                           X(l(u(t)("library", "Type")), 1),
                           pe(n("select", {
-                            "onUpdate:modelValue": _[47] || (_[47] = (v) => A.type = v),
+                            "onUpdate:modelValue": _[48] || (_[48] = (v) => A.type = v),
                             name: "type",
-                            onChange: _[48] || (_[48] = (v) => Na(v))
+                            onChange: _[49] || (_[49] = (v) => Na(v))
                           }, [
                             n("option", LF, l(u(t)("library", "All types")), 1),
                             (c(!0), h(H, null, ce(L.value, (v) => (c(), h("option", {
@@ -25368,7 +25369,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           n("label", MF, l(u(t)("library", "Publisher")), 1),
                           pe(n("input", {
                             id: "library-mobile-publisher-search",
-                            "onUpdate:modelValue": _[49] || (_[49] = (v) => re.value = v),
+                            "onUpdate:modelValue": _[50] || (_[50] = (v) => re.value = v),
                             type: "search",
                             name: "publisherSearch",
                             autocomplete: "off",
@@ -25379,8 +25380,8 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             "aria-controls": "library-mobile-publisher-suggestions",
                             "aria-activedescendant": Lf("mobile", "publisher"),
                             "aria-expanded": oe.value && W.value.length > 0 ? "true" : "false",
-                            onFocus: _[50] || (_[50] = (v) => Df("publisher")),
-                            onKeydown: _[51] || (_[51] = (v) => Ff(v, "publisher"))
+                            onFocus: _[51] || (_[51] = (v) => Df("publisher")),
+                            onKeydown: _[52] || (_[52] = (v) => Ff(v, "publisher"))
                           }, null, 40, UF), [
                             [De, re.value]
                           ]),
@@ -25400,7 +25401,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                               n("button", {
                                 type: "button",
                                 class: "library-publisher-suggestion",
-                                onMousedown: _[52] || (_[52] = Oe(() => {
+                                onMousedown: _[53] || (_[53] = Oe(() => {
                                 }, ["prevent"])),
                                 onClick: (ke) => Ef(v, ke)
                               }, l(v), 41, HF)
@@ -25411,7 +25412,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           n("label", GF, l(u(t)("library", "Series / periodical")), 1),
                           pe(n("input", {
                             id: "library-mobile-publication-search",
-                            "onUpdate:modelValue": _[53] || (_[53] = (v) => M.value = v),
+                            "onUpdate:modelValue": _[54] || (_[54] = (v) => M.value = v),
                             type: "search",
                             name: "publicationSearch",
                             autocomplete: "off",
@@ -25420,8 +25421,8 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             "aria-autocomplete": "list",
                             "aria-controls": "library-mobile-publication-suggestions",
                             "aria-expanded": ie.value && z.value.length > 0 ? "true" : "false",
-                            onFocus: _[54] || (_[54] = (v) => ie.value = !0),
-                            onKeydown: _[55] || (_[55] = yt((v) => ie.value = !1, ["escape"]))
+                            onFocus: _[55] || (_[55] = (v) => ie.value = !0),
+                            onKeydown: _[56] || (_[56] = yt((v) => ie.value = !1, ["escape"]))
                           }, null, 40, KF), [
                             [De, M.value]
                           ]),
@@ -25439,7 +25440,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                               n("button", {
                                 type: "button",
                                 class: "library-publication-suggestion",
-                                onMousedown: _[56] || (_[56] = Oe(() => {
+                                onMousedown: _[57] || (_[57] = Oe(() => {
                                 }, ["prevent"])),
                                 onClick: (V) => $f(v, V)
                               }, l(v), 41, JF)
@@ -25450,7 +25451,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           n("label", QF, l(u(t)("library", "Publication year")), 1),
                           pe(n("input", {
                             id: "library-mobile-year-search",
-                            "onUpdate:modelValue": _[57] || (_[57] = (v) => zt.value = v),
+                            "onUpdate:modelValue": _[58] || (_[58] = (v) => zt.value = v),
                             type: "search",
                             name: "yearSearch",
                             autocomplete: "off",
@@ -25459,8 +25460,8 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             "aria-autocomplete": "list",
                             "aria-controls": "library-mobile-year-suggestions",
                             "aria-expanded": qt.value && La.value.length > 0 ? "true" : "false",
-                            onFocus: _[58] || (_[58] = (v) => qt.value = !0),
-                            onKeydown: _[59] || (_[59] = yt((v) => qt.value = !1, ["escape"]))
+                            onFocus: _[59] || (_[59] = (v) => qt.value = !0),
+                            onKeydown: _[60] || (_[60] = yt((v) => qt.value = !1, ["escape"]))
                           }, null, 40, eM), [
                             [De, zt.value]
                           ]),
@@ -25478,7 +25479,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                               n("button", {
                                 type: "button",
                                 class: "library-year-suggestion",
-                                onMousedown: _[60] || (_[60] = Oe(() => {
+                                onMousedown: _[61] || (_[61] = Oe(() => {
                                 }, ["prevent"])),
                                 onClick: (V) => Pf(v, V)
                               }, l(v), 41, nM)
@@ -25486,21 +25487,22 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           ])) : S("", !0)
                         ]),
                         n("div", rM, [
-                          n("label", lM, l(u(t)("library", "Creator")), 1),
+                          n("label", lM, l(u(t)("library", "Author")), 1),
                           pe(n("input", {
                             id: "library-mobile-creator-search",
-                            "onUpdate:modelValue": _[61] || (_[61] = (v) => qe.value = v),
+                            "onUpdate:modelValue": _[62] || (_[62] = (v) => qe.value = v),
                             type: "search",
                             name: "creatorSearch",
                             autocomplete: "off",
-                            placeholder: u(t)("library", "Search creators"),
-                            title: u(t)("library", "Match an individual author; existing full-field filters remain usable"),
+                            placeholder: u(t)("library", "Search authors"),
+                            title: u(t)("library", "Search by author name or surname (at least 3 characters), or choose a suggested author."),
                             role: "combobox",
                             "aria-autocomplete": "list",
                             "aria-controls": "library-mobile-creator-suggestions",
-                            "aria-expanded": ze.value && $e.value.length > 0 ? "true" : "false",
-                            onFocus: _[62] || (_[62] = (v) => ze.value = !0),
-                            onKeydown: _[63] || (_[63] = yt((v) => ze.value = !1, ["escape"]))
+                            "aria-expanded": Fe.value && $e.value.length > 0 ? "true" : "false",
+                            onFocus: _[63] || (_[63] = (v) => Fe.value = !0),
+                            onInput: _[64] || (_[64] = (v) => Fe.value = !0),
+                            onKeydown: _[65] || (_[65] = yt((v) => Fe.value = !1, ["escape"]))
                           }, null, 40, sM), [
                             [De, qe.value]
                           ]),
@@ -25510,7 +25512,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             value: A.creator
                           }, null, 8, oM),
                           xa("creator") ? (c(), h("small", uM, l(li("creator")), 1)) : S("", !0),
-                          ri.value && ze.value && $e.value.length > 0 ? (c(), h("ul", cM, [
+                          ri.value && Fe.value && $e.value.length > 0 ? (c(), h("ul", cM, [
                             (c(!0), h(H, null, ce($e.value, (v) => (c(), h("li", {
                               key: `mobile-creator-${v}`,
                               role: "option"
@@ -25518,7 +25520,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                               n("button", {
                                 type: "button",
                                 class: "library-creator-suggestion",
-                                onMousedown: _[64] || (_[64] = Oe(() => {
+                                onMousedown: _[66] || (_[66] = Oe(() => {
                                 }, ["prevent"])),
                                 onClick: (V) => Af(v, V)
                               }, l(v), 41, dM)
@@ -25528,9 +25530,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("label", null, [
                           X(l(u(t)("library", "Format")), 1),
                           pe(n("select", {
-                            "onUpdate:modelValue": _[65] || (_[65] = (v) => A.format = v),
+                            "onUpdate:modelValue": _[67] || (_[67] = (v) => A.format = v),
                             name: "format",
-                            onChange: _[66] || (_[66] = (v) => Na(v))
+                            onChange: _[68] || (_[68] = (v) => Na(v))
                           }, [
                             n("option", fM, l(u(t)("library", "All formats")), 1),
                             (c(!0), h(H, null, ce(x.value, (v) => (c(), h("option", {
@@ -25545,7 +25547,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           n("label", vM, l(u(t)("library", "Subject")), 1),
                           pe(n("input", {
                             id: "library-mobile-subject-search",
-                            "onUpdate:modelValue": _[67] || (_[67] = (v) => se.value = v),
+                            "onUpdate:modelValue": _[69] || (_[69] = (v) => se.value = v),
                             type: "search",
                             name: "subjectSearch",
                             autocomplete: "off",
@@ -25555,8 +25557,8 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             "aria-autocomplete": "list",
                             "aria-controls": "library-mobile-subject-suggestions",
                             "aria-expanded": de.value && we.value.length > 0 ? "true" : "false",
-                            onFocus: _[68] || (_[68] = (v) => de.value = !0),
-                            onKeydown: _[69] || (_[69] = yt((v) => de.value = !1, ["escape"]))
+                            onFocus: _[70] || (_[70] = (v) => de.value = !0),
+                            onKeydown: _[71] || (_[71] = yt((v) => de.value = !1, ["escape"]))
                           }, null, 40, bM), [
                             [De, se.value]
                           ]),
@@ -25574,7 +25576,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                               n("button", {
                                 type: "button",
                                 class: "library-subject-suggestion",
-                                onMousedown: _[70] || (_[70] = Oe(() => {
+                                onMousedown: _[72] || (_[72] = Oe(() => {
                                 }, ["prevent"])),
                                 onClick: (V) => If(v, V)
                               }, l(v), 41, _M)
@@ -25585,7 +25587,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           n("label", kM, l(u(t)("library", "Classification")), 1),
                           pe(n("input", {
                             id: "library-mobile-classification-search",
-                            "onUpdate:modelValue": _[71] || (_[71] = (v) => Ne.value = v),
+                            "onUpdate:modelValue": _[73] || (_[73] = (v) => Ne.value = v),
                             type: "search",
                             name: "classificationSearch",
                             autocomplete: "off",
@@ -25594,9 +25596,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             role: "combobox",
                             "aria-autocomplete": "list",
                             "aria-controls": "library-mobile-classification-suggestions",
-                            "aria-expanded": Ue.value && nt.value.length > 0 ? "true" : "false",
-                            onFocus: _[72] || (_[72] = (v) => Ue.value = !0),
-                            onKeydown: _[73] || (_[73] = yt((v) => Ue.value = !1, ["escape"]))
+                            "aria-expanded": je.value && nt.value.length > 0 ? "true" : "false",
+                            onFocus: _[74] || (_[74] = (v) => je.value = !0),
+                            onKeydown: _[75] || (_[75] = yt((v) => je.value = !1, ["escape"]))
                           }, null, 40, SM), [
                             [De, Ne.value]
                           ]),
@@ -25605,7 +25607,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             name: "classification",
                             value: A.classification
                           }, null, 8, CM),
-                          ri.value && Ue.value && nt.value.length > 0 ? (c(), h("ul", $M, [
+                          ri.value && je.value && nt.value.length > 0 ? (c(), h("ul", $M, [
                             (c(!0), h(H, null, ce(nt.value, (v) => (c(), h("li", {
                               key: `mobile-classification-${v}`,
                               role: "option"
@@ -25613,7 +25615,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                               n("button", {
                                 type: "button",
                                 class: "library-classification-suggestion",
-                                onMousedown: _[74] || (_[74] = Oe(() => {
+                                onMousedown: _[76] || (_[76] = Oe(() => {
                                 }, ["prevent"])),
                                 onClick: (V) => xf(v, V)
                               }, l(v), 41, TM)
@@ -25626,9 +25628,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("label", null, [
                           X(l(u(t)("library", "Shelf")), 1),
                           pe(n("select", {
-                            "onUpdate:modelValue": _[75] || (_[75] = (v) => A.shelf = v),
+                            "onUpdate:modelValue": _[77] || (_[77] = (v) => A.shelf = v),
                             name: "shelf",
-                            onChange: _[76] || (_[76] = (v) => Na(v))
+                            onChange: _[78] || (_[78] = (v) => Na(v))
                           }, [
                             n("option", EM, l(u(t)("library", "All shelves")), 1),
                             (c(!0), h(H, null, ce(C.value, (v) => (c(), h("option", {
@@ -25643,7 +25645,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           n("label", OM, l(u(t)("library", "Folder")), 1),
                           pe(n("input", {
                             id: "library-mobile-folder-search",
-                            "onUpdate:modelValue": _[77] || (_[77] = (v) => dt.value = v),
+                            "onUpdate:modelValue": _[79] || (_[79] = (v) => dt.value = v),
                             type: "search",
                             name: "folderSearch",
                             autocomplete: "off",
@@ -25653,8 +25655,8 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             "aria-autocomplete": "list",
                             "aria-controls": "library-mobile-folder-suggestions",
                             "aria-expanded": le.value && O.value.length > 0 ? "true" : "false",
-                            onFocus: _[78] || (_[78] = (v) => le.value = !0),
-                            onKeydown: _[79] || (_[79] = yt((v) => le.value = !1, ["escape"]))
+                            onFocus: _[80] || (_[80] = (v) => le.value = !0),
+                            onKeydown: _[81] || (_[81] = yt((v) => le.value = !1, ["escape"]))
                           }, null, 40, RM), [
                             [De, dt.value]
                           ]),
@@ -25666,7 +25668,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                               n("button", {
                                 type: "button",
                                 class: "library-folder-suggestion",
-                                onMousedown: _[80] || (_[80] = Oe(() => {
+                                onMousedown: _[82] || (_[82] = Oe(() => {
                                 }, ["prevent"])),
                                 onClick: (V) => Of(v, V)
                               }, l(v), 41, PM)
@@ -25679,9 +25681,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("label", null, [
                           X(l(u(t)("library", "Scan status")), 1),
                           pe(n("select", {
-                            "onUpdate:modelValue": _[81] || (_[81] = (v) => A.status = v),
+                            "onUpdate:modelValue": _[83] || (_[83] = (v) => A.status = v),
                             name: "status",
-                            onChange: _[82] || (_[82] = (v) => Na(v))
+                            onChange: _[84] || (_[84] = (v) => Na(v))
                           }, [
                             n("option", DM, l(u(t)("library", "All scan statuses")), 1),
                             (c(!0), h(H, null, ce(N.value, (v) => (c(), h("option", {
@@ -25695,9 +25697,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("label", null, [
                           X(l(u(t)("library", "Workflow status")), 1),
                           pe(n("select", {
-                            "onUpdate:modelValue": _[83] || (_[83] = (v) => A.workflowStatus = v),
+                            "onUpdate:modelValue": _[85] || (_[85] = (v) => A.workflowStatus = v),
                             name: "workflowStatus",
-                            onChange: _[84] || (_[84] = (v) => Na(v))
+                            onChange: _[86] || (_[86] = (v) => Na(v))
                           }, [
                             n("option", MM, l(u(t)("library", "All workflow statuses")), 1),
                             (c(!0), h(H, null, ce(q.value, (v) => (c(), h("option", {
@@ -25711,9 +25713,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("label", null, [
                           X(l(u(t)("library", "Suggested updates")), 1),
                           pe(n("select", {
-                            "onUpdate:modelValue": _[85] || (_[85] = (v) => A.scannerConflicts = v),
+                            "onUpdate:modelValue": _[87] || (_[87] = (v) => A.scannerConflicts = v),
                             name: "scannerConflicts",
-                            onChange: _[86] || (_[86] = (v) => Na(v))
+                            onChange: _[88] || (_[88] = (v) => Na(v))
                           }, [
                             n("option", jM, l(u(t)("library", "All metadata")), 1),
                             n("option", zM, l(u(t)("library", "Suggested updates")), 1)
@@ -25728,7 +25730,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           n("label", HM, l(u(t)("library", "Nextcloud tag")), 1),
                           pe(n("input", {
                             id: "library-tag-search",
-                            "onUpdate:modelValue": _[87] || (_[87] = (v) => he.value = v),
+                            "onUpdate:modelValue": _[89] || (_[89] = (v) => he.value = v),
                             type: "search",
                             name: "tagSearch",
                             autocomplete: "off",
@@ -25736,9 +25738,9 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             role: "combobox",
                             "aria-autocomplete": "list",
                             "aria-controls": "library-tag-suggestions",
-                            "aria-expanded": je.value && fa.value.length > 0 ? "true" : "false",
-                            onFocus: _[88] || (_[88] = (v) => je.value = !0),
-                            onKeydown: _[89] || (_[89] = yt((v) => je.value = !1, ["escape"]))
+                            "aria-expanded": ze.value && fa.value.length > 0 ? "true" : "false",
+                            onFocus: _[90] || (_[90] = (v) => ze.value = !0),
+                            onKeydown: _[91] || (_[91] = yt((v) => ze.value = !1, ["escape"]))
                           }, null, 40, qM), [
                             [De, he.value]
                           ]),
@@ -25747,7 +25749,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             name: "tag",
                             value: A.tag
                           }, null, 8, GM),
-                          je.value && fa.value.length > 0 ? (c(), h("ul", KM, [
+                          ze.value && fa.value.length > 0 ? (c(), h("ul", KM, [
                             (c(!0), h(H, null, ce(fa.value, (v) => (c(), h("li", {
                               key: v,
                               role: "option"
@@ -25755,7 +25757,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                               n("button", {
                                 type: "button",
                                 class: "library-tag-suggestion",
-                                onMousedown: _[90] || (_[90] = Oe(() => {
+                                onMousedown: _[92] || (_[92] = Oe(() => {
                                 }, ["prevent"])),
                                 onClick: (V) => Nf(v, V)
                               }, l(v), 41, WM)
@@ -25769,7 +25771,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("label", null, [
                           X(l(u(t)("library", "Sort")), 1),
                           pe(n("select", {
-                            "onUpdate:modelValue": _[91] || (_[91] = (v) => A.sort = v),
+                            "onUpdate:modelValue": _[93] || (_[93] = (v) => A.sort = v),
                             name: "sort",
                             onChange: na
                           }, [
@@ -25786,7 +25788,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("label", null, [
                           X(l(u(t)("library", "View")), 1),
                           pe(n("select", {
-                            "onUpdate:modelValue": _[92] || (_[92] = (v) => A.view = v),
+                            "onUpdate:modelValue": _[94] || (_[94] = (v) => A.view = v),
                             name: "view",
                             onChange: na
                           }, [
@@ -25866,7 +25868,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("label", yU, [
                           X(l(u(t)("library", "Sort")), 1),
                           pe(n("select", {
-                            "onUpdate:modelValue": _[93] || (_[93] = (v) => A.sort = v),
+                            "onUpdate:modelValue": _[95] || (_[95] = (v) => A.sort = v),
                             name: "sort",
                             onChange: na
                           }, [
@@ -25890,14 +25892,14 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             "data-library-view-mode": "compact",
                             class: Le({ active: Qe.value === "compact" }),
                             "aria-pressed": Qe.value === "compact" ? "true" : "false",
-                            onClick: _[94] || (_[94] = (v) => zf("compact"))
+                            onClick: _[96] || (_[96] = (v) => zf("compact"))
                           }, l(u(t)("library", "Compact")), 11, TU),
                           n("button", {
                             type: "button",
                             "data-library-view-mode": "list",
                             class: Le({ active: Qe.value === "list" }),
                             "aria-pressed": Qe.value === "list" ? "true" : "false",
-                            onClick: _[95] || (_[95] = (v) => zf("list"))
+                            onClick: _[97] || (_[97] = (v) => zf("list"))
                           }, l(u(t)("library", "List")), 11, AU)
                         ], 8, $U)
                       ], 40, bU)
@@ -26074,14 +26076,14 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                             ], 64)) : S("", !0)
                           ]),
                           v.displayValue ? (c(), h(H, { key: 0 }, [
-                            _[124] || (_[124] = X(l(" "), -1)),
+                            _[126] || (_[126] = X(l(" "), -1)),
                             n("span", {
                               class: "library-filter-chip-value",
                               title: v.value
                             }, l(v.displayValue), 9, wj)
                           ], 64)) : S("", !0),
-                          _[125] || (_[125] = X()),
-                          _[126] || (_[126] = n("span", { "aria-hidden": "true" }, "×", -1))
+                          _[127] || (_[127] = X()),
+                          _[128] || (_[128] = n("span", { "aria-hidden": "true" }, "×", -1))
                         ], 8, _j))), 128))
                       ], 8, mj)) : S("", !0),
                       al.value ? (c(), h("p", kj, l(u(t)("library", "Try removing {filter}.", { filter: al.value.displayValue ? `${al.value.label}: ${al.value.displayValue}` : al.value.label })), 1)) : S("", !0),
@@ -26090,7 +26092,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           key: 0,
                           href: my(),
                           class: "button secondary library-empty-clear-search",
-                          onClick: _[96] || (_[96] = Oe((v) => pl("q"), ["prevent"]))
+                          onClick: _[98] || (_[98] = Oe((v) => pl("q"), ["prevent"]))
                         }, l(u(t)("library", "Clear search")), 9, Cj)) : S("", !0)
                       ])
                     ], 64)) : (c(), h(H, { key: 3 }, [
@@ -26132,7 +26134,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                       ]),
                       va.value.length ? pe((c(), h("select", {
                         key: 1,
-                        "onUpdate:modelValue": _[97] || (_[97] = (v) => We.value = v),
+                        "onUpdate:modelValue": _[99] || (_[99] = (v) => We.value = v),
                         "aria-label": u(t)("library", "More actions")
                       }, [
                         n("option", Lj, l(u(t)("library", "More actions")), 1),
@@ -26221,7 +26223,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           name: v.key,
                           value: v.value
                         }, null, 8, Jj))), 128)),
-                        _[127] || (_[127] = n("input", {
+                        _[129] || (_[129] = n("input", {
                           type: "hidden",
                           name: "scannerConflicts",
                           value: "1"
@@ -26308,7 +26310,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                       n("button", {
                         type: "button",
                         class: "button secondary",
-                        onClick: _[98] || (_[98] = (v) => We.value = "")
+                        onClick: _[100] || (_[100] = (v) => We.value = "")
                       }, l(u(t)("library", "Cancel")), 1)
                     ], 32)) : S("", !0)
                   ], 10, Ej)) : S("", !0),
@@ -26473,7 +26475,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           name: "requesttoken",
                           value: gt.value
                         }, null, 8, d7),
-                        _[128] || (_[128] = n("input", {
+                        _[130] || (_[130] = n("input", {
                           type: "hidden",
                           name: "returnTo",
                           value: "catalogue"
@@ -26588,7 +26590,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                   key: 0,
                   type: "button",
                   class: "button secondary",
-                  onClick: _[99] || (_[99] = (v) => ll(Gn.value, { historyMode: "none" }))
+                  onClick: _[101] || (_[101] = (v) => ll(Gn.value, { historyMode: "none" }))
                 }, l(u(t)("library", "Try again")), 1))
               ], 8, P7)) : Ie.value ? (c(), h(H, { key: 2 }, [
                 n("p", L7, l(u(t)("library", "Escape closes; arrow keys browse neighbouring visible items.")), 1),
@@ -26606,7 +26608,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     n("p", j7, [
                       n("bdi", z7, l(Ie.value.publicationType || u(t)("library", "Publication")), 1),
                       Ie.value.extension ? (c(), h("span", B7, [
-                        _[129] || (_[129] = X(" · ", -1)),
+                        _[131] || (_[131] = X(" · ", -1)),
                         n("bdi", V7, l(Bs(Ie.value.extension)), 1)
                       ])) : S("", !0)
                     ]),
@@ -26616,7 +26618,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         href: Ie.value.openUrl,
                         target: "_blank",
                         rel: "noopener",
-                        onClick: _[100] || (_[100] = (v) => Di(Ie.value, v))
+                        onClick: _[102] || (_[102] = (v) => Di(Ie.value, v))
                       }, l(u(t)("library", "Open")), 9, q7),
                       n("a", {
                         class: "button secondary",
@@ -26679,7 +26681,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           class: "library-detail-facet-link",
                           href: Ds("publication", Ie.value.publication),
                           title: u(t)("library", "Filter catalogue by this series or periodical"),
-                          onClick: _[101] || (_[101] = (v) => Fs(v, "publication", Ie.value.publication))
+                          onClick: _[103] || (_[103] = (v) => Fs(v, "publication", Ie.value.publication))
                         }, [
                           n("bdi", aB, l(Ie.value.publication), 1)
                         ], 8, tB)
@@ -26693,7 +26695,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           class: "library-detail-facet-link",
                           href: Ds("year", Zn.value),
                           title: u(t)("library", "Filter catalogue by this publication year"),
-                          onClick: _[102] || (_[102] = (v) => Fs(v, "year", Zn.value))
+                          onClick: _[104] || (_[104] = (v) => Fs(v, "year", Zn.value))
                         }, l(Zn.value), 9, nB)) : S("", !0),
                         Zn.value && Ie.value.publicationDate !== Zn.value ? (c(), h("span", rB, " · ")) : S("", !0),
                         Ie.value.publicationDate !== Zn.value ? (c(), h("span", lB, l(Ie.value.publicationDate), 1)) : S("", !0)
@@ -26706,7 +26708,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           class: "library-detail-facet-link",
                           href: Ds("publisher", Ie.value.publisher),
                           title: u(t)("library", "Filter catalogue by this publisher"),
-                          onClick: _[103] || (_[103] = (v) => Fs(v, "publisher", Ie.value.publisher))
+                          onClick: _[105] || (_[105] = (v) => Fs(v, "publisher", Ie.value.publisher))
                         }, [
                           n("bdi", uB, l(Ie.value.publisher), 1)
                         ], 8, oB)
@@ -26745,7 +26747,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     n("label", null, [
                       X(l(u(t)("library", "Title")), 1),
                       pe(n("input", {
-                        "onUpdate:modelValue": _[104] || (_[104] = (v) => Tt.title = v),
+                        "onUpdate:modelValue": _[106] || (_[106] = (v) => Tt.title = v),
                         name: "title",
                         required: ""
                       }, null, 512), [
@@ -26762,7 +26764,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         _: 1
                       }, 8, ["text"]),
                       pe(n("input", {
-                        "onUpdate:modelValue": _[105] || (_[105] = (v) => Tt.series = v),
+                        "onUpdate:modelValue": _[107] || (_[107] = (v) => Tt.series = v),
                         name: "series",
                         maxlength: "255"
                       }, null, 512), [
@@ -26779,7 +26781,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         _: 1
                       }, 8, ["text"]),
                       pe(n("input", {
-                        "onUpdate:modelValue": _[106] || (_[106] = (v) => Tt.seriesNumber = v),
+                        "onUpdate:modelValue": _[108] || (_[108] = (v) => Tt.seriesNumber = v),
                         name: "seriesNumber",
                         maxlength: "64"
                       }, null, 512), [
@@ -26796,7 +26798,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         _: 1
                       }, 8, ["text"]),
                       pe(n("input", {
-                        "onUpdate:modelValue": _[107] || (_[107] = (v) => Tt.genre = v),
+                        "onUpdate:modelValue": _[109] || (_[109] = (v) => Tt.genre = v),
                         name: "genre",
                         maxlength: "255"
                       }, null, 512), [
@@ -26806,7 +26808,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     n("label", null, [
                       X(l(u(t)("library", "Publication date")), 1),
                       pe(n("input", {
-                        "onUpdate:modelValue": _[108] || (_[108] = (v) => Tt.publicationDate = v),
+                        "onUpdate:modelValue": _[110] || (_[110] = (v) => Tt.publicationDate = v),
                         name: "publicationDate",
                         inputmode: "numeric",
                         placeholder: u(t)("library", "e.g. 2026")
@@ -26872,7 +26874,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                         n("dt", null, l(v.field) + " · " + l(v.sourceProvenance), 1),
                         n("dd", null, [
                           X(l(u(t)("library", "Current")) + ": " + l(v.currentValue || "—"), 1),
-                          _[130] || (_[130] = n("br", null, null, -1)),
+                          _[132] || (_[132] = n("br", null, null, -1)),
                           X(l(u(t)("library", "Suggestion")) + ": " + l(v.scannerCandidate || "—"), 1)
                         ])
                       ]))), 128))
@@ -26901,7 +26903,7 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                           href: Ie.value.openUrl,
                           target: "_blank",
                           rel: "noopener",
-                          onClick: _[109] || (_[109] = (v) => Di(Ie.value, v))
+                          onClick: _[111] || (_[111] = (v) => Di(Ie.value, v))
                         }, [
                           n("bdi", DB, l(Ie.value.cachedPath), 1)
                         ], 8, LB)) : (c(), h("bdi", FB, l(Ie.value.cachedPath), 1))
@@ -26973,13 +26975,13 @@ const $8 = { class: "library-full-details" }, T8 = ["href"], A8 = {
                     type: "button",
                     class: "button secondary",
                     disabled: !Ps.value,
-                    onClick: _[110] || (_[110] = (v) => Us(Ps.value))
+                    onClick: _[112] || (_[112] = (v) => Us(Ps.value))
                   }, l(u(t)("library", "Previous item")), 9, JB),
                   n("button", {
                     type: "button",
                     class: "button secondary",
                     disabled: !Ls.value,
-                    onClick: _[111] || (_[111] = (v) => Us(Ls.value))
+                    onClick: _[113] || (_[113] = (v) => Us(Ls.value))
                   }, l(u(t)("library", "Next item")), 9, XB)
                 ], 8, ZB)
               ], 64)) : S("", !0)

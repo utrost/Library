@@ -82,7 +82,6 @@ OC.L10N.register(
         "Apply approved suggestions": "Angenommene Vorschläge anwenden",
         "Apply changes to selected items": "Änderungen auf ausgewählte Elemente anwenden",
         "Apply classification": "Klassifizierung anwenden",
-        "Apply creator": "Ersteller anwenden",
         "Apply filters": "Filter anwenden",
         "Apply folder": "Ordner anwenden",
         "Apply metadata import": "Metadatenimport anwenden",
@@ -543,7 +542,6 @@ OC.L10N.register(
         "Mapping removed.": "Zuordnung entfernt.",
         "Mapping saved.": "Zuordnung gespeichert.",
         "Mappings group values for browsing and search. Each book keeps its original metadata. Removing a mapping immediately restores separate results.": "Zuordnungen gruppieren Werte beim Stöbern und Suchen. Die ursprünglichen Metadaten jedes Buches bleiben erhalten. Nach dem Entfernen einer Zuordnung werden die Ergebnisse wieder getrennt.",
-        "Match an individual author; existing full-field filters remain usable": "Nach einem einzelnen Autor filtern; bestehende Filter für das gesamte Autorenfeld bleiben nutzbar",
         "Matched items": "Zugeordnete Elemente",
         "Matched rule": "Passende Regel",
         "Matches the beginning of a preferred series name.": "Sucht am Anfang des bevorzugten Reihennamens.",
@@ -929,7 +927,6 @@ OC.L10N.register(
         "Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.": "Die Suche überprüft auch Beschreibungen. Beschreibungen, Dateinamen und Ordnernamen sind durchsuchbar, was dazu beiträgt, PDFs und Comics, deren nützliche Metadaten nur in ihrem Pfad oder in Notizen enthalten sind, übersichtlicher zu gestalten.",
         "Search authors": "Autoren suchen",
         "Search classifications": "Klassifizierungen suchen",
-        "Search creators": "Ersteller suchen",
         "Search genres": "Genres suchen",
         "Search languages or enter a code": "Sprache suchen oder Sprachcode eingeben",
         "Search publication years": "Veröffentlichungsjahre suchen",
@@ -1096,7 +1093,6 @@ OC.L10N.register(
         "Title by Author": "Titel von Autor",
         "Title from filename": "Titel aus Dateinamen",
         "Title was inferred from the source path.": "Der Titel wurde aus dem Quellpfad abgeleitet.",
-        "Title, creator, description, filename or folder": "Titel, Urheber, Beschreibung, Dateiname oder Ordner",
         "To read": "Zum Lesen",
         "To review": "Zu prüfen",
         "Total items": "Elemente insgesamt",
@@ -1296,7 +1292,11 @@ OC.L10N.register(
         "{matched} of {total} paths on this page match this structure.": "{matched} von {total} Pfaden auf dieser Seite entsprechen dieser Struktur.",
         "Type at least three letters to search authors.": "Gib mindestens drei Buchstaben ein, um nach Autoren zu suchen.",
         "Destination selected. Review the change before applying it.": "Zielautor ausgewählt. Prüfe die Änderung vor dem Anwenden.",
-        "Create new author": "Neuen Autor erstellen"
+        "Create new author": "Neuen Autor erstellen",
+        "Title, author, description, filename or folder": "Titel, Autor, Beschreibung, Dateiname oder Ordner",
+        "Apply author": "Autor anwenden",
+        "Search by author name or surname (at least 3 characters), or choose a suggested author.": "Nach Name oder Nachname suchen (mindestens 3 Zeichen) oder einen vorgeschlagenen Autor auswählen.",
+        "Author": "Autor"
     },
     "nplurals=2; plural=(n != 1);"
 );

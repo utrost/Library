@@ -8,10 +8,12 @@ const base = process.env.NC_URL || 'http://100.123.149.120:8088'
 const out = process.env.EVIDENCE_DIR || '/tmp/library-author-preferred-suggestions'
 mkdirSync(out, { recursive: true, mode: 0o700 })
 const docker = (...args) => execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
-for (const name of ['author_directory_fixture', 'author_preferred_suggestions_integration']) docker('cp', `tests/php/${name}.php`, `${container}:/tmp/${name}.php`)
+for (const name of ['author_directory_fixture', 'author_preferred_suggestions_integration', 'author_search_bounds_integration']) docker('cp', `tests/php/${name}.php`, `${container}:/tmp/${name}.php`)
 try {
   docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', 'setup')
   const result = JSON.parse(docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_preferred_suggestions_integration.php'))
+  const bounds = JSON.parse(docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_search_bounds_integration.php'))
+  if (!bounds.passed) throw new Error('Author search bounds failed')
   const text = createTemporaryAppPassword(container, result.uid, 'author-preferred-smoke')
   const token = text.match(/app password is:\s*(\S+)/i)?.[1] || text.match(/app password:\s*\n\s*(\S+)/i)?.[1]
   if (!token) throw new Error('Could not create fixture app password')
@@ -25,6 +27,10 @@ try {
       const errors = []
       page.on('pageerror', error => errors.push(error.message))
       await page.goto(`${base}/apps/library/`)
+      await page.locator('#library-creator-search').fill('Preferred')
+      await page.locator('#library-creator-search').press('Enter')
+      await expect(page.locator('.library-cover-card')).toHaveCount(2)
+      await expect(page).toHaveURL(url => url.searchParams.get('creator') === 'Preferred')
       await page.locator('#library-creator-search').fill('Doe')
       const choice = page.locator('#library-creator-suggestions').getByRole('button', { name: 'John Preferred' })
       await expect(choice).toBeVisible()
@@ -40,5 +46,5 @@ try {
   console.log(JSON.stringify({ passed: true, preferredFromSortName: true, filteredSuggestions: true, sourceCreditsPreserved: true, engines: ['chromium', 'firefox'] }))
 } finally {
   docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', 'cleanup')
-  for (const name of ['author_directory_fixture', 'author_preferred_suggestions_integration']) docker('exec', container, 'rm', '-f', `/tmp/${name}.php`)
+  for (const name of ['author_directory_fixture', 'author_preferred_suggestions_integration', 'author_search_bounds_integration']) docker('exec', container, 'rm', '-f', `/tmp/${name}.php`)
 }

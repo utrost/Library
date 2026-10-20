@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0-alpha.29
+
+- Resolve selective author-name candidates before catalogue joins, restoring fast content search without waiting for reindexing after author renames. Keep complete results for broad queries.
+- Label the catalogue filter Author; accept partial names and surnames when no exact legacy/full-name match exists. Speed up canonical suggestions and include names occurring within display/sort names.
+- Correct the language-filter SQL expression and add repeatable real-catalogue SQL/browser probes, isolated search/filter/bounds regressions and human testing steps. No database migration.
+
 ## 0.3.0-alpha.28
 
 - Replace destination-author Search and select controls with a three-letter typeahead, direct keyboard/pointer selection and explicit creation after no matches.

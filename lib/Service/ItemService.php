@@ -2457,12 +2457,22 @@ final class ItemService {
         $qb->innerJoin('suggested_link', 'library_authors', 'suggested_author', $qb->expr()->andX(
             $qb->expr()->eq('suggested_author.id', 'suggested_link.author_id'),
             $qb->expr()->eq('suggested_author.user_id', $qb->createNamedParameter($userId))));
-        $prefix = $this->escapeLikeParameter(mb_strtolower(trim($query))) . '%';
+        // Resolve names before joining the catalogue. An OR over LOWER(name) on
+        // the joined query otherwise makes MariaDB walk every book and credit.
+        $authorIds = $this->matchingAuthorIds($userId, $query);
+        if ($authorIds === []) return [];
+        if (count($authorIds) <= self::SEARCH_GRAM_INLINE_CANDIDATE_LIMIT) {
+            $qb->andWhere($qb->expr()->in('suggested_author.id', $qb->createNamedParameter($authorIds, IQueryBuilder::PARAM_INT_ARRAY)));
+        } else {
+            $literal = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($query)));
+            $display = $qb->createNamedParameter('%' . $literal . '%');
+            $sort = $qb->createNamedParameter('%' . $literal . '%');
+            $qb->andWhere($qb->expr()->orX(
+                $qb->createFunction("LOWER(suggested_author.display_name) LIKE {$display} ESCAPE '!'"),
+                $qb->createFunction("LOWER(suggested_author.sort_name) LIKE {$sort} ESCAPE '!'")));
+        }
         $result = $qb->select('suggested_author.display_name', 'suggested_author.sort_name')
             ->andWhere($qb->expr()->isNull('suggested_author.merged_into'))
-            ->andWhere($qb->expr()->orX(
-                $qb->expr()->like($qb->createFunction('LOWER(suggested_author.display_name)'), $qb->createNamedParameter($prefix)),
-                $qb->expr()->like($qb->createFunction('LOWER(suggested_author.sort_name)'), $qb->createNamedParameter($prefix))))
             ->groupBy('suggested_author.display_name', 'suggested_author.sort_name')
             ->orderBy('suggested_author.sort_name', 'ASC')
             ->setMaxResults($limit)
@@ -2713,6 +2723,51 @@ final class ItemService {
         finally { $result->closeCursor(); }
     }
 
+    /** Bounded name lookup; the extra row signals that an unbounded SQL fallback is required. */
+    private function matchingAuthorIds(string $userId, string $query): array {
+        $length = mb_strlen($query);
+        if ($length < self::SEARCH_GRAM_LENGTH || $length > 255) return [];
+        $qb = $this->db->getQueryBuilder();
+        $literal = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower($query));
+        $display = $qb->createNamedParameter('%' . $literal . '%');
+        $sort = $qb->createNamedParameter('%' . $literal . '%');
+        $result = $qb->select('a.id')->from('library_authors', 'a')
+            ->where($qb->expr()->eq('a.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->isNull('a.merged_into'))
+            ->andWhere($qb->expr()->orX(
+                $qb->createFunction("LOWER(a.display_name) LIKE {$display} ESCAPE '!'"),
+                $qb->createFunction("LOWER(a.sort_name) LIKE {$sort} ESCAPE '!'")))
+            ->setMaxResults(self::SEARCH_GRAM_INLINE_CANDIDATE_LIMIT + 1)->executeQuery();
+        try { return array_map('intval', array_column($result->fetchAll(), 'id')); }
+        finally { $result->closeCursor(); }
+    }
+
+    /** Keep selective searches on book primary keys, including freshly renamed authors. */
+    private function canonicalAuthorSearchPredicate(IQueryBuilder $qb, string $userId, string $query): mixed {
+        $exact = $this->exactAuthorIds($userId, $query);
+        $partial = $this->matchingAuthorIds($userId, $query);
+        if (count($partial) > self::SEARCH_GRAM_INLINE_CANDIDATE_LIMIT) {
+            // Never truncate broad searches to the bounded probe's first 500 authors.
+            $matches = [$qb->expr()->in('i.id', $qb->createFunction($this->partialAuthorSearchSubquery($qb, $userId, $query)))];
+            if ($exact !== []) $matches[] = $qb->expr()->in('i.id', $qb->createFunction($this->authorSearchSubquery($qb, $userId, $exact)));
+            return $qb->expr()->orX(...$matches);
+        }
+        $authorIds = array_values(array_unique([...$exact, ...$partial]));
+        if ($authorIds === []) return null;
+        $lookup = $this->db->getQueryBuilder();
+        $result = $lookup->select('item_id')->from('library_item_authors')
+            ->where($lookup->expr()->eq('user_id', $lookup->createNamedParameter($userId)))
+            ->andWhere($lookup->expr()->in('author_id', $lookup->createNamedParameter($authorIds, IQueryBuilder::PARAM_INT_ARRAY)))
+            ->groupBy('item_id')->setMaxResults(self::SEARCH_GRAM_INLINE_CANDIDATE_LIMIT + 1)->executeQuery();
+        try { $ids = array_map('intval', array_column($result->fetchAll(), 'item_id')); }
+        finally { $result->closeCursor(); }
+        if ($ids === []) return null;
+        if (count($ids) <= self::SEARCH_GRAM_INLINE_CANDIDATE_LIMIT) {
+            return $qb->expr()->in('i.id', $qb->createNamedParameter($ids, IQueryBuilder::PARAM_INT_ARRAY));
+        }
+        return $qb->expr()->in('i.id', $qb->createFunction($this->authorSearchSubquery($qb, $userId, $authorIds)));
+    }
+
     private function authorSearchSubquery(IQueryBuilder $qb, string $userId, array $authorIds): string {
         $links = $this->db->getQueryBuilder();
         $links->select('search_author.item_id')->from('library_item_authors', 'search_author')
@@ -2815,12 +2870,12 @@ final class ItemService {
             } else {
                 $code = strtolower($language);
                 $qb->andWhere($qb->expr()->orX(
-                    $qb->expr()->eq('LOWER(i.language)', $qb->createNamedParameter($code)),
-                    $qb->expr()->like('LOWER(i.language)', $qb->createNamedParameter($code . ';%')),
-                    $qb->expr()->like('LOWER(i.language)', $qb->createNamedParameter('%;' . $code)),
-                    $qb->expr()->like('LOWER(i.language)', $qb->createNamedParameter('%; ' . $code)),
-                    $qb->expr()->like('LOWER(i.language)', $qb->createNamedParameter('%;' . $code . ';%')),
-                    $qb->expr()->like('LOWER(i.language)', $qb->createNamedParameter('%; ' . $code . ';%')),
+                    $qb->expr()->eq($qb->createFunction('LOWER(i.language)'), $qb->createNamedParameter($code)),
+                    $qb->expr()->like($qb->createFunction('LOWER(i.language)'), $qb->createNamedParameter($code . ';%')),
+                    $qb->expr()->like($qb->createFunction('LOWER(i.language)'), $qb->createNamedParameter('%;' . $code)),
+                    $qb->expr()->like($qb->createFunction('LOWER(i.language)'), $qb->createNamedParameter('%; ' . $code)),
+                    $qb->expr()->like($qb->createFunction('LOWER(i.language)'), $qb->createNamedParameter('%;' . $code . ';%')),
+                    $qb->expr()->like($qb->createFunction('LOWER(i.language)'), $qb->createNamedParameter('%; ' . $code . ';%')),
                 ));
             }
         }
@@ -2893,7 +2948,12 @@ final class ItemService {
                 ->setMaxResults(501)->executeQuery();
             $legacyIds = array_map('intval', array_column($result->fetchAll(), 'id')); $result->closeCursor();
             $ids = array_values(array_unique([...$canonicalItemIds, ...$authorIds, ...$legacyIds]));
-            if (count($canonicalItemIds) <= 500 && count($authorIds) <= 500 && count($legacyIds) <= 500 && count($ids) <= 500) {
+            if ($ids === []) {
+                // Typed surnames/partial names are useful searches too. Exact saved
+                // creator filters retain their existing membership when they match.
+                $match = $this->canonicalAuthorSearchPredicate($qb, $userId, $creator);
+                $qb->andWhere($match ?? $qb->expr()->eq('i.id', $qb->createNamedParameter(-1)));
+            } elseif (count($canonicalItemIds) <= 500 && count($authorIds) <= 500 && count($legacyIds) <= 500 && count($ids) <= 500) {
                 $qb->andWhere($qb->expr()->in('i.id', $qb->createNamedParameter($ids ?: [-1], IQueryBuilder::PARAM_INT_ARRAY)));
             } else {
                 $author = $this->db->getQueryBuilder();
@@ -2968,12 +3028,7 @@ final class ItemService {
         $query = trim((string)($filters['q'] ?? ''));
         if ($query !== '') {
             $exactTitleItemIds = $this->exactTitleCandidateIds($userId, $query);
-            $exactAuthorIds = $this->exactAuthorIds($userId, $query);
-            $authorPredicates = [];
-            if ($exactAuthorIds !== []) $authorPredicates[] = $qb->expr()->in('i.id', $qb->createFunction($this->authorSearchSubquery($qb, $userId, $exactAuthorIds)));
-            $partialAuthorSql = $this->partialAuthorSearchSubquery($qb, $userId, $query);
-            if ($partialAuthorSql !== null) $authorPredicates[] = $qb->expr()->in('i.id', $qb->createFunction($partialAuthorSql));
-            $authorPredicate = $authorPredicates === [] ? null : $qb->expr()->orX(...$authorPredicates);
+            $authorPredicate = $this->canonicalAuthorSearchPredicate($qb, $userId, $query);
             $searchGrams = $this->searchGramsForQuery($query);
             $identifierSearch = IdentifierService::normalizeSearchQuery($query);
             $searchPredicates = [];

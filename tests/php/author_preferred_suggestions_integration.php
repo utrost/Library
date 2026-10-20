@@ -22,6 +22,18 @@ try {
     if (!in_array('John Preferred', $items->creatorSuggestions($uid, ['language' => 'en'], 'Doe'), true)) throw new RuntimeException('Preferred suggestion missed matching language filter');
     $filtered = $items->queryCatalogue($uid, ['creator' => 'John Preferred'], ['page' => 1, 'limit' => 10], false);
     if ($filtered['total'] !== 2) throw new RuntimeException('Preferred suggestion did not resolve to both linked books');
+    foreach (['Preferred', 'preferred', 'Doe'] as $term) {
+        foreach (['q', 'creator'] as $filter) {
+            $found = $items->queryCatalogue($uid, [$filter => $term], ['page' => 1, 'limit' => 10], false);
+            if ($found['total'] !== 2) throw new RuntimeException('Partial canonical name/sort-name search missed linked books: ' . $filter . ':' . $term);
+        }
+    }
+    if (!in_array('John Preferred', $items->creatorSuggestions($uid, [], 'Preferred'), true)) throw new RuntimeException('Surname inside display name missing from suggestions');
+    foreach (['Pr', '%__', 'not-a-matching-author'] as $term) {
+        if ($items->queryCatalogue($uid, ['creator' => $term], ['page' => 1, 'limit' => 10], false)['total'] !== 0) throw new RuntimeException('Partial author threshold/literal matching failed');
+    }
+    if ($items->queryCatalogue($uid, ['creator' => 'Preferred', 'language' => 'de'], ['page' => 1, 'limit' => 10], false)['total'] !== 0) throw new RuntimeException('Partial author search escaped language filter');
+    if ($items->queryCatalogue($uid . '-other', ['q' => 'Preferred'], ['page' => 1, 'limit' => 10], false)['total'] !== 0) throw new RuntimeException('Partial search escaped ownership');
     $credits = $db->executeQuery('SELECT DISTINCT creators FROM *PREFIX*library_items WHERE user_id=?', [$uid])->fetchAll();
     if (count($credits) !== 1 || $credits[0]['creators'] !== 'John Doe') throw new RuntimeException('Source credits changed');
     echo json_encode(['passed' => true, 'uid' => $uid, 'authorId' => (int)$author['id'], 'preferredFromSortName' => true, 'filteredSuggestions' => true, 'sourceCreditsPreserved' => true]), PHP_EOL;
