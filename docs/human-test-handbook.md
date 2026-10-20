@@ -1,5 +1,23 @@
 # Library human test handbook
 
+## Alpha.33 follow-up acceptance (H03-25)
+
+Candidate **0.3.0-alpha.33**, verification in progress. Alpha.32 remains installed until deployment is recorded. Use a disposable account for persisted changes; stage and discard when browsing the real catalogue.
+
+1. **Keyboard pickers:** type a partial subject and a language name. The first suggestion is visibly selected; Enter chooses it. Creating a subject is a separate explicit action. Invalid language input explains the next step. Repeat author, series, publisher and genre selections, and lookup failure/Retry.
+2. **ArrowUp:** with three suggestions, ArrowUp from the first selects the last, never the penultimate. Escape closes without selecting; pointer selection still works.
+3. **Directory searches:** enter three or more letters, then remove letters below the threshold. The message identifies the previously applied results. Sort, reload and return from a book: the draft and applied search remain distinct. Clearing restores all entries.
+4. **Return to your place:** scroll well down a catalogue or entity directory; open a book and use Back to results. Check position and focus return to the book. Repeat browser Back and after a result disappears.
+5. **Catalogue controls:** one content search at desktop and mobile. Search, then apply filters: the search must remain. Sorting and view changes preserve constraints; saved-search creation and Select all remain reachable.
+6. **Book cards:** titles/authors appear below the cover; Quick view is secondary and reachable without hover. Covers/titles open Details, Quick view opens the drawer, Open launches the reader. Check long names and missing covers in both themes.
+7. **Series collections:** default order is part number. Search across more than one page; change to title/date ordering and Covers/List. Open Details and return: retain query, sort, page and view. Renaming and merge review still protect drafts.
+8. **Directory preview widths:** compare rows with zero, one, two and three previews. A single book uses the available width without losing its title. Check mobile wrapping.
+9. **Settings:** at 320/390 px, Folder path uses the available row and Choose folder remains reachable below. The section heading is visually stronger than Add a shelf.
+10. **Suggestion meaning:** when Publication and Series propose the same name, their labels, hover/focus help and action names explain the separate effects. Applying one must not silently apply the other. Repeat with a periodical.
+
+Retain H03-24 regression coverage for Save/Discard, stale edits, sticky actions, navigation, imports and deletion. Record viewport, theme, steps and screenshots for any failure.
+
+
 
 ## Alpha.32 UI consistency acceptance (H03-24)
 

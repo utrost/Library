@@ -21,7 +21,7 @@ final class SeriesController extends Controller {
     public function index(): JSONResponse { return $this->respond(fn($uid) => $this->series->directory($uid, $this->text('search'), $this->integer('page', 1), $this->text('sort') ?: 'name', $this->request->getParam('previews', '0') === '1')); }
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    public function show(int $seriesId): JSONResponse { return $this->respond(fn($uid) => $this->series->show($uid, $seriesId, $this->integer('page', 1))); }
+    public function show(int $seriesId): JSONResponse { return $this->respond(fn($uid) => $this->series->show($uid, $seriesId, $this->integer('page', 1), $this->text('search'), $this->text('sort') ?: 'part')); }
     #[NoAdminRequired]
     public function update(int $seriesId): JSONResponse { return $this->respond(function ($uid) use ($seriesId) {
         $this->series->update($uid, $seriesId, $this->integer('revision'), $this->text('name'), $this->text('description'));

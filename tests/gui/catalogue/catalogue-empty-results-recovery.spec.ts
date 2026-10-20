@@ -12,7 +12,7 @@ test('recovers after a search returns no catalogue results @catalogue @search @e
   const catalogue = page.locator('#library-catalogue')
   const filters = page.getByRole('form', { name: 'Catalogue search and filters' })
 
-  await filters.getByRole('searchbox', { name: /Search/ }).fill(missingQuery)
+  await page.locator('#library-main-search').fill(missingQuery)
   const emptyResponse = page.waitForResponse((response) => {
     const url = new URL(response.url())
     return url.pathname.endsWith('/apps/library/catalogue') && url.searchParams.get('q') === missingQuery
@@ -21,7 +21,7 @@ test('recovers after a search returns no catalogue results @catalogue @search @e
   expect((await emptyResponse).ok()).toBeTruthy()
 
   await expect(page).toHaveURL((url) => url.searchParams.get('q') === missingQuery)
-  await expect(filters.getByRole('searchbox', { name: /Search/ })).toHaveValue(missingQuery)
+  await expect(page.locator('#library-main-search')).toHaveValue(missingQuery)
   const activeFilters = page.locator('nav.library-active-filter-chips[aria-label="Active filters"]')
   await expect(activeFilters.locator(':scope > a.library-filter-chip[aria-label="Remove filter: Search"]')).toContainText(missingQuery)
   await expect(catalogue.locator('.library-cover-card')).toHaveCount(0)
@@ -37,7 +37,7 @@ test('recovers after a search returns no catalogue results @catalogue @search @e
   expect((await recoveryResponse).ok()).toBeTruthy()
 
   await expect(page).toHaveURL((url) => !url.searchParams.has('q'))
-  await expect(filters.getByRole('searchbox', { name: /Search/ })).toHaveValue('')
+  await expect(page.locator('#library-main-search')).toHaveValue('')
   await expect(page.getByRole('navigation', { name: 'Active filters' })).toHaveCount(0)
   await expect(emptyState).toHaveCount(0)
   await expect(catalogue.locator('.library-cover-card')).toHaveCount(expectedCards)

@@ -26,7 +26,7 @@ test('announces a pending catalogue request and clears loading state @catalogue 
   const catalogue = page.locator('#library-catalogue')
   const initialCards = await catalogue.locator('.library-cover-card').count()
   const filters = page.getByRole('form', { name: 'Catalogue search and filters' })
-  await filters.getByRole('searchbox', { name: /Search/ }).fill(title)
+  await page.locator('#library-main-search').fill(title)
   await filters.getByRole('button', { name: 'Apply filters' }).click()
   await requestObserved
 

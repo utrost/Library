@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onBeforeUnmount, useId } from 'vue'
+import { pickerIndex } from '../picker-keyboard.js'
 import { t } from '@nextcloud/l10n'
 const props = defineProps({ label: String, modelValue: { type: String, default: '' }, search: { type: Function, required: true }, disabled: Boolean, allowCreate: Boolean, minimum: { type: Number, default: 3 } })
 const emit = defineEmits(['update:modelValue', 'choose', 'create'])
@@ -15,7 +16,7 @@ function lookup() {
     controller = new AbortController()
     try {
       const result = await props.search(props.modelValue.trim(), controller.signal)
-      if (sequence === current) { options.value = result; completed.value = true }
+      if (sequence === current) { options.value = result; active.value = result.length ? 0 : -1; completed.value = true }
     } catch (cause) {
       if (sequence === current && cause.name !== 'AbortError') error.value = t('library', 'Could not load suggestions. Try again.')
     } finally { if (sequence === current) loading.value = false }
@@ -28,7 +29,7 @@ function keydown(event) {
   if (event.key === 'Escape') { open.value = false; return }
   if (['ArrowDown', 'ArrowUp'].includes(event.key) && options.value.length) {
     event.preventDefault(); open.value = true
-    active.value = (active.value + (event.key === 'ArrowDown' ? 1 : -1) + options.value.length) % options.value.length
+    active.value = pickerIndex(active.value, event.key, options.value.length)
   } else if (event.key === 'Enter') {
     event.preventDefault()
     if (open.value && options.value.length) select(options.value[Math.max(0, active.value)])

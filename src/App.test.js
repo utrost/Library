@@ -433,7 +433,7 @@ describe('Library catalogue Vue app', () => {
     const filters = navigation.get('form.library-sidebar-filters')
 
     expect(navigation.get('#library-sidebar-filters-heading').text()).toBe('Filters')
-    expect(filters.get('[data-library-quick-search]').attributes('name')).toBe('q')
+    expect(wrapper.get('[data-library-quick-search]').attributes('name')).toBe('q')
     expect(filters.get('select[name="type"]').exists()).toBe(true)
     expect(filters.get('input[name="publisherSearch"]').exists()).toBe(true)
     expect(filters.get('input[type="hidden"][name="publisher"]').exists()).toBe(true)
@@ -490,9 +490,9 @@ describe('Library catalogue Vue app', () => {
     panel.element.open = true
     await panel.trigger('toggle')
     await wrapper.vm.$nextTick()
-    expect(document.activeElement).toBe(panel.get('[data-library-mobile-filter-search]').element)
+    expect(document.activeElement).toBe(panel.get('select[name=type]').element)
 
-    await panel.get('[data-library-mobile-filter-search]').setValue('bauhaus')
+    await wrapper.get('#library-main-search').setValue('bauhaus')
     await panel.get('form.library-mobile-filter-form').trigger('submit')
 
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
@@ -744,7 +744,7 @@ describe('Library catalogue Vue app', () => {
     expect(form.findAll('input[name="folder"]')).toHaveLength(1)
     expect(form.findAll('input[name="starred"]')).toHaveLength(1)
     expect(form.findAll('[name="scannerConflicts"]')).toHaveLength(1)
-    await form.get('input[name="q"]').setValue('bauhaus')
+    await wrapper.get('#library-main-search').setValue('bauhaus')
     await form.trigger('submit')
 
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
@@ -774,7 +774,7 @@ describe('Library catalogue Vue app', () => {
       json: async () => ({ ...state, activeFilters: { ...state.activeFilters, q: 'bauhaus' } }),
     })
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
-    const search = wrapper.get('input[name="q"]')
+    const search = wrapper.get('#library-main-search')
 
     await search.setValue('bauhaus')
     await new Promise((resolve) => window.setTimeout(resolve, 400))
@@ -928,7 +928,7 @@ describe('Library catalogue Vue app', () => {
     })
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
 
-    await wrapper.get('input[name="q"]').setValue('bauhaus')
+    await wrapper.get('#library-main-search').setValue('bauhaus')
     await wrapper.get('input[name="publisherSearch"]').setValue('Acme Press')
     await new Promise((resolve) => window.setTimeout(resolve, 400))
     expect(global.fetch.mock.calls.map(([url]) => new URL(url, window.location.origin).pathname)).not.toContain('/apps/library/catalogue')
@@ -957,7 +957,7 @@ describe('Library catalogue Vue app', () => {
     expect(empty.findAll('.library-filter-chip')).toHaveLength(2)
     expect(empty.text()).toContain('Try removing Type: book')
 
-    await wrapper.get('input[name="q"]').setValue('bauhaus')
+    await wrapper.get('#library-main-search').setValue('bauhaus')
     await wrapper.vm.$nextTick()
     expect(empty.find('.library-empty-clear-search').exists()).toBe(true)
   })
@@ -1646,7 +1646,7 @@ describe('Library catalogue Vue app', () => {
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
     const form = wrapper.get('form.library-sidebar-filters')
     expect(form.get('label[for="library-creator-search"]').text()).toBe('Author')
-    expect(form.get('input[name="q"]').attributes('placeholder')).toContain('author')
+    expect(wrapper.get('#library-main-search').attributes('placeholder')).toContain('author')
     await form.get('input[name="creatorSearch"]').setValue('Heinlein')
     await form.trigger('submit')
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?creator=Heinlein', expect.any(Object)))
@@ -1839,7 +1839,7 @@ describe('Library catalogue Vue app', () => {
     expect(workspace.text()).not.toContain('Search also checks descriptions')
     expect(workspace.text()).not.toContain('changed / unchanged / skipped / error feedback')
     expect(workspace.text()).not.toContain('Source files stay in Nextcloud Files')
-    expect(wrapper.find('.library-quick-filter-search').attributes('title')).toContain('Search also checks descriptions')
+    expect(wrapper.find('label[for=library-main-search]').attributes('title')).toContain('Search also checks descriptions')
 
     const heading = wrapper.find('#library-catalogue-heading')
     expect(heading.text()).toBe('All publications')
@@ -1882,7 +1882,7 @@ describe('Library catalogue Vue app', () => {
     const filters = wrapper.findComponent(NcAppNavigation).get('form.library-sidebar-filters')
     expect(filters.attributes('aria-label')).toBe('Catalogue search and filters')
     expect(wrapper.find('#library-catalogue .library-workspace-panel--refine').exists()).toBe(false)
-    expect(wrapper.find('.library-quick-filter-search').attributes('title')).toContain('Search also checks descriptions')
+    expect(wrapper.find('label[for=library-main-search]').attributes('title')).toContain('Search also checks descriptions')
     expect(wrapper.find('.library-workspace-panel--batch').exists()).toBe(false)
     expect(wrapper.find('.library-workspace-panel--admin').exists()).toBe(false)
     expect(wrapper.find('.library-review-queues').exists()).toBe(false)
@@ -2031,10 +2031,10 @@ describe('Library catalogue Vue app', () => {
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
     const form = wrapper.find('form.library-sidebar-filters')
 
-    await form.find('input[name="q"]').setValue('first')
+    await wrapper.get('#library-main-search').setValue('first')
     await form.trigger('submit')
     await vi.waitFor(() => expect(requests).toHaveLength(1))
-    await form.find('input[name="q"]').setValue('latest')
+    await wrapper.get('#library-main-search').setValue('latest')
     await form.trigger('submit')
     await vi.waitFor(() => expect(requests).toHaveLength(2))
 
@@ -2055,7 +2055,7 @@ describe('Library catalogue Vue app', () => {
     const requests = []
     globalThis.fetch = vi.fn((_url, options) => new Promise((resolve) => requests.push({ resolve, options })))
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
-    const input = wrapper.find('form.library-sidebar-filters input[name="q"]')
+    const input = wrapper.find('#library-main-search')
     const form = wrapper.find('form.library-sidebar-filters')
 
     await input.setValue('first')
@@ -2085,19 +2085,19 @@ describe('Library catalogue Vue app', () => {
       submitted.push(Object.fromEntries(new FormData(this)))
     })
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
-    const input = wrapper.find('form.library-sidebar-filters input[name="q"]')
+    const input = wrapper.find('#library-main-search')
     const form = wrapper.find('form.library-sidebar-filters')
 
     await input.setValue('first')
     await form.trigger('submit')
     await vi.waitFor(() => expect(rejectRequest).toBeTypeOf('function'))
     // Typing after the loading indicator appears updates the Vue model, as a real input event does.
-    await wrapper.find('form.library-sidebar-filters input[name="q"]').setValue('latest')
+    await wrapper.find('#library-main-search').setValue('latest')
     rejectRequest(new Error('network down'))
     await Promise.resolve()
     await Promise.resolve()
 
-    expect(wrapper.find('form.library-sidebar-filters input[name="q"]').element.value).toBe('latest')
+    expect(wrapper.find('#library-main-search').element.value).toBe('latest')
     expect(submitted).toEqual([{ q: 'first' }])
     nativeSubmit.mockRestore()
   })
@@ -2765,6 +2765,19 @@ describe('Library catalogue Vue app', () => {
     expect(acceptForm.attributes('action')).toBe('/apps/library/items/7/reset-field')
     expect(acceptForm.find('input[name="field"]').exists()).toBe(true)
     expect(acceptForm.find('input[name="returnTo"]').element.value).toBe('catalogue')
+  })
+
+  it('distinguishes publication and series suggestions with identical names', () => {
+    const item = { ...state.items[0], publication: '', series: '', fieldSources: { publication: 'epub-opf', series: 'epub-opf' }, fieldValues: { publication: 'Same name', series: 'Same name' } }
+    const wrapper = mount(App, { props: { state: { ...state, items: [item], activeFilters: { ...state.activeFilters, scannerConflicts: '1' } } } })
+    const rows = wrapper.findAll('.library-metadata-review-field')
+    const publication = rows.find(row => row.get('h4').text().includes('Publication / periodical'))
+    const series = rows.find(row => row.get('input[name="field"]').element.value === 'series')
+    expect(series.get('h4').text()).toContain('Series')
+    expect(publication.text()).toContain('Use publication value')
+    expect(series.text()).toContain('Use series value')
+    expect(publication.get('input[name="field"]').element.value).toBe('publication')
+    expect(series.get('input[name="field"]').element.value).toBe('series')
   })
 
   it('shows cover loading polish and a graceful broken-cover fallback', async () => {

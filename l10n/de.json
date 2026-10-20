@@ -945,7 +945,6 @@
         "Scans continue through Nextcloud background jobs and can be reopened for seven days. Review decisions are reused when the same books have not changed. Each comparison is independent; choosing a preferred copy does not change catalogue ordering.": "Suchläufe werden durch Nextcloud-Hintergrundaufgaben fortgesetzt und bleiben sieben Tage verfügbar. Prüfentscheidungen werden für unveränderte Bücher wiederverwendet. Jede Paarprüfung ist unabhängig; eine bevorzugte Kopie ändert die Katalogsortierung nicht.",
         "Scheme": "Schema",
         "Search": "Suche",
-        "Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.": "Die Suche überprüft auch Beschreibungen. Beschreibungen, Dateinamen und Ordnernamen sind durchsuchbar, was dazu beiträgt, PDFs und Comics, deren nützliche Metadaten nur in ihrem Pfad oder in Notizen enthalten sind, übersichtlicher zu gestalten.",
         "Search authors": "Autoren suchen",
         "Search books": "Bücher suchen",
         "Search by author name or surname (at least 3 characters), or choose a suggested author.": "Nach Name oder Nachname suchen (mindestens 3 Zeichen) oder einen vorgeschlagenen Autor auswählen.",
@@ -1295,7 +1294,6 @@
         "books / Language_Subject / Title - Author (Year)": "Bücherordner / Sprache_Thema / Titel - Autor (Jahr)",
         "books / Language_Subject / Title by Author": "Bücherordner / Sprache_Thema / Titel von Autor",
         "catalogue": "Katalog",
-        "catalogue items": "Katalogeinträge",
         "comic": "Comic",
         "dated": "datiert",
         "disabled": "deaktiviert",
@@ -1331,7 +1329,19 @@
         "without dates yet": "noch ohne Datum",
         "yes": "ja",
         "{count} of 5 stars": "{count} von 5 Sternen",
-        "{matched} of {total} paths on this page match this structure.": "{matched} von {total} Pfaden auf dieser Seite entsprechen dieser Struktur."
+        "{matched} of {total} paths on this page match this structure.": "{matched} von {total} Pfaden auf dieser Seite entsprechen dieser Struktur.",
+        "Create subject “{name}”": "Thema „{name}“ erstellen",
+        "Search also checks descriptions. Descriptions, filename and folder names are searchable.": "Die Suche berücksichtigt auch Beschreibungen. Beschreibungen, Dateinamen und Ordnernamen sind durchsuchbar.",
+        "Showing all entries.": "Alle Einträge werden angezeigt.",
+        "Showing results for “{query}”.": "Ergebnisse für „{query}“ werden angezeigt.",
+        "The containing publication or periodical. This changes only Publication; a Series suggestion must be reviewed separately, even when the names match.": "Die übergeordnete Publikation oder Zeitschrift. Dies ändert nur die Publikation; ein Reihenvorschlag muss auch bei gleichem Namen separat geprüft werden.",
+        "The sequence this book belongs to. This changes only the series field; it does not apply a separate Publication suggestion.": "Die Reihe, zu der dieses Buch gehört. Dies ändert nur das Reihenfeld; ein separater Publikationsvorschlag wird dadurch nicht übernommen.",
+        "Type at least 3 letters to search.": "Gib mindestens 3 Buchstaben für die Suche ein.",
+        "Use publication value": "Publikationswert übernehmen",
+        "Use series value": "Reihenwert übernehmen",
+        "Choose a language from the suggestions or enter a valid code, for example {english} or {german}.": "Wähle eine Sprache aus den Vorschlägen oder gib einen gültiges Sprachkürzel ein, zum Beispiel {english} oder {german}.",
+        "Publication / periodical": "Publikation / Zeitschrift",
+        "catalogue items": "Katalogeinträge"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

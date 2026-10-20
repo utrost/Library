@@ -25,3 +25,32 @@ it('shows failed requests with retry and aborts on unmount', async () => {
   await w.get('button').trigger('click'); const signal = request.mock.calls.at(-1)[2]
   w.unmount(); expect(signal.aborted).toBe(true)
 })
+it('retains and identifies the applied search while a short query is being typed or sorted', async () => {
+  const request = vi.fn(async () => ({ authors: [], page: 1, hasNext: false }))
+  const w = mount(DirectoryBrowser, { props: { kind: 'author', collection: 'authors', request, catalogueUrl: '/apps/library/', searchLabel: 'Search', searchHelp: 'Help', emptyLabel: 'Empty' }, global: { stubs: { LabelHelp: true } } })
+  await flushPromises()
+  await w.get('input').setValue('John'); await vi.advanceTimersByTimeAsync(250); await flushPromises()
+  await w.get('input').setValue('Jo'); await vi.advanceTimersByTimeAsync(250)
+  expect(w.get('.directory-query-hint').text()).toContain('John')
+  expect(location.search).toContain('authorSearch=John')
+  expect(location.search).toContain('authorDraft=Jo')
+  await w.get('select').setValue('name_desc'); await flushPromises()
+  expect(request.mock.calls.at(-1)[0]).toContain('search=John')
+  expect(w.get('input').element.value).toBe('Jo')
+  await w.get('input').setValue(''); await vi.advanceTimersByTimeAsync(250); await flushPromises()
+  expect(location.search).not.toContain('authorSearch')
+  expect(location.search).not.toContain('authorDraft')
+})
+
+it('applies a pending valid query when sorting instead of cancelling it', async () => {
+  const request = vi.fn(async () => ({ genres: [], page: 1, hasNext: false }))
+  const w = mount(DirectoryBrowser, { props: { kind: 'genre', collection: 'genres', request, catalogueUrl: '/apps/library/', searchLabel: 'Search', searchHelp: 'Help', emptyLabel: 'Empty' }, global: { stubs: { LabelHelp: true } } })
+  await flushPromises()
+  await w.get('input').setValue('History')
+  await w.get('select').setValue('name_desc'); await flushPromises()
+  expect(request.mock.calls.at(-1)[0]).toContain('search=History')
+  expect(location.search).toContain('genreSearch=History')
+  const count = request.mock.calls.length
+  await vi.advanceTimersByTimeAsync(300)
+  expect(request).toHaveBeenCalledTimes(count)
+})
