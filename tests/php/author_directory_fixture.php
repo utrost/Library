@@ -22,4 +22,11 @@ if($action==='rescan'){
  $scan=$scanner->scan($uid,$state['rootId']);if($scan['metadataExtractions']!==2)throw new RuntimeException('Expected both unchanged fixture files to re-extract');
 }
 $storage=\OCP\Server::get(\OCA\Library\Service\AuthorStorageService::class);$storage->advance($uid);
+\OCP\Server::get(\OCA\Library\Service\SeriesStorageService::class)->advance($uid);
+if ($action === 'setup') {
+ $genres=\OCP\Server::get(\OCA\Library\Service\GenreService::class);
+ $books=$db->executeQuery('SELECT id FROM *PREFIX*library_items WHERE user_id=? ORDER BY id',[$uid])->fetchAll();
+ foreach (['Fixture genre Alpha','Fixture genre Zulu'] as $name) { $genre=$genres->create($uid,$name); foreach($books as $book) $genres->assign($uid,(int)$book['id'],(int)$genre['id'],true); }
+}
+
 $r=$db->executeQuery('SELECT i.id,i.title,i.series_name,i.series_number,i.field_values,i.user_edited,f.etag,f.size,f.mtime FROM *PREFIX*library_items i JOIN *PREFIX*library_files f ON f.id=i.library_file_id WHERE i.user_id=? ORDER BY i.title',[$uid]);$rows=$r->fetchAll();$r->closeCursor();echo json_encode(['uid'=>$uid,'items'=>$rows,'scan'=>$scan??null,'directory'=>\OCP\Server::get(\OCA\Library\Service\AuthorDirectoryService::class)->directory($uid)]),PHP_EOL;
