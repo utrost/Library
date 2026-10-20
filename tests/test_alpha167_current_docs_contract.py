@@ -4,7 +4,7 @@ from xml.etree import ElementTree
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_user_docs_describe_alpha168_workflow():
+def test_current_user_docs_describe_editor_and_quick_view_navigation():
     guide = (ROOT / "docs/user-guide.md").read_text()
     for term in ("Suggested updates", "Needs details", "Completeness", "Confidence", "Attention", "Personal", "Folders and scanning", "Metadata and covers", "Import and export", "Diagnostics"):
         assert term in guide
@@ -16,7 +16,9 @@ def test_current_user_docs_describe_alpha168_workflow():
     for current_instructions in (current_surfaces, everyday_processes):
         assert "cover or title" in current_instructions.lower()
         assert "contextual sidebar" in current_instructions
-        assert "**Advanced details**" in current_instructions
+        assert "**Book details**" in current_instructions
+        assert "**Quick view**" in current_instructions
+        assert "**Advanced details**" not in current_instructions
         assert "Open **Details** from a catalogue card" not in current_instructions
         assert "Use **Details**" not in current_instructions
 
@@ -32,7 +34,7 @@ def test_release_and_manual_docs_name_the_actual_candidate_workflow():
     checklist = (ROOT / "docs/alpha-test-checklist.md").read_text()
     assert "Alpha.171 unsigned package candidate" in release
     assert "safe-diagnostic live reflection" in release
-    assert "visible search" in handbook and "selection-gated batch" in handbook
+    assert "**Save book details**" in handbook and "**Quick view**" in handbook
     assert "**Open**" in checklist and "**Read**" not in checklist
 
 
@@ -67,16 +69,12 @@ def test_alpha168_docs_keep_landed_data_and_scan_contracts_current():
     assert "0.1.0-alpha.167" not in operative
 
 
-def test_handbook_has_executable_combined_alpha166_alpha167_first_pass():
-    handbook = (ROOT / "docs/human-test-handbook.md").read_text()
+def test_historical_handbook_preserves_alpha166_alpha167_evidence():
+    handbook = (ROOT / "docs/human-test-handbook-v0.1-archive.md").read_text()
     first_pass = handbook.split("## Alpha.166/167 executable first pass", 1)[1].split("## Session header template", 1)[0]
 
     assert "current candidate package" in handbook
     assert "Packaging: **used for the current private deployment**" in handbook
-    assert "## Current 0.3 human cases" in handbook
-    version = ElementTree.parse(ROOT / "appinfo/info.xml").findtext("version")
-    assert f"**Current acceptance target: {version}.**" in handbook
-    assert "H03-24" in handbook
     assert first_pass.count("### A16") >= 6
     for case in first_pass.split("### A16")[1:]:
         assert "Setup:" in case
@@ -111,3 +109,22 @@ def test_handbook_has_executable_combined_alpha166_alpha167_first_pass():
     assert "successful no-op" not in selected_batch
     assert "no mutation" in selected_batch
     assert "security/runtime check" in selected_batch
+
+
+def test_current_handbook_has_one_version_and_complete_ordered_cases():
+    import re
+    handbook = (ROOT / "docs/human-test-handbook.md").read_text()
+    version = ElementTree.parse(ROOT / "appinfo/info.xml").findtext("version")
+    assert f"**Current acceptance target: {version}.**" in handbook
+    assert set(re.findall(r"0\.\d+\.\d+-alpha\.\d+", handbook)) == {version}
+    cases = re.findall(r"^### (H03-\d+) —", handbook, re.M)
+    results = re.findall(r"^\| (H03-\d+) \|", handbook, re.M)
+    assert cases == [f"H03-{i:02d}" for i in range(1, 27)]
+    assert results == cases
+    for obsolete in ("Advanced details", "Source series metadata", "Link a series", "creator names (one per line", "LIB-HARDEN-", "weak-metadata cockpit", "with JavaScript disabled"):
+        assert obsolete not in handbook
+    assert "human-test-handbook-v0.1-archive.md" in handbook
+    # The setup must refer to the same deployment record as the current header.
+    setup = handbook.split("## Before testing", 1)[1].split("## Current 0.3", 1)[0]
+    link = re.search(r"\[deployment and verification record\]\(([^)]+)\)", handbook).group(1)
+    assert f"[current package record]({link})" in setup

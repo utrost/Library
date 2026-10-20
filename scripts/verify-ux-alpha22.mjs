@@ -1,3 +1,7 @@
+import { historicalSmoke } from './historical-smoke-guard.mjs'
+historicalSmoke('verify-ux-alpha22.mjs')
+// Historical diagnostic: known obsolete UI assumptions; not a current acceptance gate.
+// See docs/playwright-journeys.md#older-standalone-diagnostics before reuse.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { writeFileSync } from 'node:fs'

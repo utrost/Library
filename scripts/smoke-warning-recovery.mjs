@@ -1,3 +1,7 @@
+import { historicalSmoke } from './historical-smoke-guard.mjs'
+historicalSmoke('smoke-warning-recovery.mjs')
+// Historical diagnostic: known obsolete UI assumptions; not a current acceptance gate.
+// See docs/playwright-journeys.md#older-standalone-diagnostics before reuse.
 import { createEvidenceDirectory } from './private-evidence-directory.mjs'
 // Read-only real-warning GUI checks; private screenshots and temporary authentication.
 import assert from 'node:assert/strict'

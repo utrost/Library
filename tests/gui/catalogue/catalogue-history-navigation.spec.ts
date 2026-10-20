@@ -9,14 +9,14 @@ test('keeps catalogue and detail state consistent through history navigation @ca
 
   const title = requiredEnvironment('PW_SEARCH_TITLE')
   const catalogue = page.locator('#library-catalogue')
-  const filters = page.getByRole('form', { name: 'Catalogue search and filters' })
+  const search = page.locator('.library-catalogue-search')
   await page.locator('#library-main-search').fill(title)
   const filteredResponse = page.waitForResponse((response) => {
     const url = new URL(response.url())
     return url.pathname.endsWith('/apps/library/catalogue')
       && url.searchParams.get('q') === title
   })
-  await filters.getByRole('button', { name: 'Apply filters' }).click()
+  await search.getByRole('button', { name: 'Search', exact: true }).click()
   expect((await filteredResponse).ok()).toBeTruthy()
 
   const toolbar = page.getByRole('form', { name: 'Catalogue toolbar' })

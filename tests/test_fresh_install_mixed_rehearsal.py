@@ -114,3 +114,12 @@ def test_basic_smoke_uses_pinned_playwright_chrome():
     script = (ROOT / "scripts/smoke-fresh-install-mixed.sh").read_text()
     assert "chromium.executablePath()" in script
     assert 'CHROME_BIN="${CHROME_BIN:-$playwright_chrome_bin}"' in script
+
+
+def test_mixed_fixture_explicitly_seeds_unresolved_language(tmp_path):
+    from xml.etree import ElementTree
+    generator = ROOT / "scripts/generate-mixed-publications.py"
+    subprocess.run(["python3", str(generator), str(tmp_path), "8", "--language-review"], check=True)
+    languages = [ElementTree.parse(path).findtext(".//{http://purl.org/dc/elements/1.1/}language") for path in sorted(tmp_path.glob("*.opf"))]
+    assert languages.count("3ng") == 1
+    assert len(languages) == 2
