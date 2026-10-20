@@ -133,6 +133,8 @@ return [
         ['name' => 'item_page#show', 'url' => '/items/{itemId}', 'verb' => 'GET', 'requirements' => ['itemId' => '[1-9][0-9]*']],
         ['name' => 'item#resetfield', 'url' => '/items/{itemId}/reset-field', 'verb' => 'POST'],
         ['name' => 'item#resetfields', 'url' => '/items/{itemId}/reset-fields', 'verb' => 'POST'],
+        ['name' => 'book_deletion#preview', 'url' => '/items/{itemId}/deletion', 'verb' => 'GET', 'requirements' => ['itemId' => '[1-9][0-9]{0,8}']],
+        ['name' => 'book_deletion#delete', 'url' => '/items/{itemId}/deletion', 'verb' => 'POST', 'requirements' => ['itemId' => '[1-9][0-9]{0,8}']],
         ['name' => 'item#open', 'url' => '/items/{itemId}/open', 'verb' => 'GET'],
         ['name' => 'item#recordOpen', 'url' => '/items/{itemId}/open', 'verb' => 'POST'],
         ['name' => 'item#update', 'url' => '/items/{itemId}', 'verb' => 'POST'],

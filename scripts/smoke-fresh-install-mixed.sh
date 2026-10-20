@@ -260,3 +260,5 @@ NC_CONTAINER="$CONTAINER" NC_URL="$BASE_URL" node scripts/smoke-author-preferred
 
 echo 'fresh_install_mixed_smoke_ok=true'
 NC_CONTAINER="$CONTAINER" NC_URL="$BASE_URL" node scripts/smoke-author-directory.mjs
+
+NC_CONTAINER="$CONTAINER" NC_URL="$BASE_URL" node scripts/smoke-book-deletion.mjs

@@ -1301,7 +1301,24 @@ OC.L10N.register(
         "For example: Doe, John. Used for surname sorting.": "For example: Doe, John. Used for surname sorting.",
         "Type at least 3 letters.": "Type at least 3 letters.",
         "Pagination": "Pagination",
-        "No matching genres.": "No matching genres."
+        "No matching genres.": "No matching genres.",
+        "Delete book": "Delete book",
+        "Delete book?": "Delete book?",
+        "Please wait…": "Please wait…",
+        "These files will be deleted:": "These files will be deleted:",
+        "The OPF is shared with another publication and will be kept.": "The OPF is shared with another publication and will be kept.",
+        "The OPF cannot be deleted with your permissions and will be kept.": "The OPF cannot be deleted with your permissions and will be kept.",
+        "The immediate parent folder will be removed only if empty:": "The immediate parent folder will be removed only if empty:",
+        "Library-only edits and unsaved changes will be removed. Restoring the source file does not restore those edits.": "Library-only edits and unsaved changes will be removed. Restoring the source file does not restore those edits.",
+        "Recovery through Nextcloud Deleted files depends on your storage and retention settings.": "Recovery through Nextcloud Deleted files depends on your storage and retention settings.",
+        "The file is unavailable or cannot be deleted. Refresh the book and check its permissions.": "The file is unavailable or cannot be deleted. Refresh the book and check its permissions.",
+        "Deletion could not be completed. Close this dialog and refresh the book before trying again.": "Deletion could not be completed. Close this dialog and refresh the book before trying again.",
+        "Book deleted.": "Book deleted.",
+        "The book was deleted, but its OPF could not be removed.": "The book was deleted, but its OPF could not be removed.",
+        "The book was deleted, but the parent folder was kept.": "The book was deleted, but the parent folder was kept.",
+        "The file was deleted, but catalogue cleanup needs a rescan. You can then forget the missing publication.": "The file was deleted, but catalogue cleanup needs a rescan. You can then forget the missing publication.",
+        "The file was deleted. Run a scan to refresh the catalogue status.": "The file was deleted. Run a scan to refresh the catalogue status.",
+        "Dismiss": "Dismiss"
     },
     "nplurals=2; plural=(n != 1);"
 );

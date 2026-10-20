@@ -752,3 +752,19 @@ The three covers are stable examples, not a complete bibliography. Open the auth
 - Search after three letters, clear the search, paginate and follow book previews. Back must restore the originating directory state. Series names and counts open their profile; genre names and counts open the filtered catalogue.
 - Genre pages must continue beyond the first 50 entries. Removed/inactive genre assignments must never appear among previews.
 - Check narrow screens, keyboard focus and dark mode. Expand **Create a genre** to add a genre; suggestion review and series reassignment remain available and explicit.
+
+
+### H03-23 — Delete a book from Details (alpha.31)
+
+Use disposable files in an isolated test account. Do not use valuable library books for this case.
+
+1. Open a fixture through a filtered catalogue or author/series directory. Stage a title edit, then choose **Delete book**. Check the exact file paths in the confirmation. Cancel or press Escape: the file and unsaved draft must remain.
+2. Confirm deletion. The source file and exclusive OPF should disappear; an empty immediate parent should disappear too. Return to the original list/search and expect **Book deleted.** No metadata Save request should occur.
+3. With EPUB and PDF sharing an OPF, delete one format. The remaining format and shared OPF must survive, and the dialog must explain that the OPF is retained.
+4. Leave `cover.jpg`, a hidden file or any other file in the parent. The folder and companion file must survive. Configured shelf/root folders and mount roots are always retained.
+5. Change or replace the source after opening confirmation. Delete must fail closed; reopen confirmation after refreshing. Read-only files must not offer a usable confirmation.
+6. Verify the deleted book is absent from search and duplicate results. Its reading-list entry remains unavailable; author/series/genre records remain.
+7. Where Nextcloud Deleted files is supported, restore a source file and scan again. It should reappear as an imported book; Library-only edits removed with the previous catalogue entry are not restored.
+8. Check keyboard focus, Cancel/Escape, scrolling and button contrast on desktop/mobile in light/dark themes. For partial cleanup failures, the message must say the book was deleted and identify the remaining cleanup.
+
+Deletion requires Nextcloud transactional file locking. The storage guard preserves Nextcloud's normal trash/retention behavior; it does not permanently purge the trash. Deletion of arbitrary companion images or ancestor directories is outside this feature.
