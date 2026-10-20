@@ -1,0 +1,82 @@
+{
+  "appVersion": "0.3.0-alpha.35",
+  "nextcloudVersion": "34.0.4",
+  "scope": "disposable fresh screenshot candidate; not developer deployment or NC33-35 certification",
+  "archiveSha256": "1dac042932b39a5d3bfd2fc8c2fd54469965305d01612d82440011c19f6be2ea",
+  "integrity": "clean",
+  "publicScreenshots": 10,
+  "focusedBrowserResults": [
+    {
+      "engine": "chromium",
+      "width": 1440,
+      "page": "authors",
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 1440,
+      "page": "maintenance",
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "page": "authors",
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "page": "maintenance",
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 320,
+      "page": "authors",
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 320,
+      "page": "maintenance",
+      "errors": []
+    },
+    {
+      "engine": "firefox",
+      "width": 1440,
+      "page": "authors",
+      "errors": []
+    },
+    {
+      "engine": "firefox",
+      "width": 1440,
+      "page": "maintenance",
+      "errors": []
+    },
+    {
+      "engine": "firefox",
+      "width": 390,
+      "page": "authors",
+      "errors": []
+    },
+    {
+      "engine": "firefox",
+      "width": 390,
+      "page": "maintenance",
+      "errors": []
+    },
+    {
+      "engine": "firefox",
+      "width": 320,
+      "page": "authors",
+      "errors": []
+    },
+    {
+      "engine": "firefox",
+      "width": 320,
+      "page": "maintenance",
+      "errors": []
+    }
+  ]
+}
