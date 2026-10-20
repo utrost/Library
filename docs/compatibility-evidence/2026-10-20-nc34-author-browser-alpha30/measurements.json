@@ -1,0 +1,467 @@
+{
+  "catalogueCount": 107717,
+  "sampling": "Six serial service calls per case; first sample and median of five warm samples. No database cache flush. Browser timing ends when directory rows are ready, before all lazy covers finish. Shared developer host; observations are not hard latency guarantees.",
+  "before": {
+    "authors": {
+      "first": {
+        "firstMs": 264.88,
+        "warmMedianMs": 23.19,
+        "warmMaxMs": 44.12,
+        "authors": 50,
+        "previews": 0,
+        "responseBytes": 5401,
+        "sql": {
+          "count": 2,
+          "ms": 23.07
+        },
+        "indexNames": [
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_sort"
+        ]
+      },
+      "second": {
+        "firstMs": 39.65,
+        "warmMedianMs": 23.18,
+        "warmMaxMs": 85.28,
+        "authors": 50,
+        "previews": 0,
+        "responseBytes": 5632,
+        "sql": {
+          "count": 2,
+          "ms": 50.9
+        },
+        "indexNames": [
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_sort"
+        ]
+      },
+      "reverse": {
+        "firstMs": 27.93,
+        "warmMedianMs": 22.99,
+        "warmMaxMs": 30.31,
+        "authors": 50,
+        "previews": 0,
+        "responseBytes": 5401,
+        "sql": {
+          "count": 2,
+          "ms": 22.8
+        },
+        "indexNames": [
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_sort"
+        ]
+      },
+      "surname": {
+        "firstMs": 23.04,
+        "warmMedianMs": 23.77,
+        "warmMaxMs": 28.56,
+        "authors": 50,
+        "previews": 0,
+        "responseBytes": 5401,
+        "sql": {
+          "count": 2,
+          "ms": 23.62
+        },
+        "indexNames": [
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_sort"
+        ]
+      },
+      "search": {
+        "firstMs": 1244.97,
+        "warmMedianMs": 74.58,
+        "warmMaxMs": 188.67,
+        "authors": 50,
+        "previews": 0,
+        "responseBytes": 6234,
+        "sql": {
+          "count": 2,
+          "ms": 75.05
+        },
+        "indexNames": [
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_sort"
+        ]
+      },
+      "unused": {
+        "firstMs": 2689.09,
+        "warmMedianMs": 2262.03,
+        "warmMaxMs": 2264.1,
+        "authors": 50,
+        "previews": 0,
+        "responseBytes": 5054,
+        "sql": {
+          "count": 2,
+          "ms": 2262.82
+        },
+        "indexNames": [
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_sort"
+        ]
+      }
+    },
+    "related": {
+      "series": {
+        "name": {
+          "firstMs": 247.46,
+          "warmMedianMs": 23.25,
+          "warmMaxMs": 39.98,
+          "rows": 50,
+          "responseBytes": 4478,
+          "sql": {
+            "count": 2,
+            "ms": 23.12
+          },
+          "indexNames": [
+            "library_series_books",
+            "library_series_sort",
+            "library_series_user_status"
+          ]
+        },
+        "name_desc": {
+          "firstMs": 22.99,
+          "warmMedianMs": 23.15,
+          "warmMaxMs": 23.25,
+          "rows": 50,
+          "responseBytes": 4478,
+          "sql": {
+            "count": 2,
+            "ms": 22.97
+          },
+          "indexNames": [
+            "library_series_books",
+            "library_series_sort",
+            "library_series_user_status"
+          ]
+        }
+      },
+      "genres": {
+        "name": {
+          "firstMs": 0.84,
+          "warmMedianMs": 0.2,
+          "warmMaxMs": 0.34,
+          "rows": 1,
+          "responseBytes": 85,
+          "sql": {
+            "count": 1,
+            "ms": 0.14
+          },
+          "indexNames": [
+            "library_genre_books",
+            "library_genres_sort"
+          ]
+        },
+        "name_desc": {
+          "firstMs": 0.16,
+          "warmMedianMs": 0.2,
+          "warmMaxMs": 0.2,
+          "rows": 1,
+          "responseBytes": 85,
+          "sql": {
+            "count": 1,
+            "ms": 0.14
+          },
+          "indexNames": [
+            "library_genre_books",
+            "library_genres_sort"
+          ]
+        }
+      }
+    },
+    "browser": {
+      "firstMs": 1040.7979799999998,
+      "warmMedianMs": 855.304905,
+      "warmMaxMs": 931.4222179999997,
+      "samples": 6,
+      "rows": 50,
+      "pageErrors": 0,
+      "mobileFits": true
+    }
+  },
+  "after": {
+    "authors": {
+      "first": {
+        "firstMs": 232.04,
+        "warmMedianMs": 28.6,
+        "warmMaxMs": 58.12,
+        "authors": 50,
+        "previews": 65,
+        "responseBytes": 15452,
+        "sql": {
+          "count": 3,
+          "ms": 28.58
+        },
+        "indexNames": [
+          "PRIMARY",
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_display"
+        ]
+      },
+      "second": {
+        "firstMs": 78.38,
+        "warmMedianMs": 27.42,
+        "warmMaxMs": 40.67,
+        "authors": 50,
+        "previews": 70,
+        "responseBytes": 15410,
+        "sql": {
+          "count": 3,
+          "ms": 27.06
+        },
+        "indexNames": [
+          "PRIMARY",
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_display"
+        ]
+      },
+      "reverse": {
+        "firstMs": 131.56,
+        "warmMedianMs": 26.89,
+        "warmMaxMs": 28.0,
+        "authors": 50,
+        "previews": 62,
+        "responseBytes": 17845,
+        "sql": {
+          "count": 3,
+          "ms": 26.49
+        },
+        "indexNames": [
+          "PRIMARY",
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_display"
+        ]
+      },
+      "surname": {
+        "firstMs": 66.33,
+        "warmMedianMs": 26.8,
+        "warmMaxMs": 27.24,
+        "authors": 50,
+        "previews": 68,
+        "responseBytes": 14726,
+        "sql": {
+          "count": 3,
+          "ms": 26.23
+        },
+        "indexNames": [
+          "PRIMARY",
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_sort"
+        ]
+      },
+      "search": {
+        "firstMs": 960.79,
+        "warmMedianMs": 74.72,
+        "warmMaxMs": 77.72,
+        "authors": 50,
+        "previews": 64,
+        "responseBytes": 15642,
+        "sql": {
+          "count": 3,
+          "ms": 73.75
+        },
+        "indexNames": [
+          "PRIMARY",
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_display"
+        ]
+      },
+      "unused": {
+        "firstMs": 2584.21,
+        "warmMedianMs": 2280.4,
+        "warmMaxMs": 2290.19,
+        "authors": 50,
+        "previews": 0,
+        "responseBytes": 5604,
+        "sql": {
+          "count": 3,
+          "ms": 2276.0
+        },
+        "indexNames": [
+          "PRIMARY",
+          "library_author_books",
+          "library_author_user_status",
+          "library_authors_display"
+        ]
+      }
+    },
+    "related": {
+      "series": {
+        "name": {
+          "firstMs": 278.75,
+          "warmMedianMs": 27.52,
+          "warmMaxMs": 48.7,
+          "rows": 50,
+          "responseBytes": 18615,
+          "sql": {
+            "count": 3,
+            "ms": 27.11
+          },
+          "indexNames": [
+            "PRIMARY",
+            "library_series_books",
+            "library_series_sort",
+            "library_series_user_status"
+          ]
+        },
+        "name_desc": {
+          "firstMs": 118.87,
+          "warmMedianMs": 27.18,
+          "warmMaxMs": 28.26,
+          "rows": 50,
+          "responseBytes": 14040,
+          "sql": {
+            "count": 3,
+            "ms": 26.85
+          },
+          "indexNames": [
+            "PRIMARY",
+            "library_series_books",
+            "library_series_sort",
+            "library_series_user_status"
+          ]
+        }
+      },
+      "genres": {
+        "name": {
+          "firstMs": 4.14,
+          "warmMedianMs": 0.66,
+          "warmMaxMs": 0.75,
+          "rows": 1,
+          "responseBytes": 196,
+          "sql": {
+            "count": 2,
+            "ms": 0.56
+          },
+          "indexNames": [
+            "PRIMARY",
+            "library_genre_books",
+            "library_genres_sort"
+          ]
+        },
+        "name_desc": {
+          "firstMs": 1.0,
+          "warmMedianMs": 0.66,
+          "warmMaxMs": 0.92,
+          "rows": 1,
+          "responseBytes": 196,
+          "sql": {
+            "count": 2,
+            "ms": 0.64
+          },
+          "indexNames": [
+            "PRIMARY",
+            "library_genre_books",
+            "library_genres_sort"
+          ]
+        }
+      }
+    },
+    "browser": {
+      "firstMs": 1326.1196109999996,
+      "warmMedianMs": 978.9368189999996,
+      "warmMaxMs": 2528.610072,
+      "samples": 6,
+      "rows": 50,
+      "pageErrors": 0,
+      "consoleErrors": 0,
+      "blockedWrites": 0,
+      "related": {
+        "series": {
+          "readyMs": 947.8573940000024,
+          "rows": 50,
+          "previews": 103
+        },
+        "genre": {
+          "readyMs": 857.6814970000014,
+          "rows": 1,
+          "previews": 1
+        }
+      },
+      "mobileFits": true
+    },
+    "browserSettledRepeat": {
+      "firstMs": 1060.240214,
+      "warmMedianMs": 930.1164899999999,
+      "warmMaxMs": 1014.2690249999996,
+      "samples": 6,
+      "rows": 50,
+      "pageErrors": 0,
+      "consoleErrors": 0,
+      "blockedWrites": 0,
+      "related": {
+        "series": {
+          "readyMs": 912.4372670000012,
+          "rows": 50,
+          "previews": 103
+        },
+        "genre": {
+          "readyMs": 859.3731149999985,
+          "rows": 1,
+          "previews": 1
+        }
+      },
+      "mobileFits": true
+    }
+  },
+  "servedAssets": {
+    "library-main-0-3-0-alpha-30-compact-list-table-cover-96-fit-v8.mjs": {
+      "sha256": "4441a269b9f6f589ee0680c5aeb70e8b258f5147a2111988b81087d66ff6a0e4",
+      "bytes": 1097549,
+      "matchesPackage": true
+    },
+    "library-vue-0-3-0-alpha-30-compact-list-table-cover-96-fit-v8.css": {
+      "sha256": "41458b451d1c5dfa8427103061305c8356e3e796c5e1cec752413973a20eb1b9",
+      "bytes": 145015,
+      "matchesPackage": true
+    }
+  },
+  "searchRegression": {
+    "samples": [
+      {
+        "width": 1440,
+        "facet": "q",
+        "ms": 2236,
+        "total": 276,
+        "items": 100
+      },
+      {
+        "width": 1440,
+        "facet": "creator",
+        "ms": 2334,
+        "total": 190,
+        "items": 100
+      },
+      {
+        "width": 390,
+        "facet": "q",
+        "ms": 2565,
+        "total": 276,
+        "items": 100
+      },
+      {
+        "width": 390,
+        "facet": "creator",
+        "ms": 2350,
+        "total": 190,
+        "items": 100
+      }
+    ],
+    "pageErrors": [],
+    "consoleErrors": [],
+    "mutations": 0,
+    "duplicateLookups": 7,
+    "version": "0.3.0-alpha.30",
+    "tokenRemoved": true
+  }
+}
