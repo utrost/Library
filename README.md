@@ -40,7 +40,7 @@ The app has safe user-facing diagnostics for scan and metadata problems. Server 
 
 ![Filename metadata extraction with a selected-record preview](docs/images/appstore-inference.png)
 
-Screenshots show the actual alpha.34 interface on an isolated Nextcloud 34 instance, using the [English Gutenberg examples](docs/gutenberg-example-books.md) and a synthetic filename-extraction example. [Capture details and reproduction](docs/images/first-library/README.md).
+Screenshots show the actual alpha.35 interface on an isolated Nextcloud 34 instance, using the [English Gutenberg examples](docs/gutenberg-example-books.md) and a synthetic filename-extraction example. [Capture details and reproduction](docs/images/first-library/README.md).
 
 ## Your first library
 

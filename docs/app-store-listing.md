@@ -1,8 +1,8 @@
 # App Store listing draft
 
-Status: copy and screenshots refreshed against signed 0.3.0-alpha.34 on 2026-10-20; final candidate review remains required before submission.
+Status: copy and screenshots refreshed against signed 0.3.0-alpha.35 on 2026-10-20; final candidate review remains required before submission.
 Target app version: 0.3, subject to exact archive verification.
-Compatibility target: Nextcloud 33–35. Current NC34 verification is recorded for alpha.34; the final exact-package NC33–35 matrix remains a release gate.
+Compatibility target: Nextcloud 33–35. Current NC34 verification is recorded for alpha.35; the final exact-package NC33–35 matrix remains a release gate.
 
 ## Short description
 
@@ -63,7 +63,7 @@ Bug reports are most useful when they include the app version, Nextcloud version
 
 Prepared screenshots for owner review:
 
-Captured from signed Library 0.3.0-alpha.34 on disposable Nextcloud 34.0.4 using the public Gutenberg fixture and a synthetic metadata tutorial file. All are below 2 MiB, and contain no real-library filenames or credentials:
+Captured from signed Library 0.3.0-alpha.35 on disposable Nextcloud 34.0.4 using the public Gutenberg fixture and a synthetic metadata tutorial file. All are below 2 MiB, and contain no real-library filenames or credentials:
 
 1. [Catalogue](images/appstore-catalogue.png)
 2. [Publication details](images/appstore-details.png)
