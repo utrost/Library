@@ -1,0 +1,187 @@
+{
+  "books": 107717,
+  "query": "Heinlein",
+  "pageSize": 100,
+  "notes": [
+    "Read-only CLI samples on a shared developer host; cache and concurrent load affect cold runs.",
+    "No database migration or reindex."
+  ],
+  "before": {
+    "content": {
+      "milliseconds": [
+        9510.89,
+        8650.4,
+        7963.59
+      ],
+      "medianMs": 8650.4,
+      "total": 276,
+      "resultHash": "0413a489c996fe51338c3194998669305d57c68c11cccabcb1dedf88835041c3"
+    },
+    "author": {
+      "milliseconds": [
+        10.66,
+        2.61,
+        2.76
+      ],
+      "medianMs": 2.76,
+      "total": 0,
+      "resultHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "suggestions": {
+      "milliseconds": [
+        2291.16,
+        1511.26,
+        1599.04
+      ],
+      "medianMs": 1599.04,
+      "total": 10,
+      "resultHash": "244ab3b9f0da1b9d1a06808e3e1eea683f3f52cb81cf169ac6dfef38c3b11ea3"
+    },
+    "contentIndex": {
+      "type": "range",
+      "key": "library_items_usr_title",
+      "rows": "79860"
+    }
+  },
+  "candidate": {
+    "content": {
+      "milliseconds": [
+        2152.94,
+        490.19,
+        491.17
+      ],
+      "medianMs": 491.17,
+      "total": 276,
+      "resultHash": "0413a489c996fe51338c3194998669305d57c68c11cccabcb1dedf88835041c3"
+    },
+    "author": {
+      "milliseconds": [
+        433.47,
+        424.47,
+        420.05
+      ],
+      "medianMs": 424.47,
+      "total": 190,
+      "resultHash": "af7f820b56cc529d3e3058f6e907d4c24dd527e731aa78f71cd95f0bdbcae502"
+    },
+    "suggestions": {
+      "milliseconds": [
+        207.35,
+        214.59,
+        203.06
+      ],
+      "medianMs": 207.35,
+      "total": 10,
+      "resultHash": "244ab3b9f0da1b9d1a06808e3e1eea683f3f52cb81cf169ac6dfef38c3b11ea3"
+    },
+    "contentIndex": {
+      "type": "range",
+      "key": "PRIMARY",
+      "rows": "276"
+    }
+  },
+  "browserBefore": {
+    "samples": [
+      {
+        "width": 1440,
+        "facet": "q",
+        "ms": 19908,
+        "total": 276,
+        "items": 100
+      },
+      {
+        "width": 1440,
+        "facet": "creator",
+        "ms": 122,
+        "total": 0,
+        "items": 0
+      }
+    ],
+    "pageErrors": [],
+    "consoleErrors": [],
+    "mutations": 0,
+    "duplicateLookups": 3,
+    "version": "0.3.0-alpha.28",
+    "tokenRemoved": true
+  },
+  "installed": {
+    "content": {
+      "milliseconds": [
+        1189.9,
+        491.17,
+        490.92
+      ],
+      "medianMs": 491.17,
+      "total": 276,
+      "resultHash": "0413a489c996fe51338c3194998669305d57c68c11cccabcb1dedf88835041c3"
+    },
+    "author": {
+      "milliseconds": [
+        417.76,
+        410.37,
+        419.35
+      ],
+      "medianMs": 417.76,
+      "total": 190,
+      "resultHash": "af7f820b56cc529d3e3058f6e907d4c24dd527e731aa78f71cd95f0bdbcae502"
+    },
+    "suggestions": {
+      "milliseconds": [
+        207.16,
+        196.42,
+        196.6
+      ],
+      "medianMs": 196.6,
+      "total": 10,
+      "resultHash": "244ab3b9f0da1b9d1a06808e3e1eea683f3f52cb81cf169ac6dfef38c3b11ea3"
+    }
+  },
+  "browserInstalled": {
+    "samples": [
+      {
+        "width": 1440,
+        "facet": "q",
+        "ms": 2301,
+        "total": 276,
+        "items": 100
+      },
+      {
+        "width": 1440,
+        "facet": "creator",
+        "ms": 2132,
+        "total": 190,
+        "items": 100
+      },
+      {
+        "width": 390,
+        "facet": "q",
+        "ms": 2609,
+        "total": 276,
+        "items": 100
+      },
+      {
+        "width": 390,
+        "facet": "creator",
+        "ms": 2636,
+        "total": 190,
+        "items": 100
+      }
+    ],
+    "pageErrors": [],
+    "consoleErrors": [],
+    "mutations": 0,
+    "duplicateLookups": 7,
+    "version": "0.3.0-alpha.29",
+    "tokenRemoved": true
+  },
+  "package": {
+    "version": "0.3.0-alpha.29",
+    "commit": "993a1ee",
+    "sha256": "d42a67d3016370ed2d36fe770099ead4e387c682f70e84e7ccc24f903c05ef17",
+    "nextcloud": "34.0.3.2",
+    "integrity": true,
+    "maintenance": false,
+    "countBefore": 107717,
+    "countAfter": 107717
+  }
+}

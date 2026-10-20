@@ -40,7 +40,7 @@ try {
       await page.goto(`${base}/apps/library/`)
       await expect(page.locator('[data-library-quick-search]').first()).toBeAttached()
       report.version = await page.locator('#library-vue-root').getAttribute('data-library-version')
-      if (viewport.width < 600) await page.getByRole('button', { name: /^Filters/ }).click()
+      if (viewport.width < 600) await page.locator('summary.library-mobile-filter-trigger').click()
       const form = page.locator(viewport.width < 600 ? '.library-mobile-filter-form' : '.library-sidebar-filters')
       const input = form.locator(`input[name="${facet === 'q' ? 'q' : 'creatorSearch'}"]`)
       const responsePromise = page.waitForResponse(response => {

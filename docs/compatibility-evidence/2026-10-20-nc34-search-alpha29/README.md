@@ -33,4 +33,17 @@ Use `LIBRARY_BENCHMARK_USER` / `LIBRARY_SEARCH_QUERY` in the container for a dif
 
 Candidate MariaDB integration passed partial display/sort-name matches, case-insensitive names, minimum length, literal wildcard handling, combined language filters and account isolation. A rolled-back isolated fixture passed 501 matching authors, 503 linked books and final-page pagination without truncation. Developer books were not edited.
 
-Local checks passed: 1,045 Python source contracts, 552 frontend tests in 39 files, PHP runtime suites, 518 parser vectors, translation inventory and production build. Packaged browser verification, merge, signing and installed smoke are pending. Alpha.28 remains deployed until those gates pass. Exact-package NC33–35 App Store certification and owner acceptance remain separate gates.
+Local checks passed: 1,045 Python source contracts, 552 frontend tests in 39 files, PHP runtime suites, 518 parser vectors, translation inventory and production build. Packaged Chromium/Firefox search/detail and surname/typeahead journeys passed. CI [39385544554](https://github.com/utrost/Library/actions/runs/39385544554) passed all 44 GUI journeys, source checks and the additional isolated author-search/bounds smoke. Security [39385544568](https://github.com/utrost/Library/actions/runs/39385544568) passed. [PR #123](https://github.com/utrost/Library/pull/123) merged as `993a1ee`.
+
+Signed alpha.29 was built from that merged commit and deployed on developer Nextcloud **34.0.3.2**. Integrity is clean; maintenance is off; the catalogue stayed **107,717 → 107,717**. Served JS/CSS hashes match local release assets. Frontend size: **1,311,756 / 1,320,000 bytes**.
+
+- Archive SHA-256: `d42a67d3016370ed2d36fe770099ead4e387c682f70e84e7ccc24f903c05ef17`.
+- Rollback app directory in `nextcloud`: `/tmp/library-before-alpha29-20261020T072936Z`.
+- Served JS SHA-256: `bf29488043b85629fabdde5076f57c679942ae4191a5001f546d02d0565f44d9`.
+- Served CSS SHA-256: `265d9460feb668a7704708c72bcad77509c26224728db0b714a5738eaae37df4`.
+
+Installed read-only CLI samples: content **1,189.9 / 491.17 / 490.92 ms**, author **417.76 / 410.37 / 419.35 ms**, suggestions **207.16 / 196.42 / 196.60 ms**. The content result count and fingerprint match the pre-fix run. EXPLAIN changed from an estimated 79,860 title-index rows to 276 primary-key rows.
+
+Installed Playwright smoke (actual assets, Basic-authenticated requests, duplicate hints enabled): desktop content **2,301 ms**, author **2,132 ms**; mobile content **2,609 ms**, author **2,636 ms**. These include browser rendering and request/authentication overhead. Both viewports returned 276/190 results respectively. Zero page/console errors, zero book mutation requests; temporary credentials removed. The existing duplicate lookup POST was allowed. The first mobile probe used an incorrect button selector for the disclosure; the reusable probe now uses the same summary selector as the established mobile GUI test, and the rerun passed.
+
+[Sanitized measurements](measurements.json) contain the repeated samples and plan summary. Private live screenshots/results: `/tmp/library-search-browser-p9aocI`. No book edits or rescans were needed. Exact-package NC33–35 App Store certification and owner acceptance remain separate gates.
