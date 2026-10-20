@@ -17,7 +17,7 @@ final class AuthorController extends Controller {
     #[NoAdminRequired]
     #[NoCSRFRequired]
     public function index(): JSONResponse {
-        return $this->respond(fn($uid) => $this->authors->directory($uid, $this->text('search'), $this->integer('page', 1), $this->request->getParam('unused', '0') === '1'));
+        return $this->respond(fn($uid) => $this->authors->directory($uid, $this->text('search'), $this->integer('page', 1), $this->request->getParam('unused', '0') === '1', $this->text('sort') ?: 'surname', $this->request->getParam('previews', '0') === '1'));
     }
     #[NoAdminRequired]
     #[NoCSRFRequired]

@@ -734,3 +734,21 @@ Notes/privacy concerns:
 5. Repeat with a language filter and on a narrow screen. Filters must combine; no overflow or blank-screen errors. Saved exact author filters should still work.
 
 See the [alpha.29 measurements and repeat commands](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md).
+
+### H03-21 — Browse authors (alpha.30)
+
+1. Open Authors. Expect compact rows sorted by the displayed name A–Z, with a linked book count and at most three cover/title previews. Sort names should not clutter each row.
+2. Choose Name Z–A, then Surname / sort name A–Z. Check ordering, including page two; changing sort resets to page one.
+3. Type two letters: no request yet. Type a third: results update automatically with a loading indication. Clear the field to restore all authors. Search matches the beginning of preferred names or sort names.
+4. Open a preview book. Use Back to return to the same directory search, sort and page. Open an author and use All authors; expect the same directory state. The book count opens the author's book collection.
+5. Check an unused author, a long name and missing covers. Try a narrow/mobile viewport and light/dark themes: controls and titles must fit, links must have visible keyboard focus.
+6. On the author profile, confirm cover/list views, title/date/series sorting and merge/reassign still work. Browsing must not change book metadata.
+
+The three covers are stable examples, not a complete bibliography. Open the author or book count for all books.
+
+### H03-22 — Series and Genres browser parity (alpha.30)
+
+- Open Series and Genres. Both should have the same compact search/sort toolbar and cover/title previews as Authors, with Name A–Z as the default and Name Z–A available.
+- Search after three letters, clear the search, paginate and follow book previews. Back must restore the originating directory state. Series names and counts open their profile; genre names and counts open the filtered catalogue.
+- Genre pages must continue beyond the first 50 entries. Removed/inactive genre assignments must never appear among previews.
+- Check narrow screens, keyboard focus and dark mode. Series reassignment and genre creation/suggestion review must remain available and explicit.

@@ -422,7 +422,6 @@
         "Folder unavailable or replaced. Remove this assignment and assign again after checking the folder.": "المجلد غير متاح أو تم استبداله. أزل هذا التعيين وأعده بعد التحقق من المجلد.",
         "Folders and scanning": "المجلدات والفحص",
         "Folders in this sample": "المجلدات في هذه العينة",
-        "For example: Doe, John. Controls author directory ordering.": "مثال: منصور، أحمد. يحدد الترتيب في دليل المؤلفين.",
         "Forget missing item": "نسيان العنصر المفقود",
         "Forget missing publication": "إزالة المنشور المفقود من الفهرس",
         "Forget this missing publication?": "هل تريد إزالة هذا المنشور المفقود من الفهرس؟",
@@ -589,7 +588,6 @@
         "Move or merge books": "نقل الكتب أو دمج السلاسل",
         "Move up": "تحريك لأعلى",
         "Moved, renamed or reconnected": "نُقل أو أُعيدت تسميته أو أُعيد ربطه",
-        "My genres": "تصنيفاتي",
         "Name to browse under": "اسم العرض",
         "Needs action": "يحتاج إلى إجراء",
         "Needs attention": "بحاجة إلى انتباه",
@@ -1379,7 +1377,14 @@
         "Title, author, description, filename or folder": "العنوان أو المؤلف أو الوصف أو اسم الملف أو المجلد",
         "Apply author": "تطبيق المؤلف",
         "Search by author name or surname (at least 3 characters), or choose a suggested author.": "ابحث باسم المؤلف أو اسم العائلة (3 أحرف على الأقل)، أو اختر مؤلفًا مقترحًا.",
-        "Author": "المؤلف"
+        "Author": "المؤلف",
+        "Name A–Z": "الاسم أ–ي",
+        "Name Z–A": "الاسم ي–أ",
+        "Surname / sort name A–Z": "اسم العائلة / اسم الفرز أ–ي",
+        "For example: Doe, John. Used for surname sorting.": "مثال: دو، جون. يُستخدم للفرز حسب اسم العائلة.",
+        "Type at least 3 letters.": "اكتب ثلاثة أحرف على الأقل.",
+        "Pagination": "التنقل بين الصفحات",
+        "No matching genres.": "لا توجد أنواع مطابقة."
     },
     "pluralForm": "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 }

@@ -423,7 +423,6 @@ OC.L10N.register(
         "Folder unavailable or replaced. Remove this assignment and assign again after checking the folder.": "Ordner nicht verfügbar oder ersetzt. Entferne diese Zuordnung und ordne die Regel nach Prüfung des Ordners erneut zu.",
         "Folders and scanning": "Ordner und Scannen",
         "Folders in this sample": "Ordner in dieser Stichprobe",
-        "For example: Doe, John. Controls author directory ordering.": "Zum Beispiel: Mustermann, Max. Bestimmt die Reihenfolge im Autorenverzeichnis.",
         "Forget missing item": "Fehlenden Eintrag vergessen",
         "Forget missing publication": "Fehlende Publikation vergessen",
         "Forget this missing publication?": "Diese fehlende Publikation vergessen?",
@@ -590,7 +589,6 @@ OC.L10N.register(
         "Move or merge books": "Bücher verschieben oder Reihen zusammenführen",
         "Move up": "Nach oben",
         "Moved, renamed or reconnected": "Verschoben, umbenannt oder wiederverbunden",
-        "My genres": "Meine Genres",
         "Name to browse under": "Name für die Anzeige",
         "Needs action": "Handlungsbedarf",
         "Needs attention": "Aufmerksamkeit erforderlich",
@@ -1296,7 +1294,14 @@ OC.L10N.register(
         "Title, author, description, filename or folder": "Titel, Autor, Beschreibung, Dateiname oder Ordner",
         "Apply author": "Autor anwenden",
         "Search by author name or surname (at least 3 characters), or choose a suggested author.": "Nach Name oder Nachname suchen (mindestens 3 Zeichen) oder einen vorgeschlagenen Autor auswählen.",
-        "Author": "Autor"
+        "Author": "Autor",
+        "Name A–Z": "Name aufsteigend (A–Z)",
+        "Name Z–A": "Name absteigend (Z–A)",
+        "Surname / sort name A–Z": "Nachname / Sortiername A–Z",
+        "For example: Doe, John. Used for surname sorting.": "Zum Beispiel: Mustermann, Max. Wird für die Sortierung nach Nachnamen verwendet.",
+        "Type at least 3 letters.": "Mindestens 3 Buchstaben eingeben.",
+        "Pagination": "Seitennavigation",
+        "No matching genres.": "Keine passenden Genres."
     },
     "nplurals=2; plural=(n != 1);"
 );

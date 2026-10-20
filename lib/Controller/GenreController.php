@@ -15,7 +15,7 @@ final class GenreController extends Controller {
     public function __construct(string $appName, IRequest $request, private GenreService $genres, private IUserSession $session, private LoggerInterface $logger) { parent::__construct($appName, $request); }
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    public function index(): JSONResponse { return $this->respond(fn($uid) => $this->genres->directory($uid, $this->text('search'))); }
+    public function index(): JSONResponse { return $this->respond(fn($uid) => $this->genres->directory($uid, $this->text('search'), $this->request->getParam('page') === null ? 1 : $this->positiveInt('page'), $this->text('sort') ?: 'name', $this->request->getParam('previews', '0') === '1')); }
     #[NoAdminRequired]
     public function create(): JSONResponse { return $this->respond(fn($uid) => $this->genres->create($uid, $this->text('name'))); }
     #[NoAdminRequired]

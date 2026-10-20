@@ -1,3 +1,4 @@
+import { generateUrl } from '@nextcloud/router'
 /** Keep the current Library view when following a link to a book's full details. */
 export function detailsUrlWithReturn(detailsUrl, catalogueUrl, sourceHref) {
   try {
@@ -36,3 +37,5 @@ export function detailsReturnContext(catalogueUrl, currentHref) {
 export function bookDetailsUrl(catalogueUrl, itemId, sourceHref = window.location.href) {
   return detailsUrlWithReturn(`${catalogueUrl}?details=${encodeURIComponent(itemId)}`, catalogueUrl, sourceHref)
 }
+
+export function bookCoverUrl(book) { return generateUrl('/apps/library/items/{id}/cover', { id: book.id }) + '?v=' + encodeURIComponent(`${book.cover_revision || ''}-${book.etag || ''}`) }

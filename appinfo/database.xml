@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- Schema reference for 0.3.0-alpha.29, through Version000300Date20261018040000.
+<!-- Schema reference for 0.3.0-alpha.30, through Version000300Date20261020120000.
      lib/Migration is authoritative for installation and upgrades; see docs/database-schema.md. -->
 <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/database.xsd">
@@ -1271,6 +1271,7 @@
             <index><name>library_authors_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
             <index><name>library_authors_lookup</name><field><name>user_id</name></field><field><name>comparison_key</name></field></index>
             <index><name>library_authors_sort</name><field><name>user_id</name></field><field><name>sort_name</name></field><field><name>id</name></field></index>
+            <index><name>library_authors_display</name><field><name>user_id</name></field><field><name>merged_into</name></field><field><name>display_name</name></field><field><name>id</name></field></index>
         </declaration>
     </table>
     <table>
