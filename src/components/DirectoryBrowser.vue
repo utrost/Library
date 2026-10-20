@@ -7,7 +7,8 @@ import LabelHelp from './LabelHelp.vue'
 const props = defineProps({ kind: { type: String, required: true }, collection: { type: String, required: true }, request: { type: Function, required: true }, catalogueUrl: { type: String, required: true }, searchLabel: { type: String, required: true }, searchHelp: { type: String, required: true }, emptyLabel: { type: String, required: true }, surname: Boolean, unusedFilter: Boolean })
 const emit = defineEmits(['loaded', 'busy'])
 const query = new URLSearchParams(location.search)
-const search = ref((query.get(`${props.kind}Search`) || '').slice(0, 255)), unused = ref(query.get(`${props.kind}Unused`) === '1')
+const appliedSearch = ref((query.get(`${props.kind}Search`) || '').slice(0, 255))
+const search = ref((query.get(`${props.kind}Draft`) ?? appliedSearch.value).slice(0, 255)), unused = ref(query.get(`${props.kind}Unused`) === '1')
 const sorts = props.surname ? ['name', 'name_desc', 'surname'] : ['name', 'name_desc']
 const sort = ref(sorts.includes(query.get(`${props.kind}Sort`)) ? query.get(`${props.kind}Sort`) : 'name')
 const page = ref(Math.max(1, Math.min(100000, Number(query.get(`${props.kind}Page`)) || 1)))
@@ -17,23 +18,23 @@ let timer, controller, sequence = 0
 function stop() { clearTimeout(timer); controller?.abort(); sequence++ }
 function remember() {
   const source = new URL(location.href)
-  for (const [suffix, value, fallback] of [['Search', ready.value ? search.value.trim() : '', ''], ['Sort', sort.value, 'name'], ['Unused', unused.value ? '1' : '0', '0'], ['Page', String(page.value), '1']]) {
+  for (const [suffix, value, fallback] of [['Search', appliedSearch.value, ''], ['Draft', search.value.trim() === appliedSearch.value ? '' : search.value, ''], ['Sort', sort.value, 'name'], ['Unused', unused.value ? '1' : '0', '0'], ['Page', String(page.value), '1']]) {
     if (value !== fallback) source.searchParams.set(props.kind + suffix, value)
     else source.searchParams.delete(props.kind + suffix)
   }
   window.history.replaceState(window.history.state, '', source)
 }
-async function reload(next = page.value) {
+async function reload(next = page.value, nextSearch = ready.value ? search.value.trim() : appliedSearch.value) {
   stop(); const generation = sequence
   controller = new AbortController(); busy.value = true; emit('busy', true); error.value = ''
   try {
-    const result = await props.request(`?page=${next}&search=${encodeURIComponent(ready.value ? search.value.trim() : '')}&unused=${unused.value ? 1 : 0}&sort=${sort.value}&previews=1`, null, controller.signal)
+    const result = await props.request(`?page=${next}&search=${encodeURIComponent(nextSearch)}&unused=${unused.value ? 1 : 0}&sort=${sort.value}&previews=1`, null, controller.signal)
     if (generation !== sequence) return
-    data.value = result; page.value = next; remember(); emit('loaded', result)
+    data.value = result; appliedSearch.value = nextSearch; page.value = next; remember(); emit('loaded', result)
   } catch (cause) { if (generation === sequence && cause.name !== 'AbortError') error.value = cause.message }
   finally { if (generation === sequence) { busy.value = false; emit('busy', false) } }
 }
-watch(search, () => { stop(); busy.value = false; emit('busy', false); if (ready.value) timer = setTimeout(() => reload(1), 250) })
+watch(search, () => { stop(); busy.value = false; emit('busy', false); if (ready.value) timer = setTimeout(() => reload(1, search.value.trim()), 250); else remember() })
 watch([sort, unused], () => reload(1))
 function entryUrl(entry) {
   if (props.kind === 'genre') return `${props.catalogueUrl}?genreId=${entry.id}`
@@ -48,7 +49,7 @@ defineExpose({ reload })
 </script>
 <template>
   <section class="directory-browser" :aria-busy="busy">
-    <form class="directory-toolbar" @submit.prevent="ready && reload(1)">
+    <form class="directory-toolbar" @submit.prevent="ready && reload(1, search.trim())">
       <div class="directory-search-field">
         <label :for="`${kind}-search`">{{ searchLabel }} <LabelHelp :text="searchHelp" /></label>
         <input :id="`${kind}-search`" v-model="search" maxlength="255" type="search" :placeholder="t('library', 'Type at least 3 letters.')" />
@@ -63,6 +64,7 @@ defineExpose({ reload })
       </div>
       <label v-if="unusedFilter" class="author-search-unused"><input v-model="unused" type="checkbox" /> {{ t('library', 'Unused authors') }}</label>
     </form>
+    <p v-if="!ready" role="status" class="directory-query-hint">{{ t('library', 'Type at least 3 letters to search.') }} {{ appliedSearch ? t('library', 'Showing results for “{query}”.', { query: appliedSearch }) : t('library', 'Showing all entries.') }}</p>
     <p v-if="busy" role="status">{{ t('library', 'Loading') }}</p>
     <p v-if="error" role="alert">{{ error }} <button @click="reload()">{{ t('library', 'Reload') }}</button></p>
     <ul v-if="data" class="directory-rows" :class="`${kind}-directory`">
@@ -72,7 +74,7 @@ defineExpose({ reload })
           <a class="directory-count" :class="`${kind}-directory-count`" :href="entryUrl(entry) + (kind === 'genre' ? '' : `#${kind}-books`)">{{ n('library', '%n book', '%n books', Number(entry.book_count)) }}</a>
           <slot name="actions" :entry="entry" :unused="unused" />
         </div>
-        <div v-if="entry.books?.length" class="directory-previews">
+        <div v-if="entry.books?.length" class="directory-previews" :style="{ '--preview-count': Math.min(3, entry.books.length) }">
           <a v-for="book in entry.books" :key="book.id" class="directory-book" :class="`${kind}-directory-book`" :href="bookUrl(book)" :title="book.title">
             <span class="directory-cover"><CatalogueCover :src="coverUrl(book)" /></span>
             <span class="directory-title" dir="auto">{{ book.title }}</span>
@@ -80,11 +82,11 @@ defineExpose({ reload })
         </div>
       </li>
     </ul>
-    <p v-if="data && !data[collection].length">{{ emptyLabel }}</p>
+    <p v-if="data && !data[collection].length">{{ appliedSearch ? t('library', 'No matches found.') : emptyLabel }}</p>
     <nav v-if="data" class="directory-pagination" :aria-label="t('library', 'Pagination')">
-      <button :disabled="busy || page === 1" @click="turn(page - 1)">{{ t('library', 'Previous') }}</button>
+      <button :disabled="busy || (ready && search.trim() !== appliedSearch) || page === 1" @click="turn(page - 1)">{{ t('library', 'Previous') }}</button>
       <span>{{ t('library', 'Page {page}', { page }) }}</span>
-      <button :disabled="busy || !data.hasNext" @click="turn(page + 1)">{{ t('library', 'Next') }}</button>
+      <button :disabled="busy || (ready && search.trim() !== appliedSearch) || !data.hasNext" @click="turn(page + 1)">{{ t('library', 'Next') }}</button>
     </nav>
   </section>
 </template>
@@ -100,7 +102,7 @@ defineExpose({ reload })
 .directory-row { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(0, 2fr); gap: 20px; align-items: center; border-bottom: 1px solid var(--color-border); padding-block: 16px; }
 .directory-identity { overflow-wrap: anywhere; display: grid; gap: 4px; justify-items: start; min-width: 0; }
 .directory-name { font-size: 17px; font-weight: bold; }
-.directory-previews { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; min-width: 0; }
+.directory-previews { display: grid; grid-template-columns: repeat(var(--preview-count, 3), minmax(0, 1fr)); gap: 16px; min-width: 0; }
 .directory-book { display: flex; gap: 10px; align-items: center; min-width: 0; }
 .directory-cover { flex: 0 0 48px; width: 48px; height: 72px; overflow: hidden; border-radius: 4px; }
 .directory-title { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 13px; line-height: 1.4; }

@@ -24,7 +24,7 @@ test('removes one desktop filter and clears selection filters while preserving s
   await expect(toolbar.getByRole('button', { name: 'List' })).toHaveAttribute('aria-pressed', 'true')
 
   const sidebarFilters = page.getByRole('form', { name: 'Catalogue search and filters' })
-  await sidebarFilters.getByRole('searchbox', { name: /Search/ }).fill(title)
+  await page.locator('#library-main-search').fill(title)
   const filteredResponse = page.waitForResponse((candidate) => {
     const url = new URL(candidate.url())
     return url.pathname.endsWith('/apps/library/catalogue')

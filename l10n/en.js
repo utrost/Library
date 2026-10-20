@@ -946,7 +946,6 @@ OC.L10N.register(
         "Scans continue through Nextcloud background jobs and can be reopened for seven days. Review decisions are reused when the same books have not changed. Each comparison is independent; choosing a preferred copy does not change catalogue ordering.": "Scans continue through Nextcloud background jobs and can be reopened for seven days. Review decisions are reused when the same books have not changed. Each comparison is independent; choosing a preferred copy does not change catalogue ordering.",
         "Scheme": "Scheme",
         "Search": "Search",
-        "Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.": "Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.",
         "Search authors": "Search authors",
         "Search books": "Search books",
         "Search by author name or surname (at least 3 characters), or choose a suggested author.": "Search by author name or surname (at least 3 characters), or choose a suggested author.",
@@ -1296,7 +1295,6 @@ OC.L10N.register(
         "books / Language_Subject / Title - Author (Year)": "books / Language_Subject / Title - Author (Year)",
         "books / Language_Subject / Title by Author": "books / Language_Subject / Title by Author",
         "catalogue": "catalogue",
-        "catalogue items": "catalogue items",
         "comic": "comic",
         "dated": "dated",
         "disabled": "disabled",
@@ -1332,7 +1330,19 @@ OC.L10N.register(
         "without dates yet": "without dates yet",
         "yes": "yes",
         "{count} of 5 stars": "{count} of 5 stars",
-        "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure."
+        "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure.",
+        "Create subject “{name}”": "Create subject “{name}”",
+        "Search also checks descriptions. Descriptions, filename and folder names are searchable.": "Search also checks descriptions. Descriptions, filename and folder names are searchable.",
+        "Showing all entries.": "Showing all entries.",
+        "Showing results for “{query}”.": "Showing results for “{query}”.",
+        "The containing publication or periodical. This changes only Publication; a Series suggestion must be reviewed separately, even when the names match.": "The containing publication or periodical. This changes only Publication; a Series suggestion must be reviewed separately, even when the names match.",
+        "The sequence this book belongs to. This changes only the series field; it does not apply a separate Publication suggestion.": "The sequence this book belongs to. This changes only the series field; it does not apply a separate Publication suggestion.",
+        "Type at least 3 letters to search.": "Type at least 3 letters to search.",
+        "Use publication value": "Use publication value",
+        "Use series value": "Use series value",
+        "Choose a language from the suggestions or enter a valid code, for example {english} or {german}.": "Choose a language from the suggestions or enter a valid code, for example {english} or {german}.",
+        "Publication / periodical": "Publication / periodical",
+        "catalogue items": "catalogue items"
     },
     "nplurals=2; plural=(n != 1);"
 );

@@ -40,7 +40,7 @@ async function browseAuthors(page: Page, testInfo: TestInfo) {
   await panel.getByRole('link', { name: 'All authors', exact: true }).click()
   await expect(panel.locator('#author-search')).toHaveValue(name)
   await panel.locator('#author-search').fill('NoMatchingAuthorBrowserFixture')
-  await expect(panel).toContainText('No authors found.')
+  await expect(panel).toContainText('No matches found.')
   await panel.locator('#author-search').fill('')
   await expect(panel.locator('.author-directory-row').first()).toBeVisible()
   expect(await panel.evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true)

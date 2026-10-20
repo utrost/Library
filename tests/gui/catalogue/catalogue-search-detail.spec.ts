@@ -12,7 +12,7 @@ test('searches for a deterministic publication and opens and closes its details 
   const catalogue = page.locator('#library-catalogue')
 
   const filters = page.locator('form.library-sidebar-filters[aria-label="Catalogue search and filters"]')
-  await filters.locator('[data-library-quick-search]').fill(title)
+  await page.locator('#library-main-search').fill(title)
   const catalogueResponse = page.waitForResponse((response) => {
     const url = new URL(response.url())
     return url.pathname.endsWith('/apps/library/catalogue') && url.searchParams.get('q') === title

@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, useId, watch } from 'vue'
+import { pickerIndex } from '../picker-keyboard.js'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 
@@ -80,18 +81,14 @@ function remove(value) {
 }
 function onKeydown(event) {
   if (event.key === 'Escape') { focused.value = false; activeIndex.value = -1; return }
-  if (event.key === 'ArrowDown' && options.value.length) {
+  if (['ArrowDown', 'ArrowUp'].includes(event.key) && options.value.length) {
     event.preventDefault()
     focused.value = true
-    activeIndex.value = (activeIndex.value + 1) % options.value.length
-  } else if (event.key === 'ArrowUp' && options.value.length) {
-    event.preventDefault()
-    focused.value = true
-    activeIndex.value = (activeIndex.value + options.value.length - 1) % options.value.length
+    activeIndex.value = pickerIndex(activeIndex.value, event.key, options.value.length)
   } else if (event.key === 'Enter') {
     event.preventDefault()
-    add(activeIndex.value >= 0 ? options.value[activeIndex.value] : candidate.value)
-    activeIndex.value = -1
+    if (focused.value && options.value.length && activeIndex.value >= 0) add(options.value[activeIndex.value])
+    // Creation is explicit: Enter on a search fragment must not create metadata.
   }
 }
 let timer = null
@@ -121,6 +118,7 @@ function findSuggestions(value) {
   }, 200)
 }
 watch(search, findSuggestions)
+watch(options, values => { activeIndex.value = values.length ? 0 : -1 })
 onBeforeUnmount(() => { clearTimeout(timer); controller?.abort() })
 </script>
 
@@ -128,9 +126,10 @@ onBeforeUnmount(() => { clearTimeout(timer); controller?.abort() })
   <div class="library-metadata-picker">
     <label :for="`${listId}-input`" :title="isLanguage ? t('library', 'Choose one or more language codes.') : t('library', 'Existing subjects are suggested as you type. You can add a new subject.')">{{ label }}</label>
     <div class="library-metadata-picker-input">
-      <input :id="`${listId}-input`" v-model="search" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" :aria-controls="listId" :aria-expanded="focused && options.length > 0" :aria-activedescendant="activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined" :aria-label="inputLabel" :placeholder="inputLabel" :disabled="disabled" @focus="focused = true" @input="focused = true" @blur="focused = false" @keydown="onKeydown">
-      <button v-if="search.trim()" type="button" class="button secondary" :disabled="disabled || !canAdd || searching || !!lookupError" @click="add()">{{ addLabel }}</button>
+      <input :id="`${listId}-input`" v-model="search" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" :aria-controls="listId" :aria-expanded="focused && options.length > 0" :aria-activedescendant="focused && activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined" :aria-label="inputLabel" :placeholder="inputLabel" :disabled="disabled" @focus="focused = true" @input="focused = true" @blur="focused = false" @keydown="onKeydown">
+      <button v-if="search.trim() && canAdd && (isLanguage || !options.some(value => value.toLowerCase() === candidate.toLowerCase()))" type="button" class="button secondary" :disabled="disabled || !canAdd || searching || !!lookupError" @click="add()">{{ isLanguage ? addLabel : t('library', 'Create subject “{name}”', { name: candidate }) }}</button>
     </div>
+    <small v-if="isLanguage && search.trim() && !options.length && !canAdd" role="status">{{ t('library', 'Choose a language from the suggestions or enter a valid code, for example {english} or {german}.', { english: 'en', german: 'de' }) }}</small>
     <small v-if="searching" role="status">{{ t('library', 'Searching…') }}</small>
     <p v-if="lookupError" role="alert">{{ lookupError }} <button type="button" @click="findSuggestions(search)">{{ t('library', 'Retry') }}</button></p>
     <ul v-if="focused && options.length" :id="listId" class="library-metadata-picker-options" role="listbox" :aria-label="inputLabel">

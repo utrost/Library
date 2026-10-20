@@ -1,24 +1,31 @@
 <script setup>
+import BookCollectionToolbar from './BookCollectionToolbar.vue'
+import BookCollectionItem from './BookCollectionItem.vue'
 import OperationStatus from './OperationStatus.vue'
 import ReviewValues from './ReviewValues.vue'
 import { useUnsavedChanges } from '../use-unsaved-changes.js'
 import FormActions from './FormActions.vue'
-import { bookDetailsUrl, bookCoverUrl as coverUrl } from '../details-return.js'
-import { onMounted, reactive, ref, nextTick } from 'vue'
+import { bookDetailsUrl } from '../details-return.js'
+import { onMounted, reactive, ref, nextTick, watch } from 'vue'
 import { generateUrl } from '@nextcloud/router'
 import { t, n } from '@nextcloud/l10n'
-import CatalogueCover from './CatalogueCover.vue'
 import LabelHelp from './LabelHelp.vue'
 import EntityPicker from './EntityPicker.vue'
 import DirectoryBrowser from './DirectoryBrowser.vue'
 
 const props = defineProps({ requestToken: { type: String, default: '' }, catalogueUrl: { type: String, required: true } })
+const viewQuery = new URLSearchParams(location.search)
+const bookSearch = ref((viewQuery.get('bookSearch') || '').slice(0, 255)), bookSort = ref(['part', 'title', 'newest'].includes(viewQuery.get('bookSort')) ? viewQuery.get('bookSort') : 'part'), bookView = ref(viewQuery.get('bookView') === 'grid' ? 'grid' : 'list')
+const bookSorts = [{ value: 'part', label: t('library', 'Part in series') }, { value: 'title', label: t('library', 'Title') }, { value: 'newest', label: t('library', 'Publication date, newest first') }]
+function rememberBooks() { const url = new URL(location.href); for (const [key, value, fallback] of [['bookSearch', bookSearch.value.trim(), ''], ['bookSort', bookSort.value, 'part'], ['bookView', bookView.value, 'list'], ['bookPage', String(page.value), '1']]) { if (value === fallback) url.searchParams.delete(key); else url.searchParams.set(key, value) } historyReplace(url) }
+function historyReplace(url) { window.history.replaceState(window.history.state, '', url) }
+watch(bookView, rememberBooks)
 const selectedId = Number(new URLSearchParams(location.search).get('seriesId')) || null
 const data = ref(null), page = ref(1), busy = ref(false), error = ref(''), notice = ref(''), editing = ref(false)
 const assigning = ref(false), selected = ref([]), targetSearch = ref(''), targets = ref([]), target = ref(''), review = ref(null)
 const history = ref([]), conflicts = ref({ items: [], page: 1, hasNext: false }), conflictPage = ref(1)
 const directory = ref(null)
-function directoryUrl() { const url = new URL(location.href); url.searchParams.delete('seriesId'); url.searchParams.delete('bookPage'); url.hash = ''; return url.pathname + url.search }
+function directoryUrl() { const url = new URL(location.href); url.searchParams.delete('seriesId'); for (const key of ['bookPage', 'bookSearch', 'bookSort', 'bookView']) url.searchParams.delete(key); url.hash = ''; return url.pathname + url.search }
 const draft = reactive({ name: '', description: '' })
 useUnsavedChanges(() => editing.value && (draft.name !== (data.value?.series?.display_name || '') || draft.description !== (data.value?.series?.description || '')))
 function directoryLoaded(result) { data.value = result; page.value = result.page }
@@ -37,12 +44,12 @@ async function load(next = 1) {
   try {
     if (!selectedId) { await directory.value?.reload(next); await loadAuxiliary(); return }
     const [series, recent, changed] = await Promise.all([
-      request(`/${selectedId}?page=${next}`),
+      request(`/${selectedId}?page=${next}&search=${encodeURIComponent(bookSearch.value.trim())}&sort=${bookSort.value}`),
       request('/history'), request(`/conflicts?page=${conflictPage.value}`),
     ])
     data.value = series; history.value = recent; conflicts.value = changed
     review.value = null
-    page.value = next
+    page.value = next; rememberBooks()
   } catch (e) { error.value = e.message } finally { busy.value = false }
 }
 function edit() { draft.name = data.value.series.display_name; draft.description = data.value.series.description || ''; editing.value = true; notice.value = '' }
@@ -50,7 +57,7 @@ async function save() {
   busy.value = true; error.value = ''
   try {
     data.value = await request(`/${selectedId}`, { name: draft.name, description: draft.description, revision: Number(data.value.series.revision) })
-    editing.value = false; notice.value = t('library', 'Series saved. Original book metadata is preserved.')
+    editing.value = false; await load(page.value); notice.value = t('library', 'Series saved. Original book metadata is preserved.')
   } catch (e) { error.value = e.message } finally { busy.value = false }
 }
 function bookUrl(book) {
@@ -139,17 +146,19 @@ onMounted(async () => { if (selectedId) { await load(Math.max(1, Math.min(100000
           </section>
         </section>
       </details>
-      <ol id="series-books" class="series-books">
-        <li v-for="book in data.books" :key="book.id">
-          <input v-if="assigning" v-model="selected" type="checkbox" :value="Number(book.id)" :aria-label="t('library', 'Select {title}', { title: book.title })" :disabled="busy" @change="review = null" />
-          <a :href="bookUrl(book)" :aria-label="book.title"><CatalogueCover :src="coverUrl(book)" /></a>
-          <div><span v-if="book.part_number">{{ t('library', 'Part {number}', { number: book.part_number }) }}</span>
-            <a :href="bookUrl(book)" dir="auto">{{ book.title }}</a>
+      <section id="series-books" :aria-label="t('library', 'Books in your library')">
+        <BookCollectionToolbar v-model:search="bookSearch" v-model:sort="bookSort" v-model:view="bookView" :sorts="bookSorts" :disabled="busy || editing || assigning" @apply="load(1)" />
+        <p v-if="bookSearch">{{ n('library', '%n book', '%n books', Number(data.matchingCount)) }}</p>
+        <p v-if="!data.books.length">{{ t('library', 'No books match this view.') }}</p>
+        <ol class="series-books" :class="{ 'library-collection-grid': bookView === 'grid' }">
+          <BookCollectionItem v-for="book in data.books" :key="book.id" :book="book" :href="bookUrl(book)">
+            <template #selection><input v-if="assigning" v-model="selected" type="checkbox" :value="Number(book.id)" :aria-label="t('library', 'Select {title}', { title: book.title })" :disabled="busy" @change="review = null" /></template>
+            <span v-if="book.part_number">{{ t('library', 'Part {number}', { number: book.part_number }) }}</span>
             <small dir="auto">{{ book.creators || '—' }}</small>
             <small v-if="book.scan_status === 'missing'">{{ t('library', 'File missing') }}</small>
-          </div>
-        </li>
-      </ol>
+          </BookCollectionItem>
+        </ol>
+      </section>
     </template>
     <details v-if="conflicts.items.length" class="series-conflicts">
       <summary>{{ t('library', 'Review imported series changes') }}</summary>
@@ -181,10 +190,7 @@ onMounted(async () => { if (selectedId) { await load(Math.max(1, Math.min(100000
 .series-editor { display: flex; flex-direction: column; gap: 8px; margin-block: 20px; }
 .series-editor input,.series-editor textarea { width: 100%; box-sizing: border-box; }
 .series-books { list-style: none; padding: 0; }
-.series-books a { font-weight: bold; text-decoration: underline; }
-.series-books li { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--color-border); padding: 12px 0; }
-.series-books li :deep(img) { width: 48px; max-height: 68px; object-fit: contain; }
-.series-books li div { display: flex; flex-direction: column; gap: 3px; }
+
 .series-description { white-space: pre-line; }
 .series-actions,.series-conflicts,.series-history { margin-block: 16px; }
 .series-assignment,.series-review { border: 1px solid var(--color-border); border-radius: 8px; padding: 16px; margin-block: 12px; }
@@ -193,6 +199,5 @@ onMounted(async () => { if (selectedId) { await load(Math.max(1, Math.min(100000
 .series-conflicts ul,.series-history ul { list-style: none; padding: 0; }
 .series-conflicts li { display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid var(--color-border); padding: 12px 0; }
 .series-history li { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-block: 8px; }
-.series-books input[type="checkbox"] { width: 20px; height: 20px; min-height: 20px; flex: 0 0 20px; }
 .series-pagination { display: flex; align-items: center; gap: 12px; margin-block: 20px; }
 </style>

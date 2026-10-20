@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0-alpha.33 — 2026-10-20
+
+- Align picker keyboard selection and explicit subject creation; fix initial ArrowUp navigation.
+- Keep directory draft queries and applied searches clear across sorting and Back navigation.
+- Restore catalogue/directory scroll position and focus after opening Details.
+- Reduce catalogue controls, emphasize book identity and adapt preview width to book count.
+- Share Author/Series book toolbars and cards; add server-side Series title search and sorting.
+- Flatten narrow settings forms and distinguish Publication from Series suggestions.
+
+
 
 ## 0.3.0-alpha.32 — UI consistency
 
