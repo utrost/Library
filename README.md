@@ -6,7 +6,7 @@ Library is an open-source Nextcloud app ([AGPL-3.0-or-later](LICENSE)) with a se
 
 ![Library catalogue with English Project Gutenberg books](docs/images/appstore-catalogue.png)
 
-Current candidate: `0.3.0-alpha.34`. **Pre-release:** 0.3 is the planned first App Store release. The declared compatibility range is **Nextcloud 33–35**; final exact-package compatibility checks and human acceptance remain release gates. Earlier signed candidates have their own verification records. See [release status](RELEASE.md), the [current verification record](docs/compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and the [release checklist](docs/app-store-readiness.md).
+Current candidate: `0.3.0-alpha.35`. **Pre-release:** 0.3 is the planned first App Store release. The declared compatibility range is **Nextcloud 33–35**; final exact-package compatibility checks and human acceptance remain release gates. Earlier signed candidates have their own verification records. See [release status](RELEASE.md), the [current verification record](docs/compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) and the [release checklist](docs/app-store-readiness.md).
 
 ## What it does
 
@@ -40,7 +40,7 @@ The app has safe user-facing diagnostics for scan and metadata problems. Server 
 
 ![Filename metadata extraction with a selected-record preview](docs/images/appstore-inference.png)
 
-Screenshots show the actual alpha.34 interface on an isolated Nextcloud 34 instance, using the [English Gutenberg examples](docs/gutenberg-example-books.md) and a synthetic filename-extraction example. [Capture details and reproduction](docs/images/first-library/README.md).
+Screenshots show the actual alpha.35 interface on an isolated Nextcloud 34 instance, using the [English Gutenberg examples](docs/gutenberg-example-books.md) and a synthetic filename-extraction example. [Capture details and reproduction](docs/images/first-library/README.md).
 
 ## Your first library
 
