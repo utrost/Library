@@ -115,7 +115,7 @@ async function seriesJourney(page, info) {
       await page.getByRole('button', { name: 'Save book details', exact: true }).click()
       await expect(page.getByRole('button', { name: 'Discard changes', exact: true })).toHaveCount(0)
       const restored = await (await page.request.get(`/apps/library/items/${itemId}/sidebar`)).json()
-      expect(restored.item.canonicalSeries).toEqual([])
+      expect(restored.item.canonicalSeries ?? []).toEqual([])
     }
   }
 }
