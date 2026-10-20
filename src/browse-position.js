@@ -9,6 +9,7 @@ function records() {
 }
 function write(value) { try { sessionStorage.setItem(key, JSON.stringify([...value])) } catch { /* Storage is optional. */ } }
 function locationKey() { return location.pathname + location.search + location.hash }
+function itemLinks(root, id) { return [...root.querySelectorAll('a[href]')].filter(a => itemId(a) === id && a.getClientRects().length) }
 function itemId(link) {
   try { const u = new URL(link.href, location.href); return u.origin === location.origin && u.pathname === location.pathname ? u.searchParams.get('details') : null } catch { return null }
 }
@@ -22,7 +23,7 @@ export function useBrowsePosition() {
     const id = itemId(link), root = document.getElementById('app-content-vue')
     if (!id || !root || new URLSearchParams(location.search).has('details')) return
     const entries = new Map([...records()].filter(([, v]) => Date.now() - v.time < maxAge).slice(-19))
-    entries.set(locationKey(), { id, top: root.scrollTop, offset: link.getBoundingClientRect().top, time: Date.now() })
+    entries.set(locationKey(), { id, linkIndex: itemLinks(root, id).indexOf(link), top: root.scrollTop, offset: link.getBoundingClientRect().top, time: Date.now() })
     write(entries)
   }
   function stop() { observer?.disconnect(); clearTimeout(timer); cancelAnimationFrame(frame) }
@@ -32,7 +33,7 @@ export function useBrowsePosition() {
     const root = document.getElementById('app-content-vue')
     if (!root) return
     function attempt(final = false) {
-      const link = [...root.querySelectorAll('a[href]')].find(a => itemId(a) === saved.id && a.getClientRects().length)
+      const links = itemLinks(root, saved.id), link = links[saved.linkIndex] || links[0]
       if (!link && !final) return
       stop()
       frame = requestAnimationFrame(() => {
