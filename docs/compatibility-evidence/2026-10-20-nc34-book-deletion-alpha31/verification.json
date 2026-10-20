@@ -1,0 +1,90 @@
+{
+  "archive_sha256": "0b937cb057d1a571cca4f384d9686472edb0e6815f1919b9e57888c2176a2ade",
+  "assets": [
+    {
+      "path": "library/css/library-vue-0-3-0-alpha-31-compact-list-table-cover-96-fit-v8.css",
+      "bytes": 146252,
+      "sha256": "cfaa4c42472f3c0c97f8f4c423f0c1be67ab58e1aff87a110d3ffffdbbc4b33e",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/js/library-main-0-3-0-alpha-31-compact-list-table-cover-96-fit-v8.mjs",
+      "bytes": 733691,
+      "sha256": "e948e6e3db4df01251e69475944184609fa20f1a116e59a0799666e5cb4f77de",
+      "http_matches_package": true
+    }
+  ],
+  "version": "0.3.0-alpha.31",
+  "merge_commit": "bb5d820801d59a571ff74a9b3d285f30831aa43d",
+  "nextcloud": {
+    "installed": true,
+    "version": "34.0.3.2",
+    "versionstring": "34.0.3",
+    "edition": "",
+    "maintenance": false,
+    "needsDbUpgrade": false,
+    "productname": "Nextcloud",
+    "extendedSupport": false
+  },
+  "after_smoke": {
+    "catalogueCount": 107717,
+    "fixtureAccountsRemaining": 0,
+    "fixtureStateRemoved": true
+  },
+  "integrity_clean": true,
+  "frontend_bytes": 957331,
+  "frontend_budget_bytes": 1320000,
+  "source_checks": 1047,
+  "frontend_tests": 562,
+  "parser_vectors": 518,
+  "ci_playwright_journeys": 47,
+  "deletion_smoke": [
+    {
+      "backend": {
+        "passed": true,
+        "cases": [
+          "exclusive",
+          "shared",
+          "same-stem",
+          "hidden",
+          "cover",
+          "standalone",
+          "root-only",
+          "Delete fixtures"
+        ],
+        "stale": true,
+        "replacement": true,
+        "permissions": true,
+        "tokens": true,
+        "ownership": true,
+        "partial": true,
+        "concurrentChild": true,
+        "rescan": true
+      }
+    },
+    {
+      "engine": "chromium",
+      "pass": true,
+      "cancellation": true,
+      "unsavedEditsNotSaved": true,
+      "returnContext": true,
+      "mobileFits": true
+    },
+    {
+      "engine": "firefox",
+      "pass": true,
+      "cancellation": true,
+      "unsavedEditsNotSaved": true,
+      "returnContext": true,
+      "mobileFits": true
+    },
+    {
+      "engine": "mobile",
+      "pass": true,
+      "cancellation": true,
+      "unsavedEditsNotSaved": true,
+      "returnContext": true,
+      "mobileFits": true
+    }
+  ]
+}

@@ -764,7 +764,7 @@ Use disposable files in an isolated test account. Do not use valuable library bo
 4. Leave `cover.jpg`, a hidden file or any other file in the parent. The folder and companion file must survive. Configured shelf/root folders and mount roots are always retained.
 5. Change or replace the source after opening confirmation. Delete must fail closed; reopen confirmation after refreshing. Read-only files must not offer a usable confirmation.
 6. Verify the deleted book is absent from search and duplicate results. Its reading-list entry remains unavailable; author/series/genre records remain.
-7. Where Nextcloud Deleted files is supported, restore a source file and scan again. It should reappear as an imported book; Library-only edits removed with the previous catalogue entry are not restored.
+7. Where Nextcloud Deleted files is supported, restore the parent folder first if it was removed, then restore the source file and scan again. It should reappear as an imported book; Library-only edits removed with the previous catalogue entry are not restored.
 8. Check keyboard focus, Cancel/Escape, scrolling and button contrast on desktop/mobile in light/dark themes. For partial cleanup failures, the message must say the book was deleted and identify the remaining cleanup.
 
 Deletion requires Nextcloud transactional file locking. The storage guard preserves Nextcloud's normal trash/retention behavior; it does not permanently purge the trash. Deletion of arbitrary companion images or ancestor directories is outside this feature.
