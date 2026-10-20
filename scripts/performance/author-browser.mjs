@@ -19,11 +19,12 @@ try {
   const authorization = `Basic ${Buffer.from(`${user}:${token}`).toString('base64')}`
   await context.route('**/*', route => {
     const request = route.request(), url = new URL(request.url())
-    if (url.origin === new URL(base).origin && url.pathname.includes('/apps/library/') && !['GET', 'HEAD'].includes(request.method()) && !url.pathname.endsWith('/duplicates/lookup')) { blockedWrites++; return route.abort() }
+    if (url.origin === new URL(base).origin && url.pathname.includes('/apps/library/') && !['GET', 'HEAD'].includes(request.method()) && !url.pathname.endsWith('/api/duplicate-suggestions/lookup')) { blockedWrites++; return route.abort() }
     return route.continue({ headers: { ...request.headers(), ...(url.origin === new URL(base).origin ? { authorization } : {}) } })
   })
-  const page = await context.newPage(), errors = [], samples = []
+  const page = await context.newPage(), errors = [], consoleErrors = [], samples = [], related = {}
   page.on('pageerror', e => errors.push(e.message))
+  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()) })
   for (let i = 0; i < 6; i++) {
     const start = performance.now()
     await page.goto(`${base}/apps/library/?authors=1`)
@@ -44,6 +45,7 @@ try {
     const source = page.url()
     await book.click()
     await expect(page).toHaveURL(/[?&]details=/)
+    await page.waitForLoadState('networkidle')
     await page.locator('.library-full-details-back').click()
     await expect(page).toHaveURL(source)
     await expect(panel.locator('#author-search')).toHaveValue('Hein')
@@ -62,10 +64,33 @@ try {
     await page.evaluate(() => { document.body.dataset.themeDark = ''; document.body.dataset.themes = 'dark' })
     await page.screenshot({ path: `${process.env.OUTPUT_DIR}/authors-mobile-dark.png` })
   }
+  const authorRows = await page.locator('.author-directory li').count()
+  if (process.env.SMOKE_AUTHORS === '1') {
+    for (const [kind, flag] of [['series', 'series'], ['genre', 'genres']]) {
+      const start = performance.now()
+      await page.goto(`${base}/apps/library/?${flag}=1`)
+      const directory = page.locator('.directory-browser')
+      await expect(directory).toHaveAttribute('aria-busy', 'false')
+      related[kind] = { readyMs: performance.now() - start, rows: await directory.locator('.directory-row').count(), previews: await directory.locator('.directory-book').count() }
+      await directory.locator(`#${kind}-directory-sort`).selectOption('name_desc')
+      await expect(page).toHaveURL(new RegExp(`${kind}Sort=name_desc`))
+      assert.ok(await directory.evaluate(el => el.scrollWidth <= el.clientWidth + 1))
+      if (process.env.OUTPUT_DIR) await page.screenshot({ path: `${process.env.OUTPUT_DIR}/${kind}-mobile.png` })
+      if (related[kind].previews) {
+        await directory.locator('.directory-book').first().click()
+        await expect(page).toHaveURL(/[?&]details=/)
+        await page.waitForLoadState('networkidle')
+        await page.locator('.library-full-details-back').click()
+        await expect(directory.locator(`#${kind}-directory-sort`)).toHaveValue('name_desc')
+      }
+      await page.waitForLoadState('networkidle')
+    }
+  }
   assert.equal(blockedWrites, 0)
+  assert.deepEqual(consoleErrors, [])
   assert.deepEqual(errors, [])
   const first = samples.shift(); samples.sort((a, b) => a - b)
-  const report = { firstMs: first, warmMedianMs: samples[2], warmMaxMs: samples[4], samples: 6, rows: await page.locator('.author-directory li').count(), pageErrors: errors.length, blockedWrites, mobileFits: true }
+  const report = { firstMs: first, warmMedianMs: samples[2], warmMaxMs: samples[4], samples: 6, rows: authorRows, pageErrors: errors.length, consoleErrors: consoleErrors.length, blockedWrites, related, mobileFits: true }
   if (process.env.OUTPUT_JSON) writeFileSync(process.env.OUTPUT_JSON, JSON.stringify(report, null, 2))
   console.log(JSON.stringify(report))
 } finally {
