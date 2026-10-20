@@ -51,13 +51,13 @@ test('edits metadata, rescans, then repairs the suggestion and restores the titl
     await attachCheckpoint(page, testInfo, 'metadata-retained-after-rescan', '.library-full-details')
 
     await openLibrary(page)
-    const filters = page.getByRole('form', { name: 'Catalogue search and filters' })
+    const search = page.locator('.library-catalogue-search')
     await page.locator('#library-main-search').fill(editedTitle)
     const catalogueResponse = page.waitForResponse((candidate) => {
       const url = new URL(candidate.url())
       return url.pathname.endsWith('/apps/library/catalogue') && url.searchParams.get('q') === editedTitle
     })
-    await filters.getByRole('button', { name: 'Apply filters' }).click()
+    await search.getByRole('button', { name: 'Search', exact: true }).click()
     expect((await catalogueResponse).ok()).toBeTruthy()
     await expect(page.locator('.library-cover-card').filter({ hasText: editedTitle })).toHaveCount(1)
 

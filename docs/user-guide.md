@@ -7,7 +7,7 @@ For reversible publisher and subject spelling groups, see [Value mappings](metad
 
 Start with [Your first library](first-library.md) for a short illustrated walkthrough using English Gutenberg books.
 
-Status: 0.3.0-alpha.16 reference guide with historical v0.1 development notes. Use the first-library walkthrough for onboarding and the current author/series sections below for identity workflows.
+Status: reference guide with historical v0.1 development notes. Navigation and the current details overview were refreshed for 0.3.0-alpha.34; the later historical development notes are not a current acceptance checklist. Use the first-library walkthrough for onboarding and the current author/series sections below for identity workflows.
 
 Audience: early users, household admins, Nextcloud admins and product reviewers  
 Scope: detailed workflows, administrative reference and historical product-review notes
@@ -82,7 +82,7 @@ Library does **not** own:
 
 ### Library catalogue
 
-Open the **Library** app from Nextcloud navigation. The catalogue is the reader-facing entry point. Search is immediately visible; `/` focuses it without opening **Filter** and does nothing while an editable field is active. Desktop uses visible Search/Filter/Sort/View controls; narrow mobile layouts expose filters through a grouped **Filters** panel with active-filter count, result count, **Clear all**, and a primary “show results” action. Selecting a cover or title opens the contextual sidebar, **Open** opens the file, and **Advanced details** in that sidebar opens the full editor. Sidebar URLs can be copied and browser Back/Forward restores selection.
+Open the **Library** app from Nextcloud navigation. The catalogue is the reader-facing entry point. Search is immediately visible; `/` focuses it without opening **Filter** and does nothing while an editable field is active. Desktop uses visible Search/Filter/Sort/View controls; narrow mobile layouts expose filters through a grouped **Filters** panel with active-filter count, result count, **Clear all**, and a primary “show results” action. Selecting a cover or title opens **Book details**. **Quick view** opens the contextual sidebar; **Full details** there opens the same editor. **Open** opens the file in a new tab. Sidebar URLs can be copied and browser Back/Forward restores selection.
 
 Current catalogue capabilities:
 
@@ -91,7 +91,7 @@ Current catalogue capabilities:
 - open the publication through **Open**;
 - open the original file context through **Show in Files**;
 - fetch the original file through **Download**;
-- open contextual details in the sidebar and use **Advanced details** for editing;
+- open contextual details with **Quick view** and use **Full details** for editing;
 - search title, subtitle, creators, publication, description, exact normalized ISBN/ISSN and file path, plus publisher and subjects from the compact quick-filter row; identifier display punctuation is preserved; filename and folder names remain searchable for sparse PDFs/comics, and arbitrary substrings use the indexed search-gram path instead of broad row scans;
 - use the visible toolbar for Search, Sort and View, desktop filters, and the mobile **Filters** panel for grouped facets; press `/` to focus search and `Escape` to clear it;
 - filter by an individual author and open an author landing page; existing full-field saved filters remain compatible;
@@ -122,14 +122,16 @@ Implementation note for reviewers: the catalogue is no longer an app-layer filte
 
 ### Item details page
 
-Select a cover or title to open the contextual sidebar, then choose **Advanced details** to open the full editor. This is the item workbench.
+Select a cover or title to open **Book details** directly. **Quick view** opens the contextual sidebar, where **Full details** opens the same editor. This is the item workbench.
 
 When you open full details from a filtered catalogue, search, review result, or reading list, **Back to results** returns to that view with its query, sort, page, and display mode. A direct link without a source view returns to **All publications**.
+
+Book fields and linked authors, series and genres share **Save book details** / **Discard changes**. Imported credits remain available in the bottom disclosures.
 
 Current details capabilities:
 
 - view cover, title, creator, type, format and shelf;
-- star or unstar the publication as Library-native personal catalogue state;
+- use **Favorite** to change Library-native personal catalogue state;
 - set a Library-native workflow status such as `to-read`, `reading`, `finished`, `reference`, `paused`, `abandoned` or `needs-action`; this is separate from operational scan status and Nextcloud tags;
 - see and edit a Library-native description that also participates in catalogue search;
 - see the last time Library opened the item through the Library **Open** action;
@@ -138,24 +140,24 @@ Current details capabilities:
 - edit ISBN/ISSN identifiers; invalid checksums remain visible with an Attention warning rather than being silently rewritten;
 - inspect separate **Completeness**, **Confidence**, **Attention**, and **Personal** metadata status; rating never changes bibliographic completeness;
 - inspect a metadata correction summary with scanner-candidate and differing-field counts;
-- compare current field values with stored scanner candidates, including **Differs from scanner** labels when they disagree;
+- compare current field values with stored scanner candidates, using **Current** and **Scanner candidate** values when they disagree;
 - reset one field, all fields on one item, or reset scanner candidates for an explicit catalogue selection;
 - edit publication metadata fields:
   - title;
   - subtitle;
   - publication type;
-  - creators;
-  - publication / series / periodical name;
+  - linked authors through the compact Authors row;
+  - curated genres through the compact Genres row;
+  - publication / periodical name; linked series and its part through the Series row;
   - publication date;
   - publisher: enter a name or choose a suggestion from publishers already in your library; the source value remains free text, while account-private mappings can group spelling variants for browsing;
   - language: search the pick-list by name or code and add more than one language; clear imported names and codes are normalized, while uncertain values keep their source text and enter language review;
-  - personal rating: choose one to five stars in the full details editor, or clear the private rating; each choice saves immediately without marking imported book metadata as manually edited;
+  - personal rating: choose one to five stars in the full details editor, or clear the private rating; the choice is staged with other book changes until **Save book details**, or reverted with **Discard changes**;
   - subjects: add several values as chips; suggestions come from subjects already indexed in your library, while new values remain allowed. Subjects are per-book values; account-private mappings can group spelling variants without rewriting them;
   - classifications, where sub-subject remains a subject/classification value until a real taxonomy proves it needs a separate field;
 - inspect backing file metadata:
   - Nextcloud file ID;
-  - Library file-index ID;
-  - cached path;
+  - file size and clickable location in Nextcloud Files;
   - shelf;
   - format and MIME type;
   - scan status and scan error;
@@ -283,7 +285,7 @@ Library does not implement a reader in v0.1.
 6. Wait for scan progress/history to show completion.
 7. Return to the **Library** app catalogue.
 8. Use filters/search to inspect the first scan result.
-9. Select a cover or title to open the contextual sidebar, then choose **Advanced details** to open the full editor and correct metadata that matters.
+9. Select a cover or title to open **Book details** and correct metadata that matters. Use **Quick view** for the contextual sidebar.
 
 ### Browsing and opening publications
 
@@ -292,7 +294,7 @@ Library does not implement a reader in v0.1.
 3. Use **Open** to hand the file to Nextcloud's viewer stack via the stable file route.
 4. Use **Show in Files** when you need the source folder context, sharing UI, file actions or ordinary Nextcloud metadata.
 5. Use **Download** when you need the original file bytes.
-6. When visible card metadata is wrong or incomplete, select its cover or title to open the contextual sidebar, then choose **Advanced details** to open the full editor.
+6. When visible card metadata is wrong or incomplete, select its cover or title to open **Book details**. Use **Quick view** for the contextual sidebar.
 
 ### Correcting a bad catalogue item
 

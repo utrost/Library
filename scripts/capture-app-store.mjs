@@ -21,7 +21,7 @@ try {
   await expect.poll(() => cards.locator('img').evaluateAll(images => images.filter(image => image.complete && image.naturalWidth > 0).length)).toBeGreaterThan(3)
   await expect.poll(() => cards.locator('img[src]').evaluateAll(images => images.every(image => image.complete))).toBe(true)
   await page.screenshot({ path: out + '/appstore-catalogue.png', animations: 'disabled' })
-  await cards.first().locator('.library-cover-link').click()
+  await cards.first().locator('.library-quick-view').click()
   await expect(page.locator('#app-sidebar-vue')).toBeVisible()
   await expect(page.locator('#app-sidebar-vue').getByRole('navigation', { name: 'Publication detail sections' })).toBeInViewport()
   await page.screenshot({ path: out + '/appstore-details.png', animations: 'disabled' })

@@ -6,11 +6,13 @@ import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const container = process.env.NC_CONTAINER || 'library-bench-34-0-4'
 const base = process.env.NC_URL
 assert.ok(base, 'NC_URL is required')
-const uid = 'library-recovery-smoke'
-const php = code => execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', '-r', code], { encoding: 'utf8' }).trim()
-const id = Number(php('define("OC_CONSOLE",true);require "/var/www/html/lib/base.php";$db=\\OC::$server->get(\\OCP\\IDBConnection::class);echo $db->executeQuery("SELECT id FROM *PREFIX*library_items WHERE user_id=? ORDER BY id LIMIT 1",["library-recovery-smoke"])->fetchOne();'))
+const uid = process.env.NC_USER || 'library-recovery-smoke'
+assert.match(uid, /^library-(?:recovery-smoke|author-[a-f0-9]{12})$/, 'Only a disposable recovery or author fixture account is permitted')
+const php = code => execFileSync('docker', ['exec', '-u', 'www-data', '-e', `NC_USER=${uid}`, container, 'php', '-r', code], { encoding: 'utf8' }).trim()
+const id = Number(php('define("OC_CONSOLE",true);require "/var/www/html/lib/base.php";$db=\\OC::$server->get(\\OCP\\IDBConnection::class);echo $db->executeQuery("SELECT id FROM *PREFIX*library_items WHERE user_id=? ORDER BY id LIMIT 1",[getenv("NC_USER")])->fetchOne();'))
 assert.ok(id > 0)
-const generated = createTemporaryAppPassword(container, uid, 'native-conflict-smoke')
+const tokenName = `native-conflict-smoke-${Date.now()}`
+const generated = createTemporaryAppPassword(container, uid, tokenName)
 const token = generated.match(/app password is:\s*(\S+)/i)?.[1] || generated.match(/app password:\s*\n\s*(\S+)/i)?.[1]
 assert.ok(token)
 const authorization = `Basic ${Buffer.from(`${uid}:${token}`).toString('base64')}`
@@ -23,20 +25,30 @@ try {
   } }))
   const page = await context.newPage()
   await page.goto(`${base}/apps/library/items/${id}`)
-  const form = page.locator('form.library-detail-edit-form')
-  await form.waitFor()
-  const result = await form.evaluate(async (element, url) => {
-    const first = new FormData(element)
+  await page.getByRole('heading', { name: 'Book details', exact: true }).waitFor()
+  // Native POST compatibility is retained, but its old editor DOM is not.
+  // Build the legacy client's payload from the current context and revision.
+  const result = await page.evaluate(async url => {
+    const snapshot = await (await fetch(`${url}/sidebar`)).json()
+    const csrfToken = document.querySelector('#library-vue-root').dataset.requestToken
+    const makeForm = () => {
+      const body = new FormData()
+      body.set('requesttoken', csrfToken)
+      body.set('metadataRevision', snapshot.item.metadataRevision)
+      body.set('returnTo', 'details')
+      return body
+    }
+    const first = makeForm()
     first.set('title', 'First native tab')
     first.set('metadataAutosave', '0')
     const firstResponse = await fetch(url, { method: 'POST', body: first, credentials: 'same-origin' })
-    const second = new FormData(element)
+    const second = makeForm()
     second.set('title', 'Second native draft')
     second.set('metadataAutosave', '0')
     const secondResponse = await fetch(url, { method: 'POST', body: second, credentials: 'same-origin' })
     const conflictHtml = await secondResponse.text()
-    const document = new DOMParser().parseFromString(conflictHtml, 'text/html')
-    const reviewed = document.querySelector('.library-metadata-conflict form')
+    const conflictDocument = new DOMParser().parseFromString(conflictHtml, 'text/html')
+    const reviewed = conflictDocument.querySelector('.library-metadata-conflict form')
     const savedRevision = reviewed?.querySelector('[name="metadataRevision"]')?.value || ''
     const csrf = reviewed?.querySelector('[name="requesttoken"]')?.value || ''
     let reviewedStatus = 0
@@ -59,4 +71,8 @@ try {
   console.log(JSON.stringify({ passed: true, nativeConflict: 409, draftPreserved: true, reviewedResubmit: true }))
 } finally {
   await browser.close()
+  const occ = (...args) => execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', 'occ', ...args], { encoding: 'utf8' })
+  for (const entry of JSON.parse(occ('user:auth-tokens:list', uid, '--output=json')).filter(entry => entry.name === tokenName)) {
+    occ('user:auth-tokens:delete', uid, String(entry.id))
+  }
 }

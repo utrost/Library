@@ -100,7 +100,7 @@ def write_cbz(path: Path, data: dict[str, str]) -> None:
         write_zip_entry(archive, "001.png", PNG_1X1)
 
 
-def generate(destination: Path, count: int) -> dict[str, int]:
+def generate(destination: Path, count: int, *, language_review: bool = False) -> dict[str, int]:
     if count < 4 or count % 4:
         raise ValueError("count must be a positive multiple of 4")
     shutil.rmtree(destination, ignore_errors=True)
@@ -112,6 +112,8 @@ def generate(destination: Path, count: int) -> dict[str, int]:
         for local_index in range(per_format):
             index = FORMATS.index(fmt) * per_format + local_index + 1
             data = metadata(index, fmt)
+            if language_review and fmt == "opf" and local_index == 0:
+                data["language"] = "3ng"  # Deliberately unresolved; exercise the real review form.
             path = destination / f"mixed-{fmt}-{index:04d}.{fmt}"
             if fmt == "pdf":
                 write_pdf(path, data)
@@ -128,8 +130,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("destination", type=Path)
     parser.add_argument("count", type=int, nargs="?", default=1000)
+    parser.add_argument("--language-review", action="store_true", help="Include one unresolved OPF language for browser review tests")
     args = parser.parse_args()
-    counts = generate(args.destination, args.count)
+    counts = generate(args.destination, args.count, language_review=args.language_review)
     print(f"fixture_count={args.count}")
     print(f"fixture_formats={json.dumps(counts, sort_keys=True, separators=(',', ':'))}")
 

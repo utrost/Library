@@ -8,12 +8,13 @@ def read(path: str) -> str:
     return (ROOT / path).read_text()
 
 
-def test_human_test_handbook_distinguishes_beta_candidate_from_deployed_alpha():
+def test_human_test_handbook_names_current_candidate_and_archives_old_releases():
     handbook = read("docs/human-test-handbook.md")
     checklist = read("docs/alpha-test-checklist.md")
 
-    assert "0.1.0-alpha.174" in handbook
-    assert "dist/library-0.1.0-alpha.174.tar.gz" in handbook
+    assert f"Current acceptance target: {CURRENT_VERSION}" in handbook
+    assert "human-test-handbook-v0.1-archive.md" in handbook
+    assert "0.1.0-alpha.174" not in handbook
     assert f"Current candidate: `{CURRENT_VERSION}`" in read("README.md")
     assert "0.1.0-alpha.127" not in handbook
     assert "0.1.0-beta.1" in checklist
@@ -23,18 +24,10 @@ def test_human_test_handbook_covers_recent_browsing_and_review_surfaces():
     handbook = read("docs/human-test-handbook.md")
 
     required_phrases = [
-        "no page-local home rails",
-        "view-mode buttons",
-        "details drawer",
-        "Esc closes",
-        "ArrowLeft/ArrowRight",
-        "cover loading shimmer",
-        "Cover unavailable",
-        "weak-metadata cockpit",
-        "metadata review workbench",
-        "Review next suggestion",
-        "description-only search",
-        "Custom collections",
+        "**Quick view**", "**Book details**", "**Save book details**",
+        "**Discard changes**", "**Imported metadata and scan suggestions**",
+        "**Metadata status**", "**File metadata**", "**Publication contents**",
+        "**Delete book**", "**Apply author**", "stale", "source files",
     ]
     for phrase in required_phrases:
         assert phrase in handbook
@@ -66,7 +59,7 @@ def test_alpha_testing_docs_do_not_call_landed_views_absent():
     for phrase in stale_phrases:
         assert phrase not in combined
 
-    assert "Useful views and custom collections are part of the current test pass" in combined
+    assert "Save a catalogue filter as a collection" in combined
     assert "shared/admin roots" in combined
 
 

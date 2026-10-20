@@ -59,6 +59,10 @@ CHECK
             fi
         done
         docker exec -d -u www-data "$LIBRARY_LISTS_CONTAINER" php occ --no-warnings --quiet background-job:worker --stop_after=30m 'OCA\Library\BackgroundJob\ScanJob'
+        # Seed derived review evidence on a different fixture book. Ordinary GUI
+        # title rescans must not remove the required unresolved-language case.
+        docker cp scripts/performance/language-review-fixture.php "$LIBRARY_LISTS_CONTAINER:/tmp/library-language-review-fixture.php"
+        docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php /tmp/library-language-review-fixture.php "$PW_USER" "$PW_ITEM_ID" > "$target/language-review-fixture.json"
         PLAYWRIGHT_HTML_OUTPUT_DIR="$target/report" PLAYWRIGHT_JSON_OUTPUT_FILE="$target/results.json" npx playwright test --output="$target/artifacts" --reporter=line,html,json > "$target/playwright.log" 2>&1
         NC_URL="$PW_BASE_URL" NC_CONTAINER="$LIBRARY_LISTS_CONTAINER" EVIDENCE_DIR="$target/series" node scripts/smoke-opf-series.mjs > "$target/series.log" 2>&1
         NC_URL="$PW_BASE_URL" NC_USER="$PW_USER" NC_CONTAINER="$LIBRARY_LISTS_CONTAINER" node scripts/smoke-inference-apply.mjs > "$target/inference-apply.log" 2>&1

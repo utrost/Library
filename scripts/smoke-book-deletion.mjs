@@ -27,7 +27,7 @@ try {
     await context.route('**/*', route => route.continue({ headers: { ...route.request().headers(), ...(new URL(route.request().url()).origin === new URL(base).origin ? { authorization } : {}) } }))
     const page = await context.newPage(), errors = [], consoleErrors = []; let metadataWrites = 0
     page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text()) })
-    page.on('request', r => { if (r.method() === 'POST' && /\/items\/\d+\/(update|metadata)/.test(r.url())) metadataWrites++ })
+    page.on('request', r => { if (r.method() === 'POST' && /\/items\/\d+(?:\/(?:update|metadata))?$/.test(new URL(r.url()).pathname)) metadataWrites++ })
     const id = state.items[`browser-${engine}`], returnTo = '/apps/library/?q=Deletion&sort=title'
     await page.goto(`${base}/apps/library/?details=${id}&returnTo=${encodeURIComponent(returnTo)}`)
     await expect(page.locator('.library-full-details #library-full-details-metadata')).toBeVisible()
