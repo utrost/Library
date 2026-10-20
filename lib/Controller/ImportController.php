@@ -13,6 +13,7 @@ use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
+use OCP\Util;
 
 class ImportController extends Controller {
     private ?SecurityAuditLogger $securityAudit = null;
@@ -57,7 +58,13 @@ class ImportController extends Controller {
             ]);
         }
 
+        Util::addStyle('library', 'style');
+        \OCP\Util::addStyle('library', 'ui-contract');
         $response = new TemplateResponse('library', 'metadata-import-result', [
+            'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
+            'languageUrl' => $this->urlGenerator->linkToRoute('library.language_review.index'),
+            'valueMappingsUrl' => $this->urlGenerator->linkToRoute('library.value_mapping.index'),
+            'metadataImportPreviewUrl' => $this->urlGenerator->linkToRoute('library.import.preview'),
             'mode' => 'preview',
             'preview' => $payload,
             'metadataJson' => $metadataJson,
@@ -99,10 +106,16 @@ class ImportController extends Controller {
             ]);
         }
 
+        Util::addStyle('library', 'style');
+        \OCP\Util::addStyle('library', 'ui-contract');
         $response = new TemplateResponse('library', 'metadata-import-result', [
+            'catalogueUrl' => $this->urlGenerator->linkToRoute('library.page.index'),
+            'languageUrl' => $this->urlGenerator->linkToRoute('library.language_review.index'),
+            'valueMappingsUrl' => $this->urlGenerator->linkToRoute('library.value_mapping.index'),
+            'metadataImportPreviewUrl' => $this->urlGenerator->linkToRoute('library.import.preview'),
             'mode' => 'apply',
             'preview' => $payload,
-            'metadataJson' => '',
+            'metadataJson' => ($payload['valid'] ?? false) ? '' : (string)$this->request->getParam('metadataJson', ''),
             'metadataImportApplyUrl' => $this->urlGenerator->linkToRoute('library.import.apply'),
             'settingsUrl' => $this->urlGenerator->getAbsoluteURL('/settings/user/library'),
             'requesttoken' => $this->request->getParam('requesttoken', ''),

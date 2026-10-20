@@ -37,7 +37,7 @@ test('edits metadata, rescans, then repairs the suggestion and restores the titl
     await Promise.all([
       // The POST redirects to this same URL; require a new document navigation.
       page.waitForEvent('framenavigated', { predicate: frame => frame === page.mainFrame() && new URL(frame.url()).pathname.endsWith('/settings/user/library') }),
-      root.getByRole('button', { name: 'Scan this root' }).click(),
+      root.getByRole('button', { name: 'Scan this shelf' }).click(),
     ])
     await page.waitForLoadState('load')
     await waitForScanCompletion(page, previousJobId)

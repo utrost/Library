@@ -109,7 +109,7 @@ function validatePhpTemplate(source, relative) {
   }
 }
 
-for (const relative of ['src/main.js', ...phpFiles]) {
+for (const relative of [...fs.readdirSync(path.join(root, 'src')).filter(file => file.endsWith('.js') && !file.endsWith('.test.js')).map(file => `src/${file}`), ...phpFiles]) {
   const source = fs.readFileSync(path.join(root, relative), 'utf8')
   if (relative.endsWith('.js')) walkJavaScript(parseJavaScript(source, { sourceType: 'module' }))
   else {

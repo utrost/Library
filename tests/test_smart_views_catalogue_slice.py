@@ -11,7 +11,7 @@ def test_vue_catalogue_renders_useful_views_strip_with_query_links():
     assert "smartViews" in source
     for label in [
         "Recently opened",
-        "Starred",
+        "Favorites",
         "To read",
         "Reading",
         "Finished",

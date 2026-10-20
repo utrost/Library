@@ -73,7 +73,7 @@ def test_vue_entrypoint_loads_nextcloud_initial_state_and_mounts_app():
 def test_vue_app_renders_catalogue_filters_covers_and_detail_links():
     app = (ROOT / "src" / "App.vue").read_text()
 
-    assert "t('library', 'Library')" in app
+    assert "t('library', 'All publications')" in app
     assert "Publication catalogue" not in app
     assert "library-filter-bar" in app
     assert "v-for=\"item in items\"" in app

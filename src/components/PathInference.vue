@@ -1,4 +1,5 @@
 <script setup>
+import OperationStatus from './OperationStatus.vue'
 import { computed, onMounted, ref } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
@@ -75,13 +76,12 @@ onMounted(() => load())
 <template>
   <section class="library-inference" :aria-label="t('library', 'Extract metadata from paths')" :aria-busy="busy ? 'true' : 'false'">
     <h1><LabelHelp :text="t('library', 'Preview a naming rule, select fields and review before applying. Source files are never changed.')">{{ t('library', 'Extract metadata from paths') }}</LabelHelp></h1>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <p v-if="busy" role="status">{{ t('library', 'Loading or saving…') }}</p>
+    <OperationStatus :loading="busy" :error="error" @retry="load" />
     <section class="library-inference-step">
       <h2>{{ t('library', '1. Choose a folder') }}</h2>
       <form class="library-inference-scope" @submit.prevent="load()">
-        <label><LabelHelp :text="t('library', 'Up to 40 accessible indexed books per page. Counts below describe this sample, not the entire folder.')">{{ t('library', 'Library root') }}</LabelHelp><select v-model="rootId" :disabled="busy || !roots.length" @change="rootChanged"><option v-for="root in roots" :key="root.id" :value="String(root.id)">{{ root.label }}</option></select></label>
-        <label>{{ t('library', 'Subfolder relative to this root') }}<input v-model="folder" type="text" :disabled="busy" :placeholder="t('library', 'Leave empty for the whole root')"></label>
+        <label><LabelHelp :text="t('library', 'Up to 40 accessible indexed books per page. Counts below describe this sample, not the entire folder.')">{{ t('library', 'Shelf') }}</LabelHelp><select v-model="rootId" :disabled="busy || !roots.length" @change="rootChanged"><option v-for="root in roots" :key="root.id" :value="String(root.id)">{{ root.label }}</option></select></label>
+        <label>{{ t('library', 'Folder within this shelf') }}<input v-model="folder" type="text" :disabled="busy" :placeholder="t('library', 'Leave empty for the whole shelf')"></label>
         <label class="library-inference-checkbox"><input v-model="recursive" type="checkbox" :disabled="busy">{{ t('library', 'Include subfolders') }}</label>
         <button class="button primary" :disabled="busy || !rootId">{{ t('library', 'Load sample') }}</button>
       </form>
@@ -93,7 +93,7 @@ onMounted(() => load())
 
     </section>
     <section v-if="items.length" class="library-inference-step">
-      <h2>{{ t('library', '2. Describe the structure') }}</h2>
+      <h2>{{ t('library', '2. Preview suggested fields') }}</h2>
       <div class="library-inference-editor">
       <div class="library-inference-controls">
       <div class="library-inference-scope">
@@ -151,8 +151,8 @@ onMounted(() => load())
       </aside>
       </div>
     </section>
-    <section class="library-inference-step">
-      <h2>{{ t('library', '3. Review the sample') }}</h2>
+    <section v-if="items.length" class="library-inference-step">
+      <h2>{{ t('library', '3. Review and apply') }}</h2>
 
       <label><LabelHelp :text="t('library', 'Fill empty fields first. Existing values are flagged for review. No changes are applied in this preview.')">{{ t('library', 'Show results') }}</LabelHelp><select v-model="resultFilter"><option value="all">{{ t('library', 'All') }} ({{ results.length }})</option><option v-for="(label, status) in statusLabels" :key="status" :value="status">{{ label }} ({{ counts[status] || 0 }})</option></select></label>
       <p v-if="!shown.length && !busy">{{ t('library', 'No sample results here. Try another folder, page or result filter.') }}</p>
@@ -163,9 +163,9 @@ onMounted(() => load())
         <p v-else-if="!item.conflicts?.length">{{ t('library', 'Check separators, folder depth and field assignments. A unique interpretation is required.') }}</p>
       </details>
       <nav class="library-inference-presets" :aria-label="t('library', 'Sample pages')"><button class="button secondary" :disabled="busy || page === 1" @click="load(page - 1)">{{ t('library', 'Previous page') }}</button><span>{{ page }}</span><button class="button secondary" :disabled="busy || !hasNext" @click="load(page + 1)">{{ t('library', 'Next page') }}</button></nav>
-    </section>
     <InferenceApply class="library-inference-step" :results="results" :labels="labels" :request-token="requestToken" :disabled="busy || scopePending" :context="JSON.stringify({ mode: editorMode, pattern: editorMode === 'pattern' ? pattern : undefined, rule: editorMode === 'guided' ? rule : undefined, folderRules: editorMode === 'folders' ? folderRules : undefined, rootId: loadedRootId, folder: loadedFolder })" @changed="load(page)" />
-    <InferenceAnalysis :definition="{ mode:editorMode, pattern, rule, rootId:loadedRootId, folder:loadedFolder, recursive }" :labels="labels" :statuses="statusLabels" :request-token="requestToken" :disabled="busy || scopePending || !loadedRootId" />
+    </section>
+    <InferenceAnalysis v-if="items.length" :definition="{ mode:editorMode, pattern, rule, rootId:loadedRootId, folder:loadedFolder, recursive }" :labels="labels" :statuses="statusLabels" :request-token="requestToken" :disabled="busy || scopePending || !loadedRootId" />
   </section>
 </template>
 

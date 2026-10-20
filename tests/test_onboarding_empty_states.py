@@ -17,9 +17,9 @@ def test_vue_and_fallback_distinguish_first_run_from_filtered_empty_state():
 
     for source in (app,):
         assert "library-first-run-guidance" in source
-        assert "Start with one Library root" in source
-        assert "Add a Library root" in source
-        assert "Run a scan after saving a root" in source
+        assert "Add your first shelf" in source
+        assert "Add a shelf" in source
+        assert "Choose a folder, save the shelf, then scan to browse its books." in source
         assert "library-filter-empty-state" in source
         assert "No items match these filters" in source
         assert "Clear search" in source
@@ -36,6 +36,6 @@ def test_settings_page_has_getting_started_guidance_for_empty_roots():
     assert "library-getting-started" in template
     assert "Getting started" in template
     assert "Add one folder path that already exists in Nextcloud Files." in template
-    assert "Run Scan enabled roots after saving the root." in template
-    assert "Deleting a Library root removes only Library index and catalogue rows" in template
+    assert "Scan the shelf after saving it." in template
+    assert "Removing a shelf removes its catalogue entries. Source files in Nextcloud Files are kept." in template
     assert ".library-getting-started" in css

@@ -98,11 +98,11 @@ def test_legacy_plural_and_domain_translation_sentinels():
 def test_contextual_translation_regressions_are_exact_sentinels():
     de = json.loads(read('l10n/de.json'))['translations']
     ar = json.loads(read('l10n/ar.json'))['translations']
-    assert de['Delete root'] == 'Stammordner löschen'
+    assert de['Remove shelf'] == 'Regal entfernen'
     assert de['Personal rating'] == 'Persönliche Bewertung'
     assert de['Preview metadata import'] == 'Metadatenimport in der Vorschau anzeigen'
     assert de['Point Library at a Nextcloud folder; it becomes a browsable shelf after scanning.'].startswith('Verknüpfen Sie')
-    assert de['Scan enabled roots'] == 'Aktivierte Stammordner scannen'
+    assert de['Scan enabled shelves'] == 'Aktivierte Regale scannen'
     assert de['Folders and scanning'] == 'Ordner und Scannen'
     assert ar['Escape closes; arrow keys browse neighbouring visible items.'].startswith('يغلق مفتاح Esc')
     assert ar['Recently opened'] == 'فُتح مؤخرًا'
@@ -114,7 +114,7 @@ def test_fragment_and_ui_semantic_mutations_fail_closed_without_flagging_paths()
         ('de', 'Personal rating', 'Persönlich rating', 'untranslated_fragment'),
         ('de', 'Review recently changed files', 'Kürzlich recently geänderte Dateien prüfen', 'untranslated_fragment'),
         ('ar', 'Useful views', 'عروض rogue', 'untranslated_fragment'),
-        ('de', 'Delete root', 'Löschen Stammverzeichnis', 'semantic_sentinel_mismatch'),
+        ('de', 'Remove shelf', 'Löschen Stammverzeichnis', 'semantic_sentinel_mismatch'),
         ('ar', 'Escape closes; arrow keys browse neighbouring visible items.', 'الهروب يغلق. مفاتيح الأسهم تصفح العناصر المرئية المجاورة.', 'semantic_sentinel_mismatch'),
         ('ar', 'Recently opened', 'آخر افتتاح', 'semantic_sentinel_mismatch'),
         ('ar', 'File metadata', 'ملف البيانات الوصفية', 'semantic_sentinel_mismatch'),

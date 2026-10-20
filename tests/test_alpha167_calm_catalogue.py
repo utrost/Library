@@ -27,7 +27,7 @@ def test_catalogue_exposes_one_filter_sort_and_view_entry():
 
 def test_catalogue_exposes_target_navigation_and_card_information_contract():
     app = read("src/App.vue")
-    for label in ("Home", "All publications", "Starred", "Continue reading", "Shelves", "Collections", "Review", "Settings"):
+    for label in ("Home", "All publications", "Favorites", "Continue reading", "Shelves", "Collections", "Review", "Settings"):
         assert f"'{label}'" in app
     assert 'class="library-cover-creator"' in app
     assert 'class="library-cover-context"' in app

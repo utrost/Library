@@ -5,8 +5,9 @@ import re
 APP = (Path(__file__).resolve().parents[1] / "src/App.vue").read_text()
 
 
-def test_card_details_are_sidebar_first_and_file_open_is_distinct():
-    assert '<button type="button" class="library-cover-link"' in APP
+def test_card_details_are_links_and_quick_view_is_explicit():
+    assert '<a :href="detailsLink(item.detailsUrl)" class="library-cover-link"' in APP
+    assert 'class="library-quick-view"' in APP
     assert '@click="openDetailsDrawer(item, $event)"' in APP
     assert 'class="library-cover-title-button"' in APP
     assert "library-cover-details\"" not in APP

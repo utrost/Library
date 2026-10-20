@@ -11,14 +11,15 @@ $invalidField = !empty($result['invalidField']);
 $batchLimitError = !empty($result['batchLimitError']);
 $batchSelectionError = !empty($result['batchSelectionError']);
 ?>
-<div id="app-content" class="library-app-content" lang="<?php p($_['language'] ?? 'en'); ?>" dir="<?php p($_['direction'] ?? 'ltr'); ?>">
-    <main id="library-app" class="library-batch-metadata-edit-preview-page" aria-labelledby="library-batch-metadata-edit-preview-heading">
+<div id="app-content" class="library-maintenance-shell" lang="<?php p($_['language'] ?? 'en'); ?>" dir="<?php p($_['direction'] ?? 'ltr'); ?>">
+    <?php include __DIR__ . '/maintenance-navigation.php'; ?>
+    <main id="library-app" class="library-maintenance-main library-batch-metadata-edit-preview-page" aria-labelledby="library-batch-metadata-edit-preview-heading">
         <section class="library-panel library-batch-preview-hero">
             <p class="library-settings-action-strip"><a href="<?php p($backUrl); ?>" class="button secondary library-batch-preview-back--top"><?php p($l->t('Back to catalogue')); ?></a></p>
             <div class="library-batch-preview-heading-row">
                 <div>
                     <p class="library-summary-badge"><?php p($l->t('Review before applying')); ?></p>
-                    <h2 id="library-batch-metadata-edit-preview-heading"><?php p($l->t('Batch metadata edit preview')); ?></h2>
+                    <h1 id="library-batch-metadata-edit-preview-heading"><?php p($l->t('Batch metadata edit preview')); ?></h1>
                     <p class="library-muted"><?php p($l->t('No changes have been written yet. This will update the selected field for every item that still differs from the normalized value.')); ?></p>
                 </div>
                 <?php if (!$batchLimitError && !$batchSelectionError && !$invalidField && $changedItems > 0): ?>
@@ -80,7 +81,6 @@ $batchSelectionError = !empty($result['batchSelectionError']);
             </dl>
         </section>
 
-        <p class="library-settings-action-strip"><a href="<?php p($backUrl); ?>" class="button secondary library-batch-preview-back--bottom"><?php p($l->t('Back to catalogue')); ?></a></p>
 
         <section class="library-panel" aria-labelledby="library-batch-preview-examples-heading">
             <h3 id="library-batch-preview-examples-heading"><?php p($l->t('Example matched items')); ?></h3>

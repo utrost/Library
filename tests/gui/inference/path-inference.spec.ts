@@ -8,8 +8,8 @@ test('patterns select immediately, persist privately and delete; inference stays
   await page.goto('/apps/library/?infer=1')
   const panel = page.locator('.library-inference')
   await expect(panel).toHaveAttribute('aria-busy','false')
-  await expect(panel.locator('.library-inference-step').filter({has:page.getByRole('heading',{name:'3. Review the sample',exact:true})}).locator('.library-inference-result')).toHaveCount(Math.min(40, requiredPositiveIntegerEnvironment('PW_TOTAL_CARDS')))
-  const rootId = await panel.getByRole('combobox',{name:'Library root',exact:true}).inputValue()
+  await expect(panel.locator('.library-inference-step').filter({has:page.getByRole('heading',{name:'3. Review and apply',exact:true})}).locator(':scope > .library-inference-result')).toHaveCount(Math.min(40, requiredPositiveIntegerEnvironment('PW_TOTAL_CARDS')))
+  const rootId = await panel.getByRole('combobox',{name:'Shelf',exact:true}).inputValue()
   const before = await page.evaluate(async id=>(await fetch(`/apps/library/api/inference/sample?rootId=${id}`)).json(),rootId)
   await panel.locator('.library-inference-customize > summary').click()
   await panel.getByRole('combobox',{name:'Rule editor',exact:true}).selectOption('pattern')
@@ -25,7 +25,7 @@ test('patterns select immediately, persist privately and delete; inference stays
   await picker.selectOption('preset-title')
   await expect(panel.locator('.library-inference-live dd strong').first()).toHaveText(expectedTitle)
   // Keep syntax explanatory copy out of the layout, but accessible by focus and Escape.
-  const help=panel.locator('label').filter({has:page.getByRole('textbox',{name:'Advanced pattern',exact:true})}).getByRole('button',{name:'Help',exact:true})
+  const help=panel.locator('label').filter({has:page.getByRole('textbox',{name:'Advanced pattern',exact:true})}).getByRole('button',{name:'Help: Advanced pattern',exact:true})
   await help.focus(); await expect(page.getByRole('tooltip')).toContainText('Placeholders capture text')
   await page.keyboard.press('Escape'); await expect(page.getByRole('tooltip')).toHaveCount(0)
   const name=`Pattern ${info.project.name} ${Date.now()}`
@@ -64,7 +64,7 @@ test('inference label help works by tap without horizontal overflow @inference @
   await expect(panel).toHaveAttribute('aria-busy','false')
   await panel.locator('.library-inference-customize > summary').click()
   await panel.getByRole('combobox',{name:'Rule editor',exact:true}).selectOption('pattern')
-  const help=panel.locator('label').filter({has:page.getByRole('textbox',{name:'Advanced pattern',exact:true})}).getByRole('button',{name:'Help',exact:true})
+  const help=panel.locator('label').filter({has:page.getByRole('textbox',{name:'Advanced pattern',exact:true})}).getByRole('button',{name:'Help: Advanced pattern',exact:true})
   await help.click();await expect(page.getByRole('tooltip')).toBeInViewport()
   const box=await page.getByRole('tooltip').boundingBox();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.x+box!.width).toBeLessThanOrEqual(391)
   await page.keyboard.press('Escape')

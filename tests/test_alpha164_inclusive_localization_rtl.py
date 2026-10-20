@@ -234,8 +234,8 @@ def test_independently_reviewed_translation_meanings_are_pinned():
         'Suggested updates': 'Vorgeschlagene Aktualisierungen',
     }
     expected_ar = {
-        'No enabled Library roots': 'لا توجد جذور مكتبة مُفعّلة',
-        'Enable a saved root in settings, then scan enabled roots to refresh the catalogue.': 'فعّل جذرًا محفوظًا في الإعدادات، ثم افحص الجذور المُفعّلة لتحديث الكتالوج.',
+        'No enabled shelves': 'لا توجد رفوف مفعّلة',
+        'Enable a shelf in settings, then scan it to refresh the catalogue.': 'فعّل رفًا في الإعدادات، ثم افحصه لتحديث الفهرس.',
         'Run a scan from settings to index enabled roots. Source files stay in Nextcloud Files.': 'أجرِ فحصًا من الإعدادات لفهرسة الجذور المُفعّلة. تبقى الملفات المصدرية في ملفات Nextcloud.',
         'Suggested updates': 'تحديثات مقترحة',
         'Folders and scanning': 'المجلدات والفحص',

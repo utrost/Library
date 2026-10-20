@@ -8,7 +8,7 @@ def test_personal_settings_template_uses_nextcloud_l10n_for_visible_copy():
 
     assert "$l->t('Library settings')" in template
     assert "$l->t('Folder path')" in template
-    assert "$l->t('Scan enabled roots')" in template
+    assert "$l->t('Scan enabled shelves')" in template
     assert "$l->t('Diagnostics')" in template
     assert "$l->t('Indexed')" in template
 

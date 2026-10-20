@@ -30,7 +30,7 @@ test('searches for a deterministic publication and opens and closes its details 
   await expect(card).toHaveCount(1)
   await attachCheckpoint(page, testInfo, 'catalogue-search-results', '#library-catalogue')
   // The cover image must remain clickable when its title overlay expands on hover.
-  const opener = card.locator('.library-cover-link')
+  const opener = card.locator('.library-quick-view')
   const sidebarResponse = page.waitForResponse((response) => /\/apps\/library\/items\/\d+\/sidebar$/.test(new URL(response.url()).pathname))
   await opener.click()
   expect((await sidebarResponse).ok()).toBeTruthy()
@@ -60,10 +60,10 @@ test('searches for a deterministic publication and opens and closes its details 
   const list = catalogue.getByRole('table', { name: 'Catalogue list' })
   const row = list.locator('.library-catalogue-list-row').filter({ hasText: title })
   await expect(row).toHaveCount(1)
-  for (const heading of ['Title', 'Creators', 'Publication date', 'Series', 'Format', 'Shelf']) {
+  for (const heading of ['Title', 'Authors', 'Publication date', 'Series', 'Format', 'Shelf']) {
     await expect(list.getByRole('columnheader', { name: heading, exact: true })).toBeVisible()
   }
-  const titleButton = row.getByRole('button', { name: title, exact: true })
+  const titleButton = row.getByRole('link', { name: title, exact: true })
   await expect(titleButton).toHaveCSS('display', 'block')
   await expect(titleButton).toHaveCSS('white-space', 'normal')
   const thumbnail = row.locator('.library-catalogue-list-cover')

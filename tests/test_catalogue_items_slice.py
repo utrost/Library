@@ -72,7 +72,7 @@ def test_catalogue_shows_items_and_detail_page_owns_edit_form():
     assert "detailsUrl" in page
 
     vue = (ROOT / "src" / "App.vue").read_text()
-    assert "t('library', 'Library')" in vue
+    assert "t('library', 'All publications')" in vue
     assert "Publication catalogue" not in vue
     assert "publicationType" in vue
     assert "Details" in vue

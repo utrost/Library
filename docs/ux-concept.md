@@ -1,5 +1,7 @@
 # Library UX Concept
 
+For the alpha.31 screen and journey audit, observed defects, and proposed shared interface conventions, see the [20 October 2026 UI/UX consistency review](ui-ux-consistency-review-2026-10-20.md).
+
 This document defines the v0.1 Library interface as one consistent catalogue workspace. It is not a feature inventory. It is the UX contract that keeps browse, filters, actions, batch tools and review flows from becoming separate competing interfaces.
 
 ## Product answer
@@ -184,3 +186,11 @@ Pattern selection uses one list for supplied and personal patterns. Selecting an
 Use underlined, theme-coloured text for navigation links, with a thicker underline on hover and a visible keyboard focus outline. Colour alone must not communicate clickability. The shared `library-text-link` style provides this convention; it also applies throughout the full book details page, including linked authors, series, genres and the file location. Actions use buttons; collapsible sections use a disclosure marker.
 
 File metadata is collapsed initially at the bottom of book details, after imported metadata and scan suggestions. The location opens Nextcloud Files. File size comes from the existing scan index, uses readable decimal units, and exposes exact bytes on hover. Unknown size is shown as a dash; zero bytes remains distinct.
+
+## Shared interface contract — alpha.32
+
+Use `css/ui-contract.css` for the cross-renderer page frame, heading scale, leading alignment, focus, review comparisons and touch adaptations. A book's cover/title opens full Details; Quick view is an explicit drawer action; Open launches the reader in a new tab. Keep catalogue search immediately above results. Save this search reveals naming only when there is a search/filter to save.
+
+Use `FormActions` and `useUnsavedChanges` for profile/list forms, and keep Details' existing revision-aware Save/Discard. `EntityPicker` provides the shared debounced lookup interaction; other model-specific pickers follow its waiting/loading/results/empty/error contract. A failed lookup cannot authorize creation. `OperationStatus` and `ReviewValues` align feedback and comparisons. `confirmAction` is for consequential configuration/list removals; book deletion retains its explicit file preview.
+
+The initial [UI review](ui-ux-consistency-review-2026-10-20.md) retains the before-state and maps all fourteen findings to implementation. Repeat broad, read-only screenshots with explicit `NC_URL`, `NC_USER` and `NC_CONTAINER` using `node scripts/review-ui.mjs`. It blocks application mutations, creates and removes its own temporary app password, and stores screenshots locally under `/tmp`. Use the Playwright journeys for interactions and mutation verification on disposable fixtures.
