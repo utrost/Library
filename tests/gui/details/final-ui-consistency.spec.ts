@@ -90,8 +90,9 @@ async function maintenance(page, info) {
   await page.goto('/apps/library/languages')
   if (info.project.name.includes('mobile')) {
     const toggle = page.getByRole('button', { name: 'Open navigation', exact: true })
-    await toggle.click()
     const dialog = page.getByRole('dialog', { name: 'Library navigation' })
+    await expect(dialog).not.toBeVisible()
+    await toggle.click()
     await expect(dialog.getByRole('link', { name: 'Authors', exact: true })).toBeVisible()
     await page.keyboard.press('Escape')
     await expect(dialog).not.toBeVisible()
