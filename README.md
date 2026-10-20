@@ -1,8 +1,8 @@
 # Library
 
-Alpha.30 adds a shared compact browser for Authors, Series and Genres, with displayed-name sorting, bounded book previews and genre pagination. One additive index supports ordering; no author identities or book values change. Verification and deployment status: [alpha.30 record](docs/compatibility-evidence/2026-10-20-nc34-author-browser-alpha30/README.md).
+Alpha.30 adds a shared compact browser for Authors, Series and Genres, with displayed-name sorting, bounded book previews and genre pagination. One additive index supports ordering; no author identities or book values change. Signed alpha.30 is deployed on developer NC34 with clean integrity and an unchanged large catalogue-book catalogue. Verification and deployment status: [alpha.30 record](docs/compatibility-evidence/2026-10-20-nc34-author-browser-alpha30/README.md).
 
-Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](docs/compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). Signed alpha.29 is deployed on developer NC34; integrity, desktop/mobile search smoke and the unchanged large catalogue-book count are verified. No database migration is needed.
+Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](docs/compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
 Library is an open-source Nextcloud app for people who keep books, comics, papers and sidecar metadata in Nextcloud Files.
 

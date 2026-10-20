@@ -751,4 +751,4 @@ The three covers are stable examples, not a complete bibliography. Open the auth
 - Open Series and Genres. Both should have the same compact search/sort toolbar and cover/title previews as Authors, with Name A–Z as the default and Name Z–A available.
 - Search after three letters, clear the search, paginate and follow book previews. Back must restore the originating directory state. Series names and counts open their profile; genre names and counts open the filtered catalogue.
 - Genre pages must continue beyond the first 50 entries. Removed/inactive genre assignments must never appear among previews.
-- Check narrow screens, keyboard focus and dark mode. Series reassignment and genre creation/suggestion review must remain available and explicit.
+- Check narrow screens, keyboard focus and dark mode. Expand **Create a genre** to add a genre; suggestion review and series reassignment remain available and explicit.
