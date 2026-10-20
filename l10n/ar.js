@@ -1300,14 +1300,6 @@ OC.L10N.register(
             "%n مهمة حديثة",
             "%n مهمة حديثة"
         ],
-        "_%n root_::_%n roots_": [
-            "%n جذر",
-            "%n جذر",
-            "%n جذور",
-            "%n جذور",
-            "%n جذور",
-            "%n جذور"
-        ],
         "_%n selected book_::_%n selected books_": [
             "%n كتب محددة",
             "%n كتاب محدد",
@@ -1420,7 +1412,15 @@ OC.L10N.register(
         "No reading status": "لا توجد حالة قراءة",
         "No enabled shelves": "لا توجد رفوف مفعّلة",
         "Enable a shelf in settings, then scan it to refresh the catalogue.": "فعّل رفًا في الإعدادات، ثم افحصه لتحديث الفهرس.",
-        "Enabled shelves appear here.": "تظهر الرفوف المفعّلة هنا."
+        "Enabled shelves appear here.": "تظهر الرفوف المفعّلة هنا.",
+        "_%n shelf_::_%n shelves_": [
+            "%n رف",
+            "%n رف",
+            "%n رفان",
+            "%n رفوف",
+            "%n رفًا",
+            "%n رف"
+        ]
     },
     "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 );

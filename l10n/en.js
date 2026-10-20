@@ -1244,10 +1244,6 @@ OC.L10N.register(
             "%n recent job",
             "%n recent jobs"
         ],
-        "_%n root_::_%n roots_": [
-            "%n root",
-            "%n roots"
-        ],
         "_%n selected book_::_%n selected books_": [
             "%n selected book",
             "%n selected books"
@@ -1332,7 +1328,11 @@ OC.L10N.register(
         "No reading status": "No reading status",
         "No enabled shelves": "No enabled shelves",
         "Enable a shelf in settings, then scan it to refresh the catalogue.": "Enable a shelf in settings, then scan it to refresh the catalogue.",
-        "Enabled shelves appear here.": "Enabled shelves appear here."
+        "Enabled shelves appear here.": "Enabled shelves appear here.",
+        "_%n shelf_::_%n shelves_": [
+            "%n shelf",
+            "%n shelves"
+        ]
     },
     "nplurals=2; plural=(n != 1);"
 );

@@ -14,13 +14,13 @@ The existing book Save/Discard workflow, ownership boundaries and metadata autho
 - Translation inventory/generated catalogues: English, German and Arabic, **1,266 keys and 92 semantic sentinels**; security gates passed.
 - The packaged disposable NC34 rehearsal passed **58 Playwright journeys** across desktop Chromium, Firefox and mobile Chromium, plus catalogue/ownership, author-directory, entity browsing and deletion fixtures. A final repetition checks the last alignment and wording changes.
 - The broad screenshot pass captured **101 states**, desktop/mobile and light/dark, with zero page errors and zero attempted Library mutations. The selected fixture contained no series profile at capture discovery; series profile interactions are covered separately by the existing editor/browser suites.
-- At 390 px width the first catalogue cover moved from approximately **525 px to 419 px** from the viewport top, with the main search now visible. This is an observed layout comparison, not a pixel-match test or a performance claim.
+- At 390 px width the first catalogue cover moved from approximately **525 px to 423 px** from the viewport top, with the main search now visible. This is an observed layout comparison, not a pixel-match test or a performance claim.
 
-Early rehearsal failures exposed Quick view hit-target interception, clipped table actions and Nextcloud styles showing children of a closed saved-search disclosure. Those product issues were fixed. Selectors were also updated for the intentional labels and extraction headings. One parallel local test attempt overlapped package dependency installation and lost modules; it was rerun after installation. These failed attempts are not counted as passing evidence.
+Early rehearsal failures exposed Quick view hit-target interception, clipped table actions and Nextcloud styles showing children of a closed saved-search disclosure. Those product issues were fixed. Selectors were also updated for the intentional labels and extraction headings. The first CI source job also identified an outdated handbook assertion requiring alpha.11; the assertion now checks the current candidate and H03-24. One parallel local test attempt overlapped package dependency installation and lost modules; it was rerun after installation. These failed attempts are not counted as passing evidence.
 
 The folder-picker cancellation scenario can emit Nextcloud's known “No nodes selected” diagnostic; its existing narrow test allowance is retained. The rest of the journey suite continues checking unexpected browser failures. No blanket console-error suppression was added.
 
-Raw screenshots/traces remain private local artifacts. The repeatable capture command is documented in [the UX concept](../../ux-concept.md). Human acceptance is **H03-24** in the [test handbook](../../human-test-handbook.md).
+The [capture summary and layout measurements](screens.json) record 101 states with no root overflow above 1 px. Desktop Home/Shelves and Authors/Series headings align within 1 px and share the 24 px title size. Raw screenshots/traces remain private local artifacts. The repeatable capture command is documented in [the UX concept](../../ux-concept.md). Human acceptance is **H03-24** in the [test handbook](../../human-test-handbook.md).
 
 ## Deployment
 

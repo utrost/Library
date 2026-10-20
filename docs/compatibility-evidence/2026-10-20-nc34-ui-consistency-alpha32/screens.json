@@ -1,0 +1,180 @@
+{
+  "candidate": "0.3.0-alpha.32",
+  "phase": "disposable installed-package screenshot review",
+  "source": "e853d5b",
+  "captures": 101,
+  "captureFailures": [],
+  "pageErrors": [],
+  "blockedLibraryMutations": [],
+  "rootOverflowOver1px": [],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "rawEvidence": "private local screenshots; not committed",
+  "screens": [
+    "home-1440-light",
+    "catalogue-1440-light",
+    "catalogue-list-1440-light",
+    "search-1440-light",
+    "search-empty-1440-light",
+    "favorites-1440-light",
+    "continue-1440-light",
+    "shelves-1440-light",
+    "collections-1440-light",
+    "lists-1440-light",
+    "new-list-1440-light",
+    "authors-1440-light",
+    "series-1440-light",
+    "genres-1440-light",
+    "review-suggestions-1440-light",
+    "review-suggestions-1440-light-middle",
+    "review-suggestions-1440-light-bottom",
+    "review-missing-1440-light",
+    "review-files-1440-light",
+    "review-covers-1440-light",
+    "author-conflicts-1440-light",
+    "duplicates-1440-light",
+    "inference-1440-light",
+    "inference-1440-light-middle",
+    "inference-1440-light-bottom",
+    "languages-1440-light",
+    "mappings-1440-light",
+    "settings-1440-light",
+    "settings-1440-light-middle",
+    "settings-1440-light-bottom",
+    "admin-1440-light",
+    "author-profile-1440-light",
+    "author-profile-1440-light-middle",
+    "author-profile-1440-light-bottom",
+    "details-1440-light",
+    "details-1440-light-middle",
+    "details-1440-light-bottom",
+    "home-390-light",
+    "catalogue-390-light",
+    "catalogue-list-390-light",
+    "search-390-light",
+    "search-empty-390-light",
+    "favorites-390-light",
+    "continue-390-light",
+    "shelves-390-light",
+    "collections-390-light",
+    "lists-390-light",
+    "new-list-390-light",
+    "authors-390-light",
+    "series-390-light",
+    "genres-390-light",
+    "review-suggestions-390-light",
+    "review-suggestions-390-light-middle",
+    "review-suggestions-390-light-bottom",
+    "review-missing-390-light",
+    "review-files-390-light",
+    "review-covers-390-light",
+    "author-conflicts-390-light",
+    "duplicates-390-light",
+    "inference-390-light",
+    "inference-390-light-middle",
+    "inference-390-light-bottom",
+    "languages-390-light",
+    "mappings-390-light",
+    "settings-390-light",
+    "settings-390-light-middle",
+    "settings-390-light-bottom",
+    "admin-390-light",
+    "author-profile-390-light",
+    "author-profile-390-light-middle",
+    "author-profile-390-light-bottom",
+    "details-390-light",
+    "details-390-light-middle",
+    "details-390-light-bottom",
+    "home-390-dark",
+    "catalogue-390-dark",
+    "catalogue-list-390-dark",
+    "search-390-dark",
+    "search-empty-390-dark",
+    "favorites-390-dark",
+    "continue-390-dark",
+    "shelves-390-dark",
+    "collections-390-dark",
+    "lists-390-dark",
+    "new-list-390-dark",
+    "authors-390-dark",
+    "series-390-dark",
+    "genres-390-dark",
+    "review-suggestions-390-dark",
+    "review-missing-390-dark",
+    "review-files-390-dark",
+    "review-covers-390-dark",
+    "author-conflicts-390-dark",
+    "duplicates-390-dark",
+    "inference-390-dark",
+    "languages-390-dark",
+    "mappings-390-dark",
+    "settings-390-dark",
+    "admin-390-dark",
+    "author-profile-390-dark",
+    "details-390-dark"
+  ],
+  "layoutMeasurements": [
+    {
+      "screen": "home-1440-light",
+      "heading": {
+        "x": 358,
+        "y": 107,
+        "font": "24px",
+        "weight": "600"
+      },
+      "firstCoverY": null
+    },
+    {
+      "screen": "shelves-1440-light",
+      "heading": {
+        "x": 358,
+        "y": 107,
+        "font": "24px",
+        "weight": "600"
+      },
+      "firstCoverY": null
+    },
+    {
+      "screen": "authors-1440-light",
+      "heading": {
+        "x": 357,
+        "y": 106,
+        "font": "24px",
+        "weight": "600"
+      },
+      "firstCoverY": null
+    },
+    {
+      "screen": "series-1440-light",
+      "heading": {
+        "x": 357,
+        "y": 106,
+        "font": "24px",
+        "weight": "600"
+      },
+      "firstCoverY": null
+    },
+    {
+      "screen": "catalogue-390-light",
+      "heading": {
+        "x": 33,
+        "y": 75,
+        "font": "24px",
+        "weight": "600"
+      },
+      "firstCoverY": 422.984375
+    }
+  ]
+}

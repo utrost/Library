@@ -1244,10 +1244,6 @@ OC.L10N.register(
             "%n letzter Auftrag",
             "%n letzte Aufträge"
         ],
-        "_%n root_::_%n roots_": [
-            "%n Stammverzeichnis",
-            "%n Stammverzeichnisse"
-        ],
         "_%n selected book_::_%n selected books_": [
             "%n ausgewähltes Buch",
             "%n ausgewählte Bücher"
@@ -1332,7 +1328,11 @@ OC.L10N.register(
         "No reading status": "Kein Lesestatus",
         "No enabled shelves": "Keine aktivierten Regale",
         "Enable a shelf in settings, then scan it to refresh the catalogue.": "Aktivieren Sie ein Regal in den Einstellungen und scannen Sie es, um den Katalog zu aktualisieren.",
-        "Enabled shelves appear here.": "Aktivierte Regale werden hier angezeigt."
+        "Enabled shelves appear here.": "Aktivierte Regale werden hier angezeigt.",
+        "_%n shelf_::_%n shelves_": [
+            "%n Regal",
+            "%n Regale"
+        ]
     },
     "nplurals=2; plural=(n != 1);"
 );

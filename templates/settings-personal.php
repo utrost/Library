@@ -46,7 +46,7 @@ foreach ($roots as $root) {
     <details class="library-panel library-settings-section library-settings-section-roots" open aria-labelledby="library-settings-roots-heading">
         <summary id="library-settings-roots-heading" class="library-settings-summary-row">
             <?php p($l->t('Folders and scanning')); ?>
-            <span class="library-settings-count-badge"><?php p($l->n('%n root', '%n roots', count($roots))); ?></span>
+            <span class="library-settings-count-badge"><?php p($l->n('%n shelf', '%n shelves', count($roots))); ?></span>
         </summary>
         <section class="library-add-shelf-card" aria-label="<?php p($l->t('Add Library shelf')); ?>">
             <h3><?php p($l->t('Add a shelf')); ?></h3>
