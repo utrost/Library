@@ -589,7 +589,6 @@ OC.L10N.register(
         "Move or merge books": "Move or merge books",
         "Move up": "Move up",
         "Moved, renamed or reconnected": "Moved, renamed or reconnected",
-        "My genres": "My genres",
         "Name to browse under": "Name to browse under",
         "Needs action": "Needs action",
         "Needs attention": "Needs attention",
