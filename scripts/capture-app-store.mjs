@@ -21,10 +21,19 @@ try {
   await expect.poll(() => cards.locator('img').evaluateAll(images => images.filter(image => image.complete && image.naturalWidth > 0).length)).toBeGreaterThan(3)
   await expect.poll(() => cards.locator('img[src]').evaluateAll(images => images.every(image => image.complete))).toBe(true)
   await page.screenshot({ path: out + '/appstore-catalogue.png', animations: 'disabled' })
-  await cards.first().locator('.library-quick-view').click()
-  await expect(page.locator('#app-sidebar-vue')).toBeVisible()
-  await expect(page.locator('#app-sidebar-vue').getByRole('navigation', { name: 'Publication detail sections' })).toBeInViewport()
+  await cards.first().locator('.library-cover-link').click()
+  await expect(page.getByRole('heading', { name: 'Book details', exact: true })).toBeVisible()
+  await expect(page.locator('#library-full-details-metadata-form')).toBeVisible()
   await page.screenshot({ path: out + '/appstore-details.png', animations: 'disabled' })
+  await page.goto(base + '/apps/library/?authors=1')
+  await expect(page.getByRole('heading', { name: 'Authors', exact: true })).toBeVisible()
+  await expect(page.locator('.author-directory-row').first()).toBeVisible()
+  // Lazy preview images below the viewport are deliberately not requested.
+  await expect.poll(() => page.locator('.author-directory-row img[src]').evaluateAll(images => images.filter(image => {
+    const rect = image.getBoundingClientRect()
+    return rect.top < window.innerHeight && rect.bottom > 0
+  }).every(image => image.complete)), { timeout: 15000 }).toBe(true)
+  await page.screenshot({ path: out + '/appstore-authors.png', animations: 'disabled' })
   execFileSync('docker', ['cp', new URL('./performance/store-example.php', import.meta.url).pathname, container + ':/tmp/library-store-example.php'])
   const example = JSON.parse(execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', '/tmp/library-store-example.php'], { encoding: 'utf8' }))
   await page.goto(base + '/apps/library/?infer=1')
