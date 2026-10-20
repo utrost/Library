@@ -1,0 +1,182 @@
+{
+  "archive_sha256": "83927b2b4be9909a709e7bf1aa7452fe12f52de5766794c3d2fe83ac977d95b2",
+  "assets": [
+    {
+      "path": "library/css/library-vue-0-3-0-alpha-32-compact-list-table-cover-96-fit-v8.css",
+      "bytes": 154637,
+      "sha256": "a511e790f173d53730a7a7b2bc6d78969af47c9a417c462643b926764959803e",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/css/style.css",
+      "bytes": 57781,
+      "sha256": "4430c1c1f3756d2bb312a2ee7544acd3297cdd41a6f1f53eb20aa1fd65a166ee",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/css/ui-contract.css",
+      "bytes": 8014,
+      "sha256": "4d810c906cc788f18d37f597ada04639316ab7930b90def3fd98b96d974e42cd",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/js/library-main-0-3-0-alpha-32-compact-list-table-cover-96-fit-v8.mjs",
+      "bytes": 741353,
+      "sha256": "08bdfd9c8dc9a70d389d52d240c3321694543ec7467337f56ddee50504d7b80b",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/l10n/en.js",
+      "bytes": 103285,
+      "sha256": "3505941d66737da28bb3ded059b54b460475a25b5151516187451edae5b8c4b4",
+      "http_matches_package": true
+    }
+  ],
+  "version": "0.3.0-alpha.32",
+  "sourceCommit": "1cb2a7437c3370f0cca48a4bdfcbb4720a7b8222",
+  "nextcloudVersion": "34.0.3.2",
+  "ci": {
+    "sourceAndGui": "https://github.com/utrost/Library/actions/runs/39422916580",
+    "security": "https://github.com/utrost/Library/actions/runs/39422916746",
+    "playwrightJourneys": 58,
+    "pythonChecks": 1047,
+    "vitestTests": 569,
+    "parserVectors": 518
+  },
+  "frontendBytes": 981392,
+  "frontendBudgetBytes": 1320000,
+  "catalogueBefore": 107717,
+  "deploymentCatalogueAfter": 107717,
+  "rollbackDirectory": "/tmp/library-before-alpha32-20261020T124515Z",
+  "finalState": {
+    "libraryVersion": "0.3.0-alpha.32",
+    "catalogueCount": 107717
+  },
+  "maintenance": false,
+  "needsDbUpgrade": false,
+  "integrity": [],
+  "installedDirectoryChecks": [
+    {
+      "passed": true,
+      "pagination": [
+        50,
+        5
+      ],
+      "previewCap": 3,
+      "distinctBooks": 6,
+      "ownership": true
+    },
+    [
+      {
+        "engine": "chromium",
+        "pass": true,
+        "books": 2,
+        "sharedEdit": true,
+        "rescanPreserved": true,
+        "mobileFits": true
+      },
+      {
+        "engine": "firefox",
+        "pass": true,
+        "books": 2,
+        "sharedEdit": true,
+        "rescanPreserved": true,
+        "mobileFits": true
+      }
+    ]
+  ],
+  "installedDeletionChecks": [
+    {
+      "passed": true,
+      "results": [
+        {
+          "backend": {
+            "passed": true,
+            "cases": [
+              "exclusive",
+              "shared",
+              "same-stem",
+              "hidden",
+              "cover",
+              "standalone",
+              "root-only",
+              "Delete fixtures"
+            ],
+            "stale": true,
+            "replacement": true,
+            "permissions": true,
+            "tokens": true,
+            "ownership": true,
+            "partial": true,
+            "concurrentChild": true,
+            "rescan": true
+          }
+        },
+        {
+          "engine": "chromium",
+          "pass": true,
+          "cancellation": true,
+          "unsavedEditsNotSaved": true,
+          "returnContext": true,
+          "mobileFits": true
+        },
+        {
+          "engine": "firefox",
+          "pass": true,
+          "cancellation": true,
+          "unsavedEditsNotSaved": true,
+          "returnContext": true,
+          "mobileFits": true
+        },
+        {
+          "engine": "mobile",
+          "pass": true,
+          "cancellation": true,
+          "unsavedEditsNotSaved": true,
+          "returnContext": true,
+          "mobileFits": true
+        }
+      ]
+    }
+  ],
+  "installedReadOnlySmoke": {
+    "version": "0.3.0-alpha.32",
+    "frontendOverlay": false,
+    "checks": [
+      {
+        "viewport": "desktop",
+        "stickyBarVisible": true,
+        "buttonsReachable": true,
+        "noOverflow": true,
+        "titleDiscarded": true,
+        "authorSelectionDirect": true,
+        "seriesSelectionDirect": true,
+        "storedMetadataUnchanged": true,
+        "fileMetadataCollapsedInitially": true,
+        "fileLocationLink": true,
+        "indexedSizeVisible": true
+      },
+      {
+        "viewport": "mobile",
+        "stickyBarVisible": true,
+        "buttonsReachable": true,
+        "noOverflow": true,
+        "titleDiscarded": true,
+        "authorSelectionDirect": true,
+        "seriesSelectionDirect": true,
+        "storedMetadataUnchanged": true,
+        "fileMetadataCollapsedInitially": true,
+        "fileLocationLink": true,
+        "indexedSizeVisible": true
+      }
+    ],
+    "libraryMutations": 0,
+    "pageErrors": [],
+    "tokenRemoved": true,
+    "authorAndSeriesEntryPoints": true,
+    "legacyBookmarkAndFeedback": true,
+    "fileLocationOpenedInFiles": true,
+    "libraryConsoleErrors": 0,
+    "externalFilesViewerDuplicateHandlerDiagnostics": 1
+  }
+}

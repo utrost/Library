@@ -1,6 +1,6 @@
 # UI consistency — alpha.32
 
-Status: **0.3.0-alpha.32 candidate implemented; final verification and deployment in progress**. Developer NC34 still runs signed alpha.31 until the deployment section is completed.
+Status: **signed 0.3.0-alpha.32 deployed on developer NC34**, 20 October 2026. Ready for owner acceptance with handbook H03-24. This is not the App Store compatibility certification.
 
 ## Scope
 
@@ -12,7 +12,7 @@ The existing book Save/Discard workflow, ownership boundaries and metadata autho
 
 - **1,047 Python source checks**, **569 Vitest tests in 44 files**, PHP runtime suites and **518 inference parser vectors** passed locally.
 - Translation inventory/generated catalogues: English, German and Arabic, **1,266 keys and 92 semantic sentinels**; security gates passed.
-- The packaged disposable NC34 rehearsal passed **58 Playwright journeys** across desktop Chromium, Firefox and mobile Chromium, plus catalogue/ownership, author-directory, entity browsing and deletion fixtures. A final repetition checks the last alignment and wording changes.
+- The packaged disposable NC34 rehearsal passed **58 Playwright journeys** across desktop Chromium, Firefox and mobile Chromium, plus catalogue/ownership, author-directory, entity browsing and deletion fixtures. The final hosted CI repetition passed all 58 journeys and the regression smokes on the merged candidate. A local repeat completed both desktop projects before process termination during mobile; a separate mobile rerun passed all ten tests, and its disposable instance was removed.
 - The broad screenshot pass captured **101 states**, desktop/mobile and light/dark, with zero page errors and zero attempted Library mutations. The selected fixture contained no series profile at capture discovery; series profile interactions are covered separately by the existing editor/browser suites.
 - At 390 px width the first catalogue cover moved from approximately **525 px to 423 px** from the viewport top, with the main search now visible. This is an observed layout comparison, not a pixel-match test or a performance claim.
 
@@ -24,7 +24,18 @@ The [capture summary and layout measurements](screens.json) record 101 states wi
 
 ## Deployment
 
-Pending CI, merge, signed package and rollback-protected deployment. Record the final source commit, archive SHA-256, installed integrity, served assets and catalogue count here after completion.
+- [PR #126](https://github.com/utrost/Library/pull/126), merged as `1cb2a7437c3370f0cca48a4bdfcbb4720a7b8222`.
+- [CI source and GUI checks](https://github.com/utrost/Library/actions/runs/39422916580) passed. [Security checks](https://github.com/utrost/Library/actions/runs/39422916746), including CodeQL, passed.
+- Nextcloud **34.0.3.2**; Library **0.3.0-alpha.32**.
+- Signed archive: `library-0.3.0-alpha.32.tar.gz`.
+- SHA-256: `83927b2b4be9909a709e7bf1aa7452fe12f52de5766794c3d2fe83ac977d95b2`.
+- Rollback directory inside the developer container: `/tmp/library-before-alpha32-20261020T124515Z`.
+- Integrity clean; maintenance mode off; no pending database upgrade. Existing catalogue **107,717 → 107,717**.
+- Versioned JavaScript/CSS, shared UI CSS, base CSS and English translations served over HTTP match the signed archive byte for byte.
+- Frontend package: **981,392 / 1,320,000 bytes**. Signature, SBOM and source provenance audits passed.
+- Installed real-account smoke on desktop/mobile staged and discarded title, author and series changes; saved metadata remained identical and **zero Library mutation requests** were submitted (the normal duplicate lookup is permitted). Sticky actions were visible/reachable, Back and old-bookmark feedback worked, and File metadata linked to Files. Zero page errors and zero Library-page console errors; the external Files viewer logged one existing duplicate-handler registration diagnostic. The temporary credential was removed.
+
+Installed disposable directory and deletion checks, final count and asset hashes are recorded in [the verification summary](verification.json). Real library books were not used for mutation/deletion tests. Raw screenshots and logs remain private local artifacts. The documentation commit follows application deployment; package provenance identifies the merged application commit above.
 
 ## Remaining release gates
 
