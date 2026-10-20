@@ -2,7 +2,7 @@
 
 ## Alpha.34 final consistency acceptance (H03-26)
 
-Candidate **0.3.0-alpha.34**; verification/deployment is in progress. Confirm the installed version before testing. Keep H03-25 and H03-24 regression cases. Use disposable books for persisted changes.
+Signed **0.3.0-alpha.34** is deployed on developer NC34; installed smoke and required CI passed. Confirm the installed version before testing. Keep H03-25 and H03-24 regression cases. Use disposable books for persisted changes.
 
 1. **Readable feedback:** inspect scanner errors and failed requests in light and dark themes. Error text and danger labels must remain readable.
 2. **Profile search draft:** on both Authors and Series, type a nonmatching query without Search, switch Covers/List, open a book, then Back. The previous results and the typed draft must return. Repeat reload, browser Back, submitting/clearing the query and pagination.
@@ -51,7 +51,7 @@ Automated browser coverage is in `tests/gui/details/ui-consistency.spec.ts` plus
 
 Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). That historical alpha.28 deployment had clean integrity and an unchanged 107,717-book catalogue.
 
-**Current acceptance target: 0.3.0-alpha.32.** Confirm the installed version and archive checksum before using developer NC34 at `http://100.123.149.120:8088`; the [alpha.32 verification record](compatibility-evidence/2026-10-20-nc34-ui-consistency-alpha32/README.md) distinguishes candidate checks from completed deployment. Use a disposable account and test books for changes. Exact signed-package certification on NC33–35 is still required. Earlier version-specific results and numbered alpha.174 cases below are historical; H03-24 and the current H03 journeys govern this candidate.
+**Current acceptance target: 0.3.0-alpha.34.** Confirm the installed version and archive checksum using the [alpha.34 verification record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md). H03-26 covers this release; retain H03-25, H03-24 and the other H03 regression journeys. Use disposable books for saved edits and deletion. Exact signed NC33–35 certification and manual assistive-technology testing remain separate gates.
 
 ## H03-19: Destination author selection
 

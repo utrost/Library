@@ -1,0 +1,823 @@
+{
+  "release": {
+    "deployed": true,
+    "merge_commit": "342026fbf0e0341e787912b97fa6423ba72fa2f5",
+    "archive_sha256": "e71e5f197573d99e2517de25afda2eb17f8343d1a112c3f4da1dfe8d43bdb551",
+    "rollback": "/tmp/library-before-alpha34-20261020T170026Z",
+    "catalogue_before": 107717,
+    "catalogue_after": 107717,
+    "frontend_bytes": 1017831
+  },
+  "checks": {
+    "source": 1047,
+    "frontend": 591,
+    "frontendFiles": 48,
+    "inferenceVectors": 518,
+    "translationKeys": 1275,
+    "semanticSentinels": 92,
+    "packagedGui": 77,
+    "focusedGui": 9,
+    "requiredCi": "passed"
+  },
+  "installedEditor": {
+    "version": "0.3.0-alpha.34",
+    "frontendOverlay": false,
+    "checks": [
+      {
+        "viewport": "desktop",
+        "stickyBarVisible": true,
+        "buttonsReachable": true,
+        "noOverflow": true,
+        "titleDiscarded": true,
+        "authorSelectionDirect": true,
+        "seriesSelectionDirect": true,
+        "storedMetadataUnchanged": true,
+        "fileMetadataCollapsedInitially": true,
+        "fileLocationLink": true,
+        "indexedSizeVisible": true
+      },
+      {
+        "viewport": "desktop",
+        "directoryDraftRetained": true,
+        "restoredScroll": 2129,
+        "originalScroll": 2409,
+        "recordedScroll": 2129,
+        "restoredAnchorOffset": 665.71875,
+        "recordedAnchorOffset": 665.71875
+      },
+      {
+        "viewport": "mobile",
+        "stickyBarVisible": true,
+        "buttonsReachable": true,
+        "noOverflow": true,
+        "titleDiscarded": true,
+        "authorSelectionDirect": true,
+        "seriesSelectionDirect": true,
+        "storedMetadataUnchanged": true,
+        "fileMetadataCollapsedInitially": true,
+        "fileLocationLink": true,
+        "indexedSizeVisible": true
+      },
+      {
+        "viewport": "mobile",
+        "directoryDraftRetained": true,
+        "restoredScroll": 7864,
+        "originalScroll": 7920,
+        "recordedScroll": 7920,
+        "restoredAnchorOffset": 389.546875,
+        "recordedAnchorOffset": 389.546875
+      }
+    ],
+    "libraryMutations": 0,
+    "pageErrors": [],
+    "tokenRemoved": true,
+    "authorAndSeriesEntryPoints": true,
+    "legacyBookmarkAndFeedback": true,
+    "keyboardSuggestionsDiscarded": true,
+    "fileLocationOpenedInFiles": true
+  },
+  "externalConsoleDiagnostic": {
+    "count": 1,
+    "source": "Nextcloud Files viewer",
+    "message": "The handler is already registered (pre-existing)"
+  },
+  "focused": [
+    {
+      "width": 1440,
+      "screen": "author",
+      "backHit": true,
+      "draftReturn": true,
+      "selectedViewVisible": true,
+      "toolbarHeight": 68.5,
+      "overflow": 0
+    },
+    {
+      "width": 1440,
+      "screen": "series",
+      "backHit": true,
+      "draftReturn": true,
+      "selectedViewVisible": true,
+      "toolbarHeight": 68.5,
+      "overflow": 0
+    },
+    {
+      "width": 1440,
+      "screen": "list",
+      "backHit": true
+    },
+    {
+      "width": 1440,
+      "screen": "languages",
+      "dialogInitiallyClosed": true,
+      "keyboardNavigation": false,
+      "languagePicker": "German -> de -> removed without submitting"
+    },
+    {
+      "width": 1440,
+      "screen": "error",
+      "theme": "light",
+      "contrast": 10.0929769598865,
+      "text": "rgb(138, 0, 0)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "width": 1440,
+      "screen": "error",
+      "theme": "dark",
+      "contrast": 12.601626547307333,
+      "text": "rgb(255, 204, 204)",
+      "bg": "rgb(23, 23, 23)"
+    },
+    {
+      "width": 390,
+      "screen": "author",
+      "backHit": true,
+      "draftReturn": true,
+      "selectedViewVisible": true,
+      "toolbarHeight": 153,
+      "overflow": 0
+    },
+    {
+      "width": 390,
+      "screen": "series",
+      "backHit": true,
+      "draftReturn": true,
+      "selectedViewVisible": true,
+      "toolbarHeight": 153,
+      "overflow": 0
+    },
+    {
+      "width": 390,
+      "screen": "list",
+      "backHit": true
+    },
+    {
+      "width": 390,
+      "screen": "languages",
+      "dialogInitiallyClosed": true,
+      "keyboardNavigation": true,
+      "languagePicker": "German -> de -> removed without submitting"
+    },
+    {
+      "width": 390,
+      "screen": "error",
+      "theme": "light",
+      "contrast": 10.0929769598865,
+      "text": "rgb(138, 0, 0)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "width": 390,
+      "screen": "error",
+      "theme": "dark",
+      "contrast": 12.601626547307333,
+      "text": "rgb(255, 204, 204)",
+      "bg": "rgb(23, 23, 23)"
+    },
+    {
+      "width": 320,
+      "screen": "author",
+      "backHit": true,
+      "draftReturn": true,
+      "selectedViewVisible": true,
+      "toolbarHeight": 153,
+      "overflow": 0
+    },
+    {
+      "width": 320,
+      "screen": "series",
+      "backHit": true,
+      "draftReturn": true,
+      "selectedViewVisible": true,
+      "toolbarHeight": 153,
+      "overflow": 0
+    },
+    {
+      "width": 320,
+      "screen": "list",
+      "backHit": true
+    },
+    {
+      "width": 320,
+      "screen": "languages",
+      "dialogInitiallyClosed": true,
+      "keyboardNavigation": true,
+      "languagePicker": "German -> de -> removed without submitting"
+    },
+    {
+      "width": 320,
+      "screen": "error",
+      "theme": "light",
+      "contrast": 10.0929769598865,
+      "text": "rgb(138, 0, 0)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "width": 320,
+      "screen": "error",
+      "theme": "dark",
+      "contrast": 12.601626547307333,
+      "text": "rgb(255, 204, 204)",
+      "bg": "rgb(23, 23, 23)"
+    }
+  ],
+  "sweep": {
+    "captures": 111,
+    "pageErrors": [],
+    "attemptedBookMutations": 0,
+    "horizontalOverflow": 0,
+    "views": [
+      {
+        "label": "home-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-list-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "search-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "search-empty-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "favorites-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "continue-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "shelves-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "collections-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "lists-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "new-list-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "authors-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "series-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "genres-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-1440-light-middle",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-1440-light-bottom",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-missing-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-files-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "review-covers-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "author-conflicts-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "duplicates-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "inference-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "inference-1440-light-middle",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "inference-1440-light-bottom",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "languages-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "mappings-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "settings-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "settings-1440-light-middle",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "settings-1440-light-bottom",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "admin-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-1440-light-middle",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-1440-light-bottom",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-1440-light-middle",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-1440-light-bottom",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "list-detail-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "details-1440-light",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "details-1440-light-middle",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "details-1440-light-bottom",
+        "width": 1440,
+        "overflow": 0
+      },
+      {
+        "label": "home-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-list-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "search-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "search-empty-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "favorites-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "continue-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "shelves-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "collections-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "lists-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "new-list-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "authors-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "genres-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-390-light-middle",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-390-light-bottom",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-missing-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-files-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-covers-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-conflicts-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "duplicates-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "inference-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "inference-390-light-middle",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "inference-390-light-bottom",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "languages-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "mappings-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "settings-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "settings-390-light-middle",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "settings-390-light-bottom",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "admin-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-390-light-middle",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-390-light-bottom",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-390-light-middle",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-390-light-bottom",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "list-detail-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "details-390-light",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "details-390-light-middle",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "details-390-light-bottom",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "home-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "catalogue-list-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "search-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "search-empty-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "favorites-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "continue-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "shelves-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "collections-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "lists-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "new-list-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "authors-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "genres-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-suggestions-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-missing-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-files-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "review-covers-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-conflicts-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "duplicates-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "inference-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "languages-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "mappings-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "settings-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "admin-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "author-profile-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "series-profile-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "list-detail-390-dark",
+        "width": 390,
+        "overflow": 0
+      },
+      {
+        "label": "details-390-dark",
+        "width": 390,
+        "overflow": 0
+      }
+    ]
+  },
+  "servedAssets": {
+    "archive_sha256": "e71e5f197573d99e2517de25afda2eb17f8343d1a112c3f4da1dfe8d43bdb551",
+    "assets": [
+      {
+        "path": "library/css/library-vue-0-3-0-alpha-34-compact-list-table-cover-96-fit-v8.css",
+        "bytes": 160905,
+        "sha256": "a2e9d6899864b19ff94330a317f6c213b4591da9d10a89f8c00f155cdaae40b8",
+        "http_matches_package": true
+      },
+      {
+        "path": "library/css/style.css",
+        "bytes": 57881,
+        "sha256": "f782e660d04426fc02e4d0fc9ec611190f6a1d6b79c31d58727b8c9ef13e26e6",
+        "http_matches_package": true
+      },
+      {
+        "path": "library/css/ui-contract.css",
+        "bytes": 15037,
+        "sha256": "26c7c496e45da17586386d07b129deab85cb1c49f3078c0825e4381e7a6fca8b",
+        "http_matches_package": true
+      },
+      {
+        "path": "library/js/library-main-0-3-0-alpha-34-compact-list-table-cover-96-fit-v8.mjs",
+        "bytes": 764401,
+        "sha256": "78bea52e488f9f889f4f05c7b84b4728ce5cd711bc4654520737e9dd18d97e07",
+        "http_matches_package": true
+      },
+      {
+        "path": "library/l10n/en.js",
+        "bytes": 104405,
+        "sha256": "9fea1fee7883a43bf8df8afd01bb0e367fdd52fd3e72af99aea41d2acf14d4d4",
+        "http_matches_package": true
+      }
+    ]
+  },
+  "rawScreenshotsPrivate": true
+}

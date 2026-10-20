@@ -1,8 +1,6 @@
 # Library
 
-**Current work: 0.3.0-alpha.34** addresses the eight final UX findings: theme contrast, profile search state, filter keyboards, navigation clearance, view controls, terminology, language cleanup and page framing. Verification is in progress; developer NC34 still runs alpha.33. No database migration.
-
-Signed **0.3.0-alpha.33** is deployed on developer NC34. The ten follow-up fixes cover keyboard pickers, directory search state, Back position/focus, compact catalogue controls, readable book cards, shared Series/Author browsing, preview widths and settings/review clarity. All required CI checks passed, including **68 browser journeys**. Integrity is clean and the catalogue remains **107,717 books**. No database migration. See the [alpha.33 verification and deployment record](docs/compatibility-evidence/2026-10-20-nc34-ux-follow-up-alpha33/README.md) and human acceptance **H03-25**.
+Signed **0.3.0-alpha.34** is deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue remains **107,717 books**. No database migration. See the [alpha.34 verification and deployment record](docs/compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
 
 Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](docs/compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
@@ -14,7 +12,7 @@ Nextcloud Files remains the canonical storage. Library indexes those files with 
 
 License: AGPL-3.0-or-later. See [LICENSE](LICENSE).
 
-Current candidate: `0.3.0-alpha.34`. Destination-author selection searches automatically after three letters and offers creation when no author matches. All book links and old bookmarks open one editor, with compact Authors → Series → Genres rows and a single Save/Discard workflow. Metadata status, imported suggestions and file information are collapsed at the bottom. The [alpha.33 follow-up record](docs/compatibility-evidence/2026-10-20-nc34-ux-follow-up-alpha33/README.md) tracks candidate checks and deployment status. Supported Nextcloud versions: **33–35**. The exact signed NC33–35 matrix and owner acceptance remain release gates. See [release status](RELEASE.md).
+Current candidate: `0.3.0-alpha.34`. Destination-author selection searches automatically after three letters and offers creation when no author matches. All book links and old bookmarks open one editor, with compact Authors → Series → Genres rows and a single Save/Discard workflow. Metadata status, imported suggestions and file information are collapsed at the bottom. The [alpha.34 final UX record](docs/compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) tracks candidate checks and deployment status. Supported Nextcloud versions: **33–35**. The exact signed NC33–35 matrix and owner acceptance remain release gates. See [release status](RELEASE.md).
 
 The current development build adds per-user author and series identities, author profiles, reviewed moves and merges, changed-import review and conditional Undo. Earlier 0.2 work includes private reading lists, path/filename metadata extraction, duplicate review, scheduled scans and bounded cover thumbnails.
 
