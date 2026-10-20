@@ -1,6 +1,6 @@
 # Your first library
 
-Turn a folder of English Project Gutenberg books into a catalogue you can search, browse and open. The instructions use the current **0.3** controls. The screenshots are older **0.2** illustrations from Nextcloud **34**, using 40 EPUB files; follow the labels in the text when they differ. You can follow the steps with just a few books.
+Turn a folder of English Project Gutenberg books into a catalogue you can search, browse and open. The instructions and screenshots use **0.3.0-alpha.34** on Nextcloud **34.0.4**, with 40 EPUB files. You can follow the steps with just a few books.
 
 ## Before you start
 

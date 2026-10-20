@@ -47,9 +47,9 @@ A sleeping worker that had retained old PHP for more than two days was recycled 
 
 Public screenshots use the disposable Gutenberg account. The extraction screenshot uses a synthetic tutorial EPUB with a meaningful filename; it is not a complete copy of the named book. Screenshots are captured after the cover loading/sidebar transitions settle.
 
-- [Catalogue](../../images/appstore-catalogue.png)
-- [Book details](../../images/appstore-details.png)
-- [Metadata extraction](../../images/appstore-inference.png)
+- [Catalogue](https://raw.githubusercontent.com/utrost/Library/932c185b0492795f1363ff0655e38cbb5208d129/docs/images/appstore-catalogue.png)
+- [Book details](https://raw.githubusercontent.com/utrost/Library/932c185b0492795f1363ff0655e38cbb5208d129/docs/images/appstore-details.png)
+- [Metadata extraction](https://raw.githubusercontent.com/utrost/Library/932c185b0492795f1363ff0655e38cbb5208d129/docs/images/appstore-inference.png)
 
 Manual assistive-technology testing remains outstanding; browser accessibility assertions are not screen-reader testing. PostgreSQL was not part of this release matrix. The NC35 image reports two core index warnings (`oc_job_classes_registry` and `oc_federated_invites`), outside Library's schema. They do not invalidate Library integrity or the recorded application checks.
 

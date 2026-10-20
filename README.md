@@ -1,59 +1,67 @@
 # Library
 
-Signed **0.3.0-alpha.34** is deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue remains **107,717 books**. No database migration. See the [alpha.34 verification and deployment record](docs/compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
+Browse, organise and improve the books, comics, magazines and papers you already keep in Nextcloud Files.
 
-Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](docs/compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
+Library is an open-source Nextcloud app ([AGPL-3.0-or-later](LICENSE)) with a searchable cover gallery, author/series/genre browsing, private reading lists and tools for reviewing messy metadata. Nextcloud Files remains the canonical storage: a file-ID-based index connects your existing files to the catalogue.
 
-Library is an open-source Nextcloud app for people who keep books, comics, papers and sidecar metadata in Nextcloud Files.
+![Library catalogue with English Project Gutenberg books](docs/images/appstore-catalogue.png)
 
-Nextcloud Files remains the canonical storage. Library indexes those files with a file-ID-based index and adds a catalogue on top: covers, search, filters, shelves, saved collections, detail editing, review queues and handoff to the normal Nextcloud file viewers.
-
-![Library compact catalogue showing cover cards, filters and saved collections](docs/images/catalogue-compact.png)
-
-License: AGPL-3.0-or-later. See [LICENSE](LICENSE).
-
-Current candidate: `0.3.0-alpha.34`. Destination-author selection searches automatically after three letters and offers creation when no author matches. All book links and old bookmarks open one editor, with compact Authors → Series → Genres rows and a single Save/Discard workflow. Metadata status, imported suggestions and file information are collapsed at the bottom. The [alpha.34 final UX record](docs/compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) tracks candidate checks and deployment status. Supported Nextcloud versions: **33–35**. The exact signed NC33–35 matrix and owner acceptance remain release gates. See [release status](RELEASE.md).
-
-The current development build adds per-user author and series identities, author profiles, reviewed moves and merges, changed-import review and conditional Undo. Earlier 0.2 work includes private reading lists, path/filename metadata extraction, duplicate review, scheduled scans and bounded cover thumbnails.
-
-Verification: alpha.9 has focused source-build checks on Nextcloud 33.0.9 / 34.0.4 / 35.0.0 and a populated developer NC34 upgrade. The last signed, exact-package matrix belongs to the preserved `0.2.0-beta.3` baseline; an exact 0.3 release archive still needs that matrix. See the [release checklist](docs/app-store-readiness.md), [alpha.9 evidence](docs/compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) and [active roadmap](docs/roadmap.md).
+Current candidate: `0.3.0-alpha.34`. **Pre-release:** 0.3 is the planned first App Store release. The declared compatibility range is **Nextcloud 33–35**; final exact-package compatibility checks and human acceptance remain release gates. Earlier signed candidates have their own verification records. See [release status](RELEASE.md), the [current verification record](docs/compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and the [release checklist](docs/app-store-readiness.md).
 
 ## What it does
 
-- scan folders already visible in Nextcloud Files;
-- browse a cover-first catalogue and cover gallery in compact, gallery, shelf or list view;
-- search and filter titles, creators, series, descriptions, identifiers, file names and folders;
-- filter by type, format, year, creator, publisher, subject, classification, tag, scan state, workflow state and review flags;
-- use typeahead for large lists such as creators, publishers, series, subjects and folders;
+- scan folders already visible in Nextcloud Files; browse covers or a list with shelves and saved filter collections;
+- search and filter titles, linked author names, series, descriptions, identifiers, file names and folders;
+- filter by type, format, year, author, publisher, subject, classification, tag, scan state, workflow state and review flags;
+- use typeahead for authors, publishers, series, genres, languages, subjects and other catalogue facets;
 - maintain private reading lists with ordered books and notes;
-- browse and edit author profiles and series identities; review selected-book moves, whole-identity merges and changed imported relationships;
+- browse authors, series and genres with sorting and linked book previews; edit author profiles and review reassignment, merges and imported relationship changes;
 - infer metadata from paths and filenames with preview, per-book review, Apply and Undo;
-- schedule scans and review optional potential-duplicate suggestions;
-- save the current filter setup as a collection and reopen it from the navigation;
-- open the file in the normal Nextcloud viewer, show it in Files or Download it;
-- edit catalogue metadata, workflow status, stars, descriptions and file comments;
+- schedule scans, review optional potential-duplicate suggestions and reopen saved filter collections;
+- open books in a new tab through the installed Nextcloud viewer, show them in Files or use **Download**;
+- edit book details with a single Save/Discard workflow, preserve corrected fields during scans, and manage favorites, ratings, reading status and file comments;
 - review weak metadata, scanner conflicts, missing files and metadata extraction errors;
-- export corrected metadata and preview imports before applying them.
+- export corrected metadata and preview imports before applying them;
+- delete a book file after confirmation, retaining shared OPF metadata and other companion files and removing its immediate parent only when safely empty and unprotected.
 
 The app has safe user-facing diagnostics for scan and metadata problems. Server logs keep the technical detail.
+
+## A look inside
+
+**Book details:** title, metadata, cover actions and linked authors in one editor. Changes to book metadata remain a draft until saved.
+
+![Current Book details editor for a Gutenberg publication](docs/images/appstore-details.png)
+
+**Authors:** browse names and their books, sort the directory and open a profile or book directly.
+
+![Author directory with linked Gutenberg book previews](docs/images/appstore-authors.png)
+
+**Extract metadata:** preview suggestions from file and folder names before applying selected fields.
+
+![Filename metadata extraction with a selected-record preview](docs/images/appstore-inference.png)
+
+Screenshots show the actual alpha.34 interface on an isolated Nextcloud 34 instance, using the [English Gutenberg examples](docs/gutenberg-example-books.md) and a synthetic filename-extraction example. [Capture details and reproduction](docs/images/first-library/README.md).
+
+## Your first library
+
+1. Upload a few EPUB, PDF or CBZ files to a folder in Nextcloud Files.
+2. Open **Library → Settings → Folders and scanning**, choose **Add a shelf**, select the folder and click **Save shelf**.
+3. Click **Scan this shelf** and wait for the background scan to finish.
+4. Open **All publications**. Click a cover/title for Book details or **Quick view** for the sidebar; **Open** hands the file to your installed viewer.
+
+Follow [Your first library](docs/first-library.md) for a screenshot walkthrough. EPUB/comic reading depends on the viewer apps installed on your server; downloading the source remains available.
 
 ## Current scope
 
 Library keeps source files in place. Scans and edits write to Library-owned tables and metadata records. Metadata import has a preview step before anything is applied.
 
-Outside the current 0.3 scope:
+The explicit **Delete book** action removes the selected source file through Nextcloud; normal scanning and metadata editing do not rewrite it. Corrected-metadata export is a **partial export**, not a backup of lists, author profiles or all relationships. Use the [backup and recovery guide](docs/recovery.md) to preserve the complete Library state.
 
-- a built-in EPUB, PDF or comic reader;
-- reading-position sync or annotations;
-- OCR or full-text document search;
-- internet metadata lookup;
-- OPDS, Kobo or Kindle sync;
-- AI classification;
-- shared or admin-managed library roots.
+Outside 0.3: a built-in reader, reading-position sync or annotations, OCR/full-text document search, internet metadata lookup, OPDS/device sync, AI classification and shared/admin-managed roots.
 
 ## Install
 
-Install a packaged archive as a Nextcloud administrator:
+As a Nextcloud administrator:
 
 ```bash
 tar -xzf library-<version>.tar.gz -C /var/www/html/custom_apps
@@ -61,9 +69,7 @@ chown -R www-data:www-data /var/www/html/custom_apps/library
 sudo -u www-data php /var/www/html/occ app:enable library
 ```
 
-The archive must contain one top-level `library/` directory. Paths and the web-server user vary by installation. Container setups can run the same commands through `docker exec`.
-
-After enabling the app, open **Library settings**, add a folder that already exists in Nextcloud Files, then run **Scan this root**.
+The archive must contain one top-level `library/` directory. Adjust paths and the web-server user for your installation; containers can use `docker exec`. Nextcloud background jobs must run for queued scans; Cron is recommended for scheduled scans.
 
 ## Try it
 
@@ -76,16 +82,13 @@ scripts/package-release.sh
 
 Install `dist/library-<version>.tar.gz` with the archive commands above. Verify a packaged candidate with its adjacent `.sha256` artifact; detailed release evidence stays in the excluded `RELEASE.md`.
 
-Useful checks:
+Checks: `npm run check` and `npm run smoke:release-package`. For GUI workflows, install the pinned browsers with `npx playwright install chromium firefox`, then run `npm run test:gui` against a configured disposable instance. [Browser setup and coverage](docs/playwright-journeys.md).
 
-```bash
-npm run check
-npm run smoke:release-package
-```
+`bin/nextcloud-background-worker.sh` runs the general Nextcloud background worker for a bounded development pass.
 
-`bin/nextcloud-background-worker.sh` runs the general Nextcloud background worker for a bounded development pass when scan jobs need queue processing.
+## What's next
 
-For GUI workflows, install the pinned browsers once with `npx playwright install chromium firefox`, then run `npm run test:gui`. Set `PW_BASE_URL`, `PW_USER`, `PW_PASSWORD` and fixture variables when using a disposable instance.
+The [Active roadmap](docs/roadmap.md) keeps 0.3 focused on release readiness. Planned later themes are **0.4 Enrich and discover**, **0.5 Read and remember**, and **0.6 Explore your knowledge**, including optional metadata providers, deeper Nextcloud/reader integration and grounded content discovery. These are future plans, not features of this candidate.
 
 ## More documentation
 

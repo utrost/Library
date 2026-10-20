@@ -38,8 +38,11 @@ try {
    await page.waitForTimeout(1000)
  }
  await shot('03-scan-complete',page.locator('.library-scan-progress'))
+ const schedule = page.locator('details').filter({ has: page.locator('.library-scan-schedule') })
+ if (await schedule.getAttribute('open') === null) await schedule.locator('summary').click()
  await page.locator('#library-scan-interval').selectOption('86400')
  await submit(page.getByRole('button',{name:'Save schedule',exact:true}))
+ if (await schedule.getAttribute('open') === null) await schedule.locator('summary').click()
  await shot('06-automatic-scans',page.locator('.library-scan-schedule'))
  await page.goto(base+'/apps/library/?view=compact&limit=100')
  await page.locator('.library-cover-card').first().waitFor()

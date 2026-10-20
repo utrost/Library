@@ -8,7 +8,7 @@ Scope: the alpha.34 human handbook, its directly linked navigation guidance, all
 - Moved the old A16x/LIB-HARDEN walkthroughs into the [v0.1 archive](human-test-handbook-v0.1-archive.md); retained historical evidence rather than presenting it as current acceptance work.
 - Corrected cover/title → Book details, Quick view → sidebar, author selection instead of creator-text editing, Choose series, single Save/Discard, current imported-change actions, and the Author fragment-search versus Enter-selection distinction.
 - Removed the impossible instruction to open the retired editor by disabling JavaScript. Native POST compatibility is tested through explicit requests separately.
-- Updated the directly related user-guide and first-library labels. Existing first-library images are explicitly marked as older illustrations; this audit did not recapture public Gutenberg screenshots.
+- Updated the directly related user-guide and first-library labels. The initial audit marked first-library images as older illustrations; the requested screenshot follow-up below replaces them with alpha.34 captures.
 - Changed documentation contracts so they protect the current version, case inventory and workflow instead of requiring obsolete interface phrases in the current handbook.
 
 ## Browser test corrections
@@ -24,7 +24,7 @@ Scope: the alpha.34 human handbook, its directly linked navigation guidance, all
 | OPF series smoke tested raw source-field editing | Test canonical series/part editing with Save book details, rescan survival and unchanged imported series evidence/source file markers. |
 | Native-conflict smoke scraped a removed form | Build the legacy-client payload explicitly from the current revision/CSRF context; retain stale-409 and reviewed-resubmit checks. Remove temporary authentication afterward. |
 | Deletion's no-save counter watched obsolete URLs | Watch the actual `/items/{id}` POST as well as legacy update routes, excluding the deletion endpoint. |
-| Screenshot tools clicked a cover expecting a sidebar | Use Quick view; update Save shelf/Scan this shelf labels. Syntax checked; public capture not rerun. |
+| Screenshot tools clicked a cover expecting a sidebar | Use Quick view; update Save shelf/Scan this shelf labels. The initial pass was syntax-only; both public capture scripts subsequently passed in the screenshot follow-up below. |
 
 ## Remaining historical diagnostics
 
@@ -32,7 +32,7 @@ Four utilities still require migration before they can be used against the curre
 
 The [coverage page](playwright-journeys.md#older-standalone-diagnostics) identifies current replacements and gaps. In particular, the old combined inference/author scenario, omitted-field legacy API checks and rejected-field reset browser scenario are not newly certified by this run. Retiring an unusable replay does not establish replacement coverage.
 
-The signed NC33–35 fresh/upgrade matrix, additional standalone inference diagnostics, public screenshot refresh and manual screen-reader acceptance remain separate work. The main suite's pass count must not be presented as completion of those gates.
+The signed NC33–35 fresh/upgrade matrix, additional standalone inference diagnostics and manual screen-reader acceptance remain separate work. The main suite's pass count must not be presented as completion of those gates.
 
 ## Verification
 
@@ -70,3 +70,11 @@ The source-tree aggregate remained `9303a6f07320fa15823b5790eefdeb8e720fcc420242
 ### Merge follow-up
 
 PR #129's first hosted run stopped at the dependency audit before executing tests: `follow-redirects` 1.16.0 was flagged by GHSA-q3jh-wrc6-jgq8 and GHSA-8r9p-f939-6h3c. The lockfile was updated only for that transitive package to patched 1.16.1; the production audit then reported zero vulnerabilities. Hosted checks must pass on the updated commit before merging. The Node dependency tree is not shipped in the Nextcloud app archive; the installed alpha.34 package remains unchanged.
+
+### README and screenshot follow-up
+
+Refreshed the public README, first-library walkthrough and App Store listing draft against the existing signed alpha.34 package. Captured six first-library images and four showcase images (catalogue, full Book details, Authors and extraction preview) on a labelled disposable Nextcloud 34.0.4 instance using the 40 English Gutenberg EPUBs plus one synthetic extraction example. Both capture scripts completed successfully. The automatic-scans capture now opens its disclosure; full details uses the cover link; author previews wait only for visible lazy-loaded images. An initial author-image wait incorrectly required below-fold images to load and timed out; correcting that wait allowed the full capture to complete.
+
+All ten images were visually inspected. The settings screenshots retain two observed presentation issues for human follow-up: the Add a shelf inputs truncate their example values despite spare row space, and the Changes found tile's long moved/renamed label overlaps its count at this width. The captures are not retouched to conceal either issue. Catalogue placeholders are intentional where the fixture has no cover. This is screenshot verification, not a new compatibility certification.
+
+Capture commands and provenance are in [the image record](images/first-library/README.md). Local logs: `/tmp/library-public-capture-first.log` and `/tmp/library-public-capture-store.log`. The developer instance and existing books were not modified. The App Store's historical screenshot URLs still need the final published release tag before submission.
