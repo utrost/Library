@@ -1,8 +1,8 @@
 # App Store readiness roadmap
 
-Development candidate **0.3.0-alpha.33** addresses the alpha.32 follow-up: consistent keyboard pickers, directory query feedback, return-position restoration, compact browsing, shared series controls and clearer review/settings fields. No database migration. Verification is in progress; signed alpha.32 remains deployed until the new package passes its gates. Exact NC33–35 certification and manual assistive-technology acceptance remain pending.
+Signed **0.3.0-alpha.33** is deployed on developer NC34. The ten follow-up fixes cover keyboard pickers, directory search state, Back position/focus, compact catalogue controls, readable book cards, shared Series/Author browsing, preview widths and settings/review clarity. All required CI checks passed, including **68 browser journeys**. Integrity is clean and the catalogue remains **large catalogue books**. No database migration. See the [alpha.33 verification and deployment record](compatibility-evidence/2026-10-20-nc34-ux-follow-up-alpha33/README.md) and human acceptance **H03-25**.
 
-Signed **0.3.0-alpha.32** is deployed on developer NC34. All fourteen findings from the 20 October UI/UX review have implementation changes: shared controls, protected drafts, consistent navigation, compact catalogue search and clearer review/settings flows. Integrity is clean and the catalogue remains at **large catalogue books**. No database migration. See the [alpha.32 verification and deployment record](compatibility-evidence/2026-10-20-nc34-ui-consistency-alpha32/README.md) and human acceptance **H03-24**.
+Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.33 is now installed.
 
 Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: [alpha.31 record](compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
 
@@ -10,7 +10,7 @@ Alpha.30 adds a shared compact browser for Authors, Series and Genres, with disp
 
 Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.32 is now installed.
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.33 is now installed.
 
 ## Submission decision — 2026-10-13
 
@@ -20,7 +20,7 @@ Before submitting 0.3: obtain human acceptance of author and series workflows, r
 
 ## Alpha.31 deletion and editor handoff — 2026-10-20
 
-The signed alpha.32 package is deployed on developer NC34 with clean integrity and an unchanged large catalogue-book catalogue. Authors, series and genres now share compact rows with inline selection and accessible icon actions. Text links are underlined; File metadata is collapsed at the bottom with a Files link and indexed size. The [verification and deployment record](compatibility-evidence/2026-10-20-nc34-ui-consistency-alpha32/README.md) tracks checks and deployment status. Owner acceptance and the exact signed NC33–35 matrix remain open.
+The signed alpha.33 package is deployed on developer NC34 with clean integrity and an unchanged large catalogue-book catalogue. Authors, series and genres now share compact rows with inline selection and accessible icon actions. Text links are underlined; File metadata is collapsed at the bottom with a Files link and indexed size. The [verification and deployment record](compatibility-evidence/2026-10-20-nc34-ux-follow-up-alpha33/README.md) tracks checks and deployment status. Owner acceptance and the exact signed NC33–35 matrix remain open.
 
 ## Alpha.25 editor handoff — 2026-10-19
 
@@ -42,7 +42,7 @@ The signed `0.3.0-alpha.10` package from merged PR #109 was [deployed on populat
 
 ## Release checkpoint — updated 2026-10-20
 
-Current candidate baseline: `0.3.0-alpha.33`. Author and series management are in development. The [signed alpha.23 package](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) includes the unified book editor; alpha.24 adds Save/Discard and direct author/series selection, and alpha.25 fixes the bar's full-page scrolling boundary. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The signed exact-package alpha.32 release matrix remains pending.
+Current candidate baseline: `0.3.0-alpha.33`. Author and series management are in development. The [signed alpha.23 package](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) includes the unified book editor; alpha.24 adds Save/Discard and direct author/series selection, and alpha.25 fixes the bar's full-page scrolling boundary. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The exact signed 0.3 NC33–35 release matrix remains pending.
 
 At the alpha.9 checkpoint, the app was deployed on developer NC34/MariaDB. Its app version was `0.3.0-alpha.9`; large catalogue catalogue books remained after migration and temporary fixture cleanup. Focused service and Chromium/Firefox series workflows passed on NC33.0.9, NC34.0.4, NC35.0.0 and the populated developer instance. See the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The [human test handbook](human-test-handbook.md#current-03-human-cases) now covers author/series acceptance.
 

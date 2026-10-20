@@ -2,7 +2,7 @@
 
 ## Alpha.33 follow-up acceptance (H03-25)
 
-Candidate **0.3.0-alpha.33**, verification in progress. Alpha.32 remains installed until deployment is recorded. Use a disposable account for persisted changes; stage and discard when browsing the real catalogue.
+Installed on developer NC34: signed **0.3.0-alpha.33**. See the [verified package and deployment record](compatibility-evidence/2026-10-20-nc34-ux-follow-up-alpha33/README.md). Use a disposable account for persisted changes; stage and discard when browsing the real catalogue.
 
 1. **Keyboard pickers:** type a partial subject and a language name. The first suggestion is visibly selected; Enter chooses it. Creating a subject is a separate explicit action. Invalid language input explains the next step. Repeat author, series, publisher and genre selections, and lookup failure/Retry.
 2. **ArrowUp:** with three suggestions, ArrowUp from the first selects the last, never the penultimate. Escape closes without selecting; pointer selection still works.
@@ -21,7 +21,7 @@ Retain H03-24 regression coverage for Save/Discard, stale edits, sticky actions,
 
 ## Alpha.32 UI consistency acceptance (H03-24)
 
-Installed on developer NC34: signed **0.3.0-alpha.32**. Verify its checksum against the deployment record before testing. Use a disposable account and fixture books for edits, merges, imports and deletion.
+Regression cases introduced in alpha.32 and retained in alpha.33. Verify the installed version against the current deployment record before testing. Use a disposable account and fixture books for edits, merges, imports and deletion.
 
 1. **Find and browse:** open All publications at desktop and 390 px mobile widths. Search books without opening Filters. Sort and change view; verify the search and filters remain. Open a cover or title, then Back: restore the filtered result. Quick view opens the drawer; Escape closes it and restores focus. Open still launches the reader in a new tab. Check Home covers load visibly and a failed cover has a placeholder.
 2. **Save a search:** run a search, expand Save this search, name it and save. Collections and its saved entries remain reachable from navigation. Deleting a saved collection explains the scope and offers Cancel. Books and source files remain.
