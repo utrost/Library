@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0-alpha.35 — 2026-10-20
+
+- Group sidebar destinations into Library, Discover, Your lists and Review and cleanup.
+- Use matching decorative icons, section labels, separators and a clear review disclosure arrow.
+- Replace the dashed new-list callout with a quieter highlighted action.
+- Apply the same navigation treatment to the language and publisher/subject review pages.
+- Retain existing destinations, active states, keyboard behavior and pinned catalogue Settings. No database migration.
+
 ## 0.3.0-alpha.34 — 2026-10-20
 
 - Use readable theme foregrounds for errors and destructive controls.

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "library",
     {
+        "Discover": "Entdecken",
         "%s of %s useful fields complete": "%s von %s nützlichen Feldern vollständig",
         "/Media/Books": "/Medien/Bücher",
         "1. Choose a folder": "1. Ordner auswählen",
@@ -148,7 +149,6 @@ OC.L10N.register(
         "Books with this suggestion are being assigned to {name}.": "Bücher mit diesem Vorschlag werden {name} zugeordnet.",
         "Books, comics, manuals…": "Bücher, Comics, Handbücher…",
         "Books: {count}": "Bücher: {count}",
-        "Browse": "Stöbern",
         "Browse covers, open Details, then correct metadata only where needed.": "Durchsuchen Sie die Cover, öffnen Sie die Details und korrigieren Sie Metadaten nur dort, wo es nötig ist.",
         "Browse neighbouring items": "Benachbarte Einträge durchsuchen",
         "Browse the folders that organize your publications.": "Durchsuche die Ordner, die deine Publikationen ordnen.",

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "library",
     {
+        "Discover": "Discover",
         "%s of %s useful fields complete": "%s of %s useful fields complete",
         "/Media/Books": "/Media/Books",
         "1. Choose a folder": "1. Choose a folder",
@@ -148,7 +149,6 @@ OC.L10N.register(
         "Books with this suggestion are being assigned to {name}.": "Books with this suggestion are being assigned to {name}.",
         "Books, comics, manuals…": "Books, comics, manuals…",
         "Books: {count}": "Books: {count}",
-        "Browse": "Browse",
         "Browse covers, open Details, then correct metadata only where needed.": "Browse covers, open Details, then correct metadata only where needed.",
         "Browse neighbouring items": "Browse neighbouring items",
         "Browse the folders that organize your publications.": "Browse the folders that organize your publications.",
