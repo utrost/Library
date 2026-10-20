@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.3.0-alpha.34 — final UI consistency fixes (candidate)
+## 0.3.0-alpha.34 — 2026-10-20
 
 - Use readable theme foregrounds for errors and destructive controls.
 - Keep profile search drafts separate from applied result and return contexts.
@@ -9,7 +9,7 @@
 - Align Publication / periodical, Shelf and Covers terminology.
 - Reuse the language picker in cleanup forms and align maintenance navigation.
 - Normalize review typography, card context and directory framing.
-- No database migration; verification and deployment pending.
+- Verified with 77 packaged browser journeys; signed package deployed to developer NC34. No database migration.
 
 ## 0.3.0-alpha.33 — 2026-10-20
 
