@@ -78,7 +78,7 @@ try {
     await panel.getByRole('button', { name: 'Edit author', exact: true }).click()
     await page.screenshot({ path: `${out}/${engine}-edit-mobile.png`, animations: 'disabled' })
     assert.ok(await panel.evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'mobile panel fits')
-    await panel.getByRole('button', { name: 'Cancel', exact: true }).click()
+    await panel.getByRole('button', { name: 'Discard changes', exact: true }).click()
     await panel.locator('.author-books a').first().click()
     await expect(page).toHaveURL(/[?&]details=[0-9]+/)
     await page.waitForLoadState('networkidle')

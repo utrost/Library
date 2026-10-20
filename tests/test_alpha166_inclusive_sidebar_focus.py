@@ -26,7 +26,7 @@ def test_responsive_readiness_precedes_click_and_mobile_boundary_capture():
 
     metrics = exercise.index("Emulation.setDeviceMetricsOverride")
     viewport_ready = exercise.index("waitForViewportWidth", metrics)
-    click = exercise.index("clickWithCdp('.library-cover-link', 0)", viewport_ready)
+    click = exercise.index("clickWithCdp('.library-quick-view', 0)", viewport_ready)
     mobile_ready = exercise.index("waitForMobileModal", click)
     event_log = exercise.index("window.__libraryModalEvents", mobile_ready)
 

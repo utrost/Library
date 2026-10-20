@@ -1,4 +1,7 @@
 <script setup>
+import { confirmAction } from '../confirm-action.js'
+import { useUnsavedChanges } from '../use-unsaved-changes.js'
+import FormActions from './FormActions.vue'
 import { bookDetailsUrl, bookCoverUrl as coverUrl } from '../details-return.js'
 import { computed, onMounted, onUnmounted, reactive, ref, watch, nextTick } from 'vue'
 import { generateUrl } from '@nextcloud/router'
@@ -24,6 +27,7 @@ const viewQuery = new URLSearchParams(location.search)
 const bookSearch = ref((viewQuery.get('bookSearch') || '').slice(0, 255)), bookSort = ref(['title', 'newest', 'series'].includes(viewQuery.get('bookSort')) ? viewQuery.get('bookSort') : 'title'), bookView = ref(viewQuery.get('bookView') === 'list' ? 'list' : 'grid'), bioExpanded = ref(false), photoFailed = ref(false)
 const photoFile = ref(null), removePhoto = ref(false)
 const draft = reactive({ display_name: '', sort_name: '', given_name: '', family_name: '', biography: '' })
+useUnsavedChanges(() => editing.value && (photoFile.value !== null || removePhoto.value || Object.keys(draft).some(key => draft[key] !== (data.value?.author?.[key] || ''))))
 const initials = computed(() => (data.value?.author?.display_name || '').trim().split(/\s+/u).slice(0, 2).map(part => Array.from(part)[0] || '').join('').toLocaleUpperCase())
 const photoUrl = computed(() => generateUrl('/apps/library/api/authors/{id}/photo', { id: id.value }) + '?v=' + encodeURIComponent(data.value?.author?.photo_key || ''))
 const bookGroups = computed(() => {
@@ -142,6 +146,7 @@ watch(targetSearch, () => {
   targetTimer = setTimeout(findTargets, 250)
 }, { flush: 'sync' })
 async function findTargets() {
+  targetError.value = ''; targetSearching.value = true
   const sequence = targetSequence
   const controller = new AbortController()
   targetController = controller
@@ -205,6 +210,7 @@ async function cancelTask(task) {
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
 async function removeUnused(author) {
+  if (!await confirmAction(t('library', 'Remove this unused author? No books or files are deleted.'), t('library', 'Remove unused author'))) return
   busy.value = true; error.value = ''
   try { await request(`/${author.id}/remove-unused`, { revision: Number(author.revision) }); notice.value = t('library', 'Unused author removed.'); await load(page.value) }
   catch (e) { error.value = e.message } finally { busy.value = false }
@@ -270,7 +276,7 @@ onUnmounted(() => { loadController?.abort(); loadSequence++; stopTargetSearch();
         <label for="author-photo">{{ t('library', 'Author photo') }} <LabelHelp :text="t('library', 'JPEG, PNG or WebP, up to 10 MiB. Saved as a small square portrait; the original upload is discarded.')" /></label>
         <input id="author-photo" type="file" accept="image/jpeg,image/png,image/webp" :disabled="busy" @change="choosePhoto" />
         <label v-if="data.author.photo_key"><input v-model="removePhoto" type="checkbox" :disabled="busy || !!photoFile" /> {{ t('library', 'Remove photo') }}</label>
-        <div><button class="primary" :disabled="busy" type="submit">{{ t('library', 'Save author') }}</button> <button :disabled="busy" type="button" @click="editing = false">{{ t('library', 'Cancel') }}</button></div>
+        <FormActions :label="t('library', 'Save author')" :busy="busy" @discard="editing = false" />
       </form>
       <details v-if="!editing && !assigning" class="author-actions">
         <summary>{{ t('library', 'More actions') }}</summary>
@@ -290,7 +296,7 @@ onUnmounted(() => { loadController?.abort(); loadSequence++; stopTargetSearch();
           </ul>
           <span v-if="targetSearching" role="status">{{ t('library', 'Searching…') }}</span>
           <span v-else-if="target" role="status">{{ t('library', 'Destination selected. Review the change before applying it.') }}</span>
-          <p v-if="targetError" role="alert">{{ targetError }}</p>
+          <p v-if="targetError" role="alert">{{ targetError }} <button type="button" :disabled="targetSearching" @click="findTargets">{{ t('library', 'Retry') }}</button></p>
           <div v-if="targetCanCreate" class="author-destination-create">
             <span role="status">{{ t('library', 'No authors found.') }}</span>
             <button :disabled="busy" @click="createTarget">{{ t('library', 'Create new author') }}</button>

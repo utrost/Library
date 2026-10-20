@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_cover_cards_render_one_cover_surface_not_mock_placeholder_plus_image():
     vue = (ROOT / "src" / "App.vue").read_text()
 
-    assert 'class="library-cover-image"' in vue
+    assert '<CatalogueCover :src="item.coverUrl"' in vue
     assert 'class="library-cover-placeholder"' not in vue
     assert 'library-cover-frame' in vue
     assert 'library-cover-fallback' in vue

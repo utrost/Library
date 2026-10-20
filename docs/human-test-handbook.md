@@ -1,8 +1,25 @@
 # Library human test handbook
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). Signed alpha.28 is deployed on developer NC34 with clean integrity and an unchanged large catalogue-book catalogue.
 
-**Current manual pass: 0.3.0-alpha.28, Nextcloud 33–35.** Confirm the installed version and archive checksum before using the populated developer Nextcloud 34 instance at `http://localhost:8088`; use the [alpha.28 verification and deployment record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md) to identify the installed package. Use a disposable account and test books for changes. The [signed alpha.9 evidence](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) covers fresh and upgraded NC33–35 instances with the 40 Gutenberg books; alpha.28 still needs its own exact-package version matrix. The earlier `0.3.0-alpha.11` developer handoff and the numbered alpha.174 cases later in this file are historical records; follow the current pass below for 0.3 acceptance.
+## Alpha.32 UI consistency acceptance (H03-24)
+
+Candidate: **0.3.0-alpha.32**. Check the installed version before testing; developer NC34 remains alpha.31 until the deployment record says otherwise. Use a disposable account and fixture books for edits, merges, imports and deletion.
+
+1. **Find and browse:** open All publications at desktop and 390 px mobile widths. Search books without opening Filters. Sort and change view; verify the search and filters remain. Open a cover or title, then Back: restore the filtered result. Quick view opens the drawer; Escape closes it and restores focus. Open still launches the reader in a new tab. Check Home covers load visibly and a failed cover has a placeholder.
+2. **Save a search:** run a search, expand Save this search, name it and save. Collections and its saved entries remain reachable from navigation. Deleting a saved collection explains the scope and offers Cancel. Books and source files remain.
+3. **Protect drafts:** edit an author, series and reading-list name. Follow the page's Back link and a navigation link; cancel the warning and verify the draft is intact. Repeat browser Back/reload. Save explicitly persists, while Discard changes restores the saved state. Check a list note draft too. Existing book Save/Discard and stale-edit rejection must still work.
+4. **Select names:** type two letters, then three in author, series and genre selectors. Check loading, arrow keys, Enter, Escape, direct selection and empty results. Simulate an offline lookup: show an error and Retry, never an empty-result creation prompt. A late response must not replace a newer query. Genre creation is absent while loading or when the matching genre is already assigned. Language codes retain their valid short-input behavior. Publisher and subject suggestions remain editable values.
+5. **Review changes:** use author/series conflicts, language cleanup, publisher/subject grouping and metadata import. Verify current and proposed values and affected-book scope before Apply. Saved source values remain inspectable. Genre cleanup starts collapsed; Review genre suggestions opens it. Ignore means ignore future suggestions, not keep a hidden pending form.
+6. **Import recovery:** paste malformed JSON in settings and Preview. The same navigation/content frame stays visible, the message explains the problem, and the input remains editable. With a valid fixture export, inspect current/proposed values before applying. Source files must stay unchanged.
+7. **First shelf and settings:** with an empty account, follow Add a shelf → Choose folder → Save shelf → Scan this shelf → Browse. Shelves/scanning precede duplicate settings and scheduling. Duplicate suggestions require Save on both the duplicates page and settings; an unsaved choice survives background progress polling.
+8. **Extract metadata:** choose a shelf/folder, preview suggested fields, then review and apply the selected scope. Advanced rule editors stay collapsed initially. Loading/error/retry states are distinct from an empty sample. Whole-folder analysis remains an explicit separate operation. Inspect partial results and stale-review protection.
+9. **Consistency and accessibility:** compare Home, Shelves, Authors, Series, Genres, Lists, Details, review, settings and maintenance pages. Titles lead, use the shared scale, and long names wrap. Check 320/390 px, both themes, 200% zoom, keyboard focus, expanded menus and sticky Save/Discard. Tooltips work on focus/tap and Escape and identify their field. Touch controls remain comfortable. Check removal dialogs initially focus Cancel and return focus on cancellation.
+
+Automated browser coverage is in `tests/gui/details/ui-consistency.spec.ts` plus the existing editor, list, directory, inference and settings journeys. Automation is not a substitute for NVDA, VoiceOver or Orca acceptance. No database migration is introduced in alpha.32.
+
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). That historical alpha.28 deployment had clean integrity and an unchanged large catalogue-book catalogue.
+
+**Current acceptance target: 0.3.0-alpha.32.** Confirm the installed version and archive checksum before using developer NC34 at `http://localhost:8088`; the [alpha.32 verification record](compatibility-evidence/2026-10-20-nc34-ui-consistency-alpha32/README.md) distinguishes candidate checks from completed deployment. Use a disposable account and test books for changes. Exact signed-package certification on NC33–35 is still required. Earlier version-specific results and numbered alpha.174 cases below are historical; H03-24 and the current H03 journeys govern this candidate.
 
 ## H03-19: Destination author selection
 
@@ -25,14 +42,14 @@ Use a disposable account for Save/stale-edit checks. Developer smoke only stages
 
 ## Before testing
 
-1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; confirm alpha.28 is installed using its deployment record. Record the exact archive name and checksum instead of assuming the version string identifies the package.
+1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; use the current deployment record to verify the installed candidate. Record the exact archive name and checksum instead of assuming the version string identifies the package.
 2. Use a disposable Nextcloud account/root. A small start is the [40 English Gutenberg books](gutenberg-example-books.md), plus two EPUBs with different Calibre or EPUB 3 series metadata and at least two books sharing an author. Add a PDF and CBZ if available. Keep a copy of any source files the tester deliberately changes.
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched.
 
 For a quick acceptance pass, run H03-01, H03-03, H03-04, H03-05, H03-06, H03-09, H03-10, H03-11, H03-12, H03-13, H03-14, H03-15, H03-16 and H03-17. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [alpha.28 package record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md) for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
+Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [current package record](compatibility-evidence/2026-10-20-nc34-ui-consistency-alpha32/README.md) for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -62,7 +79,7 @@ After each case, capture the visible before/after state and note the selected bo
 
 **Setup:** A new or disposable account with the 40 English Gutenberg books in a Nextcloud Files folder.
 
-**Steps:** Add that folder under Library settings; run **Scan this root**; browse **Home**, **All publications**, **Shelves**, **Review**, and one item. Search for a known title, change a filter and sort, then open the item by clicking the middle of its cover image and again by clicking its title. Confirm the panel shows **Overview**, **Metadata** and **Activity**; choose an author chip and return to the book. Try **Open**, **Show in Files**, **Download**, and **Full details**.
+**Steps:** Add that folder under Library settings; run **Scan this shelf**; browse **Home**, **All publications**, **Shelves**, **Review**, and one item. Search for a known title, change a filter and sort, then open the item by clicking the middle of its cover image and again by clicking its title. Confirm the panel shows **Overview**, **Metadata** and **Activity**; choose an author chip and return to the book. Try **Open**, **Show in Files**, **Download**, and **Full details**.
 
 **Expected:** The scan completes, the catalogue count is plausible, the contextual sidebar shows more than a title/header, and the author chip opens the correct profile. The detail page identifies the same file. **Open** launches the Nextcloud reader in a new tab while Library remains in the original tab; the book itself renders, rather than only a loading screen or Files root. No Library action in this case alters source bytes. A blank panel under the heading is a failure, even when the item API returns HTTP 200.
 
@@ -445,7 +462,7 @@ Steps:
 
 1. Open `/settings/user/library`.
 2. Add the folder as a Library root with a clear label.
-3. Run **Scan this root**.
+3. Run **Scan this shelf**.
 4. Wait until scan progress/history shows completion.
 5. Return to `/apps/library/`.
 

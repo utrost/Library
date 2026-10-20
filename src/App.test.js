@@ -323,7 +323,7 @@ describe('Library catalogue Vue app', () => {
     const empty = mount(App, { props: { state: { ...state, surface: 'shelves', shelfTree: [] } } })
     expect(empty.find('.library-shelves-empty').exists()).toBe(true)
     const emptyActions = empty.findAll('.library-shelves-empty .button')
-    expect(emptyActions.map((action) => action.text())).toEqual(['Add a Library root', 'All publications'])
+    expect(emptyActions.map((action) => action.text())).toEqual(['Add a shelf', 'All publications'])
     expect(emptyActions.map((action) => action.attributes('href'))).toEqual([state.settingsUrl, state.catalogueRootUrl])
   })
 
@@ -359,7 +359,7 @@ describe('Library catalogue Vue app', () => {
     const chipTexts = chips.map((chip) => chip.text().replace(/\s+/g, ' ').trim())
 
     expect(chipTexts).toContain('Format: EPUB ×')
-    expect(chipTexts).toContain('Starred ×')
+    expect(chipTexts).toContain('Favorites ×')
     expect(chipTexts).toContain('Suggested updates ×')
     expect(chipTexts).toContain('Needs details ×')
     expect(chipTexts).toContain('Filename-derived metadata ×')
@@ -1103,7 +1103,7 @@ describe('Library catalogue Vue app', () => {
     window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true, cancelable: true }))
     await wrapper.vm.$nextTick()
 
-    expect(document.activeElement).toBe(filters.get('[data-library-quick-search]').element)
+    expect(document.activeElement).toBe(wrapper.get('#library-main-search').element)
   })
   it('wraps the unchanged catalogue in the first native application shell scaffold', () => {
     const wrapper = mount(App, { props: { state } })
@@ -1115,7 +1115,7 @@ describe('Library catalogue Vue app', () => {
 
     const destinations = existingNavigationItems(wrapper)
     expect(destinations).toHaveLength(12)
-    expect(destinations.map((destination) => destination.props('name'))).toEqual(['Home', 'All publications', 'Starred', 'Continue reading', 'Shelves', 'Collections', 'Authors', 'Lists', 'Create a new list', 'Extract metadata', 'Review', 'Possible duplicates'])
+    expect(destinations.map((destination) => destination.props('name'))).toEqual(['Home', 'All publications', 'Favorites', 'Continue reading', 'Shelves', 'Collections', 'Authors', 'Lists', 'Create a new list', 'Extract metadata', 'Review', 'Possible duplicates'])
     expect(destinations[0].props('href')).toBe(state.homeUrl)
     expect(destinations[1].props('href')).toBe(state.catalogueRootUrl)
     expect(destinations[1].props('active')).toBe(true)
@@ -1157,9 +1157,9 @@ describe('Library catalogue Vue app', () => {
     const destinations = existingNavigationItems(wrapper)
 
     expect(destinations.map((item) => item.props('name'))).toEqual([
-      'Home', 'All publications', 'Starred', 'Continue reading', 'Shelves', 'Collections', 'Authors', 'Lists', 'Create a new list', 'Extract metadata', 'Review (5)', 'Possible duplicates',
+      'Home', 'All publications', 'Favorites', 'Continue reading', 'Shelves', 'Collections', 'Authors', 'Lists', 'Create a new list', 'Extract metadata', 'Review (5)', 'Possible duplicates',
     ])
-    expect(wrapper.find('#library-catalogue-heading').text()).toBe('Library')
+    expect(wrapper.find('#library-catalogue-heading').text()).toBe('All publications')
     const navigation = wrapper.findComponent(NcAppNavigation)
     expect(navigation.findAll('form.library-sidebar-filters')).toHaveLength(1)
     expect(navigation.get('#library-sidebar-filters-heading').text()).toBe('Filters')
@@ -1825,7 +1825,7 @@ describe('Library catalogue Vue app', () => {
       },
     })
 
-    expect(wrapper.find('#library-catalogue-heading').text()).toBe('Library')
+    expect(wrapper.find('#library-catalogue-heading').text()).toBe('All publications')
     expect(wrapper.text()).not.toContain('One catalogue workspace for finding, browsing, acting on and reviewing publication files.')
     expect(wrapper.text()).not.toContain('Compact / Gallery / Shelf')
     expect(wrapper.text()).not.toContain('Browse as a shelf/gallery first')
@@ -1842,7 +1842,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-quick-filter-search').attributes('title')).toContain('Search also checks descriptions')
 
     const heading = wrapper.find('#library-catalogue-heading')
-    expect(heading.text()).toBe('Library')
+    expect(heading.text()).toBe('All publications')
     const headingBeforeWorkspace = heading.element.compareDocumentPosition(workspace.element)
     expect(Boolean(headingBeforeWorkspace & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
     const workspaceTop = workspace.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
@@ -1894,7 +1894,7 @@ describe('Library catalogue Vue app', () => {
     const workspace = wrapper.find('.library-catalogue-workspace')
     const heading = wrapper.find('#library-catalogue-heading')
     expect(workspace.classes()).toContain('library-workspace-menubar')
-    expect(heading.text()).toBe('Library')
+    expect(heading.text()).toBe('All publications')
     const headingBeforeWorkspace = heading.element.compareDocumentPosition(workspace.element)
     expect(Boolean(headingBeforeWorkspace & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
     const headerBeforeCovers = heading.element.compareDocumentPosition(wrapper.find('.library-cover-gallery').element)
@@ -1913,7 +1913,7 @@ describe('Library catalogue Vue app', () => {
   it('renders the catalogue from Nextcloud initial state', () => {
     const wrapper = mount(App, { props: { state } })
 
-    expect(wrapper.text()).toContain('Library')
+    expect(wrapper.text()).toContain('All publications')
     expect(wrapper.text()).not.toContain('Publication catalogue')
     expect(wrapper.text()).toContain('Example Book')
     expect(wrapper.find('.library-cover-creator').text()).toBe('Ada Reader')
@@ -1924,7 +1924,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-cover-primary-actions').exists()).toBe(false)
     expect(wrapper.findAll('.library-cover-card')).toHaveLength(1)
     expect(wrapper.findComponent({ name: 'CatalogueCover' }).props('src')).toBe('/apps/library/items/7/cover')
-    expect(wrapper.find('.library-cover-link').attributes('type')).toBe('button')
+    expect(wrapper.find('.library-cover-link').element.tagName).toBe('A')
     const starForm = wrapper.find('form.library-cover-star-form')
     expect(starForm.exists()).toBe(true)
     expect(starForm.attributes('action')).toBe('/apps/library/items/7/star')
@@ -1954,14 +1954,14 @@ describe('Library catalogue Vue app', () => {
     expect(thumbnail.attributes('aria-label')).toBe('Details: Example Book')
     expect(thumbnail.get('img').attributes()).toEqual(expect.objectContaining({ src: '/apps/library/items/7/cover', alt: '', loading: 'lazy' }))
     expect(list.findAll('thead th[scope="col"]').map((header) => header.text())).toEqual([
-      'Title', 'Creators', 'Publication date', 'Series', 'Format', 'Shelf', 'Actions',
+      'Title', 'Authors', 'Publication date', 'Series', 'Format', 'Shelf', 'Actions',
     ])
     expect(list.get('.library-catalogue-list-title').text()).toBe('Example Book')
     expect(wrapper.find('.library-catalogue-list-row').text()).toContain('Ada Reader')
     expect(wrapper.find('.library-catalogue-list-row').text()).toContain('2026')
     expect(wrapper.find('.library-catalogue-list-row').text()).toContain('EPUB')
     expect(wrapper.find('.library-catalogue-list-actions a').attributes('href')).toBe('/f/178')
-    expect(wrapper.find('.library-catalogue-list-actions button').text()).toBe('Details')
+    expect(wrapper.find('.library-catalogue-list-actions button').text()).toBe('Quick view')
   })
 
   it('immediately loads view=list through the catalogue endpoint and preserves filters', async () => {
@@ -2149,7 +2149,7 @@ describe('Library catalogue Vue app', () => {
 
     window.dispatchEvent(new KeyboardEvent('keydown', { key: '/' }))
 
-    const searchInput = wrapper.find('[data-library-quick-search]').element
+    const searchInput = wrapper.find('#library-main-search').element
     expect(document.activeElement).toBe(searchInput)
 
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
@@ -2179,9 +2179,9 @@ describe('Library catalogue Vue app', () => {
     })
 
     expect(wrapper.find('.library-first-run-guidance').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Start with one Library root')
-    expect(wrapper.text()).toContain('Add a Library root')
-    expect(wrapper.text()).toContain('Run a scan after saving a root')
+    expect(wrapper.text()).toContain('Add your first shelf')
+    expect(wrapper.text()).toContain('Add a shelf')
+    expect(wrapper.text()).toContain('Choose a folder, save the shelf, then scan to browse its books.')
   })
 
   it('keeps catalogue filters out of the content workspace so the cover shelf stays central', () => {
@@ -2207,12 +2207,12 @@ describe('Library catalogue Vue app', () => {
 
     expect(wrapper.findComponent(NcAppSidebar).props('open')).toBe(false)
 
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
 
     await waitForSidebarEvent(wrapper, 'opened')
     expect(wrapper.findComponent(NcAppSidebar).props('open')).toBe(true)
     expect(wrapper.get('.library-cover-card').classes()).toContain('library-cover-card--open')
-    expect(wrapper.get('.library-cover-link').attributes('aria-expanded')).toBe('true')
+    expect(wrapper.get('.library-quick-view').attributes('aria-expanded')).toBe('true')
     expect(wrapper.find('.library-sidebar-content').text()).toContain('Example Book')
     expect(wrapper.find('.library-sidebar-content').text()).toContain('Overview')
     expect(wrapper.find('.library-sidebar-publication-header').exists()).toBe(true)
@@ -2238,7 +2238,7 @@ describe('Library catalogue Vue app', () => {
       activeFilters: { ...state.activeFilters, format: 'epub' },
     } } })
 
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
 
     const links = wrapper.findAll('.library-detail-facet-link')
@@ -2265,7 +2265,7 @@ describe('Library catalogue Vue app', () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item }) }))
     const wrapper = mount(App, { props: { state: { ...state, items: [item] } } })
 
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
 
     const description = wrapper.get('.library-sidebar-description')
@@ -2291,7 +2291,7 @@ describe('Library catalogue Vue app', () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state } })
 
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
 
     const actions = wrapper.get('.library-detail-drawer-actions')
@@ -2307,7 +2307,7 @@ describe('Library catalogue Vue app', () => {
   it('makes Overview, Metadata, and Activity canonical sidebar sections', async () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state } })
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
 
     const sectionButtons = wrapper.findAll('.library-sidebar-sections button')
@@ -2321,7 +2321,7 @@ describe('Library catalogue Vue app', () => {
   it('links the Activity file path through the canonical open URL and preserves empty-url fallback text', async () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state } })
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
     await wrapper.findAll('.library-sidebar-sections button')[2].trigger('click')
 
@@ -2333,7 +2333,7 @@ describe('Library catalogue Vue app', () => {
     const itemWithoutOpenUrl = { ...state.items[0], openUrl: '' }
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: itemWithoutOpenUrl }) }))
     await wrapper.find('.app-sidebar__close').trigger('click')
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
     await waitForSidebarEvent(wrapper, 'opened', 2)
     await wrapper.findAll('.library-sidebar-sections button')[2].trigger('click')
 
@@ -2353,7 +2353,7 @@ describe('Library catalogue Vue app', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => ({ saved: true }) })
     const wrapper = mount(App, { props: { state: { ...state, items: [item] } } })
 
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
     expect(wrapper.find('.library-detail-drawer-facts').text()).toContain(expectedDate)
     expect(wrapper.find('.library-detail-drawer-facts').text()).not.toContain('T23:30:00')
@@ -2375,7 +2375,7 @@ describe('Library catalogue Vue app', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => ({ saved: true }) })
     const wrapper = mount(App, { props: { state: { ...state, items: [item] } } })
 
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
     expect(wrapper.find('.library-detail-drawer-facts').text()).not.toContain('Date')
     await wrapper.findAll('.library-sidebar-sections button')[1].trigger('click')
@@ -2389,7 +2389,7 @@ describe('Library catalogue Vue app', () => {
   it('moves focus into the drawer and restores each activating control on Escape and close', async () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state }, attachTo: document.body })
-    const opener = wrapper.find('.library-cover-link')
+    const opener = wrapper.find('.library-quick-view')
     opener.element.focus()
     await opener.trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
@@ -2414,7 +2414,7 @@ describe('Library catalogue Vue app', () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state }, attachTo: document.body })
     const sidebar = wrapper.findComponent(NcAppSidebar)
-    const opener = wrapper.find('.library-cover-link')
+    const opener = wrapper.find('.library-quick-view')
 
     opener.element.focus()
     await opener.trigger('click')
@@ -2448,7 +2448,7 @@ describe('Library catalogue Vue app', () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state }, attachTo: document.body })
     const sidebar = wrapper.findComponent(NcAppSidebar)
-    const opener = wrapper.find('.library-cover-link')
+    const opener = wrapper.find('.library-quick-view')
     const focus = vi.spyOn(opener.element, 'focus')
     await opener.trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
@@ -2466,7 +2466,7 @@ describe('Library catalogue Vue app', () => {
     setNextcloudViewport(480)
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state }, attachTo: document.body })
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
     const sidebar = wrapper.find('.library-native-item-sidebar')
     await waitForSidebarEvent(wrapper, 'opened')
     expect(sidebar.attributes('role')).toBe('dialog')
@@ -2496,7 +2496,7 @@ describe('Library catalogue Vue app', () => {
     expect(sidebar.attributes('aria-modal')).toBe('true')
     expect(sidebar.attributes('aria-labelledby')).toBe('library-detail-drawer-heading')
 
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
     const focusable = [...sidebar.element.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
     expect(document.activeElement).toBe(sidebar.find('.app-sidebar__close').element)
@@ -2513,7 +2513,7 @@ describe('Library catalogue Vue app', () => {
     setNextcloudViewport(480)
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => ({ item: state.items[0] }) }))
     const wrapper = mount(App, { props: { state }, attachTo: document.body })
-    const opener = wrapper.find('.library-cover-link')
+    const opener = wrapper.find('.library-quick-view')
     opener.element.focus()
     await opener.trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
@@ -2559,7 +2559,7 @@ describe('Library catalogue Vue app', () => {
     window.history.replaceState({}, '', '/nc/index.php/apps/library/')
     globalThis.fetch = vi.fn(async () => ({ ok: true, json: async () => payload }))
     const wrapper = mount(App, { props: { state } })
-    await wrapper.find('.library-cover-link').trigger('click')
+    await wrapper.find('.library-quick-view').trigger('click')
     await vi.waitFor(() => expect(wrapper.find('.library-sidebar-state').exists()).toBe(true))
     await waitForSidebarEvent(wrapper, 'opened')
     expect(wrapper.find('.library-sidebar-content').text()).toContain('Could not load publication details. Try again.')
@@ -2583,7 +2583,7 @@ describe('Library catalogue Vue app', () => {
     })
     const wrapper = mount(App, { props: { state: keyboardState }, attachTo: document.body })
 
-    await wrapper.findAll('.library-cover-link')[0].trigger('click')
+    await wrapper.findAll('.library-quick-view')[0].trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
     await wrapper.findAll('.library-sidebar-sections button')[1].trigger('click')
     const titleInput = wrapper.get('input[name="title"]')
@@ -2615,7 +2615,7 @@ describe('Library catalogue Vue app', () => {
     })
     const wrapper = mount(App, { props: { state: keyboardState } })
 
-    await wrapper.findAll('.library-cover-link')[0].trigger('click')
+    await wrapper.findAll('.library-quick-view')[0].trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
     expect(wrapper.find('.library-sidebar-content').text()).toContain('Example Book')
     expect(wrapper.find('#library-detail-drawer-keyboard-hint').text()).toContain('Escape closes')
@@ -2678,9 +2678,9 @@ describe('Library catalogue Vue app', () => {
     globalThis.fetch = vi.fn((url, options) => new Promise((resolve) => pending.push({ url, options, resolve })))
     const keyboardState = { ...state, items: [{ ...state.items[0] }, { ...state.items[0], id: 8, title: 'Second Book' }] }
     const wrapper = mount(App, { props: { state: keyboardState } })
-    await wrapper.findAll('.library-cover-link')[0].trigger('click')
+    await wrapper.findAll('.library-quick-view')[0].trigger('click')
     await waitForSidebarEvent(wrapper, 'opened')
-    await wrapper.findAll('.library-cover-link')[1].trigger('click')
+    await wrapper.findAll('.library-quick-view')[1].trigger('click')
     expect(pending[0].options.signal.aborted).toBe(true)
     pending[1].resolve({ ok: true, json: async () => ({ item: keyboardState.items[1] }) })
     await vi.waitFor(() => expect(wrapper.find('.library-sidebar-content').text()).toContain('Second Book'))

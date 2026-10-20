@@ -5,6 +5,7 @@ namespace OCA\Library\Controller;
 use OCA\Library\Service\MetadataValueMappingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
@@ -29,6 +30,7 @@ final class ValueMappingController extends Controller {
     }
     private function page(?array $preview = null, string $message = ''): TemplateResponse {
         Util::addStyle('library', 'style');
+        \OCP\Util::addStyle('library', 'ui-contract');
         $uid = $this->uid();
         $field = $this->field();
         $search = trim((string)$this->request->getParam('search', ''));
@@ -39,7 +41,7 @@ final class ValueMappingController extends Controller {
             'mappings'=>$this->mappings->mappings($uid, $field),
             'preview'=>$preview, 'message'=>$message,
             'baseUrl'=>$this->urls->linkToRoute('library.value_mapping.index'),
-            'catalogueUrl'=>$this->urls->linkToRoute('library.page.catalogue'),
+            'catalogueUrl'=>$this->urls->linkToRoute('library.page.index'),
             'languageUrl'=>$this->urls->linkToRoute('library.language_review.index'),
             'valueMappingsUrl'=>$this->urls->linkToRoute('library.value_mapping.index'),
             'settingsUrl'=>$this->urls->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),
@@ -50,6 +52,7 @@ final class ValueMappingController extends Controller {
         return new RedirectResponse($this->urls->linkToRoute('library.value_mapping.index') . '?field=' . rawurlencode($field) . '&message=' . rawurlencode($message));
     }
     #[NoAdminRequired]
+    #[NoCSRFRequired]
     public function index(): TemplateResponse|RedirectResponse {
         try { return $this->page(null, (string)$this->request->getParam('message', '')); }
         catch (\InvalidArgumentException) { return $this->redirect('publisher', 'invalid'); }

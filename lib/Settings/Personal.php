@@ -31,6 +31,7 @@ class Personal implements ISettings {
     #[\Override]
     public function getForm(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
+        \OCP\Util::addStyle('library', 'ui-contract');
         Util::addScript(Application::APP_ID, 'library-help');
         Util::addScript(Application::APP_ID, 'scan-progress-worker');
         Util::addScript(Application::APP_ID, 'settings-operations');

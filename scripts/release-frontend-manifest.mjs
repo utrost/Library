@@ -13,6 +13,7 @@ export function releaseFrontendFiles(_version) {
   const styleAsset = wiredAsset('VUE_STYLE_ASSET')
   return [
     'css/style.css',
+    'css/ui-contract.css',
     `css/${styleAsset}.css`,
     'js/library-help.js',
     `js/${scriptAsset}.mjs`,

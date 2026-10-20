@@ -8,17 +8,27 @@ $valid = (bool)($preview['valid'] ?? false);
 $items = is_array($preview['items'] ?? null) ? array_slice($preview['items'], 0, 20) : [];
 $metric = static fn (string $key): string => (string)(int)($preview[$key] ?? 0);
 $error = (string)($preview['error'] ?? '');
+$display = static fn ($value): string => is_array($value) ? (string)json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : (is_bool($value) ? ($value ? $l->t('Yes') : $l->t('No')) : (string)($value ?? '—'));
 ?>
-<div class="library-settings library-metadata-import-result">
+<div id="app-content" class="library-maintenance-shell">
+    <?php include __DIR__ . '/maintenance-navigation.php'; ?>
+    <main class="library-maintenance-main library-metadata-import-result">
     <section class="library-panel" aria-labelledby="library-metadata-import-result-heading">
         <p class="library-muted library-catalogue-eyebrow"><?php p($mode === 'apply' ? $l->t('Metadata import applied') : $l->t('Metadata import preview')); ?></p>
-        <h2 id="library-metadata-import-result-heading"><?php p($mode === 'apply' ? $l->t('Import result') : $l->t('Review metadata import')); ?></h2>
+        <h1 id="library-metadata-import-result-heading"><?php p($mode === 'apply' ? $l->t('Import result') : $l->t('Review metadata import')); ?></h1>
         <?php if (!$valid): ?>
-            <p class="library-warning" role="alert"><?php p($error !== '' ? $error : $l->t('The pasted metadata could not be imported. Check that it is a Library corrected metadata JSON export.')); ?></p>
+            <p class="library-warning" role="alert"><?php p($error === 'invalid_json' ? $l->t('This is not valid JSON. Correct the pasted text below and preview it again.') : $l->t('The pasted metadata could not be imported. Check that it is a Library corrected metadata JSON export.')); ?></p>
         <?php else: ?>
             <?php if ($mode !== 'apply'): ?>
                 <p class="library-muted"><?php p($l->t('Review these counts before applying. Source files are not changed.')); ?></p>
             <?php endif; ?>
+        <?php endif; ?>
+        <?php if (!$valid): ?>
+            <form method="post" action="<?php p($_['metadataImportPreviewUrl']); ?>" class="library-form">
+                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken']); ?>">
+                <label><?php p($l->t('Metadata JSON')); ?><textarea name="metadataJson" rows="8"><?php p($_['metadataJson']); ?></textarea></label>
+                <button class="button primary" type="submit"><?php p($l->t('Preview metadata import')); ?></button>
+            </form>
         <?php endif; ?>
         <dl class="library-import-preview-summary">
             <div><dt><?php p($l->t('Total items')); ?></dt><dd><?php p($metric('totalItems')); ?></dd></div>
@@ -41,7 +51,12 @@ $error = (string)($preview['error'] ?? '');
                         <?php if ($changes !== []): ?>
                             <ul>
                                 <?php foreach (array_slice($changes, 0, 8) as $field => $change): ?>
-                                    <li><bdi class="library-bidi-human" dir="auto"><?php p(is_string($field) ? $field : (string)$change); ?></bdi></li>
+                                    <li>
+                                        <?php if (is_array($change)): ?>
+                                            <strong><?php p((string)($change['field'] ?? $field)); ?></strong>
+                                            <dl class="library-review-values"><div><dt><?php p($l->t('Current value')); ?></dt><dd><bdi dir="auto"><?php p($display($change['before'] ?? null)); ?></bdi></dd></div><div><dt><?php p($l->t('Proposed value')); ?></dt><dd><bdi dir="auto"><?php p($display($change['after'] ?? null)); ?></bdi></dd></div></dl>
+                                        <?php else: ?><bdi dir="auto"><?php p(is_string($field) ? $field : (string)$change); ?></bdi><?php endif; ?>
+                                    </li>
                                 <?php endforeach; ?>
                             </ul>
                         <?php endif; ?>
@@ -60,4 +75,5 @@ $error = (string)($preview['error'] ?? '');
             <?php endif; ?>
         </div>
     </section>
+    </main>
 </div>

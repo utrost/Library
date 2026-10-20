@@ -61,7 +61,7 @@ def test_gui_catalogue_registers_initial_workflows():
         assert marker in catalogue
 
     files = [line.split(":", 1)[1].strip() for line in catalogue.splitlines() if line.strip().startswith("file:")]
-    assert len(files) == 14
+    assert len(files) == 15
     assert len(set(files)) == len(files)
     for relative_path in files:
         assert (ROOT / relative_path).is_file(), relative_path

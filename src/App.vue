@@ -1,4 +1,5 @@
 <script setup>
+import { confirmAction } from './confirm-action.js'
 /*
 Source-harness compatibility markers for historical alpha contract tests.
 These comments are not rendered; current runtime behavior is covered by Vitest and smoke gates.
@@ -402,10 +403,14 @@ async function refreshPersonalListNavigation() {
 }
 onMounted(refreshPersonalListNavigation)
 const allPublicationsActive = computed(() => !isAuthors.value && !isSeries.value && !isGenres.value && !isDuplicates.value && !isInference.value && !isLists.value && !isDetails.value && !isHome.value && !isShelves.value && !reviewActive.value && !activeFilters.starred && !activeFilters.genreId && activeFilters.recentlyOpened !== '1' && !activeFilters.shelf)
+const collectionsExpanded = ref(window.location.hash === '#library-collections')
+function openCollectionsFromHash() { if (window.location.hash === '#library-collections') collectionsExpanded.value = true }
+onMounted(() => window.addEventListener('hashchange', openCollectionsFromHash))
+onBeforeUnmount(() => window.removeEventListener('hashchange', openCollectionsFromHash))
 const catalogueNavigation = computed(() => [
   { key: 'home', name: t('library', 'Home'), href: homeUrl.value, active: isHome.value },
   { key: 'all', name: t('library', 'All publications'), href: catalogueRootUrl.value, active: allPublicationsActive.value },
-  { key: 'starred', name: t('library', 'Starred'), href: `${catalogueRootUrl.value}?starred=1`, active: activeFilters.starred === '1' },
+  { key: 'starred', name: t('library', 'Favorites'), href: `${catalogueRootUrl.value}?starred=1`, active: activeFilters.starred === '1' },
   { key: 'continue', name: t('library', 'Continue reading'), href: `${catalogueRootUrl.value}?recentlyOpened=1&sort=lastOpened`, active: activeFilters.recentlyOpened === '1' },
   { key: 'shelves', name: t('library', 'Shelves'), href: shelvesUrl.value, active: isShelves.value || Boolean(activeFilters.shelf) },
   { key: 'collections', name: t('library', 'Collections'), href: `${catalogueRootUrl.value}#library-collections`, active: false },
@@ -492,8 +497,8 @@ const isYearDiscoveryPage = computed(() => catalogueState.discoveryPage === 'yea
 const isCreatorDiscoveryPage = computed(() => catalogueState.discoveryPage === 'creator')
 const isDiscoveryPage = computed(() => isPublicationDiscoveryPage.value || isYearDiscoveryPage.value || isCreatorDiscoveryPage.value)
 const discoveryTitle = computed(() => catalogueState.discoveryTitle || activeFilters.publication || activeFilters.year || activeFilters.creator || '')
-const catalogueHeading = computed(() => isDiscoveryPage.value ? discoveryTitle.value : t('library', 'Library'))
-const discoveryKindLabel = computed(() => isCreatorDiscoveryPage.value ? t('library', 'Creator') : (isYearDiscoveryPage.value ? t('library', 'Publication year') : t('library', 'Publication / series')))
+const catalogueHeading = computed(() => isDiscoveryPage.value ? discoveryTitle.value : t('library', 'All publications'))
+const discoveryKindLabel = computed(() => isCreatorDiscoveryPage.value ? t('library', 'Author') : (isYearDiscoveryPage.value ? t('library', 'Publication year') : t('library', 'Publication / series')))
 const rootCount = computed(() => Number(catalogueState.rootCount || 0))
 const enabledRootCount = computed(() => Number(catalogueState.enabledRootCount || 0))
 const hasNoConfiguredRoots = computed(() => rootCount.value === 0)
@@ -520,11 +525,11 @@ const filterLabels = {
   shelf: 'Shelf',
   folder: 'Folder',
   status: 'Scan status',
-  workflowStatus: 'Workflow status',
+  workflowStatus: 'Reading status',
   subject: 'Subject',
   classification: 'Classification',
   scannerConflicts: 'Suggested updates',
-  starred: 'Starred',
+  starred: 'Favorites',
   recentlyOpened: 'Recently opened',
   needsMetadata: 'Needs details',
   coverReview: 'Cover review',
@@ -1674,10 +1679,10 @@ const currentSavableFilters = computed(() => {
   return filters
 })
 const currentSavableFiltersJson = computed(() => JSON.stringify(currentSavableFilters.value))
-const canSaveCurrentView = computed(() => Object.keys(currentSavableFilters.value).length > 0)
+const canSaveCurrentView = computed(() => Object.keys(currentSavableFilters.value).some(key => key !== 'view'))
 const smartViews = computed(() => [
   { key: 'recently-opened', label: 'Recently opened', description: 'Continue from the publications you opened through Library.', query: 'recentlyOpened=1&sort=lastOpened', filters: { recentlyOpened: '1', sort: 'lastOpened' } },
-  { key: 'starred', label: 'Starred', description: 'Your marked publications and reference items.', query: 'starred=1', filters: { starred: '1' } },
+  { key: 'starred', label: 'Favorites', description: 'Your marked publications and reference items.', query: 'starred=1', filters: { starred: '1' } },
   { key: 'to-read', label: 'To read', description: 'Publications queued for later.', query: 'workflowStatus=to-read', filters: { workflowStatus: 'to-read' } },
   { key: 'reading', label: 'Reading', description: 'Publications currently in progress.', query: 'workflowStatus=reading', filters: { workflowStatus: 'reading' } },
   { key: 'finished', label: 'Finished', description: 'Completed publications.', query: 'workflowStatus=finished', filters: { workflowStatus: 'finished' } },
@@ -1757,7 +1762,8 @@ function savedCollectionDeleteUrl(collectionId) {
   return savedCollectionDeleteBaseUrl.value.replace('__COLLECTION_ID__', encodeURIComponent(String(collectionId || '0')))
 }
 
-function submitSavedCollectionDelete(collectionId) {
+async function submitSavedCollectionDelete(collectionId) {
+  if (!await confirmAction(t('library', 'Delete this saved search? Books and files are kept.'), t('library', 'Delete collection'))) return
   if (!requestToken.value) return
   const form = document.createElement('form')
   form.method = 'post'
@@ -1981,7 +1987,7 @@ async function toggleStar(item, event) {
           <NcAppNavigationItem v-for="destination in catalogueNavigation" :key="destination.key" :active="destination.active" :href="destination.href" :name="destination.name" />
           <div v-for="collection in savedCollectionNavigation" :key="collection.key" class="library-navigation-saved-collection-row">
             <NcAppNavigationItem class="library-navigation-saved-collection" :active="collection.active" :href="collection.href" :name="collection.name" />
-            <button type="button" class="library-navigation-saved-collection-delete-action" style="background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.42); color: #fff;" :aria-label="`${t('library', 'Delete collection')}: ${collection.rawName}`" :title="`${t('library', 'Delete collection')}: ${collection.rawName}`" @click.stop.prevent="submitSavedCollectionDelete(collection.id)">✕</button>
+            <button type="button" class="library-navigation-saved-collection-delete-action" :aria-label="`${t('library', 'Delete collection')}: ${collection.rawName}`" :title="`${t('library', 'Delete collection')}: ${collection.rawName}`" @click.stop.prevent="submitSavedCollectionDelete(collection.id)">✕</button>
           </div>
           <NcAppNavigationItem :active="isAuthors" :href="`${catalogueRootUrl}?authors=1`" :name="t('library', 'Authors')" />
           <NcAppNavigationItem :active="isSeries" :href="`${catalogueRootUrl}?series=1`" :name="t('library', 'Series')" />
@@ -2013,7 +2019,7 @@ async function toggleStar(item, event) {
             <input v-if="activeFilters.sort && activeFilters.sort !== 'title'" type="hidden" name="sort" :value="activeFilters.sort">
             <input v-if="activeFilters.view && activeFilters.view !== 'compact'" type="hidden" name="view" :value="activeFilters.view">
             <fieldset class="library-filter-group" data-library-filter-group="content"><legend>{{ t('library', 'Content') }}</legend>
-            <label class="library-quick-filter-search" :title="t('library', 'Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.')"><span>{{ t('library', 'Search') }} <kbd class="library-keyboard-hint">/</kbd></span><span class="library-search-input-wrap"><input ref="quickSearchInput" v-model="quickSearch" data-library-quick-search type="search" name="q" :placeholder="t('library', 'Title, author, description, filename or folder')"><span v-if="catalogueRequestState.loading" class="library-search-spinner" aria-hidden="true"></span></span><small v-if="pendingDraftValue('q')" class="library-filter-draft-state" data-library-pending-draft="q">{{ pendingDraftText('q') }}</small></label>
+            <label class="library-quick-filter-search" :title="t('library', 'Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.')"><span>{{ t('library', 'Search') }} <kbd class="library-keyboard-hint">/</kbd></span><span class="library-search-input-wrap"><input v-model="quickSearch" data-library-quick-search type="search" name="q" :placeholder="t('library', 'Title, author, description, filename or folder')"><span v-if="catalogueRequestState.loading" class="library-search-spinner" aria-hidden="true"></span></span><small v-if="pendingDraftValue('q')" class="library-filter-draft-state" data-library-pending-draft="q">{{ pendingDraftText('q') }}</small></label>
             <label>{{ t('library', 'Type') }}<select v-model="activeFilters.type" name="type" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All types') }}</option><option v-for="type in publicationTypes" :key="type" :value="type">{{ type }}</option></select></label>
             <div class="library-publisher-filter"><label for="library-publisher-search">{{ t('library', 'Publisher') }}</label><input id="library-publisher-search" v-model="publisherSearch" type="search" name="publisherSearch" autocomplete="off" :placeholder="t('library', 'Search publishers')" :title="t('library', 'Exact publisher matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-publisher-suggestions" :aria-activedescendant="activeSuggestionId('desktop', 'publisher')" :aria-expanded="publisherSearchFocused && publisherSuggestions.length > 0 ? 'true' : 'false'" @focus="openSuggestionFacet('publisher')" @keydown="handleSuggestionKeydown($event, 'publisher')"><input type="hidden" name="publisher" :value="activeFilters.publisher"><small v-if="pendingDraftValue('publisher')" class="library-filter-draft-state" data-library-pending-draft="publisher">{{ pendingDraftText('publisher') }}</small><ul v-if="publisherSearchFocused && publisherSuggestions.length > 0" id="library-publisher-suggestions" class="library-publisher-suggestions" role="listbox"><li v-for="(publisher, index) in publisherSuggestions" :id="suggestionOptionId('desktop', 'publisher', index)" :key="publisher" role="option" :aria-selected="suggestionActiveIndexes.publisher === index ? 'true' : 'false'"><button type="button" class="library-publisher-suggestion" @mousedown.prevent @click="selectPublisherSuggestion(publisher, $event)">{{ publisher }}</button></li></ul><button type="submit" class="button secondary library-publisher-apply" :class="pendingApplyClass('publisher')">{{ t('library', 'Apply publisher') }}</button></div>
             <div class="library-publication-filter"><label for="library-publication-search">{{ t('library', 'Series / periodical') }}</label><input id="library-publication-search" v-model="publicationSearch" type="search" name="publicationSearch" autocomplete="off" :placeholder="t('library', 'Search series and periodicals')" role="combobox" aria-autocomplete="list" aria-controls="library-publication-suggestions" :aria-expanded="publicationSearchFocused && publicationSuggestions.length > 0 ? 'true' : 'false'" @focus="publicationSearchFocused = true" @keydown.escape="publicationSearchFocused = false"><input type="hidden" name="publication" :value="activeFilters.publication"><small v-if="pendingDraftValue('publication')" class="library-filter-draft-state" data-library-pending-draft="publication">{{ pendingDraftText('publication') }}</small><ul v-if="publicationSearchFocused && publicationSuggestions.length > 0" id="library-publication-suggestions" class="library-publication-suggestions" role="listbox"><li v-for="publication in publicationSuggestions" :key="publication" role="option"><button type="button" class="library-publication-suggestion" @mousedown.prevent @click="selectPublicationSuggestion(publication, $event)">{{ publication }}</button></li></ul><button type="submit" class="button secondary library-publication-apply" :class="pendingApplyClass('publication')">{{ t('library', 'Apply series') }}</button></div>
@@ -2024,7 +2030,7 @@ async function toggleStar(item, event) {
             </fieldset><fieldset class="library-filter-group" data-library-filter-group="location"><legend>{{ t('library', 'Location') }}</legend><label>{{ t('library', 'Shelf') }}<select v-model="activeFilters.shelf" name="shelf" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All shelves') }}</option><option v-for="shelf in shelves" :key="shelf" :value="shelf">{{ shelf }}</option></select></label>
             <div class="library-folder-filter"><label for="library-folder-search">{{ t('library', 'Folder') }}</label><input id="library-folder-search" v-model="folderSearch" type="search" name="folderSearch" autocomplete="off" :placeholder="t('library', 'Type at least 3 path characters')" :title="t('library', 'Select an exact folder path')" role="combobox" aria-autocomplete="list" aria-controls="library-folder-suggestions" :aria-expanded="folderSearchFocused && folderSuggestions.length > 0 ? 'true' : 'false'" @focus="folderSearchFocused = true" @keydown.escape="folderSearchFocused = false"><ul v-if="folderSearchFocused && folderSuggestions.length > 0" id="library-folder-suggestions" class="library-folder-suggestions" role="listbox"><li v-for="folder in folderSuggestions" :key="folder" role="option"><button type="button" class="library-folder-suggestion" @mousedown.prevent @click="selectFolderSuggestion(folder, $event)">{{ folder }}</button></li></ul><button type="submit" class="button secondary library-folder-apply" :class="pendingApplyClass('folder')">{{ t('library', 'Apply folder') }}</button></div>
             </fieldset><fieldset class="library-filter-group" data-library-filter-group="review"><legend>{{ t('library', 'Review') }}</legend><label>{{ t('library', 'Scan status') }}<select v-model="activeFilters.status" name="status" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All scan statuses') }}</option><option v-for="status in scanStatuses" :key="status" :value="status">{{ status }}</option></select></label>
-            <label>{{ t('library', 'Workflow status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All workflow statuses') }}</option><option v-for="status in workflowStatuses" :key="status" :value="status">{{ status }}</option></select></label>
+            <label>{{ t('library', 'Reading status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All reading statuses') }}</option><option v-for="status in workflowStatuses" :key="status" :value="status">{{ status }}</option></select></label>
             <div class="library-subject-filter"><label for="library-subject-search">{{ t('library', 'Subject') }}</label><input id="library-subject-search" v-model="subjectSearch" type="search" name="subjectSearch" autocomplete="off" :placeholder="t('library', 'Search subjects')" :title="t('library', 'Exact subject matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-subject-suggestions" :aria-expanded="subjectSearchFocused && subjectSuggestions.length > 0 ? 'true' : 'false'" @focus="subjectSearchFocused = true" @keydown.escape="subjectSearchFocused = false"><input type="hidden" name="subject" :value="activeFilters.subject"><small v-if="pendingDraftValue('subject')" class="library-filter-draft-state" data-library-pending-draft="subject">{{ pendingDraftText('subject') }}</small><ul v-if="subjectSearchFocused && subjectSuggestions.length > 0" id="library-subject-suggestions" class="library-subject-suggestions" role="listbox"><li v-for="subject in subjectSuggestions" :key="subject" role="option"><button type="button" class="library-subject-suggestion" @mousedown.prevent @click="selectSubjectSuggestion(subject, $event)">{{ subject }}</button></li></ul><button type="button" class="button secondary library-subject-apply" :class="pendingApplyClass('subject')" @click="applySubjectSearch">{{ t('library', 'Apply subject') }}</button></div>
             <div class="library-classification-filter"><label for="library-classification-search">{{ t('library', 'Classification') }}</label><input id="library-classification-search" v-model="classificationSearch" type="search" name="classificationSearch" autocomplete="off" :placeholder="t('library', 'Search classifications')" :title="t('library', 'Exact classification matches only')" role="combobox" aria-autocomplete="list" aria-controls="library-classification-suggestions" :aria-expanded="classificationSearchFocused && classificationSuggestions.length > 0 ? 'true' : 'false'" @focus="classificationSearchFocused = true" @keydown.escape="classificationSearchFocused = false"><input type="hidden" name="classification" :value="activeFilters.classification"><ul v-if="classificationSearchFocused && classificationSuggestions.length > 0" id="library-classification-suggestions" class="library-classification-suggestions" role="listbox"><li v-for="classification in classificationSuggestions" :key="classification" role="option"><button type="button" class="library-classification-suggestion" @mousedown.prevent @click="selectClassificationSuggestion(classification, $event)">{{ classification }}</button></li></ul><button type="submit" class="button secondary library-classification-apply" :class="pendingApplyClass('classification')">{{ t('library', 'Apply classification') }}</button></div>
             <label>{{ t('library', 'Suggested updates') }}<select v-model="activeFilters.scannerConflicts" name="scannerConflicts" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All metadata') }}</option><option value="1">{{ t('library', 'Suggested updates') }}</option></select></label>
@@ -2103,8 +2109,8 @@ async function toggleStar(item, event) {
     </div>
     <div v-else class="library-review-results" role="region" :aria-label="t('library', 'Review results')">
       <article v-for="item in items" :key="item.id" class="library-review-result-card">
-        <div><h3><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></button></h3><p v-if="item.creators" class="library-muted"><bdi class="library-bidi-human" dir="auto">{{ item.displayCreators ?? item.creators }}</bdi></p><p v-if="item.scanError" class="library-scan-error"><bdi class="library-bidi-human" dir="auto">{{ item.scanError }}</bdi></p></div>
-        <p><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Details') }}</button><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></p>
+        <div><h3><a class="library-cover-title-button" :href="detailsLink(item.detailsUrl)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></a></h3><p v-if="item.creators" class="library-muted"><bdi class="library-bidi-human" dir="auto">{{ item.displayCreators ?? item.creators }}</bdi></p><p v-if="item.scanError" class="library-scan-error"><bdi class="library-bidi-human" dir="auto">{{ item.scanError }}</bdi></p></div>
+        <p><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Quick view') }}</button><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></p>
       </article>
     </div>
     <nav v-if="items.length > 0" class="library-pagination" :aria-label="t('library', 'Review pagination')"><a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a><span v-else class="library-muted">{{ t('library', 'Previous') }}</span><span>{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span><a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a><span v-else class="library-muted">{{ t('library', 'Next') }}</span></nav>
@@ -2127,8 +2133,8 @@ async function toggleStar(item, event) {
       <header><div><h3 id="library-continue-heading"><LabelHelp :text="t('library', 'Pick up publications you opened recently.')">{{ t('library', 'Continue reading') }}</LabelHelp></h3></div><a :href="`${catalogueRootUrl}?recentlyOpened=1&sort=lastOpened`">{{ t('library', 'View all') }}</a></header>
       <div v-if="homeRows.continueReading.length" class="library-home-card-row">
         <article v-for="item in homeRows.continueReading" :key="`continue-${item.id}`" class="library-cover-card library-home-card">
-          <button type="button" class="library-cover-link" :aria-label="`${t('library', 'Details')}: ${item.title}`" @click="openDetailsDrawer(item, $event)"><span class="library-cover-frame"><img class="library-cover-image" :src="item.coverUrl" alt="" loading="lazy" decoding="async"></span></button>
-          <div class="library-cover-summary"><h4><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi dir="auto">{{ item.title }}</bdi></button></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.displayCreators ?? item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></div>
+          <a class="library-cover-link" :href="detailsLink(item.detailsUrl)" :aria-label="`${t('library', 'Details')}: ${item.title}`"><CatalogueCover :src="item.coverUrl" /></a>
+          <div class="library-cover-summary"><h4><a class="library-cover-title-button" :href="detailsLink(item.detailsUrl)"><bdi dir="auto">{{ item.title }}</bdi></a></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.displayCreators ?? item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></div>
         </article>
       </div>
       <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Publications you open will appear here.') }}</p>
@@ -2138,8 +2144,8 @@ async function toggleStar(item, event) {
       <header><div><h3 id="library-recent-heading"><LabelHelp :text="t('library', 'The latest publications indexed from your Library roots.')">{{ t('library', 'Recently added') }}</LabelHelp></h3></div><a :href="`${catalogueRootUrl}?sort=recent`">{{ t('library', 'View all') }}</a></header>
       <div v-if="homeRows.recentlyAdded.length" class="library-home-card-row">
         <article v-for="item in homeRows.recentlyAdded" :key="`recent-${item.id}`" class="library-cover-card library-home-card">
-          <button type="button" class="library-cover-link" :aria-label="`${t('library', 'Details')}: ${item.title}`" @click="openDetailsDrawer(item, $event)"><span class="library-cover-frame"><img class="library-cover-image" :src="item.coverUrl" alt="" loading="lazy" decoding="async"></span></button>
-          <div class="library-cover-summary"><h4><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi dir="auto">{{ item.title }}</bdi></button></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.displayCreators ?? item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></div>
+          <a class="library-cover-link" :href="detailsLink(item.detailsUrl)" :aria-label="`${t('library', 'Details')}: ${item.title}`"><CatalogueCover :src="item.coverUrl" /></a>
+          <div class="library-cover-summary"><h4><a class="library-cover-title-button" :href="detailsLink(item.detailsUrl)"><bdi dir="auto">{{ item.title }}</bdi></a></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.displayCreators ?? item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></div>
         </article>
       </div>
       <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Recently indexed publications will appear here.') }}</p>
@@ -2148,7 +2154,7 @@ async function toggleStar(item, event) {
     <section class="library-home-row" aria-labelledby="library-home-shelves-heading">
       <header><div><h3 id="library-home-shelves-heading"><LabelHelp :text="t('library', 'Browse the folders that organize your publications.')">{{ t('library', 'Shelves') }}</LabelHelp></h3></div><a :href="shelvesUrl">{{ t('library', 'View all') }}</a></header>
       <nav v-if="homeShelves.length" class="library-home-shelves" :aria-label="t('library', 'Shelves')"><a v-for="shelf in homeShelves" :key="shelf.shelf" :href="shelf.url"><strong><bdi dir="auto">{{ shelf.shelf }}</bdi></strong><span>{{ n('library', '%n item', '%n items', Number(shelf.itemCount || 0)) }}</span></a></nav>
-      <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Your enabled Library roots will appear as shelves.') }}</p>
+      <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Enabled shelves appear here.') }}</p>
     </section>
 
     <aside v-if="Number(needsAttention.count || 0) > 0" class="library-home-attention" aria-labelledby="library-home-attention-heading">
@@ -2177,9 +2183,9 @@ async function toggleStar(item, event) {
     </nav>
     <section v-else class="library-shelves-empty" role="status">
       <h3><LabelHelp :text="t('library', 'Browse the folders that organize your publications.')">{{ t('library', 'Shelves') }}</LabelHelp></h3>
-      <p class="library-muted">{{ t('library', 'Your enabled Library roots will appear as shelves.') }}</p>
+      <p class="library-muted">{{ t('library', 'Enabled shelves appear here.') }}</p>
       <p class="library-empty-actions">
-        <a class="button primary" :href="settingsUrl">{{ t('library', 'Add a Library root') }}</a>
+        <a class="button primary" :href="settingsUrl">{{ t('library', 'Add a shelf') }}</a>
         <a class="button secondary" :href="catalogueRootUrl">{{ t('library', 'All publications') }}</a>
       </p>
     </section>
@@ -2189,6 +2195,12 @@ async function toggleStar(item, event) {
       <p v-if="isDiscoveryPage" class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
       <h2 id="library-catalogue-heading" ref="catalogueHeadingElement" tabindex="-1">{{ catalogueHeading }}</h2>
     </header>
+    <form class="library-catalogue-search" role="search" @submit.prevent="applyAllSearchFilters">
+      <input v-for="filter in batchHiddenFilters.filter(entry => entry.key !== 'q')" :key="filter.key" type="hidden" :name="filter.key" :value="filter.value">
+      <label for="library-main-search">{{ t('library', 'Search books') }}</label>
+      <span class="library-search-input-wrap"><input id="library-main-search" ref="quickSearchInput" v-model="quickSearch" name="q" type="search" :placeholder="t('library', 'Title, author, description, filename or folder')"><span v-if="catalogueRequestState.loading" class="library-search-spinner" aria-hidden="true"></span></span>
+      <button type="submit" class="button secondary">{{ t('library', 'Search') }}</button>
+    </form>
     <details class="library-mobile-filter-panel" data-library-control="filter" @toggle="handleMobileFilterToggle">
       <summary class="library-mobile-filter-trigger" :aria-label="mobileFilterAriaLabel">
         <span class="library-mobile-filter-count">{{ n('library', '%n item', '%n items', Number(pagination.total || 0)) }}</span>
@@ -2217,7 +2229,7 @@ async function toggleStar(item, event) {
         <fieldset class="library-mobile-filter-group">
           <legend>{{ t('library', 'Review') }}</legend>
           <label>{{ t('library', 'Scan status') }}<select v-model="activeFilters.status" name="status" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All scan statuses') }}</option><option v-for="status in scanStatuses" :key="`mobile-scan-${status}`" :value="status">{{ status }}</option></select></label>
-          <label>{{ t('library', 'Workflow status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All workflow statuses') }}</option><option v-for="status in workflowStatuses" :key="`mobile-workflow-${status}`" :value="status">{{ status }}</option></select></label>
+          <label>{{ t('library', 'Reading status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All reading statuses') }}</option><option v-for="status in workflowStatuses" :key="`mobile-workflow-${status}`" :value="status">{{ status }}</option></select></label>
           <label>{{ t('library', 'Suggested updates') }}<select v-model="activeFilters.scannerConflicts" name="scannerConflicts" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All metadata') }}</option><option value="1">{{ t('library', 'Suggested updates') }}</option></select></label>
         </fieldset>
         <fieldset class="library-mobile-filter-group">
@@ -2232,11 +2244,13 @@ async function toggleStar(item, event) {
         </div>
       </form>
     </details>
-    <nav class="library-catalogue-workspace library-workspace-menubar" :aria-label="t('library', 'One catalogue workspace')">
+    <nav v-if="items.length || canSaveCurrentView || collectionsExpanded" class="library-catalogue-workspace library-workspace-menubar" :aria-label="t('library', 'One catalogue workspace')">
       <div class="library-catalogue-control-band">
-        <section id="library-collections" class="library-saved-collections">
-          <h3 :title="t('library', 'Save the current in-app filter setup as a named collection, then reopen it without leaving Library.')">{{ t('library', 'Collections') }}</h3>
-          <form method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''">
+        <details v-if="canSaveCurrentView || savedCollections.length || collectionsExpanded" :open="collectionsExpanded" @toggle="collectionsExpanded = $event.target.open" id="library-collections" class="library-saved-collections library-save-search">
+          <summary>{{ canSaveCurrentView ? t('library', 'Save this search') : t('library', 'Collections') }}</summary>
+          <ul v-if="savedCollections.length"><li v-for="collection in savedCollections" :key="collection.id"><a :href="savedCollectionUrl(collection.filters)">{{ collection.name }}</a></li></ul>
+          <p v-if="!canSaveCurrentView">{{ t('library', 'Choose search terms or filters first, then save them as a custom collection.') }}</p>
+          <form v-if="canSaveCurrentView" method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''">
             <input type="hidden" name="requesttoken" :value="requestToken">
             <input type="hidden" name="savedCollectionFilters" :value="currentSavableFiltersJson">
             <label>
@@ -2245,8 +2259,9 @@ async function toggleStar(item, event) {
             </label>
             <button type="submit" class="button secondary" :disabled="!canSaveCurrentView" :title="t('library', 'Save current view')">{{ t('library', 'Save') }}</button>
           </form>
-        </section>
+        </details>
         <form method="get" class="library-quick-filter-bar library-catalogue-toolbar" :aria-label="t('library', 'Catalogue toolbar')" @submit.prevent="submitFiltersAjax">
+          <input type="hidden" name="q" :value="activeFilters.q"><input type="hidden" name="starred" :value="activeFilters.starred">
           <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
           <label class="library-sort-control" data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
           <nav class="library-view-mode-toggle" data-library-control="view" :aria-label="t('library', 'View')"><button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Compact') }}</button><button type="button" data-library-view-mode="list" :class="{ active: viewMode === 'list' }" :aria-pressed="viewMode === 'list' ? 'true' : 'false'" @click="setViewMode('list')">{{ t('library', 'List') }}</button></nav>
@@ -2327,11 +2342,11 @@ async function toggleStar(item, event) {
 
     <div v-if="items.length === 0" class="library-empty-content" :class="{ 'library-first-run-guidance': hasNoConfiguredRoots || hasNoEnabledRoots, 'library-filter-empty-state': hasActiveFilters && !hasNoConfiguredRoots && !hasNoEnabledRoots }" role="status">
       <template v-if="hasNoConfiguredRoots">
-        <h3 :title="t('library', 'Add one folder path that already exists in Nextcloud Files, then run a scan to build the catalogue.')">{{ t('library', 'Start with one Library root') }}</h3>
-        <p class="library-empty-actions"><a :href="settingsUrl" class="button primary">{{ t('library', 'Add a Library root') }}</a><span class="library-muted">{{ t('library', 'Run a scan after saving a root') }}</span></p>
+        <h3 :title="t('library', 'Add one folder path that already exists in Nextcloud Files, then run a scan to build the catalogue.')">{{ t('library', 'Add your first shelf') }}</h3>
+        <p class="library-empty-actions"><a :href="settingsUrl" class="button primary">{{ t('library', 'Add a shelf') }}</a><span class="library-muted">{{ t('library', 'Choose a folder, save the shelf, then scan to browse its books.') }}</span></p>
       </template>
       <template v-else-if="hasNoEnabledRoots">
-        <h3 :title="t('library', 'Enable a saved root in settings, then scan enabled roots to refresh the catalogue.')">{{ t('library', 'No enabled Library roots') }}</h3>
+        <h3 :title="t('library', 'Enable a shelf in settings, then scan it to refresh the catalogue.')">{{ t('library', 'No enabled shelves') }}</h3>
         <p class="library-empty-actions"><a :href="settingsUrl" class="button primary">{{ t('library', 'Open Library settings') }}</a></p>
       </template>
       <template v-else-if="hasActiveFilters">
@@ -2366,13 +2381,13 @@ async function toggleStar(item, event) {
           <form v-if="selectedBatchAction === 'tag'" method="post" :action="batchTagUrl" class="library-batch-action-card library-batch-tag-form"><input type="hidden" name="requesttoken" :value="requestToken"><label><span>{{ t('library', 'Add tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button primary" :title="t('library', 'Applies only to the selected publications.')">{{ t('library', 'Apply') }}</button></form>
           <form v-if="selectedBatchAction === 'untag'" method="post" :action="batchTagRemoveUrl" class="library-batch-action-card library-batch-tag-remove-form"><input type="hidden" name="requesttoken" :value="requestToken"><label><span>{{ t('library', 'Remove tag') }}</span><input type="text" name="nextcloudTagName" list="library-nextcloud-tag-suggestions" :placeholder="t('library', 'e.g. Review')" autocomplete="off"></label><button type="submit" class="button secondary" :title="t('library', 'Removes the tag only from the selected publications.')">{{ t('library', 'Remove') }}</button></form>
           <form v-if="selectedBatchAction === 'reset'" method="post" :action="batchMetadataResetUrl" class="library-batch-action-card library-batch-metadata-reset-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`reset-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><input type="hidden" name="scannerConflicts" value="1"><button type="submit" class="button secondary" :title="t('library', 'Batch actions for selected publications')">{{ t('library', 'Reset metadata') }}</button></form>
-          <form v-if="selectedBatchAction === 'edit'" method="post" :action="batchMetadataEditPreviewUrl" class="library-batch-action-card library-batch-action-card--wide library-batch-metadata-edit-preview-form" target="_blank"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`edit-preview-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Field') }}</span><select name="bulkEditField"><option value="publicationType">{{ t('library', 'Publication type') }}</option><option value="subtitle">{{ t('library', 'Subtitle') }}</option><option value="creators">{{ t('library', 'Creators') }}</option><option value="publication">{{ t('library', 'Series / periodical') }}</option><option value="series">{{ t('library', 'Series') }}</option><option value="seriesNumber">{{ t('library', 'Part in series') }}</option><option value="genre">{{ t('library', 'Genre') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="language">{{ t('library', 'Language') }}</option><option value="publisher">{{ t('library', 'Publisher') }}</option><option value="subjects">{{ t('library', 'Subjects') }}</option><option value="classifications">{{ t('library', 'Classifications') }}</option></select></label><label><span>{{ t('library', 'Value') }}</span><input type="text" name="bulkEditValue" :placeholder="t('library', 'magazine, de, photography…')" autocomplete="off"></label><button type="submit" class="button secondary" :title="t('library', 'Preview first, then apply from the review page.')">{{ t('library', 'Preview edit') }}</button></form>
+          <form v-if="selectedBatchAction === 'edit'" method="post" :action="batchMetadataEditPreviewUrl" class="library-batch-action-card library-batch-action-card--wide library-batch-metadata-edit-preview-form" target="_blank"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`edit-preview-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><label><span>{{ t('library', 'Metadata field') }}</span><select name="bulkEditField"><option value="publicationType">{{ t('library', 'Publication type') }}</option><option value="subtitle">{{ t('library', 'Subtitle') }}</option><option value="creators">{{ t('library', 'Source author credits') }}</option><option value="publication">{{ t('library', 'Series / periodical') }}</option><option value="series">{{ t('library', 'Source series name') }}</option><option value="seriesNumber">{{ t('library', 'Source part in series') }}</option><option value="genre">{{ t('library', 'Source genre') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="language">{{ t('library', 'Language') }}</option><option value="publisher">{{ t('library', 'Publisher') }}</option><option value="subjects">{{ t('library', 'Subjects') }}</option><option value="classifications">{{ t('library', 'Classifications') }}</option></select></label><label><span>{{ t('library', 'Value') }}</span><input type="text" name="bulkEditValue" :placeholder="t('library', 'magazine, de, photography…')" autocomplete="off"></label><button type="submit" class="button secondary" :title="t('library', 'Preview first, then apply from the review page.')">{{ t('library', 'Preview edit') }}</button></form>
           <form v-if="selectedBatchAction === 'covers'" method="post" :action="batchCoverRefreshUrl" class="library-batch-action-card library-batch-cover-refresh-form"><input type="hidden" name="requesttoken" :value="requestToken"><input v-for="filter in batchHiddenFilters" :key="`cover-${filter.key}`" type="hidden" :name="filter.key" :value="filter.value"><button type="submit" class="button secondary" :title="t('library', 'Batch actions for selected publications')">{{ t('library', 'Fresh covers') }}</button></form>
         <button type="button" class="button secondary" @click="selectedBatchAction = ''">{{ t('library', 'Cancel') }}</button>
       </div>
     </section>
 
-    <p v-if="duplicateSuggestionsEnabled && (duplicateHintStatus === 'building' || Object.values(duplicateHints).some(entry => entry.status === 'partial'))" class="library-duplicate-page-status" role="status">{{ t('library', 'Suggestions are incomplete while indexing or when candidate limits are reached.') }}</p>
+    <p v-if="duplicateSuggestionsEnabled && (duplicateHintStatus === 'building' || Object.values(duplicateHints).some(entry => entry.status === 'partial'))" class="library-duplicate-page-status" role="status"><LabelHelp :text="t('library', 'Suggestions are incomplete while indexing or when candidate limits are reached.')">{{ t('library', 'Duplicate suggestions updating') }}</LabelHelp></p>
     <div v-if="items.length > 0 && viewMode === 'list'" class="library-catalogue-list-scroll" data-library-catalogue-list-scroll>
       <table class="library-catalogue-list" data-library-catalogue-list>
         <caption class="hidden-visually">{{ t('library', 'Catalogue list') }}</caption>
@@ -2381,7 +2396,7 @@ async function toggleStar(item, event) {
             <th class="library-catalogue-list-selection"><span class="hidden-visually">{{ t('library', 'Selection') }}</span></th>
             <th class="library-catalogue-list-cover-heading"><span class="hidden-visually">{{ t('library', 'Cover') }}</span></th>
             <th scope="col">{{ t('library', 'Title') }}</th>
-            <th scope="col">{{ t('library', 'Creators') }}</th>
+            <th scope="col">{{ t('library', 'Authors') }}</th>
             <th scope="col">{{ t('library', 'Publication date') }}</th>
             <th scope="col">{{ t('library', 'Series') }}</th>
             <th scope="col">{{ t('library', 'Format') }}</th>
@@ -2392,14 +2407,14 @@ async function toggleStar(item, event) {
         <tbody>
           <tr v-for="item in items" :key="item.id" class="library-catalogue-list-row" :class="{ 'library-catalogue-list-row--selected': selectedItemIdSet.has(Number(item.id)), 'library-catalogue-list-row--open': sidebarOpen && Number(sidebarRequestedId) === Number(item.id) }">
             <td class="library-catalogue-list-selection"><label class="library-item-selection"><input type="checkbox" :checked="selectedItemIdSet.has(Number(item.id))" :aria-label="`${t('library', 'Select publication')}: ${item.title}`" @change="toggleItemSelection(item.id, $event.currentTarget.checked)"></label></td>
-            <td class="library-catalogue-list-cover-cell"><button type="button" class="library-catalogue-list-cover" :aria-label="`${t('library', 'Details')}: ${item.title}`" @click="openDetailsDrawer(item, $event)"><img :src="item.coverUrl" alt="" loading="lazy" decoding="async"></button></td>
-            <th scope="row" class="library-catalogue-list-title-cell"><button type="button" class="library-cover-title-button library-catalogue-list-title" @click="openDetailsDrawer(item, $event)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></button><a v-if="duplicateHints[item.id]?.count" class="library-duplicate-badge" :href="`${catalogueRootUrl}?duplicates=1&bookId=${item.id}`">{{ t('library', 'Possible duplicates') }} · {{ duplicateHints[item.id].count }}{{ duplicateHints[item.id].status === 'partial' ? '+' : '' }}</a></th>
+            <td class="library-catalogue-list-cover-cell"><a class="library-catalogue-list-cover" :href="detailsLink(item.detailsUrl)" :aria-label="`${t('library', 'Details')}: ${item.title}`"><img :src="item.coverUrl" alt="" loading="lazy" decoding="async"></a></td>
+            <th scope="row" class="library-catalogue-list-title-cell"><a class="library-cover-title-button library-catalogue-list-title" :href="detailsLink(item.detailsUrl)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></a><a v-if="duplicateHints[item.id]?.count" class="library-duplicate-badge" :href="`${catalogueRootUrl}?duplicates=1&bookId=${item.id}`">{{ t('library', 'Possible duplicates') }} · {{ duplicateHints[item.id].count }}{{ duplicateHints[item.id].status === 'partial' ? '+' : '' }}</a></th>
             <td class="library-catalogue-list-creators"><bdi v-if="item.creators" class="library-bidi-human" dir="auto">{{ item.displayCreators ?? item.creators }}</bdi><span v-else :aria-label="t('library', 'Unknown')">—</span></td>
             <td><time v-if="item.publicationDate" :datetime="item.publicationDate">{{ item.publicationDate }}</time><span v-else :aria-label="t('library', 'Unknown')">—</span></td>
             <td><bdi v-if="item.publication" class="library-bidi-human" dir="auto">{{ item.publication }}</bdi><span v-else :aria-label="t('library', 'Unknown')">—</span></td>
             <td><bdi v-if="item.extension || item.publicationType" :class="item.extension ? 'library-bidi-machine' : 'library-bidi-human'" :dir="item.extension ? 'ltr' : 'auto'">{{ item.extension ? upper(item.extension) : item.publicationType }}</bdi><span v-else :aria-label="t('library', 'Unknown')">—</span></td>
             <td><bdi v-if="item.shelf" class="library-bidi-human" dir="auto">{{ item.shelf }}</bdi><span v-else :aria-label="t('library', 'Unknown')">—</span></td>
-            <td class="library-catalogue-list-actions"><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Details') }}</button></td>
+            <td class="library-catalogue-list-actions"><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Quick view') }}</button></td>
           </tr>
         </tbody>
       </table>
@@ -2407,10 +2422,10 @@ async function toggleStar(item, event) {
     <div v-else-if="items.length > 0" class="library-cover-gallery" :class="coverGalleryClasses">
       <article v-for="item in items" :key="item.id" class="library-cover-card" :class="{ 'library-cover-card--selected': selectedItemIdSet.has(Number(item.id)), 'library-cover-card--open': sidebarOpen && Number(sidebarRequestedId) === Number(item.id) }">
         <label class="library-item-selection"><input type="checkbox" :checked="selectedItemIdSet.has(Number(item.id))" :aria-label="`${t('library', 'Select publication')}: ${item.title}`" @change="toggleItemSelection(item.id, $event.currentTarget.checked)"></label>
-        <button type="button" class="library-cover-link" :aria-labelledby="`library-details-action-${item.id} library-card-title-${item.id}`" :aria-expanded="sidebarOpen && Number(sidebarRequestedId) === Number(item.id) ? 'true' : 'false'" @click="openDetailsDrawer(item, $event)">
+        <a :href="detailsLink(item.detailsUrl)" class="library-cover-link" :aria-labelledby="`library-details-action-${item.id} library-card-title-${item.id}`">
           <span :id="`library-details-action-${item.id}`" class="hidden-visually">{{ t('library', 'Details') }}</span>
           <CatalogueCover :src="item.coverUrl" />
-        </button>
+        </a>
         <form method="post" :action="item.starUrl" class="library-cover-star-form" @submit.prevent="toggleStar(item, $event)">
           <input type="hidden" name="requesttoken" :value="requestToken">
           <input type="hidden" name="returnTo" value="catalogue">
@@ -2420,8 +2435,8 @@ async function toggleStar(item, event) {
             class="library-cover-star-button"
             :class="{ 'library-cover-star-button--starred': item.starred }"
             :aria-pressed="item.starred ? 'true' : 'false'"
-            :title="item.starred ? t('library', 'Unstar this publication') : t('library', 'Star this publication')"
-            :aria-label="item.starred ? t('library', 'Unstar this publication') : t('library', 'Star this publication')"
+            :title="item.starred ? t('library', 'Remove from favorites') : t('library', 'Add to favorites')"
+            :aria-label="item.starred ? t('library', 'Remove from favorites') : t('library', 'Add to favorites')"
             :aria-busy="starPending[item.id] ? 'true' : undefined"
             :disabled="starPending[item.id]"
             @click.prevent="toggleStar(item, $event)">
@@ -2430,9 +2445,9 @@ async function toggleStar(item, event) {
           <span v-if="starErrors[item.id]" :data-library-star-error="item.id" class="library-star-feedback" role="alert">{{ starErrors[item.id] }}</span>
         </form>
         <div class="library-cover-summary">
-          <div class="library-cover-primary">
+          <div class="library-cover-primary"><button type="button" class="library-quick-view" :aria-expanded="sidebarOpen && Number(sidebarRequestedId) === Number(item.id)" :aria-label="`${t('library', 'Quick view')}: ${item.title}`" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Quick view') }}</button>
             <a v-if="duplicateHints[item.id]?.count" class="library-duplicate-badge" :href="`${catalogueRootUrl}?duplicates=1&bookId=${item.id}`">{{ t('library', 'Possible duplicates') }} · {{ duplicateHints[item.id].count }}{{ duplicateHints[item.id].status === 'partial' ? '+' : '' }}</a>
-            <h3 :id="`library-card-title-${item.id}`"><button type="button" class="library-cover-title-button" @click="openDetailsDrawer(item, $event)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></button></h3>
+            <h3 :id="`library-card-title-${item.id}`"><a class="library-cover-title-button" :href="detailsLink(item.detailsUrl)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></a></h3>
             <p v-if="item.creators" class="library-cover-creator"><bdi class="library-bidi-human" dir="auto">{{ item.displayCreators ?? item.creators }}</bdi></p>
             <p v-if="cardContext(item)" class="library-cover-context"><bdi class="library-bidi-human" dir="auto">{{ cardContext(item) }}</bdi></p>
           </div>
@@ -2509,9 +2524,9 @@ async function toggleStar(item, event) {
             </form>
             <section v-if="reviewConflictFieldsFor(selectedDrawerItem).length" class="library-sidebar-review" aria-labelledby="library-sidebar-suggestions-heading"><h4 id="library-sidebar-suggestions-heading"><LabelHelp :text="t('library', 'Suggestions are optional and never replace your edits automatically.')">{{ t('library', 'Scanner suggestions') }}</LabelHelp></h4><dl><div v-for="field in reviewConflictFieldsFor(selectedDrawerItem)" :key="field.field"><dt>{{ field.field }} · {{ field.sourceProvenance }}</dt><dd>{{ t('library', 'Current') }}: {{ field.currentValue || '—' }}<br>{{ t('library', 'Suggestion') }}: {{ field.scannerCandidate || '—' }}</dd></div></dl></section>
           </section>
-          <section v-else class="library-sidebar-section" aria-labelledby="library-sidebar-activity-heading"><h3 id="library-sidebar-activity-heading">{{ t('library', 'Activity') }}</h3><dl class="library-detail-drawer-facts"><div><dt>{{ t('library', 'Scan status') }}</dt><dd>{{ selectedDrawerItem.scanStatus || '—' }}</dd></div><div v-if="selectedDrawerItem.workflowStatus"><dt>{{ t('library', 'Workflow') }}</dt><dd>{{ selectedDrawerItem.workflowStatus }}</dd></div><div v-if="selectedDrawerItem.metadataSource"><dt>{{ t('library', 'Metadata source') }}</dt><dd>{{ selectedDrawerItem.metadataSource }}</dd></div><div v-if="selectedDrawerItem.cachedPath"><dt>{{ t('library', 'File') }}</dt><dd class="library-detail-drawer-file"><a v-if="selectedDrawerItem.openUrl" :href="selectedDrawerItem.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(selectedDrawerItem, $event)"><bdi dir="ltr">{{ selectedDrawerItem.cachedPath }}</bdi></a><bdi v-else dir="ltr">{{ selectedDrawerItem.cachedPath }}</bdi></dd></div></dl></section>
+          <section v-else class="library-sidebar-section" aria-labelledby="library-sidebar-activity-heading"><h3 id="library-sidebar-activity-heading">{{ t('library', 'Activity') }}</h3><dl class="library-detail-drawer-facts"><div><dt>{{ t('library', 'Scan status') }}</dt><dd>{{ selectedDrawerItem.scanStatus || '—' }}</dd></div><div v-if="selectedDrawerItem.workflowStatus"><dt>{{ t('library', 'Reading status') }}</dt><dd>{{ selectedDrawerItem.workflowStatus }}</dd></div><div v-if="selectedDrawerItem.metadataSource"><dt>{{ t('library', 'Metadata source') }}</dt><dd>{{ selectedDrawerItem.metadataSource }}</dd></div><div v-if="selectedDrawerItem.cachedPath"><dt>{{ t('library', 'File') }}</dt><dd class="library-detail-drawer-file"><a v-if="selectedDrawerItem.openUrl" :href="selectedDrawerItem.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(selectedDrawerItem, $event)"><bdi dir="ltr">{{ selectedDrawerItem.cachedPath }}</bdi></a><bdi v-else dir="ltr">{{ selectedDrawerItem.cachedPath }}</bdi></dd></div></dl></section>
           <nav v-if="selectedDrawerItem.canonicalAuthors?.length" class="library-author-links" :aria-label="t('library', 'Authors')"><a v-for="author in selectedDrawerItem.canonicalAuthors" :key="author.id" class="button secondary" :href="`${catalogueRootUrl}?authors=1&authorId=${author.id}`"><bdi dir="auto">{{ author.name }}</bdi></a></nav>
-          <nav v-else-if="selectedDrawerItem.authors?.length" class="library-author-links" :aria-label="t('library', 'Creators')"><a v-for="author in selectedDrawerItem.authors" :key="author" class="button secondary" :href="creatorLandingUrl(author)"><bdi dir="auto">{{ author }}</bdi></a></nav>
+          <nav v-else-if="selectedDrawerItem.authors?.length" class="library-author-links" :aria-label="t('library', 'Authors')"><a v-for="author in selectedDrawerItem.authors" :key="author" class="button secondary" :href="creatorLandingUrl(author)"><bdi dir="auto">{{ author }}</bdi></a></nav>
           <nav v-if="selectedDrawerItem.canonicalSeries?.length" class="library-author-links" :aria-label="t('library', 'Series')"><a v-for="series in selectedDrawerItem.canonicalSeries" :key="series.id" class="button secondary" :href="`${catalogueRootUrl}?series=1&seriesId=${series.id}`"><bdi dir="auto">{{ series.name }}<template v-if="series.part"> · {{ series.part }}</template></bdi></a></nav>
           <nav v-if="selectedDrawerItem.canonicalGenres?.length" class="library-author-links" :aria-label="t('library', 'Genres')"><a v-for="genre in selectedDrawerItem.canonicalGenres" :key="genre.id" class="button secondary" :href="`${catalogueRootUrl}?genreId=${genre.id}`"><bdi dir="auto">{{ genre.name }}</bdi></a></nav>
           <nav class="library-detail-drawer-stepper" :aria-label="t('library', 'Browse neighbouring items')"><button type="button" class="button secondary" :disabled="!drawerPreviousItem" @click="showDrawerItem(drawerPreviousItem)">{{ t('library', 'Previous item') }}</button><button type="button" class="button secondary" :disabled="!drawerNextItem" @click="showDrawerItem(drawerNextItem)">{{ t('library', 'Next item') }}</button></nav>

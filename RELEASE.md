@@ -1,5 +1,7 @@
 # Release process
 
+Current UI consistency candidate: **0.3.0-alpha.32**. Shared pickers, draft protection, clearer navigation and compact review/status controls address the 20 October UX review. Verification is in progress; signed alpha.31 remains installed on developer NC34. No database migration.
+
 Signed alpha.31 is deployed on developer NC34. It adds confirmed book-file deletion with shared-OPF protection and empty-folder cleanup. App integrity is clean and the existing catalogue remains at large catalogue books. No database migration. Verification/deployment: [alpha.31 record](docs/compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
 
 Alpha.30 adds a shared compact browser for Authors, Series and Genres, with displayed-name sorting, bounded book previews and genre pagination. One additive index supports ordering; no author identities or book values change. Alpha.30 is the preceding verified deployment; its browser features are retained in alpha.31. Verification and deployment status: [alpha.30 record](docs/compatibility-evidence/2026-10-20-nc34-author-browser-alpha30/README.md).
@@ -8,7 +10,7 @@ Alpha.29 fixes selective content-search performance and surname searches in the 
 
 Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](docs/compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.31 is now installed.
 
-Development candidate **0.3.0-alpha.31** consolidates book navigation on the current editor. Owned legacy bookmarks redirect with validated return context and feedback; author/series/conflict links open the editor directly. Metadata status uses the existing presenter and saved canonical authors, with normalized scanner attention in the editor. The three bottom disclosures are Metadata status, Imported metadata and scan suggestions, and File metadata. The unused legacy editor bundle remains excluded from packaging; the frontend size budget is unchanged. Alpha.30 adds the author display-name index.
+Development candidate **0.3.0-alpha.32** consolidates book navigation on the current editor. Owned legacy bookmarks redirect with validated return context and feedback; author/series/conflict links open the editor directly. Metadata status uses the existing presenter and saved canonical authors, with normalized scanner attention in the editor. The three bottom disclosures are Metadata status, Imported metadata and scan suggestions, and File metadata. The unused legacy editor bundle remains excluded from packaging; the frontend size budget is unchanged. Alpha.30 adds the author display-name index.
 
 The [alpha.31 verification and deployment record](docs/compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md) tracks checks and deployment. The alpha.28 deployment is historical; alpha.31 is now installed. The exact signed NC33–35 fresh/upgrade matrix and owner acceptance remain pending for 0.3. The owner chose 0.3 as the first App Store release; **do not submit the 0.2 archive**. Historical baselines below remain preserved.
 
