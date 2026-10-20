@@ -82,7 +82,6 @@ OC.L10N.register(
         "Apply approved suggestions": "Apply approved suggestions",
         "Apply changes to selected items": "Apply changes to selected items",
         "Apply classification": "Apply classification",
-        "Apply creator": "Apply creator",
         "Apply filters": "Apply filters",
         "Apply folder": "Apply folder",
         "Apply metadata import": "Apply metadata import",
@@ -543,7 +542,6 @@ OC.L10N.register(
         "Mapping removed.": "Mapping removed.",
         "Mapping saved.": "Mapping saved.",
         "Mappings group values for browsing and search. Each book keeps its original metadata. Removing a mapping immediately restores separate results.": "Mappings group values for browsing and search. Each book keeps its original metadata. Removing a mapping immediately restores separate results.",
-        "Match an individual author; existing full-field filters remain usable": "Match an individual author; existing full-field filters remain usable",
         "Matched items": "Matched items",
         "Matched rule": "Matched rule",
         "Matches the beginning of a preferred series name.": "Matches the beginning of a preferred series name.",
@@ -929,7 +927,6 @@ OC.L10N.register(
         "Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.": "Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.",
         "Search authors": "Search authors",
         "Search classifications": "Search classifications",
-        "Search creators": "Search creators",
         "Search genres": "Search genres",
         "Search languages or enter a code": "Search languages or enter a code",
         "Search publication years": "Search publication years",
@@ -1096,7 +1093,6 @@ OC.L10N.register(
         "Title by Author": "Title by Author",
         "Title from filename": "Title from filename",
         "Title was inferred from the source path.": "Title was inferred from the source path.",
-        "Title, creator, description, filename or folder": "Title, creator, description, filename or folder",
         "To read": "To read",
         "To review": "To review",
         "Total items": "Total items",
@@ -1296,7 +1292,11 @@ OC.L10N.register(
         "{matched} of {total} paths on this page match this structure.": "{matched} of {total} paths on this page match this structure.",
         "Type at least three letters to search authors.": "Type at least three letters to search authors.",
         "Destination selected. Review the change before applying it.": "Destination selected. Review the change before applying it.",
-        "Create new author": "Create new author"
+        "Create new author": "Create new author",
+        "Title, author, description, filename or folder": "Title, author, description, filename or folder",
+        "Apply author": "Apply author",
+        "Search by author name or surname (at least 3 characters), or choose a suggested author.": "Search by author name or surname (at least 3 characters), or choose a suggested author.",
+        "Author": "Author"
     },
     "nplurals=2; plural=(n != 1);"
 );

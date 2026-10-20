@@ -725,3 +725,12 @@ Notes/privacy concerns:
 - Series change: H03-05, H03-06, H03-07 and H03-09.
 - Duplicate matching change: H03-08 with distinct issues and true duplicates.
 - Release-package change: H03-01, H03-03, H03-05 and H03-09 on the exact installed package, plus checksum and installed-version evidence. The historical LIB-HARDEN cases above can supply extra breadth when their labels still match the current UI.
+### H03-20 — Catalogue author search regression
+
+1. In All publications, clear filters. Search for `Heinlein` in Search; confirm the loading indicator finishes promptly and results remain usable.
+2. Clear filters; type `Heinlein` in **Author**, then press Enter. Expect author-linked books, rather than zero results. General Search can return more books because it also checks descriptions and paths.
+3. Type three or more letters in Author and select a full name. Confirm the selected name is reflected in the filter chip and Back/Forward restores it.
+4. In a disposable test account, rename an author; search a distinctive part of their new display name and sort name. Both should find their books without rescanning.
+5. Repeat with a language filter and on a narrow screen. Filters must combine; no overflow or blank-screen errors. Saved exact author filters should still work.
+
+See the [alpha.29 measurements and repeat commands](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md).

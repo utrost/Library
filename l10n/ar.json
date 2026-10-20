@@ -81,7 +81,6 @@
         "Apply approved suggestions": "تطبيق الاقتراحات المعتمدة",
         "Apply changes to selected items": "تطبيق التغييرات على العناصر المحددة",
         "Apply classification": "تطبيق التصنيف",
-        "Apply creator": "تطبيق المبدع",
         "Apply filters": "تطبيق المرشحات",
         "Apply folder": "تطبيق المجلد",
         "Apply metadata import": "تطبيق استيراد البيانات الوصفية",
@@ -542,7 +541,6 @@
         "Mapping removed.": "تمت إزالة التعيين.",
         "Mapping saved.": "تم حفظ التعيين.",
         "Mappings group values for browsing and search. Each book keeps its original metadata. Removing a mapping immediately restores separate results.": "تجمع التعيينات القيم في التصفح والبحث. يحتفظ كل كتاب ببياناته الوصفية الأصلية. تؤدي إزالة التعيين إلى فصل النتائج فورًا.",
-        "Match an individual author; existing full-field filters remain usable": "التصفية حسب مؤلف واحد؛ تظل عوامل التصفية الحالية للحقل الكامل قابلة للاستخدام",
         "Matched items": "العناصر المطابقة",
         "Matched rule": "القاعدة المطابقة",
         "Matches the beginning of a preferred series name.": "يطابق بداية الاسم المفضل للسلسلة.",
@@ -928,7 +926,6 @@
         "Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.": "يتحقق البحث أيضًا من الأوصاف. يمكن البحث في الأوصاف واسم الملف وأسماء المجلدات، مما يساعد في ملفات PDF المتفرقة والرسوم الهزلية التي توجد بياناتها التعريفية المفيدة فقط في مسارها أو ملاحظاتها.",
         "Search authors": "البحث عن مؤلفين",
         "Search classifications": "البحث في التصنيفات",
-        "Search creators": "البحث عن المبدعين",
         "Search genres": "البحث عن تصنيفات",
         "Search languages or enter a code": "البحث عن لغة أو إدخال رمزها",
         "Search publication years": "البحث عن سنوات النشر",
@@ -1095,7 +1092,6 @@
         "Title by Author": "العنوان بقلم المؤلف",
         "Title from filename": "العنوان من اسم الملف",
         "Title was inferred from the source path.": "تم استنتاج العنوان من مسار المصدر.",
-        "Title, creator, description, filename or folder": "العنوان أو المنشئ أو الوصف أو اسم الملف أو المجلد",
         "To read": "لقراءة",
         "To review": "للمراجعة",
         "Total items": "إجمالي العناصر",
@@ -1379,7 +1375,11 @@
         "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية.",
         "Type at least three letters to search authors.": "اكتب ثلاثة أحرف على الأقل للبحث عن المؤلفين.",
         "Destination selected. Review the change before applying it.": "تم اختيار المؤلف الوجهة. راجع التغيير قبل تطبيقه.",
-        "Create new author": "إنشاء مؤلف جديد"
+        "Create new author": "إنشاء مؤلف جديد",
+        "Title, author, description, filename or folder": "العنوان أو المؤلف أو الوصف أو اسم الملف أو المجلد",
+        "Apply author": "تطبيق المؤلف",
+        "Search by author name or surname (at least 3 characters), or choose a suggested author.": "ابحث باسم المؤلف أو اسم العائلة (3 أحرف على الأقل)، أو اختر مؤلفًا مقترحًا.",
+        "Author": "المؤلف"
     },
     "pluralForm": "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 }
