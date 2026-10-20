@@ -95,3 +95,54 @@
   #library-app .author-profile-header:not(:has(.author-portrait)) h1 { padding-inline-start: 32px; }
 }
 .library-confirm-dialog button { min-height: 44px; min-width: 44px; }
+
+/* Follow-up: one search, a compact control band and book identity before actions. */
+#library-app .library-catalogue-control-band { align-items: start; }
+#library-app .library-mobile-filter-panel { flex: 0 0 auto; margin: 0; border: 0; padding: 0; background: transparent; }
+#library-app .library-mobile-filter-panel[open] { flex-basis: 100%; order: 3; }
+#library-app .library-mobile-filter-trigger { padding: 0; }
+#library-app .library-save-search { margin: 0; }
+#library-app .library-catalogue-status-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+#library-app .library-catalogue-status-row p { margin: 0; }
+#library-app .library-result-selection { order: 3; margin-inline-start: auto; }
+#library-app .library-pagination--top { margin: 0; gap: 8px; }
+#library-app .library-pagination--top .library-pagination-range { display: none; }
+#library-app .library-duplicate-page-status { font-size: 13px; margin-block: 8px; }
+#library-app .library-cover-gallery .library-cover-card { overflow: hidden; gap: 8px; }
+#library-app .library-cover-gallery .library-cover-link { position: relative; flex: none; aspect-ratio: 2 / 3; width: 100%; }
+#library-app .library-cover-gallery .library-cover-link .library-cover-image { height: 100%; width: 100%; object-fit: contain; }
+#library-app .library-cover-gallery .library-cover-summary { position: static; padding: 0; background: none; color: var(--color-main-text); opacity: 1; pointer-events: auto; }
+#library-app .library-cover-gallery .library-cover-primary { display: flex; flex-direction: column; gap: 4px; }
+#library-app .library-cover-gallery .library-cover-summary .library-cover-title-button { color: var(--color-main-text); font-size: 14px; -webkit-line-clamp: 3; line-height: 1.4; }
+#library-app .library-cover-gallery .library-cover-creator { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; color: var(--color-text-maxcontrast); font-size: 13px; }
+#library-app .library-cover-gallery .library-cover-context { color: var(--color-text-maxcontrast); }
+#library-app .library-cover-gallery .library-quick-view { align-self: start; width: auto; min-width: 44px; min-height: 44px; background: transparent; text-decoration: underline; text-underline-offset: 2px; padding: 4px 0; margin: 0; font-weight: normal; }
+#library-settings > .library-panel > summary { font-size: 20px; }
+#library-settings .library-add-shelf-card { border: 0; background: none; padding: 16px 0; }
+#library-settings .library-add-shelf-card > h3 { font-size: 16px; }
+@media (max-width: 720px) {
+  #library-app .library-catalogue-control-band { gap: 4px 8px; }
+  #library-app .library-catalogue-toolbar { flex: 1 1 auto; gap: 4px; }
+  #library-app .library-sort-control { font-size: 0; gap: 0; }
+  #library-app .library-sort-control select { font-size: 14px; max-inline-size: 100px; }
+  #library-app .library-view-mode-toggle button { padding-inline: 8px; }
+  #library-app .library-save-search summary { padding: 0; font-size: 13px; }
+  #library-app .library-catalogue-status-row { font-size: 13px; }
+  #library-app .library-result-selection { margin: 0; }
+  #library-settings .library-folder-path-field { grid-template-columns: minmax(0, 1fr); }
+  #library-settings .library-folder-path-field label { grid-column: 1; }
+  #library-settings .library-folder-picker-button { grid-column: 1; grid-row: auto; justify-self: start; }
+  #library-settings .library-settings-section { padding: 16px; }
+  #library-settings .library-root-edit-details .library-form { padding: 0; }
+}
+#library-app .library-cover-gallery .library-cover-summary { text-shadow: none; }
+#library-app .library-catalogue-search > small { flex-basis: 100%; grid-column: 1 / -1; }
+#library-app .library-cover-gallery .library-cover-title-button { --library-cover-title-lines: 3; }
+#library-app .library-cover-gallery .library-cover-creator,
+#library-app .library-cover-gallery .library-cover-context { max-height: none; opacity: 1; transform: none; margin: 0; line-height: 1.4; }
+#library-app .library-cover-gallery .library-cover-summary { max-height: none; overflow: visible; min-block-size: 0; }
+#library-app .library-cover-gallery .library-cover-card--open { grid-column: auto; }
+
+/* Keep cover text stable on hover and keyboard focus. Full titles remain on Details. */
+#library-app .library-cover-gallery .library-cover-title-button > bdi { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+#library-app .library-cover-gallery .library-cover-creator { white-space: normal; overflow-wrap: anywhere; }

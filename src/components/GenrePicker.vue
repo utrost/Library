@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { pickerIndex } from '../picker-keyboard.js'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import IdentityAction from './IdentityAction.vue'
@@ -36,7 +37,7 @@ function findGenres(value) {
     controller = new AbortController()
     try {
       const data = await request(`?search=${encodeURIComponent(value.trim())}`, null, controller.signal)
-      if (generation === current) { searched.value = true; matchedCount.value = (data.genres || []).length; results.value = (data.genres || []).filter(genre => !props.genres.some(chosen => Number(chosen.id) === Number(genre.id))) }
+      if (generation === current) { searched.value = true; matchedCount.value = (data.genres || []).length; results.value = (data.genres || []).filter(genre => !props.genres.some(chosen => Number(chosen.id) === Number(genre.id))); activeIndex.value = results.value.length ? 0 : -1 }
     } catch (cause) { if (generation === current && cause.name !== 'AbortError') error.value = cause.message }
     finally { if (generation === current) searching.value = false }
   }, 220)
@@ -75,7 +76,7 @@ function onKeydown(event) {
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     event.preventDefault()
     focused.value = true
-    activeIndex.value = event.key === 'ArrowDown' ? (activeIndex.value + 1) % results.value.length : (activeIndex.value < 0 ? results.value.length - 1 : (activeIndex.value - 1 + results.value.length) % results.value.length)
+    activeIndex.value = pickerIndex(activeIndex.value, event.key, results.value.length)
   } else if (event.key === 'Enter' && focused.value) {
     event.preventDefault()
     assign(results.value[Math.max(0, activeIndex.value)])

@@ -1,13 +1,15 @@
 <script setup>
+import BookCollectionToolbar from './BookCollectionToolbar.vue'
+import BookCollectionItem from './BookCollectionItem.vue'
+import { pickerIndex } from '../picker-keyboard.js'
 import { confirmAction } from '../confirm-action.js'
 import { useUnsavedChanges } from '../use-unsaved-changes.js'
 import FormActions from './FormActions.vue'
-import { bookDetailsUrl, bookCoverUrl as coverUrl } from '../details-return.js'
+import { bookDetailsUrl } from '../details-return.js'
 import { computed, onMounted, onUnmounted, reactive, ref, watch, nextTick } from 'vue'
 import { generateUrl } from '@nextcloud/router'
 import { t, n } from '@nextcloud/l10n'
 import AuthorConflicts from './AuthorConflicts.vue'
-import CatalogueCover from './CatalogueCover.vue'
 import DirectoryBrowser from './DirectoryBrowser.vue'
 import LabelHelp from './LabelHelp.vue'
 const props = defineProps({ requestToken: { type: String, default: '' }, catalogueUrl: { type: String, required: true } })
@@ -154,6 +156,7 @@ async function findTargets() {
     const result = await request(`?search=${encodeURIComponent(targetSearch.value.trim())}`, null, controller.signal)
     if (sequence !== targetSequence) return
     targets.value = result.authors.filter(a => Number(a.id) !== id.value)
+    targetActive.value = targets.value.length ? 0 : -1
     targetSearched.value = true
   } catch (e) {
     if (sequence === targetSequence && e.name !== 'AbortError') targetError.value = e.message
@@ -173,7 +176,7 @@ function targetKeydown(event) {
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     if (!targets.value.length) return
     event.preventDefault(); targetMenuOpen.value = true
-    targetActive.value = targetActive.value < 0 ? (event.key === 'ArrowDown' ? 0 : targets.value.length - 1) : (targetActive.value + (event.key === 'ArrowDown' ? 1 : -1) + targets.value.length) % targets.value.length
+    targetActive.value = pickerIndex(targetActive.value, event.key, targets.value.length)
     nextTick(() => document.getElementById(`target-option-${targetActive.value}`)?.scrollIntoView?.({ block: 'nearest' }))
   } else if (event.key === 'Enter' && targetMenuOpen.value && targetActive.value >= 0) {
     event.preventDefault(); chooseTarget(targets.value[targetActive.value])
@@ -314,35 +317,19 @@ onUnmounted(() => { loadController?.abort(); loadSequence++; stopTargetSearch();
       </section>
       <section id="author-books" class="author-catalogue" :aria-label="t('library', 'Books in your library')">
         <h2>{{ t('library', 'Books in your library') }}</h2>
-        <form class="author-book-controls" @submit.prevent="load(1)">
-          <label for="author-book-search">{{ t('library', 'Search titles') }}</label>
-          <input id="author-book-search" v-model="bookSearch" type="search" maxlength="255" :disabled="busy || editing" />
-          <button :disabled="busy || editing">{{ t('library', 'Search') }}</button>
-          <label for="author-book-sort">{{ t('library', 'Sort') }}</label>
-          <select id="author-book-sort" v-model="bookSort" :disabled="busy || editing" @change="load(1)">
-            <option value="title">{{ t('library', 'Title') }}</option>
-            <option value="newest">{{ t('library', 'Publication date, newest first') }}</option>
-            <option value="series">{{ t('library', 'Series, then title') }}</option>
-          </select>
-          <div class="author-view-controls"><button type="button" :aria-pressed="bookView === 'grid'" @click="bookView = 'grid'">{{ t('library', 'Covers') }}</button> <button type="button" :aria-pressed="bookView === 'list'" @click="bookView = 'list'">{{ t('library', 'List') }}</button></div>
-        </form>
+        <BookCollectionToolbar v-model:search="bookSearch" v-model:sort="bookSort" v-model:view="bookView" :sorts="[{ value: 'title', label: t('library', 'Title') }, { value: 'newest', label: t('library', 'Publication date, newest first') }, { value: 'series', label: t('library', 'Series, then title') }]" :disabled="busy || editing" @apply="load(1)" />
         <p v-if="bookSearch">{{ n('library', '%n book', '%n books', data.matchingCount) }}</p>
         <p v-if="!data.books.length">{{ t('library', 'No books match this view.') }}</p>
         <section v-for="group in bookGroups" :key="group.name ?? 'all'" class="author-book-group">
           <h3 v-if="group.name !== null">{{ group.name || t('library', 'No series recorded') }}</h3>
-          <ul class="author-books" :class="{ 'author-books-grid': bookView === 'grid' }">
-            <li v-for="book in group.books" :key="book.id">
-              <input v-if="assigning" v-model="selected" type="checkbox" :value="Number(book.id)" :aria-label="t('library', 'Select {title}', { title: book.title })" :disabled="busy" @change="review = null" />
-              <a class="author-book-cover" :href="bookUrl(book)" :aria-label="book.title"><CatalogueCover :src="coverUrl(book)" /></a>
-              <div class="author-book-description">
-                <a class="author-book-title" :href="bookUrl(book)" dir="auto">{{ book.title }}</a>
-                <span v-if="book.series_name" dir="auto">{{ book.series_name }}<template v-if="book.series_number"> · {{ book.series_number }}</template></span>
-                <span v-if="book.publication_date">{{ book.publication_date }}</span>
-                <span>{{ book.extension?.toUpperCase() }}</span>
-                <span v-if="book.scan_status === 'missing'">{{ t('library', 'File missing') }}</span>
-                <span v-if="assigning" dir="auto">{{ t('library', 'Original credit: {credit}', { credit: book.creators || '—' }) }}</span>
-              </div>
-            </li>
+          <ul class="author-books" :class="{ 'author-books-grid': bookView === 'grid', 'library-collection-grid': bookView === 'grid' }">
+            <BookCollectionItem v-for="book in group.books" :key="book.id" :book="book" :href="bookUrl(book)">
+              <template #selection><input v-if="assigning" v-model="selected" type="checkbox" :value="Number(book.id)" :aria-label="t('library', 'Select {title}', { title: book.title })" :disabled="busy" @change="review = null" /></template>
+              <span v-if="book.series_name" dir="auto">{{ book.series_name }}<template v-if="book.series_number"> · {{ book.series_number }}</template></span>
+              <span v-if="book.publication_date">{{ book.publication_date }}</span><span>{{ book.extension?.toUpperCase() }}</span>
+              <span v-if="book.scan_status === 'missing'">{{ t('library', 'File missing') }}</span>
+              <span v-if="assigning" dir="auto">{{ t('library', 'Original credit: {credit}', { credit: book.creators || '—' }) }}</span>
+            </BookCollectionItem>
           </ul>
         </section>
       </section>
@@ -401,22 +388,10 @@ onUnmounted(() => { loadController?.abort(); loadSequence++; stopTargetSearch();
 .author-actions[open] { display: block; margin: 12px 0; }
 .author-editor textarea { width: 100%; box-sizing: border-box; resize: vertical; }
 .author-editor input[type="checkbox"] { width: 20px; min-height: 20px; height: 20px; }
-.author-book-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-block: 16px; }
-.author-book-controls input { flex: 1 1 160px; min-width: 0; }
-.author-book-controls select { max-width: 100%; }
 .author-book-group h3 { font-size: 18px; font-weight: 600; margin-block: 20px 8px; }
-.author-books li { display: flex; gap: 12px; border-bottom: 1px solid var(--color-border); padding: 12px 0; min-width: 0; position: relative; }
-.author-book-description { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.author-book-cover { flex: 0 0 64px; width: 64px; }
-.author-books :deep(.library-cover-image) { width: 100%; height: 100%; object-fit: contain; }
-.author-books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
-.author-books-grid li { flex-direction: column; border-bottom: 0; }
-.author-books-grid .author-book-cover { width: 100%; flex: auto; }
-.author-books-grid input[type="checkbox"] { position: absolute; top: 18px; inset-inline-start: 6px; z-index: 1; }
 @media (max-width: 600px) {
   .author-portrait { width: 76px; height: 76px; flex-basis: 76px; font-size: 26px; }
   .author-profile-header { gap: 12px; }
-  .author-books-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 }
 @media (max-width: 600px) { .library-authors { padding: 24px 12px 12px; } }
 </style>

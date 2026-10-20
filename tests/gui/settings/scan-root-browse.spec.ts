@@ -34,7 +34,7 @@ test('scans a configured root and finds its publication in the catalogue @scan @
 
   await openLibrary(page)
   const filters = page.getByRole('form', { name: 'Catalogue search and filters' })
-  await filters.locator('[data-library-quick-search]').fill(title)
+  await page.locator('#library-main-search').fill(title)
   const catalogueResponse = page.waitForResponse((response) => {
     const url = new URL(response.url())
     return url.pathname.endsWith('/apps/library/catalogue') && url.searchParams.get('q') === title

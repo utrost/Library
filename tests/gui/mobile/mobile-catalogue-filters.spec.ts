@@ -21,7 +21,7 @@ test('applies and clears catalogue filters at a phone viewport @catalogue @filte
     await expect(form.getByRole('group', { name: group })).toBeVisible()
   }
 
-  await form.locator('[data-library-mobile-filter-search]').fill(title)
+  await page.locator('#library-main-search').fill(title)
   const catalogueResponse = page.waitForResponse((response) => {
     const url = new URL(response.url())
     return url.pathname.endsWith('/apps/library/catalogue')

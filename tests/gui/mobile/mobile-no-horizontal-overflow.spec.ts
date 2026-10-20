@@ -38,7 +38,7 @@ test('keeps catalogue controls and filtered results within the phone viewport @m
   await expect(form).toBeVisible()
   await expectNoHorizontalOverflow(page, catalogue)
 
-  await form.locator('[data-library-mobile-filter-search]').fill(title)
+  await page.locator('#library-main-search').fill(title)
   const filteredResponse = page.waitForResponse((response) => {
     const url = new URL(response.url())
     return url.pathname.endsWith('/apps/library/catalogue') && url.searchParams.get('q') === title

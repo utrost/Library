@@ -1,4 +1,5 @@
 <script setup>
+import { pickerIndex } from '../picker-keyboard.js'
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { n, t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
@@ -259,6 +260,7 @@ async function findAuthors(search = authorSearch.value.trim()) {
     const result = await authorRequest(`?search=${encodeURIComponent(search)}`, null, controller.signal)
     if (request !== authorSearchRequest || !editingAuthor.value) return
     authorResults.value = result.authors.filter(author => Number(author.id) !== Number(editingAuthor.value?.id))
+    authorActiveIndex.value = authorResults.value.length ? 0 : -1
     authorHasNext.value = result.hasNext === true
     authorLookupCompleted.value = true
   } catch (cause) {
@@ -283,9 +285,7 @@ function authorPickerKeydown(event) {
     event.preventDefault()
     authorSuggestionsOpen.value = true
     if (!authorResults.value.length) return
-    authorActiveIndex.value = event.key === 'ArrowDown'
-      ? (authorActiveIndex.value + 1) % authorResults.value.length
-      : (authorActiveIndex.value < 0 ? authorResults.value.length - 1 : (authorActiveIndex.value - 1 + authorResults.value.length) % authorResults.value.length)
+    authorActiveIndex.value = pickerIndex(authorActiveIndex.value, event.key, authorResults.value.length)
   } else if (event.key === 'Enter' && authorSuggestionsOpen.value && authorResults.value.length) {
     event.preventDefault()
     selectAuthor(authorResults.value[Math.max(0, authorActiveIndex.value)])
@@ -373,6 +373,7 @@ async function findSeries(search = seriesSearch.value.trim()) {
     if (request !== seriesSearchRequest || !editingSeries.value) return
     const currentId = Number(draft.seriesLink?.id || 0)
     seriesResults.value = result.series.filter(candidate => Number(candidate.id) !== currentId)
+    seriesActiveIndex.value = seriesResults.value.length ? 0 : -1
     seriesHasNext.value = result.hasNext === true
     seriesLookupCompleted.value = true
   } catch (cause) {
@@ -393,9 +394,7 @@ function seriesPickerKeydown(event) {
     event.preventDefault()
     seriesSuggestionsOpen.value = true
     if (!seriesResults.value.length) return
-    seriesActiveIndex.value = event.key === 'ArrowDown'
-      ? (seriesActiveIndex.value + 1) % seriesResults.value.length
-      : (seriesActiveIndex.value < 0 ? seriesResults.value.length - 1 : (seriesActiveIndex.value - 1 + seriesResults.value.length) % seriesResults.value.length)
+    seriesActiveIndex.value = pickerIndex(seriesActiveIndex.value, event.key, seriesResults.value.length)
   } else if (event.key === 'Enter' && seriesSuggestionsOpen.value && seriesResults.value.length) {
     event.preventDefault()
     selectSeries(seriesResults.value[Math.max(0, seriesActiveIndex.value)])

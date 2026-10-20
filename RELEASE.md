@@ -1,5 +1,7 @@
 # Release process
 
+Development candidate **0.3.0-alpha.33** addresses the alpha.32 follow-up: consistent keyboard pickers, directory query feedback, return-position restoration, compact browsing, shared series controls and clearer review/settings fields. No database migration. Verification is in progress; signed alpha.32 remains deployed until the new package passes its gates. Exact NC33–35 certification and manual assistive-technology acceptance remain pending.
+
 Signed **0.3.0-alpha.32** is deployed on developer NC34. All fourteen findings from the 20 October UI/UX review have implementation changes: shared controls, protected drafts, consistent navigation, compact catalogue search and clearer review/settings flows. Integrity is clean and the catalogue remains at **large catalogue books**. No database migration. See the [alpha.32 verification and deployment record](docs/compatibility-evidence/2026-10-20-nc34-ui-consistency-alpha32/README.md) and human acceptance **H03-24**.
 
 Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: [alpha.31 record](docs/compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).

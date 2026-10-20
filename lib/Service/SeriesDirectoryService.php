@@ -29,13 +29,32 @@ final class SeriesDirectoryService {
         }
         return ['series' => $entries, 'page' => $page, 'hasNext' => count($list) > 50, 'migration' => $this->storage->status($uid)];
     }
-    public function show(string $uid, int $id, int $page = 1): array {
-        if ($page < 1 || $page > 100000) throw new \InvalidArgumentException('page');
+    public function show(string $uid, int $id, int $page = 1, string $search = '', string $sort = 'part'): array {
+        if ($page < 1 || $page > 100000 || mb_strlen($search) > 255 || !mb_check_encoding($search, 'UTF-8')) throw new \InvalidArgumentException('search_or_page');
+        // Numeric parts (including decimals) sort naturally; arbitrary imported labels stay text.
+        // Bound and validate before casting, including on PostgreSQL where invalid casts throw.
+        $remaining = 'l.part_number';
+        foreach (str_split('0123456789') as $digit) $remaining = "REPLACE($remaining,'$digit','')";
+        $numeric = "(LENGTH(l.part_number) BETWEEN 1 AND 12 AND ($remaining='' OR $remaining='.') AND l.part_number<>'.')";
+        $partOrder = "CASE WHEN l.part_number IS NULL THEN 2 WHEN $numeric THEN 0 ELSE 1 END,CASE WHEN $numeric THEN CAST(l.part_number AS DECIMAL(20,6)) ELSE NULL END,l.part_number,i.title,i.id";
+        $order = match ($sort) {
+            'part' => $partOrder,
+            'title' => 'i.title,i.id',
+            'newest' => 'CASE WHEN i.publication_date IS NULL THEN 1 ELSE 0 END,i.publication_date DESC,i.title,i.id',
+            default => throw new \InvalidArgumentException('sort'),
+        };
         $series = $this->rows('SELECT id,display_name,description,revision,merged_into FROM *PREFIX*library_series WHERE user_id=? AND id=?', [$uid, $id])[0] ?? null;
         if ($series === null) throw new \OutOfBoundsException('series');
         $count = $this->rows('SELECT COUNT(*) AS n FROM *PREFIX*library_item_series WHERE user_id=? AND series_id=?', [$uid, $id])[0];
-        $books = $this->rows('SELECT i.id,i.title,i.creators,l.part_number,l.source_name,i.cover_revision,f.etag,f.extension,f.scan_status FROM *PREFIX*library_item_series l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id WHERE l.user_id=? AND l.series_id=? ORDER BY CASE WHEN l.part_number IS NULL THEN 1 ELSE 0 END,l.part_number,i.title,i.id LIMIT 51 OFFSET ' . (($page - 1) * 50), [$uid, $id]);
-        return ['series' => $series, 'books' => array_slice($books, 0, 50), 'bookCount' => (int)$count['n'], 'page' => $page, 'hasNext' => count($books) > 50];
+        $from = ' FROM *PREFIX*library_item_series l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id WHERE l.user_id=? AND l.series_id=?';
+        $params = [$uid, $id];
+        if (trim($search) !== '') {
+            $from .= " AND LOWER(i.title) LIKE ? ESCAPE '!'";
+            $params[] = '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($search))) . '%';
+        }
+        $matching = trim($search) === '' ? (int)$count['n'] : (int)$this->rows('SELECT COUNT(*) AS n' . $from, $params)[0]['n'];
+        $books = $this->rows('SELECT i.id,i.title,i.creators,i.publication_date,l.part_number,l.source_name,i.cover_revision,f.etag,f.extension,f.scan_status' . $from . ' ORDER BY ' . $order . ' LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
+        return ['series' => $series, 'books' => array_slice($books, 0, 50), 'bookCount' => (int)$count['n'], 'matchingCount' => $matching, 'page' => $page, 'hasNext' => count($books) > 50];
     }
     public function update(string $uid, int $id, int $revision, string $name, string $description): void {
         if ($revision < 1 || mb_strlen($name) > 255 || mb_strlen($description) > 10000 || !mb_check_encoding($name . $description, 'UTF-8') || preg_match('/[\p{Cc}]/u', $name)) throw new \InvalidArgumentException('series');
