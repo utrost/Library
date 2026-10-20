@@ -82,3 +82,9 @@ scripts:
     tags: [mobile, layout, css, regression]
     file: tests/gui/mobile/mobile-no-horizontal-overflow.spec.ts
     command: npm run test:gui:mobile -- tests/gui/mobile/mobile-no-horizontal-overflow.spec.ts
+
+  ui-consistency:
+    description: Verify main search, cover/editor versus Quick view destinations, Home covers, dirty-list navigation, import recovery, maintenance links and lookup failures.
+    tags: [ux, navigation, details, mobile, import, regression]
+    file: tests/gui/details/ui-consistency.spec.ts
+    command: npm run test:gui -- tests/gui/details/ui-consistency.spec.ts

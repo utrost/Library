@@ -50,7 +50,7 @@ test('exports a corrected item, previews and applies an imported title, then res
       portability.getByRole('button', { name: 'Preview metadata import' }).click(),
     ])
     await expect(page.getByRole('heading', { name: 'Review metadata import' })).toBeVisible()
-    await expect(page.getByText('Review these counts before applying.')).toBeVisible()
+    await expect(page.getByText('Review these counts before applying. Source files are not changed.')).toBeVisible()
     const preview = page.locator('.library-import-preview-summary')
     const metric = async (summary: typeof preview, label: string) => summary.locator('dt').filter({ hasText: label }).evaluate((term) => Number(term.nextElementSibling?.textContent?.trim() ?? ''))
     expect(await metric(preview, 'Total items')).toBe(1)
@@ -58,6 +58,8 @@ test('exports a corrected item, previews and applies an imported title, then res
     expect(await metric(preview, 'Missing items')).toBe(0)
     expect(await metric(preview, 'Invalid items')).toBe(0)
     expect(await metric(preview, 'Changed fields')).toBe(1)
+    await expect(page.locator('.library-review-values').first()).toContainText(exportTitle)
+    await expect(page.locator('.library-review-values').first()).toContainText(importedTitle)
     await attachCheckpoint(page, testInfo, 'metadata-import-preview', '.library-metadata-import-result')
 
     await Promise.all([

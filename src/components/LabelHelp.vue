@@ -4,8 +4,10 @@ import { t } from '@nextcloud/l10n'
 defineProps({ text: { type: String, required: true } })
 const id = useId(), anchor = ref(null), popup = ref(null), open = ref(false), position = ref({})
 let timer
+const helpName = ref(t('library', 'Help'))
 const labelId = `${id}-label`
 onMounted(() => {
+  helpName.value = t('library', 'Help: {label}', { label: anchor.value?.querySelector('span')?.textContent?.trim() || anchor.value?.closest('label')?.textContent?.replace('?', '').trim() || t('library', 'More information') })
   const label = anchor.value?.closest('label')
   const control = label?.querySelector('input, select, textarea')
   const heading = anchor.value?.closest('h1, h2, h3, h4')
@@ -42,12 +44,12 @@ onBeforeUnmount(() => { clearTimeout(timer); document.removeEventListener('point
 <template>
   <span ref="anchor" class="library-label-help" @pointerenter="($event.pointerType !== 'touch') && show()" @pointerleave="leave" @keydown.esc.stop.prevent="hide">
     <span :id="labelId"><slot /></span>
-    <button type="button" class="library-label-help-button" :aria-label="t('library', 'Help')" :aria-describedby="open ? id : undefined" @focus="show" @blur="leave" @click.stop.prevent="show">?</button>
+    <button type="button" class="library-label-help-button" :aria-label="helpName" :aria-describedby="open ? id : undefined" @focus="show" @blur="leave" @click.stop.prevent="show">?</button>
     <Teleport to="body"><span v-if="open" :id="id" ref="popup" class="library-label-help-popup" role="tooltip" :style="position" @pointerenter="keep" @pointerleave="leave">{{ text }}</span></Teleport>
   </span>
 </template>
 <style>
 .library-label-help { display: inline-flex; align-items: center; gap: 6px; width: fit-content; max-width: 100%; }
-.library-label-help .library-label-help-button { min-height: 20px; min-width: 20px; width: 20px; height: 20px; padding: 0; margin: 0; border-radius: 50%; font-size: 12px; line-height: 18px; border: 1px solid var(--color-border); background: var(--color-background-hover); color: var(--color-text-maxcontrast); }
+.library-label-help .library-label-help-button { min-height: 24px; min-width: 24px; width: 24px; height: 24px; padding: 0; margin: 0; border-radius: 50%; font-size: 12px; line-height: 18px; border: 1px solid var(--color-border); background: var(--color-background-hover); color: var(--color-text-maxcontrast); }
 .library-label-help-popup { position: fixed; z-index: 100001; width: 320px; max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px); overflow: auto; box-sizing: border-box; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px; color: var(--color-main-text); background: var(--color-main-background); box-shadow: 0 4px 16px #0003; white-space: pre-line; overflow-wrap: anywhere; font-size: 13px; }
 </style>

@@ -12,7 +12,7 @@ def test_root_delete_form_shows_recovery_checklist_before_destructive_confirmati
     template = read("templates/settings-personal.php")
 
     assert "library-root-recovery-checklist" in template
-    assert "Before deleting this Library root" in template
+    assert "Before removing this shelf" in template
     assert "Export corrected metadata" in template
     assert "full Nextcloud database and data-directory backup" in template
     assert "Re-add the same folder path and scan it again" in template

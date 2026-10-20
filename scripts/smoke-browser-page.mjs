@@ -327,7 +327,7 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
       const sidebar = document.querySelector('#app-sidebar-vue')
       const sidebarStyle = sidebar ? getComputedStyle(sidebar) : null
       const sidebarBox = sidebar?.getBoundingClientRect()
-      const opener = document.querySelectorAll('.library-cover-link')[openerIndex]
+      const opener = document.querySelectorAll('.library-quick-view')[openerIndex]
       const openerStyle = opener ? getComputedStyle(opener) : null
       const openerBox = opener?.getBoundingClientRect()
       const openerX = openerBox ? openerBox.left + openerBox.width / 2 : 0
@@ -380,7 +380,7 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
     const requestedWidth = mobile ? 390 : 1280
     await client.send('Emulation.setDeviceMetricsOverride', { width: requestedWidth, height: mobile ? 844 : 900, deviceScaleFactor: 1, mobile })
     await waitForViewportWidth(requestedWidth, mobile)
-    await clickWithCdp('.library-cover-link', 0)
+    await clickWithCdp('.library-quick-view', 0)
     if (mobile) await waitForMobileModal()
     const loading = await inspectSidebar()
     const loadingAx = await captureSidebarAx('loading', loading)
@@ -414,8 +414,8 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
     await key('Escape', 'Escape')
     await new Promise((resolve) => setTimeout(resolve, 50))
     const closed = !(await inspectSidebar()).open
-    const restored = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true, expression: `document.activeElement?.classList.contains('library-cover-link') === true` }), { phase: 'sidebar-focus-return' })
-    await clickWithCdp('.library-cover-link', 1)
+    const restored = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true, expression: `document.activeElement?.classList.contains('library-quick-view') === true` }), { phase: 'sidebar-focus-return' })
+    await clickWithCdp('.library-quick-view', 1)
     await new Promise((resolve) => setTimeout(resolve, 300))
     const error = await inspectSidebar()
     const errorAx = await captureSidebarAx('error', error)
@@ -480,7 +480,7 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
     observe: () => observeAfterAnimationFrame('adaptation-fresh-catalogue-readiness', `function (expectedUrl, previousTimeOrigin) {
       const fixtureIds = ['910001', '910002', '910003']
       const cards = fixtureIds.map((id) => document.querySelector('#library-card-title-' + id)?.closest('.library-cover-card'))
-      const buttons = cards.map((card) => card?.querySelector('.library-cover-link'))
+      const buttons = cards.map((card) => card?.querySelector('.library-quick-view'))
       const sidebar = document.querySelector('#app-sidebar-vue')
       const sidebarStyle = sidebar ? getComputedStyle(sidebar) : null
       const sidebarBox = sidebar?.getBoundingClientRect()
@@ -512,13 +512,13 @@ async function collectAccessibilityAndAdaptationEvidence(client) {
     expression: `({ width: innerWidth, height: innerHeight, deviceScaleFactor: devicePixelRatio })` }), { phase: 'adaptation-baseline' })
   const inspectAdaptation = async (mode, extra) => {
     if (mode === 'forced-colors') {
-      await clickWithCdp('.library-cover-link', 1)
+      await clickWithCdp('.library-quick-view', 1)
       await new Promise((resolve) => setTimeout(resolve, 300))
       await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
       await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
     }
     if (mode === 'reduced-motion') {
-      await clickWithCdp('.library-cover-link', 0)
+      await clickWithCdp('.library-quick-view', 0)
       await new Promise((resolve) => setTimeout(resolve, 50))
     }
     const value = unwrapCdpEvaluateResponse(await client.send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `(async () => {
@@ -1280,7 +1280,7 @@ async function runBrowserSmoke(proxyBase, proxy) {
             }
             return false
           }
-          const opener = document.querySelector('.library-cover-card .library-cover-link')
+          const opener = document.querySelector('.library-cover-card .library-quick-view')
           if (!opener) return { opened: false, rendered: false, closed: false }
           opener.click()
           const rendered = await waitFor(() => {
@@ -1440,7 +1440,7 @@ async function runBrowserSmoke(proxyBase, proxy) {
           reviewQueueActions: Boolean(document.querySelector('.library-review-queue-actions')),
           reviewQueueMetadataErrorTagForm: Boolean(document.querySelector('.library-review-queue-tag-form input[name="status"][value="metadata_error"]') && document.querySelector('.library-review-queue-tag-form input[name="nextcloudTagName"][value="library-metadata-error"]')),
           reviewQueueScannerConflictTagForm: Boolean(document.querySelector('.library-review-queue-tag-form input[name="scannerConflicts"][value="1"]') && document.querySelector('.library-review-queue-tag-form input[name="nextcloudTagName"][value="library-scanner-conflict"]')),
-          details: document.querySelectorAll('.library-cover-card .library-cover-link').length,
+          details: document.querySelectorAll('.library-cover-card .library-quick-view').length,
           nextcloudTagNameField: Boolean(document.querySelector('input[name="nextcloudTagName"]')),
           catalogueTagEditor: Boolean(document.querySelector('[aria-label="nextcloudTagEditor"]')),
           catalogueStarForms: document.querySelectorAll('.library-cover-star-form').length,
@@ -1509,7 +1509,7 @@ async function runBrowserSmoke(proxyBase, proxy) {
             { id: 'settings-action', selector: '.library-catalogue-actions-list .button:nth-of-type(1)', text: 'الإعدادات' },
             { id: 'metadata-export-action', selector: '.library-catalogue-actions-list .button:nth-of-type(2)', text: 'تصدير البيانات الوصفية المصححة' },
           ]
-          const drawerButton = document.querySelector('.library-cover-link')
+          const drawerButton = document.querySelector('.library-quick-view')
           drawerButton?.focus()
           drawerButton?.click()
           await new Promise((resolve) => setTimeout(resolve, 100))
@@ -1914,7 +1914,7 @@ async function runBrowserSmoke(proxyBase, proxy) {
       awaitPromise: true,
       expression: `new Promise((resolve) => {
         const form = document.querySelector('.library-quick-filter-bar')
-        const search = form?.querySelector('[data-library-quick-search]') || form?.querySelector('input[name="q"]')
+        const search = document.querySelector('#library-main-search')
         const startUrl = location.href
         const realFetch = window.fetch
         const calls = []
@@ -1962,7 +1962,7 @@ async function runBrowserSmoke(proxyBase, proxy) {
 
     const creatorDiscoveryUrl = dom.firstCreatorLanding ? new URL(dom.firstCreatorLanding, proxyBase).href : ''
     const creatorDiscoveryDom = await inspectDiscoveryRoute(client, creatorDiscoveryUrl, 'creator')
-    creatorDiscoveryDom.activeCreator = creatorDiscoveryDom.activeFilterLabels?.some((label) => label.includes('Creator')) === true
+    creatorDiscoveryDom.activeCreator = creatorDiscoveryDom.activeFilterLabels?.some((label) => label.includes('Author')) === true
 
     let selectedDetail
     try {

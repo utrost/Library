@@ -69,7 +69,7 @@ def test_template_renders_cover_gallery_metadata_detail_and_filter_controls():
     assert "name=\"shelf\"" in vue
     assert "class=\"library-cover-gallery\"" in vue
     assert "class=\"library-cover-card\"" in vue
-    assert "class=\"library-cover-image\"" in vue
+    assert '<CatalogueCover :src="item.coverUrl"' in vue
     assert "class=\"library-cover-placeholder\"" not in vue
     assert "Details" in vue
     assert "class=\"library-item-metadata\"" not in vue

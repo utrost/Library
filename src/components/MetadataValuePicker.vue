@@ -14,6 +14,8 @@ const focused = ref(false)
 const activeIndex = ref(-1)
 const listId = useId()
 const remoteSuggestions = ref([])
+const searching = ref(false), lookupError = ref('')
+let generation = 0
 const selected = computed(() => [...new Set(props.modelValue.split('\n').map(normalizedInput).filter(Boolean))])
 const isLanguage = computed(() => props.kind === 'language')
 const label = computed(() => isLanguage.value ? t('library', 'Language') : t('library', 'Subjects'))
@@ -66,6 +68,7 @@ const options = computed(() => {
   return values.filter(value => !selected.value.some(chosen => chosen.toLowerCase() === value.toLowerCase())).slice(0, 12)
 })
 function add(value = candidate.value) {
+  if (props.disabled || searching.value || lookupError.value) return
   const next = normalizedInput(value)
   if (!next || next.length > 255 || (isLanguage.value && !validLanguageCode(next))) return
   if (!selected.value.some(entry => entry.toLowerCase() === next.toLowerCase())) emit('update:modelValue', [...selected.value, next].join('\n'))
@@ -93,7 +96,10 @@ function onKeydown(event) {
 }
 let timer = null
 let controller = null
-watch(search, value => {
+function findSuggestions(value) {
+  const current = ++generation
+  lookupError.value = ''
+  searching.value = !isLanguage.value && value.trim().length >= 3
   activeIndex.value = -1
   clearTimeout(timer)
   controller?.abort()
@@ -105,13 +111,16 @@ watch(search, value => {
       const url = new URL(generateUrl('/apps/library/catalogue/subject-suggestions'), window.location.origin)
       url.searchParams.set('subjectSearch', value.trim())
       const response = await fetch(url, { credentials: 'same-origin', signal: controller.signal })
-      if (response.ok) {
+      if (!response.ok) throw new Error()
+      if (generation === current) {
         const result = await response.json()
         if (search.value === value) remoteSuggestions.value = Array.isArray(result.subjects) ? result.subjects.filter(entry => typeof entry === 'string') : []
       }
-    } catch { /* The user may continue typing or enter a new subject. */ }
+    } catch (cause) { if (current === generation && cause.name !== 'AbortError') lookupError.value = t('library', 'Could not load suggestions. Try again.') }
+    finally { if (current === generation) searching.value = false }
   }, 200)
-})
+}
+watch(search, findSuggestions)
 onBeforeUnmount(() => { clearTimeout(timer); controller?.abort() })
 </script>
 
@@ -120,8 +129,10 @@ onBeforeUnmount(() => { clearTimeout(timer); controller?.abort() })
     <label :for="`${listId}-input`" :title="isLanguage ? t('library', 'Choose one or more language codes.') : t('library', 'Existing subjects are suggested as you type. You can add a new subject.')">{{ label }}</label>
     <div class="library-metadata-picker-input">
       <input :id="`${listId}-input`" v-model="search" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" :aria-controls="listId" :aria-expanded="focused && options.length > 0" :aria-activedescendant="activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined" :aria-label="inputLabel" :placeholder="inputLabel" :disabled="disabled" @focus="focused = true" @input="focused = true" @blur="focused = false" @keydown="onKeydown">
-      <button type="button" class="button secondary" :disabled="disabled || !canAdd" @click="add()">{{ addLabel }}</button>
+      <button v-if="search.trim()" type="button" class="button secondary" :disabled="disabled || !canAdd || searching || !!lookupError" @click="add()">{{ addLabel }}</button>
     </div>
+    <small v-if="searching" role="status">{{ t('library', 'Searching…') }}</small>
+    <p v-if="lookupError" role="alert">{{ lookupError }} <button type="button" @click="findSuggestions(search)">{{ t('library', 'Retry') }}</button></p>
     <ul v-if="focused && options.length" :id="listId" class="library-metadata-picker-options" role="listbox" :aria-label="inputLabel">
       <li v-for="(option, index) in options" :id="`${listId}-${index}`" :key="option" role="option" :aria-selected="index === activeIndex" @mousedown.prevent @click="add(option)">{{ display(option) }}</li>
     </ul>

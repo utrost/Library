@@ -1,4 +1,5 @@
 <script setup>
+import ReviewValues from './ReviewValues.vue'
 import { bookDetailsUrl } from '../details-return.js'
 import { nextTick, onMounted, ref } from 'vue'
 import { generateUrl } from '@nextcloud/router'
@@ -44,23 +45,12 @@ onMounted(() => load())
     <p v-if="error" role="alert">{{ error }} <button :disabled="busy" @click="load(page)">{{ t('library', 'Reload') }}</button></p>
     <section v-if="review" class="author-conflict-review" :aria-label="t('library', 'Review change')">
       <h2 ref="heading" tabindex="-1" dir="auto">{{ review.title }}</h2>
-      <div class="author-conflict-comparison">
-        <section>
-          <h3>{{ t('library', 'Current assignments') }}</h3>
-          <ol><li v-for="(author, index) in review.current" :key="index"><strong dir="auto">{{ author.name }}</strong><span dir="auto">{{ t('library', 'Original credit: {credit}', { credit: author.credit }) }}</span></li></ol>
-          <p v-if="!review.current.length">{{ t('library', 'No authors recorded') }}</p>
-        </section>
-        <section>
-          <h3>{{ t('library', 'Imported credits') }}</h3>
-          <ol><li v-for="(name, index) in review.incoming" :key="index" dir="auto">{{ name }}</li></ol>
-          <p v-if="!review.incoming.length">{{ t('library', 'No authors recorded') }}</p>
-        </section>
-      </div>
+      <ReviewValues :current="review.current.map(author => author.name).join('; ')" :proposed="review.incoming.join('; ')" />
       <p>{{ t('library', 'Using imported authors replaces this book’s current assignments. Book metadata and files stay unchanged. This decision has no automatic undo.') }}</p>
       <div class="author-conflict-actions">
-        <button :disabled="busy" @click="resolve('keep')">{{ t('library', 'Keep current assignments') }}</button>
-        <button :disabled="busy" @click="resolve('import')">{{ t('library', 'Use imported authors') }}</button>
-        <button :disabled="busy" @click="review = null">{{ t('library', 'Cancel') }}</button>
+        <button :disabled="busy" @click="resolve('keep')">{{ t('library', 'Keep current') }}</button>
+        <button :disabled="busy" class="button primary" @click="resolve('import')">{{ t('library', 'Apply suggestion') }}</button>
+        <button :disabled="busy" @click="review = null">{{ t('library', 'Skip for now') }}</button>
       </div>
     </section>
     <template v-else-if="data">

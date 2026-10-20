@@ -27,7 +27,7 @@ def test_catalogue_supports_starred_filter_and_active_chip():
     assert "'starred'" in page.split("paginationUrl", 1)[1]
     assert "if ($starred === '1')" in service
     assert "i.starred" in service
-    assert "Starred" in app
+    assert "Favorites" in app
     assert "name=\"starred\"" in app
     assert "item.starred" in app
 

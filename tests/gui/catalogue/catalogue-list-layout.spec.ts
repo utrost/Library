@@ -79,7 +79,7 @@ test('keeps list covers readable and action buttons inside the table @catalogue 
   expect(geometry.buttonLeft).toBeGreaterThanOrEqual(geometry.containerLeft)
   expect(geometry.buttonRight).toBeLessThanOrEqual(geometry.containerRight + 1)
   await expect(list.locator('.library-catalogue-list-actions').first().getByRole('link', { name: 'Open', exact: true })).toBeVisible()
-  await expect(list.locator('.library-catalogue-list-actions').first().getByRole('button', { name: 'Details', exact: true })).toBeVisible()
+  await expect(list.locator('.library-catalogue-list-actions').first().getByRole('button', { name: 'Quick view', exact: true })).toBeVisible()
 
   await attachCheckpoint(page, testInfo, 'catalogue-list-layout')
   browserFailures.assertNone()

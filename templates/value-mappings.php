@@ -41,6 +41,7 @@ $_['maintenanceActive'] = 'mappings';
             </form>
             <?php if ($preview !== null): ?>
                 <div class="library-maintenance-preview" role="status">
+                    <dl class="library-review-values"><div><dt><?php p($l->t('Current value')); ?></dt><dd><bdi dir="auto"><?php p($preview['source']); ?></bdi></dd></div><div><dt><?php p($l->t('Proposed value')); ?></dt><dd><bdi dir="auto"><?php p($preview['target']); ?></bdi></dd></div></dl>
                     <strong><?php p($l->n('%n book uses this source value.', '%n books use this source value.', $preview['count'])); ?></strong>
                     <?php if ($preview['books'] !== []): ?><ul><?php foreach ($preview['books'] as $book): ?><li><?php p($book['title']); ?></li><?php endforeach; ?></ul><?php endif; ?>
                     <?php if ($preview['count'] > 0): ?><form action="<?php p($base . '/save'); ?>" method="post">

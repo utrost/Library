@@ -66,15 +66,15 @@ test('maintains a private reading list with notes and ordering @lists @smoke', a
     await expect(entries.nth(1).getByRole('textbox')).toHaveValue('Unsaved local draft')
     // Expected 409 may be reported by the browser console; clear only that exact failure.
     failures.assertNoneOrExactSetAndClear([/^console: Failed to load resource: the server responded with a status of 409 \(Conflict\)$/])
-    await panel.getByRole('button', { name: 'Reload list', exact: true }).click()
+    await panel.getByRole('button', { name: 'Retry', exact: true }).click()
     await expect(panel.getByRole('heading', { name: `${name} renamed`, exact: true })).toBeVisible()
     await entries.nth(1).getByRole('button', { name: 'Save note', exact: true }).click()
     await expect(entries.nth(1).locator('.library-list-note')).toHaveText('Unsaved local draft')
     await entries.first().getByRole('button', { name: 'Remove from list', exact: true }).click()
-    await entries.first().getByRole('button', { name: 'Remove entry and note', exact: true }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'Remove entry and note', exact: true }).click()
     await expect(entries).toHaveCount(2)
     await panel.getByRole('button', { name: 'Delete list', exact: true }).click()
-    await panel.getByRole('button', { name: 'Delete list and notes', exact: true }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'Delete list and notes', exact: true }).click()
     await expect(panel.getByRole('status')).toHaveText('List deleted.')
     listId = undefined
     await openLibrary(page)

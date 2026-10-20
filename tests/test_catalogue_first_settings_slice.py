@@ -54,8 +54,8 @@ def test_user_settings_template_contains_root_scan_and_history_admin_tools():
     assert 'aria-labelledby="library-scan-history-heading"' in settings
     assert 'aria-labelledby="library-indexed-files-heading"' in settings
     assert "data-library-scan-progress-url" in settings
-    assert "Scan enabled roots" in settings
-    assert "Save root" in settings
+    assert "Scan enabled shelves" in settings
+    assert "Save shelf" in settings
 
 
 def test_page_controller_links_to_user_settings_and_no_longer_loads_admin_data():

@@ -39,7 +39,7 @@ def test_workflow_status_is_visible_editable_and_filterable_without_overloading_
     assert "Workflow status" in detail
     assert 'name="workflowStatus"' in detail
     assert "workflow-status" in detail
-    assert "Workflow status" in vue
+    assert "Reading status" in vue
     assert "workflowStatus" in vue
     assert "scanStatus" in vue
 

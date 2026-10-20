@@ -38,50 +38,16 @@ foreach ($roots as $root) {
     <?php if ($savedRoot !== null): ?>
         <div class="library-settings-success" role="status">
             <strong><?php p($l->t('Shelf saved')); ?></strong>
-            <span><bdi dir="auto"><?php p((string)($savedRoot['label'] ?: $savedRoot['path'])); ?></bdi> — <?php p($l->t('Scan this root to add its books to the catalogue.')); ?></span>
+            <span><bdi dir="auto"><?php p((string)($savedRoot['label'] ?: $savedRoot['path'])); ?></bdi> — <?php p($l->t('Scan this shelf to add its books to the catalogue.')); ?></span>
             <a href="#library-root-<?php p((string)$savedRootId); ?>"><?php p($l->t('Go to shelf')); ?></a>
         </div>
     <?php endif; ?>
 
-    <section class="library-panel library-duplicate-settings" aria-labelledby="library-duplicate-settings-heading">
-        <h3 id="library-duplicate-settings-heading"><?php p($l->t('Automatic duplicate suggestions')); ?></h3>
-        <p data-library-help class="library-muted"><?php p($l->t('Build a private metadata index in the background. Suggestions check the whole library without reading book contents.')); ?></p>
-        <form method="post" action="<?php p($_['duplicateSettingsUrl'] ?? ''); ?>" class="library-duplicate-settings-form">
-            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
-            <label class="library-duplicate-switch">
-                <input type="checkbox" name="enabled" value="1" <?php if ($_['duplicateSuggestions'] ?? false) print_unescaped('checked'); ?>>
-                <span class="library-duplicate-switch-track" aria-hidden="true"></span>
-                <span><?php p($l->t('Show possible duplicates while browsing')); ?></span>
-            </label>
-            <button type="submit" class="button primary"><?php p($l->t('Save')); ?></button>
-        </form>
-    </section>
     <details class="library-panel library-settings-section library-settings-section-roots" open aria-labelledby="library-settings-roots-heading">
         <summary id="library-settings-roots-heading" class="library-settings-summary-row">
             <?php p($l->t('Folders and scanning')); ?>
-            <span class="library-settings-count-badge"><?php p($l->n('%n root', '%n roots', count($roots))); ?></span>
+            <span class="library-settings-count-badge"><?php p($l->n('%n shelf', '%n shelves', count($roots))); ?></span>
         </summary>
-        <section class="library-scan-schedule" aria-labelledby="library-scan-schedule-heading">
-            <h3 id="library-scan-schedule-heading"><?php p($l->t('Automatic scans')); ?></h3>
-            <form method="post" action="<?php p($_['scanScheduleUrl'] ?? ''); ?>" class="library-form">
-                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                <label for="library-scan-interval"><?php p($l->t('Scan frequency')); ?></label>
-                <select id="library-scan-interval" name="interval" aria-describedby="library-scan-schedule-help">
-                    <option value="0" <?php if (($_['scanSchedule']['interval'] ?? 0) === 0) print_unescaped('selected'); ?>><?php p($l->t('Off')); ?></option>
-                    <option value="3600" <?php if (($_['scanSchedule']['interval'] ?? 0) === 3600) print_unescaped('selected'); ?>><?php p($l->t('Every hour')); ?></option>
-                    <option value="21600" <?php if (($_['scanSchedule']['interval'] ?? 0) === 21600) print_unescaped('selected'); ?>><?php p($l->t('Every 6 hours')); ?></option>
-                    <option value="86400" <?php if (($_['scanSchedule']['interval'] ?? 0) === 86400) print_unescaped('selected'); ?>><?php p($l->t('Every day')); ?></option>
-                </select>
-                <p id="library-scan-schedule-help" data-library-help class="library-muted"><?php p($l->t('Scan enabled Library folders for new, changed and missing books, including changed OPF sidecars. Preserve your corrections and skip metadata extraction for unchanged files. The first run is due after the selected interval.')); ?></p>
-                <button type="submit" class="button primary"><?php p($l->t('Save schedule')); ?></button>
-            </form>
-            <?php if (($_['scanSchedule']['nextRunAt'] ?? 0) > 0): ?>
-                <p class="library-muted" role="status"><?php p($l->t('Next scan due:')); ?> <time datetime="<?php p(gmdate('c', $_['scanSchedule']['nextRunAt'])); ?>"><?php p(gmdate('Y-m-d H:i', $_['scanSchedule']['nextRunAt']) . ' UTC'); ?></time></p>
-            <?php endif; ?>
-            <?php if (!($_['scanScheduleCron'] ?? false)): ?>
-                <p class="library-warning"><?php p($l->t('Reliable automatic scans need Nextcloud Cron. With other background modes, runs may be delayed. Ask your administrator to configure Cron.')); ?></p>
-            <?php endif; ?>
-        </section>
         <section class="library-add-shelf-card" aria-label="<?php p($l->t('Add Library shelf')); ?>">
             <h3><?php p($l->t('Add a shelf')); ?></h3>
             <p data-library-help class="library-muted"><?php p($l->t('Point Library at a Nextcloud folder; it becomes a browsable shelf after scanning.')); ?></p>
@@ -99,7 +65,7 @@ foreach ($roots as $root) {
                     <?php p($l->t('Label')); ?>
                     <input type="text" name="label" value="" placeholder="<?php p($l->t('Books, comics, manuals…')); ?>" />
                 </label>
-                <button type="submit" class="button primary"><?php p($l->t('Save root')); ?></button>
+                <button type="submit" class="button primary"><?php p($l->t('Save shelf')); ?></button>
             </form>
         </section>
 
@@ -108,12 +74,12 @@ foreach ($roots as $root) {
                 <h3><?php p($l->t('Getting started')); ?></h3>
                 <ol>
                     <li><?php p($l->t('Add one folder path that already exists in Nextcloud Files.')); ?></li>
-                    <li><?php p($l->t('Run Scan enabled roots after saving the root.')); ?></li>
+                    <li><?php p($l->t('Scan the shelf after saving it.')); ?></li>
                     <li><?php p($l->t('Browse covers, open Details, then correct metadata only where needed.')); ?></li>
                     <li><?php p($l->t('Ask your administrator for a full Nextcloud database and data-directory backup before moving or uninstalling.')); ?></li>
                 </ol>
             </section>
-            <p class="library-muted"><?php p($l->t('No roots configured yet. Start with one path; more roots can be added later.')); ?></p>
+            <p class="library-muted"><?php p($l->t('No shelves yet. Add a folder to start your library.')); ?></p>
         <?php else: ?>
             <ul class="library-root-list">
                 <?php foreach ($roots as $root): ?>
@@ -145,24 +111,24 @@ foreach ($roots as $root) {
                                 <?php p($l->t('Label')); ?>
                                 <input type="text" name="label" value="<?php p((string)($root['label'] ?? '')); ?>" />
                             </label>
-                            <button type="submit" class="button secondary"><?php p($l->t('Update root')); ?></button>
+                            <button type="submit" class="button secondary"><?php p($l->t('Save shelf')); ?></button>
                         </form>
                         </details>
                         <div class="library-root-card-actions">
                             <form method="post" action="<?php p($root['rootScanUrl']); ?>" class="library-inline-form" data-library-operation="scan-root">
                                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                                <button type="submit" class="button primary"><?php p($l->t('Scan this root')); ?></button>
+                                <button type="submit" class="button primary"><?php p($l->t('Scan this shelf')); ?></button>
                             </form>
                             <form method="post" action="<?php p($root['rootToggleUrl']); ?>" class="library-inline-form">
                                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
                                 <input type="hidden" name="enabled" value="<?php p($root['enabled'] ? '0' : '1'); ?>" />
-                                <button type="submit" class="button secondary"><?php p($root['enabled'] ? $l->t('Disable root') : $l->t('Enable root')); ?></button>
+                                <button type="submit" class="button secondary"><?php p($root['enabled'] ? $l->t('Disable shelf') : $l->t('Enable shelf')); ?></button>
                             </form>
                         </div>
                         <details class="library-root-danger-zone">
                             <summary><?php p($l->t('Danger zone')); ?></summary>
-                            <section class="library-root-recovery-checklist" aria-label="<?php p($l->t('Root deletion recovery checklist')); ?>">
-                                <p class="library-muted"><strong><?php p($l->t('Before deleting this Library root')); ?></strong></p>
+                            <section class="library-root-recovery-checklist" aria-label="<?php p($l->t('Shelf removal checklist')); ?>">
+                                <p class="library-muted"><strong><?php p($l->t('Before removing this shelf')); ?></strong></p>
                                 <ul>
                                     <li><?php p($l->t('Export corrected metadata if you want to keep manual corrections outside this app database.')); ?></li>
                                     <li><?php p($l->t('Keep a full Nextcloud database and data-directory backup for exact recovery of lists, author and series edits, and portraits.')); ?></li>
@@ -176,9 +142,9 @@ foreach ($roots as $root) {
                                     <?php p($l->t('Type DELETE to confirm')); ?>
                                     <input type="text" name="confirmDeleteText" placeholder="<?php p($l->t('DELETE')); ?>" autocomplete="off" />
                                 </label>
-                                <button type="submit" class="button secondary"><?php p($l->t('Delete root')); ?></button>
+                                <button type="submit" class="button secondary"><?php p($l->t('Remove shelf')); ?></button>
                             </form>
-                            <p class="library-muted"><?php p($l->t('Deleting a Library root removes only Library index and catalogue rows for that root, but never deletes source files from Nextcloud Files.')); ?></p>
+                            <p class="library-muted"><?php p($l->t('Removing a shelf removes its catalogue entries. Source files in Nextcloud Files are kept.')); ?></p>
                         </details>
                     </li>
                 <?php endforeach; ?>
@@ -192,7 +158,7 @@ foreach ($roots as $root) {
         <div class="library-settings-action-strip">
             <form method="post" action="<?php p($_['scanRunUrl']); ?>" data-library-operation="scan-roots">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
-                <button type="submit"><?php p($l->t('Scan enabled roots')); ?></button>
+                <button type="submit"><?php p($l->t('Scan enabled shelves')); ?></button>
             </form>
 
             <form method="post" action="<?php p($_['scanRetryMetadataErrorsUrl']); ?>" class="library-inline-form library-scan-retry-metadata-errors-form">
@@ -251,7 +217,7 @@ foreach ($roots as $root) {
                     <dl>
                     <dt data-library-field="scanScope"><?php p($l->t('Scan scope')); ?></dt>
                     <dd data-library-scan-scope><?php p((string)($latestScanJob['scopeLabel'] ?? $latestScanJob['scopeType'] ?? 'all')); ?></dd>
-                    <dt data-library-field="rootsTotal"><?php p($l->t('Roots total')); ?></dt>
+                    <dt data-library-field="rootsTotal"><?php p($l->t('Shelves total')); ?></dt>
                     <dd data-library-scan-roots-total><?php p((string)$latestScanJob['rootsTotal']); ?></dd>
                     <dt data-library-field="durationSeconds"><?php p($l->t('Duration in seconds')); ?></dt>
                     <dd data-library-scan-duration-seconds><?php p((string)$latestScanJob['durationSeconds']); ?></dd>
@@ -350,6 +316,42 @@ foreach ($roots as $root) {
     </section>
     </details>
 
+    <section class="library-panel library-duplicate-settings" aria-labelledby="library-duplicate-settings-heading">
+        <h3 id="library-duplicate-settings-heading"><?php p($l->t('Automatic duplicate suggestions')); ?></h3>
+        <p data-library-help class="library-muted"><?php p($l->t('Build a private metadata index in the background. Suggestions check the whole library without reading book contents.')); ?></p>
+        <form method="post" action="<?php p($_['duplicateSettingsUrl'] ?? ''); ?>" class="library-duplicate-settings-form">
+            <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
+            <label class="library-duplicate-switch">
+                <input type="checkbox" name="enabled" value="1" <?php if ($_['duplicateSuggestions'] ?? false) print_unescaped('checked'); ?>>
+                <span class="library-duplicate-switch-track" aria-hidden="true"></span>
+                <span><?php p($l->t('Show possible duplicates while browsing')); ?></span>
+            </label>
+            <button type="submit" class="button primary"><?php p($l->t('Save')); ?></button>
+        </form>
+    </section>
+    <details class="library-panel"><summary><?php p($l->t('Automatic scans')); ?></summary>
+        <section class="library-scan-schedule" aria-labelledby="library-scan-schedule-heading">
+            <h3 id="library-scan-schedule-heading"><?php p($l->t('Automatic scans')); ?></h3>
+            <form method="post" action="<?php p($_['scanScheduleUrl'] ?? ''); ?>" class="library-form">
+                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>" />
+                <label for="library-scan-interval"><?php p($l->t('Scan frequency')); ?></label>
+                <select id="library-scan-interval" name="interval" aria-describedby="library-scan-schedule-help">
+                    <option value="0" <?php if (($_['scanSchedule']['interval'] ?? 0) === 0) print_unescaped('selected'); ?>><?php p($l->t('Off')); ?></option>
+                    <option value="3600" <?php if (($_['scanSchedule']['interval'] ?? 0) === 3600) print_unescaped('selected'); ?>><?php p($l->t('Every hour')); ?></option>
+                    <option value="21600" <?php if (($_['scanSchedule']['interval'] ?? 0) === 21600) print_unescaped('selected'); ?>><?php p($l->t('Every 6 hours')); ?></option>
+                    <option value="86400" <?php if (($_['scanSchedule']['interval'] ?? 0) === 86400) print_unescaped('selected'); ?>><?php p($l->t('Every day')); ?></option>
+                </select>
+                <p id="library-scan-schedule-help" data-library-help class="library-muted"><?php p($l->t('Scan enabled Library folders for new, changed and missing books, including changed OPF sidecars. Preserve your corrections and skip metadata extraction for unchanged files. The first run is due after the selected interval.')); ?></p>
+                <button type="submit" class="button primary"><?php p($l->t('Save schedule')); ?></button>
+            </form>
+            <?php if (($_['scanSchedule']['nextRunAt'] ?? 0) > 0): ?>
+                <p class="library-muted" role="status"><?php p($l->t('Next scan due:')); ?> <time datetime="<?php p(gmdate('c', $_['scanSchedule']['nextRunAt'])); ?>"><?php p(gmdate('Y-m-d H:i', $_['scanSchedule']['nextRunAt']) . ' UTC'); ?></time></p>
+            <?php endif; ?>
+            <?php if (!($_['scanScheduleCron'] ?? false)): ?>
+                <p class="library-warning"><?php p($l->t('Reliable automatic scans need Nextcloud Cron. With other background modes, runs may be delayed. Ask your administrator to configure Cron.')); ?></p>
+            <?php endif; ?>
+        </section>
+    </details>
     <details class="library-panel library-settings-section library-settings-section-metadata" aria-labelledby="library-settings-metadata-heading">
         <summary id="library-settings-metadata-heading" class="library-settings-summary-row"><?php p($l->t('Metadata and covers')); ?></summary>
         <p data-library-help class="library-muted"><?php p($l->t('Metadata review and cover maintenance are available from publication details and Review.')); ?></p>

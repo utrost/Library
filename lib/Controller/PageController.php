@@ -30,9 +30,9 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const APP_VERSION = '0.3.0-alpha.31';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-31-compact-list-table-cover-96-fit-v8';
-    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-31-compact-list-table-cover-96-fit-v8';
+    private const APP_VERSION = '0.3.0-alpha.32';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-32-compact-list-table-cover-96-fit-v8';
+    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-32-compact-list-table-cover-96-fit-v8';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -81,6 +81,7 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function index(): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
+        \OCP\Util::addStyle('library', 'ui-contract');
         Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
         Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);
@@ -155,6 +156,7 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function publication(string $publication): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
+        \OCP\Util::addStyle('library', 'ui-contract');
         Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
         Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);
@@ -177,6 +179,7 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function year(string $year): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
+        \OCP\Util::addStyle('library', 'ui-contract');
         Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
         Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);
@@ -198,6 +201,7 @@ class PageController extends Controller {
     #[NoCSRFRequired]
     public function creator(string $creator): TemplateResponse {
         Util::addStyle(Application::APP_ID, 'style');
+        \OCP\Util::addStyle('library', 'ui-contract');
         Util::addStyle(Application::APP_ID, self::VUE_STYLE_ASSET);
         Util::addScript(Application::APP_ID, 'library-shell');
         Util::addScript(Application::APP_ID, self::VUE_SCRIPT_ASSET);

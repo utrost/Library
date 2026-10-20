@@ -10,6 +10,7 @@ const api = generateUrl('/apps/library/api/genres')
 const search = ref('')
 const results = ref([])
 const busy = ref(false)
+const searching = ref(false), searched = ref(false), matchedCount = ref(0)
 const error = ref('')
 const focused = ref(false)
 const activeIndex = ref(-1)
@@ -23,22 +24,24 @@ async function request(path, body = null, signal = null) {
     headers: { Accept: 'application/json', ...(body === null ? {} : { 'Content-Type': 'application/json', requesttoken: props.requestToken }) },
     ...(body === null ? {} : { body: JSON.stringify(body) }),
   })
-  if (!response.ok) throw new Error(t('library', 'The genre change could not be saved.'))
+  if (!response.ok) throw new Error(body === null ? t('library', 'Could not load suggestions. Try again.') : t('library', 'The genre change could not be saved.'))
   return response.json()
 }
-watch(search, value => {
+function findGenres(value) {
   activeIndex.value = -1
-  clearTimeout(timer); controller?.abort(); generation++; results.value = []
+  clearTimeout(timer); controller?.abort(); generation++; results.value = []; searched.value = false; matchedCount.value = 0; error.value = ''; searching.value = ready.value
   if (!ready.value) return
   const current = generation
   timer = setTimeout(async () => {
     controller = new AbortController()
     try {
       const data = await request(`?search=${encodeURIComponent(value.trim())}`, null, controller.signal)
-      if (generation === current) results.value = (data.genres || []).filter(genre => !props.genres.some(chosen => Number(chosen.id) === Number(genre.id)))
-    } catch (cause) { if (cause.name !== 'AbortError') error.value = cause.message }
+      if (generation === current) { searched.value = true; matchedCount.value = (data.genres || []).length; results.value = (data.genres || []).filter(genre => !props.genres.some(chosen => Number(chosen.id) === Number(genre.id))) }
+    } catch (cause) { if (generation === current && cause.name !== 'AbortError') error.value = cause.message }
+    finally { if (generation === current) searching.value = false }
   }, 220)
-})
+}
+watch(search, findGenres)
 async function assign(genre, action = 'add') {
   if (busy.value || props.disabled) return
   if (props.draftMode) {
@@ -55,7 +58,7 @@ async function assign(genre, action = 'add') {
   finally { busy.value = false }
 }
 async function create() {
-  if (!search.value.trim() || busy.value) return
+  if (!ready.value || !searched.value || searching.value || matchedCount.value || error.value || busy.value) return
   busy.value = true; error.value = ''
   try {
     const genre = await request('', { name: search.value.trim() })
@@ -85,7 +88,7 @@ onBeforeUnmount(() => { clearTimeout(timer); controller?.abort() })
   <section class="library-identity-row library-genre-picker" aria-labelledby="library-details-genres-heading">
     <h2 id="library-details-genres-heading">{{ t('library', 'Genres') }}</h2>
     <div class="library-identity-content">
-      <p v-if="error" role="alert">{{ error }}</p>
+      <p v-if="error" role="alert">{{ error }} <button type="button" @click="findGenres(search)">{{ t('library', 'Retry') }}</button></p>
       <div class="library-identity-values">
         <span v-for="genre in genres" :key="genre.id" class="library-genre-chip"><a :href="`${catalogueUrl}?genreId=${genre.id}`">{{ genre.name }}</a><IdentityAction :disabled="busy || disabled" :label="`${t('library', 'Remove genre')}: ${genre.name}`" @click="assign(genre, 'remove')" /></span>
         <div class="library-genre-input">
@@ -94,10 +97,11 @@ onBeforeUnmount(() => { clearTimeout(timer); controller?.abort() })
             <input id="library-details-genre-search" v-model="search" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="library-details-genre-suggestions" :aria-expanded="focused && results.length > 0" :aria-activedescendant="focused && activeIndex >= 0 ? `library-details-genre-option-${results[activeIndex]?.id}` : undefined" :placeholder="t('library', 'Search genres')" :title="t('library', 'Type at least 3 letters to search genres.')" :disabled="busy || disabled" @focus="focused = true" @input="focused = true" @blur="focused = false" @keydown="onKeydown">
             <ul v-if="focused && results.length" id="library-details-genre-suggestions" role="listbox"><li v-for="(genre, index) in results" :id="`library-details-genre-option-${genre.id}`" :key="genre.id" role="option" :aria-selected="activeIndex === index"><button type="button" :class="{ 'is-active': activeIndex === index }" @mousedown.prevent @click="assign(genre)">{{ genre.display_name }}</button></li></ul>
           </div>
-          <button v-if="search.trim()" type="button" class="button secondary" :disabled="busy || disabled" @click="create">{{ t('library', 'Create and add genre') }}</button>
+          <small v-if="searching" role="status">{{ t('library', 'Searching…') }}</small>
+          <button v-if="searched && !searching && !error && !matchedCount" type="button" class="button secondary" :disabled="busy || disabled" @click="create">{{ t('library', 'Create and add genre') }}</button>
         </div>
       </div>
-      <a class="library-genre-review" :href="`${catalogueUrl}?genres=1`">{{ t('library', 'Review genre suggestions') }}</a>
+      <a class="library-genre-review" :href="`${catalogueUrl}?genres=1#genre-review`">{{ t('library', 'Review genre suggestions') }}</a>
     </div>
   </section>
 </template>

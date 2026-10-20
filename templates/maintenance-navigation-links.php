@@ -2,6 +2,9 @@
     <strong><?php p($l->t('Browse')); ?></strong>
     <a href="<?php p($catalogue . '?home=1'); ?>"><?php p($l->t('Home')); ?></a>
     <a href="<?php p($catalogue); ?>"><?php p($l->t('All publications')); ?></a>
+    <a href="<?php p($catalogue . '?starred=1'); ?>"><?php p($l->t('Favorites')); ?></a>
+    <a href="<?php p($catalogue . '?recentlyOpened=1&sort=lastOpened'); ?>"><?php p($l->t('Continue reading')); ?></a>
+    <a href="<?php p($catalogue . '#library-collections'); ?>"><?php p($l->t('Collections')); ?></a>
     <a href="<?php p($catalogue . '?shelves=1'); ?>"><?php p($l->t('Shelves')); ?></a>
     <a href="<?php p($catalogue . '?authors=1'); ?>"><?php p($l->t('Authors')); ?></a>
     <a href="<?php p($catalogue . '?series=1'); ?>"><?php p($l->t('Series')); ?></a>

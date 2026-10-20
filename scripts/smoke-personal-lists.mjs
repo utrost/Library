@@ -90,7 +90,7 @@ try {
   await entries.nth(1).getByRole('button', { name: 'Move up', exact: true }).click()
   await expect(entries.first().getByRole('heading')).toHaveText(firstTitle)
   await entries.first().getByRole('button', { name: 'Remove from list', exact: true }).click()
-  await entries.first().getByRole('button', { name: 'Remove entry and note', exact: true }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Remove entry and note', exact: true }).click()
   await expect(entries).toHaveCount(2)
   await expect(page.getByRole('textbox', { name: 'Description / list note', exact: true })).toHaveValue('Keep this unsaved description')
   await page.screenshot({ path: `${screenshot}.editing.png` })

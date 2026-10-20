@@ -66,8 +66,8 @@ def test_settings_template_exposes_root_lifecycle_buttons_and_scan_scope():
     assert "rootToggleUrl" in template
     assert "rootDeleteUrl" in template
     assert "rootScanUrl" in template
-    assert "Scan this root" in template
-    assert "Disable root" in template
-    assert "Enable root" in template
-    assert "Delete root" in template
+    assert "Scan this shelf" in template
+    assert "Disable shelf" in template
+    assert "Enable shelf" in template
+    assert "Remove shelf" in template
     assert "scanScope" in template

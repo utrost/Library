@@ -1,10 +1,15 @@
 <script setup>
+import OperationStatus from './OperationStatus.vue'
+import ReviewValues from './ReviewValues.vue'
+import { useUnsavedChanges } from '../use-unsaved-changes.js'
+import FormActions from './FormActions.vue'
 import { bookDetailsUrl, bookCoverUrl as coverUrl } from '../details-return.js'
 import { onMounted, reactive, ref, nextTick } from 'vue'
 import { generateUrl } from '@nextcloud/router'
 import { t, n } from '@nextcloud/l10n'
 import CatalogueCover from './CatalogueCover.vue'
 import LabelHelp from './LabelHelp.vue'
+import EntityPicker from './EntityPicker.vue'
 import DirectoryBrowser from './DirectoryBrowser.vue'
 
 const props = defineProps({ requestToken: { type: String, default: '' }, catalogueUrl: { type: String, required: true } })
@@ -15,6 +20,7 @@ const history = ref([]), conflicts = ref({ items: [], page: 1, hasNext: false })
 const directory = ref(null)
 function directoryUrl() { const url = new URL(location.href); url.searchParams.delete('seriesId'); url.searchParams.delete('bookPage'); url.hash = ''; return url.pathname + url.search }
 const draft = reactive({ name: '', description: '' })
+useUnsavedChanges(() => editing.value && (draft.name !== (data.value?.series?.display_name || '') || draft.description !== (data.value?.series?.description || '')))
 function directoryLoaded(result) { data.value = result; page.value = result.page }
 async function request(path, body = null, signal = undefined) {
   const response = await fetch(generateUrl('/apps/library/api/series') + path, {
@@ -53,11 +59,11 @@ function bookUrl(book) {
   else source.searchParams.delete('bookPage')
   return bookDetailsUrl(props.catalogueUrl, book.id, source.href)
 }
-async function findTargets() {
-  busy.value = true; error.value = ''; review.value = null
-  try { targets.value = (await request(`?search=${encodeURIComponent(targetSearch.value.trim())}`)).series.filter(entry => Number(entry.id) !== selectedId); target.value = '' }
-  catch (e) { error.value = e.message } finally { busy.value = false }
+async function findTargets(query, signal) {
+  return (await request(`?search=${encodeURIComponent(query)}`, null, signal)).series.filter(entry => Number(entry.id) !== selectedId).map(entry => ({ ...entry, label: entry.display_name }))
 }
+function resetTarget() { target.value = ''; review.value = null }
+function chooseTarget(entry) { targets.value = [entry]; target.value = String(entry.id); review.value = null }
 async function createTarget() {
   busy.value = true; error.value = ''; review.value = null
   try { const created = await request('', { name: targetSearch.value.trim() }); targets.value = [created.series]; target.value = String(created.series.id) }
@@ -93,9 +99,7 @@ onMounted(async () => { if (selectedId) { await load(Math.max(1, Math.min(100000
   <section class="library-series" :aria-busy="busy" aria-labelledby="library-series-heading">
     <a v-if="selectedId" :href="directoryUrl()">{{ t('library', 'All series') }}</a>
     <h1 id="library-series-heading">{{ data?.series?.display_name || t('library', 'Series') }}</h1>
-    <p v-if="error" role="alert">{{ error }} <button :disabled="busy" @click="load(page)">{{ t('library', 'Reload') }}</button></p>
-    <p v-if="notice" role="status">{{ notice }}</p>
-    <p v-if="busy && selectedId" role="status">{{ t('library', 'Loading') }}</p>
+    <OperationStatus :loading="busy" :error="error" :message="notice" @retry="load(page)" />
     <template v-if="!selectedId">
       <DirectoryBrowser ref="directory" kind="series" collection="series" :request="request" :catalogue-url="catalogueUrl" :search-label="t('library', 'Search series')" :search-help="t('library', 'Matches the beginning of a preferred series name.')" :empty-label="t('library', 'No series found yet.')" @loaded="directoryLoaded" @busy="busy = $event" />
       <p v-if="data?.migration && (data.migration.pending || data.migration.failed || data.migration.conflict)" role="status">
@@ -115,7 +119,7 @@ onMounted(async () => { if (selectedId) { await load(Math.max(1, Math.min(100000
         <input id="series-name" v-model="draft.name" maxlength="255" required :disabled="busy" />
         <label for="series-description">{{ t('library', 'Description') }}</label>
         <textarea id="series-description" v-model="draft.description" maxlength="10000" rows="4" :disabled="busy"></textarea>
-        <div><button type="submit" class="primary" :disabled="busy">{{ t('library', 'Save series') }}</button> <button type="button" :disabled="busy" @click="editing = false">{{ t('library', 'Cancel') }}</button></div>
+        <FormActions :label="t('library', 'Save series')" :busy="busy" @discard="editing = false" />
       </form>
       <details v-if="!editing && !data.series.merged_into" class="series-actions">
         <summary>{{ t('library', 'Move or merge books') }}</summary>
@@ -123,17 +127,8 @@ onMounted(async () => { if (selectedId) { await load(Math.max(1, Math.min(100000
         <section v-if="assigning" class="series-assignment">
           <label>{{ t('library', 'Books to change') }} <LabelHelp :text="t('library', 'Leave books unselected to merge the whole series. Select books below to move only those books. Original file metadata remains unchanged.')" /></label>
           <p role="status">{{ selected.length ? n('library', '%n selected book', '%n selected books', selected.length) : t('library', 'Merge all books into the destination series') }}</p>
-          <form class="series-search" @submit.prevent="findTargets">
-            <label for="series-target-search">{{ t('library', 'Find destination series') }}</label>
-            <input id="series-target-search" v-model="targetSearch" type="search" maxlength="255" />
-            <button type="submit" :disabled="busy">{{ t('library', 'Search') }}</button>
-          </form>
-          <div><button :disabled="busy || !targetSearch.trim()" @click="createTarget">{{ t('library', 'Create series') }}</button></div>
-          <label for="series-target">{{ t('library', 'Destination series') }}</label>
-          <select id="series-target" v-model="target" :disabled="busy" @change="review = null">
-            <option value="">{{ t('library', 'Choose a series') }}</option>
-            <option v-for="entry in targets" :key="entry.id" :value="String(entry.id)">{{ entry.display_name }} (#{{ entry.id }})</option>
-          </select>
+          <EntityPicker v-model="targetSearch" :label="t('library', 'Destination series')" :search="findTargets" :disabled="busy" allow-create @update:model-value="resetTarget" @choose="chooseTarget" @create="createTarget" />
+          <p v-if="target" role="status">{{ t('library', 'Selected') }}: {{ targets.find(entry => String(entry.id) === target)?.display_name }}</p>
           <div><button :disabled="busy || !target" @click="previewAssignment">{{ t('library', 'Review change') }}</button> <button :disabled="busy" @click="cancelAssignment">{{ t('library', 'Cancel') }}</button></div>
           <section v-if="review" class="series-review" :aria-label="t('library', 'Review change')">
             <h2>{{ review.source }} → {{ review.target }}</h2>
@@ -147,7 +142,7 @@ onMounted(async () => { if (selectedId) { await load(Math.max(1, Math.min(100000
       <ol id="series-books" class="series-books">
         <li v-for="book in data.books" :key="book.id">
           <input v-if="assigning" v-model="selected" type="checkbox" :value="Number(book.id)" :aria-label="t('library', 'Select {title}', { title: book.title })" :disabled="busy" @change="review = null" />
-          <CatalogueCover :src="coverUrl(book)" />
+          <a :href="bookUrl(book)" :aria-label="book.title"><CatalogueCover :src="coverUrl(book)" /></a>
           <div><span v-if="book.part_number">{{ t('library', 'Part {number}', { number: book.part_number }) }}</span>
             <a :href="bookUrl(book)" dir="auto">{{ book.title }}</a>
             <small dir="auto">{{ book.creators || '—' }}</small>
@@ -156,13 +151,12 @@ onMounted(async () => { if (selectedId) { await load(Math.max(1, Math.min(100000
         </li>
       </ol>
     </template>
-    <details v-if="conflicts.items.length" class="series-conflicts" open>
+    <details v-if="conflicts.items.length" class="series-conflicts">
       <summary>{{ t('library', 'Review imported series changes') }}</summary>
       <ul><li v-for="entry in conflicts.items" :key="entry.id">
         <strong dir="auto">{{ entry.title }}</strong>
-        <span>{{ t('library', 'Assigned series') }}: <span dir="auto">{{ entry.assignedName }}<template v-if="entry.assignedNumber"> · {{ entry.assignedNumber }}</template></span></span>
-        <span>{{ t('library', 'New imported series') }}: <span dir="auto">{{ entry.incomingName || '—' }}<template v-if="entry.incomingNumber"> · {{ entry.incomingNumber }}</template></span></span>
-        <div><button :disabled="busy" @click="resolveConflict(entry, 'keep')">{{ t('library', 'Keep assignment') }}</button> <button :disabled="busy" @click="resolveConflict(entry, 'import')">{{ t('library', 'Use imported series') }}</button></div>
+        <ReviewValues :current="[entry.assignedName, entry.assignedNumber].filter(Boolean).join(' · ')" :proposed="[entry.incomingName, entry.incomingNumber].filter(Boolean).join(' · ')" />
+        <div><button :disabled="busy" @click="resolveConflict(entry, 'keep')">{{ t('library', 'Keep current') }}</button> <button :disabled="busy" @click="resolveConflict(entry, 'import')">{{ t('library', 'Apply suggestion') }}</button></div>
       </li></ul>
       <div><button :disabled="busy || conflictPage === 1" @click="changeConflictPage(conflictPage - 1)">{{ t('library', 'Previous') }}</button> <button :disabled="busy || !conflicts.hasNext" @click="changeConflictPage(conflictPage + 1)">{{ t('library', 'Next') }}</button></div>
     </details>
