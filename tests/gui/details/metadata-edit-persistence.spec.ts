@@ -52,7 +52,7 @@ test('edits metadata, rescans, then repairs the suggestion and restores the titl
 
     await openLibrary(page)
     const filters = page.getByRole('form', { name: 'Catalogue search and filters' })
-    await filters.getByRole('searchbox', { name: /Search/ }).fill(editedTitle)
+    await page.locator('#library-main-search').fill(editedTitle)
     const catalogueResponse = page.waitForResponse((candidate) => {
       const url = new URL(candidate.url())
       return url.pathname.endsWith('/apps/library/catalogue') && url.searchParams.get('q') === editedTitle

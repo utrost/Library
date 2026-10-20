@@ -1,0 +1,43 @@
+{
+  "version": "0.3.0-alpha.32",
+  "date": "2026-10-20",
+  "captures": 111,
+  "screenConfigurations": 29,
+  "viewports": [
+    [
+      1440,
+      1000
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "pageErrors": [],
+  "blockedMutationAttempts": [],
+  "pageOverflowCaptures": 0,
+  "subjectEnterCreatedTypedFragment": true,
+  "languageEnterAcceptedGerman": false,
+  "directoryBelowThresholdKeptPriorResults": true,
+  "directorySortWhileBelowThresholdChangedResults": true,
+  "catalogueScrollBefore": 1498,
+  "catalogueScrollAfter": 0,
+  "catalogueFirstCoverMobileY": 503.484375,
+  "catalogueCountBefore": 107717,
+  "catalogueCountAfter": 107717,
+  "reviewCredentialsRemaining": 0,
+  "harnessCorrections": [
+    "Scroll probe exact accessible-name selector corrected; rerun succeeded."
+  ],
+  "limitations": [
+    "No fresh mutation/deletion/scanner or performance certification.",
+    "No screen-reader or physical touch-device run.",
+    "Representative visual inspection; all captures received DOM/layout checks.",
+    "Dark styling applied in browser, not persisted account settings."
+  ],
+  "privateArtifacts": "/tmp/library-ui-review-8jsq7s/"
+}

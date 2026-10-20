@@ -945,7 +945,6 @@
         "Scans continue through Nextcloud background jobs and can be reopened for seven days. Review decisions are reused when the same books have not changed. Each comparison is independent; choosing a preferred copy does not change catalogue ordering.": "تستمر الفحوص عبر مهام Nextcloud الخلفية ويمكن إعادة فتحها لسبعة أيام. تُعاد الاستفادة من قرارات المراجعة إذا لم تتغير الكتب. كل مقارنة مستقلة؛ اختيار نسخة مفضلة لا يغير ترتيب الفهرس.",
         "Scheme": "المخطط",
         "Search": "بحث",
-        "Search also checks descriptions. Descriptions, filename and folder names are searchable, which helps sparse PDFs and comics whose useful metadata only lives in their path or notes.": "يتحقق البحث أيضًا من الأوصاف. يمكن البحث في الأوصاف واسم الملف وأسماء المجلدات، مما يساعد في ملفات PDF المتفرقة والرسوم الهزلية التي توجد بياناتها التعريفية المفيدة فقط في مسارها أو ملاحظاتها.",
         "Search authors": "البحث عن مؤلفين",
         "Search books": "البحث عن الكتب",
         "Search by author name or surname (at least 3 characters), or choose a suggested author.": "ابحث باسم المؤلف أو اسم العائلة (3 أحرف على الأقل)، أو اختر مؤلفًا مقترحًا.",
@@ -1383,7 +1382,6 @@
         "books / Language_Subject / Title - Author (Year)": "مجلد الكتب / اللغة_الموضوع / العنوان - المؤلف (السنة)",
         "books / Language_Subject / Title by Author": "مجلد الكتب / اللغة_الموضوع / العنوان بقلم المؤلف",
         "catalogue": "الكتالوج",
-        "catalogue items": "عناصر الكتالوج",
         "comic": "قصص مصورة",
         "dated": "بتاريخ",
         "disabled": "معطّل",
@@ -1419,7 +1417,19 @@
         "without dates yet": "بدون تواريخ بعد",
         "yes": "نعم",
         "{count} of 5 stars": "{count} من 5 نجوم",
-        "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية."
+        "{matched} of {total} paths on this page match this structure.": "يتطابق {matched} من أصل {total} مسارًا في هذه الصفحة مع هذه البنية.",
+        "Create subject “{name}”": "إنشاء الموضوع «{name}»",
+        "Search also checks descriptions. Descriptions, filename and folder names are searchable.": "يشمل البحث الأوصاف أيضًا. يمكن البحث في الأوصاف وأسماء الملفات والمجلدات.",
+        "Showing all entries.": "تُعرض جميع الإدخالات.",
+        "Showing results for “{query}”.": "تُعرض نتائج البحث عن «{query}».",
+        "The containing publication or periodical. This changes only Publication; a Series suggestion must be reviewed separately, even when the names match.": "المنشور أو الدورية التي ينتمي إليها الكتاب. يغيّر هذا حقل المنشور فقط؛ يجب مراجعة اقتراح السلسلة بشكل منفصل حتى إذا تطابقت الأسماء.",
+        "The sequence this book belongs to. This changes only the series field; it does not apply a separate Publication suggestion.": "السلسلة التي ينتمي إليها هذا الكتاب. يغيّر هذا حقل السلسلة فقط ولا يطبّق اقتراحًا منفصلًا للمنشور.",
+        "Type at least 3 letters to search.": "اكتب 3 أحرف على الأقل للبحث.",
+        "Use publication value": "استخدام قيمة المنشور",
+        "Use series value": "استخدام قيمة السلسلة",
+        "Choose a language from the suggestions or enter a valid code, for example {english} or {german}.": "اختر لغة من الاقتراحات أو أدخل رمزًا صالحًا، مثل {english} أو {german}.",
+        "Publication / periodical": "المنشور / الدورية",
+        "catalogue items": "عناصر الكتالوج"
     },
     "pluralForm": "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 }
