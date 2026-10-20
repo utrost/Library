@@ -1,7 +1,9 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
+import DirectoryBrowser from './DirectoryBrowser.vue'
+import LabelHelp from './LabelHelp.vue'
 
 const props = defineProps({ requestToken: { type: String, required: true }, catalogueUrl: { type: String, required: true } })
 const api = generateUrl('/apps/library/api/genres')
@@ -9,18 +11,16 @@ const genres = ref([])
 const suggestions = ref([])
 const remaining = ref(0)
 const name = ref('')
-const search = ref('')
+const directory = ref(null)
 const targetNames = ref({})
 const busy = ref(false)
 const discovering = ref(false)
 const error = ref('')
 const feedback = ref('')
 let cancelled = false
-let searchTimer = null
-let searchGeneration = 0
 
-async function request(path = '', body = null) {
-  const response = await fetch(api + path, { credentials: 'same-origin', cache: 'no-store',
+async function request(path = '', body = null, signal = undefined) {
+  const response = await fetch(api + path, { signal, credentials: 'same-origin', cache: 'no-store',
     method: body === null ? 'GET' : 'POST',
     headers: { Accept: 'application/json', ...(body === null ? {} : { 'Content-Type': 'application/json', requesttoken: props.requestToken }) },
     ...(body === null ? {} : { body: JSON.stringify(body) }),
@@ -29,22 +29,11 @@ async function request(path = '', body = null) {
   return response.json()
 }
 async function load() {
-  const [directory, review] = await Promise.all([request(`?search=${encodeURIComponent(search.value.trim())}`), request('/suggestions')])
-  genres.value = directory.genres || []
+  const [, review] = await Promise.all([directory.value?.reload(), request('/suggestions')])
   suggestions.value = review.suggestions || []
   remaining.value = Number(review.remaining || 0)
   for (const suggestion of suggestions.value) if (!targetNames.value[suggestion.candidate_key]) targetNames.value[suggestion.candidate_key] = suggestion.display_name
 }
-watch(search, value => {
-  clearTimeout(searchTimer)
-  const generation = ++searchGeneration
-  searchTimer = setTimeout(async () => {
-    try {
-      const directory = await request(`?search=${encodeURIComponent(value.trim())}`)
-      if (generation === searchGeneration) genres.value = directory.genres || []
-    } catch (cause) { if (generation === searchGeneration) error.value = cause.message }
-  }, 220)
-})
 async function create() {
   if (!name.value.trim() || busy.value) return
   busy.value = true; error.value = ''; feedback.value = ''
@@ -105,24 +94,21 @@ async function applyApproved() {
   } catch (cause) { error.value = cause.message }
   finally { busy.value = false }
 }
-onMounted(() => { load().catch(cause => { error.value = cause.message }) })
-onBeforeUnmount(() => { cancelled = true; clearTimeout(searchTimer) })
+onMounted(async () => { try { const review = await request('/suggestions'); suggestions.value = review.suggestions || []; remaining.value = Number(review.remaining || 0); for (const suggestion of suggestions.value) targetNames.value[suggestion.candidate_key] = suggestion.display_name } catch (cause) { error.value = cause.message } })
+onBeforeUnmount(() => { cancelled = true })
 </script>
 
 <template>
   <main class="library-genres">
-    <h1>{{ t('library', 'Genres') }}</h1>
-    <p class="library-muted">{{ t('library', 'Genres are private catalogue labels. Scans suggest names; you decide which ones become genres.') }}</p>
+    <h1>{{ t('library', 'Genres') }} <LabelHelp :text="t('library', 'Genres are private catalogue labels. Scans suggest names; you decide which ones become genres.')" /></h1>
     <p v-if="error" role="alert">{{ error }}</p><p v-if="feedback" role="status">{{ feedback }}</p>
     <section class="library-genres-card">
       <h2>{{ t('library', 'My genres') }}</h2>
       <form @submit.prevent="create"><label>{{ t('library', 'Create a genre') }}<input v-model="name" maxlength="255" autocomplete="off"></label><button type="submit" class="button primary" :disabled="busy || !name.trim()">{{ t('library', 'Create genre') }}</button></form>
-      <label>{{ t('library', 'Find a genre') }}<input v-model="search" type="search"></label>
-      <ul><li v-for="genre in genres" :key="genre.id"><a :href="`${catalogueUrl}?genreId=${genre.id}`">{{ genre.display_name }}</a> <span class="library-muted">{{ n('library', '%n book', '%n books', Number(genre.book_count)) }}</span></li></ul>
+      <DirectoryBrowser ref="directory" kind="genre" collection="genres" :request="request" :catalogue-url="catalogueUrl" :search-label="t('library', 'Find a genre')" :search-help="t('library', 'Type at least 3 letters to search genres.')" :empty-label="t('library', 'No matching genres.')" @loaded="genres = $event.genres" />
     </section>
     <section class="library-genres-card">
-      <h2>{{ t('library', 'Suggestions to review') }}</h2>
-      <p class="library-muted">{{ t('library', 'Suggestions come from source genre values and clear subject or folder hints. Accepting a name also applies it to matching books; ignored names stay ignored on rescans.') }}</p>
+      <h2>{{ t('library', 'Suggestions to review') }} <LabelHelp :text="t('library', 'Suggestions come from source genre values and clear subject or folder hints. Accepting a name also applies it to matching books; ignored names stay ignored on rescans.')" /></h2>
       <p v-if="remaining">{{ n('library', '%n book still needs genre discovery.', '%n books still need genre discovery.', remaining) }}</p>
       <button type="button" class="button secondary" :disabled="busy || (!discovering && !remaining)" @click="discover">{{ discovering ? t('library', 'Pause discovery') : t('library', 'Discover genres in existing books') }}</button>
       <button type="button" class="button secondary" :disabled="busy || discovering" @click="applyApproved">{{ t('library', 'Apply approved suggestions') }}</button>

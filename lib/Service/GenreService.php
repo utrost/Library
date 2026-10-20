@@ -41,16 +41,23 @@ final class GenreService {
         if ($genre === null) throw new \OutOfBoundsException('genre');
         return $genre;
     }
-    public function directory(string $uid, string $search = ''): array {
-        if (mb_strlen($search) > 255) throw new \InvalidArgumentException('search');
+    public function directory(string $uid, string $search = '', int $page = 1, string $sort = 'name', bool $previews = false): array {
+        if (mb_strlen($search) > 255 || $page < 1 || $page > 100000) throw new \InvalidArgumentException('search_or_page');
+        $order = match ($sort) { 'name' => 'g.display_name,g.id', 'name_desc' => 'g.display_name DESC,g.id DESC', default => throw new \InvalidArgumentException('sort') };
         $sql = 'SELECT g.id,g.display_name,(SELECT COUNT(*) FROM *PREFIX*library_item_genres l WHERE l.user_id=g.user_id AND l.genre_id=g.id AND l.active=1) AS book_count FROM *PREFIX*library_genres g WHERE g.user_id=?';
         $params = [$uid];
         if (trim($search) !== '') {
             $sql .= " AND LOWER(g.display_name) LIKE ? ESCAPE '!'";
             $params[] = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($search))) . '%';
         }
-        $list = $this->rows($sql . ' ORDER BY g.display_name,g.id LIMIT 51', $params);
-        return ['genres' => array_slice($list, 0, 50), 'hasNext' => count($list) > 50];
+        $list = $this->rows($sql . ' ORDER BY ' . $order . ' LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
+        $entries = array_slice($list, 0, 50);
+        if ($previews) {
+            $books = (new DirectoryPreviewService($this->db))->books($uid, array_column($entries, 'id'), 'genre');
+            foreach ($entries as &$entry) $entry['books'] = $books[(int)$entry['id']] ?? [];
+            unset($entry);
+        }
+        return ['genres' => $entries, 'page' => $page, 'hasNext' => count($list) > 50];
     }
     public function create(string $uid, string $name): array {
         $name = $this->name($name); $key = $this->key($name);

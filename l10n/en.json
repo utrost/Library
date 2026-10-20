@@ -422,7 +422,6 @@
         "Folder unavailable or replaced. Remove this assignment and assign again after checking the folder.": "Folder unavailable or replaced. Remove this assignment and assign again after checking the folder.",
         "Folders and scanning": "Folders and scanning",
         "Folders in this sample": "Folders in this sample",
-        "For example: Doe, John. Controls author directory ordering.": "For example: Doe, John. Controls author directory ordering.",
         "Forget missing item": "Forget missing item",
         "Forget missing publication": "Forget missing publication",
         "Forget this missing publication?": "Forget this missing publication?",
@@ -1295,7 +1294,14 @@
         "Title, author, description, filename or folder": "Title, author, description, filename or folder",
         "Apply author": "Apply author",
         "Search by author name or surname (at least 3 characters), or choose a suggested author.": "Search by author name or surname (at least 3 characters), or choose a suggested author.",
-        "Author": "Author"
+        "Author": "Author",
+        "Name A–Z": "Name A–Z",
+        "Name Z–A": "Name Z–A",
+        "Surname / sort name A–Z": "Surname / sort name A–Z",
+        "For example: Doe, John. Used for surname sorting.": "For example: Doe, John. Used for surname sorting.",
+        "Type at least 3 letters.": "Type at least 3 letters.",
+        "Pagination": "Pagination",
+        "No matching genres.": "No matching genres."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0-alpha.30
+
+- Authors directory: displayed-name A–Z by default, reverse-name and surname sorting, debounced three-letter search and restored return context.
+- Shared Authors, Series and Genres browser, including paged genres.
+- Compact directory rows with linked book counts and up to three lazy-loaded book-cover/title previews. Existing author typeahead remains lightweight.
+- Additive `library_authors_display` ordering index; no author names or book metadata are rewritten.
+
 ## 0.3.0-alpha.29
 
 - Resolve selective author-name candidates before catalogue joins, restoring fast content search without waiting for reindexing after author renames. Keep complete results for broad queries.
