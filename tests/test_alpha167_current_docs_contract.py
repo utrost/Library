@@ -73,7 +73,8 @@ def test_handbook_has_executable_combined_alpha166_alpha167_first_pass():
     assert "current candidate package" in handbook
     assert "Packaging: **used for the current private deployment**" in handbook
     assert "## Current 0.3 human cases" in handbook
-    assert "0.3.0-alpha.11" in handbook
+    assert "0.3.0-alpha.32" in handbook
+    assert "H03-24" in handbook
     assert first_pass.count("### A16") >= 6
     for case in first_pass.split("### A16")[1:]:
         assert "Setup:" in case
