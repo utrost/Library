@@ -66,6 +66,7 @@ import PathInference from './components/PathInference.vue'
 import LabelHelp from './components/LabelHelp.vue'
 import AddToList from './components/AddToList.vue'
 import FullDetails from './components/FullDetails.vue'
+import DeletionNotice from './components/DeletionNotice.vue'
 import { listRequest } from './personal-lists-api.js'
 
 const props = defineProps({
@@ -2037,6 +2038,7 @@ async function toggleStar(item, event) {
       </template>
     </NcAppNavigation>
     <NcAppContent>
+      <DeletionNotice />
   <div id="library-app" class="library-vue-catalogue library-app" :lang="catalogueState.language || 'en'" :dir="catalogueState.direction || 'ltr'" tabindex="-1">
   <PossibleDuplicates v-if="isDuplicates" :request-token="requestToken" :review-url="reviewUrl" />
   <PathInference v-else-if="isInference" :request-token="requestToken" />

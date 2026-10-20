@@ -34,12 +34,12 @@ def test_list_view_asset_path_is_cache_busted_after_alpha170_deploy():
     assert (ROOT / f"css/{style}.css").exists()
     built_script = read(f"js/{script}.mjs")
     built_style = read(f"css/{style}.css")
-    assert '"data-library-view-mode": "list"' in built_script
-    assert 'name: "publicationSearch"' in built_script
+    assert re.search(r'"data-library-view-mode":\s*"list"', built_script)
+    assert re.search(r'name:\s*"publicationSearch"', built_script)
     assert "publicationSuggestionsUrl" in built_script
     assert "publisherSuggestionsUrl" in built_script
-    assert 'name: "publisherSearch"' in built_script
-    assert 'id: "library-shelves"' not in built_script
+    assert re.search(r'name:\s*"publisherSearch"', built_script)
+    assert not re.search(r'id:\s*"library-shelves"', built_script)
     assert "library-shelf-tree" in built_style
     assert "library-periodical-groups" not in built_script
     assert "Choose series" in built_script

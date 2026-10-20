@@ -1,3 +1,4 @@
+import re
 from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
 from pathlib import Path
 import io
@@ -71,8 +72,8 @@ def test_vite_defines_nextcloud_vue_app_identity_and_built_bundle_has_no_missing
     assert f"appVersion: JSON.stringify('{CURRENT_VERSION}')" in vite
 
     bundle = read("js/library-main.mjs")
-    assert '= "library";' in bundle
-    assert f'= "{CURRENT_VERSION}";' in bundle
+    assert re.search(r'=\s*"library"[;,}]', bundle)
+    assert re.search(r'=\s*"' + re.escape(CURRENT_VERSION) + r'"[;,}]', bundle)
 
 
 def test_settings_footer_does_not_use_component_slot_that_triggers_legacy_cross_origin_icon():
