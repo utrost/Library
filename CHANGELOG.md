@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0-alpha.31
+
+- Add confirmed source-file deletion from book Details, with shared-OPF retention and guarded empty-parent cleanup.
+- Preserve Nextcloud trash handling, validate identities and revisions, and report partial cleanup outcomes. Remove catalogue/search/duplicate links after successful file deletion.
+- Keep reading-list entries as unavailable, retain entity identities and restore the originating view after deletion. No schema migration.
+- Compact final JavaScript whitespace after bundling, recovering frontend package headroom without increasing size limits.
+
 ## 0.3.0-alpha.30
 
 - Authors directory: displayed-name A–Z by default, reverse-name and surname sorting, debounced three-letter search and restored return context.

@@ -1301,7 +1301,24 @@ OC.L10N.register(
         "For example: Doe, John. Used for surname sorting.": "Zum Beispiel: Mustermann, Max. Wird für die Sortierung nach Nachnamen verwendet.",
         "Type at least 3 letters.": "Mindestens 3 Buchstaben eingeben.",
         "Pagination": "Seitennavigation",
-        "No matching genres.": "Keine passenden Genres."
+        "No matching genres.": "Keine passenden Genres.",
+        "Delete book": "Buch löschen",
+        "Delete book?": "Buch löschen?",
+        "Please wait…": "Bitte warten…",
+        "These files will be deleted:": "Diese Dateien werden gelöscht:",
+        "The OPF is shared with another publication and will be kept.": "Die OPF-Datei wird von einer anderen Publikation verwendet und bleibt erhalten.",
+        "The OPF cannot be deleted with your permissions and will be kept.": "Ihre Berechtigungen erlauben das Löschen der OPF-Datei nicht. Sie bleibt erhalten.",
+        "The immediate parent folder will be removed only if empty:": "Der unmittelbar übergeordnete Ordner wird nur gelöscht, wenn er leer ist:",
+        "Library-only edits and unsaved changes will be removed. Restoring the source file does not restore those edits.": "Nur in Library gespeicherte Bearbeitungen und ungespeicherte Änderungen werden entfernt. Das Wiederherstellen der Quelldatei stellt diese Bearbeitungen nicht wieder her.",
+        "Recovery through Nextcloud Deleted files depends on your storage and retention settings.": "Die Wiederherstellung über „Gelöschte Dateien“ in Nextcloud hängt von Ihrem Speicher und den Aufbewahrungseinstellungen ab.",
+        "The file is unavailable or cannot be deleted. Refresh the book and check its permissions.": "Die Datei ist nicht verfügbar oder kann nicht gelöscht werden. Laden Sie das Buch neu und prüfen Sie die Berechtigungen.",
+        "Deletion could not be completed. Close this dialog and refresh the book before trying again.": "Das Löschen konnte nicht abgeschlossen werden. Schließen Sie dieses Fenster und laden Sie das Buch vor einem erneuten Versuch neu.",
+        "Book deleted.": "Buch gelöscht.",
+        "The book was deleted, but its OPF could not be removed.": "Das Buch wurde gelöscht, aber seine OPF-Datei konnte nicht entfernt werden.",
+        "The book was deleted, but the parent folder was kept.": "Das Buch wurde gelöscht, aber der übergeordnete Ordner blieb erhalten.",
+        "The file was deleted, but catalogue cleanup needs a rescan. You can then forget the missing publication.": "Die Datei wurde gelöscht, aber die Katalogbereinigung benötigt einen erneuten Scan. Danach können Sie die fehlende Publikation aus dem Katalog entfernen.",
+        "The file was deleted. Run a scan to refresh the catalogue status.": "Die Datei wurde gelöscht. Starten Sie einen Scan, um den Katalogstatus zu aktualisieren.",
+        "Dismiss": "Schließen"
     },
     "nplurals=2; plural=(n != 1);"
 );

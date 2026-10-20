@@ -1,6 +1,7 @@
 import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
+import { transformSync } from 'esbuild'
 import { MAX_RUNTIME_BYTES, MAX_RUNTIME_CHUNKS } from './runtime-budget.mjs'
 
 const buildDir = 'build/vue'
@@ -25,7 +26,11 @@ if (vite.status !== 0) {
 // makes git's release-asset hygiene check fail. Normalizing comment indentation
 // does not change executable tokens and keeps generated diffs deterministic.
 const builtEntry = join(buildDir, 'library-main.mjs')
-writeFileSync(builtEntry, readFileSync(builtEntry, 'utf8').replace(/^ +\t/gm, '\t'))
+// This is the final browser entry, not a published library consumed by another
+// bundler. Compact whitespace after Vite's tree shaking; keep legal notices inline.
+writeFileSync(builtEntry, transformSync(readFileSync(builtEntry, 'utf8'), {
+  loader: 'js', minifyWhitespace: true, legalComments: 'inline',
+}).code.replace(/^ +\t/gm, '\t'))
 
 mkdirSync(jsDir, { recursive: true })
 mkdirSync(cssDir, { recursive: true })
