@@ -1,4 +1,5 @@
 <script setup>
+import OperationStatus from './OperationStatus.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
@@ -51,8 +52,8 @@ onMounted(() => run(refreshHistory))
 </script>
 <template>
   <section class="library-inference-apply" :aria-label="t('library', 'Review and apply metadata')" :aria-busy="busy ? 'true' : 'false'">
-    <h2><LabelHelp :text="wholeFolder ? t('library','Choose fields from this page only. Existing values require individual selection. Apply and Undo operate on this reviewed batch of at most 40 books.') : t('library', 'Choose fields from this sample only. Replacements require individual selection. Authors are stored in their preview order, with exact duplicates removed.')">{{ wholeFolder ? t('library','Review and apply metadata') : t('library', '4. Review and apply metadata') }}</LabelHelp></h2>
-    <p v-if="error" role="alert">{{ error }}</p><button v-if="plan?.blocked" class="button secondary" :disabled="busy" @click="reloadSample">{{ t('library', 'Load sample') }}</button><p v-if="message" role="status">{{ message }}</p>
+    <h2><LabelHelp :text="wholeFolder ? t('library','Choose fields from this page only. Existing values require individual selection. Apply and Undo operate on this reviewed batch of at most 40 books.') : t('library', 'Choose fields from this sample only. Replacements require individual selection. Authors are stored in their preview order, with exact duplicates removed.')">{{ t('library', 'Review and apply metadata') }}</LabelHelp></h2>
+    <OperationStatus :loading="busy" :error="error" :message="message" @retry="reloadSample" /><button v-if="plan?.blocked" class="button secondary" :disabled="busy" @click="reloadSample">{{ t('library', 'Load sample') }}</button>
     <fieldset :disabled="busy || disabled" class="library-inference-approval-fields">
       <div class="library-inference-presets"><button class="button secondary" :disabled="!candidates.length" @click="selectEmpty">{{ t('library', 'Select empty fields') }}</button><button class="button secondary" :disabled="!selected.length" @click="selected = []">{{ t('library', 'Clear selection') }}</button><button class="button primary" :disabled="!chosen.length || plan?.status === 'prepared'" @click="review">{{ t('library', 'Review selected changes') }} ({{ selected.length }})</button></div>
       <div class="library-inference-approval-candidates" :class="{ 'library-inference-approval-scroll': candidates.length > 8 }" role="region" tabindex="0" :aria-label="t('library','Select metadata fields')"><details v-for="item in candidates" :key="item.id" class="library-inference-result">

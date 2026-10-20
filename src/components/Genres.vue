@@ -1,10 +1,13 @@
 <script setup>
+import OperationStatus from './OperationStatus.vue'
+import { confirmAction } from '../confirm-action.js'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import DirectoryBrowser from './DirectoryBrowser.vue'
 import LabelHelp from './LabelHelp.vue'
 
+const reviewOpen = ref(window.location.hash === '#genre-review')
 const props = defineProps({ requestToken: { type: String, required: true }, catalogueUrl: { type: String, required: true } })
 const api = generateUrl('/apps/library/api/genres')
 const genres = ref([])
@@ -48,6 +51,7 @@ async function create() {
 }
 async function decide(suggestion, ignore = false) {
   if (busy.value) return
+  if (!ignore && !await confirmAction(n('library', 'Apply this genre to %n matching book?', 'Apply this genre to %n matching books?', Number(suggestion.book_count)), t('library', 'Apply suggestion'), false)) return
   busy.value = true; error.value = ''; feedback.value = ''
   try {
     if (ignore) {
@@ -102,26 +106,25 @@ onBeforeUnmount(() => { cancelled = true })
 <template>
   <main class="library-genres">
     <h1>{{ t('library', 'Genres') }} <LabelHelp :text="t('library', 'Genres are private catalogue labels. Scans suggest names; you decide which ones become genres.')" /></h1>
-    <p v-if="error" role="alert">{{ error }}</p><p v-if="feedback" role="status">{{ feedback }}</p>
+    <OperationStatus :loading="busy || discovering" :error="error" :message="feedback" @retry="load" />
     <section class="library-genres-card">
       <details class="genre-create"><summary>{{ t('library', 'Create a genre') }}</summary>
       <form @submit.prevent="create"><label>{{ t('library', 'Create a genre') }}<input v-model="name" maxlength="255" autocomplete="off"></label><button type="submit" class="button primary" :disabled="busy || !name.trim()">{{ t('library', 'Create genre') }}</button></form></details>
       <DirectoryBrowser ref="directory" kind="genre" collection="genres" :request="request" :catalogue-url="catalogueUrl" :search-label="t('library', 'Find a genre')" :search-help="t('library', 'Type at least 3 letters to search genres.')" :empty-label="t('library', 'No matching genres.')" @loaded="genres = $event.genres" />
     </section>
-    <section class="library-genres-card">
-      <h2>{{ t('library', 'Suggestions to review') }} <LabelHelp :text="t('library', 'Suggestions come from source genre values and clear subject or folder hints. Accepting a name also applies it to matching books; ignored names stay ignored on rescans.')" /></h2>
+    <details class="library-genres-card" id="genre-review" :open="reviewOpen"><summary>{{ t('library', 'Suggestions to review') }} · {{ suggestions.length }}</summary>
       <p v-if="remaining">{{ n('library', '%n book still needs genre discovery.', '%n books still need genre discovery.', remaining) }}</p>
       <button type="button" class="button secondary" :disabled="busy || (!discovering && !remaining)" @click="discover">{{ discovering ? t('library', 'Pause discovery') : t('library', 'Discover genres in existing books') }}</button>
-      <button type="button" class="button secondary" :disabled="busy || discovering" @click="applyApproved">{{ t('library', 'Apply approved suggestions') }}</button>
+      <button type="button" class="button secondary" :disabled="busy || discovering" @click="applyApproved">{{ t('library', 'Continue applying saved decisions') }}</button>
       <p v-if="!suggestions.length" class="library-muted">{{ t('library', 'No suggestions to review.') }}</p>
       <ul><li v-for="suggestion in suggestions" :key="suggestion.candidate_key">
         <strong>{{ suggestion.display_name }}</strong> <span class="library-muted">{{ suggestion.source_kind }} · {{ n('library', '%n book', '%n books', Number(suggestion.book_count)) }}</span>
         <label>{{ t('library', 'Use genre name') }}<input v-model="targetNames[suggestion.candidate_key]" list="library-genre-names" maxlength="255"></label>
-        <button type="button" class="button primary" :disabled="busy || discovering || !targetNames[suggestion.candidate_key]?.trim()" @click="decide(suggestion)">{{ t('library', 'Accept / map') }}</button>
-        <button type="button" class="button secondary" :disabled="busy || discovering" @click="decide(suggestion, true)">{{ t('library', 'Ignore') }}</button>
+        <button type="button" class="button primary" :disabled="busy || discovering || !targetNames[suggestion.candidate_key]?.trim()" @click="decide(suggestion)">{{ t('library', 'Apply suggestion') }}</button>
+        <button type="button" class="button secondary" :disabled="busy || discovering" @click="decide(suggestion, true)">{{ t('library', 'Ignore future suggestions') }}</button>
       </li></ul>
       <datalist id="library-genre-names"><option v-for="genre in genres" :key="genre.id" :value="genre.display_name"></option></datalist>
-    </section>
+    </details>
   </main>
 </template>
 

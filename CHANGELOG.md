@@ -1,5 +1,16 @@
 # Changelog
 
+
+## 0.3.0-alpha.32 — UI consistency
+
+- Restore Home covers and make cover/title links open the book editor consistently; retain an explicit Quick view action.
+- Put catalogue search first, keep saved-search naming secondary, and preserve filters on sorting.
+- Protect author, series and reading-list drafts; share Save/Discard controls and removal confirmations.
+- Align remote suggestions with loading, retry, keyboard selection and creation only after a successful empty lookup.
+- Share page typography, focus/touch styling, review comparisons and operation status; put shelf setup ahead of advanced settings.
+- Show import errors in the maintenance shell with editable input and current/proposed values.
+- No database migration. App Store certification and manual assistive-technology acceptance remain separate gates.
+
 ## 0.3.0-alpha.31
 
 - Add confirmed source-file deletion from book Details, with shared-OPF retention and guarded empty-parent cleanup.

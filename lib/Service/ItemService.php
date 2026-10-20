@@ -1753,6 +1753,8 @@ final class ItemService {
                 'libraryFileId' => (int)$current['libraryFileId'],
                 'cachedPath' => (string)($current['cachedPath'] ?? ''),
                 'changedFields' => $itemChangedFields,
+                'title' => (string)($current['title'] ?? ''),
+                'changes' => array_map(static fn (string $field): array => ['field' => $field, 'before' => $current[$field] ?? null, 'after' => $importItem[$field] ?? null], $itemChangedFields),
             ]);
         }
 

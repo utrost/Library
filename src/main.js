@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { loadState } from '@nextcloud/initial-state'
 import App from './App.vue'
+import '../css/ui-contract.css'
 
 function reportStartupFailure() {
   window.LibraryStartupWatchdog?.fail()

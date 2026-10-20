@@ -6,6 +6,7 @@ use OCA\Library\Service\ItemService;
 use OCA\Library\Service\LanguageReviewService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
@@ -28,12 +29,14 @@ final class LanguageReviewController extends Controller {
         return new RedirectResponse($url . ($message !== '' ? '?message=' . rawurlencode($message) : ''));
     }
     #[NoAdminRequired]
+    #[NoCSRFRequired]
     public function index(): TemplateResponse {
         Util::addStyle('library', 'style');
+        \OCP\Util::addStyle('library', 'ui-contract');
         return new TemplateResponse('library', 'language-review', [
             'review' => $this->review->suggestions($this->uid()),
             'message' => (string)$this->request->getParam('message', ''),
-            'catalogueUrl' => $this->urls->linkToRoute('library.page.catalogue'),
+            'catalogueUrl' => $this->urls->linkToRoute('library.page.index'),
             'languageUrl' => $this->urls->linkToRoute('library.language_review.index'),
             'valueMappingsUrl' => $this->urls->linkToRoute('library.value_mapping.index'),
             'settingsUrl' => $this->urls->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),

@@ -1,4 +1,5 @@
 <script setup>
+import OperationStatus from './OperationStatus.vue'
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
@@ -59,8 +60,8 @@ onBeforeUnmount(()=>{alive=false;generation++;clearTimeout(timer)})
 </script>
 <template>
  <section class="library-inference-analysis library-inference-step" :aria-label="t('library','Whole-folder analysis')" :aria-busy="busy ? 'true' : 'false'">
-  <h2><LabelHelp :text="t('library','Analyse all indexed books in the loaded folder using a snapshot of the current rule. Analysis continues through Nextcloud background jobs after you leave. Results are saved for seven days. New books require a new analysis; source files remain unchanged.')">{{ t('library','5. Analyse the whole folder') }}</LabelHelp></h2>
-  <p v-if="error" role="alert">{{ error }}</p>
+  <h2><LabelHelp :text="t('library','Analyse all indexed books in the loaded folder using a snapshot of the current rule. Analysis continues through Nextcloud background jobs after you leave. Results are saved for seven days. New books require a new analysis; source files remain unchanged.')">{{ t('library','Analyse the whole folder') }}</LabelHelp></h2>
+  <OperationStatus :loading="busy" :error="error" @retry="job ? open(job.id, job.page) : run(histories)" />
   <div class="library-inference-presets">
    <button class="button primary" :disabled="busy || disabled || active" @click="start">{{ t('library','Analyse whole folder') }}</button>
    <label><LabelHelp :text="t('library','Select a saved analysis to reopen its results. Each page contains at most 40 books. Changes and Undo remain separate for each approved batch.')">{{ t('library','Saved analyses') }}</LabelHelp><select :value="job?.id || ''" :disabled="busy" @change="choose"><option value="">{{ t('library','Choose an analysis') }}</option><option v-for="entry in history" :key="entry.id" :value="entry.id">{{ new Date(Number(entry.created_at)*1000).toLocaleString() }} · {{ stateLabels[entry.status] }} · {{ entry.processed }}/{{ entry.total }}</option></select></label>

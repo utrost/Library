@@ -1,4 +1,8 @@
 <script setup>
+import OperationStatus from './OperationStatus.vue'
+import { confirmAction } from '../confirm-action.js'
+import { useUnsavedChanges } from '../use-unsaved-changes.js'
+import FormActions from './FormActions.vue'
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { listRequest } from '../personal-lists-api.js'
@@ -25,6 +29,8 @@ const heading = ref(null)
 const selectedListId = ref(Number(new URLSearchParams(window.location.search).get('listId')) || null)
 const addItemId = Number(new URLSearchParams(window.location.search).get('addItem')) || null
 const canChange = computed(() => !busy.value && draftEntry.value === null)
+
+useUnsavedChanges(() => (editing.value && (editor.name !== (detail.value?.list.name || '') || editor.description !== (detail.value?.list.description || ''))) || (draftEntry.value !== null && noteDraft.value !== (detail.value?.entries.find(entry => entry.id === draftEntry.value)?.note || '')))
 
 async function load(page = 1, preserveDraft = editing.value) {
   busy.value = true; error.value = ''
@@ -61,6 +67,9 @@ async function saveList() {
 }
 
 async function action(payload, success) {
+  if (payload.action === 'delete' && !await confirmAction(t('library', 'Delete this list and all its notes? Books stay in your library. This cannot be undone.'), t('library', 'Delete list and notes'))) return
+  if (payload.action === 'remove' && !await confirmAction(t('library', 'Remove this entry and its note? The book stays in your library.'), t('library', 'Remove entry and note'))) return
+
   busy.value = true; error.value = ''; notice.value = ''
   try {
     const result = await listRequest(`/${detail.value.list.id}/actions`, props.requestToken, { ...payload, revision: detail.value.list.revision })
@@ -110,18 +119,12 @@ onMounted(async () => {
       <button v-if="!detail && !selectedListId" type="button" class="button primary" :disabled="busy || editing" @click="edit">{{ t('library', 'New list') }}</button>
     </header>
 
-    <p v-if="error" role="alert">{{ error }}</p>
-    <button v-if="error" type="button" class="button secondary" :disabled="busy" @click="load(detail?.page || 1, true)">{{ t('library', 'Reload list') }}</button>
-    <p v-if="notice" role="status">{{ notice }}</p>
-    <p v-if="busy" role="status">{{ t('library', 'Loading or saving…') }}</p>
+    <OperationStatus :loading="busy" :error="error" :message="notice" @retry="load(detail?.page || 1, true)" />
 
     <form v-if="editing" class="library-list-editor" @submit.prevent="saveList">
       <label>{{ t('library', 'List name') }}<input v-model="editor.name" required maxlength="120" :disabled="busy"></label>
       <label>{{ t('library', 'Description / list note') }}<textarea v-model="editor.description" rows="3" maxlength="10000" :disabled="busy"></textarea></label>
-      <div class="library-list-actions">
-        <button type="submit" class="button primary" :disabled="busy || !editor.name.trim()">{{ t('library', 'Save list') }}</button>
-        <button type="button" class="button secondary" :disabled="busy" @click="editing = false">{{ t('library', 'Cancel') }}</button>
-      </div>
+      <FormActions :label="t('library', 'Save list')" :busy="busy" :disabled="!editor.name.trim()" @discard="editing = false" />
     </form>
 
     <template v-if="detail">
@@ -129,19 +132,15 @@ onMounted(async () => {
       <div class="library-list-actions" v-if="!editing">
         <a class="button primary" :href="`${catalogueUrl}?addToList=${detail.list.id}`">{{ t('library', 'Add books from catalogue') }}</a>
         <button type="button" class="button secondary" :disabled="!canChange" @click="edit">{{ t('library', 'Edit list') }}</button>
-        <button type="button" class="button secondary" :disabled="!canChange" @click="deleting = !deleting">{{ t('library', 'Delete list') }}</button>
+        <button type="button" class="button secondary" :disabled="!canChange" @click="action({ action: 'delete' }, t('library', 'List deleted.'))">{{ t('library', 'Delete list') }}</button>
       </div>
-      <div v-if="deleting" class="library-list-confirm" role="group" :aria-label="t('library', 'Confirm list deletion')">
-        <p>{{ t('library', 'Delete this list and all its notes? Books stay in your library. This cannot be undone.') }}</p>
-        <button class="button" type="button" :disabled="!canChange" @click="action({ action: 'delete' }, t('library', 'List deleted.'))">{{ t('library', 'Delete list and notes') }}</button>
-        <button class="button secondary" type="button" :disabled="busy" @click="deleting = false">{{ t('library', 'Cancel') }}</button>
-      </div>
+
       <p v-if="detail.total === 0 && !busy" class="library-lists-empty">{{ t('library', 'This list is empty. Select books in the catalogue and choose Add to list.') }}</p>
       <ol class="library-list-entries" :start="(detail.page - 1) * 25 + 1">
         <li v-for="entry in detail.entries" :id="`library-list-entry-${entry.id}`" :key="entry.id" class="library-list-entry" tabindex="-1" @dragover.prevent @drop.prevent="drop(entry.id)">
           <div class="library-list-entry-heading">
             <span class="library-list-drag" :draggable="canChange" :title="t('library', 'Drag to reorder, or use Move up and Move down')" aria-hidden="true" @dragstart="startDrag($event, entry)" @dragend="dragged = null">⠿</span>
-            <img v-if="entry.book" :src="entry.book.coverUrl" alt="" width="48" height="64" loading="lazy">
+            <a v-if="entry.book" :href="detailsLink(entry.book.detailsUrl)" :aria-label="entry.book.title"><img :src="entry.book.coverUrl" alt="" width="48" height="64" loading="lazy"></a>
             <div class="library-list-book">
               <h2 v-if="entry.book"><a :href="detailsLink(entry.book.detailsUrl)" dir="auto">{{ entry.book.title }}</a></h2>
               <h2 v-else>{{ t('library', 'Unavailable book') }}</h2>
@@ -159,13 +158,9 @@ onMounted(async () => {
             <button type="button" class="button secondary" :disabled="!canChange" @click="startNote(entry)">{{ entry.note ? t('library', 'Edit note') : t('library', 'Add note') }}</button>
             <button type="button" class="button secondary" :disabled="!canChange || entry.number === 1" @click="move(entry, 'up')">{{ t('library', 'Move up') }}</button>
             <button type="button" class="button secondary" :disabled="!canChange || entry.number === detail.total" @click="move(entry, 'down')">{{ t('library', 'Move down') }}</button>
-            <button type="button" class="button secondary" :disabled="!canChange" @click="removing = entry.id">{{ t('library', 'Remove from list') }}</button>
+            <button type="button" class="button secondary" :disabled="!canChange" @click="action({ action: 'remove', entryId: entry.id }, t('library', 'Book removed from list.'))">{{ t('library', 'Remove from list') }}</button>
           </div>
-          <div v-if="removing === entry.id" class="library-list-confirm">
-            <p>{{ t('library', 'Remove this entry and its note? The book stays in your library.') }}</p>
-            <button type="button" class="button" :disabled="!canChange" @click="action({ action: 'remove', entryId: entry.id }, t('library', 'Book removed from list.'))">{{ t('library', 'Remove entry and note') }}</button>
-            <button type="button" class="button secondary" :disabled="busy" @click="removing = null">{{ t('library', 'Cancel') }}</button>
-          </div>
+
         </li>
       </ol>
       <nav v-if="detail.pages > 1" class="library-list-actions" :aria-label="t('library', 'List pages')">

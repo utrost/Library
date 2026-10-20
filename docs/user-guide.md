@@ -25,7 +25,7 @@ For the first catalogue:
 1. Upload or synchronize publication files into Nextcloud Files. Supported primary formats are PDF, EPUB, CBZ and standalone OPF.
 2. Open **Library settings** from the Library catalogue.
 3. Add a root using the same path shown in Nextcloud Files, give it a useful label, and leave it enabled.
-4. Select **Scan this root**. The request is queued; a working background-job runner must execute the scan.
+4. Select **Scan this shelf**. The request is queued; a working background-job runner must execute the scan.
 5. Watch the latest scan status. A completed scan reports indexed, missing and metadata-error counts without changing the source files.
 6. Return to **Library** and check the item count. Open a few PDF, EPUB, CBZ and OPF records, then try search, filters and the detail sidebar.
 
@@ -183,8 +183,8 @@ Current settings capabilities:
 
 - add/update a per-user root path and label;
 - edit, enable/disable or delete a configured Library root without deleting source files from Nextcloud Files;
-- queue a scan for one selected root through **Scan this root**;
-- queue a scan for all enabled roots through **Scan enabled roots**;
+- queue a scan for one selected root through **Scan this shelf**;
+- queue a scan for all enabled roots through **Scan enabled shelves**;
 - list configured roots with enabled state and last scan timestamp;
 - inspect latest scan progress and recent scan history;
 - see scan scope as `all` or a specific root ID;
@@ -279,7 +279,7 @@ Library does not implement a reader in v0.1.
 2. Open **Library settings**.
 3. Add a root path such as `/Books`, `/Manuals` or `/Shared/Photography Library`.
 4. Give the root a human label if the folder name is not the shelf name you want.
-5. Click **Scan enabled roots** or **Scan this root**.
+5. Click **Scan enabled shelves** or **Scan this shelf**.
 6. Wait for scan progress/history to show completion.
 7. Return to the **Library** app catalogue.
 8. Use filters/search to inspect the first scan result.
@@ -331,7 +331,7 @@ Library can add comments but does not yet provide a Library-specific comment man
 3. Open **Review** and use **File problems** for extraction failures or files no longer seen under a root.
 4. Use the five Review groups—**Suggested updates**, **Needs details**, **File problems**, **Cover problems**, and **Imported changes**—to keep cleanup separate from ordinary Catalogue browsing.
 5. Open **Show in Files** for a problem item to inspect the underlying file.
-6. If a root-specific problem is suspected, use **Scan this root** rather than scanning every enabled root.
+6. If a root-specific problem is suspected, use **Scan this shelf** rather than scanning every enabled root.
 
 ### Forgetting missing catalogue entries
 
@@ -395,12 +395,12 @@ Each user configures their own Library roots. There is no polished global root p
 
 ### Running and monitoring scans
 
-1. Ask the user to open **Library settings** and click **Scan enabled roots** or **Scan this root**.
+1. Ask the user to open **Library settings** and click **Scan enabled shelves** or **Scan this shelf**.
 2. Ensure background jobs are actually running on the server.
 3. Watch scan progress/history in the settings page.
 4. Use **Review → File problems** for visible metadata errors and missing files; use **Settings → Diagnostics** for bounded technical evidence. Unsupported files do not enter the catalogue, and OPF sidecar rows can support another item while staying out of normal Catalogue browsing.
 
-After saving a shelf, Library confirms the saved shelf and links to its card; run **Scan this root** there to index its books. The scan card shows the current state and key counts, with paths and timing under **Job details**. **Download diagnostics** exports a small TSV summary of current file statuses, including zero counts. The separate **Export metadata-error TSV** contains individual error rows and is offered only when metadata errors exist.
+After saving a shelf, Library confirms the saved shelf and links to its card; run **Scan this shelf** there to index its books. The scan card shows the current state and key counts, with paths and timing under **Job details**. **Download diagnostics** exports a small TSV summary of current file statuses, including zero counts. The separate **Export metadata-error TSV** contains individual error rows and is offered only when metadata errors exist.
 
 Library scan jobs currently expose progress/history, status, scope, indexed counts, error counts, duration and summary. **Cancel queued scan** is available before a job starts, and **Cancel scan** is available for running jobs; running-job cancellation is cooperative and stops at the next scan progress checkpoint. Scheduled scan UI and notification flow remain future work.
 
@@ -683,7 +683,7 @@ Use this script when deciding what to build next. Subject and classification fil
 
 1. Install/enable Library on a Nextcloud 34 sandbox.
 2. Add one small root with 20-100 mixed real files.
-3. Run **Scan this root** and wait for completion.
+3. Run **Scan this shelf** and wait for completion.
 4. Browse the catalogue without touching settings.
 5. Find one PDF, one EPUB and one CBZ if available.
 6. Open each with **Open**, **Show in Files** and **Download**.

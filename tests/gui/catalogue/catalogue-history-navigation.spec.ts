@@ -34,7 +34,7 @@ test('keeps catalogue and detail state consistent through history navigation @ca
   const row = catalogue.locator('.library-catalogue-list-row').filter({ hasText: title })
   await expect(row).toHaveCount(1)
   const detailResponse = page.waitForResponse((response) => /\/apps\/library\/items\/\d+\/sidebar$/.test(new URL(response.url()).pathname))
-  await row.getByRole('button', { name: title, exact: true }).click()
+  await row.getByRole('button', { name: 'Quick view', exact: true }).click()
   expect((await detailResponse).ok()).toBeTruthy()
   const detailUrl = page.url()
   const itemId = new URL(detailUrl).searchParams.get('item')

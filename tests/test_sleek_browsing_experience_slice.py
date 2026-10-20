@@ -65,7 +65,7 @@ def test_vitest_exercises_compact_home_tools_and_drawer_interaction():
     assert ".library-catalogue-workspace" in test
     assert ".library-workspace-panel--browse" in test
     assert ".library-sidebar-content" in test
-    assert "await wrapper.find('.library-cover-link').trigger('click')" in test
+    assert "await wrapper.find('.library-quick-view').trigger('click')" in test
     assert "Advanced details" in test
 
 

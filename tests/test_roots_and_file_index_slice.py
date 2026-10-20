@@ -70,7 +70,7 @@ def test_personal_settings_template_shows_extendable_root_configuration_and_file
     template = (ROOT / "templates" / "settings-personal.php").read_text()
     assert "library-settings-heading" in template
     assert "name=\"path\"" in template
-    assert "Scan enabled roots" in template
+    assert "Scan enabled shelves" in template
     assert "Diagnostics" in template
     assert "$fileStatusCounts" in template
     assert "label" in template

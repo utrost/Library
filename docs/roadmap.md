@@ -1,5 +1,7 @@
 # Library Roadmap
 
+Current UI consistency candidate: **0.3.0-alpha.32**. Shared pickers, draft protection, clearer navigation and compact review/status controls address the 20 October UX review. Verification is in progress; signed alpha.31 remains installed on developer NC34. No database migration.
+
 Signed alpha.31 is deployed on developer NC34. It adds confirmed book-file deletion with shared-OPF protection and empty-folder cleanup. App integrity is clean and the existing catalogue remains at large catalogue books. No database migration. Verification/deployment: [alpha.31 record](compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
 
 Alpha.30 adds a shared compact browser for Authors, Series and Genres, with displayed-name sorting, bounded book previews and genre pagination. One additive index supports ordering; no author identities or book values change. Alpha.30 is the preceding verified deployment; its browser features are retained in alpha.31. Verification and deployment status: [alpha.30 record](compatibility-evidence/2026-10-20-nc34-author-browser-alpha30/README.md).

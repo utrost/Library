@@ -15,14 +15,14 @@ test('scans a configured root and finds its publication in the catalogue @scan @
   expect(settingsResponse?.ok(), `Library settings returned ${settingsResponse?.status()}`).toBeTruthy()
   const root = page.locator('.library-root-card').filter({ has: page.locator('.library-root-card-header p').getByText(rootPath, { exact: true }) })
   await expect(root).toHaveCount(1)
-  await expect(root.getByRole('button', { name: 'Scan this root' })).toBeVisible()
+  await expect(root.getByRole('button', { name: 'Scan this shelf' })).toBeVisible()
   await attachCheckpoint(page, testInfo, 'scan-root-before', '.library-root-list')
 
   const previousJobId = await latestScanJobId(page)
   await Promise.all([
     // The POST redirects to this same URL; require a new document navigation.
       page.waitForEvent('framenavigated', { predicate: frame => frame === page.mainFrame() && new URL(frame.url()).pathname.endsWith('/settings/user/library') }),
-    root.getByRole('button', { name: 'Scan this root' }).click(),
+    root.getByRole('button', { name: 'Scan this shelf' }).click(),
   ])
   await page.waitForLoadState('load')
   await waitForScanCompletion(page, previousJobId)

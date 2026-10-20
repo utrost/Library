@@ -34,7 +34,7 @@ def test_user_guide_names_implemented_workflows_and_non_goals():
 
     for phrase in [
         "Nextcloud Files remains the canonical storage layer",
-        "Scan enabled roots",
+        "Scan enabled shelves",
         "Read",
         "Show in Files",
         "Details",

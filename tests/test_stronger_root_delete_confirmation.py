@@ -25,8 +25,8 @@ def test_settings_root_delete_form_asks_for_typed_delete_and_keeps_source_file_w
     assert "name=\"confirmDeleteText\"" in template
     assert "placeholder=\"<?php p($l->t('DELETE')); ?>\"" in template
     assert "Type DELETE to confirm" in template
-    assert "Deleting a Library root removes only Library index and catalogue rows" in template
-    assert "never deletes source files from Nextcloud Files" in template
+    assert "Removing a shelf removes its catalogue entries. Source files in Nextcloud Files are kept." in template
+    assert "Source files in Nextcloud Files are kept." in template
     assert "name=\"confirmDelete\" value=\"1\"" not in template
 
 
