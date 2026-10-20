@@ -1641,6 +1641,17 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find('.library-year-groups').exists()).toBe(false)
   })
 
+  it('labels the surname filter as Author and submits typed surnames without requiring a suggestion', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, creator: 'Heinlein' } }) })
+    const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+    const form = wrapper.get('form.library-sidebar-filters')
+    expect(form.get('label[for="library-creator-search"]').text()).toBe('Author')
+    expect(form.get('input[name="q"]').attributes('placeholder')).toContain('author')
+    await form.get('input[name="creatorSearch"]').setValue('Heinlein')
+    await form.trigger('submit')
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?creator=Heinlein', expect.any(Object)))
+  })
+
   it.each([
     ['creator', 'Ada Remote', '1999', 'creators'],
     ['publisher', 'Canonical Press', 'Ada Reader', 'publishers'],
@@ -1683,6 +1694,12 @@ describe('Library catalogue Vue app', () => {
     ))
     const catalogueCall = global.fetch.mock.calls.find(([url]) => String(url).startsWith('/apps/library/catalogue?'))[0]
     expect(catalogueCall).not.toContain(`${facet}Search`)
+    if (facet === 'creator') {
+      // Applying hides suggestions without blurring the input. Further typing
+      // must reopen them, even when no second focus event occurs.
+      await search.setValue(`${query}x`)
+      await vi.waitFor(() => expect(wrapper.findAll('.library-creator-suggestion')).toHaveLength(1))
+    }
   })
 
   it('offers folder paths after three characters and applies the exact selected folder', async () => {

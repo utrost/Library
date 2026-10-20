@@ -39,7 +39,7 @@ def test_description_search_copy_and_backend_query_are_protected_together():
     service = read("lib/Service/ItemService.php")
     smoke = read("scripts/smoke-vue-page.mjs")
 
-    assert "Title, creator, description, filename or folder" in component
+    assert "Title, author, description, filename or folder" in component
     assert "Search also checks descriptions" in component
     assert "(string)($row['description'] ?? '')" in service
     assert "source_has_primary_catalogue_controls" in smoke
