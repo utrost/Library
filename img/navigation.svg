@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8M5 9v12h5v-7h4v7h5V9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="all" viewBox="0 0 24 24"><path d="M4 3h6v18H4zM14 3h6v18h-6zM4 7h6M14 7h6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="starred" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="continue" viewBox="0 0 24 24"><path d="M4 4h7v16H4zM11 4h7v5M11 20h2M17 11a5 5 0 1 0 0 10 5 5 0 0 0 0-10M17 13v3l2 1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="shelves" viewBox="0 0 24 24"><path d="M3 3v18M21 3v18M3 12h18M3 21h18M6 5v7M10 5v7M14 4l3 8M7 15v6M12 15v6M17 15v6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="collections" viewBox="0 0 24 24"><path d="M3 6h7l2 3h9v12H3zM5 3h7l2 3h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="authors" viewBox="0 0 24 24"><path d="M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M5 21v-3a7 7 0 0 1 14 0v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="series" viewBox="0 0 24 24"><path d="M5 3h5v18H5zM13 4l5-1 3 17-5 1zM5 7h5M14 8l5-1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="genres" viewBox="0 0 24 24"><path d="M3 3h8l10 10-8 8L3 11zM7 7h.01" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="lists" viewBox="0 0 24 24"><path d="M9 5h12M9 12h12M9 19h12M3 5h1M3 12h1M3 19h1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="add" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="review" viewBox="0 0 24 24"><path d="m3 6 2 2 4-4M12 6h9m-18 8 2 2 4-4M12 14h9M12 21h9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="infer" viewBox="0 0 24 24"><path d="m4 17 10-10 4 4L8 21ZM4 4v4M2 6h4M17 1v4M15 3h4M20 18v4M18 20h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="duplicates" viewBox="0 0 24 24"><path d="M8 8h13v13H8zM3 16V3h13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="languages" viewBox="0 0 24 24"><path d="M3 4h12M9 2v2M5 4c0 7 7 11 7 11M13 4c0 7-10 12-10 12M13 21l4-10 4 10M15 17h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="mappings" viewBox="0 0 24 24"><path d="M3 5h8M3 12h8M3 19h8m4-14 6 7-6 7M11 12h10" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="settings" viewBox="0 0 24 24"><path d="M9 3h6l1 4 4 1 1 5-3 3v4l-5 1-3-3H6l-3-5 3-3V6zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>

@@ -2359,18 +2359,22 @@
 }
 
 .library-maintenance-navigation-mobile { display: none; }
-.library-maintenance-links { display: grid; gap: 2px; }
+.library-maintenance-links { display: flex; flex-direction: column; gap: 2px; min-height: 100%; }
 .library-maintenance-links strong {
     color: var(--color-text-maxcontrast);
-    font-size: 0.78rem;
-    margin: 14px 12px 5px;
+    border-block-start: 1px solid var(--color-border);
+    font-size: 0.8rem;
+    margin: 12px 12px 4px;
+    padding-block-start: 10px;
 }
 .library-maintenance-links a {
     border-radius: var(--border-radius-element, 8px);
     color: var(--color-main-text);
-    display: block;
-    min-height: 34px;
-    padding: 8px 14px;
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    min-height: 44px;
+    padding: 6px 12px;
     text-decoration: none;
 }
 .library-maintenance-links a:hover,
@@ -2380,7 +2384,16 @@
     border-inline-start: 3px solid var(--color-primary-element);
     font-weight: 700;
 }
-.library-maintenance-links .library-maintenance-settings { margin-top: 24px; }
+.library-maintenance-links > strong:first-child { border: 0; margin-block-start: 4px; padding: 0; }
+.library-maintenance-links a span { overflow-wrap: anywhere; min-width: 0; }
+.library-maintenance-links .library-maintenance-settings { margin-block-start: auto; }
+.library-maintenance-create-list { background: var(--color-primary-element-light); }
+.library-maintenance-tools { border-block-start: 1px solid var(--color-border); margin: 12px 12px 4px; padding-block-start: 4px; }
+.library-maintenance-tools summary { align-items: center; border-radius: var(--border-radius-element, 8px); color: var(--color-text-maxcontrast); cursor: pointer; display: flex; font-size: 0.8rem; font-weight: 700; gap: 6px; min-height: 44px; padding: 4px 0; }
+.library-maintenance-tools summary::-webkit-details-marker { display: none; }
+.library-maintenance-tools summary:hover { background: var(--color-background-hover); }
+.library-maintenance-tools[open] .library-navigation-disclosure-icon { transform: rotate(90deg); }
+.library-maintenance-tools a { padding-inline: 8px; }
 .library-maintenance-main {
     box-sizing: border-box;
     min-width: 0;
@@ -2456,3 +2469,15 @@
     outline: 2px solid var(--color-primary-element);
     outline-offset: 3px;
 }
+
+/* Navigation icons are decorative; visible text supplies each accessible name. */
+.library-navigation-icon { display: inline-block; flex: 0 0 20px; width: 20px; height: 20px; vertical-align: middle; }
+.library-navigation-tools summary:focus-visible,
+.library-navigation-tools a:focus-visible,
+.library-navigation-settings-link:focus-visible,
+.library-maintenance-links a:focus-visible,
+.library-maintenance-links summary:focus-visible {
+    outline: 2px solid var(--color-primary-element);
+    outline-offset: -2px;
+}
+[dir="rtl"] .library-navigation-disclosure-icon { transform: rotate(180deg); }

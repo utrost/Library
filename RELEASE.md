@@ -1,5 +1,7 @@
 # Release process
 
+**0.3.0-alpha.35 sidebar candidate:** grouped navigation and shared icons are prepared. Alpha.34 is still installed until the [alpha.35 verification record](docs/compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) confirms deployment. No database migration.
+
 Signed **0.3.0-alpha.34** is deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue remains **large catalogue books**. No database migration. See the [alpha.34 verification and deployment record](docs/compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
 
 Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.34 is now installed.

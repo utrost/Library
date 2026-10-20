@@ -1,6 +1,8 @@
 # Public alpha test checklist
 
-Signed **0.3.0-alpha.34** is deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue remains **large catalogue books**. No database migration. See the [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
+**Current candidate: 0.3.0-alpha.35.** Sidebar grouping and icons are prepared; rollout is pending. Alpha.34 remains installed until the [alpha.35 verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) confirms deployment. Final signed NC33–35 certification and human acceptance remain release gates.
+
+Previous deployment checkpoint: Signed **0.3.0-alpha.34** is deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue remains **large catalogue books**. No database migration. See the [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
 
 Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.34 is now installed.
 
@@ -8,7 +10,7 @@ Alpha.30 adds a shared compact browser for Authors, Series and Genres, with disp
 
 Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.34 is now installed.
 
-The current development candidate is **`0.3.0-alpha.34`**; the [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) identifies the package installed on private developer Nextcloud 34. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+The previous development checkpoint is **`0.3.0-alpha.34`**; the [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) identifies the package installed on private developer Nextcloud 34. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
 
 Use the [Playwright journey suite](playwright-journeys.md) for repeatable browser workflows against a disposable instance. Use the [current 0.3 human cases](human-test-handbook.md#current-03-human-cases) for personal acceptance. This checklist covers package identity, source-file safety, real-file coverage and release-specific acceptance.
 

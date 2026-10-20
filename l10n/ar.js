@@ -1,6 +1,7 @@
 OC.L10N.register(
     "library",
     {
+        "Discover": "استكشاف",
         "%s of %s useful fields complete": "%s من %s من الحقول المفيدة مكتملة",
         "/Media/Books": "/الوسائط/الكتب",
         "1. Choose a folder": "1. اختر مجلدًا",
@@ -148,7 +149,6 @@ OC.L10N.register(
         "Books with this suggestion are being assigned to {name}.": "جارٍ إسناد الكتب التي تحمل هذا الاقتراح إلى {name}.",
         "Books, comics, manuals…": "كتب، قصص مصورة، أدلة…",
         "Books: {count}": "الكتب: {count}",
-        "Browse": "تصفح",
         "Browse covers, open Details, then correct metadata only where needed.": "تصفّح الأغلفة وافتح التفاصيل، ثم صحّح البيانات الوصفية عند الحاجة فقط.",
         "Browse neighbouring items": "تصفح العناصر المجاورة",
         "Browse the folders that organize your publications.": "تصفح المجلدات التي تنظم منشوراتك.",

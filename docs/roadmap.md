@@ -1,6 +1,8 @@
 # Library Roadmap
 
-Signed **0.3.0-alpha.34** is deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue remains **large catalogue books**. No database migration. See the [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
+**Current candidate: 0.3.0-alpha.35.** Sidebar grouping and icons are prepared; rollout is pending. Alpha.34 remains installed until the [alpha.35 verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) confirms deployment. Final signed NC33–35 certification and human acceptance remain release gates.
+
+Previous deployment checkpoint: Signed **0.3.0-alpha.34** is deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue remains **large catalogue books**. No database migration. See the [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
 
 Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.34 is now installed.
 
