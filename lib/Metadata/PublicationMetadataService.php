@@ -187,7 +187,7 @@ final class PublicationMetadataService {
         return SafeDiagnostics::publicText($diagnostic);
     }
 
-    private function findOpfSidecar(File $file): ?File {
+    public function findOpfSidecar(File $file): ?File {
         $extension = strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION));
         if ($extension === 'opf') {
             return null;

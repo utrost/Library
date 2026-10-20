@@ -1385,7 +1385,24 @@ OC.L10N.register(
         "For example: Doe, John. Used for surname sorting.": "مثال: دو، جون. يُستخدم للفرز حسب اسم العائلة.",
         "Type at least 3 letters.": "اكتب ثلاثة أحرف على الأقل.",
         "Pagination": "التنقل بين الصفحات",
-        "No matching genres.": "لا توجد أنواع مطابقة."
+        "No matching genres.": "لا توجد أنواع مطابقة.",
+        "Delete book": "حذف الكتاب",
+        "Delete book?": "هل تريد حذف الكتاب؟",
+        "Please wait…": "يرجى الانتظار…",
+        "These files will be deleted:": "سيتم حذف هذه الملفات:",
+        "The OPF is shared with another publication and will be kept.": "يستخدم منشور آخر ملف OPF، لذلك سيتم الاحتفاظ به.",
+        "The OPF cannot be deleted with your permissions and will be kept.": "صلاحياتك لا تسمح بحذف ملف OPF، لذلك سيتم الاحتفاظ به.",
+        "The immediate parent folder will be removed only if empty:": "سيتم حذف المجلد الأب المباشر فقط إذا كان فارغًا:",
+        "Library-only edits and unsaved changes will be removed. Restoring the source file does not restore those edits.": "ستُحذف التعديلات المحفوظة في Library فقط والتغييرات غير المحفوظة. استعادة الملف الأصلي لا تستعيد هذه التعديلات.",
+        "Recovery through Nextcloud Deleted files depends on your storage and retention settings.": "تعتمد الاستعادة عبر الملفات المحذوفة في Nextcloud على التخزين وإعدادات الاحتفاظ لديك.",
+        "The file is unavailable or cannot be deleted. Refresh the book and check its permissions.": "الملف غير متاح أو لا يمكن حذفه. أعد تحميل الكتاب وتحقق من صلاحياته.",
+        "Deletion could not be completed. Close this dialog and refresh the book before trying again.": "تعذر إكمال الحذف. أغلق هذا الحوار وأعد تحميل الكتاب قبل المحاولة مجددًا.",
+        "Book deleted.": "تم حذف الكتاب.",
+        "The book was deleted, but its OPF could not be removed.": "تم حذف الكتاب، لكن تعذرت إزالة ملف OPF الخاص به.",
+        "The book was deleted, but the parent folder was kept.": "تم حذف الكتاب، لكن تم الاحتفاظ بالمجلد الأب.",
+        "The file was deleted, but catalogue cleanup needs a rescan. You can then forget the missing publication.": "تم حذف الملف، لكن تنظيف الفهرس يتطلب فحصًا جديدًا. يمكنك بعد ذلك إزالة المنشور المفقود من الفهرس.",
+        "The file was deleted. Run a scan to refresh the catalogue status.": "تم حذف الملف. شغّل فحصًا لتحديث حالة الفهرس.",
+        "Dismiss": "إغلاق"
     },
     "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 );

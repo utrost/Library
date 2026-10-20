@@ -1,5 +1,7 @@
 # Library Roadmap
 
+Alpha.31 adds confirmed book-file deletion with shared-OPF protection and empty-folder cleanup. No database migration. Verification/deployment: [alpha.31 record](compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
+
 Alpha.30 adds a shared compact browser for Authors, Series and Genres, with displayed-name sorting, bounded book previews and genre pagination. One additive index supports ordering; no author identities or book values change. Signed alpha.30 is deployed on developer NC34 with clean integrity and an unchanged 107,717-book catalogue. Verification and deployment status: [alpha.30 record](compatibility-evidence/2026-10-20-nc34-author-browser-alpha30/README.md).
 
 Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
@@ -8,7 +10,7 @@ Alpha.28 adds direct destination-author typeahead for merge/reassign, starting a
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The [signed alpha.9 fresh and upgrade matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed on NC33–35. The [alpha.11 populated NC34 deployment](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) is complete; owner acceptance remains.
 
-Status: **0.3.0-alpha.30** is the current development candidate, adding shared Authors, Series and Genres browsing while retaining the compact editor and persistent Save/Discard bar; see the [verification and deployment record](compatibility-evidence/2026-10-20-nc34-author-browser-alpha30/README.md). The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
+Status: **0.3.0-alpha.31** is the current development candidate, adding shared Authors, Series and Genres browsing while retaining the compact editor and persistent Save/Discard bar; see the [verification and deployment record](compatibility-evidence/2026-10-20-nc34-author-browser-alpha30/README.md). The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
 
 Last updated: 2026-10-20
 
