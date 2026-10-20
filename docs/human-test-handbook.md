@@ -3,7 +3,7 @@
 
 ## Alpha.32 UI consistency acceptance (H03-24)
 
-Candidate: **0.3.0-alpha.32**. Check the installed version before testing; developer NC34 remains alpha.31 until the deployment record says otherwise. Use a disposable account and fixture books for edits, merges, imports and deletion.
+Installed on developer NC34: signed **0.3.0-alpha.32**. Verify its checksum against the deployment record before testing. Use a disposable account and fixture books for edits, merges, imports and deletion.
 
 1. **Find and browse:** open All publications at desktop and 390 px mobile widths. Search books without opening Filters. Sort and change view; verify the search and filters remain. Open a cover or title, then Back: restore the filtered result. Quick view opens the drawer; Escape closes it and restores focus. Open still launches the reader in a new tab. Check Home covers load visibly and a failed cover has a placeholder.
 2. **Save a search:** run a search, expand Save this search, name it and save. Collections and its saved entries remain reachable from navigation. Deleting a saved collection explains the scope and offers Cancel. Books and source files remain.
@@ -253,7 +253,7 @@ The sections below retain older case IDs and detailed release-hardening evidence
 
 Version under test in this older record: `0.1.0-alpha.174`. That development instance deployment included accessibility/catalogue cleanup, ISBN/ISSN identifier spine, indexed substring search, mobile filter panel, high-cardinality typeaheads, and the review issue batch (#32-37).
 
-Packaging: **used for the current private deployment** was the historical alpha.174 status. At that time, the exact unsigned `dist/library-0.1.0-alpha.174.tar.gz` package was installed in the private Nextcloud 34 test container. The same address now serves alpha.9. Archive/package-identity assertions apply only to the artifact actually installed for a given test session.
+Packaging: **used for the current private deployment** was the historical alpha.174 status. At that time, the exact unsigned `dist/library-0.1.0-alpha.174.tar.gz` package was installed in the private Nextcloud 34 test container. The current version at that address is identified at the top of this handbook. Archive/package-identity assertions apply only to the artifact actually installed for a given test session.
 
 ## Identifier and search first pass
 
