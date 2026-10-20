@@ -12,7 +12,7 @@ scripts:
     command: npm run test:gui -- tests/gui/details/editor-entry-points.spec.ts
 
   catalogue-search-detail:
-    description: Search for one deterministic publication, open its details drawer, and close it with restored focus.
+    description: Use the main Search form, open Quick view, close it with restored focus and inspect the List view.
     tags: [catalogue, detail, smoke]
     file: tests/gui/catalogue/catalogue-search-detail.spec.ts
     command: npm run test:gui -- tests/gui/catalogue/catalogue-search-detail.spec.ts
@@ -75,7 +75,7 @@ scripts:
     description: Search from the phone filter panel, verify the result and active-filter state, then clear the search.
     tags: [catalogue, filters, mobile, smoke]
     file: tests/gui/mobile/mobile-catalogue-filters.spec.ts
-    command: npm run test:gui:mobile
+    command: npm run test:gui:mobile -- tests/gui/mobile/mobile-catalogue-filters.spec.ts
 
   mobile-no-horizontal-overflow:
     description: Check document, visible catalogue controls, mobile filters, and result cards remain inside the phone viewport.
@@ -88,3 +88,51 @@ scripts:
     tags: [ux, navigation, details, mobile, import, regression]
     file: tests/gui/details/ui-consistency.spec.ts
     command: npm run test:gui -- tests/gui/details/ui-consistency.spec.ts
+
+  author-browser:
+    description: Browse author previews, sort and search, follow a book and restore directory state on desktop and mobile.
+    tags: [authors, navigation, mobile, regression]
+    file: tests/gui/details/author-browser.spec.ts
+    command: npm run test:gui -- tests/gui/details/author-browser.spec.ts
+
+  catalogue-list-layout:
+    description: Measure cover proportions and table overflow on desktop and mobile.
+    tags: [catalogue, layout, mobile, regression]
+    file: tests/gui/catalogue/catalogue-list-layout.spec.ts
+    command: npm run test:gui -- tests/gui/catalogue/catalogue-list-layout.spec.ts
+
+  final-ui-consistency:
+    description: Verify profile drafts, keyboard facets, seeded language review, navigation and error contrast.
+    tags: [ux, keyboard, mobile, regression]
+    file: tests/gui/details/final-ui-consistency.spec.ts
+    command: npm run test:gui -- tests/gui/details/final-ui-consistency.spec.ts
+
+  ux-follow-up:
+    description: Exercise picker selection, directory drafts, restored scroll and series toolbar navigation.
+    tags: [ux, navigation, mobile, mutation]
+    file: tests/gui/details/ux-follow-up.spec.ts
+    command: npm run test:gui -- tests/gui/details/ux-follow-up.spec.ts
+
+  personal-lists:
+    description: Create, order, annotate and remove a disposable private list; check mobile editing.
+    tags: [lists, mobile, mutation]
+    file: tests/gui/lists/personal-lists.spec.ts
+    command: npm run test:gui -- tests/gui/lists/personal-lists.spec.ts
+
+  path-inference:
+    description: Preview, save and delete inference patterns; check label help, ownership and CSRF.
+    tags: [inference, mobile, security]
+    file: tests/gui/inference/path-inference.spec.ts
+    command: npm run test:gui -- tests/gui/inference/path-inference.spec.ts
+
+  context-help:
+    description: Check settings label help, focus, dismissal and accessible descriptions.
+    tags: [settings, accessibility, regression]
+    file: tests/gui/settings/context-help.spec.ts
+    command: npm run test:gui -- tests/gui/settings/context-help.spec.ts
+
+  thumbnail-cache:
+    description: Configure thumbnail budgets and retention on a disposable admin account and restore settings.
+    tags: [settings, performance, mutation]
+    file: tests/gui/settings/thumbnail-cache.spec.ts
+    command: npm run test:gui -- tests/gui/settings/thumbnail-cache.spec.ts

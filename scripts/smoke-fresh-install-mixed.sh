@@ -52,7 +52,7 @@ printf 'release_package_version=%s\n' "$VERSION"
 printf 'release_package_sha256=%s\n' "$ARCHIVE_SHA256"
 printf 'nextcloud_image=%s\n' "$IMAGE"
 
-python3 "$ROOT/scripts/generate-mixed-publications.py" "$FIXTURE_DIR" "$COUNT"
+python3 "$ROOT/scripts/generate-mixed-publications.py" "$FIXTURE_DIR" "$COUNT" --language-review
 SOURCE_HASH_BEFORE="$(cd "$FIXTURE_DIR" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)"
 printf 'source_tree_sha256_before=%s\n' "$SOURCE_HASH_BEFORE"
 

@@ -11,13 +11,13 @@ test('searches for a deterministic publication and opens and closes its details 
 
   const catalogue = page.locator('#library-catalogue')
 
-  const filters = page.locator('form.library-sidebar-filters[aria-label="Catalogue search and filters"]')
+  const search = page.locator('.library-catalogue-search')
   await page.locator('#library-main-search').fill(title)
   const catalogueResponse = page.waitForResponse((response) => {
     const url = new URL(response.url())
     return url.pathname.endsWith('/apps/library/catalogue') && url.searchParams.get('q') === title
   })
-  await filters.getByRole('button', { name: 'Apply filters' }).click()
+  await search.getByRole('button', { name: 'Search', exact: true }).click()
   expect((await catalogueResponse).ok()).toBeTruthy()
 
   await expect(page).toHaveURL((url) => url.searchParams.get('q') === title)
@@ -29,7 +29,7 @@ test('searches for a deterministic publication and opens and closes its details 
   const card = catalogue.locator('.library-cover-card').filter({ hasText: title })
   await expect(card).toHaveCount(1)
   await attachCheckpoint(page, testInfo, 'catalogue-search-results', '#library-catalogue')
-  // The cover image must remain clickable when its title overlay expands on hover.
+  // Quick view opens the drawer; cover/title navigation is checked separately.
   const opener = card.locator('.library-quick-view')
   const sidebarResponse = page.waitForResponse((response) => /\/apps\/library\/items\/\d+\/sidebar$/.test(new URL(response.url()).pathname))
   await opener.click()

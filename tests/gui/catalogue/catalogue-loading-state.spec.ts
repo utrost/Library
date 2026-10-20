@@ -25,9 +25,9 @@ test('announces a pending catalogue request and clears loading state @catalogue 
 
   const catalogue = page.locator('#library-catalogue')
   const initialCards = await catalogue.locator('.library-cover-card').count()
-  const filters = page.getByRole('form', { name: 'Catalogue search and filters' })
+  const search = page.locator('.library-catalogue-search')
   await page.locator('#library-main-search').fill(title)
-  await filters.getByRole('button', { name: 'Apply filters' }).click()
+  await search.getByRole('button', { name: 'Search', exact: true }).click()
   await requestObserved
 
   await expect(catalogue).toHaveAttribute('aria-busy', 'true')

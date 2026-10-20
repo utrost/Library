@@ -1,6 +1,6 @@
 # Your first library
 
-Turn a folder of English Project Gutenberg books into a catalogue you can search, browse and open. The screenshots were captured with Library **0.2** on Nextcloud **34**, using 40 EPUB files; the same onboarding flow is available in the **0.3 development build**. You can follow the steps with just a few books.
+Turn a folder of English Project Gutenberg books into a catalogue you can search, browse and open. The instructions and screenshots use **0.3.0-alpha.34** on Nextcloud **34.0.4**, with 40 EPUB files. You can follow the steps with just a few books.
 
 ## Before you start
 
@@ -21,19 +21,19 @@ Your folder path is now `/Books/Gutenberg English`. Keep the original filenames,
 1. Open **Library**, then **Settings** at the bottom of its left menu.
 2. Under **Folders and scanning**, find **Add a shelf**.
 3. Use **Choose folder**, or enter `/Books/Gutenberg English` in **Folder path**.
-4. Enter **Gutenberg English** in **Label**, then click **Save root**.
+4. Enter **Gutenberg English** in **Label**, then click **Save shelf**.
 
 A *root* is a folder Library scans, including its subfolders. Its label is the shelf name you see when browsing. Choose the folder as it appears in your Nextcloud Files, rather than a server filesystem path.
 
 ![Add a shelf with the folder path and Gutenberg English label filled in](images/first-library/01-add-folder.png)
 
-The saved folder should appear with an **enabled** badge and a **Scan this root** button. Saving the folder and scanning its books are separate actions.
+The saved folder should appear with an **enabled** badge and a **Scan this shelf** button. Saving the folder and scanning its books are separate actions.
 
 ![The saved Gutenberg English folder and its scan button](images/first-library/02-saved-folder.png)
 
 ## Scan your first books
 
-1. Click **Scan this root** beside **Gutenberg English**.
+1. Click **Scan this shelf** beside **Gutenberg English**.
 2. Follow the scan progress on the settings page. It may be queued briefly before a background worker picks it up. You can leave the page and return later.
 3. Wait for **completed**, then check the totals. With the full sample, you should find 40 publications.
 
@@ -47,12 +47,12 @@ If the scan stays **queued**, ask your administrator to check Nextcloud's backgr
 
 1. Return to **Library** and choose **All publications**.
 2. Browse the covers, or search for a title such as **A Rent In A Cloud**. If you downloaded different books, search for one of their titles instead.
-3. Try **Compact** and **List** to choose your preferred view. Use **Shelves** to browse a particular folder when you have more than one.
-4. Click a cover or title to open the book's detail sidebar.
+3. Try **Covers** and **List** to choose your preferred view. Use **Shelves** to browse a particular folder when you have more than one.
+4. Click a cover or title to open **Book details**. Use **Quick view** on the card for the detail sidebar shown below.
 
 ![The catalogue populated with 40 English Gutenberg books](images/first-library/04-browse.png)
 
-The sidebar lets you inspect **Overview**, **Metadata** and **Activity**; author chips open the author's profile. **Open** hands the file to the viewer available in your Nextcloud installation. If EPUB reading is unavailable there, use **Download** from the sidebar’s **…** menu and open it in your reading app.
+The sidebar lets you inspect **Overview**, **Metadata** and **Activity**; author chips open the author's profile. **Open** launches the file in a new tab using the viewer available in your Nextcloud installation. If EPUB reading is unavailable there, use **Download** from the sidebar’s **…** menu and open it in your reading app.
 
 ![A Gutenberg book open in the Library detail sidebar](images/first-library/05-book-details.png)
 
@@ -60,7 +60,7 @@ Some books have a placeholder instead of an illustrated cover. That alone does n
 
 ## Keep the catalogue up to date
 
-In **Settings → Folders and scanning → Automatic scans**, choose **Every day** and click **Save schedule**. The first automatic scan is due after the chosen interval; **Scan this root** or **Scan enabled roots** starts an immediate manual scan.
+In **Settings → Folders and scanning → Automatic scans**, choose **Every day** and click **Save schedule**. The first automatic scan is due after the chosen interval; **Scan this shelf** or **Scan enabled shelves** starts an immediate manual scan.
 
 ![Automatic scans configured to run every day](images/first-library/06-automatic-scans.png)
 

@@ -14,9 +14,45 @@ Alpha.28 adds direct destination-author typeahead for merge/reassign, starting a
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The [signed alpha.9 fresh and upgrade matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed on NC33–35. The [alpha.11 populated NC34 deployment](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) is complete; owner acceptance remains.
 
-Status: **0.3.0-alpha.33** is the current development candidate, adding confirmed source-file deletion while retaining shared Authors, Series and Genres browsing, the compact editor and persistent Save/Discard bar; see the [verification and deployment record](compatibility-evidence/2026-10-20-nc34-ux-follow-up-alpha33/README.md). The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
+Status: **0.3.0-alpha.34** is the current development candidate; see the [verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md). The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
 
 Last updated: 2026-10-20
+
+## Product direction
+
+Direction approved for roadmap planning on 2026-10-20: grow Library into a personal reading and knowledge environment that helps people organise what they own, choose what to read, resume reading and recover what they learned. Nextcloud Files remains canonical storage; accepted corrections, provenance and personal activity must remain private and recoverable.
+
+The release themes below guide sequencing. They are not delivery dates or claims that future features exist. **Target scope** is the intended release core; **experimental** work can ship separately or move later without blocking that core. Detailed outcomes and acceptance criteria live in the [post-v0.1 roadmap](post-v0.1-roadmap.md#current-direction--2026-10-20).
+
+| Release | Theme | Target scope | Experimental or optional scope |
+| --- | --- | --- | --- |
+| **0.3** | Reliable personal catalogue | Finish acceptance and release certification for the existing catalogue, editor, author/series/genre organisation, scans, lists and deletion. | Freeze feature expansion until release gates close. |
+| **0.4** | Enrich and discover | **Improve book details** with optional provider adapters and reviewable evidence; complete Library export/restore; bulk organisation; incoming-books and cleanup inbox with visible change history; useful Home and library-health dashboards. | Citation export after metadata completion is reliable; bounded front-matter/OCR/LLM extraction; a narrow reader progress/resume bridge. |
+| **0.5** | Read and remember | Reliable reader progress/resume, reading history, bookmarks/highlights and portable personal activity; reviewed work/edition/file grouping; wishlists/books without files; reading-copy quality checks; reading dashboards based on actual reader events. | Offline/cross-device integration, text-to-speech and a maintained reader fork if upstream integration proves unsuitable. |
+| **0.6** | Explore your knowledge | Article/chapter discovery; optional full-text and semantic discovery, questions grounded in cited passages, reading paths and connections between books, highlights and notes. | Broader synthesis and personal recommendations, subject to corpus coverage, retrieval quality, permissions and resource limits. |
+
+**First post-release feature slice:** one-book **Improve book details**. Start with existing metadata and identifiers, consult optional Google Books/Open Library adapters, preview field-level suggestions with evidence, and apply only accepted changes. Follow with bounded batch execution. Provider availability and terms must be checked during implementation; Goodreads and Amazon are optional investigations, not dependencies.
+
+**0.4 organising workflow:** new files arrive → identify books → review possible duplicates → complete metadata → organise → browse. The inbox connects these steps, retains decisions when paused and records accepted changes in a visible history. Reuse existing review surfaces rather than introducing a separate destination for every capability. These additions are assigned to 0.4 and later; 0.3 remains limited to acceptance fixes and release readiness.
+
+**Foundation before edition grouping:** distinguish work, edition, file and personal activity through a reviewed design and additive migrations. Preserve existing file IDs, relationships and corrections. Progress remains tied to a specific file/version until a verified mapping exists; no automatic cross-edition position conversion or destructive duplicate consolidation.
+
+**Shared/admin-managed libraries:** retained as a separate, unassigned future release. The earlier assignment to 0.4 is superseded. Shared ownership, access revocation and personal versus shared corrections need their own design and multi-user acceptance; sharing is not a prerequisite for reader integration.
+
+**Nextcloud integration across releases:** stage book-linked Notes/Text documents, Unified Search, Smart Picker/link previews and a native Nextcloud Dashboard widget in 0.4; connect reader highlights and passage links to notes in 0.5; explore permission-aware links to Collectives and knowledge retrieval in 0.6. These are optional, independently deliverable integration slices, not a requirement to install every companion app. Notes remain user-owned documents with one authoritative copy; Library owns book/note relationships and reading anchors. Existing list notes and file comments retain their current meaning. See the [integration track](post-v0.1-roadmap.md#nextcloud-integration-across-releases).
+
+### Remaining 0.3 release gates
+
+Before starting the new release track:
+
+- Commit the current documentation/test maintenance and close or explicitly retire unique legacy diagnostic coverage gaps; see the [maintenance audit](testing-maintenance-audit-2026-10-20.md).
+- Build, sign and audit one final candidate from committed source. Certify that exact archive on NC33–35 fresh and upgraded installations, with current schema and critical-operation checks across the declared SQLite, MariaDB and PostgreSQL engines.
+- Rehearse current-schema backup/restore and interrupted scan, backfill and queued-operation recovery. Corrected-metadata export remains partial until the complete export feature lands; retain the [full-instance recovery contract](recovery.md).
+- Complete independent first-use and owner acceptance, including keyboard/mobile use, reader availability, account isolation, stale edits, read-only/revoked file access and disposable deletion failures.
+- Repeat the populated-library cold/warm performance baseline, including broad searches and concurrent scanning; refresh public Gutenberg screenshots, listing text and supported limitations.
+- Publish the accepted release assets and verify installation through the App Store. Earlier alpha evidence does not certify a later archive.
+
+These are acceptance gates, not newly discovered implementation defects. The [App Store checklist](app-store-readiness.md) and [human handbook](human-test-handbook.md#current-03-human-cases) retain the operational detail.
 
 ## Active 0.3 track
 
@@ -67,12 +103,12 @@ Baseline and rerun instructions: [84k-book audit](performance/2026-09-27-alpha21
 
 Library should become useful in small, vertical slices. Each phase should leave the app installable and smoke-testable on a real Nextcloud instance.
 
-The roadmap is intentionally conservative:
+Delivery remains incremental as the product ambition grows:
 
 - Nextcloud Files remains the source of truth.
-- Library starts as an index/catalogue, not a renderer.
+- Library starts with catalogue and reader handoff; deeper reading integration follows the 0.4–0.5 capability and maintenance decisions above.
 - Per-user behaviour comes before shared/global library management.
-- External metadata, OCR, OPDS and device sync are later additions, not prerequisites.
+- External metadata and bounded OCR/LLM extraction enter the 0.4 plan. They remain optional and are not prerequisites for 0.3 or basic catalogue use. OPDS and device sync remain later candidates.
 - Nextcloud system tags are the preferred cross-archive classification layer for interests, projects, collections and statuses.
 
 ## Historical v0.1 baseline
@@ -479,6 +515,8 @@ Exit criteria:
 
 ## Post-v0.1 candidates
 
+Historical allocation, superseded on 2026-10-20 by [Product direction: 0.3–0.6](#product-direction). In particular, document intelligence now belongs to the 0.6 direction, with bounded extraction experiments earlier. The headings below preserve earlier planning references.
+
 ### 0.2 — Organization
 
 First feature: [Infer metadata from filenames and paths](v0.2-inference.md), with a guided rule builder, saved templates/folder rules, full-scope preview, selected-field apply and conditional undo. Its catalogue and job dependencies are documented; sidecar writing and physical filing can follow independently.
@@ -538,6 +576,8 @@ Feedback: Nextcloud tags are useful as cross-app labels, but stars, Library-owne
 
 ## Prioritized v0.1 gap stack after the 1k real-corpus pilot
 
+Historical pilot priorities. Current implemented behavior and remaining gates are recorded in the active 0.3 track above; complete Library export/restore is now a 0.4 target.
+
 The 1k real-corpus pilot moved the biggest uncertainty from “can Library browse a large-ish mixed shelf?” to “can Library keep improving messy metadata without making the scanner unsafe or unmaintainable?” Real-corpus filename hardening landed after the pilot: staging prefixes and archive suffixes are stripped, conservative title/creator filename patterns are promoted, and volume labels such as `Volume 71` are kept as issue context instead of creators.
 
 Current priority order:
@@ -556,6 +596,8 @@ Immediate implementation stance: use the cleaner extractor boundary to support c
 
 ## App Store readiness track
 
+Historical v0.1 slice descriptions below. The certificate and signed development packages now exist; 0.3 is the first planned Store release. Use [Remaining 0.3 release gates](#remaining-03-release-gates) for current acceptance.
+
 The App Store readiness plan lives in [App Store readiness roadmap](app-store-readiness.md). This track is separate from product expansion: it prepares Library for a signed Nextcloud App Store release while preserving the current Nextcloud 33–35 compatibility claim.
 
 Immediate slices:
@@ -568,14 +610,7 @@ Immediate slices:
 
 ## Rough post-v0.1 roadmap
 
-The rough roadmap after v0.1 lives in [Rough roadmap after v0.1](post-v0.1-roadmap.md). It intentionally assigns one major feature family to each minor release line:
-
-1. v0.2 — extend the already-landed filename/directory parsing against real mixed libraries; final scope remains open.
-2. v0.3 — [author management](v0.3-author-management.md); external metadata providers move to later scope.
-3. v0.4 — shared libraries and admin-managed roots.
-4. v0.5 — reading integrations and activity.
-
-Treat that file as direction-setting, not a date promise. Several original v0.2 slices landed in the beta already; maintainer's beta feedback and new ideas can reshape the remaining scope.
+The [current post-v0.1 roadmap](post-v0.1-roadmap.md#current-direction--2026-10-20) develops the release themes above: **0.4 Enrich and discover**, **0.5 Read and remember**, and **0.6 Explore your knowledge**. It includes acceptance criteria, provider and AI boundaries, reader integration/fork decisions, portability and edition modelling. Shared/admin-managed libraries have no assigned release. The earlier version allocations are retained there as explicitly superseded historical proposals.
 
 ## Combined missing operational processes, 2026-09-06
 

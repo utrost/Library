@@ -98,14 +98,29 @@ async function maintenance(page, info) {
     await expect(dialog).not.toBeVisible()
     await expect(toggle).toBeFocused()
   }
-  // The fixture may have no unresolved languages; value selection is also unit-tested.
-  const picker = page.getByRole('combobox', { name: 'Search languages or enter a code' }).first()
-  if (await picker.count()) {
-    await picker.fill('German')
-    await picker.press('Enter')
-    await expect(page.getByRole('button', { name: 'Remove: de' }).first()).toBeVisible()
-    await page.getByRole('button', { name: 'Remove: de' }).first().click()
-  }
+  // The mixed-fixture generator seeds an unresolved "3ng" OPF language.
+  // Missing review data is a failed setup, never a silently skipped assertion.
+  const card = page.locator('.library-maintenance-card').filter({ has: page.getByRole('heading', { name: '3ng', exact: true }) })
+  await expect(card).toHaveCount(1)
+  const picker = card.getByRole('combobox', { name: 'Search languages or enter a code' })
+  const codes = card.locator('input[name="codes"]')
+  const apply = card.getByRole('button', { name: 'Save mapping and apply next 100 books', exact: true })
+  await expect(picker).toBeVisible()
+  await expect(apply).toBeDisabled()
+  await picker.fill('German')
+  await expect(card.getByRole('option', { name: 'German (de)', exact: true })).toHaveAttribute('aria-selected', 'true')
+  await picker.press('Enter')
+  await expect(card.getByRole('button', { name: 'Remove: de', exact: true })).toBeVisible()
+  await expect(codes).toHaveValue('de')
+  await picker.fill('English')
+  await picker.press('Enter')
+  await expect(codes).toHaveValue('de;en')
+  await card.getByRole('button', { name: 'Remove: de', exact: true }).click()
+  await expect(codes).toHaveValue('en')
+  await card.getByRole('button', { name: 'Remove: en', exact: true }).click()
+  await expect(codes).toHaveValue('')
+  await expect(apply).toBeDisabled()
+  await expect(card.getByRole('button', { name: 'Ignore value', exact: true })).toBeEnabled()
   await attachCheckpoint(page, info, 'maintenance-navigation-and-language-entry')
   await page.goto(`/apps/library/?details=${requiredEnvironment('PW_ITEM_ID')}&openUnavailable=1`)
   const error = page.locator('.library-full-details-error').first()
