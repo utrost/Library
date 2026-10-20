@@ -66,3 +66,7 @@ Repeat the main suite through `LIBRARY_FRESH_MIXED_COUNT=40 npm run smoke:fresh-
 Local evidence logs are `/tmp/library-handbook-gui-final.log`, `/tmp/library-handbook-ownership-final.log`, `/tmp/library-handbook-contracts-complete.log`, `/tmp/library-handbook-vitest.log`, and the corresponding `/tmp/library-handbook-{opf,series-final,author-conflicts,native-conflict,deletion-final}.log` files. These are local run artifacts, not permanent hosted CI evidence.
 
 The source-tree aggregate remained `9303a6f07320fa15823b5790eefdeb8e720fcc420242653bd39d009cd9283e5b`. The original signed alpha.34 package was preserved, SHA-256 `e71e5f197573d99e2517de25afda2eb17f8343d1a112c3f4da1dfe8d43bdb551`. No application deployment or version bump was made.
+
+### Merge follow-up
+
+PR #129's first hosted run stopped at the dependency audit before executing tests: `follow-redirects` 1.16.0 was flagged by GHSA-q3jh-wrc6-jgq8 and GHSA-8r9p-f939-6h3c. The lockfile was updated only for that transitive package to patched 1.16.1; the production audit then reported zero vulnerabilities. Hosted checks must pass on the updated commit before merging. The Node dependency tree is not shipped in the Nextcloud app archive; the installed alpha.34 package remains unchanged.
