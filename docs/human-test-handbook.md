@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current acceptance target: 0.3.0-alpha.35.** Sidebar polish is prepared for developer NC34; alpha.34 remains installed until the [deployment and verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) confirms rollout. Confirm the installed version and package checksum before testing; a matching version string alone does not identify an archive.
+**Current acceptance target: 0.3.0-alpha.35.** Signed alpha.35 is deployed on developer NC34. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) before testing; a matching version string alone does not identify an archive.
 
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 

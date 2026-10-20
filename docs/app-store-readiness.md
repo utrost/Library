@@ -1,10 +1,10 @@
 # App Store readiness roadmap
 
-**Current candidate: 0.3.0-alpha.35.** Sidebar grouping and icons are prepared; rollout is pending. Alpha.34 remains installed until the [alpha.35 verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) confirms deployment. Final signed NC33–35 certification and human acceptance remain release gates.
+**Current candidate: 0.3.0-alpha.35.** Signed alpha.35 is deployed on developer NC34 with grouped navigation and consistent sidebar icons. CI and the installed desktop/mobile smoke passed; see the [alpha.35 verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
 
-Previous deployment checkpoint: Signed **0.3.0-alpha.34** is deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue remains **107,717 books**. No database migration. See the [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
+Previous deployment checkpoint: Signed **0.3.0-alpha.34** was deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue at that checkpoint contained **107,717 books**. No database migration. See the [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
 
-Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.34 is now installed.
+Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.35 is now installed.
 
 Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: [alpha.31 record](compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
 
@@ -12,7 +12,7 @@ Alpha.30 adds a shared compact browser for Authors, Series and Genres, with disp
 
 Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.34 is now installed.
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.35 is now installed.
 
 ## Submission decision — 2026-10-13
 
@@ -44,7 +44,7 @@ The signed `0.3.0-alpha.10` package from merged PR #109 was [deployed on populat
 
 ## Release checkpoint — updated 2026-10-20
 
-Current candidate baseline: `0.3.0-alpha.35`. Author and series management are in development. The [signed alpha.23 package](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) includes the unified book editor; alpha.24 adds Save/Discard and direct author/series selection, and alpha.25 fixes the bar's full-page scrolling boundary. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The exact signed 0.3 NC33–35 release matrix remains pending.
+Current candidate baseline: `0.3.0-alpha.35`. Author and series management are implemented in the current candidate. The [signed alpha.23 package](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) includes the unified book editor; alpha.24 adds Save/Discard and direct author/series selection, and alpha.25 fixes the bar's full-page scrolling boundary. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The exact signed 0.3 NC33–35 release matrix remains pending.
 
 At the alpha.9 checkpoint, the app was deployed on developer NC34/MariaDB. Its app version was `0.3.0-alpha.9`; 107,717 catalogue books remained after migration and temporary fixture cleanup. Focused service and Chromium/Firefox series workflows passed on NC33.0.9, NC34.0.4, NC35.0.0 and the populated developer instance. See the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The [human test handbook](human-test-handbook.md#current-03-human-cases) now covers author/series acceptance.
 

@@ -1,0 +1,165 @@
+{
+  "version": "0.3.0-alpha.35",
+  "nextcloudVersion": "34.0.3.2",
+  "mergeCommit": "c8c468fead682130f74972aa0698fdb045531654",
+  "archiveSha256": "2cfffe126202173b706275b9b8afc98d828333e89a73b0ad7a893a24d4d1766f",
+  "frontendBytes": 1021563,
+  "frontendBudgetBytes": 1320000,
+  "catalogueScope": "owner account",
+  "catalogueBefore": 107717,
+  "catalogueAfter": 107717,
+  "maintenance": false,
+  "needsDbUpgrade": false,
+  "integrity": "clean",
+  "temporaryAuthenticationRemoved": true,
+  "browserResults": [
+    {
+      "engine": "chromium",
+      "width": 1440,
+      "surface": "authors",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    },
+    {
+      "engine": "chromium",
+      "width": 1440,
+      "surface": "languages",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "surface": "authors",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "surface": "languages",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    },
+    {
+      "engine": "chromium",
+      "width": 320,
+      "surface": "authors",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    },
+    {
+      "engine": "chromium",
+      "width": 320,
+      "surface": "languages",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    },
+    {
+      "engine": "firefox",
+      "width": 1440,
+      "surface": "authors",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    },
+    {
+      "engine": "firefox",
+      "width": 1440,
+      "surface": "languages",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    },
+    {
+      "engine": "firefox",
+      "width": 390,
+      "surface": "authors",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    },
+    {
+      "engine": "firefox",
+      "width": 390,
+      "surface": "languages",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    },
+    {
+      "engine": "firefox",
+      "width": 320,
+      "surface": "authors",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    },
+    {
+      "engine": "firefox",
+      "width": 320,
+      "surface": "languages",
+      "keyboardDisclosure": true,
+      "iconsVisible": true,
+      "settingsReachable": true,
+      "overflow": false
+    }
+  ],
+  "pageErrors": [],
+  "bookMutationAttempts": [],
+  "servedAssets": [
+    {
+      "path": "library/css/library-vue-0-3-0-alpha-35-compact-list-table-cover-96-fit-v8.css",
+      "bytes": 161262,
+      "sha256": "b0ead5a211c25e80cde4b3c01762d57bcdf8e37f3651a5e9dfc3ef9d9556f6ed",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/css/style.css",
+      "bytes": 59627,
+      "sha256": "ab0483a02b4aecfac3a346b5d909ec3e9e0fc852ca313cb26e20a90b57bb868d",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/css/ui-contract.css",
+      "bytes": 15037,
+      "sha256": "26c7c496e45da17586386d07b129deab85cb1c49f3078c0825e4381e7a6fca8b",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/img/navigation.svg",
+      "bytes": 3875,
+      "sha256": "c72d72820eb113b1585bd47f2815aa4cf60650411227ce9aa28fcf833d64ad80",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/js/library-main-0-3-0-alpha-35-compact-list-table-cover-96-fit-v8.mjs",
+      "bytes": 766030,
+      "sha256": "88f6e350b7510bfd046c482b9d37b2537f441c27255dc52fd3cb0887b125bc4d",
+      "http_matches_package": true
+    },
+    {
+      "path": "library/l10n/en.js",
+      "bytes": 104409,
+      "sha256": "0d029d228ffa2a68caba1c8f7e5da6d9c195e693292de9474f15b35c03e7f902",
+      "http_matches_package": true
+    }
+  ]
+}
