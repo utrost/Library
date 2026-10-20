@@ -18,7 +18,7 @@ The source build was installed only in the disposable Gutenberg screenshot conta
 
 The local full check passed 1,051 source contracts, 591 frontend tests, PHP runtime checks, 518 inference vectors, translation checks, build and Markdown links, including a repeat after the version bump. The translation check first found the now-unused Browse label; removing it from all three catalogues restored the inventory check. The first version-bump check identified stale candidate references in release documentation; those references and the handbook package link were corrected before the successful repeat. Final versioned package, CI and deployment results will be recorded below.
 
-Human acceptance: [H03-26](../../human-test-handbook.md#h03-26--final-consistency-acceptance). The [alpha.34 public screenshots](../../images/first-library/README.md) remain accurately labelled as that build; this sidebar refresh is newer.
+Human acceptance: [H03-26](../../human-test-handbook.md#h03-26--final-consistency-acceptance). The [public screenshots](../../images/first-library/README.md) were refreshed again on a fresh installation of the signed alpha.35 screenshot candidate. All ten images were inspected; the first scan indexed 40 Gutenberg files without errors. The source package passed signature, SBOM, provenance and frontend-size audits (1,021,563 / 1,320,000 bytes). A second focused Chromium/Firefox run against that installed package passed all 12 viewport/page combinations with zero Library HTTP failures or page errors. An earlier Basic-auth source-fixture run encountered a transient SQLite lock; the final run used normal session login on a fresh fixture.
 
 ## Deployment
 
