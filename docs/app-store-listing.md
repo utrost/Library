@@ -1,8 +1,8 @@
 # App Store listing draft
 
-Status: copy and screenshots refreshed against signed 0.3.0-alpha.35 on 2026-10-20; final candidate review remains required before submission.
+Status: copy and screenshots refreshed against signed 0.3.0-alpha.38 on 2026-10-21; owner review and final release-tag review remain required before submission.
 Target app version: 0.3, subject to exact archive verification.
-Compatibility target: Nextcloud 33–35. Current NC34 verification is recorded for alpha.35; the final exact-package NC33–35 matrix remains a release gate.
+Compatibility target: Nextcloud 33–35. Current NC34 verification is recorded for alpha.38; the final exact-package NC33–35 matrix remains a release gate.
 
 ## Short description
 
@@ -33,7 +33,8 @@ Included in the 0.3 development build:
 - review flows for weak metadata, scanner conflicts, missing files and metadata extraction errors;
 - corrected-metadata export and import preview/apply;
 - safe handoff to existing Nextcloud viewers, Show in Files and Download source actions;
-- confirmed book deletion through Nextcloud, with shared OPF retention and protected-root checks.
+- confirmed book deletion through Nextcloud, with shared OPF retention and protected-root checks;
+- a reversible To delete state for books on read-only mounts, with a review queue and no source-file change.
 
 Outside the planned 0.3 scope:
 
@@ -63,12 +64,14 @@ Bug reports are most useful when they include the app version, Nextcloud version
 
 Prepared screenshots for owner review:
 
-Captured from signed Library 0.3.0-alpha.35 on disposable Nextcloud 34.0.4 using the public Gutenberg fixture and a synthetic metadata tutorial file. All are below 2 MiB, and contain no real-library filenames or credentials:
+Captured from a signed Library 0.3.0-alpha.38 screenshot candidate on disposable Nextcloud 34.0.4 using the public Gutenberg fixture and a synthetic metadata tutorial file. All are below 2 MiB, and contain no real-library filenames or credentials:
 
 1. [Catalogue](images/appstore-catalogue.png)
 2. [Publication details](images/appstore-details.png)
 3. [Authors and linked book previews](images/appstore-authors.png)
 4. [Metadata extraction and live preview](images/appstore-inference.png)
+5. [Per-file pattern assignment](images/appstore-inference-worklist.png)
+6. [Scan progress and configured shelf](images/first-library/03-scan-complete.png)
 
 [Capture provenance and reproduction](images/first-library/README.md).
 
