@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0-alpha.38 — 2026-10-22
+
+- Add ASIN and GGKEY identifiers, a 20-language starter picker, reordered catalogue filters and sorted Previous/Next book navigation.
+- Improve path extraction with per-file Apply and Undo, subfolder and file-order controls, underscore replacement, a supplied Title - Author pattern, ISBN capture and inline placeholder help.
+- Add a reversible To delete state for books on read-only mounts, while retaining confirmed source deletion where permissions allow.
+- Fix title/description substring search on SQLite, reading-list availability labels and worklist history after Apply.
+- Additive migrations support deletion markers and file-worklist ordering. Hosted CI passed 79 browser journeys; the signed package is deployed on developer NC34.
+
+## 0.3.0-alpha.37 — 2026-10-21
+
+- Add a reversible To delete state and review queue for source files on read-only mounts.
+
 ## 0.3.0-alpha.36 — 2026-10-21
 
 - Assign saved, supplied or draft filename/path patterns per file in a bounded worklist. Bulk assignment includes only complete structural matches and selects empty fields only.

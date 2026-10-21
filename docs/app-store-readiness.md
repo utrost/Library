@@ -1,10 +1,10 @@
 # App Store readiness roadmap
 
-**Current candidate: 0.3.0-alpha.38.** Signed alpha.36 is deployed on developer NC34 with the mixed filename/path worklist. CI and installed desktop/mobile smokes passed; see the [alpha.36 verification record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
+**Current developer build: signed 0.3.0-alpha.38.** Hosted CI passed, and the installed package passed integrity, asset matching and disposable desktop/mobile smokes on NC34. The catalogue remained at large catalogue books; see the [alpha.38 verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
 
-Previous deployment checkpoint: signed **0.3.0-alpha.35** added grouped sidebar navigation and consistent icons. Its [verification and deployment record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) remains historical; the alpha.36 package is now installed.
+Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.38 is now installed.
 
-Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.36 is now installed.
+Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.38 is now installed.
 
 Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: [alpha.31 record](compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
 
@@ -12,7 +12,7 @@ Alpha.30 adds a shared compact browser for Authors, Series and Genres, with disp
 
 Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.36 is now installed.
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.38 is now installed.
 
 ## Submission decision — 2026-10-13
 

@@ -20,7 +20,7 @@ The source is the 40-book English Gutenberg EPUB fixture, copied into `/Books/Gu
 | [appstore-inference.png](../appstore-inference.png) | Filename extraction and selected-record preview |
 | [appstore-inference-worklist.png](../appstore-inference-worklist.png) | Per-file pattern assignment and Apply now |
 
-All ten images were visually reviewed. Missing-cover placeholders reflect the fixture. The settings captures also expose narrow Add a shelf fields and an overlapping long Changes found label; these are recorded in the [maintenance audit](../../testing-maintenance-audit-2026-10-21.md#readme-and-screenshot-follow-up) for human follow-up.
+All eleven images were visually reviewed. Missing-cover placeholders reflect the fixture. The settings captures also expose narrow Add a shelf fields and an overlapping long Changes found label; these are recorded in the [maintenance audit](../../testing-maintenance-audit-2026-10-20.md#readme-and-screenshot-follow-up) for human follow-up.
 
 ## Recreate the screenshots
 
