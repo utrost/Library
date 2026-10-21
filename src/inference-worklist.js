@@ -5,7 +5,7 @@ export function previewDefinition(item, definition) {
   if (!definition) return { status: 'unmatched', changes: [] }
   return definition.mode === 'guided'
     ? inferRule(item.path, definition.rule, item.current)
-    : inferPath(item.path, definition.pattern, item.current)
+    : inferPath(item.path, definition.pattern, item.current, definition.replaceUnderscores || false)
 }
 
 export function isCompleteMatch(result) {
@@ -29,7 +29,7 @@ export function mixedReviewContext(items, choices, assigned, selected, rootId, f
     if (!selected.some(key => key.startsWith(`${item.id}:`))) continue
     const choice = choices.find(entry => entry.id === assigned[item.id])
     if (!choice) continue
-    definitions[choice.id] = choice.mode === 'guided' ? { mode: 'guided', rule: choice.rule } : { mode: 'pattern', pattern: choice.pattern }
+    definitions[choice.id] = choice.mode === 'guided' ? { mode: 'guided', rule: choice.rule } : { mode: 'pattern', pattern: choice.pattern, replaceUnderscores: choice.replaceUnderscores || false }
     assignments[item.id] = choice.id
   }
   return JSON.stringify({ mode: 'mixed', rootId: Number(rootId), folder, definitions, assignments })

@@ -30,7 +30,7 @@ final class InferencePatternController extends Controller {
             if ($entry['kind'] === 'guided' && GuidedRuleValidator::valid($value['rule'] ?? null)) {
                 $patterns[] = $entry + ['rule' => $value['rule']];
             } elseif ($entry['kind'] === 'pattern' && is_string($value['pattern'] ?? null)) {
-                $patterns[] = $entry + ['pattern' => $value['pattern']];
+                $patterns[] = $entry + ['pattern' => $value['pattern'], 'replaceUnderscores' => ($value['replaceUnderscores'] ?? false) === true];
             }
         }
         usort($patterns, static fn(array $a, array $b): int => strnatcasecmp($a['name'], $b['name']));
@@ -51,13 +51,15 @@ final class InferencePatternController extends Controller {
         if (!is_string($name) || trim($name) === '' || mb_strlen($name) > 120 || preg_match('/[\x00-\x1f\x7f]/', $name) || !in_array($kind, ['pattern', 'guided'], true)) return $this->response([], 422);
         $rule = $this->request->getParam('rule');
         $pattern = $this->request->getParam('pattern');
+        $replaceUnderscores = $this->request->getParam('replaceUnderscores', false);
+        if (!is_bool($replaceUnderscores)) return $this->response([], 422);
         if ($kind === 'guided') {
             if (!GuidedRuleValidator::valid($rule)) return $this->response([], 422);
         } else {
             if (!is_string($name) || !is_string($pattern) || trim($name) === '' || mb_strlen($name) > 120 || trim($pattern) === '' || mb_strlen($pattern) > 1000 || preg_match('/[\x00-\x1f\x7f]/', $name . $pattern)) return $this->response([], 422);
             // Same placeholder vocabulary as the client; no executable expressions are stored.
             preg_match_all('/%[A-Za-z]+%/', $pattern, $matches);
-            $allowed = ['title', 'subtitle', 'author', 'series', 'seriesNumber', 'language', 'publisher', 'subject', 'year', 'genre', 'ignore', 'folder', 'folders', 'extension'];
+            $allowed = ['title', 'subtitle', 'author', 'series', 'seriesNumber', 'language', 'publisher', 'subject', 'year', 'genre', 'isbn', 'ignore', 'folder', 'folders', 'extension'];
             if (count($matches[0]) > 16 || str_contains(preg_replace('/%[A-Za-z]+%/', '', $pattern), '%') || preg_match('/%[A-Za-z]+%%[A-Za-z]+%/', $pattern) || preg_match('~%folders?%(?!/)~', $pattern)) return $this->response([], 422);
             foreach ($matches[0] as $token) if (!in_array(trim($token, '%'), $allowed, true)) return $this->response([], 422);
         }
@@ -65,7 +67,7 @@ final class InferencePatternController extends Controller {
         if (count($patterns) >= 100) return $this->response([], 422);
         foreach ($patterns as $saved) if (mb_strtolower($saved['name']) === mb_strtolower(trim($name))) return $this->response([], 409);
         $id = bin2hex(random_bytes(16));
-        $value = ['version' => 1, 'name' => trim($name), 'kind' => $kind] + ($kind === 'guided' ? ['rule' => $rule] : ['pattern' => $pattern]);
+        $value = ['version' => 1, 'name' => trim($name), 'kind' => $kind] + ($kind === 'guided' ? ['rule' => $rule] : ['pattern' => $pattern, 'replaceUnderscores' => $replaceUnderscores]);
         $this->config->setUserValue($uid, 'library', self::PREFIX . $id, json_encode($value, JSON_THROW_ON_ERROR));
         return $this->response(['saved' => ['id' => $id] + $value], 201);
     }
@@ -73,7 +75,7 @@ final class InferencePatternController extends Controller {
     public function delete(string $patternId): JSONResponse {
         $uid = $this->session->getUser()?->getUID();
         if ($uid === null) return $this->response([], 401);
-        if (in_array($patternId, ['preset-title', 'preset-by', 'preset-title-author-year', 'preset-author-title', 'preset-author-folder', 'preset-series', 'preset-series-inline', 'preset-language-subject', 'preset-language-subject-by', 'preset-series-underscore'], true)) {
+        if (in_array($patternId, ['preset-title', 'preset-by', 'preset-title-author', 'preset-title-author-year', 'preset-author-title', 'preset-author-folder', 'preset-series', 'preset-series-inline', 'preset-language-subject', 'preset-language-subject-by', 'preset-series-underscore'], true)) {
             $this->config->setUserValue($uid, 'library', 'inference_hidden_' . $patternId, '1');
             return $this->response(['deleted' => true]);
         }

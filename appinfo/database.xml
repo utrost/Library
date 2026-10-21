@@ -227,6 +227,8 @@
                 </field>
             </index>
             <index><name>library_files_usr_page</name><field><name>user_id</name></field><field><name>id</name></field><field><name>scan_status</name></field><field><name>root_id</name></field></index>
+            <index><name>library_files_usr_root_mtime</name><field><name>user_id</name></field><field><name>root_id</name></field><field><name>mtime</name></field><field><name>id</name></field></index>
+            <index><name>library_files_usr_root_ext</name><field><name>user_id</name></field><field><name>root_id</name></field><field><name>extension</name></field><field><name>id</name></field></index>
             <index>
                 <name>library_files_root_id</name>
                 <field>

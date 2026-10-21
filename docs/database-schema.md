@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3 development source tree**, 2026-10-21. Covers 41 app-owned tables through `Version000300Date20261021170000`. The latest forward migration adds a reversible deletion marker to catalogue rows. Earlier physical-schema comparisons passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passed on NC34 with all three engines. The new migration still needs its exact-package multi-version and physical-schema checks.
+Snapshot: **0.3 development source tree**, 2026-10-21. Covers 41 app-owned tables through `Version000300Date20261021180000`. The latest forward migration adds per-shelf file-modification and extension indexes for path-worklist sorting; the preceding migration added a reversible deletion marker to catalogue rows. Earlier physical-schema comparisons passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passed on NC34 with all three engines. The new migrations still need exact-package multi-version and physical-schema checks.
 
 ## Schema ownership
 
@@ -35,11 +35,11 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_language_mappings` | 3 | 1 | Account-wide language mapping or ignore decisions. |
 | `library_value_mappings` | 6 | 2 | Reversible account-wide publisher and subject spelling groups; publication metadata stays unchanged. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
-| `library_files` | 17 | 8 | Nextcloud file identity, observed paths/revisions and scan diagnostics. |
+| `library_files` | 17 | 10 | Nextcloud file identity, observed paths/revisions, scan diagnostics and shelf/date/type worklist ordering. |
 | `library_items` | 48 | 31 | Catalogue metadata, ordered authors, series migration status, genre/language discovery markers, search-index version, provenance, field protection, review flags, reversible deletion mark and cover revision. |
 | `library_scan_jobs` | 24 | 2 | Scan history, counters, heartbeat and current progress. |
 | `library_saved_collections` | 6 | 3 | Named saved filter definitions. |
-| `library_item_identifiers` | 11 | 3 | Normalized ISBN/ISSN values and identifier provenance. |
+| `library_item_identifiers` | 11 | 3 | Normalized ISBN, ISSN, ASIN and GGKEY values and identifier provenance. |
 | `library_item_facets` | 6 | 4 | Indexed creators, subjects, classifications and tag/filter values. |
 | `library_item_search_grams` | 4 | 3 | Materialized substring-search keys. |
 | `library_lists` | 7 | 2 | Private list owners, names, descriptions and revision tokens. |

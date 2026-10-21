@@ -8,10 +8,10 @@ final class InferenceChangeSet {
         'title' => ['title', 512], 'subtitle' => ['subtitle', 512],
         'series' => ['series_name', 255], 'seriesNumber' => ['series_number', 64], 'genre' => ['genre', 255],
         'language' => ['language', 64], 'publisher' => ['publisher', 512], 'subject' => ['subjects_json', 2048],
-        'year' => ['publication_date', 4], 'author' => ['authors_json', 1024],
+        'year' => ['publication_date', 4], 'author' => ['authors_json', 1024], 'isbn' => ['identifiers_json', 17],
     ];
     public static function normalize(mixed $changes): array {
-        if (!is_array($changes) || !$changes || count($changes) > 10) throw new \InvalidArgumentException('invalid_proposals');
+        if (!is_array($changes) || !$changes || count($changes) > count(self::FIELDS)) throw new \InvalidArgumentException('invalid_proposals');
         $result = [];
         foreach ($changes as $field => $value) {
             if ($field === 'author') {
@@ -28,6 +28,11 @@ final class InferenceChangeSet {
                 // Match the editor's canonical language convention (en, en-US).
                 if (!preg_match('/^([a-z]{2,3})(?:-([a-zA-Z]{2}))?$/D', $value, $parts)) throw new \InvalidArgumentException('invalid_proposals');
                 $value = $parts[1] . (isset($parts[2]) ? '-' . strtoupper($parts[2]) : '');
+            }
+            if ($field === 'isbn') {
+                $identifier = IdentifierService::normalizeIdentifier('isbn', $value, 'path-inference', true);
+                if ($identifier === null || !$identifier['valid']) throw new \InvalidArgumentException('invalid_proposals');
+                $value = $identifier['displayValue'];
             }
             if ($field === 'subject') $value = json_encode([$value], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
             $result[$field] = $value;

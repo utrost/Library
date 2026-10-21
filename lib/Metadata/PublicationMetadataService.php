@@ -13,7 +13,7 @@ use Throwable;
 final class PublicationMetadataService {
     // Bump for any output-affecting extractor or normalization change, sidecar precedence
     // change, filename/folder interpretation change, or ItemService candidate mapping change.
-    public const PIPELINE_REVISION = 'metadata-pipeline-v11';
+    public const PIPELINE_REVISION = 'metadata-pipeline-v12';
 
     // realistic fixture notes: encoded PDF info dictionaries, CBZ without ComicInfo.xml, nested ComicInfo.xml, sidecar collisions.
     private ?string $lastError = null;

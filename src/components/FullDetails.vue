@@ -12,6 +12,7 @@ import GenrePicker from './GenrePicker.vue'
 import IdentityAction from './IdentityAction.vue'
 import { formatFileSize } from '../file-size.js'
 import { detailsReturnContext } from '../details-return.js'
+import { bookNeighbors } from '../details-neighbors.js'
 import { confirmAction } from '../confirm-action.js'
 
 const props = defineProps({
@@ -79,6 +80,40 @@ const dirty = computed(() => savedDraft.value !== '' && JSON.stringify(draft) !=
 const itemId = computed(() => /^[1-9]\d{0,9}$/.test(props.itemId) && Number(props.itemId) <= 2147483647 ? props.itemId : '')
 const itemBase = computed(() => `${props.catalogueUrl.replace(/\/$/, '')}/items/${itemId.value}`)
 const returnContext = computed(() => detailsReturnContext(props.catalogueUrl, window.location.href))
+const neighbors = ref({ previous: null, next: null })
+const neighborsBusy = ref(false)
+let neighborsController = null
+async function loadNeighbors() {
+  if (!itemId.value) return
+  neighborsController?.abort()
+  const controller = new AbortController()
+  neighborsController = controller
+  neighborsBusy.value = true
+  const navigationFrom = new URLSearchParams(location.search).get('navigationFrom') || returnContext.value.url
+  try { neighbors.value = await bookNeighbors(props.catalogueUrl, navigationFrom, itemId.value, controller.signal) }
+  catch { if (!controller.signal.aborted) neighbors.value = { previous: null, next: null } }
+  finally { if (neighborsController === controller) neighborsBusy.value = false }
+}
+function navigateBook(direction) {
+  const target = neighbors.value[direction]
+  if (!target || busy.value || neighborsBusy.value) return
+  if (dirty.value && !window.confirm(t('library', 'Discard unsaved metadata edits?'))) return
+  window.removeEventListener('beforeunload', warnUnsaved)
+  const url = new URL(props.catalogueUrl, location.origin)
+  url.searchParams.set('details', String(target.id))
+  url.searchParams.set('returnTo', returnContext.value.url)
+  url.searchParams.set('navigationFrom', target.returnTo)
+  window.location.assign(url.pathname + url.search)
+}
+function neighborKeydown(event) {
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return
+  const target = event.target
+  if (target?.closest?.('input, textarea, select, [contenteditable], dialog, [role="dialog"], [role="listbox"], [role="menu"], [role="combobox"]')) return
+  const direction = event.key === 'ArrowLeft' ? 'previous' : 'next'
+  if (!neighbors.value[direction]) return
+  event.preventDefault()
+  navigateBook(direction)
+}
 const workflowOptions = [
   { value: '', label: t('library', 'No reading status') },
   { value: 'to-read', label: t('library', 'To read') },
@@ -635,13 +670,13 @@ function warnUnsaved(event) {
   event.preventDefault()
   event.returnValue = ''
 }
-onMounted(() => { window.addEventListener('beforeunload', warnUnsaved); load() })
-onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved); clearTimeout(authorSearchTimer); authorSearchController?.abort(); clearTimeout(seriesSearchTimer); seriesSearchController?.abort() })
+onMounted(() => { window.addEventListener('beforeunload', warnUnsaved); window.addEventListener('keydown', neighborKeydown); load(); void loadNeighbors() })
+onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved); window.removeEventListener('keydown', neighborKeydown); neighborsController?.abort(); clearTimeout(authorSearchTimer); authorSearchController?.abort(); clearTimeout(seriesSearchTimer); seriesSearchController?.abort() })
 </script>
 
 <template>
   <main class="library-full-details">
-    <a :href="returnContext.url" class="library-full-details-back">← {{ returnContext.hasSource ? t('library', 'Back to results') : t('library', 'All publications') }}</a>
+    <nav class="library-details-neighbors" :aria-label="t('library', 'Book navigation')"><a :href="returnContext.url" class="library-full-details-back">← {{ returnContext.hasSource ? t('library', 'Back to results') : t('library', 'All publications') }}</a><span class="library-details-neighbor-buttons"><button type="button" class="button secondary" :disabled="!neighbors.previous || neighborsBusy || busy" :title="neighbors.previous?.title || ''" aria-keyshortcuts="ArrowLeft" @click="navigateBook('previous')">← {{ t('library', 'Previous book') }}</button><button type="button" class="button secondary" :disabled="!neighbors.next || neighborsBusy || busy" :title="neighbors.next?.title || ''" aria-keyshortcuts="ArrowRight" @click="navigateBook('next')">{{ t('library', 'Next book') }} →</button></span></nav>
     <p v-if="openUnavailable" role="alert" class="library-full-details-error">{{ t('library', 'The source file could not be opened. Check the file in Nextcloud Files or rescan this root.') }}</p>
     <p v-if="loading" role="status">{{ t('library', 'Loading publication details…') }}</p>
     <p v-if="error" role="alert" class="library-full-details-error">{{ error }} <button v-if="!item" type="button" class="button secondary" @click="load">{{ t('library', 'Retry') }}</button></p>
@@ -677,7 +712,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 
       <div class="library-full-details-columns">
         <div class="library-full-details-main">
-          <section class="library-full-details-card" aria-labelledby="library-full-details-metadata"><h2 id="library-full-details-metadata">{{ t('library', 'Book details') }}</h2><form id="library-full-details-metadata-form" @submit.prevent="saveMetadata"><div class="library-full-details-fields"><label>{{ t('library', 'Title') }}<input v-model="draft.title" required></label><label>{{ t('library', 'Subtitle') }}<input v-model="draft.subtitle"></label><label>{{ t('library', 'Type') }}<select v-model="draft.publicationType"><option v-for="type in publicationTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label><label>{{ t('library', 'Publication / periodical') }}<input v-model="draft.publication"></label><label :title="t('library', 'Use YYYY, YYYY-MM, or YYYY-MM-DD.')">{{ t('library', 'Publication date') }}<input v-model="draft.publicationDate"></label><EntityPicker v-model="draft.publisher" :label="t('library', 'Publisher')" :search="searchPublishers" :disabled="busy" @choose="draft.publisher = $event.label" /><MetadataValuePicker v-model="draft.language" kind="language" :disabled="busy" /><MetadataValuePicker v-model="draft.subjects" kind="subject" :disabled="busy" /><label :title="t('library', 'One classification per line.')">{{ t('library', 'Classifications') }}<textarea v-model="draft.classifications" rows="2"></textarea></label><StarRating :model-value="draft.personalRating" :disabled="busy" @update:model-value="draft.personalRating = $event" /><label class="library-full-details-wide">{{ t('library', 'Description') }}<textarea v-model="draft.description" rows="8"></textarea></label></div><fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in draft.identifiers" :key="index" class="library-full-details-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Scheme')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><span v-if="identifier.displayValue && identifier.valid === false && identifier.scheme === identifier.originalScheme && identifier.displayValue === identifier.originalDisplayValue" role="status">{{ t('library', 'Invalid identifier checksum') }}</span><button type="button" class="button secondary" :aria-label="t('library', 'Remove identifier')" @click="draft.identifiers.splice(index, 1)">×</button></div><button type="button" class="button secondary" @click="draft.identifiers.push({ scheme: 'isbn', displayValue: '' })">{{ t('library', 'Add identifier') }}</button></fieldset></form></section>
+          <section class="library-full-details-card" aria-labelledby="library-full-details-metadata"><h2 id="library-full-details-metadata">{{ t('library', 'Book details') }}</h2><form id="library-full-details-metadata-form" @submit.prevent="saveMetadata"><div class="library-full-details-fields"><label>{{ t('library', 'Title') }}<input v-model="draft.title" required></label><label>{{ t('library', 'Subtitle') }}<input v-model="draft.subtitle"></label><label>{{ t('library', 'Type') }}<select v-model="draft.publicationType"><option v-for="type in publicationTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label><label>{{ t('library', 'Publication / periodical') }}<input v-model="draft.publication"></label><label :title="t('library', 'Use YYYY, YYYY-MM, or YYYY-MM-DD.')">{{ t('library', 'Publication date') }}<input v-model="draft.publicationDate"></label><EntityPicker v-model="draft.publisher" :label="t('library', 'Publisher')" :search="searchPublishers" :disabled="busy" @choose="draft.publisher = $event.label" /><MetadataValuePicker v-model="draft.language" kind="language" :disabled="busy" /><MetadataValuePicker v-model="draft.subjects" kind="subject" :disabled="busy" /><label :title="t('library', 'One classification per line.')">{{ t('library', 'Classifications') }}<textarea v-model="draft.classifications" rows="2"></textarea></label><StarRating :model-value="draft.personalRating" :disabled="busy" @update:model-value="draft.personalRating = $event" /><label class="library-full-details-wide">{{ t('library', 'Description') }}<textarea v-model="draft.description" rows="8"></textarea></label></div><fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in draft.identifiers" :key="index" class="library-full-details-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Scheme')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option><option value="asin">{{ t('library', 'ASIN') }}</option><option value="ggkey">{{ t('library', 'GGKEY') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><span v-if="identifier.displayValue && identifier.valid === false && identifier.scheme === identifier.originalScheme && identifier.displayValue === identifier.originalDisplayValue" role="status">{{ ['isbn', 'issn'].includes(identifier.scheme) ? t('library', 'Invalid identifier checksum') : t('library', 'Invalid identifier format') }}</span><button type="button" class="button secondary" :aria-label="t('library', 'Remove identifier')" @click="draft.identifiers.splice(index, 1)">×</button></div><button type="button" class="button secondary" @click="draft.identifiers.push({ scheme: 'isbn', displayValue: '' })">{{ t('library', 'Add identifier') }}</button></fieldset></form></section>
           <div class="library-full-details-card library-identity-panel">
           <section class="library-identity-row" aria-labelledby="library-full-details-authors-heading">
             <h2 id="library-full-details-authors-heading">{{ t('library', 'Authors') }}</h2>
@@ -799,6 +834,8 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-columns { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 20px; align-items: start; }
 .library-full-details-main { display: grid; gap: 20px; min-width: 0; }
 .library-full-details-savebar { align-items: center; background: var(--color-main-background); border: 2px solid var(--color-primary-element, #0082c9); border-radius: 12px; box-shadow: 0 10px 28px #0003; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-bottom: 20px; padding: 12px 16px; position: sticky; top: 12px; z-index: 20; }
+.library-details-neighbors, .library-details-neighbor-buttons { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+.library-details-neighbors { justify-content:space-between; margin-bottom:12px; }
 .library-full-details-savebar > span { font-weight: 600; }
 .library-full-details-savebar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .library-full-details-card .library-full-details-series-part { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; }

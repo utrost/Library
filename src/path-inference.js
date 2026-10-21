@@ -1,8 +1,8 @@
 // Bounded, literal matching. Patterns are never evaluated as regular expressions.
-export const inferenceFields = ['title', 'subtitle', 'author', 'series', 'seriesNumber', 'language', 'publisher', 'subject', 'year', 'genre']
+export const inferenceFields = ['title', 'subtitle', 'author', 'series', 'seriesNumber', 'language', 'publisher', 'subject', 'year', 'genre', 'isbn']
 const tokens = new Set([...inferenceFields, 'ignore', 'folder', 'folders', 'extension'])
 
-export function inferPath(path, pattern, current = {}) {
+export function inferPath(path, pattern, current = {}, replaceUnderscores = false) {
   if (!pattern || pattern.length > 1000 || path.length > 2000) return { status: 'invalid', reason: 'pattern', changes: [] }
   if (/%folders?%(?!\/)/.test(pattern)) return { status: 'invalid', reason: 'pattern', changes: [] }
   const tokenKey = (part) => part === '%folders%/' ? 'folders' : part.slice(1, -1)
@@ -44,11 +44,12 @@ export function inferPath(path, pattern, current = {}) {
   const changes = []
   for (const { key, raw } of matches[0]) {
     if (!inferenceFields.includes(key)) continue
-    let value = raw.trim()
+    let value = (replaceUnderscores ? raw.replaceAll('_', ' ') : raw).trim()
     if (seen.has(key) && seen.get(key) !== value) return { status: 'ambiguous', changes: [] }
     if (seen.has(key)) continue
     seen.set(key, value)
     if (key === 'year' && !/^\d{4}$/.test(value)) return { status: 'invalid', reason: 'year', changes: [] }
+    if (key === 'isbn' && !validIsbn(value)) return { status: 'invalid', reason: 'isbn', changes: [] }
     if (key === 'language') value = normalizeInferenceLanguage(value)
     if (key === 'language' && !/^[a-z]{2,3}(-[A-Z]{2})?$/.test(value)) return { status: 'invalid', reason: 'language', changes: [] }
     if (key === 'author' && [...value].length > 255) return { status: 'invalid', changes: [] }
@@ -66,7 +67,14 @@ export function normalizeInferenceLanguage(value) {
 }
 
 export function validStoredField(field, value) {
-  const limits = { title: 512, subtitle: 512, author: 1024, series: 255, seriesNumber: 64, genre: 255, language: 64, publisher: 512, subject: 2048, year: 4 }
+  const limits = { title: 512, subtitle: 512, author: 1024, series: 255, seriesNumber: 64, genre: 255, language: 64, publisher: 512, subject: 2048, year: 4, isbn: 17 }
   if (!(field in limits)) return true
   return Boolean(value) && [...value].length <= limits[field] && !/[\x00-\x1f\x7f]/.test(value) && (field !== 'year' || Number(value) > 0)
+}
+
+export function validIsbn(value) {
+  const code = value.replace(/[\s-]/g, '').toUpperCase()
+  if (/^\d{9}[\dX]$/.test(code)) return [...code].reduce((sum, digit, index) => sum + (10 - index) * (digit === 'X' ? 10 : Number(digit)), 0) % 11 === 0
+  if (/^\d{13}$/.test(code)) return [...code].reduce((sum, digit, index) => sum + Number(digit) * (index % 2 ? 3 : 1), 0) % 10 === 0
+  return false
 }

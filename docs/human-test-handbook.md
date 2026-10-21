@@ -6,6 +6,16 @@ This is the current working checklist. H03-01–H03-26 are arranged by case numb
 
 Use disposable accounts and books for saved edits, imports, merges, scans and deletion. Read-only browsing or staging followed by Discard is suitable for a personal collection. Exact signed NC33–35 fresh-install/upgrade certification and manual assistive-technology testing remain separate release gates.
 
+### Next candidate checks (not in deployed alpha.36)
+
+After the next signed candidate is installed, extend H03-01/02/10/15 with these checks on disposable books:
+
+- In the catalogue sidebar, search title/description, then author, subject, genre, classification and publisher. The first search must stay limited to title/description; main Search books still checks the broader catalogue. Selecting a genre must keep other filters.
+- On Details, use Previous book, Next book and left/right arrow keys from a sorted, filtered catalogue, author profile, series and personal list. Back must restore the originating view and page. Arrows must leave text fields alone; navigating with unsaved metadata asks before discarding.
+- In Extract metadata, select a nested folder, sort by oldest file modification time, change pages, and confirm order stays stable. Choose the supplied Title - Author pattern and create a named pattern from the same selector. Enable underscore replacement and verify literal pattern separators still match. Inspect the in-editor placeholder help.
+- Capture a checksum-valid ISBN with `%isbn%`, including a file with an existing ISBN. Check the Before/After review, per-row Apply now, batch review and Undo. The ISBN should appear in Identifiers; unrelated identifiers must survive. Invalid ISBNs must remain unapplied.
+- With no imported languages, confirm 20 common language choices appear before typing. Add ASIN and GGKEY in Details, save and reload; search for each identifier. A case-sensitive GGKEY must retain its spelling.
+
 ## Before testing
 
 1. Record the [session header](#session-header-template). Confirm the installed app version in Nextcloud before the developer pass; use the current deployment record to verify the installed candidate. Record the exact archive name and checksum instead of assuming the version string identifies the package.

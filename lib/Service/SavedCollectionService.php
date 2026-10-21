@@ -9,6 +9,7 @@ use OCP\IDBConnection;
 final class SavedCollectionService {
     private const ALLOWED_FILTERS = [
         'q',
+        'searchScope',
         'type',
         'publication',
         'year',
@@ -108,6 +109,7 @@ final class SavedCollectionService {
         $normalized = [];
         foreach (self::ALLOWED_FILTERS as $key) {
             $value = trim((string)($filters[$key] ?? ''));
+            if ($key === 'searchScope' && $value !== 'title_description') continue;
             if ($value === '' || ($key === 'sort' && $value === 'title')) {
                 continue;
             }
