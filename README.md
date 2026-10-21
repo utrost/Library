@@ -36,7 +36,7 @@ The app has safe user-facing diagnostics for scan and metadata problems. Server 
 
 ![Author directory with linked Gutenberg book previews](docs/images/appstore-authors.png)
 
-**Extract metadata:** preview suggestions from file and folder names before applying selected fields.
+**Extract metadata:** assign a pattern to each file or matching group, then preview and approve selected fields together. See the [extraction guide](docs/extracting-metadata.md).
 
 ![Filename metadata extraction with a selected-record preview](docs/images/appstore-inference.png)
 
