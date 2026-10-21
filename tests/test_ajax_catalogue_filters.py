@@ -27,7 +27,7 @@ def test_page_controller_preserves_accepted_catalogue_view_in_initial_state_and_
 
     assert "'view' => trim((string)$this->request->getParam('view', 'compact'))" in controller
     assert "in_array($activeFilters['view'], ['compact', 'gallery', 'list', 'shelf'], true)" in controller
-    assert "['q', 'view', 'type'" in controller
+    assert "['q', 'searchScope', 'view', 'type'" in controller
 
 
 def test_vue_filters_fetch_catalogue_json_without_full_page_reload():

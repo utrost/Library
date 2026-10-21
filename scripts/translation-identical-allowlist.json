@@ -1,5 +1,7 @@
 {
+  "ASIN": "Amazon identifier scheme code is literal across locales.",
   "DELETE": "Controller-required technical confirmation token; must remain literal in every locale.",
+  "GGKEY": "Google Books identifier scheme code is literal across locales.",
   "Genre": "Genre is the standard German bibliographic term; Arabic remains translated.",
   "Genres": "Genres is the standard plural term in German bibliography; Arabic is translated.",
   "en; de": "Language-code examples must stay literal in every locale."

@@ -50,7 +50,7 @@ EXPECTED_TABLES = {
         },
         "indexes": {
             "library_files_id", "library_files_user_id", "library_files_root_id", "library_files_file_id_unique",
-            "library_files_usr_page", "library_files_usr_root_status", "library_files_usr_path", "library_files_usr_status_scan",
+            "library_files_usr_page", "library_files_usr_root_status", "library_files_usr_path", "library_files_usr_status_scan", "library_files_usr_root_mtime", "library_files_usr_root_ext",
         },
     },
     "*dbprefix*library_items": {
@@ -166,8 +166,8 @@ EXPECTED_TABLES["*dbprefix*library_genre_mappings"] = {
     "fields": {"user_id", "candidate_key", "genre_id"},
     "indexes": {"library_genre_mappings_pk", "library_genre_mapping_target"},
 }
-EXPECTED_TABLES["*dbprefix*library_items"]["fields"].update({"author_sync_status", "author_source_hash", "series_sync_status", "genre_suggestion_hash", "language_review_hash", "search_index_version"})
-EXPECTED_TABLES["*dbprefix*library_items"]["indexes"].update({"library_author_pending", "library_author_user_status", "library_series_pending", "library_series_user_status", "library_genre_discovery", "library_language_discovery", "library_search_rebuild"})
+EXPECTED_TABLES["*dbprefix*library_items"]["fields"].update({"author_sync_status", "author_source_hash", "series_sync_status", "genre_suggestion_hash", "language_review_hash", "search_index_version", "marked_for_deletion_at"})
+EXPECTED_TABLES["*dbprefix*library_items"]["indexes"].update({"library_author_pending", "library_author_user_status", "library_series_pending", "library_series_user_status", "library_genre_discovery", "library_language_discovery", "library_search_rebuild", "library_items_usr_delete_mark"})
 
 
 def child_text(element: ET.Element, name: str) -> str:

@@ -6,7 +6,7 @@ Library is an open-source Nextcloud app ([AGPL-3.0-or-later](LICENSE)) with a se
 
 ![Library catalogue with English Project Gutenberg books](docs/images/appstore-catalogue.png)
 
-Current candidate: `0.3.0-alpha.36`. **Pre-release:** 0.3 is the planned first App Store release. The declared compatibility range is **Nextcloud 33–35**; final exact-package compatibility checks and human acceptance remain release gates. Earlier signed candidates have their own verification records. See [release status](RELEASE.md), the [current verification record](docs/compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) and the [release checklist](docs/app-store-readiness.md).
+Current candidate: `0.3.0-alpha.38`. **Pre-release:** 0.3 is the planned first App Store release. The declared compatibility range is **Nextcloud 33–35**; final exact-package compatibility checks and human acceptance remain release gates. Earlier signed candidates have their own verification records. See [release status](RELEASE.md), the [last deployed verification record](docs/compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) and the [release checklist](docs/app-store-readiness.md).
 
 ## What it does
 
@@ -25,7 +25,6 @@ Current candidate: `0.3.0-alpha.36`. **Pre-release:** 0.3 is the planned first A
 - delete a book file after confirmation, retaining shared OPF metadata and other companion files and removing its immediate parent only when safely empty and unprotected.
 
 The app has safe user-facing diagnostics for scan and metadata problems. Server logs keep the technical detail.
-
 ## A look inside
 
 **Book details:** title, metadata, cover actions and linked authors in one editor. Changes to book metadata remain a draft until saved.
@@ -38,9 +37,9 @@ The app has safe user-facing diagnostics for scan and metadata problems. Server 
 
 **Extract metadata:** assign a pattern to each file or matching group, then preview and approve selected fields together. See the [extraction guide](docs/extracting-metadata.md).
 
-![Filename metadata extraction with a selected-record preview](docs/images/appstore-inference.png)
+![Per-file filename metadata extraction worklist](docs/images/appstore-inference-worklist.png)
 
-Screenshots show the actual alpha.35 interface on an isolated Nextcloud 34 instance, using the [English Gutenberg examples](docs/gutenberg-example-books.md) and a synthetic filename-extraction example. [Capture details and reproduction](docs/images/first-library/README.md).
+Screenshots show the actual alpha.38 interface on an isolated Nextcloud 34 instance, using the [English Gutenberg examples](docs/gutenberg-example-books.md) and a synthetic filename-extraction example. [Capture details and reproduction](docs/images/first-library/README.md).
 
 ## Your first library
 
