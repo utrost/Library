@@ -37,8 +37,8 @@ test('removes one desktop filter and clears selection filters while preserving s
   await expect(page).toHaveURL((url) => url.searchParams.get('q') === title
     && url.searchParams.get('format') === 'epub'
     && !url.searchParams.has('page'))
-  const activeFilters = page.getByRole('navigation', { name: 'Active filters' })
-  await expect(activeFilters.getByRole('link', { name: 'Remove filter: Search' })).toBeVisible()
+  const activeFilters = page.getByRole('navigation', { name: 'Active filters', exact: true })
+  await expect(activeFilters.getByRole('link', { name: 'Remove filter: Search', exact: true })).toBeVisible()
   await expect(activeFilters.getByRole('link', { name: 'Remove filter: Format' })).toBeVisible()
 
   const removeFormatResponse = page.waitForResponse((candidate) => {
@@ -49,7 +49,7 @@ test('removes one desktop filter and clears selection filters while preserving s
   })
   await activeFilters.getByRole('link', { name: 'Remove filter: Format' }).click()
   expect((await removeFormatResponse).ok()).toBeTruthy()
-  await expect(activeFilters.getByRole('link', { name: 'Remove filter: Search' })).toBeVisible()
+  await expect(activeFilters.getByRole('link', { name: 'Remove filter: Search', exact: true })).toBeVisible()
   await expect(activeFilters.getByRole('link', { name: 'Remove filter: Format' })).toHaveCount(0)
 
   const clearResponse = page.waitForResponse((candidate) => {
@@ -67,7 +67,7 @@ test('removes one desktop filter and clears selection filters while preserving s
     && !url.searchParams.has('page')
     && url.searchParams.get('sort') === 'recent'
     && url.searchParams.get('view') === 'list')
-  await expect(page.getByRole('navigation', { name: 'Active filters' }).getByRole('link', { name: 'Remove filter: Search' })).toHaveCount(0)
+  await expect(page.getByRole('navigation', { name: 'Active filters', exact: true }).getByRole('link', { name: 'Remove filter: Search', exact: true })).toHaveCount(0)
   await expect(page.locator('#library-catalogue-heading')).toBeFocused()
   await expect(toolbar.getByRole('button', { name: 'List' })).toHaveAttribute('aria-pressed', 'true')
   await expect(toolbar.getByLabel('Sort')).toHaveValue('recent')

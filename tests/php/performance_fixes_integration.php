@@ -21,7 +21,7 @@ try {
  $db->executeStatement('UPDATE *PREFIX*library_items SET creators=?,authors_json=NULL,user_edited=0,field_sources=? WHERE id=?',[implode('; ',$names),'{"creators":"epub-opf"}',$id]);
  verifyPerf($items->backfillAuthors(1,$uid)===1,'Colliding author backfill succeeds');
  verifyPerf($items->findItem($uid,$id)['authors']===$names,'Author order retained');
- $text='';for($i=0;$i<900;$i++)$text.=hash('sha256',(string)$i).' ';
+ $text='Trigram search regression proof ';for($i=0;$i<900;$i++)$text.=hash('sha256',(string)$i).' ';
  $db->executeStatement('UPDATE *PREFIX*library_items SET description=? WHERE id=?',[$text,$id]);
  (new ReflectionMethod($items,'refreshItemSearchIndex'))->invoke($items,$uid,$id);
  $row=(new ReflectionMethod($items,'searchIndexSourceRow'))->invoke($items,$uid,$id);
@@ -29,6 +29,8 @@ try {
  $expected=array_map('strval',(new ReflectionMethod($items,'searchGramsForText'))->invoke($items,$document));sort($expected,SORT_STRING);
  $r=$db->executeQuery('SELECT gram FROM *PREFIX*library_item_search_grams WHERE item_id=?',[$id]);$actual=array_column($r->fetchAll(),'gram');$r->closeCursor();sort($actual,SORT_STRING);
  verifyPerf(count($expected)>200 && $actual===$expected,'Multiple INSERT chunks preserve every gram exactly');
+ verifyPerf($items->queryCatalogue($uid,['q'=>'regression','searchScope'=>'title_description'],['page'=>1,'limit'=>10],false)['total']===1,'Title and description search matches an indexed substring on SQLite');
+ verifyPerf($items->queryCatalogue($uid,['q'=>'regression'],['page'=>1,'limit'=>10],false)['total']===1,'General search matches an indexed substring on SQLite');
  $folder->newFile('Second.pdf',"%PDF-1.4\nSecond\n%%EOF");$folder->newFile('Third.pdf',"%PDF-1.4\nThird\n%%EOF");
  \OC::$server->get(\OCA\Library\Service\LibraryScanner::class)->scan($uid);
  $db->executeStatement('UPDATE *PREFIX*library_items SET title=? WHERE user_id=?',['Tied title',$uid]);
