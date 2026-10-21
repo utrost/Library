@@ -8,7 +8,7 @@ import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const base = process.env.NC_URL || 'http://100.123.149.120:8088'
 const container = process.env.NC_CONTAINER || 'nextcloud', user = process.env.NC_USER || 'uwe'
-const out = createEvidenceDirectory('library-alpha29-suggestions')
+const out = createEvidenceDirectory('library-alpha36-suggestions')
 
 const tokenName = `library-suggestion-smoke-${Date.now()}`
 const occ = (...args) => execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', 'occ', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
@@ -78,8 +78,10 @@ try {
       assert.equal(await panel.evaluate(el => el.scrollWidth > el.clientWidth + 1), false)
       const bounds = await suggestions.boundingBox()
       assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= 391, 'Suggestion control fits the phone viewport')
-      const clipped = await panel.locator('h1, h2, h3, .library-inference-live-status').evaluateAll(elements => elements.filter(el => el.scrollWidth > el.clientWidth + 1).length)
-      assert.equal(clipped, 0, 'Headings and status wrap on the phone')
+      const clipped = await panel.locator('h1, h2, h3, .library-inference-live-status').evaluateAll(elements => elements
+        .filter(el => el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 1)
+        .map(el => ({ text: el.textContent?.trim().slice(0, 80), className: el.className, scrollWidth: el.scrollWidth, clientWidth: el.clientWidth })))
+      assert.deepEqual(clipped, [], 'Headings and status wrap on the phone')
       const stacked = await live.locator('.library-inference-live-field').evaluateAll(rows => rows.every(row => row.querySelector('dt').getBoundingClientRect().bottom <= row.querySelector('dd').getBoundingClientRect().top))
       assert.ok(stacked, 'Preview labels appear above their values without overlap')
       await page.screenshot({ path: `${out}/${engine}-mobile.png` })

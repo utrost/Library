@@ -1,0 +1,23 @@
+{
+  "version": "0.3.0-alpha.36",
+  "nextcloud": "34.0.3",
+  "mergeCommit": "227e81896f523788d4551f703c25e53da3ab7b1c",
+  "archiveSha256": "0c6655fb8498e36a06fed2f8cd2f86f581c7098bb345e1e8bc85c44d4e7be611",
+  "signed": true,
+  "integrityClean": true,
+  "maintenanceOff": true,
+  "databaseUpgradePending": false,
+  "catalogueBefore": 107717,
+  "catalogueAfter": 107717,
+  "sourceChecks": 1051,
+  "frontendTests": 596,
+  "parserParityVectors": 518,
+  "hostedBrowserJourneys": 79,
+  "temporaryShelfSmoke": "passed and cleaned",
+  "readOnlyPathSmoke": "passed",
+  "suggestionSmoke": "passed after correcting zero-width inline-heading check",
+  "servedAssetsMatchPackage": true,
+  "frontendPackageBytes": 1030660,
+  "frontendPackageLimitBytes": 1320000,
+  "rollbackDirectory": "/tmp/library-before-alpha36-20261021T105846Z"
+}
