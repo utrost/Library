@@ -20,11 +20,11 @@ final class DirectoryPreviewService {
         if ($ids === []) return [];
         $parts = []; $params = [];
         foreach ($ids as $index => $id) {
-            $parts[] = 'SELECT ' . (int)$id . ' AS entry_id,p.item_id FROM (SELECT DISTINCT item_id FROM *PREFIX*' . $table . ' WHERE user_id=? AND ' . $column . '=?' . $extra . ' ORDER BY item_id LIMIT 3) p';
+            $parts[] = 'SELECT ' . (int)$id . ' AS entry_id,p.item_id FROM (SELECT DISTINCT l.item_id FROM *PREFIX*' . $table . ' l INNER JOIN *PREFIX*library_items visible ON visible.id=l.item_id AND visible.user_id=l.user_id AND visible.marked_for_deletion_at IS NULL WHERE l.user_id=? AND l.' . $column . '=?' . $extra . ' ORDER BY l.item_id LIMIT 3) p';
             array_push($params, $uid, (int)$id);
         }
         $sql = 'SELECT previews.entry_id,i.id,i.title,i.cover_revision,f.etag FROM (' . implode(' UNION ALL ', $parts) . ') previews'
-            . ' INNER JOIN *PREFIX*library_items i ON i.id=previews.item_id AND i.user_id=?'
+            . ' INNER JOIN *PREFIX*library_items i ON i.id=previews.item_id AND i.user_id=? AND i.marked_for_deletion_at IS NULL'
             . ' INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id ORDER BY previews.entry_id,i.id';
         $params[] = $uid;
         $result = [];

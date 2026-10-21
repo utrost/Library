@@ -1446,7 +1446,19 @@ OC.L10N.register(
         "Several patterns match; choose one.": "تطابق عدة أنماط؛ اختر واحدًا.",
         "Proposed fields": "الحقول المقترحة",
         "No files in this view.": "لا توجد ملفات في هذا العرض.",
-        "Matching files": "الملفات المطابقة"
+        "Matching files": "الملفات المطابقة",
+        "To delete": "للحذف",
+        "About this queue": "حول هذه القائمة",
+        "These books are hidden from ordinary browsing. Their files remain in Nextcloud Files. Open a book to undo the mark or delete its file if permitted.": "هذه الكتب مخفية من التصفح العادي. تبقى ملفاتها في ملفات Nextcloud. افتح كتابًا لإلغاء العلامة أو حذف ملفه إذا كان ذلك مسموحًا.",
+        "You can mark this book for deletion in Library. It will be hidden from browsing; the file will remain in Nextcloud Files.": "يمكنك وضع علامة على هذا الكتاب للحذف في Library. سيُخفى من التصفح، وسيبقى الملف في ملفات Nextcloud.",
+        "Mark for deletion": "وضع علامة للحذف",
+        "This book will be hidden from ordinary browsing and search. Its file will remain in Nextcloud Files, and you can undo the mark from To delete. Unsaved book edits stay on this page.": "سيُخفى هذا الكتاب من التصفح والبحث العاديين. سيبقى ملفه في ملفات Nextcloud، ويمكنك إلغاء العلامة من قائمة للحذف. تبقى تعديلات الكتاب غير المحفوظة على هذه الصفحة.",
+        "The deletion mark could not be changed.": "تعذر تغيير علامة الحذف.",
+        "Marked for deletion. The file remains in Nextcloud Files.": "تم وضع علامة للحذف. يبقى الملف في ملفات Nextcloud.",
+        "Deletion mark removed. The book is visible again.": "أزيلت علامة الحذف. يظهر الكتاب مرة أخرى.",
+        "Marked for deletion in Library. The file remains in Nextcloud Files.": "تم وضع علامة للحذف في Library. يبقى الملف في ملفات Nextcloud.",
+        "Undo mark": "إلغاء العلامة",
+        "Marked for deletion in Library; the file remains in Nextcloud Files.": "تم وضع علامة للحذف في Library؛ يبقى الملف في ملفات Nextcloud."
     },
     "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 );

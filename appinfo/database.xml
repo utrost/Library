@@ -375,6 +375,7 @@
                 <notnull>true</notnull>
                 <default>false</default>
             </field>
+            <field><name>marked_for_deletion_at</name><type>integer</type><notnull>false</notnull></field>
             <field>
                 <name>last_opened_at</name>
                 <type>integer</type>
@@ -501,6 +502,7 @@
                 </field>
             </index>
             <index><name>library_items_usr_title_page</name><field><name>user_id</name></field><field><name>title</name></field><field><name>id</name></field><field><name>library_file_id</name></field></index>
+            <index><name>library_items_usr_delete_mark</name><field><name>user_id</name></field><field><name>marked_for_deletion_at</name></field><field><name>id</name></field></index>
             <index><name>library_genre_discovery</name><field><name>genre_suggestion_hash</name></field><field><name>id</name></field></index>
             <index><name>library_language_discovery</name><field><name>language_review_hash</name></field><field><name>id</name></field></index>
             <index><name>library_search_rebuild</name><field><name>search_index_version</name></field><field><name>id</name></field></index>

@@ -382,6 +382,7 @@ class PageController extends Controller {
             'scannerConflicts' => $this->normalizeReviewFilter('scannerConflicts', $this->request->getParam('scannerConflicts', '')),
             'starred' => trim((string)$this->request->getParam('starred', '')),
             'recentlyOpened' => trim((string)$this->request->getParam('recentlyOpened', '')),
+            'markedForDeletion' => $this->normalizeReviewFilter('markedForDeletion', $this->request->getParam('markedForDeletion', '')),
             'needsMetadata' => $this->normalizeReviewFilter('needsMetadata', $this->request->getParam('needsMetadata', '')),
             'coverReview' => $this->normalizeReviewFilter('coverReview', $this->request->getParam('coverReview', '')),
             'noCreator' => $this->normalizeReviewFilter('noCreator', $this->request->getParam('noCreator', '')),
@@ -556,7 +557,7 @@ class PageController extends Controller {
             'recently-opened', 'starred', 'to-read', 'reading', 'finished', 'needs-action',
             'needs-metadata', 'scanner-conflicts', 'metadata-errors', 'placeholder-covers',
             'no-creator', 'no-publication', 'missing-date', 'title-from-filename',
-            'weak-filename-metadata', 'no-description', 'unsupported-containers', 'unreviewed-imports',
+            'weak-filename-metadata', 'no-description', 'unsupported-containers', 'unreviewed-imports', 'to-delete',
         ] : ['scanner-conflicts'];
         $savedCollections = $userId === '' ? [] : ($surface === 'index' || $fastCatalogueApi || $leanHydration
             ? $this->savedCollectionsPending($userId)
@@ -759,7 +760,7 @@ class PageController extends Controller {
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page, string $cursor = ''): string {
         $query = [];
-        foreach (['q', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'authorId', 'seriesId', 'genreId', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
+        foreach (['q', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'authorId', 'seriesId', 'genreId', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'markedForDeletion', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title') && !($param === 'view' && $value === 'compact')) {
                 $query[$param] = $value;

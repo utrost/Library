@@ -1358,7 +1358,19 @@ OC.L10N.register(
         "Several patterns match; choose one.": "Mehrere Muster passen; eines auswählen.",
         "Proposed fields": "Vorgeschlagene Felder",
         "No files in this view.": "Keine Dateien in dieser Ansicht.",
-        "Matching files": "Passende Dateien"
+        "Matching files": "Passende Dateien",
+        "To delete": "Zu löschen",
+        "About this queue": "Über diese Liste",
+        "These books are hidden from ordinary browsing. Their files remain in Nextcloud Files. Open a book to undo the mark or delete its file if permitted.": "Diese Bücher sind beim normalen Stöbern ausgeblendet. Ihre Dateien bleiben in Nextcloud Dateien. Öffne ein Buch, um die Markierung rückgängig zu machen oder die Datei zu löschen, falls erlaubt.",
+        "You can mark this book for deletion in Library. It will be hidden from browsing; the file will remain in Nextcloud Files.": "Du kannst dieses Buch in Library zum Löschen markieren. Es wird beim Stöbern ausgeblendet; die Datei bleibt in Nextcloud Dateien.",
+        "Mark for deletion": "Zum Löschen markieren",
+        "This book will be hidden from ordinary browsing and search. Its file will remain in Nextcloud Files, and you can undo the mark from To delete. Unsaved book edits stay on this page.": "Dieses Buch wird beim normalen Stöbern und Suchen ausgeblendet. Die Datei bleibt in Nextcloud Dateien, und du kannst die Markierung unter „Zu löschen“ rückgängig machen. Ungespeicherte Buchänderungen bleiben auf dieser Seite.",
+        "The deletion mark could not be changed.": "Die Löschmarkierung konnte nicht geändert werden.",
+        "Marked for deletion. The file remains in Nextcloud Files.": "Zum Löschen markiert. Die Datei bleibt in Nextcloud Dateien.",
+        "Deletion mark removed. The book is visible again.": "Löschmarkierung entfernt. Das Buch ist wieder sichtbar.",
+        "Marked for deletion in Library. The file remains in Nextcloud Files.": "In Library zum Löschen markiert. Die Datei bleibt in Nextcloud Dateien.",
+        "Undo mark": "Markierung rückgängig machen",
+        "Marked for deletion in Library; the file remains in Nextcloud Files.": "In Library zum Löschen markiert; die Datei bleibt in Nextcloud Dateien."
     },
     "nplurals=2; plural=(n != 1);"
 );

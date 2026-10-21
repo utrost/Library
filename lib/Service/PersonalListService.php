@@ -250,7 +250,7 @@ final class PersonalListService {
     private function bookRows(string $userId, array $ids): array {
         if ($ids === []) return [];
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.title', 'i.creators', 'f.file_id', 'f.scan_status')
+        $result = $qb->select('i.id', 'i.title', 'i.creators', 'i.marked_for_deletion_at', 'f.file_id', 'f.scan_status')
             ->from('library_items', 'i')->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('f.user_id', $qb->createNamedParameter($userId)))
@@ -279,6 +279,7 @@ final class PersonalListService {
         return [
             'id' => (int)$row['id'], 'fileId' => (int)$row['file_id'], 'title' => (string)$row['title'],
             'creators' => (string)($row['displayCreators'] ?? $row['creators'] ?? ''),
+            'markedForDeletion' => $row['marked_for_deletion_at'] !== null,
             'openUrl' => $this->urlGenerator->linkToRoute('library.item.open', ['itemId' => $itemId]),
             'detailsUrl' => $this->urlGenerator->linkToRoute('library.page.index') . '?details=' . $itemId,
             'coverUrl' => $this->urlGenerator->linkToRoute('library.cover.show', ['itemId' => $itemId]),

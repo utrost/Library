@@ -1358,7 +1358,19 @@ OC.L10N.register(
         "Several patterns match; choose one.": "Several patterns match; choose one.",
         "Proposed fields": "Proposed fields",
         "No files in this view.": "No files in this view.",
-        "Matching files": "Matching files"
+        "Matching files": "Matching files",
+        "To delete": "To delete",
+        "About this queue": "About this queue",
+        "These books are hidden from ordinary browsing. Their files remain in Nextcloud Files. Open a book to undo the mark or delete its file if permitted.": "These books are hidden from ordinary browsing. Their files remain in Nextcloud Files. Open a book to undo the mark or delete its file if permitted.",
+        "You can mark this book for deletion in Library. It will be hidden from browsing; the file will remain in Nextcloud Files.": "You can mark this book for deletion in Library. It will be hidden from browsing; the file will remain in Nextcloud Files.",
+        "Mark for deletion": "Mark for deletion",
+        "This book will be hidden from ordinary browsing and search. Its file will remain in Nextcloud Files, and you can undo the mark from To delete. Unsaved book edits stay on this page.": "This book will be hidden from ordinary browsing and search. Its file will remain in Nextcloud Files, and you can undo the mark from To delete. Unsaved book edits stay on this page.",
+        "The deletion mark could not be changed.": "The deletion mark could not be changed.",
+        "Marked for deletion. The file remains in Nextcloud Files.": "Marked for deletion. The file remains in Nextcloud Files.",
+        "Deletion mark removed. The book is visible again.": "Deletion mark removed. The book is visible again.",
+        "Marked for deletion in Library. The file remains in Nextcloud Files.": "Marked for deletion in Library. The file remains in Nextcloud Files.",
+        "Undo mark": "Undo mark",
+        "Marked for deletion in Library; the file remains in Nextcloud Files.": "Marked for deletion in Library; the file remains in Nextcloud Files."
     },
     "nplurals=2; plural=(n != 1);"
 );

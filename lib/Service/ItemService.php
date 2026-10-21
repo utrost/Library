@@ -47,6 +47,7 @@ final class ItemService {
         'i.subjects_json',
         'i.classifications_json',
         'i.starred',
+        'i.marked_for_deletion_at',
         'i.workflow_status',
         'i.last_opened_at',
         'i.field_values',
@@ -753,6 +754,32 @@ final class ItemService {
         return $affected > 0;
     }
 
+    /** A Library-only state. Import updates keep this column unchanged. */
+    public function setMarkedForDeletion(string $userId, int $itemId, bool $marked): ?int {
+        $this->db->beginTransaction();
+        try {
+            $this->lockOwnedItem($userId, $itemId);
+            $item = $this->findItem($userId, $itemId);
+            if ($item === null) throw new \OutOfBoundsException('item_not_found');
+            $timestamp = $marked ? (($item['markedForDeletionAt'] ?? 0) ?: time()) : null;
+            $qb = $this->db->getQueryBuilder();
+            $qb->update('library_items')
+                ->set('marked_for_deletion_at', $qb->createNamedParameter($timestamp))
+                ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
+                ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+                ->executeStatement();
+            $this->duplicateIndex?->changed($userId, $itemId);
+            $this->db->commit();
+            return $timestamp ?? 0;
+        } catch (\OutOfBoundsException) {
+            $this->db->rollBack();
+            return null;
+        } catch (\Throwable $error) {
+            $this->db->rollBack();
+            throw $error;
+        }
+    }
+
     /** Save personal state without promoting imported publication metadata to a user edit. */
     public function setPersonalRating(string $userId, int $itemId, mixed $rating, string $expectedRevision): array {
         if (preg_match('/^[a-f0-9]{64}$/D', $expectedRevision) !== 1) throw new MetadataConflictException('metadata_revision_required');
@@ -1181,6 +1208,7 @@ final class ItemService {
                 $qb->expr()->eq('f.root_id', 'r.id'), $qb->expr()->eq('f.user_id', 'r.user_id')
             ))
             ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->isNull('i.marked_for_deletion_at'))
             ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
             ->groupBy($shelfExpression)
             ->orderBy('item_count', 'DESC')
@@ -1216,6 +1244,7 @@ final class ItemService {
             ->leftJoin('f', 'library_items', 'i', $qb->expr()->andX(
                 $qb->expr()->eq('i.library_file_id', 'f.id'),
                 $qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)),
+                $qb->expr()->isNull('i.marked_for_deletion_at'),
             ))
             ->where($qb->expr()->eq('r.user_id', $qb->createNamedParameter($userId)))
             ->groupBy('r.id', 'r.path', 'r.enabled', $shelfExpression)
@@ -1256,6 +1285,7 @@ final class ItemService {
             ->leftJoin('f', 'library_items', 'i', $qb->expr()->andX(
                 $qb->expr()->eq('i.library_file_id', 'f.id'),
                 $qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)),
+                $qb->expr()->isNull('i.marked_for_deletion_at'),
             ))
             ->where($qb->expr()->eq('r.user_id', $qb->createNamedParameter($userId)))
             ->groupBy('r.id', 'r.path', $shelfExpression)
@@ -1270,6 +1300,11 @@ final class ItemService {
             $childQb = $this->db->getQueryBuilder();
             $childPrefix = rtrim($rootPath, '/') . '/';
             $hasChildren = (bool)$childQb->select('f.id')->from('library_files', 'f')
+                ->innerJoin('f', 'library_items', 'i', $childQb->expr()->andX(
+                    $childQb->expr()->eq('i.library_file_id', 'f.id'),
+                    $childQb->expr()->eq('i.user_id', $childQb->createNamedParameter($userId)),
+                    $childQb->expr()->isNull('i.marked_for_deletion_at'),
+                ))
                 ->where($childQb->expr()->eq('f.user_id', $childQb->createNamedParameter($userId)))
                 ->andWhere($childQb->expr()->eq('f.root_id', $childQb->createNamedParameter($rootId)))
                 ->andWhere($childQb->expr()->neq('f.scan_status', $childQb->createNamedParameter('sidecar')))
@@ -1302,6 +1337,7 @@ final class ItemService {
             ->leftJoin('f', 'library_items', 'i', $qb->expr()->andX(
                 $qb->expr()->eq('i.library_file_id', 'f.id'),
                 $qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)),
+                $qb->expr()->isNull('i.marked_for_deletion_at'),
             ))
             ->where($qb->expr()->eq('f.user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('f.root_id', $qb->createNamedParameter($rootId)))
@@ -1310,6 +1346,7 @@ final class ItemService {
             ->groupBy('f.cached_path')->orderBy('f.cached_path', 'ASC')->executeQuery();
         $children = [];
         while ($row = $result->fetch()) {
+            if ((int)($row['item_count'] ?? 0) === 0) continue;
             $relative = substr((string)$row['cached_path'], strlen($prefix));
             $slash = strpos($relative, '/');
             if ($slash === false) continue;
@@ -1376,6 +1413,7 @@ final class ItemService {
             'no-description' => ['noDescription' => '1'],
             'unsupported-containers' => ['unsupportedContainer' => '1'],
             'unreviewed-imports' => ['unreviewedImports' => '1'],
+            'to-delete' => ['markedForDeletion' => '1'],
         ];
 
         $counts = [];
@@ -1609,7 +1647,7 @@ final class ItemService {
 
     public function findItem(string $userId, int $itemId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.authors_json', 'i.author_sync_status', 'i.series_sync_status', 'i.publication', 'i.series_name', 'i.series_number', 'i.genre', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.subjects_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.cover_revision', 'f.etag', 'i.starred', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.size', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.authors_json', 'i.author_sync_status', 'i.series_sync_status', 'i.publication', 'i.series_name', 'i.series_number', 'i.genre', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.subjects_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.cover_revision', 'f.etag', 'i.starred', 'i.marked_for_deletion_at', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.size', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
             ->from('library_items', 'i')
             ->innerJoin('i', 'library_files', 'f', $qb->expr()->andX(
                 $qb->expr()->eq('i.library_file_id', 'f.id'), $qb->expr()->eq('i.user_id', 'f.user_id')
@@ -2152,6 +2190,12 @@ final class ItemService {
             ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->eq('f.user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')));
+
+        if (($filters['markedForDeletion'] ?? '') === '1') {
+            $qb->andWhere($qb->expr()->isNotNull('i.marked_for_deletion_at'));
+        } else {
+            $qb->andWhere($qb->expr()->isNull('i.marked_for_deletion_at'));
+        }
 
         $query = mb_strtolower(trim((string)($filters['q'] ?? '')));
         $identifierSearch = $query === '' ? null : IdentifierService::normalizeSearchQuery($query);
@@ -3246,6 +3290,7 @@ final class ItemService {
             'coverOverrideData' => isset($row['cover_override_data']) ? (string)$row['cover_override_data'] : '',
             'coverOverrideMimeType' => isset($row['cover_override_mime_type']) ? (string)$row['cover_override_mime_type'] : '',
             'starred' => (bool)$row['starred'],
+            'markedForDeletionAt' => isset($row['marked_for_deletion_at']) ? (int)$row['marked_for_deletion_at'] : null,
             'workflowStatus' => (string)($row['workflow_status'] ?? ''),
             'lastOpenedAt' => (int)($row['last_opened_at'] ?? 0),
             'metadataSource' => (string)($row['metadata_source'] ?? ''),
