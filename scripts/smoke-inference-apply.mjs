@@ -5,7 +5,7 @@ import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const upstream=process.env.NC_URL || 'http://localhost:8088', user=process.env.NC_USER || 'maintainer', container=process.env.NC_CONTAINER || 'nextcloud'
-const evidence=createEvidenceDirectory('library-alpha16-evidence')
+const evidence=createEvidenceDirectory('library-alpha36-inference-apply')
 
 const name=`Library metadata smoke ${Date.now()}`, tokenName=name.replaceAll(' ','-')
 const occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8',stdio:['ignore','pipe','pipe']})
