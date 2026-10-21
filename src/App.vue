@@ -88,11 +88,12 @@ const reviewQueueDefinitions = Object.freeze([
   { key: 'status', value: 'metadata_error', countKey: 'metadata-errors', label: 'File problems' },
   { key: 'coverReview', value: 'placeholder', countKey: 'placeholder-covers', label: 'Cover problems' },
   { key: 'unreviewedImports', value: '1', countKey: 'unreviewed-imports', label: 'Imported changes' },
+  { key: 'markedForDeletion', value: '1', countKey: 'to-delete', label: 'To delete' },
 ])
 const reviewFilterValues = Object.freeze({
   needsMetadata: '1', scannerConflicts: '1', status: 'metadata_error', coverReview: 'placeholder',
   noCreator: '1', noPublication: '1', noDate: '1', titleFromFilename: '1', weakMetadata: 'filename',
-  noDescription: '1', unsupportedContainer: '1', unreviewedImports: '1',
+  noDescription: '1', unsupportedContainer: '1', unreviewedImports: '1', markedForDeletion: '1',
 })
 function isCanonicalReviewFilter(key, value) {
   return Object.prototype.hasOwnProperty.call(reviewFilterValues, key) && String(value ?? '').trim() === reviewFilterValues[key]
@@ -176,6 +177,7 @@ const activeFilters = reactive({
   scannerConflicts: catalogueState.activeFilters?.scannerConflicts || '',
   starred: catalogueState.activeFilters?.starred || '',
   recentlyOpened: catalogueState.activeFilters?.recentlyOpened || '',
+  markedForDeletion: catalogueState.activeFilters?.markedForDeletion || '',
   needsMetadata: catalogueState.activeFilters?.needsMetadata || '',
   coverReview: catalogueState.activeFilters?.coverReview || '',
   noCreator: catalogueState.activeFilters?.noCreator || '',
@@ -561,6 +563,7 @@ const filterLabels = {
   unsupportedContainer: 'Unsupported archive/container',
   weakMetadata: 'Filename-derived metadata',
   unreviewedImports: 'Unreviewed imports',
+  markedForDeletion: 'To delete',
 }
 const chipBooleanValues = {
   scannerConflicts: '1',
@@ -574,6 +577,7 @@ const chipBooleanValues = {
   noDescription: '1',
   unsupportedContainer: '1',
   unreviewedImports: '1',
+  markedForDeletion: '1',
   weakMetadata: 'filename',
   coverReview: 'placeholder',
 }
@@ -678,7 +682,7 @@ const activeFilterCount = computed(() => activeFilterChips.value.length)
 const filterGroups = Object.freeze([
   { key: 'content', label: 'Content', keys: ['q', 'type', 'publisher', 'publication', 'year', 'language', 'creator', 'authorId', 'seriesId', 'genreId', 'format', 'subject', 'classification', 'tag'] },
   { key: 'location', label: 'Location', keys: ['shelf', 'folder'] },
-  { key: 'review', label: 'Review', keys: ['scannerConflicts', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'status'] },
+  { key: 'review', label: 'Review', keys: ['scannerConflicts', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'markedForDeletion', 'status'] },
   { key: 'personal', label: 'Personal / display', keys: ['starred', 'recentlyOpened', 'workflowStatus'] },
 ])
 function activeGroupChips(group) {
@@ -2121,9 +2125,9 @@ async function toggleStar(item, event) {
   </nav>
   <section v-if="reviewActive" class="library-panel library-review-destination" aria-labelledby="library-review-heading">
     <header class="library-review-header">
-      <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata cleanup') }}</p>
-      <h2 id="library-review-heading">{{ t('library', 'Review') }}</h2>
-      <LabelHelp :text="t('library', 'Work through catalogue items that need a metadata decision. Source files remain in Nextcloud Files.')">{{ t('library', 'Metadata cleanup') }}</LabelHelp>
+      <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Review and cleanup') }}</p>
+      <h2 id="library-review-heading">{{ activeFilters.markedForDeletion === '1' ? t('library', 'To delete') : t('library', 'Review') }}</h2>
+      <LabelHelp :text="activeFilters.markedForDeletion === '1' ? t('library', 'These books are hidden from ordinary browsing. Their files remain in Nextcloud Files. Open a book to undo the mark or delete its file if permitted.') : t('library', 'Work through catalogue items that need a metadata decision. Source files remain in Nextcloud Files.')">{{ t('library', 'About this queue') }}</LabelHelp>
     </header>
     <nav class="library-review-queues" :aria-label="t('library', 'Review queues')">
       <a v-for="queue in reviewQueues" :key="queue.key" class="library-review-queue-link" :class="{ active: queue.active }" :href="queue.href" :aria-current="queue.active ? 'page' : undefined" @click.prevent="selectReviewQueue(queue)">

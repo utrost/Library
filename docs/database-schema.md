@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3.0-alpha.16 source tree**, 2026-10-18. Covers 41 app-owned tables through `Version000300Date20261018040000`. The latest forward migration adds a versioned search-index cursor and private publisher/subject mappings. Earlier physical-schema comparisons passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passed on NC34 with all three engines. The alpha.16 package still needs its exact-package multi-version and physical-schema checks.
+Snapshot: **0.3 development source tree**, 2026-10-21. Covers 41 app-owned tables through `Version000300Date20261021170000`. The latest forward migration adds a reversible deletion marker to catalogue rows. Earlier physical-schema comparisons passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passed on NC34 with all three engines. The new migration still needs its exact-package multi-version and physical-schema checks.
 
 ## Schema ownership
 
@@ -36,7 +36,7 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_value_mappings` | 6 | 2 | Reversible account-wide publisher and subject spelling groups; publication metadata stays unchanged. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
 | `library_files` | 17 | 8 | Nextcloud file identity, observed paths/revisions and scan diagnostics. |
-| `library_items` | 47 | 30 | Catalogue metadata, ordered authors, series migration status, genre/language discovery markers, search-index version, provenance, field protection, review flags and cover revision. |
+| `library_items` | 48 | 31 | Catalogue metadata, ordered authors, series migration status, genre/language discovery markers, search-index version, provenance, field protection, review flags, reversible deletion mark and cover revision. |
 | `library_scan_jobs` | 24 | 2 | Scan history, counters, heartbeat and current progress. |
 | `library_saved_collections` | 6 | 3 | Named saved filter definitions. |
 | `library_item_identifiers` | 11 | 3 | Normalized ISBN/ISSN values and identifier provenance. |
@@ -71,6 +71,8 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 `Version000300Date20261018030000` adds `library_items.language_review_hash` and two private language-review tables without rewriting older books. Bounded discovery normalizes clear older values and records ambiguous source values for review. See [language review](v0.3-language-review.md).
 
 `Version000300Date20261018040000` adds nullable `library_items.search_index_version` and account-owned `library_value_mappings`. A bounded job or `occ library:search:rebuild` adds publisher grams to intact older indexes, rebuilding an item fully when its scanner fingerprint is missing. It does not open books or change scanner metadata. Publisher/subject mappings affect browsing, exact filters and suggestions through existing values; deleting a mapping restores separate results. See [value mappings](metadata-value-mappings.md).
+
+`Version000300Date20261021170000` adds nullable `library_items.marked_for_deletion_at` and an account/marker/ID index. NULL means visible; a timestamp means the account owner marked the Library row for deletion. Import updates preserve the value. Ordinary catalogue queries exclude marked rows; the To delete review filter includes only marked rows. Direct Details and reading-list references remain available. This column never authorizes or schedules source-file deletion.
 
 `authors_json` stores ordered author names while `creators` remains the compatible display value. `series_name`, `series_number` and `genre` are separate from the older `publication` grouping field. Beta.2 imports EPUB/OPF series names and positions into the existing series columns; it requires no new schema migration. Beta.3 uses those same columns for duplicate matching and also requires no schema change. `cover_revision` invalidates browser covers without loading embedded cover blobs into catalogue responses.
 

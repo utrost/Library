@@ -18,6 +18,7 @@ final class ReviewQueryPolicy {
         'noDescription' => '1',
         'unsupportedContainer' => '1',
         'unreviewedImports' => '1',
+        'markedForDeletion' => '1',
     ];
 
     /** @return array<string, true> */

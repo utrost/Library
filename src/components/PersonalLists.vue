@@ -143,6 +143,7 @@ onMounted(async () => {
             <a v-if="entry.book" :href="detailsLink(entry.book.detailsUrl)" :aria-label="entry.book.title"><img :src="entry.book.coverUrl" alt="" width="48" height="64" loading="lazy"></a>
             <div class="library-list-book">
               <h2 v-if="entry.book"><a :href="detailsLink(entry.book.detailsUrl)" dir="auto">{{ entry.book.title }}</a></h2>
+              <p v-if="entry.book?.markedForDeletion" class="library-muted">{{ t('library', 'Marked for deletion in Library; the file remains in Nextcloud Files.') }}</p>
               <h2 v-else>{{ t('library', 'Unavailable book') }}</h2>
               <p v-if="entry.book?.creators" dir="auto">{{ entry.book.creators }}</p>
               <p v-if="!entry.book">{{ t('library', 'The file is missing or access is unavailable. Your note and place in the list are kept.') }}</p>

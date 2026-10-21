@@ -27,7 +27,7 @@ final class DuplicateIndexService {
         try {
             $this->lock($uid);$old=$this->status($uid);
             if($enabled&&!$old['enabled']) {
-                $count=$this->rows('SELECT COUNT(*) AS n, MAX(id) AS maximum FROM *PREFIX*library_items WHERE user_id = ?',[$uid])[0];
+                $count=$this->rows('SELECT COUNT(*) AS n, MAX(id) AS maximum FROM *PREFIX*library_items WHERE user_id = ? AND marked_for_deletion_at IS NULL',[$uid])[0];
                 foreach(['library_dup_terms','library_dup_index'] as $table)$this->write('DELETE FROM *PREFIX*'.$table.' WHERE user_id = ?',[$uid]);
                 $this->write('UPDATE *PREFIX*library_dup_state SET enabled = 1, status = ?, cursor_id = 0, processed = 0, max_id = ?, total = ? WHERE user_id = ?',['building',(int)($count['maximum']??0),(int)$count['n'],$uid]);
             } elseif(!$enabled)$this->write('UPDATE *PREFIX*library_dup_state SET enabled = 0, status = ? WHERE user_id = ?',['disabled',$uid]);
@@ -38,7 +38,7 @@ final class DuplicateIndexService {
     /** Current catalogue projections in two batched queries, including valid identifiers. */
     public function books(string $uid,array $ids):array {
         if(!$ids)return [];$marks=$this->marks($ids);
-        $rows=$this->rows('SELECT i.id,i.title,i.creators,i.authors_json,i.author_sync_status,i.language,i.series_name,i.series_number,i.publication_date,i.publisher,f.file_id,f.cached_path,f.size,f.extension,f.root_id,r.path AS root_path FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id = i.library_file_id AND f.user_id = i.user_id INNER JOIN *PREFIX*library_roots r ON r.id = f.root_id AND r.user_id = i.user_id WHERE i.user_id = ? AND i.id IN ('.$marks.') AND f.scan_status <> ?',[$uid,...$ids,'missing']);
+        $rows=$this->rows('SELECT i.id,i.title,i.creators,i.authors_json,i.author_sync_status,i.language,i.series_name,i.series_number,i.publication_date,i.publisher,f.file_id,f.cached_path,f.size,f.extension,f.root_id,r.path AS root_path FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id = i.library_file_id AND f.user_id = i.user_id INNER JOIN *PREFIX*library_roots r ON r.id = f.root_id AND r.user_id = i.user_id WHERE i.user_id = ? AND i.id IN ('.$marks.') AND i.marked_for_deletion_at IS NULL AND f.scan_status <> ?',[$uid,...$ids,'missing']);
         $books=[];
         foreach($rows as $r){$id=(int)$r['id'];$books[$id]=['id'=>$id,'title'=>(string)$r['title'],'authors'=>AuthorNames::read($r['authors_json'],$r['creators']),'language'=>(string)$r['language'],'series'=>(string)$r['series_name'],'seriesNumber'=>(string)$r['series_number'],'publicationDate'=>(string)$r['publication_date'],'publisher'=>(string)$r['publisher'],'isbn'=>[],'format'=>strtolower((string)$r['extension']),'size'=>(int)$r['size'],'fileId'=>(int)$r['file_id'],'path'=>$r['cached_path'],'rootId'=>(int)$r['root_id'],'rootPath'=>$r['root_path']];if(in_array((int)$r['author_sync_status'],[AuthorStorageService::SYNCED,AuthorStorageService::CONFLICT],true)){$books[$id]['authorIds']=[];$books[$id]['authorManual']=false;}}
         $links=$this->rows('SELECT item_id,author_id,assignment_source FROM *PREFIX*library_item_authors WHERE user_id=? AND item_id IN ('.$marks.') ORDER BY item_id,position',[$uid,...$ids]);
@@ -61,7 +61,12 @@ final class DuplicateIndexService {
     /** Verify a legacy scanner projection without rewriting it; caller already holds the item lock. */
     public function matchesCurrent(string $uid,int $id): bool {
         if(!$this->status($uid)['enabled'])return true;
-        $book=$this->books($uid,[$id])[$id]??null;if($book===null)return false;
+        $book=$this->books($uid,[$id])[$id]??null;
+        if($book===null) {
+            $item=$this->rows('SELECT marked_for_deletion_at FROM *PREFIX*library_items WHERE user_id=? AND id=?',[$uid,$id])[0]??null;
+            return $item!==null && $item['marked_for_deletion_at']!==null
+                && !$this->rows('SELECT item_id FROM *PREFIX*library_dup_index WHERE user_id=? AND item_id=?',[$uid,$id]);
+        }
         $stored=$this->rows('SELECT payload FROM *PREFIX*library_dup_index WHERE user_id=? AND item_id=?',[$uid,$id])[0]??null;
         if($stored===null)return false;
         try{if(json_decode($stored['payload'],true,512,JSON_THROW_ON_ERROR)!==$book)return false;}catch(\JsonException){return false;}
@@ -96,7 +101,7 @@ final class DuplicateIndexService {
         try{
             $this->lock($uid);$state=$this->status($uid);
             if($state['enabled']&&$state['status']==='building'){
-                $limit=max(1,min(500,$limit));$rows=$this->rows('SELECT id FROM *PREFIX*library_items WHERE user_id = ? AND id > ? AND id <= ? ORDER BY id LIMIT '.$limit,[$uid,$state['cursor'],$state['maxId']]);$ids=array_map('intval',array_column($rows,'id'));
+                $limit=max(1,min(500,$limit));$rows=$this->rows('SELECT id FROM *PREFIX*library_items WHERE user_id = ? AND marked_for_deletion_at IS NULL AND id > ? AND id <= ? ORDER BY id LIMIT '.$limit,[$uid,$state['cursor'],$state['maxId']]);$ids=array_map('intval',array_column($rows,'id'));
                 $this->replace($uid,$ids);$cursor=$ids ? max($ids) : $state['cursor'];
                 $this->write('UPDATE *PREFIX*library_dup_state SET cursor_id = ?, processed = ?, status = ? WHERE user_id = ?',[$cursor,$state['processed']+count($ids),count($ids)<$limit?'ready':'building',$uid]);
             }
@@ -116,7 +121,7 @@ final class DuplicateIndexService {
         if(!$byAuthor)return;
         $titleValues=array_keys($titles);
         foreach(array_chunk(array_keys($byAuthor),400) as $authorIds){
-            $matches=$this->rows('SELECT l.author_id,i.id,i.title FROM *PREFIX*library_item_authors l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id WHERE l.user_id=? AND l.author_id IN ('.$this->marks($authorIds).') AND i.title IN ('.$this->marks($titleValues).') ORDER BY l.author_id,i.id LIMIT 8001',[$uid,...$authorIds,...$titleValues]);
+            $matches=$this->rows('SELECT l.author_id,i.id,i.title FROM *PREFIX*library_item_authors l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id WHERE l.user_id=? AND i.marked_for_deletion_at IS NULL AND l.author_id IN ('.$this->marks($authorIds).') AND i.title IN ('.$this->marks($titleValues).') ORDER BY l.author_id,i.id LIMIT 8001',[$uid,...$authorIds,...$titleValues]);
             if(count($matches)>8000){foreach($authorIds as $authorId)foreach($byAuthor[$authorId] as $ids)foreach($ids as $id)$limited[$id]=true;$matches=array_slice($matches,0,8000);}
             foreach($matches as $match){
                 $other=(int)$match['id'];$authorId=(int)$match['author_id'];$titleKey=DuplicateMatcher::text($match['title']);

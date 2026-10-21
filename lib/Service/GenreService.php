@@ -44,7 +44,7 @@ final class GenreService {
     public function directory(string $uid, string $search = '', int $page = 1, string $sort = 'name', bool $previews = false): array {
         if (mb_strlen($search) > 255 || $page < 1 || $page > 100000) throw new \InvalidArgumentException('search_or_page');
         $order = match ($sort) { 'name' => 'g.display_name,g.id', 'name_desc' => 'g.display_name DESC,g.id DESC', default => throw new \InvalidArgumentException('sort') };
-        $sql = 'SELECT g.id,g.display_name,(SELECT COUNT(*) FROM *PREFIX*library_item_genres l WHERE l.user_id=g.user_id AND l.genre_id=g.id AND l.active=1) AS book_count FROM *PREFIX*library_genres g WHERE g.user_id=?';
+        $sql = 'SELECT g.id,g.display_name,(SELECT COUNT(*) FROM *PREFIX*library_item_genres l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id AND i.marked_for_deletion_at IS NULL WHERE l.user_id=g.user_id AND l.genre_id=g.id AND l.active=1) AS book_count FROM *PREFIX*library_genres g WHERE g.user_id=?';
         $params = [$uid];
         if (trim($search) !== '') {
             $sql .= " AND LOWER(g.display_name) LIKE ? ESCAPE '!'";

@@ -1,9 +1,9 @@
 <script setup>
 import { nextTick, ref } from 'vue'
 import { t } from '@nextcloud/l10n'
-const props = defineProps({ url: String, requestToken: String, disabled: Boolean })
-const emit = defineEmits(['deleted'])
-const dialog = ref(null), plan = ref(null), error = ref(''), busy = ref(false)
+const props = defineProps({ url: String, requestToken: String, disabled: Boolean, marked: Boolean })
+const emit = defineEmits(['deleted', 'mark-requested'])
+const dialog = ref(null), plan = ref(null), error = ref(''), busy = ref(false), canMark = ref(false)
 const permissionMessage = () => t('library', 'Nextcloud does not allow you to delete this file. Check its storage or share permissions in Files.')
 const lockingMessage = () => t('library', 'Book deletion requires transactional file locking to be enabled by the server administrator.')
 async function responseMessage(response, fallback) {
@@ -14,11 +14,11 @@ async function responseMessage(response, fallback) {
   return fallback
 }
 async function preview() {
-  error.value = ''; plan.value = null; busy.value = true
+  error.value = ''; plan.value = null; canMark.value = false; busy.value = true
   dialog.value.showModal()
   try {
     const response = await fetch(props.url, { credentials: 'same-origin' })
-    if (!response.ok) { error.value = await responseMessage(response, t('library', 'The file is unavailable or cannot be deleted. Refresh the book and check its permissions.')); return }
+    if (!response.ok) { canMark.value = response.status === 403; error.value = await responseMessage(response, t('library', 'The file is unavailable or cannot be deleted. Refresh the book and check its permissions.')); return }
     plan.value = await response.json()
   } catch { error.value = t('library', 'The file is unavailable or cannot be deleted. Refresh the book and check its permissions.') }
   finally { busy.value = false; await nextTick(); dialog.value.querySelector('button')?.focus() }
@@ -56,7 +56,8 @@ async function remove() {
       <p>{{ t('library', 'Library-only edits and unsaved changes will be removed. Restoring the source file does not restore those edits.') }}</p>
       <p>{{ t('library', 'Recovery through Nextcloud Deleted files depends on your storage and retention settings.') }}</p>
     </template>
-    <div class="library-delete-actions"><button type="button" class="button secondary" :disabled="busy" @click="dialog.close()">{{ t('library', 'Cancel') }}</button><button v-if="plan" type="button" class="button primary" :disabled="busy" @click="remove">{{ t('library', 'Delete book') }}</button></div>
+    <p v-if="canMark && error && !marked">{{ t('library', 'You can mark this book for deletion in Library. It will be hidden from browsing; the file will remain in Nextcloud Files.') }}</p>
+    <div class="library-delete-actions"><button type="button" class="button secondary" :disabled="busy" @click="dialog.close()">{{ t('library', 'Cancel') }}</button><button v-if="canMark && error && !marked" type="button" class="button secondary" :disabled="busy" @click="dialog.close(); emit('mark-requested')">{{ t('library', 'Mark for deletion') }}</button><button v-if="plan" type="button" class="button primary" :disabled="busy" @click="remove">{{ t('library', 'Delete book') }}</button></div>
   </dialog>
 </template>
 <style scoped>

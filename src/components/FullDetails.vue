@@ -12,6 +12,7 @@ import GenrePicker from './GenrePicker.vue'
 import IdentityAction from './IdentityAction.vue'
 import { formatFileSize } from '../file-size.js'
 import { detailsReturnContext } from '../details-return.js'
+import { confirmAction } from '../confirm-action.js'
 
 const props = defineProps({
   itemId: { type: String, required: true },
@@ -489,6 +490,27 @@ async function post(url, values = {}, file = null, { reload = true } = {}) {
   finally { busy.value = false }
 }
 
+async function markBookForDeletion(marked) {
+  if (busy.value || !item.value) return
+  if (marked && !await confirmAction(
+    t('library', 'This book will be hidden from ordinary browsing and search. Its file will remain in Nextcloud Files, and you can undo the mark from To delete. Unsaved book edits stay on this page.'),
+    t('library', 'Mark for deletion'), false)) return
+  busy.value = true
+  error.value = ''
+  feedback.value = ''
+  try {
+    const body = new FormData()
+    body.set('requesttoken', props.requestToken)
+    body.set('marked', marked ? '1' : '0')
+    const response = await fetch(`${itemBase.value}/mark-for-deletion`, { method: 'POST', body, credentials: 'same-origin' })
+    if (!response.ok) throw new Error(t('library', 'The deletion mark could not be changed.'))
+    const result = await response.json()
+    item.value.markedForDeletionAt = result.markedForDeletionAt
+    feedback.value = marked ? t('library', 'Marked for deletion. The file remains in Nextcloud Files.') : t('library', 'Deletion mark removed. The book is visible again.')
+  } catch (cause) { error.value = cause.message || t('library', 'The deletion mark could not be changed.') }
+  finally { busy.value = false }
+}
+
 async function saveMetadata() {
   const body = new FormData()
   body.set('requesttoken', props.requestToken)
@@ -624,6 +646,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
     <p v-if="loading" role="status">{{ t('library', 'Loading publication details…') }}</p>
     <p v-if="error" role="alert" class="library-full-details-error">{{ error }} <button v-if="!item" type="button" class="button secondary" @click="load">{{ t('library', 'Retry') }}</button></p>
     <p v-if="feedback" role="status" class="library-full-details-feedback">{{ feedback }}</p>
+    <p v-if="item?.markedForDeletionAt" role="status" class="library-full-details-feedback">{{ t('library', 'Marked for deletion in Library. The file remains in Nextcloud Files.') }} <button type="button" class="button secondary" :disabled="busy" @click="markBookForDeletion(false)">{{ t('library', 'Undo mark') }}</button></p>
     <template v-if="item && context">
       <header class="library-full-details-hero">
         <div class="library-full-details-cover" @paste="pastedCover">
@@ -641,7 +664,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
           <input ref="coverInput" class="library-cover-file-input" type="file" tabindex="-1" accept="image/jpeg,image/png,image/webp" :aria-label="t('library', 'Replace cover')" @change="chooseCover">
           <p v-if="coverPasteStatus" class="library-cover-paste-guide" role="status">{{ coverPasteStatus }}</p>
         </div>
-        <div class="library-full-details-summary"><p class="library-muted">{{ item.publicationType || t('library', 'Publication / periodical') }} · {{ (item.extension || '').toUpperCase() }}</p><h1><bdi dir="auto">{{ item.title || t('library', 'Untitled publication') }}</bdi></h1><p v-if="!item.canonicalAuthors?.length"><bdi dir="auto">{{ item.creators }}</bdi></p><p v-if="item.canonicalAuthors?.length" class="library-full-details-links"><a v-for="author in item.canonicalAuthors" :key="author.id" :href="`${catalogueUrl}?authors=1&authorId=${author.id}`">{{ author.name }}</a></p><p v-if="item.canonicalSeries?.length" class="library-full-details-links"><a v-for="series in item.canonicalSeries" :key="series.id" :href="`${catalogueUrl}?series=1&seriesId=${series.id}`">{{ series.name }}<span v-if="series.part"> · {{ series.part }}</span></a></p><div class="library-full-details-actions"><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpen">{{ t('library', 'Open') }}</a><a class="button secondary" :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a><a class="button secondary" :href="item.downloadUrl">{{ t('library', 'Download source') }}</a><DeleteBook v-if="item.scanStatus !== 'missing'" :url="`${itemBase}/deletion`" :request-token="requestToken" :disabled="busy" @deleted="bookDeleted" /></div><div class="library-full-details-personal"><button type="button" class="button secondary" :aria-pressed="!!item.starred" :disabled="busy" @click="post(context.actions.star, { starred: item.starred ? '0' : '1' })">{{ item.starred ? '★' : '☆' }} {{ t('library', 'Favorite') }}</button><label>{{ t('library', 'Reading status') }} <select :value="item.workflowStatus || ''" :disabled="busy" @change="post(context.actions.workflowStatus, { workflowStatus: $event.target.value })"><option v-for="status in workflowOptions" :key="status.value" :value="status.value">{{ status.label }}</option></select></label></div><AddToList :item-ids="[Number(itemId)]" :request-token="requestToken" :lists-url="`${catalogueUrl}?lists=1`" /></div>
+        <div class="library-full-details-summary"><p class="library-muted">{{ item.publicationType || t('library', 'Publication / periodical') }} · {{ (item.extension || '').toUpperCase() }}</p><h1><bdi dir="auto">{{ item.title || t('library', 'Untitled publication') }}</bdi></h1><p v-if="!item.canonicalAuthors?.length"><bdi dir="auto">{{ item.creators }}</bdi></p><p v-if="item.canonicalAuthors?.length" class="library-full-details-links"><a v-for="author in item.canonicalAuthors" :key="author.id" :href="`${catalogueUrl}?authors=1&authorId=${author.id}`">{{ author.name }}</a></p><p v-if="item.canonicalSeries?.length" class="library-full-details-links"><a v-for="series in item.canonicalSeries" :key="series.id" :href="`${catalogueUrl}?series=1&seriesId=${series.id}`">{{ series.name }}<span v-if="series.part"> · {{ series.part }}</span></a></p><div class="library-full-details-actions"><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpen">{{ t('library', 'Open') }}</a><a class="button secondary" :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a><a class="button secondary" :href="item.downloadUrl">{{ t('library', 'Download source') }}</a><DeleteBook v-if="item.scanStatus !== 'missing'" :url="`${itemBase}/deletion`" :request-token="requestToken" :disabled="busy" :marked="!!item.markedForDeletionAt" @deleted="bookDeleted" @mark-requested="markBookForDeletion(true)" /><button v-if="!item.markedForDeletionAt" type="button" class="button secondary" :disabled="busy" @click="markBookForDeletion(true)">{{ t('library', 'Mark for deletion') }}</button></div><div class="library-full-details-personal"><button type="button" class="button secondary" :aria-pressed="!!item.starred" :disabled="busy" @click="post(context.actions.star, { starred: item.starred ? '0' : '1' })">{{ item.starred ? '★' : '☆' }} {{ t('library', 'Favorite') }}</button><label>{{ t('library', 'Reading status') }} <select :value="item.workflowStatus || ''" :disabled="busy" @change="post(context.actions.workflowStatus, { workflowStatus: $event.target.value })"><option v-for="status in workflowOptions" :key="status.value" :value="status.value">{{ status.label }}</option></select></label></div><AddToList :item-ids="[Number(itemId)]" :request-token="requestToken" :lists-url="`${catalogueUrl}?lists=1`" /></div>
       </header>
 
       <div v-if="dirty" class="library-full-details-savebar" role="group" :aria-label="t('library', 'Book changes')">

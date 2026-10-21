@@ -286,6 +286,16 @@ Use disposable files in an isolated test account. Do not use valuable library bo
 
 Deletion requires Nextcloud transactional file locking. The storage guard preserves Nextcloud's normal trash/retention behavior; it does not permanently purge the trash. Deletion of arbitrary companion images or ancestor directories is outside this feature.
 
+### H03-23a — Mark for deletion on a read-only mount (next candidate)
+
+Use a disposable EPUB on a read-only shelf and another disposable book on a writable shelf. This case applies after the candidate with **To delete** is installed.
+
+1. Open the read-only book and choose **Delete book**. Confirm the permission message offers **Mark for deletion**. Cancel first; the book should remain in ordinary browsing. Repeat and mark it. The file and any OPF must remain in Nextcloud Files.
+2. Find the book under **Review and cleanup → To delete**. It must be absent from ordinary search, Home, shelf book counts and author/series/genre book views. Direct Details access and the To delete entry must still work. A reading-list entry remains visible with a deletion-mark label.
+3. Stage an unsaved title edit on a second book, mark it, then choose **Discard changes**. Only the mark should persist. Open its Details from To delete, choose **Undo mark**, and confirm the book reappears in ordinary search.
+4. Rescan the read-only shelf. The first book must remain marked and the file unchanged. Undo the mark, rescan again, then confirm it stays visible. Marking must never queue an automatic deletion if mount permissions later change.
+5. Check keyboard operation, focus, narrow/mobile layout and both themes. Only an explicit, separately confirmed **Delete book** action may remove source files.
+
 
 ### H03-24 — UI consistency
 

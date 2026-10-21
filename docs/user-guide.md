@@ -351,6 +351,8 @@ Forgetting a missing item removes this Library catalogue entry and its app-owned
 
 Choose **Delete book** on its details page to preview the exact source file and any exclusive OPF sidecar, then confirm. Library deletes through Nextcloud Files, removes the catalogue entry and removes the immediate parent folder only if it is empty. The confirmation discards unsaved Library edits. A shared OPF, another book format, cover image or nonempty folder stays in place.
 
+In the next candidate, if Nextcloud denies deletion, for example on a read-only external mount, choose **Mark for deletion** instead. The book moves to **Review and cleanup → To delete** and disappears from ordinary catalogue search, Home, shelf browsing, author/series/genre book views and duplicate suggestions. The source file, companion files, Library edits and reading-list entry remain. The reading-list entry shows the mark. Open the book from **To delete** and choose **Undo mark** to restore it to browsing. A rescan preserves the mark while the same catalogue row remains. Marking never schedules or performs a file deletion; **Delete book** still requires a separate confirmation and Nextcloud delete permission. Unsaved book edits remain staged when the mark changes.
+
 Nextcloud must grant **delete** permission for the source file. Read or download access alone is insufficient. If the preview says deletion is not permitted, check whether **Delete** is available for the file in Nextcloud Files and ask the storage or share administrator to adjust permissions if appropriate. An external mount that denies deletion cannot be bypassed from Library. Transactional file locking must also be enabled on the server.
 
 ### Export corrected metadata
