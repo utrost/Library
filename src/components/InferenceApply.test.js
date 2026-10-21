@@ -28,3 +28,11 @@ it('shows stale conflicts without claiming success',async()=>{
  await wrapper.findAll('button').find(b=>b.text().startsWith('Review selected changes')).trigger('click');await flushPromises()
  expect(wrapper.get('[role=alert]').text()).toContain('stale or expired');expect(wrapper.emitted('changed')).toBeUndefined()
 })
+it('keeps applied batch history visible when the compact worklist has no selected fields',async()=>{
+ const fetch=vi.fn().mockResolvedValue(response({batches:[{id:'saved',status:'applied',created_at:1}]}));vi.stubGlobal('fetch',fetch)
+ const wrapper=mount(InferenceApply,{props:{...props,compact:true,externalSelection:[]}});await flushPromises()
+ expect(wrapper.isVisible()).toBe(true)
+ expect(wrapper.get('.library-inference-history').isVisible()).toBe(true)
+ expect(wrapper.find('h2').exists()).toBe(false)
+ expect(wrapper.findAll('button').some(button=>button.text().startsWith('Review selected changes'))).toBe(false)
+})
