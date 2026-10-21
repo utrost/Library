@@ -30,8 +30,9 @@ final class BookFileDeletionService {
     public function preview(string $uid, int $id): array {
         $item = $this->items->findItem($uid, $id);
         if ($item === null) throw new \OutOfBoundsException();
+        if (!$this->config->getSystemValueBool('filelocking.enabled', true)) throw new \DomainException('locking_disabled');
         $file = $this->resolve($uid, (int)$item['fileId']);
-        if (!$file->isDeletable() || !$this->config->getSystemValueBool('filelocking.enabled', true)) throw new NotPermittedException();
+        if (!$file->isDeletable()) throw new NotPermittedException();
         $plan = $this->snapshot($uid, $item, $file);
         return [
             'file' => $this->relative($uid, $file->getPath()),
@@ -50,7 +51,7 @@ final class BookFileDeletionService {
             if ($claim['purpose'] !== 'library-book-delete-v1' || $claim['uid'] !== $uid || $claim['id'] !== $id
                 || $claim['expires'] < time() || !is_array($claim['plan'])) throw new \UnexpectedValueException();
         } catch (\Throwable) { throw new \DomainException('confirmation_expired'); }
-        if (!$this->config->getSystemValueBool('filelocking.enabled', true)) throw new NotPermittedException();
+        if (!$this->config->getSystemValueBool('filelocking.enabled', true)) throw new \DomainException('locking_disabled');
         $item = $this->items->findItem($uid, $id);
         // A replay can never act on a replacement file, sidecar or folder.
         if ($item === null) return ['deleted' => true, 'alreadyDeleted' => true, 'warnings' => []];
