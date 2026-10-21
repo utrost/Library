@@ -345,7 +345,13 @@ Use it when:
 - a rescan already marked the backing file as `missing`;
 - you want to remove the stale Library catalogue row instead of keeping it as a diagnostic.
 
-Forgetting a missing item removes this Library catalogue entry and its app-owned file-index row. It does not delete source files from Nextcloud Files. Ordinary item deletion for still-present files remains deferred to Nextcloud Files: delete or move the file there, rescan the root, then use **Forget missing item** if you do not want to keep the stale diagnostic.
+Forgetting a missing item removes this Library catalogue entry and its app-owned file-index row. It does not delete source files from Nextcloud Files.
+
+### Deleting a present book
+
+Choose **Delete book** on its details page to preview the exact source file and any exclusive OPF sidecar, then confirm. Library deletes through Nextcloud Files, removes the catalogue entry and removes the immediate parent folder only if it is empty. The confirmation discards unsaved Library edits. A shared OPF, another book format, cover image or nonempty folder stays in place.
+
+Nextcloud must grant **delete** permission for the source file. Read or download access alone is insufficient. If the preview says deletion is not permitted, check whether **Delete** is available for the file in Nextcloud Files and ask the storage or share administrator to adjust permissions if appropriate. An external mount that denies deletion cannot be bypassed from Library. Transactional file locking must also be enabled on the server.
 
 ### Export corrected metadata
 

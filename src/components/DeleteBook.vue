@@ -4,12 +4,21 @@ import { t } from '@nextcloud/l10n'
 const props = defineProps({ url: String, requestToken: String, disabled: Boolean })
 const emit = defineEmits(['deleted'])
 const dialog = ref(null), plan = ref(null), error = ref(''), busy = ref(false)
+const permissionMessage = () => t('library', 'Nextcloud does not allow you to delete this file. Check its storage or share permissions in Files.')
+const lockingMessage = () => t('library', 'Book deletion requires transactional file locking to be enabled by the server administrator.')
+async function responseMessage(response, fallback) {
+  const code = (await response.json().catch(() => ({})))?.error
+  if (code === 'not_permitted') return permissionMessage()
+  if (code === 'locking_disabled') return lockingMessage()
+  if (code === 'not_found') return t('library', 'This file is unavailable in Nextcloud Files. Check its storage connection or rescan the folder.')
+  return fallback
+}
 async function preview() {
   error.value = ''; plan.value = null; busy.value = true
   dialog.value.showModal()
   try {
     const response = await fetch(props.url, { credentials: 'same-origin' })
-    if (!response.ok) throw new Error()
+    if (!response.ok) { error.value = await responseMessage(response, t('library', 'The file is unavailable or cannot be deleted. Refresh the book and check its permissions.')); return }
     plan.value = await response.json()
   } catch { error.value = t('library', 'The file is unavailable or cannot be deleted. Refresh the book and check its permissions.') }
   finally { busy.value = false; await nextTick(); dialog.value.querySelector('button')?.focus() }
@@ -21,7 +30,8 @@ async function remove() {
     const response = await fetch(props.url, { method: 'POST', credentials: 'same-origin', body })
     if (!response.ok) {
       plan.value = null
-      throw new Error()
+      error.value = await responseMessage(response, t('library', 'Deletion could not be completed. Close this dialog and refresh the book before trying again.'))
+      return
     }
     const result = await response.json()
     if (!result.deleted) throw new Error()
