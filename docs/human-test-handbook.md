@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current acceptance target: 0.3.0-alpha.38.** This candidate is being checked for developer NC34. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) before testing; a matching version string alone does not identify an archive.
+**Current acceptance target: 0.3.0-alpha.38.** This signed candidate is installed on developer NC34. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) before testing; a matching version string alone does not identify an archive.
 
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 
@@ -8,7 +8,7 @@ Use disposable accounts and books for saved edits, imports, merges, scans and de
 
 ### Alpha.38 acceptance checks
 
-After alpha.38 is installed, extend H03-01/02/10/15 with these checks on disposable books:
+On the installed alpha.38, extend H03-01/02/10/15 with these checks on disposable books:
 
 - In the catalogue sidebar, search title/description, then author, subject, genre, classification and publisher. The first search must stay limited to title/description; main Search books still checks the broader catalogue. Selecting a genre must keep other filters.
 - On Details, use Previous book, Next book and left/right arrow keys from a sorted, filtered catalogue, author profile, series and personal list. Back must restore the originating view and page. Arrows must leave text fields alone; navigating with unsaved metadata asks before discarding.

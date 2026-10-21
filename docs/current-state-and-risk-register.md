@@ -1,10 +1,10 @@
 # Current state and risk register
 
-**Current candidate: 0.3.0-alpha.38.** Signed alpha.36 is deployed on developer NC34 with the mixed filename/path worklist. CI and installed desktop/mobile smokes passed; see the [alpha.36 verification record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
+**Current developer build: signed 0.3.0-alpha.38.** Hosted CI passed, and the installed package passed integrity, asset matching and disposable desktop/mobile smokes on NC34. The catalogue remained at 107,861 books; see the [alpha.38 verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
 
-Previous deployment checkpoint: signed **0.3.0-alpha.35** added grouped sidebar navigation and consistent icons. Its [verification and deployment record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) remains historical; the alpha.36 package is now installed.
+Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.38 is now installed.
 
-Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.36 is now installed.
+Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.38 is now installed.
 
 Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: [alpha.31 record](compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
 
@@ -12,13 +12,13 @@ Alpha.30 adds a shared compact browser for Authors, Series and Genres, with disp
 
 Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.36 is now installed.
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.38 is now installed.
 
-Previous development checkpoint: **0.3.0-alpha.34**. The signed alpha.34 package was deployed on the developer instance running Nextcloud 34.0.3.2 (`http://100.123.149.120:8088`). The [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) is the source for installed version, archive checksum, integrity and authenticated editor checks. The [alpha.9 verification](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers earlier focused NC33–35 source checks. An exact signed final 0.3 fresh/upgrade matrix on NC33–35 and human acceptance still precede App Store submission; the 0.2 beta.3 matrix is a separate preserved baseline.
+Historical development checkpoint: **0.3.0-alpha.34**. The signed alpha.34 package was deployed on the developer instance running Nextcloud 34.0.3.2 (`http://100.123.149.120:8088`). The [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) is the source for installed version, archive checksum, integrity and authenticated editor checks. The [alpha.9 verification](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) covers earlier focused NC33–35 source checks. An exact signed final 0.3 fresh/upgrade matrix on NC33–35 and human acceptance still precede App Store submission; the 0.2 beta.3 matrix is a separate preserved baseline.
 
 The alpha.9 `v5` frontend asset repairs a blank publication sidebar caused by an undefined author-link URL helper. The [hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md) includes the populated developer NC34 observation. The app version and database schema did not change; this asset has not yet had a new NC33–35 matrix.
 
-The historical `v6` alpha.9 asset and merged main commit `47e1428` were previously deployed on developer NC34. The [earlier handoff report](compatibility-evidence/2026-10-14-nc34-main-handoff/README.md) records the exact unsigned package hash, file-level deployment comparison, live catalogue/sidebar smoke and disposable author/series checks. Human testing of the current alpha.34 build remains the next gate.
+The historical `v6` alpha.9 asset and merged main commit `47e1428` were previously deployed on developer NC34. The [earlier handoff report](compatibility-evidence/2026-10-14-nc34-main-handoff/README.md) records the exact unsigned package hash, file-level deployment comparison, live catalogue/sidebar smoke and disposable author/series checks. Human testing of the current alpha.38 build remains the next gate.
 
 The immediate risks are human acceptance of the author/series workflows, an exact signed 0.3 archive with fresh/upgrade NC33–35 verification, manual assistive-technology testing and PostgreSQL runtime coverage. The [human test handbook](human-test-handbook.md#current-03-human-cases) defines the current manual pass. Sections dated September below preserve historical evidence and should not be read as current deployment claims.
 
