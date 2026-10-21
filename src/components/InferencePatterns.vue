@@ -3,25 +3,15 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import LabelHelp from './LabelHelp.vue'
+import { inferencePresets } from '../inference-presets.js'
 const props = defineProps({ pattern: { type: String, default: '' }, mode: { type: String, default: 'pattern' }, rule: { type: Object, default: null }, requestToken: { type: String, default: '' } })
-const emit = defineEmits(['choose', 'choose-rule'])
+const emit = defineEmits(['choose', 'choose-rule', 'catalog-changed'])
 const guided = computed(() => props.mode === 'guided')
 const current = computed(() => guided.value ? JSON.stringify(props.rule) : props.pattern)
 const definition = entry => (entry.kind || 'pattern') === 'guided' ? JSON.stringify(entry.rule) : entry.pattern
 const saved = ref([]), name = ref(''), selected = ref(''), busy = ref(false), error = ref(''), message = ref(''), deleting = ref('')
 const hidden = ref([])
-const presets = computed(() => [
-  { id: 'title', name: t('library', 'Title from filename'), pattern: '%folders%/%title%.%extension%', example: 'Author/Book title.epub' },
-  { id: 'by', name: t('library', 'Title by Author'), pattern: '%folders%/%title% by %author%.%extension%', example: 'books/english_fiction/A Magic Deep and Drowning by Hester Fox.epub' },
-  { id: 'title-author-year', name: t('library', 'Title - Author (Year)'), pattern: '%folders%/%title% - %author% (%year%).%extension%', example: 'Adrian Tchaikovsky/Children of Time - Adrian Tchaikovsky (2016).epub' },
-  { id: 'author-title', name: t('library', 'Author - Title'), pattern: '%folders%/%author% - %title%.%extension%', example: 'Ada Quill - A Quiet Orchard.epub' },
-  { id: 'author-folder', name: t('library', 'Author folder / Title'), pattern: '%folders%/%author%/%title%.%extension%', example: 'Ada Quill/A Quiet Orchard.epub' },
-  { id: 'series', name: t('library', 'Series folder / Number. Title - Author (Year)'), pattern: '%folders%/%series%/%seriesNumber%. %title% - %author% (%year%).%extension%', example: 'Arthur C. Clarke/Space Odyssey/01. 2001 A Space Odyssey - Arthur C. Clarke (1968).epub' },
-  { id: 'series-inline', name: t('library', 'Series #Number - Title - Author (Year)'), pattern: '%folders%/%series% #%seriesNumber% - %title% - %author% (%year%).%extension%', example: 'Brandon Sanderson/Mistborn #04 - The Alloy of Law - Brandon Sanderson (2011).epub' },
-  { id: 'language-subject', name: t('library', 'books / Language_Subject / Title - Author (Year)'), pattern: 'books/%language%_%subject%/%folders%/%title% - %author% (%year%).%extension%', example: 'books/english_fiction/Adrian Tchaikovsky/Children of Time - Adrian Tchaikovsky (2016).epub' },
-  { id: 'language-subject-by', name: t('library', 'books / Language_Subject / Title by Author'), pattern: 'books/%language%_%subject%/%folders%/%title% by %author%.%extension%', example: 'books/english_fiction/A String in Her Tale by Mark Ezra.epub' },
-  { id: 'series-underscore', name: t('library', 'Series folder / Number_Title_Author'), pattern: '%folders%/%series%/%seriesNumber%_%title%_%author%.%extension%', example: 'Orchard Notes/2.5_Autumn Appendix_Ada Quill.epub' },
-])
+const presets = computed(() => inferencePresets(t))
 const choices = computed(() => [...(guided.value ? [] : presets.value.map(entry => ({ ...entry, id: `preset-${entry.id}` })).filter(entry => !hidden.value.includes(entry.id))), ...saved.value.filter(entry => (entry.kind || 'pattern') === props.mode)].sort((a, b) => a.name.localeCompare(b.name)))
 const chosen = computed(() => choices.value.find(entry => entry.id === selected.value))
 watch([current, choices], () => {
@@ -56,6 +46,7 @@ async function save() {
   try {
     const data = await request('', { name: name.value, ...(guided.value ? { kind: 'guided', rule: props.rule } : { pattern: props.pattern }) })
     saved.value = [...saved.value, data.saved].sort((a, b) => a.name.localeCompare(b.name))
+    emit('catalog-changed')
     selected.value = data.saved.id; name.value = ''; message.value = guided.value ? t('library', 'Rule saved to your account.') : t('library', 'Pattern saved to your account.')
   } catch (e) { error.value = e.message } finally { busy.value = false }
 }
@@ -64,6 +55,7 @@ async function remove(id) {
   try {
     await request(`/${id}/delete`, {})
     saved.value = saved.value.filter(entry => entry.id !== id); hidden.value = [...hidden.value, id]; selected.value = ''; deleting.value = ''
+    emit('catalog-changed')
     message.value = guided.value ? t('library', 'Saved rule deleted. The current preview is unchanged.') : t('library', 'Saved pattern deleted. The current preview is unchanged.')
   } catch (e) { error.value = e.message } finally { busy.value = false }
 }
