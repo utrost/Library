@@ -4,7 +4,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import LabelHelp from './LabelHelp.vue'
-const props = defineProps({ results: { type: Array, required: true }, labels: { type: Object, required: true }, context: { type: String, default: '' }, requestToken: { type: String, default: '' }, disabled: Boolean, wholeFolder:Boolean })
+const props = defineProps({ results: { type: Array, required: true }, labels: { type: Object, required: true }, context: { type: String, default: '' }, requestToken: { type: String, default: '' }, disabled: Boolean, wholeFolder:Boolean, compact:Boolean, externalSelection: { type: Array, default: null } })
 const emit = defineEmits(['changed'])
 const selected = ref([]), plan = ref(null), history = ref([]), busy = ref(false), error = ref(''), message = ref(''), confirmation = ref('')
 const supported = new Set(['author', 'title', 'subtitle', 'series', 'seriesNumber', 'genre', 'language', 'publisher', 'subject', 'year'])
@@ -13,7 +13,8 @@ const key = (item, change) => `${item.id}:${change.field}`
 const chosen = computed(() => candidates.value.map(item => ({ id: item.id, revision: item.revision, changes: Object.fromEntries(item.changes.filter(change => selected.value.includes(key(item, change))).map(change => [change.field, change.field === 'author' ? (change.values || [change.value]) : change.value])) })).filter(item => Object.keys(item.changes).length))
 const statuses = computed(() => ({ prepared: t('library', 'Awaiting approval'), applied: t('library', 'Applied'), undone: t('library', 'Undone') }))
 let generation = 0
-watch(() => JSON.stringify([props.results, props.context]), () => { selected.value = []; if (plan.value?.status === 'prepared') plan.value = null; confirmation.value = ''; generation++ })
+watch(() => JSON.stringify([props.results, props.context]), () => { selected.value = props.externalSelection === null ? [] : [...props.externalSelection]; if (plan.value?.status === 'prepared') plan.value = null; confirmation.value = ''; generation++ })
+watch(() => props.externalSelection, value => { if (value !== null) selected.value = [...value] }, { immediate: true, deep: true })
 watch(() => JSON.stringify(selected.value), () => { if (plan.value?.status === 'prepared') plan.value = null; confirmation.value = ''; generation++ })
 function selectEmpty() { selected.value = candidates.value.flatMap(item => item.changes.filter(change => change.status === 'ready').map(change => key(item, change))) }
 async function api(path = '', body) {
@@ -54,7 +55,9 @@ onMounted(() => run(refreshHistory))
   <section class="library-inference-apply" :aria-label="t('library', 'Review and apply metadata')" :aria-busy="busy ? 'true' : 'false'">
     <h2><LabelHelp :text="wholeFolder ? t('library','Choose fields from this page only. Existing values require individual selection. Apply and Undo operate on this reviewed batch of at most 40 books.') : t('library', 'Choose fields from this sample only. Replacements require individual selection. Authors are stored in their preview order, with exact duplicates removed.')">{{ t('library', 'Review and apply metadata') }}</LabelHelp></h2>
     <OperationStatus :loading="busy" :error="error" :message="message" @retry="reloadSample" /><button v-if="plan?.blocked" class="button secondary" :disabled="busy" @click="reloadSample">{{ t('library', 'Load sample') }}</button>
-    <fieldset :disabled="busy || disabled" class="library-inference-approval-fields">
+    <p v-if="compact" role="status">{{ t('library', '{count} fields selected for review.', { count: selected.length }) }}</p>
+    <div v-if="compact" class="library-inference-presets"><button class="button primary" :disabled="busy || disabled || !chosen.length || plan?.status === 'prepared'" @click="review">{{ t('library', 'Review selected changes') }} ({{ selected.length }})</button></div>
+    <fieldset v-else :disabled="busy || disabled" class="library-inference-approval-fields">
       <div class="library-inference-presets"><button class="button secondary" :disabled="!candidates.length" @click="selectEmpty">{{ t('library', 'Select empty fields') }}</button><button class="button secondary" :disabled="!selected.length" @click="selected = []">{{ t('library', 'Clear selection') }}</button><button class="button primary" :disabled="!chosen.length || plan?.status === 'prepared'" @click="review">{{ t('library', 'Review selected changes') }} ({{ selected.length }})</button></div>
       <div class="library-inference-approval-candidates" :class="{ 'library-inference-approval-scroll': candidates.length > 8 }" role="region" tabindex="0" :aria-label="t('library','Select metadata fields')"><details v-for="item in candidates" :key="item.id" class="library-inference-result">
         <summary>{{ item.path }}</summary>

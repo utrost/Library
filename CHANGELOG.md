@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0-alpha.36 — 2026-10-21
+
+- Assign saved, supplied or draft filename/path patterns per file in a bounded worklist. Bulk assignment includes only complete structural matches and selects empty fields only.
+- Review fields from different patterns together, with per-file server parsing and atomic Apply/Undo. Keep pattern configuration collapsed during routine review.
+- Update the extraction guide and human test case for mixed naming conventions. No database migration.
+- Update the release build to Vite 7.3.7 after its security advisory.
+
 ## 0.3.0-alpha.35 — 2026-10-20
 
 - Group sidebar destinations into Library, Discover, Your lists and Review and cleanup.

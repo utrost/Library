@@ -2,17 +2,17 @@
 
 Library can preview metadata suggested by your folder and filename conventions. Open **Extract metadata** in the left menu.
 
-**Current scope (alpha.18):** teach a rule with a loaded sample, then optionally analyse the entire indexed folder in the background. Explicitly select supported fields from a result page, review confirmed changes, then apply them to the Library catalogue. Source documents are never renamed, moved or rewritten; no OPF/JSON sidecars or scans are started. Saving a rule or pattern does not apply it to your books. Authors can be applied as ordered names and browsed individually. Existing catalogue records migrate in bounded background batches.
+**Current scope (alpha.36):** load up to 40 indexed files, assign one pattern to each file or one pattern to all complete matches, choose proposed fields, then review and apply the selections in one batch. You can still teach and save rules, assign folder rules and analyse a whole indexed folder in the background. Source documents are never renamed, moved or rewritten; no OPF/JSON sidecars or scans are started. Saving a rule or pattern does not apply it to books.
 
 ## Quick start
 
-1. Choose a **Library root**, optionally enter a relative subfolder, and choose whether to include subfolders. Load the sample. Only already-indexed, currently accessible publications are shown, up to 40 per page.
-2. Choose an **Example path**. The sticky live preview follows that record.
-3. Choose **Guided assignments** to label and split parts, or **Advanced pattern** to use/edit a template.
-4. Inspect the proposed fields and their current values. Choose other records to see whether the same rule works for them. Use the result filter and page controls to review the rest of the sample.
-5. In **Review and apply metadata**, choose **Select empty fields** or expand books and select fields individually. Existing values are never selected automatically.
-6. Choose **Review selected changes**, inspect the server-confirmed Before/After list, then **Apply reviewed changes**.
-7. Open **Recent metadata batches** after reloading to inspect a saved review or undo an applied batch.
+1. Choose a **Shelf**, optionally enter a folder within it, and choose whether to include subfolders. **Load sample** shows up to 40 already-indexed, accessible files per page.
+2. In **Assign patterns and review files**, inspect the suggested pattern for each file. A suggested pattern means that the path structure parses; check the proposed values before selecting them. Use the pattern picker in a row to change just that file.
+3. To handle a group, choose **Pattern for matching files**, then **Assign to matching files**. Only files whose entire relative path matches and whose captured values validate receive that pattern. Files whose patterns you already chose individually keep those choices. The table switches to **Matching files**; change **Show files** to see everything again. Empty fields from the matching files are selected; replacements remain unchecked.
+4. Tick or untick fields in the rows. Files may now use different patterns in the same review. **Review selected changes** shows the confirmed Before/After values for every selected file. Choose **Apply reviewed changes** only after checking them.
+5. Open **Recent metadata batches** after reloading to inspect a saved review or undo an applied batch.
+
+Open **Configure patterns** to select an **Example path**, inspect its live preview, edit a guided rule or advanced pattern, and save definitions. That section is collapsed during routine file-by-file review. The current unsaved draft is available in the file and bulk pickers while the page remains open.
 
 Hover over a label or focus/tap its **?** button for help. Escape dismisses help. Errors and unmatched results stay visible.
 
@@ -113,6 +113,8 @@ This gives language `en`, subject `fiction`, title `Little People - 20 Little Pe
 
 Use **Rule editor → Folder rules** to combine saved definitions across a Library root.
 
+For a folder with several unrelated naming conventions, the file worklist is simpler: choose different patterns in its rows and approve one mixed batch. Folder rules remain useful when a convention consistently belongs to a particular folder and should be reused for later samples.
+
 1. Create and save a guided rule or advanced pattern using paths relative to the folder it should govern. To use a supplied pattern, save it with a name first.
 2. Choose the root and subfolder in step 1, then **Load sample**. The **Assignment folder** shows the actual loaded folder; `/` means the Library root. A changed folder input must be loaded before assigning.
 3. Select **Saved rule or pattern**, choose whether to **Use in subfolders**, and click **Assign to this folder**.
@@ -167,9 +169,9 @@ A title such as `A - B - C` is ambiguous with `%title% - %author%`. Use guided s
 
 Apply supports title, subtitle, authors, series, part in series, genre, language, publisher, subject and year. A subject capture becomes one subject label; it does not guess delimiters. A year capture replaces the publication-date field with that year: the server review shows the complete existing date before you confirm. Language region codes normalize to forms such as `en-US`.
 
-Selections cover only the currently loaded sample, at most 40 books. Invalid, ambiguous and unmatched records cannot be selected. The result filter above is a viewing aid; the Apply section lists all eligible records from the loaded sample. No replacement checkbox is selected by default. **Select empty fields** selects empty fields across that sample and clears replacement selections. Changes to rules, the loaded sample or field selections invalidate the displayed approval.
+Selections cover only the currently loaded sample, at most 40 books. Invalid, ambiguous and unmatched records cannot be selected. Each row has its own chosen pattern and field checkboxes; a structural match is not a guarantee that a captured name is semantically correct. No replacement checkbox is selected by default. Bulk assignment selects empty fields only from full matches. Changing a row's pattern clears that row's selected fields. A new sample or changed selections invalidate the displayed approval.
 
-**Review selected changes** stores a fixed server-side review, valid for 30 minutes. Saving this review does not modify metadata. Its confirmed Before/After values are the exact values used by Apply, independent of later rule edits. An unused review can be discarded. A saved review can be reopened from **Recent metadata batches** after reload; drafts and unsubmitted selections remain temporary.
+**Review selected changes** stores a fixed server-side review, valid for 30 minutes. For mixed batches, the server parses each live file with its assigned rule and rejects any proposed field that differs from the parser result. Saving this review does not modify metadata. Its confirmed Before/After values are the exact values used by Apply, independent of later rule edits. An unused review can be discarded. A saved review can be reopened from **Recent metadata batches** after reload; drafts and unsubmitted selections remain temporary.
 
 Apply rechecks ownership, current file identity/path/content markers and read access, and compares a metadata snapshot under a database lock. A stale or unavailable book blocks the whole batch; there are no partially applied batches. Changes and derived search/facet indexes commit together. Retrying the same Apply request is safe. Source files are not written. Accepted values use the same item-level rescan protection as manual edits; no rescan is needed to make them searchable where existing catalogue indexes support the field.
 

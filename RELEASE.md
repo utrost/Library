@@ -1,5 +1,7 @@
 # Release process
 
+**0.3.0-alpha.36 source candidate:** mixed filename/path pattern worklist, with one rule per file and one reviewed Apply. The disposable NC34 source-candidate checks passed; see the [alpha.36 verification record](docs/compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md). Final merged-package deployment is pending; alpha.35 remains the developer NC34 installation until then. No database migration.
+
 **Signed 0.3.0-alpha.35 is deployed on developer NC34.** Sidebar groups and icons are consistent across the catalogue and review pages. CI, signature/integrity and installed desktop/mobile checks passed. See the [alpha.35 verification record](docs/compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) and human acceptance H03-26. No database migration.
 
 Previous checkpoint: signed **0.3.0-alpha.34** was deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue at that checkpoint contained **large catalogue books**. No database migration. See the [alpha.34 verification and deployment record](docs/compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.

@@ -1,6 +1,6 @@
 # Library Roadmap
 
-**Current candidate: 0.3.0-alpha.35.** Signed alpha.35 is deployed on developer NC34 with grouped navigation and consistent sidebar icons. CI and the installed desktop/mobile smoke passed; see the [alpha.35 verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
+**Current candidate: 0.3.0-alpha.36.** Signed alpha.35 is deployed on developer NC34 with grouped navigation and consistent sidebar icons. CI and the installed desktop/mobile smoke passed; see the [alpha.35 verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
 
 Previous deployment checkpoint: Signed **0.3.0-alpha.34** was deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue at that checkpoint contained **large catalogue books**. No database migration. See the [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
 
@@ -16,9 +16,9 @@ Alpha.28 adds direct destination-author typeahead for merge/reassign, starting a
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The [signed alpha.9 fresh and upgrade matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed on NC33–35. The [alpha.11 populated NC34 deployment](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) is complete; owner acceptance remains.
 
-Status: **0.3.0-alpha.34** is the current development candidate; see the [verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md). The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
+Status: **0.3.0-alpha.36** is the current source candidate; alpha.35 is the last installed checkpoint until the mixed-pattern worklist is verified and deployed. The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
 
-Last updated: 2026-10-20
+Last updated: 2026-10-21
 
 ## Product direction
 

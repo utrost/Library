@@ -1,6 +1,6 @@
 # Current state and risk register
 
-**Current candidate: 0.3.0-alpha.35.** Signed alpha.35 is deployed on developer NC34 with grouped navigation and consistent sidebar icons. CI and the installed desktop/mobile smoke passed; see the [alpha.35 verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
+**Current candidate: 0.3.0-alpha.36.** Signed alpha.35 is deployed on developer NC34 with grouped navigation and consistent sidebar icons. CI and the installed desktop/mobile smoke passed; see the [alpha.35 verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
 
 Previous deployment checkpoint: Signed **0.3.0-alpha.34** was deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue at that checkpoint contained **large catalogue books**. No database migration. See the [alpha.34 verification and deployment record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
 
