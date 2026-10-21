@@ -2870,7 +2870,7 @@ final class ItemService {
             ->where($qb->expr()->eq('search_gram.user_id', $qb->createNamedParameter($userId)))
             ->andWhere($qb->expr()->in('search_gram.gram', $qb->createNamedParameter($searchGrams, IQueryBuilder::PARAM_STR_ARRAY)))
             ->groupBy('search_gram.item_id')
-            ->having($qb->expr()->eq($qb->createFunction('COUNT(DISTINCT search_gram.gram)'), $qb->createNamedParameter(count($searchGrams))))
+            ->having($qb->expr()->eq($qb->createFunction('COUNT(DISTINCT search_gram.gram)'), $qb->createNamedParameter(count($searchGrams), IQueryBuilder::PARAM_INT)))
             ->setMaxResults(50000)
             ->executeQuery();
         $itemIds = [];
@@ -2886,7 +2886,7 @@ final class ItemService {
         $gramCount = count($searchGrams);
         $userParameter = $qb->createNamedParameter($userId);
         $gramParameter = $qb->createNamedParameter($searchGrams, IQueryBuilder::PARAM_STR_ARRAY);
-        $countParameter = $qb->createNamedParameter($gramCount);
+        $countParameter = $qb->createNamedParameter($gramCount, IQueryBuilder::PARAM_INT);
         return "SELECT `search_gram`.`item_id` FROM `*PREFIX*library_item_search_grams` `search_gram` "
             . "WHERE `search_gram`.`user_id` = {$userParameter} "
             . "AND `search_gram`.`gram` IN ({$gramParameter}) "

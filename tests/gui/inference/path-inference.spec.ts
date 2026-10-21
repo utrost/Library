@@ -33,13 +33,14 @@ test('patterns select immediately, persist privately and delete; inference stays
   await expect(panel.locator('.library-inference-live dd strong').first()).toHaveText(expectedTitle)
   // Keep syntax explanatory copy out of the layout, but accessible by focus and Escape.
   const help=panel.locator('label').filter({has:page.getByRole('textbox',{name:'Advanced pattern',exact:true})}).getByRole('button',{name:'Help: Advanced pattern',exact:true})
-  await help.focus(); await expect(page.getByRole('tooltip')).toContainText('Placeholders capture text')
+  await help.focus(); await expect(page.getByRole('tooltip')).toContainText('%title% and %subtitle%')
   await page.keyboard.press('Escape'); await expect(page.getByRole('tooltip')).toHaveCount(0)
   const name=`Pattern ${info.project.name} ${Date.now()}`
   let id=''
   try {
+    await picker.selectOption('__new__')
     await templates.getByRole('textbox',{name:'Pattern name',exact:true}).fill(name)
-    await templates.getByRole('button',{name:'Save current pattern as new'}).click()
+    await templates.getByRole('button',{name:'Save new pattern'}).click()
     await expect(templates.getByRole('status')).toContainText('Pattern saved')
     id=await picker.inputValue()
     expect(id).toMatch(/^[a-f0-9]{32}$/)
