@@ -6,6 +6,7 @@ const emit = defineEmits(['deleted', 'mark-requested'])
 const dialog = ref(null), plan = ref(null), error = ref(''), busy = ref(false), canMark = ref(false)
 const permissionMessage = () => t('library', 'Nextcloud does not allow you to delete this file. Check its storage or share permissions in Files.')
 const lockingMessage = () => t('library', 'Book deletion requires transactional file locking to be enabled by the server administrator.')
+function markForDeletion() { dialog.value.close(); emit('mark-requested') }
 async function responseMessage(response, fallback) {
   const code = (await response.json().catch(() => ({})))?.error
   if (code === 'not_permitted') return permissionMessage()
@@ -57,7 +58,7 @@ async function remove() {
       <p>{{ t('library', 'Recovery through Nextcloud Deleted files depends on your storage and retention settings.') }}</p>
     </template>
     <p v-if="canMark && error && !marked">{{ t('library', 'You can mark this book for deletion in Library. It will be hidden from browsing; the file will remain in Nextcloud Files.') }}</p>
-    <div class="library-delete-actions"><button type="button" class="button secondary" :disabled="busy" @click="dialog.close()">{{ t('library', 'Cancel') }}</button><button v-if="canMark && error && !marked" type="button" class="button secondary" :disabled="busy" @click="dialog.close(); emit('mark-requested')">{{ t('library', 'Mark for deletion') }}</button><button v-if="plan" type="button" class="button primary" :disabled="busy" @click="remove">{{ t('library', 'Delete book') }}</button></div>
+    <div class="library-delete-actions"><button type="button" class="button secondary" :disabled="busy" @click="dialog.close()">{{ t('library', 'Cancel') }}</button><button v-if="canMark && error && !marked" type="button" class="button secondary" :disabled="busy" @click="markForDeletion">{{ t('library', 'Mark for deletion') }}</button><button v-if="plan" type="button" class="button primary" :disabled="busy" @click="remove">{{ t('library', 'Delete book') }}</button></div>
   </dialog>
 </template>
 <style scoped>

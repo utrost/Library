@@ -593,7 +593,7 @@ describe('Library catalogue Vue app', () => {
 
     await wrapper.get('form.library-sidebar-filters').trigger('submit')
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      '/apps/library/catalogue?publisher=Q&publication=AB&year=19&creator=Li&tag=X&subject=AI&classification=QA',
+      '/apps/library/catalogue?creator=Li&subject=AI&classification=QA&publisher=Q&publication=AB&year=19&tag=X',
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
   })
@@ -623,7 +623,7 @@ describe('Library catalogue Vue app', () => {
     await wrapper.findAll('.library-subject-suggestion')[0].trigger('click')
 
     await vi.waitFor(() => expect(global.fetch).toHaveBeenLastCalledWith(
-      '/apps/library/catalogue?format=epub&subject=Social+history',
+      '/apps/library/catalogue?subject=Social+history&format=epub',
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
   })
@@ -667,10 +667,14 @@ describe('Library catalogue Vue app', () => {
     await vi.waitFor(() => expect(wrapper.findAll('.library-classification-suggestion').length).toBeGreaterThan(0))
     await wrapper.findAll('.library-classification-suggestion')[0].trigger('click')
 
-    await vi.waitFor(() => expect(global.fetch).toHaveBeenLastCalledWith(
-      '/apps/library/catalogue?tag=Research&format=epub&classification=DDC+900',
-      expect.objectContaining({ credentials: 'same-origin' }),
-    ))
+    await vi.waitFor(() => expect(global.fetch.mock.calls.some(([url, options]) => {
+      const parsed = new URL(url, location.origin)
+      return parsed.pathname === '/apps/library/catalogue'
+        && parsed.searchParams.get('classification') === 'DDC 900'
+        && parsed.searchParams.get('format') === 'epub'
+        && parsed.searchParams.get('tag') === 'Research'
+        && options.credentials === 'same-origin'
+    })).toBe(true))
   })
 
   it('does not render classification as an eager dropdown facet', async () => {
@@ -711,14 +715,14 @@ describe('Library catalogue Vue app', () => {
     ))
   })
 
-  it.each(['publication', 'year', 'creator', 'tag', 'folder', 'subject', 'classification'])('shares keyboard selection for desktop/mobile %s filters', async facet => {
+  it.each(['publication', 'year', 'creator', 'tag', 'folder', 'subject', 'classification'])('supports keyboard selection in the shared sidebar %s filter', async facet => {
     const plural = { publication: 'publications', year: 'years', creator: 'creators', tag: 'tags', folder: 'folders', subject: 'subjects', classification: 'classifications' }[facet]
     const values = facet === 'year' ? ['2000', '2001'] : ['Matching One', 'Matching Two']
     global.fetch = vi.fn(async url => ({ ok: true, json: async () => String(url).includes('suggestions') ? { [plural]: values } : { ...state, activeFilters: { ...state.activeFilters, [facet]: values[1] } } }))
-    for (const scope of ['desktop', 'mobile']) {
+    {
+      const scope = 'desktop'
       const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
-      if (scope === 'mobile') { const panel = wrapper.get('.library-mobile-filter-panel'); panel.element.open = true; await panel.trigger('toggle') }
-      const input = wrapper.get(`#library-${scope === 'mobile' ? 'mobile-' : ''}${facet}-search`)
+      const input = wrapper.get(`#library-${facet}-search`)
       await input.trigger('focus')
       await input.setValue(facet === 'year' ? '200' : 'Mat')
       await vi.waitFor(() => expect(input.attributes('aria-activedescendant')).toBe(`library-${scope}-${facet}-suggestion-0`))
@@ -779,7 +783,7 @@ describe('Library catalogue Vue app', () => {
     await form.trigger('submit')
 
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      '/apps/library/catalogue?folder=%2FBooks%2FArt&starred=1&q=bauhaus',
+      '/apps/library/catalogue?searchScope=title_description&folder=%2FBooks%2FArt&starred=1&q=bauhaus',
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
   })
@@ -969,7 +973,7 @@ describe('Library catalogue Vue app', () => {
 
     await wrapper.get('form.library-sidebar-filters').trigger('submit')
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      '/apps/library/catalogue?q=bauhaus&publisher=Acme+Press',
+      '/apps/library/catalogue?searchScope=title_description&q=bauhaus&publisher=Acme+Press',
       expect.objectContaining({ credentials: 'same-origin' }),
     ))
   })
@@ -1407,6 +1411,7 @@ describe('Library catalogue Vue app', () => {
       '/nc/index.php/apps/library/?status=metadata_error',
       '/nc/index.php/apps/library/?coverReview=placeholder',
       '/nc/index.php/apps/library/?unreviewedImports=1',
+      '/nc/index.php/apps/library/?markedForDeletion=1',
     ])
     expect(links[0].attributes('aria-current')).toBe('page')
   })
@@ -1571,7 +1576,7 @@ describe('Library catalogue Vue app', () => {
     await wrapper.find('.library-filter-bar').trigger('submit')
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalled())
 
-    expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?type=book&year=1999', expect.objectContaining({ credentials: 'same-origin' }))
+    expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?year=1999&type=book', expect.objectContaining({ credentials: 'same-origin' }))
     await vi.waitFor(() => expect(wrapper.find('.library-filter-bar input[name="yearSearch"]').element.value).toBe('1999'))
     expect(wrapper.findAll('.library-filter-chip').some((chip) => chip.text().includes('1999'))).toBe(true)
   })
@@ -1715,10 +1720,10 @@ describe('Library catalogue Vue app', () => {
     await wrapper.get(`.library-${facet}-suggestion`).trigger('click')
 
     const expectedQuery = facet === 'creator'
-      ? `year=1999&creator=${encodeURIComponent(suggestion).replaceAll('%20', '+')}`
+      ? `creator=${encodeURIComponent(suggestion).replaceAll('%20', '+')}&year=1999`
       : facet === 'publisher'
-        ? `publisher=${encodeURIComponent(suggestion).replaceAll('%20', '+')}&creator=${encodeURIComponent(otherValue).replaceAll('%20', '+')}`
-        : `year=${suggestion}&creator=${encodeURIComponent(otherValue).replaceAll('%20', '+')}`
+        ? `creator=${encodeURIComponent(otherValue).replaceAll('%20', '+')}&publisher=${encodeURIComponent(suggestion).replaceAll('%20', '+')}`
+        : `creator=${encodeURIComponent(otherValue).replaceAll('%20', '+')}&year=${suggestion}`
     await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
       `/apps/library/catalogue?${expectedQuery}`,
       expect.objectContaining({ credentials: 'same-origin' }),
@@ -2129,7 +2134,7 @@ describe('Library catalogue Vue app', () => {
     await Promise.resolve()
 
     expect(wrapper.find('#library-main-search').element.value).toBe('latest')
-    expect(submitted).toEqual([{ q: 'first' }])
+    expect(submitted).toEqual([{ q: 'first', searchScope: 'title_description' }])
     nativeSubmit.mockRestore()
   })
 

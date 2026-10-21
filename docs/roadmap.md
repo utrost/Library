@@ -1,6 +1,6 @@
 # Library Roadmap
 
-**Current candidate: 0.3.0-alpha.36.** Signed alpha.36 is deployed on developer NC34 with the mixed filename/path worklist. CI and installed desktop/mobile smokes passed; see the [alpha.36 verification record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
+**Current candidate: 0.3.0-alpha.38.** Signed alpha.36 is deployed on developer NC34 with the mixed filename/path worklist. CI and installed desktop/mobile smokes passed; see the [alpha.36 verification record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.35** added grouped sidebar navigation and consistent icons. Its [verification and deployment record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) remains historical; the alpha.36 package is now installed.
 

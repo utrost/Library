@@ -4,10 +4,10 @@ from pathlib import Path
 APP = (Path(__file__).resolve().parents[1] / "src/App.vue").read_text()
 
 
-def test_review_has_exactly_five_top_level_groups_and_legacy_keys():
+def test_review_has_six_top_level_groups_and_legacy_keys():
     block = APP.split("const reviewQueueDefinitions", 1)[1].split("])", 1)[0]
-    assert block.count("countKey:") == 5
-    for label in ("Suggested updates", "Needs details", "File problems", "Cover problems", "Imported changes"):
+    assert block.count("countKey:") == 6
+    for label in ("Suggested updates", "Needs details", "File problems", "Cover problems", "Imported changes", "To delete"):
         assert f"label: '{label}'" in block
     for key in ("noCreator", "noPublication", "noDate", "titleFromFilename", "weakMetadata", "unsupportedContainer"):
         assert key in APP
