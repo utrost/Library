@@ -2,6 +2,8 @@
 
 This is a reusable checklist for starting future Nextcloud apps without beginning from zero. It is grounded in the current Library app, but it is intentionally written as app-independent guidance rather than a Library feature spec.
 
+For page layouts, GUI controls and cross-screen interaction rules, use the companion [Nextcloud app UI starter](nextcloud-ui-starter.md).
+
 Use it as a starting point for new apps, then delete anything that does not fit the product.
 
 ## 1. Product boundary first
@@ -142,6 +144,8 @@ Library patterns:
 - sidecar export downloads metadata instead of writing into source folders;
 - scans never rewrite source files.
 
+Library's explicit **Delete book** action is a separate canonical-file deletion workflow: it previews the exact file scope, confirms, revalidates identity and permissions, and reports partial cleanup accurately.
+
 For any future app, list every operation that touches existing user data and classify it as:
 
 - read-only observation;
@@ -210,12 +214,12 @@ A Nextcloud app can mix server-rendered PHP templates with Vue, but keep the sea
 Library patterns:
 
 - server provides initial state through Nextcloud initial-state APIs;
-- Vue owns the catalogue shell;
-- PHP templates still own detail/settings/fallback pages where useful;
+- Vue owns the catalogue shell and the canonical book editor;
+- PHP templates still own some settings, maintenance and fallback pages, but use the same navigation, terminology and interaction rules;
 - runtime JS/CSS asset names include app version/suffix for cache busting;
 - browser state updates guard against request races;
 - mutating UI controls reject repeat activation while pending;
-- autosave/async mutations expose accessible status/failure text;
+- explicit Save/Discard handles staged book edits; immediate async mutations expose accessible status/failure text;
 - high-cardinality suggestions are lazy and have minimum query lengths.
 
 Do not assume the browser has fresh assets after deployment. Versioned asset names and explicit app version markers make cache problems diagnosable.
