@@ -66,6 +66,7 @@ final class InferenceBatchService {
         $ids = array_column($proposals,'id');
         foreach ($ids as $itemId) if (!is_int($itemId) || $itemId < 1) throw new \InvalidArgumentException('invalid_proposals');
         $snapshots = $this->snapshots($uid,$ids);
+        $mixed = $this->mixedContext($context);
         $entries = []; $seen = [];
         foreach ($proposals as $proposal) {
             if (!is_array($proposal) || !is_int($proposal['id'] ?? null) || $proposal['id'] < 1
@@ -75,6 +76,7 @@ final class InferenceBatchService {
             $changes = InferenceChangeSet::normalize($proposal['changes'] ?? null);
             $before = $snapshots[$proposal['id']] ?? throw new \OutOfBoundsException('missing_item');
             if (!hash_equals(InferenceChangeSet::fingerprint($before), $proposal['revision'])) throw new \DomainException('stale_preview');
+            if ($mixed !== null) $this->validateMixedProposal($proposal['id'], $changes, $before, $mixed);
             $after = $before['state']; $review = []; $write = [];
             foreach ($changes as $field => $value) {
                 $column = InferenceChangeSet::FIELDS[$field][0];
@@ -102,6 +104,49 @@ final class InferenceBatchService {
             'created_at' => $qb->createNamedParameter($now), 'expires_at' => $qb->createNamedParameter($now + 1800),
         ])->executeStatement();
         return $this->get($uid, $id);
+    }
+
+    /** Recompute every chosen field from its own bounded rule and the live file snapshot. */
+    private function mixedContext(string $context): ?array {
+        $decoded = json_decode($context, true);
+        if (!is_array($decoded) || ($decoded['mode'] ?? null) !== 'mixed') return null;
+        if (!is_int($decoded['rootId'] ?? null) || $decoded['rootId'] < 1
+            || !is_string($decoded['folder'] ?? null) || strlen($decoded['folder']) > 2000
+            || preg_match('~(^|/)\.\.?(/|$)|[\x00-\x1f\\\\]~', $decoded['folder'])
+            || trim($decoded['folder'], '/') !== $decoded['folder']
+            || !is_array($decoded['definitions'] ?? null) || count($decoded['definitions']) > 40
+            || !is_array($decoded['assignments'] ?? null) || count($decoded['assignments']) > 40) {
+            throw new \InvalidArgumentException('invalid_proposals');
+        }
+        return $decoded;
+    }
+
+    private function validateMixedProposal(int $id, array $changes, array $snapshot, array $context): void {
+        $key = $context['assignments'][(string)$id] ?? null;
+        $definition = is_string($key) ? ($context['definitions'][$key] ?? null) : null;
+        if (!is_array($definition) || !in_array($definition['mode'] ?? null, ['guided', 'pattern'], true)) throw new \InvalidArgumentException('invalid_proposals');
+        if ($definition['mode'] === 'guided' && !GuidedRuleValidator::valid($definition['rule'] ?? null)) throw new \InvalidArgumentException('invalid_proposals');
+        if ($definition['mode'] === 'pattern' && (!is_string($definition['pattern'] ?? null) || strlen($definition['pattern']) > 1000)) throw new \InvalidArgumentException('invalid_proposals');
+        $file = $snapshot['file'];
+        $prefix = rtrim($file['rootPath'], '/') . '/' . ($context['folder'] !== '' ? $context['folder'] . '/' : '');
+        if ($file['rootId'] !== $context['rootId'] || !str_starts_with($file['path'], $prefix)) throw new \DomainException('stale_preview');
+        $state = $snapshot['state'];
+        $current = [
+            'title' => $state['title'], 'subtitle' => $state['subtitle'], 'author' => $state['creators'],
+            'authors' => AuthorNames::read($state['authors_json'] ?? null, $state['creators']),
+            'series' => $state['series_name'], 'seriesNumber' => $state['series_number'], 'genre' => $state['genre'],
+            'year' => substr((string)$state['publication_date'], 0, 4), 'language' => $state['language'],
+            'publisher' => $state['publisher'],
+            'subject' => implode('; ', json_decode($state['subjects_json'] ?: '[]', true) ?: []),
+        ];
+        $result = InferenceParser::run(substr($file['path'], strlen($prefix)), $definition, $current);
+        if (!in_array($result['status'], ['ready', 'conflict'], true)) throw new \DomainException('stale_preview');
+        $expected = [];
+        foreach ($result['changes'] as $change) {
+            if (!in_array($change['status'], ['ready', 'conflict'], true)) continue;
+            $expected += InferenceChangeSet::normalize([$change['field'] => $change['field'] === 'author' ? $change['values'] : $change['value']]);
+        }
+        foreach ($changes as $field => $value) if (!isset($expected[$field]) || $expected[$field] !== $value) throw new \DomainException('stale_preview');
     }
 
     private function row(string $uid, string $id, bool $lock = false): array {

@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current acceptance target: 0.3.0-alpha.35.** Signed alpha.35 is deployed on developer NC34. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) before testing; a matching version string alone does not identify an archive.
+**Current acceptance target: 0.3.0-alpha.36.** Signed alpha.35 is deployed on developer NC34. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) before testing; a matching version string alone does not identify an archive.
 
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 
@@ -62,11 +62,11 @@ After each case, capture the visible before/after state and note the selected bo
 
 ### H03-02 — Lists, filters and metadata extraction
 
-**Setup:** At least three indexed test books, including one filename/path with a useful title, author, year or series hint.
+**Setup:** At least five indexed disposable books using different filename/folder conventions, including one title/author/year, one series number, a filename whose apparent author is actually part of its title, and an existing metadata value that would be replaced.
 
-**Steps:** Create a private list from **Lists**, select books in the catalogue and add them to it, reorder and remove one, and save a book note. Save a catalogue filter as a collection and confirm it appears separately from lists. In **Extract metadata**, select a root/rule, inspect the live selected-record preview, save a rule, review suggestions and apply one safe field; use Undo if available.
+**Steps:** Create a private list from **Lists**, select books in the catalogue and add them to it, reorder and remove one, and save a book note. Save a catalogue filter as a collection and confirm it appears separately from lists. In **Extract metadata**, load the sample, assign different patterns to two files using their row pickers, and check their proposed fields. Use **Assign to matching files** with a third pattern; verify only complete matches are shown and empty fields are selected. Switch **Show files** back to All, leave an incorrect author and every unwanted replacement unchecked, then review and apply selected fields from at least two differently patterned files in one approval. Use Undo.
 
-**Expected:** Lists contain chosen books in the chosen order; saved collections remain filters rather than list membership. Preview distinguishes source and proposed values. Apply changes only accepted catalogue metadata, and Undo restores the approved snapshot when no later edit intervened.
+**Expected:** Lists contain chosen books in the chosen order; saved collections remain filters rather than list membership. Each file retains its chosen pattern while the review is open. A wrong or incomplete match never becomes an automatic write. The review lists exact Before/After values for both naming conventions. Apply changes only accepted catalogue metadata, and Undo restores the approved snapshot when no later edit intervened. Source files remain unchanged.
 
 For a periodical fixture, open its publication link and inspect **Publication contents** and issue/date coverage; distinguish it from a linked Series.
 
@@ -295,7 +295,7 @@ Deletion requires Nextcloud transactional file locking. The storage guard preser
 5. **Review changes:** use author/series conflicts, language cleanup, publisher/subject grouping and metadata import. Verify current and proposed values and affected-book scope before Apply. Saved source values remain inspectable. Genre cleanup starts collapsed; Review genre suggestions opens it. Ignore means ignore future suggestions, not keep a hidden pending form.
 6. **Import recovery:** paste malformed JSON in settings and Preview. The same navigation/content frame stays visible, the message explains the problem, and the input remains editable. With a valid fixture export, inspect current/proposed values before applying. Source files must stay unchanged.
 7. **First shelf and settings:** with an empty account, follow Add a shelf → Choose folder → Save shelf → Scan this shelf → Browse. Shelves/scanning precede duplicate settings and scheduling. Duplicate suggestions require Save on both the duplicates page and settings; an unsaved choice survives background progress polling.
-8. **Extract metadata:** choose a shelf/folder, preview suggested fields, then review and apply the selected scope. Advanced rule editors stay collapsed initially. Loading/error/retry states are distinct from an empty sample. Whole-folder analysis remains an explicit separate operation. Inspect partial results and stale-review protection.
+8. **Extract metadata:** choose a shelf/folder, use row pickers for mixed conventions, preview suggested fields, then review and apply the selected scope. Configure patterns stays collapsed initially. Bulk assignment shows only complete matches and selects empty fields without silently replacing existing values. Loading/error/retry states are distinct from an empty sample. Whole-folder analysis remains an explicit separate operation. Inspect partial results and stale-review protection.
 9. **Consistency and accessibility:** compare Home, Shelves, Authors, Series, Genres, Lists, Details, review, settings and maintenance pages. Titles lead, use the shared scale, and long names wrap. Check 320/390 px, both themes, 200% zoom, keyboard focus, expanded menus and sticky Save/Discard. Tooltips work on focus/tap and Escape and identify their field. Touch controls remain comfortable. Check removal dialogs initially focus Cancel and return focus on cancellation.
 
 Automated browser coverage is in `tests/gui/details/ui-consistency.spec.ts` plus the existing editor, list, directory, inference and settings journeys. Automation is not a substitute for NVDA, VoiceOver or Orca acceptance.

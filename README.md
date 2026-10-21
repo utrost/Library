@@ -6,7 +6,7 @@ Library is an open-source Nextcloud app ([AGPL-3.0-or-later](LICENSE)) with a se
 
 ![Library catalogue with English Project Gutenberg books](docs/images/appstore-catalogue.png)
 
-Current candidate: `0.3.0-alpha.35`. **Pre-release:** 0.3 is the planned first App Store release. The declared compatibility range is **Nextcloud 33–35**; final exact-package compatibility checks and human acceptance remain release gates. Earlier signed candidates have their own verification records. See [release status](RELEASE.md), the [current verification record](docs/compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) and the [release checklist](docs/app-store-readiness.md).
+Current candidate: `0.3.0-alpha.36`. **Pre-release:** 0.3 is the planned first App Store release. The declared compatibility range is **Nextcloud 33–35**; final exact-package compatibility checks and human acceptance remain release gates. Earlier signed candidates have their own verification records. See [release status](RELEASE.md), the [current verification record](docs/compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) and the [release checklist](docs/app-store-readiness.md).
 
 ## What it does
 
@@ -16,7 +16,7 @@ Current candidate: `0.3.0-alpha.35`. **Pre-release:** 0.3 is the planned first A
 - use typeahead for authors, publishers, series, genres, languages, subjects and other catalogue facets;
 - maintain private reading lists with ordered books and notes;
 - browse authors, series and genres with sorting and linked book previews; edit author profiles and review reassignment, merges and imported relationship changes;
-- infer metadata from paths and filenames with preview, per-book review, Apply and Undo;
+- infer metadata from paths and filenames with a pattern per file, bulk matching, one reviewed Apply and Undo;
 - schedule scans, review optional potential-duplicate suggestions and reopen saved filter collections;
 - open books in a new tab through the installed Nextcloud viewer, show them in Files or use **Download**;
 - edit book details with a single Save/Discard workflow, preserve corrected fields during scans, and manage favorites, ratings, reading status and file comments;

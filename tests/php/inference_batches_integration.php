@@ -84,6 +84,27 @@ rejected(fn()=>$batches->mutate($user,$p['id'],false),DomainException::class);
 ensure($batches->snapshot($user,$id)===$firstBefore,'First item rolled back');
 ensure($indexSnapshot()===$indexBefore,'Derived indexes rolled back');
 ensure($batches->get($user,$p['id'])['status']==='prepared','Batch status rolled back');
+// Two different naming conventions share one reviewed, atomic Apply and Undo.
+$third=$folder->get('Science fiction/Orchard Notes')->newFile('Title by Ada Quill.epub',$file->getContent());
+$scanner->scan($user,(int)$state['rootId']);
+$q=$db->getQueryBuilder();
+$id3=(int)$q->select('i.id')->from('library_items','i')->innerJoin('i','library_files','f',$q->expr()->eq('i.library_file_id','f.id'))
+    ->where($q->expr()->eq('f.file_id',$q->createNamedParameter($third->getId())))->andWhere($q->expr()->eq('i.user_id',$q->createNamedParameter($user)))->executeQuery()->fetchOne();
+ensure($id3>$id2,'Third mixed-pattern fixture indexed');
+$mixed=json_encode(['mode'=>'mixed','rootId'=>(int)$state['rootId'],'folder'=>'',
+    'definitions'=>['numbered'=>['mode'=>'pattern','pattern'=>'%folders%/%series%/%seriesNumber%_%title%.%extension%'],
+        'by'=>['mode'=>'pattern','pattern'=>'%folders%/%title% by %author%.%extension%']],
+    'assignments'=>[(string)$id=>'numbered',(string)$id3=>'by']],JSON_THROW_ON_ERROR);
+$mixedBefore=[$id=>$batches->snapshot($user,$id),$id3=>$batches->snapshot($user,$id3)];
+rejected(fn()=>$batches->prepare($user,[$proposal($id,['seriesNumber'=>'99']),$proposal($id3,['title'=>'Title'])],$mixed),DomainException::class);
+$wrongScope=json_decode($mixed,true);$wrongScope['rootId']++;
+rejected(fn()=>$batches->prepare($user,[$proposal($id,['seriesNumber'=>'01'])],json_encode($wrongScope)),DomainException::class);
+$plan=$batches->prepare($user,[$proposal($id,['seriesNumber'=>'01']),$proposal($id3,['title'=>'Title'])],$mixed);
+ensure(count($plan['entries'])===2,'Two different file patterns reviewed together');
+$batches->mutate($user,$plan['id'],false);
+ensure($batches->snapshot($user,$id)['state']['series_number']==='01' && $batches->snapshot($user,$id3)['state']['title']==='Title','Mixed patterns applied atomically');
+$batches->mutate($user,$plan['id'],true);
+ensure($batches->snapshot($user,$id)===$mixedBefore[$id] && $batches->snapshot($user,$id3)===$mixedBefore[$id3],'Mixed pattern Undo restores both files');
 // Moving the file prevents both application and history disclosure of its old path.
 $p = $batches->prepare($user,[$proposal($id2,['series'=>'Moved file'])],'moved');
 $second->move($folder->getPath().'/Moved.epub');
@@ -118,4 +139,4 @@ try {
     ensure($items->countCatalogue('not-the-owner',['creator'=>$manyAuthor])===0,'Large author set ownership');
 } finally { $db->rollBack(); }
 ensure(hash('sha256',$file->getContent())===$state['sha256'],'Original fixture bytes unchanged');
-echo json_encode(['integration'=>true,'exactUndo'=>true,'ownership'=>true,'stalePreview'=>true,'laterEditUndoBlocked'=>true,'atomicRollback'=>true,'derivedIndexRollback'=>true,'rescanProtection'=>true,'movedFileBlocked'=>true,'expiry'=>true,'idempotentRetries'=>true,'sourceUnchanged'=>true,'orderedAuthors'=>true,'individualAuthorFilter'=>true,'legacyCreatorFilter'=>true,'authorSuggestions'=>true,'authorUndo'=>true,'authorReset'=>true,'authorImport'=>true,'authorRescanProtection'=>true,'authorQueryMs'=>$authorQueryMs,'largeAuthorCandidateSet'=>true]);
+echo json_encode(['integration'=>true,'mixedPatterns'=>true,'exactUndo'=>true,'ownership'=>true,'stalePreview'=>true,'laterEditUndoBlocked'=>true,'atomicRollback'=>true,'derivedIndexRollback'=>true,'rescanProtection'=>true,'movedFileBlocked'=>true,'expiry'=>true,'idempotentRetries'=>true,'sourceUnchanged'=>true,'orderedAuthors'=>true,'individualAuthorFilter'=>true,'legacyCreatorFilter'=>true,'authorSuggestions'=>true,'authorUndo'=>true,'authorReset'=>true,'authorImport'=>true,'authorRescanProtection'=>true,'authorQueryMs'=>$authorQueryMs,'largeAuthorCandidateSet'=>true]);
