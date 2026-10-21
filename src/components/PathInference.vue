@@ -5,7 +5,6 @@ import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { inferPath } from '../path-inference.js'
 import { inferRule, newRule, pathParts } from '../path-inference-rule.js'
-import InferenceApply from './InferenceApply.vue'
 import InferenceAnalysis from './InferenceAnalysis.vue'
 import InferencePart from './InferencePart.vue'
 import InferencePatterns from './InferencePatterns.vue'
@@ -14,13 +13,15 @@ import InferenceRuleTrace from './InferenceRuleTrace.vue'
 import { inferFolderRules } from '../path-inference-folders.js'
 import LabelHelp from './LabelHelp.vue'
 import InferenceSuggestions from './InferenceSuggestions.vue'
+import InferenceWorklist from './InferenceWorklist.vue'
 defineProps({ requestToken: { type: String, default: '' } })
 const roots = ref([]), rootId = ref(''), folder = ref(''), recursive = ref(true)
 const items = ref([]), page = ref(1), hasNext = ref(false), busy = ref(false), error = ref('')
 const scope = ref(''), example = ref(''), loadedRootId = ref(''), loadedFolder = ref(''), folderRules = ref([])
 const rule = ref(null), editorMode = ref('guided'), ruleGeneration = ref(0)
-const pattern = ref('%folders%/%title%.%extension%'), resultFilter = ref('all')
+const pattern = ref('%folders%/%title%.%extension%')
 const editorOpen = ref(false)
+const patternsVersion = ref(0)
 let generation = 0
 
 const fields = computed(() => [
@@ -36,11 +37,9 @@ const statusLabels = computed(() => ({
 }))
 const results = computed(() => items.value.map((item) => ({ ...item, ...(editorMode.value === 'folders' ? inferFolderRules(item.path, loadedFolder.value, folderRules.value, item.current) : editorMode.value === 'guided' ? inferRule(item.path, rule.value, item.current) : inferPath(item.path, pattern.value, item.current)) })))
 const selectedPreview = computed(() => results.value.find((item) => item.path === example.value))
-const shown = computed(() => results.value.filter((item) => resultFilter.value === 'all' || item.status === resultFilter.value))
 const sampleFolders = computed(() => [...new Set(items.value.filter((item) => item.path.includes('/')).map((item) => item.path.split('/')[0]))])
 function enterFolder(child) { folder.value = [folder.value.replace(/\/$/, ''), child].filter(Boolean).join('/'); load() }
 function parentFolder() { folder.value = folder.value.replace(/\/$/, '').split('/').slice(0, -1).join('/'); load() }
-const counts = computed(() => results.value.reduce((acc, item) => { acc[item.status] = (acc[item.status] || 0) + 1; return acc }, {}))
 const scopePending = computed(() => rootId.value !== loadedRootId.value || folder.value.replace(/^\/+|\/+$/g, '') !== loadedFolder.value)
 const exampleParts = computed(() => pathParts(example.value))
 function selectExample() { if (!rule.value && example.value) rule.value = newRule(example.value) }
@@ -93,7 +92,8 @@ onMounted(() => load())
 
     </section>
     <section v-if="items.length" class="library-inference-step">
-      <h2>{{ t('library', '2. Preview suggested fields') }}</h2>
+      <details class="library-inference-configuration">
+      <summary><h2>{{ t('library', '2. Configure patterns') }}</h2></summary>
       <div class="library-inference-editor">
       <div class="library-inference-controls">
       <div class="library-inference-scope">
@@ -106,7 +106,7 @@ onMounted(() => load())
       <label>{{ t('library', 'Rule editor') }}<select v-model="editorMode"><option value="guided">{{ t('library', 'Guided assignments') }}</option><option value="pattern">{{ t('library', 'Advanced pattern') }}</option><option value="folders">{{ t('library', 'Folder rules') }}</option></select></label>
       <InferenceFolderRules v-if="editorMode === 'folders'" :root-id="loadedRootId" :folder="loadedFolder" :request-token="requestToken" :disabled="busy" :scope-pending="scopePending" @loaded="rulesLoaded" />
       <template v-if="editorMode === 'guided' && rule">
-        <InferencePatterns mode="guided" :rule="rule" :request-token="requestToken" @choose-rule="useRule" />
+        <InferencePatterns mode="guided" :rule="rule" :request-token="requestToken" @choose-rule="useRule" @catalog-changed="patternsVersion++" />
 
         <button class="button secondary" @click="resetAssignments">{{ t('library', 'Reset assignments from this example') }}</button>
         <p v-if="exampleParts.length !== rule.parts.length" role="status">{{ t('library', 'This example has a different folder depth and does not match the rule.') }}</p>
@@ -120,7 +120,7 @@ onMounted(() => load())
       </template>
       <details v-if="editorMode === 'pattern'" class="library-inference-pattern" open>
         <summary>{{ t('library', 'Pattern and presets') }}</summary>
-        <InferencePatterns :pattern="pattern" :request-token="requestToken" @choose="usePattern">
+        <InferencePatterns :pattern="pattern" :request-token="requestToken" @choose="usePattern" @catalog-changed="patternsVersion++">
           <label><LabelHelp :text="t('library', 'Placeholders capture text. Separators must match exactly. %folder% ignores one folder; %folders%/ ignores any folder depth; %ignore% ignores one filename part.') + '\n\n' + fields.map((field) => `%${field[0]}%`).join(' · ')">{{ t('library', 'Advanced pattern') }}</LabelHelp><input v-model="pattern" maxlength="1000" spellcheck="false" dir="ltr"></label>
         </InferencePatterns>
       </details>
@@ -150,20 +150,12 @@ onMounted(() => load())
         <details v-if="editorMode === 'pattern'"><summary>{{ t('library', 'Active pattern') }}</summary><code class="library-inference-path" dir="ltr">{{ pattern }}</code></details>
       </aside>
       </div>
+      </details>
     </section>
     <section v-if="items.length" class="library-inference-step">
-      <h2>{{ t('library', '3. Review and apply') }}</h2>
-
-      <label><LabelHelp :text="t('library', 'Fill empty fields first. Existing values are flagged for review. No changes are applied in this preview.')">{{ t('library', 'Show results') }}</LabelHelp><select v-model="resultFilter"><option value="all">{{ t('library', 'All') }} ({{ results.length }})</option><option v-for="(label, status) in statusLabels" :key="status" :value="status">{{ label }} ({{ counts[status] || 0 }})</option></select></label>
-      <p v-if="!shown.length && !busy">{{ t('library', 'No sample results here. Try another folder, page or result filter.') }}</p>
-      <details v-for="item in shown" :key="item.id" class="library-inference-result">
-        <summary><span class="library-inference-path">{{ item.path }}</span><strong>{{ statusLabels[item.status] }}</strong></summary>
-        <InferenceRuleTrace v-if="editorMode === 'folders'" :result="item" :labels="labels" :statuses="statusLabels" />
-        <div v-if="item.changes.length" class="library-inference-table-scroll"><table><thead><tr><th>{{ t('library', 'Field') }}</th><th>{{ t('library', 'Current value') }}</th><th>{{ t('library', 'Proposed value') }}</th><th>{{ t('library', 'Source text') }}</th></tr></thead><tbody><tr v-for="change in item.changes" :key="change.field"><th>{{ labels[change.field] }}</th><td>{{ change.before || '—' }}</td><td>{{ change.value }}<small>{{ statusLabels[change.status] }}</small></td><td>{{ change.raw }}</td></tr></tbody></table></div>
-        <p v-else-if="!item.conflicts?.length">{{ t('library', 'Check separators, folder depth and field assignments. A unique interpretation is required.') }}</p>
-      </details>
+      <h2>{{ t('library', '3. Assign patterns and review files') }}</h2>
+      <InferenceWorklist :items="items" :labels="labels" :statuses="statusLabels" :root-id="loadedRootId" :folder="loadedFolder" :current="editorMode === 'guided' ? {mode:'guided',rule} : editorMode === 'pattern' ? {mode:'pattern',pattern} : null" :request-token="requestToken" :disabled="busy || scopePending" :patterns-version="patternsVersion" @changed="load(page)" />
       <nav class="library-inference-presets" :aria-label="t('library', 'Sample pages')"><button class="button secondary" :disabled="busy || page === 1" @click="load(page - 1)">{{ t('library', 'Previous page') }}</button><span>{{ page }}</span><button class="button secondary" :disabled="busy || !hasNext" @click="load(page + 1)">{{ t('library', 'Next page') }}</button></nav>
-    <InferenceApply class="library-inference-step" :results="results" :labels="labels" :request-token="requestToken" :disabled="busy || scopePending" :context="JSON.stringify({ mode: editorMode, pattern: editorMode === 'pattern' ? pattern : undefined, rule: editorMode === 'guided' ? rule : undefined, folderRules: editorMode === 'folders' ? folderRules : undefined, rootId: loadedRootId, folder: loadedFolder })" @changed="load(page)" />
     </section>
     <InferenceAnalysis v-if="items.length" :definition="{ mode:editorMode, pattern, rule, rootId:loadedRootId, folder:loadedFolder, recursive }" :labels="labels" :statuses="statusLabels" :request-token="requestToken" :disabled="busy || scopePending || !loadedRootId" />
   </section>
@@ -186,6 +178,8 @@ onMounted(() => load())
 .library-inference-editor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 300px); gap: 20px; align-items: start; }
 .library-inference-controls { min-width: 0; }
 .library-inference-customize > summary { cursor: pointer; font-weight: bold; padding-block: 12px; }
+.library-inference-configuration > summary { cursor:pointer; }
+.library-inference-configuration > summary h2 { display:inline; margin:0; }
 .library-inference-live { position: sticky; top: 12px; max-height: calc(100dvh - 100px); overflow: auto; padding: 16px; background: var(--color-main-background); border: 1px solid var(--color-border); border-radius: 12px; min-width: 0; }
 .library-inference-live h3 { font-size: 18px; margin-bottom: 8px; }
 .library-inference-live-path { overflow-wrap: anywhere; max-height: 5em; overflow: auto; font-size: 12px; color: var(--color-text-maxcontrast); }

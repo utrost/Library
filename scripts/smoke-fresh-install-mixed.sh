@@ -239,6 +239,9 @@ printf 'source_tree_sha256_after_gui=%s\n' "$SOURCE_HASH_AFTER_GUI"
 [[ "$SOURCE_HASH_BEFORE" == "$SOURCE_HASH_AFTER_GUI" ]] || { echo 'source_tree_unchanged_after_gui=false' >&2; exit 1; }
 echo 'source_tree_unchanged_after_gui=true'
 
+# Use a separate, self-cleaning shelf to exercise mixed rule review, Apply and Undo.
+NC_CONTAINER="$CONTAINER" NC_URL="$BASE_URL" node scripts/smoke-inference-apply.mjs | tee -a "$RUN_LOG"
+
 docker exec -u www-data "$CONTAINER" php -r '
 require "/var/www/html/config/config.php";
 $pdo = new PDO("sqlite:" . $CONFIG["datadirectory"] . "/owncloud.db"); $p = $CONFIG["dbtableprefix"] ?? "oc_";

@@ -44,6 +44,7 @@ try {
       // No fixture files or catalogue metadata are created. Only the sample response is replaced.
       await page.route('**/apps/library/api/inference/sample?*', route => route.fulfill({ json: { ...original, page: 1, hasNext: false, items: paths.map((path, index) => ({ ...original.items[index % original.items.length], id: index + 1, path, current: {} })) } }))
       await page.reload(); await expect(panel).toHaveAttribute('aria-busy', 'false')
+      await panel.locator('.library-inference-configuration > summary').click()
       const suggestions = panel.getByRole('combobox', { name: 'Suggest fields', exact: true })
       const example = panel.getByRole('combobox', { name: 'Example path', exact: true })
       const live = panel.getByRole('complementary', { name: 'Live preview', exact: true })
@@ -71,6 +72,7 @@ try {
       await expect(live.locator('dd strong')).toHaveText(['Mistborn', '04', 'The Alloy of Law'])
       await page.setViewportSize({ width: 390, height: 844 })
       await page.reload(); await expect(panel).toHaveAttribute('aria-busy', 'false')
+      await panel.locator('.library-inference-configuration > summary').click()
       await example.selectOption(paths[3]); await suggestions.selectOption('detected')
       await panel.locator('.library-inference-suggestions').scrollIntoViewIfNeeded()
       assert.equal(await panel.evaluate(el => el.scrollWidth > el.clientWidth + 1), false)

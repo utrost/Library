@@ -41,6 +41,8 @@ try {
   await page.getByRole('combobox', { name: 'Shelf', exact: true }).selectOption(String(example.rootId))
   await page.getByRole('button', { name: 'Load sample', exact: true }).click()
   await expect(page.locator('.library-inference')).toHaveAttribute('aria-busy', 'false')
+  await expect(page.locator('.library-inference-worklist-row').first()).toBeVisible()
+  await page.locator('.library-inference-configuration > summary').click()
   await page.getByRole('combobox', { name: 'Suggest fields', exact: true }).selectOption('detected')
   await expect(page.getByRole('complementary', { name: 'Live preview', exact: true })).toBeVisible()
   await page.locator('.library-inference-step').nth(1).evaluate(el => { el.style.scrollMarginTop = '70px'; el.scrollIntoView({ block: 'start' }) })

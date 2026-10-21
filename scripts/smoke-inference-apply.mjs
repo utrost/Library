@@ -24,11 +24,11 @@ try {
   await context.route('**/*',route=>route.continue({headers:{...route.request().headers(),...(new URL(route.request().url()).origin===new URL(upstream).origin?{authorization}:{})}}))
   const page=await context.newPage(),errors=[];page.setDefaultTimeout(20000)
   page.on('pageerror',e=>errors.push(e.message))
-  const panel=page.locator('.library-inference'),approval=panel.locator('.library-inference-apply')
+  const panel=page.locator('.library-inference'),worklist=panel.locator('.library-inference-worklist'),approval=worklist.locator('.library-inference-apply')
   const ready=async()=>{await expect(panel).toHaveAttribute('aria-busy','false',{timeout:30000});await expect(approval).toHaveAttribute('aria-busy','false')}
-  const open=async()=>{await page.goto(`${upstream}/apps/library/?infer=1`);await ready();await panel.getByRole('combobox',{name:'Shelf',exact:true}).selectOption(String(state.rootId));await ready();await panel.getByRole('combobox',{name:'Rule editor',exact:true}).selectOption('pattern');await panel.getByRole('textbox',{name:'Advanced pattern',exact:true}).fill('%genre%/%series%/%seriesNumber%_%title%.%extension%')}
+  const open=async()=>{await page.goto(`${upstream}/apps/library/?infer=1`);await ready();await panel.getByRole('combobox',{name:'Shelf',exact:true}).selectOption(String(state.rootId));await ready();await panel.locator('.library-inference-configuration > summary').click();await panel.locator('.library-inference-customize > summary').click();await panel.getByRole('combobox',{name:'Rule editor',exact:true}).selectOption('pattern');await panel.getByRole('textbox',{name:'Advanced pattern',exact:true}).fill('%genre%/%series%/%seriesNumber%_%title%.%extension%');await worklist.locator('.library-inference-worklist-row select').first().selectOption('current-draft')}
   const review=async()=>{
-   await approval.getByRole('button',{name:'Select empty fields',exact:true}).click()
+   for(const label of ['Genre','Series','Part in series']) await worklist.locator('.library-inference-worklist-row').first().getByRole('checkbox',{name:new RegExp(`^${label}:`)}).check()
    await expect(approval.getByRole('button',{name:'Review selected changes (3)',exact:true})).toBeEnabled()
    const response=page.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/inference/batches')&&r.request().method()==='POST')
    await approval.getByRole('button',{name:'Review selected changes (3)',exact:true}).click()
@@ -39,11 +39,10 @@ try {
   await open()
   const noCsrf=await page.evaluate(async()=>{const r=await fetch('/apps/library/api/inference/batches',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify({proposals:[]})});return r.status})
   assert.ok([403,412].includes(noCsrf),'Mutation requires CSRF')
-  await expect(approval.locator('input[type=checkbox]')).toHaveCount(4)
+  await expect(worklist.locator('.library-inference-worklist-row input[type=checkbox]')).toHaveCount(4)
   let plan=await review()
   await expect(approval.getByRole('button',{name:'Review selected changes (3)',exact:true})).toBeDisabled()
-  await approval.locator('fieldset details > summary').first().click()
-  const replaceTitle=approval.locator(`input[value="${state.itemId}:title"]`)
+  const replaceTitle=worklist.locator('.library-inference-worklist-row').first().getByRole('checkbox',{name:/^Title:/})
   await replaceTitle.check();await expect(approval.locator('.library-inference-confirm')).toHaveCount(0)
   await replaceTitle.uncheck();plan=await review()
   const confirmed=approval.getByRole('region',{name:'Confirmed change review',exact:true})
