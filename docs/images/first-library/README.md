@@ -1,6 +1,6 @@
-# Public screenshots — alpha.35
+# Public screenshots — alpha.38
 
-Captured on 2026-10-20 using the signed screenshot candidate of Library **0.3.0-alpha.35** archive on an isolated **Nextcloud 34.0.4** instance, Chromium, English UI, light theme and a **1440 × 1000** viewport. Settings images crop the relevant section; browsing images show the viewport. No image retouching was applied. The extraction capture uses a scroll offset to keep the preview below the Nextcloud header.
+Captured on 2026-10-21 using the signed screenshot candidate of Library **0.3.0-alpha.38** archive on an isolated **Nextcloud 34.0.4** instance, Chromium, English UI, light theme and a **1440 × 1000** viewport. Settings images crop the relevant section; browsing images show the viewport. No image retouching was applied. The extraction capture uses a scroll offset to keep the preview below the Nextcloud header.
 
 The source is the 40-book English Gutenberg EPUB fixture, copied into `/Books/Gutenberg English` for a disposable account. Book IDs and metadata titles are listed in [Gutenberg example books](../../gutenberg-example-books.md). The first scan added all 40 books with zero metadata errors. The daily schedule is demonstration data. The extraction screenshot additionally uses a synthetic EPUB named `Pride and Prejudice - Jane Austen (1813).epub`; it is a filename tutorial, not a complete copy of that book. The final disposable catalogue therefore contains 41 records.
 
@@ -18,8 +18,9 @@ The source is the 40-book English Gutenberg EPUB fixture, copied into `/Books/Gu
 | [appstore-details.png](../appstore-details.png) | Full Book details editor |
 | [appstore-authors.png](../appstore-authors.png) | Author directory and linked book previews |
 | [appstore-inference.png](../appstore-inference.png) | Filename extraction and selected-record preview |
+| [appstore-inference-worklist.png](../appstore-inference-worklist.png) | Per-file pattern assignment and Apply now |
 
-All ten images were visually reviewed. Missing-cover placeholders reflect the fixture. The settings captures also expose narrow Add a shelf fields and an overlapping long Changes found label; these are recorded in the [maintenance audit](../../testing-maintenance-audit-2026-10-20.md#readme-and-screenshot-follow-up) for human follow-up.
+All ten images were visually reviewed. Missing-cover placeholders reflect the fixture. The settings captures also expose narrow Add a shelf fields and an overlapping long Changes found label; these are recorded in the [maintenance audit](../../testing-maintenance-audit-2026-10-21.md#readme-and-screenshot-follow-up) for human follow-up.
 
 ## Recreate the screenshots
 
@@ -29,7 +30,7 @@ From the repository root, provide the signed archive and a local copy of the Gut
 export NC_VERSION=34.0.4
 export LIBRARY_LISTS_PREFIX=library-public-capture
 export LIBRARY_LISTS_WORK_DIR=/tmp/library-public-capture
-export LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.3.0-alpha.35.tar.gz"
+export LIBRARY_TEST_ARCHIVE="$PWD/dist/library-0.3.0-alpha.38.tar.gz"
 GUTENBERG_ARCHIVE=/tmp/library-beta2/gutenberg-en-40.tar.gz
 unset LIBRARY_BOOK_FIXTURE_ARCHIVE LIBRARY_BETA_ARCHIVE
 bash scripts/dev-lists-instance.sh start
@@ -50,4 +51,4 @@ bash scripts/dev-lists-instance.sh stop
 
 Both scripts require the disposable-instance ownership label. The first script requires no existing Library roots, saves the shelf through the UI, queues its scan, invokes the worker, captures the completed result and saves a daily schedule. The second starts with the 40-book catalogue and creates its synthetic extraction fixture after capturing browsing screens. Use a fresh instance when repeating the complete sequence; these are first-use capture tools, not idempotent maintenance commands. If capture fails, stop the disposable instance after inspecting the error.
 
-The scripts do not download the books or run the compatibility suite. Existing release archives and developer-instance data are not changed. The signed archive used here has SHA-256 `1dac042932b39a5d3bfd2fc8c2fd54469965305d01612d82440011c19f6be2ea`. The capture archive is preserved locally as `/tmp/library-alpha35-screenshot-candidate.tar.gz`. The final deployment archive and its provenance are tracked separately in the [alpha.35 verification record](../../compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md); a later build may have a different checksum even when the pictured interface is unchanged.
+The scripts do not download the books or run the compatibility suite. Existing release archives and developer-instance data are not changed. The signed archive used here has SHA-256 `fff87da8366ab6ff9d553cdd73144f0eb2c8a7f383679ca3d9fa0adff06b5b61`. The capture archive is preserved locally as `/tmp/library-alpha38-screenshot-candidate.tar.gz`. The final deployment archive and its provenance are tracked separately in the [alpha.38 verification record](../../compatibility-evidence/2026-10-21-nc34-alpha38/README.md); a later build may have a different checksum even when the pictured interface is unchanged.

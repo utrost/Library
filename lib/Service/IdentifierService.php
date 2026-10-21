@@ -49,18 +49,31 @@ final class IdentifierService {
             }
             $scheme = 'isbn';
         }
-        if (!in_array($scheme, ['isbn', 'issn'], true)) {
+        if (!in_array($scheme, ['isbn', 'issn', 'asin', 'ggkey'], true)) {
             return null;
         }
 
-        $valid = $scheme === 'isbn'
-            ? (self::validateIsbn10($compact) || self::validateIsbn13($compact))
-            : self::validateIssn($compact);
+        if ($scheme === 'asin') {
+            $code = preg_replace('/^ASIN\s*:\s*/iu', '', $displayValue) ?? $displayValue;
+            $normalizedValue = strtoupper($code);
+            $valid = preg_match('/^[A-Z0-9]{10}$/D', $normalizedValue) === 1;
+        } elseif ($scheme === 'ggkey') {
+            $code = preg_replace('/^GGKEY\s*:\s*/iu', '', $displayValue) ?? $displayValue;
+            // Google Books volume IDs are case-sensitive. Hex encoding keeps
+            // exact comparisons correct on case-insensitive database collations.
+            $normalizedValue = bin2hex($code);
+            $valid = preg_match('/^[A-Za-z0-9_-]{1,64}$/D', $code) === 1;
+        } else {
+            $normalizedValue = $compact;
+            $valid = $scheme === 'isbn'
+                ? (self::validateIsbn10($compact) || self::validateIsbn13($compact))
+                : self::validateIssn($compact);
+        }
 
         return [
             'scheme' => $scheme,
             'displayValue' => $displayValue,
-            'normalizedValue' => $compact,
+            'normalizedValue' => $normalizedValue,
             'valid' => $valid,
             'source' => trim($source) !== '' ? trim($source) : 'user',
             'userEdited' => $userEdited,
@@ -68,6 +81,10 @@ final class IdentifierService {
     }
 
     public static function normalizeSearchQuery(string $query): ?array {
+        if (preg_match('/^(ASIN|GGKEY)\s*:\s*(\S+)$/iu', trim($query), $parts) === 1) {
+            $row = self::normalizeIdentifier(strtolower($parts[1]), $parts[2]);
+            return $row !== null && $row['valid'] ? ['scheme' => $row['scheme'], 'normalizedValue' => $row['normalizedValue']] : null;
+        }
         $compact = strtoupper((string)preg_replace('/[\s-]+/u', '', trim($query)));
         if ($compact === '') {
             return null;
@@ -77,6 +94,9 @@ final class IdentifierService {
         }
         if (preg_match('/^\d{7}[\dX]$/', $compact) === 1) {
             return ['scheme' => 'issn', 'normalizedValue' => $compact];
+        }
+        if (preg_match('/^[A-Z0-9]{10}$/D', $compact) === 1 && preg_match('/\d/', $compact) === 1) {
+            return ['scheme' => 'asin', 'normalizedValue' => $compact];
         }
         return null;
     }

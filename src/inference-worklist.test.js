@@ -27,6 +27,6 @@ describe('mixed pattern worklist', () => {
   })
   it('preserves each chosen definition and only selected files in review context', () => {
     const context = JSON.parse(mixedReviewContext(items, choices, { 1: 'by', 2: 'dash', 3: 'series' }, ['1:title', '3:seriesNumber'], 15, 'books'))
-    expect(context).toEqual({ mode: 'mixed', rootId: 15, folder: 'books', definitions: { by: { mode: 'pattern', pattern: choices[1].pattern }, series: { mode: 'pattern', pattern: choices[3].pattern } }, assignments: { 1: 'by', 3: 'series' } })
+    expect(context).toEqual({ mode: 'mixed', rootId: 15, folder: 'books', definitions: { by: { mode: 'pattern', pattern: choices[1].pattern, replaceUnderscores: false }, series: { mode: 'pattern', pattern: choices[3].pattern, replaceUnderscores: false } }, assignments: { 1: 'by', 3: 'series' } })
   })
 })

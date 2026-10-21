@@ -39,14 +39,14 @@ function split() {
       <InferencePart v-for="(child, index) in node.split.children" :key="index" :node="child" :value="pieces[index] || ''" :fields="fields" :depth="depth + 1" />
     </template>
     <template v-else>
-      <label>{{ t('library', 'Field') }}<select v-model="node.field" :aria-label="`${t('library', 'Field')}: ${value}`"><option value="ignore">{{ t('library', 'Ignore this part') }}</option><option v-for="field in fields" :key="field[0]" :value="field[0]">{{ field[1] }}</option></select></label>
+      <label><LabelHelp :text="t('library', 'Assign this filename or folder piece to a book field. Subject adds one descriptive source value; Genre proposes source genre text for later curated-genre review. Ignore leaves the piece out of metadata.')">{{ t('library', 'Field') }}</LabelHelp><select v-model="node.field" :aria-label="`${t('library', 'Field')}: ${value}`"><option value="ignore">{{ t('library', 'Ignore this part') }}</option><option v-for="field in fields" :key="field[0]" :value="field[0]">{{ field[1] }}</option></select></label>
+      <label v-if="node.field !== 'ignore'" class="library-inference-checkbox"><input v-model="node.underscores" type="checkbox">{{ t('library', 'Replace underscores with spaces') }}</label>
       <button v-if="depth < 6" class="button secondary" @click="split">{{ t('library', 'Split this part') }}</button>
       <details v-if="node.field !== 'ignore'">
         <summary>{{ t('library', 'Transform this value') }}</summary>
         <div class="library-inference-part-options">
           <label>{{ t('library', 'Remove prefix') }}<input v-model="node.prefix" maxlength="100"></label>
           <label>{{ t('library', 'Remove suffix') }}<input v-model="node.suffix" maxlength="100"></label>
-          <label class="library-inference-checkbox"><input v-model="node.underscores" type="checkbox">{{ t('library', 'Replace underscores with spaces') }}</label>
           <label><LabelHelp :text="t('library', 'Affixes must match. Value mapping follows affix removal and underscore replacement.')">{{ t('library', 'Map exact value') }}</LabelHelp><input v-model="node.mapFrom" maxlength="200"></label>
           <label>{{ t('library', 'Replacement value') }}<input v-model="node.mapTo" maxlength="200"></label>
         </div>

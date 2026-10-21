@@ -47,7 +47,12 @@ def test_q_filter_uses_search_gram_candidates_not_broad_lower_like_scan():
     assert "$searchGrams = $this->searchGramsForQuery($query)" in filters
     assert "$this->searchGramCandidateIds($userId, $searchGrams)" in filters
     assert "$qb->expr()->in('i.id', $qb->createNamedParameter($searchGramItemIds" in filters
-    assert "LOWER(i.description)" not in filters
+    # The dedicated title/description scope uses a gram-bounded text check.
+    # The broad catalogue search still must not scan description with LIKE.
+    assert "if (($filters['searchScope'] ?? '') === 'title_description')" in filters
+    assert "$this->searchGramCandidateSubquery($qb, $userId, $grams)" in filters
+    broad = filters.split("$exactTitleItemIds =", 1)[1]
+    assert "LOWER(i.description)" not in broad
     assert "LOWER(f.cached_path)" not in filters
     assert "%' . $this->escapeLikeParameter($query) . '%" not in filters
     assert "IdentifierService::normalizeSearchQuery($query)" in filters

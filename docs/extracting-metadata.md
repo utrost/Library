@@ -2,14 +2,14 @@
 
 Library can preview metadata suggested by your folder and filename conventions. Open **Extract metadata** in the left menu.
 
-**Current scope (alpha.36):** load up to 40 indexed files, assign one pattern to each file or one pattern to all complete matches, choose proposed fields, then review and apply the selections in one batch. You can still teach and save rules, assign folder rules and analyse a whole indexed folder in the background. Source documents are never renamed, moved or rewritten; no OPF/JSON sidecars or scans are started. Saving a rule or pattern does not apply it to books.
+**0.3 development workflow:** load up to 40 indexed files per page, choose a pattern per file or for all complete matches, then review each file or a selected batch. You can still teach and save rules, assign folder rules and analyse a whole indexed folder in the background. Source documents are never renamed, moved or rewritten; no OPF/JSON sidecars or scans are started. Saving a rule or pattern does not apply it to books. Check the installed version before following this workflow on a developer instance.
 
 ## Quick start
 
-1. Choose a **Shelf**, optionally enter a folder within it, and choose whether to include subfolders. **Load sample** shows up to 40 already-indexed, accessible files per page.
+1. Choose a **Shelf**, then choose a subfolder or remain at the shelf root. **Parent folder** moves up one level. Choose whether to include subfolders and sort by name, oldest/newest file modification date, or file type. Sorting happens before paging. **Load sample** shows up to 40 already-indexed, accessible files per page. File dates are from Nextcloud Files, not Library's last metadata edit.
 2. In **Assign patterns and review files**, inspect the suggested pattern for each file. A suggested pattern means that the path structure parses; check the proposed values before selecting them. Use the pattern picker in a row to change just that file.
 3. To handle a group, choose **Pattern for matching files**, then **Assign to matching files**. Only files whose entire relative path matches and whose captured values validate receive that pattern. Files whose patterns you already chose individually keep those choices. The table switches to **Matching files**; change **Show files** to see everything again. Empty fields from the matching files are selected; replacements remain unchecked.
-4. Tick or untick fields in the rows. Files may now use different patterns in the same review. **Review selected changes** shows the confirmed Before/After values for every selected file. Choose **Apply reviewed changes** only after checking them.
+4. Tick or untick fields in the rows. **Apply now** on a row sends only that file's checked fields through the server review. Empty fields apply immediately after that review; replacements show Before/After and require **Apply reviewed changes**. For several files, select fields and use the contextual **Review selected changes** control. Other row selections remain available.
 5. Open **Recent metadata batches** after reloading to inspect a saved review or undo an applied batch.
 
 Open **Configure patterns** to select an **Example path**, inspect its live preview, edit a guided rule or advanced pattern, and save definitions. That section is collapsed during routine file-by-file review. The current unsaved draft is available in the file and bulk pickers while the page remains open.
@@ -64,7 +64,7 @@ Approved names are stored individually. Catalogue suggestions, author chips in t
 
 ## Advanced patterns
 
-Choose any entry in **Pattern** to immediately load it into the preview. Supplied and personal patterns appear together. Editing the text changes the preview immediately; the selector shows **Custom pattern** when no stored definition matches. Guided transformations are separate and are not encoded in advanced pattern text.
+Choose any entry in **Pattern** to immediately load it into the preview. Supplied and personal patterns appear together. Editing the text changes the preview immediately; the selector shows an unsaved draft when no stored definition matches. Choose **New saved pattern…** in the same selector to name and save the current definition. **Replace underscores with spaces in extracted values** affects captures only and is saved with the pattern; literal separators in the pattern still match exactly. Guided transformations remain separate.
 
 Patterns match the **entire path relative to the selected scope**, with no leading slash. Separators, spaces, capitalization and fixed folder names must match literally. No regular expressions are executed.
 
@@ -79,6 +79,7 @@ Patterns match the **entire path relative to the selected scope**, with no leadi
 | `%genre%` | Separate genre label, such as Science fiction |
 | `%year%` | Four-digit publication year |
 | `%publisher%` | Publisher |
+| `%isbn%` | ISBN-10 or ISBN-13, with checksum validation; stored as an identifier after review |
 | `%folder%/` | Ignore exactly one folder |
 | `%folders%/` | Ignore zero or more folders |
 | `%ignore%` | Capture a nonempty piece without assigning metadata |
@@ -94,6 +95,8 @@ Repeated metadata placeholders must capture the same value; otherwise the advanc
 | `Adrian Tchaikovsky/Children of Time - Adrian Tchaikovsky (2016).epub` | `%folder%/%title% - %author% (%year%).%extension%` |
 | `Arthur C. Clarke/Space Odyssey/01. 2001 A Space Odyssey - Arthur C. Clarke (1968).epub` | `%folder%/%series%/%seriesNumber%. %title% - %author% (%year%).%extension%` |
 | `Orchard Notes/2.5_Autumn Appendix_Ada Quill.epub` | `%series%/%seriesNumber%_%title%_%author%.%extension%` |
+| `Fiction/The Left Hand of Darkness - Ursula K. Le Guin.epub` | `%folders%/%title% - %author%.%extension%` (supplied **Title - Author** preset) |
+| `An Example Book_ A Guide -- Jane Example -- 1_ Auflage, Hamburg, 2022 -- Example Press -- 9781234567897 -- archive-id -- source.epub` | `%title%_ %subtitle% -- %author% -- %ignore%, %ignore%, %year% -- %publisher% -- %isbn% -- %ignore% -- %ignore%.%extension%` |
 
 For the path:
 
@@ -140,13 +143,13 @@ Assignments are private and limited to 100 per account, separately from the 100-
 
 ## Saving and deleting rules and patterns
 
-Enter **Pattern name**, then **Save current pattern as new**. It saves the current advanced pattern to your Nextcloud account, available on other devices after sign-in. Names must be distinct. You can save up to 100 personal rules and patterns combined, each with a name up to 120 characters.
+Choose **New saved pattern…** in **Pattern**, enter a name and choose **Save new pattern**. It saves the current advanced pattern and underscore option to your Nextcloud account, available on other devices after sign-in. Names must be distinct. You can save up to 100 personal rules and patterns combined, each with a name up to 120 characters.
 
 Loading and editing an existing pattern does not overwrite it. Save under another name to keep the revision, then delete the obsolete version if needed.
 
 Select a pattern, choose **Delete pattern**, and confirm. Personal patterns are removed; deleting a supplied pattern hides it for your account. Other users and your books are unaffected. The active text remains in the preview. Supplied patterns currently have no dedicated restore button; save a copy of the active text before leaving if you want to retain it.
 
-**Guided assignments:** enter **Rule name**, then **Save current rule as new**. This saves every assignment, nested split (separator and occurrence), transformation, author separator, name-formatting option and the combine-authors setting. Select **Saved rule** to restore it immediately and refresh the live preview. Editing creates a draft; save under a new name to keep changes. **Delete rule** requires confirmation and leaves the current draft intact.
+**Guided assignments:** choose **New saved rule…** in **Rule**, enter a name and choose **Save new rule**. This saves every assignment, nested split (separator and occurrence), transformation, author separator, name-formatting option and the combine-authors setting. Select a saved rule to restore it immediately and refresh the live preview. Editing creates a draft; save under a new name to keep changes. **Delete rule** requires confirmation and leaves the current draft intact.
 
 Folder scope and the selected example are never saved or changed when loading a reusable definition. Folder assignments store scope separately, as described above. Choose a suitable example before loading; a different folder depth is flagged as unmatched. Unsaved drafts are discarded on page reload. Saved definitions are private to your account, shared across devices, and appear in the selector for their editor mode.
 

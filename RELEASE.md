@@ -1,6 +1,6 @@
 # Release process
 
-**Signed 0.3.0-alpha.36 is deployed on developer NC34.** The mixed filename/path worklist supports one pattern per file and one reviewed Apply. Hosted CI, package signature/integrity and installed desktop/mobile smokes passed; see the [alpha.36 verification record](docs/compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md). No database migration.
+**0.3.0-alpha.38 is the current source candidate; signed alpha.36 remains deployed on developer NC34 until this candidate passes release checks.** The mixed filename/path worklist supports one pattern per file and one reviewed Apply. Hosted CI, package signature/integrity and installed desktop/mobile smokes passed; see the [alpha.36 verification record](docs/compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md). No database migration.
 
 **Prior deployed version: 0.3.0-alpha.35.** Sidebar groups and icons were aligned across catalogue and review pages. See the [alpha.35 verification record](docs/compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) and human acceptance H03-26.
 

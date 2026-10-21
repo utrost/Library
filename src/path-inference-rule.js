@@ -1,4 +1,4 @@
-import { inferenceFields, validStoredField, normalizeInferenceLanguage } from './path-inference.js'
+import { inferenceFields, validStoredField, validIsbn, normalizeInferenceLanguage } from './path-inference.js'
 
 // Structured rules preserve split direction and transformations; no regular expressions from users.
 export const ruleFields = [...inferenceFields]
@@ -54,7 +54,7 @@ export function inferRule(path, rule, current = {}) {
     value = value.trim()
     if (node.mapFrom && value === node.mapFrom) value = node.mapTo.trim()
     if (node.field === 'language') value = normalizeInferenceLanguage(value)
-    if (!value || (node.field === 'year' && !/^\d{4}$/.test(value)) || (node.field === 'language' && !/^[a-z]{2,3}(-[A-Z]{2})?$/.test(value))) { failure = 'invalid'; return }
+    if (!value || (node.field === 'year' && !/^\d{4}$/.test(value)) || (node.field === 'language' && !/^[a-z]{2,3}(-[A-Z]{2})?$/.test(value)) || (node.field === 'isbn' && !validIsbn(value))) { failure = 'invalid'; return }
     if (!validStoredField(node.field, value)) { failure = 'invalid'; return }
     let values = [value]
     if (node.field === 'author') {

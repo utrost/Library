@@ -188,7 +188,7 @@ try {
 // no other Latin content token at all.
 const permittedLatinTokens = new Set([
   'nextcloud', 'files', 'library', 'javascript', 'json', 'zip', 'tsv', 'cbz',
-  'epub', 'pdf', 'pdfs', 'jpeg', 'png', 'webp', 'mime', 'isbn', 'issn', 'opds', 'api',
+  'epub', 'pdf', 'pdfs', 'jpeg', 'png', 'webp', 'mime', 'isbn', 'issn', 'asin', 'ggkey', 'opds', 'api',
   'rar', 'mib', 'px', 'yyyy', 'mm', 'dd', 'ctrl', 'delete', 'enter', 'esc', 'escape',
   'eco', 'rolleiflex', 'ocr', 'opf', 'cron', 'id', 'ids', 'url', 'urls',
 ])
@@ -201,7 +201,7 @@ const permittedGermanSourceTokens = new Set([
 ])
 const latinTokens = (value) => value.match(/[A-Za-z][A-Za-z'-]*/g) || []
 const stripNonContentLatin = (value) => value
-  .replace(/%(?:folder|folders|ignore)%/g, '')
+  .replace(/%[A-Za-z][A-Za-z0-9]*%/g, '')
   .replace(/\{[A-Za-z][A-Za-z0-9_]*\}|%(?:n|s)/g, '')
   .replace(/\bYYYY(?:-MM(?:-DD)?)?\b/g, '')
   .replace(/(?:^|[\s(])(?:\.?[\w-]+\/)+(?:\.?[\w-]+)(?=$|[\s),.;])/g, ' ')
@@ -215,7 +215,7 @@ for (const [locale, examples] of Object.entries({
   for (const [translated, source] of examples) {
     const sourceTokens = new Set(latinTokens(source).map((token) => token.toLowerCase()))
     const leaked = latinTokens(stripNonContentLatin(translated)).some((token) => {
-      const normalized = token.toLowerCase()
+      const normalized = token.toLowerCase().replace(/-$/, '')
       if (normalized.length < 3) return false
       return locale === 'ar'
         ? !permittedLatinTokens.has(normalized)
@@ -233,7 +233,7 @@ for (const locale of ['de', 'ar']) {
       const sourceValues = Array.isArray(catalogues.en.translations[key]) ? catalogues.en.translations[key] : [catalogues.en.translations[key]]
       const sourceTokens = new Set(sourceValues.flatMap(latinTokens).map((token) => token.toLowerCase()))
       const leakedTokens = latinTokens(stripNonContentLatin(value)).filter((token) => {
-        const normalized = token.toLowerCase()
+        const normalized = token.toLowerCase().replace(/-$/, '')
         if (normalized.length < 3) return false
         return locale === 'ar'
           ? !permittedLatinTokens.has(normalized)

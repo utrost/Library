@@ -1,10 +1,20 @@
 # Library human test handbook
 
-**Current acceptance target: 0.3.0-alpha.36.** Signed alpha.36 is deployed on developer NC34. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) before testing; a matching version string alone does not identify an archive.
+**Current acceptance target: 0.3.0-alpha.38.** This candidate is being checked for developer NC34. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) before testing; a matching version string alone does not identify an archive.
 
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 
 Use disposable accounts and books for saved edits, imports, merges, scans and deletion. Read-only browsing or staging followed by Discard is suitable for a personal collection. Exact signed NC33–35 fresh-install/upgrade certification and manual assistive-technology testing remain separate release gates.
+
+### Alpha.38 acceptance checks
+
+After alpha.38 is installed, extend H03-01/02/10/15 with these checks on disposable books:
+
+- In the catalogue sidebar, search title/description, then author, subject, genre, classification and publisher. The first search must stay limited to title/description; main Search books still checks the broader catalogue. Selecting a genre must keep other filters.
+- On Details, use Previous book, Next book and left/right arrow keys from a sorted, filtered catalogue, author profile, series and personal list. Back must restore the originating view and page. Arrows must leave text fields alone; navigating with unsaved metadata asks before discarding.
+- In Extract metadata, select a nested folder, sort by oldest file modification time, change pages, and confirm order stays stable. Choose the supplied Title - Author pattern and create a named pattern from the same selector. Enable underscore replacement and verify literal pattern separators still match. Inspect the in-editor placeholder help.
+- Capture a checksum-valid ISBN with `%isbn%`, including a file with an existing ISBN. Check the Before/After review, per-row Apply now, batch review and Undo. The ISBN should appear in Identifiers; unrelated identifiers must survive. Invalid ISBNs must remain unapplied.
+- With no imported languages, confirm 20 common language choices appear before typing. Add ASIN and GGKEY in Details, save and reload; search for each identifier. A case-sensitive GGKEY must retain its spelling.
 
 ## Before testing
 
@@ -15,7 +25,7 @@ Use disposable accounts and books for saved edits, imports, merges, scans and de
 
 For a quick acceptance pass, run H03-01, H03-09, H03-10, H03-17, H03-18, H03-21, H03-22 and H03-26. Include **H03-02** for the alpha.36 mixed-pattern workflow and H03-23 with disposable files for a release candidate. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [current package record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
+Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [current package record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -281,9 +291,20 @@ Use disposable files in an isolated test account. Do not use valuable library bo
 5. Change or replace the source after opening confirmation. Delete must fail closed; reopen confirmation after refreshing. Read-only files must not offer a usable confirmation.
 6. Verify the deleted book is absent from search and duplicate results. Its reading-list entry remains unavailable; author/series/genre records remain.
 7. Where Nextcloud Deleted files is supported, restore the parent folder first if it was removed, then restore the source file and scan again. It should reappear as an imported book; Library-only edits removed with the previous catalogue entry are not restored.
-8. Check keyboard focus, Cancel/Escape, scrolling and button contrast on desktop/mobile in light/dark themes. For partial cleanup failures, the message must say the book was deleted and identify the remaining cleanup.
+8. Try a disposable file on a mount that grants read but not delete access. Preview must explain the missing delete permission; Cancel leaves the file and catalogue entry untouched. Do not change production mount permissions to run this case.
+9. Check keyboard focus, Cancel/Escape, scrolling and button contrast on desktop/mobile in light/dark themes. For partial cleanup failures, the message must say the book was deleted and identify the remaining cleanup.
 
 Deletion requires Nextcloud transactional file locking. The storage guard preserves Nextcloud's normal trash/retention behavior; it does not permanently purge the trash. Deletion of arbitrary companion images or ancestor directories is outside this feature.
+
+### H03-23a — Mark for deletion on a read-only mount (next candidate)
+
+Use a disposable EPUB on a read-only shelf and another disposable book on a writable shelf. This case applies after the candidate with **To delete** is installed.
+
+1. Open the read-only book and choose **Delete book**. Confirm the permission message offers **Mark for deletion**. Cancel first; the book should remain in ordinary browsing. Repeat and mark it. The file and any OPF must remain in Nextcloud Files.
+2. Find the book under **Review and cleanup → To delete**. It must be absent from ordinary search, Home, shelf book counts and author/series/genre book views. Direct Details access and the To delete entry must still work. A reading-list entry remains visible with a deletion-mark label.
+3. Stage an unsaved title edit on a second book, mark it, then choose **Discard changes**. Only the mark should persist. Open its Details from To delete, choose **Undo mark**, and confirm the book reappears in ordinary search.
+4. Rescan the read-only shelf. The first book must remain marked and the file unchanged. Undo the mark, rescan again, then confirm it stays visible. Marking must never queue an automatic deletion if mount permissions later change.
+5. Check keyboard operation, focus, narrow/mobile layout and both themes. Only an explicit, separately confirmed **Delete book** action may remove source files.
 
 
 ### H03-24 — UI consistency

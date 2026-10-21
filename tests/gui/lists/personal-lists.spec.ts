@@ -42,17 +42,18 @@ test('maintains a private reading list with notes and ordering @lists @smoke', a
     await page.goto(`/apps/library/?lists=1&listId=${listId}`)
     const entries = page.locator('.library-list-entry')
     await expect(entries).toHaveCount(3)
-    const firstTitle = await entries.first().getByRole('heading').innerText()
+    await expect(entries.first().getByRole('heading', { name: 'Unavailable book' })).toHaveCount(0)
+    const firstTitle = await entries.first().locator('.library-list-entry-heading h2').innerText()
     await entries.first().getByRole('button', { name: 'Add note', exact: true }).click()
     const note = 'Read chapters 1–3. <script>text, not HTML</script>'
     await entries.first().getByRole('textbox', { name: 'Your note for this book in this list' }).fill(note)
     await entries.first().getByRole('button', { name: 'Save note', exact: true }).click()
     await expect(entries.first().locator('.library-list-note')).toHaveText(note)
     await entries.first().getByRole('button', { name: 'Move down', exact: true }).click()
-    await expect(entries.nth(1).getByRole('heading')).toHaveText(firstTitle)
+    await expect(entries.nth(1).locator('.library-list-entry-heading h2')).toHaveText(firstTitle)
     await page.reload()
     await expect(entries.nth(1).locator('.library-list-note')).toHaveText(note)
-    await expect(entries.nth(1).getByRole('heading')).toHaveText(firstTitle)
+    await expect(entries.nth(1).locator('.library-list-entry-heading h2')).toHaveText(firstTitle)
     await attachCheckpoint(page, testInfo, 'personal-list-with-notes')
 
     // A stale editor receives a conflict and retains the draft for explicit review.

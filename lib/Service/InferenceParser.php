@@ -24,7 +24,7 @@ final class InferenceParser {
         }
         return ['status'=>in_array('conflict', array_column($changes,'status'),true) ? 'conflict' : (in_array('ready',array_column($changes,'status'),true) ? 'ready' : 'unchanged'), 'changes'=>$changes];
     }
-    public static function pattern(string $path, string $pattern, array $current = []): array {
+    public static function pattern(string $path, string $pattern, array $current = [], bool $replaceUnderscores = false): array {
         if (!$pattern || mb_strlen($pattern)>1000 || mb_strlen($path)>2000 || preg_match('~%folders?%(?!/)~',$pattern)) return self::fail('invalid');
         $parts = preg_split('~(%folders%/|%[A-Za-z]+%)~',$pattern,-1,PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);
         $tokens = array_merge(array_keys(InferenceChangeSet::FIELDS),['ignore','folder','folders','extension']);
@@ -59,7 +59,7 @@ final class InferenceParser {
         $captures=[]; $seen=[];
         foreach ($matches[0] as $capture) {
             $field=$capture['key']; if (!isset(InferenceChangeSet::FIELDS[$field])) continue;
-            $value=self::trim($capture['raw']);
+            $value=self::trim($replaceUnderscores ? str_replace('_',' ',$capture['raw']) : $capture['raw']);
             if (isset($seen[$field]) && $seen[$field]!==$value) return self::fail('ambiguous');
             if (isset($seen[$field])) continue;
             $seen[$field]=$value;
@@ -119,7 +119,7 @@ final class InferenceParser {
     }
     public static function run(string $path,array $definition,array $current=[],string $folder=''): array {
         if ($definition['mode']==='guided') return self::guided($path,$definition['rule'],$current);
-        if ($definition['mode']==='pattern') return self::pattern($path,$definition['pattern'],$current);
+        if ($definition['mode']==='pattern') return self::pattern($path,$definition['pattern'],$current,$definition['replaceUnderscores']??false);
         $full=($folder!=='' ? $folder.'/' : '').$path; $candidates=[];
         foreach ($definition['assignments'] as $entry) {
             if (!$entry['available'] || ($entry['folder']!=='' && !str_starts_with($full,$entry['folder'].'/'))) continue;
@@ -133,7 +133,7 @@ final class InferenceParser {
             $fields=[];
             foreach ($candidates as $entry) {
                 if ($entry['depth']!==$depth) continue;
-                $def=$entry['definition']; $result=$def['kind']==='guided' ? self::guided($entry['relative'],$def['rule'],$current) : self::pattern($entry['relative'],$def['pattern'],$current);
+                $def=$entry['definition']; $result=$def['kind']==='guided' ? self::guided($entry['relative'],$def['rule'],$current) : self::pattern($entry['relative'],$def['pattern'],$current,$def['replaceUnderscores']??false);
                 $source=['id'=>$entry['id'],'name'=>$def['name'],'folder'=>$entry['folder']]; $attempts[]=$source+['status'=>$result['status']];
                 if ($result['status']==='ambiguous') return self::fail('ambiguous')+['attempts'=>$attempts];
                 if (!in_array($result['status'],['ready','conflict','unchanged'],true)) continue;

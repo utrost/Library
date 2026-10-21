@@ -3,6 +3,7 @@ export function inferencePresets(t) {
   return [
     { id: 'title', name: t('library', 'Title from filename'), pattern: '%folders%/%title%.%extension%', example: 'Author/Book title.epub' },
     { id: 'by', name: t('library', 'Title by Author'), pattern: '%folders%/%title% by %author%.%extension%', example: 'books/english_fiction/A Magic Deep and Drowning by Hester Fox.epub' },
+    { id: 'title-author', name: t('library', 'Title - Author'), pattern: '%folders%/%title% - %author%.%extension%', example: 'Fiction/The Left Hand of Darkness - Ursula K. Le Guin.epub' },
     { id: 'title-author-year', name: t('library', 'Title - Author (Year)'), pattern: '%folders%/%title% - %author% (%year%).%extension%', example: 'Adrian Tchaikovsky/Children of Time - Adrian Tchaikovsky (2016).epub' },
     { id: 'author-title', name: t('library', 'Author - Title'), pattern: '%folders%/%author% - %title%.%extension%', example: 'Ada Quill - A Quiet Orchard.epub' },
     { id: 'author-folder', name: t('library', 'Author folder / Title'), pattern: '%folders%/%author%/%title%.%extension%', example: 'Ada Quill/A Quiet Orchard.epub' },

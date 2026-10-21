@@ -30,9 +30,9 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const APP_VERSION = '0.3.0-alpha.36';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-36-compact-list-table-cover-96-fit-v8';
-    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-36-compact-list-table-cover-96-fit-v8';
+    private const APP_VERSION = '0.3.0-alpha.38';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-38-compact-list-table-cover-96-fit-v8';
+    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-38-compact-list-table-cover-96-fit-v8';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -361,6 +361,7 @@ class PageController extends Controller {
     private function catalogueFiltersFromRequest(): array {
         return [
             'q' => trim((string)$this->request->getParam('q', '')),
+            'searchScope' => $this->request->getParam('searchScope', '') === 'title_description' && trim((string)$this->request->getParam('q', '')) !== '' ? 'title_description' : '',
             'view' => trim((string)$this->request->getParam('view', 'compact')),
             'type' => trim((string)$this->request->getParam('type', '')),
             'publisher' => trim((string)$this->request->getParam('publisher', '')),
@@ -382,6 +383,7 @@ class PageController extends Controller {
             'scannerConflicts' => $this->normalizeReviewFilter('scannerConflicts', $this->request->getParam('scannerConflicts', '')),
             'starred' => trim((string)$this->request->getParam('starred', '')),
             'recentlyOpened' => trim((string)$this->request->getParam('recentlyOpened', '')),
+            'markedForDeletion' => $this->normalizeReviewFilter('markedForDeletion', $this->request->getParam('markedForDeletion', '')),
             'needsMetadata' => $this->normalizeReviewFilter('needsMetadata', $this->request->getParam('needsMetadata', '')),
             'coverReview' => $this->normalizeReviewFilter('coverReview', $this->request->getParam('coverReview', '')),
             'noCreator' => $this->normalizeReviewFilter('noCreator', $this->request->getParam('noCreator', '')),
@@ -556,7 +558,7 @@ class PageController extends Controller {
             'recently-opened', 'starred', 'to-read', 'reading', 'finished', 'needs-action',
             'needs-metadata', 'scanner-conflicts', 'metadata-errors', 'placeholder-covers',
             'no-creator', 'no-publication', 'missing-date', 'title-from-filename',
-            'weak-filename-metadata', 'no-description', 'unsupported-containers', 'unreviewed-imports',
+            'weak-filename-metadata', 'no-description', 'unsupported-containers', 'unreviewed-imports', 'to-delete',
         ] : ['scanner-conflicts'];
         $savedCollections = $userId === '' ? [] : ($surface === 'index' || $fastCatalogueApi || $leanHydration
             ? $this->savedCollectionsPending($userId)
@@ -759,7 +761,7 @@ class PageController extends Controller {
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page, string $cursor = ''): string {
         $query = [];
-        foreach (['q', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'authorId', 'seriesId', 'genreId', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
+        foreach (['q', 'searchScope', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'authorId', 'seriesId', 'genreId', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'markedForDeletion', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title') && !($param === 'view' && $value === 'compact')) {
                 $query[$param] = $value;

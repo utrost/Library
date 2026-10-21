@@ -20,7 +20,7 @@ final class SeriesDirectoryService {
             $where .= " AND LOWER(s.display_name) LIKE ? ESCAPE '!'";
             $params[] = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($search))) . '%';
         }
-        $list = $this->rows('SELECT s.id,s.display_name,s.revision,(SELECT COUNT(*) FROM *PREFIX*library_item_series l WHERE l.user_id=s.user_id AND l.series_id=s.id) AS book_count FROM *PREFIX*library_series s WHERE ' . $where . ' ORDER BY ' . $order . ' LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
+        $list = $this->rows('SELECT s.id,s.display_name,s.revision,(SELECT COUNT(*) FROM *PREFIX*library_item_series l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id AND i.marked_for_deletion_at IS NULL WHERE l.user_id=s.user_id AND l.series_id=s.id) AS book_count FROM *PREFIX*library_series s WHERE ' . $where . ' ORDER BY ' . $order . ' LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
         $entries = array_slice($list, 0, 50);
         if ($previews) {
             $books = (new DirectoryPreviewService($this->db))->books($uid, array_column($entries, 'id'), 'series');
@@ -45,9 +45,9 @@ final class SeriesDirectoryService {
         };
         $series = $this->rows('SELECT id,display_name,description,revision,merged_into FROM *PREFIX*library_series WHERE user_id=? AND id=?', [$uid, $id])[0] ?? null;
         if ($series === null) throw new \OutOfBoundsException('series');
-        $count = $this->rows('SELECT COUNT(*) AS n FROM *PREFIX*library_item_series WHERE user_id=? AND series_id=?', [$uid, $id])[0];
-        $from = ' FROM *PREFIX*library_item_series l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id WHERE l.user_id=? AND l.series_id=?';
+        $from = ' FROM *PREFIX*library_item_series l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id WHERE l.user_id=? AND l.series_id=? AND i.marked_for_deletion_at IS NULL';
         $params = [$uid, $id];
+        $count = $this->rows('SELECT COUNT(*) AS n' . $from, $params)[0];
         if (trim($search) !== '') {
             $from .= " AND LOWER(i.title) LIKE ? ESCAPE '!'";
             $params[] = '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($search))) . '%';

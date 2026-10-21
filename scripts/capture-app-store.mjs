@@ -47,6 +47,8 @@ try {
   await expect(page.getByRole('complementary', { name: 'Live preview', exact: true })).toBeVisible()
   await page.locator('.library-inference-step').nth(1).evaluate(el => { el.style.scrollMarginTop = '70px'; el.scrollIntoView({ block: 'start' }) })
   await page.screenshot({ path: out + '/appstore-inference.png', animations: 'disabled' })
+  await page.locator('.library-inference-step').nth(2).evaluate(el => { el.style.scrollMarginTop = '70px'; el.scrollIntoView({ block: 'start' }) })
+  await page.screenshot({ path: out + '/appstore-inference-worklist.png', animations: 'disabled' })
   console.log('public_screenshots_captured=true')
 } finally {
   await browser.close()
