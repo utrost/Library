@@ -1,10 +1,10 @@
 # Library Roadmap
 
-**Current candidate: 0.3.0-alpha.38.** Signed alpha.36 is deployed on developer NC34 with the mixed filename/path worklist. CI and installed desktop/mobile smokes passed; see the [alpha.36 verification record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
+**Current developer build: signed 0.3.0-alpha.38.** Hosted CI passed, and the installed package passed integrity, asset matching and disposable desktop/mobile smokes on NC34. The catalogue remained at 107,861 books; see the [alpha.38 verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
 
-Previous deployment checkpoint: signed **0.3.0-alpha.35** added grouped sidebar navigation and consistent icons. Its [verification and deployment record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) remains historical; the alpha.36 package is now installed.
+Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.38 is now installed.
 
-Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.36 is now installed.
+Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.38 is now installed.
 
 Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: [alpha.31 record](compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
 
@@ -12,13 +12,13 @@ Alpha.30 adds a shared compact browser for Authors, Series and Genres, with disp
 
 Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.36 is now installed.
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.38 is now installed.
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The [signed alpha.9 fresh and upgrade matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed on NC33–35. The [alpha.11 populated NC34 deployment](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) is complete; owner acceptance remains.
 
-Status: **0.3.0-alpha.36** is the current installed candidate. The mixed-pattern worklist passed its [NC34 deployment verification](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md). The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
+Status: **0.3.0-alpha.38** is the current installed candidate. Its [NC34 deployment verification](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) includes the mixed-pattern worklist and read-only deletion fallback. The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
 
-Last updated: 2026-10-21
+Last updated: 2026-10-22
 
 ## Product direction
 
@@ -28,9 +28,7 @@ The release themes below guide sequencing. They are not delivery dates or claims
 
 | Release | Theme | Target scope | Experimental or optional scope |
 | --- | --- | --- | --- |
-| **0.3** | Reliable personal catalogue | Finish acceptance and release certification for the existing catalogue, editor, author/series/genre organisation, scans, lists and deletion. | Freeze feature expansion until release gates close. |
-
-The next 0.3 candidate adds a reversible **To delete** Library state for books on read-only mounts. It hides marked rows from ordinary browsing while retaining their source files and a review queue. This is an acceptance fix for the existing Delete book workflow; it still needs installed-package verification before it becomes a deployed candidate.
+| **0.3** | Reliable personal catalogue | Finish acceptance and release certification for the existing catalogue, editor, author/series/genre organisation, scans, lists and deletion. The reversible **To delete** state for read-only mounts is deployed in alpha.38. | Freeze feature expansion until release gates close. |
 | **0.4** | Enrich and discover | **Improve book details** with optional provider adapters and reviewable evidence; complete Library export/restore; bulk organisation; incoming-books and cleanup inbox with visible change history; useful Home and library-health dashboards. | Citation export after metadata completion is reliable; bounded front-matter/OCR/LLM extraction; a narrow reader progress/resume bridge. |
 | **0.5** | Read and remember | Reliable reader progress/resume, reading history, bookmarks/highlights and portable personal activity; reviewed work/edition/file grouping; wishlists/books without files; reading-copy quality checks; reading dashboards based on actual reader events. | Offline/cross-device integration, text-to-speech and a maintained reader fork if upstream integration proves unsuitable. |
 | **0.6** | Explore your knowledge | Article/chapter discovery; optional full-text and semantic discovery, questions grounded in cited passages, reading paths and connections between books, highlights and notes. | Broader synthesis and personal recommendations, subject to corpus coverage, retrieval quality, permissions and resource limits. |
