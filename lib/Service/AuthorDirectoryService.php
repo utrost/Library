@@ -28,7 +28,7 @@ final class AuthorDirectoryService {
             array_push($params, $query, $query);
         }
         if ($unused) $where .= ' AND NOT EXISTS (SELECT 1 FROM *PREFIX*library_item_authors l WHERE l.user_id=a.user_id AND l.author_id=a.id)';
-        $rows = $this->rows('SELECT a.id,a.display_name,a.sort_name,a.revision,(SELECT COUNT(DISTINCT l.item_id) FROM *PREFIX*library_item_authors l WHERE l.user_id=a.user_id AND l.author_id=a.id) AS book_count FROM *PREFIX*library_authors a WHERE ' . $where . ' ORDER BY ' . $order . ' LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
+        $rows = $this->rows('SELECT a.id,a.display_name,a.sort_name,a.revision,(SELECT COUNT(DISTINCT l.item_id) FROM *PREFIX*library_item_authors l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id AND i.marked_for_deletion_at IS NULL WHERE l.user_id=a.user_id AND l.author_id=a.id) AS book_count FROM *PREFIX*library_authors a WHERE ' . $where . ' ORDER BY ' . $order . ' LIMIT 51 OFFSET ' . (($page - 1) * 50), $params);
         $authors = array_slice($rows, 0, 50);
         if ($previews) {
             $books = (new DirectoryPreviewService($this->db))->books($uid, array_column($authors, 'id'), 'author');
@@ -52,7 +52,7 @@ final class AuthorDirectoryService {
         };
         $author = $this->profile($uid, $id);
         // Drive the bounded book lookup from the indexed account/author relationships.
-        $from = ' FROM (SELECT DISTINCT item_id FROM *PREFIX*library_item_authors WHERE user_id=? AND author_id=?) links INNER JOIN *PREFIX*library_items i ON i.id=links.item_id INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id WHERE i.user_id=?';
+        $from = ' FROM (SELECT DISTINCT item_id FROM *PREFIX*library_item_authors WHERE user_id=? AND author_id=?) links INNER JOIN *PREFIX*library_items i ON i.id=links.item_id INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id WHERE i.user_id=? AND i.marked_for_deletion_at IS NULL';
         $params = [$uid, $id, $uid];
         $total = $this->rows('SELECT COUNT(*) AS n' . $from, $params)[0];
         if (trim($search) !== '') {

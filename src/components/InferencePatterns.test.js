@@ -13,7 +13,7 @@ it('restores a private guided rule immediately as an independent draft', async (
   const choose = vi.fn()
   const wrapper = mount(InferencePatterns, { props: { mode: 'guided', rule: newRule('title.epub'), onChooseRule: choose } })
   await flushPromises()
-  expect(wrapper.findAll('option').map(o => o.text())).toEqual(['Custom rule', 'Authors'])
+  expect(wrapper.findAll('option').map(o => o.text())).toEqual(['Choose a rule', 'New saved rule…', 'Unsaved rule draft', 'Authors'])
   await wrapper.get('select').setValue('a')
   const chosen = choose.mock.calls[0][0]
   expect(chosen).toEqual(rule)
@@ -25,12 +25,12 @@ it('saves the complete guided rule with CSRF and clears selection when edited', 
   const fetch = vi.fn().mockResolvedValueOnce(response({ patterns: [] })).mockResolvedValueOnce(response({ saved: { id: 'a', kind: 'guided', name: 'My rule', rule: structuredClone(rule) } }))
   vi.stubGlobal('fetch', fetch)
   const wrapper = mount(InferencePatterns, { props: { mode: 'guided', rule, requestToken: 'csrf' } })
-  await flushPromises(); await wrapper.get('input').setValue('My rule'); await wrapper.get('form').trigger('submit'); await flushPromises()
+  await flushPromises(); await wrapper.get('select').setValue('__new__'); await wrapper.get('input').setValue('My rule'); await wrapper.get('form').trigger('submit'); await flushPromises()
   expect(JSON.parse(fetch.mock.calls[1][1].body)).toEqual({ name: 'My rule', kind: 'guided', rule })
   expect(fetch.mock.calls[1][1].headers.requesttoken).toBe('csrf')
   expect(wrapper.get('select').element.value).toBe('a')
   await wrapper.setProps({ rule: { ...rule, combineAuthors: true } })
-  expect(wrapper.get('select').element.value).toBe('')
+  expect(wrapper.get('select').element.value).toBe('__draft__')
 })
 it('keeps existing advanced definitions available and hides guided ones in advanced mode', async () => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ patterns: [{ id: 'a', name: 'Legacy advanced', pattern: '%title%' }, { id: 'b', kind: 'guided', name: 'Guided', rule: newRule('x.epub') }] })))

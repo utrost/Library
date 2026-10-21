@@ -30,7 +30,10 @@ final class BookDeletionController extends Controller {
             return new JSONResponse($execute ? $this->deletion->delete($uid, $id, $token) : $this->deletion->preview($uid, $id), 200, $headers);
         } catch (\OutOfBoundsException|\OCP\Files\NotFoundException) { $status = 404; $error = 'not_found';
         } catch (NotPermittedException) { $status = 403; $error = 'not_permitted';
-        } catch (\DomainException|\OCP\Lock\LockedException) { $status = 409; $error = 'confirmation_changed';
+        } catch (\DomainException $exception) {
+            $status = $exception->getMessage() === 'locking_disabled' ? 503 : 409;
+            $error = $status === 503 ? 'locking_disabled' : 'confirmation_changed';
+        } catch (\OCP\Lock\LockedException) { $status = 409; $error = 'confirmation_changed';
         } catch (\Throwable) { $status = 500; $error = 'delete_failed'; }
         $this->audit->warning('book_file_delete_failed', $uid, $execute ? 'delete' : 'preview', 'item', 'failure', ['target_id' => $id, 'http_status' => $status, 'reason' => $error]);
         return new JSONResponse(['error' => $error], $status, $headers);

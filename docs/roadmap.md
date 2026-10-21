@@ -1,6 +1,6 @@
 # Library Roadmap
 
-**Current candidate: 0.3.0-alpha.36.** Signed alpha.36 is deployed on developer NC34 with the mixed filename/path worklist. CI and installed desktop/mobile smokes passed; see the [alpha.36 verification record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
+**Current candidate: 0.3.0-alpha.38.** Signed alpha.36 is deployed on developer NC34 with the mixed filename/path worklist. CI and installed desktop/mobile smokes passed; see the [alpha.36 verification record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.35** added grouped sidebar navigation and consistent icons. Its [verification and deployment record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) remains historical; the alpha.36 package is now installed.
 
@@ -29,6 +29,8 @@ The release themes below guide sequencing. They are not delivery dates or claims
 | Release | Theme | Target scope | Experimental or optional scope |
 | --- | --- | --- | --- |
 | **0.3** | Reliable personal catalogue | Finish acceptance and release certification for the existing catalogue, editor, author/series/genre organisation, scans, lists and deletion. | Freeze feature expansion until release gates close. |
+
+The next 0.3 candidate adds a reversible **To delete** Library state for books on read-only mounts. It hides marked rows from ordinary browsing while retaining their source files and a review queue. This is an acceptance fix for the existing Delete book workflow; it still needs installed-package verification before it becomes a deployed candidate.
 | **0.4** | Enrich and discover | **Improve book details** with optional provider adapters and reviewable evidence; complete Library export/restore; bulk organisation; incoming-books and cleanup inbox with visible change history; useful Home and library-health dashboards. | Citation export after metadata completion is reliable; bounded front-matter/OCR/LLM extraction; a narrow reader progress/resume bridge. |
 | **0.5** | Read and remember | Reliable reader progress/resume, reading history, bookmarks/highlights and portable personal activity; reviewed work/edition/file grouping; wishlists/books without files; reading-copy quality checks; reading dashboards based on actual reader events. | Offline/cross-device integration, text-to-speech and a maintained reader fork if upstream integration proves unsuitable. |
 | **0.6** | Explore your knowledge | Article/chapter discovery; optional full-text and semantic discovery, questions grounded in cited passages, reading paths and connections between books, highlights and notes. | Broader synthesis and personal recommendations, subject to corpus coverage, retrieval quality, permissions and resource limits. |

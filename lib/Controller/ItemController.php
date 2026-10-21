@@ -378,7 +378,7 @@ final class ItemController extends Controller {
 
     private function catalogueFiltersFromRequest(): array {
         $filters = [];
-        foreach (['q', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $key) {
+        foreach (['q', 'searchScope', 'type', 'publication', 'year', 'creator', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'markedForDeletion', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $key) {
             $filters[$key] = trim((string)$this->request->getParam($key, ''));
         }
         if ($filters['sort'] === '') {
@@ -412,6 +412,18 @@ final class ItemController extends Controller {
         }
 
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
+
+    #[NoAdminRequired]
+    public function markForDeletion(int $itemId): JSONResponse {
+        $headers = ['Cache-Control' => 'private, no-store'];
+        $user = $this->userSession->getUser();
+        if ($user === null) return new JSONResponse(['error' => 'unauthenticated'], 401, $headers);
+        $value = $this->request->getParam('marked', null);
+        if ($value !== '0' && $value !== '1') return new JSONResponse(['error' => 'invalid_mark'], 422, $headers);
+        $markedAt = $this->itemService->setMarkedForDeletion($user->getUID(), $itemId, $value === '1');
+        if ($markedAt === null) return new JSONResponse(['error' => 'not_found'], 404, $headers);
+        return new JSONResponse(['markedForDeletionAt' => $markedAt > 0 ? $markedAt : null], 200, $headers);
     }
 
     #[NoAdminRequired]
@@ -481,7 +493,7 @@ final class ItemController extends Controller {
             }
             $scheme = strtolower(trim((string)($row['scheme'] ?? '')));
             $displayValue = trim((string)($row['displayValue'] ?? ''));
-            if ($displayValue !== '' && in_array($scheme, ['isbn', 'issn'], true)) {
+            if ($displayValue !== '' && in_array($scheme, ['isbn', 'issn', 'asin', 'ggkey'], true)) {
                 $normalized[] = ['scheme' => $scheme, 'displayValue' => $displayValue];
             }
         }

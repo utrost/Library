@@ -41,7 +41,10 @@ final class InferenceAnalysisService {
         if ($folder===null || $rootId<1) throw new \InvalidArgumentException('invalid_analysis');
         $scope=$this->scope($uid,$rootId,$folder); $definition=['mode'=>$input['mode']??''];
         if ($definition['mode']==='guided' && GuidedRuleValidator::valid($input['rule']??null)) $definition['rule']=$input['rule'];
-        elseif ($definition['mode']==='pattern' && is_string($input['pattern']??null) && mb_strlen($input['pattern'])<=1000 && $input['pattern']!=='') $definition['pattern']=$input['pattern'];
+        elseif ($definition['mode']==='pattern' && is_string($input['pattern']??null) && mb_strlen($input['pattern'])<=1000 && $input['pattern']!=='') {
+            if (!is_bool($input['replaceUnderscores'] ?? false)) throw new \InvalidArgumentException('invalid_analysis');
+            $definition['pattern']=$input['pattern']; $definition['replaceUnderscores']=$input['replaceUnderscores']??false;
+        }
         elseif ($definition['mode']==='folders') {
             $definition['assignments']=[];
             foreach ($this->rules->all($uid) as $entry) if ($entry['rootId']===$rootId) {
@@ -135,7 +138,7 @@ final class InferenceAnalysisService {
                     try {
                         $snapshot=$this->batches->snapshot($uid,$entry['id']); $s=$snapshot['state'];
                         if ($snapshot['file']['path']!==$item['cached_path'] || $snapshot['file']['rootId']!==(int)$row['root_id']) throw new \OutOfBoundsException('item_moved');
-                        $current=['title'=>$s['title'],'subtitle'=>$s['subtitle'],'author'=>$s['creators'],'authors'=>AuthorNames::read($s['authors_json']??null,$s['creators']),'series'=>$s['series_name'],'seriesNumber'=>$s['series_number'],'genre'=>$s['genre'],'year'=>substr((string)$s['publication_date'],0,4),'language'=>$s['language'],'publisher'=>$s['publisher'],'subject'=>implode('; ',json_decode($s['subjects_json']?:'[]',true)?:[])];
+                        $current=['title'=>$s['title'],'subtitle'=>$s['subtitle'],'author'=>$s['creators'],'authors'=>AuthorNames::read($s['authors_json']??null,$s['creators']),'series'=>$s['series_name'],'seriesNumber'=>$s['series_number'],'genre'=>$s['genre'],'year'=>substr((string)$s['publication_date'],0,4),'language'=>$s['language'],'publisher'=>$s['publisher'],'subject'=>implode('; ',json_decode($s['subjects_json']?:'[]',true)?:[]),'isbn'=>implode('; ',array_column(array_values(array_filter(json_decode($s['identifiers_json']?:'[]',true)?:[],static fn(array $identifier):bool=>$identifier['scheme']==='isbn')),'displayValue'))];
                         $entry=array_replace($entry,InferenceParser::run($entry['path'],$definition,$current,$payload['folder']),['revision'=>InferenceChangeSet::fingerprint($snapshot)]);
                     } catch (\OutOfBoundsException) { $entry['path']=''; }
                     $data=json_encode($entry,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);

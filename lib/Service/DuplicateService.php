@@ -32,7 +32,8 @@ final class DuplicateService {
         return $q->from('library_items','i')->innerJoin('i','library_files','f',$q->expr()->eq('i.library_file_id','f.id'))
             ->where($q->expr()->eq('i.user_id',$q->createNamedParameter($uid)))->andWhere($q->expr()->eq('f.user_id',$q->createNamedParameter($uid)))
             ->andWhere($q->expr()->in('f.root_id',$q->createNamedParameter(array_map('intval',array_keys($state['roots'])),IQueryBuilder::PARAM_INT_ARRAY)))
-            ->andWhere($q->expr()->neq('f.scan_status',$q->createNamedParameter('missing')));
+            ->andWhere($q->expr()->neq('f.scan_status',$q->createNamedParameter('missing')))
+            ->andWhere($q->expr()->isNull('i.marked_for_deletion_at'));
     }
     /** Common lock keeps scan snapshots and decisions consistent across jobs. */
     private function lockAccount(string $uid): void {

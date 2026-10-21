@@ -1878,6 +1878,7 @@
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
     padding: 0.7rem;
+    min-width: 0;
 }
 
 .library-scan-change-card--attention {
@@ -1893,6 +1894,10 @@
     font-size: 12px;
     font-weight: 700;
     margin-bottom: 0.25rem;
+    float: none;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
 }
 
 .library-scan-change-card dd {
@@ -1900,6 +1905,8 @@
     font-weight: 800;
     line-height: 1;
     margin: 0;
+    float: none;
+    clear: both;
 }
 
 .library-scan-completion-summary {

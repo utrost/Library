@@ -13,7 +13,7 @@ export function inferFolderRules(path, folder, assignments, current = {}) {
     const matching = []
     for (const entry of candidates.filter(entry => entry.depth === depth)) {
       const definition = entry.definition
-      const result = definition.kind === 'guided' ? inferRule(entry.relative, definition.rule, current) : inferPath(entry.relative, definition.pattern, current)
+      const result = definition.kind === 'guided' ? inferRule(entry.relative, definition.rule, current) : inferPath(entry.relative, definition.pattern, current, definition.replaceUnderscores || false)
       const source = { id: entry.id, name: definition.name, folder: entry.folder }
       attempts.push({ ...source, status: result.status })
       if (['ready', 'conflict', 'unchanged'].includes(result.status) && result.changes.length) matching.push({ result, source })
