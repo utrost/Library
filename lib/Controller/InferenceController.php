@@ -48,11 +48,23 @@ final class InferenceController extends Controller {
             $node = $home->get(ltrim($scope, '/') ?: '/');
             if (!$node instanceof Folder || !$node->isReadable()) return new JSONResponse([], 404, $headers);
         } catch (\OCP\Files\NotFoundException|\OCP\Files\NotPermittedException $e) { return new JSONResponse([], 404, $headers); }
+        $folderSearch = $this->request->getParam('folderSearch', '');
+        if (!is_string($folderSearch) || mb_strlen($folderSearch) > 255) return new JSONResponse([], 422, $headers);
+        $children = [];
+        foreach ($node->getDirectoryListing('httpd/unix-directory') as $child) {
+            if ($child instanceof Folder && $child->isReadable() && ($folderSearch === '' || mb_stripos($child->getName(), $folderSearch) !== false)) $children[] = $child->getName();
+        }
+        natcasesort($children);
+        $hasMoreFolders = count($children) > 100;
+        $children = array_slice(array_values($children), 0, 100);
+        if ((string)$this->request->getParam('foldersOnly', '0') === '1') return new JSONResponse(['roots' => $roots, 'scope' => $scope ?: '/', 'folders' => $children, 'hasMoreFolders' => $hasMoreFolders], 200, $headers);
         $recursive = (string)$this->request->getParam('recursive', '1') === '1';
         $page = max(1, min(10000, (int)$this->request->getParam('page', 1)));
+        $sort = (string)$this->request->getParam('sort', 'name');
+        if (!in_array($sort, ['name', 'modified_oldest', 'modified_newest', 'type'], true)) return new JSONResponse([], 422, $headers);
         $prefix = $scope . '/';
         $qb = $this->db->getQueryBuilder();
-        $qb->select('i.id', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.series_name', 'i.series_number', 'i.genre', 'i.publication_date', 'i.language', 'i.publisher', 'i.subjects_json', 'f.file_id', 'f.cached_path')
+        $qb->select('i.id', 'i.title', 'i.subtitle', 'i.creators', 'i.publication', 'i.series_name', 'i.series_number', 'i.genre', 'i.publication_date', 'i.language', 'i.publisher', 'i.subjects_json', 'f.file_id', 'f.cached_path', 'f.mtime', 'f.extension')
             ->from('library_items', 'i')->innerJoin('i', 'library_files', 'f', $qb->expr()->eq('i.library_file_id', 'f.id'))
             ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($uid)))
             ->andWhere($qb->expr()->eq('f.user_id', $qb->createNamedParameter($uid)))
@@ -60,7 +72,12 @@ final class InferenceController extends Controller {
             ->andWhere($qb->expr()->like('f.cached_path', $qb->createNamedParameter(addcslashes($prefix, '%_') . '%')))
             ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('missing')));
         if (!$recursive) $qb->andWhere($qb->expr()->notLike('f.cached_path', $qb->createNamedParameter(addcslashes($prefix, '%_') . '%/%')));
-        $result = $qb->orderBy('f.cached_path', 'ASC')->addOrderBy('i.id', 'ASC')->setFirstResult(($page - 1) * 40)->setMaxResults(41)->executeQuery();
+        if ($sort === 'modified_oldest' || $sort === 'modified_newest') {
+            $qb->orderBy('CASE WHEN f.mtime IS NULL THEN 1 ELSE 0 END', 'ASC')->addOrderBy('f.mtime', $sort === 'modified_oldest' ? 'ASC' : 'DESC')->addOrderBy('f.id', 'ASC');
+        } elseif ($sort === 'type') {
+            $qb->orderBy("CASE WHEN f.extension IS NULL OR f.extension = '' THEN 1 ELSE 0 END", 'ASC')->addOrderBy('f.extension', 'ASC')->addOrderBy('f.id', 'ASC');
+        } else $qb->orderBy('f.cached_path', 'ASC')->addOrderBy('i.id', 'ASC');
+        $result = $qb->setFirstResult(($page - 1) * 40)->setMaxResults(41)->executeQuery();
         $rows = $result->fetchAll(); $result->closeCursor();
         $hasNext = count($rows) > 40;
         $items = [];
@@ -73,13 +90,14 @@ final class InferenceController extends Controller {
             } catch (\OCP\Files\NotFoundException|\OCP\Files\NotPermittedException $e) { continue; }
             $snapshot = $snapshots[(int)$row['id']] ?? null; if ($snapshot === null) continue;
             $row = array_replace($row, $snapshot['state']);
-            $items[] = ['revision' => \OCA\Library\Service\InferenceChangeSet::fingerprint($snapshot), 'id' => (int)$row['id'], 'path' => substr($row['cached_path'], strlen($prefix)), 'current' => [
+            $items[] = ['revision' => \OCA\Library\Service\InferenceChangeSet::fingerprint($snapshot), 'id' => (int)$row['id'], 'path' => substr($row['cached_path'], strlen($prefix)), 'modifiedAt' => (int)$row['mtime'], 'fileType' => strtoupper((string)$row['extension']), 'current' => [
                 'title' => $row['title'], 'subtitle' => $row['subtitle'], 'author' => $row['creators'], 'authors' => \OCA\Library\Service\AuthorNames::read($row['authors_json'] ?? null, $row['creators']),
                 'series' => $row['series_name'], 'seriesNumber' => $row['series_number'], 'genre' => $row['genre'], 'year' => substr((string)$row['publication_date'], 0, 4),
                 'language' => $row['language'], 'publisher' => $row['publisher'],
+                'isbn' => implode('; ', array_column(array_values(array_filter(json_decode($row['identifiers_json'] ?: '[]', true) ?: [], static fn(array $entry): bool => $entry['scheme'] === 'isbn')), 'displayValue')),
                 'subject' => implode('; ', json_decode($row['subjects_json'] ?: '[]', true) ?: []),
             ]];
         }
-        return new JSONResponse(['roots' => $roots, 'scope' => $scope ?: '/', 'items' => $items, 'page' => $page, 'hasNext' => $hasNext], 200, $headers);
+        return new JSONResponse(['roots' => $roots, 'scope' => $scope ?: '/', 'folders' => $children, 'hasMoreFolders' => $hasMoreFolders, 'sort' => $sort, 'items' => $items, 'page' => $page, 'hasNext' => $hasNext], 200, $headers);
     }
 }

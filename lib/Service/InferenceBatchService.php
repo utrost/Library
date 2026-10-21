@@ -80,6 +80,18 @@ final class InferenceBatchService {
             $after = $before['state']; $review = []; $write = [];
             foreach ($changes as $field => $value) {
                 $column = InferenceChangeSet::FIELDS[$field][0];
+                if ($field === 'isbn') {
+                    $identifiers = json_decode($after['identifiers_json'] ?: '[]', true, 32, JSON_THROW_ON_ERROR);
+                    $existingIsbns = array_values(array_filter($identifiers, static fn(array $row): bool => $row['scheme'] === 'isbn'));
+                    $current = implode('; ', array_column($existingIsbns, 'displayValue'));
+                    $candidate = IdentifierService::normalizeIdentifier('isbn', $value, 'path-inference', true);
+                    if ($candidate === null || !$candidate['valid']) throw new \InvalidArgumentException('invalid_proposals');
+                    if (in_array($candidate['normalizedValue'], array_column($existingIsbns, 'normalizedValue'), true)) continue;
+                    $identifiers[] = $candidate;
+                    $review[] = ['field' => $field, 'before' => $current, 'after' => implode('; ', array_filter([$current, $candidate['displayValue']], static fn(string $part): bool => $part !== ''))];
+                    $write[$column] = json_encode($identifiers, JSON_THROW_ON_ERROR);
+                    continue;
+                }
                 $current = $field === 'author' ? AuthorNames::encode(AuthorNames::read($after[$column], $after['creators'])) : $after[$column];
                 if ((string)$current === $value) continue;
                 $review[] = ['field' => $field, 'before' => InferenceChangeSet::display($field, $current), 'after' => InferenceChangeSet::display($field, $value)];
@@ -127,6 +139,7 @@ final class InferenceBatchService {
         if (!is_array($definition) || !in_array($definition['mode'] ?? null, ['guided', 'pattern'], true)) throw new \InvalidArgumentException('invalid_proposals');
         if ($definition['mode'] === 'guided' && !GuidedRuleValidator::valid($definition['rule'] ?? null)) throw new \InvalidArgumentException('invalid_proposals');
         if ($definition['mode'] === 'pattern' && (!is_string($definition['pattern'] ?? null) || strlen($definition['pattern']) > 1000)) throw new \InvalidArgumentException('invalid_proposals');
+        if ($definition['mode'] === 'pattern' && !is_bool($definition['replaceUnderscores'] ?? false)) throw new \InvalidArgumentException('invalid_proposals');
         $file = $snapshot['file'];
         $prefix = rtrim($file['rootPath'], '/') . '/' . ($context['folder'] !== '' ? $context['folder'] . '/' : '');
         if ($file['rootId'] !== $context['rootId'] || !str_starts_with($file['path'], $prefix)) throw new \DomainException('stale_preview');
@@ -138,6 +151,7 @@ final class InferenceBatchService {
             'year' => substr((string)$state['publication_date'], 0, 4), 'language' => $state['language'],
             'publisher' => $state['publisher'],
             'subject' => implode('; ', json_decode($state['subjects_json'] ?: '[]', true) ?: []),
+            'isbn' => implode('; ', array_column(array_values(array_filter(json_decode($state['identifiers_json'] ?: '[]', true) ?: [], static fn(array $row): bool => $row['scheme'] === 'isbn')), 'displayValue')),
         ];
         $result = InferenceParser::run(substr($file['path'], strlen($prefix)), $definition, $current);
         if (!in_array($result['status'], ['ready', 'conflict'], true)) throw new \DomainException('stale_preview');

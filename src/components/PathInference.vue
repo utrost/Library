@@ -1,6 +1,6 @@
 <script setup>
 import OperationStatus from './OperationStatus.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { inferPath } from '../path-inference.js'
@@ -15,44 +15,59 @@ import LabelHelp from './LabelHelp.vue'
 import InferenceSuggestions from './InferenceSuggestions.vue'
 import InferenceWorklist from './InferenceWorklist.vue'
 defineProps({ requestToken: { type: String, default: '' } })
-const roots = ref([]), rootId = ref(''), folder = ref(''), recursive = ref(true)
+const roots = ref([]), rootId = ref(''), folder = ref(''), recursive = ref(true), sort = ref('name'), folders = ref([]), childFolder = ref(''), folderSearch = ref(''), hasMoreFolders = ref(false), folderChoiceError = ref('')
 const items = ref([]), page = ref(1), hasNext = ref(false), busy = ref(false), error = ref('')
 const scope = ref(''), example = ref(''), loadedRootId = ref(''), loadedFolder = ref(''), folderRules = ref([])
 const rule = ref(null), editorMode = ref('guided'), ruleGeneration = ref(0)
 const pattern = ref('%folders%/%title%.%extension%')
+const replaceUnderscores = ref(false)
 const editorOpen = ref(false)
 const patternsVersion = ref(0)
 let generation = 0
+let folderChoiceGeneration = 0
+let folderSearchTimer = null
 
 const fields = computed(() => [
   ['title', t('library', 'Title')], ['subtitle', t('library', 'Subtitle')], ['author', t('library', 'Creators')],
   ['series', t('library', 'Series')], ['seriesNumber', t('library', 'Part in series')], ['language', t('library', 'Language')],
-  ['genre', t('library', 'Genre')], ['publisher', t('library', 'Publisher')], ['subject', t('library', 'Subjects')], ['year', t('library', 'Publication year')],
+  ['genre', t('library', 'Genre')], ['publisher', t('library', 'Publisher')], ['subject', t('library', 'Subjects')], ['year', t('library', 'Publication year')], ['isbn', t('library', 'ISBN')],
 ])
 const labels = computed(() => Object.fromEntries(fields.value))
+const advancedPatternHelp = computed(() => [
+  t('library', 'Patterns match paths relative to the selected folder. Literal spaces and punctuation must match exactly.'),
+  t('library', '%title% and %subtitle% — title and subtitle.'),
+  t('library', '%author% — one creator value; use guided assignments to split multiple authors.'),
+  t('library', '%series% and %seriesNumber% — series name and part in series.'),
+  t('library', '%language% — language name or code; common names normalize to a code.'),
+  t('library', '%subject% — one source subject. %genre% — source genre text, which can be reviewed for a curated genre assignment.'),
+  t('library', '%year% — exactly four digits. %publisher% — publisher name. %isbn% — a valid ISBN-10 or ISBN-13.'),
+  t('library', '%folder%/ ignores one folder; %folders%/ ignores zero or more folders.'),
+  t('library', '%ignore% skips one nonempty part; %extension% matches the extension without the dot.'),
+  t('library', 'Example: %folders%/%title% - %author%.%extension% matches Fiction/Book title - Author.epub.'),
+  t('library', 'Nextcloud tags cannot be assigned by a path pattern. Review every proposed value before applying.'),
+].join('\n'))
 const statusLabels = computed(() => ({
   ready: t('library', 'Empty field suggestions'), conflict: t('library', 'Existing values need review'),
   unmatched: t('library', 'Unmatched paths'), ambiguous: t('library', 'Ambiguous matches'),
   invalid: t('library', 'Invalid pattern or value'), unchanged: t('library', 'No changes'),
 }))
-const results = computed(() => items.value.map((item) => ({ ...item, ...(editorMode.value === 'folders' ? inferFolderRules(item.path, loadedFolder.value, folderRules.value, item.current) : editorMode.value === 'guided' ? inferRule(item.path, rule.value, item.current) : inferPath(item.path, pattern.value, item.current)) })))
+const results = computed(() => items.value.map((item) => ({ ...item, ...(editorMode.value === 'folders' ? inferFolderRules(item.path, loadedFolder.value, folderRules.value, item.current) : editorMode.value === 'guided' ? inferRule(item.path, rule.value, item.current) : inferPath(item.path, pattern.value, item.current, replaceUnderscores.value)) })))
 const selectedPreview = computed(() => results.value.find((item) => item.path === example.value))
-const sampleFolders = computed(() => [...new Set(items.value.filter((item) => item.path.includes('/')).map((item) => item.path.split('/')[0]))])
-function enterFolder(child) { folder.value = [folder.value.replace(/\/$/, ''), child].filter(Boolean).join('/'); load() }
-function parentFolder() { folder.value = folder.value.replace(/\/$/, '').split('/').slice(0, -1).join('/'); load() }
+function enterFolder(child) { if (!child) return; folder.value = [folder.value.replace(/\/$/, ''), child].filter(Boolean).join('/'); childFolder.value = ''; folderSearch.value = ''; load() }
+function parentFolder() { folder.value = folder.value.replace(/\/$/, '').split('/').slice(0, -1).join('/'); folderSearch.value = ''; load() }
 const scopePending = computed(() => rootId.value !== loadedRootId.value || folder.value.replace(/^\/+|\/+$/g, '') !== loadedFolder.value)
 const exampleParts = computed(() => pathParts(example.value))
 function selectExample() { if (!rule.value && example.value) rule.value = newRule(example.value) }
 function resetAssignments() { rule.value = newRule(example.value); ruleGeneration.value++; editorMode.value = 'guided' }
 function useRule(value) { rule.value = value; ruleGeneration.value++; editorMode.value = 'guided' }
 function useSuggestedRule(value) { useRule(value); editorOpen.value = false }
-function usePattern(value) { pattern.value = value; editorMode.value = 'pattern' }
+function usePattern(value, underscores = false) { pattern.value = value; replaceUnderscores.value = underscores; editorMode.value = 'pattern' }
 async function load(nextPage = 1) {
   const current = ++generation
   busy.value = true; error.value = ''; items.value = []
   try {
     const params = new URLSearchParams()
-    if (rootId.value) { params.set('rootId', rootId.value); params.set('folder', folder.value); params.set('recursive', recursive.value ? '1' : '0'); params.set('page', String(nextPage)) }
+    if (rootId.value) { params.set('rootId', rootId.value); params.set('folder', folder.value); params.set('folderSearch', folderSearch.value); params.set('recursive', recursive.value ? '1' : '0'); params.set('sort', sort.value); params.set('page', String(nextPage)) }
     const response = await fetch(`${generateUrl('/apps/library/api/inference/sample')}?${params}`, { credentials: 'same-origin', cache: 'no-store' })
     if (!response.ok) throw new Error(t('library', 'Could not load this folder. Check its path and your access.'))
     const data = await response.json()
@@ -63,13 +78,28 @@ async function load(nextPage = 1) {
     loadedRootId.value = rootId.value
     const rootPath = data.roots.find(root => String(root.id) === rootId.value)?.path.replace(/\/$/, '') || ''
     loadedFolder.value = data.scope.slice(rootPath.length).replace(/^\//, '')
-    items.value = data.items || []; page.value = data.page || 1; hasNext.value = Boolean(data.hasNext); scope.value = data.scope || ''
+    folders.value = data.folders || []; hasMoreFolders.value = Boolean(data.hasMoreFolders); items.value = data.items || []; page.value = data.page || 1; hasNext.value = Boolean(data.hasNext); scope.value = data.scope || ''
     example.value = items.value[0]?.path || ''; selectExample()
   } catch (e) { if (current === generation) error.value = e.message } finally { if (current === generation) busy.value = false }
 }
 function rulesLoaded(value) { if (value.rootId === loadedRootId.value) folderRules.value = value.assignments }
-function rootChanged() { folder.value = ''; load() }
+function rootChanged() { folder.value = ''; folderSearch.value = ''; load() }
+async function loadFolderChoices(query) {
+  if (!rootId.value) return
+  const current = ++folderChoiceGeneration
+  const params = new URLSearchParams({ rootId: rootId.value, folder: folder.value, folderSearch: query, foldersOnly: '1' })
+  folderChoiceError.value = ''
+  try {
+    const response = await fetch(`${generateUrl('/apps/library/api/inference/sample')}?${params}`, { credentials: 'same-origin', cache: 'no-store' })
+    if (!response.ok) throw new Error('folder_lookup')
+    const data = await response.json()
+    if (current !== folderChoiceGeneration || query !== folderSearch.value) return
+    folders.value = data.folders || []; hasMoreFolders.value = Boolean(data.hasMoreFolders)
+  } catch { if (current === folderChoiceGeneration) folderChoiceError.value = t('library', 'Could not load subfolders. Try again.') }
+}
+watch(folderSearch, value => { clearTimeout(folderSearchTimer); folderSearchTimer = setTimeout(() => { void loadFolderChoices(value.trim()) }, 200) })
 onMounted(() => load())
+onBeforeUnmount(() => { clearTimeout(folderSearchTimer); folderChoiceGeneration++ })
 </script>
 
 <template>
@@ -80,14 +110,16 @@ onMounted(() => load())
       <h2>{{ t('library', '1. Choose a folder') }}</h2>
       <form class="library-inference-scope" @submit.prevent="load()">
         <label><LabelHelp :text="t('library', 'Up to 40 accessible indexed books per page. Counts below describe this sample, not the entire folder.')">{{ t('library', 'Shelf') }}</LabelHelp><select v-model="rootId" :disabled="busy || !roots.length" @change="rootChanged"><option v-for="root in roots" :key="root.id" :value="String(root.id)">{{ root.label }}</option></select></label>
-        <label>{{ t('library', 'Folder within this shelf') }}<input v-model="folder" type="text" :disabled="busy" :placeholder="t('library', 'Leave empty for the whole shelf')"></label>
+        <label>{{ t('library', 'Find subfolder') }}<input v-model="folderSearch" type="search" :disabled="busy" :placeholder="t('library', 'Filter folder names')"></label>
+        <label>{{ t('library', 'Open subfolder') }}<select v-model="childFolder" :disabled="busy || !folders.length" @change="enterFolder(childFolder)"><option value="">{{ folders.length ? t('library', 'Choose a subfolder') : t('library', 'No subfolders') }}</option><option v-for="child in folders" :key="child" :value="child">{{ child }}</option></select><small v-if="hasMoreFolders">{{ t('library', 'More folders available. Type a name to narrow the choices.') }}</small><small v-if="folderChoiceError" role="alert">{{ folderChoiceError }}</small></label>
+        <label><LabelHelp :text="t('library', 'File dates come from Nextcloud Files. They do not indicate when Library metadata was last reviewed.')">{{ t('library', 'Sort files') }}</LabelHelp><select v-model="sort" :disabled="busy" @change="load()"><option value="name">{{ t('library', 'Name A–Z') }}</option><option value="modified_oldest">{{ t('library', 'Oldest modified file first') }}</option><option value="modified_newest">{{ t('library', 'Newest modified file first') }}</option><option value="type">{{ t('library', 'File type A–Z') }}</option></select></label>
         <label class="library-inference-checkbox"><input v-model="recursive" type="checkbox" :disabled="busy">{{ t('library', 'Include subfolders') }}</label>
         <button class="button primary" :disabled="busy || !rootId">{{ t('library', 'Load sample') }}</button>
       </form>
       <p v-if="scope" class="library-inference-path">{{ scope }}</p>
+      <p v-if="scope && !busy && !error && !items.length" role="status">{{ t('library', 'No indexed books in this folder for the current subfolder setting.') }}</p>
       <div class="library-inference-presets" :aria-label="t('library', 'Folders in this sample')">
         <button v-if="folder" class="button secondary" :disabled="busy" @click="parentFolder">{{ t('library', 'Parent folder') }}</button>
-        <button v-for="child in sampleFolders" :key="child" class="button secondary" :disabled="busy" @click="enterFolder(child)">{{ child }}/</button>
       </div>
 
     </section>
@@ -120,8 +152,9 @@ onMounted(() => load())
       </template>
       <details v-if="editorMode === 'pattern'" class="library-inference-pattern" open>
         <summary>{{ t('library', 'Pattern and presets') }}</summary>
-        <InferencePatterns :pattern="pattern" :request-token="requestToken" @choose="usePattern" @catalog-changed="patternsVersion++">
-          <label><LabelHelp :text="t('library', 'Placeholders capture text. Separators must match exactly. %folder% ignores one folder; %folders%/ ignores any folder depth; %ignore% ignores one filename part.') + '\n\n' + fields.map((field) => `%${field[0]}%`).join(' · ')">{{ t('library', 'Advanced pattern') }}</LabelHelp><input v-model="pattern" maxlength="1000" spellcheck="false" dir="ltr"></label>
+        <InferencePatterns :pattern="pattern" :replace-underscores="replaceUnderscores" :request-token="requestToken" @choose="usePattern" @catalog-changed="patternsVersion++">
+          <label><LabelHelp :text="advancedPatternHelp">{{ t('library', 'Advanced pattern') }}</LabelHelp><input v-model="pattern" maxlength="1000" spellcheck="false" dir="ltr"></label>
+          <label class="library-inference-checkbox"><input v-model="replaceUnderscores" type="checkbox">{{ t('library', 'Replace underscores with spaces in extracted values') }}</label>
         </InferencePatterns>
       </details>
       </details>
@@ -154,10 +187,10 @@ onMounted(() => load())
     </section>
     <section v-if="items.length" class="library-inference-step">
       <h2>{{ t('library', '3. Assign patterns and review files') }}</h2>
-      <InferenceWorklist :items="items" :labels="labels" :statuses="statusLabels" :root-id="loadedRootId" :folder="loadedFolder" :current="editorMode === 'guided' ? {mode:'guided',rule} : editorMode === 'pattern' ? {mode:'pattern',pattern} : null" :request-token="requestToken" :disabled="busy || scopePending" :patterns-version="patternsVersion" @changed="load(page)" />
+      <InferenceWorklist :items="items" :labels="labels" :statuses="statusLabels" :root-id="loadedRootId" :folder="loadedFolder" :current="editorMode === 'guided' ? {mode:'guided',rule} : editorMode === 'pattern' ? {mode:'pattern',pattern,replaceUnderscores} : null" :request-token="requestToken" :disabled="busy || scopePending" :patterns-version="patternsVersion" @changed="load(page)" />
       <nav class="library-inference-presets" :aria-label="t('library', 'Sample pages')"><button class="button secondary" :disabled="busy || page === 1" @click="load(page - 1)">{{ t('library', 'Previous page') }}</button><span>{{ page }}</span><button class="button secondary" :disabled="busy || !hasNext" @click="load(page + 1)">{{ t('library', 'Next page') }}</button></nav>
     </section>
-    <InferenceAnalysis v-if="items.length" :definition="{ mode:editorMode, pattern, rule, rootId:loadedRootId, folder:loadedFolder, recursive }" :labels="labels" :statuses="statusLabels" :request-token="requestToken" :disabled="busy || scopePending || !loadedRootId" />
+    <InferenceAnalysis v-if="items.length" :definition="{ mode:editorMode, pattern, replaceUnderscores, rule, rootId:loadedRootId, folder:loadedFolder, recursive }" :labels="labels" :statuses="statusLabels" :request-token="requestToken" :disabled="busy || scopePending || !loadedRootId" />
   </section>
 </template>
 

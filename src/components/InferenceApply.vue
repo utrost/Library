@@ -5,15 +5,15 @@ import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import LabelHelp from './LabelHelp.vue'
 const props = defineProps({ results: { type: Array, required: true }, labels: { type: Object, required: true }, context: { type: String, default: '' }, requestToken: { type: String, default: '' }, disabled: Boolean, wholeFolder:Boolean, compact:Boolean, externalSelection: { type: Array, default: null } })
-const emit = defineEmits(['changed'])
+const emit = defineEmits(['changed', 'failed'])
 const selected = ref([]), plan = ref(null), history = ref([]), busy = ref(false), error = ref(''), message = ref(''), confirmation = ref('')
-const supported = new Set(['author', 'title', 'subtitle', 'series', 'seriesNumber', 'genre', 'language', 'publisher', 'subject', 'year'])
+const supported = new Set(['author', 'title', 'subtitle', 'series', 'seriesNumber', 'genre', 'language', 'publisher', 'subject', 'year', 'isbn'])
 const candidates = computed(() => props.results.filter(item => ['ready', 'conflict'].includes(item.status) && item.revision).map(item => ({ ...item, changes: item.changes.filter(change => supported.has(change.field) && ['ready', 'conflict'].includes(change.status)) })).filter(item => item.changes.length))
 const key = (item, change) => `${item.id}:${change.field}`
 const chosen = computed(() => candidates.value.map(item => ({ id: item.id, revision: item.revision, changes: Object.fromEntries(item.changes.filter(change => selected.value.includes(key(item, change))).map(change => [change.field, change.field === 'author' ? (change.values || [change.value]) : change.value])) })).filter(item => Object.keys(item.changes).length))
 const statuses = computed(() => ({ prepared: t('library', 'Awaiting approval'), applied: t('library', 'Applied'), undone: t('library', 'Undone') }))
 let generation = 0
-watch(() => JSON.stringify([props.results, props.context]), () => { selected.value = props.externalSelection === null ? [] : [...props.externalSelection]; if (plan.value?.status === 'prepared') plan.value = null; confirmation.value = ''; generation++ })
+watch(() => JSON.stringify([props.results, props.context]), () => { selected.value = props.externalSelection === null ? [] : [...props.externalSelection]; plan.value = null; confirmation.value = ''; generation++ })
 watch(() => props.externalSelection, value => { if (value !== null) selected.value = [...value] }, { immediate: true, deep: true })
 watch(() => JSON.stringify(selected.value), () => { if (plan.value?.status === 'prepared') plan.value = null; confirmation.value = ''; generation++ })
 function selectEmpty() { selected.value = candidates.value.flatMap(item => item.changes.filter(change => change.status === 'ready').map(change => key(item, change))) }
@@ -32,21 +32,22 @@ async function api(path = '', body) {
   return data
 }
 async function refreshHistory() { history.value = (await api()).batches }
-async function run(action) { busy.value = true; error.value = ''; message.value = ''; try { await action() } catch(e) { error.value = e.message } finally { busy.value = false } }
-function reloadSample() { plan.value = null; error.value = ''; confirmation.value = ''; emit('changed') }
+async function run(action) { busy.value = true; error.value = ''; message.value = ''; try { return await action() } catch(e) { error.value = e.message; emit('failed', error.value); return null } finally { busy.value = false } }
+function reloadSample() { plan.value = null; error.value = ''; confirmation.value = ''; emit('changed', 'reload') }
 async function review() {
   const current = generation
-  await run(async () => { const prepared = await api('', { proposals: chosen.value, context: props.context }); if (current === generation) plan.value = prepared; await refreshHistory() })
+  return run(async () => { const prepared = await api('', { proposals: chosen.value, context: props.context }); if (current === generation) plan.value = prepared; await refreshHistory().catch(() => {}); return current === generation ? prepared : null })
 }
+defineExpose({ review, apply })
 async function open(id) { await run(async () => { plan.value = await api(`/${id}`); confirmation.value = '' }) }
 async function apply() {
   if (!plan.value || props.disabled) return
   const approved = plan.value, id = approved.id
-  await run(async () => { const result = await api(`/${id}/apply`, {}); plan.value = { ...approved, ...result }; message.value = t('library', 'Selected metadata changes were applied. Source files were not changed.'); selected.value = []; await refreshHistory(); emit('changed') })
+  return run(async () => { const result = await api(`/${id}/apply`, {}); plan.value = { ...approved, ...result }; message.value = t('library', 'Selected metadata changes were applied. Source files were not changed.'); selected.value = []; emit('changed', 'applied'); await refreshHistory().catch(() => {}); return result })
 }
 async function undo() {
   const approved = plan.value, id = approved.id
-  await run(async () => { const result = await api(`/${id}/undo`, {}); plan.value = { ...approved, ...result }; confirmation.value = ''; message.value = t('library', 'The batch was undone. Previous metadata and provenance were restored.'); await refreshHistory(); emit('changed') })
+  await run(async () => { const result = await api(`/${id}/undo`, {}); plan.value = { ...approved, ...result }; confirmation.value = ''; message.value = t('library', 'The batch was undone. Previous metadata and provenance were restored.'); await refreshHistory(); emit('changed', 'undone') })
 }
 async function discard() { await run(async () => { await api(`/${plan.value.id}/discard`, {}); plan.value = null; await refreshHistory() }) }
 onMounted(() => run(refreshHistory))

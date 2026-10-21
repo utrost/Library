@@ -411,6 +411,7 @@ final class ItemService {
         $result->closeCursor();
         if ($row === false) throw new \OutOfBoundsException('missing_item');
         $row['user_edited'] = in_array($row['user_edited'], [true, 1, '1', 't', 'true'], true) ? '1' : '0';
+        $row['identifiers_json'] = json_encode($this->catalogueIdentifiers($userId, [$itemId])[$itemId] ?? [], JSON_THROW_ON_ERROR);
         return array_map(static fn($value) => $value === null ? null : (string)$value, $row);
     }
 
@@ -430,12 +431,15 @@ final class ItemService {
             ->andWhere($qb->expr()->in('i.id',$qb->createNamedParameter(array_map('intval',$ids),IQueryBuilder::PARAM_INT_ARRAY)))
             ->executeQuery();
         $rows = $result->fetchAll(); $result->closeCursor();
+        $identifiers = $this->catalogueIdentifiers($uid, array_map('intval', array_column($rows, 'id')));
+        foreach ($rows as &$row) $row['identifiers_json'] = json_encode($identifiers[(int)$row['id']] ?? [], JSON_THROW_ON_ERROR);
+        unset($row);
         return $rows;
     }
 
     /** Called inside InferenceBatchService's transaction after locking and snapshot validation. */
     public function writeInferenceState(string $userId, int $itemId, array $values): void {
-        $allowed = ['creators', 'metadata_source', 'user_edited', 'field_sources'];
+        $allowed = ['creators', 'metadata_source', 'user_edited', 'field_sources', 'identifiers_json'];
         foreach (InferenceChangeSet::FIELDS as [$column]) $allowed[] = $column;
         if (array_diff(array_keys($values), $allowed)) throw new \InvalidArgumentException('invalid_fields');
         $qb = $this->db->getQueryBuilder();
@@ -444,11 +448,16 @@ final class ItemService {
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
         if (array_key_exists('authors_json', $values) || array_key_exists('creators', $values)) $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT));
         if (array_key_exists('series_name', $values) || array_key_exists('series_number', $values)) $qb->set('series_sync_status', $qb->createNamedParameter(SeriesStorageService::PENDING, IQueryBuilder::PARAM_INT));
-        foreach ($values as $column => $value) $qb->set($column, $qb->createNamedParameter($value));
+        foreach ($values as $column => $value) if ($column !== 'identifiers_json') $qb->set($column, $qb->createNamedParameter($value));
         // Inference Apply/Undo has its own snapshot contract. Keep the older,
         // conservative whole-item protection until it records per-field intent.
         if (array_key_exists('user_edited', $values)) $qb->set('protected_fields_json', $qb->createNamedParameter(null));
         $qb->executeStatement();
+        if (array_key_exists('identifiers_json', $values)) {
+            $identifiers = json_decode($values['identifiers_json'], true, 32, JSON_THROW_ON_ERROR);
+            if (!is_array($identifiers)) throw new \InvalidArgumentException('invalid_fields');
+            $this->syncItemIdentifiers($userId, $itemId, IdentifierService::normalizeIdentifierList($identifiers, 'path-inference', true), false);
+        }
         $item = $this->findItem($userId, $itemId);
         $this->refreshReviewFilterFlags($userId, $itemId);
         $this->refreshItemFacetIndex($userId, $itemId, $item['subjects'], $item['classifications'], $this->typeaheadScalarFacets($item));
@@ -3073,6 +3082,18 @@ final class ItemService {
 
         $query = trim((string)($filters['q'] ?? ''));
         if ($query !== '') {
+            if (($filters['searchScope'] ?? '') === 'title_description') {
+                $text = mb_strtolower($query);
+                $escaped = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $text);
+                $parameter = $qb->createNamedParameter('%' . $escaped . '%');
+                $qb->andWhere($qb->expr()->orX(
+                    $qb->createFunction("LOWER(i.title) LIKE {$parameter} ESCAPE '!'"),
+                    $qb->createFunction("LOWER(i.description) LIKE {$parameter} ESCAPE '!'")
+                ));
+                $grams = $this->searchGramsForQuery($query);
+                if ($grams !== []) $qb->andWhere($qb->expr()->in('i.id', $qb->createFunction($this->searchGramCandidateSubquery($qb, $userId, $grams))));
+                return;
+            }
             $exactTitleItemIds = $this->exactTitleCandidateIds($userId, $query);
             $authorPredicate = $this->canonicalAuthorSearchPredicate($qb, $userId, $query);
             $searchGrams = $this->searchGramsForQuery($query);

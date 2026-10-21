@@ -35,7 +35,13 @@ useUnsavedChanges(() => (editing.value && (editor.name !== (detail.value?.list.n
 async function load(page = 1, preserveDraft = editing.value) {
   busy.value = true; error.value = ''
   try {
-    if (selectedListId.value) detail.value = await listRequest(`/${selectedListId.value}?page=${page}`)
+    if (selectedListId.value) {
+      detail.value = await listRequest(`/${selectedListId.value}?page=${page}`)
+      const url = new URL(location.href)
+      if (page > 1) url.searchParams.set('listPage', String(page))
+      else url.searchParams.delete('listPage')
+      history.replaceState(history.state, '', url)
+    }
     else lists.value = (await listRequest()).lists
     if (!preserveDraft) { draftEntry.value = null; editing.value = false }
   } catch (e) { error.value = e.message } finally { busy.value = false }
@@ -104,7 +110,8 @@ function drop(beforeId) {
 }
 
 onMounted(async () => {
-  await load()
+  const requestedPage = Number(new URLSearchParams(location.search).get('listPage'))
+  await load(Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1)
   if (!selectedListId.value && new URLSearchParams(window.location.search).get('new') === '1') edit()
 })
 </script>

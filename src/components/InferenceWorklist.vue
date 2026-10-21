@@ -10,6 +10,8 @@ const props = defineProps({ items: { type: Array, required: true }, labels: { ty
 const emit = defineEmits(['changed'])
 const saved = ref([]), hidden = ref([]), error = ref(''), loading = ref(false)
 const manual = ref({}), selected = ref([]), bulkId = ref(''), filter = ref('all'), lastMatchedIds = ref([])
+const quickSelection = ref([]), applyControl = ref(null), quickRowId = ref(null), quickBusy = ref(false), rowNoticeId = ref(null), rowError = ref('')
+let pendingPreserve = null
 let generation = 0
 const choices = computed(() => [
   ...(props.current && ['guided', 'pattern'].includes(props.current.mode) ? [{ id: 'current-draft', name: t('library', 'Current draft'), ...props.current }] : []),
@@ -27,13 +29,41 @@ const rows = computed(() => props.items.map(item => {
 const visibleRows = computed(() => rows.value.filter(row => filter.value === 'all' || (filter.value === 'matched' ? lastMatchedIds.value.includes(row.id) : filter.value === 'assigned' ? Boolean(row.choiceId) : !row.choiceId || !isCompleteMatch(row.result))))
 const bulkChoice = computed(() => choices.value.find(entry => entry.id === bulkId.value))
 const bulkMatches = computed(() => bulkChoice.value ? props.items.filter(item => !Object.hasOwn(manual.value, item.id) && isCompleteMatch(previewDefinition(item, bulkChoice.value))) : [])
-const context = computed(() => mixedReviewContext(props.items, choices.value, Object.fromEntries(rows.value.map(row => [row.id, row.choiceId])), selected.value, props.rootId, props.folder))
+const activeSelection = computed(() => quickSelection.value.length ? quickSelection.value : selected.value)
+const context = computed(() => mixedReviewContext(props.items, choices.value, Object.fromEntries(rows.value.map(row => [row.id, row.choiceId])), activeSelection.value, props.rootId, props.folder))
+async function applyRow(row) {
+  const fields = row.result.changes.filter(change => selected.value.includes(`${row.id}:${change.field}`)).map(change => `${row.id}:${change.field}`)
+  if (!fields.length || !row.choiceId) return
+  quickRowId.value = row.id
+  rowNoticeId.value = null
+  rowError.value = ''
+  quickSelection.value = fields
+  await nextTick()
+  quickBusy.value = true
+  try {
+    const prepared = await applyControl.value?.review()
+    if (!prepared) return
+    const hasReplacement = row.result.changes.some(change => fields.includes(`${row.id}:${change.field}`) && change.status === 'conflict')
+    if (hasReplacement) {
+      applyControl.value?.$el?.querySelector('.library-inference-confirm')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    } else await applyControl.value?.apply()
+  } finally { quickBusy.value = false }
+}
+function worklistFailed(message) { if (quickRowId.value !== null) rowError.value = message }
+function worklistChanged(status) {
+  if (quickRowId.value !== null) {
+    pendingPreserve = { manual: { ...manual.value }, selected: selected.value.filter(key => !key.startsWith(`${quickRowId.value}:`)) }
+    if (status === 'applied') rowNoticeId.value = quickRowId.value
+  }
+  emit('changed')
+}
 
 function setChoice(item, id) {
   manual.value = { ...manual.value, [item.id]: id }
   selected.value = selected.value.filter(key => !key.startsWith(`${item.id}:`))
 }
 function toggle(item, field, checked) {
+  quickSelection.value = []
   const key = `${item.id}:${field}`
   selected.value = checked ? [...new Set([...selected.value, key])] : selected.value.filter(value => value !== key)
 }
@@ -60,7 +90,12 @@ async function loadPatterns() {
   } catch (e) { if (current === generation) error.value = e.message } finally { if (current === generation) loading.value = false }
 }
 watch(() => props.patternsVersion, loadPatterns)
-watch(() => props.items, () => { manual.value = {}; selected.value = []; lastMatchedIds.value = []; filter.value = 'all' })
+watch(() => props.items, () => {
+  manual.value = pendingPreserve?.manual || {}
+  selected.value = pendingPreserve?.selected || []
+  pendingPreserve = null
+  quickSelection.value = []; quickRowId.value = null; lastMatchedIds.value = []; filter.value = 'all'
+})
 watch(rows, (now, old) => {
   const changed = new Set(now.filter(row => old?.find(previous => previous.id === row.id)?.choiceId !== row.choiceId).map(row => row.id))
   const available = new Set(now.flatMap(row => row.result.changes
@@ -85,12 +120,13 @@ onMounted(loadPatterns)
     <div class="library-inference-worklist-table" role="table" :aria-label="t('library', 'Files and assigned patterns')">
       <div class="library-inference-worklist-head" role="row"><span role="columnheader">{{ t('library', 'File') }}</span><span role="columnheader">{{ t('library', 'Pattern') }}</span><span role="columnheader">{{ t('library', 'Proposed fields') }}</span></div>
       <div v-for="row in visibleRows" :key="row.id" class="library-inference-worklist-row" role="row">
-        <div class="library-inference-worklist-path" role="cell" :title="row.path">{{ row.path }}</div>
+        <div class="library-inference-worklist-path" role="cell" :title="row.path">{{ row.path }}<small>{{ row.fileType || t('library', 'Unknown type') }} · {{ row.modifiedAt ? new Date(row.modifiedAt * 1000).toLocaleDateString() : t('library', 'Date unknown') }}</small></div>
         <div role="cell" class="library-inference-worklist-pattern">
           <label :for="`worklist-pattern-${row.id}`" class="visually-hidden">{{ t('library', 'Pattern for {file}', { file: row.path }) }}</label>
           <select :id="`worklist-pattern-${row.id}`" :value="row.choiceId" :disabled="disabled || loading" @change="setChoice(row, $event.target.value)"><option value="">{{ t('library', 'Choose a pattern') }}</option><option v-for="entry in choices" :key="entry.id" :value="entry.id">{{ entry.name }}</option></select>
           <small v-if="row.suggested">{{ t('library', 'Suggested') }}</small><small v-else-if="row.ambiguous">{{ t('library', 'Several patterns match; choose one.') }}</small>
           <small v-if="row.choiceId">{{ statuses[row.result.status] }}</small>
+          <button v-if="row.choiceId && isCompleteMatch(row.result)" class="button secondary library-inference-row-apply" :aria-label="t('library', 'Apply selected changes for {file}', { file: row.path })" :disabled="disabled || loading || quickBusy || !selected.some(key => key.startsWith(`${row.id}:`))" @click="applyRow(row)">{{ quickBusy && quickRowId === row.id ? t('library', 'Applying…') : t('library', 'Apply now') }}</button><small v-if="rowNoticeId === row.id" role="status">{{ t('library', 'Changes applied to this file.') }}</small><small v-if="quickRowId === row.id && rowError" role="alert">{{ rowError }}</small>
         </div>
         <div role="cell" class="library-inference-worklist-fields">
           <template v-if="isCompleteMatch(row.result)">
@@ -105,7 +141,7 @@ onMounted(loadPatterns)
       </div>
     </div>
     <p v-if="!visibleRows.length" class="library-muted">{{ t('library', 'No files in this view.') }}</p>
-    <InferenceApply compact :external-selection="selected" :results="rows" :labels="labels" :request-token="requestToken" :context="context" :disabled="disabled" @changed="emit('changed')" />
+    <InferenceApply ref="applyControl" v-show="activeSelection.length" compact :external-selection="activeSelection" :results="rows" :labels="labels" :request-token="requestToken" :context="context" :disabled="disabled" @changed="worklistChanged" @failed="worklistFailed" />
   </section>
 </template>
 
@@ -121,6 +157,7 @@ onMounted(loadPatterns)
 .library-inference-worklist-path { overflow-wrap:anywhere; }
 .library-inference-worklist-pattern select { width:100%; }
 .library-inference-worklist-pattern small, .library-inference-worklist-fields small { display:block; color:var(--color-text-maxcontrast); }
+.library-inference-row-apply { margin-top:8px; }
 .library-inference-worklist-field { display:flex !important; flex-direction:row; align-items:start; gap:8px; margin-block:4px; overflow-wrap:anywhere; }
 .library-inference-worklist-field input { flex:none; margin-top:4px; }
 .library-inference-worklist-field span { min-width:0; }

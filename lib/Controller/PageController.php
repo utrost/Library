@@ -361,6 +361,7 @@ class PageController extends Controller {
     private function catalogueFiltersFromRequest(): array {
         return [
             'q' => trim((string)$this->request->getParam('q', '')),
+            'searchScope' => $this->request->getParam('searchScope', '') === 'title_description' && trim((string)$this->request->getParam('q', '')) !== '' ? 'title_description' : '',
             'view' => trim((string)$this->request->getParam('view', 'compact')),
             'type' => trim((string)$this->request->getParam('type', '')),
             'publisher' => trim((string)$this->request->getParam('publisher', '')),
@@ -760,7 +761,7 @@ class PageController extends Controller {
      */
     private function paginationUrl(array $activeFilters, array $pagination, int $page, string $cursor = ''): string {
         $query = [];
-        foreach (['q', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'authorId', 'seriesId', 'genreId', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'markedForDeletion', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
+        foreach (['q', 'searchScope', 'view', 'type', 'publisher', 'publication', 'year', 'creator', 'authorId', 'seriesId', 'genreId', 'format', 'tag', 'shelf', 'folder', 'status', 'workflowStatus', 'subject', 'classification', 'scannerConflicts', 'starred', 'recentlyOpened', 'markedForDeletion', 'needsMetadata', 'coverReview', 'noCreator', 'noPublication', 'noDate', 'titleFromFilename', 'noDescription', 'unsupportedContainer', 'weakMetadata', 'unreviewedImports', 'sort'] as $param) {
             $value = trim((string)($activeFilters[$param] ?? ''));
             if ($value !== '' && !($param === 'sort' && $value === 'title') && !($param === 'view' && $value === 'compact')) {
                 $query[$param] = $value;

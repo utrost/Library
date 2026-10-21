@@ -17,7 +17,7 @@ final class GuidedRuleValidator {
     private static function part(mixed $node, int $depth, int &$count): bool {
         if (++$count > 128 || $depth > 6 || !is_array($node)
             || array_diff(array_keys($node), ['field', 'split', 'prefix', 'suffix', 'underscores', 'mapFrom', 'mapTo', 'authorSeparator', 'reverseName', 'authorSeparatorChoice', 'customAuthorSeparator'])
-            || !in_array($node['field'] ?? null, ['ignore', 'title', 'subtitle', 'author', 'series', 'seriesNumber', 'language', 'genre', 'publisher', 'subject', 'year'], true)) return false;
+            || !in_array($node['field'] ?? null, ['ignore', 'title', 'subtitle', 'author', 'series', 'seriesNumber', 'language', 'genre', 'publisher', 'subject', 'year', 'isbn'], true)) return false;
         foreach (['underscores', 'reverseName'] as $key) if (array_key_exists($key, $node) && !is_bool($node[$key])) return false;
         foreach (['prefix' => 100, 'suffix' => 100, 'mapFrom' => 200, 'mapTo' => 200, 'authorSeparator' => 100, 'customAuthorSeparator' => 100] as $key => $limit) {
             if (array_key_exists($key, $node) && (!is_string($node[$key]) || mb_strlen($node[$key]) > $limit || preg_match('/[\x00-\x1f\x7f]/', $node[$key]))) return false;

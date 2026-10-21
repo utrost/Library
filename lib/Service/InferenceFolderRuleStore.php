@@ -25,7 +25,7 @@ final class InferenceFolderRuleStore {
         if (!is_array($value) || !is_string($value['name'] ?? null)) return null;
         $kind = $value['kind'] ?? 'pattern';
         if ($kind === 'guided' && GuidedRuleValidator::valid($value['rule'] ?? null)) return ['id' => $id, 'kind' => $kind, 'name' => $value['name'], 'rule' => $value['rule']];
-        if ($kind === 'pattern' && is_string($value['pattern'] ?? null)) return ['id' => $id, 'kind' => $kind, 'name' => $value['name'], 'pattern' => $value['pattern']];
+        if ($kind === 'pattern' && is_string($value['pattern'] ?? null)) return ['id' => $id, 'kind' => $kind, 'name' => $value['name'], 'pattern' => $value['pattern'], 'replaceUnderscores' => ($value['replaceUnderscores'] ?? false) === true];
         return null;
     }
     public function save(string $uid, array $value): array {

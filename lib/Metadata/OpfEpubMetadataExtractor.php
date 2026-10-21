@@ -227,13 +227,18 @@ private function extractIdentifiers(mixed $nodes, string $source): array {
         }
 
         $compact = strtoupper((string)preg_replace('/[\s-]+/u', '', $value));
+        if ($scheme === '' && preg_match('/^(ASIN|GGKEY)\s*:\s*([A-Za-z0-9_-]+)$/iu', $value, $labelled) === 1) {
+            $scheme = strtolower($labelled[1]);
+        }
         // Eight digits alone are common vendor IDs; require an ISSN label.
-        if (($scheme === 'isbn' || preg_match('/^(?:(?:URN:)?ISBN:?)?(\d{9}[\dX]|\d{13})$/i', $compact) === 1)
+        if (($scheme === 'isbn' || ($scheme === '' && preg_match('/^(?:(?:URN:)?ISBN:?)?(\d{9}[\dX]|\d{13})$/i', $compact) === 1))
             && preg_match('/(\d{9}[\dX]|\d{13})$/i', $compact) === 1) {
             $identifiers[] = ['scheme' => 'isbn', 'displayValue' => $value, 'source' => $source, 'userEdited' => false];
-        } elseif (($scheme === 'issn' || preg_match('/^(?:URN:)?ISSN:?(\d{7}[\dX])$/i', $compact) === 1)
+        } elseif (($scheme === 'issn' || ($scheme === '' && preg_match('/^(?:URN:)?ISSN:?(\d{7}[\dX])$/i', $compact) === 1))
             && preg_match('/(\d{7}[\dX])$/i', $compact) === 1) {
             $identifiers[] = ['scheme' => 'issn', 'displayValue' => $value, 'source' => $source, 'userEdited' => false];
+        } elseif (in_array($scheme, ['asin', 'ggkey'], true)) {
+            $identifiers[] = ['scheme' => $scheme, 'displayValue' => $value, 'source' => $source, 'userEdited' => false];
         }
     }
     return $identifiers;

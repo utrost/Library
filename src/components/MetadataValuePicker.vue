@@ -26,6 +26,10 @@ const languageCodes = [
   'ar', 'zh', 'da', 'nl', 'en', 'en-GB', 'en-US', 'fi', 'fr', 'de', 'el', 'hi', 'it',
   'ja', 'ko', 'no', 'pl', 'pt', 'pt-BR', 'ru', 'es', 'sv', 'tr', 'uk',
 ]
+const commonLanguageCodes = [
+  'en', 'es', 'fr', 'de', 'pt', 'zh', 'hi', 'ar', 'ru', 'ja',
+  'ko', 'it', 'nl', 'pl', 'tr', 'uk', 'sv', 'da', 'fi', 'no',
+]
 const languageAliases = {
   ara: 'ar', chi: 'zh', zho: 'zh', dut: 'nl', nld: 'nl', eng: 'en',
   fre: 'fr', fra: 'fr', ger: 'de', deu: 'de', ita: 'it', jpn: 'ja', spa: 'es',
@@ -62,7 +66,9 @@ const canAdd = computed(() => candidate.value.length > 0 && candidate.value.leng
   && !selected.value.some(value => value.toLowerCase() === candidate.value.toLowerCase()))
 const options = computed(() => {
   const query = search.value.trim().toLocaleLowerCase()
-  if (!query) return []
+  if (!query) return isLanguage.value
+    ? commonLanguageCodes.filter(value => !selected.value.some(chosen => chosen.toLowerCase() === value)).sort((a, b) => display(a).localeCompare(display(b))).slice(0, 20)
+    : []
   const values = isLanguage.value
     ? languageCodes.filter(value => value.toLowerCase().includes(query) || display(value).toLocaleLowerCase().includes(query) || languageAliases[query] === value)
     : remoteSuggestions.value
