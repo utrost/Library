@@ -141,7 +141,7 @@ onMounted(loadPatterns)
       </div>
     </div>
     <p v-if="!visibleRows.length" class="library-muted">{{ t('library', 'No files in this view.') }}</p>
-    <InferenceApply ref="applyControl" v-show="activeSelection.length" compact :external-selection="activeSelection" :results="rows" :labels="labels" :request-token="requestToken" :context="context" :disabled="disabled" @changed="worklistChanged" @failed="worklistFailed" />
+    <InferenceApply ref="applyControl" compact :external-selection="activeSelection" :results="rows" :labels="labels" :request-token="requestToken" :context="context" :disabled="disabled" @changed="worklistChanged" @failed="worklistFailed" />
   </section>
 </template>
 
