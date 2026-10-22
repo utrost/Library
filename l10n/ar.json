@@ -696,7 +696,6 @@
         "Part in series": "الجزء في السلسلة",
         "Part {number}": "الجزء {number}",
         "Paste a Library corrected metadata JSON export here.": "ألصق هنا تصدير JSON للبيانات الوصفية المصححة من المكتبة.",
-        "Paste image": "لصق صورة",
         "Path": "المسار",
         "Path-based suggestion": "اقتراح مستند إلى المسار",
         "Pattern": "النمط",
@@ -725,7 +724,6 @@
         "Preferred copy selected": "تم اختيار النسخة المفضلة",
         "Preferred label": "التسمية المفضلة",
         "Preferred name": "الاسم المفضل",
-        "Press Ctrl+V or ⌘V to paste a copied image.": "اضغط Ctrl+V أو ⌘V للصق صورة منسوخة.",
         "Press Enter or Apply to use this value.": "اضغط Enter أو تطبيق لاستخدام هذه القيمة.",
         "Press Search to apply the typed query.": "اضغط على بحث لتطبيق النص المُدخل.",
         "Preview a naming rule, select fields and review before applying. Source files are never changed.": "عاين قاعدة التسمية وحدد الحقول وراجعها قبل التطبيق. لا تتغير الملفات الأصلية أبداً.",
@@ -1505,7 +1503,18 @@
         "Unsaved draft. Choose “New saved pattern…” above to save this definition.": "مسودة غير محفوظة. اختر «نمط محفوظ جديد…» أعلاه لحفظ هذا التعريف.",
         "Unsaved draft. Choose “New saved rule…” above to save this definition.": "مسودة غير محفوظة. اختر «قاعدة محفوظة جديدة…» أعلاه لحفظ هذا التعريف.",
         "Unsaved pattern draft": "مسودة نمط غير محفوظة",
-        "Unsaved rule draft": "مسودة قاعدة غير محفوظة"
+        "Unsaved rule draft": "مسودة قاعدة غير محفوظة",
+        "All statuses": "كل الحالات",
+        "Applied suggested {field} to {title}. Continue with the next item.": "طُبّقت القيمة المقترحة لـ {field} على {title}. تابع إلى العنصر التالي.",
+        "Clipboard access was unavailable. Paste with your keyboard or choose Replace cover.": "تعذّر الوصول إلى الحافظة. الصق باستخدام لوحة المفاتيح أو اختر استبدال الغلاف.",
+        "Clipboard has no JPEG, PNG, or WebP image. Choose Replace cover to select a file.": "لا تحتوي الحافظة على صورة JPEG أو PNG أو WebP. اختر استبدال الغلاف لتحديد ملف.",
+        "Clipboard images are unavailable here. Choose an image file instead, or paste with your keyboard.": "صور الحافظة غير متاحة هنا. اختر ملف صورة بدلاً منها أو الصق باستخدام لوحة المفاتيح.",
+        "Not set": "غير محدد",
+        "Order: To read → Reading → Paused → Needs action → Finished → Reference → Abandoned → Not set.": "الترتيب: للقراءة ← قيد القراءة ← متوقف مؤقتاً ← يحتاج إلى إجراء ← منتهٍ ← مرجع ← متروك ← غير محدد.",
+        "Paste a copied image as cover": "الصق صورة منسوخة كغلاف",
+        "Reading status (to read first)": "حالة القراءة (للقراءة أولاً)",
+        "The suggested value could not be applied. Reload this queue and try again.": "تعذّر تطبيق القيمة المقترحة. أعد تحميل قائمة المراجعة هذه وحاول مجدداً.",
+        "The value was applied, but the queue could not be refreshed. Reload this queue.": "طُبّقت القيمة لكن تعذّر تحديث قائمة المراجعة. أعد تحميل هذه القائمة."
     },
     "pluralForm": "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 }

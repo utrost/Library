@@ -216,14 +216,25 @@ final class ItemController extends Controller {
     }
 
     #[NoAdminRequired]
-    public function resetfield(int $itemId): RedirectResponse {
+    public function resetfield(int $itemId): RedirectResponse|JSONResponse {
         $field = (string)$this->request->getParam('field', '');
         $user = $this->userSession->getUser();
+        $returnTo = (string)$this->request->getParam('returnTo', '');
+        if ($returnTo === 'review') {
+            if ($user === null) {
+                return new JSONResponse(['applied' => false], 401, ['Cache-Control' => 'private, no-store']);
+            }
+            try {
+                $applied = $this->itemService->resetFieldToScannerCandidate($user->getUID(), $itemId, $field);
+            } catch (\Throwable) {
+                return new JSONResponse(['applied' => false], 500, ['Cache-Control' => 'private, no-store']);
+            }
+            return new JSONResponse(['applied' => $applied], $applied ? 200 : 409, ['Cache-Control' => 'private, no-store']);
+        }
         if ($user !== null) {
             $this->itemService->resetFieldToScannerCandidate($user->getUID(), $itemId, $field);
         }
 
-        $returnTo = (string)$this->request->getParam('returnTo', '');
         if ($returnTo === 'details') {
             return new RedirectResponse(BookDetailsUrl::forItem($this->urlGenerator, ['itemId' => $itemId]));
         }

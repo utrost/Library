@@ -2768,7 +2768,7 @@ describe('Library catalogue Vue app', () => {
       activeFilters: { ...state.activeFilters, scannerConflicts: '1' },
       items: state.items.map((item) => ({ ...item, fieldValues: { ...item.fieldValues, title: 'x'.repeat(513), rejectedFields: JSON.stringify(['title']) } })),
     } } })
-    const action = wrapper.find('.library-metadata-review-accept-form button')
+    const action = wrapper.find('.library-metadata-review-field-actions > button')
     expect(action.element.disabled).toBe(true)
     expect(action.attributes('title')).toContain('exceeds field limits')
     expect(wrapper.find('.library-metadata-review-workbench').text()).toContain('x'.repeat(513))
@@ -2797,10 +2797,10 @@ describe('Library catalogue Vue app', () => {
     expect(workbench.text()).not.toContain('user-edited values are never silently overwritten')
     expect(workbench.find('#library-metadata-review-workbench-heading').attributes('title')).toContain('No source files are changed')
     expect(workbench.find('#library-metadata-review-workbench-heading').attributes('title')).toContain('user-edited values are never silently overwritten')
-    const acceptForm = workbench.find('form.library-metadata-review-accept-form')
-    expect(acceptForm.attributes('action')).toBe('/apps/library/items/7/reset-field')
-    expect(acceptForm.find('input[name="field"]').exists()).toBe(true)
-    expect(acceptForm.find('input[name="returnTo"]').element.value).toBe('catalogue')
+    const applyButton = workbench.find('.library-metadata-review-field-actions > button')
+    expect(applyButton.attributes('type')).toBe('button')
+    expect(applyButton.text()).toBe('Use suggested value')
+    expect(workbench.find('form.library-metadata-review-accept-form').exists()).toBe(false)
   })
 
   it('distinguishes publication and series suggestions with identical names', () => {
@@ -2808,12 +2808,12 @@ describe('Library catalogue Vue app', () => {
     const wrapper = mount(App, { props: { state: { ...state, items: [item], activeFilters: { ...state.activeFilters, scannerConflicts: '1' } } } })
     const rows = wrapper.findAll('.library-metadata-review-field')
     const publication = rows.find(row => row.get('h4').text().includes('Publication / periodical'))
-    const series = rows.find(row => row.get('input[name="field"]').element.value === 'series')
+    const series = rows.find(row => row.get('h4').text().includes('Series'))
     expect(series.get('h4').text()).toContain('Series')
     expect(publication.text()).toContain('Use publication value')
     expect(series.text()).toContain('Use series value')
-    expect(publication.get('input[name="field"]').element.value).toBe('publication')
-    expect(series.get('input[name="field"]').element.value).toBe('series')
+    expect(publication.get('.library-metadata-review-field-actions > button').text()).toBe('Use publication value')
+    expect(series.get('.library-metadata-review-field-actions > button').text()).toBe('Use series value')
   })
 
   it('shows cover loading polish and a graceful broken-cover fallback', async () => {

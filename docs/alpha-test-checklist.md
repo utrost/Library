@@ -1,6 +1,6 @@
 # Public alpha test checklist
 
-**Current developer build: signed 0.3.0-alpha.38.** Hosted CI passed, and the installed package passed integrity, asset matching and disposable desktop/mobile smokes on NC34. The catalogue remained at large catalogue books; see the [alpha.38 verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
+**Current developer candidate: 0.3.0-alpha.39.** The signed alpha.38 package remains installed on NC34 while alpha.39 passes CI and deployment checks. Hosted CI passed, and the installed package passed integrity, asset matching and disposable desktop/mobile smokes on NC34. The catalogue remained at large catalogue books; see the [alpha.38 verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.38 is now installed.
 
@@ -10,7 +10,7 @@ Alpha.30 adds a shared compact browser for Authors, Series and Genres, with disp
 
 Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.38 is now installed.
 
-The current development checkpoint is **`0.3.0-alpha.38`**; the [alpha.38 verification and deployment record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) identifies the package installed on private developer Nextcloud 34. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+The current development checkpoint is **`0.3.0-alpha.39`**; the [alpha.38 verification and deployment record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) identifies the package installed on private developer Nextcloud 34. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
 
 Use the [Playwright journey suite](playwright-journeys.md) for repeatable browser workflows against a disposable instance. Use the [current 0.3 human cases](human-test-handbook.md#current-03-human-cases) for personal acceptance. This checklist covers package identity, source-file safety, real-file coverage and release-specific acceptance.
 

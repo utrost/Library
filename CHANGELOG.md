@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0-alpha.39 — 2026-10-22
+
+- Keep Review queue in place after applying a scanner suggestion, show the outcome and advance to the next pending suggestion. Show linked covers in the workbench and result rows.
+- Make Reading status visible in the catalogue toolbar and add a stable reading-status sort with a stated order.
+- Make the whole book cover a clipboard-paste target, with a file-picker fallback where clipboard image access is unavailable. Reduce the cover action overlays so more artwork remains visible.
+- No database migration.
+
 ## 0.3.0-alpha.38 — 2026-10-22
 
 - Add ASIN and GGKEY identifiers, a 20-language starter picker, reordered catalogue filters and sorted Previous/Next book navigation.

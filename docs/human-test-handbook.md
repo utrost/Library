@@ -1,10 +1,18 @@
 # Library human test handbook
 
-**Current acceptance target: 0.3.0-alpha.38.** This signed candidate is installed on developer NC34. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) before testing; a matching version string alone does not identify an archive.
+**Current acceptance target: 0.3.0-alpha.39.** Install and identify this signed candidate on developer NC34 before testing; alpha.38 remains installed until the deployment completes. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) before testing; a matching version string alone does not identify an archive.
 
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 
 Use disposable accounts and books for saved edits, imports, merges, scans and deletion. Read-only browsing or staging followed by Discard is suitable for a personal collection. Exact signed NC33–35 fresh-install/upgrade certification and manual assistive-technology testing remain separate release gates.
+
+### Alpha.39 acceptance checks
+
+When alpha.39 is installed, extend H03-01/09/10 with these checks using disposable books:
+
+- In Review and cleanup, apply a scanner suggestion. Confirm the queue stays open, shows a success message and presents the next pending suggestion. A failed or stale apply must show an error without leaving the queue. Confirm covers in the review workbench and result list, including a book without extracted artwork.
+- In All publications, use the visible Reading status selector to filter books, including Not set. Sort by Reading status and confirm the shown order (To read, Reading, Paused, Needs action, Finished, Reference, Abandoned, Not set) and stable title order within a status. Clear the selector to restore all books.
+- In book Details, copy a JPEG, PNG or WebP image and activate the cover. Confirm the saved image appears. Also try keyboard paste, Replace cover, and the file-picker fallback on a browser without clipboard image access. Check that the smaller controls do not obscure the artwork or trap keyboard focus on desktop and mobile.
 
 ### Alpha.38 acceptance checks
 

@@ -142,7 +142,16 @@ const publicationIssueContext = computed(() => catalogueState.publicationIssueCo
 const publicationYears = computed(() => catalogueState.publicationYears || [])
 const creators = computed(() => catalogueState.creators || [])
 const scanStatuses = computed(() => catalogueState.scanStatuses || [])
-const workflowStatuses = computed(() => catalogueState.workflowStatuses || [])
+const workflowStatuses = Object.freeze([
+  { value: 'to-read', label: 'To read' },
+  { value: 'reading', label: 'Reading' },
+  { value: 'paused', label: 'Paused' },
+  { value: 'needs-action', label: 'Needs action' },
+  { value: 'finished', label: 'Finished' },
+  { value: 'reference', label: 'Reference' },
+  { value: 'abandoned', label: 'Abandoned' },
+  { value: 'not-set', label: 'Not set' },
+])
 const classifications = computed(() => catalogueState.classifications || [])
 const pagination = computed(() => catalogueState.cataloguePagination || {
   page: 1,
@@ -657,6 +666,7 @@ const chipValueLabels = {
     publication: 'Series',
     lastOpened: 'Recently opened',
     format: 'Format',
+    workflowStatus: 'Reading status',
   },
   view: {
     compact: 'Covers',
@@ -675,6 +685,7 @@ const chipValueLabels = {
     paused: 'Paused',
     abandoned: 'Abandoned',
     'needs-action': 'Needs action',
+    'not-set': 'Not set',
   },
 }
 const batchMetadataApplyMessage = computed(() => {
@@ -815,7 +826,7 @@ const sidebarHiddenFilters = computed(() => Object.entries(canonicalReviewFilter
   .filter(([key, value]) => !sidebarVisibleFilterKeys.has(key) && String(value || '').trim() !== '')
   .map(([key, value]) => ({ key, value })))
 const quickHiddenFilters = computed(() => Object.entries(activeFilters)
-  .filter(([key, value]) => !['q', 'sort', 'starred'].includes(key) && String(value || '').trim() !== '')
+  .filter(([key, value]) => !['q', 'sort', 'starred', 'workflowStatus'].includes(key) && String(value || '').trim() !== '')
   .map(([key, value]) => ({ key, value })))
 const batchHiddenFilters = computed(() => Object.entries(canonicalReviewFilters(activeFilters))
   .filter(([_key, value]) => String(value || '').trim() !== '')
@@ -1057,6 +1068,39 @@ const metadataReviewWorkbench = computed(() => {
     skipUrl: pagination.value.nextUrl || scannerConflictReviewUrl.value,
   }
 })
+async function applyReviewSuggestion(item, field) {
+  if (reviewApplyState.busy || !item?.resetFieldUrl || field.rejected) return
+  reviewApplyState.busy = true
+  reviewApplyState.message = ''
+  reviewApplyState.error = ''
+  const body = new FormData()
+  body.set('requesttoken', requestToken.value)
+  body.set('field', field.field)
+  body.set('returnTo', 'review')
+  try {
+    const response = await fetch(item.resetFieldUrl, {
+      method: 'POST', body, credentials: 'same-origin',
+      headers: { Accept: 'application/json' },
+    })
+    const result = await response.json().catch(() => ({}))
+    if (!response.ok || result.applied !== true) throw new Error(t('library', 'The suggested value could not be applied. Reload this queue and try again.'))
+    const params = normalizedReviewParams(new URLSearchParams(window.location.search))
+    params.delete('cursor')
+    await submitFiltersAjax(null, { params, generation: ++catalogueRequestGeneration, historyMode: 'none' })
+    if (!catalogueRequestState.completed) throw new Error(t('library', 'The value was applied, but the queue could not be refreshed. Reload this queue.'))
+    if (!items.value.length && Number(pagination.value.total || 0) > 0 && Number(pagination.value.page || 1) > 1) {
+      params.delete('cursor')
+      params.set('page', String(Number(pagination.value.page) - 1))
+      await submitFiltersAjax(null, { params, generation: ++catalogueRequestGeneration, historyMode: 'replace' })
+      if (!catalogueRequestState.completed) throw new Error(t('library', 'The value was applied, but the queue could not be refreshed. Reload this queue.'))
+    }
+    reviewApplyState.message = t('library', 'Applied suggested {field} to {title}. Continue with the next item.', { field: reviewFieldLabel(field.field), title: item.title })
+  } catch (error) {
+    reviewApplyState.error = error?.message || t('library', 'The suggested value could not be applied. Reload this queue and try again.')
+  } finally {
+    reviewApplyState.busy = false
+  }
+}
 const reviewQueues = computed(() => reviewQueueDefinitions.map((queue) => ({
   ...queue,
   label: t('library', queue.label),
@@ -1220,6 +1264,7 @@ let reviewCountHydrationController = null
 let reviewCountsLoaded = false
 let initialAuxiliaryHydrationFrame = null
 const catalogueRequestState = reactive({ loading: false, error: '', completed: false })
+const reviewApplyState = reactive({ busy: false, message: '', error: '' })
 
 function buildFilterParams(form) {
   const params = normalizedReviewParams(new FormData(form))
@@ -1774,6 +1819,8 @@ function clearFilterGroup(groupKey) {
 }
 
 function selectReviewQueue(queue) {
+  reviewApplyState.message = ''
+  reviewApplyState.error = ''
   const params = new URL(queue.href, window.location.origin).searchParams
   void submitFiltersAjax(null, {
     params,
@@ -2165,7 +2212,7 @@ async function toggleStar(item, event) {
             </fieldset><fieldset class="library-filter-group" data-library-filter-group="location"><legend>{{ t('library', 'Location') }}</legend><label>{{ t('library', 'Shelf') }}<select v-model="activeFilters.shelf" name="shelf" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All shelves') }}</option><option v-for="shelf in shelves" :key="shelf" :value="shelf">{{ shelf }}</option></select></label>
             <div class="library-folder-filter"><label for="library-folder-search">{{ t('library', 'Folder') }}</label><input id="library-folder-search" v-model="folderSearch" type="search" name="folderSearch" autocomplete="off" :placeholder="t('library', 'Type at least 3 path characters')" :title="t('library', 'Select an exact folder path')" role="combobox" aria-autocomplete="list" :aria-activedescendant="activeSuggestionId('desktop', 'folder')" aria-controls="library-folder-suggestions" :aria-expanded="folderSearchFocused && folderSuggestions.length > 0 ? 'true' : 'false'" @focus="openSuggestionFacet('folder')" @input="openSuggestionFacet('folder')" @blur="setFacetSuggestionFocus('folder', false)" @keydown="handleSuggestionKeydown($event, 'folder')"><ul v-if="folderSearchFocused && folderSuggestions.length > 0" id="library-folder-suggestions" class="library-folder-suggestions" role="listbox"><li v-for="(folder, index) in folderSuggestions" :id="suggestionOptionId('desktop', 'folder', index)" :key="folder" role="option" :aria-selected="suggestionActiveIndexes.folder === index"><button type="button" class="library-folder-suggestion" @mousedown.prevent @click="selectFolderSuggestion(folder, $event)">{{ folder }}</button></li></ul><small v-if="folderSearchFocused && folderSearch.trim() && folderSearch.trim().length < 3" role="status">{{ t('library', 'Type at least {count} characters.', { count: 3 }) }}</small><small v-else-if="suggestionStatus.folder.loading" role="status">{{ t('library', 'Searching…') }}</small><p v-else-if="suggestionStatus.folder.error" role="alert">{{ suggestionStatus.folder.error }} <button type="button" @click="retryFacet('folder')">{{ t('library', 'Retry') }}</button></p><small v-else-if="folderSearchFocused && folderSearch.trim().length >= 3 && !folderSuggestions.length" role="status">{{ t('library', 'No matches found.') }}</small><button type="submit" class="button secondary library-folder-apply" :class="pendingApplyClass('folder')">{{ t('library', 'Apply folder') }}</button></div>
             </fieldset><fieldset class="library-filter-group" data-library-filter-group="review"><legend>{{ t('library', 'Review') }}</legend><label>{{ t('library', 'Scan status') }}<select v-model="activeFilters.status" name="status" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All scan statuses') }}</option><option v-for="status in scanStatuses" :key="status" :value="status">{{ status }}</option></select></label>
-            <label>{{ t('library', 'Reading status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All reading statuses') }}</option><option v-for="status in workflowStatuses" :key="status" :value="status">{{ status }}</option></select></label>
+            <label>{{ t('library', 'Reading status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All reading statuses') }}</option><option v-for="status in workflowStatuses" :key="status.value" :value="status.value">{{ t('library', status.label) }}</option></select></label>
             <label>{{ t('library', 'Suggested updates') }}<select v-model="activeFilters.scannerConflicts" name="scannerConflicts" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All metadata') }}</option><option value="1">{{ t('library', 'Suggested updates') }}</option></select></label>
             </fieldset><fieldset class="library-filter-group" data-library-filter-group="personal"><legend>{{ t('library', 'Personal / display') }}</legend></fieldset><button type="submit" class="button primary">{{ t('library', 'Apply filters') }}</button>
           </form>
@@ -2215,19 +2262,21 @@ async function toggleStar(item, event) {
       <span v-if="catalogueRequestState.loading">{{ t('library', 'Loading review queue…') }}</span>
     </div>
     <p v-if="catalogueRequestState.error" class="library-notice library-review-request-error" role="alert">{{ catalogueRequestState.error }}</p>
+    <p v-if="reviewApplyState.message" class="library-notice library-review-apply-success" role="status">{{ reviewApplyState.message }}</p>
+    <p v-if="reviewApplyState.error" class="library-notice library-review-request-error" role="alert">{{ reviewApplyState.error }}</p>
     <section v-if="metadataReviewWorkbench.enabled" class="library-metadata-review-workbench" aria-labelledby="library-metadata-review-workbench-heading">
       <header class="library-metadata-review-heading">
         <div><p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Metadata review workbench') }}</p><h3 id="library-metadata-review-workbench-heading" :title="t('library', 'Shows current and suggested values with source provenance. No source files are changed; user-edited values are never silently overwritten.')">{{ t('library', 'Review next suggestion') }}</h3></div>
         <a v-if="metadataReviewWorkbench.item" class="button secondary" :href="metadataReviewWorkbench.skipUrl">{{ t('library', 'Skip to next suggestion') }}</a>
       </header>
       <article v-if="metadataReviewWorkbench.item" class="library-metadata-review-card">
-        <header><strong><bdi class="library-bidi-human" dir="auto">{{ metadataReviewWorkbench.item.title }}</bdi></strong><details><summary>{{ t('library', 'Location') }}</summary><bdi class="library-bidi-machine" dir="ltr">{{ metadataReviewWorkbench.item.cachedPath }}</bdi></details></header>
+        <header class="library-metadata-review-item-heading"><a class="library-review-cover-link" :href="detailsLink(metadataReviewWorkbench.item.detailsUrl)" :aria-label="`${t('library', 'Details')}: ${metadataReviewWorkbench.item.title}`"><CatalogueCover :src="metadataReviewWorkbench.item.coverUrl" /></a><div><strong><bdi class="library-bidi-human" dir="auto">{{ metadataReviewWorkbench.item.title }}</bdi></strong><details><summary>{{ t('library', 'Location') }}</summary><bdi class="library-bidi-machine" dir="ltr">{{ metadataReviewWorkbench.item.cachedPath }}</bdi></details></div></header>
         <div class="library-metadata-review-fields">
           <article v-for="field in metadataReviewWorkbench.fields" :key="field.field" class="library-metadata-review-field">
             <h4><LabelHelp v-if="field.field === 'publication' || field.field === 'series'" :text="field.field === 'publication' ? t('library', 'The containing publication or periodical. This changes only Publication; a Series suggestion must be reviewed separately, even when the names match.') : t('library', 'The sequence this book belongs to. This changes only the series field; it does not apply a separate Publication suggestion.')">{{ reviewFieldLabel(field.field) }}</LabelHelp><bdi v-else class="library-bidi-human" dir="auto">{{ reviewFieldLabel(field.field) }}</bdi></h4>
             <dl class="library-metadata-review-comparison"><div><dt>{{ t('library', 'Current value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.currentValue || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Suggested value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.scannerCandidate || '—' }}</bdi></dd></div></dl>
             <div class="library-metadata-review-field-actions">
-              <form method="post" :action="metadataReviewWorkbench.item.resetFieldUrl" class="library-metadata-review-accept-form"><input type="hidden" name="requesttoken" :value="requestToken"><input type="hidden" name="field" :value="field.field"><input type="hidden" name="returnTo" value="catalogue"><button type="submit" class="button primary" :disabled="field.rejected" :title="field.rejected ? t('library', 'This source value exceeds field limits. Edit the field instead.') : undefined">{{ field.field === 'publication' ? t('library', 'Use publication value') : field.field === 'series' ? t('library', 'Use series value') : t('library', 'Use suggested value') }}</button></form>
+              <button type="button" class="button primary" :disabled="field.rejected || reviewApplyState.busy" :title="field.rejected ? t('library', 'This source value exceeds field limits. Edit the field instead.') : undefined" @click="applyReviewSuggestion(metadataReviewWorkbench.item, field)">{{ reviewApplyState.busy ? t('library', 'Applying…') : field.field === 'publication' ? t('library', 'Use publication value') : field.field === 'series' ? t('library', 'Use series value') : t('library', 'Use suggested value') }}</button>
               <details class="library-metadata-review-provenance"><summary>{{ t('library', 'Metadata provenance') }}</summary><dl><div><dt>{{ t('library', 'Path-based suggestion') }}</dt><dd><bdi class="library-bidi-machine" dir="ltr">{{ field.pathTemplateCandidate || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Sidecar value') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.sidecarValue || '—' }}</bdi></dd></div><div><dt>{{ t('library', 'Source') }}</dt><dd><bdi class="library-bidi-human" dir="auto">{{ field.sourceProvenance || '—' }}</bdi></dd></div></dl></details>
             </div>
           </article>
@@ -2242,7 +2291,7 @@ async function toggleStar(item, event) {
     </div>
     <div v-else class="library-review-results" role="region" :aria-label="t('library', 'Review results')">
       <article v-for="item in items" :key="item.id" class="library-review-result-card">
-        <div><h3><a class="library-cover-title-button" :href="detailsLink(item.detailsUrl)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></a></h3><p v-if="item.creators" class="library-muted"><bdi class="library-bidi-human" dir="auto">{{ item.displayCreators ?? item.creators }}</bdi></p><p v-if="item.scanError" class="library-scan-error"><bdi class="library-bidi-human" dir="auto">{{ item.scanError }}</bdi></p></div>
+        <div class="library-review-result-main"><a class="library-review-cover-link" :href="detailsLink(item.detailsUrl)" :aria-label="`${t('library', 'Details')}: ${item.title}`"><CatalogueCover :src="item.coverUrl" /></a><div><h3><a class="library-cover-title-button" :href="detailsLink(item.detailsUrl)"><bdi class="library-bidi-human" dir="auto">{{ item.title }}</bdi></a></h3><p v-if="item.creators" class="library-muted"><bdi class="library-bidi-human" dir="auto">{{ item.displayCreators ?? item.creators }}</bdi></p><p v-if="item.scanError" class="library-scan-error"><bdi class="library-bidi-human" dir="auto">{{ item.scanError }}</bdi></p></div></div>
         <p><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Quick view') }}</button><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></p>
       </article>
     </div>
@@ -2365,13 +2414,13 @@ async function toggleStar(item, event) {
         <fieldset class="library-mobile-filter-group">
           <legend>{{ t('library', 'Review') }}</legend>
           <label>{{ t('library', 'Scan status') }}<select v-model="activeFilters.status" name="status" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All scan statuses') }}</option><option v-for="status in scanStatuses" :key="`mobile-scan-${status}`" :value="status">{{ status }}</option></select></label>
-          <label>{{ t('library', 'Reading status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All reading statuses') }}</option><option v-for="status in workflowStatuses" :key="`mobile-workflow-${status}`" :value="status">{{ status }}</option></select></label>
+          <label>{{ t('library', 'Reading status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All reading statuses') }}</option><option v-for="status in workflowStatuses" :key="`mobile-workflow-${status.value}`" :value="status.value">{{ t('library', status.label) }}</option></select></label>
           <label>{{ t('library', 'Suggested updates') }}<select v-model="activeFilters.scannerConflicts" name="scannerConflicts" @change="submitFiltersNow($event)"><option value="">{{ t('library', 'All metadata') }}</option><option value="1">{{ t('library', 'Suggested updates') }}</option></select></label>
         </fieldset>
         <fieldset class="library-mobile-filter-group">
           <legend>{{ t('library', 'Personal / display') }}</legend>
           <div class="library-tag-filter"><label for="library-mobile-tag-search">{{ t('library', 'Nextcloud tag') }}</label><input id="library-mobile-tag-search" v-model="tagSearch" type="search" name="tagSearch" autocomplete="off" :placeholder="t('library', 'Search tags')" role="combobox" aria-autocomplete="list" :aria-activedescendant="activeSuggestionId('mobile', 'tag')" aria-controls="library-mobile-tag-suggestions" :aria-expanded="tagSearchFocused && tagSuggestions.length > 0 ? 'true' : 'false'" @focus="openSuggestionFacet('tag')" @input="openSuggestionFacet('tag')" @blur="setFacetSuggestionFocus('tag', false)" @keydown="handleSuggestionKeydown($event, 'tag')"><input type="hidden" name="tag" :value="activeFilters.tag"><ul v-if="tagSearchFocused && tagSuggestions.length > 0" id="library-mobile-tag-suggestions" class="library-mobile-tag-suggestions" role="listbox"><li v-for="(tag, index) in tagSuggestions" :id="suggestionOptionId('mobile', 'tag', index)" :key="tag" role="option" :aria-selected="suggestionActiveIndexes.tag === index"><button type="button" class="library-tag-suggestion" @mousedown.prevent @click="selectTagSuggestion(tag, $event)">{{ tag }}</button></li></ul><small v-if="tagSearchFocused && tagSearch.trim() && tagSearch.trim().length < 2" role="status">{{ t('library', 'Type at least {count} characters.', { count: 2 }) }}</small><small v-else-if="suggestionStatus.tag.loading" role="status">{{ t('library', 'Searching…') }}</small><p v-else-if="suggestionStatus.tag.error" role="alert">{{ suggestionStatus.tag.error }} <button type="button" @click="retryFacet('tag')">{{ t('library', 'Retry') }}</button></p><small v-else-if="tagSearchFocused && tagSearch.trim().length >= 2 && !tagSuggestions.length" role="status">{{ t('library', 'No matches found.') }}</small><button type="submit" class="button secondary library-tag-apply" :class="pendingApplyClass('tag')">{{ t('library', 'Apply tag') }}</button></div>
-          <label>{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
+          <label>{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option><option value="workflowStatus">{{ t('library', 'Reading status (to read first)') }}</option></select></label>
           <label>{{ t('library', 'View') }}<select v-model="activeFilters.view" name="view" @change="submitFiltersAjax"><option value="compact">{{ t('library', 'Covers') }}</option><option value="list">{{ t('library', 'List') }}</option></select></label>
         </fieldset>
         <div class="library-mobile-filter-actions">
@@ -2397,7 +2446,9 @@ async function toggleStar(item, event) {
         <form method="get" class="library-quick-filter-bar library-catalogue-toolbar" :aria-label="t('library', 'Catalogue toolbar')" @submit.prevent="submitFiltersAjax">
           <input type="hidden" name="q" :value="activeFilters.q"><input type="hidden" name="starred" :value="activeFilters.starred">
           <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
-          <label class="library-sort-control" data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option></select></label>
+          <label class="library-reading-status-control" data-library-control="reading-status">{{ t('library', 'Reading status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersAjax"><option value="">{{ t('library', 'All statuses') }}</option><option v-for="status in workflowStatuses" :key="`toolbar-workflow-${status.value}`" :value="status.value">{{ t('library', status.label) }}</option></select></label>
+          <label class="library-sort-control" data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option><option value="workflowStatus">{{ t('library', 'Reading status (to read first)') }}</option></select></label>
+          <small v-if="activeFilters.sort === 'workflowStatus'" class="library-status-sort-help">{{ t('library', 'Order: To read → Reading → Paused → Needs action → Finished → Reference → Abandoned → Not set.') }}</small>
           <nav class="library-view-mode-toggle" data-library-control="view" :aria-label="t('library', 'View')"><button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Covers') }}</button><button type="button" data-library-view-mode="list" :class="{ active: viewMode === 'list' }" :aria-pressed="viewMode === 'list' ? 'true' : 'false'" @click="setViewMode('list')">{{ t('library', 'List') }}</button></nav>
         </form>
       </div>
@@ -2996,6 +3047,30 @@ async function toggleStar(item, event) {
   padding: 14px;
 }
 
+.library-review-result-main,
+.library-metadata-review-item-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.library-review-result-main > div,
+.library-metadata-review-item-heading > div { min-width: 0; overflow-wrap: anywhere; }
+
+.library-review-cover-link { display: block; flex: 0 0 64px; width: 64px; }
+.library-review-cover-link:focus-visible { border-radius: 8px; outline: 2px solid var(--color-primary-element); outline-offset: 2px; }
+.library-review-cover-link .library-cover-frame { width: 64px; }
+.library-review-cover-link .library-cover-fallback { border-radius: 4px; font-size: 0.62rem; padding: 0.15rem; }
+
+.library-review-apply-success {
+  background: color-mix(in srgb, var(--color-success, #2e7d32) 12%, var(--color-main-background));
+  border: 1px solid color-mix(in srgb, var(--color-success, #2e7d32) 45%, var(--color-border));
+  border-radius: 10px;
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+}
+
 .library-review-request-status:empty {
   display: none;
 }
@@ -3010,6 +3085,11 @@ async function toggleStar(item, event) {
     align-items: stretch;
     flex-direction: column;
   }
+
+  .library-review-cover-link,
+  .library-review-cover-link .library-cover-frame { width: 54px; }
+
+  .library-review-cover-link { flex-basis: 54px; }
 }
 
 @media (max-width: 1024px) {
@@ -4978,12 +5058,15 @@ async function toggleStar(item, event) {
   min-inline-size: 0;
 }
 
-.library-catalogue-control-band .library-sort-control {
+.library-catalogue-control-band .library-sort-control,
+.library-catalogue-control-band .library-reading-status-control {
   align-items: center;
   display: flex;
   gap: 0.4rem;
   min-inline-size: 0;
 }
+
+.library-status-sort-help { color: var(--color-text-maxcontrast); flex-basis: 100%; font-size: 0.75rem; }
 
 .library-catalogue-control-band select {
   inline-size: auto;
