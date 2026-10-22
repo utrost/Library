@@ -74,12 +74,16 @@ test('edits metadata, rescans, then repairs the suggestion and restores the titl
     expect(suggestedTitle).not.toBe('—')
     expect(suggestedTitle).not.toBe('')
     const reviewUrl = page.url()
+    const appliedResponse = page.waitForResponse((candidate) => {
+      const url = new URL(candidate.url())
+      return candidate.request().method() === 'POST' && url.pathname.endsWith(`/apps/library/items/${itemId}/reset-field`)
+    })
     await Promise.all([
-      // The review page already has this pathname. Wait for its POST redirect,
-      // otherwise the next goto aborts core scripts while they are initializing.
-      page.waitForURL((url) => url.href !== reviewUrl && url.pathname.endsWith('/apps/library/'), { waitUntil: 'load' }),
+      appliedResponse,
       titleSuggestion.getByRole('button', { name: 'Use suggested value' }).click(),
     ])
+    await expect(page).toHaveURL(reviewUrl)
+    await expect(page.locator('.library-review-apply-success')).toContainText('Applied suggested')
 
     await openBookDetails(page, itemId)
     await expect(page.getByRole('textbox', { name: 'Title', exact: true })).toHaveValue(suggestedTitle)

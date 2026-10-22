@@ -697,7 +697,6 @@ OC.L10N.register(
         "Part in series": "Teil der Reihe",
         "Part {number}": "Teil {number}",
         "Paste a Library corrected metadata JSON export here.": "Fügen Sie hier einen JSON-Export korrigierter Bibliotheksmetadaten ein.",
-        "Paste image": "Bild einfügen",
         "Path": "Pfad",
         "Path-based suggestion": "Pfadbasierter Vorschlag",
         "Pattern": "Muster",
@@ -726,7 +725,6 @@ OC.L10N.register(
         "Preferred copy selected": "Bevorzugte Kopie gewählt",
         "Preferred label": "Bevorzugte Bezeichnung",
         "Preferred name": "Bevorzugter Name",
-        "Press Ctrl+V or ⌘V to paste a copied image.": "Strg+V oder ⌘V drücken, um ein kopiertes Bild einzufügen.",
         "Press Enter or Apply to use this value.": "Enter drücken oder Anwenden wählen, um diesen Wert zu nutzen.",
         "Press Search to apply the typed query.": "Die Eingabe mit „Suchen“ anwenden.",
         "Preview a naming rule, select fields and review before applying. Source files are never changed.": "Prüfen Sie eine Benennungsregel in der Vorschau, wählen Sie Felder und kontrollieren Sie die Änderungen vor der Übernahme. Quelldateien bleiben unverändert.",
@@ -1418,7 +1416,18 @@ OC.L10N.register(
         "Unsaved draft. Choose “New saved pattern…” above to save this definition.": "Ungespeicherter Entwurf. Wählen Sie oben „Neues gespeichertes Muster…“, um diese Beschreibung zu speichern.",
         "Unsaved draft. Choose “New saved rule…” above to save this definition.": "Ungespeicherter Entwurf. Wählen Sie oben „قاعدة محفوظة جديدة…“, um diese Beschreibung zu speichern.",
         "Unsaved pattern draft": "Ungespeicherter Musterentwurf",
-        "Unsaved rule draft": "Ungespeicherter Regelentwurf"
+        "Unsaved rule draft": "Ungespeicherter Regelentwurf",
+        "All statuses": "Alle Status",
+        "Applied suggested {field} to {title}. Continue with the next item.": "Vorgeschlagenen Wert für {field} bei {title} übernommen. Weiter mit dem nächsten Eintrag.",
+        "Clipboard access was unavailable. Paste with your keyboard or choose Replace cover.": "Zugriff auf die Zwischenablage ist nicht verfügbar. Mit der Tastatur einfügen oder „Cover ersetzen“ wählen.",
+        "Clipboard has no JPEG, PNG, or WebP image. Choose Replace cover to select a file.": "Die Zwischenablage enthält kein JPEG-, PNG- oder WebP-Bild. Mit „Cover ersetzen“ eine Datei auswählen.",
+        "Clipboard images are unavailable here. Choose an image file instead, or paste with your keyboard.": "Bilder aus der Zwischenablage sind hier nicht verfügbar. Stattdessen eine Bilddatei auswählen oder mit der Tastatur einfügen.",
+        "Not set": "Nicht gesetzt",
+        "Order: To read → Reading → Paused → Needs action → Finished → Reference → Abandoned → Not set.": "Reihenfolge: Noch zu lesen → Wird gelesen → Pausiert → Aktion nötig → Beendet → Nachschlagewerk → Abgebrochen → Nicht gesetzt.",
+        "Paste a copied image as cover": "Kopiertes Bild als Cover einfügen",
+        "Reading status (to read first)": "Lesestatus (zuerst noch zu lesen)",
+        "The suggested value could not be applied. Reload this queue and try again.": "Der vorgeschlagene Wert konnte nicht übernommen werden. Diese Liste neu laden und erneut versuchen.",
+        "The value was applied, but the queue could not be refreshed. Reload this queue.": "Der Wert wurde übernommen, aber die Liste konnte nicht aktualisiert werden. Diese Liste neu laden."
     },
     "nplurals=2; plural=(n != 1);"
 );

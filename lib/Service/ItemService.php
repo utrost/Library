@@ -77,6 +77,7 @@ final class ItemService {
         'abandoned',
         'needs-action',
     ];
+    private const WORKFLOW_SORT_RANK = "CASE COALESCE(i.workflow_status, '') WHEN 'to-read' THEN 0 WHEN 'reading' THEN 1 WHEN 'paused' THEN 2 WHEN 'needs-action' THEN 3 WHEN 'finished' THEN 4 WHEN 'reference' THEN 5 WHEN 'abandoned' THEN 6 ELSE 7 END";
 
     private const PUBLICATION_TYPES = [
         'book',
@@ -1531,6 +1532,7 @@ final class ItemService {
                 : ['i.id','i.title','i.library_file_id','i.publication_date','i.publication','i.creators','i.last_opened_at','f.extension'];
             if ($this->catalogueProjectionRequiresDistinct($filters)) $thin->selectDistinct($thinColumns);
             else $thin->select($thinColumns);
+            if ($sort === 'workflowStatus') $thin->selectAlias($thin->createFunction(self::WORKFLOW_SORT_RANK), 'workflow_sort_rank');
             $selected = $thin->setFirstResult($offset)->setMaxResults($limit)->executeQuery();
             $ids = array_map('intval', array_column($selected->fetchAll(), 'id')); $selected->closeCursor();
             $qb->andWhere($ids === [] ? $qb->createFunction('1=0')
@@ -3137,8 +3139,14 @@ final class ItemService {
     }
 
     private function applySmartCollectionFilters(IQueryBuilder $qb, array $filters): void {
-        $workflowStatus = $this->normalizeWorkflowStatus((string)($filters['workflowStatus'] ?? ''));
-        if ($workflowStatus !== '') {
+        $rawWorkflowStatus = trim((string)($filters['workflowStatus'] ?? ''));
+        $workflowStatus = $this->normalizeWorkflowStatus($rawWorkflowStatus);
+        if ($rawWorkflowStatus === 'not-set') {
+            $qb->andWhere($qb->expr()->orX(
+                $qb->expr()->isNull('i.workflow_status'),
+                $qb->expr()->eq('i.workflow_status', $qb->createNamedParameter(''))
+            ));
+        } elseif ($workflowStatus !== '') {
             $qb->andWhere($qb->expr()->eq('i.workflow_status', $qb->createNamedParameter($workflowStatus)));
         }
 
@@ -3263,6 +3271,11 @@ final class ItemService {
     }
 
     private function applyCatalogueSort(IQueryBuilder $qb, string $sort): void {
+        if ($sort === 'workflowStatus') {
+            $qb->selectAlias($qb->createFunction(self::WORKFLOW_SORT_RANK), 'workflow_sort_rank');
+            $qb->orderBy('workflow_sort_rank', 'ASC')->addOrderBy('i.title', 'ASC')->addOrderBy('i.id', 'ASC');
+            return;
+        }
         match ($sort) {
             'recent' => $qb->orderBy('i.library_file_id', 'DESC')->addOrderBy('i.id', 'DESC'),
             'publicationDate' => $qb->orderBy('i.publication_date', 'DESC')->addOrderBy('i.title', 'ASC'),

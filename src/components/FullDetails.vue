@@ -609,8 +609,11 @@ function chooseCover(event) {
   if (coverFile.value) uploadCover()
 }
 async function prepareCoverPaste() {
-  coverPasteStatus.value = t('library', 'Press Ctrl+V or ⌘V to paste a copied image.')
-  if (!navigator.clipboard?.read) return
+  if (!navigator.clipboard?.read) {
+    coverPasteStatus.value = t('library', 'Clipboard images are unavailable here. Choose an image file instead, or paste with your keyboard.')
+    coverInput.value?.click()
+    return
+  }
   try {
     const clipboardItems = await navigator.clipboard.read()
     const supported = ['image/png', 'image/jpeg', 'image/webp']
@@ -623,7 +626,10 @@ async function prepareCoverPaste() {
       await uploadCover()
       return
     }
-  } catch { /* Keyboard paste remains available if clipboard read is unavailable or denied. */ }
+    coverPasteStatus.value = t('library', 'Clipboard has no JPEG, PNG, or WebP image. Choose Replace cover to select a file.')
+  } catch {
+    coverPasteStatus.value = t('library', 'Clipboard access was unavailable. Paste with your keyboard or choose Replace cover.')
+  }
 }
 function refreshCoverPreview() {
   coverRevision.value++
@@ -686,14 +692,13 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
       <header class="library-full-details-hero">
         <div class="library-full-details-cover" @paste="pastedCover">
           <div class="library-full-details-cover-frame">
-            <img :src="`${item.coverUrl}${item.coverUrl.includes('?') ? '&' : '?'}view=${coverRevision}${coverRefreshRequested ? '&refresh=1' : ''}`" alt="">
+            <button type="button" class="library-full-details-cover-paste-target" :disabled="busy" :title="t('library', 'Paste a copied image as cover')" :aria-label="t('library', 'Paste a copied image as cover')" @click="prepareCoverPaste"><img :src="`${item.coverUrl}${item.coverUrl.includes('?') ? '&' : '?'}view=${coverRevision}${coverRefreshRequested ? '&refresh=1' : ''}`" alt=""><span class="library-full-details-cover-paste-cue" aria-hidden="true">⎘</span></button>
             <div class="library-full-details-cover-tools">
               <button v-if="item.hasManualCover" type="button" :disabled="busy" :title="t('library', 'Revert cover')" :aria-label="t('library', 'Revert cover')" @click="post(context.actions.coverRevert)"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 5 4 10l5 5M4 10h10a6 6 0 0 1 0 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
               <button type="button" :disabled="busy" :title="t('library', 'Refresh cover preview')" :aria-label="t('library', 'Refresh cover preview')" @click="refreshCoverPreview"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6.1 9A7 7 0 0 1 19 7l1 5M4 12l1 5a7 7 0 0 0 12.9-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             </div>
             <div class="library-full-details-cover-actions">
               <button type="button" class="library-cover-primary-action" :disabled="busy" @click="coverInput?.click()"><span aria-hidden="true">✎</span> {{ t('library', 'Replace cover') }}</button>
-              <button type="button" class="library-cover-paste-action" :disabled="busy" @click="prepareCoverPaste">{{ t('library', 'Paste image') }}</button>
             </div>
           </div>
           <input ref="coverInput" class="library-cover-file-input" type="file" tabindex="-1" accept="image/jpeg,image/png,image/webp" :aria-label="t('library', 'Replace cover')" @change="chooseCover">
@@ -817,16 +822,21 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
 .library-full-details-hero { display: grid; grid-template-columns: minmax(150px, 220px) 1fr; gap: 24px; margin-bottom: 24px; }
 .library-full-details-cover-frame { background: var(--color-background-dark); border: 1px solid var(--color-border); border-radius: 12px; isolation: isolate; overflow: hidden; position: relative; }
 .library-full-details-cover-frame img { display: block; width: 100%; max-height: 330px; min-height: 220px; object-fit: contain; }
+.library-full-details-cover-paste-target { background: transparent; border: 0; color: #fff; cursor: copy; display: block; padding: 0; position: relative; width: 100%; }
+.library-full-details-cover-paste-target:disabled { cursor: wait; }
+.library-full-details-cover-paste-target:focus-visible { outline: 3px solid var(--color-primary-element, #0082c9); outline-offset: -3px; }
+.library-full-details-cover-paste-cue { align-items: center; backdrop-filter: blur(7px); background: #10182099; border: 1px solid #ffffffa0; border-radius: 9px; bottom: 8px; display: flex; font-size: 1.2rem; height: 38px; justify-content: center; pointer-events: none; position: absolute; right: 8px; width: 38px; }
+.library-full-details-cover-paste-target:hover .library-full-details-cover-paste-cue, .library-full-details-cover-paste-target:focus-visible .library-full-details-cover-paste-cue { background: #101820dc; }
 .library-full-details-cover-tools { display: flex; gap: 5px; inset-block-start: 8px; inset-inline-end: 8px; position: absolute; z-index: 2; }
 .library-full-details-cover-tools button { align-items: center; backdrop-filter: blur(8px); background: #101820c9; border: 1px solid #ffffff80; border-radius: 9px; color: #fff; cursor: pointer; display: inline-flex; font-size: 1.3rem; height: 38px; justify-content: center; line-height: 1; padding: 0; width: 38px; }
 .library-full-details-cover-tools button:hover, .library-full-details-cover-tools button:focus-visible { background: #101820; outline: 2px solid #fff; outline-offset: 2px; }
 .library-full-details-cover-tools svg { height: 18px; width: 18px; }
 .library-full-details-cover-tools button:disabled { opacity: .5; }
-.library-full-details-cover-actions { background: linear-gradient(transparent, #101820dc 35%, #101820f0); display: flex; flex-wrap: wrap; gap: 5px; inset-block-end: 0; inset-inline: 0; padding: 28px 9px 9px; position: absolute; z-index: 2; }
-.library-full-details-cover-actions button { align-items: center; border-radius: 8px; cursor: pointer; display: inline-flex; font-size: .82rem; font-weight: 700; gap: 4px; justify-content: center; min-height: 36px; padding: 4px 7px; }
+.library-full-details-cover-actions { display: flex; inset-block-end: 8px; inset-inline-start: 8px; position: absolute; z-index: 2; }
+.library-full-details-cover-actions button { align-items: center; backdrop-filter: blur(7px); border-radius: 8px; cursor: pointer; display: inline-flex; font-size: .75rem; font-weight: 700; gap: 4px; justify-content: center; min-height: 40px; padding: 4px 8px; }
 .library-full-details-cover-actions button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-.library-cover-primary-action { background: var(--color-primary-element, #0082c9); border: 1px solid var(--color-primary-element, #0082c9); color: var(--color-primary-text, #fff); flex: 1 1 auto; }
-.library-cover-paste-action { background: #101820bd; border: 1px solid #ffffff80; color: #fff; flex: 1 1 auto; }
+.library-cover-primary-action { background: #101820a8; border: 1px solid #ffffffa0; color: #fff; }
+.library-cover-primary-action:hover, .library-cover-primary-action:focus-visible { background: #101820eb; }
 .library-cover-file-input { clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; width: 1px; }
 .library-cover-paste-guide { background: var(--color-background-hover); border-radius: 8px; font-size: .85rem; margin: 8px 0 0; padding: 7px 9px; }
 .library-full-details-summary h1 { margin: 4px 0; overflow-wrap: anywhere; }
