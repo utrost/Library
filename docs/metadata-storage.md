@@ -113,6 +113,7 @@ starred
 last_opened_at
 description
 workflow_status
+workflow_sort_rank (indexed order for reading-status browsing; 7 means Not set)
 subjects_json
 genres_json (historical subject data; copied and removed by the 0.3 forward migration)
 classifications_json

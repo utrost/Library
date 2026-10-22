@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0-alpha.40 — 2026-10-22
+
+- Materialize and index reading-status order, then page through narrow item IDs before loading metadata. The installed alpha.39 query took about 22 seconds for 107,717 books, compared with about 9 seconds for the existing title view. An additive migration backfills existing statuses.
+- Update the cover-paste instructions and release verification record.
+
 ## 0.3.0-alpha.39 — 2026-10-22
 
 - Keep Review queue in place after applying a scanner suggestion, show the outcome and advance to the next pending suggestion. Show linked covers in the workbench and result rows.
