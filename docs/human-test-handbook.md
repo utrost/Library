@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current acceptance target: 0.3.0-alpha.41.** Signed alpha.40 remains installed on developer NC34 until the full-row hotfix is deployed. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-22-nc34-alpha40/README.md) before testing; a matching version string alone does not identify an archive.
+**Current acceptance target: 0.3.0-alpha.41.** Signed alpha.41 is installed on developer NC34. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-22-nc34-alpha41/README.md) before testing; a matching version string alone does not identify an archive.
 
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 
@@ -16,7 +16,7 @@ On a large catalogue, sort All publications by Reading status and switch pages. 
 
 ### Alpha.39 acceptance checks
 
-When alpha.39 is installed, extend H03-01/09/10 with these checks using disposable books:
+For alpha.39 and later, extend H03-01/09/10 with these checks using disposable books:
 
 - In Review and cleanup, apply a scanner suggestion. Confirm the queue stays open, shows a success message and presents the next pending suggestion. A failed or stale apply must show an error without leaving the queue. Confirm covers in the review workbench and result list, including a book without extracted artwork.
 - In All publications, use the visible Reading status selector to filter books, including Not set. Sort by Reading status and confirm the shown order (To read, Reading, Paused, Needs action, Finished, Reference, Abandoned, Not set) and stable title order within a status. Clear the selector to restore all books.
@@ -41,7 +41,7 @@ On the installed alpha.38, extend H03-01/02/10/15 with these checks on disposabl
 
 For a quick acceptance pass, run H03-01, H03-09, H03-10, H03-17, H03-18, H03-21, H03-22 and H03-26. Include **H03-02** for the alpha.36 mixed-pattern workflow and H03-23 with disposable files for a release candidate. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [current package record](compatibility-evidence/2026-10-22-nc34-alpha40/README.md) for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
+Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [current package record](compatibility-evidence/2026-10-22-nc34-alpha41/README.md) for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
