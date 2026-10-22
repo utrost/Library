@@ -1,6 +1,6 @@
 # Release process
 
-**Signed 0.3.0-alpha.38 is deployed on developer NC34.** Hosted CI passed all 79 browser journeys; the installed package passed integrity, byte-for-byte asset comparison and disposable desktop/mobile smokes. The catalogue remained at 107,861 books. See the [alpha.38 deployment record](docs/compatibility-evidence/2026-10-21-nc34-alpha38/README.md). Additive migrations support the deletion marker and file worklist. Exact signed NC33–35 certification and human acceptance remain release gates.
+**0.3.0-alpha.39 is the current deployment candidate.** Signed alpha.38 remains on developer NC34 while alpha.39 passes CI and package checks. Alpha.38: Hosted CI passed all 79 browser journeys; the installed package passed integrity, byte-for-byte asset comparison and disposable desktop/mobile smokes. The catalogue remained at 107,861 books. See the [alpha.38 deployment record](docs/compatibility-evidence/2026-10-21-nc34-alpha38/README.md). Additive migrations support the deletion marker and file worklist. Exact signed NC33–35 certification and human acceptance remain release gates.
 
 **Prior deployed version: 0.3.0-alpha.36.** The mixed filename/path worklist supports one pattern per file and one reviewed Apply. See the [alpha.36 verification record](docs/compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md).
 

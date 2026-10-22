@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current acceptance target: 0.3.0-alpha.38.** This signed candidate is installed on developer NC34. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) before testing; a matching version string alone does not identify an archive.
+**Current acceptance target: 0.3.0-alpha.39.** Install and identify this signed candidate on developer NC34 before testing; alpha.38 remains installed until the deployment completes. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) before testing; a matching version string alone does not identify an archive.
 
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 

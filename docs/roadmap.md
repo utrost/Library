@@ -1,6 +1,6 @@
 # Library Roadmap
 
-**Current developer build: signed 0.3.0-alpha.38.** Hosted CI passed, and the installed package passed integrity, asset matching and disposable desktop/mobile smokes on NC34. The catalogue remained at 107,861 books; see the [alpha.38 verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
+**Current developer candidate: 0.3.0-alpha.39.** The signed alpha.38 package remains installed on NC34 while alpha.39 passes CI and deployment checks. Hosted CI passed, and the installed package passed integrity, asset matching and disposable desktop/mobile smokes on NC34. The catalogue remained at 107,861 books; see the [alpha.38 verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.38 is now installed.
 
@@ -16,7 +16,7 @@ Alpha.28 adds direct destination-author typeahead for merge/reassign, starting a
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The [signed alpha.9 fresh and upgrade matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed on NC33–35. The [alpha.11 populated NC34 deployment](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) is complete; owner acceptance remains.
 
-Status: **0.3.0-alpha.38** is the current installed candidate. Its [NC34 deployment verification](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) includes the mixed-pattern worklist and read-only deletion fallback. The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
+Status: **0.3.0-alpha.39** is the current deployment candidate; alpha.38 remains installed until the new package passes CI and deployment checks. Its [NC34 deployment verification](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) includes the mixed-pattern worklist and read-only deletion fallback. The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
 
 Last updated: 2026-10-22
 

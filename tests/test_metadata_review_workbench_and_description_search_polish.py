@@ -24,10 +24,13 @@ def test_vue_exposes_review_next_conflict_workbench_with_candidate_lanes():
 def test_review_workbench_actions_are_explicit_per_field_and_non_source_writing():
     component = read("src/App.vue")
     page = read("lib/Controller/PageController.php")
+    controller = read("lib/Controller/ItemController.php")
 
     assert "Use suggested value" in component
-    assert "name=\"field\"" in component
-    assert "name=\"returnTo\" value=\"catalogue\"" in component
+    assert "applyReviewSuggestion(metadataReviewWorkbench.item, field)" in component
+    assert "body.set('field', field.field)" in component
+    assert "body.set('returnTo', 'review')" in component
+    assert "if ($returnTo === 'review')" in controller
     assert "Skip to next suggestion" in component
     assert "No source files are changed" in component
     assert "user-edited values are never silently overwritten" in component
