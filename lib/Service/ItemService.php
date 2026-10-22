@@ -49,6 +49,7 @@ final class ItemService {
         'i.starred',
         'i.marked_for_deletion_at',
         'i.workflow_status',
+        'i.workflow_sort_rank',
         'i.last_opened_at',
         'i.field_values',
         'i.cover_revision',
@@ -1535,8 +1536,9 @@ final class ItemService {
             // Page through a narrow projection, then load only this page's metadata.
             // All filters/joins remain on both queries, including ownership constraints.
             $thin = clone $qb;
-            $thinColumns = in_array($sort, ['title', 'workflowStatus'], true) ? ['i.id','i.title','i.library_file_id']
-                : ['i.id','i.title','i.library_file_id','i.publication_date','i.publication','i.creators','i.last_opened_at','f.extension'];
+            $thinColumns = $sort === 'title' ? ['i.id','i.title','i.library_file_id']
+                : ($sort === 'workflowStatus' ? ['i.id','i.title','i.workflow_sort_rank']
+                    : ['i.id','i.title','i.library_file_id','i.publication_date','i.publication','i.creators','i.last_opened_at','f.extension']);
             if ($this->catalogueProjectionRequiresDistinct($filters)) $thin->selectDistinct($thinColumns);
             else $thin->select($thinColumns);
             $selected = $thin->setFirstResult($offset)->setMaxResults($limit)->executeQuery();
