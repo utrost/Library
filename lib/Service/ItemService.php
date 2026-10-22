@@ -1543,6 +1543,13 @@ final class ItemService {
             else $thin->select($thinColumns);
             $selected = $thin->setFirstResult($offset)->setMaxResults($limit)->executeQuery();
             $ids = array_map('intval', array_column($selected->fetchAll(), 'id')); $selected->closeCursor();
+            // Nextcloud's query-builder clone shares its SELECT part with the
+            // original builder. Restore the full row before loading these IDs.
+            $fullColumns = $metadataReviewProjection
+                ? [...self::CATALOGUE_INTERNAL_COLUMNS, ...self::SCANNER_CONFLICT_INTERNAL_COLUMNS]
+                : self::CATALOGUE_INTERNAL_COLUMNS;
+            if ($this->catalogueProjectionRequiresDistinct($filters)) $qb->selectDistinct($fullColumns);
+            else $qb->select($fullColumns);
             $qb->andWhere($ids === [] ? $qb->createFunction('1=0')
                 : $qb->expr()->in('i.id', $qb->createNamedParameter($ids, IQueryBuilder::PARAM_INT_ARRAY)));
             $offset = 0;
