@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0-alpha.41 — 2026-10-22
+
+- Restore the full catalogue row after narrow status-sort pagination. Nextcloud's query-builder clone shares its selected columns; alpha.40 returned sorted IDs but omitted book metadata in those rows. This also corrects metadata loss on later pages of other sorted views.
+- Keep the indexed reading-status order and its measured large-catalogue response time.
+
 ## 0.3.0-alpha.40 — 2026-10-22
 
 - Materialize and index reading-status order, then page through narrow item IDs before loading metadata. The installed alpha.39 query took about 22 seconds for 107,717 books, compared with about 9 seconds for the existing title view. An additive migration backfills existing statuses.
