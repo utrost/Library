@@ -1,10 +1,10 @@
 # Library Roadmap
 
-**Current developer candidate: 0.3.0-alpha.39.** The signed alpha.38 package remains installed on NC34 while alpha.39 passes CI and deployment checks. Hosted CI passed, and the installed package passed integrity, asset matching and disposable desktop/mobile smokes on NC34. The catalogue remained at large catalogue books; see the [alpha.38 verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md). Final signed NC33–35 certification and human acceptance remain release gates.
+**Current developer candidate: 0.3.0-alpha.40.** Signed alpha.39 is installed on developer NC34 with clean integrity and large catalogue catalogue rows before and after upgrade. Alpha.40 addresses the measured reading-status sort delay; see the [alpha.39 deployment record](compatibility-evidence/2026-10-22-nc34-alpha39/README.md). Exact signed NC33–35 certification and human acceptance remain release gates.
 
-Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.38 is now installed.
+Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.39 is now installed.
 
-Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.38 is now installed.
+Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.39 is now installed.
 
 Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: [alpha.31 record](compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
 
@@ -12,11 +12,11 @@ Alpha.30 adds a shared compact browser for Authors, Series and Genres, with disp
 
 Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.38 is now installed.
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.39 is now installed.
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The [signed alpha.9 fresh and upgrade matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed on NC33–35. The [alpha.11 populated NC34 deployment](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) is complete; owner acceptance remains.
 
-Status: **0.3.0-alpha.39** is the current deployment candidate; alpha.38 remains installed until the new package passes CI and deployment checks. Its [NC34 deployment verification](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) includes the mixed-pattern worklist and read-only deletion fallback. The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
+Status: **0.3.0-alpha.40** is the current deployment candidate; alpha.39 is installed on developer NC34 while its status-sort hotfix passes CI. The [alpha.39 deployment verification](compatibility-evidence/2026-10-22-nc34-alpha39/README.md) includes the mixed-pattern worklist and read-only deletion fallback. The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
 
 Last updated: 2026-10-22
 

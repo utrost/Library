@@ -1,10 +1,14 @@
 # Library human test handbook
 
-**Current acceptance target: 0.3.0-alpha.39.** Install and identify this signed candidate on developer NC34 before testing; alpha.38 remains installed until the deployment completes. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) before testing; a matching version string alone does not identify an archive.
+**Current acceptance target: 0.3.0-alpha.40.** Signed alpha.39 remains installed on developer NC34 until the sorting hotfix is deployed. Confirm the installed version and package checksum against the [deployment and verification record](compatibility-evidence/2026-10-22-nc34-alpha39/README.md) before testing; a matching version string alone does not identify an archive.
 
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 
 Use disposable accounts and books for saved edits, imports, merges, scans and deletion. Read-only browsing or staging followed by Discard is suitable for a personal collection. Exact signed NC33–35 fresh-install/upgrade certification and manual assistive-technology testing remain separate release gates.
+
+### Alpha.40 acceptance check
+
+On a large catalogue, sort All publications by Reading status and switch pages. Compare its response with Title sorting, then filter by Not set. The status view should remain responsive while preserving title order within each status. No book data should change.
 
 ### Alpha.39 acceptance checks
 
@@ -33,7 +37,7 @@ On the installed alpha.38, extend H03-01/02/10/15 with these checks on disposabl
 
 For a quick acceptance pass, run H03-01, H03-09, H03-10, H03-17, H03-18, H03-21, H03-22 and H03-26. Include **H03-02** for the alpha.36 mixed-pattern workflow and H03-23 with disposable files for a release candidate. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
-Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [current package record](compatibility-evidence/2026-10-21-nc34-alpha38/README.md) for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
+Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the [current package record](compatibility-evidence/2026-10-22-nc34-alpha39/README.md) for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
 
 | Case | Status | Evidence file/link | Defect or observation |
 | --- | --- | --- | --- |
@@ -164,7 +168,7 @@ For a periodical fixture, open its publication link and inspect **Publication co
 
 **Setup:** Use a disposable book with an ISBN or ISSN, an imported cover and at least one scanner suggestion. Have a valid JPEG, PNG or WebP cover ready. Record its original metadata and file checksum.
 
-**Steps:** Open the book sidebar and choose **Full details**; verify there is no **Maintenance (legacy)** entry. Edit title, subjects, an identifier and rating. In the compact Authors row, use the pencil action to select a different author, or Add author to select another; verify a name containing a comma remains one identity. Confirm all book changes are drafts, then press **Save book details** once. Use **Replace cover** on the image to choose a file, then try **Paste image** with a copied JPEG, PNG or WebP. Refresh and revert using the small image controls. Add and remove a Nextcloud tag; add a comment. Mark the book **Favorite** and change its workflow status. Check that **Create a new list** reads as an action. Review scanner provenance, reset one safe field, then return to the catalogue. Open the book in a new tab. If a disposable item is marked missing, exercise **Forget missing publication** separately.
+**Steps:** Open the book sidebar and choose **Full details**; verify there is no **Maintenance (legacy)** entry. Edit title, subjects, an identifier and rating. In the compact Authors row, use the pencil action to select a different author, or Add author to select another; verify a name containing a comma remains one identity. Confirm all book changes are drafts, then press **Save book details** once. Use **Replace cover** on the image to choose a file, then activate the cover with a copied JPEG, PNG or WebP image and try keyboard paste. Refresh and revert using the small image controls. Add and remove a Nextcloud tag; add a comment. Mark the book **Favorite** and change its workflow status. Check that **Create a new list** reads as an action. Review scanner provenance, reset one safe field, then return to the catalogue. Open the book in a new tab. If a disposable item is marked missing, exercise **Forget missing publication** separately.
 
 **Expected:** The full view loads without the catalogue's 100-book page, every action gives visible feedback and the changed values survive reload. Author selections remain separate identities. The old direct `/items/{id}` URL redirects to the same editor; there is no legacy autosave form. Cover, tags, comments, favorite and workflow changes do not overwrite unsaved metadata silently. Source publication bytes and sidecars remain unchanged.
 
