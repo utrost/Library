@@ -728,7 +728,7 @@ In **Library settings → Folders and scanning → Automatic scans**, choose hou
 
 Library generates private thumbnails when covers are first viewed and reuses them. Large originals are resized to at most 360×520; generated covers are limited to 100 KiB. The source publication and its embedded artwork stay intact. Replacing a manual cover changes its cache revision. Malformed or excessively large raster images use a placeholder. Only cards near the viewport load their covers initially.
 
-On a publication's **Full details** page, choose **Replace cover** on the cover image to upload a JPEG, PNG or WebP file. To use an image already copied to the clipboard, choose **Paste image**, then press Ctrl+V (or ⌘V on a Mac). The small controls at the top of the image refresh its preview or revert a manual replacement. Revert appears only when a manual cover exists.
+On a publication's **Full details** page, activate the cover image to use a copied JPEG, PNG or WebP image from the clipboard. You can also focus the cover and press Ctrl+V (or ⌘V on a Mac). If the browser cannot read clipboard images, activating the cover opens a file chooser. **Replace cover** always opens the file chooser. The small controls at the top refresh the preview or revert a manual replacement; Revert appears only when a manual cover exists.
 
 If a running scan stops reporting progress for 15 minutes, background maintenance marks it failed with its last counters retained. You can scan again; abandoned jobs no longer keep automatic schedules blocked. Queued scans still need Nextcloud Cron to run.
 

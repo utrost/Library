@@ -1524,11 +1524,12 @@ final class ItemService {
             ));
             if ($backward) $qb->orderBy('i.title', 'DESC')->addOrderBy('i.id', 'DESC');
         }
-        if ($cursor === null && $offset > 0) {
+        if ($cursor === null && ($offset > 0 || $sort === 'workflowStatus')) {
+            // Status ordering otherwise sorts every wide metadata row on page one.
             // Page through a narrow projection, then load only this page's metadata.
             // All filters/joins remain on both queries, including ownership constraints.
             $thin = clone $qb;
-            $thinColumns = $sort === 'title' ? ['i.id','i.title','i.library_file_id']
+            $thinColumns = in_array($sort, ['title', 'workflowStatus'], true) ? ['i.id','i.title','i.library_file_id']
                 : ['i.id','i.title','i.library_file_id','i.publication_date','i.publication','i.creators','i.last_opened_at','f.extension'];
             if ($this->catalogueProjectionRequiresDistinct($filters)) $thin->selectDistinct($thinColumns);
             else $thin->select($thinColumns);
