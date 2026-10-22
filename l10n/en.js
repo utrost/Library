@@ -697,7 +697,6 @@ OC.L10N.register(
         "Part in series": "Part in series",
         "Part {number}": "Part {number}",
         "Paste a Library corrected metadata JSON export here.": "Paste a Library corrected metadata JSON export here.",
-        "Paste image": "Paste image",
         "Path": "Path",
         "Path-based suggestion": "Path-based suggestion",
         "Pattern": "Pattern",
@@ -726,7 +725,6 @@ OC.L10N.register(
         "Preferred copy selected": "Preferred copy selected",
         "Preferred label": "Preferred label",
         "Preferred name": "Preferred name",
-        "Press Ctrl+V or ⌘V to paste a copied image.": "Press Ctrl+V or ⌘V to paste a copied image.",
         "Press Enter or Apply to use this value.": "Press Enter or Apply to use this value.",
         "Press Search to apply the typed query.": "Press Search to apply the typed query.",
         "Preview a naming rule, select fields and review before applying. Source files are never changed.": "Preview a naming rule, select fields and review before applying. Source files are never changed.",
@@ -1418,7 +1416,18 @@ OC.L10N.register(
         "Unsaved draft. Choose “New saved pattern…” above to save this definition.": "Unsaved draft. Choose “New saved pattern…” above to save this definition.",
         "Unsaved draft. Choose “New saved rule…” above to save this definition.": "Unsaved draft. Choose “New saved rule…” above to save this definition.",
         "Unsaved pattern draft": "Unsaved pattern draft",
-        "Unsaved rule draft": "Unsaved rule draft"
+        "Unsaved rule draft": "Unsaved rule draft",
+        "All statuses": "All statuses",
+        "Applied suggested {field} to {title}. Continue with the next item.": "Applied suggested {field} to {title}. Continue with the next item.",
+        "Clipboard access was unavailable. Paste with your keyboard or choose Replace cover.": "Clipboard access was unavailable. Paste with your keyboard or choose Replace cover.",
+        "Clipboard has no JPEG, PNG, or WebP image. Choose Replace cover to select a file.": "Clipboard has no JPEG, PNG, or WebP image. Choose Replace cover to select a file.",
+        "Clipboard images are unavailable here. Choose an image file instead, or paste with your keyboard.": "Clipboard images are unavailable here. Choose an image file instead, or paste with your keyboard.",
+        "Not set": "Not set",
+        "Order: To read → Reading → Paused → Needs action → Finished → Reference → Abandoned → Not set.": "Order: To read → Reading → Paused → Needs action → Finished → Reference → Abandoned → Not set.",
+        "Paste a copied image as cover": "Paste a copied image as cover",
+        "Reading status (to read first)": "Reading status (to read first)",
+        "The suggested value could not be applied. Reload this queue and try again.": "The suggested value could not be applied. Reload this queue and try again.",
+        "The value was applied, but the queue could not be refreshed. Reload this queue.": "The value was applied, but the queue could not be refreshed. Reload this queue."
     },
     "nplurals=2; plural=(n != 1);"
 );
