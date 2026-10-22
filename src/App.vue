@@ -685,6 +685,7 @@ const chipValueLabels = {
     paused: 'Paused',
     abandoned: 'Abandoned',
     'needs-action': 'Needs action',
+    'not-set': 'Not set',
   },
 }
 const batchMetadataApplyMessage = computed(() => {
