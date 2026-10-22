@@ -30,9 +30,9 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const APP_VERSION = '0.3.0-alpha.38';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-38-compact-list-table-cover-96-fit-v8';
-    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-38-compact-list-table-cover-96-fit-v8';
+    private const APP_VERSION = '0.3.0-alpha.39';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-39-review-status-cover-v1';
+    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-39-review-status-cover-v1';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -501,7 +501,7 @@ class PageController extends Controller {
                 ? $this->normalizeReviewFilter($key, $value)
                 : trim((string)$value);
         }
-        if (!in_array($activeFilters['sort'], ['title', 'recent', 'publicationDate', 'publication', 'publicationIssue', 'lastOpened', 'format'], true)) {
+        if (!in_array($activeFilters['sort'], ['title', 'recent', 'publicationDate', 'publication', 'publicationIssue', 'lastOpened', 'format', 'workflowStatus'], true)) {
             $activeFilters['sort'] = 'title';
         }
         if (!in_array($activeFilters['view'], ['compact', 'gallery', 'list', 'shelf'], true)) {
