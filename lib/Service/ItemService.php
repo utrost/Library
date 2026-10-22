@@ -77,7 +77,10 @@ final class ItemService {
         'abandoned',
         'needs-action',
     ];
-    private const WORKFLOW_SORT_RANK = "CASE COALESCE(i.workflow_status, '') WHEN 'to-read' THEN 0 WHEN 'reading' THEN 1 WHEN 'paused' THEN 2 WHEN 'needs-action' THEN 3 WHEN 'finished' THEN 4 WHEN 'reference' THEN 5 WHEN 'abandoned' THEN 6 ELSE 7 END";
+    private const WORKFLOW_SORT_RANK = [
+        'to-read' => 0, 'reading' => 1, 'paused' => 2, 'needs-action' => 3,
+        'finished' => 4, 'reference' => 5, 'abandoned' => 6,
+    ];
 
     private const PUBLICATION_TYPES = [
         'book',
@@ -265,6 +268,7 @@ final class ItemService {
                 'classifications_json' => $qb->createNamedParameter($this->jsonEncodeList($metadataCandidate['classifications'])),
                 'starred' => $qb->createNamedParameter(0),
                 'workflow_status' => $qb->createNamedParameter(''),
+                'workflow_sort_rank' => $qb->createNamedParameter(7),
                 'last_opened_at' => $qb->createNamedParameter(null),
                 'metadata_source' => $qb->createNamedParameter($metadataCandidate['metadataSource']),
                 'field_sources' => $qb->createNamedParameter(json_encode($metadataCandidate['fieldSources'], JSON_THROW_ON_ERROR)),
@@ -815,9 +819,11 @@ final class ItemService {
     }
 
     public function setWorkflowStatus(string $userId, int $itemId, string $workflowStatus): bool {
+        $normalized = $this->normalizeWorkflowStatus($workflowStatus);
         $qb = $this->db->getQueryBuilder();
         $affected = $qb->update('library_items')
-            ->set('workflow_status', $qb->createNamedParameter($this->normalizeWorkflowStatus($workflowStatus)))
+            ->set('workflow_status', $qb->createNamedParameter($normalized))
+            ->set('workflow_sort_rank', $qb->createNamedParameter(self::WORKFLOW_SORT_RANK[$normalized] ?? 7))
             ->set('updated_at', $qb->createNamedParameter(time()))
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($itemId)))
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
@@ -1533,7 +1539,6 @@ final class ItemService {
                 : ['i.id','i.title','i.library_file_id','i.publication_date','i.publication','i.creators','i.last_opened_at','f.extension'];
             if ($this->catalogueProjectionRequiresDistinct($filters)) $thin->selectDistinct($thinColumns);
             else $thin->select($thinColumns);
-            if ($sort === 'workflowStatus') $thin->selectAlias($thin->createFunction(self::WORKFLOW_SORT_RANK), 'workflow_sort_rank');
             $selected = $thin->setFirstResult($offset)->setMaxResults($limit)->executeQuery();
             $ids = array_map('intval', array_column($selected->fetchAll(), 'id')); $selected->closeCursor();
             $qb->andWhere($ids === [] ? $qb->createFunction('1=0')
@@ -3273,8 +3278,7 @@ final class ItemService {
 
     private function applyCatalogueSort(IQueryBuilder $qb, string $sort): void {
         if ($sort === 'workflowStatus') {
-            $qb->selectAlias($qb->createFunction(self::WORKFLOW_SORT_RANK), 'workflow_sort_rank');
-            $qb->orderBy('workflow_sort_rank', 'ASC')->addOrderBy('i.title', 'ASC')->addOrderBy('i.id', 'ASC');
+            $qb->orderBy('i.workflow_sort_rank', 'ASC')->addOrderBy('i.title', 'ASC')->addOrderBy('i.id', 'ASC');
             return;
         }
         match ($sort) {
