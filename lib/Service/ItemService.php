@@ -50,6 +50,7 @@ final class ItemService {
         'i.marked_for_deletion_at',
         'i.workflow_status',
         'i.workflow_sort_rank',
+        'i.format_sort',
         'i.last_opened_at',
         'i.field_values',
         'i.cover_revision',
