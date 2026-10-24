@@ -54,17 +54,28 @@ if [[ -n "${LIBRARY_BASELINE_ARCHIVE:-}" ]]; then
     docker exec -u www-data "$nc" php occ app:enable library >/dev/null
     docker exec "$nc" rm -rf /var/www/html/custom_apps/library
 fi
-docker exec "$nc" mkdir -p /var/www/html/custom_apps/library
-for entry in appinfo lib templates css js l10n img README.md CHANGELOG.md LICENSE; do
-    docker cp "$repo/$entry" "$nc:/var/www/html/custom_apps/library/"
-done
+if [[ -n "${LIBRARY_TEST_ARCHIVE:-}" ]]; then
+    [[ -f "$LIBRARY_TEST_ARCHIVE" ]] || { echo 'Candidate archive missing' >&2; exit 1; }
+    docker cp "$LIBRARY_TEST_ARCHIVE" "$nc:/tmp/library-candidate.tar.gz"
+    docker exec "$nc" tar -xzf /tmp/library-candidate.tar.gz -C /var/www/html/custom_apps
+else
+    docker exec "$nc" mkdir -p /var/www/html/custom_apps/library
+    for entry in appinfo lib templates css js l10n img README.md CHANGELOG.md LICENSE; do
+        docker cp "$repo/$entry" "$nc:/var/www/html/custom_apps/library/"
+    done
+fi
 docker exec "$nc" chown -R www-data:www-data /var/www/html/custom_apps/library
 if [[ -n "${LIBRARY_BASELINE_ARCHIVE:-}" ]]; then
     # The candidate has a newer app version, so occ upgrade runs its migrations.
+    :
 else
     docker exec -u www-data "$nc" php occ app:enable library >/dev/null
 fi
 docker exec -u www-data "$nc" php occ upgrade >/dev/null
+if [[ "${REQUIRE_INTEGRITY:-0}" == 1 ]]; then
+    integrity="$(docker exec -u www-data "$nc" php occ integrity:check-app library)"
+    [[ -z "$integrity" ]] || { echo "$integrity" >&2; exit 1; }
+fi
 docker cp "$repo/scripts/check-physical-schema.php" "$nc:/tmp/library-check-physical-schema.php"
 docker exec -u www-data "$nc" php /tmp/library-check-physical-schema.php
 if [[ -n "${LIBRARY_ROOT_BENCH_COUNT:-}" ]]; then
