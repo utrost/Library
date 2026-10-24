@@ -507,7 +507,7 @@
             <index><name>library_items_usr_title_page</name><field><name>user_id</name></field><field><name>title</name></field><field><name>id</name></field><field><name>library_file_id</name></field></index>
             <index><name>library_items_usr_delete_mark</name><field><name>user_id</name></field><field><name>marked_for_deletion_at</name></field><field><name>id</name></field></index>
             <index><name>library_items_usr_pubdate_page</name><field><name>user_id</name></field><field><name>publication_date</name></field><field><name>title</name></field><field><name>id</name></field></index>
-            <index><name>library_items_usr_publication_page</name><field><name>user_id</name></field><field><name>publication</name></field><field><name>publication_date</name></field><field><name>title</name></field><field><name>id</name></field></index>
+            <index><name>library_items_usr_publication_page</name><field><name>user_id</name></field><field><name>publication</name></field><field><name>publication_date</name></field><field><name>id</name></field></index>
             <index><name>library_items_usr_lastopen_page</name><field><name>user_id</name></field><field><name>last_opened_at</name></field><field><name>title</name></field><field><name>id</name></field></index>
             <index><name>library_items_usr_format_page</name><field><name>user_id</name></field><field><name>format_sort</name></field><field><name>title</name></field><field><name>id</name></field></index>
             <index><name>library_genre_discovery</name><field><name>genre_suggestion_hash</name></field><field><name>id</name></field></index>
