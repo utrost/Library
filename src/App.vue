@@ -2635,7 +2635,7 @@ async function toggleStar(item, event) {
 
     <div class="library-catalogue-status-row">
       <div v-if="items.length" class="library-result-selection"><label class="library-select-visible"><input type="checkbox" :checked="selectedItemIds.length === items.length" @change="selectVisibleItems"><span :title="t('library', 'Select all publications on this page')">{{ t('library', 'Select all') }}</span></label></div>
-      <p class="library-muted library-filter-result-summary"><span class="hidden-visually">{{ t('library', 'Showing') }} </span>{{ pagination.from }}–{{ pagination.to }}<template v-if="pagination.total !== null"> {{ t('library', 'of') }} {{ pagination.total }}</template><span class="hidden-visually"> {{ t('library', 'catalogue items') }}</span></p>
+      <p class="library-muted library-filter-result-summary"><span class="hidden-visually">{{ t('library', 'Showing') }}{{ ' ' }}</span>{{ pagination.from }}–{{ pagination.to }}<template v-if="pagination.total !== null">{{ ' ' }}{{ t('library', 'of') }}{{ ' ' }}{{ pagination.total }}</template>{{ ' ' }}<span class="hidden-visually">{{ t('library', 'catalogue items') }}</span></p>
       <nav class="library-pagination library-pagination--top" :aria-label="t('library', 'Catalogue pagination')">
         <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.visible > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
         <a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a>
