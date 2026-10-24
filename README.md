@@ -6,7 +6,7 @@ Library is an open-source Nextcloud app ([AGPL-3.0-or-later](LICENSE)) with a se
 
 ![Library catalogue with English Project Gutenberg books](docs/images/appstore-catalogue.png)
 
-Current candidate: `0.3.0-alpha.43`. The signed package is installed on developer NC34. Alpha.42 makes results visible before the exact count; alpha.43 indexes the remaining slow sort orders. **Pre-release:** 0.3 is the planned first App Store release. The declared compatibility range is **Nextcloud 33–35**; final exact-package compatibility checks and human acceptance remain release gates. See [release status](RELEASE.md), the [installed alpha.43 record](docs/compatibility-evidence/2026-10-24-nc34-alpha43/README.md) and the [release checklist](docs/app-store-readiness.md).
+Current candidate: `0.3.0-rc.1`. The prior signed alpha.43 package is installed on developer NC34. The release candidate carries the fast indexed sorting and deferred catalogue totals introduced in alpha.42–43. The declared compatibility range is **Nextcloud 33–35**; exact-package compatibility checks and human acceptance are release gates before public App Store prerelease publication. See [release status](RELEASE.md), the [alpha.43 deployment record](docs/compatibility-evidence/2026-10-24-nc34-alpha43/README.md) and the [release checklist](docs/app-store-readiness.md).
 
 ## What it does
 
@@ -39,7 +39,7 @@ The app has safe user-facing diagnostics for scan and metadata problems. Server 
 
 ![Per-file filename metadata extraction worklist](docs/images/appstore-inference-worklist.png)
 
-Screenshots show the actual alpha.38 interface on an isolated Nextcloud 34 instance, using the [English Gutenberg examples](docs/gutenberg-example-books.md) and a synthetic filename-extraction example. [Capture details and reproduction](docs/images/first-library/README.md).
+Screenshots show the release candidate on an isolated Nextcloud 34 instance, using the [English Gutenberg examples](docs/gutenberg-example-books.md) and a synthetic filename-extraction example. [Capture details and reproduction](docs/images/first-library/README.md).
 
 ## Your first library
 

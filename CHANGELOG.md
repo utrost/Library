@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0-rc.1 — 2026-10-24
+
+- Freeze the 0.3 catalogue, author/series/genre editor, metadata review, reading-list, and file-handling workflows for release-candidate certification.
+- Show catalogue pages before exact totals and keep indexed sort orders responsive on large libraries, as introduced in alpha.42–43.
+- Refresh release metadata and public screenshots for the first 0.3 App Store prerelease. No new schema migration beyond the migrations already shipped in the alpha series.
+- Declare the existing reading-status sort column and index in the install schema, matching the alpha.40 migration on fresh SQLite, MariaDB and PostgreSQL installations.
+
 ## 0.3.0-alpha.43 — 2026-10-24
 
 - Page Publication date, Series, Recently opened and Format on indexed, narrow item rows before loading full metadata. A forward migration adds three composite sort indexes and a format sort value backfilled from file extensions.

@@ -73,6 +73,8 @@ def test_item_writes_refresh_substring_search_index():
 def test_performance_smoke_covers_representative_substring_query():
     smoke = SMOKE.read_text()
 
-    assert "catalogue_filter_q_substring_fast" in smoke
+    assert "['substring', discovered.qSubstring]" in smoke
+    assert "catalogue_search_${name}_median_seconds" in smoke
+    assert "catalogue_search_${name}_slowest_seconds" in smoke
     assert "labor" in smoke
     assert "qSubstring" in smoke
