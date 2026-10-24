@@ -1,6 +1,6 @@
 # Current state and risk register
 
-**Current developer candidate: 0.3.0-alpha.43.** The signed alpha.43 package is installed on developer NC34 with clean integrity and 107,717 catalogue rows before and after upgrade. All seven catalogue sort choices now return promptly on the measured library; see the [alpha.43 deployment record](compatibility-evidence/2026-10-24-nc34-alpha43/README.md). Exact signed NC33–35 certification and human acceptance remain release gates.
+**Current source candidate: 0.3.0-rc.1.** The prior signed alpha.43 package remains installed on developer NC34 with clean integrity and 107,717 catalogue rows before and after upgrade. All seven catalogue sort choices were responsive at that checkpoint; see the [alpha.43 deployment record](compatibility-evidence/2026-10-24-nc34-alpha43/README.md). Exact signed RC certification and human acceptance remain release gates.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.43 is now installed.
 

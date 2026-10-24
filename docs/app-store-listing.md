@@ -1,8 +1,8 @@
 # App Store listing draft
 
-Status: copy and screenshots refreshed against signed 0.3.0-alpha.38 on 2026-10-21; owner review and final release-tag review remain required before submission.
-Target app version: 0.3, subject to exact archive verification.
-Compatibility target: Nextcloud 33–35. Current NC34 verification is recorded for alpha.38; the final exact-package NC33–35 matrix remains a release gate.
+Status: 0.3.0-rc.1 listing draft; refresh screenshots from the exact signed candidate and verify release-tag links before submission.
+Target app version: 0.3.0-rc.1, subject to exact archive verification and human acceptance.
+Compatibility target: Nextcloud 33–35. The final exact-package NC33–35 matrix remains a release gate.
 
 ## Short description
 
@@ -64,7 +64,7 @@ Bug reports are most useful when they include the app version, Nextcloud version
 
 Prepared screenshots for owner review:
 
-Captured from a signed Library 0.3.0-alpha.38 screenshot candidate on disposable Nextcloud 34.0.4 using the public Gutenberg fixture and a synthetic metadata tutorial file. All are below 2 MiB, and contain no real-library filenames or credentials:
+Capture from the exact signed RC on disposable Nextcloud 34.0.4 using the public Gutenberg fixture and a synthetic metadata tutorial file. Verify every refreshed image is below 2 MiB and contains no real-library filenames or credentials:
 
 1. [Catalogue](images/appstore-catalogue.png)
 2. [Publication details](images/appstore-details.png)
@@ -77,7 +77,7 @@ Captured from a signed Library 0.3.0-alpha.38 screenshot candidate on disposable
 
 Before uploading, verify that no real filenames, private folder names, user names, server names or credentials are visible.
 
-The three screenshot URLs in `appinfo/info.xml` still target the historical `v0.2.0-beta.3` tag. Before submission, update them to the accepted published 0.3 source tag and include the author screenshot. The refreshed repository images alone do not update those pinned App Store URLs. Review the visible wording and presentation against that final tag.
+The five screenshot URLs in `appinfo/info.xml` target `v0.3.0-rc.1`. Verify they resolve after tagging and match the refreshed images before App Store submission.
 
 ## Release note draft
 

@@ -1,6 +1,6 @@
 # Release process
 
-**Signed 0.3.0-alpha.43 is installed on developer NC34.** Alpha.43 adds indexed paging for the sort orders that remained slow after alpha.42 deferred catalogue totals. See the [alpha.43 deployment record](docs/compatibility-evidence/2026-10-24-nc34-alpha43/README.md). Exact signed NC33–35 certification and human acceptance remain release gates.
+**0.3.0-rc.1 is the current source candidate; signed alpha.43 remains installed on developer NC34.** The RC freezes alpha.43 functionality for exact-package certification. Alpha.43 added indexed paging after alpha.42 deferred catalogue totals; see its [deployment record](docs/compatibility-evidence/2026-10-24-nc34-alpha43/README.md). The RC must pass signed NC33–35 certification, claimed-database checks and human acceptance before public publication.
 
 Earlier alpha.38 passed 79 browser journeys and introduced additive migrations for deletion markers and file worklists; see its [deployment record](docs/compatibility-evidence/2026-10-21-nc34-alpha38/README.md).
 
@@ -22,7 +22,7 @@ Historical editor checkpoint **0.3.0-alpha.33** consolidates book navigation on 
 
 The [alpha.33 verification and deployment record](docs/compatibility-evidence/2026-10-20-nc34-ux-follow-up-alpha33/README.md) tracks checks and deployment. The alpha.28 deployment is historical; alpha.43 is now installed. The exact signed NC33–35 fresh/upgrade matrix and owner acceptance remain pending for 0.3. The owner chose 0.3 as the first App Store release; **do not submit the 0.2 archive**. Historical baselines below remain preserved.
 
-Current release gate: run the [0.3 human test handbook](docs/human-test-handbook.md#current-03-human-cases) on a disposable account, resolve release-blocking findings, then sign one exact 0.3 archive and run fresh-install and populated-upgrade checks on NC33–35. Record the archive checksum, integrity result, browser artifacts and cleanup. The [readiness roadmap](docs/app-store-readiness.md) tracks the remaining handoff work.
+Current release gate: run the [0.3 human test handbook](docs/human-test-handbook.md#current-03-human-cases) on a disposable account, resolve release-blocking findings, then sign one exact RC archive and run fresh-install and populated-upgrade checks on NC33–35. Validate the claimed SQLite, MariaDB and PostgreSQL support. Record the archive checksum, integrity result, browser artifacts and cleanup. A changed signed package requires a new RC version and repeated certification. The [readiness roadmap](docs/app-store-readiness.md) tracks the remaining handoff work.
 
 ## Preserved 0.2 beta release baseline
 

@@ -6,6 +6,8 @@ const user = process.env.NC_USER || 'uwe'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const tokenName = `library-catalogue-performance-${Date.now()}`
 const fastBudgetSeconds = Number(process.env.LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS || '1.0')
+const searchMedianBudgetSeconds = Number(process.env.LIBRARY_CATALOGUE_SEARCH_MEDIAN_BUDGET_SECONDS || '2.0')
+const searchSamples = Number(process.env.LIBRARY_CATALOGUE_SEARCH_SAMPLES || '5')
 const measureHydration = process.env.LIBRARY_CATALOGUE_MEASURE_HYDRATE === '1'
 
 const FILTER_VALUES = {
@@ -22,6 +24,9 @@ const FILTERS = [
 
 if (!Number.isFinite(fastBudgetSeconds) || fastBudgetSeconds <= 0) {
   throw new Error('LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS must be a positive number')
+}
+if (!Number.isFinite(searchMedianBudgetSeconds) || searchMedianBudgetSeconds <= 0 || !Number.isSafeInteger(searchSamples) || searchSamples < 3 || searchSamples % 2 === 0) {
+  throw new Error('Search median budget must be positive and samples must be an odd integer of at least 3')
 }
 
 function occ(args) {
@@ -178,6 +183,8 @@ try {
     }
   }
   metric('catalogue_fast_budget_seconds', fastBudgetSeconds.toFixed(3))
+  metric('catalogue_search_median_budget_seconds', searchMedianBudgetSeconds.toFixed(3))
+  metric('catalogue_search_samples', searchSamples)
   token = parseToken(occ(['user:add-app-password', '--no-interaction', '--name', tokenName, user])) || ''
   if (!token) throw new Error('temporary app password was not created')
 
@@ -187,10 +194,25 @@ try {
   for (const sort of ['title', 'recent', 'publicationDate', 'publication', 'lastOpened', 'format', 'workflowStatus']) {
     await attempt(() => timeCatalogue(`catalogue_sort_${sort}_fast`, `/apps/library/catalogue?limit=25&sort=${sort}`, token))
   }
-  if (String(discovered.qSubstring || '').trim()) {
-    const substringUrl = new URL('/apps/library/catalogue?limit=25', upstream)
-    substringUrl.searchParams.set('q', String(discovered.qSubstring).trim())
-    await attempt(() => timeCatalogue('catalogue_filter_q_substring_fast', substringUrl, token))
+  for (const [name, term] of [['substring', discovered.qSubstring], ['author_name', 'Heinlein']]) {
+    if (!String(term || '').trim()) continue
+    const searchUrl = new URL('/apps/library/catalogue?limit=25', upstream)
+    searchUrl.searchParams.set('q', String(term).trim())
+    const samples = []
+    for (let index = 0; index < searchSamples; index++) {
+      await attempt(async () => {
+        const started = performance.now()
+        const payload = await timeCatalogue(`catalogue_search_${name}_sample_${index + 1}`, searchUrl, token, false)
+        if (payload.facetsDeferred !== true) throw new Error(`catalogue search ${name} recomputed deferred data`)
+        samples.push((performance.now() - started) / 1000)
+      })
+    }
+    if (samples.length !== searchSamples) continue
+    samples.sort((a, b) => a - b)
+    const median = samples[Math.floor(samples.length / 2)]
+    metric(`catalogue_search_${name}_median_seconds`, median.toFixed(3))
+    metric(`catalogue_search_${name}_slowest_seconds`, samples.at(-1).toFixed(3))
+    if (median >= searchMedianBudgetSeconds) failures.push(`catalogue search ${name} median exceeded ${searchMedianBudgetSeconds.toFixed(3)}s budget`)
   }
   if (String(discovered.folder || '').length >= 3) await attempt(() => timeFolderSuggestions(String(discovered.folder), token))
   else metric('catalogue_folder_suggestions_fast_skipped_reason', JSON.stringify('no representative live folder'))
@@ -205,7 +227,7 @@ try {
     }
     const filteredUrl = new URL('/apps/library/catalogue?limit=25', upstream)
     filteredUrl.searchParams.set(filter, value)
-    const payload = await attempt(() => timeCatalogue(filterMetricLabel(filter, key), filteredUrl, token))
+    const payload = await attempt(() => timeCatalogue(filterMetricLabel(filter, key), filteredUrl, token, filter !== 'q'))
     if (payload === null) continue
     if (!Array.isArray(payload.items) || payload.items.length < 1) {
       metric(`catalogue_filter_${key}_skipped_reason`, JSON.stringify('no representative live value'))
