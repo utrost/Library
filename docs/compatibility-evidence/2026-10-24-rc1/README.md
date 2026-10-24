@@ -14,7 +14,11 @@ The prior signed alpha.43 remains installed on developer NC34. This record must 
 
 ## Local source gate
 
-`uv run --with pytest bash scripts/check.sh` passed: 1,052 Python checks, PHP runtime checks, 598 Vitest checks in 50 files, production asset build and module closure, whitespace validation and Markdown links. The unsigned rehearsal package also passed module and package audits; it is not the signed release candidate.
+`uv run --with pytest bash scripts/check.sh` passed after the schema correction: 1,053 Python checks, PHP runtime checks, 598 Vitest checks in 50 files, production asset build and module closure, whitespace validation and Markdown links. The unsigned rehearsal package also passed module and package audits; it is not the signed release candidate.
+
+## PostgreSQL schema rehearsal
+
+The first disposable NC34/PostgreSQL fresh install indexed all 40 Gutenberg books but physical-schema parity found the alpha.40 `workflow_sort_rank` column and `library_items_usr_wfrank_title` index missing from `appinfo/database.xml`. The existing migration had created both physically. The declaration and a local regression check were added; no new migration was needed. Repeating the fresh install passed with 40 indexed books and no schema errors. A populated upgrade from signed 0.2.0-beta.3 also passed, retaining all 40 books and a user-corrected description through upgrade and rescan. These runs used a source-equivalent unsigned rehearsal archive and must be repeated with the final signed archive.
 
 ## Release gates
 
