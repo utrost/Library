@@ -1427,7 +1427,14 @@ OC.L10N.register(
         "Paste a copied image as cover": "Paste a copied image as cover",
         "Reading status (to read first)": "Reading status (to read first)",
         "The suggested value could not be applied. Reload this queue and try again.": "The suggested value could not be applied. Reload this queue and try again.",
-        "The value was applied, but the queue could not be refreshed. Reload this queue.": "The value was applied, but the queue could not be refreshed. Reload this queue."
+        "The value was applied, but the queue could not be refreshed. Reload this queue.": "The value was applied, but the queue could not be refreshed. Reload this queue.",
+        "Total unavailable.": "Total unavailable.",
+        "Could not update the catalogue. Try again.": "Could not update the catalogue. Try again.",
+        "Counting…": "Counting…",
+        "Catalogue updated.": "Catalogue updated.",
+        "Counting results…": "Counting results…",
+        "Loading shelves…": "Loading shelves…",
+        "Could not load summary. Try again.": "Could not load summary. Try again."
     },
     "nplurals=2; plural=(n != 1);"
 );

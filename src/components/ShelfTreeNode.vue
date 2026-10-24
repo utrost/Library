@@ -43,7 +43,7 @@ async function loadChildren() {
   <li class="library-shelf-tree-node">
     <button v-if="node.hasChildren" type="button" class="library-shelf-tree-toggle" :aria-expanded="String(expanded)" :aria-label="expanded ? t('library', 'Collapse {folder}', { folder: node.label }) : t('library', 'Expand {folder}', { folder: node.label })" @click="toggle">{{ expanded ? '−' : '+' }}</button>
     <a class="library-shelf-summary-card" :href="node.url">
-      <span class="library-shelf-summary-title"><strong><bdi dir="auto">{{ node.label }}</bdi></strong><span>{{ n('library', '%n item', '%n items', Number(node.itemCount || 0)) }}</span></span>
+      <span class="library-shelf-summary-title"><strong><bdi dir="auto">{{ node.label }}</bdi></strong><span>{{ node.itemCount === null ? t('library', 'Counting…') : n('library', '%n item', '%n items', Number(node.itemCount || 0)) }}</span></span>
       <small class="library-muted"><bdi dir="auto">{{ node.path }}</bdi></small>
     </a>
     <small v-if="loading" role="status" class="library-muted">{{ t('library', 'Loading folders…') }}</small>

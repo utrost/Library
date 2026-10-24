@@ -279,12 +279,15 @@ describe('Library catalogue Vue app', () => {
   })
 
   it('renders collapsed shelf roots and fetches bounded children once on expansion', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
+    let hydrateEmpty = false
+    const fetchMock = vi.fn((url) => String(url).includes('hydrate=shelves')
+      ? (hydrateEmpty ? Promise.resolve({ ok: true, json: async () => ({ shelfTree: [] }) }) : new Promise(() => {}))
+      : Promise.resolve({
       ok: true,
       json: async () => ({ nodes: [
         { id: 'root-4-/Books/Art', rootId: 4, label: 'Art', path: '/Books/Art', itemCount: 3, childCount: 0, hasChildren: false, url: '/apps/library/?folder=%2FBooks%2FArt' },
       ] }),
-    })
+    }))
     vi.stubGlobal('fetch', fetchMock)
     const wrapper = mount(App, { props: { state: {
       ...state,
@@ -316,12 +319,13 @@ describe('Library catalogue Vue app', () => {
     expect(child.find('a').attributes('href')).toBe('/apps/library/?folder=%2FBooks%2FArt')
     await expand.trigger('click')
     await expand.trigger('click')
-    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).includes('/shelves/children'))).toHaveLength(1)
     expect(existingNavigationItems(wrapper)[4].props('active')).toBe(true)
     expect(existingNavigationItems(wrapper)[4].props('href')).toBe(state.shelvesUrl)
 
+    hydrateEmpty = true
     const empty = mount(App, { props: { state: { ...state, surface: 'shelves', shelfTree: [] } } })
-    expect(empty.find('.library-shelves-empty').exists()).toBe(true)
+    await vi.waitFor(() => expect(empty.findAll('.library-shelves-empty .button')).toHaveLength(2))
     const emptyActions = empty.findAll('.library-shelves-empty .button')
     expect(emptyActions.map((action) => action.text())).toEqual(['Add a shelf', 'All publications'])
     expect(emptyActions.map((action) => action.attributes('href'))).toEqual([state.settingsUrl, state.catalogueRootUrl])
@@ -753,6 +757,25 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.get('.library-catalogue-request-status').text()).toContain('Catalogue updated')
   })
 
+  it('shows sorted rows before the exact count and reuses the count for another sort', async () => {
+    let resolveCount
+    const page = { ...state, cataloguePagination: { ...state.cataloguePagination, total: null, totalPending: true, nextUrl: '?page=2' } }
+    global.fetch = vi.fn((url) => String(url).includes('hydrate=total')
+      ? new Promise((resolve) => { resolveCount = resolve })
+      : Promise.resolve({ ok: true, json: async () => page }))
+    const wrapper = mount(App, { props: { state: { ...page, catalogueEndpointUrl: '/apps/library/catalogue' } } })
+    expect(wrapper.get('.library-filter-result-summary').text()).toContain('1–1')
+    expect(wrapper.get('.library-filter-result-summary').text()).not.toContain('of 0')
+    expect(wrapper.get('.library-pagination--top a').text()).toBe('Next')
+    await vi.waitFor(() => expect(resolveCount).toBeTypeOf('function'))
+    resolveCount({ ok: true, json: async () => ({ total: 842 }) })
+    await vi.waitFor(() => expect(wrapper.get('.library-filter-result-summary').text()).toContain('of 842'))
+    await wrapper.get('form.library-catalogue-toolbar select[name="sort"]').setValue('recent')
+    await vi.waitFor(() => expect(wrapper.get('.library-catalogue-request-status').text()).toContain('Catalogue updated'))
+    expect(wrapper.get('.library-filter-result-summary').text()).toContain('of 842')
+    expect(global.fetch.mock.calls.filter(([url]) => String(url).includes('hydrate=total'))).toHaveLength(1)
+  })
+
   it('gives Home cover image buttons stable accessible names', () => {
     const wrapper = mount(App, { props: { state: {
       ...state,
@@ -1017,7 +1040,7 @@ describe('Library catalogue Vue app', () => {
 
     await wrapper.get('.library-active-filter-clear-all').trigger('click')
 
-    expect(global.fetch).not.toHaveBeenCalled()
+    expect(global.fetch.mock.calls.every(([url]) => String(url).includes('hydrate='))).toBe(true)
     expect(submissions).toEqual([{
       action: state.catalogueRootUrl,
       params: { sort: 'recent', view: 'list' },
@@ -1072,7 +1095,7 @@ describe('Library catalogue Vue app', () => {
     const chip = wrapper.get('.library-filter-chip[aria-label="Remove filter: Type"]')
     await chip.trigger('click')
 
-    expect(global.fetch).not.toHaveBeenCalled()
+    expect(global.fetch.mock.calls.every(([url]) => String(url).includes('hydrate='))).toBe(true)
     expect(submissions).toEqual([{
       action: state.catalogueRootUrl,
       params: { format: 'epub' },
@@ -2113,7 +2136,7 @@ describe('Library catalogue Vue app', () => {
     await wrapper.vm.$nextTick()
   })
 
-  it('falls back with the failed request snapshot while preserving newer controls', async () => {
+  it('offers retry with the failed request snapshot while preserving newer controls', async () => {
     let rejectRequest
     globalThis.fetch = vi.fn(() => new Promise((_resolve, reject) => { rejectRequest = reject }))
     const submitted = []
@@ -2134,11 +2157,15 @@ describe('Library catalogue Vue app', () => {
     await Promise.resolve()
 
     expect(wrapper.find('#library-main-search').element.value).toBe('latest')
-    expect(submitted).toEqual([{ q: 'first', searchScope: 'title_description' }])
+    expect(submitted).toEqual([])
+    expect(wrapper.get('.library-catalogue-request-status').text()).toContain('Could not update the catalogue')
+    await wrapper.get('.library-catalogue-request-status button').trigger('click')
+    expect(globalThis.fetch.mock.calls[1][0]).toContain('q=first')
+    expect(wrapper.find('#library-main-search').element.value).toBe('latest')
     nativeSubmit.mockRestore()
   })
 
-  it('falls back on a current catalogue rejection and aborts it on unmount', async () => {
+  it('keeps the catalogue on a request rejection and aborts a retry on unmount', async () => {
     let rejectRequest
     let requestOptions
     globalThis.fetch = vi.fn((_url, options) => {
@@ -2154,13 +2181,15 @@ describe('Library catalogue Vue app', () => {
     rejectRequest(new Error('network down'))
     await Promise.resolve()
     await Promise.resolve()
-    expect(nativeSubmit).toHaveBeenCalledTimes(1)
+    expect(nativeSubmit).toHaveBeenCalledTimes(0)
+    expect(wrapper.get('.library-catalogue-request-status').text()).toContain('Could not update the catalogue')
 
-    void form.trigger('submit')
-    await Promise.resolve()
+    void wrapper.get('.library-catalogue-request-status button').trigger('click')
+    await vi.waitFor(() => expect(globalThis.fetch).toHaveBeenCalledTimes(2))
     wrapper.unmount()
     expect(requestOptions.signal.aborted).toBe(true)
-    expect(nativeSubmit).toHaveBeenCalledTimes(1)
+    expect(nativeSubmit).toHaveBeenCalledTimes(0)
+    nativeSubmit.mockRestore()
   })
 
   it('supports slash focus and Escape-to-clear keyboard search shortcuts', async () => {

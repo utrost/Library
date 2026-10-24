@@ -31,7 +31,7 @@ def test_shelves_payload_is_distinct_bounded_and_links_to_catalogue_filters():
     assert "'surface' => 'shelves'" in shelves_state
     assert "'items' => []" in shelves_state
     assert "'shelfSummaries'" in shelves_state
-    assert "http_build_query(['shelf'" in shelves_state
+    assert "http_build_query(['folder'" in shelves_state
     assert "'shelvesUrl' => $catalogueRootUrl . '?shelves=1'" in shelves_state
     assert "queryCatalogue(" not in shelves_state
 
@@ -68,7 +68,8 @@ def test_shelves_initial_payload_is_roots_only_and_exposes_lazy_child_metadata()
     assert "'hasChildren'" in tree_method
     assert "'childCount'" in tree_method
     assert "'children'" not in tree_method
-    assert "$this->itemService->shelfTree($userId" in shelves_state
+    assert "$this->rootService->listRoots($userId)" in shelves_state
+    assert "$this->itemService->shelfTree($userId" in controller.split("public function catalogue()", 1)[1].split("public function publicationSuggestions", 1)[0]
     assert "'shelfTree' => $shelfTree" in shelves_state
     assert "shelfChildrenUrl" in shelves_state
     assert "$addFolderUrls" not in shelves_state

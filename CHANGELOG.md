@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0-alpha.42 — 2026-10-24
+
+- Show sorted catalogue pages before calculating the exact total. Next/Previous use a one-row lookahead, and a separate request fills in the count without blocking the visible results.
+- Place a visible loading indicator beside Sort and catalogue status; retain results on request failure and offer Retry. Cache recent counts across sort changes and refresh after review updates.
+- Render Home and Shelves before their aggregate summaries finish. Show root links and loading/retry feedback while counts and folder hierarchy load.
+- Keep book-neighbor navigation working while a catalogue total is pending. No database migration.
+
 ## 0.3.0-alpha.41 — 2026-10-22
 
 - Restore the full catalogue row after narrow status-sort pagination. Nextcloud's query-builder clone shares its selected columns; alpha.40 returned sorted IDs but omitted book metadata in those rows. This also corrects metadata loss on later pages of other sorted views.

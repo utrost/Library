@@ -1,6 +1,6 @@
 # Library Roadmap
 
-**Current developer candidate: 0.3.0-alpha.41.** Signed alpha.41 is installed on developer NC34 with clean integrity and large catalogue catalogue rows before and after upgrade. Indexed status sorting retains full book fields at baseline speed; see the [alpha.41 deployment record](compatibility-evidence/2026-10-22-nc34-alpha41/README.md). Exact signed NC33–35 certification and human acceptance remain release gates.
+**Current developer candidate: 0.3.0-alpha.42.** Signed alpha.41 is installed on developer NC34 with clean integrity and large catalogue catalogue rows before and after upgrade. Indexed status sorting retains full book fields at baseline speed; see the [alpha.41 deployment record](compatibility-evidence/2026-10-22-nc34-alpha41/README.md). Exact signed NC33–35 certification and human acceptance remain release gates.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.41 is now installed.
 

@@ -36,6 +36,14 @@ try {
  $db->executeStatement('UPDATE *PREFIX*library_items SET title=? WHERE user_id=?',['Tied title',$uid]);
  $page1=$items->queryCatalogue($uid,[],['page'=>1,'limit'=>2],false);
  $page2=$items->queryCatalogue($uid,[],['page'=>2,'limit'=>2,'cursor'=>$page1['nextCursor']],false);
+ $fastPage1=$items->queryCatalogue($uid,[],['page'=>1,'limit'=>2,'deferTotal'=>true],false);
+ $fastPage2=$items->queryCatalogue($uid,[],['page'=>2,'limit'=>2,'cursor'=>$fastPage1['nextCursor'],'deferTotal'=>true],false);
+ verifyPerf($fastPage1['total']===null&&$fastPage1['hasNext']===true&&array_column($fastPage1['items'],'id')===array_column($page1['items'],'id'),'Fast first page uses lookahead without counting');
+ verifyPerf($fastPage2['total']===null&&$fastPage2['hasNext']===false&&array_column($fastPage2['items'],'id')===array_column($page2['items'],'id'),'Fast cursor page preserves the final item');
+ $fastBack=$items->queryCatalogue($uid,[],['page'=>1,'limit'=>2,'cursor'=>$fastPage2['previousCursor'],'deferTotal'=>true],false);
+ verifyPerf($fastBack['hasNext']===true&&array_column($fastBack['items'],'id')===array_column($page1['items'],'id'),'Fast backward cursor retains Next');
+ $fastStatus=$items->queryCatalogue($uid,['sort'=>'workflowStatus'],['page'=>1,'limit'=>2,'deferTotal'=>true],false);
+ verifyPerf($fastStatus['total']===null&&$fastStatus['hasNext']===true&&count($fastStatus['items'])===2&&($fastStatus['items'][0]['extension']??'')==='pdf','Fast status sort retains full page metadata');
  verifyPerf(count($page1['items'])===2&&count($page2['items'])===1,'Cursor handles tied titles without skipped rows');
  verifyPerf(count(array_unique(array_merge(array_column($page1['items'],'id'),array_column($page2['items'],'id'))))===3,'Cursor avoids duplicates');
  $back=$items->queryCatalogue($uid,[],['page'=>1,'limit'=>2,'cursor'=>$page2['previousCursor']],false);

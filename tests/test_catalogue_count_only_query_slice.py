@@ -57,7 +57,7 @@ def test_count_only_scanner_conflicts_retain_visible_catalogue_conflict_semantic
     )
     visible_conflicts = method_body(
         service,
-        "private function queryScannerConflictCatalogue(string $userId, array $filters, int $offset, int $limit, bool $includeFacets = true): array",
+        "private function queryScannerConflictCatalogue(string $userId, array $filters, int $offset, int $limit, bool $includeFacets = true, bool $includeTotal = true): array",
         "private function itemHasScannerConflict",
     )
 
