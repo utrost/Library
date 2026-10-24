@@ -1,30 +1,30 @@
 # Library human test handbook
 
-**Current acceptance target: 0.3.0-rc.1.** The prior signed alpha.43 package remains installed on developer NC34 until RC deployment. Confirm the installed version and package checksum against the RC certification record before acceptance; a matching version string alone does not identify an archive.
+**Current acceptance target: 0.3.0-rc.1.** The exact signed RC is installed on developer NC34. Its SHA-256 is `caffb1ac1a93b961813d75270861d8185dcabfff95d17c233bade68e9e45eb07`; check the [RC certification and deployment record](compatibility-evidence/2026-10-24-rc1/README.md) before acceptance. A matching version string alone does not identify an archive.
 
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 
 Use disposable accounts and books for saved edits, imports, merges, scans and deletion. Read-only browsing or staging followed by Discard is suitable for a personal collection. Exact signed NC33–35 fresh-install/upgrade certification and manual assistive-technology testing remain separate release gates.
 
-### Alpha.43 indexed sorting check
+### RC indexed sorting check
 
 On All publications, switch through Publication date, Series, Recently opened and Format at the top of a large catalogue and on page two. Each change should show Updating promptly, preserve the current rows until replacement rows arrive, then keep Next/Previous and the deferred total correct. Repeat on a phone, then change sorts quickly to verify an old response cannot replace the newest selection. When dates or opening times tie, their titles run Z–A; entries within a Series run by date A–Z. After a disposable book changes file extension and is rescanned, Format order should reflect the new extension.
 
-### Alpha.42 responsiveness check
+### RC responsiveness check
 
 On the large developer catalogue, switch between Title, Date added and Reading status. The current covers should remain visible, an Updating indicator should appear beside Sort, and the new page should arrive before its exact count. Next/Previous must work while the count says Counting; changing sort again must not restore stale rows. Repeat with a search and on mobile. Open Home and Shelves: book rows and shelf root links should appear promptly, with a clear loading state while aggregate summaries finish. Disconnect temporarily and check that Retry restores a failed request without losing the current rows.
 
-### Alpha.41 acceptance check
+### Reading-status result integrity
 
 On All publications, sort by Reading status and inspect a book with a status. Its cover, creator, format, shelf and status must still appear. Change pages in this sort and in a second sorted view; each row must keep its book information.
 
-### Alpha.40 acceptance check
+### Reading-status sort performance
 
 On a large catalogue, sort All publications by Reading status and switch pages. Compare its response with Title sorting, then filter by Not set. The status view should remain responsive while preserving title order within each status. No book data should change.
 
-### Alpha.39 acceptance checks
+### Review queue and identifier checks
 
-For alpha.39 and later, extend H03-01/09/10 with these checks using disposable books:
+Extend H03-01/09/10 with these checks using disposable books:
 
 - In Review and cleanup, apply a scanner suggestion. Confirm the queue stays open, shows a success message and presents the next pending suggestion. A failed or stale apply must show an error without leaving the queue. Confirm covers in the review workbench and result list, including a book without extracted artwork.
 - In All publications, use the visible Reading status selector to filter books, including Not set. Sort by Reading status and confirm the shown order (To read, Reading, Paused, Needs action, Finished, Reference, Abandoned, Not set) and stable title order within a status. Clear the selector to restore all books.
@@ -32,7 +32,7 @@ For alpha.39 and later, extend H03-01/09/10 with these checks using disposable b
 
 ### Alpha.38 acceptance checks
 
-On the installed alpha.38, extend H03-01/02/10/15 with these checks on disposable books:
+On the installed RC, extend H03-01/02/10/15 with these checks on disposable books:
 
 - In the catalogue sidebar, search title/description, then author, subject, genre, classification and publisher. The first search must stay limited to title/description; main Search books still checks the broader catalogue. Selecting a genre must keep other filters.
 - On Details, use Previous book, Next book and left/right arrow keys from a sorted, filtered catalogue, author profile, series and personal list. Back must restore the originating view and page. Arrows must leave text fields alone; navigating with unsaved metadata asks before discarding.
@@ -47,7 +47,7 @@ On the installed alpha.38, extend H03-01/02/10/15 with these checks on disposabl
 3. Run a scan and wait for it to finish. Keep browser developer tools available. Capture screenshots before and after a change, with book IDs or titles and the affected list/author/series names. Do not publish private paths, credentials, or metadata.
 4. Use **Pass**, **Fail**, **Blocked**, or **Not applicable** for each case. Report unexpected changes to source files immediately. Normal Library metadata, list, author and series actions should leave EPUB/PDF/CBZ bytes and OPF sidecars untouched. H03-23 deliberately deletes disposable source files after confirmation.
 
-For a quick acceptance pass, run H03-01, H03-09, H03-10, H03-17, H03-18, H03-21, H03-22 and H03-26. Include **H03-02** for the alpha.36 mixed-pattern workflow and H03-23 with disposable files for a release candidate. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
+For a quick acceptance pass, run H03-01, H03-09, H03-10, H03-17, H03-18, H03-21, H03-22 and H03-26. Include **H03-02** for the mixed-pattern workflow and H03-23 with disposable files. Run the remaining cases before a release decision. The automated [Playwright journeys](playwright-journeys.md) supply repeatable browser checks; these cases ask a person to judge clarity, safety and real-file behavior.
 
 Copy this result sheet into the session note. Write the checksum of the installed signed private archive in the session header; use the RC certification record for the deployed candidate. The developer build serves versioned frontend assets so browsers fetch the updated interface.
 
@@ -285,7 +285,7 @@ Use a disposable account for Save/stale-edit checks. Developer smoke only stages
 
 See the [alpha.29 measurements and repeat commands](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md).
 
-### H03-21 — Browse authors (alpha.30)
+### H03-21 — Browse authors
 
 1. Open Authors. Expect compact rows sorted by the displayed name A–Z, with a linked book count and at most three cover/title previews. Sort names should not clutter each row.
 2. Choose Name Z–A, then Surname / sort name A–Z. Check ordering, including page two; changing sort resets to page one.
@@ -296,7 +296,7 @@ See the [alpha.29 measurements and repeat commands](compatibility-evidence/2026-
 
 The three covers are stable examples, not a complete bibliography. Open the author or book count for all books.
 
-### H03-22 — Series and Genres browser parity (alpha.30)
+### H03-22 — Series and Genres browser parity
 
 - Open Series and Genres. Both should have the same compact search/sort toolbar and cover/title previews as Authors, with Name A–Z as the default and Name Z–A available.
 - Search after three letters, clear the search, paginate and follow book previews. Back must restore the originating directory state. Series names and counts open their profile; genre names and counts open the filtered catalogue.
@@ -304,7 +304,7 @@ The three covers are stable examples, not a complete bibliography. Open the auth
 - Check narrow screens, keyboard focus and dark mode. Expand **Create a genre** to add a genre; suggestion review and series reassignment remain available and explicit.
 
 
-### H03-23 — Delete a book from Details (alpha.31)
+### H03-23 — Delete a book from Details
 
 Use disposable files in an isolated test account. Do not use valuable library books for this case.
 
@@ -320,7 +320,7 @@ Use disposable files in an isolated test account. Do not use valuable library bo
 
 Deletion requires Nextcloud transactional file locking. The storage guard preserves Nextcloud's normal trash/retention behavior; it does not permanently purge the trash. Deletion of arbitrary companion images or ancestor directories is outside this feature.
 
-### H03-23a — Mark for deletion on a read-only mount (next candidate)
+### H03-23a — Mark for deletion on a read-only mount
 
 Use a disposable EPUB on a read-only shelf and another disposable book on a writable shelf. This case applies after the candidate with **To delete** is installed.
 
@@ -364,7 +364,7 @@ Retain H03-24 regression coverage for Save/Discard, stale edits, sticky actions,
 
 ### H03-26 — Final consistency acceptance
 
-Sidebar follow-up for alpha.35: check **Library → Discover → Your lists → Review and cleanup**, consistent icons and active links, and Settings at the bottom. Use Tab and Enter to open/close Review and cleanup, then repeat on a narrow screen and on Review languages / Publisher and subject names. Check both themes; long labels and saved list names should remain usable without horizontal scrolling.
+Sidebar check: inspect **Library → Discover → Your lists → Review and cleanup**, consistent icons and active links, and Settings at the bottom. Use Tab and Enter to open/close Review and cleanup, then repeat on a narrow screen and on Review languages / Publisher and subject names. Check both themes; long labels and saved list names should remain usable without horizontal scrolling.
 
 1. **Readable feedback:** inspect scanner errors and failed requests in light and dark themes. Error text and danger labels must remain readable.
 2. **Profile search draft:** on both Authors and Series, type a nonmatching query without Search, switch Covers/List, open a book, then Back. The previous results and the typed draft must return. Repeat reload, browser Back, submitting/clearing the query and pagination.
