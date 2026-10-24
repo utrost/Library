@@ -19,7 +19,7 @@ def test_item_service_filters_and_sorts_by_publication_series_periodical_title()
     assert "'publications' => $this->distinctCatalogueValues($userId, $facetFilters['publications'], 'i.publication', 'publication', self::PUBLICATION_FACET_LIMIT)" in service
     assert "$publication = trim((string)($filters['publication'] ?? ''));" in service
     assert "$qb->expr()->eq('i.publication', $qb->createNamedParameter($publication))" in service
-    assert "'publication' => $qb->orderBy('i.publication', 'ASC')->addOrderBy('i.publication_date', 'ASC')->addOrderBy('i.title', 'ASC')->addOrderBy('i.id', 'ASC')" in service
+    assert "'publication' => $qb->orderBy('i.publication', 'ASC')->addOrderBy('i.publication_date', 'ASC')->addOrderBy('i.id', 'ASC')" in service
 
 
 def test_vue_catalogue_exposes_series_periodical_filter_and_metadata_on_cards():
