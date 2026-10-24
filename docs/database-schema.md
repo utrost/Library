@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.3 development source tree**, 2026-10-21. Covers 41 app-owned tables through `Version000300Date20261021180000`. The latest forward migration adds per-shelf file-modification and extension indexes for path-worklist sorting; the preceding migration added a reversible deletion marker to catalogue rows. Earlier physical-schema comparisons passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passed on NC34 with all three engines. The new migrations still need exact-package multi-version and physical-schema checks.
+Snapshot: **0.3 development source tree**, 2026-10-24. Covers 41 app-owned tables through `Version000300Date20261024110000`. The latest forward migration adds indexed catalogue sort orders and a backfilled `format_sort` value; earlier migrations added reading-status ordering, per-shelf worklist indexes and a reversible deletion marker. Earlier physical-schema comparisons passed on Nextcloud 33.0.9, 34.0.4 and 35.0.0 with SQLite, MariaDB and PostgreSQL; an alpha.9-to-candidate upgrade passed on NC34 with all three engines. The new migrations still need exact-package multi-version and physical-schema checks.
 
 ## Schema ownership
 

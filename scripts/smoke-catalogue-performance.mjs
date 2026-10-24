@@ -184,6 +184,9 @@ try {
   const discovered = discoverFilterValues()
   metric('catalogue_filter_discovery', 'live_db')
   const unfiltered = await timeCatalogue('catalogue_unfiltered_fast', '/apps/library/catalogue?limit=25', token)
+  for (const sort of ['title', 'recent', 'publicationDate', 'publication', 'lastOpened', 'format', 'workflowStatus']) {
+    await attempt(() => timeCatalogue(`catalogue_sort_${sort}_fast`, `/apps/library/catalogue?limit=25&sort=${sort}`, token))
+  }
   if (String(discovered.qSubstring || '').trim()) {
     const substringUrl = new URL('/apps/library/catalogue?limit=25', upstream)
     substringUrl.searchParams.set('q', String(discovered.qSubstring).trim())

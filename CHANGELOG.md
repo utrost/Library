@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0-alpha.43 — 2026-10-24
+
+- Page Publication date, Series, Recently opened and Format on indexed, narrow item rows before loading full metadata. A forward migration adds three composite sort indexes and a format sort value backfilled from file extensions.
+- Keep the indexed format value current when scanning a file whose extension changed. Stable ID tie breakers make paging deterministic; date and recently opened ties now follow descending title order, while Series dates follow ascending order.
+- Retain alpha.42's immediate sorting feedback and separate exact count.
+
 ## 0.3.0-alpha.42 — 2026-10-24
 
 - Show sorted catalogue pages before calculating the exact total. Next/Previous use a one-row lookahead, and a separate request fills in the count without blocking the visible results.
