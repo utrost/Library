@@ -44,6 +44,9 @@ def test_current_release_assets_exist():
         f"css/library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v8.css",
     ]:
         assert (ROOT / rel).is_file(), rel
+    maintenance_assets = (ROOT / 'lib' / 'Service' / 'UiAssets.php').read_text()
+    assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v8" in maintenance_assets
+    assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v8" in maintenance_assets
 
 
 def test_main_template_is_vue_mount_only_for_the_native_component_shell():
