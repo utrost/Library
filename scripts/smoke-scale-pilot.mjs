@@ -185,6 +185,11 @@ i=$((i+1)); done; chown -R www-data:www-data ${dataDir}; find ${dataDir} -type f
 
   token = parseToken(dockerWww(['php', 'occ', 'user:add-app-password', '--no-interaction', '--name', tokenName, user]))
   if (!token) throw new Error('temporary app password was not created')
+  const countResponse = await fetchText(`/apps/library/catalogue?hydrate=total&shelf=${encodeURIComponent(rootName)}`, token)
+  const deferredTotal = countResponse.status === 200 ? JSON.parse(countResponse.text).total : null
+  console.log(`deferred_total_http=${countResponse.status}`)
+  console.log(`deferred_total=${deferredTotal}`)
+  if (deferredTotal !== count) throw new Error(`deferred catalogue total ${deferredTotal} did not match ${count}`)
   for (const [limit, page] of [[25,1], [25,2], [100,1], [500,1]]) {
     const http = await fetchText(`/apps/library/?shelf=${encodeURIComponent(rootName)}&limit=${limit}&page=${page}`, token)
     console.log(`page_${limit}_${page}_http=${http.status}`)
@@ -194,7 +199,10 @@ i=$((i+1)); done; chown -R www-data:www-data ${dataDir}; find ${dataDir} -type f
     const state = decodeInitialState(http.text)
     const pagination = state.cataloguePagination || {}
     const actualItems = (state.items || []).length
-    const hasExpectedRange = pagination.from === expectedFrom && pagination.to === expectedTo && pagination.total === count && actualItems === Math.max(0, expectedTo - expectedFrom + 1)
+    const hasExpectedRange = pagination.from === expectedFrom && pagination.to === expectedTo
+      && pagination.total === null && pagination.totalPending === true
+      && Boolean(pagination.nextUrl) === (expectedTo < count)
+      && actualItems === Math.max(0, expectedTo - expectedFrom + 1)
     console.log(`page_${limit}_${page}_actual_range=${pagination.from}-${pagination.to}-of-${pagination.total}`)
     console.log(`page_${limit}_${page}_items=${actualItems}`)
     console.log(`page_${limit}_${page}_expected_range=${expectedFrom}-${expectedTo}-of-${count}`)
