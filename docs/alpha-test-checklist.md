@@ -1,16 +1,16 @@
 # Public alpha test checklist
 
-**Current developer candidate: 0.3.0-alpha.42.** Signed alpha.41 is installed on developer NC34 with clean integrity and 107,717 catalogue rows before and after upgrade. Indexed status sorting retains full book fields at baseline speed; see the [alpha.41 deployment record](compatibility-evidence/2026-10-22-nc34-alpha41/README.md). Exact signed NC33–35 certification and human acceptance remain release gates.
+**Current developer candidate: 0.3.0-alpha.43.** Signed alpha.42 is installed on developer NC34 with clean integrity and 107,717 catalogue rows before and after upgrade. Indexed status sorting retains full book fields at baseline speed; see the [alpha.42 deployment record](compatibility-evidence/2026-10-24-nc34-alpha42/README.md). Exact signed NC33–35 certification and human acceptance remain release gates.
 
-Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.41 is now installed.
+Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.42 is now installed.
 
-Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.41 is now installed.
+Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.42 is now installed.
 
 Alpha.30 adds a shared compact browser for Authors, Series and Genres, with displayed-name sorting, bounded book previews and genre pagination. One additive index supports ordering; no author identities or book values change. Verification and deployment status: [alpha.30 record](compatibility-evidence/2026-10-20-nc34-author-browser-alpha30/README.md).
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.41 is now installed.
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.42 is now installed.
 
-The current development checkpoint is **`0.3.0-alpha.41`**; the [alpha.41 verification and deployment record](compatibility-evidence/2026-10-22-nc34-alpha41/README.md) identifies the package installed on private developer Nextcloud 34. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
+The installed development checkpoint is **`0.3.0-alpha.42`**; the [alpha.42 verification and deployment record](compatibility-evidence/2026-10-24-nc34-alpha42/README.md) identifies the package installed on private developer Nextcloud 34. Confirm the installed version and checksum before testing. The signed `0.2.0-beta.3` archive is the preserved release baseline; 0.3 is the planned first App Store submission. Historical `0.1.0-beta.1` and alpha.174 notes below are retained only for traceability. Accessibility-tree evidence is not screen-reader testing. Manual AT testing is pending.
 
 Use the [Playwright journey suite](playwright-journeys.md) for repeatable browser workflows against a disposable instance. Use the [current 0.3 human cases](human-test-handbook.md#current-03-human-cases) for personal acceptance. This checklist covers package identity, source-file safety, real-file coverage and release-specific acceptance.
 

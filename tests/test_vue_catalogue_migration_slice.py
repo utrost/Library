@@ -49,6 +49,18 @@ def test_current_release_assets_exist():
     assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v8" in maintenance_assets
 
 
+def test_indexed_sort_pages_keep_format_in_sync_with_scanned_files():
+    migration = (ROOT / 'lib' / 'Migration' / 'Version000300Date20261024110000.php').read_text()
+    service = (ROOT / 'lib' / 'Service' / 'ItemService.php').read_text()
+    for index in ('pubdate_page', 'publication_page', 'lastopen_page', 'format_page'):
+        assert f'library_items_usr_{index}' in migration
+    assert "LOWER(f.extension)" in migration
+    assert "'format_sort' => $qb->createNamedParameter(strtolower((string)($file['extension'] ?? '')))" in service
+    assert "SET format_sort=? WHERE user_id=? AND id=?" in service
+    assert "'format' => $qb->orderBy('i.format_sort', 'ASC')" in service
+    assert "$sort !== 'title'" in service
+
+
 def test_main_template_is_vue_mount_only_for_the_native_component_shell():
     template = (ROOT / "templates" / "main.php").read_text()
 
