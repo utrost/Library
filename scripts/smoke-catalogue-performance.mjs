@@ -204,7 +204,7 @@ try {
     filteredUrl.searchParams.set(filter, value)
     const payload = await attempt(() => timeCatalogue(filterMetricLabel(filter, key), filteredUrl, token))
     if (payload === null) continue
-    if ((payload.cataloguePagination?.total || 0) < 1) {
+    if (!Array.isArray(payload.items) || payload.items.length < 1) {
       metric(`catalogue_filter_${key}_skipped_reason`, JSON.stringify('no representative live value'))
       continue
     }
@@ -216,6 +216,12 @@ try {
   }
 
   const pageOne = await attempt(() => timeCatalogue('catalogue_pagination_page_1_fast', '/apps/library/catalogue?limit=1&page=1', token))
+  if (pageOne && (pageOne.cataloguePagination?.total !== null || pageOne.cataloguePagination?.totalPending !== true)) failures.push('catalogue page blocked on its exact count')
+  const countResponse = await fetch(new URL('/apps/library/catalogue?hydrate=total', upstream), { headers: authHeaders(token) })
+  const countPayload = await countResponse.json().catch(() => null)
+  metric('catalogue_total_http_status', countResponse.status)
+  metric('catalogue_total_count', countPayload?.total ?? -1)
+  if (countResponse.status !== 200 || !Number.isSafeInteger(countPayload?.total) || countPayload.total < Number(pageOne?.items?.length || 0)) failures.push('deferred catalogue total was invalid')
   if (pageOne?.cataloguePagination?.nextUrl) {
     const pageTwo = await attempt(() => timeCatalogue('catalogue_pagination_page_2_fast', catalogueApiPath(pageOne.cataloguePagination.nextUrl), token))
     if (pageTwo !== null && Number(pageTwo.cataloguePagination?.page) !== 2) failures.push('catalogue nextUrl did not open page 2')

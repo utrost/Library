@@ -30,9 +30,9 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const APP_VERSION = '0.3.0-alpha.41';
-    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-41-compact-list-table-cover-96-fit-v8';
-    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-41-compact-list-table-cover-96-fit-v8';
+    private const APP_VERSION = '0.3.0-alpha.42';
+    private const VUE_SCRIPT_ASSET = 'library-main-0-3-0-alpha-42-compact-list-table-cover-96-fit-v8';
+    private const VUE_STYLE_ASSET = 'library-vue-0-3-0-alpha-42-compact-list-table-cover-96-fit-v8';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -224,6 +224,30 @@ class PageController extends Controller {
     public function catalogue(): JSONResponse {
         $user = $this->userSession->getUser();
         $userId = $user !== null ? $user->getUID() : '';
+        if ((string)$this->request->getParam('hydrate', '0') === 'total') {
+            $filters = $this->catalogueFiltersFromRequest();
+            if ($filters['tag'] !== '') {
+                $filters['taggedFileIds'] = $this->fileTagService->fileIdsForExactVisibleTag($filters['tag']);
+            }
+            return new JSONResponse(['total' => $userId === '' ? 0 : $this->itemService->countCatalogue($userId, $filters)]);
+        }
+        if ((string)$this->request->getParam('hydrate', '0') === 'home') {
+            $catalogueRootUrl = $this->urlGenerator->linkToRoute('library.page.index');
+            $shelves = $userId === '' ? [] : $this->itemService->homeShelfSummaries($userId, 8);
+            foreach ($shelves as &$shelf) $shelf['url'] = $catalogueRootUrl . '?' . http_build_query(['shelf' => $shelf['shelf']]);
+            unset($shelf);
+            return new JSONResponse([
+                'homeShelves' => $shelves,
+                'needsAttentionCount' => $userId === '' ? 0 : $this->itemService->countCatalogue($userId, ['needsMetadata' => '1']),
+            ]);
+        }
+        if ((string)$this->request->getParam('hydrate', '0') === 'shelves') {
+            $catalogueRootUrl = $this->urlGenerator->linkToRoute('library.page.index');
+            $tree = $userId === '' ? [] : $this->itemService->shelfTree($userId, 200);
+            foreach ($tree as &$node) $node['url'] = $catalogueRootUrl . '?' . http_build_query(['folder' => $node['path']]);
+            unset($node);
+            return new JSONResponse(['shelfTree' => $tree]);
+        }
         if ((string)$this->request->getParam('hydrate', '0') === 'counts') {
             return new JSONResponse([
                 'smartViewCounts' => $userId === '' ? [] : $this->itemService->smartViewCounts($userId, false),
@@ -413,11 +437,6 @@ class PageController extends Controller {
         ));
         $catalogueRootUrl = $this->urlGenerator->linkToRoute('library.page.index');
         $roots = $this->rootService->listRoots($userId);
-        $shelfSummaries = $userId !== '' ? $this->itemService->homeShelfSummaries($userId, 8) : [];
-        foreach ($shelfSummaries as &$summary) {
-            $summary['url'] = $catalogueRootUrl . '?' . http_build_query(['shelf' => $summary['shelf']]);
-        }
-        unset($summary);
         return [
             'surface' => 'home',
             'language' => $this->l10nFactory->findLanguage(Application::APP_ID),
@@ -429,9 +448,9 @@ class PageController extends Controller {
                 'continueReading' => $enrichRow($rows['continueReading']),
                 'recentlyAdded' => $enrichRow($rows['recentlyAdded']),
             ],
-            'homeShelves' => $shelfSummaries,
+            'homeShelves' => [],
             'needsAttention' => [
-                'count' => $userId !== '' ? $this->itemService->countCatalogue($userId, ['needsMetadata' => '1']) : 0,
+                'count' => null,
                 'url' => $catalogueRootUrl . '?needsMetadata=1',
             ],
             'rootCount' => count($roots),
@@ -448,16 +467,13 @@ class PageController extends Controller {
     private function buildShelvesState(string $userId): array {
         $activeFilters = $this->catalogueFiltersFromRequest();
         $catalogueRootUrl = $this->urlGenerator->linkToRoute('library.page.index');
-        $shelfSummaries = $userId !== '' ? $this->itemService->shelfSummaries($userId, 200) : [];
-        foreach ($shelfSummaries as &$summary) {
-            $summary['url'] = $catalogueRootUrl . '?' . http_build_query(['shelf' => $summary['shelf']]);
-        }
-        unset($summary);
-        $shelfTree = $userId !== '' ? $this->itemService->shelfTree($userId, 200) : [];
-        foreach ($shelfTree as &$node) {
-            $node['url'] = $catalogueRootUrl . '?' . http_build_query(['folder' => $node['path']]);
-        }
-        unset($node);
+        $roots = $userId !== '' ? $this->rootService->listRoots($userId) : [];
+        $shelfTree = array_map(static function (array $root) use ($catalogueRootUrl): array {
+            $path = (string)$root['path'];
+            return ['id' => 'root-' . $root['id'], 'rootId' => (int)$root['id'], 'label' => (string)($root['label'] ?: $path),
+                'path' => $path, 'itemCount' => null, 'childCount' => 0, 'hasChildren' => false,
+                'url' => $catalogueRootUrl . '?' . http_build_query(['folder' => $path])];
+        }, $roots);
         $language = $this->l10nFactory->findLanguage(Application::APP_ID);
 
         return [
@@ -467,7 +483,7 @@ class PageController extends Controller {
             'items' => [],
             'activeFilters' => $activeFilters,
             'cataloguePagination' => ['page' => 1, 'limit' => 0, 'total' => 0, 'visible' => 0, 'from' => 0, 'to' => 0, 'previousUrl' => '', 'nextUrl' => ''],
-            'shelfSummaries' => $shelfSummaries,
+            'shelfSummaries' => [],
             'shelfTree' => $shelfTree,
             'shelfChildrenUrl' => $this->urlGenerator->linkToRoute('library.page.shelfChildren'),
             'catalogueRootUrl' => $catalogueRootUrl,
@@ -515,6 +531,7 @@ class PageController extends Controller {
             (int)$this->request->getParam('limit', 100),
         );
         $pagination['cursor'] = (string)$this->request->getParam('cursor', '');
+        $pagination['deferTotal'] = true;
         $phaseStarted = $this->clock->now();
         $roots = $this->rootService->listRoots($userId);
         $durations['auxiliary_ms'] += $this->clock->elapsedMs($phaseStarted);
@@ -525,17 +542,20 @@ class PageController extends Controller {
         $catalogue = $userId !== '' ? $this->itemService->queryCatalogue($userId, $activeFilters, $pagination, $includeFacets) : [
             'items' => [],
             'total' => 0,
+            'hasNext' => false,
             'facets' => ['publicationTypes' => [], 'publishers' => [], 'shelves' => [], 'formats' => [], 'scanStatuses' => ['indexed', 'metadata_error', 'missing'], 'workflowStatuses' => [], 'subjects' => [], 'classifications' => [], 'publications' => [], 'publicationSummaries' => [], 'publicationYears' => [], 'creators' => []],
         ];
         $durations['catalogue_query_ms'] = $this->clock->elapsedMs($phaseStarted);
         if ($leanHydration) $catalogue['facets'] = $this->itemService->catalogueAuxiliaryFacets($userId, $activeFilters);
         $items = $catalogue['items'];
-        $pagination['total'] = (int)$catalogue['total'];
+        unset($pagination['deferTotal']);
+        $pagination['total'] = $catalogue['total'];
+        $pagination['totalPending'] = $pagination['total'] === null;
         $pagination['visible'] = count($items);
-        $pagination['from'] = $pagination['total'] === 0 ? 0 : (($pagination['page'] - 1) * $pagination['limit']) + 1;
+        $pagination['from'] = $items === [] ? 0 : (($pagination['page'] - 1) * $pagination['limit']) + 1;
         $pagination['to'] = $pagination['from'] === 0 ? 0 : $pagination['from'] + $pagination['visible'] - 1;
         $pagination['previousUrl'] = $pagination['page'] > 1 ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] - 1, $catalogue['previousCursor'] ?? '') : '';
-        $pagination['nextUrl'] = $pagination['to'] < $pagination['total'] ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] + 1, $catalogue['nextCursor'] ?? '') : '';
+        $pagination['nextUrl'] = ($pagination['totalPending'] ? ($catalogue['hasNext'] ?? false) : $pagination['to'] < $pagination['total']) ? $this->paginationUrl($activeFilters, $pagination, $pagination['page'] + 1, $catalogue['nextCursor'] ?? '') : '';
 
         $phaseStarted = $this->clock->now();
         $fileTagsByFileId = $this->fileTagService->tagsForItems($items);
@@ -645,7 +665,7 @@ class PageController extends Controller {
         ];
         $durations['total_ms'] = $this->clock->elapsedMs($totalStarted);
         $context = ['event_schema' => 1, 'surface' => in_array($surface, ['index', 'catalogue_api', 'publication', 'year', 'creator'], true) ? $surface : 'catalogue_api',
-            ...$durations, 'items_returned' => count($items), 'total_items' => (int)$catalogue['total'],
+            ...$durations, 'items_returned' => count($items), 'total_items' => $catalogue['total'],
             'page' => $pagination['page'], 'limit' => $pagination['limit'],
             'active_filter_count' => count(array_filter($activeFilters, static fn ($value, $key): bool => $key !== 'taggedFileIds' && trim((string)$value) !== '' && !($key === 'sort' && $value === 'title') && !($key === 'view' && $value === 'compact'), ARRAY_FILTER_USE_BOTH)),
             'has_text_search' => $activeFilters['q'] !== '', 'scanner_conflict_projection' => $metadataReviewProjection];

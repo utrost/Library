@@ -1,6 +1,6 @@
 # Release process
 
-**0.3.0-alpha.41 is installed on developer NC34.** The signed package has clean integrity and large catalogue catalogue rows before and after upgrade. Indexed status sorting retains full book fields at baseline speed; see the [alpha.41 deployment record](docs/compatibility-evidence/2026-10-22-nc34-alpha41/README.md). Exact signed NC33–35 certification and human acceptance remain release gates.
+**0.3.0-alpha.42 is under verification; signed alpha.41 remains installed on developer NC34.** Alpha.42 defers catalogue totals and Home/Shelves summaries so the visible content can load first. See the [alpha.41 deployment record](docs/compatibility-evidence/2026-10-22-nc34-alpha41/README.md). Exact signed NC33–35 certification and human acceptance remain release gates.
 
 Earlier alpha.38 passed 79 browser journeys and introduced additive migrations for deletion markers and file worklists; see its [deployment record](docs/compatibility-evidence/2026-10-21-nc34-alpha38/README.md).
 

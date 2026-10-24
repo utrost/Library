@@ -325,6 +325,11 @@ try {
 
   const pageCases = [[25,1], [100,1]]
   if (count > 25) pageCases.push([25,2])
+  const countResponse = await fetchText(`/apps/library/catalogue?hydrate=total&shelf=${encodeURIComponent(rootName)}`, token)
+  const deferredTotal = countResponse.status === 200 ? JSON.parse(countResponse.text).total : null
+  console.log(`deferred_total_http=${countResponse.status}`)
+  console.log(`deferred_total=${deferredTotal}`)
+  if (deferredTotal !== count) throw new Error(`deferred catalogue total ${deferredTotal} did not match ${count}`)
   for (const [limit, page] of pageCases) {
     const http = await fetchText(`/apps/library/?shelf=${encodeURIComponent(rootName)}&limit=${limit}&page=${page}`, token)
     console.log(`page_${limit}_${page}_http=${http.status}`)
@@ -343,7 +348,10 @@ try {
     const pagination = state.cataloguePagination || {}
     const actualItems = (state.items || []).length
     const expectedItems = expectedTo >= expectedFrom ? Math.max(0, expectedTo - expectedFrom + 1) : 0
-    const hasExpectedRange = pagination.from === expectedFrom && pagination.to === expectedTo && pagination.total === count && actualItems === expectedItems
+    const hasExpectedRange = pagination.from === expectedFrom && pagination.to === expectedTo
+      && pagination.total === null && pagination.totalPending === true
+      && Boolean(pagination.nextUrl) === (expectedTo < count)
+      && actualItems === expectedItems
     console.log(`page_${limit}_${page}_actual_range=${pagination.from}-${pagination.to}-of-${pagination.total}`)
     console.log(`page_${limit}_${page}_items=${actualItems}`)
     console.log(`page_${limit}_${page}_expected_range=${expectedFrom}-${expectedTo}-of-${count}`)

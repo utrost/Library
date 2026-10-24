@@ -1427,7 +1427,14 @@ OC.L10N.register(
         "Paste a copied image as cover": "Kopiertes Bild als Cover einfügen",
         "Reading status (to read first)": "Lesestatus (zuerst noch zu lesen)",
         "The suggested value could not be applied. Reload this queue and try again.": "Der vorgeschlagene Wert konnte nicht übernommen werden. Diese Liste neu laden und erneut versuchen.",
-        "The value was applied, but the queue could not be refreshed. Reload this queue.": "Der Wert wurde übernommen, aber die Liste konnte nicht aktualisiert werden. Diese Liste neu laden."
+        "The value was applied, but the queue could not be refreshed. Reload this queue.": "Der Wert wurde übernommen, aber die Liste konnte nicht aktualisiert werden. Diese Liste neu laden.",
+        "Total unavailable.": "Gesamtzahl nicht verfügbar.",
+        "Could not update the catalogue. Try again.": "Der Katalog konnte nicht aktualisiert werden. Bitte erneut versuchen.",
+        "Counting…": "Wird gezählt…",
+        "Catalogue updated.": "Katalog aktualisiert.",
+        "Counting results…": "Ergebnisse werden gezählt…",
+        "Loading shelves…": "Regale werden geladen…",
+        "Could not load summary. Try again.": "Die Übersicht konnte nicht geladen werden. Bitte erneut versuchen."
     },
     "nplurals=2; plural=(n != 1);"
 );

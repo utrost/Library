@@ -1515,7 +1515,14 @@ OC.L10N.register(
         "Paste a copied image as cover": "الصق صورة منسوخة كغلاف",
         "Reading status (to read first)": "حالة القراءة (للقراءة أولاً)",
         "The suggested value could not be applied. Reload this queue and try again.": "تعذّر تطبيق القيمة المقترحة. أعد تحميل قائمة المراجعة هذه وحاول مجدداً.",
-        "The value was applied, but the queue could not be refreshed. Reload this queue.": "طُبّقت القيمة لكن تعذّر تحديث قائمة المراجعة. أعد تحميل هذه القائمة."
+        "The value was applied, but the queue could not be refreshed. Reload this queue.": "طُبّقت القيمة لكن تعذّر تحديث قائمة المراجعة. أعد تحميل هذه القائمة.",
+        "Total unavailable.": "العدد الإجمالي غير متاح.",
+        "Could not update the catalogue. Try again.": "تعذّر تحديث الفهرس. حاول مرة أخرى.",
+        "Counting…": "جارٍ العد…",
+        "Catalogue updated.": "تم تحديث الفهرس.",
+        "Counting results…": "جارٍ عد النتائج…",
+        "Loading shelves…": "جارٍ تحميل الرفوف…",
+        "Could not load summary. Try again.": "تعذّر تحميل الملخص. حاول مرة أخرى."
     },
     "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 );

@@ -806,7 +806,9 @@ const mobileFilterSummaryLabel = computed(() => activeFilterCount.value > 0
 const mobileFilterAriaLabel = computed(() => activeFilterCount.value > 0
   ? t('library', 'Open filters panel; {count} active filters', { count: activeFilterCount.value })
   : t('library', 'Open filters panel'))
-const mobileFilterResultLabel = computed(() => n('library', 'Show %n item', 'Show %n items', Number(pagination.value.total || 0)))
+const mobileFilterResultLabel = computed(() => pagination.value.total === null
+  ? t('library', 'Show results')
+  : n('library', 'Show %n item', 'Show %n items', Number(pagination.value.total || 0)))
 
 function handleMobileFilterToggle(event) {
   mobileFilterPanelOpen.value = event.currentTarget?.open === true
@@ -1084,11 +1086,12 @@ async function applyReviewSuggestion(item, field) {
     })
     const result = await response.json().catch(() => ({}))
     if (!response.ok || result.applied !== true) throw new Error(t('library', 'The suggested value could not be applied. Reload this queue and try again.'))
+    catalogueTotalCache.clear()
     const params = normalizedReviewParams(new URLSearchParams(window.location.search))
     params.delete('cursor')
     await submitFiltersAjax(null, { params, generation: ++catalogueRequestGeneration, historyMode: 'none' })
     if (!catalogueRequestState.completed) throw new Error(t('library', 'The value was applied, but the queue could not be refreshed. Reload this queue.'))
-    if (!items.value.length && Number(pagination.value.total || 0) > 0 && Number(pagination.value.page || 1) > 1) {
+    if (!items.value.length && Number(pagination.value.page || 1) > 1) {
       params.delete('cursor')
       params.set('page', String(Number(pagination.value.page) - 1))
       await submitFiltersAjax(null, { params, generation: ++catalogueRequestGeneration, historyMode: 'replace' })
@@ -1264,7 +1267,107 @@ let reviewCountHydrationController = null
 let reviewCountsLoaded = false
 let initialAuxiliaryHydrationFrame = null
 const catalogueRequestState = reactive({ loading: false, error: '', completed: false })
+const catalogueTotalState = reactive({ loading: false, error: '' })
+const landingHydrationState = reactive({ loading: isHome.value || isShelves.value, error: '' })
+let landingHydrationController = null
+const catalogueTotalCache = new Map()
+let catalogueTotalController = null
+let catalogueTotalRequestKey = ''
+let catalogueTotalTimer = null
+let lastCatalogueRequestParams = null
 const reviewApplyState = reactive({ busy: false, message: '', error: '' })
+
+function catalogueTotalParams() {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(activeFilters)) {
+    if (key === 'sort' || key === 'view') continue
+    const normalized = String(value ?? '').trim()
+    if (normalized) params.set(key, normalized)
+  }
+  params.sort()
+  return params
+}
+
+async function hydrateCatalogueTotal(force = false) {
+  if (isHome.value || isShelves.value || pagination.value.total !== null && !force) return
+  const params = catalogueTotalParams()
+  const key = params.toString()
+  const cached = catalogueTotalCache.get(key)
+  if (!force && cached && Date.now() - cached.at < 15000) {
+    catalogueState.cataloguePagination.total = cached.total
+    catalogueState.cataloguePagination.totalPending = false
+    catalogueTotalState.error = ''
+    return
+  }
+  if (catalogueTotalController && catalogueTotalRequestKey === key) return
+  catalogueTotalController?.abort()
+  const controller = new AbortController()
+  catalogueTotalController = controller
+  catalogueTotalRequestKey = key
+  catalogueTotalState.loading = true
+  catalogueTotalState.error = ''
+  params.set('hydrate', 'total')
+  try {
+    const response = await fetch(`${catalogueEndpointUrl.value}?${params}`, {
+      headers: { Accept: 'application/json' }, credentials: 'same-origin', signal: controller.signal,
+    })
+    if (!response.ok) throw new Error(`Catalogue count failed: ${response.status}`)
+    const payload = await response.json()
+    if (controller.signal.aborted || key !== catalogueTotalParams().toString()) return
+    const total = Number(payload.total)
+    if (!Number.isSafeInteger(total) || total < 0) throw new Error('Invalid catalogue count')
+    catalogueTotalCache.set(key, { total, at: Date.now() })
+    catalogueState.cataloguePagination.total = total
+    catalogueState.cataloguePagination.totalPending = false
+  } catch (error) {
+    if (error?.name !== 'AbortError' && key === catalogueTotalParams().toString()) catalogueTotalState.error = t('library', 'Total unavailable.')
+  } finally {
+    if (catalogueTotalController === controller) {
+      catalogueTotalController = null
+      catalogueTotalState.loading = false
+    }
+  }
+}
+
+function scheduleCatalogueTotal() {
+  window.clearTimeout(catalogueTotalTimer)
+  if (pagination.value.total === null) catalogueTotalTimer = window.setTimeout(() => { void hydrateCatalogueTotal() }, 150)
+}
+
+function retryCatalogueRequest() {
+  if (lastCatalogueRequestParams !== null) void submitFiltersAjax(null, { params: new URLSearchParams(lastCatalogueRequestParams) })
+}
+
+async function hydrateLanding() {
+  if (!isHome.value && !isShelves.value) return
+  landingHydrationController?.abort()
+  const controller = new AbortController()
+  landingHydrationController = controller
+  landingHydrationState.loading = true
+  landingHydrationState.error = ''
+  try {
+    const target = isHome.value ? 'home' : 'shelves'
+    const response = await fetch(`${catalogueEndpointUrl.value}?hydrate=${target}`, {
+      headers: { Accept: 'application/json' }, credentials: 'same-origin', signal: controller.signal,
+    })
+    if (!response.ok) throw new Error(`Landing data failed: ${response.status}`)
+    const payload = await response.json()
+    if (controller.signal.aborted) return
+    if (target === 'home') {
+      catalogueState.homeShelves = Array.isArray(payload.homeShelves) ? payload.homeShelves : []
+      catalogueState.needsAttention = { ...catalogueState.needsAttention, count: Number(payload.needsAttentionCount || 0) }
+    } else {
+      catalogueState.shelfTree = Array.isArray(payload.shelfTree) ? payload.shelfTree : []
+    }
+  } catch (error) {
+    if (error?.name !== 'AbortError') landingHydrationState.error = t('library', 'Could not load summary. Try again.')
+  } finally {
+    if (landingHydrationController === controller) {
+      landingHydrationController = null
+      landingHydrationState.loading = false
+    }
+  }
+}
 
 function buildFilterParams(form) {
   const params = normalizedReviewParams(new FormData(form))
@@ -1490,6 +1593,7 @@ async function submitFiltersAjax(event, scheduled = null) {
   const form = event?.currentTarget?.tagName === 'FORM' ? event.currentTarget : event?.currentTarget?.form
   if (!form && !scheduled?.params) return
   const params = normalizedReviewParams(scheduled?.params ?? buildFilterParams(form))
+  lastCatalogueRequestParams = params.toString()
   if (isHome.value || isShelves.value) {
     submitCapturedFilterFallback(params, catalogueRootUrl.value)
     return
@@ -1521,13 +1625,14 @@ async function submitFiltersAjax(event, scheduled = null) {
       } else if (requestedReviewDestination) {
         catalogueRequestState.error = t('library', 'Could not load this review queue. Try again.')
       } else {
-        submitCapturedFilterFallback(params)
+        catalogueRequestState.error = t('library', 'Could not update the catalogue. Try again.')
       }
       return
     }
     const nextState = await response.json()
     if (generation !== catalogueRequestGeneration) return
     applyCatalogueState(nextState)
+    scheduleCatalogueTotal()
     void hydrateReviewCounts()
     catalogueRequestState.completed = true
     if (historyMode !== 'none') {
@@ -1538,7 +1643,7 @@ async function submitFiltersAjax(event, scheduled = null) {
     if (generation === catalogueRequestGeneration && error?.name !== 'AbortError') {
       if (historyTraversal) submitCapturedFilterFallback(params)
       else if (requestedReviewDestination) catalogueRequestState.error = t('library', 'Could not load this review queue. Try again.')
-      else submitCapturedFilterFallback(params)
+      else catalogueRequestState.error = t('library', 'Could not update the catalogue. Try again.')
     }
   } finally {
     if (generation === catalogueRequestGeneration) {
@@ -2069,6 +2174,7 @@ function handleCatalogueKeyboardShortcuts(event) {
 
 onMounted(() => {
   if (isAuthors.value || isSeries.value || isGenres.value || isLists.value || isInference.value || isDuplicates.value || isDetails.value) return
+  void hydrateLanding()
   window.addEventListener('keydown', handleCatalogueKeyboardShortcuts)
   window.addEventListener('popstate', restoreCatalogueFromHistory)
   sidebarMobileQuery = window.matchMedia?.('(max-width: 1023px)') || null
@@ -2086,6 +2192,7 @@ onMounted(() => {
   initialAuxiliaryHydrationFrame = window.requestAnimationFrame(() => {
     initialAuxiliaryHydrationFrame = null
     void hydrateInitialAuxiliaryState()
+    scheduleCatalogueTotal()
   })
 })
 
@@ -2109,6 +2216,11 @@ onBeforeUnmount(() => {
   reviewCountHydrationController?.abort()
   catalogueRequestController?.abort()
   catalogueRequestController = null
+  window.clearTimeout(catalogueTotalTimer)
+  catalogueTotalController?.abort()
+  catalogueTotalController = null
+  landingHydrationController?.abort()
+  landingHydrationController = null
   sidebarRequestGeneration += 1
   sidebarRequestController?.abort()
   sidebarRequestController = null
@@ -2295,7 +2407,7 @@ async function toggleStar(item, event) {
         <p><button type="button" class="button secondary" @click="openDetailsDrawer(item, $event)">{{ t('library', 'Quick view') }}</button><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></p>
       </article>
     </div>
-    <nav v-if="items.length > 0" class="library-pagination" :aria-label="t('library', 'Review pagination')"><a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a><span v-else class="library-muted">{{ t('library', 'Previous') }}</span><span>{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span><a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a><span v-else class="library-muted">{{ t('library', 'Next') }}</span></nav>
+    <nav v-if="items.length > 0" class="library-pagination" :aria-label="t('library', 'Review pagination')"><a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a><span v-else class="library-muted">{{ t('library', 'Previous') }}</span><span>{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.visible > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span><a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a><span v-else class="library-muted">{{ t('library', 'Next') }}</span></nav>
   </section>
   <main v-else-if="isHome" id="library-home" class="library-panel library-home" aria-labelledby="library-home-heading">
     <header class="library-home-header">
@@ -2336,11 +2448,13 @@ async function toggleStar(item, event) {
     <section class="library-home-row" aria-labelledby="library-home-shelves-heading">
       <header><div><h3 id="library-home-shelves-heading"><LabelHelp :text="t('library', 'Browse the folders that organize your publications.')">{{ t('library', 'Shelves') }}</LabelHelp></h3></div><a :href="shelvesUrl">{{ t('library', 'View all') }}</a></header>
       <nav v-if="homeShelves.length" class="library-home-shelves" :aria-label="t('library', 'Shelves')"><a v-for="shelf in homeShelves" :key="shelf.shelf" :href="shelf.url"><strong><bdi dir="auto">{{ shelf.shelf }}</bdi></strong><span>{{ n('library', '%n item', '%n items', Number(shelf.itemCount || 0)) }}</span></a></nav>
+      <p v-else-if="landingHydrationState.loading" class="library-operation-loading" role="status"><span class="library-inline-spinner" aria-hidden="true"></span>{{ t('library', 'Loading shelves…') }}</p>
+      <p v-else-if="landingHydrationState.error" role="alert">{{ landingHydrationState.error }} <button type="button" @click="hydrateLanding">{{ t('library', 'Retry') }}</button></p>
       <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Enabled shelves appear here.') }}</p>
     </section>
 
-    <aside v-if="Number(needsAttention.count || 0) > 0" class="library-home-attention" aria-labelledby="library-home-attention-heading">
-      <div><h3 id="library-home-attention-heading">{{ t('library', 'Needs attention') }}</h3><p class="library-muted">{{ n('library', '%n publication needs better details.', '%n publications need better details.', Number(needsAttention.count || 0)) }}</p></div>
+    <aside v-if="needsAttention.count === null || Number(needsAttention.count || 0) > 0" class="library-home-attention" aria-labelledby="library-home-attention-heading">
+      <div><h3 id="library-home-attention-heading">{{ t('library', 'Needs attention') }}</h3><p class="library-muted">{{ needsAttention.count === null ? t('library', 'Counting results…') : n('library', '%n publication needs better details.', '%n publications need better details.', Number(needsAttention.count || 0)) }}</p></div>
       <a class="button tertiary" :href="needsAttention.url">{{ t('library', 'Review') }}</a>
     </aside>
   </main>
@@ -2358,12 +2472,14 @@ async function toggleStar(item, event) {
       </nav>
       <p class="library-empty-actions"><a class="button primary library-filter-callout-view" :href="activeFilterCalloutUrl">{{ t('library', 'View filtered catalogue') }}</a><a class="button secondary" :href="clearAllFiltersUrl()" @click.prevent="clearAllFilters">{{ t('library', 'Clear all') }}</a></p>
     </aside>
+    <p v-if="landingHydrationState.loading" class="library-operation-loading" role="status"><span class="library-inline-spinner" aria-hidden="true"></span>{{ t('library', 'Loading shelves…') }}</p>
+    <p v-else-if="landingHydrationState.error" role="alert">{{ landingHydrationState.error }} <button type="button" @click="hydrateLanding">{{ t('library', 'Retry') }}</button></p>
     <nav v-if="shelfTree.length" :aria-label="t('library', 'Shelves')">
       <ul class="library-shelf-tree">
         <ShelfTreeNode v-for="node in shelfTree" :key="node.id" :node="node" :children-url="shelfChildrenUrl" />
       </ul>
     </nav>
-    <section v-else class="library-shelves-empty" role="status">
+    <section v-else-if="!landingHydrationState.loading && !landingHydrationState.error" class="library-shelves-empty" role="status">
       <h3><LabelHelp :text="t('library', 'Browse the folders that organize your publications.')">{{ t('library', 'Shelves') }}</LabelHelp></h3>
       <p class="library-muted">{{ t('library', 'Enabled shelves appear here.') }}</p>
       <p class="library-empty-actions">
@@ -2389,7 +2505,7 @@ async function toggleStar(item, event) {
       <div class="library-catalogue-control-band">
     <details class="library-mobile-filter-panel" data-library-control="filter" @toggle="handleMobileFilterToggle">
       <summary class="library-mobile-filter-trigger" :aria-label="mobileFilterAriaLabel">
-        <span class="library-mobile-filter-count">{{ n('library', '%n item', '%n items', Number(pagination.total || 0)) }}</span>
+        <span class="library-mobile-filter-count">{{ pagination.total === null ? t('library', 'Counting…') : n('library', '%n item', '%n items', Number(pagination.total || 0)) }}</span>
         <strong>{{ mobileFilterSummaryLabel }}</strong>
       </summary>
       <form method="get" class="library-mobile-filter-form" :aria-label="t('library', 'Mobile catalogue filters')" @submit.prevent="applyAllSearchFilters">
@@ -2420,7 +2536,7 @@ async function toggleStar(item, event) {
         <fieldset class="library-mobile-filter-group">
           <legend>{{ t('library', 'Personal / display') }}</legend>
           <div class="library-tag-filter"><label for="library-mobile-tag-search">{{ t('library', 'Nextcloud tag') }}</label><input id="library-mobile-tag-search" v-model="tagSearch" type="search" name="tagSearch" autocomplete="off" :placeholder="t('library', 'Search tags')" role="combobox" aria-autocomplete="list" :aria-activedescendant="activeSuggestionId('mobile', 'tag')" aria-controls="library-mobile-tag-suggestions" :aria-expanded="tagSearchFocused && tagSuggestions.length > 0 ? 'true' : 'false'" @focus="openSuggestionFacet('tag')" @input="openSuggestionFacet('tag')" @blur="setFacetSuggestionFocus('tag', false)" @keydown="handleSuggestionKeydown($event, 'tag')"><input type="hidden" name="tag" :value="activeFilters.tag"><ul v-if="tagSearchFocused && tagSuggestions.length > 0" id="library-mobile-tag-suggestions" class="library-mobile-tag-suggestions" role="listbox"><li v-for="(tag, index) in tagSuggestions" :id="suggestionOptionId('mobile', 'tag', index)" :key="tag" role="option" :aria-selected="suggestionActiveIndexes.tag === index"><button type="button" class="library-tag-suggestion" @mousedown.prevent @click="selectTagSuggestion(tag, $event)">{{ tag }}</button></li></ul><small v-if="tagSearchFocused && tagSearch.trim() && tagSearch.trim().length < 2" role="status">{{ t('library', 'Type at least {count} characters.', { count: 2 }) }}</small><small v-else-if="suggestionStatus.tag.loading" role="status">{{ t('library', 'Searching…') }}</small><p v-else-if="suggestionStatus.tag.error" role="alert">{{ suggestionStatus.tag.error }} <button type="button" @click="retryFacet('tag')">{{ t('library', 'Retry') }}</button></p><small v-else-if="tagSearchFocused && tagSearch.trim().length >= 2 && !tagSuggestions.length" role="status">{{ t('library', 'No matches found.') }}</small><button type="submit" class="button secondary library-tag-apply" :class="pendingApplyClass('tag')">{{ t('library', 'Apply tag') }}</button></div>
-          <label>{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option><option value="workflowStatus">{{ t('library', 'Reading status (to read first)') }}</option></select></label>
+          <label>{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option><option value="workflowStatus">{{ t('library', 'Reading status (to read first)') }}</option></select><span v-if="catalogueRequestState.loading" class="library-inline-spinner" aria-hidden="true"></span></label>
           <label>{{ t('library', 'View') }}<select v-model="activeFilters.view" name="view" @change="submitFiltersAjax"><option value="compact">{{ t('library', 'Covers') }}</option><option value="list">{{ t('library', 'List') }}</option></select></label>
         </fieldset>
         <div class="library-mobile-filter-actions">
@@ -2447,7 +2563,7 @@ async function toggleStar(item, event) {
           <input type="hidden" name="q" :value="activeFilters.q"><input type="hidden" name="starred" :value="activeFilters.starred">
           <input v-for="hidden in quickHiddenFilters" :key="hidden.key" type="hidden" :name="hidden.key" :value="hidden.value">
           <label class="library-reading-status-control" data-library-control="reading-status">{{ t('library', 'Reading status') }}<select v-model="activeFilters.workflowStatus" name="workflowStatus" @change="submitFiltersAjax"><option value="">{{ t('library', 'All statuses') }}</option><option v-for="status in workflowStatuses" :key="`toolbar-workflow-${status.value}`" :value="status.value">{{ t('library', status.label) }}</option></select></label>
-          <label class="library-sort-control" data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option><option value="workflowStatus">{{ t('library', 'Reading status (to read first)') }}</option></select></label>
+          <label class="library-sort-control" data-library-control="sort">{{ t('library', 'Sort') }}<select v-model="activeFilters.sort" name="sort" @change="submitFiltersAjax"><option value="title">{{ t('library', 'Title') }}</option><option value="recent">{{ t('library', 'Date added') }}</option><option value="publicationDate">{{ t('library', 'Publication date') }}</option><option value="publication">{{ t('library', 'Series') }}</option><option value="lastOpened">{{ t('library', 'Recently opened') }}</option><option value="format">{{ t('library', 'Format') }}</option><option value="workflowStatus">{{ t('library', 'Reading status (to read first)') }}</option></select><span v-if="catalogueRequestState.loading" class="library-inline-spinner" aria-hidden="true"></span></label>
           <small v-if="activeFilters.sort === 'workflowStatus'" class="library-status-sort-help">{{ t('library', 'Order: To read → Reading → Paused → Needs action → Finished → Reference → Abandoned → Not set.') }}</small>
           <nav class="library-view-mode-toggle" data-library-control="view" :aria-label="t('library', 'View')"><button type="button" data-library-view-mode="compact" :class="{ active: viewMode === 'compact' }" :aria-pressed="viewMode === 'compact' ? 'true' : 'false'" @click="setViewMode('compact')">{{ t('library', 'Covers') }}</button><button type="button" data-library-view-mode="list" :class="{ active: viewMode === 'list' }" :aria-pressed="viewMode === 'list' ? 'true' : 'false'" @click="setViewMode('list')">{{ t('library', 'List') }}</button></nav>
         </form>
@@ -2461,8 +2577,11 @@ async function toggleStar(item, event) {
     <p v-if="batchSelectionErrorMessage" class="library-warning library-batch-selection-error">{{ batchSelectionErrorMessage }}</p>
     <p v-if="batchMetadataApplyMessage" class="library-notice library-batch-metadata-apply-result">{{ batchMetadataApplyMessage }}</p>
     <div class="library-catalogue-request-status" role="status" aria-live="polite">
-      <span v-if="catalogueRequestState.loading">{{ t('library', 'Updating catalogue…') }}</span>
-      <span v-else-if="catalogueRequestState.completed">{{ n('library', 'Catalogue updated. %n item.', 'Catalogue updated. %n items.', Number(pagination.total || 0)) }}</span>
+      <span v-if="catalogueRequestState.loading"><span class="library-inline-spinner" aria-hidden="true"></span>{{ t('library', 'Updating catalogue…') }}</span>
+      <span v-else-if="catalogueRequestState.error">{{ catalogueRequestState.error }} <button type="button" @click="retryCatalogueRequest">{{ t('library', 'Retry') }}</button></span>
+      <span v-else-if="catalogueRequestState.completed">{{ pagination.total === null ? t('library', 'Catalogue updated.') : n('library', 'Catalogue updated. %n item.', 'Catalogue updated. %n items.', Number(pagination.total || 0)) }}</span>
+      <span v-if="!catalogueRequestState.loading && pagination.total === null && catalogueTotalState.loading">{{ t('library', 'Counting results…') }}</span>
+      <span v-else-if="catalogueTotalState.error">{{ catalogueTotalState.error }} <button type="button" @click="hydrateCatalogueTotal(true)">{{ t('library', 'Retry') }}</button></span>
     </div>
 
 
@@ -2470,7 +2589,7 @@ async function toggleStar(item, event) {
       <p class="library-muted library-catalogue-eyebrow">{{ discoveryKindLabel }}</p>
       <h3 id="library-discovery-heading" :title="isCreatorDiscoveryPage ? t('library', 'Items by this creator, sorted by publication context when available.') : (isYearDiscoveryPage ? t('library', 'Items from this publication year, sorted by publication date when available.') : t('library', 'Items in this publication, sorted by issue/date context when available.'))">{{ discoveryTitle }}</h3>
       <div class="library-discovery-hero-metrics" :aria-label="t('library', 'Discovery summary')">
-        <span>{{ n('library', '%n item', '%n items', pagination.total) }}</span>
+        <span>{{ pagination.total === null ? t('library', 'Counting results…') : n('library', '%n item', '%n items', pagination.total) }}</span>
         <span v-if="publicationIssueContext?.earliestYear && publicationIssueContext?.latestYear">{{ publicationIssueContext.earliestYear }}–{{ publicationIssueContext.latestYear }}</span>
         <span v-if="publicationIssueContext?.datedCount">{{ publicationIssueContext.datedCount }} {{ t('library', 'dated') }}</span>
         <span v-if="publicationIssueContext?.undatedCount > 0">{{ publicationIssueContext.undatedCount }} {{ t('library', 'undated') }}</span>
@@ -2516,9 +2635,9 @@ async function toggleStar(item, event) {
 
     <div class="library-catalogue-status-row">
       <div v-if="items.length" class="library-result-selection"><label class="library-select-visible"><input type="checkbox" :checked="selectedItemIds.length === items.length" @change="selectVisibleItems"><span :title="t('library', 'Select all publications on this page')">{{ t('library', 'Select all') }}</span></label></div>
-      <p class="library-muted library-filter-result-summary"><span class="hidden-visually">{{ t('library', 'Showing') }} </span>{{ pagination.from }}–{{ pagination.to }} {{ t('library', 'of') }} {{ pagination.total }} <span class="hidden-visually">{{ t('library', 'catalogue items') }}</span></p>
+      <p class="library-muted library-filter-result-summary"><span class="hidden-visually">{{ t('library', 'Showing') }}{{ ' ' }}</span>{{ pagination.from }}–{{ pagination.to }}<template v-if="pagination.total !== null">{{ ' ' }}{{ t('library', 'of') }}{{ ' ' }}{{ pagination.total }}</template>{{ ' ' }}<span class="hidden-visually">{{ t('library', 'catalogue items') }}</span></p>
       <nav class="library-pagination library-pagination--top" :aria-label="t('library', 'Catalogue pagination')">
-        <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
+        <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.visible > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
         <a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a>
         <span v-else class="library-muted">{{ t('library', 'Previous') }}</span>
         <a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a>
@@ -2644,7 +2763,7 @@ async function toggleStar(item, event) {
 
     <p v-if="duplicateSuggestionsEnabled && (duplicateHintStatus === 'building' || Object.values(duplicateHints).some(entry => entry.status === 'partial'))" class="library-duplicate-page-status" role="status"><LabelHelp :text="t('library', 'Suggestions are incomplete while indexing or when candidate limits are reached.')">{{ t('library', 'Duplicate suggestions updating') }}</LabelHelp></p>
     <nav v-if="items.length > 0" class="library-pagination library-pagination--bottom" :aria-label="t('library', 'Catalogue pagination')">
-      <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.total > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
+      <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.visible > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
       <a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a>
       <span v-else class="library-muted">{{ t('library', 'Previous') }}</span>
       <a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a>
@@ -4222,6 +4341,19 @@ async function toggleStar(item, event) {
   width: 1rem;
 }
 
+.library-inline-spinner {
+  animation: library-search-spin 0.75s linear infinite;
+  border: 2px solid var(--color-main-text, currentColor);
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+  height: 0.85rem;
+  margin-inline: 0.3rem;
+  vertical-align: -0.1rem;
+  width: 0.85rem;
+}
+
 @keyframes library-search-spin {
   to { transform: rotate(360deg); }
 }
@@ -4915,6 +5047,7 @@ async function toggleStar(item, event) {
   .library-cover-image,
   .library-cover-loading-shimmer,
   .library-search-spinner,
+  .library-inline-spinner,
   .library-view-mode-toggle button {
     animation: none;
     transition: none;
