@@ -1,6 +1,6 @@
 # Release process
 
-**0.3.0-rc.1 is the current source candidate; signed alpha.43 remains installed on developer NC34.** The RC freezes alpha.43 functionality for exact-package certification. Alpha.43 added indexed paging after alpha.42 deferred catalogue totals; see its [deployment record](docs/compatibility-evidence/2026-10-24-nc34-alpha43/README.md). The RC must pass signed NC33–35 certification, claimed-database checks and human acceptance before public publication.
+**Signed 0.3.0-rc.1 is installed on developer NC34.** The exact archive passed NC33–35 fresh and populated-upgrade certification, SQLite/MariaDB/PostgreSQL checks, and the 107k-book live smoke. Human acceptance remains before the public GitHub prerelease and owner-side App Store submission. See the [RC certification and deployment record](docs/compatibility-evidence/2026-10-24-rc1/README.md). Alpha.43 added indexed paging after alpha.42 deferred catalogue totals; its [deployment record](docs/compatibility-evidence/2026-10-24-nc34-alpha43/README.md) remains historical.
 
 Earlier alpha.38 passed 79 browser journeys and introduced additive migrations for deletion markers and file worklists; see its [deployment record](docs/compatibility-evidence/2026-10-21-nc34-alpha38/README.md).
 
@@ -8,7 +8,7 @@ Earlier alpha.38 passed 79 browser journeys and introduced additive migrations f
 
 Earlier checkpoint: signed **0.3.0-alpha.34** was deployed on developer NC34. All eight final UX findings are addressed: readable errors, stable profile searches and Back navigation, consistent filter keyboards, clear mobile headers, shared view controls, terminology, language cleanup and page framing. Required CI passed, including **77 browser journeys**. Integrity is clean and the catalogue at that checkpoint contained **large catalogue books**. No database migration. See the [alpha.34 verification and deployment record](docs/compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md) and human acceptance **H03-26**.
 
-Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.43 is now installed.
+Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence.
 
 Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: [alpha.31 record](docs/compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
 
@@ -16,13 +16,13 @@ Alpha.30 adds a shared compact browser for Authors, Series and Genres, with disp
 
 Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](docs/compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](docs/compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.43 is now installed.
+Alpha.28 added direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](docs/compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). That deployment is historical.
 
 Historical editor checkpoint **0.3.0-alpha.33** consolidates book navigation on the current editor. Owned legacy bookmarks redirect with validated return context and feedback; author/series/conflict links open the editor directly. Metadata status uses the existing presenter and saved canonical authors, with normalized scanner attention in the editor. The three bottom disclosures are Metadata status, Imported metadata and scan suggestions, and File metadata. The unused legacy editor bundle remains excluded from packaging; the frontend size budget is unchanged. Alpha.30 adds the author display-name index.
 
-The [alpha.33 verification and deployment record](docs/compatibility-evidence/2026-10-20-nc34-ux-follow-up-alpha33/README.md) tracks checks and deployment. The alpha.28 deployment is historical; alpha.43 is now installed. The exact signed NC33–35 fresh/upgrade matrix and owner acceptance remain pending for 0.3. The owner chose 0.3 as the first App Store release; **do not submit the 0.2 archive**. Historical baselines below remain preserved.
+The [alpha.33 verification and deployment record](docs/compatibility-evidence/2026-10-20-nc34-ux-follow-up-alpha33/README.md) tracks that historical checkpoint. The exact signed NC33–35 fresh/upgrade matrix is complete; owner acceptance remains pending for 0.3. The owner chose 0.3 as the first App Store release; **do not submit the 0.2 archive**. Historical baselines below remain preserved.
 
-Current release gate: run the [0.3 human test handbook](docs/human-test-handbook.md#current-03-human-cases) on a disposable account, resolve release-blocking findings, then sign one exact RC archive and run fresh-install and populated-upgrade checks on NC33–35. Validate the claimed SQLite, MariaDB and PostgreSQL support. Record the archive checksum, integrity result, browser artifacts and cleanup. A changed signed package requires a new RC version and repeated certification. The [readiness roadmap](docs/app-store-readiness.md) tracks the remaining handoff work.
+Current release gate: run the [0.3 human test handbook](docs/human-test-handbook.md#current-03-human-cases) on a disposable account and resolve any release-blocking findings. The exact signed archive, checksum, integrity, browser artifacts and cleanup are recorded in the [RC report](docs/compatibility-evidence/2026-10-24-rc1/README.md). After acceptance, tag the certified source commit and publish the GitHub prerelease; the owner will use the private `dist/app-store-handoff-rc1/README.txt` to register and submit the App Store prerelease. A changed signed package requires `0.3.0-rc.2` and repeated certification. The [readiness roadmap](docs/app-store-readiness.md) tracks the handoff.
 
 ## Preserved 0.2 beta release baseline
 
