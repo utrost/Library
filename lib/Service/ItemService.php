@@ -3322,7 +3322,7 @@ final class ItemService {
             'recent' => $qb->orderBy('i.library_file_id', 'DESC')->addOrderBy('i.id', 'DESC'),
             'publicationDate' => $qb->orderBy('i.publication_date', 'DESC')->addOrderBy('i.title', 'DESC')->addOrderBy('i.id', 'DESC'),
             'publication' => $qb->orderBy('i.publication', 'ASC')->addOrderBy('i.publication_date', 'ASC')->addOrderBy('i.title', 'ASC')->addOrderBy('i.id', 'ASC'),
-            'publicationIssue' => $qb->orderBy('i.publication_date', 'ASC')->addOrderBy('i.title', 'ASC'),
+            'publicationIssue' => $qb->orderBy('i.publication_date', 'ASC')->addOrderBy('i.title', 'ASC')->addOrderBy('i.id', 'ASC'),
             'lastOpened' => $qb->orderBy('i.last_opened_at', 'DESC')->addOrderBy('i.title', 'DESC')->addOrderBy('i.id', 'DESC'),
             'format' => $qb->orderBy('i.format_sort', 'ASC')->addOrderBy('i.title', 'ASC')->addOrderBy('i.id', 'ASC'),
             default => $qb->orderBy('i.title', 'ASC'),
