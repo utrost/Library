@@ -395,6 +395,13 @@
                 <length>32</length>
                 <notnull>false</notnull>
             </field>
+            <field>
+                <name>workflow_sort_rank</name>
+                <type>smallint</type>
+                <notnull>true</notnull>
+                <unsigned>true</unsigned>
+                <default>7</default>
+            </field>
             <!-- Retained legacy column; the subject migration copies its data. -->
             <field>
                 <name>subjects_json</name>
@@ -510,6 +517,7 @@
             <index><name>library_items_usr_publication_page</name><field><name>user_id</name></field><field><name>publication</name></field><field><name>publication_date</name></field><field><name>id</name></field></index>
             <index><name>library_items_usr_lastopen_page</name><field><name>user_id</name></field><field><name>last_opened_at</name></field><field><name>title</name></field><field><name>id</name></field></index>
             <index><name>library_items_usr_format_page</name><field><name>user_id</name></field><field><name>format_sort</name></field><field><name>title</name></field><field><name>id</name></field></index>
+            <index><name>library_items_usr_wfrank_title</name><field><name>user_id</name></field><field><name>workflow_sort_rank</name></field><field><name>title</name></field><field><name>id</name></field></index>
             <index><name>library_genre_discovery</name><field><name>genre_suggestion_hash</name></field><field><name>id</name></field></index>
             <index><name>library_language_discovery</name><field><name>language_review_hash</name></field><field><name>id</name></field></index>
             <index><name>library_search_rebuild</name><field><name>search_index_version</name></field><field><name>id</name></field></index>
