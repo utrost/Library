@@ -50,6 +50,7 @@ final class ItemService {
         'i.marked_for_deletion_at',
         'i.workflow_status',
         'i.workflow_sort_rank',
+        'i.format_sort',
         'i.last_opened_at',
         'i.field_values',
         'i.cover_revision',
@@ -211,6 +212,11 @@ final class ItemService {
     private function ensureScannerItem(string $userId, array $file, array $metadataCandidate, bool $invalidAuthors): void {
         $existing = $this->scannerItemRow($userId, (int)$file['id']);
         if ($existing !== null) {
+            $formatSort = strtolower((string)($file['extension'] ?? ''));
+            if ((string)$existing['format_sort'] !== $formatSort) {
+                $this->db->executeStatement('UPDATE *PREFIX*library_items SET format_sort=? WHERE user_id=? AND id=?', [$formatSort, $userId, (int)$existing['id']]);
+                $existing['format_sort'] = $formatSort;
+            }
             if ((bool)$existing['user_edited']) {
                 $protected = $this->decodeProtectedFields($existing['protected_fields_json'] ?? null);
                 if ($protected === null) {
@@ -252,6 +258,7 @@ final class ItemService {
             ->values([
                 'user_id' => $qb->createNamedParameter($userId),
                 'library_file_id' => $qb->createNamedParameter((int)$file['id']),
+                'format_sort' => $qb->createNamedParameter(strtolower((string)($file['extension'] ?? ''))),
                 'publication_type' => $qb->createNamedParameter($metadataCandidate['publicationType']),
                 'title' => $qb->createNamedParameter($metadataCandidate['title']),
                 'subtitle' => $qb->createNamedParameter($metadataCandidate['subtitle']),
@@ -290,7 +297,7 @@ final class ItemService {
             $this->db->executeStatement('UPDATE *PREFIX*library_items SET id=id WHERE user_id=? AND library_file_id=?', [$uid,$libraryFileId]);
         }
         $qb=$this->db->getQueryBuilder();
-        $qb->select('id','user_edited','protected_fields_json','scanner_index_hash','creators','authors_json','publication_type','title','subtitle','publication','series_name','series_number','genre','publication_date','language','publisher')
+        $qb->select('id','user_edited','protected_fields_json','scanner_index_hash','format_sort','creators','authors_json','publication_type','title','subtitle','publication','series_name','series_number','genre','publication_date','language','publisher')
             ->addSelect($qb->createFunction("CASE WHEN (cover_override_url IS NOT NULL AND cover_override_url <> '') OR (cover_override_data IS NOT NULL AND cover_override_data <> '') THEN 1 ELSE 0 END AS has_cover_override"))
             ->from('library_items')->where($qb->expr()->eq('user_id',$qb->createNamedParameter($uid)))
             ->andWhere($qb->expr()->eq('library_file_id',$qb->createNamedParameter($libraryFileId)));
@@ -1533,15 +1540,21 @@ final class ItemService {
             if ($backward) $qb->orderBy('i.title', 'DESC')->addOrderBy('i.id', 'DESC');
         }
         $hasNext = false;
-        $thinPage = $cursor === null && ($offset > 0 || $sort === 'workflowStatus');
+        $thinPage = $cursor === null && ($offset > 0 || $sort !== 'title');
         if ($thinPage) {
             // Status ordering otherwise sorts every wide metadata row on page one.
             // Page through a narrow projection, then load only this page's metadata.
             // All filters/joins remain on both queries, including ownership constraints.
             $thin = clone $qb;
-            $thinColumns = $sort === 'title' ? ['i.id','i.title','i.library_file_id']
-                : ($sort === 'workflowStatus' ? ['i.id','i.title','i.workflow_sort_rank']
-                    : ['i.id','i.title','i.library_file_id','i.publication_date','i.publication','i.creators','i.last_opened_at','f.extension']);
+            $thinColumns = match ($sort) {
+                'title', 'recent' => ['i.id', 'i.title', 'i.library_file_id'],
+                'publicationDate', 'publicationIssue' => ['i.id', 'i.title', 'i.publication_date'],
+                'publication' => ['i.id', 'i.title', 'i.publication', 'i.publication_date'],
+                'lastOpened' => ['i.id', 'i.title', 'i.last_opened_at'],
+                'format' => ['i.id', 'i.title', 'i.format_sort'],
+                'workflowStatus' => ['i.id', 'i.title', 'i.workflow_sort_rank'],
+                default => ['i.id', 'i.title'],
+            };
             if ($this->catalogueProjectionRequiresDistinct($filters)) $thin->selectDistinct($thinColumns);
             else $thin->select($thinColumns);
             $selected = $thin->setFirstResult($offset)->setMaxResults($includeTotal ? $limit : $limit + 1)->executeQuery();
@@ -3307,11 +3320,11 @@ final class ItemService {
         }
         match ($sort) {
             'recent' => $qb->orderBy('i.library_file_id', 'DESC')->addOrderBy('i.id', 'DESC'),
-            'publicationDate' => $qb->orderBy('i.publication_date', 'DESC')->addOrderBy('i.title', 'ASC'),
-            'publication' => $qb->orderBy('i.publication', 'ASC')->addOrderBy('i.publication_date', 'DESC')->addOrderBy('i.title', 'ASC'),
-            'publicationIssue' => $qb->orderBy('i.publication_date', 'ASC')->addOrderBy('i.title', 'ASC'),
-            'lastOpened' => $qb->orderBy('i.last_opened_at', 'DESC')->addOrderBy('i.title', 'ASC'),
-            'format' => $qb->orderBy('f.extension', 'ASC')->addOrderBy('i.title', 'ASC'),
+            'publicationDate' => $qb->orderBy('i.publication_date', 'DESC')->addOrderBy('i.title', 'DESC')->addOrderBy('i.id', 'DESC'),
+            'publication' => $qb->orderBy('i.publication', 'ASC')->addOrderBy('i.publication_date', 'ASC')->addOrderBy('i.title', 'ASC')->addOrderBy('i.id', 'ASC'),
+            'publicationIssue' => $qb->orderBy('i.publication_date', 'ASC')->addOrderBy('i.title', 'ASC')->addOrderBy('i.id', 'ASC'),
+            'lastOpened' => $qb->orderBy('i.last_opened_at', 'DESC')->addOrderBy('i.title', 'DESC')->addOrderBy('i.id', 'DESC'),
+            'format' => $qb->orderBy('i.format_sort', 'ASC')->addOrderBy('i.title', 'ASC')->addOrderBy('i.id', 'ASC'),
             default => $qb->orderBy('i.title', 'ASC'),
         };
     }
