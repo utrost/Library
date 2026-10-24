@@ -58,6 +58,7 @@ def test_indexed_sort_pages_keep_format_in_sync_with_scanned_files():
     assert "'format_sort' => $qb->createNamedParameter(strtolower((string)($file['extension'] ?? '')))" in service
     assert "SET format_sort=? WHERE user_id=? AND id=?" in service
     assert "'format' => $qb->orderBy('i.format_sort', 'ASC')" in service
+    assert "'i.format_sort'," in service
     assert "$sort !== 'title'" in service
 
 
