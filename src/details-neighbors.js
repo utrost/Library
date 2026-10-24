@@ -37,7 +37,7 @@ async function fetchPage(source, descriptor, signal) {
   const ids = books.map(book => Number(book.id)).filter(id => Number.isSafeInteger(id) && id > 0)
   const titles = new Map(books.map(book => [Number(book.id), String(book.title || '')]))
   const page = Math.max(1, Number(source.searchParams.get(descriptor.key)) || 1)
-  const hasNext = descriptor.kind === 'catalogue' ? Number(data.cataloguePagination?.to || 0) < Number(data.cataloguePagination?.total || 0) : descriptor.kind === 'list' ? page < Number(data.pages || 1) : Boolean(data.hasNext)
+  const hasNext = descriptor.kind === 'catalogue' ? Boolean(data.cataloguePagination?.nextUrl) : descriptor.kind === 'list' ? page < Number(data.pages || 1) : Boolean(data.hasNext)
   return { ids, titles, page, hasNext, pagination: data.cataloguePagination || null }
 }
 

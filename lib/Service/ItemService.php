@@ -1504,16 +1504,17 @@ final class ItemService {
     /**
      * @param array{q?:string,type?:string,publication?:string,year?:string,creator?:string,format?:string,publisher?:string,tag?:string,shelf?:string,status?:string,workflowStatus?:string,subject?:string,classification?:string,starred?:string,recentlyOpened?:string,sort?:string,scannerConflicts?:string,taggedFileIds?:array<int, int>} Legacy test marker; current contract also accepts language?:string.
      * @param array{q?:string,type?:string,publication?:string,year?:string,language?:string,creator?:string,format?:string,publisher?:string,tag?:string,shelf?:string,status?:string,workflowStatus?:string,subject?:string,classification?:string,starred?:string,recentlyOpened?:string,sort?:string,scannerConflicts?:string,taggedFileIds?:array<int, int>} $filters
-     * @param array{page:int,limit:int} $pagination
-     * @return array{items:array<int, array<string, mixed>>,total:int,facets:array{publicationTypes:array<int, string>,publishers:array<int, string>,shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,creators:array<int, string>,scanStatuses:array<int, string>,workflowStatuses:array<int, string>,subjects:array<int, string>,classifications:array<int, string>}}
+     * @param array{page:int,limit:int,deferTotal?:bool} $pagination
+     * @return array{items:array<int, array<string, mixed>>,total:?int,hasNext:bool,facets:array{publicationTypes:array<int, string>,publishers:array<int, string>,shelves:array<int, string>,formats:array<int, string>,publications:array<int, string>,publicationSummaries:array<int, array{publication:string,itemCount:int}>,publicationYears:array<int, string>,creators:array<int, string>,scanStatuses:array<int, string>,workflowStatuses:array<int, string>,subjects:array<int, string>,classifications:array<int, string>}}
      */
     public function queryCatalogue(string $userId, array $filters, array $pagination, bool $includeFacets = true): array {
         $page = max(1, (int)($pagination['page'] ?? 1));
         $limit = max(1, min(500, (int)($pagination['limit'] ?? 100)));
         $offset = ($page - 1) * $limit;
+        $includeTotal = !($pagination['deferTotal'] ?? false);
 
         if (trim((string)($filters['scannerConflicts'] ?? '')) === '1') {
-            return $this->queryScannerConflictCatalogue($userId, $filters, $offset, $limit, $includeFacets);
+            return $this->queryScannerConflictCatalogue($userId, $filters, $offset, $limit, $includeFacets, $includeTotal);
         }
 
         $metadataReviewProjection = ($filters['weakMetadata'] ?? '') === 'filename';
@@ -1531,7 +1532,9 @@ final class ItemService {
             ));
             if ($backward) $qb->orderBy('i.title', 'DESC')->addOrderBy('i.id', 'DESC');
         }
-        if ($cursor === null && ($offset > 0 || $sort === 'workflowStatus')) {
+        $hasNext = false;
+        $thinPage = $cursor === null && ($offset > 0 || $sort === 'workflowStatus');
+        if ($thinPage) {
             // Status ordering otherwise sorts every wide metadata row on page one.
             // Page through a narrow projection, then load only this page's metadata.
             // All filters/joins remain on both queries, including ownership constraints.
@@ -1541,8 +1544,10 @@ final class ItemService {
                     : ['i.id','i.title','i.library_file_id','i.publication_date','i.publication','i.creators','i.last_opened_at','f.extension']);
             if ($this->catalogueProjectionRequiresDistinct($filters)) $thin->selectDistinct($thinColumns);
             else $thin->select($thinColumns);
-            $selected = $thin->setFirstResult($offset)->setMaxResults($limit)->executeQuery();
+            $selected = $thin->setFirstResult($offset)->setMaxResults($includeTotal ? $limit : $limit + 1)->executeQuery();
             $ids = array_map('intval', array_column($selected->fetchAll(), 'id')); $selected->closeCursor();
+            $hasNext = count($ids) > $limit;
+            $ids = array_slice($ids, 0, $limit);
             // Nextcloud's query-builder clone shares its SELECT part with the
             // original builder. Restore the full row before loading these IDs.
             $fullColumns = $metadataReviewProjection
@@ -1556,12 +1561,19 @@ final class ItemService {
         }
         $result = $qb
             ->setFirstResult($cursor === null ? $offset : 0)
-            ->setMaxResults($limit)
+            ->setMaxResults($includeTotal || $thinPage ? $limit : $limit + 1)
             ->executeQuery();
 
         $rows = $result->fetchAll();
         $result->closeCursor();
-        if ($backward) $rows = array_reverse($rows);
+        if (!$includeTotal && !$thinPage) {
+            $hasNext = count($rows) > $limit;
+            $rows = array_slice($rows, 0, $limit);
+        }
+        if ($backward) {
+            $rows = array_reverse($rows);
+            $hasNext = $rows !== [];
+        }
         $identifiers = $this->catalogueIdentifiers($userId, array_map('intval', array_column($rows, 'id')));
         $items = array_map(fn(array $row): array => $this->normalizeJoinedItemRow($row, $identifiers[(int)$row['id']] ?? []), $rows);
 
@@ -1569,7 +1581,8 @@ final class ItemService {
             'items' => $this->decorateSharedMetadata($userId, $items),
             'nextCursor' => $sort === 'title' && $rows !== [] ? CatalogueCursor::encode($userId, $filters, $limit, $rows[array_key_last($rows)], 'next') : '',
             'previousCursor' => $sort === 'title' && $rows !== [] ? CatalogueCursor::encode($userId, $filters, $limit, $rows[0], 'previous') : '',
-            'total' => $this->countCatalogueItems($userId, $filters),
+            'total' => $includeTotal ? $this->countCatalogueItems($userId, $filters) : null,
+            'hasNext' => $hasNext,
             'facets' => $includeFacets ? $this->catalogueFacets($userId, $filters) : $this->emptyCatalogueFacets(),
         ];
     }
@@ -1604,7 +1617,7 @@ final class ItemService {
         return $count;
     }
 
-    private function queryScannerConflictCatalogue(string $userId, array $filters, int $offset, int $limit, bool $includeFacets = true): array {
+    private function queryScannerConflictCatalogue(string $userId, array $filters, int $offset, int $limit, bool $includeFacets = true, bool $includeTotal = true): array {
         $filtersWithoutConflict = $filters;
         unset($filtersWithoutConflict['scannerConflicts']);
 
@@ -1618,13 +1631,15 @@ final class ItemService {
             $item = $this->normalizeJoinedItemRow($row);
             if ($this->itemHasScannerConflict($item)) {
                 $conflictingItems[] = $item;
+                if (!$includeTotal && count($conflictingItems) > $offset + $limit) break;
             }
         }
         $result->closeCursor();
 
         return [
             'items' => $this->decorateSharedMetadata($userId, array_slice($conflictingItems, $offset, $limit)),
-            'total' => count($conflictingItems),
+            'total' => $includeTotal ? count($conflictingItems) : null,
+            'hasNext' => count($conflictingItems) > $offset + $limit,
             'facets' => $includeFacets ? $this->catalogueFacets($userId, $filters) : $this->emptyCatalogueFacets(),
         ];
     }
