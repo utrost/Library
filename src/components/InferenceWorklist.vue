@@ -155,6 +155,7 @@ onMounted(loadPatterns)
 .library-inference-worklist-row + .library-inference-worklist-row { border-top:1px solid var(--color-border); }
 .library-inference-worklist-row > * { min-width:0; }
 .library-inference-worklist-path { overflow-wrap:anywhere; }
+.library-inference-worklist-path small { display:block; color:var(--color-text-maxcontrast); margin-block-start:4px; }
 .library-inference-worklist-pattern select { width:100%; }
 .library-inference-worklist-pattern small, .library-inference-worklist-fields small { display:block; color:var(--color-text-maxcontrast); }
 .library-inference-row-apply { margin-top:8px; }

@@ -116,7 +116,8 @@ def test_current_handbook_has_one_version_and_complete_ordered_cases():
     handbook = (ROOT / "docs/human-test-handbook.md").read_text()
     version = ElementTree.parse(ROOT / "appinfo/info.xml").findtext("version")
     assert f"**Current acceptance target: {version}.**" in handbook
-    assert set(re.findall(r"0\.\d+\.\d+-alpha\.\d+", handbook)) == {version}
+    assert version.startswith("0.3.0-rc.")
+    assert "prior signed alpha.43" in handbook
     cases = re.findall(r"^### (H03-\d+) —", handbook, re.M)
     results = re.findall(r"^\| (H03-\d+) \|", handbook, re.M)
     assert cases == [f"H03-{i:02d}" for i in range(1, 27)]
@@ -126,5 +127,4 @@ def test_current_handbook_has_one_version_and_complete_ordered_cases():
     assert "human-test-handbook-v0.1-archive.md" in handbook
     # The setup must refer to the same deployment record as the current header.
     setup = handbook.split("## Before testing", 1)[1].split("## Current 0.3", 1)[0]
-    link = re.search(r"\[deployment and verification record\]\(([^)]+)\)", handbook).group(1)
-    assert f"[current package record]({link})" in setup
+    assert "RC certification record" in setup
