@@ -1,6 +1,6 @@
 # Current state and risk register
 
-**Current developer candidate: 0.3.0-alpha.43.** The signed alpha.43 package is installed on developer NC34 with clean integrity and 107,717 catalogue rows before and after upgrade. All seven catalogue sort choices now return promptly on the measured library; see the [alpha.43 deployment record](compatibility-evidence/2026-10-24-nc34-alpha43/README.md). Exact signed NC33–35 certification and human acceptance remain release gates.
+**Current source candidate: 0.3.0-rc.1.** The prior signed alpha.43 package remains installed on developer NC34 with clean integrity and 107,717 catalogue rows before and after upgrade. All seven catalogue sort choices were responsive at that checkpoint; see the [alpha.43 deployment record](compatibility-evidence/2026-10-24-nc34-alpha43/README.md). Exact signed RC certification and human acceptance remain release gates.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.43 is now installed.
 
@@ -18,7 +18,7 @@ Historical development checkpoint: **0.3.0-alpha.34**. The signed alpha.34 packa
 
 The alpha.9 `v5` frontend asset repairs a blank publication sidebar caused by an undefined author-link URL helper. The [hotfix record](compatibility-evidence/2026-10-14-sidebar-hotfix-alpha9/README.md) includes the populated developer NC34 observation. The app version and database schema did not change; this asset has not yet had a new NC33–35 matrix.
 
-The historical `v6` alpha.9 asset and merged main commit `47e1428` were previously deployed on developer NC34. The [earlier handoff report](compatibility-evidence/2026-10-14-nc34-main-handoff/README.md) records the exact unsigned package hash, file-level deployment comparison, live catalogue/sidebar smoke and disposable author/series checks. Human testing of the current alpha.38 build remains the next gate.
+The historical `v6` alpha.9 asset and merged main commit `47e1428` were previously deployed on developer NC34. The [earlier handoff report](compatibility-evidence/2026-10-14-nc34-main-handoff/README.md) records the exact unsigned package hash, file-level deployment comparison, live catalogue/sidebar smoke and disposable author/series checks. Human testing of the signed RC remains the next gate after exact-package certification.
 
 The immediate risks are human acceptance of the author/series workflows, an exact signed 0.3 archive with fresh/upgrade NC33–35 verification, manual assistive-technology testing and PostgreSQL runtime coverage. The [human test handbook](human-test-handbook.md#current-03-human-cases) defines the current manual pass. Sections dated September below preserve historical evidence and should not be read as current deployment claims.
 

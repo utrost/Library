@@ -1,6 +1,6 @@
 # App Store readiness roadmap
 
-**Current developer candidate: 0.3.0-alpha.43.** The signed alpha.43 package is installed on developer NC34 with clean integrity and 107,717 catalogue rows before and after upgrade. All seven catalogue sort choices now return promptly on the measured library; see the [alpha.43 deployment record](compatibility-evidence/2026-10-24-nc34-alpha43/README.md). Exact signed NC33–35 certification and human acceptance remain release gates.
+**Current source candidate: 0.3.0-rc.1.** The prior signed alpha.43 package remains installed on developer NC34 with clean integrity and 107,717 catalogue rows before and after upgrade. All seven catalogue sort choices were responsive at that checkpoint; see the [alpha.43 deployment record](compatibility-evidence/2026-10-24-nc34-alpha43/README.md). Exact signed RC certification and human acceptance remain release gates.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.43 is now installed.
 
@@ -44,7 +44,7 @@ The signed `0.3.0-alpha.10` package from merged PR #109 was [deployed on populat
 
 ## Release checkpoint — updated 2026-10-20
 
-Current candidate baseline: `0.3.0-alpha.43`. Author and series management are implemented in the current candidate. The [signed alpha.23 package](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) includes the unified book editor; alpha.24 adds Save/Discard and direct author/series selection, and alpha.25 fixes the bar's full-page scrolling boundary. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The exact signed 0.3 NC33–35 release matrix remains pending.
+Current candidate baseline: `0.3.0-rc.1`. Author and series management are implemented in the current candidate. The [signed alpha.23 package](compatibility-evidence/2026-10-18-nc34-unified-editor-alpha23/README.md) includes the unified book editor; alpha.24 adds Save/Discard and direct author/series selection, and alpha.25 fixes the bar's full-page scrolling boundary. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the [alpha.7 report](compatibility-evidence/2026-10-14-author-large-merges-alpha7/README.md); preferred-author suggestions in the [alpha.8 report](compatibility-evidence/2026-10-14-author-suggestions-alpha8/README.md); reviewed series moves/merges in the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The exact signed 0.3 NC33–35 release matrix remains pending.
 
 At the alpha.9 checkpoint, the app was deployed on developer NC34/MariaDB. Its app version was `0.3.0-alpha.9`; 107,717 catalogue books remained after migration and temporary fixture cleanup. Focused service and Chromium/Firefox series workflows passed on NC33.0.9, NC34.0.4, NC35.0.0 and the populated developer instance. See the [alpha.9 report](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). The [human test handbook](human-test-handbook.md#current-03-human-cases) now covers author/series acceptance.
 
@@ -63,8 +63,8 @@ Current 0.3 checklist:
 - [x] Pass focused source-build service and two-browser checks on NC33–35; upgrade the populated developer NC34 instance without changing its 107,717-book count.
 - [ ] Record owner and human-tester acceptance for author, series, lists, inference and mixed real-file workflows, including manual assistive-technology results where available.
 - [ ] Resolve release-blocking findings and decide explicitly whether remaining multiple-series, nonnumeric part ordering and canonical author search/sort limits are acceptable for the first Store version.
-- [ ] Build, sign and audit one exact 0.3 archive; verify the populated 0.2→0.3 upgrade and interruption/recovery path.
-- [ ] Run fresh and upgrade exact-package matrices on NC33.0.9, NC34.0.4 and NC35.0.0; refresh listing/screenshots for the accepted build.
+- [ ] Build, sign and audit one exact 0.3 RC archive; verify the populated 0.2→0.3 upgrade and interruption/recovery path.
+- [ ] Run fresh and upgrade exact-package matrices on NC33.0.9, NC34.0.4 and NC35.0.0; validate PostgreSQL alongside SQLite and MariaDB; refresh listing/screenshots for the accepted build.
 - [ ] Publish the accepted 0.3 source/tag and release assets, obtain hosted CI evidence, then submit and verify the App Store listing.
 
 Preserved 0.2 beta.3 checklist (historical):
