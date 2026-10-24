@@ -23,7 +23,7 @@ final class Version000300Date20261024110000 extends SimpleMigrationStep {
         }
         foreach ([
             'library_items_usr_pubdate_page' => ['user_id', 'publication_date', 'title', 'id'],
-            'library_items_usr_publication_page' => ['user_id', 'publication', 'publication_date', 'title', 'id'],
+            'library_items_usr_publication_page' => ['user_id', 'publication', 'publication_date', 'id'],
             'library_items_usr_lastopen_page' => ['user_id', 'last_opened_at', 'title', 'id'],
             'library_items_usr_format_page' => ['user_id', 'format_sort', 'title', 'id'],
         ] as $name => $columns) {
