@@ -1,0 +1,97 @@
+{
+  "version": "0.3.0-rc.1",
+  "sourceCommit": "44fe95c8a769af27e5df67cff9d8dde14cb30b24",
+  "archiveSha256": "caffb1ac1a93b961813d75270861d8185dcabfff95d17c233bade68e9e45eb07",
+  "cases": [
+    {
+      "mode": "fresh",
+      "nextcloud": "33.0.9",
+      "passed": true,
+      "cleanupPassed": true,
+      "integrityClean": true,
+      "schemaErrors": 0,
+      "browserChecks": {
+        "desktop-chromium": 31,
+        "desktop-firefox": 31,
+        "mobile-chromium": 15,
+        "rescan-desktop-chromium": 1,
+        "rescan-desktop-firefox": 1
+      }
+    },
+    {
+      "mode": "fresh",
+      "nextcloud": "34.0.4",
+      "passed": true,
+      "cleanupPassed": true,
+      "integrityClean": true,
+      "schemaErrors": 0,
+      "browserChecks": {
+        "desktop-chromium": 31,
+        "desktop-firefox": 31,
+        "mobile-chromium": 15,
+        "rescan-desktop-chromium": 1,
+        "rescan-desktop-firefox": 1
+      }
+    },
+    {
+      "mode": "fresh",
+      "nextcloud": "35.0.0",
+      "passed": true,
+      "cleanupPassed": true,
+      "integrityClean": true,
+      "schemaErrors": 0,
+      "browserChecks": {
+        "desktop-chromium": 31,
+        "desktop-firefox": 31,
+        "mobile-chromium": 15,
+        "rescan-desktop-chromium": 1,
+        "rescan-desktop-firefox": 1
+      }
+    },
+    {
+      "mode": "upgrade",
+      "nextcloud": "33.0.9",
+      "passed": true,
+      "cleanupPassed": true,
+      "integrityClean": true,
+      "schemaErrors": 0,
+      "browserChecks": {
+        "desktop-chromium": 31,
+        "desktop-firefox": 31,
+        "mobile-chromium": 15,
+        "rescan-desktop-chromium": 1,
+        "rescan-desktop-firefox": 1
+      }
+    },
+    {
+      "mode": "upgrade",
+      "nextcloud": "34.0.4",
+      "passed": true,
+      "cleanupPassed": true,
+      "integrityClean": true,
+      "schemaErrors": 0,
+      "browserChecks": {
+        "desktop-chromium": 31,
+        "desktop-firefox": 31,
+        "mobile-chromium": 15,
+        "rescan-desktop-chromium": 1,
+        "rescan-desktop-firefox": 1
+      }
+    },
+    {
+      "mode": "upgrade",
+      "nextcloud": "35.0.0",
+      "passed": true,
+      "cleanupPassed": true,
+      "integrityClean": true,
+      "schemaErrors": 0,
+      "browserChecks": {
+        "desktop-chromium": 31,
+        "desktop-firefox": 31,
+        "mobile-chromium": 15,
+        "rescan-desktop-chromium": 1,
+        "rescan-desktop-firefox": 1
+      }
+    }
+  ]
+}

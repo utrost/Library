@@ -1,10 +1,10 @@
 # App Store readiness roadmap
 
-**Current source candidate: 0.3.0-rc.1.** The prior signed alpha.43 package remains installed on developer NC34 with clean integrity and 107,717 catalogue rows before and after upgrade. All seven catalogue sort choices were responsive at that checkpoint; see the [alpha.43 deployment record](compatibility-evidence/2026-10-24-nc34-alpha43/README.md). Exact signed RC certification and human acceptance remain release gates.
+**Current signed candidate: 0.3.0-rc.1.** It is installed on developer NC34 with clean integrity, unchanged catalogue values and a passing live performance smoke. The exact signed NC33–35 fresh/upgrade matrix, interruption-boundary recovery and SQLite/MariaDB/PostgreSQL checks passed. Human acceptance remains before a public GitHub prerelease or owner-side App Store submission. See the [RC certification record](compatibility-evidence/2026-10-24-rc1/README.md).
 
-Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.43 is now installed.
+Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical.
 
-Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.43 is now installed.
+Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence.
 
 Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: [alpha.31 record](compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
 
@@ -12,13 +12,15 @@ Alpha.30 adds a shared compact browser for Authors, Series and Genres, with disp
 
 Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.43 is now installed.
+Alpha.28 added direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). That deployment is historical.
 
 ## Submission decision — 2026-10-13
 
-The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submission. The signed 0.2.0-beta.3 archive and verification below remain the preserved baseline, not evidence for the new author/series schema. Author and series work is included in the current alpha.32 development candidate; see the [active roadmap](roadmap.md#active-03-track).
+The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submission. The signed 0.2.0-beta.3 archive remains the preserved upgrade baseline. Author and series work is included in the signed RC; see the [active roadmap](roadmap.md#active-03-track).
 
-Before submitting 0.3: obtain human acceptance of author and series workflows, resolve release-blocking findings, verify a populated upgrade from the preserved 0.2 baseline and interruption recovery, refresh listing/screenshots, then sign and run an exact-package NC33–35 fresh/upgrade matrix. Developer upgrades and focused source checks do not replace the exact signed NC33–35 release matrix.
+Before submitting 0.3: obtain human acceptance of the [current handbook](human-test-handbook.md#current-03-human-cases) and resolve release-blocking findings. The populated beta upgrade, documented interruption boundary, refreshed listing/screenshots, signing and exact-package NC33–35 matrix are complete. After acceptance, tag and publish the GitHub prerelease, then the owner uses the private `dist/app-store-handoff-rc1/README.txt` to register and submit the App Store prerelease. The app is not registered yet and this workspace has no App Store API token.
+
+The dated alpha sections below describe historical checkpoints and their release gates at the time; the RC record above controls current status.
 
 ## Alpha.31 deletion and editor handoff — 2026-10-20
 
@@ -88,7 +90,7 @@ The dated alpha and beta records below preserve what was known at those checkpoi
 
 Target: signed Nextcloud App Store release for Nextcloud 33–35
 
-Library alpha.159 passed its full local gate, unsigned package build/audit, and exact-package smoke on a Nextcloud 34 instance. App Store readiness is a separate hardening track: the release artifact must be clean, signed, documented for reviewers, and backed by repeatable checks that make a stable `0.1.0` upload credible.
+At alpha.159, Library passed its local gate, unsigned package build/audit and exact-package smoke on a Nextcloud 34 instance. That historical hardening track established the clean, signed and documented package checks now applied to the 0.3 RC.
 
 The historical alpha candidate included aggregate scan-job counters/duration, privacy-safe operation logs, throttled progress/cancellation checks, frontend request-race hardening, repair root-containment enforcement, workload-led catalogue/review indexes, materialized substring-search grams, lazy high-cardinality typeahead suggestions, the mobile filter panel and the review issue batch (#32-37). This is not external telemetry or proof of universal speedup. Alpha.159 exact-package/live evidence is complete and remains preserved as historical package evidence. Alpha.171 exact-package, fresh SQLite Nextcloud 34 installation and a reproducible 1,000-publication mixed synthetic first-scan rehearsal are complete for the unsigned archive. A signed package/App Store submission, formal Trust-and-scale phase closure, manual AT testing and a comparable real-world mixed corpus remain deferred.
 
@@ -104,7 +106,7 @@ Library is App-Store-ready when all of these are true:
 - The generated archive install smoke passes on disposable Nextcloud 33.0.9, 34.0.4 and 35.0.0 instances.
 - The live catalogue/browser smoke passes with zero browser console errors.
 - App Store listing text, screenshots, privacy notes, limitations, and support expectations are prepared.
-- The beta is published as a prerelease after the exact-package and signing gates; stable `0.1.0` remains gated on beta feedback and the manual accessibility/release pass.
+- The 0.3 RC is published as a prerelease after exact-package and human acceptance; stable `0.3.0` remains a separate decision after RC feedback and the manual accessibility/release pass.
 
 ## Slices
 
