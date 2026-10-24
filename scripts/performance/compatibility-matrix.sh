@@ -63,7 +63,36 @@ CHECK
         # title rescans must not remove the required unresolved-language case.
         docker cp scripts/performance/language-review-fixture.php "$LIBRARY_LISTS_CONTAINER:/tmp/library-language-review-fixture.php"
         docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php /tmp/library-language-review-fixture.php "$PW_USER" "$PW_ITEM_ID" > "$target/language-review-fixture.json"
-        PLAYWRIGHT_HTML_OUTPUT_DIR="$target/report" PLAYWRIGHT_JSON_OUTPUT_FILE="$target/results.json" npx playwright test --output="$target/artifacts" --reporter=line,html,json > "$target/playwright.log" 2>&1
+        # Scan and rescan checks can queue canonical links again. Finish each
+        # bounded backfill before the next browser project uses the fixture.
+        finish_entity_backfills() {
+            local suffix="$1" job_class job_id
+            for job_class in AuthorBackfillJob SeriesBackfillJob; do
+                job_id="$(docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php occ background-job:list --output=json | python3 -c 'import json,sys; matches=[job for job in json.load(sys.stdin) if job["class"].endswith(sys.argv[1])]; assert len(matches)==1, matches; print(matches[0]["id"])' "$job_class")"
+                docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php occ background-job:execute "$job_id" --force-execute > "$target/$job_class-$suffix.log"
+            done
+            docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php -r '
+require "/var/www/html/config/config.php";
+$pdo = new PDO("sqlite:" . $CONFIG["datadirectory"] . "/owncloud.db");
+$prefix = $CONFIG["dbtableprefix"] ?? "oc_";
+$pending = (int)$pdo->query("SELECT COUNT(*) FROM {$prefix}library_items WHERE author_sync_status<>0 OR series_sync_status<>0")->fetchColumn();
+if ($pending !== 0) { fwrite(STDERR, "canonical_links_pending=$pending\n"); exit(1); }
+echo "canonical_links_ready=true\n";
+' > "$target/canonical-links-$suffix.log"
+        }
+        finish_entity_backfills initial
+        # The metadata-rescan journey intentionally queues a fresh canonical
+        # author backfill. Run it last so unrelated editor journeys retain the
+        # ready fixture they started with; it is still executed on all browser
+        # projects as part of this exact-package gate.
+        for project in desktop-chromium desktop-firefox mobile-chromium; do
+            PLAYWRIGHT_HTML_OUTPUT_DIR="$target/report-$project" PLAYWRIGHT_JSON_OUTPUT_FILE="$target/results-$project.json" npx playwright test --project="$project" --grep-invert 'edits metadata, rescans, then repairs the suggestion and restores the title' --output="$target/artifacts-$project" --reporter=line,html,json > "$target/playwright-$project.log" 2>&1
+            finish_entity_backfills "$project"
+        done
+        for project in desktop-chromium desktop-firefox; do
+            PLAYWRIGHT_HTML_OUTPUT_DIR="$target/rescan-report-$project" PLAYWRIGHT_JSON_OUTPUT_FILE="$target/results-rescan-$project.json" npx playwright test tests/gui/details/metadata-edit-persistence.spec.ts --project="$project" --output="$target/rescan-artifacts-$project" --reporter=line,html,json > "$target/playwright-rescan-$project.log" 2>&1
+            finish_entity_backfills "rescan-$project"
+        done
         NC_URL="$PW_BASE_URL" NC_CONTAINER="$LIBRARY_LISTS_CONTAINER" EVIDENCE_DIR="$target/series" node scripts/smoke-opf-series.mjs > "$target/series.log" 2>&1
         NC_URL="$PW_BASE_URL" NC_USER="$PW_USER" NC_CONTAINER="$LIBRARY_LISTS_CONTAINER" node scripts/smoke-inference-apply.mjs > "$target/inference-apply.log" 2>&1
         NC_URL="$PW_BASE_URL" NC_USER="$PW_USER" NC_CONTAINER="$LIBRARY_LISTS_CONTAINER" EVIDENCE_DIR="$target/duplicates" node scripts/smoke-duplicates.mjs > "$target/duplicates.log" 2>&1

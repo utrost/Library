@@ -16,16 +16,19 @@ try{
   await context.route('**/*',route=>route.continue({headers:{...route.request().headers(),...(new URL(route.request().url()).origin===new URL(upstream).origin?{authorization}:{})}}))
   const page=await context.newPage(),errors=[];page.setDefaultTimeout(30000);page.on('pageerror',e=>errors.push(e.message))
   await page.goto(`${upstream}/settings/user/library`)
+  const disclosure=page.locator('details.library-panel').filter({has:page.locator('.library-scan-schedule')})
+  const ensureOpen=async()=>{if(await disclosure.getAttribute('open')===null)await disclosure.locator('summary').click()}
+  await ensureOpen()
   const panel=page.locator('.library-scan-schedule'),select=panel.locator('select');await expect(select).toBeVisible();original??=await select.inputValue()
-  await select.selectOption('21600');await panel.getByRole('button',{name:'Save schedule',exact:true}).click();await expect(select).toHaveValue('21600');await expect(panel.locator('time')).toBeVisible()
+  await select.selectOption('21600');await panel.getByRole('button',{name:'Save schedule',exact:true}).click();await ensureOpen();await expect(select).toHaveValue('21600');await expect(panel.locator('time')).toBeVisible()
   await panel.scrollIntoViewIfNeeded();await page.screenshot({path:`${evidence}/${engine}-schedule.png`,animations:'disabled'})
   const csrf=await panel.locator('input[name=requesttoken]').inputValue()
   const bad=await context.request.post(`${upstream}/apps/library/scan/schedule`,{headers:{authorization,requesttoken:csrf},form:{interval:'1'}});assert.equal(bad.status(),422)
   const denied=await context.request.post(`${upstream}/apps/library/scan/schedule`,{headers:{authorization,requesttoken:'invalid'},form:{interval:'0'}});assert.equal(denied.status(),412)
   await page.setViewportSize({width:390,height:844});await panel.scrollIntoViewIfNeeded();assert.ok(await select.evaluate(el=>el.getBoundingClientRect().right<=window.innerWidth),'Frequency fits mobile');await page.screenshot({path:`${evidence}/${engine}-mobile-schedule.png`,animations:'disabled'})
-  await select.selectOption('0');await panel.getByRole('button',{name:'Save schedule',exact:true}).click();await expect(select).toHaveValue('0');await expect(panel.locator('time')).toHaveCount(0)
+  await select.selectOption('0');await panel.getByRole('button',{name:'Save schedule',exact:true}).click();await ensureOpen();await expect(select).toHaveValue('0');await expect(panel.locator('time')).toHaveCount(0)
   // Restore pre-test setting; production enablement is a separate explicit deployment step.
-  if(original!=='0'){await select.selectOption(original);await panel.getByRole('button',{name:'Save schedule',exact:true}).click();await expect(select).toHaveValue(original)}
+  if(original!=='0'){await select.selectOption(original);await panel.getByRole('button',{name:'Save schedule',exact:true}).click();await ensureOpen();await expect(select).toHaveValue(original)}
   assert.deepEqual(errors,[]);report.push({engine,passed:true,savePersists:true,nextDueVisible:true,offClearsDue:true,invalidRejected:true,csrf:true,mobileFits:true,pageErrors:errors});await browser.close();browser=null
  }
  writeFileSync(`${evidence}/results.json`,JSON.stringify({report},null,2));console.log(JSON.stringify({report}))
