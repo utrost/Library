@@ -1,6 +1,6 @@
 # Library 0.3.0-rc.1 certification
 
-Status: the signed candidate passed the six-case exact-package matrix and is installed on developer NC34. Human acceptance remains; the public GitHub prerelease and owner-side Nextcloud App Store submission are gated.
+Status: the signed candidate passed the six-case exact-package matrix and is installed on developer NC34. The owner accepted the current candidate on 2026-10-29. The [GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.3.0-rc.1) and [Nextcloud App Store prerelease](https://apps.nextcloud.com/apps/library) are public. A disposable beta-channel NC34 installed the RC from the uncached Store feed with clean integrity.
 
 The signed RC archive is `dist/library-0.3.0-rc.1.tar.gz`, SHA-256 `caffb1ac1a93b961813d75270861d8185dcabfff95d17c233bade68e9e45eb07`, built once from merged commit `44fe95c8a769af27e5df67cff9d8dde14cb30b24`. Its detached App Store signature, SPDX SBOM and provenance are in `dist/`; the archive passed package, signature and module audits. Later certification-helper and documentation edits did not alter the archive.
 
@@ -43,8 +43,10 @@ The first disposable NC34/PostgreSQL fresh install indexed all 40 Gutenberg book
 
 - [x] Full local source checks.
 - [x] Hosted CI on the final merged app source commit.
-- [ ] Human H03-01–26 acceptance and manual accessibility review.
+- [x] Owner acceptance of the current RC on 2026-10-29; individual H03-01–26 and manual accessibility results were not separately attested.
 - [x] Final signed archive, detached App Store signature, checksum, SBOM and provenance.
 - [x] Exact signed archive: NC33/34/35 fresh and populated 0.2.0-beta.3 upgrade matrices, interruption recovery at the documented boundary, plus SQLite, MariaDB and PostgreSQL validation.
 - [x] Developer NC34 installed smoke, integrity, catalogue count and performance median.
-- [ ] GitHub tag/prerelease, public asset verification, App Store prerelease listing and installation.
+- [x] GitHub tag/prerelease and public asset verification. Tag resolves to the certified source commit; the downloaded archive matches the SHA-256 above and verifies with the App Store certificate. All five release-tag screenshots returned HTTP 200.
+- [x] App Store prerelease registration and release submission: HTTP 201 for each owner-account API request on 2026-10-29. The public listing shows `0.3.0-rc.1` as unstable for NC33–35; uncached NC33–35 API feeds include it with `isNightly=false`. The regular feeds initially lagged behind the new listing due to caching.
+- [x] Store-initiated prerelease installation on a disposable beta-channel Nextcloud 34.0.4 instance. `occ app:install library` installed and enabled `0.3.0-rc.1`; `integrity:check-app` exited 0, maintenance mode and pending database upgrades were false, and the disposable catalogue had zero rows. The first attempt using the default all-apps URL could not find Library because that cached feed had not refreshed. The successful attempt used a cache-busted public NC34 platform feed through the instance's temporary `appstoreurl` setting. The container was removed afterward; normal default-feed discovery should be rechecked after cache expiry.
