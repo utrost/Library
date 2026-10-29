@@ -14,7 +14,7 @@ def test_readme_is_public_one_page_overview_without_internal_names():
     assert "# Library" in readme
     assert "open-source Nextcloud app" in readme
     assert "Nextcloud Files remains the canonical storage" in readme
-    assert f"Current candidate: `{CURRENT_VERSION}`" in readme
+    assert f"Current prerelease: [`{CURRENT_VERSION}`]" in readme
     assert "safe user-facing diagnostics" in readme
 
     internal_names = ["NC_USER=", "NC_URL=", "utrost@"]

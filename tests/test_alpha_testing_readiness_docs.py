@@ -15,7 +15,7 @@ def test_human_test_handbook_names_current_candidate_and_archives_old_releases()
     assert f"Current acceptance target: {CURRENT_VERSION}" in handbook
     assert "human-test-handbook-v0.1-archive.md" in handbook
     assert "0.1.0-alpha.174" not in handbook
-    assert f"Current candidate: `{CURRENT_VERSION}`" in read("README.md")
+    assert f"Current prerelease: [`{CURRENT_VERSION}`]" in read("README.md")
     assert "0.1.0-alpha.127" not in handbook
     assert "0.1.0-beta.1" in checklist
 
