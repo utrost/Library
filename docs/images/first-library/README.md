@@ -1,4 +1,4 @@
-# Public screenshots — 0.3.0-rc.2
+# Public screenshots — 0.3.0-rc.3
 
 The five `appstore-*.png` images were captured on 2026-10-24 from the **0.3.0-rc.1 source-equivalent rehearsal package** on an isolated **Nextcloud 34.0.4** instance, Chromium, English UI, light theme and a **1440 × 1000** viewport. The six numbered first-library images remain historical alpha.38 captures from 2026-10-21. The extraction capture uses a scroll offset to keep the preview below the Nextcloud header; no image retouching was applied.
 

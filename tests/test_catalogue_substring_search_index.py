@@ -51,6 +51,10 @@ def test_q_filter_uses_search_gram_candidates_not_broad_lower_like_scan():
     # The broad catalogue search still must not scan description with LIKE.
     assert "if (($filters['searchScope'] ?? '') === 'title_description')" in filters
     assert "$this->searchGramCandidateSubquery($qb, $userId, $grams)" in filters
+    title_scope = filters.split("if (($filters['searchScope'] ?? '') === 'title_description')", 1)[1].split("$exactTitleItemIds =", 1)[0]
+    assert "$candidates = $this->searchGramCandidateIds($userId, $grams)" in title_scope
+    assert "count($candidates) <= self::SEARCH_GRAM_INLINE_CANDIDATE_LIMIT" in title_scope
+    assert "$qb->createNamedParameter($candidates, IQueryBuilder::PARAM_INT_ARRAY)" in title_scope
     broad = filters.split("$exactTitleItemIds =", 1)[1]
     assert "LOWER(i.description)" not in broad
     assert "LOWER(f.cached_path)" not in filters

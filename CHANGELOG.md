@@ -1,9 +1,9 @@
 # Changelog
 
-## 0.3.0-rc.2 — replacement candidate
+## 0.3.0-rc.3 — replacement candidate
 
 - Replace the first RC after removing private test evidence, local infrastructure references and real-catalogue imagery from the public Git history.
-- Keep application behavior and database schema unchanged; update the release identity and browser asset names.
+- Keep the database schema unchanged; use bounded indexed candidates for title/description search on large catalogues and update the release identity and browser asset names.
 - Recheck the exact signed replacement before publishing it. The old RC must be withdrawn when the replacement is live.
 - Exclude local Python virtual environments from release archives.
 

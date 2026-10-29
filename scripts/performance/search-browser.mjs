@@ -49,7 +49,8 @@ try {
       })
       const start = performance.now()
       await input.fill(query)
-      await input.press('Enter')
+      if (facet === 'creator') await form.locator('button[type=submit]').click()
+      else await input.press('Enter')
       const response = await responsePromise
       assert.equal(response.status(), 200)
       const payload = await response.json()

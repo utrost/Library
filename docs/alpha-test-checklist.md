@@ -1,6 +1,6 @@
 # Public alpha test checklist
 
-**Current replacement candidate: 0.3.0-rc.2.** RC1 was published but will be withdrawn after the sanitized replacement is certified and available. Previous package checks do not certify RC2.
+**Current replacement candidate: 0.3.0-rc.3.** RC1 was published but will be withdrawn after the sanitized replacement is certified and available. Previous package checks do not certify RC3.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; alpha.43 is now installed.
 

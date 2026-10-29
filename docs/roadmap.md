@@ -1,6 +1,6 @@
 # Library Roadmap
 
-**Current replacement candidate: 0.3.0-rc.2.** RC1 was published but will be withdrawn after the sanitized replacement is certified and available. Previous package checks do not certify RC2.
+**Current replacement candidate: 0.3.0-rc.3.** RC1 was published but will be withdrawn after the sanitized replacement is certified and available. Previous package checks do not certify RC3.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; alpha.43 is now installed.
 
@@ -16,7 +16,7 @@ Alpha.28 adds direct destination-author typeahead for merge/reassign, starting a
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The signed alpha.9 fresh and upgrade matrix passed on NC33–35. The alpha.11 populated NC34 deployment is complete; owner acceptance remains.
 
-Status: **0.3.0-rc.2** is the privacy replacement candidate. RC1 remains public until the replacement is certified and published; its earlier certification does not certify RC2. The signed/public **0.2.0-beta.3** remains a historical upgrade baseline.
+Status: **0.3.0-rc.3** is the privacy replacement candidate. RC1 remains public until the replacement is certified and published; its earlier certification does not certify RC3. The signed/public **0.2.0-beta.3** remains a historical upgrade baseline.
 
 Last updated: 2026-10-24
 

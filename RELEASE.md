@@ -1,6 +1,6 @@
 # Release process
 
-**0.3.0-rc.2 is the replacement candidate.** RC1 was signed and published, but its public source history contained private test evidence and infrastructure references. The sanitized RC2 source must pass exact-package certification before signing and publication. The old RC will then be withdrawn. See the [release verification record](docs/release-verification.md).
+**0.3.0-rc.3 is the replacement candidate.** RC1 was signed and published, but its public source history contained private test evidence and infrastructure references. RC2 passed compatibility checks but failed the large-catalogue search target. RC3 includes the search fix and must pass exact-package certification before publication. The old RC will then be withdrawn. See the [release verification record](docs/release-verification.md).
 
 Earlier alpha.38 passed 79 browser journeys and introduced additive migrations for deletion markers and file worklists; see its deployment record.
 
@@ -22,7 +22,7 @@ Historical editor checkpoint **0.3.0-alpha.33** consolidates book navigation on 
 
 The alpha.33 verification and deployment record tracks that historical checkpoint. The exact signed NC33–35 fresh/upgrade matrix is complete, and the owner accepted the RC on 2026-10-29. The owner chose 0.3 as the first App Store release; the 0.2 archive remains an upgrade baseline. Historical baselines below remain preserved.
 
-Current publication status: RC2 is being prepared from rewritten source history. RC1 remains public until RC2 is certified and published; it must then be withdrawn from GitHub and the App Store. The previous RC1 certification does not certify RC2.
+Current publication status: RC3 is being prepared from rewritten source history. RC1 remains public until RC3 is certified and published; it must then be withdrawn from GitHub and the App Store. RC1 and RC2 evidence does not certify RC3.
 
 ## Preserved 0.2 beta release baseline
 

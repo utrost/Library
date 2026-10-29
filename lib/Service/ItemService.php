@@ -3136,7 +3136,16 @@ final class ItemService {
                     $qb->createFunction("LOWER(i.description) LIKE {$parameter} ESCAPE '!'")
                 ));
                 $grams = $this->searchGramsForQuery($query);
-                if ($grams !== []) $qb->andWhere($qb->expr()->in('i.id', $qb->createFunction($this->searchGramCandidateSubquery($qb, $userId, $grams))));
+                if ($grams !== []) {
+                    $candidates = $this->searchGramCandidateIds($userId, $grams);
+                    if ($candidates === []) {
+                        $qb->andWhere('1 = 0');
+                    } elseif (count($candidates) <= self::SEARCH_GRAM_INLINE_CANDIDATE_LIMIT) {
+                        $qb->andWhere($qb->expr()->in('i.id', $qb->createNamedParameter($candidates, IQueryBuilder::PARAM_INT_ARRAY)));
+                    } else {
+                        $qb->andWhere($qb->expr()->in('i.id', $qb->createFunction($this->searchGramCandidateSubquery($qb, $userId, $grams))));
+                    }
+                }
                 return;
             }
             $exactTitleItemIds = $this->exactTitleCandidateIds($userId, $query);
