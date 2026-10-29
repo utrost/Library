@@ -1,6 +1,6 @@
 # App Store readiness roadmap
 
-**Current signed candidate: 0.3.0-rc.1.** It is installed on developer NC34 with clean integrity, unchanged catalogue values and a passing live performance smoke. The exact signed NC33–35 fresh/upgrade matrix, interruption-boundary recovery and SQLite/MariaDB/PostgreSQL checks passed. Human acceptance remains before a public GitHub prerelease or owner-side App Store submission. See the [RC certification record](compatibility-evidence/2026-10-24-rc1/README.md).
+**Current signed candidate: 0.3.0-rc.1.** It is installed on developer NC34 with clean integrity, unchanged catalogue values and a passing live performance smoke. The exact signed NC33–35 fresh/upgrade matrix, interruption-boundary recovery and SQLite/MariaDB/PostgreSQL checks passed. The owner accepted the current candidate on 2026-10-29; its [GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.3.0-rc.1) and [App Store prerelease](https://apps.nextcloud.com/apps/library) are public. The archive, signature, screenshots, listing and uncached NC33–35 feeds were verified. A disposable beta-channel NC34 installation from the uncached Store feed passed integrity checks. See the [RC certification record](compatibility-evidence/2026-10-24-rc1/README.md).
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical.
 
@@ -18,7 +18,7 @@ Alpha.28 added direct destination-author typeahead for merge/reassign, starting 
 
 The owner has chosen **0.3 as the first App Store release**. Hold the 0.2 submission. The signed 0.2.0-beta.3 archive remains the preserved upgrade baseline. Author and series work is included in the signed RC; see the [active roadmap](roadmap.md#active-03-track).
 
-Before submitting 0.3: obtain human acceptance of the [current handbook](human-test-handbook.md#current-03-human-cases) and resolve release-blocking findings. The populated beta upgrade, documented interruption boundary, refreshed listing/screenshots, signing and exact-package NC33–35 matrix are complete. After acceptance, tag and publish the GitHub prerelease, then the owner uses the private `dist/app-store-handoff-rc1/README.txt` to register and submit the App Store prerelease. The app is not registered yet and this workspace has no App Store API token.
+The owner accepted the current signed RC on 2026-10-29. The populated beta upgrade, documented interruption boundary, refreshed listing/screenshots, signing, exact-package NC33–35 matrix, public GitHub prerelease and owner-account App Store registration/submission are complete. The Store accepted both API requests with HTTP 201. Individual [handbook cases](human-test-handbook.md#current-03-human-cases) and manual assistive-technology results were not separately attested by this acceptance.
 
 The dated alpha sections below describe historical checkpoints and their release gates at the time; the RC record above controls current status.
 
