@@ -6,7 +6,7 @@ Library is an open-source Nextcloud app ([AGPL-3.0-or-later](LICENSE)) with a se
 
 ![Library catalogue with English Project Gutenberg books](docs/images/appstore-catalogue.png)
 
-Current candidate: `0.3.0-rc.1`. The prior signed alpha.43 package is installed on developer NC34. The release candidate carries the fast indexed sorting and deferred catalogue totals introduced in alpha.42–43. The declared compatibility range is **Nextcloud 33–35**; exact-package compatibility checks and human acceptance are release gates before public App Store prerelease publication. See [release status](RELEASE.md), the [alpha.43 deployment record](docs/compatibility-evidence/2026-10-24-nc34-alpha43/README.md) and the [release checklist](docs/app-store-readiness.md).
+Current candidate: [`0.3.0-rc.1`](https://github.com/utrost/Library/releases/tag/v0.3.0-rc.1), signed and installed on developer NC34. It carries the fast indexed sorting and deferred catalogue totals introduced in alpha.42–43. The declared compatibility range is **Nextcloud 33–35**; exact-package certification passed and the owner accepted the candidate on 2026-10-29. Public App Store registration and submission are pending. See [release status](RELEASE.md) and the [release checklist](docs/app-store-readiness.md).
 
 ## What it does
 

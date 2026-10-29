@@ -1,6 +1,6 @@
 # Library 0.3.0-rc.1 certification
 
-Status: the signed candidate passed the six-case exact-package matrix and is installed on developer NC34. Human acceptance remains; the public GitHub prerelease and owner-side Nextcloud App Store submission are gated.
+Status: the signed candidate passed the six-case exact-package matrix and is installed on developer NC34. The owner accepted the current candidate on 2026-10-29. The [GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.3.0-rc.1) is public; App Store registration and submission await an owner token.
 
 The signed RC archive is `dist/library-0.3.0-rc.1.tar.gz`, SHA-256 `caffb1ac1a93b961813d75270861d8185dcabfff95d17c233bade68e9e45eb07`, built once from merged commit `44fe95c8a769af27e5df67cff9d8dde14cb30b24`. Its detached App Store signature, SPDX SBOM and provenance are in `dist/`; the archive passed package, signature and module audits. Later certification-helper and documentation edits did not alter the archive.
 
@@ -43,8 +43,9 @@ The first disposable NC34/PostgreSQL fresh install indexed all 40 Gutenberg book
 
 - [x] Full local source checks.
 - [x] Hosted CI on the final merged app source commit.
-- [ ] Human H03-01–26 acceptance and manual accessibility review.
+- [x] Owner acceptance of the current RC on 2026-10-29; individual H03-01–26 and manual accessibility results were not separately attested.
 - [x] Final signed archive, detached App Store signature, checksum, SBOM and provenance.
 - [x] Exact signed archive: NC33/34/35 fresh and populated 0.2.0-beta.3 upgrade matrices, interruption recovery at the documented boundary, plus SQLite, MariaDB and PostgreSQL validation.
 - [x] Developer NC34 installed smoke, integrity, catalogue count and performance median.
-- [ ] GitHub tag/prerelease, public asset verification, App Store prerelease listing and installation.
+- [x] GitHub tag/prerelease and public asset verification. Tag resolves to the certified source commit; the downloaded archive matches the SHA-256 above and verifies with the App Store certificate. All five release-tag screenshots returned HTTP 200.
+- [ ] App Store prerelease registration, listing and installation.
