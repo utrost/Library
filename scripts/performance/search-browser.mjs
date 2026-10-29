@@ -42,14 +42,25 @@ try {
       report.version = await page.locator('#library-vue-root').getAttribute('data-library-version')
       if (viewport.width < 600) await page.locator('summary.library-mobile-filter-trigger').click()
       const form = page.locator(viewport.width < 600 ? '.library-mobile-filter-form' : '.library-sidebar-filters')
-      const input = form.locator(`input[name="${facet === 'q' ? 'q' : 'creatorSearch'}"]`)
+      const input = facet === 'q' ? page.locator('[data-library-quick-search]') : form.locator('input[name=creatorSearch]')
+      const typingStarted = performance.now()
+      await input.fill(query)
+      let selected = query
+      let selectAuthor = null
+      if (facet === 'creator') {
+        const suggestion = form.locator('.library-creator-suggestions .library-creator-suggestion').first()
+        await suggestion.waitFor({ state: 'visible', timeout: 15000 })
+        selected = (await suggestion.textContent()).trim()
+        report.typeaheadSamples ||= []
+        report.typeaheadSamples.push({ width: viewport.width, ms: Math.round(performance.now() - typingStarted) })
+        selectAuthor = () => suggestion.click()
+      }
       const responsePromise = page.waitForResponse(response => {
         const url = new URL(response.url())
-        return url.pathname.endsWith('/library/catalogue') && url.searchParams.get(facet) === query
+        return url.pathname.endsWith('/library/catalogue') && url.searchParams.get(facet) === selected
       })
-      const start = performance.now()
-      await input.fill(query)
-      if (facet === 'creator') await form.locator('button[type=submit]').click()
+      const start = facet === 'q' ? typingStarted : performance.now()
+      if (selectAuthor) await selectAuthor()
       else await input.press('Enter')
       const response = await responsePromise
       assert.equal(response.status(), 200)
