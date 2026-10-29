@@ -6,8 +6,8 @@ require '/var/www/html/lib/base.php';
 require '/tmp/library-performance-sql-profiler.php';
 // Explicit candidate class loading affects this CLI process only, never installed assets.
 if (getenv('LIBRARY_SEARCH_CANDIDATE') === '1') require '/tmp/library-search-candidate.php';
-$uid = getenv('LIBRARY_BENCHMARK_USER') ?: 'maintainer';
-$query = getenv('LIBRARY_SEARCH_QUERY') ?: 'Heinlein';
+$uid = getenv('LIBRARY_BENCHMARK_USER') ?: 'example';
+$query = getenv('LIBRARY_SEARCH_QUERY') ?: 'Austen';
 $db = \OCP\Server::get(\OCP\IDBConnection::class);
 $connection = libraryBenchmarkConnection();
 $config = $connection->getConfiguration();

@@ -1,8 +1,8 @@
 # Usefulness and UX Feature List
 
 Status: combined product feature list and prioritization notes
-Audience: maintainer, contributors, early testers
-Source: maintainer + design review discussion, 2026-09-09
+Audience: the maintainer, contributors, early testers
+Source: the maintainer + design review discussion, 2026-09-09
 
 This document collects the next usefulness and UX ideas after the v0.1 release-hardening work. It is intentionally product-facing: it describes why each feature matters, what already exists, and what remains to build. The active implementation roadmap remains [Library Roadmap](roadmap.md); this file is the feature backlog that feeds it.
 
@@ -77,7 +77,7 @@ Status: **implemented for the in-app smart-collection feature set**. Built-in vi
 
 ### 2. Re-indexing, moving, adding and deleting files
 
-Origin: maintainer.
+Origin: the maintainer.
 
 Why it matters: real libraries are not static. Users add files, remove duplicates, rename folders, move publications between folders, and delete files outside Library through Nextcloud Files. Library must keep the catalogue trustworthy without ever deleting source files on its own.
 
@@ -117,7 +117,7 @@ Acceptance checks:
 
 ### 3. Configurable metadata extraction from path and filename
 
-Origin: maintainer.
+Origin: the maintainer.
 
 Why it matters: many collections encode metadata in folder layout rather than file internals. A user may know that one root follows a structure such as:
 
@@ -162,7 +162,7 @@ Acceptance checks:
 
 ### 4. Weak-metadata discovery dashboard
 
-Origin: design review recommendation, reinforced by maintainer's point about sparse PDFs/comics.
+Origin: design review recommendation, reinforced by the maintainer's point about sparse PDFs/comics.
 
 Why it matters: searchable filenames help find known items, but cleanup needs a cockpit for things that are hard to browse because metadata is absent or suspicious.
 
@@ -219,7 +219,7 @@ Acceptance checks:
 
 ### 6. Description search polish
 
-Origin: maintainer.
+Origin: the maintainer.
 
 Why it matters: descriptions often contain the words a user remembers, especially for essays, manuals, scans and collected articles.
 
@@ -298,7 +298,7 @@ Acceptance checks:
 
 ### 9. Scan completion notifications and scan summaries
 
-Origin: design review recommendation, connected to maintainer's re-indexing concern.
+Origin: design review recommendation, connected to the maintainer's re-indexing concern.
 
 Why it matters: after large scans, users need to know whether anything useful happened and where to go next.
 

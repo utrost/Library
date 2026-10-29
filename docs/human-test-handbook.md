@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current acceptance target: 0.3.0-rc.1.** The exact signed RC is installed on developer NC34. Its SHA-256 is `caffb1ac1a93b961813d75270861d8185dcabfff95d17c233bade68e9e45eb07`; check the [RC certification and deployment record](compatibility-evidence/2026-10-24-rc1/README.md) before acceptance. A matching version string alone does not identify an archive.
+**Current acceptance target: 0.3.0-rc.1.** The exact signed RC is installed on developer NC34. Its SHA-256 is `caffb1ac1a93b961813d75270861d8185dcabfff95d17c233bade68e9e45eb07`; check the [RC certification and deployment record](release-verification.md) before acceptance. A matching version string alone does not identify an archive.
 
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 
@@ -277,13 +277,13 @@ Use a disposable account for Save/stale-edit checks. Developer smoke only stages
 
 ### H03-20 — Catalogue author search regression
 
-1. In All publications, clear filters. Search for `Heinlein` in Search; confirm the loading indicator finishes promptly and results remain usable.
-2. Clear filters; type `Heinlein` in **Author**, then use **Apply author** to search that fragment. Enter with loaded suggestions selects the highlighted full name instead. Expect author-linked books, rather than zero results. General Search can return more books because it also checks descriptions and paths.
+1. In All publications, clear filters. Search for `a known author` in Search; confirm the loading indicator finishes promptly and results remain usable.
+2. Clear filters; type `a known author` in **Author**, then use **Apply author** to search that fragment. Enter with loaded suggestions selects the highlighted full name instead. Expect author-linked books, rather than zero results. General Search can return more books because it also checks descriptions and paths.
 3. Type three or more letters in Author and select a full name. Confirm the selected name is reflected in the filter chip and Back/Forward restores it.
 4. In a disposable test account, rename an author; search a distinctive part of their new display name and sort name. Both should find their books without rescanning.
 5. Repeat with a language filter and on a narrow screen. Filters must combine; no overflow or blank-screen errors. Saved exact author filters should still work.
 
-See the [alpha.29 measurements and repeat commands](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md).
+See the alpha.29 measurements and repeat commands.
 
 ### H03-21 — Browse authors
 

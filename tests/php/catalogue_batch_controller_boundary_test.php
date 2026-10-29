@@ -36,7 +36,7 @@ namespace OCA\Library\Service {
         public function previewBatchMetadataEdit(string $user, array $ids, string $field, string $value): array { return $this->record('preview', $user, $ids); }
         public function applyBatchMetadataEdit(string $user, array $ids, string $field, string $value): array { return $this->record('apply', $user, $ids); }
         private function record(string $operation, string $user, array $ids): array {
-            $owned = $user === 'development instance' ? [11, 12, 13] : [14];
+            $owned = $user === 'example-user' ? [11, 12, 13] : [14];
             $mutated = array_values(array_intersect($ids, $owned));
             $this->calls[] = [$operation, $user, $ids, $mutated];
             return ['requestedItems' => count($ids), 'resetItems' => count($mutated), 'appliedItems' => count($mutated), 'changedItems' => count($mutated), 'unchangedItems' => 0, 'skippedItems' => count($ids) - count($mutated)];
@@ -47,7 +47,7 @@ namespace OCA\Library\Service {
         public function assignTagToItems(string $user, array $ids, string $tag): array { return $this->record('tag-add', $user, $ids); }
         public function removeTagFromItems(string $user, array $ids, string $tag): array { return $this->record('tag-remove', $user, $ids); }
         private function record(string $operation, string $user, array $ids): array {
-            $owned = $user === 'development instance' ? [11, 12, 13] : [14];
+            $owned = $user === 'example-user' ? [11, 12, 13] : [14];
             $mutated = array_values(array_intersect($ids, $owned));
             $this->calls[] = [$operation, $user, $ids, $mutated];
             return ['requestedItems' => count($ids), 'addedItems' => count($mutated), 'removedItems' => count($mutated), 'alreadyTaggedItems' => 0, 'notTaggedItems' => 0, 'skippedItems' => count($ids) - count($mutated)];
@@ -56,7 +56,7 @@ namespace OCA\Library\Service {
     class FileIndexService {
         public array $calls = [];
         public function coverRefreshItemIds(string $user, array $ids): array {
-            $owned = $user === 'development instance' ? [11, 12, 13] : [14];
+            $owned = $user === 'example-user' ? [11, 12, 13] : [14];
             $selected = array_values(array_intersect($ids, $owned));
             $this->calls[] = ['cover', $user, $ids, $selected];
             return $selected;
@@ -81,7 +81,7 @@ namespace {
         public function getParam(string $key, mixed $default = null): mixed { return $this->params[$key] ?? $default; }
         public function getParams(): array { return $this->params; }
     }
-    final class BatchUser { public function getUID(): string { return 'development instance'; } }
+    final class BatchUser { public function getUID(): string { return 'example-user'; } }
     final class BatchSession implements \OCP\IUserSession { public function getUser(): BatchUser { return new BatchUser(); } }
     final class BatchUrls implements \OCP\IURLGenerator {
         public function linkToRoute(string $route, array $params = []): string { return '/' . $route . ($params ? '?' . http_build_query($params) : ''); }

@@ -2,7 +2,7 @@
 // NC34 developer acceptance: advance an existing enabled schedule once; never write source files.
 declare(strict_types=1);
 define('OC_CONSOLE',true);require '/var/www/html/lib/base.php';
-$uid=getenv('LIBRARY_BENCHMARK_USER')?:'maintainer';$db=\OC::$server->get(\OCP\IDBConnection::class);$schedules=\OC::$server->get(\OCA\Library\Service\ScheduledScanService::class);$scans=\OC::$server->get(\OCA\Library\Service\ScanJobService::class);$action=$argv[1]??'status';
+$uid=getenv('LIBRARY_BENCHMARK_USER')?:'example';$db=\OC::$server->get(\OCP\IDBConnection::class);$schedules=\OC::$server->get(\OCA\Library\Service\ScheduledScanService::class);$scans=\OC::$server->get(\OCA\Library\Service\ScanJobService::class);$action=$argv[1]??'status';
 function scanDigest(string $sql,array $params):array{global $db;$h=hash_init('sha256');$n=0;$r=$db->executeQuery($sql,$params);while($row=$r->fetch()){hash_update($h,json_encode($row,JSON_THROW_ON_ERROR)."\n");$n++;}$r->closeCursor();return ['count'=>$n,'sha256'=>hash_final($h)];}
 function scanBaselines(string $uid,int $preparedAt=0):array{
  $sources=scanDigest('SELECT DISTINCT fc.fileid,fc.etag,fc.mtime,fc.size FROM *PREFIX*library_files f INNER JOIN *PREFIX*filecache fc ON fc.fileid=f.file_id WHERE f.user_id=?'.($preparedAt>0?' AND f.created_at<=?':'').' ORDER BY fc.fileid',$preparedAt>0?[$uid,$preparedAt]:[$uid]);

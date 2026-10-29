@@ -6,8 +6,8 @@ import { chromium, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from '../temporary-app-password.mjs'
 import { createEvidenceDirectory } from '../private-evidence-directory.mjs'
 const base = process.env.NC_URL || 'http://localhost:8088'
-const container = process.env.NC_CONTAINER || 'nextcloud', user = process.env.NC_USER || 'maintainer'
-const query = process.env.SEARCH_QUERY || 'Heinlein'
+const container = process.env.NC_CONTAINER || 'nextcloud', user = process.env.NC_USER || 'example'
+const query = process.env.SEARCH_QUERY || 'Austen'
 const out = createEvidenceDirectory('library-search-browser'), name = `library-search-${Date.now()}`
 const occ = (...args) => execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', 'occ', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 const report = { samples: [], pageErrors: [], consoleErrors: [], mutations: 0 }

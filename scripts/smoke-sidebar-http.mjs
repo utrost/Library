@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { randomBytes } from 'node:crypto'
 
 const upstream = process.env.NC_URL || 'http://localhost:8088'
-const primaryUser = process.env.NC_USER || 'maintainer'
+const primaryUser = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const marker = `library-sidebar-http-${Date.now()}`
 const otherUser = `${marker}-user`

@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
 import { createTemporaryAppPassword } from '../temporary-app-password.mjs'
 import { createEvidenceDirectory } from '../private-evidence-directory.mjs'
-const here=dirname(fileURLToPath(import.meta.url)),base=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'maintainer',container=process.env.NC_CONTAINER||'nextcloud'
+const here=dirname(fileURLToPath(import.meta.url)),base=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'example',container=process.env.NC_CONTAINER||'nextcloud'
 const out=createEvidenceDirectory('library-performance'),samples=Number(process.env.SAMPLES||3),runId=`library-performance-${Date.now()}`
 const browserEnabled=process.env.SKIP_BROWSER!=='1'&&(process.env.BROWSER==='1'||process.env.COMPREHENSIVE==='1'),sqlEnabled=process.env.SKIP_SQL!=='1'
 const docker=(args,options={})=>execFileSync('docker',args,{encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:20*1024*1024,...options})

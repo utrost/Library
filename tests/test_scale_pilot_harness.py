@@ -26,15 +26,11 @@ def test_scale_pilot_verifies_pagination_from_initial_state():
     assert "scale_stage_ok=true" in script
 
 
-def test_alice_scale_pilot_docs_record_100_1k_10k_results():
-    doc = (ROOT / "docs" / "development instance-scale-pilot.md").read_text()
+def test_scale_pilot_docs_use_disposable_data_and_private_results():
+    doc = (ROOT / "docs" / "scale-pilot.md").read_text()
 
-    assert "Generated stress pilot, 2026-09-06" in doc
-    assert "100 generated PDFs" in doc
-    assert "1000 generated PDFs" in doc
-    assert "10000 generated PDFs" in doc
-    assert "Library scan: 91.19 s" in doc
-    assert "limit=500 page=1: 0.19 s" in doc
+    assert "generated documents" in doc
+    assert "reports outside Git" in doc
     assert "npm run smoke:scale -- <count>" in doc
 
 

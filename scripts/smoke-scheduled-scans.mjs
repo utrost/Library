@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
-const upstream=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'maintainer',container=process.env.NC_CONTAINER||'nextcloud'
+const upstream=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'example',container=process.env.NC_CONTAINER||'nextcloud'
 const evidence=createEvidenceDirectory('library-alpha21-evidence-browser');
 const name=`library-scheduled-scan-ui-${Date.now()}`,occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8',stdio:['ignore','pipe','pipe']})
 const output=createTemporaryAppPassword(container,user,name),token=output.match(/app password is:\s*(\S+)/i)?.[1]||output.match(/app password:\s*\n\s*(\S+)/i)?.[1];assert.ok(token)

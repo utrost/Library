@@ -1,22 +1,22 @@
 # Library Roadmap
 
-**Current source candidate: 0.3.0-rc.1.** The prior signed alpha.43 package remains installed on developer NC34 with clean integrity and large catalogue catalogue rows before and after upgrade. All seven catalogue sort choices were responsive at that checkpoint; see the [alpha.43 deployment record](compatibility-evidence/2026-10-24-nc34-alpha43/README.md). Exact signed RC certification and human acceptance remain release gates.
+**Current source candidate: 0.3.0-rc.1.** The prior signed alpha.43 package remains installed on developer NC34 with clean integrity and catalogue rows before and after upgrade. All seven catalogue sort choices were responsive at that checkpoint; see the alpha.43 deployment record. Exact signed RC certification and human acceptance remain release gates.
 
-Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its [verification and deployment record](compatibility-evidence/2026-10-21-nc34-mixed-pattern-alpha36/README.md) remains historical; alpha.43 is now installed.
+Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; alpha.43 is now installed.
 
 Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; alpha.43 is now installed.
 
-Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: [alpha.31 record](compatibility-evidence/2026-10-20-nc34-book-deletion-alpha31/README.md).
+Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: alpha.31 record.
 
-Alpha.30 adds a shared compact browser for Authors, Series and Genres, with displayed-name sorting, bounded book previews and genre pagination. One additive index supports ordering; no author identities or book values change. Alpha.30 is a historical browser checkpoint; its features are retained in alpha.32. Verification and deployment status: [alpha.30 record](compatibility-evidence/2026-10-20-nc34-author-browser-alpha30/README.md).
+Alpha.30 adds a shared compact browser for Authors, Series and Genres, with displayed-name sorting, bounded book previews and genre pagination. One additive index supports ordering; no author identities or book values change. Alpha.30 is a historical browser checkpoint; its features are retained in alpha.32. Verification and deployment status: alpha.30 record.
 
-Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the [search verification record](compatibility-evidence/2026-10-20-nc34-search-alpha29/README.md). The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
+Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the search verification record. The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the [alpha.28 verification record](compatibility-evidence/2026-10-19-nc34-author-destination-alpha28/README.md). The alpha.28 deployment is historical; alpha.43 is now installed.
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the alpha.28 verification record. The alpha.28 deployment is historical; alpha.43 is now installed.
 
-Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The [signed alpha.9 fresh and upgrade matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed on NC33–35. The [alpha.11 populated NC34 deployment](compatibility-evidence/2026-10-18-nc34-alpha11/README.md) is complete; owner acceptance remains.
+Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The signed alpha.9 fresh and upgrade matrix passed on NC33–35. The alpha.11 populated NC34 deployment is complete; owner acceptance remains.
 
-Status: **0.3.0-rc.1** is the source candidate, and [alpha.43](compatibility-evidence/2026-10-24-nc34-alpha43/README.md) remains installed on developer NC34 until the RC upgrade. The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its [verification evidence](compatibility-evidence/2026-10-13-beta3/README.md) is historical and does not certify 0.3.
+Status: **0.3.0-rc.1** is the source candidate, and alpha.43 remains installed on developer NC34 until the RC upgrade. The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its verification evidence is historical and does not certify 0.3.
 
 Last updated: 2026-10-24
 
@@ -60,7 +60,7 @@ These are acceptance gates, not newly discovered implementation defects. The [Ap
 
 | Area | State | Next decision or work |
 | --- | --- | --- |
-| Author identities | Directory, profile, portrait/bio, source-preserving edits, reassignment, merge, changed-import review and durable 501–5,000-book background merge/Undo landed through alpha.8. General search now checks linked preferred/sort names in the deployed alpha.11 package. | Human UX acceptance; author-name search is measured in alpha.29 (about 0.49 s backend for Heinlein); finish or explicitly defer canonical sorting and interruption/concurrency coverage. |
+| Author identities | Directory, profile, portrait/bio, source-preserving edits, reassignment, merge, changed-import review and durable 501–5,000-book background merge/Undo landed through alpha.8. General search now checks linked preferred/sort names in the deployed alpha.11 package. | Human UX acceptance; author-name search is measured in alpha.29 (about 0.49 s backend for an author-name sample); finish or explicitly defer canonical sorting and interruption/concurrency coverage. |
 | Series identities | Directory, selected-book moves, whole and empty-series merges, future-import redirects, changed-import review and conditional Undo landed in alpha.9. | Human UX acceptance; multiple series per book, nonnumeric part ordering and large background merges are later decisions. |
 | Other entities | Identifiers have dedicated records. Alpha.12 adds curated genre identities. Alpha.16 adds [reversible publisher/subject spelling mappings](metadata-value-mappings.md) while keeping source values and indexed facets. Languages and publishers remain metadata fields. | Owner acceptance of mapping preview, grouped filters, undo and source fidelity on NC34; exact-package NC33–35 matrix. Add shared subject or publisher identities only when real data shows a need for dedicated pages and merge operations. |
 | Language quality | Alpha.14 normalizes clear imported language names and codes, preserves the source text, and offers account-wide review for unresolved values such as `3ng` or `en-en`. The existing per-book multi-language picker remains. | Review the [language workflow](v0.3-language-review.md) on NC34, measure exact-token filter cost on the populated library, then run the exact-package NC33–35 matrix. |
@@ -69,15 +69,15 @@ These are acceptance gates, not newly discovered implementation defects. The [Ap
 | Reader handoff | Open uses the live Nextcloud file ID or resolves the saved path after external-storage ID changes. Reader links open in a new tab. The developer instance's 27 stale IDs were relinked in place. Scan-time exact-path reconciliation is deployed, including reading-list guards. | Verify full and incremental scans after mount loss/recovery in the disposable matrix; the scan code has passed package checks but still needs this mount-recovery scenario. Existing duplicate rows from earlier scans need separate review. |
 | App Store | A signed alpha.9 candidate passed fresh and upgraded NC33–35 package checks with the Gutenberg fixture. | Complete populated-instance and owner acceptance, refresh listing evidence, then build the final versioned release from a committed tree. |
 
-Current feature behavior: [author management](v0.3-author-management.md), [series management](v0.3-series-management.md), [alpha.9 verification](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). Human acceptance cases are in the [test handbook](human-test-handbook.md#current-03-human-cases).
+Current feature behavior: [author management](v0.3-author-management.md), [series management](v0.3-series-management.md), alpha.9 verification. Human acceptance cases are in the [test handbook](human-test-handbook.md#current-03-human-cases).
 
-Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff spike](reader-handoff-spike.md), [development instance reader compatibility notes](development instance-reader-compatibility.md), [development instance scale pilot notes](development instance-scale-pilot.md)
+Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff](reader-handoff-spike.md), [Reader compatibility](reader-compatibility.md), [Scale pilot guide](scale-pilot.md)
 
 ## Measured performance work — 2026-09-27
 
-Alpha.22 implementation and limits: [measured fixes](performance/2026-09-27-alpha22/README.md). Alpha.23 adds bounded scan pages, additional batching, covering indexes for direct page jumps, and administrator thumbnail quotas/retention. See [alpha.23 verification](performance/2026-09-27-alpha23/README.md). Alpha.24 reduces duplicate SQL and catalogue translation CPU; see [developer NC34 measurements](performance/2026-09-27-alpha24/README.md).
+Alpha.22 implementation and limits: measured fixes. Alpha.23 adds bounded scan pages, additional batching, covering indexes for direct page jumps, and administrator thumbnail quotas/retention. See alpha.23 verification. Alpha.24 reduces duplicate SQL and catalogue translation CPU; see developer NC34 measurements.
 
-Baseline and rerun instructions: [84k-book audit](performance/2026-09-27-alpha21/README.md), [benchmark runbook](performance-benchmarking.md).
+Baseline and rerun instructions: 84k-book audit, [benchmark runbook](performance-benchmarking.md).
 
 - [x] Measure real HTTP/SQL, browser surfaces, scans, jobs and disposable standard processes; retain reusable scripts and evidence.
 - [x] P0: recover stale scan workers so daily scans cannot defer indefinitely; fix author-facet uniqueness collisions in maintenance/scanning.
@@ -85,17 +85,17 @@ Baseline and rerun instructions: [84k-book audit](performance/2026-09-27-alpha21
 - [x] P1: batch search-index writes and bound cover download/render cost.
 - [x] Batch catalogue identifier reads while retaining user scoping.
 - [x] Implement bounded scan working sets, batched facets/observations/inference reads, faster direct page jumps, administrator thumbnail budgets and expired-entry cleanup; acceptance measurements are recorded in the alpha.23 report.
-- [x] Reduce manual duplicate SQL and catalogue translation CPU; developer NC34 measurements and repeatable checks are recorded in the [alpha.24 report](performance/2026-09-27-alpha24/README.md).
-- [x] Reuse valid scanner indexes, commit each metadata refresh atomically, and remove redundant metadata reads; verify the full ordinary large catalogue-publication scheduled run in 50 minutes with source/manual-correction integrity retained; see [alpha.26 measurements](performance/2026-09-27-alpha26/README.md).
+- [x] Reduce manual duplicate SQL and catalogue translation CPU; developer NC34 measurements and repeatable checks are recorded in the alpha.24 report.
+- [x] Reuse valid scanner indexes, commit each metadata refresh atomically, and remove redundant metadata reads; verify the full ordinary publication scheduled run in 50 minutes with source/manual-correction integrity retained; see alpha.26 measurements.
 - [x] Handle exceptional embedded author values as field-level Review issues without blocking other valid metadata; alpha.25 retains accepted authors and passes field-isolation/recovery checks.
-- [x] Complete and verify the full real-library scheduled scan: large catalogue publication files, seven roots, zero root failures, preserved source markers and user corrections; see [alpha.25 acceptance](performance/2026-09-27-alpha25/README.md).
+- [x] Complete and verify the full real-library scheduled scan: publication files, seven roots, zero root failures, preserved source markers and user corrections; see alpha.25 acceptance.
 - [ ] Evaluate database buffer-pool sizing and concurrency under representative production load; optimize remaining transactional/access reads only with measured evidence.
 
 ## Historical v0.1 beta progress snapshot
 
 - [x] Personal roots, scanning, metadata extraction/editing, catalogue/search, shelves and collections, Review, covers, and file handoff form the beta product baseline.
 - [x] Local release gate, package audit, unsigned archive, and local source commit/tag `v0.1.0-beta.1` are complete.
-- [x] The exact beta archive passed all 9 main Playwright smoke executions with 40 English Gutenberg books on Nextcloud 33.0.9, 34.0.4 and 35.0.0; see the [final compatibility assessment](compatibility-evidence/2026-09-25-beta1/final-compatibility-assessment.md).
+- [x] The exact beta archive passed all 9 main Playwright smoke executions with 40 English Gutenberg books on Nextcloud 33.0.9, 34.0.4 and 35.0.0; see the final compatibility assessment.
 - [x] The signing key and CSR were generated privately; [certificate request PR #1268](https://github.com/nextcloud/app-certificate-requests/pull/1268) was merged on 2026-09-29.
 - [ ] Publish the beta source branch/tag, run hosted CI on the exact commit, and prepare the public GitHub prerelease.
 - [ ] Receive the certificate, build and audit the signed archive, and submit the beta to the Nextcloud App Store.
@@ -132,7 +132,7 @@ What exists now:
 - Four owned surfaces: **Open** for file handoff, **Catalogue** for browsing, **Review** for focused cleanup, and **Settings** for configuration and bounded diagnostics.
 - Publication catalogue gallery with preview/CBZ/placeholder covers and compact cover-first cards on mobile and desktop; cover/title open the contextual sidebar, where **Open** is primary and secondary actions include **Show in Files**, **Download**, and **Advanced details**.
 - Review presents exactly five groups: **Suggested updates**, **Needs details**, **File problems**, **Cover problems**, and **Imported changes**.
-- Bounded catalogue pagination with page-size controls, smoke-tested through a 1000-real-file / 16.52 GiB staged development instance scale pilot after the planned 10 → 100 → 1000 → 10000 guardrail path.
+- Bounded catalogue pagination with page-size controls, smoke-tested through a 1000-real-file / 16.52 GiB staged the development instance scale pilot after the planned 10 → 100 → 1000 → 10000 guardrail path.
 - Database-backed catalogue search/filter controls for title/author text, arbitrary substrings, description, folder path, exact creator field, publication/series/periodical title, publication year, publication type, file format, scan status, starred state, exact Nextcloud tag, review flags and root-derived shelf, plus active filter chips, first-run/filtered-empty recovery guidance, desktop and mobile filter controls, loading feedback, lazy high-cardinality typeaheads, and keyboard shortcuts for focus (`/`) and clear (`Escape`).
 - Read-only Nextcloud system tag exposure on publication item cards for cross-archive interests/projects/collections.
 - Dedicated item details page where the details page owns metadata, tag and comment editing while catalogue cards stay browse-only.
@@ -162,7 +162,7 @@ Deliverables:
 
 - Product concept captured in a short contributor-facing document.
 - v0.1 scope and non-goals documented.
-- Reader handoff mechanism tested against development instance Nextcloud.
+- Reader handoff mechanism tested against the development instance Nextcloud.
 - README links to the active documentation spine.
 - Local tests pass.
 
@@ -209,12 +209,12 @@ Tests/smokes:
 
 - Migration/schema tests or install smoke.
 - Scanner unit tests with fake file nodes where possible.
-- development instance integration smoke with a small fixture folder.
+- the development instance integration smoke with a small fixture folder.
 - Verify permissions: only current-user accessible roots/files appear.
 
 Exit criteria:
 
-- On development instance, Library can scan `/ExampleLibrary` or a similar folder and list at least PDF, EPUB and CBZ files by stable file ID.
+- On the development instance, Library can scan a disposable folder and list at least PDF, EPUB and CBZ files by stable file ID.
 - Rescanning does not duplicate unchanged files.
 - Deleting or moving a fixture produces a safe status change rather than metadata loss.
 
@@ -251,7 +251,7 @@ Tests/smokes:
 - Metadata precedence tests.
 - Manual edit survives rescan test.
 - PDF does not default to Book solely because it is PDF.
-- development instance smoke: edit a discovered PDF into Magazine and verify it remains Magazine after rescan.
+- the development instance smoke: edit a discovered PDF into Magazine and verify it remains Magazine after rescan.
 
 Exit criteria:
 
@@ -262,7 +262,7 @@ Exit criteria:
 
 Goal: make Library a better Nextcloud citizen before adding deeper extractor-specific metadata.
 
-Status: first tag/comment exposure, minimal tag assignment/removal and minimal comment writing slices landed and smoke-tested on development instance.
+Status: first tag/comment exposure, minimal tag assignment/removal and minimal comment writing slices landed and smoke-tested on the development instance.
 
 User outcome:
 
@@ -282,8 +282,8 @@ Tests/smokes:
 - Contract tests for `ISystemTagManager`/`ISystemTagObjectMapper` use.
 - Template test proving item cards expose `nextcloudTags`.
 - Contract tests for Nextcloud comment read/write API use.
-- development instance smoke: assign a `photography` system tag to a fixture file and verify Library displays it.
-- development instance smoke: post a file-level comment through Library and verify it appears through both Library and Nextcloud's comment API.
+- the development instance smoke: assign a `photography` system tag to a fixture file and verify Library displays it.
+- the development instance smoke: post a file-level comment through Library and verify it appears through both Library and Nextcloud's comment API.
 
 Exit criteria:
 
@@ -386,7 +386,7 @@ Alpha.166 source-candidate slice: field-specific bidi presentation, semantic DOM
 
 Status: first slice landed. Catalogue cards now request item covers from a Library route that resolves the owned catalogue item to its Nextcloud file and asks the public Nextcloud preview manager for a cover-sized preview. The route also does first-image cover extraction for CBZ archives when the generic preview path is unavailable. Every cover response now includes `X-Library-Cover-Status` and `X-Library-Cover-Reason` diagnostics for preview-backed, CBZ first-image and placeholder outcomes. Unsupported files still return the existing stable placeholder artwork, so the gallery remains usable while deeper EPUB/CBZ/PDF cover extraction evolves.
 
-Status: first extraction slices landed and smoke-tested on development instance. EPUB package OPF, standalone OPF, same-basename OPF sidecars, folder-level `metadata.opf` sidecars, basic PDF info fields, nested PDF literal parentheses, PDF Subject-as-subtitle, normalized PDF CreationDate/ModDate values, CBZ ComicInfo.xml metadata and CBZ first-image covers now populate catalogue item candidates/presentation. Sidecar OPFs are suppressed as separate catalogue items when paired with primary publication files, and stale sidecar cleanup removes scanner-created duplicate OPF items on rescan. User-edited sidecar cleanup policy is conservative: manually edited OPF sidecar items stay visible as standalone records until a deliberate merge/migration workflow exists. PDF Creator/Producer/Keywords are deliberately not promoted into canonical publication metadata until a reviewable keyword/provenance model exists. Richer real-world PDF/CBZ handling remains open.
+Status: first extraction slices landed and smoke-tested on the development instance. EPUB package OPF, standalone OPF, same-basename OPF sidecars, folder-level `metadata.opf` sidecars, basic PDF info fields, nested PDF literal parentheses, PDF Subject-as-subtitle, normalized PDF CreationDate/ModDate values, CBZ ComicInfo.xml metadata and CBZ first-image covers now populate catalogue item candidates/presentation. Sidecar OPFs are suppressed as separate catalogue items when paired with primary publication files, and stale sidecar cleanup removes scanner-created duplicate OPF items on rescan. User-edited sidecar cleanup policy is conservative: manually edited OPF sidecar items stay visible as standalone records until a deliberate merge/migration workflow exists. PDF Creator/Producer/Keywords are deliberately not promoted into canonical publication metadata until a reviewable keyword/provenance model exists. Richer real-world PDF/CBZ handling remains open.
 
 User outcome:
 
@@ -418,9 +418,9 @@ Frontend slices:
 Tests/smokes:
 
 - Fixture-based extraction tests for EPUB, PDF and CBZ.
-- development instance smoke with tiny EPUB/PDF/OPF fixtures for title/creator/source mapping.
-- development instance smoke with PDF + same-basename `.opf` and PDF + folder-level `metadata.opf` sidecar precedence fixtures.
-- development instance smoke proving paired sidecar OPFs do not create catalogue rows while an orphan OPF still does.
+- the development instance smoke with tiny EPUB/PDF/OPF fixtures for title/creator/source mapping.
+- the development instance smoke with PDF + same-basename `.opf` and PDF + folder-level `metadata.opf` sidecar precedence fixtures.
+- the development instance smoke proving paired sidecar OPFs do not create catalogue rows while an orphan OPF still does.
 - Corrupt/unsupported archive test.
 
 Exit criteria:
@@ -486,7 +486,7 @@ Backend/frontend slices:
 
 Tests/smokes:
 
-- PDF, EPUB and CBZ handoff smoke on development instance.
+- PDF, EPUB and CBZ handoff smoke on the development instance.
 - Missing-file fallback test.
 - Unsupported/no-reader messaging test.
 
@@ -563,7 +563,7 @@ The [author management concept](v0.3-author-management.md) is implemented throug
 
 ## Personal top features, 2026-09-07
 
-maintainer's current personal top features are scoped in [Personal top features](personal-top-features.md). This list shifts the next product direction from mostly release hardening toward daily-library usefulness: finish multi-root confidence, add starring/bookmarking, record last read/opened activity, search descriptions, add custom per-publication status, and model subjects and classifications. Multi-root confidence, starring/bookmarking, Library-tracked last-opened activity, description search, Library-native workflow status and Library-native subjects/classifications have landed; the next personal-library priority returns to release polish around metadata review, discovery pages and onboarding.
+the maintainer's current personal top features are scoped in [Personal top features](personal-top-features.md). This list shifts the next product direction from mostly release hardening toward daily-library usefulness: finish multi-root confidence, add starring/bookmarking, record last read/opened activity, search descriptions, add custom per-publication status, and model subjects and classifications. Multi-root confidence, starring/bookmarking, Library-tracked last-opened activity, description search, Library-native workflow status and Library-native subjects/classifications have landed; the next personal-library priority returns to release polish around metadata review, discovery pages and onboarding.
 
 Recommended order from that scope:
 
@@ -670,7 +670,7 @@ Historical minimum cuts for that earlier candidate:
 2. Run live Catalogue/Home/Shelves/Review browser smokes on the installed package, including mobile filter panel, combobox keyboard interaction, drawer arrow-key editable-field preservation, and import preview-to-apply.
 3. Run the catalogue performance smoke for ordinary search, arbitrary substring search, review filters, typeahead suggestion routes and high-cardinality facets.
 4. Preserve the database-backed catalogue query path under text/type/format/tag/shelf/status/review filters during every smoke.
-5. Smoke on development instance with generated scale fixtures and at least one real staged sample.
+5. Smoke on the development instance with generated scale fixtures and at least one real staged sample.
 6. Keep metadata export/import as the in-app portability boundary; source-folder OPF/JSON sidecar writing and full file-neighbour restore belong to external file-first tooling, while the current import/apply flow only writes matched existing Library catalogue rows.
 
 Non-goals for this slice:
@@ -686,20 +686,20 @@ The root/update/delete/scoped-rescan, missing-item forget, corrected-metadata ex
 ### Warning recovery completed in alpha.27
 
 - [x] Isolate oversized scalar metadata and recover ten missing PDFs without truncating proposals or changing source files.
-- [x] Cache unchanged deterministic warnings, preserve Review visibility and explicit Retry, and verify developer NC34 with Chromium/Firefox and real-library measurements; see [alpha.27 evidence](performance/2026-09-27-alpha27/README.md).
+- [x] Cache unchanged deterministic warnings, preserve Review visibility and explicit Retry, and verify developer NC34 with Chromium/Firefox and real-library measurements; see alpha.27 evidence.
 - [ ] Evaluate archive repair and increased author capacity separately; existing warnings remain visible.
 
 ## Incremental scheduled scans — alpha.28
 
 - [x] Record Nextcloud publication, OPF and folder changes in an owner-scoped coalesced journal; process only affected files/subtrees during normal scheduled runs.
 - [x] Keep a first full checkpoint, weekly full reconciliation and root/scanner revision invalidation; acknowledge only generations from successfully completed jobs.
-- [x] Verify changed/add/delete/sidecar and empty runs on a disposable NC34 account; see [alpha.28 evidence](performance/2026-09-28-alpha28/README.md).
-- [x] Measure a successful large catalogue-entry full checkpoint and an unchanged 3 ms incremental scan on developer NC34; repeat service and Playwright checks on disposable NC33–35.
+- [x] Verify changed/add/delete/sidecar and empty runs on a disposable NC34 account; see alpha.28 evidence.
+- [x] Measure a successful catalogue full checkpoint and an unchanged 3 ms incremental scan on developer NC34; repeat service and Playwright checks on disposable NC33–35.
 
-Latest author assignment implementation and developer verification: [0.3-alpha.2 report](compatibility-evidence/2026-10-13-author-assignments-alpha2/README.md).
+Latest author assignment implementation and developer verification: 0.3-alpha.2 report.
 
-Author profiles, photos/biographies and paged catalogue implemented: [0.3-alpha.3 evidence](compatibility-evidence/2026-10-13-author-profiles-alpha3/README.md). Other metadata normalization priorities are documented in the [author concept](v0.3-author-management.md#other-metadata-worth-normalising): series first, subjects/genres later; languages need consistent codes and identifiers already have dedicated storage.
+Author profiles, photos/biographies and paged catalogue implemented: 0.3-alpha.3 evidence. Other metadata normalization priorities are documented in the [author concept](v0.3-author-management.md#other-metadata-worth-normalising): series first, subjects/genres later; languages need consistent codes and identifiers already have dedicated storage.
 
-Imported author conflict review is implemented and deployed: [0.3-alpha.4 verification](compatibility-evidence/2026-10-13-author-conflicts-alpha4/README.md). Per-book decisions survive unchanged rescans; stale previews are rejected.
+Imported author conflict review is implemented and deployed: 0.3-alpha.4 verification. Per-book decisions survive unchanged rescans; stale previews are rejected.
 
-Reviewed series moves and whole-series merges are implemented in alpha.9: account-private redirects, source-preserving manual assignments, changed-import review and conditional Undo. The [series guide](v0.3-series-management.md) describes the 500-book interactive cap and remaining multiple-series work; the [focused NC33–35 and developer NC34 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md) records source-build verification. The [signed candidate matrix](compatibility-evidence/2026-10-15-signed-architecture-candidate/README.md) passed fresh and upgraded installations.
+Reviewed series moves and whole-series merges are implemented in alpha.9: account-private redirects, source-preserving manual assignments, changed-import review and conditional Undo. The [series guide](v0.3-series-management.md) describes the 500-book interactive cap and remaining multiple-series work; the focused NC33–35 and developer NC34 evidence records source-build verification. The signed candidate matrix passed fresh and upgraded installations.

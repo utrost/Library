@@ -9,7 +9,7 @@ final class FacetSearchKeyGenerator {
     private const MAX_SEARCH_KEYS = 16;
 
     /**
-     * Examples: "Anton, maintainer" yields anton, maintainer / anton / maintainer;
+     * Examples: "Anton, Example" yields anton, example / anton / example;
      * "AAVAA-Verlag" yields aavaa-verlag / aavaa / verlag.
      *
      * @return array<int, string>

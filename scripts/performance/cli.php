@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 define('OC_CONSOLE',true);require '/var/www/html/lib/base.php';require '/tmp/library-performance-sql-profiler.php';
-$uid=getenv('LIBRARY_BENCHMARK_USER')?:'maintainer';$mode=$argv[1]??'services';$connection=libraryBenchmarkConnection();$config=$connection->getConfiguration();$db=\OC::$server->get(\OCP\IDBConnection::class);
+$uid=getenv('LIBRARY_BENCHMARK_USER')?:'example';$mode=$argv[1]??'services';$connection=libraryBenchmarkConnection();$config=$connection->getConfiguration();$db=\OC::$server->get(\OCP\IDBConnection::class);
 $items=\OC::$server->get(\OCA\Library\Service\ItemService::class);$roots=\OC::$server->get(\OCA\Library\Service\RootService::class);
 function measureLibrary(string $label,callable $fn,bool $explain=true):mixed {
  global $connection,$config;

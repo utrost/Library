@@ -5,7 +5,7 @@ import { basename, extname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 
 const count = Number(process.argv[2] || 20)
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const upstream = process.env.NC_URL || 'http://localhost:8088'
 const sourceRoots = (process.env.REAL_SCALE_SOURCES || '/path/to/books::/path/to/scanned-books').split('::').filter(Boolean)
@@ -19,7 +19,7 @@ const rootPath = `/${rootName}`
 const dataDir = `/var/www/html/data/${user}/files/${rootName}`
 const containerStageDir = `/tmp/${rootName}`
 const hostStageDir = join(tmpdir(), rootName)
-const tokenName = `design review-library-real-scale-${count}-${Date.now()}`
+const tokenName = `library-library-real-scale-${count}-${Date.now()}`
 const timings = {}
 
 function now() { return Date.now() }

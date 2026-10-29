@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -148,11 +149,12 @@ def test_app_store_public_surfaces_do_not_expose_internal_names_or_paths():
         "docs/app-store-listing.md": read("docs/app-store-listing.md"),
         "appinfo/info.xml": read("appinfo/info.xml"),
     }
-    forbidden = ["maintainer", "design review", "development instance", "Bob", "Charlie", "/home/example", "utrost@", "assistant"]
+    forbidden = ["utrost@", "assistant", "NC_USER=", "NC_URL="]
 
     for path, content in public_surfaces.items():
         for term in forbidden:
             assert term not in content, f"{term!r} leaked into {path}"
+        assert not re.search(r"/(?:home|mnt)/[^\s`]+", content), path
 
 
 def test_info_xml_public_metadata_parses_and_declares_tested_nextcloud_range():

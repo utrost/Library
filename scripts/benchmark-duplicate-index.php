@@ -5,7 +5,7 @@ declare(strict_types=1);
 // No book contents are read or modified. lookup measures repeated calls in one PHP process.
 define('OC_CONSOLE',true);require '/var/www/html/lib/base.php';
 try{
-$uid=getenv('LIBRARY_BENCHMARK_USER')?:'maintainer';$index=\OC::$server->get(\OCA\Library\Service\DuplicateIndexService::class);$service=\OC::$server->get(\OCA\Library\Service\DuplicateSuggestionService::class);$db=\OC::$server->get(\OCP\IDBConnection::class);$action=$argv[1]??'status';
+$uid=getenv('LIBRARY_BENCHMARK_USER')?:'example';$index=\OC::$server->get(\OCA\Library\Service\DuplicateIndexService::class);$service=\OC::$server->get(\OCA\Library\Service\DuplicateSuggestionService::class);$db=\OC::$server->get(\OCP\IDBConnection::class);$action=$argv[1]??'status';
 if($action==='status'){$counts=[];foreach(['library_items','library_dup_index','library_dup_terms'] as $table)$counts[$table]=(int)$db->executeQuery('SELECT COUNT(*) FROM *PREFIX*'.$table.' WHERE user_id = ?',[$uid])->fetchOne();echo json_encode(['state'=>$index->status($uid),'counts'=>$counts]),PHP_EOL;exit;}
 if($action==='build'){
  $before=$index->status($uid);$start=microtime(true);$state=$index->configure($uid,true);echo json_encode(['event'=>'started','before'=>$before,'state'=>$state]),PHP_EOL;$batches=[];$index->statements=0;

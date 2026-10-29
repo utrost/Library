@@ -6,6 +6,8 @@
 /playwright-report/
 /test-results/
 /security-reports/
+/docs/compatibility-evidence/
+/docs/performance/
 /.phpunit.result.cache
 /.pytest_cache/
 __pycache__/

@@ -27,7 +27,7 @@
 
 ## 0.3.0-alpha.40 — 2026-10-22
 
-- Materialize and index reading-status order, then page through narrow item IDs before loading metadata. The installed alpha.39 query took about 22 seconds for large catalogue books, compared with about 9 seconds for the existing title view. An additive migration backfills existing statuses.
+- Materialize and index reading-status order, then page through narrow item IDs before loading metadata. The installed alpha.39 query took about 22 seconds for the existing catalogue books, compared with about 9 seconds for the existing title view. An additive migration backfills existing statuses.
 - Update the cover-paste instructions and release verification record.
 
 ## 0.3.0-alpha.39 — 2026-10-22
@@ -223,7 +223,7 @@
 - Isolate oversized extracted scalar fields, preserve valid metadata and accepted/manual values, and retain bounded rejected proposals for Review.
 - Disable unsafe source-reset actions and provide hover explanations in English, German and Arabic.
 - Cache unchanged deterministic warnings while keeping Review visible and explicit Retry available; persist cached-warning counters in scan history.
-- Recover ten real PDFs and verify all 799 warning files, with browser and integration evidence.
+- Recover ten real PDFs and verify all some warning files, with browser and integration evidence.
 
 ## 0.2.0-alpha.26 — Scanner index reuse
 
@@ -280,7 +280,7 @@
 - Add an opt-in, account-scoped metadata index built in background batches and updated by catalogue edits and scans.
 - Check up to 100 visible books in one asynchronous request, show possible-duplicate badges, and check individual books in the metadata sidebar.
 - Provide direct comparisons and reversible review decisions, with access checks and explicit partial results for broad matches. Automatic checks never hash publication contents.
-- Measure indexing, real HTTP lookups, storage and catalogue contention against large catalogue books on developer Nextcloud 34.0.3; verify Chromium/Firefox desktop and mobile workflows.
+- Measure indexing, real HTTP lookups, storage and catalogue contention against a large catalogue books on developer Nextcloud 34.0.3; verify Chromium/Firefox desktop and mobile workflows.
 
 ## 0.2.0-alpha.19 — Possible duplicate books
 
@@ -338,7 +338,7 @@
 - Fix help accessible names, keyboard dismissal, focus scrolling and narrow-screen positioning.
 - Batch list counts, membership and book metadata reads; share concurrent client reads and avoid reloading a whole list after saving a note.
 - Document metadata extraction, saved patterns, author conventions and current preview-only limitations in `docs/extracting-metadata.md`.
-- Add inference, help and pattern ownership/CSRF regression coverage. Compatibility evidence is recorded in `docs/compatibility-evidence/2026-09-26-alpha12/README.md`.
+- Add inference, help and pattern ownership/CSRF regression coverage. Compatibility evidence is recorded in `docs/release-verification.md`.
 
 ## v0.2.0-alpha.11 - development
 

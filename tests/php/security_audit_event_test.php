@@ -47,12 +47,12 @@ function auditExpect(bool $condition, string $message): void {
 
 $logger = new CapturingAuditLogger();
 $audit = new SecurityAuditLogger($logger, null);
-$audit->warning('metadata.import.preview', 'development instance', 'preview', 'metadata_import', 'rejected', [
+$audit->warning('metadata.import.preview', 'example-user', 'preview', 'metadata_import', 'rejected', [
     'target_count' => 250,
     'http_status' => 413,
     'reason' => 'payload_too_large',
     'metadataJson' => '{"secret":"raw metadata must not appear"}',
-    'path' => '/development instance/files/private.pdf',
+    'path' => '/example-user/files/private.pdf',
     'filename' => '=payload.csv',
     'token' => 'abc123',
 ]);
@@ -66,11 +66,11 @@ foreach (['event_schema', 'app', 'event', 'actor_id', 'operation', 'target_type'
     auditExpect(array_key_exists($key, $context), "context contains {$key}");
 }
 auditExpect($context['app'] === 'library', 'app is identified');
-auditExpect($context['actor_id'] === 'development instance', 'actor is identified');
+auditExpect($context['actor_id'] === 'example-user', 'actor is identified');
 auditExpect($context['outcome'] === 'rejected', 'outcome is distinguishable');
 auditExpect(str_starts_with((string)$context['correlation_id'], 'libaudit-'), 'correlation id is bounded and recognizable');
 $json = json_encode($context, JSON_THROW_ON_ERROR);
-foreach (['raw metadata', '/development instance/files', '=payload', 'abc123', 'metadataJson', 'filename', 'path', 'token'] as $secret) {
+foreach (['raw metadata', '/example-user/files', '=payload', 'abc123', 'metadataJson', 'filename', 'path', 'token'] as $secret) {
     auditExpect(strpos($json, $secret) === false, "privacy allowlist excludes {$secret}");
 }
 
@@ -85,7 +85,7 @@ $throwingLogger = new class implements LoggerInterface {
     public function debug($message, array $context = []): void { throw new RuntimeException('boom'); }
     public function log($level, $message, array $context = []): void { throw new RuntimeException('boom'); }
 };
-(new SecurityAuditLogger($throwingLogger, null))->info('root.delete', 'development instance', 'delete', 'root', 'success', ['target_id' => 12]);
+(new SecurityAuditLogger($throwingLogger, null))->info('root.delete', 'example-user', 'delete', 'root', 'success', ['target_id' => 12]);
 
 auditExpect(true, 'logging failures do not break callers');
 echo "security audit event runtime tests passed\n";

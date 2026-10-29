@@ -1,7 +1,7 @@
 import { decodeHtmlAttribute } from './html-attribute.mjs'
 import { execFileSync } from 'node:child_process'
 
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const upstream = process.env.NC_URL || 'http://localhost:8088'
 const stamp = Date.now()
@@ -11,7 +11,7 @@ const rootAlphaPath = `/${rootAlphaName}`
 const rootBetaPath = `/${rootBetaName}`
 const dataAlphaDir = `/var/www/html/data/${user}/files/${rootAlphaName}`
 const dataBetaDir = `/var/www/html/data/${user}/files/${rootBetaName}`
-const tokenName = `design review-library-multi-root-${stamp}`
+const tokenName = `library-library-multi-root-${stamp}`
 
 // Success markers asserted by tests and by humans reading smoke output:
 // multi_root_all_scan_roots=2

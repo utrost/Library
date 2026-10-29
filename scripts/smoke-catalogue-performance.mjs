@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { performance } from 'node:perf_hooks'
 
 const upstream = process.env.NC_URL || 'http://localhost:8088'
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const tokenName = `library-catalogue-performance-${Date.now()}`
 const fastBudgetSeconds = Number(process.env.LIBRARY_CATALOGUE_FAST_BUDGET_SECONDS || '1.0')
@@ -194,7 +194,7 @@ try {
   for (const sort of ['title', 'recent', 'publicationDate', 'publication', 'lastOpened', 'format', 'workflowStatus']) {
     await attempt(() => timeCatalogue(`catalogue_sort_${sort}_fast`, `/apps/library/catalogue?limit=25&sort=${sort}`, token))
   }
-  for (const [name, term] of [['substring', discovered.qSubstring], ['author_name', 'Heinlein']]) {
+  for (const [name, term] of [['substring', discovered.qSubstring], ['author_name', 'Austen']]) {
     if (!String(term || '').trim()) continue
     const searchUrl = new URL('/apps/library/catalogue?limit=25', upstream)
     searchUrl.searchParams.set('q', String(term).trim())

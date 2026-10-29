@@ -1,7 +1,5 @@
 # Library UX Concept
 
-For the alpha.31 screen and journey audit, observed defects, and proposed shared interface conventions, see the [20 October 2026 UI/UX consistency review](ui-ux-consistency-review-2026-10-20.md).
-
 This document defines the v0.1 Library interface as one consistent catalogue workspace. It is not a feature inventory. It is the UX contract that keeps browse, filters, actions, batch tools and review flows from becoming separate competing interfaces.
 
 ## Product answer
@@ -193,4 +191,4 @@ Use `css/ui-contract.css` for the cross-renderer page frame, heading scale, lead
 
 Use `FormActions` and `useUnsavedChanges` for profile/list forms, and keep Details' existing revision-aware Save/Discard. `EntityPicker` provides the shared debounced lookup interaction; other model-specific pickers follow its waiting/loading/results/empty/error contract. A failed lookup cannot authorize creation. `OperationStatus` and `ReviewValues` align feedback and comparisons. `confirmAction` is for consequential configuration/list removals; book deletion retains its explicit file preview.
 
-The initial [UI review](ui-ux-consistency-review-2026-10-20.md) retains the before-state and maps all fourteen findings to implementation. Repeat broad, read-only screenshots with explicit `NC_URL`, `NC_USER` and `NC_CONTAINER` using `node scripts/review-ui.mjs`. It blocks application mutations, creates and removes its own temporary app password, and stores screenshots locally under `/tmp`. Use the Playwright journeys for interactions and mutation verification on disposable fixtures.
+Repeat broad, read-only screenshots with explicit `NC_URL`, `NC_USER` and `NC_CONTAINER` using `node scripts/review-ui.mjs`. It blocks application mutations, creates and removes its own temporary app password, and stores screenshots locally under `/tmp`. Use the Playwright journeys for interactions and mutation verification on disposable fixtures.

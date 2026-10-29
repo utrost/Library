@@ -49,7 +49,7 @@ Library should use Nextcloud file IDs for identity. Paths are useful for display
 
 Library should not build an EPUB/PDF/comic reader in v0.1. It should open files through the existing Nextcloud Files/viewer route and later through replaceable reader providers when useful.
 
-The development instance compatibility spike supports this default: `/f/{fileId}` hands EPUB, PDF and CBZ files to the installed inline viewer stack without Library knowing private reader routes.
+The the development instance compatibility spike supports this default: `/f/{fileId}` hands EPUB, PDF and CBZ files to the installed inline viewer stack without Library knowing private reader routes.
 
 ### Metadata has provenance
 
@@ -138,7 +138,7 @@ Install app
 
 ## Personal-library priorities
 
-maintainer's current personal top features are scoped in [Personal top features](personal-top-features.md). They refine the product thesis toward daily use: fully trusted multi-root browsing, personal starring/bookmarking, last opened activity, description search, custom reading/workflow status, and richer subjects/classifications.
+the maintainer's current personal top features are scoped in [Personal top features](personal-top-features.md). They refine the product thesis toward daily use: fully trusted multi-root browsing, personal starring/bookmarking, last opened activity, description search, custom reading/workflow status, and richer subjects/classifications.
 
 Feedback captured there: use Nextcloud tags for lightweight cross-app labels, but make stars, Library-owned reading activity, workflow status, and structured subjects/classifications canonical Library-native fields when they need first-class filters, export/import or external metadata-tool handoff. Personal starring, last-opened activity, and Library-native description search are now implemented as Library-native catalogue state.
 

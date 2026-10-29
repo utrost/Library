@@ -79,4 +79,4 @@ All ten images were visually inspected. The settings screenshots retain two obse
 
 Capture commands and provenance are in [the image record](images/first-library/README.md). Local logs: `/tmp/library-public-capture-first.log` and `/tmp/library-public-capture-store.log`. The developer instance and existing books were not modified. The App Store's historical screenshot URLs still need the final published release tag before submission.
 
-The subsequently requested sidebar update is tracked separately as alpha.35. Its [verification record](compatibility-evidence/2026-10-20-nc34-sidebar-alpha35/README.md) includes a second fresh-package screenshot capture, which supersedes the public alpha.34 images above. The original alpha.34 refresh remains in PR #129's commit history.
+The subsequently requested sidebar update is tracked separately as alpha.35. Its verification record includes a second fresh-package screenshot capture, which supersedes the public alpha.34 images above. The original alpha.34 refresh remains in PR #129's commit history.

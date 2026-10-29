@@ -23,7 +23,7 @@ check($normalize->invoke($service,'seriesNumber','Volume II')==='Volume II','lab
 foreach(['series'=>['bad'],'seriesNumber'=>str_repeat('x',65),'genre'=>true] as $field=>$value){
  $payload=json_encode(['cachedPath'=>'Fixture.epub',$field=>$value]);
  foreach(['previewCorrectedMetadataImport','applyCorrectedMetadataImport'] as $method){
-  $result=$service->$method('development instance',$payload);check(!$result['valid']&&$result['error']==='invalid_item','invalid field rejected before database access');
+  $result=$service->$method('example-user',$payload);check(!$result['valid']&&$result['error']==='invalid_item','invalid field rejected before database access');
  }
 }
 echo "extended_metadata_fields_ok=true length=true types=true unicode=true leading_zeros=true import_validation=true\n";

@@ -1,7 +1,7 @@
 <?php
 /** Private aggregate integrity checks for the fixed real-source benchmark. */
 declare(strict_types=1);define('OC_CONSOLE',true);require '/var/www/html/lib/base.php';
-try{$uid=getenv('LIBRARY_BENCHMARK_USER')?:'maintainer';$db=\OC::$server->get(\OCP\IDBConnection::class);$selected=json_decode(file_get_contents('/tmp/library-index-speed-selection.json'),true,512,JSON_THROW_ON_ERROR);$hashes=[];
+try{$uid=getenv('LIBRARY_BENCHMARK_USER')?:'example';$db=\OC::$server->get(\OCP\IDBConnection::class);$selected=json_decode(file_get_contents('/tmp/library-index-speed-selection.json'),true,512,JSON_THROW_ON_ERROR);$hashes=[];
 foreach(['source','canonical','facets','search','identifiers','duplicates'] as $name)$hashes[$name]=hash_init('sha256');
 foreach($selected as $file){$id=(int)$file['id'];$queries=[
  'source'=>['SELECT fc.fileid,fc.etag,fc.mtime,fc.size FROM *PREFIX*filecache fc WHERE fc.fileid=?',[(int)$file['file_id']]],

@@ -7,7 +7,7 @@ if(getenv('OLD_ITEM_SERVICE')==='1')require '/tmp/library-index-speed-old-ItemSe
 require '/var/www/html/lib/base.php';
 require '/tmp/library-performance-sql-profiler.php';
 try {
- $uid=getenv('LIBRARY_BENCHMARK_USER')?:'maintainer';$path='/tmp/library-index-speed-selection.json';
+ $uid=getenv('LIBRARY_BENCHMARK_USER')?:'example';$path='/tmp/library-index-speed-selection.json';
  $db=\OC::$server->get(\OCP\IDBConnection::class);
  $r=$db->executeQuery('SELECT COUNT(*) FROM *PREFIX*library_scan_jobs WHERE user_id=? AND status IN (?,?)',[$uid,'queued','running']);$active=(int)$r->fetchOne();$r->closeCursor();if($active)throw new RuntimeException('A real scan is active');
  if(($argv[1]??'run')==='select'){

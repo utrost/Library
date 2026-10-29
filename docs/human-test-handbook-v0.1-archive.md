@@ -4,7 +4,7 @@ Archived on 2026-10-20. These are historical test cases and release observations
 
 ## Historical source-candidate test status
 
-Version under test in this older record: `0.1.0-alpha.174`. That development instance deployment included accessibility/catalogue cleanup, ISBN/ISSN identifier spine, indexed substring search, mobile filter panel, high-cardinality typeaheads, and the review issue batch (#32-37).
+Version under test in this older record: `0.1.0-alpha.174`. That the development instance deployment included accessibility/catalogue cleanup, ISBN/ISSN identifier spine, indexed substring search, mobile filter panel, high-cardinality typeaheads, and the review issue batch (#32-37).
 
 Packaging: **used for the current private deployment** was the historical alpha.174 status. At that time, the exact unsigned `dist/library-0.1.0-alpha.174.tar.gz` package was installed in the private Nextcloud 34 test container. The current version at that address is identified at the top of this handbook. Archive/package-identity assertions apply only to the artifact actually installed for a given test session.
 

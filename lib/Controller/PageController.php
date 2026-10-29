@@ -37,8 +37,6 @@ class PageController extends Controller {
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
 
-    
-
     private const CATALOGUE_ITEM_KEYS = [
         'id', 'title', 'creators', 'authors', 'displayCreators', 'canonicalAuthors', 'canonicalSeries', 'canonicalGenres', 'publicationType', 'publication',
         'publicationDate', 'description', 'starred', 'workflowStatus',

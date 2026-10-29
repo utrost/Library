@@ -3,7 +3,7 @@
 declare(strict_types=1);
 define('OC_CONSOLE',true);require '/var/www/html/lib/base.php';
 try {
-$user=getenv('LIBRARY_SMOKE_USER') ?: 'maintainer';$name=getenv('LIBRARY_SMOKE_NAME') ?: '';
+$user=getenv('LIBRARY_SMOKE_USER') ?: 'example';$name=getenv('LIBRARY_SMOKE_NAME') ?: '';
 if (!preg_match('/^Library duplicates smoke [0-9]+$/D',$name)) throw new RuntimeException('Invalid fixture name');
 $home=\OC::$server->get(\OCP\Files\IRootFolder::class)->getUserFolder($user);
 $roots=\OC::$server->get(\OCA\Library\Service\RootService::class);$items=\OC::$server->get(\OCA\Library\Service\ItemService::class);$db=\OC::$server->get(\OCP\IDBConnection::class);$duplicates=\OC::$server->get(\OCA\Library\Service\DuplicateService::class);

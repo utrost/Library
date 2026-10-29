@@ -17,9 +17,10 @@ def test_readme_is_public_one_page_overview_without_internal_names():
     assert f"Current candidate: `{CURRENT_VERSION}`" in readme
     assert "safe user-facing diagnostics" in readme
 
-    internal_names = ["maintainer", "design review", "development instance", "/home/example"]
+    internal_names = ["NC_USER=", "NC_URL=", "utrost@"]
     for name in internal_names:
         assert name not in readme
+    assert not re.search(r"/(?:home|mnt)/[^\s`]+", readme)
 
 
 def test_readme_is_external_user_facing_not_a_full_implementation_log():

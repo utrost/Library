@@ -33,7 +33,7 @@ It does **not** move, copy, rewrite or take ownership of source publication file
 - Vue/Vite browser assets shipped inside the app package;
 - app-specific `occ` commands for author backfill and facet-index maintenance.
 
-Current runtime dependencies are Nextcloud APIs used across the declared 33–35 range plus normal PHP extensions already expected by the deployed Nextcloud environment. Runtime smoke coverage used Nextcloud 33.0.9, 34.0.4 and 35.0.0. PHP `zip`/`ZipArchive` and XML parsing are important for EPUB/CBZ/OPF extraction and sidecar ZIP export. Reader/viewer behaviour is delegated to the installed Nextcloud viewer stack; the `epubviewer` app is useful for EPUB reading in the current development instance test environment but is not declared as a hard app dependency in `appinfo/info.xml`.
+Current runtime dependencies are Nextcloud APIs used across the declared 33–35 range plus normal PHP extensions already expected by the deployed Nextcloud environment. Runtime smoke coverage used Nextcloud 33.0.9, 34.0.4 and 35.0.0. PHP `zip`/`ZipArchive` and XML parsing are important for EPUB/CBZ/OPF extraction and sidecar ZIP export. Reader/viewer behaviour is delegated to the installed Nextcloud viewer stack; the `epubviewer` app is useful for EPUB reading in the current the development instance test environment but is not declared as a hard app dependency in `appinfo/info.xml`.
 
 ## Declared Nextcloud app metadata
 
@@ -66,7 +66,7 @@ Recent security hardening: public parser/scanner/import/job diagnostics are prod
 Required for the app as currently packaged:
 
 - Nextcloud 34.
-- A database supported by Nextcloud migrations/query builder. Development and smoke tests currently run against the development instance Dockerized Nextcloud instance; the migrations use standard Nextcloud schema APIs and app-owned tables.
+- A database supported by Nextcloud migrations/query builder. Development and smoke tests currently run against the the development instance Dockerized Nextcloud instance; the migrations use standard Nextcloud schema APIs and app-owned tables.
 - PHP runtime matching Nextcloud 34.
 - PHP extensions/features:
   - `ZipArchive` / PHP zip extension: used for EPUB metadata/cover extraction, CBZ ComicInfo/cover extraction, and sidecar ZIP export.
@@ -91,7 +91,7 @@ Reader/viewer dependencies are deliberately soft:
 
 - **Read** uses Library's `/apps/library/items/{itemId}/open` route, records `last_opened_at`, then redirects to Nextcloud's stable `/f/{fileId}` route.
 - Actual EPUB/PDF/CBZ rendering is handled by whatever viewer/reader apps are installed.
-- On development instance, `epubviewer`, `files_pdfviewer` and `viewer` are known compatible, but `epubviewer` is not required for installing Library and is not called directly by Library.
+- On the development instance, `epubviewer`, `files_pdfviewer` and `viewer` are known compatible, but `epubviewer` is not required for installing Library and is not called directly by Library.
 
 ### Build and development prerequisites
 

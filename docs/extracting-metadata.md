@@ -96,7 +96,7 @@ Repeated metadata placeholders must capture the same value; otherwise the advanc
 | `Arthur C. Clarke/Space Odyssey/01. 2001 A Space Odyssey - Arthur C. Clarke (1968).epub` | `%folder%/%series%/%seriesNumber%. %title% - %author% (%year%).%extension%` |
 | `Orchard Notes/2.5_Autumn Appendix_Ada Quill.epub` | `%series%/%seriesNumber%_%title%_%author%.%extension%` |
 | `Fiction/The Left Hand of Darkness - Ursula K. Le Guin.epub` | `%folders%/%title% - %author%.%extension%` (supplied **Title - Author** preset) |
-| `An Example Book_ A Guide -- Jane Example -- 1_ Auflage, Hamburg, 2022 -- Example Press -- 9781234567897 -- archive-id -- source.epub` | `%title%_ %subtitle% -- %author% -- %ignore%, %ignore%, %year% -- %publisher% -- %isbn% -- %ignore% -- %ignore%.%extension%` |
+| `An Example Book_ A Guide -- Jane Example -- 1_ Edition, Sample City, 2022 -- Example Press -- 9781234567897 -- archive-id -- source.epub` | `%title%_ %subtitle% -- %author% -- %ignore%, %ignore%, %year% -- %publisher% -- %isbn% -- %ignore% -- %ignore%.%extension%` |
 
 For the path:
 
@@ -210,4 +210,4 @@ Analysis uses only already-indexed publications. It freezes the highest item ID 
 
 An analysis is retained for seven days. At most five unexpired analyses can be saved per account. Choose smaller subfolders if a scope exceeds 100,000 indexed books, 512 KiB of saved rule definitions, 64 KiB for one result or 64 MiB of total result storage. A stopped/limited analysis visibly reports partial results; it is never presented as complete. Expired analyses cannot be reopened and are removed in bounded maintenance runs. Account deletion clears analysis data and queued workers.
 
-The background runner must be configured by the Nextcloud administrator, as for scans. Analysis does not scan source contents, create sidecars, move files or apply metadata automatically. Runtime for a large mixed library has not been measured; alpha.18 was verified with 83 temporary EPUBs on developer Nextcloud 34.0.3/MariaDB. See the [test evidence](compatibility-evidence/2026-09-26-whole-folder-alpha18/README.md).
+The background runner must be configured by the Nextcloud administrator, as for scans. Analysis does not scan source contents, create sidecars, move files or apply metadata automatically. Runtime for a large mixed library has not been measured; alpha.18 was verified with 83 temporary EPUBs on developer Nextcloud 34.0.3/MariaDB. See the test evidence.

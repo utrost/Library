@@ -1,6 +1,6 @@
 # Repeatable performance benchmarks
 
-Baseline: [27 September 2026, alpha.21, large catalogue books](performance/2026-09-27-alpha21/README.md). [Alpha.22 fixes and measurements](performance/2026-09-27-alpha22/README.md) provide the next comparison. [Alpha.23 implementation and verification](performance/2026-09-27-alpha23/README.md) covers bounded scans, additional batching, direct page navigation and administrator cache limits.
+Run benchmarks against a disposable fixture or explicitly selected private account. Keep raw results, screenshots, query plans and catalogue details outside Git. The historical raw baseline was removed from this repository.
 
 ## Everyday loop
 
@@ -39,11 +39,11 @@ python3 scripts/performance/export-aggregates.py \
   --out /tmp/library-cpu-safe
 ```
 
-Sampling uses a 500 µs interval and waits 1.8 seconds after cards appear. Aggregate Library CPU includes code served under both `/apps/library/` and `/custom_apps/library/`; long tasks include Nextcloud and browser work. Raw CPU profiles stay local. Compare repeated visits and source attribution before drawing conclusions from total long-task changes. See [alpha.24 results](performance/2026-09-27-alpha24/README.md).
+Sampling uses a 500 µs interval and waits 1.8 seconds after cards appear. Aggregate Library CPU includes code served under both `/apps/library/` and `/custom_apps/library/`; long tasks include Nextcloud and browser work. Raw CPU profiles stay local. Compare repeated visits and source attribution before drawing conclusions from total long-task changes. See alpha.24 results.
 
 ## Configuration and targeted checks
 
-Defaults: `NC_URL=http://localhost:8088`, `NC_CONTAINER=nextcloud`, `NC_USER=maintainer`. SQL/CLI execution assumes `/var/www/html` and `custom_apps/library`. These are local Docker tools, not a remote-host orchestrator.
+Defaults: `NC_URL=http://localhost:8088`, `NC_CONTAINER=nextcloud`, `NC_USER=example`. SQL/CLI execution assumes `/var/www/html` and `custom_apps/library`. These are local Docker tools, not a remote-host orchestrator.
 
 ```bash
 # Cheap targeted endpoint; SKIP_SQL avoids the temporary app bootstrap edit.

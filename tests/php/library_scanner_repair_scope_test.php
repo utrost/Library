@@ -115,62 +115,62 @@ namespace {
         ['id' => 104, 'rootId' => 1, 'fileId' => 14, 'cachedPath' => '/Books/Moved.pdf'],
     ];
     $roots = new RootService([
-        ['id' => 1, 'userId' => 'development instance', 'path' => '/Books', 'enabled' => true],
-        ['id' => 2, 'userId' => 'development instance', 'path' => '/Books/Comics', 'enabled' => true],
-        ['id' => 3, 'userId' => 'development instance', 'path' => '/Disabled', 'enabled' => false],
+        ['id' => 1, 'userId' => 'example-user', 'path' => '/Books', 'enabled' => true],
+        ['id' => 2, 'userId' => 'example-user', 'path' => '/Books/Comics', 'enabled' => true],
+        ['id' => 3, 'userId' => 'example-user', 'path' => '/Disabled', 'enabled' => false],
         ['id' => 4, 'userId' => 'bob', 'path' => '/Bookshelf', 'enabled' => true],
-        ['id' => 5, 'userId' => 'development instance', 'path' => '/Other', 'enabled' => true],
+        ['id' => 5, 'userId' => 'example-user', 'path' => '/Other', 'enabled' => true],
     ]);
     $rootFolder = new RepairRootFolderStub([
-        'development instance' => new Folder([
-            11 => [new File(11, '/development instance/files/Bookshelf/Outside.pdf')],
-            12 => [new File(12, '/development instance/files/Disabled/Move.pdf')],
-            13 => [new File(13, '/development instance/files/Books/Comics/Inside.pdf')],
-            14 => [new File(14, '/development instance/files/Other/Moved.pdf')],
+        'example-user' => new Folder([
+            11 => [new File(11, '/example-user/files/Bookshelf/Outside.pdf')],
+            12 => [new File(12, '/example-user/files/Disabled/Move.pdf')],
+            13 => [new File(13, '/example-user/files/Books/Comics/Inside.pdf')],
+            14 => [new File(14, '/example-user/files/Other/Moved.pdf')],
         ]),
         'bob' => new Folder([]),
     ]);
 
     foreach (['missing', 'metadata'] as $repairType) {
-        $index = new FileIndexService($repairType === 'missing' ? ['development instance' => $rows] : [], $repairType === 'metadata' ? ['development instance' => $rows] : []);
+        $index = new FileIndexService($repairType === 'missing' ? ['example-user' => $rows] : [], $repairType === 'metadata' ? ['example-user' => $rows] : []);
         $scanner = new LibraryScanner($roots, $index, new ItemService(), new PublicationMetadataService(), $rootFolder);
-        $result = $repairType === 'missing' ? $scanner->recheckMissingFiles('development instance') : $scanner->retryMetadataErrors('development instance');
+        $result = $repairType === 'missing' ? $scanner->recheckMissingFiles('example-user') : $scanner->retryMetadataErrors('example-user');
 
         repairExpect($result['indexed'] === 2, "$repairType repair admits only files currently inside an enabled user root");
         repairExpect($result['roots'] === 3, "$repairType repair reports enabled roots in the repair scope, not historical candidate root IDs");
         repairExpect($index->upserts === [
-            ['development instance', 1, 13, '/Books/Comics/Inside.pdf'],
-            ['development instance', 5, 14, '/Other/Moved.pdf'],
+            ['example-user', 1, 13, '/Books/Comics/Inside.pdf'],
+            ['example-user', 5, 14, '/Other/Moved.pdf'],
         ], "$repairType repair preserves overlapping-root ownership and reassigns a stable-ID move to its current enabled root");
         $scopeErrors = $index->missingErrors;
         repairExpect(count($scopeErrors) === 2, "$repairType repair leaves boundary and disabled-root moves out of scope");
         repairExpect(str_contains($scopeErrors[0][2], 'outside enabled Library roots'), "$repairType repair records a conservative out-of-scope error");
     }
 
-    repairExpect($rootFolder->requestedUsers === ['development instance', 'development instance'], 'repair resolves stable IDs only within the requested user folder');
+    repairExpect($rootFolder->requestedUsers === ['example-user', 'example-user'], 'repair resolves stable IDs only within the requested user folder');
 
     foreach (['missing', 'metadata'] as $repairType) {
         $raceRows = [['id' => 201, 'rootId' => 1, 'fileId' => 21, 'cachedPath' => '/Books/Race.pdf']];
-        $raceIndex = new FileIndexService($repairType === 'missing' ? ['development instance' => $raceRows] : [], $repairType === 'metadata' ? ['development instance' => $raceRows] : []);
-        $enabled = [['id' => 1, 'userId' => 'development instance', 'path' => '/Books', 'enabled' => true]];
-        $handoffPathIndex = new FileIndexService($repairType === 'missing' ? ['development instance' => $raceRows] : [], $repairType === 'metadata' ? ['development instance' => $raceRows] : []);
-        $handoffPathNode = new File(21, '/development instance/files/Books/Race.pdf', static function () use (&$handoffPathNode): void {
-            $handoffPathNode->setPath('/development instance/files/Outside/Race.pdf');
+        $raceIndex = new FileIndexService($repairType === 'missing' ? ['example-user' => $raceRows] : [], $repairType === 'metadata' ? ['example-user' => $raceRows] : []);
+        $enabled = [['id' => 1, 'userId' => 'example-user', 'path' => '/Books', 'enabled' => true]];
+        $handoffPathIndex = new FileIndexService($repairType === 'missing' ? ['example-user' => $raceRows] : [], $repairType === 'metadata' ? ['example-user' => $raceRows] : []);
+        $handoffPathNode = new File(21, '/example-user/files/Books/Race.pdf', static function () use (&$handoffPathNode): void {
+            $handoffPathNode->setPath('/example-user/files/Outside/Race.pdf');
         });
         $handoffPathScanner = new LibraryScanner(
             new RootService($enabled),
             $handoffPathIndex,
             new ItemService(),
             new PublicationMetadataService(),
-            new RepairRootFolderStub(['development instance' => new Folder([21 => [$handoffPathNode]])]),
+            new RepairRootFolderStub(['example-user' => new Folder([21 => [$handoffPathNode]])]),
         );
-        $handoffPathResult = $repairType === 'missing' ? $handoffPathScanner->recheckMissingFiles('development instance') : $handoffPathScanner->retryMetadataErrors('development instance');
+        $handoffPathResult = $repairType === 'missing' ? $handoffPathScanner->recheckMissingFiles('example-user') : $handoffPathScanner->retryMetadataErrors('example-user');
         repairExpect($handoffPathResult['indexed'] === 0 && $handoffPathIndex->upserts === [], "$repairType repair rejects a path change during scanFile metadata evaluation");
         repairExpect(count($handoffPathIndex->missingErrors) === 1, "$repairType scanFile path race remains missing instead of being re-admitted");
 
-        $handoffRootIndex = new FileIndexService($repairType === 'missing' ? ['development instance' => $raceRows] : [], $repairType === 'metadata' ? ['development instance' => $raceRows] : []);
+        $handoffRootIndex = new FileIndexService($repairType === 'missing' ? ['example-user' => $raceRows] : [], $repairType === 'metadata' ? ['example-user' => $raceRows] : []);
         $mutableRoots = new RootService($enabled);
-        $handoffRootNode = new File(21, '/development instance/files/Books/Race.pdf', static function () use ($mutableRoots): void {
+        $handoffRootNode = new File(21, '/example-user/files/Books/Race.pdf', static function () use ($mutableRoots): void {
             $mutableRoots->disableRoot(1);
         });
         $handoffRootScanner = new LibraryScanner(
@@ -178,9 +178,9 @@ namespace {
             $handoffRootIndex,
             new ItemService(),
             new PublicationMetadataService(),
-            new RepairRootFolderStub(['development instance' => new Folder([21 => [$handoffRootNode]])]),
+            new RepairRootFolderStub(['example-user' => new Folder([21 => [$handoffRootNode]])]),
         );
-        $handoffRootResult = $repairType === 'missing' ? $handoffRootScanner->recheckMissingFiles('development instance') : $handoffRootScanner->retryMetadataErrors('development instance');
+        $handoffRootResult = $repairType === 'missing' ? $handoffRootScanner->recheckMissingFiles('example-user') : $handoffRootScanner->retryMetadataErrors('example-user');
         repairExpect($handoffRootResult['indexed'] === 0 && $handoffRootIndex->upserts === [], "$repairType repair rejects a root disabled after handoff to scanFile");
         repairExpect(count($handoffRootIndex->missingErrors) === 1, "$repairType scanFile root race remains missing instead of being re-admitted");
     }

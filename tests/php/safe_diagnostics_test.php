@@ -12,10 +12,10 @@ function safeDiagnosticsExpect(bool $condition, string $message): void {
     }
 }
 
-$secretMessage = 'failed at /var/www/html/data/development instance/files/Books/private.epub while running SELECT * FROM oc_users WHERE token=sk_live_1234567890abcdef';
+$secretMessage = 'failed at /var/www/html/data/example-user/files/Books/private.epub while running SELECT * FROM oc_users WHERE token=sk_live_1234567890abcdef';
 $exception = new RuntimeException($secretMessage);
 $diagnostic = SafeDiagnostics::fromThrowable('metadata_extraction_failed', 'Metadata extraction failed. Review the source file or retry later.', $exception, [
-    'userId' => 'development instance',
+    'userId' => 'example-user',
     'path' => '/Books/private.epub',
     'title' => 'Private Book Title',
 ]);
@@ -40,7 +40,7 @@ safeDiagnosticsExpect(str_contains($logContext['exception_message'], '/var/www/h
 safeDiagnosticsExpect(str_contains($logContext['exception_message'], 'SELECT *'), 'server log context keeps parser/database detail');
 safeDiagnosticsExpect(str_contains($logContext['exception_message'], 'sk_live_'), 'server log context keeps raw token-like detail for server-only debugging');
 safeDiagnosticsExpect(!array_key_exists('title', $logContext), 'publication metadata is not copied to log context');
-safeDiagnosticsExpect(($logContext['user_id'] ?? '') === 'development instance', 'low-risk context keeps user id');
+safeDiagnosticsExpect(($logContext['user_id'] ?? '') === 'example-user', 'low-risk context keeps user id');
 safeDiagnosticsExpect(($logContext['path'] ?? '') === '/Books/private.epub', 'low-risk context keeps app-relative path');
 
 $short = SafeDiagnostics::fromThrowable('root_scan_failed', 'Library root scan failed. Check server logs with the diagnostic id.', $exception);

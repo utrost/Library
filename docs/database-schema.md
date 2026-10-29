@@ -84,7 +84,7 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 - Administrator thumbnail budgets/retention use app configuration.
 - System tags and file comments use Nextcloud APIs and core storage.
 
-Expiry and deletion behavior is documented in [metadata storage](metadata-storage.md), [duplicate review](duplicate-review.md), [automatic scans](automatic-scans.md) and the [user guide](user-guide.md). Current performance and verification limits are in the [alpha.24 report](performance/2026-09-27-alpha24/README.md).
+Expiry and deletion behavior is documented in [metadata storage](metadata-storage.md), [duplicate review](duplicate-review.md), [automatic scans](automatic-scans.md) and the [user guide](user-guide.md). Current performance and verification limits are in the alpha.24 report.
 
 ## Series assignments (0.3.0-alpha.9)
 
@@ -96,7 +96,7 @@ Expiry and deletion behavior is documented in [metadata storage](metadata-storag
 
 `library_items.author_sync_status` is an indexed small integer: 0 = synced shadow relationships, 1 = pending, 2 = protected-assignment conflict, 3 = failed. Existing and new rows default to pending. Author-changing writes requeue the row atomically; bounded cron batches reconcile current metadata under an item lock. Per-user coordination serializes identity reuse, while non-unique comparison keys allow homonyms. No full-library backfill runs during the schema upgrade.
 
-The old arrays remain authoritative until the later read-integration slice explicitly switches over. See the [author implementation concept and operator commands](v0.3-author-management.md#storage-slice--030-alpha1). Fresh and populated-upgrade checks and full-library backfill measurements are recorded in the [0.3-alpha.1 report](compatibility-evidence/2026-10-13-author-management-alpha1/README.md). The earlier complete Doctrine-to-XML replay above applies only to the older schema; the XML contract now includes all author fields and indexes.
+The old arrays remain authoritative until the later read-integration slice explicitly switches over. See the [author implementation concept and operator commands](v0.3-author-management.md#storage-slice--030-alpha1). Fresh and populated-upgrade checks and full-library backfill measurements are recorded in the 0.3-alpha.1 report. The earlier complete Doctrine-to-XML replay above applies only to the older schema; the XML contract now includes all author fields and indexes.
 
 ### Assignment and display additions (0.3.0-alpha.2)
 

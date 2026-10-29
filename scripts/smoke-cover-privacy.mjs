@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { randomBytes } from 'node:crypto'
 
 const upstream = process.env.NC_URL || 'http://localhost:8088'
-const primaryUser = process.env.NC_USER || 'maintainer'
+const primaryUser = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const chromeBin = process.env.CHROME_BIN || 'google-chrome'
 const tokenPrefix = `library-cover-privacy-${Date.now()}`

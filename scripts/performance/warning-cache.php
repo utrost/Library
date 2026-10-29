@@ -1,7 +1,7 @@
 <?php
 /** Developer-only targeted warning recovery/cache benchmark. No source file writes. */
 declare(strict_types=1);define('OC_CONSOLE',true);require '/var/www/html/lib/base.php';
-$uid=getenv('NC_USER')?:'maintainer';$mode=$argv[1]??'cached';
+$uid=getenv('NC_USER')?:'example';$mode=$argv[1]??'cached';
 try {
  if(!in_array($mode,['recover','prime','cached'],true))throw new RuntimeException('Unknown mode');
  $db=\OC::$server->get(\OCP\IDBConnection::class);$r=$db->executeQuery('SELECT COUNT(*) FROM *PREFIX*library_scan_jobs WHERE user_id=? AND status IN (?,?)',[$uid,'queued','running']);if((int)$r->fetchOne())throw new RuntimeException('Account scan is active');$r->closeCursor();

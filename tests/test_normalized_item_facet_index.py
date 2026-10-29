@@ -68,7 +68,7 @@ def test_facet_search_keys_include_canonical_and_normalized_token_starts():
 
     assert "mb_strtolower(mb_substr(trim($value), 0, 255))" in generator
     assert "preg_split('/[^\\p{L}\\p{N}]+/u', $canonical" in generator
-    assert "anton, maintainer" in generator and "maintainer" in generator
+    assert "anton, example" in generator and "example" in generator
     assert "aavaa-verlag" in generator and "verlag" in generator
 
 

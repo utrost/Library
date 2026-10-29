@@ -125,7 +125,7 @@ const state = {
     tagRemoveBaseUrl: '/apps/library/items/7/tags/__TAG_ID__',
     commentUrl: '/apps/library/items/7/comments',
     nextcloudTags: [{ id: 3, name: 'photography' }],
-    nextcloudComments: { count: 1, recent: [{ actorId: 'maintainer', createdAt: '2026-09-05', message: 'note' }] },
+    nextcloudComments: { count: 1, recent: [{ actorId: 'example', createdAt: '2026-09-05', message: 'note' }] },
   }],
 }
 
@@ -1701,14 +1701,14 @@ describe('Library catalogue Vue app', () => {
   })
 
   it('labels the surname filter as Author and submits typed surnames without requiring a suggestion', async () => {
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, creator: 'Heinlein' } }) })
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...state, activeFilters: { ...state.activeFilters, creator: 'Austen' } }) })
     const wrapper = mount(App, { props: { state: { ...state, catalogueEndpointUrl: '/apps/library/catalogue' } } })
     const form = wrapper.get('form.library-sidebar-filters')
     expect(form.get('label[for="library-creator-search"]').text()).toBe('Author')
     expect(wrapper.get('#library-main-search').attributes('placeholder')).toContain('author')
-    await form.get('input[name="creatorSearch"]').setValue('Heinlein')
+    await form.get('input[name="creatorSearch"]').setValue('Austen')
     await form.trigger('submit')
-    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?creator=Heinlein', expect.any(Object)))
+    await vi.waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/apps/library/catalogue?creator=Austen', expect.any(Object)))
   })
 
   it.each([

@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { chromium, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const upstream = process.env.NC_URL || 'http://localhost:8088'
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const tokenName = `library-inference-smoke-${Date.now()}`
 const occ = (...args) => execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', 'occ', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })

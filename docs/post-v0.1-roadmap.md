@@ -176,7 +176,7 @@ Everything below preserves earlier planning and evidence. It is not the current 
 
 Historical 0.2 progression: alpha.21 implemented [automatic scans](automatic-scans.md) with per-account intervals, scan history and unchanged-file extraction skips. Alpha.23 added bounded folder traversal; alpha.28 added event-journal incremental scheduled scans and weekly full reconciliation.
 
-Historical 0.2 progression: alpha.20 added opportunistic catalogue badges and metadata-sidebar suggestions measured against large catalogue books. See the [performance evidence](compatibility-evidence/2026-09-27-opportunistic-duplicates-alpha20/README.md). Later developer runs covered large catalogue catalogue items; this older measurement is not the current scale claim.
+Historical 0.2 progression: alpha.20 added opportunistic catalogue badges and metadata-sidebar suggestions measured against a large catalogue. See the performance evidence. Later developer runs covered catalogue items; this older measurement is not the current scale claim.
 
 Alpha.19: [possible duplicate review](duplicate-review.md) is implemented. Private background discovery, optional content hashes, comparison evidence and reversible review decisions are available. Automatic deletion, merging and work/edition grouping remain future scope.
 
@@ -371,4 +371,4 @@ Prefer this order unless testing says otherwise:
 
 That keeps Library faithful to its core idea: files stay in Nextcloud, metadata improvements stay inspectable, and user corrections stay safe.
 
-Latest author assignment implementation and developer verification: [0.3-alpha.2 report](compatibility-evidence/2026-10-13-author-assignments-alpha2/README.md).
+Latest author assignment implementation and developer verification: 0.3-alpha.2 report.

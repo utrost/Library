@@ -1,10 +1,10 @@
 # Personal Top Features Scope
 
 Status: product-priority scope, not all implemented yet  
-Audience: maintainer, contributors, early testers  
-Source: maintainer's personal top features, 2026-09-07
+Audience: the maintainer, contributors, early testers
+Source: the maintainer's personal top features, 2026-09-07
 
-This document scopes maintainer's personal top features for Library and translates them into small, testable implementation slices. It deliberately separates current support from the recommended next build order.
+This document scopes the maintainer's personal top features for Library and translates them into small, testable implementation slices. It deliberately separates current support from the recommended next build order.
 
 ## Feedback summary
 

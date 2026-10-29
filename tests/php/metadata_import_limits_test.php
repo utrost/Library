@@ -17,8 +17,8 @@ function metadataImportExpect(bool $condition, string $message): void {
 }
 
 $service = (new ReflectionClass(ItemService::class))->newInstanceWithoutConstructor();
-$preview = static fn (string $json): array => $service->previewCorrectedMetadataImport('development instance', $json);
-$apply = static fn (string $json): array => $service->applyCorrectedMetadataImport('development instance', $json);
+$preview = static fn (string $json): array => $service->previewCorrectedMetadataImport('example-user', $json);
+$apply = static fn (string $json): array => $service->applyCorrectedMetadataImport('example-user', $json);
 
 $limit = (new ReflectionClass(ItemService::class))->getConstant('METADATA_IMPORT_MAX_JSON_BYTES');
 metadataImportExpect(is_int($limit) && $limit > 0, 'documented byte limit constant exists');

@@ -103,16 +103,16 @@ final class FakeLogger implements LoggerInterface {
 }
 
 $db = new FakeDb(); $logger = new FakeLogger(); $service = new ScanJobService($db, $logger);
-$queued = $service->queueJob('development instance');
-serviceExpect($queued['id'] === 1 && $service->markRunning('development instance', 1), 'create and markRunning return concrete success');
-$service->updateProgress('development instance', 1, ['indexed' => 7, 'fingerprintSkips' => 3]);
-serviceExpect($service->cancelJob('development instance', 1), 'running cancellation succeeds');
-serviceExpect(!$service->cancelJob('development instance', 1), 'repeated cancellation is rejected');
+$queued = $service->queueJob('example-user');
+serviceExpect($queued['id'] === 1 && $service->markRunning('example-user', 1), 'create and markRunning return concrete success');
+$service->updateProgress('example-user', 1, ['indexed' => 7, 'fingerprintSkips' => 3]);
+serviceExpect($service->cancelJob('example-user', 1), 'running cancellation succeeds');
+serviceExpect(!$service->cancelJob('example-user', 1), 'repeated cancellation is rejected');
 serviceExpect(count($logger->events) === 1 && $logger->events[0][0] === 'library.scan.cancelled', 'successful transition owns exactly one cancellation event');
-$before = $db->rows[1]; $service->updateProgress('development instance', 1, ['indexed' => 99]);
+$before = $db->rows[1]; $service->updateProgress('example-user', 1, ['indexed' => 99]);
 serviceExpect($db->rows[1] === $before, 'stale progress cannot revive a terminal job');
 serviceExpect($logger->events[0][1]['indexed'] === 7 && $logger->events[0][1]['fingerprint_skips'] === 3, 'cancel event uses persisted aggregates');
-serviceExpect($logger->events[0][1]['user_id'] === 'development instance' && $logger->events[0][1]['job_id'] === 1, 'cancel event includes correlation identifiers');
+serviceExpect($logger->events[0][1]['user_id'] === 'example-user' && $logger->events[0][1]['job_id'] === 1, 'cancel event includes correlation identifiers');
 $expectedKeys = ['event_schema', 'job_id', 'user_id', 'scope_type', 'outcome', 'worker_metrics_available', 'queue_wait_ms', 'progress_writes', 'cancel_checks', 'roots', 'indexed', 'fingerprint_skips', 'metadata_extractions', 'item_refreshes', 'scanner_duration_ms', 'file_index_duration_ms', 'fingerprint_duration_ms', 'metadata_extraction_duration_ms', 'item_refresh_duration_ms', 'missing_update_duration_ms'];
 serviceExpect(array_keys($logger->events[0][1]) === $expectedKeys, 'cancel event has the exact stable allowlist');
 serviceExpect($logger->events[0][1]['worker_metrics_available'] === false, 'service-owned cancellation marks worker-only metrics unavailable');
@@ -120,27 +120,27 @@ foreach (['progress_writes', 'cancel_checks', 'file_index_duration_ms', 'fingerp
     serviceExpect($logger->events[0][1][$unavailableKey] === null, "cancel event does not publish unknown {$unavailableKey} as zero");
 }
 serviceExpect($logger->events[0][1]['queue_wait_ms'] >= 0 && $logger->events[0][1]['scanner_duration_ms'] >= 0, 'cancel event keeps derivable timing metrics numeric');
-$queued2 = $service->queueJob('development instance');
+$queued2 = $service->queueJob('example-user');
 $db->rows[$queued2['id']]['started_at'] = time() - 3;
-serviceExpect($service->cancelJob('development instance', $queued2['id']) && !$service->cancelJob('development instance', $queued2['id']), 'queued cancellation transitions once');
+serviceExpect($service->cancelJob('example-user', $queued2['id']) && !$service->cancelJob('example-user', $queued2['id']), 'queued cancellation transitions once');
 serviceExpect($db->rows[$queued2['id']]['duration_ms'] === 0, 'queued cancellation records zero duration');
 serviceExpect($logger->events[1][1]['queue_wait_ms'] >= 3000, 'queued cancellation derives queue wait from persisted start and finish timestamps');
 serviceExpect(count($logger->events) === 2, 'queued cancellation logs exactly once');
-$runningCancellation = $service->queueJob('development instance'); $service->markRunning('development instance', $runningCancellation['id']);
+$runningCancellation = $service->queueJob('example-user'); $service->markRunning('example-user', $runningCancellation['id']);
 $db->rows[$runningCancellation['id']]['run_started_at'] = time() - 2;
-serviceExpect($service->cancelJob('development instance', $runningCancellation['id']), 'running cancellation succeeds');
+serviceExpect($service->cancelJob('example-user', $runningCancellation['id']), 'running cancellation succeeds');
 serviceExpect($db->rows[$runningCancellation['id']]['duration_ms'] >= 2000, 'running cancellation preserves elapsed duration');
-$racingCancellation = $service->queueJob('development instance'); $db->startBeforeQueuedCancellation = $racingCancellation['id'];
-serviceExpect($service->cancelJob('development instance', $racingCancellation['id']), 'queued-to-running cancellation race succeeds');
+$racingCancellation = $service->queueJob('example-user'); $db->startBeforeQueuedCancellation = $racingCancellation['id'];
+serviceExpect($service->cancelJob('example-user', $racingCancellation['id']), 'queued-to-running cancellation race succeeds');
 serviceExpect($db->rows[$racingCancellation['id']]['status'] === 'cancelled' && $db->rows[$racingCancellation['id']]['duration_ms'] >= 2000, 'queued-to-running cancellation race preserves elapsed duration');
 serviceExpect(count($logger->events) === 4, 'each successful cancellation logs exactly once');
-$terminalRace = $service->queueJob('development instance'); $service->markRunning('development instance', $terminalRace['id']);
+$terminalRace = $service->queueJob('example-user'); $service->markRunning('example-user', $terminalRace['id']);
 $db->finishBeforeRunningCancellation = $terminalRace['id']; $eventsBeforeTerminalRace = count($logger->events);
-serviceExpect(!$service->cancelJob('development instance', $terminalRace['id']), 'terminal race rejects cancellation');
+serviceExpect(!$service->cancelJob('example-user', $terminalRace['id']), 'terminal race rejects cancellation');
 serviceExpect($db->rows[$terminalRace['id']]['status'] === 'completed' && count($logger->events) === $eventsBeforeTerminalRace, 'terminal race does not overwrite or log');
-$running2 = $service->queueJob('development instance'); $service->markRunning('development instance', $running2['id']);
-$service->updateProgress('development instance', $running2['id'], ['roots' => 2, 'indexed' => 8, 'filesAdded' => 4, 'metadataExtractions' => 2]);
-serviceExpect($service->failJob('development instance', $running2['id'], 'failed', ['roots' => 2, 'indexed' => 9, 'filesAdded' => 4, 'metadataExtractions' => 3, 'scannerDurationMs' => 41]), 'running failure transitions atomically');
+$running2 = $service->queueJob('example-user'); $service->markRunning('example-user', $running2['id']);
+$service->updateProgress('example-user', $running2['id'], ['roots' => 2, 'indexed' => 8, 'filesAdded' => 4, 'metadataExtractions' => 2]);
+serviceExpect($service->failJob('example-user', $running2['id'], 'failed', ['roots' => 2, 'indexed' => 9, 'filesAdded' => 4, 'metadataExtractions' => 3, 'scannerDurationMs' => 41]), 'running failure transitions atomically');
 serviceExpect($db->rows[$running2['id']]['files_indexed'] === 9 && $db->rows[$running2['id']]['files_added'] === 4 && $db->rows[$running2['id']]['metadata_extractions'] === 3 && $db->rows[$running2['id']]['duration_ms'] === 41, 'failure preserves latest aggregate metrics and monotonic duration');
 $stale = $service->queueJob('bob'); $service->markRunning('bob', $stale['id']);
 $db->rows[$stale['id']]['last_progress_at'] = time() - ScanJobService::STALE_RUNNING_AFTER_SECONDS - 5;
@@ -160,10 +160,10 @@ serviceExpect($queuedTooLong['queueWarning'] === 'waiting_for_nextcloud_backgrou
 serviceExpect($db->rows[$oldQueued['id']]['status'] === 'queued', 'queue polling is observational and does not fail the job');
 $freshQueued = $service->queueJob('carol');
 serviceExpect($freshQueued['queuedSeconds'] >= 0 && $freshQueued['isQueuedTooLong'] === false && $freshQueued['queueWarning'] === '', 'fresh queued job reports normal worker wait');
-$queued3 = $service->queueJob('development instance'); $logger->fail = true;
-serviceExpect($service->cancelJob('development instance', $queued3['id']), 'logger failure does not change queued cancellation success');
+$queued3 = $service->queueJob('example-user'); $logger->fail = true;
+serviceExpect($service->cancelJob('example-user', $queued3['id']), 'logger failure does not change queued cancellation success');
 $badDb = new FakeDb(); $badDb->invalidLastId = true; $badService = new ScanJobService($badDb, new FakeLogger());
-try { $badService->queueJob('development instance'); throw new RuntimeException('invalid insert id did not fail closed'); }
+try { $badService->queueJob('example-user'); throw new RuntimeException('invalid insert id did not fail closed'); }
 catch (RuntimeException $e) { serviceExpect($e->getMessage() === 'Unable to resolve inserted scan job', 'invalid insert id fails closed'); }
 fwrite(STDOUT, "scan job service runtime tests: OK\n");
 }

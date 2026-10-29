@@ -6,7 +6,7 @@ import { randomBytes } from 'node:crypto'
 import { writeFileSync } from 'node:fs'
 import { chromium,expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
-const base=process.env.NC_URL||'http://localhost:8088',container=process.env.NC_CONTAINER||'nextcloud',admin=process.env.NC_USER||'maintainer',out=createEvidenceDirectory('library-thumbnail-settings')
+const base=process.env.NC_URL||'http://localhost:8088',container=process.env.NC_CONTAINER||'nextcloud',admin=process.env.NC_USER||'example',out=createEvidenceDirectory('library-thumbnail-settings')
 
 const actor='library-thumbnail-smoke-'+randomBytes(6).toString('hex'),tokenName='library-thumbnail-settings-'+Date.now(),tokens=[]
 const docker=(args)=>execFileSync('docker',args,{encoding:'utf8',stdio:['ignore','pipe','pipe']}),occ=(...args)=>docker(['exec','-u','www-data',container,'php','occ',...args])

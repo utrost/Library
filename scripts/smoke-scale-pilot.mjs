@@ -2,13 +2,13 @@ import { decodeHtmlAttribute } from './html-attribute.mjs'
 import { execFileSync } from 'node:child_process'
 
 const count = Number(process.argv[2] || 100)
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const upstream = process.env.NC_URL || 'http://localhost:8088'
 const rootName = `LibraryScale-${count}-${Date.now()}`
 const rootPath = `/${rootName}`
 const dataDir = `/var/www/html/data/${user}/files/${rootName}`
-const tokenName = `design review-library-scale-${count}-${Date.now()}`
+const tokenName = `library-library-scale-${count}-${Date.now()}`
 const timings = {}
 
 function now() { return Date.now() }

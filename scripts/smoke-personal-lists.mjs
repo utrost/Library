@@ -6,7 +6,7 @@ import { chromium, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 
 const upstream = process.env.NC_URL || 'http://localhost:8088'
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const tokenName = `library-lists-smoke-${Date.now()}`
 const screenshot = process.env.LIBRARY_LISTS_SCREENSHOT || '/tmp/library-dev-lists.png'

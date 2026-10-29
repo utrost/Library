@@ -5,7 +5,7 @@ import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const upstream = process.env.NC_URL || 'http://localhost:8088'
-const user = process.env.NC_USER || 'maintainer', container = process.env.NC_CONTAINER || 'nextcloud'
+const user = process.env.NC_USER || 'example', container = process.env.NC_CONTAINER || 'nextcloud'
 const evidence = createEvidenceDirectory('library-alpha13-evidence')
 
 const tokenName = `library-guided-smoke-${Date.now()}`

@@ -76,7 +76,7 @@ namespace {
         public function getParam(string $key, mixed $default = null): mixed { return $this->params[$key] ?? $default; }
     };
     $session = new class implements \OCP\IUserSession {
-        public function getUser(): object { return new class { public function getUID(): string { return 'development instance'; } }; }
+        public function getUser(): object { return new class { public function getUID(): string { return 'example-user'; } }; }
     };
     $urls = new class implements \OCP\IURLGenerator {
         public function linkToRoute(string $route, array $params = []): string { return '/items/' . ($params['itemId'] ?? ''); }
@@ -138,7 +138,7 @@ namespace {
         expectController($successfulResponse->url === '/items/?details=7&coverRefresh=1', 'successful upload redirects through a cache-busting detail render');
 
         $revertResponse = $controller->revert(7);
-        expectController($itemService->clearCalls === [['userId' => 'development instance', 'itemId' => 7]], 'revert clears the manual cover once');
+        expectController($itemService->clearCalls === [['userId' => 'example-user', 'itemId' => 7]], 'revert clears the manual cover once');
         expectController($revertResponse->url === '/items/?details=7&coverRefresh=1', 'revert redirects through a cache-busting detail render');
     } finally {
         unset($_FILES['coverOverrideFile']);

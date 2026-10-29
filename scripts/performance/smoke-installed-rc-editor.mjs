@@ -5,7 +5,7 @@ import { chromium, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from '../temporary-app-password.mjs'
 
 const upstream = process.env.NC_URL || 'http://localhost:8088'
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const itemId = Number(process.env.LIBRARY_SMOKE_ITEM_ID)
 assert.ok(Number.isSafeInteger(itemId) && itemId > 0, 'Set LIBRARY_SMOKE_ITEM_ID to an owned book ID')

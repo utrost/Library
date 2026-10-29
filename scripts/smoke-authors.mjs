@@ -8,7 +8,7 @@ import { execFileSync } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
-const upstream=process.env.NC_URL || 'http://localhost:8088', user=process.env.NC_USER || 'maintainer', container=process.env.NC_CONTAINER || 'nextcloud'
+const upstream=process.env.NC_URL || 'http://localhost:8088', user=process.env.NC_USER || 'example', container=process.env.NC_CONTAINER || 'nextcloud'
 const evidence=createEvidenceDirectory('authors')
 
 const name=`Library metadata smoke ${Date.now()}`,tokenName=name.replaceAll(' ','-')

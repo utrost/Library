@@ -15,7 +15,7 @@ No suggestions means **no unreviewed suggestions found**, not proof that a book 
 
 Disabling suggestions stops automatic checks and incremental updates. It retains the derived index and review decisions; re-enabling rebuilds the index. Account deletion removes this private data. Manual review decisions created before alpha.20 remain in saved scans but are not backfilled into the new suggestion index, so those pairs may need reviewing once more.
 
-Measured on **large catalogue books**: around 26 ms median HTTP time for one book and 137 ms for 100 visible books, with about 161 MiB of database storage. Initial indexing has a noticeable temporary impact on catalogue requests. See the [measurement and verification report](compatibility-evidence/2026-09-27-opportunistic-duplicates-alpha20/README.md) for timings, limits and evidence.
+Measured on **a large catalogue**: around 26 ms median HTTP time for one book and 137 ms for 100 visible books, with about 161 MiB of database storage. Initial indexing has a noticeable temporary impact on catalogue requests. See the measurement and verification report for timings, limits and evidence.
 
 ## Run an explicit scan
 
@@ -74,4 +74,4 @@ Lookup uses valid ISBNs and normalized author/title keys; optional content check
 
 Private `library_dup_jobs`, `library_dup_books`, `library_dup_keys` and `library_dup_pairs` tables hold expiring scan state. `library_dup_choices` stores revision-bound decisions. Account deletion removes all five tables' owned records and queued duplicate jobs. Expired snapshots are removed in bounded maintenance chunks. POST endpoints require normal Nextcloud authentication and CSRF protection; reads and decisions recheck ownership and live source access.
 
-See the [developer 34 verification report](compatibility-evidence/2026-09-26-duplicates-alpha19/README.md). Nextcloud 33/35 and other database providers have not been rerun for this slice.
+See the developer 34 verification report. Nextcloud 33/35 and other database providers have not been rerun for this slice.

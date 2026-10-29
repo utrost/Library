@@ -3,7 +3,7 @@ import {execFileSync} from 'node:child_process'
 import {writeFileSync,appendFileSync,readFileSync,lstatSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {createEvidenceDirectory} from '../private-evidence-directory.mjs'
-const container=process.env.NC_CONTAINER||'nextcloud',uid=process.env.NC_USER||'maintainer'
+const container=process.env.NC_CONTAINER||'nextcloud',uid=process.env.NC_USER||'example'
 const resume=process.env.RESUME==='1'
 if(resume&&!process.env.EVIDENCE_DIR)throw new Error('RESUME requires the exact evidence_dir printed by the initial run')
 const out=resume?resolve(process.env.EVIDENCE_DIR):createEvidenceDirectory('library-full-scheduled-scan')

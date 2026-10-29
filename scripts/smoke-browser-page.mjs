@@ -47,10 +47,10 @@ const upstream = process.env.NC_URL || 'http://localhost:8088'
 const libraryScriptFile = releaseFrontendFiles().find((file) => file.startsWith('js/library-main-') && file.endsWith('.mjs'))?.slice(3)
 if (!libraryScriptFile) throw new Error('Current Library frontend asset is missing from the release manifest')
 const escapedLibraryScriptFile = libraryScriptFile.replaceAll('.', '\\.')
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const chromeBin = process.env.CHROME_BIN || 'google-chrome'
-const tokenName = `design review-library-browser-smoke-${Date.now()}`
+const tokenName = `library-library-browser-smoke-${Date.now()}`
 const chromePort = Number(process.env.CHROME_DEBUG_PORT || 19223)
 const expectedBasicCards = Number(process.env.LIBRARY_BROWSER_EXPECTED_CARDS || 1)
 const inboundAuthorization = randomBytes(32).toString('base64url')
@@ -1756,7 +1756,7 @@ async function runBrowserSmoke(proxyBase, proxy) {
     }
 
     const originalPublication = applyItem?.publication || ''
-    const smokePublication = `design review batch apply smoke ${Date.now()}`
+    const smokePublication = `Design review batch apply smoke ${Date.now()}`
     let batchWriteDom = null
     let applySmoke = { ok: false, restored: false }
     if (applyItem) {

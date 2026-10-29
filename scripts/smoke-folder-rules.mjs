@@ -5,7 +5,7 @@ import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 import { newPart, newRule } from '../src/path-inference-rule.js'
-const upstream=process.env.NC_URL || 'http://localhost:8088', user=process.env.NC_USER || 'maintainer', container=process.env.NC_CONTAINER || 'nextcloud'
+const upstream=process.env.NC_URL || 'http://localhost:8088', user=process.env.NC_USER || 'example', container=process.env.NC_CONTAINER || 'nextcloud'
 const evidence=createEvidenceDirectory('library-alpha14-evidence')
 
 const tokenName=`library-folder-smoke-${Date.now()}`

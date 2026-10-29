@@ -62,18 +62,18 @@ namespace {
     }
 
     $service = new FileIndexService(new CoverSelectionDb([
-        'development instance' => [11 => true, 12 => true, 13 => true],
+        'example-user' => [11 => true, 12 => true, 13 => true],
         'bob' => [14 => true],
     ]));
 
-    expectCoverSelection($service->coverRefreshItemIds('development instance', [11, 12]) === [11, 12], 'selected A/B must be refreshed');
-    expectCoverSelection($service->coverRefreshItemIds('development instance', [11, 12]) !== [11, 12, 13], 'visible filtered C must not be refreshed');
-    expectCoverSelection($service->coverRefreshItemIds('development instance', [11, 14]) === [11], 'unauthorized IDs must be excluded');
+    expectCoverSelection($service->coverRefreshItemIds('example-user', [11, 12]) === [11, 12], 'selected A/B must be refreshed');
+    expectCoverSelection($service->coverRefreshItemIds('example-user', [11, 12]) !== [11, 12, 13], 'visible filtered C must not be refreshed');
+    expectCoverSelection($service->coverRefreshItemIds('example-user', [11, 14]) === [11], 'unauthorized IDs must be excluded');
     foreach ([null, [], '11', [0], [-1], ['1x'], [11, 'bad']] as $invalid) {
-        expectCoverSelection($service->coverRefreshItemIds('development instance', $invalid) === [], 'invalid IDs must fail closed');
+        expectCoverSelection($service->coverRefreshItemIds('example-user', $invalid) === [], 'invalid IDs must fail closed');
     }
     try {
-        $service->coverRefreshItemIds('development instance', range(1, 5001));
+        $service->coverRefreshItemIds('example-user', range(1, 5001));
         throw new RuntimeException('over-limit IDs must be rejected');
     } catch (BatchLimitExceededException) {
     }

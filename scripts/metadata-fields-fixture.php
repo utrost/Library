@@ -3,7 +3,7 @@
 declare(strict_types=1);
 define('OC_CONSOLE', true);
 require '/var/www/html/lib/base.php';
-$user = getenv('LIBRARY_SMOKE_USER') ?: 'maintainer';
+$user = getenv('LIBRARY_SMOKE_USER') ?: 'example';
 $name = getenv('LIBRARY_SMOKE_NAME') ?: '';
 if (!preg_match('/^Library metadata smoke [0-9]+$/D', $name)) throw new RuntimeException('Invalid fixture name');
 $home = \OC::$server->get(\OCP\Files\IRootFolder::class)->getUserFolder($user);

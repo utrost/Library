@@ -6,12 +6,12 @@ namespace OCP\Files {
     class File extends Node {
         public function __construct(private string $name, private string $mime = 'text/plain') {}
         public function getName(): string { return $this->name; } public function getMimetype(): string { return $this->mime; }
-        public function getId(): int { return crc32($this->name); } public function getPath(): string { return '/development instance/files/'.$this->name; }
+        public function getId(): int { return crc32($this->name); } public function getPath(): string { return '/example-user/files/'.$this->name; }
         public function getEtag(): string { return 'etag'; } public function getMTime(): int { return 1; } public function getSize(): int { return 10; }
         public function getParent(): ?Folder { return null; }
     }
     class Folder extends Node {
-        public function __construct(private array $children, private ?\Closure $onListing = null, private array $paths = [], private string $path = '/development instance/files') {}
+        public function __construct(private array $children, private ?\Closure $onListing = null, private array $paths = [], private string $path = '/example-user/files') {}
         public function getDirectoryListing(): array { if ($this->onListing) ($this->onListing)(); return $this->children; }
         public function getName(): string { return 'folder-' . spl_object_id($this); }
         public function get(string $path): Node { if (isset($this->paths[$path])) return $this->paths[$path]; foreach ($this->children as $child) if ($child instanceof Folder && $child->getName() === $path) return $child; throw new \RuntimeException('missing path'); }
@@ -23,7 +23,7 @@ namespace OCA\Library\Metadata {
     class PublicationMetadataService {
         public const PIPELINE_REVISION = 1; public bool $failExtraction = false;
         public function metadataInputFingerprint($node, int $root): string { return 'fp'; }
-        public function extractWithSidecar($node): array { if ($this->failExtraction) throw new \RuntimeException('extract failed at /var/www/html/data/development instance/files/private.pdf SELECT token=sk_live_secret'); return []; }
+        public function extractWithSidecar($node): array { if ($this->failExtraction) throw new \RuntimeException('extract failed at /var/www/html/data/example-user/files/private.pdf SELECT token=sk_live_secret'); return []; }
         public function getLastError(): ?string { return null; }
     }
     class MetadataFastPathDecision { public static function shouldSkipWarning(...$args):bool{return false;} public static function deterministicWarning(...$args):bool{return false;} public static function shouldSkip(...$args): bool { return false; } public static function shouldMarkProcessed(...$args): bool { return true; } }
@@ -60,12 +60,12 @@ namespace {
     $now = 0; $listing = static function () use (&$now): void { $now += 1_000_000_000; };
     $nested = new Folder([new Folder([], $listing), new Folder([new File('ignored.txt')], $listing)], $listing);
     $scanner = new LibraryScanner(new RootService(), new FileIndexService(), new ItemService(), new \OCA\Library\Metadata\PublicationMetadataService(), new RootFolderStub($nested), new MonotonicClock(static function () use (&$now): int { return $now; }));
-    $progress = []; $result = $scanner->scan('development instance', null, static function(array $p) use (&$progress): void { $progress[]=$p; });
+    $progress = []; $result = $scanner->scan('example-user', null, static function(array $p) use (&$progress): void { $progress[]=$p; });
     traversalExpect($result['indexed'] === 0, 'unsupported and empty traversal does not alter indexed count');
     traversalExpect(count(array_filter($progress, static fn(array $p): bool => ($p['traversalUnits'] ?? 0) > 0)) >= 1, 'traversal checkpoints occur through nested or empty folders');
     $now = 0; $files = []; for($i=0;$i<205;$i++) $files[]=new File("ignored-$i.txt");
     $scanner = new LibraryScanner(new RootService(), new FileIndexService(), new ItemService(), new \OCA\Library\Metadata\PublicationMetadataService(), new RootFolderStub(new Folder($files)), new MonotonicClock(static fn(): int => $now));
-    $progress=[]; $result = $scanner->scan('development instance', null, static function(array $p) use (&$progress): void { $progress[]=$p; });
+    $progress=[]; $result = $scanner->scan('example-user', null, static function(array $p) use (&$progress): void { $progress[]=$p; });
     $units=array_column($progress,'traversalUnits');
     traversalExpect($result['indexed'] === 0, 'unsupported-node traversal preserves zero indexed count');
     traversalExpect(max(array_column($progress,'indexed')) === 0, 'checkpoint payload preserves indexed count');
@@ -73,14 +73,14 @@ namespace {
     $metadata = new \OCA\Library\Metadata\PublicationMetadataService(); $metadata->failExtraction = true;
     $failedIndex = new FileIndexService();
     $scanner = new LibraryScanner(new RootService(), $failedIndex, new ItemService(), $metadata, new RootFolderStub(new Folder([new File('broken.pdf','application/pdf')])));
-    $result = $scanner->scan('development instance');
+    $result = $scanner->scan('example-user');
     traversalExpect($result['metadataExtractions'] === 1 && $result['itemRefreshes'] === 0, 'failed extraction counts an extraction attempt but no refresh success');
     $persistedError = $failedIndex->scanErrors[0] ?? '';
     traversalExpect(str_contains($persistedError, 'metadata_extraction_failed') && str_contains($persistedError, 'libdiag-'), 'failed extraction persists safe diagnostic code and id');
     traversalExpect(!str_contains($persistedError, '/var/www/html') && !str_contains($persistedError, 'SELECT') && !str_contains($persistedError, 'sk_live'), 'failed extraction does not persist raw exception internals');
     $items = new ItemService(); $items->failRefresh = true;
     $scanner = new LibraryScanner(new RootService(), new FileIndexService(), $items, new \OCA\Library\Metadata\PublicationMetadataService(), new RootFolderStub(new Folder([new File('refresh.pdf','application/pdf')])));
-    $result = $scanner->scan('development instance');
+    $result = $scanner->scan('example-user');
     traversalExpect($result['metadataExtractions'] === 1 && $result['itemRefreshes'] === 0, 'failed ensureItem is not a successful item refresh');
 
     $failure = new Folder([], static function (): void { throw new \RuntimeException('late listing failed'); });
@@ -94,7 +94,7 @@ namespace {
     $fileIndex = new FileIndexService();
     $scanner = new LibraryScanner($roots, $fileIndex, new ItemService(), new \OCA\Library\Metadata\PublicationMetadataService(), new RootFolderStub($userFolder));
     $progress = [];
-    $result = $scanner->scan('development instance', null, static function(array $p) use (&$progress): void { $progress[] = $p; });
+    $result = $scanner->scan('example-user', null, static function(array $p) use (&$progress): void { $progress[] = $p; });
     $indexedProgress = array_column($progress, 'indexed');
     $unitProgress = array_column($progress, 'traversalUnits');
     traversalExpect($indexedProgress === (function(array $values): array { $sorted=$values; sort($sorted); return $sorted; })($indexedProgress), 'indexed progress is globally monotonic across nested siblings and roots');

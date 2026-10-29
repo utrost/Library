@@ -3,9 +3,9 @@ import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 
 const upstream = process.env.NC_URL || 'http://localhost:8088'
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
-const tokenName = `design review-library-separation-smoke-${Date.now()}`
+const tokenName = `library-library-separation-smoke-${Date.now()}`
 const cookies = new Map()
 
 function runOcc(args) {

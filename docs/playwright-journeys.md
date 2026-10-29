@@ -1,6 +1,6 @@
 # Playwright journey coverage
 
-The main Playwright suite covers repeatable browser workflows against an explicitly configured disposable Nextcloud instance. Every discovered spec file is registered in [`tests/gui/catalogue.yaml`](../tests/gui/catalogue.yaml); run it with `npm run test:gui` after installing the pinned browsers with `npx playwright install chromium firefox`. The 0.3 author and series slices also have focused browser scripts; see the [alpha.9 evidence](compatibility-evidence/2026-10-14-series-assignments-alpha9/README.md). Focused source-build checks do not replace an exact signed-package release matrix.
+The main Playwright suite covers repeatable browser workflows against an explicitly configured disposable Nextcloud instance. Every discovered spec file is registered in [`tests/gui/catalogue.yaml`](../tests/gui/catalogue.yaml); run it with `npm run test:gui` after installing the pinned browsers with `npx playwright install chromium firefox`. The 0.3 author and series slices also have focused browser scripts; see the alpha.9 evidence. Focused source-build checks do not replace an exact signed-package release matrix.
 
 ## Current journeys
 
@@ -57,7 +57,7 @@ Other standalone scripts are not automatically certified by `npm run test:gui`. 
 
 ## Recorded rehearsals
 
-Alpha.27 passed 41/41 hosted CI journeys; alpha.28 passed all 44/44 hosted CI journeys, including three destination-author cases. These are historical results. The deployed alpha.34 passed 77 hosted CI journeys; see its [verification record](compatibility-evidence/2026-10-20-nc34-final-ux-alpha34/README.md). The alpha.23 rehearsal below is retained as historical evidence.
+Alpha.27 passed 41/41 hosted CI journeys; alpha.28 passed all 44/44 hosted CI journeys, including three destination-author cases. These are historical results. The deployed alpha.34 passed 77 hosted CI journeys; see its verification record. The alpha.23 rehearsal below is retained as historical evidence.
 
 On 2026-10-19, `LIBRARY_FRESH_MIXED_COUNT=40 npm run smoke:fresh-install-mixed` passed against a disposable Nextcloud 34.0.4 instance with Library 0.3.0-alpha.23 installed from its release package. All 40 generated EPUB, PDF, CBZ, and sidecar fixtures were indexed; author and series backfills completed before browser testing. Results: 1,045 source checks passed, all 37 Playwright cases passed across desktop Chromium, desktop Firefox, and mobile Chromium, and the subsequent Vue, sidebar HTTP, and basic browser smoke checks passed. The harness verified that the fixture source tree was unchanged and removed the instance afterward. This run does not establish Nextcloud 33 or 35 compatibility for alpha.23.
 

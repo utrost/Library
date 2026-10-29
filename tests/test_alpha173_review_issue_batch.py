@@ -9,7 +9,7 @@ def read(path: str) -> str:
 
 def test_first_run_root_form_does_not_prefill_development_fixture_path():
     template = read("templates/settings-personal.php")
-    assert 'value="/ExampleLibrary"' not in template
+    assert 'value="/private-fixture"' not in template
     add_form = template.split('library-add-shelf-form', 1)[1].split('library-root-list', 1)[0]
     assert 'name="path" value=""' in add_form
 

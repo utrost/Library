@@ -118,7 +118,7 @@ def test_current_handbook_has_one_version_and_complete_ordered_cases():
     assert f"**Current acceptance target: {version}.**" in handbook
     assert version.startswith("0.3.0-rc.")
     assert "The exact signed RC is installed on developer NC34." in handbook
-    assert "compatibility-evidence/2026-10-24-rc1/README.md" in handbook
+    assert "release-verification.md" in handbook
     cases = re.findall(r"^### (H03-\d+) —", handbook, re.M)
     results = re.findall(r"^\| (H03-\d+) \|", handbook, re.M)
     assert cases == [f"H03-{i:02d}" for i in range(1, 27)]

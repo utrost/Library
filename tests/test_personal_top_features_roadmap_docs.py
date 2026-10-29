@@ -17,7 +17,7 @@ def test_personal_top_features_doc_prioritizes_user_list_with_current_state():
     doc = read("docs/personal-top-features.md")
 
     assert "# Personal Top Features Scope" in doc
-    assert "maintainer's personal top features" in doc
+    assert "the maintainer's personal top features" in doc
     for phrase in [
         "fully implemented multi-root library",
         "starring/bookmarking",

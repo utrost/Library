@@ -11,7 +11,7 @@ import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 
 const base = process.env.NC_URL || 'http://localhost:8088'
 const container = process.env.NC_CONTAINER || 'nextcloud'
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const engineName = process.env.PW_ENGINE === 'firefox' ? 'firefox' : 'chromium'
 const name = `Library alpha22 visual verification ${Date.now()}`
 const evidence = createEvidenceDirectory('library-alpha22-ux')

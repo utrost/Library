@@ -2,9 +2,9 @@ import { decodeHtmlAttribute } from './html-attribute.mjs'
 import { execFileSync } from 'node:child_process'
 
 const upstream = process.env.NC_URL || 'http://localhost:8088'
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
-const tokenName = `design review-library-last-opened-smoke-${Date.now()}`
+const tokenName = `library-library-last-opened-smoke-${Date.now()}`
 
 function runDocker(args) {
   return execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', 'occ', ...args], {

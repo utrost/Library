@@ -11,7 +11,7 @@ def test_usefulness_ux_feature_list_is_linked_from_readme_and_roadmap():
     assert "[Usefulness and UX feature list](usefulness-and-ux-feature-list.md)" in roadmap
 
 
-def test_usefulness_ux_feature_list_captures_uwe_and_hermes_priorities():
+def test_usefulness_ux_feature_list_captures_product_priorities():
     doc = (ROOT / "docs" / "usefulness-and-ux-feature-list.md").read_text()
 
     for phrase in [

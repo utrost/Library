@@ -7,7 +7,7 @@ import { writeFileSync } from 'node:fs'
 import { chromium, firefox, expect } from '@playwright/test'
 import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 const base = process.env.NC_URL || 'http://localhost:8088'
-const container = process.env.NC_CONTAINER || 'nextcloud', user = process.env.NC_USER || 'maintainer'
+const container = process.env.NC_CONTAINER || 'nextcloud', user = process.env.NC_USER || 'example'
 const out = createEvidenceDirectory('library-alpha36-suggestions')
 
 const tokenName = `library-suggestion-smoke-${Date.now()}`

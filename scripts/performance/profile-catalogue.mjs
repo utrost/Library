@@ -5,7 +5,7 @@ import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { createTemporaryAppPassword } from '../temporary-app-password.mjs'
 import { createEvidenceDirectory } from '../private-evidence-directory.mjs'
-const base=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'maintainer',container=process.env.NC_CONTAINER||'nextcloud'
+const base=process.env.NC_URL||'http://localhost:8088',user=process.env.NC_USER||'example',container=process.env.NC_CONTAINER||'nextcloud'
 const out=createEvidenceDirectory('library-catalogue-cpu'),name='library-performance-cpu-'+Date.now()
 const occ=(...args)=>execFileSync('docker',['exec','-u','www-data',container,'php','occ',...args],{encoding:'utf8',stdio:['ignore','pipe','pipe']})
 let browser

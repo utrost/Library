@@ -15,7 +15,7 @@ namespace OCP\Files {
   public function get(string $path): mixed { return $this->children[$path] ?? throw new NotFoundException(); }
  }
 }
-namespace OCA\Library\Service { class RootService { public array $deleted = []; public function deleteRoot(string $uid, int $id): void { $this->deleted[] = [$uid,$id]; } public function listRoots(string $uid): array { return $uid === 'development instance' ? [['id' => 1, 'path' => '/Books']] : []; } } }
+namespace OCA\Library\Service { class RootService { public array $deleted = []; public function deleteRoot(string $uid, int $id): void { $this->deleted[] = [$uid,$id]; } public function listRoots(string $uid): array { return $uid === 'example-user' ? [['id' => 1, 'path' => '/Books']] : []; } } }
 namespace {
  require __DIR__ . '/../../lib/Service/GuidedRuleValidator.php';
  require __DIR__ . '/../../lib/Service/InferenceFolderRuleStore.php';
@@ -31,7 +31,7 @@ namespace {
   public function deleteUserValue($uid,$app,$key): void { unset($this->data[$uid][$key]); }
  };
  $session = new class implements \OCP\IUserSession {
-  public ?string $uid = 'development instance';
+  public ?string $uid = 'example-user';
   public function getUser(): ?object { return $this->uid === null ? null : new class($this->uid) { public function __construct(private string $uid) {} public function getUID(): string { return $this->uid; } }; }
  };
  $request = new class implements \OCP\IRequest { public array $params = []; public function getParam($key,$default=null): mixed { return $this->params[$key] ?? $default; } };
@@ -42,7 +42,7 @@ namespace {
  $controller = new \OCA\Library\Controller\InferenceFolderRuleController('library',$request,$session,new \OCA\Library\Service\RootService(),$files,$store);
  $definitionId=str_repeat('a',32);
  $definition=['name'=>'Title','pattern'=>'%title%.%extension%'];
- $config->setUserValue('development instance','library','inference_pattern_'.$definitionId,json_encode($definition));
+ $config->setUserValue('example-user','library','inference_pattern_'.$definitionId,json_encode($definition));
  $valid=['rootId'=>1,'folder'=>'Fiction','recursive'=>true,'definitionId'=>$definitionId];
  $request->params=$valid;
  $saved=$controller->create();check($saved->status===201,'created');$id=$saved->data['id'];
@@ -50,7 +50,7 @@ namespace {
  $index=$controller->index();check($index->status===200 && count($index->data['assignments'])===1,'listed');
  check($index->data['assignments'][0]['available'],'available');check(!isset($index->data['assignments'][0]['folderFileId']),'internal identity excluded');
  check($index->headers['Cache-Control']==='private, no-store','private caching');
- $config->deleteUserValue('development instance','library','inference_pattern_'.$definitionId);
+ $config->deleteUserValue('example-user','library','inference_pattern_'.$definitionId);
  check($controller->index()->data['assignments'][0]['definition']['pattern']===$definition['pattern'],'snapshot survives definition deletion');
  $root->children['Fiction']=new \OCP\Files\Folder(12);
  check(!$controller->index()->data['assignments'][0]['available'],'replaced folder unavailable');
@@ -65,22 +65,22 @@ namespace {
  $request->params=$valid;$session->uid='bob';
  check($controller->index()->status===404,'other user root not visible');
  check($controller->delete($id)->status===200,'foreign delete idempotent');
- check(count($store->all('development instance'))===1,'foreign delete has no effect');
+ check(count($store->all('example-user'))===1,'foreign delete has no effect');
  $session->uid=null;check($controller->create()->status===401 && $controller->index()->status===401 && $controller->delete($id)->status===401,'anonymous denied');
- $session->uid='development instance';check($controller->delete('invalid')->status===422,'invalid deletion id');
- $root->readable=false;check($controller->delete($id)->status===200 && count($store->all('development instance'))===0,'can remove unavailable assignment');$root->readable=true;
- $config->setUserValue('development instance','library','inference_pattern_'.$definitionId,json_encode($definition));
- for($i=0;$i<100;$i++) $store->save('development instance',['version'=>1,'rootId'=>1,'rootFileId'=>10,'folderFileId'=>11,'folder'=>'Other'.$i,'recursive'=>true,'definition'=>['id'=>$definitionId]+$definition]);
+ $session->uid='example-user';check($controller->delete('invalid')->status===422,'invalid deletion id');
+ $root->readable=false;check($controller->delete($id)->status===200 && count($store->all('example-user'))===0,'can remove unavailable assignment');$root->readable=true;
+ $config->setUserValue('example-user','library','inference_pattern_'.$definitionId,json_encode($definition));
+ for($i=0;$i<100;$i++) $store->save('example-user',['version'=>1,'rootId'=>1,'rootFileId'=>10,'folderFileId'=>11,'folder'=>'Other'.$i,'recursive'=>true,'definition'=>['id'=>$definitionId]+$definition]);
  check($controller->create()->status===422,'100 assignment limit');
- $store->deleteRoot('bob',1);check(count($store->all('development instance'))===100,'foreign root cleanup isolated');
- $store->deleteRoot('development instance',2);check(count($store->all('development instance'))===100,'other root cleanup isolated');
+ $store->deleteRoot('bob',1);check(count($store->all('example-user'))===100,'foreign root cleanup isolated');
+ $store->deleteRoot('example-user',2);check(count($store->all('example-user'))===100,'other root cleanup isolated');
  $rootService=new \OCA\Library\Service\RootService();
  $urls=new class implements \OCP\IURLGenerator { public function getAbsoluteURL($path): string { return $path; } };
  $rootController=new \OCA\Library\Controller\RootController('library',$request,$rootService,$session,$urls,null,$store);
- $rootController->delete(1);check(count($store->all('development instance'))===100,'unconfirmed root deletion retains assignments');
+ $rootController->delete(1);check(count($store->all('example-user'))===100,'unconfirmed root deletion retains assignments');
  $request->params=['confirmDeleteText'=>'DELETE'];$rootController->delete(1);
- check($rootService->deleted===[['development instance',1]] && count($store->all('development instance'))===0,'confirmed root deletion removes assignments');
- check($store->definition('development instance',$definitionId)!==null,'root cleanup keeps saved definitions');
+ check($rootService->deleted===[['example-user',1]] && count($store->all('example-user'))===0,'confirmed root deletion removes assignments');
+ check($store->definition('example-user',$definitionId)!==null,'root cleanup keeps saved definitions');
  check(Store::folder('/Fiction/')==='Fiction' && Store::folder('/')==='', 'folder normalization');
  $method=new \ReflectionMethod($controller,'create');
  check(!$method->getAttributes(\OCP\AppFramework\Http\Attribute\NoCSRFRequired::class),'create requires CSRF');

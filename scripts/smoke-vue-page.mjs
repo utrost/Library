@@ -33,9 +33,9 @@ import { createTemporaryAppPassword } from './temporary-app-password.mjs'
 // Source-harness alpha.169 matrix
 
 const upstream = process.env.NC_URL || 'http://localhost:8088'
-const user = process.env.NC_USER || 'maintainer'
+const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
-const tokenName = `design review-library-vue-smoke-${Date.now()}`
+const tokenName = `library-library-vue-smoke-${Date.now()}`
 const packageVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version
 const assetVersion = `${packageVersion.replace(/[^a-zA-Z0-9]+/g, '-')}-compact-list-table-cover-96-fit-v8`
 

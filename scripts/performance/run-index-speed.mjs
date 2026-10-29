@@ -1,7 +1,7 @@
 // Fixed NC34 developer sample. Raw evidence stays private; stdout contains aggregates only.
 import {spawn,execFileSync} from 'node:child_process'
 import {mkdirSync,createWriteStream} from 'node:fs'
-const container=process.env.NC_CONTAINER||'nextcloud',uid=process.env.NC_USER||'maintainer',out=process.env.EVIDENCE_DIR||'/tmp/library-index-speed'
+const container=process.env.NC_CONTAINER||'nextcloud',uid=process.env.NC_USER||'example',out=process.env.EVIDENCE_DIR||'/tmp/library-index-speed'
 const mode=process.argv[2]||'cached'
 if(!['select','verify','cached','legacy','rebuild','baseline'].includes(mode))throw new Error('Use select, verify, cached, legacy, rebuild or baseline')
 mkdirSync(out,{recursive:true,mode:0o700})
