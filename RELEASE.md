@@ -1,6 +1,6 @@
 # Release process
 
-**0.3.0-rc.3 is the replacement candidate.** RC1 was signed and published, but its public source history contained private test evidence and infrastructure references. RC2 passed compatibility checks but failed the large-catalogue search target. RC3 includes the search fix and must pass exact-package certification before publication. The old RC will then be withdrawn. See the [release verification record](docs/release-verification.md).
+**0.3.0-rc.3 is the published replacement prerelease.** RC1 was withdrawn after the privacy rewrite. RC2 passed compatibility checks but failed the large-catalogue search target and was never published. RC3 includes the search fix and passed exact-package certification. See the [release verification record](docs/release-verification.md).
 
 Earlier alpha.38 passed 79 browser journeys and introduced additive migrations for deletion markers and file worklists; see its deployment record.
 
@@ -22,7 +22,7 @@ Historical editor checkpoint **0.3.0-alpha.33** consolidates book navigation on 
 
 The alpha.33 verification and deployment record tracks that historical checkpoint. The exact signed NC33–35 fresh/upgrade matrix is complete, and the owner accepted the RC on 2026-10-29. The owner chose 0.3 as the first App Store release; the 0.2 archive remains an upgrade baseline. Historical baselines below remain preserved.
 
-Current publication status: RC3 is being prepared from rewritten source history. RC1 remains public until RC3 is certified and published; it must then be withdrawn from GitHub and the App Store. RC1 and RC2 evidence does not certify RC3.
+Current publication status: [RC3 is on GitHub](https://github.com/utrost/Library/releases/tag/v0.3.0-rc.3) and its [App Store release page](https://apps.nextcloud.com/apps/library/releases) lists it for Nextcloud 33–35. The Store accepted its non-nightly signature and the RC1 deletion. The Store installation API still served a cached RC1 entry immediately after withdrawal; verify feed propagation before relying on in-app installation. Old GitHub release archives were removed. GitHub-owned pull-request refs and cached old commit views still need a [GitHub Support cleanup](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository).
 
 ## Preserved 0.2 beta release baseline
 

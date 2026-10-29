@@ -1,6 +1,6 @@
 # App Store listing draft
 
-Status: `0.3.0-rc.3` is a replacement candidate pending exact-package certification and publication. The screenshots use disposable fixture data from the prior candidate and need to be checked against the replacement before submission.
+Status: signed `0.3.0-rc.3` passed exact-package certification and was published as a GitHub prerelease and a non-nightly App Store prerelease. Its five screenshot URLs were checked after publication and return images. The screenshots use disposable fixture data.
 Target app version: 0.3.0-rc.3, subject to exact archive verification and human acceptance.
 Compatibility target: Nextcloud 33–35. The final exact-package NC33–35 matrix remains a release gate.
 
