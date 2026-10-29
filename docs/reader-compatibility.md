@@ -2,7 +2,7 @@
 
 Library opens indexed EPUB, PDF and CBZ files through Nextcloud's stable file route, `/f/{fileId}`. Nextcloud Files then selects an installed viewer. This keeps Library independent of private routes in EPUB and PDF viewer apps.
 
-The reader-relevant apps in a typical setup are `files`, `viewer`, `files_pdfviewer` and, for EPUB or CBZ, an optional reader such as `epubviewer`. The default provider is `DefaultNextcloudFileProvider`.
+The reader-relevant apps in a typical setup are `files`, `viewer`, `files_pdfviewer` and, for EPUB or CBZ, an optional reader such as `epubviewer`. The default provider is `DefaultNextcloudFileProvider`. This reader-provider boundary keeps handoff behavior in one place.
 
 The generic handoff is:
 

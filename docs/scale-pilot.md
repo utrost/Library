@@ -8,6 +8,8 @@ NC_URL=http://localhost:8088 NC_USER=example npm run smoke:scale -- 100
 
 The harness creates a temporary root, indexes generated PDFs, checks pagination and cleans up its files, catalogue rows, root and temporary credential. Increase the count only on a disposable instance or with a deliberate test account.
 
+Use `npm run smoke:scale -- <count>` with a chosen fixture size and local credentials.
+
 For a private real-file pilot, supply explicit source paths through `REAL_SCALE_SOURCES` and keep all reports outside Git:
 
 ```bash

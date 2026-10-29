@@ -1,6 +1,6 @@
 # Release process
 
-**Signed 0.3.0-rc.1 is installed on developer NC34 and published as a [GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.3.0-rc.1) and [Nextcloud App Store prerelease](https://apps.nextcloud.com/apps/library).** The exact archive passed NC33–35 fresh and populated-upgrade certification, SQLite/MariaDB/PostgreSQL checks, and a populated-catalogue live smoke. The owner accepted the current candidate on 2026-10-29. Its public archive checksum and signature, release assets and five screenshot URLs were verified. The Store accepted registration and release submission (HTTP 201 each); the public listing and uncached NC33–35 feeds show `0.3.0-rc.1` with `isNightly=false`. A disposable beta-channel NC34 installed and enabled it through Nextcloud's Store installer with clean integrity. The smoke used the uncached NC34 Store feed because the default all-apps feed still had an older cached response. See the [RC certification and deployment record](docs/release-verification.md).
+**0.3.0-rc.2 is the replacement candidate.** RC1 was signed and published, but its public source history contained private test evidence and infrastructure references. The sanitized RC2 source must pass exact-package certification before signing and publication. The old RC will then be withdrawn. See the [release verification record](docs/release-verification.md).
 
 Earlier alpha.38 passed 79 browser journeys and introduced additive migrations for deletion markers and file worklists; see its deployment record.
 
@@ -22,7 +22,7 @@ Historical editor checkpoint **0.3.0-alpha.33** consolidates book navigation on 
 
 The alpha.33 verification and deployment record tracks that historical checkpoint. The exact signed NC33–35 fresh/upgrade matrix is complete, and the owner accepted the RC on 2026-10-29. The owner chose 0.3 as the first App Store release; the 0.2 archive remains an upgrade baseline. Historical baselines below remain preserved.
 
-Current publication status: the owner accepted the signed RC, the GitHub and App Store prereleases are public, and the disposable Store installation passed. The exact archive, checksum, integrity, browser artifacts and cleanup are recorded in the [RC report](docs/release-verification.md). Individual [0.3 handbook cases](docs/human-test-handbook.md#current-03-human-cases) and manual assistive-technology results were not separately attested by the acceptance. A changed signed package requires `0.3.0-rc.2` and repeated certification. The [readiness roadmap](docs/app-store-readiness.md) tracks follow-up.
+Current publication status: RC2 is being prepared from rewritten source history. RC1 remains public until RC2 is certified and published; it must then be withdrawn from GitHub and the App Store. The previous RC1 certification does not certify RC2.
 
 ## Preserved 0.2 beta release baseline
 

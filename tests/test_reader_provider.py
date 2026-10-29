@@ -23,6 +23,6 @@ def test_page_controller_uses_default_reader_provider_not_inline_file_url_logic(
 
 
 def test_reader_provider_is_documented_as_default_handoff_boundary():
-    doc = (ROOT / "docs" / "reader-handoff-spike.md").read_text()
+    doc = (ROOT / "docs" / "reader-compatibility.md").read_text()
     assert "DefaultNextcloudFileProvider" in doc
     assert "reader-provider boundary" in doc

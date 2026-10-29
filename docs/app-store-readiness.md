@@ -1,6 +1,6 @@
 # App Store readiness roadmap
 
-**Current signed candidate: 0.3.0-rc.1.** It is installed on developer NC34 with clean integrity, unchanged catalogue values and a passing live performance smoke. The exact signed NC33–35 fresh/upgrade matrix, interruption-boundary recovery and SQLite/MariaDB/PostgreSQL checks passed. The owner accepted the current candidate on 2026-10-29; its [GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.3.0-rc.1) and [App Store prerelease](https://apps.nextcloud.com/apps/library) are public. The archive, signature, screenshots, listing and uncached NC33–35 feeds were verified. A disposable beta-channel NC34 installation from the uncached Store feed passed integrity checks. See the [RC certification record](release-verification.md).
+**Current replacement candidate: 0.3.0-rc.2.** RC1 was published but will be withdrawn after the sanitized replacement is certified and available. Previous package checks do not certify RC2.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical.
 
@@ -46,7 +46,7 @@ The signed `0.3.0-alpha.10` package from merged PR #109 was deployed on populate
 
 ## Release checkpoint — updated 2026-10-20
 
-Current candidate baseline: `0.3.0-rc.1`. At this historical checkpoint, author and series management were implemented. The signed alpha.23 package included the unified book editor; alpha.24 added Save/Discard and direct author/series selection, and alpha.25 fixed the bar's full-page scrolling boundary. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the alpha.7 report; preferred-author suggestions in the alpha.8 report; reviewed series moves/merges in the alpha.9 report. The exact signed 0.3 NC33–35 release matrix was pending then and is now complete.
+Current candidate baseline: `0.3.0-rc.2`. At this historical checkpoint, author and series management were implemented. The signed alpha.23 package included the unified book editor; alpha.24 added Save/Discard and direct author/series selection, and alpha.25 fixed the bar's full-page scrolling boundary. Fresh source installs on NC33–35 and a populated NC34 upgrade passed for alpha.5; focused author/duplicate integration passed on NC33–35 for alpha.6. Large author operation verification for alpha.7 is tracked in the alpha.7 report; preferred-author suggestions in the alpha.8 report; reviewed series moves/merges in the alpha.9 report. The exact signed 0.3 NC33–35 release matrix was pending then and is now complete.
 
 At the alpha.9 checkpoint, the app was deployed on developer NC34/MariaDB. Focused service and Chromium/Firefox series workflows passed on NC33–35 and the populated developer instance. The [human test handbook](human-test-handbook.md#current-03-human-cases) covers author/series acceptance.
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0-rc.2 — replacement candidate
+
+- Replace the first RC after removing private test evidence, local infrastructure references and real-catalogue imagery from the public Git history.
+- Keep application behavior and database schema unchanged; update the release identity and browser asset names.
+- Recheck the exact signed replacement before publishing it. The old RC must be withdrawn when the replacement is live.
+- Exclude local Python virtual environments from release archives.
+
 ## 0.3.0-rc.1 — 2026-10-24
 
 - Freeze the 0.3 catalogue, author/series/genre editor, metadata review, reading-list, and file-handling workflows for release-candidate certification.

@@ -1,6 +1,6 @@
 # Library Roadmap
 
-**Current source candidate: 0.3.0-rc.1.** The prior signed alpha.43 package remains installed on developer NC34 with clean integrity and catalogue rows before and after upgrade. All seven catalogue sort choices were responsive at that checkpoint; see the alpha.43 deployment record. Exact signed RC certification and human acceptance remain release gates.
+**Current replacement candidate: 0.3.0-rc.2.** RC1 was published but will be withdrawn after the sanitized replacement is certified and available. Previous package checks do not certify RC2.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; alpha.43 is now installed.
 
@@ -16,7 +16,7 @@ Alpha.28 adds direct destination-author typeahead for merge/reassign, starting a
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The signed alpha.9 fresh and upgrade matrix passed on NC33–35. The alpha.11 populated NC34 deployment is complete; owner acceptance remains.
 
-Status: **0.3.0-rc.1** is the source candidate, and alpha.43 remains installed on developer NC34 until the RC upgrade. The unified book editor and recent UI improvements need owner acceptance. By owner decision, 0.3 is the first planned App Store submission. The signed/public **0.2.0-beta.3** remains the preserved release baseline; its verification evidence is historical and does not certify 0.3.
+Status: **0.3.0-rc.2** is the privacy replacement candidate. RC1 remains public until the replacement is certified and published; its earlier certification does not certify RC2. The signed/public **0.2.0-beta.3** remains a historical upgrade baseline.
 
 Last updated: 2026-10-24
 
@@ -71,7 +71,7 @@ These are acceptance gates, not newly discovered implementation defects. The [Ap
 
 Current feature behavior: [author management](v0.3-author-management.md), [series management](v0.3-series-management.md), alpha.9 verification. Human acceptance cases are in the [test handbook](human-test-handbook.md#current-03-human-cases).
 
-Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader handoff](reader-handoff-spike.md), [Reader compatibility](reader-compatibility.md), [Scale pilot guide](scale-pilot.md)
+Companion documents: [Product concept](product-concept.md), [User and admin guide](user-guide.md), [UX concept and user stories](ux-concept.md), [Personal top features](personal-top-features.md), [Usefulness and UX feature list](usefulness-and-ux-feature-list.md), [v0.1 technical specification draft](v0.1-technical-spec.md), [Metadata storage and Nextcloud integration](metadata-storage.md), [Reader compatibility](reader-compatibility.md), [Scale pilot guide](scale-pilot.md)
 
 ## Measured performance work — 2026-09-27
 

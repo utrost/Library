@@ -1,6 +1,6 @@
-# Public screenshots — 0.3.0-rc.1
+# Public screenshots — 0.3.0-rc.2
 
-The five `appstore-*.png` images were recaptured on 2026-10-24 from the **0.3.0-rc.1 source-equivalent rehearsal package** on an isolated **Nextcloud 34.0.4** instance, Chromium, English UI, light theme and a **1440 × 1000** viewport. The six numbered first-library images remain historical alpha.38 captures from 2026-10-21. The extraction capture uses a scroll offset to keep the preview below the Nextcloud header; no image retouching was applied.
+The five `appstore-*.png` images were captured on 2026-10-24 from the **0.3.0-rc.1 source-equivalent rehearsal package** on an isolated **Nextcloud 34.0.4** instance, Chromium, English UI, light theme and a **1440 × 1000** viewport. The six numbered first-library images remain historical alpha.38 captures from 2026-10-21. The extraction capture uses a scroll offset to keep the preview below the Nextcloud header; no image retouching was applied.
 
 The RC source is the 40-book English Gutenberg EPUB fixture, indexed under `/LibraryLists` for a disposable account. The files were recovered from local Project Gutenberg downloads in `epub-noimages-en`, with filenames and book pages listed in [Gutenberg example books](../../gutenberg-example-books.md). A deterministic tar archive has SHA-256 `1d23e69505f4928689e22be13a452ec45c898de40d3d91ab263097e715e11e1a`. The first scan indexed 40 books with zero metadata errors. The extraction capture additionally uses a synthetic metadata tutorial file. The numbered first-library captures use the earlier `/Books/Gutenberg English` arrangement.
 

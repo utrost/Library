@@ -23,7 +23,7 @@ def test_alpha_157_version_assets_and_release_contracts_are_aligned():
 
 def test_app_store_readiness_distinguishes_current_source_from_alpha_159_evidence():
     readiness = read("docs/app-store-readiness.md")
-    assert f"Current signed candidate: {CURRENT_VERSION}" in readiness
+    assert f"Current replacement candidate: {CURRENT_VERSION}" in readiness
     assert "At alpha.159, Library passed its local gate, unsigned package build/audit and exact-package smoke" in readiness
     assert "Alpha.159 exact-package/live evidence is complete" in readiness
     assert "Alpha.158 rehearsal evidence:" in readiness

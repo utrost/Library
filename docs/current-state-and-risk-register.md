@@ -1,6 +1,6 @@
 # Current state and risk register
 
-**Current source candidate: 0.3.0-rc.1.** The prior signed alpha.43 package remains installed on developer NC34 with clean integrity and catalogue rows before and after upgrade. All seven catalogue sort choices were responsive at that checkpoint; see the alpha.43 deployment record. Exact signed RC certification and human acceptance remain release gates.
+**Current replacement candidate: 0.3.0-rc.2.** RC1 was published but will be withdrawn after the sanitized replacement is certified and available. Previous package checks do not certify RC2.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; alpha.43 is now installed.
 

@@ -205,7 +205,7 @@ def test_second_review_field_level_isolation_and_current_identity():
     assert "selectedDrawerItem.publicationType" in app and "selectedDrawerItem.language" in app
     assert "library-tag-feedback-value" in detail
     readiness = read("docs/app-store-readiness.md")
-    assert readiness.count(f"Current candidate baseline: `{CURRENT_VERSION}`") == 1
+    assert readiness.count(f"Current replacement candidate: {CURRENT_VERSION}") == 1
     release = read("RELEASE.md")
     operative = release[release.index("The beta candidate is"):release.index("## Local release gates")]
     assert "0.1.0-alpha.165" not in operative

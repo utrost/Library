@@ -5,7 +5,7 @@
     <name>Library</name>
     <summary>Publication catalogue for files stored in Nextcloud Files</summary>
     <description><![CDATA[Library adds a publication-specific catalogue, metadata cleanup workflow, search and browsing interface on top of ordinary Nextcloud files. Source files remain canonical in Nextcloud Files; Library stores app-owned indexes, extracted metadata and user edits. Create private reading lists with notes, infer metadata from filenames and paths with preview and reversible approval, review potential duplicates, and schedule incremental scans. It does not contact external metadata services or provide a built-in reader. This release candidate supports Nextcloud 33–35.]]></description>
-    <version>0.3.0-rc.1</version>
+    <version>0.3.0-rc.2</version>
     <licence>AGPL-3.0-or-later</licence>
     <author>Library contributors</author>
     <namespace>Library</namespace>
@@ -14,11 +14,11 @@
     <website>https://github.com/utrost/Library</website>
     <bugs>https://github.com/utrost/Library/issues</bugs>
     <repository type="git">https://github.com/utrost/Library</repository>
-    <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.3.0-rc.1/docs/images/appstore-catalogue.png</screenshot>
-    <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.3.0-rc.1/docs/images/appstore-details.png</screenshot>
-    <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.3.0-rc.1/docs/images/appstore-authors.png</screenshot>
-    <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.3.0-rc.1/docs/images/appstore-inference.png</screenshot>
-    <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.3.0-rc.1/docs/images/appstore-inference-worklist.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.3.0-rc.2/docs/images/appstore-catalogue.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.3.0-rc.2/docs/images/appstore-details.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.3.0-rc.2/docs/images/appstore-authors.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.3.0-rc.2/docs/images/appstore-inference.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/utrost/Library/v0.3.0-rc.2/docs/images/appstore-inference-worklist.png</screenshot>
     <dependencies>
         <database>sqlite</database>
         <database>mysql</database>

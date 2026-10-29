@@ -1,7 +1,7 @@
 # App Store listing draft
 
-Status: `0.3.0-rc.1` is [published as a Nextcloud App Store prerelease](https://apps.nextcloud.com/apps/library). Screenshots were captured from the exact signed candidate and release-tag links verified before submission.
-Target app version: 0.3.0-rc.1, subject to exact archive verification and human acceptance.
+Status: `0.3.0-rc.2` is a replacement candidate pending exact-package certification and publication. The screenshots use disposable fixture data from the prior candidate and need to be checked against the replacement before submission.
+Target app version: 0.3.0-rc.2, subject to exact archive verification and human acceptance.
 Compatibility target: Nextcloud 33–35. The final exact-package NC33–35 matrix remains a release gate.
 
 ## Short description
@@ -77,7 +77,7 @@ Capture from the exact signed RC on disposable Nextcloud 34.0.4 using the public
 
 Before uploading, verify that no real filenames, private folder names, user names, server names or credentials are visible.
 
-The five screenshot URLs in `appinfo/info.xml` target `v0.3.0-rc.1`. Verify they resolve after tagging and match the refreshed images before App Store submission.
+The five screenshot URLs in `appinfo/info.xml` target `v0.3.0-rc.2`. Verify they resolve after tagging and match the refreshed images before App Store submission.
 
 ## Release note draft
 

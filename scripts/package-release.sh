@@ -60,6 +60,7 @@ tar \
   --exclude=.gitignore \
   --exclude=.github \
   --exclude=.pytest_cache \
+  --exclude=.venv \
   --exclude=coverage \
   --exclude=playwright-report \
   --exclude=test-results \
