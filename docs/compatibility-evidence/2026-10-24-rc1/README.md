@@ -1,6 +1,6 @@
 # Library 0.3.0-rc.1 certification
 
-Status: the signed candidate passed the six-case exact-package matrix and is installed on developer NC34. The owner accepted the current candidate on 2026-10-29. The [GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.3.0-rc.1) is public; App Store registration and submission await an owner token.
+Status: the signed candidate passed the six-case exact-package matrix and is installed on developer NC34. The owner accepted the current candidate on 2026-10-29. The [GitHub prerelease](https://github.com/utrost/Library/releases/tag/v0.3.0-rc.1) and [Nextcloud App Store prerelease](https://apps.nextcloud.com/apps/library) are public; a Store-initiated installation remains to be checked.
 
 The signed RC archive is `dist/library-0.3.0-rc.1.tar.gz`, SHA-256 `caffb1ac1a93b961813d75270861d8185dcabfff95d17c233bade68e9e45eb07`, built once from merged commit `44fe95c8a769af27e5df67cff9d8dde14cb30b24`. Its detached App Store signature, SPDX SBOM and provenance are in `dist/`; the archive passed package, signature and module audits. Later certification-helper and documentation edits did not alter the archive.
 
@@ -48,4 +48,5 @@ The first disposable NC34/PostgreSQL fresh install indexed all 40 Gutenberg book
 - [x] Exact signed archive: NC33/34/35 fresh and populated 0.2.0-beta.3 upgrade matrices, interruption recovery at the documented boundary, plus SQLite, MariaDB and PostgreSQL validation.
 - [x] Developer NC34 installed smoke, integrity, catalogue count and performance median.
 - [x] GitHub tag/prerelease and public asset verification. Tag resolves to the certified source commit; the downloaded archive matches the SHA-256 above and verifies with the App Store certificate. All five release-tag screenshots returned HTTP 200.
-- [ ] App Store prerelease registration, listing and installation.
+- [x] App Store prerelease registration and release submission: HTTP 201 for each owner-account API request on 2026-10-29. The public listing shows `0.3.0-rc.1` as unstable for NC33–35; uncached NC33–35 API feeds include it with `isNightly=false`. The regular feeds initially lagged behind the new listing due to caching.
+- [ ] Store-initiated prerelease installation on a disposable beta-channel Nextcloud instance.

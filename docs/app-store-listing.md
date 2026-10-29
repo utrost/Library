@@ -1,6 +1,6 @@
 # App Store listing draft
 
-Status: 0.3.0-rc.1 listing draft; refresh screenshots from the exact signed candidate and verify release-tag links before submission.
+Status: `0.3.0-rc.1` is [published as a Nextcloud App Store prerelease](https://apps.nextcloud.com/apps/library). Screenshots were captured from the exact signed candidate and release-tag links verified before submission.
 Target app version: 0.3.0-rc.1, subject to exact archive verification and human acceptance.
 Compatibility target: Nextcloud 33–35. The final exact-package NC33–35 matrix remains a release gate.
 
