@@ -66,19 +66,27 @@ CHECK
         # Scan and rescan checks can queue canonical links again. Finish each
         # bounded backfill before the next browser project uses the fixture.
         finish_entity_backfills() {
-            local suffix="$1" job_class job_id
-            for job_class in AuthorBackfillJob SeriesBackfillJob; do
-                job_id="$(docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php occ background-job:list --output=json | python3 -c 'import json,sys; matches=[job for job in json.load(sys.stdin) if job["class"].endswith(sys.argv[1])]; assert len(matches)==1, matches; print(matches[0]["id"])' "$job_class")"
-                docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php occ background-job:execute "$job_id" --force-execute > "$target/$job_class-$suffix.log"
-            done
-            docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php -r '
+            local suffix="$1" job_class job_id round pending
+            # Each timed job has a five-second budget. A cold fresh install can
+            # leave fixture rows queued after one pass, so drain bounded passes.
+            for round in {1..12}; do
+                for job_class in AuthorBackfillJob SeriesBackfillJob; do
+                    job_id="$(docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php occ background-job:list --output=json | python3 -c 'import json,sys; matches=[job for job in json.load(sys.stdin) if job["class"].endswith(sys.argv[1])]; assert len(matches)==1, matches; print(matches[0]["id"])' "$job_class")"
+                    docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php occ background-job:execute "$job_id" --force-execute > "$target/$job_class-$suffix-round$round.log"
+                done
+                pending="$(docker exec -u www-data "$LIBRARY_LISTS_CONTAINER" php -r '
 require "/var/www/html/config/config.php";
 $pdo = new PDO("sqlite:" . $CONFIG["datadirectory"] . "/owncloud.db");
 $prefix = $CONFIG["dbtableprefix"] ?? "oc_";
-$pending = (int)$pdo->query("SELECT COUNT(*) FROM {$prefix}library_items WHERE author_sync_status<>0 OR series_sync_status<>0")->fetchColumn();
-if ($pending !== 0) { fwrite(STDERR, "canonical_links_pending=$pending\n"); exit(1); }
-echo "canonical_links_ready=true\n";
-' > "$target/canonical-links-$suffix.log"
+echo (int)$pdo->query("SELECT COUNT(*) FROM {$prefix}library_items WHERE author_sync_status<>0 OR series_sync_status<>0")->fetchColumn(), PHP_EOL;
+')"
+                if [[ "$pending" == 0 ]]; then
+                    printf 'canonical_links_ready=true rounds=%s\n' "$round" > "$target/canonical-links-$suffix.log"
+                    return 0
+                fi
+            done
+            echo "canonical_links_pending=$pending after $round rounds" >&2
+            return 1
         }
         finish_entity_backfills initial
         # The metadata-rescan journey intentionally queues a fresh canonical
