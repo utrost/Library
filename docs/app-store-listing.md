@@ -1,7 +1,7 @@
 # App Store listing draft
 
-Status: signed `0.3.0-rc.3` passed exact-package certification and was published as a GitHub prerelease and a non-nightly App Store prerelease. Its five screenshot URLs were checked after publication and return images. The screenshots use disposable fixture data.
-Target app version: 0.3.0-rc.3, subject to exact archive verification and human acceptance.
+Status: `0.3.0` is the stable release target. RC3 passed exact-package certification; the stable archive must pass its own checks. The screenshots use disposable fixture data.
+Target app version: 0.3.0, subject to exact archive verification.
 Compatibility target: Nextcloud 33–35. The final exact-package NC33–35 matrix remains a release gate.
 
 ## Short description
@@ -77,7 +77,7 @@ Capture from the exact signed RC on disposable Nextcloud 34.0.4 using the public
 
 Before uploading, verify that no real filenames, private folder names, user names, server names or credentials are visible.
 
-The five screenshot URLs in `appinfo/info.xml` target `v0.3.0-rc.3`. Verify they resolve after tagging and match the refreshed images before App Store submission.
+The five screenshot URLs in `appinfo/info.xml` target `v0.3.0`. Verify they resolve after tagging and match the refreshed images before App Store submission.
 
 ## Release note draft
 

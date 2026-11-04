@@ -1,5 +1,7 @@
 # Release process
 
+**0.3.0 stable release target.** The accepted RC3 code is unchanged. Build and certify the exact signed stable archive from the sanitized public branch. Publication results belong in [release verification](docs/release-verification.md); RC3 evidence remains historical.
+
 **0.3.0-rc.3 is the published replacement prerelease.** RC1 was withdrawn after the privacy rewrite. RC2 passed compatibility checks but failed the large-catalogue search target and was never published. RC3 includes the search fix and passed exact-package certification. See the [release verification record](docs/release-verification.md).
 
 Earlier alpha.38 passed 79 browser journeys and introduced additive migrations for deletion markers and file worklists; see its deployment record.

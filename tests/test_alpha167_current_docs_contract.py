@@ -116,8 +116,8 @@ def test_current_handbook_has_one_version_and_complete_ordered_cases():
     handbook = (ROOT / "docs/human-test-handbook.md").read_text()
     version = ElementTree.parse(ROOT / "appinfo/info.xml").findtext("version")
     assert f"**Current acceptance target: {version}.**" in handbook
-    assert version.startswith("0.3.0-rc.")
-    assert "signed replacement archive, checksum and certification are recorded" in handbook
+    assert version == "0.3.0"
+    assert "signed stable archive, checksum and certification are recorded" in handbook
     assert "release-verification.md" in handbook
     cases = re.findall(r"^### (H03-\d+) —", handbook, re.M)
     results = re.findall(r"^\| (H03-\d+) \|", handbook, re.M)

@@ -6,7 +6,7 @@ Library is an open-source Nextcloud app ([AGPL-3.0-or-later](LICENSE)) with a se
 
 ![Library catalogue with English Project Gutenberg books](docs/images/appstore-catalogue.png)
 
-Current prerelease: [`0.3.0-rc.3`](https://github.com/utrost/Library/releases/tag/v0.3.0-rc.3). This signed replacement follows the public-history cleanup and speeds up title/description search on large catalogues. It supports Nextcloud 33–35. See [release status](RELEASE.md) and the [verification record](docs/release-verification.md).
+Current release: [`0.3.0`](https://github.com/utrost/Library/releases/tag/v0.3.0). It supports Nextcloud 33–35 and includes responsive title/description search on large catalogues. See [release status](RELEASE.md) and the [verification record](docs/release-verification.md).
 
 ## What it does
 
@@ -39,7 +39,7 @@ The app has safe user-facing diagnostics for scan and metadata problems. Server 
 
 ![Per-file filename metadata extraction worklist](docs/images/appstore-inference-worklist.png)
 
-Screenshots show the release candidate on an isolated Nextcloud 34 instance, using the [English Gutenberg examples](docs/gutenberg-example-books.md) and a synthetic filename-extraction example. [Capture details and reproduction](docs/images/first-library/README.md).
+Screenshots were captured on an isolated Nextcloud 34 instance, using the [English Gutenberg examples](docs/gutenberg-example-books.md) and a synthetic filename-extraction example. [Capture details and reproduction](docs/images/first-library/README.md).
 
 ## Your first library
 
