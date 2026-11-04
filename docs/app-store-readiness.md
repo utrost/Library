@@ -1,6 +1,6 @@
 # App Store readiness roadmap
 
-**Current stable release target: 0.3.0.** The accepted RC3 code is unchanged. The signed stable package requires its own exact-package certification; RC3 results remain historical.
+**Current stable release: 0.3.0.** The signed archive passed exact-package certification on Nextcloud 33–35 and is public on GitHub and in the App Store Stable column. A clean in-app Store installation selected 0.3.0 after feed-cache propagation, and the old RC3 Store entry was withdrawn. RC3 results remain historical.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical.
 
@@ -67,8 +67,8 @@ Current 0.3 checklist:
 - [x] Accept the current RC for publication with the known multiple-series, nonnumeric part ordering and canonical author search/sort limits documented in the handbook.
 - [x] Build, sign and audit one exact 0.3 RC archive; verify the populated 0.2→0.3 upgrade and interruption/recovery path.
 - [x] Run fresh and upgrade exact-package matrices on NC33.0.9, NC34.0.4 and NC35.0.0; validate PostgreSQL alongside SQLite and MariaDB; refresh listing/screenshots for the accepted build.
-- [x] Publish the accepted 0.3 source/tag and release assets, obtain hosted CI evidence, then submit and verify the App Store listing and disposable Store installation.
-- [ ] Recheck ordinary beta-channel Store discovery after the default all-apps feed cache expires. The disposable installation used an uncached public NC34 platform feed.
+- [x] Publish the accepted 0.3 source/tag and release assets, obtain hosted CI evidence, and submit and verify the App Store Stable listing.
+- [x] Verify a fresh NC34 `occ app:install library` selects stable 0.3.0 from the ordinary all-apps feed after cache refresh; confirm clean integrity and then remove RC3 from the Store. The owner API returned HTTP 204 for that removal.
 
 Preserved 0.2 beta.3 checklist (historical):
 
@@ -83,7 +83,7 @@ Preserved 0.2 beta.3 checklist (historical):
 - [ ] Owner acceptance of the developer build and listing.
 - [ ] Owner App Store registration/submission, followed by Store installation verification.
 
-Manual assistive-technology testing and PostgreSQL coverage remain limitations. Author management is planned for 0.3.
+Manual assistive-technology testing has not been attested. PostgreSQL is covered by the stable exact-package matrix; author management shipped in 0.3.
 
 ## Historical readiness track
 
@@ -141,7 +141,7 @@ Goal: make `appinfo/info.xml`, README, release notes and App Store copy align wi
 Work:
 
 1. Review `summary`, `description`, category, support/bug links, website, author/contact, and license metadata.
-2. Add an [App Store listing draft](app-store-listing.md) with short description, full description, privacy statement, limitations, support URL and screenshot checklist.
+2. Add an [App Store listing](app-store-listing.md) with short description, full description, privacy statement, limitations, support URL and screenshot checklist.
 3. Keep the README as a one-page external overview and avoid internal host/person/test-environment names.
 4. Add docs/tests that prevent stale alpha/private wording from leaking into the App Store-facing surfaces.
 
