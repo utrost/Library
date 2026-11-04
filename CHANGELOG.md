@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 — 2026-11-04
+
+- Publish the accepted 0.3 feature set as the first stable Library release for Nextcloud 33–35.
+- Retain RC3 functionality, including bounded title/description search on large catalogues.
+- Update release identity, package signatures and public documentation; no database migration.
+
 ## 0.3.0-rc.3 — replacement candidate
 
 - Replace the first RC after removing private test evidence, local infrastructure references and real-catalogue imagery from the public Git history.

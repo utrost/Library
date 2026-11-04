@@ -1,6 +1,6 @@
 # Library human test handbook
 
-**Current acceptance target: 0.3.0-rc.3.** The signed replacement archive, checksum and certification are recorded in the [release verification record](release-verification.md). The RC1 checksum and certification do not identify or certify RC3.
+**Current acceptance target: 0.3.0.** The signed stable archive, checksum and certification are recorded in the [release verification record](release-verification.md). Earlier RC checksums and results do not certify 0.3.0.
 
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 

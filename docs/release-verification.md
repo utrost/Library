@@ -1,4 +1,8 @@
-# 0.3.0 release candidate verification
+# 0.3.0 release verification
+
+## Stable package
+
+The stable package will be built and certified from sanitized public main. Record its exact commit, checksum, signature, matrix results, developer installation and App Store verification here after completion. RC3 results below are historical and do not certify the stable archive.
 
 ## Published RC3 replacement
 
