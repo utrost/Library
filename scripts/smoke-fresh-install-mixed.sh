@@ -231,6 +231,7 @@ docker exec -d -u www-data "$CONTAINER" php occ --no-warnings --quiet background
 # Exercise series title search/order across pages in an owned, isolated account.
 docker cp "$ROOT/tests/php/author_directory_fixture.php" "$CONTAINER:/tmp/author_directory_fixture.php" >/dev/null
 docker cp "$ROOT/tests/php/series_profile_browse_integration.php" "$CONTAINER:/tmp/series_profile_browse_integration.php" >/dev/null
+docker exec -u root "$CONTAINER" chmod 0644 /tmp/author_directory_fixture.php /tmp/series_profile_browse_integration.php
 docker exec -u www-data "$CONTAINER" php /tmp/author_directory_fixture.php setup >/dev/null
 docker exec -u www-data "$CONTAINER" php /tmp/series_profile_browse_integration.php
 docker exec -u www-data "$CONTAINER" php /tmp/author_directory_fixture.php cleanup >/dev/null
