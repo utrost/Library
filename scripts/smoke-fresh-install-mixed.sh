@@ -8,6 +8,7 @@ CONTAINER="${LIBRARY_FRESH_CONTAINER:-library-nc34-mixed-$$}"
 ADMIN_USER="${LIBRARY_FRESH_USER:-library-smoke}"
 ADMIN_PASS="${LIBRARY_FRESH_PASSWORD:-library-disposable-password-$$}"
 FIXTURE_DIR="$(mktemp -d -t library-mixed-XXXXXX)"
+SIGN_DIR="$(mktemp -d -t library-test-sign-XXXXXX)"
 RUN_LOG="$(mktemp -t library-real-scale-XXXXXX.log)"
 PORT=""
 CONTAINER_CREATED=0
@@ -17,7 +18,7 @@ cleanup() {
     if [[ "$CONTAINER_CREATED" == 1 ]]; then
         docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
     fi
-    rm -rf "$FIXTURE_DIR" "$RUN_LOG"
+    rm -rf "$FIXTURE_DIR" "$SIGN_DIR" "$RUN_LOG"
     if [[ $status -ne 0 ]]; then
         printf 'fresh_install_mixed_smoke_ok=false\n' >&2
     fi
@@ -28,7 +29,7 @@ trap cleanup EXIT
 require_command() {
     command -v "$1" >/dev/null 2>&1 || { echo "required command missing: $1" >&2; exit 1; }
 }
-for command in docker node npm python3 curl sha256sum tar; do require_command "$command"; done
+for command in docker node npm python3 curl sha256sum tar openssl; do require_command "$command"; done
 [[ "$COUNT" =~ ^[0-9]+$ ]] && (( COUNT >= 4 && COUNT % 4 == 0 )) || {
     echo "LIBRARY_FRESH_MIXED_COUNT must be a positive multiple of four" >&2
     exit 1
@@ -40,17 +41,6 @@ cd "$ROOT"
 VERSION="$(python3 -c 'import re,pathlib; print(re.search(r"<version>([^<]+)</version>", pathlib.Path("appinfo/info.xml").read_text()).group(1))')"
 ARCHIVE="$ROOT/dist/library-$VERSION.tar.gz"
 CHECKSUM="$ARCHIVE.sha256"
-
-npm run package:release
-(
-    cd "$ROOT/dist"
-    sha256sum -c "$(basename "$CHECKSUM")"
-)
-npm run audit:release-package
-ARCHIVE_SHA256="$(sha256sum "$ARCHIVE" | cut -d' ' -f1)"
-printf 'release_package_version=%s\n' "$VERSION"
-printf 'release_package_sha256=%s\n' "$ARCHIVE_SHA256"
-printf 'nextcloud_image=%s\n' "$IMAGE"
 
 python3 "$ROOT/scripts/generate-mixed-publications.py" "$FIXTURE_DIR" "$COUNT" --language-review
 SOURCE_HASH_BEFORE="$(cd "$FIXTURE_DIR" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)"
@@ -92,6 +82,27 @@ curl --fail --silent --show-error "$BASE_URL/status.php" >/dev/null
 NC_VERSION="$(docker exec -u www-data "$CONTAINER" php occ status --output=json | python3 -c 'import json,sys; print(json.load(sys.stdin)["versionstring"])')"
 [[ "$NC_VERSION" == 34.* ]] || { echo "expected Nextcloud 34, got $NC_VERSION" >&2; exit 1; }
 printf 'nextcloud_version=%s\n' "$NC_VERSION"
+
+# The GUI rehearsal signs with a disposable certificate. Stable archives still
+# pass the ordinary signature-required package audit. Never publish this archive.
+chmod 0700 "$SIGN_DIR"
+openssl req -x509 -newkey rsa:4096 -nodes \
+    -keyout "$SIGN_DIR/library.key" -out "$SIGN_DIR/library.crt" \
+    -days 1 -subj '/CN=library' > "$SIGN_DIR/openssl.log" 2>&1
+chmod 0600 "$SIGN_DIR/library.key"
+NEXTCLOUD_CONTAINER="$CONTAINER" \
+NEXTCLOUD_SIGNING_PRIVATE_KEY="$SIGN_DIR/library.key" \
+NEXTCLOUD_SIGNING_CERTIFICATE="$SIGN_DIR/library.crt" \
+    npm run package:release -- --signed
+(
+    cd "$ROOT/dist"
+    sha256sum -c "$(basename "$CHECKSUM")"
+)
+npm run audit:release-package
+ARCHIVE_SHA256="$(sha256sum "$ARCHIVE" | cut -d' ' -f1)"
+printf 'release_package_version=%s\n' "$VERSION"
+printf 'release_package_sha256=%s\n' "$ARCHIVE_SHA256"
+printf 'nextcloud_image=%s\n' "$IMAGE"
 
 docker cp "$ARCHIVE" "$CONTAINER:/tmp/library.tar.gz"
 docker exec -u root "$CONTAINER" sh -eu -c '
