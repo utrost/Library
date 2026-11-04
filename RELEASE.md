@@ -1,6 +1,6 @@
 # Release process
 
-**0.3.0 stable release target.** The accepted RC3 code is unchanged. Build and certify the exact signed stable archive from the sanitized public branch. Publication results belong in [release verification](docs/release-verification.md); RC3 evidence remains historical.
+**0.3.0 stable release.** The accepted RC3 functionality is unchanged. The exact signed package from sanitized public main passed NC33–35 fresh-install and populated-upgrade certification across SQLite, MariaDB and PostgreSQL. It is published as a [regular GitHub release](https://github.com/utrost/Library/releases/tag/v0.3.0) and appears in the [Nextcloud App Store Stable channel](https://apps.nextcloud.com/apps/library) for NC33–35. The normal Store installation feed is still propagating; see [release verification](docs/release-verification.md). RC3 evidence remains historical.
 The disposable CI GUI rehearsal uses a temporary test certificate and still runs the standard signed-package audit. Only the archive signed with the registered release certificate may be published.
 
 **0.3.0-rc.3 is the published replacement prerelease.** RC1 was withdrawn after the privacy rewrite. RC2 passed compatibility checks but failed the large-catalogue search target and was never published. RC3 includes the search fix and passed exact-package certification. See the [release verification record](docs/release-verification.md).
@@ -25,7 +25,7 @@ Historical editor checkpoint **0.3.0-alpha.33** consolidates book navigation on 
 
 The alpha.33 verification and deployment record tracks that historical checkpoint. The exact signed NC33–35 fresh/upgrade matrix is complete, and the owner accepted the RC on 2026-10-29. The owner chose 0.3 as the first App Store release; the 0.2 archive remains an upgrade baseline. Historical baselines below remain preserved.
 
-Current publication status: [RC3 is on GitHub](https://github.com/utrost/Library/releases/tag/v0.3.0-rc.3) and its [App Store release page](https://apps.nextcloud.com/apps/library/releases) lists it for Nextcloud 33–35. The Store accepted its non-nightly signature and the RC1 deletion. The Store installation API still served a cached RC1 entry immediately after withdrawal; verify feed propagation before relying on in-app installation. Old GitHub release archives were removed. GitHub-owned pull-request refs and cached old commit views still need a [GitHub Support cleanup](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository).
+Current publication status: `0.3.0` is public on GitHub and in the Store Stable column. The Store accepted the signed archive with `nightly: false`; a clean in-app installation still waits for the ordinary all-apps feed cache to refresh. RC3 remains listed until that installation is verified, then its Store entry will be removed while its GitHub prerelease remains available as history. GitHub-owned pull-request refs and cached old commit views still need a [GitHub Support cleanup](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository).
 
 ## Preserved 0.2 beta release baseline
 

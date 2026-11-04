@@ -1,8 +1,8 @@
-# App Store listing draft
+# App Store listing
 
-Status: `0.3.0` is the stable release target. RC3 passed exact-package certification; the stable archive must pass its own checks. The screenshots use disposable fixture data.
-Target app version: 0.3.0, subject to exact archive verification.
-Compatibility target: Nextcloud 33–35. The final exact-package NC33–35 matrix remains a release gate.
+Status: `0.3.0` is published in the [Nextcloud App Store Stable channel](https://apps.nextcloud.com/apps/library). Its exact signed archive passed the NC33–35 fresh-install and populated-upgrade matrix. The screenshots use disposable fixture data.
+App version: 0.3.0.
+Compatibility: Nextcloud 33–35.
 
 ## Short description
 
@@ -18,7 +18,7 @@ Library does not replace Nextcloud Files. It adds publication-oriented browsing 
 
 ## Current scope
 
-Included in the 0.3 development build:
+Included in the 0.3 stable release:
 
 - user-configured library roots;
 - private reading lists with ordering and notes;
@@ -77,8 +77,8 @@ Capture from the exact signed RC on disposable Nextcloud 34.0.4 using the public
 
 Before uploading, verify that no real filenames, private folder names, user names, server names or credentials are visible.
 
-The five screenshot URLs in `appinfo/info.xml` target `v0.3.0`. Verify they resolve after tagging and match the refreshed images before App Store submission.
+The five screenshot URLs in `appinfo/info.xml` target `v0.3.0`; all were verified against the tagged PNGs after publication.
 
-## Release note draft
+## Release notes
 
-Library 0.3 is the planned first App Store candidate for Nextcloud 33–35. It adds reviewed author and series organization to publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. Source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack. Final release wording and screenshots must be reviewed against the exact signed candidate.
+Library 0.3 is the first stable App Store release for Nextcloud 33–35. It adds reviewed author and series organization to publication catalogue browsing and metadata cleanup for files already stored in Nextcloud. Source files remain in Files, metadata import requires preview before apply, and reader behavior is delegated to the installed Nextcloud viewer stack. The [GitHub release](https://github.com/utrost/Library/releases/tag/v0.3.0) contains the signed archive and verification artifacts.

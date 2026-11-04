@@ -96,5 +96,5 @@ The [Active roadmap](docs/roadmap.md) keeps 0.3 focused on release readiness. Pl
 - [Current state and risk register](docs/current-state-and-risk-register.md), [Active roadmap](docs/roadmap.md), [Post-v0.1 roadmap](docs/post-v0.1-roadmap.md), [Personal top features scope](docs/personal-top-features.md)
 - [Product concept](docs/product-concept.md), [UX concept](docs/ux-concept.md), [Usefulness and UX feature list](docs/usefulness-and-ux-feature-list.md)
 - [Reusable Nextcloud UI starter](docs/nextcloud-ui-starter.md) and [app architecture guidelines](docs/nextcloud-app-guidelines.md) — lessons for new apps.
-- [Release process](RELEASE.md), [Changelog](CHANGELOG.md), [App Store listing draft](docs/app-store-listing.md), [App Store readiness roadmap](docs/app-store-readiness.md)
+- [Release process](RELEASE.md), [Changelog](CHANGELOG.md), [App Store listing](docs/app-store-listing.md), [App Store readiness roadmap](docs/app-store-readiness.md)
 - [Database schema reference](docs/database-schema.md), [Metadata storage and Nextcloud integration](docs/metadata-storage.md), [Human architecture review notes](docs/architecture-review.md)

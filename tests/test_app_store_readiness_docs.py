@@ -112,13 +112,13 @@ def test_database_xml_app_store_schema_is_documented_and_packaged():
     assert "database.xsd" in readiness
 
 
-def test_app_store_listing_draft_has_reviewer_sections_and_public_scope():
+def test_published_app_store_listing_has_reviewer_sections_and_public_scope():
     readme = read("README.md")
     roadmap = read("docs/app-store-readiness.md")
     listing = read("docs/app-store-listing.md")
 
-    assert "[App Store listing draft](docs/app-store-listing.md)" in readme
-    assert "[App Store listing draft](app-store-listing.md)" in roadmap
+    assert "[App Store listing](docs/app-store-listing.md)" in readme
+    assert "[App Store listing](app-store-listing.md)" in roadmap
 
     for heading in [
         "## Short description",
@@ -127,7 +127,7 @@ def test_app_store_listing_draft_has_reviewer_sections_and_public_scope():
         "## Privacy statement",
         "## Support URL",
         "## Screenshot checklist",
-        "## Release note draft",
+        "## Release notes",
     ]:
         assert heading in listing
 
@@ -139,7 +139,7 @@ def test_app_store_listing_draft_has_reviewer_sections_and_public_scope():
     ]:
         assert phrase in listing
 
-    assert "Library 0.3 is the planned first App Store candidate for Nextcloud 33–35" in listing
+    assert "Library 0.3 is the first stable App Store release for Nextcloud 33–35" in listing
 
 
 def test_app_store_public_surfaces_do_not_expose_internal_names_or_paths():
