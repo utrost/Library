@@ -1,6 +1,6 @@
 # App Store readiness roadmap
 
-**Current stable release: 0.3.0.** The signed archive passed exact-package certification on Nextcloud 33–35 and is public on GitHub and in the App Store Stable column. An ordinary in-app Store installation and withdrawal of the old RC3 Store entry remain pending feed-cache propagation. RC3 results remain historical.
+**Current stable release: 0.3.0.** The signed archive passed exact-package certification on Nextcloud 33–35 and is public on GitHub and in the App Store Stable column. A clean in-app Store installation selected 0.3.0 after feed-cache propagation, and the old RC3 Store entry was withdrawn. RC3 results remain historical.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical.
 
@@ -68,8 +68,7 @@ Current 0.3 checklist:
 - [x] Build, sign and audit one exact 0.3 RC archive; verify the populated 0.2→0.3 upgrade and interruption/recovery path.
 - [x] Run fresh and upgrade exact-package matrices on NC33.0.9, NC34.0.4 and NC35.0.0; validate PostgreSQL alongside SQLite and MariaDB; refresh listing/screenshots for the accepted build.
 - [x] Publish the accepted 0.3 source/tag and release assets, obtain hosted CI evidence, and submit and verify the App Store Stable listing.
-- [ ] Verify a fresh `occ app:install library` selects stable 0.3.0 after the default all-apps feed cache refreshes; only then remove RC3 from the Store. The stable listing and uncached platform feeds are already correct.
-- [ ] Recheck ordinary beta-channel Store discovery after the default all-apps feed cache expires. The earlier disposable installation used an uncached public NC34 platform feed.
+- [x] Verify a fresh NC34 `occ app:install library` selects stable 0.3.0 from the ordinary all-apps feed after cache refresh; confirm clean integrity and then remove RC3 from the Store. The owner API returned HTTP 204 for that removal.
 
 Preserved 0.2 beta.3 checklist (historical):
 
