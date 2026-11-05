@@ -196,7 +196,7 @@ const permittedGermanSourceTokens = new Set([
   ...permittedLatinTokens,
   'admin', 'app', 'batch', 'chip', 'chips', 'comic', 'comics', 'container',
   'cover', 'details', 'export', 'fiction', 'genre', 'genres', 'name', 'filter', 'subjects', 'index', 'limit',
-  'manifest', 'plugin', 'plugins', 'private', 'route', 'scan', 'scans', 'scanner', 'science',
+  'manifest', 'moment', 'plugin', 'plugins', 'private', 'route', 'scan', 'scans', 'scanner', 'science',
   'sidecar', 'status', 'store', 'tag', 'tags', 'tools', 'workflow',
 ])
 const latinTokens = (value) => value.match(/[A-Za-z][A-Za-z'-]*/g) || []
