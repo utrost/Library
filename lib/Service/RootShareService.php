@@ -81,6 +81,40 @@ final class RootShareService {
         ];
     }
 
+    /** @return array<int, array{id: string, label: string}> */
+    public function recipientSuggestions(string $owner, int $rootId, string $search): array {
+        $search = trim($search);
+        if (mb_strlen($search) < 3 || mb_strlen($search) > 64) {
+            throw new \InvalidArgumentException('invalid_query');
+        }
+        $root = $this->roots->findRoot($owner, $rootId);
+        if ($root === null || !$root['enabled'] || $root['path'] === '/') {
+            throw new \InvalidArgumentException('invalid_root');
+        }
+        try {
+            $node = $this->files->getUserFolder($owner)->get(ltrim($root['path'], '/'));
+        } catch (\Throwable) {
+            throw new \InvalidArgumentException('invalid_root');
+        }
+        if (!$node instanceof Folder || !$node->isReadable() || $node->getMountPoint()->getMountType() === 'shared'
+            || (int)$node->getId() <= 0) {
+            throw new \InvalidArgumentException('invalid_root');
+        }
+        $found = [];
+        foreach ($this->collaboratorMatches($search, (int)$node->getId()) as $result) {
+            $id = $result['value']['shareWith'] ?? null;
+            if (!is_string($id) || $id === $owner || isset($found[$id]) || $this->users->get($id)?->isEnabled() !== true) {
+                continue;
+            }
+            $label = $result['label'] ?? null;
+            $found[$id] = ['id' => $id, 'label' => is_string($label) && $label !== '' ? mb_substr($label, 0, 160) : $id];
+            if (count($found) >= 8) {
+                break;
+            }
+        }
+        return array_values($found);
+    }
+
     /** @return array<string, mixed> */
     public function grant(string $owner, int $rootId, string $recipient, int $expectedRootFileId, string $expectedFilesMode): array {
         $recipient = trim($recipient);
@@ -466,23 +500,34 @@ final class RootShareService {
 
     /** Use Nextcloud's own sharee visibility rules, including third-party filters. */
     private function recipientDiscoverable(string $recipient, int $rootFileId): bool {
-        if (method_exists($this->collaborators, 'filteredSearch')) {
-            [$results] = $this->collaborators->filteredSearch($recipient, [IShare::TYPE_USER], false,
-                'folder', (string)$rootFileId, 20, 0);
-        } else {
-            [$results] = $this->collaborators->search($recipient, [IShare::TYPE_USER], false, 20, 0);
-            $event = new AutoCompleteFilterEvent($results, $recipient, 'folder', (string)$rootFileId,
-                null, [IShare::TYPE_USER], 20);
-            $this->events->dispatchTyped($event);
-            $results = $event->getResults();
-        }
-        foreach (array_merge($results['users'] ?? [], $results['exact']['users'] ?? []) as $result) {
-            if (is_array($result) && ($result['value']['shareType'] ?? null) === IShare::TYPE_USER
-                && ($result['value']['shareWith'] ?? null) === $recipient) {
+        foreach ($this->collaboratorMatches($recipient, $rootFileId) as $result) {
+            if (($result['value']['shareWith'] ?? null) === $recipient) {
                 return true;
             }
         }
         return false;
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function collaboratorMatches(string $search, int $rootFileId): array {
+        if (method_exists($this->collaborators, 'filteredSearch')) {
+            [$results] = $this->collaborators->filteredSearch($search, [IShare::TYPE_USER], false,
+                'folder', (string)$rootFileId, 20, 0);
+        } else {
+            [$results] = $this->collaborators->search($search, [IShare::TYPE_USER], false, 20, 0);
+            $event = new AutoCompleteFilterEvent($results, $search, 'folder', (string)$rootFileId,
+                null, [IShare::TYPE_USER], 20);
+            $this->events->dispatchTyped($event);
+            $results = $event->getResults();
+        }
+        $matches = [];
+        foreach (array_merge($results['users'] ?? [], $results['exact']['users'] ?? []) as $result) {
+            if (is_array($result) && ($result['value']['shareType'] ?? null) === IShare::TYPE_USER
+                && is_string($result['value']['shareWith'] ?? null)) {
+                $matches[] = $result;
+            }
+        }
+        return $matches;
     }
 
     /** Serialize the Files grant lifecycle with path, disable and delete changes. */

@@ -15,7 +15,10 @@ def test_root_delete_requires_typed_delete_confirmation_before_service_call():
     assert "getParam('confirmDeleteText', '')" in delete_body
     assert "trim(" in delete_body
     assert "=== 'DELETE'" in delete_body
-    assert delete_body.index("=== 'DELETE'") < delete_body.index("deleteRoot($user->getUID(), $rootId)")
+    assert "$uid = $user->getUID()" in delete_body
+    assert "withRootLock($uid, $rootId" in delete_body
+    assert "revokeRootUnderLock($uid, $rootId)" in delete_body
+    assert delete_body.index("=== 'DELETE'") < delete_body.index("deleteRoot($uid, $rootId)")
     assert "getParam('confirmDelete', '') === '1'" not in delete_body
 
 

@@ -14,6 +14,7 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDownloadResponse;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
@@ -54,6 +55,28 @@ final class RootShareController extends Controller {
             'received' => $this->sharing->received($uid),
             'notice' => is_string($notice) ? $notice : '',
         ]);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function recipients(): JSONResponse {
+        $uid = $this->session->getUser()?->getUID() ?? '';
+        try {
+            $rootId = $this->positiveId($this->request->getParam('rootId', ''));
+            $search = $this->request->getParam('search', '');
+            if (!is_string($search)) {
+                throw new \InvalidArgumentException('invalid_query');
+            }
+            return new JSONResponse(['users' => $this->sharing->recipientSuggestions($uid, $rootId, $search)], 200,
+                ['Cache-Control' => 'private, no-store']);
+        } catch (\InvalidArgumentException $error) {
+            $status = $error->getMessage() === 'invalid_root' ? 404 : 400;
+            return new JSONResponse(['error' => $status === 404 ? 'not_found' : 'invalid_query'], $status,
+                ['Cache-Control' => 'private, no-store']);
+        } catch (\Throwable $error) {
+            $this->logger->error('Could not find Library share recipients', ['exception_class' => get_class($error)]);
+            return new JSONResponse(['error' => 'lookup_unavailable'], 503, ['Cache-Control' => 'private, no-store']);
+        }
     }
 
     #[NoAdminRequired]
@@ -221,6 +244,7 @@ final class RootShareController extends Controller {
             'indexUrl' => $this->urls->linkToRoute('library.root_share.index'),
             'grantUrl' => $this->urls->linkToRoute('library.root_share.grant'),
             'previewUrl' => $this->urls->linkToRoute('library.root_share.preview'),
+            'recipientSuggestionsUrl' => $this->urls->linkToRoute('library.root_share.recipients'),
             'languageUrl' => $this->urls->linkToRoute('library.language_review.index'),
             'valueMappingsUrl' => $this->urls->linkToRoute('library.value_mapping.index'),
             'settingsUrl' => $this->urls->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),

@@ -54,6 +54,7 @@ $messages = [
                         <?php foreach ($_['roots'] as $root): ?><option value="<?php p((string)$root['id']); ?>"><?php p((string)($root['label'] ?: $root['path'])); ?></option><?php endforeach; ?>
                     </select></label>
                     <label><?php p($l->t('Nextcloud username')); ?><input name="recipient" maxlength="64" required autocomplete="off"></label>
+                    <div data-library-share-recipient-picker data-url="<?php p((string)$_['recipientSuggestionsUrl']); ?>" hidden></div>
                     <button class="button primary" type="submit"><?php p($l->t('Review sharing')); ?></button>
                 </form>
             <?php endif; ?>
