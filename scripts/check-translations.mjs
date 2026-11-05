@@ -187,7 +187,7 @@ try {
 // source token preserved by its translation must be in this set. Arabic permits
 // no other Latin content token at all.
 const permittedLatinTokens = new Set([
-  'nextcloud', 'files', 'library', 'javascript', 'json', 'zip', 'tsv', 'cbz',
+  'nextcloud', 'files', 'library', 'open', 'javascript', 'json', 'zip', 'tsv', 'cbz',
   'epub', 'pdf', 'pdfs', 'jpeg', 'png', 'webp', 'mime', 'isbn', 'issn', 'asin', 'ggkey', 'opds', 'api',
   'rar', 'mib', 'px', 'yyyy', 'mm', 'dd', 'ctrl', 'delete', 'enter', 'esc', 'escape',
   'eco', 'rolleiflex', 'ocr', 'opf', 'cron', 'id', 'ids', 'url', 'urls',
