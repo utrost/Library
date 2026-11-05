@@ -2501,7 +2501,7 @@
 .library-shared-form input, .library-shared-form select { width: 100%; box-sizing: border-box; }
 .library-shared-list { list-style: none; margin: .75rem 0 0; padding: 0; }
 .library-shared-list li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem 1rem; min-width: 0; padding: .8rem 0; border-top: 1px solid var(--color-border); }
-.library-shared-list li > div, .library-shared-list li > a { min-width: 0; overflow-wrap: anywhere; }
+.library-shared-list li > div, .library-shared-list li > a, .library-shared-list li > strong { min-width: 0; overflow-wrap: anywhere; }
 .library-shared-list li > div { display: grid; gap: .2rem; }
 .library-shared-list li > span { overflow-wrap: anywhere; }
 .library-shared-book-row > a { display: flex; align-items: center; gap: .8rem; width: 100%; }

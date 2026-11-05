@@ -1527,6 +1527,7 @@ OC.L10N.register(
         "Waiting for the recipient to accept the Files share": "بانتظار قبول المستلِم مشاركة الملفات",
         "Accept the Files share to browse this shelf.": "اقبل مشاركة الملفات لتصفح هذا الرف.",
         "Before disabling or uninstalling Library, remove this access here or remove the Files share in Nextcloud Files. Disabling Library does not remove the Files share.": "قبل تعطيل Library أو إلغاء تثبيته، أزل هذا الوصول هنا أو أزل مشاركة الملفات في ملفات Nextcloud. تعطيل Library لا يزيل مشاركة الملفات.",
+        "This share no longer has the expected Files access. Remove access below, then share the shelf again.": "لم تعد هذه المشاركة تملك الوصول المتوقع إلى الملفات. أزل الوصول أدناه، ثم شارك الرف مجددًا.",
         "Files access changed. Review the share in Nextcloud Files.": "تغيّر الوصول إلى الملفات. راجع المشاركة في ملفات Nextcloud.",
         "Browse books that another Nextcloud user has shared with you. Your own reading lists and book details are separate.": "تصفّح الكتب التي شاركها معك مستخدم آخر في Nextcloud. تبقى قوائم قراءتك وبيانات كتبك منفصلة.",
         "Choose an existing, enabled Nextcloud user.": "اختر مستخدمًا موجودًا ومفعّلًا في Nextcloud.",

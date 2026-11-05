@@ -281,7 +281,7 @@ final class RootShareController extends Controller {
     }
 
     private function grantErrorCode(string $message): string {
-        return in_array($message, ['recipient_has_writable_access', 'invalid_root', 'share_limit_reached', 'already_shared', 'revocation_pending', 'share_changed'], true)
+        return in_array($message, ['recipient_has_writable_access', 'invalid_root', 'share_limit_reached', 'already_shared', 'existing_share_changed', 'revocation_pending', 'share_changed'], true)
             ? $message : 'invalid_recipient';
     }
 }

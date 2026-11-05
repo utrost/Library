@@ -47,7 +47,12 @@ final class RootShareService {
         }
         $existing = $this->findOwnedGrant($owner, $rootId, $recipient);
         if ($existing !== null) {
-            throw new \InvalidArgumentException($existing['revoked_at'] === null ? 'already_shared' : 'revocation_pending');
+            if ($existing['revoked_at'] !== null) {
+                throw new \InvalidArgumentException('revocation_pending');
+            }
+            $status = $this->presentGrant($existing)['status'];
+            throw new \InvalidArgumentException(in_array($status, ['ready', 'awaiting-acceptance'], true)
+                ? 'already_shared' : 'existing_share_changed');
         }
         $countResult = $this->db->executeQuery('SELECT COUNT(*) FROM *PREFIX*library_root_shares WHERE owner_user_id=?', [$owner]);
         $grantCount = (int)$countResult->fetchOne();
@@ -141,7 +146,7 @@ final class RootShareService {
         if ($existing !== null && $existing['revoked_at'] === null) {
             $current = $this->presentGrant($existing);
             if (!in_array($current['status'], ['ready', 'awaiting-acceptance'], true)) {
-                throw new \InvalidArgumentException('share_changed');
+                throw new \InvalidArgumentException('existing_share_changed');
             }
             return $current;
         }
@@ -195,7 +200,7 @@ final class RootShareService {
                 if (in_array($current['status'], ['ready', 'awaiting-acceptance'], true)) {
                     return $current;
                 }
-                throw new \InvalidArgumentException('share_changed', 0, $e);
+                throw new \InvalidArgumentException('existing_share_changed', 0, $e);
             }
             if ($concurrent !== null) {
                 throw new \RuntimeException('revocation_pending', 0, $e);
@@ -543,7 +548,7 @@ final class RootShareService {
             $results = $event->getResults();
         }
         $matches = [];
-        foreach (array_merge($results['users'] ?? [], $results['exact']['users'] ?? []) as $result) {
+        foreach (array_merge($results['exact']['users'] ?? [], $results['users'] ?? []) as $result) {
             if (is_array($result) && ($result['value']['shareType'] ?? null) === IShare::TYPE_USER
                 && is_string($result['value']['shareWith'] ?? null)) {
                 $matches[] = $result;

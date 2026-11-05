@@ -17,6 +17,7 @@ $messages = [
     'recipient_has_writable_access' => $l->t('This user already has write access to that folder. Read-only Library sharing cannot override Files permissions.'),
     'share_limit_reached' => $l->t('This library has reached the current 100-share limit.'),
     'already_shared' => $l->t('This shelf is already shared with that user.'),
+    'existing_share_changed' => $l->t('This share no longer has the expected Files access. Remove access below, then share the shelf again.'),
     'revocation_pending' => $l->t('This share is awaiting Files cleanup. Remove access again before creating it.'),
     'share_changed' => $l->t('The shelf or Files access changed. Review sharing again before confirming.'),
     'share_failed' => $l->t('Could not share this shelf. Try again.'),

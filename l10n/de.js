@@ -1439,6 +1439,7 @@ OC.L10N.register(
         "Waiting for the recipient to accept the Files share": "Warten darauf, dass die empfangende Person die Dateifreigabe annimmt",
         "Accept the Files share to browse this shelf.": "Nehmen Sie die Dateifreigabe an, um dieses Regal zu durchsuchen.",
         "Before disabling or uninstalling Library, remove this access here or remove the Files share in Nextcloud Files. Disabling Library does not remove the Files share.": "Entfernen Sie vor dem Deaktivieren oder Deinstallieren von Library diesen Zugriff hier oder die Dateifreigabe in Nextcloud Dateien. Das Deaktivieren von Library entfernt die Dateifreigabe nicht.",
+        "This share no longer has the expected Files access. Remove access below, then share the shelf again.": "Diese Freigabe hat nicht mehr den erwarteten Dateizugriff. Entfernen Sie unten den Zugriff und teilen Sie das Regal erneut.",
         "Files access changed. Review the share in Nextcloud Files.": "Der Dateizugriff hat sich geändert. Prüfen Sie die Freigabe in Nextcloud Dateien.",
         "Browse books that another Nextcloud user has shared with you. Your own reading lists and book details are separate.": "Durchsuchen Sie Bücher, die eine andere Person in Nextcloud mit Ihnen geteilt hat. Ihre eigenen Leselisten und Buchdaten bleiben getrennt.",
         "Choose an existing, enabled Nextcloud user.": "Wählen Sie eine vorhandene, aktive Person in Nextcloud aus.",
