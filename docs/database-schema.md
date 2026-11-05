@@ -35,7 +35,7 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_language_mappings` | 3 | 1 | Account-wide language mapping or ignore decisions. |
 | `library_value_mappings` | 6 | 2 | Reversible account-wide publisher and subject spelling groups; publication metadata stays unchanged. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
-| `library_root_shares` | 8 | 4 | Named-user grants for one owned root, its Files identity and managed share cleanup state. No book or personal metadata is copied. |
+| `library_root_shares` | 9 | 4 | Named-user grants for one owned root, its Files identity, and a hidden recovery marker for interrupted Files-share creation. No book or personal metadata is copied. |
 | `library_lookup_quota` | 2 | 1 | One global next-request slot per external metadata provider; no user queries or identifiers. |
 | `library_files` | 17 | 10 | Nextcloud file identity, observed paths/revisions, scan diagnostics and shelf/date/type worklist ordering. |
 | `library_items` | 48 | 31 | Catalogue metadata, ordered authors, series migration status, genre/language discovery markers, search-index version, provenance, field protection, review flags, reversible deletion mark and cover revision. |

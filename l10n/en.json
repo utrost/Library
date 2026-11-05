@@ -1435,7 +1435,8 @@
         "Loading shelves…": "Loading shelves…",
         "Could not load summary. Try again.": "Could not load summary. Try again.",
         "Add and enable a shelf in Library settings before sharing.": "Add and enable a shelf in Library settings before sharing.",
-        "Awaiting Files access": "Awaiting Files access",
+        "Waiting for the recipient to accept the Files share": "Waiting for the recipient to accept the Files share",
+        "Files access changed. Review the share in Nextcloud Files.": "Files access changed. Review the share in Nextcloud Files.",
         "Browse books that another Nextcloud user has shared with you. Your own reading lists and book details are separate.": "Browse books that another Nextcloud user has shared with you. Your own reading lists and book details are separate.",
         "Choose an existing, enabled Nextcloud user.": "Choose an existing, enabled Nextcloud user.",
         "Cleanup pending": "Cleanup pending",
@@ -1510,7 +1511,7 @@
         "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.": "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.",
         "Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.": "Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.",
         "Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.": "Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.",
-        "Library could not confirm this share. A Files share may still exist. Check and remove unintended access in Nextcloud Files.": "Library could not confirm this share. A Files share may still exist. Check and remove unintended access in Nextcloud Files."
+        "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending.": "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

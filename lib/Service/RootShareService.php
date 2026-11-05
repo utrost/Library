@@ -10,17 +10,21 @@ use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\IDBConnection;
 use OCP\IUserManager;
+use OCP\Lock\ILockingProvider;
 use OCP\Share\IManager as IShareManager;
 use OCP\Share\IShare;
 
 /** A Library grant is useful only while the recipient can read the underlying Files root. */
 final class RootShareService {
+    private const MANAGED_NOTE_PREFIX = 'Library managed share: ';
+
     public function __construct(
         private IDBConnection $db,
         private RootService $roots,
         private IRootFolder $files,
         private IUserManager $users,
         private IShareManager $shares,
+        private ILockingProvider $locks,
     ) {
     }
 
@@ -80,6 +84,11 @@ final class RootShareService {
         if ($recipient === $owner) {
             throw new \InvalidArgumentException('invalid_recipient');
         }
+        return $this->withGrantLock($owner, $rootId, $recipient,
+            fn (): array => $this->grantLocked($owner, $rootId, $recipient, $expectedRootFileId, $expectedFilesMode));
+    }
+
+    private function grantLocked(string $owner, int $rootId, string $recipient, int $expectedRootFileId, string $expectedFilesMode): array {
         $root = $this->roots->findRoot($owner, $rootId);
         if ($root === null || !$root['enabled'] || $root['path'] === '/') {
             throw new \InvalidArgumentException('invalid_root');
@@ -121,38 +130,23 @@ final class RootShareService {
         if ($rootFileId !== $expectedRootFileId || ($recipientRoots === [] ? 'create' : 'reuse') !== $expectedFilesMode) {
             throw new \InvalidArgumentException('share_changed');
         }
-        $managedShare = null;
-        if ($recipientRoots === []) {
-            try {
-                $share = $this->shares->newShare();
-                $share->setShareType(IShare::TYPE_USER)
-                    ->setSharedBy($owner)
-                    ->setShareOwner($owner)
-                    ->setSharedWith($recipient)
-                    ->setNode($node)
-                    ->setPermissions(Constants::PERMISSION_READ);
-                $managedShare = $this->shares->createShare($share);
-            } catch (\Throwable $e) {
-                throw new \RuntimeException('file_share_failed', 0, $e);
-            }
-        }
+        // Reserve a hidden row before the external Files write. An interrupted
+        // create remains visible to the owner as cleanup-pending, and its note
+        // identifies only the share created for this exact attempt.
+        $recoveryToken = $recipientRoots === [] ? bin2hex(random_bytes(16)) : null;
+        $pending = $recoveryToken !== null;
         try {
             $this->db->executeStatement('INSERT INTO *PREFIX*library_root_shares '
-                . '(owner_user_id,recipient_user_id,root_id,root_file_id,managed_share_id,revoked_at,created_at) '
-                . 'VALUES (?,?,?,?,?,?,?)', [$owner, $recipient, $rootId, $rootFileId,
-                    $managedShare?->getFullId(), null, time()]);
+                . '(owner_user_id,recipient_user_id,root_id,root_file_id,managed_share_id,recovery_token,revoked_at,created_at) '
+                . 'VALUES (?,?,?,?,?,?,?,?)', [$owner, $recipient, $rootId, $rootFileId,
+                    null, $recoveryToken, $pending ? time() : null, time()]);
         } catch (\Throwable $e) {
-            if ($managedShare !== null) {
-                try {
-                    $this->shares->deleteShare($managedShare);
-                } catch (\Throwable $cleanupError) {
-                    // Never report a successful grant while a Files share may exist without a Library grant.
-                    throw new \RuntimeException('file_share_cleanup_pending', 0, $cleanupError);
-                }
-            }
             $concurrent = $this->findOwnedGrant($owner, $rootId, $recipient);
             if ($concurrent !== null && $concurrent['revoked_at'] === null) {
                 return $this->presentGrant($concurrent);
+            }
+            if ($concurrent !== null) {
+                throw new \RuntimeException('revocation_pending', 0, $e);
             }
             throw new \RuntimeException('grant_failed', 0, $e);
         }
@@ -160,11 +154,56 @@ final class RootShareService {
         if ($created === null) {
             throw new \RuntimeException('grant_failed');
         }
+        if ($recoveryToken !== null) {
+            try {
+                $share = $this->shares->newShare();
+                $share->setShareType(IShare::TYPE_USER)
+                    ->setSharedBy($owner)
+                    ->setShareOwner($owner)
+                    ->setSharedWith($recipient)
+                    ->setNode($node)
+                    ->setPermissions(Constants::PERMISSION_READ)
+                    ->setNote(self::MANAGED_NOTE_PREFIX . $recoveryToken);
+                $managedShare = $this->shares->createShare($share);
+            } catch (\Throwable $e) {
+                // createShare can throw after its Files write. Keep the marker
+                // and hidden row until the owner retries cleanup.
+                throw new \RuntimeException('file_share_cleanup_pending', 0, $e);
+            }
+            try {
+                $updated = $this->db->executeStatement('UPDATE *PREFIX*library_root_shares '
+                    . 'SET managed_share_id=?,revoked_at=NULL WHERE id=? AND owner_user_id=? AND recovery_token=? AND revoked_at IS NOT NULL',
+                    [$managedShare->getFullId(), (int)$created['id'], $owner, $recoveryToken]);
+                if ($updated !== 1) {
+                    throw new \RuntimeException('grant_changed');
+                }
+            } catch (\Throwable $e) {
+                try {
+                    $this->shares->deleteShare($managedShare);
+                } catch (\Throwable $cleanupError) {
+                    throw new \RuntimeException('file_share_cleanup_pending', 0, $cleanupError);
+                }
+                throw new \RuntimeException('file_share_cleanup_pending', 0, $e);
+            }
+            $created = $this->findOwnedGrant($owner, $rootId, $recipient);
+            if ($created === null || $created['revoked_at'] !== null) {
+                throw new \RuntimeException('file_share_cleanup_pending');
+            }
+        }
         return $this->presentGrant($created);
     }
 
     /** Revocation hides Library data first; a failed Files cleanup remains retryable. */
     public function revoke(string $owner, int $grantId): bool {
+        $grant = $this->findById($grantId);
+        if ($grant === null || $grant['owner_user_id'] !== $owner) {
+            return false;
+        }
+        return $this->withGrantLock($owner, (int)$grant['root_id'], (string)$grant['recipient_user_id'],
+            fn (): bool => $this->revokeLocked($owner, $grantId));
+    }
+
+    private function revokeLocked(string $owner, int $grantId): bool {
         $grant = $this->findById($grantId);
         if ($grant === null || $grant['owner_user_id'] !== $owner) {
             return false;
@@ -176,7 +215,9 @@ final class RootShareService {
                 $share = $this->shares->getShareById($this->managedShareId($managedId));
                 if ($share->getShareType() !== IShare::TYPE_USER || $share->getShareOwner() !== $owner
                     || $share->getSharedBy() !== $owner || $share->getSharedWith() !== $grant['recipient_user_id']
-                    || $share->getNodeId() !== (int)$grant['root_file_id']) {
+                    || $share->getNodeId() !== (int)$grant['root_file_id']
+                    || (is_string($grant['recovery_token'] ?? null) && $grant['recovery_token'] !== ''
+                        && $share->getNote() !== self::MANAGED_NOTE_PREFIX . $grant['recovery_token'])) {
                     throw new \RuntimeException('share_identity_changed');
                 }
                 $this->shares->deleteShare($share);
@@ -185,6 +226,8 @@ final class RootShareService {
             } catch (\Throwable $e) {
                 throw new \RuntimeException('file_share_cleanup_pending', 0, $e);
             }
+        } elseif (is_string($grant['recovery_token'] ?? null) && $grant['recovery_token'] !== '') {
+            $this->cleanupPendingShare($grant);
         }
         $this->db->executeStatement('DELETE FROM *PREFIX*library_root_shares WHERE id=? AND owner_user_id=? AND revoked_at IS NOT NULL', [$grantId, $owner]);
         return true;
@@ -359,6 +402,61 @@ final class RootShareService {
         return str_contains($id, ':') ? $id : 'ocinternal:' . $id;
     }
 
+    private function withGrantLock(string $owner, int $rootId, string $recipient, callable $operation): mixed {
+        $key = 'library/root-share/' . hash('sha256', $owner . "\0" . $rootId . "\0" . $recipient);
+        $this->locks->acquireLock($key, ILockingProvider::LOCK_EXCLUSIVE);
+        try {
+            return $operation();
+        } finally {
+            $this->locks->releaseLock($key, ILockingProvider::LOCK_EXCLUSIVE);
+        }
+    }
+
+    /** Resolve an interrupted create without ever selecting a manual Files share. */
+    private function cleanupPendingShare(array $grant): void {
+        try {
+            $nodes = $this->files->getUserFolder((string)$grant['owner_user_id'])->getById((int)$grant['root_file_id']);
+            $node = current(array_filter($nodes, static fn ($entry): bool => $entry instanceof Folder
+                && (int)$entry->getId() === (int)$grant['root_file_id']));
+            if (!$node instanceof Folder) {
+                throw new \RuntimeException('folder_unavailable');
+            }
+            $matches = [];
+            $possible = 0;
+            for ($offset = 0; $offset <= 500; $offset += 50) {
+                $page = $this->shares->getSharesBy((string)$grant['owner_user_id'], IShare::TYPE_USER, $node, false, 50, $offset, false);
+                foreach ($page as $share) {
+                    if ($share->getSharedWith() !== $grant['recipient_user_id'] || $share->getShareOwner() !== $grant['owner_user_id']
+                        || $share->getSharedBy() !== $grant['owner_user_id'] || $share->getNodeId() !== (int)$grant['root_file_id']) {
+                        continue;
+                    }
+                    $possible++;
+                    if ($share->getNote() === self::MANAGED_NOTE_PREFIX . $grant['recovery_token']) {
+                        $matches[] = $share;
+                    }
+                }
+                if (count($page) < 50) {
+                    break;
+                }
+                if ($offset === 500) {
+                    throw new \RuntimeException('share_search_limit');
+                }
+            }
+            if (count($matches) > 1) {
+                throw new \RuntimeException('ambiguous_managed_share');
+            }
+            if ($matches !== []) {
+                $this->shares->deleteShare($matches[0]);
+            } elseif ($possible > 0 || time() - (int)$grant['created_at'] < 60) {
+                // Its note may have changed. Keep the row so the owner can
+                // inspect Files access; a recent create may still be running.
+                throw new \RuntimeException('share_identity_unknown');
+            }
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('file_share_cleanup_pending', 0, $e);
+        }
+    }
+
     /** @param array<string, mixed> $grant */
     private function rootStillMatches(array $grant): bool {
         if (!is_string($grant['path'] ?? null) || $grant['path'] === '/') {
@@ -398,6 +496,26 @@ final class RootShareService {
     /** @param array<string, mixed> $row @return array<string, mixed> */
     private function presentGrant(array $row): array {
         $recipient = (string)$row['recipient_user_id'];
+        $status = 'access-changed';
+        if ($row['revoked_at'] !== null) {
+            $status = 'cleanup-pending';
+        } elseif (($row['enabled'] ?? false) && $this->rootStillMatches($row)) {
+            if ($this->recipientReadOnlyRootNodes($recipient, (int)$row['root_file_id']) !== []) {
+                $status = 'ready';
+            } elseif (is_string($row['managed_share_id'] ?? null) && $row['managed_share_id'] !== '') {
+                try {
+                    $share = $this->shares->getShareById($this->managedShareId($row['managed_share_id']));
+                    if ($share->getShareType() === IShare::TYPE_USER && $share->getShareOwner() === $row['owner_user_id']
+                        && $share->getSharedBy() === $row['owner_user_id']
+                        && $share->getSharedWith() === $recipient && $share->getNodeId() === (int)$row['root_file_id']
+                        && $share->getStatus() === IShare::STATUS_PENDING) {
+                        $status = 'awaiting-acceptance';
+                    }
+                } catch (\Throwable) {
+                    // A removed or inaccessible Files share is not ready.
+                }
+            }
+        }
         return [
             'id' => (int)$row['id'],
             'rootId' => (int)$row['root_id'],
@@ -406,7 +524,7 @@ final class RootShareService {
             'recipientId' => $recipient,
             'recipientName' => $this->users->get($recipient)?->getDisplayName() ?? $recipient,
             'managedFilesShare' => ($row['managed_share_id'] ?? null) !== null,
-            'status' => $row['revoked_at'] !== null ? 'cleanup-pending' : (($row['enabled'] ?? false) && $this->rootStillMatches($row) && $this->recipientReadOnlyRootNodes($recipient, (int)$row['root_file_id']) !== [] ? 'ready' : 'awaiting-files-access'),
+            'status' => $status,
         ];
     }
 

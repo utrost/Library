@@ -1436,7 +1436,8 @@ OC.L10N.register(
         "Loading shelves…": "Regale werden geladen…",
         "Could not load summary. Try again.": "Die Übersicht konnte nicht geladen werden. Bitte erneut versuchen.",
         "Add and enable a shelf in Library settings before sharing.": "Fügen Sie vor dem Teilen in den Bibliothekseinstellungen ein Regal hinzu und aktivieren Sie es.",
-        "Awaiting Files access": "Warten auf Dateizugriff",
+        "Waiting for the recipient to accept the Files share": "Warten darauf, dass die empfangende Person die Dateifreigabe annimmt",
+        "Files access changed. Review the share in Nextcloud Files.": "Der Dateizugriff hat sich geändert. Prüfen Sie die Freigabe in Nextcloud Dateien.",
         "Browse books that another Nextcloud user has shared with you. Your own reading lists and book details are separate.": "Durchsuchen Sie Bücher, die eine andere Person in Nextcloud mit Ihnen geteilt hat. Ihre eigenen Leselisten und Buchdaten bleiben getrennt.",
         "Choose an existing, enabled Nextcloud user.": "Wählen Sie eine vorhandene, aktive Person in Nextcloud aus.",
         "Cleanup pending": "Bereinigung ausstehend",
@@ -1511,7 +1512,7 @@ OC.L10N.register(
         "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.": "Der vorhandene schreibgeschützte Dateizugriff wird verwendet. Library entfernt diese Dateifreigabe später nicht.",
         "Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.": "Teilen Sie ein Bibliotheksregal schreibgeschützt mit einer Person in Nextcloud. Bei Bedarf wird der gesamte Ordner als schreibgeschützte Dateifreigabe geteilt, einschließlich der Dateien, die Library nicht indiziert hat.",
         "Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.": "Library zeigt nur indizierte Bücher und ihre Publikationsdaten. Über die Dateifreigabe kann die empfangende Person jedoch auf alle Dateien und Unterordner dieses Regals zugreifen, auch auf nicht indizierte Dateien. Persönliche Lesedaten und Listen bleiben privat.",
-        "Library could not confirm this share. A Files share may still exist. Check and remove unintended access in Nextcloud Files.": "Library konnte diese Freigabe nicht bestätigen. Eine Dateifreigabe könnte noch bestehen. Prüfen und entfernen Sie unbeabsichtigten Zugriff in Nextcloud Dateien."
+        "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending.": "Die Freigabe muss bereinigt werden. Versuchen Sie unten erneut „Zugriff entfernen“. Bleibt die Bereinigung ausstehend, prüfen Sie Nextcloud Dateien."
     },
     "nplurals=2; plural=(n != 1);"
 );

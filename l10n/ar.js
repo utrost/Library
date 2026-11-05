@@ -1524,7 +1524,8 @@ OC.L10N.register(
         "Loading shelves…": "جارٍ تحميل الرفوف…",
         "Could not load summary. Try again.": "تعذّر تحميل الملخص. حاول مرة أخرى.",
         "Add and enable a shelf in Library settings before sharing.": "أضف رفًا وفعّله من إعدادات المكتبة قبل مشاركته.",
-        "Awaiting Files access": "بانتظار الوصول إلى الملفات",
+        "Waiting for the recipient to accept the Files share": "بانتظار قبول المستلِم مشاركة الملفات",
+        "Files access changed. Review the share in Nextcloud Files.": "تغيّر الوصول إلى الملفات. راجع المشاركة في ملفات Nextcloud.",
         "Browse books that another Nextcloud user has shared with you. Your own reading lists and book details are separate.": "تصفّح الكتب التي شاركها معك مستخدم آخر في Nextcloud. تبقى قوائم قراءتك وبيانات كتبك منفصلة.",
         "Choose an existing, enabled Nextcloud user.": "اختر مستخدمًا موجودًا ومفعّلًا في Nextcloud.",
         "Cleanup pending": "التنظيف معلّق",
@@ -1607,7 +1608,7 @@ OC.L10N.register(
         "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.": "سيُستخدم وصول المستلِم الحالي للملفات للقراءة فقط. لن تزيل المكتبة مشاركة الملفات هذه لاحقًا.",
         "Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.": "شارك رفًا من المكتبة للقراءة فقط مع مستخدم واحد في Nextcloud. عند الحاجة، ستُنشأ مشاركة ملفات للقراءة فقط تشمل المجلد بالكامل، بما في ذلك الملفات التي لم تفهرسها المكتبة.",
         "Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.": "تعرض Library الكتب المفهرسة وبيانات نشرها فقط. تتيح مشاركة الملفات للمستلِم أيضًا الوصول إلى كل ملف ومجلد فرعي في هذا الرف، بما في ذلك الملفات غير المفهرسة. تبقى تفاصيل القراءة الشخصية والقوائم خاصة.",
-        "Library could not confirm this share. A Files share may still exist. Check and remove unintended access in Nextcloud Files.": "لم تتمكن المكتبة من تأكيد هذه المشاركة. قد تظل مشاركة الملفات موجودة. تحقّق من الوصول غير المقصود وأزله في ملفات Nextcloud."
+        "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending.": "تحتاج المشاركة إلى تنظيف. أعد محاولة إزالة الوصول أدناه. تحقّق من ملفات Nextcloud إذا بقي التنظيف معلّقًا."
     },
     "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 );

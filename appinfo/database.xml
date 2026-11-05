@@ -20,6 +20,7 @@
             <field><name>root_id</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull></field>
             <field><name>root_file_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
             <field><name>managed_share_id</name><type>string</type><length>64</length><notnull>false</notnull></field>
+            <field><name>recovery_token</name><type>string</type><length>32</length><notnull>false</notnull></field>
             <field><name>revoked_at</name><type>integer</type><unsigned>true</unsigned><notnull>false</notnull></field>
             <field><name>created_at</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull></field>
             <index><name>library_root_shares_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>

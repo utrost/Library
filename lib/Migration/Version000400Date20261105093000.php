@@ -21,6 +21,7 @@ final class Version000400Date20261105093000 extends SimpleMigrationStep {
             $table->addColumn('root_id', 'integer', ['unsigned' => true, 'notnull' => true]);
             $table->addColumn('root_file_id', 'bigint', ['unsigned' => true, 'notnull' => true]);
             $table->addColumn('managed_share_id', 'string', ['length' => 64, 'notnull' => false]);
+            $table->addColumn('recovery_token', 'string', ['length' => 32, 'notnull' => false]);
             $table->addColumn('revoked_at', 'integer', ['unsigned' => true, 'notnull' => false]);
             $table->addColumn('created_at', 'integer', ['unsigned' => true, 'notnull' => true]);
             $table->setPrimaryKey(['id'], 'library_root_shares_pk');
