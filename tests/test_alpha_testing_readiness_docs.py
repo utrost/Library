@@ -1,5 +1,5 @@
 from pathlib import Path
-from release_metadata import CURRENT_VERSION
+from release_metadata import STABLE_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -12,10 +12,10 @@ def test_human_test_handbook_names_current_candidate_and_archives_old_releases()
     handbook = read("docs/human-test-handbook.md")
     checklist = read("docs/alpha-test-checklist.md")
 
-    assert f"Current acceptance target: {CURRENT_VERSION}" in handbook
+    assert f"Current acceptance target: {STABLE_VERSION}" in handbook
     assert "human-test-handbook-v0.1-archive.md" in handbook
     assert "0.1.0-alpha.174" not in handbook
-    assert f"Current release: [`{CURRENT_VERSION}`]" in read("README.md")
+    assert f"Current release: [`{STABLE_VERSION}`]" in read("README.md")
     assert "0.1.0-alpha.127" not in handbook
     assert "0.1.0-beta.1" in checklist
 

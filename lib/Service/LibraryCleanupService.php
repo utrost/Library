@@ -87,6 +87,7 @@ final class LibraryCleanupService {
         if ($uid === '') throw new \InvalidArgumentException('missing_user');
         $this->db->beginTransaction();
         try {
+            $this->db->executeStatement('DELETE FROM *PREFIX*library_root_shares WHERE owner_user_id=? OR recipient_user_id=?', [$uid, $uid]);
             // Entries inherit ownership from their list, not from a user_id column.
             $qb = $this->db->getQueryBuilder();
             $result = $qb->select('id')->from('library_lists')->where($qb->expr()->eq('user_id', $qb->createNamedParameter($uid)))->executeQuery();

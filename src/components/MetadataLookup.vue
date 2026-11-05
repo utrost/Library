@@ -1,0 +1,148 @@
+<script setup>
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { n, t } from '@nextcloud/l10n'
+
+const props = defineProps({
+  item: { type: Object, required: true },
+  draft: { type: Object, required: true },
+  baseUrl: { type: String, required: true },
+  requestToken: { type: String, required: true },
+  disabled: { type: Boolean, default: false },
+})
+const emit = defineEmits(['stage'])
+const mode = ref('title')
+const isbn = ref('')
+const title = ref('')
+const author = ref('')
+const busy = ref(false)
+const error = ref('')
+const results = ref([])
+const searched = ref(false)
+const edition = ref(null)
+const selectedFields = ref([])
+const notice = ref('')
+let generation = 0
+const labels = {
+  title: t('library', 'Title'), subtitle: t('library', 'Subtitle'),
+  publisher: t('library', 'Publisher'), publicationDate: t('library', 'Publication date'),
+  description: t('library', 'Description'), subjects: t('library', 'Subjects'),
+}
+watch(() => props.item.id, () => {
+  generation += 1
+  busy.value = false
+  error.value = ''
+  selectedFields.value = []
+  const identifier = (props.item.identifiers || []).find(row => row.scheme === 'isbn' && row.valid !== false && row.displayValue)
+  isbn.value = identifier?.displayValue || ''
+  title.value = props.item.title || ''
+  author.value = props.item.canonicalAuthors?.[0]?.name || props.item.creators?.split(/[;,]/)[0]?.trim() || ''
+  mode.value = isbn.value ? 'isbn' : 'title'
+  results.value = []
+  edition.value = null
+  searched.value = false
+  notice.value = ''
+}, { immediate: true })
+onBeforeUnmount(() => { generation += 1 })
+
+async function request(path, values) {
+  const body = new FormData()
+  body.set('requesttoken', props.requestToken)
+  Object.entries(values).forEach(([key, value]) => body.set(key, value))
+  const response = await fetch(`${props.baseUrl}/metadata-lookup${path}`, {
+    method: 'POST', credentials: 'same-origin', cache: 'no-store', body,
+  })
+  if (!response.ok) throw new Error(response.status === 429
+    ? t('library', 'Open Library is busy. Wait a moment and try again.')
+    : response.status === 400
+    ? t('library', 'Enter a valid ISBN or at least three title characters.')
+    : response.status === 503
+    ? t('library', 'Open Library lookup is disabled on this Nextcloud server.')
+    : t('library', 'Open Library is unavailable. Try again later or edit the book directly.'))
+  return response.json()
+}
+async function search() {
+  if (busy.value || props.disabled) return
+  const current = ++generation
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  results.value = []
+  edition.value = null
+  searched.value = false
+  try {
+    const values = mode.value === 'isbn' ? { isbn: isbn.value } : { title: title.value, author: author.value }
+    const response = await request('', values)
+    if (current !== generation) return
+    results.value = response.results || []
+    searched.value = true
+  } catch (cause) { if (current === generation) error.value = cause.message }
+  finally { if (current === generation) busy.value = false }
+}
+async function choose(candidate) {
+  if (busy.value || props.disabled) return
+  const current = ++generation
+  busy.value = true
+  error.value = ''
+  edition.value = null
+  selectedFields.value = []
+  try { const result = await request('/edition', { editionId: candidate.editionId }); if (current === generation) edition.value = result }
+  catch (cause) { if (current === generation) error.value = cause.message }
+  finally { if (current === generation) busy.value = false }
+}
+function display(value) { return Array.isArray(value) ? value.join('\n') : String(value ?? '') }
+const fields = computed(() => Object.entries(edition.value?.fields || {}).filter(([key, value]) =>
+  Object.hasOwn(labels, key) && display(value).trim() && display(value).trim() !== display(props.draft[key]).trim(),
+).map(([key, value]) => ({ key, label: labels[key], current: display(props.draft[key]), suggested: display(value) })))
+function stage() {
+  const selected = Object.fromEntries(fields.value.filter(row => selectedFields.value.includes(row.key)).map(row => [row.key, row.suggested]))
+  if (!Object.keys(selected).length) return
+  emit('stage', selected)
+  notice.value = n('library', '%n suggested field staged. Review and save your book changes.', '%n suggested fields staged. Review and save your book changes.', Object.keys(selected).length)
+  selectedFields.value = []
+}
+</script>
+
+<template>
+  <details class="library-metadata-lookup library-full-details-card">
+    <summary>{{ t('library', 'Find book details') }}</summary>
+    <div class="library-metadata-lookup-content">
+      <p>{{ t('library', 'Search Open Library for this book. Your ISBN or title and author will be sent to Open Library only when you choose Search. Results are suggestions; nothing changes until you review and save.') }}</p>
+      <form class="library-metadata-lookup-form" @submit.prevent="search">
+        <label>{{ t('library', 'Search by') }} <select v-model="mode" :disabled="busy || disabled"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="title">{{ t('library', 'Title and author') }}</option></select></label>
+        <label v-if="mode === 'isbn'">{{ t('library', 'ISBN') }} <input v-model="isbn" inputmode="text" maxlength="24" :disabled="busy || disabled"></label>
+        <template v-else><label>{{ t('library', 'Title') }} <input v-model="title" maxlength="200" :disabled="busy || disabled"></label><label>{{ t('library', 'Author') }} <input v-model="author" maxlength="200" :disabled="busy || disabled"></label></template>
+        <button type="submit" class="button secondary" :disabled="busy || disabled || (mode === 'isbn' ? !isbn.trim() : title.trim().length < 3)">{{ busy ? t('library', 'Searching…') : t('library', 'Search Open Library') }}</button>
+      </form>
+      <p v-if="busy" role="status" aria-live="polite">{{ t('library', 'Searching Open Library…') }}</p>
+      <p v-if="error" role="alert" class="library-full-details-error">{{ error }}</p>
+      <p v-if="notice" role="status" class="library-full-details-feedback">{{ notice }}</p>
+      <p v-if="searched && !results.length" role="status">{{ t('library', 'No matching editions found. Try the title and author search or edit the book directly.') }}</p>
+      <p v-if="searched && results.length" role="status">{{ n('library', '%n matching edition found. Choose one to compare.', '%n matching editions found. Choose one to compare.', results.length) }}</p>
+      <ul v-if="results.length" class="library-metadata-lookup-results" :aria-label="t('library', 'Matching editions')">
+        <li v-for="candidate in results" :key="candidate.editionId"><button type="button" class="button secondary" :aria-label="`${t('library', 'Compare edition')} ${candidate.editionId}: ${candidate.title}`" :disabled="busy || disabled" @click="choose(candidate)">{{ candidate.title }}</button><span class="library-muted">{{ [candidate.authors?.join(', '), candidate.publisher, candidate.year, candidate.languages?.join(', '), candidate.match === 'isbn' ? t('library', 'ISBN match') : ''].filter(Boolean).join(' · ') }}</span></li>
+      </ul>
+      <div v-if="edition" class="library-metadata-lookup-review">
+        <h3>{{ t('library', 'Selected edition') }} · {{ edition.editionId }}</h3>
+        <p>{{ t('library', 'Compare this edition with your current book details. Select only fields you want to stage.') }} <a :href="edition.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'View source at Open Library') }}</a></p>
+        <p class="library-muted">{{ [edition.isbn?.length ? `ISBN ${edition.isbn.join(', ')}` : '', edition.languages?.length ? `${t('library', 'Language')}: ${edition.languages.join(', ')}` : ''].filter(Boolean).join(' · ') }}</p>
+        <p v-if="!fields.length" role="status">{{ t('library', 'This edition has no different supported details to suggest.') }}</p>
+        <div v-for="row in fields" :key="row.key" class="library-metadata-lookup-field"><label><input v-model="selectedFields" type="checkbox" :value="row.key" :disabled="disabled"><strong>{{ row.label }}</strong></label><div><small>{{ t('library', 'Current draft') }}</small><p>{{ row.current || '—' }}</p></div><div><small>{{ t('library', 'Suggested') }}</small><p>{{ row.suggested }}</p></div></div>
+        <button v-if="fields.length" type="button" class="button secondary" :disabled="disabled || !selectedFields.length" @click="stage">{{ t('library', 'Stage selected details') }}</button>
+      </div>
+    </div>
+  </details>
+</template>
+
+<style scoped>
+.library-metadata-lookup-content { display: grid; gap: .75rem; padding-top: 1rem; }
+.library-metadata-lookup-content p { margin: 0; }
+.library-metadata-lookup-form { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; }
+.library-metadata-lookup-form label { display: grid; gap: .25rem; min-width: min(100%, 13rem); flex: 1; }
+.library-metadata-lookup-results { display: grid; gap: .5rem; margin: 0; padding-left: 1.25rem; }
+.library-metadata-lookup-results li { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.library-metadata-lookup-review { display: grid; gap: .75rem; }
+.library-metadata-lookup-field { display: grid; grid-template-columns: minmax(8rem, .8fr) repeat(2, minmax(0, 1fr)); gap: .75rem; padding: .65rem 0; border-top: 1px solid var(--color-border); }
+.library-metadata-lookup-field p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.library-metadata-lookup-field label { display: flex; align-items: start; gap: .4rem; }
+@media (max-width: 650px) { .library-metadata-lookup-field { grid-template-columns: 1fr; gap: .25rem; } }
+</style>

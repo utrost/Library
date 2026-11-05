@@ -1,20 +1,24 @@
 # Rough roadmap after v0.1
 
-Updated 2026-10-20. Developer NC34 runs `0.3.0-alpha.34`; 0.3 remains the first planned App Store release. The [official roadmap](roadmap.md#product-direction) owns the release sequence and outstanding 0.3 gates. This companion defines future feature outcomes and acceptance. Future work described below is planned, not implemented or certified.
+Updated 2026-11-05. Library 0.3.0 is published in the App Store Stable channel. The [official roadmap](roadmap.md#product-direction) owns the release sequence. This companion defines future feature outcomes and acceptance. The first 0.4 implementation is in progress and is not yet certified or released.
 
-## Current direction — 2026-10-20
+## Current direction — 2026-11-05
 
 Each release has one major feature family, delivered in small usable slices. Version assignments express priority, not dates or a promise to include every experiment. Keep catalogue use possible without external services, an LLM or a particular reader.
 
 | Release | Theme | Intended outcome |
 | --- | --- | --- |
-| 0.4 | Enrich and discover | Improve messy metadata, organise many books efficiently, preserve curation and make Home useful every day. |
+| 0.4 | Enrich and share | Improve messy metadata, introduce named-user read-only library sharing, organise many books efficiently, preserve curation and make Home useful every day. |
 | 0.5 | Read and remember | Resume reliably, keep personal reading activity and annotations, and organise related editions/copies. |
 | 0.6 | Explore your knowledge | Find passages, connect notes and ask grounded questions across the accessible collection. |
 
-### 0.4 — Enrich and discover
+### 0.4 — Enrich and share
 
-**Target core:** provider-assisted metadata completion, complete Library export/restore, bulk organisation, an incoming-books/cleanup inbox, visible change history and useful dashboards. Citation export is optional after metadata completion is reliable. Front-matter AI extraction and the first reader bridge are explicitly experimental; their readiness does not block the core. These additions do not expand 0.3, which remains focused on acceptance fixes and release readiness.
+**Target core:** provider-assisted metadata completion, a first named-user read-only shared-library slice, complete Library export/restore, bulk organisation, an incoming-books/cleanup inbox, visible change history and useful dashboards. Citation export is optional after metadata completion is reliable. Front-matter AI extraction and the first reader bridge are experimental; their readiness does not block the core. These additions do not change the published 0.3 release.
+
+#### First read-only sharing slice
+
+An owner grants one enabled, owned Library shelf to a named local Nextcloud user. Library creates a read-only Files share if the user cannot already read that folder. Recipients browse and search a permission-filtered catalogue, open files through Nextcloud, and see only publication metadata and covers from files they can currently read. Paths, ratings, reading status, lists, notes and diagnostics remain private. Revoking a Library grant hides the catalogue immediately and removes only the Files share that Library created. Groups, public links, shared corrections and admin-managed roots are later work. See [the first-iteration contract](v0.4-first-iteration.md) and [the tracking epic](https://github.com/utrost/Library/issues/180).
 
 #### First slice: Improve book details
 
@@ -165,7 +169,7 @@ Interface references, checked 2026-10-20: [Notes REST API](https://github.com/ne
 
 ### Unassigned future tracks and boundaries
 
-- **Shared libraries and admin-managed roots:** the previous 0.4 allocation is superseded. Retain as a focused future release with a design for shared corrections, ownership, access revocation, personal overlays and backups. No delivery version is assigned.
+- **Expanded sharing and admin-managed roots:** groups, public links, shared corrections, personal overlays and administrator-managed roots follow the first read-only 0.4 slice. No delivery version is assigned to these expansions.
 - OPDS/device integrations, public publishing, contributor-role expansion and further provider families remain candidates. Prioritise them using actual usage and interoperability evidence.
 - **Non-goals for 0.3:** provider/LLM enrichment, full Library export, true reader progress and semantic discovery. The future roadmap must not expand the current release gate.
 - Release each slice only with migrations, recovery, ownership, performance and human workflow acceptance appropriate to its new responsibilities. The first implementation after 0.3 is the one-book metadata-completion preview; experiments may proceed separately without turning into hidden release dependencies.

@@ -111,12 +111,12 @@ def test_historical_handbook_preserves_alpha166_alpha167_evidence():
     assert "security/runtime check" in selected_batch
 
 
-def test_current_handbook_has_one_version_and_complete_ordered_cases():
+def test_stable_handbook_has_one_version_and_complete_ordered_cases():
     import re
     handbook = (ROOT / "docs/human-test-handbook.md").read_text()
     version = ElementTree.parse(ROOT / "appinfo/info.xml").findtext("version")
-    assert f"**Current acceptance target: {version}.**" in handbook
-    assert version == "0.3.0"
+    assert "**Current acceptance target: 0.3.0.**" in handbook
+    assert re.fullmatch(r"0\.4\.0-alpha\.[1-9][0-9]*", version)
     assert "signed stable archive, checksum and certification are recorded" in handbook
     assert "release-verification.md" in handbook
     cases = re.findall(r"^### (H03-\d+) —", handbook, re.M)

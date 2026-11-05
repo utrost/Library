@@ -10,6 +10,7 @@ import EntityPicker from './EntityPicker.vue'
 import MetadataValuePicker from './MetadataValuePicker.vue'
 import GenrePicker from './GenrePicker.vue'
 import IdentityAction from './IdentityAction.vue'
+import MetadataLookup from './MetadataLookup.vue'
 import { formatFileSize } from '../file-size.js'
 import { detailsReturnContext } from '../details-return.js'
 import { bookNeighbors } from '../details-neighbors.js'
@@ -474,6 +475,13 @@ function discardBookChanges() {
   feedback.value = t('library', 'Book changes discarded')
 }
 
+function stageLookup(fields) {
+  for (const [key, value] of Object.entries(fields)) {
+    if (['title', 'subtitle', 'publisher', 'publicationDate', 'description', 'subjects'].includes(key)) draft[key] = value
+  }
+  feedback.value = t('library', 'Suggested details staged. Review them and save your book changes.')
+}
+
 async function load({ silent = false } = {}) {
   if (!itemId.value) { error.value = t('library', 'Publication not found.'); loading.value = false; return }
   if (!silent) loading.value = true
@@ -718,6 +726,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
       <div class="library-full-details-columns">
         <div class="library-full-details-main">
           <section class="library-full-details-card" aria-labelledby="library-full-details-metadata"><h2 id="library-full-details-metadata">{{ t('library', 'Book details') }}</h2><form id="library-full-details-metadata-form" @submit.prevent="saveMetadata"><div class="library-full-details-fields"><label>{{ t('library', 'Title') }}<input v-model="draft.title" required></label><label>{{ t('library', 'Subtitle') }}<input v-model="draft.subtitle"></label><label>{{ t('library', 'Type') }}<select v-model="draft.publicationType"><option v-for="type in publicationTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label><label>{{ t('library', 'Publication / periodical') }}<input v-model="draft.publication"></label><label :title="t('library', 'Use YYYY, YYYY-MM, or YYYY-MM-DD.')">{{ t('library', 'Publication date') }}<input v-model="draft.publicationDate"></label><EntityPicker v-model="draft.publisher" :label="t('library', 'Publisher')" :search="searchPublishers" :disabled="busy" @choose="draft.publisher = $event.label" /><MetadataValuePicker v-model="draft.language" kind="language" :disabled="busy" /><MetadataValuePicker v-model="draft.subjects" kind="subject" :disabled="busy" /><label :title="t('library', 'One classification per line.')">{{ t('library', 'Classifications') }}<textarea v-model="draft.classifications" rows="2"></textarea></label><StarRating :model-value="draft.personalRating" :disabled="busy" @update:model-value="draft.personalRating = $event" /><label class="library-full-details-wide">{{ t('library', 'Description') }}<textarea v-model="draft.description" rows="8"></textarea></label></div><fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in draft.identifiers" :key="index" class="library-full-details-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Scheme')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option><option value="asin">{{ t('library', 'ASIN') }}</option><option value="ggkey">{{ t('library', 'GGKEY') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><span v-if="identifier.displayValue && identifier.valid === false && identifier.scheme === identifier.originalScheme && identifier.displayValue === identifier.originalDisplayValue" role="status">{{ ['isbn', 'issn'].includes(identifier.scheme) ? t('library', 'Invalid identifier checksum') : t('library', 'Invalid identifier format') }}</span><button type="button" class="button secondary" :aria-label="t('library', 'Remove identifier')" @click="draft.identifiers.splice(index, 1)">×</button></div><button type="button" class="button secondary" @click="draft.identifiers.push({ scheme: 'isbn', displayValue: '' })">{{ t('library', 'Add identifier') }}</button></fieldset></form></section>
+          <MetadataLookup :item="item" :draft="draft" :base-url="itemBase" :request-token="requestToken" :disabled="busy" @stage="stageLookup" />
           <div class="library-full-details-card library-identity-panel">
           <section class="library-identity-row" aria-labelledby="library-full-details-authors-heading">
             <h2 id="library-full-details-authors-heading">{{ t('library', 'Authors') }}</h2>

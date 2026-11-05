@@ -1,4 +1,4 @@
-from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION
+from release_metadata import CURRENT_VERSION, CURRENT_ASSET_VERSION, STABLE_VERSION
 from pathlib import Path
 import re
 
@@ -11,8 +11,9 @@ def read(path):
 
 def test_alpha166_version_sources_and_unpackage_boundary():
     version = f"{CURRENT_VERSION}"
-    for path in ["appinfo/info.xml", "package.json", "package-lock.json", "vite.config.js", "lib/Controller/PageController.php", "templates/main.php", "scripts/smoke-release-package.sh"]:
+    for path in ["appinfo/info.xml", "package.json", "package-lock.json", "vite.config.js", "lib/Controller/PageController.php", "templates/main.php"]:
         assert version in read(path), path
+    assert 'EXPECTED_VERSION="$(python3' in read("scripts/smoke-release-package.sh")
     assert f"library-main-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v8" in read("lib/Controller/PageController.php")
     assert f"library-vue-{CURRENT_ASSET_VERSION}-compact-list-table-cover-96-fit-v8" in read("lib/Controller/PageController.php")
 
@@ -122,7 +123,7 @@ def test_docs_are_truthful_candidate_with_manual_at_debt():
     assert "safe-diagnostic live reflection" in release.lower()
     assert "alpha.166" in read("CHANGELOG.md")
     for path in ["README.md", "docs/roadmap.md", "docs/current-state-and-risk-register.md", "docs/app-store-readiness.md", "docs/alpha-test-checklist.md"]:
-        assert CURRENT_VERSION in read(path), path
+        assert STABLE_VERSION in read(path), path
     assert "alpha.166" in read("CHANGELOG.md")
 
 
@@ -205,7 +206,7 @@ def test_second_review_field_level_isolation_and_current_identity():
     assert "selectedDrawerItem.publicationType" in app and "selectedDrawerItem.language" in app
     assert "library-tag-feedback-value" in detail
     readiness = read("docs/app-store-readiness.md")
-    assert readiness.count(f"Current stable release: {CURRENT_VERSION}") == 1
+    assert readiness.count(f"Current stable release: {STABLE_VERSION}") == 1
     release = read("RELEASE.md")
     operative = release[release.index("The beta candidate is"):release.index("## Local release gates")]
     assert "0.1.0-alpha.165" not in operative

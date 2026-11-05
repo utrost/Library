@@ -12,6 +12,8 @@ Each event carries `event_schema`, `app`, `event`, `actor_id`, `operation`, `tar
 
 - `library.root.enabled`: root enable/disable success.
 - `library.root.delete`: root deletion success or rejected delete confirmation.
+- `library.root_share.grant`: read-only shelf grant success, invalid request or Files sharing failure. Recipient identifiers are not included in audit context.
+- `library.root_share.revoke`: revocation success, unauthorized attempt or pending Files cleanup.
 - `library.metadata_import.preview`: corrected-metadata import preview success/rejection.
 - `library.metadata_import.apply`: corrected-metadata import apply success/rejection.
 - `library.metadata_batch.reset`: batch metadata reset success.

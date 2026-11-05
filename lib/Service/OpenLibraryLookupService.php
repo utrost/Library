@@ -1,0 +1,231 @@
+<?php
+
+declare(strict_types=1);
+
+namespace OCA\Library\Service;
+
+use OCP\Http\Client\IClientService;
+use OCP\ICacheFactory;
+use OCP\IConfig;
+use OCP\IDBConnection;
+
+/** A deliberately small, user-triggered adapter. No scan or page load calls it. */
+final class OpenLibraryLookupService {
+    private const BASE = 'https://openlibrary.org';
+    private const MAX_BODY = 524288;
+
+    public function __construct(
+        private IClientService $clients,
+        private ICacheFactory $caches,
+        private IDBConnection $db,
+        private IConfig $config,
+    ) {
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function search(string $userId, string $isbn, string $title, string $author): array {
+        $this->ensureEnabled();
+        if (mb_strlen($isbn) > 50) {
+            throw new \InvalidArgumentException('invalid_isbn');
+        }
+        $isbn = preg_replace('/^ISBN(?:-1[03])?\s*:?\s*/i', '', trim($isbn)) ?? '';
+        $isbn = preg_replace('/[^0-9Xx]/', '', $isbn) ?? '';
+        $title = trim($title);
+        $author = trim($author);
+        if (!mb_check_encoding($title . $author, 'UTF-8') || preg_match('/[\p{Cc}]/u', $title . $author)) {
+            throw new \InvalidArgumentException('invalid_query');
+        }
+        if ($isbn !== '' && !(IdentifierService::normalizeIdentifier('isbn', $isbn)['valid'] ?? false)) {
+            throw new \InvalidArgumentException('invalid_isbn');
+        }
+        if ($isbn === '' && (mb_strlen($title) < 3 || mb_strlen($title) > 200 || mb_strlen($author) > 200)) {
+            throw new \InvalidArgumentException('invalid_query');
+        }
+
+        $query = $isbn !== '' ? ['isbn' => strtoupper($isbn)] : ['title' => $title];
+        if ($isbn === '' && $author !== '') {
+            $query['author'] = $author;
+        }
+        $query['fields'] = 'key,title,author_name,first_publish_year,edition_key,editions,editions.key,editions.title,editions.publish_date,editions.publisher,editions.language,editions.isbn';
+        $query['limit'] = '6';
+        $cache = $this->caches->createDistributed('library-openlibrary-lookup');
+        $key = hash('sha256', $userId . "\0" . json_encode($query, JSON_THROW_ON_ERROR));
+        $cached = $cache->get($key);
+        if (is_array($cached)) {
+            return $cached;
+        }
+        $data = $this->fetchJson(self::BASE . '/search.json?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986));
+        $results = [];
+        foreach (array_slice(is_array($data['docs'] ?? null) ? $data['docs'] : [], 0, 6) as $work) {
+            if (!is_array($work)) {
+                continue;
+            }
+            $editions = $work['editions']['docs'] ?? [];
+            if (!is_array($editions) || $editions === []) {
+                $keys = array_filter(is_array($work['edition_key'] ?? null) ? $work['edition_key'] : [], 'is_string');
+                $editions = array_map(static fn (string $id): array => ['key' => '/books/' . $id], array_slice(array_values($keys), 0, 2));
+            }
+            foreach (array_slice($editions, 0, 2) as $edition) {
+                if (!is_array($edition)) {
+                    continue;
+                }
+                $id = $this->editionId(is_string($edition['key'] ?? null) ? $edition['key'] : '');
+                if ($id === null) {
+                    continue;
+                }
+                $editionIsbns = array_slice(array_values(array_filter(is_array($edition['isbn'] ?? null) ? $edition['isbn'] : [], 'is_string')), 0, 12);
+                $normalizedEditionIsbns = array_map(static fn (string $value): string => strtoupper(preg_replace('/[^0-9Xx]/', '', $value) ?? ''), $editionIsbns);
+                if ($isbn !== '' && !in_array(strtoupper($isbn), $normalizedEditionIsbns, true)) {
+                    continue;
+                }
+                $publisher = $edition['publisher'] ?? '';
+                if (is_array($publisher)) {
+                    $publisher = $publisher[0] ?? '';
+                }
+                $candidateTitle = $edition['title'] ?? $work['title'] ?? '';
+                if (!is_string($candidateTitle) || trim($candidateTitle) === '') {
+                    continue;
+                }
+                $results[$id] = [
+                    'editionId' => $id,
+                    'title' => mb_substr($candidateTitle, 0, 300),
+                    'authors' => array_slice(array_values(array_filter(is_array($work['author_name'] ?? null) ? $work['author_name'] : [], 'is_string')), 0, 5),
+                    'year' => mb_substr(is_scalar($edition['publish_date'] ?? $work['first_publish_year'] ?? null) ? (string)($edition['publish_date'] ?? $work['first_publish_year']) : '', 0, 80),
+                    'publisher' => mb_substr(is_string($publisher) ? $publisher : '', 0, 200),
+                    'isbn' => array_slice($editionIsbns, 0, 4),
+                    'languages' => array_slice(array_values(array_filter(is_array($edition['language'] ?? null) ? $edition['language'] : [], 'is_string')), 0, 4),
+                    'match' => $isbn !== '' ? 'isbn' : 'title_author',
+                    'url' => self::BASE . '/books/' . $id,
+                ];
+            }
+        }
+        $results = array_slice(array_values($results), 0, 8);
+        $cache->set($key, $results, 900);
+        return $results;
+    }
+
+    /** @return array<string, mixed> */
+    public function edition(string $userId, string $editionId): array {
+        $this->ensureEnabled();
+        $id = $this->editionId($editionId);
+        if ($id === null) {
+            throw new \InvalidArgumentException('invalid_edition');
+        }
+        $cache = $this->caches->createDistributed('library-openlibrary-lookup');
+        $key = hash('sha256', $userId . "\0edition\0" . $id);
+        $cached = $cache->get($key);
+        if (is_array($cached)) {
+            return $cached;
+        }
+        $data = $this->fetchJson(self::BASE . '/books/' . $id . '.json');
+        $description = $data['description'] ?? '';
+        if (is_array($description)) {
+            $description = $description['value'] ?? '';
+        }
+        $date = is_string($data['publish_date'] ?? null) ? $data['publish_date'] : '';
+        $year = preg_match('/(?:^|\D)((?:1[5-9]|20)[0-9]{2})(?:\D|$)/', $date, $match) ? $match[1] : '';
+        $subjects = [];
+        foreach (is_array($data['subjects'] ?? null) ? $data['subjects'] : [] as $subject) {
+            if (is_string($subject) && trim($subject) !== '') {
+                $subjects[] = mb_substr(trim($subject), 0, 150);
+            }
+            if (count($subjects) >= 12) {
+                break;
+            }
+        }
+        $publishers = is_array($data['publishers'] ?? null) ? $data['publishers'] : [];
+        $fields = [
+            'title' => mb_substr(is_string($data['title'] ?? null) ? $data['title'] : '', 0, 500),
+            'subtitle' => mb_substr(is_string($data['subtitle'] ?? null) ? $data['subtitle'] : '', 0, 500),
+            'publisher' => mb_substr(is_string($publishers[0] ?? null) ? $publishers[0] : '', 0, 255),
+            'publicationDate' => $year,
+            'description' => mb_substr(is_string($description) ? $description : '', 0, 5000),
+            'subjects' => $subjects,
+        ];
+        $fields = array_filter($fields, static fn ($value): bool => is_array($value) ? $value !== [] : $value !== '');
+        $identifiers = array_slice(array_values(array_filter(array_merge(
+            is_array($data['isbn_13'] ?? null) ? $data['isbn_13'] : [],
+            is_array($data['isbn_10'] ?? null) ? $data['isbn_10'] : [],
+        ), 'is_string')), 0, 8);
+        $languages = [];
+        foreach (is_array($data['languages'] ?? null) ? $data['languages'] : [] as $language) {
+            if (is_array($language) && is_string($language['key'] ?? null)
+                && preg_match('~^/languages/([a-z]{3})$~D', $language['key'], $match)) {
+                $languages[] = $match[1];
+            }
+        }
+        $result = ['provider' => 'Open Library', 'editionId' => $id, 'url' => self::BASE . '/books/' . $id, 'fields' => $fields,
+            'isbn' => $identifiers, 'languages' => array_slice($languages, 0, 4)];
+        $cache->set($key, $result, 900);
+        return $result;
+    }
+
+    private function editionId(string $value): ?string {
+        $value = str_starts_with($value, '/books/') ? substr($value, 7) : $value;
+        return preg_match('/^OL[1-9][0-9]*M$/D', $value) ? $value : null;
+    }
+
+    private function ensureEnabled(): void {
+        if ($this->config->getAppValue('library', 'openlibrary_lookup_enabled', 'yes') !== 'yes') {
+            throw new \RuntimeException('provider_disabled');
+        }
+    }
+
+    /** @return array<string, mixed> */
+    private function fetchJson(string $url): array {
+        $this->reserveRequestSlot();
+        try {
+            $response = $this->clients->newClient()->get($url, [
+                'timeout' => 6,
+                'allow_redirects' => false,
+                'headers' => ['Accept' => 'application/json', 'User-Agent' => 'Nextcloud-Library/0.4 (+https://github.com/utrost/Library)'],
+            ]);
+            if ($response->getStatusCode() !== 200) {
+                throw new \RuntimeException('provider_unavailable');
+            }
+            $body = $response->getBody();
+            if (!is_string($body) || strlen($body) > self::MAX_BODY) {
+                throw new \RuntimeException('provider_unavailable');
+            }
+            $data = json_decode($body, true, 64, JSON_THROW_ON_ERROR);
+            if (!is_array($data)) {
+                throw new \RuntimeException('provider_unavailable');
+            }
+            return $data;
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('provider_unavailable', 0, $e);
+        }
+    }
+
+    /** Cross-worker pacing for the anonymous Open Library API allowance. */
+    private function reserveRequestSlot(): void {
+        $deadline = microtime(true) + 2.5;
+        $triedInsert = false;
+        $dbError = null;
+        do {
+            $now = (int)floor(microtime(true) * 1000);
+            try {
+                if ($this->db->executeStatement('UPDATE *PREFIX*library_lookup_quota SET next_at_ms=? WHERE provider=? AND next_at_ms<=?',
+                    [$now + 1000, 'openlibrary', $now]) === 1) {
+                    return;
+                }
+                if (!$triedInsert) {
+                    $triedInsert = true;
+                    try {
+                        $this->db->executeStatement('INSERT INTO *PREFIX*library_lookup_quota (provider,next_at_ms) VALUES (?,?)', ['openlibrary', $now + 1000]);
+                        return;
+                    } catch (\Throwable) {
+                        // Another worker initialized the shared slot first.
+                    }
+                }
+            } catch (\Throwable $error) {
+                $dbError = $error;
+            }
+            usleep(100000);
+        } while (microtime(true) < $deadline);
+        if ($dbError !== null) {
+            throw new \RuntimeException('provider_unavailable', 0, $dbError);
+        }
+        throw new \RuntimeException('rate_limited');
+    }
+}
