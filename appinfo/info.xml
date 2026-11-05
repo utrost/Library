@@ -25,6 +25,14 @@
         <database>pgsql</database>
         <nextcloud min-version="33" max-version="35" />
     </dependencies>
+    <repair-steps>
+        <install>
+            <step>OCA\Library\Migration\EnableSharing</step>
+        </install>
+        <uninstall>
+            <step>OCA\Library\Migration\RevokeManagedShares</step>
+        </uninstall>
+    </repair-steps>
     <background-jobs>
         <job>OCA\Library\BackgroundJob\ScheduledScanJob</job>
         <job>OCA\Library\BackgroundJob\MaintenanceJob</job>

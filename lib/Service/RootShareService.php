@@ -12,6 +12,7 @@ use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\IDBConnection;
+use OCP\IConfig;
 use OCP\IUserManager;
 use OCP\Lock\ILockingProvider;
 use OCP\Share\IManager as IShareManager;
@@ -31,11 +32,13 @@ final class RootShareService {
         private ICollaboratorSearch $collaborators,
         private IEventDispatcher $events,
         private AuthorDisplayService $authorDisplay,
+        private IConfig $config,
     ) {
     }
 
     /** Inspect the exact folder and Files access before the owner confirms a grant. */
     public function previewGrant(string $owner, int $rootId, string $recipient): array {
+        $this->assertSharingAvailable();
         $recipientUser = $this->users->get(trim($recipient));
         if ($recipientUser === null || !$recipientUser->isEnabled() || $recipientUser->getUID() === $owner) {
             throw new \InvalidArgumentException('invalid_recipient');
@@ -133,9 +136,12 @@ final class RootShareService {
         if ($recipient === $owner) {
             throw new \InvalidArgumentException('invalid_recipient');
         }
-        return $this->withRootLock($owner, $rootId,
-            fn (): array => $this->withGrantLock($owner, $rootId, $recipient,
-                fn (): array => $this->grantLocked($owner, $rootId, $recipient, $expectedRootFileId, $expectedFilesMode)));
+        return $this->withLifecycleLock(function () use ($owner, $rootId, $recipient, $expectedRootFileId, $expectedFilesMode): array {
+            $this->assertSharingAvailable();
+            return $this->withRootLock($owner, $rootId,
+                fn (): array => $this->withGrantLock($owner, $rootId, $recipient,
+                    fn (): array => $this->grantLocked($owner, $rootId, $recipient, $expectedRootFileId, $expectedFilesMode)));
+        });
     }
 
     private function grantLocked(string $owner, int $rootId, string $recipient, int $expectedRootFileId, string $expectedFilesMode): array {
@@ -332,6 +338,61 @@ final class RootShareService {
         }
     }
 
+    /** Revoke every Library grant before the app is disabled or uninstalled.
+     *
+     * Cursor paging keeps the pass bounded in memory. Revoke removes its row only
+     * after the exact managed Files share has been removed; an interruption leaves
+     * a hidden row that a subsequent pass can retry.
+     */
+    public function revokeAllForShutdown(): int {
+        return $this->withLifecycleLock(function (): int {
+            // A concurrent grant has completed before this marker is set. New
+            // confirmations fail until Nextcloud enables Library again.
+            $this->config->setAppValue('library', 'sharing_shutdown', 'yes');
+            return $this->revokeAllForShutdownLocked();
+        });
+    }
+
+    private function revokeAllForShutdownLocked(): int {
+        $cursor = 0;
+        $revoked = 0;
+        do {
+            $result = $this->db->executeQuery('SELECT id,owner_user_id FROM *PREFIX*library_root_shares '
+                . 'WHERE id>? ORDER BY id ASC LIMIT 100', [$cursor]);
+            $rows = $result->fetchAll();
+            $result->closeCursor();
+            foreach ($rows as $row) {
+                $cursor = (int)$row['id'];
+                if ($this->revoke((string)$row['owner_user_id'], $cursor)) {
+                    $revoked++;
+                }
+            }
+        } while (count($rows) === 100);
+        return $revoked;
+    }
+
+    public function allowSharesAfterEnable(): void {
+        $this->withLifecycleLock(function (): void {
+            $this->config->deleteAppValue('library', 'sharing_shutdown');
+        });
+    }
+
+    private function assertSharingAvailable(): void {
+        if ($this->config->getAppValue('library', 'sharing_shutdown', 'no') === 'yes') {
+            throw new \RuntimeException('sharing_unavailable');
+        }
+    }
+
+    private function withLifecycleLock(callable $operation): mixed {
+        $key = 'library/root-share-lifecycle';
+        $this->locks->acquireLock($key, ILockingProvider::LOCK_EXCLUSIVE);
+        try {
+            return $operation();
+        } finally {
+            $this->locks->releaseLock($key, ILockingProvider::LOCK_EXCLUSIVE);
+        }
+    }
+
     /** @return array<int, array<string, mixed>> */
     public function owned(string $owner): array {
         $result = $this->db->executeQuery('SELECT s.*,r.path,r.label,r.enabled FROM *PREFIX*library_root_shares s '
@@ -385,9 +446,18 @@ final class RootShareService {
             . 'WHERE i.user_id=? AND f.root_id=? AND i.id>? AND i.marked_for_deletion_at IS NULL AND f.scan_status=? ';
         $params = [$grant['owner_user_id'], (int)$grant['root_id'], max(0, $cursor), 'indexed'];
         if ($search !== '') {
-            $query .= "AND (LOWER(i.title) LIKE ? ESCAPE '!' OR LOWER(i.creators) LIKE ? ESCAPE '!') ";
-            $params[] = $pattern;
-            $params[] = $pattern;
+            // The recipient sees canonical author names when a book's author
+            // links are ready. Search those same names; source credits are the
+            // fallback only while links are absent or still pending.
+            $matchedAuthors = 'SELECT l.item_id FROM *PREFIX*library_item_authors l '
+                . 'INNER JOIN *PREFIX*library_authors a ON a.id=l.author_id AND a.user_id=l.user_id '
+                . "WHERE l.user_id=? AND LOWER(a.display_name) LIKE ? ESCAPE '!'";
+            $query .= "AND (LOWER(i.title) LIKE ? ESCAPE '!' "
+                . "OR (i.author_sync_status IN (0,2) AND i.id IN ({$matchedAuthors})) "
+                . "OR ((i.author_sync_status NOT IN (0,2) OR NOT EXISTS (SELECT 1 FROM *PREFIX*library_item_authors l "
+                . "WHERE l.user_id=i.user_id AND l.item_id=i.id)) "
+                . "AND LOWER(i.creators) LIKE ? ESCAPE '!')) ";
+            array_push($params, $pattern, (string)$grant['owner_user_id'], $pattern, $pattern);
         }
         $result = $this->db->executeQuery($query . 'ORDER BY i.id ASC LIMIT 81', $params);
         $rows = $result->fetchAll();
