@@ -88,7 +88,7 @@ function choose(user) {
   open.value = false
   busy.value = false
   error.value = ''
-  input.value?.focus()
+  props.form.querySelector('button[type="submit"]')?.focus()
 }
 
 function keydown(event) {
@@ -135,7 +135,7 @@ onBeforeUnmount(() => {
     <small v-if="searched && !busy && !users.length && !recipientField.value" role="status">{{ t('library', 'No shareable users found.') }}</small>
     <ul v-if="open && users.length" id="library-share-recipient-options" role="listbox">
       <li v-for="(user, index) in users" :key="user.id" role="presentation">
-        <button :id="`library-share-recipient-${index}`" type="button" role="option" :aria-selected="active === index" :class="{ 'is-active': active === index }" @mousedown.prevent @click="choose(user)"><bdi dir="auto">{{ user.label }}</bdi><small><bdi dir="auto">{{ user.id }}</bdi></small></button>
+        <button :id="`library-share-recipient-${index}`" type="button" role="option" :aria-selected="active === index" :class="{ 'is-active': active === index }" @pointerdown.prevent="choose(user)" @click="choose(user)"><bdi dir="auto">{{ user.label }}</bdi><small><bdi dir="auto">{{ user.id }}</bdi></small></button>
       </li>
     </ul>
   </div>
@@ -146,8 +146,8 @@ onBeforeUnmount(() => {
 .library-share-recipient-picker > label { display: block; }
 .library-share-recipient-picker input { width: 100%; box-sizing: border-box; }
 .library-share-recipient-picker p { margin: 0; color: var(--color-error); }
-.library-share-recipient-picker ul { position: absolute; top: 100%; z-index: 25; width: 100%; max-height: 16rem; overflow: auto; margin: .2rem 0 0; padding: .25rem; list-style: none; background: var(--color-main-background); border: 1px solid var(--color-border); border-radius: var(--border-radius-large); box-shadow: 0 6px 20px #0003; }
-.library-share-recipient-picker li button { width: 100%; min-height: 2.75rem; display: grid; gap: .1rem; text-align: start; padding: .4rem .6rem; background: transparent; border: 0; border-radius: var(--border-radius); }
+.library-share-recipient-picker ul { position: absolute; top: 100%; z-index: 25; box-sizing: border-box; width: 100%; max-height: 16rem; overflow: auto; margin: .2rem 0 0; padding: .25rem; list-style: none; background: var(--color-main-background); border: 1px solid var(--color-border); border-radius: var(--border-radius-large); box-shadow: 0 6px 20px #0003; }
+.library-share-recipient-picker li button { width: 100%; min-width: 0; min-height: 2.75rem; display: grid; gap: .1rem; text-align: start; overflow-wrap: anywhere; padding: .4rem .6rem; background: transparent; border: 0; border-radius: var(--border-radius); }
 .library-share-recipient-picker li button:hover, .library-share-recipient-picker li button:focus-visible, .library-share-recipient-picker li button.is-active { background: var(--color-background-hover); }
 .library-share-recipient-picker li small { color: var(--color-text-maxcontrast); }
 </style>
