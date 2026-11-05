@@ -147,10 +147,17 @@ final class OpenLibraryLookupService {
             'subjects' => $subjects,
         ];
         $fields = array_filter($fields, static fn ($value): bool => is_array($value) ? $value !== [] : $value !== '');
-        $identifiers = array_slice(array_values(array_filter(array_merge(
+        $rawIdentifiers = array_slice(array_values(array_filter(array_merge(
             is_array($data['isbn_13'] ?? null) ? $data['isbn_13'] : [],
             is_array($data['isbn_10'] ?? null) ? $data['isbn_10'] : [],
         ), 'is_string')), 0, 8);
+        $identifiers = [];
+        foreach ($rawIdentifiers as $value) {
+            $normalized = IdentifierService::normalizeIdentifier('isbn', $value);
+            if ($normalized !== null && $normalized['valid']) {
+                $identifiers[$normalized['normalizedValue']] = $normalized['displayValue'];
+            }
+        }
         $languages = [];
         foreach (is_array($data['languages'] ?? null) ? $data['languages'] : [] as $language) {
             if (is_array($language) && is_string($language['key'] ?? null)
@@ -159,7 +166,7 @@ final class OpenLibraryLookupService {
             }
         }
         $result = ['provider' => 'Open Library', 'editionId' => $id, 'url' => self::BASE . '/books/' . $id, 'fields' => $fields,
-            'isbn' => $identifiers, 'languages' => array_slice($languages, 0, 4)];
+            'isbn' => array_values($identifiers), 'languages' => array_slice($languages, 0, 4)];
         $cache->set($key, $result, 900);
         return $result;
     }

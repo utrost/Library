@@ -92,12 +92,18 @@ async function choose(candidate) {
 function display(value) { return Array.isArray(value) ? value.join('\n') : String(value ?? '') }
 const fields = computed(() => Object.entries(edition.value?.fields || {}).filter(([key, value]) =>
   Object.hasOwn(labels, key) && display(value).trim() && display(value).trim() !== display(props.draft[key]).trim(),
-).map(([key, value]) => ({ key, label: labels[key], current: display(props.draft[key]), suggested: display(value) })))
+).map(([key, value]) => ({ key, label: labels[key], current: display(props.draft[key]), suggested: display(value) })).concat(
+  (edition.value?.isbn || []).filter(code => !((props.draft.identifiers || []).some(row => row.scheme === 'isbn' && String(row.displayValue || '').replace(/[\s-]/g, '').toUpperCase() === String(code).replace(/[\s-]/g, '').toUpperCase())))
+    .map(code => ({ key: `isbn:${code}`, label: t('library', 'ISBN'), current: '', suggested: code })),
+))
 function stage() {
-  const selected = Object.fromEntries(fields.value.filter(row => selectedFields.value.includes(row.key)).map(row => [row.key, row.suggested]))
-  if (!Object.keys(selected).length) return
+  const rows = fields.value.filter(row => selectedFields.value.includes(row.key))
+  const selected = Object.fromEntries(rows.filter(row => !row.key.startsWith('isbn:')).map(row => [row.key, row.suggested]))
+  const isbns = rows.filter(row => row.key.startsWith('isbn:')).map(row => row.suggested)
+  if (isbns.length) selected.isbn = isbns
+  if (!rows.length) return
   emit('stage', selected)
-  notice.value = n('library', '%n suggested field staged. Review and save your book changes.', '%n suggested fields staged. Review and save your book changes.', Object.keys(selected).length)
+  notice.value = n('library', '%n suggested field staged. Review and save your book changes.', '%n suggested fields staged. Review and save your book changes.', rows.length)
   selectedFields.value = []
 }
 </script>
@@ -126,7 +132,7 @@ function stage() {
         <p>{{ t('library', 'Compare this edition with your current book details. Select only fields you want to stage.') }} <a :href="edition.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'View source at Open Library') }}</a></p>
         <p class="library-muted">{{ [edition.isbn?.length ? `ISBN ${edition.isbn.join(', ')}` : '', edition.languages?.length ? `${t('library', 'Language')}: ${edition.languages.join(', ')}` : ''].filter(Boolean).join(' · ') }}</p>
         <p v-if="!fields.length" role="status">{{ t('library', 'This edition has no different supported details to suggest.') }}</p>
-        <div v-for="row in fields" :key="row.key" class="library-metadata-lookup-field"><label><input v-model="selectedFields" type="checkbox" :value="row.key" :disabled="disabled"><strong>{{ row.label }}</strong></label><div><small>{{ t('library', 'Current draft') }}</small><p>{{ row.current || '—' }}</p></div><div><small>{{ t('library', 'Suggested') }}</small><p>{{ row.suggested }}</p></div></div>
+        <div v-for="row in fields" :key="row.key" class="library-metadata-lookup-field"><label><input v-model="selectedFields" type="checkbox" :value="row.key" :disabled="disabled"><strong>{{ row.label }}<template v-if="row.key.startsWith('isbn:')"> {{ row.suggested }}</template></strong></label><div><small>{{ t('library', 'Current draft') }}</small><p>{{ row.current || '—' }}</p></div><div><small>{{ t('library', 'Suggested') }}</small><p>{{ row.suggested }}</p></div></div>
         <button v-if="fields.length" type="button" class="button secondary" :disabled="disabled || !selectedFields.length" @click="stage">{{ t('library', 'Stage selected details') }}</button>
       </div>
     </div>

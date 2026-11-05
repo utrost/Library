@@ -479,6 +479,15 @@ function stageLookup(fields) {
   for (const [key, value] of Object.entries(fields)) {
     if (['title', 'subtitle', 'publisher', 'publicationDate', 'description', 'subjects'].includes(key)) draft[key] = value
   }
+  if (Array.isArray(fields.isbn)) {
+    const known = new Set((draft.identifiers || []).filter(row => row.scheme === 'isbn').map(row => String(row.displayValue || '').replace(/[\s-]/g, '').toUpperCase()))
+    for (const value of fields.isbn) {
+      const normalized = String(value).replace(/[\s-]/g, '').toUpperCase()
+      if (known.has(normalized)) continue
+      draft.identifiers.push({ scheme: 'isbn', displayValue: value })
+      known.add(normalized)
+    }
+  }
   feedback.value = t('library', 'Suggested details staged. Review them and save your book changes.')
 }
 
