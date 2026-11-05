@@ -340,6 +340,10 @@ final class RootShareService {
         if ($grant === null) {
             return null;
         }
+        return $this->resolveBookFile($recipient, $grant, $itemId);
+    }
+
+    private function resolveBookFile(string $recipient, array $grant, int $itemId): ?File {
         $result = $this->db->executeQuery('SELECT f.file_id,f.cached_path FROM *PREFIX*library_items i '
             . 'INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id '
             . 'WHERE i.user_id=? AND f.root_id=? AND i.id=? AND i.marked_for_deletion_at IS NULL AND f.scan_status=?',
@@ -347,6 +351,32 @@ final class RootShareService {
         $row = $result->fetch();
         $result->closeCursor();
         return is_array($row) ? $this->recipientFile($recipient, $grant, $row) : null;
+    }
+
+    /** Return a cover candidate only after checking the recipient's actual file mount. */
+    public function bookCover(string $recipient, int $grantId, int $itemId): ?array {
+        $grant = $this->visibleGrant($recipient, $grantId);
+        if ($grant === null) {
+            return null;
+        }
+        $file = $this->resolveBookFile($recipient, $grant, $itemId);
+        if ($file === null) {
+            return null;
+        }
+        $result = $this->db->executeQuery('SELECT i.cover_override_data,i.cover_override_mime_type '
+            . 'FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id '
+            . 'WHERE i.user_id=? AND f.root_id=? AND i.id=? AND f.file_id=? AND i.marked_for_deletion_at IS NULL AND f.scan_status=?',
+            [$grant['owner_user_id'], (int)$grant['root_id'], $itemId, (int)$file->getId(), 'indexed']);
+        $row = $result->fetch();
+        $result->closeCursor();
+        if (!is_array($row)) {
+            return null;
+        }
+        return [
+            'file' => $file,
+            'overrideData' => (string)($row['cover_override_data'] ?? ''),
+            'overrideMime' => (string)($row['cover_override_mime_type'] ?? ''),
+        ];
     }
 
     /** @param array<string, mixed> $grant @param array<string, mixed> $row */

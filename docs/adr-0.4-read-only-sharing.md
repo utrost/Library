@@ -32,7 +32,7 @@ Other mounts and externally backed folders may have additional Nextcloud behavio
 
 Recipient projections include title, subtitle, author credit, publisher, publication date, format, language, subjects and description. The owner may have corrected those publication fields. Recipients do not receive the owner's file path, stored personal rating, reading status, favorites, lists, notes, comments, diagnostics, edit URLs or export endpoints. The dedicated shared view has no mutation controls. Owner catalogue, scan and metadata APIs continue to use the session user ID and do not accept an owner ID from a recipient.
 
-Covers are generated from the recipient-readable file using Nextcloud's preview service or a generic placeholder. The response is private and non-cacheable. The Open link points to Nextcloud's file-ID route after a fresh access and identity check; Files enforces the permission again when the recipient opens it. This first slice has no Library-mediated download or reader progress endpoint.
+Covers use a validated owner cover override where one exists, otherwise Nextcloud's preview of the recipient-readable file or a generic placeholder. Every request rechecks recipient access and file identity before reading cover data. The response is private and non-cacheable. The Open link points to Nextcloud's file-ID route after a fresh access and identity check; Files enforces the permission again when the recipient opens it. This first slice has no Library-mediated download or reader progress endpoint.
 
 ## Storage, recovery and release gate
 

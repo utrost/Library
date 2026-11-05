@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\Library\Controller;
 
 use OCA\Library\Reader\DefaultNextcloudFileProvider;
+use OCA\Library\Service\CoverThumbnailService;
 use OCA\Library\Service\RootService;
 use OCA\Library\Service\RootShareService;
 use OCA\Library\Service\SecurityAuditLogger;
@@ -35,6 +36,7 @@ final class RootShareController extends Controller {
         private LoggerInterface $logger,
         private SecurityAuditLogger $audit,
         private IPreview $preview,
+        private CoverThumbnailService $thumbnails,
     ) {
         parent::__construct($appName, $request);
     }
@@ -173,9 +175,26 @@ final class RootShareController extends Controller {
     #[NoCSRFRequired]
     public function cover(int $grantId, int $itemId): DataDownloadResponse {
         $uid = $this->session->getUser()?->getUID() ?? '';
-        $file = $this->sharing->bookFile($uid, $grantId, $itemId);
-        if ($file === null) {
+        $cover = $this->sharing->bookCover($uid, $grantId, $itemId);
+        if ($cover === null) {
             return new DataDownloadResponse('', 'unavailable', 'application/octet-stream', 404, ['Cache-Control' => 'private, no-store']);
+        }
+        $file = $cover['file'];
+        $mime = $cover['overrideMime'];
+        $encoded = $cover['overrideData'];
+        if (in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true) && $encoded !== '' && strlen($encoded) <= 8 * 1024 * 1024) {
+            $bytes = base64_decode($encoded, true);
+            if (is_string($bytes)) {
+                try {
+                    $rendered = $this->thumbnails->render($bytes, $mime);
+                } catch (\Throwable) {
+                    $rendered = null;
+                }
+                if ($rendered !== null && in_array($rendered[1], ['image/jpeg', 'image/png', 'image/webp'], true)) {
+                    return new DataDownloadResponse($rendered[0], 'shared-book-cover', $rendered[1], 200,
+                        ['Cache-Control' => 'private, no-store', 'X-Content-Type-Options' => 'nosniff']);
+                }
+            }
         }
         try {
             if ($this->preview->isAvailable($file)) {
