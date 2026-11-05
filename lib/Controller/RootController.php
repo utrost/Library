@@ -55,28 +55,28 @@ final class RootController extends Controller {
     public function update(int $rootId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
-            $path = (string)$this->request->getParam('path', '/');
-            $current = $this->rootService->findRoot($user->getUID(), $rootId);
-            $trimmed = trim($path);
-            $normalized = $trimmed === '' ? '/' : '/' . trim($trimmed, '/');
-            if ($current !== null && $current['path'] !== $normalized) {
-                foreach ($this->rootService->listRoots($user->getUID()) as $otherRoot) {
-                    if ((int)$otherRoot['id'] !== $rootId && $otherRoot['path'] === $normalized) {
-                        return $this->redirectToSettings(0, 'rootPathConflict');
+            $uid = $user->getUID();
+            try {
+                return $this->rootShares->withRootLock($uid, $rootId, function () use ($uid, $rootId): RedirectResponse {
+                    $path = (string)$this->request->getParam('path', '/');
+                    $current = $this->rootService->findRoot($uid, $rootId);
+                    $trimmed = trim($path);
+                    $normalized = $trimmed === '' ? '/' : '/' . trim($trimmed, '/');
+                    if ($current !== null && $current['path'] !== $normalized) {
+                        foreach ($this->rootService->listRoots($uid) as $otherRoot) {
+                            if ((int)$otherRoot['id'] !== $rootId && $otherRoot['path'] === $normalized) {
+                                return $this->redirectToSettings(0, 'rootPathConflict');
+                            }
+                        }
+                        $this->rootShares->revokeRootUnderLock($uid, $rootId);
                     }
-                }
-                try {
-                    $this->rootShares->revokeRoot($user->getUID(), $rootId);
-                } catch (\Throwable) {
-                    return $this->redirectToSettings(0, 'shareCleanupError');
-                }
+                    $this->rootService->updateRoot($uid, $rootId, $path,
+                        (string)$this->request->getParam('label', ''));
+                    return $this->redirectToSettings();
+                });
+            } catch (\Throwable) {
+                return $this->redirectToSettings(0, 'shareCleanupError');
             }
-            $this->rootService->updateRoot(
-                $user->getUID(),
-                $rootId,
-                $path,
-                (string)$this->request->getParam('label', ''),
-            );
         }
 
         return $this->redirectToSettings();
@@ -86,19 +86,23 @@ final class RootController extends Controller {
     public function toggle(int $rootId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
-            $enabled = (string)$this->request->getParam('enabled', '1') === '1';
-            if (!$enabled) {
-                try {
-                    $this->rootShares->revokeRoot($user->getUID(), $rootId);
-                } catch (\Throwable) {
-                    return $this->redirectToSettings(0, 'shareCleanupError');
-                }
+            $uid = $user->getUID();
+            try {
+                return $this->rootShares->withRootLock($uid, $rootId, function () use ($uid, $rootId): RedirectResponse {
+                    $enabled = (string)$this->request->getParam('enabled', '1') === '1';
+                    if (!$enabled) {
+                        $this->rootShares->revokeRootUnderLock($uid, $rootId);
+                    }
+                    $this->rootService->setRootEnabled($uid, $rootId, $enabled);
+                    $this->securityAudit?->info('library.root.enabled', $uid, $enabled ? 'enable' : 'disable', 'root', 'success', [
+                        'target_id' => $rootId,
+                        'reason' => $enabled ? 'enabled' : 'disabled',
+                    ]);
+                    return $this->redirectToSettings();
+                });
+            } catch (\Throwable) {
+                return $this->redirectToSettings(0, 'shareCleanupError');
             }
-            $this->rootService->setRootEnabled($user->getUID(), $rootId, $enabled);
-            $this->securityAudit?->info('library.root.enabled', $user->getUID(), $enabled ? 'enable' : 'disable', 'root', 'success', [
-                'target_id' => $rootId,
-                'reason' => $enabled ? 'enabled' : 'disabled',
-            ]);
         }
 
         return $this->redirectToSettings();
@@ -109,17 +113,21 @@ final class RootController extends Controller {
         $user = $this->userSession->getUser();
         $confirmDeleteText = trim((string)$this->request->getParam('confirmDeleteText', ''));
         if ($user !== null && $confirmDeleteText === 'DELETE') {
+            $uid = $user->getUID();
             try {
-                $this->rootShares->revokeRoot($user->getUID(), $rootId);
+                return $this->rootShares->withRootLock($uid, $rootId, function () use ($uid, $rootId): RedirectResponse {
+                    $this->rootShares->revokeRootUnderLock($uid, $rootId);
+                    $this->rootService->deleteRoot($uid, $rootId);
+                    $this->folderRules?->deleteRoot($uid, $rootId);
+                    $this->securityAudit?->warning('library.root.delete', $uid, 'delete', 'root', 'success', [
+                        'target_id' => $rootId,
+                        'reason' => 'confirmed_delete',
+                    ]);
+                    return $this->redirectToSettings();
+                });
             } catch (\Throwable) {
                 return $this->redirectToSettings(0, 'shareCleanupError');
             }
-            $this->rootService->deleteRoot($user->getUID(), $rootId);
-            $this->folderRules?->deleteRoot($user->getUID(), $rootId);
-            $this->securityAudit?->warning('library.root.delete', $user->getUID(), 'delete', 'root', 'success', [
-                'target_id' => $rootId,
-                'reason' => 'confirmed_delete',
-            ]);
         } elseif ($user !== null) {
             $this->securityAudit?->warning('library.root.delete', $user->getUID(), 'delete', 'root', 'rejected', [
                 'target_id' => $rootId,

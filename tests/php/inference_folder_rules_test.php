@@ -15,7 +15,7 @@ namespace OCP\Files {
   public function get(string $path): mixed { return $this->children[$path] ?? throw new NotFoundException(); }
  }
 }
-namespace OCA\Library\Service { class RootService { public array $deleted = []; public function deleteRoot(string $uid, int $id): void { $this->deleted[] = [$uid,$id]; } public function listRoots(string $uid): array { return $uid === 'example-user' ? [['id' => 1, 'path' => '/Books']] : []; } } class RootShareService { public function revokeRoot(string $uid, int $id): void {} } }
+namespace OCA\Library\Service { class RootService { public array $deleted = []; public function deleteRoot(string $uid, int $id): void { $this->deleted[] = [$uid,$id]; } public function listRoots(string $uid): array { return $uid === 'example-user' ? [['id' => 1, 'path' => '/Books']] : []; } } class RootShareService { public function withRootLock(string $uid, int $id, callable $operation): mixed { return $operation(); } public function revokeRootUnderLock(string $uid, int $id): void {} } }
 namespace {
  require __DIR__ . '/../../lib/Service/GuidedRuleValidator.php';
  require __DIR__ . '/../../lib/Service/InferenceFolderRuleStore.php';

@@ -84,8 +84,9 @@ final class RootShareService {
         if ($recipient === $owner) {
             throw new \InvalidArgumentException('invalid_recipient');
         }
-        return $this->withGrantLock($owner, $rootId, $recipient,
-            fn (): array => $this->grantLocked($owner, $rootId, $recipient, $expectedRootFileId, $expectedFilesMode));
+        return $this->withRootLock($owner, $rootId,
+            fn (): array => $this->withGrantLock($owner, $rootId, $recipient,
+                fn (): array => $this->grantLocked($owner, $rootId, $recipient, $expectedRootFileId, $expectedFilesMode)));
     }
 
     private function grantLocked(string $owner, int $rootId, string $recipient, int $expectedRootFileId, string $expectedFilesMode): array {
@@ -199,8 +200,9 @@ final class RootShareService {
         if ($grant === null || $grant['owner_user_id'] !== $owner) {
             return false;
         }
-        return $this->withGrantLock($owner, (int)$grant['root_id'], (string)$grant['recipient_user_id'],
-            fn (): bool => $this->revokeLocked($owner, $grantId));
+        return $this->withRootLock($owner, (int)$grant['root_id'],
+            fn (): bool => $this->withGrantLock($owner, (int)$grant['root_id'], (string)$grant['recipient_user_id'],
+                fn (): bool => $this->revokeLocked($owner, $grantId)));
     }
 
     private function revokeLocked(string $owner, int $grantId): bool {
@@ -234,11 +236,20 @@ final class RootShareService {
     }
 
     public function revokeRoot(string $owner, int $rootId): void {
+        $this->withRootLock($owner, $rootId, fn () => $this->revokeRootUnderLock($owner, $rootId));
+    }
+
+    /** Call only from a shelf mutation while the matching root lock is held. */
+    public function revokeRootUnderLock(string $owner, int $rootId): void {
         $result = $this->db->executeQuery('SELECT id FROM *PREFIX*library_root_shares WHERE owner_user_id=? AND root_id=? ORDER BY id', [$owner, $rootId]);
         $ids = array_map('intval', array_column($result->fetchAll(), 'id'));
         $result->closeCursor();
         foreach ($ids as $id) {
-            $this->revoke($owner, $id);
+            $grant = $this->findById($id);
+            if ($grant !== null && $grant['owner_user_id'] === $owner && (int)$grant['root_id'] === $rootId) {
+                $this->withGrantLock($owner, $rootId, (string)$grant['recipient_user_id'],
+                    fn (): bool => $this->revokeLocked($owner, $id));
+            }
         }
     }
 
@@ -434,6 +445,17 @@ final class RootShareService {
 
     private function withGrantLock(string $owner, int $rootId, string $recipient, callable $operation): mixed {
         $key = 'library/root-share/' . hash('sha256', $owner . "\0" . $rootId . "\0" . $recipient);
+        $this->locks->acquireLock($key, ILockingProvider::LOCK_EXCLUSIVE);
+        try {
+            return $operation();
+        } finally {
+            $this->locks->releaseLock($key, ILockingProvider::LOCK_EXCLUSIVE);
+        }
+    }
+
+    /** Serialize the Files grant lifecycle with path, disable and delete changes. */
+    public function withRootLock(string $owner, int $rootId, callable $operation): mixed {
+        $key = 'library/root-share-root/' . hash('sha256', $owner . "\0" . $rootId);
         $this->locks->acquireLock($key, ILockingProvider::LOCK_EXCLUSIVE);
         try {
             return $operation();
