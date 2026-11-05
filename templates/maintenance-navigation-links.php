@@ -15,6 +15,7 @@ $navigationIcon = static function (string $name): void {
     <a href="<?php p($catalogue . '?authors=1'); ?>"><?php $navigationIcon('authors'); ?><span><?php p($l->t('Authors')); ?></span></a>
     <a href="<?php p($catalogue . '?series=1'); ?>"><?php $navigationIcon('series'); ?><span><?php p($l->t('Series')); ?></span></a>
     <a href="<?php p($catalogue . '?genres=1'); ?>"><?php $navigationIcon('genres'); ?><span><?php p($l->t('Genres')); ?></span></a>
+    <a href="<?php p(rtrim($catalogue, '/') . '/shares'); ?>"<?php if ($active === 'shares') print_unescaped(' aria-current="page"'); ?>><?php $navigationIcon('shelves'); ?><span><?php p($l->t('Shared libraries')); ?></span></a>
     <strong><?php p($l->t('Your lists')); ?></strong>
     <a href="<?php p($catalogue . '?lists=1'); ?>"><?php $navigationIcon('lists'); ?><span><?php p($l->t('Lists')); ?></span></a>
     <a class="library-maintenance-create-list" href="<?php p($catalogue . '?lists=1&new=1'); ?>"><?php $navigationIcon('add'); ?><span><?php p($l->t('Create a new list')); ?></span></a>

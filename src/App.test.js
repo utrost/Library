@@ -15,10 +15,11 @@ vi.mock('./personal-lists-api.js', () => ({ listRequest: vi.fn(async () => ({ li
 enableAutoUnmount(afterEach)
 
 // Keep the historical destination order while reading Review links from their
-// current disclosure menu. Series and Genres have their own navigation checks.
+// current disclosure menu. Series, Genres and the new Shared libraries link
+// have separate navigation behavior and are outside the historical set.
 function existingNavigationItems(wrapper) {
   const items = wrapper.findAllComponents(NcAppNavigationItem)
-    .filter(item => !['Series', 'Genres'].includes(item.props('name')))
+    .filter(item => !['Series', 'Genres', 'Shared libraries'].includes(item.props('name')))
   const tools = wrapper.findAll('.library-navigation-tools nav a')
   const badge = wrapper.find('.library-navigation-tools-count')
   const count = badge.exists() ? badge.text() : ''

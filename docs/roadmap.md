@@ -16,9 +16,9 @@ Alpha.28 adds direct destination-author typeahead for merge/reassign, starting a
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The signed alpha.9 fresh and upgrade matrix passed on NC33–35. The alpha.11 populated NC34 deployment is complete; owner acceptance remains.
 
-Status: **0.3.0-rc.3** is the signed, certified privacy replacement prerelease. RC1 and the older public GitHub release archives were withdrawn. The preserved private **0.2.0-beta.3** package remains an upgrade-test baseline.
+Status: **0.3.0** is available in the App Store Stable channel. The preserved private **0.2.0-beta.3** package remains an upgrade-test baseline.
 
-Last updated: 2026-10-24
+Last updated: 2026-11-05
 
 ## Product direction
 
@@ -29,7 +29,7 @@ The release themes below guide sequencing. They are not delivery dates or claims
 | Release | Theme | Target scope | Experimental or optional scope |
 | --- | --- | --- | --- |
 | **0.3** | Reliable personal catalogue | Finish acceptance and release certification for the existing catalogue, editor, author/series/genre organisation, scans, lists and deletion. The reversible **To delete** state for read-only mounts is deployed in alpha.38. | Freeze feature expansion until release gates close. |
-| **0.4** | Enrich and discover | **Improve book details** with optional provider adapters and reviewable evidence; complete Library export/restore; bulk organisation; incoming-books and cleanup inbox with visible change history; useful Home and library-health dashboards. | Citation export after metadata completion is reliable; bounded front-matter/OCR/LLM extraction; a narrow reader progress/resume bridge. |
+| **0.4** | Enrich and share | **Improve book details** with optional provider adapters and reviewable evidence; a first read-only, named-user shared-library slice; complete Library export/restore; bulk organisation; incoming-books and cleanup inbox with visible change history; useful Home and library-health dashboards. | Citation export after metadata completion is reliable; bounded front-matter/OCR/LLM extraction; a narrow reader progress/resume bridge. |
 | **0.5** | Read and remember | Reliable reader progress/resume, reading history, bookmarks/highlights and portable personal activity; reviewed work/edition/file grouping; wishlists/books without files; reading-copy quality checks; reading dashboards based on actual reader events. | Offline/cross-device integration, text-to-speech and a maintained reader fork if upstream integration proves unsuitable. |
 | **0.6** | Explore your knowledge | Article/chapter discovery; optional full-text and semantic discovery, questions grounded in cited passages, reading paths and connections between books, highlights and notes. | Broader synthesis and personal recommendations, subject to corpus coverage, retrieval quality, permissions and resource limits. |
 
@@ -39,7 +39,7 @@ The release themes below guide sequencing. They are not delivery dates or claims
 
 **Foundation before edition grouping:** distinguish work, edition, file and personal activity through a reviewed design and additive migrations. Preserve existing file IDs, relationships and corrections. Progress remains tied to a specific file/version until a verified mapping exists; no automatic cross-edition position conversion or destructive duplicate consolidation.
 
-**Shared/admin-managed libraries:** retained as a separate, unassigned future release. The earlier assignment to 0.4 is superseded. Shared ownership, access revocation and personal versus shared corrections need their own design and multi-user acceptance; sharing is not a prerequisite for reader integration.
+**Read-only sharing:** 0.4 includes the first owner-controlled grant of one Library shelf to a named Nextcloud user, with recipient browsing limited by current Files permissions. Shared corrections, groups, public links and admin-managed roots remain later work. Sharing is not a prerequisite for reader integration.
 
 **Nextcloud integration across releases:** stage book-linked Notes/Text documents, Unified Search, Smart Picker/link previews and a native Nextcloud Dashboard widget in 0.4; connect reader highlights and passage links to notes in 0.5; explore permission-aware links to Collectives and knowledge retrieval in 0.6. These are optional, independently deliverable integration slices, not a requirement to install every companion app. Notes remain user-owned documents with one authoritative copy; Library owns book/note relationships and reading anchors. Existing list notes and file comments retain their current meaning. See the [integration track](post-v0.1-roadmap.md#nextcloud-integration-across-releases).
 
@@ -612,7 +612,7 @@ Immediate slices:
 
 ## Rough post-v0.1 roadmap
 
-The [current post-v0.1 roadmap](post-v0.1-roadmap.md#current-direction--2026-10-20) develops the release themes above: **0.4 Enrich and discover**, **0.5 Read and remember**, and **0.6 Explore your knowledge**. It includes acceptance criteria, provider and AI boundaries, reader integration/fork decisions, portability and edition modelling. Shared/admin-managed libraries have no assigned release. The earlier version allocations are retained there as explicitly superseded historical proposals.
+The [post-v0.1 roadmap](post-v0.1-roadmap.md#current-direction--2026-11-05) develops the release themes above: **0.4 Enrich and share**, **0.5 Read and remember**, and **0.6 Explore your knowledge**. It includes acceptance criteria, provider and AI boundaries, reader integration/fork decisions, portability and edition modelling. The first read-only sharing slice is assigned to 0.4; admin-managed roots remain later work. Earlier version allocations are retained there as historical proposals.
 
 ## Combined missing operational processes, 2026-09-06
 

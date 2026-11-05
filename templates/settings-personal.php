@@ -14,6 +14,11 @@ foreach ($roots as $root) {
 }
 ?>
 <div id="library-settings" class="library-app library-settings" lang="<?php p($_['language'] ?? 'en'); ?>" dir="<?php p($_['direction'] ?? 'ltr'); ?>">
+    <?php if ((string)filter_input(INPUT_GET, 'notice') === 'shareCleanupError'): ?>
+        <p class="library-warning" role="alert"><?php p($l->t('The Files share could not be removed. The shelf was left unchanged. Retry removing access from Shared libraries.')); ?></p>
+    <?php elseif ((string)filter_input(INPUT_GET, 'notice') === 'rootPathConflict'): ?>
+        <p class="library-warning" role="alert"><?php p($l->t('Another Library shelf already uses that folder. No sharing changes were made.')); ?></p>
+    <?php endif; ?>
     <?php if ((string)filter_input(INPUT_GET, 'batchLimitError') === '1'): ?>
         <p class="library-warning library-batch-limit-error"><?php p($l->t('This batch matches more than 5,000 items. Narrow the selection and try again.')); ?></p>
     <?php endif; ?>
@@ -48,6 +53,7 @@ foreach ($roots as $root) {
             <?php p($l->t('Folders and scanning')); ?>
             <span class="library-settings-count-badge"><?php p($l->n('%n shelf', '%n shelves', count($roots))); ?></span>
         </summary>
+        <p><a class="library-text-link" href="<?php p((string)$_['sharedLibrariesUrl']); ?>"><?php p($l->t('Manage shared libraries')); ?></a></p>
         <section class="library-add-shelf-card" aria-label="<?php p($l->t('Add Library shelf')); ?>">
             <h3><?php p($l->t('Add a shelf')); ?></h3>
             <p data-library-help class="library-muted"><?php p($l->t('Point Library at a Nextcloud folder; it becomes a browsable shelf after scanning.')); ?></p>

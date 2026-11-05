@@ -4,8 +4,8 @@
     <id>library</id>
     <name>Library</name>
     <summary>Publication catalogue for files stored in Nextcloud Files</summary>
-    <description><![CDATA[Library adds a publication-specific catalogue, metadata cleanup workflow, search and browsing interface on top of ordinary Nextcloud files. Source files remain canonical in Nextcloud Files; Library stores app-owned indexes, extracted metadata and user edits. Create private reading lists with notes, infer metadata from filenames and paths with preview and reversible approval, review potential duplicates, and schedule incremental scans. It does not contact external metadata services or provide a built-in reader. This release supports Nextcloud 33–35.]]></description>
-    <version>0.3.0</version>
+    <description><![CDATA[Library adds a publication-specific catalogue, metadata cleanup workflow, search and browsing interface on top of ordinary Nextcloud files. Source files remain canonical in Nextcloud Files; Library stores app-owned indexes, extracted metadata and user edits. Create private reading lists with notes, infer metadata from filenames and paths with preview and reversible approval, review potential duplicates, and schedule incremental scans. In this development version, you can explicitly look up book details from Open Library and share a shelf read-only with another Nextcloud user. Library does not provide a built-in reader. This version targets Nextcloud 33–35.]]></description>
+    <version>0.4.0-alpha.1</version>
     <licence>AGPL-3.0-or-later</licence>
     <author>Library contributors</author>
     <namespace>Library</namespace>
@@ -25,6 +25,14 @@
         <database>pgsql</database>
         <nextcloud min-version="33" max-version="35" />
     </dependencies>
+    <repair-steps>
+        <install>
+            <step>OCA\Library\Migration\EnableSharing</step>
+        </install>
+        <uninstall>
+            <step>OCA\Library\Migration\RevokeManagedShares</step>
+        </uninstall>
+    </repair-steps>
     <background-jobs>
         <job>OCA\Library\BackgroundJob\ScheduledScanJob</job>
         <job>OCA\Library\BackgroundJob\MaintenanceJob</job>

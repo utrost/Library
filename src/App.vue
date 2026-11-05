@@ -2282,6 +2282,7 @@ async function toggleStar(item, event) {
           <NcAppNavigationItem :active="isAuthors" :href="`${catalogueRootUrl}?authors=1`" :name="t('library', 'Authors')"><template #icon><NavigationIcon name="authors" /></template></NcAppNavigationItem>
           <NcAppNavigationItem :active="isSeries" :href="`${catalogueRootUrl}?series=1`" :name="t('library', 'Series')"><template #icon><NavigationIcon name="series" /></template></NcAppNavigationItem>
           <NcAppNavigationItem :active="isGenres || !!activeFilters.genreId" :href="`${catalogueRootUrl}?genres=1`" :name="t('library', 'Genres')"><template #icon><NavigationIcon name="genres" /></template></NcAppNavigationItem>
+          <NcAppNavigationItem :href="generateUrl('/apps/library/shares')" :name="t('library', 'Shared libraries')"><template #icon><NavigationIcon name="shelves" /></template></NcAppNavigationItem>
           <li class="library-navigation-group-label"><h2>{{ t('library', 'Your lists') }}</h2></li>
           <NcAppNavigationItem :active="isLists" :href="listsUrl" :name="t('library', 'Lists')"><template #icon><NavigationIcon name="lists" /></template></NcAppNavigationItem>
           <NcAppNavigationItem class="library-navigation-create-list" :href="`${listsUrl}&new=1`" :name="t('library', 'Create a new list')"><template #icon><NavigationIcon name="add" /></template></NcAppNavigationItem>

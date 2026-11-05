@@ -1,5 +1,6 @@
 import { createApp, h, ref } from 'vue'
 import MetadataValuePicker from './components/MetadataValuePicker.vue'
+import ShareRecipientPicker from './components/ShareRecipientPicker.vue'
 
 /** Enhance server-rendered review forms without changing their POST/CSRF contract. */
 export function mountMaintenance() {
@@ -45,5 +46,21 @@ export function mountMaintenance() {
     field.closest('label').hidden = true
     mount.hidden = false
     apply.disabled = !field.value
+  }
+  for (const mount of document.querySelectorAll('[data-library-share-recipient-picker]')) {
+    const form = mount.closest('form')
+    const recipientField = form?.querySelector('input[name="recipient"]')
+    const rootSelect = form?.querySelector('select[name="rootId"]')
+    if (!form || !recipientField || !rootSelect) continue
+    const app = createApp(ShareRecipientPicker, {
+      url: mount.dataset.url, form, recipientField, rootSelect,
+    })
+    app.config.idPrefix = 'library-share-recipient'
+    app.mount(mount)
+    recipientField.value = ''
+    recipientField.required = false
+    recipientField.type = 'hidden'
+    recipientField.closest('label').hidden = true
+    mount.hidden = false
   }
 }

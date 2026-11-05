@@ -1,8 +1,34 @@
 <?xml version="1.0"?>
-<!-- Schema reference for 0.3.0-alpha.30, through Version000300Date20261020120000.
+<!-- Schema reference for the 0.4 development branch, through Version000400Date20261105093000.
      lib/Migration is authoritative for installation and upgrades; see docs/database-schema.md. -->
 <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/database.xsd">
+    <table>
+        <name>*dbprefix*library_lookup_quota</name>
+        <declaration>
+            <field><name>provider</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>next_at_ms</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <index><name>library_lookup_quota_pk</name><primary>true</primary><unique>true</unique><field><name>provider</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_root_shares</name>
+        <declaration>
+            <field><name>id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull><autoincrement>true</autoincrement></field>
+            <field><name>owner_user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>recipient_user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>root_id</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <field><name>root_file_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <field><name>managed_share_id</name><type>string</type><length>64</length><notnull>false</notnull></field>
+            <field><name>recovery_token</name><type>string</type><length>32</length><notnull>false</notnull></field>
+            <field><name>revoked_at</name><type>integer</type><unsigned>true</unsigned><notnull>false</notnull></field>
+            <field><name>created_at</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <index><name>library_root_shares_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>library_root_shares_owner_unique</name><unique>true</unique><field><name>owner_user_id</name></field><field><name>root_id</name></field><field><name>recipient_user_id</name></field></index>
+            <index><name>library_root_shares_recipient</name><field><name>recipient_user_id</name></field><field><name>id</name></field></index>
+            <index><name>library_root_shares_root</name><field><name>owner_user_id</name></field><field><name>root_id</name></field></index>
+        </declaration>
+    </table>
     <table>
         <name>*dbprefix*library_item_facets</name>
         <declaration>

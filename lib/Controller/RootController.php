@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\Library\Controller;
 
 use OCA\Library\Service\RootService;
+use OCA\Library\Service\RootShareService;
 use OCA\Library\Service\InferenceFolderRuleStore;
 use OCA\Library\Service\SecurityAuditLogger;
 use OCP\AppFramework\Controller;
@@ -23,6 +24,7 @@ final class RootController extends Controller {
         private RootService $rootService,
         private IUserSession $userSession,
         private IURLGenerator $urlGenerator,
+        private RootShareService $rootShares,
         ?SecurityAuditLogger $securityAudit = null,
         private ?InferenceFolderRuleStore $folderRules = null,
     ) {
@@ -53,12 +55,28 @@ final class RootController extends Controller {
     public function update(int $rootId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
-            $this->rootService->updateRoot(
-                $user->getUID(),
-                $rootId,
-                (string)$this->request->getParam('path', '/'),
-                (string)$this->request->getParam('label', ''),
-            );
+            $uid = $user->getUID();
+            try {
+                return $this->rootShares->withRootLock($uid, $rootId, function () use ($uid, $rootId): RedirectResponse {
+                    $path = (string)$this->request->getParam('path', '/');
+                    $current = $this->rootService->findRoot($uid, $rootId);
+                    $trimmed = trim($path);
+                    $normalized = $trimmed === '' ? '/' : '/' . trim($trimmed, '/');
+                    if ($current !== null && $current['path'] !== $normalized) {
+                        foreach ($this->rootService->listRoots($uid) as $otherRoot) {
+                            if ((int)$otherRoot['id'] !== $rootId && $otherRoot['path'] === $normalized) {
+                                return $this->redirectToSettings(0, 'rootPathConflict');
+                            }
+                        }
+                        $this->rootShares->revokeRootUnderLock($uid, $rootId);
+                    }
+                    $this->rootService->updateRoot($uid, $rootId, $path,
+                        (string)$this->request->getParam('label', ''));
+                    return $this->redirectToSettings();
+                });
+            } catch (\Throwable) {
+                return $this->redirectToSettings(0, 'shareCleanupError');
+            }
         }
 
         return $this->redirectToSettings();
@@ -68,12 +86,23 @@ final class RootController extends Controller {
     public function toggle(int $rootId): RedirectResponse {
         $user = $this->userSession->getUser();
         if ($user !== null) {
-            $enabled = (string)$this->request->getParam('enabled', '1') === '1';
-            $this->rootService->setRootEnabled($user->getUID(), $rootId, $enabled);
-            $this->securityAudit?->info('library.root.enabled', $user->getUID(), $enabled ? 'enable' : 'disable', 'root', 'success', [
-                'target_id' => $rootId,
-                'reason' => $enabled ? 'enabled' : 'disabled',
-            ]);
+            $uid = $user->getUID();
+            try {
+                return $this->rootShares->withRootLock($uid, $rootId, function () use ($uid, $rootId): RedirectResponse {
+                    $enabled = (string)$this->request->getParam('enabled', '1') === '1';
+                    if (!$enabled) {
+                        $this->rootShares->revokeRootUnderLock($uid, $rootId);
+                    }
+                    $this->rootService->setRootEnabled($uid, $rootId, $enabled);
+                    $this->securityAudit?->info('library.root.enabled', $uid, $enabled ? 'enable' : 'disable', 'root', 'success', [
+                        'target_id' => $rootId,
+                        'reason' => $enabled ? 'enabled' : 'disabled',
+                    ]);
+                    return $this->redirectToSettings();
+                });
+            } catch (\Throwable) {
+                return $this->redirectToSettings(0, 'shareCleanupError');
+            }
         }
 
         return $this->redirectToSettings();
@@ -84,12 +113,21 @@ final class RootController extends Controller {
         $user = $this->userSession->getUser();
         $confirmDeleteText = trim((string)$this->request->getParam('confirmDeleteText', ''));
         if ($user !== null && $confirmDeleteText === 'DELETE') {
-            $this->rootService->deleteRoot($user->getUID(), $rootId);
-            $this->folderRules?->deleteRoot($user->getUID(), $rootId);
-            $this->securityAudit?->warning('library.root.delete', $user->getUID(), 'delete', 'root', 'success', [
-                'target_id' => $rootId,
-                'reason' => 'confirmed_delete',
-            ]);
+            $uid = $user->getUID();
+            try {
+                return $this->rootShares->withRootLock($uid, $rootId, function () use ($uid, $rootId): RedirectResponse {
+                    $this->rootShares->revokeRootUnderLock($uid, $rootId);
+                    $this->rootService->deleteRoot($uid, $rootId);
+                    $this->folderRules?->deleteRoot($uid, $rootId);
+                    $this->securityAudit?->warning('library.root.delete', $uid, 'delete', 'root', 'success', [
+                        'target_id' => $rootId,
+                        'reason' => 'confirmed_delete',
+                    ]);
+                    return $this->redirectToSettings();
+                });
+            } catch (\Throwable) {
+                return $this->redirectToSettings(0, 'shareCleanupError');
+            }
         } elseif ($user !== null) {
             $this->securityAudit?->warning('library.root.delete', $user->getUID(), 'delete', 'root', 'rejected', [
                 'target_id' => $rootId,
@@ -100,11 +138,12 @@ final class RootController extends Controller {
         return $this->redirectToSettings();
     }
 
-    private function redirectToSettings(int $savedRootId = 0): RedirectResponse {
+    private function redirectToSettings(int $savedRootId = 0, string $notice = ''): RedirectResponse {
         $url = $this->urlGenerator->getAbsoluteURL('/settings/user/library');
-        if ($savedRootId > 0) {
-            $url .= '?rootSaved=' . $savedRootId;
-        }
+        $params = [];
+        if ($savedRootId > 0) $params['rootSaved'] = $savedRootId;
+        if ($notice !== '') $params['notice'] = $notice;
+        if ($params !== []) $url .= '?' . http_build_query($params);
         return new RedirectResponse($url);
     }
 }

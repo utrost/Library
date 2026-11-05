@@ -45,9 +45,11 @@ def test_representative_app_surfaces_delegate_authorization_to_user_scoped_servi
     matrix = {
         "roots": [
             "saveRoot(\n                    $user->getUID()",
-            "updateRoot(\n                $user->getUID()",
-            "setRootEnabled($user->getUID(), $rootId, $enabled)",
-            "deleteRoot($user->getUID(), $rootId)",
+            "$uid = $user->getUID()",
+            "withRootLock($uid, $rootId",
+            "updateRoot($uid, $rootId, $path",
+            "setRootEnabled($uid, $rootId, $enabled)",
+            "deleteRoot($uid, $rootId)",
         ],
         "collections": [
             "saveCollection(\n                $user->getUID()",
