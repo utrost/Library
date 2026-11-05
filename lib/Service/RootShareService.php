@@ -139,7 +139,8 @@ final class RootShareService {
         try {
             $this->db->executeStatement('INSERT INTO *PREFIX*library_root_shares '
                 . '(owner_user_id,recipient_user_id,root_id,root_file_id,managed_share_id,revoked_at,created_at) '
-                . 'VALUES (?,?,?,?,?,?,?)', [$owner, $recipient, $rootId, $rootFileId, $managedShare?->getId(), null, time()]);
+                . 'VALUES (?,?,?,?,?,?,?)', [$owner, $recipient, $rootId, $rootFileId,
+                    $managedShare === null ? null : $this->managedShareId($managedShare->getId()), null, time()]);
         } catch (\Throwable $e) {
             if ($managedShare !== null) {
                 try {
@@ -172,7 +173,7 @@ final class RootShareService {
         $managedId = (string)($grant['managed_share_id'] ?? '');
         if ($managedId !== '') {
             try {
-                $share = $this->shares->getShareById($managedId);
+                $share = $this->shares->getShareById($this->managedShareId($managedId));
                 if ($share->getShareType() !== IShare::TYPE_USER || $share->getShareOwner() !== $owner
                     || $share->getSharedBy() !== $owner || $share->getSharedWith() !== $grant['recipient_user_id']
                     || $share->getNodeId() !== (int)$grant['root_file_id']) {
@@ -351,6 +352,11 @@ final class RootShareService {
             }
         }
         return $nodes;
+    }
+
+    /** Nextcloud's manager routes internal user shares by provider-prefixed ID. */
+    private function managedShareId(string $id): string {
+        return str_contains($id, ':') ? $id : 'ocinternal:' . $id;
     }
 
     /** @param array<string, mixed> $grant */
