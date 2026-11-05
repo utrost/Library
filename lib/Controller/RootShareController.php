@@ -67,7 +67,7 @@ final class RootShareController extends Controller {
         } catch (\InvalidArgumentException $error) {
             return $this->redirect($this->grantErrorCode($error->getMessage()));
         } catch (\Throwable $error) {
-            $this->logger->error('Could not review Library access', ['exception' => $error]);
+            $this->logger->error('Could not review Library access', ['exception_class' => get_class($error)]);
             return $this->redirect('share_failed');
         }
     }
@@ -97,7 +97,7 @@ final class RootShareController extends Controller {
             $this->audit->warning('library.root_share.grant', $uid, 'grant', 'root_share', 'rejected', ['reason' => $error->getMessage()]);
             return $this->redirect($this->grantErrorCode($error->getMessage()));
         } catch (\Throwable $error) {
-            $this->logger->error('Could not grant Library access', ['exception' => $error]);
+            $this->logger->error('Could not grant Library access', ['exception_class' => get_class($error)]);
             if ($error instanceof \RuntimeException && $error->getMessage() === 'file_share_cleanup_pending') {
                 $this->audit->warning('library.root_share.grant', $uid, 'grant', 'root_share', 'partial', ['reason' => 'file_share_cleanup_pending']);
                 return $this->redirect('files_share_cleanup_pending');
@@ -115,7 +115,7 @@ final class RootShareController extends Controller {
             $this->audit->info('library.root_share.revoke', $uid, 'revoke', 'root_share', $revoked ? 'success' : 'not_authorized', ['target_id' => $grantId]);
             return $this->redirect($revoked ? 'revoked' : 'share_not_found');
         } catch (\Throwable $error) {
-            $this->logger->error('Library share revocation needs cleanup', ['exception' => $error]);
+            $this->logger->error('Library share revocation needs cleanup', ['exception_class' => get_class($error)]);
             $this->audit->warning('library.root_share.revoke', $uid, 'revoke', 'root_share', 'partial', ['target_id' => $grantId, 'reason' => 'file_share_cleanup_pending']);
             return $this->redirect('cleanup_pending');
         }
