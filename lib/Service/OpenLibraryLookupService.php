@@ -191,6 +191,9 @@ final class OpenLibraryLookupService {
                 'allow_redirects' => false,
                 'headers' => ['Accept' => 'application/json', 'User-Agent' => 'Nextcloud-Library/0.4 (+https://github.com/utrost/Library)'],
             ]);
+            if ($response->getStatusCode() === 429) {
+                throw new \RuntimeException('rate_limited');
+            }
             if ($response->getStatusCode() !== 200) {
                 throw new \RuntimeException('provider_unavailable');
             }
@@ -203,6 +206,11 @@ final class OpenLibraryLookupService {
                 throw new \RuntimeException('provider_unavailable');
             }
             return $data;
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'rate_limited') {
+                throw $e;
+            }
+            throw new \RuntimeException('provider_unavailable', 0, $e);
         } catch (\Throwable $e) {
             throw new \RuntimeException('provider_unavailable', 0, $e);
         }

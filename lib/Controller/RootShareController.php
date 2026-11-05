@@ -129,8 +129,7 @@ final class RootShareController extends Controller {
         if ($grant === null) {
             return $this->notFound();
         }
-        $cursor = $this->request->getParam('after', '0');
-        $cursor = is_string($cursor) && preg_match('/^[0-9]{1,10}$/D', $cursor) ? (int)$cursor : 0;
+        $cursor = $this->cursor();
         $requestedSearch = $this->request->getParam('search', '');
         $search = is_string($requestedSearch) ? trim($requestedSearch) : '';
         $searchError = !is_string($requestedSearch) || mb_strlen($search) > 100 || ($search !== '' && mb_strlen($search) < 3);
@@ -142,7 +141,8 @@ final class RootShareController extends Controller {
         unset($book);
         return $this->page([
             'view' => 'shelf', 'grantId' => $grantId,
-            'search' => $searchError ? '' : $search,
+            'search' => mb_substr($search, 0, 100),
+            'after' => $cursor,
             'searchError' => $searchError,
             'ownerName' => (string)$grant['owner_user_id'],
             'rootLabel' => trim((string)($grant['label'] ?? '')) ?: 'Shared shelf',
@@ -159,8 +159,11 @@ final class RootShareController extends Controller {
         if ($book === null || $file === null) {
             return $this->notFound();
         }
+        $search = $this->request->getParam('search', '');
+        $search = is_string($search) && mb_strlen($search) <= 100 && ($search === '' || mb_strlen($search) >= 3) ? $search : '';
         return $this->page([
             'view' => 'book', 'grantId' => $grantId, 'book' => $book,
+            'backUrl' => $this->shelfUrl($grantId, $this->cursor(), $search),
             'coverUrl' => $this->urls->linkToRoute('library.root_share.cover', ['grantId' => $grantId, 'itemId' => $itemId]),
             'openUrl' => $this->files->getOpenUrl((int)$file->getId()),
         ]);
@@ -219,6 +222,19 @@ final class RootShareController extends Controller {
             throw new \InvalidArgumentException('invalid_id');
         }
         return (int)$value;
+    }
+
+    private function cursor(): int {
+        $value = $this->request->getParam('after', '0');
+        return is_string($value) && preg_match('/^[0-9]{1,10}$/D', $value) && (int)$value <= 2147483647 ? (int)$value : 0;
+    }
+
+    private function shelfUrl(int $grantId, int $after, string $search): string {
+        $url = $this->urls->linkToRoute('library.root_share.show', ['grantId' => $grantId]);
+        $query = [];
+        if ($after > 0) $query['after'] = $after;
+        if ($search !== '') $query['search'] = $search;
+        return $query === [] ? $url : $url . '?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
     }
 
     private function grantErrorCode(string $message): string {

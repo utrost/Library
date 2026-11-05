@@ -29,7 +29,7 @@ $messages = [
     <?php include __DIR__ . '/maintenance-navigation.php'; ?>
     <main class="library-maintenance-main">
         <div class="library-app library-shared-page">
-    <a class="library-shared-back" href="<?php p($view === 'index' ? (string)$_['catalogueUrl'] : ($view === 'book' ? $indexUrl . '/' . $grantId : $indexUrl)); ?>">← <?php p($view === 'index' ? $l->t('Library') : $l->t('Shared libraries')); ?></a>
+    <a class="library-shared-back" href="<?php p($view === 'index' ? (string)$_['catalogueUrl'] : ($view === 'book' ? (string)($_['backUrl'] ?? $indexUrl . '/' . $grantId) : $indexUrl)); ?>">← <?php p($view === 'index' ? $l->t('Library') : ($view === 'book' ? $l->t('Shared books') : $l->t('Shared libraries'))); ?></a>
 
     <?php if ($view === 'index'): ?>
         <h1><?php p($l->t('Shared libraries')); ?></h1>
@@ -96,11 +96,11 @@ $messages = [
         <h1><bdi dir="auto"><?php p($displayShelf((string)$_['rootLabel'])); ?></bdi></h1>
         <p class="library-muted"><?php p($l->t('Shared read-only by')); ?> <bdi dir="auto"><?php p((string)$_['ownerName']); ?></bdi></p>
         <section class="library-panel" aria-label="<?php p($l->t('Shared books')); ?>">
-            <form method="get" action="<?php p($indexUrl . '/' . $grantId); ?>" class="library-shared-form"><label><?php p($l->t('Search titles and authors')); ?><input type="search" name="search" value="<?php p((string)($_['search'] ?? '')); ?>" minlength="3" maxlength="100" placeholder="<?php p($l->t('Enter at least three letters')); ?>"></label><button class="button secondary" type="submit"><?php p($l->t('Search')); ?></button></form>
+            <form method="get" action="<?php p($indexUrl . '/' . $grantId); ?>" class="library-shared-form"><label><?php p($l->t('Search titles and authors')); ?><input type="search" name="search" value="<?php p((string)($_['search'] ?? '')); ?>" minlength="3" maxlength="100" placeholder="<?php p($l->t('Enter at least three letters')); ?>"></label><button class="button secondary" type="submit"><?php p($l->t('Search')); ?></button><?php if (!empty($_['search'])): ?><a class="button secondary" href="<?php p($indexUrl . '/' . $grantId); ?>"><?php p($l->t('Clear search')); ?></a><?php endif; ?></form>
             <?php if (!empty($_['searchError'])): ?><p role="alert"><?php p($l->t('Enter at least three letters to search shared books.')); ?></p><?php elseif (empty($_['books'])): ?><p><?php p($l->t('No readable indexed books on this page.')); ?></p><?php endif; ?>
             <ul class="library-shared-list">
-                <?php foreach (($_['books'] ?? []) as $book): ?>
-                    <li class="library-shared-book-row"><a href="<?php p($indexUrl . '/' . $grantId . '/books/' . (int)$book['id']); ?>"><img src="<?php p((string)$book['coverUrl']); ?>" alt="" loading="lazy" width="60" height="90"><span><strong><bdi dir="auto"><?php p((string)$book['title']); ?></bdi></strong><small class="library-muted"><bdi dir="auto"><?php p((string)$book['creators']); ?></bdi><?php if (!empty($book['format'])): ?> · <?php p((string)$book['format']); ?><?php endif; ?></small></span></a></li>
+                <?php foreach (($_['books'] ?? []) as $book): $bookQuery = http_build_query(['after' => (int)($_['after'] ?? 0), 'search' => (string)($_['search'] ?? '')], '', '&', PHP_QUERY_RFC3986); ?>
+                    <li class="library-shared-book-row"><a href="<?php p($indexUrl . '/' . $grantId . '/books/' . (int)$book['id'] . '?' . $bookQuery); ?>"><img src="<?php p((string)$book['coverUrl']); ?>" alt="" loading="lazy" width="60" height="90"><span><strong><bdi dir="auto"><?php p((string)$book['title']); ?></bdi></strong><small class="library-muted"><bdi dir="auto"><?php p((string)$book['creators']); ?></bdi><?php if (!empty($book['format'])): ?> · <?php p((string)$book['format']); ?><?php endif; ?></small></span></a></li>
                 <?php endforeach; ?>
             </ul>
             <?php if (!empty($_['nextCursor'])): ?><p><a class="button secondary" href="<?php p($indexUrl . '/' . $grantId . '?after=' . (int)$_['nextCursor'] . '&search=' . rawurlencode((string)($_['search'] ?? ''))); ?>"><?php p($l->t('Next books')); ?></a></p><?php endif; ?>
