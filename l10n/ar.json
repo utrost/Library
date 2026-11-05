@@ -1559,7 +1559,6 @@
         "Search by": "البحث باستخدام",
         "Search titles and authors": "البحث في العناوين والمؤلفين",
         "Selected edition": "الطبعة المحددة",
-        "Share a Library shelf read-only with one Nextcloud user. This also creates a read-only Files share when needed. Only indexed books in that shelf appear.": "شارك رفًا من المكتبة للقراءة فقط مع مستخدم واحد في Nextcloud. ستُنشأ مشاركة ملفات للقراءة فقط عند الحاجة. ستظهر الكتب المفهرسة في ذلك الرف فقط.",
         "Share one of my shelves": "مشاركة أحد رفوفي",
         "Share read-only": "مشاركة للقراءة فقط",
         "Shared books": "كتب مشتركة",
@@ -1605,7 +1604,8 @@
         "Files access": "الوصول إلى الملفات",
         "Create a read-only Files share for this shelf. The recipient may need to accept it.": "ستُنشأ مشاركة ملفات للقراءة فقط لهذا الرف. قد يحتاج المستلِم إلى قبولها.",
         "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.": "سيُستخدم وصول المستلِم الحالي للملفات للقراءة فقط. لن تزيل المكتبة مشاركة الملفات هذه لاحقًا.",
-        "Only indexed books in this shelf and their publication details will appear. Personal reading details and lists remain private.": "ستظهر الكتب المفهرسة في هذا الرف وبيانات نشرها فقط. تبقى تفاصيل القراءة الشخصية والقوائم خاصة."
+        "Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.": "شارك رفًا من المكتبة للقراءة فقط مع مستخدم واحد في Nextcloud. عند الحاجة، ستُنشأ مشاركة ملفات للقراءة فقط تشمل المجلد بالكامل، بما في ذلك الملفات التي لم تفهرسها المكتبة.",
+        "Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.": "تعرض Library الكتب المفهرسة وبيانات نشرها فقط. تتيح مشاركة الملفات للمستلِم أيضًا الوصول إلى كل ملف ومجلد فرعي في هذا الرف، بما في ذلك الملفات غير المفهرسة. تبقى تفاصيل القراءة الشخصية والقوائم خاصة."
     },
     "pluralForm": "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 }

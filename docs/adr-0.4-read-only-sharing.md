@@ -8,6 +8,8 @@ One owner grants one enabled, non-root Library shelf to one existing local Nextc
 
 Before creating access, the owner reviews the exact recipient, shelf and whether Library will create a Files share or reuse existing read-only Files access. Confirmation rechecks the root file ID and Files-access mode. If the recipient does not already have a readable mount, Library requests one Nextcloud user share with read permission only and records its share ID. Existing Files shares remain owned by whoever created them. Library never deletes such an existing share. It refuses a grant when the same folder is already writable to the recipient. Recipient views fail closed if the folder or an individual book becomes writable, inaccessible or changes identity.
 
+A Files folder share exposes the entire selected folder through Nextcloud Files, including subfolders and files Library has not indexed. The owner review must say this explicitly. Library's recipient catalogue is narrower: it lists only indexed publication records that pass per-file access checks.
+
 The source shelf may contain subfolders. Only indexed, unmarked books assigned to that root are candidates. Every row is resolved from its cached relative path within the recipient-visible root and compared with the indexed file ID before display, cover preview or Open handoff. This keeps stale catalogue paths from becoming authority to read a replacement file. The owner path and file ID are internal; they are not sent in recipient book projections.
 
 ## Permission and lifecycle matrix

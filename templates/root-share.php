@@ -45,7 +45,7 @@ $messages = [
         </section>
         <section class="library-panel" aria-labelledby="library-sharing-heading">
             <h2 id="library-sharing-heading"><?php p($l->t('Share one of my shelves')); ?></h2>
-            <p class="library-muted"><?php p($l->t('Share a Library shelf read-only with one Nextcloud user. This also creates a read-only Files share when needed. Only indexed books in that shelf appear.')); ?></p>
+            <p class="library-muted"><?php p($l->t('Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.')); ?></p>
             <?php if (empty($_['roots'])): ?><p><?php p($l->t('Add and enable a shelf in Library settings before sharing.')); ?></p><?php else: ?>
                 <form method="post" action="<?php p((string)$_['previewUrl']); ?>" class="library-shared-form">
                     <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
@@ -79,7 +79,7 @@ $messages = [
                     ? $l->t('Create a read-only Files share for this shelf. The recipient may need to accept it.')
                     : $l->t('Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.')); ?></dd>
             </dl>
-            <p class="library-muted"><?php p($l->t('Only indexed books in this shelf and their publication details will appear. Personal reading details and lists remain private.')); ?></p>
+            <p class="library-muted"><?php p($l->t('Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.')); ?></p>
             <form method="post" action="<?php p((string)$_['grantUrl']); ?>" class="library-shared-form">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
                 <input type="hidden" name="rootId" value="<?php p((string)$grant['rootId']); ?>">

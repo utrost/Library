@@ -1471,7 +1471,6 @@
         "Search by": "Suchen nach",
         "Search titles and authors": "Titel und Autoren durchsuchen",
         "Selected edition": "Ausgewählte Ausgabe",
-        "Share a Library shelf read-only with one Nextcloud user. This also creates a read-only Files share when needed. Only indexed books in that shelf appear.": "Teilen Sie ein Bibliotheksregal schreibgeschützt mit einer Person in Nextcloud. Bei Bedarf wird dafür eine schreibgeschützte Dateifreigabe erstellt. Angezeigt werden nur indizierte Bücher dieses Regals.",
         "Share one of my shelves": "Eines meiner Regale teilen",
         "Share read-only": "Schreibgeschützt teilen",
         "Shared books": "Geteilte Bücher",
@@ -1509,7 +1508,8 @@
         "Files access": "Dateizugriff",
         "Create a read-only Files share for this shelf. The recipient may need to accept it.": "Für dieses Regal wird eine schreibgeschützte Dateifreigabe erstellt. Die empfangende Person muss sie möglicherweise annehmen.",
         "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.": "Der vorhandene schreibgeschützte Dateizugriff wird verwendet. Library entfernt diese Dateifreigabe später nicht.",
-        "Only indexed books in this shelf and their publication details will appear. Personal reading details and lists remain private.": "Nur indizierte Bücher dieses Regals und ihre Publikationsdaten werden angezeigt. Persönliche Lesedaten und Listen bleiben privat."
+        "Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.": "Teilen Sie ein Bibliotheksregal schreibgeschützt mit einer Person in Nextcloud. Bei Bedarf wird der gesamte Ordner als schreibgeschützte Dateifreigabe geteilt, einschließlich der Dateien, die Library nicht indiziert hat.",
+        "Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.": "Library zeigt nur indizierte Bücher und ihre Publikationsdaten. Über die Dateifreigabe kann die empfangende Person jedoch auf alle Dateien und Unterordner dieses Regals zugreifen, auch auf nicht indizierte Dateien. Persönliche Lesedaten und Listen bleiben privat."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
