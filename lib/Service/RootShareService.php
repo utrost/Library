@@ -229,7 +229,19 @@ final class RootShareService {
                 } catch (\Throwable $cleanupError) {
                     throw new \RuntimeException('file_share_cleanup_pending', 0, $cleanupError);
                 }
-                throw new \RuntimeException('file_share_cleanup_pending', 0, $e);
+                try {
+                    $cleared = $this->db->executeStatement('DELETE FROM *PREFIX*library_root_shares '
+                        . 'WHERE id=? AND owner_user_id=? AND recovery_token=? AND revoked_at IS NOT NULL',
+                        [(int)$created['id'], $owner, $recoveryToken]);
+                    if ($cleared !== 1) {
+                        throw new \RuntimeException('reservation_changed');
+                    }
+                } catch (\Throwable $reservationError) {
+                    // Keep the hidden row so the owner can retry an uncertain
+                    // cleanup. A changed reservation is never reported as clean.
+                    throw new \RuntimeException('file_share_cleanup_pending', 0, $reservationError);
+                }
+                throw new \RuntimeException('grant_failed', 0, $e);
             }
             $created = $this->findOwnedGrant($owner, $rootId, $recipient);
             if ($created === null || $created['revoked_at'] !== null) {

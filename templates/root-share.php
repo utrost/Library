@@ -91,6 +91,7 @@ $messages = [
                     : $l->t('Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.')); ?></dd>
             </dl>
             <p class="library-muted"><?php p($l->t('Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.')); ?></p>
+            <?php if ($grant['filesMode'] === 'create'): ?><p class="library-muted"><?php p($l->t('Before disabling or uninstalling Library, remove this access here or remove the Files share in Nextcloud Files. Disabling Library does not remove the Files share.')); ?></p><?php endif; ?>
             <form method="post" action="<?php p((string)$_['grantUrl']); ?>" class="library-shared-form">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
                 <input type="hidden" name="rootId" value="<?php p((string)$grant['rootId']); ?>">

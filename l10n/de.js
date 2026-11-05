@@ -1438,6 +1438,7 @@ OC.L10N.register(
         "Add and enable a shelf in Library settings before sharing.": "Fügen Sie vor dem Teilen in den Bibliothekseinstellungen ein Regal hinzu und aktivieren Sie es.",
         "Waiting for the recipient to accept the Files share": "Warten darauf, dass die empfangende Person die Dateifreigabe annimmt",
         "Accept the Files share to browse this shelf.": "Nehmen Sie die Dateifreigabe an, um dieses Regal zu durchsuchen.",
+        "Before disabling or uninstalling Library, remove this access here or remove the Files share in Nextcloud Files. Disabling Library does not remove the Files share.": "Entfernen Sie vor dem Deaktivieren oder Deinstallieren von Library diesen Zugriff hier oder die Dateifreigabe in Nextcloud Dateien. Das Deaktivieren von Library entfernt die Dateifreigabe nicht.",
         "Files access changed. Review the share in Nextcloud Files.": "Der Dateizugriff hat sich geändert. Prüfen Sie die Freigabe in Nextcloud Dateien.",
         "Browse books that another Nextcloud user has shared with you. Your own reading lists and book details are separate.": "Durchsuchen Sie Bücher, die eine andere Person in Nextcloud mit Ihnen geteilt hat. Ihre eigenen Leselisten und Buchdaten bleiben getrennt.",
         "Choose an existing, enabled Nextcloud user.": "Wählen Sie eine vorhandene, aktive Person in Nextcloud aus.",
