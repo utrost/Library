@@ -82,6 +82,10 @@ final class OpenLibraryLookupService {
                 if (is_array($publisher)) {
                     $publisher = $publisher[0] ?? '';
                 }
+                $published = $edition['publish_date'] ?? $work['first_publish_year'] ?? '';
+                if (is_array($published)) {
+                    $published = $published[0] ?? '';
+                }
                 $candidateTitle = $edition['title'] ?? $work['title'] ?? '';
                 if (!is_string($candidateTitle) || trim($candidateTitle) === '') {
                     continue;
@@ -90,7 +94,7 @@ final class OpenLibraryLookupService {
                     'editionId' => $id,
                     'title' => mb_substr($candidateTitle, 0, 300),
                     'authors' => array_slice(array_values(array_filter(is_array($work['author_name'] ?? null) ? $work['author_name'] : [], 'is_string')), 0, 5),
-                    'year' => mb_substr(is_scalar($edition['publish_date'] ?? $work['first_publish_year'] ?? null) ? (string)($edition['publish_date'] ?? $work['first_publish_year']) : '', 0, 80),
+                    'year' => mb_substr(is_scalar($published) ? (string)$published : '', 0, 80),
                     'publisher' => mb_substr(is_string($publisher) ? $publisher : '', 0, 200),
                     'isbn' => array_slice($editionIsbns, 0, 4),
                     'languages' => array_slice(array_values(array_filter(is_array($edition['language'] ?? null) ? $edition['language'] : [], 'is_string')), 0, 4),

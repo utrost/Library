@@ -15,7 +15,7 @@ namespace OCP\Files {
   public function get(string $path): mixed { return $this->children[$path] ?? throw new NotFoundException(); }
  }
 }
-namespace OCA\Library\Service { class RootService { public array $deleted = []; public function deleteRoot(string $uid, int $id): void { $this->deleted[] = [$uid,$id]; } public function listRoots(string $uid): array { return $uid === 'example-user' ? [['id' => 1, 'path' => '/Books']] : []; } } }
+namespace OCA\Library\Service { class RootService { public array $deleted = []; public function deleteRoot(string $uid, int $id): void { $this->deleted[] = [$uid,$id]; } public function listRoots(string $uid): array { return $uid === 'example-user' ? [['id' => 1, 'path' => '/Books']] : []; } } class RootShareService { public function revokeRoot(string $uid, int $id): void {} } }
 namespace {
  require __DIR__ . '/../../lib/Service/GuidedRuleValidator.php';
  require __DIR__ . '/../../lib/Service/InferenceFolderRuleStore.php';
@@ -76,7 +76,7 @@ namespace {
  $store->deleteRoot('example-user',2);check(count($store->all('example-user'))===100,'other root cleanup isolated');
  $rootService=new \OCA\Library\Service\RootService();
  $urls=new class implements \OCP\IURLGenerator { public function getAbsoluteURL($path): string { return $path; } };
- $rootController=new \OCA\Library\Controller\RootController('library',$request,$rootService,$session,$urls,null,$store);
+ $rootController=new \OCA\Library\Controller\RootController('library',$request,$rootService,$session,$urls,new \OCA\Library\Service\RootShareService(),null,$store);
  $rootController->delete(1);check(count($store->all('example-user'))===100,'unconfirmed root deletion retains assignments');
  $request->params=['confirmDeleteText'=>'DELETE'];$rootController->delete(1);
  check($rootService->deleted===[['example-user',1]] && count($store->all('example-user'))===0,'confirmed root deletion removes assignments');
